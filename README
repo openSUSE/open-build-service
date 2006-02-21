@@ -1,0 +1,16 @@
+#
+# The openSUSE Build Service enviroment
+#
+
+This subversion repository contains the code for the openSUSE build service.
+All files are under the GPL v2 license.
+Further documentation for the build service can be found here:
+
+  http://www.opensuse.org/Build_Service
+
+The running build service web interface can be accessed here:
+
+  http://build.opensuse.org/
+
+Your openSUSE Build Service Team
+
