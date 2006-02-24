@@ -1,0 +1,100 @@
+<h2>Package <%= @package %> (Project <%= @project %>)</h2>
+
+<b>Title:</b> <%= @package.title %><br/>
+<b>Description:</b><br/>
+<%= @package.description %><br/>
+
+<br/>
+<%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :name => @package %>
+<%= link_to "[Remove Package]", :action => :remove, :project => @project, :name => @package %>
+
+<h3>Files</h3>
+<% if @package.has_element? :file %>
+<table>
+  <% @package.each_file do |file| %>
+  <tr>
+    <td><%= file.filename %></br/></td>
+    <td>
+      <% if file.filename == @package.to_s + ".spec" %>
+      <%=   link_to ("[Edit]", :action => :edit_spec, :project => @project,
+        :package => @package ) %>
+      <% end %>
+    </td>
+    <td><%= link_to "[Download]", file_url( @project, @package, file.filename ) %></td>
+  </tr>
+  <% end %>
+</table>
+<% end %>
+
+<p>
+<%= link_to "[Add File]", :action => :add_file, :project => @project, :name => @package %>
+</p>
+
+<p>
+<h3>Involved Users</h3>
+<% if @package.has_element? :person %>
+<table border=1>
+  <tr>
+    <th>Userid</th>
+    <th>Role</th>
+    <%- if @package.each_person.length > 1 %>
+    <th>Action</th>
+    <%- end %>
+  </tr>
+  <% @package.each_person do |person| %>
+  <tr>
+    <td><%= person.userid %></td>
+    <td><%= person.role %></td>
+    
+    <%- if @package.each_person.length > 1 %>
+    <td>
+      <%= link_to "[Remove User]", :action => :remove_person, :name => params[:name], 
+      :project => params[:project], :userid => person.userid, :role => person.role %>
+    </td>
+    <%- end %>
+    
+  </tr>
+  <% end %>
+</table>
+<% else %>
+<b>No one in this project</b>
+<% end %>
+</p><p>
+<%= link_to "[Add User]", :action => :add_person, :name => params[:name] %>
+</p>
+
+<% unless @results.empty? %>
+<h3>Build Status</h3>
+<table border=1>
+  <% @results.each do |result| %>
+  <tr>
+    <td colspan="2"><b><%= result.repository %></b></td>
+    <td/>
+  </tr>
+  <% result.each_archresult do |ar| %>
+  <tr>
+    <td align="right"><%= ar.arch %></td>
+    <td><%= ar.status.code %></td>
+    <% if ar.status.has_element? :summary %>
+      <td><%= ar.status.summary %></td>
+    <% end %>
+    <td align="right"><%= link_to "[View Build Log]", build_log_url( @project,
+      @package, result.repository, ar.arch ) %></td>
+    <td align="right"><%= link_to "[Live Build Log]", :action => :live_build_log,
+      :name => params[:name], :project => params[:project], :arch => ar.arch, :repository => result.repository %></td>
+  </tr>
+  <% ar.each_rpm do |rpm| %>
+  <tr>
+    <td/>
+      <td><%= link_to rpm.filename, rpm_url( @project, @package,
+      result.repository, ar.arch, rpm.filename ) %></td>
+  </tr>
+  <% end %>
+  <% end %>
+  <% end %>
+</table>
+<% end %>
+
+<p>
+<%= link_to "Back to Project '#{@project}'", :controller => 'project', :action => :show, :name => @project %>
+</p>

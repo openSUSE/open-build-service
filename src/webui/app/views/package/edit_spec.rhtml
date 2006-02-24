@@ -1,0 +1,9 @@
+<h2>Editing SPEC file for package <%= @package %> (Project <%= @project %>)</h2>
+
+<%= form_tag :action => :save_spec, "class" => "specedit" %>
+  <p><%= text_area_tag( "specfile", @specfile, :cols => "80",
+  :rows => "40" ) %></p>
+  <p><%= submit_tag %></p>
+  <%= hidden_field_tag( "project", @project ) %>
+  <%= hidden_field_tag( "package", @package ) %>
+<%= end_form_tag %>

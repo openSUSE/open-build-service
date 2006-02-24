@@ -1,0 +1,257 @@
+/* Old style */
+
+input[type=text] {
+  width: 65%
+}
+
+textarea {
+  width: 65%
+}
+
+#banner {
+  background: #fff;
+  color: #000;
+  text-align: center;
+  padding: 0px;
+  height: 78px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-right: 2px solid;
+  padding: 8px;
+  font-size: 3em;
+  font-weight: bold;
+}
+
+#logo {
+  float: left;
+}
+
+#side {
+  background: #6EB927;
+  width: 12em;
+/*  height: 100em; */
+  border-left: 2px solid;
+  border-right: 2px solid;
+  float: right;
+}
+
+#notice {
+  margin: 3px;
+  color: #f22;
+}
+
+#error {
+  margin: 3px;
+  color: #f22;
+}
+
+#main {
+  border-top: 2px solid black;
+}
+
+#externallinks {
+  border-bottom: 2px solid;
+  padding: 1em;
+}
+
+#staticlinks {
+  border-bottom: 2px solid;
+  padding: 1em;
+}
+
+#dynamiclinks {
+  border-bottom: 2px solid;
+  padding: 1em;
+}
+
+#loginlinks {
+  border-bottom: 2px solid;
+  padding: 1em;
+}
+
+/* Adaptions of old style to new style */
+
+#side {
+  background-color: #fff;
+  border-left: 0px;
+  border-right: 0px
+}
+
+#content {
+  background-color: #fff;
+  margin-right: 13em;
+  padding: 1em;
+  
+}
+
+#loginlinks {
+  border-bottom: 0px;
+  padding: 1em;
+}
+
+/* New style */
+
+body {
+    background-color: #828282;
+    padding: 0;
+    margin: 0 24px;
+    font-size: small;
+    font-family: segoe, myriad, trebuchet ms, sans-serif;
+}
+a:link,
+.inlets li a strong {
+    color: #2570a5;
+}
+a:visited,
+.inlets li a:visited strong {
+    color: #8977a8;
+}
+a:active {
+}
+a:hover,
+.inlets li a:hover strong {
+    color: #f17912;
+}
+a img {
+    border: 0;
+}
+
+input {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+#header {
+    padding: 8px 128px 8px 24px;
+    border-top: 16px solid #f17912;
+    background: #fff url(/images/accent.png) no-repeat top right;
+    overflow: auto;
+    position: relative;
+    }
+    #logo {
+        float: left;
+        font-size: small;
+    }
+    #login {
+        font-size: 90%;
+        position: relative;
+        float: right;
+        overflow: auto;
+        background-color: #ffd;
+        padding: 8px 12px;
+        }
+        #login input {
+            clear: both;
+        }
+        #login input[type="text"],
+        #login input[type="password"] {
+            border: 1px solid #dd0;
+            margin-bottom: 4px;
+        }
+        #newuser {
+            position: absolute;
+            right: 8px;
+            padding: 3px 6px;
+        }
+    
+#body {
+    padding: 24px;
+
+/*  
+    Commented out because it makes the rendering very slow.
+    background: #fff url(/images/bg-gradient.png) repeat-x;
+*/
+    background-color: #eee;
+    }
+    .explain {
+        color: #777;
+        margin-bottom: 24px;
+        font-size: 125%;
+    }
+    .split-contain {
+        overflow: auto;
+        margin: 0 -1%;
+    }
+    .split-third {
+        float: left;
+        width: 27%;
+        margin: 0 1%;
+        background-color: #fff;
+        padding: 2%;
+    }
+    .split-third h2 {
+        font-size: 150%;
+        margin: 0;
+        font-weight: normal;
+        color: #6eb927;
+    }
+    .inlets {
+        }
+        .inlets ul, .inlets li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .inlets ul {
+            margin: 0.5em 0;
+        }
+        .inlets li a {
+            display: block;
+            color: #999;
+            text-decoration: none;
+            font-size: smaller;
+            padding: 0.5em 0 0.5em 1em;
+            }
+            .inlets li a strong {
+                font-weight: normal;
+                display: block;
+                font-size: larger;
+            }
+            .inlets li a span.hide {
+                display: none;
+            }
+
+.viewmore {
+    color: #aaa;
+    }
+    .viewmore a {
+        padding: 0.25em 0.5em;
+        text-decoration: none;
+    }
+
+.right {
+    float: right;
+}
+
+#footer {
+    font-size: xx-small;
+    color: #aaa;
+    margin: 2em 5% 0;
+    text-align: center;
+    clear: both;
+}
+#footer a {
+    color: #aaa;
+    font-weight: bold;
+}
+#footer a:hover {
+    color: #f17912;
+}
+.button {
+    border: 1px solid #f17912;
+    background-color: #fbd9bb;
+    color: #a14a00;
+}
+.button:hover {
+    color: #000;
+}
+
+/* Round the corners */
+.inlets .split-third,
+#login, #side, #content {
+    -moz-border-radius: 5%;
+}
+
+#content {
+    -moz-border-radius: 1%;
+}

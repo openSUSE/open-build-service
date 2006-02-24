@@ -1,0 +1,12 @@
+<h2>New Project</h2>
+
+<%= form_tag %>
+<b>Name:</b><br/>
+<%= text_field_tag 'name', '', :size => 80 %><br/>
+<b>Title:</b><br/>
+<%= text_field_tag 'title', '', :size => 80 %><br/>
+<b>Description:</b><br/>
+<%= text_area_tag 'description', '', :cols => 80,
+  :rows => 10 %>
+<p><%= submit_tag %></p>
+<%= end_form_tag %>

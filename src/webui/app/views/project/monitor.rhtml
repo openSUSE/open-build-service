@@ -1,0 +1,50 @@
+<h2>Project <%= @project %> Status Monitor</h2>
+
+<p>
+<% if @result -%>
+<b>Build Status:</b> <%= @projectresult.status %><br/>
+<% end -%>
+<b>Targets:</b>
+  
+<table border="1">
+  <!-- repo row -->
+  <tr>
+    <td></td>
+    <% @repolist.each do |repo| -%>
+    <% logger.debug "repo: #{repo.inspect}" -%>
+    <td colspan="<%= repo.each_archresult.length %>"><%= repo.name %></td>
+    <% end -%>
+  </tr>
+  <!-- arch row -->
+  <tr>
+    <td></td>
+    <% @repolist.each do |repo| -%>
+    <% repo.each_archresult do |ar| -%>
+    <td><%= ar.arch %></td>
+    <% end -%>
+    <% end -%>
+  </tr>
+  <!-- package rows -->
+  <% @packresults.each do |pack_name,repohash| -%>
+  <tr>
+    <td><%= link_to pack_name, :controller => "package", :action => "show",
+      :name => pack_name, :project => @project.to_s %></td>
+    <% @repolist.each do |repo| -%>
+    <% repohash[repo.name].each_archresult do |ar| -%>
+    <td id="<%= status_id_for(pack_name, repo.name, ar.arch)%>"><%= ar.status.code %></td>
+    <% end -%>
+    <% end -%>
+  </tr>
+  <% end -%>
+</table>
+<p><div id="refresh_date">Updated at: <%= DateTime.now %></div></p>
+
+<div id="start_link">
+<%= link_to_remote( "[Start Refreshing]",
+        :url => {:action => :refresh_monitor, :name => params[:name]},
+        :after => "new Effect.Fade('start_link')",
+        :complete => evaluate_remote_response )%>
+</div>
+</p>
+
+<%= link_to "[Back to #{@project}]", :action => :show, :name => @project %>

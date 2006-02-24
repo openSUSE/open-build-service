@@ -1,0 +1,15 @@
+<% @status.each do |id, st| -%>
+
+if( $("<%= id %>").innerHTML != "<%= st %>" ) {
+  <%= update_element_function id, :content => st -%>
+  new Effect.Highlight("<%= id %>")
+}
+    
+<% end -%>
+
+<%= update_element_function "refresh_date", :content => "Updated at: #{DateTime.now}" -%>
+
+<%= remote_function(
+        :url => {:action => :refresh_monitor, :name => @name},
+        :complete => evaluate_remote_response )
+%>

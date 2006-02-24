@@ -1,0 +1,9 @@
+<h2>Editing role <%= @role.title %></h2>
+
+<%= start_form_tag :action => 'update', :id => @role %>
+  <%= render_partial 'form' %>
+  <%= submit_tag 'Apply Changes' %>
+<%= end_form_tag %>
+
+<%= link_to 'Show', :action => 'show', :id => @role %> |
+<%= link_to 'Back', :action => 'list' %>

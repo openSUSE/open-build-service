@@ -1,0 +1,19 @@
+<p>
+<%= link_to "openSUSE API Documentation", { :controller => "apidocs" } %>
+</p>
+
+<% if current_user.has_permission( "Permission_Admin" ) %>
+<p>
+  <%= link_to "Admin Interface", { :controller => "admin" } %>
+</p>
+<% end %>
+
+<p>
+<% if current_user.login == "Anonymous" %>
+  <%= link_to "Create Account", { :controller => "register" } %>
+<% else %>
+  <%= link_to "User Management", { :controller => "arbac/user", :action => "list" } %>
+<% end %>
+</p>
+
+<p><a href="http://build.opensuse.org">Go back to openSUSE Build Service web client</a></p>

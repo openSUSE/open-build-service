@@ -1,0 +1,56 @@
+--- !omap
+- gods_role:
+    id:         1
+    parent_id:  NULL
+    title:      Gods
+    created_at: 2005-08-02 14:52:12
+    updated_at: 2005-08-02 14:52:12
+
+- major_gods_role:
+    id:         2
+    parent_id:  1
+    title:      Major Gods
+    created_at: 2005-08-02 14:52:12
+    updated_at: 2005-08-02 14:52:12
+
+- greek_heroes_role:
+    id:         3
+    parent_id:  NULL
+    title:      "Greek Heroes"
+    created_at: 2005-08-02 14:52:12
+    updated_at: 2005-08-02 14:52:12
+
+- greek_men_role:
+    id:         4
+    parent_id:  NULL
+    title:      Greek Men
+    created_at: 2005-08-02 14:52:12
+    updated_at: 2005-08-02 14:52:12
+
+- greek_kings_role:
+    id:         5
+    parent_id:  4
+    title:      Greek Kings
+    created_at: 2005-08-02 14:52:12
+    updated_at: 2005-08-02 14:52:12
+
+- god_of_death_role:
+    id:         6
+    parent_id:  NULL
+    title:      God Of Death
+    created_at: 2005-08-02 14:52:12
+    updated_at: 2005-08-02 14:52:12
+
+- greeks_role:
+    id:         7
+    parent_id:  NULL
+    title:      Greeks
+    created_at: 2005-08-02 14:52:12
+    updated_at: 2005-08-02 14:52:12
+
+- greek_warriors_role:
+    id:         8
+    parent_id:  7
+    title:      Greek Warriors
+    created_at: 2005-08-02 14:52:12
+    updated_at: 2005-08-02 14:52:12

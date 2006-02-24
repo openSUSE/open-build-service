@@ -1,0 +1,75 @@
+<h2>User &quot;<%=h @user.login %>&quot;, <%=h @user.realname %>&nbsp;&lt;<%=h @user.email %>&gt;</h2>
+
+
+<table>
+<tr>
+  <td>ID</td><td><%= @user.id %></td>
+</tr>
+<tr>
+  <td>Realname</td><td><%= @user.realname %></td>
+</tr>
+<tr>
+  <td>Email</td><td><%= @user.email %></td>
+</tr>
+<tr>
+  <td>Created at</td><td><%= @user.created_at.to_formatted_s(:long) %></td>
+</tr>
+<tr>
+  <td>Updated at</td><td><%= @user.updated_at.to_formatted_s(:long) %></td>
+</tr>
+<tr>
+  <td>Last Login</td><td><%= @user.last_logged_in_at.to_formatted_s(:long) %></td>
+</tr>
+<tr>
+  <td>Password Hash Type</td><td><%= @user.password_hash_type %></td>
+</tr>
+<tr>
+  <td>State</td><td><%= User.states.invert[@user.state] %></td>
+</tr>
+</table>
+
+
+<h3>Directly Assigned Roles</h3>
+
+<% if @user.roles.empty? %>
+<p>No Roles</p>
+<% else %>
+<%= node_tree(@user.roles) { |r| link_to( r.title, { :controller => 'role', :action => 'show', :id => r.id })} %>
+<% end %>
+
+<h3>Directly Assigned Groups</h3>
+
+<% if @user.groups.empty? %>
+<p>No Groups</p>
+<% else %>
+<%= node_tree(@user.groups) { |g| link_to( g.title, { :controller => 'group', :action => 'show', :id => g.id })} %>
+<% end %>
+
+<h3>All Assigned Roles</h3>
+
+<!-- TODO Somehow mark which role comes from which source -->
+
+<p>
+Some or all of the following roles might come from role inheritance or they
+might be assigned to groups that are assigned to this user.
+</p>
+
+<% if @user.all_roles.empty? %>
+<p>No Roles</p>
+<% else %>
+<%= node_tree(@user.all_roles) { |r| link_to( r.title, { :controller => 'role', :action => 'show', :id => r.id })} %>
+<% end %>
+
+<h3>All Assigned Groups</h3>
+
+<!-- TODO Somehow mark which group comes from which source -->
+
+<% if @user.all_groups.empty? %>
+<p>No Groups</p>
+<% else %>
+<%= node_tree(@user.all_groups) { |g| link_to( g.title, { :controller => 'group', :action => 'show', :id => g.id })} %>
+<% end %>
+
+
+<%= link_to 'Edit', :action => 'edit', :id => @user %>
+<%= link_to 'Back', :action => 'list' %>

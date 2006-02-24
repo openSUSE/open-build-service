@@ -1,0 +1,9 @@
+<h2>All Projects</h2>
+
+<ul>
+<% for project in @projects %>
+<li><%= link_to project, :action => :show, :name => project %></li>
+<% end %>
+</ul>
+
+<p><%= link_to '[Create New Project]', :action => :new %></p>

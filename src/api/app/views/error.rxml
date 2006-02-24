@@ -1,0 +1,16 @@
+xml.instruct!
+xml.error do
+  xml.code( @errorcode )
+  xml.summary( @summary )
+  if( @exception )
+    xml.exception do
+      xml.type( @exception.class.name )
+      xml.message( @exception.message )
+      xml.backtrace do
+        @exception.backtrace.each do |line|
+          xml.line( line )
+        end
+      end
+    end
+  end
+end

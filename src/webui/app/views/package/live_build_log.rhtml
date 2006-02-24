@@ -1,0 +1,33 @@
+<script language="javascript">
+function start_autoscroll() {
+  window.scrollBy( 0,50 );
+  scrolldelay = setTimeout( 'start_autoscroll()',100 );
+}
+
+function stop_autoscroll() {
+  clearTimeout( scrolldelay );
+}
+</script>
+<h2>Build Log for Package <%=@package%> (Project <%=@project%>)</h2>
+<b>Repository:</b> <%=@repo%><br/>
+<b>Architecture:</b> <%=@arch%>
+<p>
+<a href="javascript:start_autoscroll()">[Start Autoscroll]</a>
+</p>
+<div id="start_link">
+<%= link_to_remote( "[Start Refreshing]",
+        :url => {:action => :update_build_log, :name => @package, :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
+        :after => "new Effect.Fade('start_link')",
+        :complete => evaluate_remote_response )%>
+</div>
+<p>
+<b>Status:</b> <span id="status">Live Log not started</span>
+</p>
+<p>
+<pre style="border: 1px solid black" id="log_space">
+<%= @log_chunk %>
+</pre>
+</p>
+<p>
+<a href="javascript:stop_autoscroll()">[Stop Autoscroll]</a>
+</p>

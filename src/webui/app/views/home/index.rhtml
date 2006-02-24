@@ -1,0 +1,33 @@
+<h2>Home of <%= session[:login] %></h2>
+<p>
+<b>Username:</b> <%= @user.login %><br/>
+<b>Real Name: </b> <%= @user.realname %><br/>
+</p>
+<p>
+<b>Backend Configuration:</b>
+</p>
+<p>
+<b>Source Backend: </b><br/>
+<% if @user.has_element? :source_backend and not @user.source_backend.host.to_s.empty? -%>
+<ul>
+  <li>Host: <%= @user.source_backend.host %></li>
+  <li>Port: <%= @user.source_backend.port %></li>
+</ul>
+<% else -%>
+Standard source backend
+<% end -%>
+</p>
+
+<p>
+<b>RPM Backend: </b><br/>
+<% if @user.has_element? :rpm_backend -%>
+<ul>
+  <li>Host: <%= @user.rpm_backend.host %></li>
+  <li>Port: <%= @user.rpm_backend.port %></li>
+</ul>
+<% else -%>
+Standard RPM backend
+<% end -%>
+</p>
+
+<p><%= link_to "Edit User Data", :controller => "user", :action => "edit" %></p>

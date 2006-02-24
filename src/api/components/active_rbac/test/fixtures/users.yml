@@ -1,0 +1,199 @@
+# Test for assigning a role through role inheritance and group inheritance:
+#
+# Role: Greek -> Role: Warrior -> Group: Greek Warriors ->
+#     Group: Troy's Besieger -> Agamemnon
+--- !omap
+- agamemnon_user:
+    id:                   1
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Agamemnon
+    email:                agamemnon@olymp
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                2
+
+# Test for assigning a group through group inheritance:
+#
+# Group: Greek -> Group: Crete -> Ariadne
+- ariadne_user:
+    id:                   2
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Ariadne
+    email:                ariadne@crete
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                2
+
+# Test for states: Daidalos has his state set to "locked"
+- daidalos_user:
+    id:                   3
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  10
+    login:                Daidalos
+    email:                daidalos@crete
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                3
+
+# Test for expired user_registration field and state "unconfirmed".
+- dionysus_user:
+    id:                   4
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Dionysus
+    email:                dionysus@olymp
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                1
+
+# Test for assigning a role through a group hierarchy:
+#
+# Role: God Of Death -> Group God -> Group -> Gods not in Olymp -> User: Hades
+- hades_user:
+    id:                   5
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Hades
+    email:                hades@hades
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                1
+
+# Hephaestus is a test for the state "unconfirmed", but his user_registration
+# has not expired yet.
+- hephaestus_user:
+    id:                   6
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Hephaestus
+    email:                hephaestus@olymp
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                1
+
+# Test for simple role assignment:
+#
+# Role: God -> User: Hermes
+- hermes_user:
+    id:                   7
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Hermes
+    email:                hermes@olymp
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                2
+
+# Test for group assignment: No groups assigned to icarus.
+- icarus_user:
+    id:                   8
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Icarus
+    email:                icarus@crete
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                2
+
+# Test for state: Medusa has the state set to deleted.
+- medusa_user:
+    id:                   9
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Medusa
+    email:                medusa@monsters
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                4
+
+# Test for assigning a role through role inheritance and over a simple
+# group assignment:
+#
+# Role: Greek Man -> Role: Greek King -> Group: Kings -> User: Minos
+- minos_user:
+    id:                   10
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Minos
+    email:                minos@crete
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                2
+
+# Simple group assignment
+- odysseus_user:
+    id:                   11
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Odysseus
+    email:                odysseus@illiads
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                2
+
+# Simple role assignment through a simple group assignment:
+#
+# Role: Hero -> Group: Greek Heroes -> User: Perseus
+- perseus_user:
+    id:                   12
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Perseus
+    email:                perseus@seriphos
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                2
+
+# Role assignment through role inheritance to a user:
+#
+# Role: God -> Role: Major Gods -> User: Zeus
+- zeus_user:
+    id:                   13
+    created_at:           2005-08-03 10:52:26
+    updated_at:           2005-08-03 10:52:26
+    last_logged_in_at:    2005-08-03 10:52:26
+    login_failure_count:  0
+    login:                Zeus
+    email:                zeus@olymp
+    password:             bf5d921d2f18ee3077683d6e3d407afb
+    password_hash_type:   md5
+    password_salt:        0123456789
+    state:                2

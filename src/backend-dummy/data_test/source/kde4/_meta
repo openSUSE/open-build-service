@@ -1,0 +1,21 @@
+<project name='kde4'>
+	<title>KDE 4</title>
+	<description>Description</description>
+	<person role='maintainer' userid='fred'/>
+	<package name='kdelibs' revision='1'/>
+	<package name='kdebase' revision='1'/>
+  <repository name="kde4:factory">
+    <path project="kde4" repository="factory"/>
+    <arch>i386</arch>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="suselinux-9.3">
+    <path project="suselinux-9.3" repository="standard"/>
+    <arch>i386</arch>
+  </repository>
+  <repository name="gnomespecial">
+    <path project="gnome3" repository="suselinux-9.3"/>
+    <path project="suselinux-9.3" repository="standard"/>
+    <arch>i386</arch>
+  </repository>
+</project>

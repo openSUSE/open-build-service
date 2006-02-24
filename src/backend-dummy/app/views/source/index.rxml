@@ -1,0 +1,5 @@
+xml.directory do
+  @entries.each do |entry|
+    xml.entry( :name => entry )
+  end
+end

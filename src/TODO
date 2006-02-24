@@ -1,0 +1,102 @@
+openSUSE Build Service Todo List
+================================
+
++: High priority
+o: Medium priority
+-: Low priority
+
+Web Client
+----------
+
++ Tests (tom)
++ Hide "new project" action for non-admin users
++ Don't show links to RPMs, if there are no RPMs built yet
++ Properly show build results (abauer)
++ Visual design (garrett)
++ Switch to migrations for database updates
++ Reenable platform editing
+o Split packages in project display page to multiple pages
+o Show projects of user and his role in the projects on user's hp
+o Move user management for project/package/platform to partial (or component?)
+o Editing project targets list
+o Merge add_package and edit_package?
+o Show build status per target
+o Prevent new project names with spaces
+o Handle error when backend can't be reached.
+o Show titles in platform/projects lists.
+o Show global news
+o Show project news
+- Editor spec file
+- Edit persons for platforms
+
+Command Line Client
+-------------------
+
++ checkin, checkout (cwh)
++ show build status (cwh)
+o local build
+
+Frontend
+--------
+
++ Tests (tom)
++ Check permissions (freitag)
++ Adapt result handling to backend (cschum)
++ Tool to check API against specification (cschum)
++ Prevent project, package and platform names containing spaces, slashes or
+  colons
++ Escaping of paths
++ Caching of backend data (freitag)
+  + Query for projects per user
++ Fix error which makes frontend hang
++ Write useful logs
+  + apache-logs for every access (including user) (abauer)
++ Make sure that the API version is only defined at one place.
++ Store additional information for platforms
++ Get file list from directory listing
+o Notification system
+o Get permissions for a given user
+o RSS feed for project news (newly built packages)
+o Global RSS feed for all project news
+- Load balancing for rpm downloads
+- Admin interface for rpm load balancing
+- New user invitation system
+
+Dummy Backend
+-------------
+
+
+Schemas
+-------
+
+o Make types more specific (e.g. dates)
+o Add documentation for attributes
+o Add lists of possible values for build result error codes
+o Add lists of possible values for build result status codes
+
+
+Big Features
+------------
+
++ Building additional packages for existing platforms
+o Transfer changes and packages between projects
+o Trust system
+o Platform creation
+o Link sources
+o Add patches to linked sources
+
+
+Deployment
+----------
+
++ Make sure that the revision number in the about page reflects the global
+  revision of the web app.
+
+
+Production Servers
+------------------
+
++ move database to storage.opensuse.org
++ setup logrotate for server and debug logs
++ setup cronjob to remove session files
+o different session storage? (database or memcached)

@@ -1,0 +1,27 @@
+*SVN*
+
+*0.2.1*
+
+* Fixing documentation error (#81)
+* Fixing documentation of the ImportCmsSchema migration (#67)
+
+*0.2*
+
+* Adding "salt" to the user table and passwords are salted now.
+* Changing fixtures to use "--- !omap" instead of "--- !!omap" which seems to make them workw ith 0.14.2 RoR.
+* Fixing a bug related to custom "parent=" methods in Role and Group.
+* Making active_rbac compatible to RoR 0.14.2 (1.0RC3)
+* Adding ComponentController that solves the "configuration vanishes after reload" issue and makes configuration handling more consistent.
+* Merged the GET/POST differentiation of RegistrationController and LoginController. The actions available are now: login, logout for LoginController and register, lostpassword and confirm for RegistrationController.
+* Using Unicode explicitely in the creation SQL scripts for MySQL now.
+* We are using transactional fixtures now.
+* Renamed UserTest in user_registration_test.rb to UserRegistrationTest.rb. "rake test_components" works now properly.
+* Adding HOWTO: How To Allow User Login With Other States
+* Developers can now override User.state_allows_login?(state) to implement their own login logic.
+* Adding HOWTO: How To Change The State Workflow
+* Adding HOWTO: How To Add Fields To The Registration Form
+* Adding HOWTO file
+* Adding support for additional fields to the configuration class.
+* Moving constant User::STATES.states to the method User.states
+
+*0.1*

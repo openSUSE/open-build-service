@@ -1,0 +1,24 @@
+<h1>OpenSUSE Frontend Error:</h1>
+
+<p>
+<% case @code -%>
+<% when "401" -%>
+<h2>Unauthorized Access</h2>
+You need to log in to perform the operation.<br />
+Please contact the OpenSUSE admin to get an account.
+<% when "403" -%>
+<h2>Permission denied</h2>
+The account that is logged into the system lacks proper permissions to perform
+the operation.<br />
+Please contact the OpenSUSE admin to get proper permissions for the user account.
+<% when "404" -%>
+<h2>Target not found</h2>
+A non existing page was requested. Please try again!<br />
+Please contact the OpenSUSE admin to get proper permissions for the user account.
+<% else -%>
+<h2>Server Error</h2>
+<%= @error_message %>
+<br>
+Please contact the OpenSUSE admin.
+<% end -%>
+</p>

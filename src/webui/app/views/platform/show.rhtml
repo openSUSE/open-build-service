@@ -1,0 +1,35 @@
+<h2>Platform <%= @platform %> (Project <%= @project %>)</h2>
+
+<b>Title:</b>
+<% if @platform.has_element? :title %>
+  <%= @platform.title %>
+<% end %>
+<br/>
+<b>Description:</b><br/>
+<% if @platform.has_element? :description %>
+  <%= @platform.description %>
+<% end %>
+<br/>
+<b>Persons:</b><br/>
+<% if @platform.has_element? :person %>
+  <table>
+  <% @platform.each_person do |person| %>
+    <tr><td><%= person.userid %></td><td><%= person.role %></td></tr>
+  <% end %>
+  </table>
+<% end %>
+<p>
+<b>Architectures:</b><br/>
+<% if @platform.has_element? :arch %>
+  <table>
+  <% @platform.each_arch do |arch| %>
+    <tr><td><%= arch %></td></tr>
+  <% end %>
+  </table>  
+<% end %>
+
+<!--
+<%= link_to "[Edit Platform Information]", :action => 'edit',
+  :name => @platform, :project => @project %>
+-->
+</p>

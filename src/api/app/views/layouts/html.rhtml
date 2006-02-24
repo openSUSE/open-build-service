@@ -1,0 +1,36 @@
+<html>
+<head>
+  <title>openSUSE Build Service Frontend</title>
+  <%= stylesheet_link_tag "opensuse", :media => "all" %>
+</head>
+<body>
+<div id="banner">
+  <div id="innerbanner">
+    <div id="logo"><img src="/images/opensuse.gif"/></div>
+    <div id="title">Frontend</div>
+  </div>
+</div>
+
+  <div id="main">
+    <% if flash[:note] %>
+    <div id="notice"><%= flash[:note] %></div>
+    <% end %>
+    <% if flash[:error] %>
+    <div id="error"><%= flash[:error] %></div>
+    <% end %>
+    <%= @content_for_layout %>
+  </div>
+  <div id="bottom">
+    <a href="http://build.opensuse.org">Build Service Web Client</a> |
+    <%= link_to "Frontend Startpage", :controller => "main",
+      :action => "index" %> |
+    <a href="http://www.opensuse.org">openSUSE Home</a>
+    <br/>
+    Logged in as <%= current_user.login %>
+    <% if current_user.login == "Anonymous" %>
+      <%= link_to "Login", :controller => "login", :action => "login" %>
+    <% else %>
+      <%= link_to "Logout", :controller => "login", :action => "logout" %>
+    <% end %>
+    
+    </div>

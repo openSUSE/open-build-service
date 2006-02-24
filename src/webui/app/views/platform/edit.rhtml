@@ -1,0 +1,11 @@
+<h2>Editing Platform <%= @platform %> (Project <%= @platform.project %>)</h2>
+
+<%= form_tag :action => :save %>
+  <b>Title:</b></br>
+  <%= text_field_tag 'title', @platform.title, :size => 80 %><br/>
+  <b>Description:</b><br/>
+  <%= text_area_tag "description", @platform.description, :cols => 80, :rows => 20 %><br/>
+  <p><%= submit_tag %></p>
+  <%= hidden_field_tag "platform", @platform.name %>
+  <%= hidden_field_tag "project", @platform.project %>
+<%= end_form_tag %>

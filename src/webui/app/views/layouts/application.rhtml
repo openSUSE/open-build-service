@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>openSUSE Build Service</title>
+  <%= stylesheet_link_tag "opensuse", :media => "all" %>
+  <%= javascript_include_tag 'prototype', 'effects' %>
+</head>
+<body>
+<div id="header">
+  <h1 id="logo"><a href="/"><img src="/images/logo-buildservice.png"
+    alt="openSUSE build service"></a></h1>
+</div>
+<div id="body">
+  <div id="side">
+    <div id="externallinks">
+      <a href="http://www.opensuse.org">openSUSE Home</a>
+    </div>
+    <div id="staticlinks">
+      <%= link_to "Build Service Home", :controller => "main",
+        :action => :index %><br/>
+      <%= link_to "All Platforms", :controller => "platform",
+        :action => :list_all %><br/>
+      <%= link_to "All Projects", :controller => "project",
+        :action => :list_all %><br/>
+      <%= link_to "About", :controller => "main", :action => :about %><br/>
+    </div>
+    <div id="dynamiclinks">
+      <% if logged_in? %>
+        <%= link_to "My Home", :controller => "home" %><br/>
+      <% end %>
+      <% if logged_in? %>
+        <%= link_to "My Projects", :controller => "project",
+          :action => :list_my %><br/>
+      <% end %>
+      <%= link_to_if @project, @project, :controller => "project",
+        :action => :show,
+        :name => @project %>
+    </div>
+    <div id="loginlinks">
+      <% if logged_in? %>
+        Logged in as <%= @session[:login] %>
+
+      <% else %>
+        <%= link_to "Create Account", :controller => "user", :action => "newaccount" %>
+      <% end %>
+    </div>
+  </div>
+  <div id="content">
+    <% if flash[:note] %>
+    <div id="notice"><%= flash[:note] %></div>
+    <% end %>
+    <% if flash[:error] %>
+    <div id="error"><%= flash[:error] %></div>
+    <% end %>
+    <%= @content_for_layout %>
+  </div>
+
+  <div id="footer">
+      
+      
+      openSUSE and SUSE are trademarks of Novell, Inc. in the United States 
+      and other countries.<br>
+
+      <a href="http://en.opensuse.org/Legal">Legal Information</a> |
+      <a href="mailto:webmaster@opensuse.org">Feedback</a>
+  </div>
+</div>
+</body>
+</html>

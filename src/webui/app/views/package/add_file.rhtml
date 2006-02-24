@@ -1,0 +1,13 @@
+<h2>Add File (Project <%=@project.name%>, Package <%=@package.name%>)</h2>
+
+<%= form_tag({:action => :save_file}, {:multipart => true})%>
+<b>Filename (leave empty to take from upload):</b><br/>
+<%= text_field_tag 'filename', '', :size => 80 %><br/>
+<b>Filetype:</b><br/>
+<%= select_tag 'filetype', options_for_select(%w{source patch}) %><br/>
+<b>Local File:</b><br/>
+<%= file_field_tag 'file', :size => 70 %><br/>
+<%= hidden_field_tag 'project', @project %>
+<%= hidden_field_tag 'package', @package %>
+<p><%= submit_tag %></p>
+<%= end_form_tag %>

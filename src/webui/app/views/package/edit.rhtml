@@ -1,0 +1,12 @@
+<h2>Editing Package <%= @package %> (Project <%= @project %>)</h2>
+
+<%= form_tag :action => :save %>
+  <b>Title:</b><br/>
+  <%= text_field_tag( "title", @package.title, :size => 80 ) %><br/>
+  <b>Description:</b><br/>
+  <%= text_area_tag( "description", @package.description, :cols => "80",
+  :rows => "20" ) %><br/>
+  <p><%= submit_tag %></p>
+  <%= hidden_field_tag( "project", @project.name ) %>
+  <%= hidden_field_tag( "name", @package.name ) %>
+<%= end_form_tag %>

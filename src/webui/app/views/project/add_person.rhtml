@@ -1,0 +1,10 @@
+<h2>Add User (Project <%=@project.name%>)</h2>
+
+<%= form_tag :action => :save_person %>
+<b>User ID:</b><br/>
+<%= text_field_tag 'userid', params[:userid] %><br/>
+<b>Role:</b><br/>
+<%= select_tag 'role', options_for_select(%w{maintainer}, params[:role]) %>
+<%= hidden_field_tag 'name', @project %>
+<p><%= submit_tag %></p>
+<%= end_form_tag %>

@@ -1,0 +1,14 @@
+<h2>Add Target (Project <%=@project.name%>)</h2>
+
+<%= form_tag :action => :save_target %>
+<b>Name:</b><br/>
+<%= text_field_tag 'targetname', '' %><br/>
+<b>Platform:</b><br/>
+<%= select_tag 'platform', options_for_select(@platforms) %><br/>
+<b>Architectures:</b><br/>
+<% [:i586, :x86_64].each do |arch| %>
+<%= check_box_tag "arch[#{arch}]", "", arch == :i586 %><%=arch%><br>
+<% end %>
+<%= hidden_field_tag 'name', @project %>
+<p><%= submit_tag %></p>
+<%= end_form_tag %>

@@ -1,0 +1,124 @@
+<h2 id="mainhead">Project <%= @project %></h2>
+<% if @user -%>
+<div id="watchlink">
+  <%= render :partial => "watch_link" %>
+</div>
+<% end -%>
+
+<% logger.debug "--> starting to render project information" -%>
+<p>
+<b>Title:</b> <%= @project.title %><br/>
+<b>Description:</b><br/>
+<%= @project.description %><br/>
+<%= link_to "[Edit Project Information]", :action => 'edit', :name => @project %>
+<%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild', :name=> @project %>
+</p>
+<% logger.debug "<-- finished rendering project information" -%>
+
+<p>
+<b>Targets:</b>&nbsp;&nbsp;<%= link_to "[Add Target]", :action => 'add_target',
+  :name => @project %>
+  
+<% if @project.has_element? :repository -%>
+<table border="1">
+  <% @project.each_repository do |repository| -%>
+    <tr>
+      <td>
+        <%= repository.name %> (
+        <% begin %> 
+        <%= repository.path.project + "/" + repository.path.repository %>
+        <% rescue %>
+        <% end %>)
+      </td>
+      <td></td>
+      <td></td>
+      <td><%= link_to "[Remove Target]", :action => :remove_target,
+        :name => params[:name],
+        :target => repository.name %></td>
+    </tr>
+    <% repository.each_arch do |arch| -%>
+      <tr>
+        <td></td>
+        <td align="right"><%= arch %></td>
+        <td>
+          <% if @status_map %>
+            <%= @status_map[ repository.name ][ arch.to_s ] %>
+          <% end %>
+        </td>
+        <td></td>
+      </tr>
+    <% end %>
+  <% end -%>
+</table>
+<% end %>
+</p>
+
+<% if @status -%>
+<p><b>Build Status:</b> <%= @status %><br/>
+<ul>
+<% @package_counts.each do |state, count| %>
+<li><%= "#{state}: #{count}" %></li>
+<% end %>
+</ul></p>
+<% end -%>
+
+<p><%= link_to "[Monitor Build Status]", :action => :monitor,
+  :name => params[:name] %></p>
+
+<% logger.debug "--> starting to render users" -%>
+<p>
+<h3>Involved Users foo</h3>
+<% if @project.has_element? :person -%>
+<table border=1>
+  <tr>
+    <th>Userid</th>
+    <th>Role</th>
+    <%- if @project.each_person.length > 1 %>
+    <th>Action</th>
+    <%- end %>
+  </tr>
+  <% @project.each_person do |person| -%>
+  <tr>
+    <td><%= person.userid %></td>
+    <td><%= person.role %> </td>
+    <%- if @project.each_person.length > 1 %>
+    <td>
+    <%= link_to "[Remove User]", :action => :remove_person,
+      :name => params[:name], :userid => person.userid,
+      :role => person.role%>
+    
+    </td>   
+    <%- end %>
+  </tr>
+  <% end #each_person -%>
+</table>
+<% else -%>
+<b>No one in this project</b>
+<% end #if has_element? person -%>
+</p><p>
+<%= link_to "[Add User]", :action => :add_person, :name => params[:name] %>
+</p>
+
+<% logger.debug "--> starting to render packages" -%>
+<p>
+<h3>Packages</h3>
+<% if @project.has_element? :package -%>
+<table border=1 style="border: 1px solid black">
+  <tr>
+    <th>Package Name</th>
+    <th>Action</th>
+  </tr>
+  <% @project.each_package do |package| -%>
+  <tr>
+    <td><%= link_to package.name, :controller => 'package', :action => :show,
+      :project=> @project, :name => package %></td>
+    <td><%= link_to "[Remove]", :controller => 'package', :action => :remove,
+      :project => @project, :name => package %></td>
+  </tr>
+  <% end -%>
+</table>
+<% end -%>
+</p>
+<p>
+<%= link_to "[Add Package]", :controller => 'package', :action => :new, :project => @project %>
+</p>
