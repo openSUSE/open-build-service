@@ -41,7 +41,7 @@
         Logged in as <%= @session[:login] %>
 
       <% else %>
-        <%= link_to "Create Account", :controller => "user", :action => "newaccount" %>
+        <%= link_to "Create Account", :controller => "main", :action => "accountinfo" %>
       <% end %>
     </div>
   </div>
