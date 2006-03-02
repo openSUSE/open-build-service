@@ -23,6 +23,8 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
          :redirect_to  => { :action => 'list' },
          :add_flash    => { :error => 'You sent an invalid request!' }
 
+  before_filter :require_admin
+
   # Simply redirects to #list
   def index
     redirect_to :action  => 'list'

@@ -3,7 +3,6 @@ require_dependency 'active_rbac/configuration'
 # All controllers in ActiveRBAC extend this controller. Currently, it only
 # provides the method config to access ActiveRBAC's configuration.
 class ActiveRbac::ComponentController < ApplicationController
-  
   protected
   
     # This method returns the config class. See this

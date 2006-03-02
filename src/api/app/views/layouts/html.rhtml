@@ -25,12 +25,11 @@
     <%= link_to "Frontend Startpage", :controller => "main",
       :action => "index" %> |
     <a href="http://www.opensuse.org">openSUSE Home</a>
-    <br/>
-    Logged in as <%= current_user.login %>
-    <% if current_user.login == "Anonymous" %>
-      <%= link_to "Login", :controller => "login", :action => "login" %>
-    <% else %>
-      <%= link_to "Logout", :controller => "login", :action => "logout" %>
-    <% end %>
-    
+    &nbsp;Logged in as 
+    <%- if http_user %>
+      <%= http_user.login %>
+    <%- else %>
+      anonymous
+    <%- end %>
     </div>
+

@@ -7,6 +7,8 @@ class ActiveRbac::RegistrationController < ActiveRbac::ComponentController
   # Configuration class
   layout config.controller[:layout]
 
+  before_filter :require_admin
+
   # Redirect to signup page
   def index
     redirect_to :action => 'register'

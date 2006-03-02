@@ -10,22 +10,10 @@ class ApplicationController < ActionController::Base
   session_options[:prefix] = "ruby_webclient_sess."
   session_options[:key] = "opensuse_webclient_session"
 
-  prepend_before_filter :authorize, :except => [ :index ]
-  before_filter :transmit_credentials, :except => [ :index ]
+  before_filter :authorize 
   
-  def transmit_credentials
-    # We need to call authorize here because the transmit_credentials method seems
-    # to get called very early in the chain from the lib probably...
-    authorize false
-    
-    TRANSPORT.login proc {
-      # STDERR.puts session.inspect
-      [session[:login], session[:passwd]]
-    }
-  end
-
   #filter
-  def authorize( do_redirect = true )
+  def authorize
     
     logger.debug "application/authorize: login: #{session[:login]}, passwd: XXXX"
 
@@ -42,12 +30,17 @@ class ApplicationController < ActionController::Base
 	  session[:passwd] = userpass[1]
         end
       else
-        if do_redirect
-          session[:return_to] = request.request_uri
-          redirect_to :controller => 'user', :action => 'login'
-	end
+        session[:return_to] = request.request_uri
+        redirect_to :controller => 'user', :action => 'login'
       end
     end
+    
+    # Do the transport
+    TRANSPORT.login proc {
+      # STDERR.puts session.inspect
+      [session[:login], session[:passwd]]
+    }
+
   end
 
   def rescue_action_in_public( exception )
@@ -74,9 +67,10 @@ class ApplicationController < ActionController::Base
       render :template => 'error', :status => @code
     when ActiveXML::GeneralError
       @code = exception.message.root.elements['code'].text
-      render :template => 'error', :status => 442
+      render :template => 'error', :status => @code
     else
-      raise exception
+      render :template => 'error', :status => 500
+      #raise exception
     end
   end
 

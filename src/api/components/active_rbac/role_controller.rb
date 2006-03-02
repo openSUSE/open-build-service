@@ -3,6 +3,8 @@ require_dependency 'active_rbac/helpers/rbac_helper'
 class ActiveRbac::RoleController < ActiveRbac::ComponentController
   uses_component_template_root
 
+  before_filter :require_admin
+
   # The RbacHelper allows us to render +acts_as_tree+ AR elegantly
   helper RbacHelper
 

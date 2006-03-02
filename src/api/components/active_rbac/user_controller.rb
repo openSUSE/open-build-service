@@ -10,6 +10,8 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
   # The layout this controller uses is configured in the 
   # Configuration class
   layout config.controller[:layout]
+  
+  before_filter :require_admin  
 
   # We force users to use POST on the state changing actions.
   verify :method       => :post,

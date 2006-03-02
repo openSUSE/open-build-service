@@ -140,4 +140,14 @@ class ApplicationController < ActionController::Base
   def render_ok
     render :nothing => true 
   end
+  
+  def require_admin
+
+    logger.debug "Checking for  Admin role for user #{@http_user.login}"
+    unless @http_user.has_role( 'Admin' )
+      logger.debug "not granted!"
+      render :template => 'permerror'
+      
+    end
+  end
 end
