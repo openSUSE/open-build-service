@@ -6,7 +6,7 @@ To install ruby-on-rails, please install the rubygems package and
 run: "gem install -y rails" to install the rails libs on your system. 
 
 The frontend uses a MySQl backend. Please add the database 
-"frontend_development" with the scheme from frontend/config/db/create_mysql.sql 
+"frontend_development" with the scheme from frontend/db/create_mysql.sql 
 The database credentials can be set in frontend/config/database.yml 
 To run the frontends test framework, please add an empty database "frontend_test".
 
