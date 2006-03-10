@@ -1,0 +1,75 @@
+#!/usr/bin/ruby
+
+require 'optparse'
+require 'rubygems'
+require_gem 'builder'
+
+require 'erb'
+include ERB::Util
+
+require "ftools"
+
+require "rest.rb"
+
+class Options
+
+  attr_accessor :verbose, :filename, :html, :outline, :output_dir
+
+  def initialize
+    verbose = false
+    html = false
+  end
+
+  def self.parse( args )
+    options = Options.new
+
+    opt = OptionParser.new
+
+    opt.on( "-h", "--help", "Print this message" ) do
+      puts opt
+      exit
+    end
+
+    opt.on( "-v", "--verbose", "Verbose mode" ) do
+      options.verbose = true
+    end
+
+    begin
+      opt.parse!( args )
+    rescue OptionParser::InvalidOption
+      puts $!
+      puts opt
+      exit
+    end
+
+    if ( ARGV.size > 1 )
+      puts "Too many arguments"
+      exit
+    elsif ( ARGV.size < 1 )
+      puts "Too few arguments"
+      exit
+    end
+
+    options.filename = ARGV[0]
+
+    options
+  end
+
+end
+
+options = Options.parse( ARGV )
+
+begin
+
+  document = Document.new
+  document.parse_args
+
+  @requests = document.all_children Request
+  
+  @requests.each do |r|
+    puts r
+  end
+
+rescue Errno::ENOENT
+  puts $!
+end

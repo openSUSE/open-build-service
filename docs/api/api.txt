@@ -1,0 +1,175 @@
+= openSUSE API
+
+Version: 0.1
+
+  Only authenticated users are allowed to acces the API. Authentication is done
+  by sending a Basic HTTP Authorisation header.
+
+<project>: Project name
+<package>: Package name
+<platform>: Platform name
+
+  All names aren't allowed to contain spaces, slashes or colons.
+
+== Table of Contents
+
+Contents:
+
+== About
+
+Host: api.opensuse.org
+
+GET /about
+
+  Get information about API.
+
+XmlResult: about
+
+
+== Sources
+
+Host: api.opensuse.org
+
+=== Project meta data
+
+
+GET /source/
+
+  Read list of projects.
+  
+XmlResult: projects directory.xsd
+
+
+GET /source/<project>/_meta
+
+  Read project meta file.
+
+XmlResult: project
+
+
+PUT /source/<project>/_meta
+
+  Write project meta file.
+
+XmlBody: project
+
+XmlResult: status
+
+
+=== Package meta data
+
+
+GET /source/<project>/<package>/_meta
+
+  Read project meta data.
+
+XmlResult: package
+
+
+PUT /source/<project>/<package>/_meta
+
+  Write project meta data. Writing of the project meta data commits the packages
+  contained in the project to the build backend.
+
+XmlBody: package
+
+XmlResult: status
+
+
+=== Other source files
+
+<filename>: File name
+
+
+GET /source/<project>/<package>/<filename>
+
+  Read source file.
+
+Result: Content of file
+
+
+PUT /source/<project>/<package>/<filename>
+
+  Write source file.
+
+Body: Content of file
+
+XmlResult: status
+
+
+=== RPM spec file template
+
+POST /source/<project>/<package>?cmd=createSpecFileTemplate
+
+  Create template for RPM SPEC file. Returns an error, if the SPEC file already
+  exists.
+
+XmlResult: status
+
+
+== Platform data
+
+GET /platform/
+  
+  List all platforms
+  
+XmlResult: directory
+
+
+== User data
+
+<userid>: Id of user
+
+
+GET /person/<userid>
+
+  Read user data.
+  
+XmlResult: user
+  
+
+PUT /person/<userid>
+
+  Write user data.
+  
+XmlBody: user
+  
+XmlResult: status
+
+
+== RPMs
+
+Host: download.opensuse.org
+
+
+GET /rpm/<project>/<platform>/<package>/<arch>/<rpm-name>
+
+  Get RPM.
+
+Result: RPM
+
+
+== Build Results
+
+Host: api.opensuse.org
+
+
+GET /result/<project>/<platform>/result
+
+  Read project summary result.
+
+XmlResult: projectresult
+
+
+GET /result/<project>/<platform>/<package>/result
+
+  Read package result.
+
+XmlResult: packageresult
+
+
+GET /result/<project>/<platform>/<package>/<arch>/log
+
+  Read build log.
+  
+Result: Build log as text file.

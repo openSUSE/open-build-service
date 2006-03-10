@@ -1,0 +1,6 @@
+<about>
+  <title>openSUSE API</title>
+  <description>API to the openSUSE Build Service</description>
+  <revision>0.1</revision>
+  <documentation type="text/html" url="http://localhost:3001/apidocs"/>
+</about>

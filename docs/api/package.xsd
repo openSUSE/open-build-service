@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   elementFormDefault="qualified">
+  
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes a format for describing an openSUSE package for the
+      build service.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="package">
+    <xs:annotation>
+      <xs:documentation>
+        Top level element for package data.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title"/>
+        <xs:element ref="description"/>
+        <xs:element ref="person" maxOccurs="unbounded" />
+	<xs:element minOccurs="0" maxOccurs="1" ref="notify"/>
+	<xs:element minOccurs="0" maxOccurs="1" ref="delete-notify"/>
+	<xs:element minOccurs="0" ref="url"/>
+	<xs:element ref="group"/>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="license"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="keyword"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="file"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="title" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Title of the package.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="description" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Description of the package.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="person">
+    <xs:annotation>
+      <xs:documentation>
+        A person which is associated with the package.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="role" type="xs:string"/>
+      <xs:attribute name="userid" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="notify" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Text shown when the package is selected for installation in YaST.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="delete-notify" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+	Text shown when the package is selected for being removed in YaST.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="url" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        URL of the package's website.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="group" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Package's RPM Group
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="license" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Package's license text.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="keyword" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Keyword describing the package.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="file">
+    <xs:annotation>
+      <xs:documentation>
+        A file which is part of the sources of the package.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="filename"/>
+        <xs:element minOccurs="0" ref="revision"/>
+        <xs:element ref="filetype"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="filename" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Name of file.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="revision" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Revision of file. If no revision is explicitly specified, the latest
+        revision is assumed.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="filetype" type="filetype-type">
+    <xs:annotation>
+      <xs:documentation>
+        Type of file.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:simpleType name="filetype-tokens">
+    <xs:annotation>
+      <xs:documentation>
+        Possible file types.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="source"/>
+      <xs:enumeration value="patch"/>      
+      <xs:enumeration value="spec"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="filetype-type">
+    <xs:simpleContent>
+      <xs:extension base="filetype-tokens">
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+</xs:schema>

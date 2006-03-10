@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes a format for describing an openSUSE project for the
+      build service.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="project">
+    <xs:annotation>
+      <xs:documentation>
+        Top level element for project data.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title"/>
+        <xs:element ref="description"/>
+        <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="package"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="repository"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="title" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Title of the project.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="description" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Description of the project.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="person">
+    <xs:annotation>
+      <xs:documentation>
+        A person which is associated with the project.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="role" type="xs:string"/>
+      <xs:attribute name="userid" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="package">
+    <xs:annotation>
+      <xs:documentation>
+        A package which is part of the project.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="revision" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="repository">
+    <xs:annotation>
+      <xs:documentation>
+        A target for building a project.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="path"/>
+        <xs:element maxOccurs="unbounded" ref="arch"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="path">
+    <xs:annotation>
+      <xs:documentation>
+        Platform for building and installing packages of a project.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="project" type="xs:string"/>
+      <xs:attribute name="repository" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="arch" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Hardware architecture.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+</xs:schema>
