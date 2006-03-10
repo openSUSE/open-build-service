@@ -54,6 +54,7 @@ Frontend
 + Make sure that the API version is only defined at one place.
 + Store additional information for platforms
 + Get file list from directory listing
++ DELETE file, package, project (project only with special permission)
 o Notification system
 o Get permissions for a given user
 o RSS feed for project news (newly built packages)
