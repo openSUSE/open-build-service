@@ -69,7 +69,14 @@ class ApplicationController < ActionController::Base
       @code = exception.message.root.elements['code'].text
       render :template => 'error', :status => @code
     else
-      render :template => 'error', :status => 500
+      if( exception.message.kind_of? REXML::Document )
+        @error_message = exception.message.root.elements['summary'].text
+        @code = exception.message.root.elements['code'].text
+      else
+        @error_message = exception.message
+        @code = 500
+      end
+      render :template => 'error', :status => @code
       #raise exception
     end
   end
