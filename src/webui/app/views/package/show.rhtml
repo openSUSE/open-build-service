@@ -68,16 +68,17 @@
 <table border=1>
   <% @results.each do |result| %>
   <tr>
-    <td colspan="2"><b><%= result.repository %></b></td>
-    <td/>
+    <td colspan="5"><b><%= result.repository %></b></td>
   </tr>
   <% result.each_archresult do |ar| %>
   <tr>
     <td align="right"><%= ar.arch %></td>
     <td><%= ar.status.code %></td>
+    <td>
     <% if ar.status.has_element? :summary %>
-      <td><%= ar.status.summary %></td>
+      <%= ar.status.summary %>
     <% end %>
+    </td>
     <td align="right"><%= link_to "[View Build Log]", build_log_url( @project,
       @package, result.repository, ar.arch ) %></td>
     <td align="right"><%= link_to "[Live Build Log]", :action => :live_build_log,
