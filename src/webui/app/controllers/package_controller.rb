@@ -119,6 +119,27 @@ class PackageController < ApplicationController
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
+  def remove_file
+    if not params[:filename]
+      flash[:note] = "Removing file aborted: no filename given."
+      redirect_to :action => :show, :project => params[:project], :package => params[:package]
+    end
+    
+    @project = params[:project]
+    @package = Package.find( params[:package], :project => @project )
+    filename = params[:filename]
+
+    @package.remove_file filename
+
+    if @package.save
+      flash[:note] = "File '#{filename}' removed successfully"
+    else
+      flash[:note] = "Failed to remove file '#{filename}'"
+    end
+
+    redirect_to :action => :show, :project => @project, :package => @package
+  end
+
   def add_person
     @project_name = session[:project_name]
     @package = Package.find( params[:package], :project => @project_name )
@@ -150,9 +171,6 @@ class PackageController < ApplicationController
     else
       flash[:note] = "Failed to add user '#{params[:userid]}'"
     end
-    response = Suse::Backend.get_log( @project, @repository, @package, @arch )
-    send_data( response.body, :type => "text/plain",
-      :disposition => "inline" )
  
     redirect_to :action => :show, :package => @package, :project => @project_name
   end
