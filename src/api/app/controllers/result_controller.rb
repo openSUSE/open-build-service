@@ -54,13 +54,15 @@ class ResultController < ApplicationController
     
     result = REXML::Document.new( response.body ).root
     result.elements["/statussumlist"].elements.each do |s|
-      status = s.attributes["status"]
-      if status
+      status_code = s.attributes["status"]
+
+      if status_code
+        status = Hash.new
+
         arch_name = s.attributes["name"]
         arch_name =~ /.*\/.*\/(.*)/
         arch = $1
-        @arch_status[ arch ] = status
-        
+
         rpm_response = Suse::Backend.get_rpmlist( @project, @repository,
           @package, arch )
         rpms = Array.new
@@ -70,6 +72,11 @@ class ResultController < ApplicationController
         end
         
         @arch_rpms[ arch ] = rpms
+        
+        status["code"] = status_code
+        status["summary"] = s.attributes["error"]      
+        
+        @arch_status[ arch ] = status
         
       else
         @succeeded = s.attributes["succeeded"]
