@@ -25,9 +25,11 @@ function stop_autoscroll() {
 </p>
 <p>
 <form>
-  <textarea class="log" rows="40" style="border: 1px solid black" id="log_space">
-<%= @log_chunk %>
-  </textarea>
+  <!-- <textarea class="log" rows="40" style="border: 1px solid black" id="log_space"> -->
+  <pre style="border: 1px solid black" id="log_space">
+    <%= @log_chunk %>
+  </pre>
+  <!-- </textarea> -->
 </form>
 </p>
 <p>
