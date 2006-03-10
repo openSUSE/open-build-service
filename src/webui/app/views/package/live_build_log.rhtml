@@ -16,7 +16,7 @@ function stop_autoscroll() {
 </p>
 <div id="start_link">
 <%= link_to_remote( "[Start Refreshing]",
-        :url => {:action => :update_build_log, :name => @package, :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
+        :url => {:action => :update_build_log, :package => @package, :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
         :after => "new Effect.Fade('start_link')",
         :complete => evaluate_remote_response )%>
 </div>
@@ -24,9 +24,11 @@ function stop_autoscroll() {
 <b>Status:</b> <span id="status">Live Log not started</span>
 </p>
 <p>
-<pre style="border: 1px solid black" id="log_space">
+<form>
+  <textarea class="log" rows="40" style="border: 1px solid black" id="log_space">
 <%= @log_chunk %>
-</pre>
+  </textarea>
+</form>
 </p>
 <p>
 <a href="javascript:stop_autoscroll()">[Stop Autoscroll]</a>

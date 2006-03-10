@@ -111,9 +111,9 @@
   <% @project.each_package do |package| -%>
   <tr>
     <td><%= link_to package.name, :controller => 'package', :action => :show,
-      :project=> @project, :name => package %></td>
+      :project=> @project, :package => package %></td>
     <td><%= link_to "[Remove]", :controller => 'package', :action => :remove,
-      :project => @project, :name => package %></td>
+      :project => @project, :package => package %></td>
   </tr>
   <% end -%>
 </table>

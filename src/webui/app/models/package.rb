@@ -1,5 +1,4 @@
 class Package < ActiveXML::Base
-  #validates_presence_of :description
   belongs_to :project
   
   def to_s
@@ -63,6 +62,11 @@ class Package < ActiveXML::Base
     logger.debug "finished storing files"
     @pending_files = []
     true
+  end
+
+  def remove_file( name )
+    @data.delete_element "file[@filename='#{name}']"
+    #TODO: really delete file (via DELETE request)
   end
 
   def add_person( opt={} )

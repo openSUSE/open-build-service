@@ -5,8 +5,8 @@
 <%= @package.description %><br/>
 
 <br/>
-<%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :name => @package %>
-<%= link_to "[Remove Package]", :action => :remove, :project => @project, :name => @package %>
+<%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package %>
+<%= link_to "[Remove Package]", :action => :remove, :project => @project, :package => @package %>
 
 <h3>Files</h3>
 <% if @package.has_element? :file %>
@@ -15,19 +15,20 @@
   <tr>
     <td><%= file.filename %></br/></td>
     <td>
-      <% if file.filename == @package.to_s + ".spec" %>
+      <% if file.filename =~ /\.spec$/ %>
       <%=   link_to ("[Edit]", :action => :edit_spec, :project => @project,
-        :package => @package ) %>
+        :package => @package, :filename => file.filename ) %>
       <% end %>
     </td>
     <td><%= link_to "[Download]", file_url( @project, @package, file.filename ) %></td>
+    <td><%= link_to "[Remove]", :action => :remove_file, :project => @project, :package => @package, :file => file.filename %></td>
   </tr>
   <% end %>
 </table>
 <% end %>
 
 <p>
-<%= link_to "[Add File]", :action => :add_file, :project => @project, :name => @package %>
+<%= link_to "[Add File]", :action => :add_file, :project => @project, :package => @package %>
 </p>
 
 <p>
@@ -48,7 +49,7 @@
     
     <%- if @package.each_person.length > 1 %>
     <td>
-      <%= link_to "[Remove User]", :action => :remove_person, :name => params[:name], 
+      <%= link_to "[Remove User]", :action => :remove_person, :package => @package, 
       :project => params[:project], :userid => person.userid, :role => person.role %>
     </td>
     <%- end %>
@@ -60,7 +61,7 @@
 <b>No one in this project</b>
 <% end %>
 </p><p>
-<%= link_to "[Add User]", :action => :add_person, :name => params[:name] %>
+<%= link_to "[Add User]", :action => :add_person, :package => @package %>
 </p>
 
 <% unless @results.empty? %>
@@ -82,7 +83,7 @@
     <td align="right"><%= link_to "[View Build Log]", build_log_url( @project,
       @package, result.repository, ar.arch ) %></td>
     <td align="right"><%= link_to "[Live Build Log]", :action => :live_build_log,
-      :name => params[:name], :project => params[:project], :arch => ar.arch, :repository => result.repository %></td>
+      :package => @package, :project => params[:project], :arch => ar.arch, :repository => result.repository %></td>
   </tr>
   <% ar.each_rpm do |rpm| %>
   <tr>

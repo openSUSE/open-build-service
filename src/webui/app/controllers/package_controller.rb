@@ -5,13 +5,13 @@ class PackageController < ApplicationController
   def show
     #FIXME: breaks if one of the params is not set
     @project = Project.find( params[:project] )
-    @package = Package.find( params[:name], :project => params[:project])
+    @package = Package.find( params[:package], :project => params[:project])
 
     session[:project_name] = params[:project]
     
     @results = []
     @project.each_repository do |repository|
-      result = Result.find( :project => params[:project], :package => params[:name], :platform => repository.name )
+      result = Result.find( :project => params[:project], :package => params[:package], :platform => repository.name )
       @results << result if result
     end
 
@@ -26,13 +26,13 @@ class PackageController < ApplicationController
     
     @project = Project.find( params[:project] )
 
-    if params[:name]
-      @package = Package.new( :name => params[:name], :project => @project )
+    if params[:package]
+      @package = Package.new( :name => params[:package], :project => @project )
 
       @package.title.data.text = params[:title]
       @package.description.data.text = params[:description]
       if params[:createSpecFileTemplate]
-        @package.add_file :filename => params[:name] + ".spec"
+        @package.add_file :filename => params[:package] + ".spec"
       end
 
       @project.add_package @package
@@ -45,7 +45,7 @@ class PackageController < ApplicationController
         end
       
         flash[:note] = "Package '#{@package}' was created successfully"
-        redirect_to :action => 'show', :project => params[:project], :name => params[:name]
+        redirect_to :action => 'show', :project => params[:project], :package => params[:package]
       else
         flash[:note] = "Failed to save package '#{@package}'"
         redirect_to :controller => 'project', :action => 'show', :name => params[:project]
@@ -57,11 +57,11 @@ class PackageController < ApplicationController
 
   def edit
     @project = Project.find( params[:project] )
-    @package = Package.find( params[:name], :project => params[:project] )
+    @package = Package.find( params[:package], :project => params[:project] )
   end
 
   def save
-    @package = Package.find( params[:name], :project => params[:project] )
+    @package = Package.find( params[:package], :project => params[:project] )
 
     @package.title.data.text = params[:title]
     @package.description.data.text = params[:description]
@@ -71,12 +71,12 @@ class PackageController < ApplicationController
     else
       flash[:note] = "Failed to save package '#{@package.name}'"
     end
-    redirect_to :action => 'show', :project => params[:project], :name => params[:name]
+    redirect_to :action => 'show', :project => params[:project], :package => params[:package]
   end
 
   def remove
     @project = Project.find( params[:project] )
-    @package_name = params[:name]
+    @package_name = params[:package]
 
     @project.remove_package @package_name
     
@@ -90,7 +90,7 @@ class PackageController < ApplicationController
 
   def add_file
     @project = Project.find( params[:project] )
-    @package = Package.find( params[:name], :project => params[:project] )
+    @package = Package.find( params[:package], :project => params[:project] )
     session[:project] = @project.name
     session[:package] = @package.name
   end
@@ -116,19 +116,19 @@ class PackageController < ApplicationController
       flash[:note] = "Failed to add file '#{filename}'"
     end
 
-    redirect_to :action => :show, :project => @project, :name => @package
+    redirect_to :action => :show, :project => @project, :package => @package
   end
 
   def add_person
     @project_name = session[:project_name]
-    @package = Package.find( params[:name], :project => @project_name )
+    @package = Package.find( params[:package], :project => @project_name )
     session[:package] = @package.name
   end
 
   def save_person
     if not params[:userid]
       flash[:error] = "Login missing"
-      redirect_to :action => :add_person, :name => params[:name], :role => params[:role]
+      redirect_to :action => :add_person, :package => params[:package], :role => params[:role]
       return
     end
 
@@ -137,7 +137,7 @@ class PackageController < ApplicationController
     
     if not user
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
-      redirect_to :action => :add_person, :name => params[:name], :role => params[:role]
+      redirect_to :action => :add_person, :package => params[:package], :role => params[:role]
       return
     end
 
@@ -154,17 +154,17 @@ class PackageController < ApplicationController
     send_data( response.body, :type => "text/plain",
       :disposition => "inline" )
  
-    redirect_to :action => :show, :name => @package, :project => @project_name
+    redirect_to :action => :show, :package => @package, :project => @project_name
   end
 
   def remove_person
     if not params[:userid]
       flash[:note] = "User removal aborted, no user id given!"
-      redirect_to :action => :show, :name => params[:name], :project => params[:project]
+      redirect_to :action => :show, :package => params[:package], :project => params[:project]
       return
     end
 
-    @package = Package.find( params[:name], :project => params[:project] )
+    @package = Package.find( params[:package], :project => params[:project] )
     @package.remove_persons( :userid => params[:userid], :role => params[:role] )
 
     if @package.save
@@ -173,35 +173,41 @@ class PackageController < ApplicationController
       flash[:note] = "Failed to remove user '#{params[:userid]}'"
     end
 
-    redirect_to :action => :show, :name => params[:name], :project => params[:project]
+    redirect_to :action => :show, :package => params[:package], :project => params[:project]
   end
   
   def edit_spec
     @project = params[:project]
     @package = params[:package]
+    @filename = params[:filename]
     
     @specfile = frontend.get_source( :project => @project,
-      :package => @package, :filename => @package + ".spec" )
+      :package => @package, :filename => @filename )
   end
   
   def save_spec
     project = params[:project]
     package = params[:package]
     specfile = params[:specfile]
+    filename = params[:filename]
 
-    specfile.gsub!( /\r\n/, "\n" )
-    
-    frontend.put_file( specfile, :project => project, :package => package,
-      :filename => package + ".spec" )
+    if( filename =~ /\.spec$/ )
+      specfile.gsub!( /\r\n/, "\n" )
+      
+      frontend.put_file( specfile, :project => project, :package => package,
+        :filename => filename )
 
-    flash[:note] = "Successfully saved SPEC file."
+      flash[:note] = "Successfully saved SPEC file."
+    else
+      flash[:note] = "Aborted saving of specfile: suffix not .spec"
+    end
     
-    redirect_to :action => :show, :name => package, :project => project
+    redirect_to :action => :show, :package => package, :project => project
   end
 
   def live_build_log
     @project = params[:project]
-    @package = params[:name]
+    @package = params[:package]
     @arch = params[:arch]
     @repo = params[:repository]
 
@@ -219,7 +225,7 @@ class PackageController < ApplicationController
 
   def update_build_log
     @project = params[:project]
-    @package = params[:name]
+    @package = params[:package]
     @arch = params[:arch]
     @repo = params[:repository]
     @offset = params[:offset].to_i
@@ -246,9 +252,9 @@ class PackageController < ApplicationController
   end
 
   def check_params
-    logger.debug "Checking parameter #{params[:name]}"
-    if params[:name]
-      unless params[:name] =~ /^\w[-\w]*$/
+    logger.debug "Checking parameter #{params[:package]}"
+    if params[:package]
+      unless params[:package] =~ /^\w[-\w]*$/
         flash[:error] = "Invalid package name, may only contain alphanumeric characters"
         redirect_to :action => :error
       end
@@ -267,8 +273,6 @@ class PackageController < ApplicationController
         redirect_to :action => :error
       end
     end
-
   end
 
- 
 end
