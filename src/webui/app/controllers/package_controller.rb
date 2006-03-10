@@ -250,21 +250,21 @@ class PackageController < ApplicationController
     if params[:name]
       unless params[:name] =~ /^\w[-\w]*$/
         flash[:error] = "Invalid package name, may only contain alphanumeric characters"
-        redirect_to :action => :new
+        redirect_to :action => :error
       end
     end
 
     if params[:project]
       unless params[:project] =~ /^\w[-\w]*$/
         flash[:error] = "Invalid project name, may only contain alphanumeric characters"
-        redirect_to :action => :new
+        redirect_to :action => :error
       end
     end
 
     if params[:package]
       unless params[:package] =~ /^\wi[-\w]*$/
         flash[:error] = "Invalid package name, may only contain alphanumeric characters"
-        redirect_to :action => :new
+        redirect_to :action => :error
       end
     end
 
