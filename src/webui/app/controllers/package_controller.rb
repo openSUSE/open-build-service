@@ -26,13 +26,13 @@ class PackageController < ApplicationController
     
     @project = Project.find( params[:project] )
 
-    if params[:package]
-      @package = Package.new( :name => params[:package], :project => @project )
+    if params[:name]
+      @package = Package.new( :name => params[:name], :project => @project )
 
       @package.title.data.text = params[:title]
       @package.description.data.text = params[:description]
       if params[:createSpecFileTemplate]
-        @package.add_file :filename => params[:package] + ".spec"
+        @package.add_file :filename => params[:name] + ".spec"
       end
 
       @project.add_package @package
@@ -45,7 +45,7 @@ class PackageController < ApplicationController
         end
       
         flash[:note] = "Package '#{@package}' was created successfully"
-        redirect_to :action => 'show', :project => params[:project], :package => params[:package]
+        redirect_to :action => 'show', :project => params[:project], :package => params[:name]
       else
         flash[:note] = "Failed to save package '#{@package}'"
         redirect_to :controller => 'project', :action => 'show', :project => params[:project]

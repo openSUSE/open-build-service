@@ -13,10 +13,7 @@ class PersonController < ApplicationController
 	  @render_user = User.find_by_login( params[:login] )
           if ! @render_user 
             logger.debug "User is not valid!"
-            #FIXME: proper error returnage needed
-            @errorcode = 442
-            @summary = "Unknown user: #{params[:login]}"
-            render :template => 'error', :status => 442
+            render_error :status => 404, :message => "Unknown user: #{params[:login]}"
           end
 	else 
           logger.debug "Generating user info for logged in user #{@http_user.login}"
@@ -35,9 +32,8 @@ class PersonController < ApplicationController
 	      # ok, may update user info
             else
               logger.debug "User has no permission to change userinfo"
-              @errorcode = 442
-              @summary = "no permission to change userinfo for user #{user.login}"
-              render :template => 'error', :status => 401
+              render_error :status => 401,
+                  :message => "no permission to change userinfo for user #{user.login}"
             end
           end
         end
