@@ -28,7 +28,7 @@
   <% @packresults.each do |pack_name,repohash| -%>
   <tr>
     <td><%= link_to pack_name, :controller => "package", :action => "show",
-      :name => pack_name, :project => @project.to_s %></td>
+      :package => pack_name, :project => @project.to_s %></td>
     <% @repolist.each do |repo| -%>
     <% repohash[repo.name].each_archresult do |ar| -%>
     <td id="<%= status_id_for(pack_name, repo.name, ar.arch)%>"><%= ar.status.code %></td>
