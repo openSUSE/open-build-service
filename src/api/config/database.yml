@@ -34,7 +34,7 @@ production:
   adapter: mysql
   database: frontend_production
   username: opensuse
-  password: 
+  password: secret_password
   host: 127.0.0.1
 
 
