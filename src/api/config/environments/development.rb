@@ -27,10 +27,10 @@ RPM_HOST = "buildservice.suse.de"
 RPM_PORT = 5252
 
 #SOURCE_HOST = "localhost"
-#SOURCE_PORT = 3002
+#SOURCE_PORT = 5352
 
 #RPM_HOST = "localhost"
-#RPM_PORT = 3002
+#RPM_PORT = 5252
 
 APIDOCS_LOCATION = "../../docs/architecture/html/"
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/architecture")+"/"

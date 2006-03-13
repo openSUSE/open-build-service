@@ -1,0 +1,67 @@
+
+if ENV.has_key? 'BS_SVN_USER'
+  set :svnuser, ENV['BS_SVN_USER']
+else
+  set :svnuser, ENV['USER']
+end
+
+set :application, "frontend"
+set :repository, "svn+ssh://#{svnuser}@forgesvn1.novell.com/svn/opensuse/trunk/buildservice/src/#{application}"
+
+# ROLES
+#
+# change to your servers
+
+role :web, "api.my.domain"
+role :app, "api.my.domain"
+role :db, "api.my.domain"
+
+set :deploy_to, "/srv/www/opensuse/#{application}"
+set :user, "svnuser"
+
+# use common opensuse tasks
+load '../common/lib/switchtower/opensuse.rb'
+
+task :update_apidocs, :roles => :web do
+  require 'tmpdir'
+  apidoctmpdir = "#{Dir.tmpdir}/switchtower-svn-tmp-#{$$}"
+  apidocrepo = "svn+ssh://#{svnuser}@forgesvn1.novell.com/svn/opensuse/trunk/buildservice/docs/api"
+  apidoc_tarfile_local = "apidocs.tar.gz"
+  apidoc_tarfile_remote = "#{current_path}/public/#{apidoc_tarfile_local}"
+  apidoc_scptarget = "#{user}@buildserviceapi:#{apidoc_tarfile_remote}"
+  schema_tarfile_local = "schema.tar.gz"
+  schema_tarfile_remote = "#{current_path}/public/#{schema_tarfile_local}"
+  schema_scptarget = "#{user}@buildserviceapi:#{schema_tarfile_remote}"
+  
+  system <<-CMD
+    rm -rf #{apidoctmpdir}
+    mkdir -v #{apidoctmpdir}
+    cd #{apidoctmpdir}
+    echo "Checking out from #{apidocrepo}"
+    svn co -q #{apidocrepo} #{apidoctmpdir}
+    
+    #{apidoctmpdir}/rest_doc --html #{apidoctmpdir}/api.txt
+    mkdir -v apidocs
+    mv html apidocs
+    tar zcf #{apidoc_tarfile_local} apidocs
+    scp #{apidoc_tarfile_local} #{apidoc_scptarget}
+    
+    mkdir -v schema
+    cp *.xsd schema
+    tar zcf #{schema_tarfile_local} schema
+    scp #{schema_tarfile_local} #{schema_scptarget}
+    
+    rm -rf #{apidoctmpdir}
+  CMD
+
+  run <<-CMD
+    tar zxf #{apidoc_tarfile_remote} -C #{current_path}/public &&
+    rm -rf #{apidoc_tarfile_remote} &&
+    tar zxf #{schema_tarfile_remote} -C #{current_path}/public &&
+    rm -rf #{schema_tarfile_remote}
+  CMD
+end
+
+task :after_deploy, :roles => :web do
+  update_apidocs
+end
