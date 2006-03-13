@@ -1,12 +1,15 @@
+<h2>My Watched Projects</h2>
+
+<% if @watchlist -%>
+<% @watchlist.each_project do |project| -%>
+<%= link_to project, :action => :show, :project => project %><br/>
+<% end -%>
+<% end -%>
+
 <h2>All Projects</h2>
 
 <% for project in @projects -%>
-<%= link_to project, :action => :show, :name => project %><br/>
+<%= link_to project, :action => :show, :project => project %><br/>
 <% end -%>
 <br/>
-<h2>My Watched Projects</h2>
-<% if @watchlist -%>
-<% @watchlist.each_project do |project| -%>
-<%= link_to project, :action => :show, :name => project %><br/>
-<% end -%>
-<% end -%>
+

@@ -48,7 +48,7 @@ class PackageController < ApplicationController
         redirect_to :action => 'show', :project => params[:project], :package => params[:package]
       else
         flash[:note] = "Failed to save package '#{@package}'"
-        redirect_to :controller => 'project', :action => 'show', :name => params[:project]
+        redirect_to :controller => 'project', :action => 'show', :project => params[:project]
       end
     else
       #show template
@@ -85,7 +85,7 @@ class PackageController < ApplicationController
     else
       flash[:note] = "Failed to remove package '#{@package_name}' from project '#{@project}'"
     end
-    redirect_to :controller => 'project', :action => :show, :name => params[:project]
+    redirect_to :controller => 'project', :action => :show, :project => params[:project]
   end
 
   def add_file

@@ -2,7 +2,7 @@
 
 <ul>
 <% for project in @projects %>
-<li><%= link_to project, :action => :show, :name => project %></li>
+<li><%= link_to project, :action => :show, :project => project %></li>
 <% end %>
 </ul>
 

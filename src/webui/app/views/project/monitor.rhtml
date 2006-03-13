@@ -41,10 +41,10 @@
 
 <div id="start_link">
 <%= link_to_remote( "[Start Refreshing]",
-        :url => {:action => :refresh_monitor, :name => params[:name]},
+        :url => {:action => :refresh_monitor, :project => params[:project]},
         :after => "new Effect.Fade('start_link')",
         :complete => evaluate_remote_response )%>
 </div>
 </p>
 
-<%= link_to "[Back to #{@project}]", :action => :show, :name => @project %>
+<%= link_to "[Back to #{@project}]", :action => :show, :project => @project %>

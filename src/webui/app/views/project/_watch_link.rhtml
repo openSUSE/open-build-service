@@ -1,4 +1,4 @@
 <%= link_to_remote watch_link_text,
 :update => 'watchlink',
-:url => {:action => :toggle_watch, :name => @project_name}
+:url => {:action => :toggle_watch, :project => @project_name}
 %>

@@ -34,7 +34,7 @@
       <% end %>
       <%= link_to_if @project, @project, :controller => "project",
         :action => :show,
-        :name => @project %>
+        :project => @project %>
     </div>
     <div id="loginlinks">
       <% if logged_in? %>

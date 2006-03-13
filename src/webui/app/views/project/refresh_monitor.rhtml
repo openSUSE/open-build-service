@@ -10,6 +10,6 @@ if( $("<%= id %>").innerHTML != "<%= st %>" ) {
 <%= update_element_function "refresh_date", :content => "Updated at: #{DateTime.now}" -%>
 
 <%= remote_function(
-        :url => {:action => :refresh_monitor, :name => @name},
+:url => {:action => :refresh_monitor, :project => @project},
         :complete => evaluate_remote_response )
 %>

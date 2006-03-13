@@ -10,14 +10,14 @@
 <b>Title:</b> <%= @project.title %><br/>
 <b>Description:</b><br/>
 <%= @project.description %><br/>
-<%= link_to "[Edit Project Information]", :action => 'edit', :name => @project %>
-<%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild', :name=> @project %>
+<%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
+<%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild', :project => @project %>
 </p>
 <% logger.debug "<-- finished rendering project information" -%>
 
 <p>
 <b>Targets:</b>&nbsp;&nbsp;<%= link_to "[Add Target]", :action => 'add_target',
-  :name => @project %>
+  :project => @project %>
   
 <% if @project.has_element? :repository -%>
 <table border="1">
@@ -33,7 +33,7 @@
       <td></td>
       <td></td>
       <td><%= link_to "[Remove Target]", :action => :remove_target,
-        :name => params[:name],
+        :project => params[:project],
         :target => repository.name %></td>
     </tr>
     <% repository.each_arch do |arch| -%>
@@ -63,7 +63,7 @@
 <% end -%>
 
 <p><%= link_to "[Monitor Build Status]", :action => :monitor,
-  :name => params[:name] %></p>
+  :project => params[:project] %></p>
 
 <% logger.debug "--> starting to render users" -%>
 <p>
@@ -84,7 +84,7 @@
     <%- if @project.each_person.length > 1 %>
     <td>
     <%= link_to "[Remove User]", :action => :remove_person,
-      :name => params[:name], :userid => person.userid,
+      :project => params[:project], :userid => person.userid,
       :role => person.role%>
     
     </td>   
@@ -96,7 +96,7 @@
 <b>No one in this project</b>
 <% end #if has_element? person -%>
 </p><p>
-<%= link_to "[Add User]", :action => :add_person, :name => params[:name] %>
+<%= link_to "[Add User]", :action => :add_person, :project => params[:project] %>
 </p>
 
 <% logger.debug "--> starting to render packages" -%>

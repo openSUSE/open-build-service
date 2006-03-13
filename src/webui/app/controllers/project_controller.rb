@@ -18,16 +18,16 @@ class ProjectController < ApplicationController
 
   def show
     @user = Person.find( :login => session[:login] ) if session[:login]
-    @project = Project.find( params[:name] )
+    @project = Project.find( params[:project] )
     if ( !@project )
-      flash[:error] = "Project #{params[:name]} doesn't exist."
+      flash[:error] = "Project #{params[:project]} doesn't exist."
       redirect_to :action => list_all
     else
       @project_name = @project.name
       session[:project] = @project.name
 
       begin
-        result = Result.find( :project => params[:name] )
+        result = Result.find( :project => params[:project] )
         if ( result )
           @status = result.status.code
           @package_counts = Hash.new
@@ -49,9 +49,9 @@ class ProjectController < ApplicationController
   end
 
   def new
-    if params[:name]
+    if params[:project]
       #store project
-      @project = Project.new( :name => params[:name] )
+      @project = Project.new( :name => params[:project] )
 
       @project.title.data.text = params[:title]
       @project.description.data.text = params[:description]
@@ -63,25 +63,25 @@ class ProjectController < ApplicationController
         flash[:note] = "Failed to save project '#{@project}'"
       end
 
-      redirect_to :action => 'show', :name => params[:name]
+      redirect_to :action => 'show', :project => params[:project]
     else
       #show template
     end
   end
 
   def edit
-    @project = Project.find( params[:name] )
+    @project = Project.find( params[:project] )
     session[:project] = @project.name
   end
 
   def trigger_rebuild
-    @project = Project.find( params[:name] )
+    @project = Project.find( params[:project] )
     if @project.save
       flash[:note] = "Triggered rebuild"
     else
       flash[:note] = "Failed to trigger rebuild"
     end
-    redirect_to :action => 'show', :name => params[:name]
+    redirect_to :action => 'show', :project => params[:project]
   end
 
   def save
@@ -89,7 +89,7 @@ class ProjectController < ApplicationController
 
     if ( !params[:title] )
       flash[:error] = "Title must not be empty"
-      redirect_to :action => 'edit', :name => params[:name]
+      redirect_to :action => 'edit', :project => params[:project]
       return
     end
 
@@ -103,12 +103,12 @@ class ProjectController < ApplicationController
     end
     session[:project] = nil
 
-    redirect_to :action => 'show', :name => @project
+    redirect_to :action => 'show', :project => @project
   end
 
   def add_target
     @platforms = Platform.find( :all ).map {|p| p.name.to_s}
-    @project = Project.find( params[:name] )
+    @project = Project.find( params[:project] )
     session[:project] = @project.name
   end
 
@@ -128,16 +128,16 @@ class ProjectController < ApplicationController
       flash[:note] = "Failed to add target '#{platform}'"
     end
 
-    redirect_to :action => :show, :name => @project
+    redirect_to :action => :show, :project => @project
   end
 
   def remove_target
     if not params[:target]
       flash[:error] = "Target removal failed, no target selected!"
-      redirect_to :action => :show, :name => params[:name]
+      redirect_to :action => :show, :project => params[:project]
     end
 
-    @project = Project.find( params[:name] )
+    @project = Project.find( params[:project] )
     @project.remove_target params[:target]
 
     if @project.save
@@ -146,18 +146,18 @@ class ProjectController < ApplicationController
       flash[:note] = "Failed to remove target '#{params[:target]}'"
     end
 
-    redirect_to :action => :show, :name => @project
+    redirect_to :action => :show, :project => @project
   end
 
   def add_person
-    @project = Project.find( params[:name] )
+    @project = Project.find( params[:project] )
     session[:project] = @project.name
   end
 
   def save_person
     if not params[:userid]
       flash[:error] = "Login missing"
-      redirect_to :action => :add_person, :name => params[:name], :role => params[:role]
+      redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
     end
 
@@ -166,7 +166,7 @@ class ProjectController < ApplicationController
     
     if not user
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
-      redirect_to :action => :add_person, :name => params[:name], :role => params[:role]
+      redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
     end
 
@@ -179,16 +179,16 @@ class ProjectController < ApplicationController
       flash[:note] = "Failed to add user '#{params[:userid]}'"
     end
 
-    redirect_to :action => :show, :name => @project
+    redirect_to :action => :show, :project => @project
   end
 
   def remove_person
     if not params[:userid]
       flash[:note] = "User removal aborted, no user id given!"
-      redirect_to :action => :show, :name => params[:name]
+      redirect_to :action => :show, :project => params[:project]
       return
     end
-    @project = Project.find( params[:name] )
+    @project = Project.find( params[:project] )
     @project.remove_persons( :userid => params[:userid], :role => params[:role] )
 
     if @project.save
@@ -197,24 +197,24 @@ class ProjectController < ApplicationController
       flash[:note] = "Failed to remove user '#{params[:userid]}'"
     end
 
-    redirect_to :action => :show, :name => params[:name]
+    redirect_to :action => :show, :project => params[:project]
   end
 
   def monitor
-    @project = Project.find( params[:name] )
-    @projectresult = Result.find( :project => params[:name] )
+    @project = Project.find( params[:project] )
+    @projectresult = Result.find( :project => params[:project] )
     @packresults = Hash.new
     @repolist = Array.new
 
     @project.each_package do |pack|
       @packresults[pack.name] = Hash.new
       @project.each_repository do |repo|
-        @packresults[pack.name][repo.name] = Result.find( :project => params[:name], :package => pack.name, :platform => repo.name )
+        @packresults[pack.name][repo.name] = Result.find( :project => params[:project], :package => pack.name, :platform => repo.name )
       end
     end
     @repolist = @projectresult.each_repositoryresult
 
-    session[:monitor_project] = params[:name]
+    session[:monitor_project] = params[:project]
     session[:monitor_repolist] = @repolist.map {|repo| repo.name}
     session[:monitor_packlist] = @packresults.keys
   end
@@ -224,7 +224,7 @@ class ProjectController < ApplicationController
                            session[:monitor_repolist] and 
                            session[:monitor_project]
    
-    @name = session[:monitor_project]
+    @project = session[:monitor_project]
     @status = Hash.new
     session[:monitor_packlist].each do |pack|
       session[:monitor_repolist].each do |platform|
@@ -263,9 +263,9 @@ class ProjectController < ApplicationController
   #filters
   
   def check_params
-    logger.debug "Checking parameter #{params[:name]}"
-    if params[:name]
-      unless params[:name] =~ /^\w[-\w]*$/
+    logger.debug "Checking parameter #{params[:project]}"
+    if params[:project]
+      unless params[:project] =~ /^\w[-_\w]*$/
         flash[:error] = "Invalid project name, may only contain alphanumeric characters"  
 	redirect_to :action => :new 
       end
@@ -273,7 +273,7 @@ class ProjectController < ApplicationController
   end
 
   def list_all_if_no_name
-    unless params[:name]
+    unless params[:project]
       flash[:note] = "Please select a project"
       redirect_to :action => :list_all
     end

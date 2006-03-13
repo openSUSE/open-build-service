@@ -9,6 +9,6 @@
 <% [:i586, :x86_64].each do |arch| %>
 <%= check_box_tag "arch[#{arch}]", "", arch == :i586 %><%=arch%><br>
 <% end %>
-<%= hidden_field_tag 'name', @project %>
+<%= hidden_field_tag 'project', @project %>
 <p><%= submit_tag %></p>
 <%= end_form_tag %>

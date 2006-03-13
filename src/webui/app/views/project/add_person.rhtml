@@ -5,6 +5,6 @@
 <%= text_field_tag 'userid', params[:userid] %><br/>
 <b>Role:</b><br/>
 <%= select_tag 'role', options_for_select(%w{maintainer}, params[:role]) %>
-<%= hidden_field_tag 'name', @project %>
+<%= hidden_field_tag 'project', @project %>
 <p><%= submit_tag %></p>
 <%= end_form_tag %>
