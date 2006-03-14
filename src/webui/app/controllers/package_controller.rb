@@ -107,11 +107,18 @@ class PackageController < ApplicationController
     end
     filetype = params[:filetype]
 
+    if @package.file("@filename='#{filename}'")
+      @package.remove_file filename
+      flash_message = "File '#{filename}' replaced successfully"
+    else
+      flash_message = "File '#{filename}' added successfully"
+    end
+
     logger.debug "controller: starting to add file: #{filename}"
     @package.add_file :file => file, :filename => filename, :filetype => filetype
 
     if @package.save_files and @package.save
-      flash[:note] = "File '#{filename}' added successfully"
+      flash[:note] = flash_message
     else
       flash[:note] = "Failed to add file '#{filename}'"
     end
