@@ -8,7 +8,7 @@ o: Medium priority
 Web Client
 ----------
 
-+ Tests (tom)
++ Tests (functional and performance) (tom)
 + Hide "new project" action for non-admin users
 + Don't show links to RPMs, if there are no RPMs built yet
 + Visual design (garrett)
