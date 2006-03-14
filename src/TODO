@@ -36,7 +36,7 @@ o local build
 Frontend
 --------
 
-+ Tests (tom)
++ Tests (functional and performance) (tom)
 + Tool to check API against specification (cschum)
 + Escaping of paths
 + Caching of backend data (freitag)
