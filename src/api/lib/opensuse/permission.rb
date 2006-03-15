@@ -93,10 +93,10 @@ require 'components/active_rbac/helpers/rbac_helper'
       doc = REXML::Document.new( response.body )
       logger.debug "The XML Document: " + doc.to_s
       root = doc.root
-      elem = doc.elements["project/person[@role='maintainer']"]
-      if elem
-        val = elem.attributes["userid"]
-      end
+
+      doc.elements.each("project/person[@role='maintainer']") { |elem| val << elem.attributes["userid"] }
+
+      logger.debug "returning values: #{val}"
       return val
     end
 
