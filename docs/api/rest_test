@@ -10,10 +10,12 @@ include ERB::Util
 require "ftools"
 
 require "rest.rb"
+require "rest_test.rb"
 
 class Options
 
-  attr_accessor :verbose, :filename, :html, :outline, :output_dir
+  attr_accessor :verbose, :filename, :html, :outline, :output_dir,
+    :create_template, :testfile, :force
 
   def initialize
     verbose = false
@@ -34,6 +36,18 @@ class Options
 
     opt.on( "-v", "--verbose", "Verbose mode" ) do
       options.verbose = true
+    end
+
+    opt.on( "--create-test", "Create test template" ) do
+      options.create_template = true
+    end
+
+    opt.on( "--test=testfile", "Select test file" ) do |val|
+      options.testfile = val
+    end
+
+    opt.on( "--force", "Force overwriting of test file" ) do
+      options.force = true
     end
 
     begin
@@ -65,14 +79,44 @@ options = Options.parse( ARGV )
 
 begin
 
+  if ( !options.testfile )
+    options.testfile = options.filename + ".test"
+  end
+
   document = Document.new
   document.parse_args
 
   @requests = document.all_children Request
-  
-  @requests.each do |r|
-    puts r
+
+  if ( options.create_template )
+    if ( File.exists?( options.testfile ) && !options.force )
+      STDERR.puts "Test file '#{options.testfile} already exists." +
+        " Use '--force' to overwrite it. Exiting."
+    end
+    File.open( options.testfile, "w" ) do |file|
+      @requests.each do |r|
+        file.puts "request \"#{r}\""
+      end
+    end
   end
+  
+  runner = TestRunner.new @requests
+
+  user = nil
+  password = nil
+  
+  configfile = options.testfile + ".config"
+  File.open configfile do |file|
+    eval file.read
+  end
+
+  runner.context.user = user
+  runner.context.password = password
+  if ( options.verbose )
+    runner.context.show_body = true
+  end
+
+  runner.run options.testfile
 
 rescue Errno::ENOENT
   puts $!

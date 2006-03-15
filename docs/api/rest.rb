@@ -352,6 +352,15 @@ class TextPrinter < Printer
     puts "Result: " + result.name
   end
 
+  def print_xmlresult result
+    indent result
+    printf "XmlResult: " + result.name
+    if ( result.schema )
+      printf " (Schema: #{result.schema})"
+    end
+    printf "\n"
+  end
+
   def print_body body
     indent body
     puts "Body: " + body.name
