@@ -26,6 +26,8 @@ class Options
 
     opt = OptionParser.new
 
+    opt.banner = "Usage: rest_doc [options] filename"
+
     opt.on( "-h", "--help", "Print this message" ) do
       puts opt
       exit
@@ -57,9 +59,11 @@ class Options
 
     if ( ARGV.size > 1 )
       puts "Too many arguments"
+      puts opt
       exit
     elsif ( ARGV.size < 1 )
       puts "Too few arguments"
+      puts opt
       exit
     end
 
