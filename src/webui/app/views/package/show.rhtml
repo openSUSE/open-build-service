@@ -10,7 +10,7 @@
         {:confirm => "Really remove package '#{@package}'?"}%>
 
 <h3>Files</h3>
-<% if @package.has_element? file %>
+<% if @package.has_element? :file %>
 <table>
   <% @package.each_file do |file| %>
   <tr>
