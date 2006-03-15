@@ -6,10 +6,11 @@
 
 <br/>
 <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package %>
-<%= link_to "[Remove Package]", :action => :remove, :project => @project, :package => @package %>
+<%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
+        {:confirm => "Really remove package '#{@package}'?"}%>
 
 <h3>Files</h3>
-<% if @package.has_element? :file %>
+<% if @package.has_element? file %>
 <table>
   <% @package.each_file do |file| %>
   <tr>
@@ -21,7 +22,8 @@
       <% end %>
     </td>
     <td><%= link_to "[Download]", file_url( @project, @package, file.filename ) %></td>
-    <td><%= link_to "[Remove]", :action => :remove_file, :project => @project, :package => @package, :filename => file.filename %></td>
+    <td><%= link_to "[Remove]", {:action => :remove_file, :project => @project, :package => @package, :filename => file.filename},
+      {:confirm => "Really remove file '#{file.filename}'?" }%></td>
   </tr>
   <% end %>
 </table>
@@ -49,8 +51,9 @@
     
     <%- if @package.each_person.length > 1 %>
     <td>
-      <%= link_to "[Remove User]", :action => :remove_person, :package => @package, 
-      :project => params[:project], :userid => person.userid, :role => person.role %>
+      <%= link_to "[Remove User]", {:action => :remove_person, :package => @package, 
+      :project => params[:project], :userid => person.userid, :role => person.role},
+        {:confirm => "Really remove user '#{person.userid}'?"}%>
     </td>
     <%- end %>
     

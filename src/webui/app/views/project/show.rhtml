@@ -32,9 +32,9 @@
       </td>
       <td></td>
       <td></td>
-      <td><%= link_to "[Remove Target]", :action => :remove_target,
+      <td><%= link_to "[Remove Target]", {:action => :remove_target,
         :project => params[:project],
-        :target => repository.name %></td>
+        :target => repository.name}, {:confirm => "Really delete target '#{repository.name}'?"} %></td>
     </tr>
     <% repository.each_arch do |arch| -%>
       <tr>
@@ -83,9 +83,9 @@
     <td><%= person.role %> </td>
     <%- if @project.each_person.length > 1 %>
     <td>
-    <%= link_to "[Remove User]", :action => :remove_person,
+      <%= link_to "[Remove User]", {:action => :remove_person,
       :project => params[:project], :userid => person.userid,
-      :role => person.role%>
+      :role => person.role}, {:confirm => "Really remove user '#{person.userid}'?"}%>
     
     </td>   
     <%- end %>
@@ -112,8 +112,8 @@
   <tr>
     <td><%= link_to package.name, :controller => 'package', :action => :show,
       :project=> @project, :package => package %></td>
-    <td><%= link_to "[Remove]", :controller => 'package', :action => :remove,
-      :project => @project, :package => package %></td>
+    <td><%= link_to "[Remove]", {:controller => 'package', :action => :remove,
+      :project => @project, :package => package}, {:confirm => "Really remove package '#{package.name}'?"} %></td>
   </tr>
   <% end -%>
 </table>
