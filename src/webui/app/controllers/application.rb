@@ -44,7 +44,15 @@ class ApplicationController < ActionController::Base
   end
 
   def rescue_action_in_public( exception )
-    logger.debug "rescue_action_in_public: caught #{exception.inspect}"
+    logger.debug "rescue_action_in_public: caught #{exception.class}: #{exception.message}"
+    if exception.message.kind_of? REXML::Document 
+      @code = exception.message.elements['code'].text
+      @message = exception.message.elements['summary'].text
+    else
+      @code = 500
+      @message = exception.message
+    end
+
     case exception
     when Suse::Frontend::UnauthorizedError
       session[:login] = nil
@@ -53,32 +61,34 @@ class ApplicationController < ActionController::Base
       flash[:error] = exception.message.root.elements['summary'].text
       
       redirect_to :controller => 'user', :action => 'login'
-    when Suse::Frontend::ForbiddenError
-      # if ENV[ "RAILS_ENV"] == "development"
-      #  raise exception
-      # else
-        @excep = exception.message.root
-	@code = @excep.elements['code'].text
-        render :template => 'error'
-      # end
-    when Suse::Frontend::ConnectionError
-      @code = exception.message.root.elements['code'].text
-      @error_message = exception.message.root.elements['summary'].text
-      render :template => 'error', :status => @code
-    when ActiveXML::GeneralError
-      @code = exception.message.root.elements['code'].text
-      render :template => 'error', :status => @code
+#   when Suse::Frontend::ForbiddenError
+#     render_error :code => @code, :message => @message
+#   when Suse::Frontend::ConnectionError
+#     render_error :code => @code, :message => @message
+#   when ActiveXML::GeneralError
+#     render_error :code => @code, :message => @message
     else
-      if( exception.message.kind_of? REXML::Document )
-        @error_message = exception.message.root.elements['summary'].text
-        @code = exception.message.root.elements['code'].text
-      else
-        @error_message = exception.message
-        @code = 500
-      end
-      render :template => 'error', :status => @code
-      #raise exception
+      logger.debug "default exception handling"
+      render_error :code => @code, :message => @message
     end
+  end
+
+  def render_error( opt={} )
+    @code = opt[:code] || 500
+    @error_message = opt[:message] || "No message set"
+
+
+    # if the exception was raised inside a template (-> @template.first_render != nil), 
+    # the instance variables created in here will not be injected into the template
+    # object, so we have to do it manually
+    if @template.first_render
+      logger.debug "injecting error instance variables into template object"
+      %w{@error_message @code}.each do |var|
+        @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
+      end
+    end
+
+    render :template => 'error', :status => @code
   end
 
   def local_request?
