@@ -88,10 +88,16 @@ begin
 
   @requests = document.all_children Request
 
-  if ( options.create_template )
-    if ( File.exists?( options.testfile ) && !options.force )
-      STDERR.puts "Test file '#{options.testfile} already exists." +
-        " Use '--force' to overwrite it. Exiting."
+  if ( !File.exists?( options.testfile ) || options.create_template )
+    if ( File.exists?( options.testfile ) )
+      if ( !options.force )
+        STDERR.puts "Test file '#{options.testfile} already exists." +
+          " Use '--force' to overwrite it. Exiting."
+        return
+      end
+      puts "Overwriting test file '#{options.testfile}'."
+    else
+      puts "Creating test file '#{options.testfile}'."
     end
     File.open( options.testfile, "w" ) do |file|
       @requests.each do |r|
