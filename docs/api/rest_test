@@ -110,10 +110,12 @@ begin
 
   user = nil
   password = nil
-  
+
   configfile = options.testfile + ".config"
-  File.open configfile do |file|
-    eval file.read
+  if ( File.exists? configfile )
+    File.open configfile do |file|
+      eval file.read
+    end
   end
 
   runner.context.user = user
