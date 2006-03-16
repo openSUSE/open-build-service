@@ -8,16 +8,26 @@
 
 request "GET /about"
 request "GET /source/"
-request "GET /source/<project>/_meta"
+
+response = request "GET /source/<project>/_meta"
+@data_body = response.body
 request "PUT /source/<project>/_meta"
-request "GET /source/<project>/<package>/_meta"
+
+response = request "GET /source/<project>/<package>/_meta"
+@data_body = response.body
 request "PUT /source/<project>/<package>/_meta"
-request "GET /source/<project>/<package>/<filename>"
+
+response = request "GET /source/<project>/<package>/<filename>"
+@data_body = response.body
 request "PUT /source/<project>/<package>/<filename>"
+
 request "POST /source/<project>/<package>?cmd=createSpecFileTemplate"
 request "GET /platform/"
-request "GET /person/<userid>"
+
+response = request "GET /person/<userid>"
+@data_body = response.body
 request "PUT /person/<userid>"
+
 request "GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>"
 request "GET /result/<project>/<platform>/result"
 request "GET /result/<project>/<platform>/<package>/result"

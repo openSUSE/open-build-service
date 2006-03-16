@@ -75,7 +75,7 @@ class TestContext
 
     if ( !request )
       STDERR.puts "  Request not defined"
-      return
+      return nil
     end
 
     xml_results = request.all_children XmlResult
@@ -89,14 +89,14 @@ class TestContext
     host = request.host.to_s
     if ( !host || host.empty? )
       error "No host defined"
-      return
+      return nil
     end
 
     begin
       path = substitute_parameters request
     rescue ParameterError
       error
-      return
+      return nil
     end
 
     puts "  Path: " + path
@@ -122,10 +122,21 @@ class TestContext
       response = Net::HTTP.start( host ) do |http|
         http.request( req, "" )
       end
+    elsif( request.verb == "PUT" )
+      if ( !@data_body )
+        error "No body data defined for PUT"
+        return nil
+      end
+      puts "  PUT"
+      req = Net::HTTP::Put.new( path )
+      req.basic_auth( @user, @password )
+      response = Net::HTTP.start( host ) do |http|
+        http.request( req, @data_body )
+      end
     else
       STDERR.puts "  Test of method '#{request.verb}' not supported yet."
       unsupported
-      return
+      return nil
     end
 
     if ( response )
@@ -154,6 +165,8 @@ class TestContext
         failed
       end
     end
+
+    response
 
   end
 
