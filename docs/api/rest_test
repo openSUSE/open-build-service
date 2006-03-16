@@ -121,7 +121,7 @@ begin
   runner.context.user = user
   runner.context.password = password
   if ( options.verbose )
-    runner.context.show_body = true
+    runner.context.show_xmlbody = true
   end
 
   runner.run options.testfile

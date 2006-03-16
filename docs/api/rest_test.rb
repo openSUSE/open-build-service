@@ -6,7 +6,7 @@ end
 
 class TestContext
 
-  attr_writer :user, :password, :show_body
+  attr_writer :user, :password, :show_xmlbody
 
   def initialize requests
     @requests = requests
@@ -115,7 +115,7 @@ class TestContext
 
     if ( response )
       puts "  return code: #{response.code}"
-      if ( @show_body )
+      if ( xml_result && @show_xmlbody )
         puts response.body
       end
 

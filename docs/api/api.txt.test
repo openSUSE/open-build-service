@@ -1,7 +1,7 @@
 @arg_project="plutimikation"
 @arg_package="plutimikation"
 @arg_filename="plutimikation.spec"
-@arg_platform="factory/standard"
+@arg_platform="sl10.0"
 @arg_arch="i586"
 @arg_userid="Admin"
 @arg_rpmname="plutimikation.rpm"
