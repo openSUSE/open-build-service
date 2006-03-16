@@ -9,6 +9,8 @@ class TestContext
   attr_writer :user, :password, :show_xmlbody
 
   def initialize requests
+    @host_aliases = Hash.new
+
     @requests = requests
     start
   end
@@ -66,6 +68,10 @@ class TestContext
     @error += 1
   end
 
+  def alias_host old, new
+    @host_aliases[ old ] = new
+  end
+
   def request arg
     puts bold( "REQUEST: " + arg )
 
@@ -91,6 +97,12 @@ class TestContext
       error "No host defined"
       return nil
     end
+
+    if @host_aliases[ host ]
+      host = @host_aliases[ host ]
+    end
+
+    puts "  aliased host: #{host}"
 
     begin
       path = substitute_parameters request
@@ -231,7 +243,7 @@ class TestRunner
 
   def run testfile
     File.open testfile do |file|
-      eval file.read, @context.get_binding
+      eval( file.read, @context.get_binding )
     end
 
     @context.print_summary

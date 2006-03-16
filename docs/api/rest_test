@@ -114,7 +114,7 @@ begin
   configfile = options.testfile + ".config"
   if ( File.exists? configfile )
     File.open configfile do |file|
-      eval file.read
+      eval file.read, runner.context.get_binding
     end
   end
 
