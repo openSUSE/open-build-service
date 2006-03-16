@@ -4,7 +4,7 @@
 @arg_platform="sl10.0"
 @arg_arch="i586"
 @arg_userid="Admin"
-@arg_rpmname="plutimikation.rpm"
+@arg_rpmname="plutimikation-0.1-25.1.i586.rpm"
 
 request "GET /about"
 request "GET /source/"

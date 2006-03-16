@@ -116,6 +116,12 @@ class TestContext
           http.request( req )
         end
       end
+    elsif( request.verb == "POST" )
+      req = Net::HTTP::Post.new( path )
+      req.basic_auth( @user, @password )
+      response = Net::HTTP.start( host ) do |http|
+        http.request( req, "" )
+      end
     else
       STDERR.puts "  Test of method '#{request.verb}' not supported yet."
       unsupported
