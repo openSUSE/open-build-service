@@ -1,6 +1,9 @@
 require "net/http"
 require "tempfile"
 
+class ParameterError < Exception
+end
+
 class TestContext
 
   attr_writer :user, :password, :show_body
@@ -15,6 +18,7 @@ class TestContext
     @unsupported = 0
     @failed = 0
     @passed = 0
+    @error = 0
   end
 
   def bold str
@@ -27,7 +31,7 @@ class TestContext
   end
   
   def green str
-    str
+    bold str
   end
 
   def magenta str
@@ -53,6 +57,15 @@ class TestContext
     @passed += 1
   end
 
+  def error str = nil
+    error_str = "  ERROR"
+    if ( str )
+      error_str += ": " + str
+    end
+    puts red( error_str )
+    @error += 1
+  end
+
   def request arg
     puts bold( "REQUEST: " + arg )
 
@@ -75,25 +88,27 @@ class TestContext
 
     host = request.host.to_s
     if ( !host || host.empty? )
-      STDERR.puts "  No host defined."
+      error "No host defined"
       return
     end
 
+    begin
+      path = substitute_parameters request
+    rescue ParameterError
+      error
+      return
+    end
+
+    puts "  Path: " + path
+
     if ( request.verb == "GET" )
-      req = Net::HTTP::Get.new( request.path )
+      req = Net::HTTP::Get.new( path )
       req.basic_auth( @user, @password )
       response = Net::HTTP.start( host ) do |http|
         http.request( req )
       end
     else
       STDERR.puts "  Test of method '#{request.verb}' not supported yet."
-      unsupported
-      return
-    end
-
-    parameters = request.parameters
-    if ( !parameters.empty? )
-      STDERR.puts "  Parameter substitution not supported yet."
       unsupported
       return
     end
@@ -127,6 +142,23 @@ class TestContext
 
   end
 
+  def substitute_parameters request
+    path = request.path
+    
+    request.parameters.each do |parameter|
+      p = parameter.name
+      arg = eval( "@arg_#{parameter.name}" )
+      if ( !arg )
+        puts "  Can't substitute parameter '#{p}'. " +
+          "No variable @arg_#{p} defined."
+        raise ParameterError
+      end
+      path.gsub! /<#{p}>/, arg
+    end
+    
+    path
+  end
+
   def validate_xml xml, schema_file
     tmp = Tempfile.new('rest_test_validator')
     tmp.print xml
@@ -143,7 +175,7 @@ class TestContext
   end
 
   def print_summary
-    error = @tested - @unsupported - @failed - @passed
+    undefined = @tested - @unsupported - @failed - @passed - @error
   
     puts "Total #{@tested} tests"
     puts "  #{@passed} passed"
@@ -151,8 +183,11 @@ class TestContext
     if ( @unsupported )
       puts "  #{@unsupported} unsupported"
     end
-    if ( error )
-      puts "  #{error} errors"
+    if ( @error )
+      puts "  #{@error} errors"
+    end
+    if ( undefined )
+      puts "  #{undefined} undefined"
     end
   end
 

@@ -109,6 +109,8 @@ XmlResult: status
 
 == Platform data
 
+Host: api.opensuse.org
+
 GET /platform/
   
   List all platforms
@@ -117,6 +119,8 @@ XmlResult: directory
 
 
 == User data
+
+Host: api.opensuse.org
 
 <userid>: Id of user
 
@@ -142,7 +146,7 @@ XmlResult: status
 Host: download.opensuse.org
 
 
-GET /rpm/<project>/<platform>/<package>/<arch>/<rpm-name>
+GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>
 
   Get RPM.
 
