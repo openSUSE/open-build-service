@@ -46,8 +46,8 @@ class ApplicationController < ActionController::Base
   def rescue_action_in_public( exception )
     logger.debug "rescue_action_in_public: caught #{exception.class}: #{exception.message}"
     if exception.message.kind_of? REXML::Document 
-      @code = exception.message.elements['code'].text
-      @message = exception.message.elements['summary'].text
+      @code = exception.message.root.elements['code'].text
+      @message = exception.message.root.elements['summary'].text
     else
       @code = 500
       @message = exception.message
