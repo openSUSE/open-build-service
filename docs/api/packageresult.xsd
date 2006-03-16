@@ -23,7 +23,7 @@
       </xs:sequence>
       <xs:attribute name="package" type="xs:string"/>
       <xs:attribute name="project" type="xs:string"/>
-      <xs:attribute name="platform" type="xs:string"/>
+      <xs:attribute name="repository" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -45,6 +45,7 @@
       <xs:sequence>
         <xs:element ref="summary" minOccurs="0"/>
         <xs:element ref="builderror" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="packagecount" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attribute name="code" type="xs:string"/>
     </xs:complexType>
@@ -89,8 +90,35 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="status"/>
+        <xs:element ref="rpm" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attribute ref="arch"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="rpm">
+    <xs:annotation>
+      <xs:documentation>
+        Name of resulting RPM.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="filename" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="packagecount">
+    <xs:annotation>
+      <xs:documentation>
+        Number of packages in a given state.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="state" type="xs:string"/>
+        </xs:extension>
+      </xs:simpleContent>
     </xs:complexType>
   </xs:element>
 

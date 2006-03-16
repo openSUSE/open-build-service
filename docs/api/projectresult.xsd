@@ -19,7 +19,7 @@
       <xs:sequence>
         <xs:element ref="date"/>
         <xs:element ref="status" />
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="platformresult"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="repositoryresult"/>
       </xs:sequence>
       <xs:attribute name="project" type="xs:string"/>
     </xs:complexType>
@@ -71,7 +71,7 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="platformresult">
+  <xs:element name="repositoryresult">
     <xs:annotation>
       <xs:documentation>
         Build result summary for a certain target platform.
@@ -79,10 +79,9 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="status"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="archresult"/>
       </xs:sequence>
-      <xs:attribute name="platform" type="xs:string"/>
+      <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 

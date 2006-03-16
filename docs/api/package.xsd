@@ -23,7 +23,7 @@
 	<xs:element minOccurs="0" maxOccurs="1" ref="notify"/>
 	<xs:element minOccurs="0" maxOccurs="1" ref="delete-notify"/>
 	<xs:element minOccurs="0" ref="url"/>
-	<xs:element ref="group"/>
+	<xs:element minOccurs="0" ref="group"/>
 	<xs:element minOccurs="0" maxOccurs="unbounded" ref="license"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="keyword"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="file"/>
@@ -115,11 +115,8 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="filename"/>
-        <xs:element minOccurs="0" ref="revision"/>
-        <xs:element ref="filetype"/>
-      </xs:sequence>
+      <xs:attribute name="filetype" type="xs:string"/>
+      <xs:attribute name="filename" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
