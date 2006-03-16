@@ -107,7 +107,7 @@ class PackageController < ApplicationController
     end
     filetype = params[:filetype]
 
-    if @package.file("@filename='#{filename}'")
+    if @package.has_element? :file and @package.file("@filename='#{filename}'")
       @package.remove_file filename
       flash_message = "File '#{filename}' replaced successfully"
     else
