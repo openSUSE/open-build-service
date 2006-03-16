@@ -1,0 +1,21 @@
+
+------------------------------------------------------------------------
+deploy from Thu Mar 16 13:51:26 CET 2006 (bauersman)
+update from revision 41 to revision 58
+------------------------------------------------------------------------
+rev 42 (bauersman)
+  javascript popup before deleting stuff in package/project main page
+  (bug #154378)
+
+rev 45 (bauersman)
+  fixed stupid bug
+
+rev 55 (bauersman)
+  added empty changelog for tracking of changes done in each deploy
+
+rev 57 (bauersman)
+  bugfix in rescue_action_in_public
+
+------------------------------------------------------------------------
+
+
