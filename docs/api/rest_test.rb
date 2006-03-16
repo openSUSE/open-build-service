@@ -107,6 +107,15 @@ class TestContext
       response = Net::HTTP.start( host ) do |http|
         http.request( req )
       end
+      if ( response.is_a? Net::HTTPRedirection )
+        location = URI.parse response["location"]
+        puts "  Redirected to #{location}"
+        req = Net::HTTP::Get.new( location.path )
+        req.basic_auth( @user, @password )
+        response = Net::HTTP.start( location.host, location.port ) do |http|
+          http.request( req )
+        end
+      end
     else
       STDERR.puts "  Test of method '#{request.verb}' not supported yet."
       unsupported
