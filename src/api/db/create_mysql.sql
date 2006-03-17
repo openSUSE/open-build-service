@@ -93,7 +93,7 @@ CREATE TABLE `watched_projects` (
   `bs_user_id` int(10) unsigned NOT NULL,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `watched_projects_users_fk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `watched_projects_users_fk_1` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
 --
