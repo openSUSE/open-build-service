@@ -56,6 +56,12 @@ end
 # end
 
 # Include your application configuration below
+module ActiveRbacConfig
+  # controller and layout configuration
+  config :controller_layout, "html"
+end
 
-require 'rails_put_fix'
+Engines.start :active_rbac
+
+# require 'rails_put_fix'
 #require 'custom_dispatcher'
