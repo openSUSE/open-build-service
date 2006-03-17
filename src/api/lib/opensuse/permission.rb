@@ -1,6 +1,5 @@
 
 module Suse
-require 'components/active_rbac/helpers/rbac_helper'
 
   class Permission
   
