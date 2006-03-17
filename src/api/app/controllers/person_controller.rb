@@ -10,7 +10,7 @@ class PersonController < ApplicationController
       if request.get?
         if params[:login]
 	  logger.debug "Generating for user from parameter #{params[:login]}"
-	  @render_user = User.find_by_login( params[:login] )
+	  @render_user = BSUser.find_by_login( params[:login] )
           if ! @render_user 
             logger.debug "User is not valid!"
             render_error :status => 404, :message => "Unknown user: #{params[:login]}"
@@ -25,7 +25,7 @@ class PersonController < ApplicationController
       elsif request.put?
         user = @http_user
         if params[:login]
-          user = User.find_by_login( params[:login] )
+          user = BSUser.find_by_login( params[:login] )
           if user.login != @http_user.login 
             # TODO: check permission to update someone elses info
             if @http_user.has_permission "Userinfo_Admin"
