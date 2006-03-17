@@ -90,7 +90,7 @@ CREATE TABLE `users` (
 DROP TABLE IF EXISTS `watched_projects`;
 CREATE TABLE `watched_projects` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `user_id` int(10) unsigned NOT NULL,
+  `bs_user_id` int(10) unsigned NOT NULL,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `watched_projects_users_fk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
