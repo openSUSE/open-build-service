@@ -1,4 +1,4 @@
-<h2>Add File (Project <%=@project.name%>, Package <%=@package.name%>)</h2>
+<h2>Add File (Project <%=h @project.name %>, Package <%=h @package.name %>)</h2>
 
 <%= form_tag({:action => :save_file}, {:multipart => true})%>
 <b>Filename (leave empty to take from upload):</b><br/>

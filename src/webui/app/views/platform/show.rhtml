@@ -1,20 +1,20 @@
-<h2>Platform <%= @platform %> (Project <%= @project %>)</h2>
+<h2>Platform <%=h @platform %> (Project <%=h @project %>)</h2>
 
 <b>Title:</b>
 <% if @platform.has_element? :title %>
-  <%= @platform.title %>
+  <%=h @platform.title %>
 <% end %>
 <br/>
 <b>Description:</b><br/>
 <% if @platform.has_element? :description %>
-  <%= @platform.description %>
+  <%=h @platform.description %>
 <% end %>
 <br/>
 <b>Persons:</b><br/>
 <% if @platform.has_element? :person %>
   <table>
   <% @platform.each_person do |person| %>
-    <tr><td><%= person.userid %></td><td><%= person.role %></td></tr>
+    <tr><td><%=h person.userid %></td><td><%=h person.role %></td></tr>
   <% end %>
   </table>
 <% end %>
@@ -23,7 +23,7 @@
 <% if @platform.has_element? :arch %>
   <table>
   <% @platform.each_arch do |arch| %>
-    <tr><td><%= arch %></td></tr>
+    <tr><td><%=h arch %></td></tr>
   <% end %>
   </table>  
 <% end %>

@@ -1,4 +1,4 @@
-<h2 id="mainhead">Project <%= @project %></h2>
+<h2 id="mainhead">Project <%=h @project %></h2>
 <% if @user -%>
 <div id="watchlink">
   <%= render :partial => "watch_link" %>
@@ -7,9 +7,9 @@
 
 <% logger.debug "--> starting to render project information" -%>
 <p>
-<b>Title:</b> <%= @project.title %><br/>
+<b>Title:</b> <%=h @project.title %><br/>
 <b>Description:</b><br/>
-<%= @project.description %><br/>
+<%=h @project.description %><br/>
 <%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
 <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild', :project => @project %>
 </p>
@@ -24,9 +24,9 @@
   <% @project.each_repository do |repository| -%>
     <tr>
       <td>
-        <%= repository.name %> (
+        <%=h repository.name %> (
         <% begin %> 
-        <%= repository.path.project + "/" + repository.path.repository %>
+        <%=h repository.path.project + "/" + repository.path.repository %>
         <% rescue %>
         <% end %>)
       </td>
@@ -39,10 +39,10 @@
     <% repository.each_arch do |arch| -%>
       <tr>
         <td></td>
-        <td align="right"><%= arch %></td>
+        <td align="right"><%=h arch %></td>
         <td>
-          <% if @status_map %>
-            <%= @status_map[ repository.name ][ arch.to_s ] %>
+          <% if @status_map and @status_map.has_key? repository.name%>
+            <%=h @status_map[repository.name][arch.to_s] %>
           <% end %>
         </td>
         <td></td>
@@ -54,10 +54,10 @@
 </p>
 
 <% if @status -%>
-<p><b>Build Status:</b> <%= @status %><br/>
+<p><b>Build Status:</b> <%=h @status %><br/>
 <ul>
 <% @package_counts.each do |state, count| %>
-<li><%= "#{state}: #{count}" %></li>
+<li><%=h "#{state}: #{count}" %></li>
 <% end %>
 </ul></p>
 <% end -%>
@@ -79,8 +79,8 @@
   </tr>
   <% @project.each_person do |person| -%>
   <tr>
-    <td><%= person.userid %></td>
-    <td><%= person.role %> </td>
+    <td><%=h person.userid %></td>
+    <td><%=h person.role %> </td>
     <%- if @project.each_person.length > 1 %>
     <td>
       <%= link_to "[Remove User]", {:action => :remove_person,

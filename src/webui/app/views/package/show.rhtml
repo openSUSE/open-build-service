@@ -1,8 +1,8 @@
-<h2>Package <%= @package %> (Project <%= @project %>)</h2>
+<h2>Package <%=h @package %> (Project <%=h @project %>)</h2>
 
-<b>Title:</b> <%= @package.title %><br/>
+<b>Title:</b> <%=h @package.title %><br/>
 <b>Description:</b><br/>
-<%= @package.description %><br/>
+<%=h @package.description %><br/>
 
 <br/>
 <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package %>
@@ -14,7 +14,7 @@
 <table>
   <% @package.each_file do |file| %>
   <tr>
-    <td><%= file.filename %></br/></td>
+    <td><%=h file.filename %></br/></td>
     <td>
       <% if file.filename =~ /\.spec$/ %>
       <%=   link_to ("[Edit]", :action => :edit_spec, :project => @project,
@@ -46,8 +46,8 @@
   </tr>
   <% @package.each_person do |person| %>
   <tr>
-    <td><%= person.userid %></td>
-    <td><%= person.role %></td>
+    <td><%=h person.userid %></td>
+    <td><%=h person.role %></td>
     
     <%- if @package.each_person.length > 1 %>
     <td>
@@ -72,15 +72,15 @@
 <table border=1>
   <% @results.each do |result| %>
   <tr>
-    <td colspan="5"><b><%= result.repository %></b></td>
+    <td colspan="5"><b><%=h result.repository %></b></td>
   </tr>
   <% result.each_archresult do |ar| %>
   <tr>
-    <td align="right"><%= ar.arch %></td>
-    <td><%= ar.status.code %></td>
+    <td align="right"><%=h ar.arch %></td>
+    <td><%=h ar.status.code %></td>
     <td>
     <% if ar.status.has_element? :summary %>
-      <%= ar.status.summary %>
+      <%=h ar.status.summary %>
     <% end %>
     </td>
     <td align="right"><%= link_to "[View Build Log]", build_log_url( @project,

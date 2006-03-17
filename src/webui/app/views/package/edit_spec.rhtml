@@ -1,4 +1,4 @@
-<h2>Editing SPEC file for package <%= @package %> (Project <%= @project %>)</h2>
+<h2>Editing SPEC file for package <%=h @package %> (Project <%=h @project %>)</h2>
 
 <%= form_tag :action => :save_spec, "class" => "specedit" %>
   <p><%= text_area_tag( "specfile", @specfile, :cols => "80",

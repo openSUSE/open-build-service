@@ -8,9 +8,9 @@ function stop_autoscroll() {
   clearTimeout( scrolldelay );
 }
 </script>
-<h2>Build Log for Package <%=@package%> (Project <%=@project%>)</h2>
-<b>Repository:</b> <%=@repo%><br/>
-<b>Architecture:</b> <%=@arch%>
+<h2>Build Log for Package <%=h @package%> (Project <%=h @project%>)</h2>
+<b>Repository:</b> <%=h @repo%><br/>
+<b>Architecture:</b> <%=h @arch%>
 <p>
 <a href="javascript:start_autoscroll()">[Start Autoscroll]</a>
 </p>

@@ -1,7 +1,7 @@
-<h2>Home of <%= session[:login] %></h2>
+<h2>Home of <%=h session[:login] %></h2>
 <p>
-<b>Username:</b> <%= @user.login %><br/>
-<b>Real Name: </b> <%= @user.realname %><br/>
+<b>Username:</b> <%=h @user.login %><br/>
+<b>Real Name: </b> <%=h @user.realname %><br/>
 </p>
 <p>
 <b>Backend Configuration:</b>
@@ -10,8 +10,8 @@
 <b>Source Backend: </b><br/>
 <% if @user.has_element? :source_backend and not @user.source_backend.host.to_s.empty? -%>
 <ul>
-  <li>Host: <%= @user.source_backend.host %></li>
-  <li>Port: <%= @user.source_backend.port %></li>
+  <li>Host: <%=h @user.source_backend.host %></li>
+  <li>Port: <%=h @user.source_backend.port %></li>
 </ul>
 <% else -%>
 Standard source backend
@@ -22,8 +22,8 @@ Standard source backend
 <b>RPM Backend: </b><br/>
 <% if @user.has_element? :rpm_backend -%>
 <ul>
-  <li>Host: <%= @user.rpm_backend.host %></li>
-  <li>Port: <%= @user.rpm_backend.port %></li>
+  <li>Host: <%=h @user.rpm_backend.host %></li>
+  <li>Port: <%=h @user.rpm_backend.port %></li>
 </ul>
 <% else -%>
 Standard RPM backend

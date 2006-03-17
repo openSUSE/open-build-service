@@ -38,7 +38,7 @@
     </div>
     <div id="loginlinks">
       <% if logged_in? %>
-        Logged in as <%= @session[:login] %>
+        Logged in as <%=h @session[:login] %>
 
       <% else %>
         <%= link_to "Create Account", :controller => "main", :action => "accountinfo" %>
@@ -47,10 +47,10 @@
   </div>
   <div id="content">
     <% if flash[:note] %>
-    <div id="notice"><%= flash[:note] %></div>
+    <div id="notice"><%=h flash[:note] %></div>
     <% end %>
     <% if flash[:error] %>
-    <div id="error"><%= flash[:error] %></div>
+    <div id="error"><%=h flash[:error] %></div>
     <% end %>
     <%= @content_for_layout %>
   </div>
