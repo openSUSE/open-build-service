@@ -1,0 +1,1 @@
+Copyright (c) <%= Time.now.strftime("%Y") %> <%= author %>

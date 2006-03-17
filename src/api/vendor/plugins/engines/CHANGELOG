@@ -1,0 +1,72 @@
+*SVN*
+
+-----
+1.0.6
+
+- Added ability to determine version information for engines: rake engine_info
+- Added a custom logger for the Engines module, to stop pollution of the Rails
+  logs.
+- Added some more tests (in particular, see rails_engines/applications/engines_test).
+- Another attempt at solving Ticket #53 - controllers and helpers should now
+  be loadable from modules, and if a full path (including 
+  RAILS_ROOT/ENGINES_ROOT) is given, it should be safely stripped from the 
+  require filename such that corresponding files can be located in any active
+  engines. In other words, controller/helper overloading should now completely
+  work, even if the controllers/helpers are in modules.
+- Added (finally) patch from Ticket #22 - ActionMailer helpers should now load
+- Removed support for Engines.start :engine, :engine_name => 'whatever'. It
+  was pointless.
+- Fixed engine name referencing; engine_stylesheet/engine_javascript can now
+  happily use shorthand engine names (i.e. :test == :test_engine) (Ticket #45)
+- Fixed minor documentation error ('Engine.start' ==> 'Engines.start')
+  (Ticket #57)
+- Fixed double inclusion of RAILS_ROOT in engine_migrate rake task 
+  (Ticket #61)
+- Added ability to force config values even if given as a hash (Ticket #62)
+
+
+-----
+1.0.5
+
+- Fixed bug stopping fixtures from loading with PostgreSQL
+
+
+-----
+1.0.4
+
+- Another attempt at loading controllers within modules (Ticket #56)
+
+
+-----
+1.0.3
+
+- Fixed serious dependency bug stopping controllers being loaded (Ticket #56)
+
+
+-----
+1.0.2
+
+- Fixed bug with overloading controllers in modules from /app directory
+- Fixed exception thrown when public files couldn't be created; exception is now logged (Ticket #52)
+- Fixed problem with generated test_helper.rb file via File.expand_path (Ticket #50)
+
+
+-----
+1.0.1
+
+- Added engine generator for creation of new engines
+- Fixed 'Engine' typo in README
+- Fixed bug in fixtures extensions
+- Fixed /lib path management bug
+- Added method to determine public directory location from Engine object
+- Fixed bug in the error message in get_engine_dir()
+- Added proper component loading
+- Added preliminary tests for the config() methods module
+
+
+-----
+pre-v170
+
+- Fixed copyright notices to point to DHH, rather than me.
+- Moved extension require statements into lib/engines.rb, so the will be loaded if another module/file calls require 'engines
+- Added a CHANGELOG file (this file)

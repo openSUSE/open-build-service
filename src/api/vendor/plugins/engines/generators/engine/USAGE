@@ -1,0 +1,26 @@
+Description:
+  The Engine Generator creates the directories and files you need
+  to create your own engine.
+
+Example:
+  ./script/generate engine MyEngine
+
+  This will generate:
+  RAILS_ROOT
+    |- vendor
+        |-plugins
+            |- my_engine             <-- our example engine
+                  |- init_engine.rb
+                  |- app
+                  |     |- controllers
+                  |     |- model
+                  |     |- helpers
+                  |     |- views
+                  |- db
+                  |- tasks
+                  |- lib
+                  |- public
+                  |     |- javascripts
+                  |     |- stylesheets
+                  |- test
+
