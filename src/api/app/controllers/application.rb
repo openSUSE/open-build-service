@@ -4,10 +4,11 @@
 # RAILS_ROOT is not working directory when running under lighttpd, so it has
 # to be added to load path
 $LOAD_PATH.unshift RAILS_ROOT
-require 'components/active_rbac/helpers/rbac_helper'
+# 
 require_dependency 'opensuse/permission'
 require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'
+require_dependency 'bsuser'
 
 class ApplicationController < ActionController::Base
   # Do never use a layout here since that has impact on every
@@ -24,26 +25,30 @@ class ApplicationController < ActionController::Base
   def extract_user
     @http_user = nil;
 
-    authorization = request.env[ "HTTP_AUTHORIZATION" ]
+    if request.env.has_key? 'X-HTTP_AUTHORIZATION' 
+      # try to get it where mod_rewrite might have put it 
+      authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split 
+    elsif request.env.has_key? 'Authorization' 
+      # for Apace/mod_fastcgi with -pass-header Authorization 
+      authorization = request.env['Authorization'].to_s.split 
+    elsif request.env.has_key? 'HTTP_AUTHORIZATION' 
+      # this is the regular location 
+      authorization = request.env['HTTP_AUTHORIZATION'].to_s.split  
+    end 
 
     logger.debug( "AUTH: #{authorization}" )
 
-    if authorization and authorization =~ /^\s*Basic /
-      authorization.sub!( /^\s*Basic /, '' )
+    if authorization and authorization[0] == "Basic"
       # logger.debug( "AUTH2: #{authorization}" )
       
-      userpass = Base64.decode64( authorization ).split(/:/)
-      if userpass
-        login = userpass[0]
-	passwd = userpass[1]
-      end
+      login, passwd = Base64.decode64(authorization[1]).split(':')[0..1] 
     else
       logger.debug "no authentication string was sent"
       render_error( :message => "Authentication required", :status => 401 ) and return false
     end
   
     if login
-      @http_user = User.find_with_credentials login, passwd
+      @http_user = BSUser.find_with_credentials login, passwd
       if @http_user.nil?
         render_error( :message => "Unknown user: #{login}\n", :status => 401 ) and return false
       else
