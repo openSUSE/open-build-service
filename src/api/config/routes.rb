@@ -55,33 +55,9 @@ ActionController::Routing::Routes.draw do |map|
 
   map.apidocs 'apidocs/', :controller => "apidocs"
 
-  # -----------------------------------------------------------------
-  # ActiveRBAC routes
-
-  # map the admin stuff into '/admin/'
-  map.connect '/arbac/group/:action/:id',
-      :controller => 'active_rbac/group'
-  map.connect '/arbac/role/:action/:id',
-      :controller => 'active_rbac/role'
-  map.connect '/arbac/static_permission/:action/:id',
-      :controller => 'active_rbac/static_permission'
-  map.connect '/arbac/user/:action/:id',
-      :controller => 'active_rbac/user'
-
-  # map the login and registration controller somewhere prettier
-  map.connect '/login/:action/:id',
-      :controller => 'active_rbac/login'
-  map.connect '/register/confirm/:user/:token',
-      :controller => 'active_rbac/registration',
-      :action => 'confirm'
-  map.connect '/register/:action/:id',
-      :controller => 'active_rbac/registration'
-
-  # hide '/active_rbac/*'
-  map.connect '/active_rbac/*foo',
-      :controller => 'main'
-  # -----------------------------------------------------------------
-
+  map.connect '/active_rbac/registration/confirm/:user/:token',
+              :controller => 'active_rbac/registration',
+              :action => 'confirm'
 
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id'
