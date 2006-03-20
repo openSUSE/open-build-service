@@ -61,9 +61,9 @@ class PersonController < ApplicationController
           update_watchlist( user, xml )
 
           user.save
-	  @render_user = user
+          render_ok
         else
-          logger.debug "No valid user object"
+          render_error :message => "No valid user object"
         end
       end
     end
