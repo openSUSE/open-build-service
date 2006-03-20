@@ -28,7 +28,7 @@ class SourceController < ApplicationController
       specfile_path = "/source/#{project}/#{package}/#{package}.spec"
       begin
         Suse::Backend.get( specfile_path )
-        render_error "status" => 403, "summary" => "SPEC file already exists."
+        render_error :status => 403, :message => "SPEC file already exists."
         return
       rescue Suse::Backend::NotFoundError
         specfile = File.read "#{RAILS_ROOT}/files/specfiletemplate"

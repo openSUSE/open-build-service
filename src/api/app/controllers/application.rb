@@ -131,7 +131,7 @@ class ApplicationController < ActionController::Base
         response.headers["WWW-Authenticate"] = 'basic realm="Frontend login"'
       end
     end
-    
+
     @summary = "Internal Server Error"
     if opt[:message]
       @summary = opt[:message]
