@@ -6,7 +6,7 @@ end
 
 class TestContext
 
-  attr_writer :user, :password, :show_xmlbody, :request_filter
+  attr_writer :show_xmlbody, :request_filter
 
   def initialize requests
     @host_aliases = Hash.new
@@ -78,7 +78,7 @@ class TestContext
     @host_aliases[ old ] = new
   end
 
-  def request arg
+  def request arg, return_code = nil
     @tested += 1
 
     if ( @request_filter && arg !~ /#{@request_filter}/ )
@@ -88,7 +88,9 @@ class TestContext
 
     puts bold( "REQUEST: " + arg )
 
-    request = @requests.find { |r| r.to_s == arg }
+    request = @requests.find { |r|
+      r.to_s == arg
+    }
 
     if ( !request )
       STDERR.puts "  Request not defined"
@@ -133,7 +135,9 @@ class TestContext
 
     if ( request.verb == "GET" )
       req = Net::HTTP::Get.new( path )
-      req.basic_auth( @user, @password )
+      if ( true||@user )
+        req.basic_auth( @user, @password )
+      end
       response = Net::HTTP.start( host_name, host_port ) do |http|
         http.request( req )
       end
@@ -141,14 +145,18 @@ class TestContext
         location = URI.parse response["location"]
         puts "  Redirected to #{location}"
         req = Net::HTTP::Get.new( location.path )
-        req.basic_auth( @user, @password )
+        if ( @user )
+          req.basic_auth( @user, @password )
+        end
         response = Net::HTTP.start( location.host, location.port ) do |http|
           http.request( req )
         end
       end
     elsif( request.verb == "POST" )
       req = Net::HTTP::Post.new( path )
-      req.basic_auth( @user, @password )
+      if ( @user )
+        req.basic_auth( @user, @password )
+      end
       response = Net::HTTP.start( host_name, host_port ) do |http|
         http.request( req, "" )
       end
@@ -159,7 +167,9 @@ class TestContext
       end
       puts "  PUT"
       req = Net::HTTP::Put.new( path )
-      req.basic_auth( @user, @password )
+      if ( @user )
+        req.basic_auth( @user, @password )
+      end
       response = Net::HTTP.start( host_name, host_port ) do |http|
         http.request( req, @data_body )
       end
@@ -175,7 +185,8 @@ class TestContext
         puts response.body
       end
 
-      if ( response.is_a? Net::HTTPSuccess )
+      if ( ( return_code && response.code == return_code.to_s ) ||
+           ( response.is_a? Net::HTTPSuccess ) )
         if ( xml_result )
           if ( xml_result.schema )
             schema_file = xml_result.schema
@@ -201,7 +212,7 @@ class TestContext
   end
 
   def substitute_parameters request
-    path = request.path
+    path = request.path.clone
     
     request.parameters.each do |parameter|
       p = parameter.name

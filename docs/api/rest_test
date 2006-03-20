@@ -112,9 +112,6 @@ begin
   
   runner = TestRunner.new @requests
 
-  user = nil
-  password = nil
-
   configfile = options.testfile + ".config"
   if ( File.exists? configfile )
     File.open configfile do |file|
@@ -122,8 +119,6 @@ begin
     end
   end
 
-  runner.context.user = user
-  runner.context.password = password
   if ( options.verbose )
     runner.context.show_xmlbody = true
   end

@@ -9,7 +9,7 @@
         <xs:element ref="realname"/>
         <xs:element ref="source_backend"/>
         <xs:element ref="rpm_backend"/>
-        <xs:element ref="watchlist"/>
+        <xs:element ref="watchlist" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

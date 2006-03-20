@@ -15,6 +15,9 @@ if ( response )
   request "PUT /source/<project>/_meta"
 end
 
+@data_body = "broken"
+request "PUT /source/<project>/_meta", 404
+
 response = request "GET /source/<project>/<package>/_meta"
 if ( response )
   @data_body = response.body
@@ -27,7 +30,7 @@ if ( response )
   request "PUT /source/<project>/<package>/<filename>"
 end
 
-request "POST /source/<project>/<package>?cmd=createSpecFileTemplate"
+request "POST /source/<project>/<package>?cmd=createSpecFileTemplate", 403
 request "GET /platform/"
 
 response = request "GET /person/<userid>"
