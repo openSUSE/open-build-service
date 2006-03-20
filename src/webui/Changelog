@@ -26,3 +26,17 @@ Mon Mar 20 20:26:08 CET 2006 - bauersman
 - html-escaping of all variables directly inserted in templates
 
 
+------------------------------------------------------------------------
+Mon Mar 20 20:27:16 CET 2006 - bauersman
+
+- update from svn revision 41 to 94
+- javascript popup before deleting stuff in package/project main page
+  (bug #154378)
+- fixed stupid bug
+- added empty changelog for tracking of changes done in each deploy
+- bugfix in rescue_action_in_public
+- cleaning Changelog
+- bugfix in package controller
+- html-escaping of all variables directly inserted in templates
+
+
