@@ -33,6 +33,6 @@ esac
 
 echo "Starting $SERVER_PATH on port $SERVER_PORT..."
 pushd $SERVER_PATH
-script/server -p $SERVER_PORT $FLAGS
+script/server webrick -p $SERVER_PORT $FLAGS 
 popd
 exit 0
