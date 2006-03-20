@@ -6,7 +6,7 @@ end
 
 class TestContext
 
-  attr_writer :user, :password, :show_xmlbody
+  attr_writer :user, :password, :show_xmlbody, :request_filter
 
   def initialize requests
     @host_aliases = Hash.new
@@ -21,6 +21,7 @@ class TestContext
     @failed = 0
     @passed = 0
     @error = 0
+    @skipped = 0
   end
 
   def bold str
@@ -59,6 +60,11 @@ class TestContext
     @passed += 1
   end
 
+  def skipped
+#    puts magenta( "  SKIPPED" )
+    @skipped += 1
+  end
+
   def error str = nil
     error_str = "  ERROR"
     if ( str )
@@ -73,9 +79,14 @@ class TestContext
   end
 
   def request arg
-    puts bold( "REQUEST: " + arg )
-
     @tested += 1
+
+    if ( @request_filter && arg !~ /#{@request_filter}/ )
+      skipped
+      return nil
+    end
+
+    puts bold( "REQUEST: " + arg )
 
     request = @requests.find { |r| r.to_s == arg }
 
@@ -222,18 +233,21 @@ class TestContext
   end
 
   def print_summary
-    undefined = @tested - @unsupported - @failed - @passed - @error
+    undefined = @tested - @unsupported - @failed - @passed - @error - @skipped
   
     puts "Total #{@tested} tests"
     puts "  #{@passed} passed"
     puts "  #{@failed} failed"
-    if ( @unsupported )
+    if ( @unsupported > 0 )
       puts "  #{@unsupported} unsupported"
     end
-    if ( @error )
+    if ( @error > 0 )
       puts "  #{@error} errors"
     end
-    if ( undefined )
+    if ( @skipped > 0 )
+      puts "  #{@skipped} skipped"
+    end
+    if ( undefined > 0 )
       puts "  #{undefined} undefined"
     end
   end

@@ -15,7 +15,7 @@ require "rest_test.rb"
 class Options
 
   attr_accessor :verbose, :filename, :html, :outline, :output_dir,
-    :create_template, :testfile, :force
+    :create_template, :testfile, :force, :request
 
   def initialize
     verbose = false
@@ -48,6 +48,10 @@ class Options
 
     opt.on( "--force", "Force overwriting of test file" ) do
       options.force = true
+    end
+
+    opt.on( "--request=name", "Select request to be tested" ) do |val|
+      options.request = val
     end
 
     begin
@@ -123,6 +127,7 @@ begin
   if ( options.verbose )
     runner.context.show_xmlbody = true
   end
+  runner.context.request_filter = options.request
 
   runner.run options.testfile
 
