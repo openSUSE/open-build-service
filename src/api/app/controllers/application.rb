@@ -141,7 +141,7 @@ class ApplicationController < ActionController::Base
       @exception = opt[:exception ]
     end
 
-    render :template => 'error', :status => @errorcode, :layout => false
+    render :template => 'status', :status => @errorcode, :layout => false
   end
   
   def render_ok
