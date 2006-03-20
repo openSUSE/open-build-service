@@ -143,7 +143,7 @@ XmlResult: status
 
 == RPMs
 
-Host: download.opensuse.org
+Host: api.opensuse.org
 
 
 GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>
