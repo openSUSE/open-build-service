@@ -113,10 +113,17 @@ class TestContext
 
     puts "  Path: " + path
 
+    splitted_host = host.split( ":" )
+    
+    host_name = splitted_host[0]
+    host_port = splitted_host[1]
+
+    puts "  Host name: #{host_name} port: #{host_port}"
+
     if ( request.verb == "GET" )
       req = Net::HTTP::Get.new( path )
       req.basic_auth( @user, @password )
-      response = Net::HTTP.start( host ) do |http|
+      response = Net::HTTP.start( host_name, host_port ) do |http|
         http.request( req )
       end
       if ( response.is_a? Net::HTTPRedirection )
@@ -131,7 +138,7 @@ class TestContext
     elsif( request.verb == "POST" )
       req = Net::HTTP::Post.new( path )
       req.basic_auth( @user, @password )
-      response = Net::HTTP.start( host ) do |http|
+      response = Net::HTTP.start( host_name, host_port ) do |http|
         http.request( req, "" )
       end
     elsif( request.verb == "PUT" )
@@ -142,7 +149,7 @@ class TestContext
       puts "  PUT"
       req = Net::HTTP::Put.new( path )
       req.basic_auth( @user, @password )
-      response = Net::HTTP.start( host ) do |http|
+      response = Net::HTTP.start( host_name, host_port ) do |http|
         http.request( req, @data_body )
       end
     else
