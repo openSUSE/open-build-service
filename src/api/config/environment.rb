@@ -63,5 +63,5 @@ end
 
 Engines.start :active_rbac
 
-# require 'rails_put_fix'
+require 'rails_put_fix'
 #require 'custom_dispatcher'
