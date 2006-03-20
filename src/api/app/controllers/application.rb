@@ -145,7 +145,9 @@ class ApplicationController < ActionController::Base
   end
   
   def render_ok
-    render :nothing => true 
+    @errorcode = "ok"
+    @summary = "Ok"
+    render :template => 'status', :status => 200, :layout => false
   end
   
   def require_admin
