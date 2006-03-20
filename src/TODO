@@ -49,6 +49,8 @@ Frontend
 + Store additional information for platforms
 + Get file list from directory listing
 + DELETE file, package, project (project only with special permission)
++ Check data of PUT requests against schema
++ Remove obsolete schema checking code from backend.rb
 o Notification system
 o Get permissions for a given user
 o RSS feed for project news (newly built packages)
