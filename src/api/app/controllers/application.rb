@@ -55,6 +55,8 @@ class ApplicationController < ActionController::Base
         logger.debug "USER found: #{@http_user.login}"
 	@user_permissions = Suse::Permission.new( @http_user )
       end
+    else
+      render_error( :message => "Invalid authorization string sent!", :status => 401 ) and return false
     end
   end
 
