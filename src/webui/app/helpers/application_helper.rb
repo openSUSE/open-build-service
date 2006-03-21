@@ -5,5 +5,11 @@ module ApplicationHelper
      !session[:login].nil?
   end
   
-
+  def user
+    u = nil
+    if logged_in?
+      u = Person.find :login => session[:login]
+    end
+    return u
+  end
 end

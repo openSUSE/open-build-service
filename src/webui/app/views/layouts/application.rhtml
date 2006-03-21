@@ -38,7 +38,8 @@
     </div>
     <div id="loginlinks">
       <% if logged_in? %>
-        Logged in as <%=h @session[:login] %>
+        Logged in as 
+         <%= link_to user.login, { :controller => "home", :action => "index" } %>
 
       <% else %>
         <%= link_to "Create Account", :controller => "main", :action => "accountinfo" %>

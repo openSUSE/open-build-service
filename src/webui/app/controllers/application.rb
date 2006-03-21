@@ -14,31 +14,40 @@ class ApplicationController < ActionController::Base
   
   #filter
   def authorize
-    
-    logger.debug "application/authorize: login: #{session[:login]}, passwd: XXXX"
-
-    unless session[:login]
-      authorization = request.env[ "HTTP_AUTHORIZATION" ]
-
-      if authorization and authorization =~ /^\s*Basic /
-        authorization.sub!( /^\s*Basic /, '' )
-        # logger.debug( "AUTH2: #{authorization}" )
+    unless session[:login] 
+      if request.env.has_key? 'X-HTTP_AUTHORIZATION'
+        # try to get it where mod_rewrite might have put it
+        authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split
+      elsif request.env.has_key? 'Authorization'
+        # for Apace/mod_fastcgi with -pass-header Authorization
+        authorization = request.env['Authorization'].to_s.split
+      elsif request.env.has_key? 'HTTP_AUTHORIZATION'
+        # this is the regular location
+        authorization = request.env['HTTP_AUTHORIZATION'].to_s.split
+      end
+      logger.debug "authorization: #{authorization}"
       
-        userpass = Base64.decode64( authorization ).split(/:/)
-        if userpass
-          session[:login] = userpass[0]
-	  session[:passwd] = userpass[1]
+      if authorization and authorization[0] == "Basic"
+        logger.debug( "AUTH2: #{authorization}" )
+      
+        login, passwd = Base64.decode64( authorization ).split(/:/)
+        if login and passwd
+          session[:login] = login  
+          session[:passwd] = passwd
         end
-      else
-        session[:return_to] = request.request_uri
-        redirect_to :controller => 'user', :action => 'login'
       end
     end
     
+    unless session[:login] and session[:passwd]
+      # if we still do not have a user in the session it's time to redirect.
+      session[:return_to] = request.request_uri
+      redirect_to :controller => 'user', :action => 'login'
+    end
+
     # Do the transport
     TRANSPORT.login proc {
       # STDERR.puts session.inspect
-      [session[:login], session[:passwd]]
+      [ session[:login], session[:passwd] ]
     }
 
   end
@@ -57,7 +66,7 @@ class ApplicationController < ActionController::Base
     when Suse::Frontend::UnauthorizedError
       session[:login] = nil
       session[:passwd] = nil
-
+      
       flash[:error] = exception.message.root.elements['summary'].text
       
       redirect_to :controller => 'user', :action => 'login'
