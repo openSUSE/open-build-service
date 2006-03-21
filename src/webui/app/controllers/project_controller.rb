@@ -6,7 +6,11 @@ class ProjectController < ApplicationController
   before_filter :check_params
 
   def list_all
-    @projects = Project.find(:all)
+    projectlist = Project.find(:all).sort do |a,b|  
+      a.name <=> b.name 
+    end
+    
+    @project_pages, @projects = paginate_collection( projectlist )
   end
 
   def list_my
@@ -17,7 +21,7 @@ class ProjectController < ApplicationController
   end
 
   def show
-    @user = Person.find( :login => session[:login] ) if session[:login]
+# @user = Person.find( :login => session[:login] ) if session[:login]
     @project = Project.find( params[:project] )
     if ( !@project )
       flash[:error] = "Project #{params[:project]} doesn't exist."
@@ -278,6 +282,18 @@ class ProjectController < ApplicationController
       flash[:note] = "Please select a project"
       redirect_to :action => :list_all
     end
+  end
+
+  def paginate_collection(collection, options = {})
+    options[:page] = options[:page] || params[:page] || 1
+    default_options = {:per_page => 20, :page => 1}
+    options = default_options.merge options
+    
+    pages = Paginator.new self, collection.size, options[:per_page], options[:page]
+    first = pages.current.offset
+    last = [first + options[:per_page], collection.size].min
+    slice = collection[first...last]
+    return [pages, slice]
   end
 
 end
