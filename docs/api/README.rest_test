@@ -1,0 +1,57 @@
+rest_test
+=========
+
+rest_test is a tool for testing REST-style APIs. It uses the same API
+specification as is used by rest_doc for generating API docs and executes a list
+of user-defined tests exercising the API.
+
+"rest_test --help" shows the usage and available command line options of the
+test tool.
+
+On the first run rest_test creates a test file as a template. It has the same
+name as the api specification file suffixed by ".test". The test file specifies
+which tests are executed. By default one test for each API function is created.
+The test file is a executed by a Ruby interpreter in a special environment. This
+means you can use normal ruby statements to control the flow of the tests, use
+variables, etc.
+
+The test environment provides some special functions which can be used in the
+test file:
+
+  request <apicall>, [expected_http_result]
+  
+    This function makes a call to the API and checks that the returned result
+    adheres to the specification. If the result is an XML file, it is checked
+    that the result validates against the schema.
+    
+    By default an HTTP return code of 2xx is treated as success. This can be
+    overridden by specifying a different return code as second argument to the
+    request function.
+    
+    The apicall argument is a string specifying which kind of request is
+    executed. It has to be the same as in the API specification. Variables which
+    are contained in the apicall string in the form of "<name>" are replaced by
+    the value of a corresponding variable defined in the test file. The name of
+    the Ruby variable has to be "@arg_name", where the "name" part has to be
+    identical to the "name" part of the argument in the apicall string.
+    
+    if the apicall is a PUT request, it reads the body which is transferred with
+    the request from a variable "@data_body" which has to be specified in the
+    test file.
+    
+    
+  alias_host original_name, aliased_name
+  
+    This function sets an alias name which is used instead of the original host
+    name from the API specification. This makes it possible to use the same test
+    for different installations of the API.
+    
+If a file with the name of the test file suffixed by ".config" exists, this is
+executed in the same environment as the test file before the test file is run.
+This can be used to do specific setups which shouldn't be part of the general
+test file, e.g. some host aliasing or setup of login data.
+
+If the test or the config file sets values to the variables "@user" and
+"@password", these are transmitted with all succeeding API calls as
+authentication information. Usually these values should be set up in the config
+file.
