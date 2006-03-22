@@ -1,0 +1,102 @@
+.TH build 1 "(c) 1997-2005 SuSE Linux AG Nuernberg, Germany"
+.SH NAME
+build \- build SuSE Linux RPMs in a chroot environment
+.SH SYNOPSIS
+.B build
+.RB [ --clean | --no-init]
+.RB [ --rpms
+.IR path1 : path2 : ... ]
+.RB [ --arch
+.IR arch1 : arch2 : ... ]
+.RB [ --root
+.IR buildroot ]
+.RB [ specfile | srcrpm ]
+.br
+.B build
+.B --help
+.br
+.B build
+.B --verify
+.SH DESCRIPTION
+\fBbuild\fR is a tool to build SuSE Linux RPMs in a safe and clean way.
+.B build
+will install a minimal SuSE Linux as build system into some directory
+and will chroot to this system to compile the package.
+This way you don't risk to corrupt your working system (due to a broken spec
+file for example), even if the package does not use BuildRoot.
+
+.B build
+searches the spec file for a
+.I BuildRequires:
+line; if such a line is found, all the specified rpms are installed.
+Otherwise a selection of default packages are used. Note that
+.B build
+doesn't automatically resolve missing dependencies, so the specified
+rpms have to be sufficient for the build.
+.P
+If a spec file is specified on the command line,
+.B build
+will use this file and all other files in the directory for building
+the package. If a srcrpm is specified,
+.B build
+automatically unpacks it for the build.
+If neither is given,
+.B build
+will use all the specfiles in the current directory.
+.SH OPTIONS
+.TP
+.B --clean
+remove the build system and reinitialize it from scratch.
+.TP
+.B --no-init
+skip the build system initialization and start with build immediately.
+.TP
+.BI "\-\-rpms " path1 : path2 : path3\fR...\fP
+Where build can find the SuSE Linux RPMs needed to create the
+build system. This option overrides the BUILD_RPMS environment
+variable.
+.TP
+.BI "\-\-arch " arch1 : arch2 : arch3\fR...\fP
+What architectures to select from the RPMs.
+.B build
+automatically sets this to a sensible value for your host if you
+don't specify this option.
+.TP
+.BI "\-\-root " buildroot
+Specifies where the build system is set up. Overrides the
+BUILD_ROOT enviroment variable.
+.TP
+.B "\-\-useusedforbuild"
+Tell build not to do dependency expansion, but to extract the
+list of packages to install from "usedforbuild" lines or, if none
+are found, from all "BuildRequires" lines. This option is useful
+if you want to re-build a package from a srcrpm with exactly the
+same packages used for the srcrpm build.
+.TP
+.B --help
+Print a short help text.
+.TP
+.B --verify
+verify the files in an existing build system.
+.SH ENVIRONMENT
+.TP
+.B BUILD_ROOT
+The directory where build should install the chrooted build system.
+"/var/tmp/build-root" is used by default.
+.TP
+.B BUILD_RPMS
+Where build can find the SuSE Linux RPMs.  build needs them to create the
+build system.  "/media/dvd/suse" is the default value which will do
+the trick if you have the SuSE Linux DVD mounted.
+.TP
+.B BUILD_RPM_BUILD_STAGE
+The rpm build stage (-ba, -bb, ...).  This is just passed through to
+rpm, check the rpm manpage for a complete list and descriptions.
+"-ba" is the default.
+You can use this to add more options to RPM.
+
+.SH SEE ALSO
+.BR rpm (1),
+.TP
+.BR "Maximum RPM":
+.I http://www.rpm.org/max-rpm/

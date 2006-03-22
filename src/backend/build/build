@@ -1,0 +1,630 @@
+#!/bin/bash
+# Script to build a package.  It uses init_buildsystem to setup a chroot
+# building tree.  This script needs a directory as parameter.  This directory
+# has to include sources and a spec file.
+#
+# BUILD_ROOT        here the packages will be built
+#
+# (c) 1997-2006 SuSE GmbH Nuernberg, Germany
+
+test -z "$BUILD_ROOT" && BUILD_ROOT=/var/tmp/build-root
+test -z "$BUILD_RPMS" && BUILD_RPMS=/media/dvd/suse
+test -z "$BUILD_ARCH" && {
+    BUILD_ARCH=`uname -m`
+    test i686 = "$BUILD_ARCH" && BUILD_ARCH=i586
+}
+export BUILD_ARCH BUILD_ROOT BUILD_RPMS
+
+export BUILD_DIR=/usr/lib/build
+export PATH=$BUILD_DIR:$PATH
+
+# This is for insserv
+export YAST_IS_RUNNING=instsys
+
+unset LANGUAGE
+unset LANG
+export LC_ALL=POSIX
+umask 022
+
+echo_help () {
+    cat << EOT
+
+Some comments for build
+-----------------------
+
+With build you can create rpm packages.  They will be built in a chroot
+system.  This chroot system will be setup automatically.  Normally you can
+simply call build with a spec file as parameter - nothing else has to be
+set.
+
+If you want to set the directory were the chroot system will be setup
+(at the moment it uses $BUILD_ROOT),
+simply set the the environment variable BUILD_ROOT.
+
+Example:
+
+  export BUILD_ROOT=/var/tmp/mybuildroot
+
+
+Normally build builds the complete package including src.rpm (rpmbuild -ba).
+If you want let build only make the binary package, simply set
+
+   export BUILD_RPM_BUILD_STAGE=-bb
+
+(or -bc, -bp, -bi, ...  see "Maximum RPM" for more details [*]).
+
+When the build command succeeds, the rpm files can be found under
+$BUILD_ROOT/usr/src/packages/RPMS/
+
+
+Known Parameters:
+
+  --help      You already got it :)
+
+  --clean     Delete old build root before initializing it
+
+  --no-init   Skip initialization of build root and start with build
+              immediately.
+
+  --rpms path1:path2:...
+              Specify path where to find the RPMs for the build system
+
+  --arch arch1:arch2:...
+              Specify what architectures to select from the RPMs
+
+  --useusedforbuild
+              Do not expand dependencies but search the specfile for
+              usedforbuild lines.
+
+  --verify    Run verify when initializing the build root
+
+  --extra-packs pack
+              Also install package 'pack'
+
+  --root rootdir
+              Use 'rootdir' to setup chroot environment
+
+  --baselibs  Create -32bit/-64bit/-x86 rpms for other architectures
+
+Remember to have fun!
+
+[*] Maximum RPM: http://www.rpm.org/max-rpm/
+EOT
+}
+usage () {
+    echo "Usage: `basename $0` [--no-init|--clean|--rpms path|--verify|--help] [dir-to-build|spec-to-build]"
+    cleanup_and_exit
+}
+
+function clean_build_root () {
+        test -n "$BUILD_ROOT" && {
+            umount -n $BUILD_ROOT/proc 2> /dev/null
+            umount -n $BUILD_ROOT/dev/pts 2> /dev/null
+            umount -n $BUILD_ROOT/mnt 2> /dev/null
+            rm -rf $BUILD_ROOT/*
+        }
+}
+
+#
+#  cleanup_and_exit
+#
+cleanup_and_exit () {
+    if test "$1" = 0 -o -z "$1" ; then
+        exit 0
+    else
+        exit $1
+    fi
+}
+
+function create_baselibs {
+    echo "... creating baselibs"
+    BRPMS=
+    for RPM in $BUILD_ROOT$TOPDIR/RPMS/*/*.rpm ; do
+        BRPMS="$BRPMS ${RPM#$BUILD_ROOT}"
+    done
+    BASELIBS_CFG=
+    if test -e $BUILD_ROOT$TOPDIR/SOURCES/baselibs.conf ; then
+	BASELIBS_CFG="-c $TOPDIR/SOURCES/baselibs.conf"
+    fi
+    if test -f $BUILD_ROOT/usr/lib/build/mkbaselibs ; then
+	if test -z "$BASELIBS_CFG" -a -e $BUILD_ROOT/usr/lib/build/baselibs.conf ; then
+	    BASELIBS_CFG="-c /usr/lib/build/baselibs.conf"
+	fi
+	chroot $BUILD_ROOT /usr/lib/build/mkbaselibs -c /usr/lib/build/baselibs_global.conf $BASELIBS_CFG $BRPMS || cleanup_and_exit 1
+    else
+	# use external version
+	rm -rf $BUILD_ROOT/.mkbaselibs
+	mkdir -p $BUILD_ROOT/.mkbaselibs
+	cp -f $BUILD_DIR/mkbaselibs $BUILD_ROOT/.mkbaselibs
+	cp -f $BUILD_DIR/baselibs_global.conf $BUILD_ROOT/.mkbaselibs
+	if test -z "$BASELIBS_CFG" -a -e $BUILD_DIR/baselibs.conf ; then
+	    cp -f $BUILD_DIR/baselibs.conf $BUILD_ROOT/.mkbaselibs/baselibs.conf
+	    BASELIBS_CFG="-c /.mkbaselibs/baselibs.conf"
+	fi
+	chroot $BUILD_ROOT /.mkbaselibs/mkbaselibs -c /.mkbaselibs/baselibs_global.conf $BASELIBS_CFG $BRPMS || cleanup_and_exit 1
+	rm -rf $BUILD_ROOT/.mkbaselibs
+    fi
+}
+
+DO_INIT=true
+CLEAN_BUILD=false
+SRCDIR=
+BUILD_JOBS=
+ABUILD_TARGET_ARCH=
+CREATE_BASELIBS=
+USEUSEDFORBUILD=
+XENIMAGE=
+XENSWAP=
+XENMEMORY=
+BUILD_INIT_BUILDSYSTEM=init_buildsystem
+RUNNING_IN_XEN=
+RPMLIST=
+RELEASE=
+REASON=
+NOROOTFORBUILD=
+
+if test "$0" = "/.build/build" ; then
+    BUILD_ROOT=/
+    BUILD_DIR=/.build
+    . $BUILD_DIR/build.data
+    PATH=$BUILD_DIR:$PATH
+    RUNNING_IN_XEN=true
+    if test -n "$XENSWAP" ; then
+	for i in 1 2 3 4 5 6 7 8 9 10 ; do
+	    test -e "$XENSWAP" && break
+	    test $i = 1 && echo "waiting for $XENSWAP to appear"
+	    echo -n .
+	    sleep 1
+	done
+	test $i = 1 || echo
+	cp -a "$XENSWAP" /.build/swapdev
+    fi
+    umount -l /dev 2>/dev/null
+    mount -orw -n -tproc none /proc 2>/dev/null
+    if test -n "$XENSWAP" ; then
+	rm -f "$XENSWAP"
+	cp -a /.build/swapdev "$XENSWAP"
+	swapon -v "$XENSWAP" || exit 1
+    fi
+    set "/.build-srcdir/$SPECFILE"
+fi
+
+while test -n "$1"; do
+  PARAM="$1"
+  ARG="$2"
+  shift
+  case $PARAM in
+    *-*=*)
+      ARG=${PARAM#*=}
+      PARAM=${PARAM%%=*}
+      set -- "----noarg=$PARAM" "$@"
+  esac
+  case $PARAM in
+      *-help|-h)
+        echo_help
+        cleanup_and_exit
+      ;;
+      *-no*init)
+        DO_INIT=false
+      ;;
+      *-clean)
+        CLEAN_BUILD=true
+      ;;
+      *-rpms)
+        BUILD_RPMS="$ARG"
+	if [ -z "$BUILD_RPMS" ] ; then
+	  echo_help
+	  cleanup_and_exit
+	fi
+        shift
+      ;;
+      *-arch)
+        BUILD_ARCH="$ARG"
+        shift
+      ;;
+      *-verify)
+        export VERIFY_BUILD_SYSTEM=true
+      ;;
+      *-target)
+	ABUILD_TARGET_ARCH="$ARG"
+	shift
+      ;;
+      *-jobs) 
+	BUILD_JOBS="$ARG"
+	shift
+      ;;
+      *-extra*packs|-X)
+        BUILD_EXTRA_PACKS="$BUILD_EXTRA_PACKS $ARG"
+        shift
+      ;;
+      *-baselibs)
+        CREATE_BASELIBS=true
+        ;;
+      *-root)
+        BUILD_ROOT="$ARG"
+        shift
+      ;;
+      *-dist) 
+	BUILD_DIST="$ARG"
+	export BUILD_DIST
+	shift
+      ;;
+      *-xen)
+        XENIMAGE="$ARG"
+        shift
+      ;;
+      *-xenswap)
+        XENSWAP="$ARG"
+        shift
+      ;;
+      *-xenmemory)
+        XENMEMORY="memory=$ARG"
+        shift
+      ;;
+      *-rpmlist)
+        RPMLIST="--rpmlist $ARG"
+	BUILD_RPMS=
+        shift
+      ;;
+      *-release)
+        RELEASE="--release $ARG"
+        shift
+      ;;
+      *-reason)
+        REASON="$ARG"
+        shift
+      ;;
+      *-norootforbuild)
+        NOROOTFORBUILD=true
+      ;;
+      *-stage)
+        BUILD_RPM_BUILD_STAGE="$ARG"
+        shift
+      ;;
+      *-useusedforbuild)
+        USEUSEDFORBUILD="--useusedforbuild"
+      ;;
+      ----noarg)
+        echo "$ARG does not take an argument"
+        cleanup_and_exit
+      ;;
+      -*)
+        echo Unknown Option "$PARAM". Exit.
+        cleanup_and_exit 1
+      ;;
+      *)
+        test -n "$SRCDIR" && usage
+        SRCDIR="$PARAM"
+      ;;
+    esac
+done
+
+test $UID != 0 && {
+    echo You have to be root to use $0. Exit.
+    cleanup_and_exit 1
+}
+
+case $BUILD_ARCH in
+i686) BUILD_ARCH="i686:i586:i486:i386" ;;
+i586) BUILD_ARCH="i586:i486:i386" ;;
+i486) BUILD_ARCH="i486:i386" ;;
+x86_64) BUILD_ARCH="x86_64:i686:i586:i486:i386" ;;
+esac
+if test "$BUILD_ARCH" != "${BUILD_ARCH#i686}" ; then
+    cpuflags=`grep ^flags /proc/cpuinfo`
+    cpuflags="$cpuflags "
+    test "$cpuflags" = "${cpuflags/ cx8 /}" -o "$cpuflags" = "${cpuflags/ cmov /}" && {
+	echo "Your cpu doesn't support i686 rpms. Exit."
+	exit 1
+    }
+fi
+
+if test "`echo $SRCDIR | cut -c 1`" != "/" ; then
+    SRCDIR=`pwd`/$SRCDIR
+fi
+
+if test -f $SRCDIR ; then
+    SPECFILES=`basename $SRCDIR`
+    SRCDIR=`dirname $SRCDIR`
+else
+    SPECFILES=""
+    for i in $SRCDIR/*.spec ; do
+        SPECFILES="$SPECFILES `basename $i`"
+    done
+    test -z "$SPECFILES" && {
+	for i in $SRCDIR/*.src.rpm ; do
+	    SPECFILES="$SPECFILES `basename $i`"
+	done
+    }
+fi
+
+test -z "$SPECFILES" && {
+    echo no spec files and src rpms found in $SRCDIR. exit...
+    cleanup_and_exit 1
+}
+
+if test -z "$SRCDIR" -o ! -d "$SRCDIR" ; then
+    echo Usage: $0 \<src-dirctory\>
+    cleanup_and_exit 1
+fi
+
+if test -d "$BUILD_ROOT" ; then
+    # check if it is owned by root
+    test -O "$BUILD_ROOT" || {
+	echo "BUILD_ROOT=$BUILD_ROOT must be owned by root. Exit..."
+	cleanup_and_exit 1
+    }
+else
+    test "$BUILD_ROOT" != "${BUILD_ROOT%/*}" && mkdir -p "${BUILD_ROOT%/*}"
+    mkdir $BUILD_ROOT || {
+	echo "can not create BUILD_ROOT=$BUILD_ROOT. Exit..."
+	cleanup_and_exit 1
+    }
+fi
+
+if test -n "$XENIMAGE" ; then
+    umount -n $BUILD_ROOT/proc 2> /dev/null
+    umount -n $BUILD_ROOT/dev/pts 2> /dev/null
+    umount -t loop $BUILD_ROOT 2>/dev/null
+    if test "$CLEAN_BUILD" = true ; then
+	echo "Creating filesystem on $XENIMAGE"
+	if ! echo y | mkfs -t reiserfs -f $XENIMAGE >/dev/null 2>&1 ; then
+	    if ! echo y | mkfs -t reiserfs -f $XENIMAGE ; then
+		cleanup_and_exit 1
+	    fi
+	fi
+    fi
+    mount -oloop $XENIMAGE $BUILD_ROOT || cleanup_and_exit 1
+    if test -n "$XENSWAP" ; then
+	mkswap "$XENSWAP"
+    fi
+fi
+
+rm -f $BUILD_ROOT/exit
+
+if test -z "$XENIMAGE" ; then
+    echo  logging output to $BUILD_ROOT/.build.log...
+    rm -f $BUILD_ROOT/.build.log
+    touch $BUILD_ROOT/.build.log
+    exec 1> >(exec -a 'build logging tee' tee -a $BUILD_ROOT/.build.log) 2>&1
+fi
+
+#
+# say hello
+#
+echo $HOST started \"build $SPECFILES\" at `date`.
+echo
+test -n "$REASON" && echo "$REASON"
+echo Using BUILD_ROOT=$BUILD_ROOT
+test -n "$BUILD_RPMS" && echo Using BUILD_RPMS=$BUILD_RPMS
+echo Using BUILD_ARCH=$BUILD_ARCH
+test -n "$XENIMAGE" && echo "Doing XEN build in $XENIMAGE"
+echo
+
+test "$BUILD_ARCH" = all && BUILD_ARCH=
+
+cd $SRCDIR
+
+for SPECFILE in $SPECFILES ; do
+    #
+    # first setup building directory...
+    #
+    test -s $SPECFILE || {
+       echo $SPECFILE is empty.  This should not happen...
+       continue
+    }
+
+    if test "$SPECFILE" != "${SPECFILE%.src.rpm}" ; then
+	echo processing src rpm `pwd`/$SPECFILE...
+	TOPDIR=`chroot $BUILD_ROOT rpm --eval '%_topdir'`
+	rm -rf $BUILD_ROOT$TOPDIR
+	mkdir -p $BUILD_ROOT$TOPDIR/SOURCES $BUILD_ROOT$TOPDIR/SPECS
+	rpm -i --nodigest --nosignature --root $BUILD_ROOT $SPECFILE || {
+	    echo "could not install $SPECFILE."
+	    continue
+	}
+	rm -rf $BUILD_ROOT/.build-srcdir
+	mkdir -p $BUILD_ROOT/.build-srcdir
+	mv $BUILD_ROOT$TOPDIR/SOURCES/* $BUILD_ROOT/.build-srcdir
+	mv $BUILD_ROOT$TOPDIR/SPECS/* $BUILD_ROOT/.build-srcdir
+	MYSRCDIR=$BUILD_ROOT/.build-srcdir
+	cd $MYSRCDIR || cleanup_and_exit 1
+	for SPECFILE in *.spec ; do : ; done
+    else
+	echo processing specfile `pwd`/$SPECFILE...
+	MYSRCDIR=$SRCDIR
+    fi
+
+    ADDITIONAL_PACKS=""
+    test -n "$BUILD_EXTRA_PACKS" && ADDITIONAL_PACKS="$ADDITIONAL_PACKS $BUILD_EXTRA_PACKS"
+    test -n "$CREATE_BASELIBS" && ADDITIONAL_PACKS="$ADDITIONAL_PACKS build"
+
+    if test "$CLEAN_BUILD" = true ; then
+        clean_build_root
+        DO_INIT=true
+    fi
+
+    if test -n "$XENIMAGE" ; then
+	# do fist stage of init_buildsystem
+        echo init_buildsystem $USEUSEDFORBUILD $RPMLIST $SPECFILE $ADDITIONAL_PACKS ...
+        init_buildsystem --prepare $USEUSEDFORBUILD $RPMLIST "$MYSRCDIR/$SPECFILE" $ADDITIONAL_PACKS || cleanup_and_exit 1
+	# start up xen, rerun ourself
+	mkdir -p $BUILD_ROOT/.build
+	cp -a $BUILD_DIR/. $BUILD_ROOT/.build
+	if ! test $MYSRCDIR = $BUILD_ROOT/.build-srcdir ; then
+	    mkdir $BUILD_ROOT/.build-srcdir
+	    cp -p $MYSRCDIR/* $BUILD_ROOT/.build-srcdir
+	    MYSRCDIR=$BUILD_ROOT/.build-srcdir
+	fi
+	echo "SPECFILE='${SPECFILE//\'/\'\\\'\'}'" > $BUILD_ROOT/.build/build.data
+	echo "BUILD_JOBS='${BUILD_JOBS//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/build.data
+	echo "BUILD_ARCH='${BUILD_ARCH//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/build.data
+	echo "BUILD_RPMS='${BUILD_RPMS//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/build.data
+	echo "CREATE_BASELIBS='$CREATE_BASELIBS'" >> $BUILD_ROOT/.build/build.data
+	echo "REASON='${REASON//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/build.data
+	test -n "$XENSWAP" && echo "XENSWAP='/dev/hda2'" >> $BUILD_ROOT/.build/build.data
+	umount $BUILD_ROOT
+	XMROOT=file:$XENIMAGE
+	XMROOT=${XMROOT/#file:\/dev/phy:}
+	XMROOT="disk=$XMROOT,hda1,w"
+	XMSWAP=
+	if test -n "$XENSWAP" ; then
+	    XMSWAP=file:$XENSWAP
+	    XMSWAP=${XMSWAP/#file:\/dev/phy:}
+	    XMSWAP="disk=$XMSWAP,hda2,w"
+	fi
+	xm create -c $BUILD_DIR/xen.conf name="build:${XENIMAGE##*/}" $XENMEMORY $XMROOT $XMSWAP extra="init=/.build/build panic=1"
+	exit 0
+    fi
+
+    if test "$DO_INIT" = true ; then
+        echo init_buildsystem $USEUSEDFORBUILD $RPMLIST $SPECFILE $ADDITIONAL_PACKS ...
+        $BUILD_INIT_BUILDSYSTEM $USEUSEDFORBUILD $RPMLIST "$MYSRCDIR/$SPECFILE" $ADDITIONAL_PACKS || cleanup_and_exit 1
+    fi
+
+    if test -z "$BUILD_DIST" -a -e "$BUILD_ROOT/.guessed_dist" ; then
+	BUILD_DIST=`cat $BUILD_ROOT/.guessed_dist`
+    fi
+
+    if test "$SPECFILE" = "${SPECFILE%.dsc}" ; then
+	TOPDIR=`chroot $BUILD_ROOT rpm --eval '%_topdir'`
+    else
+	TOPDIR=/usr/src/packages
+	mkdir -p $BUILD_ROOT$TOPDIR
+    fi
+
+    ln -f -s ${TOPDIR#/} $BUILD_ROOT/.build.packages
+
+    #
+    # fix rpmrc if we are compiling for i686
+    #
+    test -f $BUILD_ROOT/usr/lib/rpm/rpmrc_i586 && mv $BUILD_ROOT/usr/lib/rpm/rpmrc_i586 $BUILD_ROOT/usr/lib/rpm/rpmrc
+    if test -e $BUILD_ROOT/usr/lib/rpm/rpmrc -a "$BUILD_ARCH" != "${BUILD_ARCH#i686}" ; then
+	mv $BUILD_ROOT/usr/lib/rpm/rpmrc $BUILD_ROOT/usr/lib/rpm/rpmrc_i586
+	sed -e 's/^buildarchtranslate: athlon.*/buildarchtranslate: athlon: i686/' -e 's/^buildarchtranslate: i686.*/buildarchtranslate: i686: i686/' < $BUILD_ROOT/usr/lib/rpm/rpmrc_i586 > $BUILD_ROOT/usr/lib/rpm/rpmrc
+    fi
+
+    #
+    # check if we want to build with the abuild user
+    #
+    BUILD_USER=root
+    test -n "$NOROOTFORBUILD" && BUILD_USER=abuild
+    if egrep '^#[       ]*norootforbuild[       ]*$' >/dev/null <$SPECFILE; then
+        BUILD_USER=abuild
+    fi
+    if test $BUILD_USER = abuild ; then
+        if ! egrep '^abuild:' >/dev/null <$BUILD_ROOT/etc/passwd ; then
+            echo 'abuild::99:99:Autobuild:/home/abuild:/bin/bash' >>$BUILD_ROOT/etc/passwd
+            echo 'abuild::99:' >>$BUILD_ROOT/etc/group
+            mkdir -p $BUILD_ROOT/home/abuild
+            chown 99:99 $BUILD_ROOT/home/abuild
+        fi
+    else
+        if egrep '^abuild:' >/dev/null <$BUILD_ROOT/etc/passwd ; then
+            egrep -v '^abuild:' <$BUILD_ROOT/etc/passwd >$BUILD_ROOT/etc/passwd.new
+            mv $BUILD_ROOT/etc/passwd.new $BUILD_ROOT/etc/passwd
+            egrep -v '^abuild:' <$BUILD_ROOT/etc/group >$BUILD_ROOT/etc/group.new
+            mv $BUILD_ROOT/etc/group.new $BUILD_ROOT/etc/group
+            rm -rf $BUILD_ROOT/home/abuild
+        fi
+    fi
+
+    #
+    # now clean up RPM building directories
+    #
+    rm -rf $BUILD_ROOT$TOPDIR
+    for i in BUILD RPMS/`arch` RPMS/i386 RPMS/noarch SOURCES SPECS SRPMS ; do
+        mkdir -p $BUILD_ROOT$TOPDIR/$i
+	test BUILD_USER = abuild && chown 99:99 $BUILD_ROOT$TOPDIR/$i
+    done
+    test -e $BUILD_ROOT/exit && cleanup_and_exit
+    mkdir -p $BUILD_ROOT$TOPDIR/SOURCES
+    cp -p $MYSRCDIR/* $BUILD_ROOT$TOPDIR/SOURCES/
+    test $MYSRCDIR = $BUILD_ROOT/.build-srcdir && rm -rf $MYSRCDIR
+
+    if test "$SPECFILE" = "${SPECFILE%.dsc}" ; then
+	# do buildrequires/release substitution
+	substitutedeps $RELEASE --dist "$BUILD_DIST" --archpath "$BUILD_ARCH" --configdir "$BUILD_DIR/configs" "$BUILD_ROOT$TOPDIR/SOURCES/$SPECFILE" "$BUILD_ROOT/.spec.new" || cleanup_and_exit 1
+	# extract macros from configuration
+	getmacros --dist "$BUILD_DIST" --configdir "$BUILD_DIR/configs" > $BUILD_ROOT/root/.rpmmacros
+	test $BUILD_USER = abuild && cp -p $BUILD_ROOT/root/.rpmmacros $BUILD_ROOT/home/abuild/.rpmmacros
+    fi
+    if test -f $BUILD_ROOT/.spec.new ; then
+	if ! cmp -s $BUILD_ROOT$TOPDIR/SOURCES/$SPECFILE $BUILD_ROOT/.spec.new ; then
+	    echo -----------------------------------------------------------------
+	    echo I have the following modifications for $SPECFILE:
+	    diff $BUILD_ROOT$TOPDIR/SOURCES/$SPECFILE $BUILD_ROOT/.spec.new
+	    mv $BUILD_ROOT/.spec.new $BUILD_ROOT$TOPDIR/SOURCES/$SPECFILE
+	else
+	    rm -f $BUILD_ROOT/.spec.new
+	fi
+    fi
+
+    if test "$SPECFILE" != "${SPECFILE%.dsc}" ; then
+	rm -rf $BUILD_ROOT$TOPDIR/BUILD
+	test $BUILD_USER = abuild && chown 99:99 $BUILD_ROOT$TOPDIR
+	chroot $BUILD_ROOT su -c "dpkg-source -x $TOPDIR/SOURCES/$SPECFILE $TOPDIR/BUILD" - $BUILD_USER
+    fi
+    if test $BUILD_USER = abuild ; then
+        chown -R 99:99 $BUILD_ROOT$TOPDIR/*
+    else
+        chown -R root:root $BUILD_ROOT$TOPDIR/*
+    fi
+    cd $BUILD_ROOT$TOPDIR/SOURCES || cleanup_and_exit 1
+
+    echo -----------------------------------------------------------------
+    if test "$BUILD_USER" = root ; then
+        echo ----- building $SPECFILE
+    else
+        echo ----- building $SPECFILE "(user $BUILD_USER)"
+    fi
+    echo -----------------------------------------------------------------
+    echo -----------------------------------------------------------------
+    sync
+    mount -oro -n -tproc none $BUILD_ROOT/proc 2> /dev/null
+    mount -n -tdevpts none $BUILD_ROOT/dev/pts 2> /dev/null
+
+    BUILD_SUCCEDED=false
+
+    if test "$SPECFILE" = "${SPECFILE%.dsc}" ; then
+	test -z "$BUILD_RPM_BUILD_STAGE" && BUILD_RPM_BUILD_STAGE=-ba
+
+	BUILD_PARAMETERS="$BUILD_RPM_BUILD_STAGE"
+	test -n "$ABUILD_TARGET_ARCH" && BUILD_PARAMETERS="$BUILD_PARAMETERS --target=\"$ABUILD_TARGET_ARCH\""
+	test -n "$BUILD_JOBS" && BUILD_PARAMETERS="$BUILD_PARAMETERS --eval \"%define jobs \\\"$BUILD_JOBS\\\"\""
+	test root != "$BUILD_USER" && BUILD_PARAMETERS="$BUILD_PARAMETERS --eval \"%define _srcdefattr (-,root,root)\""
+	RPMBUILD=rpmbuild
+	test -x $BUILD_ROOT/usr/lib/rpm/rpmi || RPMBUILD=rpm
+	chroot $BUILD_ROOT su -c "$RPMBUILD $BUILD_PARAMETERS $TOPDIR/SOURCES/$SPECFILE" - $BUILD_USER < /dev/null && BUILD_SUCCEDED=true
+    else
+	chroot $BUILD_ROOT su -c "cd $TOPDIR/BUILD && dpkg-buildpackage -us -uc -rfakeroot" - $BUILD_USER < /dev/null && BUILD_SUCCEDED=true
+	mkdir -p $BUILD_ROOT/$TOPDIR/DEBS
+	for DEB in $BUILD_ROOT/$TOPDIR/*.deb ; do
+	    test -e "$DEB" && mv "$DEB" "$BUILD_ROOT/$TOPDIR/DEBS"
+	done
+    fi
+
+    umount -n $BUILD_ROOT/proc 2> /dev/null
+    umount -n $BUILD_ROOT/mnt 2> /dev/null
+    umount -n $BUILD_ROOT/dev/pts 2> /dev/null
+    test "$BUILD_SUCCEDED" = true || cleanup_and_exit 1
+    test -d "$SRCDIR" && cd "$SRCDIR"
+done
+
+if test -n "$CREATE_BASELIBS" ; then
+    mount -oro -n -tproc none $BUILD_ROOT/proc 2> /dev/null
+    create_baselibs
+    umount -n $BUILD_ROOT/proc 2> /dev/null
+fi
+
+if test -n "$RUNNING_IN_XEN" ; then
+    cd /
+    test -n "$XENSWAP" && swapoff "$XENSWAP"
+    exec >&0 2>&0	# so that the logging tee finishes
+    sleep 1		# wait till tee terminates
+    kill -9 -1		# goodbye cruel world
+    exec /bin/bash -c 'mount -n -o remount,ro / ; halt -f'
+    halt -f
+fi
+
+cleanup_and_exit 0

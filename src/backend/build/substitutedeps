@@ -1,0 +1,129 @@
+#!/usr/bin/perl -w
+
+BEGIN {
+  unshift @INC, ($::ENV{'BUILD_DIR'} || '/usr/lib/build');
+}
+
+use strict;
+
+use Build;
+
+my ($dist, $rpmdeps, $archs, $configdir, $release);
+
+while (@ARGV)  {
+  if ($ARGV[0] eq '--dist') {
+    shift @ARGV;
+    $dist = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--archpath') {
+    shift @ARGV;
+    $archs = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--release') {
+    shift @ARGV;
+    $release = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--configdir') {
+    shift @ARGV;
+    $configdir = shift @ARGV;
+    next;
+  }
+  last;
+}
+$configdir = '.' unless defined $configdir;
+$archs = '' unless defined $archs;
+$dist = '' unless defined $dist;
+
+die("Usage: substitutedeps --dist <dist> --archpath <archpath> [--configdir <configdir>] <specin> <specout>\n") unless @ARGV == 2;
+my $spec = $ARGV[0];
+my $newspec = $ARGV[1];
+
+my @archs = split(':', $archs);
+push @archs, 'noarch' unless grep {$_ eq 'noarch'} @archs;
+
+my $cf;
+if ($dist =~ /\//) {
+  die("$dist: $!\n") unless -e $dist;
+  $cf = Build::read_config($archs[0], $dist);
+} else {
+  $dist =~ s/-.*//;
+  $dist = "sl$dist" if $dist =~ /^\d/;
+  $cf = Build::read_config($archs[0], "$configdir/$dist.conf");
+  if (!$cf) {
+    $cf = Build::read_config($archs[0], "$configdir/default.conf");
+  }
+}
+die("config not found\n") unless $cf;
+
+#######################################################################
+
+my ($packname, $packvers, $subpacks, @packdeps);
+$subpacks = [];
+
+my $xspec = [];
+($packname, $packvers, $subpacks, @packdeps) = Build::read_spec($cf, $spec, $xspec);
+my @sdeps = @packdeps;
+my @neg = map {substr($_, 1)} grep {/^-/} @packdeps;
+my %neg = map {$_ => 1} @neg;
+@sdeps = grep {!$neg{$_}} @sdeps;
+@sdeps = Build::do_subst($cf, @sdeps);
+@sdeps = grep {!$neg{$_}} @sdeps;
+my %sdeps = map {$_ => 1} @sdeps;
+
+open(F, '>', $newspec) || die("$newspec: $!\n");
+
+for my $l (@$xspec) {
+  if (!ref($l)) {
+    $l =~ s/^(Release:\s*).*/$1$release/i if $release;
+    if ($l !~ /^BuildRequires:/i) {
+      print F "$l\n";
+      next;
+    }
+    $l = [$l, $l];
+  } else {
+    if (!defined($l->[1])) {
+      $l->[0] =~ s/^(Release:\s*).*/$1$release/i if $release;
+      print F "$l->[0]\n";
+      next;
+    }
+    $l->[1] =~ s/^(Release:\s*).*/$1$release/i if $release;
+    if ($l->[1] !~ /^BuildRequires:/i) {
+      print F "$l->[1]\n";
+      next;
+    }
+  }
+  my $r = $l->[1];
+  $r =~ s/^[^:]*:\s*//;
+  my @deps = $r =~ /([^\s\[\(,]+)(\s+[<=>]+\s+[^\s\[,]+)?[\s,]*/g;
+  my @ndeps = ();
+  my $replace = 0;
+  my %f2 = @deps;
+  my @f2 = Build::do_subst($cf, grep {!/^-/} keys %f2);
+  %f2 = map {$_ => 1} @f2;
+  delete $f2{$_} for @neg;
+  while (@deps) {
+    my ($pack, $vers) = splice(@deps, 0, 2);
+    $vers = '' unless defined $vers;
+    if ($sdeps{$pack}) {
+      push @ndeps, "$pack$vers";
+      delete $f2{$pack};
+    } else {
+      $replace = 1;
+    }
+  }
+  if (%f2) {
+    push @ndeps, sort keys %f2;
+    $replace = 1
+  }
+  if ($replace) {
+    print F "BuildRequires:  ".join(' ', @ndeps)."\n" if @ndeps;
+  } else {
+    print F "$l->[1]\n";
+  }
+}
+close(F) || die("close: $!\n");
+
+exit(0);

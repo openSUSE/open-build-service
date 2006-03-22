@@ -1,0 +1,204 @@
+#!/usr/bin/perl -w
+
+BEGIN {
+  unshift @INC, ($::ENV{'BUILD_DIR'} || '/usr/lib/build');
+}
+
+use Build;
+use strict;
+
+######################################################################
+
+my $rpmdepfile = $ARGV[0];
+
+my %oldp;
+my %oldr;
+if (defined($rpmdepfile) && open(F, '<', $rpmdepfile)) {
+  while (<F>) {
+    chomp;
+    if (/^P:([^ ]): /) {
+      $oldp{$1} = $_;
+    } elsif (/^R:([^ ]): /) {
+      $oldr{$1} = $_;
+    }
+  }
+  close F;
+}
+
+my $redo = 1;
+while ($redo) {
+  $redo = 0;
+  my $packages;
+  my @known;
+  my %known2fn;
+  my %known2path;
+  my %fnsize2id;
+  while (<STDIN>) {
+    chomp;
+    if ($_ eq '') {
+      # next block;
+      $redo = 1;
+      last;
+    }
+    if (/\/packages$/) {
+      $packages = $_;
+      next;
+    }
+    next unless /^(\d+\/\d+\/\d+) (.*)$/;
+    my $id = $1;
+    my $path = $2;
+    next unless $path =~ /\.(?:rpm|deb)$/;
+    my $fn = $path;
+    $fn =~ s/.*\///;
+    next if $fn =~ /\.(?:patch|delta)\.rpm$/;
+    my ($r, $arch);
+    if ($fn =~ /^(.*)-[^-]+-[^-]+\.([^\. ]+)\.rpm$/) {
+      $r = $1;
+      $arch = $2;
+    } elsif ($path =~ /^(?:.*\/)?([^\/ ]+)\/([^\/ ]+)\.rpm$/) {
+      #next if $1 eq '.';
+      $r = $2;
+      $arch = $1;
+    } elsif ($fn =~ /^([^_]*)_(?:[^_]*)_([^_]*)\.deb$/) {
+      $r = $1;
+      $arch = $2;
+      $arch = 'noarch' if $arch eq 'all';
+    } else {
+      next;
+    }
+    next if $arch eq 'src' || $arch eq 'nosrc';
+    push @known, "$r.$arch-$id";
+    $known2fn{"$r.$arch-$id"} = $fn;
+    $known2path{"$r.$arch-$id"} = $path;
+    my $size = (split('/', $id))[1];
+    $fnsize2id{"$fn-$size"} = $id;
+  }
+
+  my %newp;
+  my %newr;
+  for (@known) {
+    $newp{$_} = $oldp{$_} if $oldp{$_};
+    $newr{$_} = $oldr{$_} if $oldr{$_};
+  }
+
+  my @todo = grep {!($newp{$_} && $newr{$_})} @known;
+  if (@todo && $packages && open(F, '<', $packages)) {
+    my ($pack, $vers, $rel, $btime, $arch, $loc, $id, $size);
+    my ($req, $prv);
+    while (<F>) {
+      chomp;
+      next unless /^[=+]/;
+      my ($tag, $data);
+      if (/^\+(.*)$/) {
+	$tag = $1;
+	$data = '';
+	while (<F>) {
+	  chomp;
+	  last if $_ eq "-$tag";
+	  $data .= "$_\n";
+	}
+	chop $data;
+      } else {
+	($tag, $data) = split(' ', $_, 2);
+	$tag = substr($tag, 1);
+      }
+      if ($tag eq 'Pkg:') {
+	if ($pack && $loc && $size) {
+	  my $id = $fnsize2id{"$loc-$size"};
+	  if ($id && $known2path{"$pack.$arch-$id"}) {
+	    $prv = "$pack = $vers-$rel" unless defined $prv;
+	    $req = '' unless defined $req;
+	    $newp{"$pack.$arch-$id"} = "P:$pack.$arch-$id: $prv";
+	    $newr{"$pack.$arch-$id"} = "R:$pack.$arch-$id: $req";
+	  }
+	}
+	($pack, $vers, $rel, $arch) = split(' ', $data);
+	undef $req;
+	undef $prv;
+	undef $btime;
+	undef $size;
+	undef $loc;
+	undef $pack if $arch && ($arch eq 'src' || $arch eq 'nosrc');
+      } elsif ($tag eq 'Req:') {
+	next unless $pack;
+	$data =~ s/\n/ /gs;
+	$req = $data;
+      } elsif ($tag eq 'Prv:') {
+	next unless $pack;
+	# add self provides for old rpm versions
+	$data = "$pack = $vers-$rel\n$data" unless "\n$data" =~ /\n\Q$pack\E =/s;
+	$data =~ s/\n/ /gs;
+	$prv = $data;
+      } elsif ($tag eq 'Tim:') {
+	$btime = $data;
+      } elsif ($tag eq 'Loc:') {
+	my @data = split(' ', $data);
+	$loc = $data[1];
+      } elsif ($tag eq 'Siz:') {
+	my @data = split(' ', $data);
+	$size = $data[0];
+      }
+    }
+    close F;
+    if ($pack && $loc && $size) {
+      my $id = $fnsize2id{"$loc-$size"};
+      if ($id && $known2path{"$pack.$arch-$id"}) {
+	$newp{"$pack.$arch-$id"} = "P:$pack.$arch-$id: $prv";
+	$newr{"$pack.$arch-$id"} = "R:$pack.$arch-$id: $req";
+      }
+    }
+    @todo = grep {!($newp{$_} && $newr{$_})} @known;
+  }
+  if (@todo) {
+    for my $known (@todo) {
+      my $path = $known2path{$known};
+      if ($path =~ /\.rpm$/) {
+        my %res = Build::rpmq($path, 1000, 1022, 1047, 1049, 1048, 1050, 1112, 1113);
+        next unless %res;
+        Build::rpmq_add_flagsvers(\%res, 1047, 1112, 1113);
+        Build::rpmq_add_flagsvers(\%res, 1049, 1048, 1050);
+        my $id = $known;
+        $id =~ s/.*-//;
+        if ($known ne "$res{1000}->[0].$res{1022}->[0]-$id") {
+	  $known = "$res{1000}->[0].$res{1022}->[0]-$id";
+	  if (!$known2path{$known}) {
+	    push @known, $known;
+	    $known2path{$known} = $path;
+	  }
+        }
+        $newp{$known} = "P:$known: ".join(' ', @{$res{1047} || []});
+        $newr{$known} = "R:$known: ".join(' ', @{$res{1049} || []});
+      } else {
+        my %res = Build::debq($path);
+        next unless %res;
+	my ($dn, $da) = ($res{'PACKAGE'}, $res{'ARCHITECTURE'});
+	$da = 'noarch' if $da eq 'all';
+        my $id = $known;
+        $id =~ s/.*-//;
+        if ($known ne "$dn.$da-$id") {
+	  $known = "$dn.$da-$id";
+	  if (!$known2path{$known}) {
+	    push @known, $known;
+	    $known2path{$known} = $path;
+	  }
+	}
+	my @provides = split(',\s*', $res{'PROVIDES'} || '');
+	my @depends = split(',\s*', $res{'DEPENDS'} || '');
+	my @predepends = split(',\s*', $res{'PRE-DEPENDS'} || '');
+	s/\s.*// for @provides;   #for now
+	s/\s.*// for @depends;    #for now
+	s/\s.*// for @predepends; #for now
+	push @depends, @predepends;
+	push @provides, $res{'PACKAGE'};
+        $newp{$known} = "P:$known: ".join(' ', @provides);
+        $newr{$known} = "R:$known: ".join(' ', @depends);
+      }
+    }
+  }
+  @known = grep {$newp{$_} && $newr{$_}} @known;
+  for (@known) {
+    print "F:$_: $known2path{$_}\n";
+    print "$newp{$_}\n";
+    print "$newr{$_}\n";
+  }
+}

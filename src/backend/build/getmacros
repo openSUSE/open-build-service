@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+my ($dist, $configdir);
+
+while (@ARGV)  {
+  if ($ARGV[0] eq '--dist') {
+    shift @ARGV;
+    $dist = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--configdir') {
+    shift @ARGV;
+    $configdir = shift @ARGV;
+    next;
+  }
+  last;
+}
+$configdir = '.' unless defined $configdir;
+$dist = '' unless defined $dist;
+
+die("Usage: getmacros --dist <dist> [--configdir <configdir>]\n") if !defined($dist) || @ARGV;
+local *F;
+if ($dist =~ /\//) {
+  open(F, '<', $dist) || die("$dist: $!\n");
+} else {
+  $dist =~ s/-.*//;
+  $dist = "sl$dist" if $dist =~ /^\d/;
+  open(F, '<', "$configdir/$dist.conf") || open(F, '<', "$configdir/default.conf") || die("config not found\n");
+}
+my $inmacro = 0;
+while(<F>) {
+  if (!$inmacro) {
+    $inmacro = 1 if /^\s*macros:/i;
+    next;
+  }
+  print;
+}

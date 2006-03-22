@@ -1,0 +1,874 @@
+#!/usr/bin/perl -w
+
+use POSIX;
+use strict;
+
+my %STAG = (
+        "NAME"		=> 1000,
+        "VERSION"	=> 1001,
+        "RELEASE"	=> 1002,
+        "EPOCH"		=> 1003,
+        "SERIAL"	=> 1003,
+        "SUMMARY"	=> 1004,
+        "DESCRIPTION"	=> 1005,
+        "BUILDTIME"	=> 1006,
+        "BUILDHOST"	=> 1007,
+        "INSTALLTIME"	=> 1008,
+        "SIZE"		=> 1009,
+        "DISTRIBUTION"	=> 1010,
+        "VENDOR"	=> 1011,
+        "GIF"		=> 1012,
+        "XPM"		=> 1013,
+        "LICENSE"	=> 1014,
+        "COPYRIGHT"	=> 1014,
+        "PACKAGER"	=> 1015,
+        "GROUP"		=> 1016,
+        "SOURCE"	=> 1018,
+        "PATCH"		=> 1019,
+        "URL"		=> 1020,
+        "OS"		=> 1021,
+        "ARCH"		=> 1022,
+        "PREIN"		=> 1023,
+        "POSTIN"	=> 1024,
+        "PREUN"		=> 1025,
+        "POSTUN"	=> 1026,
+        "OLDFILENAMES"	=> 1027,
+        "FILESIZES"	=> 1028,
+        "FILESTATES"	=> 1029,
+        "FILEMODES"	=> 1030,
+        "FILERDEVS"	=> 1033,
+        "FILEMTIMES"	=> 1034,
+        "FILEMD5S"	=> 1035,
+        "FILELINKTOS"	=> 1036,
+        "FILEFLAGS"	=> 1037,
+        "FILEUSERNAME"	=> 1039,
+        "FILEGROUPNAME"	=> 1040,
+        "ICON"		=> 1043,
+        "SOURCERPM"	=> 1044,
+        "FILEVERIFYFLAGS"	=> 1045,
+        "ARCHIVESIZE"	=> 1046,
+        "PROVIDENAME"	=> 1047,
+        "PROVIDES"	=> 1047,
+        "REQUIREFLAGS"	=> 1048,
+        "REQUIRENAME"	=> 1049,
+        "REQUIREVERSION"	=> 1050,
+        "NOSOURCE"	=> 1051,
+        "NOPATCH"	=> 1052,
+        "CONFLICTFLAGS"	=> 1053,
+        "CONFLICTNAME"	=> 1054,
+        "CONFLICTVERSION"	=> 1055,
+        "EXCLUDEARCH"	=> 1059,
+        "EXCLUDEOS"	=> 1060,
+        "EXCLUSIVEARCH"	=> 1061,
+        "EXCLUSIVEOS"	=> 1062,
+        "RPMVERSION"	=> 1064,
+        "TRIGGERSCRIPTS"	=> 1065,
+        "TRIGGERNAME"	=> 1066,
+        "TRIGGERVERSION"	=> 1067,
+        "TRIGGERFLAGS"	=> 1068,
+        "TRIGGERINDEX"	=> 1069,
+        "VERIFYSCRIPT"	=> 1079,
+        "CHANGELOGTIME"	=> 1080,
+        "CHANGELOGNAME"	=> 1081,
+        "CHANGELOGTEXT"	=> 1082,
+        "PREINPROG"	=> 1085,
+        "POSTINPROG"	=> 1086,
+        "PREUNPROG"	=> 1087,
+        "POSTUNPROG"	=> 1088,
+        "BUILDARCHS"	=> 1089,
+        "OBSOLETENAME"	=> 1090,
+        "OBSOLETES"	=> 1090,
+        "VERIFYSCRIPTPROG"	=> 1091,
+        "TRIGGERSCRIPTPROG"	=> 1092,
+        "COOKIE"	=> 1094,
+        "FILEDEVICES"	=> 1095,
+        "FILEINODES"	=> 1096,
+        "FILELANGS"	=> 1097,
+        "PREFIXES"	=> 1098,
+        "INSTPREFIXES"	=> 1099,
+        "SOURCEPACKAGE"	=> 1106,
+        "PROVIDEFLAGS"	=> 1112,
+        "PROVIDEVERSION"	=> 1113,
+        "OBSOLETEFLAGS"	=> 1114,
+        "OBSOLETEVERSION"	=> 1115,
+        "DIRINDEXES"	=> 1116,
+        "BASENAMES"	=> 1117,
+        "DIRNAMES"	=> 1118,
+        "OPTFLAGS"	=> 1122,
+        "DISTURL"	=> 1123,
+        "PAYLOADFORMAT"	=> 1124,
+        "PAYLOADCOMPRESSOR"	=> 1125,
+        "PAYLOADFLAGS"	=> 1126,
+        "INSTALLCOLOR"	=> 1127,
+        "INSTALLTID"	=> 1128,
+        "REMOVETID"	=> 1129,
+        "RHNPLATFORM"	=> 1131,
+        "PLATFORM"	=> 1132,
+        "PATCHESNAME"	=> 1133,
+        "PATCHESFLAGS"	=> 1134,
+        "PATCHESVERSION"	=> 1135,
+        "CACHECTIME"	=> 1136,
+        "CACHEPKGPATH"	=> 1137,
+        "CACHEPKGSIZE"	=> 1138,
+        "CACHEPKGMTIME"	=> 1139,
+        "FILECOLORS"	=> 1140,
+        "FILECLASS"	=> 1141,
+        "CLASSDICT"	=> 1142,
+        "FILEDEPENDSX"	=> 1143,
+        "FILEDEPENDSN"	=> 1144,
+        "DEPENDSDICT"	=> 1145,
+        "SOURCEPKGID"	=> 1146,
+);
+
+# do not mix numeric tags with symbolic tags.
+# special symbolic tag 'FILENAME' exists.
+sub rpmq_many {
+  my $rpm = shift;
+  my @stags = @_;
+
+  my $need_filenames = grep { $_ eq 'FILENAMES' } @stags;
+  push @stags, 'BASENAMES', 'DIRNAMES', 'DIRINDEXES', 'OLDFILENAMES' if $need_filenames;
+  @stags = grep { $_ ne 'FILENAMES' } @stags if $need_filenames;
+  my %stags = map {0+($STAG{$_} or $_) => $_} @stags;
+
+  my ($magic, $sigtype, $headmagic, $cnt, $cntdata, $lead, $head, $index, $data, $tag, $type, $offset, $count);
+
+  local *RPM;
+  if (ref($rpm) eq 'ARRAY') {
+    ($headmagic, $cnt, $cntdata) = unpack('N@8NN', $rpm->[0]);
+    if ($headmagic != 0x8eade801) {
+      warn("Bad rpm\n");
+      return ();
+    }
+    if (length($rpm->[0]) < 16 + $cnt * 16 + $cntdata) {
+      warn("Bad rpm\n");
+      return ();
+    }
+    $index = substr($rpm->[0], 16, $cnt * 16);
+    $data = substr($rpm->[0], 16 + $cnt * 16, $cntdata);
+  } else {
+    return () unless open(RPM, "<$rpm");
+    if (read(RPM, $lead, 96) != 96) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+    ($magic, $sigtype) = unpack('N@78n', $lead);
+    if ($magic != 0xedabeedb || $sigtype != 5) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+    if (read(RPM, $head, 16) != 16) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+    ($headmagic, $cnt, $cntdata) = unpack('N@8NN', $head);
+    if ($headmagic != 0x8eade801) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+    if (read(RPM, $index, $cnt * 16) != $cnt * 16) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+    $cntdata = ($cntdata + 7) & ~7;
+    if (read(RPM, $data, $cntdata) != $cntdata) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+  }
+
+  my %res = ();
+
+  if (ref($rpm) eq 'ARRAY' && @stags && @$rpm > 1) {
+    my %res2 = &rpmq_many([ $rpm->[1] ], @stags);
+    %res = (%res, %res2);
+    return %res;
+  }
+
+  if (ref($rpm) ne 'ARRAY' && @stags) {
+    if (read(RPM, $head, 16) != 16) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+    ($headmagic, $cnt, $cntdata) = unpack('N@8NN', $head);
+    if ($headmagic != 0x8eade801) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+    if (read(RPM, $index, $cnt * 16) != $cnt * 16) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+    if (read(RPM, $data, $cntdata) != $cntdata) {
+      warn("Bad rpm $rpm\n");
+      close RPM;
+      return ();
+    }
+  }
+  close RPM if ref($rpm) ne 'ARRAY';
+
+  return %res unless @stags;	# nothing to do
+
+  while($cnt-- > 0) {
+    ($tag, $type, $offset, $count, $index) = unpack('N4a*', $index);
+    $tag = 0+$tag;
+    if ($stags{$tag}) {
+      eval {
+        my $otag = $stags{$tag};
+	if ($type == 0) {
+	  $res{$otag} = [ '' ];
+	} elsif ($type == 1) {
+	  $res{$otag} = [ unpack("\@${offset}c$count", $data) ];
+	} elsif ($type == 2) {
+	  $res{$otag} = [ unpack("\@${offset}c$count", $data) ];
+	} elsif ($type == 3) {
+	  $res{$otag} = [ unpack("\@${offset}n$count", $data) ];
+	} elsif ($type == 4) {
+	  $res{$otag} = [ unpack("\@${offset}N$count", $data) ];
+	} elsif ($type == 5) {
+	  $res{$otag} = [ undef ];
+	} elsif ($type == 6) {
+	  $res{$otag} = [ unpack("\@${offset}Z*", $data) ];
+	} elsif ($type == 7) {
+	  $res{$otag} = [ unpack("\@${offset}a$count", $data) ];
+	} elsif ($type == 8 || $type == 9) {
+	  my $d = unpack("\@${offset}a*", $data);
+	  my @res = split("\0", $d, $count + 1);
+	  $res{$otag} = [ splice @res, 0, $count ];
+	} else {
+	  $res{$otag} = [ undef ];
+	}
+      };
+      if ($@) {
+	warn("Bad rpm $rpm: $@\n");
+        return ();
+      }
+    }
+  }
+  
+  if ($need_filenames) {
+    if ($res{'OLDFILENAMES'}) {
+      $res{'FILENAMES'} = [ @{$res{'OLDFILENAMES'}} ];
+    } else {
+      my $i = 0;
+      $res{'FILENAMES'} = [ map {"$res{'DIRNAMES'}->[$res{'DIRINDEXES'}->[$i++]]$_"} @{$res{'BASENAMES'}} ];
+    }
+  }
+  return %res;
+}
+
+sub rpmq_add_flagsvers {
+  my $res = shift;
+  my $name = shift;
+  my $flags = shift;
+  my $vers = shift;
+
+  return unless $res;
+  my @flags = @{$res->{$flags} || []};
+  my @vers = @{$res->{$vers} || []};
+  for (@{$res->{$name}}) {
+    if (@flags && ($flags[0] & 0xe) && @vers) {
+      $_ .= ' ';
+      $_ .= '<' if $flags[0] & 2;
+      $_ .= '>' if $flags[0] & 4;
+      $_ .= '=' if $flags[0] & 8;
+      $_ .= " $vers[0]";
+    }
+    shift @flags;
+    shift @vers;
+  }
+}
+
+my @preamble = qw{
+  Name Version Release Epoch Summary Copyright License Distribution
+  Disturl Vendor Group Packager Url Icon Prefixes 
+};
+
+my $rpm;
+my $arch;
+
+my $config = '';
+
+my $targettype;
+my $targetarch;
+my $prefix;
+my $extension;
+my $configdir;
+my $targetname;
+
+my @baselib;
+my @config;
+
+my @provides;
+my @obsoletes;
+my @requires;
+my @prerequires;
+my @conflicts;
+
+my @prein;
+my @postin;
+my @preun;
+my @postun;
+
+sub parse_config {
+  my $target = shift;
+  my $pkgname = shift;
+  my $pkgver = shift;
+
+  my $pkghasmatched;
+
+  my $pkgmatches = 1;
+  $prefix = '';
+  $extension = '';
+  $configdir = '';
+  $targetname = '';
+  ($targetarch, $targettype) = split(':', $target, 2);
+  @baselib = ();
+  @config = ();
+  @provides = ();
+  @obsoletes = ();
+  @requires = ();
+  @prerequires = ();
+  @conflicts = ();
+  @prein = ();
+  @postin = ();
+  @preun = ();
+  @postun = ();
+  my $match1 = '';
+
+  for (split("\n", $config)) {
+    s/^\s+//;
+    s/\s+$//;
+    next if $_ eq '' || $_ =~ /^#/;
+
+    s/\<targettype\>/$targettype/g;
+    s/\<targetarch\>/$targetarch/g;
+    s/\<name\>/$pkgname/g;
+    s/\<version\>/$pkgver/g;
+    s/\<prefix\>/$prefix/g;
+    s/\<extension\>/$extension/g;
+    s/\<configdir\>/$configdir/g;
+    s/\<match1\>/$match1/g;
+
+    if (/^arch\s+/) {
+      next unless s/^arch\s+\Q$arch\E\s+//;
+    }
+    next if /^targets\s+/;
+    if (/\s+package\s+[-+_a-zA-Z0-9]+$/) {
+      $pkgmatches = 0;	# XXX: hack
+    }
+    if (/\s+package\s+\/[-+_a-zA-Z0-9]+\/$/) {
+      $pkgmatches = 0;	# XXX: hack
+    }
+    if (/^targettype\s+/) {
+      next unless s/^targettype\s+\Q$targettype\E\s+//;
+    }
+    if (/^targetarch\s+/) {
+      next unless s/^targetarch\s+\Q$targetarch\E\s+//;
+    }
+    if (/^prefix\s+(.*?)$/) { $prefix = $1; next; }
+    if (/^extension\s+(.*?)$/) { $extension = $1; next; }
+    if (/^configdir\s+(.*?)$/) { $configdir= $1; next; }
+    if (/^targetname\s+(.*?)$/) { $targetname = $1; next; }
+
+    $_ = "baselib $_" if /^[\+\-\"]/;
+    $_ = "package $_" if /^[-+_a-zA-Z0-9]+$/;
+    if (/^package\s+\/(.*?)\/$/) {
+      my $pm = $1;
+      $pkgmatches = $pkgname =~ /$pm/;
+      $match1 = $1 if defined $1;
+      next;
+    }
+    if (/^package\s+(.*?)$/) {
+      $pkgmatches = $1 eq $pkgname;
+      $pkghasmatched |= $pkgmatches;
+      next;
+    }
+    next unless $pkgmatches;
+    return 0 if $_ eq 'block!';
+    if (/^provides\s+(.*?)$/) { push @provides, $1; next; }
+    if (/^requires\s+(.*?)$/) { push @requires, $1; next; }
+    if (/^prereq\s+(.*?)$/) { push @prerequires, $1; next; }
+    if (/^obsoletes\s+(.*?)$/) { push @obsoletes, $1; next; }
+    if (/^conflicts\s+(.*?)$/) { push @conflicts, $1; next; }
+    if (/^baselib\s+(.*?)$/) { push @baselib, $1; next; }
+    if (/^config\s+(.*?)$/) { push @config, $1; next; }
+    if (/^pre(in)?\s+(.*?)$/) { push @prein, $2; next; }
+    if (/^post(in)?\s+(.*?)$/) { push @postin, $2; next; }
+    if (/^preun\s+(.*?)$/) { push @preun, $1; next; }
+    if (/^postun\s+(.*?)$/) { push @preun, $1; next; }
+    die("bad line: $_\n");
+  }
+  return $pkghasmatched;
+}
+
+sub read_config {
+  my $cfname = shift;
+  local *F;
+  open(F, "<$cfname") || die("$cfname: $!\n");
+  my @cf = <F>;
+  close F;
+  $config .= join('', @cf);
+  $config .= "\npackage __does_not_match__\n";
+}
+
+sub get_targets {
+  my %targets;
+  for (split("\n", $config)) {
+    if (/^arch\s+/) {
+      next unless s/^arch\s+\Q$arch\E\s+//;
+    }
+    if (/^targets\s+(.*?)$/) {
+      $targets{$_} = 1 for split(' ', $1);
+    }
+  }
+  my @targets = sort keys %targets;
+  return @targets;
+}
+
+sub get_pkgnames {
+  my %rpms;
+  for (split("\n", $config)) {
+    if (/^(.*\s+)?package\s+([-+_a-zA-Z0-9]+)\s*$/) {
+      $rpms{$2} = 1;
+    } elsif (/^\s*([-+_a-zA-Z0-9]+)\s*$/) {
+      $rpms{$1} = 1;
+    }
+  }
+  return sort keys %rpms;
+}
+
+my $verbose;
+
+die("Usage: mkbaselibs <rpms>\n") unless @ARGV;
+
+if ($ARGV[0] eq '-v') {
+  $verbose = 1;
+  shift @ARGV;
+}
+while ($ARGV[0] eq '-c') {
+  shift @ARGV;
+  read_config($ARGV[0]);
+  shift @ARGV;
+}
+
+my %goodpkgs = map {$_ => 1} get_pkgnames();
+my @rpms = @ARGV;
+for my $rpm (splice @rpms) {
+  my $rpmn = $rpm;
+  next if $rpm =~ /\.(no)?src\.rpm$/;
+  next if $rpm =~ /\.spm$/;
+  $rpmn =~ s/.*\///;
+  $rpmn =~ s/-[^-]+-[^-]+\.[^\.]+\.rpm$/\.rpm/;
+  $rpmn =~ s/\.rpm$//;
+  push @rpms, $rpm if $goodpkgs{$rpmn};
+}
+for (@rpms) {
+  die("$_: need absolute path to rpm\n") unless /^\//;
+}
+
+exit 0 unless @rpms;
+
+my @filesystem = split("\n", `rpm -ql filesystem 2>/dev/null`);
+die("filesystem rpm is not installed\n") unless @filesystem;
+
+for $rpm (@rpms) {
+
+  my @stags = map {uc($_)} @preamble;
+  push @stags, 'DESCRIPTION';
+  push @stags, 'FILENAMES', 'FILEMODES', 'FILEUSERNAME', 'FILEGROUPNAME', 'FILEFLAGS', 'FILEVERIFYFLAGS';
+  push @stags, 'CHANGELOGTIME', 'CHANGELOGNAME', 'CHANGELOGTEXT';
+  push @stags, 'ARCH', 'SOURCERPM', 'RPMVERSION';
+  my %res = rpmq_many($rpm, @stags);
+  die("$rpm: bad rpm\n") unless $res{'NAME'};
+
+  my $rname = $res{'NAME'}->[0];
+  my $sname = $res{'SOURCERPM'}->[0];
+  die("$rpm is a sourcerpm\n") unless $sname;
+  die("bad sourcerpm: $sname\n") unless $sname =~ /^(.*)-([^-]+)-([^-]+)$/;
+  $sname = $1;
+  my $sversion = $2;
+  my $srelease = $3;
+
+  $arch = $res{'ARCH'}->[0];
+  my @targets = get_targets();
+  if (!@targets) {
+    print "no targets for arch $arch, nothing to do\n";
+    exit(0);
+  }
+  for my $target (@targets) {
+
+    next unless parse_config($target, $res{'NAME'}->[0], $res{'VERSION'}->[0]);
+    die("targetname not set\n") unless $targetname;
+
+    my %ghosts;
+    my @rpmfiles = @{$res{'FILENAMES'}};
+    my @ff = @{$res{'FILEFLAGS'}};
+    for (@rpmfiles) {
+      $ghosts{$_} = 1 if $ff[0] & (1 << 6);
+      shift @ff;
+    }
+    my %files;
+    my %cfiles;
+    my %moves;
+    my %symlinks;
+    for my $r (@baselib) {
+      my $rr = substr($r, 1);
+      if (substr($r, 0, 1) eq '+') {
+	if ($rr =~ /^(.*?)\s*->\s*(.*?)$/) {
+	  if (grep {$_ eq $1} @rpmfiles) {
+	    $files{$1} = 1;
+	    $moves{$1} = $2;
+	  }
+	} else {
+	  for (grep {/$rr/} @rpmfiles) {
+	    $files{$_} = 1;
+	    delete $moves{$_};
+	  }
+	}
+      } elsif (substr($r, 0, 1) eq '-') {
+	delete $files{$_} for grep {/$rr/} keys %files;
+      } elsif (substr($r, 0, 1) eq '"') {
+        $rr =~ s/\"$//;
+	if ($rr =~ /^(.*?)\s*->\s*(.*?)$/) {
+	  $symlinks{$1} = $2;
+	} else {
+	  die("bad baselib string rule: $r\n");
+	}
+      } else {
+	die("bad baselib rule: $r\n");
+      }
+    }
+    if ($configdir) {
+      for my $r (@config) {
+	my $rr = substr($r, 1);
+	if (substr($r, 0, 1) eq '+') {
+	  $cfiles{$_} = 1 for grep {/$rr/} grep {!$ghosts{$_}} @rpmfiles;
+	} elsif (substr($r, 0, 1) eq '-') {
+	  delete $cfiles{$_} for grep {/$rr/} keys %cfiles;
+	} else {
+	  die("bad config rule: $r\n");
+	}
+      }
+    }
+    $files{$_} = 1 for keys %cfiles;
+
+    if (!%files) {
+      print "$rname($target): empty filelist, skipping rpm\n";
+      next;
+    }
+
+    my $i = 0;
+    for (@{$res{'FILENAMES'}}) {
+      $files{$_} = $i if $files{$_};
+      $i++;
+    }
+
+    my %cpiodirs;
+    for (keys %files) {
+      next if $cfiles{$_} || $moves{$_};
+      my $fn = $_;
+      next unless $fn =~ s/\/[^\/]+$//;
+      $cpiodirs{$fn} = 1;
+    }
+
+    my %alldirs;
+    for (keys %files) {
+      next if $cfiles{$_};
+      my $fn = $_;
+      if ($moves{$fn}) {
+	$fn = $moves{$fn};
+        next unless $fn =~ s/\/[^\/]+$//;
+        $alldirs{$fn} = 1;
+      } else {
+        next unless $fn =~ s/\/[^\/]+$//;
+        $alldirs{"$prefix$fn"} = 1;
+      }
+    }
+    $alldirs{$_} = 1 for keys %symlinks;
+    $alldirs{$configdir} = 1 if %cfiles;
+    my $ad;
+    for $ad (keys %alldirs) {
+      $alldirs{$ad} = 1 while $ad =~ s/\/[^\/]+$//;
+    }
+    for (keys %files) {
+      next if $cfiles{$_};
+      my $fn = $_;
+      if ($moves{$fn}) {
+        delete $alldirs{$moves{$fn}};
+      } else {
+        delete $alldirs{"$prefix$fn"};
+      }
+    }
+    $ad = $prefix;
+    delete $alldirs{$ad};
+    delete $alldirs{$ad} while $ad =~ s/\/[^\/]+$//;
+    delete $alldirs{$_} for @filesystem;
+
+    my $specfile = "/usr/src/packages/SPECS/mkbaselibs$$.spec";
+    unlink($specfile);
+    print "$rname($target): writing specfile...\n";
+    open(SPEC, ">$specfile") || die("$specfile: $!\n");
+    for my $p (@preamble) {
+      my $pt = uc($p);
+      next unless $res{$pt};
+      my $d = $res{$pt}->[0];
+      $d =~ s/%/%%/g;
+      if ($p eq 'Name') {
+	print SPEC "Name: $sname\n";
+	next;
+      }
+      if ($p eq 'Version') {
+	print SPEC "Version: $sversion\n";
+	next;
+      }
+      if ($p eq 'Release') {
+	print SPEC "Release: $srelease\n";
+	next;
+      }
+      if ($p eq 'Disturl') {
+	print SPEC "%define disturl $d\n";
+	next;
+      }
+      print SPEC "$p: $d\n";
+    }
+    print SPEC "Source: $rpm\n";
+    print SPEC "NoSource: 0\n" if $res{'SOURCERPM'}->[0] =~ /\.nosrc\.rpm$/;
+    print SPEC "Autoreqprov: on\n";
+    print SPEC "BuildRoot: %{_tmppath}/baselibs-%{name}-%{version}-build\n";
+    print SPEC "%define _target_cpu $targetarch\n";
+    print SPEC "%define __os_install_post %{nil}\n";
+    print SPEC "%description\nUnneeded main package. Ignore.\n\n";
+    print SPEC "%package -n $targetname\n";
+    for my $p (@preamble) {
+      next if $p eq 'Name' || $p eq 'Disturl';
+      my $pt = uc($p);
+      next unless $res{$pt};
+      my $d = $res{$pt}->[0];
+      $d =~ s/%/%%/g;
+      print SPEC "$p: $d\n";
+    }
+
+    for my $ar ([\@provides, 'provides'],
+                [\@prerequires, 'prereq'],
+                [\@requires, 'requires'],
+                [\@obsoletes, 'obsoletes'],
+                [\@conflicts, 'conflicts']) {
+	my @a = @{$ar->[0]};
+        my @na = ();
+        for (@a) {
+	  if (substr($_, 0, 1) eq '"') {
+	    die("bad $ar->[1] rule: $_\n") unless /^\"(.*)\"$/;
+	    push @na, $1;
+	  } elsif (substr($_, 0, 1) eq '-') {
+	    my $ra = substr($_, 1);
+	    @na = grep {!/$ra/} @na;
+	  } else {
+	    die("bad $ar->[1] rule: $_\n");
+	  }
+	}
+      print SPEC ucfirst($ar->[1]).": $_\n" for @na;
+    }
+    my $cpiopre = '';
+    $cpiopre = './' if $res{'RPMVERSION'}->[0] !~ /^3/;
+    my $d = $res{'DESCRIPTION'}->[0];
+    $d =~ s/%/%%/g;
+    print SPEC "\n%description -n $targetname\n";
+    print SPEC "$d\n";
+    print SPEC "%prep\n";
+    print SPEC "%build\n";
+    print SPEC "%install\n";
+    print SPEC "rm -rf \$RPM_BUILD_ROOT\n";
+    print SPEC "mkdir \$RPM_BUILD_ROOT\n";
+    print SPEC "cd \$RPM_BUILD_ROOT\n";
+    my @cfl = grep {!$cfiles{$_} && !$moves{$_}} sort keys %files;
+    if (@cfl) {
+      if ($prefix ne '') {
+	print SPEC "mkdir -p \$RPM_BUILD_ROOT$prefix\n";
+	print SPEC "pushd \$RPM_BUILD_ROOT$prefix\n";
+      }
+      print SPEC "cat <<EOFL >.filelist\n";
+      print SPEC "$_\n" for map {$cpiopre.substr($_, 1)} @cfl;
+      print SPEC "EOFL\n";
+      print SPEC "mkdir -p \$RPM_BUILD_ROOT$prefix$_\n" for sort keys %cpiodirs;
+      print SPEC "rpm2cpio $rpm | cpio -i -d -v -E .filelist\n";
+      print SPEC "rm .filelist\n";
+      if (%ghosts) {
+	for my $fn (grep {$ghosts{$_}} @cfl) {
+          my $fnm = $fn;
+	  $fnm = '.' unless $fnm =~ s/\/[^\/]+$//;
+	  print SPEC "mkdir -p \$RPM_BUILD_ROOT$prefix$fnm\n";
+	  print SPEC "touch \$RPM_BUILD_ROOT$prefix$fn\n";
+	}
+      }
+      if ($prefix ne '') {
+	print SPEC "popd\n";
+      }
+    }
+    if (%cfiles || %moves) {
+      print SPEC "mkdir -p .cfiles\n";
+      print SPEC "pushd .cfiles\n";
+      print SPEC "cat <<EOFL >.filelist\n";
+      print SPEC "$_\n" for map {$cpiopre.substr($_, 1)} grep {$cfiles{$_} || $moves{$_}} sort keys %files;
+      print SPEC "EOFL\n";
+      print SPEC "rpm2cpio $rpm | cpio -i -d -v -E .filelist\n";
+      print SPEC "popd\n";
+      if (%cfiles) {
+        print SPEC "mkdir -p \$RPM_BUILD_ROOT$configdir\n";
+        print SPEC "mv .cfiles$_ \$RPM_BUILD_ROOT$configdir\n" for sort keys %cfiles;
+      }
+      for my $fn (sort keys %moves) {
+	my $fnm = $moves{$fn};
+	$fnm = '.' unless $fnm =~ s/\/[^\/]+$//;
+	print SPEC "mkdir -p \$RPM_BUILD_ROOT$fnm\n";
+	print SPEC "mv .cfiles$fn \$RPM_BUILD_ROOT$moves{$fn}\n";
+      }
+      print SPEC "rm -rf .cfiles\n";
+    }
+    for my $fn (sort keys %symlinks) {
+      my $fnm = $fn;
+      $fnm = '.' unless $fnm =~ s/\/[^\/]+$//;
+      print SPEC "mkdir -p \$RPM_BUILD_ROOT$fnm\n";
+      print SPEC "ln -s $symlinks{$fn} \$RPM_BUILD_ROOT$fn\n";
+    }
+    if ($prefix ne '' && grep {/\.so.*$/} @cfl) {
+      @postin = () if @postin == 1 && $postin[0] =~ /^\"-p.*ldconfig/;
+      unshift @postin, "\"/sbin/ldconfig -r $prefix\"";
+    }
+
+    if (@prein) {
+      print SPEC "%pre -n $targetname";
+      print SPEC $prein[0] =~ /^\"-p/ ? " " : "\n";
+      for (@prein) {
+        die("bad prein rule: $_\n") unless /^\"(.*)\"$/;
+        print SPEC "$1\n";
+      }
+    }
+    if (@postin) {
+      print SPEC "%post -n $targetname";
+      print SPEC $postin[0] =~ /^\"-p/ ? " " : "\n";
+      for (@postin) {
+        die("bad postin rule: $_\n") unless /^\"(.*)\"$/;
+        print SPEC "$1\n";
+      }
+    }
+    if (@preun) {
+      print SPEC "%preun -n $targetname";
+      print SPEC $preun[0] =~ /^\"-p/ ? " " : "\n";
+      for (@preun) {
+        die("bad preun rule: $_\n") unless /^\"(.*)\"$/;
+        print SPEC "$1\n";
+      }
+    }
+    if (@postun) {
+      print SPEC "%postun -n $targetname";
+      print SPEC $postun[0] =~ /^\"-p/ ? " " : "\n";
+      for (@postun) {
+        die("bad postun rule: $_\n") unless /^\"(.*)\"$/;
+        print SPEC "$1\n";
+      }
+    }
+
+    print SPEC "\n%clean\n";
+    print SPEC "\nrm -rf \$RPM_BUILD_ROOT\n\n";
+    print SPEC "%files -n $targetname\n";
+    for my $file (sort keys %alldirs) {
+      print SPEC "%dir %attr(0755,root,root) $file\n";
+    }
+    for my $file (keys %files) {
+      my $fi = $files{$file};
+      my $fm = $res{'FILEMODES'}->[$fi];
+      my $fv = $res{'FILEVERIFYFLAGS'}->[$fi];
+      my $ff = $res{'FILEFLAGS'}->[$fi];
+      if (POSIX::S_ISDIR($fm)) {
+	print SPEC "%dir ";
+      }
+      if ($ff & ((1 << 3) | (1 << 4))) {
+	print SPEC "%config(missingok noreplace) ";
+      } elsif ($ff & (1 << 3)) {
+	print SPEC "%config(missingok) ";
+      } elsif ($ff & (1 << 4)) {
+	print SPEC "%config(noreplace) ";
+      } elsif ($ff & (1 << 0)) {
+	print SPEC "%config ";
+      }
+      print SPEC "%doc " if $ff & (1 << 1);
+      print SPEC "%ghost " if $ff & (1 << 6);
+      print SPEC "%license " if $ff & (1 << 7);
+      print SPEC "%readme " if $ff & (1 << 8);
+      if ($fv != 4294967295) {
+	print SPEC "%verify(";
+	if ($fv & 2147483648) {
+	  print SPEC "not ";
+	  $fv ^= 4294967295;
+	}
+	print SPEC "md5 " if $fv & (1 << 0);
+	print SPEC "size " if $fv & (1 << 1);
+	print SPEC "link " if $fv & (1 << 2);
+	print SPEC "user " if $fv & (1 << 3);
+	print SPEC "group " if $fv & (1 << 4);
+	print SPEC "mtime " if $fv & (1 << 5);
+	print SPEC "mode " if $fv & (1 << 6);
+	print SPEC "rdev " if $fv & (1 << 7);
+	print SPEC ") ";
+      }
+      #sigh, no POSIX::S_ISLNK ...
+      if (($fm & 0170000) == 0120000) {
+	printf SPEC "%%attr(-,%s,%s) ", $res{'FILEUSERNAME'}->[$fi], $res{'FILEGROUPNAME'}->[$fi];
+      } else {
+	printf SPEC "%%attr(%03o,%s,%s) ", $fm & 07777, $res{'FILEUSERNAME'}->[$fi], $res{'FILEGROUPNAME'}->[$fi];
+      }
+      if ($cfiles{$file}) {
+	my $fn = $file;
+	$fn =~ s/.*\///;
+	print SPEC "$configdir/$fn\n";
+      } else {
+	if ($moves{$file}) {
+	  print SPEC "$moves{$file}\n";
+	} else {
+	  print SPEC "$prefix$file\n";
+	}
+      }
+    }
+    for (keys %symlinks) {
+      printf SPEC "%%attr(-,root,root) $_\n";
+    }
+
+    if ($res{'CHANGELOGTEXT'}) {
+      print SPEC "\n%changelog -n $targetname\n";
+      my @ct = @{$res{'CHANGELOGTIME'}};
+      my @cn = @{$res{'CHANGELOGNAME'}};
+      my @wdays = qw{Sun Mon Tue Wed Thu Fri Sat};
+      my @months = qw{Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec};
+      for my $cc (@{$res{'CHANGELOGTEXT'}}) {
+        my @lt = localtime($ct[0]);
+        my $cc2 = $cc;
+        my $cn2 = $cn[0];
+        $cc2 =~ s/%/%%/g;
+        $cn2 =~ s/%/%%/g;
+        printf SPEC "* %s %s %02d %04d %s\n%s\n", $wdays[$lt[6]], $months[$lt[4]], $lt[3], 1900 + $lt[5], $cn2, $cc2;
+        shift @ct;
+        shift @cn;
+      }
+    }
+
+    close(SPEC) || die("$specfile: $!\n");
+    print "$rname($target): running build...\n";
+    if (system("rpmbuild -bb $specfile".($verbose ? '' : '>/dev/null 2>&1'))) {
+      print "rpmbuild failed: $?\n";
+      print "re-running in verbose mode:\n";
+      system("rpmbuild -bb $specfile 2>&1");
+      exit(1);
+    }
+    unlink($specfile);
+  }
+}

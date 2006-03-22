@@ -1,0 +1,215 @@
+#!/usr/bin/perl -w
+
+BEGIN {
+  unshift @INC, ($::ENV{'BUILD_DIR'} || '/usr/lib/build');
+}
+
+use strict;
+
+use Build;
+
+my ($dist, $rpmdeps, $archs, $configdir, $useusedforbuild);
+
+while (@ARGV)  {
+  if ($ARGV[0] eq '--dist') {
+    shift @ARGV;
+    $dist = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--depfile') {
+    shift @ARGV;
+    $rpmdeps = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--archpath') {
+    shift @ARGV;
+    $archs = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--configdir') {
+    shift @ARGV;
+    $configdir = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--useusedforbuild') {
+    shift @ARGV;
+    $useusedforbuild = 1;
+    next;
+  }
+  last;
+}
+$configdir = '.' unless defined $configdir;
+$archs = '' unless defined $archs;
+die("you must specfiy a depfile!\n") unless defined $rpmdeps;
+
+my @extradeps = grep {!/\.(?:spec|dsc)$/} @ARGV;
+my @specs = grep {/\.(?:spec|dsc)$/} @ARGV;
+die("can only work with at most one spec\n") if @specs > 1;
+my $spec = $specs[0];
+
+my @archs = split(':', $archs);
+push @archs, 'noarch' unless grep {$_ eq 'noarch'} @archs;
+
+my (%fn, %prov, %req);
+
+open(F, '<', $rpmdeps) || die("$rpmdeps: $!\n");
+my %packs_arch;
+while(<F>) {
+  chomp;
+  if (/^F:(.*?)-\d+\/\d+\/\d+: (.*)$/) {
+    next if $fn{$1};
+    $fn{$1} = $2;
+    my $pack = $1;
+    $pack =~ /^(.*)\.([^\.]+)$/ or die;
+    push @{$packs_arch{$2}}, $1;
+  } elsif (/^P:(.*?)-\d+\/\d+\/\d+: (.*)$/) {
+    next if $prov{$1};
+    $prov{$1} = $2;
+  } elsif (/^R:(.*?)-\d+\/\d+\/\d+: (.*)$/) {
+    next if $req{$1};
+    $req{$1} = $2;
+  }
+}
+close F;
+
+my %packs;
+for my $arch (@archs) {
+  $packs{$_} ||= "$_.$arch" for @{$packs_arch{$arch} || []};
+}
+
+if (!defined($dist) || $dist eq '') {
+  my $rpmarch = (grep {$fn{"rpm.$_"}} @archs)[0];
+  if (!$rpmarch) {
+    $dist = 'default';
+  } else {
+    my $rpmfn = $fn{"rpm.$rpmarch"};
+    my $rpmdist = `rpm -qp --nodigest --nosignature --qf '%{DISTRIBUTION}' $rpmfn`;
+    chomp $rpmdist;
+    $rpmdist = lc($rpmdist);
+    $rpmdist =~ s/-/_/g;
+    my $rpmdista = $rpmdist;
+    $rpmdista =~ s/.*\(//;
+    $rpmdista =~ s/\).*//;
+    $rpmdista =~ s/i[456]86/i386/;
+    $rpmdist = '' unless $rpmdista =~ /^(i386|x86_64|ia64|ppc|ppc64|s390|s390x)$/;
+    if ($rpmdist =~ /unitedlinux 1\.0.*/) {
+      $dist = "ul1-$rpmdista";
+    } elsif ($rpmdist =~ /suse sles_(\d+)/) {
+      $dist = "sles$1-$rpmdista";
+    } elsif ($rpmdist =~ /suse linux (\d+)\.(\d+)\.[4-9]\d/) {
+      # alpha version
+      $dist = "$1.".($2 + 1)."-$rpmdista";
+    } elsif ($rpmdist =~ /suse linux (\d+\.\d+)/) {
+      $dist = "$1-$rpmdista";
+    } else {
+      $dist = 'default';
+    }
+  }
+}
+
+my $cdist = $dist;
+$cdist =~ s/-.*//;
+$cdist = "sl$cdist" if $cdist =~ /^\d/;
+my $cf = Build::read_config($archs[0], "$configdir/$cdist.conf");
+if (!$cf) {
+  $cf = Build::read_config($archs[0], "$configdir/default.conf");
+  die("default config not found\n") unless $cf;
+}
+
+#######################################################################
+
+if ($useusedforbuild) {
+  die("Need a specfile/dscfile for --usedforbuild\n") unless defined $spec;
+  local *F;
+  open(F, '<', $spec) || die("$spec: $!\n");
+  my @usedforbuild;
+  my @buildrequires;
+  while(<F>) {
+    chomp;
+    if (/^#\s*usedforbuild\s*(.*)$/) {
+      push @usedforbuild, split(' ', $1);
+    }
+    if (/^buildrequires:\s*(.*)$/i) {
+      push @buildrequires, split(' ', $1);
+    }
+  }
+  close F;
+  @usedforbuild = @buildrequires unless @usedforbuild;
+  @usedforbuild = Build::unify(@usedforbuild) if @usedforbuild;
+  my @errors;
+  for (@usedforbuild) {
+    push @errors, "package $_ not found" unless $packs{$_} && $fn{$packs{$_}};
+  }
+  if (@errors) {
+    print STDERR "expansion error\n";
+    print STDERR "  $_\n" for @errors;
+    exit(1);
+  }
+  for (@usedforbuild) {
+    print "$_ $fn{$packs{$_}}\n";
+  }
+  print "preinstall: @{$cf->{'preinstall'} || []}\n";
+  print "dist: $dist\n" if defined $dist;
+  exit(0);
+}
+
+#######################################################################
+
+my ($packname, $packvers, $subpacks, @packdeps);
+$subpacks = [];
+
+if ($spec) {
+  if ($spec =~ /\.dsc$/) {
+    ($packname, $packvers, $subpacks, @packdeps) = Build::read_dsc($cf, $spec);
+  } else {
+    ($packname, $packvers, $subpacks, @packdeps) = Build::read_spec($cf, $spec);
+  }
+}
+
+my %repo;
+for my $pack (keys %packs) {
+  my $r = {};
+  my (@s, $s, @pr, @re);
+  @s = split(' ', $prov{$packs{$pack}});
+  while (@s) {
+    $s = shift @s;
+    next if $s =~ /^\//;
+    if ($s =~ /^rpmlib\(/) {
+      splice(@s, 0, 2);
+      next;
+    }
+    push @pr, $s;
+    splice(@s, 0, 2) if @s && $s[0] =~ /^[<=>]/;
+  }
+  @s = split(' ', $req{$packs{$pack}});
+  while (@s) {
+    $s = shift @s;
+    next if $s =~ /^\//;
+    if ($s =~ /^rpmlib\(/) {
+      splice(@s, 0, 2);
+      next;
+    }
+    push @re, $s;
+    splice(@s, 0, 2) if @s && $s[0] =~ /^[<=>]/;
+  }
+  $r->{'provides'} = \@pr;
+  $r->{'requires'} = \@re;
+  $repo{$pack} = $r;
+}
+Build::readrpmdeps($cf, undef, \%repo);
+
+#######################################################################
+
+my @bdeps = Build::get_build($cf, $subpacks, @packdeps, @extradeps);
+
+if (!shift @bdeps) {
+  print STDERR "expansion error\n";
+  print STDERR "  $_\n" for @bdeps;
+  exit(1);
+}
+
+for (@bdeps) {
+  print "$_ $fn{$packs{$_}}\n";
+}
+print "preinstall: @{$cf->{'preinstall'} || []}\n";
+print "dist: $dist\n" if defined $dist;

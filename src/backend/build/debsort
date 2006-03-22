@@ -1,0 +1,137 @@
+#!/usr/bin/perl -w
+
+BEGIN {
+  unshift @INC, ($::ENV{'BUILD_DIR'} || '/usr/lib/build');
+}
+
+use Build;
+
+sub sortpacks {
+  my ($depsp, @packs) = @_;
+
+  my %deps;
+  my %rdeps;
+  my %needed;
+
+  # map and unify dependencies, create rdeps and needed
+  my %known = map {$_ => 1} @packs;
+  for my $p (@packs) {
+    if ($basep && $basep->{$p}) {
+      $deps{$p} = [];
+      $needed{$p} = 0;
+      next;
+    }
+    my @fdeps = grep {$known{$_}} @{$depsp->{$p} || []};
+    my %fdeps = ($p => 1);      # no self reference
+    @fdeps = grep {!$fdeps{$_}++} @fdeps;
+    $deps{$p} = \@fdeps;
+    $needed{$p} = @fdeps;
+    push @{$rdeps{$_}}, $p for @fdeps;
+  }
+  undef %known;         # free memory
+
+  @packs= sort {$needed{$a} <=> $needed{$b} || $a cmp $b} @packs;
+  my @good;
+  my @res;
+  # the big sort loop
+  while (@packs) {
+    @good = grep {$needed{$_} == 0} @packs;
+    if (@good) {
+      @packs = grep {$needed{$_}} @packs;
+      push @res, @good;
+      for my $p (@good) {
+        $needed{$_}-- for @{$rdeps{$p}};
+      }
+      next;
+    }
+    # uh oh, cycle alert. find and remove all cycles.
+    my %notdone = map {$_ => 1} @packs;
+    $notdone{$_} = 0 for @res;  # already did those
+    my @todo = @packs;
+    while (@todo) {
+      my $v = shift @todo;
+      if (ref($v)) {
+        $notdone{$$v} = 0;      # finished this one
+        next;   
+      }
+      my $s = $notdone{$v};
+      next unless $s;
+      my @e = grep {$notdone{$_}} @{$deps{$v}};
+      if (!@e) {
+        $notdone{$v} = 0;       # all deps done, mark as finished
+        next;
+      }
+      if ($s == 1) {
+        $notdone{$v} = 2;       # now under investigation
+        unshift @todo, @e, \$v;
+        next;
+      }
+      # reached visited package, found a cycle!
+      my @cyc = ();
+      my $cycv = $v;
+      # go back till $v is reached again
+      while(1) {
+        die unless @todo;
+        $v = shift @todo;
+        next unless ref($v);
+        $v = $$v;
+        $notdone{$v} = 1 if $notdone{$v} == 2;
+        unshift @cyc, $v;
+        last if $v eq $cycv;
+      }
+      unshift @todo, 
+      print STDERR "cycle: ".join(' -> ', @cyc)."\n";
+      my $breakv;
+      if ($buildp) {
+        my @b = grep {$buildp->{$_}} @cyc;
+        $breakv = $b[0] if @b;
+      }
+      if (!defined($breakv)) {
+        my @b = @cyc;
+        @b = sort {$needed{$a} <=> $needed{$b} || $a cmp $b} @b;
+        $breakv = $b[0];
+      }
+      push @cyc, $cyc[0];
+      shift @cyc while $cyc[0] ne $breakv;
+      print STDERR "  breaking with $breakv -> $cyc[1]\n";
+      $deps{$breakv} = [ grep {$_ ne $cyc[1]} @{$deps{$breakv}} ];
+      $needed{$breakv}--;
+    }
+  }
+  return @res;
+}
+
+sub orderdeb {
+  my ($cachedir, @debs) = @_;
+  my %prov;
+  my %req;
+  for my $deb (@debs) {
+    my %q = Build::debq("$cachedir/$deb.deb");
+    if (!%q) {
+      $req{$deb} = [];
+      push @{$prov{$deb}}, $deb;
+      next;
+    }
+    my @provides = split(',\s*', $q{'PROVIDES'} || '');
+    s/\s.*// for @provides;   #for now
+    my @depends = split(',\s*', $q{'DEPENDS'} || '');
+    my @predepends = split(',\s*', $q{'PRE-DEPENDS'} || '');
+    s/\s.*// for @provides;   #for now
+    s/\s.*// for @depends;    #for now
+    s/\s.*// for @predepends; #for now
+    push @depends, @predepends;
+    push @provides, $q{'PACKAGE'};
+    $req{$deb} = \@depends;
+    push @{$prov{$_}}, $deb for @provides;
+  }
+  for my $deb (@debs) {
+    $req{$deb} = [ map {$prov{$_} ? $prov{$_}->[0] : $_} @{$req{$deb}} ];
+  }
+  return sortpacks(\%req, @debs);
+}
+
+my $cachedir = shift @ARGV;
+my @debs = @ARGV;
+@debs = orderdeb($cachedir, @debs);
+print "@debs\n";
+exit(0);

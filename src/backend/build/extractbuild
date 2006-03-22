@@ -1,0 +1,99 @@
+#!/usr/bin/perl
+
+use strict;
+
+$ENV{'PATH'} = "/bin:/usr/bin:/sbin:/usr/sbin";
+
+$| = 1;
+
+sub ls {
+  local *D;
+  opendir(D, $_[0]) || return ();
+  my @r = grep {$_ ne '.' && $_ ne '..'} readdir(D);
+  closedir D;
+  return @r;
+}
+
+open(F, '</.build/build.data') || die("/.build/build.data: $!\n");
+my (%vars, $var, $val);
+my $l = '';
+while (<F>) {
+  chomp;
+  $l .= $_;
+  my $q = $l =~ tr/\'/\'/;
+  if ($q < 2 || ($q - 2) % 3 != 0) {
+    $l .= "\n";
+    next;
+  }
+  if ($l =~ /^([a-zA-Z0-9]*)=\'(.*)\'$/s) {
+    $var = $1;
+    $val = $2;
+    $val =~ s/\'\\\'\'/\'/gs;
+    $vars{$var} = $val;
+  }
+  $l = '';
+}
+close F;
+
+my $xenswap = $vars{'XENSWAP'};
+die("need XENSWAP for swapout operation\n") unless $xenswap;
+system("umount -l /dev 2>/dev/null");
+die("$xenswap: $!\n") unless -e $xenswap;
+open(S, '>', $xenswap) || die("$xenswap: $!\n");
+
+my $specfile = $vars{'SPECFILE'};
+die("no specfile/dscfile\n") unless $specfile;
+my $topdir = '/usr/src/packages';
+my $psuf = 'deb';
+my @dirs = ($topdir);
+if ($specfile =~ /\.spec$/) {
+  $topdir = `rpm --eval '%_topdir'`;
+  chomp $topdir;
+  die("rpm returned no topdir\n") unless $topdir;
+  die("rpm returned bad topdir\n") unless -d $topdir;
+  @dirs = map {"$topdir/RPMS/$_"} ls("$topdir/RPMS");
+  unshift @dirs, "$topdir/SRPMS";
+  $psuf = 'rpm';
+}
+my @packs;
+for my $dir (@dirs) {
+  push @packs, map {"$dir/$_"} grep {/$psuf$/} ls($dir);
+}
+unshift @packs, '/.build.log';
+
+my $cpio = '';
+for my $pack (@packs) {
+  print "$pack\n";
+  my @s = stat($pack);
+  my $n = $pack;
+  $n =~ s/.*\///;
+  $n = 'logfile' if $n eq '.build.log';
+  die("$pack: $!\n") unless @s;
+  $cpio .= "07070100000000000081a4000000000000000000000001";
+  $cpio .= sprintf("%08x%08x", $s[9], $s[7]);
+  $cpio .= "00000000000000000000000000000000";
+  $cpio .= sprintf("%08x", length($n) + 1);
+  $cpio .= "00000000";
+  $cpio .= "$n\0";
+  $cpio .= substr("\0\0\0\0", (length($cpio) & 3)) if length($cpio) & 3;
+  open(F, '<', $pack) || die("$pack: $!\n");
+  my $l = $s[7];
+  while ($l) {
+    my $ll = sysread(F, $cpio, $l > 8192 ? 8192 : $l, length($cpio));
+    die("$pack: $!\n") unless $ll;
+    die if $ll > $l;
+    $l -= $ll;
+    if (length($cpio) > 4096) {
+      (syswrite(S, $cpio, 4096) || 0) == 4096 || die("swap write: $!\n");
+      $cpio = substr($cpio, 4096);
+    }
+  }
+  $cpio .= substr("\0\0\0\0", (length($cpio) & 3)) if length($cpio) & 3;
+}
+$cpio .= "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0";
+$cpio .= "\0" x (4096 - length($cpio) % 4096) if length($cpio) % 4096;
+while (length($cpio)) {
+  (syswrite(S, $cpio, 4096) || 0) == 4096 || die("swap write: $!\n");
+  $cpio = substr($cpio, 4096);
+}
+exec('halt -f');
