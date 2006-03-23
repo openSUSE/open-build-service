@@ -6,9 +6,11 @@ To install ruby-on-rails, please install the rubygems package and
 run: "gem install -y rails" to install the rails libs on your system. 
 
 The frontend uses a MySQl backend. Please add the database 
-"frontend_development" with the scheme from frontend/db/create_mysql.sql 
+"frontend_development" with the scheme from frontend/db/create_mysql.sql
 The database credentials can be set in frontend/config/database.yml 
 To run the frontends test framework, please add an empty database "frontend_test".
+
+A default user named 'Admin' is created with password 'opensuse'.
 
 There are 2 scripts in trunk/buildservice/src named 'start' and
 'debug'. They need one parameter, which is one of (back|back_test|front|web).

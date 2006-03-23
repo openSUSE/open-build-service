@@ -205,10 +205,10 @@ CREATE TABLE `user_registrations` (
 -- Dumping data for table `users`
 --
 
-/* Create an Admin user. */;
+/* Create an Admin user. Password: opensuse*/;
 LOCK TABLES `users` WRITE;
 INSERT INTO `users` (id, created_at, login, email, password, password_hash_type, password_salt, password_crypted, state) 
-VALUES (1, now(), 'Admin','root@localhost','07a703993d4b21cabb8c698b30a63616','md5','6+DYjxVSct', '8f//Vir3vAC9s', 2);
+VALUES (1, now(), 'Admin','root@localhost','800b6627e23fd5273afcd827fa8591be','md5','fAZ0geT4Td','lfD9kwCzaSJKU', 2);
 UNLOCK TABLES;
 
 
