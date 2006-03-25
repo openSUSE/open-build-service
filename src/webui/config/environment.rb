@@ -61,3 +61,15 @@ require 'opensuse/frontend'
 
 TRANSPORT = Suse::Frontend.new("http://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
 ActiveXML::Base.setup(TRANSPORT)
+
+ActiveXML::Base.config do |conf|
+  
+  conf.setup_transport do |map|
+    map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
+
+    map.connect :project, "rest:///source/:name/_meta",
+        :all    => "rest:///source/"
+    map.connect :package, "rest:///source/:project/:name/_meta",
+        :all    => "rest:///source/:project"
+  end
+end
