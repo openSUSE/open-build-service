@@ -17,6 +17,7 @@ class ApplicationController < ActionController::Base
   session_options[:prefix] = "ruby_frontend_sess."
   session_options[:session_key] = "opensuse_frontend_session"
   @user_permissions = nil
+  @http_user = nil
   
   helper RbacHelper
   
@@ -62,7 +63,6 @@ class ApplicationController < ActionController::Base
 
   def setup_backend
     if @http_user
-      logger.debug "User for source backend config: <#{@http_user.source_host}>"
       if @http_user.source_host && !@http_user.source_host.empty?
         Suse::Backend.source_host = @http_user.source_host
       end
@@ -71,7 +71,6 @@ class ApplicationController < ActionController::Base
         Suse::Backend.source_port = @http_user.source_port
       end
 
-      logger.debug "User for rpm backend config: <#{@http_user.rpm_host}>"
       if @http_user.rpm_host && !@http_user.rpm_host.empty?
         Suse::Backend.rpm_host = @http_user.rpm_host
       end
@@ -80,8 +79,7 @@ class ApplicationController < ActionController::Base
         Suse::Backend.rpm_port = @http_user.rpm_port
       end
       
-      logger.debug "SETUP_SOURCE_BACKEND #{@http_user.source_host}:#{@http_user.source_port}"
-      logger.debug "SETUP_RPM_BACKEND #{@http_user.source_host}:#{@http_user.source_port}"
+      logger.debug "User's source backend <#{@http_user.source_host}:#{@http_user.source_port}>, rpm backend: <#{@http_user.rpm_host}:#{@http_user.rpm_port}>"
     end
   end
 
