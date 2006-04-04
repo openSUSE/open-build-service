@@ -22,6 +22,11 @@ task :deploy do
   switchtower_invoke :deploy
 end
 
+desc "Push the latest revision into stage"
+task :deploy_stage do
+  switchtower_invoke :deploy_stage
+end
+
 desc "Rollback to the release before the current release in production"
 task :rollback do
   switchtower_invoke :rollback

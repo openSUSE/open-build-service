@@ -21,10 +21,10 @@ config.action_mailer.raise_delivery_errors = false
 BREAKPOINT_SERVER_PORT=42532
 
 SOURCE_HOST = "buildservice.suse.de"
-SOURCE_PORT = 5352
+SOURCE_PORT = 6362
 
 RPM_HOST = "buildservice.suse.de"
-RPM_PORT = 5252
+RPM_PORT = 6262
 
 #
 # ICHAIN_HOST is the IP address of the iChain proxy that is taking
@@ -40,7 +40,7 @@ RPM_PORT = 5252
 #RPM_HOST = "localhost"
 #RPM_PORT = 5252
 
-APIDOCS_LOCATION = "../../docs/architecture/html/"
-SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/architecture")+"/"
+APIDOCS_LOCATION = "../../docs/api/html/"
+SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api")+"/"
 
 EXTENDED_BACKEND_LOG = true
