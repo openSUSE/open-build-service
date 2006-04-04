@@ -23,41 +23,58 @@ class ApplicationController < ActionController::Base
   
   before_filter :extract_user, :setup_backend, :validate
 
+
   def extract_user
     @http_user = nil;
 
-    if request.env.has_key? 'X-HTTP_AUTHORIZATION' 
-      # try to get it where mod_rewrite might have put it 
-      authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split 
-    elsif request.env.has_key? 'Authorization' 
-      # for Apace/mod_fastcgi with -pass-header Authorization 
-      authorization = request.env['Authorization'].to_s.split 
-    elsif request.env.has_key? 'HTTP_AUTHORIZATION' 
-      # this is the regular location 
-      authorization = request.env['HTTP_AUTHORIZATION'].to_s.split  
-    end 
+    logger.debug( "Remote IP: #{request.remote_ip()}" )
 
-    logger.debug( "AUTH: #{authorization}" )
-
-    if authorization and authorization[0] == "Basic"
-      # logger.debug( "AUTH2: #{authorization}" )
-      
-      login, passwd = Base64.decode64(authorization[1]).split(':')[0..1] 
-    else
-      logger.debug "no authentication string was sent"
-      render_error( :message => "Authentication required", :status => 401 ) and return false
-    end
-  
-    if login
-      @http_user = BSUser.find_with_credentials login, passwd
-      if @http_user.nil?
-        render_error( :message => "Unknown user: #{login}\n", :status => 401 ) and return false
+    if ICHAIN_HOST  # configured in the the environment file
+      logger.debug "Have an iChain host: #{ICHAIN_HOST}"
+      ichain_user = request.env['X-USERNAME']
+# TEST vv
+#      ichain_user = "freitag"
+# TEST ^^
+      logger.debug "iChain-User from environment: #{ichain_user}"
+      # ok, we're using iChain. So there is no need to really
+      # authenticate the user from the credentials coming via
+      # basic auth header field. We can trust the username coming from
+      # iChain
+      if ichain_user 
+        @http_user = BSUser.find :first,
+                                 :conditions => [ 'login = ?', ichain_user ]
       else
-        logger.debug "USER found: #{@http_user.login}"
-	@user_permissions = Suse::Permission.new( @http_user )
+        logger.error "No X-username header from iChain! Are we really using iChain?"
       end
     else
-      render_error( :message => "Invalid authorization string sent!", :status => 401 ) and return false
+      if request.env.has_key? 'X-HTTP_AUTHORIZATION' 
+        # try to get it where mod_rewrite might have put it 
+        authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split 
+      elsif request.env.has_key? 'Authorization' 
+        # for Apace/mod_fastcgi with -pass-header Authorization 
+        authorization = request.env['Authorization'].to_s.split 
+      elsif request.env.has_key? 'HTTP_AUTHORIZATION' 
+        # this is the regular location 
+        authorization = request.env['HTTP_AUTHORIZATION'].to_s.split  
+      end 
+  
+      logger.debug( "AUTH: #{authorization}" )
+  
+      if authorization and authorization[0] == "Basic"
+        # logger.debug( "AUTH2: #{authorization}" )
+        login, passwd = Base64.decode64(authorization[1]).split(':')[0..1] 
+      else
+        logger.debug "no authentication string was sent"
+        render_error( :message => "Authentication required", :status => 401 ) and return false
+      end
+      @http_user = BSUser.find_with_credentials login, passwd
+    end
+
+    if @http_user.nil?
+      render_error( :message => "Unknown or invalid user: #{login}\n", :status => 401 ) and return false
+    else
+        logger.debug "USER found: #{@http_user.login}"
+        @user_permissions = Suse::Permission.new( @http_user )
     end
   end
 
