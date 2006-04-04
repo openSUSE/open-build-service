@@ -26,6 +26,14 @@ SOURCE_PORT = 5352
 RPM_HOST = "buildservice.suse.de"
 RPM_PORT = 5252
 
+#
+# ICHAIN_HOST is the IP address of the iChain proxy that is taking
+# care of the authentication.
+# ATTENTION: If you set an IP address here the frontend takes the
+# user name that is coming as headervalue X-username as a valid
+# user and does not further authentication. So take care...
+# ICHAIN_HOST = "212.22.211.221"
+
 #SOURCE_HOST = "localhost"
 #SOURCE_PORT = 5352
 
