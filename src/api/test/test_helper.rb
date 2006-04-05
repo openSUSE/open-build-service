@@ -37,7 +37,7 @@ class Test::Unit::TestCase
   def prepare_request_invalid_user( request )
     prepare_request_with_user request, 'tom123', 'thunder123'
   end
-   
+  
   def backup_source_test_data ( )
     @test_source_datadir = File.expand_path(File.dirname(__FILE__) + "/../../backend-dummy/data_test/source")
     @test_source_databackupdir = File.expand_path(File.dirname(__FILE__) + "/../../backend-dummy/data_source_test_backup")  

@@ -29,11 +29,11 @@ class ApplicationController < ActionController::Base
 
     logger.debug( "Remote IP: #{request.remote_ip()}" )
 
-    if ICHAIN_HOST  # configured in the the environment file
-      logger.debug "Have an iChain host: #{ICHAIN_HOST}"
+    if ichain_host  # configured in the the environment file
+      logger.debug "Have an iChain host: #{ichain_host}"
       ichain_user = request.env['X-USERNAME']
 # TEST vv
-#      ichain_user = "freitag"
+      ichain_user = "freitag"
 # TEST ^^
       logger.debug "iChain-User from environment: #{ichain_user}"
       # ok, we're using iChain. So there is no need to really
@@ -173,5 +173,12 @@ class ApplicationController < ActionController::Base
       render :template => 'permerror'
       
     end
+  end
+  
+  def ichain_host
+    if self.class.const_defined? "ICHAIN_HOST"
+      ICHAIN_HOST
+    end
+    nil
   end
 end

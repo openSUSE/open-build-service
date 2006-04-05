@@ -11,6 +11,11 @@ class PersonControllerTest < Test::Unit::TestCase
     prepare_request_valid_user( @request )
   end
  
+  def test_ichain
+    @request.env["username"] = "fred"
+    get :userinfo
+    assert_response :success
+  end
 
   def test_userinfo_for_valid_http_user
     get :userinfo
