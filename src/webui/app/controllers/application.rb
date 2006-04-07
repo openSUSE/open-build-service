@@ -14,7 +14,39 @@ class ApplicationController < ActionController::Base
   
   #filter
   def authorize
+    session[:return_to] = request.request_uri
+    if ichain_host
+      logger.debug "Have an iChain host: #{ichain_host}"
+      ichain_user = request.env['HTTP_X_USERNAME']
+# TEST vv
+      unless ichain_user
+        ichain_user = "freitag"
+        logger.debug "TEST-ICHAIN_USER freitag set!"
+        request.env.each do |name, val|
+          logger.debug "Header value: #{name} = #{val}"
+        end
+# TEST ^^
+      else
+        logger.debug "iChain-User from environment: #{ichain_user}"
+      end
+
+      if ichain_user
+        # Do the transport
+        TRANSPORT.login proc {
+          # STDERR.puts session.inspect
+          [ ichain_user ]
+        }
+      else 
+        redirect_to :controller => 'user', :action => 'ichain_login'
+      end
+    else
+      basic_auth
+    end
+  end
+
+  def basic_auth
     unless session[:login] 
+      # We use our own authentication
       if request.env.has_key? 'X-HTTP_AUTHORIZATION'
         # try to get it where mod_rewrite might have put it
         authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split
@@ -115,4 +147,10 @@ class ApplicationController < ActionController::Base
     @frontend
   end
 
+  def ichain_host
+    # if const_defined? "ICHAIN_HOST"
+      ICHAIN_HOST
+    # end
+    # nil
+  end
 end
