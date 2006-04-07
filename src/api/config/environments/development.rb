@@ -27,7 +27,7 @@ RPM_HOST = "buildservice.suse.de"
 RPM_PORT = 6262
 
 #
-# ICHAIN_HOST =
+ICHAIN_HOST = nil
 # ICHAIN_HOST is the IP address of the iChain proxy that is taking
 # care of the authentication.
 # ATTENTION: If you set an IP address here the frontend takes the

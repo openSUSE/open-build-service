@@ -31,10 +31,18 @@ class ApplicationController < ActionController::Base
 
     if ichain_host  # configured in the the environment file
       logger.debug "Have an iChain host: #{ichain_host}"
-      ichain_user = request.env['X-USERNAME']
+      ichain_user = request.env['HTTP_X_USERNAME']
+      if ichain_user 
+        logger.debug "iChain user extracted from header: #{ichain_user}"
+      else
 # TEST vv
-      ichain_user = "freitag"
+        ichain_user = "freitag"
+        logger.debug "TEST-ICHAIN_USER freitag set!"
+        request.env.each do |name, val|
+          logger.debug "Header value: #{name} = #{val}"
+        end
 # TEST ^^
+      end
       logger.debug "iChain-User from environment: #{ichain_user}"
       # ok, we're using iChain. So there is no need to really
       # authenticate the user from the credentials coming via
@@ -176,9 +184,9 @@ class ApplicationController < ActionController::Base
   end
   
   def ichain_host
-    if self.class.const_defined? "ICHAIN_HOST"
+    # if self.class.const_defined? "ICHAIN_HOST"
       ICHAIN_HOST
-    end
-    nil
+    # end
+    # nil
   end
 end
