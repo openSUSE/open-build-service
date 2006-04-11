@@ -35,7 +35,7 @@ production:
   database: frontend_production
   username: opensuse
   password: secret_password
-  host: 127.0.0.1
+  host: storage
 
 
 # PostgreSQL versions 7.4 - 8.1
