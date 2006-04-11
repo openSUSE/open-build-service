@@ -8,12 +8,12 @@ fi
 
 case $1 in
     back_test|backend_test)
-        SERVER_PATH=backend-dummy
+        SERVER_PATH=backend/dummy
         SERVER_PORT=3003
         FLAGS='-e test'
         ;;
     back|backend)
-        SERVER_PATH=backend-dummy
+        SERVER_PATH=backend/dummy
         SERVER_PORT=3002
         ;;
     front|frontend)

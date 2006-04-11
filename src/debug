@@ -8,7 +8,7 @@ fi
 
 case $1 in
     back|backend)
-        SERVER_PATH=backend-dummy
+        SERVER_PATH=backend/dummy
         SERVER_PORT=42533
         ;;
     front|frontend)
