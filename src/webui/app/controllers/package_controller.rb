@@ -279,21 +279,21 @@ class PackageController < ApplicationController
   def check_params
     logger.debug "Checking parameter #{params[:package]}"
     if params[:package]
-      unless params[:package] =~ /^\w[-\w]*$/
+      unless params[:package] =~ /^\w[-\w\.]*$/
         flash[:error] = "Invalid package name, may only contain alphanumeric characters"
         redirect_to :action => :error
       end
     end
 
     if params[:project]
-      unless params[:project] =~ /^\w[-\w]*$/
+      unless params[:project] =~ /^\w[-\w\.]*$/
         flash[:error] = "Invalid project name, may only contain alphanumeric characters"
         redirect_to :action => :error
       end
     end
 
     if params[:package]
-      unless params[:package] =~ /^\w[-\w]*$/
+      unless params[:package] =~ /^\w[-\w\.]*$/
         flash[:error] = "Invalid package name, may only contain alphanumeric characters"
         redirect_to :action => :error
       end
