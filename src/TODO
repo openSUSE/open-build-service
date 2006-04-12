@@ -10,13 +10,15 @@ Web Client
 
 + Tests (functional and performance) (tom)
 + Hide "new project" action for non-admin users
-+ Don't show links to RPMs, if there are no RPMs built yet
 + Visual design (garrett)
-+ Switch to migrations for database updates
 + Reenable platform editing
 + Feedback page (betameter?)
++ Don't show actions the user doesn't have permission for (bug #163309)
+o Better error messages (bug #165107)
+o Integrate build monitor into project overview page
 o Split packages in project display page to multiple pages
-o Show projects of user and his role in the projects on user's hp
+o Delete projects (bug #165126)
+o Show projects of user and his role in the projects on user's hp (bug #165118)
 o Move user management for project/package/platform to partial (or component?)
 o Editing project targets list
 o Show build status per target
@@ -51,6 +53,9 @@ Frontend
 + DELETE file, package, project (project only with special permission)
 + Check data of PUT requests against schema
 + Remove obsolete schema checking code from backend.rb
++ Switch to migrations for database updates
+o Delete projects (bug #165126)
+o Logfile streaming (bug #163309)
 o Notification system
 o Get permissions for a given user
 o RSS feed for project news (newly built packages)
