@@ -93,9 +93,13 @@ class ApplicationController < ActionController::Base
         @code = exception.message.root.attributes['code']
       end
       @message = exception.message.root.elements['summary'].text
+      if exception.message.root.elements['exception']
+        @api_exception = exception.message.root.elements['exception']
+      end
     else
       @code = 500
       @message = exception.message
+      @exception = exception
     end
 
     case exception
@@ -114,13 +118,15 @@ class ApplicationController < ActionController::Base
 #     render_error :code => @code, :message => @message
     else
       logger.debug "default exception handling"
-      render_error :code => @code, :message => @message
+      render_error :code => @code, :message => @message, :exception => @exception, :api_exception => @api_exception
     end
   end
 
   def render_error( opt={} )
     @code = opt[:code] || 500
     @error_message = opt[:message] || "No message set"
+    @exception_xml = opt[:exception_xml]
+    @exception = opt[:exception]
 
 
     # if the exception was raised inside a template (-> @template.first_render != nil), 
@@ -128,7 +134,7 @@ class ApplicationController < ActionController::Base
     # object, so we have to do it manually
     if @template.first_render
       logger.debug "injecting error instance variables into template object"
-      %w{@error_message @code}.each do |var|
+      %w{@error_message @code @exception_xml @exception}.each do |var|
         @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
       end
     end
