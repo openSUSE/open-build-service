@@ -1,3 +1,6 @@
+require "project"
+require "package"
+
 
 module Suse
 
@@ -16,7 +19,7 @@ module Suse
        # one is project admin if he has the permission Project_Admin or if he
        # is the owner of the project
        logger.debug "User #{@user.login} wants to change the project"
-       
+
        if @user.has_permission( "global_project_change" )
          return true
        else
@@ -92,33 +95,29 @@ module Suse
 
     def project_maintainers( project )
       val = []
-      path = "/source/#{project}/_meta"
+      p = Project.find :name => project
 
-      response = Suse::Backend.get( path )
+      p.each_person do |person| 
+        if person.role == "maintainer" or person.role == "owner"
+          val << person.userid
+        end
+      end
 
-      doc = REXML::Document.new( response.body )
-      # logger.debug "The XML Document: " + doc.to_s
-      root = doc.root
-
-      doc.elements.each("project/person[@role='maintainer']") { |elem| val << elem.attributes["userid"] }
-      doc.elements.each("project/person[@role='owner']") { |elem| val << elem.attributes["userid"] }
       logger.debug "returning project maintainers: #{val}"
       return val
     end
 
     def package_maintainers( project, package )
+
       val = []
-      path = "/source/#{project}/#{package}/_meta"
+      p = Package.find :name => package, :project => project
 
-      response = Suse::Backend.get( path )
-
-      doc = REXML::Document.new( response.body )
-      # logger.debug "The XML Package: " + doc.to_s
-      root = doc.root
-
-      doc.elements.each("package/person[@role='maintainer']") { |elem| val << elem.attributes["userid"] }
-      doc.elements.each("package/person[@role='owner']") { |elem| val << elem.attributes["userid"] }
-      logger.debug "returning pack maintainer: #{val}"
+      p.each_person do |person| 
+        if person.role == "maintainer" or person.role == "owner"
+          val << person.userid
+        end
+      end
+      logger.debug "returning package maintainers: #{val}"
       return val
     end
 
