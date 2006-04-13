@@ -1,0 +1,42 @@
+------------------------------------------------------------------------
+Thu Apr 13 17:13:50 CEST 2006 - bauersman
+
+- update from svn revision 58 to 135
+- added empty changelog for tracking of changes done in each deploy
+- changed foreign key name because there is a new class BSUser for all BuildService User handling.
+- use new engine'd active rbac version,
+- changed User object to be a inherited object BSUser for the 
+  BuildService in order not to have to change rbac any more.
+- Refined Auth-header extraction code a bit to be able to work with
+  more web servers.
+- use BSUser instead of User object
+- new simpler routes for the engine'd version of active rbac
+- Initialise active rbac machine on startup
+- removed obsolete require line
+- removed the old component active rbac and added the new active rbac
+  version which is a rails engine. That simplifies a lot. 
+  
+- fixed foreign key column name
+- Fix link to user management.
+- reenabled rails_put_fix
+- fix bug with incorrect auth string
+- Return XML status on successful put requests.
+- Return correct response when putting person data.
+- Correctly pass error page arguments.
+- Return error status as specified in API specs.
+- changed and documented default password for Admin user
+- removed useless logging
+- added IP address of the iChain host.
+- added ability to take user from iChain
+- switchtower tasks for deploying to stage
+- more ichain integration
+- iChain authentication
+- change production database server
+- check for package maintainer (bug #160661)
+- check for owner and maintainer of packages and projects
+  Note: owner is depricated but still in the data base.
+  
+- enabling parts of ActiveXML in frontend
+- Adopted perm check to abauers new active xml
+
+
