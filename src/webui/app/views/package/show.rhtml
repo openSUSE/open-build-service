@@ -72,7 +72,7 @@
 <table border=1>
   <% @results.each do |result| %>
   <tr>
-    <td colspan="5"><b><%=h result.repository %></b></td>
+    <td colspan="4"><b><%=h result.repository %></b></td>
   </tr>
   <% result.each_archresult do |ar| %>
   <tr>
@@ -83,15 +83,17 @@
       <%=h ar.status.summary %>
     <% end %>
     </td>
+<!-- uncomment if API is able to stream
     <td align="right"><%= link_to "[View Build Log]", build_log_url( @project,
       @package, result.repository, ar.arch ) %></td>
+-->
     <td align="right"><%= link_to "[Live Build Log]", :action => :live_build_log,
       :package => @package, :project => params[:project], :arch => ar.arch, :repository => result.repository %></td>
   </tr>
   <% ar.each_rpm do |rpm| %>
   <tr>
     <td/>
-      <td><%= link_to rpm.filename, rpm_url( @project, @package,
+      <td colspan="3"><%= link_to rpm.filename, rpm_url( @project, @package,
       result.repository, ar.arch, rpm.filename ) %></td>
   </tr>
   <% end %>
