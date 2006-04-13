@@ -49,18 +49,25 @@ module Suse
     end
     
     # One may change a package if he either has the global_package_change
-    # permission or if he is maintainer of the project 
-    # TODO: or if he is maintainer of the package
+    # permission or if he is maintainer of the project or maintainer of the
+    # package
+
     def package_change?( project = nil, package = nil )
       logger.debug "User #{@user.login} wants to change the package"
       
       if @user.has_permission( "global_package_change" )
         return true
       else
-	val = project_maintainers project
+        val = package_maintainers( project, package )
+        if val.find{ |u| u == @user.login }
+          return true
+        end
+	
+        val = project_maintainers( project )
 	if val.find{ |u| u == @user.login }
 	  return true
 	end
+        
       end
       return false
     end
@@ -86,20 +93,35 @@ module Suse
     def project_maintainers( project )
       val = []
       path = "/source/#{project}/_meta"
-      
+
       response = Suse::Backend.get( path )
-      
+
       doc = REXML::Document.new( response.body )
-      logger.debug "The XML Document: " + doc.to_s
+      # logger.debug "The XML Document: " + doc.to_s
       root = doc.root
 
       doc.elements.each("project/person[@role='maintainer']") { |elem| val << elem.attributes["userid"] }
-
-      logger.debug "returning values: #{val}"
+      doc.elements.each("project/person[@role='owner']") { |elem| val << elem.attributes["userid"] }
+      logger.debug "returning project maintainers: #{val}"
       return val
     end
 
-    
+    def package_maintainers( project, package )
+      val = []
+      path = "/source/#{project}/#{package}/_meta"
+
+      response = Suse::Backend.get( path )
+
+      doc = REXML::Document.new( response.body )
+      # logger.debug "The XML Package: " + doc.to_s
+      root = doc.root
+
+      doc.elements.each("package/person[@role='maintainer']") { |elem| val << elem.attributes["userid"] }
+      doc.elements.each("package/person[@role='owner']") { |elem| val << elem.attributes["userid"] }
+      logger.debug "returning pack maintainer: #{val}"
+      return val
+    end
+
     def logger
       RAILS_DEFAULT_LOGGER
     end
