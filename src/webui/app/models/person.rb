@@ -1,4 +1,10 @@
 class Person < ActiveXML::Base
+  class << self
+    def make_stub( name )
+      return REXML::Document.new( "<person><login>#{name}</login></person>" ).root
+    end
+  end
+  
   def to_s
     name.to_s
   end

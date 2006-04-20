@@ -26,7 +26,7 @@ class PersonController < ApplicationController
         user = @http_user
         if params[:login]
           user = BSUser.find_by_login( params[:login] )
-          if user.login != @http_user.login 
+          if user and user.login != @http_user.login 
             # TODO: check permission to update someone elses info
             if @http_user.has_permission "Userinfo_Admin"
 	      # ok, may update user info
@@ -63,7 +63,20 @@ class PersonController < ApplicationController
           user.save
           render_ok
         else
-          render_error :message => "No valid user object"
+          #create user if not existing
+          logger.debug "trying to create new user"
+          user = BSUser.create( 
+            :login => params[:login],
+            :password => "asdfasdf",
+            :password_confirmation => "asdfasdf",
+            :email => "#{params[:login]}@localhost"
+          )
+
+          #user.login = params[:login]
+
+          #logger.debug user
+          #user.save
+          render_ok
         end
       end
     end
