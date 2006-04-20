@@ -15,7 +15,7 @@ require "rest_test.rb"
 class Options
 
   attr_accessor :verbose, :filename, :html, :outline, :output_dir,
-    :create_template, :testfile, :force, :request
+    :create_template, :testfile, :force, :request, :show_all
 
   def initialize
     verbose = false
@@ -52,6 +52,10 @@ class Options
 
     opt.on( "--request=name", "Select request to be tested" ) do |val|
       options.request = val
+    end
+
+    opt.on( "--show-all", "Show all requests, not only non-passed." ) do
+      options.show_all = true
     end
 
     begin
@@ -122,6 +126,7 @@ begin
   if ( options.verbose )
     runner.context.show_xmlbody = true
   end
+  runner.context.show_passed = options.show_all
   runner.context.request_filter = options.request
 
   runner.run options.testfile

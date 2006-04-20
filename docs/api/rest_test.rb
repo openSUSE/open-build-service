@@ -6,10 +6,12 @@ end
 
 class TestContext
 
-  attr_writer :show_xmlbody, :request_filter
+  attr_writer :show_xmlbody, :request_filter, :show_passed
 
   def initialize requests
     @host_aliases = Hash.new
+
+    @output = ""
 
     @requests = requests
     start
@@ -46,23 +48,31 @@ class TestContext
   end
 
   def unsupported
-    puts magenta( "  UNSUPPORTED" )
+    out magenta( "  UNSUPPORTED" )
     @unsupported += 1
+    out_flush
   end
 
   def failed
-    puts red( "  FAILED" )
+    out red( "  FAILED" )
     @failed += 1
+    out_flush
   end
 
   def passed
-    puts green( "  PASSED" )
+    out green( "  PASSED" )
     @passed += 1
+    if ( @show_passed )
+      out_flush
+    else
+      out_clear
+    end
   end
 
   def skipped
-#    puts magenta( "  SKIPPED" )
+#    out magenta( "  SKIPPED" )
     @skipped += 1
+    out_flush
   end
 
   def error str = nil
@@ -70,12 +80,26 @@ class TestContext
     if ( str )
       error_str += ": " + str
     end
-    puts red( error_str )
+    out red( error_str )
     @error += 1
+    out_flush
   end
 
   def alias_host old, new
     @host_aliases[ old ] = new
+  end
+
+  def out str
+    @output += str + "\n";
+  end
+  
+  def out_clear
+    @output = ""
+  end
+  
+  def out_flush
+    puts @output
+    out_clear
   end
 
   def request arg, return_code = nil
@@ -86,7 +110,7 @@ class TestContext
       return nil
     end
 
-    puts bold( "REQUEST: " + arg )
+    out bold( "REQUEST: " + arg )
 
     request = @requests.find { |r|
       r.to_s == arg
@@ -100,10 +124,10 @@ class TestContext
     xml_results = request.all_children XmlResult
     if ( !xml_results.empty? )
       xml_result = xml_results[0]
-      puts "  XMLRESULT: " + xml_result.name
+      out "  XMLRESULT: " + xml_result.name
     end
     
-    puts "  host: '#{request.host}'"
+    out "  host: '#{request.host}'"
 
     host = request.host.to_s
     if ( !host || host.empty? )
@@ -115,7 +139,7 @@ class TestContext
       host = @host_aliases[ host ]
     end
 
-    puts "  aliased host: #{host}"
+    out "  aliased host: #{host}"
 
     begin
       path = substitute_parameters request
@@ -124,14 +148,14 @@ class TestContext
       return nil
     end
 
-    puts "  Path: " + path
+    out "  Path: " + path
 
     splitted_host = host.split( ":" )
     
     host_name = splitted_host[0]
     host_port = splitted_host[1]
 
-    puts "  Host name: #{host_name} port: #{host_port}"
+    out "  Host name: #{host_name} port: #{host_port}"
 
     if ( request.verb == "GET" )
       req = Net::HTTP::Get.new( path )
@@ -143,7 +167,7 @@ class TestContext
       end
       if ( response.is_a? Net::HTTPRedirection )
         location = URI.parse response["location"]
-        puts "  Redirected to #{location}"
+        out "  Redirected to #{location}"
         req = Net::HTTP::Get.new( location.path )
         if ( @user )
           req.basic_auth( @user, @password )
@@ -165,7 +189,7 @@ class TestContext
         error "No body data defined for PUT"
         return nil
       end
-      puts "  PUT"
+      out "  PUT"
       req = Net::HTTP::Put.new( path )
       if ( @user )
         req.basic_auth( @user, @password )
@@ -180,9 +204,9 @@ class TestContext
     end
 
     if ( response )
-      puts "  return code: #{response.code}"
+      out "  return code: #{response.code}"
       if ( xml_result && @show_xmlbody )
-        puts response.body
+        out response.body
       end
 
       if ( ( return_code && response.code == return_code.to_s ) ||
@@ -194,7 +218,7 @@ class TestContext
             schema_file = xml_result.name + ".xsd"
           end
           if ( validate_xml response.body, schema_file )
-            puts "  Response validates against schema '#{schema_file}'"
+            out "  Response validates against schema '#{schema_file}'"
             passed
           else
             failed
@@ -218,7 +242,7 @@ class TestContext
       p = parameter.name
       arg = eval( "@arg_#{parameter.name}" )
       if ( !arg )
-        puts "  Can't substitute parameter '#{p}'. " +
+        out "  Can't substitute parameter '#{p}'. " +
           "No variable @arg_#{p} defined."
         raise ParameterError
       end
