@@ -64,6 +64,8 @@ end
 Engines.start :active_rbac
 
 require 'rails_put_fix'
+require 'active_rbac_user_model_crypt_hack'
+
 #require 'custom_dispatcher'
 
 require 'activexml'
