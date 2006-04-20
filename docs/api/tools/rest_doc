@@ -16,7 +16,8 @@ require "rest_htmlprinter.rb"
 
 class Options
 
-  attr_accessor :verbose, :filename, :html, :outline, :output_dir
+  attr_accessor :verbose, :filename, :html, :outline, :output_dir,
+    :include_dir
 
   def initialize
     verbose = false
@@ -51,6 +52,10 @@ class Options
       options.output_dir = val
     end
 
+    opt.on( "-I", "=DIRECTORY", "Include directory as search path for XML files") do |val|
+      options.include_dir = val
+    end
+
     begin
       opt.parse!( args )
     rescue OptionParser::InvalidOption
@@ -77,6 +82,8 @@ class Options
 end
 
 options = Options.parse( ARGV )
+
+XmlFile.include_dir = options.include_dir
 
 begin
 

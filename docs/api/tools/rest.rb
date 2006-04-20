@@ -1,5 +1,62 @@
 #!/usr/bin/ruby
 
+class XmlFile
+  
+  def XmlFile.include_dir= dir
+    @@include_dir = dir
+  end
+  
+  def XmlFile.exist? file_name
+    exists? file_name
+  end
+  
+  def XmlFile.exists? file_name
+    find_file file_name
+  end
+  
+  def XmlFile.copy file_name, output_dir
+    dir_name = File.dirname( file_name )
+
+    if ( dir_name =~ /^\// )
+      puts STDERR, "Absolute file names aren't allowed as XML file names."
+        + " (#{dir_name})";
+      return
+    end
+
+    if ( dir_name )
+      output_dir += "/" + dir_name
+    end
+    
+    if ( dir_name && !dir_name.empty? && !File.exist?( dir_name ) )
+      `mkdir -p #{output_dir}`
+      if ( $? != 0 )
+        puts STDERR, "Unable to create directory '#{dir_name}'"
+      end
+    end
+    
+    File.copy( find_file( file_name ), output_dir )
+    
+  end
+  
+  private
+  
+  def XmlFile.find_file file_name
+    if ( File.exists? file_name )
+      return file_name
+    end
+ 
+    if ( @@include_dir )
+      file_name = @@include_dir + "/" + file_name
+      if ( File.exists? file_name )
+        return file_name
+      end
+    end
+    
+    return nil
+  end
+  
+end
+
 class Node
   attr_accessor :parent, :level, :name
   attr_reader :children

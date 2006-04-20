@@ -26,23 +26,23 @@ GET /source/
 
   Read list of projects.
   
-XmlResult: projects directory.xsd
+XmlResult: frontend/projects frontend/directory.xsd
 
 
 GET /source/<project>/_meta
 
   Read project meta file.
 
-XmlResult: project
+XmlResult: frontend/project
 
 
 PUT /source/<project>/_meta
 
   Write project meta file.
 
-XmlBody: project
+XmlBody: frontend/project
 
-XmlResult: status
+XmlResult: frontend/status
 
 
 === Package meta data
@@ -52,7 +52,7 @@ GET /source/<project>/<package>/_meta
 
   Read project meta data.
 
-XmlResult: package
+XmlResult: frontend/package
 
 
 PUT /source/<project>/<package>/_meta
@@ -60,9 +60,9 @@ PUT /source/<project>/<package>/_meta
   Write project meta data. Writing of the project meta data commits the packages
   contained in the project to the build backend.
 
-XmlBody: package
+XmlBody: frontend/package
 
-XmlResult: status
+XmlResult: frontend/status
 
 
 === Other source files
@@ -83,7 +83,7 @@ PUT /source/<project>/<package>/<filename>
 
 Body: Content of file
 
-XmlResult: status
+XmlResult: frontend/status
 
 
 == Platform data
@@ -92,14 +92,14 @@ GET /platform/
   
   List all projects having repositories.
   
-XmlResult: directory
+XmlResult: frontend/directory
 
 
 GET /platform/<project>
 
   List all repositories for project.
   
-XmlResult: directory
+XmlResult: frontend/directory
 
 
 == RPMs
@@ -126,21 +126,21 @@ GET /status/<project>/:all/:all
 
   Read project summary result.
 
-XmlResult: projectresult
+XmlResult: frontend/projectresult
 
 
 GET /status/<project>/<repository>/:all
 
   Read repository summary result.
 
-XmlResult: repositoryresult
+XmlResult: frontend/repositoryresult
 
 
 GET /status/<project>/<repository>/<package>
 
   Read package result.
 
-XmlResult: packageresult
+XmlResult: frontend/packageresult
 
 
 Host: buildservice.suse.de:5252
@@ -156,4 +156,4 @@ GET /rpm/<project>/<repository>/<arch>/<package>/status
 
   Read package build status.
   
-XmlResult: packagestatus
+XmlResult: frontend/packagestatus

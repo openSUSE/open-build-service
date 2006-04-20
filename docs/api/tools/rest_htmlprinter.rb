@@ -25,17 +25,17 @@ class HtmlPrinter < Printer
     puts "Written #{@index.path}."
     
     @xml_examples.each do |f,b|
-      if !File.exist?( f )
+      if !XmlFile.exist?( f )
         STDERR.puts "XML Example '#{f}' is missing."
       else
-        File.copy f, @output_dir
+        XmlFile.copy f, @output_dir
       end
     end
     @xml_schemas.each do |f,b|
-      if !File.exist?( f )
+      if !XmlFile.exist?( f )
         STDERR.puts "XML Schema '#{f}' is missing."
       else
-        File.copy f, @output_dir
+        XmlFile.copy f, @output_dir
       end
     end
     
@@ -120,8 +120,8 @@ class HtmlPrinter < Printer
     @html.p do |p|
       p << title
       p << ": "
-      has_example = File.exist? example
-      has_schema = File.exist? schema
+      has_example = XmlFile.exist? example
+      has_schema = XmlFile.exist? schema
       if has_example
         @html.a( "Example", "href" => example )
       end
