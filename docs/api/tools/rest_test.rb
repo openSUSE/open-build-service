@@ -98,7 +98,7 @@ class TestContext
   end
   
   def out_flush
-    puts @output
+    print @output
     out_clear
   end
 
