@@ -1,5 +1,5 @@
 apidocs:
-	./rest_doc api.txt --html
+	cd frontend; make apidocs
 
 doc: apidocs
 	xsltproc xs3p.xsl package.xsd >package.html

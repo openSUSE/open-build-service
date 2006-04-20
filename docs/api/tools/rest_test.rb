@@ -258,7 +258,8 @@ class TestContext
     tmp_path = tmp.path
     tmp.close
 
-    out = `/usr/bin/xmllint --noout --schema #{schema_file} #{tmp_path} 2>&1`
+    cmd = "/usr/bin/xmllint --noout --schema #{schema_file} #{tmp_path} 2>&1"
+    out = `#{cmd}`
     if $?.exitstatus > 0
       STDERR.puts "xmllint return value: #{$?.exitstatus}"
       STDERR.puts out

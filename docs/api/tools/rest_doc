@@ -9,6 +9,8 @@ include ERB::Util
 
 require "ftools"
 
+$LOAD_PATH << File.dirname( $0 )
+
 require "rest.rb"
 require "rest_htmlprinter.rb"
 
