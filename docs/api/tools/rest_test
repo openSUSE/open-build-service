@@ -17,7 +17,7 @@ require "rest_test.rb"
 class Options
 
   attr_accessor :verbose, :filename, :html, :outline, :output_dir,
-    :create_template, :testfile, :force, :request, :show_all
+    :create_template, :testfile, :force, :request, :show_all, :include_dir
 
   def initialize
     verbose = false
@@ -60,6 +60,10 @@ class Options
       options.show_all = true
     end
 
+    opt.on( "-I", "=DIRECTORY", "Include directory as search path for XML files") do |val|
+      options.include_dir = val
+    end
+
     begin
       opt.parse!( args )
     rescue OptionParser::InvalidOption
@@ -88,6 +92,8 @@ end
 options = Options.parse( ARGV )
 
 begin
+
+  XmlFile.include_dir = options.include_dir
 
   if ( !options.testfile )
     options.testfile = options.filename + ".test"

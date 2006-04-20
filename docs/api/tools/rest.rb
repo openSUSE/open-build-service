@@ -1,8 +1,13 @@
 #!/usr/bin/ruby
 
 class XmlFile
-  
+
+  @@include_dir = ""
+
   def XmlFile.include_dir= dir
+    if !dir
+      dir = ""
+    end
     @@include_dir = dir
   end
   
@@ -38,14 +43,12 @@ class XmlFile
     
   end
   
-  private
-  
   def XmlFile.find_file file_name
     if ( File.exists? file_name )
       return file_name
     end
  
-    if ( @@include_dir )
+    if ( !@@include_dir.empty? )
       file_name = @@include_dir + "/" + file_name
       if ( File.exists? file_name )
         return file_name

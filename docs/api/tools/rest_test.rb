@@ -258,11 +258,19 @@ class TestContext
     tmp_path = tmp.path
     tmp.close
 
-    cmd = "/usr/bin/xmllint --noout --schema #{schema_file} #{tmp_path} 2>&1"
-    out = `#{cmd}`
+    found_schema_file = XmlFile.find_file schema_file
+
+    if ( !found_schema_file )
+      out "  Unable to find schema file '#{schema_file}'"
+      return false
+    end
+
+    cmd = "/usr/bin/xmllint --noout --schema #{found_schema_file} #{tmp_path} 2>&1"
+#    puts "CMD: " + cmd
+    output = `#{cmd}`
     if $?.exitstatus > 0
-      STDERR.puts "xmllint return value: #{$?.exitstatus}"
-      STDERR.puts out
+      out "xmllint return value: #{$?.exitstatus}"
+      out output
       return false
     end
     return true
