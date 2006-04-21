@@ -17,7 +17,7 @@ Contents:
 
 == Sources
 
-Host: buildservice.suse.de:5352
+Host: backend-source.opensuse.org
 
 === Project meta data
 
@@ -42,7 +42,7 @@ PUT /source/<project>/_meta
 
 XmlBody: frontend/project
 
-XmlResult: frontend/status
+XmlResult: frontend/project
 
 
 === Package meta data
@@ -52,7 +52,7 @@ GET /source/<project>/<package>/_meta
 
   Read project meta data.
 
-XmlResult: frontend/package
+XmlResult: package
 
 
 PUT /source/<project>/<package>/_meta
@@ -60,7 +60,7 @@ PUT /source/<project>/<package>/_meta
   Write project meta data. Writing of the project meta data commits the packages
   contained in the project to the build backend.
 
-XmlBody: frontend/package
+XmlBody: package
 
 XmlResult: frontend/status
 
@@ -83,10 +83,12 @@ PUT /source/<project>/<package>/<filename>
 
 Body: Content of file
 
-XmlResult: frontend/status
+XmlResult: fileputresult
 
 
 == Platform data
+
+Host: backend-source.opensuse.org
 
 GET /platform/
   
@@ -104,46 +106,48 @@ XmlResult: frontend/directory
 
 == RPMs
 
-Host: buildservice.suse.de:5252
+Host: backend-repository.opensuse.org
 
 GET /rpm/<project>/<repository>/<arch>/<package>
 
   Get list of RPMs.
 
-GET /rpm/<project>/<platform>/<package>/<rpm-name>
+GET /rpm/<project>/<repository>/<package>/<rpmname>
 
   Get RPM.
 
 Result: RPM
 
 
-== Build Results
+== Build Status Summaries
 
-Host: buildservice.suse.de:5352
+Host: backend-source.opensuse.org
 
 
 GET /status/<project>/:all/:all
 
   Read project summary result.
 
-XmlResult: frontend/projectresult
+XmlResult: statussumlist
 
 
 GET /status/<project>/<repository>/:all
 
   Read repository summary result.
 
-XmlResult: frontend/repositoryresult
+XmlResult: statussumlist
 
 
 GET /status/<project>/<repository>/<package>
 
   Read package result.
 
-XmlResult: frontend/packageresult
+XmlResult: statussumlist
 
 
-Host: buildservice.suse.de:5252
+== Build Results Packages
+
+Host: backend-repository.opensuse.org
 
 GET /rpm/<project>/<repository>/<arch>/<package>/logfile
 
@@ -156,4 +160,4 @@ GET /rpm/<project>/<repository>/<arch>/<package>/status
 
   Read package build status.
   
-XmlResult: frontend/packagestatus
+XmlResult: packagestatus

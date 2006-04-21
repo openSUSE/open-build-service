@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   elementFormDefault="qualified">
+  
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the format for describing the build status of an
+      individual package.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="status">
+    <xs:annotation>
+      <xs:documentation>
+        Top level element for status data.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="status" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

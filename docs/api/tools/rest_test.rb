@@ -121,12 +121,18 @@ class TestContext
       return nil
     end
 
+    xml_bodies = request.all_children XmlBody
+    if ( !xml_bodies.empty? )
+      xml_body = xml_bodies[0]
+      out "  XMLBODY: " + xml_body.name
+    end
+    
     xml_results = request.all_children XmlResult
     if ( !xml_results.empty? )
       xml_result = xml_results[0]
       out "  XMLRESULT: " + xml_result.name
     end
-    
+
     out "  host: '#{request.host}'"
 
     host = request.host.to_s
@@ -189,7 +195,12 @@ class TestContext
         error "No body data defined for PUT"
         return nil
       end
-      out "  PUT"
+      
+      if ( xml_body && @show_xmlbody )
+        out "Request body:"
+        out @data_body
+      end
+
       req = Net::HTTP::Put.new( path )
       if ( @user )
         req.basic_auth( @user, @password )
@@ -206,6 +217,7 @@ class TestContext
     if ( response )
       out "  return code: #{response.code}"
       if ( xml_result && @show_xmlbody )
+        out "Response body:"
         out response.body
       end
 
