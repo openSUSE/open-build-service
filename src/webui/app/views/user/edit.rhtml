@@ -23,21 +23,21 @@
 <hr/>
 
 <%= form_tag :action => :save %>
-  <p><%= submit_tag "Switch to default backends" %></p>
-  <%= hidden_field_tag( "realname", @user.realname ) %>
-  <%= hidden_field_tag( "source_host", "" ) %>
-  <%= hidden_field_tag( "source_port", "" ) %>
-  <%= hidden_field_tag( "rpm_host", "" ) %>
-  <%= hidden_field_tag( "rpm_port", "" ) %>
-<%= end_form_tag %>
-
-<%= form_tag :action => :save %>
-  <p><%= submit_tag "Switch to real backend" %></p>
+  <p><%= submit_tag "Switch to production backend" %></p>
   <%= hidden_field_tag( "realname", @user.realname ) %>
   <%= hidden_field_tag( "source_host", "buildservice.suse.de" ) %>
   <%= hidden_field_tag( "source_port", "5352" ) %>
   <%= hidden_field_tag( "rpm_host", "buildservice.suse.de" ) %>
   <%= hidden_field_tag( "rpm_port", "5252" ) %>
+<%= end_form_tag %>
+
+<%= form_tag :action => :save %>
+  <p><%= submit_tag "Switch to test backend" %></p>
+  <%= hidden_field_tag( "realname", @user.realname ) %>
+  <%= hidden_field_tag( "source_host", "buildservice.suse.de" ) %>
+  <%= hidden_field_tag( "source_port", "6362" ) %>
+  <%= hidden_field_tag( "rpm_host", "buildservice.suse.de" ) %>
+  <%= hidden_field_tag( "rpm_port", "6262" ) %>
 <%= end_form_tag %>
 
 <%= form_tag :action => :save %>
@@ -48,3 +48,13 @@
   <%= hidden_field_tag( "rpm_host", "localhost" ) %>
   <%= hidden_field_tag( "rpm_port", "3002" ) %>
 <%= end_form_tag %>
+
+<%= form_tag :action => :save %>
+  <p><%= submit_tag "Switch to default backend" %></p>
+  <%= hidden_field_tag( "realname", @user.realname ) %>
+  <%= hidden_field_tag( "source_host", "" ) %>
+  <%= hidden_field_tag( "source_port", "" ) %>
+  <%= hidden_field_tag( "rpm_host", "" ) %>
+  <%= hidden_field_tag( "rpm_port", "" ) %>
+<%= end_form_tag %>
+
