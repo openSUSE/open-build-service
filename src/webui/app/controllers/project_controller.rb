@@ -1,9 +1,8 @@
 class ProjectController < ApplicationController 
   model :project, :package, :result
 
-  before_filter :list_all_if_no_name, :except => 
-        [:list_all, :list_my, :new, :save, :index, :refresh_monitor, :toggle_watch]
-  before_filter :check_params
+  before_filter :check_parameter_project, :except =>
+    [ :list_all, :list_my, :new, :save_new, :save, :index, :refresh_monitor, :toggle_watch ]
 
   def list_all
     projectlist = Project.find(:all).sort do |a,b|  
@@ -52,8 +51,13 @@ class ProjectController < ApplicationController
     end
   end
 
-  def new
-    if params[:name]
+  def save_new
+    logger.debug( "save_new" )
+  
+    if !valid_project_name?( params[:name] )
+      flash[:error] = "Invalid project name '#{params[:name]}'."
+      redirect_to :action => "new"
+    else
       #store project
       @project = Project.new( :name => params[:name] )
 
@@ -68,8 +72,6 @@ class ProjectController < ApplicationController
       end
 
       redirect_to :action => 'show', :project => params[:name]
-    else
-      #show template
     end
   end
 
@@ -229,19 +231,12 @@ class ProjectController < ApplicationController
 
   #filters
   
-  def check_params
-    logger.debug "Checking parameter #{params[:project]}"
-    if params[:project]
-      unless params[:project] =~ /^\w[-_\w\.:]*$/
-        flash[:error] = "Invalid project name, may only contain alphanumeric characters"  
-	redirect_to :action => :new 
-      end
-    end
-  end
-
-  def list_all_if_no_name
-    unless params[:project]
-      flash[:note] = "Please select a project"
+  def check_parameter_project
+    if ( !params[:project] )
+      flash[:note] = "Missing parameter 'project'"
+      redirect_to :action => :list_all
+    elsif !valid_project_name?( params[:project] )
+      flash[:error] = "Invalid project name '#{params[:project]}'"
       redirect_to :action => :list_all
     end
   end
