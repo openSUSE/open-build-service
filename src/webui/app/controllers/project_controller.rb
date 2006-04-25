@@ -2,11 +2,24 @@ class ProjectController < ApplicationController
   model :project, :package, :result
 
   before_filter :check_parameter_project, :except =>
-    [ :list_all, :list_my, :new, :save_new, :save, :index, :refresh_monitor, :toggle_watch ]
+    [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
+      :toggle_watch ]
 
   def list_all
     projectlist = Project.find(:all).sort do |a,b|  
       a.name <=> b.name 
+    end
+
+    @project_pages, @projects = paginate_collection( projectlist )
+  end
+
+  def list_public
+    projectlist = Project.find(:all).sort do |a,b|  
+      a.name <=> b.name 
+    end
+
+    projectlist = projectlist.reject do |p|
+      p.to_s =~ /^home:/
     end
     
     @project_pages, @projects = paginate_collection( projectlist )
@@ -23,7 +36,7 @@ class ProjectController < ApplicationController
     @project = Project.find( params[:project] )
     if ( !@project )
       flash[:error] = "Project #{params[:project]} doesn't exist."
-      redirect_to :action => list_all
+      redirect_to :action => list_public
     else
       @project_name = @project.name
       session[:project] = @project.name
@@ -233,10 +246,10 @@ class ProjectController < ApplicationController
   def check_parameter_project
     if ( !params[:project] )
       flash[:note] = "Missing parameter 'project'"
-      redirect_to :action => :list_all
+      redirect_to :action => :list_public
     elsif !valid_project_name?( params[:project] )
       flash[:error] = "Invalid project name '#{params[:project]}'"
-      redirect_to :action => :list_all
+      redirect_to :action => :list_public
     end
   end
 

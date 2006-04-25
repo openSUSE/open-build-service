@@ -12,5 +12,6 @@
   <% end %>
 </table>
 
-<hr>
+<% if @project_pages.page_count > 1 %>
 Pages <%= pagination_links( @project_pages ) %>
+<% end %>
