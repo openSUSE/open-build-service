@@ -128,6 +128,7 @@ class ApplicationController < ActionController::Base
     @exception_xml = opt[:exception_xml]
     @exception = opt[:exception]
 
+    logger.debug "ERROR: #{@code} #{@error_message}"
 
     # if the exception was raised inside a template (-> @template.first_render != nil), 
     # the instance variables created in here will not be injected into the template

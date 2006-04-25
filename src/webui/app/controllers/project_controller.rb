@@ -232,7 +232,7 @@ class ProjectController < ApplicationController
   def check_params
     logger.debug "Checking parameter #{params[:project]}"
     if params[:project]
-      unless params[:project] =~ /^\w[-_\w\.]*$/
+      unless params[:project] =~ /^\w[-_\w\.:]*$/
         flash[:error] = "Invalid project name, may only contain alphanumeric characters"  
 	redirect_to :action => :new 
       end
