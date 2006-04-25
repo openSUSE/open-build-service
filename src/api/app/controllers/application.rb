@@ -131,7 +131,8 @@ class ApplicationController < ActionController::Base
       else
         message = "Backend Error: #{response.code}"
       end
-      render_error :message => message, :status => response.code
+      render_error :message => message, :status => response.code,
+        :details => response.body
       return true
     end
     render_error :exception => exception
@@ -162,6 +163,10 @@ class ApplicationController < ActionController::Base
     
     if opt[:exception]
       @exception = opt[:exception ]
+    end
+
+    if opt[:details]
+      @details = opt[:details]
     end
 
     render :template => 'status', :status => @errorcode, :layout => false
