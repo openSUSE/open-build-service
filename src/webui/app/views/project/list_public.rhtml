@@ -1,0 +1,22 @@
+<%= link_to_home_project %>
+
+<h2>All Public Projects</h2>
+
+<table>
+  <tr><th>Name</th>
+  <% for project in @projects %>
+  <tr><td>
+    <%= link_to project, :action => :show, :project => project %>
+  </td>
+  </tr>
+  <% end %>
+</table>
+
+<% if @project_pages.page_count > 1 %>
+<p>Pages <%= pagination_links( @project_pages ) %></p>
+<% end %>
+
+<p>
+<%= link_to "All projects (including home projects)", :action => :list_all %>
+</p>
+

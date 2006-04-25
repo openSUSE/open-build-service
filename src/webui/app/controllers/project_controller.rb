@@ -31,35 +31,53 @@ class ProjectController < ApplicationController
     @watchlist = @user.watchlist if @user.has_element? :watchlist
   end
 
+  def new
+    @project_name = params[:project]
+    if @project_name =~ /home:(.*)/
+      @project_title = "#$1's Home Project" 
+    else
+      @project_title = ""
+    end
+  end
+
   def show
 # @user = Person.find( :login => session[:login] ) if session[:login]
-    @project = Project.find( params[:project] )
-    if ( !@project )
-      flash[:error] = "Project #{params[:project]} doesn't exist."
-      redirect_to :action => list_public
-    else
-      @project_name = @project.name
-      session[:project] = @project.name
+    begin
+      @project = Project.find( params[:project] )
+    rescue ActiveXML::NotFoundError
+      home_project = "home:" + session[:login]
+      if params[:project] == home_project
+        flash[:note] = "Home project doesn't exist yet. You can create it now by entering some" +
+          " descriptive data and press the 'Create Project' button."
+        redirect_to :action => :new, :project => home_project
+      else
+        flash[:error] = "Project #{params[:project]} doesn't exist."
+        redirect_to :action => list_public
+      end
+      return
+    end
 
-      begin
-        result = Result.find( :project => params[:project] )
-        if ( result )
-          @status = result.status.code
-          @package_counts = Hash.new
-          result.status.each_packagecount do |c|
-            @package_counts[ c.state ] = c
-          end
+    @project_name = @project.name
+    session[:project] = @project.name
 
-          @status_map = Hash.new
-          result.each_repositoryresult do |r|
-            @status_map[ r.name ] = Hash.new
-            r.each_archresult do |a|
-              @status_map[ r.name ][ a.arch ] = a.status.code
-            end
+    begin
+      result = Result.find( :project => params[:project] )
+      if ( result )
+        @status = result.status.code
+        @package_counts = Hash.new
+        result.status.each_packagecount do |c|
+          @package_counts[ c.state ] = c
+        end
+
+        @status_map = Hash.new
+        result.each_repositoryresult do |r|
+          @status_map[ r.name ] = Hash.new
+          r.each_archresult do |a|
+            @status_map[ r.name ][ a.arch ] = a.status.code
           end
         end
-      rescue ActiveXML::NotFoundError
       end
+    rescue ActiveXML::NotFoundError
     end
   end
 

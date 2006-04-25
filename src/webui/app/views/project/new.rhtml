@@ -1,12 +1,20 @@
 <h2>New Project</h2>
 
 <%= form_tag :action => :save_new %>
-<b>Name:</b><br/>
-<%= text_field_tag 'name', '', :size => 80 %><br/>
+<b>Name:</b>
+<% if @project_name %>
+  <%= @project_name %>
+  <%= hidden_field_tag( "name", @project_name ) %>
+  <br/>
+<% else %>
+  <br/>
+  <%= text_field_tag 'name', '', :size => 80 %>
+  <br/>
+<% end %>
 <b>Title:</b><br/>
-<%= text_field_tag 'title', '', :size => 80 %><br/>
+<%= text_field_tag 'title', @project_title, :size => 80 %><br/>
 <b>Description:</b><br/>
 <%= text_area_tag 'description', '', :cols => 80,
   :rows => 10 %>
-<p><%= submit_tag %></p>
+<p><%= submit_tag "Create Project" %></p>
 <%= end_form_tag %>
