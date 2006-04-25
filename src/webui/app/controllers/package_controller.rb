@@ -25,39 +25,52 @@ class PackageController < ApplicationController
     end
     
     @project = Project.find( params[:project] )
-
-    if params[:name]
-      @package = Package.new( :name => params[:name], :project => @project )
-
-      @package.title.data.text = params[:title]
-      @package.description.data.text = params[:description]
-      if params[:createSpecFileTemplate]
-        @package.add_file :filename => params[:name] + ".spec"
-      end
-
-      @project.add_package @package
-
-      if @project.save and @package.save
-        if params[:createSpecFileTemplate]
-          logger.debug( "CREATE SPEC FILE TEMPLATE" )
-          frontend.cmd_package( @project.name, @package.name,
-            "createSpecFileTemplate" )
-        end
-      
-        flash[:note] = "Package '#{@package}' was created successfully"
-        redirect_to :action => 'show', :project => params[:project], :package => params[:name]
-      else
-        flash[:note] = "Failed to save package '#{@package}'"
-        redirect_to :controller => 'project', :action => 'show', :project => params[:project]
-      end
-    else
-      #show template
-    end
   end
 
   def edit
     @project = Project.find( params[:project] )
     @package = Package.find( params[:package], :project => params[:project] )
+  end
+
+  def save_new
+    if not params[:project]
+      flash[:note] = "Creating package failed: Project name missing"
+      redirect_to :controller => "project", :action => "list_all"
+      return
+    end
+    
+    @project = Project.find( params[:project] )
+
+    if params[:name]
+      if !valid_package_name? params[:name]
+        flash[:error] = "Invalid package name: '#{params[:name]}'"
+        redirect_to :action => 'new', :project => params[:project]
+      else
+        @package = Package.new( :name => params[:name], :project => @project )
+
+        @package.title.data.text = params[:title]
+        @package.description.data.text = params[:description]
+        if params[:createSpecFileTemplate]
+          @package.add_file :filename => params[:name] + ".spec"
+        end
+
+        @project.add_package @package
+
+        if @project.save and @package.save
+          if params[:createSpecFileTemplate]
+            logger.debug( "CREATE SPEC FILE TEMPLATE" )
+            frontend.cmd_package( @project.name, @package.name,
+              "createSpecFileTemplate" )
+          end
+
+          flash[:note] = "Package '#{@package}' was created successfully"
+          redirect_to :action => 'show', :project => params[:project], :package => params[:name]
+        else
+          flash[:note] = "Failed to save package '#{@package}'"
+          redirect_to :controller => 'project', :action => 'show', :project => params[:project]
+        end
+      end
+    end
   end
 
   def save
