@@ -34,4 +34,5 @@ module ProjectHelper
   def watch_link_text
     @user.watches?(@project_name) ? "[Don't watch this project]" : "[Watch this project]"
   end
+
 end

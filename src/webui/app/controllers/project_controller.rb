@@ -13,7 +13,6 @@ class ProjectController < ApplicationController
   end
 
   def list_my
-    @projects = Project.find(:all)
     logger.debug "Have this session login: #{session[:login]}"
     @user = Person.find( :login => session[:login] )
     @watchlist = @user.watchlist if @user.has_element? :watchlist

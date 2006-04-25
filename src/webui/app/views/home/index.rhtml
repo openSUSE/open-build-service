@@ -1,33 +1,37 @@
 <h2>Home of <%=h session[:login] %></h2>
+
+<%= link_to_home_project %>
+
+<h3>Configuration</h3>
 <p>
-<b>Username:</b> <%=h @user.login %><br/>
-<b>Real Name: </b> <%=h @user.realname %><br/>
+<b>Real Name: </b>
+<% if @user.realname && !@user.realname.to_s.empty? %>
+  <%=h @user.realname %>
+<% else %>
+  <em>No real name set.</em>
+<% end %>
+<br/>
 </p>
-<p>
-<b>Backend Configuration:</b>
-</p>
-<p>
-<b>Source Backend: </b><br/>
+
+<h4>Backend Configuration</h4>
+<h5>Source Backend</h5>
 <% if @user.has_element? :source_backend and not @user.source_backend.host.to_s.empty? -%>
 <ul>
   <li>Host: <%=h @user.source_backend.host %></li>
   <li>Port: <%=h @user.source_backend.port %></li>
 </ul>
 <% else -%>
-Standard source backend
+<p>Standard source backend</p>
 <% end -%>
-</p>
 
-<p>
-<b>RPM Backend: </b><br/>
+<h5>RPM Backend</h5>
 <% if @user.has_element? :rpm_backend -%>
 <ul>
   <li>Host: <%=h @user.rpm_backend.host %></li>
   <li>Port: <%=h @user.rpm_backend.port %></li>
 </ul>
 <% else -%>
-Standard RPM backend
+<p>Standard RPM backend</p>
 <% end -%>
-</p>
 
 <p><%= link_to "Edit User Data", :controller => "user", :action => "edit" %></p>

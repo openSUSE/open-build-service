@@ -1,15 +1,14 @@
-<h2>My Watched Projects</h2>
+<p>
+  <%= link_to_home_project %>
+</p>
+
+<h2>Watched Projects</h2>
 
 <% if @watchlist -%>
-<% @watchlist.each_project do |project| -%>
-<%= link_to project, :action => :show, :project => project %><br/>
+  <% @watchlist.each_project do |project| -%>
+    <%= link_to project, :action => :show, :project => project %><br/>
+  <% end -%>
+<% else %>
+  <p><em>No projects marked to be watched.</em></p>
+  <p>Select "Watch Project" on a project overview page to watch a project.</p>
 <% end -%>
-<% end -%>
-
-<h2>All Projects</h2>
-
-<% for project in @projects -%>
-<%= link_to project, :action => :show, :project => project %><br/>
-<% end -%>
-<br/>
-
