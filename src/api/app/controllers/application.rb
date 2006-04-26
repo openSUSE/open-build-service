@@ -115,7 +115,7 @@ class ApplicationController < ActionController::Base
   end
 
   def forward_data( path, opt={} )
-    response = Suse::Backend.get( path, opt )
+    response = Suse::Backend.get( path )
     send_data( response.body, :type => response.fetch( "content-type" ),
       :disposition => "inline" )
   end
