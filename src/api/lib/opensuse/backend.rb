@@ -91,6 +91,14 @@ module Suse
         get_source path, opt
       end
 
+      def delete( path )
+        delete_source path
+      end
+
+      def delete_source( path )
+        do_delete( source_host, source_port, path )
+      end
+
       def get_source( path, opt={} )
         if opt.has_key? :validate
           if opt[:validate]
@@ -178,6 +186,15 @@ module Suse
       def do_get( host, port, path )
         response = Net::HTTP.get_response( host, path, port )
         write_backend_log( "GET", host, port, path, response, response.body )
+        handle_response response
+      end
+
+      def do_delete( host, port, path )
+        backend_request = Net::HTTP::Delete.new( path )
+        response = Net::HTTP.start( host, port ) do |http|
+          http.request( backend_request )
+        end
+        write_backend_log( "DELETE", host, port, path, response, response.body )
         handle_response response
       end
 

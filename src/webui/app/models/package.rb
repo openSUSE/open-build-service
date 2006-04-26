@@ -24,7 +24,15 @@ class Package < ActiveXML::Base
   end
 
   def remove_file( name )
-    #TODO: really delete file (via DELETE request)
+    delete_opt = Hash.new
+    delete_opt[:package] = self.name    
+    #FIXME: hack
+    delete_opt[:project] = @project
+    delete_opt[:filename] = name
+
+    @@transport.delete_file delete_opt
+    
+    true
   end
 
   def add_person( opt={} )

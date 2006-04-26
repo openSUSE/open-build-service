@@ -159,6 +159,9 @@ class SourceController < ApplicationController
       else
         render_error :message => "Permission denied on package write file", :status => 403 
       end
+    elsif request.delete?
+      Suse::Backend.delete path
+      render_ok
     end
   end
   
