@@ -3,18 +3,36 @@ class PackageController < ApplicationController
   before_filter :check_params
   
   def show
-    #FIXME: breaks if one of the params is not set
-    @project = Project.find( params[:project] )
-    @package = Package.find( params[:package], :project => params[:project])
+    project = params[:project]
+    if ( !project )
+      flash[:error] = "Missing parameter: project name"
+      redirect_to :controller => "project", :action => "list_public"
+    else
+      package = params[:package]
+      if ( !package )
+        flash[:error] = "Missing parameter: package name"
+        redirect_to :controller => "project", :action => "show",
+          :project => project
+      else
+        @project = Project.find( project )
+        @package = Package.find( package, :project => project )
 
-    session[:project_name] = params[:project]
-    
-    @results = []
-    @project.each_repository do |repository|
-      result = Result.find( :project => params[:project], :package => params[:package], :platform => repository.name )
-      @results << result if result
+        @files = []
+        dir = Directory.find( :project => project, :package => package )
+        dir.each do |file|
+          @files << file.name
+        end
+
+        session[:project_name] = project
+
+        @results = []
+        @project.each_repository do |repository|
+          result = Result.find( :project => project, :package => package,
+            :platform => repository.name )
+          @results << result if result
+        end
+      end
     end
-
   end
 
   def new
@@ -118,23 +136,9 @@ class PackageController < ApplicationController
     else
       filename = params[:filename]
     end
-    filetype = params[:filetype]
-
-    if @package.has_element? :file and @package.file("@filename='#{filename}'")
-      @package.remove_file filename
-      flash_message = "File '#{filename}' replaced successfully"
-    else
-      flash_message = "File '#{filename}' added successfully"
-    end
 
     logger.debug "controller: starting to add file: #{filename}"
-    @package.add_file :file => file, :filename => filename, :filetype => filetype
-
-    if @package.save_files and @package.save
-      flash[:note] = flash_message
-    else
-      flash[:note] = "Failed to add file '#{filename}'"
-    end
+    @package.save_file :file => file, :filename => filename
 
     redirect_to :action => :show, :project => @project, :package => @package
   end

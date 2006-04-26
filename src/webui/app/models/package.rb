@@ -5,67 +5,25 @@ class Package < ActiveXML::Base
     name.to_s
   end
 
-  def add_and_save_file( opt={} )
-    return false if not add_file( opt )
-    return false if not save_files
-    true
-  end
-  
-  def add_file(opt={})
-    return nil if opt == {}
-    file_tag = REXML::Element.new 'file'
-    
-    fname = REXML::Element.new 'filename'
-    fname.text = opt[:filename]
-    file_tag.add_element fname
-    
-    ftype = REXML::Element.new 'filetype'
-    ftype.text = opt[:filetype]
-    file_tag.add_element ftype
-    
-    if opt[:revision]
-      rev = REXML::Element.new 'revision'
-      rev.text = opt[:revision]
-      file_tag.add_element rev
-    end
+  def save_file( opt = {} )
+    file = opt[:file]
 
-    if( has_element? :file )
-      elem_cache = split_data_after :file
-    elsif( has_element? :person )
-      elem_cache = split_data_after :person
-    else
-      elem_cache = split_data_after :description
-    end
+    logger.debug "storing file: #{file.inspect}"
 
-    @data.add_element file_tag
-
-    merge_data elem_cache
-
-    @pending_files ||= []
-    @pending_files << [opt[:filename], opt[:file]]
-  end
-
-  def save_files
-    return true if not @pending_files
-   
     put_opt = Hash.new
-    put_opt[:package] = self.name
-    
+    put_opt[:package] = self.name    
     #FIXME: hack
     put_opt[:project] = @project
-    
-    @pending_files.each do |file|
-      logger.debug "storing file: #{file.inspect}"
-      put_opt[:filename] = file[0]
-      @@transport.put_file file[1].read, put_opt
-    end
+    put_opt[:filename] = opt[:filename]
+
+    @@transport.put_file file.read, put_opt
+
     logger.debug "finished storing files"
-    @pending_files = []
+
     true
   end
 
   def remove_file( name )
-    @data.delete_element "file[@filename='#{name}']"
     #TODO: really delete file (via DELETE request)
   end
 

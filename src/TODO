@@ -93,12 +93,12 @@ Big Features
 ------------
 
 + Building additional packages for existing platforms (done)
-+ Link packages and add patches
++ Mirror Interface
++ Link packages
++ Add patches to linked packages
 o Transfer changes and packages between projects
 o Trust system
 o Platform creation
-o Link sources
-o Add patches to linked sources
 
 
 Deployment

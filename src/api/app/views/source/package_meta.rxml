@@ -4,7 +4,4 @@ xml.package( "name" => @name ) do
   @persons.each do |p|
     xml.person( "userid" => p["userid"], "role" => p["role"] )
   end
-  @files.each do |f|
-    xml.file( "filetype" => f["filetype"], "filename" => f["filename"] )
-  end
 end

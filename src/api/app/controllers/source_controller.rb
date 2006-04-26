@@ -107,14 +107,6 @@ class SourceController < ApplicationController
         person[ "role" ] = p.attributes["role"]
         @persons.push person
       end
-
-      @files = Array.new
-      result.each_element('file') do |p|
-        file = Hash.new
-        file[ "filetype" ] = p.attributes["filetype"]
-        file[ "filename" ] = p.attributes["filename"]
-        @files.push file
-      end
     elsif request.put?
       allowed = false
       request_data = request.raw_post
