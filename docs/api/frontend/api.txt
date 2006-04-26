@@ -97,6 +97,13 @@ Body: Content of file
 XmlResult: status
 
 
+DELETE /source/<project>/<package>/<filename>
+
+  Delete source file.
+
+XmlResult: status
+
+
 === RPM spec file template
 
 POST /source/<project>/<package>?cmd=createSpecFileTemplate
