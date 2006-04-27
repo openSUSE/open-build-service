@@ -1,0 +1,16 @@
+<h2>New Package Link in Project <%= @project.name %></h2>
+
+<p>By linking a package from another project you add the package and its files
+to your project in a transparent way. Changes of the files in the original
+project will also change the files in the linked package in your project.</p>
+<P>You can add patches to the linked package without affecting the original
+package.</p>
+
+<%= form_tag :action => "save_new_link" %>
+<b>Name of original project:</b><br/>
+<%= text_field_tag 'linked_project', '', :size => 80 %><br/>
+<b>Name of package in original project:</b><br/>
+<%= text_field_tag 'linked_package', '', :size => 80 %><br/>
+<p><%= submit_tag "Create Link" %></p>
+<%= hidden_field_tag 'project', @project.name %>
+<%= end_form_tag %>

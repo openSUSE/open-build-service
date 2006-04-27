@@ -7,6 +7,9 @@
 <%= select_tag 'filetype', options_for_select(%w{source patch}) %><br/>
 <b>Local File:</b><br/>
 <%= file_field_tag 'file', :size => 70 %><br/>
+<% if @package_is_link %>
+  <%= check_box_tag "addAsPatch", 1, false %>Add as patch to SPEC file
+<% end %>
 <%= hidden_field_tag 'project', @project %>
 <%= hidden_field_tag 'package', @package %>
 <p><%= submit_tag %></p>

@@ -27,8 +27,7 @@
     <div id="dynamiclinks">
       <% if logged_in? %>
         <%= link_to "My Home", :controller => "home" %><br/>
-      <% end %>
-      <% if logged_in? %>
+        <%= link_to_home_project %><br/>
         <%= link_to "My Projects", :controller => "project",
           :action => :list_my %><br/>
       <% end %>

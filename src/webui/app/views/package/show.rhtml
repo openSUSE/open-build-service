@@ -9,6 +9,13 @@
 <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
         {:confirm => "Really remove package '#{@package}'?"}%>
 
+<% if @link %>
+<h3>Link</h3>
+<p>This package links to the sources of the package
+<%= link_to_package @link.project, @link.package %>
+of project <%= link_to_project @link.project %>.</p>
+<% end %>
+
 <h3>Files</h3>
 <% if !@files.empty? %>
 <table>
@@ -17,14 +24,22 @@
     <td><%=h file %></br/></td>
     <td>
       <% if file =~ /\.spec$/ %>
-      <%=   link_to ("[Edit]", :action => :edit_spec, :project => @project,
-        :package => @package, :file => file ) %>
+        <%=   link_to ("[Edit]", :action => :edit_spec, :project => @project,
+          :package => @package, :file => file ) %>
+      <% elsif file == "_link" %>
+        <%= link_to( "[Edit]", :action => :edit_link, :project => @project,
+          :package => @package, :file => file ) %>
       <% end %>
     </td>
     <td><%= link_to "[Download]", file_url( @project, @package, file ) %></td>
     <td><%= link_to "[Remove]", {:action => :remove_file, :project => @project,
       :package => @package, :filename => file},
       {:confirm => "Really remove file '#{file}'?" }%></td>
+    <td>
+      <% if @link && @link.has_patch?( file ) %>
+        (Patch)
+      <% end %>
+    </td>
   </tr>
   <% end %>
 </table>

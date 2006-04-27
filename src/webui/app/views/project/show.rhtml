@@ -117,5 +117,10 @@
 <% end -%>
 </p>
 <p>
-<%= link_to "[Add Package]", :controller => 'package', :action => :new, :project => @project %>
+<%= link_to "[Add Package]", :controller => 'package', :action => :new,
+  :project => @project %>
+</p>
+<p>
+<%= link_to "[Link Package from other Project]", :controller => 'package',
+  :action => :new_link, :project => @project %>
 </p>

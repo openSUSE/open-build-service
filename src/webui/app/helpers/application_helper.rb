@@ -18,4 +18,14 @@ module ApplicationHelper
       :project => "home:" + session[:login]
   end
 
+  def link_to_project project
+    link_to project, :controller => "project", :action => :show,
+      :project => project
+  end
+
+  def link_to_package project, package
+    link_to package, :controller => "package", :action => :show,
+      :project => project, :package => package
+  end
+
 end

@@ -1,5 +1,5 @@
 class PackageController < ApplicationController
-  model :project, :package, :result
+  model :project, :package, :result, :link
   before_filter :check_params
   
   def show
@@ -21,6 +21,13 @@ class PackageController < ApplicationController
         dir = Directory.find( :project => project, :package => package )
         dir.each do |file|
           @files << file.name
+          if ( file.name == "_link" )
+            begin
+              @link = Link.find( :project => project, :package => package )
+            rescue ActiveXML::NotFoundError
+              @link = nil
+            end
+          end
         end
 
         session[:project_name] = project
@@ -38,6 +45,16 @@ class PackageController < ApplicationController
   def new
     if not params[:project]
       flash[:note] = "Creating package failed: Project name missing"
+      redirect_to :controller => "project", :action => "list_all"
+      return
+    end
+    
+    @project = Project.find( params[:project] )
+  end
+
+  def new_link
+    if not params[:project]
+      flash[:note] = "Linking package failed: Project name missing"
       redirect_to :controller => "project", :action => "list_all"
       return
     end
@@ -68,9 +85,6 @@ class PackageController < ApplicationController
 
         @package.title.data.text = params[:title]
         @package.description.data.text = params[:description]
-        if params[:createSpecFileTemplate]
-          @package.add_file :filename => params[:name] + ".spec"
-        end
 
         @project.add_package @package
 
@@ -88,6 +102,61 @@ class PackageController < ApplicationController
           redirect_to :controller => 'project', :action => 'show', :project => params[:project]
         end
       end
+    end
+  end
+
+  def save_new_link
+    if not params[:project]
+      flash[:note] = "Linking package failed: Project name missing"
+      redirect_to :controller => "project", :action => "list_all"
+      return
+    end
+    
+    @project = Project.find( params[:project] )
+
+    begin
+      linked_package = Package.find( params[:linked_package],
+        :project => params[:linked_project] )
+    rescue: ActiveXML::NotFoundError
+      flash[:note] = "Unable to find package '#{params[:linked_package]}' in" +
+        " project '#{params[:linked_project]}'."
+      redirect_to :action => "new_link", :project => params[:project]
+      return
+    end
+
+    package = Package.new( :name => params[:linked_package],
+      :project => params[:project] )
+
+    package.title.data.text = linked_package.title
+
+    description = "This package is based on the package " +
+      "'#{params[:linked_package]}' from project " +
+      "'#{params[:linked_project]}'.\n\n"
+
+    linked_description = linked_package.description.data.text
+    if ( linked_description )
+      description += linked_description
+    end
+
+    package.description.data.text = description
+
+    @project.add_package package
+
+    unless @project.save and package.save
+      flash[:note] = "Failed to save package '#{package}'"
+      redirect_to :controller => 'project', :action => 'show',
+        :project => params[:project]
+    else
+      flash[:note] = "Successfully linked package '#{params[:linked_package]}'"
+      redirect_to :controller => 'project', :action => 'show',
+        :project => params[:project]
+
+      xml = REXML::Document.new( "<link/>" )
+      xml.root.attributes[ "project" ] = params[:project];
+      xml.root.attributes[ "package" ] = params[:linked_package];
+      link = Link.new( xml.to_s )
+      logger.debug "LINK: #{link.to_s}"
+      link.save
     end
   end
 
@@ -124,6 +193,13 @@ class PackageController < ApplicationController
     @package = Package.find( params[:package], :project => params[:project] )
     session[:project] = @project.name
     session[:package] = @package.name
+
+    begin
+      Link.find( :project => @project.name, :package => @package.name )
+      @package_is_link = true
+    rescue
+      @package_is_link = false
+    end
   end
 
   def save_file
@@ -139,6 +215,12 @@ class PackageController < ApplicationController
 
     logger.debug "controller: starting to add file: #{filename}"
     @package.save_file :file => file, :filename => filename
+
+    if params[:addAsPatch]
+      link = Link.find( :project => @project, :package => @package )
+      link.add_patch filename
+      link.save
+    end
 
     redirect_to :action => :show, :project => @project, :package => @package
   end
@@ -221,9 +303,18 @@ class PackageController < ApplicationController
   def edit_spec
     @project = params[:project]
     @package = params[:package]
-    @filename = params[:filename]
+    @filename = params[:file]
     
     @specfile = frontend.get_source( :project => @project,
+      :package => @package, :filename => @filename )
+  end
+  
+  def edit_link
+    @project = params[:project]
+    @package = params[:package]
+    @filename = params[:file]
+    
+    @linkfile = frontend.get_source( :project => @project,
       :package => @package, :filename => @filename )
   end
   
@@ -242,6 +333,26 @@ class PackageController < ApplicationController
       flash[:note] = "Successfully saved SPEC file."
     else
       flash[:note] = "Aborted saving of specfile: suffix not .spec"
+    end
+    
+    redirect_to :action => :show, :package => package, :project => project
+  end
+
+  def save_link
+    project = params[:project]
+    package = params[:package]
+    linkfile = params[:linkfile]
+    filename = params[:filename]
+
+    if( filename == "_link" )
+      linkfile.gsub!( /\r\n/, "\n" )
+      
+      frontend.put_file( linkfile, :project => project, :package => package,
+        :filename => filename )
+
+      flash[:note] = "Successfully saved link file."
+    else
+      flash[:note] = "Aborted saving of linkfile: filename not '_link'"
     end
     
     redirect_to :action => :show, :package => package, :project => project
