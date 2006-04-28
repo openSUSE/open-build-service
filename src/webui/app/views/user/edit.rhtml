@@ -3,6 +3,7 @@
 <%= form_tag :action => :save %>
   <b>Real Name:</b><br/>
   <%= text_field_tag( "realname", @user.realname, :size => 80 ) %><br/>
+  <% if session[:login] == 'Admin' %>
   <p>
   <b>Source Backend:</b><br/>
   <b>Host:</b><br/>
@@ -17,11 +18,13 @@
   <b>Port:</b><br/>
   <%= text_field_tag( "rpm_port", @user.rpm_backend.port, :size => 6 ) %><br/>
   </p>
+  <% end %>
   <p><%= submit_tag %></p>
 <%= end_form_tag %>
 
 <hr/>
 
+<% if session[:login] == 'Admin' %>
 <%= form_tag :action => :save %>
   <p><%= submit_tag "Switch to production backend" %></p>
   <%= hidden_field_tag( "realname", @user.realname ) %>
@@ -57,4 +60,4 @@
   <%= hidden_field_tag( "rpm_host", "" ) %>
   <%= hidden_field_tag( "rpm_port", "" ) %>
 <%= end_form_tag %>
-
+<% end %>
