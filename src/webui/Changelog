@@ -12,3 +12,39 @@ Mon Mar 20 20:28:14 CET 2006 - bauersman
 - html-escaping of all variables directly inserted in templates
 
 
+------------------------------------------------------------------------
+Fri Apr 28 14:20:09 CEST 2006 - bauersman
+
+- update from svn revision 98 to 181
+- removed testing changelog entries
+- Use a real user object in webclient to provide additional user info
+- Sorting and pagination for the project list
+- webclient understands status responses
+- work on transport abstraction layer
+- switchtower tasks for deploying to stage
+- iChain authentification
+- remove transport config for webclient (not needed yet)
+- remove build status monitor (bug #165107)
+- Added the dot to the list of allowed chars
+- changed layout to get the username from session to prevent error
+  handling failure
+- include API exception information in webclient error template
+- remove view log link because of streaming issues (bug #163309)
+- create new Persons with Person.new :name => 'userid'
+- removed foo
+- Add shortcut for switching to test backend.
+- Allow ":" in project names.
+- Check for invalid project names when creating new projects.
+- Link home prohect on users page and "my projects" page.
+- Don't show home projects by default.
+- Give user the option to create home project on demand.
+- Separate action to save new package.
+- Take file list of package from directory listing.
+- Delete files by sending DELETE request.
+- Add support for linking packages.
+  Add support for adding patches to linked packages.
+- Ignore generated files.
+- error template displays exception backtrace from webclient
+- hide backend host settings for non-admin users
+
+
