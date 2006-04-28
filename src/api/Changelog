@@ -40,3 +40,19 @@ Thu Apr 13 17:13:50 CEST 2006 - bauersman
 - Adopted perm check to abauers new active xml
 
 
+------------------------------------------------------------------------
+Fri Apr 28 14:18:52 CEST 2006 - bauersman
+
+- update from svn revision 137 to 179
+- define ICHAIN_HOST constant
+- create new Persons with Person.new :name => 'userid'
+- load the active rbac fix for crypt passwords
+- write passwords crypted to the database
+- Forward backend error message.
+- Take file list of package from directory listing.
+- Delete files by sending DELETE request.
+- Remove obsolete validation code.
+- Ignore generated files.
+- reset backend host settings on every request
+
+
