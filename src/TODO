@@ -57,6 +57,7 @@ o Notification system
 o Get permissions for a given user
 o RSS feed for project news (newly built packages)
 o Global RSS feed for all project news
+o Commands for editing meta data (addPerson, etc.)
 - Load balancing for rpm downloads
 - Admin interface for rpm load balancing
 - New user invitation system
