@@ -87,6 +87,12 @@ class ApplicationController < ActionController::Base
   end
 
   def setup_backend
+    # initialize backend on every request
+    Suse::Backend.source_host = SOURCE_HOST
+    Suse::Backend.source_port = SOURCE_PORT
+    Suse::Backend.rpm_host = RPM_HOST
+    Suse::Backend.rpm_port = RPM_PORT
+    
     if @http_user
       if @http_user.source_host && !@http_user.source_host.empty?
         Suse::Backend.source_host = @http_user.source_host
