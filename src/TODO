@@ -39,7 +39,6 @@ Frontend
 --------
 
 + Tests (functional and performance) (tom)
-+ Tool to check API against specification (cschum)
 + Escaping of paths
 + Caching of backend data (freitag)
   + Query for projects per user
@@ -49,10 +48,8 @@ Frontend
   + apache-logs for every access (including user) (abauer)
 + Make sure that the API version is only defined at one place.
 + Store additional information for platforms
-+ Get file list from directory listing
-+ DELETE file, package, project (project only with special permission)
++ DELETE package, project (project only with special permission)
 + Check data of PUT requests against schema
-+ Remove obsolete schema checking code from backend.rb
 + Switch to migrations for database updates
 o Delete projects (bug #165126)
 o Logfile streaming (bug #163309)
@@ -94,8 +91,8 @@ Big Features
 
 + Building additional packages for existing platforms (done)
 + Mirror Interface
-+ Link packages
-+ Add patches to linked packages
++ Link packages (done)
++ Add patches to linked packages (done)
 o Transfer changes and packages between projects
 o Trust system
 o Platform creation
@@ -111,7 +108,6 @@ Deployment
 Production Servers
 ------------------
 
-+ move database to storage.opensuse.org
 + setup logrotate for server and debug logs
 + setup cronjob to remove session files
 + Run web client and frontend under AppArmor
