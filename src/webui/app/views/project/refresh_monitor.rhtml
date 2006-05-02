@@ -2,7 +2,6 @@
 
 if( $("<%= id %>").innerHTML != "<%= st %>" ) {
   <%= update_element_function id, :content => st -%>
-  new Effect.Highlight("<%= id %>")
 }
     
 <% end -%>
