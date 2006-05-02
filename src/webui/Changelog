@@ -73,3 +73,13 @@ Tue May 02 11:50:26 CEST 2006 - cschum
 - update from svn revision 198 to 198
 
 
+------------------------------------------------------------------------
+Tue May 02 16:51:29 CEST 2006 - bauersman
+
+- update from svn revision 200 to 205
+- Don't throw exception when log isn't available.
+- stacktrace is split into multiple lines
+- restored old build monitor for linuxtag
+- removed highlight effect from build monitor (problems with konqueror)
+
+
