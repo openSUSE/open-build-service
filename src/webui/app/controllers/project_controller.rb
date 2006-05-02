@@ -237,6 +237,44 @@ class ProjectController < ApplicationController
     redirect_to :action => :show, :project => params[:project]
   end
 
+  def monitor
+    @project = Project.find( params[:project] )
+    @projectresult = Result.find( :project => params[:project] )
+    @packresults = Hash.new
+    @repolist = Array.new
+
+    @project.each_package do |pack|
+      @packresults[pack.name] = Hash.new
+      @project.each_repository do |repo|
+        @packresults[pack.name][repo.name] = Result.find( :project => params[:project], :package => pack.name, :platform => repo.name )
+      end
+    end
+    @repolist = @projectresult.each_repositoryresult
+
+    session[:monitor_project] = params[:project]
+    session[:monitor_repolist] = @repolist.map {|repo| repo.name}
+    session[:monitor_packlist] = @packresults.keys
+  end
+
+  def refresh_monitor
+    render :nothing unless session[:monitor_packlist] and
+                           session[:monitor_repolist] and
+                           session[:monitor_project]
+
+    @project = session[:monitor_project]
+    @status = Hash.new
+    session[:monitor_packlist].each do |pack|
+      session[:monitor_repolist].each do |platform|
+        repo = Result.find( :project => session[:monitor_project], :package => pack, :platform => platform )
+        repo.each_archresult do |ar|
+          @status["#{pack}:#{platform}:#{ar.arch}"] = ar.status.code
+        end
+      end
+    end
+
+    render :layout => false
+  end
+
   def toggle_watch
     unless session[:login]
       render :nothing => true

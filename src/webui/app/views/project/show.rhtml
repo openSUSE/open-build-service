@@ -56,10 +56,18 @@
 <% if @status -%>
 <p><b>Build Status:</b> <%=h @status %><br/>
 <ul>
-<% @package_counts.each do |state, count| %>
-<li><%=h "#{state}: #{count}" %></li>
-<% end %>
+  <% @package_counts.each do |state, count| -%>
+  <li><%=h "#{state}: #{count}" %></li>
+  <% end -%>
 </ul></p>
+
+
+<% if @project.has_element?(:package) and @project.has_element?(:repository) -%>
+<p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
+<% else -%>
+<p><i>Add packages/targets to enable the build monitor</i></p>
+<% end -%>
+  
 <% end -%>
 
 <% logger.debug "--> starting to render users" -%>
