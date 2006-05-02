@@ -368,7 +368,11 @@ class PackageController < ApplicationController
       @log_chunk = TRANSPORT.get_log_chunk( @project, @package, @repo, @arch )
       @offset = @log_chunk.length
     rescue Suse::Frontend::UnspecifiedError => ex
-      if ex.message.root.elements['code'].text == "404"
+      @log_chunk = "No log available."
+      return
+      # TODO: Check correctly for availability of log
+      code = ex.message.root.elements['code']
+      if code && code.text == "404"
         @log_chunk = "No live log available"
       else
         raise
