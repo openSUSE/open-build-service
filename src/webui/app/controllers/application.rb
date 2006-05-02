@@ -59,10 +59,11 @@ class ApplicationController < ActionController::Base
       end
       logger.debug "authorization: #{authorization}"
       
-      if authorization and authorization[0] == "Basic"
-        logger.debug( "AUTH2: #{authorization}" )
+      if ( authorization and authorization.size == 2 and
+           authorization[0] == "Basic" )
+        logger.debug( "AUTH2: #{authorization[1]}" )
       
-        login, passwd = Base64.decode64( authorization ).split(/:/)
+        login, passwd = Base64.decode64( authorization[1] ).split(/:/)
         if login and passwd
           session[:login] = login  
           session[:passwd] = passwd
