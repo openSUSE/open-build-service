@@ -24,6 +24,15 @@ Please contact the OpenSUSE admin to get proper permissions for the user account
 <p><%=h @error_message %></p>
 <br>
 <% end -%>
+
+<% if @details -%>
+<p>
+  <h3>Error message from backend:</h3>
+  <%= @details %>
+</p>
+<% end -%>
+
+
 <% if @api_exception -%>
 <p>
 <h3>Exception from API:</h3>

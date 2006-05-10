@@ -94,6 +94,10 @@ class ApplicationController < ActionController::Base
         @code = exception.message.root.attributes['code']
       end
       @message = exception.message.root.elements['summary'].text
+      
+      detail_elem = exception.message.root.elements['details']
+      @details = detail_elem.text unless detail_elem.nil?
+      
       if exception.message.root.elements['exception']
         @api_exception = exception.message.root.elements['exception']
       end
