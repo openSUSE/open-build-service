@@ -36,8 +36,10 @@ of project <%= link_to_project @link.project %>.</p>
       :package => @package, :filename => file},
       {:confirm => "Really remove file '#{file}'?" }%></td>
     <td>
-      <% if @link && @link.has_patch?( file ) %>
-        (Patch)
+      <% if @link && @link.has_add_patch?( file ) %>
+        (Added Patch)
+      <% elsif @link && @link.has_patch?( file ) %>
+        (Global Patch)
       <% end %>
     </td>
   </tr>

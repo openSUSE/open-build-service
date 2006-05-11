@@ -8,10 +8,22 @@ class Link < ActiveXML::Base
   end
 
   def has_patch? filename
-    return false unless self.has_element? :patches
-    self.patches.each_add do |patch|
-      if patch.name == filename
-        return true
+    if self.has_element? "patches"
+      self.patches.each_apply do |patch|
+        if patch.name == filename
+          return true
+        end
+      end
+    end
+    return false
+  end
+  
+  def has_add_patch? filename
+    if self.has_element? "patches"
+      self.patches.each_add do |patch|
+        if patch.name == filename
+          return true
+        end
       end
     end
     return false
