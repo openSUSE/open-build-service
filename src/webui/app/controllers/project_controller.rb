@@ -145,6 +145,8 @@ class ProjectController < ApplicationController
   def add_target
     @platforms = Platform.find( :all ).map {|p| p.name.to_s}
     @project = Project.find( params[:project] )
+    @targetname = params[:targetname]
+    @platform = params[:platform]
     session[:project] = @project.name
   end
 
@@ -154,6 +156,12 @@ class ProjectController < ApplicationController
     arch = params[:arch]
     targetname = params[:targetname]
     targetname = "standard" if not targetname or targetname.empty?
+
+    if targetname =~ /\s/
+      flash[:note] = "Target name may not contain spaces"
+      redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
+      return
+    end
 
     @project.add_target :targetname => targetname, :platform => platform,
       :arch => arch
