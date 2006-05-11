@@ -2,7 +2,7 @@ class PlatformController < ApplicationController
   model :platform
 
   def list_all
-    @platforms = Platform.find( :all )
+    @platforms = Platform.find( :all ).each_entry
 
     logger.debug( "PLATFORMS: #{@platforms}" )
   end
@@ -19,7 +19,7 @@ class PlatformController < ApplicationController
   end
 
   def new
-    @projects = Project.find( :all )
+    @projects = Project.find( :all ).each_entry
   end
 
   def edit

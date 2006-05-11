@@ -1,7 +1,15 @@
 class Person < ActiveXML::Base
+  default_find_parameter :login
+  
+  # redefine make_stub so that Person.new( :login => 'login_name' ) works
   class << self
-    def make_stub( name )
-      return REXML::Document.new( "<person><login>#{name}</login></person>" ).root
+    def make_stub( opt )
+      
+      # stay backwards compatible to old arguments (:name instead of :login)
+      if not opt.has_key? :login
+        opt[:login] = opt[:name]
+      end
+      return REXML::Document.new( "<person><login>#{opt[:login]}</login></person>" ).root
     end
   end
   

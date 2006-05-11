@@ -19,12 +19,12 @@ class PackageController < ApplicationController
 
         @files = []
         dir = Directory.find( :project => project, :package => package )
-        dir.each do |file|
+        dir.each_entry do |file|
           @files << file.name
           if ( file.name == "_link" )
             begin
               @link = Link.find( :project => project, :package => package )
-            rescue ActiveXML::NotFoundError
+            rescue ActiveXML::Transport::NotFoundError
               @link = nil
             end
           end
@@ -151,10 +151,7 @@ class PackageController < ApplicationController
       redirect_to :controller => 'project', :action => 'show',
         :project => params[:project]
 
-      xml = REXML::Document.new( "<link/>" )
-      xml.root.attributes[ "project" ] = params[:project];
-      xml.root.attributes[ "package" ] = params[:linked_package];
-      link = Link.new( xml.to_s )
+      link = Link.new( :project => params[:project], :package => params[:linked_package] )
       logger.debug "LINK: #{link.to_s}"
       link.save
     end
@@ -365,9 +362,9 @@ class PackageController < ApplicationController
     @repo = params[:repository]
 
     begin
-      @log_chunk = TRANSPORT.get_log_chunk( @project, @package, @repo, @arch )
+      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch )
       @offset = @log_chunk.length
-    rescue Suse::Frontend::UnspecifiedError => ex
+    rescue ActiveXML::Transport::Error => ex
       @log_chunk = "No log available."
       return
       # TODO: Check correctly for availability of log
@@ -388,7 +385,7 @@ class PackageController < ApplicationController
     @offset = params[:offset].to_i
 
     begin
-      @log_chunk = TRANSPORT.get_log_chunk( @project, @package, @repo, @arch, @offset )
+      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset )
       
       if( @log_chunk.length == 0 )
         @finished = true
@@ -396,7 +393,7 @@ class PackageController < ApplicationController
         @offset += @log_chunk.length
       end
 
-    rescue Suse::Frontend::UnspecifiedError => ex
+    rescue ActiveXML::Transport::Error => ex
       if ex.message.root.elements['code'].text == "404"
         @log_chunk = "No live log available"
         @finished = true

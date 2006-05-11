@@ -6,26 +6,27 @@ class ProjectController < ApplicationController
       :toggle_watch ]
 
   def list_all
-    projectlist = Project.find(:all).sort do |a,b|  
-      a.name <=> b.name 
+    projectlist = Project.find(:all).each_entry.sort do |a,b|  
+      a.name.downcase <=> b.name.downcase
     end
 
     @project_pages, @projects = paginate_collection( projectlist )
   end
 
   def list_public
-    projectlist = Project.find(:all).sort do |a,b|  
-      a.name <=> b.name 
+    projectlist = Project.find(:all).each_entry.sort do |a,b|  
+      a.name.downcase <=> b.name.downcase 
     end
 
-    projectlist = projectlist.reject do |p|
-      p.to_s =~ /^home:/
+    projectlist.reject! do |p|
+      p.name.to_s =~ /^home:/
     end
     
     @project_pages, @projects = paginate_collection( projectlist )
   end
 
   def list_my
+    @projects = Project.find(:all).each_entry
     logger.debug "Have this session login: #{session[:login]}"
     @user = Person.find( :login => session[:login] )
     @watchlist = @user.watchlist if @user.has_element? :watchlist
@@ -143,7 +144,12 @@ class ProjectController < ApplicationController
   end
 
   def add_target
-    @platforms = Platform.find( :all ).map {|p| p.name.to_s}
+    @platforms = Platform.find( :all ).each_entry.map {|p| p.name.to_s}
+    
+    @platforms.sort! do |a,b|
+      a.downcase <=> b.downcase
+    end
+
     @project = Project.find( params[:project] )
     @targetname = params[:targetname]
     @platform = params[:platform]

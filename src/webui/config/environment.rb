@@ -57,22 +57,22 @@ end
 
 # Include your application configuration below
 require 'activexml'
-require 'opensuse/frontend'
 
-TRANSPORT = Suse::Frontend.new("http://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
-ActiveXML::Base.setup(TRANSPORT)
+#TRANSPORT = Suse::Frontend.new("http://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
 
-#ActiveXML::Base.config do |conf|
-#    conf.setup_transport do |map|
-#    map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
-#
-#    map.connect :project, "rest:///source/:name/_meta",
-#        :all    => "rest:///source/"
-#    map.connect :package, "rest:///source/:project/:name/_meta",
-#        :all    => "rest:///source/:project"
-#    map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
-#    map.connect :person, "rest:///person/:login"
-#    map.connect :platform, "rest:///platform/:name",
-#        :all    => "rest:///platform/"
-#  end
-#end
+ActiveXML::Base.config do |conf|
+  conf.setup_transport do |map|
+    map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
+
+    map.connect :project, "rest:///source/:name/_meta",
+        :all    => "rest:///source/"
+    map.connect :package, "rest:///source/:project/:name/_meta",
+        :all    => "rest:///source/:project"
+    map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
+    map.connect :person, "rest:///person/:login"
+    map.connect :platform, "rest:///platform/:project/:name",
+        :all    => "rest:///platform/"
+    map.connect :directory, "rest:///source/:project/:package"
+    map.connect :link, "rest:///source/:project/:package/_link"
+  end
+end

@@ -4,9 +4,9 @@
 <table>
 <% for platform in @platforms %>
 <tr>
-  <td><%= link_to platform, :action => :show,
-    :name => name_from_path( platform.to_s ),
-    :project => project_from_path( platform.to_s ) %></td>
+  <td><%= link_to platform.name, :action => :show,
+    :name => name_from_path( platform.name.to_s ),
+    :project => project_from_path( platform.name.to_s ) %></td>
   <td><%= platform %></td>
 </tr>
 <% end %>

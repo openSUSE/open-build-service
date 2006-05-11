@@ -3,7 +3,8 @@
 
 #hack to autoload activexml and frontendcontroller on change
 require_dependency 'activexml'
-require_dependency 'opensuse/frontend'
+#require_dependency 'opensuse/frontend'
+require_dependency 'frontend_compat'
 
 
 class ApplicationController < ActionController::Base
@@ -77,12 +78,8 @@ class ApplicationController < ActionController::Base
       redirect_to :controller => 'user', :action => 'login'
     end
 
-    # Do the transport
-    TRANSPORT.login proc {
-      # STDERR.puts session.inspect
-      [ session[:login], session[:passwd] ]
-    }
-
+    # pass credentials to transport plugin
+    ActiveXML::Config.transport_for(:project).login session[:login], session[:passwd]
   end
 
   def rescue_action_in_public( exception )
@@ -108,18 +105,18 @@ class ApplicationController < ActionController::Base
     end
 
     case exception
-    when Suse::Frontend::UnauthorizedError
+    when ActiveXML::Transport::UnauthorizedError
       session[:login] = nil
       session[:passwd] = nil
       
       flash[:error] = exception.message.root.elements['summary'].text
       
       redirect_to :controller => 'user', :action => 'login'
-#   when Suse::Frontend::ForbiddenError
+#   when ActiveXML::Transport::ForbiddenError
 #     render_error :code => @code, :message => @message
-#   when Suse::Frontend::ConnectionError
+#   when ActiveXML::Transport::ConnectionError
 #     render_error :code => @code, :message => @message
-#   when ActiveXML::GeneralError
+#   when ActiveXML::Error
 #     render_error :code => @code, :message => @message
     else
       logger.debug "default exception handling"
@@ -154,7 +151,7 @@ class ApplicationController < ActionController::Base
 
   def frontend
     if ( !@frontend )
-      @frontend = TRANSPORT
+      @frontend = FrontendCompat.new
     end
     @frontend
   end
