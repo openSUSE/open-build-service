@@ -99,18 +99,27 @@ o Trust system
 o Platform creation
 
 
+ActiveXML
+---------
+
++ use schemas for
+  + type validation
+  + stub generation
+  + access method generation
++ change to REXML streamparser
+
+
 Deployment
 ----------
 
 + Make sure that the revision number in the about page reflects the global
   revision of the web app.
++ make hotfixes from branch directories possible
 
 
 Production Servers
 ------------------
 
-+ setup logrotate for server and debug logs
-+ setup cronjob to remove session files
 + Run web client and frontend under AppArmor
 o different session storage? (database or memcached)
 
