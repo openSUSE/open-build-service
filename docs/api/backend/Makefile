@@ -5,4 +5,4 @@ test:
 	../tools/rest_test -I .. api.txt
 	
 apidocs:
-	../tools/rest_doc api.txt --html -o html
+	../tools/rest_doc -I .. api.txt --html -o html
