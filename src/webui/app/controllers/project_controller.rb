@@ -45,7 +45,7 @@ class ProjectController < ApplicationController
 # @user = Person.find( :login => session[:login] ) if session[:login]
     begin
       @project = Project.find( params[:project] )
-    rescue ActiveXML::NotFoundError
+    rescue ActiveXML::Transport::NotFoundError
       home_project = "home:" + session[:login]
       if params[:project] == home_project
         flash[:note] = "Home project doesn't exist yet. You can create it now by entering some" +
@@ -78,7 +78,7 @@ class ProjectController < ApplicationController
           end
         end
       end
-    rescue ActiveXML::NotFoundError
+    rescue ActiveXML::Transport::NotFoundError
     end
   end
 

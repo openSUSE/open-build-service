@@ -124,7 +124,12 @@ class PackageController < ApplicationController
       return
     end
 
-    package = Package.new( :name => params[:linked_package],
+    target_package = params[:target_package]
+    if !target_package or target_package.empty?
+      target_package = params[:linked_package]
+    end
+
+    package = Package.new( :name => target_package,
       :project => params[:project] )
 
     package.title.data.text = linked_package.title
@@ -151,7 +156,8 @@ class PackageController < ApplicationController
       redirect_to :controller => 'project', :action => 'show',
         :project => params[:project]
 
-      link = Link.new( :project => params[:project], :package => params[:linked_package] )
+      link = Link.new( :project => params[:project],
+        :package => target_package )
       logger.debug "LINK: #{link.to_s}"
       link.save
     end
