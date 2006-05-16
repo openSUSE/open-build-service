@@ -23,6 +23,7 @@ Host: backend-source.opensuse.org
 
 
 GET /source/
+GET /project/
 
   Read list of projects.
   
@@ -30,6 +31,7 @@ XmlResult: frontend/projects frontend/directory.xsd
 
 
 GET /source/<project>/_meta
+GET /project/<project>
 
   Read project meta file.
 
@@ -37,6 +39,7 @@ XmlResult: frontend/project
 
 
 PUT /source/<project>/_meta
+PUT /project/<project>
 
   Write project meta file.
 
@@ -47,8 +50,8 @@ XmlResult: frontend/project
 
 === Package meta data
 
-
 GET /source/<project>/<package>/_meta
+GET /package/<project>/<package>
 
   Read project meta data.
 
@@ -56,13 +59,21 @@ XmlResult: package
 
 
 PUT /source/<project>/<package>/_meta
+PUT /package/<project>/<package>
 
   Write project meta data. Writing of the project meta data commits the packages
   contained in the project to the build backend.
 
 XmlBody: package
 
-XmlResult: frontend/status
+XmlResult: frontend/package
+
+
+GET /package/<project>/<package>/history
+
+  Read package change history
+
+XmlResult: revisionhistory
 
 
 === Other source files
@@ -86,22 +97,29 @@ Body: Content of file
 XmlResult: fileputresult
 
 
-== Platform data
+== Repository data
 
 Host: backend-source.opensuse.org
 
-GET /platform/
+GET /repository/
   
-  List all projects having repositories.
+  List all projects.
+  
+XmlResult: frontend/directory
+
+
+GET /repository/<project>
+
+  List all repositories for a project.
   
 XmlResult: frontend/directory
 
 
-GET /platform/<project>
+GET /repository/<project>/<repository>
 
-  List all repositories for project.
-  
-XmlResult: frontend/directory
+  List a specific repository of a project.
+
+XmlResult: repository
 
 
 == RPMs
@@ -124,11 +142,11 @@ Result: RPM
 Host: backend-source.opensuse.org
 
 
-GET /status/<project>/:all/:all
+GET /status/<project>
 
   Read project summary result.
 
-XmlResult: statussumlist
+XmlResult: packstatuslistlist
 
 
 GET /status/<project>/<repository>/:all
@@ -161,3 +179,36 @@ GET /rpm/<project>/<repository>/<arch>/<package>/status
   Read package build status.
   
 XmlResult: packagestatus
+
+
+GET /rpm/<project>/<repository>/<arch>/<package>/history
+
+  Read package build history.
+
+XmlResult: buildhistory
+
+
+== rebuild trigger
+
+Host: backend-repository.opensuse.org
+
+DELETE /rpm/<project>/<repository>/<arch>/<package>/status
+
+
+== build client status
+
+Host: backend-repository.opensuse.org
+
+GET /workerstatus
+
+XmlResult: workerstatus
+
+
+== build client job history
+
+Host: backend-repository.opensuse.org
+
+GET /info/<arch>/jobhistory
+
+XmlResult: jobhistlist
+
