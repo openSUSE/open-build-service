@@ -21,6 +21,9 @@ Rails::Initializer.run do |config|
     config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
   end
 
+  # XXX: add active_rbac model path to load paths (not sure if this is a activerbac bug)
+  config.load_paths << File.expand_path("#{RAILS_ROOT}/vendor/plugins/active_rbac/app/model")
+
   # Force all environments to use the same logger level 
   # (by default production uses :info, the others :debug)
   # config.log_level = :debug

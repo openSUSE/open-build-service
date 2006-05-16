@@ -1,8 +1,24 @@
 *SVN*
 
+*0.3.1*
+
+* The RDOC documentation now only contains the API reference. The manual is available as a PDF at https://activerbac.turingstudio.com/releases/ActiveRbacManual.pdf (#121)
+* Fixed the namespace problem of controllers & models (#119)
+* Fixed a problem with the "railfix" code in Rails 1.1 (#114)
+* ActiveRBAC now runs with Rails 1.1 (tested with 1.1.2) (#118)
+* The files in app/model become stubs which simply import the ActiveRBAC mixins. This should make extending Models in your own code easier. (#112)
+* Moving the constants User::DEFAULT_PASSWORD_HASH_TYPES and User::DEFAULT_STATES to private class methods with lowercased names. (CHECK FOR DEPENDENCY IN YOUR CODE)
+* Renaming the "redirect_to" parameter/session variable nam of LoginController to "return_to" (#103)
+* Adding "all_static_permissions" method to User. (#109)
+* Adding Version identifier as described in http://api.rails-engines.org/engines/classes/Engine.html (#104)
+* Removing 3 lines from user_controller.rb that expected InvalidStateTransition to be thrown (#113)
+* adding support for redirect_to feature to LoginController (#100)
+* Adding migration for schema import
+* fixing a documentation issue (#94)
+
 *0.3*
 
-* Moving configuration into the "ActiveRbac" module as is normal for engines.
+* Moving configuration into the "ActiveRbacConfig" module as is normal for engines.
 * Controllers have been moved into a subdirectory "active_rbac" so they can be in the namespace "ActiveRbac"
 * The structure of ActiveRBAC has been changed to the of an engine.
 

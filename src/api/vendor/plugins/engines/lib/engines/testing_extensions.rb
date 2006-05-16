@@ -17,7 +17,6 @@
 
 
 
-
 # A FixtureGroup is a set of fixtures identified by a name.  Normally, this is the name of the
 # corresponding fixture filename.  For example, when you declare the use of fixtures in a
 # TestUnit class, like so:

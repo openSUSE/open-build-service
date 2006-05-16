@@ -170,6 +170,34 @@ class UserTest < Test::Unit::TestCase
     end
   end
 
+  def test_users_from_fixtures_should_have_correct_all_static_permissions
+    hermes = User.find @hermes_user.id
+    assert_equal 1, hermes.all_static_permissions.length
+    assert_equal [@access_olymp_permission].sort {|a,b| a.id <=> b.id}, hermes.all_static_permissions.sort {|a,b| a.id <=> b.id}
+    
+    minos = User.find @minos_user.id
+    assert_equal 1, minos.all_static_permissions.length
+    assert_equal [@sit_on_throne_permission].sort {|a,b| a.id <=> b.id}, minos.all_static_permissions.sort {|a,b| a.id <=> b.id}
+  
+    perseus = User.find @perseus_user.id
+    assert_equal 1, perseus.all_static_permissions.length
+    assert_equal [@slay_monsters_permission].sort {|a,b| a.id <=> b.id}, perseus.all_static_permissions.sort {|a,b| a.id <=> b.id}
+
+    zeus = User.find @zeus_user.id
+    assert_equal 1, zeus.all_static_permissions.length
+    assert_equal [@access_olymp_permission].sort {|a,b| a.id <=> b.id}, zeus.all_static_permissions.sort {|a,b| a.id <=> b.id}
+    
+    no_all_static_permissions_users = [ 
+            @agamemnon_user, @ariadne_user, @daidalos_user, @dionysus_user, @hades_user,
+            @hephaestus_user, @icarus_user, @medusa_user, @odysseus_user ]
+
+    no_all_static_permissions_users.each do |u|
+      user = User.find u.id
+      assert_equal 0, user.all_static_permissions.length
+      assert_equal [].sort {|a,b| a.id <=> b.id}, user.all_static_permissions.sort {|a,b| a.id <=> b.id}
+    end
+  end
+
   def test_add_with_valid_data_should_work
     user = self.create_valid_new_user
     

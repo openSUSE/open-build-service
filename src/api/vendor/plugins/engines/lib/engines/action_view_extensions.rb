@@ -1,28 +1,3 @@
-#--
-# Copyright (c) 2004 David Heinemeier Hansson
-
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-# Engine Hacks by James Adam, 2005.
-#++
-
 require 'fileutils'
 
 module ::ActionView
@@ -37,7 +12,7 @@ module ::ActionView
 
         # Otherwise, check in the engines to see if the template can be found there.
         # Load this in order so that more recently started Engines will take priority.
-        Engines.active.each do |engine|
+        Engines.each(:precidence_order) do |engine|
           site_specific_path = File.join(engine.root, 'app', 'views',  template_path.to_s + '.' + extension.to_s)
           return site_specific_path if File.exist?(site_specific_path)
         end
@@ -90,6 +65,40 @@ module ::ActionView
       #
       def engine_javascript(engine_name, *sources)
         javascript_include_tag(*convert_public_sources(engine_name, :javascript, sources))       
+      end
+
+      # Returns a image tag based on the parameters passed to it
+      # Required option is option[:engine] in order to correctly idenfity the correct engine location
+      #
+      #   engine_image 'rails-engines.png', :engine => 'my_engine', :alt => 'My Engine' =>
+      #   <img src="/engine_files/my_engine/images/rails-engines.png" alt="My Engine />
+      #
+      # Any options supplied as a Hash as the last argument will be processed as in
+      # image_tag.
+      #
+      def engine_image(src, options = {})
+      	return if !src
+
+      	image_src = engine_image_src(src, options)
+
+      	options.delete(:engine)
+
+      	image_tag(image_src, options)
+      end
+
+      # Alias for engine_image
+      def engine_image_tag(src, options = {})
+        engine_image(src, options)
+      end
+
+      # Returns a path to the image stored within the engine_files
+      # Required option is option[:engine] in order to correctly idenfity the correct engine location
+      #
+      #   engine_image_src 'rails-engines.png', :engine => 'my_engine' =>
+      #   "/engine_files/my_engine/images/rails-engines.png"
+      #
+      def engine_image_src(src, options = {})
+        File.join(Engines.get(options[:engine].to_sym).public_dir, 'images', src)
       end
       
       private

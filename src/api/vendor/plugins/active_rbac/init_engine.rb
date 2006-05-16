@@ -23,5 +23,25 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
+# require configuration
 require 'active_rbac_config'
+
+# Configure the Engine's version
+module ::ActiveRbacConfig::Version
+  Major = 0; Minor = 3; Release = 2
+end
+
+Engines.current.version = ActiveRbacConfig::Version
+
+# we need some fixes to rails
 require 'railfix'
+
+# require the model mixins
+require 'active_rbac/exceptions'
+require 'active_rbac/group_mixin'
+require 'active_rbac/role_mixin'
+require 'active_rbac/registration_mailer_mixin'
+require 'active_rbac/static_permission_mixin'
+require 'active_rbac/user_mixin'
+require 'active_rbac/user_registration_mixin'
+

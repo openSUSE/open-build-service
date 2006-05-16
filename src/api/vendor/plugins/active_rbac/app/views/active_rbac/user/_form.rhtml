@@ -11,7 +11,7 @@
   <%= render_partial 'password' %>
 
   <dt><label for="user_password_hash_type">Password hash type</label></dt>
-  <dd><%= select 'user', 'password_hash_type', User.password_hash_types %>
+  <dd><%= select 'user', 'password_hash_type', User.password_hash_types %></dd>
 
   <dt><label for="user_state">State</label></dt>
   <dd><%= select 'user', 'state', User.states.reject { |key, value| !@user.state_transition_allowed?(@user.state, value) } %></dd>

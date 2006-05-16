@@ -39,11 +39,47 @@ class ActiveRbac::LoginControllerTest < Test::Unit::TestCase
     assert_template 'login'
   end
 
-  def test_should_allow_post_to_login_with_valid_user_data
+  def test_should_render_success_template_on_valid_login_without_in_redirect
     post :login, :login => @valid_data[:login], :password => @valid_data[:password]
     
     assert_response :success
     assert_template 'login_success'
+    assert_equal nil, flash[:notice]
+    
+    assert_equal @ariadne_user, session[:rbac_user]
+  end
+
+  def test_should_redirect_on_valid_login_with_return_to_in_param
+    post :login, :login => @valid_data[:login], :password => @valid_data[:password],
+      :return_to => '/'
+    
+    assert_response :redirect
+    assert_redirected_to '/'
+    assert_equal 'You have logged in successfully.' , flash[:notice]
+    
+    assert_equal @ariadne_user, session[:rbac_user]
+  end
+  
+  def test_should_redirect_on_valid_login_with_return_to_in_session
+    @request.session[:return_to] = '/'
+    post :login, :login => @valid_data[:login], :password => @valid_data[:password]
+    
+    assert_response :redirect
+    assert_redirected_to '/'
+    assert_equal 'You have logged in successfully.', flash[:notice]
+    
+    assert_equal @ariadne_user, session[:rbac_user]
+  end
+  
+  def test_should_prefer_session_redirect_over_param_redirect
+    @request.session[:return_to] = '/'
+    post :login, :login => @valid_data[:login], :password => @valid_data[:password],
+      :return_to => '/foo'
+    
+    assert_response :redirect
+    assert_redirected_to '/'
+    assert_equal 'You have logged in successfully.', flash[:notice]
+    assert_equal nil, session[:return_to]
     
     assert_equal @ariadne_user, session[:rbac_user]
   end
@@ -96,7 +132,7 @@ class ActiveRbac::LoginControllerTest < Test::Unit::TestCase
 
   def test_should_display_confirmation_form_on_logout
     # first do a valid login
-    test_should_allow_post_to_login_with_valid_user_data
+    test_should_render_success_template_on_valid_login_without_in_redirect
 
     # then request logout form
     get :logout
@@ -109,7 +145,7 @@ class ActiveRbac::LoginControllerTest < Test::Unit::TestCase
 
   def test_should_perform_logout_when_logged_in_by_post_with_yes
     # first do a valid login
-    test_should_allow_post_to_login_with_valid_user_data
+    test_should_render_success_template_on_valid_login_without_in_redirect
 
     # then try to logout
     post :logout, :yes => 'Yes'
@@ -122,7 +158,7 @@ class ActiveRbac::LoginControllerTest < Test::Unit::TestCase
 
   def test_should_not_perform_logout_when_logged_in_by_post_with_no
     # first do a valid login
-    test_should_allow_post_to_login_with_valid_user_data
+    test_should_render_success_template_on_valid_login_without_in_redirect
 
     # then try to logout
     post :logout, :no => 'No'

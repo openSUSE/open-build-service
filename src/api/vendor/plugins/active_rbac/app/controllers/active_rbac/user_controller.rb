@@ -120,9 +120,6 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
       render :action => 'edit'
     end
 
-  rescue InvalidStateTransition # this should really go into User.validate!
-    flash[:error] = 'You have selected an invalid state.'
-    redirect_to :action => 'edit', :id => @user
   rescue ActiveRecord::RecordNotFound
     flash[:error] = 'You sent an invalid request.'
     redirect_to :action => 'list'

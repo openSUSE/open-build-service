@@ -18,12 +18,28 @@ class ActiveRbac::LoginController < ActiveRbac::ComponentController
   # Displays the login form on GET and performs the login on POST. Expects the
   # Expects the "login" and "password" parameters to be set. Displays the #login
   # form on errors. The user must not be logged in.
+  #
+  # Checks the session entry <tt>return_to</tt> and the parameter 
+  # <tt>return_to</tt> for information of where to redirect to after the login
+  # has been performed successfully (in this order).
+  #
+  # Will write the value into the <tt>return_to</tt> session parameter if it
+  # came from parameter and clear it after the login has been performed 
+  # successfully.
   def login
     # Check that the use is not already logged in
     unless session[:rbac_user].nil?
-      render :template => 'active_rbac/login/already_logged_in'
+      redirect_with_notice_or_render 'You are already logged in.',
+        'active_rbac/login/already_logged_in'
       return
     end
+
+    # Set the location to redirect to in the session if it was passed in through
+    # a parameter and none is stored in the session.
+    if session[:return_to].nil? and !params[:return_to].nil?
+      session[:return_to] = params[:return_to] 
+    end
+    
     # Simply render the login form on everything but POST.
     return unless request.method == :post
 
@@ -45,7 +61,8 @@ class ActiveRbac::LoginController < ActiveRbac::ComponentController
     # Write the user into the session object.
     write_user_to_session(user)
 
-    render :template => 'active_rbac/login/login_success'
+    redirect_with_notice_or_render 'You have logged in successfully.',
+      'active_rbac/login/login_success'
   rescue ActiveRecord::RecordNotFound
     # Add an error and let the action render normally.
     @errors << 'Invalid user name or password!'
@@ -82,5 +99,19 @@ class ActiveRbac::LoginController < ActiveRbac::ComponentController
     # Remove the given user from teh :rbac_user session variable.
     def remove_user_from_session!
       session[:rbac_user] = nil
+    end
+
+    # Redirects to the location stored in the <tt>return_to</tt> session 
+    # entry and clears it if it is set or renders the template at the given
+    # path.
+    # Sets <tt>flash[:notice]</tt> to the first parameter if it redirects.
+    def redirect_with_notice_or_render(notice, template)
+      if session[:return_to].nil?
+        render :template => template
+      else
+        flash[:notice] = notice
+        redirect_to session[:return_to]
+        session[:return_to] = nil
+      end
     end
 end

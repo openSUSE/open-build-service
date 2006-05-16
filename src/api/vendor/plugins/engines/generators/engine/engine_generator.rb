@@ -147,7 +147,9 @@ class EngineGenerator < Rails::Generator::NamedBase
         :sandbox => lambda {create_sandbox},
         :insert => @license.to_s
 
-      m.complex_template 'init_engine.rb',
+      m.file 'install.erb', File.join('vendor', 'plugins', @engine_underscored_name, 'install.rb')
+      
+      m.complex_template 'init_engine.erb',
         File.join('vendor', 'plugins', @engine_underscored_name, 'init_engine.rb'),
         :sandbox => lambda {create_sandbox},
         :insert => @license.to_s,
@@ -161,7 +163,7 @@ class EngineGenerator < Rails::Generator::NamedBase
       m.directory File.join('vendor', 'plugins', @engine_underscored_name, 'db')
       m.directory File.join('vendor', 'plugins', @engine_underscored_name, 'db', 'migrate')
       m.directory File.join('vendor', 'plugins', @engine_underscored_name, 'lib')
-      m.complex_template File.join('lib', 'engine.rb'),
+      m.complex_template File.join('lib', 'engine.erb'),
         File.join('vendor', 'plugins', @engine_underscored_name, 'lib', "#{@engine_underscored_name}.rb"),
         :sandbox => lambda {create_sandbox},
         :insert => @license.to_s,
@@ -176,7 +178,7 @@ class EngineGenerator < Rails::Generator::NamedBase
       m.directory File.join('vendor', 'plugins', @engine_underscored_name, 'tasks')
       m.template File.join('tasks', 'engine.rake'), File.join('vendor', 'plugins', @engine_underscored_name, 'tasks', "#{@engine_underscored_name}.rake")
       m.directory File.join('vendor', 'plugins', @engine_underscored_name, 'test')
-      m.template File.join('test', 'test_helper.rb'), File.join('vendor', 'plugins', @engine_underscored_name, 'test', 'test_helper.rb')
+      m.template File.join('test', 'test_helper.erb'), File.join('vendor', 'plugins', @engine_underscored_name, 'test', 'test_helper.rb')
       m.directory File.join('vendor', 'plugins', @engine_underscored_name, 'test', 'fixtures')
       m.directory File.join('vendor', 'plugins', @engine_underscored_name, 'test', 'functional')
       m.directory File.join('vendor', 'plugins', @engine_underscored_name, 'test', 'unit')      

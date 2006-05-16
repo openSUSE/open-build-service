@@ -1,28 +1,3 @@
-#--
-# Copyright (c) 2004 David Heinemeier Hansson
-
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-# Engine Hacks by James Adam, 2005.
-#++
-
 # Overriding ActionMailer to teach it about Engines...
 module ActionMailer
   class Base
@@ -54,17 +29,19 @@ module ActionMailer
           # this loop expects an array of paths to actual template files which match
           # the given action name
           templates.each do |path|
-            type = (File.basename(path).split(".")[1..-2] || []).join("/")
-            #RAILS_DEFAULT_LOGGER.debug "type: #{type}"
-            next if type.empty?
-            #RAILS_DEFAULT_LOGGER.debug "other bit: #{File.basename(path).split(".")[0..-2].join('.')}"
-            @parts << Part.new(:content_type => type,
+            # TODO: don't hardcode rhtml|rxml
+            basename = File.basename(path)
+            next unless md = /^([^\.]+)\.([^\.]+\.[^\+]+)\.(rhtml|rxml)$/.match(basename)
+            
+            template_name = basename
+            content_type = md.captures[1].gsub('.', '/')
+
+            @parts << Part.new(:content_type => content_type,            
               :disposition => "inline", :charset => charset,
-              :body => render_message(File.basename(path).split(".")[0..-2].join('.'), @body))
+              :body => render_message(template_name, @body))
           end
           unless @parts.empty?
             @content_type = "multipart/alternative"
-            @charset = nil
             @parts = sort_parts(@parts, @implicit_parts_order)
           end
         end
@@ -109,7 +86,7 @@ module ActionMailer
       # Return all ActionView template paths from the app and all Engines
       def template_paths
         paths = [template_path]
-        Engines.active.each { |engine|
+        Engines.each { |engine|
           # add a path for every engine if one exists.
           engine_template_path = File.join(engine.root, "app", "views", mailer_name)
           paths << engine_template_path if File.exists?(engine_template_path)
@@ -124,7 +101,7 @@ module ActionMailer
         templates = []
         seen_names = []
         template_paths.each { |path|
-          all_templates_for_path = Dir.glob(File.join(path, "#{action}.*"))
+          all_templates_for_path = Dir.glob(File.join(path, "#{action}*"))
           all_templates_for_path.each { |template|
             name = File.basename(template)
             if !seen_names.include?(name)

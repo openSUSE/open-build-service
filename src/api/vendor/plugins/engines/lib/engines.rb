@@ -1,37 +1,47 @@
-#--
-# Copyright (c) 2005 James Adam
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#++
-
 require 'logger'
 
+# We need to know the version of Rails that we are running before we
+# can override any of the dependency stuff, since Rails' own behaviour
+# has changed over the various releases. We need to explicily make sure
+# that the Rails::VERSION constant is loaded, because such things could
+# not automatically be achieved prior to 1.1, and the location of the
+# file moved in 1.1.1!
+def load_rails_version
+  # At this point, we can't even rely on RAILS_ROOT existing, so we have to figure
+  # the path to RAILS_ROOT/vendor/rails manually
+  rails_base = File.expand_path(
+    File.join(File.dirname(__FILE__), # RAILS_ROOT/vendor/plugins/engines/lib
+    '..', # RAILS_ROOT/vendor/plugins/engines
+    '..', # RAILS_ROOT/vendor/plugins
+    '..', # RAILS_ROOT/vendor
+    'rails', 'railties', 'lib')) # RAILS_ROOT/vendor/rails/railties/lib
+  begin
+    load File.join(rails_base, 'rails', 'version.rb')
+    #puts 'loaded 1.1.1+ from vendor: ' + File.join(rails_base, 'rails', 'version.rb')
+  rescue MissingSourceFile # this means they DON'T have Rails 1.1.1 or later installed in vendor
+    begin
+      load File.join(rails_base, 'rails_version.rb')
+      #puts 'loaded 1.1.0- from vendor: ' + File.join(rails_base, 'rails_version.rb')
+    rescue MissingSourceFile # this means they DON'T have Rails 1.1.0 or previous installed in vendor
+      begin
+        # try and load version information for Rails 1.1.1 or later from the $LOAD_PATH
+        require 'rails/version'
+        #puts 'required 1.1.1+ from load path'
+      rescue LoadError
+        # try and load version information for Rails 1.1.0 or previous from the $LOAD_PATH
+        require 'rails_version'
+        #puts 'required 1.1.0- from load path'
+      end
+    end
+  end
+end
 
-require 'ruby_extensions'
-require 'dependencies_extensions'
-require 'action_view_extensions'
-require 'action_mailer_extensions'
-require 'testing_extensions'
-require 'migration_extensions'
+# Actually perform the load
+load_rails_version
+#puts "Detected Rails version: #{Rails::VERSION::STRING}"
 
-
+require 'engines/ruby_extensions'
+# ... further files are required at the bottom of this file
 
 # Holds the Rails Engine loading logic and default constants
 module Engines
@@ -72,11 +82,11 @@ module Engines
     end
     # Sets the Logger instance that Engines will use to send logging information to
     def set_logger(logger)
-      Engines::LOGGER.set_logger(logger)
+      Engines::LOGGER.set_logger(logger) # TODO: no need for Engines:: part
     end
     # Retrieves the current Logger instance
     def log
-      Engines::LOGGER
+      Engines::LOGGER # TODO: no need for Engines:: part
     end
     alias :logger :log
   end
@@ -131,8 +141,12 @@ module Engines
       Engines.log.debug "considering plugins: #{plugins.inspect}"
       plugins.each { |plugin|
         engine_name = File.basename(plugin)
-        if File.exist?(File.join(plugin, "init_engine.rb")) || (engine_name =~ /_engine$/)
+        if File.exist?(File.join(plugin, "init_engine.rb")) || # if the directory contains an init_engine.rb file
+          (engine_name =~ /_engine$/) || # or it engines in '_engines'
+          (engine_name =~ /_bundle$/)    # or even ends in '_bundle'
+          
           start(engine_name) # start the engine...
+        
         end
       }
     end
@@ -147,6 +161,22 @@ module Engines
       # add the code directories of this engine to the load path
       add_engine_to_load_path(current_engine)
 
+      # add the controller & component path to the Dependency system
+      engine_controllers = File.join(current_engine.root, 'app', 'controllers')
+      engine_components = File.join(current_engine.root, 'components')
+
+
+      # This mechanism is no longer required in Rails trunk
+      if Rails::VERSION::STRING =~ /^1.0/ && !Engines.config(:edge)
+        Controllers.add_path(engine_controllers) if File.exist?(engine_controllers)
+        Controllers.add_path(engine_components) if File.exist?(engine_components)
+      end
+        
+      # copy the files unless indicated otherwise
+      if options[:copy_files] != false
+        current_engine.mirror_engine_files
+      end
+
       # load the engine's init.rb file
       startup_file = File.join(current_engine.root, "init_engine.rb")
       if File.exist?(startup_file)
@@ -154,18 +184,6 @@ module Engines
         # possibly use require_dependency? Hmm.
       else
         Engines.log.debug "No init_engines.rb file found for engine '#{current_engine.name}'..."
-      end
-
-      # add the controller & component path to the Dependency system
-      engine_controllers = File.join(current_engine.root, 'app', 'controllers')
-      engine_components = File.join(current_engine.root, 'components')
-      
-      Controllers.add_path(engine_controllers) if File.exist?(engine_controllers)
-      Controllers.add_path(engine_components) if File.exist?(engine_components)
-
-      # copy the files unless indicated otherwise
-      if options[:copy_files] != false
-        copy_engine_files(current_engine)
       end
     end
 
@@ -184,12 +202,13 @@ module Engines
       end
       
       # Add ALL paths under the engine root to the load path
-      app_dirs = Dir[engine.root + "/app/**/*"] # maybe only models?
-      component_dir = Dir[engine.root + "/components"]
-      lib_dirs = Dir[engine.root + "/lib/**/*"]
-      load_paths = (app_dirs + component_dir + lib_dirs).select { |d| 
-        File.directory?(d)
+      app_dirs = %w(controllers helpers models).collect { |d|
+        File.join(engine.root, 'app', d)
       }
+      other_dirs = %w(components lib).collect { |d| 
+        File.join(engine.root, d)
+      }
+      load_paths  = (app_dirs + other_dirs).select { |d| File.directory?(d) }
 
       # Remove other engines from the $LOAD_PATH by matching against the engine.root values
       # in ActiveEngines. Store the removed engines in the order they came off.
@@ -216,85 +235,26 @@ module Engines
       $LOAD_PATH.uniq!
     end
 
-    # Replicates the subdirectories under the engine's /public directory into
-    # the corresponding public directory.
-    def copy_engine_files(engine)
-      
-      begin
-        # create the /public/frameworks directory if it doesn't exist
-        public_engine_dir = File.expand_path(File.join(RAILS_ROOT, "public", Engines.config(:public_dir)))
-    
-        if !File.exists?(public_engine_dir)
-          # create the public/engines directory, with a warning message in it.
-          Engines.log.debug "Creating public engine files directory '#{public_engine_dir}'"
-          FileUtils.mkdir(public_engine_dir)
-          File.open(File.join(public_engine_dir, "README"), "w") do |f|
-            f.puts <<EOS
+    # Returns the directory in which all engine public assets are mirrored.
+    def public_engine_dir
+      File.expand_path(File.join(RAILS_ROOT, "public", Engines.config(:public_dir)))
+    end
+  
+    # create the /public/engine_files directory if it doesn't exist
+    def create_base_public_directory
+      if !File.exists?(public_engine_dir)
+        # create the public/engines directory, with a warning message in it.
+        Engines.log.debug "Creating public engine files directory '#{public_engine_dir}'"
+        FileUtils.mkdir(public_engine_dir)
+        File.open(File.join(public_engine_dir, "README"), "w") do |f|
+          f.puts <<EOS
 Files in this directory are automatically generated from your Rails Engines.
 They are copied from the 'public' directories of each engine into this directory
 each time Rails starts (server, console... any time 'start_engine' is called).
 Any edits you make will NOT persist across the next server restart; instead you
 should edit the files within the <engine_name>/public/ directory itself.
 EOS
-          end
         end
-    
-        source = File.join(engine.root, "public")
-        Engines.log.debug "Attempting to copy public engine files from '#{source}'"
-    
-        # if there is no public directory, just return after this file
-        return if !File.exist?(source)
-
-        source_files = Dir[source + "/**/*"]
-        source_dirs = source_files.select { |d| File.directory?(d) }
-        source_files -= source_dirs  
-      
-        Engines.log.debug "source dirs: #{source_dirs.inspect}"
-
-        # Create the engine_files/<something>_engine dir if it doesn't exist
-        new_engine_dir = File.join(RAILS_ROOT, "public", engine.public_dir)
-        if !File.exists?(new_engine_dir)
-          # Create <something>_engine dir with a message
-          Engines.log.debug "Creating #{engine.public_dir} public dir"
-          FileUtils.mkdir_p(new_engine_dir)
-        end
-
-        # create all the directories, transforming the old path into the new path
-        source_dirs.uniq.each { |dir|
-          begin        
-            # strip out the base path and add the result to the public path, i.e. replace 
-            #   ../script/../vendor/plugins/engine_name/public/javascript
-            # with
-            #   engine_name/javascript
-            #
-            relative_dir = dir.gsub(File.join(engine.root, "public"), engine.name)
-            target_dir = File.join(public_engine_dir, relative_dir)
-            unless File.exist?(target_dir)
-              Engines.log.debug "creating directory '#{target_dir}'"
-              FileUtils.mkdir_p(target_dir)
-            end
-          rescue Exception => e
-            raise "Could not create directory #{target_dir}: \n" + e
-          end
-        }
-
-        # copy all the files, transforming the old path into the new path
-        source_files.uniq.each { |file|
-          begin
-            # change the path from the ENGINE ROOT to the public directory root for this engine
-            target = file.gsub(File.join(engine.root, "public"), 
-                               File.join(public_engine_dir, engine.name))
-            unless File.exist?(target) && FileUtils.identical?(file, target)
-              Engines.log.debug "copying file '#{file}' to '#{target}'"
-              FileUtils.cp(file, target)
-            end 
-          rescue Exception => e
-            raise "Could not copy #{file} to #{target}: \n" + e 
-          end
-        }
-      rescue Exception => e
-        Engines.log.warn "WARNING: Couldn't create the engine public file structure for engine '#{engine.name}'; Error follows:"
-        Engines.log.warn e
       end
     end
     
@@ -303,6 +263,7 @@ EOS
     def get(name)
       active.find { |e| e.name == name.to_s || e.name == "#{name}_engine" }
     end
+    alias_method :[], :get
     
     # Returns the Engine object for the current engine, i.e. the engine
     # in which the currently executing code lies.
@@ -316,6 +277,16 @@ EOS
     # Returns an array of active engines
     def active
       ActiveEngines
+    end
+    
+    # Pass a block to perform an operation on each engine. You may pass an argument
+    # to determine the order:
+    # 
+    # * :load_order - in the order they were loaded (i.e. lower precidence engines first).
+    # * :precidence_order - highest precidence order (i.e. last loaded) first
+    def each(ordering=:precidence_order, &block)
+      engines = (ordering == :load_order) ? active.reverse : active
+      engines.each { |e| yield e }
     end
   end 
 end
@@ -353,18 +324,20 @@ class Engine
   
   # Creates a new object holding information about an Engine.
   def initialize(name)
-    engine_dir = File.join(Engines.config(:root), name.to_s)
 
-    if !File.exist?(engine_dir)
-      # try adding "_engine" to the end of the path.
-      engine_dir += "_engine"
-      if !File.exist?(engine_dir)
-        raise "Cannot find the engine '#{name}' in either /vendor/plugins/#{name} or /vendor/plugins/#{name}_engine..."
-      end
+    @root = ''
+    suffixes = ['', '_engine', '_bundle']
+    while !File.exist?(@root) && !suffixes.empty?
+      suffix = suffixes.shift
+      @root = File.join(Engines.config(:root), name.to_s + suffix)
+    end
+
+    if !File.exist?(@root)
+      raise "Cannot find the engine '#{name}' in either /vendor/plugins/#{name}, " +
+        "/vendor/plugins/#{name}_engine or /vendor/plugins/#{name}_bundle."
     end      
     
-    @root = engine_dir
-    @name = File.basename(engine_dir)
+    @name = File.basename(@root)
   end
     
   # Returns the version string of this engine
@@ -395,4 +368,81 @@ class Engine
   def public_dir
     File.join("/", Engines.config(:public_dir), name)
   end
+  
+  # Replicates the subdirectories under the engine's /public directory into
+  # the corresponding public directory.
+  def mirror_engine_files
+    
+    begin
+      Engines.create_base_public_directory
+  
+      source = File.join(root, "public")
+      Engines.log.debug "Attempting to copy public engine files from '#{source}'"
+  
+      # if there is no public directory, just return after this file
+      return if !File.exist?(source)
+
+      source_files = Dir[source + "/**/*"]
+      source_dirs = source_files.select { |d| File.directory?(d) }
+      source_files -= source_dirs  
+    
+      Engines.log.debug "source dirs: #{source_dirs.inspect}"
+
+      # Create the engine_files/<something>_engine dir if it doesn't exist
+      new_engine_dir = File.join(RAILS_ROOT, "public", public_dir)
+      if !File.exists?(new_engine_dir)
+        # Create <something>_engine dir with a message
+        Engines.log.debug "Creating #{public_dir} public dir"
+        FileUtils.mkdir_p(new_engine_dir)
+      end
+
+      # create all the directories, transforming the old path into the new path
+      source_dirs.uniq.each { |dir|
+        begin        
+          # strip out the base path and add the result to the public path, i.e. replace 
+          #   ../script/../vendor/plugins/engine_name/public/javascript
+          # with
+          #   engine_name/javascript
+          #
+          relative_dir = dir.gsub(File.join(root, "public"), name)
+          target_dir = File.join(Engines.public_engine_dir, relative_dir)
+          unless File.exist?(target_dir)
+            Engines.log.debug "creating directory '#{target_dir}'"
+            FileUtils.mkdir_p(target_dir)
+          end
+        rescue Exception => e
+          raise "Could not create directory #{target_dir}: \n" + e
+        end
+      }
+
+      # copy all the files, transforming the old path into the new path
+      source_files.uniq.each { |file|
+        begin
+          # change the path from the ENGINE ROOT to the public directory root for this engine
+          target = file.gsub(File.join(root, "public"), 
+                             File.join(Engines.public_engine_dir, name))
+          unless File.exist?(target) && FileUtils.identical?(file, target)
+            Engines.log.debug "copying file '#{file}' to '#{target}'"
+            FileUtils.cp(file, target)
+          end 
+        rescue Exception => e
+          raise "Could not copy #{file} to #{target}: \n" + e 
+        end
+      }
+    rescue Exception => e
+      Engines.log.warn "WARNING: Couldn't create the engine public file structure for engine '#{name}'; Error follows:"
+      Engines.log.warn e
+    end
+  end  
 end
+
+
+# These files must be required after the Engines module has been defined.
+require 'engines/dependencies_extensions'
+require 'engines/action_view_extensions'
+require 'engines/action_mailer_extensions'
+require 'engines/migration_extensions'
+require 'engines/active_record_extensions'
+
+# only load the testing extensions if we are in the test environment
+require 'engines/testing_extensions' if %w(test).include?(RAILS_ENV)

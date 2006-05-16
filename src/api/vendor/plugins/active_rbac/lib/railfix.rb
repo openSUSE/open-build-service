@@ -17,7 +17,8 @@ class ActiveRecord::Associations::HasAndBelongsToManyAssociation < ActiveRecord:
       flatten_deeper(records).each do |record|
         raise_on_type_mismatch(record)
         callback(:before_add, record)
-        unless (@options[:uniq] and @target.include? record)
+        uniq = (!@reflection.nil? && @reflection.options[:uniq]) || (@reflection.nil? && @options[:uniq])
+        unless (uniq and @target.include? record)
           result &&= insert_record(record) unless @owner.new_record?
           @target << record
         end

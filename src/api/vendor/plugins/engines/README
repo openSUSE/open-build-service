@@ -18,9 +18,47 @@ As an example, the Login Engine provides a full user login subsystem, including:
 Once the Rails Core team decides on a suitable method for packaging plugins, Engines can be distributed using the same mechanisms. If you are developing engines yourself for use across multiple projects, linking them as svn externals allows seamless updating of bugfixes across multiple applications.
 
 
+
+
+
+= Edge Engines
+
+If you are using Edge Rails (an SVN copy of Rails, rather than an 'official' release), there are several MASSIVELY IMPORTANT issues that you need to bear in mind.
+
+Firstly, you are using an unstable version of Rails, so it is possible that things will break. We work hard to keep the Engines plugin up to speed with the changes in Rails at the bleeding edge, but sometimes significant parts of Rails change it WILL cause problems. This is the price of using the bleeding edge. Since edge is synonymous for unstable, the version of the Engines plugin which is compatible with Edge Rails is kept separate from the official release. Please ensure that you have used SVN to get your engines plugin from
+
+  http://svn.rails-engines.org/engines/trunk
+  
+The normal 'script/plugin install engines' will NOT get you this version.
+
+Secondly, you NEED to tell the engines plugin if you expect it to perform with Edge behaviour. This is done by adding the following lines at the *very top* of environment.rb (yes, the VERY TOP)
+
+  module Engines
+    CONFIG = {:edge => true}
+  end
+
+This will set the plugin to work with Edge Rails, rather than expecting an official release.
+
+If you are having problems, please try and contribute a bug report if you can so we can improve the plugin and keep up to speed with Rails' bleeding edge. Your input is *absolutely crucial* to this. If you're not comfortable with tracking down bugs in Rails' and Engines' internal code, there is a test application available at
+
+  http://svn.rails-engines.org/applications/engines_test
+  
+which contains an array of tests that might help you (and us) pinpoint where the issue is. Please download this application and consult the README for more information.
+
+Finally, please don't forget about our website and mailing lists. More information here:
+
+  http://rails-engines.org
+
+
+
+
+
+
+
 = Using the Engines plugin itself
 
 There are a number of features of the Engines plugin itself which may be useful to know:
+
 
 === Engines.log
 The Engines plugin comes with its own logger, which is invaluable when debugging. To use it,
@@ -30,10 +68,9 @@ simply call
   
 Two optional arguments may be passed to this method:
 
-  Engines.create_logger(io)
+  Engines.create_logger(<io>)
   
-Would set the outputter to the logger to the given io object. For example, this could be 
-STDERR or STDOUT (the default). The second argument is the logger level:
+Would set the outputter to the logger to the given IO object <io>. For example, this could be STDERR or STDOUT (the default). The second argument is the logger level:
 
   Engines.create_logger(STDOUT, Logger::INFO)
   
@@ -47,22 +84,26 @@ The logger can be accessed using either of the following:
 
 === Engines.config(:root)
 
-By default, the Engines plugin expects to be starting Engines from within RAILS_ROOT/vendor/plugins. However, if you'd like to store your engines in a different directory, add the following line to the *top* of environment.rb
+By default, the Engines plugin expects to be starting Engines from within RAILS_ROOT/vendor/plugins. However, if you'd like to store your engines in a different directory, add the following line *before* any call to Engines.start
 
-  module Engines
-    CONFIG[:root] = "/path/to/your/directory"
-  end
+  Engines.config(:root, "/path/to/your/directory", :force)
   
   
 === Rake Tasks
 
 The engines plugin comes with a number of handy rake tasks:
 
-  rake engine_info     # displays version information about the engines subsystem
-  rake engine_migrate  # migrates engines' database schemas in a controlled way
-  rake enginedoc       # generates full documentation for all engines
+  # display version information about the engines subsystem
+  rake engines:info 
+  
+  # migrate engines' database schemas in a controlled way
+  rake db:migrate:engines
+  
+  # generates full documentation for all engines
+  rake doc:engines      
   
 There are more, but you'll have to discover them yourself...  
+
 
 == More information
 
@@ -88,13 +129,14 @@ Here's an *example* of how you might go about using Rails Engines. Please bear i
 
  or
 
-    $ svn co https://opensvn.csie.org/rails_engines/plugins/engines <MY_RAILS_APP>/vendor/plugins/engines
+    $ svn co http://svn.rails-engines.org/plugins/engines <MY_RAILS_APP>/vendor/plugins/engines
 
 2. Install your engine into the plugins directory in a similar way.
 
-3. Create the RDoc for the engine so you know what's going on:
+3. Create the RDoc for the engines plugin and for your engines so you know what's going on:
 
-     $ rake plugindoc
+     $ rake doc:plugins
+     $ rake doc:engines
 
 4. Initialize any database schema provided. The Engine may provide Rake tasks to do this for you. Beware that accepting an Engine schema might affect any existing database tables you have installed! You are STRONGLY recommended to inspect the <tt>db/schema.rb</tt> file to see exactly what running it might change.
 
@@ -144,20 +186,20 @@ Here's a sample rails application with a detailed listing of an example engines 
                   |- test
 
 
-The internal structure of an engine mirrors the familiar core of a Rails application, with most of the engine within the <tt>app</tt> subdirectory. Within <tt>app</tt>, the controllers, views and model objects behave just as you might expect if there in teh top-level <tt>app</tt> directory.
+The internal structure of an engine mirrors the familiar core of a Rails application, with most of the engine within the <tt>app</tt> subdirectory. Within <tt>app</tt>, the controllers, views and model objects behave just as you might expect if there in the top-level <tt>app</tt> directory.
 
 When you call <tt>Engines.start :my_engine</tt> in <tt>environment.rb</tt> a few important bits of black magic voodoo happen:
-* the engine's controllers, views and modesl are mixed in to your running Rails application; 
+* the engine's controllers, views and models are mixed in to your running Rails application; 
 * files in the <tt>lib</tt> directory of your engine (and subdirectories) are made available 
   to the rest of your system
 * any directory structure in the folder <tt>public/</tt> within your engine is made available to the webserver
-* the file <tt>init_engine.rb</tt> is loaded from within the engine (just like a plugin - the reason why engines need an init_engine.rb rather than an init.rb is because Rails' default plugin system might try and load an engine before the Engines plugin has been loaded, resulting in all manner of badness. Instead, Rails' skips over any engine plugins, and the Engines plugin handles initializing your Engines plugins when you 'start' each engine).
+* the file <tt>init_engine.rb</tt> is loaded from within the engine - just like a plugin. The reason why engines need an init_engine.rb rather than an init.rb is because Rails' default plugin system might try and load an engine before the Engines plugin has been loaded, resulting in all manner of badness. Instead, Rails' skips over any engine plugins, and the Engines plugin handles initializing your Engines plugins when you 'start' each engine.
 
 From within <tt>init_engine.rb</tt> you should load any libraries from your <tt>lib</tt> directory that your engine might need to function. You can also perform any configuration required.
 
 === Loading all Engines
 
-Calling either Engines.start (with no arguments) or Engines.start_all will load all engines available. Please note that your plugin can only be detected as an engine by the presence of an 'init_engine.rb' file, or if the engine is in a directory named <something>_engine. If neither of these conditions hold, then your engine will not be loaded by Engines.start() or Engines.start_all().
+Calling either Engines.start (with no arguments) or Engines.start_all will load all engines available. Please note that your plugin can only be *automatically* detected as an engine by the presence of an 'init_engine.rb' file, or if the engine is in a directory named <something>_engine, or <something>_bundle. If neither of these conditions hold, then your engine will not be loaded by Engines.start() (with no arguments) or Engines.start_all().
 
 
 
@@ -182,7 +224,11 @@ Because this config value has been set before the Engine is started, subsequent 
 
 The additional parameter will force the new value to be used. For more information, see Module#config.
 
+
+
+
 = Tweaking Engines
+
 One of the best things about Engines is that if you don't like the default behaviour of any component, you can override it without needing to overhaul the whole engine. This makes adding your customisations to engines almost painless, and allows for upgrading/updating engine code without affecting the specialisations you need for your particular application.
 
 
@@ -268,19 +314,19 @@ which is hopefully true, this can be quite useful.
 
 To migrate all engines to the latest version:
 
- rake engine_migrate
+ rake db:migrate:engines
 
 To migrate a single engine, for example the login engine:
 
- rake engine_migrate ENGINE=login  (or login_engine)
+ rake db:migrate:engines ENGINE=login  (or login_engine)
 
 To migrate a single engine to a specific revision:
 
- rake engine_migrate ENGINE=login VERSION=4
+ rake db:migrate:engines ENGINE=login VERSION=4
 
 This:
 
- rake engine_migrate VERSION=1
+ rake db:migrate:engines VERSION=1
 
 ... will not work, because we felt it was too dangerous to allow ALL
 engines to be migrated to a specific version, since such versions
@@ -331,8 +377,8 @@ Your engine should provide a test_helper.rb file in <engine>/test, the contents 
 
 An additional helpful task for loading fixture data is also provided (thanks to Joe Van Dyk):
 
-  rake load_plugin_fixtures
-  rake load_plugin_fixtures PLUGIN=login_engine
+  rake db:fixtures:engines:load
+  rake db:fixtures:engines:load PLUGIN=login_engine
   
 will load the engine fixture data into your development database.
 
@@ -340,3 +386,29 @@ will load the engine fixture data into your development database.
 Unlike the new 'fixture' directive described above, this task currently relies on you ensuring that the table name to load fixtures into is the same as the name of the fixtures file you are trying to load. If you are using defaults, this should be fine. If you have changed table names, you will need to rename your fixtures files (and possibly update your tests to reflect this too).
 
 You should also note that fixtures typically tend to depend on test configuration information (such as test salt values), so not all data will be usable in fixture form.
+
+
+
+= LICENCE
+
+Copyright (c) 2006, James Adam
+
+The MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

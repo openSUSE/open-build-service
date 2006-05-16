@@ -33,7 +33,12 @@ class RubyExtensionsTest < Test::Unit::TestCase
     assert_equal(123, TestModule.config(:monkey))
     assert_equal(456, TestModule.config(:donkey))
   end
-  
+
+  def test_config_can_store_hash
+    TestModule.config :hash, :key1 => 'val1', :key2 => 'val2'
+    assert_equal({:key1 => 'val1', :key2 => 'val2'}, TestModule.config(:hash))
+  end
+    
   def test_config_cant_overwrite_existing_config_values
     TestModule.config :monkey, 123
     assert_equal(123, TestModule.config(:monkey))
@@ -60,7 +65,12 @@ class RubyExtensionsTest < Test::Unit::TestCase
     assert_equal(654, TestModule.config(:man))      
     TestModule.config :monkey => 789, :man => 987, :force => false
     assert_equal(456, TestModule.config(:monkey))
-    assert_equal(654, TestModule.config(:man))      
+    assert_equal(654, TestModule.config(:man))
+    
+    TestModule.config :hash, :key1 => 'val1', :key2 => 'val2'
+    assert_equal({:key1 => 'val1', :key2 => 'val2'}, TestModule.config(:hash))
+    TestModule.config :hash => {:key1 => 'val3', :key2 => 'val4'}, :force => true
+    assert_equal({:key1 => 'val3', :key2 => 'val4'}, TestModule.config(:hash))           
   end
   
   # this test is somewhat redundant, but it might be an idea to havbe it explictly anyway

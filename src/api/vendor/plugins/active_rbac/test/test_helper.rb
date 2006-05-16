@@ -6,7 +6,7 @@ require File.dirname(__FILE__) + '/../../../../test/test_helper'
 
 # ensure that the Engines testing enhancements are loaded and will override Rails own
 # code where needed. This line is very important!
-require File.join(Engines.config(:root), "engines", "lib", "testing_extensions")
+require File.join(Engines.config(:root), "engines", "lib", "engines", "testing_extensions")
 
 # set up the fixtures location to use your engine's fixtures
 Test::Unit::TestCase.fixture_path = File.dirname(__FILE__)  + "/fixtures/"
