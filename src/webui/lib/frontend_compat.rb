@@ -9,7 +9,9 @@ class FrontendCompat
   end
 
   def cmd_package( project, package, cmd )
-    transport.direct_http URI("http:///source/#{project}/#{package}?#{cmd}"), :method => "POST", :data => ""
+    logger.debug "CMD_PACKAGE #{cmd}"
+    transport.direct_http URI("http:///source/#{project}/#{package}?cmd=#{cmd}"),
+      :method => "POST", :data => ""
   end
 
   def get_source( opt={} )

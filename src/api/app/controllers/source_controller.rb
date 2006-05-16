@@ -25,16 +25,35 @@ class SourceController < ApplicationController
     if request.get?
       forward_data "/source/#{project}/#{package}"
     elsif request.post?
-      specfile_path = "/source/#{project}/#{package}/#{package}.spec"
-      begin
-        Suse::Backend.get( specfile_path )
-        render_error :status => 403, :message => "SPEC file already exists."
-        return
-      rescue Suse::Backend::NotFoundError
-        specfile = File.read "#{RAILS_ROOT}/files/specfiletemplate"
-        Suse::Backend.put_source( specfile_path, specfile )
+      cmd = params[:cmd]
+      logger.debug "CMD: #{cmd}"
+      if cmd == "createSpecFileTemplate"
+        specfile_path = "/source/#{project}/#{package}/#{package}.spec"
+        begin
+          Suse::Backend.get( specfile_path )
+          render_error :status => 403, :message => "SPEC file already exists."
+          return
+        rescue Suse::Backend::NotFoundError
+          specfile = File.read "#{RAILS_ROOT}/files/specfiletemplate"
+          Suse::Backend.put_source( specfile_path, specfile )
+        end
+        render_ok
+      elsif cmd == "rebuild"
+        # TODO: Use ActiveXML
+        path = "/source/#{project}/_meta"
+        response = Suse::Backend.get( path )
+        meta = REXML::Document.new( response.body ).root
+        meta.elements.each "repository" do |r|
+          repository = r.attribute "name"
+          r.elements.each "arch" do |a |
+            arch = a.text
+            Suse::Backend.delete_status project, repository, package, arch
+          end
+        end
+        render_ok
+      else
+        render_error :status => 404, :message => "Unknow command: #{cmd}"
       end
-      render_ok
     end
   end
 

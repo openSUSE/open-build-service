@@ -46,6 +46,11 @@ module Suse
         do_delete( source_host, source_port, path )
       end
 
+      def delete_status( project, repository, package, arch )
+        path = "/rpm/#{project}/#{repository}/#{arch}/#{package}/status"
+        do_delete( rpm_host, rpm_port, path )
+      end
+
       def get_source( path )
         do_get( source_host, source_port, path )
       end

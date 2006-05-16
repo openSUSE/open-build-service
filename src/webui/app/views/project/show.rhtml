@@ -11,7 +11,9 @@
 <b>Description:</b><br/>
 <%=h @project.description %><br/>
 <%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
+<!--
 <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild', :project => @project %>
+-->
 </p>
 <% logger.debug "<-- finished rendering project information" -%>
 

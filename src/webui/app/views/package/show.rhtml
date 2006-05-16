@@ -121,5 +121,10 @@ of project <%= link_to_project @link.project %>.</p>
 <% end %>
 
 <p>
+<%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
+  :project => @project, :package => @package %>
+</p>
+
+<p>
 <%= link_to "Back to Project '#{@project}'", :controller => 'project', :action => :show, :project => @project %>
 </p>

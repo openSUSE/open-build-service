@@ -405,6 +405,30 @@ class PackageController < ApplicationController
     render :partial => 'update_build_log'
   end
 
+  def trigger_rebuild
+    project = params[:project]
+    if ( !project )
+      flash[:error] = "Project name missing."
+      redirect_to :controller => "project", :action => 'list_public'
+      return
+    end
+        
+    package = params[:package]
+    if ( !package )
+      flash[:error] = "Package name missing."
+      redirect_to :controller => "project", :action => 'show',
+        :project => project
+      return
+    end
+        
+    logger.debug( "Trigger Rebuild for #{package}" )
+    frontend.cmd_package( project, package, "rebuild" )
+    
+    flash[:note] = "Triggered rebuild."
+    
+    redirect_to :action => "show", :project => project, :package => package
+  end
+
   def check_params
 
     if params[:package]
