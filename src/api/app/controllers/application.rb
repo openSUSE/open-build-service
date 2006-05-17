@@ -193,7 +193,19 @@ class ApplicationController < ActionController::Base
       
     end
   end
-  
+
+  def backend
+    @backend ||= ActiveXML::Config.transport_for :project
+  end
+
+  def backend_get( path )
+    backend.direct_http( URI(path) )
+  end
+
+  def backend_put( path, data )
+    backend.direct_http( URI(path), :method => "PUT", :data => data )
+  end
+
   def ichain_host
     # if self.class.const_defined? "ICHAIN_HOST"
       ICHAIN_HOST

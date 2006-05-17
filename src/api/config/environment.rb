@@ -73,16 +73,12 @@ require 'active_rbac_user_model_crypt_hack'
 
 require 'activexml'
 
-ActiveXML::Base.setup( nil )
-
 ActiveXML::Base.config do |conf|
-  #conf.use_transport_plugins
-  conf.use_transport_plugins = true
   conf.setup_transport do |map|
     map.default_server :rest, "#{SOURCE_HOST}:#{SOURCE_PORT}"
     map.connect :project, "rest:///source/:name/_meta",
         :all    => "rest:///source/"
     map.connect :package, "rest:///source/:project/:name/_meta",
-        :all    => "rest///source/:project"
+        :all    => "rest:///source/:project"
   end
 end
