@@ -84,20 +84,17 @@ class ApplicationController < ActionController::Base
 
   def rescue_action_in_public( exception )
     logger.debug "rescue_action_in_public: caught #{exception.class}: #{exception.message}"
-    if exception.message.kind_of? REXML::Document 
-      if exception.message.root.elements['code']
-        @code = exception.message.root.elements['code'].text
-      else
-        @code = exception.message.root.attributes['code']
-      end
-      @message = exception.message.root.elements['summary'].text
+
+    #try to parse error message
+    api_error = REXML::Document.new( exception.message )
+
+    if api_error.kind_of? REXML::Document 
+      api_error = api_error.root
       
-      detail_elem = exception.message.root.elements['details']
-      @details = detail_elem.text unless detail_elem.nil?
-      
-      if exception.message.root.elements['exception']
-        @api_exception = exception.message.root.elements['exception']
-      end
+      @code = api_error.attributes['code']
+      @message = api_error.elements['summary'].text
+      @details = api_error.elements['details'].text if api_error.elements['details']
+      @api_exception = api_error.elements['exception'] if api_error.elements['exception']
     else
       @code = 500
       @message = exception.message
@@ -126,7 +123,7 @@ class ApplicationController < ActionController::Base
 
   def render_error( opt={} )
     @code = opt[:code] || 500
-    @error_message = opt[:message] || "No message set"
+    @message = opt[:message] || "No message set"
     @exception_xml = opt[:exception_xml]
     @exception = opt[:exception]
 
@@ -137,7 +134,7 @@ class ApplicationController < ActionController::Base
     # object, so we have to do it manually
     if @template.first_render
       logger.debug "injecting error instance variables into template object"
-      %w{@error_message @code @exception_xml @exception}.each do |var|
+      %w{@message @code @exception_xml @exception}.each do |var|
         @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
       end
     end

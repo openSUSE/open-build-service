@@ -2,38 +2,40 @@ class PersonController < ApplicationController
 
   def userinfo
     if !@http_user
-        logger.debug "No user logged in, permission to userinfo denied"
-        @errorcode = 401
-        @summary = "No user logged in, permission to userinfo denied"
-        render :template => 'error', :status => 401
+      logger.debug "No user logged in, permission to userinfo denied"
+      @errorcode = 401
+      @summary = "No user logged in, permission to userinfo denied"
+      render :template => 'error', :status => 401
     else
       if request.get?
         if params[:login]
-	  logger.debug "Generating for user from parameter #{params[:login]}"
-	  @render_user = BSUser.find_by_login( params[:login] )
+          login = URI.unescape( params[:login] )
+          logger.debug "Generating for user from parameter #{login}"
+          @render_user = BSUser.find_by_login( login )
           if ! @render_user 
             logger.debug "User is not valid!"
-            render_error :status => 404, :message => "Unknown user: #{params[:login]}"
+            render_error :status => 404, :message => "Unknown user: #{login}"
           end
-	else 
+        else 
           logger.debug "Generating user info for logged in user #{@http_user.login}"
-	  @render_user = @http_user
-	end
+          @render_user = @http_user
+        end
         # see the corresponding view users.rxml that generates a xml
         # response for the caller.
 
       elsif request.put?
         user = @http_user
         if params[:login]
-          user = BSUser.find_by_login( params[:login] )
+          login = URI.unescape( params[:login] )
+          user = BSUser.find_by_login( login )
           if user and user.login != @http_user.login 
             # TODO: check permission to update someone elses info
             if @http_user.has_permission "Userinfo_Admin"
-	      # ok, may update user info
+              # ok, may update user info
             else
               logger.debug "User has no permission to change userinfo"
               render_error :status => 401,
-                  :message => "no permission to change userinfo for user #{user.login}"
+              :message => "no permission to change userinfo for user #{user.login}"
             end
           end
         end
@@ -51,7 +53,7 @@ class PersonController < ApplicationController
             user.source_host = e.elements['host'].text
             user.source_port = e.elements['port'].text
           end
-          
+
           e = xml.elements["/person/rpm_backend"]
           if ( e )
             user.rpm_host = e.elements['host'].text
@@ -66,10 +68,10 @@ class PersonController < ApplicationController
           #create user if not existing
           logger.debug "trying to create new user"
           user = BSUser.create( 
-            :login => params[:login],
+            :login => login,
             :password => "asdfasdf",
             :password_confirmation => "asdfasdf",
-            :email => "#{params[:login]}@localhost"
+            :email => "#{login}@localhost"
           )
 
           #user.login = params[:login]
@@ -85,11 +87,11 @@ class PersonController < ApplicationController
   def update_watchlist( user, xml )
     new_watchlist = []
     old_watchlist = []
-    
+
     xml.elements.each("/person/watchlist/project") do |e|
       new_watchlist << e.attributes['name']
     end
-    
+
     user.watched_projects.each do |wp|
       old_watchlist << wp.name
     end

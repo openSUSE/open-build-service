@@ -19,18 +19,17 @@ Please contact the OpenSUSE admin to get proper permissions for the user account
 <h2>Target not found</h2>
 A non existing page was requested. Please try again!<br />
 Please contact the OpenSUSE admin to get proper permissions for the user account.
-<% else -%>
-<h2>Server Error</h2>
-<p><%=h @error_message %></p>
-<br>
 <% end -%>
 
-<% if @details -%>
 <p>
-  <h3>Error message from backend:</h3>
-  <%= @details %>
-</p>
+<h3>Error Details:</h3>
+<b>Errorcode: </b><%= @code %><br/>
+<b>Message: </b><%=h @message %><br/>
+
+<% if @details -%>
+<b>Backend message: </b><%= @details %><br/>
 <% end -%>
+</p>
 
 
 <% if @api_exception -%>
