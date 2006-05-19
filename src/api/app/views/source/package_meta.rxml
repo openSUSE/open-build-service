@@ -1,7 +1,7 @@
-xml.package( "name" => @name ) do
-  xml.title @title
-  xml.description @description
-  @persons.each do |p|
-    xml.person( "userid" => p["userid"], "role" => p["role"] )
+xml.package( "name" => @package.name ) do
+  xml.title @package.title
+  xml.description @package.description
+  @package.each_person do |p|
+    xml.person( "userid" => p.userid, "role" => p.role )
   end
 end

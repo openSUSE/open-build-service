@@ -109,25 +109,13 @@ class SourceController < ApplicationController
     if request.get?
       response = Suse::Backend.get( path )
 
-      result = REXML::Document.new( response.body ).root
-      package_element = result.elements["/package"]
-      @name = package_element.attributes["name"]
-      @description = package_element.elements["description"].text
-      @title = package_element.elements["title"].text
-
-      @persons = Array.new
-      result.each_element('person') do |p|
-        person = Hash.new
-        person[ "userid" ] = p.attributes["userid"]
-        person[ "role" ] = p.attributes["role"]
-        @persons.push person
-      end
+      @package = Package.find(package, :project => project)
     elsif request.put?
       allowed = false
       request_data = request.raw_post
       begin
         # Try to fetch the package to see if it already exists
-        response = Suse::Backend.get( path )
+        Suse::Backend.get( path )
 	
         # Being here means that the project already exists
         allowed = permissions.package_change? project, package
@@ -135,10 +123,10 @@ class SourceController < ApplicationController
         # Ok, the project  is new
 	allowed = permissions.package_create?( project )
 	
-	if allowed 
+	if allowed
 	  request_data = check_and_add_maintainer request_data, "package"
 	else
-	  # User is not allowed by global permission. 
+	  # User is not allowed by global permission.
 	  logger.debug "Not allowed to create new packages"
 	end
       end

@@ -39,12 +39,11 @@ module Suse
     def package_create?( project )
       logger.debug "User #{@user.login} wants to create a package in #{project}"
       
-      if @user.has_permission( 'global_package_create' )
-        return true
-      else
-	val = project_maintainers project
-	logger.debug "Project-Maintainers: #{val}"
-	if val and val.find{ |u| u == @user.login }
+      return true if @user.has_permission( 'global_package_create' )
+	
+      valid_users = project_maintainers project
+      return true if valid_users
+      if val and val.find{ |u| u == @user.login }
 	  return true 
 	end
       end
@@ -54,24 +53,39 @@ module Suse
     # One may change a package if he either has the global_package_change
     # permission or if he is maintainer of the project or maintainer of the
     # package
+    #
+    # args can either be an instance of the respective class (Package, Project)
+    # or package/project names.
+    #
+    # the second arg can be omitted if the first one is a Package object. second
+    # arg is needed if first arg is a string
 
-    def package_change?( project = nil, package = nil )
+    def package_change?( package, project=nil )
       logger.debug "User #{@user.login} wants to change the package"
-      
-      if @user.has_permission( "global_package_change" )
-        return true
-      else
-        val = package_maintainers( project, package )
-        if val.find{ |u| u == @user.login }
-          return true
+     
+      return true if @user.has_permission( "global_package_change" )
+
+      #check if current user is mentioned in the package meta file
+      valid_users = package_maintainers( package, project )
+      return true if valid_users.include? @user.login
+
+      #try to find parent project of package if it is not set
+      if project.nil?
+        if not package.kind_of? Package
+          raise "autofetch of project only works with objects of class Package"
         end
-	
-        val = project_maintainers( project )
-	if val.find{ |u| u == @user.login }
-	  return true
-	end
-        
+
+        if package.parent_project_name.nil?
+          raise "unable to determine parent project for package #{package}"
+        end
+
+        project = package.parent_project
       end
+
+      # check if current user is mentioned in the project meta file
+      valid_users = project_maintainers( project )
+      return true if valid_users.include? @user.login
+        
       return false
     end
     
@@ -93,9 +107,16 @@ module Suse
       end
     end
 
+    # returns the package maintainers as a list of login names
+    # argument can be a instance of the Project class or a project name
     def project_maintainers( project )
-      val = []
-      p = Project.find :name => project
+      val = Array.new
+
+      if( project.kind_of? Project )
+        p = project
+      else
+        p = Project.find project
+      end
 
       p.each_person do |person| 
         if person.role == "maintainer" or person.role == "owner"
@@ -107,10 +128,20 @@ module Suse
       return val
     end
 
-    def package_maintainers( project, package )
-
-      val = []
-      p = Package.find :name => package, :project => project
+    # returns the package maintainers as a list of login names
+    # argument can be an instance of the Package class or a package name
+    # if first arg is a package name, the name of the packages project has to be
+    # given as second arg
+    def package_maintainers( package, project=nil )
+      val = Array.new
+      
+      if( package.kind_of? Package )
+        p = package
+      elsif project.nil?
+        raise "Permission#package_maintainers: project name must be given if first parameter is no Package object"
+      else
+        p = Package.find package, :project => project
+      end
 
       p.each_person do |person| 
         if person.role == "maintainer" or person.role == "owner"
