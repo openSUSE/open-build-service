@@ -14,6 +14,7 @@ Web Client
 + Reenable platform editing
 + Feedback page (betameter?)
 + Don't show actions the user doesn't have permission for (bug #163309)
++ Change build status page so that it doesn't DOS the backend
 o Better error messages (bug #165107)
 o Integrate build monitor into project overview page
 o Split packages in project display page to multiple pages
@@ -51,6 +52,7 @@ Frontend
 + DELETE package, project (project only with special permission)
 + Check data of PUT requests against schema
 + Switch to migrations for database updates
++ Change build status page so that it doesn't DOS the backend
 o Delete projects (bug #165126)
 o Logfile streaming (bug #163309)
 o Notification system
