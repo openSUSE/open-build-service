@@ -88,7 +88,7 @@ class PackageController < ApplicationController
 
         @project.add_package @package
 
-        if @project.save and @package.save
+        if @package.save and @project.save
           if params[:createSpecFileTemplate]
             logger.debug( "CREATE SPEC FILE TEMPLATE" )
             frontend.cmd_package( @project.name, @package.name,
