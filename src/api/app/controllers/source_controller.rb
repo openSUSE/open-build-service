@@ -107,18 +107,19 @@ class SourceController < ApplicationController
     path = "/source/#{project}/#{package}/_meta"
 
     if request.get?
-      response = Suse::Backend.get( path )
 
-      @package = Package.find(package, :project => project)
+      @package = Package.find( package, :project => project )
+
     elsif request.put?
+
       allowed = false
       request_data = request.raw_post
       begin
         # Try to fetch the package to see if it already exists
-        Suse::Backend.get( path )
+        @package = Package.find( package, :project => project )
 	
         # Being here means that the project already exists
-        allowed = permissions.package_change? project, package
+        allowed = permissions.package_change? project, @package
       rescue Suse::Backend::NotFoundError
         # Ok, the project  is new
 	allowed = permissions.package_create?( project )
