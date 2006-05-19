@@ -28,11 +28,10 @@ class Package < ActiveXML::Base
   def remove_file( name )
     delete_opt = Hash.new
     delete_opt[:package] = self.name    
-    #FIXME: hack
-    delete_opt[:project] = @project
+    delete_opt[:project] = @init_options[:project]
     delete_opt[:filename] = name
 
-    @@transport.delete_file delete_opt
+    FrontendCompat.new.delete_file delete_opt
     
     true
   end

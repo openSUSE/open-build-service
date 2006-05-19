@@ -30,6 +30,12 @@ class FrontendCompat
       :method => "PUT", :data => data
   end
 
+  def delete_file( opt={} )
+    logger.debug "starting to delete file, opt: #{opt.inspect}"
+    transport.direct_http URI("http:///source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
+      :method => "DELETE"
+  end
+
   def get_log_chunk( project, package, repo, arch, offset=0 )
     path = "/result/#{project}/#{repo}/#{package}/#{arch}/log?nostream=1&start=#{offset}"
     transport.direct_http URI("http://#{path}")
