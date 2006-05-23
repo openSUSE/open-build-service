@@ -23,6 +23,8 @@ class ApplicationController < ActionController::Base
   
   before_filter :extract_user, :setup_backend, :validate
 
+  attr_accessor :auth_method
+
 
   def extract_user
     @http_user = nil;
@@ -30,6 +32,8 @@ class ApplicationController < ActionController::Base
     logger.debug( "Remote IP: #{request.remote_ip()}" )
 
     if ichain_host  # configured in the the environment file
+      auth_method = :ichain
+
       logger.debug "Have an iChain host: #{ichain_host}"
       ichain_user = request.env['HTTP_X_USERNAME']
       if ichain_user 
@@ -55,6 +59,9 @@ class ApplicationController < ActionController::Base
         logger.error "No X-username header from iChain! Are we really using iChain?"
       end
     else
+      #active_rbac is used for authentication
+      auth_method = :active_rbac
+
       if request.env.has_key? 'X-HTTP_AUTHORIZATION' 
         # try to get it where mod_rewrite might have put it 
         authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split 
@@ -79,10 +86,10 @@ class ApplicationController < ActionController::Base
     end
 
     if @http_user.nil?
-      render_error( :message => "Unknown or invalid user: #{login}\n", :status => 401 ) and return false
+      render_error( :message => "Unknown user '#{login}' or invalid password", :status => 401 ) and return false
     else
-        logger.debug "USER found: #{@http_user.login}"
-        @user_permissions = Suse::Permission.new( @http_user )
+      logger.debug "USER found: #{@http_user.login}"
+      @user_permissions = Suse::Permission.new( @http_user )
     end
   end
 

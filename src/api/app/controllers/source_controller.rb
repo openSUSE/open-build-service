@@ -67,28 +67,42 @@ class SourceController < ApplicationController
       allowed = false
       begin
         # Try to fetch the project to see if it already exists
-        response = Suse::Backend.get( path )
+        @project = Project.find( project )
+        #response = Suse::Backend.get( path )
 	
 	# Being here means that the project already exists
 	allowed = permissions.project_change? project
-      rescue Suse::Backend::NotFoundError
+        if allowed
+          @project.raw_data = request_data
+        else
+          logger.debug "user #{user.login} has no permission to change project #{@project}"
+	  render_error( :message => "no permission to change project", :status => 403 )
+          return
+        end
+      rescue ActiveXML::Transport::NotFoundError
         # Ok, the project  is new
 	allowed = permissions.global_project_create
 	
 	if allowed 
 	  # This is a new project. Add the logged in user as maintainer
-            request_data = check_and_add_maintainer request_data, "project"
-	    logger.debug "Added maintainer to new project, xml is now #{request_data}"
+          @project = Project.new( request_data, :name => project )
+         
+          if not @project.has_element?( "person[@userid='#{user.login}']" )
+            @project.add_person( :userid => user.login )
+          end
 	else
 	  # User is not allowed by global permission. 
 	  logger.debug "Not allowed to create new projects"
+          render_error( :message => "not allowed to create new projects", :status => 403 )
+          return
 	end
       end
       
       logger.debug response
            
       if allowed
-        response = Suse::Backend.put_source path, request_data
+        @project.save
+        #response = Suse::Backend.put_source path, request_data
         render_ok
       else
         logger.debug "No permissions to PUT on #{path}"
@@ -180,22 +194,5 @@ class SourceController < ApplicationController
       Suse::Backend.delete path
       render_ok
     end
-  end
-  
-  private
-  
-  def check_and_add_maintainer( data, topelem )
-    doc = REXML::Document.new( data )
-    # logger.debug "The XML Document: " + doc.to_s
-    root = doc.root
-    elem = doc.elements["#{topelem}/person[@role='maintainer']"]
-	  
-    unless elem
-      person_elem = doc.elements[topelem].add_element "person"
-
-      person_elem.attributes["userid"] = @http_user.login
-      person_elem.attributes["role"] = "maintainer" 
-    end
-    return doc.to_s
   end
 end
