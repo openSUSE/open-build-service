@@ -13,15 +13,10 @@ class Package < ActiveXML::Base
     put_opt = Hash.new
     put_opt[:package] = self.name    
     put_opt[:project] = @init_options[:project]
+    put_opt[:filename] = opt[:filename]
    
     fc = FrontendCompat.new
-    @pending_files.each do |file|
-      logger.debug "storing file: #{file.inspect}"
-      put_opt[:filename] = file[0]
-      fc.put_file file[1].read, put_opt
-    end
-    logger.debug "finished storing files"
-
+    fc.put_file file.read, put_opt
     true
   end
 

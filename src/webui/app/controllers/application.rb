@@ -88,8 +88,7 @@ class ApplicationController < ActionController::Base
     #try to parse error message
     api_error = REXML::Document.new( exception.message ).root
 
-    if api_error
-      
+    if api_error.name == "status"
       @code = api_error.attributes['code']
       @message = api_error.elements['summary'].text
       @details = api_error.elements['details'].text if api_error.elements['details']
@@ -105,7 +104,7 @@ class ApplicationController < ActionController::Base
       session[:login] = nil
       session[:passwd] = nil
       
-      flash[:error] = exception.message.root.elements['summary'].text
+      flash[:error] = @message
       
       redirect_to :controller => 'user', :action => 'login'
 #   when ActiveXML::Transport::ForbiddenError
