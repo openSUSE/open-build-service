@@ -19,7 +19,7 @@
       <xs:sequence>
         <xs:element ref="title"/>
         <xs:element ref="description"/>
-        <xs:element ref="person" maxOccurs="unbounded" />
+        <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
 	<xs:element minOccurs="0" maxOccurs="1" ref="notify"/>
 	<xs:element minOccurs="0" maxOccurs="1" ref="delete-notify"/>
 	<xs:element minOccurs="0" ref="url"/>
