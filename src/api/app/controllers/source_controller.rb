@@ -81,7 +81,7 @@ class SourceController < ApplicationController
 	    logger.debug "Added maintainer to new project, xml is now #{request_data}"
 	else
 	  # User is not allowed by global permission. 
-	  logger.debug "Not allowed to create new packages"
+	  logger.debug "Not allowed to create new projects"
 	end
       end
       
@@ -102,16 +102,14 @@ class SourceController < ApplicationController
   end
 
   def package_meta
+    #TODO: needs cleanup/split to smaller methods
     project = params[:project]
     package = params[:package]
     path = "/source/#{project}/#{package}/_meta"
 
     if request.get?
-
       @package = Package.find( package, :project => project )
-
     elsif request.put?
-
       allowed = false
       request_data = request.raw_post
       begin
@@ -119,28 +117,43 @@ class SourceController < ApplicationController
         @package = Package.find( package, :project => project )
 	
         # Being here means that the project already exists
-        allowed = permissions.package_change? project, @package
-      rescue Suse::Backend::NotFoundError
+        allowed = permissions.package_change? @package
+        if allowed
+          @package.raw_data = request_data
+        else
+          logger.debug "user #{user.login} has no permission to change package #{@package}"
+	  render_error( :message => "no permission to change package", :status => 403 )
+          return
+        end
+      rescue ActiveXML::Transport::NotFoundError
         # Ok, the project  is new
 	allowed = permissions.package_create?( project )
 	
-	if allowed
-	  request_data = check_and_add_maintainer request_data, "package"
-	else
-	  # User is not allowed by global permission.
-	  logger.debug "Not allowed to create new packages"
-	end
+        if allowed
+          #FIXME: parameters that get substituted into the url must be specified here... should happen
+          #somehow automagically... no idea how this might work
+          @package = Package.new( request_data, :project => project, :name => package )
+
+          # add package creator as maintainer if he is not added already
+          if not @package.has_element?( "person[@userid='#{user.login}]'" )
+            @package.add_person( :userid => user.login )
+          end
+        else
+          # User is not allowed by global permission.
+          logger.debug "Not allowed to create new packages"
+          render_error( :message => "no permission to create package for project #{project}", :status => 403 )
+          return
+        end
       end
       
       if allowed
-        Suse::Backend.put_source path, request_data
+        @package.save
         render_ok
       else
-        logger.debug "No permission to PUT on #{path}"
-	render_error( :message => "Permission Denied on package", :status => 403 )
+        logger.debug "user #{user.login} no permission to PUT on #{path}"
       end
     else
-      # neither put nor post
+      # neither put nor get
       #TODO: return correct error code
       render_error :message => "Illegal request: POST #{path}", :status => 500
     end
@@ -156,7 +169,7 @@ class SourceController < ApplicationController
     if request.get?
       forward_data path
     elsif request.put?
-      allowed = permissions.package_change? project, package
+      allowed = permissions.package_change? package, project
       if  allowed
         Suse::Backend.put_source path, request.raw_post
         render_ok

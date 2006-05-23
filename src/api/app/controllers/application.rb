@@ -152,6 +152,10 @@ class ApplicationController < ActionController::Base
     return @user_permissions
   end
 
+  def user
+    return @http_user
+  end
+
   def render_error( opt = {} )
     @errorcode = 500
 
