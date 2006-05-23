@@ -16,24 +16,18 @@ module Suse
     end
     
     def project_change?( project = nil )
-       # one is project admin if he has the permission Project_Admin or if he
-       # is the owner of the project
-       logger.debug "User #{@user.login} wants to change the project"
+      # one is project admin if he has the permission Project_Admin or if he
+      # is the owner of the project
+      logger.debug "User #{@user.login} wants to change the project"
 
-       if @user.has_permission( "global_project_change" )
-         return true
-       else
-         val = project_maintainers project
+      return true if @user.has_permission( "global_project_change" )
 
-         if val and val.find{ |u| u == @user.login }
-	   logger.debug "Returning true from project_change?"
-	   return true
-         end
-	   logger.debug "Returning false from project_change?"
-	   return false
-       end
+      valid_users = project_maintainers project
+      return true if valid_users.include? @user.login
+
+      return false
     end
-    
+
     # One may create a package if he either has the global_package_create
     # permission or if he is maintainer of the project.
     def package_create?( project )
@@ -42,11 +36,8 @@ module Suse
       return true if @user.has_permission( 'global_package_create' )
 	
       valid_users = project_maintainers project
-      return true if valid_users
-      if val and val.find{ |u| u == @user.login }
-	  return true 
-	end
-      end
+      return true if valid_users.include? @user.login
+      
       return false	
     end
     
