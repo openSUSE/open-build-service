@@ -44,6 +44,6 @@ ICHAIN_HOST = nil
 #RPM_PORT = 5252
 
 APIDOCS_LOCATION = "../../docs/api/html/"
-SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api")+"/"
+SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/frontend")+"/"
 
 EXTENDED_BACKEND_LOG = true

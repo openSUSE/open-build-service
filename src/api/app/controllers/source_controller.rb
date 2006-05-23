@@ -2,8 +2,8 @@ require "rexml/document"
 
 class SourceController < ApplicationController
   #TODO: nearly all validations fail, uncomment lines to activate validation
-  #validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
-  #validate_action :project_meta => :project, :package_meta => :package
+  validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
+  validate_action :project_meta => :project, :package_meta => :package
   
 
   def index
