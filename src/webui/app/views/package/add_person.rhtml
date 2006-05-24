@@ -1,4 +1,12 @@
-<h2>Add User (Project <%=h @project_name%>, Package <%=h @package%>)</h2>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+  link_to( @package, :action => :show, :project => @project, :package => @package ),
+  'Add User'
+]
+-%>
+<h2>Add User (Project <%=h @project%>, Package <%=h @package%>)</h2>
 
 <%= form_tag :action => :save_person %>
 <b>User ID:</b><br/>

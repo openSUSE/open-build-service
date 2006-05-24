@@ -250,8 +250,8 @@ class PackageController < ApplicationController
   end
 
   def add_person
-    @project_name = session[:project_name]
-    @package = Package.find( params[:package], :project => @project_name )
+    @project = params[:project]
+    @package = Package.find( params[:package], :project => @project )
     session[:package] = @package.name
   end
 

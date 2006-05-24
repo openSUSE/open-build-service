@@ -1,20 +1,20 @@
-<h2>Welcome to the openSUSE Build Service</h2>
+<h1 class="mainhead">Welcome to the openSUSE Build Service</h1>
 
-<p>This is the first preview of the openSUSE Build Service Frontend. It can
+<p class="description">This is the first preview of the openSUSE Build Service Frontend. It can
 build packages for various distributions. Most of the advanced features are
 still missing, but the basic build functionality is there.</p>
 
-<p>More information can be found in the openSUSE Wiki on the <a
+<p class="description">More information can be found in the openSUSE Wiki on the <a
 href="http://www.opensuse.org/Build_Service">Build Service pages</a>. If you would like to discuss the Build Service
 please use the <a href="mailto:opensuse-buildservice-subscribe@opensuse.org">opensuse-buildservice@opensuse.org</a> mailing
 list.</p>
 
-<p>Have fun experimenting with the openSUSE Build Service :-).</p>
+<p class="description">Have fun experimenting with the openSUSE Build Service :-).</p>
 
 <p>Proceed to:</p>
+
 <ul>
-<li><%= link_to "My Projects", :controller => "project",
-  :action => :list_my %></li>
-<li><%= link_to "List of Projects", :controller => "project",
-  :action => :list_all %></li>
+  <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
+  <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li>
+  <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
 </ul>

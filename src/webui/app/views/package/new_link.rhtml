@@ -1,3 +1,10 @@
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+  'Add Package Link'
+]
+-%>
 <h2>New Package Link in Project <%= @project.name %></h2>
 
 <p>By linking a package from another project you add the package and its files

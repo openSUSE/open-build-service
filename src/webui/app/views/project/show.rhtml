@@ -1,20 +1,25 @@
-<h2 id="mainhead">Project <%=h @project %></h2>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  @project.name
+]
+-%>
+
+<h2 id="mainhead"><%=h @project.title %></h2>
+<h4>Project ID: <%=h @project %></h4>
+
+<p>
 <% if session[:login] -%>
 <div id="watchlink">
   <%= render :partial => "watch_link" %>
 </div>
 <% end -%>
-
-<p>
-<b>Title:</b> <%=h @project.title %><br/>
-<b>Description:</b><br/>
-<%=h @project.description %><br/>
-<%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
-<!--
-<%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild', :project => @project %>
--->
 </p>
-<% logger.debug "<-- finished rendering project information" -%>
+
+<div class="description">
+<%=h @project.description %><br/>
+</div>
+<%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
 
 <p>
 <b>Targets:</b>&nbsp;&nbsp;<%= link_to "[Add Target]", :action => 'add_target',
@@ -71,7 +76,6 @@
   
 <% end -%>
 
-<% logger.debug "--> starting to render users" -%>
 <p>
 <h3>Involved Users</h3>
 <% if @project.has_element? :person -%>
@@ -105,7 +109,6 @@
 <%= link_to "[Add User]", :action => :add_person, :project => params[:project] %>
 </p>
 
-<% logger.debug "--> starting to render packages" -%>
 <p>
 <h3>Packages</h3>
 <% if @project.has_element? :package -%>

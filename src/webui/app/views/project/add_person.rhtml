@@ -1,3 +1,10 @@
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :action => :show, :project => @project ),
+  'Add User'
+]
+-%>
 <h2>Add User (Project <%=h @project.name%>)</h2>
 
 <%= form_tag :action => :save_person %>
