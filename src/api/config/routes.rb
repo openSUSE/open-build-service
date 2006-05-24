@@ -25,6 +25,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'result/:project/result', :controller => 'result',
     :action => 'projectresult'
+  map.connect 'result/:project/packstatus', :controller => 'result',
+    :action => 'packstatus'
   map.connect 'result/:project/:platform/result', :controller => 'result',
     :action => 'projectresult'
   map.connect 'result/:project/:platform/:package/result', :controller => 'result',

@@ -42,6 +42,21 @@ class ResultController < ApplicationController
     
   end
 
+  def packstatus
+    project = params[:project]
+
+    #bail if no GET
+    unless request.get?
+      render_error :message => "Illegal request method", :status => 500
+    end
+    logger.debug "retrieving package status for project '#{project}'"
+
+    packstatus = Packstatus.find(project)
+
+    response.headers["Content-Type"] = "text/xml"
+    render :text => packstatus.dump_xml
+  end
+
   def packageresult
     @project = params[:project]
     @repository = params[:platform]
