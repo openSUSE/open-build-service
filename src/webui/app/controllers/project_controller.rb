@@ -145,9 +145,33 @@ class ProjectController < ApplicationController
 
   def add_target
     @platforms = Platform.find( :all ).each_entry.map {|p| p.name.to_s}
+
+    @priority_platforms = %q{
+      FC4/standard
+      FC5/standard
+      Factory/standard
+      SL10.0/standard
+      SUSE:Factory/standard
+      SUSE:SL-10.0
+      SUSE:SL-10.1
+      Debian-etch/standard
+      Mandriva-2006/standard
+    }
     
     @platforms.sort! do |a,b|
-      a.downcase <=> b.downcase
+      if @priority_platforms.include? a
+        if @priority_platforms.include? b
+          a.downcase <=> b.downcase
+        else
+          -1
+        end
+      else
+        if @priority_platforms.include? b
+          1
+        else
+          a.downcase <=> b.downcase
+        end
+      end
     end
 
     @project = Project.find( params[:project] )

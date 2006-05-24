@@ -4,7 +4,7 @@
 <b>Name:</b><br/>
 <%= text_field_tag 'targetname', @targetname %><br/>
 <b>Platform:</b><br/>
-<%= select_tag 'platform', options_for_select(@platforms, @platform) %><br/>
+<%= select_tag 'platform', options_for_select(@platforms, @platform), {:size => 10} %><br/>
 <b>Architectures:</b><br/>
 <% [:i586, :x86_64].each do |arch| %>
 <%= check_box_tag "arch[#{arch}]", "", arch == :i586 %><%=arch%><br>
