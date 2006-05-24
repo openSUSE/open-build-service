@@ -10,33 +10,43 @@
   <!-- repo row -->
   <tr>
     <td></td>
-    <% @repolist.each do |repo| -%>
-    <% logger.debug "repo: #{repo.inspect}" -%>
-    <td colspan="<%=h repo.each_archresult.length %>"><%=h repo.name %></td>
+    <% @repohash.each do |repo,archlist| -%>
+    <td colspan="<%=h archlist.length %>"><%=h repo %></td>
     <% end -%>
   </tr>
   <!-- arch row -->
   <tr>
     <td></td>
-    <% @repolist.each do |repo| -%>
-    <% repo.each_archresult do |ar| -%>
-    <td><%=h ar.arch %></td>
+    <% @repohash.each do |repo, archlist| -%>
+    <% archlist.each do |arch| -%>
+    <td><%=h arch %></td>
     <% end -%>
     <% end -%>
   </tr>
   <!-- package rows -->
-  <% @packresults.each do |pack_name,repohash| -%>
+  <% @packagenames.each do |packname| -%>
   <tr>
-    <td><%= link_to pack_name, :controller => "package", :action => "show",
-      :package => pack_name, :project => @project.to_s %></td>
-    <% @repolist.each do |repo| -%>
-    <% repohash[repo.name].each_archresult do |ar| -%>
-    <td id="<%= status_id_for(pack_name, repo.name, ar.arch)%>"><%=h ar.status.code %></td>
+    <td><%= link_to packname, :controller => "package", :action => "show",
+      :package => packname, :project => @project.to_s %></td>
+    <% @repohash.each do |repo, archlist| -%>
+    <% archlist.each do |arch| -%>
+    <td id="<%= status_id_for(packname, repo, arch)%>">
+      <%=h @packstatus.status_for( packname, repo, arch ) %>
+    </td>
     <% end -%>
     <% end -%>
   </tr>
   <% end -%>
 </table>
 <p><div id="refresh_date">Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></div></p>
+
+<div id="start_link">
+<%= periodically_call_remote(
+        :url => {:action => :refresh_monitor, :project => @project},
+        :after => "new Effect.Fade('start_link')",
+        :frequency => 5,
+        :complete => evaluate_remote_response )%>
+</div>
+</p>
 
 <%= link_to "[Back to #{@project}]", :action => :show, :project => @project %>

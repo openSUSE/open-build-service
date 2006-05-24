@@ -68,6 +68,7 @@ class ApplicationController < ActionController::Base
         if login and passwd
           session[:login] = login  
           session[:passwd] = passwd
+          session[:user] = Person.find( login )
         end
       end
     end
@@ -80,6 +81,12 @@ class ApplicationController < ActionController::Base
 
     # pass credentials to transport plugin
     ActiveXML::Config.transport_for(:project).login session[:login], session[:passwd]
+    if session[:user]
+      @user = session[:user]
+    else
+      session[:user] = Person.find( session[:login] )
+      @user = session[:user]
+    end
   end
 
   def rescue_action_in_public( exception )
@@ -88,7 +95,7 @@ class ApplicationController < ActionController::Base
     #try to parse error message
     api_error = REXML::Document.new( exception.message ).root
 
-    if api_error.name == "status"
+    if api_error and api_error.name == "status"
       @code = api_error.attributes['code']
       @message = api_error.elements['summary'].text
       @details = api_error.elements['details'].text if api_error.elements['details']

@@ -1,11 +1,10 @@
 <h2 id="mainhead">Project <%=h @project %></h2>
-<% if @user -%>
+<% if session[:login] -%>
 <div id="watchlink">
   <%= render :partial => "watch_link" %>
 </div>
 <% end -%>
 
-<% logger.debug "--> starting to render project information" -%>
 <p>
 <b>Title:</b> <%=h @project.title %><br/>
 <b>Description:</b><br/>

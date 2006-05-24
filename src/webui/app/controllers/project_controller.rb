@@ -252,36 +252,54 @@ class ProjectController < ApplicationController
   end
 
   def monitor
-    @project = Project.find( params[:project] )
-    @projectresult = Result.find( :project => params[:project] )
-    @packresults = Hash.new
-    @repolist = Array.new
+    #@project = Project.find( params[:project] )
+    #@projectresult = Result.find( :project => params[:project] )
+    #@packresults = Hash.new
+    #@repolist = Array.new
 
-    @project.each_package do |pack|
-      @packresults[pack.name] = Hash.new
-      @project.each_repository do |repo|
-        @packresults[pack.name][repo.name] = Result.find( :project => params[:project], :package => pack.name, :platform => repo.name )
-      end
+    #@project.each_package do |pack|
+    #  @packresults[pack.name] = Hash.new
+    #  @project.each_repository do |repo|
+    #    @packresults[pack.name][repo.name] = Result.find( :project => params[:project], :package => pack.name, :platform => repo.name )
+    #  end
+    #end
+    #@repolist = @projectresult.each_repositoryresult
+   
+    @project = params[:project] 
+    @packstatus = Packstatus.find( :project => @project )
+
+    @repohash = Hash.new
+    @packstatus.each_packstatuslist do |psl|
+      @repohash[psl.repository] ||= Array.new
+      @repohash[psl.repository] << psl.arch
     end
-    @repolist = @projectresult.each_repositoryresult
 
-    session[:monitor_project] = params[:project]
-    session[:monitor_repolist] = @repolist.map {|repo| repo.name}
-    session[:monitor_packlist] = @packresults.keys
+    @packagenames = Array.new
+    @packstatus.packstatuslist.each_packstatus do |ps|
+      @packagenames << ps.name
+    end
+    
+    session[:monitor_project] = @project
+    session[:monitor_repohash] = @repohash
+    session[:monitor_packnames] = @packagenames
   end
 
   def refresh_monitor
-    render :nothing unless session[:monitor_packlist] and
-                           session[:monitor_repolist] and
-                           session[:monitor_project]
+    render :nothing unless session[:monitor_project] and
+                           session[:monitor_repohash] and
+                           session[:monitor_packnames]
 
     @project = session[:monitor_project]
+    @repohash = session[:monitor_repohash]
+    @packnames = session[:monitor_packnames]
+
+    @packstatus = Packstatus.find( :project => @project )
+    
     @status = Hash.new
-    session[:monitor_packlist].each do |pack|
-      session[:monitor_repolist].each do |platform|
-        repo = Result.find( :project => session[:monitor_project], :package => pack, :platform => platform )
-        repo.each_archresult do |ar|
-          @status["#{pack}:#{platform}:#{ar.arch}"] = ar.status.code
+    @packnames.each do |pack|
+      @repohash.each do |repo,archlist|
+        archlist.each do |arch|
+          @status["#{pack}:#{repo}:#{arch}"] = @packstatus.status_for( pack, repo, arch )
         end
       end
     end
