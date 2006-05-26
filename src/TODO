@@ -8,13 +8,13 @@ o: Medium priority
 Web Client
 ----------
 
++ redesign repository selection
 + Tests (functional and performance) (tom)
 + Hide "new project" action for non-admin users
 + Visual design (garrett)
 + Reenable platform editing
 + Feedback page (betameter?)
 + Don't show actions the user doesn't have permission for (bug #163309)
-+ Change build status page so that it doesn't DOS the backend
 o Better error messages (bug #165107)
 o Integrate build monitor into project overview page
 o Split packages in project display page to multiple pages
