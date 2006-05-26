@@ -20,12 +20,12 @@ config.action_mailer.raise_delivery_errors = false
 
 BREAKPOINT_SERVER_PORT=42532
 
-#SOURCE_HOST = "buildservice.suse.de"
-SOURCE_HOST = "localhost"
+SOURCE_HOST = "buildservice.suse.de"
+#SOURCE_HOST = "localhost"
 SOURCE_PORT = 6362
 
-#RPM_HOST = "buildservice.suse.de"
-RPM_HOST = "localhost"
+RPM_HOST = "buildservice.suse.de"
+#RPM_HOST = "localhost"
 RPM_PORT = 6262
 
 #
