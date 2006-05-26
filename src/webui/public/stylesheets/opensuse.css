@@ -452,6 +452,7 @@ table.targets { }
 .description {
     font-size: 110%;
     margin: 1em 0 2em;
+    white-space: pre;
 }
 
 .star-rating {
