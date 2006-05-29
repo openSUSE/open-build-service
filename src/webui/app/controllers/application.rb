@@ -68,7 +68,6 @@ class ApplicationController < ActionController::Base
         if login and passwd
           session[:login] = login  
           session[:passwd] = passwd
-          session[:user] = Person.find( login )
         end
       end
     end
@@ -77,16 +76,14 @@ class ApplicationController < ActionController::Base
       # if we still do not have a user in the session it's time to redirect.
       session[:return_to] = request.request_uri
       redirect_to :controller => 'user', :action => 'login'
+      return
     end
 
     # pass credentials to transport plugin
     ActiveXML::Config.transport_for(:project).login session[:login], session[:passwd]
-    if session[:user]
-      @user = session[:user]
-    elsif session[:login]
-      session[:user] = Person.find( session[:login] )
-      @user = session[:user]
-    end
+    
+    # set user object reachable from controller
+    @user = Person.find( session[:login] )
   end
 
   def rescue_action_in_public( exception )
