@@ -19,40 +19,6 @@
   <% end -%>
 </ul>
 <div id="body">
-  <div id="side">
-    <div id="externallinks">
-      <a href="http://www.opensuse.org">openSUSE Home</a>
-    </div>
-    <div id="staticlinks">
-      <%= link_to "Build Service Home", :controller => "main",
-        :action => :index %><br/>
-      <%= link_to "All Platforms", :controller => "platform",
-        :action => :list_all %><br/>
-      <%= link_to "All Projects", :controller => "project",
-        :action => :list_public %><br/>
-      <%= link_to "About", :controller => "main", :action => :about %><br/>
-    </div>
-    <div id="dynamiclinks">
-      <% if logged_in? %>
-        <%= link_to "My Home", :controller => "home" %><br/>
-        <%= link_to_home_project %><br/>
-        <%= link_to "My Projects", :controller => "project",
-          :action => :list_my %><br/>
-      <% end %>
-      <%= link_to_if @project, @project, :controller => "project",
-        :action => :show,
-        :project => @project %>
-    </div>
-    <div id="loginlinks">
-      <% if logged_in? %>
-        Logged in as 
-        <%= link_to session[:login], { :controller => "home", :action => "index" } %>
-
-      <% else %>
-        <%= link_to "Create Account", :controller => "main", :action => "accountinfo" %>
-      <% end %>
-    </div>
-  </div>
   <div id="content">
     <% if flash[:note] %>
     <div id="notice"><%=h flash[:note] %></div>

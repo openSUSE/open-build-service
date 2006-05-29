@@ -83,7 +83,7 @@ class ApplicationController < ActionController::Base
     ActiveXML::Config.transport_for(:project).login session[:login], session[:passwd]
     if session[:user]
       @user = session[:user]
-    else
+    elsif session[:login]
       session[:user] = Person.find( session[:login] )
       @user = session[:user]
     end
