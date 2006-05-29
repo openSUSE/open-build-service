@@ -30,8 +30,6 @@ class PackageController < ApplicationController
           end
         end
 
-        session[:project_name] = project
-
         @results = []
         @project.each_repository do |repository|
           result = Result.find( :project => project, :package => package,
@@ -194,8 +192,6 @@ class PackageController < ApplicationController
   def add_file
     @project = Project.find( params[:project] )
     @package = Package.find( params[:package], :project => params[:project] )
-    session[:project] = @project.name
-    session[:package] = @package.name
 
     begin
       Link.find( :project => @project.name, :package => @package.name )
@@ -206,8 +202,8 @@ class PackageController < ApplicationController
   end
 
   def save_file
-    @project = Project.find( session[:project] )
-    @package = Package.find( session[:package], :project => @project )
+    @project = Project.find( params[:project] )
+    @package = Package.find( params[:package], :project => @project )
 
     file = params[:file]
     if params[:filename].empty?
@@ -252,7 +248,6 @@ class PackageController < ApplicationController
   def add_person
     @project = params[:project]
     @package = Package.find( params[:package], :project => @project )
-    session[:package] = @package.name
   end
 
   def save_person
@@ -271,8 +266,8 @@ class PackageController < ApplicationController
       return
     end
 
-    @project_name = session[:project_name]
-    @package = Package.find( session[:package], :project => @project_name )
+    @project = params[:project]
+    @package = Package.find( params[:package], :project => @project )
     @package.add_person( :userid => params[:userid], :role => params[:role] )
 
     if @package.save

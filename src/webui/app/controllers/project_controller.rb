@@ -59,7 +59,6 @@ class ProjectController < ApplicationController
     end
 
     @project_name = @project.name
-    session[:project] = @project.name
 
     begin
       result = Result.find( :project => params[:project] )
@@ -108,7 +107,6 @@ class ProjectController < ApplicationController
 
   def edit
     @project = Project.find( params[:project] )
-    session[:project] = @project.name
   end
 
   def trigger_rebuild
@@ -122,7 +120,7 @@ class ProjectController < ApplicationController
   end
 
   def save
-    @project = Project.find( session[:project] )
+    @project = Project.find( params[:project] )
 
     if ( !params[:title] )
       flash[:error] = "Title must not be empty"
@@ -138,7 +136,6 @@ class ProjectController < ApplicationController
     else
       flash[:note] = "Failed to save project '#{@project}'"
     end
-    session[:project] = nil
 
     redirect_to :action => 'show', :project => @project
   end
@@ -177,11 +174,10 @@ class ProjectController < ApplicationController
     @project = Project.find( params[:project] )
     @targetname = params[:targetname]
     @platform = params[:platform]
-    session[:project] = @project.name
   end
 
   def save_target
-    @project = Project.find( session[:project] )
+    @project = Project.find( params[:project] )
     platform = params[:platform]
     arch = params[:arch]
     targetname = params[:targetname]
@@ -225,7 +221,6 @@ class ProjectController < ApplicationController
 
   def add_person
     @project = Project.find( params[:project] )
-    session[:project] = @project.name
   end
 
   def save_person
@@ -245,7 +240,7 @@ class ProjectController < ApplicationController
     
     logger.debug "found user: #{user.inspect}"
     
-    @project = Project.find( session[:project] )
+    @project = Project.find( params[:project] )
     @project.add_person( :userid => params[:userid], :role => params[:role] )
 
     if @project.save
@@ -338,7 +333,7 @@ class ProjectController < ApplicationController
     end
     
     @user = Person.find( :login => session[:login] )
-    @project_name = session[:project]
+    @project_name = params[:project]
     
     if @user.watches? @project_name
       @user.remove_watched_project @project_name
