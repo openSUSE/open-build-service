@@ -19,11 +19,23 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo'
 
+  map.connect 'rpm/:project/:repository/:arch/:package/history',
+    :controller => 'rpm',
+    :action => 'pass_to_repo'
+
+  map.connect 'rpm/:project/:repository/:arch/:package/buildinfo',
+    :controller => 'rpm',
+    :action => 'pass_to_repo'
+
+  map.connect 'rpm/:project/:repository/:arch/:package/status',
+    :controller => 'rpm',
+    :action => 'pass_to_repo'
+
   map.connect 'rpm/:project/:repository/:package/:arch/:file',
     :controller => 'rpm',
     :action => 'file'
 
-
+  
   map.connect 'result/:project/result', :controller => 'result',
     :action => 'projectresult'
   map.connect 'result/:project/packstatus', :controller => 'result',

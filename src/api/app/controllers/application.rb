@@ -131,7 +131,17 @@ class ApplicationController < ActionController::Base
   end
 
   def forward_data( path, opt={} )
-    response = Suse::Backend.get( path )
+    defaults = {:server => :source}
+    opt = defaults.merge opt
+
+    if opt[:server] == :source
+      response = Suse::Backend.get( path )
+    elsif opt[:server] == :repo
+      response = Suse::Backend.get_rpm( path )
+    else
+      raise "illegal server type: #{opt[:server].inspect}"
+    end
+
     send_data( response.body, :type => response.fetch( "content-type" ),
       :disposition => "inline" )
   end
@@ -218,6 +228,11 @@ class ApplicationController < ActionController::Base
 
   def backend_put( path, data )
     backend.direct_http( URI(path), :method => "PUT", :data => data )
+  end
+
+  #default action, passes data from backend
+  def pass_to_repo
+    forward_data @request.path+'?'+@request.query_string, :server => :repo
   end
 
   def ichain_host
