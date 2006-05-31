@@ -90,7 +90,10 @@ class ApplicationController < ActionController::Base
     logger.debug "rescue_action_in_public: caught #{exception.class}: #{exception.message}"
 
     #try to parse error message
-    api_error = REXML::Document.new( exception.message ).root
+    begin
+      api_error = REXML::Document.new( exception.message ).root
+    rescue
+    end
 
     if api_error and api_error.name == "status"
       @code = api_error.attributes['code']

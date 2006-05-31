@@ -35,4 +35,21 @@ module ProjectHelper
     @user.watches?(@project_name) ? "[Don't watch this project]" : "[Watch this project]"
   end
 
+  def format_packstatus_for( repo, arch )
+    logger.debug "starting format_packstatus_for"
+    ret = String.new
+    logger.debug "looking for packstatuslist for '#{repo}/#{arch}' (repo/arch)"
+    psl = @packstatus.packstatuslist("@repository='#{repo}' and @arch='#{arch}'")
+    logger.debug "psl is: #{psl.inspect}"
+    if psl.nil?
+      ret << "inactive<br>"
+    else
+      psl.each_packstatussummary do |pss|
+        ret << "#{pss.status}: #{pss.count}<br>\n"
+      end
+    end
+    logger.debug "returning: #{ret.inspect}"
+    return ret
+  end
+
 end

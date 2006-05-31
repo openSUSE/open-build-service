@@ -20,7 +20,7 @@ input[type=text] {
 }
 
 textarea {
-  width: 80%
+  width: 95%
 }
 
 #banner {
@@ -51,38 +51,8 @@ textarea {
   float: right;
 }
 
-#notice {
-  margin: 3px;
-  color: #f22;
-}
-
-#error {
-  margin: 3px;
-  color: #f22;
-}
-
 #main {
   border-top: 2px solid black;
-}
-
-#externallinks {
-  border-bottom: 2px solid;
-  padding: 1em;
-}
-
-#staticlinks {
-  border-bottom: 2px solid;
-  padding: 1em;
-}
-
-#dynamiclinks {
-  border-bottom: 2px solid;
-  padding: 1em;
-}
-
-#loginlinks {
-  border-bottom: 2px solid;
-  padding: 1em;
 }
 
 /* Adaptions of old style to new style */
@@ -452,7 +422,7 @@ table.targets { }
 .description {
     font-size: 110%;
     margin: 1em 0 2em;
-    white-space: pre;
+    /*white-space: pre-wrap;*/
 }
 
 .star-rating {

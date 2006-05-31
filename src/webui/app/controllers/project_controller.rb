@@ -14,6 +14,7 @@ class ProjectController < ApplicationController
   end
 
   def list_public
+    logger.debug "inside list_public"
     projectlist = Project.find(:all).each_entry.sort do |a,b|  
       a.name.downcase <=> b.name.downcase 
     end
@@ -42,43 +43,34 @@ class ProjectController < ApplicationController
   end
 
   def show
-# @user = Person.find( :login => session[:login] ) if session[:login]
     begin
       @project = Project.find( params[:project] )
     rescue ActiveXML::Transport::NotFoundError
+      # create home project if none is there
+      logger.debug "caught Transport::NotFoundError in ProjectController#show"
       home_project = "home:" + session[:login]
       if params[:project] == home_project
         flash[:note] = "Home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
         redirect_to :action => :new, :project => home_project
       else
+        logger.debug "Project does not exist"
         flash[:error] = "Project #{params[:project]} doesn't exist."
-        redirect_to :action => list_public
+        redirect_to :action => :list_public
       end
       return
     end
 
-    @project_name = @project.name
-
-    begin
-      result = Result.find( :project => params[:project] )
-      if ( result )
-        @status = result.status.code
-        @package_counts = Hash.new
-        result.status.each_packagecount do |c|
-          @package_counts[ c.state ] = c
-        end
-
-        @status_map = Hash.new
-        result.each_repositoryresult do |r|
-          @status_map[ r.name ] = Hash.new
-          r.each_archresult do |a|
-            @status_map[ r.name ][ a.arch ] = a.status.code
-          end
-        end
+    tmp = Hash.new
+    @project.each_repository do |repo|
+      repo.each_arch do |arch|
+        tmp[arch.to_s] = 1
       end
-    rescue ActiveXML::Transport::NotFoundError
     end
+
+    @arch_list = tmp.keys.sort
+
+    @packstatus = Packstatus.find( params[:project], :command => 'summaryonly' )
   end
 
   def save_new
@@ -98,7 +90,7 @@ class ProjectController < ApplicationController
       if @project.save
         flash[:note] = "Project '#{@project}' was created successfully"
       else
-        flash[:note] = "Failed to save project '#{@project}'"
+        flash[:error] = "Failed to save project '#{@project}'"
       end
 
       redirect_to :action => 'show', :project => params[:name]
@@ -114,7 +106,7 @@ class ProjectController < ApplicationController
     if @project.save
       flash[:note] = "Triggered rebuild"
     else
-      flash[:note] = "Failed to trigger rebuild"
+      flash[:error] = "Failed to trigger rebuild"
     end
     redirect_to :action => 'show', :project => params[:project]
   end
@@ -134,7 +126,7 @@ class ProjectController < ApplicationController
     if @project.save
       flash[:note] = "Project '#{@project}' was saved successfully"
     else
-      flash[:note] = "Failed to save project '#{@project}'"
+      flash[:error] = "Failed to save project '#{@project}'"
     end
 
     redirect_to :action => 'show', :project => @project
@@ -143,6 +135,7 @@ class ProjectController < ApplicationController
   def add_target
     @platforms = Platform.find( :all ).each_entry.map {|p| p.name.to_s}
 
+    #TODO: don't hardcode
     @priority_platforms = %q{
       FC4/standard
       FC5/standard
@@ -184,7 +177,7 @@ class ProjectController < ApplicationController
     targetname = "standard" if not targetname or targetname.empty?
 
     if targetname =~ /\s/
-      flash[:note] = "Target name may not contain spaces"
+      flash[:error] = "Target name may not contain spaces"
       redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
       return
     end
@@ -195,7 +188,7 @@ class ProjectController < ApplicationController
     if @project.save
       flash[:note] = "Target '#{platform}' was added successfully"
     else
-      flash[:note] = "Failed to add target '#{platform}'"
+      flash[:error] = "Failed to add target '#{platform}'"
     end
 
     redirect_to :action => :show, :project => @project
@@ -213,7 +206,7 @@ class ProjectController < ApplicationController
     if @project.save
       flash[:note] = "Target '#{params[:target]}' was removed"
     else
-      flash[:note] = "Failed to remove target '#{params[:target]}'"
+      flash[:error] = "Failed to remove target '#{params[:target]}'"
     end
 
     redirect_to :action => :show, :project => @project
@@ -246,7 +239,7 @@ class ProjectController < ApplicationController
     if @project.save
       flash[:note] = "added user #{params[:userid]}"
     else
-      flash[:note] = "Failed to add user '#{params[:userid]}'"
+      flash[:error] = "Failed to add user '#{params[:userid]}'"
     end
 
     redirect_to :action => :show, :project => @project
@@ -264,7 +257,7 @@ class ProjectController < ApplicationController
     if @project.save
       flash[:note] = "removed user #{params[:userid]}"
     else
-      flash[:note] = "Failed to remove user '#{params[:userid]}'"
+      flash[:error] = "Failed to remove user '#{params[:userid]}'"
     end
 
     redirect_to :action => :show, :project => params[:project]
@@ -352,7 +345,7 @@ class ProjectController < ApplicationController
   
   def check_parameter_project
     if ( !params[:project] )
-      flash[:note] = "Missing parameter 'project'"
+      flash[:error] = "Missing parameter 'project'"
       redirect_to :action => :list_public
     elsif !valid_project_name?( params[:project] )
       flash[:error] = "Invalid project name '#{params[:project]}'"

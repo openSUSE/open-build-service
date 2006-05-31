@@ -5,11 +5,16 @@
   <%= stylesheet_link_tag "opensuse", :media => "all" %>
   <%= javascript_include_tag 'prototype', 'effects' %>
 </head>
-<body class=project>
+<body class="project">
+
 <div id="header">
-  <h1 id="logo"><a href="/"><img src="/images/logo-builder-2.png"
-    alt="openSUSE build service"></a></h1>
+  <h1 id="logo"><a href="/"><img src="/images/logo-builder-2.png" alt="openSUSE build service"></a></h1>
+  <div id="login">
+    Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
+    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
+  </div>
 </div>
+
 <ul id="crumbs" class="nav">
   <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
   <% if @crumb_list -%>
@@ -18,13 +23,15 @@
   <% end -%>
   <% end -%>
 </ul>
+
 <div id="body">
   <div id="content">
+
     <% if flash[:note] %>
-    <div id="notice"><%=h flash[:note] %></div>
+    <div class="message info"><%=h flash[:note] %></div>
     <% end %>
     <% if flash[:error] %>
-    <div id="error"><%=h flash[:error] %></div>
+    <div class="message error"><%=h flash[:error] %></div>
     <% end %>
     <%= @content_for_layout %>
   </div>
