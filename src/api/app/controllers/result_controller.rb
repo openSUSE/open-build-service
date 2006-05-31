@@ -51,10 +51,20 @@ class ResultController < ApplicationController
     end
     logger.debug "retrieving package status for project '#{project}'"
 
-    packstatus = Packstatus.find(project)
+=begin
+    packstatus = Packstatus.find(project, :summaryonly => false)
 
     response.headers["Content-Type"] = "text/xml"
     render :text => packstatus.dump_xml
+=end
+    if params.has_key? :summary
+      query = "summary"
+    elsif params.has_key? :summaryonly
+      query = "summaryonly"
+    end
+    
+    path = "/status/#{project}?#{query}"
+    forward_data path
   end
 
   def packageresult
