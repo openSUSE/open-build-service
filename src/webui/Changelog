@@ -83,3 +83,44 @@ Tue May 02 16:51:29 CEST 2006 - bauersman
 - removed highlight effect from build monitor (problems with konqueror)
 
 
+------------------------------------------------------------------------
+Wed May 31 15:40:27 CEST 2006 - bauersman
+
+- update from svn revision 207 to 315
+- show error details on error page
+- target names containing spaces are not allowed anymore
+- Link#has_patch? now checks for existing 'patches' elements before
+  iterating over them
+- Fix display of packages with patches.
+- Revert disabling of Admin check.
+- merged/adapted changes from activexml branch
+- projects are sorted case-insensitive on list_all and list_public pages
+- targets are sorted alphabetically in target combobox
+- Fix trigger rebuild.
+- Make it possible to link package to a different package name.
+- update to rails 1.1.2
+- frontend/webclient allows login names containing spaces (bug #154426)
+- fixed webclient error template
+- fixed bug in exception handling
+- fixed deleting files
+- svn:ignore
+- changed save order when creating a new package (package first, then
+  project)
+- small bugfixes
+- removed autoupdate link from build status page
+- using new packstatus for status monitor
+- repaired watchme link on project page
+- added packstatus model
+- targets get sorted by priority (standard targets first)
+- targets are selected using a multiline select box
+- implemented parts of new design (stylesheet, breadcrumb navigation)
+  
+- preserve whitespace in description area
+- removed side menu
+- use parameters instead of session values to store project/package names
+  between requests (fixes bug #179576)
+- removed user metadata caching in webclient
+- implementing new design
+- add monitor link
+
+
