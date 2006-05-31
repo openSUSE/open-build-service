@@ -56,3 +56,37 @@ Fri Apr 28 14:18:52 CEST 2006 - bauersman
 - reset backend host settings on every request
 
 
+------------------------------------------------------------------------
+Wed May 31 15:39:12 CEST 2006 - bauersman
+
+- update from svn revision 181 to 313
+- merged/adapted changes from activexml branch
+- projects are sorted case-insensitive on list_all and list_public pages
+- targets are sorted alphabetically in target combobox
+- Fix trigger rebuild.
+- update to rails 1.1.2
+- updated engines plugin
+- updated active_rbac engine
+- using ActiveXML in more parts in the frontend
+- frontend/webclient allows login names containing spaces (bug #154426)
+- fixed webclient error template
+- changed source controller to use activexml
+- cleaned up permission module
+- forgot to save... *blushes*
+- cleanup
+- moved package meta handling to activexml
+- enabled schema validation for metadata
+- using activexml in project meta handling
+- new command: /result/:package/packstatus returns cumulative status
+  codes for all packages in project
+- bugfix in watched projects handling
+- reverting backend settings
+- packstatus model for frontend
+- handle case that password field in basic auth string is empty
+- route for registering new users
+- added pass_to_* methods to application.rb to pass requests to the
+  backend without changing content or path
+- added some pass_to routes
+- using forward_data for packstatus
+
+
