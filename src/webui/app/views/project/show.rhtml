@@ -121,6 +121,13 @@
 
       <% end #has_element? -%>
       <p><%= link_to "[Add Target]", :action => 'add_target', :project => @project %></p>
+      
+      <% if @project.has_element?(:package) and @project.has_element?(:repository) -%>
+      <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
+      <% else -%>
+      <p><i>Add packages/targets to enable the build monitor</i></p>
+      <% end -%>
+
     </td>
 
 </table>
