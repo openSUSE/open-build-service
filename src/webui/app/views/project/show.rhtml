@@ -8,16 +8,13 @@
 <h2 id="mainhead"><%=h @project.title %></h2>
 <h4>Project ID: <%=h @project %></h4>
 
-<%= render :partial => "star_rating" %>
-
 <%= render :partial => "watch_link" %>
 
-
 <div class="description">
-  <% if @project.description =~ /\S/ -%>
-  <%=h @project.description %><br/>
-  <% else -%>
+  <% if @project.description =~ /\s/ -%>
   <i>No description set</i>
+  <% else -%>
+  <%=h @project.description %><br/>
   <% end -%>
 </div>
 <%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>

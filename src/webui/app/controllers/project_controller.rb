@@ -264,23 +264,14 @@ class ProjectController < ApplicationController
   end
 
   def monitor
-    #@project = Project.find( params[:project] )
-    #@projectresult = Result.find( :project => params[:project] )
-    #@packresults = Hash.new
-    #@repolist = Array.new
-
-    #@project.each_package do |pack|
-    #  @packresults[pack.name] = Hash.new
-    #  @project.each_repository do |repo|
-    #    @packresults[pack.name][repo.name] = Result.find( :project => params[:project], :package => pack.name, :platform => repo.name )
-    #  end
-    #end
-    #@repolist = @projectresult.each_repositoryresult
-   
     @project = params[:project] 
     @packstatus = Packstatus.find( :project => @project )
 
     @repohash = Hash.new
+    if not @packstatus.has_element? :packstatuslist
+      @packstatus_unavailable = true
+      return  
+    end
     @packstatus.each_packstatuslist do |psl|
       @repohash[psl.repository] ||= Array.new
       @repohash[psl.repository] << psl.arch

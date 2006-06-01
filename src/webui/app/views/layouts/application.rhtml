@@ -8,7 +8,7 @@
 <body class="project">
 
 <div id="header">
-  <h1 id="logo"><a href="/"><img src="/images/logo-builder-2.png" alt="openSUSE build service"></a></h1>
+  <h1 id="logo"><a href="/"><img src="/images/logo-buildservice.png" alt="openSUSE build service"></a></h1>
   <div id="login">
     Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>

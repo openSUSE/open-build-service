@@ -36,11 +36,13 @@ module ProjectHelper
   end
 
   def format_packstatus_for( repo, arch )
-    logger.debug "starting format_packstatus_for"
+    #logger.debug "starting format_packstatus_for"
     ret = String.new
-    logger.debug "looking for packstatuslist for '#{repo}/#{arch}' (repo/arch)"
+    #logger.debug "looking for packstatuslist for '#{repo}/#{arch}' (repo/arch)"
+    return unless @packstatus.has_element? :packstatuslist
+
     psl = @packstatus.packstatuslist("@repository='#{repo}' and @arch='#{arch}'")
-    logger.debug "psl is: #{psl.inspect}"
+    #logger.debug "psl is: #{psl.inspect}"
     if psl.nil?
       ret << "inactive<br>"
     else
@@ -48,7 +50,7 @@ module ProjectHelper
         ret << "#{pss.status}: #{pss.count}<br>\n"
       end
     end
-    logger.debug "returning: #{ret.inspect}"
+    #logger.debug "returning: #{ret.inspect}"
     return ret
   end
 

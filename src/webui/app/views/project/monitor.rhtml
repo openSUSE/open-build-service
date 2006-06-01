@@ -12,8 +12,11 @@
 <% if @result -%>
 <b>Build Status:</b> <%=h @projectresult.status %><br/>
 <% end -%>
-<b>Targets:</b>
-  
+
+
+<% if @packstatus_unavailable -%>
+<h3>Buildstatus unavailable</h3>
+<% else -%>
 <table border="1">
   <!-- repo row -->
   <tr>
@@ -49,12 +52,8 @@
 <p><div id="refresh_date">Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></div></p>
 
 <div id="start_link">
-<%= periodically_call_remote(
-        :url => {:action => :refresh_monitor, :project => @project},
-        :after => "new Effect.Fade('start_link')",
-        :frequency => 5,
-        :complete => evaluate_remote_response )%>
 </div>
 </p>
+<% end -%>
 
 <%= link_to "[Back to #{@project}]", :action => :show, :project => @project %>
