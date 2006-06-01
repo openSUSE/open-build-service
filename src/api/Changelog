@@ -90,3 +90,14 @@ Wed May 31 15:39:12 CEST 2006 - bauersman
 - using forward_data for packstatus
 
 
+------------------------------------------------------------------------
+Thu Jun 01 19:52:20 CEST 2006 - bauersman
+
+- update from svn revision 315 to 425
+- added favicon from opensuse wiki
+- added support for parameters rev/comment/user parameters on some paths
+- added commit command on /source/:project/:package path
+  
+  
+
+
