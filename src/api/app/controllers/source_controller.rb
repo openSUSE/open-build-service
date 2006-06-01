@@ -22,13 +22,22 @@ class SourceController < ApplicationController
   def index_package
     project = params[:project]
     package = params[:package]
+    rev = params[:rev]
+    user = params[:user]
+    comment = params[:comment]
+
+    path = "/source/#{project}/#{package}"
+
     if request.get?
-      forward_data "/source/#{project}/#{package}"
+      query_string = URI.escape("rev=#{rev}") if rev
+      path += "?#{query_string}" unless query_string.empty?
+
+      forward_data path
     elsif request.post?
       cmd = params[:cmd]
       logger.debug "CMD: #{cmd}"
       if cmd == "createSpecFileTemplate"
-        specfile_path = "/source/#{project}/#{package}/#{package}.spec"
+        specfile_path = "#{path}/#{package}.spec"
         begin
           backend_get( specfile_path )
           render_error :status => 403, :message => "SPEC file already exists."
@@ -47,6 +56,14 @@ class SourceController < ApplicationController
           end
         end
         render_ok
+      elsif cmd == "commit"
+        query << URI.escape("rev=#{rev}") if rev
+        query << URI.escape("user=#{user}") if user
+        query << URI.escape("comment=#{comment}") if comment
+        query_string = query.join('&')
+        path += "?#{query_string}" unless query_string.empty?
+
+        forward_data path
       else
         render_error :status => 404, :message => "Unknow command: #{cmd}"
       end
@@ -172,17 +189,33 @@ class SourceController < ApplicationController
       render_error :message => "Illegal request: POST #{path}", :status => 500
     end
   end
-  
+
   def file
     project = params[ :project ]
     package = params[ :package ]
     file = params[ :file ]
+    rev = params[:rev]
+    user = params[:user]
+    comment = params[:comment]
+
     
     path = "/source/#{project}/#{package}/#{file}"
+    query = Array.new
+    query = nil
+    query_string = ""
 
     if request.get?
+      query_string = URI.escape("rev=#{rev}") if rev
+      path += "?#{query_string}" unless query_string.empty?
+
       forward_data path
     elsif request.put?
+      query << URI.escape("rev=#{rev}") if rev
+      query << URI.escape("user=#{user}") if user
+      query << URI.escape("comment=#{comment}") if comment
+      query_string = query.join('&')
+      path += "?#{query_string}" unless query_string.empty?
+      
       allowed = permissions.package_change? package, project
       if  allowed
         Suse::Backend.put_source path, request.raw_post
@@ -191,6 +224,12 @@ class SourceController < ApplicationController
         render_error :message => "Permission denied on package write file", :status => 403 
       end
     elsif request.delete?
+      query << URI.escape("rev=#{rev}") if rev
+      query << URI.escape("user=#{user}") if user
+      query << URI.escape("comment=#{comment}") if comment
+      query_string = query.join('&')
+      path += "?#{query_string}" unless query_string.empty?
+      
       Suse::Backend.delete path
       render_ok
     end

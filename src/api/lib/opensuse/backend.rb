@@ -104,6 +104,7 @@ module Suse
       end
 
       def do_get( host, port, path )
+        logger.debug "XXX Path: #{path}"
         response = Net::HTTP.get_response( host, path, port )
         write_backend_log( "GET", host, port, path, response, response.body )
         handle_response response

@@ -20,13 +20,17 @@ config.action_mailer.raise_delivery_errors = false
 
 BREAKPOINT_SERVER_PORT=42532
 
-SOURCE_HOST = "buildservice.suse.de"
-#SOURCE_HOST = "localhost"
-SOURCE_PORT = 6362
+#SOURCE_HOST = "buildservice.suse.de"
+SOURCE_HOST = "localhost"
 
-RPM_HOST = "buildservice.suse.de"
-#RPM_HOST = "localhost"
-RPM_PORT = 6262
+#SOURCE_PORT = 5352
+SOURCE_PORT = 6362 #test backend
+
+#RPM_HOST = "buildservice.suse.de"
+RPM_HOST = "localhost"
+
+#RPM_PORT = 5252
+RPM_PORT = 6262 #test backend
 
 #
 ICHAIN_HOST = nil
@@ -36,12 +40,6 @@ ICHAIN_HOST = nil
 # user name that is coming as headervalue X-username as a valid
 # user and does not further authentication. So take care...
 # ICHAIN_HOST = "212.22.211.221"
-
-#SOURCE_HOST = "localhost"
-#SOURCE_PORT = 5352
-
-#RPM_HOST = "localhost"
-#RPM_PORT = 5252
 
 APIDOCS_LOCATION = "../../docs/api/html/"
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/frontend")+"/"

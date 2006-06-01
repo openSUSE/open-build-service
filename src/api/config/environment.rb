@@ -80,6 +80,6 @@ ActiveXML::Base.config do |conf|
         :all    => "rest:///source/"
     map.connect :package, "rest:///source/:project/:name/_meta",
         :all    => "rest:///source/:project"
-    map.connect :packstatus, "rest:///status/:project"
+    map.connect :packstatus, "rest:///status/:project?summaryonly=:summaryonly"
   end
 end
