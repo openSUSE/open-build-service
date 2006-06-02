@@ -3,7 +3,8 @@ class Link < ActiveXML::Base
   # redefine make_stub so that Link.new( :project => 'a', :package => 'b' ) works
   class << self
     def make_stub( opt )
-      return REXML::Document.new( "<link project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>" ).root
+      logger.debug "make stub params: #{opt.inspect}"
+      return REXML::Document.new( "<link project=\"#{opt[:linked_project]}\" package=\"#{opt[:linked_package]}\"/>" ).root
     end
   end
   

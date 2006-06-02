@@ -154,8 +154,9 @@ class PackageController < ApplicationController
       redirect_to :controller => 'project', :action => 'show',
         :project => params[:project]
 
+      logger.debug "link params: #{params[:linked_project]}, #{params[:linked_package]}"
       link = Link.new( :project => params[:project],
-        :package => target_package )
+        :package => target_package, :linked_project => params[:linked_project], :linked_package => params[:linked_package] )
       logger.debug "LINK: #{link.to_s}"
       link.save
     end
