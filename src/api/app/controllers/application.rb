@@ -160,6 +160,9 @@ class ApplicationController < ActionController::Base
       render_error :message => message, :status => response.code,
         :details => response.body
       return true
+    when ActiveXML::Transport::NotFoundError
+      render_error :message => exception.message, :status => 404
+      return
     end
     render_error :exception => exception
   end

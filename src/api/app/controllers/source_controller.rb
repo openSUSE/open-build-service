@@ -27,6 +27,8 @@ class SourceController < ApplicationController
     comment = params[:comment]
 
     path = "/source/#{project}/#{package}"
+    query = Array.new
+    query_string = ""
 
     if request.get?
       query_string = URI.escape("rev=#{rev}") if rev
@@ -201,7 +203,6 @@ class SourceController < ApplicationController
     
     path = "/source/#{project}/#{package}/#{file}"
     query = Array.new
-    query = nil
     query_string = ""
 
     if request.get?
