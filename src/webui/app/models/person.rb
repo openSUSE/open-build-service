@@ -14,7 +14,7 @@ class Person < ActiveXML::Base
   end
   
   def to_s
-    name.to_s
+    login.to_s
   end
 
   def add_watched_project(name)
