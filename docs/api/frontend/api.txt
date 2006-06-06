@@ -114,6 +114,24 @@ POST /source/<project>/<package>?cmd=createSpecFileTemplate
 XmlResult: status
 
 
+=== Trigger rebuild
+
+POST /source/<project>/<package>?cmd=rebuild
+
+  Triggers package rebuild for all repositories/architectures of the package
+
+XmlResult: status
+
+
+=== Commit changes
+
+POST /source/<project>/<package>?cmd=commit&rev=<revision>&comment=<comment>&user=<user>
+
+  Commits package changes to buildservice
+
+XmlResult: status
+
+
 == Platform data
 
 Host: api.opensuse.org
