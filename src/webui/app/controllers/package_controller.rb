@@ -213,6 +213,9 @@ class PackageController < ApplicationController
       filename = params[:filename]
     end
 
+    # extra escaping of filename (workaround for rails bug)
+    filename = URI.escape filename, "+"
+
     logger.debug "controller: starting to add file: #{filename}"
     @package.save_file :file => file, :filename => filename
 
@@ -235,8 +238,11 @@ class PackageController < ApplicationController
     @package = Package.find( params[:package], :project => @project )
     filename = params[:filename]
 
-    @package.remove_file filename
+    # extra escaping of filename (workaround for rails bug)
+    escaped_filename = URI.escape filename, "+"
 
+    @package.remove_file escaped_filename
+    
     if @package.save
       flash[:note] = "File '#{filename}' removed successfully"
     else
