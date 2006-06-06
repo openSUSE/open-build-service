@@ -44,7 +44,7 @@ module ProjectHelper
     psl = @packstatus.packstatuslist("@repository='#{repo}' and @arch='#{arch}'")
     #logger.debug "psl is: #{psl.inspect}"
     if psl.nil?
-      ret << "inactive<br>"
+      ret << "n/a<br>"
     else
       psl.each_packstatussummary do |pss|
         ret << "#{pss.status}: #{pss.count}<br>\n"

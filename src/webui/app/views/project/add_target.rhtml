@@ -6,7 +6,7 @@
 ]
 -%>
 
-<h2>Add Target (Project <%=h @project.name%>)</h2>
+<h2>Add Repository (Project <%=h @project.name%>)</h2>
 
 <%= form_tag :action => :save_target %>
 <b>Name:</b><br/>
@@ -14,7 +14,7 @@
 <table>
   <tr>
     <td>
-      <b>Platform:</b><br/>
+      <b>Build Target Selection:</b><br/>
       <%= select_tag 'platform', options_for_select(@platforms, @platform), {:size => 10} %><br/>
     </td>
     <td valign="top">

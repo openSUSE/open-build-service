@@ -132,31 +132,37 @@ class ProjectController < ApplicationController
     redirect_to :action => 'show', :project => @project
   end
 
+  def add_target_simple
+
+  end
+
   def add_target
     @platforms = Platform.find( :all ).each_entry.map {|p| p.name.to_s}
 
     #TODO: don't hardcode
-    @priority_platforms = %q{
-      FC4/standard
-      FC5/standard
-      Factory/standard
-      SL10.0/standard
-      SUSE:Factory/standard
-      SUSE:SL-10.0
-      SUSE:SL-10.1
-      Debian-etch/standard
-      Mandriva-2006/standard
+    @priority_namespaces = %{
+      Mandriva
+      SUSE
+      Fedora
+      Debian
     }
+
+    def @priority_namespaces.include_ns?(projname)
+      nslist = projname.split(/:/)
+      return false if nslist.length != 2
+      return false unless self.include? nslist[0]
+      return true
+    end
     
     @platforms.sort! do |a,b|
-      if @priority_platforms.include? a
-        if @priority_platforms.include? b
+      if @priority_namespaces.include_ns? a
+        if @priority_namespaces.include_ns? b
           a.downcase <=> b.downcase
         else
           -1
         end
       else
-        if @priority_platforms.include? b
+        if @priority_namespaces.include_ns? b
           1
         else
           a.downcase <=> b.downcase

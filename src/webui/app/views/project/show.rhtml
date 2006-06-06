@@ -92,11 +92,11 @@
 
     <td>
       <!-- Repository table -->
-      <h3>Build Targets</h3>
+      <h3>Build Repositories</h3>
       <% if @project.has_element? :repository -%>
       <table class="grid targets">
         <tr class="header">
-          <th>Target Names</th>
+          <th>Name</th>
           <% @arch_list.each do |arch| -%>
           <th><%=h arch %></th>
           <% end -%>
@@ -117,12 +117,12 @@
       </table>
 
       <% end #has_element? -%>
-      <p><%= link_to "[Add Target]", :action => 'add_target', :project => @project %></p>
+      <p><%= link_to "[Add Repository]", :action => 'add_target', :project => @project %></p>
       
       <% if @project.has_element?(:package) and @project.has_element?(:repository) -%>
       <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
       <% else -%>
-      <p><i>Add packages/targets to enable the build monitor</i></p>
+      <p><i>Add packages/repositories to enable the build monitor</i></p>
       <% end -%>
 
     </td>
