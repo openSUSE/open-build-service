@@ -100,6 +100,7 @@
           <% @arch_list.each do |arch| -%>
           <th><%=h arch %></th>
           <% end -%>
+          <th>Action</th>
         </tr>
         <% @project.each_repository do |repo| -%>
         <tr class="target">
@@ -112,12 +113,14 @@
           <% @arch_list.each do |arch| -%>
           <td><%= format_packstatus_for( repo.name, arch )%></td>
           <% end -%>
+          <td><%= link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
+                                      {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} %></td>
         </tr>
         <% end #each_repository -%>
       </table>
 
       <% end #has_element? -%>
-      <p><%= link_to "[Add Repository]", :action => 'add_target', :project => @project %></p>
+      <p><%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %></p>
       
       <% if @project.has_element?(:package) and @project.has_element?(:repository) -%>
       <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>

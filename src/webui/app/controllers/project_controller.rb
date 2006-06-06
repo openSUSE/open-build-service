@@ -61,6 +61,9 @@ class ProjectController < ApplicationController
       return
     end
 
+    #@project_name parameter needed for _watch_link partial
+    @project_name = @project.name
+
     tmp = Hash.new
     @project.each_repository do |repo|
       repo.each_arch do |arch|
@@ -133,7 +136,7 @@ class ProjectController < ApplicationController
   end
 
   def add_target_simple
-
+    @project = params[:project]
   end
 
   def add_target
@@ -321,8 +324,8 @@ class ProjectController < ApplicationController
       render :nothing => true
       return
     end
-    
-    @user = Person.find( :login => session[:login] )
+   
+    @user = Person.find( :login => session[:login] ) unless @user
     @project_name = params[:project]
     
     if @user.watches? @project_name
