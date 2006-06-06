@@ -51,6 +51,10 @@ remove the build system and reinitialize it from scratch.
 .B --no-init
 skip the build system initialization and start with build immediately.
 .TP
+.B --list-state
+list rpms that would be used to create a fresh build root.
+Does not create the build root or perform a build.
+.TP
 .BI "\-\-rpms " path1 : path2 : path3\fR...\fP
 Where build can find the SuSE Linux RPMs needed to create the
 build system. This option overrides the BUILD_RPMS environment

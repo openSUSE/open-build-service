@@ -16,6 +16,7 @@ test -z "$BUILD_ARCH" && {
 export BUILD_ARCH BUILD_ROOT BUILD_RPMS
 
 export BUILD_DIR=/usr/lib/build
+#export BUILD_DIR=/suse/mls/xenbuild
 export PATH=$BUILD_DIR:$PATH
 
 # This is for insserv
@@ -86,6 +87,10 @@ Known Parameters:
 
   --baselibs  Create -32bit/-64bit/-x86 rpms for other architectures
 
+  --list-state
+              List rpms that would be used to create a fresh build root.
+              Does not create the build root or perform a build.
+
 Remember to have fun!
 
 [*] Maximum RPM: http://www.rpm.org/max-rpm/
@@ -153,6 +158,7 @@ BUILD_JOBS=
 ABUILD_TARGET_ARCH=
 CREATE_BASELIBS=
 USEUSEDFORBUILD=
+LIST_STATE=
 XENIMAGE=
 XENSWAP=
 XENMEMORY=
@@ -284,6 +290,9 @@ while test -n "$1"; do
       *-useusedforbuild)
         USEUSEDFORBUILD="--useusedforbuild"
       ;;
+      *-list*state)
+	LIST_STATE=true
+      ;;
       ----noarg)
         echo "$ARG does not take an argument"
         cleanup_and_exit
@@ -299,7 +308,7 @@ while test -n "$1"; do
     esac
 done
 
-test $UID != 0 && {
+test -z "$LIST_STATE" -a "$UID" != 0 && {
     echo You have to be root to use $0. Exit.
     cleanup_and_exit 1
 }
@@ -346,6 +355,26 @@ test -z "$SPECFILES" && {
 if test -z "$SRCDIR" -o ! -d "$SRCDIR" ; then
     echo Usage: $0 \<src-dirctory\>
     cleanup_and_exit 1
+fi
+
+if test -n "$LIST_STATE" ; then
+    BUILD_ROOT=`mktemp -d /var/tmp/build-list-state-XXXXXX`
+    test -d "$BUILD_ROOT" || exit 1
+    SPECFILE=$SRCDIR/$SPECFILES
+    if test "$SPECFILE" != "${SPECFILE%.src.rpm}" ; then
+       rm -rf $BUILD_ROOT/usr/src/packages
+       mkdir -p $BUILD_ROOT/usr/src/packages/SOURCES $BUILD_ROOT/usr/src/packages/SPECS
+       rpm -i --nodigest --nosignature --root $BUILD_ROOT $SPECFILE || {
+	   echo "could not install $SPECFILE." 2>&1
+	   rm -rf $BUILD_ROOT
+	   cleanup_and_exit 1
+       }
+       for SPECFILE in $BUILD_ROOT/usr/src/packages/SPECS/*.spec ; do : ; done
+    fi
+    init_buildsystem --list-state $USEUSEDFORBUILD $SPECFILE $BUILD_EXTRA_PACKS
+    ERR=$?
+    rm -rf $BUILD_ROOT
+    cleanup_and_exit $ERR
 fi
 
 if test -d "$BUILD_ROOT" ; then
@@ -493,7 +522,8 @@ for SPECFILE in $SPECFILES ; do
 	mkdir -p $BUILD_ROOT$TOPDIR
     fi
 
-    ln -f -s ${TOPDIR#/} $BUILD_ROOT/.build.packages
+    rm -f $BUILD_ROOT/.build.packages
+    ln -s ${TOPDIR#/} $BUILD_ROOT/.build.packages
 
     #
     # fix rpmrc if we are compiling for i686
@@ -548,6 +578,9 @@ for SPECFILE in $SPECFILES ; do
 	# extract macros from configuration
 	getmacros --dist "$BUILD_DIST" --configdir "$BUILD_DIR/configs" > $BUILD_ROOT/root/.rpmmacros
 	test $BUILD_USER = abuild && cp -p $BUILD_ROOT/root/.rpmmacros $BUILD_ROOT/home/abuild/.rpmmacros
+	# extract optflags from configuration
+	getoptflags --dist "$BUILD_DIST" --configdir "$BUILD_DIR/configs" --archpath "$BUILD_ARCH" > $BUILD_ROOT/root/.rpmrc
+	test $BUILD_USER = abuild && cp -p $BUILD_ROOT/root/.rpmrc $BUILD_ROOT/home/abuild/.rpmrc
     fi
     if test -f $BUILD_ROOT/.spec.new ; then
 	if ! cmp -s $BUILD_ROOT$TOPDIR/SOURCES/$SPECFILE $BUILD_ROOT/.spec.new ; then

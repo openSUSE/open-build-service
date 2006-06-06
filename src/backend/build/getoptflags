@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+
+BEGIN {
+  unshift @INC, ($::ENV{'BUILD_DIR'} || '/usr/lib/build');
+}
+
+use strict;
+
+use Build;
+
+my ($dist, $archs, $configdir);
+
+while (@ARGV)  {
+  if ($ARGV[0] eq '--dist') {
+    shift @ARGV;
+    $dist = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--archpath') {
+    shift @ARGV;
+    $archs = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--configdir') {
+    shift @ARGV;
+    $configdir = shift @ARGV;
+    next;
+  }
+  last;
+}
+$configdir = '.' unless defined $configdir;
+$archs = '' unless defined $archs;
+$dist = '' unless defined $dist;
+
+die("Usage: getoptflags --dist <dist> --archpath <archpath> [--configdir <configdir>]\n") if !defined($dist) || @ARGV;
+
+my @archs = split(':', $archs);
+push @archs, 'noarch' unless grep {$_ eq 'noarch'} @archs;
+
+my $cf;
+if ($dist =~ /\//) {
+  die("$dist: $!\n") unless -e $dist;
+  $cf = Build::read_config($archs[0], $dist);
+} else {
+  $dist =~ s/-.*//;
+  $dist = "sl$dist" if $dist =~ /^\d/;
+  $cf = Build::read_config($archs[0], "$configdir/$dist.conf");
+  if (!$cf) {
+    $cf = Build::read_config($archs[0], "$configdir/default.conf");
+  }
+}
+die("config not found\n") unless $cf;
+
+exit 0 unless $cf->{'optflags'};
+my $all = $cf->{'optflags'}->{'*'};
+$all = defined($all) && $all ne '' ? " $all" : '';
+for (sort keys %{$cf->{'optflags'}}) {
+  next if $_ eq '*';
+  print "optflags: $_ $cf->{'optflags'}->{$_}$all\n";
+}

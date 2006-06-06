@@ -37,7 +37,9 @@ sub read_config {
   my $inmacro = 0;
   for my $l (@spec) {
     if ($inmacro) {
-      push @macros, ref($l) ? $l->[0] : $l;
+      my $m = ref($l) ? $l->[0] : $l;
+      $m =~ s/^%/%define /;
+      push @macros, $m;
       next;
     }
     $l = $l->[1] if ref $l;
@@ -56,6 +58,10 @@ sub read_config {
       next unless @l;
       $ll = shift @l;
       push @{$config->{'substitute'}->{$ll}}, @l;
+    } elsif ($l0 eq 'optflags:') {
+      next unless @l;
+      $ll = shift @l;
+      $config->{'optflags'}->{$ll} = join(' ', @l);
     } elsif ($l0 !~ /^[#%]/) {
       warn("unknown keyword in config: $l0\n");
     }
@@ -115,7 +121,7 @@ sub do_subst {
 sub get_build {
   my ($config, $subpacks, @deps) = @_;
   my @ndeps = grep {/^-/} @deps;
-  my %keep = map {$_ => 1} $config->{'keep'};
+  my %keep = map {$_ => 1} @{$config->{'keep'} || []};
   for (@{$subpacks || []}) {
     push @ndeps, "-$_" unless $keep{$_};
   }
@@ -134,7 +140,7 @@ sub get_build {
 sub get_deps {
   my ($config, $subpacks, @deps) = @_;
   my @ndeps = grep {/^-/} @deps;
-  my %keep = map {$_ => 1} $config->{'keep'};
+  my %keep = map {$_ => 1} @{$config->{'keep'} || []};
   for (@{$subpacks || []}) {
     push @ndeps, "-$_" unless $keep{$_};
   }
@@ -146,7 +152,7 @@ sub get_deps {
   @deps = grep {!$ndeps{"-$_"}} @deps;
   my %bdeps = map {$_ => 1} (@{$config->{'preinstall'}}, @{$config->{'support'}});
   delete $bdeps{$_} for @deps;
-  @deps = expand($config, @deps);
+  @deps = expand($config, @deps, @ndeps);
   if (@deps && $deps[0]) {
     my $r = shift @deps;
     @deps = grep {!$bdeps{$_}} @deps;
@@ -508,6 +514,7 @@ sub read_spec {
 	$expandedline .= $1;
 	$line = $4;
 	my $macname = defined($3) ? $3 : $2;
+        my $macorig = $2;
 	my $mactest = 0;
 	if ($macname =~ /^\!\?/ || $macname =~ /^\?\!/) {
 	  $mactest = -1;
@@ -545,7 +552,7 @@ sub read_spec {
 	  $macalt = '' if !defined($macalt) || $mactest == 1;
 	  $line = "$macalt$line";
 	} else {
-	  $expandedline .= "%$2";
+	  $expandedline .= "%$macorig";
 	}
       }
     }

@@ -28,6 +28,7 @@ RPMIDFMT="%{NAME}-%{VERSION}-%{RELEASE} %{BUILDHOST}-%{BUILDTIME}\n"
 
 PREPARE_XEN=
 USEUSEDFORBUILD=
+LIST_STATE=
 RPMLIST=
 
 while test -n "$1" ; do
@@ -39,6 +40,10 @@ while test -n "$1" ; do
 	--useusedforbuild)
 	    shift
 	    USEUSEDFORBUILD=--useusedforbuild
+	    ;;
+	--list-state)
+	    shift
+	    LIST_STATE=true
 	    ;;
 	--rpmlist)
 	    shift
@@ -207,7 +212,7 @@ function validate_cache_file {
 	test $SRC -nt $CACHE_FILE && rm -f $CACHE_FILE.id
     done
     if ! test -f $CACHE_FILE.id ; then
-	echo initializing $CACHE_FILE with find command...
+	test -z "$LIST_STATE" && echo initializing $CACHE_FILE with find command...
 	for SRC in ${BUILD_RPMS//:/ } ; do
 	    test -z "$SRC" && SRC=.
 	    find $SRC -type f -name packages -print -o -follow -type f \( -name "*.rpm" -o -name "*.deb" \) -a ! -name "*src.rpm" -printf '%T@/%s/%i %p\n'
@@ -272,11 +277,24 @@ else
 	# select and expand packages
 	#
 	RPMLIST=$BUILD_ROOT/.init_b_cache/rpmlist
-	echo "expanding package dependencies..."
+	test -z "$LIST_STATE" && echo "expanding package dependencies..."
 	if ! expanddeps $USEUSEDFORBUILD --dist "$BUILD_DIST" --depfile "$CACHE_FILE" --archpath "$BUILD_ARCH" --configdir $BUILD_DIR/configs $PKGS > $RPMLIST ; then
+	    rm -f $BUILD_IS_RUNNING
 	    cleanup_and_exit 1
 	fi
     fi
+
+    if test -n "$LIST_STATE" ; then
+	rm -f $BUILD_IS_RUNNING
+	while read PKG SRC ; do
+	   test "$PKG" = "preinstall:" && continue
+	   test "$PKG" = "dist:" && continue
+	   echo "${SRC##*/}"
+	done < $BUILD_ROOT/.init_b_cache/rpmlist
+	rm -rf $BUILD_ROOT/.init_b_cache
+	exit 0
+    fi
+
     PACKAGES_TO_INSTALL=
     GUESSED_DIST=unknown
     mkdir -p $BUILD_ROOT/.init_b_cache/rpms
@@ -388,7 +406,7 @@ for PKG in $BUILD_ROOT/.init_b_cache/todelete/* ; do
     test "$PKG" = "*" && continue
     echo deleting `sed -e 's/ .*//' < $BUILD_ROOT/.init_b_cache/todelete/$PKG`
     chroot $BUILD_ROOT rpm --nodeps -e $PKG 2>&1 | \
-	grep -v "^r.*failed: No such file or directory"
+	grep -v -e "^r.*failed: No such file or directory" -e "^error: failed to stat .*: No such file or directory"
 done
 rm -rf $BUILD_ROOT/.init_b_cache/todelete
 
@@ -435,13 +453,13 @@ for PKG in $PACKAGES_TO_INSTALL_FIRST RUN_LDCONFIG $PACKAGES_TO_INSTALL ; do
 	if test "$PKGID" != "`cat $BUILD_ROOT/.init_b_cache/alreadyinstalled/$PKG`" ; then
 	    echo deleting unwanted `sed -e 's/ .*//' < $BUILD_ROOT/.init_b_cache/alreadyinstalled/$PKG`
 	    chroot $BUILD_ROOT rpm --nodeps -e $PKG 2>&1 | \
-		grep -v "^r.*failed: No such file or directory"
+		grep -v -e "^r.*failed: No such file or directory" -e "^error: failed to stat .*: No such file or directory"
 	elif test "$VERIFY_BUILD_SYSTEM" = true ; then
 	    chroot $BUILD_ROOT rpm --verify $PKG 2>&1 | tee $TMPFILE
 	    if grep ^missing $TMPFILE > /dev/null ; then
 		echo deleting incomplete ${PKGID%% *}
 		chroot $BUILD_ROOT rpm --nodeps -e $PKG 2>&1 | \
-		    grep -v "^r.*failed: No such file or directory"
+		    grep -v -e "^r.*failed: No such file or directory" -e "^error: failed to stat .*: No such file or directory"
 	    else
 		echo "keeping ${PKGID%% *}"
 		echo "$PKGID" > $BUILD_ROOT/installed-pkg/$PKG
@@ -587,6 +605,10 @@ for PROG in /usr/bin/TeX/texhash /usr/bin/texhash ; do
     test -x $BUILD_ROOT/$PROG && \
         chroot $BUILD_ROOT bash -c ". /etc/profile ; $PROG"
 done
+
+if test -e $BUILD_ROOT/usr/share/zoneinfo/UTC ; then
+    chroot $BUILD_ROOT zic -l UTC
+fi
 
 if test -x $BUILD_ROOT/bin/rpm -a ! -f $BUILD_ROOT/var/lib/rpm/packages.rpm -a ! -f $BUILD_ROOT/var/lib/rpm/Packages ; then
     echo "initializing rpm db..."
