@@ -29,8 +29,20 @@ class ProjectController < ApplicationController
   def list_my
     @projects = Project.find(:all).each_entry
     logger.debug "Have this session login: #{session[:login]}"
-    @user = Person.find( :login => session[:login] )
+    @user ||= Person.find( :login => session[:login] )
     @watchlist = @user.watchlist if @user.has_element? :watchlist
+  end
+
+  def remove_watched_project
+    project = params[:project]
+    @user ||= Person.find( session[:login] )
+    logger.debug "removing watched project '#{project}' from user '#@user'"
+    @user.remove_watched_project project
+    @user.save
+
+    @watchlist = @user.watchlist if @user.has_element? :watchlist
+
+    render :partial => 'watch_list'
   end
 
   def new

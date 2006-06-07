@@ -1,0 +1,12 @@
+<div id="__watchlist">
+  <% if @watchlist -%>
+  <% @watchlist.each_project do |project| -%>
+  <%= link_to project, :action => :show, :project => project %>
+  <%= link_to_remote "[x]", {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %><br/>
+
+  <% end -%>
+  <% else %>
+  <p><em>No projects marked to be watched.</em></p>
+  <p>Select "Watch Project" on a project overview page to watch a project.</p>
+  <% end -%>
+</div>

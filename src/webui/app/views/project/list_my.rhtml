@@ -11,11 +11,4 @@ We're working on it.
 
 <h2>Watched Projects</h2>
 
-<% if @watchlist -%>
-  <% @watchlist.each_project do |project| -%>
-    <%= link_to project, :action => :show, :project => project %><br/>
-  <% end -%>
-<% else %>
-  <p><em>No projects marked to be watched.</em></p>
-  <p>Select "Watch Project" on a project overview page to watch a project.</p>
-<% end -%>
+<%= render :partial => 'watch_list' %>
