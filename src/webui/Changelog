@@ -124,3 +124,32 @@ Wed May 31 15:40:27 CEST 2006 - bauersman
 - add monitor link
 
 
+------------------------------------------------------------------------
+Thu Jun 08 16:37:07 CEST 2006 - bauersman
+
+- update from svn revision 317 to 489
+- added favicon from opensuse wiki
+- added various xml element checks
+- switched to old buildservice logo
+- disabled star rating
+- fixed project description
+- removed automatic update of build monitor
+- fixed crumb nav for package page
+- fixed package linking
+- added workaround for bug #181593 (wrong escaping for + characters)
+- renamed platform/target to repository in UI
+- changed repo sort order to prioritize some namespaces
+- fixed to_s of person model
+- simplified repo selection
+- watch project works (again)
+- changed default names for repos
+- renamed buttons on simple repo add page
+- watched projects can be deleted from the my projects page
+- added repo button for SLES 9
+- create specfile template per default off
+- logged in area in layout is only shown when logged in
+- home project link on index page is only shown when logged in
+- bugfix in watchlist
+- added missing breadcrumbs/fixed wrong links to project list
+
+
