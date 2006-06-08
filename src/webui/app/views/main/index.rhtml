@@ -15,7 +15,7 @@ list.</p>
 
 <ul>
   <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
-  <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li>
+  <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li>
   <% if session[:login] -%>
   <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
   <% end -%>

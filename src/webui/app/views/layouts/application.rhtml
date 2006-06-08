@@ -12,6 +12,7 @@
   <% if session[:login] -%>
   <div id="login">
     Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
+    <%= link_to "Watched Projects", :controller => "project", :action => :list_my %><br/>
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
   </div>
   <% end -%>
