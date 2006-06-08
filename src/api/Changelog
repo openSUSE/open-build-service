@@ -101,3 +101,11 @@ Thu Jun 01 19:52:20 CEST 2006 - bauersman
   
 
 
+------------------------------------------------------------------------
+Thu Jun 08 16:36:02 CEST 2006 - bauersman
+
+- update from svn revision 427 to 487
+- handle activexml exceptions
+- bugfix with new routes
+
+
