@@ -27,6 +27,7 @@
         <xs:element ref="user"/>
         <xs:element ref="version"/>
         <xs:element ref="vrev"/>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="disable"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
@@ -163,6 +164,19 @@
         ???
       </xs:documentation>
     </xs:annotation>
+  </xs:element>
+
+  <xs:element name="disable">
+    <xs:annotation>
+      <xs:documentation>
+      disable package to be built for a specific repository or architecture 
+      (or both).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="repository" type="xs:string" use="optional"/>
+      <xs:attribute name="arch" type="xs:string" use="optional"/>
+    </xs:complexType>
   </xs:element>
 
 </xs:schema>

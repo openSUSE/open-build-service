@@ -9,4 +9,7 @@
   <user>unknown</user>
   <version>1.0</version>
   <vrev>7</vrev>
+  <disable repository="testing" arch="i586"/>
+  <disable repository="beta"/>
+  <disable arch="ppc64"/>
 </package>
