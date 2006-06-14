@@ -30,7 +30,10 @@ class ProjectController < ApplicationController
     @projects = Project.find(:all).each_entry
     logger.debug "Have this session login: #{session[:login]}"
     @user ||= Person.find( :login => session[:login] )
-    @watchlist = @user.watchlist if @user.has_element? :watchlist
+    if @user.has_element? :watchlist
+      #extract a list of project names and sort them case insensitive
+      @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
+    end
   end
 
   def remove_watched_project

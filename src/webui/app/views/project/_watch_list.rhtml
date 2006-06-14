@@ -1,6 +1,6 @@
 <div id="__watchlist">
-  <% if @watchlist and @watchlist.has_element? :project -%>
-  <% @watchlist.each_project do |project| -%>
+  <% if @watchlist and not @watchlist.empty? -%>
+  <% @watchlist.each do |project| -%>
   <%= link_to project, :action => :show, :project => project %>
   <%= link_to_remote "[x]", {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %><br/>
 
