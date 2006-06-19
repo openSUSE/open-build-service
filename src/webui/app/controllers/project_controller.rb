@@ -291,14 +291,28 @@ class ProjectController < ApplicationController
     @project = params[:project] 
     @packstatus = Packstatus.find( :project => @project )
 
-    @repohash = Hash.new
     if not @packstatus.has_element? :packstatuslist
       @packstatus_unavailable = true
       return  
     end
+
+    @repohash = Hash.new
+    @statushash = Hash.new
+
     @packstatus.each_packstatuslist do |psl|
-      @repohash[psl.repository] ||= Array.new
-      @repohash[psl.repository] << psl.arch
+      repo = psl.repository
+      arch = psl.arch
+
+      @repohash[repo] ||= Array.new
+      @repohash[repo] << arch
+
+      @statushash[repo] ||= Hash.new
+      @statushash[repo][arch] = Hash.new
+      rah = @statushash[repo][arch]
+
+      psl.each_packstatus do |ps|
+        rah[ps.name] = ps.status
+      end
     end
 
     @packagenames = Array.new
@@ -306,9 +320,9 @@ class ProjectController < ApplicationController
       @packagenames << ps.name
     end
     
-    session[:monitor_project] = @project
-    session[:monitor_repohash] = @repohash
-    session[:monitor_packnames] = @packagenames
+    #session[:monitor_project] = @project
+    #session[:monitor_repohash] = @repohash
+    #session[:monitor_packnames] = @packagenames
   end
 
   def refresh_monitor
