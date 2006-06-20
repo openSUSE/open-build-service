@@ -8,7 +8,7 @@ $LOAD_PATH.unshift RAILS_ROOT
 require_dependency 'opensuse/permission'
 require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'
-require_dependency 'bsuser'
+require_dependency 'bs_user'
 
 class ApplicationController < ActionController::Base
   # Do never use a layout here since that has impact on every
@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
       # basic auth header field. We can trust the username coming from
       # iChain
       if ichain_user 
-        @http_user = BSUser.find :first,
+        @http_user = BsUser.find :first,
                                  :conditions => [ 'login = ?', ichain_user ]
       else
         logger.error "No X-username header from iChain! Are we really using iChain?"
@@ -85,7 +85,7 @@ class ApplicationController < ActionController::Base
         logger.debug "no authentication string was sent"
         render_error( :message => "Authentication required", :status => 401 ) and return false
       end
-      @http_user = BSUser.find_with_credentials login, passwd
+      @http_user = BsUser.find_with_credentials login, passwd
     end
 
     if @http_user.nil?
