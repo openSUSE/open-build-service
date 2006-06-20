@@ -74,6 +74,8 @@ require 'active_rbac_user_model_crypt_hack'
 require 'activexml'
 
 ActiveXML::Base.config do |conf|
+  conf.lazy_evaluation = true
+
   conf.setup_transport do |map|
     map.default_server :rest, "#{SOURCE_HOST}:#{SOURCE_PORT}"
     map.connect :project, "rest:///source/:name/_meta",
