@@ -43,7 +43,9 @@ class ProjectController < ApplicationController
     @user.remove_watched_project project
     @user.save
 
-    @watchlist = @user.watchlist if @user.has_element? :watchlist
+    if @user.has_element? :watchlist
+      @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
+    end
 
     render :partial => 'watch_list'
   end
