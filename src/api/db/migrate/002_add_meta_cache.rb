@@ -45,8 +45,8 @@ class AddMetaCache < ActiveRecord::Migration
     add_index "projects_tags", ["project_id", "tag_id"], :name => "projects_tags_all_index", :unique => true
 
     create_table "repositories" do |t|
-      t.column "project_id", :integer, 
-      t.column "name"
+      t.column "project_id", :integer
+      t.column "name", :string
     end
   end
 
