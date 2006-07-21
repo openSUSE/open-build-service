@@ -20,27 +20,28 @@ class PersonController < ApplicationController
           logger.debug "Generating user info for logged in user #{@http_user.login}"
           @render_user = @http_user
         end
-        # see the corresponding view users.rxml that generates a xml
-        # response for the caller.
+      # see the corresponding view users.rxml that generates a xml
+      # response for the caller.
 
       elsif request.put?
         user = @http_user
-        if params[:login]
-          login = URI.unescape( params[:login] )
-          user = BsUser.find_by_login( login )
-          if user and user.login != @http_user.login 
-            # TODO: check permission to update someone elses info
-            if @http_user.has_permission "Userinfo_Admin"
-              # ok, may update user info
-            else
-              logger.debug "User has no permission to change userinfo"
-              render_error :status => 401,
-              :message => "no permission to change userinfo for user #{user.login}"
+      
+        if user 
+          if params[:login]
+            login = URI.unescape( params[:login] )
+            user = BsUser.find_by_login( login )
+            if user and user.login != @http_user.login 
+              # TODO: check permission to update someone elses info
+              if @http_user.has_permission "Userinfo_Admin"
+                # ok, may update user info
+              else
+                logger.debug "User has no permission to change userinfo"
+                render_error :status => 401,
+                :message => "no permission to change userinfo for user #{user.login}"
+              end
             end
           end
-        end
-
-        if user 
+        
           xml = REXML::Document.new( request.raw_post )
 
           logger.debug( "XML: #{request.raw_post}" )
@@ -64,26 +65,50 @@ class PersonController < ApplicationController
 
           user.save
           render_ok
-        else
-          #create user if not existing
-          logger.debug "trying to create new user"
-          user = BsUser.create( 
-            :login => login,
-            :password => "asdfasdf",
-            :password_confirmation => "asdfasdf",
-            :email => "#{login}@localhost"
-          )
-
-          #user.login = params[:login]
-
-          #logger.debug user
-          #user.save
-          render_ok
         end
       end
     end
+  
   end
 
+  def register
+    xml = REXML::Document.new( request.raw_post )
+    
+    logger.debug( "register XML: #{request.raw_post}" )
+
+    login = xml.elements["/unregisteredperson/login"].text
+    logger.debug("Found login #{login}")
+    realname = xml.elements["/unregisteredperson/realname"].text
+    email = xml.elements["/unregisteredperson/email"].text
+    status = xml.elements["/unregisteredperson/state"].text
+    password = xml.elements["/unregisteredperson/password"].text
+    note = xml.elements["/unregisteredperson/note"].text
+
+    newuser = BsUser.create( 
+              :login => login,
+              :password => password,
+              :password_confirmation => password,
+              :email => email )
+
+    newuser.realname = realname
+    newuser.state = status
+    newuser.adminnote = note
+    logger.debug("Saving...")
+    newuser.save
+    
+    if !newuser.errors.empty?
+      details = ""
+      newuser.errors.each{ |key, msg| 
+        details = details + "#{key}: #{msg}"
+      } 
+      render_error :message => "Could not save the registration",
+                   :errorcode => "err_register_save",
+                   :details => details, :status => 500 
+    else
+      render_ok
+    end
+  end
+  
   def update_watchlist( user, xml )
     new_watchlist = []
     old_watchlist = []

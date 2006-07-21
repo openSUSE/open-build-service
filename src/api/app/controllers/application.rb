@@ -21,7 +21,9 @@ class ApplicationController < ActionController::Base
   
   helper RbacHelper
   
-  before_filter :extract_user, :setup_backend, :validate
+  # skip the filter for the user stuff
+  before_filter :extract_user, :except => :register
+  before_filter :setup_backend, :validate
 
   attr_accessor :auth_method
 
@@ -40,25 +42,54 @@ class ApplicationController < ActionController::Base
         logger.debug "iChain user extracted from header: #{ichain_user}"
       else
 # TEST vv
-        ichain_user = "freitag"
-        logger.debug "TEST-ICHAIN_USER freitag set!"
+        if ichain_host = "simulate"
+          ichain_user = ichain_test_user 
+          logger.debug "TEST-ICHAIN_USER #{ichain_user} set!"
+        end
         request.env.each do |name, val|
           logger.debug "Header value: #{name} = #{val}"
         end
 # TEST ^^
       end
-      logger.debug "iChain-User from environment: #{ichain_user}"
       # ok, we're using iChain. So there is no need to really
       # authenticate the user from the credentials coming via
       # basic auth header field. We can trust the username coming from
       # iChain
+      # However we have to care for the status of the user that must not be
+      # unconfirmed or ichain requested
       if ichain_user 
         @http_user = BsUser.find :first,
-                                 :conditions => [ 'login = ?', ichain_user ]
+                                 :conditions => [ 'login = ? AND state=2', ichain_user ]
+                                 
+      # If we do not find a BsUser here, we need to create a user and wait for 
+      # the confirmation by the user and the BS Admin Team.
+        if @http_user == nil 
+          @http_user = BsUser.find :first, 
+                                   :conditions => ['login = ?', ichain_user ]
+          if @http_user == nil 
+            render_error :message => "iChain user not yet registered", :status => 403,
+                         :errorcode => "unregistered_ichain_user",
+                         :details => "Please register your iChain user via the web application once."
+          else
+            if @http_user.state == 5
+              render_error :message => "iChain user #{ichain_user} is registered but not yet approved.", :status => 403,
+                           :errorcode => "registered_ichain_but_unapproved",
+                           :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
+                                       "<p>Please stay tuned until you get approval message.</p>"
+            else
+              render_error :message => "Your user is either invalid or net yet confirmned (state #{@http_user.state}).", 
+                           :status => 403,
+                           :errorcode => "unconfirmned_user",
+                           :details => "Please contact the openSUSE admin team"
+            end
+          end
+          return false
+        end
       else
         logger.error "No X-username header from iChain! Are we really using iChain?"
+        render_error( :message => "No iChain user found!", :status => 401 ) and return false
       end
-    else
+    else 
       #active_rbac is used for authentication
       auth_method = :active_rbac
 
@@ -152,11 +183,11 @@ class ApplicationController < ActionController::Base
     when ::Suse::Backend::HTTPError
       response = exception.message
       case response
-      when Net::HTTPForbidden
-        message = "Permission Denied"
-      else
-        message = "Backend Error: #{response.code}"
-      end
+    when Net::HTTPForbidden
+      message = "Permission Denied"
+    else
+      message = "Backend Error: #{response.code}"
+    end
       render_error :message => message, :status => response.code,
         :details => response.body
       return true
@@ -180,13 +211,15 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt = {} )
-    @errorcode = 500
 
+    @errorcode = opt[:errorcode]
+    
     if opt[:status]
-      @errorcode = opt[:status]
-      if @errorcode.to_i == 401
-        response.headers["WWW-Authenticate"] = 'basic realm="Frontend login"'
+      if opt[:status].to_i == 401
+        # response.headers["WWW-Authenticate"] = 'basic realm="Frontend login"'
       end
+    else
+      opt[:status] = 500
     end
 
     @summary = "Internal Server Error"
@@ -202,7 +235,7 @@ class ApplicationController < ActionController::Base
       @details = opt[:details]
     end
 
-    render :template => 'status', :status => @errorcode, :layout => false
+    render :template => 'status', :status => opt[:status], :layout => false
   end
   
   def render_ok
@@ -243,5 +276,9 @@ class ApplicationController < ActionController::Base
       ICHAIN_HOST
     # end
     # nil
+  end
+  
+  def ichain_test_user
+      ICHAIN_TEST_USER
   end
 end
