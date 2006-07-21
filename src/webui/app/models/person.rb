@@ -9,7 +9,16 @@ class Person < ActiveXML::Base
       if not opt.has_key? :login
         opt[:login] = opt[:name]
       end
-      return REXML::Document.new( "<person><login>#{opt[:login]}</login></person>" ).root
+      realname = ""
+      if opt.has_key? :realname
+        realname = opt[:realname]
+      end
+      email = ""
+      if opt.has_key? :email
+        email = opt[:email]
+      end
+      state = 5
+      return REXML::Document.new( "<person><login>#{opt[:login]}</login><realname>#{realname}</realname><email>#{email}</email><state>#{state}</state></person>" ).root
     end
   end
   

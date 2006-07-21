@@ -74,7 +74,17 @@ require 'opensuse/frontend'
     redirect_to :controller => "home"
   end
 
-  def newaccount
-  
+  def request_ichain
+    logger.debug "#{session[:login]} is requesting ichain access!"
   end
+
+  def register
+     logger.debug "Creating new person #{session[:login]}"
+
+     person = Unregisteredperson.new( :login => session[:login], :email => params[:email], 
+                                      :realname => params[:realname], 
+                                      :explanation => params[:explanation] )
+     person.save
+  end
+
 end

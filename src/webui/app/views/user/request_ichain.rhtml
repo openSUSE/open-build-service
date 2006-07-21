@@ -1,0 +1,29 @@
+<h2>Your account is not yet enabled</h2>
+
+  <p>To enable the build service account for your iChain user 
+  <%= session[:login] %>,
+  please fill in the data below and submit your request.</p>
+  <p>The build service team will enable your account for the 
+     build service as fast as possible.</p>
+
+  
+  <%= form_tag :action => 'register' %>
+    <table border="0">
+      <tr><td>Real Name:</td>
+          <td><%= text_field_tag( "realname", "", :size => 40 ) %></td>
+      </tr>
+      <tr>
+          <td>Email Address:</td>
+          <td><%= text_field_tag( "email", "", :size => 40 ) %></td>
+      </tr>
+      <tr>
+          <td colspan="2">Please explain shortly what you intend to do with the openSUSE build service:</td>
+      </tr>
+      <tr>
+          <td colspan="2"><%= text_area_tag "explanation", nil, :size => "25x10" %></td>
+      </tr>
+
+    </table>
+    <%= submit_tag "Submit" %>
+  <%= end_form_tag %>
+

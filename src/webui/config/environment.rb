@@ -69,6 +69,8 @@ ActiveXML::Base.config do |conf|
     map.connect :package, "rest:///source/:project/:name/_meta",
         :all    => "rest:///source/:project"
     map.connect :person, "rest:///person/:login"
+    map.connect :unregisteredperson, "rest:///person/register"
+
     map.connect :platform, "rest:///platform/:project/:name",
         :all    => "rest:///platform/"
     

@@ -20,9 +20,9 @@ class ApplicationController < ActionController::Base
       logger.debug "Have an iChain host: #{ichain_host}"
       ichain_user = request.env['HTTP_X_USERNAME']
 # TEST vv
-      unless ichain_user
-        ichain_user = "freitag"
-        logger.debug "TEST-ICHAIN_USER freitag set!"
+      unless ichain_user and ichain_host = "simulate"
+        ichain_user = ichain_test_user 
+        logger.debug "TEST-ICHAIN_USER #{ichain_user} set!"
         request.env.each do |name, val|
           logger.debug "Header value: #{name} = #{val}"
         end
@@ -32,13 +32,13 @@ class ApplicationController < ActionController::Base
       end
 
       if ichain_user
+        logger.debug "Setting Session login to #{ichain_user}"
+        @session[:login] = ichain_user
         # Do the transport
-        TRANSPORT.login proc {
-          # STDERR.puts session.inspect
-          [ ichain_user ]
-        }
-      else 
-        redirect_to :controller => 'user', :action => 'ichain_login'
+        transport = ActiveXML::Config.transport_for( :project )
+        transport.set_additional_header( "X-Username", ichain_user )
+      else
+        redirect_to :controller => 'privacy', :action => 'ichain_login'
       end
     else
       basic_auth
@@ -110,16 +110,20 @@ class ApplicationController < ActionController::Base
     when ActiveXML::Transport::UnauthorizedError
       session[:login] = nil
       session[:passwd] = nil
-      
+
       flash[:error] = @message
-      
+
       redirect_to :controller => 'user', :action => 'login'
-#   when ActiveXML::Transport::ForbiddenError
-#     render_error :code => @code, :message => @message
+    when ActiveXML::Transport::ForbiddenError
+      if @code == "unregistered_ichain_user" 
+        redirect_to :controller => 'user', :action => 'request_ichain'
+      else
+        render_error :code => @code, :message => @message
+      end
 #   when ActiveXML::Transport::ConnectionError
 #     render_error :code => @code, :message => @message
 #   when ActiveXML::Error
-#     render_error :code => @code, :message => @message
+#     render_error :code => @code, :message => @messag
     else
       logger.debug "default exception handling"
       render_error :code => @code, :message => @message, :exception => @exception, :api_exception => @api_exception
@@ -163,6 +167,10 @@ class ApplicationController < ActionController::Base
       ICHAIN_HOST
     # end
     # nil
+  end
+
+  def ichain_test_user
+      ICHAIN_TEST_USER
   end
 
   def valid_project_name? name

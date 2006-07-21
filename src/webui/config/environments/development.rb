@@ -22,5 +22,18 @@ FRONTEND_HOST = "localhost"
 FRONTEND_PORT = 3001
 #FRONTEND_PORT = 9001
 
+# set the iChain host to something not nil to use iChain. Note
+# that the IP is not used atm but that might change.
+# If ICHAIN_HOST is set to "simulate", iChain is simulated in the
+# way that the ichain header entry is set to the value specified
+# in the ICHAIN_TEST_USER variable here below.
+# ATTENTION: If you set an IP address here the frontend takes the
+# user name that is coming as headervalue X-username as a valid
+# user and does not further authentication. So take care...
+# ATTENTION 2: The ICHAIN_* entries must correspond with the entries
+# in the frontend otherwise funny things happen.
+
+# ICHAIN_HOST = "simulate"
 ICHAIN_HOST = nil
+ICHAIN_TEST_USER = "test"
 
