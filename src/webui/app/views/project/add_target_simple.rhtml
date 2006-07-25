@@ -12,12 +12,14 @@
   <li><%= button_to "SUSE Linux 10.1", :targetname => "SUSE_Linux_10.1", :platform => 'SUSE:SL-10.1/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "SUSE Linux 10.0", :targetname => "SUSE_Linux_10.0", :platform => 'SUSE:SL-10.0/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "SUSE Linux 9.3", :targetname => "SUSE_Linux_9.3", :platform => 'SUSE:SL-9.3/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
+  <li><%= button_to "SLE 10", :targetname => "SLE_10", :platform => 'SUSE:SLE-10:SDK/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "SLES 9", :targetname => "SLES_9", :platform => 'SUSE:SLES-9/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "SUSE Factory", :targetname => "SUSE_Factory", :platform => 'SUSE:Factory/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "Debian Etch", :targetname => "Debian_Etch", :platform => 'Debian:Etch/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "Fedora 4 with Extras", :targetname => "Fedora_Extras_4", :platform => 'Fedora:Extras4/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "Fedora 5 with Extras", :targetname => "Fedora_Extras_5", :platform => 'Fedora:Extras5/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "Mandriva 2006", :targetname => "Mandriva_2006", :platform => 'Mandriva:2006/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
+  <li><%= button_to "xUbuntu 6.06", :targetname => "xUbuntu_6.06", :platform => 'Ubuntu:6.06/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
 </ul>
 
 <p><%= link_to( "[Advanced]", :action => :add_target, :project => @project ) %></p>
