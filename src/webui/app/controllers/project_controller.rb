@@ -169,7 +169,7 @@ class ProjectController < ApplicationController
 
     def @priority_namespaces.include_ns?(projname)
       nslist = projname.split(/:/)
-      return false if nslist.length != 2
+      return false if nslist.length < 2
       return false unless self.include? nslist[0]
       return true
     end
