@@ -42,7 +42,7 @@ class ApplicationController < ActionController::Base
         logger.debug "iChain user extracted from header: #{ichain_user}"
       else
 # TEST vv
-        if ichain_host = "simulate"
+        if ichain_host == "simulate"
           ichain_user = ichain_test_user 
           logger.debug "TEST-ICHAIN_USER #{ichain_user} set!"
         end
