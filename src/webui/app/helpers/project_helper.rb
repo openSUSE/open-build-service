@@ -32,7 +32,9 @@ module ProjectHelper
   end
 
   def watch_link_text
-    @user.watches?(@project_name) ? "[Don't watch this project]" : "[Watch this project]"
+    if @user
+      @user.watches?(@project_name) ? "[Don't watch this project]" : "[Watch this project]"
+    end
   end
 
   def format_packstatus_for( repo, arch )
