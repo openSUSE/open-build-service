@@ -6,8 +6,8 @@ class PrivacyController < ApplicationController
     # Note that all the following code is not really neccessary but 
     # only for test purposes.  See application/extract_user for the real
     # user extraction and verification.
-    if request.env.has_key? 'X-username'
-      user = request.env['X-username']
+    if request.env.has_key? 'HTTP_X_USERNAME' # X-username'
+      user = request.env[ 'HTTP_X_USERNAME' ] # X-username']
       logger.debug "Have this iChain Username: #{user}"
       if params[:continue]
         redirect_to params[:continue]
@@ -15,6 +15,10 @@ class PrivacyController < ApplicationController
       redirect_to( "/" )
     else 
       logger.debug "No X-Username found!"
+      request.env.each do |name, val|
+        logger.debug "Header value: #{name} = #{val}"
+      end
+
       render_error :code => 401, :message => "iChain configuration error. Sorry."
     end
   end

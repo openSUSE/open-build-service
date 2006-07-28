@@ -20,9 +20,11 @@ class ApplicationController < ActionController::Base
       logger.debug "Have an iChain host: #{ichain_host}"
       ichain_user = request.env['HTTP_X_USERNAME']
 # TEST vv
-      unless ichain_user and ichain_host = "simulate"
-        ichain_user = ichain_test_user 
-        logger.debug "TEST-ICHAIN_USER #{ichain_user} set!"
+      unless ichain_user 
+        if ichain_host == "simulate"
+          ichain_user = ichain_test_user 
+          logger.debug "TEST-ICHAIN_USER #{ichain_user} set!"
+        end
         request.env.each do |name, val|
           logger.debug "Header value: #{name} = #{val}"
         end
@@ -37,6 +39,10 @@ class ApplicationController < ActionController::Base
         # Do the transport
         transport = ActiveXML::Config.transport_for( :project )
         transport.set_additional_header( "X-Username", ichain_user )
+    
+        # set user object reachable from controller
+        @user = Person.find( ichain_user )
+
       else
         redirect_to :controller => 'privacy', :action => 'ichain_login'
       end
@@ -125,8 +131,14 @@ class ApplicationController < ActionController::Base
 #   when ActiveXML::Error
 #     render_error :code => @code, :message => @messag
     else
-      logger.debug "default exception handling"
-      render_error :code => @code, :message => @message, :exception => @exception, :api_exception => @api_exception
+      # FIXME: This should be done in the ForbiddenError-Exception handling.
+      # but the exception handling seems to be buggy atm
+      if @code == "unregistered_ichain_user"
+        redirect_to :controller => 'user', :action => 'request_ichain'
+      else
+        logger.debug "default exception handling"
+        render_error :code => @code, :message => @message, :exception => @exception, :api_exception => @api_exception
+      end
     end
   end
 
