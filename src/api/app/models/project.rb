@@ -20,4 +20,16 @@ class Project < ActiveXML::Base
 
     merge_data elem_cache
   end
+
+  def name=(new_name)
+    self.attributes['name'] = new_name.to_s
+  end
+
+  def title=(new_title)
+    self.title.data.text = new_title.to_s
+  end
+
+  def description=(new_desc)
+    self.description.data.text = new_desc.to_s
+  end
 end

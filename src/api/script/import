@@ -1,0 +1,111 @@
+#!/usr/bin/env ruby
+require File.dirname(__FILE__) + '/../config/boot'
+
+### boot rails ###
+Rails::Initializer.run do |config|
+  config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
+  config.load_paths << File.expand_path("#{RAILS_ROOT}/vendor/plugins/active_rbac/app/model")
+end
+
+module ActiveRbacConfig
+  config :controller_layout, "html"
+end
+
+Engines.start :active_rbac
+
+require 'activexml'
+
+ActiveXML::Base.config do |conf|
+  conf.lazy_evaluation = true
+
+  conf.setup_transport do |map|
+    map.default_server :rest, "buildservice:5352"
+    map.connect :project, "bssql:///"
+    map.connect :package, "bssql:///"
+    map.connect :xproject, "rest:///source/:name/_meta",
+      :all => "rest:///source/:name"
+    map.connect :xpackage, "rest:///source/:project/:name/_meta",
+      :all => "rest:///source/:project/:name/"
+  end
+end
+
+
+class Xproject < ActiveXML::Base
+end
+
+class Xpackage < ActiveXML::Base
+end
+
+
+def store_project( p )
+  STDERR.print "  #{p.name} => "
+  begin
+    p.save
+    STDERR.puts "success"
+    store_packages_for p
+    return true
+  rescue RuntimeError => e
+    if e.message =~ /^unable to walk on path/
+      STDERR.puts "delayed"
+      return false
+    else
+      STDERR.puts "FAILED"
+      raise e
+    end
+  end
+end
+
+def store_packages_for( p )
+  STDERR.puts "  --> storing packages for project '#{p.name}'"
+  list = Xpackage.find :all, :project => p.name
+  list.each_entry do |entry|
+    STDERR.print "     #{entry.name} => "
+    xpack = Xpackage.find entry.name, :project => p.name
+    pack = Package.new( xpack.dump_xml, :project => p.name )
+    pack.save
+    STDERR.puts "success"
+  end
+  STDERR.puts "  <-- fin"
+end
+
+
+
+projects = Xproject.find(:all)
+
+# maps project name to an array: [project_object, {packagename => package_object, ...}]
+cache = Hash.new
+
+STDERR.puts "--> storing projects"
+projects.each_entry do |entry|
+  next if entry.name == "abc>def"
+
+  p = nil 
+  begin
+    p = Project.find( entry.name )
+  rescue ActiveXML::Transport::NotFoundError
+  end
+  next if p
+ 
+  backend_project = Xproject.find entry.name
+  p = Project.new( backend_project.dump_xml )
+  
+  begin
+    cache[entry.name] = p unless store_project(p)
+  rescue ActiveRecord::StatementInvalid => e
+    next if e.message =~ /#23000Column 'bs_user_id' cannot be null:/
+    raise e
+  end
+end
+
+run_count = 0;
+
+while( cache.length > 0 )
+  STDERR.puts "--> trying to store previously unsaved projects, run [#{run_count += 1}]"
+  tmp = cache.values.clone
+  tmp.each do |p|
+    if store_project(p)
+      cache.delete p.name.to_s
+      STDERR.puts "*** cache.length: #{cache.length}"
+    end
+  end
+end

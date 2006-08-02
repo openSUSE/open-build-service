@@ -78,10 +78,15 @@ ActiveXML::Base.config do |conf|
 
   conf.setup_transport do |map|
     map.default_server :rest, "#{SOURCE_HOST}:#{SOURCE_PORT}"
+
+    #map.connect :project, "bssql:///"
+    #map.connect :package, "bssql:///"
+
     map.connect :project, "rest:///source/:name/_meta",
         :all    => "rest:///source/"
     map.connect :package, "rest:///source/:project/:name/_meta",
         :all    => "rest:///source/:project"
+
     map.connect :packstatus, "rest:///status/:project?summaryonly=:summaryonly"
   end
 end

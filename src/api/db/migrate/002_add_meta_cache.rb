@@ -1,61 +1,65 @@
 class AddMetaCache < ActiveRecord::Migration
   def self.up
-    create_table "projects" do |t|
+    create_table "db_projects" do |t|
       t.column "name", :string, :null => false
       t.column "title", :string
       t.column "description", :text
     end
 
-    add_index "projects", ["name"], :name => "projects_name_index", :unique => true
+    add_index "db_projects", ["name"], :name => "projects_name_index", :unique => true
 
-    create_table "packages" do |t|
-      t.column "project_id", :integer, :null => false
+    create_table "db_packages" do |t|
+      t.column "db_project_id", :integer, :null => false
       t.column "name", :string, :null => false
       t.column "title", :string
       t.column "description", :text
     end
 
-    add_index "packages", ["project_id", "name"], :name => "packages_all_index", :unique => true
+    add_index "db_packages", ["db_project_id", "name"], :name => "packages_all_index", :unique => true
 
-    create_table "projects_users_roles" do |t|
-      t.column "project_id", :integer, :null => false
+    create_table "project_user_role_relationships" do |t|
+      t.column "db_project_id", :integer, :null => false
       t.column "bs_user_id", :integer, :null => false
-      t.column "role_id", :integer, :null => false
+      t.column "bs_role_id", :integer, :null => false
     end
 
-    add_index "projects_users_roles", ["project_id", "bs_user_id", "role_id"], :name => "project_user_role_all_index", :unique => true
+    add_index "project_user_role_relationships", ["db_project_id", "bs_user_id", "bs_role_id"], :name => "project_user_role_all_index", :unique => true
 
-    create_table "packages_users_roles" do |t|
-      t.column "package_id", :integer, :null => false
+    create_table "package_user_role_relationships" do |t|
+      t.column "db_package_id", :integer, :null => false
       t.column "bs_user_id", :integer, :null => false
-      t.column "role_id", :integer, :null => false
+      t.column "bs_role_id", :integer, :null => false
     end
 
-    add_index "packages_users_roles", ["package_id", "bs_user_id", "role_id"], :name => "package_user_role_all_index", :unique => true
+    add_index "package_user_role_relationships", ["db_package_id", "bs_user_id", "bs_role_id"], :name => "package_user_role_all_index", :unique => true
 
     create_table "tags" do |t|
       t.column "name", :string, :null => false
     end
 
-    create_table "projects_tags" do |t|
-      t.column "project_id", :integer, :null => false
+    add_index "tags", ["name"], :name => "tags_name_unique_index", :unique => true
+
+    create_table "db_projects_tags", :id => false do |t|
+      t.column "db_project_id", :integer, :null => false
       t.column "tag_id", :integer, :null => false
     end
 
-    add_index "projects_tags", ["project_id", "tag_id"], :name => "projects_tags_all_index", :unique => true
+    add_index "db_projects_tags", ["db_project_id", "tag_id"], :name => "projects_tags_all_index", :unique => true
 
-    create_table "repositories" do |t|
-      t.column "project_id", :integer
-      t.column "name", :string
+    create_table "bs_roles" do |t|
+      t.column "title", :string
     end
+
+    add_index "bs_roles", ["title"], :name => "bs_roles_title_unique_index", :unique => true
   end
 
   def self.down
-    drop_table "projects"
-    drop_table "packages"
-    drop_table "projects_users_roles"
-    drop_table "packages_users_roles"
+    drop_table "db_projects"
+    drop_table "db_packages"
+    drop_table "project_user_role_relationships"
+    drop_table "package_user_role_relationships"
     drop_table "tags"
-    drop_table "projects_tags"
+    drop_table "db_projects_tags"
+    drop_table "bs_roles"
   end
 end

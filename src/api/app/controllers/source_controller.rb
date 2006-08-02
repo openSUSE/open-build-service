@@ -11,22 +11,26 @@ class SourceController < ApplicationController
   end
 
   def projectlist
-    forward_data "/source"
+    #forward_data "/source"
+    @dir = Project.find :all
+    render :text => @dir.dump_xml, :content_type => "text/xml"
   end
 
   def index_project
-    project = params[:project]
-    forward_data "/source/#{project}"
+    project_name = params[:project]
+    #forward_data "/source/#{project_name}"
+    @dir = Package.find :all, :project => project_name
+    render :text => @dir.dump_xml, :content_type => "text/xml"
   end
 
   def index_package
-    project = params[:project]
-    package = params[:package]
+    project_name = params[:project]
+    package_name = params[:package]
     rev = params[:rev]
     user = params[:user]
     comment = params[:comment]
 
-    path = "/source/#{project}/#{package}"
+    path = "/source/#{project_name}/#{package_name}"
     query = Array.new
     query_string = ""
 
@@ -39,7 +43,7 @@ class SourceController < ApplicationController
       cmd = params[:cmd]
       logger.debug "CMD: #{cmd}"
       if cmd == "createSpecFileTemplate"
-        specfile_path = "#{path}/#{package}.spec"
+        specfile_path = "#{path}/#{package_name}.spec"
         begin
           backend_get( specfile_path )
           render_error :status => 403, :message => "SPEC file already exists."
@@ -50,13 +54,42 @@ class SourceController < ApplicationController
         end
         render_ok
       elsif cmd == "rebuild"
-        p = Project.find( project )
+        repo_name = params[:repo]
+        arch_name = params[:arch]
 
-        p.each_repository do |repo|
-          repo.each_arch do |arch|
-            Suse::Backend.delete_status project, repo.name, package, arch.to_s
+        p = Project.find( project_name )
+
+        if repo_name
+          if not ( repo = p.repository( "@name='#{repo_name}'" ) )
+            render_error :status => 403, :code => 'unknown_repository', :message=> "Unknown repository '#{repo_name}'"
+            return
+          end
+
+          if arch_name
+            #both
+            Suse::Backend.delete_status project_name, repo_name, package_name, arch_name
+          else
+            #only repo
+            repo.each_arch do |arch|
+              Suse::Backend.delete_status project_name, repo.name, package_name, arch.to_s
+            end
+          end
+        else
+          if arch_name
+            #only arch
+            p.each_repository do |repo|
+              Suse::Backend.delete_status project_name, repo.name, package_name, arch_name
+            end
+          else
+            #neither
+            p.each_repository do |repo|
+              repo.each_arch do |arch|
+                Suse::Backend.delete_status project_name, repo.name, package_name, arch.to_s
+              end
+            end
           end
         end
+
         render_ok
       elsif cmd == "commit"
         query << URI.escape("rev=#{rev}") if rev
@@ -73,24 +106,23 @@ class SourceController < ApplicationController
   end
 
   def project_meta
-    project = params[:project]
-    path = "/source/#{project}/_meta"
-    
-    request_data = request.raw_post
+    project_name = params[:project]
 
     if request.get?
-      forward_data path
+      @project = Project.find( project_name )
+      render :text => @project.dump_xml, :content_type => 'text/xml'
     elsif request.put?
       # Need permission
       logger.debug "Checking permission for the put"
       allowed = false
+      request_data = request.raw_post
+
       begin
         # Try to fetch the project to see if it already exists
-        @project = Project.find( project )
-        #response = Suse::Backend.get( path )
+        @project = Project.find( project_name )
 	
 	# Being here means that the project already exists
-	allowed = permissions.project_change? project
+	allowed = permissions.project_change? project_name
         if allowed
           @project.raw_data = request_data
         else
@@ -104,7 +136,7 @@ class SourceController < ApplicationController
 	
 	if allowed 
 	  # This is a new project. Add the logged in user as maintainer
-          @project = Project.new( request_data, :name => project )
+          @project = Project.new( request_data, :name => project_name )
          
           if not @project.has_element?( "person[@userid='#{user.login}']" )
             @project.add_person( :userid => user.login )
@@ -121,33 +153,33 @@ class SourceController < ApplicationController
            
       if allowed
         @project.save
-        #response = Suse::Backend.put_source path, request_data
         render_ok
       else
-        logger.debug "No permissions to PUT on #{path}"
-	render_error( :message => "Permission Denied", :status => 403 )
+        logger.debug "No permissions to write project meta for project #@project"
+	render_error( :message => "Permission denied (write project meta for project #@project)", :status => 403 )
       end
     else
-      #neither put nor post
+      #neither put nor get
       #TODO: return correct error code
-      render_error :message => "Illegal request: POST #{path}", :status => 500
+      render_error :message => "Illegal request: POST #{request.path}", :status => 500
     end
   end
 
   def package_meta
     #TODO: needs cleanup/split to smaller methods
-    project = params[:project]
-    package = params[:package]
-    path = "/source/#{project}/#{package}/_meta"
+   
+    project_name = params[:project]
+    package_name = params[:package]
 
     if request.get?
-      @package = Package.find( package, :project => project )
+      @package = Package.find( package_name, :project => project_name )
+      render :text => @package.dump_xml, :content_type => 'text/xml'
     elsif request.put?
       allowed = false
       request_data = request.raw_post
       begin
         # Try to fetch the package to see if it already exists
-        @package = Package.find( package, :project => project )
+        @package = Package.find( package_name, :project => project_name )
 	
         # Being here means that the project already exists
         allowed = permissions.package_change? @package
@@ -159,22 +191,22 @@ class SourceController < ApplicationController
           return
         end
       rescue ActiveXML::Transport::NotFoundError
-        # Ok, the project  is new
-	allowed = permissions.package_create?( project )
+        # Ok, the project is new
+	allowed = permissions.package_create?( project_name )
 	
         if allowed
           #FIXME: parameters that get substituted into the url must be specified here... should happen
           #somehow automagically... no idea how this might work
-          @package = Package.new( request_data, :project => project, :name => package )
+          @package = Package.new( request_data, :project => project_name, :name => package_name )
 
           # add package creator as maintainer if he is not added already
-          if not @package.has_element?( "person[@userid='#{user.login}]'" )
+          if not @package.has_element?( "person[@userid='#{user.login}']" )
             @package.add_person( :userid => user.login )
           end
         else
           # User is not allowed by global permission.
           logger.debug "Not allowed to create new packages"
-          render_error( :message => "no permission to create package for project #{project}", :status => 403 )
+          render_error( :message => "no permission to create package for project #{project_name}", :status => 403 )
           return
         end
       end
@@ -183,25 +215,25 @@ class SourceController < ApplicationController
         @package.save
         render_ok
       else
-        logger.debug "user #{user.login} no permission to PUT on #{path}"
+        logger.debug "user #{user.login} has no permission to write package meta for package #@package"
       end
     else
       # neither put nor get
       #TODO: return correct error code
-      render_error :message => "Illegal request: POST #{path}", :status => 500
+      render_error :message => "Illegal request: POST #{request.path}", :status => 500
     end
   end
 
   def file
-    project = params[ :project ]
-    package = params[ :package ]
+    project_name = params[ :project ]
+    package_name = params[ :package ]
     file = params[ :file ]
     rev = params[:rev]
     user = params[:user]
     comment = params[:comment]
 
     
-    path = "/source/#{project}/#{package}/#{file}"
+    path = "/source/#{project_name}/#{package_name}/#{file}"
     query = Array.new
     query_string = ""
 
@@ -217,7 +249,7 @@ class SourceController < ApplicationController
       query_string = query.join('&')
       path += "?#{query_string}" unless query_string.empty?
       
-      allowed = permissions.package_change? package, project
+      allowed = permissions.package_change? package_name, project_name
       if  allowed
         Suse::Backend.put_source path, request.raw_post
         render_ok
