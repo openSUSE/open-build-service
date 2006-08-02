@@ -1,0 +1,60 @@
+<h2>openSUSE Frontend User Management</h2>
+
+<div class="commands">
+<%= link_to 'New user', :action => 'new' %>
+</div>
+
+<%= render :partial => '/active_rbac/shared/pagination', :locals => { :pages => @user_pages } %>
+<% cnt = 0 %>
+<table border="0">
+<thead>
+  <tr>
+    <th style="width: 50px;">id</th>
+    <th style="width: 100px;">login</th>
+    <th style="width: 100px;">email</th>
+    <th style="width: 150px;">state</th>
+    <th style="width: 50px;">&nbsp;</th>
+  </tr>
+</thead>
+<tbody>
+<% for user in @users %>
+  <tr bgcolor="<%= if cnt.modulo( 2 ) != 0 
+         col = "#eaeaea"
+       else 
+         col = "#ffffff"
+       end
+       cnt = cnt +1
+       if user.state == 5 
+         col = "#ffffdd"
+       end
+       col
+     -%>">
+    <td><%= user.id %></td>
+    <td><%=h user.login %></td>
+    <td><%=h user.email %></td>
+    <td><%= case user.state
+            when 1 then 'unconfirmed'
+            when 2 then 'confirmed'
+            when 3 then 'locked'
+            when 4 then 'deleted'
+            when 5 then 'iChain requested'
+            end
+            %></td>
+    
+    <td>
+      (<%= link_to 'S', {:action => 'show', :id => user }, :title => 'Show' %>
+       <%= link_to 'E', { :action => 'edit', :id => user }, :title => 'Edit' %>
+       <%= link_to 'D', { :action => 'delete', :id => user}, :title => 'Delete' %>)
+    </td>
+  </tr>
+<% end %>
+</tbody>
+</table>
+
+<%= render :partial => '/active_rbac/shared/pagination', :locals => { :pages => @user_pages } %>
+
+
+<div class="commands">
+<%= link_to 'New user', :action => 'new' %>
+</div>
+
