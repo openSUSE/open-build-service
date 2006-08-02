@@ -6,7 +6,7 @@ class Platform < ActiveXML::Base
 
   def set_project p
     logger.debug( "SET PROJECT #{p}" )
-    @data.attributes["project"] = p
+    data.attributes["project"] = p
   end
 
 end

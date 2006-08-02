@@ -9,7 +9,7 @@ class Link < ActiveXML::Base
   end
   
   def add_patch filename
-    patches = @data.elements["/link/patches/"]
+    patches = data.elements["/link/patches/"]
     e = REXML::Element.new( "add" )
     e.attributes["name"] = filename
     patches.add_element e

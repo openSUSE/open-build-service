@@ -17,7 +17,7 @@ class Project < ActiveXML::Base
     end
     
     #add the new package
-    @data.add_element 'package', 'name' => package.to_s, 'revision' => 1
+    data.add_element 'package', 'name' => package.to_s, 'revision' => 1
         
     #readd the removed elements
     merge_data elem_cache
@@ -42,7 +42,7 @@ class Project < ActiveXML::Base
     end
 
     #add the new person
-    @data.add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
+    data.add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
 
     merge_data elem_cache
   end
@@ -58,8 +58,8 @@ class Project < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    @data.each_element(xpath) do |e|
-      @data.delete_element e
+    data.each_element(xpath) do |e|
+      data.delete_element e
     end
   end
 
@@ -75,14 +75,14 @@ class Project < ActiveXML::Base
       arch.text = arch_text
     end
 
-    @data.add_element target
+    data.add_element target
   end
 
   def remove_target( target )
     return nil if not target
     return nil if not self.has_element? :repository
     
-    @data.delete_element "repository[@name='#{target}']"
+    data.delete_element "repository[@name='#{target}']"
   end
 
   private

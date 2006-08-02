@@ -42,7 +42,7 @@ class Package < ActiveXML::Base
     end
 
     #add the new person
-    @data.add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
+    data.add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
 
     merge_data elem_cache
   end
@@ -58,8 +58,8 @@ class Package < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    @data.each_element(xpath) do |e|
-      @data.delete_element e
+    data.each_element(xpath) do |e|
+      data.delete_element e
     end
   end
 
