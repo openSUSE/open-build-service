@@ -34,9 +34,8 @@ class User < ActiveRecord::Base
   def state_transition_allowed?(from, to)
     from = from.to_i
     to = to.to_i
-    logger.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     return true if from == to # allow keeping state
-    logger.debug( "Here are we!")
+    logger.debug( "Transition from #{from} to #{to}")
     return case from
       when states['unconfirmed']
         true
@@ -54,10 +53,15 @@ class User < ActiveRecord::Base
         false
     end
   end
-
-  def self.states
-    states = default_states
-    states['ichainrequest'] = 5
+ 
+  def states
+  {
+    'unconfirmed' => 1,
+    'confirmed' => 2,
+    'locked' => 3,
+    'deleted' => 4,
+    'ichainrequest' => 5
+   }
   end
 
 end

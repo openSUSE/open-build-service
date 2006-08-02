@@ -8,7 +8,7 @@ $LOAD_PATH.unshift RAILS_ROOT
 require_dependency 'opensuse/permission'
 require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'
-require_dependency 'bs_user'
+require_dependency 'user'
 
 class ApplicationController < ActionController::Base
   # Do never use a layout here since that has impact on every
@@ -58,13 +58,13 @@ class ApplicationController < ActionController::Base
       # However we have to care for the status of the user that must not be
       # unconfirmed or ichain requested
       if ichain_user 
-        @http_user = BsUser.find :first,
+        @http_user = User.find :first,
                                  :conditions => [ 'login = ? AND state=2', ichain_user ]
                                  
-      # If we do not find a BsUser here, we need to create a user and wait for 
+      # If we do not find a User here, we need to create a user and wait for 
       # the confirmation by the user and the BS Admin Team.
         if @http_user == nil 
-          @http_user = BsUser.find :first, 
+          @http_user = User.find :first, 
                                    :conditions => ['login = ?', ichain_user ]
           if @http_user == nil 
             render_error :message => "iChain user not yet registered", :status => 403,
@@ -116,7 +116,7 @@ class ApplicationController < ActionController::Base
         logger.debug "no authentication string was sent"
         render_error( :message => "Authentication required", :status => 401 ) and return false
       end
-      @http_user = BsUser.find_with_credentials login, passwd
+      @http_user = User.find_with_credentials login, passwd
     end
 
     if @http_user.nil?
