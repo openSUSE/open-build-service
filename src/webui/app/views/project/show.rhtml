@@ -109,7 +109,9 @@
           <th>
             <strong><%=h repo.name %></strong>
             <% begin -%>
-            <%=h repo.path.project+"/"+repo.path.repository %>
+            <% repo.each_path do |path| -%>
+            <%=h path.project+"/"+path.repository %><br/>
+            <% end -%>
             <% rescue; end %>
           </th>
           <% @arch_list.each do |arch| -%>
