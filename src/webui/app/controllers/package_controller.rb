@@ -260,23 +260,24 @@ class PackageController < ApplicationController
   end
 
   def save_person
+    project_name = params[:project]
+
     if not params[:userid]
       flash[:error] = "Login missing"
-      redirect_to :action => :add_person, :package => params[:package], :role => params[:role]
+      redirect_to :action => :add_person, :project => project_name, :package => params[:package], :role => params[:role]
       return
     end
 
-    user = Person.find( :login => params[:userid] )
-    logger.debug "found user: #{user.inspect}"
-    
-    if not user
-      flash[:error] = "Unknown user with id '#{params[:userid]}'"
-      redirect_to :action => :add_person, :package => params[:package], :role => params[:role]
+    begin
+      user = Person.find( :login => params[:userid] )
+      logger.debug "found user: #{user.inspect}"
+    rescue ActiveXML::Transport::NotFoundError 
+      flash[:error] = "Unknown user '#{params[:userid]}'"
+      redirect_to :action => :add_person, :project => project_name, :package => params[:package], :role => params[:role]
       return
     end
 
-    @project = params[:project]
-    @package = Package.find( params[:package], :project => @project )
+    @package = Package.find( params[:package], :project => project_name )
     @package.add_person( :userid => params[:userid], :role => params[:role] )
 
     if @package.save
@@ -285,7 +286,7 @@ class PackageController < ApplicationController
       flash[:note] = "Failed to add user '#{params[:userid]}'"
     end
  
-    redirect_to :action => :show, :package => @package, :project => @project_name
+    redirect_to :action => :show, :package => @package, :project => project_name
   end
 
   def remove_person
