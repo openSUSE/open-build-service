@@ -6,6 +6,11 @@ class Project < ActiveXML::Base
   end
 
   def add_package( package )
+    
+    
+    return true
+
+
     logger.debug "adding package #{package} to project #{self}"
 
     if( has_element? :package )
@@ -24,6 +29,9 @@ class Project < ActiveXML::Base
   end
 
   def remove_package( package )
+
+    return true
+
     return nil unless package
 
     data.delete_element "package[@name='#{package}']"

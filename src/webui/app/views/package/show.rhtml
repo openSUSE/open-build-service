@@ -13,8 +13,10 @@
 
 <br/>
 <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package %>
+<!-- package removal disabled
 <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
-        {:confirm => "Really remove package '#{@package}'?"}%>
+{:confirm => "Really remove package '#{@package}'?"}%>
+-->
 
 <% if @link %>
 <h3>Link</h3>

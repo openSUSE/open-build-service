@@ -67,18 +67,20 @@
     <td>
       <!-- Package table -->
       <h3>Packages</h3>
-      <% if @project.has_element? :package -%>
+      <% if @packages.count.to_i > 0 -%>
       <table class="grid">
-        <% @project.each_package do |package| -%>
+        <% @packages.each_entry do |package| -%>
         <tr>
           <td><%= link_to package.name, :controller => 'package', :action => :show,
-            :project=> @project, :package => package %></td>
+            :project=> @project, :package => package.name %></td>
+          <!-- remove link disabled
           <td><%= link_to "[Remove]", {:controller => 'package', :action => :remove,
-            :project => @project, :package => package}, {:confirm => "Really remove package '#{package.name}'?", :class => 'x'} %></td>
+            :project => @project, :package => package.name}, {:confirm => "Really remove package '#{package.name}'?", :class => 'x'} %></td>
+          -->
         </tr>
-        <% end #each_package -%>
+        <% end #each_entry -%>
       </table>
-      <% end #has_element? -%>
+      <% end #count > 0 -%>
       <p>
       <%= link_to "[Add Package]", :controller => 'package', :action => :new,
       :project => @project %>

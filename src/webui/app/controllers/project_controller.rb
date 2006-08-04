@@ -62,6 +62,7 @@ class ProjectController < ApplicationController
   def show
     begin
       @project = Project.find( params[:project] )
+      @packages = Package.find( :all, :project => params[:project] )
     rescue ActiveXML::Transport::NotFoundError
       # create home project if none is there
       logger.debug "caught Transport::NotFoundError in ProjectController#show"

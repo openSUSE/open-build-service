@@ -72,7 +72,8 @@ class PackageController < ApplicationController
       return
     end
     
-    @project = Project.find( params[:project] )
+    #@project = Project.find( params[:project] )
+    @project = params[:project]
 
     if params[:name]
       if !valid_package_name? params[:name]
@@ -84,9 +85,9 @@ class PackageController < ApplicationController
         @package.title.data.text = params[:title]
         @package.description.data.text = params[:description]
 
-        @project.add_package @package
+        #@project.add_package @package
 
-        if @package.save and @project.save
+        if @package.save #and @project.save
           if params[:createSpecFileTemplate]
             logger.debug( "CREATE SPEC FILE TEMPLATE" )
             frontend.cmd_package( @project.name, @package.name,
@@ -143,7 +144,7 @@ class PackageController < ApplicationController
 
     package.description.data.text = description
 
-    @project.add_package package
+    #@project.add_package package
 
     unless @project.save and package.save
       flash[:note] = "Failed to save package '#{package}'"
@@ -177,6 +178,7 @@ class PackageController < ApplicationController
   end
 
   def remove
+    #TODO: really delete packages
     @project = Project.find( params[:project] )
     @package_name = params[:package]
 
