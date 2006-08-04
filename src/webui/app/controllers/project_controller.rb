@@ -191,7 +191,7 @@ class ProjectController < ApplicationController
       end
     end
 
-    @project = Project.find( params[:project] )
+    @project = params[:project]
     @targetname = params[:targetname]
     @platform = params[:platform]
   end
