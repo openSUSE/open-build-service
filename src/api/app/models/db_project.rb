@@ -13,6 +13,22 @@ class DbProject < ActiveRecord::Base
         dbp.store_axml( project )
       end
     end
+
+    def get_repo_list
+      sql =<<-END_SQL
+      SELECT p.name AS project_name, r.name AS repo_name
+      FROM repositories r
+      LEFT JOIN db_projects p ON r.db_project_id = p.id
+      ORDER BY project_name
+      END_SQL
+
+      repolist = Repository.find_by_sql sql
+      result = []
+      repolist.each do |repo|
+        result << "#{repo.project_name}/#{repo.repo_name}"
+      end
+      result
+    end
   end
 
   def store_axml( project )

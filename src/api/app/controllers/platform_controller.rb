@@ -3,27 +3,16 @@ require 'opensuse/backend'
 class PlatformController < ApplicationController
 
   def index
-    s = ""
-    out = Builder::XmlMarkup.new( :target => s )
-    out.directory do
-      response = Suse::Backend.get( "/platform/" )
-      directory = REXML::Document.new( response.body )
-      directory.elements.each( "/directory/entry" ) do |entry|
-        project_name = entry.attributes[ "name" ]
-        if ( project_name )
-          entry_response = Suse::Backend.get( "/platform/" + project_name )
-          entry = REXML::Document.new( entry_response.body )
-          entry.elements.each( "/directory/entry" ) do |e|
-            repository_name = e.attributes[ "name" ]
-            if ( repository_name )
-              out.entry( "name" =>  project_name + "/" + repository_name )
-            end
-          end
-        end
+    repolist = DbProject.get_repo_list
+
+    builder = Builder::XmlMarkup.new( :indent => 2 )
+    xml = builder.directory( :count => repolist.length ) do |dir|
+      repolist.each do |repo|
+        dir.entry( :name => repo )
       end
     end
 
-    send_data( s, :type => "text/xml", :disposition => "inline" )    
+    render :text => xml, :content_type => "text/xml"
   end
   
   def project
