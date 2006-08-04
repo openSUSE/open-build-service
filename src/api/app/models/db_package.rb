@@ -1,19 +1,21 @@
 class DbPackage < ActiveRecord::Base
-  has_many :package_user_role_relationships
+  has_many :package_user_role_relationships, :dependent => :destroy
   belongs_to :db_project
 
   class << self
     def store_axml( package )
-      project_name = package.parent_project_name
-      if not( dbp = DbPackage.find_by_project_and_name(project_name, package.name) )
-        pro = DbProject.find_by_name project_name
-        if pro.nil?
-          raise RuntimeError, "unknown project '#{project_name}'"
+      DbPackage.transaction do
+        project_name = package.parent_project_name
+        if not( dbp = DbPackage.find_by_project_and_name(project_name, package.name) )
+          pro = DbProject.find_by_name project_name
+          if pro.nil?
+            raise RuntimeError, "unknown project '#{project_name}'"
+          end
+          dbp = DbPackage.new( :name => package.name.to_s )
+          pro.db_packages << dbp
         end
-        dbp = DbPackage.new( :name => package.name.to_s )
-        pro.db_packages << dbp
+        dbp.store_axml( package )
       end
-      dbp.store_axml( package )
     end
 
     def find_by_project_and_name( project, package )
@@ -70,7 +72,7 @@ class DbPackage < ActiveRecord::Base
           usercache.delete person.userid
         else
           PackageUserRoleRelationship.create(
-            :bs_user => BsUser.find_by_login(person.userid),
+            :user => User.find_by_login(person.userid),
             :bs_role => BsRole.rolecache[person.role],
             :db_package => self
           )
@@ -82,13 +84,17 @@ class DbPackage < ActiveRecord::Base
         PackageUserRoleRelationship.destroy_all ["db_package_id = ? AND bs_user_id IN (#{user_ids_to_delete})", self.id]
       end
       #--- end update users ---#
+      
+      #--- write through to backend ---#
+      path = "/source/#{self.db_project.name}/#{self.name}/_meta"
+      Suse::Backend.put_source( path, package.dump_xml )
     end
   end
 
   def add_user( login, role_title )
     PackageUserRoleRelationship.create(
         :db_package => self,
-        :bs_user => BsUser.find_by_login( login ),
+        :user => User.find_by_login( login ),
         :bs_role => BsRole.find_by_title( role_title ) )
   end
 
@@ -125,7 +131,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def each_user( opt={}, &block )
-    users = BsUser.find :all,
+    users = User.find :all,
       :select => "bu.*, r.title AS role_name",
       :joins => "bu, package_user_role_relationships purr, bs_roles r",
       :conditions => ["bu.id = purr.bs_user_id AND purr.db_package_id = ? AND r.id = purr.bs_role_id", self.id]

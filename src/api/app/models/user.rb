@@ -1,8 +1,9 @@
 class User < ActiveRecord::Base
   include ActiveRbacMixins::UserMixin
   
-  has_many :watched_projects
-  has_many :project_user_role_relationships
+  has_many :watched_projects, :foreign_key => 'bs_user_id'
+  has_many :project_user_role_relationships, :foreign_key => 'bs_user_id'
+  has_many :package_user_role_relationships, :foreign_key => 'bs_user_id'
 
   def encrypt_password
     if errors.count == 0 and @new_password and not password.nil?

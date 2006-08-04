@@ -124,7 +124,7 @@ class SourceController < ApplicationController
 	# Being here means that the project already exists
 	allowed = permissions.project_change? project_name
         if allowed
-          @project.raw_data = request_data
+          @project = Project.new( request_data, :name => project_name )
         else
           logger.debug "user #{user.login} has no permission to change project #{@project}"
 	  render_error( :message => "no permission to change project", :status => 403 )
@@ -137,6 +137,11 @@ class SourceController < ApplicationController
 	if allowed 
 	  # This is a new project. Add the logged in user as maintainer
           @project = Project.new( request_data, :name => project_name )
+
+          if( @project.name != project_name )
+            render_error( :message => "project name in xml data does not match resource path component", :status => 404 )
+            return
+          end
          
           if not @project.has_element?( "person[@userid='#{user.login}']" )
             @project.add_person( :userid => user.login )
@@ -184,7 +189,7 @@ class SourceController < ApplicationController
         # Being here means that the project already exists
         allowed = permissions.package_change? @package
         if allowed
-          @package.raw_data = request_data
+          @package = Package.new( request_data, :project => project_name, :name => package_name )
         else
           logger.debug "user #{user.login} has no permission to change package #{@package}"
 	  render_error( :message => "no permission to change package", :status => 403 )
@@ -198,6 +203,10 @@ class SourceController < ApplicationController
           #FIXME: parameters that get substituted into the url must be specified here... should happen
           #somehow automagically... no idea how this might work
           @package = Package.new( request_data, :project => project_name, :name => package_name )
+          if( @package.name != package_name )
+            render_error( :message => "package name in xml data does not match resource path component", :status => 404 )
+            return
+          end
 
           # add package creator as maintainer if he is not added already
           if not @package.has_element?( "person[@userid='#{user.login}']" )

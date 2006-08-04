@@ -6,10 +6,12 @@ class DbProject < ActiveRecord::Base
 
   class << self
     def store_axml( project )
-      if not (dbp = DbProject.find_by_name project.name)
-        dbp = DbProject.new( :name => project.name.to_s )
+      DbProject.transaction do
+        if not (dbp = DbProject.find_by_name project.name)
+          dbp = DbProject.new( :name => project.name.to_s )
+        end
+        dbp.store_axml( project )
       end
-      dbp.store_axml( project )
     end
   end
 
@@ -54,7 +56,7 @@ class DbProject < ActiveRecord::Base
           usercache.delete person.userid
         else
           ProjectUserRoleRelationship.create(
-            :bs_user => BsUser.find_by_login(person.userid),
+            :bs_user => User.find_by_login(person.userid),
             :bs_role => BsRole.rolecache[person.role],
             :db_project => self
           )
@@ -139,6 +141,11 @@ class DbProject < ActiveRecord::Base
 
       #--- write through to backend ---#
 
+      require 'opensuse/backend'
+      path = "/source/#{self.name}/_meta"
+      Suse::Backend.put_source( path, project.dump_xml )
+      
+
     end #transaction
   end
 
@@ -146,7 +153,7 @@ class DbProject < ActiveRecord::Base
     logger.debug "adding user: #{login}, #{role_title}"
     ProjectUserRoleRelationship.create(
         :db_project => self,
-        :bs_user => BsUser.find_by_login( login ),
+        :bs_user => User.find_by_login( login ),
         :bs_role => BsRole.find_by_title( role_title ) )
   end
 
@@ -183,7 +190,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def each_user( opt={}, &block )
-    users = BsUser.find :all,
+    users = User.find :all,
       :select => "bu.*, r.title AS role_name",
       :joins => "bu, project_user_role_relationships purr, bs_roles r",
       :conditions => ["bu.id = purr.bs_user_id AND purr.db_project_id = ? AND r.id = purr.bs_role_id", self.id]
