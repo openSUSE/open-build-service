@@ -1,14 +1,12 @@
 class BsRole < ActiveRecord::Base
 
-  @cache = Hash.new
-  find(:all).each do |role|
-    @cache[role.title] = role
-  end
-
-  class << self
-    def rolecache
-      @cache
+  def self.rolecache
+    return @cache if @cache
+    @cache = Hash.new
+    find(:all).each do |role|
+      @cache[role.title] = role
     end
+    return @cache
   end
 
   def rolecache

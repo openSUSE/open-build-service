@@ -1,15 +1,13 @@
 class Architecture < ActiveRecord::Base
   has_and_belongs_to_many :repositories
 
-  @cache = Hash.new
-  find(:all).each do |arch|
-    @cache[arch.name] = arch
-  end
-
-  class << self
-    def archcache
-      @cache
+  def self.archcache
+    return @cache if @cache
+    @cache = Hash.new
+    find(:all).each do |arch|
+      @cache[arch.name] = arch
     end
+    return @cache
   end
 
   def archcache
