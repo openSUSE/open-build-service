@@ -50,6 +50,8 @@ class AddMetaCache < ActiveRecord::Migration
       t.column "title", :string
     end
 
+    BsRole.create :title => "maintainer"
+
     add_index "bs_roles", ["title"], :name => "bs_roles_title_unique_index", :unique => true
   end
 

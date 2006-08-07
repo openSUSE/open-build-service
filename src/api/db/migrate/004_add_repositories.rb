@@ -22,12 +22,15 @@ class AddRepositories < ActiveRecord::Migration
 
     add_index "architectures", ["name"], :name => "arch_name_index", :unique => true
 
-    create_table :repositories_architectures, :id => false do |t|
+    Architecture.create :name => "i586"
+    Architecture.create :name => "x86_64"
+
+    create_table :architectures_repositories, :id => false do |t|
       t.column "repository_id", :integer
       t.column "architecture_id", :integer
     end
 
-    add_index "repositories_architectures", ["repository_id", "architecture_id"], :unique => true
+    add_index "architectures_repositories", ["repository_id", "architecture_id"], :unique => true
   end
 
   def self.down

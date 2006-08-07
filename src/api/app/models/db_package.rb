@@ -1,6 +1,8 @@
 class DbPackage < ActiveRecord::Base
-  has_many :package_user_role_relationships, :dependent => :destroy
   belongs_to :db_project
+  
+  has_many :package_user_role_relationships, :dependent => :destroy
+  has_many :disabled_repos, :include => [:architecture, :repository], :dependent => :destroy
 
   class << self
     def store_axml( package )
@@ -71,11 +73,19 @@ class DbPackage < ActiveRecord::Base
           end
           usercache.delete person.userid
         else
-          PackageUserRoleRelationship.create(
-            :user => User.find_by_login(person.userid),
-            :bs_role => BsRole.rolecache[person.role],
-            :db_package => self
-          )
+          begin
+            PackageUserRoleRelationship.create(
+              :user => User.find_by_login(person.userid),
+              :bs_role => BsRole.rolecache[person.role],
+              :db_package => self
+            )
+          rescue ActiveRecord::StatementInvalid => err
+            if err =~ /^#23000Duplicate entry /
+              logger.debug "user '#{person.userid}' already has the role '#{person.role}' in package '#{self.name}'"
+            else
+              raise err
+            end
+          end
         end
       end
 
@@ -84,6 +94,58 @@ class DbPackage < ActiveRecord::Base
         PackageUserRoleRelationship.destroy_all ["db_package_id = ? AND bs_user_id IN (#{user_ids_to_delete})", self.id]
       end
       #--- end update users ---#
+      
+      #--- update disabled repos ---#
+      drcache = Hash.new
+      self.disabled_repos.each do |dr|
+        drcache["#{dr.repository.name}/_/#{dr.arch ? dr.arch.name : nil}"] = dr
+      end
+
+      package.each_disable do |disable|
+        begin
+          arch = disable.arch
+        rescue NoMethodError => err
+          if err.message =~ /^undefined method .arch./
+            arch = nil
+          else
+            raise err
+          end
+        end
+
+        begin
+          repo = disable.repository
+        rescue NoMethodError => err
+          if err.message =~ /^undefined method .repository./
+            repo = nil
+          else
+            raise err
+          end
+        end
+
+        if drcache.has_key? "#{repo}/_/#{arch}"
+          # tag already in database, delete from cache
+          drcache.delete "#{repo}/_/#{arch}"
+        else
+          # new tag, add to database
+          if not repo.nil?
+            db_repo = self.db_project.repositories.find_by_name(repo)
+            if db_repo.nil?
+              logger.debug "unknown repository '#{repo}' in parent project, skipping disable"
+              next
+            end
+          end
+          self.disabled_repos.create(
+              :repository => (repo ? db_repo : nil),
+              :architecture => (arch ? Architecture.archcache[arch] : nil)
+          )
+        end
+      end
+
+      #delete remaining
+      drcache.each do |key,obj|
+        obj.destroy
+      end
+      #--- end update disabled repos ---#
       
       #--- write through to backend ---#
       path = "/source/#{self.db_project.name}/#{self.name}/_meta"
@@ -144,20 +206,23 @@ class DbPackage < ActiveRecord::Base
   end
 
 
-  logger.debug "defining to_axml"
   def to_axml
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
-    xml = builder.package( :name => name ) do |package|
+    xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
       package.description( description )
      
-      logger.debug "--> users" 
       each_user do |u|
-        logger.debug "ping"
         package.person( :userid => u.login, :role => u.role_name )
       end
-      logger.debug "<-- users"
+
+      disabled_repos.each do |dr|
+        opts = Hash.new
+        opts[:repository] = dr.repository.name if dr.repository
+        opts[:arch] = dr.architecture.name if dr.architecture
+        package.disable( opts )
+      end
     end
   end
 end

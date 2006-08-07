@@ -71,11 +71,20 @@ class DbProject < ActiveRecord::Base
           end
           usercache.delete person.userid
         else
-          ProjectUserRoleRelationship.create(
-            :bs_user => User.find_by_login(person.userid),
-            :bs_role => BsRole.rolecache[person.role],
-            :db_project => self
-          )
+          begin
+            ProjectUserRoleRelationship.create(
+              :user => User.find_by_login(person.userid),
+              :bs_role => BsRole.rolecache[person.role],
+              :db_project => self
+            )
+          rescue ActiveRecord::StatementInvalid => err
+            logger.debug "ping"
+            if err =~ /^#23000Duplicate entry /
+              logger.debug "user '#{person.userid}' already has the role '#{person.role}' in project '#{self.name}'"
+            else
+              raise err
+            end
+          end
         end
       end
 
@@ -229,9 +238,9 @@ class DbProject < ActiveRecord::Base
         project.person( :userid => u.login, :role => u.role_name )
       end
 
-      db_packages.each do |pack|
-        project.package( :name => pack.name )
-      end
+      #db_packages.each do |pack|
+      #  project.package( :name => pack.name )
+      #end
 
       tags.each do |tag|
         project.tag tag.name
