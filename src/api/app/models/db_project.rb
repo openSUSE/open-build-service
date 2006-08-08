@@ -166,9 +166,10 @@ class DbProject < ActiveRecord::Base
 
       #--- write through to backend ---#
 
-      require 'opensuse/backend'
-      path = "/source/#{self.name}/_meta"
-      Suse::Backend.put_source( path, project.dump_xml )
+      unless ActiveXML::Config::TransportMap.options_for(:project)[:write_through] == :false
+        path = "/source/#{self.name}/_meta"
+        Suse::Backend.put_source( path, project.dump_xml )
+      end
       
 
     end #transaction

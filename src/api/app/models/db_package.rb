@@ -148,8 +148,10 @@ class DbPackage < ActiveRecord::Base
       #--- end update disabled repos ---#
       
       #--- write through to backend ---#
-      path = "/source/#{self.db_project.name}/#{self.name}/_meta"
-      Suse::Backend.put_source( path, package.dump_xml )
+      unless ActiveXML::Config::TransportMap.options_for(:package)[:write_through] == :false
+        path = "/source/#{self.db_project.name}/#{self.name}/_meta"
+        Suse::Backend.put_source( path, package.dump_xml )
+      end
     end
   end
 
