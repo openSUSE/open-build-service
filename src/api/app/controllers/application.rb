@@ -35,11 +35,14 @@ class ApplicationController < ActionController::Base
       auth_method = :ichain
 
       logger.debug "configured iChain host: #{ichain_host} compared to remote_ip: #{request.remote_ip()}"
-      if  request.remote_ip() =~ /#{ichain_host}/
+
+      # The following outcommented lines limit trust to the Header-value to a ip range.
+      # we do not enable it in our setup
+      # if  request.remote_ip() =~ /#{ichain_host}/
         ichain_user = request.env['HTTP_X_USERNAME']
-      else
-        logger.debug "configured iChain host does not match the remote IP, iChain user not accepted."
-      end
+      # else
+      #  logger.debug "configured iChain host does not match the remote IP, iChain user not accepted."
+      # end
 
       if ichain_user 
         logger.debug "iChain user extracted from header: #{ichain_user}"
