@@ -6,6 +6,37 @@ $ENV{'PATH'} = "/bin:/usr/bin:/sbin:/usr/sbin";
 
 $| = 1;
 
+if ($0 ne '/.build/extractbuild') {
+  my $builddir = $ENV{'BUILD_DIR'} || '/usr/lib/build';
+  my $xen;
+  my $xenswap;
+  while (@ARGV) {
+    if ($ARGV[0] eq '--xen') {
+      shift @ARGV;
+      $xen = shift @ARGV;
+      next;
+    }
+    if ($ARGV[0] eq '--xenswap') {
+      shift @ARGV;
+      $xenswap = shift @ARGV;
+      next;
+    }
+    last
+  }
+  die("please specify a root image\n") unless defined $xen;
+  die("please specify a swap image\n") unless defined $xenswap;
+  my $xenname = $xen;
+  $xenname =~ s/\/root$//;
+  $xenname =~ s/.*\///;
+  my $xmroot = "disk=file:$xen,hda1,w";
+  $xmroot = "disk=phy:$xen,hda1,w" if $xen =~ /^\/dev\//;
+  my $xmswap= "disk=file:$xenswap,hda2,w";
+  $xmswap= "disk=phy:$xen,hda2,w" if $xenswap =~ /^\/dev\//;
+  syscall(135, 0);	# switch back to PER_LINUX to make xm work
+  system('xm', 'create', '-c', "$builddir/xen.conf", "name=build:$xenname", $xmroot, $xmswap, "extra=init=/.build/extractbuild panic=1") && die("xm call failed: $?\n");
+  exit(0);
+}
+
 sub ls {
   local *D;
   opendir(D, $_[0]) || return ();
@@ -59,7 +90,7 @@ my @packs;
 for my $dir (@dirs) {
   push @packs, map {"$dir/$_"} grep {/$psuf$/} ls($dir);
 }
-unshift @packs, '/.build.log';
+#unshift @packs, '/.build.log';
 
 my $cpio = '';
 for my $pack (@packs) {
@@ -83,7 +114,7 @@ for my $pack (@packs) {
     die("$pack: $!\n") unless $ll;
     die if $ll > $l;
     $l -= $ll;
-    if (length($cpio) > 4096) {
+    while (length($cpio) > 4096) {
       (syswrite(S, $cpio, 4096) || 0) == 4096 || die("swap write: $!\n");
       $cpio = substr($cpio, 4096);
     }

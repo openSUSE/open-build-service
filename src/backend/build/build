@@ -114,6 +114,15 @@ function clean_build_root () {
 #  cleanup_and_exit
 #
 cleanup_and_exit () {
+    if test -n "$RUNNING_IN_XEN" ; then
+	cd /
+	test -n "$XENSWAP" && swapoff "$XENSWAP"
+	exec >&0 2>&0	# so that the logging tee finishes
+	sleep 1		# wait till tee terminates
+	kill -9 -1	# goodbye cruel world
+	exec /bin/bash -c 'mount -n -o remount,ro / ; halt -f'
+	halt -f
+    fi
     if test "$1" = 0 -o -z "$1" ; then
         exit 0
     else
@@ -168,11 +177,19 @@ RPMLIST=
 RELEASE=
 REASON=
 NOROOTFORBUILD=
+LOGFILE=
 
 if test "$0" = "/.build/build" ; then
     BUILD_ROOT=/
     BUILD_DIR=/.build
     . $BUILD_DIR/build.data
+    echo "machine type: `uname -m`"
+    if test "$PERSONALITY" != 0 -a -z "$PERSONALITY_SET" ; then
+	export PERSONALITY_SET=true
+	echo "switching personality to $PERSONALITY..."
+	# this is 32bit perl/glibc, thus the 32bit syscall number
+	exec perl -e 'syscall(136, '$PERSONALITY') == -1 && warn("personality: $!\n");exec "/.build/build" || die("/.build/build: $!")'
+    fi
     PATH=$BUILD_DIR:$PATH
     RUNNING_IN_XEN=true
     if test -n "$XENSWAP" ; then
@@ -274,6 +291,10 @@ while test -n "$1"; do
       ;;
       *-release)
         RELEASE="--release $ARG"
+        shift
+      ;;
+      *-logfile)
+        LOGFILE="$ARG"
         shift
       ;;
       *-reason)
@@ -411,11 +432,19 @@ fi
 
 rm -f $BUILD_ROOT/exit
 
-if test -z "$XENIMAGE" ; then
-    echo  logging output to $BUILD_ROOT/.build.log...
-    rm -f $BUILD_ROOT/.build.log
-    touch $BUILD_ROOT/.build.log
-    exec 1> >(exec -a 'build logging tee' tee -a $BUILD_ROOT/.build.log) 2>&1
+if test -z "$XENIMAGE" -a -z "$LOGFILE"; then
+    LOGFILE="$BUILD_ROOT/.build.log"
+fi
+
+if test -n "$LOGFILE" ; then
+    echo  logging output to $LOGFILE...
+    rm -f $LOGFILE
+    touch $LOGFILE
+    if test -n "$XENIMAGE" ; then
+	exec 1> >(exec -a 'build logging tee' perl -e 'open(F,">>",$ARGV[0])||die("$ARGV[0]: $!\n");$|=1;select(F);$|=1;while(<STDIN>){print STDOUT;s/^\r//s;s/\r\n/\n/gs;print F}' $LOGFILE) 2>&1
+    else
+	exec 1> >(exec -a 'build logging tee' tee -a $LOGFILE) 2>&1
+    fi
 fi
 
 #
@@ -485,13 +514,16 @@ for SPECFILE in $SPECFILES ; do
 	    cp -p $MYSRCDIR/* $BUILD_ROOT/.build-srcdir
 	    MYSRCDIR=$BUILD_ROOT/.build-srcdir
 	fi
-	echo "SPECFILE='${SPECFILE//\'/\'\\\'\'}'" > $BUILD_ROOT/.build/build.data
-	echo "BUILD_JOBS='${BUILD_JOBS//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/build.data
-	echo "BUILD_ARCH='${BUILD_ARCH//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/build.data
-	echo "BUILD_RPMS='${BUILD_RPMS//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/build.data
+	Q="'\''"
+	echo "SPECFILE='${SPECFILE//\'/$Q}'" > $BUILD_ROOT/.build/build.data
+	echo "BUILD_JOBS='${BUILD_JOBS//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
+	echo "BUILD_ARCH='${BUILD_ARCH//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
+	echo "BUILD_RPMS='${BUILD_RPMS//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
 	echo "CREATE_BASELIBS='$CREATE_BASELIBS'" >> $BUILD_ROOT/.build/build.data
-	echo "REASON='${REASON//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/build.data
+	echo "REASON='${REASON//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
 	test -n "$XENSWAP" && echo "XENSWAP='/dev/hda2'" >> $BUILD_ROOT/.build/build.data
+	PERSONALITY=`perl -e 'print syscall(135, 0)."\n"'`
+	echo "PERSONALITY='$PERSONALITY'" >> $BUILD_ROOT/.build/build.data
 	umount $BUILD_ROOT
 	XMROOT=file:$XENIMAGE
 	XMROOT=${XMROOT/#file:\/dev/phy:}
@@ -502,7 +534,14 @@ for SPECFILE in $SPECFILES ; do
 	    XMSWAP=${XMSWAP/#file:\/dev/phy:}
 	    XMSWAP="disk=$XMSWAP,hda2,w"
 	fi
-	xm create -c $BUILD_DIR/xen.conf name="build:${XENIMAGE##*/}" $XENMEMORY $XMROOT $XMSWAP extra="init=/.build/build panic=1"
+	XENID="${XENIMAGE%/root}"
+	XENID="${XENID##*/}"
+	if test "$PERSONALITY" != 0 ; then
+	    # have to switch back to PER_LINUX to make xm work
+	    perl -e 'syscall(135, 0); exec(@ARGV) || die("$ARGV[0]: $!\n")' xm create -c $BUILD_DIR/xen.conf name="build:$XENID" $XENMEMORY $XMROOT $XMSWAP extra="init=/.build/build panic=1"
+	else
+	    xm create -c $BUILD_DIR/xen.conf name="build:$XENID" $XENMEMORY $XMROOT $XMSWAP extra="init=/.build/build panic=1"
+	fi
 	exit 0
     fi
 
@@ -613,8 +652,7 @@ for SPECFILE in $SPECFILES ; do
     fi
     echo -----------------------------------------------------------------
     echo -----------------------------------------------------------------
-    sync
-    mount -oro -n -tproc none $BUILD_ROOT/proc 2> /dev/null
+    mount -n -tproc none $BUILD_ROOT/proc 2> /dev/null
     mount -n -tdevpts none $BUILD_ROOT/dev/pts 2> /dev/null
 
     BUILD_SUCCEDED=false
@@ -645,19 +683,9 @@ for SPECFILE in $SPECFILES ; do
 done
 
 if test -n "$CREATE_BASELIBS" ; then
-    mount -oro -n -tproc none $BUILD_ROOT/proc 2> /dev/null
+    mount -n -tproc none $BUILD_ROOT/proc 2> /dev/null
     create_baselibs
     umount -n $BUILD_ROOT/proc 2> /dev/null
-fi
-
-if test -n "$RUNNING_IN_XEN" ; then
-    cd /
-    test -n "$XENSWAP" && swapoff "$XENSWAP"
-    exec >&0 2>&0	# so that the logging tee finishes
-    sleep 1		# wait till tee terminates
-    kill -9 -1		# goodbye cruel world
-    exec /bin/bash -c 'mount -n -o remount,ro / ; halt -f'
-    halt -f
 fi
 
 cleanup_and_exit 0

@@ -314,8 +314,10 @@ else
     PSUF=rpm
     test -L $BUILD_ROOT/.init_b_cache/rpms/rpm.rpm || PSUF=deb
     if test -n "$PREPARE_XEN" ; then
-	# add util-linux/binutils/mount to preinstall list
+	# add util-linux/perl/binutils/mount to preinstall list
 	test "$PACKAGES_TO_PREINSTALL" = "${PACKAGES_TO_PREINSTALL/util-linux}" && PACKAGES_TO_PREINSTALL="$PACKAGES_TO_PREINSTALL util-linux"
+	test "$PACKAGES_TO_PREINSTALL" = "${PACKAGES_TO_PREINSTALL/perl}" && PACKAGES_TO_PREINSTALL="$PACKAGES_TO_PREINSTALL perl"
+	test "$PACKAGES_TO_PREINSTALL" = "${PACKAGES_TO_PREINSTALL/libvolume_id}" -a "$PACKAGES_TO_INSTALL" != "${PACKAGES_TO_INSTALL/libvolume_id}" && PACKAGES_TO_PREINSTALL="$PACKAGES_TO_PREINSTALL libvolume_id"
 	test $PSUF = deb -a "$PACKAGES_TO_PREINSTALL" = "${PACKAGES_TO_PREINSTALL/binutils}" && PACKAGES_TO_PREINSTALL="$PACKAGES_TO_PREINSTALL binutils"
 	test $PSUF = deb -a "$PACKAGES_TO_PREINSTALL" = "${PACKAGES_TO_PREINSTALL/mount}" && PACKAGES_TO_PREINSTALL="$PACKAGES_TO_PREINSTALL mount"
     fi
