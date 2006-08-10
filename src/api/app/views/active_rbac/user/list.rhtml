@@ -42,9 +42,9 @@
             %></td>
     
     <td>
-      (<%= link_to 'S', {:action => 'show', :id => user }, :title => 'Show' %>
-       <%= link_to 'E', { :action => 'edit', :id => user }, :title => 'Edit' %>
-       <%= link_to 'D', { :action => 'delete', :id => user}, :title => 'Delete' %>)
+       <%= link_to '[show]', {:action => 'show', :id => user }, :title => 'Show' %>&nbsp;
+       <%= link_to '[edit]', { :action => 'edit', :id => user }, :title => 'Edit' %>&nbsp;
+       <%= link_to '[delete]', { :action => 'delete', :id => user}, :title => 'Delete' %>
     </td>
   </tr>
 <% end %>
