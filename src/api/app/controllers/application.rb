@@ -31,13 +31,16 @@ class ApplicationController < ActionController::Base
   def extract_user
     @http_user = nil;
 
-    logger.debug( "Remote IP: #{request.remote_ip()}" )
-
     if ichain_host  # configured in the the environment file
       auth_method = :ichain
 
-      logger.debug "Have an iChain host: #{ichain_host}"
-      ichain_user = request.env['HTTP_X_USERNAME']
+      logger.debug "configured iChain host: #{ichain_host} compared to remote_ip: #{request.remote_ip()}"
+      if  request.remote_ip() =~ /#{ichain_host}/
+        ichain_user = request.env['HTTP_X_USERNAME']
+      else
+        logger.debug "configured iChain host does not match the remote IP, iChain user not accepted."
+      end
+
       if ichain_user 
         logger.debug "iChain user extracted from header: #{ichain_user}"
       else
