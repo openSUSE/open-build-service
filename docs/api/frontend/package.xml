@@ -1,24 +1,7 @@
-<package name="kdelibs">
+<package name="kdelibs" project="KDE">
   <title>KDE libraries</title>
   <description>Base libraries of the KDE framework</description>
   <person role="maintainer" userid="ernie"/>
   <group>Desktop/Libraries</group>
-  <file>
-    <filename>kdelibs-1.2.3</filename>
-    <filetype>source</filetype>
-  </file>
-  <file>
-    <filename>kdelibs-1.2.3</filename>
-    <revision>2</revision>
-    <filetype>source</filetype>
-  </file>
-  <file>
-    <filename>kdelibs-1.2.3</filename>
-    <revision>3</revision>
-    <filetype>source</filetype>
-  </file>
-  <file>
-    <filename>kdelibs.spec</filename>
-    <filetype>spec</filetype>
-  </file>
+  <disable repository="SLE_10" arch="x86_64"/>
 </package>

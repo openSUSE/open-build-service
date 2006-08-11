@@ -20,6 +20,7 @@
         <xs:element ref="title"/>
         <xs:element ref="description"/>
         <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="disable" minOccurs="0" maxOccurs="unbounded" />
 	<xs:element minOccurs="0" maxOccurs="1" ref="notify"/>
 	<xs:element minOccurs="0" maxOccurs="1" ref="delete-notify"/>
 	<xs:element minOccurs="0" ref="url"/>
@@ -29,6 +30,19 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="file"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="project" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="disable">
+    <xs:annotation>
+      <xs:documentation>
+        Disables building for specific architecture/repository
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="repository" type="xs:string"/>
+      <xs:attribute name="arch" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
