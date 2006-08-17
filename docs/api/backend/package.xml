@@ -2,13 +2,6 @@
   <title>Test 1</title>
   <description>First test package.</description>
   <person role="maintainer" userid="apitest" />
-  <file filename="test1.spec" filetype="" />
-  <rev>7</rev>
-  <srcmd5>0d59d4904e9d6605fb7298038bbbb239</srcmd5>
-  <time>1145612903</time>
-  <user>unknown</user>
-  <version>1.0</version>
-  <vrev>7</vrev>
   <disable repository="testing" arch="i586"/>
   <disable repository="beta"/>
   <disable arch="ppc64"/>
