@@ -126,7 +126,7 @@
       <% end #has_element? -%>
       <p><%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %></p>
       
-      <% if @project.has_element?(:package) and @project.has_element?(:repository) -%>
+      <% if @packages.count.to_i > 0 and @project.has_element?(:repository) -%>
       <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
       <% else -%>
       <p><i>Add packages/repositories to enable the build monitor</i></p>

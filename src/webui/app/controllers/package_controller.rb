@@ -90,7 +90,7 @@ class PackageController < ApplicationController
         if @package.save #and @project.save
           if params[:createSpecFileTemplate]
             logger.debug( "CREATE SPEC FILE TEMPLATE" )
-            frontend.cmd_package( @project.name, @package.name,
+            frontend.cmd_package( @project, @package.name,
               "createSpecFileTemplate" )
           end
 
@@ -178,18 +178,16 @@ class PackageController < ApplicationController
   end
 
   def remove
-    #TODO: really delete packages
-    @project = Project.find( params[:project] )
-    @package_name = params[:package]
+    project_name = params[:project]
+    package_name = params[:package]
 
-    @project.remove_package @package_name
-    
-    if @project.save
-      flash[:note] = "Package '#{@package_name}' was removed successfully from project '#{@project}'"
-    else
-      flash[:note] = "Failed to remove package '#{@package_name}' from project '#{@project}'"
+    begin
+      FrontendCompat.new.delete_package :project => project_name, :package => package_name
+      flash[:note] = "Package '#{package_name}' was removed successfully from project '#{project_name}'"
+    rescue Object => e
+      flash[:note] = "Failed to remove package '#{package_name}' from project '#{project_name}'"
     end
-    redirect_to :controller => 'project', :action => :show, :project => params[:project]
+    redirect_to :controller => 'project', :action => 'show', :project => project_name
   end
 
   def add_file

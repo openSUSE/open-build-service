@@ -13,10 +13,8 @@
 
 <br/>
 <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package %>
-<!-- package removal disabled
 <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
 {:confirm => "Really remove package '#{@package}'?"}%>
--->
 
 <% if @link %>
 <h3>Link</h3>
@@ -110,10 +108,6 @@ of project <%= link_to_project @link.project %>.</p>
       <%=h ar.status.summary %>
     <% end %>
     </td>
-<!-- uncomment if API is able to stream
-    <td align="right"><%= link_to "[View Build Log]", build_log_url( @project,
-      @package, result.repository, ar.arch ) %></td>
--->
     <td align="right"><%= link_to "[Live Build Log]", :action => :live_build_log,
       :package => @package, :project => params[:project], :arch => ar.arch, :repository => result.repository %></td>
   </tr>
