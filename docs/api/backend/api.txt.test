@@ -1,8 +1,8 @@
-@arg_project = "apitest"
+@arg_project = "testing"
 @arg_package = "test1"
 @arg_filename = "test1.spec"
 @arg_arch = "i586"
-@arg_repository = "factory"
+@arg_repository = "SUSE_Factory"
 @arg_rpmname = "mydummy-1.0-1.1.i586.rpm"
 
 request "GET /source/"
