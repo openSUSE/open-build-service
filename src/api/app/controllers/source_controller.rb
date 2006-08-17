@@ -30,6 +30,24 @@ class SourceController < ApplicationController
     user = params[:user]
     comment = params[:comment]
 
+    if request.delete?
+      if permissions.package_change? package_name, project_name
+        pack = DbPackage.find_by_project_and_name( project_name, package_name )
+        if pack
+          DbPackage.transaction(pack) do
+            pack.destroy
+            Suse::Backend.delete "/source/#{project_name}/#{package_name}"
+          end
+          render_ok
+        else
+          render_error :status => 404, :code => "unknown_package", :message => "unknown package '#{package_name}' in project '#{project_name}'"
+        end
+      else
+        render_error :status => 403, :code => "no_permission", :message => "no permission to delete package"
+      end
+      return
+    end
+
     path = "/source/#{project_name}/#{package_name}"
     query = Array.new
     query_string = ""
