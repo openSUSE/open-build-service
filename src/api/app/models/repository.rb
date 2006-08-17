@@ -8,6 +8,10 @@ class Repository < ActiveRecord::Base
   has_and_belongs_to_many :architectures
 
   class << self
+    def find_by_name(name)
+      find :first, :conditions => ["name = BINARY ?", name]
+    end
+
     def find_by_project_and_repo_name( project, repo )
       sql =<<-END_SQL
       SELECT r.*

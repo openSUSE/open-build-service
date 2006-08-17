@@ -5,6 +5,10 @@ class DbProject < ActiveRecord::Base
   has_and_belongs_to_many :tags
 
   class << self
+    def find_by_name(name)
+      find :first, :conditions => ["name = BINARY ?", name]
+    end
+
     def store_axml( project )
       DbProject.transaction do
         if not (dbp = DbProject.find_by_name project.name)

@@ -25,7 +25,7 @@ class DbPackage < ActiveRecord::Base
       SELECT pack.*
       FROM db_packages pack
       LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
-      WHERE pro.name = ? AND pack.name = ?
+      WHERE pro.name = BINARY ? AND pack.name = BINARY ?
       END_SQL
 
       result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
@@ -98,7 +98,7 @@ class DbPackage < ActiveRecord::Base
       #--- update disabled repos ---#
       drcache = Hash.new
       self.disabled_repos.each do |dr|
-        drcache["#{dr.repository.name}/_/#{dr.arch ? dr.arch.name : nil}"] = dr
+        drcache["#{dr.repository.name}/_/#{dr.architecture ? dr.architecture.name : nil}"] = dr
       end
 
       package.each_disable do |disable|
