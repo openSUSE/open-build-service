@@ -1,0 +1,9 @@
+<project name="testing">
+  <title>testing</title>
+  <description>Testing Project</description>
+  <person role="maintainer" userid="Admin"/>
+  <repository name="SUSE_Factory">
+    <path project="SUSE:Factory" repository="standard"/>
+    <arch>i586</arch>
+  </repository>
+</project>
