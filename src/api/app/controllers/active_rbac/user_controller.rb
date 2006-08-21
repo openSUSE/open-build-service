@@ -8,5 +8,4 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
       @user_pages, @users = paginate :user, :order_by => "login", :per_page => 25
     end
   end 
-  
 end

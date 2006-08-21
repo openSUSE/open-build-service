@@ -36,12 +36,11 @@ class User < ActiveRecord::Base
     from = from.to_i
     to = to.to_i
     return true if from == to # allow keeping state
-    logger.debug( "Transition from #{from} to #{to}")
     return case from
       when states['unconfirmed']
         true
       when states['confirmed']
-        (to == states['locked']) or (to == states['deleted'])
+        (to == states['locked']) or (to == states['deleted']) or (to == states['ichainrequest'])
       when states['locked']
         (to == states['confirmed']) or (to == states['deleted'])
       when states['deleted']
@@ -56,13 +55,15 @@ class User < ActiveRecord::Base
   end
  
   def states
-  {
-    'unconfirmed' => 1,
-    'confirmed' => 2,
-    'locked' => 3,
-    'deleted' => 4,
-    'ichainrequest' => 5
-   }
+    # logger.debug "Using our states"
+    s = {
+        'unconfirmed' => 1,
+        'confirmed' => 2,
+        'locked' => 3,
+        'deleted' => 4,
+        'ichainrequest' => 5
+    }
+    return s
   end
 
 end

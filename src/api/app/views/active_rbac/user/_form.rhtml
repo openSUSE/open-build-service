@@ -14,7 +14,7 @@
   <dd><%= select 'user', 'password_hash_type', User.password_hash_types %></dd>
 
   <dt><label for="user_state">State</label></dt>
-  <dd><%= select 'user', 'state', User.states.reject { |key, value| !@user.state_transition_allowed?(@user.state, value) } %></dd>
+  <dd><%= select 'user', 'state', @user.states.reject { |key, value| !@user.state_transition_allowed?(@user.state, value) } %></dd>
 
   <dt><label>Roles</label></dt>
   <dd>
