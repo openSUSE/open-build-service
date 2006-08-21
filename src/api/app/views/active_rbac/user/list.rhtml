@@ -2,6 +2,10 @@
 
 <div class="commands">
 <%= link_to 'New user', :action => 'new' %>
+&nbsp;
+<%= link_to 'Show only iChain Requests', :action => 'list', :onlyunconfirmned => 1 %>
+&nbsp;
+<%= link_to 'Show all Users', :action => 'list' %>
 </div>
 
 <%= render :partial => '/active_rbac/shared/pagination', :locals => { :pages => @user_pages } %>
@@ -26,6 +30,8 @@
        cnt = cnt +1
        if user.state == 5 
          col = "#ffffdd"
+       elsif user.state == 4
+         col = "#ffc1c1"
        end
        col
      -%>">
@@ -53,8 +59,4 @@
 
 <%= render :partial => '/active_rbac/shared/pagination', :locals => { :pages => @user_pages } %>
 
-
-<div class="commands">
-<%= link_to 'New user', :action => 'new' %>
-</div>
 
