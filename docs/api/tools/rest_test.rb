@@ -1,4 +1,4 @@
-require "net/http"
+require "net/https"
 require "tempfile"
 
 class ParameterError < Exception
@@ -102,7 +102,7 @@ class TestContext
     out_clear
   end
 
-  def request arg, return_code = nil
+  def request arg, return_code = nil, xml_check_wanted = true
     @tested += 1
 
     if ( @request_filter && arg !~ /#{@request_filter}/ )
@@ -173,13 +173,21 @@ class TestContext
       end
       if ( response.is_a? Net::HTTPRedirection )
         location = URI.parse response["location"]
-        out "  Redirected to #{location}"
-        req = Net::HTTP::Get.new( location.path )
-        if ( @user )
-          req.basic_auth( @user, @password )
+        out "  Redirected to #{location}, scheme is #{location.scheme}"
+        http = Net::HTTP.new( location.host, location.port )
+        if location.scheme == "https"
+          http.use_ssl = true
         end
-        response = Net::HTTP.start( location.host, location.port ) do |http|
-          http.request( req )
+        http.start do |http|
+          req = Net::HTTP::Get.new( location.path )
+
+          if ( @user )
+            out "  setting user #{@user}"
+            req.basic_auth( @user, @password )
+          end
+        
+          out "  calling #{location.host}, #{location.port}"
+          response = http.request( req )
         end
       end
     elsif( request.verb == "POST" )
@@ -223,7 +231,7 @@ class TestContext
 
       if ( ( return_code && response.code == return_code.to_s ) ||
            ( response.is_a? Net::HTTPSuccess ) )
-        if ( xml_result )
+        if ( xml_check_wanted && xml_result )
           if ( xml_result.schema )
             schema_file = xml_result.schema
           else

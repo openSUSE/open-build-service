@@ -121,7 +121,8 @@ begin
       end
     end
   end
-  
+  puts "Working on testfile #{options.testfile}."
+
   runner = TestRunner.new @requests
 
   configfile = options.testfile + ".config"
