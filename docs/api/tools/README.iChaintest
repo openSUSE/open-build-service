@@ -1,0 +1,16 @@
+The iChain integration can be tested with the test tool rest_test.
+For that, it needs to be called with the proper configuration files
+and it tests the entire API protected behind iChain.
+
+From the tools directory, it must be called:
+./rest_test   --test=../frontend/ichain.test ../frontend/api.txt
+where api.txt is a general description of the API to test and
+the ichain.test file is a listing of the requests that should be
+tested together with some additional attributes. 
+
+Consider to create a ichain.test.config file that contains valid
+credentials.
+
+More information can be found in the README.rest_test file.
+
+Klaas Freitag <freitag@suse.de>
