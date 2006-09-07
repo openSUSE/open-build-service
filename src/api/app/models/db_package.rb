@@ -98,7 +98,7 @@ class DbPackage < ActiveRecord::Base
       #--- update disabled repos ---#
       drcache = Hash.new
       self.disabled_repos.each do |dr|
-        drcache["#{dr.repository.name}/_/#{dr.architecture ? dr.architecture.name : nil}"] = dr
+        drcache["#{dr.repository ? dr.repository.name : nil}/_/#{dr.architecture ? dr.architecture.name : nil}"] = dr
       end
 
       package.each_disable do |disable|
