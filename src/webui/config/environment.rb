@@ -56,6 +56,11 @@ end
 # end
 
 # Include your application configuration below
+
+
+require 'custom_logger'
+RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
+
 require 'activexml'
 
 #TRANSPORT = Suse::Frontend.new("http://#{FRONTEND_HOST}:#{FRONTEND_PORT}")

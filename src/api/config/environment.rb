@@ -66,6 +66,9 @@ end
 
 Engines.start :active_rbac
 
+require 'custom_logger'
+RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
+
 require 'rails_put_fix'
 require 'active_rbac_user_model_crypt_hack'
 
