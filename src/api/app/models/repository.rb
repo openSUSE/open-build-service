@@ -17,7 +17,7 @@ class Repository < ActiveRecord::Base
       SELECT r.*
       FROM repositories r
       LEFT JOIN db_projects p ON p.id = r.db_project_id
-      WHERE p.name = ? AND r.name = ?
+      WHERE p.name = BINARY ? AND r.name = BINARY ?
       END_SQL
 
       result = find_by_sql [sql, project, repo]
