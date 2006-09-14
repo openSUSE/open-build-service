@@ -4,6 +4,14 @@ class RpmController < ApplicationController
     render_text( "RPMs Index" )
   end
 
+  def buildinfo
+    if request.post?
+      response = Suse::Backend.post_rpm request.path, request.raw_post
+    else
+      pass_to_repo
+    end
+  end
+
   def file
     repository = params[ :repository ]
     project = params[ :project ]

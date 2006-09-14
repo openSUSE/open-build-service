@@ -25,7 +25,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'rpm/:project/:repository/:arch/:package/buildinfo',
     :controller => 'rpm',
-    :action => 'pass_to_repo'
+    :action => 'buildinfo'
 
   map.connect 'rpm/:project/:repository/:arch/:package/status',
     :controller => 'rpm',

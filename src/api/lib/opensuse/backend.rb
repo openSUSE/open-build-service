@@ -97,6 +97,10 @@ module Suse
         do_put( rpm_host, rpm_port, path, data )
       end
 
+      def post_rpm( path, data )
+        do_post( rpm_host, rpm_port, path, data )
+      end
+
       private
 
       def now
@@ -125,6 +129,15 @@ module Suse
           http.request( backend_request, data )
         end
         write_backend_log( "PUT", host, port, path, response, data )
+        handle_response response
+      end
+
+      def do_post( host, port, path, data )
+        backend_request = Net::HTTP::Post.new( path )
+        response = Net::HTTP.start( host, port ) do |http|
+          http.request( backend_request, data )
+        end
+        write_backend_log( "POST", host, port, path, response, data )
         handle_response response
       end
 
