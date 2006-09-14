@@ -222,7 +222,7 @@ class ApplicationController < ActionController::Base
     
     if opt[:status]
       if opt[:status].to_i == 401
-        # response.headers["WWW-Authenticate"] = 'basic realm="Frontend login"'
+        response.headers["WWW-Authenticate"] = 'basic realm="Frontend login"'
       end
     else
       opt[:status] = 500
