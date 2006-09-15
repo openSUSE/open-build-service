@@ -163,6 +163,13 @@ class DbProject < ActiveRecord::Base
 
       # delete remaining repositories in repocache
       repocache.each do |name, object|
+        #find repositories that link against this one and issue warning if found
+        list = PathElement.find( :all, :conditions => ["repository_id = ?", object.id] )
+        unless list.empty?
+          logger.debug "offending repo: #{object.inspect}"
+          linking_repos = list.map {|x| x.repository.db_project.name+"/"+x.repository.name}.join "\n"
+          raise RuntimeError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
+        end
         logger.debug "deleting repository '#{name}'"
         object.destroy
       end
