@@ -217,8 +217,6 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt = {} )
-
-    @errorcode = opt[:errorcode]
     
     if opt[:status]
       if opt[:status].to_i == 401
@@ -233,13 +231,9 @@ class ApplicationController < ActionController::Base
       @summary = opt[:message]
     end
     
-    if opt[:exception]
-      @exception = opt[:exception ]
-    end
-
-    if opt[:details]
-      @details = opt[:details]
-    end
+    @exception = opt[:exception]
+    @details = opt[:details]
+    @errorcode = opt[:errorcode]
 
     render :template => 'status', :status => opt[:status], :layout => false
   end

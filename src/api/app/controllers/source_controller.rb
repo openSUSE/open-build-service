@@ -19,8 +19,47 @@ class SourceController < ApplicationController
   def index_project
     project_name = params[:project]
     #forward_data "/source/#{project_name}"
-    @dir = Package.find :all, :project => project_name
-    render :text => @dir.dump_xml, :content_type => "text/xml"
+    if request.get?
+      @dir = Package.find :all, :project => project_name
+      render :text => @dir.dump_xml, :content_type => "text/xml"
+      return
+    elsif request.delete?
+      allowed = permissions.project_change? project_name
+      if not allowed
+        logger.debug "No permission to delete project #{project_name}"
+        render_error :message => "Permission denied (delete project #{project_name})", :status => 403, :errorcode => "permission_denied"
+        return
+      end
+
+      ###
+      # FIXME implement in ActiveXML
+      ###
+
+      pro = DbProject.find_by_name project_name
+      if pro.nil?
+        render_error :message => "Unknown project #{project_name}", :status => 404, :errorcode => "unknown_project"
+      end
+
+      #check for linking repos
+      lreps = Array.new
+      pro.repositories.each do |repo|
+        repo.linking_repositories.each do |lrep|
+          lreps << lrep
+        end
+      end
+
+      if lreps.length > 0
+        lrepstr = lreps.map{|l| l.db_project.name+'/'+l.name}.join "\n"
+
+        render_error :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n", 
+          :status => 404, :errorcode => "repo_dependency"
+        return
+      end
+
+      pro.destroy
+      render_ok
+      return
+    end
   end
 
   def index_package
@@ -40,10 +79,10 @@ class SourceController < ApplicationController
           end
           render_ok
         else
-          render_error :status => 404, :code => "unknown_package", :message => "unknown package '#{package_name}' in project '#{project_name}'"
+          render_error :status => 404, :errorcode => "unknown_package", :message => "unknown package '#{package_name}' in project '#{project_name}'"
         end
       else
-        render_error :status => 403, :code => "no_permission", :message => "no permission to delete package"
+        render_error :status => 403, :errorcode => "permission_denied", :message => "no permission to delete package"
       end
       return
     end
@@ -79,7 +118,7 @@ class SourceController < ApplicationController
 
         if repo_name
           if not ( repo = p.repository( "@name='#{repo_name}'" ) )
-            render_error :status => 403, :code => 'unknown_repository', :message=> "Unknown repository '#{repo_name}'"
+            render_error :status => 403, :errorcode => 'unknown_repository', :message=> "Unknown repository '#{repo_name}'"
             return
           end
 
@@ -129,6 +168,7 @@ class SourceController < ApplicationController
     if request.get?
       @project = Project.find( project_name )
       render :text => @project.dump_xml, :content_type => 'text/xml'
+      return
     elsif request.put?
       # Need permission
       logger.debug "Checking permission for the put"
@@ -180,6 +220,7 @@ class SourceController < ApplicationController
       else
         logger.debug "No permissions to write project meta for project #@project"
 	render_error( :message => "Permission denied (write project meta for project #@project)", :status => 403 )
+        return
       end
     else
       #neither put nor get
