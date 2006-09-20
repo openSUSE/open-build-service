@@ -212,6 +212,29 @@ GET /rpm/<project>/<repo>/<arch>/<package>/history
 XmlResult: buildhistory
 
 
+GET /rpm/<project>/<repo>/<arch>/<package>/buildinfo
+
+  Get build information for local building
+
+XmlResult: buildinfo
+
+
+POST /rpm/<project>/<repo>/<arch>/<package>/buildinfo
+
+  Get build info for local building using the POSTed specfile
+
+Body: specfile
+
+XmlResult: buildinfo
+
+
+GET /rpm/<project>/<repo>/<arch>/<package>/status
+
+  Get build status of the specified project/package/repo/arch combination
+
+XmlResult: buildstatus
+
+
 == Build Results
 
 Host: api.opensuse.org
