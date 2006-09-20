@@ -76,9 +76,36 @@ XmlBody: package
 XmlResult: status
 
 
+=== Delete projects ===
+
+
+DELETE /source/<project>
+
+  Deletes specified project. All packages of this project are deleted as if a
+  DELETE request were issued for each package.
+
+XmlResult: status
+
+
+=== Delete packages ===
+
+
+DELETE /source/<project>/<package>
+
+  Deletes specified package including all source files
+
+XmlResult: status
+
+
 === Other source files
 
 <filename>: File name
+
+
+GET /source/<project>/<package>
+
+  Get directory listing of all source files in the package
+  Parameters: rev=<revision>
 
 
 GET /source/<project>/<package>/<filename>
@@ -176,6 +203,13 @@ GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>
   Get RPM.
 
 Result: RPM
+
+
+GET /rpm/<project>/<repo>/<arch>/<package>/history
+
+  Get build history
+
+XmlResult: buildhistory
 
 
 == Build Results
