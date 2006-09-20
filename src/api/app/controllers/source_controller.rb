@@ -56,7 +56,24 @@ class SourceController < ApplicationController
         return
       end
 
-      pro.destroy
+      #destroy all packages
+      pro.db_packages.each do |pack|
+        DbPackage.transaction(pack) do
+          logger.info "destroying package #{pack.name}"
+          pack.destroy
+          logger.debug "delete request to backend: /source/#{pro.name}/#{pack.name}"
+          Suse::Backend.delete "/source/#{pro.name}/#{pack.name}"
+        end
+      end
+
+      DbProject.transaction(pro) do
+        logger.info "destroying project #{pro.name}"
+        pro.destroy
+        logger.debug "delete request to backend: /source/#{pro.name}"
+        #Suse::Backend.delete "/source/#{pro.name}"
+        #FIXME: insert deletion request to backend
+      end
+
       render_ok
       return
     end
