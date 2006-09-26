@@ -17,12 +17,12 @@
 <% if @packstatus_unavailable -%>
 <h3>Buildstatus unavailable</h3>
 <% else -%>
-<table border="1">
+<table border="0">
   <!-- repo row -->
-  <tr>
+  <tr class="header">
     <td></td>
     <% @repohash.each do |repo,archlist| -%>
-    <td colspan="<%=h archlist.length %>"><%=h repo %></td>
+    <th colspan="<%=h archlist.length %><strong>"><%=h repo %></strong></th>
     <% end -%>
   </tr>
   <!-- arch row -->
@@ -30,7 +30,7 @@
     <td></td>
     <% @repohash.each do |repo, archlist| -%>
     <% archlist.each do |arch| -%>
-    <td><%=h arch %></td>
+    <th><%=h arch %></th>
     <% end -%>
     <% end -%>
   </tr>
@@ -41,8 +41,26 @@
       :package => packname, :project => @project.to_s %></td>
     <% @repohash.each do |repo, archlist| -%>
     <% archlist.each do |arch| -%>
-    <td id="<%= status_id_for(packname, repo, arch)%>">
-      <%=h @statushash[repo][arch][packname] %>
+    <td id="<%= status_id_for(packname, repo, arch)%>"
+      <% if @statushash[repo][arch][packname] == "blocked" -%>
+      bgcolor="#BBBBBB"><font color="#FFFFFF">blocked</font>
+      <% elsif @statushash[repo][arch][packname] == "scheduled" -%>
+      bgcolor="#BBBBBB">scheduled
+      <% elsif @statushash[repo][arch][packname] == "building" -%>
+      bgcolor="#BBBBBB"><font color="#0000F0">building</font>
+      <% elsif @statushash[repo][arch][packname] == "disabled" -%>
+      ><font color="#D0D000">disabled</font>
+      <% elsif @statushash[repo][arch][packname] == "succeeded" -%>
+      ><font color="#6EB927">succeeded</font>
+      <% elsif @statushash[repo][arch][packname] == "broken" -%>
+      ><font color="#F00000">broken</font>
+      <% elsif @statushash[repo][arch][packname] == "failed" -%>
+      ><font color="#F0000">failed</font>
+      <% elsif @statushash[repo][arch][packname] == "expansion error" -%>
+      ><font color="#F00000">expansion error</font>
+      <% else -%>
+      ><%=h @statushash[repo][arch][packname] %>
+      <% end -%>
     </td>
     <% end -%>
     <% end -%>
