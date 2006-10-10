@@ -172,7 +172,7 @@ class SourceController < ApplicationController
         query_string = query.join('&')
         path += "?#{query_string}" unless query_string.empty?
 
-        forward_data path
+        forward_data path, :method => :post
       else
         render_error :status => 404, :message => "Unknow command: #{cmd}"
       end

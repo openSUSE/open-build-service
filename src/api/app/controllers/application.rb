@@ -168,13 +168,27 @@ class ApplicationController < ActionController::Base
   end
 
   def forward_data( path, opt={} )
-    defaults = {:server => :source}
+    defaults = {:server => :source, :method => :get}
     opt = defaults.merge opt
 
     if opt[:server] == :source
-      response = Suse::Backend.get( path )
+      case opt[:method]
+      when :get
+        response = Suse::Backend.get_source( path )
+      when :post
+        response = Suse::Backend.post_source( path, @request.raw_post )
+      when :put
+        response = Suse::Backend.put_source( path, @request.raw_post )
+      end
     elsif opt[:server] == :repo
-      response = Suse::Backend.get_rpm( path )
+      case opt[:method]
+      when :get
+        response = Suse::Backend.get_rpm( path )
+      when :post
+        response = Suse::Backend.post_rpm( path, @request.raw_post )
+      when :put
+        response = Suse::Backend.post_rpm( path, @request.raw_post )
+      end
     else
       raise "illegal server type: #{opt[:server].inspect}"
     end
