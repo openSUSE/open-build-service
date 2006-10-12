@@ -101,6 +101,10 @@ module Suse
         do_post( rpm_host, rpm_port, path, data )
       end
 
+      def post_source( path, data )
+        do_post( source_host, source_port, path, data )
+      end
+
       private
 
       def now
