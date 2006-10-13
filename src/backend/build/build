@@ -519,6 +519,15 @@ for SPECFILE in $SPECFILES ; do
 	echo "BUILD_JOBS='${BUILD_JOBS//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
 	echo "BUILD_ARCH='${BUILD_ARCH//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
 	echo "BUILD_RPMS='${BUILD_RPMS//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
+	case $BUILD_DIST in
+	    */*)
+		cp $BUILD_DIST $BUILD_ROOT/.build/build.dist
+		BUILD_DIST=/.build/build.dist
+		;;
+	esac
+	echo "BUILD_DIST='${BUILD_DIST//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
+	echo "RELEASE='${RELEASE//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
+	echo "NOROOTFORBUILD='${NOROOTFORBUILD//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
 	echo "CREATE_BASELIBS='$CREATE_BASELIBS'" >> $BUILD_ROOT/.build/build.data
 	echo "REASON='${REASON//\'/$Q}'" >> $BUILD_ROOT/.build/build.data
 	test -n "$XENSWAP" && echo "XENSWAP='/dev/hda2'" >> $BUILD_ROOT/.build/build.data

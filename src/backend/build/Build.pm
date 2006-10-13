@@ -121,7 +121,7 @@ sub do_subst {
 sub get_build {
   my ($config, $subpacks, @deps) = @_;
   my @ndeps = grep {/^-/} @deps;
-  my %keep = map {$_ => 1} @{$config->{'keep'} || []};
+  my %keep = map {$_ => 1} (@deps, @{$config->{'keep'} || []}, @{$config->{'preinstall'}});
   for (@{$subpacks || []}) {
     push @ndeps, "-$_" unless $keep{$_};
   }
@@ -140,7 +140,7 @@ sub get_build {
 sub get_deps {
   my ($config, $subpacks, @deps) = @_;
   my @ndeps = grep {/^-/} @deps;
-  my %keep = map {$_ => 1} @{$config->{'keep'} || []};
+  my %keep = map {$_ => 1} (@deps, @{$config->{'keep'} || []}, @{$config->{'preinstall'}});
   for (@{$subpacks || []}) {
     push @ndeps, "-$_" unless $keep{$_};
   }

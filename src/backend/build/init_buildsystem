@@ -87,7 +87,7 @@ function preinstall {
 	    cmp -s .init_b_cache/scripts/$1.pre .init_b_cache/scripts/.none && rm -f .init_b_cache/scripts/$1.pre
 	    cmp -s .init_b_cache/scripts/$1.post .init_b_cache/scripts/.none && rm -f .init_b_cache/scripts/$1.post
 	    rm -f .init_b_cache/scripts/.none
-	else
+	elif test -e "$BUILD_ROOT/.init_b_cache/rpms/$1.deb" ; then
 	    ar x "$BUILD_ROOT/.init_b_cache/rpms/$1.deb" control.tar.gz data.tar.gz
 	    mkdir -p .init_b_cache/scripts/control
 	    tar -C .init_b_cache/scripts/control -xzf control.tar.gz
@@ -95,6 +95,8 @@ function preinstall {
 	    test -e .init_b_cache/scripts/control/preinst && mv .init_b_cache/scripts/control/preinst .init_b_cache/scripts/$1.pre
 	    test -e .init_b_cache/scripts/control/postinst && mv .init_b_cache/scripts/control/postinst .init_b_cache/scripts/$1.post
 	    rm -rf .init_b_cache/scripts/control control.tar.gz data.tar.gz
+	else
+	    echo "warning: package $1 does not exist"
 	fi
     fi
     if test -n "$2" ; then
