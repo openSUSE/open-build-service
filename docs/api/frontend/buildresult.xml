@@ -1,0 +1,29 @@
+<resultlist>
+  <result project="tools" repository="SL-10.1" arch="i568">
+    <summary package="screwdriver">
+      <statuscount code="succeeded" count="1"/>
+      <statuscount code="failed" count="2"/>
+    </summary>
+    <statuslist>
+      <status package="screwdriver" code="failed">
+	<details>RPM exit code -7</details>
+      </status>
+      <status package="hammer" code="succeeded">
+      </status>
+    </statuslist>
+    <binarylist package="screwdriver">
+      <binary filename="screwdriver-1.0-4.i586.rpm"/>
+    </binarylist>
+  </result>
+  <result project="tools" repository="Vista" arch="i568">
+    <summary package="screwdriver">
+      <statuscount code="succeeded" count="1"/>
+    </summary>
+    <statuslist>
+      <status package="screwdriver" code="succeeded">
+    </statuslist>
+    <binarylist package="screwdriver">
+      <binary filename="scewdriver.exe"/>
+    </binarylist>
+  </result>
+</resultlist>
