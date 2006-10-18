@@ -1,6 +1,19 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../config/boot'
 
+# set this to true if you want to create users that appear in metafiles
+# (useful for importing on devel workstations)
+#
+# if false, an exception is thrown instead
+CREATE_MISSING_USERS = true
+
+# all users created in the above mentioned way will have those attributes
+DUMMY_USER_ATTR = {
+  :password => "asdfasdf",
+  :password_confirmation => "asdfasdf",
+  :email => "noone@localhost"
+}
+
 ### boot rails ###
 Rails::Initializer.run do |config|
   config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
@@ -19,7 +32,11 @@ ActiveXML::Base.config do |conf|
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|
-    map.default_server :rest, "buildservice:5352"
+
+    #change default_server to your backend
+    #map.default_server :rest, "buildservice:5352" #real backend
+    map.default_server :rest, "buildservice:6362" #test backend
+
     map.connect :project, "bssql:///", :write_through => :false
     map.connect :package, "bssql:///", :write_through => :false
 
@@ -57,16 +74,33 @@ def store_project( p )
 end
 
 def store_packages_for( p )
-  STDERR.puts "  --> storing packages for project '#{p.name}'"
-  list = Xpackage.find :all, :project => p.name
-  list.each_entry do |entry|
-    STDERR.print "     #{entry.name} => "
-    xpack = Xpackage.find entry.name, :project => p.name
-    pack = Package.new( xpack.dump_xml, :project => p.name )
-    pack.save
-    STDERR.puts "success"
+  begin
+    STDERR.puts "  --> storing packages for project '#{p.name}'"
+    list = Xpackage.find :all, :project => p.name
+    xpack = nil
+    list.each_entry do |entry|
+      STDERR.print "     #{entry.name} => "
+      xpack = Xpackage.find entry.name, :project => p.name
+      pack = Package.new( xpack.dump_xml, :project => p.name )
+      pack.save
+      STDERR.puts "success"
+    end
+    STDERR.puts "  <-- fin"
+  rescue Object => e
+    # remove whole project to cause missing packages to be read at next run
+    STDERR.puts "### store_packages exception handling"
+    DbProject.find_by_name(p.name.to_s).destroy
+    xmldebug xpack.dump_xml
+    raise e
   end
-  STDERR.puts "  <-- fin"
+end
+
+@xmldebug_called = false
+def xmldebug(str)
+  STDERR.puts caller
+  return if @xmldebug_called
+  @xmldebug_called = true
+  STDERR.puts "\n\n>>> Exception caused by this xml:\n"+str+"\n\n"
 end
 
 projects = Xproject.find(:all)
@@ -84,16 +118,22 @@ projects.each_entry do |entry|
   rescue ActiveXML::Transport::NotFoundError
   end
   next if p
- 
+
   backend_project = Xproject.find entry.name
   p = Project.new( backend_project.dump_xml )
-  
-  begin
-    cache[entry.name] = p unless store_project(p)
-  rescue ActiveRecord::StatementInvalid => e
-    next if e.message =~ /#23000Column 'bs_user_id' cannot be null:/
-    raise e
+
+  if CREATE_MISSING_USERS
+    p.each_person do |person|
+      u = User.find_by_login person.userid.to_s
+      if not u
+        attribs = {:login => person.userid.to_s}.merge DUMMY_USER_ATTR
+        u = User.create attribs
+        u.save
+      end
+    end
   end
+  
+  cache[entry.name] = p unless store_project(p)
 end
 
 run_count = 0;
@@ -108,7 +148,6 @@ while( cache.length > 0 )
       STDERR.puts "*** cache.length: #{cache.length}"
     end
   rescue ActiveRecord::StatementInvalid => e
-    next if e.message =~ /#23000Column 'bs_user_id' cannot be null:/
     raise e
   end
   end
