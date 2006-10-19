@@ -25,9 +25,8 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
   end
 
    def list
-    
-    if params[:onlyunconfirmned]
-      @user_pages, @users = paginate :user, :conditions => [ "state = 5"], :order_by => "login", :per_page => 25
+    if params[:onlyunconfirmed]
+      @user_pages, @users = paginate :user, :conditions => [ "state = 5"], :order_by => "id", :per_page => 25
     else
       @user_pages, @users = paginate :user, :order_by => "login", :per_page => 25
     end
@@ -116,10 +115,23 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
     # Set password hash type seperatedly because it is protected
     @user.password_hash_type = params[:user][:password_hash_type] if params[:user][:password_hash_type] != @user.password_hash_type
 
+    redir_to_opts = {:action => 'list'}
+    
+    if( params[:commit] =~ /Approve IChain Request/ )
+      #grant user role
+      user_role = Role.find_by_title("User")
+      @user.roles << user_role unless @user.roles.include? user_role
+
+      #set state to confirmed
+      params[:user][:state] = @user.states['confirmed']
+
+      redir_to_opts[:onlyunconfirmed] = 1
+    end
+
     # Bulk-Assign the other attributes from the form.
     if @user.update_attributes(params[:user])
       flash[:notice] = 'User was successfully updated.'
-      redirect_to :action => 'show', :id => @user.to_param
+      redirect_to redir_to_opts
     else
       render :action => 'edit'
     end

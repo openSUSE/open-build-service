@@ -3,7 +3,7 @@
 <div class="commands">
 <%= link_to 'New user', :action => 'new' %>
 &nbsp;
-<%= link_to 'Show only iChain Requests', :action => 'list', :onlyunconfirmned => 1 %>
+<%= link_to 'Show only iChain Requests', :action => 'list', :onlyunconfirmed => 1 %>
 &nbsp;
 <%= link_to 'Show all Users', :action => 'list' %>
 </div>
@@ -17,6 +17,7 @@
     <th style="width: 100px;">login</th>
     <th style="width: 100px;">email</th>
     <th style="width: 150px;">state</th>
+    <th>created at</th>
     <th style="width: 50px;">&nbsp;</th>
   </tr>
 </thead>
@@ -46,7 +47,7 @@
             when 5 then 'iChain requested'
             end
             %></td>
-    
+    <td><%=h user.created_at %></td>
     <td>
        <%= link_to '[show]', {:action => 'show', :id => user }, :title => 'Show' %>&nbsp;
        <%= link_to '[edit]', { :action => 'edit', :id => user }, :title => 'Edit' %>&nbsp;

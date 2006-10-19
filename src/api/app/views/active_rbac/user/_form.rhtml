@@ -1,6 +1,9 @@
 <%= error_messages_for 'user' %>
 
 <!--[form:user]-->
+<%= submit_tag( "Approve IChain Request" ) %>
+Changes state to 'confirmed' and grants the 'User' role.
+
 <dl>
   <dt><label for="user_login">Login</label></dt>
   <dd><%= text_field 'user', 'login'  %></dd>
@@ -8,7 +11,8 @@
   <dt><label for="user_email">Email</label></dt>
   <dd><%= text_field 'user', 'email'  %></dd>
 
-  <%= render_partial 'password' %>
+  <%= #render_partial 'password'
+  %>
 
   <dt><label for="user_password_hash_type">Password hash type</label></dt>
   <dd><%= select 'user', 'password_hash_type', User.password_hash_types %></dd>
