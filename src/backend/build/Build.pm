@@ -401,7 +401,7 @@ sub expr {
       return ($v, $expr) if $lev > 1;
       ($v2, $expr) = expr(substr($expr, 2), 1);
       return undef unless defined $v2;
-      $v &&= $v2;
+      $v ||= $v2;
     } elsif ($expr =~ /^>=/) {
       return ($v, $expr) if $lev > 2;
       ($v2, $expr) = expr(substr($expr, 2), 2);
@@ -483,7 +483,7 @@ sub read_spec {
   while (1) {
     my $line;
     if (@macros) {
-      $line = pop @macros;
+      $line = shift @macros;
     } elsif ($specdata) {
       $inspec = 1;
       last unless @$specdata;
