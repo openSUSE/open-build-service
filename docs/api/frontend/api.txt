@@ -350,14 +350,22 @@ XmlResult: buildresult
 
 === Repository Information
 
-GET /build/<project>/<repository>/<arch>/_buildinfo
 
-  ???
-
-GET /build/<project>/<repository>/<arch>/_buildconfig
-
-  ???
 
 GET /build/<project>/<repository>/<arch>/_binarylist
 
+  Returns list of binaries contained in the specified repository
+
+XmlResult: binarylist
+
+
+GET /build/<project>/<repository>/_buildinfo
+
   ???
+
+GET /build/<project>/<repository>/_buildconfig
+
+  ???
+
+
+
