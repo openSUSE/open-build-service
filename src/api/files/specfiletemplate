@@ -3,6 +3,7 @@ Version:        1.0
 Release:        1
 License:        GPL
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  replace_me_with_required_packages
 Group:          Dummy
 Summary:        My Dummy Package
 
