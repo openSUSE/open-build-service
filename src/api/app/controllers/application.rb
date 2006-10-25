@@ -23,8 +23,9 @@ class ApplicationController < ActionController::Base
   
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
-  before_filter :setup_backend, :validate
+  before_filter :setup_backend
 
+  #contains current authentification method, one of (:ichain, :basic_auth)
   attr_accessor :auth_method
 
 
@@ -159,12 +160,6 @@ class ApplicationController < ActionController::Base
       
       logger.debug "User's source backend <#{@http_user.source_host}:#{@http_user.source_port}>, rpm backend: <#{@http_user.rpm_host}:#{@http_user.rpm_port}>"
     end
-  end
-
-  def validate
-    return true unless request.put?
-    Suse::Validator.new(params).validate(request.raw_post)
-    true
   end
 
   def forward_data( path, opt={} )
