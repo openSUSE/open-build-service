@@ -1,7 +1,6 @@
 require "rexml/document"
 
 class SourceController < ApplicationController
-  #TODO: nearly all validations fail, uncomment lines to activate validation
   validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
   validate_action :project_meta => :project, :package_meta => :package
   
@@ -24,7 +23,9 @@ class SourceController < ApplicationController
       render :text => @dir.dump_xml, :content_type => "text/xml"
       return
     elsif request.delete?
-      allowed = permissions.project_change? project_name
+
+      #allowed = permissions.project_change? project_name
+      allowed = user.has_role "Admin"
       if not allowed
         logger.debug "No permission to delete project #{project_name}"
         render_error :message => "Permission denied (delete project #{project_name})", :status => 403, :errorcode => "permission_denied"
