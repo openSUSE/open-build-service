@@ -26,11 +26,34 @@ GET /about
 XmlResult: about
 
 
+== User data
+
+Host: api.opensuse.org
+
+<userid>: Id of user
+
+
+GET /person/<userid>
+
+  Read user data.
+  
+XmlResult: user
+  
+
+PUT /person/<userid>
+
+  Write user data.
+  
+XmlBody: user
+  
+XmlResult: status
+
+
 == Sources
 
 Host: api.opensuse.org
 
-=== Project meta data
+=== Projects
 
 
 GET /source/
@@ -56,7 +79,15 @@ XmlBody: project
 XmlResult: status
 
 
-=== Package meta data
+DELETE /source/<project>
+
+  Deletes specified project. All packages of this project are deleted as if a
+  DELETE request were issued for each package.
+
+XmlResult: status
+
+
+=== Packages
 
 
 GET /source/<project>/<package>/_meta
@@ -76,20 +107,6 @@ XmlBody: package
 XmlResult: status
 
 
-=== Delete projects ===
-
-
-DELETE /source/<project>
-
-  Deletes specified project. All packages of this project are deleted as if a
-  DELETE request were issued for each package.
-
-XmlResult: status
-
-
-=== Delete packages ===
-
-
 DELETE /source/<project>/<package>
 
   Deletes specified package including all source files
@@ -97,7 +114,7 @@ DELETE /source/<project>/<package>
 XmlResult: status
 
 
-=== Other source files
+=== Source files
 
 <filename>: File name
 
@@ -170,30 +187,143 @@ GET /platform/
 XmlResult: directory
 
 
-== User data
+== Build Results
 
-Host: api.opensuse.org
+<repository>: Build repository
 
-<userid>: Id of user
+=== Binaries
+
+GET /build/<project>/<repository>/<arch>/<package>
+
+  Get list of binaries
+
+Result: Binary
 
 
-GET /person/<userid>
+GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
 
-  Read user data.
+  Get binary
+
+Result: Binary
+
+=== Status
+
+GET /build/<project>/_result
+
+  Return build results for the packages, architectures and repositories
+  specified by the parameters. If no parameters are given, all results for the
+  project are returned.
   
-XmlResult: user
-  
+  The view parameter specifies which sections are included in the results.
+  view=summary includes the summary of the status values. view=status includes
+  detailed status information. view=binarylist includes the list of generated
+  binary files. If no view parameter is given, view=status is assumed. To
+  combine views the parameter can be given multiple times.
 
-PUT /person/<userid>
+Parameters:
+  
+  package: package name, optional, multiple
+  arch: architecture, optional, multiple
+  repository: name of repository, optional, multiple
+  view: summary | status | binarylist
 
-  Write user data.
+XmlResult: buildresult
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_history
+
+  Get build history
+
+XmlResult: buildhistory
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_status
+
+  Get build status of the specified project/package/repo/arch combination
+
+XmlResult: buildstatus
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_log
+
+  Get build log.
   
-XmlBody: user
+Result: Build log as text file.
+
+
+=== Control
+
+POST /build/<project>?cmd=rebuild
+
+  Triggers package rebuild for the repositories/architectures of the package
+  specified by the parameters. If no parameters are given, all packages of the
+  project are completely rebuilt.
+
+Parameters:
   
+  package: package name, optional, multiple
+  arch: architecture, optional, multiple
+  repository: name of repository, optional, multiple
+
 XmlResult: status
 
 
-== RPMs
+=== Local Build
+
+GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+
+  Get build information for local building
+
+XmlResult: buildinfo
+
+
+POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
+
+  Get build info for local building using the POSTed specfile
+
+Body: specfile
+
+XmlResult: buildinfo
+
+
+=== Repository Information
+
+GET /build/<project>/<repository>/<arch>/_all/
+
+  Returns list of binaries contained in the specified repository
+
+XmlResult: binarylist
+
+
+GET /build/<project>/<repository>/<arch>/_all/<binaryname>
+
+  Returns binary
+
+Result: binary file
+
+
+GET /build/<project>/<repository>/<arch>/_binarylist
+
+  Returns list of binaries contained in the specified repository
+
+XmlResult: binarylist
+
+
+GET /build/<project>/<repository>/<arch>/_buildinfo
+
+  ???
+
+GET /build/<project>/<repository>/_buildconfig
+
+  ???
+
+
+== Build Results (Legacy)
+
+  This section describes the obsolete API for build results. It will be replaced
+  by the API available under /build.
+
+=== RPMs
 
 Host: api.opensuse.org
 
@@ -235,7 +365,7 @@ GET /rpm/<project>/<repo>/<arch>/<package>/status
 XmlResult: buildstatus
 
 
-== Build Results (Legacy)
+=== Build Results
 
 Host: api.opensuse.org
 
@@ -259,113 +389,3 @@ GET /result/<project>/<platform>/<package>/<arch>/log
   Read build log.
   
 Result: Build log as text file.
-
-
-== Build Results
-
-Host: api.opensuse.org
-
-<repository>: Build repository
-
-GET /build/<project>/<repository>/<arch>/<package>/<rpmname>
-
-  Get RPM.
-
-Result: RPM
-
-
-GET /build/<project>/<repository>/<arch>/<package>/_history
-
-  Get build history
-
-XmlResult: buildhistory
-
-
-GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
-
-  Get build information for local building
-
-XmlResult: buildinfo
-
-
-POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
-
-  Get build info for local building using the POSTed specfile
-
-Body: specfile
-
-XmlResult: buildinfo
-
-
-GET /build/<project>/<repository>/<arch>/<package>/_status
-
-  Get build status of the specified project/package/repo/arch combination
-
-XmlResult: buildstatus
-
-
-GET /build/<project>/<repository>/<arch>/<package>/_log
-
-  Read build log.
-  
-Result: Build log as text file.
-
-
-POST /build/<project>?cmd=rebuild
-
-  Triggers package rebuild for the repositories/architectures of the package
-  specified by the parameters. If no parameters are given, all packages of the
-  project are completely rebuilt.
-
-Parameters:
-  
-  package: package name, optional, multiple
-  arch: architecture, optional, multiple
-  repository: name of repository, optional, multiple
-
-XmlResult: status
-
-
-GET /build/<project>/_result
-
-  Return build results for the packages, architectures and repositories
-  specified by the parameters. If no parameters are given, all results for the
-  project are returned.
-  
-  The view parameter specifies which sections are included in the results.
-  view=summary includes the summary of the status values. view=status includes
-  detailed status information. view=binarylist includes the list of generated
-  binary files. If no view parameter is given, view=status is assumed. To
-  combine views the parameter can be given multiple times.
-
-Parameters:
-  
-  package: package name, optional, multiple
-  arch: architecture, optional, multiple
-  repository: name of repository, optional, multiple
-  view: summary | status | binarylist
-
-XmlResult: buildresult
-
-
-=== Repository Information
-
-
-
-GET /build/<project>/<repository>/<arch>/_binarylist
-
-  Returns list of binaries contained in the specified repository
-
-XmlResult: binarylist
-
-
-GET /build/<project>/<repository>/_buildinfo
-
-  ???
-
-GET /build/<project>/<repository>/_buildconfig
-
-  ???
-
-
-
