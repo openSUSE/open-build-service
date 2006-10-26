@@ -179,6 +179,7 @@ class SourceController < ApplicationController
 
         render_ok
       elsif cmd == "commit"
+        query << URI.escape("rev=#{cmd}")
         query << URI.escape("rev=#{rev}") if rev
         query << URI.escape("user=#{user}") if user
         query << URI.escape("comment=#{comment}") if comment
