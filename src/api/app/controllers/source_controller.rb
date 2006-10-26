@@ -77,6 +77,8 @@ class SourceController < ApplicationController
 
       render_ok
       return
+    else
+      render_error :status => 400, :code => "illegal_request", :message => "illegal POST request to #{request.request_uri}"
     end
   end
 
@@ -87,35 +89,45 @@ class SourceController < ApplicationController
     user = params[:user]
     comment = params[:comment]
 
-    if request.delete?
-      if permissions.package_change? package_name, project_name
-        pack = DbPackage.find_by_project_and_name( project_name, package_name )
-        if pack
-          DbPackage.transaction(pack) do
-            pack.destroy
-            Suse::Backend.delete "/source/#{project_name}/#{package_name}"
-          end
-          render_ok
-        else
-          render_error :status => 404, :errorcode => "unknown_package", :message => "unknown package '#{package_name}' in project '#{project_name}'"
-        end
-      else
-        render_error :status => 403, :errorcode => "permission_denied", :message => "no permission to delete package"
-      end
-      return
-    end
-
     path = "/source/#{project_name}/#{package_name}"
     query = Array.new
     query_string = ""
 
+    #get doesn't need to check for permission, so it's handled extra
     if request.get?
       query_string = URI.escape("rev=#{rev}") if rev
       path += "?#{query_string}" unless query_string.empty?
 
       forward_data path
+      return
+    end
+
+    user_has_permission = permissions.package_change?( package_name, project_name )
+
+    if request.delete?
+      if not user_has_permission
+        render_error :status => 403, :errorcode => "permission_denied", :message => "no permission to delete package"
+        return
+      end
+      
+      pack = DbPackage.find_by_project_and_name( project_name, package_name )
+      if pack
+        DbPackage.transaction(pack) do
+          pack.destroy
+          Suse::Backend.delete "/source/#{project_name}/#{package_name}"
+        end
+        render_ok
+      else
+        render_error :status => 404, :errorcode => "unknown_package", :message => "unknown package '#{package_name}' in project '#{project_name}'"
+      end
     elsif request.post?
       cmd = params[:cmd]
+      
+      if not user_has_permission
+        render_error :status => 403, :errorcode => "permission_denied", :message => "no permission to execute command '#{cmd}'"
+        return
+      end
+
       logger.debug "CMD: #{cmd}"
       if cmd == "createSpecFileTemplate"
         specfile_path = "#{path}/#{package_name}.spec"
@@ -175,7 +187,7 @@ class SourceController < ApplicationController
 
         forward_data path, :method => :post
       else
-        render_error :status => 404, :message => "Unknow command: #{cmd}"
+        render_error :status => 400, :message => "unknown command: #{cmd}"
       end
     end
   end
