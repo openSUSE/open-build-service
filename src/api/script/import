@@ -34,8 +34,8 @@ ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
 
     #change default_server to your backend
-    #map.default_server :rest, "buildservice:5352" #real backend
-    map.default_server :rest, "buildservice:6362" #test backend
+    map.default_server :rest, "buildservice:5352" #real backend
+    #map.default_server :rest, "buildservice:6362" #test backend
 
     map.connect :project, "bssql:///", :write_through => :false
     map.connect :package, "bssql:///", :write_through => :false
@@ -58,6 +58,8 @@ end
 def store_project( p )
   STDERR.print "  #{p.name} => "
   begin
+    create_missing_users_for p
+
     p.save
     STDERR.puts "success"
     store_packages_for p
@@ -82,6 +84,9 @@ def store_packages_for( p )
       STDERR.print "     #{entry.name} => "
       xpack = Xpackage.find entry.name, :project => p.name
       pack = Package.new( xpack.dump_xml, :project => p.name )
+      
+      create_missing_users_for xpack
+
       pack.save
       STDERR.puts "success"
     end
@@ -103,6 +108,18 @@ def xmldebug(str)
   STDERR.puts "\n\n>>> Exception caused by this xml:\n"+str+"\n\n"
 end
 
+def create_missing_users_for( meta )
+  return unless CREATE_MISSING_USERS
+  meta.each_person do |person|
+    u = User.find_by_login person.userid.to_s
+    if not u
+      attribs = {:login => person.userid.to_s}.merge DUMMY_USER_ATTR
+      u = User.create attribs
+      u.save
+    end
+  end
+end
+
 projects = Xproject.find(:all)
 
 # maps project name to an array: [project_object, {packagename => package_object, ...}]
@@ -122,17 +139,6 @@ projects.each_entry do |entry|
   backend_project = Xproject.find entry.name
   p = Project.new( backend_project.dump_xml )
 
-  if CREATE_MISSING_USERS
-    p.each_person do |person|
-      u = User.find_by_login person.userid.to_s
-      if not u
-        attribs = {:login => person.userid.to_s}.merge DUMMY_USER_ATTR
-        u = User.create attribs
-        u.save
-      end
-    end
-  end
-  
   cache[entry.name] = p unless store_project(p)
 end
 
