@@ -56,4 +56,9 @@ module ProjectHelper
     return ret
   end
 
+  def repo_url(project, repo)
+    'http://software.opensuse.org/download/' + project.name.sub(':', ':/') + '/' + repo.name
+  end
+  
+
 end

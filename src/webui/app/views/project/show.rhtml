@@ -113,6 +113,7 @@
             <%=h path.project+"/"+path.repository %><br/>
             <% end -%>
             <% rescue; end %>
+            <%=  link_to 'Goto Repository', repo_url( @project, repo ) -%>
           </th>
           <% @arch_list.each do |arch| -%>
           <td><%= format_packstatus_for( repo.name, arch )%></td>
