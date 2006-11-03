@@ -490,6 +490,11 @@ a.x:hover {
     color: #f50;
 }
 
+.email_link {
+    position: relative;
+    top: 4px;
+}
+
 .message {
     background: url(../images/dialog-information.png) no-repeat 12px 50%;
     background-color: #eee;
