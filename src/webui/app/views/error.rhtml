@@ -48,7 +48,7 @@ Please contact the OpenSUSE admin to get proper permissions for the user account
 <b><%=h @exception.class.name %></b>: <%=h @exception.message %>
 <h4>Stack Trace:</h4>
 <pre>
-<%=h @exception.backtrace.join "\n" %>
+<%=h(@exception.backtrace.join("\n")) %>
 </pre>
 </p>
 <% end -%>

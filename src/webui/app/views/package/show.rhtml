@@ -31,7 +31,7 @@ of project <%= link_to_project @link.project %>.</p>
     <td><%=h file %></br/></td>
     <td>
       <% if file =~ /\.spec$/ %>
-        <%=   link_to ("[Edit]", :action => :edit_spec, :project => @project,
+        <%=   link_to("[Edit]", :action => :edit_spec, :project => @project,
           :package => @package, :file => file ) %>
       <% elsif file == "_link" %>
         <%= link_to( "[Edit]", :action => :edit_link, :project => @project,
@@ -92,7 +92,9 @@ of project <%= link_to_project @link.project %>.</p>
 <%= link_to "[Add User]", :action => :add_person, :package => @package, :project => @project %>
 </p>
 
-<% unless @results.empty? %>
+<% if @results.empty? %>
+<h3>Build Status unavailable</h3>
+<% else %>
 <h3>Build Status</h3>
 <table border=1>
   <% @results.each do |result| %>
