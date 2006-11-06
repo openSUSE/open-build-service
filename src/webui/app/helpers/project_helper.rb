@@ -57,7 +57,7 @@ module ProjectHelper
   end
 
   def repo_url(project, repo)
-    'http://software.opensuse.org/download/' + project.name.sub(':', ':/') + '/' + repo.name
+    'http://software.opensuse.org/download/' + project.name.gsub(':', ':/') + '/' + repo.name
   end
   
 
