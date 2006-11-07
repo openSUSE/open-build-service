@@ -5,6 +5,10 @@ class ProjectController < ApplicationController
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
       :toggle_watch ]
 
+  def index
+    redirect_to :action => 'list_all'
+  end
+
   def list_all
     projectlist = Project.find(:all).each_entry.sort do |a,b|  
       a.name.downcase <=> b.name.downcase

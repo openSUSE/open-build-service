@@ -1,6 +1,10 @@
 class PlatformController < ApplicationController
   model :platform
 
+  def index
+    redirect_to :action => 'list_all'
+  end
+
   def list_all
     @platforms = Platform.find( :all ).each_entry
 

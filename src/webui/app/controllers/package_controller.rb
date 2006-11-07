@@ -1,7 +1,11 @@
 class PackageController < ApplicationController
   model :project, :package, :result, :link
   before_filter :check_params
-  
+
+  def index
+    redirect_to :controller => 'project', :action => 'list_all'
+  end
+
   def show
     project = params[:project]
     if ( !project )
