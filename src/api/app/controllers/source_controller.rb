@@ -53,7 +53,7 @@ class SourceController < ApplicationController
         lrepstr = lreps.map{|l| l.db_project.name+'/'+l.name}.join "\n"
 
         render_error :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n", 
-          :status => 404, :errorcode => "repo_dependency"
+          :status => 400, :errorcode => "repo_dependency"
         return
       end
 
