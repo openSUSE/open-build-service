@@ -26,7 +26,7 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
 
    def list
     if params[:onlyunconfirmed]
-      @user_pages, @users = paginate :user, :conditions => [ "state = 5"], :order_by => "id", :per_page => 25
+      @user_pages, @users = paginate :user, :conditions => [ "state = 5"], :order_by => "id", :per_page => 200
     else
       @user_pages, @users = paginate :user, :order_by => "login", :per_page => 25
     end
@@ -34,11 +34,18 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
 
   # Show a user identified by the +:id+ path fragment in the URL.
   def show
-    @user = User.find(params[:id].to_i)
+    @user = User.find_by_id(params[:id].to_i)
 
-  rescue ActiveRecord::RecordNotFound
-    flash[:notice] = 'This user could not be found.'
-    redirect_to :action => 'list'
+    # if no user was found, try to find the user by login
+    if @user.nil?
+      @user = User.find_by_login(params[:id])
+    end
+
+    # if still no user was found, show error and redirect to list
+    if @user.nil?
+      flash[:notice] = 'This user could not be found.'
+      redirect_to :action => 'list'
+    end
   end
 
   # Displays a form to create a new user. Posts to the #create action.
