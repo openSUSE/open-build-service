@@ -36,7 +36,7 @@ class PersonController < ApplicationController
                 # ok, may update user info
               else
                 logger.debug "User has no permission to change userinfo"
-                render_error :status => 401,
+                render_error :status => 403,
                 :message => "no permission to change userinfo for user #{user.login}"
               end
             end
@@ -45,6 +45,8 @@ class PersonController < ApplicationController
           xml = REXML::Document.new( request.raw_post )
 
           logger.debug( "XML: #{request.raw_post}" )
+
+          user.email = xml.elements["/person/email"]
 
           realname = xml.elements["/person/realname"]
           user.realname = realname.text
