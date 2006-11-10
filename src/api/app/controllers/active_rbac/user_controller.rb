@@ -132,6 +132,9 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
       #set state to confirmed
       params[:user][:state] = @user.states['confirmed']
 
+      #send mail to user
+      IchainNotifier.deliver_approval(@user)
+
       redir_to_opts[:onlyunconfirmed] = 1
     end
 
