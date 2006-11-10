@@ -1,7 +1,15 @@
 Hello <%= @user.realname.empty? ? @user.login : @user.realname %>,
 
-your buildservice account is now active.
+your buildservice account is now active. You can create your home project
+here:
 
-Please keep in mind that the buildservice is still under development.
+http://build.opensuse.org/project/show?project=home%3A<%= @user.login %>
 
-Have fun.
+If you had a different login before we switched to IChain, and want to keep
+your old home project, please send a mail to opensuse-buildservice@opensuse.org
+
+Please also keep in mind that the buildservice is still under development.
+
+Have fun,
+
+The Buildservice Team
