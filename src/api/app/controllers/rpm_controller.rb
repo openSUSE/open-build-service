@@ -7,6 +7,7 @@ class RpmController < ApplicationController
   def buildinfo
     if request.post?
       response = Suse::Backend.post_rpm request.path, request.raw_post
+      send_data( response.body, :type => response.fetch( "Content-Type" ), :disposition => "inline" )
     else
       pass_to_repo
     end
