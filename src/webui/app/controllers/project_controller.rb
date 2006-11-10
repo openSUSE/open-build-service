@@ -98,6 +98,17 @@ class ProjectController < ApplicationController
     @packstatus = Packstatus.find( params[:project], :command => 'summaryonly' )
   end
 
+  def search_package
+    @project = Project.find( params[:project] )
+    @all_packages = Package.find( :all, :project => params[:project] )
+    @matching_packages = Array.new
+    logger.debug "searching for packages containing \"#{params[:searchtext]}\" in project \"#{params[:project]}\"\n"
+    @all_packages.each_entry do |entry|
+      @matching_packages << entry.name if entry.name.include? params[:searchtext]
+    end
+    render :partial => "search_package"
+  end
+
   def save_new
     logger.debug( "save_new" )
   

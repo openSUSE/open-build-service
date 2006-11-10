@@ -495,6 +495,12 @@ a.x:hover {
     top: 4px;
 }
 
+#package_filter {
+    font-size: 75%;
+    color: #888;
+    margin-bottom: 5px;
+}
+
 .message {
     background: url(../images/dialog-information.png) no-repeat 12px 50%;
     background-color: #eee;

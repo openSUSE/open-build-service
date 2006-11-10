@@ -1,3 +1,4 @@
+<div id="project_show">
 <%
 @crumb_list = [
   link_to( 'Projects', :action => :list_public),
@@ -70,7 +71,20 @@
     <td>
       <!-- Package table -->
       <h3>Packages</h3>
-      <% if @packages.count.to_i > 0 -%>
+     <% if @packages.count.to_i > 0 -%>
+
+      <% if @packages.count.to_i > 10 -%>
+        <div id="package_filter">Filter:
+                <%= text_field_tag "searchtext" -%>
+        <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+        <%= observe_field( :searchtext, :frequency => 0.5, :update => :search_results, 
+            :url => { :controller => 'project', :action  => 'search_package', :project => params[:project] },
+            :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",
+            :with => "'searchtext=' + escape(value)") %>
+        </div>
+      <% end %>
+
+      <div id="search_results">
       <table class="grid">
         <% @packages.each_entry do |package| -%>
         <tr>
@@ -81,8 +95,9 @@
             :project => @project, :package => package.name}, {:confirm => "Really remove package '#{package.name}'?", :class => 'x'} %></td>
           -->
         </tr>
-        <% end #each_entry -%>
+        <% end #each_entry %>
       </table>
+      </div>
       <% end #count > 0 -%>
       <p>
       <%= link_to "[Add Package]", :controller => 'package', :action => :new,
@@ -92,6 +107,7 @@
       <%= link_to "[Link Package from other Project]", :controller => 'package',
       :action => :new_link, :project => @project %>
       </p>
+
     </td>
 
 
@@ -139,3 +155,4 @@
     </td>
 
 </table>
+</div>

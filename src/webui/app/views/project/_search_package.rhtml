@@ -1,0 +1,13 @@
+<table class="grid">
+  <% @matching_packages.each do |package| -%>
+    <tr>
+      <td><%= link_to package, :controller => 'package', :action => :show,
+              :project=> @project, :package => package %></td>
+      <!-- remove link disabled
+      <td><%= link_to "[Remove]", {:controller => 'package', :action => :remove,
+              :project => @project, :package => package}, {:confirm => "Really remove package '#{package}'?", :class => 'x'} %></td>
+      -->
+    </tr>
+  <% end #each_entry %>
+</table>
+
