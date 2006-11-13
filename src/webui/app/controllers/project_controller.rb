@@ -3,31 +3,27 @@ class ProjectController < ApplicationController
 
   before_filter :check_parameter_project, :except =>
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
-      :toggle_watch ]
+      :toggle_watch, :search_project ]
 
   def index
     redirect_to :action => 'list_all'
   end
 
   def list_all
-    projectlist = Project.find(:all).each_entry.sort do |a,b|  
+    @projects = Project.find(:all).each_entry.sort do |a,b|
       a.name.downcase <=> b.name.downcase
     end
-
-    @project_pages, @projects = paginate_collection( projectlist )
   end
 
   def list_public
     logger.debug "inside list_public"
-    projectlist = Project.find(:all).each_entry.sort do |a,b|  
+    @projects = Project.find(:all).each_entry.sort do |a,b|  
       a.name.downcase <=> b.name.downcase 
     end
 
-    projectlist.reject! do |p|
+    @projects.reject! do |p|
       p.name.to_s =~ /^home:/
     end
-    
-    @project_pages, @projects = paginate_collection( projectlist )
   end
 
   def list_my
@@ -107,6 +103,18 @@ class ProjectController < ApplicationController
       @matching_packages << entry.name if entry.name.include? params[:searchtext]
     end
     render :partial => "search_package"
+  end
+
+  def search_project
+    @projects = Project.find(:all).each_entry.sort do |a,b|
+      a.name.downcase <=> b.name.downcase
+    end
+
+    @projects.reject! do |p|
+      not p.name.to_s.downcase.include? params[:searchtext].downcase
+    end
+
+    render :partial => "search_project"
   end
 
   def save_new

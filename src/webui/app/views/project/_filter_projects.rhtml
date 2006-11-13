@@ -1,0 +1,10 @@
+<b>Filter projects (live, case insensitive):</b><br/>
+
+<%= text_field_tag "searchtext", '', :size => 20 -%>
+<img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" /><br/>
+
+<%= observe_field( :searchtext, :frequency => 0.5, :update => :project_list,
+    :url => { :controller => 'project', :action  => 'search_project' },
+    :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",
+    :with => "'searchtext=' + escape(value)") %>
+

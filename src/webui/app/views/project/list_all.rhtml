@@ -4,10 +4,11 @@
 ]
 -%>
 
-<%= render :partial => 'jump_to_project' %><br/>
+<%= render :partial => 'filter_projects' %><br/>
 
 <h2>All Projects</h2>
 
+<div id="project_list">
 <table>
   <tr><th>Name</th>
   <% for project in @projects %>
@@ -17,9 +18,6 @@
   </tr>
   <% end %>
 </table>
-
-<% if @project_pages.page_count > 1 %>
-Pages <%= pagination_links( @project_pages ) %>
-<% end %>
+</div>
 
 <p><%= link_to '[Create New Project]', :action => :new %></p>
