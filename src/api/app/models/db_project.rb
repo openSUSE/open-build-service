@@ -136,8 +136,11 @@ class DbProject < ActiveRecord::Base
           current_repo = repocache[repo.name]
         end
 
+
         #destroy all current pathelements
-        current_repo.path_elements.clear
+        current_repo.path_elements.sort {|a,b| b.id <=> a.id}.each do |pe|
+          pe.destroy
+        end
 
         #recreate pathelements from xml
         repo.each_path do |path|
