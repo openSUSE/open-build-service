@@ -153,3 +153,10 @@ Thu Jun 08 16:37:07 CEST 2006 - bauersman
 - added missing breadcrumbs/fixed wrong links to project list
 
 
+------------------------------------------------------------------------
+Tue Nov 14 14:47:02 +0100 2006 - abauer
+
+- update from svn revision 841 to 846
+- using capistrano for deploy
+
+
