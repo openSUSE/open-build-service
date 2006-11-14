@@ -23,4 +23,4 @@ config.action_controller.perform_caching             = true
 FRONTEND_HOST = "api-internal.opensuse.org"
 FRONTEND_PORT = 80
 
-ICHAIN_HOST = nil
+ICHAIN_HOST = "212.12.12.12"
