@@ -20,7 +20,7 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-FRONTEND_HOST = "api.opensuse.org"
+FRONTEND_HOST = "api-internal.opensuse.org"
 FRONTEND_PORT = 80
 
 ICHAIN_HOST = nil
