@@ -238,8 +238,6 @@ class SourceController < ApplicationController
 	end
       end
       
-      logger.debug response
-           
       if allowed
         if( @project.name != project_name )
           render_error :message => "project name in xml data does not match resource path component", :status => 400
