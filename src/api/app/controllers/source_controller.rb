@@ -226,12 +226,7 @@ class SourceController < ApplicationController
 	if allowed 
 	  # This is a new project. Add the logged in user as maintainer
           @project = Project.new( request_data, :name => project_name )
-
-          if( @project.name != project_name )
-            render_error( :message => "project name in xml data does not match resource path component", :status => 404 )
-            return
-          end
-         
+        
           if not @project.has_element?( "person[@userid='#{user.login}']" )
             @project.add_person( :userid => user.login )
           end
@@ -246,6 +241,10 @@ class SourceController < ApplicationController
       logger.debug response
            
       if allowed
+        if( @project.name != project_name )
+          render_error :message => "project name in xml data does not match resource path component", :status => 400
+          return
+        end
         @project.save
         render_ok
       else
@@ -256,7 +255,7 @@ class SourceController < ApplicationController
     else
       #neither put nor get
       #TODO: return correct error code
-      render_error :message => "Illegal request: POST #{request.path}", :status => 500
+      render_error :message => "Illegal request: POST #{request.path}", :status => 400
     end
   end
 
@@ -293,11 +292,7 @@ class SourceController < ApplicationController
           #FIXME: parameters that get substituted into the url must be specified here... should happen
           #somehow automagically... no idea how this might work
           @package = Package.new( request_data, :project => project_name, :name => package_name )
-          if( @package.name != package_name )
-            render_error( :message => "package name in xml data does not match resource path component", :status => 404 )
-            return
-          end
-
+        
           # add package creator as maintainer if he is not added already
           if not @package.has_element?( "person[@userid='#{user.login}']" )
             @package.add_person( :userid => user.login )
@@ -311,6 +306,11 @@ class SourceController < ApplicationController
       end
       
       if allowed
+        if( @package.name != package_name )
+          render_error( :message => "package name in xml data does not match resource path component", :status => 400 )
+          return
+        end
+
         @package.save
         render_ok
       else
@@ -319,7 +319,7 @@ class SourceController < ApplicationController
     else
       # neither put nor get
       #TODO: return correct error code
-      render_error :message => "Illegal request: POST #{request.path}", :status => 500
+      render_error :message => "Illegal request: POST #{request.path}", :status => 400
     end
   end
 
