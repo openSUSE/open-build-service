@@ -30,6 +30,11 @@ class FrontendCompat
       :method => "PUT", :data => data
   end
 
+  def delete_package( opt={} )
+    logger.debug "deleting: #{opt.inspect}"
+    transport.direct_http URI("http:///source/#{opt[:project]}/#{opt[:package]}"), :method => "DELETE"
+  end
+
   def delete_file( opt={} )
     logger.debug "starting to delete file, opt: #{opt.inspect}"
     transport.direct_http URI("http:///source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
