@@ -1,4 +1,4 @@
-DROP DATABASE frontend_development;
+DROP DATABASE IF EXISTS frontend_development;
 CREATE DATABASE frontend_development;
 USE frontend_development;
 
