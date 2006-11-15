@@ -34,8 +34,8 @@ ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
 
     #change default_server to your backend
-    map.default_server :rest, "buildservice:5352" #real backend
-    #map.default_server :rest, "buildservice:6362" #test backend
+    map.default_server :rest, "buildservice.suse.de:5352" #real backend
+    #map.default_server :rest, "buildservice.suse.de:6362" #test backend
 
     map.connect :project, "bssql:///", :write_through => :false
     map.connect :package, "bssql:///", :write_through => :false
