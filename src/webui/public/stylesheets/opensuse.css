@@ -19,6 +19,22 @@ input[type=text] {
   width: 65%
 }
 
+input#projectsearch {
+  width: 12em;
+}
+
+input#packagesearch {
+  width: 9em;
+}
+
+#projectsearch_clear {
+  margin-left: 0.4em;
+}
+
+#packagesearch_clear {
+  margin-bottom: -0.13em;
+}
+
 textarea {
   width: 95%
 }

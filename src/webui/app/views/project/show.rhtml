@@ -71,28 +71,21 @@
     <td>
       <!-- Package table -->
       <h3>Packages</h3>
-     <% if @packages.count.to_i > 0 -%>
+     <% if @packages.length.to_i > 0 -%>
 
-      <% if @packages.count.to_i > 10 -%>
-        <div id="package_filter">Filter:
-                <%= text_field_tag "searchtext" -%>
-        <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
-        <%= observe_field( :searchtext, :frequency => 0.5, :update => :search_results, 
-            :url => { :controller => 'project', :action  => 'search_package', :project => params[:project] },
-            :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",
-            :with => "'searchtext=' + escape(value)") %>
-        </div>
-      <% end %>
+     <% if @packages.length.to_i > 10 || params[:filter_active] -%>
+       <%= render :partial => 'filter_packages' %>
+     <% end %>
 
       <div id="search_results">
       <table class="grid">
-        <% @packages.each_entry do |package| -%>
+        <% @packages.each do |package| -%>
         <tr>
-          <td><%= link_to package.name, :controller => 'package', :action => :show,
-            :project=> @project, :package => package.name %></td>
+          <td><%= link_to package, :controller => 'package', :action => :show,
+            :project=> @project, :package => package %></td>
           <!-- remove link disabled
           <td><%= link_to "[Remove]", {:controller => 'package', :action => :remove,
-            :project => @project, :package => package.name}, {:confirm => "Really remove package '#{package.name}'?", :class => 'x'} %></td>
+            :project => @project, :package => package}, {:confirm => "Really remove package '#{package}'?", :class => 'x'} %></td>
           -->
         </tr>
         <% end #each_entry %>
@@ -146,7 +139,7 @@
       <% end #has_element? -%>
       <p><%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %></p>
       
-      <% if @packages.count.to_i > 0 and @project.has_element?(:repository) -%>
+      <% if @packages.length > 0 and @project.has_element?(:repository) -%>
       <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
       <% else -%>
       <p><i>Add packages/repositories to enable the build monitor</i></p>

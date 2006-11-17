@@ -62,7 +62,14 @@ class ProjectController < ApplicationController
   def show
     begin
       @project = Project.find( params[:project] )
-      @packages = Package.find( :all, :project => params[:project] )
+      # create array of package-names
+      if !@packages
+        @packages_xml = Package.find( :all, :project => params[:project] )
+        @packages = Array.new
+        @packages_xml.each_entry do |package|
+          @packages << package.name
+        end
+      end
     rescue ActiveXML::Transport::NotFoundError
       # create home project if none is there
       logger.debug "caught Transport::NotFoundError in ProjectController#show"
@@ -96,25 +103,28 @@ class ProjectController < ApplicationController
 
   def search_package
     @project = Project.find( params[:project] )
-    @all_packages = Package.find( :all, :project => params[:project] )
-    @matching_packages = Array.new
-    logger.debug "searching for packages containing \"#{params[:searchtext]}\" in project \"#{params[:project]}\"\n"
-    @all_packages.each_entry do |entry|
-      @matching_packages << entry.name if entry.name.include? params[:searchtext]
+    if params[:packagesearch]
+      # user pressed enter to search -> no ajax, old-fashioned form-submit
+      @packages = filter_packages params[:project], params[:packagesearch]
+      show()
+      render :action => 'show'
+    else
+      # ajax live-search
+      @matching_packages = filter_packages params[:project], params[:searchtext]
+      render :partial => "search_package"
     end
-    render :partial => "search_package"
   end
 
   def search_project
-    @projects = Project.find(:all).each_entry.sort do |a,b|
-      a.name.downcase <=> b.name.downcase
+    if params[:projectsearch]
+      # user pressed enter to search -> no ajax, old-fashioned form-submit
+      @projects = filter_projects params[:projectsearch]
+      render :action => 'list_all'
+    else
+      # ajax live-search
+      @projects = filter_projects params[:searchtext]
+      render :partial => "search_project"
     end
-
-    @projects.reject! do |p|
-      not p.name.to_s.downcase.include? params[:searchtext].downcase
-    end
-
-    render :partial => "search_project"
   end
 
   def save_new
@@ -418,6 +428,25 @@ class ProjectController < ApplicationController
     last = [first + options[:per_page], collection.size].min
     slice = collection[first...last]
     return [pages, slice]
+  end
+
+  def filter_projects( filterstring )
+    projectlist = Project.find(:all).each_entry.sort do |a,b|
+      a.name.downcase <=> b.name.downcase
+    end
+    projectlist.reject! do |p|
+      not p.name.to_s.downcase.include? filterstring.downcase
+    end
+    return projectlist
+  end
+
+  def filter_packages( project, filterstring )
+    all_packages = Package.find( :all, :project => project )
+    matching_packages = Array.new
+    all_packages.each_entry do |entry|
+      matching_packages << entry.name if entry.name.include? filterstring
+    end
+    return matching_packages
   end
 
 end

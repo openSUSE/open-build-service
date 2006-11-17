@@ -1,0 +1,26 @@
+<div id="package_filter">
+
+  <%= start_form_tag :action => 'search_package' -%>
+    Filter:
+    <%= text_field_tag 'packagesearch' -%>
+    <%= hidden_field_tag 'project', @project -%>
+    <%= hidden_field_tag 'filter_active', 1 -%>
+    <img id="packagesearch_clear" alt="clear" title="clear input" src="/images/clear.png"
+      onclick="e=document.getElementById('packagesearch'); e.value=''; e.focus();"
+      onMouseOver="this.src='/images/clear_active.png';"
+      onMouseOut="this.src='/images/clear.png';" />
+    <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+  <%= end_form_tag -%>
+
+  <%= observe_field( :packagesearch, :frequency => 0.5, :update => :search_results,
+    :url => { :controller => 'project', :action  => 'search_package', :project => params[:project] },
+    :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",
+    :with => "'searchtext=' + escape(value)") %>
+</div>
+
+<script type="text/javascript">
+  <!--
+    document.getElementById('packagesearch').focus();
+  //-->
+</script>
+
