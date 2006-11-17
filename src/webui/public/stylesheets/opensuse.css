@@ -105,7 +105,7 @@ body {
     margin: 0;
     padding: 0;
     font-size: small;
-    font-family: segoe, myriad, trebuchet ms, sans-serif;
+    font-family: "Dejavu Sans", segoe, myriad, trebuchet ms, sans-serif;
     background: url(../images/bg-topline.png) repeat-x;
     padding-top: 16px;
 }
