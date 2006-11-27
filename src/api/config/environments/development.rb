@@ -23,14 +23,14 @@ BREAKPOINT_SERVER_PORT=42532
 SOURCE_HOST = "buildservice.suse.de"
 # SOURCE_HOST = "localhost"
 
-#SOURCE_PORT = 5352
-SOURCE_PORT = 6362 #test backend
+SOURCE_PORT = 5352
+#SOURCE_PORT = 6362 #test backend
 
 RPM_HOST = "buildservice.suse.de"
 # RPM_HOST = "localhost"
 
-#RPM_PORT = 5252
-RPM_PORT = 6262 #test backend
+RPM_PORT = 5252
+#RPM_PORT = 6262 #test backend
 
 # set the iChain host to something not nil to use iChain. Note
 # that the IP is not used atm but that might change.
