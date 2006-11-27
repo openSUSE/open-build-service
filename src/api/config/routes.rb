@@ -67,7 +67,8 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'source/:project', :controller => "source",
     :action => 'index_project'
 
-
+  map.connect 'search/project/id', :controller => "search", :action => "pass_to_source"
+  map.connect 'search/package/id', :controller => "search", :action => "pass_to_source"
   map.connect 'search/project', :controller => "search", :action => "pass_to_source"
   map.connect 'search/package', :controller => "search", :action => "pass_to_source"
   map.connect 'search', :controller => "search", :action => "pass_to_source"
@@ -102,6 +103,6 @@ ActionController::Routing::Routes.draw do |map|
               :action => 'confirm'
 
   # Install the default route as the lowest priority.
-  map.connect ':controller/:action/:id'
-  map.connect ':controller/:action'
+  #map.connect ':controller/:action/:id'
+  #map.connect ':controller/:action'
 end
