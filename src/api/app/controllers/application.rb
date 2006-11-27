@@ -275,9 +275,13 @@ class ApplicationController < ActionController::Base
     backend.direct_http( URI(path), :method => "PUT", :data => data )
   end
 
-  #default action, passes data from backend
+  #default actions, passes data from backend
   def pass_to_repo
     forward_data @request.path+'?'+@request.query_string, :server => :repo
+  end
+
+  def pass_to_source
+    forward_data @request.path+'?'+@request.query_string, :server => :source
   end
 
   def ichain_host

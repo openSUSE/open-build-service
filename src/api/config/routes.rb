@@ -68,6 +68,31 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'index_project'
 
 
+  map.connect 'search/project', :controller => "search", :action => "pass_to_source"
+  map.connect 'search/package', :controller => "search", :action => "pass_to_source"
+  map.connect 'search', :controller => "search", :action => "pass_to_source"
+
+  map.connect 'build/:project/:repository/:arch/:package/_status',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build/:project/:repository/:arch/:package/_logfile',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build/:project/:repository/:arch/:package',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build/:project/:repository/_buildconfig',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build/:project/:repository/:arch',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build/:project/_result',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build/:project/:repository',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build/:project',
+        :controller => "build", :action => "pass_to_source"
+  map.connect 'build',
+        :controller => "build", :action => "pass_to_source"
+
   map.apidocs 'apidocs/', :controller => "apidocs"
 
   map.connect '/active_rbac/registration/confirm/:user/:token',
