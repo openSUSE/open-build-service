@@ -1,0 +1,13 @@
+
+<!-- Links -->
+<div id="package_link">
+  <% if @link %>
+  <h3>Link</h3>
+  <p>
+    This package links to the sources of the package
+    <%= link_to_package @link.project, @link.package %>
+    of project <%= link_to_project @link.project %>.
+  </p>
+  <% end %>
+</div>
+

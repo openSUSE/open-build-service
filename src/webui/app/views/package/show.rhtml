@@ -5,131 +5,40 @@
   @package.name
 ]
 -%>
+
+
 <h2>Package <%=h @package %> (Project <%=h @project %>)</h2>
 
-<b>Title:</b> <%=h @package.title %><br/>
-<b>Description:</b><br/>
-<%=h @package.description %><br/>
 
-<br/>
-<%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package %>
-<%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
-{:confirm => "Really remove package '#{@package}'?"}%>
+<%= render :partial => 'meta' %>
 
-<% if @link %>
-<h3>Link</h3>
-<p>This package links to the sources of the package
-<%= link_to_package @link.project, @link.package %>
-of project <%= link_to_project @link.project %>.</p>
-<% end %>
 
-<h3>Files</h3>
-<% if !@files.empty? %>
-<table>
-  <% @files.each do |file| %>
+<table id="package-layout">
   <tr>
-    <td><%=h file %></br/></td>
     <td>
-      <% if file =~ /\.spec$/ %>
-        <%=   link_to("[Edit]", :action => :edit_spec, :project => @project,
-          :package => @package, :file => file ) %>
-      <% elsif file == "_link" %>
-        <%= link_to( "[Edit]", :action => :edit_link, :project => @project,
-          :package => @package, :file => file ) %>
-      <% end %>
+
+      <%= render :partial => 'tags' %>
+      <%= render :partial => 'categories' %>
+      <%= render :partial => 'users' %>
+
     </td>
-    <td><%= link_to "[Download]", file_url( @project, @package, file ) %></td>
-    <td><%= link_to "[Remove]", {:action => :remove_file, :project => @project,
-      :package => @package, :filename => file},
-      {:confirm => "Really remove file '#{file}'?" }%></td>
     <td>
-      <% if @link && @link.has_add_patch?( file ) %>
-        (Added Patch)
-      <% elsif @link && @link.has_patch?( file ) %>
-        (Global Patch)
-      <% end %>
+
+      <%= render :partial => 'links' %>
+
+    </td>
+    <td>
+
+      <%= render :partial => 'files' %>
+      <%= render :partial => 'buildstatus' %>
+      <%= render :partial => 'disable_building' %>
+
     </td>
   </tr>
-  <% end %>
 </table>
-<% end %>
 
-<p>
-<%= link_to "[Add File]", :action => :add_file, :project => @project, :package => @package %>
+
+<p style="clear: both;">
+  <%= link_to "Back to Project '#{@project}'", :controller => 'project', :action => :show, :project => @project %>
 </p>
 
-<p>
-<h3>Involved Users</h3>
-<% if @package.has_element? :person %>
-<table border=1>
-  <tr>
-    <th>Userid</th>
-    <th>Role</th>
-    <%- if @package.each_person.length > 1 %>
-    <th>Action</th>
-    <%- end %>
-  </tr>
-  <% @package.each_person do |person| %>
-  <tr>
-    <td><%=h person.userid %></td>
-    <td><%=h person.role %></td>
-    
-    <%- if @package.each_person.length > 1 %>
-    <td>
-      <%= link_to "[Remove User]", {:action => :remove_person, :package => @package, 
-      :project => params[:project], :userid => person.userid, :role => person.role},
-        {:confirm => "Really remove user '#{person.userid}'?"}%>
-    </td>
-    <%- end %>
-    
-  </tr>
-  <% end %>
-</table>
-<% else %>
-<b>No one in this project</b>
-<% end %>
-</p><p>
-<%= link_to "[Add User]", :action => :add_person, :package => @package, :project => @project %>
-</p>
-
-<% if @results.empty? %>
-<h3>Build Status unavailable</h3>
-<% else %>
-<h3>Build Status</h3>
-<table border=1>
-  <% @results.each do |result| %>
-  <tr>
-    <td colspan="4"><b><%=h result.repository %></b></td>
-  </tr>
-  <% result.each_archresult do |ar| %>
-  <tr>
-    <td align="right"><%=h ar.arch %></td>
-    <td><%=h ar.status.code %></td>
-    <td>
-    <% if ar.status.has_element? :summary %>
-      <%=h ar.status.summary %>
-    <% end %>
-    </td>
-    <td align="right"><%= link_to "[Live Build Log]", :action => :live_build_log,
-      :package => @package, :project => params[:project], :arch => ar.arch, :repository => result.repository %></td>
-  </tr>
-  <% ar.each_rpm do |rpm| %>
-  <tr>
-    <td/>
-      <td colspan="3"><%= link_to rpm.filename, rpm_url( @project, @package,
-      result.repository, ar.arch, rpm.filename ) %></td>
-  </tr>
-  <% end %>
-  <% end %>
-  <% end %>
-</table>
-<% end %>
-
-<p>
-<%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
-  :project => @project, :package => @package %>
-</p>
-
-<p>
-<%= link_to "Back to Project '#{@project}'", :controller => 'project', :action => :show, :project => @project %>
-</p>

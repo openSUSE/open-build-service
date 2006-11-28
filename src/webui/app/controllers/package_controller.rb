@@ -40,6 +40,14 @@ class PackageController < ApplicationController
             :platform => repository.name )
           @results << result if result
         end
+
+        @archs = []
+        @project.each_repository do |repo|
+          repo.each_arch do |arch|
+            @archs << arch.to_s if not @archs.include? arch.to_s
+          end
+        end
+
       end
     end
   end
@@ -459,5 +467,50 @@ class PackageController < ApplicationController
     end
 
   end
+
+
+  def disable_build
+    return false unless @package = Package.find( params[:package], :project => params[:project] )
+
+    # disable building of a package
+    if params[:arch] && params[:repo]
+      flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}' / arch '#{params[:arch]}'."
+      @package.disable_build :repo => params[:repo], :arch => params[:arch]
+    else
+      if params[:repo]
+        flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}'."
+        @package.disable_build :repo => params[:repo]
+      elsif params[:arch]
+        flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
+        @package.disable_build :arch => params[:arch]
+      else
+        flash[:note] = "Neither repository nor architecture given to disable building on ..."
+      end
+    end
+    redirect_to :action => "show", :project => params[:project], :package => params[:package]
+  end
+
+
+  def enable_build
+    return false unless @package = Package.find( params[:package], :project => params[:project] )
+
+    # (re)-enable building of a package
+    if params[:arch] && params[:repo]
+      flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}' / arch '#{params[:arch]}'."
+      @package.enable_build :repo => params[:repo], :arch => params[:arch]
+    else
+      if params[:repo]
+        flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}'."
+        @package.enable_build :repo => params[:repo]
+      elsif params[:arch]
+        flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
+        @package.enable_build :arch => params[:arch]
+      else
+        flash[:note] = "Neither repository nor architecture given to enable building on ..."
+      end
+    end
+    redirect_to :action => "show", :project => params[:project], :package => params[:package]
+  end
+
 
 end

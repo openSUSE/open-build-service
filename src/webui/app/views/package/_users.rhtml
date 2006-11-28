@@ -1,0 +1,40 @@
+
+<!-- Users -->
+<div id="package_users">
+  <h3>Involved Users 
+    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
+    :action => :add_person, :package => @package, :project => @project %>
+  </h3>
+  <% if @package.has_element? :person %>
+  <table class="grid">
+    <tr>
+      <th>Userid</th>
+      <th>Role</th>
+      <%- if @package.each_person.length > 1 %>
+      <th>Action</th>
+      <%- end %>
+    </tr>
+    <% @package.each_person do |person| %>
+    <tr>
+      <td><%=h person.userid %></td>
+      <td><%=h person.role %></td>
+
+      <%- if @package.each_person.length > 1 %>
+      <td>
+        <%= link_to "[Remove]", {:action => :remove_person, :package => @package, 
+        :project => params[:project], :userid => person.userid, :role => person.role},
+        {:confirm => "Really remove user '#{person.userid}'?"}%>
+      </td>
+      <%- end %>
+
+    </tr>
+    <% end %>
+  </table>
+  <% else %>
+  <b>No one in this project</b>
+  <% end %>
+  <p>
+  <%= link_to "[Add User]", :action => :add_person, :package => @package, :project => @project %>
+  </p>
+</div>
+

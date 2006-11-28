@@ -63,4 +63,53 @@ class Package < ActiveXML::Base
     end
   end
 
+
+  # disable building of this package for the specified repo / arch / repo/arch-combination
+  def disable_build( opt={} )
+    logger.debug "disable building of package #{self.name} for #{opt[:repo]} #{opt[:arch]}"
+
+    if( has_element? :disable )
+      elem_cache = split_data_after :disable
+    else
+      elem_cache = split_data_after :person
+    end
+
+    if opt[:repo] and opt[:arch]
+      data.add_element 'disable', 'repository' => opt[:repo], 'arch' => opt[:arch]
+    else
+      if opt[:repo]
+        data.add_element 'disable', 'repository' => opt[:repo]
+      elsif opt[:arch]
+        data.add_element 'disable', 'arch' => opt[:arch]
+      else
+        return false
+      end
+    end
+
+    merge_data elem_cache
+    save
+  end
+
+
+  # enable building / remove disable-entry
+  def enable_build( opt={} )
+    if not opt.empty?
+      if opt[:repo] && opt[:arch]
+        xpath="disable[@repository='#{opt[:repo]}' and @arch='#{opt[:arch]}']"
+      elsif opt[:repo]
+        xpath="disable[@repository='#{opt[:repo]}' and not(@arch)]"
+      elsif opt[:arch]
+        xpath="disable[@arch='#{opt[:arch]}' and not(@repository)]"
+      else
+        xpath="this_will_not_get_found_in_here"
+      end
+      logger.debug "enable building of package #{self.name} using xpath '#{xpath}'"
+      data.each_element(xpath) do |e|
+        data.delete_element e
+      end
+      save
+    end
+  end
+
+
 end

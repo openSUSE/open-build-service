@@ -1,0 +1,44 @@
+
+<!-- Build status -->
+<div id="package_buildstatus">
+  <% if @results.empty? %>
+  <h3>Build Status unavailable</h3>
+  <% else %>
+  <h3>
+    Build Status
+    <%= link_to image_tag('reload.png', :alt => "Rebuild", :title => "Trigger Rebuild"),
+    :action => 'trigger_rebuild', :project => @project, :package => @package %>
+  </h3>
+  <table class="grid">
+    <% @results.each do |result| %>
+    <tr>
+      <th colspan="4"><b><%=h result.repository %></b></th>
+    </tr>
+    <% result.each_archresult do |ar| %>
+    <tr>
+      <td align="right"><%=h ar.arch %></td>
+      <td><%=h ar.status.code %></td>
+      <td>
+        <% if ar.status.has_element? :summary %>
+        <%=h ar.status.summary %>
+        <% end %>
+      </td>
+      <td align="right"><%= link_to "[Build Log]", :action => :live_build_log,
+        :package => @package, :project => params[:project], :arch => ar.arch, :repository => result.repository %></td>
+    </tr>
+    <% ar.each_rpm do |rpm| %>
+    <tr>
+      <td colspan="3"><%= link_to rpm.filename, rpm_url( @project, @package,
+        result.repository, ar.arch, rpm.filename ) %></td>
+    </tr>
+    <% end %>
+    <% end %>
+    <% end %>
+  </table>
+  <% end %>
+  <p>
+    <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
+    :project => @project, :package => @package %>
+  </p>
+</div>
+

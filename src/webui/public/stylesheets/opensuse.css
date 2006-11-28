@@ -568,3 +568,35 @@ a.x:hover {
     }
     .message.warning a { color: #c00; }
 
+
+
+#package-layout {
+  width: 100%;
+}
+
+#package-layout td {
+  padding: 1em;
+  vertical-align: top;
+}
+#package-layout td td {
+  padding: 1ex;
+}
+
+
+#left {
+  float: left;
+  width: 50%;
+  margin: 0.5em;
+}
+
+#right {
+  margin: 0.5em;
+}
+
+
+div#package_disablebuild ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+

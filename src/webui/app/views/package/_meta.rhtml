@@ -1,0 +1,13 @@
+
+<!-- Package meta -->
+<div id="package_meta">
+  <b>Title:</b> <%=h @package.title %><br/>
+  <b>Description:</b><br/>
+  <%=h @package.description %><br/>
+  <br/>
+  <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package %>
+  <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
+  {:confirm => "Really remove package '#{@package}'?"}%>
+  <br/><br/>
+</div>
+
