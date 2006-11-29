@@ -1,0 +1,47 @@
+html,body{margin:0;padding:0}
+body{font: 85%/1.3 Verdana,Arial,sans-serif;
+    text-align: center;background: #757D88;padding-bottom:20px}
+p{margin-top:0}
+h1,h2,h3{font: normal normal 200% "Trebuchet MS",Arial,sans-serif}
+h2{font-size:160%}
+h3{font-size:120%}
+
+div#header{width:100%;overflow:hidden;background: #595D66}
+div#header h1,div#menu{width:770px;margin:0 auto;text-align:left}
+div#header h1{padding: 30px 0 10px;color: #FFF}
+
+ul#nav,ul#nav li{list-style-type:none;margin:0;padding:0}
+ul#nav{float:right;font-size: 80%}
+ul#nav li{float:left;margin-left: 3px;text-align: center}
+ul#nav a{float:left;width: 95px;padding: 5px 0;background: #369A3D;text-decoration:none;color: #FFC}
+ul#nav a:hover{background: #CDFFA1;color: #006A35}
+ul#nav li.activelink a,ul#nav li.activelink a:hover{background: #FFF;color: #003}
+
+div#container{width:770px;margin:0 auto 10px;padding:20px 0 10px;text-align:left;background:#FFF}
+div#content{float:left;display:inline;width:560px;margin:0 0 10px 10px}
+
+ul#intro,ul#intro li{list-style-type:none;margin:0;padding:0}
+ul#intro{width:100%;overflow:hidden;margin-bottom:20px}
+ul#intro li{float:left;width:180px;margin-right:10px;padding: 10px 0}
+li#mission{background: #E65714}
+li#services{background: #42B4AC}
+ul#intro li#more{margin-right:0;background: #7D63A9}
+ul#intro p,ul#intro h3{margin:0;padding: 0 10px}
+ul#intro h3{text-transform:uppercase;padding-bottom:3px;color: #FFF}
+
+div#content h2{margin: 10px 0;color: #007BC4}
+div.date{float:left;width: 4em;padding: 5px 0;background: #F1DDC4;color:#B0001E;
+    text-align:center;margin: 0 4px 4px 0;font-size: 80%;line-height:0.9}
+div.date span{display:block;font-size: 150%;font-weight:bold}
+
+div.comments div{background: #EEE;margin-bottom:10px}
+div.comments p{padding: 10px;margin:0}
+div.comments div.odd{background:#DAE6FE}
+
+div#side{float:right;display:inline;width: 180px;background:#F3CF00; margin:0 10px 10px 0}
+div#side p{margin:5px 0 10px;padding: 0 10px}
+div#side div{margin: 0 0 10px;padding: 10px 0}
+
+div#footer{clear:both;width:750px;margin:0 10px 0;padding: 10px 0;
+    background: #586695;color: #FFF;text-align:center}
+div#footer p{margin:0}
