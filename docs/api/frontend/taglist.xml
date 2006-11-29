@@ -1,0 +1,4 @@
+<taglist project="ExampleProj" package="ExamplePack">
+  <tag name="exampleTag" count="10" />
+  <tag name="anotherExampleTag" count="10" />  
+</taglist>
