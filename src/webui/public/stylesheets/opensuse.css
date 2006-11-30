@@ -573,7 +573,6 @@ a.x:hover {
 #package-layout {
   width: 100%;
 }
-
 #package-layout td {
   padding: 1em;
   vertical-align: top;
@@ -583,14 +582,8 @@ a.x:hover {
 }
 
 
-#left {
-  float: left;
-  width: 50%;
-  margin: 0.5em;
-}
-
-#right {
-  margin: 0.5em;
+.greyed-out a {
+  color: #999;
 }
 
 
