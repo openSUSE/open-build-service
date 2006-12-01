@@ -1,15 +1,31 @@
 
 <!-- Package meta -->
 <div id="package_meta">
-  <b>Title:</b> <%=h @package.title %><br/>
-  <b>Description:</b><br/>
-  <% @package.description.data.text.split( /\n/ ).each do |line| %>
+
+  <%=h @package.title %><br/><br/>
+  <% description = @package.description.data.text %>
+
+  <% linecount=0 %>
+  <% linecount_wherehide=8 %>
+
+  <% description.split( /\n/ ).each do |line| %>
+    <% linecount += 1 %>
+    <% if linecount == linecount_wherehide %>
+      <div id="hidden_description" style="display:none;">
+    <% end %>
     <%=h line -%><br/>
+   <% end %>
+
+  <% if linecount > linecount_wherehide %>
+    </div>
+    <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
   <% end %>
+
   <br/>
   <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package %>
   <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
   {:confirm => "Really remove package '#{@package}'?"}%>
   <br/><br/>
+
 </div>
 
