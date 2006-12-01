@@ -13,12 +13,18 @@ list.</p>
 
 <p class="description">Have fun experimenting with the openSUSE Build Service :-).</p>
 
-<p>Proceed to:</p>
+<% if session[:login] -%>
+  <p>Proceed to:</p>
+  <ul>
+    <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
+    <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li>
+    <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
+  </ul>
+<% else -%>
+  But first, you have to 
+  <strong>
+    <%= link_to image_tag('login', :alt => 'login') + "Login",
+    :controller => "project", :action => :list_public %>
+  </strong>
+<% end -%>
 
-<ul>
-  <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
-  <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li>
-  <% if session[:login] -%>
-  <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
-  <% end -%>
-</ul>
