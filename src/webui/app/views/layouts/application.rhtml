@@ -25,6 +25,27 @@
   <li><%= link %></li>
   <% end -%>
   <% end -%>
+
+  <%
+    @helplinks = [
+      { 'help about ...'     => '' },
+      { 'the buildservice'   => 'http://en.opensuse.org/Build_Service' },
+      { 'writing spec files' => 'http://forgeftp.novell.com//library/SUSE%20Package%20Conventions/spc.html' },
+      { 'reporting a bug'    => 'http://en.opensuse.org/Submit_a_Bug' }
+    ]
+  %>
+
+  <li class="help">
+    <form action="">
+    <select size="1" name="helplinks" onchange="goto_url(this.form.helplinks.options[this.form.helplinks.options.selectedIndex].value)">
+      <% @helplinks.each do |helplink| %>
+        <% for k in helplink.keys %>
+          <option value="<%= helplink[k] -%>"><%= k %></option>
+        <% end %>
+      <% end %>
+    </select>
+    </form>
+  </li>
 </ul>
 
 <div id="body">
@@ -40,14 +61,12 @@
   </div>
 
   <div id="footer">
-      
-      
       openSUSE and SUSE are trademarks of Novell, Inc. in the United States 
       and other countries.<br>
-
       <a href="http://en.opensuse.org/Legal">Legal Information</a> |
       <a href="mailto:webmaster@opensuse.org">Feedback</a>
   </div>
+
 </div>
 </body>
 </html>

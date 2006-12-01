@@ -323,6 +323,12 @@ input {
                 color: #f50;
                 text-decoration: underline;
             }
+            #crumbs li.help {
+                position: absolute;
+                right: 10px;
+                background: none;
+            }
+
 
     /* Inner-page nav */
     #content .nav {
