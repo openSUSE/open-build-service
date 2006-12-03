@@ -14,9 +14,9 @@
       <div id="hidden_description" style="display:none;">
     <% end %>
     <%=h line -%><br/>
-   <% end %>
+  <% end %>
 
-  <% if linecount > linecount_wherehide %>
+  <% if linecount >= linecount_wherehide %>
     </div>
     <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
   <% end %>
