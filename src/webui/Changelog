@@ -160,3 +160,45 @@ Tue Nov 14 14:47:02 +0100 2006 - abauer
 - using capistrano for deploy
 
 
+------------------------------------------------------------------------
+Mon Dec 04 16:41:53 +0100 2006 - bauersman
+
+- update from svn revision 855 to 896
+- added missing delete method
+- Make it run with Locomotive as well
+- inputfield for filtering projects in project#list_all and project#list_public:
+ - set focus by default
+ - add "clear field" button
+ - works now without needing javascript too
+ - visual corrections
+  
+ inputfield for filtering packages in project#show:
+ - set focus by default
+ - add "clear field" button
+ - works now without needing javascript too
+ - visual corrections
+  
+- changed default-font to "Dejavu Sans" in CSS
+- corrected URL to Build_Service wiki-page
+- fix regex for validating project/package name
+- added ability to enable/disable building of packages for repo, 
+  arch or repo/arch-combination
+- splitted view of Package#show into several partials
+- make it more obvious, which archs are implicit disabled
+- grey out implicit deactivated archs instead of striking them through
+- greyed out images and cleaned up CSS
+- Bug #182230 - web UI: package description should preserve line breaks
+- added [show/hide full description] to long descriptions in Package#show
+  view
+- added pulldown-menu for help-links to the layout (all pages)
+- startpage: don't show "list all projects" / "home project" before having 
+  logged in - display login-link instead
+- fixed bug: edit-links were hidden, when linecount of description was
+  the same as linecount_wherehide (8)
+- redirect to correct url after ichain login (fixes bug #214595)
+- changed ICHAIN_HOST to ICHAIN_MODE in environments/*.rb
+- added Logout-Button (with and without iChain)
+  
+- fixed redirect problem after login - thanks to kfreitag and darix :)
+
+
