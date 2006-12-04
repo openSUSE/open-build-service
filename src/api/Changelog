@@ -109,3 +109,19 @@ Thu Jun 08 16:36:02 CEST 2006 - bauersman
 - bugfix with new routes
 
 
+------------------------------------------------------------------------
+Mon Dec 04 16:34:42 +0100 2006 - bauersman
+
+- update from svn revision 854 to 894
+- Use full host names.
+- Don't fail if database doesn't exist.
+- Make it run with Locomotive as well
+- linelength
+- add search and build controller, forward search/build requests to
+  backend
+- add binary download route
+- added id search routes
+- disabled default routes (security)
+- reverted disabling of default routes, breaks too much
+
+
