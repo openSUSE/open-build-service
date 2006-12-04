@@ -13,7 +13,12 @@
   <div id="login">
     Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
     <%= link_to "Watched Projects", :controller => "project", :action => :list_my %><br/>
-    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
+    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %><br/>
+    <% if ICHAIN_MODE == 'on' %>
+      <%= link_to 'Logout', 'http://build.opensuse.org/cmd/ICSLogout' %>
+    <% else %>
+      <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
+    <% end %>
   </div>
   <% end -%>
 </div>

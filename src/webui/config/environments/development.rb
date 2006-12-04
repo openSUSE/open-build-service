@@ -33,7 +33,11 @@ FRONTEND_PORT = 3001
 # ATTENTION 2: The ICHAIN_* entries must correspond with the entries
 # in the frontend otherwise funny things happen.
 
-# ICHAIN_HOST = "simulate"
-ICHAIN_HOST = nil
+
+# ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
+ICHAIN_MODE = "off"
+
+### not nescessary any more as of 2006.12.01:
+### ICHAIN_HOST = "212.12.12.12"
 ICHAIN_TEST_USER = "test"
 

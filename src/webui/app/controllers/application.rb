@@ -16,13 +16,13 @@ class ApplicationController < ActionController::Base
   #filter
   def authorize
     session[:return_to] = request.request_uri
-    if ichain_host
-      logger.debug "Have an iChain host: #{ichain_host}"
+    if ichain_mode == 'on' || ichain_mode == 'simulate'
+      logger.debug "iChain mode: #{ichain_mode} ; iChain host: #{ichain_host}"
       ichain_user = request.env['HTTP_X_USERNAME']
 # TEST vv
-      unless ichain_user 
-        if ichain_host == "simulate"
-          ichain_user = ichain_test_user 
+      unless ichain_user
+        if ichain_mode == 'simulate'
+          ichain_user = ichain_test_user
           logger.debug "TEST-ICHAIN_USER #{ichain_user} set!"
         end
         request.env.each do |name, val|
@@ -174,11 +174,12 @@ class ApplicationController < ActionController::Base
     @frontend
   end
 
+  def ichain_mode
+    ICHAIN_MODE
+  end
+
   def ichain_host
-    # if const_defined? "ICHAIN_HOST"
       ICHAIN_HOST
-    # end
-    # nil
   end
 
   def ichain_test_user
