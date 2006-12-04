@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
   
   #filter
   def authorize
-    session[:return_to] = request.request_uri
+    session[:return_to] ||= request.request_uri
     if ichain_mode == 'on' || ichain_mode == 'simulate'
       logger.debug "iChain mode: #{ichain_mode} ; iChain host: #{ichain_host}"
       ichain_user = request.env['HTTP_X_USERNAME']
