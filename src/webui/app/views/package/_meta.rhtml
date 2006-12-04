@@ -8,12 +8,14 @@
   <% linecount=0 %>
   <% linecount_wherehide=8 %>
 
+  <% if description %>
   <% description.split( /\n/ ).each do |line| %>
     <% linecount += 1 %>
     <% if linecount == linecount_wherehide %>
       <div id="hidden_description" style="display:none;">
     <% end %>
     <%=h line -%><br/>
+  <% end %>
   <% end %>
 
   <% if linecount >= linecount_wherehide %>
