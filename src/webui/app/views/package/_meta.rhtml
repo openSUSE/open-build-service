@@ -3,19 +3,21 @@
 <div id="package_meta">
 
   <%=h @package.title %><br/><br/>
-  <% description = @package.description.data.text %>
 
   <% linecount=0 %>
   <% linecount_wherehide=8 %>
 
+  <% description = @package.description.data.text %>
   <% if description %>
-  <% description.split( /\n/ ).each do |line| %>
-    <% linecount += 1 %>
-    <% if linecount == linecount_wherehide %>
-      <div id="hidden_description" style="display:none;">
+    <% description.split( /\n/ ).each do |line| %>
+      <% linecount += 1 %>
+      <% if linecount == linecount_wherehide %>
+        <div id="hidden_description" style="display:none;">
+      <% end %>
+      <%=h line -%><br/>
     <% end %>
-    <%=h line -%><br/>
-  <% end %>
+  <% else %>
+    <i>No description set</i>
   <% end %>
 
   <% if linecount >= linecount_wherehide %>

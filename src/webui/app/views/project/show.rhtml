@@ -12,10 +12,23 @@
 <%= render :partial => "watch_link" %>
 
 <div class="description">
-  <% if @project.description =~ /\s/ -%>
-  <i>No description set</i>
+  <% description = @project.description.data.text %>
+  <% if description %>
+    <% linecount=0 %>
+    <% linecount_wherehide=8 %>
+    <% @project.description.to_s.split( /\n/ ).each do |line| %>
+      <% linecount += 1 %>
+      <% if linecount == linecount_wherehide %>
+        <div id="hidden_description" style="display:none;">
+      <% end %>
+      <%=h line -%><br/>
+    <% end %>
+    <% if linecount >= linecount_wherehide %>
+      </div>
+      <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
+    <% end %>
   <% else -%>
-  <%=h @project.description %><br/>
+    <i>No description set</i>
   <% end -%>
 </div>
 <%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
