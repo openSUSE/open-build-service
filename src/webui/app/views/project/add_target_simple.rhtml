@@ -9,6 +9,7 @@
 <h2>Add Repository (Project <%=h @project%>)</h2>
 
 <ul>
+  <li><%= button_to "openSUSE 10.2", :targetname => "openSUSE_10.2", :platform => 'SUSE:10.2/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "SUSE Linux 10.1", :targetname => "SUSE_Linux_10.1", :platform => 'SUSE:SL-10.1/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "SUSE Linux 10.0", :targetname => "SUSE_Linux_10.0", :platform => 'SUSE:SL-10.0/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
   <li><%= button_to "SUSE Linux 9.3", :targetname => "SUSE_Linux_9.3", :platform => 'SUSE:SL-9.3/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
