@@ -7,16 +7,15 @@
 #
 # (c) 1997-2006 SuSE GmbH Nuernberg, Germany
 
+test -z "$BUILD_DIR" && BUILD_DIR=/usr/lib/build
 test -z "$BUILD_ROOT" && BUILD_ROOT=/var/tmp/build-root
 test -z "$BUILD_RPMS" && BUILD_RPMS=/media/dvd/suse
 test -z "$BUILD_ARCH" && {
     BUILD_ARCH=`uname -m`
     test i686 = "$BUILD_ARCH" && BUILD_ARCH=i586
 }
-export BUILD_ARCH BUILD_ROOT BUILD_RPMS
+export BUILD_ARCH BUILD_ROOT BUILD_RPMS BUILD_DIR
 
-export BUILD_DIR=/usr/lib/build
-#export BUILD_DIR=/suse/mls/xenbuild
 export PATH=$BUILD_DIR:$PATH
 
 # This is for insserv
@@ -178,6 +177,7 @@ RELEASE=
 REASON=
 NOROOTFORBUILD=
 LOGFILE=
+KILL=
 
 if test "$0" = "/.build/build" ; then
     BUILD_ROOT=/
@@ -232,6 +232,9 @@ while test -n "$1"; do
       ;;
       *-clean)
         CLEAN_BUILD=true
+      ;;
+      *-kill)
+        KILL=true
       ;;
       *-rpms)
         BUILD_RPMS="$ARG"
@@ -333,6 +336,26 @@ test -z "$LIST_STATE" -a "$UID" != 0 && {
     echo You have to be root to use $0. Exit.
     cleanup_and_exit 1
 }
+
+if test -n "$KILL" ; then
+    test -z "$SRCDIR" || usage
+    if test -z "$XENIMAGE" ; then
+	if ! $BUILD_DIR/killchroot -s 9 $BUILD_ROOT ; then
+	    echo "could not kill build in $BUILD_ROOT"
+	    exit 1
+	fi
+    else
+	XENID="${XENIMAGE%/root}"
+	XENID="${XENID##*/}"
+	if xm list "$XENID" >/dev/null 2>&1 ; then
+	    if ! xm destroy "$XENID" ; then
+		echo "could not kill xen build $XENID"
+		exit 1
+	    fi
+	fi
+    fi
+    exit 0
+fi
 
 case $BUILD_ARCH in
 i686) BUILD_ARCH="i686:i586:i486:i386" ;;

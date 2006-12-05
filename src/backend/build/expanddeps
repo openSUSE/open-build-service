@@ -159,11 +159,16 @@ my ($packname, $packvers, $subpacks, @packdeps);
 $subpacks = [];
 
 if ($spec) {
+  my $d;
   if ($spec =~ /\.dsc$/) {
-    ($packname, $packvers, $subpacks, @packdeps) = Build::read_dsc($cf, $spec);
+    $d = Build::read_dsc($cf, $spec);
   } else {
-    ($packname, $packvers, $subpacks, @packdeps) = Build::read_spec($cf, $spec);
+    $d = Build::read_spec($cf, $spec);
   }
+  $packname = $d->{'name'};
+  $packvers = $d->{'version'};
+  $subpacks = $d->{'subpacks'};
+  @packdeps = @{$d->{'deps'} || []};
 }
 
 my %repo;

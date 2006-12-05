@@ -19,7 +19,7 @@ sub unify {
 
 sub read_config {
   my ($arch, $cfile) = @_;
-  return undef unless !defined($cfile) || -e $cfile;
+  return undef unless !defined($cfile) || ref($cfile) || -e $cfile;
   my @macros = split("\n", $std_macros);
   push @macros, "%define _target_cpu $arch";
   push @macros, "%define _target_os linux";
@@ -34,11 +34,12 @@ sub read_config {
   $config->{'ignore'} = [];
   $config->{'conflict'} = [];
   $config->{'substitute'} = {};
+  $config->{'optflags'} = {};
   my $inmacro = 0;
   for my $l (@spec) {
     if ($inmacro) {
       my $m = ref($l) ? $l->[0] : $l;
-      $m =~ s/^%/%define /;
+      $m =~ s/^%/%define / unless @macros && $macros[-1] =~ /\\$/;
       push @macros, $m;
       next;
     }
@@ -133,7 +134,7 @@ sub get_build {
   @deps = grep {!$ndeps{"-$_"}} @deps;
   @deps = do_subst($config, @deps);
   @deps = grep {!$ndeps{"-$_"}} @deps;
-  @deps = expand($config, @deps);
+  @deps = expand($config, @deps, @ndeps);
   return @deps;
 }
 
@@ -259,6 +260,7 @@ sub expand {
     my @error = ();
     my @uerror = ();
     my @usolve = ();
+    my @rerror = ();
     for my $p (splice @p) {
       for my $r (@{$requires->{$p} || [$p]}) {
 	next if $ignore->{"$p:$r"} || $xignore{"$p:$r"};
@@ -270,10 +272,11 @@ sub expand {
 	@q = grep {!$aconflicts{$_}} @q;
 	if (!@q) {
 	  if ($r eq $p) {
-	    return undef, "nothing provides $r";
+	    push @rerror, "nothing provides $r";
 	  } else {
-	    return undef, "nothing provides $r needed by $p";
+	    push @rerror, "nothing provides $r needed by $p";
 	  }
+	  next;
 	}
 	if (@q > 1 && grep {$conflicts->{$_}} @q) {
 	  # delay this one as some conflict later on might
@@ -316,6 +319,9 @@ sub expand {
 	$didsomething = 1;
 	@error = ();
       }
+    }
+    if (@rerror) {
+      return undef, @rerror;
     }
     if (!$didsomething && @error) {
       return undef, @error;
@@ -457,14 +463,17 @@ sub expr {
 }
 
 sub read_spec {
-  my ($config, $specfile, $xspec) = @_;
+  my ($config, $specfile, $xspec, $ifdeps) = @_;
 
   my $packname;
   my $packvers;
+  my $packrel;
+  my $exclarch;
   my @subpacks;
   my @packdeps;
   my $hasnfb;
   my %macros;
+  my $ret = {};
 
   my $specdata;
   local *SPEC;
@@ -474,16 +483,19 @@ sub read_spec {
     $specdata = [ @$specfile ];
   } elsif (!open(SPEC, '<', $specfile)) {
     warn("$specfile: $!\n");
-    return (undef, "open: $!", undef);
+    $ret->{'error'} = "open $specfile: $!";
+    return $ret;
   }
   my @macros = @{$config->{'macros'}};
   my $skip = 0;
   my $main_preamble = 1;
   my $inspec = 0;
+  my $hasif = 0;
   while (1) {
     my $line;
     if (@macros) {
       $line = shift @macros;
+      $hasif = 0 unless @macros;
     } elsif ($specdata) {
       $inspec = 1;
       last unless @$specdata;
@@ -514,7 +526,7 @@ sub read_spec {
 	$expandedline .= $1;
 	$line = $4;
 	my $macname = defined($3) ? $3 : $2;
-        my $macorig = $2;
+	my $macorig = $2;
 	my $mactest = 0;
 	if ($macname =~ /^\!\?/ || $macname =~ /^\?\!/) {
 	  $mactest = -1;
@@ -522,6 +534,7 @@ sub read_spec {
 	  $mactest = 1;
 	}
 	$macname =~ s/^[\!\?]+//;
+	$macname =~ s/ .*//;
 	my $macalt;
 	($macname, $macalt) = split(':', $macname, 2);
 	if ($macname eq '%') {
@@ -540,6 +553,26 @@ sub read_spec {
 	  }
 	  $line = '';
 	  last;
+	} elsif ($macname eq 'defined' || $macname eq 'with' || $macname eq 'undefined' || $macname eq 'without' || $macname eq 'bcond_with' || $macname eq 'bcond_without') {
+	  my @args;
+	  if ($macorig =~ /^\{(.*)\}$/) {
+	    @args = split(' ', $1);
+	    shift @args;
+	  } else {
+	    @args = split(' ', $line);
+	    $line = '';
+	  }
+	  next unless @args;
+	  if ($macname eq 'bcond_with') {
+	    $macros{"with_$args[0]"} = 1 if exists $macros{"_with_$args[0]"};
+	    next;
+	  }
+	  if ($macname eq 'bcond_without') {
+	    $macros{"with_$args[0]"} = 1 unless exists $macros{"_without_$args[0]"};
+	    next;
+	  }
+	  $args[0] = "with_$args[0]" if $macname eq 'with' || $macname eq 'without';
+	  $line = ((exists($macros{$args[0]}) ? 1 : 0) ^ ($macname eq 'undefined' || $macname eq 'without' ? 1 : 0)).$line;
 	} elsif (exists($macros{$macname})) {
 	  if (!defined($macros{$macname})) {
 	    $line = 'MACRO';
@@ -569,6 +602,7 @@ sub read_spec {
 
     if ($skip) {
       $xspec->[-1] = [ $xspec->[-1], undef ] if $xspec;
+      $$ifdeps = 1 if $ifdeps && ($line =~ /^(BuildRequires|BuildConflicts|\#\!BuildIgnore):\s*(\S.*)$/i);
       next;
     }
 
@@ -576,30 +610,35 @@ sub read_spec {
       my $arch = $macros{'_target_cpu'} || 'unknown';
       my @archs = grep {$_ eq $arch} split(/\s+/, $1);
       $skip = 1 if !@archs;
+      $hasif = 1;
       next;
     }
     if ($line =~ /^\s*%ifnarch(.*)$/) {
       my $arch = $macros{'_target_cpu'} || 'unknown';
       my @archs = grep {$_ eq $arch} split(/\s+/, $1);
       $skip = 1 if @archs;
+      $hasif = 1;
       next;
     }
     if ($line =~ /^\s*%ifos(.*)$/) {
       my $os = $macros{'_target_os'} || 'unknown';
       my @oss = grep {$_ eq $os} split(/\s+/, $1);
       $skip = 1 if !@oss;
+      $hasif = 1;
       next;
     }
     if ($line =~ /^\s*%ifnos(.*)$/) {
       my $os = $macros{'_target_os'} || 'unknown';
       my @oss = grep {$_ eq $os} split(/\s+/, $1);
       $skip = 1 if @oss;
+      $hasif = 1;
       next;
     }
     if ($line =~ /^\s*%if(.*)$/) {
       my ($v, $r) = expr($1);
       $v = 0 if $v && $v eq '\"\"';
       $skip = 1 unless $v;
+      $hasif = 1;
       next;
     }
     if ($main_preamble && ($line =~ /^Name:\s*(\S+)/i)) {
@@ -610,9 +649,17 @@ sub read_spec {
       $packvers = $1;
       $macros{'version'} = $packvers;
     }
+    if ($main_preamble && ($line =~ /^Release:\s*(\S+)/i)) {
+      $packrel = $1;
+      $macros{'release'} = $packrel;
+    }
+    if ($main_preamble && ($line =~ /^ExclusiveArch:\s*(\S+)/i)) {
+      $exclarch = $1;
+    }
     if ($main_preamble && ($line =~ /^(BuildRequires|BuildConflicts|\#\!BuildIgnore):\s*(\S.*)$/i)) {
       my $what = $1;
       my $deps = $2;
+      $$ifdeps = 1 if $ifdeps && $hasif;
       my @deps = $deps =~ /([^\s\[\(,]+)(\s+[<=>]+\s+[^\s\[,]+)?(\s+\[[^\]]+\])?[\s,]*/g;
       if (defined($hasnfb)) {
         next unless $xspec;
@@ -687,18 +734,33 @@ sub read_spec {
     }
   }
   unshift @subpacks, $packname;
-  return ($packname, $packvers, \@subpacks, @packdeps);
+  $ret->{'name'} = $packname;
+  $ret->{'version'} = $packvers;
+  $ret->{'release'} = $packrel if defined $packrel;
+  $ret->{'subpacks'} = \@subpacks;
+  $ret->{'exclarch'} = $exclarch if defined $exclarch;
+  $ret->{'deps'} = \@packdeps;
+  return $ret;
 }
 
 ###########################################################################
 
 sub read_dsc {
   my ($bconf, $fn) = @_;
-  local *F;
-  open(F, '<', $fn) || return ();
-  my @control = <F>;
-  close F;
-  chomp @control;
+  my $ret;
+  my @control;
+  if (ref($fn) eq 'ARRAY') {
+    @control = @$fn;
+  } else {
+    local *F;
+    if (!open(F, '<', $fn)) {
+      $ret->{'error'} = "$fn: $!";
+      return $ret;
+    }
+    @control = <F>;
+    close F;
+    chomp @control;
+  }
   splice(@control, 0, 3) if @control > 3 && $control[0] =~ /^-----BEGIN/;
   my $name;
   my $version;
@@ -729,7 +791,10 @@ sub read_dsc {
       push @deps, map {"-$_"} @d;
     }
   }
-  return ($name, $version, undef, @deps);
+  $ret->{'name'} = $name;
+  $ret->{'version'} = $version;
+  $ret->{'deps'} = \@deps;
+  return $ret;
 }
 
 ###########################################################################
