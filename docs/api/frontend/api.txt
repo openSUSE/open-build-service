@@ -318,6 +318,58 @@ GET /build/<project>/<repository>/_buildconfig
   ???
 
 
+== Search
+
+GET /search/project
+
+  Searches for project metadata using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /project[<match>]. Only complete meta files will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/project/id
+
+  Searches for project metadata analogous to /search/project, only the root
+  element is returned without any children.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/package
+
+  Searches for packate metadata using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /package[<match>]. Only complete meta files will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/package/id
+
+  Searches for package metadata analogous to /search/package, only the root
+  element is returned without any children.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
 == Build Results (Legacy)
 
   This section describes the obsolete API for build results. It will be replaced
