@@ -13,13 +13,13 @@ function toggle_display(element_id) {
   }
 }
 
-function goto_url(x) {
-  if(x == '') {
+function goto_url(url) {
+  if(url == '') {
     document.forms[0].reset();
     document.forms[0].elements[0].blur();
     return;
   }
-  parent.document.location.href = x;
+  window.open(url,'helpwindow','toolbar=yes,location=yes')
   document.forms[0].reset();
   document.forms[0].elements[0].blur();
 }
