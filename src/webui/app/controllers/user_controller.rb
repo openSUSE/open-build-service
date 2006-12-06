@@ -27,6 +27,10 @@ require 'opensuse/frontend'
     logger.debug "Login in Session is #{session[:login]}"
     session[:login] = nil
     session[:passwd] = nil
+
+    if ichain_mode != 'off'
+      redirect_to '/cmd/ICSLogout'
+    end
   end
 
   # store current uri in  the session.
