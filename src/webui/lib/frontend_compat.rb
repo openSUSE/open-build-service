@@ -8,9 +8,13 @@ class FrontendCompat
     ActiveXML::Config.logger
   end
 
-  def cmd_package( project, package, cmd )
-    logger.debug "CMD_PACKAGE #{cmd}"
-    transport.direct_http URI("http:///source/#{project}/#{package}?cmd=#{cmd}"),
+  def cmd_package( project, package, cmd, opt={} )
+    extraparams = ''
+    extraparams << "&repo=#{opt[:repo]}" if opt[:repo]
+    extraparams << "&arch=#{opt[:arch]}" if opt[:arch]
+
+    logger.debug "CMD_PACKAGE #{cmd} ; extraparams = #{extraparams}"
+    transport.direct_http URI("http:///source/#{project}/#{package}?cmd=#{cmd}#{extraparams}"),
       :method => "POST", :data => ""
   end
 

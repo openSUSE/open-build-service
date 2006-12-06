@@ -441,12 +441,16 @@ class PackageController < ApplicationController
         :project => project
       return
     end
-        
-    logger.debug( "Trigger Rebuild for #{package}" )
-    frontend.cmd_package( project, package, "rebuild" )
-    
+
+    options = {}
+    options[:arch] = params[:arch] if params[:arch]
+    options[:repo] = params[:repo] if params[:repo]
+
+    frontend.cmd_package( project, package, "rebuild", options )
+
     flash[:note] = "Triggered rebuild."
-    
+    logger.debug( "Triggeried Rebuild for #{package}, options=#{options.to_json.to_s}" )
+
     redirect_to :action => "show", :project => project, :package => package
   end
 
