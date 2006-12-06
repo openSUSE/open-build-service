@@ -1,40 +1,44 @@
 
-<!-- Users -->
-<div id="package_users">
-  <h3>Involved Users 
+<!-- Involved Users -->
+<div class="section" id="contacts">
+  <h3>Involved Users
     <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
     :action => :add_person, :package => @package, :project => @project %>
   </h3>
-  <% if @package.has_element? :person %>
-  <table class="grid">
-    <tr>
-      <th>Userid</th>
-      <th>Role</th>
-      <%- if @package.each_person.length > 1 %>
-      <th>Action</th>
-      <%- end %>
-    </tr>
-    <% @package.each_person do |person| %>
-    <tr>
-      <td><%=h person.userid %></td>
-      <td><%=h person.role %></td>
 
-      <%- if @package.each_person.length > 1 %>
-      <td>
-        <%= link_to "[Remove]", {:action => :remove_person, :package => @package, 
-        :project => params[:project], :userid => person.userid, :role => person.role},
-        {:confirm => "Really remove user '#{person.userid}'?"}%>
-      </td>
-      <%- end %>
+  <% if @package.has_element? :person -%>
+  <dl>
+    <dt>Maintainers</dt>
+    <% package_persons=[] %>
 
-    </tr>
-    <% end %>
-  </table>
-  <% else %>
-  <b>No one in this project</b>
-  <% end %>
-  <p>
-  <%= link_to "[Add User]", :action => :add_person, :package => @package, :project => @project %>
-  </p>
+    <% @package.each_person do |person| -%>
+      <% package_persons << person.userid %>
+      <dd>
+        <%=h person.userid -%>
+        <%= link_to image_tag("mail_generic", :size => "16x16", :border => 0, :class => 'email_link'),
+        'mailto:' + Person.find(person.userid).email.to_s + '?subject=openSUSE build service' -%>
+        <%- if @project.each_person.length > 1 %>
+          <%= link_to "[x]",
+          { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role },
+          { :confirm => "Really remove user '#{person.userid}'?", :class => "x" } -%>
+        <% end -%>
+      </dd>
+    <% end #each_person -%>
+
+    <% @project.each_person do |person| %>
+      <% if package_persons.grep( person.userid ).empty? %>
+        <dd style="color: #999;" title="implicit involved user - involved in project <%= @project.name -%>">
+          <%=h person.userid -%>
+          <%= link_to image_tag("mail_generic", :size => "16x16", :border => 0, :class => 'email_link'),
+          'mailto:' + Person.find(person.userid).email.to_s + '?subject=openSUSE build service' -%>
+        </dd>
+      <% end -%>
+    <% end #each_person -%>
+  </dl>
+
+  <% else -%>
+    <b>No maintainer in this package</b>
+  <% end #if has_element? person -%>
+
+  <p><%= link_to "[Add User]", :action => :add_person, :project => params[:project] %></p>
 </div>
-

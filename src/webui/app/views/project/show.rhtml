@@ -53,9 +53,13 @@
       </div>
 
 
-      <!-- Maintainer List -->
+      <!-- Involved users -->
       <div class="section" id="contacts">
-        <h3>People</h3>
+        <h3>
+          Involved Users
+          <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
+          :action => :add_person, :package => @package, :project => @project %>
+        </h3>
         <% if @project.has_element? :person -%>
         <dl>
           <dt>Maintainers</dt>
@@ -76,14 +80,17 @@
         <% else -%>
         <b>No maintainer in this project</b>
         <% end #if has_element? person -%>
-        <p><%= link_to "[Add Maintainer]", :action => :add_person, :project => params[:project] %></p>
+        <p><%= link_to "[Add User]", :action => :add_person, :project => params[:project] %></p>
       </div>
     </td>
 
-
     <td>
       <!-- Package table -->
-      <h3>Packages</h3>
+      <h3>
+        Packages
+        <%= link_to image_tag( 'list-add', :border => 0, :title => 'Add Package' ),
+        :controller => 'package', :action => :new, :project => @project %>
+      </h3>
      <% if @packages.length.to_i > 0 -%>
 
      <% if @packages.length.to_i > 10 || params[:filter_active] -%>
@@ -119,7 +126,11 @@
 
     <td>
       <!-- Repository table -->
-      <h3>Build Repositories</h3>
+      <h3>
+        Build Repositories
+        <%= link_to image_tag( 'list-add', :border => 0, :title => 'Add Repository' ),
+        :action => 'add_target_simple', :project => @project %>
+      </h3>
       <% if @project.has_element? :repository -%>
       <table class="grid targets">
         <tr class="header">
