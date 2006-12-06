@@ -488,7 +488,8 @@ class PackageController < ApplicationController
         flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
         @package.disable_build :arch => params[:arch]
       else
-        flash[:note] = "Neither repository nor architecture given to disable building on ..."
+        flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' completely."
+        @package.disable_build
       end
     end
     redirect_to :action => "show", :project => params[:project], :package => params[:package]
@@ -510,7 +511,8 @@ class PackageController < ApplicationController
         flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
         @package.enable_build :arch => params[:arch]
       else
-        flash[:note] = "Neither repository nor architecture given to enable building on ..."
+        flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}'."
+        @package.enable_build
       end
     end
     redirect_to :action => "show", :project => params[:project], :package => params[:package]
