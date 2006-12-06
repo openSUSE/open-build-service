@@ -9,18 +9,18 @@
 <h2>Add Repository (Project <%=h @project%>)</h2>
 
 <ul>
-  <li><%= button_to "openSUSE 10.2", :targetname => "openSUSE_10.2", :platform => 'openSUSE:10.2/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "SUSE Linux 10.1", :targetname => "SUSE_Linux_10.1", :platform => 'SUSE:SL-10.1/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "SUSE Linux 10.0", :targetname => "SUSE_Linux_10.0", :platform => 'SUSE:SL-10.0/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "SUSE Linux 9.3", :targetname => "SUSE_Linux_9.3", :platform => 'SUSE:SL-9.3/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "SLE 10", :targetname => "SLE_10", :platform => 'SUSE:SLE-10:SDK/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "SLES 9", :targetname => "SLES_9", :platform => 'SUSE:SLES-9/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "openSUSE Factory", :targetname => "openSUSE_Factory", :platform => 'openSUSE:Factory/standard', 'arch[i586]' => "", 'arch[x86_64]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "Debian Etch", :targetname => "Debian_Etch", :platform => 'Debian:Etch/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "Fedora 4 with Extras", :targetname => "Fedora_Extras_4", :platform => 'Fedora:Extras4/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "Fedora 5 with Extras", :targetname => "Fedora_Extras_5", :platform => 'Fedora:Extras5/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "Mandriva 2006", :targetname => "Mandriva_2006", :platform => 'Mandriva:2006/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
-  <li><%= button_to "xUbuntu 6.06", :targetname => "xUbuntu_6.06", :platform => 'Ubuntu:6.06/standard', 'arch[i586]' => "", :project => @project, :action => :save_target %></li>
+  <li><%= simple_repo_button_to "openSUSE 10.2", :reponame => "openSUSE_10.2", :repo => 'openSUSE:10.2/standard', :arch => [:i586, :x86_64] %></li>
+  <li><%= simple_repo_button_to "SUSE Linux 10.1", :reponame => "SUSE_Linux_10.1", :repo => 'SUSE:SL-10.1/standard', :arch => [:i586, :x86_64] %></li>
+  <li><%= simple_repo_button_to "SUSE Linux 10.0", :reponame => "SUSE_Linux_10.0", :repo => 'SUSE:SL-10.0/standard', :arch => [:i586, :x86_64] %></li>
+  <li><%= simple_repo_button_to "SUSE Linux 9.3", :reponame => "SUSE_Linux_9.3", :repo => 'SUSE:SL-9.3/standard', :arch => [:i586, :x86_64] %></li>
+  <li><%= simple_repo_button_to "SLE 10", :reponame => "SLE_10", :repo => 'SUSE:SLE-10:SDK/standard', :arch => [:i586, :x86_64] %></li>
+  <li><%= simple_repo_button_to "SLES 9", :reponame => "SLES_9", :repo => 'SUSE:SLES-9/standard', :arch => [:i586, :x86_64] %></li>
+  <li><%= simple_repo_button_to "openSUSE Factory", :reponame => "openSUSE_Factory", :repo => 'openSUSE:Factory/standard', :arch => [:i586, :x86_64] %></li>
+  <li><%= simple_repo_button_to "Debian Etch", :reponame => "Debian_Etch", :repo => 'Debian:Etch/standard', :arch => [:i586] %></li>
+  <li><%= simple_repo_button_to "Fedora 4 with Extras", :reponame => "Fedora_Extras_4", :repo => 'Fedora:Extras4/standard', :arch => [:i586] %></li>
+  <li><%= simple_repo_button_to "Fedora 5 with Extras", :reponame => "Fedora_Extras_5", :repo => 'Fedora:Extras5/standard', :arch => [:i586] %></li>
+  <li><%= simple_repo_button_to "Mandriva 2006", :reponame => "Mandriva_2006", :repo => 'Mandriva:2006/standard', :arch => [:i586] %></li>
+  <li><%= simple_repo_button_to "xUbuntu 6.06", :reponame => "xUbuntu_6.06", :repo => 'Ubuntu:6.06/standard', :arch => [:i586] %></li>
 </ul>
 
 <p><%= link_to( "[Advanced]", :action => :add_target, :project => @project ) %></p>

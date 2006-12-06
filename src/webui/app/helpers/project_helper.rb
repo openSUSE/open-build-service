@@ -59,6 +59,26 @@ module ProjectHelper
   def repo_url(project, repo)
     'http://software.opensuse.org/download/' + project.name.gsub(':', ':/') + '/' + repo.name
   end
-  
 
+  def simple_repo_button_to( label, opt={} )
+    defaults = {
+      :arch => [],
+      :project => @project,
+      :action => :save_target
+    }
+    opt = defaults.merge opt
+
+    btn_to_opt = {
+      :targetname => opt[:reponame],
+      :platform => opt[:repo],
+      :project => opt[:project],
+      :action => opt[:action]
+    }
+
+    opt[:arch].each do |arch|
+      btn_to_opt["arch[#{arch}]"] = ""
+    end
+
+    button_to label, btn_to_opt
+  end
 end
