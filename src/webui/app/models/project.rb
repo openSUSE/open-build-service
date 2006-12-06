@@ -71,26 +71,25 @@ class Project < ActiveXML::Base
     end
   end
 
-  #TODO: change name to add/remove_repository
-  def add_target( opt={} )
+  def add_repository( opt={} )
     return nil if opt == {}
-    target = REXML::Element.new 'repository'
-    target.attributes['name'] = opt[:targetname]
+    repository = REXML::Element.new 'repository'
+    repository.attributes['name'] = opt[:reponame]
     opt[:platform] =~ /(.*)\/(.*)/;
-    target.add_element 'path', 'project' => $1, 'repository' => $2
+    repository.add_element 'path', 'project' => $1, 'repository' => $2
     opt[:arch].to_a.each do |arch_text|
-      arch = target.add_element('arch')
+      arch = repository.add_element('arch')
       arch.text = arch_text
     end
 
-    data.add_element target
+    data.add_element repository
   end
 
-  def remove_target( target )
-    return nil if not target
+  def remove_repository( repository )
+    return nil if not repository
     return nil if not self.has_element? :repository
-    
-    data.delete_element "repository[@name='#{target}']"
+
+    data.delete_element "repository[@name='#{repository}']"
   end
 
   private

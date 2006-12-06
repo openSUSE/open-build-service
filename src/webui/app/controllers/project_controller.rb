@@ -242,7 +242,7 @@ class ProjectController < ApplicationController
       return
     end
 
-    @project.add_target :targetname => targetname, :platform => platform,
+    @project.add_repository :reponame => targetname, :platform => platform,
       :arch => arch
 
     if @project.save
@@ -261,7 +261,7 @@ class ProjectController < ApplicationController
     end
 
     @project = Project.find( params[:project] )
-    @project.remove_target params[:target]
+    @project.remove_repository params[:target]
 
     if @project.save
       flash[:note] = "Target '#{params[:target]}' was removed"
