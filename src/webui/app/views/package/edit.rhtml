@@ -10,10 +10,20 @@
 
 <%= form_tag :action => :save %>
   <b>Title:</b><br/>
-  <%= text_field_tag( "title", @package.title, :size => 80 ) %><br/>
-  <b>Description:</b><br/>
+  <%= text_field_tag( 'title', @package.title, :size => 80 ) %><br/>
+
+  <b>Description:</b>
+  <% if params[:spec_count] == "1" %>
+    <%= link_to_remote "[Import from specfile]", {
+    :url => { :action => :import_spec, :project => @project, :package => @package, :import => 'description' },
+    :update => 'description', :position => :bottom, 
+    :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')", } %>
+    <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+  <% end %>
+  <br/>
   <%= text_area_tag( "description", @package.description, :cols => "80",
   :rows => "20" ) %><br/>
+
   <p><%= submit_tag %></p>
   <%= hidden_field_tag( "project", @project.name ) %>
   <%= hidden_field_tag( "package", @package.name ) %>

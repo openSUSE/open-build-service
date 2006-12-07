@@ -21,18 +21,7 @@ class PackageController < ApplicationController
         @project = Project.find( project )
         @package = Package.find( package, :project => project )
 
-        @files = []
-        dir = Directory.find( :project => project, :package => package )
-        dir.each_entry do |file|
-          @files << file.name
-          if ( file.name == "_link" )
-            begin
-              @link = Link.find( :project => project, :package => package )
-            rescue ActiveXML::Transport::NotFoundError
-              @link = nil
-            end
-          end
-        end
+        @files = get_files project, package
 
         @results = []
         @project.each_repository do |repository|
@@ -516,6 +505,47 @@ class PackageController < ApplicationController
       end
     end
     redirect_to :action => "show", :project => params[:project], :package => params[:package]
+  end
+
+
+  def import_spec
+    return false unless @package = Package.find( params[:package], :project => params[:project] )
+
+    all_files = get_files params[:project], params[:package]
+    specfile_name = all_files.grep(/.*\.spec/)[0].to_s
+    specfile_content = frontend.get_source(
+      :project => params[:project], :package => params[:package], :filename => specfile_name
+    )
+
+    description = []
+    lines = specfile_content.split /\n/
+    line = lines.shift until line =~ /^%description\s*$/
+    description << lines.shift until description.last =~ /^%/
+    # maybe the above end-detection of the description-section could be improved like this:
+    # description << lines.shift until description.last =~ /^%\{?(debug_package|prep|pre|preun|....)/
+    description.pop
+
+    render :text => description.join("\n")
+    logger.debug "imported description from spec file"
+  end
+
+
+  private
+
+  def get_files( project, package )
+    files = []
+    dir = Directory.find( :project => project, :package => package )
+    dir.each_entry do |file|
+      files << file.name
+      if ( file.name == "_link" )
+        begin
+          @link = Link.find( :project => project, :package => package )
+        rescue ActiveXML::Transport::NotFoundError
+          @link = nil
+        end
+      end
+    end
+    return files
   end
 
 
