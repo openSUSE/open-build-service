@@ -119,7 +119,11 @@ class ProjectController < ApplicationController
     if params[:projectsearch]
       # user pressed enter to search -> no ajax, old-fashioned form-submit
       @projects = filter_projects params[:projectsearch]
-      render :action => 'list_all'
+      if @projects.length == 1
+        redirect_to :action => 'show', :project => @projects.first
+      else
+        render :action => 'list_all'
+      end
     else
       # ajax live-search
       @projects = filter_projects params[:searchtext]
