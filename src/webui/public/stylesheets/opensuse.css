@@ -27,6 +27,13 @@ input#packagesearch {
   width: 9em;
 }
 
+#edit_disable_xml_tags textarea {
+  width: 20em;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border: 1px #6eb927 dashed;
+}
+
 #projectsearch_clear {
   margin-left: 0.4em;
 }

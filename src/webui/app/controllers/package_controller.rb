@@ -530,6 +530,23 @@ class PackageController < ApplicationController
   end
 
 
+  def edit_disable_xml
+    return false unless @package = Package.find( params[:package], :project => params[:project] )
+    return false unless @project = Project.find( params[:project] )
+    @xml = @package.get_disable_tags
+    render :partial => 'edit_disable_xml'
+  end
+
+
+  def save_disable_xml
+    return false unless @package = Package.find( params[:package], :project => params[:project] )
+    unless @package.replace_disable_tags( params[:xml] )
+      flash[:error] = 'Error saving your input (invalid XML?).'
+    end
+    redirect_to :action => 'show', :project => params[:project], :package => params[:package]
+  end
+
+
   private
 
   def get_files( project, package )

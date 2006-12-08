@@ -110,4 +110,29 @@ class Package < ActiveXML::Base
   end
 
 
+  # get all <disable .../> -tags from xml-data of this package
+  def get_disable_tags
+    xpath="//disable"
+    return data.get_elements(xpath).join("\n")
+  end
+
+
+  # replace all <disable .../> -tags in this package with new ones
+  def replace_disable_tags( new_disable_tags )
+    remove_disable_tags if not new_disable_tags.empty?
+    data.add_text new_disable_tags
+    begin
+      save
+    rescue
+      logger.debug 'error: invalid xml for disable-tags'
+      return false
+    end
+  end
+
+
+  def remove_disable_tags
+    data.get_elements("//disable").each { |e| data.delete_element e }
+  end
+
+
 end
