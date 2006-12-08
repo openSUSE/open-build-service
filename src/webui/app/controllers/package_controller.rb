@@ -467,18 +467,30 @@ class PackageController < ApplicationController
 
     # disable building of a package
     if params[:arch] && params[:repo]
-      flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}' / arch '#{params[:arch]}'."
-      @package.disable_build :repo => params[:repo], :arch => params[:arch]
+      if @package.disable_build :repo => params[:repo], :arch => params[:arch]
+        flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}' / arch '#{params[:arch]}'."
+      else
+        flash[:error] = "Insufficient permissions"
+      end
     else
       if params[:repo]
-        flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}'."
-        @package.disable_build :repo => params[:repo]
+        if @package.disable_build :repo => params[:repo]
+          flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}'."
+        else
+          flash[:error] = "Insufficient permissions"
+        end
       elsif params[:arch]
-        flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
-        @package.disable_build :arch => params[:arch]
+        if @package.disable_build :arch => params[:arch]
+          flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
+        else
+          flash[:error] = "Insufficient permissions"
+        end
       else
-        flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' completely."
-        @package.disable_build
+        if @package.disable_build
+          flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' completely."
+        else
+          flash[:error] = "Insufficient permissions"
+        end
       end
     end
     redirect_to :action => "show", :project => params[:project], :package => params[:package]
@@ -490,18 +502,30 @@ class PackageController < ApplicationController
 
     # (re)-enable building of a package
     if params[:arch] && params[:repo]
-      flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}' / arch '#{params[:arch]}'."
-      @package.enable_build :repo => params[:repo], :arch => params[:arch]
+      if @package.enable_build :repo => params[:repo], :arch => params[:arch]
+        flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}' / arch '#{params[:arch]}'."
+      else
+        flash[:error] = "Insufficient permissions"
+      end
     else
       if params[:repo]
-        flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}'."
-        @package.enable_build :repo => params[:repo]
+        if @package.enable_build :repo => params[:repo]
+          flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}'."
+        else
+          flash[:error] = "Insufficient permissions"
+        end
       elsif params[:arch]
-        flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
-        @package.enable_build :arch => params[:arch]
+        if @package.enable_build :arch => params[:arch]
+          flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
+        else
+          flash[:error] = "Insufficient permissions"
+        end
       else
-        flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}'."
-        @package.enable_build
+        if @package.enable_build
+          flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}'."
+        else
+          flash[:error] = "Insufficient permissions"
+        end
       end
     end
     redirect_to :action => "show", :project => params[:project], :package => params[:package]

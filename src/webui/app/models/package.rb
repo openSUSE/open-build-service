@@ -87,7 +87,11 @@ class Package < ActiveXML::Base
     end
 
     merge_data elem_cache
-    save
+    begin
+      save
+    rescue
+      return false
+    end
   end
 
 
