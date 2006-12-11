@@ -9,36 +9,48 @@
       <th>Architecture</th>
     </tr>
     <tr>
+      <!-- ALL REPOSITORIES -->
       <td>
         <% if @package.has_element?("//disable[count(@*) = 0]") %>
-          <%= link_to image_tag('build_disabled.png', :alt => 'build disabled') + '<i>ALL Repositories</i>',
+          <%= link_to image_tag('build_disabled', :alt => 'build disabled') + '<i>ALL Repositories</i>',
           { :action => :enable_build, :package => @package, :project => params[:project] },
-          { :title => "Building of this package is completely disabled. Click to enable." } -%>
+          { :title => "Building is disabled generally. Click to enable." } -%>
           <% @disabled['ALL'] = true %>
         <% else %>
-          <%= link_to image_tag('build_enabled.png', :alt => 'build enabled') + '<i>ALL Repositories</i>',
+          <%= link_to image_tag('build_enabled', :alt => 'build enabled') + '<i>ALL Repositories</i>',
           { :action => :disable_build, :package => @package, :project => params[:project] },
-          { :title => "Building of this package is not disabled generally. Click to disable." } -%>
+          { :title => "Building is not disabled generally. Click to disable." } -%>
           <% @disabled['ALL'] = nil %>
         <% end %>
       </td>
+      <!-- ALL ARCHITECTURES -->
       <td>
         <ul>
           <% @archs.each do |arch| %>
           <li>
           <span<% if @disabled['ALL'] %> class="greyed-out"<% end %>>
           <% if @package.has_element?("disable[@arch='#{arch.to_s}' and not(@repository)]") %>
-            <% if @disabled['ALL'] then image = 'build_disabled_grey.png' else image = 'build_disabled.png' end %>
-            <%= link_to image_tag(image, :alt => 'build disabled') + arch.to_s,
-            { :action => :enable_build, :package => @package, :project => params[:project], :arch => arch.to_s },
-            { :title => "Building of this package for arch '#{arch}' is disabled. Click to enable." } -%>
             <% @disabled[arch.to_s] = true %>
+            <% if @disabled['ALL'] %>
+              <%= link_to image_tag('build_disabled_grey', :alt => 'build disabled') + arch.to_s,
+              { :action => :enable_build, :package => @package, :project => params[:project], :arch => arch.to_s },
+              { :title => "Building for arch #{arch} is implicit and directly disabled." } -%>
+            <% else %>
+              <%= link_to image_tag('build_disabled', :alt => 'build disabled') + arch.to_s,
+              { :action => :enable_build, :package => @package, :project => params[:project], :arch => arch.to_s },
+              { :title => "Building for arch #{arch} is disabled. Click to enable." } -%>
+            <% end %>
           <% else %>
-            <% if @disabled['ALL'] then image = 'build_enabled_grey.png' else image = 'build_enabled.png' end %>
-            <%= link_to image_tag(image, :alt => 'build enabled') + arch.to_s,
-            { :action => :disable_build, :package => @package, :project => params[:project], :arch => arch.to_s },
-            { :title => "Building of this package for arch '#{arch}' is enabled. Click to disable." } -%>
             <% @disabled[arch.to_s] = nil %>
+            <% if @disabled['ALL'] %>
+              <%= link_to image_tag('build_enabled_grey', :alt => 'build enabled') + arch.to_s,
+              { :action => :disable_build, :package => @package, :project => params[:project], :arch => arch.to_s },
+              { :title => "Building for arch #{arch} is implicit disabled." } -%>
+            <% else %>
+              <%= link_to image_tag('build_enabled', :alt => 'build enabled') + arch.to_s,
+              { :action => :disable_build, :package => @package, :project => params[:project], :arch => arch.to_s },
+              { :title => "Building for arch #{arch} is enabled. Click to disable." } -%>
+            <% end %>
           <% end %>
           </span>
           </li>
@@ -48,38 +60,60 @@
     </tr>
     <% @project.each_repository do |repo| %>
     <tr>
+      <!-- EVERY SINGLE REPOSITORY -->
       <td>
         <span<% if @disabled['ALL'] %> class="greyed-out"<% end %>>
           <% if @package.has_element?("disable[@repository='#{repo.name}' and not(@arch)]") %>
-            <% if @disabled['ALL'] then image = 'build_disabled_grey.png' else image = 'build_disabled.png' end %>
-            <%= link_to image_tag(image, :alt => 'build disabled') + repo.name,
-            { :action => :enable_build, :package => @package, :project => params[:project], :repo => repo.name },
-            { :title => "Building of this package for repository '#{repo.name}' is disabled. Click to enable." } -%>
             <% @disabled[repo.name] = true %>
+            <% if @disabled['ALL'] %>
+              <%= link_to image_tag('build_disabled_grey', :alt => 'build disabled') + repo.name,
+              { :action => :enable_build, :package => @package, :project => params[:project], :repo => repo.name },
+              { :title => "Building for repository #{repo.name} is implicit and directly disabled." } -%>
+            <% else %>
+              <%= link_to image_tag('build_disabled', :alt => 'build disabled') + repo.name,
+              { :action => :enable_build, :package => @package, :project => params[:project], :repo => repo.name },
+              { :title => "Building for repository #{repo.name} is disabled. Click to enable." } -%>
+            <% end %>
           <% else %>
-            <% if @disabled['ALL'] then image = 'build_enabled_grey.png' else image = 'build_enabled.png' end %>
-            <%= link_to image_tag(image, :alt => 'build enabled') + repo.name,
-            { :action => :disable_build, :package => @package, :project => params[:project], :repo => repo.name },
-            { :title => "Building of this package for repository '#{repo.name}' is enabled. Click to disable." } -%>
             <% @disabled[repo.name] = nil %>
+            <% if @disabled['ALL'] %>
+              <%= link_to image_tag('build_enabled_grey', :alt => 'build enabled') + repo.name,
+              { :action => :disable_build, :package => @package, :project => params[:project], :repo => repo.name },
+              { :title => "Building for repository #{repo.name} is implicit disabled." } -%>
+            <% else %>
+              <%= link_to image_tag('build_enabled', :alt => 'build enabled') + repo.name,
+              { :action => :disable_build, :package => @package, :project => params[:project], :repo => repo.name },
+              { :title => "Building for repository #{repo.name} is enabled. Click to disable." } -%>
+            <% end %>
           <% end %>
         </span>
       </td>
+      <!-- EVERY SINGLE ARCHITECTURE OF EVERY REPOSITORY -->
       <td>
         <ul>
           <% repo.each_arch do |arch| %>
           <li>
           <span<% if @disabled[repo.name] || @disabled[arch.to_s] || @disabled['ALL'] %> class="greyed-out"<% end %>>
           <% if @package.has_element?("disable[@repository='#{repo.name}' and @arch='#{arch.to_s}']") %>
-            <% if @disabled[repo.name] || @disabled[arch.to_s] || @disabled['ALL'] then image = 'build_disabled_grey.png' else image = 'build_disabled.png' end %>
-            <%= link_to image_tag(image, :alt => 'build disabled') + arch.to_s,
-            { :action => :enable_build, :package => @package, :project => params[:project], :arch => arch.to_s, :repo => repo.name },
-            { :title => "Building of this package for repository '#{repo.name}' arch '#{arch}' is disabled. Click to enable." } -%>
+            <% if @disabled[repo.name] || @disabled[arch.to_s] || @disabled['ALL'] %>
+              <%= link_to image_tag('build_disabled_grey', :alt => 'build disabled') + arch.to_s,
+              { :action => :enable_build, :package => @package, :project => params[:project], :arch => arch.to_s, :repo => repo.name },
+              { :title => "Building for repository #{repo.name} arch #{arch} is implicit and directly disabled." } -%>
+            <% else %>
+              <%= link_to image_tag('build_disabled', :alt => 'build disabled') + arch.to_s,
+              { :action => :enable_build, :package => @package, :project => params[:project], :arch => arch.to_s, :repo => repo.name },
+              { :title => "Building for repository #{repo.name} arch #{arch} is disabled. Click to enable." } -%>
+            <% end %>
           <% else %>
-            <% if @disabled[repo.name] || @disabled[arch.to_s] || @disabled['ALL'] then image = 'build_enabled_grey.png' else image = 'build_enabled.png' end %>
-            <%= link_to image_tag(image, :alt => 'build enabled' ) + arch.to_s,
-            { :action => :disable_build, :package => @package, :project => params[:project], :arch => arch.to_s, :repo => repo.name },
-            { :title => "Building of this package for repository '#{repo.name}' arch '#{arch}' is enabled. Click to disable." } -%>
+            <% if @disabled[repo.name] || @disabled[arch.to_s] || @disabled['ALL'] %>
+              <%= link_to image_tag('build_enabled_grey', :alt => 'build enabled' ) + arch.to_s,
+              { :action => :disable_build, :package => @package, :project => params[:project], :arch => arch.to_s, :repo => repo.name },
+              { :title => "Building for repository #{repo.name} arch #{arch} is implicit disabled." } -%>
+            <% else %>
+              <%= link_to image_tag('build_enabled', :alt => 'build enabled' ) + arch.to_s,
+              { :action => :disable_build, :package => @package, :project => params[:project], :arch => arch.to_s, :repo => repo.name },
+              { :title => "Building for repository #{repo.name} arch #{arch} is enabled. Click to disable." } -%>
+            <% end %>
           <% end %>
           </span>
           </li>
