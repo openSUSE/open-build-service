@@ -9,7 +9,7 @@
  	</xs:annotation>
 
 
-	<xs:attribute default="1" name="count" type="xs:nonNegativeInteger"/> 
+	<xs:attribute default="1" name="weight" type="xs:nonNegativeInteger"/> 
 	<xs:attribute name="name" type="xs:string"/>
 	<xs:attribute name="project" type="xs:string"/> 
 	<xs:attribute name="package" type="xs:string"/> 
@@ -20,7 +20,7 @@
 				<xs:element ref="project"/>
 			<xs:sequence> 	-->
 		<xs:attribute ref="name" use="required"/>
-		<xs:attribute ref="count"/>
+		<xs:attribute ref="weight"/>
 		</xs:complexType>
 	</xs:element>
 	
