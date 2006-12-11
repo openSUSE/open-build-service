@@ -9,12 +9,21 @@
 <h2>Add File (Project <%=h @project.name %>, Package <%=h @package.name %>)</h2>
 
 <%= form_tag({:action => :save_file}, {:multipart => true})%>
-<b>Filename (leave empty to take from upload):</b><br/>
+<b>Filename (leave empty to take from upload or uri):</b><br/>
 <%= text_field_tag 'filename', '', :size => 80 %><br/>
 <b>Filetype:</b><br/>
 <%= select_tag 'filetype', options_for_select(%w{source patch}) %><br/>
+<br/>
+
+
 <b>Local File:</b><br/>
 <%= file_field_tag 'file', :size => 70 %><br/>
+
+<b>OR</b><br/>
+
+<b>Remote File URI:</b><br/>
+<%= text_field_tag 'file_url', '', :size => 70 %><br/>
+
 <% if @package_is_link %>
   <%= check_box_tag "addAsPatch", 1, false %>Add as patch to SPEC file
 <% end %>

@@ -1,3 +1,5 @@
+require 'open-uri'
+
 class PackageController < ApplicationController
   model :project, :package, :result, :link
   before_filter :check_params
@@ -208,16 +210,43 @@ class PackageController < ApplicationController
     @package = Package.find( params[:package], :project => @project )
 
     file = params[:file]
-    if params[:filename].empty?
-      filename = file.original_filename
+    file_url = params[:file_url]
+    filename = params[:filename]
+
+    if file.size > 0
+      # we are getting an uploaded file
+      filename = file.original_filename if filename.empty?
+    elsif not file_url.empty?
+      # we have a remote file uri
+      begin
+        uri = URI::parse file_url
+        begin
+          file = open uri
+        rescue OpenURI::HTTPError
+          flash[:error] = "Error retrieving URI '#{uri}'."
+          redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
+          return
+        end
+        filename = uri.path.sub /\/.*\//, '' if filename.empty?
+        if filename.empty? or filename == '/'
+          flash[:error] = 'Invalid filename / file.'
+          redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
+          return
+        end
+      rescue URI::InvalidURIError
+        flash[:error] = 'Invalid URI for remote file.'
+        redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
+        return
+      end
     else
-      filename = params[:filename]
+      flash[:error] = 'No file or URI given.'
+      redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
     end
 
     # extra escaping of filename (workaround for rails bug)
     filename = URI.escape filename, "+"
 
-    logger.debug "controller: starting to add file: #{filename}"
+    logger.debug "controller: starting to add file: '#{filename}'"
     @package.save_file :file => file, :filename => filename
 
     if params[:addAsPatch]
