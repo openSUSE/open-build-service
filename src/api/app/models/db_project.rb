@@ -2,7 +2,11 @@ class DbProject < ActiveRecord::Base
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :db_packages, :dependent => :destroy
   has_many :repositories, :dependent => :destroy
-  has_and_belongs_to_many :tags
+  
+  #has_and_belongs_to_many :tags
+  has_many :taggings, :as => :taggable, :dependent => :destroy
+  has_many :tags, :through => :taggings
+
 
   class << self
     def find_by_name(name)
