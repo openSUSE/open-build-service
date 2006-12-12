@@ -1,14 +1,24 @@
 #!/usr/bin/perl -w
 
+BEGIN {
+  unshift @INC, ($::ENV{'BUILD_DIR'} || '/usr/lib/build');
+}
+
+use Build;
 use strict;
 
-my ($dist, $configdir);
+my ($dist, $configdir, $archs);
 
 while (@ARGV)  {
   if ($ARGV[0] eq '--dist') {
     shift @ARGV;
     $dist = shift @ARGV;
     next;
+  }
+  if ($ARGV[0] eq '--archpath') {
+    shift @ARGV;
+    $archs = shift @ARGV;
+    next;   
   }
   if ($ARGV[0] eq '--configdir') {
     shift @ARGV;
@@ -17,23 +27,7 @@ while (@ARGV)  {
   }
   last;
 }
-$configdir = '.' unless defined $configdir;
-$dist = '' unless defined $dist;
-
-die("Usage: getmacros --dist <dist> [--configdir <configdir>]\n") if !defined($dist) || @ARGV;
-local *F;
-if ($dist =~ /\//) {
-  open(F, '<', $dist) || die("$dist: $!\n");
-} else {
-  $dist =~ s/-.*//;
-  $dist = "sl$dist" if $dist =~ /^\d/;
-  open(F, '<', "$configdir/$dist.conf") || open(F, '<', "$configdir/default.conf") || die("config not found\n");
-}
-my $inmacro = 0;
-while(<F>) {
-  if (!$inmacro) {
-    $inmacro = 1 if /^\s*macros:/i;
-    next;
-  }
-  print;
-}
+die("Usage: getmacros --dist <dist> [--configdir <configdir>]\n") if @ARGV;
+my $cf = Build::read_config_dist($dist, $archs, $configdir);
+print $cf->{'rawmacros'} if exists $cf->{'rawmacros'};
+exit(0);

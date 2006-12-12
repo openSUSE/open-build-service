@@ -21,42 +21,23 @@ while (@ARGV)  {
     $archs = shift @ARGV;
     next;
   }
-  if ($ARGV[0] eq '--release') {
-    shift @ARGV;
-    $release = shift @ARGV;
-    next;
-  }
   if ($ARGV[0] eq '--configdir') {
     shift @ARGV;
     $configdir = shift @ARGV;
     next;
   }
+  if ($ARGV[0] eq '--release') {
+    shift @ARGV;
+    $release = shift @ARGV;
+    next;
+  }
   last;
 }
-$configdir = '.' unless defined $configdir;
-$archs = '' unless defined $archs;
-$dist = '' unless defined $dist;
-
 die("Usage: substitutedeps --dist <dist> --archpath <archpath> [--configdir <configdir>] <specin> <specout>\n") unless @ARGV == 2;
 my $spec = $ARGV[0];
 my $newspec = $ARGV[1];
 
-my @archs = split(':', $archs);
-push @archs, 'noarch' unless grep {$_ eq 'noarch'} @archs;
-
-my $cf;
-if ($dist =~ /\//) {
-  die("$dist: $!\n") unless -e $dist;
-  $cf = Build::read_config($archs[0], $dist);
-} else {
-  $dist =~ s/-.*//;
-  $dist = "sl$dist" if $dist =~ /^\d/;
-  $cf = Build::read_config($archs[0], "$configdir/$dist.conf");
-  if (!$cf) {
-    $cf = Build::read_config($archs[0], "$configdir/default.conf");
-  }
-}
-die("config not found\n") unless $cf;
+my $cf = Build::read_config_dist($dist, $archs, $configdir);
 
 #######################################################################
 

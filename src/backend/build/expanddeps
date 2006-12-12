@@ -107,14 +107,7 @@ if (!defined($dist) || $dist eq '') {
   }
 }
 
-my $cdist = $dist;
-$cdist =~ s/-.*//;
-$cdist = "sl$cdist" if $cdist =~ /^\d/;
-my $cf = Build::read_config($archs[0], "$configdir/$cdist.conf");
-if (!$cf) {
-  $cf = Build::read_config($archs[0], "$configdir/default.conf");
-  die("default config not found\n") unless $cf;
-}
+my $cf = Build::read_config_dist($dist, $archs[0], $configdir);
 
 #######################################################################
 
@@ -149,6 +142,7 @@ if ($useusedforbuild) {
     print "$_ $fn{$packs{$_}}\n";
   }
   print "preinstall: @{$cf->{'preinstall'} || []}\n";
+  print "runscripts: @{$cf->{'runscripts'} || []}\n";
   print "dist: $dist\n" if defined $dist;
   exit(0);
 }
@@ -217,4 +211,5 @@ for (@bdeps) {
   print "$_ $fn{$packs{$_}}\n";
 }
 print "preinstall: @{$cf->{'preinstall'} || []}\n";
+print "runscripts: @{$cf->{'runscripts'} || []}\n";
 print "dist: $dist\n" if defined $dist;

@@ -81,26 +81,30 @@ function preinstall {
         cd $BUILD_ROOT || cleanup_and_exit 1
 	if test -e "$BUILD_ROOT/.init_b_cache/rpms/$1.rpm" ; then
 	    rpm2cpio "$BUILD_ROOT/.init_b_cache/rpms/$1.rpm" | cpio --extract --unconditional --preserve-modification-time --make-directories --no-absolute-filenames --quiet
-	    rpm -qp --nodigest --nosignature --qf "%{PREIN}" "$BUILD_ROOT/.init_b_cache/rpms/$1.rpm" > .init_b_cache/scripts/$1.pre
-	    rpm -qp --nodigest --nosignature --qf "%{POSTIN}" "$BUILD_ROOT/.init_b_cache/rpms/$1.rpm" > .init_b_cache/scripts/$1.post
-	    echo -n '(none)' > .init_b_cache/scripts/.none
-	    cmp -s .init_b_cache/scripts/$1.pre .init_b_cache/scripts/.none && rm -f .init_b_cache/scripts/$1.pre
-	    cmp -s .init_b_cache/scripts/$1.post .init_b_cache/scripts/.none && rm -f .init_b_cache/scripts/$1.post
-	    rm -f .init_b_cache/scripts/.none
+	    if test -e .init_b_cache/scripts/$1.run ; then
+		rpm -qp --nodigest --nosignature --qf "%{PREIN}" "$BUILD_ROOT/.init_b_cache/rpms/$1.rpm" > .init_b_cache/scripts/$1.pre
+		rpm -qp --nodigest --nosignature --qf "%{POSTIN}" "$BUILD_ROOT/.init_b_cache/rpms/$1.rpm" > .init_b_cache/scripts/$1.post
+		echo -n '(none)' > .init_b_cache/scripts/.none
+		cmp -s .init_b_cache/scripts/$1.pre .init_b_cache/scripts/.none && rm -f .init_b_cache/scripts/$1.pre
+		cmp -s .init_b_cache/scripts/$1.post .init_b_cache/scripts/.none && rm -f .init_b_cache/scripts/$1.post
+		rm -f .init_b_cache/scripts/.none
+	    fi
 	elif test -e "$BUILD_ROOT/.init_b_cache/rpms/$1.deb" ; then
 	    ar x "$BUILD_ROOT/.init_b_cache/rpms/$1.deb" control.tar.gz data.tar.gz
 	    mkdir -p .init_b_cache/scripts/control
 	    tar -C .init_b_cache/scripts/control -xzf control.tar.gz
 	    tar xzf data.tar.gz
-	    test -e .init_b_cache/scripts/control/preinst && mv .init_b_cache/scripts/control/preinst .init_b_cache/scripts/$1.pre
-	    test -e .init_b_cache/scripts/control/postinst && mv .init_b_cache/scripts/control/postinst .init_b_cache/scripts/$1.post
+	    if test -e .init_b_cache/scripts/$1.run ; then
+		test -e .init_b_cache/scripts/control/preinst && mv .init_b_cache/scripts/control/preinst .init_b_cache/scripts/$1.pre
+		test -e .init_b_cache/scripts/control/postinst && mv .init_b_cache/scripts/control/postinst .init_b_cache/scripts/$1.post
+	    fi
 	    rm -rf .init_b_cache/scripts/control control.tar.gz data.tar.gz
 	else
 	    echo "warning: package $1 does not exist"
 	fi
     fi
     if test -n "$2" ; then
-        for PKG in $PACKAGES_TO_PREINSTALL ; do
+        for PKG in $PACKAGES_TO_RUNSCRIPTS ; do
             if test -e "$BUILD_ROOT/.init_b_cache/scripts/$PKG.pre" ; then
                 echo "running $PKG preinstall script"
 		if test -e "$BUILD_ROOT/.init_b_cache/rpms/$PKG.rpm" ; then
@@ -290,6 +294,7 @@ else
 	rm -f $BUILD_IS_RUNNING
 	while read PKG SRC ; do
 	   test "$PKG" = "preinstall:" && continue
+	   test "$PKG" = "runscripts:" && continue
 	   test "$PKG" = "dist:" && continue
 	   echo "${SRC##*/}"
 	done < $BUILD_ROOT/.init_b_cache/rpmlist
@@ -298,11 +303,19 @@ else
     fi
 
     PACKAGES_TO_INSTALL=
+    PACKAGES_TO_PREINSTALL=
+    PACKAGES_TO_RUNSCRIPTS=
+    RUNSCRIPTS_SEEN=
     GUESSED_DIST=unknown
     mkdir -p $BUILD_ROOT/.init_b_cache/rpms
     while read PKG SRC ; do
 	if test "$PKG" = "preinstall:" ; then
 	    PACKAGES_TO_PREINSTALL=$SRC
+	    continue
+	fi
+	if test "$PKG" = "runscripts:" ; then
+	    RUNSCRIPTS_SEEN=true
+	    PACKAGES_TO_RUNSCRIPTS=$SRC
 	    continue
 	fi
 	if test "$PKG" = "dist:" ; then
@@ -312,6 +325,10 @@ else
 	ln -s "$SRC" "$BUILD_ROOT/.init_b_cache/rpms/$PKG.${SRC##*.}"
 	PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL $PKG"
     done < $RPMLIST
+
+    # compatibility...
+    test -z "$RUNSCRIPTS_SEEN" && PACKAGES_TO_RUNSCRIPTS="$PACKAGES_TO_PREINSTALL"
+
     echo "$GUESSED_DIST" > $BUILD_ROOT/.guessed_dist
     PSUF=rpm
     test -L $BUILD_ROOT/.init_b_cache/rpms/rpm.rpm || PSUF=deb
@@ -342,6 +359,9 @@ if test ! -f $BUILD_ROOT/var/lib/rpm/packages.rpm -a ! -f $BUILD_ROOT/var/lib/rp
 	:> $BUILD_ROOT/var/log/dpkg.log
 	:> $BUILD_ROOT/etc/ld.so.conf
     fi
+    for PKG in $PACKAGES_TO_RUNSCRIPTS ; do
+	: > $BUILD_ROOT/.init_b_cache/scripts/$PKG.run
+    done
     for PKG in $PACKAGES_TO_PREINSTALL ; do
 	preinstall ${PKG##*/}
     done
@@ -356,7 +376,7 @@ fi
 if test -n "$PREPARE_XEN" ; then
     mkdir -p $BUILD_ROOT/.build
     echo "PACKAGES_TO_INSTALL='${PACKAGES_TO_INSTALL//\'/\'\\\'\'}'" > $BUILD_ROOT/.build/init_buildsystem.data
-    echo "PACKAGES_TO_PREINSTALL='${PACKAGES_TO_PREINSTALL//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/init_buildsystem.data
+    echo "PACKAGES_TO_RUNSCRIPTS='${PACKAGES_TO_RUNSCRIPTS//\'/\'\\\'\'}'" >> $BUILD_ROOT/.build/init_buildsystem.data
     echo "PSUF='$PSUF'" >> $BUILD_ROOT/.build/init_buildsystem.data
     echo "copying packages..."
     for PKG in $PACKAGES_TO_INSTALL ; do

@@ -17,16 +17,59 @@ sub unify {
   return grep(delete($h{$_}), @_);
 }
 
+sub read_config_dist {
+  my ($dist, $archpath, $configdir) = @_;
+
+  my $arch = $archpath;
+  $arch = 'noarch' unless defined $arch;
+  $arch =~ s/:.*//;
+  $arch = 'noarch' if $arch eq '';
+  die("Please specify a distribution!\n") unless defined $dist;
+  if ($dist !~ /\//) {
+    $configdir = '.' unless defined $configdir;
+    $dist =~ s/-.*//;
+    $dist = "sl$dist" if $dist =~ /^\d/;
+    $dist = "$configdir/$dist.conf";
+    $dist = "$configdir/default.conf" unless -e $dist;
+  }
+  die("$dist: $!\n") unless -e $dist;
+  my $cf = read_config($arch, $dist);
+  die("$dist: parse error\n") unless $cf;
+  return $cf;
+}
+
 sub read_config {
   my ($arch, $cfile) = @_;
-  return undef unless !defined($cfile) || ref($cfile) || -e $cfile;
   my @macros = split("\n", $std_macros);
   push @macros, "%define _target_cpu $arch";
   push @macros, "%define _target_os linux";
   my $config = {'macros' => \@macros};
-  my (@spec);
-  read_spec($config, $cfile, \@spec) if $cfile;
+  my @config;
+  if (ref($cfile)) {
+    @config = @$cfile;
+  } elsif (defined($cfile)) {
+    local *CONF;
+    return undef unless open(CONF, '<', $cfile);
+    @config = <CONF>;
+    close CONF;
+    chomp @config;
+  }
+  # create verbatim macro blobs
+  my @newconfig;
+  while (@config) {
+    push @newconfig, shift @config;
+    next unless $newconfig[-1] =~ /^\s*macros:\s*$/si;
+    $newconfig[-1] = "macros:\n";
+    while (@config) {
+      my $l = shift @config;
+      last if $l =~ /^\s*:macros\s*$/si;
+      $newconfig[-1] .= "$l\n";
+    }
+  }
+  my @spec;
+  read_spec($config, \@newconfig, \@spec);
   $config->{'preinstall'} = [];
+  $config->{'runscripts'} = [];
   $config->{'required'} = [];
   $config->{'support'} = [];
   $config->{'keep'} = [];
@@ -35,14 +78,8 @@ sub read_config {
   $config->{'conflict'} = [];
   $config->{'substitute'} = {};
   $config->{'optflags'} = {};
-  my $inmacro = 0;
+  $config->{'rawmacros'} = '';
   for my $l (@spec) {
-    if ($inmacro) {
-      my $m = ref($l) ? $l->[0] : $l;
-      $m =~ s/^%/%define / unless @macros && $macros[-1] =~ /\\$/;
-      push @macros, $m;
-      next;
-    }
     $l = $l->[1] if ref $l;
     next unless defined $l;
     my @l = split(' ', $l);
@@ -50,10 +87,11 @@ sub read_config {
     my $ll = shift @l;
     my $l0 = lc($ll);
     if ($l0 eq 'macros:') {
-      $inmacro = 1;
+      $l =~ s/.*?\n//s;
+      $config->{'rawmacros'} .= $l;
       next;
     }
-    if ($l0 eq 'preinstall:' || $l0 eq 'required:' || $l0 eq 'support:' || $l0 eq 'keep:' || $l0 eq 'prefer:' || $l0 eq 'ignore:' || $l0 eq 'conflict:') {
+    if ($l0 eq 'preinstall:' || $l0 eq 'required:' || $l0 eq 'support:' || $l0 eq 'keep:' || $l0 eq 'prefer:' || $l0 eq 'ignore:' || $l0 eq 'conflict:' || $l0 eq 'runscripts:') {
       push @{$config->{substr($l0, 0, -1)}}, @l;
     } elsif ($l0 eq 'substitute:') {
       next unless @l;
@@ -67,7 +105,7 @@ sub read_config {
       warn("unknown keyword in config: $l0\n");
     }
   }
-  for my $l (qw{preinstall required support keep}) {
+  for my $l (qw{preinstall required support keep runscripts}) {
     $config->{$l} = [ unify(@{$config->{$l}}) ];
   }
   for my $l (keys %{$config->{'substitute'}}) {
@@ -97,6 +135,16 @@ sub read_config {
   }
   $config->{'conflicth'} = \%conflicts;
   $config->{'type'} = (grep {$_ eq 'rpm'} @{$config->{'preinstall'} || []}) ? 'spec' : 'dsc';
+  # add rawmacros to our macro list
+  if ($config->{'rawmacros'} ne '') {
+    for my $rm (split("\n", $config->{'rawmacros'})) {
+      if ((@macros && $macros[-1] =~ /\\$/) || $rm !~ /^%/) {
+	push @macros, $rm;
+      } else {
+	push @macros, "%define ".substr($rm, 1);
+      }
+    }
+  }
   return $config;
 }
 
@@ -165,6 +213,11 @@ sub get_deps {
 sub get_preinstalls {
   my ($config) = @_;
   return @{$config->{'preinstall'}};
+}
+
+sub get_runscripts {
+  my ($config) = @_;
+  return @{$config->{'runscripts'}};
 }
 
 ###########################################################################
@@ -500,6 +553,12 @@ sub read_spec {
       $inspec = 1;
       last unless @$specdata;
       $line = shift @$specdata;
+      if (ref $line) {
+	$line = $line->[0]; # verbatim line
+        push @$xspec, $line if $xspec;
+        $xspec->[-1] = [ $line, undef ] if $xspec && $skip;
+	next;
+      }
     } else {
       $inspec = 1;
       $line = <SPEC>;

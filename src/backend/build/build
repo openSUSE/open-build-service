@@ -113,20 +113,20 @@ function clean_build_root () {
 #  cleanup_and_exit
 #
 cleanup_and_exit () {
+    test -z "$1" && set 0
     if test -n "$RUNNING_IN_XEN" ; then
 	cd /
-	test -n "$XENSWAP" && swapoff "$XENSWAP"
+	if test -n "$XENSWAP" ; then
+	    swapoff "$XENSWAP"
+	    echo -n "BUILDSTATUS$1" >"$XENSWAP"
+	fi
 	exec >&0 2>&0	# so that the logging tee finishes
 	sleep 1		# wait till tee terminates
 	kill -9 -1	# goodbye cruel world
 	exec /bin/bash -c 'mount -n -o remount,ro / ; halt -f'
 	halt -f
     fi
-    if test "$1" = 0 -o -z "$1" ; then
-        exit 0
-    else
-        exit $1
-    fi
+    exit $1
 }
 
 function create_baselibs {
@@ -449,6 +449,7 @@ if test -n "$XENIMAGE" ; then
     fi
     mount -oloop $XENIMAGE $BUILD_ROOT || cleanup_and_exit 1
     if test -n "$XENSWAP" ; then
+	dd if=/dev/zero of="$XENSWAP" bs=12 count=1 conv=notrunc 2>/dev/null
 	mkswap "$XENSWAP"
     fi
 fi
@@ -556,6 +557,7 @@ for SPECFILE in $SPECFILES ; do
 	test -n "$XENSWAP" && echo "XENSWAP='/dev/hda2'" >> $BUILD_ROOT/.build/build.data
 	PERSONALITY=`perl -e 'print syscall(135, 0)."\n"'`
 	echo "PERSONALITY='$PERSONALITY'" >> $BUILD_ROOT/.build/build.data
+	echo "MYHOSTNAME='`hostname`'" >> $BUILD_ROOT/.build/build.data
 	umount $BUILD_ROOT
 	XMROOT=file:$XENIMAGE
 	XMROOT=${XMROOT/#file:\/dev/phy:}
@@ -573,6 +575,15 @@ for SPECFILE in $SPECFILES ; do
 	    perl -e 'syscall(135, 0); exec(@ARGV) || die("$ARGV[0]: $!\n")' xm create -c $BUILD_DIR/xen.conf name="build:$XENID" $XENMEMORY $XMROOT $XMSWAP extra="init=/.build/build panic=1"
 	else
 	    xm create -c $BUILD_DIR/xen.conf name="build:$XENID" $XENMEMORY $XMROOT $XMSWAP extra="init=/.build/build panic=1"
+	fi
+	if test -n "$XENSWAP" ; then
+	    BUILDSTATUS=`dd if="$XENSWAP" bs=12 count=1 2>/dev/null`
+	    case $BUILDSTATUS in
+	      BUILDSTATUS[0-9])
+		exit ${BUILDSTATUS#BUILDSTATUS}
+		;;
+	    esac
+	    exit 1
 	fi
 	exit 0
     fi
@@ -647,7 +658,7 @@ for SPECFILE in $SPECFILES ; do
 	# do buildrequires/release substitution
 	substitutedeps $RELEASE --dist "$BUILD_DIST" --archpath "$BUILD_ARCH" --configdir "$BUILD_DIR/configs" "$BUILD_ROOT$TOPDIR/SOURCES/$SPECFILE" "$BUILD_ROOT/.spec.new" || cleanup_and_exit 1
 	# extract macros from configuration
-	getmacros --dist "$BUILD_DIST" --configdir "$BUILD_DIR/configs" > $BUILD_ROOT/root/.rpmmacros
+	getmacros --dist "$BUILD_DIST" --archpath "$BUILD_ARCH" --configdir "$BUILD_DIR/configs" > $BUILD_ROOT/root/.rpmmacros
 	test $BUILD_USER = abuild && cp -p $BUILD_ROOT/root/.rpmmacros $BUILD_ROOT/home/abuild/.rpmmacros
 	# extract optflags from configuration
 	getoptflags --dist "$BUILD_DIST" --configdir "$BUILD_DIR/configs" --archpath "$BUILD_ARCH" > $BUILD_ROOT/root/.rpmrc
@@ -686,6 +697,8 @@ for SPECFILE in $SPECFILES ; do
     echo -----------------------------------------------------------------
     mount -n -tproc none $BUILD_ROOT/proc 2> /dev/null
     mount -n -tdevpts none $BUILD_ROOT/dev/pts 2> /dev/null
+    test -n "$RUNNING_IN_XEN" && ifconfig lo 127.0.0.1 up
+    test -n "$RUNNING_IN_XEN" -a -n "$MYHOSTNAME" && hostname "$MYHOSTNAME"
 
     BUILD_SUCCEDED=false
 

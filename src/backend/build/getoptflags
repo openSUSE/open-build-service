@@ -28,29 +28,10 @@ while (@ARGV)  {
   }
   last;
 }
-$configdir = '.' unless defined $configdir;
-$archs = '' unless defined $archs;
-$dist = '' unless defined $dist;
 
-die("Usage: getoptflags --dist <dist> --archpath <archpath> [--configdir <configdir>]\n") if !defined($dist) || @ARGV;
+die("Usage: getoptflags --dist <dist> --archpath <archpath> [--configdir <configdir>]\n") if @ARGV;
 
-my @archs = split(':', $archs);
-push @archs, 'noarch' unless grep {$_ eq 'noarch'} @archs;
-
-my $cf;
-if ($dist =~ /\//) {
-  die("$dist: $!\n") unless -e $dist;
-  $cf = Build::read_config($archs[0], $dist);
-} else {
-  $dist =~ s/-.*//;
-  $dist = "sl$dist" if $dist =~ /^\d/;
-  $cf = Build::read_config($archs[0], "$configdir/$dist.conf");
-  if (!$cf) {
-    $cf = Build::read_config($archs[0], "$configdir/default.conf");
-  }
-}
-die("config not found\n") unless $cf;
-
+my $cf = Build::read_config_dist($dist, $archs, $configdir);
 exit 0 unless $cf->{'optflags'};
 my $all = $cf->{'optflags'}->{'*'};
 $all = defined($all) && $all ne '' ? " $all" : '';
