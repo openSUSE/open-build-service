@@ -1,11 +1,11 @@
 
-This script is used for building SuSE Linux RPMs in
+This script is used for building SUSE Linux RPMs in
 a clean and safe chroot'ed build environment.
 
-At first you need to copy your SuSE Linux CDs into a
+At first you need to copy your SUSE Linux CDs into a
 path reachable by the build script, for example /home/suse-8.2-i386.
 
-If you have a DVD Drive and the SuSE Linux DVD, you can mount it
+If you have a DVD Drive and the SUSE Linux DVD, you can mount it
 and use this as the source for the RPMs.
 
 To build an RPM, change into the directory with the sources
