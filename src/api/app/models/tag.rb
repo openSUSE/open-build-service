@@ -9,4 +9,11 @@ class Tag < ActiveRecord::Base
   def before_save
   end
 
+   def weight
+    @cached_weight ||= Tagging.count(:all,
+                  :conditions => ["tag_id = ?", self.id])
+    @cached_weight
+   end
+
 end
+
