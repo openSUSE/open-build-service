@@ -67,3 +67,12 @@
   border-bottom: 2px solid;
   padding: 1em;
 }
+
+.tagtable th {
+    border-bottom: 1px #999 dashed;
+    text-align: left;
+
+    }
+.tagtable td {
+    width: 5em;
+    }

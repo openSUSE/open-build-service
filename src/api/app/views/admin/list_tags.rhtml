@@ -1,0 +1,43 @@
+<h2>openSUSE Frontend Tag Management</h2>
+
+<table class="tagtable" cellpadding="5" cellspacing="0">
+ <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th colspan="3">Actions</th>
+ </tr>
+  <% for tag in @tags %>
+    
+    <tr>
+     <td>
+        <%= h(tag.id) %>
+    </td>
+    <td>  
+        <%= h(tag.name) %>
+    </td>
+    <td>
+        <%= link_to 'Show', :action => 'show_tag', :id => tag %>
+        <%= link_to 'Edit', :action => 'edit_tag', :id => tag %>
+        <%= link_to 'Destroy', { :action  => 'destroy_tag', :id => tag },
+                                 :confirm => "Are you sure?",
+                                 :post    => true %>
+    </td>
+    </tr>
+  <% end %>
+</table>
+
+    <p>
+        <%=  if @tag_pages.current.previous 
+        link_to("Previous page", { :page => @tag_pages.current.previous })
+        end
+        %>
+ 
+        <%= if @tag_pages.current.next 
+        link_to("Next page", { :page => @tag_pages.current.next })
+        end
+        %>
+    </p>    
+    <p> 
+        <%= link_to 'New', :action => 'new_tag' %>   
+    </p>
+
