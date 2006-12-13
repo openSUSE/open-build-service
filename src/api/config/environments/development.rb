@@ -20,8 +20,8 @@ config.action_mailer.raise_delivery_errors = false
 
 BREAKPOINT_SERVER_PORT=42532
 
-#SOURCE_HOST = "buildservice.suse.de"
-SOURCE_HOST = "localhost"
+SOURCE_HOST = "buildservice.suse.de"
+#SOURCE_HOST = "localhost"
 
 #SOURCE_PORT = 5352
 SOURCE_PORT = 6362 #test backend
