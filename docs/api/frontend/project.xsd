@@ -75,7 +75,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="path"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="path"/>
         <xs:element maxOccurs="unbounded" ref="arch"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
