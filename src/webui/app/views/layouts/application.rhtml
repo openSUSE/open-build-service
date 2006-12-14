@@ -9,14 +9,35 @@
 
 <div id="header">
   <h1 id="logo"><a href="/"><img src="/images/logo-buildservice.png" alt="openSUSE build service"></a></h1>
-  <% if session[:login] -%>
   <div id="login">
+  <% if session[:login] -%>
     Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
     <%= link_to "Watched Projects", :controller => "project", :action => :list_my %><br/>
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %><br/>
     <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
-  </div>
+  <% else -%>
+    <form id="loginfrm" action="https://build.opensuse.org/ICSLogin/auth-up" method="post" enctype="application/x-www-form-urlencoded">
+      <input type="hidden" name="url" value="http://build.opensuse.org/privacy/ichain_login" />
+      <input type="hidden" name="context" value="default" />
+      <input type="hidden" name="proxypath" value="reverse" />
+      <input type="hidden" name="message" value="Please log In" />
+      <table cellpadding="0" cellspacing="0">
+        <tr>
+          <td>Username:</td>
+          <td><input type="text" id="nlogin_uname_inpt" name="username" maxlength="50" size="8" onfocus="select()" tabindex="1" /></td>
+        </tr>
+        <tr>
+          <td>Password:</td>
+          <td><input type="password" id="nlogin_pw_inpt" name="password" maxlength="50" size="8" onfocus="select()" tabindex="2" /></td>
+        </tr>
+        <tr align="center">
+          <td><a href="https://secure-www.novell.com/selfreg/jsp/forgotPassword.jsp" onclick="forgotPassword();return false;">forgot password?</a></td>
+          <td><%= image_submit_tag 'ichain_login', :tabindex => '3' %></td>
+        </tr>
+      </table>
+    </form>
   <% end -%>
+  </div>
 </div>
 
 <ul id="crumbs" class="nav">

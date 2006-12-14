@@ -164,6 +164,7 @@ input {
         #login input[type="password"] {
             border: 1px solid #dd0;
             margin-bottom: 4px;
+            width: 6em;
         }
         #newuser {
             position: absolute;
@@ -605,4 +606,58 @@ div#package_disablebuild ul {
   margin: 0;
   padding: 0;
 }
+
+
+#statistics span {
+  float: left;
+  min-width: 13em;
+}
+#statistics span ul li {
+  margin-left:0;
+}
+#mainsearch form input[type=text] {
+  width: 10em;
+}
+
+
+#download {
+  float:left;
+}
+
+#category_overview {
+  height: 150px;
+}
+.category {
+  float: left;
+  font-size: 0.8em;
+  margin: 0 0.5em 1em 0.5em;
+}
+.category_name {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+
+#tagcloud {
+  padding:1em;
+  margin-left: 30em;
+  border: 1px #6eb927 dashed;
+}
+.tag { color: #6eb927; }
+.tag.size0  { font-size: 0.45em; }
+.tag.size1  { font-size: 0.50em; }
+.tag.size2  { font-size: 0.60em; }
+.tag.size3  { font-size: 0.70em; }
+.tag.size4  { font-size: 0.80em; }
+.tag.size5  { font-size: 0.90em; }
+.tag.size6  { font-size: 1.00em; }
+.tag.size7  { font-size: 1.30em; }
+.tag.size8  { font-size: 1.60em; }
+.tag.size9  { font-size: 1.90em; }
+.tag.size10 { font-size: 2.20em; font-style: bold; }
+.tag.size11 { font-size: 2.60em; font-style: bold; }
+.tag.size12 { font-size: 3.00em; font-style: bold; }
+.tag.size13 { font-size: 3.25em; font-style: bold; }
+.tag.size14 { font-size: 3.50em; font-style: bold; }
+.tag.size15 { font-size: 3.75em; font-style: bold; }
 
