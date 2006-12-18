@@ -39,14 +39,15 @@ RPM_PORT = 6262 #test backend
 # in the ICHAIN_TEST_USER variable here below.
 ICHAIN_TEST_USER = "test"
 
-# ATTENTION: If you set an IP address here the frontend takes the
-# user name that is coming as headervalue X-username as a valid
-# user and does not further authentication. So take care...
-# ATTENTION 2: The ICHAIN_* entries must correspond with the entries
-# in the webclient otherwise funny things happen.
-ICHAIN_HOST = nil
-# ICHAIN_HOST = "simulate"
-
+# This will replace the old constant ICHAIN_HOST.
+#  ATTENTION: If it's :on, the frontend takes the user
+# name that is coming as headervalue X-username as a 
+# valid user does no further authentication. So take care...
+#  ATTENTION: The ICHAIN_* entries must correspond with the
+# entries in the webclient otherwise funny things happen.
+# ICHAIN_MODE can be :off, :on or :simulate
+#
+ICHAIN_MODE = :off
 
 APIDOCS_LOCATION = "../../docs/api/html/"
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/frontend")+"/"

@@ -33,24 +33,18 @@ class ApplicationController < ActionController::Base
   def extract_user
     @http_user = nil;
 
-    if ichain_host  # configured in the the environment file
+    if ichain_mode != :off # configured in the the environment file
       auth_method = :ichain
 
-      logger.debug "configured iChain host: #{ichain_host} compared to remote_ip: #{request.remote_ip()}"
+      logger.debug "configured iChain mode: #{ichain_mode.to_s},  remote_ip: #{request.remote_ip()}"
 
-      # The following outcommented lines limit trust to the Header-value to a ip range.
-      # we do not enable it in our setup
-      # if  request.remote_ip() =~ /#{ichain_host}/
-        ichain_user = request.env['HTTP_X_USERNAME']
-      # else
-      #  logger.debug "configured iChain host does not match the remote IP, iChain user not accepted."
-      # end
+      ichain_user = request.env['HTTP_X_USERNAME']
 
       if ichain_user 
         logger.debug "iChain user extracted from header: #{ichain_user}"
       else
 # TEST vv
-        if ichain_host == "simulate"
+        if ichain_mode == :simulate
           ichain_user = ichain_test_user 
           logger.debug "TEST-ICHAIN_USER #{ichain_user} set!"
         end
@@ -286,11 +280,8 @@ class ApplicationController < ActionController::Base
     forward_data @request.path+'?'+@request.query_string, :server => :source
   end
 
-  def ichain_host
-    # if self.class.const_defined? "ICHAIN_HOST"
-      ICHAIN_HOST
-    # end
-    # nil
+  def ichain_mode
+      ICHAIN_MODE
   end
   
   def ichain_test_user
