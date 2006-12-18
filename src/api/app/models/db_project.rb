@@ -249,6 +249,7 @@ class DbProject < ActiveRecord::Base
   def to_axml
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
+    logger.debug "----------------- rendering project #{name} ------------------------"
     xml = builder.project( :name => name ) do |project|
       project.title( title )
       project.description( description )
@@ -261,11 +262,8 @@ class DbProject < ActiveRecord::Base
       #  project.package( :name => pack.name )
       #end
 
-      tags.each do |tag|
-        project.tag tag.name
-      end
-
-      repositories.each do |repo|
+      repos = repositories.find( :all, :include => [:path_elements, :architectures] )
+      repos.each do |repo|
         project.repository( :name => repo.name ) do |r|
           repo.path_elements.each do |pe|
             r.path( :project => pe.link.db_project.name, :repository => pe.link.name )
@@ -276,5 +274,13 @@ class DbProject < ActiveRecord::Base
         end
       end
     end
+    logger.debug "----------------- end rendering project #{name} ------------------------"
+
+    return xml
+  end
+
+  def to_axml_id
+    builder = Builder::XmlMarkup.new( :indent => 2 )
+    xml = builder.project( :name => name )
   end
 end

@@ -211,6 +211,7 @@ class DbPackage < ActiveRecord::Base
   def to_axml
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
+    logger.debug "----------------- rendering package #{name} ------------------------"
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
       package.description( description )
@@ -219,12 +220,21 @@ class DbPackage < ActiveRecord::Base
         package.person( :userid => u.login, :role => u.role_name )
       end
 
-      disabled_repos.each do |dr|
+      disreps = disabled_repos.find(:all, :include => [:repository, :architecture])
+      disreps.each do |dr|
         opts = Hash.new
         opts[:repository] = dr.repository.name if dr.repository
         opts[:arch] = dr.architecture.name if dr.architecture
         package.disable( opts )
       end
     end
+    logger.debug "----------------- end rendering package #{name} ------------------------"
+
+    return xml
+  end
+
+  def to_axml_id
+    builder = Builder::XmlMarkup.new( :indent => 2 )
+    xml = builder.package(:name => name, :project => db_project.name )
   end
 end
