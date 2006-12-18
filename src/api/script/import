@@ -120,6 +120,10 @@ def create_missing_users_for( meta )
   end
 end
 
+
+#filter = ["Fedora:Core6", "Fedory:Extras6"];
+filter = [];
+
 projects = Xproject.find(:all)
 
 # maps project name to an array: [project_object, {packagename => package_object, ...}]
@@ -128,6 +132,11 @@ cache = Hash.new
 STDERR.puts "--> storing projects"
 projects.each_entry do |entry|
   next if entry.name == "abc>def"
+
+  #if filter is set, only fetch the projects in the array
+  if not filter.empty?
+    next unless filter.include? entry.name
+  end
 
   p = nil 
   begin
