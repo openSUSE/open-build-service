@@ -8,6 +8,7 @@ $LOAD_PATH.unshift RAILS_ROOT
 require_dependency 'opensuse/permission'
 require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'
+require_dependency 'xpath_engine'
 require_dependency 'user'
 
 class ApplicationController < ActionController::Base
@@ -23,7 +24,7 @@ class ApplicationController < ActionController::Base
   
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
-  before_filter :setup_backend
+  before_filter :setup_backend, :add_api_version
 
   #contains current authentification method, one of (:ichain, :basic_auth)
   attr_accessor :auth_method
@@ -162,6 +163,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def add_api_version
+    @response.headers["X-Opensuse-APIVersion"] = API_VERSION
+  end
+
   def forward_data( path, opt={} )
     defaults = {:server => :source, :method => :get}
     opt = defaults.merge opt
@@ -226,7 +231,6 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt = {} )
-    
     if opt[:status]
       if opt[:status].to_i == 401
         response.headers["WWW-Authenticate"] = 'basic realm="Frontend login"'
@@ -254,12 +258,10 @@ class ApplicationController < ActionController::Base
   end
   
   def require_admin
-
     logger.debug "Checking for  Admin role for user #{@http_user.login}"
     unless @http_user.has_role( 'Admin' )
       logger.debug "not granted!"
       render :template => 'permerror'
-      
     end
   end
 
