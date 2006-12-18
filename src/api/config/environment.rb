@@ -60,6 +60,9 @@ end
 # end
 
 # Include your application configuration below
+
+API_VERSION="0.1.1"
+
 module ActiveRbacConfig
   # controller and layout configuration
   config :controller_layout, "html"
