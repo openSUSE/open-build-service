@@ -1,0 +1,30 @@
+
+<div id='search_simple'>
+
+<%= start_form_tag :action => 'search_result' -%>
+
+  <table cellpadding="0" cellspacing="0">
+    <tr>
+      <td valign="middle" colspan="2">
+        <%= text_field_tag 'search_text', '', :size => 14, :style => 'width: 10em;'-%>
+        <%= image_submit_tag 'system-search' -%>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <%= radio_button_tag 'search_what', 'package', true -%>
+        <span style="font-size: 70%;">packages</span>
+      </td>
+      <td>
+        <%= radio_button_tag 'search_what', 'project' -%>
+        <span style="font-size: 70%;">projects</span>
+      </td>
+    </tr>
+  </table>
+
+  <%= hidden_field_tag 'search_what', @search_what -%>
+  <%= hidden_field_tag 'search_in', @search_in -%>
+<%= end_form_tag -%>
+
+</div>
+

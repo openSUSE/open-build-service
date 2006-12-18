@@ -50,6 +50,15 @@ class FrontendCompat
     transport.direct_http URI("http://#{path}")
   end
 
+
+  def search type, xpath
+    # type is one of: project or package
+    # searchstring is a xpath like "contains(@description,'server')"
+    path = "/search/#{type}?match=#{xpath}"
+    transport.direct_http URI("https://#{path}")
+  end
+
+
   def transport
     @transport ||= ActiveXML::Config::transport_for( :project )
   end
