@@ -26,8 +26,8 @@ SOURCE_HOST = "buildservice.suse.de"
 #SOURCE_PORT = 5352
 SOURCE_PORT = 6362 #test backend
 
-#RPM_HOST = "buildservice.suse.de"
-RPM_HOST = "localhost"
+RPM_HOST = "buildservice.suse.de"
+#RPM_HOST = "localhost"
 
 #RPM_PORT = 5252
 RPM_PORT = 6262 #test backend
