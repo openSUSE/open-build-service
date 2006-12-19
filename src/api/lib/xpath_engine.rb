@@ -172,7 +172,7 @@ class XpathEngine
       end
     end
     key = a.join "/"
-    raise IllegalXpathError, "unable to evaluate '#{key}'"
+    raise IllegalXpathError, "unable to evaluate '#{key}'" unless @attribs[table].has_key? key
     logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:joins]
       @joins << @attribs[table][key][:joins]
@@ -181,11 +181,11 @@ class XpathEngine
     return @attribs[table][key][:cpart]
   end
 
-  def xpath_op_eq(x, y)
-    logger.debug "-- xpath_op_eq(#{x.inspect}, #{y.inspect}) --"
+  def xpath_op_eq(lv, rv)
+    logger.debug "-- xpath_op_eq(#{lv.inspect}, #{rv.inspect}) --"
 
-    lval = evaluate_expr(x)
-    rval = evaluate_expr(y)
+    lval = evaluate_expr(lv)
+    rval = evaluate_expr(rv)
 
     condition = ""
     condition << "#{lval} = #{rval}"
@@ -193,6 +193,21 @@ class XpathEngine
 
     @conditions << condition
   end
+
+  def xpath_op_and(lv, rv)
+    logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
+
+    parse_predicate(lv)
+    lv_cond = @conditions.shift
+    parse_predicate(rv)
+    rv_cond = @conditions.shift
+
+    condition = ""
+    condition << "(#{lv_cond} AND #{rv_cond})"
+    logger.debug "-- condition: [#{condition}]"
+
+    @conditions << condition
+  end 
 
   def xpath_func_contains(haystack, needle)
     logger.debug "-- xpath_func_contains(#{haystack.inspect}, #{needle.inspect}) --"
