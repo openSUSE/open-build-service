@@ -132,7 +132,7 @@ class XpathEngine
       case token
       when :function
         fname = stack.shift
-        fname_int = "xpath_func_"+fname
+        fname_int = "xpath_func_"+fname.gsub(/-/, "_")
         if not respond_to? fname_int
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
@@ -261,4 +261,28 @@ class XpathEngine
 
     @conditions << condition
   end
+
+  def xpath_func_starts_with(x, y)
+    logger.debug "-- xpath_func_starts_with(#{x.inspect}, #{y.inspect}) --"
+
+    s1 = evaluate_expr(x)
+    s2 = evaluate_expr(y)
+
+    condition = "#{s1} LIKE CONCAT(#{s2},'%')"
+    logger.debug "-- condition: [#{condition}]"
+
+    @conditions << condition 
+  end 
+
+  def xpath_func_ends_with(x, y)
+    logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
+
+    s1 = evaluate_expr(x)
+    s2 = evaluate_expr(y)
+
+    condition = "#{s1} LIKE CONCAT('%',#{s2})"
+    logger.debug "-- condition: [#{condition}]"
+
+    @conditions << condition 
+  end 
 end
