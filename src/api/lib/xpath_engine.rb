@@ -42,10 +42,11 @@ class XpathEngine
       }
     }
 
-    @operators = [:eq, :and]
+    @operators = [:eq, :and, :or, :neq]
 
     @base_table = ""
-    @conditions = []
+    @conditions = [1]
+    @condition_values = []
     @joins = []
   end
 
@@ -115,8 +116,11 @@ class XpathEngine
       logger.debug "strange base table: #{@base_table}"
     end
 
+    cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
+
+    logger.debug "-- cond_ary: #{cond_ary.inspect} --"
     return model.find(:all, :include => includes, :joins => @joins.flatten.uniq.join(" "),
-                      :conditions => @conditions.flatten.uniq.join(" AND ") )
+                      :conditions => cond_ary )
   end
 
   def parse_predicate(stack)
@@ -166,7 +170,8 @@ class XpathEngine
         expr.shift #namespace
         a << "@"+expr.shift
       when :literal
-        return "'#{expr.shift}'"
+        @condition_values << expr.shift
+        return "?"
       else
         raise IllegalXpathError, "illegal token: '#{token.inspect}'"
       end
@@ -187,8 +192,19 @@ class XpathEngine
     lval = evaluate_expr(lv)
     rval = evaluate_expr(rv)
 
-    condition = ""
-    condition << "#{lval} = #{rval}"
+    condition = "#{lval} = #{rval}"
+    logger.debug "-- condition: [#{condition}]"
+
+    @conditions << condition
+  end
+
+  def xpath_op_neq(lv, rv)
+    logger.debug "-- xpath_op_neq(#{lv.inspect}, #{rv.inspect}) --"
+
+    lval = evaluate_expr(lv)
+    rval = evaluate_expr(rv)
+
+    condition = "#{lval} != #{rval}"
     logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
@@ -198,12 +214,25 @@ class XpathEngine
     logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
 
     parse_predicate(lv)
-    lv_cond = @conditions.shift
+    lv_cond = @conditions.pop
     parse_predicate(rv)
-    rv_cond = @conditions.shift
+    rv_cond = @conditions.pop
 
-    condition = ""
-    condition << "(#{lv_cond} AND #{rv_cond})"
+    condition = "(#{lv_cond} AND #{rv_cond})"
+    logger.debug "-- condition: [#{condition}]"
+
+    @conditions << condition
+  end
+
+  def xpath_op_or(lv, rv)
+    logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
+
+    parse_predicate(lv)
+    lv_cond = @conditions.pop
+    parse_predicate(rv)
+    rv_cond = @conditions.pop
+
+    condition = "(#{lv_cond} OR #{rv_cond})"
     logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
@@ -215,9 +244,19 @@ class XpathEngine
     hs = evaluate_expr( haystack )
     ne = evaluate_expr( needle )
 
-    condition = ""
-    condition << "#{hs} LIKE CONCAT('%',#{ne},'%')"
-    #condition << "#{hs} LIKE '%#{ne}%'"
+    condition = "#{hs} LIKE CONCAT('%',#{ne},'%')"
+    logger.debug "-- condition : [#{condition}]"
+
+    @conditions << condition
+  end
+
+  def xpath_func_not(expr)
+    logger.debug "-- xpath_func_contains(#{expr}) --"
+
+    parse_predicate(expr)
+    cond = @conditions.pop
+
+    condition = "(NOT #{cond})"
     logger.debug "-- condition : [#{condition}]"
 
     @conditions << condition
