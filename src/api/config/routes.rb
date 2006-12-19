@@ -58,6 +58,19 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'project_meta'
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta'
+    
+  #routes for tagging support  
+  #map.connect 'source/:project/_tags', :controller => 'tag',
+  #  :action => 'project_tags'
+  map.connect 'tag/_all', :controller => 'tag',
+    :action => 'list_xml'
+   map.connect 'tag/_tagcloud', :controller => 'tag',
+    :action => 'tag_cloud'
+  map.connect 'tag/:project/', :controller => 'tag',
+    :action => 'project_tags'
+  #map.connect 'tag/:project/:package/', :controller => 'tag',
+  #  :action => 'package_tags'   
+  
 
   map.connect 'source/:project/:package/:file', :controller => "source",
     :action => 'file'
@@ -99,6 +112,9 @@ ActionController::Routing::Routes.draw do |map|
         :controller => "build", :action => "pass_to_source"
   map.connect 'build',
         :controller => "build", :action => "pass_to_source"
+
+
+    
 
   map.apidocs 'apidocs/', :controller => "apidocs"
 
