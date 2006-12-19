@@ -1,0 +1,6 @@
+xml.instruct!
+xml.tagcloud() do
+  @tags.each do |tag|
+      xml.tag(:name => tag.name, :weight => tag.weight)
+  end       
+end

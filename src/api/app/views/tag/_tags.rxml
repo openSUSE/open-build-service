@@ -1,0 +1,6 @@
+xml.instruct!
+xml.tags(@type => @name) do
+  @tags.each do |tag|
+      xml.tag(:name => tag.name)
+  end       
+end
