@@ -14,6 +14,11 @@ class MainController < ApplicationController
     @search_what = params[:search_what]
     @search_in   = params[:search_in]
 
+    if @search_text.length < 3
+      flash[:error] = "Search String must contain at least 3 Characters."
+      redirect_to :controller => 'main', :action => 'search'
+    end
+
     logger.debug "performing search: search_text='#{@search_text}'"
 
     @results = {}
