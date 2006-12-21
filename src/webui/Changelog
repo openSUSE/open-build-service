@@ -202,3 +202,45 @@ Mon Dec 04 16:41:53 +0100 2006 - bauersman
 - fixed redirect problem after login - thanks to kfreitag and darix :)
 
 
+------------------------------------------------------------------------
+Thu Dec 21 17:00:39 +0100 2006 - bauersman
+
+- update from svn revision 897 to 985
+- don't crash when package description is empty
+- preserve linebreaks in project-descriptions too.
+- add openSUSE 10.2 target
+- use openSUSE naming scheme
+- removed references to ICHAIN_HOST
+- cleaned code of simple repo page
+- open links from the helpmenu in a new browser-window
+- modified/new icons
+- clear session on logout also when using ichain
+- built in possibility to trigger rebuild of packages for specific repo
+  and specific arch/arpo-combination
+- redesign package-view "involved users" to look more like the
+  user-list in the project-view
+- added more quicklinks ("+"-buttons to add something)
+- fixed TODO: renamed add/remove_target to add/remove_repository in
+  project-model
+- added possibility to disable building of a package completely
+- added possibility to import description of a package from its specfile
+  if there is one (and only one)
+- if only one project is found by the projectlist-search, and user pressed
+  enter, go directly to the project-page instead of listing it as the only
+  result
+- added link to the help-menu: suse build tutorial @ opensuse-wiki
+- added "advanced disable"-button to edit <disable .../>-tags of packages
+  directly as xml in a textbox
+  fixed bug #226286 (webgui: (wrong) success message, but permission denied)
+-> now shows correct "insufficient permissions" message.
+- package#add_file: added possibility to add files by URI, especially
+  interesting for developers with low bandwidth
+  fixed bug #226494: "Architecture building (de)activation faulty"
+-> tooltips show now the correct state (enabled/disabled building)
+- added login-form to startpage
+- login-form submit button image
+- added search forms and result page
+- redesigned search, using new & fast frontend implementation
+- corrected link to search on startpage; added crumbs to search pages
+
+
