@@ -19,7 +19,7 @@ list.</p>
     <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
     <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li>
     <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
-    <li><%= link_to "Search for Packages", :controller => 'main', :action => 'search_advanced' %></li>
+    <li><%= link_to "Search for Packages", :controller => 'main', :action => 'search' %></li>
   </ul>
 <% else -%>
   But first, you have to 
