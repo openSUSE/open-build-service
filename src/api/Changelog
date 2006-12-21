@@ -125,3 +125,36 @@ Mon Dec 04 16:34:42 +0100 2006 - bauersman
 - reverted disabling of default routes, breaks too much
 
 
+------------------------------------------------------------------------
+Thu Dec 21 16:56:05 +0100 2006 - abauer
+
+- update from svn revision 895 to 983
+- frontend tag model  
+- accidental checkin reverted
+-new join model "tagging",
+-use polymorphic associations for each "taggable" type (projects and packages)
+-tagging join model added
+-added new relationships between db_project, user and tag model through "taggings" join model  
+- added a simple weight function to the model
+- added a Tag management (show, add, delete, remove) to the Administration Interface 
+- changed SOURCE_HOST to buildservice.suse.de in develoment-config
+- add api version to header
+- add api version to http header
+- change default backend settings in development mode
+- added filter to script/import to only import specified projects
+- work on searching in frontend
+- replaced ICHAIN_HOST with ICHAIN_MODE in frontend config and
+  application-controller
+- AND operator
+- xpath operators OR and !=
+- quote tainted strings
+- xpath functions begins-with/ends-with
+- controller and xml views for tag support 
+- added route for project tags, all tags and a simple tag cloud.   
+- two migrations:
+  	-added index for taggable_types
+  	-added time stamp columns to the tables "tags" and "taggings"
+- routes for tag support temporary disabled.
+- new routing, to use the new & fast frontend search
+
+
