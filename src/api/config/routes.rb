@@ -62,12 +62,12 @@ ActionController::Routing::Routes.draw do |map|
   #routes for tagging support  
   #map.connect 'source/:project/_tags', :controller => 'tag',
   #  :action => 'project_tags'
-  map.connect 'tag/_all', :controller => 'tag',
-    :action => 'list_xml'
-   map.connect 'tag/_tagcloud', :controller => 'tag',
-    :action => 'tag_cloud'
-  map.connect 'tag/:project/', :controller => 'tag',
-    :action => 'project_tags'
+  #map.connect 'tag/_all', :controller => 'tag',
+  #  :action => 'list_xml'
+  # map.connect 'tag/_tagcloud', :controller => 'tag',
+  #  :action => 'tag_cloud'
+  #map.connect 'tag/:project/', :controller => 'tag',
+  #  :action => 'project_tags'
   #map.connect 'tag/:project/:package/', :controller => 'tag',
   #  :action => 'package_tags'   
   
