@@ -3,26 +3,8 @@ class MainController < ApplicationController
   skip_before_filter :authorize
 
 
-  ### advanced search form
-  def search_advanced
-    @searchwhat_options = [
-      ['packages','package'],
-      ['projects','project']
-    ]
-    @searchin_options = [
-      ['description','description'],
-      ['title','title'],
-      ['name','name']
-    ]
-    search_result if request.post?
-  end
-
-
-  ### simple search form
-  def search_simple
-    # action to test simple searchbox partial
-    @search_what = 'package'
-    @search_in = 'name'
+  def search
+    ### search form
   end
 
 
@@ -32,23 +14,23 @@ class MainController < ApplicationController
     @search_what = params[:search_what]
     @search_in   = params[:search_in]
 
-    allowed_fields = ['package','project']
-    if allowed_fields.grep(@search_what) == nil
-      logger.debug "search aborted: search_what=#{@search_what} is not in the list of allowed_fields"
-      return
-    end
+    logger.debug "performing search: search_text='#{@search_text}'"
 
-    logger.debug "performing search: search_text=#{@search_text}, @search_what=#{@search_what}, @search_in=#{@search_in}"
+    @results = {}
+    @search_what = %w{ package project }
 
-    frontend = FrontendCompat.new
-    collection = ActiveXML::Base.new 'collection'
+    @search_what.each do |s_what|
+      predicate = "contains(@name,'#{@search_text}') or contains(@title,'#{@search_text}') or contains(description,'#{@search_text}')"
+      @results[s_what] = Collection.find( :what => s_what, :predicate => predicate )
 
-    collection.raw_data = frontend.search @search_what,
-      'contains(@' + @search_in.to_s +  ',\'' + @search_text.to_s + '\')'
+      ### TODO: give the results some weight
+      #@results[s_what].each do |result|
+      #  weight = 0
+      #  weight += 5 if result.name ~= /@search_text/
+      #  weight += 3 if result.title ~= /@search_text/
+      #  weight += 1 if result.description ~= /@search_text/
+      #end
 
-    @results = []
-    collection.send( 'each_' + @search_what ) do |item|
-      @results << item
     end
 
   end

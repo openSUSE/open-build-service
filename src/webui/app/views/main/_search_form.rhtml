@@ -1,0 +1,16 @@
+
+<p id="search_form">
+<%= start_form_tag :action => 'search_result' -%>
+<%= text_field_tag 'search_text', '', :size => 16, :style => 'width: 12em;'-%>
+<%= image_submit_tag 'system-search' -%>
+<%= end_form_tag -%>
+</p>
+<br/>
+
+<!-- Set Focus to the input box -->
+<script type="text/javascript">
+  <!--
+    document.getElementById('search_text').focus();
+  //-->
+</script>
+

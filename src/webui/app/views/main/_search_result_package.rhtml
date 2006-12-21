@@ -1,0 +1,26 @@
+
+<dt>
+  <%= link_to "<b>#{@result}</b>", { :controller => 'package', :action => 'show', :package => @result, :project => @result.project } -%>
+  (project <%= link_to @result.project, { :controller => 'package', :action => 'show', :project => @result.project } -%>)
+</dt>
+
+
+<dd>
+  <% if @result.has_element? 'title' %>
+    <%= @result.title -%><br/>
+    <% if @result.title.to_s.empty? %><i>&lt;no title&gt;</i><br/><% end %>
+  <% else %>
+    <i>&lt;no title&gt;</i><br/>
+  <% end %>
+  <br/>
+
+  <% if @result.has_element? 'description' %>
+    <% @result.description.to_s.split(/\n/).each do |line| -%>
+      <%= line -%><br/>
+    <% end %>
+    <% if @result.description.to_s.empty? %><i>&lt;no description&gt;</i><br/><% end %>
+  <% else %>
+    <i>&lt;no description&gt;</i><br/>
+  <% end %>
+</dd>
+

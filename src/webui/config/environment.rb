@@ -84,5 +84,7 @@ ActiveXML::Base.config do |conf|
     
     map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"
+
+    map.connect :collection, "rest:///search/:what?match=:predicate"
   end
 end

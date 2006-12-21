@@ -8,11 +8,11 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect '/', :controller => 'main'
 
+  # Shortcut to searchpage:
+  map.connect 'search', :controller => 'main', :action => 'search'
+
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action'
-
-  # Shortcut to searchpage:
-  map.connect 'search', :controller => 'main', :action => 'search_advanced'
 
 end

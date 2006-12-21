@@ -661,3 +661,9 @@ div#package_disablebuild ul {
 .tag.size14 { font-size: 3.50em; font-style: bold; }
 .tag.size15 { font-size: 3.75em; font-style: bold; }
 
+
+#search_result dd {
+  border-bottom: 1px silver dashed;
+  margin-bottom: 1em;
+  width: 85%;
+}

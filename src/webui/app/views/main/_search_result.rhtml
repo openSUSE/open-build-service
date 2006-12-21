@@ -1,34 +1,21 @@
 
-<dl>
+<dl id="search_result">
 <% if @search_text %>
-  <% @results.each do |result| %>
-    <p style="border-bottom: 1px silver dashed;">
-    <dt>
-      <% if @search_what == 'package' %>
-        <b><%= link_to result, { :controller => @search_what , :action => 'show',
-          @search_what.to_sym => result, :project => result.project } -%></b>
-        (project <%= link_to result.project, { :controller => 'project',
-          :action => 'show', :project => result.project } -%>)
-      <% elsif @search_what == 'project' %>
-        <b><%= link_to result, { :controller => @search_what , :action => 'show',
-          @search_what.to_sym => result } -%></b>
+
+  <% @search_what.each do |s_what| %>
+
+  <h2><%= s_what -%>s</h2><br/>
+
+    <% @results[s_what].send("each_#{s_what}") do |@result| %>
+      <% if s_what == 'package' %>
+        <%= render :partial => 'search_result_package' %>
+      <% else %>
+        <%= render :partial => 'search_result_project' %>
       <% end %>
-    </dt>
-    <dd>
-    <% if result.each_description.length > 0 %>
-        <% result.description.to_s.split(/\n/).each do |line| %>
-          <%= line -%><br/>
-        <% end %>
-        <% if result.description.to_s.empty? %><i>&lt;no description&gt;</i><br/><% end %>
-      <% end %>
-      <br/>
-      <i>Involved users:</i>
-      <% result.each_person do |person| -%>
-        <%= person.userid -%>
-      <% end -%>
-    </dd>
-    </p>
+    <% end %>
+
   <% end %>
+
 <% end %>
 </dl>
 
