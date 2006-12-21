@@ -80,14 +80,14 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'source/:project', :controller => "source",
     :action => 'index_project'
 
-  map.connect 'search/project/id', :controller => "search", :action => "pass_to_source"
-  map.connect 'search/package/id', :controller => "search", :action => "pass_to_source"
-  map.connect 'search/project', :controller => "search", :action => "pass_to_source"
-  map.connect 'search/package', :controller => "search", :action => "pass_to_source"
-#  map.connect 'search/project/id', :controller => "search", :action => "project_id"
-#  map.connect 'search/package/id', :controller => "search", :action => "package_id"
-#  map.connect 'search/project', :controller => "search", :action => "project"
-#  map.connect 'search/package', :controller => "search", :action => "package"
+#  map.connect 'search/project/id', :controller => "search", :action => "pass_to_source"
+#  map.connect 'search/package/id', :controller => "search", :action => "pass_to_source"
+#  map.connect 'search/project', :controller => "search", :action => "pass_to_source"
+#  map.connect 'search/package', :controller => "search", :action => "pass_to_source"
+  map.connect 'search/project/id', :controller => "search", :action => "project_id"
+  map.connect 'search/package/id', :controller => "search", :action => "package_id"
+  map.connect 'search/project', :controller => "search", :action => "project"
+  map.connect 'search/package', :controller => "search", :action => "package"
   map.connect 'search', :controller => "search", :action => "pass_to_source"
 
   map.connect 'build/:project/:repository/:arch/:package/_status',
