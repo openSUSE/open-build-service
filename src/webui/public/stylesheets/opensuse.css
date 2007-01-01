@@ -332,8 +332,11 @@ input {
                 text-decoration: underline;
             }
             #crumbs li.help {
-                position: absolute;
-                right: 10px;
+                float: right;
+                background: none;
+            }
+            #crumbs li.searchbox {
+                float: right;
                 background: none;
             }
 
@@ -610,7 +613,7 @@ div#package_disablebuild ul {
 
 #statistics span {
   float: left;
-  min-width: 13em;
+  min-width: 11em;
 }
 #statistics span ul li {
   margin-left:0;
@@ -621,7 +624,8 @@ div#package_disablebuild ul {
 
 
 #download {
-  float:left;
+/*  float: left; */
+  margin: 0;
 }
 
 #category_overview {
@@ -664,6 +668,19 @@ div#package_disablebuild ul {
 
 #search_result dd {
   border-bottom: 1px silver dashed;
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.5em;
   width: 85%;
 }
+
+strong.highlight {
+  font-weight: normal;
+  border-bottom: 1px silver dotted;
+  background: #ffd;
+}
+
+#searchresult_weight {
+  color: #eee;
+}
+
+

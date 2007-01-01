@@ -1,0 +1,33 @@
+
+<p id="search_form">
+  <%= start_form_tag :controller => 'main', :action => 'search_result' -%>
+  <table>
+    <tr>
+      <th style="background:none;">&nbsp;</th>
+      <th>Search for:</th>
+      <th>Search in:</th>
+    </tr>
+    <tr>
+      <td rowspan="2">
+        <%= text_field_tag 'search_text', params[:search_text], :size => 8, :style => 'width: 8em;'-%>
+        <%= hidden_field_tag 'advanced', 'on' -%>
+        <%= image_submit_tag 'search-advanced' -%>
+      </td>
+      <td>
+        <%= check_box_tag 'project', 1, true -%>
+        <label for="project">projects</label><br/>
+        <%= check_box_tag 'package', 1, true -%>
+        <label for="package">packages</label><br/>
+      </td>
+      <td>
+        <%= check_box_tag 'name', 1, true -%>
+        <label for="name">name</label><br/>
+        <%= check_box_tag 'title', 1, params[:title] -%>
+        <label for="title">title</label><br/>
+        <%= check_box_tag 'description', 1, params[:description] -%>
+        <label for="description">description</label><br/>
+      </td>
+    </tr>
+  </table>
+  <%= end_form_tag -%>
+</p>

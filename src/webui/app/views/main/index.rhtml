@@ -1,31 +1,110 @@
+<%
+  @most_downloaded = %w{ eMule Ares Galaxy PhpGed View Accepting Donations }
+  @latest_updated = %w{ Gaim Donations blahblubb JavaScript ERP Bazaar ERP }
+  @highest_rated = %w{ Donations Safe Donations NAS Accepting 1VideoC Donations }
+  @latest_added = %w{ JavaScriptAccepting Donations php My Admin Accepting blahblub }
+  @most_active = %w{ SafeDonations Donations  1Video Conference Accepting Donations Donations }
+%>
+
 <h1 class="mainhead">Welcome to the openSUSE Build Service</h1>
 
-<p class="description">This is the packager interface of the openSUSE Build Service Frontend. It can
-build packages for various distributions. Most of the advanced features are
-still missing, but the basic build functionality is there.</p>
+<p class="description">This is the web interface of the 
+<%= link_to 'openSUSE Build Service', 'http://en.opensuse.org/Build_Service',
+  :title => 'more Information about the Build Service in the openSUSE wiki ...' -%>.
+It can build packages for various Linux distributions.<br/>
+Most of the advanced features are still missing, but the basic build functionality is there.</p>
 
-<p class="description">Users can download the packages via the <a href="http://software.opensuse.org">software browsing interface</a>. No account is needed for this. </p>
+<p class="description">Everyone can download the resulting software packages via the <a href="http://software.opensuse.org">software browsing interface</a>.</p>
 
-<p class="description">More information can be found in the openSUSE Wiki on the <a
-href="http://en.opensuse.org/Build_Service">Build Service pages</a>. If you would like to discuss the Build Service
-please use the <a href="mailto:opensuse-buildservice-subscribe@opensuse.org">opensuse-buildservice@opensuse.org</a> mailing
-list.</p>
+<!--
+<div id="tagcloud">
+  <span class="tag size0">brabbel</span>
+  <span class="tag size14">brabbel</span>
+  <span class="tag size1">brabbel</span>
+  <span class="tag size12">brabbel</span>
+  <span class="tag size7">brabbel</span>
+  <span class="tag size8">brabbel</span>
+  <span class="tag size10">brabbel</span>
+  <span class="tag size3">brabbel</span>
+  <span class="tag size13">brabbel</span>
+</div>
 
-<p class="description">Have fun experimenting with the openSUSE Build Service :-).</p>
+<div style="clear: both; height:1px;">&nbsp;</div>
+
+<div id="statistics">
+  <span>
+    <h5>Highest Rated:</h5>
+    <ol>
+      <% @highest_rated.each do |item| %>
+      <li><%= link_to item, '#' -%></li>
+      <% end %>
+    </ol>
+  </span>
+  <span>
+    <h5>Most Downloaded:</h5>
+    <ol>
+      <% @most_downloaded.each do |item| %>
+      <li><%= link_to item, '#' -%></li>
+      <% end %>
+    </ol>
+  </span>
+  <span>
+    <h5>Most Active:</h5>
+    <ol>
+      <% @most_active.each do |item| %>
+      <li><%= link_to item, '#' -%></li>
+      <% end %>
+    </ol>
+  </span>
+  <span>
+    <h5>Latest Updated:</h5>
+    <ol>
+      <% @latest_updated.each do |item| %>
+      <li><%= link_to item, '#' -%></li>
+      <% end %>
+    </ol>
+  </span>
+  <% if session[:login] %>
+  <span>
+    <h5>Latest Built:</h5>
+    <ol>
+      <% @latest_updated.each do |item| %>
+      <li><%= link_to item, '#' -%></li>
+      <% end %>
+    </ol>
+  </span>
+  <% end %>
+  <span>
+    <h5>New Additions:</h5>
+    <ol>
+      <% @latest_added.each do |item| %>
+      <li><%= link_to item, '#' -%></li>
+      <% end %>
+    </ol>
+  </span>
+  <div style="clear: both;">&nbsp;</div>
+</div>
+-->
 
 <% if session[:login] -%>
   <p>Proceed to:</p>
-  <ul>
-    <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
-    <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li>
-    <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
-    <li><%= link_to "Search for Packages", :controller => 'main', :action => 'search' %></li>
-  </ul>
+    <ul>
+      <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
+      <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li>
+      <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
+      <li><%= link_to "Search for Packages", :controller => 'main', :action => 'search' %></li>
+    </ul>
 <% else -%>
-  But first, you have to 
+  <p class="description">If you are a packager and want to add / edit packages, you have to
   <strong>
     <%= link_to image_tag('login', :alt => 'login') + "Login",
     :controller => "project", :action => :list_public %>
   </strong>
+  </p>
 <% end -%>
+
+<p class="description">If you would like to discuss the Build Service please use the
+<a href="mailto:opensuse-buildservice-subscribe@opensuse.org">
+opensuse-buildservice@opensuse.org</a> mailing list.<br/>
+Have fun experimenting with the openSUSE Build Service :-)</p>
 

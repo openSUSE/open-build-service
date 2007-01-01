@@ -28,4 +28,8 @@ module ApplicationHelper
       :project => project, :package => package
   end
 
+  def repo_url(project, repo='' )
+    'http://software.opensuse.org/download/' + project.gsub(':', ':/') + "/#{repo}"
+  end
+
 end

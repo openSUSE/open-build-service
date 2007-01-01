@@ -16,37 +16,50 @@
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %><br/>
     <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
   <% else -%>
-    <form id="loginfrm" action="https://build.opensuse.org/ICSLogin/auth-up" method="post" enctype="application/x-www-form-urlencoded">
-      <input type="hidden" name="url" value="http://build.opensuse.org/privacy/ichain_login" />
-      <input type="hidden" name="context" value="default" />
-      <input type="hidden" name="proxypath" value="reverse" />
-      <input type="hidden" name="message" value="Please log In" />
-      <table cellpadding="0" cellspacing="0">
-        <tr>
-          <td>Username:</td>
-          <td><input type="text" id="nlogin_uname_inpt" name="username" maxlength="50" size="8" onfocus="select()" tabindex="1" /></td>
-        </tr>
-        <tr>
-          <td>Password:</td>
-          <td><input type="password" id="nlogin_pw_inpt" name="password" maxlength="50" size="8" onfocus="select()" tabindex="2" /></td>
-        </tr>
-        <tr align="center">
-          <td><a href="https://secure-www.novell.com/selfreg/jsp/forgotPassword.jsp" onclick="forgotPassword();return false;">forgot password?</a></td>
-          <td><%= image_submit_tag 'ichain_login', :tabindex => '3' %></td>
-        </tr>
-      </table>
-    </form>
+    <% if ICHAIN_MODE == 'on' or ICHAIN_MODE == 'simulate' %>
+      <form id="loginfrm" action="https://build.opensuse.org/ICSLogin/auth-up" method="post" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="url" value="http://build.opensuse.org/privacy/ichain_login" />
+        <input type="hidden" name="context" value="default" />
+        <input type="hidden" name="proxypath" value="reverse" />
+        <input type="hidden" name="message" value="Please log In" />
+        <table cellpadding="0" cellspacing="0">
+          <tr>
+            <td>Username:</td>
+            <td><input type="text" id="nlogin_uname_inpt" name="username" maxlength="50" size="8" onfocus="select()" tabindex="1" /></td>
+          </tr>
+          <tr>
+            <td>Password:</td>
+            <td><input type="password" id="nlogin_pw_inpt" name="password" maxlength="50" size="8" onfocus="select()" tabindex="2" /></td>
+          </tr>
+          <tr align="center">
+            <td><a href="https://secure-www.novell.com/selfreg/jsp/forgotPassword.jsp" onclick="forgotPassword();return false;">forgot password?</a></td>
+            <td><%= image_submit_tag 'ichain_login', :tabindex => '3' %></td>
+          </tr>
+        </table>
+      </form>
+    <% else %>
+      <%= start_form_tag :controller => 'user', :action => "store_login" %>
+        <table cellpadding="0" cellspacing="0">
+          <tr>
+            <td>Username:</td>
+            <td><%= text_field_tag 'user_login', :maxlength => 50, :size => 30 -%></td>
+          </tr>
+          <tr>
+            <td>Password:</td>
+            <td><%= password_field_tag 'user_password', :maxlength => 50, :size => 30 -%></td>
+          </tr>
+          <tr align="center">
+            <td>&nbsp;</td>
+            <td><%= image_submit_tag 'ichain_login', :tabindex => '3' %></td>
+          </tr>
+        </table>
+      <%= end_form_tag %>
+    <% end %>
   <% end -%>
   </div>
 </div>
 
 <ul id="crumbs" class="nav">
-  <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
-  <% if @crumb_list -%>
-  <% @crumb_list.each do |link| -%>
-  <li><%= link %></li>
-  <% end -%>
-  <% end -%>
 
   <%
     @helplinks = [
@@ -57,7 +70,6 @@
       { 'reporting a bug'    => 'http://en.opensuse.org/Submit_a_Bug' }
     ]
   %>
-
   <li class="help">
     <form action="">
     <select size="1" name="helplinks" onchange="goto_url(this.form.helplinks.options[this.form.helplinks.options.selectedIndex].value)">
@@ -69,6 +81,15 @@
     </select>
     </form>
   </li>
+
+  <li class="searchbox"><%= render :partial => "main/search_form" %></li>
+
+  <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
+  <% if @crumb_list -%>
+  <% @crumb_list.each do |link| -%>
+  <li><%= link %></li>
+  <% end -%>
+  <% end -%>
 </ul>
 
 <div id="body">

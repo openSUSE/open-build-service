@@ -56,10 +56,6 @@ module ProjectHelper
     return ret
   end
 
-  def repo_url(project, repo)
-    'http://software.opensuse.org/download/' + project.name.gsub(':', ':/') + '/' + repo.name
-  end
-
   def simple_repo_button_to( label, opt={} )
     defaults = {
       :arch => [],
