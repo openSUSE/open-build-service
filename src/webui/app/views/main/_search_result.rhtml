@@ -18,6 +18,9 @@
         (project <%= link_to @result[:data].project, { :controller => 'package',
           :action => 'show', :project => @result[:data].project } -%>)
       <% end %>
+
+      <%= link_to( "[download repositories]", url, :class => 'download_repos_link' ) if url -%>
+
       <span id="searchresult_weight"><%= @result[:weight] -%></span>
     </dt>
 

@@ -673,6 +673,11 @@ div#package_disablebuild ul {
   width: 85%;
 }
 
+.download_repos_link {
+  font-size: 80%;
+  margin: 0 0.5em 0 1.5em;
+}
+
 strong.highlight {
   font-weight: normal;
   border-bottom: 1px silver dotted;
@@ -680,7 +685,7 @@ strong.highlight {
 }
 
 #searchresult_weight {
-  color: #eee;
+  color: #ddd;
 }
 
 
