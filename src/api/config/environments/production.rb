@@ -18,6 +18,8 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
+ICHAIN_MODE = :on
+
 ICHAIN_HOST = "212.12.12.12"
 
 SOURCE_HOST = "storage"
