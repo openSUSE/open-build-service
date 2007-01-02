@@ -1,7 +1,5 @@
 class MainController < ApplicationController
-
-  skip_before_filter :authorize
-
+  skip_before_filter :authorize, :only => [:index]
 
   def search
     ### search form
@@ -83,8 +81,5 @@ class MainController < ApplicationController
 
     # reorder results by weight
     @results.sort! { |a,b| b[:weight] <=> a[:weight] }
-
   end
-
-
 end
