@@ -81,7 +81,7 @@ class ApplicationController < ActionController::Base
             else
               render_error :message => "Your user is either invalid or net yet confirmned (state #{@http_user.state}).", 
                            :status => 403,
-                           :errorcode => "unconfirmned_user",
+                           :errorcode => "unconfirmed_user",
                            :details => "Please contact the openSUSE admin team"
             end
           end
@@ -232,16 +232,39 @@ class ApplicationController < ActionController::Base
     else
       opt[:status] = 500
     end
+    
+    @exception = opt[:exception]
+    @details = opt[:details]
 
     @summary = "Internal Server Error"
     if opt[:message]
       @summary = opt[:message]
+    elsif @exception
+      @summary = @exception.message 
     end
     
-    @exception = opt[:exception]
-    @details = opt[:details]
-    @errorcode = opt[:errorcode]
+    if opt[:errorcode]
+      @errorcode = opt[:errorcode]
+    elsif @exception
+      @errorcode = 'uncaught_exception'
+    else
+      @errorcode = 'unknown'
+    end
 
+    # if the exception was raised inside a template (-> @template.first_render != nil), 
+    # the instance variables created in here will not be injected into the template
+    # object, so we have to do it manually
+    if @template.first_render
+      logger.debug "injecting error instance variables into template object"
+      %w{@summary @errorcode @exception}.each do |var|
+        @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
+      end
+    end
+
+    # on some occasions the status template doesn't receive the instance variables it needs
+    # unless render_to_string is called before (which is an ugly workaround but I don't have any
+    # idea where to start searching for the real problem)
+    render_to_string :template => 'status'
     render :template => 'status', :status => opt[:status], :layout => false
   end
   
