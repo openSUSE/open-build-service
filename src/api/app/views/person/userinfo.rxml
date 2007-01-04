@@ -2,15 +2,19 @@ xml.person do
   xml.login @render_user.login
   xml.email @render_user.email
   xml.realname @render_user.realname
-    
-  xml.source_backend do
-    xml.host @render_user.source_host
-    xml.port @render_user.source_port
+
+  if( @render_user.source_host or @render_user.source_port )  
+    xml.source_backend do
+      xml.host @render_user.source_host
+      xml.port @render_user.source_port
+    end
   end
 
-  xml.rpm_backend do
-    xml.host @render_user.rpm_host
-    xml.port @render_user.rpm_port
+  if( @render_user.rpm_host or @render_user.rpm_port )  
+    xml.rpm_backend do
+      xml.host @render_user.rpm_host
+      xml.port @render_user.rpm_port
+    end
   end
 
   if( @render_user.watched_projects.count > 0 )
