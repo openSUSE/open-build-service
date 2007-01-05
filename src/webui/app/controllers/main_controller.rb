@@ -72,7 +72,7 @@ class MainController < ApplicationController
         count = 0
         weight = 0
 
-        log_prefix = "weighting search result #{s_what} \"#{data}\" by"
+        log_prefix = "weighting search result #{s_what} \"#{data.name}\" by"
 
         # weight if result is a project
         if s_what == 'project'
