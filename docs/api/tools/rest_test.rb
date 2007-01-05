@@ -299,6 +299,13 @@ class TestContext
   def print_summary
     undefined = @tested - @unsupported - @failed - @passed - @error - @skipped
   
+    puts "#tester passed #{@passed}"
+    puts "#tester failed #{@failed}"
+    puts "#tester error #{@error}"
+    puts "#tester skipped #{@unsupported + @skipped + undefined}"
+
+    puts
+
     puts "Total #{@tested} tests"
     puts "  #{@passed} passed"
     puts "  #{@failed} failed"
@@ -314,6 +321,7 @@ class TestContext
     if ( undefined > 0 )
       puts "  #{undefined} undefined"
     end
+
   end
 
 end
