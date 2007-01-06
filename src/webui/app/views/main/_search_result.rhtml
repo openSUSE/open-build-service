@@ -10,10 +10,10 @@
       :title => "Goto download repositories of #{@result[:data]}"), url ) if url -%>
 
       <% if @result[:type] == 'project' %>
-        <%= link_to "<b>#{@result[:data]}</b>", { :controller => 'project',
+        <%= link_to "<b>#{@result[:data].name}</b>", { :controller => 'project',
           :action => 'show', :project => @result[:data] } -%>
       <% elsif @result[:type] == 'package' %>
-        <%= link_to "<b>#{@result[:data]}</b>", { :controller => 'package',
+        <%= link_to "<b>#{@result[:data].name}</b>", { :controller => 'package',
           :action => 'show', :package => @result[:data], :project => @result[:data].project } -%>
         (project <%= link_to @result[:data].project, { :controller => 'package',
           :action => 'show', :project => @result[:data].project } -%>)
