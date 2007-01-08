@@ -6,7 +6,7 @@ end
 
 class TestContext
 
-  attr_writer :show_xmlbody, :request_filter, :show_passed
+  attr_writer :show_xmlbody, :request_filter, :show_passed, :output_html
 
   def initialize requests
     @host_aliases = Hash.new
@@ -27,7 +27,13 @@ class TestContext
   end
 
   def bold str
-    "\033[1m#{str}\033[0m"
+    if @output_html
+      str.gsub! /</, "&lt;"
+      str.gsub! />/, "&gt;"
+      "<b>#{str}</b>"
+    else
+      "\033[1m#{str}\033[0m"
+    end
   end
   
   def red str

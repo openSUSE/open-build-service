@@ -17,7 +17,8 @@ require "rest_test.rb"
 class Options
 
   attr_accessor :verbose, :filename, :html, :outline, :output_dir,
-    :create_template, :testfile, :force, :request, :show_all, :include_dir
+    :create_template, :testfile, :force, :request, :show_all, :include_dir,
+    :output_html
 
   def initialize
     verbose = false
@@ -60,6 +61,10 @@ class Options
       options.show_all = true
     end
 
+    opt.on( "--output-html", "Put out results formatted as HTML." ) do
+      options.output_html = true
+    end
+
     opt.on( "-I", "=DIRECTORY", "Include directory as search path for XML files") do |val|
       options.include_dir = val
     end
@@ -67,19 +72,19 @@ class Options
     begin
       opt.parse!( args )
     rescue OptionParser::InvalidOption
-      puts $!
-      puts opt
-      exit
+      STDERR.puts $!
+      STDERR.puts opt
+      exit 1
     end
 
     if ( ARGV.size > 1 )
-      puts "Too many arguments"
-      puts opt
-      exit
+      STDERR.puts "Too many arguments"
+      STDERR.puts opt
+      exit 1
     elsif ( ARGV.size < 1 )
-      puts "Too few arguments"
-      puts opt
-      exit
+      STDERR.puts "Too few arguments"
+      STDERR.puts opt
+      exit 1
     end
 
     options.filename = ARGV[0]
@@ -137,6 +142,7 @@ begin
   end
   runner.context.show_passed = options.show_all
   runner.context.request_filter = options.request
+  runner.context.output_html = options.output_html
 
   runner.run options.testfile
 
