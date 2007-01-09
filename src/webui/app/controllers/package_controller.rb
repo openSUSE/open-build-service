@@ -23,7 +23,22 @@ class PackageController < ApplicationController
         @project = Project.find( project )
         @package = Package.find( package, :project => project )
 
-        @files = get_files project, package
+        # files whose name end in the following extensions should not be editable
+        no_edit_ext = %w{ bz2 exe gif gz jar jpg jpeg ogg ps pdf png rpm tar tgz xpm zip }
+
+        @files = []
+        files = get_files project, package
+        @spec_count = 0
+        files.each do |file|
+          editable = true
+          if file[:size].to_i > 1048576  # max. 1 MB
+            editable = false
+          else
+            no_edit_ext.each { |ext| editable = false if file[:name].grep(/#{ext}$/) != [] }
+          end
+          @files << { :name => file[:name], :editable => editable }
+          @spec_count += 1 if file[:name].grep(/\.spec$/) != []
+        end
 
         @results = []
         @project.each_repository do |repository|
@@ -335,64 +350,30 @@ class PackageController < ApplicationController
 
     redirect_to :action => :show, :package => params[:package], :project => params[:project]
   end
-  
-  def edit_spec
+
+  def edit_file
     @project = params[:project]
     @package = params[:package]
     @filename = params[:file]
-    
-    @specfile = frontend.get_source( :project => @project,
+
+    @file = frontend.get_source( :project => @project,
       :package => @package, :filename => @filename )
   end
-  
-  def edit_link
-    @project = params[:project]
-    @package = params[:package]
-    @filename = params[:file]
-    
-    @linkfile = frontend.get_source( :project => @project,
-      :package => @package, :filename => @filename )
-  end
-  
-  def save_spec
+
+
+  def save_modified_file
     project = params[:project]
     package = params[:package]
-    specfile = params[:specfile]
     filename = params[:filename]
+    file = params[:file]
 
-    if( filename =~ /\.spec$/ )
-      specfile.gsub!( /\r\n/, "\n" )
-      
-      frontend.put_file( specfile, :project => project, :package => package,
-        :filename => filename )
-
-      flash[:note] = "Successfully saved SPEC file."
-    else
-      flash[:note] = "Aborted saving of specfile: suffix not .spec"
-    end
-    
+    file.gsub!( /\r\n/, "\n" )
+    frontend.put_file( file, :project => project, :package => package,
+      :filename => filename )
+    flash[:note] = "Successfully saved file."
     redirect_to :action => :show, :package => package, :project => project
   end
 
-  def save_link
-    project = params[:project]
-    package = params[:package]
-    linkfile = params[:linkfile]
-    filename = params[:filename]
-
-    if( filename == "_link" )
-      linkfile.gsub!( /\r\n/, "\n" )
-      
-      frontend.put_file( linkfile, :project => project, :package => package,
-        :filename => filename )
-
-      flash[:note] = "Successfully saved link file."
-    else
-      flash[:note] = "Aborted saving of linkfile: filename not '_link'"
-    end
-    
-    redirect_to :action => :show, :package => package, :project => project
-  end
 
   def live_build_log
     @project = params[:project]
@@ -565,9 +546,11 @@ class PackageController < ApplicationController
     return false unless @package = Package.find( params[:package], :project => params[:project] )
 
     all_files = get_files params[:project], params[:package]
-    specfile_name = all_files.grep(/.*\.spec/)[0].to_s
+    all_files.each do |file|
+      @specfile_name = file[:name] if file[:name].grep(/\.spec/) != []
+    end
     specfile_content = frontend.get_source(
-      :project => params[:project], :package => params[:package], :filename => specfile_name
+      :project => params[:project], :package => params[:package], :filename => @specfile_name
     )
 
     description = []
@@ -606,7 +589,7 @@ class PackageController < ApplicationController
     files = []
     dir = Directory.find( :project => project, :package => package )
     dir.each_entry do |file|
-      files << file.name
+      files << { :name => file.name, :size => file.size }
       if ( file.name == "_link" )
         begin
           @link = Link.find( :project => project, :package => package )

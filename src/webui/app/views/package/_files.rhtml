@@ -10,24 +10,21 @@
   <table class="grid">
     <% @files.each do |file| %>
     <tr>
-      <td><%=h file %></br/></td>
+      <td><%=h file[:name] %></br/></td>
       <td>
-        <% if file =~ /\.spec$/ %>
-        <%=   link_to("[Edit]", :action => :edit_spec, :project => @project,
-        :package => @package, :file => file ) %>
-        <% elsif file == "_link" %>
-        <%= link_to( "[Edit]", :action => :edit_link, :project => @project,
-        :package => @package, :file => file ) %>
+        <% if file[:editable] %>
+          <%= link_to("[Edit]", :action => :edit_file, :project => @project,
+          :package => @package, :file => file[:name] ) %>
         <% end %>
       </td>
       <td><%= link_to "[Download]", file_url( @project, @package, file ) %></td>
       <td><%= link_to "[Remove]", {:action => :remove_file, :project => @project,
-        :package => @package, :filename => file},
+        :package => @package, :filename => file[:name]},
         {:confirm => "Really remove file '#{file}'?" }%></td>
       <td>
-        <% if @link && @link.has_add_patch?( file ) %>
+        <% if @link && @link.has_add_patch?( file[:name] ) %>
         (Added Patch)
-        <% elsif @link && @link.has_patch?( file ) %>
+        <% elsif @link && @link.has_patch?( file[:name] ) %>
         (Global Patch)
         <% end %>
       </td>
