@@ -148,11 +148,17 @@ class DbPackage < ActiveRecord::Base
       #--- end update disabled repos ---#
       
       #--- write through to backend ---#
-      unless ActiveXML::Config::TransportMap.options_for(:package)[:write_through] == :false
+
+      if write_through?
         path = "/source/#{self.db_project.name}/#{self.name}/_meta"
         Suse::Backend.put_source( path, package.dump_xml )
       end
     end
+  end
+
+  def write_through?
+    conf = ActiveXML::Config
+    conf.global_write_through && (conf::TransportMap.options_for(:package)[:write_through] != :false)
   end
 
   def add_user( login, role_title )

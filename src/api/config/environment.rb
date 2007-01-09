@@ -76,11 +76,15 @@ RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 require 'rails_put_fix'
 require 'active_rbac_user_model_crypt_hack'
 
+require 'activexml'
 #require 'custom_dispatcher'
 
-require 'activexml'
 
 ActiveXML::Base.config do |conf|
+  if RAILS_ENV == "test"
+    conf.global_write_through = false
+  end
+
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|

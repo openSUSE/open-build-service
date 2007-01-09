@@ -184,14 +184,18 @@ class DbProject < ActiveRecord::Base
 
       #--- write through to backend ---#
 
-      unless ActiveXML::Config::TransportMap.options_for(:project)[:write_through] == :false
+      if write_through?
         path = "/source/#{self.name}/_meta"
         Suse::Backend.put_source( path, project.dump_xml )
       end
-      
-
     end #transaction
   end
+
+  def write_through?
+    conf = ActiveXML::Config
+    conf.global_write_through && (conf::TransportMap.options_for(:project)[:write_through] != :false)
+  end
+  private :write_through?
 
   def add_user( login, role_title )
     logger.debug "adding user: #{login}, #{role_title}"
