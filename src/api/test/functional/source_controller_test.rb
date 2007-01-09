@@ -157,7 +157,6 @@ class SourceControllerTest < Test::Unit::TestCase
   
   def test_create_project_meta
     do_create_project_meta_test("king", "sunflower")
-    do_create_project_meta_test("tom", "thunder")
   end
   
   

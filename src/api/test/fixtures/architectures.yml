@@ -1,5 +1,7 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
+i386:
   id: 1
-another:
+  name: i386
+x86_64:
   id: 2
+  name: x86_64

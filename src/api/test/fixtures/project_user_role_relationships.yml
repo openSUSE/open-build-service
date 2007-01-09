@@ -1,5 +1,6 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
+kde4_fred_maintainer:
   id: 1
-another:
-  id: 2
+  db_project_id: 1
+  bs_user_id: 2
+  bs_role_id: 1
