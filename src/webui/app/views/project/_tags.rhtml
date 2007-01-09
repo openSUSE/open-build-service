@@ -3,7 +3,7 @@
         <h3>Tags
         
         <%= link_to_remote image_tag("list-add",:title => "add tag", :border => 0), :update => 'add_tag_form',
-    :url => { :controller => "package", :action => "add_tag_form", :project => @project, :package => @package},
+    :url => { :controller => "project", :action => "add_tag_form", :project => @project},
     :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')" %>
   <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
   
@@ -11,7 +11,7 @@
         </h3>
         <p style="width:15em;" >
         <% @tags.each_tag do |tag| %>            
-            <%= link_to tag.name, :action => 'show_packages_by_tag', :tag => tag %> 
+            <%= link_to tag.name, :action => 'show_projects_by_tag', :tag => tag %> 
         <% end %>
         </p>
       <div id="add_tag_form">&nbsp;</div>

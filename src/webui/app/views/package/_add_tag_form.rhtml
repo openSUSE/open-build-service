@@ -1,0 +1,7 @@
+<%= form_tag :action => :add_tag %>
+  <p><%= text_field_tag( "tag", @tag , :size => 15) %>
+  <%= image_submit_tag "list-add"%></p>
+  <%= hidden_field_tag( "package", @package ) %>
+  <%= hidden_field_tag( "project", @project ) %>
+ 
+<%= end_form_tag %>
