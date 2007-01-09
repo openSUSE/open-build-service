@@ -34,7 +34,9 @@ class PackageController < ApplicationController
           if file[:size].to_i > 1048576  # max. 1 MB
             editable = false
           else
-            no_edit_ext.each { |ext| editable = false if file[:name].grep(/#{ext}$/) != [] }
+            no_edit_ext.each do |ext|
+              editable = false if file[:name].downcase.grep(/\.#{ext}$/) != []
+            end
           end
           @files << { :name => file[:name], :editable => editable }
           @spec_count += 1 if file[:name].grep(/\.spec$/) != []
