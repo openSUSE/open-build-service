@@ -1,5 +1,11 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
+kde:
   id: 1
-another:
+  name: kde
+  title: blub
+  description: bla
+kde4:
   id: 2
+  name: kde4
+  title: blub
+  description: bla

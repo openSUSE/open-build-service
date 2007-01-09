@@ -25,5 +25,7 @@ SOURCE_PORT = 3003
 RPM_HOST = "localhost"
 RPM_PORT = 3003
 
-APIDOCS_LOCATION ="../../docs/architecture/html/"
-SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/architecture")+"/"
+ICHAIN_MODE=:off
+
+APIDOCS_LOCATION ="../../docs/api/html/"
+SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/frontend")+"/"

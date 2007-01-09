@@ -1,5 +1,9 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
+kdelibs:
   id: 1
+  db_project_id: 2
+  name: kdelibs
+  title: blub
+  description: blub
 another:
   id: 2
