@@ -35,7 +35,7 @@ class PackageController < ApplicationController
             editable = false
           else
             no_edit_ext.each do |ext|
-              editable = false if file[:name].downcase.grep(/\.#{ext}$/) != []
+              editable = false if file[:name].downcase =~ /\.#{ext}$/
             end
           end
           @files << { :name => file[:name], :editable => editable }
