@@ -28,17 +28,15 @@ class SourceController < ApplicationController
       allowed = user.has_role "Admin"
       if not allowed
         logger.debug "No permission to delete project #{project_name}"
-        render_error :message => "Permission denied (delete project #{project_name})", :status => 403, :errorcode => "permission_denied"
+        render_error :status => 403, :errorcode => 'delete_project_no_permission',
+          :message => "Permission denied (delete project #{project_name})"
         return
       end
 
-      ###
-      # FIXME implement in ActiveXML
-      ###
-
       pro = DbProject.find_by_name project_name
       if pro.nil?
-        render_error :message => "Unknown project #{project_name}", :status => 404, :errorcode => "unknown_project"
+        render_error :status => 404, :errorcode => 'unknown_project',
+          :message => "Unknown project #{project_name}"
       end
 
       #check for linking repos
@@ -52,8 +50,8 @@ class SourceController < ApplicationController
       if lreps.length > 0
         lrepstr = lreps.map{|l| l.db_project.name+'/'+l.name}.join "\n"
 
-        render_error :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n", 
-          :status => 400, :errorcode => "repo_dependency"
+        render_error :status => 400, :errorcode => "repo_dependency",
+          :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n"
         return
       end
 
@@ -78,7 +76,8 @@ class SourceController < ApplicationController
       render_ok
       return
     else
-      render_error :status => 400, :code => "illegal_request", :message => "illegal POST request to #{request.request_uri}"
+      render_error :status => 400, :errorcode => "illegal_request",
+        :message => "illegal POST request to #{request.request_uri}"
     end
   end
 
@@ -106,7 +105,8 @@ class SourceController < ApplicationController
 
     if request.delete?
       if not user_has_permission
-        render_error :status => 403, :errorcode => "permission_denied", :message => "no permission to delete package"
+        render_error :status => 403, :errorcode => "delete_package_no_permission",
+          :message => "no permission to delete package"
         return
       end
       
@@ -118,13 +118,15 @@ class SourceController < ApplicationController
         end
         render_ok
       else
-        render_error :status => 404, :errorcode => "unknown_package", :message => "unknown package '#{package_name}' in project '#{project_name}'"
+        render_error :status => 404, :errorcode => "unknown_package",
+          :message => "unknown package '#{package_name}' in project '#{project_name}'"
       end
     elsif request.post?
       cmd = params[:cmd]
       
       if not user_has_permission
-        render_error :status => 403, :errorcode => "permission_denied", :message => "no permission to execute command '#{cmd}'"
+        render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+          :message => "no permission to execute command '#{cmd}'"
         return
       end
 
@@ -133,7 +135,8 @@ class SourceController < ApplicationController
         specfile_path = "#{path}/#{package_name}.spec"
         begin
           backend_get( specfile_path )
-          render_error :status => 403, :message => "SPEC file already exists."
+          render_error :status => 400, :errorcode => "spec_file_exists",
+            :message => "SPEC file already exists."
           return
         rescue ActiveXML::Transport::NotFoundError
           specfile = File.read "#{RAILS_ROOT}/files/specfiletemplate"
@@ -148,7 +151,8 @@ class SourceController < ApplicationController
 
         if repo_name
           if not ( repo = p.repository( "@name='#{repo_name}'" ) )
-            render_error :status => 403, :errorcode => 'unknown_repository', :message=> "Unknown repository '#{repo_name}'"
+            render_error :status => 400, :errorcode => 'unknown_repository',
+              :message=> "Unknown repository '#{repo_name}'"
             return
           end
 
@@ -188,13 +192,20 @@ class SourceController < ApplicationController
 
         forward_data path, :method => :post
       else
-        render_error :status => 400, :message => "unknown command: #{cmd}"
+        render_error :status => 400, errorcode => 'unknown_command',
+          :message => "unknown command: #{cmd}"
       end
     end
   end
 
   def project_meta
     project_name = params[:project]
+    logger.debug "### project_name: #{project_name.inspect}"
+    if project_name.nil?
+      render_error :status => 400, :errorcode => 'missing_parameter',
+        :message => "parameter 'project' is missing"
+      return
+    end
 
     if request.get?
       @project = Project.find( project_name )
@@ -216,7 +227,8 @@ class SourceController < ApplicationController
           @project = Project.new( request_data, :name => project_name )
         else
           logger.debug "user #{user.login} has no permission to change project #{@project}"
-	  render_error( :message => "no permission to change project", :status => 403 )
+	  render_error :status => 403, :errorcode => "change_project_no_permission", 
+            :message => "no permission to change project"
           return
         end
       rescue ActiveXML::Transport::NotFoundError
@@ -233,27 +245,31 @@ class SourceController < ApplicationController
 	else
 	  # User is not allowed by global permission. 
 	  logger.debug "Not allowed to create new projects"
-          render_error( :message => "not allowed to create new projects", :status => 403 )
+          render_error :status => 403, :errorcode => 'create_project_no_permission',
+            :message => "not allowed to create new projects"
           return
 	end
       end
       
       if allowed
         if( @project.name != project_name )
-          render_error :message => "project name in xml data does not match resource path component", :status => 400
+          render_error :status => 400, :errorcode => 'project_name_mismatch',
+            :message => "project name in xml data does not match resource path component"
           return
         end
         @project.save
         render_ok
       else
         logger.debug "No permissions to write project meta for project #@project"
-	render_error( :message => "Permission denied (write project meta for project #@project)", :status => 403 )
+	render_error :status => 403, :errorcode => 'write_project_no_permission',
+          :message => "Permission denied (write project meta for project #@project)"
         return
       end
     else
       #neither put nor get
       #TODO: return correct error code
-      render_error :message => "Illegal request: POST #{request.path}", :status => 400
+      render_error :status => 400, :errorcode => 'illegal_request',
+        :message => "Illegal request: POST #{request.path}"
     end
   end
 
@@ -262,6 +278,18 @@ class SourceController < ApplicationController
    
     project_name = params[:project]
     package_name = params[:package]
+
+    if project_name.nil?
+      render_error :status => 400, :errorcode => "parameter_missing",
+        :message => "parameter 'project' missing"
+      return
+    end
+
+    if package_name.nil?
+      render_error :status => 400, :errorcode => "parameter_missing",
+        :message => "parameter 'package' missing"
+      return
+    end
 
     if request.get?
       @package = Package.find( package_name, :project => project_name )
@@ -279,7 +307,8 @@ class SourceController < ApplicationController
           @package = Package.new( request_data, :project => project_name, :name => package_name )
         else
           logger.debug "user #{user.login} has no permission to change package #{@package}"
-	  render_error( :message => "no permission to change package", :status => 403 )
+	  render_error :status => 403, :errorcode => "change_package_no_permission",
+            :message => "no permission to change package"
           return
         end
       rescue ActiveXML::Transport::NotFoundError
@@ -298,14 +327,16 @@ class SourceController < ApplicationController
         else
           # User is not allowed by global permission.
           logger.debug "Not allowed to create new packages"
-          render_error( :message => "no permission to create package for project #{project_name}", :status => 403 )
+          render_error :status => 403, :errorcode => "create_package_no_permission",
+            :message => "no permission to create package for project #{project_name}"
           return
         end
       end
       
       if allowed
         if( @package.name != package_name )
-          render_error( :message => "package name in xml data does not match resource path component", :status => 400 )
+          render_error :status => 400, :errorcode => 'package_name_mismatch',
+            :message => "package name in xml data does not match resource path component"
           return
         end
 
@@ -317,7 +348,8 @@ class SourceController < ApplicationController
     else
       # neither put nor get
       #TODO: return correct error code
-      render_error :message => "Illegal request: POST #{request.path}", :status => 400
+      render_error :status => 400, :errorcode => 'illegal_request',
+        :message => "Illegal request: POST #{request.path}"
     end
   end
 
@@ -351,7 +383,8 @@ class SourceController < ApplicationController
         Suse::Backend.put_source path, request.raw_post
         render_ok
       else
-        render_error :message => "Permission denied on package write file", :status => 403 
+        render_error :status => 403, :errorcode => 'put_file_no_permission',
+          :message => "Permission denied on package write file"
       end
     elsif request.delete?
       query << URI.escape("rev=#{rev}") if rev

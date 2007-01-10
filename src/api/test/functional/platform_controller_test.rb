@@ -7,7 +7,7 @@ class PlatformControllerTest < Test::Unit::TestCase
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
     # make a backup of the XML test files
-    backup_platform_test_data
+    # backup_platform_test_data
   end
 
 
@@ -26,7 +26,7 @@ class PlatformControllerTest < Test::Unit::TestCase
   
   def teardown  
     # restore the XML test files
-    restore_platform_test_data
+    # restore_platform_test_data
   end
   
   
