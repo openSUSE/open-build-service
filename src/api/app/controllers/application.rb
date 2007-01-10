@@ -265,6 +265,8 @@ class ApplicationController < ActionController::Base
     # unless render_to_string is called before (which is an ugly workaround but I don't have any
     # idea where to start searching for the real problem)
     render_to_string :template => 'status'
+
+    logger.info "errorcode '#@errorcode' - #@summary"
     render :template => 'status', :status => opt[:status], :layout => false
   end
   
