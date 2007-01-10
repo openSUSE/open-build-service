@@ -1,0 +1,211 @@
+
+WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk/buildservice/src/webclient/ {
+
+ MODELS=~/work/webclient/app/models/ filter="*.rb" {
+  collection.rb
+  directory.rb
+  link.rb
+  package.rb
+  packstatus.rb
+  person.rb
+  platform.rb
+  project.rb
+  result.rb
+  tag.rb
+  unregisteredperson.rb
+ }
+
+ CONTROLLERS=~/work/trunk/buildservice/src/webclient/app/controllers/ filter="*.rb" {
+  application.rb
+  home_controller.rb
+  main_controller.rb
+  package_controller.rb
+  platform_controller.rb
+  privacy_controller.rb
+  project_controller.rb
+  user_controller.rb
+ }
+
+ VIEWS=~/work/trunk/buildservice/src/webclient/app/views/ filter="*.rhtml" {
+  Home=~/work/trunk/buildservice/src/webclient/app/views/home/  filter="*ml" {
+   index.rhtml
+  }
+  Main=~/work/trunk/buildservice/src/webclient/app/views/main/  filter="*ml" {
+   _search_form.rhtml
+   _search_form_advanced.rhtml
+   _search_result.rhtml
+   about.rhtml
+   accountinfo.rhtml
+   index.rhtml
+   search.rhtml
+   search_advanced.rhtml
+   search_result.rhtml
+  }
+  Package=~/work/trunk/buildservice/src/webclient/app/views/package/  filter="*ml" {
+   _buildstatus.rhtml
+   _categories.rhtml
+   _disable_building.rhtml
+   _edit_disable_xml.rhtml
+   _files.rhtml
+   _links.rhtml
+   _meta.rhtml
+   _tags.rhtml
+   _update_build_log.rhtml
+   _users.rhtml
+   add_file.rhtml
+   add_person.rhtml
+   edit.rhtml
+   edit_file.rhtml
+   edit_link.rhtml
+   edit_spec.rhtml
+   error.rhtml
+   live_build_log.rhtml
+   new.rhtml
+   new_link.rhtml
+   save.rhtml
+   show.rhtml
+  }
+  Platform=~/work/trunk/buildservice/src/webclient/app/views/platform/  filter="*ml" {
+   edit.rhtml
+   list_all.rhtml
+   new.rhtml
+   show.rhtml
+  }
+  Project=~/work/trunk/buildservice/src/webclient/app/views/project/  filter="*ml" {
+   _filter_packages.rhtml
+   _filter_projects.rhtml
+   _search_package.rhtml
+   _search_project.rhtml
+   _star_rating.rhtml
+   _watch_link.rhtml
+   _watch_list.rhtml
+   add_person.rhtml
+   add_target.rhtml
+   add_target_simple.rhtml
+   edit.rhtml
+   list_all.rhtml
+   list_my.rhtml
+   list_public.rhtml
+   monitor.rhtml
+   new.rhtml
+   refresh_monitor.rhtml
+   show.rhtml
+  }
+  User=~/work/trunk/buildservice/src/webclient/app/views/user/  filter="*ml" {
+   edit.rhtml
+   login.rhtml
+   logout.rhtml
+   register.rhtml
+   request_ichain.rhtml
+  }
+  LAYOUTS=~/work/trunk/buildservice/src/webclient/app/views/layouts/ filter=" *ml" {
+   application.rhtml
+  }
+ }
+
+}
+
+
+FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/buildservice/src/frontend/ {
+
+ MODELS=~/work/frontend/app/models/ filter="*.rb" {
+  architecture.rb
+  bs_role.rb
+  db_package.rb
+  db_project.rb
+  directory.rb
+  disabled_repo.rb
+  ichain_notifier.rb
+  package.rb
+  package_user_role_relationship.rb
+  packstatus.rb
+  path_element.rb
+  project.rb
+  project_user_role_relationship.rb
+  repository.rb
+  tag.rb
+  tagging.rb
+  user.rb
+  watched_project.rb
+ }
+
+ CONTROLLERS=~/work/trunk/buildservice/src/frontend/app/controllers/ filter="*.rb" {
+  about_controller.rb
+  admin_controller.rb
+  apidocs_controller.rb
+  application.rb
+  build_controller.rb
+  main_controller.rb
+  person_controller.rb
+  platform_controller.rb
+  privacy_controller.rb
+  result_controller.rb
+  rpm_controller.rb
+  search_controller.rb
+  source_controller.rb
+  tag_controller.rb
+ }
+
+ VIEWS=~/work/trunk/buildservice/src/frontend/app/views/ filter="*.rhtml" {
+  About=~/work/trunk/buildservice/src/frontend/app/views/about/  filter="*ml" {
+   index.rxml
+  }
+  Active_rbac=~/work/trunk/buildservice/src/frontend/app/views/active_rbac/  filter="*ml" {
+  }
+  Admin=~/work/trunk/buildservice/src/frontend/app/views/admin/  filter="*ml" {
+   _tag_form.rhtml
+   edit_tag.rhtml
+   index.rhtml
+   list_sources.rhtml
+   list_tags.rhtml
+   new_tag.rhtml
+   say_hello.rhtml
+   show_tag.rhtml
+  }
+  Apidocs=~/work/trunk/buildservice/src/frontend/app/views/apidocs/  filter="*ml" {
+  }
+  Ichain_notifier=~/work/trunk/buildservice/src/frontend/app/views/ichain_notifier/  filter="*ml" {
+   approval.rhtml
+   reject.rhtml
+  }
+  Main=~/work/trunk/buildservice/src/frontend/app/views/main/  filter="*ml" {
+   index.rhtml
+  }
+  Person=~/work/trunk/buildservice/src/frontend/app/views/person/  filter="*ml" {
+   userinfo.rxml
+  }
+  Platform=~/work/trunk/buildservice/src/frontend/app/views/platform/  filter="*ml" {
+  }
+  Result=~/work/trunk/buildservice/src/frontend/app/views/result/  filter="*ml" {
+   packageresult.rxml
+   projectresult.rxml
+  }
+  Rpm=~/work/trunk/buildservice/src/frontend/app/views/rpm/  filter="*ml" {
+  }
+  Source=~/work/trunk/buildservice/src/frontend/app/views/source/  filter="*ml" {
+   _meta.rhtml
+   package_meta.rxml
+  }
+  Tag=~/work/trunk/buildservice/src/frontend/app/views/tag/  filter="*ml" {
+  }
+  LAYOUTS=~/work/trunk/buildservice/src/frontend/app/views/layouts/  filter="*ml" {
+   html.rhtml
+  }
+ }
+
+}
+
+
+ActiveXML=~/work/trunk/buildservice/src/common/lib/activexml/ filter="*.rb" CD=~/work/trunk/buildservice/src/common/lib/activexml/ {
+ base.rb
+ config.rb
+ node.rb
+ transport.rb
+}
+
+
+CSS=~/work/trunk/buildservice/src/webclient/public/stylesheets/ filter="*.css" {
+  opensuse.css
+}
+
+### VIM-Project file,  see http://vim.sourceforge.net/scripts/script.php?script_id=69
