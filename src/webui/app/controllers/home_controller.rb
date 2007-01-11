@@ -14,6 +14,8 @@ class HomeController < ApplicationController
       @error_message = "There is no user <b>#{session[:login]}</b> known in the system."
       render :template => 'error'
     end
+  
+    @tags = Tag.find(:tags_by_user)
   end
   
 end
