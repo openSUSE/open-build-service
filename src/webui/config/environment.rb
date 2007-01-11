@@ -73,6 +73,10 @@ ActiveXML::Base.config do |conf|
         :all    => "rest:///source/"
     map.connect :package, "rest:///source/:project/:name/_meta",
         :all    => "rest:///source/:project"
+   
+    map.connect :tag, "rest:///source/:project/:package/_tags",
+        :tags_by_user => "rest:///tag/_tagcloud?user_only=true"       
+      
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"
 
@@ -85,6 +89,9 @@ ActiveXML::Base.config do |conf|
     map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"
 
-    map.connect :collection, "rest:///search/:what?match=:predicate"
+    map.connect :collection, "rest:///search/:what?match=:predicate",
+        :tag => "rest:///tag/:tagname/:type"
+        
+
   end
 end
