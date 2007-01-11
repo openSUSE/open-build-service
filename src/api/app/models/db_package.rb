@@ -4,6 +4,9 @@ class DbPackage < ActiveRecord::Base
   has_many :package_user_role_relationships, :dependent => :destroy
   has_many :disabled_repos, :include => [:architecture, :repository], :dependent => :destroy
 
+  has_many :taggings, :as => :taggable, :dependent => :destroy
+  has_many :tags, :through => :taggings
+
   class << self
     def store_axml( package )
       DbPackage.transaction do
