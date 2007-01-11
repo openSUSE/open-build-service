@@ -3,7 +3,7 @@ class ProjectController < ApplicationController
 
   before_filter :check_parameter_project, :except =>
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
-      :toggle_watch, :search_project ]
+      :toggle_watch, :search_project, :show_projects_by_tag ]
 
   def index
     redirect_to :action => 'list_all'
@@ -99,6 +99,43 @@ class ProjectController < ApplicationController
     @arch_list = tmp.keys.sort
 
     @packstatus = Packstatus.find( params[:project], :command => 'summaryonly' )
+  
+    @tags = Tag.find(:project => @project.name)
+    
+    
+  end
+
+  
+  def show_projects_by_tag
+    @collection = Collection.find(:tag, :type => "_projects", :tagname => params[:tag])
+    @projects = []
+    @collection.each_project do |project|
+      @projects << project
+    end
+    render :action => "list_by_tag"  
+  end
+  
+  # render the input form for tags
+  def add_tag_form
+    @project = params[:project]
+    render :partial => "add_tag_form"
+  end
+  
+  
+  def add_tag
+    logger.debug "New tag #{params[:tag]} for project #{params[:project]}."
+    save_tags(params)
+    redirect_to :action => "show", :project => params[:project]
+  end
+
+  
+  def save_tags(params)
+    @tag = Tag.new(:project => params[:project], :tag => params[:tag])
+    if @tag.save()
+      flash[:note] = "Tag '#{params[:tag]}' was saved successfully"
+    else
+      flash[:error] = "Failed to save tag '#{params[:tag]}'"
+    end
   end
 
   def search_package
@@ -150,7 +187,7 @@ class ProjectController < ApplicationController
       else
         flash[:error] = "Failed to save project '#{@project}'"
       end
-
+      
       redirect_to :action => 'show', :project => params[:name]
     end
   end

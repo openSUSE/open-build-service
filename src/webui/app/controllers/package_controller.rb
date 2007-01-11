@@ -7,6 +7,40 @@ class PackageController < ApplicationController
   def index
     redirect_to :controller => 'project', :action => 'list_all'
   end
+  
+    # render the input form for tags
+  def add_tag_form
+    @project = params[:project]
+    @package = params[:package]
+    render :partial => "add_tag_form"
+  end
+  
+  
+  def add_tag
+    logger.debug "New tag #{params[:tag]} for pockage #{params[:package]}."
+    
+    save_tags(params)
+   
+    redirect_to :action => "show", :project => params[:project], :package => params[:package]
+  end
+  
+  def save_tags(params)
+    @tag = Tag.new(:project => params[:project], :package => params[:package], :tag => params[:tag])
+    if @tag.save()
+      flash[:note] = "Tag '#{params[:tag]}' was saved successfully"
+    else
+      flash[:error] = "Failed to save tag '#{params[:tag]}'"
+  end
+  end
+  
+  def show_packages_by_tag
+    @collection = Collection.find(:tag, :type => "_packages", :tagname => params[:tag])
+    @packages = []
+    @collection.each_package do |package|
+      @packages << package
+    end
+    render :action => "list_by_tag"  
+  end
 
   def show
     project = params[:project]
@@ -55,7 +89,7 @@ class PackageController < ApplicationController
             @archs << arch.to_s if not @archs.include? arch.to_s
           end
         end
-
+        @tags = Tag.find(:project => @project.name, :package => @package.name)
       end
     end
   end
