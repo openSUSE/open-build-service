@@ -1,6 +1,15 @@
-xml.instruct!
-xml.tags(@type => @name) do
-  @tags.each do |tag|
+if @type == "package"
+    xml.instruct!
+    xml.tags(@type => @package.name, :project => @project.name) do
+    @tags.each do |tag|
+    xml.tag(:name => tag.name)
+ end
+ end
+else
+    xml.instruct!
+    xml.tags(@type => @name) do
+    @tags.each do |tag|
       xml.tag(:name => tag.name)
-  end       
-end
+    end
+    end
+ end        
