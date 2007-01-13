@@ -1,0 +1,30 @@
+
+<div id="latest_updated">
+
+  <h4>Latest Updated:</h4>
+  <br/>
+
+  <% if params[:more] -%>
+    <%= statistics_limit_form( 'latest_updated', 'Show latest' ) %>
+  <% end %>
+
+  <ol>
+    <% @latest_updated.each_item do |item| %>
+      <li>
+        <% title = "updated " +
+          distance_of_time_in_words_to_now( Time.parse( item.updated_at ) ) +
+          " ago" %>
+        <% if item.kind == 'package' %>
+          <%= link_to_package_view( item, title ) -%>
+        <% elsif item.kind == 'project' %>
+          <%= link_to_project_view( item, title ) -%>
+        <% end %>
+    <% end %>
+  </ol>
+
+  <% if params[:more] -%>
+    <%= link_to_mainpage %>
+  <% end %>
+
+</div>
+

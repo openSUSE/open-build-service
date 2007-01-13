@@ -1,0 +1,62 @@
+<%
+@crumb_list = [
+  link_to( @project , :controller => 'project', :action => 'view', :project => @project ),
+  @package
+]
+-%>
+
+
+<h2>Package <%=h @package %> (Project <%=h @project %>)</h2>
+
+
+<!-- Package meta -->
+<div id="package_meta">
+
+  <%=h @package.title %><br/><br/>
+
+  <% linecount=0 %>
+  <% linecount_wherehide=8 %>
+
+  <% description = @package.description.data.text %>
+  <% if description %>
+    <% description.split( /\n/ ).each do |line| %>
+      <% linecount += 1 %>
+      <% if linecount == linecount_wherehide %>
+        <div id="hidden_description" style="display:none;">
+      <% end %>
+      <%=h line -%><br/>
+    <% end %>
+  <% else %>
+    <i>No description set</i>
+  <% end %>
+
+  <% if linecount >= linecount_wherehide %>
+    </div>
+    <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
+  <% end %>
+</div>
+
+
+<br/><br/>
+
+
+<h4>Download Repositories</h4>
+<br/>
+<table class="grid targets">
+  <tr class="header">
+    <th>Repository</th>
+    <th>Link</th>
+  </tr>
+  <% @project.each_repository do |repo| -%>
+  <tr class="target">
+    <td>
+      <strong><%=h repo.name %></strong>
+    </td>
+    <td>
+      <%= link_to 'Goto Download Repository', repo_url( @project.name, repo.name ) -%>
+    </td>
+  </tr>
+  <% end -%>
+</table>
+
+

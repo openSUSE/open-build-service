@@ -94,6 +94,16 @@ class PackageController < ApplicationController
     end
   end
 
+  def view
+    package = params[:package]
+    project = params[:project]
+
+    @package = Package.find( package, :project => project )
+    @project = Project.find( project )
+
+    #@tags = Tag.find(:project => @project.name, :package => @package.name)
+  end
+
   def new
     if not params[:project]
       flash[:note] = "Creating package failed: Project name missing"

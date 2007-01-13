@@ -105,6 +105,18 @@ class ProjectController < ApplicationController
     
   end
 
+
+  def view
+    @project = Project.find( params[:project] )
+
+    @packages = []
+    Package.find( :all, :project => params[:project] ).each_entry do |package|
+      @packages << package.name
+    end
+
+    #@tags = Tag.find(:project => @project.name)
+  end
+
   
   def show_projects_by_tag
     @collection = Collection.find(:tag, :type => "_projects", :tagname => params[:tag])

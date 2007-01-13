@@ -1,5 +1,33 @@
 class MainController < ApplicationController
-  skip_before_filter :authorize, :only => [:index]
+
+  skip_before_filter :authorize, :only => [
+    :index, :latest_added, :latest_updated
+  ]
+
+
+  def index
+    @latest_added   = Collection.find( :statistics, :type => 'latest_added' , :limit => 10 )
+    @latest_updated = Collection.find( :statistics, :type => 'latest_updated' , :limit => 10 )
+  end
+
+
+  def latest_added
+    limit = params[:limit]
+    # no layout, if this is an ajax-request
+    request.get? ? layout=true : layout=false
+    @latest_added = Collection.find( :statistics, :type => 'latest_added' , :limit => limit )
+    render :partial => 'latest_added', :layout => layout, :more => true
+  end
+
+
+  def latest_updated
+    limit = params[:limit]
+    # no layout, if this is an ajax-request
+    request.get? ? layout=true : layout=false
+    @latest_updated = Collection.find( :statistics, :type => 'latest_updated' , :limit => limit )
+    render :partial => 'latest_updated', :layout => layout, :more => true
+  end
+
 
   def search
     ### search form

@@ -1,0 +1,107 @@
+<div id="project_show">
+<%
+@crumb_list = [
+  @project
+]
+-%>
+
+<h2 id="mainhead"><%=h @project.title %></h2>
+<h4>Project ID: <%=h @project %></h4>
+
+<div class="description">
+  <% description = @project.description.data.text %>
+  <% if description %>
+    <% linecount=0 %>
+    <% linecount_wherehide=8 %>
+    <% @project.description.to_s.split( /\n/ ).each do |line| %>
+      <% linecount += 1 %>
+      <% if linecount == linecount_wherehide %>
+        <div id="hidden_description" style="display:none;">
+      <% end %>
+      <%=h line -%><br/>
+    <% end %>
+    <% if linecount >= linecount_wherehide %>
+      </div>
+      <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
+    <% end %>
+  <% else -%>
+    <i>No description set</i>
+  <% end -%>
+</div>
+
+
+
+<table id="project-layout">
+  <tr>
+
+    <td>
+
+      <!-- Involved users -->
+      <div class="section" id="contacts">
+        <h3>Involved Users</h3>
+        <% if @project.has_element? :person -%>
+          <ul>
+            <% @project.each_person do |person| -%>
+              <li>
+              <%=h person.userid -%>
+              <%= link_to image_tag("mail_generic", :size => "16x16", :border => 0, :class => 'email_link'),
+                'mailto:' + Person.find(person.userid).email.to_s.sub(/\@/,'(at)') + '?subject=openSUSE build service' -%>
+              </li>
+            <% end -%>
+          </ul>
+        <% else -%>
+          <b>No maintainer in this project</b>
+        <% end -%>
+      </div>
+
+    </td>
+    <td>
+
+      <!-- Package table -->
+      <h3>Packages</h3>
+      <% if @packages.length.to_i > 0 -%>
+
+        <div id="search_results">
+          <table class="grid">
+            <% @packages.each do |package| -%>
+              <tr>
+                <td>
+                  <%= link_to package, :controller => 'package', :action => :view,
+                    :project=> @project, :package => package -%>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+        <% end -%>
+
+    </td>
+    <td>
+
+      <!-- Repository table -->
+      <h3>Build Repositories</h3>
+      <% if @project.has_element? :repository -%>
+        <table class="grid targets">
+          <tr class="header">
+            <th>Repository</th>
+            <th>Link</th>
+          </tr>
+          <% @project.each_repository do |repo| -%>
+            <tr class="target">
+              <td>
+                <strong><%=h repo.name %></strong>
+              </td>
+              <td>
+                <%= link_to 'Goto Download Repository', repo_url( @project.name, repo.name ) -%>
+              </td>
+            </tr>
+          <% end -%>
+        </table>
+      <% end -%>
+
+    </td>
+
+  </tr>
+</table>
+</div>
+

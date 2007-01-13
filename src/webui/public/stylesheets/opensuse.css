@@ -611,13 +611,24 @@ div#package_disablebuild ul {
 }
 
 
+#statistics {
+  border: 1px #6eb927 dotted;
+  padding: 0.5em;
+}
 #statistics span {
   float: left;
+  padding: 0 1em 0 1em;
   min-width: 11em;
+  border-right: 1px #6eb927 dotted;
+}
+#statistics span.last {
+  border: none;
 }
 #statistics span ul li {
   margin-left:0;
 }
+
+
 #mainsearch form input[type=text] {
   width: 10em;
 }

@@ -90,8 +90,8 @@ ActiveXML::Base.config do |conf|
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"
 
     map.connect :collection, "rest:///search/:what?match=:predicate",
-        :tag => "rest:///tag/:tagname/:type"
-        
+        :tag => "rest:///tag/:tagname/:type",
+        :statistics => "rest:///statistics/:type?limit=:limit"
 
   end
 end
