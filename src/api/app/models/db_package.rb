@@ -222,8 +222,8 @@ class DbPackage < ActiveRecord::Base
 
     logger.debug "----------------- rendering package #{name} ------------------------"
     xml = builder.package( :name => name, :project => db_project.name,
-                           :updated_at => updated_at,
-                           :created_at => created_at ) do |package|
+                           :updated_at => updated_at, :created_at => created_at,
+                           :downloads => downloads ) do |package|
       package.title( title )
       package.description( description )
      

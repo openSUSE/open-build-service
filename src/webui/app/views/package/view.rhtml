@@ -40,23 +40,47 @@
 <br/><br/>
 
 
-<h4>Download Repositories</h4>
-<br/>
-<table class="grid targets">
-  <tr class="header">
-    <th>Repository</th>
-    <th>Link</th>
-  </tr>
-  <% @project.each_repository do |repo| -%>
-  <tr class="target">
+<table cellpadding="15">
+  <tr>
     <td>
-      <strong><%=h repo.name %></strong>
-    </td>
-    <td>
-      <%= link_to 'Goto Download Repository', repo_url( @project.name, repo.name ) -%>
-    </td>
-  </tr>
-  <% end -%>
-</table>
 
+      <h4>Download Repositories</h4>
+      <br/>
+      <table class="grid targets">
+        <tr class="header">
+          <th>Repository</th>
+          <th>Link</th>
+        </tr>
+        <% @project.each_repository do |repo| -%>
+        <tr class="target">
+          <td>
+            <strong><%=h repo.name %></strong>
+          </td>
+          <td>
+            <%= link_to 'Goto Download Repository', repo_url( @project.name, repo.name ) -%>
+          </td>
+        </tr>
+        <% end -%>
+      </table>
+
+    </td>
+    <td>
+
+      <h4>Statistics</h4>
+      <br/>
+
+      <div id="statistics">
+        <h5>Downloaded</h5>
+        <p>This package was downloaded <b><%=h @package.downloads -%></b> times.</p>
+
+        <h5>Created at</h5>
+        <p>This package was created at <b><%=h @package.created_at -%></b>.</p>
+
+        <h5>Updated at</h5>
+        <p>This package was updated at <b><%=h @package.updated_at -%></b>.</p>
+      </div>
+
+    </td>
+  </tr>
+</table>
 

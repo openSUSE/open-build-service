@@ -6,8 +6,9 @@ class MainController < ApplicationController
 
 
   def index
-    @latest_added   = Collection.find( :statistics, :type => 'latest_added' , :limit => 10 )
-    @latest_updated = Collection.find( :statistics, :type => 'latest_updated' , :limit => 10 )
+    @latest_added    = Collection.find( :statistics, :type => 'latest_added' , :limit => 10 )
+    @latest_updated  = Collection.find( :statistics, :type => 'latest_updated' , :limit => 10 )
+    @most_downloaded = Collection.find( :statistics, :type => 'most_downloaded' , :limit => 10 )
   end
 
 
@@ -26,6 +27,15 @@ class MainController < ApplicationController
     request.get? ? layout=true : layout=false
     @latest_updated = Collection.find( :statistics, :type => 'latest_updated' , :limit => limit )
     render :partial => 'latest_updated', :layout => layout, :more => true
+  end
+
+
+  def most_downloaded
+    limit = params[:limit]
+    # no layout, if this is an ajax-request
+    request.get? ? layout=true : layout=false
+    @most_downloaded = Collection.find( :statistics, :type => 'most_downloaded' , :limit => limit )
+    render :partial => 'most_downloaded', :layout => layout, :more => true
   end
 
 

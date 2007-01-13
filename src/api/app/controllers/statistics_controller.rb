@@ -20,6 +20,8 @@ class StatisticsController < ApplicationController
 
 
   def most_downloaded
+    limit = 10 if (limit = params[:limit].to_i) == 0
+    @list = DbPackage.find(:all, :order => 'downloads DESC', :limit => limit )
   end
 
 
@@ -124,6 +126,44 @@ class StatisticsController < ApplicationController
       return
     else
       logger.debug "tried to execute randomize_timestamps, but it's not enabled!"
+      render :text => "this action is deactivated."
+      return
+    end
+
+  end
+
+
+  def randomize_downloads
+
+    # ONLY enable on test-/development database!
+    # it will randomize download-counters of ALL packages!
+    # this should NOT be enabled for prodution data!
+    enable = false
+    #
+
+    if enable
+
+      # deactivate automatic timestamps for this action
+      ActiveRecord::Base.record_timestamps = false
+
+      packages = DbPackage.find(:all)
+
+      packages.each do |package|
+        package.downloads = rand( 10000000 )
+        if package.save
+          logger.debug "Package #{package.name} got new download counter"
+        else
+          logger.debug "Package #{package.name} : ERROR setting download counter"
+        end
+      end
+
+      # re-activate automatic timestamps
+      ActiveRecord::Base.record_timestamps = true
+
+      render :text => "ok, done randomizing all download counters."
+      return
+    else
+      logger.debug "tried to execute randomize_downloads, but it's not enabled!"
       render :text => "this action is deactivated."
       return
     end

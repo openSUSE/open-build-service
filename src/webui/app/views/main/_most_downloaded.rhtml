@@ -1,0 +1,22 @@
+
+<div id="most_downloaded">
+
+  <h4>Most Downloaded:</h4>
+  <br/>
+
+  <% if params[:more] -%>
+    <%= statistics_limit_form( 'most_downloaded', 'Show top' ) %>
+  <% end %>
+
+  <ol>
+    <% @most_downloaded.each_package do |package| %>
+      <% title = "Downloaded " + package.downloads + " times" %>
+      <li><%= link_to_package_view( package, title ) -%></li>
+    <% end %>
+  </ol>
+
+  <% if params[:more] -%>
+    <%= link_to_mainpage %>
+  <% end %>
+
+</div>

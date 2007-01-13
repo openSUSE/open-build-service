@@ -33,6 +33,7 @@
       <xs:attribute name="project" type="xs:string"/>
       <xs:attribute name="created_at" type="xs:string"/>
       <xs:attribute name="updated_at" type="xs:string"/>
+      <xs:attribute name="downloads" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 

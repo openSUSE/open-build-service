@@ -1,10 +1,7 @@
 <%
-  @most_downloaded = %w{ eMule Ares Galaxy PhpGed View Accepting Donations }
   @highest_rated = %w{ Donations Safe Donations NAS Accepting 1VideoC Donations }
   @most_active = %w{ SafeDonations Donations  1Video Conference Accepting Donations Donations }
   @latest_built = %w{ JavaScriptAccepting Donations php My Admin Accepting blahblub }
-  #@latest_added = %w{ JavaScriptAccepting Donations php My Admin Accepting blahblub }
-  #@latest_updated = %w{ Gaim Donations blahblubb JavaScript ERP Bazaar ERP }
 %>
 
 <h1 class="mainhead">Welcome to the openSUSE Build Service</h1>
@@ -44,14 +41,6 @@ Most of the advanced features are still missing, but the basic build functionali
     </ol>
   </span>
   <span>
-    <h5>Most Downloaded:</h5>
-    <ol>
-      <% @most_downloaded.each do |item| %>
-      <li><%= link_to item, '#' -%></li>
-      <% end %>
-    </ol>
-  </span>
-  <span>
     <h5>Most Active:</h5>
     <ol>
       <% @most_active.each do |item| %>
@@ -70,6 +59,11 @@ Most of the advanced features are still missing, but the basic build functionali
   </span>
   <% end %>
 -->
+  <span>
+    <%= render :partial => 'most_downloaded' -%>
+    <%= link_to 'more...', { :controller => 'main', :action => 'most_downloaded',
+      :more => true, :limit => 25 } -%>
+  </span>
   <span>
     <%= render :partial => 'latest_added' -%>
     <%= link_to 'more...', { :controller => 'main', :action => 'latest_added',
