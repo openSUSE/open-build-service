@@ -31,6 +31,8 @@
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
       <xs:attribute name="project" type="xs:string"/>
+      <xs:attribute name="created_at" type="xs:string"/>
+      <xs:attribute name="updated_at" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 

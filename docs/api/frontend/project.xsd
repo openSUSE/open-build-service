@@ -24,6 +24,8 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="repository"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="created_at" type="xs:string"/>
+      <xs:attribute name="updated_at" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 

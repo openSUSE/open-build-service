@@ -254,7 +254,9 @@ class DbProject < ActiveRecord::Base
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering project #{name} ------------------------"
-    xml = builder.project( :name => name ) do |project|
+    xml = builder.project( :name => name,
+                           :updated_at => updated_at,
+                           :created_at => created_at  ) do |project|
       project.title( title )
       project.description( description )
 

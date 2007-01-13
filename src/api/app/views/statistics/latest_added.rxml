@@ -1,0 +1,27 @@
+xml.instruct!
+
+xml.collection do
+  @list.each do |item|
+
+    ### item is a package
+    if item.instance_of? DbPackage
+      xml.item(
+        :kind => 'package',
+        :name => item.name,
+        :project => item.db_project.name,
+        :created_at => item.created_at
+      )
+    end
+
+    ### item is a project
+    if item.instance_of? DbProject
+      xml.item(
+        :kind => 'project',
+        :name => item.name,
+        :created_at => item.created_at
+      )
+    end
+
+  end
+end
+

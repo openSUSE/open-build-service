@@ -1,6 +1,6 @@
 
 WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk/buildservice/src/webclient/ {
-
+---------
  MODELS=~/work/webclient/app/models/ filter="*.rb" {
   collection.rb
   directory.rb
@@ -14,7 +14,6 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
   tag.rb
   unregisteredperson.rb
  }
-
  CONTROLLERS=~/work/trunk/buildservice/src/webclient/app/controllers/ filter="*.rb" {
   application.rb
   home_controller.rb
@@ -25,12 +24,13 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
   project_controller.rb
   user_controller.rb
  }
-
  VIEWS=~/work/trunk/buildservice/src/webclient/app/views/ filter="*.rhtml" {
   Home=~/work/trunk/buildservice/src/webclient/app/views/home/  filter="*ml" {
    index.rhtml
   }
   Main=~/work/trunk/buildservice/src/webclient/app/views/main/  filter="*ml" {
+   _latest_added.rhtml
+   _latest_updated.rhtml
    _search_form.rhtml
    _search_form_advanced.rhtml
    _search_result.rhtml
@@ -42,6 +42,7 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
    search_result.rhtml
   }
   Package=~/work/trunk/buildservice/src/webclient/app/views/package/  filter="*ml" {
+   _add_tag_form.rhtml
    _buildstatus.rhtml
    _categories.rhtml
    _disable_building.rhtml
@@ -56,14 +57,14 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
    add_person.rhtml
    edit.rhtml
    edit_file.rhtml
-   edit_link.rhtml
-   edit_spec.rhtml
    error.rhtml
+   list_by_tag.rhtml
    live_build_log.rhtml
    new.rhtml
    new_link.rhtml
    save.rhtml
    show.rhtml
+   view.rhtml
   }
   Platform=~/work/trunk/buildservice/src/webclient/app/views/platform/  filter="*ml" {
    edit.rhtml
@@ -72,11 +73,13 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
    show.rhtml
   }
   Project=~/work/trunk/buildservice/src/webclient/app/views/project/  filter="*ml" {
+   _add_tag_form.rhtml
    _filter_packages.rhtml
    _filter_projects.rhtml
    _search_package.rhtml
    _search_project.rhtml
    _star_rating.rhtml
+   _tags.rhtml
    _watch_link.rhtml
    _watch_list.rhtml
    add_person.rhtml
@@ -84,12 +87,14 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
    add_target_simple.rhtml
    edit.rhtml
    list_all.rhtml
+   list_by_tag.rhtml
    list_my.rhtml
    list_public.rhtml
    monitor.rhtml
    new.rhtml
    refresh_monitor.rhtml
    show.rhtml
+   view.rhtml
   }
   User=~/work/trunk/buildservice/src/webclient/app/views/user/  filter="*ml" {
    edit.rhtml
@@ -103,11 +108,34 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
   }
  }
 
+ Helper=~/work/trunk/buildservice/src/webclient/app/helpers/ filter="*.rb" CD=~/work/trunk/buildservice/src/webclient/app/helpers/ {
+  application_helper.rb
+  home_helper.rb
+  main_helper.rb
+  package_helper.rb
+  platform_helper.rb
+  project_helper.rb
+  user_helper.rb
+ }
+ css=~/work/trunk/buildservice/src/webclient/public/stylesheets/ filter="*.css" {
+  opensuse.css
+ }
+ config=~/work/trunk/buildservice/src/webclient/config/ filter="*" CD=~/work/trunk/buildservice/src/webclient/config {
+  boot.rb
+  database.yml
+  deploy.rb.template
+  environment.rb
+  routes.rb
+ }
+ environments=~/work/trunk/buildservice/src/webclient/config/environments/ filter="*" CD=~/work/trunk/buildservice/src/webclient/config/environments {
+  development.rb
+  production.rb
+  test.rb
+ }
 }
 
-
 FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/buildservice/src/frontend/ {
-
+--------
  MODELS=~/work/frontend/app/models/ filter="*.rb" {
   architecture.rb
   bs_role.rb
@@ -128,7 +156,6 @@ FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/b
   user.rb
   watched_project.rb
  }
-
  CONTROLLERS=~/work/trunk/buildservice/src/frontend/app/controllers/ filter="*.rb" {
   about_controller.rb
   admin_controller.rb
@@ -143,9 +170,9 @@ FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/b
   rpm_controller.rb
   search_controller.rb
   source_controller.rb
+  statistics_controller.rb
   tag_controller.rb
  }
-
  VIEWS=~/work/trunk/buildservice/src/frontend/app/views/ filter="*.rhtml" {
   About=~/work/trunk/buildservice/src/frontend/app/views/about/  filter="*ml" {
    index.rxml
@@ -186,6 +213,14 @@ FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/b
    _meta.rhtml
    package_meta.rxml
   }
+  Statistics=~/work/trunk/buildservice/src/frontend/app/views/statistics/  filter="*ml" {
+   highest_rated.rxml
+   latest_added.rxml
+   latest_built.rxml
+   latest_updated.rxml
+   most_active.rxml
+   most_downloaded.rxml
+  }
   Tag=~/work/trunk/buildservice/src/frontend/app/views/tag/  filter="*ml" {
   }
   LAYOUTS=~/work/trunk/buildservice/src/frontend/app/views/layouts/  filter="*ml" {
@@ -193,8 +228,44 @@ FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/b
   }
  }
 
+ Helper=~/work/trunk/buildservice/src/frontend/app/helpers/ filter="*.rb" CD=~/work/trunk/buildservice/src/frontend/app/helpers/ {
+  about_helper.rb
+  admin_helper.rb
+  apidocs_helper.rb
+  application_helper.rb
+  main_helper.rb
+  person_helper.rb
+  platform_helper.rb
+  result_helper.rb
+  rpm_helper.rb
+  source_helper.rb
+  statistics_helper.rb
+ }
+ migrate=~/work/trunk/buildservice/src/frontend/db/migrate/ filter="*" CD=~/work/trunk/buildservice/src/frontend/db/migrate {
+  001_initial_database.rb
+  002_add_meta_cache.rb
+  003_user_adminnote.rb
+  004_add_repositories.rb
+  005_create_disabled_repos.rb
+  006_create_taggings.rb
+  007_add_index_for_taggable_type.rb
+  008_add_time_stamp.rb
+  009_add_create_and_modified_time_stamps.rb
+ }
+ config=~/work/trunk/buildservice/src/frontend/config/ filter="*" CD=~/work/trunk/buildservice/src/frontend/config {
+  active_rbac_config.rb
+  boot.rb
+  database.yml
+  deploy.rb.template
+  environment.rb
+  routes.rb
+ }
+ environments=~/work/trunk/buildservice/src/frontend/config/environments/ filter="*" CD=~/work/trunk/buildservice/src/frontend/config/environments {
+  development.rb
+  production.rb
+  test.rb
+ }
 }
-
 
 ActiveXML=~/work/trunk/buildservice/src/common/lib/activexml/ filter="*.rb" CD=~/work/trunk/buildservice/src/common/lib/activexml/ {
  base.rb
@@ -204,8 +275,8 @@ ActiveXML=~/work/trunk/buildservice/src/common/lib/activexml/ filter="*.rb" CD=~
 }
 
 
-CSS=~/work/trunk/buildservice/src/webclient/public/stylesheets/ filter="*.css" {
-  opensuse.css
-}
+
+
+
 
 ### VIM-Project file,  see http://vim.sourceforge.net/scripts/script.php?script_id=69
