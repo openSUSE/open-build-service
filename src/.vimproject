@@ -31,6 +31,7 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
   Main=~/work/trunk/buildservice/src/webclient/app/views/main/  filter="*ml" {
    _latest_added.rhtml
    _latest_updated.rhtml
+   _most_downloaded.rhtml
    _search_form.rhtml
    _search_form_advanced.rhtml
    _search_result.rhtml

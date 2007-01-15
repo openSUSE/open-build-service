@@ -66,18 +66,31 @@
     </td>
     <td>
 
-      <h4>Statistics</h4>
-      <br/>
+      <h4>Statistics</h4><br/>
 
       <div id="statistics">
         <h5>Downloaded</h5>
-        <p>This package was downloaded <b><%=h @package.downloads -%></b> times.</p>
+        <p>
+          This package was downloaded <b><%=h @package.downloads -%></b> times.
+        </p>
 
         <h5>Created at</h5>
-        <p>This package was created at <b><%=h @package.created_at -%></b>.</p>
+        <p>
+          This package was created
+          <b>
+            <%= distance_of_time_in_words_to_now( Time.parse(@package.created_at) ) -%>
+          </b>ago.<br/>
+          <i class="greyed-out"><%=h @package.created_at -%></i>
+        </p>
 
         <h5>Updated at</h5>
-        <p>This package was updated at <b><%=h @package.updated_at -%></b>.</p>
+        <p>
+          This package was updated
+          <b>
+            <%= distance_of_time_in_words_to_now( Time.parse(@package.updated_at) ) -%>
+          </b>ago.<br/>
+          <i class="greyed-out"><%=h @package.updated_at -%></i>
+        </p>
       </div>
 
     </td>

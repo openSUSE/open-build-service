@@ -1,7 +1,7 @@
 class MainController < ApplicationController
 
   skip_before_filter :authorize, :only => [
-    :index, :latest_added, :latest_updated
+    :index, :latest_added, :latest_updated, :most_downloaded
   ]
 
 

@@ -1,13 +1,19 @@
 class StatisticsController < ApplicationController
 
 
+  before_filter :get_limit, :only => [
+    :highest_rated, :most_downloaded, :most_active,
+    :latest_added,  :latest_updated,  :latest_built
+  ]
+
+
   def index
     types = [
       'highest_rated',
       'most_downloaded',
       'most_active',
       'latest_added',
-      'latest_updated',
+      'latest_updated'
       'latest_built'
     ]
     render :text => "This is the statistics controller.<br/><br/>" +
@@ -20,8 +26,7 @@ class StatisticsController < ApplicationController
 
 
   def most_downloaded
-    limit = 10 if (limit = params[:limit].to_i) == 0
-    @list = DbPackage.find(:all, :order => 'downloads DESC', :limit => limit )
+    @list = DbPackage.find(:all, :order => 'downloads DESC', :limit => @limit )
   end
 
 
@@ -30,46 +35,37 @@ class StatisticsController < ApplicationController
 
 
   def latest_added
-    limit = 10 if (limit = params[:limit].to_i) == 0
-
-    packages = DbPackage.find(:all, :order => 'created_at DESC, name', :limit => limit )
-    projects = DbProject.find(:all, :order => 'created_at DESC, name', :limit => limit )
+    packages = DbPackage.find(:all, :order => 'created_at DESC, name', :limit => @limit )
+    projects = DbProject.find(:all, :order => 'created_at DESC, name', :limit => @limit )
 
     list = []
-    projects.each do |project|
-      list << project
-    end
-    packages.each do |package|
-      list << package
-    end
-
+    projects.each { |project| list << project }
+    packages.each { |package| list << package }
     list.sort! { |a,b| b.created_at <=> a.created_at }
 
-    @list = list[0..limit-1]
+    @list = list[0..@limit-1]
   end
 
 
   def latest_updated
-    limit = 10 if (limit = params[:limit].to_i) == 0
-
-    packages = DbPackage.find(:all, :order => 'updated_at DESC, name', :limit => limit )
-    projects = DbProject.find(:all, :order => 'updated_at DESC, name', :limit => limit )
+    packages = DbPackage.find(:all, :order => 'updated_at DESC, name', :limit => @limit )
+    projects = DbProject.find(:all, :order => 'updated_at DESC, name', :limit => @limit )
 
     list = []
-    projects.each do |project|
-      list << project
-    end
-    packages.each do |package|
-      list << package
-    end
-
+    projects.each { |project| list << project }
+    packages.each { |package| list << package }
     list.sort! { |a,b| b.updated_at <=> a.updated_at }
 
-    @list = list[0..limit-1]
+    @list = list[0..@limit-1]
   end
 
 
   def latest_built
+  end
+
+
+  def get_limit
+    @limit = 10 if (@limit = params[:limit].to_i) == 0
   end
 
 

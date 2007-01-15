@@ -50,7 +50,7 @@
             <% end -%>
           </ul>
         <% else -%>
-          <b>No maintainer in this project</b>
+          <i>No maintainer in this project</i>
         <% end -%>
       </div>
 
@@ -73,7 +73,9 @@
             <% end %>
           </table>
         </div>
-        <% end -%>
+      <% else -%>
+        <i>No packages in this project</i>
+      <% end -%>
 
     </td>
     <td>
@@ -98,6 +100,29 @@
           <% end -%>
         </table>
       <% end -%>
+
+      <br/><br/>
+      <h3>Statistics</h3>
+
+      <div id="statistics">
+        <h5>Created at</h5>
+        <p>
+          This project was created
+          <b>
+            <%= distance_of_time_in_words_to_now( Time.parse(@project.created_at) ) -%>
+          </b>ago.<br/>
+          <i class="greyed-out"><%=h @project.created_at -%></i>
+        </p>
+
+        <h5>Updated at</h5>
+        <p>
+          This project was updated
+          <b>
+            <%= distance_of_time_in_words_to_now( Time.parse(@project.updated_at) ) -%>
+          </b>ago.<br/>
+          <i class="greyed-out"><%=h @project.updated_at -%></i>
+        </p>
+      </div>
 
     </td>
 
