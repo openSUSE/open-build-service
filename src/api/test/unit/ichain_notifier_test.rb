@@ -5,31 +5,38 @@ class IchainNotifierTest < Test::Unit::TestCase
   FIXTURES_PATH = File.dirname(__FILE__) + '/../fixtures'
   CHARSET = "utf-8"
 
+  fixtures :users
+
   include ActionMailer::Quoting
 
   def setup
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
+    
+    @user = User.find_by_login "tom"
+    assert_valid @user
 
     @expected = TMail::Mail.new
     @expected.set_content_type "text", "plain", { "charset" => CHARSET }
+    @expected.from    = 'admin@opensuse.org'
+    @expected.to      = @user.email
   end
 
   def test_reject
-    @expected.subject = 'IchainNotifier#reject'
+    @expected.subject = 'Buildservice account request rejected'
     @expected.body    = read_fixture('reject')
     @expected.date    = Time.now
 
-    assert_equal @expected.encoded, IchainNotifier.create_reject(@expected.date).encoded
+    assert_equal @expected.encoded, IchainNotifier.create_reject(@user).encoded
   end
 
-  def test_approve
-    @expected.subject = 'IchainNotifier#approve'
-    @expected.body    = read_fixture('approve')
+  def test_approval
+    @expected.subject = 'Your openSUSE buildservice account is active'
+    @expected.body    = read_fixture('approval')
     @expected.date    = Time.now
 
-    assert_equal @expected.encoded, IchainNotifier.create_approve(@expected.date).encoded
+    assert_equal @expected.encoded, IchainNotifier.create_approval(@user).encoded
   end
 
   private
