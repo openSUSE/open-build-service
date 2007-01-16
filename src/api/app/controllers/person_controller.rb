@@ -14,7 +14,8 @@ class PersonController < ApplicationController
           @render_user = User.find_by_login( login )
           if ! @render_user 
             logger.debug "User is not valid!"
-            render_error :status => 404, :message => "Unknown user: #{login}"
+            render_error :status => 404, :errorcode => 'unknown_user',
+              :message => "Unknown user: #{login}"
           end
         else 
           logger.debug "Generating user info for logged in user #{@http_user.login}"
@@ -36,8 +37,9 @@ class PersonController < ApplicationController
                 # ok, may update user info
               else
                 logger.debug "User has no permission to change userinfo"
-                render_error :status => 403,
-                :message => "no permission to change userinfo for user #{user.login}"
+                render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
+                  :message => "no permission to change userinfo for user #{user.login}"
+                return
               end
             end
           end
@@ -46,10 +48,8 @@ class PersonController < ApplicationController
 
           logger.debug( "XML: #{request.raw_post}" )
 
-          user.email = xml.elements["/person/email"]
-
-          realname = xml.elements["/person/realname"]
-          user.realname = realname.text
+          user.email = xml.elements["/person/email"].text
+          user.realname = xml.elements["/person/realname"].text
 
           e = xml.elements["/person/source_backend"]
           if ( e )
@@ -65,7 +65,7 @@ class PersonController < ApplicationController
 
           update_watchlist( user, xml )
 
-          user.save
+          user.save!
           render_ok
         end
       end

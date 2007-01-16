@@ -30,7 +30,7 @@ class PersonControllerTest < Test::Unit::TestCase
 
   def test_userinfo_from_param_invalid
     get :userinfo, :login => 'notfred'
-    assert_response 442 
+    assert_response 404 
   end
 
   def test_userinfo_with_empty_auth_header
@@ -42,7 +42,7 @@ class PersonControllerTest < Test::Unit::TestCase
   def test_userinfo_with_broken_auth_header
     prepare_request_invalid_user( @request )
     get :userinfo
-    assert_tag :content => "Unknown user:"
+    assert_tag :tag => 'status', :child => {:tag => 'summary', :content => "Unknown user"}
     assert_response 401
   end
 
@@ -66,12 +66,12 @@ class PersonControllerTest < Test::Unit::TestCase
     # Write changed data back
     prepare_request_valid_user( @request )
     @request.env['RAW_POST_DATA'] = doc.to_s
-    put :userinfo, :login => 'fred'    
+    put :userinfo, :login => 'tom'    
     assert_response :success
 
     # refetch the user info if the name has really change
     prepare_request_valid_user( @request )
     get :userinfo
-    assert_tag :content => new_name    
+    assert_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
   end
 end
