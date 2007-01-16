@@ -1,3 +1,21 @@
-IchainNotifier#approve
+Hello Thor,
 
-Find me in app/views/ichain_notifier/approve.rhtml
+your buildservice account is now active. You can create your home project
+here:
+
+http://build.opensuse.org/project/show?project=home%3Atom
+
+If you had a different login before we switched to IChain, and want to keep
+your old home project, please send a mail to opensuse-buildservice@opensuse.org
+
+Please keep following things in mind:
+
+  - The buildservice is still under development. Crashes and not-working
+    builds are likely.
+
+  - Ask on the mailinglist (opensuse-buildservice@opensuse.org) if you want to
+    create projects outside of your home namespace (home:tom:*)
+
+Have fun,
+
+The Buildservice Team

@@ -5,7 +5,7 @@ class WatchedProjectTest < Test::Unit::TestCase
   fixtures :watched_projects
 
   # Replace this with your real tests.
-  def test_truth
+  def test_correct_class
     assert_kind_of WatchedProject, watched_projects(:first)
   end
 end
