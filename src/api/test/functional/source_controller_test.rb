@@ -1,8 +1,20 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'source_controller'
 
+FIXTURES = [
+  :static_permissions,
+  :roles,
+  :roles_static_permissions,
+  :roles_users,
+  :users,
+  :db_projects,
+  :db_packages,
+  :bs_roles,
+  :project_user_role_relationships
+]
+
 class SourceControllerTest < Test::Unit::TestCase
-  fixtures :static_permissions, :roles, :roles_static_permissions, :roles_users, :users
+  fixtures *FIXTURES
   
   def setup
     @controller = SourceController.new
@@ -285,6 +297,8 @@ class SourceControllerTest < Test::Unit::TestCase
     get :package_meta, :project => "kde4", :package => "kdelibs"
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["//description"]
+    #ignore updated_at change
+    newdoc.root.attributes['updated_at'] = doc.root.attributes['updated_at']
     assert_equal new_desc, d.text
     assert_equal doc.to_s, newdoc.to_s
   end
