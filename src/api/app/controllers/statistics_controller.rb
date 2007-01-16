@@ -13,7 +13,7 @@ class StatisticsController < ApplicationController
       'most_downloaded',
       'most_active',
       'latest_added',
-      'latest_updated'
+      'latest_updated',
       'latest_built'
     ]
     render :text => "This is the statistics controller.<br/><br/>" +
