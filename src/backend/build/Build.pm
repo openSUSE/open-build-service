@@ -79,6 +79,7 @@ sub read_config {
   $config->{'substitute'} = {};
   $config->{'optflags'} = {};
   $config->{'rawmacros'} = '';
+  $config->{'repotype'} = [];
   for my $l (@spec) {
     $l = $l->[1] if ref $l;
     next unless defined $l;
@@ -101,11 +102,13 @@ sub read_config {
       next unless @l;
       $ll = shift @l;
       $config->{'optflags'}->{$ll} = join(' ', @l);
+    } elsif ($l0 eq 'repotype:') {
+      $config->{'repotype'} = [ @l ];
     } elsif ($l0 !~ /^[#%]/) {
       warn("unknown keyword in config: $l0\n");
     }
   }
-  for my $l (qw{preinstall required support keep runscripts}) {
+  for my $l (qw{preinstall required support keep runscripts repotype}) {
     $config->{$l} = [ unify(@{$config->{$l}}) ];
   }
   for my $l (keys %{$config->{'substitute'}}) {
@@ -432,6 +435,8 @@ sub expr {
   } elsif ($t eq '!') {
     ($v, $expr) = expr(substr($expr, 1), 0);
     return undef unless defined $v;
+    $v = 0 if $v && $v eq '\"\"';
+    $v =~ s/^0+/0/ if $v;
     $v = !$v;
   } elsif ($t eq '-') {
     ($v, $expr) = expr(substr($expr, 1), 0);
@@ -696,6 +701,7 @@ sub read_spec {
     if ($line =~ /^\s*%if(.*)$/) {
       my ($v, $r) = expr($1);
       $v = 0 if $v && $v eq '\"\"';
+      $v =~ s/^0+/0/ if $v;
       $skip = 1 unless $v;
       $hasif = 1;
       next;
@@ -987,6 +993,69 @@ sub rpmq_add_flagsvers {
     shift @flags;
     shift @vers;
   }
+}
+
+sub rpm_verscmp_part {
+  my ($s1, $s2) = @_;
+  if (!defined($s1)) {
+    return defined($s2) ? -1 : 0;
+  }
+  return 1 if !defined $s2;
+  return 0 if $s1 eq $s2;
+  while (1) {
+    $s1 =~ s/^[^a-zA-Z0-9]+//;
+    $s2 =~ s/^[^a-zA-Z0-9]+//;
+    my ($x1, $x2, $r);
+    if ($s1 =~ /^([0-9]+)(.*?)$/) {
+      $x1 = $1;
+      $s1 = $2;
+      $s2 =~ /^([0-9]*)(.*?)$/;
+      $x2 = $1;
+      $s2 = $2;
+      return 1 if $x2 eq '';
+      $x1 =~ s/^0+//;
+      $x2 =~ s/^0+//;
+      $r = length($x1) - length($x2) || $x1 cmp $x2;
+    } elsif ($s1 ne '' && $s2 ne '') {
+      $s1 =~ /^([a-zA-Z]*)(.*?)$/;
+      $x1 = $1;
+      $s1 = $2;
+      $s2 =~ /^([a-zA-Z]*)(.*?)$/;
+      $x2 = $1;
+      $s2 = $2;
+      return -1 if $x1 eq '' || $x2 eq '';
+      $r = $x1 cmp $x2;
+    }
+    return $r if $r;
+    if ($s1 eq '') {
+      return $s2 eq '' ? 0 : -1;
+    }
+    return 1 if $s2 eq ''
+  }
+}
+
+sub rpm_verscmp {
+  my ($s1, $s2) = @_;
+
+  return 0 if $s1 eq $s2;
+  my ($e1, $v1, $r1) = $s1 =~ /^(?:(\d+):)?(.*?)(?:-([^-]*))?$/s;
+  $e1 = 0 unless defined $e1;
+  $r1 = '' unless defined $r1;
+  my ($e2, $v2, $r2) = $s2 =~ /^(?:(\d+):)?(.*?)(?:-([^-]*))?$/s;
+  $e2 = 0 unless defined $e2;
+  $r2 = '' unless defined $r2;
+  if ($e1 ne $e2) {
+    my $r = rpm_verscmp_part($e1, $e2);
+    return $r if $r;
+  }
+  if ($v1 ne $v2) {
+    my $r = rpm_verscmp_part($v1, $v2);
+    return $r if $r;
+  }
+  if ($r1 ne $r2) {
+    return rpm_verscmp_part($r1, $r2);
+  }
+  return 0;
 }
 
 ###########################################################################
