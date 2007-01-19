@@ -50,6 +50,7 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
 
   # Displays a form to create a new user. Posts to the #create action.
   def new
+    @ichain_mode = ichain_mode
     @user = User.new
   end
 

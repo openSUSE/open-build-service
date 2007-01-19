@@ -11,8 +11,7 @@ Changes state to 'confirmed' and grants the 'User' role.
   <dt><label for="user_email">Email</label></dt>
   <dd><%= text_field 'user', 'email'  %></dd>
 
-  <%= #render_partial 'password'
-  %>
+  <%= render_partial 'password' if @ichain_mode == :off -%>
 
   <dt><label for="user_password_hash_type">Password hash type</label></dt>
   <dd><%= select 'user', 'password_hash_type', User.password_hash_types %></dd>
