@@ -36,6 +36,8 @@
 
     <td>
 
+      <%= render :partial => "tags" %>
+
       <!-- Involved users -->
       <div class="section" id="contacts">
         <h3>Involved Users</h3>
@@ -109,18 +111,18 @@
         <p>
           This project was created
           <b>
-            <%= distance_of_time_in_words_to_now( Time.parse(@project.created_at) ) -%>
+            <%= distance_of_time_in_words_to_now( Time.parse(@project.created) ) -%>
           </b>ago.<br/>
-          <i class="greyed-out"><%=h @project.created_at -%></i>
+          <i class="greyed-out"><%=h @project.created -%></i>
         </p>
 
         <h5>Updated at</h5>
         <p>
           This project was updated
           <b>
-            <%= distance_of_time_in_words_to_now( Time.parse(@project.updated_at) ) -%>
+            <%= distance_of_time_in_words_to_now( Time.parse(@project.updated) ) -%>
           </b>ago.<br/>
-          <i class="greyed-out"><%=h @project.updated_at -%></i>
+          <i class="greyed-out"><%=h @project.updated -%></i>
         </p>
       </div>
 

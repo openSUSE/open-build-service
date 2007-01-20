@@ -185,6 +185,12 @@ class DbProject < ActiveRecord::Base
       #--- write through to backend ---#
 
       if write_through?
+
+        # remove uninteresting data for backend:
+        project.data.delete_attribute('created')
+        project.data.delete_attribute('updated')
+        project.data.delete_attribute('downloads')
+
         path = "/source/#{self.name}/_meta"
         Suse::Backend.put_source( path, project.dump_xml )
       end
@@ -255,8 +261,9 @@ class DbProject < ActiveRecord::Base
 
     logger.debug "----------------- rendering project #{name} ------------------------"
     xml = builder.project( :name => name,
-                           :updated_at => updated_at,
-                           :created_at => created_at  ) do |project|
+                           :updated => updated_at.xmlschema,
+                           :created => created_at.xmlschema
+                         ) do |project|
       project.title( title )
       project.description( description )
 
@@ -287,6 +294,9 @@ class DbProject < ActiveRecord::Base
 
   def to_axml_id
     builder = Builder::XmlMarkup.new( :indent => 2 )
-    xml = builder.project( :name => name )
+    xml = builder.project( :name => name,
+                           :updated => updated_at.xmlschema,
+                           :created => created_at.xmlschema
+                         )
   end
 end

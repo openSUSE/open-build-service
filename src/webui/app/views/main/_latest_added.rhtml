@@ -12,7 +12,7 @@
     <% @latest_added.each_item do |item| %>
       <li>
         <% title = "created " +
-          distance_of_time_in_words_to_now( Time.parse( item.created_at ) ) + " ago" %>
+          distance_of_time_in_words_to_now( Time.parse( item.created ) ) + " ago" %>
         <% if item.kind == 'package' %>
           <%= link_to_package_view( item, title ) -%>
         <% elsif item.kind == 'project' %>

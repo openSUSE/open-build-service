@@ -9,7 +9,7 @@ xml.collection do
         :kind => 'package',
         :name => item.name,
         :project => item.db_project.name,
-        :updated_at => item.updated_at
+        :updated => item.updated_at.xmlschema
       )
     end
 
@@ -18,7 +18,7 @@ xml.collection do
       xml.item(
         :kind => 'project',
         :name => item.name,
-        :updated_at => item.updated_at
+        :updated => item.updated_at.xmlschema
       )
     end
 

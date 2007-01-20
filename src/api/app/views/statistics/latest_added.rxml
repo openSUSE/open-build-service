@@ -9,7 +9,7 @@ xml.collection do
         :kind => 'package',
         :name => item.name,
         :project => item.db_project.name,
-        :created_at => item.created_at
+        :created => item.created_at.xmlschema
       )
     end
 
@@ -18,7 +18,7 @@ xml.collection do
       xml.item(
         :kind => 'project',
         :name => item.name,
-        :created_at => item.created_at
+        :created => item.created_at.xmlschema
       )
     end
 

@@ -37,11 +37,13 @@
 </div>
 
 
-<br/><br/>
-
-
 <table cellpadding="15">
   <tr>
+    <td>
+
+      <%= render :partial => "tags" %>
+
+    </td>
     <td>
 
       <h4>Download Repositories</h4>
@@ -78,18 +80,18 @@
         <p>
           This package was created
           <b>
-            <%= distance_of_time_in_words_to_now( Time.parse(@package.created_at) ) -%>
+            <%= distance_of_time_in_words_to_now( Time.parse(@package.created) ) -%>
           </b>ago.<br/>
-          <i class="greyed-out"><%=h @package.created_at -%></i>
+          <i class="greyed-out"><%=h @package.created -%></i>
         </p>
 
         <h5>Updated at</h5>
         <p>
           This package was updated
           <b>
-            <%= distance_of_time_in_words_to_now( Time.parse(@package.updated_at) ) -%>
+            <%= distance_of_time_in_words_to_now( Time.parse(@package.updated) ) -%>
           </b>ago.<br/>
-          <i class="greyed-out"><%=h @package.updated_at -%></i>
+          <i class="greyed-out"><%=h @package.updated -%></i>
         </p>
       </div>
 

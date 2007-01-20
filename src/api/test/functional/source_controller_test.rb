@@ -297,8 +297,8 @@ class SourceControllerTest < Test::Unit::TestCase
     get :package_meta, :project => "kde4", :package => "kdelibs"
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["//description"]
-    #ignore updated_at change
-    newdoc.root.attributes['updated_at'] = doc.root.attributes['updated_at']
+    #ignore updated change
+    newdoc.root.attributes['updated'] = doc.root.attributes['updated']
     assert_equal new_desc, d.text
     assert_equal doc.to_s, newdoc.to_s
   end
