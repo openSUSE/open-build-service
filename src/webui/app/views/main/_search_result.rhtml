@@ -9,14 +9,16 @@
       <%= link_to( image_tag('download_repositories', :border => 0,
       :title => "Goto download repositories of #{@result[:data]}"), url ) if url -%>
 
+      <% if session[:login] then action='show' else action='view' end %>
+
       <% if @result[:type] == 'project' %>
         <%= link_to "<b>#{@result[:data].name}</b>", { :controller => 'project',
-          :action => 'show', :project => @result[:data] } -%>
+          :action => action, :project => @result[:data] } -%>
       <% elsif @result[:type] == 'package' %>
         <%= link_to "<b>#{@result[:data].name}</b>", { :controller => 'package',
-          :action => 'show', :package => @result[:data], :project => @result[:data].project } -%>
-        (project <%= link_to @result[:data].project, { :controller => 'package',
-          :action => 'show', :project => @result[:data].project } -%>)
+          :action => action, :package => @result[:data], :project => @result[:data].project } -%>
+        (project <%= link_to @result[:data].project, { :controller => 'project',
+          :action => action, :project => @result[:data].project } -%>)
       <% end %>
 
       <%= link_to( "[goto download repositories]", url, :class => 'download_repos_link' ) if url -%>
