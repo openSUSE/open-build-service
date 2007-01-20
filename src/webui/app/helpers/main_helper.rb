@@ -29,18 +29,18 @@ module MainHelper
 
 
   def link_to_package_view( item, title='' )
-    link_to image_tag( 'package', :border => 0 ) + " #{item.name}",
+    link_to image_tag( 'package', :border => 0 ) + " #{shorten_text(item.name)}",
       { :action => 'view', :controller => 'package',
         :package => item.name, :project => item.project },
-      :title => "Package #{title}"
+      :title => "Package #{item.name} #{title}"
   end
 
 
   def link_to_project_view( item, title='' )
-    link_to image_tag( 'project', :border => 0 ) + " #{item.name}",
+    link_to image_tag( 'project', :border => 0 ) + " #{shorten_text(item.name)}",
       { :action => 'view', :controller => 'project',
         :project => item.name },
-      :title => "Project #{title}"
+      :title => "Project #{item.name} #{title}"
   end
 
 
@@ -48,4 +48,9 @@ module MainHelper
     link_to image_tag( 'start', :border => 0 ) + ' back to main page...', :controller => 'main'
   end
 
+
+  def shorten_text( text, length=15 )
+    text = text[0..length-1] + '...' if text.length > length
+    return text
+  end
 end
