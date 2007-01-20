@@ -629,6 +629,22 @@ class PackageController < ApplicationController
   end
 
 
+  def reload_buildstatus
+    @project = Project.find( params[:project] )
+    @package = Package.find( params[:package], :project => params[:project] )
+
+    @results = []
+    @project.each_repository do |repository|
+      result = Result.find( :project => @project, :package => @package,
+                           :platform => repository.name )
+      @results << result if result
+    end
+
+    render :partial => 'buildstatus'
+  end
+
+
+
   private
 
   def get_files( project, package )

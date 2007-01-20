@@ -6,14 +6,21 @@
   <% else %>
   <h3>
     Build Status
-    <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger complete rebuild"),
+    &nbsp;
+    <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger complete rebuild"),
     :action => 'trigger_rebuild', :project => @project, :package => @package %>
+    &nbsp;
+    <%= link_to_remote image_tag('reload', :alt => "Reload Status", :title => "reload status"),
+      :url => { :action => 'reload_buildstatus', :project => @project, :package => @package },
+      :update => 'package_buildstatus',
+      :loading => "Element.show('spinner_stat')", :complete => "Element.hide('spinner_stat')" %>
+      <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
   </h3>
   <table class="grid">
     <% @results.each do |result| %>
     <tr>
       <th colspan="4">
-        <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.repository),
+        <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger rebuild of " + result.repository),
         :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository %>
         <b><%=h result.repository %></b>
       </th>
@@ -21,7 +28,7 @@
     <% result.each_archresult do |ar| %>
     <tr>
       <td>
-        <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + ar.arch + " in " + result.repository),
+        <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger rebuild of " + ar.arch + " in " + result.repository),
         :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository, :arch => ar.arch %>
         <%=h ar.arch %>
       </td>
