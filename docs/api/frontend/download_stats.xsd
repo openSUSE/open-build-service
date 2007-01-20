@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+
+  <xs:element name="download_stats">
+    <xs:annotation>
+      <xs:documentation>
+        Download statistics from redirector.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="project" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="project">
+    <xs:annotation>
+      <xs:documentation>
+        Project for which we have new download counters.
+        It's identified by its name.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="package" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="name" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="package">
+    <xs:annotation>
+      <xs:documentation>
+        Package for which we have a new download counter.
+        It's identified by its name and has the count as value.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:attribute name="name" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

@@ -6,6 +6,8 @@ class StatisticsController < ApplicationController
     :latest_added,  :latest_updated,  :latest_built
   ]
 
+  validate_action :download_stats => :download_stats
+
 
   def index
     types = [
@@ -27,6 +29,36 @@ class StatisticsController < ApplicationController
 
   def most_downloaded
     @list = DbPackage.find(:all, :order => 'downloads DESC', :limit => @limit )
+  end
+
+
+  def download_stats
+    if request.put?
+      data = request.raw_post
+
+      download_stats = ActiveXML::Base.new( data )
+
+      download_stats.each_project do |project|
+        project.each_package do |package_stat|
+          logger.debug "New download_stats for #{package_stat.name}: count=#{package_stat.to_s}"
+          begin
+            prj = DbProject.find( :first, :conditions => [ "name = ?", project.name ] )
+            pac = DbPackage.find( :first, :conditions => [ "name = ? AND db_project_id = ?", package_stat.name, prj.id ] )
+            pac.downloads = package_stat.to_s
+            pac.save
+          rescue ActiveRecord::RecordNotFound
+            logger.debug "Package #{package_stat.name} (project #{prj.name}) does not exist -> ignore counter (#{package_stat})."
+            next
+          end
+        end
+      end
+      render_ok
+    else
+      render_error :status => 400, :errorcode => "only_put_method_allowed",
+        :message => "only PUT method allowed for this action"
+      logger.debug "Tried to access download_stats via '#{request.method}' - not allowed!"
+      return
+    end
   end
 
 
