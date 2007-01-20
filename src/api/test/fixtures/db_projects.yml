@@ -2,10 +2,14 @@
 kde:
   id: 1
   name: kde
+  created_at: 2003-03-03 03:03:03
+  updated_at: 2004-04-04 04:04:04
   title: blub
   description: bla
 kde4:
   id: 2
   name: kde4
+  created_at: 2005-05-05 05:05:05
+  updated_at: 2006-06-06 06:06:06
   title: blub
   description: bla

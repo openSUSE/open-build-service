@@ -1,5 +1,5 @@
 
-WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk/buildservice/src/webclient/ {
+WEBCLIENT {
 ---------
  MODELS=~/work/webclient/app/models/ filter="*.rb" {
   collection.rb
@@ -24,7 +24,7 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
   project_controller.rb
   user_controller.rb
  }
- VIEWS=~/work/trunk/buildservice/src/webclient/app/views/ filter="*.rhtml" {
+ VIEWS {
   Home=~/work/trunk/buildservice/src/webclient/app/views/home/  filter="*ml" {
    index.rhtml
   }
@@ -135,7 +135,7 @@ WEBCLIENT=~/work/trunk/buildservice/src/webclient/ filter="none" CD=~/work/trunk
  }
 }
 
-FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/buildservice/src/frontend/ {
+FRONTEND {
 --------
  MODELS=~/work/frontend/app/models/ filter="*.rb" {
   architecture.rb
@@ -174,7 +174,7 @@ FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/b
   statistics_controller.rb
   tag_controller.rb
  }
- VIEWS=~/work/trunk/buildservice/src/frontend/app/views/ filter="*.rhtml" {
+ VIEWS {
   About=~/work/trunk/buildservice/src/frontend/app/views/about/  filter="*ml" {
    index.rxml
   }
@@ -228,6 +228,55 @@ FRONTEND=~/work/trunk/buildservice/src/frontend/ filter="none" CD=~/work/trunk/b
    html.rhtml
   }
  }
+ TESTS {
+  Functional=~/work/trunk/buildservice/src/frontend/test/functional/ filter="*.rb" {
+   about_controller_test.rb
+   admin_controller_test.rb
+   apidocs_controller_test.rb
+   main_controller_test.rb
+   person_controller_test.rb
+   platform_controller_test.rb
+   result_controller_test.rb
+   rpm_controller_test.rb
+   source_controller_test.rb
+   statistics_controller_test.rb
+  }
+  Unit=~/work/trunk/buildservice/src/frontend/test/unit filter="*.rb" {
+   architecture_test.rb
+   bs_role_test.rb
+   db_package_test.rb
+   db_project_test.rb
+   disabled_repo_test.rb
+   ichain_notifier_test.rb
+   package_user_role_relationship_test.rb
+   path_element_test.rb
+   project_user_role_relationship_test.rb
+   repository_test.rb
+   tag_test.rb
+   watched_project_test.rb
+  }
+  Mocks=~/work/trunk/buildservice/src/frontend/test/mocks filter="*.rb" {
+  }
+  fixtures=~/work/trunk/buildservice/src/frontend/test/fixtures filter="*.yml" {
+   architectures.yml
+   bs_roles.yml
+   db_packages.yml
+   db_projects.yml
+   disabled_repos.yml
+   package_user_role_relationships.yml
+   path_elements.yml
+   project_user_role_relationships.yml
+   repositories.yml
+   roles.yml
+   roles_static_permissions.yml
+   roles_users.yml
+   static_permissions.yml
+   tags.yml
+   users.yml
+   watched_projects.yml
+  }
+
+ }
 
  Helper=~/work/trunk/buildservice/src/frontend/app/helpers/ filter="*.rb" CD=~/work/trunk/buildservice/src/frontend/app/helpers/ {
   about_helper.rb
@@ -275,7 +324,50 @@ ActiveXML=~/work/trunk/buildservice/src/common/lib/activexml/ filter="*.rb" CD=~
  transport.rb
 }
 
-
+API-def {
+ frontend=~/work/trunk/buildservice/docs/api/frontend/ filter="*.x??" CD=~/work/trunk/buildservice/docs/api/frontend/ {
+  about.xml
+  about.xsd
+  binarylist.xml
+  buildhistory.xml
+  buildhistory.xsd
+  buildresult.xml
+  directory.xml
+  directory.xsd
+  directory_view.xml
+  directory_view.xsd
+  download_stats.xml
+  download_stats.xsd
+  package.xml
+  package.xsd
+  packageresult.xml
+  packageresult.xsd
+  platform.xml
+  platform.xsd
+  project.xml
+  project.xsd
+  projectresult.xml
+  projectresult.xsd
+  projects.xml
+  status.xml
+  status.xsd
+  taglist.xml
+  taglist.xsd
+  user.xml
+  user.xsd
+ }
+ backend=~/work/trunk/buildservice/docs/api/backend/ filter="*.x??" CD=~/work/trunk/buildservice/docs/api/backend/ {
+  fileputresult.xml
+  fileputresult.xsd
+  package.xml
+  package.xsd
+  packagestatus.xml
+  packagestatus.xsd
+  project.xml
+  statussumlist.xml
+  statussumlist.xsd
+ }
+}
 
 
 
