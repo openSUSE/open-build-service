@@ -10,7 +10,8 @@ require_dependency 'frontend_compat'
 class ApplicationController < ActionController::Base
   session_options[:prefix] = "ruby_webclient_sess."
   session_options[:key] = "opensuse_webclient_session"
-
+  session_options[:tagcloud] ||= "mytags"
+  
   before_filter :authorize 
   
   #filter
