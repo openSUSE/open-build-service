@@ -75,7 +75,9 @@ ActiveXML::Base.config do |conf|
         :all    => "rest:///source/:project"
    
     map.connect :tag, "rest:///source/:project/:package/_tags",
-        :tags_by_user => "rest:///tag/_tagcloud?user_only=true"       
+        :tags_by_user => "rest:///user/:user/tags/_tagcloud",      
+        :tags_by_user_and_project => "rest:///user/:user/tags/:project",
+        :tagcloud  => "rest:///tag/tagcloud"
       
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"
@@ -91,7 +93,9 @@ ActiveXML::Base.config do |conf|
 
     map.connect :collection, "rest:///search/:what?match=:predicate",
         :tag => "rest:///tag/:tagname/:type",
+        :tags_by_user => "rest:///user/:user/tags/:type",
         :statistics => "rest:///statistics/:type?limit=:limit"
+
 
   end
 end
