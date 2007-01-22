@@ -1,6 +1,6 @@
 class DbPackage < ActiveRecord::Base
   belongs_to :db_project
-  
+
   has_many :package_user_role_relationships, :dependent => :destroy
   has_many :disabled_repos, :include => [:architecture, :repository], :dependent => :destroy
 
@@ -45,6 +45,16 @@ class DbPackage < ActiveRecord::Base
 
       if self.description != package.description.to_s
         self.description = package.description.to_s
+        self.save!
+      end
+
+      if package.has_element? :url
+        if self.url != package.url.to_s
+          self.url = package.url.to_s
+          self.save!
+        end
+      else
+        self.url = nil
         self.save!
       end
 
@@ -158,6 +168,8 @@ class DbPackage < ActiveRecord::Base
         package.data.delete_attribute('created')
         package.data.delete_attribute('updated')
         package.data.delete_attribute('downloads')
+        #FIXME: do not yet save this in the backend ...
+        package.data.delete_element( 'url' )
 
         path = "/source/#{self.db_project.name}/#{self.name}/_meta"
         Suse::Backend.put_source( path, package.dump_xml )
@@ -238,6 +250,8 @@ class DbPackage < ActiveRecord::Base
       each_user do |u|
         package.person( :userid => u.login, :role => u.role_name )
       end
+
+      package.url( url ) if url
 
       disreps = disabled_repos.find(:all, :include => [:repository, :architecture])
       disreps.each do |dr|

@@ -49,8 +49,4 @@ module MainHelper
   end
 
 
-  def shorten_text( text, length=15 )
-    text = text[0..length-1] + '...' if text.length > length
-    return text
-  end
 end

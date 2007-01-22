@@ -414,7 +414,7 @@ table.targets { }
     }
 
 .section {
-    margin-bottom: 2em;
+    margin-bottom: 1em;
     padding-left: 0.5em;
 }
     .section h3 {
@@ -636,6 +636,10 @@ div#package_disablebuild ul {
   width: 10em;
 }
 
+#url_area form input[type=text] {
+  width: 16em;
+}
+
 
 #download {
 /*  float: left; */
@@ -722,3 +726,4 @@ strong.highlight {
 #list_by_tag table td {
     padding-left: 10px;
 }
+

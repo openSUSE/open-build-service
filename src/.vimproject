@@ -44,6 +44,7 @@ WEBCLIENT {
   }
   Package=~/work/trunk/buildservice/src/webclient/app/views/package/  filter="*ml" {
    _add_tag_form.rhtml
+   _add_upstream_uri_form.rhtml
    _buildstatus.rhtml
    _categories.rhtml
    _disable_building.rhtml
@@ -53,11 +54,11 @@ WEBCLIENT {
    _meta.rhtml
    _tags.rhtml
    _update_build_log.rhtml
+   _upstream_uri.rhtml
    _users.rhtml
    add_file.rhtml
    add_person.rhtml
    edit.rhtml
-   edit_file.rhtml
    error.rhtml
    list_by_tag.rhtml
    live_build_log.rhtml
@@ -120,6 +121,13 @@ WEBCLIENT {
  }
  css=~/work/trunk/buildservice/src/webclient/public/stylesheets/ filter="*.css" {
   opensuse.css
+ }
+ js=~/work/trunk/buildservice/src/webclient/public/javascripts/ filter="*.js" {
+  application.js
+  controls.js
+  dragdrop.js
+  effects.js
+  prototype.js
  }
  config=~/work/trunk/buildservice/src/webclient/config/ filter="*" CD=~/work/trunk/buildservice/src/webclient/config {
   boot.rb
@@ -301,6 +309,9 @@ FRONTEND {
   007_add_index_for_taggable_type.rb
   008_add_time_stamp.rb
   009_add_create_and_modified_time_stamps.rb
+  010_add_download_counter.rb
+  011_remove_bogus_default_timestamps.rb
+  012_create_upstream_uri.rb
  }
  config=~/work/trunk/buildservice/src/frontend/config/ filter="*" CD=~/work/trunk/buildservice/src/frontend/config {
   active_rbac_config.rb

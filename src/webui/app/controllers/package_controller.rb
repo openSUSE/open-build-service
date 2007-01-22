@@ -644,6 +644,37 @@ class PackageController < ApplicationController
   end
 
 
+  def set_url_form
+    @package = Package.find params[:package], :project => params[:project]
+    @project = params[:project]
+
+    # default url for form
+    if @package.has_element? :url
+      @new_url = @package.url.to_s
+    else
+      @new_url = 'http://'
+    end
+
+    render :partial => "set_url_form"
+  end
+
+
+  def set_url
+    @package = Package.find params[:package], :project => params[:project]
+    @package.set_url params[:url]
+    render :partial => 'url_line', :locals => { :url => params[:url] }
+    #redirect_to :action => "show", :project => params[:project], :package => params[:package]
+  end
+
+
+  def remove_url
+    @package = Package.find params[:package], :project => params[:project]
+    @package.remove_url
+    redirect_to :action => "show", :project => params[:project], :package => params[:package]
+  end
+
+
+
 
   private
 

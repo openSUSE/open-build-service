@@ -114,6 +114,30 @@ class Package < ActiveXML::Base
   end
 
 
+  def set_url( new_url )
+    logger.debug "set url #{new_url} for package #{self.name} (project #{self.project})"
+    if( has_element? :url )
+      url.data.text = new_url
+    else
+      elem_cache = split_data_after :person
+      data.add_element 'url'
+      merge_data elem_cache
+      url.data.text = new_url
+    end
+    save
+  end
+
+
+  def remove_url
+    logger.debug "remove url from package #{self.name} (project #{self.project})"
+
+    data.each_element('//url') do |e|
+      data.delete_element e
+    end
+    save
+  end
+
+
   # get all <disable .../> -tags from xml-data of this package
   def get_disable_tags
     xpath="//disable"
