@@ -1,0 +1,9 @@
+<%= form_remote_tag :url => {:action => :edit_taglist_ajax, :controller => "tag", :project => @project},
+    :loading => "Element.show('spinner_#{@project}')",
+    :complete => "Element.hide('spinner_#{@project}')",
+    :update => 'tag_edit_area_' + @project -%>
+
+<%= text_field_tag( "tags", @tags, :size => 55, :style => "width: 93%;") -%>
+<%= image_submit_tag "list-add" -%>
+<%= hidden_field_tag( "project", @project ) -%>
+<%= end_form_tag -%>
