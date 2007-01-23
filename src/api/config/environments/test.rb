@@ -23,7 +23,7 @@ SOURCE_HOST = "localhost"
 SOURCE_PORT = 3003
 
 RPM_HOST = "localhost"
-RPM_PORT = 3003
+RPM_PORT = 3004
 
 ICHAIN_MODE=:off
 
