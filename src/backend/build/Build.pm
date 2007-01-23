@@ -718,8 +718,9 @@ sub read_spec {
       $packrel = $1;
       $macros{'release'} = $packrel;
     }
-    if ($main_preamble && ($line =~ /^ExclusiveArch:\s*(\S+)/i)) {
-      $exclarch = $1;
+    if ($main_preamble && ($line =~ /^ExclusiveArch:\s*(.*)/i)) {
+      $exclarch ||= [];
+      push @$exclarch, split(' ', $1);
     }
     if ($main_preamble && ($line =~ /^(BuildRequires|BuildConflicts|\#\!BuildIgnore):\s*(\S.*)$/i)) {
       my $what = $1;

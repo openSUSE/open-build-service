@@ -192,6 +192,8 @@ if test "$0" = "/.build/build" ; then
     fi
     PATH=$BUILD_DIR:$PATH
     RUNNING_IN_XEN=true
+    mount -orw -n -tproc none /proc 2>/dev/null
+    mount -n -o remount,rw /
     if test -n "$XENSWAP" ; then
 	for i in 1 2 3 4 5 6 7 8 9 10 ; do
 	    test -e "$XENSWAP" && break
@@ -203,7 +205,6 @@ if test "$0" = "/.build/build" ; then
 	cp -a "$XENSWAP" /.build/swapdev
     fi
     umount -l /dev 2>/dev/null
-    mount -orw -n -tproc none /proc 2>/dev/null
     if test -n "$XENSWAP" ; then
 	rm -f "$XENSWAP"
 	cp -a /.build/swapdev "$XENSWAP"
