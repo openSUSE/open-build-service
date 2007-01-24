@@ -1,0 +1,1746 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The Source Server
+#
+
+BEGIN {
+  unshift @INC, 'build'; 
+}
+
+use XML::Structured ':bytes';
+use Data::Dumper;
+
+use BSConfig;
+use BSServer;
+use BSRPC;
+use BSUtil;
+use BSFileDB;
+use BSXML;
+use BSVerify;
+use BSHandoff;
+use BSWatcher;
+use BSXPath;
+use BSStdServer;
+use Build;
+
+use strict;
+
+my $port = 5352;	#'SR'
+$port = $1 if $BSConfig::srcserver =~ /:(\d+)$/;
+my $ajaxsocket = "$BSConfig::bsdir/run/bs_srcserver.ajax";
+
+my $projectsdir = "$BSConfig::bsdir/projects";
+my $srcrep = "$BSConfig::bsdir/sources";
+
+
+my $srcrevlay = [qw{rev vrev srcmd5 version time user comment}];
+
+
+sub notify_repservers {
+  my ($type, $projid, $packid) = @_;
+  my @args = ("type=$type", "project=$projid");
+  push @args, "package=$packid" if defined $packid;
+  for my $rrserver ($BSConfig::reposerver) {
+    eval {
+      BSRPC::rpc("$rrserver/event", undef, @args);
+    };
+    print "warning: $rrserver: $@" if $@;
+  }
+}
+
+sub getrev {
+  my ($projid, $packid, $rev) = @_;
+  die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
+  die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
+  return undef unless -e "$projectsdir/$projid.pkg/$packid.xml";
+  undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
+  undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
+  if (!defined($rev)) {
+    $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
+    $rev = {'srcmd5' => 'empty'} unless $rev;
+  } elsif ($rev =~ /^[0-9a-f]{32}$/) {
+    return undef unless -e "$projectsdir/$projid.pkg/$packid.rev";
+    $rev = {'srcmd5' => $rev, 'rev' => '?'};
+  } elsif ($rev eq 'upload') {
+    $rev = {'srcmd5' => 'upload', 'rev' => 'upload'}
+  } elsif ($rev eq 'repository') {
+    $rev = {'srcmd5' => 'empty', 'rev' => 'repository'}
+  } else {
+    $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
+  }
+  $rev->{'srcmd5'} =~ s/\/.*// if $rev;		# XXX still needed?
+  return $rev;
+}
+
+sub addmeta {
+  my ($projid, $packid, $files, $rev) = @_;
+
+  # calculate new meta sum
+  my $meta = '';
+  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+  my $srcmd5 = Digest::MD5::md5_hex($meta);
+  if ($rev && $rev eq 'upload') {
+    mkdir_p("$srcrep/:upload");
+    writestr("$srcrep/:upload/$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
+  } elsif (!-e "$srcrep/$packid/$srcmd5-MD5SUMS") {
+    mkdir_p("$srcrep/:upload");
+    writestr("$srcrep/:upload/$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
+  }
+  return $srcmd5;
+}
+
+sub addrev {
+  my ($projid, $packid, $files, $user, $comment, $target) = @_;
+  if ($target && $target eq 'upload') {
+    my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
+    return {'rev' => 'upload', 'srcmd5' => $srcmd5};
+  } elsif ($target && $target eq 'repository') {
+    # repository only upload.
+    return {'rev' => 'repository'};
+  } elsif (defined($target)) {
+    # internal version only upload.
+    my $srcmd5 = addmeta($projid, $packid, $files);
+    return {'rev' => $srcmd5, 'srcmd5' => $srcmd5};
+  }
+  die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
+  die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
+  die("bad files\n") if grep {/\//} keys %$files;
+  die("bad files\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
+
+  # get version/release from spec/dsc file
+  my $specfile = findspecdsc($projid, $packid, undef, 'spec', $files);
+  my $version = 'unknown';
+  my $release;
+  my $bconf = Build::read_config('noarch');
+  if ($specfile) {
+    my $d = finddeps($projid, $packid, "$files->{$specfile}-$specfile", $bconf);
+    $version = $d->{'version'} if defined $d->{'version'};
+    $release = $d->{'release'} if defined $d->{'release'};
+  }
+  if ($version eq 'unknown') {
+    my $dscfile = findspecdsc($projid, $packid, undef, 'dsc', $files);
+    if ($dscfile) {
+      my $d = finddeps($projid, $packid, "$files->{$dscfile}-$dscfile", $bconf);
+      $version = $d->{'version'} if defined $d->{'version'};
+      $release = $d->{'release'} if defined $d->{'release'};
+    }
+  }
+  if (defined($release) && $release =~ /^(\d+)/) {
+    $release = $1;
+  } else {
+    $release = '0';
+  }
+
+  my $srcmd5 = addmeta($projid, $packid, $files);
+  my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release};
+  $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $version);
+  notify_repservers('srcevent', $projid, $packid);
+  return $rev;
+}
+
+sub lsrep {
+  my ($projid, $packid, $srcmd5) = @_;
+  local *F;
+  die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
+  if ($srcmd5 eq 'upload') {
+    open(F, '<', "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") || die("$packid/$srcmd5-$packid: not in repository\n");
+  } elsif ($srcmd5 eq 'empty') {
+    return {};
+  } else {
+    die("bad srcmd5 \n") if $srcmd5 !~ /^[0-9a-f]{32}$/;
+    open(F, '<', "$srcrep/$packid/$srcmd5-MD5SUMS") || die("$packid/$srcmd5-$packid: not in repository\n");
+  }
+  my @files = <F>;
+  close F;
+  chomp @files;
+  return {map {substr($_, 34) => substr($_, 0, 32)} @files};
+}
+
+sub patchspec {
+  my ($p, $dir, $spec) = @_;
+  local *F;
+  open(F, '<', "$dir/$spec") || die("$dir/$spec: $!\n");
+  my @preamble;
+  while(<F>) {
+    chomp;
+    push @preamble, $_;
+    last if /^\s*%(package|prep|build|install|check|clean|preun|postun|pretrans|posttrans|pre|post|files|changelog|description|triggerpostun|triggerun|triggerin|trigger|verifyscript)(\s|$)/;
+  }
+  my %patches;
+  for (@preamble) {
+    next unless /^patch(\d*)\s*:/i;
+    $patches{0 + ($1 eq '' ? 0 : $1)} = $_;
+  }
+  my @patches = sort {$a <=> $b} keys %patches;
+  my $nr = 0;
+  if (exists $p->{'after'}) {
+    $nr = 0 + $p->{'after'};
+    $nr++ while $patches{$nr}
+  } else {
+    $nr = $patches[-1] + 1 if @patches;
+  }
+  my @after;
+  @after = map {$patches{$_}} grep {$_ < $nr} @patches if @patches;
+  @after = grep {/^source(\d*)\s*:/i} @preamble if !@after;
+  @after = grep {/^name(\d*)\s*:/i} @preamble if !@after;
+  @after = $preamble[-2] if @preamble > 1 && !@after;
+  return "could not find a place to insert the patch" if !@after;
+  my $nrx = $nr;
+  $nrx = '' if $nrx == 0;
+  local *O;
+  open(O, '>', "$dir/.patchspec$$") || die("$dir/.patchspec$$: $!\n");
+  for (@preamble) {
+    print O "$_\n";
+    next unless @after && $_ eq $after[-1];
+    print O "Patch$nrx: $p->{'name'}\n";
+    @after = ();
+  }
+  if ($preamble[-1] !~ /^\s*%prep(\s|$)/) {
+    while (1) {
+      my $l = <F>;
+      return "specfile has no %prep section" if !defined $l;
+      chomp $l;
+      print O "$l\n";
+      last if $l =~ /^\s*%prep(\s|$)/;
+    }
+  }
+  my @prep;
+  while(<F>) {
+    chomp;
+    push @prep, $_;
+    last if /^\s*%(package|prep|build|install|check|clean|preun|postun|pretrans|posttrans|pre|post|files|changelog|description|triggerpostun|triggerun|triggerin|trigger|verifyscript)(\s|$)/;
+  }
+  %patches = ();
+  my $ln = -1;
+  for (@prep) {
+    $ln++;
+    next unless /%patch(\d*)(.*)/;
+    if ($1 ne '') {
+      $patches{0 + $1} = $ln;
+      next;
+    }
+    my @a = split(' ', $2);
+    if (! grep {$_ eq '-P'} @a) {
+      $patches{0} = $ln;
+    } else {
+      while (@a) {
+        next if shift(@a) ne '-P';
+        next if !@a || $a[0] !~ /^\d+$/;
+        $patches{0 + shift(@a)} = $ln;
+      }
+    }
+  }
+  @patches = sort {$a <=> $b} keys %patches;
+  @after = map {$patches{$_}} grep {$_ < $nr} @patches if @patches;
+  @after = ($patches[0] - 1) if !@after && @patches;
+  @after = (@prep - 2) if !@after;
+  my $after = $after[-1];
+  $after = -1 if $after < -1;
+  $ln = -1;
+  push @prep, '' if $after >= @prep;
+  #print "insert %patch after line $after\n";
+  for (@prep) {
+    if (defined($after) && $ln == $after) {
+      print O "pushd $p->{'dir'}\n" if exists $p->{'dir'};
+      if ($p->{'popt'}) {
+        print O "%patch$nrx -p$p->{'popt'}\n";
+      } else {
+        print O "%patch$nrx\n";
+      }
+      print O "popd\n" if exists $p->{'dir'};
+      undef $after;
+    }
+    print O "$_\n";
+    $ln++;
+  }
+  while(<F>) {
+    chomp;
+    print O "$_\n";
+  }
+  close(O) || die("close: $!\n");
+  rename("$dir/.patchspec$$", "$dir/$spec") || die("rename $dir/.patchspec$$ $dir/$spec: $!\n");
+  return '';
+}
+
+sub topaddspec {
+  my ($p, $dir, $spec) = @_;
+  local (*F, *O);
+  open(F, '<', "$dir/$spec") || die("$dir/$spec: $!\n");
+  open(O, '>', "$dir/.topaddspec$$") || die("$dir/.topaddspec$$: $!\n");
+  my $text = $p->{'text'};
+  $text = '' if !defined $text;
+  $text .= "\n" if $text ne '' && substr($text, -1, 1) ne "\n";
+  print O $text;
+  while(<F>) {
+    chomp;
+    print O "$_\n";
+  }
+  close(O) || die("close: $!\n");
+  rename("$dir/.topaddspec$$", "$dir/$spec") || die("rename $dir/.topaddspec$$ $dir/$spec: $!\n");
+}
+
+sub applylink {
+  my ($md5, $lsrc, $llnk) = @_;
+
+  if (-e "$srcrep/$llnk->{'package'}/$md5-_linkerror") {
+    my $log = readstr("$srcrep/$llnk->{'package'}/$md5-_linkerror", 1);
+    $log ||= "unknown error";
+    chomp $log;
+    $log =~ s/.*\n//s;
+    $log ||= "unknown error";
+    return $log;
+  }
+  my $flnk = lsrep($llnk->{'project'}, $llnk->{'package'}, $llnk->{'srcmd5'});
+  die("applylink: $llnk->{'package'}/$llnk->{'srcmd5'}: nothing known\n") unless $flnk;
+  my $fsrc = lsrep($lsrc->{'project'}, $lsrc->{'package'}, $lsrc->{'srcmd5'});
+  die("applylink: $lsrc->{'package'}/$lsrc->{'srcmd5'}: nothing known\n") unless $fsrc;
+  delete $fsrc->{'/LINK'};
+  delete $fsrc->{'/LOCAL'};
+  my $l = $llnk->{'link'};
+  my $patches = $l->{'patches'} || {};
+  my @patches = ();
+  if ($l->{'patches'}) {
+    for (@{$l->{'patches'}->{''} || []}) {
+      my $type = (keys %$_)[0];
+      next unless $type;
+      if ($type eq 'topadd') {
+        push @patches, { 'type' => $type, 'text' => $_->{$type}};
+      } else {
+        push @patches, { 'type' => $type, %{$_->{$type} || {}}};
+      }
+    }
+  }
+  if (!@patches) {
+    # simple source link with no patching
+    if ($lsrc->{'package'} ne $llnk->{'package'}) {
+      # different packages, link needed sources
+      for my $f (sort keys %$fsrc) {
+        next if $flnk->{$f};
+	next if -e "$srcrep/$llnk->{'package'}/$fsrc->{$f}-$f";
+	link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$srcrep/$llnk->{'package'}/$fsrc->{$f}-$f");
+        die("link error $lsrc->{'package'}/$fsrc->{$f}-$f $llnk->{'package'}/$fsrc->{$f}-$f\n") unless -e "$srcrep/$llnk->{'package'}/$fsrc->{$f}-$f";
+      }
+    }
+    # calculate meta
+    my $newf = { %$fsrc };
+    for my $f (sort keys %$flnk) {
+      next if $f eq '_link';
+      $newf->{$f} = $flnk->{$f};
+    }
+    # store filelist in md5
+    my $meta = '';
+    $meta .= "$newf->{$_}  $_\n" for sort keys %$newf;
+    # add extra linked info
+    $meta .= "$lsrc->{'srcmd5'}  /LINK\n";
+    $meta .= "$llnk->{'srcmd5'}  /LOCAL\n";
+    writestr("$srcrep/:upload/$$", "$srcrep/$llnk->{'package'}/$md5-MD5SUMS", $meta);
+    return '';
+  }
+
+  # sanity checking...
+  for my $p (@patches) {
+    return "patch has no type" unless exists $p->{'type'};
+    return "patch has illegal type \'$p->{'type'}\'" unless $p->{'type'} eq 'apply' || $p->{'type'} eq 'add' || $p->{'type'} eq 'topadd';
+    if ($p->{'type'} ne 'topadd') {
+      return "patch has no patchfile" unless exists $p->{'name'};
+      return "patch \'$p->{'name'}\' does not exist" unless $flnk->{$p->{'name'}};
+    }
+  }
+  my $tmpdir = "$srcrep/:upload/applylink$$";
+  mkdir_p($tmpdir);
+  die("$tmpdir: $!\n") unless -d $tmpdir;
+  unlink("$tmpdir/$_") for ls($tmpdir);	# remove old stuff
+  my %apply = map {$_->{'name'} => 1} grep {$_->{'type'} eq 'apply'} @patches;
+  my %fl;
+  for my $f (sort keys %$fsrc) {
+    next if $flnk->{$f} && !$apply{$f};
+    link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+    $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
+  }
+  for my $f (sort keys %$flnk) {
+    next if $apply{$f} || $f eq '_link';
+    link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+    $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
+  }
+  my $failed;
+  for my $p (@patches) {
+    my $pn = $p->{'name'};
+    if ($p->{'type'} eq 'add') {
+      for my $spec (grep {/\.spec$/} ls($tmpdir)) {
+	local *F;
+	open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
+	print F "adding patch $pn to $spec\n";
+	close F;
+        my $err = patchspec($p, $tmpdir, $spec);
+        if ($err) {
+	  open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
+	  print F "error: $err\n";
+	  close F;
+	  $failed = "could not add patch '$pn'";
+	  last;
+	  unlink("$tmpdir/$_") for ls($tmpdir);
+	  rmdir($tmpdir);
+	  return "could not add patch '$pn'";
+	}
+        delete $fl{$spec};
+      }
+      last if $failed;
+      next;
+    }
+    if ($p->{'type'} eq 'topadd') {
+      for my $spec (grep {/\.spec$/} ls($tmpdir)) {
+	local *F;
+	open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
+	print F "adding text at top of $spec\n";
+	close F;
+        topaddspec($p, $tmpdir, $spec);
+        delete $fl{$spec};
+      }
+      next;
+    }
+    next unless $p->{'type'} eq 'apply';
+    my $pid;
+    if (!($pid = xfork())) {
+      delete $SIG{'__DIE__'};
+      chdir($tmpdir) || die("$tmpdir: $!\n");
+      open(STDIN, '<', "$srcrep/$llnk->{'package'}/$flnk->{$pn}-$pn") || die("$srcrep/$llnk->{'package'}/$flnk->{$pn}-$pn: $!\n");
+      open(STDOUT, '>>', ".log") || die(".log: $!\n");
+      open(STDERR, '>&STDOUT');
+      $| = 1;
+      print "applying patch $pn\n";
+      $::ENV{'TMPDIR'} = '.';
+      exec('/usr/bin/patch', '--no-backup-if-mismatch', '--unified-reject-files', '--global-reject-file=.rejects', '-g', '0', '-f');
+      die("/usr/bin/patch: $!\n");
+    }
+    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+    my $patchstatus = $?;
+    if ($patchstatus) {
+      $failed = "could not apply patch '$pn'";
+      last;
+      unlink("$tmpdir/$_") for ls($tmpdir);
+      rmdir($tmpdir);
+      return "could not apply patch '$pn'";
+    }
+  }
+  if ($failed) {
+    local *F;
+    # add result as last line
+    open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
+    print F "\n$failed\n";
+    close F;
+    # link error marker
+    if (!link("$tmpdir/.log", "$srcrep/$llnk->{'package'}/$md5-_linkerror")) {
+      my $err = "link $tmpdir/.log $srcrep/$llnk->{'package'}/$md5-_linkerror: $!\n";
+      die($err) unless -e "$srcrep/$llnk->{'package'}/$md5-_linkerror";
+    }
+    unlink("$tmpdir/$_") for ls($tmpdir);
+    rmdir($tmpdir);
+    return $failed;
+  }
+  my @newf = grep {!/^\./} ls($tmpdir);
+  my $newf = {};
+  local *F;
+  for my $f (@newf) {
+    my @s = stat "$tmpdir/$f";
+    die("$tmpdir/$f: $!\n") unless @s;
+    if ($s[3] > 1 && $fl{$f}) {
+      my @s2 = stat "$srcrep/$fl{$f}";
+      die("$srcrep/$fl{$f}: $!\n") unless @s2;
+      if ("$s[0]/$s[1]" eq "$s2[0]/$s2[1]") {
+        $newf->{$f} = $fl{$f};
+        $newf->{$f} =~ s/.*\///;
+        $newf->{$f} = substr($newf->{$f}, 0, 32);
+	next;
+      }
+    }
+    open(F, '<', "$tmpdir/$f") || die("$tmpdir/$f: $!\n");
+    my $ctx = Digest::MD5->new;
+    $ctx->addfile(*F);
+    close F;
+    $newf->{$f} = $ctx->hexdigest();
+  }
+  # now link everything over
+  for my $f (@newf) {
+    next if -e "$srcrep/$llnk->{'package'}/$newf->{$f}-$f";
+    link("$tmpdir/$f", "$srcrep/$llnk->{'package'}/$newf->{$f}-$f");
+    die("link error") unless -e "$srcrep/$llnk->{'package'}/$newf->{$f}-$f";
+  }
+  # clean up tmpdir
+  unlink("$tmpdir/$_") for ls($tmpdir);
+  rmdir($tmpdir);
+  # store filelist in md5
+  my $meta = '';
+  $meta .= "$newf->{$_}  $_\n" for sort keys %$newf;
+  # add extra linked info
+  $meta .= "$lsrc->{'srcmd5'}  /LINK\n";
+  $meta .= "$llnk->{'srcmd5'}  /LOCAL\n";
+  mkdir_p("$srcrep/:upload");
+  writestr("$srcrep/:upload/$$", "$srcrep/$llnk->{'package'}/$md5-MD5SUMS", $meta);
+  return '';
+}
+
+sub handlelinks {
+  my ($projid, $pinfo, $files, $rev) = @_;
+  my @linkinfo;
+  my %seen;
+  my $packid = $pinfo->{'name'};
+  my $newmd5;
+  push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $pinfo->{'srcmd5'}, 'rev' => $pinfo->{'rev'}};
+  my $vrev = $rev ? $rev->{'vrev'} : 0;
+  my $vrevdone = $rev ? 0 : 1;
+  while ($files->{'_link'}) {
+    my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
+    return '_link is bad' unless $l && $l->{'package'} && $l->{'project'};
+    $linkinfo[-1]->{'link'} = $l;
+    $packid = $l->{'package'};
+    my $lrev = $l->{'rev'} || '';
+    return 'circular package link' if $seen{"$l->{'project'}/$packid/$lrev"};
+    $seen{"$l->{'project'}/$packid/$lrev"} = 1;
+    $lrev = getrev($l->{'project'}, $packid, $l->{'rev'});
+    return "linked package '$packid' does not exist in project '$l->{'project'}'" unless $lrev;
+    $files = lsrep($l->{'project'}, $packid, $lrev->{'srcmd5'});
+    return 'linked package is not in repository' unless $files;
+    my $cicount = $l->{'cicount'} || 'add';
+    if ($cicount eq 'copy') {
+      $rev->{'vrev'} -= $vrev unless $vrevdone;
+    } elsif ($cicount eq 'local') {
+      $vrevdone = 1;
+    } elsif ($cicount ne 'add') {
+      return '_link is bad: illegal cicount';
+    }
+    $vrev = $lrev->{'vrev'};
+    $rev->{'vrev'} += $vrev unless $vrevdone;
+    push @linkinfo, {'project' => $l->{'project'}, 'package' => $packid, 'srcmd5' => $lrev->{'srcmd5'}, 'rev' => $lrev->{'rev'}};
+  }
+  my $md5;
+  my $oldl;
+  for my $l (reverse @linkinfo) {
+    if (!$md5) {
+      $md5 = $l->{'srcmd5'};
+      $oldl = $l;
+      next;
+    }
+    my $md5c = "$md5  /LINK\n$l->{'srcmd5'}  /LOCAL\n";
+    $md5 = Digest::MD5::md5_hex($md5c);
+    if (! -e "$srcrep/$l->{'package'}/$md5-MD5SUMS") {
+      my $error = applylink($md5, $oldl, $l);
+      return $error if $error;
+    }
+    $l->{'srcmd5'} = $md5;
+    $oldl = $l;
+  }
+  # add extra info to pinfo
+  $packid = $linkinfo[0]->{'package'};
+  shift @linkinfo;
+  $pinfo->{'srcmd5'} = $md5;
+  for (@linkinfo) {
+    # delete unneeded entries to keep projpack small
+    delete $_->{'srcmd5'};
+    delete $_->{'rev'};
+    delete $_->{'link'};
+  }
+  $pinfo->{'linked'} = \@linkinfo;
+  $files = lsrep($projid, $packid, $md5);
+  my $meta = '';
+  for (sort keys %$files) {
+    $meta .= "$files->{$_}  $_\n" if $_ ne '/LINK' && $_ ne '/LOCAL';
+  }
+  $pinfo->{'verifymd5'} = Digest::MD5::md5_hex($meta);
+  return $files;
+}
+
+sub findprojects {
+  local *D;
+  opendir(D, $projectsdir) || die("$projectsdir: $!\n");
+  my @projids = grep {s/\.xml$//} readdir(D);
+  closedir(D);
+  return sort @projids;
+}
+
+sub findpackages {
+  my ($projid) = shift;
+  opendir(D, "$projectsdir/$projid.pkg") || return ();
+  my @packids = grep {s/\.xml$//} readdir(D);
+  closedir(D);
+  return sort @packids;
+}
+
+sub readproj {
+  my ($projid, $nonfatal) = @_;
+  my $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+  die("project '$projid' does not exist\n") if !$proj && !$nonfatal;
+  return $proj;
+}
+
+sub readpack {
+  my ($projid, $packid, $rev, $nonfatal) = @_;
+  my $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  if (!$pack && !$nonfatal) {
+    readproj($projid);
+    die("package '$packid' does not exist in project '$projid'\n");
+  }
+  return $pack;
+}
+
+sub findspecdsc {
+  my ($projid, $packid, $repoid, $ext, $files, $ambigp) = @_;
+  $files = lsrep($projid, $packid, $files) unless ref $files;
+  return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
+  return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"} && defined($repoid);
+  my @files = grep {/\.$ext$/} keys %$files;
+  @files = grep {/^\Q$packid\E/i} @files if @files > 1;
+  return ($files->{$files[0]}, $files[0]) if @files == 1;
+  if (@files > 1) {
+    if (!defined($repoid)) {
+      $$ambigp = 1 if $ambigp;
+      # return (undef, undef);
+      @files = sort @files;
+      return ($files->{$files[0]}, $files[0]);
+    }
+    @files = grep {/^\Q$packid-$repoid\E/i} @files if @files > 1;
+    return ($files->{$files[0]}, $files[0]) if @files == 1;
+  }
+  return (undef, undef);
+}
+
+sub read_dsc {
+  my ($bconf, $fn) = @_;
+  my $ret;
+  my @control;
+  if (ref($fn) eq 'ARRAY') {
+    @control = @$fn;
+  } else {
+    local *F;
+    if (!open(F, '<', $fn)) {
+      $ret->{'error'} = "$fn: $!";
+      return $ret;
+    }
+    @control = <F>;
+    close F;
+    chomp @control;
+  }
+  splice(@control, 0, 3) if @control > 3 && $control[0] =~ /^-----BEGIN/;
+  my $name;
+  my $version;
+  my @deps;
+  while (@control) {
+    my $c = shift @control;
+    last if $c eq '';   # new paragraph
+    my ($tag, $data) = split(':', $c, 2);
+    next unless defined $data;
+    $tag = uc($tag);
+    while (@control && $control[0] =~ /^\s/) {
+      $data .= "\n".substr(shift @control, 1);
+    }
+    $data =~ s/^\s+//s;
+    $data =~ s/\s+$//s;
+    if ($tag eq 'VERSION') {
+      $version = $data;
+      $version =~ s/-[^-]+$//;
+    } elsif ($tag eq 'SOURCE') {
+      $name = $data;
+    } elsif ($tag eq 'BUILD-DEPENDS') {
+      my @d = split(/,\s*/, $data);
+      s/\s.*// for @d;
+      push @deps, @d;
+    } elsif ($tag eq 'BUILD-CONFLICTS' || $tag eq 'BUILD-IGNORE') {
+      my @d = split(/,\s*/, $data);
+      s/\s.*// for @d;
+      push @deps, map {"-$_"} @d;
+    }
+  }
+  $ret->{'name'} = $name;
+  $ret->{'version'} = $version;
+  $ret->{'deps'} = \@deps;
+  return $ret;
+}
+
+sub finddeps {
+  my ($projid, $packid, $spec, $bconf, $ifdeps) = @_;
+
+  my $fn = "$srcrep/$packid/$spec";
+  $fn = "$srcrep/$spec" if $spec =~ /\//;
+  if ($spec =~ /\.spec$/) {
+    return Build::read_spec($bconf, $fn, undef, $ifdeps);
+  } else {
+    return read_dsc($bconf, $fn);
+  }
+}
+
+sub getprojectlist {
+  my ($cgi) = @_;
+  my @projects = findprojects();
+  @projects = map {{'name' => $_}} @projects;
+  if ($cgi->{'withrepos'}) {
+    for my $pr (@projects) {
+      my $proj = readproj($pr->{'name'});
+      $pr->{'repository'} = $proj->{'repository'} if $proj;
+    }
+  }
+  return ({'entry' => \@projects}, $BSXML::dir);
+}
+
+sub getprojpack {
+  my ($cgi, $projids, $repoids, $packids, $arch) = @_;
+  $arch ||= 'noarch';
+  $projids = [ findprojects() ] unless $projids;
+  $repoids = { map {$_ => 1} @$repoids } if $repoids;
+  $packids = { map {$_ => 1} @$packids } if $packids;
+  my $bconf = Build::read_config($arch);
+
+  my @res;
+  for my $projid (@$projids) {
+    my $jinfo = { 'name' => $projid };
+    my $proj = readproj($projid);
+    if ($cgi->{'withconfig'}) {
+      my $config = readstr("$projectsdir/$projid.conf", 1);
+      if ($config) {
+	# strip away macro blocks
+	while ($config =~ /^(.*?\n)?\s*(macros:[^\n]*\n.*)/si) {
+	  my ($c1, $c2) = ($1, $2);
+	  $c1 = '' unless defined $c1;
+	  if ($c2 =~ /^(?:.*?\n)?\s*:macros\s*\n(.*)$/si) {
+	    $config = "$c1$c2";
+	  } else {
+	    $config = $c1;
+	    last;
+	  }
+	}
+	$jinfo->{'config'} = $config unless $config =~ /^\s*$/s;
+      }
+    }
+    my @packages = findpackages($projid);
+    next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
+    next if $packids && !grep {$packids->{$_}} @packages;
+    $jinfo->{'title'} = $proj->{'title'} if exists $proj->{'title'};
+    if ($cgi->{'withrepos'}) {
+      if ($repoids) {
+	$jinfo->{'repository'} = [ grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []} ];
+      } else {
+        $jinfo->{'repository'} = $proj->{'repository'} || [];
+      }
+      if ($cgi->{'expandedrepos'}) {
+	for my $repo (@{$jinfo->{'repository'}}) {
+	  my @prps = expandsearchpath($projid, $repo->{'name'});
+	  for (@prps) {
+	    my @s = split('/', $_, 2);
+	    $_ = {'project' => $s[0], 'repository' => $s[1]};
+	  }
+	  $repo->{'path'} = \@prps;
+	}
+      }
+    }
+    if (!grep {!$_->{'status'} || $_->{'status'} ne 'disabled'} @{$proj->{'repository'} || []}) {
+      # either no repositories or all disabled. No need to check packages
+      @packages = ();
+    }
+    my @pinfo;
+    my %bconfs;
+    for my $packid (@packages) {
+      next if $packids && !$packids->{$packid};
+      my $pinfo = {'name' => $packid};
+      push @pinfo, $pinfo;
+      my $pack = readpack($projid, $packid, undef, 1);
+      if (!$pack) {
+	$pinfo->{'error'} = 'no metadata';
+	next;
+      }
+      my $disable = {};
+      my $enable = {};
+      if ($pack->{'enable'}) {
+	for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pack->{'enable'}}) {
+	  undef($enable), last unless exists $_->{'repository'};
+	  $enable->{$_->{'repository'}} = 1;
+        }
+      }
+      if ($enable) {
+	if ($pack->{'disable'}) {
+	  for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pack->{'disable'}}) {
+	    undef($disable), last unless exists $_->{'repository'};
+	    $disable->{$_->{'repository'}} = 1;
+	  }
+	}
+      }
+      if (!$disable && $enable && !%$enable) {
+	$pinfo->{'error'} = 'disabled';
+	next;
+      }
+      if ($cgi->{'withsrcmd5'} || $cgi->{'withdeps'}) {
+        my $rev = getrev($projid, $packid, 'build');
+	if (!$rev || $rev->{'srcmd5'} eq 'empty') {
+	  $pinfo->{'error'} = 'no source uploaded';
+	  next;
+	}
+	$pinfo->{'srcmd5'} = $rev->{'srcmd5'};
+	$pinfo->{'rev'} = $rev->{'rev'};
+	my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+	$files = handlelinks($projid, $pinfo, $files, $rev) if $files && $files->{'_link'};
+	if (!ref $files) {
+	  $pinfo->{'error'} = defined($files) ? $files : "could not get file list";
+	  next;
+	}
+	if ($files->{'_aggregate'}) {
+	  my $aggregatelist = readxml("$srcrep/$packid/$files->{'_aggregate'}-_aggregate", $BSXML::aggregatelist, 1);
+	  if (!$aggregatelist) {
+	    $pinfo->{'error'} = "bad aggregatelist data";
+	    next;
+	  }
+	  $pinfo->{'aggregatelist'} = $aggregatelist;
+	  if (($enable && %$enable) || ($disable && %$disable)) {
+	    my @dinfo = ();
+	    for my $repo (@{$proj->{'repository'} || []}) {
+	      my $repoid = $repo->{'name'};
+	      next if $repoids && !$repoids->{$repoid};
+	      if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
+	        push @dinfo, {'repository' => $repoid, 'error' => 'disabled'};
+		next;
+	      }
+	    }
+	    $pinfo->{'info'} = \@dinfo if @dinfo;
+	  }
+        } elsif ($cgi->{'withdeps'}) {
+	  my $ifdeps;
+	  my $specdscambig;
+          my @dinfo;
+	  my ($specmd5, $spec) = findspecdsc($projid, $packid, undef, 'spec', $files, \$specdscambig);
+          if ($spec) {
+	    my $d = finddeps($projid, $packid, "$specmd5-$spec", $bconf, \$ifdeps);
+	    if (defined($d->{'name'})) {
+	      my $version = $d->{'version'};
+	      $version = 'unknown' unless defined $version;
+	      $pinfo->{'versrel'} = "$version-$rev->{'vrev'}";
+              if (!$ifdeps) {
+		push @dinfo, {'repository' => ':spec', 'file' => $spec, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+		$dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
+	      }
+	    } else {
+	      undef $spec;
+	    }
+	  }
+	  my ($dscmd5, $dsc) = findspecdsc($projid, $packid, undef, 'dsc', $files, \$specdscambig);
+	  if ($dsc) {
+	    my $d = finddeps($projid, $packid, "$dscmd5-$dsc", $bconf, \$ifdeps);
+	    if (defined($d->{'name'})) {
+	      my $version = $d->{'version'};
+	      $version = 'unknown' unless defined $version;
+	      $pinfo->{'versrel'} = "$version-$rev->{'vrev'}" unless $pinfo->{'versrel'};
+	      if (!$ifdeps) {
+		push @dinfo, {'repository' => ':dsc', 'file' => $dsc, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+		$dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
+	      }
+	    } else {
+	      undef $dsc;
+	    }
+	  }
+          $pinfo->{'versrel'} = "unknown-$rev->{'vrev'}" unless $pinfo->{'versrel'};
+	  if ($ifdeps || $repoids || $specdscambig || ($enable && %$enable) || ($disable && %$disable)) {
+	    @dinfo = ();
+	    print "$projid/$packid is repo dependant\n";
+	    for my $repo (@{$proj->{'repository'} || []}) {
+	      my $repoid = $repo->{'name'};
+	      next if $repoids && !$repoids->{$repoid};
+	      if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
+	        push @dinfo, {'repository' => $repoid, 'error' => 'disabled'};
+		next;
+	      }
+	      if (!$bconfs{$repoid}) {
+		print "reading config for $projid/$repoid $arch\n";
+		my ($c) = getconfig($cgi, $projid, $repoid);
+		$c = [ split("\n", $c) ];
+	        $bconfs{$repoid} = Build::read_config($arch, $c);
+	      }
+	      my $conf = $bconfs{$repoid};
+	      ($specmd5, $spec) = findspecdsc($projid, $packid, $repoid, 'spec', $files) if $specdscambig;
+	      ($dscmd5, $dsc) = findspecdsc($projid, $packid, $repoid, 'dsc', $files) if $specdscambig;
+	      if ($spec && ($conf->{'type'} eq 'spec' || !$dsc)) {
+		my $d = finddeps($projid, $packid, "$specmd5-$spec", $conf);
+	        if (defined($d->{'name'})) {
+		  push @dinfo, {'repository' => $repoid, 'file' => $spec, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+		  $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
+		} else {
+		  push @dinfo, {'repository' => $repoid, 'error' => 'spec file parse error'};
+		}
+	        next;
+	      }
+	      next unless defined $dsc;
+	      my $d = finddeps($projid, $packid, "$dscmd5-$dsc", $conf);
+	      if (defined($d->{'name'})) {
+	        push @dinfo, {'repository' => $repoid, 'file' => $dsc, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+		$dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
+	      } else {
+	        push @dinfo, {'repository' => $repoid, 'error' => 'dsc file parse error'};
+	      }
+	    }
+	  }
+	  $pinfo->{'info'} = \@dinfo;
+	}
+      }
+    }
+    $jinfo->{'package'} = \@pinfo;
+    push @res, $jinfo;
+  }
+  return ({'project' => \@res}, $BSXML::projpack);
+}
+
+sub getproject {
+  my ($cgi, $projid) = @_;
+  my $proj = readproj($projid);
+  return ($proj, $BSXML::proj);
+}
+
+sub putproject {
+  my ($cgi, $projid) = @_;
+  mkdir_p("$srcrep/:upload");
+  my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
+  die("upload failed\n") unless $uploaded;
+  my $proj = readxml("$srcrep/:upload/$$", $BSXML::proj);
+  BSVerify::verify_proj($proj, $projid);
+  writexml("$srcrep/:upload/$$.2", undef, $proj, $BSXML::proj);
+  unlink("$srcrep/:upload/$$");
+  rename("$srcrep/:upload/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
+  notify_repservers('projevent', $projid);
+  $proj = readproj($projid);
+  return ($proj, $BSXML::proj);
+}
+
+sub putpackage {
+  my ($cgi, $projid, $packid) = @_;
+  mkdir_p("$srcrep/:upload");
+  my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
+  die("upload failed\n") unless $uploaded;
+  my $pack = readxml("$srcrep/:upload/$$", $BSXML::pack);
+  BSVerify::verify_pack($pack, $packid);
+  die("package contains revision data\n") if grep {exists $pack->{$_}} @$srcrevlay;
+  # XXX
+  # delete rev stuff, just in case...
+  # delete $pack->{$_} for @$srcrevlay;
+  # $pack->{'name'} = $packid;
+  writexml("$srcrep/:upload/$$.2", undef, $pack, $BSXML::pack);
+  unlink("$srcrep/:upload/$$");
+  my $proj = readproj($projid);
+  mkdir_p("$projectsdir/$projid.pkg");
+  rename("$srcrep/:upload/$$.2", "$projectsdir/$projid.pkg/$packid.xml") || die("rename to $projectsdir/$projid.pkg/$packid.xml: $!\n");
+#  my %packages = map {$_->{'name'} => 1} @{$proj->{'package'} || []};
+#  if (!$packages{$packid}) {
+#    # a new package! add id to project data
+#    push @{$proj->{'package'}}, {'name' => $packid};
+#    writexml("$srcrep/:upload/$$.3", "$projectsdir/$projid.xml", $proj, $BSXML::proj);
+#  }
+  notify_repservers('srcevent', $projid, $packid);
+  $pack = readpack($projid, $packid);
+  return ($pack, $BSXML::pack);
+}
+
+sub delpackage {
+  my ($cgi, $projid, $packid) = @_;
+  die("project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  die("package '$packid' does not exist in project '$projid'\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
+  unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
+  unlink("$projectsdir/$projid.pkg/$packid.rev");
+  unlink("$projectsdir/$projid.pkg/$packid.xml");
+  notify_repservers('srcevent', $projid);
+  return $BSStdServer::return_ok;
+}
+
+sub getpackagelist {
+  my ($cgi, $projid) = @_;
+  my $proj = readproj($projid);
+  my @packages = findpackages($projid);
+  my @plist = map {{'name' => $_}} @packages;
+  return ({'entry' => \@plist}, $BSXML::dir);
+}
+
+sub getpackage {
+  my ($cgi, $projid, $packid) = @_;
+  my $pack = readpack($projid, $packid);
+  return ($pack, $BSXML::pack);
+}
+
+sub getpackagehistory {
+  my ($cgi, $projid, $packid) = @_;
+  my @res;
+  for (BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay)) {
+    push @res, $_;
+  }
+  return ({'revision' => \@res}, $BSXML::packhist);
+}
+
+sub getsources {
+  my ($cgi, $projid, $packid, $srcmd5) = @_;
+  my $files = lsrep($projid, $packid, $srcmd5);
+  delete $files->{'/LINK'};
+  delete $files->{'/LOCAL'};
+  my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} keys %$files;
+  BSServer::reply_cpio(\@send);
+  return undef;
+}
+
+# XXX -> library
+sub expandsearchpath {
+  my ($projid, $repoid) = @_;
+  my %done;
+  my @ret;
+  my @path = {project => $projid, repository => $repoid};
+  while (@path) {
+    my $t = shift @path;
+    my $prp = "$t->{'project'}/$t->{'repository'}";
+    push @ret, $prp unless $done{$prp};
+    $done{$prp} = 1;
+    if (!@path) {
+      my ($pid, $tid) = ($t->{'project'}, $t->{'repository'});
+      last if $done{"/$prp"};
+      my $proj = readproj($pid);
+      last unless $proj;
+      $done{"/$prp"} = 1;
+      my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
+      push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
+    }
+  }
+  return @ret;
+}
+
+sub getmacros {
+  my ($cgi, $projid, $repoid) = @_;
+  my @path = expandsearchpath($projid, $repoid);
+  my $macros = "%vendor openSUSE Build Service\n";
+  for my $prp (@path) {
+    my ($projid) = split('/', $prp, 2);
+    next if ! -e "$projectsdir/$projid.macros";
+    $macros .= "\n### from $projid\n";
+    $macros .= readstr("$projectsdir/$projid.macros");
+  }
+  return ($macros, 'Content-Type: text/plain');
+}
+
+sub getconfig {
+  my ($cgi, $projid, $repoid) = @_;
+  my @path = expandsearchpath($projid, $repoid);
+  my $config = '';
+  my $macros = "%vendor openSUSE Build Service\n";
+  my $lastr = '';
+  for my $prp (reverse @path) {
+    my ($p, $r) = split('/', $prp, 2);
+    if (-s "$projectsdir/$p.conf") {
+      $config .= "\n### from $p\n";
+      $config .= "%define %_repository $r\n";
+      my $c = readstr("$projectsdir/$p.conf");
+      if ($c =~ /^(.*\n)?\s*macros:[^\n]*\n(.*)/si) {
+	$c = defined($1) ? $1 : '';
+        $macros .= "\n### from $p\n";
+        $macros .= "%_repository $r\n";
+        $macros .= $2;
+        $lastr = $r;
+      }
+      $config .= $c;
+    }
+  }
+  if ($lastr ne $repoid) {
+    $macros .= "\n### from $projid\n";
+    $macros .= "%_repository $repoid\n";
+  }
+  $macros .= "\n%distribution $projid / $repoid\n";
+  $config .= "\nMacros:\n$macros" if $macros ne '';
+  return ($config, 'Content-Type: text/plain');
+}
+
+sub getprojectconfig {
+  my ($cgi, $projid) = @_;
+  my $proj = readproj($projid);
+  my $config = readstr("$projectsdir/$projid.conf", 1);
+  $config = '' unless defined $config;
+  return ($config, 'Content-Type: text/plain');
+}
+
+sub putprojectconfig {
+  my ($cgi, $projid) = @_;
+  my $proj = readproj($projid);
+  mkdir_p("$srcrep/:upload");
+  my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
+  die("upload failed\n") unless $uploaded;
+  if (-s "$srcrep/:upload/$$") {
+    rename("$srcrep/:upload/$$", "$projectsdir/$projid.conf") || die("rename $srcrep/:upload/$$ $projectsdir/$projid.conf: $!\n");
+  } else {
+    unlink("$projectsdir/$projid.conf") || die("unlink $projectsdir/$projid.conf: $!\n");
+  }
+  notify_repservers('projevent', $projid);
+  return $BSStdServer::return_ok;
+}
+
+sub getfilelist {
+  my ($cgi, $projid, $packid) = @_;
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  die("nothing known\n") unless $rev;
+  return ({'entry' => []}, $BSXML::dir) if $rev->{'srcmd5'} eq 'empty';
+  my $ret = {};
+  my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+  if ($files->{'_link'}) {
+    my %lrev = %$rev;
+    $lrev{'name'} = $packid;
+    my $lfiles = handlelinks($projid, \%lrev, $files, $rev);
+    delete $lrev{'rev'};
+    if ($cgi->{'follow'}) {
+      die("$lfiles\n") if !ref $lfiles;
+      $files = $lfiles;
+      %$rev = %lrev;
+    } else {
+      if (!ref $lfiles) {
+	$ret->{'error'} = $lfiles;
+      } else {
+	$ret->{'xsrcmd5'} = $lrev{'srcmd5'};
+      }
+    }
+  }
+  $ret->{'name'} = $packid;
+  $ret->{'srcmd5'} = $rev->{'srcmd5'};
+  $ret->{'rev'} = $rev->{'rev'} if exists $rev->{'rev'};
+  my $limd5;
+  my $lfiles = $files;
+  if ($files->{'/LINK'}) {
+    $limd5 = $files->{'/LINK'};
+    $ret->{'lsrcmd5'} = $files->{'/LOCAL'};
+    $lfiles = lsrep($projid, $packid, $files->{'/LOCAL'});
+    die("bad source link\n") unless $lfiles->{'_link'};
+  }
+  if ($lfiles->{'_link'}) {
+    my $l = readxml("$srcrep/$packid/$lfiles->{'_link'}-_link", $BSXML::link, 1);
+    die("bad source link\n") if $limd5 && !$l;
+    if ($l) {
+      $ret->{'tproject'} = $l->{'project'};
+      $ret->{'tpackage'} = $l->{'package'};
+      $ret->{'trev'} = $l->{'rev'} if $l->{'rev'};
+      $ret->{'tsrcmd5'} = $limd5 if $limd5;
+    }
+  }
+  delete $files->{'/LINK'};
+  delete $files->{'/LOCAL'};
+  my @res;
+  for my $filename (sort keys %$files) {
+    my @s = stat("$srcrep/$packid/$files->{$filename}-$filename");
+    if (@s) {
+      push @res, {'name' => $filename, 'md5' => $files->{$filename}, 'size' => $s[7], 'mtime' => $s[9]};
+    } else {
+      push @res, {'name' => $filename, 'md5' => $files->{$filename}, 'error' => "$!"};
+    }
+  }
+  $ret->{'entry'} = \@res;
+  return ($ret, $BSXML::dir);
+}
+
+sub getfile {
+  my ($cgi, $projid, $packid, $filename) = @_;
+  die("no filename\n") unless defined($filename) && $filename ne '';
+  die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
+  my $rev = getrev($projid, $packid, $cgi->{'rev'});
+  die("$filename: no such project/package\n") unless $rev;
+  my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+  die("$filename: no such file\n") unless $files->{$filename};
+  BSServer::reply_file("$srcrep/$packid/$files->{$filename}-$filename");
+  return undef;
+}
+
+sub putfile {
+  my ($cgi, $projid, $packid, $filename) = @_;
+  die("no filename\n") unless defined($filename) && $filename ne '';
+  die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  die("unknown project/package\n") unless $rev;
+  mkdir_p("$srcrep/:upload");
+  my $uploaded = BSServer::read_file("$srcrep/:upload/$$", 'withmd5' => 1);
+  die("upload failed\n") unless $uploaded;
+  my $srname = "$uploaded->{'md5'}-$filename";
+  if (! -e "$srcrep/$packid/$srname") {
+    mkdir_p "$srcrep/$packid";
+    rename("$srcrep/:upload/$$", "$srcrep/$packid/$srname") || die("rename $srcrep/:upload/$$ $srcrep/$packid/$srname: $!\n");
+  } else {
+    #already there, all the upload work was unneeded...
+    unlink("$srcrep/:upload/$$");
+  }
+  # create new meta file
+  my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+  $files->{$filename} = $uploaded->{'md5'};
+  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
+  $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
+  return ($rev, $BSXML::revision);
+}
+
+sub postfilelist {
+  my ($cgi, $projid, $packid) = @_;
+  die("unknown command \"$cgi->{'cmd'}\"\n") unless $cgi->{'cmd'} eq 'commit';
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  die("unknown project/package\n") unless $rev;
+  my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
+  $rev = addrev($projid, $packid, $files, $user, $comment);
+  # always kill upload revision
+  unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
+  return ($rev, $BSXML::revision);
+}
+
+sub putfilelist {
+  my ($cgi, $projid, $packid) = @_;
+  die("unknown command \"$cgi->{'cmd'}\"\n") unless $cgi->{'cmd'} eq 'commit';
+  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
+  mkdir_p("$srcrep/:upload");
+  my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
+  die("upload failed\n") unless $uploaded;
+  my $fl = readxml("$srcrep/:upload/$$", $BSXML::dir);
+  unlink("$srcrep/:upload/$$");
+  # make sure we know every file
+  my @missing;
+  my $files = {};
+  for my $entry (@{$fl->{'entry'} || []}) {
+    BSVerify::verify_filename($entry->{'name'});
+    BSVerify::verify_md5($entry->{'md5'});
+    if (! -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}") {
+      push @missing, $entry;
+    } else {
+      die("duplicate file: $entry->{'name'}\n") if exists $files->{$entry->{'name'}};
+      $files->{$entry->{'name'}} = $entry->{'md5'};
+    }
+  }
+  if (@missing) {
+    my $res = {'name' => $packid, 'error' => 'missing', 'entry' => \@missing};
+    return ($res, $BSXML::dir);
+  } else {
+    my $rev = addrev($projid, $packid, $files, $user, $comment);
+    $cgi->{'rev'} = $rev->{'rev'};
+    return getfilelist($cgi, $projid, $packid);
+  }
+}
+
+sub delfile {
+  my ($cgi, $projid, $packid, $filename) = @_;
+  die("no filename\n") unless defined($filename) && $filename ne '';
+  die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  die("unknown project/package\n") unless $rev;
+  my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+  die("file '$filename' does not exist\n") unless $files->{$filename};
+  delete $files->{$filename};
+  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
+  $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
+  return ($rev, $BSXML::revision);
+}
+
+sub getrepositorylist {
+  my ($cgi, $projid) = @_;
+  my $proj = readproj($projid);
+  my @res = map {{'name' => $_->{'name'}}} @{$proj->{'repository'} || []};
+  return ({'entry' => \@res}, $BSXML::dir);
+}
+
+sub getrepository {
+  my ($cgi, $projid, $repoid) = @_;
+  my $proj = readproj($projid);
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
+  die("$repoid: no such repository\n") unless $repo;
+  return ($repo, $BSXML::repo);
+}
+
+sub getarchlist {
+  my ($cgi, $projid, $repoid) = @_;
+  my $proj = readproj($projid);
+  my @repo = grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []};
+  die("$repoid: no such repository\n") unless @repo;
+  my @res = map {{'name' => $_}} @{$repo[0]->{'arch'} || []};
+  return ({'entry' => \@res}, $BSXML::dir);
+}
+
+sub getstatus_obsolete {
+  my ($cgi, $projid, $repoid, $packid) = @_;
+
+  my $proj = readproj($projid);
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
+  die("unknown repository\n") unless $repo;
+  my @prpas = map {"$projid/$repoid/$_"} @{$repo->{'arch'} || []};
+  my $ps;
+  for my $rrserver ($BSConfig::reposerver) {
+    my @args = map {"prpa=$_"} @prpas;
+    push @args, "package=$packid";
+    eval {
+      $ps = BSWatcher::rpc("$rrserver/status", $BSXML::packstatuslistlist, @args);
+    };
+  }
+  die("bad answer\n") unless $ps;
+  my @ret;
+  my ($failed, $succeeded) = (0, 0);
+  for my $p (@{$ps->{'packstatuslist'} || []}) {
+    my $pp = ($p->{'packstatus'} || [])->[0];
+    if (!$pp) {
+      push @ret, {'name' => "$projid/$repoid/$p->{'arch'}", 'status' => 'unknown'};
+      $failed++;
+    } else {
+      push @ret, {'name' => "$projid/$repoid/$p->{'arch'}", 'status' => $pp->{'status'}};
+      $ret[-1]->{'error'} = $pp->{'error'} if $pp->{'error'};
+      if ($pp->{'status'} eq 'succeeded') {
+        $succeeded++;
+      } else {
+        $failed++;
+      }
+    }
+  }
+  push @ret, {'name' => "$projid/$repoid/:all", 'succeeded' => $succeeded, 'failed' => $failed};
+  return ({'statussum' => \@ret}, $BSXML::buildstatussumlist);
+}
+
+sub getpackstatus {
+  my ($cgi, $projid) = @_;
+
+  if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
+    my @args = "oldstate=$cgi->{'oldstate'}";
+    push @args, "summary" if $cgi->{'summary'};
+    push @args, "summaryonly" if $cgi->{'summaryonly'};
+    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    BSHandoff::handoff($ajaxsocket, "/status/$projid", undef, @args);
+    exit(0);
+  }
+
+  my $proj = readproj($projid);
+  my @prpas;
+  for my $repo (@{$proj->{'repository'} || []}) {
+    push @prpas, map {"$projid/$repo->{'name'}/$_"} @{$repo->{'arch'} || []};
+  }
+
+  BSWatcher::addfilewatcher("$projectsdir/$projid.xml") if $BSStdServer::isajax;
+
+  if (!@prpas) {
+    my $state = "00000000000000000000000000000000";
+    return undef if $BSStdServer::isajax && $cgi->{'oldstate'} && $state eq $cgi->{'oldstate'};
+    return ({'state' => $state}, $BSXML::packstatuslistlist);
+  }
+
+  my $ps = {};
+  # XXX FIXME multiple repo handling
+  my @oldstate;
+  push @oldstate, "oldstate=$cgi->{'oldstate'}" if $cgi->{'oldstate'};
+  for my $rrserver ($BSConfig::reposerver) {
+    my @args = @oldstate;
+    push @args, map {"prpa=$_"} @prpas;
+    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    eval {
+      $ps = BSWatcher::rpc("$rrserver/status", $BSXML::packstatuslistlist, @args);
+    };
+    if ($@) {
+      print "warning: $rrserver: $@";
+      $ps = {};
+    }
+  }
+  return if $BSStdServer::isajax && !defined($ps);
+  if ($cgi->{'summary'} || $cgi->{'summaryonly'}) {
+    my @order = ('succeeded', 'failed', 'expansion error', 'broken', 'scheduled');
+    my %order = map {$_ => 1} @order;
+    for my $p (@{$ps->{'packstatuslist'} || []}) {
+      my %sum;
+      for my $pp (@{$p->{'packstatus'} || []}) {
+        $sum{$pp->{'status'}}++ if $pp->{'status'};
+      }
+      my @sum = grep {exists $sum{$_}} @order;
+      push @sum, grep {!$order{$_}} sort keys %sum;
+      $p->{'packstatussummary'} = [ map {{'status' => $_, 'count' => $sum{$_}}} @sum ];
+      delete $p->{'packstatus'} unless $cgi->{'summary'};
+    }
+  }
+  return ($ps, $BSXML::packstatuslistlist);
+}
+
+sub getresult {
+  my ($cgi, $projid) = @_;
+
+  my %repoidfilter = map {$_ => 1} @{$cgi->{'repository'} || []};
+  my %archfilter = map {$_ => 1} @{$cgi->{'arch'} || []};
+  my %view = map {$_ => 1} @{$cgi->{'view'} || ['status']};
+  my %code = map {$_ => 1} @{$cgi->{'code'} || []};
+
+  my $proj = readproj($projid);
+  my @prpas;
+  for my $repo (@{$proj->{'repository'} || []}) {
+    next if %repoidfilter && !$repoidfilter{$repo->{'name'}};
+    my @archs = @{$repo->{'arch'} || []};
+    @archs = grep {$archfilter{$_}} @archs if %archfilter;
+    push @prpas, map {"$projid/$repo->{'name'}/$_"} @archs;
+  }
+
+  my $ps = {};
+  # XXX FIXME multiple repo handling
+  for my $rrserver ($BSConfig::reposerver) {
+    my @args;
+    push @args, map {"prpa=$_"} @prpas;
+    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    push @args, "withbinarylist" if $view{'binarylist'};
+    eval {
+      $ps = BSWatcher::rpc("$rrserver/_result", $BSXML::resultlist, @args);
+    };
+    if ($@) {
+      print "warning: $rrserver: $@";
+      $ps = {};
+    }
+  }
+  if (%code) {
+    for my $p (@{$ps->{'result'} || []}) {
+      $p->{'status'} = [ grep {defined($_->{'code'}) && $code{$_->{'code'}}} @{$p->{'status'} || []} ];
+    }
+  }
+  if ($view{'summary'}) {
+    my @order = ('succeeded', 'failed', 'expansion error', 'broken', 'scheduled');
+    my %order = map {$_ => 1} @order;
+    for my $p (@{$ps->{'result'} || []}) {
+      my %sum;
+      for my $pp (@{$p->{'status'} || []}) {
+        $sum{$pp->{'code'}}++ if $pp->{'code'};
+      }
+      my @sum = grep {exists $sum{$_}} @order;
+      push @sum, grep {!$order{$_}} sort keys %sum;
+      $p->{'summary'} = {'statuscount' => [ map {{'code' => $_, 'count' => $sum{$_}}} @sum ] };
+    }
+  }
+  if (!$view{'status'}) {
+    for my $p (@{$ps->{'result'} || []}) {
+      delete $p->{'status'};
+    }
+  }
+  return ($ps, $BSXML::resultlist);
+}
+
+sub docommand {
+  my ($cgi, $projid) = @_;
+
+  my %repoidfilter = map {$_ => 1} @{$cgi->{'repository'} || []};
+  my %archfilter = map {$_ => 1} @{$cgi->{'arch'} || []};
+
+  my $proj = readproj($projid);
+  my @prpas;
+  for my $repo (@{$proj->{'repository'} || []}) {
+    next if %repoidfilter && !$repoidfilter{$repo->{'name'}};
+    my @archs = @{$repo->{'arch'} || []};
+    @archs = grep {$archfilter{$_}} @archs if %archfilter;
+    push @prpas, map {"$projid/$repo->{'name'}/$_"} @archs;
+  }
+  die("no repository defined\n") unless @prpas;
+  my @packids = @{$cgi->{'package'} || []};
+  @packids = findpackages($projid) unless @packids;
+  die("no packages defined\n") unless @packids;
+  
+  # XXX FIXME multiple repo handling
+  my $res;
+  for my $rrserver ($BSConfig::reposerver) {
+    my @args;
+    push @args, map {"prpa=$_"} @prpas;
+    push @args, map {"package=$_"} @packids;
+    push @args, "cmd=$cgi->{'cmd'}";
+    $res = BSWatcher::rpc("$rrserver/_command", undef, @args);
+  }
+  return $res;
+}
+
+sub checkprojrepoarch {
+  my ($projid, $repoid, $arch) = @_;
+  my $proj = readproj($projid);
+  return unless defined $repoid;
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
+  die("project has no repository '$repoid'\n") unless $repo;
+  return unless defined $arch;
+  die("project has no architecture '$arch'\n") unless grep {$_ eq $arch} @{$repo->{'arch'} || []};
+}
+
+sub getbinarylist {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $bl = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid", $BSXML::binarylist);
+  return ($bl, $BSXML::binarylist);
+}
+
+sub getbinary {
+  my ($cgi, $projid, $repoid, $arch, $packid, $filename) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/$filename",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param);
+  return undef;
+}
+
+sub putbinary {
+  my ($cgi, $projid, $repoid, $arch, $filename) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my @args;
+  push @args, 'ignoreolder=1' if $cgi->{'ignoreolder'};
+  push @args, 'wipe=1' if $cgi->{'wipe'};
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/_repository/$filename",
+    'request' => 'PUT',
+    'data' => \&BSServer::forward_sender,
+    'chunked' => 1,
+  };
+  # XXX add return type checking
+  return BSWatcher::rpc($param, undef, @args);
+}
+
+sub getlogfile {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  return getbinary($cgi, $projid, $repoid, $arch, $packid, '_logfile');
+}
+
+sub getbuildinfo {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  if ($cgi->{'internal'}) {
+    my $buildinfo = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, 'internal=1');
+    return ($buildinfo, $BSXML::buildinfo);
+  }
+  my $buildinfo = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo);
+  return ($buildinfo, $BSXML::buildinfo);
+}
+
+sub getbuildinfo_post {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
+    'request' => 'POST',
+    'data' => \&BSServer::forward_sender,
+    'chunked' => 1,
+  };
+  my $buildinfo = BSWatcher::rpc($param, $BSXML::buildinfo);
+  return ($buildinfo, $BSXML::buildinfo);
+}
+
+sub getbuildstatus {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $status = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_status", $BSXML::buildstatus);
+  return ($status, $BSXML::buildstatus);
+}
+
+sub getajaxstatus {
+  my ($cgi) = @_;
+  if (!$BSStdServer::isajax) {
+    BSHandoff::handoff($ajaxsocket, '/ajaxstatus');
+    exit(0);
+  }
+  my $r = BSWatcher::getstatus();
+  return ($r, $BSXML::ajaxstatus);
+}
+
+sub search_proj {
+  my ($cgi, $match, $id) = @_;
+  $match =~ s/^\[(.*)\]$/$1/s;
+  my $data = [];
+  for my $projid (findprojects()) {
+    my $proj = readproj($projid);
+    push @$data, $proj;
+  }
+  $data = BSXPath::match($data, $match);
+  if ($id) {
+    for (@{$data || []}) {
+      $_ = {'name' => $_->{'name'}};
+    }
+  }
+  my $res = {'project' => $data};
+  return ($res, $BSXML::collection);
+}
+
+sub search_pack {
+  my ($cgi, $match, $id) = @_;
+  $match =~ s/^\[(.*)\]$/$1/s;
+  my $data = [];
+  for my $projid (findprojects()) {
+    my $proj = readproj($projid);
+    my @packages = findpackages($projid);
+    for my $packid (@packages) {
+      my $pack = readpack($projid, $packid);
+      $pack->{'project'} = $projid;
+      push @$data, $pack;
+    }
+  }
+  $data = BSXPath::match($data, $match);
+  if ($id) {
+    for (@{$data || []}) {
+      $_ = {'name' => $_->{'name'}, 'project' => $_->{'project'}};
+    }
+  }
+  my $res = {'package' => $data};
+  return ($res, $BSXML::collection);
+}
+
+sub search_proj_id {
+  return search_proj(@_, 1);
+}
+
+sub search_pack_id {
+  return search_pack(@_, 1);
+}
+
+
+sub search {
+  my ($cgi, $in, $match) = @_;
+  # gather all data
+  my $data = [];
+  if ($in eq 'projects') {
+    for my $projid (findprojects()) {
+      my $proj = readproj($projid);
+      push @$data, $proj;
+    }
+  } elsif ($in eq 'packages') {
+    for my $projid (findprojects()) {
+      my $proj = readproj($projid);
+      my @packages = findpackages($projid);
+      for my $packid (@packages) {
+        my $pack = readpack($projid, $packid);
+	$pack->{'project'} = $projid;
+        push @$data, $pack;
+      }
+    }
+  } else {
+    die("'in' parameter needs to be either 'projects' or 'packages'\n");
+  }
+  my $res;
+  if ($cgi->{'values'}) {
+    $data = BSXPath::valuematch($data, $match);
+    $res = {'value' => $data};
+  } else {
+    $data = BSXPath::match($data, $match);
+    if (exists $cgi->{'return'}) {
+      $data = BSXPath::valuematch($data, $cgi->{'return'});
+      $res = {'value' => $data};
+    } elsif ($in eq 'projects') {
+      $res = {'project' => $data};
+    } else {
+      $res = {'package' => $data};
+    }
+  }
+  return ($res, $BSXML::collection);
+}
+
+####################################################################
+
+sub hello {
+  my ($cgi) = @_;
+  return "<hello name=\"Source Repository Ajax Server\" />\n" if $BSStdServer::isajax;
+  return "<hello name=\"Source Repository Server\" />\n";
+}
+
+####################################################################
+
+my $dispatches = [
+  '/' => \&hello,
+
+  '/status' => \&getprojectlist,
+  '/status/$project summary:bool? summaryonly:bool? oldstate:md5? package*' => \&getpackstatus,
+  '/status/$project/$repository/$package' => \&getstatus_obsolete,
+
+  '/platform' => \&getprojectlist,
+  '/platform/$project' => \&getrepositorylist,
+  '/platform/$project/$repository' => \&getrepository,
+
+  '/repository' => \&getprojectlist,
+  '/repository/$project' => \&getrepositorylist,
+  '/repository/$project/$repository' => \&getrepository,
+
+  '/project' => \&getprojectlist,
+  '/project/$project' => \&getproject,
+  'PUT:/project/$project' => \&putproject,
+
+  '/package' => \&getprojectlist,
+  '/package/$project' => \&getpackagelist,
+  '/package/$project/$package' => \&getpackage,
+  'PUT:/package/$project/$package' => \&putpackage,
+  'DELETE:/package/$project/$package' => \&delpackage,
+  '/package/$project/$package/history' => \&getpackagehistory,
+
+  '/source' => \&getprojectlist,
+  '/source/$project' => \&getpackagelist,
+  '/source/$project/_meta' => \&getproject,
+  'PUT:/source/$project/_meta' => \&putproject,
+  '/source/$project/_config' => \&getprojectconfig,
+  'PUT:/source/$project/_config' => \&putprojectconfig,
+  'POST:/source/$project/$package cmd: rev? user:? comment:?' => \&postfilelist,
+  'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&putfilelist,
+  '/source/$project/$package rev? follow:bool?' => \&getfilelist,
+  '/source/$project/$package/_meta' => \&getpackage,
+  'PUT:/source/$project/$package/_meta' => \&putpackage,
+  'DELETE:/source/$project/$package' => \&delpackage,
+  '/source/$project/$package/$filename rev?' => \&getfile,
+  'PUT:/source/$project/$package/$filename rev? user:? comment:?' => \&putfile,
+  'DELETE:/source/$project/$package/$filename rev? user:? comment:?' => \&delfile,
+
+  '/getprojectlist' => \&getprojectlist,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool?' => \&getprojpack,
+  '/getsources $project $package $srcmd5:md5' => \&getsources,
+  '/getmacros $project $repository' => \&getmacros,
+  '/getconfig $project $repository' => \&getconfig,
+
+  '/search $in: $match: return:? values:bool?' => \&search,
+  '/search/project $match:' => \&search_proj,
+  '/search/project/id $match:' => \&search_proj_id,
+  '/search/package $match:' => \&search_pack,
+  '/search/package/id $match:' => \&search_pack_id,
+
+  # new /build API
+  '/build' => \&getprojectlist,
+  'POST:/build/$project cmd: repository* arch* package*' => \&docommand,
+  '/build/$project' => \&getrepositorylist,
+  '/build/$project/_result view:resultview* repository* arch* package* code:*' => \&getresult,
+  '/build/$project/$repository' => \&getarchlist,
+  '/build/$project/$repository/_buildconfig' => \&getconfig,
+  '/build/$project/$repository/$arch' => \&getpackagelist,
+  '/build/$project/$repository/$arch/$package_repository' => \&getbinarylist,
+  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo' => \&getbuildinfo_post,
+  '/build/$project/$repository/$arch/$package/_buildinfo internal:bool?' => \&getbuildinfo,
+  '/build/$project/$repository/$arch/$package/_logfile' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
+  '/build/$project/$repository/$arch/$package_repository/$filename' => \&getbinary,
+  'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
+
+  '/ajaxstatus' => \&getajaxstatus,
+];
+
+####################################################################
+
+my $dispatches_ajax = [
+  '/' => \&hello,
+  '/ajaxstatus' => \&getajaxstatus,
+  '/status/$project summary:bool? summaryonly:bool? oldstate:md5? package*' => \&getpackstatus,
+];
+
+####################################################################
+
+my $conf = {
+  'port' => $port,
+  'dispatches' => $dispatches,
+  'setkeepalive' => 1,
+};
+
+my $aconf = {
+  'socketpath' => $ajaxsocket,
+  'dispatches' => $dispatches_ajax,
+  'getrequest_timeout' => 10,
+  'replrequest_timeout' => 10,
+  'getrequest_recvfd' => \&BSHandoff::receive,
+  'setkeepalive' => 1,
+};
+
+BSStdServer::server('bs_srcserver', \@ARGV, $conf, $aconf);

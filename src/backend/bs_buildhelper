@@ -1,0 +1,373 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# to be integarted into bs_worker
+#
+
+use Digest::MD5 ();
+use XML::Structured;
+
+use BSRPC;
+use BSXML;
+use BSConfig;
+use BSDEBQ;
+use BSBuild;
+
+die("usage: bs_buildhelper <command>\n") unless @ARGV;
+
+sub sortpacks {
+  my ($depsp, @packs) = @_;
+
+  my %deps;
+  my %rdeps;
+  my %needed;
+
+  # map and unify dependencies, create rdeps and needed
+  my %known = map {$_ => 1} @packs;
+  for my $p (@packs) {
+    if ($basep && $basep->{$p}) {
+      $deps{$p} = [];
+      $needed{$p} = 0;
+      next;
+    }
+    my @fdeps = grep {$known{$_}} @{$depsp->{$p} || []};
+    my %fdeps = ($p => 1);      # no self reference
+    @fdeps = grep {!$fdeps{$_}++} @fdeps;
+    $deps{$p} = \@fdeps;
+    $needed{$p} = @fdeps;
+    push @{$rdeps{$_}}, $p for @fdeps;
+  }
+  undef %known;         # free memory
+
+  @packs= sort {$needed{$a} <=> $needed{$b} || $a cmp $b} @packs;
+  my @good;
+  my @res;
+  # the big sort loop
+  while (@packs) {
+    @good = grep {$needed{$_} == 0} @packs;
+    if (@good) {
+      @packs = grep {$needed{$_}} @packs;
+      push @res, @good;
+      for my $p (@good) {
+        $needed{$_}-- for @{$rdeps{$p}};
+      }
+      next;
+    }
+    # uh oh, cycle alert. find and remove all cycles.
+    my %notdone = map {$_ => 1} @packs;
+    $notdone{$_} = 0 for @res;  # already did those
+    my @todo = @packs;
+    while (@todo) {
+      my $v = shift @todo;
+      if (ref($v)) {
+        $notdone{$$v} = 0;      # finished this one
+        next;   
+      }
+      my $s = $notdone{$v};
+      next unless $s;
+      my @e = grep {$notdone{$_}} @{$deps{$v}};
+      if (!@e) {
+        $notdone{$v} = 0;       # all deps done, mark as finished
+        next;
+      }
+      if ($s == 1) {
+        $notdone{$v} = 2;       # now under investigation
+        unshift @todo, @e, \$v;
+        next;
+      }
+      # reached visited package, found a cycle!
+      my @cyc = ();
+      my $cycv = $v;
+      # go back till $v is reached again
+      while(1) {
+        die unless @todo;
+        $v = shift @todo;
+        next unless ref($v);
+        $v = $$v;
+        $notdone{$v} = 1 if $notdone{$v} == 2;
+        unshift @cyc, $v;
+        last if $v eq $cycv;
+      }
+      unshift @todo, 
+      print STDERR "cycle: ".join(' -> ', @cyc)."\n";
+      my $breakv;
+      if ($buildp) {
+        my @b = grep {$buildp->{$_}} @cyc;
+        $breakv = $b[0] if @b;
+      }
+      if (!defined($breakv)) {
+        my @b = @cyc;
+        @b = sort {$needed{$a} <=> $needed{$b} || $a cmp $b} @b;
+        $breakv = $b[0];
+      }
+      push @cyc, $cyc[0];
+      shift @cyc while $cyc[0] ne $breakv;
+      print STDERR "  breaking with $breakv -> $cyc[1]\n";
+      $deps{$breakv} = [ grep {$_ ne $cyc[1]} @{$deps{$breakv}} ];
+      $needed{$breakv}--;
+    }
+  }
+  return @res;
+}
+
+sub orderdeb {
+  my ($cachedir, @debs) = @_;
+  my %prov;
+  my %req;
+  for my $deb (@debs) {
+    my %q = BSDEBQ::debq("$cachedir/$deb.deb");
+    if (!%q) {
+      $req{$deb} = [];
+      push @{$prov{$deb}}, $deb;
+      next;
+    }
+    my @provides = split(',\s*', $q{'PROVIDES'} || '');
+    s/\s.*// for @provides;   #for now
+    my @depends = split(',\s*', $q{'DEPENDS'} || '');
+    my @predepends = split(',\s*', $q{'PRE-DEPENDS'} || '');
+    s/\s.*// for @provides;   #for now
+    s/\s.*// for @depends;    #for now
+    s/\s.*// for @predepends; #for now
+    push @depends, @predepends;
+    push @provides, $q{'PACKAGE'};
+    $req{$deb} = \@depends;
+    push @{$prov{$_}}, $deb for @provides;
+  }
+  for my $deb (@debs) {
+    $req{$deb} = [ map {$prov{$_} ? $prov{$_}->[0] : $_} @{$req{$deb}} ];
+  }
+  return sortpacks(\%req, @debs);
+}
+
+sub printbash {
+  my ($var, @args) = @_;
+  @args = grep {defined($_)} @args;
+  s/\'/\'\\\'\'/sg for @args;
+  print "$var='".join(' ', @args)."'\n";
+}
+
+sub readinfo {
+  my ($fn, $md5p) = @_;
+  local *F;
+  open(F, '<', $fn) || die("$fn: $!\n");
+  my $info = '';
+  1 while sysread(F, $info, 8192, length($info));
+  close F;
+  die("$fn: not a xml file\n") unless $info =~ /<.*?>/s;
+  $$md5p = Digest::MD5::md5_hex($info) if $md5p;
+  return XMLin($BSXML::buildinfo, $info);
+}
+
+sub getsigmd5 {
+  my ($bin) = @_;
+
+  if ($bin =~ /\.deb$/) {
+    my %q = BSDEBQ::debq($bin);
+    die("$bin: bad deb file\n") unless %q;
+    return $q{'CONTROL_MD5'};
+  }
+  local *F;
+  open(F, '<', $bin) || die("$bin: $!\n");
+  my $buf = '';
+  my $l;  
+  while (length($buf) < 96 + 16) { 
+    $l = sysread(F, $buf, 4096, length($buf));
+    die("$bin: read error\n") unless $l;
+  }
+  my ($magic, $sigtype) = unpack('N@78n', $buf);
+  die("$bin: not a rpm (bad magic of header type)\n") unless $magic == 0xedabeedb && $sigtype == 5;
+  my ($headmagic, $cnt, $cntdata) = unpack('@96N@104NN', $buf);
+  die("$bin: not a rpm (bad sig header magic)\n") unless $headmagic == 0x8eade801;
+  my $hlen = 96 + 16 + $cnt * 16 + $cntdata;
+  $hlen = ($hlen + 7) & ~7;
+  while (length($buf) < $hlen) {
+    $l = sysread(F, $buf, 4096, length($buf));
+    die("$bin: read error\n") unless $l;
+  }
+  close F;
+  my $idxarea = substr($buf, 96 + 16, $cnt * 16);
+  die("$bin: no md5 signature header\n") unless $idxarea =~ /\A(?:.{16})*\000\000\003\354\000\000\000\007(....)\000\000\000\020/s;
+  my $md5off = unpack('N', $1);
+  die("$bin: bad md5 offset\n") if $md5off >= $cntdata;
+  $md5off += 96 + 16 + $cnt * 16;
+  return unpack("\@${md5off}H32", $buf);
+}
+
+if ($ARGV[0] eq 'getsources') {
+  die("usage: bs_buildhelper getsources <info> <dir>\n") unless @ARGV == 3;
+  my $info = readinfo($ARGV[1]);
+  my $repo = $info->{'path'}->[0];
+  my $projid = $repo->{'project'};
+  my $res = BSRPC::rpc({
+    uri => "$BSConfig::srcserver/getsources",
+    directory => $ARGV[2],
+    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+  }, undef, "project=$projid", "package=$info->{'package'}", "srcmd5=$info->{'srcmd5'}");
+  die("Error\n") unless ref($res) eq 'ARRAY';
+  exit 0;
+}
+
+if ($ARGV[0] eq 'getmacros') {
+  die("usage: bs_buildhelper getmacros <info>\n") unless @ARGV == 2;
+  my $info = readinfo($ARGV[1]);
+  my $repo = $info->{'path'}->[0];
+  my ($projid, $repoid) = ($repo->{'project'}, $repo->{'repository'});
+  my $res = BSRPC::rpc("$BSConfig::srcserver/getmacros", undef, "project=$projid", "repository=$repoid");
+  print "$res\n" if $res;
+  exit(0);
+}
+
+if ($ARGV[0] eq 'getconfig') {
+  die("usage: bs_buildhelper getmacros <info>\n") unless @ARGV == 2;
+  my $info = readinfo($ARGV[1]);
+  my $repo = $info->{'path'}->[0];
+  my ($projid, $repoid) = ($repo->{'project'}, $repo->{'repository'});
+  my $res = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+  print "$res\n" if $res;
+  exit(0);
+}
+
+if ($ARGV[0] eq 'getbinaries') {
+  die("usage: bs_buildhelper getbinaries <info> <dir>\n") unless @ARGV == 3;
+  my $info = readinfo($ARGV[1]);
+  my @bdep = @{$info->{'bdep'} || []};
+  @bdep = map {ref($_) ? $_->{'name'} || $_->{'_content'} : $_} @bdep;
+  my %done;
+  my @todo = @bdep;
+  die("no binaries needed for this package?\n") unless @todo;
+  my %meta = ();
+  for my $repo (@{$info->{'path'} || []}) {
+    last if !@todo;
+    my $res = BSRPC::rpc({
+      uri => "$repo->{'server'}/getbinaries",
+      directory => $ARGV[2],
+      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    }, undef, "arch=$info->{'arch'}", "project=$repo->{'project'}", "repository=$repo->{'repository'}", "binaries=".join(',', @todo));
+    die("Error\n") unless ref($res) eq 'ARRAY';
+    for (@$res) {
+      $done{$1} = $_->{'name'} if $_->{'name'} =~ /^(.*)\.(?:rpm|deb)$/;
+      $meta{$1} = 1 if $_->{'name'} =~ /^(.*)\.meta$/;
+    }
+    @todo = grep {!$done{$_}} @todo;
+  }
+  die("missing packages: @todo\n") if @todo;
+  for my $p (@bdep) {
+    next if $meta{$p};
+    # use hdrmd5 as meta tag
+    my $sigmd5 = getsigmd5("$ARGV[2]/$done{$p}");
+    local *F;
+    open(F, '>', "$ARGV[2]/$p.meta") || die("$ARGV[2]/$p.meta: $!\n");
+    print F "$sigmd5  sigmd5\n";
+    close(F) || die("$ARGV[2]/$p.meta: $!\n");
+  }
+  exit(0);
+}
+if ($ARGV[0] eq 'vars') {
+  die("usage: bs_buildhelper vars <info>\n") unless @ARGV == 2;
+  my $info = readinfo($ARGV[1]);
+  my @bdep = @{$info->{'bdep'} || []};
+  my @pdep = map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep;
+  my @rdep = map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep;
+  my @dep = map {$_->{'name'}} grep {!$_->{'notmeta'}} @bdep;
+  @bdep = map {$_->{'name'}} @bdep;
+  my $repo = $info->{'path'}->[0];
+  my ($projid, $repository) = ($repo->{'project'}, $repo->{'repository'});
+  my $release = $info->{'versrel'};
+  $release =~ s/.*-//;
+  $release .= ".$info->{'bcnt'}";
+  printbash('PNAME', $info->{'package'});
+  printbash('SPECFILE', $info->{'specfile'});
+  printbash('PMD5', $info->{'srcmd5'});
+  printbash('VMD5', $info->{'verifymd5'} || $info->{'srcmd5'});
+  printbash('PROJECT', $projid);
+  printbash('REPOSITORY', $repository);
+  printbash('SUBPACKS', @{$info->{'subpack'} || []});
+  printbash('TARGETARCH', $info->{'arch'});
+  printbash('RELEASE', $release);
+  printbash('PACKAGES_TO_INSTALL', @bdep);
+  printbash('PACKAGES_TO_PREINSTALL', @pdep);
+  printbash('PACKAGES_TO_RUNSCRIPTS', @rdep);
+  printbash('PACKAGE_DEPS', @dep);
+  exit(0);
+}
+if ($ARGV[0] eq 'putjob') {
+  die("usage: bs_buildhelper putjob <info> [files...]\n") unless @ARGV >= 2;
+  my $infomd5;
+  my $info = readinfo($ARGV[1], \$infomd5);
+  my $repo = $info->{'path'}->[0];
+  shift @ARGV;
+  shift @ARGV;
+  my @send;
+  for (@ARGV) {
+    die("$_: $!\n") unless -f $_;
+    my $n = $_;
+    $n =~ s/.*\///;
+    $n = 'logfile' if $n eq '.build.log';
+    push @send, {name => $n, filename => $_};
+  }
+  my $res = BSRPC::rpc({
+    uri => "$repo->{'server'}/putjob",
+    request => 'POST',
+    headers => [ 'Content-Type: application/x-cpio' ],
+    chunked => 1,
+    data => \&BSHTTP::cpio_sender,
+    cpiofiles => \@send,
+  }, undef, "job=$info->{'job'}", "arch=$info->{'arch'}", "infomd5=$infomd5");
+  exit(0);
+}
+
+if ($ARGV[0] eq 'getsigmd5') {
+  die("usage: bs_buildhelper getsigmd5 <binary>\n") unless @ARGV == 2;
+  my $sigmd5 = getsigmd5($ARGV[1]);
+  print "$sigmd5  sigmd5\n";
+  exit(0);
+}
+
+if ($ARGV[0] eq 'genmeta') {
+  die("usage: bs_buildhelper genmeta subpacks...\n") unless @ARGV >= 1;
+  shift @ARGV;
+  my @deps = (<STDIN>);
+  chomp @deps;
+  @deps = grep {$_ ne ''} @deps;
+  my $myself = shift @deps;
+  @deps = BSBuild::gen_meta($myself, \@ARGV, @deps);
+  print "$_\n" for @deps;
+  exit(0);
+}
+
+if ($ARGV[0] eq 'getdebid') {
+  die("usage: bs_buildhelper getdebid <deb>\n") unless @ARGV == 2;
+  my %q = BSDEBQ::debq($ARGV[1]);
+  die("$ARGV[1]: bad deb file\n") unless %q;
+  print "$q{'PACKAGE'}-$q{'VERSION'}-0 $q{'CONTROL_MD5'}\n";
+  exit(0);
+}
+
+if ($ARGV[0] eq 'orderdeb') {
+  die("usage: bs_buildhelper orderdeb <dir> <debs>\n") unless @ARGV >= 2;
+  shift @ARGV;
+  my $cachedir = shift @ARGV;
+  my @debs = @ARGV;
+  @debs = orderdeb($cachedir, @debs);
+  print "@debs\n";
+  exit(0);
+}
+
+die("bs_buildhelper: unknown command '$ARGV[0]'\n");

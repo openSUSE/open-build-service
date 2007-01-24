@@ -1,0 +1,589 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Worker build process. Builds jobs received from a Repository Server,
+# sends build binary packages back.
+#
+
+use Digest::MD5 ();
+use XML::Structured;
+use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+
+use BSRPC;
+use BSServer;
+use BSConfig;
+use BSUtil;
+use BSXML;
+use BSHTTP;
+
+use strict;
+
+my $buildroot;
+my $statedir;
+my $hostarch;
+my $xen = '';
+my $workerid;
+my $testmode;
+
+my $buildlog_maxsize = 50 * 1000000;
+my $buildlog_maxidle = 8 * 3600;
+
+my %cando = (
+  'i586'   => ['i586'],
+  'i686'   => ['i586', 'i686'],
+  'x86_64' => ['x86_64', 'i586:linux32', 'i686:linux32'],
+  'ppc'    => ['ppc'],
+  'ppc64'  => ['ppc64', 'ppc:powerpc32'],
+);
+
+sub lockstate {
+  while (1) {
+    open(STATELOCK, '>>', "$statedir/state") || die("$statedir/state: $!\n");
+    flock(STATELOCK, LOCK_EX) || die("flock $statedir/state: $!\n");
+    my @s = stat(STATELOCK);
+    last if $s[3];	# check nlink
+    close(STATELOCK);	# race, try again
+  }
+  my $oldstate = readxml("$statedir/state", $BSXML::workerstate, 1);
+  $oldstate = {} unless $oldstate;
+  return $oldstate;
+}
+
+sub unlockstate {
+  close(STATELOCK);
+}
+
+sub commitstate {
+  my ($newstate) = @_;
+  writexml("$statedir/state.new", "$statedir/state", $newstate, $BSXML::workerstate) if $newstate;
+  close(STATELOCK);
+}
+
+sub trunc_logfile {
+  my $lf = shift;
+  open(LF, "<$lf") || return; 
+  my $buf;
+  sysread(LF, $buf, 1000000);
+  $buf .= "\n\n[truncated]\n\n";
+  sysseek(LF, -1000000, 2);
+  sysread(LF, $buf, 1000000, length($buf));
+  close LF;
+  $buf .= "\nLogfile got too big, killed job.\n";
+  open(LF, ">$lf.new") || return; 
+  syswrite(LF, $buf);
+  close LF;
+  rename("$lf.new", $lf);
+}
+
+sub usage {
+  my ($ret) = @_;
+
+print <<EOF;
+Usage: $0 [OPTION] --root <directory> --statedir <directory>
+
+       --root     : buildroot directory
+
+       --statedir : state directory
+
+       --id       : worker id
+
+       --arch     : define hostarch (overrides 'uname -m')
+                    currently supported architectures: 
+                    @{[sort keys %cando]}
+
+       --xen      : enable xen
+
+       --test     : enable test mode
+
+       --help     : this message
+
+EOF
+  exit $ret || 0;
+}
+
+my @saveargv = @ARGV;	# so we can restart ourself
+
+exit(0) if @ARGV == 1 && $ARGV[0] eq '--selftest';
+
+while (@ARGV) {
+  usage(0) if $ARGV[0] eq '--help';
+  if ($ARGV[0] eq '--root') {
+    shift @ARGV;
+    $buildroot = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--arch') {
+    shift @ARGV;
+    $hostarch = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--statedir') {
+    shift @ARGV;
+    $statedir = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--id') {
+    shift @ARGV;
+    $workerid = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--test') {
+    shift @ARGV;
+    $testmode = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--xen') {
+    $xen = ' --xen';
+    shift @ARGV;
+    next;
+  }
+  last;
+}
+
+usage(1) unless $buildroot && $statedir;
+
+# here's the build code we want to use
+$::ENV{'BUILD_DIR'} = "$statedir/build";
+
+if (!$hostarch) {
+  $hostarch = `uname -m`;
+  chomp $hostarch;
+  die("could not determine hostarch\n") unless $hostarch;
+}
+
+die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch};
+
+sub stream_logfile {
+  my ($nostream, $start, $end) = @_;
+  open(F, "<$buildroot/.build.log") || die("$buildroot/.build.log: $!\n");
+  my @s = stat(F);
+  $start ||= 0;
+  if (defined($end)) {
+    $end -= $start;
+    die("end is smaller than start\n") if $end < 0;
+  }
+  die("Logfile is not that big\n") if $s[7] < $start;
+  defined(sysseek(F, $start, 0)) || die("sysseek: $!\n");
+
+  BSServer::reply(undef, 'Content-Type: application/octet-stream', 'Transfer-Encoding: chunked');
+  my $pos = $start;
+  while(!defined($end) || $end) {
+    @s = stat(F);
+    if ($s[7] <= $pos) {
+      last if !$s[3];
+      select(undef, undef, undef, .5);
+      next;
+    }
+    my $data = '';
+    my $l = $s[7] - $pos;
+    $l = 4096 if $l > 4096;
+    sysread(F, $data, $l);
+    next unless length($data);
+    $data = substr($data, 0, $end) if defined($end) && length($data) > $end;
+    $pos += length($data);
+    $end -= length($data) if defined $end;
+    $data = sprintf("%X\r\n", length($data)).$data."\r\n";
+    BSServer::swrite($data);
+    last if $nostream && $pos >= $s[7];
+  }
+  close F;
+  BSServer::swrite("0\r\n\r\n");
+}
+
+sub send_state {
+  my ($state, $p, $ba, $exclude) = @_;
+  my @args = ("state=$state", "arch=$ba", "port=$p");
+  push @args, "workerid=$workerid" if defined $workerid;
+  my @servers = @BSConfig::reposervers;
+  for my $server (@servers) {
+    next if $exclude && $server eq $exclude;
+    eval {
+      BSRPC::rpc({
+        'uri' => "$server/worker",
+	'timeout' => 3,
+      }, undef, @args);
+    };
+    print "send_state $server: $@" if $@;
+  }
+}
+
+sub codemd5 {
+  my ($dir) = @_;
+  my @files = ls($dir);
+  my $md5 = '';
+  for my $file (sort @files) {
+    next if -l "$dir/$file" || -d "$dir/$file";
+    $md5 .= Digest::MD5::md5_hex(readstr("$dir/$file"))."  $file\n";
+  }
+  $md5 = Digest::MD5::md5_hex($md5);
+  return $md5;
+}
+
+sub getcode {
+  my ($dir, $uri, $ineval) = @_;
+
+  # evalize ourself
+  if (!$ineval) {
+    my $md5;
+    eval {
+     $md5 = getcode($dir, $uri, 1);
+    };
+    if ($@) {
+      warn($@);
+      return '';
+    }
+    return $md5;
+  }
+
+  my $ndir = "$dir.new";
+  my $odir = "$dir.old";
+
+  # clean up stale runs
+  if (-e $ndir) {
+    unlink("$ndir/$_") for ls($ndir);
+    rmdir($ndir) || die("rmdir $ndir: $!\n");
+  }
+  if (-e $odir) {
+    unlink("$odir/$_") for ls($odir);
+    rmdir($odir) || die("rmdir $odir: $!\n");
+  }
+
+  mkdir($ndir) || die("mkdir $ndir: $!\n");
+  my $res = BSRPC::rpc({
+    uri => $uri,
+    directory => $ndir,
+    withmd5 => 1,
+    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+  });
+  die("getcode error\n") unless $res;
+
+  # got everything, clean things up, check if it really works
+  if ($dir eq 'worker') {
+    symlink('.', "$ndir/XML") || die("symlink: $!\n");
+    chmod(0755, "$ndir/bs_worker");
+    die("bs_worker selftest failed\n") if system("cd $ndir && ./bs_worker --selftest");
+  } elsif ($dir eq 'build') {
+    # we just change everyfile to be on the safe side
+    chmod(0755, "$ndir/$_->{'name'}") for @$res;
+  }
+
+  # ok, commit
+  if (-e $dir) {
+    rename($dir, $odir) || die("rename $dir $odir: $!\n");
+  }
+  rename($ndir, $dir) || die("rename $ndir $dir: $!\n");
+  if (-e $odir) {
+    unlink("$odir/$_") for ls($odir);
+    rmdir($odir);
+  }
+  my $md5 = '';
+  for my $file (sort {$a->{'name'} cmp $b->{'name'}} @$res) {
+    $md5 .= "$file->{'md5'}  $file->{'name'}\n";
+  }
+  $md5 = Digest::MD5::md5_hex($md5);
+  return $md5;
+}
+
+# better safe than sorry...
+chdir($statedir) || die("$statedir: $!\n");
+
+# fix some modes
+chmod(0755, "worker/bs_build");
+chmod(0755, "worker/bs_buildhelper");
+
+BSServer::deamonize(@ARGV);
+my $port;
+
+# calculate code meta md5
+my $workercode = codemd5('worker');
+my $buildcode = codemd5('build');
+print "starting worker $workercode build $buildcode\n";
+
+# we always start idle
+lockstate();
+unlink("$statedir/job");
+unlink("$buildroot/.build.log");
+commitstate({'state' => 'idle'});
+
+# start server process...
+BSServer::serveropen(\$port);
+mkdir($buildroot) unless -d $buildroot;
+send_state('idle', $port, $hostarch);
+
+my $idlecnt = 0;
+my $rekillcnt = 0;
+
+my $conf = {
+  'timeout' => 10,
+};
+while (!BSServer::server($conf)) {
+  # timeout handler, called every 10 seconds
+  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
+  next unless $state;
+
+  if ($state->{'state'} eq 'idle') {
+    $idlecnt++;
+    if ($idlecnt % 30 == 0) {
+      # send idle message every 5 minutes in case the server was down
+      $idlecnt = 0;
+      send_state('idle', $port, $hostarch) if $state->{'state'} eq 'idle';
+    }
+  } else {
+    $idlecnt = 0;
+  }
+
+  if ($state->{'state'} eq 'rebooting') {
+    chdir("$statedir/worker") || die("$statedir/worker: $!");
+    exec("./bs_worker", @saveargv);
+    die("$statedir/worker/bs_worker: $!\n");	# oops
+  }
+
+  if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
+    $rekillcnt++;
+    if ($rekillcnt % 12 == 0) {
+      # re-kill after 2 minutes, maybe build is stuck somewhere
+      $rekillcnt = 0;
+      $state = lockstate();
+      if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
+        if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ($xen) : ()), "--kill")) {
+	  warn("could not kill job\n");
+        }
+      }
+      unlockstate();
+    }
+  } else {
+    $rekillcnt = 0;
+  }
+
+  next unless $state->{'state'} eq 'building';
+
+  my $locked = -1;
+  while ($locked++ < 1) {
+    $state = lockstate() if $locked == 1;
+    last if $state->{'state'} ne 'building';
+    my $ct = time();
+    my @s = stat("$buildroot/.build.log");
+    next unless @s;
+    if ($s[7] > $buildlog_maxsize) {
+      next unless $locked;
+      if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ($xen) : ()), "--kill")) {
+	warn("could not kill job\n");
+        last;
+      }
+      trunc_logfile("$buildroot/.build.log");
+      $state->{'state'} = 'killed';
+      commitstate($state);
+      $locked = 0;
+    } elsif ($ct - $s[9] > $buildlog_maxidle) {
+      next unless $locked;
+      if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ($xen) : ()), "--kill")) {
+	warn("could not kill job\n");
+        last;
+      }
+      local *F;
+      if (open(F, '>>', "$buildroot/.build.log")) {
+	print F "\n\nJob seems to be stuck here, killed.\n";
+	close F;
+      }
+      $state->{'state'} = 'killed';
+      commitstate($state);
+      $locked = 0;
+    }
+    last;
+  }
+  unlockstate() if $locked;
+}
+
+my $req = BSServer::readrequest();
+my $path = $req->{'path'};
+my $cgi = BSServer::parse_cgi($req);
+if ($path eq '/info') {
+  # check state?
+  my $info = readstr("$statedir/job");
+  BSServer::reply($info, 'Content-Type: text/xml');
+  exit(0);
+} elsif ($path eq '/logfile') {
+  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
+  die("not building\n") if $state->{'state'} ne 'building';
+  if ($cgi->{'jobid'}) {
+    my $infoxml = readstr('job');
+    die("building a different job\n") unless $cgi->{'jobid'} eq Digest::MD5::md5_hex($infoxml);
+  }
+  stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
+  exit(0);
+} elsif ($path eq '/kill' || $path eq '/discard') {
+  my $state = lockstate();
+  die("not building\n") if $state->{'state'} ne 'building';
+  if ($cgi->{'jobid'}) {
+    my $infoxml = readstr('job');
+    die("building a different job\n") unless $cgi->{'jobid'} eq Digest::MD5::md5_hex($infoxml);
+  }
+  if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ($xen) : ()), "--kill")) {
+    die("could not kill job\n");
+  }
+  local *F;
+  if (open(F, '>>', "$buildroot/.build.log")) {
+    if ($path eq '/kill') {
+      print F "\n\nKilled Job\n";
+    } else {
+      print F "\n\nDiscarded Job\n";
+    }
+    close F;
+  }
+  if ($path eq '/kill') {
+    $state->{'state'} = 'killed';
+    commitstate($state);
+    BSServer::reply("<status=\"ok\" />\n", 'Content-Type: text/xml');
+  } else {
+    $state->{'state'} = 'discarded';
+    commitstate($state);
+    BSServer::reply("<status=\"ok\" />\n", 'Content-Type: text/xml');
+  }
+  exit(0);
+} elsif ($path ne '/build' || $req->{'action'} ne 'PUT') {
+  die("unknown request: $path\n");
+}
+
+my $state = lockstate();
+if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode) {
+  $state->{'state'} = 'rebooting';
+  my $peer = "${BSServer::peer}:$cgi->{'port'}";
+  $workercode = getcode('worker', "http://$peer/getworkercode");
+  if (!$workercode) {
+    $state->{'state'} = 'broken';	# eek
+  } else {
+    print "activating new worker code $workercode\n";
+  }
+  commitstate($state);
+  die("rebooting...\n");
+}
+
+die("I am not idle!\n") unless $state->{'state'} eq 'idle';
+BSServer::read_file('job.new');
+my $infoxml = readstr('job.new');
+die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
+my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
+if ($cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
+  print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
+  my $peer = "${BSServer::peer}:$cgi->{'port'}";
+  $buildcode = getcode('build', "http://$peer/getbuildcode");
+  die("could not update build code\n") unless $buildcode;
+}
+
+rename('job.new', 'job') || die("rename job.new job: $!\n");
+if ($testmode) {
+  BSServer::reply("<status code=\"failed\">\n  <details>testmode activated</details>\n</status>\n", 'Status: 400 Testmode', 'Content-Type: text/xml');
+} else {
+  BSServer::reply("<status code=\"ok\">\n  <details>so much work, so little time...</details>\n</status>\n", 'Content-Type: text/xml');
+}
+print "got job, run build...\n";
+unlink("$buildroot/.build.log");
+unlink("$buildroot/.build.meta");
+unlink("$buildroot/.build.packages");
+$state->{'state'} = 'building';
+commitstate($state);
+
+my $repo = $buildinfo->{'path'}->[0];
+send_state('building', $port, $hostarch, $repo->{'server'});
+my $barch = $buildinfo->{'arch'};
+my $helper = '';
+/^\Q$barch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
+print "using helper $helper\n" if $helper;
+$helper .= ' ' if $helper;
+# now do the build!
+my $ex = system("cd worker && $helper./bs_build --root $buildroot$xen $statedir/job");
+
+# build is done, send back result
+$state = lockstate();
+
+if ($state->{'state'} eq 'discarded') {
+  # our poor job is no longer needed
+  print "build discarded...\n";
+  unlink("$buildroot/.build.log");
+  unlink("$buildroot/job");
+  $state = {'state' => 'idle'};
+  commitstate($state);
+  send_state('idle', $port, $hostarch);
+  exit(0);
+}
+
+if ($state->{'state'} ne 'building') {
+  # something is wrong, consider job bad
+  $ex = 1;
+}
+
+my @send;
+if ($ex == 0) {
+  local *D;
+  my @d;
+  if (opendir(D, "$buildroot/.build.packages/RPMS")) {
+    @d = map {"RPMS/$_"} grep {$_ ne '.' && $_ ne '..'} readdir(D);
+    close D;
+  }
+  push @d, 'SRPMS';
+  @d = ('DEBS') if $buildinfo->{'specfile'} =~ /\.dsc$/;
+  for my $d (@d) {
+    if (opendir(D, "$buildroot/.build.packages/$d")) {
+      push @send, map {"$buildroot/.build.packages/$d/$_"} grep {/\.(?:deb|rpm)$/} readdir(D);
+      close D;
+    }
+  }
+  @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
+}
+if (@send) {
+  print "build succeeded, send everything back...\n";
+  push @send, {name => 'meta', filename => "$buildroot/.build.meta"};
+  push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
+} else {
+  print "build failed, send back logfile...\n";
+  if (! -e "$buildroot/.build.log") {
+    writestr("$buildroot/.build.log", undef, "build did not create a logfile\n");
+  }
+  push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$buildroot/.build.meta";
+  push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
+}
+if (!$testmode) {
+  eval {
+    my $res = BSRPC::rpc({
+      uri => "$repo->{'server'}/putjob",
+      request => 'POST',
+      headers => [ 'Content-Type: application/x-cpio' ],
+      chunked => 1,
+      data => \&BSHTTP::cpio_sender,
+      cpiofiles => \@send,
+    }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "infomd5=".Digest::MD5::md5_hex($infoxml));
+  };
+  if ($@) {
+    print "rpc failed, sleeping one minute just in case...\n";
+    sleep(60);
+  } else {
+    print "sent, all done...\n";
+  }
+}
+unlink("$buildroot/.build.log");
+unlink("$buildroot/job");
+print "\n";
+
+$state = {'state' => 'idle'};
+commitstate($state);
+
+send_state('idle', $port, $hostarch);
+exit(0);
