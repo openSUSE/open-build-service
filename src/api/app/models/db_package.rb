@@ -48,16 +48,6 @@ class DbPackage < ActiveRecord::Base
         self.save!
       end
 
-      if package.has_element? :url
-        if self.url != package.url.to_s
-          self.url = package.url.to_s
-          self.save!
-        end
-      else
-        self.url = nil
-        self.save!
-      end
-
       #--- update users ---#
       usercache = Hash.new
       self.each_user do |user|
@@ -159,7 +149,19 @@ class DbPackage < ActiveRecord::Base
         obj.destroy
       end
       #--- end update disabled repos ---#
-      
+
+      #--- update url ---#
+      if package.has_element? :url
+        if self.url != package.url.to_s
+          self.url = package.url.to_s
+          self.save!
+        end
+      else
+        self.url = nil
+        self.save!
+      end
+      #--- end update url ---#
+
       #--- write through to backend ---#
 
       if write_through?
@@ -246,12 +248,10 @@ class DbPackage < ActiveRecord::Base
                          ) do |package|
       package.title( title )
       package.description( description )
-     
+
       each_user do |u|
         package.person( :userid => u.login, :role => u.role_name )
       end
-
-      package.url( url ) if url
 
       disreps = disabled_repos.find(:all, :include => [:repository, :architecture])
       disreps.each do |dr|
@@ -260,6 +260,9 @@ class DbPackage < ActiveRecord::Base
         opts[:arch] = dr.architecture.name if dr.architecture
         package.disable( opts )
       end
+
+      package.url( url ) if url
+
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 

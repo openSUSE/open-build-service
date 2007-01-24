@@ -35,11 +35,7 @@ class Package < ActiveXML::Base
     return false unless opt[:userid] and opt[:role]
     logger.debug "adding person '#{opt[:userid]}', role '#{opt[:role]}' to package #{self.name}"
 
-    if( has_element? :person )
-      elem_cache = split_data_after :person
-    else
-      elem_cache = split_data_after :description
-    end
+    elem_cache = get_elements_before :person
 
     #add the new person
     data.add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
@@ -68,11 +64,7 @@ class Package < ActiveXML::Base
   def disable_build( opt={} )
     logger.debug "disable building of package #{self.name} for #{opt[:repo]} #{opt[:arch]}"
 
-    if( has_element? :disable )
-      elem_cache = split_data_after :disable
-    else
-      elem_cache = split_data_after :person
-    end
+    elem_cache = get_elements_before :disable
 
     if opt[:repo] and opt[:arch]
       data.add_element 'disable', 'repository' => opt[:repo], 'arch' => opt[:arch]
@@ -119,7 +111,7 @@ class Package < ActiveXML::Base
     if( has_element? :url )
       url.data.text = new_url
     else
-      elem_cache = split_data_after :person
+      elem_cache = get_elements_before :url
       data.add_element 'url'
       merge_data elem_cache
       url.data.text = new_url
@@ -163,4 +155,31 @@ class Package < ActiveXML::Base
   end
 
 
+
+  private
+
+
+
+  def get_elements_before( element )
+    # this is a helper method for inserting elements at the right place in xml,
+    # it's necessary because the order of elements is important.
+    # wished order:
+    element_order = [
+      :title, :description, :person, :disable, :notify, :delete_notify,
+      :url, :group, :license, :keyword, :file
+    ]
+    until element_order.pop == element or element_order.empty? do end
+    elem_cache = []
+    element_order.reverse!
+    element_order.each do |e|
+      if has_element? e
+        elem_cache = split_data_after e
+        break
+      end
+    end
+    return elem_cache
+  end
+
+
 end
+
