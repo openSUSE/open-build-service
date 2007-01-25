@@ -24,15 +24,6 @@ class AddRepositories < ActiveRecord::Migration
 
     Architecture.create :name => "i586"
     Architecture.create :name => "x86_64"
-    Architecture.create :name => "ppc"
-    Architecture.create :name => "ppc64"
-    Architecture.create :name => "s390"
-    Architecture.create :name => "s390x"
-    Architecture.create :name => "ia64"
-    Architecture.create :name => "mips"
-    Architecture.create :name => "armv4l"
-    Architecture.create :name => "sparc"
-    Architecture.create :name => "sparc64"
 
     create_table :architectures_repositories, :id => false do |t|
       t.column "repository_id", :integer
