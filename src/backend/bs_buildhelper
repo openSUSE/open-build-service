@@ -105,7 +105,7 @@ sub sortpacks {
         unshift @cyc, $v;
         last if $v eq $cycv;
       }
-      unshift @todo, 
+      unshift @todo, $cycv;
       print STDERR "cycle: ".join(' -> ', @cyc)."\n";
       my $breakv;
       if ($buildp) {

@@ -59,8 +59,6 @@ our $pack = [
             'role',
             'userid',
      ]],
-	'group',
-
      [[	'disable' =>
 	'arch',
 	'repository',
@@ -69,6 +67,8 @@ our $pack = [
 	'arch',
 	'repository',
      ]],
+	'url',
+	'group',
 ];
 
 our $packinfo = [
