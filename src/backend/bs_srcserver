@@ -1536,6 +1536,14 @@ sub getbuildstatus {
   return ($status, $BSXML::buildstatus);
 }
 
+sub getworkerstatus {
+  my ($cgi) = @_;
+  my $ws = BSWatcher::rpc("$BSConfig::reposerver/workerstatus", $BSXML::workerstatus);
+  delete $_->{'uri'} for @{$ws->{'idle'}};
+  delete $_->{'uri'} for @{$ws->{'building'}};
+  return ($ws, $BSXML::workerstatus);
+}
+
 sub getajaxstatus {
   my ($cgi) = @_;
   if (!$BSStdServer::isajax) {
@@ -1702,6 +1710,7 @@ my $dispatches = [
 
   # new /build API
   '/build' => \&getprojectlist,
+  '/build/_workerstatus' => \&getworkerstatus,
   'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result view:resultview* repository* arch* package* code:*' => \&getresult,
