@@ -381,6 +381,8 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? package_name, project_name
       if  allowed
         Suse::Backend.put_source path, request.raw_post
+        package = Package.find( package_name, :project => project_name )
+        package.update_timestamp
         render_ok
       else
         render_error :status => 403, :errorcode => 'put_file_no_permission',
@@ -394,6 +396,8 @@ class SourceController < ApplicationController
       path += "?#{query_string}" unless query_string.empty?
       
       Suse::Backend.delete path
+      package = Package.find( package_name, :project => project_name )
+      package.update_timestamp
       render_ok
     end
   end

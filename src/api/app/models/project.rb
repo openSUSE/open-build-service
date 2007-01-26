@@ -32,4 +32,12 @@ class Project < ActiveXML::Base
   def description=(new_desc)
     self.description.data.text = new_desc.to_s
   end
+
+
+  def update_timestamp
+    data.attributes['updated'] = Time.now.xmlschema
+    save
+  end
+
+
 end

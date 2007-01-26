@@ -162,6 +162,9 @@ class DbPackage < ActiveRecord::Base
       end
       #--- end update url ---#
 
+      # update 'updated_at' timestamp
+      self.save! if self.updated_at.xmlschema != package.updated
+
       #--- write through to backend ---#
 
       if write_through?
@@ -170,8 +173,6 @@ class DbPackage < ActiveRecord::Base
         package.data.delete_attribute('created')
         package.data.delete_attribute('updated')
         package.data.delete_attribute('downloads')
-        #FIXME: do not yet save this in the backend ...
-        package.data.delete_element( 'url' )
 
         path = "/source/#{self.db_project.name}/#{self.name}/_meta"
         Suse::Backend.put_source( path, package.dump_xml )

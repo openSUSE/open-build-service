@@ -28,4 +28,12 @@ class Package < ActiveXML::Base
 
     merge_data elem_cache
   end
+
+
+  def update_timestamp
+    data.attributes['updated'] = Time.now.xmlschema
+    save
+  end
+
+
 end

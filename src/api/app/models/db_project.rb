@@ -135,6 +135,7 @@ class DbProject < ActiveRecord::Base
         if not repocache.has_key? repo.name
           logger.debug "adding repository '#{repo.name}'"
           current_repo = self.repositories.create( :name => repo.name )
+          self.updated_at = Time.now
         else
           logger.debug "modifying repository '#{repo.name}'"
           current_repo = repocache[repo.name]
@@ -179,17 +180,20 @@ class DbProject < ActiveRecord::Base
         end
         logger.debug "deleting repository '#{name}'"
         object.destroy
+        self.updated_at = Time.now
       end
       #--- end update repositories ---#
 
       #--- write through to backend ---#
+
+      # update 'updated_at' timestamp
+      self.save! if self.updated_at.xmlschema != project.updated
 
       if write_through?
 
         # remove uninteresting data for backend:
         project.data.delete_attribute('created')
         project.data.delete_attribute('updated')
-        project.data.delete_attribute('downloads')
 
         path = "/source/#{self.name}/_meta"
         Suse::Backend.put_source( path, project.dump_xml )
