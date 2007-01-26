@@ -1448,6 +1448,7 @@ sub docommand {
     my @args;
     push @args, map {"prpa=$_"} @prpas;
     push @args, map {"package=$_"} @packids;
+    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
     push @args, "cmd=$cgi->{'cmd'}";
     $res = BSWatcher::rpc("$rrserver/_command", undef, @args);
   }
@@ -1701,7 +1702,7 @@ my $dispatches = [
 
   # new /build API
   '/build' => \&getprojectlist,
-  'POST:/build/$project cmd: repository* arch* package*' => \&docommand,
+  'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,

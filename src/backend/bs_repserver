@@ -694,11 +694,36 @@ sub forwardevent {
   return $BSStdServer::return_ok;
 }
 
+sub fixpackstatus {
+  my ($prpa, $ps, $buildingjobs) = @_;
+  return unless $ps && $ps->{'packstatus'};
+  $buildingjobs ||= {};
+  my ($prp, $arch) = $prpa =~ /(.*)\/([^\/]*)$/;
+  for my $p (@{$ps->{'packstatus'}}) {
+    $p->{'status'} = 'unknown' unless $p->{'status'};
+    if ($p->{'status'} eq 'done') {
+      if (-e "$reporoot/$prpa/:logfiles.fail/$p->{'name'}") {
+	$p->{'status'} = 'failed';
+      } else {
+	$p->{'status'} = 'succeeded';
+      }
+    } elsif ($p->{'status'} eq 'scheduled') {
+      if (!$buildingjobs->{$arch}) {
+	my @buildingjobs = grep {s/\:dir$//} ls("$buildingdir/$arch");
+	s/-[0-9a-f]{32}$// for @buildingjobs;
+	$buildingjobs->{$arch} = { map {$_ => 1} @buildingjobs };
+      }
+      my $job = jobname($prp, $p->{'name'});
+      $p->{'status'} = 'building' if $buildingjobs->{$arch}->{$job};
+    }
+  }
+}
+
 sub getpackstatus {
   my ($cgi, $prpas) = @_;
 
   if ($cgi->{'oldstate'} && $BSStdServer::isajax) {
-    for my $prpa (@{$prpas||{}}) {
+    for my $prpa (@$prpas) {
       BSWatcher::addfilewatcher("$reporoot/$prpa/:packstatus");
     }
   }
@@ -706,39 +731,21 @@ sub getpackstatus {
   my $state = '';
   my %packfilter = map {$_ => 1} @{$cgi->{'package'} || []};
   my %buildingjobs;
-  for my $prpa (@{$prpas || []}) {
+  for my $prpa (@$prpas) {
     $state .= "$prpa\0\0";
     my $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1);
     next unless $ps;
     if (%packfilter && $ps->{'packstatus'}) {
       $ps->{'packstatus'} = [ grep {$packfilter{$_->{'name'}}} @{$ps->{'packstatus'}} ];
     }
-    my ($prp, $arch) = $prpa =~ /(.*)\/([^\/]*)$/;
-    for my $p (@{$ps->{'packstatus'} || []}) {
-      $p->{'status'} = 'unknown' unless $p->{'status'};
-      if ($p->{'status'} eq 'done') {
-	if (-e "$reporoot/$prpa/:logfiles.fail/$p->{'name'}") {
-          $p->{'status'} = 'failed';
-	} else {
-          $p->{'status'} = 'succeeded';
-	}
-      } elsif ($p->{'status'} eq 'scheduled') {
-	if (!$buildingjobs{$arch}) {
-	  my @buildingjobs = grep {s/\:dir$//} ls("$buildingdir/$arch");
-	  s/-[0-9a-f]{32}$// for @buildingjobs;
-	  $buildingjobs{$arch} = { map {$_ => 1} @buildingjobs };
-	}
-	my $job = jobname($prp, $p->{'name'});
-        $p->{'status'} = 'building' if $buildingjobs{$arch}->{$job};
-      }
-      $state .= "$p->{'name'}\0$p->{'status'}\0";
-    }
-    push @$r, $ps if $ps;
+    fixpackstatus($prpa, $ps, \%buildingjobs);
+    $state .= "$_->{'name'}\0$_->{'status'}\0" for @{$ps->{'packstatus'} || []};
+    push @$r, $ps;
   }
   $state = Digest::MD5::md5_hex($state);
   if ($cgi->{'oldstate'} && $state eq $cgi->{'oldstate'}) {
     return if $BSStdServer::isajax;	# watcher will call us back...
-    my @args = map {"prpa=$_"} @{$prpas || []};
+    my @args = map {"prpa=$_"} @$prpas;
     push @args, "oldstate=$cgi->{'oldstate'}";
     BSHandoff::handoff($ajaxsocket, '/status', undef, @args);
     exit(0);
@@ -750,7 +757,7 @@ sub getresult {
   my ($cgi, $prpas) = @_;
 
   if ($cgi->{'oldstate'} && $BSStdServer::isajax) {
-    for my $prpa (@{$prpas||{}}) {
+    for my $prpa (@$prpas) {
       BSWatcher::addfilewatcher("$reporoot/$prpa/:packstatus");
     }
   }
@@ -758,40 +765,24 @@ sub getresult {
   my $state = '';
   my %packfilter = map {$_ => 1} @{$cgi->{'package'} || []};
   my %buildingjobs;
-  for my $prpa (@{$prpas || []}) {
+  for my $prpa (@$prpas) {
     $state .= "$prpa\0\0";
     my $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1);
     next unless $ps;
     if (%packfilter && $ps->{'packstatus'}) {
       $ps->{'packstatus'} = [ grep {$packfilter{$_->{'name'}}} @{$ps->{'packstatus'}} ];
     }
-    my ($prp, $arch) = $prpa =~ /(.*)\/([^\/]*)$/;
     my $sl = {'project' => $ps->{'project'}, 'repository' => $ps->{'repository'}, 'arch' => $ps->{'arch'}};
+    fixpackstatus($prpa, $ps, \%buildingjobs);
     for my $p (@{$ps->{'packstatus'} || []}) {
       my $packid = $p->{'name'};
-      $p->{'status'} = 'unknown' unless $p->{'status'};
-      if ($p->{'status'} eq 'done') {
-	if (-e "$reporoot/$prpa/:logfiles.fail/$p->{'name'}") {
-          $p->{'status'} = 'failed';
-	} else {
-          $p->{'status'} = 'succeeded';
-	}
-      } elsif ($p->{'status'} eq 'scheduled') {
-	if (!$buildingjobs{$arch}) {
-	  my @buildingjobs = grep {s/\:dir$//} ls("$buildingdir/$arch");
-	  s/-[0-9a-f]{32}$// for @buildingjobs;
-	  $buildingjobs{$arch} = { map {$_ => 1} @buildingjobs };
-	}
-	my $job = jobname($prp, $p->{'name'});
-        $p->{'status'} = 'building' if $buildingjobs{$arch}->{$job};
-      }
       my $s = {'package' => $packid, 'code' => $p->{'status'}};
       $s->{'details'} = $p->{'error'} if $p->{'error'};
       $state .= "$p->{'name'}\0$p->{'status'}\0";
       push @{$sl->{'status'}}, $s;
       if ($cgi->{'withbinarylist'}) {
 	my @b;
-	if (opendir(D, "$reporoot/$prp/$arch/$packid")) {
+	if (opendir(D, "$reporoot/$prpa/$packid")) {
 	  @b = grep {/\.(?:rpm|deb)$/} readdir(D);
 	  closedir D;
         }
@@ -815,10 +806,19 @@ sub getresult {
 
 sub docommand {
   my ($cgi, $cmd, $prpas) = @_;
+  my %code = map {$_ => 1} @{$cgi->{'code'} || []};
+  my %buildingjobs;
   for my $prpa (@$prpas) {
     my ($projid, $repoid, $arch) = split('/', $prpa);
+    my @packids = @{$cgi->{'package'} || []};
+    if (%code) {
+      my $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1) || {};
+      fixpackstatus($prpa, $ps, \%buildingjobs);
+      my %c = map {$_->{'name'} => $_->{'status'}} @{$ps->{'packstatus'} || []};
+      @packids = grep {$code{$c{$_} || 'unknown'}} @packids;
+    }
     if ($cmd eq 'rebuild') {
-      for my $packid (@{$cgi->{'package'} || []}) {
+      for my $packid (@packids) {
         unlink("$reporoot/$projid/$repoid/$arch/:meta/$packid");
         my $ev = { type => 'rebuild', 'project' => $projid, 'package' => $packid };
         my $evname = "rebuild:${projid}::$packid";
@@ -828,21 +828,21 @@ sub docommand {
       }
       ping($arch);
     } elsif ($cmd eq 'killbuild') {
-      for my $packid (@{$cgi->{'package'} || []}) {
+      for my $packid (@packids) {
 	eval {
 	  killbuild($cgi, $projid, $repoid, $arch, $packid);
 	};
 	warn("$@") if $@;
       }
     } elsif ($cmd eq 'restartbuild') {
-      for my $packid (@{$cgi->{'package'} || []}) {
+      for my $packid (@packids) {
 	eval {
 	  restartbuild($cgi, $projid, $repoid, $arch, $packid);
 	};
 	warn("$@") if $@;
       }
     } elsif ($cmd eq 'wipe') {
-      for my $packid (@{$cgi->{'package'} || []}) {
+      for my $packid (@packids) {
         forwardevent($cgi, 'wipe', $projid, $packid, $repoid, $arch);
       }
     }
@@ -1198,7 +1198,7 @@ my $dispatches = [
 
   '/status $prpa+ oldstate:md5? package*' => \&getpackstatus,
   '/_result $prpa+ oldstate:md5? package* withbinarylist:bool?' => \&getresult,
-  '/_command $cmd: $prpa+ package*' => \&docommand,
+  '/_command $cmd: $prpa+ package* code:*' => \&docommand,
   '/ajaxstatus' => \&getajaxstatus,
 ];
 
