@@ -3,18 +3,22 @@ To setup an own backend:
 1) Change BSConfig.pm to match your local paths and server names.
    Currently the server runs with user "bsrun" and group "bsrun",
    so you have to add them to your system.
-2) run a src server:
+2) create a directory "build" and check out the current version of the
+   build scripts from novellforge:
+   https://forgesvn1.novell.com/svn/opensuse/trunk/buildservice/src/build
+
+   *** The build directory must be accessable as a subdirectory of the working
+       directory of the following services
+
+3) run a src server:
    ./bs_srcserver
-3) run a repo server:
+4) run a repo server:
    ./bs_repserver
-4) run a job scheduler for every arch you need
+5) run a job scheduler for every arch you need
    ./bs_sched i586
    ./bs_sched x86_64
    ...
-5) create a directory "build" and check out the current version of the
-   build scripts from novellforge:
-   https://forgesvn1.novell.com/svn/opensuse/trunk/buildservice/src/backend/build
-5) on your build clients:
+6) on your build clients:
    create a directory /root/bs
    copy BSBuild.pm BSConfig.pm BSDEBQ.pm BSHTTP.pm BSRPC.pm BSServer.pm
    BSUtil.pm BSXML.pm XML/Structured.pm bs_build bs_buildhelper bs_worker
