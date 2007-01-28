@@ -1,6 +1,9 @@
 #!/bin/bash
 
-for i in common backend-dummy frontend webclient; do
+# backend-dummy is disabled atm, because it can't get deployed atm
+# is it working at all atm ? adrian
+
+for i in common frontend webclient; do
   pushd $i
   rake deploy
   popd
