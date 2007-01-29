@@ -1,4 +1,5 @@
 class DbPackage < ActiveRecord::Base
+
   belongs_to :db_project
 
   has_many :package_user_role_relationships, :dependent => :destroy
@@ -6,6 +7,9 @@ class DbPackage < ActiveRecord::Base
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
+
+  #has_many :download_stats
+
 
   class << self
     def store_axml( package )
@@ -163,7 +167,7 @@ class DbPackage < ActiveRecord::Base
       #--- end update url ---#
 
       # update 'updated_at' timestamp
-      self.save! if self.updated_at.xmlschema != package.updated
+      self.save! if package.has_attribute? 'updated' and self.updated_at.xmlschema != package.updated
 
       #--- write through to backend ---#
 

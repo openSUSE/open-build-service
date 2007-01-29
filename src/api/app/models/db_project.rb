@@ -1,11 +1,13 @@
 class DbProject < ActiveRecord::Base
+
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :db_packages, :dependent => :destroy
   has_many :repositories, :dependent => :destroy
-  
-  #has_and_belongs_to_many :tags
+
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
+
+  has_many :download_stats
 
 
   class << self
@@ -187,7 +189,7 @@ class DbProject < ActiveRecord::Base
       #--- write through to backend ---#
 
       # update 'updated_at' timestamp
-      self.save! if self.updated_at.xmlschema != project.updated
+      self.save! if project.has_attribute? 'updated' and self.updated_at.xmlschema != project.updated
 
       if write_through?
 
