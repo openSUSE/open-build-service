@@ -1,0 +1,13 @@
+<redirect_stats>
+  <project name="Apache">
+    <package name="apache2">
+      <repository name="SUSE_Linux_Factory">
+        <arch name="i586">
+          <count filename="apache2" filetype="rpm" version="0.0.1" release="0" created_at="2007-01-25T11:48:59+01:00" counted_at="2007-01-25T11:48:59+01:00">23424</count>
+          <count filename="apache2-devel" filetype="rpm" version="0.0.1" release="0" created_at="2007-01-22T21:48:59+01:00" counted_at="2007-01-24T12:48:59+01:00">413</count>
+        </arch>
+      </repository>
+    </package>
+  </project>
+  </project>
+</redirect_stats>
