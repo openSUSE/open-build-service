@@ -75,8 +75,12 @@ class Project < ActiveXML::Base
     return nil if opt == {}
     repository = REXML::Element.new 'repository'
     repository.attributes['name'] = opt[:reponame]
-    opt[:platform] =~ /(.*)\/(.*)/;
-    repository.add_element 'path', 'project' => $1, 'repository' => $2
+
+    if opt[:platform]
+      opt[:platform] =~ /(.*)\/(.*)/;
+      repository.add_element 'path', 'project' => $1, 'repository' => $2
+    end
+
     opt[:arch].to_a.each do |arch_text|
       arch = repository.add_element('arch')
       arch.text = arch_text
