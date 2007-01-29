@@ -63,19 +63,43 @@ ActionController::Routing::Routes.draw do |map|
   #
   # map.connect 'tag/_all', :controller => 'tag',
   #  :action => 'list_xml'
-  map.connect 'tag/:tag/_projects', :controller => 'tag',
-    :action => 'get_projects_by_tag'
-  map.connect 'tag/:tag/_packages', :controller => 'tag',
-    :action => 'get_packages_by_tag'
-  map.connect 'tag/:tag/_all', :controller => 'tag',
-    :action => 'get_objects_by_tag'
-  map.connect 'tag/_tagcloud', :controller => 'tag',
-    :action => 'tag_cloud'
-  map.connect 'source/:project/_tags', :controller => 'tag',
-    :action => 'project_tags'
-  map.connect 'source/:project/:package/_tags', :controller => 'tag',
-    :action => 'package_tags'   
+  #Get/put tags by object
+  	map.connect 'source/:project/_tags', :controller => 'tag',
+      :action => 'project_tags'
+	map.connect 'source/:project/:package/_tags', :controller => 'tag',
+      :action => 'package_tags'   
   
+  #Get objects by tag.
+    map.connect 'tag/:tag/_projects', :controller => 'tag',
+      :action => 'get_projects_by_tag'
+    map.connect 'tag/:tag/_packages', :controller => 'tag',
+      :action => 'get_packages_by_tag'
+    map.connect 'tag/:tag/_all', :controller => 'tag',
+      :action => 'get_objects_by_tag'
+ 
+  #Get objects tagged by user. (objects with tags)
+    map.connect 'user/:user/tags/_projects', :controller => 'tag',
+      :action => 'get_tagged_projects_by_user'
+    map.connect 'user/:user/tags/_packages', :controller => 'tag',
+      :action => 'get_tagged_packages_by_user'
+  
+  #Get tags by user.	
+    map.connect 'user/:user/tags/_tagcloud', :controller => 'tag',
+      :action =>  'tagcloud'
+    #map.connect 'user/:user/tags', :controller => 'tag',
+    #  :action => 'tagcloud', :distribution => 'raw'
+  
+  #Get tags for a certain object by user.
+    map.connect 'user/:user/tags/:project', :controller => 'tag',
+      :action => 'tags_by_user_and_object'  
+    map.connect 'user/:user/tags/:project/:package', :controller => 'tag',
+      :action => 'tags_by_user_and_object'  
+  
+  #Get a tagcloud including all tags.
+    map.connect 'tag/_tagcloud', :controller => 'tag',
+    :action => 'tagcloud'
+  
+
 
   map.connect 'source/:project/:package/:file', :controller => "source",
     :action => 'file'
