@@ -1,5 +1,5 @@
 xml.instruct!
-xml.tagcloud(:distribution_method => @distribution_method, :steps => @steps) do  
+xml.tagcloud(:distribution_method => @distribution_method, :steps => @steps, :user => params[:user]) do  
   
   @tags.each do |tag|
     

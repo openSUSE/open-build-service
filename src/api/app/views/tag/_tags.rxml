@@ -1,13 +1,13 @@
 if @type == "package"
     xml.instruct!
-    xml.tags(@type => @package.name, :project => @project.name) do
+    xml.tags(@type => @package.name, :project => @project.name, :user => params[:user]) do
     @tags.each do |tag|
     xml.tag(:name => tag.name)
  end
  end
 else
     xml.instruct!
-    xml.tags(@type => @name) do
+    xml.tags(@type => @name, :user => params[:user]) do
     @tags.each do |tag|
       xml.tag(:name => tag.name)
     end
