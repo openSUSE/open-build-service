@@ -1,8 +1,11 @@
 
 <%= form_tag :action => :save_disable_xml %>
   <p><%= text_area_tag( "xml", @xml, :cols => "20", :rows => "5" ) %></p>
-  <p><%= submit_tag %></p>
+  <p>
+    <%= submit_tag %>
+    <%= link_to_remote '[Cancel]', :update => 'edit_disable_xml_tags',
+      :url => { :action => 'render_nothing' } %>
+  </p>
   <%= hidden_field_tag( "project", @project ) %>
   <%= hidden_field_tag( "package", @package ) %>
 <%= end_form_tag %>
-

@@ -518,6 +518,11 @@ class PackageController < ApplicationController
   end
 
 
+  def render_nothing
+    render :nothing => true
+  end
+
+
   def disable_build
     return false unless @package = Package.find( params[:package], :project => params[:project] )
 
