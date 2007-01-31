@@ -1,19 +1,17 @@
       <!-- Tags -->
       <div class="section" id="tags">
         <h3>Tags
-        
-        <%= link_to_remote image_tag("list-add",:title => "add tag", :border => 0), :update => 'add_tag_form',
-    :url => { :controller => "project", :action => "add_tag_form", :project => @project},
-    :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')" %>
-  <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
-  
+        <% form_id = "tag_form" %>
+        <%= link_to_remote image_tag("list-add", :title => "add tag", :border => 0),
+                :update => 'tag_edit_area_project',
+                :url => { :controller => "project", :action => "add_tag_form", :project => @project},
+                :loading => "Element.toggle('spinner_#{form_id}')",
+                :complete => "Element.toggle('spinner_#{form_id}')" %>
+  <img alt="" id="spinner_<%= form_id -%>" src="/images/rotating-tail.gif" style="display:none;" />
         
         </h3>
-        <p style="width:15em;" >
-        <% @tags.each_tag do |tag| %>            
-            <%= link_to tag.name, :action => 'show_projects_by_tag', :tag => tag %> 
-        <% end %>
-        </p>
-      <div id="add_tag_form">&nbsp;</div>
-      </div>
+        
+       <div id="tag_area" style="width:15em;">
+            <%= render :partial => "tags_ajax" %>
+       </div>
       

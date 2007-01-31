@@ -1,19 +1,18 @@
-
 <!-- Tags -->
 <div class="section" id="tags">
   <h3>
     Tags
-    <%= link_to_remote image_tag("list-add",:title => "add tag", :border => 0), :update => 'add_tag_form',
-    :url => { :controller => "package", :action => "add_tag_form", :project => @project, :package => @package},
-    :loading => "toggle_visibility('tag_spinner')", :complete => "toggle_visibility('tag_spinner')" -%>
+    <%= link_to_remote image_tag("list-add",:title => "add tag", :border => 0),
+            :update => 'tag_edit_area_package',
+            :url => { :controller => "package",
+                :action => "add_tag_form",
+                :project => @project,
+                :package => @package},
+                :loading => "toggle_visibility('tag_spinner')",
+                :complete => "toggle_visibility('tag_spinner')" -%>
     <%= image_tag 'rotating-tail.gif', :id=> 'tag_spinner', :style => "visibility:hidden;" -%>
   </h3>
 
-  <span style="width:15em;" >
-    <% @tags.each_tag do |tag| %>
-      <%= link_to tag.name, :action => 'show_packages_by_tag', :tag => tag %>
-    <% end %>
-  </span>
-  <div id="add_tag_form">&nbsp;</div>
-</div>
-
+       <div id="tag_area" style="width:15em;">
+            <%= render :partial => "tags_ajax" %>
+       </div>

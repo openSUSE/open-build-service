@@ -1,0 +1,4 @@
+ <% @tags.each_tag do |tag|%>
+    <%= link_to tag.name, :controller => "tag", :action => "show_projects_by_tag", :tag => tag %>
+<%end%>
+<div id="tag_edit_area_project">&nbsp;</div>
