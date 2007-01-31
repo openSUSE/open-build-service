@@ -1,0 +1,87 @@
+<%
+@crumb_list = [
+
+]
+-%>
+
+ <%= render :partial => "tag/tagcloud_container"%>
+<p>
+<h2>Editing My Tags <%=h @project %></h2>
+&nbsp;
+</p>
+
+<div id="list_by_tag">
+<h2>Tagged Projects:</h2>
+<table>
+  <tr>
+    <th>Projectname</th>
+    <th>Tags</th>
+    <th>&nbsp;</th>
+  </tr>
+    
+    <% for @object in @projects %>
+  <tr>
+  <td>
+    <%= link_to @object.name, :controller => "project", :action => :show, :project => @object %>    
+  </td>
+  <td>
+  <div id="tag_edit_area_<%= @object.name -%>">
+    <%= render :partial => "tags_ajax" %>
+  </div>  
+  </td>
+  <td>   
+    <%= link_to_remote image_tag("edit",
+                :title => "add tag project",
+                :border => 0),
+                :update => 'tag_edit_area_' + @object.name,
+                :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object},
+                :loading => "Element.show('spinner_#{@object.name}')",
+                :complete => "Element.hide('spinner_#{@object.name}')" %>
+  <img alt="" id="spinner_<%= @object.name -%>" src="/images/rotating-tail.gif" style="display:none;" />
+  </td>  
+  </tr>
+  <% end %>
+  
+ </table>
+ </div>
+
+<% if @packages %>    
+<div id="list_by_tag">
+<h2>Tagged Packages:</h2>
+<table>
+  <tr>
+    <th>Projectname</th>
+    <th>Packagename</th>
+    <th>Tags</th>
+    <th>&nbsp;</th>
+  </tr>
+
+    <% for @object in @packages %>
+  <tr>
+  <td>
+    <%= link_to @object.project, :controller => "project", :action => :show, :project => @object.project %>
+  </td>
+  <td>
+    <%= link_to @object.name, :controller => "package", :action => :show, :project => @object.project, :package => @object%>    
+  </td>
+  <td>
+  <div id="tag_edit_area_<%= @object.project + '_' + @object.name -%>">
+    <%= render :partial => "tags_ajax" %>
+  </div>  
+  </td>
+  <td>   
+    <%= link_to_remote image_tag("edit",
+                :title => "add tag package",
+                :border => 0),
+                :update => 'tag_edit_area_' + @object.project + "_" + @object.name,
+                :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object.project, :package => @object},
+                :loading => "Element.show('spinner_#{@object.project}_#{@object.name}')",
+                :complete => "Element.hide('spinner_#{@object.project}_#{@object.name}')" %>
+  <img alt="" id="spinner_<%= @object.project + '_' + @object.name -%>" src="/images/rotating-tail.gif" style="display:none;" />
+  </td>  
+  </tr>
+  <% end %>
+  <% end %>
+  
+</table>
+</div>

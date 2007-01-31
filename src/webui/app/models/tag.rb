@@ -14,10 +14,11 @@ class Tag < ActiveXML::Base
       xml = REXML::Document.new
       xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
       xml.add_element( REXML::Element.new("tags") )
-      if opt[:project]
+      if opt[:package]
         xml.root.add_attribute Attribute.new("project", opt[:project])
-      else
-        xml.root.add_attribute Attribute.new("project", opt[:name])
+        xml.root.add_attribute Attribute.new("package", opt[:package])
+      else #package
+        xml.root.add_attribute Attribute.new("project", opt[:project])
       end
       
       opt[:tag].split(" ").each do |tag|
@@ -29,5 +30,16 @@ class Tag < ActiveXML::Base
       xml
    end
   end #self
+
+#TODO: I'll remove it later. 
+#  def update (params)
+#    
+#       #logger.debug "saving #{object.inspect}"
+#        #url = substituted_uri_for( object )
+#        url = URI.parse "http://localhost:3001/user/#{params[:user]}/tags/#{params[:project]}/#{params[:package]}"
+#
+#        self.class.transport.http_do 'put', url, self.dump_xml
+#        return true     
+#      end
 
 end #class

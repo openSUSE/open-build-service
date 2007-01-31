@@ -1,0 +1,3 @@
+ <% @object.each_tag do |tag|%>
+    <%= link_to tag.name, :controller => "tag", :action => "show", :tag => tag %>
+<%end%>

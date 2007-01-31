@@ -1,0 +1,57 @@
+<%
+@crumb_list = [
+  "Tag: #{params[:tag]}"
+]
+-%>
+
+<%#= render :partial => 'filter_projects' %><br/>
+
+
+    <%= render :partial => 'tag/tagcloud_container'-%>
+
+ 
+<div id="list_by_tag">
+<h2>Projects tagged with <%= params[:tag] %></h2>
+<table>
+  <tr>
+    <th>Projectname</th>
+    <th>Tags</th>
+  </tr>
+    
+    <% for project in @projects %>
+  <tr>
+  <td>
+    <%= link_to project.name, :controller => "project", :action => :show, :project => project %>    
+  </td>
+  <td>
+    Tags are missing.
+  </td>
+  </tr>
+  
+  <% end %>
+</table>
+
+<h2>Packages tagged with <%= params[:tag] %></h2>
+<table>
+  <tr>
+    <th>Project</th>
+    <th>Packagename</th>
+    <th>Tags</th>
+  </tr>
+    <% for package in @packages %>
+  <tr>
+    <td>
+        <%= link_to package.project, :controller => "project", :action => :show, :project => package.project %>
+    </td>
+    <td>       
+        <%= link_to package.name, :controller => "package", :action => :show, :project => package.project, :package => package %>
+    </td>
+    <td>
+        Tags are missing.
+    </td>
+  </tr>
+  
+  <% end %>
+</table>
+</div>
+

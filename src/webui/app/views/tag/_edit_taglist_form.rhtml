@@ -1,9 +1,14 @@
-<%= form_remote_tag :url => {:action => :edit_taglist_ajax, :controller => "tag", :project => @project},
-    :loading => "Element.show('spinner_#{@project}')",
-    :complete => "Element.hide('spinner_#{@project}')",
-    :update => 'tag_edit_area_' + @project -%>
+<% if params[:package]
+    @form_id = "#{params[:project]}_#{params[:package]}"
+   else
+    @form_id = "#{params[:project]}"
+   end %>
+   
+<%= form_remote_tag :url => {:action => :edit_taglist_ajax, :controller => "tag", :project => params[:project], :package => params[:package]},
+    :loading => "Element.show('spinner_#{@form_id}')",
+    :complete => "Element.hide('spinner_#{@form_id}')",
+    :update => 'tag_edit_area_' + @form_id -%>
 
 <%= text_field_tag( "tags", @tags, :size => 55, :style => "width: 93%;") -%>
-<%= image_submit_tag "list-add" -%>
-<%= hidden_field_tag( "project", @project ) -%>
+<%= image_submit_tag "ok" -%>
 <%= end_form_tag -%>
