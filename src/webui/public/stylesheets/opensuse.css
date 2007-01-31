@@ -660,11 +660,6 @@ div#package_disablebuild ul {
 }
 
 
-#tagcloud {
-  padding:1em;
-  margin-left: 30em;
-  border: 1px #6eb927 dashed;
-}
 
 .tag { color: #6eb927; }
 .tag.size0  { font-size: 0.45em; }
@@ -712,10 +707,33 @@ strong.highlight {
     margin-right: 10em;
 }
 
-#usertags {
-    float: right;
+#tagcloud_tabs  {
+  padding: 0.2em 1em 0 0.5em;
+}
+
+#tagcloud_tabs .tab  {
+
+    padding: 0 0.3em 0 0.3em;
+    margin:  0 0.1em 0 0.3em;
+    border-left:  1px #6eb927 dashed;
+    border-top:   1px #6eb927 dashed;
+    border-right: 1px #6eb927 dashed;
+    text-decoration: none;
+}
+
+.active {
+    border-bottom: 1px white solid;
+}
+
+
+#tagcloud_container {
+  float: right;
+  width: 30em;
+}
+
+
+#tagcloud {
     padding:1em;
-    margin-left: 30em;
     border: 1px #6eb927 dashed; 
 }
 
