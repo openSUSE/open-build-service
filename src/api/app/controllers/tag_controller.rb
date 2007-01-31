@@ -136,7 +136,9 @@ class TagController < ApplicationController
       raise ArgumentError,"Number of font sizes used in the tag cloud must be set." if not @steps
       
       if params[:user]
+        @opt = {:scope => "user", :user => @http_user}
         @tags = get_tags_by_user
+        
       else
         @tags = Tag.find(:all, :order => :name)
       end
@@ -162,6 +164,8 @@ class TagController < ApplicationController
       render :partial => "tagcloud"
     end
 
+  
+
 
   #TODO helper function, delete me
   def get_taglist
@@ -170,12 +174,12 @@ class TagController < ApplicationController
   end
   
   def get_max_min_delta(taglist,steps)
-    max, min = taglist[0].weight, taglist[0].weight     
+    max, min = taglist[0].weight(@opt), taglist[0].weight(@opt)     
     delta = 0
     
     taglist.each do |tag|
-      max = tag.weight if tag.weight > max
-      min = tag.weight if tag.weight < min
+      max = tag.weight(@opt) if tag.weight(@opt) > max
+      min = tag.weight(@opt) if tag.weight(@opt) < min
     end
     
     if max != min
