@@ -8,27 +8,70 @@ class TagController < ApplicationController
     @taglist = Tag.find(:all)
     render :partial => "listxml"
   end
-  
-  def get_tags_by_owner
-    #TODO use it! or delete it.
-    @http_user = "Admin"
-    @owner = User.find_by_login(@http_user)
-    @tags = @owner.tags
-    #render :text => "#{@tags}"
+
+  def get_tagged_objects_by_user
+    
   end
-  
+
+  def get_tagged_projects_by_user
+    user = @http_user
+    @taggings = Tagging.find(:all,
+                             :conditions => ["taggable_type = ? AND user_id = ?","DbProject",user.id])
+    @projects_tags = {}
+    @taggings.each do |tagging|
+      project = DbProject.find(tagging.taggable_id)
+      tag = Tag.find(tagging.tag_id)
+      @projects_tags[project] = [] if @projects_tags[project] == nil
+      @projects_tags[project] <<  tag
+    end
+    @projects_tags.keys.each do |key|
+      @projects_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
+    end
+    @my_type = "project"
+    render :partial => "tagged_objects_with_tags"
+  end
+
+
+  def get_tagged_packages_by_user
+    user = @http_user
+    @taggings = Tagging.find(:all,
+                             :conditions => ["taggable_type = ? AND user_id = ?","DbPackage",user.id])
+    @packages_tags = {}
+    @taggings.each do |tagging|
+      package = DbPackage.find(tagging.taggable_id)
+      tag = Tag.find(tagging.tag_id)
+      @packages_tags[package] = [] if @packages_tags[package] == nil
+      @packages_tags[package] <<  tag
+    end
+    @packages_tags.keys.each do |key|
+      @packages_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
+    end
+    @my_type = "package"
+    render :partial => "tagged_objects_with_tags"
+  end
+
+
+  def get_tags_by_user
+    @user = @http_user
+    @tags = @user.tags.find(:all, :group => "name")
+    @tags
+  end
+   
+
   def get_projects_by_tag
     @tag = Tag.find_by_name(params[:tag])
     @projects = @tag.db_projects
     render :partial => "objects_by_tag"
   end
-  
+
+
   def get_packages_by_tag
     @tag = Tag.find_by_name(params[:tag])
     @packages = @tag.db_packages
     render :partial => "objects_by_tag"
   end
-  
+
+
   def get_objects_by_tag
     @tag = Tag.find_by_name(params[:tag])
     
@@ -36,27 +79,75 @@ class TagController < ApplicationController
     @packages = @tag.db_packages
     render :partial => "objects_by_tag"
   end
+
+  def tags_by_user_and_object
+    if request.get?
+      if params[:package]
+        get_tags_by_user_and_package
+      else
+        get_tags_by_user_and_project
+      end
+    elsif request.put?
+      update_tags_by_object_and_user
+    end
+  end
+
+  def get_tags_by_user_and_project( do_render=true )
+    user = @http_user
+    @type = "project"
+    @name = params[:project]
+    @project = DbProject.find_by_name(params[:project])
+    @tags = @project.tags.find(:all, :order => :name, :conditions => ["taggings.user_id = ?",user.id])
+    if do_render
+      render :partial => "tags"
+    else
+      return @tags
+    end
+  end
+
   
+  def get_tags_by_user_and_package( do_render=true  )
+    user = @http_user
+    @type = "package"
+    @project = DbProject.find_by_name(params[:project])
+    @name = params[:package]
+    @package = @project.db_packages.find_by_name(params[:package])
+    @tags = @package.tags.find(:all, :order => :name, :conditions => ["taggings.user_id = ?",user.id])
+    if do_render
+      render :partial => "tags"
+    else
+      return @tags
+    end
+  end
+
+ 
   def most_popular_tags()
   end
+ 
   
   def most_recent_tags()
-  end 
-  
-  
-    def tag_cloud 
+  end     
+
+
+    def tagcloud 
       @steps = (params[:steps] ||= 6).to_i
       @distribution_method = (params[:distribution] ||= "linear")
-      @user_only = params[:user_only]
       
       raise ArgumentError,"Number of font sizes used in the tag cloud must be set." if not @steps
       
-      if params[:user_only] == "true"
-        @tags = @http_user.tags.find(:all, :group => "name")
+      if params[:user]
+        @tags = get_tags_by_user
       else
-        @tags = Tag.find(:all)
+        @tags = Tag.find(:all, :order => :name)
+      end
+    
+      #the case of an empty tagcloud
+      if @tags == [] 
+        render :partial => "tagcloud"
+        return
       end
       
+      #chooses the distribution method, how tags will be scaled
       case @distribution_method
         when "linear"
           @thresholds = linear_distribution_method(@tags,@steps)
@@ -65,19 +156,21 @@ class TagController < ApplicationController
         when "raw"
           #nothing to do
         else
-          raise ArgumentError,"Unknown font size distribution type. Use linear or logarithmic."
-      end
+          raise render_error :status => 400, :errorcode => 'unknown_distribution_method_error',
+            :message => "Unknown font size distribution type. Use linear or logarithmic."
+       end
       render :partial => "tagcloud"
     end
-  
+
+
   #TODO helper function, delete me
   def get_taglist
-    tags = Tag.find(:all)
+    tags = Tag.find(:all, :order => :name)
     return tags
   end
   
   def get_max_min_delta(taglist,steps)
-    max, min = taglist[0].weight, taglist[0].weight
+    max, min = taglist[0].weight, taglist[0].weight     
     delta = 0
     
     taglist.each do |tag|
@@ -114,8 +207,8 @@ class TagController < ApplicationController
     return @thresholds
   end
   private :logarithmic_distribution_method
-  
-  
+
+
   def project_tags 
     #get project name from the URL
     project_name = params[:project]
@@ -125,7 +218,7 @@ class TagController < ApplicationController
       logger.debug "GET REQUEST for project_tags. User: #{@user}"
       @type = "project" 
       @name = params[:project]
-      @tags = @project.tags
+      @tags = @project.tags.find(:all, :group => "name", :order => :name)
       render :partial => "tags"
       
     elsif request.put?
@@ -147,6 +240,8 @@ class TagController < ApplicationController
       #taglistXML = "<the whole xml/>"
       @taglistXML = request_data
       
+      #update_tags_by_project_and_user(request_data)
+      
       @tags =  taglistXML_to_tags(request_data)
       
       save_tags(@project, @tagCreator, @tags)
@@ -155,7 +250,8 @@ class TagController < ApplicationController
       render :nothing => true, :status => 200
     end 
   end
-  
+
+
   #TODO: dummy function for tags
   def package_tags
     
@@ -172,7 +268,7 @@ class TagController < ApplicationController
       @type = "package" 
       #@name = params[:project]
       #@packagename = params[:package]
-      @tags = @package.tags
+      @tags = @package.tags.find(:all, :group => "name")
       render :partial => "tags"
       
       
@@ -198,13 +294,53 @@ class TagController < ApplicationController
       @tags =  taglistXML_to_tags(request_data)
       
       save_tags(@package, @tagCreator, @tags)
-      
+
       render :nothing => true, :status => 200
-      
-      
+
     end
   end
-  
+
+
+  def update_tags_by_object_and_user
+    
+    @user = @http_user
+    @project = DbProject.find_by_name(params[:project])
+    
+    tags = taglistXML_to_tags(request.raw_post)
+    
+    tag_hash = {}
+    tags.each do |tag|
+      tag_hash[tag.name] = ""
+    end
+    logger.debug "[TAG:] Hash of new tags: #{@tag_hash.inspect}"
+    
+    if params[:package]
+      logger.debug "[TAG:] Package selected"
+      @package = @project.db_packages.find_by_name(params[:package])
+      #Holzhammermethode ;)
+      #Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'DbPackage'")
+
+      old_tags = get_tags_by_user_and_package( false )
+      old_tags.each do |old_tag|
+      unless tag_hash.has_key? old_tag.name
+          Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'DbPackage' AND tag_id = #{old_tag.id}")
+        end
+      end
+      save_tags(@package,@user,tags)
+    else
+      logger.debug "[TAG:] Project selected"
+      #Holzhammermethode ;)
+      #Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'DbProject'")
+      old_tags = get_tags_by_user_and_project( false )
+      old_tags.each do |old_tag|
+        unless tag_hash.has_key? old_tag.name
+          Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'DbProject' AND tag_id = #{old_tag.id}")
+        end
+      end
+      save_tags(@project,@user,tags)
+    end    
+    render :nothing => true, :status => 200
+  end
   
   
   def taglistXML_to_tags(taglistXML)
@@ -224,7 +360,8 @@ class TagController < ApplicationController
     
     return tags
   end
-  
+
+
   def save_tags(object, tagCreator, tags)
     if tags.kind_of? Tag then
       tags = [tags]
@@ -233,6 +370,7 @@ class TagController < ApplicationController
       create_relationship(object, tagCreator, tag)
     end      
   end
+  private :save_tags
   
   #create an entry in the join table (taggings) if necessary
   def create_relationship(object, tagCreator, tag)
@@ -254,5 +392,7 @@ class TagController < ApplicationController
     tag = Tag.find_or_create_by_name(tagname)
     return tag
   end
+  private :s_to_tag
+
   
 end

@@ -13,12 +13,9 @@ class Tag < ActiveRecord::Base
 
    def weight
     @cached_weight ||= Tagging.count(:all,
-                  :conditions => ["tag_id = ?", self.id])
-    @cached_weight
-   end
-
-    
-
-
+                  :conditions => ["tag_id = ?", self.id])     
+   @cached_weight
+   end 
+                  
 end
 
