@@ -19,18 +19,29 @@ class PackageController < ApplicationController
   def add_tag
     logger.debug "New tag #{params[:tag]} for pockage #{params[:package]}."
     
-    save_tags(params)
-   
-    redirect_to :action => "show", :project => params[:project], :package => params[:package]
+    tags = []
+    tags << params[:tag]    
+    old_tags = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])
+    
+    old_tags.each_tag do |tag|
+      tags << tag.name
+    end
+    logger.debug "[TAG:] saving tags #{tags.join(" ")} for package #{params[:package]} (project #{params[:project]})."
+
+    save_tags(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => tags.join(" ") )
+    
+    @tags = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])
+    render :partial => "tags_ajax"
+    #redirect_to :action => "show", :project => params[:project], :package => params[:package]
   end
   
   def save_tags(params)
-    @tag = Tag.new(:project => params[:project], :package => params[:package], :tag => params[:tag])
+    @tag = Tag.new(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tag])
     if @tag.save()
       flash[:note] = "Tag '#{params[:tag]}' was saved successfully"
     else
       flash[:error] = "Failed to save tag '#{params[:tag]}'"
-  end
+   end
   end
   
   def show_packages_by_tag
@@ -89,7 +100,7 @@ class PackageController < ApplicationController
             @archs << arch.to_s if not @archs.include? arch.to_s
           end
         end
-        @tags = Tag.find(:project => @project.name, :package => @package.name)
+       @tags = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])
       end
     end
   end

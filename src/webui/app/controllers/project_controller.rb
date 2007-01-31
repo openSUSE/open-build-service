@@ -100,8 +100,7 @@ class ProjectController < ApplicationController
 
     @packstatus = Packstatus.find( params[:project], :command => 'summaryonly' )
   
-    @tags = Tag.find(:project => @project.name)
-    
+    @tags = Tag.find(:project => @project.name, :user => @session[:login])
     
   end
 
@@ -135,18 +134,26 @@ class ProjectController < ApplicationController
   
   
   def add_tag
-    logger.debug "New tag #{params[:tag]} for project #{params[:project]}."
-    save_tags(params)
-    redirect_to :action => "show", :project => params[:project]
+    logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}."
+    tags = []
+    tags << params[:tag]    
+    old_tags = Tag.find(:user => @session[:login], :project => params[:project])
+    old_tags.each_tag do |tag|
+      tags << tag.name
+    end
+    logger.debug "[TAG:] saving tags #{tags.join(" ")} for project #{params[:project]}."
+    save_tags(:project => params[:project], :tag => tags.join(" ") )
+    @tags = Tag.find(:user => @session[:login], :project => params[:project])
+    render :partial => "tags_ajax"
   end
 
   
   def save_tags(params)
-    @tag = Tag.new(:project => params[:project], :tag => params[:tag])
+    @tag = Tag.new(:project => params[:project], :tag => params[:tag], :user => @session[:login])
     if @tag.save()
-      flash[:note] = "Tag '#{params[:tag]}' was saved successfully"
+      flash[:note] = "Tag(s) '#{params[:tag]}' was saved successfully"
     else
-      flash[:error] = "Failed to save tag '#{params[:tag]}'"
+      flash[:error] = "Failed to save tag(s) '#{params[:tag]}'"
     end
   end
 
