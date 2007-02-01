@@ -1,6 +1,6 @@
 # Be sure to restart your web server when you modify this file.
 
-# Uncomment below to force Rails into production mode when 
+# Uncomment below to force Rails into production mode when
 # you don't control web/app server and can't set it the proper way
 # ENV['RAILS_ENV'] ||= 'production'
 
@@ -9,7 +9,7 @@ require File.join(File.dirname(__FILE__), 'boot')
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
-  
+
   # Skip frameworks you're not going to use
   # config.frameworks -= [ :action_web_service, :action_mailer ]
 
@@ -21,7 +21,7 @@ Rails::Initializer.run do |config|
     config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
   end
 
-  # Force all environments to use the same logger level 
+  # Force all environments to use the same logger level
   # (by default production uses :info, the others :debug)
   # config.log_level = :debug
 
@@ -38,7 +38,7 @@ Rails::Initializer.run do |config|
 
   # Make Active Record use UTC-base instead of local time
   # config.active_record.default_timezone = :utc
-  
+
   # Use Active Record's schema dumper instead of SQL when creating the test database
   # (enables use of different database adapters for development and test environments)
   # config.active_record.schema_format = :ruby
@@ -46,7 +46,7 @@ Rails::Initializer.run do |config|
   # See Rails::Configuration for more options
 end
 
-# Add new inflection rules using the following format 
+# Add new inflection rules using the following format
 # (all these examples are active by default):
 # Inflector.inflections do |inflect|
 #   inflect.plural /^(ox)$/i, '\1en'
@@ -73,21 +73,21 @@ ActiveXML::Base.config do |conf|
         :all    => "rest:///source/"
     map.connect :package, "rest:///source/:project/:name/_meta",
         :all    => "rest:///source/:project"
-   
+
     #map.connect :tag, "rest:///source/:project/:package/_tags",
     map.connect :tag, "rest:///user/:user/tags/:project/:package",
-        :tags_by_user => "rest:///user/:user/tags/_tagcloud",      
+        :tags_by_user => "rest:///user/:user/tags/_tagcloud",
         :tagcloud  => "rest:///tag/tagcloud"
-      
+
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"
 
     map.connect :platform, "rest:///platform/:project/:name",
         :all    => "rest:///platform/"
-    
+
     map.connect :directory, "rest:///source/:project/:package"
     map.connect :link, "rest:///source/:project/:package/_link"
-    
+
     map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"
 
@@ -96,6 +96,8 @@ ActiveXML::Base.config do |conf|
         :tags_by_user => "rest:///user/:user/tags/:type",
         :statistics => "rest:///statistics/:type?limit=:limit"
 
+    map.connect :workerstatus, "rest:///build/_workerstatus",
+        :all => "rest:///build/_workerstatus"
 
   end
 end

@@ -1,0 +1,110 @@
+<%
+  time_now = Time.now
+  #
+  # interval_steps must be > 0:
+  # interval_steps * max_color + dead_line minutes
+  #
+  interval_steps = 1
+  max_color = 240
+  dead_line = 1.hours.ago
+  max_clients = @workerstatus.clients
+  build_count = @workerstatus.each_building.length
+%>
+<h2>Building</h2>
+<div class="info">
+  <%= start_form_tag -%>
+    Filter projects:
+    <%= text_field_tag :project -%>
+    <a href="/">
+    <img id="clear" alt="clear" title="clear input" style="border: none;" src="/images/clear.png"·
+      onMouseOver="this.src='/images/clear_active.png';"
+      onMouseOut="this.src='/images/clear.png';" />
+    </a>
+  <%= end_form_tag -%>
+</div>
+<% if params[:project] %>
+  <div class="info filtered_by">Currently active filter <b><%= h(params[:project]) %></b><br /><%= link_to 'Remove Filter', :controller => 'monitor' %></div>
+<% end %>
+<% if build_count > 0 %>
+  <div class="info">Hover the job time field to see the starttime</div>
+  <div class="info">Build Service reports <%=  build_count %> running jobs.</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Project</th>
+        <th>Package</th>
+        <th>Repository - Build Arch</th>
+        <th>Job time</th>
+        <th>Build Host</th>
+        <th>Host Arch</th>
+       </tr>
+    </thead>
+    <tbody>
+        <% @workerstatus.each_building.sort {|a,b| b.starttime <=> a.starttime }.each do |b| %>
+      <tr>
+          <td class="project">
+              <% project = b.project %>
+              <%= link_to project, :controller => 'project', :action => 'show', :project => project %>
+              <% if (!params[:project]) || (params[:project] != project) %>
+              <span class="filter_by">
+                  <%= link_to 'filter', { :controller => 'monitor' , :project => project } %>
+              </span>
+              <% end %>
+          </td>
+          <td class="package">
+              <%= link_to b.package, :controller => 'package', :action => 'show', :project => project, :package => b.package %>
+          </td>
+          <td class="repository arch">
+              <%= link_to b.repository + ' - ' + b.arch,
+                    :controller => 'package',
+                    :action => 'live_build_log',
+                    :project => b.project,
+                    :package => b.package,
+                    :repository => b.repository,
+                    :arch => b.arch
+              %>
+          </td>
+          <%
+            start_time = Time.at(b.starttime.to_i)
+            if start_time < dead_line
+              n = ((start_time - dead_line).abs/60/interval_steps).round
+              n = (max_color < n) ? 0 : max_color - n
+              warning_style = "style=\"background-color: rgb(255,#{n},0);\""
+            else
+              warning_style = nil
+            end
+          %>
+          <td class="starttime"<%= warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
+                <%= distance_of_time_in_words(time_now, start_time, true) %>
+          </td>
+          <td class="uri">
+              <%= b.workerid %>
+          </td>
+          <td class="hostarch">
+              <%= b.hostarch %>
+          </td>
+      </tr>
+      <% end %>
+    <tbody>
+  </table>
+  <h3>Legend</h3>
+  <div>
+    <div style="float: left; margin-right: 10px"><%= distance_of_time_in_words(time_now, dead_line, true) -%></div>
+    <% max_color.downto(0) do |n| %><div style="background-color: rgb(255,<%= n %>,0); margin: 0px; width: 3px ; height: 1em; float: left;">&nbsp;</div><% end %>
+    <div style="float: left; margin-left: 10px"><%= distance_of_time_in_words(time_now, dead_line-(max_color*interval_steps*60), true) -%></div>
+    <br clear="all" />
+  </div>
+  <% else %>
+    <div class="info">
+      <% if max_clients %>
+        <% if (params[:project]) %>
+          No package of the "<%= params[:project] %>" project is building. Maybe remove the filter?:)
+        <% else %>
+          None of the <%= max_clients %> hosts is working atm! Bad. :(
+        <% end %>
+      <% else %>
+        Nothing to do here!
+      <% end %>
+    </div>
+<% end %>
+
