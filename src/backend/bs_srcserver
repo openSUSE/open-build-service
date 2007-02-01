@@ -39,6 +39,7 @@ use BSHandoff;
 use BSWatcher;
 use BSXPath;
 use BSStdServer;
+use BSSrcdiff;
 use Build;
 
 use strict;
@@ -1182,9 +1183,46 @@ sub putfile {
   return ($rev, $BSXML::revision);
 }
 
-sub postfilelist {
+sub sourcediff {
   my ($cgi, $projid, $packid) = @_;
-  die("unknown command \"$cgi->{'cmd'}\"\n") unless $cgi->{'cmd'} eq 'commit';
+
+  my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
+  my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  die("unknown project/package\n") unless $rev;
+  my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+  my $orev = $cgi->{'orev'};
+  if ($projid eq $oprojid && $packid eq $opackid && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
+    $orev = $rev->{'rev'} - 1;
+  }
+  $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
+  die("unknown other project/package\n") unless $orev;
+  my $ofiles = lsrep($oprojid, $opackid, $orev->{'srcmd5'});
+  if (($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
+    # expand links
+    if ($files->{'_link'}) {
+      my %lrev = %$rev;
+      $lrev{'name'} = $packid;
+      $files = handlelinks($projid, \%lrev, $files, $rev);
+      delete $files->{'/LINK'};
+      delete $files->{'/LOCAL'};
+    }
+    if ($ofiles->{'_link'}) {
+      my %olrev = %$orev;
+      $olrev{'name'} = $opackid;
+      $ofiles = handlelinks($oprojid, \%olrev, $ofiles, $orev);
+      delete $ofiles->{'/LINK'};
+      delete $ofiles->{'/LOCAL'};
+    }
+  }
+  my $tmpdir = "$srcrep/:upload/srcdiff$$";
+  my $d = BSSrcdiff::srcdiff("$srcrep/$opackid", $ofiles, "$srcrep/$packid", $files, 200, 16000, $tmpdir);
+  return ($d, 'Content-Type: text/plain');
+}
+
+sub sourcecommit {
+  my ($cgi, $projid, $packid) = @_;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   die("unknown project/package\n") unless $rev;
   my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
@@ -1194,6 +1232,18 @@ sub postfilelist {
   # always kill upload revision
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
   return ($rev, $BSXML::revision);
+}
+
+sub sourcecmd {
+  my ($cgi, $projid, $packid) = @_;
+
+  if ($cgi->{'cmd'} eq 'diff') {
+    return sourcediff($cgi, $projid, $packid);
+  }
+  if ($cgi->{'cmd'} eq 'commit') {
+    return sourcecommit($cgi, $projid, $packid);
+  }
+  die("unknown command \"$cgi->{'cmd'}\"\n");
 }
 
 sub putfilelist {
@@ -1686,7 +1736,7 @@ my $dispatches = [
   'PUT:/source/$project/_meta' => \&putproject,
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
-  'POST:/source/$project/$package cmd: rev? user:? comment:?' => \&postfilelist,
+  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&putfilelist,
   '/source/$project/$package rev? follow:bool?' => \&getfilelist,
   '/source/$project/$package/_meta' => \&getpackage,
