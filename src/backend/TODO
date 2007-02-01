@@ -1,7 +1,6 @@
 
 High priority:
 ==============
-- repository deletion
 - job scheduler with priorities
 - quota handling (size of project repos)
 - enable all build hosts with XEN
@@ -10,22 +9,14 @@ High priority:
 
 Medium priority:
 ================
-- release numbers:
-  - over src links
-  - track other packages? (kernel folks want this)
-- .changes integration
-- src diffs
 - src copy (or should this happen on API / client side ?)
   - with src link handling 
-- build job replacement because of new changes
-  - terminate running build?
-    - build time quota ?
+- build time quota ?
 - clarify how to store patterns and distribution descriptions (KIWI)
 - disable / manual package release mechanism
 - xml data cleanup, remove unused fields
 - fast boot strapping
 - Submit sources from autobuild STABLE for Factory / Core
-  * only read-only mode in first step
   * possibility to merge back contributions as second step
 
 Low priority:
