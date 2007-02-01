@@ -139,6 +139,8 @@ ActionController::Routing::Routes.draw do |map|
         :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project',
         :controller => "build", :action => "pass_to_source"
+  map.connect 'build/_workerstatus',
+        :controller => "build", :action => "pass_to_source"
   map.connect 'build',
         :controller => "build", :action => "pass_to_source"
 
