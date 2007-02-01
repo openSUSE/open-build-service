@@ -80,7 +80,7 @@ class TagController < ApplicationController
     elsif
     logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}."
     end
-    update_tags(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tags])
+    save_tags(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tags])
     @object = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])    
     render :partial => "tags_ajax"
   end
@@ -114,26 +114,27 @@ class TagController < ApplicationController
     @tags
   end
 
-  def update_tags(params)
-    #TODO clean me up
-    tag = params[:tag] if params[:tag]
-    tag =  params[:tags] if params[:tags]
-    @tag = Tag.new(:project => params[:project], :package => params[:package], :tag => tag)
 
-    if @tag.update(:user => @session[:login], :project => params[:project], :package => params[:package])
-      get_tagcloud
-      flash[:note] = "Tag(s) '#{params[:tag]}' was saved successfully"
-    else
-      flash[:error] = "Failed to save tag(s) '#{params[:tag]}'"
-    end
-
-  end
+#no longer needed
+#  def update_tags(params)
+#    #TODO clean me up
+#    tag = params[:tag] if params[:tag]
+#    tag =  params[:tags] if params[:tags]
+#    @tag = Tag.new(:project => params[:project], :package => params[:package], :tag => tag)
+#
+#    if @tag.update(:user => @session[:login], :project => params[:project], :package => params[:package])
+#      get_tagcloud
+#      flash[:note] = "Tag(s) '#{params[:tag]}' was saved successfully"
+#    else
+#      flash[:error] = "Failed to save tag(s) '#{params[:tag]}'"
+#    end
+#  end
 
   def save_tags(params)
-    #TODO clean me up
+    #TODO needs cleanup
     tag = params[:tag] if params[:tag]
     tag =  params[:tags] if params[:tags]
-    @tag = Tag.new(:project => params[:project], :package => params[:package], :tag => tag)
+    @tag = Tag.new(:user => params[:user], :project => params[:project], :package => params[:package], :tag => tag)
     if @tag.save
       flash[:note] = "Tag(s) '#{params[:tag]}' was saved successfully"
     else
