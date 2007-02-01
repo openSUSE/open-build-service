@@ -99,9 +99,6 @@ class TagController < ApplicationController
     @collection.each_package do |package|
       @packages << package
     end
-    #TODO: delete logger.debug
-    #logger.debug "BBBBBBBBBBBBBBBBBBBBBB: #{@projects.inspect}"
-    #logger.debug "CCCCCCCCCCCCCCCCCCCCCC: #{@packages.inspect}"
     return @projects, @packages
   end
 
@@ -115,31 +112,11 @@ class TagController < ApplicationController
   end
 
 
-#no longer needed
-#  def update_tags(params)
-#    #TODO clean me up
-#    tag = params[:tag] if params[:tag]
-#    tag =  params[:tags] if params[:tags]
-#    @tag = Tag.new(:project => params[:project], :package => params[:package], :tag => tag)
-#
-#    if @tag.update(:user => @session[:login], :project => params[:project], :package => params[:package])
-#      get_tagcloud
-#      flash[:note] = "Tag(s) '#{params[:tag]}' was saved successfully"
-#    else
-#      flash[:error] = "Failed to save tag(s) '#{params[:tag]}'"
-#    end
-#  end
-
   def save_tags(params)
-    #TODO needs cleanup
     tag = params[:tag] if params[:tag]
     tag =  params[:tags] if params[:tags]
     @tag = Tag.new(:user => params[:user], :project => params[:project], :package => params[:package], :tag => tag)
-    if @tag.save
-      flash[:note] = "Tag(s) '#{params[:tag]}' was saved successfully"
-    else
-      flash[:error] = "Failed to save tag(s) '#{params[:tag]}'"
-    end
+    @tag.save
   end
   
   
