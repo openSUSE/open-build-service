@@ -23,12 +23,13 @@
           :controller => params[:controller], :action => params[:action] %>
   <%= end_form_tag -%>
 </div>
+<p>You can filter the list in the monitor either by using the filter links in the table or by entering the project name in the editbox. In the editbox you can use partial project names.</p>
 <% if params[:project] %>
-  <div class="info filtered_by">Currently active filter <b><%= h(params[:project]) %></b><br /><%= link_to 'Remove Filter', :controller => 'monitor' %></div>
+  <p class="info filtered_by">Currently active filter <b><%= h(params[:project]) %></b> <%= link_to 'Remove Filter', :controller => 'monitor' %></p>
 <% end %>
 <% if build_count > 0 %>
-  <div class="info">Hover the job time field to see the starttime</div>
-  <div class="info">Build Service reports <%=  build_count %> running jobs.</div>
+  <p class="info">Hover the job time field to see the start time.</p>
+  <p class="info">Build Service reports <%= build_count %> running jobs.</p>
   <table class="building">
     <thead>
       <tr>
