@@ -28,7 +28,7 @@
 <% if build_count > 0 %>
   <div class="info">Hover the job time field to see the starttime</div>
   <div class="info">Build Service reports <%=  build_count %> running jobs.</div>
-  <table>
+  <table id="building">
     <thead>
       <tr>
         <th>Project</th>
@@ -40,7 +40,9 @@
        </tr>
     </thead>
     <tbody>
-        <% @workerstatus.each_building.sort {|a,b| b.starttime <=> a.starttime }.each do |b| %>
+        <% @workerstatus.each_building.sort {|a,b| b.starttime <=> a.starttime }.each do |b|
+           next if (params[:project] && params[:project] != b.project)
+        %>
       <tr>
           <td class="project">
               <% project = b.project %>

@@ -745,3 +745,11 @@ strong.highlight {
     padding-left: 10px;
 }
 
+#building td { white-space: nowrap; }
+table#building { border-collapse: collapse; border-spacing: 0px; empty-cells: show; margin: 16px; }
+#building td, th { padding: 8px; border: solid 1px black; }
+.filter_by { font-size: 80%; }
+.filter_by a, .filter_by {
+  color: rgb(192,192,255);
+}
+
