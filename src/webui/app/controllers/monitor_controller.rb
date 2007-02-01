@@ -3,7 +3,7 @@ class MonitorController < ApplicationController
 
   def index
     get_settings
-    if request.post? && ! params[:project].nil?
+    if request.post? && ! params[:project].nil? && params[:project] != ""
       redirect_to :project => params[:project]
     else
       @workerstatus = Workerstatus.find :all
