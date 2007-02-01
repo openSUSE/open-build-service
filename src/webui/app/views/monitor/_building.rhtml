@@ -42,7 +42,7 @@
     </thead>
     <tbody>
         <% @workerstatus.each_building.sort {|a,b| b.starttime <=> a.starttime }.each do |b|
-            next if (params[:project] && b.project !~ /#{Regexp.quote(params[:project])}/ )
+            next if (params[:project] && b.project !~ /#{Regexp.quote(params[:project])}/i )
         %>
       <tr>
           <td class="project">
