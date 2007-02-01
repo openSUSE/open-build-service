@@ -1,4 +1,4 @@
  <% @tags.each_tag do |tag|%>
-    <%= link_to tag.name, :controller => "tag", :action => "show_packages_by_tag", :tag => tag %>
+    <%= link_to tag.name, :controller => "package", :action => "show_packages_by_tag", :tag => tag %>
 <%end%>
 <div id="tag_edit_area_package">&nbsp;</div>
