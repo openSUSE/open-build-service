@@ -150,11 +150,7 @@ class ProjectController < ApplicationController
   
   def save_tags(params)
     @tag = Tag.new(:project => params[:project], :tag => params[:tag], :user => @session[:login])
-    if @tag.save()
-      flash[:note] = "Tag(s) '#{params[:tag]}' was saved successfully"
-    else
-      flash[:error] = "Failed to save tag(s) '#{params[:tag]}'"
-    end
+    @tag.save()
   end
 
   def search_package

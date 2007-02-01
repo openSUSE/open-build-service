@@ -37,11 +37,7 @@ class PackageController < ApplicationController
   
   def save_tags(params)
     @tag = Tag.new(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tag])
-    if @tag.save()
-      flash[:note] = "Tag '#{params[:tag]}' was saved successfully"
-    else
-      flash[:error] = "Failed to save tag '#{params[:tag]}'"
-   end
+    @tag.save()
   end
   
   def show_packages_by_tag
