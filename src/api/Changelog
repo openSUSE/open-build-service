@@ -158,3 +158,84 @@ Thu Dec 21 16:56:05 +0100 2006 - abauer
 - new routing, to use the new & fast frontend search
 
 
+------------------------------------------------------------------------
+Fri Feb 02 14:38:09 +0100 2007 - bauersman
+
+- update from svn revision 984 to 1172
+- added ICHAIN_MODE to production config
+- workaround for missing info in status template
+- only show backend host info if they contain values
+- some routes for tagging support
+- ActiveXML: global_write_through option to disable writing xml files to
+  backend for all configured models
+- making functional tests work again (WIP)
+- test fixes
+- log message when rendering error template
+- fixed source controller tests
+- save the time stamp (date and time) as one value (not splitted)
+- added tag support for packages
+- xml view for tags (projects and packages)
+- tag clouds implemented:
+  	- a linear and a logarithmic method for calculating the (font) size of the tags
+  	- a raw method for getting tags with weight (how many times a tag is used)
+- introduced statistics controller in frontend
+- introduced package / project timestamps (created / updated)
+  - adapted project / package schemata
+  - created actions for statistics controller:
+    latest_added / latest_updated
+--> run 'rake migrate' after update!
+  
+- created all needed for 'most_downloads' statistics (api & webclient)
+- new migration: added download counters to packages
+- simplified statistics-controller
+- added simple statistics to project view
+- removed default timestamps from created_at and updated_at columns, they
+  broke the test suite
+- syntax error
+- added missing fixtures
+- ignore automatic changes of updated_at columns
+- fixed PUT requests on userinfo
+- fixed person controller tests
+- fixed platform controller tests
+- fixed ichain notifier tests
+- fixed unit tests
+- resolved problem of multiple xml validations of put requests in development mode
+- made password form visible when creating new frontend user if
+  ichain_mode is off
+- changed "updated_at" to "updated" in activexml packages/projects
+- changed "created_at" to "created" in activexml packages/projects
+- timestamps in activexml objects are now in xml compliant dateTime
+   format
+- downloads counter value is now defined as nonNegativeInteger
+- don't write_through 'unnecessary' data to the backend
+   (timestamps&downloads)
+  
+- added first tests for statistics_controller
+- prepared templates for upcoming statistics_controller tests
+- updated fixtures
+- (updated vim project file)
+  
+- new download_stats action for statistics_controller to receive data
+   from download redirector
+- xsd schema and example for download_stats
+- validate incoming download_stats xml
+  
+- added upstream URL to packages (see todo-list)
+- do not use the same port for source and rep server
+- use local instance by default
+- care for the right order of xml elements in (activexml) package objects
+- when creating the frontend database, create more archs in the architectures table
+- revert last checkin, and do it the ruby way, by creating a new migration for it...
+- write through package's upstream url to backend
+  update project timestamp 'updated' on repo addition / removal
+  update package timestamp 'updated' on file addition / removal
+- added more routes for tagging support
+- added a new attribute to the xml root container.
+- fixed bug that prevented successful creation of projects / packages
+- removed demo entries from database.yml, causes problems if not all
+  database adapters are available
+- added some new functions and views for the tagging system
+- changed the weight calculation for tags. it's now user dependant.
+- add _workerstatus route
+
+
