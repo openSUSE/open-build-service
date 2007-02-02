@@ -244,3 +244,110 @@ Thu Dec 21 17:00:39 +0100 2006 - bauersman
 - corrected link to search on startpage; added crumbs to search pages
 
 
+------------------------------------------------------------------------
+Fri Feb 02 14:49:02 +0100 2007 - bauersman
+
+- update from svn revision 986 to 1174
+- reject search queries with less than 3 characters (takes too long)
+- cleanup search
+- gave the search results some weigth and order them accordingly
+- added links to repository-selection to search-results
+- display brief search results (only excerpt of description)
+- added searchbox on every page
+- added "advanced search"
+- inserted statistics and tagcloud on startpage as comments
+  
+- corrected little mistake in non-ichain loginform
+- skip authorization only on index page
+- made a better visible link to the download repositories for search
+  results
+- refined weighting of search results
+- Add Fedora 6 target and remove Fedora 4 instead of it
+- fixed empty log entries while weighting search results
+- simple activexml tag modell
+- display name of searchresult again
+- allow + characters in project names
+- some views needed for tags
+- added ability to edit every file of a package inside the webclient, that is
+  1. smaller than 1MB and
+  2. does NOT have one of the following extesions:
+   bz2 exe gif gz jar jpg jpeg ogg ps pdf png rpm tar tgz xpm zip
+  
+- made it case-insensitive
+- made check for allowed extension more readable, thanks to abauer
+- typo
+- added tag support for projects and packages
+- user can add tags to projects and packages
+- tag based browsing
+- stylesheet and transport config update for tags 
+- added a personalized tag cloud to users home
+- added a personalized tag cloud to users home
+- built in 'latest_added' and 'latest_updated' statistics to the webclient
+- created read only actions to 'view' packages / projects
+  
+- add previously forgotten images/icons
+- created all needed for 'most_downloads' statistics (api & webclient)
+- new migration: added download counters to packages
+- simplified statistics-controller
+- added simple statistics to project view
+- corrected link to project of package search result
+- link to readonly package/project view in search results if not logged in
+- changed "updated_at" to "updated" in activexml packages/projects
+- changed "created_at" to "created" in activexml packages/projects
+- timestamps in activexml objects are now in xml compliant dateTime
+   format
+- downloads counter value is now defined as nonNegativeInteger
+- don't write_through 'unnecessary' data to the backend
+   (timestamps&downloads)
+  
+- shorten long package/project names so that columns don't get bloated too
+  much (full name is still displayed in tooltip)
+- get tags for package/project view
+- made buildstatus reloadable via light ajax update in webclient
+- add routes for tag support.
+- added a new session variable used to get the selected tagcloud view (all tags or user tags only)
+- added a ajax form for editing tags 
+- added upstream URL to packages (see todo-list)
+- added previously forgotten (or lost?) file
+- care for the right order of xml elements in (activexml) package objects
+- deactivated statistics on index-page for now, it's too early for them to
+  be there
+- altered a parameter name
+- only add path if project/repo is given
+- added cancel button for 'edit advanced disable' on package page in
+  webclient
+- using ajax for tag input forms
+- using ajax for tag input forms - controllers
+- added a model for tags.
+- added a model for tagcloud.
+- added a tag controller including functions needed for tag support.
+- added views needed for tag support.
+- added css id for tagclouds
+- added a tagcloud visible on users BS home page
+- corrected the wrong controller selection
+- removed an unnecessary flash message
+- added buildmonitor
+- fix filtering in the monitor
+- fix css of the monitor
+- bugfix
+- repaired clear filter button
+- implented filtering by partial strings
+- make the regexp case insensitive
+- make sure both table use the building class
+- move to classes
+  
+- dont set margin 0 for headings
+- cleanup
+- removed an unnecessary flash message
+- added item to the breadcrumblist
+- use paragraph tags instead of divs.
+- added a small help for the filter.
+- fixed wording in time help
+- altered a mistakable formulation
+- avoid warnings about resending data
+- ajaxified filtering of build monitor projects
+- restore the class
+- dont rewrite on empty project strings
+- added link to build status monitor on webclient index page
+
+
