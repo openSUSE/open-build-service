@@ -2,6 +2,11 @@ include REXML
 
 
 class TagController < ApplicationController    
+
+validate_action :tags_by_user_and_object => :tags
+validate_action :project_tags => :tags
+validate_action :package_tags => :tags
+  
   
   #list all available tags as xml list
   def list_xml
@@ -75,8 +80,8 @@ class TagController < ApplicationController
   def get_objects_by_tag
     @tag = Tag.find_by_name(params[:tag])
     
-    @projects = @tag.db_projects
-    @packages = @tag.db_packages
+    @projects = @tag.db_projects.find(:all, :group => "name", :order => "name")
+    @packages = @tag.db_packages.find(:all, :group => "name", :order => "name")
     render :partial => "objects_by_tag"
   end
 
@@ -141,6 +146,7 @@ class TagController < ApplicationController
         
       else
         @tags = Tag.find(:all, :order => :name)
+        @tags.delete_if {|tag| tag.weight == 0 }
       end
     
       #the case of an empty tagcloud
