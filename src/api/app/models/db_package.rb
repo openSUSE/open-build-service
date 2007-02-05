@@ -176,7 +176,6 @@ class DbPackage < ActiveRecord::Base
         # remove uninteresting data for backend:
         package.data.delete_attribute('created')
         package.data.delete_attribute('updated')
-        package.data.delete_attribute('downloads')
 
         path = "/source/#{self.db_project.name}/#{self.name}/_meta"
         Suse::Backend.put_source( path, package.dump_xml )
@@ -248,8 +247,7 @@ class DbPackage < ActiveRecord::Base
     logger.debug "----------------- rendering package #{name} ------------------------"
     xml = builder.package( :name => name, :project => db_project.name,
                            :updated => updated_at.xmlschema,
-                           :created => created_at.xmlschema,
-                           :downloads => downloads
+                           :created => created_at.xmlschema
                          ) do |package|
       package.title( title )
       package.description( description )
@@ -278,8 +276,7 @@ class DbPackage < ActiveRecord::Base
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.package(:name => name, :project => db_project.name,
                           :updated => updated_at.xmlschema,
-                          :created => created_at.xmlschema,
-                          :downloads => downloads
+                          :created => created_at.xmlschema
                          )
   end
 end

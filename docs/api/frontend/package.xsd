@@ -33,7 +33,6 @@
       <xs:attribute name="project" type="xs:string"/>
       <xs:attribute name="created" type="xs:dateTime"/>
       <xs:attribute name="updated" type="xs:dateTime"/>
-      <xs:attribute name="downloads" type="xs:nonNegativeInteger"/>
     </xs:complexType>
   </xs:element>
 

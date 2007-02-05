@@ -1,4 +1,4 @@
-<package name="kdelibs" project="KDE" created="2005-01-01T00:00:02+01:00" updated="2007-01-19T10:44:45+01:00" downloads="12345">
+<package name="kdelibs" project="KDE" created="2005-01-01T00:00:02+01:00" updated="2007-01-19T10:44:45+01:00">
   <title>KDE libraries</title>
   <description>Base libraries of the KDE framework</description>
   <url>http://kde.org/download/</url>
