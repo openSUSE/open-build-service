@@ -8,7 +8,7 @@ class DbPackage < ActiveRecord::Base
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
 
-  #has_many :download_stats
+  has_many :download_stats
 
 
   class << self

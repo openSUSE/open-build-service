@@ -1,11 +1,14 @@
 class Repository < ActiveRecord::Base
+
   belongs_to :db_project
 
   has_many :path_elements, :foreign_key => 'parent_id', :dependent => :destroy
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
   has_many :disabled_repos, :dependent => :destroy
+  has_many :download_stats
 
   has_and_belongs_to_many :architectures
+
 
   class << self
     def find_by_name(name)

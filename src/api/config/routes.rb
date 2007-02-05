@@ -58,7 +58,7 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'project_meta'
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta'
-    
+
   #routes for tagging support  
   #
   # map.connect 'tag/_all', :controller => 'tag',
@@ -98,7 +98,21 @@ ActionController::Routing::Routes.draw do |map|
   #Get a tagcloud including all tags.
     map.connect 'tag/_tagcloud', :controller => 'tag',
     :action => 'tagcloud'
-  
+
+
+  # Routes for statistics
+  # ---------------------
+
+  # Download statistics
+  #
+  map.connect 'statistics/download_counter/:project',
+    :controller => 'statistics', :action => 'download_counter'
+  map.connect 'statistics/download_counter/:project/:package',
+    :controller => 'statistics', :action => 'download_counter'
+  map.connect 'statistics/download_counter/:project/:package/:repository',
+    :controller => 'statistics', :action => 'download_counter'
+  map.connect 'statistics/download_counter/:project/:package/:repository/:architecture',
+    :controller => 'statistics', :action => 'download_counter'
 
 
   map.connect 'source/:project/:package/:file', :controller => "source",

@@ -2,24 +2,21 @@ class StatisticsController < ApplicationController
 
 
   before_filter :get_limit, :only => [
-    :highest_rated, :most_downloaded, :most_active,
-    :latest_added,  :latest_updated,  :latest_built
+    :highest_rated, :most_active, :latest_added, :latest_updated, :latest_built,
+    :download_counter
   ]
 
-  validate_action :download_stats => :download_stats
+  validate_action :redirect_stats => :redirect_stats
 
 
   def index
-    types = [
-      'highest_rated',
-      'most_downloaded',
-      'most_active',
-      'latest_added',
-      'latest_updated',
-      'latest_built'
-    ]
-    render :text => "This is the statistics controller.<br/><br/>" +
-      "Available statistics types:<br/> #{types.to_sentence(:skip_last_comma=>true)}"
+    text =  "This is the statistics controller.<br/><br/>"
+    text << "Available statistics:<br/>"
+    text << "<a href='latest_added'>latest_added</a><br/>"
+    text << "<a href='latest_updated'>latest_updated</a><br/>"
+    text << "<a href='download_counter'>download_counter</a> / "
+    text << "<a href='download_counter?concat=package'>concat mode</a><br/>"
+    render :text => text
   end
 
 
@@ -27,31 +24,129 @@ class StatisticsController < ApplicationController
   end
 
 
-  def most_downloaded
-    @list = DbPackage.find(:all, :order => 'downloads DESC', :limit => @limit )
+  def download_counter
+
+    project = params[:project]
+    package = params[:package]
+    repository = params[:repository]
+    architecture = params[:architecture]
+
+    prj = get_project project
+    pac = get_package package, prj.id if prj
+    repo = Repository.find_by_name repository
+    arch = Architecture.find_by_name architecture
+
+    # return immediately, if object is invalid
+    return if not prj  and not project.nil?
+    return if not pac  and not package.nil?
+    return if not repo and not repository.nil?
+    return if not arch and not architecture.nil?
+
+    # get statistics
+    prj_stats  = prj.download_stats  if prj
+    pac_stats  = pac.download_stats  if pac
+    repo_stats = repo.download_stats if repo
+    arch_stats = arch.download_stats if arch
+
+    @stats = DownloadStat.find :all
+
+    # get intersection of wanted statistics
+    @stats &= prj_stats  if prj_stats
+    @stats &= pac_stats  if pac_stats
+    @stats &= repo_stats if repo_stats
+    @stats &= arch_stats if arch_stats
+
+    # sort by counter in descending order, but not if concat-mode (sort later then)
+    @stats.sort! { |a,b| b.count <=> a.count } unless params[:concat]
+
+    # calculate grand total count of downloads
+    @sum = 0
+    @stats.each { |stat| @sum += stat.count }
+
+    # get timestamp of first counted entry
+    first = Time.now
+    @stats.each { |stat| first = stat.created_at if stat.created_at < first }
+    @first_count = first.xmlschema
+
+    if params[:concat]
+      @type = params[:concat]
+      # concatenate stats (similar to sql group-by)
+      cstats = concat_stats( @stats, @type )
+
+      # sort by count - converts hash to nested array
+      @cstats = cstats.sort { |a,b| b[1][:count] <=> a[1][:count] }
+    end
   end
 
 
-  def download_stats
+  def redirect_stats
+    # get download statistics from redirector as xml
     if request.put?
-      data = request.raw_post
-
-      download_stats = ActiveXML::Base.new( data )
+      download_stats = ActiveXML::Base.new( request.raw_post )
 
       download_stats.each_project do |project|
-        project.each_package do |package_stat|
-          logger.debug "New download_stats for #{package_stat.name}: count=#{package_stat.to_s}"
-          begin
-            prj = DbProject.find( :first, :conditions => [ "name = ?", project.name ] )
-            pac = DbPackage.find( :first, :conditions => [ "name = ? AND db_project_id = ?", package_stat.name, prj.id ] )
-            pac.downloads = package_stat.to_s
-            pac.save
-          rescue ActiveRecord::RecordNotFound
-            logger.debug "Package #{package_stat.name} (project #{prj.name}) does not exist -> ignore counter (#{package_stat})."
-            next
+        project.each_package do |package|
+          package.each_repository do |repository|
+            repository.each_arch do |arch|
+              arch.each_count do |count|
+
+                # get ids / foreign keys
+                begin
+                  project_id = DbProject.find( :first,
+                    :conditions => [ 'name = ?', project.name ] ).id
+                  package_id = DbPackage.find( :first,
+                    :conditions => [ 'name = ? AND db_project_id = ?',
+                    package.name, project_id ] ).id
+                  repository_id = Repository.find( :first,
+                      :conditions => [ 'name = ?', repository.name ] ).id
+                  architecture_id = Architecture.find( :first,
+                      :conditions => [ 'name = ?', arch.name ] ).id
+                rescue
+                  logger.debug "ERROR: cannot find id(s) for download_stats"
+                  next
+                end
+
+                # try to find existing entry
+                ds = DownloadStat.find :first, :conditions => [
+                  'db_project_id=? AND db_package_id=? AND repository_id=? AND ' +
+                  'architecture_id=? AND filename=? AND filetype=? AND ' +
+                  'version=? AND download_stats.release=?',
+                   project_id, package_id, repository_id, architecture_id,
+                   count.filename, count.filetype, count.version, count.release
+                ]
+
+                if ds
+                  # entry found, update it...
+                  ds.count = count.to_s
+                  ds.save
+                else
+                  # create new entry
+                  ds = DownloadStat.new
+                  begin
+                    ds.db_project_id = project_id
+                    ds.db_package_id = package_id
+                    ds.repository_id = repository_id
+                    ds.architecture_id = architecture_id
+                    ds.filename = count.filename
+                    ds.filetype = count.filetype
+                    ds.version  = count.version
+                    ds.release  = count.release
+                    ds.created_at = count.created_at
+                    ds.counted_at = count.counted_at
+                    ds.count = count.to_s
+                  rescue
+                    logger.debug "ERROR: cannot create download_stats entry for project #{project.name} / package #{package.name}"
+                    logger.debug "DEBUG: #{project.inspect}"
+                  end
+                  ds.save
+                end
+
+              end
+            end
           end
         end
       end
+
       render_ok
     else
       render_error :status => 400, :errorcode => "only_put_method_allowed",
@@ -161,41 +256,42 @@ class StatisticsController < ApplicationController
   end
 
 
-  def randomize_downloads
+  private
 
-    # ONLY enable on test-/development database!
-    # it will randomize download-counters of ALL packages!
-    # this should NOT be enabled for prodution data!
-    enable = false
-    #
 
-    if enable
+  def get_project( name )
+    prj = DbProject.find( :first,
+      :conditions => [ 'name=?', name ]
+    )
+  end
 
-      # deactivate automatic timestamps for this action
-      ActiveRecord::Base.record_timestamps = false
 
-      packages = DbPackage.find(:all)
+  def get_package( name, project_id )
+    prj = DbPackage.find( :first,
+      :conditions => [
+        'name=? AND db_project_id=?',
+        name, project_id
+      ]
+    )
+  end
 
-      packages.each do |package|
-        package.downloads = rand( 10000000 )
-        if package.save
-          logger.debug "Package #{package.name} got new download counter"
-        else
-          logger.debug "Package #{package.name} : ERROR setting download counter"
-        end
-      end
 
-      # re-activate automatic timestamps
-      ActiveRecord::Base.record_timestamps = true
-
-      render :text => "ok, done randomizing all download counters."
-      return
-    else
-      logger.debug "tried to execute randomize_downloads, but it's not enabled!"
-      render :text => "this action is deactivated."
-      return
+  def concat_stats( stats, type )
+    # concatenate stats (similar to sql group-by)
+    cstats = {}
+    case type
+    when 'project' ; type = 'db_project'
+    when 'package' ; type = 'db_package'
     end
-
+    stats.each do |stat|
+      key = stat.send(type).name
+      cstats[key] ||= {}
+      cstats[key] = {
+        :count => cstats[key][:count].to_i + stat.count,
+        :files => cstats[key][:files].to_i + 1
+      }
+    end
+    return cstats
   end
 
 

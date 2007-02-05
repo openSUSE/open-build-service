@@ -1,5 +1,9 @@
 class Architecture < ActiveRecord::Base
+
   has_and_belongs_to_many :repositories
+
+  has_many :download_stats
+
 
   def self.archcache
     return @cache if @cache
@@ -35,3 +39,4 @@ class Architecture < ActiveRecord::Base
     rolecache.delete name
   end
 end
+
