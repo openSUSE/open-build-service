@@ -75,7 +75,7 @@ my $uploaddir = "$BSConfig::bsdir/upload";
 sub jobname {
   my ($prp, $packid) = @_;
   my $job = "$prp/$packid";
-  $job =~ s/\//:/g;
+  $job =~ s/\//::/g;
   return $job;
 }
 
@@ -316,7 +316,7 @@ sub getlogfile {
     push @args, 'nostream' if $cgi->{'nostream'};
     push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
     push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
-    my $url = "/rpm/$projid/$repoid/$arch/$packid/logfile";
+    my $url = "/build/$projid/$repoid/$arch/$packid/_log";
     BSHandoff::handoff($ajaxsocket, $url, undef, @args);
     exit(0);
   }
@@ -331,7 +331,7 @@ sub getlogfile {
     push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
     push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
     if (!$BSStdServer::isajax) {
-      my $url = "/rpm/$projid/$repoid/$arch/$packid/logfile";
+      my $url = "/build/$projid/$repoid/$arch/$packid/_log";
       BSHandoff::handoff($ajaxsocket, $url, undef, @args);
       exit(0);
     }
@@ -764,6 +764,7 @@ sub getresult {
   my $r = [];
   my $state = '';
   my %packfilter = map {$_ => 1} @{$cgi->{'package'} || []};
+  my %code = map {$_ => 1} @{$cgi->{'code'} || []};
   my %buildingjobs;
   for my $prpa (@$prpas) {
     $state .= "$prpa\0\0";
@@ -775,6 +776,7 @@ sub getresult {
     my $sl = {'project' => $ps->{'project'}, 'repository' => $ps->{'repository'}, 'arch' => $ps->{'arch'}};
     fixpackstatus($prpa, $ps, \%buildingjobs);
     for my $p (@{$ps->{'packstatus'} || []}) {
+      next if %code && !$code{$p->{'status'}};
       my $packid = $p->{'name'};
       my $s = {'package' => $packid, 'code' => $p->{'status'}};
       $s->{'details'} = $p->{'error'} if $p->{'error'};
@@ -798,7 +800,10 @@ sub getresult {
     return if $BSStdServer::isajax;	# watcher will call us back...
     my @args = map {"prpa=$_"} @{$prpas || []};
     push @args, "oldstate=$cgi->{'oldstate'}";
-    BSHandoff::handoff($ajaxsocket, '/status', undef, @args);
+    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+    push @args, "withbinarylist=1" if $cgi->{'withbinarylist'};
+    BSHandoff::handoff($ajaxsocket, '/_result', undef, @args);
     exit(0);
   }
   return ({'result' => $r, 'state' => $state}, $BSXML::resultlist);
@@ -827,7 +832,7 @@ sub docommand {
 	}
       }
       ping($arch);
-    } elsif ($cmd eq 'killbuild') {
+    } elsif ($cmd eq 'killbuild' || $cmd eq 'abortbuild') {
       for my $packid (@packids) {
 	eval {
 	  killbuild($cgi, $projid, $repoid, $arch, $packid);
@@ -1177,7 +1182,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_buildinfo internal:bool? debug:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history' => \&gethistory,
-  '/build/$project/$repository/$arch/$package/_logfile nostream:bool? start:num? end:num? handoff:bool?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num? handoff:bool?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository/$filename' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
 
@@ -1197,7 +1202,7 @@ my $dispatches = [
   '/info/$arch/jobhistory' => \&getjobhistory,
 
   '/status $prpa+ oldstate:md5? package*' => \&getpackstatus,
-  '/_result $prpa+ oldstate:md5? package* withbinarylist:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
   '/_command $cmd: $prpa+ package* code:*' => \&docommand,
   '/ajaxstatus' => \&getajaxstatus,
 ];
@@ -1205,10 +1210,9 @@ my $dispatches = [
 my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
-  '/rpm/$project/$repository/$arch/$package/logfile nostream:bool? start:num? end:num?' => \&getlogfile,
   '/status $prpa+ oldstate:md5? package*' => \&getpackstatus,
-   # new /build API
-  '/build/$project/$repository/$arch/$package/_logfile nostream:bool? start:num? end:num?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
 ];
 
 my $conf = {

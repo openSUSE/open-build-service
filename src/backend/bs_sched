@@ -428,7 +428,7 @@ sub getconfig {
 sub jobname {
   my ($prp, $packid) = @_;
   my $job = "$prp/$packid";
-  $job =~ s/\//:/g;
+  $job =~ s/\//::/g;
   return $job;
 }
 
@@ -826,7 +826,7 @@ sub prpdeleted {
   my ($prp) = @_;
   print "    prp $prp is gone\n";
   local *F;
-  open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
+  return unless open(F, '>', "$reporoot/$prp/.finishedlock");
   if (!flock(F, LOCK_EX | LOCK_NB)) {
     print "    waiting for lock...\n";
     flock(F, LOCK_EX) || die("flock: $!\n");
@@ -1083,6 +1083,22 @@ sub calc_prps {
   @prps = sortpacks(\%prpdeps, undef, undef, undef, @prps);
 }
 
+sub killbuilding {
+  my ($prp, $packid) = @_;
+  my @jobs;
+  if (defined $packid) {
+    my $f = jobname($prp, $packid);
+    @jobs = grep {$_ eq $f || /^\Q$f\E-[0-9a-f]{32}$/} ls($mybuildingdir);
+  } else {
+    my $f = jobname($prp, '');
+    @jobs = grep {/^\Q$f\E/} ls($mybuildingdir);
+  }
+  for my $job (@jobs) {
+    print "        killing obsolete job $job\n";
+    killjob($job);
+  }
+}
+
 get_projpacks();
 print "reading rpms of ".@prps." repositories\n";
 my %repodata;
@@ -1131,6 +1147,7 @@ while(1) {
 	}
       }
       rmdir("$reporoot/$prp/$myarch") || die("$reporoot/$prp/$myarch: $!\n");
+      killbuilding($prp);
       my $bconf = {'repotype' => []};
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if ($repo) {
@@ -1189,12 +1206,7 @@ while(1) {
       unlink("$gdst/:meta/$packid");
       unlink("$gdst/$packid/$_") for ls("$gdst/$packid");
       rmdir("$gdst/$packid");
-      my $f = jobname($prp, $packid);
-      my @jobs = grep {$_ eq $f || /^\Q$f\E-[0-9a-f]{32}$/} ls($mybuildingdir);
-      for my $job (@jobs) {
-        print "        killing old job $job\n";
-        killjob($job);
-      }
+      killbuilding($prp, $packid);
       unlink("$reporoot/$prp/$myarch/:repodone");
     }
 

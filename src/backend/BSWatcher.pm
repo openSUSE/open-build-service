@@ -373,33 +373,37 @@ nextchunk:
   }
 }
 
+sub rpc_recv_stream_setup {
+  my ($ev, @args) = @_;
+  if (!$ev->{'streaming'}) {
+     local $BSServerEvents::gev = $ev;
+     BSServerEvents::reply(undef, @args);
+     BSEvents::rem($ev);
+     $ev->{'streaming'} = 1;
+     delete $ev->{'timeouthandler'};
+  }
+  $ev->{'handler'} = \&BSServerEvents::stream_write_handler;
+  $ev->{'readev'} = $ev;
+  if (length($ev->{'replbuf'})) {
+    delete $ev->{'paused'};
+    BSEvents::add($ev, 0);
+  } else {
+    $ev->{'paused'} = 1;
+  }
+}
+
 sub rpc_recv_stream {
-  my ($ev, $data) = @_;
+  my ($ev, $data, @args) = @_;
 
-
+  push @args, 'Transfer-Encoding: chunked';
+  unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
   $ev->{'rpcstate'} = 'streaming';
+  $ev->{'replyargs'} = \@args;
   #
   # setup output streams for all jobs
   #
-  my @args = ();
-  push @args, 'Transfer-Encoding: chunked';
-  unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
   for my $jev (@{$ev->{'joblist'} || []}) {
-    if (!$jev->{'streaming'}) {
-       local $BSServerEvents::gev = $jev;
-       BSServerEvents::reply(undef, @args);
-       BSEvents::rem($jev);
-       $jev->{'streaming'} = 1;
-       delete $ev->{'timeouthandler'};
-    }
-    $jev->{'handler'} = \&BSServerEvents::stream_write_handler;
-    $jev->{'readev'} = $ev;
-    if (length($jev->{'replbuf'})) {
-      delete $jev->{'paused'};
-      BSEvents::add($jev, 0);
-    } else {
-      $jev->{'paused'} = 1;
-    }
+    rpc_recv_stream_setup($jev, @args);
   }
 
   #
@@ -454,17 +458,10 @@ sub rpc_recv_handler {
   }
   my %headers;
   BSHTTP::gethead(\%headers, $headers);
-  if ($headers{'content-type'} && lc($headers{'content-type'}) eq 'application/octet-stream') {
-    if (!$headers{'transfer-encoding'} || lc($headers{'transfer-encoding'}) ne 'chunked') {
-      rpc_error($ev, "must be chunked for streaming");
-      return;
-    }
-    # stream into cache file
-    rpc_recv_stream($ev, $ans);
-    return;
-  }
   if ($headers{'transfer-encoding'} && lc($headers{'transfer-encoding'}) eq 'chunked') {
-    rpc_error($ev, "chunked not supported at the moment");
+    # stream into cache file
+    my $ct = $headers{'content-type'} || 'application/octet-stream';
+    rpc_recv_stream($ev, $ans, "Content-Type: $ct");
     return;
   }
   my $cl = $headers{'content-length'};
@@ -576,7 +573,11 @@ sub rpc {
   $jev->{'closehandler'} = \&deljob;
   if ($rpcs{$uri}) {
     print "rpc $uri already in progress, ".@{$rpcs{$uri}->{'joblist'} || []}." entries\n";
-    push @{$rpcs{$uri}->{'joblist'}}, $jev unless grep {$_ eq $jev} @{$rpcs{$uri}->{'joblist'}};
+    return if grep {$_ eq $jev} @{$rpcs{$uri}->{'joblist'}};
+    if ($rpcs{$uri}->{'rpcstate'} eq 'streaming') {
+      rpc_recv_stream_setup($jev, @{$rpcs{$uri}->{'replyargs'} || []});
+    }
+    push @{$rpcs{$uri}->{'joblist'}}, $jev;
     return;
   }
 

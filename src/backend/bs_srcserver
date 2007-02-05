@@ -79,7 +79,7 @@ sub getrev {
     $rev = {'srcmd5' => 'empty'} unless $rev;
   } elsif ($rev =~ /^[0-9a-f]{32}$/) {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev";
-    $rev = {'srcmd5' => $rev, 'rev' => '?'};
+    $rev = {'srcmd5' => $rev, 'rev' => $rev};
   } elsif ($rev eq 'upload') {
     $rev = {'srcmd5' => 'upload', 'rev' => 'upload'}
   } elsif ($rev eq 'repository') {
@@ -1418,6 +1418,17 @@ sub getpackstatus {
 sub getresult {
   my ($cgi, $projid) = @_;
 
+  if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
+    my @args = "oldstate=$cgi->{'oldstate'}";
+    push @args, map {"view=$_"} @{$cgi->{'view'} || []};
+    push @args, map {"repository=$_"} @{$cgi->{'repository'} || []};
+    push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
+    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+    BSHandoff::handoff($ajaxsocket, "/build/$projid/_result", undef, @args);
+    exit(0);
+  }
+
   my %repoidfilter = map {$_ => 1} @{$cgi->{'repository'} || []};
   my %archfilter = map {$_ => 1} @{$cgi->{'arch'} || []};
   my %view = map {$_ => 1} @{$cgi->{'view'} || ['status']};
@@ -1432,12 +1443,22 @@ sub getresult {
     push @prpas, map {"$projid/$repo->{'name'}/$_"} @archs;
   }
 
+  BSWatcher::addfilewatcher("$projectsdir/$projid.xml") if $BSStdServer::isajax;
+
+  if (!@prpas) {
+    my $state = "00000000000000000000000000000000";
+    return undef if $BSStdServer::isajax && $cgi->{'oldstate'} && $state eq $cgi->{'oldstate'};
+    return ({'state' => $state}, $BSXML::resultlist);
+  }
+
   my $ps = {};
   # XXX FIXME multiple repo handling
   for my $rrserver ($BSConfig::reposerver) {
     my @args;
+    push @args, "oldstate=$cgi->{'oldstate'}" if $cgi->{'oldstate'};
     push @args, map {"prpa=$_"} @prpas;
     push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
     push @args, "withbinarylist" if $view{'binarylist'};
     eval {
       $ps = BSWatcher::rpc("$rrserver/_result", $BSXML::resultlist, @args);
@@ -1447,11 +1468,7 @@ sub getresult {
       $ps = {};
     }
   }
-  if (%code) {
-    for my $p (@{$ps->{'result'} || []}) {
-      $p->{'status'} = [ grep {defined($_->{'code'}) && $code{$_->{'code'}}} @{$p->{'status'} || []} ];
-    }
-  }
+  return if $BSStdServer::isajax && !defined($ps);
   if ($view{'summary'}) {
     my @order = ('succeeded', 'failed', 'expansion error', 'broken', 'scheduled');
     my %order = map {$_ => 1} @order;
@@ -1552,7 +1569,18 @@ sub putbinary {
 
 sub getlogfile {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  return getbinary($cgi, $projid, $repoid, $arch, $packid, '_logfile');
+  checkprojrepoarch($projid, $repoid, $arch);
+  my @args = ();
+  push @args, 'nostream' if $cgi->{'nostream'};
+  push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
+  push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
+  if (!$BSStdServer::isajax) {
+    my $url = "/build/$projid/$repoid/$arch/$packid/_log";
+    BSHandoff::handoff($ajaxsocket, $url, undef, @args);
+    exit(0);
+  }
+  BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
+  return undef; # always streams result
 }
 
 sub getbuildinfo {
@@ -1763,14 +1791,14 @@ my $dispatches = [
   '/build/_workerstatus' => \&getworkerstatus,
   'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
-  '/build/$project/_result view:resultview* repository* arch* package* code:*' => \&getresult,
+  '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig' => \&getconfig,
   '/build/$project/$repository/$arch' => \&getpackagelist,
   '/build/$project/$repository/$arch/$package_repository' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo internal:bool?' => \&getbuildinfo,
-  '/build/$project/$repository/$arch/$package/_logfile' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package_repository/$filename' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
@@ -1784,6 +1812,8 @@ my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
   '/status/$project summary:bool? summaryonly:bool? oldstate:md5? package*' => \&getpackstatus,
+  '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
 ];
 
 ####################################################################

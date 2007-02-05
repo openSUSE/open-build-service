@@ -117,6 +117,15 @@ our $projpack = [
      ]],
 ];
 
+our $linkinfo = [
+    'linkinfo' =>
+	'project',
+	'package',
+	'srcmd5',
+	'error',
+];
+
+
 our $dir = [
     'directory' =>
 	'name',
