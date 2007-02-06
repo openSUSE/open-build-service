@@ -374,21 +374,21 @@ nextchunk:
 }
 
 sub rpc_recv_stream_setup {
-  my ($ev, @args) = @_;
-  if (!$ev->{'streaming'}) {
-     local $BSServerEvents::gev = $ev;
+  my ($jev, $ev, @args) = @_;
+  if (!$jev->{'streaming'}) {
+     local $BSServerEvents::gev = $jev;
      BSServerEvents::reply(undef, @args);
-     BSEvents::rem($ev);
-     $ev->{'streaming'} = 1;
-     delete $ev->{'timeouthandler'};
+     BSEvents::rem($jev);
+     $jev->{'streaming'} = 1;
+     delete $jev->{'timeouthandler'};
   }
-  $ev->{'handler'} = \&BSServerEvents::stream_write_handler;
-  $ev->{'readev'} = $ev;
-  if (length($ev->{'replbuf'})) {
-    delete $ev->{'paused'};
-    BSEvents::add($ev, 0);
+  $jev->{'handler'} = \&BSServerEvents::stream_write_handler;
+  $jev->{'readev'} = $ev;
+  if (length($jev->{'replbuf'})) {
+    delete $jev->{'paused'};
+    BSEvents::add($jev, 0);
   } else {
-    $ev->{'paused'} = 1;
+    $jev->{'paused'} = 1;
   }
 }
 
@@ -403,7 +403,7 @@ sub rpc_recv_stream {
   # setup output streams for all jobs
   #
   for my $jev (@{$ev->{'joblist'} || []}) {
-    rpc_recv_stream_setup($jev, @args);
+    rpc_recv_stream_setup($jev, $ev, @args);
   }
 
   #
@@ -572,12 +572,13 @@ sub rpc {
   }
   $jev->{'closehandler'} = \&deljob;
   if ($rpcs{$uri}) {
-    print "rpc $uri already in progress, ".@{$rpcs{$uri}->{'joblist'} || []}." entries\n";
-    return if grep {$_ eq $jev} @{$rpcs{$uri}->{'joblist'}};
-    if ($rpcs{$uri}->{'rpcstate'} eq 'streaming') {
-      rpc_recv_stream_setup($jev, @{$rpcs{$uri}->{'replyargs'} || []});
+    my $ev = $rpcs{$uri};
+    print "rpc $uri already in progress, ".@{$ev->{'joblist'} || []}." entries\n";
+    return if grep {$_ eq $jev} @{$ev->{'joblist'}};
+    if ($ev->{'rpcstate'} eq 'streaming') {
+      rpc_recv_stream_setup($jev, $ev, @{$ev->{'replyargs'} || []});
     }
-    push @{$rpcs{$uri}->{'joblist'}}, $jev;
+    push @{$ev->{'joblist'}}, $jev;
     return;
   }
 
