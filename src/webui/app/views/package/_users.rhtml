@@ -40,5 +40,8 @@
     <b>No maintainer in this package</b>
   <% end #if has_element? person -%>
 
-  <p><%= link_to "[Add User]", :action => :add_person, :project => params[:project] %></p>
+  <p>
+    <%= link_to "[Add User]", :action => :add_person,
+    :package => @package, :project => params[:project] %>
+  </p>
 </div>

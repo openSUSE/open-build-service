@@ -54,7 +54,7 @@
         <h3>
           Involved Users
           <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
-          :action => :add_person, :package => @package, :project => @project %>
+          :action => :add_person, :project => @project %>
         </h3>
         <% if @project.has_element? :person -%>
         <dl>
@@ -76,7 +76,7 @@
         <% else -%>
         <b>No maintainer in this project</b>
         <% end #if has_element? person -%>
-        <p><%= link_to "[Add User]", :action => :add_person, :project => params[:project] %></p>
+        <p><%= link_to "[Add User]", :action => :add_person, :project => @project %></p>
       </div>
     </td>
 
