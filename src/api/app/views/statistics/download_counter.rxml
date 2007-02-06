@@ -5,9 +5,7 @@ if @cstats
 
   xml.download_counter( :sum => @sum, :first_count => @first_count ) do
     @cstats.each do |stat|
-      xml.count( @type.to_sym => stat[0], :files => stat[1][:files] ) do
-        xml << stat[1][:count].to_s
-      end
+      xml.count( stat[1][:count].to_s, @type.to_sym => stat[0], :files => stat[1][:files] )
     end
   end
 
@@ -16,6 +14,7 @@ elsif @stats
   xml.download_counter( :sum => @sum, :first_count => @first_count ) do
     @stats.each do |stat|
       xml.count(
+        stat.count.to_s,
         :project => stat.db_project.name,
         :package => stat.db_package.name,
         :repository => stat.repository.name,
@@ -26,10 +25,7 @@ elsif @stats
         :release => stat.release
       # :created_at => stat.created_at.xmlschema,
       # :counted_at => stat.counted_at.xmlschema,
-      # :count => stat.count
-      ) do
-        xml << stat.count.to_s
-      end
+      )
     end
   end
 
