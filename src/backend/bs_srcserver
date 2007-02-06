@@ -167,7 +167,10 @@ sub lsrep {
     return {};
   } else {
     die("bad srcmd5 \n") if $srcmd5 !~ /^[0-9a-f]{32}$/;
-    open(F, '<', "$srcrep/$packid/$srcmd5-MD5SUMS") || die("$packid/$srcmd5-$packid: not in repository\n");
+    if (!open(F, '<', "$srcrep/$packid/$srcmd5-MD5SUMS")) {
+      return {'_linkerror' => $srcmd5} if -e "$srcrep/$packid/$srcmd5-_linkerror";
+      die("$packid/$srcmd5-$packid: not in repository\n");
+    };
   }
   my @files = <F>;
   close F;
@@ -436,9 +439,6 @@ sub applylink {
     if ($patchstatus) {
       $failed = "could not apply patch '$pn'";
       last;
-      unlink("$tmpdir/$_") for ls($tmpdir);
-      rmdir($tmpdir);
-      return "could not apply patch '$pn'";
     }
   }
   if ($failed) {
@@ -505,6 +505,7 @@ sub handlelinks {
   my $packid = $pinfo->{'name'};
   my $newmd5;
   push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $pinfo->{'srcmd5'}, 'rev' => $pinfo->{'rev'}};
+  delete $pinfo->{'srcmd5'};
   my $vrev = $rev ? $rev->{'vrev'} : 0;
   my $vrevdone = $rev ? 0 : 1;
   while ($files->{'_link'}) {
@@ -543,7 +544,10 @@ sub handlelinks {
     $md5 = Digest::MD5::md5_hex($md5c);
     if (! -e "$srcrep/$l->{'package'}/$md5-MD5SUMS") {
       my $error = applylink($md5, $oldl, $l);
-      return $error if $error;
+      if ($error) {
+        $pinfo->{'srcmd5'} = $md5 if $l == $linkinfo[0];
+        return $error;
+      }
     }
     $l->{'srcmd5'} = $md5;
     $oldl = $l;
@@ -1102,11 +1106,8 @@ sub getfilelist {
       $files = $lfiles;
       %$rev = %lrev;
     } else {
-      if (!ref $lfiles) {
-	$ret->{'error'} = $lfiles;
-      } else {
-	$ret->{'xsrcmd5'} = $lrev{'srcmd5'};
-      }
+      $ret->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
+      $ret->{'error'} = $lfiles unless ref $lfiles;
     }
   }
   $ret->{'name'} = $packid;
@@ -1735,22 +1736,27 @@ sub hello {
 my $dispatches = [
   '/' => \&hello,
 
+  # /status name space -> obsolete
   '/status' => \&getprojectlist,
   '/status/$project summary:bool? summaryonly:bool? oldstate:md5? package*' => \&getpackstatus,
   '/status/$project/$repository/$package' => \&getstatus_obsolete,
 
+  # /platform name space -> obsolete
   '/platform' => \&getprojectlist,
   '/platform/$project' => \&getrepositorylist,
   '/platform/$project/$repository' => \&getrepository,
 
+  # /repository name space -> obsolete
   '/repository' => \&getprojectlist,
   '/repository/$project' => \&getrepositorylist,
   '/repository/$project/$repository' => \&getrepository,
 
+  # /project name space -> obsolete
   '/project' => \&getprojectlist,
   '/project/$project' => \&getproject,
   'PUT:/project/$project' => \&putproject,
 
+  # /package name space -> obsolete
   '/package' => \&getprojectlist,
   '/package/$project' => \&getpackagelist,
   '/package/$project/$package' => \&getpackage,
@@ -1758,6 +1764,7 @@ my $dispatches = [
   'DELETE:/package/$project/$package' => \&delpackage,
   '/package/$project/$package/history' => \&getpackagehistory,
 
+  # /source name space: manage project and package data
   '/source' => \&getprojectlist,
   '/source/$project' => \&getpackagelist,
   '/source/$project/_meta' => \&getproject,
@@ -1774,8 +1781,10 @@ my $dispatches = [
   'PUT:/source/$project/$package/$filename rev? user:? comment:?' => \&putfile,
   'DELETE:/source/$project/$package/$filename rev? user:? comment:?' => \&delfile,
 
-  '/getprojectlist' => \&getprojectlist,
+  # scheduler calls
   '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool?' => \&getprojpack,
+
+  # worker calls
   '/getsources $project $package $srcmd5:md5' => \&getsources,
   '/getmacros $project $repository' => \&getmacros,
   '/getconfig $project $repository' => \&getconfig,
