@@ -113,7 +113,7 @@ class ProjectController < ApplicationController
       @packages << package.name
     end
 
-    @tags = Tag.find(:project => @project.name)
+    @tags = Tag.find(:user => @session[:login], :project => @project.name)
   end
 
   

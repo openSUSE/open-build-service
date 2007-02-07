@@ -108,7 +108,7 @@ class PackageController < ApplicationController
     @package = Package.find( package, :project => project )
     @project = Project.find( project )
 
-    @tags = Tag.find(:project => @project.name, :package => @package.name)
+    @tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
   end
 
   def new
