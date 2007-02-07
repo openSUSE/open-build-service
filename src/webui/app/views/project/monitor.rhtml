@@ -24,6 +24,7 @@
     <% @repohash.each do |repo,archlist| -%>
     <th colspan="<%=h archlist.length %><strong>"><%=h repo %></strong></th>
     <% end -%>
+    <th>&nbsp;</th>
   </tr>
   <!-- arch row -->
   <tr>
@@ -33,9 +34,12 @@
     <th><%=h arch %></th>
     <% end -%>
     <% end -%>
+    <th>&nbsp;</th>
   </tr>
   <!-- package rows -->
+  <% @failed ||= {} %>
   <% @packagenames.each do |packname| -%>
+  <% @failed[packname] = false %>
   <tr>
     <td><%= link_to packname, :controller => "package", :action => "show",
       :package => packname, :project => @project.to_s %></td>
@@ -56,6 +60,7 @@
       ><font color="#F00000">broken</font>
       <% elsif @statushash[repo][arch][packname] == "failed" -%>
       ><font color="#F00000">failed</font>
+      <% @failed[packname] = true %>
       <% elsif @statushash[repo][arch][packname] == "expansion error" -%>
       ><font color="#F00000">expansion error</font>
       <% else -%>
@@ -64,6 +69,12 @@
     </td>
     <% end -%>
     <% end -%>
+    <td>
+      <%= link_to image_tag( 'rebuild', :border => 0,
+        :title => "rebuild package #{packname}" ), :controller => 'package',
+        :action => 'trigger_rebuild', :package => packname,
+        :project => @project.to_s  if @failed[packname] -%>
+    </td>
   </tr>
   <% end -%>
 </table>
