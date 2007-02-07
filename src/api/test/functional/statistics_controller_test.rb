@@ -7,7 +7,7 @@ class StatisticsController; def rescue_action(e) raise e end; end
 class StatisticsControllerTest < Test::Unit::TestCase
 
 
-  fixtures :db_projects, :db_packages
+  fixtures :db_projects, :db_packages, :download_stats, :repositories, :architectures
 
 
   def setup
@@ -21,38 +21,62 @@ class StatisticsControllerTest < Test::Unit::TestCase
     prepare_request_with_user @request, 'tom', 'thunder'
     get :latest_added
     assert_response :success
-    assert_tag :tag => 'collection', :child => { :tag => 'item' }
-    assert_tag :tag => 'item', :attributes => {
+    assert_tag :tag => 'collection', :child => { :tag => 'project' }
+    assert_tag :tag => 'project', :attributes => {
       :name => "kde4",
-      :created => "2005-05-05T05:05:05+02:00",
-      :kind => "project"
+      :created => "2008-04-28T05:05:05+02:00",
     }
   end
 
 
-  def test_latest_updated
+ def test_latest_updated
+   prepare_request_with_user @request, 'tom', 'thunder'
+   get :latest_updated
+   assert_response :success
+   assert_tag :tag => 'collection', :child => { :tag => 'project' }
+   assert_tag :tag => 'project', :attributes => {
+     :name => "kde4",
+     :updated => "2008-04-28T06:06:06+02:00",
+   }
+ end
+
+
+  def test_download_counter
     prepare_request_with_user @request, 'tom', 'thunder'
-    get :latest_updated
+    get :download_counter
     assert_response :success
-    assert_tag :tag => 'collection', :child => { :tag => 'item' }
-    assert_tag :tag => 'item', :attributes => {
-      :name => "kde4",
-      :updated => "2006-06-06T06:06:06+02:00",
-      :kind => "project"
+    assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
+    assert_tag :tag => 'download_counter', :attributes => { :sum => 9302 }
+    assert_tag :tag => 'count', :attributes => {
+      :project => 'Apache',
+      :package => 'apache2',
+      :repository => 'SUSE_Linux_10.1',
+      :architecture => 'x86_64'
     }
+    assert_tag :tag => 'count', :content => '4096'
   end
 
 
-  def test_most_downloads
+  def test_download_counter_concatenated
     prepare_request_with_user @request, 'tom', 'thunder'
-    get :most_downloaded
+    # without project- & package-filter
+    get :download_counter, { 'concat' => 'project' }
     assert_response :success
-    assert_tag :tag => 'collection', :child => { :tag => 'package' }
-    assert_tag :tag => 'package', :attributes => {
-      :name => "kdelibs",
-      :project => "kde4",
-      :downloads => "12345"
+    assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
+    assert_tag :tag => 'download_counter', :attributes => { :sum => 9302 }
+    assert_tag :tag => 'count', :attributes => {
+      :project => 'Apache', :files => '9'
+    }, :content => '8806'
+    # with project- & package-filter
+    get :download_counter, {
+      'project' => 'Apache', 'package' => 'apache2', 'concat' => 'architecture'
     }
+    assert_response :success
+    assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
+    assert_tag :tag => 'download_counter', :attributes => { :sum => 8791 }
+    assert_tag :tag => 'count', :attributes => {
+      :architecture => 'x86_64', :files => '2'
+    }, :content => '5207'
   end
 
 

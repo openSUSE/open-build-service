@@ -3,3 +3,11 @@ first:
   id: 1
 another:
   id: 2
+SUSE_Linux_101:
+  name: SUSE_Linux_10.1
+  db_project_id: "63"
+  id: "75"
+SUSE_Linux_Factory:
+  name: SUSE_Linux_Factory
+  db_project_id: "64"
+  id: "81"

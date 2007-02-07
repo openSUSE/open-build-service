@@ -1,3 +1,4 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 stat_1:
   id: "1"
   db_project_id: "226"
@@ -11,7 +12,6 @@ stat_1:
   counted_at: 2007-01-25 11:48:59
   created_at: 2007-01-25 11:48:59
   count: "1"
-
 stat_2:
   id: "2"
   db_project_id: "226"
@@ -25,7 +25,6 @@ stat_2:
   count: "2"
   counted_at: 2007-01-25 22:48:59
   created_at: 2005-01-04 00:48:59
-
 stat_3:
   id: "3"
   db_project_id: "226"
@@ -39,7 +38,6 @@ stat_3:
   count: "4"
   counted_at: 2007-01-25 11:48:59
   created_at: 2007-01-25 11:48:59
-
 stat_4:
   id: "4"
   db_project_id: "226"
@@ -53,7 +51,6 @@ stat_4:
   count: "8"
   counted_at: 2007-01-25 22:48:59
   created_at: 2005-01-04 00:48:59
-
 stat_5:
   id: "5"
   db_project_id: "215"
@@ -67,7 +64,6 @@ stat_5:
   count: "16"
   counted_at: 2007-01-25 11:48:59
   created_at: 2007-01-25 11:48:59
-
 stat_6:
   id: "6"
   db_project_id: "215"
@@ -81,7 +77,6 @@ stat_6:
   count: "32"
   counted_at: 2007-01-25 11:48:59
   created_at: 2007-01-25 11:48:59
-
 stat_7:
   id: "7"
   db_project_id: "215"
@@ -95,7 +90,6 @@ stat_7:
   count: "64"
   counted_at: 2007-01-25 11:48:59
   created_at: 2000-01-25 11:48:59
-
 stat_8:
   id: "8"
   db_project_id: "215"
@@ -109,7 +103,6 @@ stat_8:
   count: "128"
   counted_at: 2007-01-25 22:48:59
   created_at: 2005-01-04 00:48:59
-
 stat_9:
   id: "9"
   db_project_id: "215"
@@ -123,7 +116,6 @@ stat_9:
   count: "256"
   counted_at: 2007-01-25 11:48:59
   created_at: 2007-01-25 11:48:59
-
 stat_10:
   id: "10"
   db_project_id: "226"
@@ -137,7 +129,6 @@ stat_10:
   count: "512"
   counted_at: 2007-01-25 11:48:59
   created_at: 1998-01-25 11:48:59
-
 stat_11:
   id: "11"
   db_project_id: "226"
@@ -151,7 +142,6 @@ stat_11:
   count: "1024"
   counted_at: 2007-01-25 11:48:59
   created_at: 2007-01-25 11:48:59
-
 stat_12:
   id: "12"
   db_project_id: "226"
@@ -165,7 +155,6 @@ stat_12:
   count: "2048"
   counted_at: 2007-01-25 11:48:59
   created_at: 2007-01-25 11:48:59
-
 stat_13:
   id: "13"
   db_project_id: "226"
@@ -179,7 +168,6 @@ stat_13:
   count: "4096"
   counted_at: 2007-01-25 22:48:59
   created_at: 2005-01-04 00:48:59
-
 stat_14:
   id: "14"
   db_project_id: "226"
@@ -193,4 +181,3 @@ stat_14:
   count: "1111"
   counted_at: 2007-02-01 17:36:36
   created_at: 2007-02-01 17:36:32
-

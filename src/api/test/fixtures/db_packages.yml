@@ -5,6 +5,50 @@ kdelibs:
   name: kdelibs
   created_at: 2001-01-01 01:01:01
   updated_at: 2002-02-02 02:02:02
-  downloads: 12345
   title: blub
   description: blub
+x11vnc:
+  id: 1336
+  db_project_id: 215
+  name: x11vnc
+  title: x11vnc
+  description: description
+  url: "http://geblubberblah/total/egal"
+  created_at: 2005-01-01 00:00:02
+  updated_at: 2007-01-25 11:48:59
+apache2:
+  id: 1355
+  db_project_id: 226
+  name: apache2
+  title: apache2
+  description: description
+  url: "http://httpd.apache.org"
+  created_at: 2005-01-01 00:00:02
+  updated_at: 2007-01-19 10:44:45
+libaprutil1:
+  id: 1356
+  db_project_id: 226
+  name: libapr-util1
+  title: libapr-util1
+  description: description
+  url: "http://some.url"
+  created_at: 2005-01-01 00:00:02
+  updated_at: 2007-01-19 10:44:45
+Taskjuggler:
+  id: 63
+  db_project_id: 226
+  name: Taskjuggler
+  title: Taskjuggler is Project Management Software
+  description: description
+  url: "http://some.url"
+  created_at: 2005-01-01 00:00:01
+  updated_at: 2005-01-01 00:00:01
+Tidy:
+  id: 64
+  db_project_id: 226
+  name: Tidy
+  title: HTML Tidy Library Project
+  description: description
+  url: "http://some.url"
+  created_at: 2005-01-01 00:00:01
+  updated_at: 2005-01-01 00:00:01
