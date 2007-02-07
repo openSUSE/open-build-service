@@ -5,8 +5,7 @@ xml.collection do
 
     ### item is a package
     if item.instance_of? DbPackage
-      xml.item(
-        :kind => 'package',
+      xml.package(
         :name => item.name,
         :project => item.db_project.name,
         :updated => item.updated_at.xmlschema
@@ -15,8 +14,7 @@ xml.collection do
 
     ### item is a project
     if item.instance_of? DbProject
-      xml.item(
-        :kind => 'project',
+      xml.project(
         :name => item.name,
         :updated => item.updated_at.xmlschema
       )
