@@ -1,6 +1,6 @@
 <h2>Idle hosts</h2>
 <% if @workerstatus.each_idle.length > 0 %>
-  <%= @workerstatus.each_idle.length %> of <%= pluralize(@max_clients, 'host') %> idle.
+  <%= @workerstatus.each_idle.length %> of <%= pluralize(@workerstatus.clients, 'host') %> idle.
   <table class="building">
     <tr><th>Host</th><th>Arch</th></tr>
     <% @workerstatus.each_idle do |b| %>
