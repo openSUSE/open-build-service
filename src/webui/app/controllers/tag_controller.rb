@@ -31,6 +31,7 @@ class TagController < ApplicationController
 
 
     def get_tagcloud
+      session[:tagcloud] ||= "mytags"
       logger.debug "TAG: getting  tag cloud from API."
       tagcloud = Tagcloud.new( :tagcloud => session[:tagcloud],
                                :user => @session[:login] )
