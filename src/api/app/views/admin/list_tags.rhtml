@@ -1,10 +1,26 @@
 <h2>openSUSE Frontend Tag Management</h2>
 
+<div>
+    <table>
+        <th><h3>Summary:</h3></th>
+        <th style="width: 15em;"><h3>Number of tags: <%=@number_of_tags%></h3></th> 
+        <th style="width: 10em;"><h3>Tags not used: <%=@unused_tags-%></h3></th>
+         <th><h3><%=link_to image_tag("list-remove", :alt => "Delete", :title => 'Delete', :border => 0),
+                                { :action => 'delete_unused_tags'},
+                                  :confirm => "Are you sure?",
+                                  :post    => true -%></h3></th>
+    </table>
+</div>
+
+<div>
 <table class="tagtable" cellpadding="5" cellspacing="0">
  <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th colspan="3">Actions</th>
+  
+    <th><%= link_to 'ID', :action => 'list_tags', :column => "id"%></th>
+    <th style="width: 15em;"><%= link_to 'Name', :action => 'list_tags', :column => "name"%></th>
+    <th><%= link_to 'Count', :action => 'list_tags', :column => "count" %></th>
+    <th style="width: 15em;"><%= link_to 'Created at', :action => 'list_tags', :column => "created_at"%></th>
+    <th style="width: 10em;" colspan="3">Actions</th>
  </tr>
   <% for tag in @tags %>
     
@@ -14,6 +30,12 @@
     </td>
     <td>  
         <%= h(tag.name) %>
+    </td>
+    <td>  
+        <%= h(tag.count) %>
+    </td>
+    <td>  
+        <%= h(tag.created_at) %>
     </td>
     <td>
         <%= link_to 'Show', :action => 'show_tag', :id => tag %>
@@ -26,18 +48,7 @@
   <% end %>
 </table>
 
-    <p>
-        <%=  if @tag_pages.current.previous 
-        link_to("Previous page", { :page => @tag_pages.current.previous })
-        end
-        %>
- 
-        <%= if @tag_pages.current.next 
-        link_to("Next page", { :page => @tag_pages.current.next })
-        end
-        %>
-    </p>    
     <p> 
         <%= link_to 'New', :action => 'new_tag' %>   
     </p>
-
+</div>

@@ -1,5 +1,6 @@
 class AdminController < ApplicationController
 
+
   layout "html"
 
   def list_sources
@@ -26,9 +27,68 @@ class AdminController < ApplicationController
     render( :layout => false )
   end
   
-  def list_tags
-    @tag_pages, @tags = paginate :tags, :per_page => 10
-  end
+  
+    def list_tags()
+    
+      logger.debug "[TAG:] admin list_params order_by: #{session[:column]}"
+      
+      allowed_order_by_arguments = ['id', 'name' , 'count' , 'created_at']
+      allowed_sort_by_arguments = ['ASC', 'DESC']
+      
+
+    #toggle sort direction
+     if session[:column] == params[:column] 
+        if session[:sort] == 'ASC' then session[:sort] = 'DESC'  
+        else session[:sort] = 'ASC'
+        end
+     end
+
+      session[:column] = params[:column] if params[:column]
+      
+      
+      order_by = (session[:column] ||= 'id')
+      sort_by = (session[:sort] ||= 'ASC')
+      
+
+      unless allowed_order_by_arguments.include? order_by
+        raise ArgumentError.new "unknown argument '#{session[:column]}'"
+      end
+      
+      unless allowed_sort_by_arguments.include? sort_by
+        raise ArgumentError.new "unknown argument '#{session[:sort]}'" 
+      end
+
+      logger.debug "[TAG: order_by: #{order_by}"
+      
+      if order_by == 'count' and sort_by == "ASC"
+        tags = Tag.find(:all)
+        
+        @tags = tags.sort { |x,y| x.count <=> y.count }
+        
+      elsif order_by == 'count' and sort_by == "DESC"
+        tags = Tag.find(:all)
+        
+        @tags = tags.sort { |x,y| y.count <=> x.count }
+        
+      else
+        
+        @tags = Tag.find(:all, :order => order_by + ' ' + sort_by)
+        
+      end
+      
+      @number_of_tags, @unused_tags = tags_summary
+      
+    end
+    
+    def tags_summary
+      tags = Tag.find(:all)
+      unused_tags = []
+      tags.each do |tag|
+       unused_tags << tag if tag.count == 0
+      end
+      logger.debug "[TAG:] Number of tags: #{tags.size} Tags not used: #{unused_tags.size}"
+      return tags.size, unused_tags.size
+    end
   
   def new_tag
     Tag.new
@@ -46,7 +106,8 @@ class AdminController < ApplicationController
 
   def show_tag
     @tag = Tag.find(params[:id])
-    @tagged_items = @tag.db_projects
+    @tagged_projects = @tag.db_projects.find(:all, :group => 'name')
+    @tagged_packages = @tag.db_packages.find(:all, :group => 'name')
     rescue
       invalid_tag
   end
@@ -72,6 +133,20 @@ class AdminController < ApplicationController
     redirect_to :action => 'list_tags'
   end
   
+  def delete_unused_tags
+    tags = Tag.find(:all)
+    unused_tags = []
+      tags.each do |tag|
+       unused_tags << tag if tag.count == 0
+      
+    end
+    logger.debug "[TAG:] The following tags will be DELETED: #{unused_tags.inspect}"
+    logger.debug "[TAG:] .... NOW!"
+    unused_tags.each do |tag|
+      tag.destroy
+    end
+    redirect_to :action => 'list_tags'
+  end
   
   def invalid_tag
     logger.error("Attempt to access invalid tag #{params[:id]}")

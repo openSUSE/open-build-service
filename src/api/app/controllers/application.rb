@@ -20,6 +20,10 @@ class ApplicationController < ActionController::Base
   @user_permissions = nil
   @http_user = nil
   
+  #session options for tag admin
+  session_options[:sort] ||= "ASC"
+  session_options[:column] ||= "id"
+  
   helper RbacHelper
   
   # skip the filter for the user stuff
