@@ -45,27 +45,27 @@
       :package => packname, :project => @project.to_s %></td>
     <% @repohash.each do |repo, archlist| -%>
     <% archlist.each do |arch| -%>
-    <td id="<%= status_id_for(packname, repo, arch)%>"
-      <% if @statushash[repo][arch][packname] == "blocked" -%>
-      bgcolor="#BBBBBB"><font color="#FFFFFF">blocked</font>
-      <% elsif @statushash[repo][arch][packname] == "scheduled" -%>
-      bgcolor="#BBBBBB">scheduled
-      <% elsif @statushash[repo][arch][packname] == "building" -%>
-      bgcolor="#BBBBBB"><font color="#0000F0">building</font>
-      <% elsif @statushash[repo][arch][packname] == "disabled" -%>
-      ><font color="#D0D000">disabled</font>
-      <% elsif @statushash[repo][arch][packname] == "succeeded" -%>
-      ><font color="#6EB927">succeeded</font>
-      <% elsif @statushash[repo][arch][packname] == "broken" -%>
-      ><font color="#F00000">broken</font>
-      <% elsif @statushash[repo][arch][packname] == "failed" -%>
-      ><font color="#F00000">failed</font>
-      <% @failed[packname] = true %>
-      <% elsif @statushash[repo][arch][packname] == "expansion error" -%>
-      ><font color="#F00000">expansion error</font>
-      <% else -%>
-      ><%=h @statushash[repo][arch][packname] %>
-      <% end -%>
+      <%
+        status = @statushash[repo][arch][packname]
+        case status
+        when 'failed'
+          @failed[packname] = true
+        when 'expansion error'
+          @failed[packname] = true
+        end
+      %>
+      <td id="<%= status_id_for(packname, repo, arch) -%>"
+        class="status_<%= status.gsub(' ','_') -%>">
+      <% if status == 'failed' or status == 'expansion error' %>
+        <%= link_to image_tag( 'rebuild-light', :border => 0,
+          :title => "rebuild package #{packname} for #{repo}/#{arch}" ),
+          :controller => 'package', :action => 'trigger_rebuild',
+          :package => packname, :project => @project.to_s,
+          :repo => repo, :arch => arch -%>
+      <% end %>
+      <%= link_to status, :action => :live_build_log,
+        :package => packname, :project => @project.to_s, :arch => arch,
+        :controller => "package", :repository => repo %>
     </td>
     <% end -%>
     <% end -%>

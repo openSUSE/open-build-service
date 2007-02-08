@@ -752,3 +752,33 @@ strong.highlight {
   color: rgb(192,192,255);
 }
 
+
+
+/* build status monitor for projects */
+.status_blocked a {
+  color: #fff;
+  background-color: #bbb;
+}
+.status_scheduled a {
+  background-color: #bbb;
+}
+.status_building a {
+  color: #0000f0;
+  background-color: #bbb;
+}
+.status_disabled a {
+  color: #ddd;
+}
+.status_succeeded a {
+  color: #6EB927;
+}
+.status_broken a {
+  color: #e00;
+}
+.status_failed a {
+  color: #f00;
+}
+.status_expansion_error a {
+  color: #c00;
+}
+
