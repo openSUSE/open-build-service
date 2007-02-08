@@ -65,14 +65,14 @@ validate_action :package_tags => :tags
 
   def get_projects_by_tag
     @tag = Tag.find_by_name(params[:tag])
-    @projects = @tag.db_projects
+    @projects = @tag.db_projects.find(:all, :group => "name", :order => "name")
     render :partial => "objects_by_tag"
   end
 
 
   def get_packages_by_tag
     @tag = Tag.find_by_name(params[:tag])
-    @packages = @tag.db_packages
+    @packages = @tag.db_packages(:all, :group => "name", :order => "name")
     render :partial => "objects_by_tag"
   end
 
@@ -138,35 +138,15 @@ validate_action :package_tags => :tags
       @steps = (params[:steps] ||= 6).to_i
       @distribution_method = (params[:distribution] ||= "linear")
       
-      raise ArgumentError,"Number of font sizes used in the tag cloud must be set." if not @steps
-      
       if params[:user]
-        @opt = {:scope => "user", :user => @http_user}
-        @tags = get_tags_by_user
-        
+        tagcloud = Tagcloud.new(:scope => "user", :user => @http_user)
       else
-        @tags = Tag.find(:all, :order => :name)
-        @tags.delete_if {|tag| tag.weight == 0 }
+        tagcloud = Tagcloud.new(:scope => "global")
       end
-    
-      #the case of an empty tagcloud
-      if @tags == [] 
-        render :partial => "tagcloud"
-        return
-      end
-      
-      #chooses the distribution method, how tags will be scaled
-      case @distribution_method
-        when "linear"
-          @thresholds = linear_distribution_method(@tags,@steps)
-        when "logarithmic"
-          @thresholds = logarithmic_distribution_method(@tags,@steps)      
-        when "raw"
-          #nothing to do
-        else
-          raise render_error :status => 400, :errorcode => 'unknown_distribution_method_error',
-            :message => "Unknown font size distribution type. Use linear or logarithmic."
-       end
+
+      #get the list of tags
+      @tags = tagcloud.get_tags(@distribution_method,@steps)
+     
       render :partial => "tagcloud"
     end
 
@@ -178,46 +158,6 @@ validate_action :package_tags => :tags
     tags = Tag.find(:all, :order => :name)
     return tags
   end
-  
-  def get_max_min_delta(taglist,steps)
-    max, min = taglist[0].weight(@opt), taglist[0].weight(@opt)     
-    delta = 0
-    
-    taglist.each do |tag|
-      max = tag.weight(@opt) if tag.weight(@opt) > max
-      min = tag.weight(@opt) if tag.weight(@opt) < min
-    end
-    
-    if max != min
-      delta = (max - min) / steps.to_f
-    else
-      delta = (max) / steps.to_f
-    end
-    return max, min, delta
-  end
-  
-  def linear_distribution_method(taglist, steps)
-    max, min, delta = get_max_min_delta(taglist,steps)
-    @thresholds = []
-    for i in 1..steps
-      size = i
-      @thresholds << min + size * delta
-    end
-    return @thresholds  
-  end
-  private :linear_distribution_method
-  
-  def logarithmic_distribution_method(taglist, steps)
-    max, min, delta = get_max_min_delta(taglist,steps)
-    @thresholds = []
-    for i in 1..steps
-      size = i
-      @thresholds << 100 * Math.log(min + size * delta + 2)
-    end
-    return @thresholds
-  end
-  private :logarithmic_distribution_method
-
 
   def project_tags 
     #get project name from the URL
