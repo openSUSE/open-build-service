@@ -22,7 +22,9 @@
     <% for @object in @projects %>
   <tr>
   <td>
-    <%= link_to @object.name, :controller => "project", :action => :show, :project => @object %>    
+    <%= link_to @object.name, { :controller => "project", :action => :show,
+                                :project => @object },
+                                :title => @object.title %>    
   </td>
   <td>
   <div id="tag_edit_area_<%= @object.name -%>">
@@ -31,7 +33,7 @@
   </td>
   <td>   
     <%= link_to_remote image_tag("edit",
-                :title => "add tag project",
+                :title => "Edit Tags",
                 :border => 0),
                 :update => 'tag_edit_area_' + @object.name,
                 :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object},
@@ -62,7 +64,9 @@
     <%= link_to @object.project, :controller => "project", :action => :show, :project => @object.project %>
   </td>
   <td>
-    <%= link_to @object.name, :controller => "package", :action => :show, :project => @object.project, :package => @object%>    
+    <%= link_to @object.name, { :controller => "package", :action => :show,
+                                :project => @object.project, :package => @object },
+                                :title => @object.title %>
   </td>
   <td>
   <div id="tag_edit_area_<%= @object.project + '_' + @object.name -%>">
@@ -71,7 +75,7 @@
   </td>
   <td>   
     <%= link_to_remote image_tag("edit",
-                :title => "add tag package",
+                :title => "Edit Tags",
                 :border => 0),
                 :update => 'tag_edit_area_' + @object.project + "_" + @object.name,
                 :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object.project, :package => @object},
