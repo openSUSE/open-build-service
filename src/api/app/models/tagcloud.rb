@@ -68,9 +68,9 @@ class Tagcloud
         tagcloud[tag.name] = linear_distribution_method(steps,thresholds,tag)
       end
     when "logarithmic"
-      thresholds = thresholds_linear_distribution(steps,@max,@min,delta)
-      @tags.each do |tag.name|
-        tagcloud[tag] = logarithmic_distribution_method(steps,thresholds,tag)
+      thresholds = thresholds_logarithmic_distribution(steps,@max,@min,delta)
+      @tags.each do |tag|
+        tagcloud[tag.name] = logarithmic_distribution_method(steps,thresholds,tag)
       end
     when "raw"
       @tags.each do |tag|
@@ -101,7 +101,7 @@ class Tagcloud
   def logarithmic_distribution_method(steps,thresholds,tag)
     size = 0
     for i in 1..steps
-      if 100 * Math.log(tag.weight + 2) <= thresholds[i-1]
+      if 100 * Math.log(tag.count + 2) <= thresholds[i-1]
         size = i
         break
       end
