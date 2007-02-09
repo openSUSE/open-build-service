@@ -6,36 +6,45 @@
 
 <%#= render :partial => 'filter_projects' %><br/>
 
-
+    <% if @tagcloud %>
     <%= render :partial => 'tag/tagcloud_container'-%>
-
+    <% end %>
  
+<% if @projects and @projects != [] %>
 <div id="list_by_tag">
 <h2>Projects tagged with <%= params[:tag] %></h2>
 <table>
   <tr>
-    <th>Projectname</th>
+    <th>Project</th>
     <th>Tags</th>
   </tr>
     
     <% for project in @projects %>
   <tr>
   <td>
-    <%= link_to project.name, :controller => "project", :action => :show, :project => project %>    
+    <%= link_to project.name, { :controller => "project", :action => :show, :project => project }, :title => project.title %>  
   </td>
   <td>
-    coming soon.
+    <% project.each_tag do |tag|%>
+        <%= link_to tag.name, :controller => "tag", :action => "list_objects_by_tag", :tag => tag %>
+    <%end%>
   </td>
   </tr>
   
   <% end %>
 </table>
+</div>
+<% end %>
 
+
+
+<% if @packages and @packages != [] %>
+<div>
 <h2>Packages tagged with <%= params[:tag] %></h2>
 <table>
   <tr>
     <th>Project</th>
-    <th>Packagename</th>
+    <th>Package</th>
     <th>Tags</th>
   </tr>
     <% for package in @packages %>
@@ -44,14 +53,19 @@
         <%= link_to package.project, :controller => "project", :action => :show, :project => package.project %>
     </td>
     <td>       
-        <%= link_to package.name, :controller => "package", :action => :show, :project => package.project, :package => package %>
+        <%= link_to package.name, { :controller => "package", :action => :show,
+              :project => package.project, :package => package },
+              :title => package.title %>
+
     </td>
     <td>
-        coming soon.
+     <% package.each_tag do |tag|%>
+        <%= link_to tag.name, :controller => "tag", :action => "list_objects_by_tag", :tag => tag %>
+    <%end%>
     </td>
   </tr>
   
   <% end %>
 </table>
 </div>
-
+<% end %>

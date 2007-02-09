@@ -123,7 +123,8 @@ class ProjectController < ApplicationController
     @collection.each_project do |project|
       @projects << project
     end
-    render :action => "list_by_tag"  
+
+    render :action => "../tag/list_objects_by_tag"  
   end
   
   # render the input form for tags

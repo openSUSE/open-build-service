@@ -46,7 +46,7 @@ class PackageController < ApplicationController
     @collection.each_package do |package|
       @packages << package
     end
-    render :action => "list_by_tag"  
+    render :action => "../tag/list_objects_by_tag"  
   end
 
   def show
