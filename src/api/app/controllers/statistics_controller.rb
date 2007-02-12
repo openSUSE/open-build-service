@@ -290,6 +290,7 @@ class StatisticsController < ApplicationController
         :count => cstats[key][:count].to_i + stat.count,
         :files => cstats[key][:files].to_i + 1
       }
+      cstats[key][:project] ||= stat.db_project.name if type == 'db_package'
     end
     return cstats
   end
