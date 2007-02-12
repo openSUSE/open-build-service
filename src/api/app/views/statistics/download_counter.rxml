@@ -5,7 +5,20 @@ if @cstats
 
   xml.download_counter( :sum => @sum, :first_count => @first_count ) do
     @cstats.each do |stat|
-      xml.count( stat[1][:count].to_s, @type.to_sym => stat[0], :files => stat[1][:files] )
+      if @type == 'package'
+        xml.count(
+          stat[1][:count].to_s,
+          @type.to_sym => stat[0],
+          :project => stat[1][:project],
+          :files => stat[1][:files]
+        )
+      else
+        xml.count(
+          stat[1][:count].to_s,
+          @type.to_sym => stat[0],
+          :files => stat[1][:files]
+        )
+      end
     end
   end
 
