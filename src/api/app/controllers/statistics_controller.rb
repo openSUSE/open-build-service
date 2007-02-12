@@ -75,6 +75,12 @@ class StatisticsController < ApplicationController
 
       # sort by count - converts hash to nested array
       @cstats = cstats.sort { |a,b| b[1][:count] <=> a[1][:count] }
+
+      # apply limit
+      @cstats = @cstats[0..@limit-1] if @limit
+    else
+      # apply limit
+      @stats = @stats[0..@limit-1] if @limit
     end
   end
 
