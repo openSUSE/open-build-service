@@ -630,6 +630,19 @@ div#package_disablebuild ul {
   margin-left:0;
 }
 
+#download_statistics_details {
+  border: 1px #6eb927 dotted;
+  padding: 0.25em;
+}
+#download_statistics_details th {
+  border-bottom: 1px #999 dotted;
+  padding: 0.5em;
+  font-size: 0.9em
+}
+#download_statistics_details td {
+  border-bottom: 1px #ddd dotted;
+  padding: 0 0.4em 0 0.4em;
+}
 
 #mainsearch form input[type=text] {
   width: 10em;
