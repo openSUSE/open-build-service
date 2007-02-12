@@ -1,13 +1,11 @@
 <h1>Build Service Statistics</h1>
 
 <div id="statistics">
-  <!--
   <span>
-    <% #= render :partial => 'most_downloaded' -%>
-    <% #= link_to 'more...', { :controller => 'main', :action => 'most_downloaded',
-       #:more => true, :limit => 25 } -%>
+    <%= render :partial => 'most_downloaded' -%>
+    <%= link_to 'more...', { :controller => 'main', :action => 'most_downloaded',
+      :more => true, :limit => 25 } -%>
   </span>
-  -->
   <span>
     <%= render :partial => 'latest_added' -%>
     <%= link_to 'more...', { :controller => 'main', :action => 'latest_added',

@@ -28,19 +28,19 @@ module MainHelper
   end
 
 
-  def link_to_package_view( item, title='' )
-    link_to image_tag( 'package', :border => 0 ) + " #{shorten_text(item.name)}",
+  def link_to_package_view( name, project, title='' )
+    link_to image_tag( 'package', :border => 0 ) + " #{shorten_text(name)}",
       { :action => 'view', :controller => 'package',
-        :package => item.name, :project => item.project },
-      :title => "Package #{item.name} #{title}"
+        :package => name, :project => project },
+      :title => "Package #{name} #{title}"
   end
 
 
-  def link_to_project_view( item, title='' )
-    link_to image_tag( 'project', :border => 0 ) + " #{shorten_text(item.name)}",
+  def link_to_project_view( name, title='' )
+    link_to image_tag( 'project', :border => 0 ) + " #{shorten_text(name)}",
       { :action => 'view', :controller => 'project',
-        :project => item.name },
-      :title => "Project #{item.name} #{title}"
+        :project => name },
+      :title => "Project #{name} #{title}"
   end
 
 

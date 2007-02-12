@@ -15,9 +15,9 @@
           distance_of_time_in_words_to_now( Time.parse( item.updated ) ) +
           " ago" %>
         <% if item.data.to_s =~ /^<package / %>
-          <%= link_to_package_view( item, title ) -%>
+          <%= link_to_package_view( item.name, item.project, title ) -%>
         <% elsif item.data.to_s =~ /^<project / %>
-          <%= link_to_project_view( item, title ) -%>
+          <%= link_to_project_view( item.name, title ) -%>
         <% end %>
     <% end %>
   </ol>

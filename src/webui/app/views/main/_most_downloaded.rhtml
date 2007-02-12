@@ -2,16 +2,66 @@
 <div id="most_downloaded">
 
   <h4>Most Downloaded:</h4>
-  <br/>
 
+<!--
   <% if params[:more] -%>
     <%= statistics_limit_form( 'most_downloaded', 'Show top' ) %>
-  <% end %>
+ <% end %>
+-->
 
+  <h5>Projects:</h5>
   <ol>
-    <% @most_downloaded.each_package do |package| %>
-      <% title = "downloaded " + package.downloads + " times" %>
-      <li><%= link_to_package_view( package, title ) -%></li>
+    <% @most_downloaded[:projects].each_count do |count| %>
+      <li>
+      <%= link_to image_tag( 'project', :border => 0 ) + " #{count.project}",
+        { :action => 'download_details', :project => count.project },
+        :title => "downloaded " + count.to_s + " times, project contains " +
+        "#{count.files} different files (click to filter by project)" -%>
+      <%= link_to image_tag( 'link_ext', :border => 0 ),
+        { :controller => 'project', :action => 'view', :project => count.project },
+        :title => "View Project Details..." -%>
+      </li>
+    <% end %>
+  </ol>
+
+  <h5>Packages:</h5>
+  <ol>
+    <% @most_downloaded[:packages].each_count do |count| %>
+      <li>
+      <%= link_to image_tag( 'package', :border => 0 ) + " #{count.package}",
+        { :action => 'download_details', :package => count.package,
+        :project => count.project }, :title => "downloaded #{count.to_s} times, " +
+        "package contains #{count.files} different files (click to filter by package)" -%>
+      <%= link_to image_tag( 'link_ext', :border => 0 ),
+        { :controller => 'package', :action => 'view', :project => count.project,
+        :package => count.package }, :title => "View Package Details..." -%>
+      </li>
+    <% end %>
+  </ol>
+
+  <h5>Repositories:</h5>
+  <ol>
+    <% @most_downloaded[:repos].each_count do |count| %>
+    <% title = "#{count.to_s} downloads " +
+    "(#{count.files} different files). Click for details..." %>
+      <li>
+      <%= link_to image_tag( 'repository', :border => 0 ) + " #{count.repository}",
+        { :action => 'download_details', :repo => count.repository },
+        :title => title -%>
+      </li>
+    <% end %>
+  </ol>
+
+  <h5>Architectures:</h5>
+  <ol>
+    <% @most_downloaded[:archs].each_count do |count| %>
+    <% title = "#{count.to_s} downloads " +
+    "(#{count.files} different files). Click for details..." %>
+      <li>
+      <%= link_to image_tag( 'architecture', :border => 0 ) + " #{count.architecture}",
+        { :action => 'download_details', :repo => count.architecture },
+        :title => title -%>
+      </li>
     <% end %>
   </ol>
 

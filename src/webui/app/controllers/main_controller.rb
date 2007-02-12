@@ -11,9 +11,9 @@ class MainController < ApplicationController
 
 
   def statistics
-    @latest_added    = Collection.find( :statistics, :type => 'latest_added' , :limit => 10 )
-    @latest_updated  = Collection.find( :statistics, :type => 'latest_updated' , :limit => 10 )
-    #@most_downloaded = Collection.find( :statistics, :type => 'most_downloaded' , :limit => 10 )
+    @latest_added    = LatestAdded.find( :limit => 10 )
+    @latest_updated  = LatestUpdated.find( :limit => 10 )
+    @most_downloaded = get_download_stats
   end
 
 
@@ -21,7 +21,7 @@ class MainController < ApplicationController
     limit = params[:limit]
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false
-    @latest_added = Collection.find( :statistics, :type => 'latest_added' , :limit => limit )
+    @latest_added = LatestAdded.find( :limit => limit )
     render :partial => 'latest_added', :layout => layout, :more => true
   end
 
@@ -30,17 +30,49 @@ class MainController < ApplicationController
     limit = params[:limit]
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false
-    @latest_updated = Collection.find( :statistics, :type => 'latest_updated' , :limit => limit )
+    @latest_updated = LatestUpdated.find( :limit => limit )
     render :partial => 'latest_updated', :layout => layout, :more => true
   end
 
 
   def most_downloaded
     limit = params[:limit]
-    # no layout, if this is an ajax-request
-    request.get? ? layout=true : layout=false
-    @most_downloaded = Collection.find( :statistics, :type => 'most_downloaded' , :limit => limit )
-    render :partial => 'most_downloaded', :layout => layout, :more => true
+    @most_downloaded = get_download_stats
+    render :partial => 'most_downloaded', :layout => true, :more => true
+  end
+
+
+  def download_details
+    #limit = params[:limit]
+    project = params[:project]
+    package = params[:package]
+    repo = params[:repo]
+    arch = params[:arch]
+
+    if project and package
+      @name = "#{package} (project #{project})"
+      @title = 'Package'
+      @downloads = Downloadcounter.find(
+        :project => params[:project], :package => params[:package]
+      )
+    elsif project
+      @name = project
+      @title = 'Project'
+      @downloads = Downloadcounter.find( :project => params[:project] )
+    elsif arch
+      @name = arch
+      @title = 'Architecture'
+      @downloads = Downloadcounter.find( :arch, :arch => params[:arch] )
+    elsif repo
+      @name = repo
+      @title = 'Repository'
+      @downloads = Downloadcounter.find( :repo, :repo => params[:repo] )
+    else
+      @name = 'all downloads'
+      @title = ''
+      @downloads = Downloadcounter.find( :all )
+    end
+    render :partial => 'download_details', :layout => true
   end
 
 
@@ -176,6 +208,19 @@ class MainController < ApplicationController
 
   def log_weight(log_prefix, reason, new_weight)
     logger.debug "#{log_prefix} #{reason}, new weight=#{new_weight}"
+  end
+
+
+  private
+
+
+  def get_download_stats
+    most_downloaded = {}
+    most_downloaded[:projects] = Downloadcounter.find( :concat => 'project' )
+    most_downloaded[:packages] = Downloadcounter.find( :concat => 'package' )
+    most_downloaded[:repos] = Downloadcounter.find( :concat => 'repository' )
+    most_downloaded[:archs] = Downloadcounter.find( :concat => 'architecture' )
+    return most_downloaded
   end
 
 
