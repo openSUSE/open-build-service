@@ -93,11 +93,21 @@ ActiveXML::Base.config do |conf|
 
     map.connect :collection, "rest:///search/:what?match=:predicate",
         :tag => "rest:///tag/:tagname/:type",
-        :tags_by_user => "rest:///user/:user/tags/:type",
-        :statistics => "rest:///statistics/:type?limit=:limit"
+        :tags_by_user => "rest:///user/:user/tags/:type"
 
     map.connect :workerstatus, "rest:///build/_workerstatus",
         :all => "rest:///build/_workerstatus"
+
+    # Statistics
+    map.connect :latestadded, "rest:///statistics/latest_added?limit=:limit",
+      :all => "rest:///statistics/latest_added"
+    map.connect :latestupdated, "rest:///statistics/latest_updated?limit=:limit",
+      :all => "rest:///statistics/latest_updated"
+    map.connect :downloadcounter, "rest:///statistics/download_counter" +
+      "/:project/:package/:repository/:architecture?concat=:concat",
+      :arch => "rest:///statistics/download_counter?architecture=:arch",
+      :repo => "rest:///statistics/download_counter?repository=:repo",
+      :all => "rest:///statistics/download_counter"
 
   end
 end
