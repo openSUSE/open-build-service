@@ -36,14 +36,14 @@ class MainController < ApplicationController
 
 
   def most_downloaded
-    limit = params[:limit]
+    @limit = params[:limit]
     @most_downloaded = get_download_stats
     render :partial => 'most_downloaded', :layout => true, :more => true
   end
 
 
   def download_details
-    #limit = params[:limit]
+    limit = params[:limit]
     project = params[:project]
     package = params[:package]
     repo = params[:repo]
@@ -53,24 +53,31 @@ class MainController < ApplicationController
       @name = "#{package} (project #{project})"
       @title = 'Package'
       @downloads = Downloadcounter.find(
-        :project => params[:project], :package => params[:package]
+        :project => params[:project], :package => params[:package],
+        :limit => limit
       )
     elsif project
       @name = project
       @title = 'Project'
-      @downloads = Downloadcounter.find( :project => params[:project] )
+      @downloads = Downloadcounter.find(
+        :project => params[:project], :limit => limit
+      )
     elsif arch
       @name = arch
       @title = 'Architecture'
-      @downloads = Downloadcounter.find( :arch, :arch => params[:arch] )
+      @downloads = Downloadcounter.find(
+        :arch, :arch => params[:arch], :limit => limit
+      )
     elsif repo
       @name = repo
       @title = 'Repository'
-      @downloads = Downloadcounter.find( :repo, :repo => params[:repo] )
+      @downloads = Downloadcounter.find(
+        :repo, :repo => params[:repo], :limit => limit
+      )
     else
       @name = 'all downloads'
       @title = ''
-      @downloads = Downloadcounter.find( :all )
+      @downloads = Downloadcounter.find( :all, :limit => limit )
     end
     render :partial => 'download_details', :layout => true
   end
@@ -216,10 +223,18 @@ class MainController < ApplicationController
 
   def get_download_stats
     most_downloaded = {}
-    most_downloaded[:projects] = Downloadcounter.find( :concat => 'project' )
-    most_downloaded[:packages] = Downloadcounter.find( :concat => 'package' )
-    most_downloaded[:repos] = Downloadcounter.find( :concat => 'repository' )
-    most_downloaded[:archs] = Downloadcounter.find( :concat => 'architecture' )
+    most_downloaded[:projects] = Downloadcounter.find(
+      :concat => 'project', :limit => @limit
+    )
+    most_downloaded[:packages] = Downloadcounter.find(
+      :concat => 'package', :limit => @limit
+    )
+    most_downloaded[:repos] = Downloadcounter.find(
+      :concat => 'repository', :limit => @limit
+    )
+    most_downloaded[:archs] = Downloadcounter.find(
+      :concat => 'architecture', :limit => @limit
+    )
     return most_downloaded
   end
 

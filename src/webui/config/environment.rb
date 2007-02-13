@@ -104,10 +104,10 @@ ActiveXML::Base.config do |conf|
     map.connect :latestupdated, "rest:///statistics/latest_updated?limit=:limit",
       :all => "rest:///statistics/latest_updated"
     map.connect :downloadcounter, "rest:///statistics/download_counter" +
-      "/:project/:package/:repository/:architecture?concat=:concat",
-      :arch => "rest:///statistics/download_counter?architecture=:arch",
-      :repo => "rest:///statistics/download_counter?repository=:repo",
-      :all => "rest:///statistics/download_counter"
+      "/:project/:package/:repository/:architecture?concat=:concat&limit=:limit",
+      :arch => "rest:///statistics/download_counter?architecture=:arch&limit=:limit",
+      :repo => "rest:///statistics/download_counter?repository=:repo&limit=:limit",
+      :all => "rest:///statistics/download_counter?limit=:limit"
 
   end
 end
