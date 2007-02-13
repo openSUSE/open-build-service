@@ -62,7 +62,7 @@
           :title => "rebuild package #{packname} for #{repo}/#{arch}" ),
           :controller => 'package', :action => 'trigger_rebuild',
           :package => packname, :project => @project.to_s,
-          :repo => repo, :arch => arch -%>
+          :repo => repo, :arch => arch, :redirect => 'monitor' -%>
       <% end %>
       <%= link_to status, :action => :live_build_log,
         :package => packname, :project => @project.to_s, :arch => arch,
@@ -74,7 +74,7 @@
       <%= link_to image_tag( 'rebuild', :border => 0,
         :title => "rebuild package #{packname}" ), :controller => 'package',
         :action => 'trigger_rebuild', :package => packname,
-        :project => @project.to_s  if @failed[packname] -%>
+        :project => @project.to_s, :redirect => 'monitor' if @failed[packname] -%>
     </td>
   </tr>
   <% end -%>

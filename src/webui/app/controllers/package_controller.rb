@@ -109,6 +109,8 @@ class PackageController < ApplicationController
     @project = Project.find( project )
 
     @tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
+
+    @downloads = Downloadcounter.find( :project => project, :package => package )
   end
 
   def new
@@ -500,10 +502,17 @@ class PackageController < ApplicationController
 
     frontend.cmd_package( project, package, "rebuild", options )
 
-    flash[:note] = "Triggered rebuild."
-    logger.debug( "Triggeried Rebuild for #{package}, options=#{options.to_json.to_s}" )
+    logger.debug( "Triggered Rebuild for #{package}, options=#{options.to_json.to_s}" )
 
-    redirect_to :action => "show", :project => project, :package => package
+    redirect = params[:redirect]
+    if redirect == 'monitor'
+      flash[:note] = "Triggered rebuild for package #{package}."
+      redirect_to :controller => 'project', :action => 'monitor',
+        :project => project
+    else
+      flash[:note] = 'Triggered rebuild.'
+      redirect_to :action => 'show', :project => project, :package => package
+    end
   end
 
   def check_params
