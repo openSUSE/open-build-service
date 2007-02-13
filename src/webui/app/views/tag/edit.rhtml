@@ -10,6 +10,13 @@
 &nbsp;
 </p>
 
+<% if @projects == [] and @packages == [] %>
+ 
+  Sorry, you assigned no tags yet.
+
+<% else %>
+
+<% if @projects != [] %>
 <div id="list_by_tag">
 <h2>Tagged Projects:</h2>
 <table>
@@ -46,8 +53,9 @@
   
  </table>
  </div>
+<% end %>
 
-<% if @packages %>    
+<% if @packages != [] %>    
 <div id="list_by_tag">
 <h2>Tagged Packages:</h2>
 <table>
@@ -85,7 +93,9 @@
   </td>  
   </tr>
   <% end %>
-  <% end %>
-  
 </table>
 </div>
+  <% end %>
+  
+
+<% end %>
