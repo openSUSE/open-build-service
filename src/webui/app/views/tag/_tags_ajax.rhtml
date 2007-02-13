@@ -1,3 +1,7 @@
- <% @object.each_tag do |tag|%>
+<% if @object.each_tag.length == 0 %>
+  <i>No tags.</i>
+<% else %> 
+  <% @object.each_tag do |tag|%>
     <%= link_to tag.name, :controller => "tag", :action => "show", :tag => tag %>
-<%end%>
+  <% end %>
+<% end %>
