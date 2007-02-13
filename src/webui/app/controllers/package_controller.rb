@@ -109,7 +109,6 @@ class PackageController < ApplicationController
     @project = Project.find( project )
 
     @tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
-
     @downloads = Downloadcounter.find( :project => project, :package => package )
   end
 

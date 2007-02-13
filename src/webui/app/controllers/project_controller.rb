@@ -114,6 +114,7 @@ class ProjectController < ApplicationController
     end
 
     @tags = Tag.find(:user => @session[:login], :project => @project.name)
+    @downloads = Downloadcounter.find( :project => @project )
   end
 
   

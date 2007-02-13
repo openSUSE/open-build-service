@@ -1,3 +1,4 @@
+<% @pagetitle = "Download Statistics Details for #{@title} #{@name}" %>
 
 <h4>Download Statistics Details</h4>
 <h5>for <%= @title -%> <b>"<%= @name -%>"</b></h5>
@@ -59,4 +60,13 @@
   <% end %>
 </table>
 
-<p>Sum of all downloads of the last <%= distance_of_time_in_words_to_now( @downloads.first_count ) -%>: <b><%= @downloads.sum -%></b></p>
+<p>
+  Sum of all downloads of the last
+  <%= distance_of_time_in_words_to_now( @downloads.first_count ) -%>:
+  <b><%= @downloads.sum -%></b>
+</p>
+
+<p>
+  <%= link_to 'Remove Filter / Show overall download statistics',
+    :controller => params[:controller], :action => params[:action] -%>
+</p>

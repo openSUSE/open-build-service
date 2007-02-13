@@ -126,6 +126,20 @@
           </b>ago.<br/>
           <i class="greyed-out"><%=h @project.updated -%></i>
         </p>
+
+        <h5>Downloads</h5>
+        <p>
+        <% if @downloads.each_count.length > 0 %>
+          This project contains <b><%= @downloads.each_count.length -%></b>
+          files with download counters.<br/>
+          They were downloaded <b><%= @downloads.sum -%></b> times since
+          <%= distance_of_time_in_words_to_now( @downloads.first_count ) %>.<br/>
+          <%= link_to 'Detailed Download Statistics ...', :controller => 'main',
+            :action => 'download_details', :project => @project -%>
+        <% else %>
+          <i>There are no files with download counters in this project yet.</i>
+        <% end%>
+        </p>
       </div>
 
     </td>
