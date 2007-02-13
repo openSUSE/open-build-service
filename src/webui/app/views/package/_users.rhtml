@@ -6,7 +6,7 @@
     :action => :add_person, :package => @package, :project => @project %>
   </h3>
 
-  <% if @package.has_element? :person -%>
+  <% if @package.has_element? :person or @project.has_element? :person -%>
   <dl>
     <dt>Maintainers</dt>
     <% package_persons=[] %>
@@ -19,7 +19,7 @@
         'mailto:' + Person.find(person.userid).email.to_s + '?subject=openSUSE build service' -%>
         <%- if @project.each_person.length > 1 %>
           <%= link_to "[x]",
-          { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role },
+          { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
           { :confirm => "Really remove user '#{person.userid}'?", :class => "x" } -%>
         <% end -%>
       </dd>
