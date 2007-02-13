@@ -34,9 +34,13 @@ class Tagcloud
   
   
   def max_min(taglist)
-
-
-    max, min = taglist[0].count, taglist[0].count  
+    
+    if taglist == []
+    max, min = 0, 0
+    else
+    max, min = taglist[0].count, taglist[0].count
+    end
+    
     taglist.each do |tag|
 
       max = tag.count if tag.count > max
