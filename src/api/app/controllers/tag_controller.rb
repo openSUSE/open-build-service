@@ -66,8 +66,11 @@ class TagController < ApplicationController
     begin
       @tag = Tag.find_by_name(params[:tag])
       @projects = @tag.db_projects.find(:all, :group => "name", :order => "name")
+      @projects.each do |project|
+        project.tags
+      end           
+      @tag.
       render :partial => "objects_by_tag"
-      
       
     rescue
       #raise unless ( RAILS_ENV ==  'production' ) 
@@ -82,6 +85,9 @@ class TagController < ApplicationController
     begin
       @tag = Tag.find_by_name(params[:tag])
       @packages = @tag.db_packages(:all, :group => "name", :order => "name")
+      @packages.each do |package|
+        packages.tags
+      end
       render :partial => "objects_by_tag"
       
       
