@@ -1,10 +1,6 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-# RAILS_ROOT is not working directory when running under lighttpd, so it has
-# to be added to load path
-$LOAD_PATH.unshift RAILS_ROOT
-# 
 require_dependency 'opensuse/permission'
 require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'

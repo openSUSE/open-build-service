@@ -22,6 +22,10 @@ Rails::Initializer.run do |config|
     config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
   end
 
+  # RAILS_ROOT is not working directory when running under lighttpd, so it has
+  # to be added to load path
+  config.load_paths << RAILS_ROOT unless config.load_paths.include? RAILS_ROOT
+
   # XXX: add active_rbac model path to load paths (not sure if this is a activerbac bug)
   config.load_paths << File.expand_path("#{RAILS_ROOT}/vendor/plugins/active_rbac/app/model")
 
