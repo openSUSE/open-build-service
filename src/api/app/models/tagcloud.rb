@@ -35,7 +35,7 @@ class Tagcloud
   
   def max_min(taglist)
     
-    if taglist == []
+    if taglist.empty?
     max, min = 0, 0
     else
     max, min = taglist[0].count, taglist[0].count
