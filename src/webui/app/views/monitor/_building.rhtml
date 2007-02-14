@@ -22,9 +22,6 @@
       :with => "'project=' + escape(value)") %>
 </div>
 <p>You can filter the list in the monitor either by using the filter links in the table or by entering the project name in the editbox. In the editbox you can use partial project names.</p>
-<% if @project_filter %>
-  <p class="info filtered_by">Currently active filter <b><%= h(@project_filter) %></b> [<%= link_to 'Remove Filter', :controller => 'monitor' %>]</p>
-<% end %>
 <% if build_count > 0 %>
   <p class="info">Hover the job time field to see the start time.</p>
   <p class="info">Build Service reports <%= build_count %> running jobs.</p>

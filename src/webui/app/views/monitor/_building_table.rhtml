@@ -1,5 +1,9 @@
 <div id="building_list">
 
+<% if @project_filter %>
+  <p class="info filtered_by">Currently active filter <b><%= h(@project_filter) %></b> [<%= link_to 'Remove Filter', :controller => 'monitor' %>]</p>
+<% end %>
+
 <table class="building">
   <thead>
     <tr>
