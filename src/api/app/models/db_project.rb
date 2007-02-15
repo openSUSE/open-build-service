@@ -8,6 +8,7 @@ class DbProject < ActiveRecord::Base
   has_many :tags, :through => :taggings
 
   has_many :download_stats
+  has_many :ratings, :as => :object, :dependent => :destroy
 
 
   class << self
