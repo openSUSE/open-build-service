@@ -402,7 +402,7 @@ class TagController < ApplicationController
     
     return tags
   end
-  
+  private :taglistXML_to_tags
   
   def save_tags(object, tagCreator, tags)
     if tags.kind_of? Tag then
@@ -443,5 +443,6 @@ class TagController < ApplicationController
     render_error :status => 404, :errorcode => 'unknown_tag',
     :message => "Unknown tag #{params[:tag]}" 
   end
+  private :tag_error
   
 end
