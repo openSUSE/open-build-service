@@ -74,8 +74,8 @@ ActiveXML::Base.config do |conf|
     map.connect :package, "rest:///source/:project/:name/_meta",
         :all    => "rest:///source/:project"
 
-    #map.connect :tag, "rest:///source/:project/:package/_tags",
     map.connect :tag, "rest:///user/:user/tags/:project/:package",
+        :tags_by_object => "rest:///source/:project/:package/_tags",
         :tags_by_user => "rest:///user/:user/tags/_tagcloud",
         :tagcloud  => "rest:///tag/tagcloud"
 
