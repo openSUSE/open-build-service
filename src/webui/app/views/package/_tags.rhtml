@@ -1,14 +1,12 @@
 <!-- Tags -->
 <div class="section" id="tags">
 <h3>Tags
+  <% form_id = "tag_form" %>
   <%= link_to_remote image_tag("list-add",:title => "Add Tag", :border => 0),
     :update => 'tag_edit_area_package',
-    :url => { :controller => "package",
-    :action => "add_tag_form",
-    :project => @project,
-    :package => @package},
-    :loading => "toggle_visibility('tag_spinner')",
-    :complete => "toggle_visibility('tag_spinner')" -%>
+    :url => { :controller => "package", :action => "add_tag_form", :project => @project, :package => @package},
+    :loading => "Element.toggle('spinner_#{form_id}')",
+    :complete => "Element.toggle('spinner_#{form_id}')" %>
   <%= image_tag 'rotating-tail.gif', :id=> 'tag_spinner', :style => "visibility:hidden;" -%>
 </h3>
 </div>
@@ -16,3 +14,5 @@
 <div id="tag_area" style="width:15em;">
   <%= render :partial => "tags_ajax" %>
 </div>
+          
+<a href="#" onclick="toggle_display_by_name('public_tag');"> All Tags </a>   

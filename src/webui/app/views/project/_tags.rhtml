@@ -7,10 +7,12 @@
     :url => { :controller => "project", :action => "add_tag_form", :project => @project},
     :loading => "Element.toggle('spinner_#{form_id}')",
     :complete => "Element.toggle('spinner_#{form_id}')" %>
-  <img alt="" id="spinner_<%= form_id -%>" src="/images/rotating-tail.gif" style="display:none;" />
+  <%= image_tag 'rotating-tail.gif', :id=> 'tag_spinner', :style => "visibility:hidden;" -%>
 </h3>
 </div>
         
 <div id="tag_area" style="width:15em;">
-  <%= render :partial => "tags_ajax" %>
+  <%= render :partial => "tags_ajax" %> 
 </div>
+
+<a href="#" onclick="toggle_display_by_name('public_tag');"> All Tags </a>

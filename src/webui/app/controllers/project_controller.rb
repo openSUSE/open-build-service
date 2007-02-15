@@ -100,10 +100,19 @@ class ProjectController < ApplicationController
 
     @packstatus = Packstatus.find( params[:project], :command => 'summaryonly' )
   
-    @tags = Tag.find(:project => @project.name, :user => @session[:login])
+    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
     
   end
 
+  def get_tags(params)
+    user_tags = Tag.find(:project => params[:project], :user => params[:user])
+    tags = Tag.find(:tags_by_object, :project => params[:project]) 
+    user_tags_array = []
+    user_tags.each_tag do |tag|
+        user_tags_array << tag.name
+    end
+    return tags, user_tags_array
+  end
 
   def view
     @project = Project.find( params[:project] )
@@ -124,10 +133,11 @@ class ProjectController < ApplicationController
     @collection.each_project do |project|
       @projects << project
     end
-
+    @tagcloud ||= Tagcloud.new(:user => @session[:login], :tagcloud => session[:tagcloud])
     render :action => "../tag/list_objects_by_tag"  
   end
-  
+
+
   # render the input form for tags
   def add_tag_form
     @project = params[:project]
@@ -145,7 +155,7 @@ class ProjectController < ApplicationController
     end
     logger.debug "[TAG:] saving tags #{tags.join(" ")} for project #{params[:project]}."
     save_tags(:project => params[:project], :tag => tags.join(" ") )
-    @tags = Tag.find(:user => @session[:login], :project => params[:project])
+    @tags, @user_tags_array = get_tags(:user => @session[:login], :project => params[:project])
     render :partial => "tags_ajax"
   end
 

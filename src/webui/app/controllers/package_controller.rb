@@ -30,7 +30,8 @@ class PackageController < ApplicationController
 
     save_tags(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => tags.join(" ") )
     
-    @tags = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])
+    @tags, @user_tags_array = get_tags(:user => @session[:login], :project => params[:project], :package => params[:package])
+    
     render :partial => "tags_ajax"
     #redirect_to :action => "show", :project => params[:project], :package => params[:package]
   end
@@ -96,9 +97,19 @@ class PackageController < ApplicationController
             @archs << arch.to_s if not @archs.include? arch.to_s
           end
         end
-       @tags = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])
+        @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
       end
     end
+  end
+    
+  def get_tags(params)
+   tags = Tag.find(:tags_by_object, :project => params[:project], :package => params[:package])
+   user_tags = Tag.find(:project => params[:project], :package => params[:package], :user => params[:user])
+   user_tags_array = []
+   user_tags.each_tag do |tag|
+    user_tags_array << tag.name
+   end
+   return tags, user_tags_array
   end
 
   def view

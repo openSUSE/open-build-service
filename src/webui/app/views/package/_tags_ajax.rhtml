@@ -1,4 +1,10 @@
- <% @tags.each_tag do |tag|%>
-    <%= link_to tag.name, :controller => "package", :action => "show_packages_by_tag", :tag => tag %>
+ <% @tags.each_tag do |tag|%>          
+    <% if not @user_tags_array.empty? and @user_tags_array.include? tag.name %>
+       <%= link_to tag.name, { :controller => "package", :action => "show_packages_by_tag", :tag => tag }, :class => "user_tag" %>     
+    <% else %>  
+        <%= link_to tag.name, { :controller => "project", :action => "show_projects_by_tag", :tag => tag }, :class => "public_tag", 
+       			:style => "display: none;", :name => "public_tag" %>      
+       <% end %> 
 <%end%>
+
 <div id="tag_edit_area_package">&nbsp;</div>

@@ -757,6 +757,12 @@ strong.highlight {
     padding-left: 10px;
 }
 
+.public_tag  {
+	 border-bottom: 1px #AAA dotted;
+}
+.user_tag { 
+}
+
 .building td { white-space: nowrap; }
 .building { border-collapse: collapse; border-spacing: 0px; empty-cells: show; margin: 16px; }
 .building td, .building th { padding: 8px; border: solid 1px black; }

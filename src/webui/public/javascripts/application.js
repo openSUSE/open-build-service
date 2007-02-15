@@ -28,6 +28,20 @@ function toggle_display(element_id) {
   }
 }
 
+// toggle visibility of an element via the CSS "display" property
+// -> does NOT reserve the needed space for the element when not displayed
+function toggle_display_by_name(element_name) {
+  if (document.getElementsByName) {         
+	elements = document.getElementsByName(element_name); 
+    for (var i = 0; i < elements.length; i++) {
+    	if (elements[i].style.display == "none") {
+      		elements[i].style.display = "inline";
+    	} else {
+      		elements[i].style.display = "none";
+    	}	  
+	}
+  }
+}         
 
 // open url in a new browser instance
 function goto_url(url) {
