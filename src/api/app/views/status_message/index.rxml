@@ -1,0 +1,14 @@
+
+xml.instruct!
+
+xml.status_messages do
+  @messages.each do |msg|
+    xml.message(
+      msg.message,
+      :user => msg.user.login,
+      :created_at => msg.created_at,
+      :deleted_at => msg.deleted_at
+    )
+  end
+end
+
