@@ -21,10 +21,10 @@
     
     <% for project in @projects %>
   <tr>
-  <td>
+  <td valign="top">
     <%= link_to project.name, { :controller => "project", :action => :show, :project => project }, :title => project.title %>  
   </td>
-  <td>
+  <td valign="top">
     <% project.each_tag do |tag|%>
         <%= link_to tag.name, :controller => "tag", :action => "list_objects_by_tag", :tag => tag %>
     <%end%>
@@ -49,10 +49,10 @@
   </tr>
     <% for package in @packages %>
   <tr>
-    <td>
+    <td valign="top">
         <%= link_to package.project, :controller => "project", :action => :show, :project => package.project %>
     </td>
-    <td>       
+    <td valign="top">       
         <%= link_to package.name, { :controller => "package", :action => :show,
               :project => package.project, :package => package },
               :title => package.title %>
