@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the format for status messages
+      of the opensuse build service status.
+    </xs:documentation>
+  </xs:annotation>
+
+
+  <xs:complexType name="message" mixed="true">
+    <xs:attribute name="user" type="xs:string" />
+    <xs:attribute name="created_at" type="xs:string" />
+    <xs:attribute name="deleted_at" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="status_messages">
+    <xs:sequence>
+      <xs:element name="message" type="message" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="status_messages" type="status_messages" />
+  <xs:element name="message" type="message" />
+
+</xs:schema>
+
