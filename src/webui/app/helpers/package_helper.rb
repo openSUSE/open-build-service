@@ -3,7 +3,7 @@ module PackageHelper
   #       because it is used for the internal connection bypassing ichain
   #       and is not accessible from outside
   def build_log_url( project, package, platform, arch )
-    "http://api.opensuse.org/result/#{project}/#{platform}/#{package}/#{arch}/log"
+    "https://api.opensuse.org/result/#{project}/#{platform}/#{package}/#{arch}/log"
   end
 
   def file_url( project, package, filename )
@@ -11,6 +11,6 @@ module PackageHelper
   end
 
   def rpm_url( project, package, repository, arch, filename )
-    "http://api.opensuse.org/rpm/#{project}/#{repository}/#{package}/#{arch}/#{filename}"
+    "https://api.opensuse.org/rpm/#{project}/#{repository}/#{package}/#{arch}/#{filename}"
   end
 end

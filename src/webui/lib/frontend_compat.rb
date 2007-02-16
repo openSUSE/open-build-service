@@ -14,7 +14,7 @@ class FrontendCompat
     extraparams << "&arch=#{opt[:arch]}" if opt[:arch]
 
     logger.debug "CMD_PACKAGE #{cmd} ; extraparams = #{extraparams}"
-    transport.direct_http URI("http:///source/#{project}/#{package}?cmd=#{cmd}#{extraparams}"),
+    transport.direct_http URI("https:///source/#{project}/#{package}?cmd=#{cmd}#{extraparams}"),
       :method => "POST", :data => ""
   end
 
@@ -26,28 +26,28 @@ class FrontendCompat
     path += "/#{opt[:filename]}" if opt[:filename]
     logger.debug "--> get_source path: #{path}"
     
-    transport.direct_http URI("http://#{path}")
+    transport.direct_http URI("https://#{path}")
   end
 
   def put_file( data, opt={} )
-    transport.direct_http URI("http:///source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
+    transport.direct_http URI("https:///source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
       :method => "PUT", :data => data
   end
 
   def delete_package( opt={} )
     logger.debug "deleting: #{opt.inspect}"
-    transport.direct_http URI("http:///source/#{opt[:project]}/#{opt[:package]}"), :method => "DELETE"
+    transport.direct_http URI("https:///source/#{opt[:project]}/#{opt[:package]}"), :method => "DELETE"
   end
 
   def delete_file( opt={} )
     logger.debug "starting to delete file, opt: #{opt.inspect}"
-    transport.direct_http URI("http:///source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
+    transport.direct_http URI("https:///source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
       :method => "DELETE"
   end
 
   def get_log_chunk( project, package, repo, arch, offset=0 )
     path = "/result/#{project}/#{repo}/#{package}/#{arch}/log?nostream=1&start=#{offset}"
-    transport.direct_http URI("http://#{path}")
+    transport.direct_http URI("https://#{path}")
   end
 
   def transport

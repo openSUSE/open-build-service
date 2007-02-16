@@ -63,7 +63,7 @@ RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'activexml'
 
-#TRANSPORT = Suse::Frontend.new("http://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
+#TRANSPORT = Suse::Frontend.new("https://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
