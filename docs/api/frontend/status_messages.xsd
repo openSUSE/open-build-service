@@ -5,13 +5,16 @@
 
   <xs:annotation>
     <xs:documentation>
-      This schema describes the format for status messages
-      of the opensuse build service status.
+      This schema describes the format for status messages of the opensuse
+      build service status.
+      Status messages are used to give a hint to the users what's going on
+      on the build service, for example if build hosts are having problems.
     </xs:documentation>
   </xs:annotation>
 
 
   <xs:complexType name="message" mixed="true">
+    <xs:attribute name="id" type="xs:nonNegativeInteger" />
     <xs:attribute name="user" type="xs:string" />
     <xs:attribute name="created_at" type="xs:string" />
     <xs:attribute name="deleted_at" type="xs:string" />
