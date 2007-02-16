@@ -84,7 +84,7 @@ class Tagcloud
       raise ArgumentError.new "unknown distribution method '#{distribution_method}'"
     end
     
-    taglist = tagcloud.sort {|a,b| a[0] <=> b[0]}
+    taglist = tagcloud.sort {|a,b| a[0].downcase <=> b[0].downcase}
     
     return taglist
   end
