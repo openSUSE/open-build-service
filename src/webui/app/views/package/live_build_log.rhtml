@@ -9,12 +9,30 @@
 -%>
 
 <script language="javascript">
-function start_autoscroll() {
-  window.scrollBy( 0,50 );
-  scrolldelay = setTimeout( 'start_autoscroll()',100 );
+function setscrollmode(mode) {
+  if(mode == 'on')
+  {
+    document.getElementById('stop_scroll').innerHTML
+    = '<a href="javascript:stop_autoscroll()">[Stop Autoscroll]</a>';
+    document.getElementById('start_scroll').innerHTML = '';
+  }
+  else
+  {
+    var txt = '<a href="javascript:start_autoscroll()">[Start Autoscroll]</a>';
+    document.getElementById('stop_scroll').innerHTML = txt;
+    document.getElementById('start_scroll').innerHTML = txt;
+  }
 }
-
+function start_autoscroll() {
+ setscrollmode('on');
+ autoscroll();
+}
+function autoscroll() {
+  window.scrollBy( 0,50 );
+  scrolldelay = setTimeout( 'autoscroll()',100 );
+}
 function stop_autoscroll() {
+  setscrollmode('off');
   clearTimeout( scrolldelay );
 }
 </script>
@@ -22,14 +40,13 @@ function stop_autoscroll() {
 <b>Repository:</b> <%=h @repo%><br/>
 <b>Architecture:</b> <%=h @arch%>
 <p>
-<a href="javascript:start_autoscroll()">[Start Autoscroll]</a>
+<div id="start_scroll"></div>
 </p>
-<div id="start_link">
-<%= link_to_remote( "[Start Refreshing]",
-        :url => {:action => :update_build_log, :package => @package, :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
-        :after => "new Effect.Fade('start_link')",
-        :complete => evaluate_remote_response )%>
-</div>
+<div id="start_link"><%= link_to_remote( "[Start Refreshing]",
+        :url => {:action => :update_build_log, :package => @package,
+        :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
+        :after => "new Effect.Fade('start_link');new Effect.Fade('start_linkend')",
+        :complete => evaluate_remote_response )%></div>
 <p>
 <b>Status:</b> <span id="status">Live Log not started</span>
 </p>
@@ -43,5 +60,13 @@ function stop_autoscroll() {
 </form>
 </p>
 <p>
-<a href="javascript:stop_autoscroll()">[Stop Autoscroll]</a>
+<div id="stop_scroll"></div>
 </p>
+<p>
+<div id="start_linkend"><%= link_to_remote( "[Start Refreshing]",
+        :url => {:action => :update_build_log, :package => @package,
+        :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
+        :after => "new Effect.Fade('start_link');new Effect.Fade('start_linkend')",
+        :complete => evaluate_remote_response )%></div>
+</p>
+<script>setscrollmode('off')</script>
