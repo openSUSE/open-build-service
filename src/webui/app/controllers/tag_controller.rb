@@ -12,33 +12,32 @@ class TagController < ApplicationController
 
   end
   
-
-    def switch_tagcloud
-      if params[:alltags]
-        logger.debug "Switching to tagcloud view ALLTAGS..." 
-        session[:tagcloud] = "alltags"
-
-        logger.debug "...done."
-      else
-        logger.debug "Switching to tagcloud view MYTAGS..." 
-
-        session[:tagcloud] = "mytags"
-        logger.debug "...done."
-      end
-      @tagcloud = get_tagcloud
-      render :partial => "tagcloud_container"    
-    end
-
-
-    def get_tagcloud
-      session[:tagcloud] ||= "mytags"
-      logger.debug "TAG: getting  tag cloud from API."
-      tagcloud = Tagcloud.new( :tagcloud => session[:tagcloud],
-                               :user => @session[:login] )
+  
+  def switch_tagcloud
+    if params[:alltags]
+      logger.debug "Switching to tagcloud view ALLTAGS..." 
+      session[:tagcloud] = "alltags"
       
-      tagcloud    
+      logger.debug "...done."
+    else
+      logger.debug "Switching to tagcloud view MYTAGS..." 
+      
+      session[:tagcloud] = "mytags"
+      logger.debug "...done."
     end
-                
+    @tagcloud = get_tagcloud
+    render :partial => "tagcloud_container"    
+  end
+  
+  
+  def get_tagcloud
+    session[:tagcloud] ||= "mytags"
+    logger.debug "TAG: getting  tag cloud from API."
+    tagcloud = Tagcloud.new( :tagcloud => session[:tagcloud],
+                            :user => @session[:login] )
+    tagcloud    
+  end
+  
   def list_objects_by_tag
     @collection = Collection.find(:tag, :type => "_all", :tagname => params[:tag])
     @projects = []
@@ -49,21 +48,20 @@ class TagController < ApplicationController
     @collection.each_package do |package|
       @packages << package
     end
-      # building tag cloud
-      @tagcloud = get_tagcloud
-
+    # building tag cloud
+    @tagcloud = get_tagcloud
     render :action => "list_objects_by_tag"  
   end
   
   
-    # render the input form for tags
+  # render the input form for tags
   def edit_taglist_form
     user = @session[:login]
     project = params[:project]
     package = params[:package]
     
     @tags = get_tags_by_user_and_object(:project => project, :package => package, :user => user)
-   
+
     @taglist = []
     @tags.each_tag do |tag|
       @taglist << tag.name
@@ -77,13 +75,14 @@ class TagController < ApplicationController
   
   def edit_taglist_ajax
     if params[:package]
-    logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}, package #{params[:package]}."
+      logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}, package #{params[:package]}."
     elsif
-    logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}."
+      logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}."
     end
     save_tags(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tags])
     @object = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])    
-    render :partial => "tags_ajax"
+    @tagcloud = get_tagcloud
+    #render edit_taglist_ajax.rjs
   end
   
 

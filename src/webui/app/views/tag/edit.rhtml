@@ -3,8 +3,9 @@
 
 ]
 -%>
-
+<div id="tagcloud_edit_view">
  <%= render :partial => "tag/tagcloud_container"%>
+</div> 
 <p>
 <h2>Editing My Tags <%=h @project %></h2>
 &nbsp;
@@ -19,34 +20,34 @@
 <% if @projects != [] %>
 <div id="list_by_tag">
 <h2>Tagged Projects:</h2>
-<table>
+<table style="width: 55%;">
   <tr>
     <th>Projectname</th>
     <th>Tags</th>
-    <th>&nbsp;</th>
+    <th style="width: 4em;" colspan="2">&nbsp;</th>
   </tr>
     
     <% for @object in @projects %>
   <tr>
-  <td>
+  <td valign="top">
     <%= link_to @object.name, { :controller => "project", :action => :show,
                                 :project => @object },
                                 :title => @object.title %>    
   </td>
-  <td>
+  <td valign="top">
   <div id="tag_edit_area_<%= @object.name -%>">
     <%= render :partial => "tags_ajax" %>
   </div>  
   </td>
-  <td>   
-    <%= link_to_remote image_tag("edit",
-                :title => "Edit Tags",
-                :border => 0),
+  <td valign="top">
+  <nobr>   
+    <%= link_to_remote image_tag("edit", :title => "Edit Tags", :border => 0),
                 :update => 'tag_edit_area_' + @object.name,
                 :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object},
-                :loading => "Element.show('spinner_#{@object.name}')",
-                :complete => "Element.hide('spinner_#{@object.name}')" %>
-  <img alt="" id="spinner_<%= @object.name -%>" src="/images/rotating-tail.gif" style="display:none;" />
+                :loading => "toggle_visibility('spinner_#{@object.name}')",
+                :complete => "toggle_visibility('spinner_#{@object.name}')" -%>
+    <%= image_tag 'rotating-tail.gif', :title => 'Edit', :alt => 'Edit', :id => "spinner_#{@object.name}", :style => "visibility:hidden;" -%>
+  </nobr>
   </td>  
   </tr>
   <% end %>
@@ -58,39 +59,40 @@
 <% if @packages != [] %>    
 <div id="list_by_tag">
 <h2>Tagged Packages:</h2>
-<table>
+<table style="width: 55%;">
   <tr>
     <th>Projectname</th>
     <th>Packagename</th>
     <th>Tags</th>
-    <th>&nbsp;</th>
+    <th style="width: 4em;" colspan="2"></th>
   </tr>
 
     <% for @object in @packages %>
   <tr>
-  <td>
+  <td valign="top">
     <%= link_to @object.project, :controller => "project", :action => :show, :project => @object.project %>
   </td>
-  <td>
+  <td valign="top">
     <%= link_to @object.name, { :controller => "package", :action => :show,
                                 :project => @object.project, :package => @object },
                                 :title => @object.title %>
   </td>
-  <td>
+  <td valign="top">
   <div id="tag_edit_area_<%= @object.project + '_' + @object.name -%>">
     <%= render :partial => "tags_ajax" %>
   </div>  
   </td>
-  <td>   
+  <td valign="top">
     <%= link_to_remote image_tag("edit",
                 :title => "Edit Tags",
                 :border => 0),
                 :update => 'tag_edit_area_' + @object.project + "_" + @object.name,
                 :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object.project, :package => @object},
-                :loading => "Element.show('spinner_#{@object.project}_#{@object.name}')",
-                :complete => "Element.hide('spinner_#{@object.project}_#{@object.name}')" %>
-  <img alt="" id="spinner_<%= @object.project + '_' + @object.name -%>" src="/images/rotating-tail.gif" style="display:none;" />
+                :loading => "toggle_visibility('spinner_#{@object.project}_#{@object.name}')",
+                :complete => "toggle_visibility('spinner_#{@object.project}_#{@object.name}')" -%>
+    <%= image_tag 'rotating-tail.gif', :title => 'Edit', :alt => 'Edit', :id => "spinner_#{@object.project}_#{@object.name}", :style => "visibility:hidden;" -%>
   </td>  
+  
   </tr>
   <% end %>
 </table>
