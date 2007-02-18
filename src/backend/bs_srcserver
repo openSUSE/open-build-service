@@ -770,6 +770,7 @@ sub getprojpack {
       }
       my $disable = {};
       my $enable = {};
+      undef($enable) if $cgi->{'ignoredisable'};
       if ($pack->{'enable'}) {
 	for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pack->{'enable'}}) {
 	  undef($enable), last unless exists $_->{'repository'};
@@ -1723,6 +1724,16 @@ sub search {
   return ($res, $BSXML::collection);
 }
 
+sub postrepo {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/_repository",
+    'request' => 'POST',
+  };
+  my $res = BSWatcher::rpc($param, $BSXML::collection, "match=$cgi->{'match'}");
+  return ($res, $BSXML::collection);
+}
+
 ####################################################################
 
 sub hello {
@@ -1782,7 +1793,7 @@ my $dispatches = [
   'DELETE:/source/$project/$package/$filename rev? user:? comment:?' => \&delfile,
 
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool?' => \&getprojpack,
 
   # worker calls
   '/getsources $project $package $srcmd5:md5' => \&getsources,
@@ -1804,6 +1815,7 @@ my $dispatches = [
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig' => \&getconfig,
   '/build/$project/$repository/$arch' => \&getpackagelist,
+  'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   '/build/$project/$repository/$arch/$package_repository' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo internal:bool?' => \&getbuildinfo,

@@ -200,6 +200,8 @@ our $buildstatus = [
 	'readytime',
 	'starttime',
 	'endtime',
+	'arch',		# internal, arch when building
+	'job',		# internal, job when building
 ];
 
 our $buildstatussum = [

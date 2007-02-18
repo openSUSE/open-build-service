@@ -27,7 +27,6 @@ use XML::Structured;
 use BSRPC;
 use BSXML;
 use BSConfig;
-use BSDEBQ;
 use BSBuild;
 
 die("usage: bs_buildhelper <command>\n") unless @ARGV;
@@ -127,35 +126,6 @@ sub sortpacks {
   return @res;
 }
 
-sub orderdeb {
-  my ($cachedir, @debs) = @_;
-  my %prov;
-  my %req;
-  for my $deb (@debs) {
-    my %q = BSDEBQ::debq("$cachedir/$deb.deb");
-    if (!%q) {
-      $req{$deb} = [];
-      push @{$prov{$deb}}, $deb;
-      next;
-    }
-    my @provides = split(',\s*', $q{'PROVIDES'} || '');
-    s/\s.*// for @provides;   #for now
-    my @depends = split(',\s*', $q{'DEPENDS'} || '');
-    my @predepends = split(',\s*', $q{'PRE-DEPENDS'} || '');
-    s/\s.*// for @provides;   #for now
-    s/\s.*// for @depends;    #for now
-    s/\s.*// for @predepends; #for now
-    push @depends, @predepends;
-    push @provides, $q{'PACKAGE'};
-    $req{$deb} = \@depends;
-    push @{$prov{$_}}, $deb for @provides;
-  }
-  for my $deb (@debs) {
-    $req{$deb} = [ map {$prov{$_} ? $prov{$_}->[0] : $_} @{$req{$deb}} ];
-  }
-  return sortpacks(\%req, @debs);
-}
-
 sub printbash {
   my ($var, @args) = @_;
   @args = grep {defined($_)} @args;
@@ -178,12 +148,50 @@ sub readinfo {
 sub getsigmd5 {
   my ($bin) = @_;
 
-  if ($bin =~ /\.deb$/) {
-    my %q = BSDEBQ::debq($bin);
-    die("$bin: bad deb file\n") unless %q;
-    return $q{'CONTROL_MD5'};
-  }
   local *F;
+  if ($bin =~ /\.deb$/) {
+    open(F, '<', $bin) || die("$bin: $!\n");
+    my $data = '';
+    sysread(F, $data, 4096);
+    if (length($data) < 8+60) {
+      warn("$fn: not a debian package\n");
+      close F unless ref $fn;
+      return ();
+    }
+    if (substr($data, 0, 8+16) ne "!<arch>\ndebian-binary   ") {
+      close F unless ref $fn;
+      return ();
+    }
+    my $len = substr($data, 8+48, 10);
+    $len += $len & 1;
+    if (length($data) < 8+60+$len+60) {
+      my $r = 8+60+$len+60 - length($data);
+      $r -= length($data);
+      if ((sysread(F, $data, $r < 4096 ? 4096 : $r, length($data)) || 0) < $r) {
+	warn("$fn: unexpected EOF\n");
+	close F unless ref $fn;
+	return ();
+      }
+    }
+    $data = substr($data, 8 + 60 + $len);
+    if (substr($data, 0, 16) ne 'control.tar.gz  ') {
+      warn("$fn: control.tar.gz is not second ar entry\n");
+      close F unless ref $fn;
+      return ();
+    }
+    $len = substr($data, 48, 10);
+    if (length($data) < 60+$len) {
+      my $r = 60+$len - length($data);
+      if ((sysread(F, $data, $r, length($data)) || 0) < $r) {
+	warn("$fn: unexpected EOF\n");
+	close F unless ref $fn;
+	return ();
+      }
+    }
+    close F;
+    $data = substr($data, 60, $len);
+    return Digest::MD5::md5_hex($data);
+  }
   open(F, '<', $bin) || die("$bin: $!\n");
   my $buf = '';
   my $l;  
@@ -349,24 +357,6 @@ if ($ARGV[0] eq 'genmeta') {
   my $myself = shift @deps;
   @deps = BSBuild::gen_meta($myself, \@ARGV, @deps);
   print "$_\n" for @deps;
-  exit(0);
-}
-
-if ($ARGV[0] eq 'getdebid') {
-  die("usage: bs_buildhelper getdebid <deb>\n") unless @ARGV == 2;
-  my %q = BSDEBQ::debq($ARGV[1]);
-  die("$ARGV[1]: bad deb file\n") unless %q;
-  print "$q{'PACKAGE'}-$q{'VERSION'}-0 $q{'CONTROL_MD5'}\n";
-  exit(0);
-}
-
-if ($ARGV[0] eq 'orderdeb') {
-  die("usage: bs_buildhelper orderdeb <dir> <debs>\n") unless @ARGV >= 2;
-  shift @ARGV;
-  my $cachedir = shift @ARGV;
-  my @debs = @ARGV;
-  @debs = orderdeb($cachedir, @debs);
-  print "@debs\n";
   exit(0);
 }
 

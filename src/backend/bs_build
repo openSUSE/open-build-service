@@ -156,6 +156,8 @@ if test -n "$XEN" ; then
     mkdir -p $BUILD_ROOT/.build.packages
     rm -f $BUILD_ROOT/.build.packages/SRPMS
     ln -s . $BUILD_ROOT/.build.packages/SRPMS
+    rm -f $BUILD_ROOT/.build.packages/DEBS
+    ln -s . $BUILD_ROOT/.build.packages/DEBS
     (cd $BUILD_ROOT/.build.packages ; cpio --extract --no-absolute-filenames -v < $BUILD_ROOT/swap)
     echo "extract succeeded."
 else

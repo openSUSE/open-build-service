@@ -38,14 +38,13 @@ use BSRPC;
 use BSUtil;
 use BSHTTP;
 use BSFileDB;
-use BSRPMQ;
-use BSDEBQ;
 use BSXML;
 use BSVerify;
 use BSHandoff;
 use Build;
 use BSWatcher;
 use BSStdServer;
+use BSXPath;
 
 use strict;
 
@@ -64,8 +63,8 @@ my %cando = (
 );
 
 my $reporoot = "$BSConfig::bsdir/build";
-my $idledir = "$BSConfig::bsdir/idle";
-my $buildingdir = "$BSConfig::bsdir/building";
+my $workersdir = "$BSConfig::bsdir/workers";
+my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
 my $infodir = "$BSConfig::bsdir/info";
 my $uploaddir = "$BSConfig::bsdir/upload";
@@ -104,38 +103,29 @@ sub findbinaries {
 sub getbinarydata {
   my @bins = @_;
 
-  local *F;
-
   my @res;
   for my $bin (@bins) {
     my $filename = $bin;
     $filename =~ s/.*\///;
+    local *F;
     if (!open(F, '<', $bin)) {
       push @res, {'filename' => $filename, 'error' => "$bin: $!"};
       next;
     }
     my @s = stat(F);
-    if (substr($bin, -3) eq 'rpm') {
-      my %q = BSRPMQ::rpmq_many(\*F, qw{NAME VERSION RELEASE ARCH SOURCERPM NOSOURCE NOPATCH BUILDTIME BUILDHOST});
-      close F;
-      if (!%q) {
-	push @res, {'filename' => $filename, 'error' => 'bad rpm'};
-	next;
-      }
-      my $xarch = $q{'ARCH'}->[0];
-      $xarch = $q{'NOSOURCE'} || $q{'NOPATCH'} ? 'nosrc' : 'src' unless $q{'SOURCERPM'};
-      push @res, {'filename' => $filename, 'name' => $q{'NAME'}->[0], 'version' => $q{'VERSION'}->[0], 'release' => $q{'RELEASE'}->[0], 'buildtime' => $q{'BUILDTIME'}->[0], 'buildhost' => $q{'BUILDHOST'}->[0], 'arch' => $xarch, 'barch' => $q{'ARCH'}->[0], 'mtime' => $s[9]};
-    } else {
-      my %q = BSDEBQ::debq(\*F);
-      close F;
-      if (!%q) {
-	push @res, {'filename' => $filename, 'error' => 'bad deb'};
-	next;
-      }
-      my ($vers, $rel) = ($q{'VERSION'}, '');
-      ($vers, $rel) = ($1, $2) if $vers =~ /^(.*)-(.*?)$/;
-      push @res, {'filename' => $filename, 'name' => $q{'PACKAGE'}, 'version' => $vers, 'release' => $rel, 'arch' => $q{'ARCHITECTURE'}, 'barch' => $q{'ARCHITECTURE'}, 'mtime' => $s[9], 'buildtime' => 0, 'buildhost' => $q{'CONTROL_MD5'}};
+    my $data = Build::querybinary([$bin, \*F], 1);
+    close(F);
+    if (!$data) {
+      push @res, {'filename' => $filename, 'error' => 'bad binary package'};
+      next;
     }
+    $data->{'filename'} = $filename;
+    $data->{'mtime'} = $s[9];
+    delete $data->{'hdrmd5'};
+    delete $data->{'provides'};
+    delete $data->{'requires'};
+    delete $data->{'source'};
+    push @res, $data;
   }
   return @res;
 }
@@ -261,16 +251,18 @@ sub gethistory {
 #OBSOLETE
 sub getstatus_obsolete {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  my $statusxml = readstr("$reporoot/$projid/$repoid/$arch/$packid/status", 1);
+  my $status = readstr("$reporoot/$projid/$repoid/$arch/$packid/status", $BSXML::buildstatus, 1);
+  $status = {'status' => 'unknown'} unless $status;
   # check for scheduler blocked status
   my $ps = readxml("$reporoot/$projid/$repoid/$arch/:packstatus", $BSXML::packstatuslist, 1);
   $ps = (grep {$_->{'name'} eq $packid} @{$ps->{'packstatus'} || []})[0];
   if ($ps && $ps->{'status'} ne 'failed' && $ps->{'status'} ne 'done' && $ps->{'status'} ne 'scheduled') {
-    my $status = {'status' => $ps->{'status'}};
+    $status = {'status' => $ps->{'status'}};
     $status->{'error'} = $ps->{'error'} if exists $ps->{'error'};
-    return ($status, $BSXML::buildstatus);
   }
-  return $statusxml || "<status status=\"unknown\" />\n";
+  delete $status->{'job'};	# internal
+  delete $status->{'arch'};	# internal
+  return ($status, $BSXML::buildstatus);
 }
 
 sub getbuildstatus {
@@ -385,9 +377,9 @@ sub isolder {
   my ($old, $new) = @_;
   return 0 if $old !~ /\.rpm$/;
   return 0 unless -e $old;
-  my %qold = BSRPMQ::rpmq_many($old, qw{VERSION RELEASE EPOCH});
+  my %qold = Build::rpmq($old, qw{VERSION RELEASE EPOCH});
   return 0 unless %qold;
-  my %qnew = BSRPMQ::rpmq_many($new, qw{VERSION RELEASE EPOCH});
+  my %qnew = Build::rpmq($new, qw{VERSION RELEASE EPOCH});
   return 0 unless %qnew;
   my $vold = $qold{'VERSION'}->[0];
   $vold .= "-$qold{'RELEASE'}->[0]" if $qold{'RELEASE'};
@@ -467,23 +459,32 @@ sub workerstate {
   my $idlename = "$harch:$workerid";
   $idlename =~ s/\//_/g;
   if ($state eq 'building') {
-    unlink("$idledir/$idlename");
+    unlink("$workersdir/idle/$idlename");
   } elsif ($state eq 'idle') {
+    if (-e "$workersdir/building/$idlename") {
+      # job must have crashed, discard...
+      my $s = readxml("$workersdir/building/$idlename", $BSXML::buildstatus, 1);
+      if ($s && $s->{'arch'} && $s->{'job'}) {
+	print "restarting build of job $s->{'arch'}/$s->{'job'}\n";
+        restartjob("$jobsdir/$s->{'arch'}/$s->{'job'}:dir", $s);
+      }
+    }
+    unlink("$workersdir/building/$idlename");
     my $worker = {
       'hostarch' => $harch,
       'ip' => $peerip,
       'port' => $peerport,
       'workerid' => $workerid,
     };
-    if (-d "$BSConfig::bsdir/disable") {
-      my @dis = ls("$BSConfig::bsdir/disable");
+    if (-d "$workersdir/disable") {
+      my @dis = ls("$workersdir/disable");
       for (@dis) {
         next unless $workerid =~ /^\Q$_\E/;
         return $BSStdServer::return_ok;
       }
     }
-    mkdir_p($idledir);
-    writexml("$idledir/.$idlename", "$idledir/$idlename", $worker, $BSXML::worker);
+    mkdir_p("$workersdir/idle");
+    writexml("$workersdir/idle/.$idlename", "$workersdir/idle/$idlename", $worker, $BSXML::worker);
   } else {
     die("unknown state: $state\n");
   }
@@ -497,10 +498,11 @@ sub assignjob {
   my ($job, $idlename, $arch) = @_;
 
   print "assignjob $job -> $idlename\n";
-  my $worker = readxml("$idledir/$idlename", $BSXML::worker, 1);
+  my $worker = readxml("$workersdir/idle/$idlename", $BSXML::worker, 1);
   return undef unless $worker;
   # ready for building!
-  my $infoxml = readstr("$buildingdir/$arch/$job:dir/info.xml");
+  unlink("$workersdir/idle/$idlename");
+  my $infoxml = readstr("$jobsdir/$arch/$job:dir/info.xml");
   my $info = XMLin($BSXML::buildinfo, $infoxml);
   my $prp = $info->{'path'}->[0];
   my $statusdir = "$reporoot/$prp->{'project'}/$prp->{'repository'}/$info->{'arch'}/$info->{'package'}";
@@ -527,8 +529,14 @@ sub assignjob {
   $status->{'starttime'} = time();
   $status->{'hostarch'} = $worker->{'hostarch'};
   $status->{'status'} = 'building';
+  $status->{'arch'} = $arch;
+  $status->{'job'} = $job;
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
-  link("$statusdir/status", "$buildingdir/$arch/$job:dir/status.xml");
+  unlink("$jobsdir/$arch/$job:dir/status.xml");
+  link("$statusdir/status", "$jobsdir/$arch/$job:dir/status.xml");
+  mkdir_p("$workersdir/building");
+  unlink("$workersdir/building/$idlename");
+  link("$statusdir/status", "$workersdir/building/$idlename");
   return 1;
 }
 
@@ -537,7 +545,7 @@ sub jobloop {
   while (1) {
     my @idle;
     my $assigned = 0;
-    if (opendir(D, $idledir)) {
+    if (opendir(D, "$workersdir/idle")) {
       @idle = grep {!/^\./} readdir D;
       closedir D;
     }
@@ -551,7 +559,7 @@ sub jobloop {
     my @archs = List::Util::shuffle(keys %idlearch);
     for my $arch (@archs) {
       my @b;
-      if (opendir(D, "$buildingdir/$arch")) {
+      if (opendir(D, "$jobsdir/$arch")) {
         @b = grep {!/^\./ && !/:new$/} readdir D;
         closedir D;
       }
@@ -560,25 +568,20 @@ sub jobloop {
       @b = grep {!$locked{"$_:dir"}} @b;
       for my $job (List::Util::shuffle(@b)) {
         for my $idle (map {$_} List::Util::shuffle(@{$idlearch{$arch} || []})) {
-          mkdir("$buildingdir/$arch/$job:dir") || next;
-          if (!link("$buildingdir/$arch/$job", "$buildingdir/$arch/$job:dir/info.xml")) {
-	    rmdir("$buildingdir/$arch/$job:dir");
+          mkdir("$jobsdir/$arch/$job:dir") || next;
+          if (!link("$jobsdir/$arch/$job", "$jobsdir/$arch/$job:dir/info.xml")) {
+	    rmdir("$jobsdir/$arch/$job:dir");
 	    next;
 	  }
 	  if (!assignjob($job, $idle, $arch)) {
-	    unlink("$buildingdir/$arch/$job:dir/info.xml");
-	    rmdir("$buildingdir/$arch/$job:dir");
-	    # worker failed, remove idle indication...
-print "no longer idle: $idle\n";
-	    unlink("$idledir/$idle");
+	    unlink("$jobsdir/$arch/$job:dir/info.xml");
+	    rmdir("$jobsdir/$arch/$job:dir");
 	    my $harch = (split(':', $idle, 2))[0];
 	    for (@{$cando{$harch} || []}) {
 	      $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
 	    }
 	    next;
 	  }
-print "no longer idle: $idle\n";
-	  unlink("$idledir/$idle");
 	  my $harch = (split(':', $idle, 2))[0];
 	  for (@{$cando{$harch} || []}) {
 	    $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
@@ -607,23 +610,24 @@ sub ping {
 sub workerstatus {
   local *D;
   my @idle;
-  for my $w (ls($idledir)) {
-    my $worker = readxml("$idledir/$w", $BSXML::worker, 1);
+  for my $w (ls("$workersdir/idle")) {
+    my $worker = readxml("$workersdir/idle/$w", $BSXML::worker, 1);
     next unless $worker;
     push @idle, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
   }
   my @building;
-  my @a = ls($buildingdir);
+  my @a = ls($jobsdir);
   my @waiting;
   for my $a (@a) {
-    my @d = ls("$buildingdir/$a");
+    my @d = ls("$jobsdir/$a");
     my %d = map {$_ => 1} @d;
     for my $d (grep {/:dir$/} @d) {
       delete $d{$d};
       $d =~ s/:dir$//;
-      my $s = readxml("$buildingdir/$a/$d:dir/status.xml", $BSXML::buildstatus, 1);
-      my $i = readxml("$buildingdir/$a/$d:dir/info.xml", $BSXML::buildinfo, 1);
-      print "bad job: $d\n" if !$s || !$i;
+      my $s = readxml("$jobsdir/$a/$d:dir/status.xml", $BSXML::buildstatus, 1);
+      my $i = readxml("$jobsdir/$a/$d:dir/info.xml", $BSXML::buildinfo, 1);
+      print "bad job, no status: $d\n" if !$s;
+      print "bad job, no info: $d\n" if !$i;
       next unless $s && $i;
       push @building, {'workerid' => $s->{'workerid'}, 'uri' => $s->{'uri'}, 'hostarch' => $s->{'hostarch'}, 'project' => $i->{'project'}, 'repository' => $i->{'repository'}, 'package' => $i->{'package'}, 'arch' => $i->{'arch'}, 'starttime' => $s->{'starttime'}};
       delete $d{$d};
@@ -643,7 +647,7 @@ sub workerstatus {
 
 sub putjob {
   my ($cgi, $arch, $job, $infomd5) = @_;
-  my $dir = "$buildingdir/$arch/$job:dir";
+  my $dir = "$jobsdir/$arch/$job:dir";
   local *F;
 
   my $infoxml = readstr("$dir/info.xml");
@@ -655,6 +659,12 @@ sub putjob {
   my $status = readxml("$statusdir/status", $BSXML::buildstatus);
   $status->{'status'} = 'finished';
   $status->{'endtime'} = time();
+  delete $status->{'job'};	# no longer needed
+  delete $status->{'arch'};	# no longer needed
+  my $idlename = "$status->{'hostarch'}:$status->{'workerid'}";
+  $idlename =~ s/\//_/g;
+  print "oops, we are not building ($idlename)?\n" unless -e "$workersdir/building/$idlename";
+  unlink("$workersdir/building/$idlename");
 
   # right job, fetch everything!
   my $uploaded = BSServer::read_cpio($dir, 'accept' => '^(meta|.*\.rpm|.*\.deb|logfile)$');
@@ -669,9 +679,9 @@ sub putjob {
   }
 
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
-  writestr("$buildingdir/$arch/$job:dir/finished", undef, '');
+  writestr("$jobsdir/$arch/$job:dir/finished", undef, '');
   mkdir_p("$eventdir/$arch");
-  link("$buildingdir/$arch/$job:dir/finished", "$eventdir/$arch/finished:$job");
+  link("$jobsdir/$arch/$job:dir/finished", "$eventdir/$arch/finished:$job");
   ping($arch);
   return $BSStdServer::return_ok;
 }
@@ -709,7 +719,7 @@ sub fixpackstatus {
       }
     } elsif ($p->{'status'} eq 'scheduled') {
       if (!$buildingjobs->{$arch}) {
-	my @buildingjobs = grep {s/\:dir$//} ls("$buildingdir/$arch");
+	my @buildingjobs = grep {s/\:dir$//} ls("$jobsdir/$arch");
 	s/-[0-9a-f]{32}$// for @buildingjobs;
 	$buildingjobs->{$arch} = { map {$_ => 1} @buildingjobs };
       }
@@ -835,7 +845,7 @@ sub docommand {
     } elsif ($cmd eq 'killbuild' || $cmd eq 'abortbuild') {
       for my $packid (@packids) {
 	eval {
-	  killbuild($cgi, $projid, $repoid, $arch, $packid);
+	  abortbuild($cgi, $projid, $repoid, $arch, $packid);
 	};
 	warn("$@") if $@;
       }
@@ -868,7 +878,7 @@ sub getbuildinfo {
 
   my $uploaded;
   if (!$pdata) {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'ignoredisable', "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
     die("no such project/package/repository\n") unless $projpack->{'project'};
   } else {
     $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', "project=$projid", "repository=$repoid", "arch=$arch");
@@ -994,7 +1004,7 @@ sub getbuildinfo {
     my $r = $bdepsp{$_->{'name'}};
     if ($r) {
       $_->{'version'} = $r->{'version'};
-      $_->{'release'} = $r->{'release'};
+      $_->{'release'} = $r->{'release'} if exists $r->{'release'};
       $_->{'arch'} = $r->{'arch'};
     }
     $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
@@ -1054,41 +1064,59 @@ sub getbuildinfo_post {
   return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
 }
 
+sub restartjob {
+  my ($jobdatadir, $s, $dorpc) = @_;
+  if ($s && $s->{'uri'}) {
+    my $infoxml = readstr("$jobdatadir/info.xml", 1);
+    if ($infoxml) {
+      my $info = XMLin($BSXML::buildinfo, $infoxml);
+      my $prp = $info->{'path'}->[0];
+      my $statusdir = "$reporoot/$prp->{'project'}/$prp->{'repository'}/$info->{'arch'}/$info->{'package'}";
+      my $s2 = readxml("$statusdir/status", $BSXML::buildstatus, 1);
+      if ($s2 && $s2->{'uri'} && $s2->{'uri'} eq $s->{'uri'}) {
+        delete $s2->{$_} for qw{workerid starttime hostarch arch job};
+        $s2->{'status'} = 'scheduled';
+        writexml("$statusdir/.status", "$statusdir/status", $s2, $BSXML::buildstatus);
+      }
+      my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
+      if ($dorpc) {
+        # kill build on host
+        eval {
+          BSRPC::rpc("$s->{'uri'}/discard", undef, "jobid=$infoxmlmd5");
+        };
+        warn($@) if $@;
+      }
+    }
+  }
+  rename($jobdatadir, "$jobdatadir.$$");
+  $jobdatadir = "$jobdatadir.$$";
+  unlink("$jobdatadir/$_") for ls($jobdatadir);
+  rmdir($jobdatadir);
+}
+
 sub restartbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   my $prp = "$projid/$repoid";
   my $job = jobname($prp, $packid);
-  my @jobdirs = grep {$_ eq "$job:dir" || /^\Q$job\E-[0-9a-f]{32}:dir$/} ls("$buildingdir/$arch");
-  die("not building\n") unless @jobdirs;
-  my $jobdir = "$buildingdir/$arch/$jobdirs[0]";
-  my $infoxml = readstr("$jobdir/info.xml", 1);
-  my $s = readxml("$jobdir/status.xml", $BSXML::buildstatus, 1);
-  if ($infoxml && $s && $s->{'uri'}) {
-    my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
-    # kill build on host
-    eval {
-      BSRPC::rpc("$s->{'uri'}/discard", undef, "jobid=$infoxmlmd5");
-    };
-    warn($@) if $@;
-  }
-  rename($jobdir, "$jobdir.$$");
-  $jobdir = "$jobdir.$$";
-  unlink("$jobdir/$_") for ls($jobdir);
-  rmdir($jobdir);
+  my @jobdatadirs = grep {$_ eq "$job:dir" || /^\Q$job\E-[0-9a-f]{32}:dir$/} ls("$jobsdir/$arch");
+  die("not building\n") unless @jobdatadirs;
+  my $jobdatadir = "$jobsdir/$arch/$jobdatadirs[0]";
+  my $s = readxml("$jobdatadir/status.xml", $BSXML::buildstatus, 1);
+  restartjob($jobdatadir, $s, 1);
   return $BSStdServer::return_ok;
 }
 
-sub killbuild {
+sub abortbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   my $prp = "$projid/$repoid";
   my $job = jobname($prp, $packid);
-  my @jobdirs = grep {$_ eq "$job:dir" || /^\Q$job\E-[0-9a-f]{32}:dir$/} ls("$buildingdir/$arch");
-  die("not building\n") unless @jobdirs;
-  my $jobdir = "$buildingdir/$arch/$jobdirs[0]";
-  my $infoxml = readstr("$jobdir/info.xml", 1);
-  my $s = readxml("$jobdir/status.xml", $BSXML::buildstatus, 1);
+  my @jobdatadirs = grep {$_ eq "$job:dir" || /^\Q$job\E-[0-9a-f]{32}:dir$/} ls("$jobsdir/$arch");
+  die("not building\n") unless @jobdatadirs;
+  my $jobdatadir = "$jobsdir/$arch/$jobdatadirs[0]";
+  my $infoxml = readstr("$jobdatadir/info.xml", 1);
+  my $s = readxml("$jobdatadir/status.xml", $BSXML::buildstatus, 1);
   die("not building\n") unless $infoxml && $s && $s->{'uri'};
   my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
   BSRPC::rpc("$s->{'uri'}/kill", undef, "jobid=$infoxmlmd5");
@@ -1145,6 +1173,35 @@ sub getworkercode {
   return getcode($cgi, 'worker');
 }
 
+sub postrepo {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+
+  my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', "project=$projid", "repository=$repoid", "arch=$arch");
+  my $proj = $projpack->{'project'}->[0];
+  die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
+  my $repo = $proj->{'repository'}->[0];
+  die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
+  my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+  my %data;
+  for my $prp (reverse @prp) {
+    next unless -e "$reporoot/$prp/$arch/:full.cache";
+    my $cache;
+    $cache = do "$reporoot/$prp/$arch/:full.cache";
+    next unless ref($cache) eq 'HASH';
+    %data = (%data, %$cache);
+  }
+  my @data;
+  for (sort keys %data) {
+    push @data, $data{$_};
+    $data[-1]->{'_content'} = $data[-1]->{'name'};
+  }
+  my $match = $cgi->{'match'};
+  $match = "[$match]" unless $match =~ /^[\.\/]?\[/;
+  $match = ".$match" if $match =~ /^\[/;
+  my $v = BSXPath::valuematch(\@data, $match);
+  return {'value' => $v}, $BSXML::collection;
+}
+
 sub getajaxstatus {
   my ($cgi) = @_;
   if (!$BSStdServer::isajax) {
@@ -1177,6 +1234,7 @@ my $dispatches = [
   'PUT:/rpm/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
 
   # new API
+  'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/$package:package_repository' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo internal:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo internal:bool? debug:bool?' => \&getbuildinfo,

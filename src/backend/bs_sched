@@ -18,7 +18,7 @@
 #
 ################################################################
 #
-# The Scheduler
+# The Scheduler. One big chunk of code for now.
 #
 
 BEGIN {
@@ -32,8 +32,6 @@ use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 
 use BSConfig;
-use BSRPMQ;
-use BSDEBQ;
 use BSRPC;
 use BSUtil;
 use BSFileDB;
@@ -60,7 +58,7 @@ if (defined $user) {
 
 
 my $reporoot = "$BSConfig::bsdir/build";
-my $buildingdir = "$BSConfig::bsdir/building";
+my $jobsdir = "$BSConfig::bsdir/jobs";
 my $infodir = "$BSConfig::bsdir/info";
 my $eventdir = "$BSConfig::bsdir/events";
 my $projectsdir = "$BSConfig::bsdir/projects";
@@ -69,7 +67,7 @@ my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 
 my $myarch = $ARGV[0] || 'i586';
 
-my $mybuildingdir = "$buildingdir/$myarch";
+my $myjobsdir = "$jobsdir/$myarch";
 my $myeventdir = "$eventdir/$myarch";
 my $myinfodir = "$infodir/$myarch";
 
@@ -228,79 +226,36 @@ sub diffsortedmd5 {
   return @ret;
 }
 
-sub findrpms_dir {
+sub findbins_dir {
   my ($dir) = @_;
-  my @rpms;
+  my @bins;
   if (ref($dir)) {
-    @rpms = grep {/\.(?:rpm|deb)$/} @$dir;
+    @bins = grep {/\.(?:rpm|deb)$/} @$dir;
   } else {
-    @rpms = ls($dir);
-    @rpms = map {"$dir/$_"} grep {/\.(?:rpm|deb)$/} sort @rpms;
+    @bins = ls($dir);
+    @bins = map {"$dir/$_"} grep {/\.(?:rpm|deb)$/} sort @bins;
   }
-  my $reporpms = {};
-  for my $rpm (@rpms) {
-    my @s = stat($rpm);
+  my $repobins = {};
+  for my $bin (@bins) {
+    my @s = stat($bin);
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
-    if ($rpm =~ /\.rpm$/) {
-      my %res = BSRPMQ::rpmq_many($rpm, qw{NAME VERSION RELEASE ARCH SOURCERPM NOSOURCE NOPATCH SIGTAG_MD5
-		PROVIDENAME PROVIDEFLAGS PROVIDEVERSION REQUIRENAME REQUIREFLAGS REQUIREVERSION});
-      next unless %res;
-      #BSRPMQ::rpmq_add_flagsvers(\%res, 'PROVIDENAME', 'PROVIDEFLAGS', 'PROVIDEVERSION');
-      #BSRPMQ::rpmq_add_flagsvers(\%res, 'REQUIRENAME', 'REQUIREFLAGS', 'REQUIREVERSION');
-      my $src = $res{'SOURCERPM'}->[0];
-      my $arch = $res{'ARCH'}->[0];
-      $arch = $res{'NOSOURCE'} || $res{'NOPATCH'} ? 'nosrc' : 'src' unless $src;
-      $src = '' unless defined $src;
-      $src =~ s/-[^-]*-[^-]*\.[^\.]*\.rpm//;
-      if ($reporpms->{$rpm}) {
-        print "    WARNING: $rpm exists multiple times in full tree\n";
-      }
-      $reporpms->{$rpm} = {
-	id => $id,
-        name => $res{'NAME'}->[0],
-        arch => $arch,
-        source => $src,
-        hdrmd5 => unpack('H32', $res{'SIGTAG_MD5'}->[0]),
-        provides => [ grep {!/^rpmlib\(/ && !/^\//} @{$res{'PROVIDENAME'} || []} ],
-        requires => [ grep {!/^rpmlib\(/ && !/^\//} @{$res{'REQUIRENAME'} || []} ],
-      };
-    } else {
-      my %res = BSDEBQ::debq($rpm);
-      next unless %res;
-      my $src = $res{'PACKAGE'};
-      $src = $res{'SOURCE'} if $res{'SOURCE'};
-      my @provides = split(',\s*', $res{'PROVIDES'} || '');
-      s/\s.*// for @provides;	#for now
-      my @depends = split(',\s*', $res{'DEPENDS'} || '');
-      my @predepends = split(',\s*', $res{'PRE-DEPENDS'} || '');
-      s/\s.*// for @provides;	#for now
-      s/\s.*// for @depends;	#for now
-      s/\s.*// for @predepends;	#for now
-      push @depends, @predepends;
-      push @provides, $res{'PACKAGE'};
-      if ($reporpms->{$rpm}) {
-        print "    WARNING: $rpm exists multiple times in full tree\n";
-      }
-      $reporpms->{$rpm} = {
-	id => $id,
-        name => $res{'PACKAGE'},
-        arch => $res{'ARCHITECTURE'},
-	source => $src,
-	hdrmd5 => $res{'CONTROL_MD5'},
-	provides => \@provides,
-	requires => \@depends,
-      };
-    }
+    my $data = Build::querybinary($bin, 1);	# need arch
+    next unless $data;
+    $data->{'id'} = $id;
+    delete $data->{'epoch'};
+    delete $data->{'version'};
+    delete $data->{'release'};
+    $repobins->{$bin} = $data;
   }
-  return $reporpms;
+  return $repobins;
 }
 
-sub findrpms {
+sub findbins {
   my ($repo) = @_;
   local *D;
   my $dir = "$reporoot/$repo/$myarch/:full";
-  my $reporpms = {};
+  my $repobins = {};
   my $cnt = 0;
 
   my $cache;
@@ -311,89 +266,52 @@ sub findrpms {
       my $byid = {};
       for (keys %$cache) {
 	my $v = $cache->{$_};
-	$v->{'name'} = $_;
+	$v->{'name'} = $_ unless exists $v->{'name'};
 	$byid->{$v->{'id'}} = $v;
       }
       $cache = $byid;
     }
   }
-  opendir(D, "$dir") || return {};
-  my @rpms = grep {/\.(?:rpm|deb)$/} readdir(D);
+  opendir(D, $dir) || return {};
+  my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
   closedir D;
   my ($hits, $misses) = (0, 0);
-  for my $rpm (sort @rpms) {
-    my @s = stat("$dir/$rpm");
+  for my $bin (sort @bins) {
+    my @s = stat("$dir/$bin");
+    next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
-    if ($cache) {
-      my $c = $cache->{"$s[9]/$s[7]/$s[1]"};
-      if ($c) {
-        $reporpms->{$c->{'name'}} = $c;
-        $c->{'path'} = $rpm;
-	$hits++;
-	$cnt++;
-	next;
-      }
-    }
-    $misses++;
-    if ($rpm =~ /\.rpm$/) {
-      my %res = BSRPMQ::rpmq_many("$dir/$rpm", qw{NAME VERSION RELEASE ARCH SOURCERPM NOSOURCE NOPATCH SIGTAG_MD5
-		  PROVIDENAME PROVIDEFLAGS PROVIDEVERSION REQUIRENAME REQUIREFLAGS REQUIREVERSION});
-      next unless %res;
-      next unless $res{'SOURCERPM'};	# really ignore sources
-      #BSRPMQ::rpmq_add_flagsvers(\%res, 'PROVIDENAME', 'PROVIDEFLAGS', 'PROVIDEVERSION');
-      #BSRPMQ::rpmq_add_flagsvers(\%res, 'REQUIRENAME', 'REQUIREFLAGS', 'REQUIREVERSION');
-      my $src = $res{'SOURCERPM'}->[0];
-      $src =~ s/-[^-]*-[^-]*\.[^\.]*\.rpm//;
-      $reporpms->{$res{'NAME'}->[0]} = {
-	  id => $id,
-	  path => $rpm,
-	  source => $src,
-	  hdrmd5 => unpack('H32', $res{'SIGTAG_MD5'}->[0]),
-	  provides => [ grep {!/^rpmlib\(/ && !/^\//} @{$res{'PROVIDENAME'} || []} ],
-	  requires => [ grep {!/^rpmlib\(/ && !/^\//} @{$res{'REQUIRENAME'} || []} ],
-      };
+    my $data;
+    $data = $cache->{$id} if $cache;
+    if ($data) {
+      $hits++;
     } else {
-      my %res = BSDEBQ::debq("$dir/$rpm");
-      next unless %res;
-      my $src = $res{'PACKAGE'};
-      $src = $res{'SOURCE'} if $res{'SOURCE'};
-      my @provides = split(',\s*', $res{'PROVIDES'} || '');
-      s/\s.*// for @provides;	#for now
-      my @depends = split(',\s*', $res{'DEPENDS'} || '');
-      my @predepends = split(',\s*', $res{'PRE-DEPENDS'} || '');
-      s/\s.*// for @provides;	#for now
-      s/\s.*// for @depends;	#for now
-      s/\s.*// for @predepends;	#for now
-      push @depends, @predepends;
-      push @provides, $res{'PACKAGE'};
-      $reporpms->{$res{'PACKAGE'}} = {
-	  id => $id,
-	  path => $rpm,
-	  source => $src,
-	  hdrmd5 => $res{'CONTROL_MD5'},
-	  provides => \@provides,
-	  requires => \@depends,
-      };
+      $misses++;
+      $data = Build::querybinary("$dir/$bin");
+      next unless $data;
+      $data->{'id'} = $id;
     }
+    $data->{'path'} = $bin;	# no dir for now!
+    $repobins->{$data->{'name'}} = $data;
     $cnt++;
   }
   if (!$cnt) {
-    print "    rpms/debs found: none\n";
+    print "    packages found: none\n";
   } else {
-    print "    rpms/debs found: $cnt (hits: $hits, misses: $misses)\n";
+    print "    packages found: $cnt (hits: $hits, misses: $misses)\n";
   }
   local *F;
   if (open(F, '>', "$dir.cache.new")) {
     local ($Data::Dumper::Indent) = 0;
     local ($Data::Dumper::Terse) = 1;
-    print F Dumper($reporpms)."\n";
+    print F Dumper($repobins)."\n";
     close F;
     rename("$dir.cache.new", "$dir.cache") || die("rename $dir.cache.new $dir.cache: $!\n");
   }
-  for (values %$reporpms) {
+  # add dir to make real path
+  for (values %$repobins) {
     $_->{'path'} = "$repo/$myarch/:full/$_->{'path'}";
   }
-  return $reporpms;
+  return $repobins;
 }
 
 #
@@ -434,16 +352,16 @@ sub jobname {
 
 sub killjob {
   my ($jobname) = @_;
-  my $jobdir = "$mybuildingdir/$jobname:dir";
-  if (mkdir($jobdir)) {
+  my $jobdatadir = "$myjobsdir/$jobname:dir";
+  if (mkdir($jobdatadir)) {
     print "        (job was not building yet)\n";
     #job was not stated, just discard it
-    unlink("$mybuildingdir/$jobname");
-    rmdir($jobdir);
+    unlink("$myjobsdir/$jobname");
+    rmdir($jobdatadir);
     return;
   }
-  my $status = readxml("$jobdir/status.xml", $BSXML::buildstatus, 1);
-  my $infoxml = readstr("$jobdir/info.xml", 1);
+  my $status = readxml("$jobdatadir/status.xml", $BSXML::buildstatus, 1);
+  my $infoxml = readstr("$jobdatadir/info.xml", 1);
   if (!$status || !$infoxml) {
     print "        (incomplete job data, cannot kill)\n";
   } else {
@@ -454,11 +372,11 @@ sub killjob {
     };
     warn("kill $jobname: $@") if $@;
   }
-  unlink("$mybuildingdir/$jobname");
-  rename($jobdir, "$jobdir.$$");
-  $jobdir = "$jobdir.$$";
-  unlink("$jobdir/$_") for ls($jobdir);
-  rmdir($jobdir);
+  unlink("$myjobsdir/$jobname");
+  rename($jobdatadir, "$jobdatadir.$$");
+  $jobdatadir = "$jobdatadir.$$";
+  unlink("$jobdatadir/$_") for ls($jobdatadir);
+  rmdir($jobdatadir);
 }
 
 sub set_building {
@@ -466,9 +384,9 @@ sub set_building {
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $f = jobname($prp, $packid);
-  return $f if -s "$mybuildingdir/$f";
-  return "$f-$srcmd5" if -s "$mybuildingdir/$f-$srcmd5";
-  my @otherjobs = grep {/^\Q$f\E-[0-9a-f]{32}$/} ls($mybuildingdir);
+  return $f if -s "$myjobsdir/$f";
+  return "$f-$srcmd5" if -s "$myjobsdir/$f-$srcmd5";
+  my @otherjobs = grep {/^\Q$f\E-[0-9a-f]{32}$/} ls($myjobsdir);
   $f = "$f-$srcmd5";
 
   # a new one. expand usedforbuild. write info file.
@@ -503,7 +421,7 @@ sub set_building {
     killjob($otherjob);
   }
 
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'waiting to be built', 'readytime' => time()}, $BSXML::buildstatus);
+  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time()}, $BSXML::buildstatus);
 
   my @pdeps = Build::get_preinstalls($bconf);
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
@@ -523,8 +441,27 @@ sub set_building {
   $release =~ s/.*-//;
   $release = "$release.".($h->{'bcnt'} + 1);
   my $vmd5 = $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
-  my $binfo = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'subpack' => ($subpacks || []), 'arch' => $myarch, 'dep' => $edeps, 'bdep' => \@bdeps, 'pdep' => \@pdeps, 'srcmd5' => $pdata->{'srcmd5'}, 'verifymd5' => $vmd5, 'rev' => $pdata->{'rev'}, 'path' => $searchpath, 'specfile' => $info->{'file'}, 'job' => $f, 'versrel' => $pdata->{'versrel'}, 'bcnt' => $h->{'bcnt'} + 1, 'release' => $release};
-  writexml("$mybuildingdir/$f:new", "$mybuildingdir/$f", $binfo, $BSXML::buildinfo);
+  my $binfo = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'package' => $packid,
+    'job' => $f,
+    'arch' => $myarch,
+    'srcmd5' => $pdata->{'srcmd5'},
+    'verifymd5' => $vmd5,
+    'rev' => $pdata->{'rev'},
+    'specfile' => $info->{'file'},
+    'file' => $info->{'file'},
+    'versrel' => $pdata->{'versrel'},
+    'bcnt' => $h->{'bcnt'} + 1,
+    'release' => $release,
+    'subpack' => ($subpacks || []),
+    'dep' => $edeps,
+    'bdep' => \@bdeps,
+    'pdep' => \@pdeps,
+    'path' => $searchpath,
+  };
+  writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
   return $f;
 }
 
@@ -589,7 +526,7 @@ sub qsystem {
 sub prpfinished {
   my ($prp, $title, $packs, $repotype) = @_;
   return if $prp =~ /^MicroSUSE/;
-  print "    prp $prp is finished, creating rpm repos (".join(', ', @$repotype).")...\n";
+  print "    prp $prp is finished, creating repos (".join(', ', @$repotype).")...\n";
   my %repotype = map {$_ => 1} @$repotype;
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
@@ -611,11 +548,6 @@ sub prpfinished {
   my $changed;
 
   # link all packages over
-  my %new;
-  my %newn;
-  my %srpms;
-  my %knowna = ('src' => 1, 'nosrc' => 1, 'noarch' => 1);
-  $knowna{$myarch} = 1;
 
   my $gdst = "$reporoot/$prp/$myarch";
   mkdir_p("$gdst/:repo");
@@ -645,7 +577,7 @@ sub prpfinished {
       }
       push @all_new, $_;
     }
-    my $all_new = findrpms_dir(\@all_new);
+    my $all_new = findbins_dir(\@all_new);
     for my $rp (keys %$all_new) {
       $changed = 1;
       my @s = stat($rp);
@@ -721,7 +653,7 @@ sub prpfinished {
     return;
   }
 
-  # rpms are now updated, run createrepo...
+  # packages are now updated, run createrepo...
   my ($projid, $repoid) = split('/', $prp, 2);
   my $projid_ext = $projid;
   $projid_ext =~ s/:/:\//g;
@@ -864,7 +796,7 @@ sub prpdeleted {
 
 
 #
-# moves rpms from jobrepo to dst and updates full repository
+# moves binary packages from jobrepo to dst and updates full repository
 #
 
 sub update_dst_full {
@@ -874,7 +806,7 @@ sub update_dst_full {
   # get old state
   my @oldrpms = grep {/\.(?:rpm|deb)$/} ls($dst);
   my @oldrpms_p = map {"$dst/$_"} @oldrpms;
-  my $oldrepo = findrpms_dir(\@oldrpms_p);
+  my $oldrepo = findbins_dir(\@oldrpms_p);
 
   # move rpms over
   my %new;
@@ -894,7 +826,7 @@ sub update_dst_full {
   mkdir_p("$gdst/:full");
   for my $rp (keys %new) {
     my $r = $new{$rp};
-    next unless $r->{'source'};	# no src rpms in full tree
+    next unless $r->{'source'};	# no src in full tree
     my $suf = $rp;
     $suf =~ s/.*\.//;
     my $n = $r->{'name'};
@@ -915,7 +847,6 @@ sub update_dst_full {
     }
     $fnew{$n} = 1;
     delete $r->{'arch'};
-    delete $r->{'name'};
     $r->{'path'} = "$prp/$myarch/:full/$n.$suf";
     $repodata->{$n} = $r;
   }
@@ -964,18 +895,6 @@ sub addjobhist {
   $jobhist->{$_} = $info->{$_} for qw{project repository package arch srcmd5};
   BSFileDB::fdb_add("$myinfodir/jobhistory", $BSXML::jobhistlay, $jobhist);
 }
-
-print "starting openSUSE scheduler\n";
-for my $d ($eventdir, $myeventdir, $buildingdir, $mybuildingdir, $infodir, $myinfodir) {
-  next if -d $d;
-  mkdir($d) || die("$d: $!\n");
-}
-if (!-p "$myeventdir/.ping") {
-  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
-  chmod(0666, "$myeventdir/.ping");
-}
-
-sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
 
 
 my @prps;
@@ -1088,10 +1007,10 @@ sub killbuilding {
   my @jobs;
   if (defined $packid) {
     my $f = jobname($prp, $packid);
-    @jobs = grep {$_ eq $f || /^\Q$f\E-[0-9a-f]{32}$/} ls($mybuildingdir);
+    @jobs = grep {$_ eq $f || /^\Q$f\E-[0-9a-f]{32}$/} ls($myjobsdir);
   } else {
     my $f = jobname($prp, '');
-    @jobs = grep {/^\Q$f\E/} ls($mybuildingdir);
+    @jobs = grep {/^\Q$f\E/} ls($myjobsdir);
   }
   for my $job (@jobs) {
     print "        killing obsolete job $job\n";
@@ -1099,16 +1018,35 @@ sub killbuilding {
   }
 }
 
-get_projpacks();
-print "reading rpms of ".@prps." repositories\n";
+
+##########################################################################
+##########################################################################
+
 my %repodata;
 
+print "starting openSUSE scheduler\n";
+
+# setup event mechanism
+for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir, $infodir, $myinfodir) {
+  next if -d $d;
+  mkdir($d) || die("$d: $!\n");
+}
+if (!-p "$myeventdir/.ping") {
+  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
+  chmod(0666, "$myeventdir/.ping");
+}
+
+sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
+
+# get project and package information from src server
+get_projpacks();
+
+# XXX: actually no longer needed
+print "searching for binary packages in ".@prps." repositories\n";
 for my $prp (@prps) {
-  my ($projid, $repoid) = split('/', $prp, 2);
   print "  - $prp\n";
   if (-d "$reporoot/$prp/$myarch") {
-    my $rpms = findrpms($prp);
-    $repodata{$prp} = $rpms;
+    $repodata{$prp} = findbins($prp);
   } else {
     delete $repodata{$prp};
   }
@@ -1121,9 +1059,11 @@ $changed{$_} = 1 for sort keys %$projpacks;
 
 my %prpfinished;
 
+### here is the big scheduling loop
 while(1) {
   print "package loop\n";
 
+  # Step 1: check for deleted repositories
   for my $projid (sort keys %$projpacks) {
     next unless $changed{$projid};
     my %repoids;
@@ -1161,6 +1101,7 @@ while(1) {
     }
   }
 
+  # Step 2: go through each project/repository
   for my $prp (@prps) {
     next unless grep {$changed{$_}} @{$prpdeps{$prp}};
 
@@ -1192,7 +1133,7 @@ while(1) {
     my $packs = $projpacks->{$projid}->{'package'} || {};
     my @packs = sort keys %$packs;
 
-    # check if packages got deleted
+    # Step 2a: check if packages got deleted
     for my $packid (grep {!/^:/ && !$packs->{$_}} ls("$reporoot/$prp/$myarch")) {
       print "      - $packid: is obsolete\n";
       my $gdst = "$reporoot/$prp/$myarch";
@@ -1210,24 +1151,31 @@ while(1) {
       unlink("$reporoot/$prp/$myarch/:repodone");
     }
 
+    # Step 2b: calculate build repository
     my %dep2src;
     my %dep2rpm;
-    my @repos = map {$repodata{$_} || {}} @{$prpsearchpath{$prp}};
-    #print "  - repos: @repos\n";
-    for my $r (reverse @repos) {
-      for (keys %$r) {
-	$dep2src{$_} = $r->{$_}->{'source'};
-	$dep2rpm{$_} = $r->{$_};
+    my @repos;
+    for my $rprp (@{$prpsearchpath{$prp}}) {
+      if (!$repodata{$rprp}) {
+	$repodata{$rprp} = findbins($rprp) || {};
+      }
+      push @repos, $repodata{$rprp};
+    }
+    for my $rd (reverse @repos) {
+      for (keys %$rd) {
+	$dep2src{$_} = $rd->{$_}->{'source'};
+	$dep2rpm{$_} = $rd->{$_};
       }
     }
 
-    # expand all dependencies, put them in %pdeps hash
-    my %pdeps;
+    # Step 2c: expand all dependencies, put them in %pdeps hash
     my %subpacks;
     push @{$subpacks{$dep2src{$_}}}, $_ for keys %dep2src;
     print "    expanding dependencies\n";
     my %experrors;
     Build::readrpmdeps($bconf, undef, reverse @repos);
+
+    my %pdeps;
     for my $packid (@packs) {
       my $pdata = $packs->{$packid};
       my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
@@ -1258,7 +1206,7 @@ while(1) {
     @packs = grep {!$experrors{$_}} @packs;
     push @packs, @packs_experrors;
 
-    # check status of all packages
+    # Step 2d: check status of all packages
     my %packstatus = ();
     my %packerror = ();
     for my $packid (@packs) {
@@ -1356,9 +1304,9 @@ while(1) {
 	my @diff = diffsortedmd5(0, \@meta, \@new_meta);
 	print "        $_\n" for @diff;
         my $job = jobname($prp, $packid);
-	my $jobdir = "$mybuildingdir/$job:dir";
-	unlink "$jobdir/$_" for ls($jobdir);
-	mkdir_p($jobdir);
+	my $jobdatadir = "$myjobsdir/$job:dir";
+	unlink "$jobdatadir/$_" for ls($jobdatadir);
+	mkdir_p($jobdatadir);
 	my $jobrepo = {};
 	my %jobbins;
 	for my $aggregate (@aggregates) {
@@ -1375,7 +1323,7 @@ while(1) {
 	    my $d = "$reporoot/$aprojid/$repoid/$myarch/$apackid";
 	    my @d = grep {/\.(?:rpm|deb)$/} ls($d);
 	    @d = sort(@d);
-	    my $ajobrepo = findrpms_dir([map {"$d/$_"} @d]);
+	    my $ajobrepo = findbins_dir([map {"$d/$_"} @d]);
 	    my $copysources = 0;
 	    for my $abin (sort keys %$ajobrepo) {
 	      my $r = $ajobrepo->{$abin};
@@ -1385,8 +1333,8 @@ while(1) {
 	      $jobbins{$r->{'name'}} = 1;
 	      my $basename = $abin;
 	      $basename =~ s/.*\///;
-	      BSUtil::cp($abin, "$jobdir/$basename");
-	      $jobrepo->{"$jobdir/$basename"} = $r;
+	      BSUtil::cp($abin, "$jobdatadir/$basename");
+	      $jobrepo->{"$jobdatadir/$basename"} = $r;
 	      $copysources = 1;
 	    }
 	    if ($copysources) {
@@ -1395,8 +1343,8 @@ while(1) {
 	        next if $r->{'source'};
 	        my $basename = $abin;
 	        $basename =~ s/.*\///;
-	        BSUtil::cp($abin, "$jobdir/$basename");
-	        $jobrepo->{"$jobdir/$basename"} = $r;
+	        BSUtil::cp($abin, "$jobdatadir/$basename");
+	        $jobrepo->{"$jobdatadir/$basename"} = $r;
 	      }
 	    }
 	  }
@@ -1411,11 +1359,11 @@ while(1) {
 	unlink("$gdst/:logfiles.success/$packid");
 	unlink("$dst/logile");
 	unlink("$dst/status");
-	writestr("$jobdir/meta", undef, join('', map {"$_\n"} @new_meta));
+	writestr("$jobdatadir/meta", undef, join('', map {"$_\n"} @new_meta));
 	mkdir_p("$gdst/:meta");
-	rename("$jobdir/meta", "$gdst/:meta/$packid") || die("rename $jobdir/meta $gdst/:meta/$packid: $!\n");
-	unlink "$jobdir/$_" for ls($jobdir);
-	rmdir($jobdir);
+	rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
+	unlink "$jobdatadir/$_" for ls($jobdatadir);
+	rmdir($jobdatadir);
         print "        rebuilt\n";
         $packstatus{$packid} = 'succeeded';
         unlink("$reporoot/$prp/$myarch/:repodone");
@@ -1576,9 +1524,9 @@ while(1) {
       if ($event =~ /^finished:(.*)/) {
 	my $job = $1;
 	unlink("$myeventdir/$event");
-	my $jobdir = "$mybuildingdir/$job:dir";
-	next unless -e "$jobdir/finished";
-	my $info = readxml("$jobdir/info.xml", $BSXML::buildinfo);
+	my $jobdatadir = "$myjobsdir/$job:dir";
+	next unless -e "$jobdatadir/finished";
+	my $info = readxml("$jobdatadir/info.xml", $BSXML::buildinfo);
 	next unless $info;
 	my $prp = $info->{'path'}->[0];
         $prp = "$prp->{'project'}/$prp->{'repository'}";
@@ -1601,9 +1549,9 @@ while(1) {
 	my $statusdir = "$reporoot/$prp/$myarch/$packid";
 	if (! -d $statusdir) {
 	  print " - $job belongs to obsolete package, discard\n";
-	  unlink("$mybuildingdir/$job");
-	  unlink("$mybuildingdir/$job:dir/$_") for ls("$mybuildingdir/$job:dir");
-	  rmdir($jobdir);
+	  unlink("$myjobsdir/$job");
+	  unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
+	  rmdir($jobdatadir);
 	  next;
 	}
         my $status = readxml("$statusdir/status", $BSXML::buildstatus, 1);
@@ -1611,10 +1559,12 @@ while(1) {
 	  print " - $job has no status, ignored\n";
 	  next;
 	}
-	my @all = ls($jobdir);
+	delete $status->{'arch'};	# no longer building
+	delete $status->{'job'};	# no longer building
+	my @all = ls($jobdatadir);
 	my %all = map {$_ => 1} @all;
-	@all = map {"$jobdir/$_"} @all;
-	my $jobrepo = findrpms_dir(\@all);
+	@all = map {"$jobdatadir/$_"} @all;
+	my $jobrepo = findbins_dir(\@all);
 
 	my $gdst = "$reporoot/$prp/$myarch";
 	my $dst = "$gdst/$packid";
@@ -1629,25 +1579,25 @@ while(1) {
 	    next;
 	  }
 	  # severe failure, create src change fake...
-	  writestr("$jobdir/meta", undef, "$info->{'srcmd5'}  $packid\nfake to detect source changes...  fake\n");
-	  push @all, "$jobdir/meta";
+	  writestr("$jobdatadir/meta", undef, "$info->{'srcmd5'}  $packid\nfake to detect source changes...  fake\n");
+	  push @all, "$jobdatadir/meta";
 	  $all{'meta'} = 1;
 	}
-	my $meta = $all{'meta'} ? "$jobdir/meta" : undef;
+	my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
 	if (!%$jobrepo) {
 	  print "  - $job: build failed\n";
-	  link("$jobdir/logfile", "$jobdir/logfile.dup");
-	  rename("$jobdir/logfile", "$dst/logfile");
-	  rename("$jobdir/logfile.dup", "$gdst/:logfiles.fail/$packid");
-	  rename("$jobdir/status.xml", "$dst/status");
+	  link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+	  rename("$jobdatadir/logfile", "$dst/logfile");
+	  rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
+	  rename("$jobdatadir/status.xml", "$dst/status");
 	  rename($meta, "$gdst/:meta/$packid") if $meta;
 	  unlink($_) for @all;
 	  $status->{'status'} = 'failed';
 	  addjobhist($info, $status);
 	  delete $status->{'uri'};
 	  writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
-	  unlink("$mybuildingdir/$job");
-	  rmdir($jobdir);
+	  unlink("$myjobsdir/$job");
+	  rmdir($jobdatadir);
 	  $changed{$prp} = 1;	# package is no longer blocking
 	  next;
 	}
@@ -1672,13 +1622,13 @@ while(1) {
         BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
 
 	# save logfile
-	link("$jobdir/logfile", "$jobdir/logfile.dup");
-	rename("$jobdir/logfile", "$dst/logfile");
-	rename("$jobdir/logfile.dup", "$gdst/:logfiles.success/$packid");
+	link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+	rename("$jobdatadir/logfile", "$dst/logfile");
+	rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
 	unlink("$gdst/:logfiles.fail/$packid");
 	unlink($_) for @all;
-	unlink("$mybuildingdir/$job");
-	rmdir($jobdir);
+	unlink("$myjobsdir/$job");
+	rmdir($jobdatadir);
 	$changed{$prp} = 1;
 	next;
       }
@@ -1745,9 +1695,9 @@ while(1) {
 	my $repoid = $ev->{'repository'};
         if (defined($projid) && defined($repoid)) {
 	  my $prp = "$projid/$repoid";
-	  print "reading rpms of repository $projid/$repoid\n";
+	  print "reading packages of repository $projid/$repoid\n";
 	  delete $repodata{$prp};
-	  $repodata{$prp} = findrpms($prp) if -d "$reporoot/$prp/$myarch";
+	  $repodata{$prp} = findbins($prp) if -d "$reporoot/$prp/$myarch";
 	  for my $prp (@prps) {
 	    $changed{$prp} = 1 if (split('/', $prp, 2))[0] eq $projid;
 	  }

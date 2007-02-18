@@ -104,7 +104,7 @@ sub predicate {
 	$i++;
 	my $b = shift @$v2;
 	#print "bool $b ($i)\n";
-	if ($b =~ /^\d+$/) {
+	if ($b =~ /^-?\d+$/) {
 	  push @nvv, $_ if $b == $i;
         } else {
 	  push @nvv, $_ if $b;
@@ -155,7 +155,7 @@ sub expr {
     ($v, $expr) = expr($cwd, substr($expr, 1), 0);
     die("missing ) in expression\n") unless $expr =~ s/^\)//;
   } elsif ($t eq '-') {
-    ($v, $expr) = expr($cwd, substr($expr, 1), 0);
+    ($v, $expr) = expr($cwd, substr($expr, 1), 6);
     die("illegal type for unary -\n") if grep {ref($_)} @$v;
     $v = [ map {-$_} @$v ];
   } elsif ($t eq "'") {

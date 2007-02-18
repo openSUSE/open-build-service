@@ -363,7 +363,7 @@ while (!BSServer::server($conf)) {
       $rekillcnt = 0;
       $state = lockstate();
       if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
-        if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ($xen) : ()), "--kill")) {
+        if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ('--xen') : ()), "--kill")) {
 	  warn("could not kill job\n");
         }
       }
@@ -384,7 +384,7 @@ while (!BSServer::server($conf)) {
     next unless @s;
     if ($s[7] > $buildlog_maxsize) {
       next unless $locked;
-      if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ($xen) : ()), "--kill")) {
+      if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ('--xen') : ()), "--kill")) {
 	warn("could not kill job\n");
         last;
       }
@@ -394,7 +394,7 @@ while (!BSServer::server($conf)) {
       $locked = 0;
     } elsif ($ct - $s[9] > $buildlog_maxidle) {
       next unless $locked;
-      if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ($xen) : ()), "--kill")) {
+      if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ('--xen') : ()), "--kill")) {
 	warn("could not kill job\n");
         last;
       }
@@ -436,7 +436,7 @@ if ($path eq '/info') {
     my $infoxml = readstr('job');
     die("building a different job\n") unless $cgi->{'jobid'} eq Digest::MD5::md5_hex($infoxml);
   }
-  if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ($xen) : ()), "--kill")) {
+  if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ('--xen') : ()), "--kill")) {
     die("could not kill job\n");
   }
   local *F;

@@ -29,6 +29,7 @@ our $stageserver_sync = 'rsync://149.44.161.5/trigger-repos-sync';
 our $repodownload = 'http://software.opensuse.org/download/repositories';
 our $sign = '/root/bin/sign';
 our $bsdir = '/bs';
+our $keyfile = '/bs/openSUSE-Build-Service.asc';
 
 our @reposervers = ('http://storage:5252', 'http://storage:6262');
 
