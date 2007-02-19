@@ -17,6 +17,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/', :controller => 'main'
 
   map.connect 'person/register', :controller => 'person', :action => 'register'
+  map.connect 'person/:login/_roles', :controller => 'person', :action => 'roleinfo'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo'
 
   map.connect 'rpm/:project/:repository/:arch/:package/history',
@@ -56,6 +57,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'source/:project/_meta', :controller => 'source',
     :action => 'project_meta'
+  map.connect 'source/:project/_config', :controller => 'source',
+    :action => 'project_config'
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta'
 
@@ -123,10 +126,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'source/:project', :controller => "source",
     :action => 'index_project'
 
-#  map.connect 'search/project/id', :controller => "search", :action => "pass_to_source"
-#  map.connect 'search/package/id', :controller => "search", :action => "pass_to_source"
-#  map.connect 'search/project', :controller => "search", :action => "pass_to_source"
-#  map.connect 'search/package', :controller => "search", :action => "pass_to_source"
   map.connect 'search/project/id', :controller => "search", :action => "project_id"
   map.connect 'search/package/id', :controller => "search", :action => "package_id"
   map.connect 'search/project', :controller => "search", :action => "project"
@@ -135,7 +134,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'build/:project/:repository/:arch/:package/_status',
         :controller => "build", :action => "pass_to_source"
-  map.connect 'build/:project/:repository/:arch/:package/_logfile',
+  map.connect 'build/:project/:repository/:arch/:package/_log',
         :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
         :controller => "build", :action => "pass_to_source"

@@ -234,7 +234,12 @@ class SourceController < ApplicationController
       rescue ActiveXML::Transport::NotFoundError
         # Ok, the project  is new
 	allowed = permissions.global_project_create
-	
+
+        # grant permission if project is below the users home namespace
+        if not allowed
+          allowed = true if project_name =~ /^home:#{@http_user.login}/
+        end
+
 	if allowed 
 	  # This is a new project. Add the logged in user as maintainer
           @project = Project.new( request_data, :name => project_name )
@@ -266,10 +271,47 @@ class SourceController < ApplicationController
         return
       end
     else
-      #neither put nor get
-      #TODO: return correct error code
       render_error :status => 400, :errorcode => 'illegal_request',
         :message => "Illegal request: POST #{request.path}"
+    end
+  end
+
+  def project_config
+    #bail if neither get nor put
+    unless request.get? or request.put?
+      render_error :status => 400, :errorcode => 'illegal_request',
+        :message => "Illegal request: #{request.env['REQUEST_METHOD']} #{request.path}"
+      return
+    end
+
+    #check if project exists
+    if DbProject.find_by_name(params[:project]).nil?
+      render_error :status => 404, :errorcode => 'project_not_found',
+        :message => "Unknown project #{params[:project]}"
+      return
+    end
+
+    #assemble path for backend
+    path = request.env['PATH_INFO']
+    unless request.env['QUERY_STRING'].nil?
+      path += "?" + request.env['QUERY_STRING']
+    end
+
+    allowed = false
+
+    if request.get?
+      forward_data path
+    elsif request.put?
+      #check for permissions
+      allowed = permissions.project_change? params[:project]
+      if not allowed
+        render_error :status => 403, :errorcode => 'put_project_config_no_permission',
+          :message => "No permission to write build configuration for project '#{params[:project]}'"
+        return
+      end
+
+      forward_data path, :method => :put
+      return
     end
   end
 

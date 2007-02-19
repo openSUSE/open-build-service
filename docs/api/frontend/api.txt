@@ -87,6 +87,20 @@ DELETE /source/<project>
 XmlResult: status
 
 
+GET /source/<project>/_config
+
+  Read project configuration
+
+Result: configuration as text/plain
+
+
+PUT /source/<project>/_config
+
+  Change project configuration
+
+XmlResult: status
+
+
 === Packages
 
 
