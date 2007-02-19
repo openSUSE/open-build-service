@@ -137,7 +137,7 @@ module Suse
       end
 
       def do_post( host, port, path, data )
-        backend_request = Net::HTTP::Post.new( path )
+        backend_request = Net::HTTP::Post.new( path, {'Content-Type' => 'text/plain'} )
         response = Net::HTTP.start( host, port ) do |http|
           http.request( backend_request, data )
         end
@@ -166,17 +166,9 @@ module Suse
         case response
         when Net::HTTPSuccess, Net::HTTPRedirection
           return response
-          #when Net::HTTPUnauthorized
-          #raise UnauthorizedError, error_doc( response.read_body )
-          #when Net::HTTPForbidden
-          #raise ForbiddenError, error_doc( response.read_body )
-          #when Net::HTTPClientError, Net::HTTPServerError
-          #raise HTTPError, error_doc( response.read_body )
-        when Net::HTTPNotFound
-          raise NotFoundError, response
+        else
+          raise HTTPError, response
         end
-
-        raise HTTPError, response
       end
 
     end

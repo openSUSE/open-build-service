@@ -195,16 +195,22 @@ class ApplicationController < ActionController::Base
     #FIXME: not all exceptions are caught by this method
     case exception
     when ::Suse::Backend::HTTPError
-      response = exception.message
-      case response
-    when Net::HTTPForbidden
-      message = "Permission Denied"
-    else
-      message = "Backend Error: #{response.code}"
-    end
-      render_error :message => message, :status => response.code,
-        :details => response.body
-      return true
+
+      xml = REXML::Document.new( exception.message.body )
+      http_status = xml.root.attributes['code']
+
+      unless xml.root.attributes.include? 'origin'
+        xml.root.add_attribute "origin", "backend"
+      end
+
+      xml_text = String.new
+      xml.write xml_text
+
+      render :text => xml_text, :status => http_status
+
+      #render_error :message => message, :status => response.code,
+      #  :details => response.body
+      return
     when ActiveXML::Transport::NotFoundError
       render_error :message => exception.message, :status => 404
       return
@@ -312,4 +318,37 @@ class ApplicationController < ActionController::Base
   def ichain_test_user
       ICHAIN_TEST_USER
   end
+
+  # Passes control to subroutines determined by action and a request parameter. By 
+  # default the parameter assumed to contain the command is ':cmd'. Looks for a method
+  # named <action>_<command>
+  #
+  # Example:
+  #
+  # If you call dispatch_command from an action 'index' with the query parameter cmd
+  # having the value 'show', it will call the method 'index_show'
+  #
+  def dispatch_command(opt={})
+    defaults = {
+      :cmd_param => :cmd
+    }
+    opt = defaults.merge opt
+    unless params.has_key? opt[:cmd_param]
+      render_error :status => 400, :errorcode => "missing_parameter'",
+        :message => "missing parameter '#{opt[:cmd_param]}'"
+      return
+    end
+
+    cmd_handler = "#{params[:action]}_#{params[opt[:cmd_param]]}"
+    logger.debug "dispatch_command: trying to call method '#{cmd_handler}'"
+
+    if not self.respond_to? cmd_handler, true
+      render_error :status => 400, :errorcode => "unknown_command",
+        :message => "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
+      return
+    end
+
+    __send__ cmd_handler
+  end
+
 end
