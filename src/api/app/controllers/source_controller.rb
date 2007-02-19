@@ -130,71 +130,7 @@ class SourceController < ApplicationController
         return
       end
 
-      logger.debug "CMD: #{cmd}"
-      if cmd == "createSpecFileTemplate"
-        specfile_path = "#{path}/#{package_name}.spec"
-        begin
-          backend_get( specfile_path )
-          render_error :status => 400, :errorcode => "spec_file_exists",
-            :message => "SPEC file already exists."
-          return
-        rescue ActiveXML::Transport::NotFoundError
-          specfile = File.read "#{RAILS_ROOT}/files/specfiletemplate"
-          backend_put( specfile_path, specfile )
-        end
-        render_ok
-      elsif cmd == "rebuild"
-        repo_name = params[:repo]
-        arch_name = params[:arch]
-
-        p = Project.find( project_name )
-
-        if repo_name
-          if not ( repo = p.repository( "@name='#{repo_name}'" ) )
-            render_error :status => 400, :errorcode => 'unknown_repository',
-              :message=> "Unknown repository '#{repo_name}'"
-            return
-          end
-
-          if arch_name
-            #both
-            Suse::Backend.delete_status project_name, repo_name, package_name, arch_name
-          else
-            #only repo
-            repo.each_arch do |arch|
-              Suse::Backend.delete_status project_name, repo.name, package_name, arch.to_s
-            end
-          end
-        else
-          if arch_name
-            #only arch
-            p.each_repository do |repo|
-              Suse::Backend.delete_status project_name, repo.name, package_name, arch_name
-            end
-          else
-            #neither
-            p.each_repository do |repo|
-              repo.each_arch do |arch|
-                Suse::Backend.delete_status project_name, repo.name, package_name, arch.to_s
-              end
-            end
-          end
-        end
-
-        render_ok
-      elsif cmd == "commit"
-        query << URI.escape("rev=#{cmd}")
-        query << URI.escape("rev=#{rev}") if rev
-        query << URI.escape("user=#{user}") if user
-        query << URI.escape("comment=#{comment}") if comment
-        query_string = query.join('&')
-        path += "?#{query_string}" unless query_string.empty?
-
-        forward_data path, :method => :post
-      else
-        render_error :status => 400, errorcode => 'unknown_command',
-          :message => "unknown command: #{cmd}"
-      end
+      dispatch_command
     end
   end
 
@@ -442,5 +378,72 @@ class SourceController < ApplicationController
       package.update_timestamp
       render_ok
     end
+  end
+
+  private
+
+  # POST /source/<project>/<package>?cmd=createSpecFileTemplate
+  def index_package_createSpecFileTemplate
+    specfile_path = "#{request.path}/#{params[:package]}.spec"
+    begin
+      backend_get( specfile_path )
+      render_error :status => 400, :errorcode => "spec_file_exists",
+        :message => "SPEC file already exists."
+      return
+    rescue ActiveXML::Transport::NotFoundError
+      specfile = File.read "#{RAILS_ROOT}/files/specfiletemplate"
+      backend_put( specfile_path, specfile )
+    end
+    render_ok
+  end
+
+  # POST /source/<project>/<package>?cmd=rebuild
+  def index_package_rebuild
+    project_name = params[:project]
+    package_name = params[:package]
+    repo_name = params[:repo]
+    arch_name = params[:arch]
+
+    p = Project.find( project_name )
+
+    if repo_name
+      if not ( repo = p.repository( "@name='#{repo_name}'" ) )
+        render_error :status => 400, :errorcode => 'unknown_repository',
+          :message=> "Unknown repository '#{repo_name}'"
+          return
+      end
+
+      if arch_name
+        #both
+        Suse::Backend.delete_status project_name, repo_name, package_name, arch_name
+      else
+        #only repo
+        repo.each_arch do |arch|
+          Suse::Backend.delete_status project_name, repo.name, package_name, arch.to_s
+        end
+      end
+    else
+      if arch_name
+        #only arch
+        p.each_repository do |repo|
+          Suse::Backend.delete_status project_name, repo.name, package_name, arch_name
+        end
+      else
+        #neither
+        p.each_repository do |repo|
+          repo.each_arch do |arch|
+            Suse::Backend.delete_status project_name, repo.name, package_name, arch.to_s
+          end
+        end
+      end
+    end
+
+    render_ok
+  end
+
+  # POST /source/<project>/<package>?cmd=commit
+  def index_package_commit
+    path = request.path + "?" + request.query_string
+    forward_data path, :method => :post
   end
 end
