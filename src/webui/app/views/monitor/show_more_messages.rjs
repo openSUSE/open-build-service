@@ -1,0 +1,4 @@
+
+page.replace_html 'status_messages', :partial => 'status_messages'
+page.visual_effect :shake, 'status_messages'
+

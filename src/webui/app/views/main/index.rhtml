@@ -38,7 +38,7 @@ Most of the advanced features are still missing, but the basic build functionali
       <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li>
       <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
       <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
-      <li><%= link_to "Monitor Build Status", :controller => "monitor", :action => :index %></li>
+      <li><%= link_to "Build Service Status", :controller => "monitor", :action => :index %></li>
     </ul>
 <% else -%>
   <p class="description">If you are a packager and want to add / edit packages, you have to

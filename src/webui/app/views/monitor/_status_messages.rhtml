@@ -1,0 +1,76 @@
+<div id="status_messages">
+  <h2>
+    Status Messages
+    <%= link_to_remote image_tag("list-add", :title => "Add new message", :border => 0),
+      :update => 'add_message_form_area',
+      :url => { :action => "add_message_form" },
+      :loading => "toggle_visibility('message_form_spinner')",
+      :complete => "toggle_visibility('message_form_spinner')" %>
+    <%= image_tag 'rotating-tail.gif', :id=> 'message_form_spinner',
+      :style => "visibility:hidden;" -%>
+    <span id="error_message" style="display:none;"></span>
+  </h2>
+
+  <span id="add_message_form_area"></span>
+
+  <table>
+    <tr>
+      <th>&nbsp;</th>
+      <th>Message</th>
+      <th>&nbsp;</th>
+      <th>time entered</th>
+      <th>by user</th>
+    <tr>
+    <% @status_messages.each_message do |msg| %>
+      <tr>
+        <td>
+          <% case msg.severity.to_i
+          when 3 %>
+            <%= image_tag 'status_red' -%>
+          <% when 2 %>
+            <%= image_tag 'status_yellow' -%>
+          <% when 1 %>
+            <%= image_tag 'status_green' -%>
+          <% else %>
+            <%= image_tag 'info' -%>
+          <% end %>
+        </td>
+        <td style="border-bottom: 1px #ddd dotted;">
+          <% if msg.deleted_at.empty? %>
+            <%=h msg.to_s %>
+          <% else %>
+            <span class="greyed-out">
+            <%=h msg.to_s %>
+            <i>(deleted
+              <%= distance_of_time_in_words_to_now(
+                Time.parse(msg.deleted_at) ) -%> ago)
+            </i>
+            </span>
+          <% end %>
+        </td>
+        <td>
+          <% if msg.deleted_at.empty? %>
+            <%= link_to_remote image_tag( 'delete', :border => 0,
+              :title => 'Mark message as deleted' ), :url => {
+              :action => 'delete_message', :id => msg.msg_id } %>
+          <% else %>
+            &nbsp;
+          <% end %>
+        </td>
+        <td class="greyed-out">
+          <nobr>
+            <%= distance_of_time_in_words_to_now( Time.parse(msg.created_at) ) %>
+            ago
+          </nobr>
+        </td>
+        <td class="greyed-out">
+          <%= msg.user %>
+        </td>
+      </tr>
+      <% end %>
+  </table>
+  <p>
+    <%= link_to_remote 'Show more messages ...',
+      :url => { :action => 'show_more_messages' } -%>
+  </p>
+</div>
