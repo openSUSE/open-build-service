@@ -97,11 +97,9 @@ class ProjectController < ApplicationController
     end
 
     @arch_list = tmp.keys.sort
-
     @packstatus = Packstatus.find( params[:project], :command => 'summaryonly' )
-  
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
-    
+    @rating = Rating.find( :project => @project )
   end
 
   def get_tags(params)
@@ -124,6 +122,7 @@ class ProjectController < ApplicationController
 
     @tags = Tag.find(:user => @session[:login], :project => @project.name)
     @downloads = Downloadcounter.find( :project => @project )
+    @rating = Rating.find( :project => @project )
   end
 
   

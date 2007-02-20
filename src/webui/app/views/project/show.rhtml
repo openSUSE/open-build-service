@@ -10,6 +10,7 @@
 
 <h2 id="mainhead"><%=h @project.title %></h2>
 <h4>Project ID: <%=h @project %></h4>
+<%= render :partial => 'shared/star_rating' -%>
 
 <%= render :partial => "watch_link" %>
 

@@ -1,8 +1,13 @@
+
 <ul class='star-rating'>
-  <li class='current-rating' style='width:70%;'>Currently 3.5/5 Stars.</li>
+  <li class='current-rating'
+    style='width:<%= ( @rating.to_s.to_f / 5 ) * 100 -%>%;'>
+    Currently <%= @rating.to_s -%>/5 Stars.
+  </li>
   <li><a href='#' title='1 star out of 5' class='one-star'>1</a></li>
   <li><a href='#' title='2 stars out of 5' class='two-stars'>2</a></li>
   <li><a href='#' title='3 stars out of 5' class='three-stars'>3</a></li>
   <li><a href='#' title='4 stars out of 5' class='four-stars'>4</a></li>
   <li><a href='#' title='5 stars out of 5' class='five-stars'>5</a></li>
 </ul>
+

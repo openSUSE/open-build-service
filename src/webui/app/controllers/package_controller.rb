@@ -98,6 +98,7 @@ class PackageController < ApplicationController
           end
         end
         @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
+        @rating = Rating.find( :project => @project, :package => @package )
       end
     end
   end
@@ -121,6 +122,7 @@ class PackageController < ApplicationController
 
     @tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
     @downloads = Downloadcounter.find( :project => project, :package => package )
+    @rating = Rating.find( :project => @project, :package => @package )
   end
 
   def new
