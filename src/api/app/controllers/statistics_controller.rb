@@ -86,6 +86,14 @@ class StatisticsController < ApplicationController
 
 
   def redirect_stats
+
+    # check permissions
+    unless permissions.set_download_counters
+      render_error :status => 403, :errorcode => "permission denied",
+        :message => "download counters cannot be set, insufficient permissions"
+      return
+    end
+
     # get download statistics from redirector as xml
     if request.put?
       download_stats = ActiveXML::Base.new( request.raw_post )
