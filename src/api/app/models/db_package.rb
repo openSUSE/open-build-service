@@ -280,4 +280,16 @@ class DbPackage < ActiveRecord::Base
                           :created => created_at.xmlschema
                          )
   end
+
+
+  def rating
+    score = 0
+    self.ratings.each do |rating|
+      score += rating.score
+    end
+    score = score.to_f
+    score /= self.ratings.length
+  end
+
+
 end

@@ -24,6 +24,61 @@ class StatisticsController < ApplicationController
   end
 
 
+  def rating
+    @package = params[:package]
+    @project = params[:project]
+
+    begin
+      object = DbProject.find_by_name @project
+      object = DbPackage.find :first, :conditions =>
+        [ 'name=? AND db_project_id=?', @package, object.id ] if @package
+      throw if object.nil?
+    rescue
+      @package = @project = @rating = object = nil
+      return
+    end
+
+    if request.get?
+
+      @rating = object.rating
+      @rating = -1 if @rating.to_f.nan?
+
+    elsif request.put?
+
+      # try toget previous rating of this user for this object
+      previous_rating = Rating.find :first, :conditions => [
+        'object_type=? AND object_id=? AND user_id=?',
+        object.class.name, object.id, @http_user.id
+      ]
+      # every user should be able to rate every object only once
+      if previous_rating
+        render_error :status => 400, :errorcode => "no more rating allowed",
+          :message => "user #{@http_user.login} already rated " +
+          "#{@project} #{@package}"
+      else
+        begin
+          data = ActiveXML::Base.new( request.raw_post )
+          rating = Rating.new
+          rating.score = data.to_s.to_i
+          rating.object_type = object.class.name
+          rating.object_id = object.id
+          rating.user_id = @http_user.id
+          rating.save
+        rescue
+          render_error :status => 400, :errorcode => "error setting rating",
+            :message => "rating not saved"
+          return
+        end
+        render_ok
+      end
+
+    else
+      render_error :status => 400, :errorcode => "invalid_method",
+        :message => "only GET or PUT method allowed for this action"
+    end
+  end
+
+
   def download_counter
 
     project = params[:project]

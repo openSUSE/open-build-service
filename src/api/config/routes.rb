@@ -117,6 +117,13 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'statistics/download_counter/:project/:package/:repository/:architecture',
     :controller => 'statistics', :action => 'download_counter'
 
+  # Ratings
+  #
+  map.connect 'statistics/rating/:project',
+    :controller => 'statistics', :action => 'rating'
+  map.connect 'statistics/rating/:project/:package',
+    :controller => 'statistics', :action => 'rating'
+
 
   # Routes for status_messages
   # --------------------------
