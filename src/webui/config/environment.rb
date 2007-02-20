@@ -109,5 +109,10 @@ ActiveXML::Base.config do |conf|
       :repo => "rest:///statistics/download_counter?repository=:repo&limit=:limit",
       :all => "rest:///statistics/download_counter?limit=:limit"
 
+    # Status Messages
+    map.connect :statusmessage, "rest:///status_message/:id/?limit=:limit",
+      :all => "rest:///status_message/:id/?limit=:limit"
+
+
   end
 end
