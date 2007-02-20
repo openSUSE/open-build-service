@@ -22,7 +22,7 @@
   <!-- repo row -->
   <tr class="header">
     <td></td>
-    <% @repohash.each do |repo,archlist| -%>
+    <% @repohash.sort.each do |repo,archlist| -%>
     <th colspan="<%=h archlist.length %><strong>"><%=h repo %></strong></th>
     <% end -%>
     <th>&nbsp;</th>
@@ -30,7 +30,7 @@
   <!-- arch row -->
   <tr>
     <td></td>
-    <% @repohash.each do |repo, archlist| -%>
+    <% @repohash.sort.each do |repo, archlist| -%>
     <% archlist.each do |arch| -%>
     <th><%=h arch %></th>
     <% end -%>
@@ -39,12 +39,12 @@
   </tr>
   <!-- package rows -->
   <% @failed ||= {} %>
-  <% @packagenames.each do |packname| -%>
+  <% @packagenames.sort.each do |packname| -%>
   <% @failed[packname] = false %>
   <tr>
     <td><%= link_to packname, :controller => "package", :action => "show",
       :package => packname, :project => @project.to_s %></td>
-    <% @repohash.each do |repo, archlist| -%>
+    <% @repohash.sort.each do |repo, archlist| -%>
     <% archlist.each do |arch| -%>
       <%
         status = @statushash[repo][arch][packname]
@@ -86,4 +86,5 @@
 </p>
 <% end -%>
 
-<%= link_to "[Back to #{@project}]", :action => :show, :project => @project %>
+<p><%= link_to "[Back to #{@project}]", :action => :show, :project => @project %></p>
+<p><%= link_to "[Build Status Monitor]", :controller => "monitor", :action => :index %></p>
