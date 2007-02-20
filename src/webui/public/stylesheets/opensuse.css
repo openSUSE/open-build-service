@@ -644,6 +644,12 @@ div#package_disablebuild ul {
   padding: 0 0.4em 0 0.4em;
 }
 
+#status_messages table {
+  font-size: 0.9em;
+  border: 1px #6eb927 dotted;
+  padding: 0.25em;
+}
+
 #mainsearch form input[type=text] {
   width: 10em;
 }
@@ -801,3 +807,18 @@ strong.highlight {
   color: #c00;
 }
 
+#error_message {
+  font-size: 0.6em;
+  font-weight: normal;
+  color: #000;
+  padding: 14px 12px 14px 42px;
+  margin: 1em 0 1em;
+  background: url(../images/dialog-error.png) no-repeat 12px 50%;
+  background-color: #fdeeee;
+  border: 1px solid #f69393;
+  vertical-align: middle;
+}
+
+#add_message_form_area input[type="text"] {
+  width: 45em;
+}
