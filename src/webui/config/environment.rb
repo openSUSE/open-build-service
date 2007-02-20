@@ -108,6 +108,7 @@ ActiveXML::Base.config do |conf|
       :arch => "rest:///statistics/download_counter?architecture=:arch&limit=:limit",
       :repo => "rest:///statistics/download_counter?repository=:repo&limit=:limit",
       :all => "rest:///statistics/download_counter?limit=:limit"
+    map.connect :rating, "rest:///statistics/rating/:project/:package"
 
     # Status Messages
     map.connect :statusmessage, "rest:///status_message/:id/?limit=:limit",

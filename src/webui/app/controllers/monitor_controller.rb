@@ -50,7 +50,7 @@ class MonitorController < ApplicationController
   def get_status_messages( limit=nil )
     limit ||= params[:message_limit]
     limit = 4 if limit.nil?
-    return Statusmessage.find :all, :limit => limit
+    return Statusmessage.find( :all, :limit => limit )
   end
 
 
