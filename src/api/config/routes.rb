@@ -118,6 +118,12 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'statistics', :action => 'download_counter'
 
 
+  # Routes for status_messages
+  # --------------------------
+  map.connect 'status_message/:id',
+    :controller => 'status_message', :action => 'index'
+
+
   map.connect 'source/:project/:package/:file', :controller => "source",
     :action => 'file'
     
