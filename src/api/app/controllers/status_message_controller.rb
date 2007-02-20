@@ -20,7 +20,7 @@ class StatusMessageController < ApplicationController
         return
       end
 
-      new_messages = ActiveXML::Base.new( request.raw_post )
+      new_messages = ActiveXML::Node.new( request.raw_post )
 
       begin
         if new_messages.has_element? 'message'
@@ -28,7 +28,7 @@ class StatusMessageController < ApplicationController
           new_messages.each_message do |msg|
             message = StatusMessage.new
             message.message = msg.to_s
-            message.message = msg.severity
+            message.severity = msg.severity
             message.user = @http_user
             message.save
           end
