@@ -136,6 +136,8 @@ class ApplicationController < ActionController::Base
       # but the exception handling seems to be buggy atm
       if @code == "unregistered_ichain_user"
         redirect_to :controller => 'user', :action => 'request_ichain'
+      elsif @code == "no more rating allowed"
+        logger.debug "no more rating allowed"
       else
         logger.debug "default exception handling"
         render_error :code => @code, :message => @message, :exception => @exception, :api_exception => @api_exception
