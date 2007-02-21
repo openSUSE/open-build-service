@@ -351,3 +351,84 @@ Fri Feb 02 14:49:02 +0100 2007 - bauersman
 - added link to build status monitor on webclient index page
 
 
+------------------------------------------------------------------------
+Wed Feb 21 11:50:21 +0100 2007 - bauersman
+
+- update from svn revision 1175 to 1312
+- altered a mistakable formulation, it's only a temporary solution for a missing function
+- removed old downloads counter (superseded by new, detailed statistics)
+- moved statistics in webclient to own 'statistics' action
+- fixed 'add person' link for packages and projects in webclient
+- focusing the filter field breaks keyboard usage.
+- added missing user parameter for read only view.
+- removed (old) downloads count from readonly package view
+- renamed elements in latest_added/_updated collections to
+  packages/projects instead of just 'item' with a kind-attribute
+- added 'trigger rebuild' button next to packages with status 'failed' in
+  project status monitor
+- the "My Tags" tab (tag cloud) is now preselected
+- added missing client count
+  enhanced project build status monitor in webclient:
+- switched to css for status entries
+- added rebuild button for specific repos/archs if building failed
+- every entry in the monitor table links now to it's build-log
+  (thanks to Dirk Stoecker for his motivation/proposal)
+- corrected little typo
+- project- and package-description is now shown as title on mouse-over 
+- only one view for the tag-dependent list of projects and packages.
+  
+- new icons for webclient
+- added styles for download_statistics details table
+- added weblient models and appropriate api-connections for:
+ - latest_added
+ - latest_updated
+ - downloadcounter
+- added download_statistics details browser to webclient
+- adapted main_controller for new statistics api-connections
+- added pagetitle to every page in the webclient, to be able to identify
+  pages better in browser history
+- corrected redirection after 'trigger rebuild' when called from monitor page.
+  many thanks to Dirk Stoecker.
+- added project name to project status monitor pagetitle
+- changed pagetitle to show essential information first ...
+- show implicit maintainers if no explicit maintainers are set
+- bugfix in delete package link
+- removed double displayed build status monitor filter
+  (when filtered by normal get-request AND by ajax-filter).
+- improvement to the tag edit view.
+- added ability to the webclient, to limit the count of results when getting
+  downloadcounters from the frontend
+- added download stats for the readonly view of packages and projects
+- some more pagetitles
+- more improvements to the tag edit view
+- modified last build status monitor patch, display correct active filter
+  message
+- added closing div tag
+- tags used by other users can be displayed in the project and package view
+- modified the formatting for the list of objects (projects and packages) with tags.
+- added an axml config for tagging support 
+- entity encoding for the pre-formatted text in build log display.
+  thanks to dirk stoecker.
+- use https instead of http in webclient-to-frontend connections
+- changed the javascript code on the live buildlog, so now start/stop
+  button appear when necessary and the buttons are also below the text.
+  now clicking on autoscroll+refresh below the text is possible.
+  thanks to dirk.
+- tag cloud refresh for edit-tag-view
+  added some ajax effects 
+- corrected false file link
+- new icons for webclient
+- modified stylesheet for status_messages and error_message
+- activexml webclient config for status_messages
+- implementation of status_messages in webclient
+  (in the monitor controller index page for now)
+- sort the packages / repositories at the status monitoring page.
+  thanks to dirk.
+- renamed the "All Tags" toggle
+- the toggle modifies its designation dependent on its status. thx2dmayr ;)
+- added a mouse-over message
+- added some mouse-over messages
+- new rating model and activexml-config for the webclient
+- implemented readonly rating system in webclient
+
+
