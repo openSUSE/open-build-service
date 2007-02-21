@@ -239,3 +239,88 @@ Fri Feb 02 14:38:09 +0100 2007 - bauersman
 - add _workerstatus route
 
 
+------------------------------------------------------------------------
+Wed Feb 21 11:49:04 +0100 2007 - bauersman
+
+- update from svn revision 1173 to 1310
+- enabled xml validation for tags
+- tags with weight = 0 no longer displayed in the tag cloud
+- fixed the problem with the duplicate entries in the package and project list in the  "show objects by tag view"
+  frontend-/api-work for download_stats:
+- migration for download_stats data table
+- new download_stat model
+- adapted other models for download_stats
+- extended statistics_controller for download_stats:
+  - import xml data from redirector (http/put) into new database table
+  - interface for getting download_stats from api with flexible filters
+  
+- removed old downloads counter (superseded by new, detailed statistics)
+- moved statistics in webclient to own 'statistics' action
+- added test fixture for download_stats
+- avoid spaces around counter value in download_count xml output
+- renamed elements in latest_added/_updated collections to
+  packages/projects instead of just 'item' with a kind-attribute
+  updated functional api-tests:
+- added fixtures for packages, projects, repositories and download_stats
+- updated latest_updated test
+- updated latest_added
+- created download_counter tests, with and without concatenation
+  
+- added a new model for tag-clouds
+- moved tag-cloud related functions from the tag-controller into the tag-cloud model
+- tag-count is now calculated in the tag model
+- tag-weight is calculated in the tag-cloud model, it depends on the used algorithm
+- replaced the tag-cloud view 
+- Improved the tag-administration interface.
+- added more information to the interface (tag-count and created at)
+- added sorting (DESC, ASC)
+- added a simple summary (number of tags, not used tags)
+- unused tags can be deleted all at once.  ;)
+- corrected an error in the tag cloud algorithm.
+- formatted the source code
+- added exception handling
+- project- and package-description is now shown as title on mouse-over 
+- project- and package-description is now shown as title on mouse-over (The third commit to the topic, which I forgot.)
+- return correct project name, if download_stats are concatenated by
+  package in frontend
+- added projectname in download_counter xml output, if type == package
+- added ability to limit count of download_counter results (top10, top100, ...)
+  in frontend
+- fixed empty tag cloud error
+- use build in .empty? method. thx to darix. 
+- added tags to the list of projects and packages
+- moved RAILS_ROOT/lighttpd fix to environment.rb to avoid accumulating
+  load paths when reloading files in devel mode
+- new migration to be able to rate packages/projects
+- resolved a problem with double entries in the tag list
+- defined some functions as private.
+- created rating model and relations to packages and projects
+- new migration for status_messages
+- new model for status_messages
+- added status_message_controller (get and put already implemented, delete is
+  still todo)
+- arranged the tag cloud entries alphabetically.
+- allow users to create projects below their home namespace if they
+  don't have the global_project_create flag
+- GET/PUT /source/<project>/_config
+- don't treat backend status messages as plain text
+- code cleanup
+  new migrations for status_messages:
+- add severity
+- add permissions (active_rbac) for status_messages
+  frontend modifications for status_messages:
+- allow sending single or mutliple status_messages via put request
+- allow deletion of messages by id
+- new route
+- new migration to add (active_rbac) permissions for download counters
+- check permissions while uploading new download counters
+- use ActiveXML::Node instead of ActiveXML::Base for temporary object
+- corrected copy&paste error
+- new frontend routes for ratings
+- rating methods for projects and packages: return average rating score
+- new statistics::rating action:
+  - set ratings via put request
+  - get rating for specified package / project via get request
+- added POST /build/<project> route
+
+
