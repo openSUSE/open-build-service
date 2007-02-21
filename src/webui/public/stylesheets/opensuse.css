@@ -765,6 +765,7 @@ strong.highlight {
 
 .public_tag  {
 	 border-bottom: 1px #AAA dotted;
+	 margin:0 0.2em 0 0;
 }
 .user_tag { 
 }
