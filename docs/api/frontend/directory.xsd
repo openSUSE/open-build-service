@@ -17,8 +17,10 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="entry" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="linkinfo" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
-      <xs:attribute name="count" type="xs:string"/>
+      <xs:attribute name="rev" type="xs:string"/>
+      <xs:attribute name="srcmd5" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -30,6 +32,30 @@
     </xs:annotation>
     <xs:complexType>
       <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="size" type="xs:string"/>
+      <xs:attribute name="md5" type="xs:string"/>
+      <xs:attribute name="mtime" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="binary">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="size" type="xs:string"/>
+      <xs:attribute name="mtime" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="linkinfo">
+    <xs:annotation>
+      <xs:documentation>
+        Information about the source link.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="project" type="xs:string"/>
+      <xs:attribute name="package" type="xs:string"/>
+      <xs:attribute name="srcmd5" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
