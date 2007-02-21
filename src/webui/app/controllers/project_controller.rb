@@ -471,6 +471,24 @@ class ProjectController < ApplicationController
     render :partial => "watch_link"
   end
 
+
+  def rate
+    score = params[:score] or return
+    rating = Rating.new( :score => score,
+      :project => params[:project], :package => params[:package]
+    )
+    begin
+      rating.save
+    rescue ActiveXML::Transport::Error => exception
+      rescue_action_in_public exception
+      @denied = "#{@code}: #{@message}"
+    end
+    @rating = Rating.find( :project => params[:project] )
+  end
+
+
+
+
   private
 
   #filters

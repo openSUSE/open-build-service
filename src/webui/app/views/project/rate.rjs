@@ -1,0 +1,17 @@
+
+if not @denied
+  page.replace_html 'rating', :partial => 'shared/star_rating'
+  page.visual_effect :shake, 'rating'
+  page.replace_html 'info_message', 'rating updated'
+  page.show 'info_message'
+  page.delay(4) do
+    page.hide 'info_message'
+  end
+else
+  page.replace_html 'error_message', @denied
+  page.show 'error_message'
+  page.delay(4) do
+    page.hide 'error_message'
+  end
+end
+

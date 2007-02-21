@@ -1,13 +1,46 @@
 
+<span id="rating">
 <ul class='star-rating'>
-  <li class='current-rating'
-    style='width:<%= ( @rating.to_s.to_f / 5 ) * 100 -%>%;'>
-    Currently <%= @rating.to_s -%>/5 Stars.
+
+  <% percent = ( @rating.to_s.to_f / 5 ) * 100 %>
+  <% ctrl = params[:controller] %>
+  <%
+    if @rating.count == '0'
+      current = "currently not yet rated."
+    else
+    current = "currently #{@rating.to_s} stars " +
+      "(rated #{@rating.count} times)."
+    end
+  %>
+
+  <li class='current-rating' style='width: <%= percent -%>%;'>current</li>
+
+  <li>
+    <%= link_to_remote '1', { :url => { :controller => ctrl, :action => 'rate',
+      :score => 1, :project => @project, :package => @package } },
+      :title => "Rate 1 star out of 5, #{current}", :class => 'one-star' -%>
   </li>
-  <li><a href='#' title='1 star out of 5' class='one-star'>1</a></li>
-  <li><a href='#' title='2 stars out of 5' class='two-stars'>2</a></li>
-  <li><a href='#' title='3 stars out of 5' class='three-stars'>3</a></li>
-  <li><a href='#' title='4 stars out of 5' class='four-stars'>4</a></li>
-  <li><a href='#' title='5 stars out of 5' class='five-stars'>5</a></li>
+  <li>
+    <%= link_to_remote '2', { :url => { :controller => ctrl, :action => 'rate',
+      :score => 2, :project => @project, :package => @package } },
+      :title => "Rate 2 stars out of 5, #{current}", :class => 'two-stars' -%>
+  </li>
+  <li>
+    <%= link_to_remote '3', { :url => { :controller => ctrl, :action => 'rate',
+      :score => 3, :project => @project, :package => @package } },
+      :title => "Rate 3 stars out of 5, #{current}", :class => 'three-stars' -%>
+  </li>
+  <li>
+    <%= link_to_remote '4', { :url => { :controller => ctrl, :action => 'rate',
+      :score => 4, :project => @project, :package => @package } },
+      :title => "Rate 4 stars out of 5, #{current}", :class => 'four-stars' -%>
+  </li>
+  <li>
+    <%= link_to_remote '5', { :url => { :controller => ctrl, :action => 'rate',
+      :score => 5, :project => @project, :package => @package } },
+      :title => "Rate 5 stars out of 5, #{current}", :class => 'five-stars' -%>
+  </li>
+
 </ul>
+</span>
 

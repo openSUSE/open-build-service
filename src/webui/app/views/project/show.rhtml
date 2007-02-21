@@ -8,9 +8,15 @@
 ]
 -%>
 
-<h2 id="mainhead"><%=h @project.title %></h2>
-<h4>Project ID: <%=h @project %></h4>
-<%= render :partial => 'shared/star_rating' -%>
+<span id="error_message" style="display:none;"></span>
+<span id="info_message"  style="display:none;"></span>
+
+<table>
+  <tr>
+    <td><h2><%=h @project.title %> (<%=h @project -%>)</h2></td>
+    <td><%= render :partial => 'shared/star_rating' -%></td>
+  </tr>
+</table>
 
 <%= render :partial => "watch_link" %>
 
