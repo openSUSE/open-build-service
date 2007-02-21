@@ -314,7 +314,9 @@ class DbProject < ActiveRecord::Base
       score += rating.score
     end
     score = score.to_f
-    score /= self.ratings.length
+    count = self.ratings.length
+    score /= count
+    return { :score => score, :count => count }
   end
 
 

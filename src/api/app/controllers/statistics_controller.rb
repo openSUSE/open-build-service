@@ -41,7 +41,7 @@ class StatisticsController < ApplicationController
     if request.get?
 
       @rating = object.rating
-      @rating = -1 if @rating.to_f.nan?
+      @rating[:score] = -1 if @rating[:score].to_f.nan?
 
     elsif request.put?
 
