@@ -16,26 +16,13 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect '/', :controller => 'main'
 
+  ### /person
+
   map.connect 'person/register', :controller => 'person', :action => 'register'
   map.connect 'person/:login/_roles', :controller => 'person', :action => 'roleinfo'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo'
 
-  map.connect 'rpm/:project/:repository/:arch/:package/history',
-    :controller => 'rpm',
-    :action => 'pass_to_repo'
-
-  map.connect 'rpm/:project/:repository/:arch/:package/buildinfo',
-    :controller => 'rpm',
-    :action => 'buildinfo'
-
-  map.connect 'rpm/:project/:repository/:arch/:package/status',
-    :controller => 'rpm',
-    :action => 'pass_to_repo'
-
-  map.connect 'rpm/:project/:repository/:package/:arch/:file',
-    :controller => 'rpm',
-    :action => 'file'
-
+  ### /result
   
   map.connect 'result/:project/result', :controller => 'result',
     :action => 'projectresult'
@@ -49,59 +36,77 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'result',
     :action => 'log'
 
+ ### /platform
   
   map.connect 'platform/:project/:repository', :controller => 'platform',
     :action => 'repository'
   map.connect 'platform/:project', :controller => 'platform',
     :action => 'project'
 
+  ### /source
+
+  map.connect 'source/:project/:package/_meta', :controller => 'source',
+    :action => 'package_meta'
+  map.connect 'source/:project/:package/_tags', :controller => 'tag',
+    :action => 'package_tags'
+  map.connect 'source/:project/:package/:file', :controller => "source",
+    :action => 'file'
   map.connect 'source/:project/_meta', :controller => 'source',
     :action => 'project_meta'
   map.connect 'source/:project/_config', :controller => 'source',
     :action => 'project_config'
-  map.connect 'source/:project/:package/_meta', :controller => 'source',
-    :action => 'package_meta'
+  map.connect 'source/:project/_tags', :controller => 'tag',
+    :action => 'project_tags'
+  map.connect 'source/:project/:package', :controller => "source",
+    :action => 'index_package'
+  map.connect 'source/:project', :controller => "source",
+    :action => 'index_project'
+
+
+  ### /tag
 
   #routes for tagging support  
   #
   # map.connect 'tag/_all', :controller => 'tag',
   #  :action => 'list_xml'
   #Get/put tags by object
-  	map.connect 'source/:project/_tags', :controller => 'tag',
-      :action => 'project_tags'
-	map.connect 'source/:project/:package/_tags', :controller => 'tag',
-      :action => 'package_tags'   
+  ### moved to source section
   
   #Get objects by tag.
-    map.connect 'tag/:tag/_projects', :controller => 'tag',
-      :action => 'get_projects_by_tag'
-    map.connect 'tag/:tag/_packages', :controller => 'tag',
-      :action => 'get_packages_by_tag'
-    map.connect 'tag/:tag/_all', :controller => 'tag',
-      :action => 'get_objects_by_tag'
- 
-  #Get objects tagged by user. (objects with tags)
-    map.connect 'user/:user/tags/_projects', :controller => 'tag',
-      :action => 'get_tagged_projects_by_user'
-    map.connect 'user/:user/tags/_packages', :controller => 'tag',
-      :action => 'get_tagged_packages_by_user'
-  
-  #Get tags by user.	
-    map.connect 'user/:user/tags/_tagcloud', :controller => 'tag',
-      :action =>  'tagcloud'
-    #map.connect 'user/:user/tags', :controller => 'tag',
-    #  :action => 'tagcloud', :distribution => 'raw'
-  
-  #Get tags for a certain object by user.
-    map.connect 'user/:user/tags/:project', :controller => 'tag',
-      :action => 'tags_by_user_and_object'  
-    map.connect 'user/:user/tags/:project/:package', :controller => 'tag',
-      :action => 'tags_by_user_and_object'  
-  
+  map.connect 'tag/:tag/_projects', :controller => 'tag',
+    :action => 'get_projects_by_tag'
+  map.connect 'tag/:tag/_packages', :controller => 'tag',
+    :action => 'get_packages_by_tag'
+  map.connect 'tag/:tag/_all', :controller => 'tag',
+    :action => 'get_objects_by_tag'
+
   #Get a tagcloud including all tags.
-    map.connect 'tag/_tagcloud', :controller => 'tag',
+  map.connect 'tag/_tagcloud', :controller => 'tag',
     :action => 'tagcloud'
 
+  
+  ### /user
+ 
+  #Get objects tagged by user. (objects with tags)
+  map.connect 'user/:user/tags/_projects', :controller => 'tag',
+    :action => 'get_tagged_projects_by_user'
+  map.connect 'user/:user/tags/_packages', :controller => 'tag',
+    :action => 'get_tagged_packages_by_user'
+  
+  #Get tags by user.	
+  map.connect 'user/:user/tags/_tagcloud', :controller => 'tag',
+    :action =>  'tagcloud'
+  #map.connect 'user/:user/tags', :controller => 'tag',
+  #  :action => 'tagcloud', :distribution => 'raw'
+  
+  #Get tags for a certain object by user.
+  map.connect 'user/:user/tags/:project', :controller => 'tag',
+    :action => 'tags_by_user_and_object'  
+  map.connect 'user/:user/tags/:project/:package', :controller => 'tag',
+    :action => 'tags_by_user_and_object'  
+  
+
+  ### /statistics
 
   # Routes for statistics
   # ---------------------
@@ -125,19 +130,15 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'statistics', :action => 'rating'
 
 
+  ### /status_message
+
   # Routes for status_messages
   # --------------------------
   map.connect 'status_message/:id',
     :controller => 'status_message', :action => 'index'
 
 
-  map.connect 'source/:project/:package/:file', :controller => "source",
-    :action => 'file'
-    
-  map.connect 'source/:project/:package', :controller => "source",
-    :action => 'index_package'
-  map.connect 'source/:project', :controller => "source",
-    :action => 'index_project'
+  ### /search
 
   map.connect 'search/project/id', :controller => "search", :action => "project_id"
   map.connect 'search/package/id', :controller => "search", :action => "package_id"
@@ -145,40 +146,57 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'search/package', :controller => "search", :action => "package"
   map.connect 'search', :controller => "search", :action => "pass_to_source"
 
+
+  ### /build
+
   map.connect 'build/:project/:repository/:arch/:package/_status',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/_log',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/:filename',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/_buildconfig',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/_result',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project',
-        :controller => "build", :action => "project_index", :controller => 'build'
+    :controller => "build", :action => "project_index"
   map.connect 'build/_workerstatus',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
   map.connect 'build',
-        :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source"
 
-
-    
+ 
+  ### /apidocs
 
   map.apidocs 'apidocs/', :controller => "apidocs"
 
   map.connect '/active_rbac/registration/confirm/:user/:token',
-              :controller => 'active_rbac/registration',
-              :action => 'confirm'
+    :controller => 'active_rbac/registration', :action => 'confirm'
 
+
+  ### DEPRECATED
+
+  ### /rpm
+
+  map.connect 'rpm/:project/:repository/:arch/:package/history',
+    :controller => 'rpm', :action => 'pass_to_repo'
+  map.connect 'rpm/:project/:repository/:arch/:package/buildinfo',
+    :controller => 'rpm', :action => 'buildinfo'
+  map.connect 'rpm/:project/:repository/:arch/:package/status',
+    :controller => 'rpm', :action => 'pass_to_repo'
+  map.connect 'rpm/:project/:repository/:package/:arch/:file',
+    :controller => 'rpm', :action => 'file'
+
+ 
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action'
