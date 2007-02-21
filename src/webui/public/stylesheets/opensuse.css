@@ -809,7 +809,7 @@ strong.highlight {
 }
 
 #error_message {
-  font-size: 0.6em;
+  font-size: 0.7em;
   font-weight: normal;
   color: #000;
   padding: 14px 12px 14px 42px;
@@ -818,6 +818,18 @@ strong.highlight {
   background-color: #fdeeee;
   border: 1px solid #f69393;
   vertical-align: middle;
+}
+
+#info_message {
+  font-size: 0.7em;
+  font-weight: normal;
+  color: #000;
+  padding: 14px 12px 14px 42px;
+  margin: 1em 0 1em;
+  background: url(../images/dialog-information.png) no-repeat 12px 50%;
+  border: 1px solid #b8e88a;
+  vertical-align: middle;
+  background-color: #f4fbec;
 }
 
 #add_message_form_area input[type="text"] {
