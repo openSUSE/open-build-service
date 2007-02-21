@@ -193,8 +193,8 @@ POST /source/<project>/<package>?cmd=commit&rev=<revision>&comment=<comment>&use
 Parameters:
 
   rev: revision, mandatory
-  comment: comment, mandatory
-  user: user, mandatory
+  comment: comment, optional
+  user: user, optional
 
 XmlResult: status
 
