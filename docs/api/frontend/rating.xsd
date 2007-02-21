@@ -20,6 +20,7 @@
   </xs:annotation>
     <xs:attribute name="project" type="xs:string" />
     <xs:attribute name="package" type="xs:string" />
+    <xs:attribute name="count" type="xs:nonNegativeInteger" />
   </xs:complexType>
 
   <xs:element name="rating" type="rating" />
