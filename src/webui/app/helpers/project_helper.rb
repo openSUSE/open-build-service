@@ -49,7 +49,7 @@ module ProjectHelper
       ret << "n/a<br>"
     else
       psl.each_packstatussummary do |pss|
-        ret << "#{pss.status}: #{pss.count}<br>\n"
+        ret << "#{pss.status}:&nbsp;#{pss.count}<br>\n"
       end
     end
     #logger.debug "returning: #{ret.inspect}"
