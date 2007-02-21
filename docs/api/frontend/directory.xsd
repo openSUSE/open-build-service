@@ -38,14 +38,6 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="binary">
-    <xs:complexType>
-      <xs:attribute name="name" type="xs:string"/>
-      <xs:attribute name="size" type="xs:string"/>
-      <xs:attribute name="mtime" type="xs:string"/>
-    </xs:complexType>
-  </xs:element>
-
   <xs:element name="linkinfo">
     <xs:annotation>
       <xs:documentation>
