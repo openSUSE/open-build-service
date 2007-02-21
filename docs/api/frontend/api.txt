@@ -136,7 +136,10 @@ XmlResult: status
 GET /source/<project>/<package>
 
   Get directory listing of all source files in the package
-  Parameters: rev=<revision>
+  
+Parameters: 
+  
+  rev: revision, optional
 
 
 GET /source/<project>/<package>/<filename>
@@ -186,6 +189,12 @@ XmlResult: status
 POST /source/<project>/<package>?cmd=commit&rev=<revision>&comment=<comment>&user=<user>
 
   Commits package changes to buildservice
+
+Parameters:
+
+  rev: revision, mandatory
+  comment: comment, mandatory
+  user: user, mandatory
 
 XmlResult: status
 
@@ -273,13 +282,52 @@ POST /build/<project>?cmd=rebuild
   specified by the parameters. If no parameters are given, all packages of the
   project are completely rebuilt.
 
+  Possible values for the code parameter are:
+
+  succeeded        - build succeeded
+  failed           - build failed
+  disabled         - build is disabled in package config
+  excluded         - build is excluded in spec file
+  scheduled        - package is ready to be built
+  building         - package is building on a worker
+  broken           - package source is bad (i.e. no specfile)
+  expansion error  - build needs unavailable binary packages
+
 Parameters:
   
   package: package name, optional, multiple
   arch: architecture, optional, multiple
   repository: name of repository, optional, multiple
+  code: build status code, optional, multiple
 
 XmlResult: status
+
+
+POST /build/<project>?cmd=abortbuild
+
+  Kill all running builds, marking them as failed
+
+Parameters:
+
+  see cmd=rebuild
+
+
+POST /build/<project>?cmd=restartbuild
+
+  Restart all running builds
+
+Parameters:
+
+  see cmd=rebuild
+
+
+POST /build/<project>?cmd=wipe
+
+  Delete all binary packages from the packages
+
+Parameters:
+
+  see cmd=rebuild
 
 
 === Local Build
