@@ -21,6 +21,12 @@ class StatisticsController < ApplicationController
 
 
   def highest_rated
+    @ratings = Rating.find :all,
+      :select => 'object_id, object_type, count(score) as count,' +
+        'sum(score)/count(score) as score_calculated',
+      :group => 'object_id, object_type',
+      :order => 'score_calculated DESC',
+      :limit => @limit
   end
 
 
@@ -41,7 +47,6 @@ class StatisticsController < ApplicationController
     if request.get?
 
       @rating = object.rating
-      @rating[:score] = -1 if @rating[:score].to_f.nan?
 
     elsif request.put?
 

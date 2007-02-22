@@ -316,7 +316,8 @@ class DbProject < ActiveRecord::Base
     score = score.to_f
     count = self.ratings.length
     score /= count
-    score = ( score * 100 ).round.to_f / 100 unless score.nan?
+    score = -1 if score.nan?
+    score = ( score * 100 ).round.to_f / 100
     return { :score => score, :count => count }
   end
 
