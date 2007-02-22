@@ -324,3 +324,16 @@ Wed Feb 21 11:49:04 +0100 2007 - bauersman
 - added POST /build/<project> route
 
 
+------------------------------------------------------------------------
+Thu Feb 22 18:02:32 +0100 2007 - abauer
+
+- update from svn revision 1311 to 1334
+- reordering of routes by first path element
+- made rating method of packages/projects returning hash instead of plain
+  score number. now it returns the count of ratings too ...
+- round rating score to two fractional portions
+- forgot to recognize the case where rating score is NaN (not a number)
+  before rounding
+- new route POST /source/<project>/<package>?cmd=diff
+
+
