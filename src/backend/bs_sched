@@ -187,8 +187,10 @@ sub sortpacks {
       }
       push @cyc, $cyc[0];
       shift @cyc while $cyc[0] ne $breakv;
-      print "  breaking with $breakv -> $cyc[1]\n";
-      $deps{$breakv} = [ grep {$_ ne $cyc[1]} @{$deps{$breakv}} ];
+      $v = $cyc[1];
+      print "  breaking with $breakv -> $v\n";
+      $deps{$breakv} = [ grep {$_ ne $v} @{$deps{$breakv}} ];
+      $rdeps{$v} = [ grep {$_ ne $breakv} @{$rdeps{$v}} ];
       $needed{$breakv}--;
     }
   }
