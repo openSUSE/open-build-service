@@ -432,3 +432,21 @@ Wed Feb 21 11:50:21 +0100 2007 - bauersman
 - implemented readonly rating system in webclient
 
 
+------------------------------------------------------------------------
+Thu Feb 22 18:02:33 +0100 2007 - abauer
+
+- update from svn revision 1313 to 1334
+- margin for show-all-tags view
+- made disabled packages better readable in project status monitor
+- inserted nobreakable space in build repositories table on project page
+- modified css: new info_message style
+- extended exception handling of activexml exceptions in webclient to recognize
+  when objects are already rated
+- built in the ability to actually rate packages and projects in the webclient
+- fixed minor bug in project monitor table, where webclient crashed if
+  viewed directly after creating a new package (where no buildstatus yet
+  exists)
+- modified stylesheet to display same color for visited and not yet
+  visited build status links in build status monitor
+
+
