@@ -1,4 +1,4 @@
-<% @pagetitle = "Search Results" %>
+<% @pagetitle = "Statistics" %>
 <h1>Build Service Statistics</h1>
 
 <div id="statistics">
@@ -12,9 +12,14 @@
     <%= link_to 'more...', { :controller => 'main', :action => 'latest_added',
       :more => true, :limit => 25 } -%>
   </span>
-  <span class="last">
+  <span>
     <%= render :partial => 'latest_updated' -%>
     <%= link_to 'more...', { :controller => 'main', :action => 'latest_updated',
+      :more => true, :limit => 25 } -%>
+  </span>
+  <span class="last">
+    <%= render :partial => 'highest_rated' -%>
+    <%= link_to 'more...', { :controller => 'main', :action => 'highest_rated',
       :more => true, :limit => 25 } -%>
   </span>
   <div style="clear: both;">&nbsp;</div>

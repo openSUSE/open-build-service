@@ -1,0 +1,29 @@
+<% @pagetitle = "Highest Rated" %>
+
+<div id="highest_rated">
+
+  <h4>Highest Rated:</h4>
+  <br/>
+
+  <% if params[:more] -%>
+    <%= statistics_limit_form( 'highest_rated', 'Show top' ) %>
+  <% end %>
+
+  <ol>
+    <% @highest_rated.each do |item| %>
+      <li>
+        <% title = "- score is #{item.score} (rated #{item.count} times)" %>
+        <% if item.data.to_s =~ /^<package / %>
+          <%= link_to_package_view( item.name, item.project, title ) -%>
+        <% elsif item.data.to_s =~ /^<project / %>
+          <%= link_to_project_view( item.name, title ) -%>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+
+  <% if params[:more] -%>
+    <%= link_to_mainpage %>
+  <% end %>
+
+</div>

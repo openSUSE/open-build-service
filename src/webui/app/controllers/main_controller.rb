@@ -1,7 +1,7 @@
 class MainController < ApplicationController
 
   skip_before_filter :authorize, :only => [
-    :index, :latest_added, :latest_updated, :most_downloaded
+    :index, :latest_added, :latest_updated, :most_downloaded, :highest_rated
   ]
 
 
@@ -16,6 +16,7 @@ class MainController < ApplicationController
   def statistics
     @latest_added    = LatestAdded.find( :limit => 10 )
     @latest_updated  = LatestUpdated.find( :limit => 10 )
+    @highest_rated   = Rating.find( :all, :limit => 10 )
     @most_downloaded = get_download_stats
   end
 
@@ -42,6 +43,15 @@ class MainController < ApplicationController
     @limit = params[:limit]
     @most_downloaded = get_download_stats
     render :partial => 'most_downloaded', :layout => true, :more => true
+  end
+
+
+  def highest_rated
+    limit = params[:limit]
+    # no layout, if this is an ajax-request
+    request.get? ? layout=true : layout=false
+    @highest_rated = Rating.find( :all, :limit => limit )
+    render :partial => 'highest_rated', :layout => layout, :more => true
   end
 
 
