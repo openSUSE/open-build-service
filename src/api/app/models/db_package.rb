@@ -289,7 +289,7 @@ class DbPackage < ActiveRecord::Base
     end
     score = score.to_f
     count = self.ratings.length
-    score /= count
+    score = ( score / count * 100 ).round.to_f / 100
     return { :score => score, :count => count }
   end
 
