@@ -47,6 +47,8 @@
     <% @repohash.sort.each do |repo, archlist| -%>
     <% archlist.each do |arch| -%>
       <%
+        # sane default - TODO: fix this in the controller
+        status = 'unknown'
         status = @statushash[repo][arch][packname]
         case status
         when 'failed'
