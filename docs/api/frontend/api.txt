@@ -128,6 +128,27 @@ DELETE /source/<project>/<package>
 XmlResult: status
 
 
+POST /source/<project>/<package>?cmd=diff
+
+  Create a source diff
+
+Parameters:
+
+  rev: revision of new package, optional
+  oproject: old project, optional
+  opackage: old package, optional
+  orev: old revision, optional
+
+Result: diff as text/plain
+
+
+GET /source/<project>/<package>/_history
+
+  Get package commit history
+
+XmlResult: checkinlist
+
+
 === Source files
 
 <filename>: File name
