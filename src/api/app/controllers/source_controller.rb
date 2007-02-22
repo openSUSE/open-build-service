@@ -446,4 +446,10 @@ class SourceController < ApplicationController
     path = request.path + "?" + request.query_string
     forward_data path, :method => :post
   end
+
+  # POST /source/<project>/<package>?cmd=diff
+  def index_package_diff
+    path = request.path + "?" + request.query_string
+    forward_data path, :method => :post
+  end
 end
