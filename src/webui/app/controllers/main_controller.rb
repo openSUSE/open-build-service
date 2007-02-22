@@ -9,6 +9,9 @@ class MainController < ApplicationController
     #
   end
 
+  def index2
+    redirect_to "/"
+  end
 
   def statistics
     @latest_added    = LatestAdded.find( :limit => 10 )

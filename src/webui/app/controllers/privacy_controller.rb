@@ -9,12 +9,12 @@ class PrivacyController < ApplicationController
     if request.env.has_key? 'HTTP_X_USERNAME' # X-username'
       user = request.env[ 'HTTP_X_USERNAME' ] # X-username']
       logger.debug "Have this iChain Username: #{user}"
-      if session[:return_to]
+      if false & session[:return_to]
         redirect_to session[:return_to]
         session[:return_to] = nil
         return
       end
-      redirect_to( "/" )
+      redirect_to "/main/index2"
     else 
       logger.debug "No X-Username found!"
       request.env.each do |name, val|
