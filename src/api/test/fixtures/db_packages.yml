@@ -7,6 +7,14 @@ kdelibs:
   updated_at: 2002-02-02 02:02:02
   title: blub
   description: blub
+kdebase:
+  id: 2
+  db_project_id: 2
+  name: kdebase
+  created_at: 2001-01-01 01:01:01
+  updated_at: 2002-02-02 02:02:02
+  title: blub
+  description: blub
 x11vnc:
   id: 1336
   db_project_id: 215

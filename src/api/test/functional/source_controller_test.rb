@@ -22,6 +22,7 @@ class SourceControllerTest < Test::Unit::TestCase
     @response   = ActionController::TestResponse.new
     # make a backup of the XML test files
     # backup_source_test_data
+    setup_mock_backend_data
   end
 
   def test_get_projectlist
@@ -34,13 +35,14 @@ class SourceControllerTest < Test::Unit::TestCase
   end
   
 
-  #def test_get_project_filelist
-  #  get :file, :project => "kde4" 
-  #  assert_response :success
-  #  assert_tag :tag => "directory", :child => { :tag => "entry" }
-  #  assert_tag :tag => "directory",
-  #    :children => { :count => 2, :only => { :tag => "entry" } }
-  #end
+  def test_get_packagelist
+    prepare_request_with_user @request, "tom", "thunder"
+    get :index_project, :project => "kde4" 
+    assert_response :success
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 2, :only => { :tag => "entry" } }
+  end
 
 
   # non-existing project should return 404
@@ -67,15 +69,14 @@ class SourceControllerTest < Test::Unit::TestCase
   end
   
 
-  # FIXME: only works with dummy backend
-  #def test_get_package_filelist
-  #  prepare_request_with_user @request, "tom", "thunder"
-  #  get :index_package, :project => "kde4", :package => "kdelibs"
-  #  assert_response :success
-  #  assert_tag :tag => "directory", :child => { :tag => "entry" }
-  #  assert_tag :tag => "directory",
-  #    :children => { :count => 3, :only => { :tag => "entry" } }
-  #end
+  def test_get_package_filelist
+    prepare_request_with_user @request, "tom", "thunder"
+    get :index_package, :project => "kde4", :package => "kdelibs"
+    assert_response :success
+    assert_tag :tag => "directory", :child => { :tag => "entry" }
+    assert_tag :tag => "directory",
+      :children => { :count => 3, :only => { :tag => "entry" } }
+  end
   
   def test_get_package_meta
     prepare_request_with_user @request, "tom", "thunder"
@@ -383,23 +384,23 @@ class SourceControllerTest < Test::Unit::TestCase
 
 
 
-  # FIXME: only works with running backend
-  #def test_read_file
-  #  get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
-  #  assert_response :success
-  #  assert_equal( @response.body.to_s, "argl\n" )
-  #  
-  #  get :file, :project => "kde4", :package => "kdelibs", :file => "BLUB"
-  #  #STDERR.puts(@response.body)
-  #  assert_response 404
-  #  assert_tag( :tag => "error" )
-  #  
-  #  get :file, :project => "kde4", :package => "kdelibs", :file => "../kdebase/_meta"
-  #  #STDERR.puts(@response.body)
-  #  assert_response( 404, "Was able to read file outside of package scope" )
-  #  assert_tag( :tag => "error" )
-  #  
-  #end
+  def test_read_file
+    prepare_request_with_user @request, "tom", "thunder"
+    get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
+    assert_response :success
+    assert_equal( @response.body.to_s, "argl\n" )
+    
+    get :file, :project => "kde4", :package => "kdelibs", :file => "BLUB"
+    #STDERR.puts(@response.body)
+    assert_response 404
+    assert_tag( :tag => "status" )
+    
+    get :file, :project => "kde4", :package => "kdelibs", :file => "../kdebase/_meta"
+    #STDERR.puts(@response.body)
+    assert_response( 404, "Was able to read file outside of package scope" )
+    assert_tag( :tag => "status" )
+    
+  end
   
 
 
@@ -418,37 +419,35 @@ class SourceControllerTest < Test::Unit::TestCase
   
   
   
-  #FIXME: only works with backend 
-  #def test_add_file_to_package
-  #  prepare_request_with_user @request, "fredlibs", "geröllheimer"
-  #  add_file_to_package
-  #  prepare_request_with_user @request, "fred", "geröllheimer"
-  #  add_file_to_package
-  #  prepare_request_with_user @request, "king", "sunflower"
-  #  add_file_to_package
-  #
-  #  # write without permission: 
-  #  prepare_request_with_user @request, "tom", "thunder"
-  #  get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
-  #  assert_response :success
-  #  origstring = @response.body.to_s
-  #  teststring = "&;"
-  #  @request.env['RAW_POST_DATA'] = teststring
-  #  put :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
-  #  assert_response( 403, message="Was able to write a package file without permission" )
-  #  assert_tag( :tag => "error" )
-  #  
-  #  # check that content is unchanged: 
-  #  get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
-  #  assert_response :success
-  #  assert_equal( @response.body.to_s, origstring, message="Package file was changed without permissions" )
-  #end
+  def test_add_file_to_package
+    prepare_request_with_user @request, "fredlibs", "geröllheimer"
+    add_file_to_package
+    prepare_request_with_user @request, "fred", "geröllheimer"
+    add_file_to_package
+    prepare_request_with_user @request, "king", "sunflower"
+    add_file_to_package
   
+    # write without permission: 
+    prepare_request_with_user @request, "tom", "thunder"
+    get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
+    assert_response :success
+    origstring = @response.body.to_s
+    teststring = "&;"
+    @request.env['RAW_POST_DATA'] = teststring
+    put :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
+    assert_response( 403, message="Was able to write a package file without permission" )
+    assert_tag( :tag => "status" )
+    
+    # check that content is unchanged: 
+    get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
+    assert_response :success
+    assert_equal( @response.body.to_s, origstring, message="Package file was changed without permissions" )
+  end
   
-
   def teardown  
     # restore the XML test files
     # restore_source_test_data
+    teardown_mock_backend_data
   end
   
 end
