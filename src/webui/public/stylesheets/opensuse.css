@@ -480,7 +480,7 @@ table.targets { }
     width: 16px;
     height: 16px;
     text-decoration: none;
-    text-indent: -2000px;
+ /* text-indent: -2000px; */
     z-index: 20;
     position: absolute;
     padding: 0;
@@ -492,7 +492,7 @@ table.targets { }
     position: absolute;
     height: 16px;
     display: block;
-    text-indent: -9000px;
+ /* text-indent: -9000px; */
     z-index: 1;
 }
 .star-rating li a:hover {

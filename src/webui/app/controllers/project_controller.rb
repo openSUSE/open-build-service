@@ -474,16 +474,13 @@ class ProjectController < ApplicationController
 
   def rate
     score = params[:score] or return
-    rating = Rating.new( :score => score,
+    @set_rating = Rating.new( :score => score,
       :project => params[:project], :package => params[:package]
     )
-    begin
-      rating.save
-    rescue ActiveXML::Transport::Error => exception
-      rescue_action_in_public exception
-      @denied = "#{@code}: #{@message}"
-    end
+    @set_rating.save
+    @info_message = "<span id=\"info_message\">rating updated to #{score}</span>"
     @rating = Rating.find( :project => params[:project] )
+    render :partial => 'shared/rate'
   end
 
 

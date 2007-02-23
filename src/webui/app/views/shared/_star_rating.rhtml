@@ -13,30 +13,30 @@
     end
   %>
 
-  <li class='current-rating' style='width: <%= percent -%>%;'>current</li>
+  <li class='current-rating' style='width: <%= percent -%>%;'>&nbsp;</li>
 
   <li>
-    <%= link_to_remote '1', { :url => { :controller => ctrl, :action => 'rate',
+    <%= link_to_remote '', { :url => { :controller => ctrl, :action => 'rate',
       :score => 1, :project => @project, :package => @package } },
       :title => "Rate 1 star out of 5, #{current}", :class => 'one-star' -%>
   </li>
   <li>
-    <%= link_to_remote '2', { :url => { :controller => ctrl, :action => 'rate',
+    <%= link_to_remote '', { :url => { :controller => ctrl, :action => 'rate',
       :score => 2, :project => @project, :package => @package } },
       :title => "Rate 2 stars out of 5, #{current}", :class => 'two-stars' -%>
   </li>
   <li>
-    <%= link_to_remote '3', { :url => { :controller => ctrl, :action => 'rate',
+    <%= link_to_remote '', { :url => { :controller => ctrl, :action => 'rate',
       :score => 3, :project => @project, :package => @package } },
       :title => "Rate 3 stars out of 5, #{current}", :class => 'three-stars' -%>
   </li>
   <li>
-    <%= link_to_remote '4', { :url => { :controller => ctrl, :action => 'rate',
+    <%= link_to_remote '', { :url => { :controller => ctrl, :action => 'rate',
       :score => 4, :project => @project, :package => @package } },
       :title => "Rate 4 stars out of 5, #{current}", :class => 'four-stars' -%>
   </li>
   <li>
-    <%= link_to_remote '5', { :url => { :controller => ctrl, :action => 'rate',
+    <%= link_to_remote '', { :url => { :controller => ctrl, :action => 'rate',
       :score => 5, :project => @project, :package => @package } },
       :title => "Rate 5 stars out of 5, #{current}", :class => 'five-stars' -%>
   </li>

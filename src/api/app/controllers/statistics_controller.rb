@@ -50,19 +50,19 @@ class StatisticsController < ApplicationController
 
     elsif request.put?
 
-      # try toget previous rating of this user for this object
+      # try to get previous rating of this user for this object
       previous_rating = Rating.find :first, :conditions => [
         'object_type=? AND object_id=? AND user_id=?',
         object.class.name, object.id, @http_user.id
       ]
-      # every user should be able to rate every object only once
+      data = ActiveXML::Base.new( request.raw_post )
       if previous_rating
-        render_error :status => 400, :errorcode => "no more rating allowed",
-          :message => "user #{@http_user.login} already rated " +
-          "#{@project} #{@package}"
+        # update previous rating
+        previous_rating.score = data.to_s.to_i
+        previous_rating.save
       else
+        # create new rating entry
         begin
-          data = ActiveXML::Base.new( request.raw_post )
           rating = Rating.new
           rating.score = data.to_s.to_i
           rating.object_type = object.class.name
@@ -74,8 +74,8 @@ class StatisticsController < ApplicationController
             :message => "rating not saved"
           return
         end
-        render_ok
       end
+      render_ok
 
     else
       render_error :status => 400, :errorcode => "invalid_method",
