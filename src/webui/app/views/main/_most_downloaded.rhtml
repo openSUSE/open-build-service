@@ -60,7 +60,7 @@
     "(#{count.files} different files). Click for details..." %>
       <li>
       <%= link_to image_tag( 'architecture', :border => 0 ) + " #{count.architecture}",
-        { :action => 'download_details', :repo => count.architecture },
+        { :action => 'download_details', :arch => count.architecture },
         :title => title -%>
       </li>
     <% end %>
