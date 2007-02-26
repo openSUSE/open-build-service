@@ -9,7 +9,7 @@
     else
       current = "currently #{@rating.to_s} stars " +
         "(rated #{@rating.count} times)."
-      if @rating.user_score != 0
+      if @rating.user_score != "0"
         current += " You previously gave #{@rating.user_score} stars."
       end
     end

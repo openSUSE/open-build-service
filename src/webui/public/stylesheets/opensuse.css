@@ -644,6 +644,15 @@ div#package_disablebuild ul {
   padding: 0 0.4em 0 0.4em;
 }
 
+#statistics h5 {
+  margin:  0;
+  padding: 0 0 5px 0;
+}
+#statistics ol {
+  margin:  0;
+  padding: 0 0 15px 25px;
+}
+
 #status_messages table {
   font-size: 0.9em;
   border: 1px #6eb927 dotted;
