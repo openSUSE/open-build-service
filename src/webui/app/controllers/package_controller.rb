@@ -710,14 +710,15 @@ class PackageController < ApplicationController
 
 
   def rate
-    score = params[:score] or return
-    rating = Rating.new( :score => score,
-      :project => params[:project], :package => params[:package]
+    @project = params[:project]
+    @package = params[:package]
+    @score = params[:score] or return
+    rating = Rating.new( :score => @score,
+      :project => @project, :package => @package
     )
     rating.save
-    @info_message = "<span id=\"info_message\">rating updated to #{score}</span>"
     @rating = Rating.find(
-      :project => params[:project], :package => params[:package]
+      :project => @project, :package => @package
     )
     render :partial => 'shared/rate'
   end

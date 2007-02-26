@@ -1,7 +1,8 @@
 
 page.replace_html 'rating', :partial => 'shared/star_rating'
 page.visual_effect :shake, 'rating'
-page.replace_html 'info_message', @info_message
+
+page.replace_html 'info_message', "Updated your rating to #{@score} stars. Score is now #{@rating.to_s} stars."
 page.show 'info_message'
 page.delay(4) do
   page.hide 'info_message'

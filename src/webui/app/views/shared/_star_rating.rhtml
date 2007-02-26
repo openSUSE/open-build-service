@@ -1,5 +1,4 @@
 
-<span id="rating">
 <ul class='star-rating'>
 
   <% percent = ( @rating.to_s.to_f / 5 ) * 100 %>
@@ -8,8 +7,11 @@
     if @rating.count == '0'
       current = "currently not yet rated."
     else
-    current = "currently #{@rating.to_s} stars " +
-      "(rated #{@rating.count} times)."
+      current = "currently #{@rating.to_s} stars " +
+        "(rated #{@rating.count} times)."
+      if @rating.user_score != 0
+        current += " You previously gave #{@rating.user_score} stars."
+      end
     end
   %>
 
@@ -42,5 +44,4 @@
   </li>
 
 </ul>
-</span>
 

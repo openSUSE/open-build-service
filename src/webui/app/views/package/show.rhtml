@@ -10,7 +10,11 @@
 <table>
   <tr>
     <td><h2>Package <%=h @package %> (Project <%=h @project %>)</h2></td>
-    <td><%= render :partial => 'shared/star_rating' -%></td>
+    <td>
+      <span id="rating">
+        <%= render :partial => 'shared/star_rating' -%>
+      </span>
+    </td>
     <td><span id="info_message" style="display:none;"></span></td>
   </tr>
 </table>

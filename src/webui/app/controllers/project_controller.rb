@@ -473,13 +473,11 @@ class ProjectController < ApplicationController
 
 
   def rate
-    score = params[:score] or return
-    @set_rating = Rating.new( :score => score,
-      :project => params[:project], :package => params[:package]
-    )
-    @set_rating.save
-    @info_message = "<span id=\"info_message\">rating updated to #{score}</span>"
-    @rating = Rating.find( :project => params[:project] )
+    @project = params[:project]
+    @score = params[:score] or return
+    rating = Rating.new( :score => @score, :project => @project )
+    rating.save
+    @rating = Rating.find( :project => @project )
     render :partial => 'shared/rate'
   end
 
