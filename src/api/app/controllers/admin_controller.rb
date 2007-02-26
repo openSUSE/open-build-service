@@ -51,11 +51,11 @@ class AdminController < ApplicationController
       
 
       unless allowed_order_by_arguments.include? order_by
-        raise ArgumentError.new "unknown argument '#{session[:column]}'"
+        raise ArgumentError.new( "unknown argument '#{session[:column]}'" )
       end
       
       unless allowed_sort_by_arguments.include? sort_by
-        raise ArgumentError.new "unknown argument '#{session[:sort]}'" 
+        raise ArgumentError.new( "unknown argument '#{session[:sort]}'" )
       end
 
       logger.debug "[TAG: order_by: #{order_by}"
