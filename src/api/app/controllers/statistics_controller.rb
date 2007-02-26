@@ -46,7 +46,7 @@ class StatisticsController < ApplicationController
 
     if request.get?
 
-      @rating = object.rating
+      @rating = object.rating( @http_user.id )
 
     elsif request.put?
 
