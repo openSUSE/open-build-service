@@ -21,6 +21,7 @@ config.action_mailer.raise_delivery_errors = false
 FRONTEND_HOST = "localhost"
 FRONTEND_PORT = 3001
 #FRONTEND_PORT = 9001
+FRONTEND_PROTOCOL = 'http'
 
 # set the iChain host to something not nil to use iChain. Note
 # that the IP is not used atm but that might change.

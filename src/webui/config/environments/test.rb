@@ -20,3 +20,5 @@ config.action_mailer.delivery_method = :test
 
 FRONTEND_HOST = "localhost"
 FRONTEND_PORT = 3001
+FRONTEND_PROTOCOL = 'http'
+

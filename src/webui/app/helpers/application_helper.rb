@@ -54,4 +54,18 @@ module ApplicationHelper
   end
 
 
+  def get_frontend_url_for( opt={} )
+    opt[:host] ||= FRONTEND_HOST
+    opt[:port] ||= FRONTEND_PORT
+    opt[:protocol] ||= FRONTEND_PROTOCOL
+
+    if not opt[:controller]
+      logger.error "No controller given for get_frontend_url_for()."
+      return
+    end
+
+    return "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
+  end
+
+
 end

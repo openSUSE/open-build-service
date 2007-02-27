@@ -22,6 +22,7 @@ config.action_controller.perform_caching             = true
 
 FRONTEND_HOST = "api-internal.opensuse.org"
 FRONTEND_PORT = 80
+FRONTEND_PROTOCOL = 'http'
 
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "on"

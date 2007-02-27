@@ -23,10 +23,6 @@ module ProjectHelper
     end
   end
 
-  def rpm_url( project, package, repository )
-    "http://#{FRONTEND_HOST}:#{FRONTEND_PORT}/rpm/#{project.name}/#{repository.name}/#{package}.rpm"
-  end
-
   def status_id_for( package, repo, arch )
     "#{package}:#{repo}:#{arch}"
   end
