@@ -7,10 +7,10 @@
     if @rating.count == '0'
       current = "currently not yet rated."
     else
-      current = "currently #{@rating.to_s} stars " +
-        "(rated #{@rating.count} times)."
+      current = "currently #{pluralize @rating.to_s.to_f, 'star'}, " +
+      "rated #{pluralize @rating.count.to_i, 'time'}. "
       if @rating.user_score != "0"
-        current += " You previously gave #{@rating.user_score} stars."
+        current += "You gave #{pluralize @rating.user_score.to_i, 'star'}."
       end
     end
   %>
