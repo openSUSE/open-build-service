@@ -100,9 +100,11 @@ ActiveXML::Base.config do |conf|
 
     # Statistics
     map.connect :latestadded, "rest:///statistics/latest_added?limit=:limit",
-      :all => "rest:///statistics/latest_added"
+      :all => "rest:///statistics/latest_added",
+      :specific => "rest:///statistics/added_timestamp/:project/:package"
     map.connect :latestupdated, "rest:///statistics/latest_updated?limit=:limit",
-      :all => "rest:///statistics/latest_updated"
+      :all => "rest:///statistics/latest_updated",
+      :specific => "rest:///statistics/updated_timestamp/:project/:package"
     map.connect :downloadcounter, "rest:///statistics/download_counter" +
       "/:project/:package/:repository/:architecture?concat=:concat&limit=:limit",
       :arch => "rest:///statistics/download_counter?architecture=:arch&limit=:limit",

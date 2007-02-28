@@ -122,6 +122,17 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'statistics/download_counter/:project/:package/:repository/:architecture',
     :controller => 'statistics', :action => 'download_counter'
 
+  # Timestamps
+  #
+  map.connect 'statistics/added_timestamp/:project',
+    :controller => 'statistics', :action => 'added_timestamp'
+  map.connect 'statistics/added_timestamp/:project/:package',
+    :controller => 'statistics', :action => 'added_timestamp'
+  map.connect 'statistics/updated_timestamp/:project',
+    :controller => 'statistics', :action => 'updated_timestamp'
+  map.connect 'statistics/updated_timestamp/:project/:package',
+    :controller => 'statistics', :action => 'updated_timestamp'
+
   # Ratings
   #
   map.connect 'statistics/rating/:project',

@@ -85,18 +85,22 @@
         <p>
           This package was created
           <b>
-            <%= distance_of_time_in_words_to_now( Time.parse(@package.created) ) -%>
+            <%= distance_of_time_in_words_to_now(
+              Time.parse(@created_timestamp)
+            ) -%>
           </b>ago.<br/>
-          <i class="greyed-out"><%=h @package.created -%></i>
+          <i class="greyed-out"><%=h @created_timestamp -%></i>
         </p>
 
         <h5>Updated at</h5>
         <p>
           This package was updated
           <b>
-            <%= distance_of_time_in_words_to_now( Time.parse(@package.updated) ) -%>
+            <%= distance_of_time_in_words_to_now(
+              Time.parse(@updated_timestamp)
+            ) -%>
           </b>ago.<br/>
-          <i class="greyed-out"><%=h @package.updated -%></i>
+          <i class="greyed-out"><%=h @updated_timestamp -%></i>
         </p>
 
         <h5>Downloads</h5>

@@ -173,11 +173,6 @@ class DbPackage < ActiveRecord::Base
       #--- write through to backend ---#
 
       if write_through?
-
-        # remove uninteresting data for backend:
-        package.data.delete_attribute('created')
-        package.data.delete_attribute('updated')
-
         path = "/source/#{self.db_project.name}/#{self.name}/_meta"
         Suse::Backend.put_source( path, package.dump_xml )
       end
@@ -246,10 +241,7 @@ class DbPackage < ActiveRecord::Base
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering package #{name} ------------------------"
-    xml = builder.package( :name => name, :project => db_project.name,
-                           :updated => updated_at.xmlschema,
-                           :created => created_at.xmlschema
-                         ) do |package|
+    xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
       package.description( description )
 
@@ -275,10 +267,7 @@ class DbPackage < ActiveRecord::Base
 
   def to_axml_id
     builder = Builder::XmlMarkup.new( :indent => 2 )
-    xml = builder.package(:name => name, :project => db_project.name,
-                          :updated => updated_at.xmlschema,
-                          :created => created_at.xmlschema
-                         )
+    xml = builder.package( :name => name, :project => db_project.name )
   end
 
 

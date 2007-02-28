@@ -193,11 +193,6 @@ class DbProject < ActiveRecord::Base
       self.save! if project.has_attribute? 'updated' and self.updated_at.xmlschema != project.updated
 
       if write_through?
-
-        # remove uninteresting data for backend:
-        project.data.delete_attribute('created')
-        project.data.delete_attribute('updated')
-
         path = "/source/#{self.name}/_meta"
         Suse::Backend.put_source( path, project.dump_xml )
       end
@@ -267,10 +262,7 @@ class DbProject < ActiveRecord::Base
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering project #{name} ------------------------"
-    xml = builder.project( :name => name,
-                           :updated => updated_at.xmlschema,
-                           :created => created_at.xmlschema
-                         ) do |project|
+    xml = builder.project( :name => name ) do |project|
       project.title( title )
       project.description( description )
 
@@ -301,10 +293,7 @@ class DbProject < ActiveRecord::Base
 
   def to_axml_id
     builder = Builder::XmlMarkup.new( :indent => 2 )
-    xml = builder.project( :name => name,
-                           :updated => updated_at.xmlschema,
-                           :created => created_at.xmlschema
-                         )
+    xml = builder.project( :name => name )
   end
 
 

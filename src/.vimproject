@@ -13,6 +13,7 @@ WEBCLIENT {
   person.rb
   platform.rb
   project.rb
+  rating.rb
   result.rb
   statusmessage.rb
   tag.rb
@@ -29,6 +30,7 @@ WEBCLIENT {
   platform_controller.rb
   privacy_controller.rb
   project_controller.rb
+  statistics_controller.rb
   tag_controller.rb
   user_controller.rb
  }
@@ -37,10 +39,6 @@ WEBCLIENT {
    index.rhtml
   }
   Main=~/work/trunk/buildservice/src/webclient/app/views/main/  filter="*ml" {
-   _download_details.rhtml
-   _latest_added.rhtml
-   _latest_updated.rhtml
-   _most_downloaded.rhtml
    _search_form.rhtml
    _search_form_advanced.rhtml
    _search_result.rhtml
@@ -50,20 +48,19 @@ WEBCLIENT {
    search.rhtml
    search_advanced.rhtml
    search_result.rhtml
-   statistics.rhtml
   }
-  Package=~/work/trunk/buildservice/src/webclient/app/views/package/  filter="*ml" {
+  Package=~/work/trunk/buildservice/src/webclient/app/views/package/  filter="*.r*" {
    _add_tag_form.rhtml
    _buildstatus.rhtml
    _categories.rhtml
    _disable_building.rhtml
    _edit_disable_xml.rhtml
-   _edit_disable_xml_button.rhtml
    _files.rhtml
    _links.rhtml
    _meta.rhtml
    _set_url_form.rhtml
    _tags.rhtml
+   _tags_ajax.rhtml
    _update_build_log.rhtml
    _url.rhtml
    _url_line.rhtml
@@ -73,7 +70,6 @@ WEBCLIENT {
    edit.rhtml
    edit_file.rhtml
    error.rhtml
-   list_by_tag.rhtml
    live_build_log.rhtml
    new.rhtml
    new_link.rhtml
@@ -87,14 +83,14 @@ WEBCLIENT {
    new.rhtml
    show.rhtml
   }
-  Project=~/work/trunk/buildservice/src/webclient/app/views/project/  filter="*ml" {
+  Project=~/work/trunk/buildservice/src/webclient/app/views/project/  filter="*.r*" {
    _add_tag_form.rhtml
    _filter_packages.rhtml
    _filter_projects.rhtml
    _search_package.rhtml
    _search_project.rhtml
-   _star_rating.rhtml
    _tags.rhtml
+   _tags_ajax.rhtml
    _watch_link.rhtml
    _watch_list.rhtml
    add_person.rhtml
@@ -102,7 +98,6 @@ WEBCLIENT {
    add_target_simple.rhtml
    edit.rhtml
    list_all.rhtml
-   list_by_tag.rhtml
    list_my.rhtml
    list_public.rhtml
    monitor.rhtml
@@ -130,8 +125,20 @@ WEBCLIENT {
    register.rhtml
    request_ichain.rhtml
   }
-  LAYOUTS=~/work/trunk/buildservice/src/webclient/app/views/layouts/ filter=" *ml" {
+  Statistics=~/work/trunk/buildservice/src/webclient/app/views/statistics/  filter="*.r*" {
+   _download_details.rhtml
+   _highest_rated.rhtml
+   _latest_added.rhtml
+   _latest_updated.rhtml
+   _most_downloaded.rhtml
+   index.rhtml
+  }
+  LAYOUTS=~/work/trunk/buildservice/src/webclient/app/views/layouts/ filter="*ml" {
    application.rhtml
+  }
+  SHARED=~/work/trunk/buildservice/src/webclient/app/views/shared/ filter="*.r*" {
+   _rate.rjs
+   _star_rating.rhtml
   }
  }
 
@@ -142,6 +149,7 @@ WEBCLIENT {
   package_helper.rb
   platform_helper.rb
   project_helper.rb
+  statistics_helper.rb
   user_helper.rb
  }
  css=~/work/trunk/buildservice/src/webclient/public/stylesheets/ filter="*.css" {
@@ -253,12 +261,15 @@ FRONTEND {
    package_meta.rxml
   }
   Statistics=~/work/trunk/buildservice/src/frontend/app/views/statistics/  filter="*ml" {
+   added_timestamp.rxml
    download_counter.rxml
    highest_rated.rxml
    latest_added.rxml
    latest_built.rxml
    latest_updated.rxml
    most_active.rxml
+   rating.rxml
+   updated_timestamp.rxml
   }
   Tag=~/work/trunk/buildservice/src/frontend/app/views/tag/  filter="*ml" {
   }
@@ -404,6 +415,8 @@ API-def {
   projectresult.xml
   projectresult.xsd
   projects.xml
+  rating.xml
+  rating.xsd
   redirect_stats.xml
   redirect_stats.xsd
   status.xml

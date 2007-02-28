@@ -123,6 +123,10 @@ class PackageController < ApplicationController
     @tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
     @downloads = Downloadcounter.find( :project => project, :package => package )
     @rating = Rating.find( :project => @project, :package => @package )
+    @created_timestamp = LatestAdded.find( :specific,
+      :project => @project, :package => @package ).package.created
+    @updated_timestamp = LatestUpdated.find( :specific,
+      :project => @project, :package => @package ).package.updated
   end
 
   def new

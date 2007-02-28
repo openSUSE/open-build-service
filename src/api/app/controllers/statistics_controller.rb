@@ -248,6 +248,15 @@ class StatisticsController < ApplicationController
   end
 
 
+  def added_timestamp
+    @project = DbProject.find_by_name( params[:project] )
+    @package = DbPackage.find( :first, :conditions =>
+      [ 'name=? AND db_project_id=?', params[:package], @project.id ]
+    ) if @project
+    logger.debug "=====> project #{@project.inspect}  package #{@package.inspect}  "
+  end
+
+
   def latest_updated
     packages = DbPackage.find(:all, :order => 'updated_at DESC, name', :limit => @limit )
     projects = DbProject.find(:all, :order => 'updated_at DESC, name', :limit => @limit )
@@ -258,6 +267,14 @@ class StatisticsController < ApplicationController
     list.sort! { |a,b| b.updated_at <=> a.updated_at }
 
     @list = list[0..@limit-1]
+  end
+
+
+  def updated_timestamp
+    @project = DbProject.find_by_name( params[:project] )
+    @package = DbPackage.find( :first, :conditions =>
+      [ 'name=? AND db_project_id=?', params[:package], @project.id ]
+    ) if @project
   end
 
 

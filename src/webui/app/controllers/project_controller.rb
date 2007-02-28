@@ -118,6 +118,10 @@ class ProjectController < ApplicationController
     @packages = []
     Package.find( :all, :project => params[:project] ).each_entry do |package|
       @packages << package.name
+    @created_timestamp = LatestAdded.find( :specific,
+      :project => @project ).project.created
+    @updated_timestamp = LatestUpdated.find( :specific,
+      :project => @project ).project.updated
     end
 
     @tags = Tag.find(:user => @session[:login], :project => @project.name)

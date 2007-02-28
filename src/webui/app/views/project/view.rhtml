@@ -122,18 +122,22 @@
         <p>
           This project was created
           <b>
-            <%= distance_of_time_in_words_to_now( Time.parse(@project.created) ) -%>
+            <%= distance_of_time_in_words_to_now(
+              Time.parse(@created_timestamp)
+            ) -%>
           </b>ago.<br/>
-          <i class="greyed-out"><%=h @project.created -%></i>
+          <i class="greyed-out"><%=h @created_timestamp -%></i>
         </p>
 
         <h5>Updated at</h5>
         <p>
           This project was updated
           <b>
-            <%= distance_of_time_in_words_to_now( Time.parse(@project.updated) ) -%>
+            <%= distance_of_time_in_words_to_now(
+              Time.parse(@updated_timestamp)
+            ) -%>
           </b>ago.<br/>
-          <i class="greyed-out"><%=h @project.updated -%></i>
+          <i class="greyed-out"><%=h @updated_timestamp -%></i>
         </p>
 
         <h5>Downloads</h5>
