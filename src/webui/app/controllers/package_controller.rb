@@ -65,23 +65,18 @@ class PackageController < ApplicationController
         @project = Project.find( project )
         @package = Package.find( package, :project => project )
 
-        # files whose name end in the following extensions should not be editable
-        no_edit_ext = %w{ bz2 exe gif gz jar jpg jpeg ogg ps pdf png rpm tar tgz xpm zip }
+        @files = get_files project, package
 
-        @files = []
-        files = get_files project, package
         @spec_count = 0
-        files.each do |file|
-          editable = true
-          if file[:size].to_i > 1048576  # max. 1 MB
-            editable = false
-          else
-            no_edit_ext.each do |ext|
-              editable = false if file[:name].downcase =~ /\.#{ext}$/
+        @files.each do |file|
+          @spec_count += 1 if file[:ext] == "spec"
+          if ( file[:name] == "_link" )
+            begin
+              @link = Link.find( :project => project, :package => package )
+            rescue ActiveXML::Transport::NotFoundError
+              @link = nil
             end
           end
-          @files << { :name => file[:name], :editable => editable }
-          @spec_count += 1 if file[:name].grep(/\.spec$/) != []
         end
 
         @results = []
@@ -123,10 +118,6 @@ class PackageController < ApplicationController
     @tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
     @downloads = Downloadcounter.find( :project => project, :package => package )
     @rating = Rating.find( :project => @project, :package => @package )
-    @created_timestamp = LatestAdded.find( :specific,
-      :project => @project, :package => @package ).package.created
-    @updated_timestamp = LatestUpdated.find( :specific,
-      :project => @project, :package => @package ).package.updated
   end
 
   def new
@@ -733,17 +724,22 @@ class PackageController < ApplicationController
   private
 
   def get_files( project, package )
+    # files whose name end in the following extensions should not be editable
+    no_edit_ext = %w{ bz2 exe gif gz jar jpg jpeg ogg ps pdf png rpm tar tgz xpm zip }
+    
     files = []
     dir = Directory.find( :project => project, :package => package )
-    dir.each_entry do |file|
-      files << { :name => file.name, :size => file.size }
-      if ( file.name == "_link" )
-        begin
-          @link = Link.find( :project => project, :package => package )
-        rescue ActiveXML::Transport::NotFoundError
-          @link = nil
-        end
-      end
+   
+    dir.each_entry do |entry|
+      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
+      file[:ext] = file[:name].downcase.split(/\./)[-1]
+
+      editable = true
+      editable = false if file[:size].to_i > 2**20  # max. 1 MB
+      editable = false if no_edit_ext.include? file[:ext]
+      file[:editable] = editable
+      
+      files << file
     end
     return files
   end

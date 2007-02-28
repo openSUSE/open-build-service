@@ -11,6 +11,7 @@
     <% @files.each do |file| %>
     <tr>
       <td><%=h file[:name] %></br/></td>
+      <td><%=h human_readable_fsize( file[:size] )%></td>
       <td>
         <% if file[:editable] %>
           <%= link_to("[Edit]", :action => :edit_file, :project => @project,
