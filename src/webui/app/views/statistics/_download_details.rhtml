@@ -3,7 +3,11 @@
 <h4>Download Statistics Details</h4>
 <h5>for <%= @title -%> <b>"<%= @name -%>"</b></h5>
 
-<table id="download_statistics_details">
+<table id="download_details">
+
+  <% if params[:more] -%>
+    <%= statistics_limit_form( 'download_details', 'Show top' ) %>
+  <% end %>
 
   <%= '<th>Project</th>' unless @title == 'Project' or @title == 'Package' %>
   <%= '<th>Package</th>' if @title != 'Package' %>
@@ -70,3 +74,8 @@
   <%= link_to 'Remove Filter / Show overall download statistics',
     :controller => params[:controller], :action => params[:action] -%>
 </p>
+
+<% if params[:more] -%>
+  <%= link_to_mainpage %>
+<% end %>
+
