@@ -50,7 +50,7 @@ function goto_url(url) {
     document.forms[0].elements[0].blur();
     return;
   }
-  window.open(url,'helpwindow','toolbar=yes,location=yes')
+  window.open(url,'helpwindow','toolbar=yes,location=yes,scrollbars=yes')
   document.forms[0].reset();
   document.forms[0].elements[0].blur();
 }
