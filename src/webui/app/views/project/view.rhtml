@@ -7,9 +7,17 @@
 ]
 -%>
 
-<h2 id="mainhead"><%=h @project.title %></h2>
-<h4>Project ID: <%=h @project %></h4>
-<%= render :partial => 'shared/star_rating' -%>
+<table>
+  <tr>
+    <td><h2><%=h @project.title %> (<%=h @project -%>)</h2></td>
+    <td>
+      <span id="rating">
+        <%= render :partial => 'shared/star_rating' -%>
+      </span>
+    </td>
+    <td><span id="info_message" style="display:none;"></span></td>
+  </tr>
+</table>
 
 <div class="description">
   <% description = @project.description.data.text %>
