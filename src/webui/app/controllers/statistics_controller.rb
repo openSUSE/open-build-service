@@ -86,7 +86,9 @@ class StatisticsController < ApplicationController
       @title = ''
       @downloads = Downloadcounter.find( :all, :limit => limit )
     end
-    render :partial => 'download_details', :layout => true
+    # no layout, if this is an ajax-request
+    request.get? ? layout=true : layout=false
+    render :partial => 'download_details', :layout => layout
   end
 
 

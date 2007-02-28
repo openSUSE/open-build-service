@@ -630,16 +630,16 @@ div#package_disablebuild ul {
   margin-left:0;
 }
 
-#download_details {
+#download_details table {
   border: 1px #6eb927 dotted;
   padding: 0.25em;
 }
-#download_details th {
+#download_details table th {
   border-bottom: 1px #999 dotted;
   padding: 0.5em;
   font-size: 0.9em
 }
-#download_details td {
+#download_details table td {
   border-bottom: 1px #ddd dotted;
   padding: 0 0.4em 0 0.4em;
 }
