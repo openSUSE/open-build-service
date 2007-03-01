@@ -62,7 +62,7 @@ if test -z "$BUILDINFO" ; then
 fi
 
 eval `$BUILD_HELPER vars $BUILDINFO || echo exit 1`
-test -z "$SPECFILE" && exit 1
+test -z "$FILE" && exit 1
 
 echo "Building '$PNAME' for project '$PROJECT' target '$REPOSITORY' arch '$TARGETARCH'"
 rm -f $BUILD_ROOT/.build.meta
@@ -138,7 +138,7 @@ if test -n "$XEN" ; then
   mkdir -p $BUILD_ROOT/.mount
 fi
 
-if ! $BUILD_DIR/build --root $BUILD_ROOT$XENARGS --clean --changelog --norootforbuild --dist $BUILD_ROOT/.config --rpmlist $BUILD_ROOT/.rpmlist --release "$RELEASE" --arch "$TARGETARCH" --reason "Building '$PNAME' for project '$PROJECT' target '$REPOSITORY' arch '$TARGETARCH' srcmd5 '$PMD5'" "$BUILD_ROOT/.build-srcdir/$SPECFILE" ; then
+if ! $BUILD_DIR/build --root $BUILD_ROOT$XENARGS --clean --changelog --norootforbuild --dist $BUILD_ROOT/.config --rpmlist $BUILD_ROOT/.rpmlist --release "$RELEASE" --arch "$TARGETARCH" --reason "Building '$PNAME' for project '$PROJECT' target '$REPOSITORY' arch '$TARGETARCH' srcmd5 '$PMD5'" "$BUILD_ROOT/.build-srcdir/$FILE" ; then
     echo "build failed."
     exit 1
 fi

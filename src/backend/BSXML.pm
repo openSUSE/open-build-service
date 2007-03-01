@@ -172,6 +172,7 @@ our $buildinfo = [
 	'runscripts',
 	'notmeta',
 
+	'epoch',
 	'version',
 	'release',
 	'arch',
@@ -269,6 +270,7 @@ our $rpmlist = [
     'rpmlist' =>
      [[ 'rpm' =>
 	    'name',
+	    'epoch',
 	    'version',
 	    'release',
 	    'buildtime',

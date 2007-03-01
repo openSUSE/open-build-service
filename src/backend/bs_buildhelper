@@ -301,7 +301,7 @@ if ($ARGV[0] eq 'vars') {
   $release =~ s/.*-//;
   $release .= ".$info->{'bcnt'}";
   printbash('PNAME', $info->{'package'});
-  printbash('SPECFILE', $info->{'specfile'});
+  printbash('FILE', $info->{'file'});
   printbash('PMD5', $info->{'srcmd5'});
   printbash('VMD5', $info->{'verifymd5'} || $info->{'srcmd5'});
   printbash('PROJECT', $projid);

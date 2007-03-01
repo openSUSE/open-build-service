@@ -113,7 +113,7 @@ sub getbinarydata {
       next;
     }
     my @s = stat(F);
-    my $data = Build::querybinary([$bin, \*F], 1);
+    my $data = Build::query([$bin, \*F], 1);
     close(F);
     if (!$data) {
       push @res, {'filename' => $filename, 'error' => 'bad binary package'};
@@ -377,9 +377,9 @@ sub isolder {
   my ($old, $new) = @_;
   return 0 if $old !~ /\.rpm$/;
   return 0 unless -e $old;
-  my %qold = Build::rpmq($old, qw{VERSION RELEASE EPOCH});
+  my %qold = Build::Rpm::rpmq($old, qw{VERSION RELEASE EPOCH});
   return 0 unless %qold;
-  my %qnew = Build::rpmq($new, qw{VERSION RELEASE EPOCH});
+  my %qnew = Build::Rpm::rpmq($new, qw{VERSION RELEASE EPOCH});
   return 0 unless %qnew;
   my $vold = $qold{'VERSION'}->[0];
   $vold .= "-$qold{'RELEASE'}->[0]" if $qold{'RELEASE'};
@@ -387,7 +387,7 @@ sub isolder {
   my $vnew = $qnew{'VERSION'}->[0];
   $vnew .= "-$qnew{'RELEASE'}->[0]" if $qnew{'RELEASE'};
   $vnew = "$qnew{'EPOCH'}->[0]:$vnew" if $qnew{'EPOCH'};
-  my $r = Build::rpm_verscmp($vold, $vnew);
+  my $r = Build::Rpm::rpm_verscmp($vold, $vnew);
   # print "isolder $vold $vnew: $r\n";
   return $r > 0 ? 1 : 0;
 }
@@ -930,6 +930,7 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
   $ret->{'specfile'} = $info->{'file'} unless $uploaded;
+  $ret->{'file'} = $info->{'file'} unless $uploaded;
 
   # read repository data from cache
   my %repodata;
@@ -955,7 +956,7 @@ sub getbuildinfo {
   my $pname = $info->{'name'};
   my @subpacks = grep {$dep2src{$_} eq $pname} keys %dep2src;
   #$ret->{'subpack'} = \@subpacks;
-  Build::readrpmdeps($bconf, undef, reverse @repos);
+  Build::readdeps($bconf, undef, reverse @repos);
   my @deps = @{$info->{'dep'} || []};
   $info->{'file'} =~ /\.(spec|dsc)$/;
   if ($1 && $1 ne $bconf->{'type'}) {
@@ -1050,10 +1051,10 @@ sub getbuildinfo_post {
   my $d;
   my $info = {'repository' => $repoid};
   if (looks_like_dsc($fn)) {
-    $d = Build::read_dsc($bconf, $fn);
+    $d = Build::Deb::parse($bconf, $fn);
     $info->{'file'} = 'upload.dsc';
   } else {
-    $d = Build::read_spec($bconf, $fn);
+    $d = Build::Rpm::parse($bconf, $fn);
     $info->{'file'} = 'upload.spec';
   }
   unlink($fn);
@@ -1129,9 +1130,13 @@ sub getcodemd5 {
   my %new;
   my $doclean;
   my @files = ls($dir);
+  my @bfiles = ls("$dir/Build");
+  my %bfiles = map {$_ => 1} @bfiles;
+  @files = sort(@files, @bfiles);
   $cache ||= {};
-  for my $file (sort @files) {
-    next unless -f "$dir/$file";
+  for my $file (@files) {
+    my $f = $bfiles{$file} ? "Build/$dir/$file" : "$dir/$file";
+    next unless -f $f;
     my @s = stat _;
     my $id = "$s[9]/$s[7]/$s[1]";
     $new{$id} = 1;
@@ -1139,7 +1144,7 @@ sub getcodemd5 {
       $md5 .= "$cache->{$id}  $file\n";
       next;
     }
-    $cache->{$id} = Digest::MD5::md5_hex(readstr("$dir/$file"));
+    $cache->{$id} = Digest::MD5::md5_hex(readstr($f));
     $md5 .= "$cache->{$id}  $file\n";
     $doclean = 1;
   }
@@ -1155,6 +1160,11 @@ sub getcode {
   my ($cgi, $dir) = @_;
   my @send;
   for my $file (ls($dir)) {
+    if ($file eq 'Build' && -d "$dir/$file") {
+      for my $file2 (ls("$dir/Build")) {
+        push @send, {'name' => "$file2", 'filename' => "$dir/Build/$file2"};
+      }
+    }
     next unless -f "$dir/$file";
     push @send, {'name' => "$file", 'filename' => "$dir/$file"};
   }

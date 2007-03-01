@@ -242,7 +242,7 @@ sub findbins_dir {
     my @s = stat($bin);
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
-    my $data = Build::querybinary($bin, 1);	# need arch
+    my $data = Build::query($bin, 1);	# need arch
     next unless $data;
     $data->{'id'} = $id;
     delete $data->{'epoch'};
@@ -288,7 +288,7 @@ sub findbins {
       $hits++;
     } else {
       $misses++;
-      $data = Build::querybinary("$dir/$bin");
+      $data = Build::query("$dir/$bin");
       next unless $data;
       $data->{'id'} = $id;
     }
@@ -1175,7 +1175,7 @@ while(1) {
     push @{$subpacks{$dep2src{$_}}}, $_ for keys %dep2src;
     print "    expanding dependencies\n";
     my %experrors;
-    Build::readrpmdeps($bconf, undef, reverse @repos);
+    Build::readdeps($bconf, undef, reverse @repos);
 
     my %pdeps;
     for my $packid (@packs) {

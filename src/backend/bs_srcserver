@@ -127,29 +127,23 @@ sub addrev {
   die("bad files\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
 
   # get version/release from spec/dsc file
-  my $specfile = findspecdsc($projid, $packid, undef, 'spec', $files);
   my $version = 'unknown';
   my $release;
   my $bconf = Build::read_config('noarch');
-  if ($specfile) {
-    my $d = finddeps($projid, $packid, "$files->{$specfile}-$specfile", $bconf);
-    $version = $d->{'version'} if defined $d->{'version'};
+  for my $type ('spec', 'dsc') {
+    my $file = findfile($projid, $packid, undef, $type, $files);
+    next unless defined $file;
+    my $d = Build::parse($bconf, "$srcrep/$packid/$files->{$file}-$file");
+    next unless defined $d->{'version'};
+    $version = $d->{'version'};
     $release = $d->{'release'} if defined $d->{'release'};
-  }
-  if ($version eq 'unknown') {
-    my $dscfile = findspecdsc($projid, $packid, undef, 'dsc', $files);
-    if ($dscfile) {
-      my $d = finddeps($projid, $packid, "$files->{$dscfile}-$dscfile", $bconf);
-      $version = $d->{'version'} if defined $d->{'version'};
-      $release = $d->{'release'} if defined $d->{'release'};
-    }
+    last;
   }
   if (defined($release) && $release =~ /^(\d+)/) {
     $release = $1;
   } else {
     $release = '0';
   }
-
   my $srcmd5 = addmeta($projid, $packid, $files);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release};
   $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $version);
@@ -605,7 +599,7 @@ sub readpack {
   return $pack;
 }
 
-sub findspecdsc {
+sub findfile {
   my ($projid, $packid, $repoid, $ext, $files, $ambigp) = @_;
   $files = lsrep($projid, $packid, $files) unless ref $files;
   return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
@@ -624,70 +618,6 @@ sub findspecdsc {
     return ($files->{$files[0]}, $files[0]) if @files == 1;
   }
   return (undef, undef);
-}
-
-sub read_dsc {
-  my ($bconf, $fn) = @_;
-  my $ret;
-  my @control;
-  if (ref($fn) eq 'ARRAY') {
-    @control = @$fn;
-  } else {
-    local *F;
-    if (!open(F, '<', $fn)) {
-      $ret->{'error'} = "$fn: $!";
-      return $ret;
-    }
-    @control = <F>;
-    close F;
-    chomp @control;
-  }
-  splice(@control, 0, 3) if @control > 3 && $control[0] =~ /^-----BEGIN/;
-  my $name;
-  my $version;
-  my @deps;
-  while (@control) {
-    my $c = shift @control;
-    last if $c eq '';   # new paragraph
-    my ($tag, $data) = split(':', $c, 2);
-    next unless defined $data;
-    $tag = uc($tag);
-    while (@control && $control[0] =~ /^\s/) {
-      $data .= "\n".substr(shift @control, 1);
-    }
-    $data =~ s/^\s+//s;
-    $data =~ s/\s+$//s;
-    if ($tag eq 'VERSION') {
-      $version = $data;
-      $version =~ s/-[^-]+$//;
-    } elsif ($tag eq 'SOURCE') {
-      $name = $data;
-    } elsif ($tag eq 'BUILD-DEPENDS') {
-      my @d = split(/,\s*/, $data);
-      s/\s.*// for @d;
-      push @deps, @d;
-    } elsif ($tag eq 'BUILD-CONFLICTS' || $tag eq 'BUILD-IGNORE') {
-      my @d = split(/,\s*/, $data);
-      s/\s.*// for @d;
-      push @deps, map {"-$_"} @d;
-    }
-  }
-  $ret->{'name'} = $name;
-  $ret->{'version'} = $version;
-  $ret->{'deps'} = \@deps;
-  return $ret;
-}
-
-sub finddeps {
-  my ($projid, $packid, $spec, $bconf, $ifdeps) = @_;
-
-  my $fn = "$srcrep/$packid/$spec";
-  $fn = "$srcrep/$spec" if $spec =~ /\//;
-  if ($spec =~ /\.spec$/) {
-    return Build::read_spec($bconf, $fn, undef, $ifdeps);
-  } else {
-    return read_dsc($bconf, $fn);
-  }
 }
 
 sub getprojectlist {
@@ -823,41 +753,26 @@ sub getprojpack {
 	    $pinfo->{'info'} = \@dinfo if @dinfo;
 	  }
         } elsif ($cgi->{'withdeps'}) {
-	  my $ifdeps;
-	  my $specdscambig;
+	  my $needrepos;
           my @dinfo;
-	  my ($specmd5, $spec) = findspecdsc($projid, $packid, undef, 'spec', $files, \$specdscambig);
-          if ($spec) {
-	    my $d = finddeps($projid, $packid, "$specmd5-$spec", $bconf, \$ifdeps);
-	    if (defined($d->{'name'})) {
-	      my $version = $d->{'version'};
-	      $version = 'unknown' unless defined $version;
-	      $pinfo->{'versrel'} = "$version-$rev->{'vrev'}";
-              if (!$ifdeps) {
-		push @dinfo, {'repository' => ':spec', 'file' => $spec, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
-		$dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
-	      }
-	    } else {
-	      undef $spec;
+          my %type2file;
+          for my $type ('spec', 'dsc') {
+	    my $ambig;
+	    my ($md5, $file) = findfile($projid, $packid, undef, $type, $files, \$ambig);
+            $needrepos ||= $ambig;
+            next unless defined $file;
+	    $type2file{$type} = $file unless $ambig;
+            my $d = Build::parse($bconf, "$srcrep/$packid/$md5-$file");
+	    $needrepos ||= $d->{'configdependent'};
+            if (defined($d->{'name'})) {
+	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
+	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
 	    }
-	  }
-	  my ($dscmd5, $dsc) = findspecdsc($projid, $packid, undef, 'dsc', $files, \$specdscambig);
-	  if ($dsc) {
-	    my $d = finddeps($projid, $packid, "$dscmd5-$dsc", $bconf, \$ifdeps);
-	    if (defined($d->{'name'})) {
-	      my $version = $d->{'version'};
-	      $version = 'unknown' unless defined $version;
-	      $pinfo->{'versrel'} = "$version-$rev->{'vrev'}" unless $pinfo->{'versrel'};
-	      if (!$ifdeps) {
-		push @dinfo, {'repository' => ':dsc', 'file' => $dsc, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
-		$dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
-	      }
-	    } else {
-	      undef $dsc;
-	    }
-	  }
-          $pinfo->{'versrel'} = "unknown-$rev->{'vrev'}" unless $pinfo->{'versrel'};
-	  if ($ifdeps || $repoids || $specdscambig || ($enable && %$enable) || ($disable && %$disable)) {
+	    push @dinfo, {'repository' => ":$type", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+	    $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
+          }
+          $pinfo->{'versrel'} ||= "unknown-$rev->{'vrev'}";
+	  if ($needrepos || $repoids || ($enable && %$enable) || ($disable && %$disable)) {
 	    @dinfo = ();
 	    print "$projid/$packid is repo dependant\n";
 	    for my $repo (@{$proj->{'repository'} || []}) {
@@ -874,26 +789,28 @@ sub getprojpack {
 	        $bconfs{$repoid} = Build::read_config($arch, $c);
 	      }
 	      my $conf = $bconfs{$repoid};
-	      ($specmd5, $spec) = findspecdsc($projid, $packid, $repoid, 'spec', $files) if $specdscambig;
-	      ($dscmd5, $dsc) = findspecdsc($projid, $packid, $repoid, 'dsc', $files) if $specdscambig;
-	      if ($spec && ($conf->{'type'} eq 'spec' || !$dsc)) {
-		my $d = finddeps($projid, $packid, "$specmd5-$spec", $conf);
-	        if (defined($d->{'name'})) {
-		  push @dinfo, {'repository' => $repoid, 'file' => $spec, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+
+              my ($md5, $file);
+	      my $mytypedone;
+              for my $type ($conf->{'type'}, 'spec', 'dsc') {
+		next if $type eq $conf->{'type'} && $mytypedone;
+		$mytypedone = 1;
+		$file = $type2file{$type};
+		if (!defined($file)) {
+	          ($md5, $file) = findfile($projid, $packid, $repoid, $type, $files);
+		} else {
+		  $md5 = $files->{$file};
+		}
+                next unless defined $file;
+                my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
+		if (defined($d->{'name'})) {
+		  push @dinfo, {'repository' => $repoid, 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
 		  $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
 		} else {
-		  push @dinfo, {'repository' => $repoid, 'error' => 'spec file parse error'};
+		  push @dinfo, {'repository' => $repoid, 'error' => "$type file parse error"};
 		}
-	        next;
-	      }
-	      next unless defined $dsc;
-	      my $d = finddeps($projid, $packid, "$dscmd5-$dsc", $conf);
-	      if (defined($d->{'name'})) {
-	        push @dinfo, {'repository' => $repoid, 'file' => $dsc, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
-		$dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
-	      } else {
-	        push @dinfo, {'repository' => $repoid, 'error' => 'dsc file parse error'};
-	      }
+		last;
+              }
 	    }
 	  }
 	  $pinfo->{'info'} = \@dinfo;

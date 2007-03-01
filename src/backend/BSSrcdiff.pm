@@ -425,7 +425,7 @@ sub findsim {
 sub srcdiff {
   my ($pold, $old, $pnew, $new, $fmax, $tmax, $edir) = @_;
 
-  my $d;
+  my $d = '';
 
   my @old = sort keys %$old;
   my @new = sort keys %$new;
