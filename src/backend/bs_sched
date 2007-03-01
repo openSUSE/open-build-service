@@ -1485,7 +1485,7 @@ while(1) {
     }
 
     # free memory
-    Build::forgetrpmdeps($bconf);
+    Build::forgetdeps($bconf);
 
     # write package status for this project
     my @packstatuslist = map {{'name' => $_, 'status' => $packstatus{$_}, (exists $packerror{$_} ? ('error' => $packerror{$_}) : ())}} @packs;
