@@ -9,6 +9,8 @@
 
 <h2>Project <%=h @project %> Status Monitor</h2>
 
+<p id="info_message" style="display:none;"></p>
+
 <p>
 <% if @result -%>
 <b>Build Status:</b> <%=h @projectresult.status %><br/>
@@ -60,11 +62,11 @@
       <td id="<%= status_id_for(packname, repo, arch) -%>"
         class="status_<%= status.gsub(' ','_') -%>">
       <% if status == 'failed' or status == 'expansion error' %>
-        <%= link_to image_tag( 'rebuild-light', :border => 0,
+        <%= link_to_remote image_tag( 'rebuild-light', :border => 0,
           :title => "rebuild package #{packname} for #{repo}/#{arch}" ),
-          :controller => 'package', :action => 'trigger_rebuild',
+          :url => { :controller => 'package', :action => 'trigger_rebuild',
           :package => packname, :project => @project.to_s,
-          :repo => repo, :arch => arch, :redirect => 'monitor' -%>
+          :repo => repo, :arch => arch, :redirect => 'monitor' } -%>
       <% end %>
       <%= link_to status, :action => :live_build_log,
         :package => packname, :project => @project.to_s, :arch => arch,
@@ -73,11 +75,11 @@
     <% end -%>
     <% end -%>
     <td>
-      <%= link_to image_tag( 'rebuild', :border => 0,
+      <%= link_to_remote image_tag( 'rebuild', :border => 0,
         :title => "rebuild package #{packname} for all targets" ),
-        :controller => 'package', :action => 'trigger_rebuild',
+        :url => { :controller => 'package', :action => 'trigger_rebuild',
         :package => packname, :project => @project.to_s,
-        :redirect => 'monitor' if @failed[packname] -%>
+        :redirect => 'monitor' } if @failed[packname] -%>
     </td>
   </tr>
   <% end -%>

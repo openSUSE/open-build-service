@@ -517,14 +517,23 @@ class PackageController < ApplicationController
 
     logger.debug( "Triggered Rebuild for #{package}, options=#{options.to_json.to_s}" )
 
-    redirect = params[:redirect]
-    if redirect == 'monitor'
-      flash[:note] = "Triggered rebuild for package #{package}."
-      redirect_to :controller => 'project', :action => 'monitor',
-        :project => project
+    if  params[:redirect] == 'monitor'
+      controller = 'project'
+      action = 'monitor'
+      @message = "Triggered rebuild for package #{package}."
     else
-      flash[:note] = 'Triggered rebuild.'
-      redirect_to :action => 'show', :project => project, :package => package
+      controller = 'package'
+      action = 'show'
+      @message = "Triggered rebuild."
+    end
+
+    if request.get?
+      # non ajax request:
+      flash[:note] = @message
+      redirect_to :controller => controller, :action => action,
+        :project => project, :package => package
+    else
+      # ajax request - render default view: in this case 'trigger_rebuild.rjs'
     end
   end
 

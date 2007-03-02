@@ -226,15 +226,28 @@ class ProjectController < ApplicationController
     @project = Project.find( params[:project] )
   end
 
+
   def trigger_rebuild
     @project = Project.find( params[:project] )
-    if @project.save
-      flash[:note] = "Triggered rebuild"
+
+    if request.get?
+      # non ajax-request
+      if @project.save
+        flash[:note] = "Triggered rebuild"
+      else
+        flash[:error] = "Failed to trigger rebuild"
+      end
+      redirect_to :action => 'show', :project => params[:project]
     else
-      flash[:error] = "Failed to trigger rebuild"
+      # ajax-request
+      if @project.save
+        @message = "Triggered rebuild"
+      else
+        @message = "Failed to trigger rebuild"
+      end
     end
-    redirect_to :action => 'show', :project => params[:project]
   end
+
 
   def save
     @project = Project.find( params[:project] )
