@@ -8,6 +8,6 @@
     <% end %>
   </table>
 <% else %>
-  None of the <%= pluralize(@max_clients, 'host') %> idle. Good!:)
+  None of the <%= pluralize(@workerstatus.clients, 'host') %> idle. Good!:)
 <% end %>
 
