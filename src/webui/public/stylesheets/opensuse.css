@@ -790,6 +790,10 @@ strong.highlight {
 
 
 /* build status monitor for projects */
+.buildstatus tr:hover {
+  background:#e4f4dc;
+  border: 0;
+}
 .status_blocked a, .status_blocked a:visited {
   color: #fff;
   background-color: #bbb;
