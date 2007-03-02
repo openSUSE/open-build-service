@@ -776,7 +776,7 @@ EOL
       eval {
         BSRPC::rpc($req, undef, 'cmd=setpackage', "package=$changed{$f}");
       };
-      print "      $f: @_" if @_;
+      print "      $f: $@" if $@;
     }
     for my $f (@deleted) {
       my $req = {
@@ -788,7 +788,7 @@ EOL
       eval {
         BSRPC::rpc($req, undef, 'cmd=deleted');
       };
-      print "      $f: @_" if @_;
+      print "      $f: $@" if $@;
     }
   }
   close(F);	# release lock
@@ -852,7 +852,7 @@ sub prpdeleted {
       eval {
         BSRPC::rpc($req, undef, 'cmd=deleted');
       };
-      print "      $f: @_" if @_;
+      print "      $f: $@" if $@;
     }
   }
   unlink("$reporoot/$prp/.finishedlock");
