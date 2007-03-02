@@ -74,9 +74,10 @@
     <% end -%>
     <td>
       <%= link_to image_tag( 'rebuild', :border => 0,
-        :title => "rebuild package #{packname}" ), :controller => 'package',
-        :action => 'trigger_rebuild', :package => packname,
-        :project => @project.to_s, :redirect => 'monitor' if @failed[packname] -%>
+        :title => "rebuild package #{packname} for all targets" ),
+        :controller => 'package', :action => 'trigger_rebuild',
+        :package => packname, :project => @project.to_s,
+        :redirect => 'monitor' if @failed[packname] -%>
     </td>
   </tr>
   <% end -%>
