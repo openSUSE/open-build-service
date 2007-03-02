@@ -10,6 +10,7 @@ class StatusMessageController < ApplicationController
       @messages = StatusMessage.find :all,
         :limit => params[:limit],
         :order => 'created_at DESC'
+      @count = StatusMessage.find( :first, :select => 'COUNT(*) AS cnt' ).cnt
 
     elsif request.put?
 

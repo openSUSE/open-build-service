@@ -70,7 +70,9 @@
       <% end %>
   </table>
   <p>
-    <%= link_to_remote 'Show more messages ...',
-      :url => { :action => 'show_more_messages' } -%>
+    <% if @status_messages.count.to_i > @max_messages %>
+      <%= link_to_remote 'Show more messages ...',
+        :url => { :action => 'show_more_messages' } -%>
+    <% end %>
   </p>
 </div>
