@@ -2,6 +2,11 @@
 
 <div id="statistics">
   <span>
+    <%= render :partial => 'most_active' -%>
+    <%= link_to 'more...', { :controller => 'statistics',
+      :action => 'most_active', :more => true, :limit => 25 } -%>
+  </span>
+  <span>
     <%= render :partial => 'most_downloaded' -%>
     <%= link_to 'more...', { :controller => 'statistics',
       :action => 'download_details', :more => true, :limit => 25 } -%>

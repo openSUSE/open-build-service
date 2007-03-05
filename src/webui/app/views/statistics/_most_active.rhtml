@@ -1,0 +1,35 @@
+<% @pagetitle = "Most Active" %>
+
+<div id="most_active">
+
+  <h4>Most Active:</h4>
+  <br/>
+
+  <% if params[:more] -%>
+    <%= statistics_limit_form( 'most_active', 'Show top' ) %>
+  <% end %>
+
+  <h5>Packages</h5>
+  <ol>
+    <% @most_active_pac.each do |package| %>
+      <li>
+        <% title = "activity = #{package.activity}%" %>
+        <%= link_to_package_view( package.name, package.project, title ) -%>
+    <% end %>
+  </ol>
+
+  <h5>Projects</h5>
+  <ol>
+    <% @most_active_prj.each do |project| %>
+      <li>
+        <% title = "activity = #{project.activity}%" %>
+        <%= link_to_project_view( project.name, title ) -%>
+    <% end %>
+  </ol>
+
+  <% if params[:more] -%>
+    <%= link_to_mainpage %>
+  <% end %>
+
+</div>
+
