@@ -12,6 +12,13 @@ class DbPackage < ActiveRecord::Base
   has_many :ratings, :as => :object, :dependent => :destroy
 
 
+  # disable automatic timestamp updates (updated_at and created_at)
+  # but only for this class, not(!) for all ActiveRecord::Base instances
+  def record_timestamps
+    false
+  end
+
+
   class << self
     def store_axml( package )
       DbPackage.transaction do
@@ -45,12 +52,12 @@ class DbPackage < ActiveRecord::Base
     DbPackage.transaction( self ) do
       if self.title != package.title.to_s
         self.title = package.title.to_s
-        self.save!
+        #self.save!
       end
 
       if self.description != package.description.to_s
         self.description = package.description.to_s
-        self.save!
+        #self.save!
       end
 
       #--- update users ---#
@@ -159,19 +166,19 @@ class DbPackage < ActiveRecord::Base
       if package.has_element? :url
         if self.url != package.url.to_s
           self.url = package.url.to_s
-          self.save!
+          #self.save!
         end
       else
         self.url = nil
-        self.save!
+        #self.save!
       end
       #--- end update url ---#
 
-      # update 'updated_at' timestamp
-      self.save! if package.has_attribute? 'updated' and self.updated_at.xmlschema != package.updated
+      # update timestamp and save
+      self.update_timestamp
+      self.save!
 
       #--- write through to backend ---#
-
       if write_through?
         path = "/source/#{self.db_project.name}/#{self.name}/_meta"
         Suse::Backend.put_source( path, package.dump_xml )
@@ -287,6 +294,35 @@ class DbPackage < ActiveRecord::Base
       user_score = 0
     end
     return { :score => score, :count => count, :user_score => user_score }
+  end
+
+
+  def activity
+    if self.updated_at.nil?
+      return 100
+    else
+      updated_days_ago ||= ( Time.now - self.updated_at ) / 86400
+      # how much activity do we want to substract depending on
+      # the amount of time past since the last update
+      slope ||= updated_days_ago ** 1.55 / 10
+      activity ||= activity_index - slope
+      activity = 0 if activity < 0
+      return activity
+    end
+  end
+
+
+  def update_timestamp
+    # the value we add to the activity, when the object gets updated
+    activity_addon = 10
+    activity_addon += Math.log( self.update_counter ) if update_counter > 0
+    new_activity = activity + activity_addon
+    new_activity = 100 if new_activity > 100
+
+    self.activity_index = new_activity
+    self.created_at ||= Time.now
+    self.updated_at = Time.now
+    self.update_counter += 1
   end
 
 

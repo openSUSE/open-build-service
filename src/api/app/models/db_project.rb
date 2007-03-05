@@ -316,4 +316,18 @@ class DbProject < ActiveRecord::Base
   end
 
 
+  def activity
+    # the activity of a project is measured by the average activity
+    # of all its packages. this is not perfect, but ok for now.
+    packages = self.db_packages
+    count = packages.length
+    return 0 if count == 0
+
+    sum = 0
+    packages.each { |package| sum += package.activity }
+    activity = sum / count
+    return activity
+  end
+
+
 end

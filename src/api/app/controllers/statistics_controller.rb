@@ -108,7 +108,8 @@ class StatisticsController < ApplicationController
     repo_stats = repo.download_stats if repo
     arch_stats = arch.download_stats if arch
 
-    @stats = DownloadStat.find :all
+    @stats = DownloadStat.find :all,
+      :include => [ :db_project, :db_package, :architecture, :repository ]
 
     # get intersection of wanted statistics
     @stats &= prj_stats  if prj_stats
@@ -232,6 +233,16 @@ class StatisticsController < ApplicationController
 
 
   def most_active
+    @type = params[:type] or @type = 'packages'
+    if @type == 'projects'
+      @projects = DbProject.find :all
+      @projects.sort! { |a,b| b.activity <=> a.activity }
+      @projects = @projects[0..@limit-1]
+    elsif @type == 'packages'
+      @packages = DbPackage.find :all, :include => [ :db_project ]
+      @packages.sort! { |a,b| b.activity <=> a.activity }
+      @packages = @packages[0..@limit-1]
+    end
   end
 
 

@@ -35,7 +35,8 @@ class Project < ActiveXML::Base
 
 
   def update_timestamp
-    data.attributes['updated'] = Time.now.xmlschema
+    # save will call DbProject.store_axml() through ActiveXML::Transport.save()
+    # which will do DbProject.update_timestamp() and DbProject.save()
     save
   end
 

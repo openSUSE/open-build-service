@@ -31,7 +31,8 @@ class Package < ActiveXML::Base
 
 
   def update_timestamp
-    data.attributes['updated'] = Time.now.xmlschema
+    # save will call DbPackage.store_axml() through ActiveXML::Transport.save()
+    # which will do DbPackage.update_timestamp() and DbPackage.save()
     save
   end
 

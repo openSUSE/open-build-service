@@ -1,2 +1,31 @@
-<h1>Statistics#most_active</h1>
-<p>Find me in app/views/statistics/most_active.rhtml</p>
+
+xml.instruct!
+
+xml.most_active do
+
+
+  if @type == 'projects'
+
+    @projects.each do |project|
+      xml.project(
+        :activity => project.activity,
+        :packages => project.db_packages.length,
+        :name => project.name
+      )
+    end
+
+  elsif @type == 'packages'
+
+    @packages.each do |package|
+      xml.package(
+        :activity => package.activity,
+        :update_count => package.update_counter,
+        :project => package.db_project.name,
+        :name => package.name
+      )
+    end
+
+  end
+
+end
+
