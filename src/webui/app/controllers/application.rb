@@ -127,8 +127,8 @@ class ApplicationController < ActionController::Base
       else
         render_error :code => @code, :message => @message
       end
-#   when ActiveXML::Transport::ConnectionError
-#     render_error :code => @code, :message => @message
+    when ActiveXML::Transport::ConnectionError
+      render_error :message => "Unable to connect to API"
 #   when ActiveXML::Error
 #     render_error :code => @code, :message => @messag
     else

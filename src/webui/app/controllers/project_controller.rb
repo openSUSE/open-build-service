@@ -97,7 +97,7 @@ class ProjectController < ApplicationController
     end
 
     @arch_list = tmp.keys.sort
-    @packstatus = Packstatus.find( params[:project], :command => 'summaryonly' )
+    @buildresult = Buildresult.find( :summary, :project => params[:project] )
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
     @rating = Rating.find( :project => @project )
   end

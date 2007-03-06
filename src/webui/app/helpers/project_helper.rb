@@ -34,21 +34,18 @@ module ProjectHelper
   end
 
   def format_packstatus_for( repo, arch )
-    #logger.debug "starting format_packstatus_for"
     ret = String.new
-    #logger.debug "looking for packstatuslist for '#{repo}/#{arch}' (repo/arch)"
-    return unless @packstatus.has_element? :packstatuslist
-
-    psl = @packstatus.packstatuslist("@repository='#{repo}' and @arch='#{arch}'")
-    #logger.debug "psl is: #{psl.inspect}"
-    if psl.nil?
+    return unless @resultlist.has_element? :result
+    
+    result = @buildresult.result("@repository='#{repo}' and @arch='#{arch}'")
+    if result.nil?
       ret << "n/a<br>"
     else
-      psl.each_packstatussummary do |pss|
-        ret << "#{pss.status}:&nbsp;#{pss.count}<br>\n"
+      result.summary.each_statuscount do |scnt|
+        ret << "#{scnt.code}:&nbsp;#{scnt.count}<br>\n"
       end
     end
-    #logger.debug "returning: #{ret.inspect}"
+
     return ret
   end
 
