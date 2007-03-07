@@ -1,13 +1,13 @@
 #very close to _tagged_objects_with_tags.xml
 xml.instruct!
 
-xml.collection(:tag => @tag.name) do
+xml.collection(:tag => CGI::escapeHTML(@tag.name)) do
 
   if @projects
     @projects.each do |project|
-      xml.project(:name => project.name, :title => project.title ) do
+      xml.project(:name => project.name, :title => CGI::escapeHTML(project.title) ) do
         project.tags.find(:all, :group => "name").each do |tag|
-          xml.tag(:name => tag.name)
+          xml.tag(:name => CGI::escapeHTML(tag.name))
         end
      end
     end
@@ -15,9 +15,9 @@ xml.collection(:tag => @tag.name) do
   
   if @packages 
     @packages.each do |package|
-      xml.package(:project => package.db_project.name, :name => package.name, :title => package.title) do
+      xml.package(:project => package.db_project.name, :name => package.name, :title => CGI::escapeHTML(package.title) ) do
         package.tags.find(:all, :group => "name").each do |tag|
-          xml.tag(:name => tag.name)
+          xml.tag(:name => CGI::escapeHTML(tag.name))
         end
       end
     end

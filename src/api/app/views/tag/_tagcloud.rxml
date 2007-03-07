@@ -5,9 +5,9 @@ xml.tagcloud(:distribution_method => @distribution_method, :steps => @steps, :us
   @tags.each do |tag|
     case @distribution_method
       when "raw"
-        xml.tag(:name => tag[0], :count => tag[1])
+        xml.tag(:name => CGI::escapeHTML(tag[0]), :count => tag[1])
       else
-        xml.tag(:name => tag[0], :size => tag[1])
+        xml.tag(:name => CGI::escapeHTML(tag[0]), :size => tag[1])
      end
    end
 
