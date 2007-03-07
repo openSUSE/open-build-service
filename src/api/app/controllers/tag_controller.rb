@@ -12,6 +12,7 @@ class TagController < ApplicationController
     @taglist = Tag.find(:all)
     render :partial => "listxml"
   end
+  private :list_xml
   
   def get_tagged_objects_by_user
     
@@ -191,37 +192,65 @@ class TagController < ApplicationController
   def tagcloud 
     allowed_distribution_methods = ['raw', 'linear' , 'logarithmic']
     
-    @steps = (params[:steps] ||= 6).to_i
-    if @steps < 1 or @steps > 100
-      render_error :status => 404, :errorcode => 'tagcloud_error',
-      :message => "Invalid value for parameter steps. (must be 1..100)"
-      return
-    end
-    
-    @distribution_method = (params[:distribution] ||= "linear")
-    
-    begin     
-      if params[:user]
-        tagcloud = Tagcloud.new(:scope => "user", :user => @http_user)
-      else
-        tagcloud = Tagcloud.new(:scope => "global")
-      end
+    begin 
+      @steps = (params[:steps] ||= 6).to_i
+      raise ArgumentError.new "Invalid value for parameter steps.
+                     (must be 1..100)" if @steps < 1 or @steps > 100
       
-      #get the list of tags
-      @tags = tagcloud.get_tags(@distribution_method,@steps)
+      @distribution_method = (params[:distribution] ||= "linear")
+      raise ArgumentError.new "Invalid value for parameter distribution. 
+   	    (distribution=#{@distribution_method})" if not allowed_distribution_methods.include? @distribution_method
       
-      render :partial => "tagcloud"
-      
-      
-    rescue
-      if not allowed_distribution_methods.include? @distribution_method
-        render_error :status => 404, :errorcode => 'tagcloud_error',
-        :message => "Invalid value for parameter distribution. (distribution=#{@distribution_method})" 
+      if request.get?
         
-      elsif @tags.nil?
-        render_error :status => 404, :errorcode => 'tagcloud_error',
-        :message => "tag-cloud generation failed." 
+        
+        if params[:user]
+          tagcloud = Tagcloud.new(:scope => "user", :user => @http_user)
+        else
+          tagcloud = Tagcloud.new(:scope => "global")
+        end
+        
+        #get the list of tags
+        @tags = tagcloud.get_tags(@distribution_method,@steps)
+        raise ArgumentError.new "tag-cloud generation failed." if @tags.nil?
+        
+        render :partial => "tagcloud"
+        
+      elsif request.post?
+        request_data = request.raw_post
+        logger.debug "[TAG:] Tag cloud post: #{request_data}"
+        collection = ActiveXML::Node.new( request_data )
+        projects =[]
+        collection.each_project do |project|
+          proj = DbProject.find_by_name(project.name)
+          logger.debug '[TAG:] AAAAAAAAAAAAAAAA #{proj.inspect}'
+          raise RuntimeError.new "Error: Project '#{project.name}' not found." unless proj
+          projects << proj
+        end
+        logger.debug "[TAG:] Projects: #{projects.inspect}"
+        
+        packages = []
+        collection.each_package do |package|
+          project = DbProject.find_by_name(package.project)
+          raise RuntimeError.new "Error: Project '#{package.project}' not found." unless project
+          pack = DbPackage.find_by_db_project_id_and_name( project.id, package.name )
+          raise RuntimeError.new "Error: Package '#{package.name}' not found." unless pack
+          packages << pack
+        end
+        logger.debug "[TAG:] Packages: #{packages.inspect}"
+        
+        objects = projects + packages
+        tagcloud = Tagcloud.new(:scope => 'by_given_objects', :objects => objects)
+        logger.debug "[TAG:] Tagcloud: #{tagcloud.inspect}"
+        #@distribution_method = 'linear'
+        @tags = tagcloud.get_tags(@distribution_method,6)
+        logger.debug "[TAG:] tagcloud tags: #{@tags}"
+        render :partial => 'tagcloud'
       end
+      
+    rescue Exception => error
+      render_error :status => 404, :errorcode => 'tagcloud_error',
+      :message => error 
     end
     
   end
@@ -348,7 +377,7 @@ class TagController < ApplicationController
     @user = @http_user
     @project = DbProject.find_by_name(params[:project])
     
-    tags = taglistXML_to_tags(request.raw_post)
+    tags, unsaved_tags = taglistXML_to_tags(request.raw_post)
     
     tag_hash = {}
     tags.each do |tag|
@@ -381,11 +410,22 @@ class TagController < ApplicationController
       end
       save_tags(@project,@user,tags)
     end    
-    render :nothing => true, :status => 200
+    
+    if not unsaved_tags
+      render :nothing => true, :status => 200
+    else  
+      error = "[TAG:] There are unsaved Tags: #{unsaved_tags.inspect}"
+      logger.debug "#{error}"
+     # missing exception handling in the tag client
+      render_error :status => 400, :errorcode => 'tagcreation_error',
+      :message => error 
+     #render :nothing => true, :status => 200
+    end         
   end
   
   
   def taglistXML_to_tags(taglistXML)
+    
     taglist = []
     
     xml = REXML::Document.new(taglistXML)
@@ -396,13 +436,21 @@ class TagController < ApplicationController
     
     #make tag objects
     tags = []
-    taglist.each do |tagname|
-      tags << s_to_tag(tagname)
+    taglist.each do |@tagname|
+      begin
+        tags << s_to_tag(@tagname)
+      
+      rescue RuntimeError => error
+        @unsaved_tags ||= []
+        @unsaved_tags << @tagname
+        logger.debug "[TAG:] #{error}" 
+      end      
     end 
     
-    return tags
+    return tags, @unsaved_tags
   end
   private :taglistXML_to_tags
+  
   
   def save_tags(object, tagCreator, tags)
     if tags.kind_of? Tag then
@@ -429,11 +477,12 @@ class TagController < ApplicationController
       logger.debug "The relationship #{object.name} - #{tag.name} - #{tagCreator.login} already exist."
     end  
   end
-  
+  private :create_relationship
   
   #get the tag as object
   def s_to_tag(tagname)
     tag = Tag.find_or_create_by_name(tagname)
+    raise RuntimeError.new "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" if not tag.valid?    
     return tag
   end
   private :s_to_tag
