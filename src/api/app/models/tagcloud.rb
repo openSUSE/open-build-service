@@ -1,16 +1,32 @@
 
 class Tagcloud
   
-  # :scope => :global | :user, :user => user 
+  # :scope => "global" | "user" | by_given_objects, :user => user 
   def initialize(opt)
-    if opt[:scope] == "user"
-      #puts "[TAG:] user-dependent tag cloud selected"
+    ActiveRecord::Base.logger.debug "[TAG:] building a new tag cloud."
+ 
+    if opt[:scope] == "by_given_objects"
+      ActiveRecord::Base.logger.debug "[TAG:] ...by given objects." 
+      objects = opt[:objects]
+      ActiveRecord::Base.logger.debug "[TAG:] Objects: #{objects.inspect}" 
+      @tags = []
+      #get tags for each object and put them in a list.
+      objects.each do |object|
+        @tags = @tags + object.tags
+      end
+      @tags.each do |tag|
+        tag.count(:scope => 'by_given_tags', :tags => @tags)
+      end
+      @tags.uniq!
+ 
+    elsif opt[:scope] == "user"
       user = opt[:user]
       @tags = user.tags.find(:all, :group => "name")
       #initialize the tag count in the user context
       @tags.each do |tag|
         tag.count(:scope => "user", :user => user)
       end
+ 
     else          
       @tags = Tag.find(:all, :group => "name")
       #initialize the tag count and remove unused tags from the list 
@@ -20,16 +36,8 @@ class Tagcloud
   end
   
   
-  #    def get_weight(tag)
-  #        if tag.class == "String"
-  #            tag = Tag.find_by_name(tag)
-  #        end
-  #        @tagcloud[tag]
-  #    end
-  
-  
   def top50
-    #...how many should it be?
+    #...dummy
   end 
   
   
@@ -81,7 +89,7 @@ class Tagcloud
         tagcloud[tag.name] = tag.count
       end
     else 
-      raise ArgumentError.new "unknown distribution method '#{distribution_method}'"
+      raise ArgumentError.new("unknown distribution method '#{distribution_method}'")
     end
     
     taglist = tagcloud.sort {|a,b| a[0].downcase <=> b[0].downcase}
