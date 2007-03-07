@@ -67,6 +67,12 @@ end
 
 API_VERSION="0.1.1"
 
+
+# minimum count of rating votes a project/package needs to
+# be taken in account for global statistics
+MIN_VOTES_FOR_RATING = 3
+
+
 module ActiveRbacConfig
   # controller and layout configuration
   config :controller_layout, "html"

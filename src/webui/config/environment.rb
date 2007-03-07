@@ -58,6 +58,11 @@ end
 # Include your application configuration below
 
 
+# minimum count of rating votes a project/package needs to
+# have no warning sign on package/project pages
+MIN_VOTES_FOR_RATING = 3
+
+
 require 'custom_logger'
 RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 

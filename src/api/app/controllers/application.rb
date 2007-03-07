@@ -351,4 +351,10 @@ class ApplicationController < ActionController::Base
     __send__ cmd_handler
   end
 
+
+  def min_votes_for_rating
+    MIN_VOTES_FOR_RATING
+  end
+
+
 end

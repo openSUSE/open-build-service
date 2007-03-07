@@ -21,12 +21,13 @@ class StatisticsController < ApplicationController
 
 
   def highest_rated
-    @ratings = Rating.find :all,
+    ratings = Rating.find :all,
       :select => 'object_id, object_type, count(score) as count,' +
         'sum(score)/count(score) as score_calculated',
       :group => 'object_id, object_type',
       :order => 'score_calculated DESC',
       :limit => @limit
+    @ratings = ratings.delete_if { |r| r.count.to_i < min_votes_for_rating }
   end
 
 
@@ -235,7 +236,7 @@ class StatisticsController < ApplicationController
   def most_active
     @type = params[:type] or @type = 'packages'
     if @type == 'projects'
-      @projects = DbProject.find :all
+      @projects = DbProject.find :all, :include => [ :db_packages ]
       @projects.sort! { |a,b| b.activity <=> a.activity }
       @projects = @projects[0..@limit-1]
     elsif @type == 'packages'

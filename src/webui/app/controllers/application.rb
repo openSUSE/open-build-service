@@ -11,9 +11,15 @@ class ApplicationController < ActionController::Base
   session_options[:prefix] = "ruby_webclient_sess."
   session_options[:key] = "opensuse_webclient_session"
   session_options[:tagcloud] ||= "mytags"
-  
+
   before_filter :authorize 
-  
+
+
+  def min_votes_for_rating
+    MIN_VOTES_FOR_RATING
+  end
+
+
   #filter
   def authorize
     session[:return_to] ||= request.request_uri

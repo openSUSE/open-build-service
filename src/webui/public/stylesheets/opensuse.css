@@ -852,3 +852,7 @@ strong.highlight {
 #add_message_form_area input[type="text"] {
   width: 45em;
 }
+
+#rating_count_warning {
+  margin-left: 80px;
+}
