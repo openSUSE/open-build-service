@@ -21,7 +21,7 @@ class StatisticsControllerTest < Test::Unit::TestCase
     prepare_request_with_user @request, 'tom', 'thunder'
     get :latest_added
     assert_response :success
-    assert_tag :tag => 'collection', :child => { :tag => 'project' }
+    assert_tag :tag => 'latest_added', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
       :name => "kde4",
       :created => "2008-04-28T05:05:05+02:00",
@@ -33,7 +33,7 @@ class StatisticsControllerTest < Test::Unit::TestCase
    prepare_request_with_user @request, 'tom', 'thunder'
    get :latest_updated
    assert_response :success
-   assert_tag :tag => 'collection', :child => { :tag => 'project' }
+   assert_tag :tag => 'latest_updated', :child => { :tag => 'project' }
    assert_tag :tag => 'project', :attributes => {
      :name => "kde4",
      :updated => "2008-04-28T06:06:06+02:00",
