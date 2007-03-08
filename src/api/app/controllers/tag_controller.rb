@@ -414,12 +414,11 @@ class TagController < ApplicationController
     if not unsaved_tags
       render :nothing => true, :status => 200
     else  
-      error = "[TAG:] There are unsaved Tags: #{unsaved_tags.inspect}"
+      error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
       logger.debug "#{error}"
-     # missing exception handling in the tag client
+      #need exception handling in the tag client
       render_error :status => 400, :errorcode => 'tagcreation_error',
       :message => error 
-     #render :nothing => true, :status => 200
     end         
   end
   

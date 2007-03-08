@@ -42,7 +42,13 @@ class Tag < ActiveRecord::Base
   
   protected
   def validate
-    errors.add("name", "The tag has invalid format, no \" allowed!") if name =~ /.*\".*/
+    errors.add("name", "The tag has invalid format, no ? allowed!") if name =~ /\?/
+    blacklist = BlacklistTag.find(:all)
+    
+    blacklist.each do |tag|
+      errors.add("name", "The tag has invalid format, no ? allowed!") if name.downcase == tag.name.downcase
+    end
+    
   end
   
   
