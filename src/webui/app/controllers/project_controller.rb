@@ -425,64 +425,35 @@ class ProjectController < ApplicationController
   end
 
   def monitor
-    @project = params[:project] 
-    @packstatus = Packstatus.find( :project => @project )
+    @project = params[:project]
+    @buildresult = Buildresult.find( :project => @project )
+    #@packstatus = Packstatus.find( :project => @project )
 
-    if not @packstatus.has_element? :packstatuslist
-      @packstatus_unavailable = true
+    if not @buildresult.has_element? :result
+      @buildresult_unavailable = true
       return  
     end
 
     @repohash = Hash.new
     @statushash = Hash.new
 
-    @packstatus.each_packstatuslist do |psl|
-      repo = psl.repository
-      arch = psl.arch
+    @buildresult.each_result do |result|
+      repo = result.repository
+      arch = result.arch
 
       @repohash[repo] ||= Array.new
       @repohash[repo] << arch
 
       @statushash[repo] ||= Hash.new
       @statushash[repo][arch] = Hash.new
-      rah = @statushash[repo][arch]
 
-      psl.each_packstatus do |ps|
-        rah[ps.name] = ps.status
+      stathash = @statushash[repo][arch]
+      result.each_status do |status|
+        stathash[status.package] = status
       end
+
+      @packagenames = stathash.keys.sort if @packagenames.nil?
     end
-
-    @packagenames = Array.new
-    @packstatus.packstatuslist.each_packstatus do |ps|
-      @packagenames << ps.name
-    end
-    
-    #session[:monitor_project] = @project
-    #session[:monitor_repohash] = @repohash
-    #session[:monitor_packnames] = @packagenames
-  end
-
-  def refresh_monitor
-    render :nothing unless session[:monitor_project] and
-                           session[:monitor_repohash] and
-                           session[:monitor_packnames]
-
-    @project = session[:monitor_project]
-    @repohash = session[:monitor_repohash]
-    @packnames = session[:monitor_packnames]
-
-    @packstatus = Packstatus.find( :project => @project )
-    
-    @status = Hash.new
-    @packnames.each do |pack|
-      @repohash.each do |repo,archlist|
-        archlist.each do |arch|
-          @status["#{pack}:#{repo}:#{arch}"] = @packstatus.status_for( pack, repo, arch )
-        end
-      end
-    end
-
-    render :layout => false
   end
 
   def toggle_watch

@@ -12,12 +12,8 @@
 <p id="info_message" style="display:none;"></p>
 
 <p>
-<% if @result -%>
-<b>Build Status:</b> <%=h @projectresult.status %><br/>
-<% end -%>
 
-
-<% if @packstatus_unavailable -%>
+<% if @buildresult_unavailable -%>
 <h3>Buildstatus unavailable</h3>
 <% else -%>
 <table class="buildstatus">
@@ -52,7 +48,7 @@
         # sane default - TODO: fix this in the controller
         status = 'unknown'
         status = @statushash[repo][arch][packname]
-        case status
+        case status.code
         when 'failed'
           @failed[packname] = true
         when 'expansion error'
@@ -60,17 +56,23 @@
         end
       %>
       <td id="<%= status_id_for(packname, repo, arch) -%>"
-        class="status_<%= status.gsub(' ','_') -%>">
-      <% if status == 'failed' or status == 'expansion error' %>
+        class="status_<%= status.code.gsub(' ','_') -%>">
+      <% if status.code == 'failed' or status.code == 'expansion error' -%>
         <%= link_to_remote image_tag( 'rebuild-light', :border => 0,
           :title => "rebuild package #{packname} for #{repo}/#{arch}" ),
           :url => { :controller => 'package', :action => 'trigger_rebuild',
           :package => packname, :project => @project.to_s,
           :repo => repo, :arch => arch, :redirect => 'monitor' } -%>
-      <% end %>
-      <%= link_to status, :action => :live_build_log,
-        :package => packname, :project => @project.to_s, :arch => arch,
-        :controller => "package", :repository => repo %>
+      <% end -%>
+      <% if status.has_element? :details %>
+        <%= link_to status.code, {:action => :live_build_log,
+          :package => packname, :project => @project.to_s, :arch => arch,
+          :controller => "package", :repository => repo}, {:title => status.details.to_s} %>
+      <% else -%>
+        <%= link_to status.code, :action => :live_build_log,
+          :package => packname, :project => @project.to_s, :arch => arch,
+          :controller => "package", :repository => repo %>
+      <% end -%>
     </td>
     <% end -%>
     <% end -%>
