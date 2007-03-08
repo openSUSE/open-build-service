@@ -1,14 +1,23 @@
 <!-- Tags -->
 <div class="section" id="tags">
-<h3>Tags
-  <% form_id = "tag_form" %>
-  <%= link_to_remote image_tag("list-add", :title => "Add Tag", :border => 0),
-    :update => 'tag_edit_area_project',
-    :url => { :controller => "project", :action => "add_tag_form", :project => @project},
-    :loading => "Element.toggle('spinner_#{form_id}')",
-    :complete => "Element.toggle('spinner_#{form_id}')" %>
-  <%= image_tag 'rotating-tail.gif', :id=> 'tag_spinner', :style => "visibility:hidden;" -%>
-</h3>
+    <table class="small_table" cellspacing="0" cellpadding="0">
+        <tr>
+        <td>
+           <h3 style="padding:0;margin:0;">Tags
+              <% form_id = "tag_form" %>
+              <%= link_to_remote image_tag("list-add", :title => "Add Tag", :border => 0),
+                :update => 'tag_edit_area_project',
+                :url => { :controller => "project", :action => "add_tag_form", :project => @project},
+                :loading => "Element.toggle('spinner_#{form_id}')",
+                :complete => "Element.toggle('spinner_#{form_id}')" %>
+              <%= image_tag 'rotating-tail.gif', :id=> 'tag_spinner', :style => "visibility:hidden;" -%>
+            </h3>
+        </td>
+        <td>
+            <h2><span id="error_message" style="display:none;"</span></h2>
+        </td>
+        </tr>
+    </table>
 </div>
         
 <div id="tag_area" style="width:15em;">

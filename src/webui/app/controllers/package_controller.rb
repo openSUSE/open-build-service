@@ -28,18 +28,31 @@ class PackageController < ApplicationController
     end
     logger.debug "[TAG:] saving tags #{tags.join(" ")} for package #{params[:package]} (project #{params[:project]})."
 
-    save_tags(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => tags.join(" ") )
+    @tag_xml = Tag.new(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => tags.join(" "))
+    begin
+      @tag_xml.save()
+    rescue ActiveXML::Transport::Error => exception
+      rescue_action_in_public exception
+      @error = CGI::escapeHTML(@message)
+      logger.debug "[TAG:] Error: #{@message}"
+      @unsaved_tags = true
+    end
     
     @tags, @user_tags_array = get_tags(:user => @session[:login], :project => params[:project], :package => params[:package])
     
-    render :partial => "tags_ajax"
-    #redirect_to :action => "show", :project => params[:project], :package => params[:package]
+    render :update do |page|
+      page.replace_html 'tag_area', :partial => "tags_ajax"
+      page.visual_effect :highlight, 'tag_area'
+       if @unsaved_tags
+        page.replace_html 'error_message', "WARNING: #{@error}"
+        page.show 'error_message'
+        page.delay(30) do
+          page.hide 'error_message'
+        end
+      end
+    end
   end
   
-  def save_tags(params)
-    @tag = Tag.new(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tag])
-    @tag.save()
-  end
   
   def show_packages_by_tag
     @collection = Collection.find(:tag, :type => "_packages", :tagname => params[:tag])

@@ -2,6 +2,6 @@
   <i>No tags.</i>
 <% else %> 
   <% @object.each_tag do |tag|%>
-    <%= link_to tag.name, :controller => "tag", :action => "show", :tag => tag %>
+    <%= link_to h(tag.name), :controller => "tag", :action => "show", :tag => h(tag) %>
   <% end %>
 <% end %>

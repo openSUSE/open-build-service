@@ -1,22 +1,36 @@
+<% if session[:tagcloud] == 'hierarchical_browsing'
+    action = 'hierarchical_browsing'
+    
+   else
+    action = 'list_objects_by_tag' 
+    @predecessor = []
+   end %> 
+
  <% if @tagcloud.tags.length > 0 %>
     <% @tagcloud.tags.each do |tag|  %>
-        <% case tag.size
-             when "1" %>           
-               <span class="tag size6"> <%= link_to tag.name, :controller => "tag", :action => 'list_objects_by_tag', :tag => tag %></span> 
-          <% when "2" %>
-               <span class="tag size7"> <%= link_to tag.name, :controller => "tag", :action => 'list_objects_by_tag', :tag => tag %></span> 
-          <% when "3" %>
-               <span class="tag size8"> <%= link_to tag.name, :controller => "tag", :action => 'list_objects_by_tag', :tag => tag %></span> 
-          <% when "4" %>
-               <span class="tag size9"> <%= link_to tag.name, :controller => "tag", :action => 'list_objects_by_tag', :tag => tag %></span> 
-          <% when "5" %>
-               <span class="tag size10"> <%= link_to tag.name, :controller => "tag", :action => 'list_objects_by_tag', :tag => tag %></span> 
-          <% when "6" %>
-               <span class="tag size11"> <%= link_to tag.name, :controller => "tag", :action => 'list_objects_by_tag', :tag => tag %></span> 
-        <% end %>
-    <% end %>
- <% else %>
+        
+         <% style = 'visibility:visible;' %>
+ 
+         <% if session[:tagcloud] == 'hierarchical_browsing' 
+             if @tags 
+               if  @tags.include? tag.name 
+                style = 'visibility:visible;' 
+               else 
+                style = 'visibility:hidden;' 
+               end
+             end   
+           end %>
+  
+            
+   <span id="<%= h(tag.name) %>" class="tag size<%= (tag.size.to_i + 5) %>"> <%= link_to h(tag.name), {:controller => "tag", :action => action, :tag => tag, :predecessor => @predecessor}, {:style => style} %></span> 
+     
+        
+    <% end
+    else %>
+    
     <span class="tag size6"> Sorry, no tags could be found.</span>
      
  <% end %>
+ 
+
 

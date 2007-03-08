@@ -853,6 +853,21 @@ strong.highlight {
   width: 45em;
 }
 
+.small_table {
+        padding: 0;
+        margin:  0;
+}
+
+.small_table td {
+        padding: 0;
+        margin:  0;
+}
+
+.small_table tr {
+        padding: 0;
+        margin:  0;
+}=======
+
 #rating_count_warning {
   margin-left: 80px;
 }

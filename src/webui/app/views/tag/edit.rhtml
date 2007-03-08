@@ -3,9 +3,13 @@
 
 ]
 -%>
+
 <div id="tagcloud_edit_view">
  <%= render :partial => "tag/tagcloud_container"%>
 </div> 
+
+<h2><span id="error_message" style="display:none;"</span></h2>
+
 <p>
 <h2>Editing My Tags <%=h @project %></h2>
 &nbsp;
@@ -32,7 +36,7 @@
   <td valign="top">
     <%= link_to @object.name, { :controller => "project", :action => :show,
                                 :project => @object },
-                                :title => @object.title %>    
+                                :title => CGI::unescape(@object.title) %>    
   </td>
   <td valign="top">
   <div id="tag_edit_area_<%= @object.name -%>">
@@ -75,7 +79,7 @@
   <td valign="top">
     <%= link_to @object.name, { :controller => "package", :action => :show,
                                 :project => @object.project, :package => @object },
-                                :title => @object.title %>
+                                :title => CGI.unescape(@object.title) %>
   </td>
   <td valign="top">
   <div id="tag_edit_area_<%= @object.project + '_' + @object.name -%>">

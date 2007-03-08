@@ -14,6 +14,13 @@
                 :loading => "Element.show('spinner')",
                 :complete => "Element.hide('spinner')"},
                 :class => "tab" + tab_class %>
+        <% session[:tagcloud] == "hierarchical_browsing" ? tab_class = ' active' : tab_class = ''%>
+        <%= link_to_remote "Browsing", 
+                {:url => {:controller => "tag", :action => "switch_tagcloud", :hierarchical_browsing => true},
+                :update => "tagcloud_container",
+                :loading => "Element.show('spinner')",
+                :complete => "Element.hide('spinner')"},
+                :class => "tab" + tab_class %>
         <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
     </div>
     <div id="tagcloud">

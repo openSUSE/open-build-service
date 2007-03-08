@@ -157,16 +157,33 @@ class ProjectController < ApplicationController
       tags << tag.name
     end
     logger.debug "[TAG:] saving tags #{tags.join(" ")} for project #{params[:project]}."
-    save_tags(:project => params[:project], :tag => tags.join(" ") )
+    
+    @tag_xml = Tag.new(:project => params[:project], :tag => tags.join(" "), :user => @session[:login])
+    begin
+      @tag_xml.save
+      
+    rescue ActiveXML::Transport::Error => exception
+      rescue_action_in_public exception
+      @error = CGI::escapeHTML(@message)
+      logger.debug "[TAG:] Error: #{@message}"
+      @unsaved_tags = true
+    end
+    
     @tags, @user_tags_array = get_tags(:user => @session[:login], :project => params[:project])
-    render :partial => "tags_ajax"
+    
+    render :update do |page|
+      page.replace_html 'tag_area', :partial => "tags_ajax"
+      page.visual_effect :highlight, 'tag_area'
+      if @unsaved_tags
+        page.replace_html 'error_message', "WARNING: #{@error}"
+        page.show 'error_message'
+        page.delay(30) do
+          page.hide 'error_message'
+        end
+      end
+    end
   end
 
-  
-  def save_tags(params)
-    @tag = Tag.new(:project => params[:project], :tag => params[:tag], :user => @session[:login])
-    @tag.save()
-  end
 
   def search_package
     @project = Project.find( params[:project] )

@@ -12,7 +12,7 @@
  
 <% if @projects and @projects != [] %>
 <div id="list_by_tag">
-<h2>Projects tagged with <%= params[:tag] %></h2>
+<h2>Projects tagged with <%=h params[:tag] %></h2>
 <table>
   <tr>
     <th>Project</th>
@@ -22,11 +22,11 @@
     <% for project in @projects %>
   <tr>
   <td valign="top">
-    <%= link_to project.name, { :controller => "project", :action => :show, :project => project }, :title => project.title %>  
+    <%= link_to project.name, { :controller => "project", :action => :show, :project => project }, :title => CGI.unescape(project.title) %>  
   </td>
   <td valign="top">
     <% project.each_tag do |tag|%>
-        <%= link_to tag.name, { :controller => "tag", :action => "list_objects_by_tag", :tag => tag },
+        <%= link_to h(tag.name), { :controller => "tag", :action => "list_objects_by_tag", :tag => tag },
                 :title => "Get a list of projects and packages tagged with #{tag.name}." %>
     <%end%>
   </td>
@@ -41,7 +41,7 @@
 
 <% if @packages and @packages != [] %>
 <div>
-<h2>Packages tagged with <%= params[:tag] %></h2>
+<h2>Packages tagged with <%=h params[:tag] %></h2>
 <table>
   <tr>
     <th>Project</th>
@@ -56,12 +56,12 @@
     <td valign="top">       
         <%= link_to package.name, { :controller => "package", :action => :show,
               :project => package.project, :package => package },
-              :title => package.title %>
+              :title => CGI.unescape(package.title) %>
 
     </td>
     <td>
      <% package.each_tag do |tag|%>
-        <%= link_to tag.name, { :controller => "tag", :action => "list_objects_by_tag", :tag => tag },
+        <%= link_to h(tag.name), { :controller => "tag", :action => "list_objects_by_tag", :tag => tag },
                 :title => "Get a list of projects and packages tagged with #{tag.name}." %>
     <%end%>
     </td>

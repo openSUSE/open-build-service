@@ -1,20 +1,25 @@
 class TagController < ApplicationController
-
+  
   def show
     flash[:note] = "Sry, not yet implemented."
     redirect_to :back
   end
   
   def edit
-
+    
     @projects, @packages = get_tagged_objects_by_user(@session[:login])
     @tagcloud = get_tagcloud
-
+    
   end
   
   
   def switch_tagcloud
-    if params[:alltags]
+    if params[:hierarchical_browsing]
+      logger.debug "Switching to tagcloud view HIERARCHICAL BROWSING..." 
+      session[:tagcloud] = "hierarchical_browsing"
+      
+      logger.debug "...done."
+    elsif params[:alltags]
       logger.debug "Switching to tagcloud view ALLTAGS..." 
       session[:tagcloud] = "alltags"
       
@@ -39,7 +44,8 @@ class TagController < ApplicationController
   end
   
   def list_objects_by_tag
-    @collection = Collection.find(:tag, :type => "_all", :tagname => params[:tag])
+    tagname = CGI::unescape(params[:tag])
+    @collection = Collection.find(:tag, :type => "_all", :tagname => tagname )
     @projects = []
     @collection.each_project do |project|
       @projects << project
@@ -50,6 +56,7 @@ class TagController < ApplicationController
     end
     # building tag cloud
     @tagcloud = get_tagcloud
+    
     render :action => "list_objects_by_tag"  
   end
   
@@ -61,7 +68,7 @@ class TagController < ApplicationController
     package = params[:package]
     
     @tags = get_tags_by_user_and_object(:project => project, :package => package, :user => user)
-
+    
     @taglist = []
     @tags.each_tag do |tag|
       @taglist << tag.name
@@ -79,13 +86,25 @@ class TagController < ApplicationController
     elsif
       logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}."
     end
-    save_tags(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tags])
+    begin
+      
+      @tag_xml = Tag.new(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tags])
+      @tag_xml.save
+      
+    rescue ActiveXML::Transport::Error => exception
+      rescue_action_in_public exception
+      @error = CGI::escapeHTML(@message)
+      logger.debug "[TAG:] Error: #{@message}"
+      @unsaved_tags = true
+    end
+    
     @object = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])    
     @tagcloud = get_tagcloud
-    #render edit_taglist_ajax.rjs
+    
+    render :action => "edit_taglist_ajax"
   end
   
-
+  
   def get_tagged_objects_by_user(user)
     @collection = Collection.find(:tags_by_user, :user => user, :type => "_projects") 
     @collection ||= []
@@ -101,8 +120,8 @@ class TagController < ApplicationController
     end
     return @projects, @packages
   end
-
-
+  
+  
   def get_tags_by_user_and_object(params)
     user = session[:login]
     project = params[:project]
@@ -110,14 +129,14 @@ class TagController < ApplicationController
     @tags = Tag.find(:user => user, :project => project, :package => package)
     @tags
   end
-
-
-  def save_tags(params)
-    tag = params[:tag] if params[:tag]
-    tag =  params[:tags] if params[:tags]
-    @tag = Tag.new(:user => params[:user], :project => params[:project], :package => params[:package], :tag => tag)
-    @tag.save
+  
+  
+  def hierarchical_browsing
+    
+    flash[:error] = 'Sry, this feature is not implemented yet.'
+    redirect_to :back
+    
   end
   
-  
+
 end

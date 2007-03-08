@@ -1,8 +1,8 @@
 <% form_id = "tag_form" %>
 <%= form_remote_tag :url => {:action => :add_tag, :controller => "project", :project => @project},
     :loading => "toggle_visibility('spinner')",
-    :complete => "toggle_visibility('spinner')",
-    :update => 'tag_area'-%>
+    :complete => "toggle_visibility('spinner')"-%>
+  <!--  #:update => 'tag_area'-%> -->
 
   <p>
     <%= text_field_tag( "tag", @tag , :size => 15) %>

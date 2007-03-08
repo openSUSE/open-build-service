@@ -1,9 +1,9 @@
  <% @tags.each_tag do |tag|%>          
     <% if not @user_tags_array.empty? and @user_tags_array.include? tag.name %>
-       <%= link_to tag.name, { :controller => "tag", :action => "list_objects_by_tag", :tag => tag }, :class => "user_tag",
+       <%= link_to h(tag.name), { :controller => "tag", :action => "list_objects_by_tag", :tag => tag }, :class => "user_tag",
        :title => "Get a list of projects and packages tagged with #{tag.name}." %>     
     <% else %>  
-        <%= link_to tag.name, { :controller => "tag", :action => "list_objects_by_tag", :tag => tag }, :class => "public_tag", 
+        <%= link_to h(tag.name), { :controller => "tag", :action => "list_objects_by_tag", :tag => tag }, :class => "public_tag", 
        			:style => "display: none;", :name => "public_tag",
        			:title => "Get a list of projects and packages tagged with #{tag.name}." %>      
        <% end %> 
