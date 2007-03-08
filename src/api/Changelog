@@ -350,3 +350,47 @@ Thu Feb 22 18:03:34 +0100 2007 - bauersman
 - new route POST /source/<project>/<package>?cmd=diff
 
 
+------------------------------------------------------------------------
+Thu Mar 08 20:21:13 +0100 2007 - bauersman
+
+- update from svn revision 1337 to 1404
+- get highest_rated packages/projects from frontend
+- minor optimization of scoring for single objects
+- mock backend for frontend tests
+- let user change the rated score of already rated objects (by clicking again)
+- TODO:
+  1. clicking twice without reloading whole page does not work yet
+  2. info_message is not yet displayed
+- make rating stars nicer (without long dotted lines when clicked)
+- send user rated score to the client too
+- fixtures for status_messages
+- functional tests for status_messages
+- parenthesized arguments for future version in admin_controller
+- removed created and updated timestamps from package and project metadata
+- new actions added_timestamp and updated_timestamp for statistics_controller
+- renamed xml root elements of corresponding frontend output
+- new routes in frontend and activexml-config in webclient for the timestamps
+- changed access to timestamps in readonly views of packages and
+  projects accordingly
+- updated .vimproject file
+- don't display "Show more messages" link, if all available messages are
+  already displayed
+  implemented activity measurement for packages and projects in frontend
+-> new migration, run 'rake migrate'
+- added support for creating tag clouds from given objects
+- tags including double-quotes will be rejected by the model
+- posting a collection of projects and packages generates a tag cloud for them
+- exception handling for tags rejected by the tag model
+- solved an issue with unescaped xml entities. This is only a temporary solution until Builder 2.x will be used for (r)xml generation.
+- webclient:
+  added note next to rating stars of projects/packages, if count of
+  rating votes is below a certain value
+  frontend:
+  minimum count for ratings to show up in highest_rated stats
+  
+- added tag blacklist database
+- improved tag management (admin interface)
+- ? as tag will be rejected, (hopefully) all other signs will be escaped if necessary
+- fixed statistics controller tests
+
+
