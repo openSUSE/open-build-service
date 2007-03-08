@@ -10,8 +10,8 @@ class StatisticsController < ApplicationController
     @latest_added    = LatestAdded.find( :limit => 10 )
     @latest_updated  = LatestUpdated.find( :limit => 10 )
     @highest_rated   = Rating.find( :all, :limit => 10 )
-    @most_active_pac = MostActive.find( :limit => 5, :type => 'packages' )
-    @most_active_prj = MostActive.find( :limit => 5, :type => 'projects' )
+    # @most_active_pac = MostActive.find( :limit => 5, :type => 'packages' )
+    # @most_active_prj = MostActive.find( :limit => 5, :type => 'projects' )
     @limit = 3
     @most_downloaded = get_download_stats
   end
