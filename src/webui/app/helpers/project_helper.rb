@@ -35,7 +35,7 @@ module ProjectHelper
 
   def format_packstatus_for( repo, arch )
     ret = String.new
-    return unless @resultlist.has_element? :result
+    return unless @buildresult.has_element? :result
     
     result = @buildresult.result("@repository='#{repo}' and @arch='#{arch}'")
     if result.nil?
