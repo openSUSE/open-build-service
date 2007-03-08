@@ -1,5 +1,5 @@
 class PrivacyController < ApplicationController
-  skip_before_filter :authorize
+  skip_before_filter :authorize, :set_return_to
   def ichain_login
     # if this method is exectuted, the code has gone through the iChain 
     # login and the user is authenticated.
@@ -9,12 +9,8 @@ class PrivacyController < ApplicationController
     if request.env.has_key? 'HTTP_X_USERNAME' # X-username'
       user = request.env[ 'HTTP_X_USERNAME' ] # X-username']
       logger.debug "Have this iChain Username: #{user}"
-      if false & session[:return_to]
-        redirect_to session[:return_to]
-        session[:return_to] = nil
-        return
-      end
-      redirect_to "/main/index2"
+      session[:return_to] = "/main/index2" if session[:return_to] == "/"
+      redirect_to session[:return_to]
     else 
       logger.debug "No X-Username found!"
       request.env.each do |name, val|

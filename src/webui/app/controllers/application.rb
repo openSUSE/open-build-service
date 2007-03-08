@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
   session_options[:key] = "opensuse_webclient_session"
   session_options[:tagcloud] ||= "mytags"
 
-  before_filter :authorize 
+  before_filter :authorize, :set_return_to
 
 
   def min_votes_for_rating
@@ -21,8 +21,11 @@ class ApplicationController < ActionController::Base
 
 
   #filter
-  def authorize
+  def set_return_to
     session[:return_to] ||= request.request_uri
+  end
+
+  def authorize
     if ichain_mode == 'on' || ichain_mode == 'simulate'
       logger.debug "iChain mode: #{ichain_mode}"
       ichain_user = request.env['HTTP_X_USERNAME']
