@@ -468,3 +468,84 @@ Thu Feb 22 18:03:37 +0100 2007 - bauersman
   visited build status links in build status monitor
 
 
+------------------------------------------------------------------------
+Thu Mar 08 20:22:16 +0100 2007 - abauer
+
+- update from svn revision 1338 to 1406
+- make login box update after logging in
+- display highest_rated objects on main::statistics
+- new activexml config for webclient: get highest_rated objects
+- let user change the rated score of already rated objects (by clicking again)
+- TODO:
+  1. clicking twice without reloading whole page does not work yet
+  2. info_message is not yet displayed
+- make rating stars nicer (without long dotted lines when clicked)
+- fixed bug, where user had to reload page before being able to update the
+  rating of an object again.
+- made users latest rating score visible in tooltip
+- corrected link to download details for architectures
+- show less download_stats (3) in overview
+- corrected link to download_details
+- nicer css for download_stats overview
+- show correct tooltip when not yet rated by user
+- pluralize correct
+- prepared removal of hardcoded api url in webclient helper
+- moved statistics from main_controller to own statistics_controller
+- made header / rating stars nice in readonly views too
+- renamed css id for download_details
+- removed created and updated timestamps from package and project metadata
+- new actions added_timestamp and updated_timestamp for statistics_controller
+- renamed xml root elements of corresponding frontend output
+- new routes in frontend and activexml-config in webclient for the timestamps
+- changed access to timestamps in readonly views of packages and
+  projects accordingly
+- updated .vimproject file
+- added filesize column to list of files in package view
+- moved link detection from get_files method to show action
+- moved editable detection from show action to get_files method
+- added file extension as :ext field in file hash
+- readded timestamp stuff
+- fixed bug #249537 - helplinks open incomplete window (scrolbar missing)
+- display correct layout in download_details statistics if count of
+  statistics is changed via ajax request
+- fixed pagetitle misbehaviour in statistics overview
+- fixed bug #242051 - status monitor: number of total hosts missing
+- fixed bug #236909 - add a hover ruler to status monitor
+- made tooltip for rebuild button more obvious in project status monitor
+- changed wrong link to software.opensuse.org
+- don't display "Show more messages" link, if all available messages are
+  already displayed
+- ajaxified trigger_rebuild buttons in project status monitor - especially
+  helpful, if your project has many packages and the monitor takes a long
+  time to reload (see home:darix for example)
+  implemented activity based statitics in webclient
+- Diese und die folgenden Zeilen werden ignoriert --
+  
+  A    app/models/most_active.rb
+  M    app/controllers/statistics_controller.rb
+  A    app/views/statistics/_most_active.rhtml
+  M    app/views/statistics/index.rhtml
+  M    config/environment.rb
+- bugfix in Link#add_patch: create patches element if it not exists
+- slightly better looking error message when API not available
+- use build/_result instead of deprecated packstatuslist in project view
+- webclient:
+  added note next to rating stars of projects/packages, if count of
+  rating votes is below a certain value
+  frontend:
+  minimum count for ratings to show up in highest_rated stats
+  
+- added exception handling for rejected tags
+- project- and package titles will be escaped correctly
+- ampersand will now be escaped to avoid invalid xml
+- started with a new tag-based browsing feature
+- deactivated most_active statistics in webclient statistics overview for
+  now, consumes too much time with the current implementation. the main
+  problem is how rails gets the Time-object from the updated_at db-field.
+- renamed a  symbol for tag-clouds
+- bugfix in project helper
+- jump to correct page after ichain login (fixes bug #250550)
+- update project status monitor to new api
+- show build error details on mouseover
+
+
