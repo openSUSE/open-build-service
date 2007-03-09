@@ -125,7 +125,11 @@ class ProjectController < ApplicationController
     @updated_timestamp = LatestUpdated.find( :specific,
       :project => @project ).project.updated
 
-    @tags = Tag.find(:user => @session[:login], :project => @project.name)
+    #@tags = Tag.find(:user => @session[:login], :project => @project.name)
+
+    #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
+    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
+ 
     @downloads = Downloadcounter.find( :project => @project )
     @rating = Rating.find( :project => @project )
   end

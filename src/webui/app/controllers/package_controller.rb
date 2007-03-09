@@ -128,7 +128,11 @@ class PackageController < ApplicationController
     @package = Package.find( package, :project => project )
     @project = Project.find( project )
 
-    @tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
+    #@tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
+    
+    #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
+    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
+ 
     @downloads = Downloadcounter.find( :project => project, :package => package )
     @rating = Rating.find( :project => @project, :package => @package )
     @created_timestamp = LatestAdded.find( :specific,
