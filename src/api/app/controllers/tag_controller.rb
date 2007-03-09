@@ -194,12 +194,12 @@ class TagController < ApplicationController
     
     begin 
       @steps = (params[:steps] ||= 6).to_i
-      raise ArgumentError.new "Invalid value for parameter steps.
-                     (must be 1..100)" if @steps < 1 or @steps > 100
+      raise ArgumentError.new( "Invalid value for parameter steps.
+                     (must be 1..100)" ) if @steps < 1 or @steps > 100
       
       @distribution_method = (params[:distribution] ||= "linear")
-      raise ArgumentError.new "Invalid value for parameter distribution. 
-   	    (distribution=#{@distribution_method})" if not allowed_distribution_methods.include? @distribution_method
+      raise ArgumentError.new( "Invalid value for parameter distribution. 
+   	    (distribution=#{@distribution_method})" ) if not allowed_distribution_methods.include? @distribution_method
       
       if request.get?
         
@@ -212,7 +212,7 @@ class TagController < ApplicationController
         
         #get the list of tags
         @tags = tagcloud.get_tags(@distribution_method,@steps)
-        raise ArgumentError.new "tag-cloud generation failed." if @tags.nil?
+        raise ArgumentError.new( "tag-cloud generation failed." ) if @tags.nil?
         
         render :partial => "tagcloud"
         
@@ -224,7 +224,7 @@ class TagController < ApplicationController
         collection.each_project do |project|
           proj = DbProject.find_by_name(project.name)
           logger.debug '[TAG:] AAAAAAAAAAAAAAAA #{proj.inspect}'
-          raise RuntimeError.new "Error: Project '#{project.name}' not found." unless proj
+          raise RuntimeError.new( "Error: Project '#{project.name}' not found." ) unless proj
           projects << proj
         end
         logger.debug "[TAG:] Projects: #{projects.inspect}"
@@ -232,9 +232,9 @@ class TagController < ApplicationController
         packages = []
         collection.each_package do |package|
           project = DbProject.find_by_name(package.project)
-          raise RuntimeError.new "Error: Project '#{package.project}' not found." unless project
+          raise RuntimeError.new( "Error: Project '#{package.project}' not found." ) unless project
           pack = DbPackage.find_by_db_project_id_and_name( project.id, package.name )
-          raise RuntimeError.new "Error: Package '#{package.name}' not found." unless pack
+          raise RuntimeError.new( "Error: Package '#{package.name}' not found." ) unless pack
           packages << pack
         end
         logger.debug "[TAG:] Packages: #{packages.inspect}"
@@ -481,7 +481,7 @@ class TagController < ApplicationController
   #get the tag as object
   def s_to_tag(tagname)
     tag = Tag.find_or_create_by_name(tagname)
-    raise RuntimeError.new "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" if not tag.valid?    
+    raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) if not tag.valid?
     return tag
   end
   private :s_to_tag
