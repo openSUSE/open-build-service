@@ -137,6 +137,11 @@ sub rpc {
   } else {
     undef $status;
   }
+  if ($act eq 'HEAD') {
+    close S;
+    ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
+    return \%headers;
+  }
   $headers{'__socket'} = \*S;
   $headers{'__data'} = $ans;
   my $receiver;

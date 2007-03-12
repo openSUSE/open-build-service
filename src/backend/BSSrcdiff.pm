@@ -34,7 +34,7 @@ sub listtar {
   my @c;
   my $fc = 0;
   while(<F>) {
-    next unless /^([-dlbcp])(.........)\s+\d+\/\d+\s+(\S+) \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d (.*)$/;
+    next unless /^([-dlbcp])(.........)\s+\d+\/\d+\s+(\S+) \d\d\d\d-\d\d-\d\d \d\d:\d\d(?::\d\d)? (.*)$/;
     my $type = $1;
     my $mode = $2;
     my $size = $3;

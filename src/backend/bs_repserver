@@ -27,6 +27,7 @@ BEGIN {
 
 use POSIX;
 use XML::Structured ':bytes';
+use Storable ();
 use Data::Dumper;
 use Digest::MD5 ();
 use List::Util;
@@ -187,7 +188,7 @@ sub getrpmlist {
   my @res;
   if ($packid eq '_repository') {
     my $cache;
-    $cache = do "$reporoot/$prp/$arch/:full.cache";
+    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
     $cache ||= {};
     for my $rpm (sort keys %$cache) {
       my $c = $cache->{$rpm};
@@ -219,7 +220,7 @@ sub getbinarylist {
   my @res;
   if ($packid eq '_repository') {
     my $cache;
-    $cache = do "$reporoot/$prp/$arch/:full.cache";
+    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
     $cache ||= {};
     for my $bin (sort keys %$cache) {
       my $c = $cache->{$bin};
@@ -387,7 +388,7 @@ sub isolder {
   my $vnew = $qnew{'VERSION'}->[0];
   $vnew .= "-$qnew{'RELEASE'}->[0]" if $qnew{'RELEASE'};
   $vnew = "$qnew{'EPOCH'}->[0]:$vnew" if $qnew{'EPOCH'};
-  my $r = Build::Rpm::rpm_verscmp($vold, $vnew);
+  my $r = Build::Rpm::verscmp($vold, $vnew);
   # print "isolder $vold $vnew: $r\n";
   return $r > 0 ? 1 : 0;
 }
@@ -937,7 +938,7 @@ sub getbuildinfo {
   for my $prp (@prp) {
     next unless -e "$reporoot/$prp/$arch/:full.cache";
     my $cache;
-    $cache = do "$reporoot/$prp/$arch/:full.cache";
+    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
     next unless ref($cache) eq 'HASH';
     $repodata{$prp} = $cache;
   }
@@ -1135,7 +1136,7 @@ sub getcodemd5 {
   @files = sort(@files, @bfiles);
   $cache ||= {};
   for my $file (@files) {
-    my $f = $bfiles{$file} ? "Build/$dir/$file" : "$dir/$file";
+    my $f = $bfiles{$file} ? "$dir/Build/$file" : "$dir/$file";
     next unless -f $f;
     my @s = stat _;
     my $id = "$s[9]/$s[7]/$s[1]";
@@ -1196,7 +1197,7 @@ sub postrepo {
   for my $prp (reverse @prp) {
     next unless -e "$reporoot/$prp/$arch/:full.cache";
     my $cache;
-    $cache = do "$reporoot/$prp/$arch/:full.cache";
+    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
     next unless ref($cache) eq 'HASH';
     %data = (%data, %$cache);
   }

@@ -556,7 +556,11 @@ if (@send) {
 } else {
   print "build failed, send back logfile...\n";
   if (! -e "$buildroot/.build.log") {
-    writestr("$buildroot/.build.log", undef, "build did not create a logfile\n");
+    if (defined($workerid)) {
+      writestr("$buildroot/.build.log", undef, "build on $workerid did not create a logfile\n");
+    } else {
+      writestr("$buildroot/.build.log", undef, "build did not create a logfile\n");
+    }
   }
   push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$buildroot/.build.meta";
   push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
@@ -579,6 +583,7 @@ if (!$testmode) {
     print "sent, all done...\n";
   }
 }
+
 unlink("$buildroot/.build.log");
 unlink("$buildroot/job");
 print "\n";
@@ -588,3 +593,4 @@ commitstate($state);
 
 send_state('idle', $port, $hostarch);
 exit(0);
+

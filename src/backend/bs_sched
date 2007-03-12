@@ -27,6 +27,7 @@ BEGIN {
 
 use Digest::MD5 ();
 use Data::Dumper;
+use Storable ();
 use XML::Structured;
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
@@ -262,7 +263,8 @@ sub findbins {
 
   my $cache;
   if (-e "$dir.cache") {
-    $cache = do "$dir.cache";
+    eval { $cache = Storable::retrieve("$dir.cache"); };
+    warn($@) if $@;
     undef $cache unless ref($cache) eq 'HASH';
     if ($cache) {
       my $byid = {};
@@ -301,12 +303,7 @@ sub findbins {
   } else {
     print "    packages found: $cnt (hits: $hits, misses: $misses)\n";
   }
-  local *F;
-  if (open(F, '>', "$dir.cache.new")) {
-    local ($Data::Dumper::Indent) = 0;
-    local ($Data::Dumper::Terse) = 1;
-    print F Dumper($repobins)."\n";
-    close F;
+  if (Storable::store($repobins, "$dir.cache.new")) {
     rename("$dir.cache.new", "$dir.cache") || die("rename $dir.cache.new $dir.cache: $!\n");
   }
   # add dir to make real path
@@ -941,12 +938,7 @@ sub update_dst_full {
     delete $pack->{'meta'};
     $pack->{'path'} =~ s/.*\///;
   }
-  local *F;
-  if (open(F, '>', "$gdst/:full.cache.new")) {
-    local ($Data::Dumper::Indent) = 0;
-    local ($Data::Dumper::Terse) = 1;
-    print F Dumper($repodata)."\n";
-    close F;
+  if (Storable::store($repodata, "$gdst/:full.cache.new")) {
     rename("$gdst/:full.cache.new", "$gdst/:full.cache") || die("rename $gdst/:full.cache.new $gdst/:full.cache: $!\n");
   }
   for my $pack (values %$repodata) {
@@ -1329,6 +1321,7 @@ while(1) {
 	  print "        blocked\n";
 	  $notready{$packid} = "blocked: ".join(', ', @blocked);
           $packstatus{$packid} = 'blocked';
+          $packerror{$packid} = join(', ', @blocked);
           next;
         }
         print "      - $packid (aggregate)\n";
@@ -1456,7 +1449,7 @@ while(1) {
 	  print "        expansion errors:\n";
 	  print "            $_\n" for @edeps;
 	  $packstatus{$packid} = 'expansion error';
-          $packerror{$packid} = join(',', @edeps);
+          $packerror{$packid} = join(', ', @edeps);
 	  next;
 	}
 	delete $experrors{$packid};
@@ -1467,6 +1460,7 @@ while(1) {
 	print "        blocked\n";
 	$notready{$packid} = "blocked: ".join(', ', @blocked);
         $packstatus{$packid} = 'blocked';
+        $packerror{$packid} = join(', ', @blocked);
 	next;
       }
       if (open(F, '<', "$reporoot/$prp/$myarch/:meta/$packid")) {
