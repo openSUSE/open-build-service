@@ -452,10 +452,18 @@ class ProjectController < ApplicationController
       @statushash[repo] ||= Hash.new
       @statushash[repo][arch] = Hash.new
 
+      @failed = Hash.new
+
       stathash = @statushash[repo][arch]
       result.each_status do |status|
         stathash[status.package] = status
+        @failed[status.package] ||= false
+        if ['failed', 'expansion error'].include? status.code
+          @failed[status.package] = true
+        end
       end
+
+      @dummy_status = ActiveXML::Node.new("<status package='unknown' code='unknown'/>")
 
       @packagenames = stathash.keys.sort if @packagenames.nil?
     end

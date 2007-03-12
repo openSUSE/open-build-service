@@ -36,26 +36,14 @@
     <th>&nbsp;</th>
   </tr>
   <!-- package rows -->
-  <% @failed ||= {} %>
   <% @packagenames.sort.each do |packname| -%>
-  <% @failed[packname] = false %>
   <tr>
     <td><%= link_to packname, :controller => "package", :action => "show",
       :package => packname, :project => @project.to_s %></td>
     <% @repohash.sort.each do |repo, archlist| -%>
     <% archlist.each do |arch| -%>
-      <%
-        # sane default - TODO: fix this in the controller
-        status = 'unknown'
-        status = @statushash[repo][arch][packname]
-        case status.code
-        when 'failed'
-          @failed[packname] = true
-        when 'expansion error'
-          @failed[packname] = true
-        end
-      %>
-      <td id="<%= status_id_for(packname, repo, arch) -%>"
+      <% status = status_for(repo, arch, packname)  -%>
+       <td id="<%= status_id_for(repo, arch, packname) -%>"
         class="status_<%= status.code.gsub(' ','_') -%>">
       <% if status.code == 'failed' or status.code == 'expansion error' -%>
         <%= link_to_remote image_tag( 'rebuild-light', :border => 0,
