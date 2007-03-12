@@ -64,17 +64,30 @@ class Package < ActiveXML::Base
   def disable_build( opt={} )
     logger.debug "disable building of package #{self.name} for #{opt[:repo]} #{opt[:arch]}"
 
+    fulldata = REXML::Document.new( data.to_s )
     elem_cache = get_elements_before :disable
 
     if opt[:repo] and opt[:arch]
-      data.add_element 'disable', 'repository' => opt[:repo], 'arch' => opt[:arch]
+      if fulldata.root.get_elements("disable[@repository='#{opt[:repo]}' and @arch='#{opt[:arch]}']").empty?
+        data.add_element 'disable', 'repository' => opt[:repo], 'arch' => opt[:arch]
+      else return false
+      end
     else
       if opt[:repo]
-        data.add_element 'disable', 'repository' => opt[:repo]
+        if fulldata.root.get_elements("disable[@repository='#{opt[:repo]}' and not(@arch)]").empty?
+          data.add_element 'disable', 'repository' => opt[:repo]
+        else return false
+        end
       elsif opt[:arch]
-        data.add_element 'disable', 'arch' => opt[:arch]
+        if fulldata.root.get_elements("disable[@arch='#{opt[:arch]}' and not(@repository)]").empty?
+          data.add_element 'disable', 'arch' => opt[:arch]
+        else return false
+        end
       else
-        data.add_element 'disable'
+        if fulldata.root.get_elements("//disable[count(@*) = 0]").empty?
+          data.add_element 'disable'
+        else return false
+        end
       end
     end
 
@@ -139,8 +152,8 @@ class Package < ActiveXML::Base
 
   # replace all <disable .../> -tags in this package with new ones
   def replace_disable_tags( new_disable_tags )
-    remove_disable_tags if not new_disable_tags.empty?
-    data.add_text new_disable_tags
+    remove_disable_tags
+    data.add_text new_disable_tags if not new_disable_tags.empty?
     begin
       save
     rescue
