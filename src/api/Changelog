@@ -394,3 +394,12 @@ Thu Mar 08 20:21:13 +0100 2007 - bauersman
 - fixed statistics controller tests
 
 
+------------------------------------------------------------------------
+Mon Mar 12 18:00:09 +0100 2007 - bauersman
+
+- update from svn revision 1405 to 1421
+- embarrass
+- missing blacklist model
+- fixed warnings "parenthesize argument(s) for future version"
+
+
