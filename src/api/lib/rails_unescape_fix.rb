@@ -2,7 +2,8 @@
 
 module ActionController
   module Routing
-    class DynamicComponent
+    class Component; end
+    class DynamicComponent < Component
       def assign_result(g, with_default = false)
         g.result key, "URI.unescape(#{g.next_segment(true, with_default ? default : nil)})"
         g.move_forward {|gp| yield gp}
