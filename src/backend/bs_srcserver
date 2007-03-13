@@ -1505,11 +1505,9 @@ sub getlogfile {
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  if ($cgi->{'internal'}) {
-    my $buildinfo = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, 'internal=1');
-    return ($buildinfo, $BSXML::buildinfo);
-  }
-  my $buildinfo = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo);
+  my @args;
+  push @args, 'internal=1' if $cgi->{'internal'};
+  my $buildinfo = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
   return ($buildinfo, $BSXML::buildinfo);
 }
 

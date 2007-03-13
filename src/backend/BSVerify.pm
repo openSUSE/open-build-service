@@ -84,6 +84,7 @@ sub verify_rev {
 
 sub verify_port {
   my $port = $_[0];
+  die("port is empty\n") unless defined($port) && $port ne '';
   die("bad port '$port'\n") unless $port =~ /^\d+$/s;
   die("illegal port '$port'\n") unless $port >= 1024;
 }
@@ -96,7 +97,7 @@ sub verify_num {
 
 sub verify_bool {
   my $bool = $_[0];
-  die("not boolean\n") unless $bool && ($bool eq '0' || $bool eq '1');
+  die("not boolean\n") unless defined($bool) && ($bool eq '0' || $bool eq '1');
 }
 
 sub verify_prp {
@@ -120,9 +121,6 @@ sub verify_resultview {
   die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist';
 }
 
-
-sub verify_any {
-}
 
 sub verify_proj {
   my ($proj, $projid) = @_;

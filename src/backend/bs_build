@@ -125,6 +125,7 @@ for PKG in $PACKAGES_TO_INSTALL ; do
     fi
 done
 echo "preinstall: $PACKAGES_TO_PREINSTALL" >>$BUILD_ROOT/.rpmlist
+echo "vminstall: $PACKAGES_TO_VMINSTALL" >>$BUILD_ROOT/.rpmlist
 echo "runscripts: $PACKAGES_TO_RUNSCRIPTS" >>$BUILD_ROOT/.rpmlist
 
 #

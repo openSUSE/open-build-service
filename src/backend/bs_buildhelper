@@ -292,6 +292,7 @@ if ($ARGV[0] eq 'vars') {
   my $info = readinfo($ARGV[1]);
   my @bdep = @{$info->{'bdep'} || []};
   my @pdep = map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep;
+  my @vmdep = map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep;
   my @rdep = map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep;
   my @dep = map {$_->{'name'}} grep {!$_->{'notmeta'}} @bdep;
   @bdep = map {$_->{'name'}} @bdep;
@@ -311,6 +312,7 @@ if ($ARGV[0] eq 'vars') {
   printbash('RELEASE', $release);
   printbash('PACKAGES_TO_INSTALL', @bdep);
   printbash('PACKAGES_TO_PREINSTALL', @pdep);
+  printbash('PACKAGES_TO_VMINSTALL', @vmdep);
   printbash('PACKAGES_TO_RUNSCRIPTS', @rdep);
   printbash('PACKAGE_DEPS', @dep);
   exit(0);

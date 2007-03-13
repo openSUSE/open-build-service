@@ -984,11 +984,13 @@ sub getbuildinfo {
   }
 
   my @pdeps = Build::get_preinstalls($bconf);
+  my @vmdeps = Build::get_vminstalls($bconf);
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
   my %pdeps = map {$_ => 1} @pdeps;
+  my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @edeps;
-  @bdeps = grep {!$pdeps{$_}} @bdeps;
-  unshift @bdeps, @pdeps;
+  @bdeps = grep {!$pdeps{$_} && !$vmdeps{$_}} @bdeps;
+  unshift @bdeps, @pdeps, @vmdeps;
 
   my @bdepsp = ();
   for (@pdeps, @bdeps) {
@@ -1010,6 +1012,7 @@ sub getbuildinfo {
       $_->{'arch'} = $r->{'arch'};
     }
     $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
+    $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
   }

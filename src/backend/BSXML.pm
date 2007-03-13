@@ -169,6 +169,7 @@ our $buildinfo = [
      [[ 'bdep' =>
 	'name',
 	'preinstall',
+	'vminstall',
 	'runscripts',
 	'notmeta',
 

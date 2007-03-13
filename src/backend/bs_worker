@@ -540,7 +540,7 @@ if ($ex == 0) {
     close D;
   }
   push @d, 'SRPMS';
-  @d = ('DEBS') if $buildinfo->{'specfile'} =~ /\.dsc$/;
+  @d = ('DEBS') if $buildinfo->{'file'} =~ /\.dsc$/;
   for my $d (@d) {
     if (opendir(D, "$buildroot/.build.packages/$d")) {
       push @send, map {"$buildroot/.build.packages/$d/$_"} grep {/\.(?:deb|rpm)$/} readdir(D);
