@@ -104,29 +104,25 @@ ActiveXML::Base.config do |conf|
         :tags_by_user => "rest:///user/:user/tags/:type",
         :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
 
+    # Monitor
     map.connect :workerstatus, "rest:///build/_workerstatus",
-        :all => "rest:///build/_workerstatus"
+      :all => "rest:///build/_workerstatus"
 
     # Statistics
-    map.connect :latestadded, "rest:///statistics/latest_added?limit=:limit",
-      :all => "rest:///statistics/latest_added",
+    map.connect :latestadded, "rest:///statistics/latest_added?:limit",
       :specific => "rest:///statistics/added_timestamp/:project/:package"
-    map.connect :latestupdated, "rest:///statistics/latest_updated?limit=:limit",
-      :all => "rest:///statistics/latest_updated",
+    map.connect :latestupdated, "rest:///statistics/latest_updated?:limit",
       :specific => "rest:///statistics/updated_timestamp/:project/:package"
     map.connect :downloadcounter, "rest:///statistics/download_counter" +
-      "/:project/:package/:repository/:architecture?concat=:concat&limit=:limit",
-      :arch => "rest:///statistics/download_counter?architecture=:arch&limit=:limit",
-      :repo => "rest:///statistics/download_counter?repository=:repo&limit=:limit",
-      :all => "rest:///statistics/download_counter?limit=:limit"
-    map.connect :rating, "rest:///statistics/rating/:project/:package",
-      :all => "rest:///statistics/highest_rated?limit=:limit"
-    map.connect :mostactive, "rest:///statistics/most_active?type=:type&limit=:limit",
-      :all => "rest:///statistics/most_active?type=:type&limit=:limit"
+      "/:project/:package/:repository/:architecture?:concat&:limit",
+      :arch => "rest:///statistics/download_counter?architecture=:arch&:limit",
+      :repo => "rest:///statistics/download_counter?repository=:repo&:limit"
+    map.connect :rating, "rest:///statistics/highest_rated?:limit",
+      :specific => "rest:///statistics/rating/:project/:package"
+    map.connect :mostactive, "rest:///statistics/most_active?:type&:limit"
 
     # Status Messages
-    map.connect :statusmessage, "rest:///status_message/:id/?limit=:limit",
-      :all => "rest:///status_message/:id/?limit=:limit"
+    map.connect :statusmessage, "rest:///status_message/:id/?:limit"
 
 
   end

@@ -46,7 +46,16 @@ class DbPackage < ActiveRecord::Base
       result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
       result[0]
     end
+
+    def activity_algorithm
+      # this is the algorithm (sql) we use for calculating activity of packages
+      '@activity:=( ' +
+        'pac.activity_index - ' +
+        'POWER( DATEDIFF( NOW(), pac.updated_at ), 1.55 ) /10 ' +
+      ')'
+    end
   end
+
 
   def store_axml( package )
     DbPackage.transaction( self ) do
@@ -298,17 +307,13 @@ class DbPackage < ActiveRecord::Base
 
 
   def activity
-    if self.updated_at.nil?
-      return 100
-    else
-      updated_days_ago ||= ( Time.now - self.updated_at ) / 86400
-      # how much activity do we want to substract depending on
-      # the amount of time past since the last update
-      slope ||= updated_days_ago ** 1.55 / 10
-      activity ||= activity_index - slope
-      activity = 0 if activity < 0
-      return activity
-    end
+    package = DbPackage.find :first,
+      :from => 'db_packages pac, db_projects pro',
+      :conditions => "pac.db_project_id = pro.id AND pac.id = #{self.id}",
+      :select => "pac.*, pro.name AS project_name, " +
+        "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
+        "IF( @activity<0, 0, @activity ) AS activity_value"
+    return package.activity_value.to_f
   end
 
 

@@ -73,6 +73,11 @@ API_VERSION="0.1.1"
 MIN_VOTES_FOR_RATING = 3
 
 
+# activate / enable caching with the action_cache plugin
+require 'action_cache'
+ActionController::Base.perform_caching = true
+
+
 module ActiveRbacConfig
   # controller and layout configuration
   config :controller_layout, "html"

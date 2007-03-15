@@ -2,9 +2,12 @@ class StatisticsController < ApplicationController
 
 
   before_filter :get_limit, :only => [
-    :highest_rated, :most_active, :latest_added, :latest_updated, :latest_built,
-    :download_counter
+    :highest_rated, :most_active, :latest_added, :latest_updated,
+    :latest_built, :download_counter
   ]
+
+  caches_action :highest_rated, :most_active, :latest_added, :latest_updated,
+    :latest_built, :download_counter
 
   validate_action :redirect_stats => :redirect_stats
 
@@ -21,6 +24,9 @@ class StatisticsController < ApplicationController
 
 
   def highest_rated
+    # set automatic action_cache expiry time limit
+    @response.time_to_live = 10.minutes
+
     ratings = Rating.find :all,
       :select => 'object_id, object_type, count(score) as count,' +
         'sum(score)/count(score) as score_calculated',
@@ -86,6 +92,8 @@ class StatisticsController < ApplicationController
 
 
   def download_counter
+    # set automatic action_cache expiry time limit
+    @response.time_to_live = 30.minutes
 
     project = params[:project]
     package = params[:package]
@@ -234,20 +242,62 @@ class StatisticsController < ApplicationController
 
 
   def most_active
+    # set automatic action_cache expiry time limit
+    @response.time_to_live = 30.minutes
+
     @type = params[:type] or @type = 'packages'
+
     if @type == 'projects'
-      @projects = DbProject.find :all, :include => [ :db_packages ]
-      @projects.sort! { |a,b| b.activity <=> a.activity }
+      # get all packages including activity values
+      @packages = DbPackage.find :all,
+        :from => 'db_packages pac, db_projects pro',
+        :conditions => 'pac.db_project_id = pro.id',
+        :select => 'pac.*, pro.name AS project_name,' +
+          "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
+          'IF( @activity<0, 0, @activity ) AS activity_value'
+      # count packages per project and sum up activity values
+      projects = {}
+      @packages.each do |package|
+        pro = package.project_name
+        projects[pro] ||= { :count => 0, :sum => 0 }
+        projects[pro][:count] += 1
+        projects[pro][:sum] += package.activity_value.to_f
+      end
+      # calculate average activity of packages per project
+      projects.each_key do |pro|
+        projects[pro][:activity] = projects[pro][:sum] / projects[pro][:count]
+      end
+      # sort by activity
+      @projects = projects.sort do |a,b|
+        b[1][:activity] <=> a[1][:activity]
+      end
+      # apply limit
       @projects = @projects[0..@limit-1]
+
     elsif @type == 'packages'
-      @packages = DbPackage.find :all, :include => [ :db_project ]
-      @packages.sort! { |a,b| b.activity <=> a.activity }
-      @packages = @packages[0..@limit-1]
+      # get all packages including activity values
+      @packages = DbPackage.find :all,
+        :from => 'db_packages pac, db_projects pro',
+        :conditions => 'pac.db_project_id = pro.id',
+        :order => 'activity_value DESC',
+        :limit => @limit,
+        :select => 'pac.*, pro.name AS project_name,' +
+          "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
+          'IF( @activity<0, 0, @activity ) AS activity_value'
     end
   end
 
 
+  def activity
+    @project = get_project( params[:project] )
+    @package = get_package( params[:package], @project.id ) if @project
+  end
+
+
   def latest_added
+    # set automatic action_cache expiry time limit
+    @response.time_to_live = 5.minutes
+
     packages = DbPackage.find(:all, :order => 'created_at DESC, name', :limit => @limit )
     projects = DbProject.find(:all, :order => 'created_at DESC, name', :limit => @limit )
 
@@ -270,6 +320,9 @@ class StatisticsController < ApplicationController
 
 
   def latest_updated
+    # set automatic action_cache expiry time limit
+    @response.time_to_live = 5.minutes
+
     packages = DbPackage.find(:all, :order => 'updated_at DESC, name', :limit => @limit )
     projects = DbProject.find(:all, :order => 'updated_at DESC, name', :limit => @limit )
 
@@ -291,6 +344,10 @@ class StatisticsController < ApplicationController
 
 
   def latest_built
+    # set automatic action_cache expiry time limit
+    @response.time_to_live = 10.minutes
+
+    # TODO: implement or decide to abolish this functionality
   end
 
 

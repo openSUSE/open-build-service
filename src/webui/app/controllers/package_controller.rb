@@ -17,7 +17,7 @@ class PackageController < ApplicationController
   
   
   def add_tag
-    logger.debug "New tag #{params[:tag]} for pockage #{params[:package]}."
+    logger.debug "New tag #{params[:tag]} for package #{params[:package]}."
     
     tags = []
     tags << params[:tag]    
@@ -106,7 +106,7 @@ class PackageController < ApplicationController
           end
         end
         @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
-        @rating = Rating.find( :project => @project, :package => @package )
+        @rating = Rating.find( :specific, :project => @project, :package => @package )
       end
     end
   end
@@ -134,7 +134,7 @@ class PackageController < ApplicationController
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
  
     @downloads = Downloadcounter.find( :project => project, :package => package )
-    @rating = Rating.find( :project => @project, :package => @package )
+    @rating = Rating.find( :specific, :project => @project, :package => @package )
     @created_timestamp = LatestAdded.find( :specific,
       :project => @project, :package => @package ).package.created
     @updated_timestamp = LatestUpdated.find( :specific,

@@ -357,4 +357,16 @@ class ApplicationController < ActionController::Base
   end
 
 
+  def action_fragment_key( options )
+    # this is for customizing the path/filename of cached files (cached by the
+    # action_cache plugin). here we want to include params in the filename
+    par = params
+    par.delete 'controller'
+    par.delete 'action'
+    pairs = []
+    par.sort.each { |pair| pairs << pair.join('=') }
+    url_for( options ).split('://').last + "/#{pairs.join(',').gsub(' ', '-')}"
+  end
+
+
 end

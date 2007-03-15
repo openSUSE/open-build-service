@@ -319,14 +319,22 @@ class DbProject < ActiveRecord::Base
   def activity
     # the activity of a project is measured by the average activity
     # of all its packages. this is not perfect, but ok for now.
-    packages = self.db_packages
-    count = packages.length
-    return 0 if count == 0
 
-    sum = 0
-    packages.each { |package| sum += package.activity }
-    activity = sum / count
-    return activity
+    # get all packages including activity values
+    @packages = DbPackage.find :all,
+      :from => 'db_packages pac, db_projects pro',
+      :conditions => "pac.db_project_id = pro.id AND pro.id = #{self.id}",
+      :select => 'pro.*,' +
+        "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
+        'IF( @activity<0, 0, @activity ) AS activity_value'
+    # count packages and sum up activity values
+    project = { :count => 0, :sum => 0 }
+    @packages.each do |package|
+      project[:count] += 1
+      project[:sum] += package.activity_value.to_f
+    end
+    # calculate and return average activity
+    return project[:sum] / project[:count]
   end
 
 

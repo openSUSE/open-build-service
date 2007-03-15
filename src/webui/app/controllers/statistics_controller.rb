@@ -9,9 +9,9 @@ class StatisticsController < ApplicationController
   def index
     @latest_added    = LatestAdded.find( :limit => 10 )
     @latest_updated  = LatestUpdated.find( :limit => 10 )
-    @highest_rated   = Rating.find( :all, :limit => 10 )
-    # @most_active_pac = MostActive.find( :limit => 5, :type => 'packages' )
-    # @most_active_prj = MostActive.find( :limit => 5, :type => 'projects' )
+    @highest_rated   = Rating.find( :limit => 10 )
+    @most_active_pac = MostActive.find( :limit => 5, :type => 'packages' )
+    @most_active_prj = MostActive.find( :limit => 5, :type => 'projects' )
     @limit = 3
     @most_downloaded = get_download_stats
   end
@@ -56,7 +56,7 @@ class StatisticsController < ApplicationController
     limit = params[:limit]
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false
-    @highest_rated = Rating.find( :all, :limit => limit )
+    @highest_rated = Rating.find( :limit => limit )
     render :partial => 'highest_rated', :layout => layout, :more => true
   end
 
@@ -96,7 +96,7 @@ class StatisticsController < ApplicationController
     else
       @name = 'all downloads'
       @title = ''
-      @downloads = Downloadcounter.find( :all, :limit => limit )
+      @downloads = Downloadcounter.find( :limit => limit )
     end
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false

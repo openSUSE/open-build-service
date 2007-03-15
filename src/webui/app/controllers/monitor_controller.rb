@@ -51,7 +51,7 @@ class MonitorController < ApplicationController
     @max_messages = 4
     limit ||= params[:message_limit]
     limit = @max_messages if limit.nil?
-    return Statusmessage.find( :all, :limit => limit )
+    return Statusmessage.find( :limit => limit )
   end
 
 
