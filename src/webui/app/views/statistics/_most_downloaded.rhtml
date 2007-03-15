@@ -1,4 +1,10 @@
 <% @pagetitle = "Most Downloaded" %>
+<%
+  @crumb_list = [
+    link_to( 'Statistics', :action => :index),
+    'Most Downloaded'
+  ]
+%>
 
 <div id="most_downloaded">
 

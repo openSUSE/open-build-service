@@ -1,8 +1,14 @@
 <% @pagetitle = "New Additions" %>
+<%
+  @crumb_list = [
+    link_to( 'Statistics', :action => :index),
+    'Latest Added'
+  ]
+%>
 
 <div id="latest_added">
 
-  <h4>New Additions:</h4>
+  <h4>Latest Added:</h4>
   <br/>
 
   <% if params[:more] -%>

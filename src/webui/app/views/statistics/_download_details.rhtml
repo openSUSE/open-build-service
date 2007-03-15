@@ -1,4 +1,10 @@
 <% @pagetitle = "Download Statistics Details for #{@title} #{@name}" %>
+<%
+  @crumb_list = [
+    link_to( 'Statistics', :action => :index),
+    'Download Details'
+  ]
+%>
 
 <div id="download_details">
 

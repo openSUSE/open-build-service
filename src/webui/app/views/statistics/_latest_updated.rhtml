@@ -1,4 +1,10 @@
 <% @pagetitle = "Latest Updated" %>
+<%
+  @crumb_list = [
+    link_to( 'Statistics', :action => :index),
+    'Latest Updated'
+  ]
+%>
 
 <div id="latest_updated">
 

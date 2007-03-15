@@ -1,4 +1,10 @@
 <% @pagetitle = "Highest Rated" %>
+<%
+  @crumb_list = [
+    link_to( 'Statistics', :action => :index),
+    'Highest Rated'
+  ]
+%>
 
 <div id="highest_rated">
 
