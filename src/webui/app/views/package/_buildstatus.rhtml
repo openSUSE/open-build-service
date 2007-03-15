@@ -17,7 +17,10 @@
       <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
   </h3>
   <table class="grid">
-    <% @results.each do |result| %>
+    <% current_repo = nil -%>
+    <% @buildresult.each_result do |result| -%>
+    <% if result.repository != current_repo -%>
+    <% current_repo = result.repository -%>
     <tr>
       <th colspan="4">
         <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger rebuild of " + result.repository),
@@ -25,28 +28,27 @@
         <b><%=h result.repository %></b>
       </th>
     </tr>
-    <% result.each_archresult do |ar| %>
+    <% end -%>
     <tr>
       <td>
-        <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger rebuild of " + ar.arch + " in " + result.repository),
-        :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository, :arch => ar.arch %>
-        <%=h ar.arch %>
+        <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger rebuild of " + result.arch + " in " + result.repository),
+        :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository, :arch => result.arch %>
+        <%=h result.arch %>
       </td>
-      <td><%=h ar.status.code %></td>
+      <td><%=h result.status.code %></td>
       <td>
-        <% if ar.status.has_element? :summary %>
-        <%=h ar.status.summary %>
-        <% end %>
+        <% if result.status.has_element? :details -%>
+        <%=h result.status.details %>
+        <% end -%>
       </td>
       <td align="right"><%= link_to "[Build Log]", :action => :live_build_log,
-        :package => @package, :project => params[:project], :arch => ar.arch, :repository => result.repository %></td>
+        :package => @package, :project => params[:project], :arch => result.arch, :repository => result.repository %></td>
     </tr>
-    <% ar.each_rpm do |rpm| %>
+    <% result.binarylist.each_binary do |binary| %>
     <tr>
-      <td colspan="3"><%= link_to rpm.filename, rpm_url( @project, @package,
-        result.repository, ar.arch, rpm.filename ) %></td>
+      <td colspan="3"><%= link_to binary.filename, rpm_url( @project, @package,
+        result.repository, result.arch, binary.filename ) %></td>
     </tr>
-    <% end %>
     <% end %>
     <% end %>
   </table>
