@@ -97,7 +97,7 @@ class ProjectController < ApplicationController
     end
 
     @arch_list = tmp.keys.sort
-    @buildresult = Buildresult.find( :summary, :project => params[:project] )
+    @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
     @rating = Rating.find( :project => @project )
   end
@@ -431,7 +431,7 @@ class ProjectController < ApplicationController
 
   def monitor
     @project = params[:project]
-    @buildresult = Buildresult.find( :project => @project )
+    @buildresult = Buildresult.find( :project => @project, :view => 'status' )
     #@packstatus = Packstatus.find( :project => @project )
 
     if not @buildresult.has_element? :result
