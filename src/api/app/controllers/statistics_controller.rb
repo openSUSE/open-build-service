@@ -304,6 +304,7 @@ class StatisticsController < ApplicationController
       :conditions => 'pro.id = pac.db_project_id',
       :order => 'created_at DESC, name', :limit => @limit
     projects = DbProject.find :all,
+      :select => 'name, created_at',
       :order => 'created_at DESC, name', :limit => @limit
 
     list = []
@@ -328,8 +329,14 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     @response.time_to_live = 5.minutes
 
-    packages = DbPackage.find(:all, :order => 'updated_at DESC, name', :limit => @limit )
-    projects = DbProject.find(:all, :order => 'updated_at DESC, name', :limit => @limit )
+    packages = DbPackage.find :all,
+      :from => 'db_packages pac, db_projects pro',
+      :select => 'pac.name, pac.updated_at, pro.name AS project_name',
+      :conditions => 'pro.id = pac.db_project_id',
+      :order => 'updated_at DESC, name', :limit => @limit
+    projects = DbProject.find :all,
+      :select => 'name, updated_at',
+      :order => 'updated_at DESC, name', :limit => @limit
 
     list = []
     projects.each { |project| list << project }
