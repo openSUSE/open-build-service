@@ -22,7 +22,8 @@ class ApplicationController < ActionController::Base
 
   #filter
   def set_return_to
-    session[:return_to] ||= request.request_uri
+    session[:return_to] = request.request_uri
+    logger.debug "return_to: #{session[:return_to]}"
   end
 
   def authorize
