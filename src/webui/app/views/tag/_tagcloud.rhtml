@@ -22,8 +22,8 @@
            end %>
   
             
-   <span id="<%= h(tag.name) %>" class="tag size<%= (tag.size.to_i + 5) %>"> <%= link_to h(tag.name), {:controller => "tag", :action => action, :tag => tag, :predecessor => @predecessor}, {:style => style} %></span> 
-     
+   <span  class="tag size<%= (tag.size.to_i + 5) %>"> <%= link_to h(tag.name), {:controller => "tag", :action => action, :tag => tag, :predecessor => @predecessor}, {:style => style} %></span> 
+     <!-- id="<%= h(tag.name) %>" -->
         
     <% end
     else %>
