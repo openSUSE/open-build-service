@@ -403,3 +403,37 @@ Mon Mar 12 18:00:09 +0100 2007 - bauersman
 - fixed warnings "parenthesize argument(s) for future version"
 
 
+------------------------------------------------------------------------
+Fri Mar 16 16:17:13 +0100 2007 - bauersman
+
+- update from svn revision 1422 to 1458
+- fix for superclass mismatch when using rails from vendor directory
+  added action_cache plugin, necessary because the standard rails caching
+  mechanism lacks some important features we need here like:
+  
+- recognition of 'Content-Type: application/xml' (rails built-in caching
+    can only handle text/html resp. assumes that all _is_ text/html)
+- time based cache expiration (time to live mechanism)
+- recognition of parameters (standard rails caching treats /some/url the
+    same like /some/url?param=value)
+- 
+  * webclient:
+  - display most_active statistics in two columns when in detailed mode
+  - adjusted activexml-config for new frontend-routes
+  - adjusted all activexml-find calls where necessary to use new routes
+  - re-activated activity statistics, because they should be much faster
+    now (see below)
+  
+  * frontend:
+  - re-implemented complete activity measurement: this is now mainly
+    calculated by the sql-database - and is much faster now :)
+  - use the new action_cache plugin for caching most of the statistics
+    xml output. this speeds up statistics even more.
+  
+- reduced necessary sql requests for latest_added statistics -> faster
+  
+- reduced necessary sql requests for latest_updated statistics
+- only get necessary sql fields, should save a bit memory
+  
+
+
