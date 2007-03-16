@@ -46,7 +46,7 @@ class FrontendCompat
   end
 
   def get_log_chunk( project, package, repo, arch, offset=0 )
-    path = "/result/#{project}/#{repo}/#{package}/#{arch}/log?nostream=1&start=#{offset}"
+    path = "/build/#{project}/#{repo}/#{arch}/#{package}/_log?nostream=1&start=#{offset}"
     transport.direct_http URI("https://#{path}")
   end
 

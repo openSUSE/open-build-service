@@ -66,12 +66,12 @@ module Suse
       end
 
       def get_log( project, repository, package, arch )
-        path = "/rpm/#{project}/#{repository}/#{arch}/#{package}/logfile"
+        path = "/build/#{project}/#{repository}/#{arch}/#{package}/_log"
         do_get( rpm_host, rpm_port, path )
       end
 
       def get_log_chunk( project, repository, package, arch, start=0 )
-        path = "/rpm/#{project}/#{repository}/#{arch}/#{package}/logfile?nostream=1&start=#{start}"
+        path = "/build/#{project}/#{repository}/#{arch}/#{package}/_log?nostream=1&start=#{start}"
         do_get( rpm_host, rpm_port, path )
       end
 
