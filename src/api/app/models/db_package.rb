@@ -51,7 +51,7 @@ class DbPackage < ActiveRecord::Base
       # this is the algorithm (sql) we use for calculating activity of packages
       '@activity:=( ' +
         'pac.activity_index - ' +
-        'POWER( DATEDIFF( NOW(), pac.updated_at ), 1.55 ) /10 ' +
+        'POWER( TIME_TO_SEC( TIMEDIFF( NOW(), pac.updated_at ))/86400, 1.55 ) /10 ' +
       ')'
     end
   end
