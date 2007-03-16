@@ -559,3 +559,29 @@ Mon Mar 12 18:00:16 +0100 2007 - bauersman
 - added checks for buildresults
 
 
+------------------------------------------------------------------------
+Fri Mar 16 16:17:25 +0100 2007 - bauersman
+
+- update from svn revision 1423 to 1459
+- fixed bug #253261 in weblient: target can be disabled multiple times
+- using new route handling for buildresults
+- package view uses new API
+- 
+  * webclient:
+  - display most_active statistics in two columns when in detailed mode
+  - adjusted activexml-config for new frontend-routes
+  - adjusted all activexml-find calls where necessary to use new routes
+  - re-activated activity statistics, because they should be much faster
+    now (see below)
+  
+  * frontend:
+  - re-implemented complete activity measurement: this is now mainly
+    calculated by the sql-database - and is much faster now :)
+  - use the new action_cache plugin for caching most of the statistics
+    xml output. this speeds up statistics even more.
+  
+- added bread crumbs / path for statistics in webclient
+- removed no longer needed id tags from tag cloud entries
+- always store return path for login
+
+
