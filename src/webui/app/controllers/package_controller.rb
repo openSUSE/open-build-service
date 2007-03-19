@@ -529,10 +529,12 @@ class PackageController < ApplicationController
     options = {}
     options[:arch] = params[:arch] if params[:arch]
     options[:repo] = params[:repo] if params[:repo]
+    options[:project] = project
+    options[:package] = package
 
-    frontend.cmd_package( project, package, "rebuild", options )
+    frontend.rebuild options
 
-    logger.debug( "Triggered Rebuild for #{package}, options=#{options.to_json.to_s}" )
+    logger.debug( "Triggered Rebuild for #{package}, options=#{options.inspect}" )
 
     if  params[:redirect] == 'monitor'
       controller = 'project'

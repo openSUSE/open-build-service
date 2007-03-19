@@ -18,6 +18,24 @@ class FrontendCompat
       :method => "POST", :data => ""
   end
 
+  #  trigger rebuild
+  #  opt takes keys: project(needed), repository, arch
+  #  missing project raises RuntimeError
+  def rebuild( opt={} )
+    raise RuntimeError, "project name missing" unless opt.has_key? :project
+    logger.debug "--> rebuild: #{opt.inspect}"
+    path = "/build/#{opt[:project]}?cmd=rebuild"
+    opt.delete :project
+
+    valid_opts = %(project package repository arch code)
+    opt.each do |key, val|
+      raise RuntimeError, "unknown method parameter #{key}" unless valid_opts.include? key.to_s
+      path += "&#{key.to_s}=#{val}"
+    end
+    #logger.debug "### rebuild path: #{path}"
+    transport.direct_http URI("https://#{path}"), :method => POST, :data => ""
+  end
+
   def get_source( opt={} )
     logger.debug "--> get_source: #{opt.inspect}"
     path = '/source'
