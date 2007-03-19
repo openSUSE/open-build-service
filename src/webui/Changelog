@@ -585,3 +585,10 @@ Fri Mar 16 16:17:25 +0100 2007 - bauersman
 - always store return path for login
 
 
+------------------------------------------------------------------------
+Mon Mar 19 18:16:47 +0100 2007 - abauer
+
+- update from svn revision 1461 to 1473
+- use new log path
+
+
