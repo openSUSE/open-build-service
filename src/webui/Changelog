@@ -599,3 +599,10 @@ Mon Mar 19 18:17:15 +0100 2007 - bauersman
 - use new log path
 
 
+------------------------------------------------------------------------
+Mon Mar 19 18:22:12 +0100 2007 - bauersman
+
+- update from svn revision 1475 to 1477
+- trigger rebuild uses new API
+
+
