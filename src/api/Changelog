@@ -437,3 +437,11 @@ Fri Mar 16 16:17:13 +0100 2007 - bauersman
   
 
 
+------------------------------------------------------------------------
+Mon Mar 19 18:16:17 +0100 2007 - bauersman
+
+- update from svn revision 1459 to 1471
+- adjusted activity algorithm to respect fragments of days
+- use new log path
+
+
