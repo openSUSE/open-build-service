@@ -196,15 +196,6 @@ POST /source/<project>/<package>?cmd=createSpecFileTemplate
 XmlResult: status
 
 
-=== Trigger rebuild
-
-POST /source/<project>/<package>?cmd=rebuild
-
-  Triggers package rebuild for all repositories/architectures of the package
-
-XmlResult: status
-
-
 === Commit changes
 
 POST /source/<project>/<package>?cmd=commit&rev=<revision>&comment=<comment>&user=<user>
@@ -453,80 +444,8 @@ Parameters:
 XmlResult: collection
 
 
-== Build Results (Legacy)
 
-  This section describes the obsolete API for build results. It will be replaced
-  by the API available under /build.
-
-=== RPMs
-
-Host: api.opensuse.org
-
-
-GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>
-
-  Get RPM.
-
-Result: RPM
-
-
-GET /rpm/<project>/<repo>/<arch>/<package>/history
-
-  Get build history
-
-XmlResult: buildhistory
-
-
-GET /rpm/<project>/<repo>/<arch>/<package>/buildinfo
-
-  Get build information for local building
-
-XmlResult: buildinfo
-
-
-POST /rpm/<project>/<repo>/<arch>/<package>/buildinfo
-
-  Get build info for local building using the POSTed specfile
-
-Body: specfile
-
-XmlResult: buildinfo
-
-
-GET /rpm/<project>/<repo>/<arch>/<package>/status
-
-  Get build status of the specified project/package/repo/arch combination
-
-XmlResult: buildstatus
-
-
-=== Build Results
-
-Host: api.opensuse.org
-
-
-GET /result/<project>/<platform>/result
-
-  Read project summary result.
-
-XmlResult: projectresult
-
-
-GET /result/<project>/<platform>/<package>/result
-
-  Read package result.
-
-XmlResult: packageresult
-
-
-GET /result/<project>/<platform>/<package>/<arch>/log
-
-  Read build log.
-  
-Result: Build log as text file.
-
-
-=== Tags
+== Tags
  
 GET /source/<project>/_tags
 	
@@ -617,4 +536,79 @@ PUT user/<user>/tags/<project>/<package>
 XmlBody: tags
 
 XmlResult: status
+
+
+== Build Results (Legacy)
+
+  This section describes the obsolete API for build results. It will be replaced
+  by the API available under /build.
+
+=== RPMs
+
+Host: api.opensuse.org
+
+
+GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>
+
+  Get RPM.
+
+Result: RPM
+
+
+GET /rpm/<project>/<repo>/<arch>/<package>/history
+
+  Get build history
+
+XmlResult: buildhistory
+
+
+GET /rpm/<project>/<repo>/<arch>/<package>/buildinfo
+
+  Get build information for local building
+
+XmlResult: buildinfo
+
+
+POST /rpm/<project>/<repo>/<arch>/<package>/buildinfo
+
+  Get build info for local building using the POSTed specfile
+
+Body: specfile
+
+XmlResult: buildinfo
+
+
+GET /rpm/<project>/<repo>/<arch>/<package>/status
+
+  Get build status of the specified project/package/repo/arch combination
+
+XmlResult: buildstatus
+
+
+=== Build Results
+
+Host: api.opensuse.org
+
+
+GET /result/<project>/<platform>/result
+
+  Read project summary result.
+
+XmlResult: projectresult
+
+
+GET /result/<project>/<platform>/<package>/result
+
+  Read package result.
+
+XmlResult: packageresult
+
+
+GET /result/<project>/<platform>/<package>/<arch>/log
+
+  Read build log.
+  
+Result: Build log as text file.
+
+
 
