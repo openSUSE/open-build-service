@@ -695,13 +695,7 @@ class PackageController < ApplicationController
     @project = Project.find( params[:project] )
     @package = Package.find( params[:package], :project => params[:project] )
 
-    @results = []
-    @project.each_repository do |repository|
-      result = Result.find( :project => @project, :package => @package,
-                           :platform => repository.name )
-      @results << result if result
-    end
-
+    @buildresult = Buildresult.find( :project => project, :package => package, :view => ['status', 'binarylist'] )
     render :partial => 'buildstatus'
   end
 
