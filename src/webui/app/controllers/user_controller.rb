@@ -1,6 +1,7 @@
 class UserController < ApplicationController
 require 'opensuse/frontend'
   skip_before_filter :authorize, :transmit_credentials
+  skip_before_filter :set_return_to, :only => :store_login
   
   def login
 
