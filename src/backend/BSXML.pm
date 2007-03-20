@@ -92,6 +92,10 @@ our $aggregatelist = [
 	    'project',
 	  [ 'package' ],
 	  [ 'binary' ],
+	 [[ 'repository' =>
+		'target',
+		'source',
+         ]],
      ]],
 ];
 
@@ -267,22 +271,6 @@ our $binaryversionlist = [
       [ 'binary' ]
 ];
 
-our $rpmlist = [
-    'rpmlist' =>
-     [[ 'rpm' =>
-	    'name',
-	    'epoch',
-	    'version',
-	    'release',
-	    'buildtime',
-	    'buildhost',
-	    'arch',
-	    'barch',
-	    'mtime',
-	    'filename',
-     ]],
-];
-
 our $worker = [
     'worker' =>
 	'hostarch',
@@ -431,6 +419,7 @@ our $binarylist = [
 	'package',
      [[ 'binary' =>
 	    'filename',
+	    'mtime',
      ]],
 ];
 

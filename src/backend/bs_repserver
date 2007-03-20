@@ -87,7 +87,7 @@ sub findbinaries {
   my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
   closedir(D);
   for (sort @bins) {
-    if (/^(.+)-[^-]*-[^-]*\.[^\.]*\.rpm$/) {
+    if (/^(.+)-[^-]+-[^-]+\.[^\.\-]+\.rpm$/) {
       next unless $bins{$1};
       $bins{$1} = "$prp/$arch/:full/$_";
     } elsif (/^(.+)_(.*)_.*\.deb$/) {
@@ -182,38 +182,6 @@ sub getbinaries {
   return undef;
 }
 
-sub getrpmlist {
-  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  my $prp = "$projid/$repoid";
-  my @res;
-  if ($packid eq '_repository') {
-    my $cache;
-    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
-    $cache ||= {};
-    for my $rpm (sort keys %$cache) {
-      my $c = $cache->{$rpm};
-      $c->{'mtime'} = $c->{'id'};
-      $c->{'mtime'} =~ s/\/.*//;
-      delete $c->{'id'};
-      $c->{'filename'} = $c->{'path'};
-      delete $c->{'path'};
-      delete $c->{'hdrmd5'};
-      delete $c->{'provides'};
-      delete $c->{'requires'};
-      delete $c->{'source'};
-      push @res, $c;
-    }
-  } else {
-    if (opendir(D, "$reporoot/$prp/$arch/$packid")) {
-      my @rpms = grep {/\.(?:rpm|deb)$/} readdir(D);
-      closedir D;
-      @rpms = map {"$reporoot/$prp/$arch/$packid/$_"} @rpms;
-      @res = getbinarydata(@rpms);
-    }
-  }
-  return ({'rpm' => \@res}, $BSXML::rpmlist);
-}
-
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   my $prp = "$projid/$repoid";
@@ -249,23 +217,6 @@ sub gethistory {
   return ({'entry' => \@history}, $BSXML::buildhist);
 }
 
-#OBSOLETE
-sub getstatus_obsolete {
-  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  my $status = readstr("$reporoot/$projid/$repoid/$arch/$packid/status", $BSXML::buildstatus, 1);
-  $status = {'status' => 'unknown'} unless $status;
-  # check for scheduler blocked status
-  my $ps = readxml("$reporoot/$projid/$repoid/$arch/:packstatus", $BSXML::packstatuslist, 1);
-  $ps = (grep {$_->{'name'} eq $packid} @{$ps->{'packstatus'} || []})[0];
-  if ($ps && $ps->{'status'} ne 'failed' && $ps->{'status'} ne 'done' && $ps->{'status'} ne 'scheduled') {
-    $status = {'status' => $ps->{'status'}};
-    $status->{'error'} = $ps->{'error'} if exists $ps->{'error'};
-  }
-  delete $status->{'job'};	# internal
-  delete $status->{'arch'};	# internal
-  return ($status, $BSXML::buildstatus);
-}
-
 sub getbuildstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
@@ -287,18 +238,6 @@ sub getbuildstatus {
     }
   }
   return ($res, $BSXML::buildstatus);
-}
-
-sub trigger_rebuild_obsolete {
-  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  unlink("$reporoot/$projid/$repoid/$arch/:meta/$packid");
-  my $ev = { type => 'rebuild', 'project' => $projid, 'package' => $packid };
-  my $evname = "rebuild:${projid}::$packid";
-  if (-d "$eventdir/$arch") {
-    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($arch);
-  }
-  return $BSStdServer::return_ok;
 }
 
 sub getlogfile {
@@ -799,7 +738,11 @@ sub getresult {
 	  @b = grep {/\.(?:rpm|deb)$/} readdir(D);
 	  closedir D;
         }
-        @b = map {{'filename' => $_}} @b;
+	for (@b) {
+	  my @s = stat("$reporoot/$prpa/$packid/$_");
+	  $_ = {'filename' => $_};
+	  $_->{'mtime'} = $s[9] if @s;
+	}
         my $bl = {'package' => $packid, 'binary' => \@b};
         push @{$sl->{'binarylist'}}, $bl;
       }
@@ -1235,19 +1178,6 @@ sub hello {
 my $dispatches = [
   '/' => \&hello,
 
-  # old API
-  '/rpm/$project/$repository/$arch/$package:package_repository' => \&getrpmlist,
-  'POST:/rpm/$project/$repository/$arch/$package_repository/buildinfo internal:bool?' => \&getbuildinfo_post,
-  '/rpm/$project/$repository/$arch/$package/buildinfo internal:bool? debug:bool?' => \&getbuildinfo,
-  '/rpm/$project/$repository/$arch/$package/history' => \&gethistory,
-  '/rpm/$project/$repository/$arch/$package/status' => \&getstatus_obsolete,
-  'DELETE:/rpm/$project/$repository/$arch/$package/status' => \&trigger_rebuild_obsolete,
-  '/rpm/$project/$repository/$arch/$package/logfile nostream:bool? start:num? end:num? handoff:bool?' => \&getlogfile,
-  'DELETE:/rpm/$project/$repository/$arch/$package/logfile' => \&restartbuild,
-  '/rpm/$project/$repository/$arch/$package:package_repository/$filename' => \&getbinary,
-  'PUT:/rpm/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
-
-  # new API
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/$package:package_repository' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo internal:bool?' => \&getbuildinfo_post,

@@ -584,9 +584,9 @@ sub prpfinished {
       my @s = stat($rp);
       die("$rp: $!\n") unless @s;
       my $r = $all_new->{$rp};
-      my $suf = $rp;
-      $suf =~ s/.*\.//;
-      $suf = 'spm' if $suf eq 'rpm' && !$r->{'source'};
+      #my $suf = $rp;
+      #$suf =~ s/.*\.//;
+      #$suf = 'spm' if $suf eq 'rpm' && !$r->{'source'};
       my $n = $r->{'name'};
       my $a = $r->{'arch'};
       if (!defined($n) || !defined($a) || $n eq '' || $a eq '') {
@@ -594,9 +594,17 @@ sub prpfinished {
         next
       }
       # link new one over
-      link($rp, "$gdst/:repo/$n.$suf.new") || die("link $rp $gdst/:repo/$n.$suf.new: $!\n");
-      rename("$gdst/:repo/$n.$suf.new", "$gdst/:repo/$n.$suf") || die("rename: $!\n");
-      unlink("$gdst/:repo/$n.$suf.new");
+      #link($rp, "$gdst/:repo/$n.$suf.new") || die("link $rp $gdst/:repo/$n.$suf.new: $!\n");
+      #rename("$gdst/:repo/$n.$suf.new", "$gdst/:repo/$n.$suf") || die("rename: $!\n");
+      #unlink("$gdst/:repo/$n.$suf.new");
+
+      # link new one over
+      $n = $rp;
+      $n =~ s/.*\///;
+      link($rp, "$gdst/:repo/$n.new") || die("link $rp $gdst/:repo/$n.new: $!\n");
+      rename("$gdst/:repo/$n.new", "$gdst/:repo/$n") || die("rename: $!\n");
+      unlink("$gdst/:repo/$n.new");
+
       mkdir_p("$extrep/$a") unless -d "$extrep/$a";
       my $rpn = $rp;
       $rpn =~ s/.*\///;
@@ -607,20 +615,26 @@ sub prpfinished {
       unlink("$extrep/$a/$rpn.new");
       $changed{"$a/$rpn"} = $packid;
 
-      # kill all old entries with same name
-      for my $osuf ($suf eq 'deb' ? ('deb', 'rpm', 'spm') : ('deb', $suf)) {
-        my $id = $oldrepo{"$n.$osuf"};
-        next unless $id;
-        delete $oldrepo{"$n.$osuf"};
-        delete $oldrepo_id{$id};
-        next if $suf eq $osuf;
-        print "      - :repo/$n.$osuf (same name)\n";
-	unlink("$gdst/:repo/$n.$osuf") || die("unlink $gdst/:repo/$n.$osuf: $!\n");
-      }
+      ## kill all old entries with same name
+      #for my $osuf ($suf eq 'deb' ? ('deb', 'rpm', 'spm') : ('deb', $suf)) {
+      #  my $id = $oldrepo{"$n.$osuf"};
+      #  next unless $id;
+      #  delete $oldrepo{"$n.$osuf"};
+      #  delete $oldrepo_id{$id};
+      #  next if $suf eq $osuf;
+      #  print "      - :repo/$n.$osuf (same name)\n";
+      #	unlink("$gdst/:repo/$n.$osuf") || die("unlink $gdst/:repo/$n.$osuf: $!\n");
+      #}
+
       # add new entry
-      $oldrepo{"$n.$suf"} = "$s[9]/$s[7]/$s[1]";
-      $oldrepo_id{"$s[9]/$s[7]/$s[1]"} = "$n.$suf";
-      $newrepo{"$n.$suf"} = 1;
+      #$oldrepo{"$n.$suf"} = "$s[9]/$s[7]/$s[1]";
+      #$oldrepo_id{"$s[9]/$s[7]/$s[1]"} = "$n.$suf";
+      #$newrepo{"$n.$suf"} = 1;
+
+      # add new entry
+      $oldrepo{$n} = "$s[9]/$s[7]/$s[1]";
+      $oldrepo_id{"$s[9]/$s[7]/$s[1]"} = $n;
+      $newrepo{$n} = 1;
     }
   }
 
@@ -1296,19 +1310,28 @@ while(1) {
       if ($pdata->{'aggregatelist'}) {
 	my @broken;
 	my @blocked;
+        my @arepoids;
 	my @aggregates = @{$pdata->{'aggregatelist'}->{'aggregate'} || []};
 	for my $aggregate (@aggregates) {
 	  my $aprojid = $aggregate->{'project'};
 	  if (!$projpacks->{$aprojid}) {
-	    push @broken, "$aprojid";
+	    push @broken, $aprojid;
 	    next;
 	  }
-	  my $arepo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$aprojid}->{'repository'} || []})[0];
-	  if (!$arepo || !grep {$_ eq $myarch} @{$arepo->{'arch'} || []}) {
-	    push @broken, "$aprojid/$repoid";
-	    next;
+	  my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq 'repoid'} @{$aggregate->{'repository'} || []};
+          if (@arepoids) {
+	    @arepoids = map {$_->{'source'}} grep {exists($_->{'source'})} @arepoids;
+	  } else {
+	    @arepoids = ($repoid);
+          }
+	  for my $arepoid (@arepoids) {
+	    my $arepo = (grep {$_->{'name'} eq $arepoid} @{$projpacks->{$aprojid}->{'repository'} || []})[0];
+	    if (!$arepo || !grep {$_ eq $myarch} @{$arepo->{'arch'} || []}) {
+	      push @broken, "$aprojid/$arepoid";
+	      next;
+	    }
+	    push @blocked, "$aprojid/$arepoid" unless $prpfinished{"$aprojid/$arepoid"};
 	  }
-	  push @blocked, "$aprojid/$repoid" unless $prpfinished{"$aprojid/$repoid"};
 	}
         if (@broken) {
           print "      - $packid (aggregate)\n";
@@ -1334,17 +1357,25 @@ while(1) {
 	  } else {
 	    @apackids = sort keys(%{$projpacks->{$aprojid}->{'package'} || {}});
 	  }
-	  for my $apackid (@apackids) {
-	    my $d = "$reporoot/$aprojid/$repoid/$myarch/$apackid";
-	    my @d = grep {/\.(?:rpm|deb)$/} ls($d);
-	    my $m;
-	    for my $b (sort @d) {
-	      my @s = stat("$d/$b");
-	      next unless @s;
-	      $m .= "$b\0$s[9]/$s[7]/$s[1]\0";
+	  my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq 'repoid'} @{$aggregate->{'repository'} || []};
+          if (@arepoids) {
+	    @arepoids = map {$_->{'source'}} grep {exists($_->{'source'})} @arepoids;
+	  } else {
+	    @arepoids = ($repoid);
+          }
+	  for my $arepoid (@arepoids) {
+	    for my $apackid (@apackids) {
+	      my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
+	      my @d = grep {/\.(?:rpm|deb)$/} ls($d);
+	      my $m;
+	      for my $b (sort @d) {
+	        my @s = stat("$d/$b");
+	        next unless @s;
+	        $m .= "$b\0$s[9]/$s[7]/$s[1]\0";
+	      }
+	      $m = Digest::MD5::md5_hex($m)."  $aprojid/$arepoid/$myarch/$apackid";
+	      push @new_meta, $m;
 	    }
-	    $m = Digest::MD5::md5_hex($m)."  $aprojid/$repoid/$myarch/$apackid";
-	    push @new_meta, $m;
 	  }
         }
         my @meta;
@@ -1370,6 +1401,12 @@ while(1) {
 	my %jobbins;
 	for my $aggregate (@aggregates) {
 	  my $aprojid = $aggregate->{'project'};
+	  my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq 'repoid'} @{$aggregate->{'repository'} || []};
+          if (@arepoids) {
+	    @arepoids = map {$_->{'source'}} grep {exists($_->{'source'})} @arepoids;
+	  } else {
+	    @arepoids = ($repoid);
+          }
           my @apackids;
 	  if ($aggregate->{'package'}) {
             @apackids = @{$aggregate->{'package'}};
@@ -1378,36 +1415,38 @@ while(1) {
 	  }
 	  my $abinfilter;
 	  $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
-	  for my $apackid (@apackids) {
-	    my $d = "$reporoot/$aprojid/$repoid/$myarch/$apackid";
-	    my @d = grep {/\.(?:rpm|deb)$/} ls($d);
-	    @d = sort(@d);
-	    my $ajobrepo = findbins_dir([map {"$d/$_"} @d]);
-	    my $copysources = 0;
-	    for my $abin (sort keys %$ajobrepo) {
-	      my $r = $ajobrepo->{$abin};
-	      next unless $r->{'source'};
-	      next if $abinfilter && !$abinfilter->{$r->{'name'}};
-	      next if $jobbins{$r->{'name'}};
-	      $jobbins{$r->{'name'}} = 1;
-	      my $basename = $abin;
-	      $basename =~ s/.*\///;
-	      BSUtil::cp($abin, "$jobdatadir/$basename");
-	      $jobrepo->{"$jobdatadir/$basename"} = $r;
-	      $copysources = 1;
-	    }
-	    if ($copysources) {
+	  for my $arepoid (reverse @arepoids) {
+	    for my $apackid (@apackids) {
+	      my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
+	      my @d = grep {/\.(?:rpm|deb)$/} ls($d);
+	      @d = sort(@d);
+	      my $ajobrepo = findbins_dir([map {"$d/$_"} @d]);
+	      my $copysources = 0;
 	      for my $abin (sort keys %$ajobrepo) {
-	        my $r = $ajobrepo->{$abin};
-	        next if $r->{'source'};
-	        my $basename = $abin;
-	        $basename =~ s/.*\///;
-	        BSUtil::cp($abin, "$jobdatadir/$basename");
-	        $jobrepo->{"$jobdatadir/$basename"} = $r;
+		my $r = $ajobrepo->{$abin};
+		next unless $r->{'source'};
+		next if $abinfilter && !$abinfilter->{$r->{'name'}};
+		next if $jobbins{$r->{'name'}};
+		$jobbins{$r->{'name'}} = 1;
+		my $basename = $abin;
+		$basename =~ s/.*\///;
+		BSUtil::cp($abin, "$jobdatadir/$basename");
+		$jobrepo->{"$jobdatadir/$basename"} = $r;
+		$copysources = 1;
+	      }
+	      if ($copysources) {
+		for my $abin (sort keys %$ajobrepo) {
+		  my $r = $ajobrepo->{$abin};
+		  next if $r->{'source'};
+		  my $basename = $abin;
+		  $basename =~ s/.*\///;
+		  BSUtil::cp($abin, "$jobdatadir/$basename");
+		  $jobrepo->{"$jobdatadir/$basename"} = $r;
+		}
 	      }
 	    }
 	  }
-        }
+	}
 	my $gdst = "$reporoot/$prp/$myarch";
 	my $dst = "$gdst/$packid";
 	mkdir_p($dst);

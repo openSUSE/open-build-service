@@ -43,7 +43,7 @@ my $xen = '';
 my $workerid;
 my $testmode;
 
-my $buildlog_maxsize = 50 * 1000000;
+my $buildlog_maxsize = 70 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
 
 my %cando = (
