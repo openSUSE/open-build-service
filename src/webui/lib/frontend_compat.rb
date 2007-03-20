@@ -33,7 +33,7 @@ class FrontendCompat
       path += "&#{key.to_s}=#{val}"
     end
     #logger.debug "### rebuild path: #{path}"
-    transport.direct_http URI("https://#{path}"), :method => POST, :data => ""
+    transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
   end
 
   def get_source( opt={} )
