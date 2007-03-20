@@ -618,3 +618,22 @@ Tue Mar 20 14:44:33 +0100 2007 - bauersman
 - rebuild option is called :repository, not :repo
 
 
+------------------------------------------------------------------------
+Tue Mar 20 21:52:40 +0100 2007 - bauersman
+
+- update from svn revision 1491 to 1498
+- removed obsolete result request from reload_buildresult
+  
+- use new parameter names for the frontend requests
+- show download_details and most_downloaded in statistics overview
+- better / shorter tooltips in download_details
+- display message if there are not yet enough votes for most_rated
+- fixed bug for download_details where sometimes wrong repositories
+  were shown (project param omitted)
+  
+- 
+  removed old actions from main_controller that already
+  moved to statistics_controller a long time ago
+  
+
+
