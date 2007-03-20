@@ -47,8 +47,10 @@ class StatisticsController < ApplicationController
 
   def most_downloaded
     @limit = params[:limit]
+    # no layout, if this is an ajax-request
+    request.get? ? layout=true : layout=false
     @most_downloaded = get_download_stats
-    render :partial => 'most_downloaded', :layout => true, :more => true
+    render :partial => 'most_downloaded', :layout => layout, :more => true
   end
 
 
@@ -72,26 +74,26 @@ class StatisticsController < ApplicationController
       @name = "#{package} (project #{project})"
       @title = 'Package'
       @downloads = Downloadcounter.find(
-        :project => params[:project], :package => params[:package],
+        :project => project, :package => package,
         :limit => limit
+      )
+    elsif project and repo
+      @name = "#{repo} (project #{project})"
+      @title = 'Repository'
+      @downloads = Downloadcounter.find(
+        :repo, :project => project, :repo => repo, :limit => limit
       )
     elsif project
       @name = project
       @title = 'Project'
       @downloads = Downloadcounter.find(
-        :project => params[:project], :limit => limit
+        :project => project, :limit => limit
       )
     elsif arch
       @name = arch
       @title = 'Architecture'
       @downloads = Downloadcounter.find(
-        :arch, :arch => params[:arch], :limit => limit
-      )
-    elsif repo
-      @name = repo
-      @title = 'Repository'
-      @downloads = Downloadcounter.find(
-        :repo, :repo => params[:repo], :limit => limit
+        :arch, :arch => arch, :limit => limit
       )
     else
       @name = 'all downloads'
@@ -110,16 +112,16 @@ class StatisticsController < ApplicationController
   def get_download_stats
     most_downloaded = {}
     most_downloaded[:projects] = Downloadcounter.find(
-      :concat => 'project', :limit => @limit
+      :group_by => 'project', :limit => @limit
     )
     most_downloaded[:packages] = Downloadcounter.find(
-      :concat => 'package', :limit => @limit
+      :group_by => 'package', :limit => @limit
     )
     most_downloaded[:repos] = Downloadcounter.find(
-      :concat => 'repository', :limit => @limit
+      :group_by => 'repo', :limit => @limit
     )
     most_downloaded[:archs] = Downloadcounter.find(
-      :concat => 'architecture', :limit => @limit
+      :group_by => 'arch', :limit => @limit
     )
     return most_downloaded
   end

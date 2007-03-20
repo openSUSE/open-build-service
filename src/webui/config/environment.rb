@@ -114,9 +114,9 @@ ActiveXML::Base.config do |conf|
     map.connect :latestupdated, "rest:///statistics/latest_updated?:limit",
       :specific => "rest:///statistics/updated_timestamp/:project/:package"
     map.connect :downloadcounter, "rest:///statistics/download_counter" +
-      "/:project/:package/:repository/:architecture?:concat&:limit",
-      :arch => "rest:///statistics/download_counter?architecture=:arch&:limit",
-      :repo => "rest:///statistics/download_counter?repository=:repo&:limit"
+      "/:project/:package/:repository/:architecture?:group_by&:limit",
+      :arch => "rest:///statistics/download_counter?:arch&:limit",
+      :repo => "rest:///statistics/download_counter/:project?:repo&:limit"
     map.connect :rating, "rest:///statistics/highest_rated?:limit",
       :specific => "rest:///statistics/rating/:project/:package"
     map.connect :mostactive, "rest:///statistics/most_active?:type&:limit"

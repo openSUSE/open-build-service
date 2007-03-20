@@ -9,7 +9,8 @@
 <div id="download_details">
 
   <h4>Download Statistics Details</h4>
-  <h5>for <%= @title -%> <b>"<%= @name -%>"</b></h5>
+  <h5 id="detailed_header">for <%= @title -%> <b>"<%= @name -%>"</b></h5>
+  <%= javascript_tag visual_effect(:shake, 'detailed_header') %>
 
   <% if params[:more] -%>
     <%= statistics_limit_form( 'download_details', 'Show top' ) %>
@@ -33,7 +34,8 @@
       <% unless @title == 'Project' or @title == 'Package' %>
         <td>
           <%= link_to image_tag( 'project', :border => 0 ) + " #{count.project}",
-            { :action => 'download_details', :project => count.project },
+            { :action => 'download_details', :project => count.project,
+            :more => params[:more], :limit => params[:limit] },
             :title => 'Filter by this project' -%>
           <%= link_to image_tag( 'link_ext', :border => 0 ),
             { :controller => 'project', :action => 'view', :project => count.project },
@@ -44,7 +46,9 @@
         <td>
           <%= link_to image_tag( 'package', :border => 0 ) + " #{count.package}",
             { :action => 'download_details', :package => count.package,
-            :project => count.project }, :title => 'Filter by this package' -%>
+            :project => count.project, :more => params[:more],
+            :limit => params[:limit] }, :title => 'Filter by this package ' +
+            "(belongs to project #{count.project})" -%>
           <%= link_to image_tag( 'link_ext', :border => 0 ),
             { :controller => 'package', :action => 'view', :project => count.project,
             :package => count.package }, :title => "View Package Details..." -%>
@@ -53,14 +57,17 @@
       <% if @title != 'Repository' %>
         <td>
           <%= link_to image_tag( 'repository', :border => 0 ) + " #{count.repository}",
-            { :action => 'download_details', :repo => count.repository },
-            :title => 'Filter by this Repository' -%>
+            { :action => 'download_details', :repo => count.repository,
+            :project => count.project, :more => params[:more],
+            :limit => params[:limit] }, :title => 'Filter by this Repository ' +
+            "(belongs to project #{count.project})" -%>
         </td>
       <% end %>
       <% if @title != 'Architecture' %>
         <td>
           <%= link_to image_tag( 'architecture', :border => 0 ) + " #{count.architecture}",
-            { :action => 'download_details', :arch => count.architecture }, 
+            { :action => 'download_details', :arch => count.architecture,
+            :more => params[:more], :limit => params[:limit] },
             :title => 'Filter by this Architecture' -%>
         </td>
       <% end %>

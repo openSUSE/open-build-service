@@ -10,20 +10,20 @@
 
   <h4>Most Downloaded:</h4>
 
-<!--
   <% if params[:more] -%>
     <%= statistics_limit_form( 'most_downloaded', 'Show top' ) %>
- <% end %>
--->
+    <table><tr><td valign="top">
+  <% end %>
 
   <h5>Projects:</h5>
   <ol>
     <% @most_downloaded[:projects].each_count do |count| %>
       <li>
-      <%= link_to image_tag( 'project', :border => 0 ) + " #{count.project}",
+      <%= link_to image_tag( 'project', :border => 0 ) +
+        " #{shorten_text(count.project,20)}",
         { :action => 'download_details', :project => count.project },
-        :title => "downloaded " + count.to_s + " times, project contains " +
-        "#{count.files} different files (click to filter by project)" -%>
+        :title => "Downloads: #{count.to_s}, Files: #{count.files} " +
+        "(click to filter...)" -%>
       <%= link_to image_tag( 'link_ext', :border => 0 ),
         { :controller => 'project', :action => 'view', :project => count.project },
         :title => "View Project Details..." -%>
@@ -31,14 +31,18 @@
     <% end %>
   </ol>
 
+  <%= '</td><td valign="top">' if params[:more] -%>
+
   <h5>Packages:</h5>
   <ol>
     <% @most_downloaded[:packages].each_count do |count| %>
       <li>
-      <%= link_to image_tag( 'package', :border => 0 ) + " #{count.package}",
+      <%= link_to image_tag( 'package', :border => 0 ) +
+        " #{shorten_text(count.package,20)}",
         { :action => 'download_details', :package => count.package,
-        :project => count.project }, :title => "downloaded #{count.to_s} times, " +
-        "package contains #{count.files} different files (click to filter by package)" -%>
+        :project => count.project },
+        :title => "Downloads: #{count.to_s}, Files: #{count.files}, " +
+        "Project: #{count.project}. (click to filter...)" -%>
       <%= link_to image_tag( 'link_ext', :border => 0 ),
         { :controller => 'package', :action => 'view', :project => count.project,
         :package => count.package }, :title => "View Package Details..." -%>
@@ -46,33 +50,40 @@
     <% end %>
   </ol>
 
+  <%= '</td><td valign="top">' if params[:more] -%>
+
   <h5>Repositories:</h5>
   <ol>
     <% @most_downloaded[:repos].each_count do |count| %>
-    <% title = "#{count.to_s} downloads " +
-    "(#{count.files} different files). Click for details..." %>
+    <% title = "Downloads: #{count.to_s}, Files: #{count.files}, " +
+      "Project: #{count.project}. (click to filter...)" %>
       <li>
-      <%= link_to image_tag( 'repository', :border => 0 ) + " #{count.repository}",
-        { :action => 'download_details', :repo => count.repository },
-        :title => title -%>
+      <%= link_to image_tag( 'repository', :border => 0 ) +
+        " #{shorten_text(count.repo,20)}",
+        { :action => 'download_details', :repo => count.repo,
+        :project => count.project }, :title => title -%>
       </li>
     <% end %>
   </ol>
 
+  <%= '</td><td valign="top">' if params[:more] -%>
+
   <h5>Architectures:</h5>
   <ol>
     <% @most_downloaded[:archs].each_count do |count| %>
-    <% title = "#{count.to_s} downloads " +
-    "(#{count.files} different files). Click for details..." %>
+    <% title = "Downloads: #{count.to_s}, Files: #{count.files} " +
+      "(click to filter...)" %>
       <li>
-      <%= link_to image_tag( 'architecture', :border => 0 ) + " #{count.architecture}",
-        { :action => 'download_details', :arch => count.architecture },
+      <%= link_to image_tag( 'architecture', :border => 0 ) +
+        " #{shorten_text(count.arch,20)}",
+        { :action => 'download_details', :arch => count.arch },
         :title => title -%>
       </li>
     <% end %>
   </ol>
 
   <% if params[:more] -%>
+    </td></tr></table>
     <%= link_to_mainpage %>
   <% end %>
 

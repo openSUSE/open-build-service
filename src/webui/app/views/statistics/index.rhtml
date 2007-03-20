@@ -11,7 +11,12 @@
   <span>
     <%= render :partial => 'most_downloaded' -%>
     <%= link_to 'more...', { :controller => 'statistics',
-      :action => 'download_details', :more => true, :limit => 25 } -%>
+      :action => 'most_downloaded', :more => true, :limit => 25 },
+      :title => 'view more (grouped by project, package, repo and arch)' -%>
+    &nbsp;::&nbsp;
+    <%= link_to 'details...', { :controller => 'statistics',
+      :action => 'download_details', :more => true, :limit => 25 },
+      :title => 'view download statistics details (not grouped)' -%>
   </span>
   <span>
     <%= render :partial => 'latest_added' -%>

@@ -16,6 +16,11 @@
   <% end %>
 
   <ol>
+    <% if @highest_rated = [] %>
+      <i>There are not yet<br />
+      any items with more<br />than
+      <%= min_votes_for_rating -%> votes.</i>
+    <% end %>
     <% @highest_rated.each do |item| %>
       <li>
         <% title = "- score is #{item.score} (rated #{item.count} times)" %>
