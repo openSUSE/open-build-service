@@ -92,7 +92,7 @@ class ResultController < ApplicationController
           @package, arch )
         rpms = Array.new
         rpm_result = REXML::Document.new( rpm_response.body ).root
-        rpm_result.elements["/rpmlist"].elements.each do |r|
+        rpm_result.elements["/binarylist"].elements.each do |r|
           rpms.push r.attributes["filename"]
         end
         
