@@ -48,7 +48,7 @@ module Suse
 
       def delete_status( project, repository, package, arch )
         path = "/rpm/#{project}/#{repository}/#{arch}/#{package}/status"
-        do_delete( rpm_host, rpm_port, path )
+        do_delete( source_host, source_port, path )
       end
 
       def get_source( path )
@@ -67,22 +67,22 @@ module Suse
 
       def get_log( project, repository, package, arch )
         path = "/build/#{project}/#{repository}/#{arch}/#{package}/_log"
-        do_get( rpm_host, rpm_port, path )
+        do_get( source_host, source_port, path )
       end
 
       def get_log_chunk( project, repository, package, arch, start=0 )
         path = "/build/#{project}/#{repository}/#{arch}/#{package}/_log?nostream=1&start=#{start}"
-        do_get( rpm_host, rpm_port, path )
+        do_get( source_host, source_port, path )
       end
 
 
       def get_rpmlist( project, repository, package, arch )
-        path = "/rpm/#{project}/#{repository}/#{arch}/#{package}"
-        do_get( rpm_host, rpm_port, path )
+        path = "/build/#{project}/#{repository}/#{arch}/#{package}"
+        do_get( source_host, source_port, path )
       end
 
       def get_rpm( path )
-        do_get( rpm_host, rpm_port, path )
+        do_get( source_host, source_port, path )
       end
 
       def put( path, data )
@@ -94,11 +94,11 @@ module Suse
       end
 
       def put_rpm( path, data )
-        do_put( rpm_host, rpm_port, path, data )
+        do_put( source_host, source_port, path, data )
       end
 
       def post_rpm( path, data )
-        do_post( rpm_host, rpm_port, path, data )
+        do_post( source_host, source_port, path, data )
       end
 
       def post_source( path, data )

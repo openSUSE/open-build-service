@@ -404,39 +404,35 @@ class SourceController < ApplicationController
     repo_name = params[:repo]
     arch_name = params[:arch]
 
-    p = Project.find( project_name )
+    path = "/build/#{project_name}?cmd=rebuild&package=#{package_name}"
+    
+    p = DbProject.find_by_name project_name
+    if p.nil?
+      render_error :status => 400, :errorcode => 'unknown_project',
+        :message => "Unknown project '#{project_name}'"
+      return
+    end
+
+    if p.packages.find_by_name(package_name).nil?
+      render_error :status => 400, :errorcode => 'unknown_package',
+        :message => "Unknown package '#{package_name}'"
+      return
+    end
 
     if repo_name
-      if not ( repo = p.repository( "@name='#{repo_name}'" ) )
+      path += "&repository=#{repo_name}"
+      if p.repositories.find_by_name(repo_name).nil?
         render_error :status => 400, :errorcode => 'unknown_repository',
           :message=> "Unknown repository '#{repo_name}'"
-          return
-      end
-
-      if arch_name
-        #both
-        Suse::Backend.delete_status project_name, repo_name, package_name, arch_name
-      else
-        #only repo
-        repo.each_arch do |arch|
-          Suse::Backend.delete_status project_name, repo.name, package_name, arch.to_s
-        end
-      end
-    else
-      if arch_name
-        #only arch
-        p.each_repository do |repo|
-          Suse::Backend.delete_status project_name, repo.name, package_name, arch_name
-        end
-      else
-        #neither
-        p.each_repository do |repo|
-          repo.each_arch do |arch|
-            Suse::Backend.delete_status project_name, repo.name, package_name, arch.to_s
-          end
-        end
+        return
       end
     end
+
+    if arch_name
+      path += "&arch=#{arch_name}"
+    end
+
+    backend.direct_http( URI(path), :method => "POST", :data => "" )
 
     render_ok
   end

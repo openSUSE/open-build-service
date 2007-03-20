@@ -5,11 +5,12 @@ class RpmController < ApplicationController
   end
 
   def buildinfo
+    path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     if request.post?
-      response = Suse::Backend.post_rpm request.path, request.raw_post
+      response = Suse::Backend.post_rpm path, request.raw_post
       send_data( response.body, :type => response.fetch( "Content-Type" ), :disposition => "inline" )
     else
-      pass_to_repo
+      forward_data path
     end
   end
 
@@ -25,7 +26,7 @@ class RpmController < ApplicationController
       return
     end
 
-    path = "/rpm/" + project + "/" + repository + "/" + arch + "/" + package + 
+    path = "/build/" + project + "/" + repository + "/" + arch + "/" + package + 
       "/" + file
     if request.get?
       response = Suse::Backend.get_rpm( path )
