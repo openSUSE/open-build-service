@@ -413,7 +413,7 @@ class SourceController < ApplicationController
       return
     end
 
-    if p.packages.find_by_name(package_name).nil?
+    if p.db_packages.find_by_name(package_name).nil?
       render_error :status => 400, :errorcode => 'unknown_package',
         :message => "Unknown package '#{package_name}'"
       return
@@ -433,7 +433,6 @@ class SourceController < ApplicationController
     end
 
     backend.direct_http( URI(path), :method => "POST", :data => "" )
-
     render_ok
   end
 
