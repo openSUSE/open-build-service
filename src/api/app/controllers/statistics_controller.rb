@@ -1,3 +1,8 @@
+
+require 'rexml/document'
+require "rexml/streamlistener"
+include REXML
+
 class StatisticsController < ApplicationController
 
 
@@ -10,6 +15,88 @@ class StatisticsController < ApplicationController
     :latest_built, :download_counter
 
   validate_action :redirect_stats => :redirect_stats
+
+
+  # StreamHandler for parsing incoming download_stats / redirect_stats (xml)
+  class StreamHandler
+    include StreamListener
+
+    def initialize
+      # build hashes for caching id-/name- combinations
+      projects = DbProject.find :all, :select => 'id, name'
+      packages = DbPackage.find :all, :select => 'id, name, db_project_id'
+      repos  =  Repository.find :all, :select => 'id, name, db_project_id'
+      archs = Architecture.find :all, :select => 'id, name'
+      @project_hash = @package_hash = @repo_hash = @arch_hash = {}
+      projects.each { |p| @project_hash[ p.name ] = p.id }
+      packages.each { |p| @package_hash[ [ p.name, p.db_project_id ] ] = p.id }
+      repos.each { |r| @repo_hash[ [ r.name, r.db_project_id ] ] = r.id }
+      archs.each { |a| @arch_hash[ a.name ] = a.id }
+    end
+
+    def tag_start name, attrs
+      case name
+      when 'project'
+        @@project = @project_hash[ attrs['name'] ]
+      when 'package'
+        @@package = @package_hash[ [ attrs['name'], @@project ] ]
+      when 'repository'
+        @@repo = @repo_hash[ [ attrs['name'], @@project ] ]
+      when 'arch'
+        @@arch = @arch_hash[ attrs['name'] ]
+      when 'count'
+        @@count = {
+          :filename => attrs['filename'],
+          :filetype => attrs['filetype'],
+          :version => attrs['version'],
+          :release => attrs['release'],
+          :created_at => attrs['created_at'],
+          :counted_at => attrs['counted_at']
+        }
+      end
+    end
+
+    def text( text )
+      text.strip!
+      return if text == ''
+      return unless @@project and @@package and @@repo and @@arch and @@count
+
+      # try to find existing entry in database
+      ds = DownloadStat.find :first, :conditions => [
+        'db_project_id=? AND db_package_id=? AND repository_id=? AND ' +
+        'architecture_id=? AND filename=? AND filetype=? AND ' +
+        'version=? AND download_stats.release=?',
+        @@project, @@package, @@repo, @@arch,
+        @@count[:filename], @@count[:filetype],
+        @@count[:version], @@count[:release]
+      ]
+      if ds
+        # entry found, update it if necessary ...
+        if ds.count.to_i != text.to_i
+          ds.count = text
+          ds.counted_at = @@count[:counted_at]
+          ds.save
+        end
+      else
+        # create new entry - we do this directly per sql statement, because
+        # that's much faster than through ActiveRecord objects
+        DownloadStat.connection.insert "\
+        INSERT INTO download_stats ( \
+          `db_project_id`, `db_package_id`, `repository_id`, `architecture_id`,\
+          `filename`, `filetype`, `version`, `release`,\
+          `counted_at`, `created_at`, `count`\
+        ) VALUES(\
+          '#{@@project}', '#{@@package}', '#{@@repo}', '#{@@arch}',\
+          '#{@@count[:filename]}',   '#{@@count[:filetype]}',\
+          '#{@@count[:version]}',    '#{@@count[:release]}',\
+          '#{@@count[:counted_at]}', '#{@@count[:created_at]}',\
+          '#{text}'\
+        )", "Creating DownloadStat entry: "
+      end
+    end
+  end
+
+
 
 
   def index
@@ -95,62 +182,90 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     @response.time_to_live = 30.minutes
 
-    project = params[:project]
-    package = params[:package]
-    repository = params[:repository]
-    architecture = params[:architecture]
-
-    prj = get_project project
-    pac = get_package package, prj.id if prj
-    repo = Repository.find_by_name repository
-    arch = Architecture.find_by_name architecture
-
-    # return immediately, if object is invalid
-    return if not prj  and not project.nil?
-    return if not pac  and not package.nil?
-    return if not repo and not repository.nil?
-    return if not arch and not architecture.nil?
-
-    # get statistics
-    prj_stats  = prj.download_stats  if prj
-    pac_stats  = pac.download_stats  if pac
-    repo_stats = repo.download_stats if repo
-    arch_stats = arch.download_stats if arch
-
-    @stats = DownloadStat.find :all,
-      :include => [ :db_project, :db_package, :architecture, :repository ]
-
-    # get intersection of wanted statistics
-    @stats &= prj_stats  if prj_stats
-    @stats &= pac_stats  if pac_stats
-    @stats &= repo_stats if repo_stats
-    @stats &= arch_stats if arch_stats
-
-    # sort by counter in descending order, but not if concat-mode (sort later then)
-    @stats.sort! { |a,b| b.count <=> a.count } unless params[:concat]
-
-    # calculate grand total count of downloads
-    @sum = 0
-    @stats.each { |stat| @sum += stat.count }
+    # get total count of all downloads
+    @sum = DownloadStat.find( :first, :select => 'sum(count) as sum' ).sum
 
     # get timestamp of first counted entry
-    first = Time.now
-    @stats.each { |stat| first = stat.created_at if stat.created_at < first }
-    @first_count = first.xmlschema
+    @first_count = Time.parse( DownloadStat.find( :first,
+      :select => 'min(created_at) as first' ).first ).xmlschema
 
-    if params[:concat]
-      @type = params[:concat]
-      # concatenate stats (similar to sql group-by)
-      cstats = concat_stats( @stats, @type )
+    if @group_by_mode = params[:group_by]
+    # if in group_by_mode, then we concatenate download_stats entries
 
-      # sort by count - converts hash to nested array
-      @cstats = cstats.sort { |a,b| b[1][:count] <=> a[1][:count] }
+      # generate parts of the sql statement
+      case @group_by_mode
+      when 'project'
+        from = 'db_projects pro'
+        select = 'pro.name as obj_name'
+        group_by = 'db_project_id'
+        conditions = 'ds.db_project_id=pro.id'
+      when 'package'
+        from = 'db_packages pac, db_projects pro'
+        select = 'pac.name as obj_name, pro.name as pro_name'
+        group_by = 'db_package_id'
+        conditions = 'ds.db_package_id=pac.id AND ds.db_project_id=pro.id'
+      when 'repo'
+        from = 'repositories repo, db_projects pro'
+        select = 'repo.name as obj_name, pro.name as pro_name'
+        group_by = 'repository_id'
+        conditions = 'ds.repository_id=repo.id AND ds.db_project_id=pro.id'
+      when 'arch'
+        from = 'architectures arch'
+        select = 'arch.name as obj_name'
+        group_by = 'architecture_id'
+        conditions = 'ds.architecture_id=arch.id'
+      else
+        @cstats = nil
+        return
+      end
 
-      # apply limit
-      @cstats = @cstats[0..@limit-1] if @limit
+      # execute the sql query
+      @stats = DownloadStat.find :all,
+        :from => 'download_stats ds, ' + from,
+        :select => 'ds.*, ' + select + ', ' +
+          'sum(ds.count) as counter_sum, count(*) as files_count',
+        :conditions => conditions,
+        :order => 'counter_sum DESC, files_count ASC',
+        :group => group_by,
+        :limit => @limit
+
     else
-      # apply limit
-      @stats = @stats[0..@limit-1] if @limit
+    # we are not in group_by_mode, so we return full download_stats data
+
+      # get objects
+      prj = DbProject.find_by_name params[:project]
+      pac = DbPackage.find :first, :conditions => [
+        'name=? AND db_project_id=?', params[:package], prj.id
+      ] if prj
+      repo = Repository.find :first, :conditions => [
+        'name=? AND db_project_id=?', params[:repo], prj.id
+      ] if prj
+      arch = Architecture.find_by_name params[:arch]
+
+      # return immediately, if any object is invalid / not found
+      return if not prj  and not params[:project].nil?
+      return if not pac  and not params[:package].nil?
+      return if not repo and not params[:repo].nil?
+      return if not arch and not params[:arch].nil?
+
+      # create filter, if parameters given & objects found
+      filter = ''
+      filter += " AND pro.id=#{prj.id}" if prj
+      filter += " AND pac.id=#{pac.id}" if pac
+      filter += " AND repo.id=#{repo.id}" if repo
+      filter += " AND arch.id=#{arch.id}" if arch
+
+      # get download_stats entries
+      @stats = DownloadStat.find :all,
+        :from => 'download_stats ds, db_projects pro, db_packages pac, ' +
+          'architectures arch, repositories repo',
+        :select => 'ds.*, pro.name as pro_name, pac.name as pac_name, ' +
+          'arch.name as arch_name, repo.name as repo_name',
+        :conditions => 'ds.db_project_id=pro.id AND ds.db_package_id=pac.id' +
+          ' AND ds.architecture_id=arch.id AND ds.repository_id=repo.id' +
+          filter,
+        :order => 'ds.count DESC',
+        :limit => @limit
     end
   end
 
@@ -166,70 +281,11 @@ class StatisticsController < ApplicationController
 
     # get download statistics from redirector as xml
     if request.put?
-      download_stats = ActiveXML::Base.new( request.raw_post )
+      data = request.raw_post
 
-      download_stats.each_project do |project|
-        project.each_package do |package|
-          package.each_repository do |repository|
-            repository.each_arch do |arch|
-              arch.each_count do |count|
-
-                # get ids / foreign keys
-                begin
-                  project_id = DbProject.find( :first,
-                    :conditions => [ 'name = ?', project.name ] ).id
-                  package_id = DbPackage.find( :first,
-                    :conditions => [ 'name = ? AND db_project_id = ?',
-                    package.name, project_id ] ).id
-                  repository_id = Repository.find( :first,
-                      :conditions => [ 'name = ?', repository.name ] ).id
-                  architecture_id = Architecture.find( :first,
-                      :conditions => [ 'name = ?', arch.name ] ).id
-                rescue
-                  logger.debug "ERROR: cannot find id(s) for download_stats"
-                  next
-                end
-
-                # try to find existing entry
-                ds = DownloadStat.find :first, :conditions => [
-                  'db_project_id=? AND db_package_id=? AND repository_id=? AND ' +
-                  'architecture_id=? AND filename=? AND filetype=? AND ' +
-                  'version=? AND download_stats.release=?',
-                   project_id, package_id, repository_id, architecture_id,
-                   count.filename, count.filetype, count.version, count.release
-                ]
-
-                if ds
-                  # entry found, update it...
-                  ds.count = count.to_s
-                  ds.save
-                else
-                  # create new entry
-                  ds = DownloadStat.new
-                  begin
-                    ds.db_project_id = project_id
-                    ds.db_package_id = package_id
-                    ds.repository_id = repository_id
-                    ds.architecture_id = architecture_id
-                    ds.filename = count.filename
-                    ds.filetype = count.filetype
-                    ds.version  = count.version
-                    ds.release  = count.release
-                    ds.created_at = count.created_at
-                    ds.counted_at = count.counted_at
-                    ds.count = count.to_s
-                  rescue
-                    logger.debug "ERROR: cannot create download_stats entry for project #{project.name} / package #{package.name}"
-                    logger.debug "DEBUG: #{project.inspect}"
-                  end
-                  ds.save
-                end
-
-              end
-            end
-          end
-        end
-      end
+      # parse the data
+      streamhandler = StreamHandler.new
+      REXML::Document.parse_stream( data, streamhandler )
 
       render_ok
     else
@@ -321,7 +377,6 @@ class StatisticsController < ApplicationController
     @package = DbPackage.find( :first, :conditions =>
       [ 'name=? AND db_project_id=?', params[:package], @project.id ]
     ) if @project
-    logger.debug "=====> project #{@project.inspect}  package #{@package.inspect}  "
   end
 
 
@@ -425,46 +480,6 @@ class StatisticsController < ApplicationController
       return
     end
 
-  end
-
-
-  private
-
-
-  def get_project( name )
-    prj = DbProject.find( :first,
-      :conditions => [ 'name=?', name ]
-    )
-  end
-
-
-  def get_package( name, project_id )
-    prj = DbPackage.find( :first,
-      :conditions => [
-        'name=? AND db_project_id=?',
-        name, project_id
-      ]
-    )
-  end
-
-
-  def concat_stats( stats, type )
-    # concatenate stats (similar to sql group-by)
-    cstats = {}
-    case type
-    when 'project' ; type = 'db_project'
-    when 'package' ; type = 'db_package'
-    end
-    stats.each do |stat|
-      key = stat.send(type).name
-      cstats[key] ||= {}
-      cstats[key] = {
-        :count => cstats[key][:count].to_i + stat.count,
-        :files => cstats[key][:files].to_i + 1
-      }
-      cstats[key][:project] ||= stat.db_project.name if type == 'db_package'
-    end
-    return cstats
   end
 
 

@@ -1,37 +1,37 @@
 
 xml.instruct!
 
-if @cstats
+if @group_by_mode
 
   xml.download_counter( :sum => @sum, :first_count => @first_count ) do
-    @cstats.each do |stat|
-      if @type == 'package'
+    @stats.each do |stat|
+      if @group_by_mode == 'package' or @group_by_mode == 'repo'
         xml.count(
-          stat[1][:count].to_s,
-          @type.to_sym => stat[0],
-          :project => stat[1][:project],
-          :files => stat[1][:files]
+          stat.counter_sum.to_s,
+          @group_by_mode.to_sym => stat.obj_name,
+          :files => stat.files_count,
+          :project => stat.pro_name
         )
       else
         xml.count(
-          stat[1][:count].to_s,
-          @type.to_sym => stat[0],
-          :files => stat[1][:files]
+          stat.counter_sum.to_s,
+          @group_by_mode.to_sym => stat.obj_name,
+          :files => stat.files_count
         )
       end
     end
   end
 
-elsif @stats
+else
 
   xml.download_counter( :sum => @sum, :first_count => @first_count ) do
     @stats.each do |stat|
       xml.count(
         stat.count.to_s,
-        :project => stat.db_project.name,
-        :package => stat.db_package.name,
-        :repository => stat.repository.name,
-        :architecture => stat.architecture.name,
+        :project => stat.pro_name,
+        :package => stat.pac_name,
+        :repository => stat.repo_name,
+        :architecture => stat.arch_name,
         :filename => stat.filename,
         :filetype => stat.filetype,
         :version => stat.version,
@@ -42,7 +42,4 @@ elsif @stats
     end
   end
 
-else
-  xml.download_counter
 end
-
