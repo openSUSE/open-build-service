@@ -606,3 +606,15 @@ Mon Mar 19 18:22:12 +0100 2007 - bauersman
 - trigger rebuild uses new API
 
 
+------------------------------------------------------------------------
+Tue Mar 20 14:44:33 +0100 2007 - bauersman
+
+- update from svn revision 1478 to 1489
+- make build log autoscroll to jump straight to the bottom instead of
+  scrolling in small increments. This makes scrolling faster, especially
+  in browsers that scroll "smoothly". Thanks to James Oakley.
+- avoid endless redirection
+- typo fix
+- rebuild option is called :repository, not :repo
+
+
