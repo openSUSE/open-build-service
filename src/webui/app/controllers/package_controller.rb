@@ -528,7 +528,7 @@ class PackageController < ApplicationController
 
     options = {}
     options[:arch] = params[:arch] if params[:arch]
-    options[:repo] = params[:repo] if params[:repo]
+    options[:repository] = params[:repo] if params[:repo]
     options[:project] = project
     options[:package] = package
 
