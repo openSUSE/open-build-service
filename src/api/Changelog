@@ -454,3 +454,20 @@ Tue Mar 20 14:44:20 +0100 2007 - bauersman
 - typo fix
 
 
+------------------------------------------------------------------------
+Tue Mar 20 21:52:33 +0100 2007 - bauersman
+
+- update from svn revision 1489 to 1497
+- patched result_controller to look for binarylist elements instead of rpmlist
+  
+- replaced complete redirect_stats action, which takes download_stats
+  from redirector as xml and fills up the frontend database.
+  -> now we use a rexml streamparser, which needs much less memory
+  and is much faster than the rexml tree-based method used before.
+- rewritten download_counter action: optimized a lot for speed by using
+  more of the sql database functions
+- renamed some parameters to be more obvious ('concat' is now 'group_by')
+- removed no longer necessary functions
+  
+
+
