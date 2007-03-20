@@ -445,3 +445,12 @@ Mon Mar 19 18:16:17 +0100 2007 - bauersman
 - use new log path
 
 
+------------------------------------------------------------------------
+Tue Mar 20 14:44:20 +0100 2007 - bauersman
+
+- update from svn revision 1472 to 1488
+- map old buildinfo and binary download routes to new ones
+- don't use rpm-server anymore
+- typo fix
+
+
