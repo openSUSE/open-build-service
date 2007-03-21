@@ -10,7 +10,11 @@ module StatisticsHelper
     out << image_tag( 'rotating-tail.gif', :border => 0, :style => 'display: none;', :id => 'spinner' )
     out << end_form_tag
     out << observe_field( :limit, :update => action,
-      :url => { :controller => 'statistics', :action  => action, :more => true },
+      :url => { :controller => 'statistics', :action  => action,
+        :more => true, :arch => params[:arch],
+        :repo => params[:repo], :package => params[:package],
+        :project => params[:project]
+      },
       :with => "'limit=' + escape(value)", :loading => "Element.show('spinner')",
       :complete => "Element.hide('spinner')"
     )

@@ -146,7 +146,7 @@
           This project contains <b><%= @downloads.each_count.length -%></b>
           files with download counters.<br/>
           They were downloaded <b><%= @downloads.sum -%></b> times since
-          <%= distance_of_time_in_words_to_now( @downloads.first_count ) %>.<br/>
+          <%= distance_of_time_in_words_to_now( @downloads.first ) %>.<br/>
           <%= link_to 'Detailed Download Statistics ...', :controller => 'main',
             :action => 'download_details', :project => @project -%>
         <% else %>
