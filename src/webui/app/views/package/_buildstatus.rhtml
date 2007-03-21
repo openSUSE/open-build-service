@@ -1,7 +1,7 @@
 
 <!-- Build status -->
 <div id="package_buildstatus">
-  <% if @results.empty? %>
+  <% if not @buildstatus.has_element? :result %>
   <h3>Build Status unavailable</h3>
   <% else %>
   <h3>
@@ -35,24 +35,30 @@
         :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository, :arch => result.arch %>
         <%=h result.arch %>
       </td>
+      <% if result.has_element? :status -%>
       <td><%=h result.status.code %></td>
       <td>
         <% if result.status.has_element? :details -%>
         <%=h result.status.details %>
         <% end -%>
       </td>
+      <% else -%>
+      <td>n/a</td>
+      <% end -%>
       <td align="right"><%= link_to "[Build Log]", :action => :live_build_log,
         :package => @package, :project => params[:project], :arch => result.arch, :repository => result.repository %></td>
     </tr>
+    <% if result.has_element? :binarylist -%>
     <% result.binarylist.each_binary do |binary| %>
     <tr>
       <td colspan="3"><%= link_to binary.filename, rpm_url( @project, @package,
         result.repository, result.arch, binary.filename ) %></td>
     </tr>
-    <% end %>
-    <% end %>
+    <% end -%>
+    <% end -%>
+    <% end -%>
   </table>
-  <% end %>
+  <% end -%>
   <p>
     <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
     :project => @project, :package => @package %>

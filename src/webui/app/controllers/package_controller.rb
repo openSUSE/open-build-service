@@ -92,13 +92,6 @@ class PackageController < ApplicationController
           end
         end
 
-        @results = Hash.new
-        @buildresult = Buildresult.find( :project => project, :package => package, :view => ['status', 'binarylist'] )
-        @buildresult.each_result do |r|
-          @results[r.repository] ||= Hash.new
-          @results[r.repository][r.arch] = r.binarylist("@package='#{package}'")
-        end
-
         @archs = []
         @project.each_repository do |repo|
           repo.each_arch do |arch|
@@ -695,7 +688,7 @@ class PackageController < ApplicationController
     @project = Project.find( params[:project] )
     @package = Package.find( params[:package], :project => params[:project] )
 
-    @buildresult = Buildresult.find( :project => project, :package => package, :view => ['status', 'binarylist'] )
+    @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
     render :partial => 'buildstatus'
   end
 
