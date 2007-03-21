@@ -146,7 +146,7 @@ GET /source/<project>/<package>/_history
 
   Get package commit history
 
-XmlResult: checkinlist
+XmlResult: revisionlist
 
 
 === Source files
