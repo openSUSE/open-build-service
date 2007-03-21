@@ -190,6 +190,10 @@ class StatisticsController < ApplicationController
     time = DownloadStat.find( :first, :select => 'min(created_at) as ts' ).ts
     time ? @first = Time.parse( time ).xmlschema : @first = Time.now.xmlschema
 
+    # get timestamp of last counted entry
+    time = DownloadStat.find( :first, :select => 'max(counted_at) as ts' ).ts
+    time ? @last = Time.parse( time ).xmlschema : @last = Time.now.xmlschema
+
     if @group_by_mode = params[:group_by]
     # if in group_by_mode, then we concatenate download_stats entries
 
