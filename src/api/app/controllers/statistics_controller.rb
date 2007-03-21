@@ -118,9 +118,9 @@ class StatisticsController < ApplicationController
       :select => 'object_id, object_type, count(score) as count,' +
         'sum(score)/count(score) as score_calculated',
       :group => 'object_id, object_type',
-      :order => 'score_calculated DESC',
-      :limit => @limit
-    @ratings = ratings.delete_if { |r| r.count.to_i < min_votes_for_rating }
+      :order => 'score_calculated DESC'
+    ratings = ratings.delete_if { |r| r.count.to_i < min_votes_for_rating }
+    @ratings = ratings[0..@limit-1]
   end
 
 
