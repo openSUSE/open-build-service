@@ -16,17 +16,17 @@
   <% end %>
 
   <ol>
-    <% if @highest_rated = [] %>
+    <% if @highest_rated == [] %>
       <i>There are not yet<br />
       any items with more<br />than
       <%= min_votes_for_rating -%> votes.</i>
     <% end %>
     <% @highest_rated.each do |item| %>
       <li>
-        <% title = "- score is #{item.score} (rated #{item.count} times)" %>
-        <% if item.data.to_s =~ /^<package / %>
+        <% title = ", Score: #{item.score}, Votes: #{item.count}" %>
+        <% if item.element_name == 'package' %>
           <%= link_to_package_view( item.name, item.project, title ) -%>
-        <% elsif item.data.to_s =~ /^<project / %>
+        <% elsif item.element_name == 'project' %>
           <%= link_to_project_view( item.name, title ) -%>
         <% end %>
       </li>
