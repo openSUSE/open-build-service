@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
   session_options[:key] = "opensuse_webclient_session"
   session_options[:tagcloud] ||= "mytags"
 
-  before_filter :authorize, :set_return_to
+  before_filter :authorize, :set_return_to, :set_charset
 
 
   def min_votes_for_rating
@@ -24,6 +24,10 @@ class ApplicationController < ActionController::Base
   def set_return_to
     session[:return_to] = request.request_uri
     logger.debug "return_to: #{session[:return_to]}"
+  end
+
+  def set_charset
+    @headers['Content-Type'] = "text/html; charset=utf-8"
   end
 
   def authorize
