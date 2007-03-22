@@ -59,7 +59,7 @@
       "Project: #{count.project}. (click to filter...)" %>
       <li>
       <%= link_to image_tag( 'repository', :border => 0 ) +
-        " #{shorten_text(count.repo,20)}",
+        " #{shorten_text(count.project)}/#{shorten_text(count.repo,18)}",
         { :action => 'download_details', :repo => count.repo,
         :project => count.project }, :title => title -%>
       </li>
