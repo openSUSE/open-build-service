@@ -471,3 +471,13 @@ Tue Mar 20 21:52:33 +0100 2007 - bauersman
   
 
 
+------------------------------------------------------------------------
+Thu Mar 22 11:10:22 +0100 2007 - bauersman
+
+- update from svn revision 1498 to 1514
+- fixed bug, where statistics#download_counter crashed if there were
+  no entries in the download_stats database table
+- fixed limit of highest_rated statistics results
+- include date of latest counted download_stats entry in frontend output
+
+
