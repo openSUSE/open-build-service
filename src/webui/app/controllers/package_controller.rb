@@ -92,6 +92,8 @@ class PackageController < ApplicationController
           end
         end
 
+        @buildresult = Buildresult.find( :project => project, :package => package, :view => ['status', 'binarylist'] )
+
         @archs = []
         @project.each_repository do |repo|
           repo.each_arch do |arch|
