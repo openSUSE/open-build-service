@@ -27,7 +27,9 @@ class ApplicationController < ActionController::Base
   end
 
   def set_charset
-    @headers['Content-Type'] = "text/html; charset=utf-8"
+    if @headers['Content-Type'] =~ "^text/html"
+      @headers['Content-Type'] = "text/html; charset=utf-8"
+    end
   end
 
   def authorize
