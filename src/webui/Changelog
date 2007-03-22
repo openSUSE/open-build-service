@@ -637,3 +637,25 @@ Tue Mar 20 21:52:40 +0100 2007 - bauersman
   
 
 
+------------------------------------------------------------------------
+Thu Mar 22 11:10:25 +0100 2007 - bauersman
+
+- update from svn revision 1499 to 1514
+  fixed rating:
+- needed adjustment for the new activexml config
+- if-statement issue: used = instead of == in comparison ... oops
+  
+- use utf-8 in webclient (bug #256140)
+- don't crash when buildstatus doesn't have status elements
+  
+  updated download_details table in webclient:
+- show date of latest counted download_counter
+- always display all columns, even if there's a filter
+  (then grey out the corresponding column)
+- better tooltips
+- make the ajax table size selector remembering what was filtered
+  
+- display full qualified repository names in 'most_downloaded' view
+- corrected mistakes from previous checkin
+
+
