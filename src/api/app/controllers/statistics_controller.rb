@@ -182,6 +182,9 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     @response.time_to_live = 30.minutes
 
+    # initialize @stats
+    @stats = []
+
     # get total count of all downloads
     @sum = DownloadStat.find( :first, :select => 'sum(count) as sum' ).sum
     @sum = 0 unless @sum
