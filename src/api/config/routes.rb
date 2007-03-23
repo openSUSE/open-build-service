@@ -113,13 +113,7 @@ ActionController::Routing::Routes.draw do |map|
 
   # Download statistics
   #
-  map.connect 'statistics/download_counter/:project',
-    :controller => 'statistics', :action => 'download_counter'
-  map.connect 'statistics/download_counter/:project/:package',
-    :controller => 'statistics', :action => 'download_counter'
-  map.connect 'statistics/download_counter/:project/:package/:repository',
-    :controller => 'statistics', :action => 'download_counter'
-  map.connect 'statistics/download_counter/:project/:package/:repository/:architecture',
+  map.connect 'statistics/download_counter',
     :controller => 'statistics', :action => 'download_counter'
 
   # Timestamps
