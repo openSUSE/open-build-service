@@ -8,11 +8,17 @@
 
 <div id="download_details">
 
-  <h4>Download Statistics Details</h4>
+  <h4>
+    Download Statistics Details
+    <%= link_to_remote image_tag( 'info_light', :title => 'display info/help' ),
+      :url => { :action => 'display_info', :for => 'download_details' } -%>
+  </h4>
+
   <h5 id="detailed_header">for <%= @title -%> <b>"<%= @name -%>"</b></h5>
   <%= javascript_tag visual_effect(:shake, 'detailed_header') %>
 
   <% if params[:more] -%>
+    <div id="infobox"><span>&nbsp;</span></div>
     <%= statistics_limit_form( 'download_details', 'Show top' ) %>
   <% end %>
   <br />
@@ -20,9 +26,9 @@
   <table>
 
     <th>Project</th>
-    <th>Package</th>
     <th>Repository</th>
     <th>Architecture</th>
+    <th>Package</th>
     <th>Filename</th>
     <th>Version</th>
     <th>Release</th>
@@ -47,24 +53,6 @@
         <%= link_to image_tag( 'link_ext', :border => 0 ),
           { :controller => 'project', :action => 'view', :project => count.project },
           :title => "View Project Details..." -%>
-      </td>
-
-      <td>
-        <% package = ' ' + shorten_text( count.package ) %>
-        <% if @title == 'Package' %>
-          <span class="greyed-out" title="(filter is active)">
-            <%= image_tag( 'package', :border => 0 ) + package -%>
-          </span>
-        <% else %>
-          <%= link_to image_tag( 'package', :border => 0 ) + package,
-            { :action => 'download_details', :package => count.package,
-            :project => count.project, :more => params[:more],
-            :limit => params[:limit] }, :title => "filter by package " +
-            "#{count.package} from project #{count.project}" -%>
-        <% end %>
-        <%= link_to image_tag( 'link_ext', :border => 0 ),
-          { :controller => 'package', :action => 'view', :project => count.project,
-          :package => count.package }, :title => "View Package Details..." -%>
       </td>
 
       <td>
@@ -94,6 +82,24 @@
             :more => params[:more], :limit => params[:limit] },
             :title => "filter by architecture #{count.architecture}" -%>
         <% end %>
+      </td>
+
+      <td>
+        <% package = ' ' + shorten_text( count.package ) %>
+        <% if @title == 'Package' %>
+          <span class="greyed-out" title="(filter is active)">
+            <%= image_tag( 'package', :border => 0 ) + package -%>
+          </span>
+        <% else %>
+          <%= link_to image_tag( 'package', :border => 0 ) + package,
+            { :action => 'download_details', :package => count.package,
+            :project => count.project, :more => params[:more],
+            :limit => params[:limit] }, :title => "filter by package " +
+            "#{count.package} from project #{count.project}" -%>
+        <% end %>
+        <%= link_to image_tag( 'link_ext', :border => 0 ),
+          { :controller => 'package', :action => 'view', :project => count.project,
+          :package => count.package }, :title => "View Package Details..." -%>
       </td>
 
       <td><%= count.filename -%></td>

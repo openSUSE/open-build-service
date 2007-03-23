@@ -8,10 +8,15 @@
 
 <div id="highest_rated">
 
-  <h4>Highest Rated:</h4>
+  <h4>
+    Highest Rated:
+    <%= link_to_remote image_tag( 'info_light', :title => 'display info/help' ),
+      :url => { :action => 'display_info', :for => 'highest_rated' } -%>
+  </h4>
   <br/>
 
   <% if params[:more] -%>
+    <div id="infobox"><span>&nbsp;</span></div>
     <%= statistics_limit_form( 'highest_rated', 'Show top' ) %>
   <% end %>
 

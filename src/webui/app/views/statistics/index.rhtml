@@ -5,8 +5,7 @@
   <span>
     <%= render :partial => 'most_active' -%>
     <%= link_to 'more...', { :controller => 'statistics',
-      :action => 'most_active', :more => true, :limit => 25 }
-    -%>
+      :action => 'most_active', :more => true, :limit => 25 } -%>
   </span>
   <span>
     <%= render :partial => 'most_downloaded' -%>
@@ -35,6 +34,8 @@
   </span>
   <div style="clear: both;">&nbsp;</div>
 </div>
+
+<div id="infobox"><span>&nbsp;</span></div>
 
 <% @pagetitle = "Statistics" %>
 <% @crumb_list = [ 'Statistics' ] -%>

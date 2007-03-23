@@ -8,10 +8,15 @@
 
 <div id="most_active">
 
-  <h4>Most Active:</h4>
+  <h4>
+    Most Active:
+    <%= link_to_remote image_tag( 'info_light', :title => 'display info/help' ),
+      :url => { :action => 'display_info', :for => 'most_active' } -%>
+  </h4>
   <br/>
 
   <% if params[:more] -%>
+    <div id="infobox"><span>&nbsp;</span></div>
     <%= statistics_limit_form( 'most_active', 'Show top' ) %>
     <table><tr><td valign="top">
   <% end %>

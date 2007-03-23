@@ -106,6 +106,54 @@ class StatisticsController < ApplicationController
   end
 
 
+  def display_info
+    text = '<span>'
+    case params[:for]
+    when 'download_details'
+      text += '<h4>Download Details <img src="/images/info.png" /></h4>'
+      text += 'Here you can see download statistics details for packages of '
+      text += 'the build service. These statistics are updated twice a day '
+      text += 'at the moment, so they are not live.'
+    when 'most_downloaded'
+      text += '<h4>Most Downloaded <img src="/images/info.png" /></h4>'
+      text += 'Here you can see download statistics overview for packages of '
+      text += 'the build service. These statistics are updated twice a day '
+      text += 'at the moment, so they are not live.'
+    when 'highest_rated'
+      text += '<h4>Highest Rated <img src="/images/info.png" /></h4>'
+      text += 'Here you can see which packages and project were '
+      text += 'highest rated by the build service users. Only registered '
+      text += 'can rate packages and projects by clicking one of the five '
+      text += 'stars next to the header. Only packages/projects with more '
+      text += "than #{min_votes_for_rating} ratings are displayed here."
+    when 'latest_added'
+      text += '<h4>Latest Added <img src="/images/info.png" /></h4>'
+      text += 'Here you can see which are the packages and projects last '
+      text += 'added.'
+    when 'latest_updated'
+      text += '<h4>Latest Updated <img src="/images/info.png" /></h4>'
+      text += 'Here you can see which are the packages and projects last '
+      text += 'updated.'
+    when 'most_active'
+      text += '<h4>Most Active <img src="/images/info.png" /></h4>'
+      text += 'Here you can see the most active packages and projects. '
+      text += 'Activity is mainly measured by the update frequency and count'
+      text += 'of updates.'
+    else
+      text += '<h4>Sorry <img src="/images/info.png" /></h4>'
+      text += 'no info / help available.'
+    end
+    text += '</span>'
+    render :update do |page|
+      page.visual_effect :slide_up, 'infobox', :duration => 0.3
+      page.delay(0.75) do
+        page.replace_html 'infobox', text
+        page.visual_effect :slide_down, 'infobox', :duration => 0.3
+      end
+    end
+  end
+
+
   private
 
 

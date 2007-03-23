@@ -871,3 +871,13 @@ strong.highlight {
 #rating_count_warning {
   margin-left: 80px;
 }
+
+#infobox {
+  margin: 0 auto;
+  width: 50%;
+}
+#infobox span h4 {
+  margin: 0.5em;
+  text-align: center;
+}
+

@@ -8,10 +8,15 @@
 
 <div id="latest_updated">
 
-  <h4>Latest Updated:</h4>
+  <h4>
+    Latest Updated:
+    <%= link_to_remote image_tag( 'info_light', :title => 'display info/help' ),
+      :url => { :action => 'display_info', :for => 'latest_updated' } -%>
+  </h4>
   <br/>
 
   <% if params[:more] -%>
+    <div id="infobox"><span>&nbsp;</span></div>
     <%= statistics_limit_form( 'latest_updated', 'Show latest' ) %>
   <% end %>
 
