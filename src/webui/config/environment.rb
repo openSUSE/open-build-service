@@ -105,24 +105,22 @@ ActiveXML::Base.config do |conf|
         :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
 
     # Monitor
-    map.connect :workerstatus, "rest:///build/_workerstatus",
-      :all => "rest:///build/_workerstatus"
+    map.connect :workerstatus, 'rest:///build/_workerstatus',
+      :all => 'rest:///build/_workerstatus'
 
     # Statistics
-    map.connect :latestadded, "rest:///statistics/latest_added?:limit",
-      :specific => "rest:///statistics/added_timestamp/:project/:package"
-    map.connect :latestupdated, "rest:///statistics/latest_updated?:limit",
-      :specific => "rest:///statistics/updated_timestamp/:project/:package"
-    map.connect :downloadcounter, "rest:///statistics/download_counter" +
-      "/:project/:package/:repository/:architecture?:group_by&:limit",
-      :arch => "rest:///statistics/download_counter?:arch&:limit",
-      :repo => "rest:///statistics/download_counter/:project?:repo&:limit"
-    map.connect :rating, "rest:///statistics/rating/:project/:package",
-      :all => "rest:///statistics/highest_rated?:limit"
-    map.connect :mostactive, "rest:///statistics/most_active?:type&:limit"
+    map.connect :latestadded, 'rest:///statistics/latest_added?:limit',
+      :specific => 'rest:///statistics/added_timestamp/:project/:package'
+    map.connect :latestupdated, 'rest:///statistics/latest_updated?:limit',
+      :specific => 'rest:///statistics/updated_timestamp/:project/:package'
+    map.connect :downloadcounter, 'rest:///statistics/download_counter' +
+      '?:project&:package&:arch&:repo&:group_by&:limit'
+    map.connect :rating, 'rest:///statistics/rating/:project/:package',
+      :all => 'rest:///statistics/highest_rated?:limit'
+    map.connect :mostactive, 'rest:///statistics/most_active?:type&:limit'
 
     # Status Messages
-    map.connect :statusmessage, "rest:///status_message/:id/?:limit"
+    map.connect :statusmessage, 'rest:///status_message/:id/?:limit'
 
 
   end

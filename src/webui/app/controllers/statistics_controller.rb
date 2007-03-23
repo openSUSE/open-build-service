@@ -64,42 +64,22 @@ class StatisticsController < ApplicationController
 
 
   def download_details
-    limit = params[:limit]
-    project = params[:project]
-    package = params[:package]
-    repo = params[:repo]
-    arch = params[:arch]
+    @limit = params[:limit]
+    @project = params[:project]
+    @package = params[:package]
+    @repo = params[:repo]
+    @arch = params[:arch]
 
-    if project and package
-      @name = "#{package} (project #{project})"
-      @title = 'Package'
-      @downloads = Downloadcounter.find(
-        :project => project, :package => package,
-        :limit => limit
-      )
-    elsif project and repo
-      @name = "#{repo} (project #{project})"
-      @title = 'Repository'
-      @downloads = Downloadcounter.find(
-        :repo, :project => project, :repo => repo, :limit => limit
-      )
-    elsif project
-      @name = project
-      @title = 'Project'
-      @downloads = Downloadcounter.find(
-        :project => project, :limit => limit
-      )
-    elsif arch
-      @name = arch
-      @title = 'Architecture'
-      @downloads = Downloadcounter.find(
-        :arch, :arch => arch, :limit => limit
-      )
-    else
-      @name = 'all downloads'
-      @title = ''
-      @downloads = Downloadcounter.find( :limit => limit )
-    end
+    @title = 'Filter: &nbsp; '
+    @title += "Project=#{@project} &nbsp; "   if @project
+    @title += "Package=#{@package} &nbsp; "   if @package
+    @title += "Architecture=#{@arch} &nbsp; " if @arch
+    @title += "Repository=#{@repo} &nbsp; "   if @repo
+    @title = 'All Downloads' unless @project or @package or @arch or @repo
+
+    @downloads = Downloadcounter.find :limit => @limit,
+      :project => @project, :package => @package, :repo => @repo, :arch => @arch
+
     # no layout, if this is an ajax-request
     request.get? ? layout=true : layout=false
     render :partial => 'download_details', :layout => layout

@@ -6,14 +6,17 @@ module StatisticsHelper
     out << start_form_tag( nil, :method => :get )
     out << statistics_limit_select( "#{title} " )
     out << hidden_field_tag( 'more', params[:more] )
+    out << hidden_field_tag( 'package', @package ) if @package
+    out << hidden_field_tag( 'project', @project ) if @project
+    out << hidden_field_tag( 'repo', @repo) if @repo
+    out << hidden_field_tag( 'arch', @arch) if @arch
     out << image_submit_tag( 'system-search' )
     out << image_tag( 'rotating-tail.gif', :border => 0, :style => 'display: none;', :id => 'spinner' )
     out << end_form_tag
     out << observe_field( :limit, :update => action,
-      :url => { :controller => 'statistics', :action  => action,
-        :more => true, :arch => params[:arch],
-        :repo => params[:repo], :package => params[:package],
-        :project => params[:project]
+      :url => { :action  => action, :more => true,
+        :project => @project, :package => @package,
+        :arch => @arch, :repo => @repo
       },
       :with => "'limit=' + escape(value)", :loading => "Element.show('spinner')",
       :complete => "Element.hide('spinner')"

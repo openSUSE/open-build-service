@@ -25,8 +25,8 @@
     <% @most_downloaded[:projects].each_count do |count| %>
       <li>
       <%= link_to image_tag( 'project', :border => 0 ) +
-        " #{shorten_text(count.project,20)}",
-        { :action => 'download_details', :project => count.project },
+        " #{shorten_text(count.project,20)}", { :more => true,
+        :action => 'download_details', :project => count.project },
         :title => "Downloads: #{count.to_s}, Files: #{count.files} " +
         "(click to filter...)" -%>
       <%= link_to image_tag( 'link_ext', :border => 0 ),
@@ -43,8 +43,8 @@
     <% @most_downloaded[:packages].each_count do |count| %>
       <li>
       <%= link_to image_tag( 'package', :border => 0 ) +
-        " #{shorten_text(count.package,20)}",
-        { :action => 'download_details', :package => count.package,
+        " #{shorten_text(count.package,20)}", { :more => true,
+        :action => 'download_details', :package => count.package,
         :project => count.project },
         :title => "Downloads: #{count.to_s}, Files: #{count.files}, " +
         "Project: #{count.project}. (click to filter...)" -%>
@@ -65,7 +65,7 @@
       <li>
       <%= link_to image_tag( 'repository', :border => 0 ) +
         " #{shorten_text(count.project)}/#{shorten_text(count.repo,18)}",
-        { :action => 'download_details', :repo => count.repo,
+        { :action => 'download_details', :repo => count.repo, :more => true,
         :project => count.project }, :title => title -%>
       </li>
     <% end %>
@@ -80,8 +80,8 @@
       "(click to filter...)" %>
       <li>
       <%= link_to image_tag( 'architecture', :border => 0 ) +
-        " #{shorten_text(count.arch,20)}",
-        { :action => 'download_details', :arch => count.arch },
+        " #{shorten_text(count.arch,20)}", { :more => true,
+        :action => 'download_details', :arch => count.arch },
         :title => title -%>
       </li>
     <% end %>
