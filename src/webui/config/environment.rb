@@ -117,7 +117,8 @@ ActiveXML::Base.config do |conf|
       '?:project&:package&:arch&:repo&:group_by&:limit'
     map.connect :rating, 'rest:///statistics/rating/:project/:package',
       :all => 'rest:///statistics/highest_rated?:limit'
-    map.connect :mostactive, 'rest:///statistics/most_active?:type&:limit'
+    map.connect :mostactive, 'rest:///statistics/most_active?:type&:limit',
+      :specific => 'rest:///statistics/activity/:project/:package'
 
     # Status Messages
     map.connect :statusmessage, 'rest:///status_message/:id/?:limit'

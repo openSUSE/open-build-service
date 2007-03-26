@@ -134,6 +134,8 @@ class PackageController < ApplicationController
       :project => @project, :package => @package ).package.created
     @updated_timestamp = LatestUpdated.find( :specific,
       :project => @project, :package => @package ).package.updated
+    @activity = ( MostActive.find( :specific, :project => @project,
+      :package => @package).package.activity.to_f * 100 ).round.to_f / 100
   end
 
   def new

@@ -61,15 +61,11 @@
       <table class="grid targets">
         <tr class="header">
           <th>Repository</th>
-          <th>Link</th>
         </tr>
         <% @project.each_repository do |repo| -%>
         <tr class="target">
           <td>
-            <strong><%=h repo.name %></strong>
-          </td>
-          <td>
-            <%= link_to 'Goto Download Repository', repo_url( @project.name, repo.name ) -%>
+            <%= link_to repo.name, repo_url( @project.name, repo.name ), :target => '_blank' -%>
           </td>
         </tr>
         <% end -%>
@@ -116,6 +112,22 @@
         <% else %>
           <i>There are no files with download counters in this package yet.</i>
         <% end%>
+        </p>
+
+        <h5>Activity</h5>
+        <p>
+          This package is <b><%= @activity -%> %</b> active.<br/>
+        </p>
+
+        <h5>Rating</h5>
+        <p>
+        <% if @rating.count == '0' %>
+          This package is not yet rated.<br/>
+        <% else %>
+          This package is rated with
+          <b><%= pluralize @rating.to_s.to_f, 'star' -%></b> out of five
+          (rated <%= pluralize @rating.count.to_i, 'time' -%>).<br/>
+        <% end %>
         </p>
       </div>
 

@@ -132,6 +132,8 @@ class ProjectController < ApplicationController
  
     @downloads = Downloadcounter.find( :project => @project )
     @rating = Rating.find( :project => @project )
+    @activity = ( MostActive.find( :specific, :project => @project,
+      :package => @package).project.activity.to_f * 100 ).round.to_f / 100
   end
 
   
