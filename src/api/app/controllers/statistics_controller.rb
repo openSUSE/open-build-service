@@ -353,8 +353,9 @@ class StatisticsController < ApplicationController
 
 
   def activity
-    @project = get_project( params[:project] )
-    @package = get_package( params[:package], @project.id ) if @project
+    @project = DbProject.find_by_name params[:project]
+    @package = DbPackage.find :first, :conditions => [
+      'name=? AND db_project_id=?', params[:package], @project.id ] if @project
   end
 
 
