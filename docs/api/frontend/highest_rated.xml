@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<highest_rated>
+  <project score="4.7500" name="KDE:KDE3" count="4"/>
+  <project score="4.6000" name="openSUSE:Tools" count="5"/>
+  <package score="4.5000" project="openSUSE:Tools" name="osc" count="8"/>
+  <project score="4.2000" name="FATE" count="5"/>
+</highest_rated>
