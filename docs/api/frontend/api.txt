@@ -612,3 +612,83 @@ Result: Build log as text file.
 
 
 
+== Statistics
+
+Host: api.opensuse.org
+<limit>: limit count of results. optional, defaults to 10.
+<group_by>: group results by: project, package, repo or arch.
+<type>: can be projects or packages. optional, defaults to packages
+
+
+GET /statistics/latest_added?limit=<limit>
+  Get a list of packages and projects (mixed) latest added to the build
+  service. All entries are sorted by creation time.
+XmlResult: latest_added
+
+
+GET /statistics/added_timestamp/<project>/<package>
+  Get timestamp when project or package was added to the build service.
+XmlResult: added_timestamp
+
+
+GET /statistics/latest_updated?limit=<limit>
+  Get a list of packages and project that were last updated. All entries are
+  sorted by the update timestamp.
+XmlResult: latest_updated
+
+
+GET /statistics/updated_timestamp/<project>/<package>
+  Get timestamp when project or package was last updated.
+XmlResult: updated_timestamp
+
+
+GET /statistics/activity/<project>/<package>
+  Get activity in % of project or package.
+XmlResult: activity
+
+
+GET /statistics/most_active?type=<type>&limit=<limit>
+  Get list of most active packages (type=packages) or projects (type=projects).
+  Also returns count of updates since package was created when type=packages.
+  Also returns count of packages that are in this project when type=projects.
+XmlResult: most_active
+
+
+GET /statistics/highest_rated?limit=<limit>
+  Get list of highest rated projects and packages. Results are sorted by score.
+  Only items with more than 3 ratings will show up in this list.
+XmlResult: highest_rated
+
+
+GET /statistics/rating/<project>/<package>
+  Get rating of a specific project or package. Also returns what score the
+  logged in user gave and how many ratings there are already for the specified
+  object.
+XmlResult: rating
+
+
+PUT /statistics/rating/<project>/<package>
+  Rate this project / package.
+XmlResult: rating
+
+
+GET /statistics/download_counter?limit=<limit>
+  Get download counters for top downloaded files including to which project,
+  package, repository and architecture they belong.
+XmlResult: download_counter
+
+
+GET /statistics/download_counter?group_by=<group_by>&limit=<limit>
+  Get summarized download counters for top downloaded projects, packages,
+  repositories or architectures (by setting group_by parameter to project,
+  package, repo or arch) including count of files that belong to the respective
+  object.
+XmlResult: download_counter_summary
+
+
+PUT /statistics/redirect_stats
+  Send redirector statistics to the build service api, to update the
+  download_counter database.
+XmlResult: redirect_stats
+
+
