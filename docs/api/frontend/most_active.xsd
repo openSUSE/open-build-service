@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="most_active">
+    <xs:annotation>
+      <xs:documentation>
+        List of most active packages or projects in the openSUSE build
+        service ordered activity.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice>
+        <xs:sequence>
+          <xs:element ref="package" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="project" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="package">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="project" type="xs:string" use="required" />
+      <xs:attribute name="activity" type="activityFloat" use="required" />
+      <xs:attribute name="update_count" type="xs:nonNegativeInteger" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Count of updates a package already had.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="project">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="activity" type="activityFloat" use="required" />
+      <xs:attribute name="packages" type="xs:nonNegativeInteger" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Count of packages this project has.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="activityFloat">
+    <xs:restriction base="xs:float">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
