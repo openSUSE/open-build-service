@@ -302,6 +302,9 @@ nextchunk:
   } else {
     $newuri .= "?start=$newpos";
   }
+  # mark it as in progress so that only other calls in progress can join
+  $newuri .= "&inprogress" unless $newuri =~ /\&inprogress$/;
+
   print "stay=".@stay.", leave=".@leave.", newpos=$newpos\n";
 
   if ($rpcs{$newuri}) {

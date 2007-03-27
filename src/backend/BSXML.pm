@@ -250,8 +250,8 @@ our $revision = [
 	'comment',
 ];
 
-our $packhist = [
-    'revisionhistory' =>
+our $revisionlist = [
+    'revisionlist' =>
       [ $revision ]
 ];
 

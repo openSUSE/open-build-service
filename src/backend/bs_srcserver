@@ -903,7 +903,7 @@ sub getpackagehistory {
   for (BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay)) {
     push @res, $_;
   }
-  return ({'revision' => \@res}, $BSXML::packhist);
+  return ({'revision' => \@res}, $BSXML::revisionlist);
 }
 
 sub getsources {
@@ -1354,6 +1354,18 @@ sub getresult {
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
 
   my $proj = readproj($projid);
+  if ($cgi->{'repository'}) {
+    my %knownrepoids = map {$_->{'name'} => 1} @{$proj->{'repository'} || []};
+    for (@{$cgi->{'repository'}}) {
+      die("unknown repository '$_'\n") if !$knownrepoids{$_};
+    }
+  }
+  if ($cgi->{'package'}) {
+    my %knownpackids = map {$_ => 1} findpackages($projid);
+    for (@{$cgi->{'package'}}) {
+      die("unknown package '$_'\n") if !$knownpackids{$_};
+    }
+  }
   my @prpas;
   for my $repo (@{$proj->{'repository'} || []}) {
     next if %repoidfilter && !$repoidfilter{$repo->{'name'}};
@@ -1700,6 +1712,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&putfilelist,
   '/source/$project/$package rev? follow:bool?' => \&getfilelist,
+  '/source/$project/$package/_history' => \&getpackagehistory,
   '/source/$project/$package/_meta' => \&getpackage,
   'PUT:/source/$project/$package/_meta' => \&putpackage,
   'DELETE:/source/$project/$package' => \&delpackage,
