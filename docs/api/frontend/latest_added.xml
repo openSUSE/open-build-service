@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<latest_added>
+  <project name="test-project-123" created="2007-03-26T15:57:49+02:00"/>
+  <package name="libgpod" project="home:dmayr" created="2007-03-11T19:12:14+01:00"/>
+  <package name="kboincmgr" project="home:obi_gl" created="2007-03-11T17:57:51+01:00"/>
+  <package name="simutrans128-ways" project="home:msrex" created="2007-03-11T16:43:51+01:00"/>
+  <package name="simutrans128-vehicles" project="home:msrex" created="2007-03-11T16:42:50+01:00"/>
+  <package name="simutrans128-us" project="home:msrex" created="2007-03-11T16:41:31+01:00"/>
+  <package name="simutrans128-stations" project="home:msrex" created="2007-03-11T16:40:30+01:00"/>
+  <package name="krb5-ticket-watcher" project="home:mcalmer" created="2007-03-11T16:04:36+01:00"/>
+  <package name="simutrans128-newroadsigns" project="home:msrex" created="2007-03-11T04:49:28+01:00"/>
+  <package name="simutrans128-ns" project="home:msrex" created="2007-03-11T04:46:44+01:00"/>
+  <package name="simutrans128-industries" project="home:msrex" created="2007-03-11T04:34:04+01:00"/>
+  <package name="rdiff-backup" project="home:hennevogel" created="2007-03-10T20:05:20+01:00"/>
+  <package name="sax2" project="xorg7" created="2007-03-10T18:18:42+01:00"/>
+  <package name="fonts-config" project="xorg7" created="2007-03-10T18:18:26+01:00"/>
+  <package name="xgl" project="xorg7" created="2007-03-10T18:15:20+01:00"/>
+  <package name="re2c" project="home:elvigia" created="2007-03-10T09:38:29+01:00"/>
+  <package name="php5-syck" project="server:php:extensions" created="2007-03-10T08:43:12+01:00"/>
+  <package name="syck" project="server:php:extensions" created="2007-03-10T08:42:37+01:00"/>
+  <package name="syck" project="home:elvigia" created="2007-03-10T08:05:03+01:00"/>
+  <package name="patch2mail" project="home:cboltz" created="2007-03-09T23:18:19+01:00"/>
+  <package name="disable-bug" project="home:cboltz" created="2007-03-09T23:08:58+01:00"/>
+  <project name="home:tlitsch" created="2007-03-09T19:20:05+01:00"/>
+  <package name="x11-input-evtouch" project="home:dkukawka" created="2007-03-09T17:39:14+01:00"/>
+  <package name="dummy" project="Base:install" created="2007-03-09T16:36:28+01:00"/>
+  <package name="base-release" project="Base:install" created="2007-03-09T16:14:00+01:00"/>
+</latest_added>
