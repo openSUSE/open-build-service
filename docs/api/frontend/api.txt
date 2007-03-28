@@ -687,8 +687,8 @@ XmlResult: download_counter_summary
 
 
 PUT /statistics/redirect_stats
-  Send redirector statistics to the build service api, to update the
-  download_counter database.
+  Send download statistics from the openSUSE download redirector to the build
+  service api, to update the download_counter database.
 XmlResult: redirect_stats
 
 
