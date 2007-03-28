@@ -150,6 +150,14 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'status_message', :action => 'index'
 
 
+  ### /message
+
+  # Routes for messages
+  # --------------------------
+  map.connect 'message/:id',
+    :controller => 'message', :action => 'index'
+
+
   ### /search
 
   map.connect 'search/project/id', :controller => "search", :action => "project_id"

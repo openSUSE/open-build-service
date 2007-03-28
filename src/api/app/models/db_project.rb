@@ -3,6 +3,7 @@ class DbProject < ActiveRecord::Base
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :db_packages, :dependent => :destroy
   has_many :repositories, :dependent => :destroy
+  has_many :messages, :as => :object, :dependent => :destroy
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings

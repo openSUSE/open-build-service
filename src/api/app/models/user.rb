@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
   has_many :package_user_role_relationships, :foreign_key => 'bs_user_id'
 
   has_many :status_messages
+  has_many :messages
 
 
   def encrypt_password
