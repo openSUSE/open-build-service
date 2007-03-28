@@ -689,6 +689,60 @@ XmlResult: download_counter_summary
 PUT /statistics/redirect_stats
   Send download statistics from the openSUSE download redirector to the build
   service api, to update the download_counter database.
+  User needs to have appropriate permissions.
 XmlResult: redirect_stats
+
+
+== Status Messages
+
+Host: api.opensuse.org
+<limit>: limit count of messages. optional, defaults to unlimited.
+
+
+GET /status_message/?limit=<limit>
+  Get a list of status messages.
+XmlResult: status_messages
+
+
+PUT /status_message/
+  Send a new status message to the build service. User needs to have
+  appropriate permissions.
+XmlResult: status_message
+
+
+== Messages (for projects/packages)
+
+Host: api.opensuse.org
+<id>: message id
+<limit>: limit count of messages. optional, defaults to unlimited.
+
+
+GET /message/<id>
+  Get (one) message specified by id.
+XmlResult: messages
+
+
+GET /message/?limit=<limit>
+  Get a list of messages, independent of project or package.
+  All entries are ordered by creation time (latest first).
+XmlResult: messages
+
+
+GET /message/?project=<project>
+  Get a list of messages for this package.
+  All entries are ordered by creation time (latest first).
+XmlResult: messages
+
+
+GET /message/?project=<project>&package=<package>
+  Get a list of messages for this package.
+  All entries are ordered by creation time (latest first).
+XmlResult: messages
+
+
+PUT /message/?project=<project>&package=<package>
+  Append message to the specified package (or project, if package parameter
+  is omitted).
+XmlResult: message
 
 
