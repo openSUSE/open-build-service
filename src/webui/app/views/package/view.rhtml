@@ -104,7 +104,8 @@
         <% if @downloads.each_count.length > 0 %>
           This package contains <b><%= @downloads.each_count.length -%></b>
           files with download counters.<br/>
-          They were downloaded <b><%= @downloads.sum -%></b> times in the last
+          They were downloaded <b><%= beautify_number( @downloads.sum ) -%></b>
+          times in the last
           <%= distance_of_time_in_words_to_now( @downloads.first ) %>.<br/>
           <%= link_to 'Detailed Download Statistics ...', :controller => 'statistics',
             :action => 'download_details', :project => @project,
