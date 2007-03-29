@@ -100,12 +100,8 @@ class StatisticsController < ApplicationController
 
 
   def index
-    text =  "This is the statistics controller.<br/><br/>"
-    text << "Available statistics:<br/>"
-    text << "<a href='latest_added'>latest_added</a><br/>"
-    text << "<a href='latest_updated'>latest_updated</a><br/>"
-    text << "<a href='download_counter'>download_counter</a> / "
-    text << "<a href='download_counter?concat=package'>concat mode</a><br/>"
+    text =  "This is the statistics controller.<br />"
+    text += "See the api documentation for details."
     render :text => text
   end
 
@@ -186,8 +182,8 @@ class StatisticsController < ApplicationController
     @stats = []
 
     # get total count of all downloads
-    @sum = DownloadStat.find( :first, :select => 'sum(count) as sum' ).sum
-    @sum = 0 unless @sum
+    @all = DownloadStat.find( :first, :select => 'sum(count) as sum' ).sum
+    @all = 0 unless @all
 
     # get timestamp of first counted entry
     time = DownloadStat.find( :first, :select => 'min(created_at) as ts' ).ts
@@ -264,7 +260,7 @@ class StatisticsController < ApplicationController
       filter += " AND arch.id=#{arch.id}" if arch
 
       # get download_stats entries
-      @stats = DownloadStat.find :all,
+      stats = DownloadStat.find :all,
         :from => 'download_stats ds, db_projects pro, db_packages pac, ' +
           'architectures arch, repositories repo',
         :select => 'ds.*, pro.name as pro_name, pac.name as pac_name, ' +
@@ -272,8 +268,11 @@ class StatisticsController < ApplicationController
         :conditions => 'ds.db_project_id=pro.id AND ds.db_package_id=pac.id' +
           ' AND ds.architecture_id=arch.id AND ds.repository_id=repo.id' +
           filter,
-        :order => 'ds.count DESC',
-        :limit => @limit
+        :order => 'ds.count DESC'
+
+      @sum = 0
+      stats.each { |stat| @sum += stat.count }
+      @stats = stats[0...@limit]
     end
   end
 

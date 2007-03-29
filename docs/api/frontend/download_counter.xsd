@@ -28,6 +28,14 @@
       <xs:attribute name="sum"   use="required" type="xs:nonNegativeInteger">
         <xs:annotation>
           <xs:documentation>
+            Sum of all counted downloads of the selected objects
+            (project/package/repo/arch).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="all"   use="required" type="xs:nonNegativeInteger">
+        <xs:annotation>
+          <xs:documentation>
             Sum of all counted downloads (of the whole build service).
           </xs:documentation>
         </xs:annotation>

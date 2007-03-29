@@ -3,7 +3,7 @@ xml.instruct!
 
 if @group_by_mode
 
-  xml.download_counter( :sum => @sum, :first => @first, :last => @last ) do
+  xml.download_counter( :all => @all, :first => @first, :last => @last ) do
     @stats.each do |stat|
       if @group_by_mode == 'package' or @group_by_mode == 'repo'
         xml.count(
@@ -24,7 +24,7 @@ if @group_by_mode
 
 else
 
-  xml.download_counter( :sum => @sum, :first => @first, :last => @last ) do
+  xml.download_counter( :all => @all, :sum => @sum, :first => @first, :last => @last ) do
     @stats.each do |stat|
       xml.count(
         stat.count.to_s,
