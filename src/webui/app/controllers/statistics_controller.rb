@@ -70,11 +70,11 @@ class StatisticsController < ApplicationController
     @repo = params[:repo]
     @arch = params[:arch]
 
-    @title = 'Filter: &nbsp; '
-    @title += "Project=#{@project} &nbsp; "   if @project
-    @title += "Package=#{@package} &nbsp; "   if @package
-    @title += "Architecture=#{@arch} &nbsp; " if @arch
-    @title += "Repository=#{@repo} &nbsp; "   if @repo
+    @title_prefix = @title = 'Filter: &nbsp; '
+    @title += "project=#{@project} "   if @project
+    @title += "package=#{@package} "   if @package
+    @title += "architecture=#{@arch} " if @arch
+    @title += "repository=#{@repo} "   if @repo
     @title = 'All Downloads' unless @project or @package or @arch or @repo
 
     @downloads = Downloadcounter.find :limit => @limit,

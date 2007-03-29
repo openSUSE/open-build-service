@@ -108,7 +108,7 @@
           <%= distance_of_time_in_words_to_now( @downloads.first ) %>.<br/>
           <%= link_to 'Detailed Download Statistics ...', :controller => 'statistics',
             :action => 'download_details', :project => @project,
-            :package => @package -%>
+            :package => @package, :more => true -%>
         <% else %>
           <i>There are no files with download counters in this package yet.</i>
         <% end%>

@@ -144,11 +144,19 @@
   </table>
 
   <p>
-    Sum of all downloads of the last
-    <%= distance_of_time_in_words_to_now( @downloads.first ) -%>:
-    <b><%= @downloads.sum -%></b><br />
+    Statistics started to count <b><%= distance_of_time_in_words_to_now(
+    @downloads.first ) -%></b> ago.<br />
+
+    Sum of all downloads (whole build service):
+    <b><%= beautify_number( @downloads.all.to_i ) -%></b><br />
+
+    <% if @project or @package or @arch or @repo %>
+      Sum of all downloads filtered by <%= @title.sub(@title_prefix,'').chop %>:
+      <b><%= beautify_number( @downloads.sum.to_i ) -%></b><br />
+    <% end %>
+
     Download statistics were updated
-    <%= distance_of_time_in_words_to_now( @downloads.last ) -%> ago.
+    <b><%= distance_of_time_in_words_to_now( @downloads.last ) -%></b> ago.
   </p>
 
   <p>

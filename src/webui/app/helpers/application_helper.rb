@@ -73,4 +73,16 @@ module ApplicationHelper
   end
 
 
+  def beautify_number( number )
+    number_s = number.to_s
+    count = 0
+    result = ''
+    number_s.reverse.split( // ).each do |char|
+      count += 1
+      count%3 == 0  ? result+="#{char} " : result+="#{char}"
+    end
+    result.reverse
+  end
+
+
 end
