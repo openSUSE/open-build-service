@@ -75,7 +75,7 @@
           <%=h person.userid -%>
           <%= link_to(
             image_tag("mail_generic", :size => "16x16", :border => 0, :class => 'email_link'),
-            'mailto:' + Person.find(person.userid).email.to_s + '?subject=openSUSE build service' ) -%>
+            'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE build service' ) -%>
           <%- if @project.each_person.length > 1 %>
           <%= link_to "[x]",
           {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},

@@ -96,6 +96,11 @@ class ProjectController < ApplicationController
       end
     end
 
+    @email_hash = Hash.new
+    @project.each_person do |person|
+      @email_hash[person.userid.to_s] = Person.find( person.userid ).email.to_s
+    end
+
     @arch_list = tmp.keys.sort
     @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
