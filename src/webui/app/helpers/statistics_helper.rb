@@ -37,16 +37,16 @@ module StatisticsHelper
   end
 
 
-  def link_to_package_view( name, project, title='' )
-    link_to image_tag( 'package', :border => 0 ) + " #{shorten_text(name)}",
+  def link_to_package_view( name, project, title='', length=15 )
+    link_to image_tag( 'package', :border => 0 ) + " #{shorten_text(name, length)}",
       { :action => 'view', :controller => 'package',
         :package => name, :project => project },
       :title => "Package #{name} #{title}"
   end
 
 
-  def link_to_project_view( name, title='' )
-    link_to image_tag( 'project', :border => 0 ) + " #{shorten_text(name)}",
+  def link_to_project_view( name, title='', length=15 )
+    link_to image_tag( 'project', :border => 0 ) + " #{shorten_text(name, length)}",
       { :action => 'view', :controller => 'project',
         :project => name },
       :title => "Project #{name} #{title}"

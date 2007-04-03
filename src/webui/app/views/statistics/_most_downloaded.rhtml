@@ -18,6 +18,9 @@
     <div id="infobox"><span>&nbsp;</span></div>
     <%= statistics_limit_form( 'most_downloaded', 'Show top' ) %>
     <table><tr><td valign="top">
+    <% length=30 %>
+  <% else %>
+    <% length=20 %>
   <% end %>
 
   <h5>Projects:</h5>
@@ -25,7 +28,7 @@
     <% @most_downloaded[:projects].each_count do |count| %>
       <li>
       <%= link_to image_tag( 'project', :border => 0 ) +
-        " #{shorten_text(count.project,20)}", { :more => true,
+        " #{shorten_text(count.project,length)}", { :more => true,
         :action => 'download_details', :project => count.project },
         :title => "Downloads: #{count.to_s}, Files: #{count.files} " +
         "(click to filter...)" -%>
@@ -43,7 +46,7 @@
     <% @most_downloaded[:packages].each_count do |count| %>
       <li>
       <%= link_to image_tag( 'package', :border => 0 ) +
-        " #{shorten_text(count.package,20)}", { :more => true,
+        " #{shorten_text(count.package,length)}", { :more => true,
         :action => 'download_details', :package => count.package,
         :project => count.project },
         :title => "Downloads: #{count.to_s}, Files: #{count.files}, " +
@@ -64,7 +67,7 @@
       "Project: #{count.project}. (click to filter...)" %>
       <li>
       <%= link_to image_tag( 'repository', :border => 0 ) +
-        " #{shorten_text(count.project)}/#{shorten_text(count.repo,18)}",
+        " #{shorten_text(count.project,length)}/#{shorten_text(count.repo,length)}",
         { :action => 'download_details', :repo => count.repo, :more => true,
         :project => count.project }, :title => title -%>
       </li>
@@ -80,7 +83,7 @@
       "(click to filter...)" %>
       <li>
       <%= link_to image_tag( 'architecture', :border => 0 ) +
-        " #{shorten_text(count.arch,20)}", { :more => true,
+        " #{shorten_text(count.arch,length)}", { :more => true,
         :action => 'download_details', :arch => count.arch },
         :title => title -%>
       </li>

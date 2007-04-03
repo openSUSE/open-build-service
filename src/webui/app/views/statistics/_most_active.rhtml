@@ -19,6 +19,9 @@
     <div id="infobox"><span>&nbsp;</span></div>
     <%= statistics_limit_form( 'most_active', 'Show top' ) %>
     <table><tr><td valign="top">
+    <% length=50 %>
+  <% else %>
+    <% length=15 %>
   <% end %>
 
   <h5>Packages</h5>
@@ -26,7 +29,7 @@
     <% @most_active_pac.each do |package| %>
       <li>
         <% title = "activity = #{package.activity}%" %>
-        <%= link_to_package_view( package.name, package.project, title ) -%>
+        <%= link_to_package_view( package.name, package.project, title, length ) -%>
     <% end %>
   </ol>
 
@@ -37,7 +40,7 @@
     <% @most_active_prj.each do |project| %>
       <li>
         <% title = "activity = #{project.activity}%" %>
-        <%= link_to_project_view( project.name, title ) -%>
+        <%= link_to_project_view( project.name, title, length ) -%>
     <% end %>
   </ol>
 
