@@ -12,7 +12,8 @@ class ApplicationController < ActionController::Base
   session_options[:key] = "opensuse_webclient_session"
   session_options[:tagcloud] ||= "mytags"
 
-  before_filter :authorize, :set_return_to, :set_charset
+  before_filter :authorize, :set_return_to, :set_http_headers
+  after_filter :set_charset
 
 
   def min_votes_for_rating
@@ -26,8 +27,12 @@ class ApplicationController < ActionController::Base
     logger.debug "return_to: #{session[:return_to]}"
   end
 
+  def set_http_headers
+    Project.transport.set_additional_header( "User-Agent", "buildservice-webclient/0.1" )
+  end
+
   def set_charset
-    if @headers['Content-Type'] =~ "^text/html"
+    unless request.xhr?
       @headers['Content-Type'] = "text/html; charset=utf-8"
     end
   end
