@@ -57,60 +57,56 @@ class StatisticsControllerTest < Test::Unit::TestCase
   end
 
 
-  def test_download_counter_concatenated
+  def test_download_counter_group_by
     prepare_request_with_user @request, 'tom', 'thunder'
     # without project- & package-filter
-    get :download_counter, { 'concat' => 'project' }
+    get :download_counter, { 'group_by' => 'project' }
     assert_response :success
     assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
-    assert_tag :tag => 'download_counter', :attributes => { :sum => 9302 }
+    assert_tag :tag => 'download_counter', :attributes => { :all => 9302 }
     assert_tag :tag => 'count', :attributes => {
       :project => 'Apache', :files => '9'
     }, :content => '8806'
     # with project- & package-filter
     get :download_counter, {
-      'project' => 'Apache', 'package' => 'apache2', 'concat' => 'architecture'
+      'project' => 'Apache', 'package' => 'apache2', 'group_by' => 'arch'
     }
     assert_response :success
     assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
-    assert_tag :tag => 'download_counter', :attributes => { :sum => 8791 }
+    assert_tag :tag => 'download_counter',
+      :attributes => { :all => 9302 }
     assert_tag :tag => 'count', :attributes => {
-      :architecture => 'x86_64', :files => '2'
-    }, :content => '5207'
+      :arch => 'x86_64', :files => '6'
+    }, :content => '5537'
   end
 
 
-  # TODO: implement test
-  def test_latest_built
-    #prepare_request_with_user @request, 'tom', 'thunder'
-    #get :latest_built
-    #assert_response :success
-    #assert_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
-    #assert_tag :tag => 'package', :attributes => {
-    #  :name => "kdelibs",
-    #  :xxx => "xxx",
-    #}
-  end
-
-
-  # TODO: implement test
   def test_most_active
-    #prepare_request_with_user @request, 'tom', 'thunder'
-    #get :most_active
-    #assert_response :success
-    #assert_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
-    #assert_tag :tag => 'package', :attributes => {
-    #  :name => "kdelibs",
-    #  :xxx => "xxx",
-    #}
+    prepare_request_with_user @request, 'tom', 'thunder'
+    # get most active packages
+    get :most_active, { :type => 'packages' }
+    assert_response :success
+    assert_tag :tag => 'most_active', :child => { :tag => 'package' }
+    assert_tag :tag => 'package', :attributes => {
+      :name => "x11vnc",
+      :project => "home:dmayr",
+      :update_count => 0
+    }
+    # get most active projects
+    get :most_active, { :type => 'projects' }
+    assert_response :success
+    assert_tag :tag => 'most_active', :child => { :tag => 'project' }
+    assert_tag :tag => 'project', :attributes => {
+      :name => "home:dmayr",
+      :packages => 1
+    }
   end
 
 
-  # TODO: implement test
   def test_highest_rated
-    #prepare_request_with_user @request, 'tom', 'thunder'
-    #get :highest_rated
-    #assert_response :success
+    prepare_request_with_user @request, 'tom', 'thunder'
+    get :highest_rated
+    assert_response :success
     #assert_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
     #assert_tag :tag => 'package', :attributes => {
     #  :name => "kdelibs",
