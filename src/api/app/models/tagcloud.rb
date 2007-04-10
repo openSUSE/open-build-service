@@ -1,6 +1,10 @@
 
 class Tagcloud
   
+  attr_reader :tags
+  attr_reader :max
+  attr_reader :min
+  
   # :scope => "global" | "user" | by_given_objects, :user => user 
   def initialize(opt)
     ActiveRecord::Base.logger.debug "[TAG:] building a new tag cloud."
@@ -75,15 +79,17 @@ class Tagcloud
     
     case distribution_method
     when "linear"
-      thresholds = thresholds_linear_distribution(steps,@max,@min,delta)
-      @tags.each do |tag|
-        tagcloud[tag.name] = linear_distribution_method(steps,thresholds,tag)
-      end
+      #thresholds = thresholds_linear_distribution(steps,@max,@min,delta)
+      #@tags.each do |tag|
+      #  tagcloud[tag.name] = linear_distribution_method(steps,thresholds,tag)
+      #end
+      tagcloud = new_linear_distribution_method(steps)
     when "logarithmic"
-      thresholds = thresholds_logarithmic_distribution(steps,@max,@min,delta)
-      @tags.each do |tag|
-        tagcloud[tag.name] = logarithmic_distribution_method(steps,thresholds,tag)
-      end
+     # thresholds = thresholds_logarithmic_distribution(steps,@max,@min,delta)
+     # @tags.each do |tag|
+     #   tagcloud[tag.name] = logarithmic_distribution_method(steps,thresholds,tag)
+     tagcloud = new_logarithmic_distribution_method(steps)
+     # end
     when "raw"
       @tags.each do |tag|
         tagcloud[tag.name] = tag.count
@@ -110,6 +116,37 @@ class Tagcloud
   end
   
   
+  #new logarithmic distribution method
+  def new_logarithmic_distribution_method(steps)
+    minlog = Math.log(@min)
+    maxlog = Math.log(@max)
+    logrange = maxlog - minlog
+    logrange = 1 if maxlog == minlog
+    tagcloud = Hash.new
+    @tags.each do |tag|
+      ratio = (Math.log(tag.count) - minlog) / logrange
+      fsize = (0 + steps) * ratio
+      tagcloud[tag.name] = fsize.round
+    end
+    return tagcloud
+  end   
+  
+  
+  #new linear distribution method
+  def new_linear_distribution_method(steps)
+    range = @max.to_f - @min.to_f
+    range = 1 if @max == @min 
+    tagcloud = Hash.new
+    @tags.each do |tag|
+      ratio = (tag.count - @min.to_f) / range;
+      fsize = (0 + steps) * ratio
+      tagcloud[tag.name] = fsize.round
+    end
+    return tagcloud
+  end    
+  
+  
+  #TODO: delete this function
   def logarithmic_distribution_method(steps,thresholds,tag)
     size = 0
     for i in 1..steps
@@ -122,9 +159,10 @@ class Tagcloud
   end
   
   
+  #TODO: delete this function
   def thresholds_linear_distribution(steps,max,min,delta)
     thresholds = []
-    for i in 1..steps
+    for i in 0..steps-1
       size = i
       thresholds << min + size * delta
     end
@@ -132,6 +170,7 @@ class Tagcloud
   end
   
   
+  #TODO: delete this function
   def thresholds_logarithmic_distribution(steps,max,min,delta)
     thresholds = []
     for i in 1..steps

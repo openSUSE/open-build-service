@@ -197,7 +197,7 @@ class TagController < ApplicationController
       raise ArgumentError.new( "Invalid value for parameter steps.
                      (must be 1..100)" ) if @steps < 1 or @steps > 100
       
-      @distribution_method = (params[:distribution] ||= "linear")
+      @distribution_method = (params[:distribution] ||= "logarithmic")
       raise ArgumentError.new( "Invalid value for parameter distribution. 
    	    (distribution=#{@distribution_method})" ) if not allowed_distribution_methods.include? @distribution_method
       
