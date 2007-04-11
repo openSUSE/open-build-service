@@ -105,7 +105,7 @@ class DbPackage < ActiveRecord::Base
               :db_package => self
             )
           rescue ActiveRecord::StatementInvalid => err
-            if err =~ /^#23000Duplicate entry /
+            if err =~ /^Mysql::Error: Duplicate entry/
               logger.debug "user '#{person.userid}' already has the role '#{person.role}' in package '#{self.name}'"
             else
               raise err
@@ -159,10 +159,18 @@ class DbPackage < ActiveRecord::Base
               next
             end
           end
-          self.disabled_repos.create(
+          begin
+            self.disabled_repos.create(
               :repository => (repo ? db_repo : nil),
               :architecture => (arch ? Architecture.archcache[arch] : nil)
-          )
+            )
+          rescue ActiveRecord::StatementInvalid => err
+            if err =~ /^Mysql::Error: Duplicate entry/
+              raise RuntimeError, "duplicate disable element"
+            else
+              raise err
+            end
+          end
         end
       end
 
