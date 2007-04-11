@@ -494,6 +494,7 @@ GET /user/<user>/tags/_tagcloud
 Parameters: 
 			distribution=linear | logarithmic | raw
 			steps=[1..100]
+			limit=[0..] (default = 100, 0 = no limit)
 
   Get a tag cloud from the tags used by the user.
  
@@ -504,6 +505,7 @@ GET /tag/_tagcloud
 Parameters: 
 			distribution=linear | logarithmic | raw
 			steps=[1..100]
+			limit=[0..] (default = 100, 0 = no limit)
 			
   Get a tag cloud including all tags.
 	

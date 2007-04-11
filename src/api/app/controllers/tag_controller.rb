@@ -191,6 +191,7 @@ class TagController < ApplicationController
   
   def tagcloud 
     allowed_distribution_methods = ['raw', 'linear' , 'logarithmic']
+    @limit = (params[:limit].to_i ||= 100)
     
     begin 
       @steps = (params[:steps] ||= 6).to_i
@@ -205,9 +206,9 @@ class TagController < ApplicationController
         
         
         if params[:user]
-          tagcloud = Tagcloud.new(:scope => "user", :user => @http_user)
+          tagcloud = Tagcloud.new(:scope => "user", :user => @http_user, :limit => @limit)
         else
-          tagcloud = Tagcloud.new(:scope => "global")
+          tagcloud = Tagcloud.new(:scope => "global", :limit => @limit)
         end
         
         #get the list of tags

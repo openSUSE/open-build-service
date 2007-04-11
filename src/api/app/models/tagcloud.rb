@@ -4,11 +4,16 @@ class Tagcloud
   attr_reader :tags
   attr_reader :max
   attr_reader :min
+  attr_reader :limit
   
   # :scope => "global" | "user" | by_given_objects, :user => user 
   def initialize(opt)
     ActiveRecord::Base.logger.debug "[TAG:] building a new tag cloud."
- 
+     
+    @limit = opt[:limit] if opt[:limit] >= 0
+    @limit ||= 100
+    
+    
     if opt[:scope] == "by_given_objects"
       ActiveRecord::Base.logger.debug "[TAG:] ...by given objects." 
       objects = opt[:objects]
@@ -36,8 +41,30 @@ class Tagcloud
       #initialize the tag count and remove unused tags from the list 
       @tags.delete_if {|tag| tag.count(:scope => "global") == 0 }   
     end
+    limit_tags
     @max, @min = max_min(@tags)
   end
+  
+  
+  def limit_tags
+    if @limit == 0
+      return
+    elsif @tags.size > @limit
+      sort_tags(:scope => "count")
+      @tags = @tags[0..@limit-1]
+    end
+  end
+  
+  
+  def sort_tags( opt={} )
+    if opt[:scope] == "count"
+      sorted = @tags.sort { |a,b| b.count<=>a.count }
+      @tags = sorted
+    else
+      sorted = @tags.sort { |a,b| a.name<=>b.name }
+      @tags = sorted
+    end
+  end 
   
   
   def top50
