@@ -31,7 +31,7 @@ module PackageHelper
     elsif n < 900000
       return "#{n/2**10} kB"
     else
-      return (n/Float(2**20)).to_s.match(/^\d+\.\d{2}/)[0] + " MB"
+      return (n/Float(2**20)).to_s.match(/^\d+\.\d{0,2}/)[0] + " MB"
     end
   end
 
