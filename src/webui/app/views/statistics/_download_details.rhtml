@@ -148,11 +148,11 @@
     @downloads.first ) -%></b> ago.<br />
 
     Sum of all downloads (whole build service):
-    <b><%= beautify_number( @downloads.all.to_i ) -%></b><br />
+    <b><%= number_with_delimiter( @downloads.all.to_i, ' ' ) -%></b><br />
 
     <% if @project or @package or @arch or @repo %>
       Sum of all downloads filtered by <%= @title.sub(@title_prefix,'').chop %>:
-      <b><%= beautify_number( @downloads.sum.to_i ) -%></b><br />
+      <b><%= number_with_delimiter( @downloads.sum.to_i, ' ' ) -%></b><br />
     <% end %>
 
     Download statistics were updated

@@ -28,7 +28,7 @@
   <ol>
     <% @most_active_pac.each do |package| %>
       <li>
-        <% title = "activity = #{package.activity}%" %>
+        <% title = "activity = #{number_with_precision package.activity}%" %>
         <%= link_to_package_view( package.name, package.project, title, length ) -%>
     <% end %>
   </ol>
@@ -39,7 +39,7 @@
   <ol>
     <% @most_active_prj.each do |project| %>
       <li>
-        <% title = "activity = #{project.activity}%" %>
+        <% title = "activity = #{number_with_precision project.activity}%" %>
         <%= link_to_project_view( project.name, title, length ) -%>
     <% end %>
   </ol>

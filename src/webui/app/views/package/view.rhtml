@@ -104,7 +104,7 @@
         <% if @downloads.each_count.length > 0 %>
           This package contains <b><%= @downloads.each_count.length -%></b>
           files with download counters.<br/>
-          They were downloaded <b><%= beautify_number( @downloads.sum ) -%></b>
+          They were downloaded <b><%= number_with_delimiter( @downloads.sum, ' ' ) -%></b>
           times in the last
           <%= distance_of_time_in_words_to_now( @downloads.first ) %>.<br/>
           <%= link_to 'Detailed Download Statistics ...', :controller => 'statistics',
@@ -117,7 +117,8 @@
 
         <h5>Activity</h5>
         <p>
-          This package is <b><%= @activity -%> %</b> active.<br/>
+          This package is <b><%= number_with_precision @activity -%>%</b>
+          active.<br/>
         </p>
 
         <h5>Rating</h5>
