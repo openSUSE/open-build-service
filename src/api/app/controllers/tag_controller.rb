@@ -191,7 +191,8 @@ class TagController < ApplicationController
   
   def tagcloud 
     allowed_distribution_methods = ['raw', 'linear' , 'logarithmic']
-    @limit = (params[:limit].to_i ||= 100)
+    @limit = params[:limit] or @limit = 100
+    @limit = @limit.to_i
     
     begin 
       @steps = (params[:steps] ||= 6).to_i

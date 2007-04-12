@@ -10,9 +10,7 @@ class Tagcloud
   def initialize(opt)
     ActiveRecord::Base.logger.debug "[TAG:] building a new tag cloud."
      
-    @limit = opt[:limit] if opt[:limit] >= 0
-    @limit ||= 100
-    
+    @limit = opt[:limit] or @limit = 0
     
     if opt[:scope] == "by_given_objects"
       ActiveRecord::Base.logger.debug "[TAG:] ...by given objects." 
