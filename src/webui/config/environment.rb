@@ -82,7 +82,7 @@ ActiveXML::Base.config do |conf|
     map.connect :tag, "rest:///user/:user/tags/:project/:package",
         :tags_by_object => "rest:///source/:project/:package/_tags",
         :tagcloud_by_user => "rest:///user/:user/tags/_tagcloud",
-        :tagcloud  => "rest:///tag/tagcloud"
+        :tagcloud  => "rest:///tag/tagcloud?limit=:limit"
 
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"

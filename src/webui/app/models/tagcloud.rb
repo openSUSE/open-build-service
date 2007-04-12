@@ -5,7 +5,7 @@ class Tagcloud
   def initialize(opts = {:tagcloud => "mytags"})
     
     if  opts[:tagcloud] == "alltags"  or opts[:tagcloud] == "hierarchical_browsing"
-      @tagcloudXML = Tag.find(:tagcloud)
+      @tagcloudXML = Tag.find(:tagcloud, :limit => opts[:limit] )
     else
       @tagcloudXML = tagcloud_by_user(:user => opts[:user])
     end
