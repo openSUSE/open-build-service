@@ -22,17 +22,7 @@ module PackageHelper
   end
 
   def human_readable_fsize( bytes )
-    logger.debug "### #{bytes} bytes"
-    return "NaN" if (bytes.kind_of? String and bytes !~ /^[0-9]+$/)
-    n = bytes.to_i
-
-    if n < 10000
-      return "#{n} B"
-    elsif n < 900000
-      return "#{n/2**10} kB"
-    else
-      return (n/Float(2**20)).to_s.match(/^\d+\.\d{0,2}/)[0] + " MB"
-    end
+    number_to_human_size(bytes, 2)
   end
 
 end
