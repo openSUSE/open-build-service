@@ -15,7 +15,7 @@ class Tag < ActiveRecord::Base
   
   def count(opt={})
     if @cached_count 
-      logger.debug "[TAG:] tag usage count is already calculated. count: #{@cached_count}"
+      #logger.debug "[TAG:] tag usage count is already calculated. count: #{@cached_count}"
       return @cached_count
     end
     
@@ -35,7 +35,7 @@ class Tag < ActiveRecord::Base
       @cached_count ||= Tagging.count(:all,
                                       :conditions => ["tag_id = ?", self.id])
     end
-    logger.debug "[TAG:] count: #{@cached_count}" 
+    #logger.debug "[TAG:] count: #{@cached_count}" 
     @cached_count                                                                     
   end
   
