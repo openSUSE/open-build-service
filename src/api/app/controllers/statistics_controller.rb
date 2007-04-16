@@ -43,7 +43,13 @@ class StatisticsController < ApplicationController
       when 'repository'
         @@repo = @repo_hash[ [ attrs['name'], @@project ] ]
       when 'arch'
-        @@arch = @arch_hash[ attrs['name'] ]
+        unless @@arch = @arch_hash[ attrs['name'] ]
+          # create new architecture entry (db and hash)
+          arch = Architecture.new( :name => attrs['name'] )
+          arch.save
+          @arch_hash[ arch.name ] = arch.id
+          @@arch = @arch_hash[ arch.name ]
+        end
       when 'count'
         @@count = {
           :filename => attrs['filename'],
