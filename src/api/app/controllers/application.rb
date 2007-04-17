@@ -276,9 +276,10 @@ class ApplicationController < ActionController::Base
     render :template => 'status', :status => opt[:status], :layout => false
   end
   
-  def render_ok
+  def render_ok( details='' )
     @errorcode = "ok"
     @summary = "Ok"
+    @details = details
     render :template => 'status', :status => 200, :layout => false
   end
   

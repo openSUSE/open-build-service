@@ -21,7 +21,10 @@ class StatisticsController < ApplicationController
   class StreamHandler
     include StreamListener
 
+    attr_accessor :errors
+
     def initialize
+      @errors = []
       # build hashes for caching id-/name- combinations
       projects = DbProject.find :all, :select => 'id, name'
       packages = DbPackage.find :all, :select => 'id, name, db_project_id'
@@ -65,7 +68,11 @@ class StatisticsController < ApplicationController
     def text( text )
       text.strip!
       return if text == ''
-      return unless @@project and @@package and @@repo and @@arch and @@count
+      unless @@project and @@package and @@repo and @@arch and @@count
+        @errors << { :project => @@project, :package => @@package,
+          :repo => @@repo, :arch => @@arch, :count => @@count }
+        return
+      end
 
       # try to find existing entry in database
       ds = DownloadStat.find :first, :conditions => [
@@ -300,7 +307,22 @@ class StatisticsController < ApplicationController
       streamhandler = StreamHandler.new
       REXML::Document.parse_stream( data, streamhandler )
 
-      render_ok
+      if streamhandler.errors
+        msg = "WARNING: some redirect_stats were not imported:\n"
+        streamhandler.errors.each do |e|
+          msg += "#{e[:count][:filename]} : #{e[:count][:version]} : "
+          msg += "#{e[:count][:release]} : #{e[:count][:filetype]} \t"
+          msg += "project_id=#{e[:project] or '*UNKNOWN*'}  "
+          msg += "package_id=#{e[:package] or '*UNKNOWN*'}  "
+          msg += "repo_id=#{e[:repo] or '*UNKNOWN*'}  "
+          msg += "arch_id=#{e[:architecture] or '*UNKNOWN*'}\n"
+        end
+        logger.warn "\n\n#{msg}\n\n"
+        render_ok msg # render_ok with msg text in details
+      else
+        render_ok
+      end
+
     else
       render_error :status => 400, :errorcode => "only_put_method_allowed",
         :message => "only PUT method allowed for this action"
