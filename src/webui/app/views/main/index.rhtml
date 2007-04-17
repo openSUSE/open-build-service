@@ -1,3 +1,11 @@
+<% if @tagcloud %>
+    <div id="tagcloud_container" >
+        <div id="tagcloud">
+         <%= render :partial => "tag/tagcloud" %>
+        </div>
+    </div>
+<% end %>
+
 <% @pagetitle = "Welcome" %>
 
 <h1 class="mainhead">Welcome to the openSUSE Build Service</h1>
@@ -9,6 +17,7 @@ It can build packages for various Linux distributions.<br/>
 Most of the advanced features are still missing, but the basic build functionality is there.</p>
 
 <p class="description">Everyone can download the resulting software packages via the <a href="http://software.opensuse.org">software browsing interface</a>.</p>
+
 
 <!--
 <div id="statistics">

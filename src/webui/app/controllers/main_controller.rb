@@ -6,6 +6,7 @@ class MainController < ApplicationController
 
   def index
     #
+    @tagcloud ||= Tagcloud.new(:user => @session[:login], :tagcloud => 'alltags', :limit => "60") if session[:login]
   end
 
 
