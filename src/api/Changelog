@@ -481,3 +481,45 @@ Thu Mar 22 11:10:22 +0100 2007 - bauersman
 - include date of latest counted download_stats entry in frontend output
 
 
+------------------------------------------------------------------------
+Thu Apr 19 16:35:33 +0200 2007 - abauer
+
+- update from svn revision 1515 to 1590
+- initialize @stats, so frontend does no crash if no stats are found
+- simplified /statistics/download_counter route config
+- fixed activity request for single packages/projects (damaged by last cleanup)
+- 
+  frontend part for project/package messages
+  
+  
+- let the frontend return the count of selected downloads additionally
+  to the count of all downloads
+- updated download_counter xml schema and example
+- shortened info text on statistics#index
+  
+- 
+  updated tests for statistics_controller
+  (download_counter, most_active, highest_rated)
+  
+- simplified the tagcloud calculation methods
+- the logarithmic method is now the default
+- the number of tags shown in the tag-cloud is now limited by default to 100 tags
+- don't use NULL values in disabled_repos table (fixes bug #253261)
+- removed annoying debug messages
+- default limit is no longer ignored  ( nil.to_i = 0 ;) thx2dmayr! )
+- insert (pseudo) architectures 'src' and 'noarch' (via migration),
+  primary needed for download statistics
+  
+- add column 'selectable' to architectures table to flag those which
+  will be selectable in the webclient (in the future) while selecting
+  build repository
+  
+- statistics_controller creates new architecture entries automatically
+  when getting an unknown architecture identifier in the redirect stats
+  xml input
+  
+- return list of not imported redirect_stats in http_result of
+  statistics_controller
+- restrict admin pages to users with admin permission
+
+
