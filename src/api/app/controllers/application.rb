@@ -24,11 +24,26 @@ class ApplicationController < ActionController::Base
   
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
-  before_filter :setup_backend, :add_api_version
+  before_filter :setup_backend, :add_api_version, :restrict_admin_pages
 
   #contains current authentification method, one of (:ichain, :basic_auth)
   attr_accessor :auth_method
 
+  def restrict_admin_pages
+    if params[:controller] =~ /^active_rbac/ or params[:controller] =~ /^admin/
+      return require_admin
+    end
+  end
+
+  def require_admin
+    logger.debug "Checking for  Admin role for user #{@http_user.login}"
+    unless @http_user.has_role? 'Admin'
+      logger.debug "not granted!"
+      render :template => 'permerror'
+      return false
+    end
+    return true
+  end
 
   def extract_user
     @http_user = nil;
@@ -283,14 +298,6 @@ class ApplicationController < ActionController::Base
     render :template => 'status', :status => 200, :layout => false
   end
   
-  def require_admin
-    logger.debug "Checking for  Admin role for user #{@http_user.login}"
-    unless @http_user.has_role( 'Admin' )
-      logger.debug "not granted!"
-      render :template => 'permerror'
-    end
-  end
-
   def backend
     @backend ||= ActiveXML::Config.transport_for :packstatus
   end
