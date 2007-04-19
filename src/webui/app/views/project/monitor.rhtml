@@ -44,8 +44,8 @@
     <% archlist.each do |arch| -%>
       <% status = status_for(repo, arch, packname)  -%>
        <td id="<%= status_id_for(repo, arch, packname) -%>"
-        class="status_<%= status.code.gsub(' ','_') -%>">
-      <% if status.code == 'failed' or status.code == 'expansion error' -%>
+        class="status_<%= status.code.gsub(' ','_') -%>"><nobr>
+      <% if status.code == 'failed' -%>
         <%= link_to_remote image_tag( 'rebuild-light', :border => 0,
           :title => "rebuild package #{packname} for #{repo}/#{arch}" ),
           :url => { :controller => 'package', :action => 'trigger_rebuild',
@@ -53,15 +53,15 @@
           :repo => repo, :arch => arch, :redirect => 'monitor' } -%>
       <% end -%>
       <% if status.has_element? :details %>
-        <%= link_to status.code, {:action => :live_build_log,
+        <%= link_to status.code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
           :package => packname, :project => @project.to_s, :arch => arch,
           :controller => "package", :repository => repo}, {:title => status.details.to_s} %>
       <% else -%>
-        <%= link_to status.code, :action => :live_build_log,
+        <%= link_to status.code.gsub(/\s/, "&nbsp;"), :action => :live_build_log,
           :package => packname, :project => @project.to_s, :arch => arch,
           :controller => "package", :repository => repo %>
       <% end -%>
-    </td>
+    </nobr></td>
     <% end -%>
     <% end -%>
     <td>
