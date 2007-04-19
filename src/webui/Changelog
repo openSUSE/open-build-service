@@ -659,3 +659,49 @@ Thu Mar 22 11:10:25 +0100 2007 - bauersman
 - corrected mistakes from previous checkin
 
 
+------------------------------------------------------------------------
+Thu Apr 19 16:35:44 +0200 2007 - abauer
+
+- update from svn revision 1516 to 1591
+- only change charset on html responses
+- fixed broken links to download statistics
+  
+- moved package column in download_details table
+- display small help/info text for each of the different statistics
+  
+  
+- new activexml config for download_counters to be able to combine
+  params for detailed filtering
+- detailed download statistics can now be filtered by project, package,
+  architecture and repository and all possible combinations of those
+  
+- 
+  updated readonly package- and project-views:
+  display activity and rating in statistics table of current package/project
+  
+  
+- display big numbers more readable in statistics#download_details
+- show download counter sum for selected package/project/arch/repo correctly
+  
+- 
+  also display better readable download counters in project/package views
+  
+- add useragent header to requests from webclient
+- fix charset check
+- moved data fetching to controller
+- fixed minor bug #259980: "more" statistics unnecessarily truncate names
+- fixed regexp
+- 
+  added ability to set tagcloud limit in webclient
+  
+- use rails builtin for package size display (darix)
+  
+- replaced selfmade method 'beautify_number' with existing rails number
+  helper 'number_with_delimiter'
+  
+- made use of number_with_precision helper
+  
+- added a top 60 tag-cloud to the build service start page (visible to authenticated user only)
+- don't break fields in status monitor
+
+
