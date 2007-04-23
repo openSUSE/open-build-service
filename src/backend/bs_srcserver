@@ -665,7 +665,14 @@ sub getprojpack {
     my @packages = findpackages($projid);
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
-    $jinfo->{'title'} = $proj->{'title'} if exists $proj->{'title'};
+    for (qw{title build publish debuginfo useforbuild}) {
+      $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
+    }
+    my $pdisabled;
+    if ($jinfo->{'build'} && !$cgi->{'ignoredisable'}) {
+      $pdisabled = 1 if grep {!exists($_->{'repository'}) && (!exists($_->{'arch'}) || $_->{'arch'} eq $arch)} @{$jinfo->{'build'}->{'disable'} || []};
+      undef $pdisabled if $pdisabled && grep {!exists($_->{'repository'}) && (!exists($_->{'arch'}) || $_->{'arch'} eq $arch)} @{$jinfo->{'build'}->{'enable'} || []};
+    }
     if ($cgi->{'withrepos'}) {
       if ($repoids) {
 	$jinfo->{'repository'} = [ grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []} ];
@@ -698,24 +705,31 @@ sub getprojpack {
 	$pinfo->{'error'} = 'no metadata';
 	next;
       }
+      for (qw{build publish debuginfo useforbuild}) {
+	$pinfo->{$_} = $pack->{$_} if $pack->{$_};
+      }
+      if (!$pinfo->{'build'}) {
+        $pinfo->{'build'}->{'enable'} = $pack->{'enable'} if $pack->{'enable'};
+        $pinfo->{'build'}->{'disable'} = $pack->{'disable'} if $pack->{'disable'};
+      }
       my $disable = {};
       my $enable = {};
       undef($enable) if $cgi->{'ignoredisable'};
-      if ($pack->{'enable'}) {
+      if ($enable && $pinfo->{'build'} && $pinfo->{'build'}->{'enable'}) {
 	for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pack->{'enable'}}) {
 	  undef($enable), last unless exists $_->{'repository'};
 	  $enable->{$_->{'repository'}} = 1;
         }
       }
       if ($enable) {
-	if ($pack->{'disable'}) {
+	if ($pinfo->{'build'} && $pinfo->{'build'}->{'disable'}) {
 	  for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pack->{'disable'}}) {
 	    undef($disable), last unless exists $_->{'repository'};
 	    $disable->{$_->{'repository'}} = 1;
 	  }
 	}
       }
-      if (!$disable && $enable && !%$enable) {
+      if ((!$disable || $pdisabled) && $enable && !%$enable) {
 	$pinfo->{'error'} = 'disabled';
 	next;
       }
@@ -767,9 +781,11 @@ sub getprojpack {
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
+	      push @dinfo, {'repository' => ":$type", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+	      $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
+	    } else {
+	      push @dinfo, {'repository' => ":$type", 'file' => $file, 'error' => "$type file parse error"};
 	    }
-	    push @dinfo, {'repository' => ":$type", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
-	    $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
           }
           $pinfo->{'versrel'} ||= "unknown-$rev->{'vrev'}";
 	  if ($needrepos || $repoids || ($enable && %$enable) || ($disable && %$disable)) {

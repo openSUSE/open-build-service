@@ -35,6 +35,24 @@ our $repo = [
 	'status',
 ];
 
+our @disableenable = (
+     [[	'disable' =>
+	'arch',
+	'repository',
+     ]],
+     [[	'enable' =>
+	'arch',
+	'repository',
+     ]],
+);
+
+our @flags = (
+      [ 'build' => @disableenable ],
+      [ 'publish' => @disableenable ],
+      [ 'debuginfo' => @disableenable ],
+      [ 'useforbuild' => @disableenable ],
+);
+
 our $proj = [
     'project' =>
         'name',
@@ -45,6 +63,7 @@ our $proj = [
             'role',
             'userid',
      ]],
+	@flags,
       [ $repo ],
 ];
 
@@ -59,14 +78,8 @@ our $pack = [
             'role',
             'userid',
      ]],
-     [[	'disable' =>
-	'arch',
-	'repository',
-     ]],
-     [[	'enable' =>
-	'arch',
-	'repository',
-     ]],
+	@disableenable,
+	@flags,
 	'url',
 	'group',
 ];
@@ -106,6 +119,7 @@ our $projpack = [
 	     [],
 	    'title',
 	    'config',
+	    @flags,
 	  [ $repo ],
 	 [[ 'package' =>
 		'name',
@@ -117,6 +131,7 @@ our $projpack = [
 		'error',
 		[ $packinfo ],
 		$aggregatelist,
+		@flags,
 	 ]],
      ]],
 ];

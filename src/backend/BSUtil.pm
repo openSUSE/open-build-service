@@ -39,6 +39,7 @@ sub writexml {
   (syswrite(F, $d) || 0) == length($d) || die("$fn write: $!\n");
   close(F) || die("$fn close: $!\n");
   return unless defined $fnf;
+  $! = 0;
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
 }
 

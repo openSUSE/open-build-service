@@ -121,6 +121,13 @@ sub verify_resultview {
   die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist';
 }
 
+sub verify_disableenable {
+  my ($disen) = @_;
+  for my $d (@{$disen->{'disable'} || []}, @{$disen->{'enable'} || []}) {
+    verify_repoid($d->{'reposiory'}) if exists $d->{'reposiory'};
+    verify_arch($d->{'arch'}) if exists $d->{'arch'};
+  }
+}
 
 sub verify_proj {
   my ($proj, $projid) = @_;
@@ -147,12 +154,20 @@ sub verify_proj {
       verify_arch($a);
     }
   }
+  for my $f ('build', 'publish', 'debuginfo', 'useforbuild') {
+    verify_disableenable($proj->{$f}) if $proj->{$f};
+  }
 }
 
 sub verify_pack {
   my ($pack, $packid) = @_;
   if (defined($packid)) {
     die("name does not match data\n") unless $packid eq $pack->{'name'};
+  }
+  die("publish can only be enabled/disabled in the project\n") if $pack->{'publish'};
+  verify_disableenable($pack);	# obsolete
+  for my $f ('build', 'debuginfo', 'useforbuild') {
+    verify_disableenable($pack->{$f}) if $pack->{$f};
   }
 }
 

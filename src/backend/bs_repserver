@@ -473,10 +473,10 @@ sub assignjob {
   $status->{'job'} = $job;
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
   unlink("$jobsdir/$arch/$job:dir/status.xml");
-  link("$statusdir/status", "$jobsdir/$arch/$job:dir/status.xml") || die("link $statusdir/status $jobsdir/$arch/$job:dir/status.xml: $!\n");
+  link("$statusdir/status", "$jobsdir/$arch/$job:dir/status.xml") || warn("link $statusdir/status $jobsdir/$arch/$job:dir/status.xml: $!\n");
   mkdir_p("$workersdir/building");
   unlink("$workersdir/building/$idlename");
-  link("$statusdir/status", "$workersdir/building/$idlename") || die("link $statusdir/status $workersdir/building/$idlename: $!\n");
+  link("$statusdir/status", "$workersdir/building/$idlename") || warn("link $statusdir/status $workersdir/building/$idlename: $!\n");
   return 1;
 }
 
