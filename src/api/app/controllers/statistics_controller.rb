@@ -1,7 +1,6 @@
 
 require 'rexml/document'
 require "rexml/streamlistener"
-include REXML
 
 class StatisticsController < ApplicationController
 
@@ -19,7 +18,7 @@ class StatisticsController < ApplicationController
 
   # StreamHandler for parsing incoming download_stats / redirect_stats (xml)
   class StreamHandler
-    include StreamListener
+    include REXML::StreamListener
 
     attr_accessor :errors
 
