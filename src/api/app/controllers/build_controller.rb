@@ -9,7 +9,7 @@ class BuildController < ApplicationController
       forward_data @path
     elsif request.post?
       allowed = false
-      allowed = true if permissions.global_project_create
+      allowed = true if permissions.global_project_change
 
       if not allowed
         #check if user has project modify rights
