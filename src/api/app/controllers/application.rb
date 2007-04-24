@@ -21,7 +21,9 @@ class ApplicationController < ActionController::Base
   session_options[:column] ||= "id"
   
   helper RbacHelper
-  
+ 
+  before_filter :validate_incoming_xml 
+
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages

@@ -22,8 +22,6 @@ require 'tempfile'
 module ActionController
   class Base
 
-    before_filter :validate_incoming_xml
-
     class << self
       # Tells validator to validate incoming XML (contained in the request body) agains the
       # specified schema. Takes a hash of <action> => <schema> pairs where both values are symbolified
