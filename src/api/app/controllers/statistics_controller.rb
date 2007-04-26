@@ -39,18 +39,22 @@ class StatisticsController < ApplicationController
     def tag_start name, attrs
       case name
       when 'project'
-        @@project = @project_hash[ attrs['name'] ]
+        @@project_name = attrs['name']
+        @@project_id = @project_hash[ attrs['name'] ]
       when 'package'
-        @@package = @package_hash[ [ attrs['name'], @@project ] ]
+        @@package_name = attrs['name']
+        @@package_id = @package_hash[ [ attrs['name'], @@project_id ] ]
       when 'repository'
-        @@repo = @repo_hash[ [ attrs['name'], @@project ] ]
+        @@repo_name = attrs['name']
+        @@repo_id = @repo_hash[ [ attrs['name'], @@project_id ] ]
       when 'arch'
-        unless @@arch = @arch_hash[ attrs['name'] ]
+        @@arch_name = attrs['name']
+        unless @@arch_id = @arch_hash[ attrs['name'] ]
           # create new architecture entry (db and hash)
           arch = Architecture.new( :name => attrs['name'] )
           arch.save
           @arch_hash[ arch.name ] = arch.id
-          @@arch = @arch_hash[ arch.name ]
+          @@arch_id = @arch_hash[ arch.name ]
         end
       when 'count'
         @@count = {
@@ -67,9 +71,13 @@ class StatisticsController < ApplicationController
     def text( text )
       text.strip!
       return if text == ''
-      unless @@project and @@package and @@repo and @@arch and @@count
-        @errors << { :project => @@project, :package => @@package,
-          :repo => @@repo, :arch => @@arch, :count => @@count }
+      unless @@project_id and @@package_id and @@repo_id and @@arch_id and @@count
+        @errors << {
+          :project_id => @@project_id, :project_name => @@project_name,
+          :package_id => @@package_id, :package_name => @@package_name,
+          :repo_id => @@repo_id, :repo_name => @@repo_name,
+          :arch_id => @@arch_id, :arch_name => @@arch_name, :count => @@count
+        }
         return
       end
 
@@ -78,7 +86,7 @@ class StatisticsController < ApplicationController
         'db_project_id=? AND db_package_id=? AND repository_id=? AND ' +
         'architecture_id=? AND filename=? AND filetype=? AND ' +
         'version=? AND download_stats.release=?',
-        @@project, @@package, @@repo, @@arch,
+        @@project_id, @@package_id, @@repo_id, @@arch_id,
         @@count[:filename], @@count[:filetype],
         @@count[:version], @@count[:release]
       ]
@@ -98,7 +106,7 @@ class StatisticsController < ApplicationController
           `filename`, `filetype`, `version`, `release`,\
           `counted_at`, `created_at`, `count`\
         ) VALUES(\
-          '#{@@project}', '#{@@package}', '#{@@repo}', '#{@@arch}',\
+          '#{@@project_id}', '#{@@package_id}', '#{@@repo_id}', '#{@@arch_id}',\
           '#{@@count[:filename]}',   '#{@@count[:filetype]}',\
           '#{@@count[:version]}',    '#{@@count[:release]}',\
           '#{@@count[:counted_at]}', '#{@@count[:created_at]}',\
@@ -309,12 +317,12 @@ class StatisticsController < ApplicationController
       if streamhandler.errors
         msg = "WARNING: some redirect_stats were not imported:\n"
         streamhandler.errors.each do |e|
-          msg += "#{e[:count][:filename]} : #{e[:count][:version]} : "
-          msg += "#{e[:count][:release]} : #{e[:count][:filetype]} \t"
-          msg += "project_id=#{e[:project] or '*UNKNOWN*'}  "
-          msg += "package_id=#{e[:package] or '*UNKNOWN*'}  "
-          msg += "repo_id=#{e[:repo] or '*UNKNOWN*'}  "
-          msg += "arch_id=#{e[:architecture] or '*UNKNOWN*'}\n"
+          msg += "project: #{e[:project_name]}=#{e[:project_id] or '*UNKNOWN*'}  "
+          msg += "package: #{e[:package_name]}=#{e[:package_id] or '*UNKNOWN*'}  "
+          msg += "repo: #{e[:repo_name]}=#{e[:repo_id] or '*UNKNOWN*'}  "
+          msg += "arch: #{e[:arch_name]}=#{e[:arch_id] or '*UNKNOWN*'}\t"
+          msg += "(#{e[:count][:filename]}:#{e[:count][:version]}:"
+          msg += "#{e[:count][:release]}:#{e[:count][:filetype]})\n"
         end
         logger.warn "\n\n#{msg}\n\n"
         render_ok msg # render_ok with msg text in details
