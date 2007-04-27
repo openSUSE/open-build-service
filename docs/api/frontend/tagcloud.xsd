@@ -3,8 +3,7 @@
 
 	<xs:annotation>
     	<xs:documentation>
-      		This schema describes a format for describing the list of tags
-      		(and the tags) that belongs to a project in the openSUSE build
+      		This schema describes a format for describing a tag-cloud in the openSUSE build
       		service.
     	</xs:documentation>
  	</xs:annotation>
