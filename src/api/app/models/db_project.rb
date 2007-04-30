@@ -106,29 +106,6 @@ class DbProject < ActiveRecord::Base
       end
       #--- end update users ---#
       
-      #--- update packages ---#
-      #--- end update packages ---#
-      
-      #--- update tags ---#
-      tagcache = Hash.new
-      self.tags.each do |tag|
-        tagcache[tag.name] = tag
-      end
-
-      project.each_tag do |tag|
-        if not tagcache.has_key? tag.to_s
-          logger.debug "adding tag '#{tag.to_s}'"
-          self.tags << Tag.find_or_create_by_name( tag.to_s )
-          tagcache.delete tag.to_s
-        end
-      end
-
-      tagcache.each do |name, object|
-        logger.debug "deleting reference to tag '#{name}'"
-        object.destroy
-      end
-      #--- end update tags ---#
-      
       #--- update repositories ---#
       repocache = Hash.new
       self.repositories.each do |repo|
