@@ -616,6 +616,7 @@ div#package_disablebuild ul {
 #statistics {
   border: 1px #6eb927 dotted;
   padding: 0.25em;
+  min-width: 74.5em;
 }
 #statistics span {
   float: left;
