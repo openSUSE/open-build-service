@@ -280,7 +280,7 @@ class StatisticsController < ApplicationController
       filter += " AND arch.id=#{arch.id}" if arch
 
       # get download_stats entries
-      stats = DownloadStat.find :all,
+      @stats = DownloadStat.find :all,
         :from => 'download_stats ds, db_projects pro, db_packages pac, ' +
           'architectures arch, repositories repo',
         :select => 'ds.*, pro.name as pro_name, pac.name as pac_name, ' +
@@ -288,11 +288,15 @@ class StatisticsController < ApplicationController
         :conditions => 'ds.db_project_id=pro.id AND ds.db_package_id=pac.id' +
           ' AND ds.architecture_id=arch.id AND ds.repository_id=repo.id' +
           filter,
-        :order => 'ds.count DESC'
+        :order => 'ds.count DESC',
+        :limit => @limit
 
-      @sum = 0
-      stats.each { |stat| @sum += stat.count }
-      @stats = stats[0...@limit]
+      # get sum of counts
+      @sum = DownloadStat.find( :first,
+        :from => 'download_stats',
+        :select => 'count(count) as overall_counter',
+        :conditions => '1=1' + filter
+      ).overall_counter
     end
   end
 
