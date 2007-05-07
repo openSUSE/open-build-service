@@ -912,7 +912,7 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
   $Build::expand_dbg = 1 if $cgi->{'debug'};
-  my @bdeps = Build::get_build($bconf, \@subpacks, @deps);
+  my @bdeps = Build::get_build($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @bdeps) {
     $ret->{'error'} = "expansion error: ".join(', ', @bdeps);
@@ -933,6 +933,7 @@ sub getbuildinfo {
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @edeps;
   @bdeps = grep {!$pdeps{$_} && !$vmdeps{$_}} @bdeps;
+  @vmdeps = grep {!$pdeps{$_}} @vmdeps;
   unshift @bdeps, @pdeps, @vmdeps;
 
   my @bdepsp = ();
@@ -1180,8 +1181,8 @@ my $dispatches = [
 
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/$package:package_repository' => \&getbinarylist,
-  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo internal:bool?' => \&getbuildinfo_post,
-  '/build/$project/$repository/$arch/$package/_buildinfo internal:bool? debug:bool?' => \&getbuildinfo,
+  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool?' => \&getbuildinfo_post,
+  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history' => \&gethistory,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num? handoff:bool?' => \&getlogfile,

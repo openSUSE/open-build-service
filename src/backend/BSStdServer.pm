@@ -65,10 +65,10 @@ sub errreply {
 sub dispatch {
   my ($conf, $req) = @_;
   if ($isajax) {
-    print "AJAX: $req->{'path'}?$req->{'query'}\n";
+    print "$req->{'action'} $req->{'path'}?$req->{'query'} (AJAX)\n";
     BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
   } else {
-    print "$req->{'path'}?$req->{'query'}\n";
+    print "$req->{'action'} $req->{'path'}?$req->{'query'}\n";
   }
   BSServer::dispatch($conf, $req);
 }

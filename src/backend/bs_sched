@@ -471,6 +471,7 @@ sub set_building {
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @$edeps;
   @bdeps = grep {!$pdeps{$_} && !$vmdeps{$_}} @bdeps;
+  @vmdeps = grep {!$pdeps{$_}} @vmdeps;
   unshift @bdeps, @pdeps, @vmdeps;
   for (@bdeps) {
     $_ = {'name' => $_};
@@ -1260,7 +1261,7 @@ while(1) {
       # delete full entries
       $repodata{$prp} ||= {};
       my $repodata = $repodata{$prp};
-      update_dst_full($repodata, $prp, "$gdst/$packid" , {});
+      update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1);
       # delete other files
       unlink("$gdst/:logfiles.success/$packid");
       unlink("$gdst/:logfiles.fail/$packid");
@@ -1333,13 +1334,23 @@ while(1) {
     my %packstatus = ();
     my %packerror = ();
     my @cpacks = @packs;
+    my %cycpass;
     while (@cpacks) {
       my $packid = shift @cpacks;
-      my $sourcechangeonly = 0;
-      if ($cychash{$packid} && @{$cychash{$packid}}) {
-	unshift @cpacks, $packid;
-        $packid = shift @{$cychash{$packid}};
-        $sourcechangeonly = 1;
+      my $incycle = 0;
+      if ($cychash{$packid}) {
+	my @cnext = grep {!$cycpass{$_}} @{$cychash{$packid}};
+	if (@cnext) {
+	  unshift @cpacks, $packid;
+	  $packid = shift @cnext;
+	  $cycpass{$packid} = 1;
+          $incycle = 1;
+	  if (@cnext == 1) {
+	    if (grep {$building{$_}} @{$cychash{$packid}}) {
+	      $cycpass{$_} = 2 for @{$cychash{$packid}};
+	    }
+	  }
+	}
       }
       my $pdata = $packs->{$packid};
       if ($pdata->{'error'}) {
@@ -1444,7 +1455,7 @@ while(1) {
 	    for my $apackid (@apackids) {
 	      my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	      my @d = grep {/\.(?:rpm|deb)$/} ls($d);
-	      my $m;
+	      my $m = '';
 	      for my $b (sort @d) {
 	        my @s = stat("$d/$b");
 	        next unless @s;
@@ -1575,6 +1586,18 @@ while(1) {
 	$pdeps{$packid} = \@edeps;
       }
       my @blocked = grep {$notready{$dep2src{$_}}} @{$pdeps{$packid}};
+      if ($cychash{$packid}) {
+	next if $building{$packid} || $notready{$packid};	# already done 
+	if ($cycpass{$packid} && $cycpass{$packid} == 2) {
+	  print "        blocked by cycle builds\n";
+	  $notready{$packid} = "blocked: ".join(', ', @blocked);
+          $packstatus{$packid} = 'blocked';
+          $packerror{$packid} = join(', ', @blocked);
+	  next;
+	}
+	my %cycs = map {$_ => 1} @{$cychash{$packid}};
+	@blocked = grep {!$cycs{$_} || !$building{$_}} @blocked;
+      }
       if (@blocked) {
 	print "        blocked\n";
 	$notready{$packid} = "blocked: ".join(', ', @blocked);
@@ -1593,8 +1616,7 @@ while(1) {
 	  $packstatus{$packid} = 'failed';
 	  next;
 	} else {
-	  # XXX: remove this!
-	  if ($sourcechangeonly) {
+	  if ($incycle) {
 	    print "        in cycle, no source change...\n";
 	    $packstatus{$packid} = 'done';
 	    next;
@@ -1931,7 +1953,7 @@ while(1) {
 	# delete full entries
 	$repodata{$prp} ||= {};
 	my $repodata = $repodata{$prp};
-	update_dst_full($repodata, $prp, "$gdst/$packid" , {});
+	update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1);
 	# delete other files
 	unlink("$gdst/:logfiles.success/$packid");
 	unlink("$gdst/:logfiles.fail/$packid");

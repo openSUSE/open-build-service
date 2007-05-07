@@ -1530,11 +1530,19 @@ sub getlogfile {
   return undef; # always streams result
 }
 
+sub getbuildhistory {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $buildhist = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_history", $BSXML::buildhist);
+  return ($buildhist, $BSXML::buildhist);
+}
+
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
   my @args;
   push @args, 'internal=1' if $cgi->{'internal'};
+  push @args, map {"add=$_"} @{$cgi->{'add'} || []};
   my $buildinfo = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
   return ($buildinfo, $BSXML::buildinfo);
 }
@@ -1542,13 +1550,15 @@ sub getbuildinfo {
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
+  my @args;
+  push @args, map {"add=$_"} @{$cgi->{'add'} || []};
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
     'request' => 'POST',
     'data' => \&BSServer::forward_sender,
     'chunked' => 1,
   };
-  my $buildinfo = BSWatcher::rpc($param, $BSXML::buildinfo);
+  my $buildinfo = BSWatcher::rpc($param, $BSXML::buildinfo, @args);
   return ($buildinfo, $BSXML::buildinfo);
 }
 
@@ -1761,10 +1771,11 @@ my $dispatches = [
   '/build/$project/$repository/$arch' => \&getpackagelist,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   '/build/$project/$repository/$arch/$package_repository' => \&getbinarylist,
-  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo' => \&getbuildinfo_post,
-  '/build/$project/$repository/$arch/$package/_buildinfo internal:bool?' => \&getbuildinfo,
+  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,
+  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
+  '/build/$project/$repository/$arch/$package/_history' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package_repository/$filename' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
 
