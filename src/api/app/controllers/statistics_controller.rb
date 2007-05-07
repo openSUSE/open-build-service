@@ -294,7 +294,7 @@ class StatisticsController < ApplicationController
       # get sum of counts
       @sum = DownloadStat.find( :first,
         :from => 'download_stats',
-        :select => 'count(count) as overall_counter',
+        :select => 'sum(count) as overall_counter',
         :conditions => '1=1' + filter
       ).overall_counter
     end
