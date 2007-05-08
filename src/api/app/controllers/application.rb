@@ -99,7 +99,7 @@ class ApplicationController < ActionController::Base
               render_error :message => "Your user is either invalid or net yet confirmned (state #{@http_user.state}).", 
                            :status => 403,
                            :errorcode => "unconfirmed_user",
-                           :details => "Please contact the openSUSE admin team"
+                           :details => "Please contact the openSUSE admin team <admin@opensuse.org>"
             end
           end
           return false
