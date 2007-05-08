@@ -228,9 +228,9 @@ class SourceController < ApplicationController
     end
 
     #assemble path for backend
-    path = request.env['PATH_INFO']
-    unless request.env['QUERY_STRING'].nil?
-      path += "?" + request.env['QUERY_STRING']
+    path = request.path
+    unless request.query_string.empty?
+      path += "?" + request.query_string
     end
 
     allowed = false
