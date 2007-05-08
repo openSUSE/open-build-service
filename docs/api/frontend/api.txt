@@ -230,16 +230,31 @@ XmlResult: directory
 
 GET /build/<project>/<repository>/<arch>/<package>
 
-  Get list of binaries
+  Get list of binaries built by the sources of the given package
 
-Result: Binary
+Result: binarylist
 
 
 GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
 
-  Get binary
+  Get single binary from build results of given package
 
-Result: Binary
+Result: binary file
+
+
+GET /build/<project>/<repository>/<arch>/_repository
+
+  Get list of binaries in given repository (binaries produced by all packages
+  of the project)
+
+Result: binarylist
+
+
+GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
+
+  Get single binary from the given repository
+
+Result: binary file
 
 === Status
 
