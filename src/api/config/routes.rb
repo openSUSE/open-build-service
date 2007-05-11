@@ -174,7 +174,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch/:package/_log',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "buildinfo"
   map.connect 'build/:project/:repository/:arch/:package/_history',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/:filename',

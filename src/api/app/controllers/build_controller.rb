@@ -55,4 +55,14 @@ class BuildController < ApplicationController
       return
     end
   end
+
+  def buildinfo
+    path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
+    if request.post?
+      response = Suse::Backend.post_rpm path, request.raw_post
+      send_data( response.body, :type => response.fetch( "Content-Type" ), :disposition => "inline" )
+    else
+      forward_data path
+    end 
+  end
 end
