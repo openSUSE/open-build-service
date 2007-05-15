@@ -10,7 +10,7 @@ require_dependency 'frontend_compat'
 class ApplicationController < ActionController::Base
   session_options[:prefix] = "ruby_webclient_sess."
   session_options[:key] = "opensuse_webclient_session"
-  session_options[:tagcloud] ||= "mytags"
+  #session_options[:tagcloud] ||= "mytags"
 
   before_filter :authorize, :set_return_to, :set_http_headers
   after_filter :set_charset
@@ -159,6 +159,8 @@ class ApplicationController < ActionController::Base
         redirect_to :controller => 'user', :action => 'request_ichain'
       elsif @code == "no more rating allowed"
         logger.debug "no more rating allowed"
+      elsif @code == "tagcreation_error"
+        logger.debug "tagcreation_error" 
       else
         logger.debug "default exception handling"
         render_error :code => @code, :message => @message, :exception => @exception, :api_exception => @api_exception
