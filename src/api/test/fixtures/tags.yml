@@ -1,7 +1,25 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
-  id: 1
+a:
+  name: TestTag
+  id: 461
+  created_at: 2007-05-16 14:18:22
+b:
   name: blub
-another:
-  id: 2
-  name: bla
+  id: 462
+  created_at: 2007-05-16 14:18:55
+c:
+  name: peng
+  id: 463
+  created_at: 2007-05-16 14:18:55
+d:
+  name: hallo
+  id: 464
+  created_at: 2007-05-16 14:20:06
+e:
+  name: ballo
+  id: 465
+  created_at: 2007-05-16 14:20:06
+f:
+  name: my
+  id: 388
+  created_at: 2007-04-10 16:11:35

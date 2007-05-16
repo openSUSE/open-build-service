@@ -1,0 +1,66 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+first:
+  tag_id: 461
+  id: 1733 
+  taggable_type: DbProject
+  user_id:  267
+  taggable_id: 502 
+  created_at: 2007-05-16 14:18:23
+second:
+  tag_id: 388
+  id: 1734
+  taggable_type: DbProject
+  user_id: 267
+  taggable_id: 502
+  created_at: 2007-05-16 14:18:35
+third:
+  tag_id: 462
+  id: 1736
+  taggable_type: DbProject
+  user_id: 267
+  taggable_id: 502
+  created_at: 2007-05-16 14:18:55
+a:
+  tag_id: 463
+  id: 1737
+  taggable_type: DbProject
+  user_id: 267
+  taggable_id: 502
+  created_at: 2007-05-16 14:18:55
+b:
+  tag_id: 464
+  id: 1740
+  taggable_type: DbPackage
+  user_id: 267
+  taggable_id: 10095
+  created_at: 2007-05-16 14:20:06
+c:
+  tag_id: 465
+  id: 1741
+  taggable_type: DbPackage
+  user_id: 267
+  taggable_id: 10095
+  created_at: 2007-05-16 14:20:06
+d:
+  tag_id: 463
+  id: 1742
+  taggable_type: DbPackage
+  user_id: 267
+  taggable_id: 10095
+  created_at: 2007-05-16 14:20:06
+#taggings for user with id=1
+e:
+  tag_id: 463
+  id: 1743
+  taggable_type: DbProject
+  user_id: 1
+  taggable_id: 854
+  created_at: 2007-05-16 14:21:44
+f:
+  tag_id: 462
+  id: 1744
+  taggable_type: DbProject
+  user_id: 1
+  taggable_id: 854
+  created_at: 2007-05-16 14:21:44
+  

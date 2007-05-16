@@ -37,3 +37,14 @@ king:
   password: <%= Digest::MD5.hexdigest("sunflower") %>
   password_salt: ""
   password_hash_type: md5
+
+# standard User for tagging tests
+tscholz:
+  id: 388
+  login: tscholz
+  email: tscholz@suse.de
+  password: <%= Digest::MD5.hexdigest("asdfasdf") %>
+  password_salt: ""
+  password_hash_type: md5
+  
+  
