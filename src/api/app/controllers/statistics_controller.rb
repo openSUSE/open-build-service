@@ -81,6 +81,10 @@ class StatisticsController < ApplicationController
         return
       end
 
+      # lower the log level, prevent spamming the logfile
+      old_loglevel = DownloadStat.logger.level
+      DownloadStat.logger.level = Logger::ERROR
+
       # try to find existing entry in database
       ds = DownloadStat.find :first, :conditions => [
         'db_project_id=? AND db_package_id=? AND repository_id=? AND ' +
@@ -113,6 +117,9 @@ class StatisticsController < ApplicationController
           '#{text}'\
         )", "Creating DownloadStat entry: "
       end
+
+      # reset the log level
+      DownloadStat.logger.level = old_loglevel
     end
   end
 
@@ -316,9 +323,12 @@ class StatisticsController < ApplicationController
 
       # parse the data
       streamhandler = StreamHandler.new
+      logger.debug "download_stats import starts now ..."
       REXML::Document.parse_stream( data, streamhandler )
+      logger.debug "download_stats import is finished."
 
       if streamhandler.errors
+        logger.debug "prepare download_stats warning message..."
         msg = "WARNING: some redirect_stats were not imported:\n"
         streamhandler.errors.each do |e|
           msg += "project: #{e[:project_name]}=#{e[:project_id] or '*UNKNOWN*'}  "
