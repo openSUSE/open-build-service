@@ -56,9 +56,11 @@ class Tagcloud
   
   def sort_tags( opt={} )
     if opt[:scope] == "count"
+      #descending order by count
       sorted = @tags.sort { |a,b| b.count<=>a.count }
       @tags = sorted
     else
+      #alphabetical order (ascending order)
       sorted = @tags.sort { |a,b| a.name<=>b.name }
       @tags = sorted
     end
