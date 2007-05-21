@@ -1,47 +1,54 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
+TagA_tscholz:
   tag_id: 461
   id: 1733 
   taggable_type: DbProject
   user_id:  267
   taggable_id: 502 
   created_at: 2007-05-16 14:18:23
-second:
+TagF_tscholz:
   tag_id: 388
   id: 1734
   taggable_type: DbProject
   user_id: 267
   taggable_id: 502
   created_at: 2007-05-16 14:18:35
-third:
+TagB_tscholz:
   tag_id: 462
   id: 1736
   taggable_type: DbProject
   user_id: 267
   taggable_id: 502
   created_at: 2007-05-16 14:18:55
-a:
+TagB_a_tscholz:
+  tag_id: 462
+  id: 1750
+  taggable_type: DbPackage
+  user_id: 267
+  taggable_id: 10095
+  created_at: 2007-05-16 14:18:55
+TagC_tscholz:
   tag_id: 463
   id: 1737
   taggable_type: DbProject
   user_id: 267
   taggable_id: 502
   created_at: 2007-05-16 14:18:55
-b:
+TagD_tscholz:
   tag_id: 464
   id: 1740
   taggable_type: DbPackage
   user_id: 267
   taggable_id: 10095
   created_at: 2007-05-16 14:20:06
-c:
+TagE_tscholz:
   tag_id: 465
   id: 1741
   taggable_type: DbPackage
   user_id: 267
   taggable_id: 10095
   created_at: 2007-05-16 14:20:06
-d:
+TagC_tscholz:
   tag_id: 463
   id: 1742
   taggable_type: DbPackage
@@ -49,18 +56,25 @@ d:
   taggable_id: 10095
   created_at: 2007-05-16 14:20:06
 #taggings for user with id=1
-e:
+TagC_1:
   tag_id: 463
   id: 1743
   taggable_type: DbProject
   user_id: 1
-  taggable_id: 854
+  taggable_id: 502
   created_at: 2007-05-16 14:21:44
-f:
+TagB_1:
   tag_id: 462
   id: 1744
   taggable_type: DbProject
   user_id: 1
-  taggable_id: 854
+  taggable_id: 502
+  created_at: 2007-05-16 14:21:44
+TagB_1a:
+  tag_id: 462
+  id: 1745
+  taggable_type: DbPackage
+  user_id: 1
+  taggable_id: 10095
   created_at: 2007-05-16 14:21:44
   

@@ -40,7 +40,7 @@ king:
 
 # standard User for tagging tests
 tscholz:
-  id: 388
+  id: 267
   login: tscholz
   email: tscholz@suse.de
   password: <%= Digest::MD5.hexdigest("asdfasdf") %>
