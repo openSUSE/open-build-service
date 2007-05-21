@@ -104,21 +104,12 @@ class Tagcloud
     
     case distribution_method
     when "linear"
-      #thresholds = thresholds_linear_distribution(steps,@max,@min,delta)
-      #@tags.each do |tag|
-      #  tagcloud[tag.name] = linear_distribution_method(steps,thresholds,tag)
-      #end
-      tagcloud = new_linear_distribution_method(steps)
+      tagcloud = linear_distribution_method(steps)
     when "logarithmic"
-     # thresholds = thresholds_logarithmic_distribution(steps,@max,@min,delta)
-     # @tags.each do |tag|
-     #   tagcloud[tag.name] = logarithmic_distribution_method(steps,thresholds,tag)
-     tagcloud = new_logarithmic_distribution_method(steps)
-     # end
+     tagcloud = logarithmic_distribution_method(steps)
+     
     when "raw"
-      @tags.each do |tag|
-        tagcloud[tag.name] = tag.count
-      end
+     tagcloud = raw 
     else 
       raise ArgumentError.new("unknown distribution method '#{distribution_method}'")
     end
@@ -129,20 +120,19 @@ class Tagcloud
   end
   
   
-  def linear_distribution_method(steps,thresholds,tag)
-    size = 0
-    for i in 1..steps
-      if tag.count <= thresholds[i-1]
-        size = i
-        break
-      end
+  def raw
+    tagcloud = Hash.new
+    
+    @tags.each do |tag|
+        tagcloud[tag.name] = tag.count
     end
-    return size
+    
+    return tagcloud
   end
   
   
   #new logarithmic distribution method
-  def new_logarithmic_distribution_method(steps)
+  def logarithmic_distribution_method(steps)
     minlog = Math.log(@min)
     maxlog = Math.log(@max)
     logrange = maxlog - minlog
@@ -158,7 +148,7 @@ class Tagcloud
   
   
   #new linear distribution method
-  def new_linear_distribution_method(steps)
+  def linear_distribution_method(steps)
     range = @max.to_f - @min.to_f
     range = 1 if @max == @min 
     tagcloud = Hash.new
@@ -169,40 +159,5 @@ class Tagcloud
     end
     return tagcloud
   end    
-  
-  
-  #TODO: delete this function
-  def logarithmic_distribution_method(steps,thresholds,tag)
-    size = 0
-    for i in 1..steps
-      if 100 * Math.log(tag.count + 2) <= thresholds[i-1]
-        size = i
-        break
-      end
-    end
-    return size
-  end
-  
-  
-  #TODO: delete this function
-  def thresholds_linear_distribution(steps,max,min,delta)
-    thresholds = []
-    for i in 0..steps-1
-      size = i
-      thresholds << min + size * delta
-    end
-    return thresholds  
-  end
-  
-  
-  #TODO: delete this function
-  def thresholds_logarithmic_distribution(steps,max,min,delta)
-    thresholds = []
-    for i in 1..steps
-      size = i
-      thresholds << 100 * Math.log(min + size * delta + 2)
-    end
-    return thresholds
-  end
   
 end
