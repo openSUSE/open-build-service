@@ -8,6 +8,18 @@ class TagTest < Test::Unit::TestCase
     t.name = 'IamNotAllowed'
     t.created_at = "2007-03-09 14:57:54"
     assert t.save == false
+    
+    #expected error message
+    assert_equal "The tag is blacklisted!", t.errors[:name]
+    
+    t = Tag.new
+    t.name = 'NotAllowedSymbol:?'
+    t.created_at = "2007-03-09 14:57:54"
+    assert t.save == false
+    
+    #expected error message
+    assert_equal "The tag has invalid format, no ? allowed!", t.errors[:name]
+    
   end
 
   
