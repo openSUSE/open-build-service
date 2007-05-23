@@ -458,7 +458,11 @@ class TagController < ApplicationController
       tags = [tags]
     end  
     tags.each do |tag|
-      create_relationship(object, tagCreator, tag)
+      begin
+        create_relationship(object, tagCreator, tag)
+      rescue ActiveRecord::StatementInvalid
+        logger.debug "The relationship #{object.name} - #{tag.name} - #{tagCreator.login} already exist."
+      end  
     end      
   end
   private :save_tags
@@ -466,19 +470,16 @@ class TagController < ApplicationController
   
   #create an entry in the join table (taggings) if necessary
   def create_relationship(object, tagCreator, tag)
-    begin 
-      Tagging.transaction do
+    Tagging.transaction do
         @jointable = Tagging.new()
         object.taggings << @jointable
         tagCreator.taggings << @jointable
         tag.taggings << @jointable
         @jointable.save
-      end  
-    rescue ActiveRecord::StatementInvalid
-      logger.debug "The relationship #{object.name} - #{tag.name} - #{tagCreator.login} already exist."
     end  
   end
   private :create_relationship
+  
   
   #get the tag as object
   def s_to_tag(tagname)
