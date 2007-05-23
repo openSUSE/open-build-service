@@ -47,7 +47,7 @@ class Tag < ActiveRecord::Base
     blacklist ||= []
     
     blacklist.each do |tag|
-      errors.add("name", "The tag has invalid format, no ? allowed!") if name.downcase == tag.name.downcase
+      errors.add("name", "The tag is blacklisted!") if name.downcase == tag.name.downcase
     end
     
   end
