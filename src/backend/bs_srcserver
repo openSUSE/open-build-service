@@ -979,7 +979,7 @@ sub getconfig {
     my ($p, $r) = split('/', $prp, 2);
     if (-s "$projectsdir/$p.conf") {
       $config .= "\n### from $p\n";
-      $config .= "%define %_repository $r\n";
+      $config .= "%define _repository $r\n";
       my $c = readstr("$projectsdir/$p.conf");
       if ($c =~ /^(.*\n)?\s*macros:[^\n]*\n(.*)/si) {
 	$c = defined($1) ? $1 : '';

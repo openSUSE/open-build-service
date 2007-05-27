@@ -33,6 +33,7 @@ use BSConfig;
 use BSUtil;
 use BSXML;
 use BSHTTP;
+use BSBuild;
 
 use strict;
 
@@ -99,27 +100,31 @@ sub usage {
 print <<EOF;
 Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
-       --root     : buildroot directory
+       --root      : buildroot directory
 
-       --statedir : state directory
+       --statedir  : state directory
 
-       --id       : worker id
+       --id        : worker id
 
-       --arch     : define hostarch (overrides 'uname -m')
-                    currently supported architectures: 
-                    @{[sort keys %cando]}
+       --arch      : define hostarch (overrides 'uname -m')
+                     currently supported architectures: 
+                     @{[sort keys %cando]}
 
-       --xen      : enable xen
+       --xen       : enable xen
 
-       --test     : enable test mode
+       --test      : enable test mode
 
-       --help     : this message
+       --build     : just build the package, don't send anything back
+                     (needs a buildinfo file as argument)
+
+       --help      : this message
 
 EOF
   exit $ret || 0;
 }
 
 my @saveargv = @ARGV;	# so we can restart ourself
+my $justbuild;
 
 exit(0) if @ARGV == 1 && $ARGV[0] eq '--selftest';
 
@@ -155,6 +160,11 @@ while (@ARGV) {
     shift @ARGV;
     next;
   }
+  if ($ARGV[0] eq '--build') {
+    shift @ARGV;
+    $justbuild = 1;
+    next;
+  }
   last;
 }
 
@@ -170,6 +180,12 @@ if (!$hostarch) {
 }
 
 die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch};
+
+if ($justbuild) {
+  my $buildinfo = readxml($ARGV[0], $BSXML::buildinfo);
+  dobuild($buildinfo);
+  exit(0);
+}
 
 sub stream_logfile {
   my ($nostream, $start, $end) = @_;
@@ -303,12 +319,195 @@ sub getcode {
   return $md5;
 }
 
+
+sub rm_rf {
+  my ($dir) = @_;
+  for my $f (ls($dir)) {
+    if (! -l "$dir/$f" && -d _) {
+      rm_rf("$dir/$f");
+    } else {
+      unlink("$dir/$f");
+    }
+  }
+  rmdir($dir);
+}
+
+sub getsources {
+  my ($buildinfo, $dir) = @_;
+
+  my $repo = $buildinfo->{'path'}->[0];
+  my $projid = $repo->{'project'};
+  my $res = BSRPC::rpc({
+    uri => "$BSConfig::srcserver/getsources",
+    directory => $dir,
+    withmd5 => 1,
+    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+  }, undef, "project=$projid", "package=$buildinfo->{'package'}", "srcmd5=$buildinfo->{'srcmd5'}");
+  die("Error\n") unless ref($res) eq 'ARRAY';
+  if (-e "$dir/.errors") {
+    my $errors = readstr("$dir/.errors", 1);
+    die("getsources: $errors");
+  }
+  # verify sources
+  my %res = map {$_->{'name'} => $_} @$res;
+  my $md5 = '';
+  my @f = ls($dir);
+  for my $f (sort @f) {
+    die("unexpected file: $f") unless $res{$f};
+    $md5 .= "$res{$f}->{'md5'}  $f\n";
+  }
+  $md5 = Digest::MD5::md5_hex($md5);
+  die("source verification failes: $md5 != $buildinfo->{'verifymd5'}\n") if $md5 ne $buildinfo->{'verifymd5'};
+}
+
+sub getbinaries {
+  my ($buildinfo, $dir) = @_;
+
+  my @bdep = @{$buildinfo->{'bdep'} || []};
+  @bdep = map {ref($_) ? $_->{'name'} || $_->{'_content'} : $_} @bdep;
+  my %done;
+  my @todo = @bdep;
+  die("no binaries needed for this package?\n") unless @todo;
+  my %meta = ();
+  for my $repo (@{$buildinfo->{'path'} || []}) {
+    last if !@todo;
+    my $res = BSRPC::rpc({
+      uri => "$repo->{'server'}/getbinaries",
+      directory => $dir,
+      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    }, undef, "arch=$buildinfo->{'arch'}", "project=$repo->{'project'}", "repository=$repo->{'repository'}", "binaries=".join(',', @todo));
+    die("Error\n") unless ref($res) eq 'ARRAY';
+    for (@$res) {
+      $done{$1} = $_->{'name'} if $_->{'name'} =~ /^(.*)\.(?:rpm|deb)$/;
+      $meta{$1} = 1 if $_->{'name'} =~ /^(.*)\.meta$/;
+    }
+    @todo = grep {!$done{$_}} @todo;
+  }
+  die("getbinaries: missing packages: @todo\n") if @todo;
+  my @missingmeta = grep {!$meta{$_}} @bdep;
+  if (@missingmeta) {
+    local *F;
+    open(F, "| $statedir/build/getbinaryid --createmeta --manifest -") || die("getbinaryid: $!\n");
+    print F join('', map {"$dir/$done{$_}\n"} @missingmeta);
+    close(F) || die("getbinaryid failed: $?\n");
+  }
+}
+
+sub dobuild {
+  my ($buildinfo) = @_;
+
+
+  my $repo = $buildinfo->{'path'}->[0];
+  my $arch = $buildinfo->{'arch'};
+  my ($projid, $repoid) = ($repo->{'project'}, $repo->{'repository'});
+
+  my $helper = '';
+  /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
+
+  print "Building '$buildinfo->{'package'}' for project '$projid' repository '$repoid' arch 'arch'\n";
+  print "using helper $helper\n" if $helper;
+
+  unlink("$buildroot/.build.meta");
+  rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
+  rm_rf("$buildroot/.build-srcdir") if -d "$buildroot/.build-srcdir";
+  rm_rf("$buildroot/.rpms") if -d "$buildroot/.rpms";
+  print "fetching sources...\n";
+  mkdir("$buildroot/.build-srcdir") || die("mkdir $buildroot/.build-srcdir: $!\n");
+  getsources($buildinfo, "$buildroot/.build-srcdir");
+  print "fetching packages...\n";
+  mkdir("$buildroot/.rpms") || die("mkdir $buildroot/.rpms: $!\n");
+  getbinaries($buildinfo, "$buildroot/.rpms");
+  my @deps;
+  for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
+    my $m = readstr("$buildroot/.rpms/$dep.meta");
+    chomp $m;
+    my @m = split("\n", $m);
+    s/  /  $dep\// for @m;
+    $m[0] =~ s/  .*/  $dep/;
+    push @deps, @m;
+  }
+  my @meta = BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @deps);
+  writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
+  
+  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+  writestr("$buildroot/.config", undef, $config);
+
+  my @rpmlist;
+  my @bdep = @{$buildinfo->{'bdep'} || []};
+  for my $bdep (map {$_->{'name'}} @bdep) {
+    if (-e "$buildroot/.rpms/$bdep.rpm") {
+      push @rpmlist, "$bdep $buildroot/.rpms/$bdep.rpm";
+    } elsif (-e "$buildroot/.rpms/$bdep.deb") {
+      push @rpmlist, "$bdep $buildroot/.rpms/$bdep.deb";
+    } else {
+      die("missing package: $bdep\n");
+    }
+  }
+  push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
+  push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
+  push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
+  writestr("$buildroot/.rpmlist", undef, join("\n", @rpmlist)."\n");
+
+  my $release;
+  if (defined($buildinfo->{'release'})) {
+    $release = $buildinfo->{'release'};
+  } elsif (defined($buildinfo->{'versrel'}) && defined($buildinfo->{'bcnt'})) {
+    $release = $buildinfo->{'versrel'};
+    $release =~ s/.*-//;
+    $release .= ".$buildinfo->{'bcnt'}";
+  }
+  my @args;
+  push @args, $helper if $helper;
+  if ($xen) {
+    mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
+    push @args, "--root", "$buildroot/.mount";
+    push @args, "--logfile", "$buildroot/.build.log";
+    push @args, "--xen", "$buildroot/root";
+    push @args, "--xenswap", "$buildroot/swap";
+    my $xenmemory;
+    $xenmemory = readstr("$buildroot/memory", 1);
+    push @args, "--xenmemory", $xenmemory if $xenmemory;
+  } else {
+    push @args, "--root", $buildroot;
+  }
+  push @args, "--clean";
+  push @args, "--changelog";
+  push @args, "--norootforbuild";
+  push @args, "--dist", "$buildroot/.config";
+  push @args, "--rpmlist", "$buildroot/.rpmlist";
+  push @args, "--release", "$release" if defined $release;
+  push @args, "--arch", $arch;
+  push @args, "--reason", "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
+  push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";
+  if (system("$statedir/build/build", @args)) {
+    print "build failed\n";
+    return 1;
+  }
+  print "build succeeded\n";
+  if ($xen) {
+    print "extracting built packages...\n";
+    @args = ();
+    push @args, "--xen", "$buildroot/root";
+    push @args, "--xenswap", "$buildroot/swap";
+    if (system("$statedir/build/extractbuild", @args)) {
+      die("extractbuild failed\n");
+    }
+    # FIXME stream directly from swap
+    mkdir_p("$buildroot/.build.packages");
+    rm_rf("$buildroot/.build.packages/SRPMS");
+    rm_rf("$buildroot/.build.packages/DEPS");
+    symlink('.', "$buildroot/.build.packages/SRPMS");
+    symlink('.', "$buildroot/.build.packages/DEBS");
+    if (system("cd $buildroot/.build.packages && cpio --extract --no-absolute-filenames -v < $buildroot/swap")) {
+      die("cpio extract failed\n");
+    }
+  }
+  return 0;
+}
+
+
 # better safe than sorry...
 chdir($statedir) || die("$statedir: $!\n");
-
-# fix some modes
-chmod(0755, "worker/bs_build");
-chmod(0755, "worker/bs_buildhelper");
 
 BSServer::deamonize(@ARGV);
 my $port;
@@ -504,13 +703,18 @@ commitstate($state);
 
 my $repo = $buildinfo->{'path'}->[0];
 send_state('building', $port, $hostarch, $repo->{'server'});
-my $barch = $buildinfo->{'arch'};
-my $helper = '';
-/^\Q$barch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
-print "using helper $helper\n" if $helper;
-$helper .= ' ' if $helper;
-# now do the build!
-my $ex = system("cd worker && $helper./bs_build --root $buildroot$xen $statedir/job");
+
+my $ex;
+eval {
+  $ex = dobuild($buildinfo);
+};
+if ($@) {
+  local *F;
+  open(F, '>>', "$buildroot/.build.log");
+  print F $@;
+  close(F);
+  $ex = 1;
+}
 
 # build is done, send back result
 $state = lockstate();

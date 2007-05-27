@@ -87,7 +87,7 @@ sub findbinaries {
   my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
   closedir(D);
   for (sort @bins) {
-    if (/^(.+)-[^-]+-[^-]+\.[^\.\-]+\.rpm$/) {
+    if (/^(.+)-[^-]+-[^-]+\.[a-zA-Z][^\.\-]*\.rpm$/) {
       next unless $bins{$1};
       $bins{$1} = "$prp/$arch/:full/$_";
     } elsif (/^(.+)_(.*)_.*\.deb$/) {

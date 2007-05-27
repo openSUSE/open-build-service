@@ -365,7 +365,7 @@ sub getconfig {
     my ($p, $r) = split('/', $prp, 2);
     if (-e "$projectsdir/$p.conf") {
       $config .= "\n### from $p\n";
-      $config .= "%define %_repository $r\n";
+      $config .= "%define _repository $r\n";
       my $c = readstr("$projectsdir/$p.conf");
       $c = defined($1) ? $1 : '' if $c =~ /^(.*\n)?\s*macros:[^\n]*\n/si;
       $config .= $c;
@@ -568,6 +568,7 @@ sub qsystem {
 sub prpfinished {
   my ($prp, $title, $packs, $repotype) = @_;
   return if $prp =~ /^MicroSUSE/;
+  #return if $prp =~ /^KDE:KDE3/;
   print "    prp $prp is finished, creating repos (".join(', ', @$repotype).")...\n";
   my %repotype = map {$_ => 1} @$repotype;
   local *F;
@@ -1425,6 +1426,7 @@ while(1) {
           print "      - $packid (aggregate)\n";
 	  print "        broken (@broken)\n";
           $packstatus{$packid} = 'broken';
+          $packerror{$packid} = 'missing repositories: '.join(', ', @broken);
           next;
 	}
         if (@blocked) {
