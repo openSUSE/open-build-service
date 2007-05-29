@@ -329,15 +329,23 @@ class StatisticsController < ApplicationController
 
       if streamhandler.errors
         logger.debug "prepare download_stats warning message..."
-        msg = "WARNING: some redirect_stats were not imported:\n"
+        err_count = streamhandler.errors.length
+        dayofweek = Time.now.strftime('%u')
+        logfile = "log/download_statistics_import_warnings-#{dayofweek}.log"
+        msg  = "WARNING: #{err_count} redirect_stats were not imported.\n"
+        msg += "(for details see logfile #{logfile})"
+
+        f = File.open logfile, 'w'
         streamhandler.errors.each do |e|
-          msg += "project: #{e[:project_name]}=#{e[:project_id] or '*UNKNOWN*'}  "
-          msg += "package: #{e[:package_name]}=#{e[:package_id] or '*UNKNOWN*'}  "
-          msg += "repo: #{e[:repo_name]}=#{e[:repo_id] or '*UNKNOWN*'}  "
-          msg += "arch: #{e[:arch_name]}=#{e[:arch_id] or '*UNKNOWN*'}\t"
-          msg += "(#{e[:count][:filename]}:#{e[:count][:version]}:"
-          msg += "#{e[:count][:release]}:#{e[:count][:filetype]})\n"
+          f << "project: #{e[:project_name]}=#{e[:project_id] or '*UNKNOWN*'}  "
+          f << "package: #{e[:package_name]}=#{e[:package_id] or '*UNKNOWN*'}  "
+          f << "repo: #{e[:repo_name]}=#{e[:repo_id] or '*UNKNOWN*'}  "
+          f << "arch: #{e[:arch_name]}=#{e[:arch_id] or '*UNKNOWN*'}\t"
+          f << "(#{e[:count][:filename]}:#{e[:count][:version]}:"
+          f << "#{e[:count][:release]}:#{e[:count][:filetype]})\n"
         end
+        f.close
+
         logger.warn "\n\n#{msg}\n\n"
         render_ok msg # render_ok with msg text in details
       else
