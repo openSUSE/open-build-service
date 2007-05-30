@@ -83,17 +83,23 @@ sub findbinaries {
   my ($prp, $arch, @qbins) = @_;
   local *D;
   my %bins = map {$_ => '_gone'} @qbins;
-  opendir(D, "$reporoot/$prp/$arch/:full") || return \%bins;
+  my $dir = "$reporoot/$prp/$arch/:full";
+  opendir(D, $dir) || return \%bins;
   my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
   closedir(D);
+  if (!@bins && -s "$dir.subdirs") {
+    for my $subdir (split(' ', readstr("$dir.subdirs"))) {
+      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
+    }
+  }
   for (sort @bins) {
-    if (/^(.+)-[^-]+-[^-]+\.[a-zA-Z][^\.\-]*\.rpm$/) {
+    if (/(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
       next unless $bins{$1};
       $bins{$1} = "$prp/$arch/:full/$_";
-    } elsif (/^(.+)_(.*)_.*\.deb$/) {
+    } elsif (/(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
       next unless $bins{$1};
       $bins{$1} = "$prp/$arch/:full/$_";
-    } elsif (/^(.+)\.(?:rpm|deb)$/) {
+    } elsif (/(?:^|\/)([^\/]+)\.(?:rpm|deb)$/) {
       next unless $bins{$1};
       $bins{$1} = "$prp/$arch/:full/$_";
     }

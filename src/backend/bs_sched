@@ -286,13 +286,11 @@ sub findbins {
     }
   }
   opendir(D, $dir) || return {};
-  my @dir = readdir(D);
+  my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
   closedir D;
-  my @bins = grep {/\.(?:rpm|deb)$/} @dir;
-  if (!@bins) {
-    for my $subdir (@dir) {
-      next unless $subdir ne '.' && $subdir ne '..' && -d "$dir/$subdir";
-      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$subdir/$_");
+  if (!@bins && -s "$dir.subdirs") {
+    for my $subdir (split(' ', readstr("$dir.subdirs"))) {
+      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
     }
   }
   my ($hits, $misses) = (0, 0);
@@ -934,7 +932,7 @@ sub update_dst_full {
   for my $rp (keys %$jobrepo) {
     my $nn = $rp;
     $nn =~ s/.*\///;
-    rename($rp, "$dst/$nn");
+    rename($rp, "$dst/$nn") || die("rename $rp $dst/$nn: $!\n");
     $new{$nn} = $jobrepo->{$rp};
   }
   # delete old rpms in dst

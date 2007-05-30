@@ -458,28 +458,29 @@ sub dobuild {
   }
   my @args;
   push @args, $helper if $helper;
+  push @args, "$statedir/build/build";
   if ($xen) {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
-    push @args, "--root", "$buildroot/.mount";
-    push @args, "--logfile", "$buildroot/.build.log";
-    push @args, "--xen", "$buildroot/root";
-    push @args, "--xenswap", "$buildroot/swap";
+    push @args, '--root', "$buildroot/.mount";
+    push @args, '--logfile', "$buildroot/.build.log";
+    push @args, '--xen', "$buildroot/root";
+    push @args, '--xenswap', "$buildroot/swap";
     my $xenmemory;
     $xenmemory = readstr("$buildroot/memory", 1);
-    push @args, "--xenmemory", $xenmemory if $xenmemory;
+    push @args, '--xenmemory', $xenmemory if $xenmemory;
   } else {
-    push @args, "--root", $buildroot;
+    push @args, '--root', $buildroot;
   }
-  push @args, "--clean";
-  push @args, "--changelog";
-  push @args, "--norootforbuild";
-  push @args, "--dist", "$buildroot/.config";
-  push @args, "--rpmlist", "$buildroot/.rpmlist";
-  push @args, "--release", "$release" if defined $release;
-  push @args, "--arch", $arch;
-  push @args, "--reason", "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
+  push @args, '--clean';
+  push @args, '--changelog';
+  push @args, '--norootforbuild';
+  push @args, '--dist', "$buildroot/.config";
+  push @args, '--rpmlist', "$buildroot/.rpmlist";
+  push @args, '--release', "$release" if defined $release;
+  push @args, '--arch', $arch;
+  push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
   push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";
-  if (system("$statedir/build/build", @args)) {
+  if (system(@args)) {
     print "build failed\n";
     return 1;
   }
@@ -487,9 +488,10 @@ sub dobuild {
   if ($xen) {
     print "extracting built packages...\n";
     @args = ();
-    push @args, "--xen", "$buildroot/root";
-    push @args, "--xenswap", "$buildroot/swap";
-    if (system("$statedir/build/extractbuild", @args)) {
+    push @args, "$statedir/build/extractbuild";
+    push @args, '--xen', "$buildroot/root";
+    push @args, '--xenswap', "$buildroot/swap";
+    if (system(@args)) {
       die("extractbuild failed\n");
     }
     # FIXME stream directly from swap
@@ -781,7 +783,7 @@ if (!$testmode) {
     }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "infomd5=".Digest::MD5::md5_hex($infoxml));
   };
   if ($@) {
-    print "rpc failed, sleeping one minute just in case...\n";
+    print "rpc failed: $@\nsleeping one minute just in case...\n";
     sleep(60);
   } else {
     print "sent, all done...\n";
