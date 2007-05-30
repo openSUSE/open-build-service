@@ -281,11 +281,11 @@ class StatisticsController < ApplicationController
 
       # create filter, if parameters given & objects found
       filter = ''
-      filter += " AND pro.id=#{prj.id}" if prj
-      filter += " AND pac.id=#{pac.id}" if pac
-      filter += " AND repo.id=#{repo.id}" if repo
-      filter += " AND arch.id=#{arch.id}" if arch
-
+      filter += " AND ds.db_project_id=#{prj.id}" if prj
+      filter += " AND ds.db_package_id=#{pac.id}" if pac
+      filter += " AND ds.repository_id=#{repo.id}" if repo
+      filter += " AND ds.architecture_id=#{arch.id}" if arch
+      
       # get download_stats entries
       @stats = DownloadStat.find :all,
         :from => 'download_stats ds, db_projects pro, db_packages pac, ' +
@@ -300,7 +300,7 @@ class StatisticsController < ApplicationController
 
       # get sum of counts
       @sum = DownloadStat.find( :first,
-        :from => 'download_stats',
+        :from => 'download_stats ds',
         :select => 'sum(count) as overall_counter',
         :conditions => '1=1' + filter
       ).overall_counter
