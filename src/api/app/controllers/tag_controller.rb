@@ -67,7 +67,7 @@ class TagController < ApplicationController
     begin
       @tag = Tag.find_by_name(params[:tag])
       @projects = @tag.db_projects.find(:all, :group => "name", :order => "name")
-       
+
       render :partial => "objects_by_tag"
       
     rescue
@@ -84,8 +84,8 @@ class TagController < ApplicationController
   def get_packages_by_tag
     begin
       @tag = Tag.find_by_name(params[:tag])
-      @packages = @tag.db_packages(:all, :group => "name", :order => "name")
-      
+      @packages = @tag.db_packages.find(:all, :group => "name", :order => "name")
+ 
       render :partial => "objects_by_tag"
       
       
@@ -104,6 +104,7 @@ class TagController < ApplicationController
       @tag = Tag.find_by_name(params[:tag])
       @projects = @tag.db_projects.find(:all, :group => "name", :order => "name")
       @packages = @tag.db_packages.find(:all, :group => "name", :order => "name")
+  
       render :partial => "objects_by_tag"
       
       
