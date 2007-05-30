@@ -1,44 +1,12 @@
-# Settings specified here will take precedence over those in config/environment.rb
+# base settings have moved to development_base.rb
 
-# In the development environment your application's code is reloaded on
-# every request.  This slows down response time but is perfect for development
-# since you don't have to restart the webserver when you make code changes.
-config.cache_classes     = false
-
-# Log error messages when you accidentally call methods on nil.
-config.whiny_nils        = true
-
-# Enable the breakpoint server that script/breakpointer connects to
-config.breakpoint_server = true
-
-# Show full error reports and disable caching
-config.action_controller.consider_all_requests_local = false
-config.action_controller.perform_caching             = false
-
-# Don't care if the mailer can't send
-config.action_mailer.raise_delivery_errors = false
-
-FRONTEND_HOST = "localhost"
-FRONTEND_PORT = 3001
-#FRONTEND_PORT = 9001
-FRONTEND_PROTOCOL = 'http'
-
-# set the iChain host to something not nil to use iChain. Note
-# that the IP is not used atm but that might change.
-# If ICHAIN_HOST is set to "simulate", iChain is simulated in the
-# way that the ichain header entry is set to the value specified
-# in the ICHAIN_TEST_USER variable here below.
-# ATTENTION: If you set an IP address here the frontend takes the
-# user name that is coming as headervalue X-username as a valid
-# user and does not further authentication. So take care...
-# ATTENTION 2: The ICHAIN_* entries must correspond with the entries
-# in the frontend otherwise funny things happen.
-
-
-# ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
-ICHAIN_MODE = "off"
-
-### not nescessary any more as of 2006.12.01:
-### ICHAIN_HOST = "212.12.12.12"
-ICHAIN_TEST_USER = "test"
-
+begin
+  require 'socket'
+  fname = "#{RAILS_ROOT}/config/environments/development.#{Socket.gethostname}.rb"
+  eval File.read(fname)
+  STDERR.puts "Using local environment #{fname}"
+rescue Object
+  fname = "#{RAILS_ROOT}/config/environments/development_base.rb"
+  eval File.read(fname)
+  STDERR.puts "Using global environment #{fname}" 
+end
