@@ -456,9 +456,9 @@ class TagControllerTest < Test::Unit::TestCase
   def test_get_packages_by_tag
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-#    #request tags for an unknown tag
-#    get :get_packages_by_tag, :tag => "AlienTag"
-#    assert_response 404
+    #request tags for an unknown tag
+    get :get_packages_by_tag, :tag => "AlienTag"
+    assert_response 404
     
     get :get_packages_by_tag, :tag => "TagB"
     assert_response :success
@@ -470,7 +470,7 @@ class TagControllerTest < Test::Unit::TestCase
     :child => { :tag => "package" }
     assert_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "package" } }
-    #checking the project and each tag
+    #checking the package and each tag
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
@@ -484,9 +484,46 @@ class TagControllerTest < Test::Unit::TestCase
   end
   
   
-  #  
-  #  
-  #  def test_get_objects_by_tag
-  #  end
+  def test_get_objects_by_tag
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #request tags for an unknown tag
+    get :get_objects_by_tag, :tag => "AlienTag"
+    assert_response 404
+    
+    get :get_objects_by_tag, :tag => "TagB"
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "collection",
+    :attributes => { :tag => "TagB"
+    },
+    :child => { :tag => "project" }
+    assert_tag :tag => "collection",
+    :attributes => { :tag => "TagB"
+    },
+    :child => { :tag => "package" }
+    #checking the project and each tag
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz"
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
+                }
+    #checking the package and each tag
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
+                }
+  end
   
 end
