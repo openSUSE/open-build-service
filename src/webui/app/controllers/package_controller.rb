@@ -463,8 +463,10 @@ class PackageController < ApplicationController
 
     begin
       @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch )
+ 
       @offset = @log_chunk.length
-      @log_chunk = CGI.escapeHTML(@log_chunk);      
+      @log_chunk = CGI.escapeHTML(@log_chunk);
+      @log_chunk.gsub!("\n","<br/>")          
     rescue ActiveXML::Transport::Error => ex
       @log_chunk = "No log available."
       return
