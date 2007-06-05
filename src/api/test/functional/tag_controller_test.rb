@@ -526,4 +526,59 @@ class TagControllerTest < Test::Unit::TestCase
                 }
   end
   
+  
+  def test_tagcloud_wrong_parameter    
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #parameter steps
+    get :tagcloud, :steps => -1
+    assert_response 404
+    
+    get :tagcloud, :steps => 101
+    assert_response 404
+    
+    get :tagcloud, :steps => 6
+    assert_response :success
+    
+    
+    #parameter distribution(_method)
+    get :tagcloud, :distribution => 'Alien'
+    assert_response 404
+    
+    get :tagcloud, :distribution => 'raw'
+    assert_response :success
+    
+    get :tagcloud, :distribution => 'logarithmic'
+    assert_response :success
+    
+    get :tagcloud, :distribution => 'linear'
+    assert_response :success
+
+  end
+
+  
+  def test_tagcloud_raw
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :tagcloud, :distribution => 'raw', :steps => 6, :limit => 4
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "raw",
+                     :steps => 6,
+                     :user => ""
+    },
+    :children => { :count => 4, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :count => 1} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 4} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 2} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }    
+  end  
+
 end
