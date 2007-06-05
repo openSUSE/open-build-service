@@ -676,4 +676,104 @@ class TagControllerTest < Test::Unit::TestCase
     :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }    
   end  
 
+
+  def test_tagcloud_linear
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :tagcloud, :distribution => 'linear', :steps => 10, :limit => 3
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "linear",
+                     :steps => 10,
+                     :user => ""
+    },
+    :children => { :count => 3, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 10} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 3} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
+  end
+  
+  
+  def test_tagcloud_logarithmic
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :limit => 6
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "logarithmic",
+                     :steps => 12,
+                     :user => ""
+    },
+    :children => { :count => 6, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 6} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagE", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
+  end
+  
+  
+  def test_tagcloud_by_user
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :user => 'tscholz'
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "logarithmic",
+                     :steps => 12,
+                     :user => "tscholz"
+    },
+    :children => { :count => 6, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagE", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
+    
+    
+    prepare_request_with_user @request, "fred", "geröllheimer"
+    
+    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :user => 'fred'
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "logarithmic",
+                     :steps => 12,
+                     :user => "fred"
+    },
+    :children => { :count => 2, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 0} }
+  end
+  
 end
