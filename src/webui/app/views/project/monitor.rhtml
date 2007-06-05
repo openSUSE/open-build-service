@@ -42,8 +42,12 @@
       :package => packname, :project => @project.to_s %></td>
     <% @repohash.sort.each do |repo, archlist| -%>
     <% archlist.each do |arch| -%>
-      <% status = status_for(repo, arch, packname)  -%>
-       <td id="<%= status_id_for(repo, arch, packname) -%>"
+      <% 
+        status = status_for(repo, arch, packname)
+        status_id = status_id_for( repo, arch, packname)
+        link_title = status.has_element?(:details) ? status.details.to_s : nil
+      -%>
+       <td id="<%= status_id %>"
         class="status_<%= status.code.gsub(' ','_') -%>"><nobr>
       <% if status.code == 'failed' -%>
         <%= link_to_remote image_tag( 'rebuild-light', :border => 0,
@@ -51,16 +55,16 @@
           :url => { :controller => 'package', :action => 'trigger_rebuild',
           :package => packname, :project => @project.to_s,
           :repo => repo, :arch => arch, :redirect => 'monitor' } -%>
-      <% end -%>
-      <% if status.has_element? :details %>
+        <% end -%>
+      <% if ["expansion error", "broken", "blocked"].include? status.code -%>
+        <%= link_to status.code, "javascript:alert('#{link_title}')" %>
+      <% elsif ["disabled"].include? status.code -%>
+        <%= status.code %>
+      <% else -%>
         <%= link_to status.code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
           :package => packname, :project => @project.to_s, :arch => arch,
-          :controller => "package", :repository => repo}, {:title => status.details.to_s} %>
-      <% else -%>
-        <%= link_to status.code.gsub(/\s/, "&nbsp;"), :action => :live_build_log,
-          :package => packname, :project => @project.to_s, :arch => arch,
-          :controller => "package", :repository => repo %>
-      <% end -%>
+          :controller => "package", :repository => repo}, {:title => link_title} %>
+        <% end -%>
     </nobr></td>
     <% end -%>
     <% end -%>

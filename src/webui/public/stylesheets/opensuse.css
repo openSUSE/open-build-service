@@ -807,7 +807,7 @@ strong.highlight {
   color: #00f;
   background-color: #bbb;
 }
-.status_disabled a, .status_blocked a:visited {
+.status_disabled a, .status_disabled, .status_blocked a:visited {
   color: #bbb;
 }
 .status_succeeded a, .status_blocked a:visited {
