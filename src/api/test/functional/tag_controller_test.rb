@@ -312,6 +312,11 @@ class TagControllerTest < Test::Unit::TestCase
     get :get_tags_by_user_and_project, :project => "IamAnAlien",
     :user => "tscholz" 
     assert_response 404
+ 
+    #request tags for an unknown user
+    get :get_tags_by_user_and_project, :project => "home:tscholz",
+    :user => "Alien" 
+    assert_response 404   
     
     #request tags for an existing project
     get :get_tags_by_user_and_project, :project => "home:tscholz",
@@ -333,6 +338,27 @@ class TagControllerTest < Test::Unit::TestCase
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
     assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
+    
+    
+    #request tags for another user than the logged on user
+    get :get_tags_by_user_and_project, :project => "home:tscholz",
+    :user => "fred" 
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tags",
+    :attributes => { :project => "home:tscholz",
+      :user => "fred"
+    },
+    :child => { :tag => "tag" }
+    assert_tag :tag => "tags",
+    :children => { :count => 2, :only => { :tag => "tag" } }
+    
+    #checking each tag
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
   end
   
   

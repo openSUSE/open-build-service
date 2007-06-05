@@ -133,10 +133,13 @@ class TagController < ApplicationController
   
   def get_tags_by_user_and_project( do_render=true )
     begin
-      user = @http_user
+      user = User.find_by_login(params[:user])
+      raise RuntimeError.new( "Error: User '#{params[:user]}' not found." ) unless user
       @type = "project"
       @name = params[:project]
       @project = DbProject.find_by_name(params[:project])
+      raise RuntimeError.new( "Error: Project '#{params[:project]}' not found." ) unless @project
+      
       @tags = @project.tags.find(:all, :order => :name, :conditions => ["taggings.user_id = ?",user.id])
       if do_render
         render :partial => "tags"
@@ -145,11 +148,9 @@ class TagController < ApplicationController
       end
       
       
-    rescue
-      if @project.nil?
-        render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown project #{params[:project]}"
-      end
+    rescue Exception => error
+      render_error :status => 404, :errorcode => 'tag_error',
+      :message => error 
     end 
   end
   
