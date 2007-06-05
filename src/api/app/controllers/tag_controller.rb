@@ -208,7 +208,9 @@ class TagController < ApplicationController
         
         
         if params[:user]
-          tagcloud = Tagcloud.new(:scope => "user", :user => @http_user, :limit => @limit)
+          user = User.find_by_login(params[:user])
+          raise RuntimeError.new( "Error: User '#{params[:user]}' not found." ) unless user
+          tagcloud = Tagcloud.new(:scope => "user", :user => user, :limit => @limit)
         else
           tagcloud = Tagcloud.new(:scope => "global", :limit => @limit)
         end

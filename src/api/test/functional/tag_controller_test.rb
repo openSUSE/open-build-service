@@ -774,6 +774,37 @@ class TagControllerTest < Test::Unit::TestCase
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 0} }
+  
+  
+    #get the tag-cloud from another user
+    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :user => 'tscholz'
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "logarithmic",
+                     :steps => 12,
+                     :user => "tscholz"
+    },
+    :children => { :count => 6, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagE", :size => 0} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
+    
+    
+    #unknown user
+    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :user => 'Alien'
+    assert_response 404  
   end
   
 end
