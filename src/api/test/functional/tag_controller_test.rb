@@ -234,9 +234,12 @@ class TagControllerTest < Test::Unit::TestCase
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
     assert_tag  :tag => "tags",
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} },
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
   end
   
@@ -263,9 +266,12 @@ class TagControllerTest < Test::Unit::TestCase
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
     assert_tag  :tag => "tags",
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} },
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
+    assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
   end
   
@@ -322,8 +328,10 @@ class TagControllerTest < Test::Unit::TestCase
     :children => { :count => 3, :only => { :tag => "tag" } }
     #checking each tag
     assert_tag  :tag => "tags",
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} },
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
   end
   
@@ -354,9 +362,12 @@ class TagControllerTest < Test::Unit::TestCase
     :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
     assert_tag  :tag => "tags",
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
-    :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} },
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
+    assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
   end
   
@@ -384,8 +395,14 @@ class TagControllerTest < Test::Unit::TestCase
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:tscholz"},
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
   end
@@ -416,8 +433,20 @@ class TagControllerTest < Test::Unit::TestCase
                 :attributes => {:name => "TestPack",
                 :project => "home:tscholz"
                 },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                :project => "home:tscholz"
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                :project => "home:tscholz"
+                },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
     }
   end
@@ -445,9 +474,24 @@ class TagControllerTest < Test::Unit::TestCase
     :child => { :tag => "project",
                 :attributes => {:name => "home:tscholz",
                 },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
   end
@@ -476,11 +520,29 @@ class TagControllerTest < Test::Unit::TestCase
                 :attributes => {:name => "TestPack",
                   :project => "home:tscholz"
                 },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                }, 
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
-                }
+    }
   end
   
   
@@ -508,22 +570,55 @@ class TagControllerTest < Test::Unit::TestCase
     :child => { :tag => "project",
                 :attributes => {:name => "home:tscholz"
                 },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz"
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz"
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz"
+                },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
-                }
+    }
     #checking the package and each tag
     assert_tag  :tag => "collection",
     :child => { :tag => "package",
                 :attributes => {:name => "TestPack",
                   :project => "home:tscholz"
                 },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} },
-                :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },               
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
-                }
+    }
   end
   
   
