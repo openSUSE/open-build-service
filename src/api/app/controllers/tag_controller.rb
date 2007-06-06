@@ -156,13 +156,18 @@ class TagController < ApplicationController
   
   
   def get_tags_by_user_and_package( do_render=true  )
-    user = @http_user
-    @type = "package" 
-    
     begin
+      user = User.find_by_login(params[:user])
+      raise RuntimeError.new( "Error: User '#{params[:user]}' not found." ) unless user
+      @type = "package" 
+    
       @project = DbProject.find_by_name(params[:project]) 
+      raise RuntimeError.new( "Error: Project '#{params[:project]}' not found." ) unless @project
+            
       @name = params[:package]
       @package = @project.db_packages.find_by_name(params[:package])
+      raise RuntimeError.new( "Error: Package '#{params[:package]}' not found." ) unless @package
+      
       @tags = @package.tags.find(:all, :order => :name, :conditions => ["taggings.user_id = ?",user.id])
       if do_render
         render :partial => "tags"
@@ -171,15 +176,10 @@ class TagController < ApplicationController
       end
       
       
-    rescue
-      if @project.nil?
-        render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown project #{params[:project]}" 
-      elsif @package.nil?   
-        render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:package]}"   
-      end
-    end
+    rescue Exception => error
+      render_error :status => 404, :errorcode => 'tag_error',
+      :message => error 
+    end 
   end
   
   
