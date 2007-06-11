@@ -476,10 +476,12 @@ class StatisticsController < ApplicationController
 
 
   def global_counters
-    @users = User.find( :all, :conditions => 'state=2' ).length
-    @repos = Repository.find( :all ).length
-    @projects = DbProject.find( :all ).length
-    @packages = DbPackage.find( :all ).length
+    @users = User.find( :first,
+      :select => 'count(id) AS count', :conditions => 'state=2'
+    ).count
+    @repos = Repository.find( :first, :select => 'count(id) AS count' ).count
+    @projects = DbProject.find( :first, :select => 'count(id) AS count' ).count
+    @packages = DbPackage.find( :first, :select => 'count(id) AS count' ).count
   end
 
 
