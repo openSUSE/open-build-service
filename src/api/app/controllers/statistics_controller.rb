@@ -475,6 +475,14 @@ class StatisticsController < ApplicationController
   end
 
 
+  def global_counters
+    @users = User.find( :all, :conditions => 'state=2' ).length
+    @repos = Repository.find( :all ).length
+    @projects = DbProject.find( :all ).length
+    @packages = DbPackage.find( :all ).length
+  end
+
+
   def latest_built
     # set automatic action_cache expiry time limit
     @response.time_to_live = 10.minutes

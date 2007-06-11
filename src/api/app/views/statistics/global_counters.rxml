@@ -1,0 +1,11 @@
+xml.instruct!
+
+xml.global_couters do
+
+  xml.packages( @packages )
+  xml.projects( @projects )
+  xml.users( @users )
+  xml.repos( @repos )
+
+end
+
