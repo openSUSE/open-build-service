@@ -457,15 +457,13 @@ class TagControllerTest < Test::Unit::TestCase
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
   end
   
-  
-  def test_get_tagged_projects_by_user
+  #This test gets all projects with tags by the logged on user tscholz
+  def test_get_tagged_projects_by_user_1
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown user
-    #this test doesn't work at the moment because of the @http_user
-    #get :get_tagged_projects_by_user, :user => "IamAnAlienToo" 
-    #assert_response 404
-    
+    get :get_tagged_projects_by_user, :user => "IamAnAlienToo" 
+    assert_response 404
     
     get :get_tagged_projects_by_user, :user => "tscholz"
     assert_response :success
@@ -493,6 +491,34 @@ class TagControllerTest < Test::Unit::TestCase
     }
   end
 
+
+  #This test gets all projects with tags by another user than the the logged on
+  #user tscholz
+  def test_get_tagged_projects_by_user_2
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :get_tagged_projects_by_user, :user => "fred"
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "collection",
+    :attributes => { :user => "fred"
+    },
+    :child => { :tag => "project" }
+    assert_tag :tag => "collection",
+    :children => { :count => 1, :only => { :tag => "project" } }
+    #checking the project and each tag
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz"},
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+  end
+  
 
   def test_get_tagged_packages_by_user
     prepare_request_with_user @request, "tscholz", "asdfasdf"

@@ -1,7 +1,7 @@
 
 xml.instruct!
 
-xml.collection(:user => @http_user.login) do
+xml.collection(:user => @user.login) do
   
   case @my_type 
     when "project"

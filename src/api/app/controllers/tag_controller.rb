@@ -19,28 +19,37 @@ class TagController < ApplicationController
   end
   
   def get_tagged_projects_by_user
-    user = @http_user
-    @taggings = Tagging.find(:all,
-                             :conditions => ["taggable_type = ? AND user_id = ?","DbProject",user.id])
-    @projects_tags = {}
-    @taggings.each do |tagging|
-      project = DbProject.find(tagging.taggable_id)
-      tag = Tag.find(tagging.tag_id)
-      @projects_tags[project] = [] if @projects_tags[project] == nil
-      @projects_tags[project] <<  tag
-    end
-    @projects_tags.keys.each do |key|
-      @projects_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
-    end
-    @my_type = "project"
-    render :partial => "tagged_objects_with_tags"
+    begin
+      @user = User.find_by_login(params[:user])
+      raise RuntimeError.new( "Error: User '#{params[:user]}' not found." ) unless @user
+      
+      @taggings = Tagging.find(:all,
+                               :conditions => ["taggable_type = ? AND user_id = ?","DbProject",@user.id])
+      @projects_tags = {}
+      @taggings.each do |tagging|
+        project = DbProject.find(tagging.taggable_id)
+        tag = Tag.find(tagging.tag_id)
+        @projects_tags[project] = [] if @projects_tags[project] == nil
+        @projects_tags[project] <<  tag
+      end
+      @projects_tags.keys.each do |key|
+        @projects_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
+      end
+      @my_type = "project"
+      render :partial => "tagged_objects_with_tags"
+    
+
+    rescue Exception => error
+      render_error :status => 404, :errorcode => 'tag_error',
+      :message => error 
+    end 
   end
   
   
   def get_tagged_packages_by_user
-    user = @http_user
+    @user = @http_user
     @taggings = Tagging.find(:all,
-                             :conditions => ["taggable_type = ? AND user_id = ?","DbPackage",user.id])
+                             :conditions => ["taggable_type = ? AND user_id = ?","DbPackage",@user.id])
     @packages_tags = {}
     @taggings.each do |tagging|
       package = DbPackage.find(tagging.taggable_id)
