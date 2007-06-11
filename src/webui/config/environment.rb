@@ -89,6 +89,10 @@ ActiveXML::Base.config do |conf|
 
     map.connect :architecture, "rest:///architecture"
 
+    ##DEPRECATED
+    map.connect :platform, "rest:///platform/:project/:name",
+        :all => "rest:///platform/"
+
     map.connect :repository, "rest:///repository/:project/:name",
         :all    => "rest:///repository/"
 
