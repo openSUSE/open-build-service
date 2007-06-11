@@ -303,6 +303,19 @@ class TagControllerTest < Test::Unit::TestCase
   #  end
   #  
   #  
+ 
+  def test_get_tags_by_user_and_project_internal_use
+    def @controller.params
+      return {:user => "tscholz", :project => "home:tscholz"}
+    end
+    
+    tags = @controller.get_tags_by_user_and_project( false )
+    assert_kind_of Array, tags
+    assert_equal 3, tags.size
+    assert_equal 'TagA', tags[0].name
+    assert_equal 'TagB', tags[1].name
+    assert_equal 'TagF', tags[2].name 
+  end
   
   
   def test_get_tags_by_user_and_project
