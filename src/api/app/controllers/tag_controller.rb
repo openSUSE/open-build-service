@@ -47,21 +47,29 @@ class TagController < ApplicationController
   
   
   def get_tagged_packages_by_user
-    @user = @http_user
-    @taggings = Tagging.find(:all,
-                             :conditions => ["taggable_type = ? AND user_id = ?","DbPackage",@user.id])
-    @packages_tags = {}
-    @taggings.each do |tagging|
-      package = DbPackage.find(tagging.taggable_id)
-      tag = Tag.find(tagging.tag_id)
-      @packages_tags[package] = [] if @packages_tags[package] == nil
-      @packages_tags[package] <<  tag
-    end
-    @packages_tags.keys.each do |key|
-      @packages_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
-    end
-    @my_type = "package"
-    render :partial => "tagged_objects_with_tags"
+    begin
+      @user = User.find_by_login(params[:user])
+      raise RuntimeError.new( "Error: User '#{params[:user]}' not found." ) unless @user
+      @taggings = Tagging.find(:all,
+                               :conditions => ["taggable_type = ? AND user_id = ?","DbPackage",@user.id])
+      @packages_tags = {}
+      @taggings.each do |tagging|
+        package = DbPackage.find(tagging.taggable_id)
+        tag = Tag.find(tagging.tag_id)
+        @packages_tags[package] = [] if @packages_tags[package] == nil
+        @packages_tags[package] <<  tag
+      end
+      @packages_tags.keys.each do |key|
+        @packages_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
+      end
+      @my_type = "package"
+      render :partial => "tagged_objects_with_tags"
+      
+      
+    rescue Exception => error
+      render_error :status => 404, :errorcode => 'tag_error',
+      :message => error 
+    end 
   end
   
   
