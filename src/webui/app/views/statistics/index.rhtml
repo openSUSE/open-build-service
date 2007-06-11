@@ -33,6 +33,13 @@
       :action => 'highest_rated', :more => true, :limit => 25 } -%>
   </span>
   <div style="clear: both;">&nbsp;</div>
+  <div class="global_counters">
+    There are now
+    <b><%= @global_counters.projects -%></b> projects,
+    <b><%= @global_counters.packages -%></b> packages,
+    <b><%= @global_counters.repos -%></b> repositories and
+    <b><%= @global_counters.users -%></b> confirmed users.
+  </div>
 </div>
 
 <div id="infobox"><span>&nbsp;</span></div>

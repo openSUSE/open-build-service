@@ -87,8 +87,10 @@ ActiveXML::Base.config do |conf|
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"
 
-    map.connect :platform, "rest:///platform/:project/:name",
-        :all    => "rest:///platform/"
+    map.connect :architecture, "rest:///architecture"
+
+    map.connect :repository, "rest:///repository/:project/:name",
+        :all    => "rest:///repository/"
 
     map.connect :directory, "rest:///source/:project/:package"
     map.connect :link, "rest:///source/:project/:package/_link"
@@ -119,6 +121,8 @@ ActiveXML::Base.config do |conf|
       :all => 'rest:///statistics/highest_rated?:limit'
     map.connect :mostactive, 'rest:///statistics/most_active?:type&:limit',
       :specific => 'rest:///statistics/activity/:project/:package'
+    map.connect :globalcounters, 'rest:///statistics/global_counters',
+      :all => 'rest:///statistics/global_counters'
 
     # Status Messages
     map.connect :statusmessage, 'rest:///status_message/:id/?:limit'

@@ -627,6 +627,12 @@ div#package_disablebuild ul {
 #statistics span.last {
   border: none;
 }
+#statistics div.global_counters {
+  border-top: 1px #6eb927 dotted;
+  text-align: center;
+  width: 100%;
+  padding: 0.25em;
+}
 #statistics span ul li {
   margin-left:0;
 }
