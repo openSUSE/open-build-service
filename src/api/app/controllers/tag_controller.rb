@@ -379,54 +379,71 @@ class TagController < ApplicationController
   
   
   def update_tags_by_object_and_user
-    
-    @user = @http_user
-    @project = DbProject.find_by_name(params[:project])
-    
-    tags, unsaved_tags = taglistXML_to_tags(request.raw_post)
-    
-    tag_hash = {}
-    tags.each do |tag|
-      tag_hash[tag.name] = ""
-    end
-    logger.debug "[TAG:] Hash of new tags: #{@tag_hash.inspect}"
-    
-    if params[:package]
-      logger.debug "[TAG:] Package selected"
-      @package = @project.db_packages.find_by_name(params[:package])
-      #Holzhammermethode ;)
-      #Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'DbPackage'")
+    begin
+      @user = User.find_by_login(params[:user])
+      raise RuntimeError.new( "Error: User '#{params[:user]}' not found." ) unless @user
+      raise SecurityError.new( "Forbidden: Editing tags for another user than the logged on user is not allowed." ) unless @user == @http_user
       
-      old_tags = get_tags_by_user_and_package( false )
-      old_tags.each do |old_tag|
-        unless tag_hash.has_key? old_tag.name
-          Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'DbPackage' AND tag_id = #{old_tag.id}")
-        end
+      
+      @project = DbProject.find_by_name(params[:project])
+      raise RuntimeError.new( "Error: Project '#{params[:project]}' not found." ) unless @project
+      
+      tags, unsaved_tags = taglistXML_to_tags(request.raw_post)
+      
+      tag_hash = {}
+      tags.each do |tag|
+        tag_hash[tag.name] = ""
       end
-      save_tags(@package,@user,tags)
-    else
-      logger.debug "[TAG:] Project selected"
-      #Holzhammermethode ;)
-      #Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'DbProject'")
-      old_tags = get_tags_by_user_and_project( false )
-      old_tags.each do |old_tag|
-        unless tag_hash.has_key? old_tag.name
-          Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'DbProject' AND tag_id = #{old_tag.id}")
+      logger.debug "[TAG:] Hash of new tags: #{@tag_hash.inspect}"
+      
+      if params[:package]
+        logger.debug "[TAG:] Package selected"
+        @package = @project.db_packages.find_by_name(params[:package])
+        raise RuntimeError.new( "Error: Package '#{params[:package]}' not found." ) unless @package
+        
+        #Holzhammermethode ;)
+        #Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'DbPackage'")
+        
+        old_tags = get_tags_by_user_and_package( false )
+        old_tags.each do |old_tag|
+          unless tag_hash.has_key? old_tag.name
+            Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'DbPackage' AND tag_id = #{old_tag.id}")
+          end
         end
+        save_tags(@package,@user,tags)
+      else
+        logger.debug "[TAG:] Project selected"
+        #Holzhammermethode ;)
+        #Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'DbProject'")
+        old_tags = get_tags_by_user_and_project( false )
+        old_tags.each do |old_tag|
+          unless tag_hash.has_key? old_tag.name
+            Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'DbProject' AND tag_id = #{old_tag.id}")
+          end
+        end
+        save_tags(@project,@user,tags)
+      end    
+      
+      if not unsaved_tags
+        render :nothing => true, :status => 200
+      else  
+        error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
+        logger.debug "#{error}"
+        #need exception handling in the tag client
+        render_error :status => 400, :errorcode => 'tagcreation_error',
+        :message => error 
       end
-      save_tags(@project,@user,tags)
-    end    
     
-    if not unsaved_tags
-      render :nothing => true, :status => 200
-    else  
-      error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
-      logger.debug "#{error}"
-      #need exception handling in the tag client
-      render_error :status => 400, :errorcode => 'tagcreation_error',
+    
+    rescue SecurityError => error
+      render_error :status => 403, :errorcode => 'tag_error',
+      :message => error     
+    rescue Exception => error
+      render_error :status => 404, :errorcode => 'tag_error',
       :message => error 
-    end         
+    end 
   end
+  private :update_tags_by_object_and_user
   
   
   def taglistXML_to_tags(taglistXML)

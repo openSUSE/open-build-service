@@ -864,4 +864,209 @@ class TagControllerTest < Test::Unit::TestCase
     assert_response 404  
   end
   
+  
+  def test_tags_by_user_and_object_put_for_a_project
+    
+    #Precondition check: Get all tags for tscholz and the home:project.  
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get :get_tags_by_user_and_project, :project => 'home:tscholz',
+    :user => 'tscholz'
+    assert_response :success
+    #checking response-data 
+    assert_tag :tag => "tags",
+    :attributes => { :project => "home:tscholz",
+      :user => "tscholz"
+    },
+    :child => { :tag => "tag" }
+    assert_tag :tag => "tags",
+    :children => { :count => 3, :only => { :tag => "tag" } }
+    #checking each tag
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
+    
+    
+    #tags to create  
+    tags = ["TagX", "TagY", "TagZ", "TagA"]  
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("tags") )
+    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    tags.each do |tag|
+      element = REXML::Element.new( 'tag' )
+      element.add_attribute REXML::Attribute.new('name', tag)
+      xml.root.add_element(element)      
+    end
+    
+    #add tags
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    put :tags_by_user_and_object, :project => 'home:tscholz', :user => 'tscholz'
+    assert_response :success
+    
+    
+    # Get data again and check that tags where added or removed 
+    get :get_tags_by_user_and_project, :project => 'home:tscholz',
+    :user => 'tscholz'
+    assert_response :success
+    #checking response-data 
+    assert_tag :tag => "tags",
+    :attributes => { :project => "home:tscholz",
+      :user => "tscholz"
+    },
+    :child => { :tag => "tag" }
+    assert_tag :tag => "tags",
+    :children => { :count => 4, :only => { :tag => "tag" } }
+    #checking each tag
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagX"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagY"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagZ"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }    
+  end
+  
+  
+  def test_tags_by_user_and_object_put_for_a_package
+    
+    #Precondition check: Get all tags for tscholz and a package.  
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get :get_tags_by_user_and_package, :project => 'home:tscholz',
+    :package => 'TestPack', :user => 'tscholz'
+    assert_response :success
+    #checking response-data 
+    assert_tag :tag => "tags",
+    :attributes => { :project => "home:tscholz",
+      :package => "TestPack",
+      :user => "tscholz"
+    },
+    :child => { :tag => "tag" }
+    assert_tag :tag => "tags",
+    :children => { :count => 4, :only => { :tag => "tag" } }
+    #checking each tag
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
+    
+    
+    #tags to create  
+    tags = ["TagX", "TagY", "TagZ", "TagB"]  
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("tags") )
+    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    tags.each do |tag|
+      element = REXML::Element.new( 'tag' )
+      element.add_attribute REXML::Attribute.new('name', tag)
+      xml.root.add_element(element)      
+    end
+    
+    #add tags
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    put :tags_by_user_and_object, :project => 'home:tscholz', 
+    :package => "TestPack",
+    :user => 'tscholz'
+    assert_response :success
+    
+    
+    # Get data again and check that tags where added or removed 
+    get :get_tags_by_user_and_package, :project => 'home:tscholz',
+    :package => 'TestPack',
+    :user => 'tscholz'
+    assert_response :success
+    #checking response-data 
+    assert_tag :tag => "tags",
+    :attributes => { :project => "home:tscholz",
+      :package => "TestPack",
+      :user => "tscholz"
+    },
+    :child => { :tag => "tag" }
+    assert_tag :tag => "tags",
+    :children => { :count => 4, :only => { :tag => "tag" } }
+    #checking each tag
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagX"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagY"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagZ"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }    
+  end
+  
+  
+  #test for writing tags for another user than the logged in user <- forbidden
+  def test_tags_by_user_and_object_put_as_invalid_user
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #tags to create  
+    tags = ["TagX", "TagY", "TagZ", "TagB"]  
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("tags") )
+    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    tags.each do |tag|
+      element = REXML::Element.new( 'tag' )
+      element.add_attribute REXML::Attribute.new('name', tag)
+      xml.root.add_element(element)      
+    end
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    #put request for an unknown user
+    put :tags_by_user_and_object, :project => 'home:tscholz', 
+    :package => "TestPack",
+    :user => 'Alien'
+    assert_response 404
+    
+    #put request for another user than the logged on user.
+    put :tags_by_user_and_object, :project => 'home:tscholz', 
+    :package => "TestPack",
+    :user => 'fred'
+    assert_response 403
+  end
+  
+  
+  def test_tags_by_user_and_object_put_for_invalid_objects
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+     #tags to create  
+    tags = ["TagX", "TagY", "TagZ", "TagB"]  
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("tags") )
+    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    tags.each do |tag|
+      element = REXML::Element.new( 'tag' )
+      element.add_attribute REXML::Attribute.new('name', tag)
+      xml.root.add_element(element)      
+    end
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    #put request for an unknown project
+    put :tags_by_user_and_object, :project => 'AlienProject', 
+    :user => 'tscholz'
+    assert_response 404
+    
+    #put request for an unknown package
+    put :tags_by_user_and_object, :project => 'home:tscholz', 
+    :package => "AlienPackage",
+    :user => 'tscholz'
+    assert_response 404
+  end
+  
 end
