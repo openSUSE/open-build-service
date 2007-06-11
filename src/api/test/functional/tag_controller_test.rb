@@ -316,6 +316,22 @@ class TagControllerTest < Test::Unit::TestCase
     assert_equal 'TagB', tags[1].name
     assert_equal 'TagF', tags[2].name 
   end
+ 
+ 
+  def test_get_tags_by_user_and_package_internal_use
+    def @controller.params
+      return {:user => "tscholz", :project => "home:tscholz",
+      :package => "TestPack"}
+    end
+    
+    tags = @controller.get_tags_by_user_and_package( false )
+    assert_kind_of Array, tags
+    assert_equal 4, tags.size
+    assert_equal 'TagB', tags[0].name
+    assert_equal 'TagC', tags[1].name
+    assert_equal 'TagD', tags[2].name  
+    assert_equal 'TagE', tags[3].name  
+  end
   
   
   def test_get_tags_by_user_and_project
