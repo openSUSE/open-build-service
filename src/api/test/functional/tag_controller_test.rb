@@ -304,6 +304,8 @@ class TagControllerTest < Test::Unit::TestCase
   #  
   #  
  
+  #This test is for testing the function get_tags_by_user_and_project
+  #in the case of controller-internal usage of this function. 
   def test_get_tags_by_user_and_project_internal_use
     def @controller.params
       return {:user => "tscholz", :project => "home:tscholz"}
@@ -318,6 +320,8 @@ class TagControllerTest < Test::Unit::TestCase
   end
  
  
+  #This test is for testing the function get_tags_by_user_and_package
+  #in the case of controller-internal usage of this function.
   def test_get_tags_by_user_and_package_internal_use
     def @controller.params
       return {:user => "tscholz", :project => "home:tscholz",
