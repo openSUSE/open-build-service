@@ -82,18 +82,25 @@ class TagController < ApplicationController
   
   def get_projects_by_tag
     begin
-      @tag = Tag.find_by_name(params[:tag])
-      @projects = @tag.db_projects.find(:all, :group => "name", :order => "name")
+      @tag = params[:tag]      
+      @projects = Array.new
+
+      @tag.split('::').each do |t|
+        tag = Tag.find_by_name(t)
+        raise RuntimeError.new( "Error: Tag '#{t}' not found." ) unless tag
+        
+        if @projects == []
+          @projects = tag.db_projects.find(:all, :group => "name", :order => "name")
+        else
+          @projects = @projects & tag.db_projects.find(:all, :group => "name", :order => "name")
+        end
+      end
 
       render :partial => "objects_by_tag"
       
-    rescue
-      #raise unless ( RAILS_ENV ==  'production' ) 
-      if @tag.nil?
-        tag_error(:tag => params[:tag])
-      elsif
-        raise
-      end
+    rescue Exception => error
+      render_error :status => 404, :errorcode => 'tag_error',
+      :message => error 
     end
   end
   

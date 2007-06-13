@@ -476,7 +476,8 @@ XmlResult: tags
 
 GET /tag/<tag>/_projects
 
-  Get projects by tag.
+  Get projects by tag(s). 
+  For selection by more than one tag use TagA::TagB for example.  
 	
 XmlResult: collection_objects_by_tag
   

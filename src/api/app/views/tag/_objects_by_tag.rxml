@@ -1,7 +1,11 @@
 #very close to _tagged_objects_with_tags.xml
+if @tag.class == Tag
+  @tag = @tag.name
+end 
+
 xml.instruct!
 
-xml.collection(:tag => CGI::escapeHTML(@tag.name)) do
+xml.collection(:tag => CGI::escapeHTML(@tag)) do
 
   if @projects
     @projects.each do |project|
