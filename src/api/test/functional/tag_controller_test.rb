@@ -313,10 +313,11 @@ class TagControllerTest < Test::Unit::TestCase
     
     tags = @controller.get_tags_by_user_and_project( false )
     assert_kind_of Array, tags
-    assert_equal 3, tags.size
+    assert_equal 4, tags.size
     assert_equal 'TagA', tags[0].name
     assert_equal 'TagB', tags[1].name
-    assert_equal 'TagF', tags[2].name 
+    assert_equal 'TagC', tags[2].name 
+    assert_equal 'TagF', tags[3].name 
   end
  
  
@@ -363,12 +364,14 @@ class TagControllerTest < Test::Unit::TestCase
     },
     :child => { :tag => "tag" }
     assert_tag :tag => "tags",
-    :children => { :count => 3, :only => { :tag => "tag" } }
+    :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
     assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     
@@ -478,8 +481,9 @@ class TagControllerTest < Test::Unit::TestCase
     },
     :child => { :tag => "project" }
     assert_tag :tag => "collection",
-    :children => { :count => 1, :only => { :tag => "project" } }
-    #checking the project and each tag
+    :children => { :count => 3, :only => { :tag => "project" } }
+    #checking one of the three projects and each tag
+    #TODO: check the others too
     assert_tag  :tag => "collection",
     :child => { :tag => "project",
                 :attributes => {:name => "home:tscholz"},
@@ -617,6 +621,49 @@ class TagControllerTest < Test::Unit::TestCase
     },
     :child => { :tag => "project" }
     assert_tag :tag => "collection",
+    :children => { :count => 3, :only => { :tag => "project" } }
+    #checking one of the three projects and each tag
+    #TODO: check the others too
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
+    }
+  end
+    
+    
+  #This test gets all projects tagged by the tree tags TagA, TagB, TagC
+  #Result: only one project (home:tscholz)
+  def test_get_projects_by_three_tags
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :get_projects_by_tag, :tag => "TagA::TagB::TagC"
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "collection",
+    :attributes => { :tag => "TagA::TagB::TagC" },
+    :child => { :tag => "project" }
+    assert_tag :tag => "collection",
     :children => { :count => 1, :only => { :tag => "project" } }
     #checking the project and each tag
     assert_tag  :tag => "collection",
@@ -644,7 +691,64 @@ class TagControllerTest < Test::Unit::TestCase
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     }
   end
+  
+  
+  #This test gets all projects tagged by the two tags TagA and TagC
+  #Result: two projects (home:tscholz, kde)
+  def test_get_projects_by_two_tags
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
     
+    get :get_projects_by_tag, :tag => "TagA::TagC"
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "collection",
+    :attributes => { :tag => "TagA::TagC" },
+    :child => { :tag => "project" }
+    assert_tag :tag => "collection",
+    :children => { :count => 2, :only => { :tag => "project" } }
+    
+    #checking the project home:tscholz and each tag
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
+    }
+    
+    #checking the second project home:tscholz and each tag
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "kde",
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "kde",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+  end
+  
     
   def test_get_packages_by_tag
     prepare_request_with_user @request, "tscholz", "asdfasdf"
@@ -804,23 +908,23 @@ class TagControllerTest < Test::Unit::TestCase
   def test_tagcloud_raw
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get :tagcloud, :distribution => 'raw', :steps => 6, :limit => 4
+    get :tagcloud, :distribution => 'raw', :limit => 4
     assert_response :success
     
     #checking response-data 
     assert_tag :tag => "tagcloud",
     :attributes => { :distribution_method => "raw",
-                     :steps => 6,
+                     :steps => 6, #thats the default
                      :user => ""
     },
     :children => { :count => 4, :only => { :tag => "tag"} }
     
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagA", :count => 1} }
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :count => 3} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 4} }
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 2} }
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 4} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }    
   end  
@@ -829,7 +933,7 @@ class TagControllerTest < Test::Unit::TestCase
   def test_tagcloud_linear
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get :tagcloud, :distribution => 'linear', :steps => 10, :limit => 3
+    get :tagcloud, :distribution => 'linear', :steps => 10, :limit => 4
     assert_response :success
     
     #checking response-data 
@@ -838,12 +942,14 @@ class TagControllerTest < Test::Unit::TestCase
                      :steps => 10,
                      :user => ""
     },
-    :children => { :count => 3, :only => { :tag => "tag"} }
+    :children => { :count => 4, :only => { :tag => "tag"} }
     
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 7} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 10} }
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 3} }
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 10} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
   end
@@ -864,11 +970,11 @@ class TagControllerTest < Test::Unit::TestCase
     :children => { :count => 6, :only => { :tag => "tag"} }
     
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 0} }
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 10} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 6} }
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 12} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
     assert_tag :tag => "tagcloud",
@@ -893,11 +999,11 @@ class TagControllerTest < Test::Unit::TestCase
     :children => { :count => 6, :only => { :tag => "tag"} }
     
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 0} }
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 12} }
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 8} }
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 0} }
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 12} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
     assert_tag :tag => "tagcloud",
@@ -938,11 +1044,11 @@ class TagControllerTest < Test::Unit::TestCase
     :children => { :count => 6, :only => { :tag => "tag"} }
     
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 0} }
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :size => 12} }
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 8} }
     assert_tag :tag => "tagcloud",
-    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 0} }
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 12} }
     assert_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagD", :size => 0} }
     assert_tag :tag => "tagcloud",
@@ -971,12 +1077,14 @@ class TagControllerTest < Test::Unit::TestCase
     },
     :child => { :tag => "tag" }
     assert_tag :tag => "tags",
-    :children => { :count => 3, :only => { :tag => "tag" } }
+    :children => { :count => 4, :only => { :tag => "tag" } }
     #checking each tag
     assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
     assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    assert_tag  :tag => "tags",
+    :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
     assert_tag  :tag => "tags",
     :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
     
