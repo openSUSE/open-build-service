@@ -43,6 +43,8 @@ class Tag < ActiveRecord::Base
   protected
   def validate
     errors.add("name", "The tag has invalid format, no ? allowed!") if name =~ /\?/
+    #reserved for the advanced tag-browsing feature
+    errors.add("name", "The tag has invalid format, no :: allowed!") if name =~ /:/
     blacklist = BlacklistTag.find(:all)
     blacklist ||= []
     
