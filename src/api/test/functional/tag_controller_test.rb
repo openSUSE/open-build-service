@@ -693,6 +693,49 @@ class TagControllerTest < Test::Unit::TestCase
   end
   
   
+  #This test gets all projects tagged by the tree tags TagA, TagB, TagC, 
+  #but tags are in different order
+  #Result: only one project (home:tscholz)
+  def test_get_projects_by_three_tags_different_order
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :get_projects_by_tag, :tag => "TagC::TagA::TagB"
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "collection",
+    :attributes => { :tag => "TagC::TagA::TagB" },
+    :child => { :tag => "project" }
+    assert_tag :tag => "collection",
+    :children => { :count => 1, :only => { :tag => "project" } }
+    #checking the project and each tag
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagA"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "project",
+                :attributes => {:name => "home:tscholz",
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagF"} }
+    }
+  end
+  
+  
   #This test gets all projects tagged by the two tags TagA and TagC
   #Result: two projects (home:tscholz, kde)
   def test_get_projects_by_two_tags
@@ -796,6 +839,68 @@ class TagControllerTest < Test::Unit::TestCase
                 }, 
                 :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     }
+  end
+  
+  #This test gets all packages tagged by the two tags TagA and TagC
+  #Result: only one package (TestPack)
+  def test_get_packages_by_two_tags
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :get_packages_by_tag, :tag => "TagB::TagC"
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "collection",
+    :attributes => { :tag => "TagB::TagC"
+    },
+    :child => { :tag => "package" }
+    assert_tag :tag => "collection",
+    :children => { :count => 1, :only => { :tag => "package" } }
+    #checking the package and each tag
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagB"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagC"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                },                
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagD"} }
+    }
+    assert_tag  :tag => "collection",
+    :child => { :tag => "package",
+                :attributes => {:name => "TestPack",
+                  :project => "home:tscholz"
+                }, 
+                :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
+    }
+  end
+  
+  
+  #This test gets all packages tagged by the two tags TagA and TagB
+  #Result: no package can be found
+  def test_get_packages_by_two_tags_nothing_found
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    get :get_packages_by_tag, :tag => "TagA::TagB"
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "collection",
+    :attributes => { :tag => "TagA::TagB"
+    },
+    :children => { :count => 0 }
   end
   
   

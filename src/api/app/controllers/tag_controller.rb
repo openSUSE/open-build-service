@@ -80,44 +80,73 @@ class TagController < ApplicationController
   end
   
   
-  def get_projects_by_tag
+  def get_projects_by_tag ( do_render=true )
     begin
       @tag = params[:tag]      
       @projects = Array.new
+
+       first_run = true
 
       @tag.split('::').each do |t|
         tag = Tag.find_by_name(t)
         raise RuntimeError.new( "Error: Tag '#{t}' not found." ) unless tag
         
-        if @projects == []
-          @projects = tag.db_projects.find(:all, :group => "name", :order => "name")
+        unless first_run         
+          @projects = @projects & tag.db_projects.find(:all, :group => "name", :order => "name")      
         else
-          @projects = @projects & tag.db_projects.find(:all, :group => "name", :order => "name")
+          @projects = tag.db_projects.find(:all, :group => "name", :order => "name")
+          first_run = false 
         end
       end
 
-      render :partial => "objects_by_tag"
+      if do_render
+        render :partial => "objects_by_tag"
+      else
+        return @projects
+      end
       
     rescue Exception => error
-      render_error :status => 404, :errorcode => 'tag_error',
-      :message => error 
+      if do_render 
+        render_error :status => 404, :errorcode => 'tag_error',
+        :message => error
+      else
+        raise error
+      end
     end
   end
   
   
-  def get_packages_by_tag
+  def get_packages_by_tag( do_render=true )
     begin
-      @tag = Tag.find_by_name(params[:tag])
-      @packages = @tag.db_packages.find(:all, :group => "name", :order => "name")
- 
-      render :partial => "objects_by_tag"
+      @tag = params[:tag]
+      @packages = Array.new
       
+      first_run = true
       
-    rescue
-      if @tag.nil?
-        tag_error(:tag => params[:tag])
-      elsif
-        raise 
+      @tag.split('::').each do |t|
+        tag = Tag.find_by_name(t)
+        raise RuntimeError.new( "Error: Tag '#{t}' not found." ) unless tag
+        
+        unless first_run
+          @packages = @packages & tag.db_packages.find(:all, :group => "name", :order => "name")
+        else
+          @packages = tag.db_packages.find(:all, :group => "name", :order => "name")
+          first_run = false
+        end
+      end
+      
+      if do_render
+        render :partial => "objects_by_tag"
+      else
+        return @packages
+      end
+      
+    rescue Exception => error
+      if do_render 
+        render_error :status => 404, :errorcode => 'tag_error',
+        :message => error
+      else
+        raise error
       end
     end
   end
@@ -125,19 +154,14 @@ class TagController < ApplicationController
   
   def get_objects_by_tag
     begin
-      @tag = Tag.find_by_name(params[:tag])
-      @projects = @tag.db_projects.find(:all, :group => "name", :order => "name")
-      @packages = @tag.db_packages.find(:all, :group => "name", :order => "name")
-  
-      render :partial => "objects_by_tag"
+      @projects = get_projects_by_tag( false )
+      @packages = get_packages_by_tag( false )
       
+      render :partial => "objects_by_tag"     
       
-    rescue
-      if @tag.nil?
-        tag_error(:tag => params[:tag])
-      elsif
-        raise
-      end
+    rescue Exception => error
+      render_error :status => 404, :errorcode => 'tag_error',
+      :message => error
     end
   end
   
