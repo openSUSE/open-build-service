@@ -1,7 +1,7 @@
 <div id="status_messages">
   <h2>
     Status Messages
-    <%= link_to_remote image_tag("list-add", :title => "Add new message", :border => 0),
+    <%= link_to_remote image_tag("list-add.png", :title => "Add new message", :border => 0),
       :update => 'add_message_form_area',
       :url => { :action => "add_message_form" },
       :loading => "toggle_visibility('message_form_spinner')",

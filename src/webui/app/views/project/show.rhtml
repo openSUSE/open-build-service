@@ -74,7 +74,7 @@
           <dd>
           <%=h person.userid -%>
           <%= link_to(
-            image_tag("mail_generic", :size => "16x16", :border => 0, :class => 'email_link'),
+            image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
             'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE build service' ) -%>
           <%- if @project.each_person.length > 1 %>
           <%= link_to "[x]",
@@ -95,7 +95,7 @@
       <!-- Package table -->
       <h3>
         Packages
-        <%= link_to image_tag( 'list-add', :border => 0, :title => 'Add Package' ),
+        <%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Package' ),
         :controller => 'package', :action => :new, :project => @project %>
       </h3>
      <% if @packages.length.to_i > 0 -%>
@@ -135,7 +135,7 @@
       <!-- Repository table -->
       <h3>
         Build Repositories
-        <%= link_to image_tag( 'list-add', :border => 0, :title => 'Add Repository' ),
+        <%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Repository' ),
         :action => 'add_target_simple', :project => @project %>
       </h3>
       <% if @project.has_element? :repository -%>

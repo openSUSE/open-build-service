@@ -21,6 +21,7 @@ class IchainNotifierTest < Test::Unit::TestCase
     @expected.set_content_type "text", "plain", { "charset" => CHARSET }
     @expected.from    = 'admin@opensuse.org'
     @expected.to      = @user.email
+    @expected.mime_version = "1.0"
   end
 
   def test_reject

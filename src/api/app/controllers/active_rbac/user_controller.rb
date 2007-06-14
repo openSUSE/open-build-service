@@ -4,7 +4,8 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
   helper RbacHelper
 
   # Use the configured layout.
-  layout ActiveRbacConfig.config(:controller_layout)
+  #layout "rbac.rhtml"
+  layout "rbac"
 
   # We force users to use POST on the state changing actions.
   verify :method       => :post,

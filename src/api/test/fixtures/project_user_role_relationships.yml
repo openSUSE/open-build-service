@@ -3,16 +3,16 @@ kde4_fred_maintainer:
   id: 1
   db_project_id: 2
   bs_user_id: 1
-  bs_role_id: 1
+  role_id: 2
 
 kde4_fredlibs_maintainer:
   id: 2
   db_project_id: 2
   bs_user_id: 4
-  bs_role_id: 1
+  role_id: 2
 
 kde4_king_maintainer:
   id: 3
   db_project_id: 2
   bs_user_id: 2
-  bs_role_id: 1
+  role_id: 2

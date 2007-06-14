@@ -8,8 +8,8 @@ require 'opensuse/frontend'
   end
   
   def store_login
-    login = @params [:user_login ]
-    passwd = @params[:user_password]
+    login = params[:user_login]
+    passwd = params[:user_password]
 
     session[:login] = login
     session[:passwd] = passwd
@@ -37,7 +37,7 @@ require 'opensuse/frontend'
   # store current uri in  the session.
   # we can return to this location by calling return_location
   def store_location
-    session[:return_to] = @request.request_uri
+    session[:return_to] = request.request_uri
   end
 
   # move to the last store_location call or to the passed default one

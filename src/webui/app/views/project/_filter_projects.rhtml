@@ -1,13 +1,13 @@
 <b>Filter projects (case insensitive):</b><br/>
 
-<%= start_form_tag :action => 'search_project' -%>
+<% form_tag :action => 'search_project' do -%>
 <%= text_field_tag "projectsearch" -%>
 <img id="projectsearch_clear" alt="clear" title="clear input" src="/images/clear.png" 
   onclick="e=document.getElementById('projectsearch'); e.value=''; e.focus();"
   onMouseOver="this.src='/images/clear_active.png';"
   onMouseOut="this.src='/images/clear.png';" />
 <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
-<%= end_form_tag -%>
+<% end-%>
 
 <script type="text/javascript">
   <!-- 

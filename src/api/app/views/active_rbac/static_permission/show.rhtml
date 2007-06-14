@@ -1,0 +1,43 @@
+<h2>Details for Permission &quot;<%=h @permission.title %>&quot;</h2>
+
+<div class="commands">
+<%= link_to 'Delete', :action => 'delete', :id => @permission %>
+<%= link_to 'Edit', :action => 'update', :id => @permission %>
+<%= link_to 'Back to List', :action => 'list' %>
+</div>
+
+<dl>
+  <dt>Name:</dt>
+  <dd><%=h @permission.title %></dd>
+
+  <dt>Created At:</dt>
+  <dd><%= @permission.created_at.to_formatted_s(:long) %></dd>
+
+  <dt>Updated At:</dt>
+  <dd><%= @permission.updated_at.to_formatted_s(:long) %></dd>
+</dl>
+
+<div class="commands">
+<%= link_to 'Delete', :action => 'delete', :id => @permission %>
+<%= link_to 'Edit', :action => 'update', :id => @permission %>
+<%= link_to 'Back to List', :action => 'list' %>
+</div>
+
+<h3>Assigned Roles</h3>
+
+<% if @permission.roles.empty? %>
+<p>No roles</p>
+<% else %>
+<ul>
+  <% for role in @permission.roles do %>
+  <li><%= link_to role.title, { :controller => 'role', :action => 'show', :id => role }%></li>
+  <% end %>
+</ul>
+<% end %>
+
+<h3>All Assigned Roles</h3>
+<% if @permission.all_roles.empty? %>
+<p>No roles</p>
+<% else %>
+<%= node_tree(@permission.all_roles) { |role| result = link_to(role.title, { :controller => 'role', :action => 'show', :id => role }) } %>
+<% end %>

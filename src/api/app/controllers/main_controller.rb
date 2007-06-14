@@ -1,5 +1,3 @@
 class MainController < ApplicationController
-
-  layout "html"
-
+  layout "rbac"
 end

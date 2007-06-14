@@ -1,5 +1,4 @@
 require 'rexml/document'
-include REXML
 
 class Tag < ActiveXML::Base
   
@@ -12,10 +11,10 @@ class Tag < ActiveXML::Base
       xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
       xml.add_element( REXML::Element.new("tags") )
       if opt[:package]
-        xml.root.add_attribute Attribute.new("project", opt[:project])
-        xml.root.add_attribute Attribute.new("package", opt[:package])
+        xml.root.add_attribute REXML::Attribute.new("project", opt[:project])
+        xml.root.add_attribute REXML::Attribute.new("package", opt[:package])
       else #package
-        xml.root.add_attribute Attribute.new("project", opt[:project])
+        xml.root.add_attribute REXML::Attribute.new("project", opt[:project])
       end
       
       opt[:tag].split(" ").each do |tag|
@@ -24,7 +23,7 @@ class Tag < ActiveXML::Base
         tag.gsub!("\&","&amp;")
         #ActiveRecord::Base.logger.debug "[TAG:] gsub Tag: #{tag}"
         element = REXML::Element.new( 'tag' )
-        element.add_attribute Attribute.new('name', tag)
+        element.add_attribute REXML::Attribute.new('name', tag)
         xml.root.add_element(element)      
       end
       xml

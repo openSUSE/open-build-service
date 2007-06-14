@@ -193,13 +193,8 @@ class SourceControllerTest < Test::Unit::TestCase
     # Get data again and check that the maintainer was added
     get :project_meta, :project => "kde5"
     assert_response :success
-    newdoc = REXML::Document.new( @response.body )
-    d = newdoc.elements["/project"]
-    assert_equal(d.attribute('name').value(), 'kde5', message="Project name was not set to kde5")
-    d = newdoc.elements["//person[@role='maintainer' and @userid='#{name}']"]
-    assert_not_nil(d, message="--> Creator was not added automatically as project-maintainer")  
-    
-     
+    assert_select "project[name=kde5]"
+    assert_select "person[userid=king][role=maintainer]", {}, "Creator was not added as project maintainer"
   end
   private :do_create_project_meta_test
   

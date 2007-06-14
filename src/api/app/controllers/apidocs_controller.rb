@@ -9,9 +9,9 @@ class ApidocsController < ApplicationController
     else
       filename = @@apidocsbase + "index.html"
       if ( !File.exist?( filename ) )
-        render_text "Error"
+        render :text => "Unable to load API documentation source file", :layout => "rbac"
       else
-        render( :file => filename, :layout => "html" )
+        render( :file => filename, :layout => "rbac" )
       end
     end
   end

@@ -1,5 +1,5 @@
 class ProjectController < ApplicationController 
-  model :project, :package, :result
+  #model :project, :package, :result
 
   before_filter :check_parameter_project, :except =>
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,

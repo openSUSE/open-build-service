@@ -5,7 +5,7 @@
         <td class="small_table">
             <h3 style="padding:0;margin:0;">Tags
               <% form_id = "tag_form" %>
-              <%= link_to_remote image_tag("list-add",:title => "Add Tag", :border => 0),
+              <%= link_to_remote image_tag("list-add.png",:title => "Add Tag", :border => 0),
                 :update => 'tag_edit_area_package',
                 :url => { :controller => "package", :action => "add_tag_form", :project => @project, :package => @package},
                 :loading => "Element.toggle('spinner_#{form_id}')",

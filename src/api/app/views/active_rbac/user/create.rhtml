@@ -1,0 +1,9 @@
+<h2>New user</h2>
+
+<% form_for :user, :url => { :action => :create } do |form| %>
+  <%= render(:partial => 'form') %>
+  
+  <%= submit_tag "Create", :name => 'submit[create]' %>
+<% end %>
+
+<%= link_to 'Back', :action => 'list' %>

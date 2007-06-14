@@ -1,0 +1,110 @@
+<h2>Details for Role &quot;<%=h @role.title %>&quot;</h2>
+
+<div class="commands">
+<%= link_to 'Delete', :action => 'delete', :id => @role %>
+<%= link_to 'Edit', :action => 'update', :id => @role %>
+<%= link_to 'Back to List', :action => 'list' %>
+</div>
+
+<dl>
+  <dt>Name:</dt>
+  <dd><%=h @role.title %></dd>
+
+  <dt>Parent:</dt>
+  <% if @role.parent == nil %>
+  <dd>No parent, this role is a root role</dd>
+  <% else %>
+  <dd><%= link_to @role.parent.title, { :action => 'show', :id => @role.parent } %></dd>
+  <% end %>
+
+  <dt>Created At</dt>
+  <dd><%= @role.created_at.to_formatted_s(:long) %></dd>
+
+  <dt>Updated At</dt>
+  <dd><%= @role.updated_at.to_formatted_s(:long) %></dd>
+
+  <dt>Children:</dt>
+  <% if @role.children.empty? %>
+  <dd>No Children</dd>
+  <% else %>
+  <dd><%= node_tree(@role.children) { |role| result = link_to(role.title, { :action => 'show', :id => role }) } %></dd>
+  <% end %>
+</dl>
+
+<div class="commands">
+<%= link_to 'Delete', :action => 'delete', :id => @role %>
+<%= link_to 'Edit', :action => 'update', :id => @role %>
+<%= link_to 'Back to List', :action => 'list' %>
+</div>
+
+<h3>Directly Assigned Users</h3>
+
+<% if @role.users.length == 0 %>
+<p>None</p>
+<% else %>
+<ul>
+  <% for user in @role.users %>
+  <li><%= link_to user.login, { :controller => 'user', :action => 'show', :id => user } %></li>
+  <% end %>
+</ul>
+<% end %>
+
+<h3>All Assigned Users</h3>
+
+<% if @role.all_users.length == 0 %>
+<p>None</p>
+<% else %>
+<ul>
+  <% for user in @role.all_users %>
+  <li><%= link_to user.login, { :controller => 'user', :action => 'show', :id => user } %></li>
+  <% end %>
+</ul>
+<% end %>
+
+<h3>Directly Assigned Groups</h3>
+
+<% if @role.groups.length == 0 %>
+<p>None</p>
+<% else %>
+<ul>
+  <% for group in @role.groups %>
+  <li><%= link_to group.title, { :controller => 'group', :action => 'show', :id => group } %></li>
+  <% end %>
+</ul>
+<% end %>
+
+<h3>All Assigned Groups</h3>
+
+<% if @role.all_groups.length == 0 %>
+<p>None</p>
+<% else %>
+<ul>
+  <% for group in @role.all_groups %>
+  <li><%= link_to group.title, { :controller => 'group', :action => 'show', :id => group } %></li>
+  <% end %>
+</ul>
+<% end %>
+
+<h3>Directly Assigned Permissions</h3>
+
+<% if @role.static_permissions.empty? %>
+<p>No permissions</p>
+<% else %>
+<ul>
+  <% for permission in @role.static_permissions do %>
+  <li><%= link_to permission.title, { :controller => 'static_permission', :action => 'show', :id => permission }%></li>
+  <% end %>
+</ul>
+<% end %>
+
+<h3>All Assigned Permissions</h3>
+
+<% if @role.all_static_permissions.empty? %>
+<p>No permissions</p>
+<% else %>
+<ul>
+  <% for permission in @role.all_static_permissions do %>
+  <li><%= link_to permission.title, { :controller => 'static_permission', :action => 'show', :id => permission }%></li>
+  <% end %>
+</ul>
+<% end %>

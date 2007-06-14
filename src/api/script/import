@@ -122,7 +122,10 @@ end
 
 
 #filter = ["Fedora:Core6", "Fedory:Extras6"];
-filter = [];
+#filter = ['Apache:Modules', 'Apache', 'Fedora:Core5', 'Mandriva:2006', 'openSUSE:10.2', 'SUSE:SLES-9', 'SUSE:SLE-10:SDK',
+#  'Java:Sun-Java-1.5', 'SUSE:SL-10.1', 'SUSE:SL-10.0', 'SUSE:SL-9.3', 'SUSE:SLE-10', 'openSUSE:Factory'
+#];
+filter = ['home:bauersman']
 
 projects = Xproject.find(:all)
 

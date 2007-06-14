@@ -42,7 +42,8 @@ class PersonControllerTest < Test::Unit::TestCase
   def test_userinfo_with_broken_auth_header
     prepare_request_invalid_user( @request )
     get :userinfo
-    assert_tag :tag => 'status', :child => {:tag => 'summary', :content => "Unknown user"}
+    assert_select "status[code] > summary", /^Unknown user '[^']+' or invalid password$/
+
     assert_response 401
   end
 

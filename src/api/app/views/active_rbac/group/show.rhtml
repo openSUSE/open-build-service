@@ -1,0 +1,71 @@
+<h2>Details for Group &quot;<%=h @group.title %>&quot;</h2>
+
+<div class="commands">
+<%= link_to 'Delete', :action => 'delete', :id => @group %>
+<%= link_to 'Edit', :action => 'update', :id => @group %>
+<%= link_to 'Back to List', :action => 'list' %>
+</div>
+
+<dl>
+  <dt>Name:</dt>
+  <dd><%=h @group.title %></dd>
+
+  <dt>Parent:</dt>
+  <% if @group.parent == nil %>
+  <dd>No parent, this group is a root group</dd>
+  <% else %>
+  <dd><%= link_to @group.parent.title, { :action => 'show', :id => @group.parent } %></dd>
+  <% end %>
+
+  <dt>Children:</dt>
+  <% if @group.children.empty? %>
+  <dd>No Children</dd>
+  <% else %>
+  <dd><%= node_tree(@group.children) { |group| result = link_to(group.title, { :action => 'show', :id => group }) } %></dd>
+  <% end %>
+  
+  <dt>Roles:</dt>
+  <% if @group.roles.empty? %>
+  <dd>No Role</dd>
+  <% else %>
+  <dd><%= node_tree(@group.roles) { |role| result = link_to(role.title, { :controller => 'role', :action => 'show', :id => role }) } %></dd>
+  <% end %>
+</dl>
+
+<div class="commands">
+<%= link_to 'Delete', :action => 'delete', :id => @group %>
+<%= link_to 'Edit', :action => 'update', :id => @group %>
+<%= link_to 'Back to List', :action => 'list' %>
+</div>
+
+<h3>Directly Assigned Users</h3>
+
+<% if @group.users.length == 0 %>
+<p>None</p>
+<% else %>
+<ul>
+  <% for user in @group.users %>
+  <li><%= link_to user.login, { :controller => 'user', :action => 'show', :id => user } %></li>
+  <% end %>
+</ul>
+<% end %>
+
+<h3>All Assigned Users</h3>
+
+<% if @group.all_users.length == 0 %>
+<p>None</p>
+<% else %>
+<ul>
+  <% for user in @group.all_users %>
+  <li><%= link_to user.login, { :controller => 'user', :action => 'show', :id => user } %></li>
+  <% end %>
+</ul>
+<% end %>
+
+<h3>All Assigned Roles</h3>
+
+<% if @group.all_roles.length == 0 %>
+<p>None</p>
+<% else %>
+<%= node_tree(@group.all_roles) { |role| result = link_to(role.title, { :controller => 'role', :action => 'show', :id => role }) } %>
+<% end %>

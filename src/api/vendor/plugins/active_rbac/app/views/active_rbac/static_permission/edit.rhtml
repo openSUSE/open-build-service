@@ -1,9 +1,0 @@
-<h2>Editing Permission</h2>
-
-<%= start_form_tag :action => 'update', :id => @permission %>
-  <%= render_partial 'form' %>
-  <%= submit_tag 'Apply Changes' %>
-<%= end_form_tag %>
-
-<%= link_to 'show', :action => 'show', :id => @permission %> |
-<%= link_to 'back to list', :action => 'list' %>

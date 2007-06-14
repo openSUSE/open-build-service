@@ -18,12 +18,14 @@ class DbProject < ActiveRecord::Base
     end
 
     def store_axml( project )
+      dbp = nil
       DbProject.transaction do
         if not (dbp = DbProject.find_by_name project.name)
           dbp = DbProject.new( :name => project.name.to_s )
         end
         dbp.store_axml( project )
       end
+      return dbp
     end
 
     def get_repo_list
@@ -44,7 +46,12 @@ class DbProject < ActiveRecord::Base
   end
 
   def store_axml( project )
-    DbProject.transaction( self ) do
+    DbProject.transaction do
+      logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{project.name.to_s}"
+      if self.name != project.name.to_s
+        raise RuntimeError, "project name mismatch: #{self.name} != #{project.name}"
+      end
+
       if self.title != project.title.to_s
         self.title = project.title.to_s
         self.save!
@@ -68,7 +75,7 @@ class DbProject < ActiveRecord::Base
           if pcache[:role] != person.role
             #role in xml differs from role in database, update
 
-            if not BsRole.rolecache.has_key? person.role
+            if not Role.rolecache.has_key? person.role
               raise RuntimeError, "illegal role name '#{person.role}'"
             end
 
@@ -78,7 +85,7 @@ class DbProject < ActiveRecord::Base
                 LEFT OUTER JOIN users ON user.id = purr.bs_user_id
                 WHERE user.login = ?", person.userid]
 
-            purr.bs_role = BsRole.rolecache[person.role]
+            purr.role = Role.rolecache[person.role]
             purr.save!
           end
           usercache.delete person.userid
@@ -86,7 +93,7 @@ class DbProject < ActiveRecord::Base
           begin
             ProjectUserRoleRelationship.create(
               :user => User.find_by_login(person.userid),
-              :bs_role => BsRole.rolecache[person.role],
+              :role => Role.rolecache[person.role],
               :db_project => self
             )
           rescue ActiveRecord::StatementInvalid => err
@@ -105,7 +112,7 @@ class DbProject < ActiveRecord::Base
         ProjectUserRoleRelationship.destroy_all ["db_project_id = ? AND bs_user_id IN (#{user_ids_to_delete})", self.id]
       end
       #--- end update users ---#
-      
+
       #--- update repositories ---#
       repocache = Hash.new
       self.repositories.each do |repo|
@@ -183,19 +190,47 @@ class DbProject < ActiveRecord::Base
   end
   private :write_through?
 
+  # step down through namespaces until a project is found, returns found project or nil
+  def self.find_parent_for(project_name)
+    name_parts = project_name.split /:/
+
+    #project is not inside a namespace
+    return nil if name_parts.length <= 1
+      
+    while name_parts.length > 1
+      name_parts.pop
+      if (p = DbProject.find_by_name name_parts.join(":"))
+        #parent project found
+        return p
+      end
+    end
+    return nil
+  end
+
+  # convenience method for self.find_parent_for
+  def find_parent
+    self.class.find_parent_for self.name
+  end
+
   def add_user( login, role_title )
     logger.debug "adding user: #{login}, #{role_title}"
+    role = Role.rolecache[role_title]
+    if role.global
+      #only nonglobal roles may be set in a project
+      raise RuntimeError, "tried to set global role '#{role_title}' for user '#{login}' in project '#{self.name}'"
+    end
+
     ProjectUserRoleRelationship.create(
         :db_project => self,
-        :bs_user => User.find_by_login( login ),
-        :bs_role => BsRole.find_by_title( role_title ) )
+        :user => User.find_by_login( login ),
+        :role => role )
   end
 
 
   # returns true if the specified user is associated with that project. possible
   # options are :login and :role
   # example:
-  #
+ 
   # proj.has_user? :login => "abauer", :role => "maintainer"
   def has_user?( opt={} )
     cond_fragments = ["db_project_id = ?"]
@@ -210,10 +245,10 @@ class DbProject < ActiveRecord::Base
     end
 
     if opt.has_key? :role
-      cond_fragments << "bs_role_id = r.id"
+      cond_fragments << "role_id = r.id"
       cond_fragments << "r.title = ?"
       cond_params << opt[:role]
-      join_fragments << "bs_roles r"
+      join_fragments << "roles r"
     end
 
     return true if ProjectUserRoleRelationship.find :first,
@@ -226,8 +261,8 @@ class DbProject < ActiveRecord::Base
   def each_user( opt={}, &block )
     users = User.find :all,
       :select => "bu.*, r.title AS role_name",
-      :joins => "bu, project_user_role_relationships purr, bs_roles r",
-      :conditions => ["bu.id = purr.bs_user_id AND purr.db_project_id = ? AND r.id = purr.bs_role_id", self.id]
+      :joins => "bu, project_user_role_relationships purr, roles r",
+      :conditions => ["bu.id = purr.bs_user_id AND purr.db_project_id = ? AND r.id = purr.role_id", self.id]
     if( block )
       users.each do |u|
         block.call u

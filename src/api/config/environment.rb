@@ -6,7 +6,9 @@
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
-require 'rails_unescape_fix'
+#require 'rails_unescape_fix'
+
+RAILS_GEM_VERSION = '1.2.3' unless defined? RAILS_GEM_VERSION
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -19,15 +21,18 @@ Rails::Initializer.run do |config|
   if( RAILS_ENV ==  'production' )
     config.load_paths << File.expand_path("/srv/www/opensuse/common/current/lib")
   else
+    STDERR.puts ">>>>>>>>>>>>>>>>>>>>>>> #{File.expand_path("#{RAILS_ROOT}/../common/lib")} <<<<<<<<<<<<<<<<<<<<<<<<<<"
     config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
   end
 
   # RAILS_ROOT is not working directory when running under lighttpd, so it has
   # to be added to load path
-  config.load_paths << RAILS_ROOT unless config.load_paths.include? RAILS_ROOT
+  #config.load_paths << RAILS_ROOT unless config.load_paths.include? RAILS_ROOT
 
   # XXX: add active_rbac model path to load paths (not sure if this is a activerbac bug)
-  config.load_paths << File.expand_path("#{RAILS_ROOT}/vendor/plugins/active_rbac/app/model")
+  #config.load_paths << File.expand_path("#{RAILS_ROOT}/vendor/plugins/active_rbac/app/model")
+
+  #config.plugins = ['active_rbac']
 
   # Force all environments to use the same logger level 
   # (by default production uses :info, the others :debug)
@@ -77,23 +82,19 @@ MIN_VOTES_FOR_RATING = 3
 require 'action_cache'
 ActionController::Base.perform_caching = true
 
-
-module ActiveRbacConfig
-  # controller and layout configuration
-  config :controller_layout, "html"
-end
-
-Engines.start :active_rbac
+ActiveRbac.controller_layout = "rbac"
 
 require 'custom_logger'
 RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'rails_put_fix'
-require 'active_rbac_user_model_crypt_hack'
+#require 'active_rbac_user_model_crypt_hack'
 
 require 'activexml'
 #require 'custom_dispatcher'
 
+#Dependencies.log_activity = true
+#Dependencies.load_once_paths << "#{RAILS_ROOT}/lib"
 
 ActiveXML::Base.config do |conf|
   if RAILS_ENV == "test"

@@ -2,7 +2,7 @@
 <!-- Involved Users -->
 <div class="section" id="contacts">
   <h3>Involved Users
-    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
+    <%= link_to image_tag('list-add.png.png', :alt => "Add", :title => "Add User"),
     :action => :add_person, :package => @package, :project => @project %>
   </h3>
 
@@ -15,7 +15,7 @@
       <% package_persons << person.userid %>
       <dd>
         <%=h person.userid -%>
-        <%= link_to image_tag("mail_generic", :size => "16x16", :border => 0, :class => 'email_link'),
+        <%= link_to image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
         'mailto:' + Person.find(person.userid).email.to_s + '?subject=openSUSE build service' -%>
         <%- if @project.each_person.length > 1 %>
           <%= link_to "[x]",
@@ -29,7 +29,7 @@
       <% if package_persons.grep( person.userid ).empty? %>
         <dd style="color: #999;" title="implicit involved user - involved in project <%= @project.name -%>">
           <%=h person.userid -%>
-          <%= link_to image_tag("mail_generic", :size => "16x16", :border => 0, :class => 'email_link'),
+          <%= link_to image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
           'mailto:' + Person.find(person.userid).email.to_s + '?subject=openSUSE build service' -%>
         </dd>
       <% end -%>

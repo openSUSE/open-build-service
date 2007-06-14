@@ -1,0 +1,8 @@
+<h2>Editing Permission</h2>
+<% form_for :permission, :url => { :action => :update, :id => @permission } do |form| %>
+  <%= render(:partial => 'form') %>
+  <%= submit_tag 'Apply Changes' %>
+<% end %>
+
+<%= link_to 'show', :action => 'show', :id => @permission %> |
+<%= link_to 'back to list', :action => 'list' %>

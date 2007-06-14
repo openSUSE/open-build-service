@@ -1,5 +1,4 @@
 class BsRole < ActiveRecord::Base
-
   def self.rolecache
     return @cache if @cache
     @cache = Hash.new
@@ -21,7 +20,7 @@ class BsRole < ActiveRecord::Base
   def after_update
     logger.debug "updating role cache (role name for id \##{id} changed to '#{title}')"
     rolecache.each do |k,v|
-      if v.id = id
+      if v.id == id
         rolecache.delete k
         break
       end

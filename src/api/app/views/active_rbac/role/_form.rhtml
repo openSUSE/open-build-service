@@ -1,0 +1,58 @@
+<%= error_messages_for 'role' %>
+
+<!--[form:role]-->
+<dl>
+  <dt><label for="role_title">Role's Name</label></dt>
+  <dd><%= text_field 'role', 'title'  %></dd>
+
+  <dt><label>Role's Parent</label></dt>
+  <dd>
+    <% unless @role.errors[:parent].nil? %><div class="fieldWithErrors"><% end %>
+    <ul class="roleTree">
+      <li>
+        <% if @role.parent.nil? %>
+        <input id="role_parent_self" type="radio" name="role[parent]" value="" checked="checked" />
+        <% else %>
+        <input id="role_parent_self" type="radio" name="role[parent]" value="" />
+        <% end %>
+        <label for="role_parent_self">no parent (direct root child)</label>
+        <%= roles = Role.find(:all)
+            roles.delete_if { |r| @role.descendants_and_self.include?(r) }
+            node_tree(roles) do |role|
+              result = "<input id=\"role_parent_#{role.id}\" type=\"radio\" name=\"role[parent]\" value=\"#{role.id}\" checked=\"checked\" /> " if @role.parent == role
+              result = "<input id=\"role_parent_#{role.id}\" type=\"radio\" name=\"role[parent]\" value=\"#{role.id}\" /> " if @role.parent != role
+
+              result += "<label for=\"role_parent_#{role.id}\">#{role.title}</label> "
+              result
+            end %>
+      </li>
+    </ul>
+    <% unless @role.errors[:parent].nil? %></div><% end %>
+  </dd>
+
+  <dt><label>Static Permissions</label></dt>
+  <dd>
+    <ul>
+    <% for permission in StaticPermission.find :all do %>
+      <% if @role.static_permissions.include? permission %>
+      <li>
+        <input type="checkbox" name="role[static_permissions][]" 
+               value="<%= permission.id %>" 
+               checked="checked"
+               id="role_static_permission_<%= permission.id%>" />
+        <label for="role_static_permission_<%= permission.id%>"><%= permission.title %></label>
+      </li>
+      <% else %>
+      <li>
+        <input type="checkbox" name="role[static_permissions][]" 
+               value="<%= permission.id %>" 
+               id="role_static_permission_<%= permission.id%>" />
+        <label for="role_static_permission_<%= permission.id%>"><%= permission.title %></label>
+      </li>
+      <% end %>
+    <% end %>
+    </ul>
+  </dd>
+</dl>
+<!--[eoform:role]-->
+

@@ -1,0 +1,13 @@
+
+<h2>Deleting Group &quot;<%= @group.title %>&quot;</h2>
+
+<p>
+Are you sure you want to delete the group with the name &quot;<%= @group.title %>&quot;?
+All users will be unassigned from this group and all permissions will be revoked from
+it. <strong>This action cannot be reverted</strong>.
+</p>
+
+<% form_for :group, :url => { :action => :delete, :id => @group } do |form| %>
+  <%= submit_tag 'Yes', :name => 'yes' %>
+  <%= submit_tag 'No', :name => 'no' %>
+<% end %>

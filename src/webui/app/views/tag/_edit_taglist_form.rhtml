@@ -4,10 +4,10 @@
     @form_id = "#{params[:project]}"
    end -%>
 <nobr>   
-<%= form_remote_tag :url => {:action => :edit_taglist_ajax, :controller => "tag", :project => params[:project], :package => params[:package]},
+<% form_remote_tag :url => {:action => :edit_taglist_ajax, :controller => "tag", :project => params[:project], :package => params[:package]},
     :loading => "toggle_visibility('spinner_#{@form_id}')",
-    :complete => "toggle_visibility('spinner_#{@form_id}')" -%>
+    :complete => "toggle_visibility('spinner_#{@form_id}')" do -%>
 <%= text_field_tag( "tags", @tags, :size => 55, :style => "width: 93%;") -%>
 <%= image_submit_tag "ok" -%>
-<%= end_form_tag -%>
+<% end-%>
 </nobr>

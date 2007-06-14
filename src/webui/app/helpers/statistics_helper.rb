@@ -10,7 +10,7 @@ module StatisticsHelper
     out << hidden_field_tag( 'project', @project ) if @project
     out << hidden_field_tag( 'repo', @repo) if @repo
     out << hidden_field_tag( 'arch', @arch) if @arch
-    out << image_submit_tag( 'system-search' )
+    out << image_submit_tag( 'system-search.png' )
     out << image_tag( 'rotating-tail.gif', :border => 0, :style => 'display: none;', :id => 'spinner' )
     out << end_form_tag
     out << observe_field( :limit, :update => action,

@@ -136,16 +136,26 @@ class SourceController < ApplicationController
 
   def project_meta
     project_name = params[:project]
-    logger.debug "### project_name: #{project_name.inspect}"
     if project_name.nil?
       render_error :status => 400, :errorcode => 'missing_parameter',
         :message => "parameter 'project' is missing"
       return
     end
 
+    unless valid_project_name? project_name
+      render_error :status => 400, :errorcode => "invalid_project_name",
+        :message => "invalid project name '#{project_name}'"
+      return
+    end
+
     if request.get?
-      @project = Project.find( project_name )
-      render :text => @project.dump_xml, :content_type => 'text/xml'
+      @project = DbProject.find_by_name( project_name )
+      unless @project
+        render_error :message => "Unknown project '#{project_name}'",
+          :status => 404, :errorcode => "unknown_project"
+        return
+      end
+      render :text => @project.to_axml, :content_type => 'text/xml'
       return
     elsif request.put?
       # Need permission
@@ -153,59 +163,37 @@ class SourceController < ApplicationController
       allowed = false
       request_data = request.raw_post
 
-      begin
-        # Try to fetch the project to see if it already exists
-        @project = Project.find( project_name )
-	
-	# Being here means that the project already exists
-	allowed = permissions.project_change? project_name
-        if allowed
-          @project = Project.new( request_data, :name => project_name )
-        else
-          logger.debug "user #{user.login} has no permission to change project #{@project}"
+      @project = DbProject.find_by_name( project_name )
+      if @project
+        #project exists, change it
+        unless @http_user.can_modify_project? @project
+          logger.debug "user #{user.login} has no permission to modify project #{@project}"
 	  render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
           return
         end
-      rescue ActiveXML::Transport::NotFoundError
-        # Ok, the project  is new
-	allowed = permissions.global_project_create
-
-        # grant permission if project is below the users home namespace
-        if not allowed
-          allowed = true if project_name =~ /^home:#{@http_user.login}/
-        end
-
-	if allowed 
-	  # This is a new project. Add the logged in user as maintainer
-          @project = Project.new( request_data, :name => project_name )
-        
-          if not @project.has_element?( "person[@userid='#{user.login}']" )
-            @project.add_person( :userid => user.login )
-          end
-	else
-	  # User is not allowed by global permission. 
-	  logger.debug "Not allowed to create new projects"
+      else
+        #project is new
+        unless @http_user.can_create_project? project_name
+	  logger.debug "Not allowed to create new project"
           render_error :status => 403, :errorcode => 'create_project_no_permission',
-            :message => "not allowed to create new projects"
+            :message => "not allowed to create new project '#{project_name}'"
           return
-	end
+        end
       end
       
-      if allowed
-        if( @project.name != project_name )
-          render_error :status => 400, :errorcode => 'project_name_mismatch',
-            :message => "project name in xml data does not match resource path component"
-          return
-        end
-        @project.save
-        render_ok
-      else
-        logger.debug "No permissions to write project meta for project #@project"
-	render_error :status => 403, :errorcode => 'write_project_no_permission',
-          :message => "Permission denied (write project meta for project #@project)"
+      p = Project.new(request_data, :name => project_name)
+
+      if p.name != project_name
+        render_error :status => 400, :errorcode => 'project_name_mismatch',
+          :message => "project name in xml data does not match resource path component"
         return
       end
+
+      p.add_person(:userid => @http_user.login) unless @project
+      p.save
+
+      render_ok
     else
       render_error :status => 400, :errorcode => 'illegal_request',
         :message => "Illegal request: POST #{request.path}"
@@ -221,7 +209,7 @@ class SourceController < ApplicationController
     end
 
     #check if project exists
-    if DbProject.find_by_name(params[:project]).nil?
+    unless (@project = DbProject.find_by_name(params[:project]))
       render_error :status => 404, :errorcode => 'project_not_found',
         :message => "Unknown project #{params[:project]}"
       return
@@ -233,14 +221,11 @@ class SourceController < ApplicationController
       path += "?" + request.query_string
     end
 
-    allowed = false
-
     if request.get?
       forward_data path
     elsif request.put?
       #check for permissions
-      allowed = permissions.project_change? params[:project]
-      if not allowed
+      unless @http_user.can_change_project?(@project)
         render_error :status => 403, :errorcode => 'put_project_config_no_permission',
           :message => "No permission to write build configuration for project '#{params[:project]}'"
         return
@@ -447,4 +432,13 @@ class SourceController < ApplicationController
     path = request.path + "?" + request.query_string
     forward_data path, :method => :post
   end
+
+  def valid_project_name? name
+    name =~ /^\w[-_+\w\.:]+$/
+  end
+
+  def valid_package_name? name
+    name =~ /^\w[-_+\w\.]+$/
+  end
+
 end

@@ -1,5 +1,4 @@
 class DbPackage < ActiveRecord::Base
-
   belongs_to :db_project
 
   has_many :package_user_role_relationships, :dependent => :destroy
@@ -22,6 +21,7 @@ class DbPackage < ActiveRecord::Base
 
   class << self
     def store_axml( package )
+      dbp = nil
       DbPackage.transaction do
         project_name = package.parent_project_name
         if not( dbp = DbPackage.find_by_project_and_name(project_name, package.name) )
@@ -34,6 +34,7 @@ class DbPackage < ActiveRecord::Base
         end
         dbp.store_axml( package )
       end
+      return dbp
     end
 
     def find_by_project_and_name( project, package )
@@ -59,7 +60,7 @@ class DbPackage < ActiveRecord::Base
 
 
   def store_axml( package )
-    DbPackage.transaction( self ) do
+    DbPackage.transaction do
       if self.title != package.title.to_s
         self.title = package.title.to_s
         #self.save!
@@ -83,7 +84,7 @@ class DbPackage < ActiveRecord::Base
           if pcache[:role] != person.role
             #role in xml differs from role in database, update
 
-            if not BsRole.rolecache.has_key? person.role
+            if not Role.rolecache.has_key? person.role
               raise RuntimeError, "illegal role name '#{person.role}'"
             end
 
@@ -93,7 +94,7 @@ class DbPackage < ActiveRecord::Base
                 LEFT OUTER JOIN users ON user.id = purr.bs_user_id
                 WHERE user.login = ?", person.userid]
 
-            purr.bs_role = BsRole.rolecache[person.role]
+            purr.role = Role.rolecache[person.role]
             purr.save!
           end
           usercache.delete person.userid
@@ -101,7 +102,7 @@ class DbPackage < ActiveRecord::Base
           begin
             PackageUserRoleRelationship.create(
               :user => User.find_by_login(person.userid),
-              :bs_role => BsRole.rolecache[person.role],
+              :role => Role.rolecache[person.role],
               :db_package => self
             )
           rescue ActiveRecord::StatementInvalid => err
@@ -210,10 +211,16 @@ class DbPackage < ActiveRecord::Base
   end
 
   def add_user( login, role_title )
+    role = Role.rolecache[role_title]
+    if role.global
+      #only nonglobal roles may be set in a project
+      raise RuntimeError, "tried to set global role '#{role_title}' for user '#{login}' in package '#{self.name}'"
+    end
+
     PackageUserRoleRelationship.create(
         :db_package => self,
         :user => User.find_by_login( login ),
-        :bs_role => BsRole.find_by_title( role_title ) )
+        :role => role ) 
   end
 
 
@@ -235,10 +242,10 @@ class DbPackage < ActiveRecord::Base
     end
 
     if opt.has_key? :role
-      cond_fragments << "bs_role_id = r.id"
+      cond_fragments << "role_id = r.id"
       cond_fragments << "r.title = ?"
       cond_params << opt[:role]
-      join_fragments << "bs_roles r"
+      join_fragments << "roles r"
     end
 
     return true if PackageUserRoleRelationship.find :first,
@@ -251,8 +258,8 @@ class DbPackage < ActiveRecord::Base
   def each_user( opt={}, &block )
     users = User.find :all,
       :select => "bu.*, r.title AS role_name",
-      :joins => "bu, package_user_role_relationships purr, bs_roles r",
-      :conditions => ["bu.id = purr.bs_user_id AND purr.db_package_id = ? AND r.id = purr.bs_role_id", self.id]
+      :joins => "bu, package_user_role_relationships purr, roles r",
+      :conditions => ["bu.id = purr.bs_user_id AND purr.db_package_id = ? AND r.id = purr.role_id", self.id]
     if( block )
       users.each do |u|
         block.call u

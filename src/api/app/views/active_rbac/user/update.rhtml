@@ -1,0 +1,9 @@
+<h2>Editing User <%=h @user.login %></h2>
+
+<% form_for :user, :url => { :action => :update, :id => @user } do |form| %>
+  <%= render(:partial => 'form') %>
+  <%= submit_tag "Apply Changes", :name => 'submit[update]' %>
+<% end %>
+
+<%= link_to('Show', :action => 'show', :id => @user) %> |
+<%= link_to('Back', :action => 'list') %>

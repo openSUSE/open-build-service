@@ -2,9 +2,9 @@
 # Likewise, all the methods added will be available for all controllers.
 
 #hack to autoload activexml and frontendcontroller on change
-require_dependency 'activexml'
+#require_dependency 'activexml'
 #require_dependency 'opensuse/frontend'
-require_dependency 'frontend_compat'
+#require_dependency 'frontend_compat'
 
 
 class ApplicationController < ActionController::Base
@@ -32,7 +32,7 @@ class ApplicationController < ActionController::Base
 
   def set_charset
     unless request.xhr?
-      @headers['Content-Type'] = "text/html; charset=utf-8"
+      headers['Content-Type'] = "text/html; charset=utf-8"
     end
   end
 

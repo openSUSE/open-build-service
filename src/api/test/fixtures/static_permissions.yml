@@ -34,3 +34,18 @@ set_download_counters:
   updated_at:   2007-02-20 14:15:50
   title:        set_download_counters
 
+local_change_project:
+  id:           7
+  title:        change_project
+
+local_create_project:
+  id:           8
+  title:        create_project
+
+local_change_package:
+  id:           9
+  title:        change_package
+
+local_create_package:
+  id:           10
+  title:        create_package

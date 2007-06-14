@@ -26,7 +26,7 @@ class Architecture < ActiveRecord::Base
   def after_update
     logger.debug "updating arch cache (arch name for id \##{id} changed to '#{name}')"
     archcache.each do |k,v|
-      if v.id = id
+      if v.id == id
         archcache.delete k
         break
       end

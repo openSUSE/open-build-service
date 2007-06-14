@@ -1,0 +1,44 @@
+<%= error_messages_for 'group' %>
+
+<!--[form:group]-->
+<dl>
+  <dt><label for="group_title">Group's Name</label></dt>
+  <dd><%= text_field 'group', 'title'  %></dd>
+
+  <dt><label>Group's Parent</label></dt>
+  <dd>
+    <% unless @group.errors[:parent].nil? %><div class="fieldWithErrors"><% end %>
+    <ul class="groupTree">
+      <li>
+        <% if @group.parent.nil? %>
+        <input id="group_parent_self" type="radio" name="group[parent]" value="" checked="checked" />
+        <% else %>
+        <input id="group_parent_self" type="radio" name="group[parent]" value="" />
+        <% end %>
+        <label for="group_parent_self">no parent (direct root child)</label>
+        <%= groups = Group.find(:all)
+            groups.delete_if { |r| @group.descendants_and_self.include?(r) }
+            node_tree(groups) do |group|
+              result = "<input id=\"group_parent_#{group.id}\" type=\"radio\" name=\"group[parent]\" value=\"#{group.id}\" checked=\"checked\" /> " if @group.parent == group
+              result = "<input id=\"group_parent_#{group.id}\" type=\"radio\" name=\"group[parent]\" value=\"#{group.id}\" /> " if @group.parent != group
+
+              result += "<label for=\"group_parent_#{group.id}\">#{group.title}</label> "
+              result
+            end %>
+      </li>
+    </ul>
+    <% unless @group.errors[:parent].nil? %></div><% end %>
+  </dd>
+
+  <dt><label for="group_roles">Roles</label></dt>
+  <dd>
+    <%= node_tree(Role.find(:all)) do |role|
+          result = "<input id=\"group_roles_#{role.id}\" type=\"checkbox\" name=\"group[roles][]\" value=\"#{role.id}\" checked=\"checked\" /> " if @group.roles.include? role
+          result = "<input id=\"group_roles_#{role.id}\" type=\"checkbox\" name=\"group[roles][]\" value=\"#{role.id}\" /> " unless @group.roles.include? role
+          result += "<label for=\"group_roles_#{role.id}\">#{role.title}</label> "
+          result
+        end %>
+  </dd>
+</dl>
+<!--[eoform:group]-->
+

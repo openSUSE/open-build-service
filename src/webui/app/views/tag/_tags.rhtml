@@ -1,6 +1,6 @@
 <!-- Tags -->
 <div class="section" id="tags">
-  <%= link_to_remote image_tag("list-add",:title => "add tag", :border => 0),
+  <%= link_to_remote image_tag("list-add.png",:title => "add tag", :border => 0),
             :update => 'add_tag_form',
             :url => { :controller => "tag", :action => "add_tag_form", :project => @project, :package => @package},
             :loading => "Element.show('spinner')",

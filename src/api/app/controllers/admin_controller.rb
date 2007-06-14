@@ -1,9 +1,6 @@
 class AdminController < ApplicationController
-  
+  layout "rbac"
    
-  layout "html"
-  
-  
   def list_sources
     @files = []
     read_dir( "data" )

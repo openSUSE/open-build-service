@@ -1,0 +1,30 @@
+<h2>Listing Permissions</h2>
+
+<%= render(:partial => '/active_rbac/shared/pagination', :locals => { :pages => @permission_pages }) %>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% for permission in @permissions %>
+    <tr>
+      <td><%=h permission.id %></td>
+      <td><%=h permission.title %></td>
+      
+      <td>
+        <%= link_to 'S', :action => 'show', :id => permission %>
+        <%= link_to 'E', :action => 'update', :id => permission %>
+        <%= link_to 'D', :action => 'delete', :id => permission %></td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= render(:partial => '/active_rbac/shared/pagination', :locals => { :pages => @permission_pages }) %>
+
+<%= link_to 'New permission', :action => 'create' %>

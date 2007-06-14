@@ -33,7 +33,7 @@ class PersonController < ApplicationController
             user = User.find_by_login( login )
             if user and user.login != @http_user.login 
               # TODO: check permission to update someone elses info
-              if @http_user.has_permission "Userinfo_Admin"
+              if @http_user.has_global_permission? "Userinfo_Admin"
                 # ok, may update user info
               else
                 logger.debug "User has no permission to change userinfo"

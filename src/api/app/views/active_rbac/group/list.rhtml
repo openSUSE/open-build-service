@@ -1,0 +1,23 @@
+<h2>Listing Groups</h2>
+
+<p>
+Below is a complete tree of all groups known to the system.
+</p>
+
+<div class="commands">
+<%= link_to 'New group', :action => 'create' %>
+</div>
+
+<%= node_tree @groups do |group|
+      result = link_to(group.title, { :action => 'show', :id => group }) + " "
+      result += "[" + group.users.length.to_s + '/' + group.all_users.length.to_s + " users, "
+      result += group.roles.length.to_s + '/' + group.all_roles.length.to_s + " roles]"
+      result += "(" + link_to('S', { :action => 'show', :id => group }, :title => 'Show') + " "
+      result += link_to('E', { :action => 'update', :id => group }, :title => 'Edit') + " "
+      result += link_to('D', { :action => 'delete', :id => group }, :title => 'Delete') + ")"
+    end
+    %>
+
+<div class="commands">
+<%= link_to 'New group', :action => 'create' %>
+</div>

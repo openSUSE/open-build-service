@@ -28,3 +28,34 @@ admin_set_download_counters:
   static_permission_id: 6
   created_at:           2007-02-20 14:15:50
 
+admin_7:
+  role_id:              1
+  static_permission_id: 7
+
+admin_8:
+  role_id:              1
+  static_permission_id: 8
+
+admin_9:
+  role_id:              1
+  static_permission_id: 9
+
+admin_10:
+  role_id:              1
+  static_permission_id: 10
+
+maintainer_7:
+  role_id:              2
+  static_permission_id: 7
+
+maintainer_8:
+  role_id:              2
+  static_permission_id: 8
+
+maintainer_9:
+  role_id:              2
+  static_permission_id: 9
+
+maintainer_10:
+  role_id:              2
+  static_permission_id: 10

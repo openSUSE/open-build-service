@@ -1,15 +1,16 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require_dependency 'opensuse/permission'
-require_dependency 'opensuse/backend'
-require_dependency 'opensuse/validator'
-require_dependency 'xpath_engine'
-require_dependency 'user'
+require 'opensuse/permission'
+require 'opensuse/backend'
+require 'opensuse/validator'
+require 'xpath_engine'
+#require 'user'
 
 class ApplicationController < ActionController::Base
   # Do never use a layout here since that has impact on every
-  # controller in frontend.
+  # controller in frontend
+  layout nil
 
   session_options[:prefix] = "ruby_frontend_sess."
   session_options[:session_key] = "opensuse_frontend_session"
@@ -39,7 +40,7 @@ class ApplicationController < ActionController::Base
 
   def require_admin
     logger.debug "Checking for  Admin role for user #{@http_user.login}"
-    unless @http_user.has_role 'Admin'
+    unless @http_user.has_role? 'Admin'
       logger.debug "not granted!"
       render :template => 'permerror'
       return false
@@ -175,7 +176,7 @@ class ApplicationController < ActionController::Base
   end
 
   def add_api_version
-    @response.headers["X-Opensuse-APIVersion"] = API_VERSION
+    response.headers["X-Opensuse-APIVersion"] = API_VERSION
   end
 
   def forward_data( path, opt={} )

@@ -148,6 +148,16 @@ input {
         float: left;
         font-size: small;
     }
+    #shutdownmsg {
+      background-color:#FF8756;
+      border:2px solid black;
+      color:black;
+      float:left;
+      font-size:120%;
+      margin-top:1em;
+      overflow:auto;
+      padding:4px 8px;
+    }
     #login {
         font-size: 90%;
         position: relative;

@@ -1,0 +1,22 @@
+<h2>Listing Roles</h2>
+
+<p>
+Below is a complete tree of all roles known to the system.
+</p>
+
+<div class="commands">
+<%= link_to 'New role', :action => 'create' %>
+</div>
+
+<%= node_tree @roles do |role|
+      result = link_to(role.title, { :action => 'show', :id => role }) + " "
+      result += "[" + role.users.length.to_s + "/" + role.all_users.length.to_s + " users, " 
+      result += role.groups.length.to_s + "/" + role.all_groups.length.to_s + " groups]"
+      result += "(" + link_to('S', { :action => 'show', :id => role }, :title => 'Show') + " "
+      result += link_to('E', { :action => 'update', :id => role }, :title => 'Edit') + " "
+      result += link_to('D', { :action => 'delete', :id => role }, :title => 'Delete') + ")"
+    end %>
+
+<div class="commands">
+<%= link_to 'New role', :action => 'create' %>
+</div>

@@ -1,5 +1,5 @@
-require "project"
-require "package"
+#require "project"
+#require "package"
 
 
 module Suse
@@ -20,7 +20,7 @@ module Suse
       # is the owner of the project
       logger.debug "User #{@user.login} wants to change the project"
 
-      return true if @user.has_permission( "global_project_change" )
+      return true if @user.has_global_permission?( "global_project_change" )
 
       valid_users = project_maintainers project
       return true if valid_users.include? @user.login
@@ -33,7 +33,7 @@ module Suse
     def package_create?( project )
       logger.debug "User #{@user.login} wants to create a package in #{project}"
       
-      return true if @user.has_permission( 'global_package_create' )
+      return true if @user.has_global_permission?( 'global_package_create' )
 	
       valid_users = project_maintainers project
       return true if valid_users.include? @user.login
@@ -54,7 +54,7 @@ module Suse
     def package_change?( package, project=nil )
       logger.debug "User #{@user.login} wants to change the package"
      
-      return true if @user.has_permission( "global_package_change" )
+      return true if @user.has_global_permission?( "global_package_change" )
 
       #check if current user is mentioned in the package meta file
       valid_users = package_maintainers( package, project )
@@ -85,7 +85,7 @@ module Suse
       logger.debug "Dynamic Permission requested: <#{perm}>"
 	
       if @user 
-	if @user.has_permission perm.to_s
+	if @user.has_global_permission? perm.to_s
 	  logger.debug "User #{@user.login} has permission #{perm}"
 	  return true
 	else

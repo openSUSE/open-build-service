@@ -5,7 +5,7 @@ class MainController < ApplicationController
 
 
   def index
-    #
+    authorize if session[:login]
     @tagcloud ||= Tagcloud.new(:user => @session[:login], :tagcloud => 'alltags', :limit => "60") if session[:login]
   end
 
