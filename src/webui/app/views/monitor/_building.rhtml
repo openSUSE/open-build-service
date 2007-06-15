@@ -15,7 +15,7 @@
           ),
           :controller => params[:controller], :action => params[:action] %>
     <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
-  <% end -%>
+  <% end_form_tag -%>
   <%= observe_field( :project, :frequency => 0.5, :update => 'building_list',
       :url => { :controller => 'monitor', :action  => 'filtered_list' },
       :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",
