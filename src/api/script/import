@@ -17,14 +17,7 @@ DUMMY_USER_ATTR = {
 ### boot rails ###
 Rails::Initializer.run do |config|
   config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
-  config.load_paths << File.expand_path("#{RAILS_ROOT}/vendor/plugins/active_rbac/app/model")
 end
-
-module ActiveRbacConfig
-  config :controller_layout, "html"
-end
-
-Engines.start :active_rbac
 
 require 'activexml'
 

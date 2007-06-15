@@ -5,7 +5,7 @@ class PermissionUpdate < ActiveRecord::Migration
     Role.update_all "global = true"
 
     # add local maintainer role
-    r = Role.create( :title => "maintainer", :global => false )
+    r = Role.create( :title => "maintainer" )
   
     # update relationship tables
     rename_column :project_user_role_relationships, :bs_role_id, :role_id

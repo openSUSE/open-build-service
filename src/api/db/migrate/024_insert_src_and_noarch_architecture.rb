@@ -8,8 +8,10 @@ class InsertSrcAndNoarchArchitecture < ActiveRecord::Migration
 
 
   def self.down
-    Architecture.find_by_name( 'src' ).destroy_without_callbacks
-    Architecture.find_by_name( 'noarch' ).destroy_without_callbacks
+    for a in %w|src noarch| do
+      arch = Architecture.find_by_name(a)
+      arch.destroy_without_callbacks if arch
+    end 
   end
 
 
