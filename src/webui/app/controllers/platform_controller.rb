@@ -1,6 +1,4 @@
 class PlatformController < ApplicationController
-  model :platform
-
   def index
     redirect_to :action => 'list_all'
   end

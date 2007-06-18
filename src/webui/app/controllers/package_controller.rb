@@ -1,7 +1,6 @@
 require 'open-uri'
 
 class PackageController < ApplicationController
-  model :project, :package, :result, :link
   before_filter :check_params
 
   def index
