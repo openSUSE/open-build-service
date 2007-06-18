@@ -10,7 +10,7 @@
 
   <h4>
     Most Downloaded:
-    <%= link_to_remote image_tag( 'info_light', :title => 'display info/help' ),
+    <%= link_to_remote image_tag( 'info_light.png', :title => 'display info/help' ),
       :url => { :action => 'display_info', :for => 'most_downloaded' } -%>
   </h4>
 
@@ -27,12 +27,12 @@
   <ol>
     <% @most_downloaded[:projects].each_count do |count| %>
       <li>
-      <%= link_to image_tag( 'project', :border => 0 ) +
+      <%= link_to image_tag( 'project.png', :border => 0 ) +
         " #{shorten_text(count.project,length)}", { :more => true,
         :action => 'download_details', :project => count.project },
         :title => "Downloads: #{count.to_s}, Files: #{count.files} " +
         "(click to filter...)" -%>
-      <%= link_to image_tag( 'link_ext', :border => 0 ),
+      <%= link_to image_tag( 'link_ext.png', :border => 0 ),
         { :controller => 'project', :action => 'view', :project => count.project },
         :title => "View Project Details..." -%>
       </li>
@@ -45,13 +45,13 @@
   <ol>
     <% @most_downloaded[:packages].each_count do |count| %>
       <li>
-      <%= link_to image_tag( 'package', :border => 0 ) +
+      <%= link_to image_tag( 'package.png', :border => 0 ) +
         " #{shorten_text(count.package,length)}", { :more => true,
         :action => 'download_details', :package => count.package,
         :project => count.project },
         :title => "Downloads: #{count.to_s}, Files: #{count.files}, " +
         "Project: #{count.project}. (click to filter...)" -%>
-      <%= link_to image_tag( 'link_ext', :border => 0 ),
+      <%= link_to image_tag( 'link_ext.png', :border => 0 ),
         { :controller => 'package', :action => 'view', :project => count.project,
         :package => count.package }, :title => "View Package Details..." -%>
       </li>
@@ -66,7 +66,7 @@
     <% title = "Downloads: #{count.to_s}, Files: #{count.files}, " +
       "Project: #{count.project}. (click to filter...)" %>
       <li>
-      <%= link_to image_tag( 'repository', :border => 0 ) +
+      <%= link_to image_tag( 'repository.png', :border => 0 ) +
         " #{shorten_text(count.project,length)}/#{shorten_text(count.repo,length)}",
         { :action => 'download_details', :repo => count.repo, :more => true,
         :project => count.project }, :title => title -%>
@@ -82,7 +82,7 @@
     <% title = "Downloads: #{count.to_s}, Files: #{count.files} " +
       "(click to filter...)" %>
       <li>
-      <%= link_to image_tag( 'architecture', :border => 0 ) +
+      <%= link_to image_tag( 'architecture.png', :border => 0 ) +
         " #{shorten_text(count.arch,length)}", { :more => true,
         :action => 'download_details', :arch => count.arch },
         :title => title -%>

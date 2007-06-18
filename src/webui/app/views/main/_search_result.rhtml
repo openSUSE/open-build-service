@@ -6,7 +6,7 @@
     <dt>
       <% url = repo_url( @result[:data].name ) if @result[:type] == 'project' %>
       <% url = repo_url( @result[:data].project ) if @result[:type] == 'package' %>
-      <%= link_to( image_tag('download_repositories', :border => 0,
+      <%= link_to( image_tag('download_repositories.png', :border => 0,
       :title => "Goto download repositories of #{@result[:data]}"), url ) if url -%>
 
       <% if session[:login] then action='show' else action='view' end %>

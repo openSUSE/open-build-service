@@ -7,10 +7,10 @@
   <h3>
     Build Status
     &nbsp;
-    <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger complete rebuild"),
+    <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger complete rebuild"),
     :action => 'trigger_rebuild', :project => @project, :package => @package %>
     &nbsp;
-    <%= link_to_remote image_tag('reload', :alt => "Reload Status", :title => "reload status"),
+    <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status"),
       :url => { :action => 'reload_buildstatus', :project => @project, :package => @package },
       :update => 'package_buildstatus',
       :loading => "Element.show('spinner_stat')", :complete => "Element.hide('spinner_stat')" %>
@@ -23,7 +23,7 @@
     <% current_repo = result.repository -%>
     <tr>
       <th colspan="4">
-        <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger rebuild of " + result.repository),
+        <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.repository),
         :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository %>
         <b><%=h result.repository %></b>
       </th>
@@ -31,7 +31,7 @@
     <% end -%>
     <tr>
       <td>
-        <%= link_to image_tag('rebuild', :alt => "Rebuild", :title => "trigger rebuild of " + result.arch + " in " + result.repository),
+        <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.arch + " in " + result.repository),
         :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository, :arch => result.arch %>
         <%=h result.arch %>
       </td>

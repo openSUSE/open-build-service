@@ -3,7 +3,7 @@
 <div class="section" id="url">
   <h3>
     Upstream URL
-    <%= link_to_remote image_tag( 'edit', :border => 0, :title => "Edit" ),
+    <%= link_to_remote image_tag( 'edit.png', :border => 0, :title => "Edit" ),
       :url => { :action => :set_url_form, :package => @package, :project => params[:project] },
       :loading => "toggle_visibility('url_spinner')", :complete => "toggle_visibility('url_spinner')",
       :update => 'url_area'  -%>

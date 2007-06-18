@@ -26,13 +26,13 @@
         <td>
           <% case msg.severity.to_i
           when 3 %>
-            <%= image_tag 'status_red' -%>
+            <%= image_tag 'status_red.png' -%>
           <% when 2 %>
-            <%= image_tag 'status_yellow' -%>
+            <%= image_tag 'status_yellow.png' -%>
           <% when 1 %>
-            <%= image_tag 'status_green' -%>
+            <%= image_tag 'status_green.png' -%>
           <% else %>
-            <%= image_tag 'info' -%>
+            <%= image_tag 'info.png' -%>
           <% end %>
         </td>
         <td style="border-bottom: 1px #ddd dotted;">
@@ -50,7 +50,7 @@
         </td>
         <td>
           <% if msg.deleted_at.empty? %>
-            <%= link_to_remote image_tag( 'delete', :border => 0,
+            <%= link_to_remote image_tag( 'delete.png', :border => 0,
               :title => 'Mark message as deleted' ), :url => {
               :action => 'delete_message', :id => msg.msg_id } %>
           <% else %>
