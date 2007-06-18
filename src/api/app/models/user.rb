@@ -118,6 +118,8 @@ class User < ActiveRecord::Base
     if name_parts.length <= 1
       return true if has_global_permission? "create_project"
     else
+      ## special handling for home projects
+      return true if project_name =~ "home:#{@http_user.login}"
       return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
     end
   end
