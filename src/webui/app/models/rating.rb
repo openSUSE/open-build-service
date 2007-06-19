@@ -6,7 +6,7 @@ class Rating < ActiveXML::Base
 
     def make_stub( opt )
       doc = REXML::Document.new
-      doc << XMLDecl.new( 1.0, 'UTF-8', 'no' )
+      doc << REXML::XMLDecl.new( 1.0, 'UTF-8', 'no' )
       doc.add_element( REXML::Element.new( 'rating' ) )
       doc.root.add_text( opt[:score] )
       return doc
