@@ -57,7 +57,7 @@
           :repo => repo, :arch => arch, :redirect => 'monitor' } -%>
         <% end -%>
       <% if ["expansion error", "broken", "blocked"].include? status.code -%>
-        <%= link_to status.code, "javascript:alert('#{link_title}')" %>
+        <%= link_to status.code, "javascript:alert('#{link_title}')", :title => link_title %>
       <% elsif ["disabled"].include? status.code -%>
         <%= status.code %>
       <% else -%>
