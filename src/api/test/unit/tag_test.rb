@@ -13,7 +13,7 @@ class TagTest < Test::Unit::TestCase
     assert_equal "The tag is blacklisted!", t.errors[:name]
     
     t = Tag.new
-    t.name = 'NotAllowedSymbol:?'
+    t.name = 'NotAllowedSymbol_?'
     t.created_at = "2007-03-09 14:57:54"
     assert t.save == false
     
@@ -21,12 +21,12 @@ class TagTest < Test::Unit::TestCase
     assert_equal "The tag has invalid format, no ? allowed!", t.errors[:name]
     
     t = Tag.new
-    t.name = 'NotAllowedSymbol::'
+    t.name = 'NotAllowedSymbol_:'
     t.created_at = "2007-03-09 14:57:54"
     assert t.save == false
     
     #expected error message
-    assert_equal "The tag has invalid format, no :: allowed!", t.errors[:name]
+    assert_equal "The tag has invalid format, no : allowed!", t.errors[:name]
     
     
   end
@@ -37,7 +37,7 @@ class TagTest < Test::Unit::TestCase
     #non-user context
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
-    assert_equal 1, t.count, "Wrong tag-count for TagA."
+    assert_equal 3, t.count, "Wrong tag-count for TagA."
     
     t = Tag.find_by_name("TagB")
     assert_kind_of Tag, t
@@ -51,7 +51,7 @@ class TagTest < Test::Unit::TestCase
     
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
-    assert_equal 1, t.count(opt), "Wrong user-dependant tag-count for TagA."
+    assert_equal 3, t.count(opt), "Wrong user-dependant tag-count for TagA."
     
     t = Tag.find_by_name("TagB")
     assert_kind_of Tag, t
