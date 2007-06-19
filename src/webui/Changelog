@@ -705,3 +705,31 @@ Thu Apr 19 16:35:44 +0200 2007 - abauer
 - don't break fields in status monitor
 
 
+------------------------------------------------------------------------
+Tue Jun 19 15:11:12 +0200 2007 - bauersman
+
+- update from svn revision 1592 to 1750
+- remove SUSE Linux 9.3, we will remove it soon, since it goes out of
+  maintenance
+- prevent wrap of statistics: set min-width for statistics overview box
+- added missing tag-creation error code
+- removed obsolete comment 
+- new position for the rejected-tags error message
+- mechanism for loading host-specific development settings
+- login link redirects to index page instead of project list (#279485)
+- fixed the line-break issue in the live-build-log, very long lines without spaces are further problematic.
+- added a missing substitution
+- show popup instead of build log on expansion error, broken, blocked states
+- removed link on disabled state
+- display global statistics in webclient
+- readded route for deprecated Platform model
+- Add Fedora 7 distribution button
+- add Ubuntu 7.04
+- fixed obs-list subscribe address
+- merged branches/bauersman/permission_playground r1616 to trunk
+- added missing end_form_tag
+- XMLDecl.new causes problems with rails 1.2
+- fixed deprecated usage of image_tag without extension
+- fixed deprecated usage of 'model' in model definition
+
+
