@@ -69,9 +69,9 @@ class TagcloudTest < Test::Unit::TestCase
     rcloud = cloud.raw
     assert_kind_of Hash, rcloud
 
-    assert_equal 1, rcloud['TagA'], "Wrong tag-count for TagA."
+    assert_equal 3, rcloud['TagA'], "Wrong tag-count for TagA."
     assert_equal 4, rcloud['TagB'], "Wrong tag-count for TagB."
-    assert_equal 2, rcloud['TagC'], "Wrong tag-count for TagC."
+    assert_equal 4, rcloud['TagC'], "Wrong tag-count for TagC."
     assert_equal 1, rcloud['TagD'], "Wrong tag-count for TagD."
     assert_equal 1, rcloud['TagE'], "Wrong tag-count for TagE."
     assert_equal 1, rcloud['TagF'], "Wrong tag-count for TagF."
@@ -89,9 +89,9 @@ class TagcloudTest < Test::Unit::TestCase
     lcloud = cloud.logarithmic_distribution_method(steps)
     assert_kind_of Hash, lcloud
   
-    assert_equal 0, lcloud['TagA'], "Wrong font size for TagA."
+    assert_equal 5, lcloud['TagA'], "Wrong font size for TagA."
     assert_equal 6, lcloud['TagB'], "Wrong font size for TagB."
-    assert_equal 3, lcloud['TagC'], "Wrong font size for TagC."
+    assert_equal 6, lcloud['TagC'], "Wrong font size for TagC."
     assert_equal 0, lcloud['TagD'], "Wrong font size for TagD."
     assert_equal 0, lcloud['TagE'], "Wrong font size for TagE."
     assert_equal 0, lcloud['TagF'], "Wrong font size for TagF."      
@@ -109,9 +109,9 @@ class TagcloudTest < Test::Unit::TestCase
     lcloud = cloud.linear_distribution_method(steps)
     assert_kind_of Hash, lcloud
     
-    assert_equal 0, lcloud['TagA'], "Wrong font size for TagA."
+    assert_equal 4, lcloud['TagA'], "Wrong font size for TagA."
     assert_equal 6, lcloud['TagB'], "Wrong font size for TagB."
-    assert_equal 2, lcloud['TagC'], "Wrong font size for TagC."
+    assert_equal 6, lcloud['TagC'], "Wrong font size for TagC."
     assert_equal 0, lcloud['TagD'], "Wrong font size for TagD."
     assert_equal 0, lcloud['TagE'], "Wrong font size for TagE."
     assert_equal 0, lcloud['TagF'], "Wrong font size for TagF."
@@ -129,7 +129,7 @@ class TagcloudTest < Test::Unit::TestCase
     assert_not_nil cloud.tags
     
     #max_min check
-    assert_equal 2, cloud.max
+    assert_equal 3, cloud.max
     assert_equal 1, cloud.min
     
     #total number of tags in this cloud
@@ -138,11 +138,11 @@ class TagcloudTest < Test::Unit::TestCase
     cloud.tags.each do |tag|
       case tag.name
         when 'TagA'
-          assert_equal 1, tag.count, "Wrong tag-count for #{tag.name}."
+          assert_equal 3, tag.count, "Wrong tag-count for #{tag.name}."
         when 'TagB'
           assert_equal 2, tag.count, "Wrong tag-count for #{tag.name}."
         when 'TagC'
-          assert_equal 1, tag.count, "Wrong tag-count for #{tag.name}."
+          assert_equal 3, tag.count, "Wrong tag-count for #{tag.name}."
         when 'TagD'
           assert_equal 1, tag.count, "Wrong tag-count for #{tag.name}."
         when 'TagE'
