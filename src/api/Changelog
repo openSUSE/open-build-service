@@ -613,3 +613,93 @@ Tue Jun 19 15:09:36 +0200 2007 - abauer
 - unit-test update - because of new fixtures 
 
 
+------------------------------------------------------------------------
+Tue Jun 19 15:10:15 +0200 2007 - bauersman
+
+- update from svn revision 1591 to 1748
+- typo
+- permission error page
+- different permission check for rebuilding (fixes #267252)
+- don't include REXML module in global namespace
+- move validator filter definition to application.rb (fixes massive validation bug)
+- get better readable output from statistics_controller where importing of
+  download_stats failed
+- remove obsolete tag handling on project meta save
+- logarithm doesn't like 0
+- added new route for build history
+- reduce memory consumption of download statistics collection
+- corrected typo
+- add email address to message
+  
+- fix source config handling
+- unnecessary log messages disabled
+- made POST work for _buildinfo. kind of quickfix, eventually
+  pass_to_source has to be fixed to handle POST requests properly
+- config problem
+- lower the log level while importing download_stats
+  to prevent spamming the logfile
+  
+- test data for tagging system tests
+- test data for tagging system tests
+- unit test: reject a tag
+- prefix should be test_
+- more expressive tag name
+- the test is now a test (hopefully)
+- cleanup
+- added comments
+- test data
+- tag-cloud-tests
+- fixed copy-paste mistake
+- test for tag-count calculation
+- more tests for the tagging system
+- corrected a wrong error message
+- moved exception handling for the join-tabel transaction (Happy Birthday, Mom!)
+- write download statistics import warnings into extra logfile
+  instead to http-response
+- fix sql error in statistics
+- mechanism for loading host-specific development settings
+- missing .find: a difference that makes the difference. 
+- more functional tests for the tag-controller
+- added a further functional test
+- added tagcloud-tests
+- updated some tests
+- more tests
+- User-dependent tag-clouds will now be created by the user-name given in the url.
+  Added a test for this feature.
+- Request tags by project for another user than the logged on user.
+  Tests for this.
+- Request tags by package for another user than the logged on user.
+  Tests for this case.
+- frontend part to get global statistics:
+  count of packages, projects, repos and users
+- use sql to get counters instead of the ruby length method
+- improved user- and exception-handling for writing tags
+  tests for put-requests
+  
+- added test for get_tags_by_project_and_user, controller-internal use
+- added test for get_tags_by_package_and_user, controller-internal use
+- improved user- and exception-handling for getting projects with tags by user
+  tests for this case
+- improved user- and exception-handling for getting packages with tags by user
+  tests for this case
+  updated another test
+- test-documentation
+- updated test for a new feature (getting projects selected by more than one tag)
+  because of the fixtures changes additional tests had to be updated
+- The model rejects now tags which are containing a colon. This symbol (::) will be used for concatenating tags for selection purpose.
+- More than one tag at once can now be used for project-filtering.
+  Tests are already added.
+- updated test
+- project- and package-selection by more than one tag
+  bugfix for project-selection
+  tests
+- merged branches/bauersman/permission_playground r1616 to trunk
+- updated import script
+- made migration 024 more robust in case the db is broken
+- fixed migration 026
+- allow creation of own home project without permissions
+- updated an error message text
+- unit-test update - because of new fixtures 
+- unit-test update - because of new fixtures 
+
+
