@@ -271,34 +271,41 @@ class TagController < ApplicationController
         render :partial => "tagcloud"
         
       elsif request.post?
+        #The request-data includes a collection of objects (projects and
+        #packages atm.). Based on this objects the tagcloud will be calculated.
         request_data = request.raw_post
-        logger.debug "[TAG:] Tag cloud post: #{request_data}"
+        
         collection = ActiveXML::Node.new( request_data )
+        
+        #get the projects
         projects =[]
         collection.each_project do |project|
           proj = DbProject.find_by_name(project.name)
-          logger.debug '[TAG:] AAAAAAAAAAAAAAAA #{proj.inspect}'
           raise RuntimeError.new( "Error: Project '#{project.name}' not found." ) unless proj
+          
           projects << proj
         end
-        logger.debug "[TAG:] Projects: #{projects.inspect}"
         
+        #get the packages
         packages = []
         collection.each_package do |package|
           project = DbProject.find_by_name(package.project)
           raise RuntimeError.new( "Error: Project '#{package.project}' not found." ) unless project
+          
           pack = DbPackage.find_by_db_project_id_and_name( project.id, package.name )
           raise RuntimeError.new( "Error: Package '#{package.name}' not found." ) unless pack
+          
           packages << pack
         end
-        logger.debug "[TAG:] Packages: #{packages.inspect}"
         
         objects = projects + packages
-        tagcloud = Tagcloud.new(:scope => 'by_given_objects', :objects => objects)
-        logger.debug "[TAG:] Tagcloud: #{tagcloud.inspect}"
-        #@distribution_method = 'linear'
-        @tags = tagcloud.get_tags(@distribution_method,6)
-        logger.debug "[TAG:] tagcloud tags: #{@tags}"
+        
+        #creating the tagcloud
+        tagcloud = Tagcloud.new(:scope => 'by_given_objects', :objects => objects, :limit => @limit)
+        
+        #get the tags and the tag-sizes or counts
+        @tags = tagcloud.get_tags(@distribution_method, @steps)
+
         render :partial => 'tagcloud'
       end
       

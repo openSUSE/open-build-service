@@ -1374,4 +1374,211 @@ class TagControllerTest < Test::Unit::TestCase
     assert_response 404
   end
   
+  
+  def test_tagcloud_by_projects_unknown_project
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("collection") )
+    element = REXML::Element.new( 'project' )
+    element.add_attribute REXML::Attribute.new('name', 'AlienProject')
+    xml.root.add_element(element)
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
+    assert_response 404
+  end
+  
+  
+  def test_tagcloud_by_projects
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("collection") )
+    element = REXML::Element.new( 'project' )
+    element.add_attribute REXML::Attribute.new('name', 'home:tscholz')
+    xml.root.add_element(element)
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
+    assert_response :success
+        
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "raw",
+                     :steps => 6, #thats the default
+                     :user => ""
+    },
+    :children => { :count => 4, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :count => 1} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 2} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 2} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }    
+  end
+ 
+ 
+  def test_tagcloud_by_packages_unknown_package
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("collection") )
+    element = REXML::Element.new( 'package' )
+    element.add_attribute REXML::Attribute.new('project', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('name', 'AlienPack')
+    xml.root.add_element(element)
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
+    assert_response 404
+  end
+  
+  
+  def test_tagcloud_by_packages
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("collection") )
+    element = REXML::Element.new( 'package' )
+    element.add_attribute REXML::Attribute.new('project', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('name', 'TestPack')
+    xml.root.add_element(element)
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "raw",
+                     :steps => 6, #thats the default
+                     :user => ""
+    },
+    :children => { :count => 4, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 2} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 1} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagD", :count => 1} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagE", :count => 1} }
+  end
+  
+  
+  def test_tagcloud_by_objects
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("collection") )
+    #adding a project
+    element = REXML::Element.new( 'project' )
+    element.add_attribute REXML::Attribute.new('name', 'home:tscholz')
+    xml.root.add_element(element)
+    #adding a package
+    element = REXML::Element.new( 'package' )
+    element.add_attribute REXML::Attribute.new('project', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('name', 'TestPack')
+    xml.root.add_element(element)
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "raw",
+                     :steps => 6, #thats the default
+                     :user => ""
+    },
+    :children => { :count => 6, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagA", :count => 1} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :count => 4} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :count => 3} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagD", :count => 1} } 
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagE", :count => 1} } 
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }
+  end
+  
+  
+  def test_tagcloud_by_objects_linear_with_steps_and_limit
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("collection") )
+    #adding a project
+    element = REXML::Element.new( 'project' )
+    element.add_attribute REXML::Attribute.new('name', 'home:tscholz')
+    xml.root.add_element(element)
+    #adding a package
+    element = REXML::Element.new( 'package' )
+    element.add_attribute REXML::Attribute.new('project', 'home:tscholz')
+    element.add_attribute REXML::Attribute.new('name', 'TestPack')
+    xml.root.add_element(element)
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'linear', :steps => 10, :limit => 3
+    assert_response :success
+    
+    #checking response-data 
+    assert_tag :tag => "tagcloud",
+    :attributes => { :distribution_method => "linear",
+                     :steps => 10, #not the default
+                     :user => ""
+    },
+    :children => { :count => 3, :only => { :tag => "tag"} }
+    
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 10} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 7} }
+    assert_tag :tag => "tagcloud",
+    :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }   
+  end
+  
+  
+  #def test_tagcloud_by_projects_and_user
+    #really needed?
+  #end
+  
+  
+  #def test_tagcloud_by_packages_and_user
+    #really needed?
+  #end
+  
+  
+  #def test_tagcloud_by_objects_and_user
+    #really needed?
+  #end
+    
 end
