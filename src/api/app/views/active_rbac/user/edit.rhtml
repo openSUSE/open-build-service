@@ -1,0 +1,10 @@
+<h2>Editing User <%=h @user.login %></h2>
+
+<%= start_form_tag :action => 'update', :id => @user %>
+  <%= render_partial 'form' %>
+
+  <%= submit_tag "Apply Changes", :name => 'submit[update]' %>
+<%= end_form_tag %>
+
+<%= link_to 'Show', :action => 'show', :id => @user %> |
+<%= link_to 'Back', :action => 'list' %>

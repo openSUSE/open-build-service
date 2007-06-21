@@ -57,7 +57,7 @@ class User < ActiveRecord::Base
       when User.states['locked']
         ['confirmed', 'deleted'].map{|x| User.states[x]}.include?(to)
       when User.states['deleted']
-        to == states['confirmed']
+        to == User.states['confirmed']
       when User.states['ichainrequest']
         ['locked', 'confirmed', 'deleted'].map{|x| User.states[x]}.include?(to)
       when 0
