@@ -254,7 +254,7 @@ class StatisticsController < ApplicationController
       @stats = DownloadStat.find :all,
         :from => 'download_stats ds, ' + from,
         :select => 'ds.*, ' + select + ', ' +
-          'sum(ds.count) as counter_sum, count(*) as files_count',
+          'sum(ds.count) as counter_sum, count(ds.id) as files_count',
         :conditions => conditions,
         :order => 'counter_sum DESC, files_count ASC',
         :group => group_by,
