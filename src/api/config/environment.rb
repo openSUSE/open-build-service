@@ -6,7 +6,6 @@
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
-#require 'rails_unescape_fix'
 
 RAILS_GEM_VERSION = '1.2.3' unless defined? RAILS_GEM_VERSION
 
@@ -88,6 +87,7 @@ require 'custom_logger'
 RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'rails_put_fix'
+require 'rails_unescape_fix'
 #require 'active_rbac_user_model_crypt_hack'
 
 require 'activexml'
@@ -95,6 +95,8 @@ require 'activexml'
 
 #Dependencies.log_activity = true
 #Dependencies.load_once_paths << "#{RAILS_ROOT}/lib"
+
+ActionController::Routing::SEPARATORS = %w( / ; , ? )
 
 ActiveXML::Base.config do |conf|
   if RAILS_ENV == "test"
