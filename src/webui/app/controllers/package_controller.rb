@@ -750,7 +750,7 @@ class PackageController < ApplicationController
 
   def get_files( project, package )
     # files whose name end in the following extensions should not be editable
-    no_edit_ext = %w{ bz2 exe gif gz jar jpg jpeg ogg ps pdf png rpm tar tgz xpm zip }
+    no_edit_ext = %w{ bz2 exe gem gif gz jar jpg jpeg ogg ps pdf png rpm tar tgz xpm zip }
     
     files = []
     dir = Directory.find( :project => project, :package => package )
