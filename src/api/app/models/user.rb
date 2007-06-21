@@ -169,6 +169,8 @@ class User < ActiveRecord::Base
         return has_local_permission?(perm_string, parent)
       end
       return false
+    when nil
+      return has_global_permission?(perm_string)
     else
     end
   end
