@@ -225,7 +225,7 @@ class SourceController < ApplicationController
       forward_data path
     elsif request.put?
       #check for permissions
-      unless @http_user.can_change_project?(@project)
+      unless @http_user.can_modify_project?(@project)
         render_error :status => 403, :errorcode => 'put_project_config_no_permission',
           :message => "No permission to write build configuration for project '#{params[:project]}'"
         return
@@ -346,6 +346,7 @@ class SourceController < ApplicationController
         Suse::Backend.put_source path, request.raw_post
         package = Package.find( package_name, :project => project_name )
         package.update_timestamp
+        logger.info "wrote #{request.raw_post.size} bytes to #{path}"
         render_ok
       else
         render_error :status => 403, :errorcode => 'put_file_no_permission',
