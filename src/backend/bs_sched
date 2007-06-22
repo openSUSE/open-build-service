@@ -479,10 +479,6 @@ sub set_building {
     $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
   }
   
-  my $release = $pdata->{'versrel'};
-  $release = '0' unless defined $release;
-  $release =~ s/.*-//;
-  $release = "$release.".($h->{'bcnt'} + 1);
   my $vmd5 = $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
   my $binfo = {
     'project' => $projid,
@@ -496,11 +492,19 @@ sub set_building {
     'file' => $info->{'file'},
     'versrel' => $pdata->{'versrel'},
     'bcnt' => $h->{'bcnt'} + 1,
-    'release' => $release,
     'subpack' => ($subpacks || []),
     'bdep' => \@bdeps,
     'path' => $searchpath,
   };
+  my $release = $pdata->{'versrel'};
+  $release = '0' unless defined $release;
+  $release =~ s/.*-//;
+  my $bcnt = $h->{'bcnt'} + 1;
+  if (defined($bconf->{'release'})) {
+    $binfo->{'release'} = $bconf->{'release'};
+    $binfo->{'release'} =~ s/\<CI_CNT\>/$release/g;
+    $binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
+  }
   writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
   return $f;
 }

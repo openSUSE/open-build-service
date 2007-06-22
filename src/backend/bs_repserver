@@ -477,7 +477,8 @@ sub assignjob {
   $status->{'status'} = 'building';
   $status->{'arch'} = $arch;
   $status->{'job'} = $job;
-  writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
+  eval { writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus); };
+  warn($@) if $@;
   unlink("$jobsdir/$arch/$job:dir/status.xml");
   link("$statusdir/status", "$jobsdir/$arch/$job:dir/status.xml") || warn("link $statusdir/status $jobsdir/$arch/$job:dir/status.xml: $!\n");
   mkdir_p("$workersdir/building");
@@ -870,7 +871,15 @@ sub getbuildinfo {
     $ret->{'bcnt'} = $h->{'bcnt'} + 1;
     my $release = $ret->{'versrel'};
     $release =~ s/.*-//;
-    $ret->{'release'} = "$release.".$ret->{'bcnt'};
+    if (exists($bconf->{'release'})) {
+      if (defined($bconf->{'release'})) {
+        $ret->{'release'} = $bconf->{'release'};
+	$ret->{'release'} =~ s/\<CI_CNT\>/$release/g;
+	$ret->{'release'} =~ s/\<B_CNT\>/$ret->{'bcnt'}/g;
+      }
+    } else {
+      $ret->{'release'} = "$release.".$ret->{'bcnt'};
+    }
   }
 
   my $info = $pdata->{'info'}->[0];
@@ -898,6 +907,9 @@ sub getbuildinfo {
   for my $prp (reverse @prp) {
     my $r = $repodata{$prp};
     for (keys %$r) {
+      if (!defined($r->{$_}->{'source'})) {
+	print "Warning: $_ in $prp has no source\n";
+      }
       $dep2src{$_} = $r->{$_}->{'source'};
       $dep2rpm{$_} = $r->{$_};
       $dep2prp{$_} = $prp;
@@ -912,7 +924,9 @@ sub getbuildinfo {
   if ($1 && $1 ne $bconf->{'type'}) {
     push @deps, ($1 eq 'spec' ? 'rpm' : 'dpkg');
   }
+  $Build::expand_dbg = 1 if $cgi->{'debug'};
   my @edeps = Build::get_deps($bconf, \@subpacks, @deps);
+  undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @edeps) {
     $ret->{'error'} = "expansion error: ".join(', ', @edeps);
     return ($ret, $BSXML::buildinfo);
@@ -1083,8 +1097,8 @@ sub getcodemd5 {
   my $md5 = '';
   my %new;
   my $doclean;
-  my @files = ls($dir);
-  my @bfiles = ls("$dir/Build");
+  my @files = grep {!/^\./} ls($dir);
+  my @bfiles = grep {!/^\./} ls("$dir/Build");
   my %bfiles = map {$_ => 1} @bfiles;
   @files = sort(@files, @bfiles);
   $cache ||= {};
@@ -1113,9 +1127,9 @@ sub getcodemd5 {
 sub getcode {
   my ($cgi, $dir) = @_;
   my @send;
-  for my $file (ls($dir)) {
+  for my $file (grep {!/^\./} ls($dir)) {
     if ($file eq 'Build' && -d "$dir/$file") {
-      for my $file2 (ls("$dir/Build")) {
+      for my $file2 (grep {!/^\./} ls("$dir/Build")) {
         push @send, {'name' => "$file2", 'filename' => "$dir/Build/$file2"};
       }
     }

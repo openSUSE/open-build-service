@@ -396,7 +396,6 @@ sub getbinaries {
 sub dobuild {
   my ($buildinfo) = @_;
 
-
   my $repo = $buildinfo->{'path'}->[0];
   my $arch = $buildinfo->{'arch'};
   my ($projid, $repoid) = ($repo->{'project'}, $repo->{'repository'});
@@ -448,14 +447,8 @@ sub dobuild {
   push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
   writestr("$buildroot/.rpmlist", undef, join("\n", @rpmlist)."\n");
 
-  my $release;
-  if (defined($buildinfo->{'release'})) {
-    $release = $buildinfo->{'release'};
-  } elsif (defined($buildinfo->{'versrel'}) && defined($buildinfo->{'bcnt'})) {
-    $release = $buildinfo->{'versrel'};
-    $release =~ s/.*-//;
-    $release .= ".$buildinfo->{'bcnt'}";
-  }
+  my $release = $buildinfo->{'release'};
+
   my @args;
   push @args, $helper if $helper;
   push @args, "$statedir/build/build";
@@ -482,6 +475,10 @@ sub dobuild {
   push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";
   if (system(@args)) {
     print "build failed\n";
+    return 1;
+  }
+  if (! -s "$buildroot/.build.log") {
+    print "build succeeded, but no logfile?\n";
     return 1;
   }
   print "build succeeded\n";
@@ -737,6 +734,15 @@ if ($state->{'state'} ne 'building') {
   $ex = 1;
 }
 
+if (! -s "$buildroot/.build.log") {
+  if (defined($workerid)) {
+    writestr("$buildroot/.build.log", undef, "build on $workerid did not create a logfile\n");
+  } else {
+    writestr("$buildroot/.build.log", undef, "build did not create a logfile\n");
+  }
+  $ex = 1;
+}
+
 my @send;
 if ($ex == 0) {
   local *D;
@@ -758,19 +764,12 @@ if ($ex == 0) {
 if (@send) {
   print "build succeeded, send everything back...\n";
   push @send, {name => 'meta', filename => "$buildroot/.build.meta"};
-  push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 } else {
   print "build failed, send back logfile...\n";
-  if (! -e "$buildroot/.build.log") {
-    if (defined($workerid)) {
-      writestr("$buildroot/.build.log", undef, "build on $workerid did not create a logfile\n");
-    } else {
-      writestr("$buildroot/.build.log", undef, "build did not create a logfile\n");
-    }
-  }
   push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$buildroot/.build.meta";
-  push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 }
+push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
+
 if (!$testmode) {
   eval {
     my $res = BSRPC::rpc({
