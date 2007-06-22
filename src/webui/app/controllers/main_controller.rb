@@ -99,39 +99,39 @@ class MainController < ApplicationController
           weight += weight_for[:name_exact_match]
           log_weight(log_prefix, 'name_exact_match', weight)
         end
-
+        quoted_s = Regexp.quote(s)
         # weight the name
-        if    (match = data.name.to_s.scan(/\b#{s}\b/i)) != []
+        if    (match = data.name.to_s.scan(/\b#{quoted_s}\b/i)) != []
           weight += match.length * weight_for[:name_full_match]
           log_weight(log_prefix, 'name_full_match', weight)
-        elsif (match = data.name.to_s.scan(/\b#{s}/i)) != []
+        elsif (match = data.name.to_s.scan(/\b#{quoted_s}/i)) != []
           weight += match.length * weight_for[:name_start_match]
           log_weight(log_prefix, 'name_start_match', weight)
-        elsif (match = data.name.to_s.scan(/#{s}/i)) != []
+        elsif (match = data.name.to_s.scan(/#{quoted_s}/i)) != []
           weight += match.length * weight_for[:name_contained]
           log_weight(log_prefix, 'name_contained', weight)
         end
 
         # weight the title
-        if    (match = data.title.to_s.scan(/\b#{s}\b/i)) != []
+        if    (match = data.title.to_s.scan(/\b#{quoted_s}\b/i)) != []
           weight += match.length * weight_for[:title_full_match]
           log_weight(log_prefix, 'title_full_match', weight)
-        elsif (match = data.title.to_s.scan(/\b#{s}/i)) != []
+        elsif (match = data.title.to_s.scan(/\b#{quoted_s}/i)) != []
           weight += match.length * weight_for[:title_start_match]
           log_weight(log_prefix, 'title_start_match', weight)
-        elsif (match = data.title.to_s.scan(/#{s}/i)) != []
+        elsif (match = data.title.to_s.scan(/#{quoted_s}/i)) != []
           weight += match.length * weight_for[:title_contained]
           log_weight(log_prefix, 'title_contained', weight)
         end
 
         # weight the description
-        if    (match = data.description.to_s.scan(/\b#{s}\b/i)) != []
+        if    (match = data.description.to_s.scan(/\b#{quoted_s}\b/i)) != []
           weight += match.length * weight_for[:description_full_match]
           log_weight(log_prefix, 'description_full_match', weight)
-        elsif (match = data.description.to_s.scan(/\b#{s}/i)) != []
+        elsif (match = data.description.to_s.scan(/\b#{quoted_s}/i)) != []
           weight += match.length * weight_for[:description_start_match]
           log_weight(log_prefix, 'description_start_match', weight)
-        elsif (match = data.description.to_s.scan(/#{s}/i)) != []
+        elsif (match = data.description.to_s.scan(/#{quoted_s}/i)) != []
           weight += match.length * weight_for[:description_contained]
           log_weight(log_prefix, 'description_contained', weight)
         end
