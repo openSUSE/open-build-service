@@ -211,14 +211,21 @@ Parameters:
 XmlResult: status
 
 
-== Platform data
+== Repository data
 
 Host: api.opensuse.org
 
-GET /platform/
-  
-  List all platforms
-  
+GET /repository/
+
+  List all repositories
+
+XmlResult: directory
+
+
+GET /repository/<project>
+
+  List all repositories of the specified project
+
 XmlResult: directory
 
 
@@ -554,6 +561,17 @@ PUT user/<user>/tags/<project>/<package>
 XmlBody: tags
 
 XmlResult: status
+
+
+== Platform data (Legacy)
+
+Host: api.opensuse.org
+
+GET /platform/
+  
+  List all platforms
+  
+XmlResult: directory
 
 
 == Build Results (Legacy)
