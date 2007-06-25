@@ -43,6 +43,9 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'platform/:project', :controller => 'platform',
     :action => 'project'
 
+  map.connect 'repository/:project', :controller => 'platform', :action => 'project'
+  map.connect 'repository', :controller => 'platform', :action => 'index'
+
   ### /source
 
   map.connect 'source/:project/:package/_meta', :controller => 'source',
@@ -166,7 +169,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'search/package', :controller => "search", :action => "package"
   map.connect 'search', :controller => "search", :action => "pass_to_source"
 
-
   ### /build
 
   map.connect 'build/:project/:repository/:arch/:package/_status',
@@ -196,7 +198,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build',
     :controller => "build", :action => "pass_to_source"
 
- 
   ### /apidocs
 
   map.apidocs 'apidocs/', :controller => "apidocs"
@@ -218,7 +219,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'rpm/:project/:repository/:package/:arch/:file',
     :controller => 'rpm', :action => 'file'
 
- 
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action'
