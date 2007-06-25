@@ -132,7 +132,7 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
       @user.roles << user_role unless @user.roles.include? user_role
 
       #set state to confirmed
-      params[:user][:state] = @user.states['confirmed']
+      params[:user][:state] = User.states['confirmed']
 
       #send mail to user
       IchainNotifier.deliver_approval(@user)
