@@ -7,7 +7,8 @@ class CreateTaggings < ActiveRecord::Migration
       t.column :tag_id, :integer
       t.column :user_id, :integer    
     end
-    add_index("taggings",["taggable_id", "taggable_type", "tag_id", "user_id"], :unique)
+    add_index("taggings",["taggable_id", "taggable_type", "tag_id", "user_id"], :unique => true, 
+        :name => "taggings_taggable_id_index")
   end
 
   def self.down

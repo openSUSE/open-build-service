@@ -30,7 +30,7 @@ class AddRepositories < ActiveRecord::Migration
       t.column "architecture_id", :integer
     end
 
-    add_index "architectures_repositories", ["repository_id", "architecture_id"], :unique => true
+    add_index "architectures_repositories", ["repository_id", "architecture_id"], :unique => true, :name => "arch_repo_index"
   end
 
   def self.down
