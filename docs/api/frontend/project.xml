@@ -8,9 +8,6 @@
   <useforbuild>
     <disable />
   </useforbuild>
-  <debuginfo>
-    <disable />
-  </debuginfo>
   <publish>
     <disable />
   </publish>
