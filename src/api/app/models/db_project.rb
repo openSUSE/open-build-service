@@ -11,8 +11,11 @@ class DbProject < ActiveRecord::Base
   has_many :download_stats
   has_many :ratings, :as => :object, :dependent => :destroy
 
+  has_many :project_flag_groups
+  has_many :project_flags, :through => :project_flag_groups
 
   class << self
+
     def find_by_name(name)
       find :first, :conditions => ["name = BINARY ?", name]
     end
@@ -70,7 +73,7 @@ class DbProject < ActiveRecord::Base
 
       project.each_person do |person|
         if usercache.has_key?(person.userid)
-          #user has already a role in this project
+          # user has already a role in this project
           pcache = usercache[person.userid]
           if pcache[:role] != person.role
             #role in xml differs from role in database, update
@@ -112,6 +115,35 @@ class DbProject < ActiveRecord::Base
         ProjectUserRoleRelationship.destroy_all ["db_project_id = ? AND bs_user_id IN (#{user_ids_to_delete})", self.id]
       end
       #--- end update users ---#
+
+      #--- update flag group ---#
+      # destroy all flags and flag groups first
+      self.project_flags.destroy_all
+      self.project_flag_groups.destroy_all
+
+      # and recreate the flag groups and flags again
+      FlagGroupType.find(:all).each do |gt|
+	if project.has_element?(gt.title)
+          logger.debug "adding flag group '#{gt.title}'"
+          current_fg = self.project_flag_groups.create( :flag_group_type_id => gt.id )
+          self.updated_at = Time.now
+
+          FlagType.find(:all).each do |ft|
+            if project.send("#{gt.title}").has_element?(ft.title)
+              logger.debug "adding flag '#{ft.title}'"
+              begin
+                ProjectFlag.create(
+                  :project_flag_group_id => gt.id,
+                  :flag_type_id => ft.id
+                )
+              rescue ActiveRecord::StatementInvalid => err
+                logger.debug "error handling flag"
+              end
+            end
+          end
+        end
+      end
+      #--- end flag group ---#
 
       #--- update repositories ---#
       repocache = Hash.new
@@ -283,9 +315,22 @@ class DbProject < ActiveRecord::Base
         project.person( :userid => u.login, :role => u.role_name )
       end
 
-      #db_packages.each do |pack|
-      #  project.package( :name => pack.name )
-      #end
+      FlagGroupType.find(:all).each do |gt|
+        flaglist = ProjectFlagGroup.find_by_sql [
+          "SELECT ft.title AS flagswitch from project_flag_groups fg 
+                  LEFT JOIN flag_group_types fgt ON fg.flag_group_type_id=fgt.id 
+                  LEFT JOIN project_flags f ON f.project_flag_group_id=fgt.id 
+                  LEFT JOIN flag_types ft ON f.flag_type_id=ft.id 
+           WHERE fg.db_project_id=? AND fgt.title=? ;", self.id, gt.title ]
+
+        if not flaglist.empty?
+          project.__send__("#{gt.title}") do |u|
+            flaglist.each do |fs|
+              project.__send__("#{fs.flagswitch}")
+            end
+          end
+        end
+      end
 
       repos = repositories.find( :all, :include => [:path_elements, :architectures] )
       repos.each do |repo|

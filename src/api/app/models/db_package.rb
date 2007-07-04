@@ -11,6 +11,8 @@ class DbPackage < ActiveRecord::Base
   has_many :download_stats
   has_many :ratings, :as => :object, :dependent => :destroy
 
+  has_many :flag_groups
+
 
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
