@@ -2,10 +2,18 @@
   <title>SuperKDE</title>
   <description>SuperKDE is a heavily tuned version of KDE.</description>
   <person role="maintainer" userid="ernie"/>
-  <package name="kdelibs" revision="2" />
-  <package name="kdebase" revision="11" />
-  <package name="kdepim" revision="3" />
-  <package name="kdeafterburner"  revision="3"/>
+  <build>
+    <disable />
+  </build>
+  <useforbuild>
+    <disable />
+  </useforbuild>
+  <debuginfo>
+    <disable />
+  </debuginfo>
+  <publish>
+    <disable />
+  </publish>
   <repository name="kde4:factory">
     <path project="kde4" repository="factory"/>
     <arch>i386</arch>
