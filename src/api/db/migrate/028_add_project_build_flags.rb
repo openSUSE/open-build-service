@@ -32,9 +32,9 @@ class AddProjectBuildFlags < ActiveRecord::Migration
       t.column "title", :string
     end
 
-    FlagGroupType.create :title => "useforbuild"
-    FlagGroupType.create :title => "publish"
     FlagGroupType.create :title => "build"
+    FlagGroupType.create :title => "publish"
+    FlagGroupType.create :title => "useforbuild"
     FlagGroupType.create :title => "debuginfo"
 
     # === project flags table ===
