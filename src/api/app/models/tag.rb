@@ -8,6 +8,7 @@ class Tag < ActiveRecord::Base
   
   has_many :users, :through => :taggings
   
+  attr_accessor :cached_count
   
   def before_save
   end

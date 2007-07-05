@@ -34,8 +34,18 @@ class Tagcloud
         tag.count(:scope => "user", :user => user)
       end
  
-    else          
-      @tags = Tag.find(:all, :group => "name")
+    else  	          
+#      @tags = Tag.find(:all, :group => "id")
+      @tags = Tag.find( :all,
+                 :from => 'tags, taggings',
+                 :select => 'tags.*, count(tags.id) AS sql_count',
+                 :conditions => 'tags.id=taggings.tag_id',
+                 :group => 'tags.id'
+                 )
+      @tags.each do |tag|
+        tag.cached_count = tag.sql_count.to_i
+      end
+                 
       #initialize the tag count and remove unused tags from the list 
       @tags.delete_if {|tag| tag.count(:scope => "global") == 0 }   
     end
