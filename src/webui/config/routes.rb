@@ -11,8 +11,16 @@ ActionController::Routing::Routes.draw do |map|
   # Shortcut to searchpage:
   map.connect 'search', :controller => 'main', :action => 'search'
 
+
+  # REST style paths
+  map.connect 'project/show/:project', :controller => 'project', :action => 'show'
+  map.connect 'project/view/:project', :controller => 'project', :action => 'view'
+  #
+  map.connect 'package/show/:project/:package', :controller => 'package', :action => 'show'
+  map.connect 'package/view/:project/:package', :controller => 'package', :action => 'view'
+
+
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action'
-
 end
