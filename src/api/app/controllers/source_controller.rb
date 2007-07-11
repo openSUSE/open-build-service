@@ -134,6 +134,16 @@ class SourceController < ApplicationController
     end
   end
 
+  def pattern
+    #TODO:implement
+    pass_to_source
+  end
+
+  def index_pattern
+    #TODO: implement
+    pass_to_source
+  end
+
   def project_meta
     project_name = params[:project]
     if project_name.nil?
