@@ -16,18 +16,18 @@ class TagController < ApplicationController
   def switch_tagcloud
     if params[:hierarchical_browsing]
       logger.debug "Switching to tagcloud view HIERARCHICAL BROWSING..." 
-      session[:tagcloud] = "hierarchical_browsing"
+      session[:tagcloud] = :hierarchical_browsing
       
       logger.debug "...done."
     elsif params[:alltags]
       logger.debug "Switching to tagcloud view ALLTAGS..." 
-      session[:tagcloud] = "alltags"
+      session[:tagcloud] = :alltags
       
       logger.debug "...done."
     else
       logger.debug "Switching to tagcloud view MYTAGS..." 
       
-      session[:tagcloud] = "mytags"
+      session[:tagcloud] = :mytags
       logger.debug "...done."
     end
     @tagcloud = get_tagcloud
@@ -36,13 +36,17 @@ class TagController < ApplicationController
   
   
   def get_tagcloud
-    session[:tagcloud] ||= "mytags"
+    session[:tagcloud] ||= :mytags
     logger.debug "TAG: getting  tag cloud from API."
-    tagcloud = Tagcloud.new( :tagcloud => session[:tagcloud],
-                            :user => @session[:login] )
-    tagcloud    
+		limit = nil
+		if session[:tagcloud] == :mytags
+			limit = 0
+		end
+		tagcloud = Tagcloud.find( session[:tagcloud], :user => session[:login], :limit => limit.to_s)
+    return tagcloud    
   end
   
+	
   def list_objects_by_tag
     tagname = CGI::unescape(params[:tag])
     @collection = Collection.find(:tag, :type => "_all", :tagname => tagname )
@@ -132,11 +136,71 @@ class TagController < ApplicationController
   
   
   def hierarchical_browsing
+	
+	  tagname = CGI::unescape(params[:tag])
+
+		if params[:concatenated_tags]
+		  @concatenated_tags = params[:concatenated_tags].split('::')
+		else
+			@concatenated_tags = []
+		end
+		
+		@concatenated_tags << tagname
+    @concatenated_tags = @concatenated_tags.uniq.join('::')
+		
+		logger.debug "[TAG:] \t CONCATENATED TAGS: \t #{@concatenated_tags}"
+		@collection = Collection.find(:tag, :type => "_all", :tagname => @concatenated_tags )
+
+    @projects = []
+	  @collection.each_project do |project|
+		@projects << Project.new(project.data.to_s)
+	  end
+	  
+	  @packages = []
+	  @collection.each_package do |package|
+		@packages << Package.new(package.data.to_s)
+	  end  	
+
+    #logger.debug "\n[TAG: PROJECTS:] /t #{@projects.inspect} \n"
+    #logger.debug "\n[TAG: PACKAGES:] /t #{@packages.inspect}\n"
     
-    flash[:error] = 'Sry, this feature is not implemented yet.'
-    redirect_to :back
+    #@tagcloud = Tagcloud.new( :tagcloud => session[:tagcloud],
+    #	:user => session[:login], :projects => @projects, :packages => @packages )    
+    
+		
+		
+		conditions = conditions_to_xml(:projects => @projects, :packages => @packages)
+		@tagcloud = Tagcloud.find( session[:tagcloud], :user => session[:login], :conditions => conditions )
+		
+		render :action => "list_objects_by_tag" 
+      
+    #flash[:error] = 'Sry, this feature is not implemented yet.'
+    #redirect_to :back
     
   end
   
+	
+	def conditions_to_xml(opts)
+		
+		    xml = REXML::Document.new
+		    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+		    xml.add_element( REXML::Element.new("collection") )
+		    #adding a project
+		    opts[:projects].each do |project|
+				  element = REXML::Element.new( 'project' )
+				  element.add_attribute REXML::Attribute.new('name', project.name)
+				  xml.root.add_element(element)
+		    end
+		    #adding a package
+				opts[:packages].each do |package|
+			    element = REXML::Element.new( 'package' )
+			    element.add_attribute REXML::Attribute.new('project', package.project)
+			    element.add_attribute REXML::Attribute.new('name', package.name)
+			    xml.root.add_element(element)
+				end		
+				
+				return xml
+	end
+	
 
 end

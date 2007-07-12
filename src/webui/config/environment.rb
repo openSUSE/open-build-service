@@ -79,10 +79,17 @@ ActiveXML::Base.config do |conf|
     map.connect :package, "rest:///source/:project/:name/_meta",
         :all    => "rest:///source/:project"
 
+    map.connect :tagcloud, "rest:///tag/tagcloud?limit=:limit",
+				:alltags	=> "rest:///tag/tagcloud?limit=:limit",
+				:mytags => "rest:///user/:user/tags/_tagcloud?limit=:limit",
+				:hierarchical_browsing => "rest:///tag/tagcloud?limit=:limit"
+
+	#       :tagcloud_by_user => "rest:///user/:user/tags/_tagcloud"
+#       #:tagcloud  => "rest:///tag/tagcloud?limit=:limit"
+    
+
     map.connect :tag, "rest:///user/:user/tags/:project/:package",
-        :tags_by_object => "rest:///source/:project/:package/_tags",
-        :tagcloud_by_user => "rest:///user/:user/tags/_tagcloud",
-        :tagcloud  => "rest:///tag/tagcloud?limit=:limit"
+        :tags_by_object => "rest:///source/:project/:package/_tags"
 
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"

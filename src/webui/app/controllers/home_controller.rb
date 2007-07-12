@@ -16,7 +16,10 @@ class HomeController < ApplicationController
     end
 
     logger.debug "Tagcloud switch initialized: Building Tagcloud for #{session[:tagcloud]}"
-    @tagcloud ||= Tagcloud.new(:user => @session[:login], :tagcloud => session[:tagcloud])
+    #TODO: out-dated tag=cloud call, delete!
+		#@tagcloud ||= Tagcloud.new(:user => @session[:login], :tagcloud => session[:tagcloud])
+		@tagcloud ||= Tagcloud.find( session[:tagcloud].to_sym, :user => @session[:login] )
+		#breakpoint
   end
   
 end

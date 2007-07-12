@@ -1,28 +1,29 @@
-<% if session[:tagcloud] == 'hierarchical_browsing'
+<% if session[:tagcloud] == :hierarchical_browsing
     action = 'hierarchical_browsing'
     
    else
     action = 'list_objects_by_tag' 
-    @predecessor = []
+    @concatenated_tags = nil
    end %> 
 
- <% if @tagcloud.tags.length > 0 %>
-    <% @tagcloud.tags.each do |tag|  %>
-        
-         <% style = 'visibility:visible;' %>
  
-         <% if session[:tagcloud] == 'hierarchical_browsing' 
-             if @tags 
-               if  @tags.include? tag.name 
-                style = 'visibility:visible;' 
-               else 
-                style = 'visibility:hidden;' 
-               end
-             end   
-           end %>
+ <% if not @tagcloud.nil? and @tagcloud.data.root.elements.size > 0 %>
+    <% @tagcloud.each_tag do |tag|  %>
+        
+         <% #style = 'visibility:visible;' %>
+ 
+         <%# if session[:tagcloud] == :hierarchical_browsing 
+           #  if @tags 
+           #    if  @tags.include? tag.name 
+           #     style = 'visibility:visible;' 
+           #    else 
+           #     style = 'visibility:hidden;' 
+           #    end
+           #  end   
+           #end %>
   
             
-   <span  class="tag size<%= (tag.size.to_i + 5) %>"> <%= link_to h(tag.name), {:controller => "tag", :action => action, :tag => tag, :predecessor => @predecessor}, {:style => style} %></span> 
+   <span  class="tag size<%= (tag.size.to_i + 5) %>"> <%= link_to h(tag.name), {:controller => "tag", :action => action, :tag => tag, :concatenated_tags => @concatenated_tags} %></span> 
      <!-- id="<%= h(tag.name) %>" -->
         
     <% end
