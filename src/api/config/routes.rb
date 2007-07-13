@@ -48,7 +48,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /source
 
-  map.connect 'source/:project/:package/_pattern/:pattern' :controller => 'source',
+  map.connect 'source/:project/:package/_pattern/:pattern', :controller => 'source',
     :action => 'pattern'
   map.connect 'source/:project/:package/_pattern', :controller => 'source',
     :action => 'index_pattern'
