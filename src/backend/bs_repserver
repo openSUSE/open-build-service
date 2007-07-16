@@ -61,6 +61,7 @@ my %cando = (
   'x86_64' => ['x86_64', 'i586', 'i686'],
   'ppc'    => ['ppc'],
   'ppc64'  => ['ppc64', 'ppc'],
+  'sh4'    => ['sh4'],
 );
 
 my $reporoot = "$BSConfig::bsdir/build";
