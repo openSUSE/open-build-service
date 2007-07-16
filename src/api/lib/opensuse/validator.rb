@@ -117,7 +117,7 @@ module Suse
       schema_path = self.class.schema_location + schema_file
 
       unless File.exist? schema_path
-        raise Suse::ValidationError, "unable to read schema file '#{schema_path}': file not found"
+        raise "Suse::Validation: unable to read schema file '#{schema_path}': file not found"
       end
       
       logger.debug "schema_path: #{schema_path}"

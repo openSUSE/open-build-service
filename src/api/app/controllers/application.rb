@@ -232,6 +232,9 @@ class ApplicationController < ActionController::Base
     when ActiveXML::Transport::NotFoundError
       render_error :message => exception.message, :status => 404
       return
+    when Suse::ValidationError
+      render_error :message => "XML validation failed", :details => exception.message , :status => 400
+      return
     end
     render_error :exception => exception
   end
