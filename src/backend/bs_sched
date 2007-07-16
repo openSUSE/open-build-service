@@ -752,7 +752,7 @@ sub prpfinished {
       print FILE "type=rpm-md\n";
       print FILE "baseurl=$BSConfig::repodownload/$prp_ext/\n";
       print FILE "gpgcheck=1\n";
-      print FILE "gpgkey=http://software.opensuse.org/openSUSE-Build-Service.asc\n";
+      print FILE "gpgkey=http://download.opensuse.org/openSUSE-Build-Service.asc\n";
       print FILE "enabled=1\n";
       close(FILE) || die("close: $!\n");
       rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
@@ -778,6 +778,7 @@ VENDOR openSUSE Build Service
 ARCH.x86_64 x86_64 i686 i586 i486 i386 noarch
 ARCH.ppc64 ppc64 ppc noarch
 ARCH.ppc ppc noarch
+ARCH.sh4 sh4 noarch
 ARCH.i686 i686 i586 i486 i386 noarch
 ARCH.i586 i586 i486 i386 noarch
 DEFAULTBASE i586

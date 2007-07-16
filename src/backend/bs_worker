@@ -53,6 +53,7 @@ my %cando = (
   'x86_64' => ['x86_64', 'i586:linux32', 'i686:linux32'],
   'ppc'    => ['ppc'],
   'ppc64'  => ['ppc64', 'ppc:powerpc32'],
+  'sh4'    => ['sh4'],
 );
 
 sub lockstate {
