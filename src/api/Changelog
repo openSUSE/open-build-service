@@ -703,3 +703,45 @@ Tue Jun 19 15:10:15 +0200 2007 - bauersman
 - unit-test update - because of new fixtures 
 
 
+------------------------------------------------------------------------
+Tue Jul 17 12:16:12 +0200 2007 - bauersman
+
+- update from svn revision 1749 to 1853
+- sql-count tuning as suggested by darix.
+- tag-clouds can now be calculated by given objects like projects and packages
+  tests
+- slight performance improvement for the download statistics sql query
+- removed . from path separators
+- updated unescape fix for rails 1.2.x
+- bugfix in User.states
+- readded and fixed edit and new user pages
+- fixed create_project check
+- check global permission if local check gets nil object
+- fixed typo in funcall
+- mapped /repository to /platform (which will be obsolete)
+- added explicit names to indices where the generated ones become too long
+- fixed ichain approval
+- support flags in project xml files from now on. You can 
+ stop publishing,
+ stop building,
+ create debuginfo,
+ stop re-using builded packages in build enviroments.
+  The backend does support this already.
+  
+  The same is prepared, but not yet implemented for packages xml files.
+  
+  WARNING: This is my first ruby code at all, be warned, it can only work
+  theoretical ;)
+- fix db order vs xsd order
+- makes the tagcloud calculation much faster, in most cases.
+- stub for pattern routes
+- new test case for calculating tag-counts (or weights) using a collection of given tags.
+- fixed typo
+- send HTTP 400 instead of 500 on validation failure
+- check global permission before local when creating projects
+- deprecation fixes
+- easier check for valid http method
+- pattern handling
+- fixed has_role call
+
+
