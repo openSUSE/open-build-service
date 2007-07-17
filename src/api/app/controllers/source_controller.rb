@@ -25,7 +25,7 @@ class SourceController < ApplicationController
     elsif request.delete?
 
       #allowed = permissions.project_change? project_name
-      allowed = user.has_role "Admin"
+      allowed = user.has_role? "Admin"
       if not allowed
         logger.debug "No permission to delete project #{project_name}"
         render_error :status => 403, :errorcode => 'delete_project_no_permission',
