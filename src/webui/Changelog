@@ -733,3 +733,25 @@ Tue Jun 19 15:11:12 +0200 2007 - bauersman
 - fixed deprecated usage of 'model' in model definition
 
 
+------------------------------------------------------------------------
+Tue Jul 17 12:18:08 +0200 2007 - abauer
+
+- update from svn revision 1751 to 1855
+- fixed rating model for rails 1.2
+- fixed double .png
+- readded expansion error popup on mouseover
+- add ".gem" to the blacklisted filename extensions
+  to prevent having an edit-button for them
+- quote search string before inserting in regexp
+- nicer (REST-like) paths for the webclient, e.g.:
+   /package/show/Apache/libapr1
+  instead of
+   /package/show?project=Apache&package=libapr1
+- tag-based "hierarchical browsing feature" is now implemented in the webclient.
+- tagcloud model is now also a AXML-Model.
+- necessary adjustments in the views and controllers are done. 
+- moved logically matching code to own partials
+- disabled webclient REST paths, because it doesn't work
+  for project/package names that conatain colons (:)
+
+
