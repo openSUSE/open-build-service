@@ -101,6 +101,29 @@ PUT /source/<project>/_config
 XmlResult: status
 
 
+GET /source/<project>/_pattern
+
+  Get list of all patterns set up for this project
+
+XmlResult: directory
+
+
+GET /source/<project>/_pattern/<patternfile>
+
+  Get pattern
+
+XmlResult: pattern
+
+
+PUT /source/project/_pattern/<patternfile>
+
+  Write pattern
+
+XmlBody: pattern
+
+XmlResult: status
+
+
 === Packages
 
 
