@@ -117,12 +117,8 @@ class User < ActiveRecord::Base
     ## special handling for home projects
     return true if project_name == "home:#{self.login}"
     
-    name_parts = project_name.split(/:/)
-    if name_parts.length <= 1
-      return true if has_global_permission? "create_project"
-    else
-      return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
-    end
+    return true if has_global_permission? "create_project"
+    return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
   end
 
   # add deprecation warning to has_permission method

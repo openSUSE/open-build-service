@@ -43,21 +43,20 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'platform/:project', :controller => 'platform',
     :action => 'project'
 
-  map.connect 'repository/:project', :controller => 'platform', :action => 'project'
-  map.connect 'repository', :controller => 'platform', :action => 'index'
+  map.connect 'repository', :controller => 'repository', :action => 'index'
 
   ### /source
 
-  map.connect 'source/:project/:package/_pattern/:pattern', :controller => 'source',
+  map.connect 'source/:project/_pattern/:pattern', :controller => 'source',
     :action => 'pattern'
-  map.connect 'source/:project/:package/_pattern', :controller => 'source',
-    :action => 'index_pattern'
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta'
   map.connect 'source/:project/:package/_tags', :controller => 'tag',
     :action => 'package_tags'
   map.connect 'source/:project/:package/:file', :controller => "source",
     :action => 'file'
+  map.connect 'source/:project/_pattern', :controller => 'source',
+    :action => 'index_pattern'
   map.connect 'source/:project/_meta', :controller => 'source',
     :action => 'project_meta'
   map.connect 'source/:project/_config', :controller => 'source',

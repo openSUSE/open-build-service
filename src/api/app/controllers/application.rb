@@ -5,7 +5,8 @@ require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
 require 'xpath_engine'
-#require 'user'
+
+class InvalidHttpMethodError < Exception; end
 
 class ApplicationController < ActionController::Base
   # Do never use a layout here since that has impact on every
@@ -188,18 +189,18 @@ class ApplicationController < ActionController::Base
       when :get
         response = Suse::Backend.get_source( path )
       when :post
-        response = Suse::Backend.post_source( path, @request.raw_post )
+        response = Suse::Backend.post_source( path, request.raw_post )
       when :put
-        response = Suse::Backend.put_source( path, @request.raw_post )
+        response = Suse::Backend.put_source( path, request.raw_post )
       end
     elsif opt[:server] == :repo
       case opt[:method]
       when :get
         response = Suse::Backend.get_rpm( path )
       when :post
-        response = Suse::Backend.post_rpm( path, @request.raw_post )
+        response = Suse::Backend.post_rpm( path, request.raw_post )
       when :put
-        response = Suse::Backend.post_rpm( path, @request.raw_post )
+        response = Suse::Backend.post_rpm( path, request.raw_post )
       end
     else
       raise "illegal server type: #{opt[:server].inspect}"
@@ -225,18 +226,15 @@ class ApplicationController < ActionController::Base
       xml.write xml_text
 
       render :text => xml_text, :status => http_status
-
-      #render_error :message => message, :status => response.code,
-      #  :details => response.body
-      return
     when ActiveXML::Transport::NotFoundError
       render_error :message => exception.message, :status => 404
-      return
     when Suse::ValidationError
       render_error :message => "XML validation failed", :details => exception.message , :status => 400
-      return
+    when InvalidHttpMethodError
+      render_error :message => exception.message, :errorcode => "invalid_http_method", :status => 400
+    else
+      render_error :exception => exception
     end
-    render_error :exception => exception
   end
 
   def local_request?
@@ -249,6 +247,13 @@ class ApplicationController < ActionController::Base
 
   def user
     return @http_user
+  end
+
+  def valid_http_methods(*methods)
+    list = methods.map {|x| x.to_s.downcase.to_s}
+    unless methods.include? request.method
+      raise InvalidHttpMethodError, "Invalid HTTP Method: #{request.method.to_s.upcase}"
+    end
   end
 
   def render_error( opt = {} )
@@ -317,12 +322,8 @@ class ApplicationController < ActionController::Base
   end
 
   #default actions, passes data from backend
-  def pass_to_repo
-    forward_data @request.path+'?'+@request.query_string, :server => :repo
-  end
-
   def pass_to_source
-    forward_data @request.path+'?'+@request.query_string, :server => :source
+    forward_data request.path+'?'+request.query_string, :server => :source
   end
 
   def ichain_mode
@@ -381,6 +382,4 @@ class ApplicationController < ActionController::Base
     par.sort.each { |pair| pairs << pair.join('=') }
     url_for( options ).split('://').last + "/#{pairs.join(',').gsub(' ', '-')}"
   end
-
-
 end

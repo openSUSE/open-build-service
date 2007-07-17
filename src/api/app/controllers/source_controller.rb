@@ -135,12 +135,35 @@ class SourceController < ApplicationController
   end
 
   def pattern
-    #TODO:implement
-    pass_to_source
+    valid_http_methods :get, :put
+    if request.get?
+      pass_to_source
+    elsif request.put?
+      @project = DbProject.find_by_name params[:project]
+      unless @project
+        render_error :message => "Unknown project '#{project_name}'",
+          :status => 404, :errorcode => "unknown_project"
+        return
+      end
+
+      unless @http_user.can_modify_project? @project
+        logger.debug "user #{user.login} has no permission to modify project #{@project}"
+        render_error :status => 403, :errorcode => "change_project_no_permission", 
+        :message => "no permission to change project"
+        return
+      end
+      
+      path = request.path
+      unless request.query_string.empty?
+        path += "?" + request.query_string
+      end
+
+      forward_data path, :method => :put
+    end
   end
 
   def index_pattern
-    #TODO: implement
+    valid_http_methods :get
     pass_to_source
   end
 
@@ -211,12 +234,7 @@ class SourceController < ApplicationController
   end
 
   def project_config
-    #bail if neither get nor put
-    unless request.get? or request.put?
-      render_error :status => 400, :errorcode => 'illegal_request',
-        :message => "Illegal request: #{request.env['REQUEST_METHOD']} #{request.path}"
-      return
-    end
+    valid_http_methods :get, :put
 
     #check if project exists
     unless (@project = DbProject.find_by_name(params[:project]))
