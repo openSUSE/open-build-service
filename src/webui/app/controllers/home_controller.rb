@@ -14,12 +14,10 @@ class HomeController < ApplicationController
       @error_message = "There is no user <b>#{session[:login]}</b> known in the system."
       render :template => 'error'
     end
-
+		
+		session[:tagcloud] ||= :mytags
     logger.debug "Tagcloud switch initialized: Building Tagcloud for #{session[:tagcloud]}"
-    #TODO: out-dated tag=cloud call, delete!
-		#@tagcloud ||= Tagcloud.new(:user => @session[:login], :tagcloud => session[:tagcloud])
-		@tagcloud ||= Tagcloud.find( session[:tagcloud].to_sym, :user => @session[:login] )
-		#breakpoint
+		@tagcloud ||= Tagcloud.find( session[:tagcloud].to_sym, :user => session[:login] )
   end
   
 end
