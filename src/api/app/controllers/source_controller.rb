@@ -135,10 +135,18 @@ class SourceController < ApplicationController
   end
 
   def pattern
-    valid_http_methods :get, :put
+    valid_http_methods :get, :put, :delete
     if request.get?
       pass_to_source
-    elsif request.put?
+    else
+      # PUT and DELETE
+      permerrormsg = nil
+      if request.put?
+        permerrormsg = "no permission to store pattern"
+      elsif request.delete?
+        permerrormsg = "no permission to delete pattern"
+      end
+
       @project = DbProject.find_by_name params[:project]
       unless @project
         render_error :message => "Unknown project '#{project_name}'",
@@ -149,7 +157,7 @@ class SourceController < ApplicationController
       unless @http_user.can_modify_project? @project
         logger.debug "user #{user.login} has no permission to modify project #{@project}"
         render_error :status => 403, :errorcode => "change_project_no_permission", 
-        :message => "no permission to change project"
+          :message => permerrormsg
         return
       end
       
@@ -158,7 +166,7 @@ class SourceController < ApplicationController
         path += "?" + request.query_string
       end
 
-      forward_data path, :method => :put
+      forward_data path, :method => request.method
     end
   end
 
