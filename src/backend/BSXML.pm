@@ -118,7 +118,9 @@ our $projpack = [
 	    'name',
 	     [],
 	    'title',
+	    'description',
 	    'config',
+	    'patternmd5',
 	    @flags,
 	  [ $repo ],
 	 [[ 'package' =>
@@ -420,13 +422,6 @@ our $ajaxstatus = [
      ]],
 ];
 
-our $collection = [
-    'collection' => 
-      [ $proj ],
-      [ $pack ],
-      [ 'value' ],
-];
-
 ##################### new api stuff
 
 our $binarylist = [
@@ -469,6 +464,114 @@ our $opstatus = [
 	[],
 	'summary',
 	'details',
+];
+
+my $rpm_entry = [
+    'rpm:entry' =>
+        'kind',
+        'name',
+        'epoch',
+        'ver',
+        'rel',
+        'flags',
+];
+
+our $pattern = [
+    'pattern' =>
+	[],
+	'name',
+     [[ 'summary' =>
+	    'lang',
+	    '_content',
+     ]],
+     [[ 'description' =>
+	    'lang',
+	    '_content',
+     ]],
+	'default',
+	'uservisible',
+     [[ 'category' =>
+	    'lang',
+	    '_content',
+     ]],
+	'icon',
+	'script',
+      [ 'provides' => [ $rpm_entry ], ],
+      [ 'conflicts' => [ $rpm_entry ], ],
+      [ 'obsoletes' => [ $rpm_entry ], ],
+      [ 'requires' => [ $rpm_entry ], ],
+      [ 'suggests' => [ $rpm_entry ], ],
+      [ 'enhances' => [ $rpm_entry ], ],
+      [ 'supplements' => [ $rpm_entry ], ],
+      [ 'recommends' => [ $rpm_entry ], ],
+];
+
+our $patterns = [
+    'patterns' =>
+	'count',
+      [ $pattern ],
+];
+
+our $ymp = [
+    'bw:metapackage' =>
+	'xmlns:bw',
+	'xmlns',
+	[],
+	'name',
+	'summary',
+	'description',
+      [ 'repos' =>
+	 [[ 'repo' =>
+		'recommended',
+		[],
+		'name',
+		'summary',
+		'description',
+		'url',
+	 ]],
+      ],
+      [ 'packages' =>
+	 [[ 'package' =>
+		'recommended',
+		[],
+		'name',
+		'summary',
+		'description',
+	 ]]
+      ],
+];
+
+our $binary_id = [
+    'binary' => 
+	'name',
+	'project',
+	'package',
+	'repository',
+	'version',
+	'arch',
+	'filename',
+	'filepath',
+];
+
+our $pattern_id = [
+    'pattern' => 
+	'name',
+	'project',
+	'repository',
+	'arch',
+	'filename',
+	'filepath',
+	'type',
+];
+
+
+our $collection = [
+    'collection' => 
+      [ $proj ],
+      [ $pack ],
+      [ $binary_id ],
+      [ $pattern_id ],
+      [ 'value' ],
 ];
 
 1;

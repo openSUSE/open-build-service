@@ -135,7 +135,11 @@ sub _workout {
         delete $d2{$e};
         next;
       }
-      $ret .= "$indent  <$ee>"._escape($d2{$e})."</$ee>\n";
+      if (defined($d2{$e})) {
+        $ret .= "$indent  <$ee>"._escape($d2{$e})."</$ee>\n";
+      } else {
+        $ret .= "$indent  <$ee/>\n";
+      }
       delete $d2{$e};
       next;
     } elsif (@$e == 1 && !ref($e->[0])) {

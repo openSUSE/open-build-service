@@ -46,6 +46,8 @@ use Build;
 use BSWatcher;
 use BSStdServer;
 use BSXPath;
+use BSXPathKeys;
+use BSDB;
 
 use strict;
 
@@ -70,6 +72,7 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
 my $infodir = "$BSConfig::bsdir/info";
 my $uploaddir = "$BSConfig::bsdir/upload";
+my $extrepodb = "$BSConfig::bsdir/db/published";
 
 # XXX read jobs instead?
 
@@ -121,7 +124,7 @@ sub getbinarydata {
       next;
     }
     my @s = stat(F);
-    my $data = Build::query([$bin, \*F], 1);
+    my $data = Build::query([$bin, \*F], 'evra' => 1);
     close(F);
     if (!$data) {
       push @res, {'filename' => $filename, 'error' => 'bad binary package'};
@@ -514,6 +517,11 @@ sub jobloop {
       my %locked = map {$_ => 1} grep {/:dir$/} @b;
       @b = grep {!/:dir$/} @b;
       @b = grep {!$locked{"$_:dir"}} @b;
+
+      #poor man's project priority
+      my @bn = grep {!/^Ports:DebianBased:Auto/} @b;
+      @b = @bn if @bn;
+
       for my $job (List::Util::shuffle(@b)) {
         for my $idle (map {$_} List::Util::shuffle(@{$idlearch{$arch} || []})) {
           mkdir("$jobsdir/$arch/$job:dir") || next;
@@ -933,7 +941,12 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
   $Build::expand_dbg = 1 if $cgi->{'debug'};
-  my @bdeps = Build::get_build($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
+  my @bdeps;
+  if (!$cgi->{'deps'}) {
+    @bdeps = Build::get_build($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
+  } else {
+    @bdeps = Build::get_deps($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
+  }
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @bdeps) {
     $ret->{'error'} = "expansion error: ".join(', ', @bdeps);
@@ -953,12 +966,16 @@ sub getbuildinfo {
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @edeps;
-  @bdeps = grep {!$pdeps{$_} && !$vmdeps{$_}} @bdeps;
-  @vmdeps = grep {!$pdeps{$_}} @vmdeps;
-  unshift @bdeps, @pdeps, @vmdeps;
 
+  @bdeps = (@pdeps, @vmdeps, @edeps, @bdeps);
+  my %ddeps;
+  for (splice(@bdeps)) {
+    next if $ddeps{$_};
+    push @bdeps, $_;
+    $ddeps{$_} = 1; 
+  }
   my @bdepsp = ();
-  for (@pdeps, @bdeps) {
+  for (@bdeps) {
     my $p = $dep2rpm{$_}->{'path'};
     $p =~ s/.*\///;
     push @bdepsp, "$reporoot/$dep2prp{$_}/$arch/:full/$p";
@@ -1181,6 +1198,79 @@ sub postrepo {
   return {'value' => $v}, $BSXML::collection;
 }
 
+my %binary_key_to_data_path_cache;
+
+sub binary_key_to_data {
+  my ($db, $key) = @_; 
+  my @p = split('/', $key);
+  my $binary = pop(@p);
+  my $name = $binary;
+  my $version = '';
+  if ($name =~ s/-([^-]+-[^-]+)\.[^\.]+\.rpm$//) {
+    $version = $1;
+  } elsif ($name =~ s/_([^_]+)_[^_]+\.deb$//) {
+    $version = $1;
+  }
+  my $arch = pop(@p);
+  while (@p > 1 && $p[0] =~ /:$/) {
+    splice(@p, 0, 2, "$p[0]$p[1]");
+  }
+  my $project = shift(@p);
+  while (@p > 1 && $p[0] =~ /:$/) {
+    splice(@p, 0, 2, "$p[0]$p[1]");
+  }
+  my $repository = shift(@p);
+  my $prp = "$project/$repository";
+  if (!$binary_key_to_data_path_cache{$prp}) {
+    if (-s "$reporoot/$prp/:repoinfo") {
+      my $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo");
+      my $prpsearchpath = $repoinfo->{'prpsearchpath'} || [];
+      for (@$prpsearchpath) {
+        my ($p, $r) = split('/', $_, 2);
+        $_ = {'project' => $p, 'repository' => $r};
+      }
+      $binary_key_to_data_path_cache{$prp} = $prpsearchpath;
+    } else {
+      $binary_key_to_data_path_cache{$prp} = [];
+    }
+  }
+  return {
+    'name' => $name,
+    'version' => $version,
+    'arch' => $arch,
+    'project' => $project,
+    'repository' => $repository,
+    'filename' => $binary,
+    'filepath' => $key,
+    'path' => $binary_key_to_data_path_cache{$prp},
+  };  
+}
+
+sub search_published_id {
+  my ($cgi, $what, $match) = @_;
+  my $res = {};
+  return ($res, $BSXML::collection);
+}
+
+sub search_published_binary_id {
+  my ($cgi, $match) = @_;
+  my $binarydb = BSDB::opendb($extrepodb, 'binary');
+  $binarydb->{'allkeyspath'} = 'name';
+  $binarydb->{'noindex'} = {'arch' => 1, 'project' => 1, 'repository' => 1, 'path/project' => 1, 'path/repository' => 1};
+  $binarydb->{'fetch'} = \&binary_key_to_data;
+  my $rootnode = BSXPathKeys::node($binarydb, '');
+  my $data = BSXPath::match($rootnode, $match) || [];
+  for (@$data) {
+    delete $_->{'path'};
+  }
+  my $res = {'binary' => $data};
+  return ($res, $BSXML::collection);
+}
+
+sub search_published_pattern_id {
+  return search_published_id($_[0], 'pattern', $_[1]);
+}
+
 sub getajaxstatus {
   my ($cgi) = @_;
   if (!$BSStdServer::isajax) {
@@ -1202,13 +1292,15 @@ my $dispatches = [
 
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/$package:package_repository' => \&getbinarylist,
-  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool?' => \&getbuildinfo_post,
-  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
+  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
+  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history' => \&gethistory,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num? handoff:bool?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository/$filename' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
+  '/search/published/binary/id $match:' => \&search_published_binary_id,
+  '/search/published/pattern/id $match:' => \&search_published_pattern_id,
 
   # src server calls
   '/event $type: $project $package?' => \&forwardevent,

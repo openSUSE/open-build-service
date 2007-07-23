@@ -37,8 +37,10 @@ use BSRPC;
 use BSUtil;
 use BSFileDB;
 use BSXML;
+use BSDBIndex;
 use BSBuild;
 use Build;
+use BSDB;
 
 use strict;
 
@@ -65,6 +67,7 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
+my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $myarch = $ARGV[0] || 'i586';
 
@@ -252,7 +255,7 @@ sub findbins_dir {
     my @s = stat($bin);
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
-    my $data = Build::query($bin, 1);	# need arch
+    my $data = Build::query($bin, 'evra' => 1);	# need arch
     next unless $data;
     $data->{'id'} = $id;
     delete $data->{'epoch'};
@@ -468,9 +471,13 @@ sub set_building {
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @$edeps;
-  @bdeps = grep {!$pdeps{$_} && !$vmdeps{$_}} @bdeps;
-  @vmdeps = grep {!$pdeps{$_}} @vmdeps;
-  unshift @bdeps, @pdeps, @vmdeps;
+  @bdeps = (@pdeps, @vmdeps, @$edeps, @bdeps);
+  my %ddeps;
+  for (splice(@bdeps)) {
+    next if $ddeps{$_};
+    push @bdeps, $_;
+    $ddeps{$_} = 1;
+  }
   for (@bdeps) {
     $_ = {'name' => $_};
     $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
@@ -551,7 +558,7 @@ sub qsystem {
       chdir($args[1]) || die("chdir $args[1]: $!\n");
       splice(@args, 0, 2);
     }
-    if ($args[0] eq 'redirect') {
+    if ($args[0] eq 'stdout') {
       open(STDOUT, '>', $args[1]) || die("$args[1]: $!\n");
       splice(@args, 0, 2);
     }
@@ -567,12 +574,173 @@ sub qsystem {
   return $?;
 }
 
+sub fillpkgdescription {
+  my ($pkg, $prp_ext, $repoinfo, $name) = @_;
+  my $binaryorigins = $repoinfo->{'binaryorigins'} || {};
+  my $hit;
+  for my $p (sort keys %$binaryorigins) {
+    next if $p =~ /src\.rpm$/;
+    next unless $p =~ /\/\Q$name\E/;
+    my ($pa, $pn) = split('/', $p, 2);
+    if ($pn =~ /^\Q$name\E-([^-]+-[^-]+)\.[^\.]+\.rpm$/) {
+      $hit = $p;
+      last;
+    }
+    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.deb$/) {
+      $hit = $p;
+      last;
+    }
+  }
+  return unless $hit;
+  my $data = Build::query("$prp_ext/$hit", 'description' => 1);
+  $pkg->{'description'} = $data->{'description'};
+  $pkg->{'summary'} = $data->{'summary'} if defined $data->{'summary'};
+}
+
+sub writepatterns {
+  my ($prp, $prpsearchpath, $projpacks, $repoinfo, $config) = @_;
+  my $dir;
+
+print Dumper($repoinfo);
+  my $patterndb;
+  $patterndb = BSDB::opendb($extrepodb, 'pattern') if $extrepodb;
+
+  my $prp_ext = $prp;
+  $prp_ext =~ s/:/:\//g;
+  my ($projid, $repoid) = split('/', $prp, 2);
+
+  my %patterntype = map {$_ => 1} @{$config->{'patterntype'} || []};
+  if (!%patterntype) {
+    # XXX delete all old patterns!
+    return;
+  }
+  eval {
+    $dir = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern", $BSXML::dir);
+  };
+  if ($@) {
+    warn($@);
+    return;
+  }
+  my $patternmd5 = '';
+  $patternmd5 .= "$_->{'md5'}  $_->{'name'}\n" for @{$dir->{'entry'} || []};
+  $patternmd5 = Digest::MD5::md5_hex($patternmd5);
+  print "  - new patternmd5: $patternmd5\n";
+  my @patterns = map {$_->{'name'}} @{$dir->{'entry'} || []};
+  for my $pattern (@patterns) {
+    my $pat;
+    eval {
+      $pat = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern/$pattern", $BSXML::pattern);
+    };
+    if ($@) {
+      warn($@);
+      next;
+    }
+    next if !exists $pat->{'uservisible'};
+    if ($patterntype{'ymp'}) {
+      my $ymp = {};
+      $ymp->{'xmlns:bw'} = 'http://suse.benjiweber.co.uk';
+      $ymp->{'xmlns'} = 'http://suse.benjiweber.co.uk';
+      $ymp->{'name'} = $pat->{'name'};
+      if ($pat->{'summary'}) {
+        $ymp->{'summary'} = $pat->{'summary'}->[0]->{'_content'};
+      }
+      if ($pat->{'description'}) {
+        $ymp->{'description'} = $pat->{'description'}->[0]->{'_content'};
+      }
+      my @repos;
+      for my $sprp (@$prpsearchpath) {
+        my ($sprojid, $srepoid) = split('/', $sprp, 2);
+        my $p = $projpacks->{$sprojid};
+        my $r = {};
+        $r->{'recommended'} = 'true';
+        $r->{'name'} = $p->{'name'};
+        $r->{'summary'} = $p->{'title'};
+        $r->{'description'} = $p->{'description'};
+	my $sprp_ext = "$sprojid/$srepoid";
+        $sprp_ext =~ s/:/:\//g;
+        $r->{'url'} = "$BSConfig::repodownload/$sprp_ext";
+        push @repos, $r;
+      }
+      my @packs;
+      for my $entry (@{$pat->{'requires'}->{'rpm:entry'} || []}) {
+	next if $entry->{'kind'};
+        push @packs, {'recommended' => 'true', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+        fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+      }
+      for my $entry (@{$pat->{'recommends'}->{'rpm:entry'} || []}) {
+	next if $entry->{'kind'};
+        push @packs, {'recommended' => 'true', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+        fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+      }
+      for my $entry (@{$pat->{'suggests'}->{'rpm:entry'} || []}) {
+	next if $entry->{'kind'};
+        push @packs, {'recommended' => 'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+        fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+      }
+      $ymp->{'repos'} = {'repo' => \@repos };
+      $ymp->{'packages'} = {'package' => \@packs };
+
+      my $ympidx = {'type' => 'ymp'};
+      $ympidx->{'name'} = $pat->{'name'};
+      if ($pat->{'summary'}) {
+        $ympidx->{'summary'} = $pat->{'summary'}->[0]->{'_content'};
+      }
+      if ($pat->{'description'}) {
+        $ympidx->{'description'} = $pat->{'description'}->[0]->{'_content'};
+      }
+      my @idxpath;
+      for my $sprp (@$prpsearchpath) {
+        my ($sprojid, $srepoid) = split('/', $sprp, 2);
+	push @idxpath, {'project' => $sprojid, 'repository' => $srepoid};
+      }
+      $ympidx->{'path'} = \@idxpath;
+      my $ympname = $pattern;
+      $ympname =~ s/\.xml$//;
+      $ympname .= ".ymp";
+      writexml("$extrepodir/$prp_ext/.$ympname", "$extrepodir/$prp_ext/$ympname", $ymp, $BSXML::ymp);
+      $patterndb->store("$prp_ext/$ympname", $ympidx);
+    } else {
+      my $ympname = $pattern;
+      $ympname =~ s/\.xml$//;
+      $ympname .= ".ymp";
+      if (-e "$extrepodir/$prp_ext/$ympname") {
+        $patterndb->store("$prp_ext/$ympname", undef);
+	unlink("$extrepodir/$prp_ext/$ympname");
+      }
+    }
+  }
+  $repoinfo->{'patternmd5'} = $patternmd5;
+}
+
+sub dbimodify {
+  my ($dbi, $rem, $add) = @_;
+  if (@$rem + @$add < 256) {
+    return $dbi->modify($rem, $add);
+  }
+  my @todo = @$rem;
+  while (@todo) {
+    my @chunk = splice(@todo, 0, 256);
+    $dbi->modify(\@chunk, []);
+  }
+  @todo = @$add;
+  while (@todo) {
+    my @chunk = splice(@todo, 0, 256);
+    $dbi->modify([], \@chunk);
+  }
+}
+
 sub prpfinished {
-  my ($prp, $title, $packs, $repotype) = @_;
+  my ($prp, $projpacks, $packs, $config, $prpsearchpath) = @_;
+  my $repotype = $config->{'repotype'} || [];
   return if $prp =~ /^MicroSUSE/;
   #return if $prp =~ /^KDE:KDE3/;
   print "    prp $prp is finished, creating repos (".join(', ', @$repotype).")...\n";
   my %repotype = map {$_ => 1} @$repotype;
+  local *G;
+#  open(G, '>>', "/tmp/prpfinished.log");
+#  printf G "%d %d: locking %s ...\n", $$, time(), $prp;
+#  close G;
+
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
   if (!flock(F, LOCK_EX | LOCK_NB)) {
@@ -580,11 +748,19 @@ sub prpfinished {
     flock(F, LOCK_EX) || die("flock: $!\n");
     print "    got the lock...\n";
   }
+
+#  open(G, '>>', "/tmp/prpfinished.log");
+#  printf G "%d %d: got lock %s ...\n", $$, time(), $prp;
+#  close G;
+
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
   my $extrep = "$extrepodir/$prp_ext";
   if (!$packs && ! -d $extrep) {
     print "    nothing to delete...\n";
+#    open(G, '>>', "/tmp/prpfinished.log");
+#    printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
+#    close G;
     close(F);
     return;
   }
@@ -595,6 +771,15 @@ sub prpfinished {
   my @deleted;
 
   # link all packages over
+  my $binaryorigins = {};
+  my $repoinfo = {};
+  if (-s "$reporoot/$prp/:repoinfo") {
+    $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo");
+    die unless $repoinfo && $repoinfo->{'binaryorigins'};
+    $binaryorigins = $repoinfo->{'binaryorigins'};
+  } else {
+    $repoinfo->{'binaryorigins'} = $binaryorigins;
+  }
 
   my $gdst = "$reporoot/$prp/$myarch";
   mkdir_p("$gdst/:repo");
@@ -660,6 +845,7 @@ sub prpfinished {
       rename("$extrep/$a/$rpn.new", "$extrep/$a/$rpn") || die("rename $extrep/$a/$rpn.new $extrep/$a/$rpn: $!\n");
       unlink("$extrep/$a/$rpn.new");
       $changed{"$a/$rpn"} = $packid;
+      $binaryorigins->{"$a/$rpn"} = $packid;
 
       ## kill all old entries with same name
       #for my $osuf ($suf eq 'deb' ? ('deb', 'rpm', 'spm') : ('deb', $suf)) {
@@ -705,21 +891,40 @@ sub prpfinished {
       print "      - $a/$n (orphaned)\n";
       unlink("$extrep/$a/$n") || die("unlink $extrep/$a/$n: $!\n");
       push @deleted, "$a/$n";
+      delete $binaryorigins->{"$a/$n"};
       $changed = 1;
     }
     rmdir("$extrep/$a") unless $notempty;
   }
 
+  my ($projid, $repoid) = split('/', $prp, 2);
+
+  if ((($projpacks->{$projid}->{'patternmd5'} || '') ne ($repoinfo->{'patternmd5'} || '')) && @{$config->{'patterntype'} || []}) {
+    print "    updating patterns\n";
+    writepatterns($prp, $prpsearchpath, $projpacks, $repoinfo, $config);
+    $changed = 1;
+  }
+
   if (!$changed) {
     print "    nothing changed\n";
+#    open(G, '>>', "/tmp/prpfinished.log");
+#    printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
+#    close G;
     close(F);	# release lock
     return;
   }
 
+  if (%$binaryorigins) {
+    $repoinfo->{'prpsearchpath'} = $prpsearchpath;
+    Storable::nstore($repoinfo, "$reporoot/$prp/:repoinfo");
+  } else {
+    unlink("$reporoot/$prp/:repoinfo");
+  }
+
   # packages are now updated, run createrepo...
-  my ($projid, $repoid) = split('/', $prp, 2);
   my $projid_ext = $projid;
   $projid_ext =~ s/:/:\//g;
+  my $title = $projpacks->{$projid}->{'title'};
   $title ||= $projid;
   $title .= " ($repoid)";
   $title =~ s/\n/ /sg;
@@ -797,7 +1002,7 @@ EOL
 
   if ($repotype{'debian'}) {
     print "    running apt-ftparchive\n";
-    qsystem('chdir', $extrep, 'redirect', 'Packages.new', 'apt-ftparchive', 'packages', '.') && print "    apt-ftparchive failed: $?\n";
+    qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'apt-ftparchive', 'packages', '.') && print "    apt-ftparchive failed: $?\n";
     if (-f "$extrep/Packages.new") {
       unlink("$extrep/Packages");
       link("$extrep/Packages.new", "$extrep/Packages");
@@ -822,6 +1027,38 @@ EOL
     print "    running trigger rsync to $1\n";
     qsystem('rsync', '-aH', "$extrepodir_sync/$projid", "$1::$2/$projid") && print("    trigger rsync failed: $?\n");
   }
+
+  # put data in our little database
+  if ($extrepodb) {
+    mkdir_p($extrepodb);
+    my $dbi = BSDBIndex::opendb($extrepodb);
+    my @add;
+    my @rem;
+    for my $f (sort keys %changed) {
+      my $n;
+      if ($f =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+        $n = $1;
+      } elsif (/(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+        $n = $1;
+      } else {
+	next;
+      }
+      push @add, ['binary/name', $n, "$prp_ext/$f"];
+    }
+    for my $f (@deleted) {
+      my $n;
+      if ($f =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+        $n = $1;
+      } elsif (/(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+        $n = $1;
+      } else {
+	next;
+      }
+      push @rem, ['binary/name', $n, "$prp_ext/$f"];
+    }
+    dbimodify($dbi, \@rem, \@add);
+  }
+
   if ($BSConfig::markfileorigins) {
     print "    marking file origins\n";
     for my $f (sort keys %changed) {
@@ -849,19 +1086,30 @@ EOL
       print "      $f: $@" if $@;
     }
   }
+#  open(G, '>>', "/tmp/prpfinished.log");
+#  printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
+#  close G;
   close(F);	# release lock
 }
+
 
 sub prpdeleted {
   my ($prp) = @_;
   print "    prp $prp is gone\n";
   local *F;
+  local *G;
+#  open(G, '>>', "/tmp/prpfinished.log");
+#  printf G "%d %d: locking %s ...\n", $$, time(), $prp;
+#  close G;
   return unless open(F, '>', "$reporoot/$prp/.finishedlock");
   if (!flock(F, LOCK_EX | LOCK_NB)) {
     print "    waiting for lock...\n";
     flock(F, LOCK_EX) || die("flock: $!\n");
     print "    got the lock...\n";
   }
+#  open(G, '>>', "/tmp/prpfinished.log");
+#  printf G "%d %d: got lock %s ...\n", $$, time(), $prp;
+#  close G;
   my ($projid, $repoid) = split('/', $prp, 2);
   my $projid_ext = $projid;
   $projid_ext =~ s/:/:\//g;
@@ -870,14 +1118,30 @@ sub prpdeleted {
   my $extrep = "$extrepodir/$prp_ext";
   if (! -d $extrep) {
     print "    nothing to delete...\n";
+    unlink("$reporoot/$prp/:repoinfo");
     unlink("$reporoot/$prp/.finishedlock");
     rmdir("$reporoot/$prp");
+#  open(G, '>>', "/tmp/prpfinished.log");
+#  printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
+#  close G;
     close(F);
     return;
   }
+
+  my $repoinfo = {};
+  my $binaryorigins = {};
+  if (-s "$reporoot/$prp/:repoinfo") {
+    $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo");
+  }
+
   my @deleted;
-  if ($BSConfig::markfileorigins) {
+  my @ymps;
+  if ($BSConfig::markfileorigins || $extrepodb) {
     for my $a (ls($extrep)) {
+      if (/\.ymp$/) {
+        push @ymps, $a;
+        next;
+      }
       next unless -d "$extrep/$a";
       next if $a eq 'repodata' || $a eq 'media.1' || $a eq 'descr';
       for my $n (ls("$extrep/$a")) {
@@ -886,6 +1150,30 @@ sub prpdeleted {
       }
     }
   }
+
+  if ($extrepodb) {
+    my @rem;
+    my $dbi = BSDBIndex::opendb($extrepodb);
+    for my $f (@deleted) {
+      my $n;
+      if ($f =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+        $n = $1;
+      } elsif (/(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+        $n = $1;
+      } else {
+	next;
+      }
+      push @rem, ['binary/name', $n, "$prp_ext/$f"];
+    }
+    dbimodify($dbi, \@rem, []);
+    if (@ymps) {
+      my $patterndb = BSDB::opendb($extrepodb, 'pattern') if $extrepodb;
+      for my $ympname (@ymps) {
+        $patterndb->store("$prp_ext/$ympname", undef);
+      }
+    }
+  }
+
   qsystem('rm', '-rf', $extrep);
   if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running rsync to $1\n";
@@ -913,8 +1201,12 @@ sub prpdeleted {
       print "      $f: $@" if $@;
     }
   }
+  unlink("$reporoot/$prp/:repoinfo");
   unlink("$reporoot/$prp/.finishedlock");
   rmdir("$reporoot/$prp");
+#  open(G, '>>', "/tmp/prpfinished.log");
+#  printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
+#  close G;
   close(F);	# release lock
 }
 
@@ -1004,7 +1296,7 @@ sub update_dst_full {
     delete $pack->{'meta'};
     $pack->{'path'} =~ s/.*\///;
   }
-  if (Storable::store($repodata, "$gdst/:full.cache.new")) {
+  if (Storable::nstore($repodata, "$gdst/:full.cache.new")) {
     rename("$gdst/:full.cache.new", "$gdst/:full.cache") || die("rename $gdst/:full.cache.new $gdst/:full.cache: $!\n");
   }
   for my $pack (values %$repodata) {
@@ -1179,8 +1471,10 @@ for my $prp (@prps) {
 
 my %lastcheck;
 
-my %changed = map {$_ => 1} @prps;
-$changed{$_} = 1 for sort keys %$projpacks;
+# changed: 1: something "local" changed, :full unchanged,
+#          2: the :full repo is changed
+my %changed = map {$_ => 2} @prps;
+$changed{$_} = 2 for sort keys %$projpacks;
 
 my %prpfinished;
 
@@ -1212,6 +1506,7 @@ while(1) {
 	}
       }
       rmdir("$reporoot/$prp/$myarch") || die("$reporoot/$prp/$myarch: $!\n");
+      $changed{$prp} = 2;
       killbuilding($prp);
       my $bconf = {'repotype' => []};
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
@@ -1219,7 +1514,7 @@ while(1) {
         my @searchpath = expandsearchpath($projpacks, $projid, $repo);
         my @sp = map {"$_->{'project'}/$_->{'repository'}"} @searchpath;
         $bconf = getconfig($myarch, \@sp);
-        prpfinished($prp, $projpacks->{$projid}->{'title'}, undef, $bconf->{'repotype'});
+        prpfinished($prp, $projpacks, undef, $bconf, \@sp);
       } else {
         prpdeleted($prp);
       }
@@ -1228,7 +1523,9 @@ while(1) {
 
   # Step 2: go through each project/repository
   for my $prp (@prps) {
-    next unless grep {$changed{$_}} @{$prpdeps{$prp}};
+    if (!$changed{$prp}) {
+      next unless grep {$changed{$_} && $changed{$_} != 1} @{$prpdeps{$prp}};
+    }
 
     my $bconf;
 
@@ -1266,6 +1563,7 @@ while(1) {
       $repodata{$prp} ||= {};
       my $repodata = $repodata{$prp};
       update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1);
+      $changed{$prp} = 2;
       # delete other files
       unlink("$gdst/:logfiles.success/$packid");
       unlink("$gdst/:logfiles.fail/$packid");
@@ -1549,6 +1847,8 @@ while(1) {
 	$useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
 	$useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
         update_dst_full($repodata, $prp, $dst, $jobrepo, undef, $useforbuildenabled);
+        $changed{$prp} = 2 if $useforbuildenabled;
+        $changed{$prp} ||= 1;
 	unlink("$gdst/:logfiles.fail/$packid");
 	unlink("$gdst/:logfiles.success/$packid");
 	unlink("$dst/logfile");
@@ -1698,11 +1998,19 @@ while(1) {
 
     print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready)."\n";
     if (!%notready) {
+      my $oldrepodone;
+      if (-e "$reporoot/$prp/$myarch/:repodone") {
+        $oldrepodone = readstr("$reporoot/$prp/$myarch/:repodone", 1);
+        if (($oldrepodone || '') ne ($projpacks->{$projid}->{'patternmd5'} || '')) {
+	  unlink("$reporoot/$prp/$myarch/:repodone");
+	}
+      }
       if (! -e "$reporoot/$prp/$myarch/:repodone") {
         if (enabled($repoid, $projpacks->{$projid}->{'publish'}, 1)) {
           mkdir_p("$reporoot/$prp/$myarch");
-          prpfinished($prp, $projpacks->{$projid}->{'title'}, \@packs, $bconf->{'repotype'});
-	  writestr("$reporoot/$prp/$myarch/:repodone", undef, '');
+          prpfinished($prp, $projpacks, \@packs, $bconf, $prpsearchpath{$prp});
+	  $oldrepodone = $projpacks->{$projid}->{'patternmd5'} || '';
+	  writestr("$reporoot/$prp/$myarch/:repodone", undef, $oldrepodone);
         } else {
           print "    publishing is disabled\n";
         }
@@ -1825,7 +2133,7 @@ while(1) {
 	  writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
 	  unlink("$myjobsdir/$job");
 	  rmdir($jobdatadir);
-	  $changed{$prp} = 1;	# package is no longer blocking
+	  $changed{$prp} ||= 1;	# package is no longer blocking
 	  next;
 	}
         print "  - $prp: $packid built: ".(keys %$jobrepo). " packages\n";
@@ -1839,6 +2147,8 @@ while(1) {
 	$useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
 	$useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
         update_dst_full($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled);
+	$changed{$prp} = 2 if $useforbuildenabled;
+	$changed{$prp} ||= 1;
 
         # save meta file
 	rename($meta, "$gdst/:meta/$packid") if $meta;
@@ -1860,7 +2170,6 @@ while(1) {
 	unlink($_) for @all;
 	unlink("$myjobsdir/$job");
 	rmdir($jobdatadir);
-	$changed{$prp} = 1;
 	next;
       }
       local *F;
@@ -1885,40 +2194,43 @@ while(1) {
 	  get_projpacks($lprojid);
 	  $got_complete{$lprojid} = 1;
 	  for my $prp (@prps) {
-	    $changed{$prp} = 1 if (split('/', $prp, 2))[0] eq $lprojid;
+	    $changed{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
 	  }
-	  $changed{$lprojid} = 1;
+	  $changed{$lprojid} ||= 1;
 	}
 	for my $prp (@prps) {
-	  $changed{$prp} = 1 if (split('/', $prp, 2))[0] eq $projid;
+	  $changed{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
 	}
-        $changed{$projid} = 1;
+        $changed{$projid} ||= 1;
 	next;
       }
       if ($ev->{'type'} eq 'projevent') {
 	my $projid = $ev->{'project'};
 	get_projpacks($projid);
+	my %got_complete;
+        $got_complete{$projid} = 1;
         for my $lprojid (map {$_->{'myproject'}} grep {$_->{'project'} eq $projid} @projpacks_linked) {
-	  next if $lprojid eq $projid;
+	  next if $got_complete{$lprojid};
 	  get_projpacks($lprojid);
+	  $got_complete{$lprojid} = 1;
 	  for my $prp (@prps) {
-	    $changed{$prp} = 1 if (split('/', $prp, 2))[0] eq $lprojid;
+	    $changed{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
 	  }
-	  $changed{$lprojid} = 1;
+	  $changed{$lprojid} ||= 1;
 	}
 	for my $prp (@prps) {
-	  $changed{$prp} = 1 if (split('/', $prp, 2))[0] eq $projid;
+	  $changed{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
 	}
-        $changed{$projid} = 1;
+        $changed{$projid} ||= 1;
 	next;
       }
       if ($ev->{'type'} eq 'rebuild' || $ev->{'type'} eq 'recheck') {
 	my $projid = $ev->{'project'};
 	my $packid = $ev->{'package'};
 	for my $prp (@prps) {
-	  $changed{$prp} = 1 if (split('/', $prp, 2))[0] eq $projid;
+	  $changed{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
 	}
-        $changed{$projid} = 1;
+        $changed{$projid} ||= 1;
 	next;
       }
       if ($ev->{'type'} eq 'scanrepo') {
@@ -1929,10 +2241,7 @@ while(1) {
 	  print "reading packages of repository $projid/$repoid\n";
 	  delete $repodata{$prp};
 	  $repodata{$prp} = findbins($prp) if -d "$reporoot/$prp/$myarch";
-	  for my $prp (@prps) {
-	    $changed{$prp} = 1 if (split('/', $prp, 2))[0] eq $projid;
-	  }
-          $changed{$projid} = 1;
+	  $changed{$prp} = 2;
 	}
 	next;
       }
@@ -1966,9 +2275,9 @@ while(1) {
 	unlink("$gdst/$packid/$_") for ls("$gdst/$packid");
 	rmdir("$gdst/$packid");
 	for $prp (@prps) {
-	  $changed{$prp} = 1 if (split('/', $prp, 2))[0] eq $projid;
+	  $changed{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
 	}
-        $changed{$projid} = 1;
+        $changed{$projid} = 2;
       }
     }
     last if %changed;

@@ -70,6 +70,7 @@ sub notify_repservers {
 sub getrev {
   my ($projid, $packid, $rev) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
+  return {'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   return undef unless -e "$projectsdir/$projid.pkg/$packid.xml";
   undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
@@ -100,8 +101,17 @@ sub addmeta {
   my $srcmd5 = Digest::MD5::md5_hex($meta);
   if ($rev && $rev eq 'upload') {
     mkdir_p("$srcrep/:upload");
+    mkdir_p("$projectsdir/$projid.pkg");
     writestr("$srcrep/:upload/$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
-  } elsif (!-e "$srcrep/$packid/$srcmd5-MD5SUMS") {
+  } elsif ($rev && $rev eq 'pattern') {
+    if ($meta ne '') {
+      mkdir_p("$srcrep/:upload");
+      mkdir_p("$projectsdir/$projid.pkg");
+      writestr("$srcrep/:upload/$$", "$projectsdir/$projid.pkg/pattern-MD5SUMS", $meta);
+    } else {
+      unlink("$projectsdir/$projid.pkg/pattern-MD5SUMS");
+    }
+  } elsif (! -e "$srcrep/$packid/$srcmd5-MD5SUMS") {
     mkdir_p("$srcrep/:upload");
     writestr("$srcrep/:upload/$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
   }
@@ -110,6 +120,11 @@ sub addmeta {
 
 sub addrev {
   my ($projid, $packid, $files, $user, $comment, $target) = @_;
+  if ($packid eq '_pattern') {
+    my $srcmd5 = addmeta($projid, $packid, $files, 'pattern');
+    notify_repservers('projevent', $projid);
+    return {'rev' => 'pattern', 'srcmd5' => $srcmd5};
+  }
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     return {'rev' => 'upload', 'srcmd5' => $srcmd5};
@@ -157,6 +172,8 @@ sub lsrep {
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   if ($srcmd5 eq 'upload') {
     open(F, '<', "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") || die("$packid/$srcmd5-$packid: not in repository\n");
+  } elsif ($srcmd5 eq 'pattern') {
+    open(F, '<', "$projectsdir/$projid.pkg/pattern-MD5SUMS") || return {};
   } elsif ($srcmd5 eq 'empty') {
     return {};
   } else {
@@ -662,10 +679,14 @@ sub getprojpack {
 	$jinfo->{'config'} = $config unless $config =~ /^\s*$/s;
       }
     }
+    if ($cgi->{'withsrcmd5'} && -s "$projectsdir/$projid.pkg/pattern-MD5SUMS") {
+      my $patterns = readstr("$projectsdir/$projid.pkg/pattern-MD5SUMS", 1);
+      $jinfo->{'patternmd5'} = Digest::MD5::md5_hex($patterns) if $patterns;
+    }
     my @packages = findpackages($projid);
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
-    for (qw{title build publish debuginfo useforbuild}) {
+    for (qw{title description build publish debuginfo useforbuild}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
     my $pdisabled;
@@ -1453,7 +1474,13 @@ sub docommand {
   }
   die("no repository defined\n") unless @prpas;
   my @packids = @{$cgi->{'package'} || []};
-  @packids = findpackages($projid) unless @packids;
+  if (@packids) {
+    my %packids = map {$_ => 1} findpackages($projid);
+    my @badpacks = grep {!$packids{$_}} @packids;
+    die("unknown package: @badpacks\n") if @badpacks;
+  } else {
+    @packids = findpackages($projid);
+  }
   die("no packages defined\n") unless @packids;
   
   # XXX FIXME multiple repo handling
@@ -1636,6 +1663,23 @@ sub search_pack_id {
   return search_pack(@_, 1);
 }
 
+sub search_published_id {
+  my ($cgi, $what, $match) = @_;
+  my $res;
+  for my $rrserver ($BSConfig::reposerver) {
+    $res = BSRPC::rpc("$rrserver/search/published/$what/id", $BSXML::collection, "match=$match");
+    last if $res;
+  }
+  return ($res, $BSXML::collection);
+}
+
+sub search_published_binary_id {
+  return search_published_id($_[0], 'binary', $_[1]);
+}
+
+sub search_published_pattern_id {
+  return search_published_id($_[0], 'pattern', $_[1]);
+}
 
 sub search {
   my ($cgi, $in, $match) = @_;
@@ -1737,14 +1781,14 @@ my $dispatches = [
   'PUT:/source/$project/_config' => \&putprojectconfig,
   'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&putfilelist,
-  '/source/$project/$package rev? follow:bool?' => \&getfilelist,
-  '/source/$project/$package/_history' => \&getpackagehistory,
+  '/source/$project/$package:package_pattern rev? follow:bool?' => \&getfilelist,
+  '/source/$project/$package:package_pattern/_history' => \&getpackagehistory,
   '/source/$project/$package/_meta' => \&getpackage,
   'PUT:/source/$project/$package/_meta' => \&putpackage,
   'DELETE:/source/$project/$package' => \&delpackage,
-  '/source/$project/$package/$filename rev?' => \&getfile,
-  'PUT:/source/$project/$package/$filename rev? user:? comment:?' => \&putfile,
-  'DELETE:/source/$project/$package/$filename rev? user:? comment:?' => \&delfile,
+  '/source/$project/$package:package_pattern/$filename rev?' => \&getfile,
+  'PUT:/source/$project/$package:package_pattern/$filename rev? user:? comment:?' => \&putfile,
+  'DELETE:/source/$project/$package:package_pattern/$filename rev? user:? comment:?' => \&delfile,
 
   # scheduler calls
   '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool?' => \&getprojpack,
@@ -1759,6 +1803,9 @@ my $dispatches = [
   '/search/project/id $match:' => \&search_proj_id,
   '/search/package $match:' => \&search_pack,
   '/search/package/id $match:' => \&search_pack_id,
+
+  '/search/published/binary/id $match:' => \&search_published_binary_id,
+  '/search/published/pattern/id $match:' => \&search_published_pattern_id,
 
   # new /build API
   '/build' => \&getprojectlist,

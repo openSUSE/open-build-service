@@ -26,13 +26,31 @@ use Data::Dumper;
 
 use strict;
 
+sub boolop_eq {
+  return $_[0] eq $_[1];
+}
+
 sub boolop {
-  my ($v1, $v2, $op) = @_;
-  #print Dumper($v1).Dumper($v2);
+  my ($cwd, $v1, $v2, $op) = @_;
+  #print Dumper($cwd).Dumper($v1).Dumper($v2);
+  my @v1 = @$v1;
   my @v2 = @$v2;
+  my @cwd = @$cwd;
   my @vr;
-  for my $e1 (@$v1) {
+  while (@v1) {
+    my $e1 = shift @v1;
     my $e2 = shift @v2;
+    my $r = shift @cwd;
+    if ($r->[4]) {
+      push @vr, $r->[4]->boolop($e1, $e2, $op);
+      next;
+    }
+    if (ref($e1) ne '' && ref($e1) ne 'HASH' && ref($e1) ne 'ARRAY') {
+      $e1 = $e1->value();
+    }
+    if (ref($e2) ne '' && ref($e2) ne 'HASH' && ref($e2) ne 'ARRAY') {
+      $e2 = $e2->value();
+    }
     if (ref($e1) eq 'HASH') {
       if (!exists($e1->{'_content'})) {
 	push @vr, '';
@@ -71,6 +89,42 @@ sub boolop {
   return \@vr;
 }
 
+sub op {
+  my ($cwd, $v1, $v2, $op) = @_;
+  my @v1 = @$v1;
+  my @v2 = @{$v2 || []};
+  my @cwd = @$cwd;
+  for my $vv (@v1) {
+    my $vv2;
+    $vv2 = shift @v2 if defined $v2;
+    my $r = shift @cwd;
+    if ($r->[4]) {
+      $vv = $r->[4]->op($vv, $vv2, $op);
+      next;
+    }
+    if (ref($vv) ne '' && ref($vv) ne 'HASH' && ref($vv) ne 'ARRAY') {
+      $vv = $vv->value();
+    }
+    if (ref($vv) eq 'HASH') {
+      $vv = $vv->{'_content'};
+    } elsif (ref($vv) ne '') {
+      $vv = '';
+    }
+    if ($vv2) {
+      if (ref($vv2) ne '' && ref($vv2) ne 'HASH' && ref($vv2) ne 'ARRAY') {
+        $vv2 = $vv2->value();
+      }
+      if (ref($vv2) eq 'HASH') {
+        $vv2 = $vv2->{'_content'};
+      } elsif (ref($vv2) ne '') {
+        $vv2 = '';
+      }
+    }
+    $vv = $op->($vv, $vv2);
+  }
+  return \@v1;
+}
+
 sub predicate {
   my ($cwd, $expr, $v) = @_;
 
@@ -78,6 +132,7 @@ sub predicate {
   my @r = @$cwd;
   for my $vv (@$v) {
     my $rr = shift @r;
+    # flatten vv
     if (ref($vv) eq 'HASH' || ref($vv) eq '') {
       push @ncwd, [$rr->[0], $vv, 1, 1];
     } elsif (ref($vv) eq 'ARRAY') {
@@ -85,39 +140,42 @@ sub predicate {
       my $s = @$vv;
       push @ncwd, [$rr->[0], $_, $i++, $s] for @$vv;
     } else {
-      die("illegal type for predicate\n");
+      push @ncwd, [$rr->[0], $vv, 1, 1, $vv];
+      #my $vv2 = $vv->value();
+      #my $i = 1;
+      #my $s = @$vv2;
+      #push @ncwd, [$rr->[0], $_, $i++, $s] for @$vv2;
     }
   }
   my $v2;
   ($v2, $expr) = expr(\@ncwd, $expr, 0);
   die("internal error!\n") if @$v2 != @ncwd;
   #print Dumper($v2);
-  # boolify v2
-  $_ = ref($_) eq 'ARRAY' ? (@$_ ? 'true' : '') : $_ for @$v2;
   for my $vv (@$v) {
-    if (ref($vv) eq 'HASH' || ref($vv) eq '') {
-      $vv = [] unless shift @$v2;
-    } elsif (ref($vv) eq 'ARRAY') {
-      my @nvv;
-      my $i = 0;
-      for (@$vv) {
-	$i++;
-	my $b = shift @$v2;
-	#print "bool $b ($i)\n";
-	if ($b =~ /^-?\d+$/) {
-	  push @nvv, $_ if $b == $i;
-        } else {
-	  push @nvv, $_ if $b;
- 	}
-      }
-      $vv = \@nvv;
+    if ($ncwd[0]->[4]) {
+      my $r = shift @ncwd;
+      $vv = $r->[4]->predicate(shift @$v2);
+      next;
     }
+    my @nvv;
+    while (1) {
+      my $r = shift @ncwd;
+      my $b = shift @$v2;
+      $b = @$_ ? 'true' : '' if ref($b) eq 'ARRAY';
+      if ($b =~ /^-?\d+$/) { 
+        push @nvv, $r->[1] if $r->[2] == $b;
+      } else {
+        push @nvv, $r->[1] if $b;
+      }
+      last if $r->[2] == $r->[3];
+    }
+    $vv = \@nvv;
   }
   return ($v, $expr);
 }
 
 sub pathstep {
-  my ($v, $c) = @_;
+  my ($cwd, $v, $c) = @_;
 
   for my $vv (@$v) {
     if (ref($vv) eq 'HASH') {
@@ -137,10 +195,35 @@ sub pathstep {
       } else {
         $vv = [ map {ref($_->{$c}) eq 'ARRAY' ? @{$_->{$c}} : $_->{$c}} grep {ref($_) eq 'HASH' && exists($_->{$c})} @$vv ];
       }
-    } else {
+    } elsif (ref($vv) eq '') {
       $vv = [];
+    } else {
+      $vv = $vv->step($c);
     }
   }
+  return $v;
+}
+
+sub limit {
+  my ($cwd, $v) = @_;
+  my @ncwd;
+  my $changed;
+  my @v = @$v;
+  for my $r (@$cwd) {
+    my $vv = $r->[1];
+    my $lv = shift @v;
+    if (ref($vv) ne '' && ref($vv) ne 'HASH' && ref($vv) ne 'ARRAY') {
+      my $vv2 = $vv->limit($lv);
+      if ($vv2 != $vv) {
+        push @ncwd, [ @$r ];
+        $ncwd[-1]->[1] = $vv2;
+	$changed = 1;
+	next;
+      }
+    }
+    push @ncwd, $r;
+  }
+  return $changed ? \@ncwd : $cwd;
 }
 
 sub expr {
@@ -156,8 +239,7 @@ sub expr {
     die("missing ) in expression\n") unless $expr =~ s/^\)//;
   } elsif ($t eq '-') {
     ($v, $expr) = expr($cwd, substr($expr, 1), 6);
-    die("illegal type for unary -\n") if grep {ref($_)} @$v;
-    $v = [ map {-$_} @$v ];
+    $v = op($cwd, $v, undef, sub {-$_[0]});
   } elsif ($t eq "'") {
     die("missing string terminator\n") unless $expr =~ /^\'([^\']*)\'(.*)$/s;
     $v = $1;
@@ -207,18 +289,35 @@ sub expr {
     if ($f eq 'not') {
       die("$f: one argument required\n") unless @args == 1;
       push @args, [ (1) x scalar(@$cwd) ];
-      $v = boolop(@args, sub {!$_[0]});
+      $v = boolop($cwd, @args, sub {!$_[0]});
     } elsif ($f eq 'starts-with') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop(@args, sub {substr($_[0], 0, length($_[1])) eq $_[1]});
+      $v = boolop($cwd, @args, sub {substr($_[0], 0, length($_[1])) eq $_[1]});
     } elsif ($f eq 'contains') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop(@args, sub {index($_[0], $_[1]) != -1});
+      $v = boolop($cwd, @args, sub {index($_[0], $_[1]) != -1});
     } elsif ($f eq 'ends-with') {
+      unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop(@args, sub {substr($_[0], -length($_[1])) eq $_[1]});
+      $v = boolop($cwd, @args, sub {substr($_[0], -length($_[1])) eq $_[1]});
+    } elsif ($f eq 'equals-ic') {
+      unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
+      die("$f: one or two arguments required\n") unless @args == 2;
+      $v = boolop($cwd, @args, sub {lc($_[0]) eq lc($_[1])});
+    } elsif ($f eq 'starts-with-ic') {
+      unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
+      die("$f: one or two arguments required\n") unless @args == 2;
+      $v = boolop($cwd, @args, sub {substr(lc($_[0]), 0, length($_[1])) eq lc($_[1])});
+    } elsif ($f eq 'ends-with-ic') {
+      unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
+      die("$f: one or two arguments required\n") unless @args == 2;
+      $v = boolop($cwd, @args, sub {substr(lc($_[0]), -length($_[1])) eq lc($_[1])});
+    } elsif ($f eq 'contains-ic') {
+      unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
+      die("$f: one or two arguments required\n") unless @args == 2;
+      $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1});
     } elsif ($f eq 'position') {
       die("$f: no arguments required\n") unless @args == 0;
       $v = [ map {$_->[2]} @$cwd ];
@@ -233,7 +332,7 @@ sub expr {
     $expr = $2;
     $c =~ s/^\@//;
     $v = [ map {$_->[1]} @$cwd ];
-    pathstep($v, $c);
+    $v = pathstep($cwd, $v, $c);
   } else {
     die("syntax error: bad primary: $expr\n");
   }
@@ -243,62 +342,63 @@ sub expr {
     if ($expr =~ /^or/) {
       return ($v, $expr) if $lev > 1;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 1);
-      $v = boolop($v, $v2, sub {$_[0] || $_[1]});
+      $v = boolop($cwd, $v, $v2, sub {$_[0] || $_[1]});
     } elsif ($expr =~ /^and/) {
       return ($v, $expr) if $lev > 2;
-      ($v2, $expr) = expr($cwd, substr($expr, 3), 2);
-      $v = boolop($v, $v2, sub {$_[0] && $_[1]});
+      my $cwd2 = limit($cwd, $v);
+      ($v2, $expr) = expr($cwd2, substr($expr, 3), 2);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] && $_[1]});
     } elsif ($expr =~ /^=/) {
       return ($v, $expr) if $lev > 3;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 3);
-      $v = boolop($v, $v2, sub {$_[0] eq $_[1]});
+      $v = boolop($cwd, $v, $v2, \&boolop_eq);
     } elsif ($expr =~ /^!=/) {
       return ($v, $expr) if $lev > 3;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 3);
-      $v = boolop($v, $v2, sub {$_[0] ne $_[1]});
+      $v = boolop($cwd, $v, $v2, sub {$_[0] ne $_[1]});
     } elsif ($expr =~ /^<=/) {
       return ($v, $expr) if $lev > 3;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 3);
-      $v = boolop($v, $v2, sub {$_[0] <= $_[1]});
+      $v = boolop($cwd, $v, $v2, sub {$_[0] <= $_[1]});
     } elsif ($expr =~ /^>=/) {
       return ($v, $expr) if $lev > 3;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 3);
-      $v = boolop($v, $v2, sub {$_[0] >= $_[1]});
+      $v = boolop($cwd, $v, $v2, sub {$_[0] >= $_[1]});
     } elsif ($expr =~ /^</) {
       return ($v, $expr) if $lev > 3;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 3);
-      $v = boolop($v, $v2, sub {$_[0] < $_[1]});
+      $v = boolop($cwd, $v, $v2, sub {$_[0] < $_[1]});
     } elsif ($expr =~ /^>/) {
       return ($v, $expr) if $lev > 3;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 3);
-      $v = boolop($v, $v2, sub {$_[0] > $_[1]});
+      $v = boolop($cwd, $v, $v2, sub {$_[0] > $_[1]});
     } elsif ($expr =~ /^\+/) {
       return ($v, $expr) if $lev > 4;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 4);
-      $_ = $_ + shift(@$v2) for @$v;
+      $v = op($cwd, $v, $v2, sub {$_[0] + $_[1]});
     } elsif ($expr =~ /^-/) {
       return ($v, $expr) if $lev > 4;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 4);
-      $_ = $_ - shift(@$v2) for @$v;
+      $v = op($cwd, $v, $v2, sub {$_[0] - $_[1]});
     } elsif ($expr =~ /^\*/) {
       return ($v, $expr) if $lev > 5;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 5);
-      $_ = $_ * shift(@$v2) for @$v;
+      $v = op($cwd, $v, $v2, sub {$_[0] * $_[1]});
     } elsif ($expr =~ /^div/) {
       return ($v, $expr) if $lev > 5;
       ($v2, $expr) = expr($cwd, substr($expr, 3), 5);
-      $_ = $_ / shift(@$v2) for @$v;
+      $v = op($cwd, $v, $v2, sub {$_[0] / $_[1]});
     } elsif ($expr =~ /^mod/) {
       return ($v, $expr) if $lev > 5;
       ($v2, $expr) = expr($cwd, substr($expr, 3), 5);
-      $_ = $_ % shift(@$v2) for @$v;
+      $v = op($cwd, $v, $v2, sub {$_[0] % $_[1]});
     } elsif ($expr =~ /^\|/) {
       die("union op not implemented yet\n");
     } elsif ($expr =~ /^\/(\@?(?:[-a-zA-Z0-9]+|\*))(.*?)$/s) {
       my $c = $1;
       $expr = $2;
       $c =~ s/^\@//;
-      pathstep($v, $c);
+      $v = pathstep($cwd, $v, $c);
       #print "following $c\n".Dumper($v);
     } elsif ($expr =~ /^\/\//s) {
       $expr = substr($expr, 1);
@@ -313,13 +413,30 @@ sub expr {
   }
 }
 
+sub select {
+  my ($data, $expr) = @_;
+
+  my $v;
+  ($v, $expr) = BSXPath::expr([[$data, $data, 1, 1]], $expr);
+  die("junk at and of expr: $expr\n") if $expr ne '';
+  $v = $v->[0];
+  if (ref($v) ne '' && ref($v) ne 'HASH' && ref($v) ne 'ARRAY') {
+    $v = $v->value();
+  }
+  return $v;
+}
+
 sub match {
   my ($data, $expr) = @_;
 
   my $v;
   ($v, $expr) = predicate([[$data, $data, 1, 1]], $expr, [$data]);
   die("junk at and of expr: $expr\n") if $expr ne '';
-  return $v->[0];
+  $v = $v->[0];
+  if (ref($v) ne '' && ref($v) ne 'HASH' && ref($v) ne 'ARRAY') {
+    $v = $v->value();
+  }
+  return $v;
 }
 
 sub valuematch {
@@ -332,6 +449,9 @@ sub valuematch {
   my @r;
   while (@v) {
     $v = shift @v;
+    if (ref($v) ne '' && ref($v) ne 'HASH' && ref($v) ne 'ARRAY') {
+      $v = $v->value();
+    }
     if (ref($v) eq '') {
       push @r, $v;
     } elsif (ref($v) eq 'HASH') {

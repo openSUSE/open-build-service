@@ -203,9 +203,9 @@ sub cpio_receiver {
     die("cpio filename is '.' or '..'\n") if $name eq '.' || $name eq '..';
     if ($param->{'accept'}) {
       if (ref($param->{'accept'})) {
-	die("illegal file in cpio archive\n") unless $param->{'accept'}->($param, $name);
+	die("illegal file in cpio archive: $name\n") unless $param->{'accept'}->($param, $name);
       } else {
-	die("illegal file in cpio archive\n") unless $name =~ /$param->{'accept'}/;
+	die("illegal file in cpio archive: $name\n") unless $name =~ /$param->{'accept'}/;
       }
     }
     if ($param->{'map'}) {

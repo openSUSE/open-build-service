@@ -53,7 +53,7 @@ sub fdb_getlast {
   my $off = 1024;
   my $d;
   while (1) {
-    my $pos = sysseek(F, -1024, 2);
+    my $pos = sysseek(F, -$off, 2);
     if (!defined($pos)) {
       sysseek(F, 0, 0);
       $pos = 0;

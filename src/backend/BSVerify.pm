@@ -62,6 +62,10 @@ sub verify_packid_repository {
   verify_packid($_[0]) unless $_[0] && $_[0] eq '_repository';
 }
 
+sub verify_packid_pattern {
+  verify_packid($_[0]) unless $_[0] && $_[0] eq '_pattern';
+}
+
 sub verify_filename {
   my $filename = $_[0];
   die("filename is empty\n") unless defined($filename) && $filename ne '';
@@ -178,6 +182,7 @@ our $verifyers = {
   'arch' => \&verify_arch,
   'job' => \&verify_jobid,
   'package_repository' => \&verify_packid_repository,
+  'package_pattern' => \&verify_packid_pattern,
   'filename' => \&verify_filename,
   'md5' => \&verify_md5,
   'rev' => \&verify_rev,
