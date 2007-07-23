@@ -133,7 +133,7 @@ class DbProject < ActiveRecord::Base
               logger.debug "adding flag '#{ft.title}'"
               begin
                 ProjectFlag.create(
-                  :project_flag_group_id => gt.id,
+                  :project_flag_group_id => current_fg.id,
                   :flag_type_id => ft.id
                 )
               rescue ActiveRecord::StatementInvalid => err
