@@ -601,9 +601,11 @@ sub writepatterns {
   my ($prp, $prpsearchpath, $projpacks, $repoinfo, $config) = @_;
   my $dir;
 
-print Dumper($repoinfo);
   my $patterndb;
-  $patterndb = BSDB::opendb($extrepodb, 'pattern') if $extrepodb;
+  if ($extrepodb) {
+    mkdir_p($extrepodb);
+    $patterndb = BSDB::opendb($extrepodb, 'pattern');
+  }
 
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
@@ -698,13 +700,13 @@ print Dumper($repoinfo);
       $ympname =~ s/\.xml$//;
       $ympname .= ".ymp";
       writexml("$extrepodir/$prp_ext/.$ympname", "$extrepodir/$prp_ext/$ympname", $ymp, $BSXML::ymp);
-      $patterndb->store("$prp_ext/$ympname", $ympidx);
+      $patterndb->store("$prp_ext/$ympname", $ympidx) if $patterndb;
     } else {
       my $ympname = $pattern;
       $ympname =~ s/\.xml$//;
       $ympname .= ".ymp";
       if (-e "$extrepodir/$prp_ext/$ympname") {
-        $patterndb->store("$prp_ext/$ympname", undef);
+        $patterndb->store("$prp_ext/$ympname", undef) if $patterndb;
 	unlink("$extrepodir/$prp_ext/$ympname");
       }
     }
@@ -712,20 +714,45 @@ print Dumper($repoinfo);
   $repoinfo->{'patternmd5'} = $patternmd5;
 }
 
-sub dbimodify {
-  my ($dbi, $rem, $add) = @_;
-  if (@$rem + @$add < 256) {
-    return $dbi->modify($rem, $add);
+sub updatebinaryindex {
+  my ($db, $keyrem, $keyadd) = @_;
+
+  my $index = $db->{'index'};
+  $index =~ s/\/$//;
+  my @add;
+  for my $key (@{$keyadd || []}) {
+    my $n;
+    if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+      $n = $1;
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+      $n = $1;
+    } else {
+      next;
+    }
+    push @add, ["$index/name", $n, $key];
   }
-  my @todo = @$rem;
-  while (@todo) {
-    my @chunk = splice(@todo, 0, 256);
-    $dbi->modify(\@chunk, []);
+  my @rem;
+  for my $key (@{$keyrem || []}) {
+    my $n;
+    if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+      $n = $1;
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+      $n = $1;
+    } else {
+      next;
+    }
+    push @rem, ["$index/name", $n, $key];
   }
-  @todo = @$add;
-  while (@todo) {
-    my @chunk = splice(@todo, 0, 256);
-    $dbi->modify([], \@chunk);
+  if (@rem + @add < 256) {
+    return BSDBIndex::modify($db, \@rem, \@add);
+  }
+  while (@rem) {
+    my @chunk = splice(@rem, 0, 256);
+    BSDBIndex::modify($db, \@chunk, []);
+  }
+  while (@add) {
+    my @chunk = splice(@add, 0, 256);
+    BSDBIndex::modify($db, [], \@chunk);
   }
 }
 
@@ -1031,32 +1058,8 @@ EOL
   # put data in our little database
   if ($extrepodb) {
     mkdir_p($extrepodb);
-    my $dbi = BSDBIndex::opendb($extrepodb);
-    my @add;
-    my @rem;
-    for my $f (sort keys %changed) {
-      my $n;
-      if ($f =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
-        $n = $1;
-      } elsif (/(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
-        $n = $1;
-      } else {
-	next;
-      }
-      push @add, ['binary/name', $n, "$prp_ext/$f"];
-    }
-    for my $f (@deleted) {
-      my $n;
-      if ($f =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
-        $n = $1;
-      } elsif (/(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
-        $n = $1;
-      } else {
-	next;
-      }
-      push @rem, ['binary/name', $n, "$prp_ext/$f"];
-    }
-    dbimodify($dbi, \@rem, \@add);
+    my $binarydb = BSDB::opendb($extrepodb, 'binary');
+    updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ] , [ map {"$prp_ext/$_"} sort keys %changed ]);
   }
 
   if ($BSConfig::markfileorigins) {
@@ -1152,20 +1155,8 @@ sub prpdeleted {
   }
 
   if ($extrepodb) {
-    my @rem;
-    my $dbi = BSDBIndex::opendb($extrepodb);
-    for my $f (@deleted) {
-      my $n;
-      if ($f =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
-        $n = $1;
-      } elsif (/(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
-        $n = $1;
-      } else {
-	next;
-      }
-      push @rem, ['binary/name', $n, "$prp_ext/$f"];
-    }
-    dbimodify($dbi, \@rem, []);
+    my $binarydb = BSDB::opendb($extrepodb, 'binary');
+    updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ] , []);
     if (@ymps) {
       my $patterndb = BSDB::opendb($extrepodb, 'pattern') if $extrepodb;
       for my $ympname (@ymps) {
