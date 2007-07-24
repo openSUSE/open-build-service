@@ -29,7 +29,7 @@ module ApplicationHelper
   end
 
   def repo_url(project, repo='' )
-    'http://software.opensuse.org/download/' + project.gsub(':', ':/') + "/#{repo}"
+    'http://download.opensuse.org/repositories/' + project.gsub(':', ':/') + "/#{repo}"
   end
 
 
