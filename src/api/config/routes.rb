@@ -36,12 +36,7 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'result',
     :action => 'log'
 
- ### /platform
-  
-  map.connect 'platform/:project/:repository', :controller => 'platform',
-    :action => 'repository'
-  map.connect 'platform/:project', :controller => 'platform',
-    :action => 'project'
+  ### /repository
 
   map.connect 'repository', :controller => 'repository', :action => 'index'
 
@@ -166,6 +161,8 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /search
 
+  map.connect 'search/published/binary/id' , :controller => "search", :action => "pass_to_source"
+  map.connect 'search/published/pattern/id' , :controller => "search", :action => "pass_to_source"
   map.connect 'search/project/id', :controller => "search", :action => "project_id"
   map.connect 'search/package/id', :controller => "search", :action => "package_id"
   map.connect 'search/project', :controller => "search", :action => "project"
@@ -201,6 +198,19 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build',
     :controller => "build", :action => "pass_to_source"
 
+  ### /published
+
+  map.connect 'published/:project/:repository/:arch/:binary',
+    :controller => "published", :action => "binary"
+  map.connect 'published/:project/:repository/:arch',
+    :controller => "published", :action => "pass_to_source"
+  map.connect 'published/:project/:repository/',
+    :controller => "published", :action => "pass_to_source"
+  map.connect 'published/:project',
+    :controller => "published", :action => "pass_to_source"
+  map.connect 'published/',
+    :controller => "published", :action => "pass_to_source"
+
   ### /apidocs
 
   map.apidocs 'apidocs/', :controller => "apidocs"
@@ -221,6 +231,13 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'rpm', :action => 'pass_to_repo'
   map.connect 'rpm/:project/:repository/:package/:arch/:file',
     :controller => 'rpm', :action => 'file'
+
+  ### /platform
+  
+  map.connect 'platform/:project/:repository', :controller => 'platform',
+    :action => 'repository'
+  map.connect 'platform/:project', :controller => 'platform',
+    :action => 'project'
 
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id'
