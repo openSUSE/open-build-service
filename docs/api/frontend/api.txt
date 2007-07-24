@@ -489,6 +489,74 @@ Parameters:
 XmlResult: collection
 
 
+GET /search/published/binary/id
+
+  Search for published binary packages
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/published/pattern/id
+
+  Search for published patterns
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+== Published binary package tree
+
+GET /published
+
+  List of published projects
+
+XmlResult: directory
+
+
+GET /published/<project>
+
+  List of repositories of published projects
+
+XmlResult: directory
+
+
+GET /published/<project>/<repository>
+
+  List of published repositories for the given project/repo
+
+XmlResult: directory
+
+
+GET /published/<project>/<repository>/<arch>
+
+  List of published binaries for the given project/repo/arch
+
+XmlResult: directory
+
+
+GET /published/<project>/<repository>/<arch>/<binary>
+
+  Download published binary
+  NOTE: use this only if you absolutely have to as it doesn't use
+        the redirector
+
+Result: binary
+
+
+POST /published/<project>/<repository>/<arch>/<binary>?cmd=makeymp
+
+  Generate an ymp pattern that includes the needed repositories to install the
+  given binary
+
+XmlResult: ymp
+
 
 == Tags
  
