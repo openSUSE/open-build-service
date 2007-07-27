@@ -17,7 +17,13 @@ class SourceController < ApplicationController
 
   def index_project
     project_name = params[:project]
-    #forward_data "/source/#{project_name}"
+    pro = DbProject.find_by_name project_name
+    if pro.nil?
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => "Unknown project #{project_name}"
+      return
+    end
+    
     if request.get?
       @dir = Package.find :all, :project => project_name
       render :text => @dir.dump_xml, :content_type => "text/xml"
@@ -31,12 +37,6 @@ class SourceController < ApplicationController
         render_error :status => 403, :errorcode => 'delete_project_no_permission',
           :message => "Permission denied (delete project #{project_name})"
         return
-      end
-
-      pro = DbProject.find_by_name project_name
-      if pro.nil?
-        render_error :status => 404, :errorcode => 'unknown_project',
-          :message => "Unknown project #{project_name}"
       end
 
       #check for linking repos
