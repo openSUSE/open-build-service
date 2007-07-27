@@ -745,3 +745,14 @@ Tue Jul 17 12:16:12 +0200 2007 - bauersman
 - fixed has_role call
 
 
+------------------------------------------------------------------------
+Fri Jul 27 19:50:31 +0200 2007 - bauersman
+
+- update from svn revision 1854 to 1889
+- allow DELETE requests on patterns
+- typo fix in flag handling code
+- added proxy routes for published tree, published search and ymp generation
+- return 404 when requesting project index for nonexisting project
+- fix broken apidocs link
+
+
