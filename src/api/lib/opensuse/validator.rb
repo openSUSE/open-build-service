@@ -113,11 +113,18 @@ module Suse
       logger.debug "schema_file: #{schema_file}"
       return if schema_file.nil?
 
-      schema_file += ".xsd" unless schema_file =~ /\.xsd$/
+      temp = schema_file
+      schema_file = temp + ".xsd" unless temp =~ /\.xsd$/
       schema_path = self.class.schema_location + schema_file
 
       unless File.exist? schema_path
-        raise "Suse::Validation: unable to read schema file '#{schema_path}': file not found"
+        # no .xsd file found, try with an .rng
+        schema_file = temp + ".rng" unless temp =~ /\.rng$/
+        schema_path = self.class.schema_location + schema_file
+        unless File.exist? schema_path
+          # does not exist either ... error ...
+          raise "Suse::Validation: unable to read schema file '#{schema_path}' or .xsd: file not found"
+        end
       end
       
       logger.debug "schema_path: #{schema_path}"

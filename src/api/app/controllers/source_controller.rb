@@ -2,7 +2,7 @@ require "rexml/document"
 
 class SourceController < ApplicationController
   validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
-  validate_action :project_meta => :project, :package_meta => :package
+  validate_action :project_meta => :project, :package_meta => :package, :pattern_meta => :pattern
   
 
   def index
@@ -134,7 +134,7 @@ class SourceController < ApplicationController
     end
   end
 
-  def pattern
+  def pattern_meta
     valid_http_methods :get, :put, :delete
     if request.get?
       pass_to_source

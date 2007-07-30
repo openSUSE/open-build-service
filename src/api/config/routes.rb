@@ -43,7 +43,7 @@ ActionController::Routing::Routes.draw do |map|
   ### /source
 
   map.connect 'source/:project/_pattern/:pattern', :controller => 'source',
-    :action => 'pattern'
+    :action => 'pattern_meta'
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta'
   map.connect 'source/:project/:package/_tags', :controller => 'tag',
