@@ -113,14 +113,15 @@ module Suse
       logger.debug "schema_file: #{schema_file}"
       return if schema_file.nil?
 
-      temp = schema_file
-      schema_file = temp + ".xsd" unless temp =~ /\.xsd$/
+      schema_file += ".xsd" unless schema_file =~ /\.xsd$/
       schema_path = self.class.schema_location + schema_file
+      xmllint_param = "--schema"
 
       unless File.exist? schema_path
         # no .xsd file found, try with an .rng
-        schema_file = temp + ".rng" unless temp =~ /\.rng$/
+        schema_file = schema_file.split(/\.xsd$/)[0] + ".rng" unless schema_file =~ /\.rng\.xsd$/
         schema_path = self.class.schema_location + schema_file
+        xmllint_param = "--relaxng"
         unless File.exist? schema_path
           # does not exist either ... error ...
           raise "Suse::Validation: unable to read schema file '#{schema_path}' or .xsd: file not found"
@@ -153,7 +154,7 @@ module Suse
 
       logger.debug "validation tmpfile: #{tmp_path}"
 
-      out = `/usr/bin/xmllint --noout --schema #@schema_path #{tmp_path} 2>&1`
+      out = `/usr/bin/xmllint --noout #@xmllint_param #@schema_path #{tmp_path} 2>&1`
       if $?.exitstatus > 0
         logger.debug "xmllint return value: #{$?.exitstatus}"
         logger.debug "XML: #{doc_str}"
