@@ -168,6 +168,29 @@ our $dir = [
      ]]
 ];
 
+our $fileinfo = [
+    'fileinfo' =>
+	'filename',
+	[],
+	'name',
+        'epoch',
+	'version',
+	'release',
+	'arch',
+	'summary',
+	'description',
+	'size',
+      [ 'provides' ],
+      [ 'requires' ],
+      [ 'prerequires' ],
+      [ 'conflicts' ],
+      [ 'obsoletes' ],
+      [ 'recommends' ],
+      [ 'supplements' ],
+      [ 'suggests' ],
+      [ 'enhances' ],
+];
+
 our $buildinfo = [
     'buildinfo' =>
 	'project',
@@ -478,6 +501,8 @@ my $rpm_entry = [
 
 our $pattern = [
     'pattern' =>
+	'xmlns',
+	'xmlns:rpm',
 	[],
 	'name',
      [[ 'summary' =>
@@ -496,14 +521,14 @@ our $pattern = [
      ]],
 	'icon',
 	'script',
-      [ 'provides' => [ $rpm_entry ], ],
-      [ 'conflicts' => [ $rpm_entry ], ],
-      [ 'obsoletes' => [ $rpm_entry ], ],
-      [ 'requires' => [ $rpm_entry ], ],
-      [ 'suggests' => [ $rpm_entry ], ],
-      [ 'enhances' => [ $rpm_entry ], ],
-      [ 'supplements' => [ $rpm_entry ], ],
-      [ 'recommends' => [ $rpm_entry ], ],
+      [ 'rpm:provides' => [ $rpm_entry ], ],
+      [ 'rpm:conflicts' => [ $rpm_entry ], ],
+      [ 'rpm:obsoletes' => [ $rpm_entry ], ],
+      [ 'rpm:requires' => [ $rpm_entry ], ],
+      [ 'rpm:suggests' => [ $rpm_entry ], ],
+      [ 'rpm:enhances' => [ $rpm_entry ], ],
+      [ 'rpm:supplements' => [ $rpm_entry ], ],
+      [ 'rpm:recommends' => [ $rpm_entry ], ],
 ];
 
 our $patterns = [
@@ -514,8 +539,8 @@ our $patterns = [
 
 our $ymp = [
     'bw:metapackage' =>
-	'xmlns:bw',
 	'xmlns',
+	'xmlns:bw',
 	[],
 	'name',
 	'summary',
@@ -551,6 +576,8 @@ our $binary_id = [
 	'arch',
 	'filename',
 	'filepath',
+	'baseproject',
+	'type',
 ];
 
 our $pattern_id = [
@@ -561,6 +588,7 @@ our $pattern_id = [
 	'arch',
 	'filename',
 	'filepath',
+	'baseproject',
 	'type',
 ];
 

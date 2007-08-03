@@ -31,7 +31,7 @@ sub boolop_eq {
 }
 
 sub boolop {
-  my ($cwd, $v1, $v2, $op) = @_;
+  my ($cwd, $v1, $v2, $op, $negpol) = @_;
   #print Dumper($cwd).Dumper($v1).Dumper($v2);
   my @v1 = @$v1;
   my @v2 = @$v2;
@@ -42,7 +42,7 @@ sub boolop {
     my $e2 = shift @v2;
     my $r = shift @cwd;
     if ($r->[4]) {
-      push @vr, $r->[4]->boolop($e1, $e2, $op);
+      push @vr, $r->[4]->boolop($e1, $e2, $op, $negpol);
       next;
     }
     if (ref($e1) ne '' && ref($e1) ne 'HASH' && ref($e1) ne 'ARRAY') {
@@ -227,7 +227,7 @@ sub limit {
 }
 
 sub expr {
-  my ($cwd, $expr, $lev) = @_;
+  my ($cwd, $expr, $lev, $negpol) = @_;
 
   $lev ||= 0;
   # calculate next value
@@ -235,10 +235,10 @@ sub expr {
   $expr =~ s/^\s+//;
   my $t = substr($expr, 0, 1);
   if ($t eq '(') {
-    ($v, $expr) = expr($cwd, substr($expr, 1), 0);
+    ($v, $expr) = expr($cwd, substr($expr, 1), 0, $negpol);
     die("missing ) in expression\n") unless $expr =~ s/^\)//;
   } elsif ($t eq '-') {
-    ($v, $expr) = expr($cwd, substr($expr, 1), 6);
+    ($v, $expr) = expr($cwd, substr($expr, 1), 6, $negpol);
     $v = op($cwd, $v, undef, sub {-$_[0]});
   } elsif ($t eq "'") {
     die("missing string terminator\n") unless $expr =~ /^\'([^\']*)\'(.*)$/s;
@@ -281,7 +281,7 @@ sub expr {
     $expr = $2;
     my @args;
     while ($expr !~ s/^\)//) {
-      ($v, $expr) = expr($cwd, $expr, 0);
+      ($v, $expr) = expr($cwd, $expr, 0, $f eq 'not' ? !$negpol : $negpol);
       push @args, $v;
       last if $expr =~ s/^\)//;
       die("$f: bad argument separator\n") unless $expr =~ s/^,//;
@@ -289,35 +289,35 @@ sub expr {
     if ($f eq 'not') {
       die("$f: one argument required\n") unless @args == 1;
       push @args, [ (1) x scalar(@$cwd) ];
-      $v = boolop($cwd, @args, sub {!$_[0]});
+      $v = boolop($cwd, @args, sub {!$_[0]}, $negpol);
     } elsif ($f eq 'starts-with') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {substr($_[0], 0, length($_[1])) eq $_[1]});
+      $v = boolop($cwd, @args, sub {substr($_[0], 0, length($_[1])) eq $_[1]}, $negpol);
     } elsif ($f eq 'contains') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {index($_[0], $_[1]) != -1});
+      $v = boolop($cwd, @args, sub {index($_[0], $_[1]) != -1}, $negpol);
     } elsif ($f eq 'ends-with') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {substr($_[0], -length($_[1])) eq $_[1]});
+      $v = boolop($cwd, @args, sub {substr($_[0], -length($_[1])) eq $_[1]}, $negpol);
     } elsif ($f eq 'equals-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {lc($_[0]) eq lc($_[1])});
+      $v = boolop($cwd, @args, sub {lc($_[0]) eq lc($_[1])}, $negpol);
     } elsif ($f eq 'starts-with-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {substr(lc($_[0]), 0, length($_[1])) eq lc($_[1])});
+      $v = boolop($cwd, @args, sub {substr(lc($_[0]), 0, length($_[1])) eq lc($_[1])}, $negpol);
     } elsif ($f eq 'ends-with-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {substr(lc($_[0]), -length($_[1])) eq lc($_[1])});
+      $v = boolop($cwd, @args, sub {substr(lc($_[0]), -length($_[1])) eq lc($_[1])}, $negpol);
     } elsif ($f eq 'contains-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1});
+      $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1}, $negpol);
     } elsif ($f eq 'position') {
       die("$f: no arguments required\n") unless @args == 0;
       $v = [ map {$_->[2]} @$cwd ];
@@ -341,56 +341,56 @@ sub expr {
     $expr =~ s/^\s+//;
     if ($expr =~ /^or/) {
       return ($v, $expr) if $lev > 1;
-      ($v2, $expr) = expr($cwd, substr($expr, 2), 1);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] || $_[1]});
+      ($v2, $expr) = expr($cwd, substr($expr, 2), 1, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] || $_[1]}, $negpol);
     } elsif ($expr =~ /^and/) {
       return ($v, $expr) if $lev > 2;
       my $cwd2 = limit($cwd, $v);
-      ($v2, $expr) = expr($cwd2, substr($expr, 3), 2);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] && $_[1]});
+      ($v2, $expr) = expr($cwd2, substr($expr, 3), 2, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] && $_[1]}, $negpol);
     } elsif ($expr =~ /^=/) {
       return ($v, $expr) if $lev > 3;
-      ($v2, $expr) = expr($cwd, substr($expr, 1), 3);
-      $v = boolop($cwd, $v, $v2, \&boolop_eq);
+      ($v2, $expr) = expr($cwd, substr($expr, 1), 3, $negpol);
+      $v = boolop($cwd, $v, $v2, \&boolop_eq, $negpol);
     } elsif ($expr =~ /^!=/) {
       return ($v, $expr) if $lev > 3;
-      ($v2, $expr) = expr($cwd, substr($expr, 2), 3);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] ne $_[1]});
+      ($v2, $expr) = expr($cwd, substr($expr, 2), 3, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] ne $_[1]}, $negpol);
     } elsif ($expr =~ /^<=/) {
       return ($v, $expr) if $lev > 3;
-      ($v2, $expr) = expr($cwd, substr($expr, 2), 3);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] <= $_[1]});
+      ($v2, $expr) = expr($cwd, substr($expr, 2), 3, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] <= $_[1]}, $negpol);
     } elsif ($expr =~ /^>=/) {
       return ($v, $expr) if $lev > 3;
-      ($v2, $expr) = expr($cwd, substr($expr, 2), 3);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] >= $_[1]});
+      ($v2, $expr) = expr($cwd, substr($expr, 2), 3, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] >= $_[1]}, $negpol);
     } elsif ($expr =~ /^</) {
       return ($v, $expr) if $lev > 3;
-      ($v2, $expr) = expr($cwd, substr($expr, 1), 3);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] < $_[1]});
+      ($v2, $expr) = expr($cwd, substr($expr, 1), 3, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] < $_[1]}, $negpol);
     } elsif ($expr =~ /^>/) {
       return ($v, $expr) if $lev > 3;
-      ($v2, $expr) = expr($cwd, substr($expr, 1), 3);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] > $_[1]});
+      ($v2, $expr) = expr($cwd, substr($expr, 1), 3, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] > $_[1]}, $negpol);
     } elsif ($expr =~ /^\+/) {
       return ($v, $expr) if $lev > 4;
-      ($v2, $expr) = expr($cwd, substr($expr, 1), 4);
+      ($v2, $expr) = expr($cwd, substr($expr, 1), 4, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] + $_[1]});
     } elsif ($expr =~ /^-/) {
       return ($v, $expr) if $lev > 4;
-      ($v2, $expr) = expr($cwd, substr($expr, 1), 4);
+      ($v2, $expr) = expr($cwd, substr($expr, 1), 4, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] - $_[1]});
     } elsif ($expr =~ /^\*/) {
       return ($v, $expr) if $lev > 5;
-      ($v2, $expr) = expr($cwd, substr($expr, 1), 5);
+      ($v2, $expr) = expr($cwd, substr($expr, 1), 5, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] * $_[1]});
     } elsif ($expr =~ /^div/) {
       return ($v, $expr) if $lev > 5;
-      ($v2, $expr) = expr($cwd, substr($expr, 3), 5);
+      ($v2, $expr) = expr($cwd, substr($expr, 3), 5, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] / $_[1]});
     } elsif ($expr =~ /^mod/) {
       return ($v, $expr) if $lev > 5;
-      ($v2, $expr) = expr($cwd, substr($expr, 3), 5);
+      ($v2, $expr) = expr($cwd, substr($expr, 3), 5, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] % $_[1]});
     } elsif ($expr =~ /^\|/) {
       die("union op not implemented yet\n");

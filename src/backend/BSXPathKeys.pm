@@ -136,11 +136,12 @@ sub toconcrete {
 }
 
 sub boolop {
-  my ($self, $v1, $v2, $op) = @_;
+  my ($self, $v1, $v2, $op, $negpol) = @_;
   if (ref($v1) ne ref($self) && ref($v2) ne ref($self)) {
     return $op->($v1, $v2) ? 'true' : '';
   }
   #print "boolop ".Dumper($v1).Dumper($v2)."---\n";
+  #print "negated!\n" if $negpol;
   if (ref($v1) eq ref($self) && ref($v2) eq ref($self)) {
     $v1 = toconcrete($v1) unless exists $v1->{'value'};
     $v2 = toconcrete($v2) unless exists $v2->{'value'};
@@ -178,9 +179,14 @@ sub boolop {
     my @k;
     if ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v1->{'path'}, $v2, $v1->{'keys'});
+      $negpol = 0;
+    } elsif (!$negpol) {
+      for my $vv ($db->values($v1->{'path'}, $v1->{'keys'})) {
+        push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'}) if $op->($vv, $v2);
+      }
     } else {
       for my $vv ($db->values($v1->{'path'}, $v1->{'keys'})) {
-	push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'}) if $op->($vv, $v2);
+        push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'}) unless $op->($vv, $v2);
       }
     }
     if ($v1->{'keys'}) {
@@ -188,8 +194,9 @@ sub boolop {
       @k = grep {$k{$_}} @k;
     }
     $v->{'keys'} = \@k;
-    $v->{'value'} = 'true';
-    $v->{'other'} = '';
+    $v->{'value'} = $negpol ? '' : 'true';
+    $v->{'other'} = $negpol ? 'true' : '';
+    #print "==> ".Dumper($v)."<===\n";
     return $v;
   }
   if (ref($v2) eq ref($self)) {
@@ -205,9 +212,14 @@ sub boolop {
     my @k;
     if ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v2->{'path'}, $v1, $v2->{'keys'});
-    } else {
+      $negpol = 0;
+    } elsif (!$negpol) {
       for my $vv ($db->values($v2->{'path'}, $v2->{'keys'})) {
 	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'}) if $op->($v1, $vv);
+      }
+    } else {
+      for my $vv ($db->values($v2->{'path'}, $v2->{'keys'})) {
+	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'}) unless $op->($v1, $vv);
       }
     }
     if ($v2->{'keys'}) {
@@ -215,8 +227,8 @@ sub boolop {
       @k = grep {$k{$_}} @k;
     }
     $v->{'keys'} = \@k;
-    $v->{'value'} = 'true';
-    $v->{'other'} = '';
+    $v->{'value'} = $negpol ? '' : 'true';
+    $v->{'other'} = $negpol ? 'true' : '';
     return $v;
   }
 }

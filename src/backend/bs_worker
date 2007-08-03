@@ -23,7 +23,7 @@
 #
 
 use Digest::MD5 ();
-use XML::Structured;
+use XML::Structured ':bytes';
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 

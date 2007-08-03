@@ -28,7 +28,7 @@ BEGIN {
 use Digest::MD5 ();
 use Data::Dumper;
 use Storable ();
-use XML::Structured;
+use XML::Structured ':bytes';
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 
@@ -593,8 +593,8 @@ sub fillpkgdescription {
   }
   return unless $hit;
   my $data = Build::query("$prp_ext/$hit", 'description' => 1);
-  $pkg->{'description'} = $data->{'description'};
-  $pkg->{'summary'} = $data->{'summary'} if defined $data->{'summary'};
+  $pkg->{'description'} = str2utf8($data->{'description'});
+  $pkg->{'summary'} = str2utf8($data->{'summary'}) if defined $data->{'summary'};
 }
 
 sub writepatterns {
@@ -664,18 +664,18 @@ sub writepatterns {
         push @repos, $r;
       }
       my @packs;
-      for my $entry (@{$pat->{'requires'}->{'rpm:entry'} || []}) {
-	next if $entry->{'kind'};
+      for my $entry (@{$pat->{'rpm:requires'}->{'rpm:entry'} || []}) {
+	next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
         push @packs, {'recommended' => 'true', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
         fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
       }
-      for my $entry (@{$pat->{'recommends'}->{'rpm:entry'} || []}) {
-	next if $entry->{'kind'};
+      for my $entry (@{$pat->{'rpm:recommends'}->{'rpm:entry'} || []}) {
+	next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
         push @packs, {'recommended' => 'true', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
         fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
       }
-      for my $entry (@{$pat->{'suggests'}->{'rpm:entry'} || []}) {
-	next if $entry->{'kind'};
+      for my $entry (@{$pat->{'rpm:suggests'}->{'rpm:entry'} || []}) {
+	next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
         push @packs, {'recommended' => 'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
         fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
       }
@@ -763,10 +763,6 @@ sub prpfinished {
   #return if $prp =~ /^KDE:KDE3/;
   print "    prp $prp is finished, creating repos (".join(', ', @$repotype).")...\n";
   my %repotype = map {$_ => 1} @$repotype;
-  local *G;
-#  open(G, '>>', "/tmp/prpfinished.log");
-#  printf G "%d %d: locking %s ...\n", $$, time(), $prp;
-#  close G;
 
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
@@ -776,18 +772,11 @@ sub prpfinished {
     print "    got the lock...\n";
   }
 
-#  open(G, '>>', "/tmp/prpfinished.log");
-#  printf G "%d %d: got lock %s ...\n", $$, time(), $prp;
-#  close G;
-
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
   my $extrep = "$extrepodir/$prp_ext";
   if (!$packs && ! -d $extrep) {
     print "    nothing to delete...\n";
-#    open(G, '>>', "/tmp/prpfinished.log");
-#    printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
-#    close G;
     close(F);
     return;
   }
@@ -934,9 +923,6 @@ sub prpfinished {
 
   if (!$changed) {
     print "    nothing changed\n";
-#    open(G, '>>', "/tmp/prpfinished.log");
-#    printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
-#    close G;
     close(F);	# release lock
     return;
   }
@@ -1045,11 +1031,11 @@ EOL
   # repository creation done, do rsync push
   if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running rsync to $1\n";
-    qsystem('echo', "$projid_ext\0", 'rsync', '-arH0', '--delete', '--files-from=-', $extrepodir, "$1::$2") && print("    rsync failed: $?\n");
+    qsystem('echo', "$prp_ext\0", 'rsync', '-arH0', '--delete', '--files-from=-', $extrepodir, "$1::$2") && print("    rsync failed: $?\n");
   }
   # push done trigger sync to other mirrors
   mkdir_p($extrepodir_sync);
-  writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
+  writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1\n";
     qsystem('rsync', '-aH', "$extrepodir_sync/$projid", "$1::$2/$projid") && print("    trigger rsync failed: $?\n");
@@ -1089,9 +1075,6 @@ EOL
       print "      $f: $@" if $@;
     }
   }
-#  open(G, '>>', "/tmp/prpfinished.log");
-#  printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
-#  close G;
   close(F);	# release lock
 }
 
@@ -1100,19 +1083,12 @@ sub prpdeleted {
   my ($prp) = @_;
   print "    prp $prp is gone\n";
   local *F;
-  local *G;
-#  open(G, '>>', "/tmp/prpfinished.log");
-#  printf G "%d %d: locking %s ...\n", $$, time(), $prp;
-#  close G;
   return unless open(F, '>', "$reporoot/$prp/.finishedlock");
   if (!flock(F, LOCK_EX | LOCK_NB)) {
     print "    waiting for lock...\n";
     flock(F, LOCK_EX) || die("flock: $!\n");
     print "    got the lock...\n";
   }
-#  open(G, '>>', "/tmp/prpfinished.log");
-#  printf G "%d %d: got lock %s ...\n", $$, time(), $prp;
-#  close G;
   my ($projid, $repoid) = split('/', $prp, 2);
   my $projid_ext = $projid;
   $projid_ext =~ s/:/:\//g;
@@ -1124,9 +1100,6 @@ sub prpdeleted {
     unlink("$reporoot/$prp/:repoinfo");
     unlink("$reporoot/$prp/.finishedlock");
     rmdir("$reporoot/$prp");
-#  open(G, '>>', "/tmp/prpfinished.log");
-#  printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
-#  close G;
     close(F);
     return;
   }
@@ -1172,7 +1145,7 @@ sub prpdeleted {
   }
   # push done trigger sync to other mirrors
   mkdir_p($extrepodir_sync);
-  writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
+  writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1\n";
     qsystem('rsync', '-aH', "$extrepodir_sync/$projid", "$1::$2/$projid") && print("    trigger rsync failed: $?\n");
@@ -1195,9 +1168,6 @@ sub prpdeleted {
   unlink("$reporoot/$prp/:repoinfo");
   unlink("$reporoot/$prp/.finishedlock");
   rmdir("$reporoot/$prp");
-#  open(G, '>>', "/tmp/prpfinished.log");
-#  printf G "%d %d: release lock %s ...\n", $$, time(), $prp;
-#  close G;
   close(F);	# release lock
 }
 

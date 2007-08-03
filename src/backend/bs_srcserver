@@ -683,7 +683,8 @@ sub getprojpack {
       my $patterns = readstr("$projectsdir/$projid.pkg/pattern-MD5SUMS", 1);
       $jinfo->{'patternmd5'} = Digest::MD5::md5_hex($patterns) if $patterns;
     }
-    my @packages = findpackages($projid);
+    my @packages;
+    @packages = findpackages($projid) unless $cgi->{'nopackages'};
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
     for (qw{title description build publish debuginfo useforbuild}) {
@@ -715,6 +716,7 @@ sub getprojpack {
       # either no repositories or all disabled. No need to check packages
       @packages = ();
     }
+    @packages = () if $cgi->{'nopackages'};
     my @pinfo;
     my %bconfs;
     for my $packid (@packages) {
@@ -1731,6 +1733,25 @@ sub postrepo {
   return ($res, $BSXML::collection);
 }
 
+sub published {
+  my ($cgi, $projid, $repoid, $arch, $filename) = @_;
+  my @args;
+  die("unknown view '$cgi->{'view'}'\n") if $cgi->{'view'} && $cgi->{'view'} ne 'ymp' && $cgi->{'view'} ne 'fileinfo';
+  push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
+  my $p = "/published";
+  $p .= "/$projid" if defined $projid;
+  $p .= "/$repoid" if defined $repoid;
+  $p .= "/$arch" if defined $arch;
+  $p .= "/$filename" if defined $filename;
+  my $param = {
+    'uri' => "$BSConfig::reposerver$p",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param, undef, @args);
+  return undef;
+}
+
 ####################################################################
 
 sub hello {
@@ -1790,8 +1811,15 @@ my $dispatches = [
   'PUT:/source/$project/$package:package_pattern/$filename rev? user:? comment:?' => \&putfile,
   'DELETE:/source/$project/$package:package_pattern/$filename rev? user:? comment:?' => \&delfile,
 
+  # /published name spec: access published binaries
+  '/published' => \&published,
+  '/published/$project' => \&published,
+  '/published/$project/$repository' => \&published,
+  '/published/$project/$repository/$arch:filename view:?' => \&published,
+  '/published/$project/$repository/$arch:filename/$filename view:?' => \&published,
+
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool?' => \&getprojpack,
 
   # worker calls
   '/getsources $project $package $srcmd5:md5' => \&getsources,

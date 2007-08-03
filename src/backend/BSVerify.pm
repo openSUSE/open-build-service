@@ -128,7 +128,7 @@ sub verify_resultview {
 sub verify_disableenable {
   my ($disen) = @_;
   for my $d (@{$disen->{'disable'} || []}, @{$disen->{'enable'} || []}) {
-    verify_repoid($d->{'reposiory'}) if exists $d->{'reposiory'};
+    verify_repoid($d->{'repository'}) if exists $d->{'repository'};
     verify_arch($d->{'arch'}) if exists $d->{'arch'};
   }
 }

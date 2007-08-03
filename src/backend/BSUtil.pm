@@ -24,10 +24,11 @@ package BSUtil;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork};
+@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8};
 
 use XML::Structured;
 use POSIX;
+use Encode;
 
 use strict;
 
@@ -131,6 +132,46 @@ sub cp {
   close(T) || die("$to: $!\n");
   if (defined($tof)) {
     rename($to, $tof) || die("rename $to $tof: $!\n");
+  }
+}
+
+sub str2utf8 {
+  my ($oct) = @_;
+  return $oct unless defined $oct;
+  eval {
+    Encode::_utf8_on($oct);
+    $oct = encode('utf-8', $oct, Encode::FB_CROAK);
+  };
+  if ($@) {
+    Encode::_utf8_off($oct);
+    $oct = encode('utf-8', $oct, Encode::FB_CROAK);
+    if ($@) {
+      Encode::_utf8_on($oct);
+      $oct = encode('utf-8', $oct, Encode::FB_XMLCREF);
+    }
+  }
+  Encode::_utf8_off($oct);
+  return $oct;
+}
+
+sub data2utf8 {
+  my ($d) = @_;
+  if (ref($d) eq 'ARRAY') {
+    for my $dd (@$d) {
+      if (ref($dd) eq '') {
+        $dd = str2utf8($dd);
+      } else {
+        data2utf8($dd);
+      }
+    }
+  } elsif (ref($d) eq 'HASH') {
+    for my $dd (keys %$d) {
+      if (ref($d->{$dd}) eq '') {
+        $d->{$dd} = str2utf8($d->{$dd});
+      } else {
+        data2utf8($d->{$dd});
+      }
+    }
   }
 }
 
