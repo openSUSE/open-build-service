@@ -1426,13 +1426,15 @@ sub fileinfo {
     data2utf8($q);
   } elsif ($filename =~ /\.ymp$/) {
     my $ymp = readxml($filepath, $BSXML::ymp, 1);
+
     if ($ymp) {
-      $q->{'name'} = $ymp->{'name'} if defined $ymp->{'name'};
-      $q->{'summary'} = $ymp->{'summary'} if defined $ymp->{'summary'};
-      $q->{'description'} = $ymp->{'description'} if defined $ymp->{'description'};
-      if ($ymp->{'packages'}) {
-        $q->{'recommends'} = [ map {$_->{'name'}} grep {$_->{'recommended'} && $_->{'recommended'} eq 'true'} @{$ymp->{'packages'}->{'package'} || []} ];
-        $q->{'suggests'} = [ map {$_->{'name'}} grep {!($_->{'recommended'} && $_->{'recommended'} eq 'true')} @{$ymp->{'packages'}->{'package'} || []} ];
+      my $g0 = $ymp->{'group'}[0];
+      $q->{'name'} = $g0->{'name'} if defined $g0->{'name'};
+      $q->{'summary'} = $g0->{'summary'} if defined $g0->{'summary'};
+      $q->{'description'} = $g0->{'description'} if defined $g0->{'description'};
+      if ($g0->{'repositories'}) {
+        $q->{'recommends'} = [ map {$_->{'name'}} grep {$_->{'recommended'} && $_->{'recommended'} eq 'true'} @{$g0->{'packages'}->{'package'} || []} ];
+        $q->{'suggests'} = [ map {$_->{'name'}} grep {!($_->{'recommended'} && $_->{'recommended'} eq 'true')} @{$g0->{'packages'}->{'package'} || []} ];
         delete $q->{'recommends'} unless @{$q->{'recommends'}};
         delete $q->{'suggests'} unless @{$q->{'suggests'}};
       }
