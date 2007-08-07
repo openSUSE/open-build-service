@@ -640,15 +640,20 @@ sub writepatterns {
     next if !exists $pat->{'uservisible'};
     if ($patterntype{'ymp'}) {
       my $ymp = {};
-      $ymp->{'xmlns:bw'} = 'http://suse.benjiweber.co.uk';
-      $ymp->{'xmlns'} = 'http://suse.benjiweber.co.uk';
-      $ymp->{'name'} = $pat->{'name'};
+      $ymp->{'xmlns:os'} = 'http://opensuse.org/Standards/One_Click_Install';
+      $ymp->{'xmlns'} = 'http://opensuse.org/Standards/One_Click_Install';
+
+      my @group;
+      my $t = {};
+      $t->{'name'} = $pat->{'name'};
       if ($pat->{'summary'}) {
-        $ymp->{'summary'} = $pat->{'summary'}->[0]->{'_content'};
+        $t->{'summary'} = $pat->{'summary'}->[0]->{'_content'};
       }
       if ($pat->{'description'}) {
-        $ymp->{'description'} = $pat->{'description'}->[0]->{'_content'};
+        $t->{'description'} = $pat->{'description'}->[0]->{'_content'};
       }
+      $ymp->{'group'} = \@group;
+
       my @repos;
       for my $sprp (@$prpsearchpath) {
         my ($sprojid, $srepoid) = split('/', $sprp, 2);
@@ -658,29 +663,38 @@ sub writepatterns {
         $r->{'name'} = $p->{'name'};
         $r->{'summary'} = $p->{'title'};
         $r->{'description'} = $p->{'description'};
-	my $sprp_ext = "$sprojid/$srepoid";
+        my $sprp_ext = "$sprojid/$srepoid";
         $sprp_ext =~ s/:/:\//g;
         $r->{'url'} = "$BSConfig::repodownload/$sprp_ext";
         push @repos, $r;
       }
-      my @packs;
-      for my $entry (@{$pat->{'rpm:requires'}->{'rpm:entry'} || []}) {
-	next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
-        push @packs, {'recommended' => 'true', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-        fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+      $t->{'repositories'} = {'repository' => \@repos };
+
+      my @products;
+      if ( 0 ) {
+        # write only the pattern, this can not work yet, since we do not export the patterns
+#        push @products, {'type' = 'pattern', 'name' => $pat->{'name'}, 'summary' => $pat->{'summary'}, 'description' => $pat->{'description'}};
+      } else {
+        # write packages instead of patterns
+        for my $entry (@{$pat->{'rpm:requires'}->{'rpm:entry'} || []}) {
+          next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
+          push @products, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+          fillpkgdescription($products[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+        }
+        for my $entry (@{$pat->{'rpm:recommends'}->{'rpm:entry'} || []}) {
+          next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
+          push @products, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+          fillpkgdescription($products[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+        }
+        for my $entry (@{$pat->{'rpm:suggests'}->{'rpm:entry'} || []}) {
+          next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
+          push @products, {'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+          fillpkgdescription($products[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+        }
       }
-      for my $entry (@{$pat->{'rpm:recommends'}->{'rpm:entry'} || []}) {
-	next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
-        push @packs, {'recommended' => 'true', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-        fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
-      }
-      for my $entry (@{$pat->{'rpm:suggests'}->{'rpm:entry'} || []}) {
-	next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
-        push @packs, {'recommended' => 'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-        fillpkgdescription($packs[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
-      }
-      $ymp->{'repos'} = {'repo' => \@repos };
-      $ymp->{'packages'} = {'package' => \@packs };
+      #
+      $t->{'products'} = {'product' => \@products };
+      push @group, $t;
 
       my $ympidx = {'type' => 'ymp'};
       $ympidx->{'name'} = $pat->{'name'};
@@ -693,7 +707,7 @@ sub writepatterns {
       my @idxpath;
       for my $sprp (@$prpsearchpath) {
         my ($sprojid, $srepoid) = split('/', $sprp, 2);
-	push @idxpath, {'project' => $sprojid, 'repository' => $srepoid};
+        push @idxpath, {'project' => $sprojid, 'repository' => $srepoid};
       }
       $ympidx->{'path'} = \@idxpath;
       my $ympname = $pattern;

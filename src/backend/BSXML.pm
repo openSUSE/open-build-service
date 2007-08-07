@@ -538,32 +538,36 @@ our $patterns = [
 ];
 
 our $ymp = [
-    'bw:metapackage' =>
-	'xmlns',
-	'xmlns:bw',
-	[],
-	'name',
-	'summary',
-	'description',
-      [ 'repos' =>
-	 [[ 'repo' =>
-		'recommended',
-		[],
-		'name',
-		'summary',
-		'description',
-		'url',
-	 ]],
-      ],
-      [ 'packages' =>
-	 [[ 'package' =>
-		'recommended',
-		[],
-		'name',
-		'summary',
-		'description',
-	 ]]
-      ],
+    'metapackage' =>
+        'xmlns:os',
+        'xmlns',
+        [],
+      [[ 'group' =>
+        [],
+        'name',
+        'summary',
+        'description',
+        [ 'repositories' =>
+         [[ 'repository' =>
+                'format',
+                'recommended',
+                [],
+                'name',
+                'summary',
+                'description',
+                'url',
+         ]],
+        ],
+        [ 'products' =>
+         [[ 'product' =>
+                'type',
+                [],
+                'name',
+                'summary',
+                'description',
+         ]]
+        ],
+      ]],
 ];
 
 our $binary_id = [
