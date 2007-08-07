@@ -107,6 +107,7 @@ class PersonController < ApplicationController
                    :errorcode => "err_register_save",
                    :details => details, :status => 500 
     else
+      IchainNotifier.deliver_approval(newuser)
       render_ok
     end
   end
