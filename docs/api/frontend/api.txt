@@ -550,7 +550,7 @@ GET /published/<project>/<repository>/<arch>/<binary>
 Result: binary
 
 
-POST /published/<project>/<repository>/<arch>/<binary>?cmd=makeymp
+GET /published/<project>/<repository>/<arch>/<binary>?view=ymp
 
   Generate an ymp pattern that includes the needed repositories to install the
   given binary
