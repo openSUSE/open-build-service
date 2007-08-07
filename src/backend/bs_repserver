@@ -1379,8 +1379,11 @@ sub makeymp {
     %nprojpack = map {$_->{'name'} => $_} @{$nprojpack->{'project'} || []};
   }
   my $ymp = {};
-  $ymp->{'xmlns:bw'} = 'http://suse.benjiweber.co.uk';
-  $ymp->{'xmlns'} = 'http://suse.benjiweber.co.uk';
+  $ymp->{'xmlns:os'} = 'http://opensuse.org/Standards/One_Click_Install';
+  $ymp->{'xmlns'} = 'http://opensuse.org/Standards/One_Click_Install';
+  my @group;
+  my $inner_group = {};
+  $ymp->{'group'} = \@group;
   my @repos;
   for my $pa (@{$repo->{'path'} || []}) {
     my $r = {};
@@ -1399,7 +1402,6 @@ sub makeymp {
     push @repos, $r;
   }
   my $pkg = {};
-  $pkg->{'recommended'} = 'true';
   $pkg->{'name'} = str2utf8($data->{'name'});
   $pkg->{'description'} = str2utf8($data->{'description'});
   if (defined $data->{'summary'}) {
@@ -1407,8 +1409,9 @@ sub makeymp {
   } else {
     $pkg->{'summary'} = "The $pkg->{'name'} package";
   }
-  $ymp->{'repos'} = {'repo' => \@repos };
-  $ymp->{'packages'} = {'package' => [$pkg]};
+  $inner_group->{'repositories'} = {'repository' => \@repos };
+  $inner_group->{'products'} = {'product' => [$pkg]};
+  push @group, $inner_group;
   my $ympxml = XMLout($BSXML::ymp, $ymp);
   return ($ympxml, "Content-Type: text/x-suse-ymp");
 }
