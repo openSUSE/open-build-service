@@ -11,7 +11,14 @@ class Unregisteredperson < ActiveXML::Base
       if opt.has_key? :email
         email = opt[:email]
       end
-      state = 5
+
+      # This is the place where we decide in which state users are created.
+      # Change the following line to 
+      #  state = 5
+      # to set the initial state of the user to unconfirmned. That means that
+      # the user can not work yet but has to wait until somebody from the admin
+      # team has acknowledged the user.
+      state = 2
       
       explain = opt[:explanation]
       
