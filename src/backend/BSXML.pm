@@ -558,8 +558,8 @@ our $ymp = [
                 'url',
          ]],
         ],
-        [ 'products' =>
-         [[ 'product' =>
+        [ 'software' =>
+         [[ 'item' =>
                 'type',
                 [],
                 'name',

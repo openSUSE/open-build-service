@@ -1410,7 +1410,7 @@ sub makeymp {
     $pkg->{'summary'} = "The $pkg->{'name'} package";
   }
   $inner_group->{'repositories'} = {'repository' => \@repos };
-  $inner_group->{'products'} = {'product' => [$pkg]};
+  $inner_group->{'software'} = {'item' => [$pkg]};
   push @group, $inner_group;
   my $ympxml = XMLout($BSXML::ymp, $ymp);
   return ($ympxml, "Content-Type: text/x-suse-ymp");

@@ -670,30 +670,30 @@ sub writepatterns {
       }
       $t->{'repositories'} = {'repository' => \@repos };
 
-      my @products;
+      my @software;
       if ( 0 ) {
         # write only the pattern, this can not work yet, since we do not export the patterns
-#        push @products, {'type' = 'pattern', 'name' => $pat->{'name'}, 'summary' => $pat->{'summary'}, 'description' => $pat->{'description'}};
+#        push @software, {'type' = 'pattern', 'name' => $pat->{'name'}, 'summary' => $pat->{'summary'}, 'description' => $pat->{'description'}};
       } else {
         # write packages instead of patterns
         for my $entry (@{$pat->{'rpm:requires'}->{'rpm:entry'} || []}) {
           next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
-          push @products, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-          fillpkgdescription($products[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+          push @software, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+          fillpkgdescription($software[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
         }
         for my $entry (@{$pat->{'rpm:recommends'}->{'rpm:entry'} || []}) {
           next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
-          push @products, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-          fillpkgdescription($products[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+          push @software, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+          fillpkgdescription($software[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
         }
         for my $entry (@{$pat->{'rpm:suggests'}->{'rpm:entry'} || []}) {
           next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
-          push @products, {'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-          fillpkgdescription($products[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+          push @software, {'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+          fillpkgdescription($software[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
         }
       }
       #
-      $t->{'products'} = {'product' => \@products };
+      $t->{'software'} = {'item' => \@software };
       push @group, $t;
 
       my $ympidx = {'type' => 'ymp'};
