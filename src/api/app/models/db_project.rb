@@ -317,11 +317,11 @@ class DbProject < ActiveRecord::Base
 
       FlagGroupType.find(:all).each do |gt|
         flaglist = ProjectFlagGroup.find_by_sql [
-          "SELECT ft.title AS flagswitch from project_flag_groups fg 
-                  LEFT JOIN flag_group_types fgt ON fg.flag_group_type_id=fgt.id 
-                  LEFT JOIN project_flags f ON f.project_flag_group_id=fgt.id 
-                  LEFT JOIN flag_types ft ON f.flag_type_id=ft.id 
-           WHERE fg.db_project_id=? AND fgt.title=? ;", self.id, gt.title ]
+          "SELECT ft.title AS flagswitch FROM project_flag_groups fg
+                  LEFT JOIN flag_group_types fgt ON fg.flag_group_type_id=fgt.id
+                  LEFT JOIN project_flags pf     ON pf.project_flag_group_id=fg.id
+                  LEFT JOIN flag_types ft        ON pf.flag_type_id=ft.id
+           WHERE fg.db_project_id=? AND fgt.title=?;" , self.id, gt.title ]
 
         if not flaglist.empty?
           project.__send__("#{gt.title}") do |u|
