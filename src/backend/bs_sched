@@ -597,7 +597,7 @@ sub fillpkgdescription {
   $pkg->{'summary'} = str2utf8($data->{'summary'}) if defined $data->{'summary'};
 }
 
-sub writepatterns {
+sub writeymps {
   my ($prp, $prpsearchpath, $projpacks, $repoinfo, $config) = @_;
   my $dir;
 
@@ -716,6 +716,7 @@ sub writepatterns {
       writexml("$extrepodir/$prp_ext/.$ympname", "$extrepodir/$prp_ext/$ympname", $ymp, $BSXML::ymp);
       $patterndb->store("$prp_ext/$ympname", $ympidx) if $patterndb;
     } else {
+      # rp-md patterns gets written now during repo generation
       my $ympname = $pattern;
       $ympname =~ s/\.xml$//;
       $ympname .= ".ymp";
@@ -930,8 +931,8 @@ sub prpfinished {
   my ($projid, $repoid) = split('/', $prp, 2);
 
   if ((($projpacks->{$projid}->{'patternmd5'} || '') ne ($repoinfo->{'patternmd5'} || '')) && @{$config->{'patterntype'} || []}) {
-    print "    updating patterns\n";
-    writepatterns($prp, $prpsearchpath, $projpacks, $repoinfo, $config);
+    print "    updating ymps\n";
+    writeymps($prp, $prpsearchpath, $projpacks, $repoinfo, $config);
     $changed = 1;
   }
 
@@ -958,13 +959,48 @@ sub prpfinished {
 
   if ($repotype{'rpm-md'}) {
     print "    running createrepo\n";
+    # cleanup files
     unlink("$extrep/repodata/repomd.xml.asc");
     unlink("$extrep/repodata/repomd.xml.key");
     unlink("$extrep/repodata/latest-feed.xml");
     unlink("$extrep/repodata/index.html");
     qsystem('rm', '-rf', "$extrep/repodata/repoview") if -d "$extrep/repodata/repoview";
     qsystem('rm', '-rf', "$extrep/repodata/.olddata") if -d "$extrep/repodata/.olddata";
-    qsystem('createrepo', $extrep) && print("    createrepo failed: $?\n");
+    qsystem('rm', '-f', "$extrep/repodata/patterns.*");
+
+    # create generic rpm-md meta data
+    # --update requires a newer createrepo version, tested with version 0.4.10
+    qsystem('createrepo', '--update', $extrep) && print("    createrepo failed: $?\n");
+
+    # create optional pattern meta data, can be used from any libzypp package manager
+    my $dir;
+    eval {
+      $dir = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern", $BSXML::dir);
+    };
+    if ($@) {
+      warn($@);
+      return;
+    }
+    my @patterns = map {$_->{'name'}} @{$dir->{'entry'} || []};
+    for my $pattern (@patterns) {
+      my $pat;
+      eval {
+        $pat = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern/$pattern", $BSXML::pattern);
+      };
+      if ($@) {
+        warn($@);
+        next;
+      }
+      print "    adding pattern $pattern\n";
+      my $patternfilename = "patterns.".$pattern;
+      $patternfilename =~ s/\.xml$//;
+      $patternfilename .= ".xml";
+      # write temp file
+      writexml("$extrep/.$patternfilename", "$extrep/$patternfilename", $pat, $BSXML::pattern);
+      qsystem('modifyrepo', "$extrep/$patternfilename", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+      # clean up temp files
+      qsystem('rm', '-f', "$extrep/$patternfilename", "$extrep/.$patternfilename");
+    }
     if ($BSConfig::repodownload) {
       print "    running repoview\n";
       qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$title", $extrep) && print("    repoview failed: $?\n");
