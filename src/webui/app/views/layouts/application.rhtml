@@ -82,7 +82,9 @@
     </form>
   </li>
 
+  <% if session[:login] -%>
   <li class="searchbox"><%= render :partial => "main/search_form" %></li>
+  <% end -%>
 
   <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
   <% if @crumb_list -%>
