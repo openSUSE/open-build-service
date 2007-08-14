@@ -28,7 +28,7 @@ function start_autoscroll() {
  autoscroll();
 }
 function autoscroll() {
-  window.scrollTo( 0, document.getElementById('log_space').clientHeight );
+  window.scrollTo( 0, document.getElementById('content').clientHeight );
   scrolldelay = setTimeout( 'autoscroll()',100 );
 }
 function stop_autoscroll() {
