@@ -1,0 +1,60 @@
+<table id="outer_flag_table" class="grid">
+	<tr>
+		<th></th>
+		<th>All Arch.</th>
+		<% @project.architectures.each do |arch| %>
+			<th>
+				<%=h arch %>
+			</th>
+		<% end %>
+	</tr>
+	<tr>
+		<td>
+			All Rep.
+		</td>
+		<td>
+			<% buildflag = @project.buildflags["all::all".to_sym] %>
+			<% publishflag = @project.publishflags["all::all".to_sym] %>
+			<%= puts "\n ALL bf \n" %>
+			<%= render :partial => "inner_flag_table", :locals => {:buildflag => buildflag, :publishflag => publishflag} %>
+		</td>
+		
+		<% for i in 0..@project.architectures.size-1 do %>
+			<td>
+			<!-- inner table -->
+			<% buildflag = @project.buildflags["all::#{@project.architectures[i]}".to_sym] %>
+			<% publishflag = @project.publishflags["all::#{@project.architectures[i]}".to_sym] %>
+			<%= puts "\n ARCH bf \n" %>
+			<%= render :partial => "inner_flag_table", :locals => {:buildflag => buildflag, :publishflag => publishflag} %>
+			</td>
+		<% end %>
+		
+	</tr>
+	
+	<!-- renders each line in flag table, excepting the 'all' row -->
+	<% @project.each_repository do |repo| %>
+	<tr>
+		<td>
+			<%=h repo.name %>
+		</td>
+		<td><!-- all-row -->
+			<% buildflag = @project.buildflags["#{repo.name}::all".to_sym] %>
+			<% publishflag = @project.publishflags["#{repo.name}::all".to_sym] %>
+			<%= render :partial => "inner_flag_table", :locals => {:buildflag => buildflag, :publishflag => publishflag} %>
+		</td>
+		<% for i in 0..@project.architectures.size-1 do %>
+			<td>
+				<!-- inner table -->
+				<%	buildflag = @project.buildflags["#{repo.name}::#{@project.architectures[i]}".to_sym]
+					publishflag = @project.publishflags["#{repo.name}::#{@project.architectures[i]}".to_sym]
+					if buildflag.nil? or publishflag.nil? %>
+					n/a
+				<%	else %>
+					<%= render :partial => "inner_flag_table", :locals => {:buildflag => buildflag, :publishflag => publishflag} %>	
+				<%	end %>
+			</td>
+		<% end %>	
+	</tr>	
+	<% end %>
+	
+</table>

@@ -1,0 +1,35 @@
+<table id="inner_flag_table">
+	<tr>
+		<td>
+			<span id="<%="#{buildflag.name}_#{buildflag.id}"%>" >
+				<%= render :partial => "flag_status", :locals => {:flag => buildflag} %>
+			</span>
+		</td>
+		<td>
+			<span id="<%="#{publishflag.name}_#{publishflag.id}"%>">
+				<%= render :partial => "flag_status", :locals => {:flag => publishflag} %>
+			</span>
+		</td>
+	</tr>
+<!--	<tr>
+		<td>
+			UFB
+		</td>
+		<td>
+			D
+		</td>
+	</tr> -->
+
+</table>
+
+<!--
+
+
+
+		<td><%#= check_box("publish", "flag", {}, "yes", "no") %></td>
+		<td>Publish!</td>
+		
+		
+				<td><%#= check_box("useforbuild", "flag", {}, "yes", "no") %></td>
+		<td>Use for build!</td>
+		-->

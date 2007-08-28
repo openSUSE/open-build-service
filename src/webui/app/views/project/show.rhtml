@@ -8,7 +8,7 @@
 ]
 -%>
 <table>
-  <tr><li id="error_message" style="display:none;"</li></tr>
+  <tr><li id="error_message" style="display:none;"></li></tr>
   <tr>
     <td><h2><%=h @project.title %> (<%=h @project -%>)</h2></td>
     <td>
@@ -49,134 +49,25 @@
 <table id="project-layout">
   <tr>
     <td>
+		<!-- Tags -->
+	    <%= render :partial => "tags" %>
+	    <!-- Category  Selection -->
+		<%= render :partial => "category_selection" %>
+	    <!-- Involved users -->
+	    <%= render :partial => "involved_users" %>
+		<!-- Flags -->
+		<%#= render :partial => "flags" %>
+	</td>
 
-    <%= render :partial => "tags" %>
-
-
-      <!-- Category  Selection -->
-      <div class="section" id="category">
-        <h3>Category</h3>
-        <i>coming soon</i>
-      </div>
-
-
-      <!-- Involved users -->
-      <div class="section" id="contacts">
-        <h3>
-          Involved Users
-          <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
-          :action => :add_person, :project => @project %>
-        </h3>
-        <% if @project.has_element? :person -%>
-        <dl>
-          <dt>Maintainers</dt>
-          <% @project.each_person do |person| -%>
-          <dd>
-          <%=h person.userid -%>
-          <%= link_to(
-            image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
-            'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE build service' ) -%>
-          <%- if @project.each_person.length > 1 %>
-          <%= link_to "[x]",
-          {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
-          {:confirm => "Really remove user '#{person.userid}'?", :class => "x"}%>
-          <%- end %>
-          <% end #each_person -%>
-          </dd>
-        </dl>
-        <% else -%>
-        <b>No maintainer in this project</b>
-        <% end #if has_element? person -%>
-        <p><%= link_to "[Add User]", :action => :add_person, :project => @project %></p>
-      </div>
+    <td>
+	    <!-- Package table -->
+		<%= render :partial => "package_table" %>
     </td>
 
     <td>
-      <!-- Package table -->
-      <h3>
-        Packages
-        <%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Package' ),
-        :controller => 'package', :action => :new, :project => @project %>
-      </h3>
-     <% if @packages.length.to_i > 0 -%>
-
-     <% if @packages.length.to_i > 10 || params[:filter_active] -%>
-       <%= render :partial => 'filter_packages' %>
-     <% end %>
-
-      <div id="search_results">
-      <table class="grid">
-        <% @packages.each do |package| -%>
-        <tr>
-          <td><%= link_to package, :controller => 'package', :action => :show,
-            :project=> @project, :package => package %></td>
-          <!-- remove link disabled
-          <td><%= link_to "[Remove]", {:controller => 'package', :action => :remove,
-            :project => @project, :package => package}, {:confirm => "Really remove package '#{package}'?", :class => 'x'} %></td>
-          -->
-        </tr>
-        <% end #each_entry %>
-      </table>
-      </div>
-      <% end #count > 0 -%>
-      <p>
-      <%= link_to "[Add Package]", :controller => 'package', :action => :new,
-      :project => @project %>
-      </p>
-      <p>
-      <%= link_to "[Link Package from other Project]", :controller => 'package',
-      :action => :new_link, :project => @project %>
-      </p>
-
+	    <!-- Repository table -->
+		<%= render :partial => "repository_table" %>
     </td>
-
-
-    <td>
-      <!-- Repository table -->
-      <h3>
-        Build Repositories
-        <%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Repository' ),
-        :action => 'add_target_simple', :project => @project %>
-      </h3>
-      <% if @project.has_element? :repository -%>
-      <table class="grid targets">
-        <tr class="header">
-          <th>Name</th>
-          <% @arch_list.each do |arch| -%>
-          <th><%=h arch %></th>
-          <% end -%>
-          <th>Action</th>
-        </tr>
-        <% @project.each_repository do |repo| -%>
-        <tr class="target">
-          <th>
-            <strong><%=h repo.name %></strong>
-            <% begin -%>
-            <% repo.each_path do |path| -%>
-            <%=h path.project+"/"+path.repository %><br/>
-            <% end -%>
-            <% rescue; end %>
-            <%=  link_to 'Goto Repository', repo_url( @project.name, repo.name ) -%>
-          </th>
-          <% @arch_list.each do |arch| -%>
-          <td><%= format_packstatus_for( repo.name, arch )%></td>
-          <% end -%>
-          <td><%= link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
-                                      {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} %></td>
-        </tr>
-        <% end #each_repository -%>
-      </table>
-
-      <% end #has_element? -%>
-      <p><%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %></p>
-      
-      <% if @packages.length > 0 and @project.has_element?(:repository) -%>
-      <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
-      <% else -%>
-      <p><i>Add packages/repositories to enable the build monitor</i></p>
-      <% end -%>
-
-    </td>
-
+  </tr>
 </table>
 </div>
