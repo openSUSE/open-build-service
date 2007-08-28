@@ -93,12 +93,6 @@ class PackageController < ApplicationController
 
         @buildresult = Buildresult.find( :project => project, :package => package, :view => ['status', 'binarylist'] )
 
-        @archs = []
-        @project.each_repository do |repo|
-          repo.each_arch do |arch|
-            @archs << arch.to_s if not @archs.include? arch.to_s
-          end
-        end
         @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
         @rating = Rating.find( :project => @project, :package => @package )
       end
@@ -744,8 +738,35 @@ class PackageController < ApplicationController
   end
 
 
+	def flags_for_experts
+		@package = Package.find(params[:package], :project => params[:project])	
+		#render :template => "flags_for_experts"
+	end	
+	
+	
+	# update package flags
+	def update_flag
+		begin
+			#the flag matrix will also be initialized on access, so we can work on it
+			@package = Package.find(params[:package], :project => params[:project])				
+			if @package.complex_flag_configuration? params[:flag_name]
+				raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
+			end 		
 
+			@package.replace_flags(params)
+		rescue RuntimeError => exception
+			@error = exception
+			logger.debug "[PACKAGE:] Flag-Update-Error: flag configuration is rejected to be saved because of its complexity."
+		rescue  ActiveXML::Transport::Error => exception
+			#rescue_action_in_public exception
+			@error = exception
+			logger.debug "[PACKAGE:] Flag-Update-Error: #{@error}"
+		end				
 
+		@flag = @package.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
+	end
+
+	
   private
 
   def get_files( project, package )
