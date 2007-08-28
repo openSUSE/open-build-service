@@ -2,6 +2,12 @@
 i386:
   id: 1
   name: i386
+  selectable: 1
 x86_64:
   id: 2
   name: x86_64
+  selectable: 1
+ppc:
+  id: 3
+  name: ppc
+  selectable: 0

@@ -1,0 +1,81 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+first_build_flag_for_project_home_tscholz:
+  id: 1
+  status: "disabled"
+  repo: "10.2"
+  architecture_id: 1
+  db_project_id: 502
+  type: BuildFlag
+  position: 1
+  
+second_build_flag_for_project_home_tscholz:
+  id: 2
+  status: "disabled"
+  repo: "10.2"
+  architecture_id: 2
+  db_project_id: 502
+  type: BuildFlag	
+  position: 2
+  
+first_build_flag_for_package_TestPack:
+  id: 3
+  status: "enabled"
+  repo: "10.2"
+  architecture_id: 1
+  db_package_id: 10095
+  type: BuildFlag	
+  position: 1
+
+first_publish_flag_for_project_home_tscholz:
+  id: 4
+  status: "disabled"
+  repo: "10.2"
+  architecture_id: 2
+  db_project_id: 502
+  type: "PublishFlag"
+  position: 1	
+  
+second_publish_flag_for_project_home_tscholz:
+  id: 5
+  status: "enabled"
+  repo: "10.2"
+  architecture_id: 1
+  db_project_id: 502
+  type: "PublishFlag"
+  position: 2	
+		
+first_publish_flag_for_package_TestPack:
+  id: 6
+  status: "enabled"
+  repo: "10.2"
+  architecture_id: 2
+  db_package_id: 10095
+  type: "PublishFlag"
+  position: 1
+  
+first_debug_flag_for_project_home_tscholz:
+  id: 7
+  status: "disabled"
+  repo: "10.2"
+  architecture_id: 1
+  db_project_id: 502
+  type: "DebugFlag"
+  position: 1	
+  
+second_debug_flag_for_project_home_tscholz:
+  id: 8
+  status: "enabled"
+  repo: "10.2"
+  architecture_id: 2
+  db_project_id: 502
+  type: "DebugFlag"
+  position: 2	
+		
+first_debug_flag_for_package_TestPack:
+  id: 9
+  status: "enabled"
+  repo: "10.2"
+  architecture_id: 2
+  db_package_id: 10095
+  type: "DebugFlag"
+  position: 1
