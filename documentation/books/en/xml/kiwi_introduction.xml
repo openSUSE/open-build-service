@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.docbook.org/xml/4.4/docbookx.dtd"
+[
+ <!ENTITY % entities SYSTEM "entity-decl.ent">
+ %entities;
+]>
+
+<!--
+ ***************************************************
+ Please see license.xml for this document's license.
+ ***************************************************
+-->
+
+<sect1 id="sec.kiwi.introduction" xml:base="kiwi_introduction.xml">
+ <title>Introduction</title>
+ <abstract>
+  <para>
+   The OpenSuSE KIWI Image System provides a complete operating system image
+   solution for Linux supported hardware platforms as well as for
+   virtualisation systems like Xen. The KIWI architecture is designed as a two
+   stage system. The first stage, based on a valid <emphasis>software package
+    source</emphasis>, creates a so called <emphasis>physical
+    extend</emphasis> as provided by an image description. The second stage
+   creates an operating system image from the physical extend . The result of
+   that second stage is called a <emphasis>logical extend</emphasis> or
+   operating system image.
+  </para>
+ </abstract>
+ <sect2 id="sec.kiwi.introduction.concept">
+  <title>Concept</title>
+  <para>
+   The first stage created by KIWI, the physical extend, requires a valid
+   software package source, a so-called repository, in order to access the
+   software to build a system. A repository consists of software packages,
+   organized in a package tree that also includes some meta data. Software
+   repositories can exist in different formats, therefore KIWI uses the Smart
+   Package Manager, which handles the most important repository formats, to
+   access them. More information on smart is available at <ulink
+    url="http://labix.org/smart"/>.
+  </para>
+  <para>
+   The second stage&mdash;creating an operating system image&mdash;takes place
+   without user interaction. Therefore all the necessary information needs to
+   be created prior to the image building process. An image description tree
+   stores all these information needed to create an image (see <xref
+    linkend="sec.kiwi.introduction"/> for details).
+  </para>
+  <tip>
+   <title>Operating System Images</title>
+   <para>
+    A regular installation process is starting from an installation image and
+    installs single pieces of software until the system is complete. Normally
+    such an installation process is interactive - the user is able to alter
+    installation settings and configuration options. Contrary to that, an
+    operating system image represents an already completed installation
+    encapsulated as a file and optionally includes the configuration for a
+    specific task. Such an operating system starts working as soon as the
+    image has been installed to a system storage device (no matter if this is
+    a volatile or non volatile storage device). An operating system image is
+    deployed <quote>as is</quote>&mdash;no user interaction is possible.
+   </para>
+  </tip>
+  <figure id="fig.kiwi.introduction.concept.architecture">
+   <title> Image Serving Architecture</title>
+   <mediaobject>
+    <imageobject role="fo">
+     <imagedata width="75%" fileref="intro.svg" format="SVG"/>
+    </imageobject>
+    <imageobject role="html">
+     <imagedata width="75%" fileref="intro.png" format="PNG"/>
+    </imageobject>
+   </mediaobject> 
+  </figure>
+  <para>
+   Because this document contains conceptual information about an image
+   system, it is important to understand what an operating system image is all
+   about. A normal installation process is starting from a given installation
+   source and installs single pieces of software until the system is complete.
+   During this process there may be manual user intervention required. However
+   an operating system image represents an already completed
+   <emphasis>installation</emphasis> encapsulated as a file and optionally
+   includes the configuration for a specific task. Such an operating system
+   starts working as soon as the image has been brought to a system storage
+   device no matter if this is a volatile or non volatile storage. The process
+   of creating an image takes place without user interaction. This means all
+   requirements of the encapsulated system has to be fulfilled before the
+   image is created. According to this the so called <emphasis>image
+    description tree</emphasis> stores all the information needed to create an
+   image.
+  </para>
+ </sect2>
+ <sect2 id="sec.kiwi.introduction.image_types">
+  <title>Supported Image Types</title>
+  <para>
+   To create a logical extend it is necessary to create a filesystem the
+   operating system data can be stored in. The image type corresponds to the
+   selected filesystem. Supported image types are:
+  </para>
+  <variablelist>
+   <varlistentry>
+    <term> CPIO</term>
+    <listitem>
+     <para></para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>EXT2 / EXT3</term>
+    <listitem>
+     <para></para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>ReiserFS</term>
+    <listitem>
+     <para></para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>CramFS</term>
+    <listitem>
+     <para>
+      for the read-only part of <emphasis>split</emphasis> images only
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Special cpio/ext2 Boot image</term>
+    <listitem>
+     <para>
+      for image installation via network
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Special cpio/ext2 XEN-Boot image</term>
+    <listitem>
+     <para>
+      based on the Xen kernel and <filename>mboot.c32</filename> for
+      multiboot of Xen plus <filename>initrd</filename> (kiwi boot image)
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Special cpio/ext2 ISO-Boot image</term>
+    <listitem>
+     <para>
+      to create a kiwi boot image for booting a live CD system image. Used in
+      combination with the <varname>iso</varname>: image type
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Special cpio/ext2 USB-Boot image</term>
+    <listitem>
+     <para>
+      to create a kiwi boot image for booting a USB stick system image. Used
+      in combination with the <varname>usb</varname>: image type
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>Special cpio/ext2 VMX-Boot image</term>
+    <listitem>
+     <para>
+      to create a kiwi boot image for booting a virtual machine system image.
+      This is <emphasis>not</emphasis> used for paravirtualized machines like
+      Xen but rather for full virtual machines like QEMU and VMware. Used in
+      combination with the <varname>vmx</varname>: image type
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>
+     iso:<replaceable>&lt;boot-image-name&gt;</replaceable> image support
+    </term>
+    <listitem>
+     <para>
+      LiveCD/DVD system image, which means the image gets splitted into two
+      ext2 based sub-images with one representing the loop read-only part on
+      CD and the other representing the read-write data in RAM
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>
+     usb:<replaceable>&lt;fstype&gt;</replaceable>:<replaceable>&lt;boot-image-name&gt;</replaceable>
+    </term>
+    <listitem>
+     <para>
+      USB stick system image, which means the system image and the boot image
+      will be created automatically. To deploy the image on the stick the
+      <option>-bootstick</option> option can be used.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>
+     vmx:<replaceable>&lt;fstype&gt;</replaceable>:<replaceable>&lt;boot-image-name&gt;</replaceable>
+    </term>
+    <listitem>
+     <para>
+      Virtual machine system image, which means a virtual disk will be
+      created including boot manager boot image and system image to be used
+      within qemu (<filename>.qemu</filename> file) or vmware player
+      (<filename>.vmdk</filename> file)
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>
+     xen:<replaceable>&lt;fstype&gt;</replaceable>:<replaceable>&lt;boot-image-name&gt;</replaceable>
+    </term>
+    <listitem>
+     <para>
+      Xen machine system image, which means an image plus boot image will be
+      created including the Xen configuration to start the image.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>
+     pxe:<replaceable>&lt;fstype&gt;</replaceable>:<replaceable>&lt;boot-image-name&gt;</replaceable>
+    </term>
+    <listitem>
+     <para>
+      PXE system image, which means an image plus boot image will be created.
+      Additionally one can add a deploy section into the config.xml which is
+      used to created the
+      <filename>config.<replaceable>&lt;MAC&gt;</replaceable></filename> file
+      for the pxe network deployment of this image
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term>
+     split:<replaceable>&lt;fstypeRW,fstypeRO&gt;</replaceable> image
+     support
+    </term>
+    <listitem>
+     <para>
+      The image is splitted into a read-only and a read-write part; each part
+      can have a different filesystem. To be able to boot such an image, the
+      <filename>config.&lt;MAC&gt;</filename> file must contain a
+      <literal>COMBINED_IMAGE=yes</literal> statement.
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </sect2>
+</sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+coding:utf-8
+mode:xml
+sgml-indent-step:1
+sgml-omittag:nil
+sgml-shorttag:nil
+End:
+-->

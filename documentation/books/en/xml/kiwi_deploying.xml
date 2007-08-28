@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.docbook.org/xml/4.4/docbookx.dtd"
+[
+ <!ENTITY % entities SYSTEM "entity-decl.ent">
+ %entities;
+]>
+
+<!--
+ ***************************************************
+ Please see license.xml for this document's license.
+ ***************************************************
+-->
+
+<sect1 id="sec.kiwi.deploying" xml:base="kiwi_deploying.xml">
+ <title>Deployment of Operating System Images</title>
+ <abstract>
+  <para>
+   Creating an operating system image always implies the question how to
+   activate the image on the target system. As there are many possible targets
+   the so called image deployment higly depends on the system environment. If
+   a customer buys a product for example SLEPOS the system environment is
+   given and it is required to take care for the rules to successfully deploy
+   the image. On the one hand this makes it easy for customers to control a
+   complex system but on the other hand one will loose the flexibility to use
+   the same system in another environment.
+  </para>
+  <para>
+   kiwi doesn't stick to a specific system environment but therefore it leaves
+   out important tasks concerning the deployment architecture. So to say kiwi
+   is an image creator but it doesn't setup the deployment infrastructure.
+   This chapter provides information about the different possibilities to
+   deploy an image and how kiwi fits into this picture.
+  </para>
+ </abstract>
+ <sect2 id="sec.kiwi.deploying.net_pxe">
+  <title>Deploying via Network Using the PXE Protocol</title>
+  <para>
+   PXE is a boot protocol mostly implemented in todays BIOS's or boot ROMs of
+   some network cards. If activated it broadcasts the network for a DHCP to
+   obtain an IP address and the information where to find a TFTP server to
+   manage file transfers. If such a server exists the second stage bootloader
+   controls the subsequently boot process. Using PXE with kiwi requires the
+   infrastructure explained in section FIXME \ref{section:tftpstruct} and a
+   TFTP server as well as a DHCP server running. kiwi provides the package
+   <systemitem>kiwi-pxeboot</systemitem> which setup the boot structure and
+   installs some prebuild boot images.
+  </para>
+  <para>
+   If the plan is to use a system image for which no prebuild boot image
+   exist, it is needed to create a custom boot image before a system image
+   could be deployed. Boot images consists of the image itself and the
+   appropriate kernel to that image. Both file must be stored in the directory
+   <filename>/var/lib/tftpboot/boot</filename>. Assuming there is no prebuild
+   boot image for the openSuSE 10.2 distribution the steps to create it are as
+   follows:
+  </para>
+<screen>
+cd /usr/share/kiwi/image
+kiwi --prepare netboot/suse-10.2 --root /tmp/myroot
+kiwi --create /tmp/myroot -d /tmp</screen>
+  <para>
+   The result of this example is created in the /tmp<filename></filename>
+   directory:
+  </para>
+<screen>
+ls -1 /tmp/initrd-netboot*
+   /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz
+   /tmp/initrd-netboot-suse-10.2.i686-2.1.1.kernel.2.6.18.2-31-default</screen>
+  <para>
+   If you don't want to prepare/create the boot image manually you can let
+   kiwi do the job by setting up the <literal>pxe</literal> type in your
+   system image <filename>config.xml</filename> file. For example:
+  </para>
+<screen>
+&lt;preferences&gt;
+  &lt;type filesystem="ext3" boot="netboot/suse-10.2"&gt;pxe&lt;/type&gt;
+  ...
+&lt;/preferences&gt;</screen>
+  <para>
+   In this case the boot image will be created automatically and from the same
+   source as the system image as soon as the \textbf{creation} step is
+   performed for the system image.
+  </para>
+  <para>
+   The next step is to make the boot image known to the TFTP server. To do
+   this the files must be copied to the
+   <filename>/var/lib/tftpboot/boot</filename>} directory. Optionally they can
+   be renamed. For the following example the boot image is renamed to
+   <filename>initrd</filename> and the boot kernel is renamed to
+   <filename>linux</filename>.
+  </para>
+<screen>
+cp initrd-netboot.i686-2.1.1.gz /var/lib/tftpboot/boot/initrd
+cp initrd-netboot.i686-2.1.1.kernel.2.6.18.2-31-default \
+  /var/lib/tftpboot/boot/linux</screen>
+  <para>
+   Switching on the target machine, which needs to run PXE by default, will
+   load the linux kernel and the kiwi created initrd. The initrd will register
+   the machine if there is no configuration found in
+   <filename>/var/lib/tftpboot/KIWI</filename>. Registration means a file
+   including the MAC address of the machine is uploaded into the directory
+   <filename>/var/lib/tftpboot/upload</filename>. For information about
+   creating the configuration refer to section FIXME \ref{section:confmac}.
+   The following example configuration fits for a machine including a disk on
+   <filename>/dev/sda</filename>:
+  </para>
+<screen>
+IMAGE=/dev/sda2;full-suse-10.2.i686;1.1.2;192.168.100.2;4096
+PART=1024;S;x,x;L;/
+DISK=/dev/sda</screen>
+  <para>
+   According to this configuration the kiwi boot image will try to download a
+   system image named <filename>full-suse-10.2.i686-1.1.2</filename> from the
+   TFTP server with IP address 192.168.100.2. On the TFTP server the system
+   images are stored in <filename>/var/lib/tftpboot/image</filename>. The boot
+   image will prepare the disk and create a 1GB swap partition and another
+   full size linux partition. The process of creating this full-suse-10.2
+   image can be done by using kiwi. Once the boot image has successfully
+   downloaded the system image it is getting activated and operates as
+   configured. 
+  </para>
+  <sect3 id="sec.kiwi.deploying.net_pxe.tftp">
+   <title>Deploying via TFTP with Initial Boot from CD or USB Stick</title>
+   <para>
+    Sometimes it is not possible to use PXE as boot protocol. This could
+    happen if the target machine doesn't support PXE or the installed network
+    card doesn't provide a PXE boot rom. Preconditioned your network provides
+    a DHCP and a TFTP server the problem can be solved by storing the boot
+    image on another bootable medium like a CD or an USB stick. Referring to
+    the information from the section above it is easy to create a bootable CD
+    / USB stick with kiwi:
+   </para>
+<screen>
+kiwi --bootcd /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
+   <para>
+    The command will create a bootable ISO image which only needs to be burned
+    on a CD. The following file will be created after the call:
+    <filename>/tmp/initrd-netboot-suse-10.2.i686-2.1.1.cdboot.iso</filename>.
+   </para>
+   <para>Plug in an USB stick then call:</para>
+<screen>
+kiwi --bootstick /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
+   <para>
+    The command will create a bootable USB stick. kiwi is searching for the
+    USB stick plugged in before and lists all devices found. The user needs to
+    select one of the devices by typing one of the suggested device names. It
+    is important to be careful at that stage because all data on the given
+    device will be lost. Because of this reason the user has to type the
+    device name which hopefully increases the chance not to do something
+    thoughtlessly.
+   </para>
+  </sect3>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.cd">
+  <title>Installation on a Client via CD</title>
+  <para>
+   If there is no network infrastructure available a client can only receive
+   the system image from a storage media like a CD or an USB stick. This
+   section explains how to create a CD with kiwi which supports system image
+   installation to the storage device of the client. The following steps needs
+   to be processed:
+  </para>
+  <procedure>
+   <step>
+    <para>
+     Create the boot image which takes over the task of installing the system
+     image. For that purpose kiwi provides the
+     <systemitem>isoinstboot</systemitem> boot image type.
+    </para>
+   </step>
+   <step>
+    <para>
+     Next step is creating the system image which should make it on the
+     client. The boot and the system image package source should be the same.
+     The system image description requires a <literal>deploy</literal> section
+     within the <filename>config.xml</filename> file. The deploy section
+     describes how the clients storage device should be partitioned and which
+     device is the root device for the later image.
+    </para>
+   </step>
+   <step>
+    <para>
+     Last step is to create an .iso file together with the boot- and
+      system image. Therefore call kiwi like the following example:
+    </para>
+<screen>
+kiwi --installcd bootImageName --installcd-system systemImageName</screen>
+   </step>
+  </procedure>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.client_usb">
+  <title>Installation on a Client via USB Stick</title>
+  <para>*** not yet implemented ***</para>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.split_pxe">
+  <title>Split image system via PXE</title>
+  <para>
+   kiwi supports system images to be splitted into two parts, a read-only part
+   and a read-write part. This allows to put data on different filesystems
+   which is mostly used to have read-only data available on a compressed
+   filesystem like cramfs or squasfs. Please note that almost all compressed
+   filesystems available have some kind of restrictions which needs attention
+   before starting to use it in an image.
+  </para>
+  <para>
+   To turn a system image into a split image only the type of the image must
+   be adapted. This information is part of the <filename>config.xml</filename>
+   file and could be changed like the following example shows:
+  </para>
+<screen>
+&lt;preferences&gt;
+  &lt;type filesystem="ext3,cramfs"&gt;split&lt;/type&gt;
+  ...
+&lt;/preferences&gt;</screen>
+  <para>
+   Creating an image from this description results in two image files whereas
+   one of them will contain the <literal>-read-only</literal> extension in its
+   name. Ay one may imagine booting such an image always requires a boot
+   process which must be able to bring both images together again. Because of
+   this, split images can only deployed in combination with one of the kiwi
+   boot images.
+  </para>
+  <para>
+   To deploy the image only PXE or a boot CD / USB-stick can be used. The most
+   important part while making use of split images is the configuration for
+   the target machine. More information on this config.MAC file can be found
+   in section FIXME \ref{section:confmac}. In case of a split image the
+   following information must be provided:
+  </para>
+  <itemizedlist>
+   <listitem>
+    <para>
+     The <varname>IMAGE</varname> key must contain both images the read-write
+     and the read-only image. The read-write image must appear as first entry
+     in the list.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     The <varname>PART</varname> key has to specifiy a partition table with at
+     least three partitions. A swap partition and two system partitions which
+     provides enough space for the first and the second image portion
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     The Option <varname>COMBINED_IMAGE</varname> to tell the boot image to
+     combine both images into one entire system
+    </para>
+   </listitem>
+  </itemizedlist>
+  <para>
+   The following example shows the configuration of a split image named
+   minimal-10.1 / minimal-10.1-read-only
+  </para>
+<screen>
+IMAGE=/dev/sda2;minimal-10.1.i686;1.1.2;192.168.100.2;4096,\
+      /dev/sda3;minimal-10.1-read-only.i686;1.1.2;192.168.100.2;4096
+PART=200;S;x,500;L;/,x;L;
+DISK=/dev/sda
+COMBINED_IMAGE=yes</screen>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.nfs">
+  <title>
+   Deploying via Network Using an NFS Mounted <systemitem>root</systemitem>
+   System
+  </title>
+  <para>
+   In principal kiwi was designed to upload an image onto a client in
+   different ways but out there you will find diskless machines as well. Those
+   devices doesn't provide permanent storage and rely on the network. The most
+   oft used process to activate such terminals is to NFS mount the system
+   image via the network. kiwi supports that as well but it additionally
+   requires a terminal server configuration which needs to export the system
+   image using a NFS server. The following steps needs to be performed in
+   order to activate a diskless station:
+  </para>
+  <procedure>
+   <step>
+    <para>
+     Prepare the system image using
+    </para>
+<screen>kiwi --root /tmp/kiwi.nfsroot --prepare ...</screen>
+   </step>
+   <step>
+    <para>
+     Setup an NFS server which exports the
+     <filename>/tmp/kiwi.nfsroot</filename> path. The following export options
+     in <filename>/etc/exports</filename> are recommended:
+    </para>
+<screen>
+/tmp/kiwi.nfsroot  *(rw,no\_root\_squash,sync,no\_subtree\_check)</screen>
+   </step>
+   <step>
+    <para>
+     Create an appropriate netboot boot image (<filename>initrd</filename>)
+     with kiwi. Appropriate means the package repository for the system image
+     and the netboot image must be the same
+    </para>
+   </step>
+   <step>
+    <para>
+     Copy the boot image/kernel to the PXE server in
+     <filename>/var/lib/tftpboot/boot</filename> The package<systemitem>
+      kiwi-pxeboot</systemitem> helps you in setting up the PXE/TFTP server.
+    </para>
+   </step>
+   <step>
+    <para>
+     Create a
+     <filename>config.<replaceable>&lt;MAC&gt;</replaceable></filename> file
+     in <filename>/var/lib/tftpboot/KIWI</filename> with the following
+     contents:
+    </para>
+<screen>NFSROOT=129.168.100.7;/tmp/kiwi.nfsroot</screen>
+   </step>
+   <step>
+    <para>
+     Boot the client. If everything works the client will receive the boot
+     image and kernel via PXE/TFTP. The boot image NFS mounts the system image
+     according to the data in
+     <filename>config.<replaceable>&lt;MAC&gt;</replaceable></filename>. After
+     that the mounted root filesystem will be activated.  
+    </para>
+   </step>
+  </procedure>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.usb">
+  <title>USB stick system</title>
+  <para>
+   A very popular method is storing complete operating systems on an USB
+   stick. This means not only the boot image and the kernel is stored on the
+   stick but also the entire system image is part of the stick. To be able to
+   do this kiwi provides special boot image(s) located in
+   <filename>/usr/share/kiwi/image/usbboot</filename>. Currently it is tested
+   and available for SuSE Linux 10.2 only but can be adapted to other versions
+   as well. To use your system image on a boot stick setup the system's
+   <filename>config.xml</filename> as follows:
+  </para>
+<screen>
+&lt;preferences&gt;
+  &lt;type filesystem="ext3" boot="usbboot/suse-10.2"&gt;usb&lt;/type&gt;
+  ...
+&lt;/preferences&gt;</screen>
+  <para>
+   After this the boot and system image needs to be created. Concerning to the
+   size of the stick the image is not allowed to grow beyond it. Assuming the
+   system image is named full-suse-10.2 the command is as follows:
+  </para>
+<screen>
+kiwi --prepare full-suse-10.2 --root /tmp/mysystem
+kiwi --create /tmp/mysystem -d /tmp</screen>
+  <para>
+   The result of the command above is represented in the image file
+   <filename>/tmp/full-suse-10.2.i686-1.1.2</filename>. The usbboot image is
+   created automatically and is stored as
+   <filename>/tmp/initrd-usbboot-suse-10.2.i686-2.1.1.gz</filename>. To create
+   a bootable stick with a SuSE Linux 10.2 operating system on it, plug in the
+   stick and call:
+  </para>
+<screen>
+kiwi --bootstick /tmp/initrd-usbboot-suse-10.2.i686-2.1.1.gz \
+     --bootstick-system /tmp/full-suse-10.2.i686-1.1.2</screen>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.virtula">
+  <title>Virtual disk system (QEMU or VMware)</title>
+  <para>
+   To be able to use a virtualization system a virtual disk needs to be
+   created. This can be done by specifying the following type in the system's
+   image <filename>config.xml</filename>:
+  </para>
+<screen>
+&lt;preferences&gt;
+  &lt;type filesystem="ext3" boot="vmxboot/suse-10.2"&gt;vmx&lt;/type&gt;
+  ...
+&lt;/preferences&gt;</screen>
+  <para>
+   After this the system image can be created. The process will create the
+   system image and the specified vmxboot/suse-10.2 boot image. The result is
+   then used to create the virtual disk. The following command needs to be
+   called:
+  </para>
+<screen>
+kiwi --prepare full-suse-10.2 --root /tmp/mysystem
+kiwi --create /tmp/mysystem -d /tmp</screen>
+  <para>
+   The result of the command above is a set of virtual disks, one with suffix
+   <filename>.qemu</filename> (QEMU) and the other with the suffix
+   <filename>.vmdk</filename> (VMware). To run the system on the virtual disk
+   with for example qemu call:
+  </para>
+<screen>
+qemu /tmp/full-suse-10.2.i686-1.1.2.qemu</screen>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.xen">
+  <title>Para Virtual Image for Xen</title>
+  <para>
+   To be able to use an image within Xen a system image and an
+   <filename>initrd</filename> file needs to be created. This can be done by
+   specifying the following type in the system's image
+   <filename>config.xml</filename>:
+  </para>
+<screen>
+&lt;preferences&gt;
+  &lt;type filesystem="ext3" boot="xenboot/suse-10.2"&gt;xen&lt;/type&gt;
+  ...
+&lt;/preferences&gt;</screen>
+  <para>
+   After this the system image can be created. The process will create the
+   system image and the specified xenboot/suse-10.2 boot image. Additionally
+   an appropriate Xen configuration file will be created. The config file will
+   use the <filename>.xenconfig</filename> suffix. The following command needs
+   to be called:
+  </para>
+<screen>
+kiwi --prepare full-suse-10.2 --root /tmp/mysystem
+kiwi --create /tmp/mysystem -d /tmp</screen>
+  <para>
+   To run the system within Xen one need to call:
+  </para>
+<screen>
+xm create -c /tmp/full-suse-10.2.i686-1.1.2.xenconfig
+</screen>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.live">
+  <title>Live CD system</title>
+  <para>
+   Normally an image will be installed on a disk or into the main memory of a
+   computer. This is done by a deployment architecture which transfers the
+   image via a boot image into its final destination. such a boot image can
+   also exist on a CD. The task of the CD-Boot image is to setup a system
+   which is divided into two parts:
+  </para>
+  <itemizedlist>
+   <listitem>
+    <para>
+     Read-Only part which is obtained from the CD
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     Read/Write part which is pushed into main memory
+    </para>
+   </listitem>
+  </itemizedlist>
+  <para>
+   An image which works partially on disk and partially on RAM is called a
+   live CD system. The CD-Boot structure of KIWI will put the directories
+   <filename>/bin</filename>, <filename>/boot</filename>,
+   <filename>/lib</filename>, <filename>/opt</filename>,
+   <filename>/sbin</filename> and <filename>/usr</filename> on the CD and the
+   rest into the main memory of the system.
+  </para>
+  <sect3 id="sec.kiwi.deploying.live.setup">
+   <title>How to Setup an Image as Live CD</title>
+   <para>
+    To create an .iso image which can be burned on CD you only need to specify
+    the boot image which should handle your live system. This is done by
+    setting the <literal>type</literal> of the image in the
+    <filename>config.xml</filename> file as follows:
+   </para>
+<screen>
+&lt;preferences&gt;
+  &lt;type boot="isoboot/suse-10.3"&gt;iso&lt;/type&gt;
+  ...
+&lt;/preferences&gt;</screen>
+   <para>
+    The attribute <literal>boot</literal> refers to the CD boot image which
+    must exist in <filename>/usr/share/kiwi/image/isoboot</filename>. Like for
+    all boot images the most important point is that the boot image has to
+    match the operating system image. This means the kernel of the boot- and
+    operating system image must be the same. If there is no boot image which
+    matches you need to create your own boot image description. A good
+    starting point for this is to use an existing boot image and adapt it to
+    your needs.
+   </para>
+  </sect3>
+  <sect3 id="sec.kiwi.deploying.live.work">
+   <title>How does the Boot Image Work</title>
+   <para>
+    The boot process from a CD works in five steps:
+   </para>
+   <orderedlist>
+    <listitem>
+     <para>
+      After the image has been prepared which means a physical extend
+      exists the process of building the logical extend will split
+      the physical part into two physical extends:
+     </para>
+     <itemizedlist>
+      <listitem>
+       <para>
+	read/write extend which is loaded into RAM
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+	read-only extend consisting of the data stored in the
+	<filename>/bin</filename>, <filename>/boot</filename>,
+	<filename>/lib</filename>, <filename>/opt</filename>,
+	<filename>/sbin</filename> and <filename>/usr</filename> directories
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+    <listitem>
+     <para>
+      From the two physical extends kiwi will create two
+      <systemitem>ext2</systemitem> based logical images.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Next kiwi prepares and creates in one step the boot image given as the
+      type of the image configuration file <filename>config.xml</filename>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Next kiwi will setup the CD directory structure and copy all image and
+      kernel files as well as the isolinux data into this directory tree.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      At last kiwi calls the <filename>isolinux.sh</filename> script provided
+      by the ISO boot image to create an .iso file from the CD directory tree.
+     </para>
+    </listitem>
+   </orderedlist>
+  </sect3>
+ </sect2>
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+coding:utf-8
+mode:xml
+sgml-indent-step:1
+sgml-omittag:nil
+sgml-shorttag:nil
+End:
+-->

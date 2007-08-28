@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.docbook.org/xml/4.4/docbookx.dtd"
+[
+ <!ENTITY % entities SYSTEM "entity-decl.ent">
+ %entities;
+]>
+
+<!--
+ ***************************************************
+ Please see license.xml for this document's license.
+ ***************************************************
+-->
+
+<sect1 id="sec.kiwi.introduction" xml:base="kiwi_introduction.xml">
+ <title>Image Building with KIWI</title>
+ <remark role="clarify">fs 2007-03-27: Why two steps?</remark>
+ <abstract>
+  <para>
+   The OpenSuSE KIWI Image System provides a complete operating system image
+   solution for Linux supported hardware platforms as well as for
+   virtualisation systems like Xen. The KIWI architecture is designed as a two
+   stage system. The first stage, based on a valid <emphasis>software package
+    source</emphasis>, creates a so called <emphasis>physical extend</emphasis>
+   as provided by an image description. The second stage creates an operating
+   system image from the physical extend . The result of that second stage is
+   called a <emphasis>logical extend</emphasis> or operating system image.
+  </para>
+ </abstract>
+ <sect2 id="sec.kiwi.introduction.concept">
+  <title>Concept</title>
+  <remark role="clarify">fs 2007-03-27: ...some metadata...? Could you be more
+   specific? Two or three examples for repository formats would be
+   good. What happens when creating a physical extend? What's the difference
+   between physical and logical extend?</remark>
+  <para>
+   The first stage created by KIWI, the physical extend, requires a valid
+   software package source, a so-called repository, in order to access the
+   software to build a system. A repository consists of software packages,
+   organized in a package tree that also includes some meta data. Software
+   repositories can exist in different formats, therefore KIWI uses the Smart
+   Package Manager, which handles the most important repository formats, to
+   access them. More information on smart is available at <ulink
+    url="http://labix.org/smart"/>.
+  </para>
+  <para>
+   The second stage&mdash;creating an operating system image&mdash;takes place
+   without user interaction. Therefore all the necessary information needs to
+   be created prior to the image building process. An image description tree
+   stores all these information needed to create an image (see <xref
+    linkend="sec.kiwi.introduction.image_tree"/> for details).
+  </para>
+  <figure id="fig.kiwi.introduction.concept.architecture">
+   <title> Image Serving Architecture</title>
+   <mediaobject>
+    <imageobject role="fo">
+     <imagedata width="75%" fileref="intro.svg" format="SVG"/>
+    </imageobject>
+    <imageobject role="html">
+     <imagedata width="75%" fileref="intro.png" format="PNG"/>
+    </imageobject>
+   </mediaobject> 
+  </figure> 
+  <tip>
+   <title>Operating System Images</title>
+   <para>
+    A regular installation process is starting from an installation image and
+    installs single pieces of software until the system is complete. Contrary
+    to that, an operating system image represents an already completed
+    installation encapsulated as a file and optionally includes the
+    configuration for a specific task. Such an operating system starts working
+    as soon as the image has been installed to a system storage device (no
+    matter if this is a volatile or non volatile storage device).
+   </para>
+  </tip>
+  <sect3 id="sec.kiwi.introduction.concept.formats">
+   <title>Supported image types</title>
+   <remark role="clarify">fs 2007-03-27: maybe we need to explain what the
+    identifier in &lt;...&gt; mean - are these parameters that are replaced by
+    some random text?</remark>
+   <para>
+    To create a logical extend it is necessary to create a filesystem the
+    operating system data can be stored on. The image type corresponds to the
+    selected filesystem. Supported image types are:
+   </para>
+   <variablelist>
+    <varlistentry>
+     <term> CPIO</term>
+     <listitem>
+      <para></para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>EXT2 / EXT3</term>
+     <listitem>
+      <para></para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>ReiserFS</term>
+     <listitem>
+      <para></para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>CramFS</term>
+     <listitem>
+      <para>
+       for the read-only part of <emphasis>split</emphasis> images only
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>Special cpio/ext2 Boot image</term>
+     <listitem>
+      <para>
+       for image installation via network
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>Special cpio/ext2 XEN-Boot image</term>
+     <listitem>
+      <para>
+       based on the Xen kernel and mboot.c32 for multiboot of xen plus initrd
+       (kiwi boot image)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>Special cpio/ext2 ISO-Boot image</term>
+     <listitem>
+      <para>
+       to create a kiwi boot image for booting a live CD system image. Used in
+       combination with the iso: image type
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>Special cpio/ext2 USB-Boot image</term>
+     <listitem>
+      <para>
+       to create a kiwi boot image for booting a USB stick system image. Used
+       in combination with the usb: image type
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>Special cpio/ext2 VMX-Boot image</term>
+     <listitem>
+      <para>
+       to create a kiwi boot image for booting a virtual machine system image.
+       This is not used for paravirtualized machines like Xen but rather for
+       full virtual machines like QEMU and VMware. Used in combination with the
+       vmx: image type
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term> iso:&lt;boot-image-name&gt; image support</term>
+     <listitem>
+      <para>
+       LiveCD/DVD system image, which means the image gets splitted into two
+       ext2 based sub-images with one representing the loop read-only part on
+       CD and the other representing the read-write data in RAM
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term> usb:&lt;fstype&gt;:&lt;boot-image-name&gt;</term>
+     <listitem>
+      <remark role="clarify">fs 2007-03-27: When, where and with what command
+       can the option -bootstick be used?</remark>
+      <para>
+       USB stick system image, which means the system image and the boot image
+       will be created automatically. To deploy the image on the stick the
+       <option>-bootstick</option> option can be used.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term> vmx:&lt;fstype&gt;:&lt;boot-image-name&gt;</term>
+     <listitem>
+      <para>
+       Virtual machine system image, which means a virtual disk will be created
+       including boot manager boot image and system image to be used within
+       qemu (.qemu file) or vmware player (.vmdk file)
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>xen:&lt;fstype&gt;:&lt;boot-image-name&gt;</term>
+     <listitem>
+      <para>
+       Xen machine system image, which means an image plus boot image will be
+       created including the Xen configuration to start the image.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term> split:&lt;fstypeRW,fstypeRO&gt; image support</term>
+     <listitem>
+      <remark role="clarify">fs 2007-03-27: What is a config.MAC file and where
+      can it be found?</remark>
+      <para>
+       The image is splitted into a read-only and a read-write part; each part
+       can have a different filesystem. To be able to boot such an image, the
+       config.&lt;MAC&gt; file must contain a
+       <literal>COMBINED_IMAGE=yes</literal> statement.
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </sect3>
+ </sect2>
+ <sect2 id="sec.kiwi.introduction.creating_images">
+  <title>Creating Operating System Images</title>
+  <remark role="clarify">fs 2007-03-27: The whole document does not describe
+   how to actually create an image. So this chapter should include a
+   step-by-step guide how to do this, e.g.: 1. Creating a physical extend 1.1
+   Setting up a repository (details in xxx), 1.2. Run ommand xyz with
+   parameters, .... 2. Create a logical extend 2.1. Setting up an image tree
+   (as described in bla), 2.2. ...</remark>
+  <para></para>
+ </sect2>
+ <sect2 id="sec.kiwi.introduction.image_tree">
+  <title>Setting up an Image Description Tree</title>
+  <para>
+   The creation of operating system images from a physical extend is based on
+   image description trees. An image description tree contains a set of files
+   in a certain directory structure that are required to generate an image
+   using kiwi.pl. An image description tree is organized as follows:
+  </para>
+<screen>
+ |
+ |- cdboot/
+ |   |- isolinux/
+ |   |  |
+ |   |  |- images
+ |   |  |- messages
+ |   |  |- translations
+ |   |- isolinux.cfg
+ |   |- isolinux.sh
+ | 
+ |- config/
+ |  |
+ |  |- some optional files/directories
+ |
+ |- config.sh
+ |- config-yast.xml
+ |- config.xml
+ |- images.sh
+ |- root/
+ |  |
+ |  |- some optional files/directories
+</screen>
+  <sect3 id="sec.kiwi.introduction.image_tree.cdboot">
+   <title><filename>cdboot/</filename></title>
+   <para>
+    An optional directory containing information required by the isolinux boot
+    loader. This includes the <filename>isolinux.cfg</filename> configuration
+    file, the <filename>isolinux/</filename> directory containing images,
+    messages and translation files for the boot screen. In addition the
+    <filename>isolinux.sh</filename> build script needs to be provided. It
+    creates an ISO image from a prebuild CD tree based upon the configuration
+    from  <filename>isolinux.cfg</filename>. This directory is only needed when
+    creating a bootable CD.
+   </para>
+  </sect3>
+  <sect3 id="sec.kiwi.introduction.image_tree.config">
+   <title><filename>config/</filename></title>
+   <remark role="clarify">fs 2007-03-27: is "bash" scripts correct? Why not
+    "shell" scripts? The last sentence "The name..." makes no sense at all -
+    whatsmore, nothing the like is explained in the config.xml section</remark>
+   <para>
+    An optional subdirectory that contains bash scripts that are called after
+    the installation of all image packages, for example to remove parts of a
+    package that are not needed for the operating system. The name of the bash
+    scripts must resemble the package name listed in the config.xml
+   </para>
+  </sect3>
+  <sect3 id="sec.kiwi.introduction.image_tree.config_sh">
+   <title><filename>config.sh</filename></title>
+   <remark role="clarify">fs 2007-03-27: Unfortunately this section makes no
+    sense to me. Why physiacl extend? What are the package scripts? "The call
+    ist not made until...." does this mean "The script is not run
+    until...?</remark>
+   <para>
+    Optional configuration script while creating the physical extend. This
+    script is called at the end of the installation but before the package
+    scripts have run. It is designed to configure the image system, such as the
+    activation or deactivation of certain services (insserv). The call is not
+    made until after the switch to the image has been made with chroot.
+   </para>
+  </sect3>
+  <sect3 id="sec.kiwi.introduction.image_tree.config-yast">
+   <title><filename>config-yast.xml</filename></title>
+   <para>
+    Optional &ay; configuration file. To generate such a file, check
+    <guimenu>Clone This System for &ay;</guimenu> during the installation of
+    &productreg;. This creates a ready-to-use profile as
+    <filename>/root/autoinst.xml</filename> that can be used to create clones
+    of this particular installation. To create an autoinstallation file from
+    scratch or to edit an existing one, use the &yast; module
+    <guimenu>Autoinstallation</guimenu>.
+   </para>
+   <para>
+    Copy the &ay; configuration file, <filename>/root/autoinst.xml</filename>
+    to <filename>config-yast.xml</filename> in your image description
+    directory. KIWI processes this file and creates an image that will
+    automatically configure the system according to the information provided by
+    &ay;.
+   </para>
+  </sect3>
+  <sect3 id="sec.kiwi.introduction.image_tree.config_xml">
+   <title><filename>config.xml</filename></title>
+   <para>
+    The main configuration file, defining image type, base name, options, and
+    the package list.
+   </para>
+<screen>
+&lt;image name="Name" inherit="optional path"&gt;<co id="co.kiwi.config.image"/>
+   &lt;description type="boot|system"&gt;<co id="co.kiwi.config.description"/>
+       &lt;author&gt;Author&lt;/author&gt;
+       &lt;contact&gt;Contact&lt;/contact&gt;
+       &lt;specification&gt;Specification&lt;/specification&gt;
+   &lt;/description&gt;
+   &lt;preferences&gt;<co id="co.kiwi.config.preferences"/>
+       &lt;type&gt;Type&lt;/type&gt;
+       &lt;version&gt;version&lt;/version&gt;
+       &lt;size unit="unit"&gt;size&lt;/size&gt;
+       &lt;packagemanager&gt;name&lt;/packagemanager&gt;
+       &lt;compressed&gt;Yes|No&lt;/compressed&gt;
+   &lt;/preferences&gt;
+   &lt;users group="groupname"&gt;<co id="co.kiwi.config.users"/>
+       &lt;user name="user" pwd="word" home="dir"/&gt;
+   &lt;/users&gt;
+   &lt;drivers type="type"&gt;<co id="co.kiwi.config.drivers"/>
+       &lt;file name="filename"/&gt;
+   &lt;/drivers&gt;
+   &lt;repository type="type"&gt;<co id="co.kiwi.config.repository"/>
+       &lt;source path="url"/&gt;
+   &lt;/repository&gt;
+   &lt;packages type="type"&gt;<co id="co.kiwi.config.type"/>
+       &lt;package name="packagename" arch="arch"/&gt;
+       &lt;opensusePattern name="patternname"/&gt;
+       &lt;ignore name="packagename"/&gt;
+   &lt;/packages&gt;
+&lt;/image&gt;
+</screen>
+   <calloutlist>
+    <callout arearefs="co.kiwi.config.image">
+     <remark role="clarify">fs 2007-03-27: What is the "directory in which
+      the description files for this image are located" and what are the
+      description files? What is "package information"?</remark>
+     <para>
+      The image tag contains the attribute <literal>name</literal> to indicate
+      the base name of the image. It is automatically expanded using the
+      version number and the current date. The version number is extracted from
+      the directory in which the description files for this image are located.
+      The optional attribute <literal>inherit</literal> takes a path to another
+      kiwi description. If set, the system will prepend the package information
+      from that description to the current one.
+     </para>
+    </callout>
+   </calloutlist>
+   </sect3>
+ </sect2>
+</sect1>
+<!-- Keep this comment at the end of the file
+Local variables:
+coding:utf-8
+mode:xml
+sgml-indent-step:1
+sgml-omittag:nil
+sgml-shorttag:nil
+End:
+-->
