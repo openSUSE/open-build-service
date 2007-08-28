@@ -1,0 +1,27 @@
+<% image = title = ""
+		
+	if flag.explicit_set?	
+        if flag.disabled?
+          image = "build_disabled.png"
+          title = "#{flag.name} disabled"
+		else
+          image = "build_enabled.png"
+          title = "#{flag.name} enabled"
+        end
+	else
+		if flag.disabled?
+          image = "build_disabled_grey.png"
+          title = "#{flag.name} disabled, through #{flag.implicit_setter.description}"
+		else
+          image = "build_enabled_grey.png"
+          title = "#{flag.name} enabled, through #{flag.implicit_setter.description}"
+        end
+	end
+%>     
+
+<%=
+    link_to_remote image_tag(image,:title => title, :border => 0),
+      :url => { :action => "update_flag", :project => @package.my_project, :package => @package,
+				 :flag_name => flag.name, :repo => flag.repository, :arch => flag.architecture,
+				 :status => flag.status, :flag_id => flag.id  }
+%>
