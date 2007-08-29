@@ -1,8 +1,8 @@
-ENV["RAILS_ENV"] = "test" 
-require File.expand_path(File.dirname(__FILE__) + "/../config/environment") 
-require 'application' 
-require 'test/unit' 
-require 'action_controller/test_process' 
+ENV["RAILS_ENV"] = "test"
+require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
+require 'application'
+require 'test/unit'
+require 'action_controller/test_process'
 require 'breakpoint'
 
 class UnitTest
@@ -35,7 +35,7 @@ end
 #     instance.id = attributes[:id] if attributes[:id] #the id attributes works differently on active record classes
 #     instance
 #   end
-#      
+#
 #      protected
 #   def columns attributes
 #     attributes.keys.collect{|attribute| column attribute.to_s, attributes[attribute]}
@@ -44,10 +44,10 @@ end
 #   def column column_name, value
 #     ActiveRecord::ConnectionAdapters::Column.new(
 #  column_name, nil,
-#  ActiveRecordUnitTestHelper.active_record_type(value.class), 
+#  ActiveRecordUnitTestHelper.active_record_type(value.class),
 #  false)
 #   end
-#  
+#
 #   def self.active_record_type klass
 #     return case klass.name
 #       when "Fixnum"         then "integer"
@@ -58,9 +58,9 @@ end
 #       when "Object"         then "boolean"
 #     end
 #   end
-# 	end
-# 
-# 	def disconnected klass
-#		ActiveRecordUnitTestHelper.new(klass)
-#	end
+#   end
+#
+#   def disconnected klass
+#    ActiveRecordUnitTestHelper.new(klass)
+#  end
 #end

@@ -1,81 +1,81 @@
 class Package < ActiveXML::Base
   belongs_to :project
- 
-	#cache variables
-	@@my_pro = nil
-	attr_accessor :my_architectures
-	
-	attr_accessor :build_flags
-	attr_accessor :publish_flags
-	
-	attr_accessor :bf_updated;	@bf_updated = false
-	attr_accessor :pf_updated;	@pf_updated = false	
-	
-	
-	def initialize(*args)
-		super(*args)
-	end
-	
-	# accessor method, because class variables are private to a class and its instances ;)
-	def my_project
-		@@my_pro ||= {self.project.to_sym => Project.find(self.project) }
-		return @@my_pro[self.project.to_sym]
-	end
 
-	
-	#TODO untested!!!!
-	#TODO same function as in project
-	def complex_flag_configuration? ( flagtype )
-		
-		unless self.has_element? flagtype.to_sym
-			return false
-		end
-		
-		flag_hash = Hash.new
-		#iterates over the package.xml
-		self.send(flagtype).each do |flag|
-			arch = ( (flag.arch if flag.has_attribute? :arch) or 'all' )
-			repo = ( (flag.repository if flag.has_attribute? :repository) or 'all' )			
-			return true if flag_hash["#{repo}::#{arch}".to_sym] == true
-			flag_hash.merge! "#{repo}::#{arch}".to_sym => true
-		end
-		return false	
-	end
-	
-	
-	def set_buildflags(flags_as_hash)
-		self.build_flags = flags_as_hash
-	end
-	
-	
-	def set_publishflags(flags_as_hash)
-		self.publish_flags = flags_as_hash
-	end
-	
-	
-	def buildflags
-		unless self.bf_updated == true or not self.build_flags.nil?
-			self.bf_updated = true
-			create_flag_matrix(:flagtype => 'build')
-			update_flag_matrix(:flagtype => 'build')	
-		end	
-	
-		return build_flags
-	end
-	
-	#TODO: publish flags occur only in projects, use this for other flags ;)
-	def publishflags
-		unless self.pf_updated == true or not self.publish_flags.nil?
-			self.pf_updated = true
-			create_flag_matrix(:flagtype => 'publish')
-			update_flag_matrix(:flagtype => 'publish')	
-		end	
-		
-		return publish_flags
-	end	
-	
-	
-		
+  #cache variables
+  @@my_pro = nil
+  attr_accessor :my_architectures
+
+  attr_accessor :build_flags
+  attr_accessor :publish_flags
+
+  attr_accessor :bf_updated;  @bf_updated = false
+  attr_accessor :pf_updated;  @pf_updated = false
+
+
+  def initialize(*args)
+    super(*args)
+  end
+
+  # accessor method, because class variables are private to a class and its instances ;)
+  def my_project
+    @@my_pro ||= {self.project.to_sym => Project.find(self.project) }
+    return @@my_pro[self.project.to_sym]
+  end
+
+
+  #TODO untested!!!!
+  #TODO same function as in project
+  def complex_flag_configuration? ( flagtype )
+
+    unless self.has_element? flagtype.to_sym
+      return false
+    end
+
+    flag_hash = Hash.new
+    #iterates over the package.xml
+    self.send(flagtype).each do |flag|
+      arch = ( (flag.arch if flag.has_attribute? :arch) or 'all' )
+      repo = ( (flag.repository if flag.has_attribute? :repository) or 'all' )
+      return true if flag_hash["#{repo}::#{arch}".to_sym] == true
+      flag_hash.merge! "#{repo}::#{arch}".to_sym => true
+    end
+    return false
+  end
+
+
+  def set_buildflags(flags_as_hash)
+    self.build_flags = flags_as_hash
+  end
+
+
+  def set_publishflags(flags_as_hash)
+    self.publish_flags = flags_as_hash
+  end
+
+
+  def buildflags
+    unless self.bf_updated == true or not self.build_flags.nil?
+      self.bf_updated = true
+      create_flag_matrix(:flagtype => 'build')
+      update_flag_matrix(:flagtype => 'build')
+    end
+
+    return build_flags
+  end
+
+  #TODO: publish flags occur only in projects, use this for other flags ;)
+  def publishflags
+    unless self.pf_updated == true or not self.publish_flags.nil?
+      self.pf_updated = true
+      create_flag_matrix(:flagtype => 'publish')
+      update_flag_matrix(:flagtype => 'publish')
+    end
+
+    return publish_flags
+  end
+
+
+
   def to_s
     name.to_s
   end
@@ -86,10 +86,10 @@ class Package < ActiveXML::Base
     logger.debug "storing file: #{file.inspect}"
 
     put_opt = Hash.new
-    put_opt[:package] = self.name    
+    put_opt[:package] = self.name
     put_opt[:project] = @init_options[:project]
     put_opt[:filename] = opt[:filename]
-   
+
     fc = FrontendCompat.new
     fc.put_file file.read, put_opt
     true
@@ -97,12 +97,12 @@ class Package < ActiveXML::Base
 
   def remove_file( name )
     delete_opt = Hash.new
-    delete_opt[:package] = self.name    
+    delete_opt[:package] = self.name
     delete_opt[:project] = @init_options[:project]
     delete_opt[:filename] = name
 
     FrontendCompat.new.delete_file delete_opt
-    
+
     true
   end
 
@@ -197,212 +197,212 @@ class Package < ActiveXML::Base
     end
     save
   end
-	
-	
-	#get all architectures used in the project
-	#TODO could/should be optimized... somehow...here are many possibilities
-	#eg. object attribute, ...
-	def architectures
-		return my_project.architectures
-	end
-	
-	
-	#get all repositories
-	def repositories
-		return self.my_project.repositories
-	end	
-	
-	
-	def create_flag_matrix( opts={} )
-		flagtype = opts[:flagtype]
-		logger.debug "[PACKAGE-FLAGS] Creating flag matrix for flagtype: #{flagtype}"
-		
-		flags = Hash.new
 
-		key = 'all::all'
-		
-		df = Flag.new
-		df.id = key
-		df.name = "#{flagtype}"
-		df.description = 'package default'
-		df.architecture = nil
-		df.repository = nil
-		df.status = 'default'						
-		df.explicit = false
-		df.set_implicit_setters( self.my_project.send("#{flagtype}flags")[key.to_sym] )
-			
-		value = df
 
-		flags.merge! key.to_sym => value
-			
-		#get repositories and architectures
-		self.repositories.each do |repo|
-			#generate repo::all flags and set the default
-			key = repo.name + '::all'
-			
-			rdf = Flag.new
-			rdf.id = key
-			rdf.name = "#{flagtype}"
-			rdf.description = 'package repository default'
-			rdf.architecture = nil
-			rdf.repository = repo.name
-			rdf.status = 'default'
-			rdf.explicit = false
-			rdf.set_implicit_setters( flags['all::all'.to_sym],  self.my_project.send("#{flagtype}flags")[key.to_sym] )
-			
-			value = rdf
-			flags.merge! key.to_sym => value
-			
-			#set defaults for each architecture
-			repo.each_arch do |arch|
-				unless flags.keys.include? "all::#{arch.to_s}".to_sym
-					key = 'all::' + arch.to_s
-					
-					adf = Flag.new
-					adf.id = key
-					adf.name = "#{flagtype}"
-					adf.description = 'package architecture default'
-					adf.architecture = arch.to_s
-					adf.repository = nil
-					adf.status = 'default'
-					adf.explicit = false
-					#adf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )						
-					adf.set_implicit_setters( flags['all::all'.to_sym], self.my_project.send("#{flagtype}flags")[key.to_sym] )
-					
-					value = adf
-					flags.merge! key.to_sym => value
-				end #end unless
-				
-				#set defaults for each other flags
-				unless flags.keys.include? "#{repo}::#{arch}".to_sym
-					key = repo.name.to_s + '::' + arch.to_s
-					
-					adf = Flag.new
-					adf.id = key
-					adf.name = "#{flagtype}"
-					adf.description = 'package flag'
-					adf.architecture = arch.to_s
-					adf.repository = repo.name
-					adf.status = 'default'
-					adf.explicit = false
-							
-					firstflag = flags["#{repo.name}::all".to_sym]
-					secondflag = flags["all::#{arch.to_s}".to_sym]
-					
-					thirdflag	= flags["all::all".to_sym] 
-					forthflag = self.my_project.send("#{flagtype}flags")[key.to_sym]
-							
-					adf.set_implicit_setters( firstflag, secondflag, thirdflag, forthflag	)							
-									
-					value = adf
+  #get all architectures used in the project
+  #TODO could/should be optimized... somehow...here are many possibilities
+  #eg. object attribute, ...
+  def architectures
+    return my_project.architectures
+  end
 
-					flags.merge! key.to_sym => value
-				end
-			end
-		end	
 
-				
-		ft = "set_"+"#{flagtype}"+"flags"
-		self.send ft.to_sym , flags
-		logger.debug "[PACKAGE-FLAGS] Creation done."
-	end
-	
-	
-	#TODO beim repository loeschen muessen auch die flags aktualisiert werden!!!
-	def update_flag_matrix(opts={})
-		flagtype = opts[:flagtype]
-		
-		logger.debug "[PACKAGE-FLAGS] Updating flag matrix for flagtype: #{flagtype}"
-	
-		return unless self.has_element? flagtype.to_sym
-		self.send(flagtype).each do |elem|
-			key = nil
-			value = nil
-			if elem.has_attribute? :repository and elem.has_attribute? :arch
-				key = elem.repository.to_s + '::' + elem.arch.to_s
-				f = self.send("#{flagtype}flags")[key.to_sym]
-				f.repository = elem.repository
-				f.architecture = elem.arch.to_s
-				f.status = elem.element_name
-				f.explicit = true
-				value = f	
-			elsif elem.has_attribute? :repository
-				key	=	elem.repository.to_s + '::all' 
-				f = self.send("#{flagtype}flags")[key.to_sym]
-				f.description = 'package repository default'
-				f.repository = elem.repository
-				f.architecture = nil
-				f.status = elem.element_name		
-				f.explicit = true		
-				value =	f
-			elsif elem.has_attribute? :arch
-				key = 'all::' + elem.arch.to_s
-				f = self.send("#{flagtype}flags")[key.to_sym]
-				f.description = 'package architecture default'
-				f.repository = nil
-				f.architecture = elem.arch.to_s
-				f.status = elem.element_name	
-				f.explicit = true			
-				value =	f
-			else
-				#dickes default
-				key = 'all::all'
-				f = self.send("#{flagtype}flags")[key.to_sym]
-				f.description = 'package default'
-				f.repository = nil
-				f.architecture = nil
-				f.status = elem.element_name
-				f.explicit = true				
-				value =	f			
-			end
-		end
-		logger.debug "[PACKAGE-FLAGS] Update done."
-	end
-		
+  #get all repositories
+  def repositories
+    return self.my_project.repositories
+  end
 
-	def replace_flags( opts )
-		#get the altered flag and toggle its status 
-		flag = self.send("#{opts[:flag_name]}"+"flags")[opts[:flag_id].to_sym]
-		flag.toggle_status				
-		
-		#create new flag section from the flag matrix
-		flags_xml = REXML::Element.new(flag.name)
-		#add only flags which are set explicit
-		self.send("#{flag.name}flags").values.each do |flag|
-			flags_xml.add_element flag.to_xml if flag.explicit_set?
-		end			
-		
-		if  self.has_element? flag.name.to_sym
-			#split package xml after the flags (from the current type)
-			second_part = self.split_data_after flag.name.to_sym					
-			
-			#remove old flag section from xml
-			self.delete_element(flag.name)	
-			
-			#and add the new flag section
-			self.add_element(flags_xml)
-			
-			#merge whole project xml
-			self.merge_data second_part				
-			
-		else
-			#simply add the flag section
-			
-			#split package xml after the persons
-			second_part = self.split_data_after :person
-			
-			#add the new flag section
-			self.add_element(flags_xml)				
-			
-			#merge whole project xml
-			self.merge_data second_part						
-		end
-		
-		self.save
-		
-	end
-		
-	
+
+  def create_flag_matrix( opts={} )
+    flagtype = opts[:flagtype]
+    logger.debug "[PACKAGE-FLAGS] Creating flag matrix for flagtype: #{flagtype}"
+
+    flags = Hash.new
+
+    key = 'all::all'
+
+    df = Flag.new
+    df.id = key
+    df.name = "#{flagtype}"
+    df.description = 'package default'
+    df.architecture = nil
+    df.repository = nil
+    df.status = 'default'
+    df.explicit = false
+    df.set_implicit_setters( self.my_project.send("#{flagtype}flags")[key.to_sym] )
+
+    value = df
+
+    flags.merge! key.to_sym => value
+
+    #get repositories and architectures
+    self.repositories.each do |repo|
+      #generate repo::all flags and set the default
+      key = repo.name + '::all'
+
+      rdf = Flag.new
+      rdf.id = key
+      rdf.name = "#{flagtype}"
+      rdf.description = 'package repository default'
+      rdf.architecture = nil
+      rdf.repository = repo.name
+      rdf.status = 'default'
+      rdf.explicit = false
+      rdf.set_implicit_setters( flags['all::all'.to_sym],  self.my_project.send("#{flagtype}flags")[key.to_sym] )
+
+      value = rdf
+      flags.merge! key.to_sym => value
+
+      #set defaults for each architecture
+      repo.each_arch do |arch|
+        unless flags.keys.include? "all::#{arch.to_s}".to_sym
+          key = 'all::' + arch.to_s
+
+          adf = Flag.new
+          adf.id = key
+          adf.name = "#{flagtype}"
+          adf.description = 'package architecture default'
+          adf.architecture = arch.to_s
+          adf.repository = nil
+          adf.status = 'default'
+          adf.explicit = false
+          #adf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
+          adf.set_implicit_setters( flags['all::all'.to_sym], self.my_project.send("#{flagtype}flags")[key.to_sym] )
+
+          value = adf
+          flags.merge! key.to_sym => value
+        end #end unless
+
+        #set defaults for each other flags
+        unless flags.keys.include? "#{repo}::#{arch}".to_sym
+          key = repo.name.to_s + '::' + arch.to_s
+
+          adf = Flag.new
+          adf.id = key
+          adf.name = "#{flagtype}"
+          adf.description = 'package flag'
+          adf.architecture = arch.to_s
+          adf.repository = repo.name
+          adf.status = 'default'
+          adf.explicit = false
+
+          firstflag = flags["#{repo.name}::all".to_sym]
+          secondflag = flags["all::#{arch.to_s}".to_sym]
+
+          thirdflag  = flags["all::all".to_sym]
+          forthflag = self.my_project.send("#{flagtype}flags")[key.to_sym]
+
+          adf.set_implicit_setters( firstflag, secondflag, thirdflag, forthflag  )
+
+          value = adf
+
+          flags.merge! key.to_sym => value
+        end
+      end
+    end
+
+
+    ft = "set_"+"#{flagtype}"+"flags"
+    self.send ft.to_sym , flags
+    logger.debug "[PACKAGE-FLAGS] Creation done."
+  end
+
+
+  #TODO beim repository loeschen muessen auch die flags aktualisiert werden!!!
+  def update_flag_matrix(opts={})
+    flagtype = opts[:flagtype]
+
+    logger.debug "[PACKAGE-FLAGS] Updating flag matrix for flagtype: #{flagtype}"
+
+    return unless self.has_element? flagtype.to_sym
+    self.send(flagtype).each do |elem|
+      key = nil
+      value = nil
+      if elem.has_attribute? :repository and elem.has_attribute? :arch
+        key = elem.repository.to_s + '::' + elem.arch.to_s
+        f = self.send("#{flagtype}flags")[key.to_sym]
+        f.repository = elem.repository
+        f.architecture = elem.arch.to_s
+        f.status = elem.element_name
+        f.explicit = true
+        value = f
+      elsif elem.has_attribute? :repository
+        key  =  elem.repository.to_s + '::all'
+        f = self.send("#{flagtype}flags")[key.to_sym]
+        f.description = 'package repository default'
+        f.repository = elem.repository
+        f.architecture = nil
+        f.status = elem.element_name
+        f.explicit = true
+        value =  f
+      elsif elem.has_attribute? :arch
+        key = 'all::' + elem.arch.to_s
+        f = self.send("#{flagtype}flags")[key.to_sym]
+        f.description = 'package architecture default'
+        f.repository = nil
+        f.architecture = elem.arch.to_s
+        f.status = elem.element_name
+        f.explicit = true
+        value =  f
+      else
+        #dickes default
+        key = 'all::all'
+        f = self.send("#{flagtype}flags")[key.to_sym]
+        f.description = 'package default'
+        f.repository = nil
+        f.architecture = nil
+        f.status = elem.element_name
+        f.explicit = true
+        value =  f
+      end
+    end
+    logger.debug "[PACKAGE-FLAGS] Update done."
+  end
+
+
+  def replace_flags( opts )
+    #get the altered flag and toggle its status
+    flag = self.send("#{opts[:flag_name]}"+"flags")[opts[:flag_id].to_sym]
+    flag.toggle_status
+
+    #create new flag section from the flag matrix
+    flags_xml = REXML::Element.new(flag.name)
+    #add only flags which are set explicit
+    self.send("#{flag.name}flags").values.each do |flag|
+      flags_xml.add_element flag.to_xml if flag.explicit_set?
+    end
+
+    if  self.has_element? flag.name.to_sym
+      #split package xml after the flags (from the current type)
+      second_part = self.split_data_after flag.name.to_sym
+
+      #remove old flag section from xml
+      self.delete_element(flag.name)
+
+      #and add the new flag section
+      self.add_element(flags_xml)
+
+      #merge whole project xml
+      self.merge_data second_part
+
+    else
+      #simply add the flag section
+
+      #split package xml after the persons
+      second_part = self.split_data_after :person
+
+      #add the new flag section
+      self.add_element(flags_xml)
+
+      #merge whole project xml
+      self.merge_data second_part
+    end
+
+    self.save
+
+  end
+
+
   private
 
 

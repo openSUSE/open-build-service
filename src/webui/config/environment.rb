@@ -80,13 +80,13 @@ ActiveXML::Base.config do |conf|
         :all    => "rest:///source/:project"
 
     map.connect :tagcloud, "rest:///tag/tagcloud?limit=:limit",
-				:alltags	=> "rest:///tag/tagcloud?limit=:limit",
-				:mytags => "rest:///user/:user/tags/_tagcloud?limit=:limit",
-				:hierarchical_browsing => "rest:///tag/tagcloud?limit=:limit"
+        :alltags  => "rest:///tag/tagcloud?limit=:limit",
+        :mytags => "rest:///user/:user/tags/_tagcloud?limit=:limit",
+        :hierarchical_browsing => "rest:///tag/tagcloud?limit=:limit"
 
-	#       :tagcloud_by_user => "rest:///user/:user/tags/_tagcloud"
+  #       :tagcloud_by_user => "rest:///user/:user/tags/_tagcloud"
 #       #:tagcloud  => "rest:///tag/tagcloud?limit=:limit"
-    
+
 
     map.connect :tag, "rest:///user/:user/tags/:project/:package",
         :tags_by_object => "rest:///source/:project/:package/_tags"
@@ -108,7 +108,7 @@ ActiveXML::Base.config do |conf|
 
 
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package"
-        
+
     map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"
 

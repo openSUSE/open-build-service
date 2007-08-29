@@ -1,4 +1,4 @@
-class ProjectController < ApplicationController 
+class ProjectController < ApplicationController
 
   before_filter :check_parameter_project, :except =>
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
@@ -16,8 +16,8 @@ class ProjectController < ApplicationController
 
   def list_public
     logger.debug "inside list_public"
-    @projects = Project.find(:all).each_entry.sort do |a,b|  
-      a.name.downcase <=> b.name.downcase 
+    @projects = Project.find(:all).each_entry.sort do |a,b|
+      a.name.downcase <=> b.name.downcase
     end
 
     @projects.reject! do |p|
@@ -52,7 +52,7 @@ class ProjectController < ApplicationController
   def new
     @project_name = params[:project]
     if @project_name =~ /home:(.*)/
-      @project_title = "#$1's Home Project" 
+      @project_title = "#$1's Home Project"
     else
       @project_title = ""
     end
@@ -108,7 +108,7 @@ class ProjectController < ApplicationController
 
   def get_tags(params)
     user_tags = Tag.find(:project => params[:project], :user => params[:user])
-    tags = Tag.find(:tags_by_object, :project => params[:project]) 
+    tags = Tag.find(:tags_by_object, :project => params[:project])
     user_tags_array = []
     user_tags.each_tag do |tag|
         user_tags_array << tag.name
@@ -133,14 +133,14 @@ class ProjectController < ApplicationController
 
     #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
- 
+
     @downloads = Downloadcounter.find( :project => @project )
     @rating = Rating.find( :project => @project )
     @activity = ( MostActive.find( :specific, :project => @project,
       :package => @package).project.activity.to_f * 100 ).round.to_f / 100
   end
 
-  
+
   def show_projects_by_tag
     @collection = Collection.find(:tag, :type => "_projects", :tagname => params[:tag])
     @projects = []
@@ -148,37 +148,37 @@ class ProjectController < ApplicationController
       @projects << project
     end
     @tagcloud ||= Tagcloud.new(:user => @session[:login], :tagcloud => session[:tagcloud])
-    render :action => "../tag/list_objects_by_tag"  
+    render :action => "../tag/list_objects_by_tag"
   end
 
-	
-	def flags_for_experts
-		@project = Project.find(params[:project])
-		render :template => "flag/flags_for_experts"
-	end
-	
-	#update project flags
-	def update_flag
-		begin
-			#the flag matrix will also be initialized on access, so we can work on it
-			@project = Project.find(params[:project])		
-			if @project.complex_flag_configuration? params[:flag_name]
-				raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
-			end 				
-		
-			@project.replace_flags(params)
-		rescue RuntimeError => exception
-			@error = exception
-			logger.debug "[PROJECT:] Flag-Update-Error: flag configuration is rejected to be saved because of its complexity."			
-		rescue  ActiveXML::Transport::Error => exception
-			#rescue_action_in_public exception
-			@error = exception
-			logger.debug "[PROJECT:] Error: #{@error}"
-		end				
 
-		@flag = @project.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
-		
-	end
+  def flags_for_experts
+    @project = Project.find(params[:project])
+    render :template => "flag/flags_for_experts"
+  end
+
+  #update project flags
+  def update_flag
+    begin
+      #the flag matrix will also be initialized on access, so we can work on it
+      @project = Project.find(params[:project])
+      if @project.complex_flag_configuration? params[:flag_name]
+        raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
+      end
+
+      @project.replace_flags(params)
+    rescue RuntimeError => exception
+      @error = exception
+      logger.debug "[PROJECT:] Flag-Update-Error: flag configuration is rejected to be saved because of its complexity."
+    rescue  ActiveXML::Transport::Error => exception
+      #rescue_action_in_public exception
+      @error = exception
+      logger.debug "[PROJECT:] Error: #{@error}"
+    end
+
+    @flag = @project.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
+
+  end
 
 
   # render the input form for tags
@@ -186,31 +186,31 @@ class ProjectController < ApplicationController
     @project = params[:project]
     render :partial => "add_tag_form"
   end
-  
-  
+
+
   def add_tag
     logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}."
     tags = []
-    tags << params[:tag]    
+    tags << params[:tag]
     old_tags = Tag.find(:user => @session[:login], :project => params[:project])
     old_tags.each_tag do |tag|
       tags << tag.name
     end
     logger.debug "[TAG:] saving tags #{tags.join(" ")} for project #{params[:project]}."
-    
+
     @tag_xml = Tag.new(:project => params[:project], :tag => tags.join(" "), :user => @session[:login])
     begin
       @tag_xml.save
-      
+
     rescue ActiveXML::Transport::Error => exception
       rescue_action_in_public exception
       @error = CGI::escapeHTML(@message)
       logger.debug "[TAG:] Error: #{@message}"
       @unsaved_tags = true
     end
-    
+
     @tags, @user_tags_array = get_tags(:user => @session[:login], :project => params[:project])
-    
+
     render :update do |page|
       page.replace_html 'tag_area', :partial => "tags_ajax"
       page.visual_effect :highlight, 'tag_area'
@@ -257,7 +257,7 @@ class ProjectController < ApplicationController
 
   def save_new
     logger.debug( "save_new" )
-  
+
     if !valid_project_name?( params[:name] )
       flash[:error] = "Invalid project name '#{params[:name]}'."
       redirect_to :action => "new"
@@ -274,7 +274,7 @@ class ProjectController < ApplicationController
       else
         flash[:error] = "Failed to save project '#{@project}'"
       end
-      
+
       redirect_to :action => 'show', :project => params[:name]
     end
   end
@@ -348,7 +348,7 @@ class ProjectController < ApplicationController
       return false unless self.include? nslist[0]
       return true
     end
-    
+
     @platforms.sort! do |a,b|
       if @priority_namespaces.include_ns? a
         if @priority_namespaces.include_ns? b
@@ -431,9 +431,9 @@ class ProjectController < ApplicationController
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
     end
-    
+
     logger.debug "found user: #{user.inspect}"
-    
+
     @project = Project.find( params[:project] )
     @project.add_person( :userid => params[:userid], :role => params[:role] )
 
@@ -471,7 +471,7 @@ class ProjectController < ApplicationController
 
     if not @buildresult.has_element? :result
       @buildresult_unavailable = true
-      return  
+      return
     end
 
     @repohash = Hash.new
@@ -509,10 +509,10 @@ class ProjectController < ApplicationController
       render :nothing => true
       return
     end
-   
+
     @user = Person.find( :login => session[:login] ) unless @user
     @project_name = params[:project]
-    
+
     if @user.watches? @project_name
       @user.remove_watched_project @project_name
     else
@@ -540,7 +540,7 @@ class ProjectController < ApplicationController
   private
 
   #filters
-  
+
   def check_parameter_project
     if ( !params[:project] )
       flash[:error] = "Missing parameter 'project'"
@@ -555,7 +555,7 @@ class ProjectController < ApplicationController
     options[:page] = options[:page] || params[:page] || 1
     default_options = {:per_page => 20, :page => 1}
     options = default_options.merge options
-    
+
     pages = Paginator.new self, collection.size, options[:per_page], options[:page]
     first = pages.current.offset
     last = [first + options[:per_page], collection.size].min

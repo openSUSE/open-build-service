@@ -6,22 +6,22 @@ class PackageController < ApplicationController
   def index
     redirect_to :controller => 'project', :action => 'list_all'
   end
-  
+
     # render the input form for tags
   def add_tag_form
     @project = params[:project]
     @package = params[:package]
     render :partial => "add_tag_form"
   end
-  
-  
+
+
   def add_tag
     logger.debug "New tag #{params[:tag]} for package #{params[:package]}."
-    
+
     tags = []
-    tags << params[:tag]    
+    tags << params[:tag]
     old_tags = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])
-    
+
     old_tags.each_tag do |tag|
       tags << tag.name
     end
@@ -36,9 +36,9 @@ class PackageController < ApplicationController
       logger.debug "[TAG:] Error: #{@message}"
       @unsaved_tags = true
     end
-    
+
     @tags, @user_tags_array = get_tags(:user => @session[:login], :project => params[:project], :package => params[:package])
-    
+
     render :update do |page|
       page.replace_html 'tag_area', :partial => "tags_ajax"
       page.visual_effect :highlight, 'tag_area'
@@ -51,15 +51,15 @@ class PackageController < ApplicationController
       end
     end
   end
-  
-  
+
+
   def show_packages_by_tag
     @collection = Collection.find(:tag, :type => "_packages", :tagname => params[:tag])
     @packages = []
     @collection.each_package do |package|
       @packages << package
     end
-    render :action => "../tag/list_objects_by_tag"  
+    render :action => "../tag/list_objects_by_tag"
   end
 
   def show
@@ -98,7 +98,7 @@ class PackageController < ApplicationController
       end
     end
   end
-    
+
   def get_tags(params)
    tags = Tag.find(:tags_by_object, :project => params[:project], :package => params[:package])
    user_tags = Tag.find(:project => params[:project], :package => params[:package], :user => params[:user])
@@ -117,10 +117,10 @@ class PackageController < ApplicationController
     @project = Project.find( project )
 
     #@tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
-    
+
     #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
- 
+
     @downloads = Downloadcounter.find( :project => project, :package => package )
     @rating = Rating.find( :project => @project, :package => @package )
     @created_timestamp = LatestAdded.find( :specific,
@@ -137,7 +137,7 @@ class PackageController < ApplicationController
       redirect_to :controller => "project", :action => "list_all"
       return
     end
-    
+
     @project = Project.find( params[:project] )
   end
 
@@ -147,7 +147,7 @@ class PackageController < ApplicationController
       redirect_to :controller => "project", :action => "list_all"
       return
     end
-    
+
     @project = Project.find( params[:project] )
   end
 
@@ -162,7 +162,7 @@ class PackageController < ApplicationController
       redirect_to :controller => "project", :action => "list_all"
       return
     end
-    
+
     #@project = Project.find( params[:project] )
     @project = params[:project]
 
@@ -201,7 +201,7 @@ class PackageController < ApplicationController
       redirect_to :controller => "project", :action => "list_all"
       return
     end
-    
+
     @project = Project.find( params[:project] )
 
     begin
@@ -351,7 +351,7 @@ class PackageController < ApplicationController
       flash[:note] = "Removing file aborted: no filename given."
       redirect_to :action => :show, :project => params[:project], :package => params[:package]
     end
-    
+
     @project = params[:project]
     @package = Package.find( params[:package], :project => @project )
     filename = params[:filename]
@@ -360,7 +360,7 @@ class PackageController < ApplicationController
     escaped_filename = URI.escape filename, "+"
 
     @package.remove_file escaped_filename
-    
+
     if @package.save
       flash[:note] = "File '#{filename}' removed successfully"
     else
@@ -387,7 +387,7 @@ class PackageController < ApplicationController
     begin
       user = Person.find( :login => params[:userid] )
       logger.debug "found user: #{user.inspect}"
-    rescue ActiveXML::Transport::NotFoundError 
+    rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Unknown user '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => project_name, :package => params[:package], :role => params[:role]
       return
@@ -401,7 +401,7 @@ class PackageController < ApplicationController
     else
       flash[:note] = "Failed to add user '#{params[:userid]}'"
     end
- 
+
     redirect_to :action => :show, :package => @package, :project => project_name
   end
 
@@ -456,10 +456,10 @@ class PackageController < ApplicationController
 
     begin
       @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch )
- 
+
       @offset = @log_chunk.length
       @log_chunk = CGI.escapeHTML(@log_chunk);
-      @log_chunk.gsub!("\n","<br/>")          
+      @log_chunk.gsub!("\n","<br/>")
     rescue ActiveXML::Transport::Error => ex
       @log_chunk = "No log available."
       return
@@ -482,13 +482,13 @@ class PackageController < ApplicationController
 
     begin
       @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset )
-      
+
       if( @log_chunk.length == 0 )
         @finished = true
       else
         @offset += @log_chunk.length
-        @log_chunk = CGI.escapeHTML(@log_chunk);      
-        @log_chunk.gsub!("\n","<br/>")    
+        @log_chunk = CGI.escapeHTML(@log_chunk);
+        @log_chunk.gsub!("\n","<br/>")
       end
 
     rescue ActiveXML::Transport::Error => ex
@@ -510,7 +510,7 @@ class PackageController < ApplicationController
       redirect_to :controller => "project", :action => 'list_public'
       return
     end
-        
+
     package = params[:package]
     if ( !package )
       flash[:error] = "Package name missing."
@@ -738,44 +738,44 @@ class PackageController < ApplicationController
   end
 
 
-	def flags_for_experts
-		@package = Package.find(params[:package], :project => params[:project])	
-		#render :template => "flags_for_experts"
-	end	
-	
-	
-	# update package flags
-	def update_flag
-		begin
-			#the flag matrix will also be initialized on access, so we can work on it
-			@package = Package.find(params[:package], :project => params[:project])				
-			if @package.complex_flag_configuration? params[:flag_name]
-				raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
-			end 		
+  def flags_for_experts
+    @package = Package.find(params[:package], :project => params[:project])
+    #render :template => "flags_for_experts"
+  end
 
-			@package.replace_flags(params)
-		rescue RuntimeError => exception
-			@error = exception
-			logger.debug "[PACKAGE:] Flag-Update-Error: flag configuration is rejected to be saved because of its complexity."
-		rescue  ActiveXML::Transport::Error => exception
-			#rescue_action_in_public exception
-			@error = exception
-			logger.debug "[PACKAGE:] Flag-Update-Error: #{@error}"
-		end				
 
-		@flag = @package.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
-	end
+  # update package flags
+  def update_flag
+    begin
+      #the flag matrix will also be initialized on access, so we can work on it
+      @package = Package.find(params[:package], :project => params[:project])
+      if @package.complex_flag_configuration? params[:flag_name]
+        raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
+      end
 
-	
+      @package.replace_flags(params)
+    rescue RuntimeError => exception
+      @error = exception
+      logger.debug "[PACKAGE:] Flag-Update-Error: flag configuration is rejected to be saved because of its complexity."
+    rescue  ActiveXML::Transport::Error => exception
+      #rescue_action_in_public exception
+      @error = exception
+      logger.debug "[PACKAGE:] Flag-Update-Error: #{@error}"
+    end
+
+    @flag = @package.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
+  end
+
+
   private
 
   def get_files( project, package )
     # files whose name end in the following extensions should not be editable
     no_edit_ext = %w{ bz2 exe gem gif gz jar jpg jpeg ogg ps pdf png rpm tar tgz xpm zip }
-    
+
     files = []
     dir = Directory.find( :project => project, :package => package )
-   
+
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
       file[:ext] = file[:name].downcase.split(/\./)[-1]
@@ -784,7 +784,7 @@ class PackageController < ApplicationController
       editable = false if file[:size].to_i > 2**20  # max. 1 MB
       editable = false if no_edit_ext.include? file[:ext]
       file[:editable] = editable
-      
+
       files << file
     end
     return files
