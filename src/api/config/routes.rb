@@ -1,12 +1,12 @@
 ActionController::Routing::Routes.draw do |map|
   # Add your own custom routes here.
   # The priority is based upon order of creation: first created -> highest priority.
-  
+
   # Here's a sample route:
   # map.connect 'products/:id', :controller => 'catalog', :action => 'view'
   # Keep in mind you can assign values other than :controller and :action
 
-  # You can have the root of your site routed by hooking up '' 
+  # You can have the root of your site routed by hooking up ''
   # -- just remember to delete public/index.html.
   # map.connect '', :controller => "welcome"
 
@@ -23,7 +23,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo'
 
   ### /result
-  
+
   map.connect 'result/:project/result', :controller => 'result',
     :action => 'projectresult'
   map.connect 'result/:project/packstatus', :controller => 'result',
@@ -66,13 +66,13 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /tag
 
-  #routes for tagging support  
+  #routes for tagging support
   #
   # map.connect 'tag/_all', :controller => 'tag',
   #  :action => 'list_xml'
   #Get/put tags by object
   ### moved to source section
-  
+
   #Get objects by tag.
   map.connect 'tag/:tag/_projects', :controller => 'tag',
     :action => 'get_projects_by_tag'
@@ -85,27 +85,27 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'tag/_tagcloud', :controller => 'tag',
     :action => 'tagcloud'
 
-  
+
   ### /user
- 
+
   #Get objects tagged by user. (objects with tags)
   map.connect 'user/:user/tags/_projects', :controller => 'tag',
     :action => 'get_tagged_projects_by_user'
   map.connect 'user/:user/tags/_packages', :controller => 'tag',
     :action => 'get_tagged_packages_by_user'
-  
-  #Get tags by user.	
+
+  #Get tags by user.
   map.connect 'user/:user/tags/_tagcloud', :controller => 'tag',
     :action =>  'tagcloud'
   #map.connect 'user/:user/tags', :controller => 'tag',
   #  :action => 'tagcloud', :distribution => 'raw'
-  
+
   #Get tags for a certain object by user.
   map.connect 'user/:user/tags/:project', :controller => 'tag',
-    :action => 'tags_by_user_and_object'  
+    :action => 'tags_by_user_and_object'
   map.connect 'user/:user/tags/:project/:package', :controller => 'tag',
-    :action => 'tags_by_user_and_object'  
-  
+    :action => 'tags_by_user_and_object'
+
 
   ### /statistics
 
@@ -233,7 +233,7 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'rpm', :action => 'file'
 
   ### /platform
-  
+
   map.connect 'platform/:project/:repository', :controller => 'platform',
     :action => 'repository'
   map.connect 'platform/:project', :controller => 'platform',

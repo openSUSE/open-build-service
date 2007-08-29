@@ -11,12 +11,12 @@ class DbPackage < ActiveRecord::Base
   has_many :download_stats
   has_many :ratings, :as => :object, :dependent => :destroy
 
-	has_many :flags
-	has_many :publish_flags,	:order => :position
-	has_many :build_flags,	:order => :position
-	has_many :debug_flags,	:order => :position
-	has_many :useforbuild_flags,	:order => :position
-	
+  has_many :flags
+  has_many :publish_flags,  :order => :position
+  has_many :build_flags,  :order => :position
+  has_many :debug_flags,  :order => :position
+  has_many :useforbuild_flags,  :order => :position
+
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
   def record_timestamps
@@ -125,19 +125,19 @@ class DbPackage < ActiveRecord::Base
         PackageUserRoleRelationship.destroy_all ["db_package_id = ? AND bs_user_id IN (#{user_ids_to_delete})", self.id]
       end
       #--- end update users ---#
-      
-			
-			#---begin enable / disable flags ---#
-			flag_compatibility_check( :package => package )
-			['build', 'publish', 'debug', 'useforbuild'].each do |flagtype|
-				update_flags( :package => package, :flagtype => flagtype )
-			end			
-			
-			#add old-style-flags as build-flags
-			old_flag_to_build_flag( :package => package ) if package.has_element? :disable	
-			#--- end enable / disable flags ---#
 
-			
+
+      #---begin enable / disable flags ---#
+      flag_compatibility_check( :package => package )
+      ['build', 'publish', 'debug', 'useforbuild'].each do |flagtype|
+        update_flags( :package => package, :flagtype => flagtype )
+      end
+
+      #add old-style-flags as build-flags
+      old_flag_to_build_flag( :package => package ) if package.has_element? :disable
+      #--- end enable / disable flags ---#
+
+
       #--- update url ---#
       if package.has_element? :url
         if self.url != package.url.to_s
@@ -162,13 +162,13 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-	
+
   def write_through?
     conf = ActiveXML::Config
     conf.global_write_through && (conf::TransportMap.options_for(:package)[:write_through] != :false)
   end
 
-	
+
   def add_user( login, role_title )
     role = Role.rolecache[role_title]
     if role.global
@@ -179,7 +179,7 @@ class DbPackage < ActiveRecord::Base
     PackageUserRoleRelationship.create(
         :db_package => self,
         :user => User.find_by_login( login ),
-        :role => role ) 
+        :role => role )
   end
 
 
@@ -236,59 +236,59 @@ class DbPackage < ActiveRecord::Base
       package.title( title )
       package.description( description )
 
-		#TODO put the flag stuff in a loop
-		unless self.build_flags.empty?
-			package.build do
-				self.build_flags.each do |build_flag|					
-#					project.__send__(build_flag.status.to_s,
-#														:arch => build_flag.architecture.name.to_s,
-#														:repo => build_flag.repo.to_s
-#														)
-					package << build_flag.to_xml.to_s + "\n"									
-				end
-			end
-		end
-		
-		unless self.publish_flags.empty?
-			package.publish do
-				self.publish_flags.each do |publish_flag|				
-#					project.__send__(publish_flag.status.to_s,
-#														:arch => publish_flag.architecture.name.to_s,
-#														:repo => publish_flag.repo.to_s
-#														)
-					package << publish_flag.to_xml.to_s + "\n"
-				end
-			end			
-		end			
-		
-		unless self.debug_flags.empty?
-			package.debug do
-				self.debug_flags.each do |debug_flag|				
-#					package.__send__(debug_flag.status.to_s,
-#														:arch => debug_flag.architecture.name.to_s,
-#														:repo => debug_flag.repo.to_s
-#														)
-					package << debug_flag.to_xml.to_s + "\n"
-				end
-			end			
-		end			
-		
-		unless self.useforbuild_flags.empty?
-			package.useforbuild do
-				self.useforbuild_flags.each do |useforbuild_flags|				
-#					package.__send__(useforbuild_flags.status.to_s,
-#														:arch => useforbuild_flags.architecture.name.to_s,
-#														:repo => useforbuild_flags.repo.to_s
-#														)
-					package << useforbuild_flags.to_xml.to_s + "\n"
-				end
-			end			
-		end					
+    #TODO put the flag stuff in a loop
+    unless self.build_flags.empty?
+      package.build do
+        self.build_flags.each do |build_flag|
+#          project.__send__(build_flag.status.to_s,
+#                            :arch => build_flag.architecture.name.to_s,
+#                            :repo => build_flag.repo.to_s
+#                            )
+          package << build_flag.to_xml.to_s + "\n"
+        end
+      end
+    end
+
+    unless self.publish_flags.empty?
+      package.publish do
+        self.publish_flags.each do |publish_flag|
+#          project.__send__(publish_flag.status.to_s,
+#                            :arch => publish_flag.architecture.name.to_s,
+#                            :repo => publish_flag.repo.to_s
+#                            )
+          package << publish_flag.to_xml.to_s + "\n"
+        end
+      end
+    end
+
+    unless self.debug_flags.empty?
+      package.debug do
+        self.debug_flags.each do |debug_flag|
+#          package.__send__(debug_flag.status.to_s,
+#                            :arch => debug_flag.architecture.name.to_s,
+#                            :repo => debug_flag.repo.to_s
+#                            )
+          package << debug_flag.to_xml.to_s + "\n"
+        end
+      end
+    end
+
+    unless self.useforbuild_flags.empty?
+      package.useforbuild do
+        self.useforbuild_flags.each do |useforbuild_flags|
+#          package.__send__(useforbuild_flags.status.to_s,
+#                            :arch => useforbuild_flags.architecture.name.to_s,
+#                            :repo => useforbuild_flags.repo.to_s
+#                            )
+          package << useforbuild_flags.to_xml.to_s + "\n"
+        end
+      end
+    end
 
     each_user do |u|
       package.person( :userid => u.login, :role => u.role_name )
     end
-			
+
 #TODO remove OLD DISABLED FUNCTION
       disreps = disabled_repos.find(:all, :include => [:repository, :architecture])
       disreps.each do |dr|
@@ -356,100 +356,100 @@ class DbPackage < ActiveRecord::Base
   end
 
 
-	def update_flags( opts={} )
-		#needed opts: :package, :flagtype
-		package = opts[:package]
-		flagtype = nil
-		flagclass = nil
-		flag = nil
+  def update_flags( opts={} )
+    #needed opts: :package, :flagtype
+    package = opts[:package]
+    flagtype = nil
+    flagclass = nil
+    flag = nil
 
-		#translates the flag types as used in the xml to model name + s
-		case opts[:flagtype].to_sym
-			when :build
-				flagtype = "build_flags"
+    #translates the flag types as used in the xml to model name + s
+    case opts[:flagtype].to_sym
+      when :build
+        flagtype = "build_flags"
       when :publish
-				flagtype = "publish_flags"
-			when :debug
-				flagtype = "debug_flags"
-			when :useforbuild
-				flagtype = "useforbuild_flags"
-			else
-				raise	RuntimeError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )						
-		end
-		
-		if package.has_element? opts[:flagtype].to_sym
+        flagtype = "publish_flags"
+      when :debug
+        flagtype = "debug_flags"
+      when :useforbuild
+        flagtype = "useforbuild_flags"
+      else
+        raise  RuntimeError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
+    end
 
-			#remove old flags
-			logger.debug "[DBPACKAGE:FLAGS] begin transaction for updating flags"
-			Flag.transaction do
-				self.send(flagtype).destroy_all
-				
-				#select each build flag from xml
-				package.send(opts[:flagtype]).each do |xmlflag|
-					
-					#get the selected architecture from data base
-					arch = nil
-					if xmlflag.has_attribute? :arch
-						arch = Architecture.find_by_name(xmlflag.arch)
-						raise RuntimeError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
-					end
-					
-					repo = xmlflag.repository if xmlflag.has_attribute? :repository
-					repo ||= nil
-					
-					#instantiate new flag object
-					flag = self.send(flagtype).new				
-					#set the flag attributes		
-					flag.repo = repo
-					flag.status = xmlflag.data.name
-					
-					#flag position will be set through the model, but not verified
-					
-					arch.send(flagtype) << flag unless arch.nil? 
-					self.send(flagtype) << flag		
-		
-				end
-			end
-			logger.debug "[DBPACKAGE:FLAGS] end transaction for updating flags"
-			
-		else
-			#Seems that the users has deleted all flags of the type flagtype, we will also do so. 
-			logger.debug "[DBPACKAGE:FLAGS] Seems that the users has deleted all flags of the type #{flagtype.singularize.camelize}, we will also do so!"
-			self.send(flagtype).destroy_all
-		end
-		
-		#self.reload
-		return true
-	end	
-	
-	
-	#TODO this function should be removed if no longer old-style-flags in use
-	#no build_flags and old-style-flags should be used at once
-	def flag_compatibility_check( opts={} )
-		package = opts[:package]
-		if package.has_element? :build and 
-			( package.has_element? :disable or package.has_element? :enable )
-			logger.debug "[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags."
-			raise RuntimeError.new("[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags.")
-		end
-	end
-	
-	#TODO this function should be removed if no longer old-style-flags in use
-	def old_flag_to_build_flag( opts={} )
-		package = opts[:package]
-		
-		#using a fake-project to import old-style-flags as build-flags
-		fake_package = Package.new(:name => package.name)
-		
-		buildflags = REXML::Element.new("build")
-		package.each_disable do |flag|
-			elem = REXML::Element.new(flag.data)
-			buildflags.add_element(elem)
-		end
+    if package.has_element? opts[:flagtype].to_sym
 
-		fake_package.add_element(buildflags)
-		#return fake_package
-		update_flags(:flagtype => 'build', :package => fake_package)	
-	end	
-	
+      #remove old flags
+      logger.debug "[DBPACKAGE:FLAGS] begin transaction for updating flags"
+      Flag.transaction do
+        self.send(flagtype).destroy_all
+
+        #select each build flag from xml
+        package.send(opts[:flagtype]).each do |xmlflag|
+
+          #get the selected architecture from data base
+          arch = nil
+          if xmlflag.has_attribute? :arch
+            arch = Architecture.find_by_name(xmlflag.arch)
+            raise RuntimeError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
+          end
+
+          repo = xmlflag.repository if xmlflag.has_attribute? :repository
+          repo ||= nil
+
+          #instantiate new flag object
+          flag = self.send(flagtype).new
+          #set the flag attributes
+          flag.repo = repo
+          flag.status = xmlflag.data.name
+
+          #flag position will be set through the model, but not verified
+
+          arch.send(flagtype) << flag unless arch.nil?
+          self.send(flagtype) << flag
+
+        end
+      end
+      logger.debug "[DBPACKAGE:FLAGS] end transaction for updating flags"
+
+    else
+      #Seems that the users has deleted all flags of the type flagtype, we will also do so.
+      logger.debug "[DBPACKAGE:FLAGS] Seems that the users has deleted all flags of the type #{flagtype.singularize.camelize}, we will also do so!"
+      self.send(flagtype).destroy_all
+    end
+
+    #self.reload
+    return true
+  end
+
+
+  #TODO this function should be removed if no longer old-style-flags in use
+  #no build_flags and old-style-flags should be used at once
+  def flag_compatibility_check( opts={} )
+    package = opts[:package]
+    if package.has_element? :build and
+      ( package.has_element? :disable or package.has_element? :enable )
+      logger.debug "[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags."
+      raise RuntimeError.new("[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags.")
+    end
+  end
+
+  #TODO this function should be removed if no longer old-style-flags in use
+  def old_flag_to_build_flag( opts={} )
+    package = opts[:package]
+
+    #using a fake-project to import old-style-flags as build-flags
+    fake_package = Package.new(:name => package.name)
+
+    buildflags = REXML::Element.new("build")
+    package.each_disable do |flag|
+      elem = REXML::Element.new(flag.data)
+      buildflags.add_element(elem)
+    end
+
+    fake_package.add_element(buildflags)
+    #return fake_package
+    update_flags(:flagtype => 'build', :package => fake_package)
+  end
+
 end

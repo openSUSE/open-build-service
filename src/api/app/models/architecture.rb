@@ -4,11 +4,11 @@ class Architecture < ActiveRecord::Base
 
   has_many :download_stats
 
-	has_many :flags
-	has_many :build_flags
-	has_many :publish_flags
-	has_many :debug_flags
-	
+  has_many :flags
+  has_many :build_flags
+  has_many :publish_flags
+  has_many :debug_flags
+
 
   def self.archcache
     return @cache if @cache

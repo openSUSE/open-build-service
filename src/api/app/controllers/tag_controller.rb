@@ -251,7 +251,7 @@ class TagController < ApplicationController
       
       @distribution_method = (params[:distribution] ||= "logarithmic")
       raise ArgumentError.new( "Invalid value for parameter distribution. 
-   	    (distribution=#{@distribution_method})" ) if not allowed_distribution_methods.include? @distribution_method
+         (distribution=#{@distribution_method})" ) if not allowed_distribution_methods.include? @distribution_method
       
       if request.get?
         

@@ -5,16 +5,16 @@
 module Suse
 
   class Permission
-  
+
     def to_s
       return "OpenSUSE Permissions for user #{@user.login}"
     end
-    
+
     def initialize( u )
       @user = u
       logger.debug "User #{@user.login} initialised"
     end
-    
+
     def project_change?( project = nil )
       # one is project admin if he has the permission Project_Admin or if he
       # is the owner of the project
@@ -32,15 +32,15 @@ module Suse
     # permission or if he is maintainer of the project.
     def package_create?( project )
       logger.debug "User #{@user.login} wants to create a package in #{project}"
-      
+
       return true if @user.has_global_permission?( 'global_package_create' )
-	
+
       valid_users = project_maintainers project
       return true if valid_users.include? @user.login
-      
-      return false	
+
+      return false
     end
-    
+
     # One may change a package if he either has the global_package_change
     # permission or if he is maintainer of the project or maintainer of the
     # package
@@ -53,7 +53,7 @@ module Suse
 
     def package_change?( package, project=nil )
       logger.debug "User #{@user.login} wants to change the package"
-     
+
       return true if @user.has_global_permission?( "global_package_change" )
 
       #check if current user is mentioned in the package meta file
@@ -76,25 +76,25 @@ module Suse
       # check if current user is mentioned in the project meta file
       valid_users = project_maintainers( project )
       return true if valid_users.include? @user.login
-        
+
       return false
     end
-    
+
     def method_missing( perm, *args, &block)
-  
+
       logger.debug "Dynamic Permission requested: <#{perm}>"
-	
-      if @user 
-	if @user.has_global_permission? perm.to_s
-	  logger.debug "User #{@user.login} has permission #{perm}"
-	  return true
-	else
-	  logger.debug "User #{@user.login} does NOT have permission #{perm}"
-	  return false
-	end
+
+      if @user
+  if @user.has_global_permission? perm.to_s
+    logger.debug "User #{@user.login} has permission #{perm}"
+    return true
+  else
+    logger.debug "User #{@user.login} does NOT have permission #{perm}"
+    return false
+  end
       else
-	logger.debug "Permission check failed because no user is checked in"
-	return false
+  logger.debug "Permission check failed because no user is checked in"
+  return false
       end
     end
 
@@ -109,7 +109,7 @@ module Suse
         p = Project.find project
       end
 
-      p.each_person do |person| 
+      p.each_person do |person|
         if person.role == "maintainer" or person.role == "owner"
           val << person.userid
         end
@@ -125,7 +125,7 @@ module Suse
     # given as second arg
     def package_maintainers( package, project=nil )
       val = Array.new
-      
+
       if( package.kind_of? Package )
         p = package
       elsif project.nil?
@@ -134,7 +134,7 @@ module Suse
         p = Package.find package, :project => project
       end
 
-      p.each_person do |person| 
+      p.each_person do |person|
         if person.role == "maintainer" or person.role == "owner"
           val << person.userid
         end

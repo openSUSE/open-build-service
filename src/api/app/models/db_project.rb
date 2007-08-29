@@ -11,12 +11,12 @@ class DbProject < ActiveRecord::Base
   has_many :download_stats
   has_many :ratings, :as => :object, :dependent => :destroy
 
-	has_many :flags
-	has_many :publish_flags,	:order => :position
-	has_many :build_flags,	:order => :position
-	has_many :debug_flags,	:order => :position
-	has_many :useforbuild_flags,	:order => :position
-	
+  has_many :flags
+  has_many :publish_flags,  :order => :position
+  has_many :build_flags,  :order => :position
+  has_many :debug_flags,  :order => :position
+  has_many :useforbuild_flags,  :order => :position
+
   class << self
 
     def find_by_name(name)
@@ -121,15 +121,15 @@ class DbProject < ActiveRecord::Base
 
       #--- update flag group ---#
       # and recreate the flag groups and flags again
-			flag_compatibility_check( :project => project )
-			
-			['build', 'publish', 'debug', 'useforbuild'].each do |flagtype|
-				update_flags( :project => project, :flagtype => flagtype )
-			end
-			
-			#add old-style-flags as build-flags
-			old_flag_to_build_flag( :project => project ) if project.has_element? :disable
-			
+      flag_compatibility_check( :project => project )
+
+      ['build', 'publish', 'debug', 'useforbuild'].each do |flagtype|
+        update_flags( :project => project, :flagtype => flagtype )
+      end
+
+      #add old-style-flags as build-flags
+      old_flag_to_build_flag( :project => project ) if project.has_element? :disable
+
       #--- update repositories ---#
       repocache = Hash.new
       self.repositories.each do |repo|
@@ -213,7 +213,7 @@ class DbProject < ActiveRecord::Base
 
     #project is not inside a namespace
     return nil if name_parts.length <= 1
-      
+
     while name_parts.length > 1
       name_parts.pop
       if (p = DbProject.find_by_name name_parts.join(":"))
@@ -247,7 +247,7 @@ class DbProject < ActiveRecord::Base
   # returns true if the specified user is associated with that project. possible
   # options are :login and :role
   # example:
- 
+
   # proj.has_user? :login => "abauer", :role => "maintainer"
   def has_user?( opt={} )
     cond_fragments = ["db_project_id = ?"]
@@ -289,8 +289,8 @@ class DbProject < ActiveRecord::Base
   end
 
   def to_axml
-		
-		builder = Builder::XmlMarkup.new( :indent => 2 )
+
+    builder = Builder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering project #{name} ------------------------"
     xml = builder.project( :name => name ) do |project|
@@ -301,41 +301,41 @@ class DbProject < ActiveRecord::Base
         project.person( :userid => u.login, :role => u.role_name )
       end
 
-			
-			#TODO put the flag stuff in a loop
-			unless self.build_flags.empty?
-				project.build do
-					self.build_flags.each do |build_flag|					
-					project << build_flag.to_xml.to_s + "\n"									
-					end
-				end
-    	end
-			
-			unless self.publish_flags.empty?
-				project.publish do
-					self.publish_flags.each do |publish_flag|				
-					project << publish_flag.to_xml.to_s + "\n"
-					end
-				end			
-  		end
-			
-			unless self.debug_flags.empty?
-				project.debug do
-					self.debug_flags.each do |debug_flag|				
-					project << debug_flag.to_xml.to_s + "\n"
-					end
-				end			
-			end			
-			
-			unless self.useforbuild_flags.empty?
-				project.useforbuild do
-					self.useforbuild_flags.each do |useforbuild_flags|				
-					project << useforbuild_flags.to_xml.to_s + "\n"
-					end
-				end			
-			end					
-				
-			
+
+      #TODO put the flag stuff in a loop
+      unless self.build_flags.empty?
+        project.build do
+          self.build_flags.each do |build_flag|
+          project << build_flag.to_xml.to_s + "\n"
+          end
+        end
+      end
+
+      unless self.publish_flags.empty?
+        project.publish do
+          self.publish_flags.each do |publish_flag|
+          project << publish_flag.to_xml.to_s + "\n"
+          end
+        end
+      end
+
+      unless self.debug_flags.empty?
+        project.debug do
+          self.debug_flags.each do |debug_flag|
+          project << debug_flag.to_xml.to_s + "\n"
+          end
+        end
+      end
+
+      unless self.useforbuild_flags.empty?
+        project.useforbuild do
+          self.useforbuild_flags.each do |useforbuild_flags|
+          project << useforbuild_flags.to_xml.to_s + "\n"
+          end
+        end
+      end
+
+
       repos = repositories.find( :all, :include => [:path_elements, :architectures] )
       repos.each do |repo|
         project.repository( :name => repo.name ) do |r|
@@ -349,7 +349,7 @@ class DbProject < ActiveRecord::Base
       end
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
-		
+
     return xml
   end
 
@@ -400,99 +400,99 @@ class DbProject < ActiveRecord::Base
   end
 
 
-	def update_flags( opts={} )
-		#needed opts: :project, :flagtype
-		project = opts[:project]
-		flagtype = nil
-		flagclass = nil
-		flag = nil
+  def update_flags( opts={} )
+    #needed opts: :project, :flagtype
+    project = opts[:project]
+    flagtype = nil
+    flagclass = nil
+    flag = nil
 
-		#translate the flag types as used in the xml to model name + s
-		case opts[:flagtype].to_sym
-			when :build
-				flagtype = "build_flags"
+    #translate the flag types as used in the xml to model name + s
+    case opts[:flagtype].to_sym
+      when :build
+        flagtype = "build_flags"
       when :publish
-				flagtype = "publish_flags"
+        flagtype = "publish_flags"
       when :debug
-				flagtype = "debug_flags"
-			when :useforbuild
-				flagtype = "useforbuild_flags"
-			else
-				raise	RuntimeError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )						
-		end
-		
-		if project.has_element? opts[:flagtype].to_sym
+        flagtype = "debug_flags"
+      when :useforbuild
+        flagtype = "useforbuild_flags"
+      else
+        raise  RuntimeError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
+    end
 
-			#remove old flags
-			logger.debug "[DBPROJECT:FLAGS] begin transaction for updating flags"
-			Flag.transaction do
-				self.send(flagtype).destroy_all
-				
-				#select each build flag from xml
-				project.send(opts[:flagtype]).each do |xmlflag|
-					
-					#get the selected architecture from data base
-					arch = nil
-					if xmlflag.has_attribute? :arch
-						arch = Architecture.find_by_name(xmlflag.arch)
-						raise RuntimeError.new( "Error: Architecture type '#{xmlarch}' not found." ) if arch.nil?
-					end
-					
-					repo = xmlflag.repository if xmlflag.has_attribute? :repository
-					repo ||= nil
-					
-					#instantiate new flag object
-					flag = self.send(flagtype).new				
-					#set the flag attributes		
-					flag.repo = repo
-					flag.status = xmlflag.data.name
-					
-					#flag position will be set through the model, but not verified
-					
-					arch.send(flagtype) << flag unless arch.nil? 
-					self.send(flagtype) << flag		
-		
-				end
-			end
-			logger.debug "[DBPROJECT:FLAGS] end transaction for updating flags"
-			
-		else
-			#Seems that the users has deleted all flags of the type flagtype, we will also do so. 
-			logger.debug "[DBPROJECT:FLAGS] Seems that the users has deleted all flags of the type #{flagtype.singularize.camelize}, we will also do so!"
-			self.send(flagtype).destroy_all
-		end
-		
-		#self.reload
-		return true
-	end
-	
-	#no build_flags and old-style-flags should be used at once
-	def flag_compatibility_check( opts={} )
-		project = opts[:project]
-		if project.has_element? :build and 
-			( project.has_element? :disable or project.has_element? :enable )
-			logger.debug "[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags."
-			raise RuntimeError.new("[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags.")
-		end
-	end
-	
-	#TODO this function should be removed if no longer old-style-flags in use
-	def old_flag_to_build_flag( opts={} )
-		project = opts[:project]
-		
-		#using a fake-project to import old-style-flags as build-flags
-		fake_project = Project.new(:name => project.name)
-		
-		buildflags = REXML::Element.new("build")
-		project.each_disable do |flag|
-			elem = REXML::Element.new(flag.data)
-			buildflags.add_element(elem)
-		end
+    if project.has_element? opts[:flagtype].to_sym
 
-		fake_project.add_element(buildflags)
-		update_flags(:flagtype => 'build', :project => fake_project)	
-	end		
-	
-	private
-	
+      #remove old flags
+      logger.debug "[DBPROJECT:FLAGS] begin transaction for updating flags"
+      Flag.transaction do
+        self.send(flagtype).destroy_all
+
+        #select each build flag from xml
+        project.send(opts[:flagtype]).each do |xmlflag|
+
+          #get the selected architecture from data base
+          arch = nil
+          if xmlflag.has_attribute? :arch
+            arch = Architecture.find_by_name(xmlflag.arch)
+            raise RuntimeError.new( "Error: Architecture type '#{xmlarch}' not found." ) if arch.nil?
+          end
+
+          repo = xmlflag.repository if xmlflag.has_attribute? :repository
+          repo ||= nil
+
+          #instantiate new flag object
+          flag = self.send(flagtype).new
+          #set the flag attributes
+          flag.repo = repo
+          flag.status = xmlflag.data.name
+
+          #flag position will be set through the model, but not verified
+
+          arch.send(flagtype) << flag unless arch.nil?
+          self.send(flagtype) << flag
+
+        end
+      end
+      logger.debug "[DBPROJECT:FLAGS] end transaction for updating flags"
+
+    else
+      #Seems that the users has deleted all flags of the type flagtype, we will also do so.
+      logger.debug "[DBPROJECT:FLAGS] Seems that the users has deleted all flags of the type #{flagtype.singularize.camelize}, we will also do so!"
+      self.send(flagtype).destroy_all
+    end
+
+    #self.reload
+    return true
+  end
+
+  #no build_flags and old-style-flags should be used at once
+  def flag_compatibility_check( opts={} )
+    project = opts[:project]
+    if project.has_element? :build and
+      ( project.has_element? :disable or project.has_element? :enable )
+      logger.debug "[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags."
+      raise RuntimeError.new("[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags.")
+    end
+  end
+
+  #TODO this function should be removed if no longer old-style-flags in use
+  def old_flag_to_build_flag( opts={} )
+    project = opts[:project]
+
+    #using a fake-project to import old-style-flags as build-flags
+    fake_project = Project.new(:name => project.name)
+
+    buildflags = REXML::Element.new("build")
+    project.each_disable do |flag|
+      elem = REXML::Element.new(flag.data)
+      buildflags.add_element(elem)
+    end
+
+    fake_project.add_element(buildflags)
+    update_flags(:flagtype => 'build', :project => fake_project)
+  end
+
+  private
+
 end

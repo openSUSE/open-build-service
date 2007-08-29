@@ -209,14 +209,14 @@ class SourceController < ApplicationController
         #project exists, change it
         unless @http_user.can_modify_project? @project
           logger.debug "user #{user.login} has no permission to modify project #{@project}"
-	  render_error :status => 403, :errorcode => "change_project_no_permission", 
+    render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
           return
         end
       else
         #project is new
         unless @http_user.can_create_project? project_name
-	  logger.debug "Not allowed to create new project"
+    logger.debug "Not allowed to create new project"
           render_error :status => 403, :errorcode => 'create_project_no_permission',
             :message => "not allowed to create new project '#{project_name}'"
           return
@@ -299,21 +299,21 @@ class SourceController < ApplicationController
       begin
         # Try to fetch the package to see if it already exists
         @package = Package.find( package_name, :project => project_name )
-	
+  
         # Being here means that the project already exists
         allowed = permissions.package_change? @package
         if allowed
           @package = Package.new( request_data, :project => project_name, :name => package_name )
         else
           logger.debug "user #{user.login} has no permission to change package #{@package}"
-	  render_error :status => 403, :errorcode => "change_package_no_permission",
+    render_error :status => 403, :errorcode => "change_package_no_permission",
             :message => "no permission to change package"
           return
         end
       rescue ActiveXML::Transport::NotFoundError
         # Ok, the project is new
-	allowed = permissions.package_create?( project_name )
-	
+  allowed = permissions.package_create?( project_name )
+  
         if allowed
           #FIXME: parameters that get substituted into the url must be specified here... should happen
           #somehow automagically... no idea how this might work
