@@ -40,9 +40,9 @@
    <emphasis>prepare</emphasis> command which requires at least the
    path to your system image description and an optional destination
    directory as arguments:
-   <screen>
-    kiwi --prepare /path/to/description --root /tmp/myroot
-   </screen>
+<screen>
+ kiwi --prepare /path/to/description --root /tmp/myroot
+</screen>
    The result of this first step is an operating system which has
    its root directory below the given destination directory, /tmp/myroot.
    After this step the new root directory serves as data source for
@@ -50,9 +50,9 @@
    the <emphasis>create</emphasis> step and requires at least the path
    to your previosly created new root environment plus a
    destination directory for the image files as arguments:
-   <screen>
-    kiwi --create /tmp/myroot --destdir /tmp/myimages
-   </screen>
+<screen>
+ kiwi --create /tmp/myroot --destdir /tmp/myimages
+</screen>
    The destination directory /tmp/myimages must exist and kiwi will
    store all file for the requested image type below it.
    kiwi allows to specify <emphasis>defaultroot</emphasis> and

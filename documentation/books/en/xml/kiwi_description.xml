@@ -18,54 +18,46 @@
   The creation of operating system images from a physical extend is based on
   image description trees. An image description tree contains a set of files
   in a certain directory structure that are required to generate an image
-  using <filename>kiwi.pl</filename>. An image description tree is organized
+  using <filename>kiwi</filename>. An image description tree is organized
   as follows:
  </para>
 <screen>
  |
- |- cdboot/
- |   |- isolinux/
- |   |  |
- |   |  |- images
- |   |  |- messages
- |   |  |- translations
- |   |- isolinux.cfg
- |   |- isolinux.sh
- | 
- |- config/
- |  |
- |  |- some optional files/directories
- |
- |- config.sh
- |- config-yast.xml
  |- config.xml
- |- images.sh
- |- .profile
- |- root/
- |  |
- |  |- some optional files/directories
+ |- config [optional]
+ |   |- package configuration scripts
+ |
+ |- cdboot [optional] 
+ |   |- isolinux.cfg
+ |   |- isolinux.msg
+ |   |- isolinux.sh -> ../../suse-isolinux
+ |
+ |- config.sh [optional]
+ |- images.sh [optional]
+ |- config-yast.xml [optional]
+ |- config-cdroot.tgz [optional]
+ |- root [optional]
+     |- root tree files/directories
 </screen>
+ <sect2 id="sec.kiwi.description.config">
+  <title><filename>config</filename></title>
+  <para>
+   Optional Subdirectory that contains shell scripts that are executed after
+   all packages have been installed, for example to remove parts of a package
+   that are not needed for the operating system. The name of the bash script
+   must resemble the package name listed in the
+   <filename>config.xml</filename> file.
+  </para>
+ </sect2>
  <sect2 id="sec.kiwi.description.cdboot">
   <title><filename>cdboot</filename></title>
   <para>
    An optional directory needed when creating a bootable CD. It contains files
    required by the isolinux boot loader. This includes the
-   <filename>isolinux.cfg</filename> configuration file, the
-   <filename>isolinux/</filename> directory containing images, messages and
-   translation files for the boot screen. In addition the
-   <filename>isolinux.sh</filename> build script needs to be provided. It
+   <filename>isolinux.cfg,isolinux.msg</filename> configuration files and
+   the <filename>isolinux.sh</filename> build script. It
    creates an ISO image from a prebuild CD tree based upon the configuration
    from  <filename>isolinux.cfg</filename>.
-  </para>
- </sect2>
- <sect2 id="sec.kiwi.description.config">
-  <title><filename>config</filename></title>
-  <para>
-   Optional Subdirectory that contains Bash scripts that are executed after
-   all packages have been installed, for example to remove parts of a package
-   that are not needed for the operating system. The name of the bash script
-   must resemble the package name listed in the
-   <filename>config.xml</filename> file.
   </para>
  </sect2>
  <sect2 id="sec.kiwi.description.config.sh">
@@ -80,7 +72,16 @@
    deactivating services.
   </para>
  </sect2>
- <sect2 id="sec.kiwi.description.config-yast.xml">
+ <sect2 id="sec.kiwi.description.images.sh">
+  <title><filename>images.sh</filename></title>
+  <para>
+   Optional configuration script executed at the beginning of the image
+   creation process when creating the logical extend. It cleans the image
+   system from programs and files only needed while the physical extend
+   exists.
+  </para>
+ </sect2>
+  <sect2 id="sec.kiwi.description.config-yast.xml">
   <title><filename>config-yast.xml</filename></title>
   <para>
    Optional &ay; configuration file. To generate such a file, check
@@ -117,14 +118,34 @@
    </listitem>
   </itemizedlist>
  </sect2>
- <sect2 id="sec.kiwi.description.config.xml">
+ <sect2 id="sec.kiwi.description.config-cdroot.tgz"> 
+  <title><filename>config-cdroot.tgz</filename></title>
+  <para>
+   Optional compressed tar archive which is used for live systems only.
+   The data in the archive will be uncompressed and stored in the CD/DVD
+   root directory. The archive could be used to integrate a license or
+   readme information on the CD or DVD
+  </para>
+ </sect2>
+ <sect2 id="sec.kiwi.description.root">
+  <title><filename>root</filename></title>
+  <para>
+   Subdirectory that contains special files, directories, and scripts for
+   adapting the image environment <emphasis>after</emphasis> the installation
+   of all packages. The entire directory is copied into the root of
+   the image tree using <command>cp <option>-a</option></command>. The data
+   in root directory allows you to customize your image with data that
+   doesn't exist in the form of a package
+  </para>
+ </sect2>
+<sect2 id="sec.kiwi.description.config.xml">
   <title><filename>config.xml</filename></title>
    <para>
-    The main configuration file, defining image type, base name, options, and
-    the package list:
+    The main configuration file, defining image type, base name, repositories,
+    profiles, options, and the package/pattern list:
    </para>
 <screen>
-&lt;image name="Name" inherit="optional path"&gt;<co id="co.kiwi.config.image"/>
+&lt;image name="Name" inherit="optional path" schemeversion="1.4"&gt;<co id="co.kiwi.config.image"/>
   &lt;description type="boot|system"&gt;<co id="co.kiwi.config.description"/>
     &lt;author&gt;<replaceable>Author</replaceable>&lt;/author&gt;
     &lt;contact&gt;<replaceable>Contact</replaceable>&lt;/contact&gt;
@@ -135,28 +156,35 @@
     &lt;version&gt;<replaceable>Version</replaceable>&lt;/version&gt;
     &lt;size unit="<replaceable>Unit</replaceable>"&gt;<replaceable>Size</replaceable>&lt;/size&gt;
     &lt;packagemanager&gt;<replaceable>Name</replaceable>&lt;/packagemanager&gt;
+    &lt;rpm-check-signatures&gt;True|False&lt;/rpm-check-signatures&gt;
+    &lt;rpm-force&gt;True|False&lt;/rpm-force&gt;
+    &lt;keytable&gt;<replaceable>Name</replaceable>&lt;/keytable&gt;
+    &lt;timezone&gt;<replaceable>Name</replaceable>&lt;/timezone&gt;
+    &lt;locale&gt;<replaceable>Name</replaceable>&lt;/locale&gt;
+    &lt;defaultdestination&gt;<replaceable>Path</replaceable>&lt;/defaultdestination&gt;
+    &lt;defaultroot&gt;<replaceable>Path</replaceable>&lt;/defaultroot&gt;
     &lt;compressed&gt;Yes|No&lt;/compressed&gt;
   &lt;/preferences&gt;
+  &lt;profiles&gt;<co id="co.kiwi.config.profiles"/>
+    &lt;profile name="<replaceable>Name</replaceable>" description="<replaceable>Description</replaceable>"/&gt;
+  &lt;/profiles&gt;
   &lt;users group="<replaceable>Groupname</replaceable>"&gt;<co id="co.kiwi.config.users"/>
     &lt;user name="<replaceable>User</replaceable>" pwd="<replaceable>Password</replaceable>" home="<replaceable>Homedirectory</replaceable>"/&gt;
   &lt;/users&gt;
-  &lt;drivers type="<replaceable>Type</replaceable>"&gt;<co id="co.kiwi.config.drivers"/>
+  &lt;drivers type="<replaceable>Type</replaceable>" profiles="<replaceable>Name</replaceable>"&gt;<co id="co.kiwi.config.drivers"/>
     &lt;file name="<replaceable>Filename</replaceable>"/&gt;
   &lt;/drivers&gt;
   &lt;repository type="<replaceable>Type</replaceable>"&gt;<co id="co.kiwi.config.repository"/>
     &lt;source path="<replaceable>Url</replaceable>"/&gt;
   &lt;/repository&gt;
-  &lt;/deploy server="<replaceable>IP address</replaceable>"
-    blocksize="<replaceable>Size</replaceable>"&gt;<co id="co.kiwi.config.deploy"/>
+  &lt;/deploy server="<replaceable>IP address</replaceable>" blocksize="<replaceable>Size</replaceable>"&gt;<co id="co.kiwi.config.deploy"/>
     &lt;partitions device="<replaceable>Devicename</replaceable>"&gt;
-    &lt;partition type="<replaceable>Type</replaceable>"
-    number="<replaceable>Nuber</replaceable>" size="<replaceable>Size</replaceable>"/&gt;
-      &lt;partition .../&gt;
+      &lt;partition type="<replaceable>Type</replaceable>" number="<replaceable>Number</replaceable>" size="<replaceable>Size</replaceable>"/&gt;
     &lt;/partitions&gt;
-    &lt;configuration source="<replaceable>Source</replaceable>"
-    dest="<replaceable>Destination</replaceable>"/&gt;
+    &lt;union rw="<replaceable>RW-Device</replaceable>" ro="<replaceable>RO-Device</replaceable>" type="aufs|unionfs"/&gt;
+    &lt;configuration source="<replaceable>Source</replaceable>" dest="<replaceable>Destination</replaceable>"/&gt;
   &lt;/deploy&gt;
-  &lt;packages type="<replaceable>Type</replaceable>"&gt;<co id="co.kiwi.config.packages"/>
+  &lt;packages type="<replaceable>Type</replaceable>" profiles="<replaceable>Name</replaceable>"&gt;<co id="co.kiwi.config.packages"/>
     &lt;package name="<replaceable>Packagename</replaceable>" arch="<replaceable>Arch</replaceable>"/&gt;
     &lt;opensusePattern name="<replaceable>Patternname</replaceable>"/&gt;
     &lt;ignore name="<replaceable>Packagename</replaceable>"/&gt;
@@ -172,13 +200,21 @@
      current date. The version number is extracted from the directory in which
      the description files for this image are located. When using the optional
      attribute <sgmltag class="attribute">inherit</sgmltag> with a path to
-     another kiwi description, this description will be appended to the
-     current one.
+     another kiwi description, this description will be prepended to the
+     current one. The mandatory attribute
+     <sgmltag class="attribute">schemeversion</sgmltag> must be set and
+     allows version <emphasis>1.4</emphasis> at the moment.
     </para>
    </callout>
    <callout arearefs="co.kiwi.config.description">
     <para>
-     <sgmltag>description</sgmltag>: TODO
+     <sgmltag>description</sgmltag> element contains the attributes
+     <sgmltag class="attribute">author, contact</sgmltag> and
+     <sgmltag class="attribute">specification</sgmltag>. Author should
+     be the name of the responsible person for this image. Contact should
+     be a valid e-mail address in order to get in touch with the
+     responsible person and the specification attribute contains a free
+     form text describing what this image is good for.
     </para>
    </callout>
    <callout arearefs="co.kiwi.config.preferences">
@@ -276,115 +312,130 @@
        </variablelist>
        <para>
 	The following list is an overview of different boot image
-	(<filename>initrd</filename>) types:
+    (<filename>initrd</filename>) types. While creating the system
+    image kiwi automatically creates the specified
+    <emphasis>...boot</emphasis> boot image. The description
+    for the boot image must exist in
+    <emphasis>/usr/share/kiwi/image/...boot/suse-...</emphasis>
        </para>
        <variablelist>
 	<varlistentry>
 	 <term>
 	  <code>
-	   &lt;type boot="isoboot/my.iso"
-	   flags="compressed"&gt;iso&lt;/type&gt;
+	   &lt;type boot="isoboot/suse-..."
+	   flags="unified"&gt;iso&lt;/type&gt;
 	  </code>
 	 </term>
 	 <listitem>
 	  <para>
-	   Creates an <filename>.iso</filename> image. The filename of the
-	   image is specified with <sgmltag class="attribute">boot</sgmltag>.
-	   If the optional attribute <sgmltag
-	    class="attribute">flags</sgmltag> is set to <sgmltag
-	    class="attvalue">compressed</sgmltag> squashfs compression will be
-	   used for the read-only part of the iso.
+	   If the optional attribute <sgmltag class="attribute">flags</sgmltag>
+       is set to <sgmltag class="attvalue">compressed</sgmltag>
+       squashfs compression will be used for the read-only part of the iso.
+       If set to <sgmltag class="attvalue">unified</sgmltag> the squashfs
+       compressed read-only part will be used in combination with the
+       union filesystem named aufs which allows a complete read-write
+       system as long as the system runs.
 	  </para>
 	 </listitem>
 	</varlistentry>
 	<varlistentry>
 	 <term>
 	  <code>
-	   &lt;type boot="usbboot/my.iso"
+	   &lt;type boot="usbboot/suse-..."
 	   filesystem="ext3"&gt;usb&lt;/type&gt;
 	  </code>
 	 </term>
 	 <listitem>
 	  <para>
-	   Creates a system and boot image suitable to run on an USB stick
-	   (deployed with the kiwi <option>--bootstick</option> option).
-	   <sgmltag class="attribute">filesystem</sgmltag> specifies one of
+	   The attribute <sgmltag class="attribute">filesystem</sgmltag>
+       specifies one of
 	   <sgmltag class="attvalue">ext2</sgmltag>,<sgmltag
-	    class="attvalue">ext3</sgmltag>, or <sgmltag
-	    class="attvalue">reiserfs</sgmltag> and the value of <sgmltag
-	    class="attribute">boot</sgmltag> is the path to the image file
+	    class="attvalue">ext3</sgmltag>,<sgmltag
+        class="attvalue">squashfs</sgmltag> or <sgmltag
+	    class="attvalue">reiserfs</sgmltag>
+       The created system and boot images are suitable to run on an USB stick
+       and can be deployed to it with the kiwi
+       <option>--bootstick / --bootstick-system</option> options
 	  </para>
 	 </listitem>
 	</varlistentry>
 	<varlistentry>
 	 <term>
 	  <code>
-	   &lt;type boot="vmxboot/my.iso"
+	   &lt;type boot="vmxboot/suse-..."
 	   filesystem="ext3"&gt;vmx&lt;/type&gt;
 	  </code>
 	 </term>
 	 <listitem>
 	  <para>
-	   Creates a virtual disk image for qemu or VMware. <sgmltag
+	   The attribute <sgmltag
 	    class="attribute">filesystem</sgmltag>
 	   specifies one of <sgmltag class="attvalue">ext2</sgmltag>,<sgmltag
 	    class="attvalue">ext3</sgmltag>, or <sgmltag
-	    class="attvalue">reiserfs</sgmltag> and the value of <sgmltag
-	    class="attribute">boot</sgmltag> is the path to the image file
+	    class="attvalue">reiserfs</sgmltag>.
+       The final result is one file appearing as virtual disk which
+       includes the system and boot images as well as the disk geometry
+       partition information and the boot manager
 	  </para>
 	 </listitem>
 	</varlistentry>
 	<varlistentry>
 	 <term>
 	  <code>
-	   &lt;type boot="xenboot/my.iso"
+	   &lt;type boot="xenboot/suse-..."
 	   filesystem="ext3"&gt;xen&lt;/type&gt;
 	  </code>
 	 </term>
 	 <listitem>
 	  <para>
-	   Creates a Xen boot and system image as well as the Xen
-	   configuration file. filesystem specifies one of <sgmltag
+	   The attribute <sgmltag class="attribute">filesystem</sgmltag>
+       specifies one of <sgmltag
 	    class="attvalue">ext2</sgmltag>,<sgmltag
 	    class="attvalue">ext3</sgmltag>, or <sgmltag
-	    class="attvalue">reiserfs</sgmltag> and the value of <sgmltag
-	    class="attribute">boot</sgmltag> is the path to the image file
+	    class="attvalue">reiserfs</sgmltag>.
+       The created system and boot images as well as the xen configuration
+       file are suitable to run a Xen virtual machine using the
+       <filename>xm</filename> program.
 	  </para>
 	 </listitem>
 	</varlistentry>
 	<varlistentry>
 	 <term>
 	  <code>
-	   &lt;type boot="netboot/my.iso"
+	   &lt;type boot="netboot/suse-..."
 	   filesystem="ext3"&gt;pxe&lt;/type&gt;
 	  </code>
 	 </term>
 	 <listitem>
 	  <para>
-	   Creates a PXE boot and system image. filesystem specifies one of
-	   <sgmltag class="attvalue">ext2</sgmltag>,<sgmltag
+	   The attribute <sgmltag class="attribute">filesystem</sgmltag>
+       specifies one of <sgmltag class="attvalue">ext2</sgmltag>,<sgmltag
 	    class="attvalue">ext3</sgmltag>, or <sgmltag
 	    class="attvalue">reiserfs</sgmltag> and the value of <sgmltag
-	    class="attribute">boot</sgmltag> is the path to the netboot or
-	   xennetboot image file
+	    class="attribute">boot</sgmltag> is the path to a netboot or
+	   xennetboot boot image description. The created system and boot 
+       images are suitable to drive a network client station. An appropriate
+       network infrastructure including a DHCP and TFTP server is required
+       in order to activate a network client.
 	  </para>
 	 </listitem>
 	</varlistentry>
 	<varlistentry>
 	 <term>
 	  <code>
-	   &lt;type boot="netboot/my.iso"
+	   &lt;type boot="netboot/suse-..."
 	   filesystem="<replaceable>type-rw</replaceable>,
 	   <replaceable>type-ro</replaceable>"&gt;split&lt;/type&gt;
 	  </code>
 	 </term>
 	 <listitem>
 	  <para>
-	   Createa a splitted image with a read-only and a read-write part.
+       The attribute <sgmltag class="attribute">filesystem</sgmltag>
+       specifies a filesystem pair whereas
 	   <replaceable>type-rw</replaceable> specifies one of <sgmltag
 	    class="attvalue">ext2</sgmltag>, <sgmltag
 	    class="attvalue">ext3</sgmltag> or <sgmltag
-	    class="attvalue">reiserfs</sgmltag>,
+	    class="attvalue">reiserfs</sgmltag> and
 	   <replaceable>type-ro</replaceable> specifies one of <sgmltag
 	    class="attvalue">ext2</sgmltag>, <sgmltag
 	    class="attvalue">ext3</sgmltag>, <sgmltag
@@ -448,7 +499,8 @@
 	 message. On the other hand, kiwi does <emphasis>not</emphasis>
 	 automatically reduce the images size if the specified value is too
 	 large, because the extra space may be needed to, for example, run
-	 custom scripts.
+	 custom scripts. If no size is specified at all kiwi will use the
+     required size plus approximately 10% free space.
 	</para>
        </note>
       </listitem>
@@ -459,7 +511,7 @@
        <para>
 	Name of the packagemanager to be used for package installation.
 	Currently <sgmltag class="attvalue">smart</sgmltag> is the default
-	packagemanager but <sgmltag class="attvalue">zypper</sgmltag> will be
+	packagemanager but <sgmltag class="attvalue">zypper</sgmltag> is
 	supported as well.
        </para>
       </listitem>
@@ -468,10 +520,26 @@
       <term><sgmltag>compressed</sgmltag></term>
       <listitem>
        <para>
-	TODO
+	The compressed flag indicates whether the system image should be
+    compressed or not. This affects only the kiwi output file itself and
+    has no influence on the operating system living in the image.
+    For network clients it makes sense to download the image as
+    compressed image.
        </para>
       </listitem>
      </varlistentry>    
+     <varlistentry>
+      <term><sgmltag>keytable</sgmltag></term>
+      <listitem>
+       <para>
+	Contains the name of the console keymap to use. The value corresponds
+	to a map file in <filename>/usr/share/kbd/keymaps</filename>. The
+	variable <varname>KEYTABLE</varname> within the file
+	<filename>/etc/sysconfig/keyboard</filename> will be set according to
+	the keyboard mapping.
+       </para>
+      </listitem>
+     </varlistentry>
      <varlistentry>
       <term><sgmltag>timezone</sgmltag></term>
       <listitem>
@@ -487,18 +555,57 @@
       </listitem>
      </varlistentry>
      <varlistentry>
-      <term><sgmltag>keytable</sgmltag></term>
+      <term><sgmltag>locale</sgmltag></term>
       <listitem>
        <para>
-	Contains the name of the console keymap to use. The value corresponds
-	to a map file in <filename>/usr/share/kbd/keymaps</filename>. The
-	variable <varname>KEYTABLE</varname> within the file
-	<filename>/etc/sysconfig/keyboard</filename> will be set according to
-	the keyboard mapping.
+    Contains the name of the locale to use and therefore defines the
+    contents of the <varname>RC_LANG</varname> system environment variable
+    set in <filename>/etc/sysconfig/language</filename>
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><sgmltag>defaultdestination</sgmltag></term>
+      <listitem>
+       <para>
+    Optional attribute <sgmltag class="attribute">defaultdestination</sgmltag>
+    is used if the option <option>destdir</option> is not specified while
+    calling kiwi.
+       </para>
+      </listitem>
+     </varlistentry>  
+     <varlistentry>
+      <term><sgmltag>defaultroot</sgmltag></term>
+      <listitem>
+       <para>
+    Optional attribute <sgmltag class="attribute">defaultroot</sgmltag>
+    is used if the option <option>root</option> is not specified while 
+    calling kiwi.
        </para>
       </listitem>
      </varlistentry>
     </variablelist>
+   </callout>
+   <callout arearefs="co.kiwi.config.profiles">
+    <para>
+     The optional <sgmltag>profiles</sgmltag> element contains information
+     which allows you to maintain one image description while
+     still allowing for some variation in the set of packages and drivers
+     that are included. A <sgmltag>profile</sgmltag> element has to be
+     specified for each variation. The child element
+     <sgmltag>profile</sgmltag> with the attributes <sgmltag
+      class="attribute">name</sgmltag> and <sgmltag
+      class="attribute">description</sgmltag> 
+     specifies an alias name which is used in sections to mark them as
+     belonging to a profile and a more detailed description explaining what
+     this profile does. To mark a set of packages and/or drivers as belonging
+     to a profile, simply annotate them with the
+     <sgmltag class="attribute">profiles</sgmltag> attribute.
+     If a <sgmltag>packages</sgmltag> tag has no
+     <sgmltag class="attribute">profiles</sgmltag> attribute, it is assumed
+     to be present for all profiles. All of the above also goes for the
+     <sgmltag>drivers</sgmltag> tag too.
+    </para>
    </callout>
    <callout arearefs="co.kiwi.config.users">
     <para>
@@ -508,7 +615,7 @@
      belongs to. If this group doesn't exist it will be created. A
      <sgmltag>user</sgmltag> element has to be specified for each
      group. Specify the users belonging to a group with the child element
-     <sgmltag>users</sgmltag> with the attributes <sgmltag
+     <sgmltag>user</sgmltag> with the attributes <sgmltag
       class="attribute">name</sgmltag>, <sgmltag
       class="attribute">pwd</sgmltag> and <sgmltag
       class="attribute">home</sgmltag> for username, password and the path to
@@ -534,6 +641,15 @@
       </listitem>
      </varlistentry>
      <varlistentry>
+      <term><sgmltag class="attvalue">usbdrivers</sgmltag></term>
+      <listitem>
+       <para>
+    Every file is specified relative to the directory
+    <filename>/lib/modules/<replaceable>&lt;Version&gt;</replaceable>/kernel/drivers/usb</filename>
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
       <term><sgmltag class="attvalue">drivers</sgmltag></term>
       <listitem>
        <para>
@@ -553,7 +669,7 @@
      <sgmltag>source</sgmltag> contains the attribute <sgmltag
       class="attribute">path</sgmltag> to setup the the location of the
      repository, for example, <code>source="/image/CDs/full-i386"</code>. The
-     path specifaction can be one of:
+     path specification can be one of:
     </para>
     <itemizedlist>
      <listitem>
@@ -563,7 +679,14 @@
      </listitem>
      <listitem>
       <para>
-       <literal>html://</literal> or <literal>ftp://</literal>
+       <literal>this://</literal>
+       relative path name which is relative to the image description
+       which is referenced
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       <literal>http://</literal> or <literal>ftp://</literal>
        Network-Location
       </para>
      </listitem>
@@ -585,7 +708,45 @@
    </callout>
    <callout arearefs="co.kiwi.config.deploy">
     <para>
-     TODO
+     The <sgmltag>deploy</sgmltag> element make sense for network clients
+     only and describes where to get the system image and how should the
+     client be prepared for that image. Preparation in the sense of an
+     image means how should the disk be partitioned or what configuration
+     files should be included. According to this the attributes
+     <sgmltag class="attribute">server</sgmltag> and
+     <sgmltag class="attribute">blocksize</sgmltag> specifies the TFTP
+     server which takes over control for the download.
+     The <sgmltag>partitions</sgmltag> tag specifies the partition(s)
+     for one disk device (<sgmltag class="attribute">device</sgmltag>).
+     Each partition is specified by one subtag named
+     <sgmltag>partition</sgmltag> which defines the type
+     (see sfdisk --list-type), partition number, size , optional mountpoint
+     and optional information whether this partition is the system image target
+     partition or not. With the kiwi netboot image the first partition is always
+     the swap partition and the second partition is by default used for
+     the system image. With the optional target flag it is possible to
+     indicate another than the second partition to be the one the system
+     image is installed on.
+     If <emphasis>size</emphasis> is set to "image" kiwi will calculate
+     the required size for this partition in order to have enough space
+     for the later image.
+     The optional <sgmltag>union</sgmltag> is used if the system image is
+     based on a read-only filesystem like squashfs. In this case kiwi
+     can setup an aditional write partition and combine both with the
+     given overlay filesystem. Right now there are two of such filesystems
+     one is called <emphasis>unionfs</emphasis> and the other
+     (preferred) one is called <emphasis>aufs</emphasis>.
+     The partition which holds the read-only system image must be
+     set as value to the attribute <sgmltag class="attribute">ro</sgmltag>
+     and the partition which should serve as write partition must be
+     set as value to the attribute <sgmltag class="attribute">rw</sgmltag>.
+     The optional <sgmltag>configuration</sgmltag> tag can be used to
+     integrate configuration files to a network client which are
+     remotely stored on the server. The attribute
+     <sgmltag class="attribute">source</sgmltag> specifies the path on the
+     server used by a tftp client program to download the file and the
+     attribute <sgmltag class="attribute">dest</sgmltag> specifies the
+     target relatively to the root (/) of the network client.
     </para>
    </callout>
    <callout arearefs="co.kiwi.config.packages">
@@ -609,9 +770,9 @@
       <term><sgmltag class="attvalue">boot</sgmltag></term>
       <listitem>
        <para>
-	Packages used to start buildig the image. Basic components like
-	<systemitem>libc</systemitem> or the <systemitem>smart</systemitem>
-	package manager are listed here.
+	Packages used to start creating a new operating system root tree.
+    Basic components which are required to chroot into that system
+	like <systemitem>glibc</systemitem> are listed here.
        </para>
       </listitem>
      </varlistentry>
@@ -620,7 +781,24 @@
       <listitem>
        <para>
 	Packages used when the image needs support for Xen based
-	virtualisation.
+	virtualisation. The attributes <sgmltag class="attribute">memory</sgmltag>
+    and <sgmltag class="attribute">disk</sgmltag> defines how much memory
+    the virtual system requires and what kind of device the disk should
+    appear in the virtual instance. This information is used to create the
+    appropriate Xen configuration file.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><sgmltag class="attvalue">vmware</sgmltag></term>
+      <listitem>
+       <para>
+    Packages used when the image needs support for VMware based
+    virtualisation. The attributes <sgmltag class="attribute">memory</sgmltag>
+    and <sgmltag class="attribute">disk</sgmltag> defines how much memory
+    the virtual system requires and what kind of device the disk should
+    appear in the virtual instance. This information is used to create the
+    appropriate VMware configuration file.
        </para>
       </listitem>
      </varlistentry>
@@ -638,47 +816,6 @@
     </para>
    </callout>
   </calloutlist>
- </sect2>
- <sect2 id="sec.kiwi.description.images.sh">
-  <title><filename>images.sh</filename></title>
-  <para>
-   Optional configuration script executed at the beginning of the image
-   creation process when creating the logical extend.  It is cleans the image
-   system from programs and files only needed while the physical extend
-   exists.
-  </para>
- </sect2>
- <sect2 id="sec.kiwi.description.profile">
-  <title>.profile</title>
-  <para>
-   All values entered within the <sgmltag>image</sgmltag> element of the
-   <filename>config.xml</filename> file are additionally stored in a file
-   called <filename>.profile</filename>. This file is created before the
-   execution of an image script like <filename>config.sh</filename>,
-   <filename>images.sh</filename>, or a <quote>package script</quote>. This
-   makes the parameters of the config file are available as variables that can
-   be sourced via script. Such a script should follow this template (replace
-   <literal>name</literal> by the image name):
-  </para>
-  <screen>
-   #!/bin/sh test -f /.kconfig &amp;&amp; . /.kconfig test -f /.profile
-   &amp;&amp; . /.profile echo -n "Image
-   <replaceable>&lt;name&gt;</replaceable>..." ... script code echo
-   done</screen>
-  <para>
-   Such a  script is called within the image environment, which means it is not
-   possible to damage the host system with it script even if you are using
-   absolute paths
-  </para>
- </sect2>
- <sect2 id="sec.kiwi.description.root">
-  <title><filename>root</filename></title>
-  <para>
-   Subdirectory that contains special files, directories, and scripts for
-   adapting the image environment <emphasis>after</emphasis> the installation
-   of all packages. The entire directory is copied into the root of
-   the image tree using <command>cp <option>-a</option></command>.
-  </para>
  </sect2>
 </sect1>
 
