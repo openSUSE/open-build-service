@@ -142,8 +142,33 @@
   <title><filename>config.xml</filename></title>
    <para>
     The main configuration file, defining image type, base name, repositories,
-    profiles, options, and the package/pattern list:
+    profiles, options, and the package/pattern list.
    </para>
+   <note>
+    <para>
+     All values entered
+     within the <sgmltag>image,preferences</sgmltag> and 
+     <sgmltag>drivers</sgmltag> elements of the
+     <filename>config.xml</filename> file are additionally stored in a file
+     called <filename>.profile</filename>. This file is created before the
+     execution of an image script like <filename>config.sh</filename>,
+     <filename>images.sh</filename>, or a <quote>package script</quote>. This
+     makes the parameters of the config file are available as variables
+     that can be sourced via script. Such a script should follow this
+     template (replace <literal>name</literal> by the image name):
+     <screen>
+ #!/bin/sh
+ test -f /.kconfig &amp;&amp; . /.kconfig test -f /.profile
+ test -f /.profile &amp;&amp; . /.profile test -f /.profile
+ echo "Configure image: [$name]..."
+ ...
+ exit 0
+     </screen>
+      Such a  script is called within the image environment, which means it
+      is not possible to damage the host system with it script even if you
+      are using absolute paths
+    </para>
+   </note>
 <screen>
 &lt;image name="Name" inherit="optional path" schemeversion="1.4"&gt;<co id="co.kiwi.config.image"/>
   &lt;description type="boot|system"&gt;<co id="co.kiwi.config.description"/>
