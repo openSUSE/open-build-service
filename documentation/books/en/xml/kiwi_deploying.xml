@@ -13,7 +13,7 @@
 -->
 
 <sect1 id="sec.kiwi.deploying" xml:base="kiwi_deploying.xml">
- <title>Deployment of Operating System Images</title>
+ <title>Real-Life Scenarios - A Tutorial</title>
  <abstract>
   <para>
    Creating an operating system image always implies the question how to

@@ -18,10 +18,11 @@
   <para>
    The OpenSuSE KIWI Image System provides a complete operating system image
    solution for Linux supported hardware platforms as well as for
-   virtualisation systems like Xen. The KIWI architecture is designed as a two
-   stage system. The first stage, based on a valid <emphasis>software package
-    source</emphasis>, creates a so called <emphasis>physical
-    extend</emphasis> as provided by an image description. The second stage
+   virtualisation systems like Xen, VMware and others. The KIWI architecture
+   is designed as a two stage system. The first stage, based on a
+   valid <emphasis>software package source</emphasis>, creates a so
+   called <emphasis>physical extend</emphasis> as provided by an image
+   description. The second stage
    creates an operating system image from the physical extend . The result of
    that second stage is called a <emphasis>logical extend</emphasis> or
    operating system image.
@@ -30,14 +31,17 @@
  <sect2 id="sec.kiwi.introduction.concept">
   <title>Concept</title>
   <para>
-   The first stage created by KIWI, the physical extend, requires a valid
-   software package source, a so-called repository, in order to access the
+   The first stage created by KIWI, the physical extend, requires at least
+   one valid software package source, a so-called repository, in order
+   to access the
    software to build a system. A repository consists of software packages,
    organized in a package tree that also includes some meta data. Software
-   repositories can exist in different formats, therefore KIWI uses the Smart
-   Package Manager, which handles the most important repository formats, to
-   access them. More information on smart is available at <ulink
-    url="http://labix.org/smart"/>.
+   repositories can exist in different formats, therefore KIWI uses a
+   Package-Manager to access them. With kiwi you have the choice for either
+   <emphasis>smart</emphasis> or <emphasis>zypper</emphasis> to be used
+   as package manager. Smart handles a wide range and also the most
+   important repository formats. More information on smart is available
+   at <ulink url="http://labix.org/smart"/>.
   </para>
   <para>
    The second stage&mdash;creating an operating system image&mdash;takes place
@@ -93,160 +97,102 @@
  <sect2 id="sec.kiwi.introduction.image_types">
   <title>Supported Image Types</title>
   <para>
-   To create a logical extend it is necessary to create a filesystem the
-   operating system data can be stored in. The image type corresponds to the
-   selected filesystem. Supported image types are:
+   The logical extend is the final result of an image creation process
+   and represents an operating system as part of a specific filesystem
+   which could also be covered by the structures of real or virtual
+   hardware layers. There are different types of images whereas kiwi
+   supports the following:
   </para>
   <variablelist>
    <varlistentry>
-    <term> CPIO</term>
-    <listitem>
-     <para></para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>EXT2 / EXT3</term>
-    <listitem>
-     <para></para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>ReiserFS</term>
-    <listitem>
-     <para></para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>CramFS</term>
+    <term>The Live-System image [iso]</term>
     <listitem>
      <para>
-      for the read-only part of <emphasis>split</emphasis> images only
+      The iso type is used to create live systems. A live system is an
+      operating system on a CD or DVD. When the system boot all data is
+      read from the CD/DVD. The system provides write support but all
+      data is stored in RAM. So as soon as the system shut down the data
+      will be lost. The generated iso file needs to be burned on the
+      media
      </para>
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>Special cpio/ext2 Boot image</term>
+    <term>The virtual hard disk image [vmx]</term>
     <listitem>
      <para>
-      for image installation via network
+      The vmx type is used to create a virtual disk. The disk provides
+      the partition information the boot manager and all other data which
+      are found on a real disk as well. Such an image can be used as disk
+      for full-virtual systems like Qemu or VMware. Kiwi also creates the
+      VMware configuration file if requested. The generated image requires
+      a virtualisation software to be installed
      </para>
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>Special cpio/ext2 XEN-Boot image</term>
+    <term>The para-virtual Xen image [xen]</term>
     <listitem>
      <para>
-      based on the Xen kernel and <filename>mboot.c32</filename> for
-      multiboot of Xen plus <filename>initrd</filename> (kiwi boot image)
+      The xen type is used to create an operating system image based on
+      a given filesystem including a special xen boot image, the xen kernel
+      and the xen configuration file. If the current system is a xen
+      hypervisor one can create new para virtual machines with the
+      data provided by kiwi. The generated image requires a Xen hypervisor
+      running on the computer.
      </para>
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>Special cpio/ext2 ISO-Boot image</term>
+    <term>The USB-Stick image [usb]</term>
     <listitem>
      <para>
-      to create a kiwi boot image for booting a live CD system image. Used in
-      combination with the <varname>iso</varname>: image type
+      The usb type is used to create an operating system image based on
+      a given filesystem including a special usb boot image. kiwi is able
+      to install the generated image onto an USB stick. If your system
+      BIOS is able to boot from a USB stick you can use this stick as
+      complete operating system. Compared to a live system an USB stick
+      provides permanent storage of your private data as well. The
+      generated image can be installed by a subsequent kiwi call
      </para>
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>Special cpio/ext2 USB-Boot image</term>
+    <term>The network image [pxe]</term>
     <listitem>
      <para>
-      to create a kiwi boot image for booting a USB stick system image. Used
-      in combination with the <varname>usb</varname>: image type
+      the pxe type is used to create an operating system image based on
+      a given filesystem including a special network boot image. The image
+      itself will be stored on a server from where the boot image can
+      download and activate it. The generated image requires a DHCP/TFTP
+      network infrastructure running on a server
      </para>
     </listitem>
    </varlistentry>
    <varlistentry>
-    <term>Special cpio/ext2 VMX-Boot image</term>
+    <term>The network split image [split]</term>
     <listitem>
      <para>
-      to create a kiwi boot image for booting a virtual machine system image.
-      This is <emphasis>not</emphasis> used for paravirtualized machines like
-      Xen but rather for full virtual machines like QEMU and VMware. Used in
-      combination with the <varname>vmx</varname>: image type
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>
-     iso:<replaceable>&lt;boot-image-name&gt;</replaceable> image support
-    </term>
-    <listitem>
-     <para>
-      LiveCD/DVD system image, which means the image gets splitted into two
-      ext2 based sub-images with one representing the loop read-only part on
-      CD and the other representing the read-write data in RAM
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>
-     usb:<replaceable>&lt;fstype&gt;</replaceable>:<replaceable>&lt;boot-image-name&gt;</replaceable>
-    </term>
-    <listitem>
-     <para>
-      USB stick system image, which means the system image and the boot image
-      will be created automatically. To deploy the image on the stick the
-      <option>-bootstick</option> option can be used.
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>
-     vmx:<replaceable>&lt;fstype&gt;</replaceable>:<replaceable>&lt;boot-image-name&gt;</replaceable>
-    </term>
-    <listitem>
-     <para>
-      Virtual machine system image, which means a virtual disk will be
-      created including boot manager boot image and system image to be used
-      within qemu (<filename>.qemu</filename> file) or vmware player
-      (<filename>.vmdk</filename> file)
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>
-     xen:<replaceable>&lt;fstype&gt;</replaceable>:<replaceable>&lt;boot-image-name&gt;</replaceable>
-    </term>
-    <listitem>
-     <para>
-      Xen machine system image, which means an image plus boot image will be
-      created including the Xen configuration to start the image.
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>
-     pxe:<replaceable>&lt;fstype&gt;</replaceable>:<replaceable>&lt;boot-image-name&gt;</replaceable>
-    </term>
-    <listitem>
-     <para>
-      PXE system image, which means an image plus boot image will be created.
-      Additionally one can add a deploy section into the config.xml which is
-      used to created the
-      <filename>config.<replaceable>&lt;MAC&gt;</replaceable></filename> file
-      for the pxe network deployment of this image
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term>
-     split:<replaceable>&lt;fstypeRW,fstypeRO&gt;</replaceable> image
-     support
-    </term>
-    <listitem>
-     <para>
-      The image is splitted into a read-only and a read-write part; each part
-      can have a different filesystem. To be able to boot such an image, the
-      <filename>config.&lt;MAC&gt;</filename> file must contain a
-      <literal>COMBINED_IMAGE=yes</literal> statement.
+      the split type is used to create an operating system image based on
+      two given filesystems. The image will be divided into two portions
+      whereas the first portion represents the data which requires read/write
+      access and the second portion represents the read-only data. According
+      to this the second porition can be part of a compressed read-only
+      filesystem. This image type doesn't automatically create its boot
+      image and works only with netboot and xennetboot boot images. The
+      generated image requires a DHCP/TFTP network infrastructure
+      running on a server
      </para>
     </listitem>
    </varlistentry>
   </variablelist>
+  <para>
+   The image base type is referenced in the main image configuration file
+   config.xml and has several mandatory/optional parameters. The parameters
+   influences the operating system environment like the used filesystem
+   but the result is still an image made for the purpose described by   
+   the base type.
+  </para>
  </sect2>
 </sect1>
 <!-- Keep this comment at the end of the file

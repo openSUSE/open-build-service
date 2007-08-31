@@ -50,10 +50,11 @@
  <!-- Include all KIWI related files here -->
 
  <xi:include href="kiwi_introduction.xml"/>
- <xi:include href="kiwi_creating.xml"/>
+ <xi:include href="kiwi_create.xml"/>
+ <xi:include href="kiwi_description.xml"/>
  <xi:include href="kiwi_activating.xml"/>
- <xi:include href="kiwi_deploying.xml"/>
  <xi:include href="kiwi_maintenance.xml"/>
+ <xi:include href="kiwi_deploying.xml"/>
  <xi:include href="kiwi_troubleshooting.xml"/>
 
 </chapter>

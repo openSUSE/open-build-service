@@ -12,8 +12,8 @@
  ***************************************************
 -->
 
-<sect1 id="sec.kiwi.creating" xml:base="kiwi_creating.xml">
- <title>Creating Operating System Images</title>
+<sect1 id="sec.kiwi.description" xml:base="kiwi_description.xml">
+ <title>The KIWI image description</title>
  <para>
   The creation of operating system images from a physical extend is based on
   image description trees. An image description tree contains a set of files
@@ -45,7 +45,7 @@
  |  |
  |  |- some optional files/directories
 </screen>
- <sect2 id="sec.kiwi.creating.cdboot">
+ <sect2 id="sec.kiwi.description.cdboot">
   <title><filename>cdboot</filename></title>
   <para>
    An optional directory needed when creating a bootable CD. It contains files
@@ -58,7 +58,7 @@
    from  <filename>isolinux.cfg</filename>.
   </para>
  </sect2>
- <sect2 id="sec.kiwi.creating.config">
+ <sect2 id="sec.kiwi.description.config">
   <title><filename>config</filename></title>
   <para>
    Optional Subdirectory that contains Bash scripts that are executed after
@@ -68,19 +68,19 @@
    <filename>config.xml</filename> file.
   </para>
  </sect2>
- <sect2 id="sec.kiwi.creating.config.sh">
+ <sect2 id="sec.kiwi.description.config.sh">
   <title><filename>config.sh</filename></title>
   <para>
    Optional configuration script while creating the physical extend. This
    script is executed at the end of the installation when having switched to
    the operating sstem image with <command>chroot</command>, but
    <emphasis>before</emphasis> the package scripts paced in the config
-   directory (see <xref linkend="sec.kiwi.creating.config"/>) have run. It is
+   directory (see <xref linkend="sec.kiwi.description.config"/>) have run. It is
    used to configure the image system by, for example, activating or
    deactivating services.
   </para>
  </sect2>
- <sect2 id="sec.kiwi.creating.config-yast.xml">
+ <sect2 id="sec.kiwi.description.config-yast.xml">
   <title><filename>config-yast.xml</filename></title>
   <para>
    Optional &ay; configuration file. To generate such a file, check
@@ -117,7 +117,7 @@
    </listitem>
   </itemizedlist>
  </sect2>
- <sect2 id="sec.kiwi.creating.config.xml">
+ <sect2 id="sec.kiwi.description.config.xml">
   <title><filename>config.xml</filename></title>
    <para>
     The main configuration file, defining image type, base name, options, and
@@ -639,7 +639,7 @@
    </callout>
   </calloutlist>
  </sect2>
- <sect2 id="sec.kiwi.creating.images.sh">
+ <sect2 id="sec.kiwi.description.images.sh">
   <title><filename>images.sh</filename></title>
   <para>
    Optional configuration script executed at the beginning of the image
@@ -648,7 +648,7 @@
    exists.
   </para>
  </sect2>
- <sect2 id="sec.kiwi.creating.profile">
+ <sect2 id="sec.kiwi.description.profile">
   <title>.profile</title>
   <para>
    All values entered within the <sgmltag>image</sgmltag> element of the
@@ -671,7 +671,7 @@
    absolute paths
   </para>
  </sect2>
- <sect2 id="sec.kiwi.creating.root">
+ <sect2 id="sec.kiwi.description.root">
   <title><filename>root</filename></title>
   <para>
    Subdirectory that contains special files, directories, and scripts for

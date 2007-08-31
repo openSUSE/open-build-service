@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.docbook.org/xml/4.4/docbookx.dtd"
+[
+ <!ENTITY % entities SYSTEM "entity-decl.ent">
+ %entities;
+]>
+
+<!--
+ ***************************************************
+ Please see license.xml for this document's license.
+ ***************************************************
+-->
+
+<sect1 id="sec.kiwi.create" xml:base="kiwi_create.xml">
+ <title>Creating Operating System Images</title>
+ <abstract>
+  <para>
+   When starting to create an image with kiwi it's required to create
+   a so called <emphasis>system image description</emphasis>. Such a
+   description is a directory containing at least one file named
+   <emphasis>config.xml</emphasis>. The config.xml describes what
+   packages/patterns should make your image from which source
+   repositories the data should be obtained which image type(s)
+   can be generated from this description and many
+   more (see <xref linkend="sec.kiwi.description"/>).
+  </para>
+  <para>
+   In order to be able to start with an example image one can
+   use an existing system image description as template. An image
+   description is normally provided as architecture independent
+   package. For your reference download the
+   <emphasis>kiwi-desc-livesystem</emphasis> from here: 
+   <ulink url="http://software.opensuse.org/openSUSE:/Tools"/>.
+   This package contains descriptions for openSUSE live systems which
+   can serve as basis for any other image type as well.
+  </para>
+  <para>
+   The process of creating an image always start with a
+   <emphasis>prepare</emphasis> command which requires at least the
+   path to your system image description and an optional destination
+   directory as arguments:
+   <screen>
+    kiwi --prepare /path/to/description --root /tmp/myroot
+   </screen>
+   The result of this first step is an operating system which has
+   its root directory below the given destination directory, /tmp/myroot.
+   After this step the new root directory serves as data source for
+   creating the requested operating system image. This step is called
+   the <emphasis>create</emphasis> step and requires at least the path
+   to your previosly created new root environment plus a
+   destination directory for the image files as arguments:
+   <screen>
+    kiwi --create /tmp/myroot --destdir /tmp/myimages
+   </screen>
+   The destination directory /tmp/myimages must exist and kiwi will
+   store all file for the requested image type below it.
+   kiwi allows to specify <emphasis>defaultroot</emphasis> and
+   <emphasis>defaultdestination</emphasis> attributes as part of the
+   config.xml. If these are present and no --root and/or --destdir
+   options are specified the information from this default
+   attributes are used.
+  </para>
+  <para>
+   kiwi does not only create your system image it also provides a
+   subsystem for the image deployment. Each system image somehow needs
+   to be activated. For example the system image for a network client
+   needs to be downloaded from a server, it must be installed, maybe
+   a disk needs to be partitioned, etc. All the steps before a system
+   image is activated are done in the so called <emphasis>boot image</emphasis>.
+   kiwi provides boot images for all of its supported image types and
+   furthermore kiwi creates them automatically while the 
+   <emphasis>create</emphasis> step is called. People who are used to
+   Linux may know the name <emphasis>initrd</emphasis>, the kiwi boot
+   images are special initrd images concerning the image type they should
+   activate. The boot images are implemented as normal kiwi image
+   descriptions and are stored in a subdirectory below /usr/share/kiwi/image.
+   The subdirectories there use the naming scheme <emphasis>type</emphasis>boot.
+   Concerning this the boot images for network images are stored in the
+   directory netboot/ and the ones for the virtual disk images are stored in
+   vmxboot/ and so on. The boot images shouldn't require any change they
+   are a service to the customer, automatically created to provide a
+   maximum of comfort to the customer. For detailed information of
+   the boot images see <xref linkend="sec.kiwi.description.config"/>.
+  </para>
+ </abstract>
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+coding:utf-8
+mode:xml
+sgml-indent-step:1
+sgml-omittag:nil
+sgml-shorttag:nil
+End:
+-->
