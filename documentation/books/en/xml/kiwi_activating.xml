@@ -24,7 +24,9 @@
     On a <emphasis>local system</emphasis> the image can be installed by
     dumping (with the command <command>dd</command>) the image file on a
     previously created partition on a local harddisk. To activate the system a
-    boot manager like grub or lilo can be needs tp be used
+    boot manager like grub or lilo needs to be used. An USB stick system
+    is also treated as a local system but kiwi supports you with the
+    installation of such a system by its own --bootstick option.
    </para>
   </listitem>
   <listitem>
@@ -36,16 +38,15 @@
     automatically calls a program named <command>linuxrc</command> which takes
     over all tasks needed to download and install the system image. The
     installation can be done persistently on disk or temporary into the RAM of
-    the machine.
+    the machine. The network boot protocol supported by kiwi is PXE
    </para>
   </listitem>
   <listitem>
    <para>
     In case of a <emphasis>para virtualized target system</emphasis> like Xen,
-    the image can be be installed by copying the image file onto the target
-    system. To activate the virtual system a configuration must be provided
-    which points to the image. One possibility is to use a loop
-    mounted location.
+    the image can be be installed by copying the image file and the kiwi created
+    xen configuration file onto the target system. To activate the virtual
+    system the command <screen> xm create -c <replaceable>&lt;xen config file&gt;</replaceable></screen> is used.
    </para>
   </listitem>
   <listitem>
@@ -56,6 +57,12 @@
    </para>
   </listitem>
  </itemizedlist>
+ <para>
+  No matter which of the above mentioned scenarios applies, there is always
+  a special image which takes over control of the activation or deployment
+  process. These images are called boot images and the following sections
+  will explain the kiwi provided boot images in detail. 
+ </para>
  <sect2 id="sec.kiwi.activating.netboot">
   <title>The KIWI netboot image</title>
   <para>
@@ -220,9 +227,15 @@
     </listitem>
     <listitem>
      <para>
-      If <varname>LOCAL_BOOT</varname> is not set, the images are
+      If <varname>NFSROOT</varname> and <varname>NBDROOT</varname>
+      and <varname>LOCAL_BOOT</varname> is not set, the images are
       downloaded with TFTP. If <varname>LOCAL_BOOT</varname> is set this part
-      of the initrd will only read the IMAGE information for later usage
+      of the initrd will only read the IMAGE information for later usage.
+      If <varname>NFSROOT</varname> is set the image root device is set
+      to a remote NFS path. If <varname>NBDROOT</varname> is set the nbd
+      kernel module is loaded and the nbd-client program setup a new
+      network block device called /dev/nd0. The image root device is then
+      set to the network block device
      </para>
     </listitem>
     <listitem>
@@ -662,47 +675,47 @@ DISK=/dev/sda</screen>
    </para>
   </sect3>
  </sect2>
- <sect2 id="sec.kiwi.activating.xen">
-  <title>The Xen Virtual Machine</title>
+ <sect2 id="sec.kiwi.activating.xennetboot">
+  <title>The KIWI xennetboot image</title>
   <para>
-   To use an image within Xen the most important point is to use the para
-   virtualized xen kernel within the operating system image. While creating a
-   xen based image, kiwi will take care for the correct kernel to be used.
+   TODO
   </para>
-  <sect3 id="sec.kiwi.activating.xen.image">
-   <title>Activate a KIWI xen image</title>
-   <para>
-    To activate an image including the Xen kernel boot the system using the
-    command
-   </para>
-<screen>
-xm create -c <replaceable>&lt;xen config file&gt;</replaceable></screen>
-   <para>
-    The xen config file will be created automatically by kiwi. Of course this
-    file can be enhanced to some degree, for example adding the virtual
-    network driver, etc... . For more information on how to configure Xen
-    refer to <ulink url="http://en.opensuse.org/Installing_Xen3"/>
-   </para>
-  </sect3>
  </sect2>
- <sect2 id="sec.kiwi.activating.vmware">
-  <title>The VMware virtual machine</title>
+ <sect2 id="sec.kiwi.activating.isoboot">
+  <title>The KIWI isoboot image</title>
   <para>
-   VMware represents a full virtualized machine which means all components are
-   virtualized. This includes the storage devices as well as the processor and
-   all other parts of the system. An image for such a system is principally a
-   virtual disk which contains the boot manager, the initrd, and all other
-   system data in one file.
+   TODO
   </para>
-  <sect3  id="sec.kiwi.activating.vmware.image">
-   <title>Activate a KIWI virtual disk system</title>
-   <para>
-    To activate a virtual disk system system the user only needs to call the
-    correct <quote>player</quote> application which in case of QEMU is
-    <command>qemu</command> and in case of VMware <command>vmplayer</command>
-    is used.
-   </para>
-  </sect3>
+ </sect2>
+ <sect2 id="sec.kiwi.activating.isoinstboot">
+  <title>The KIWI isoinst image</title>
+  <para>
+   TODO
+  </para>
+ </sect2>
+ <sect2 id="sec.kiwi.activating.vmxboot">
+  <title>The KIWI vmxboot image</title>
+  <para>
+   TODO
+  </para>
+ </sect2>
+ <sect2 id="sec.kiwi.activating.oemboot">
+  <title>The KIWI oemboot image</title>
+  <para>
+   TODO
+  </para>
+ </sect2>
+ <sect2 id="sec.kiwi.activating.xenboot">
+  <title>The KIWI xenboot image</title>
+  <para>
+   TODO
+  </para>
+ </sect2>
+ <sect2 id="sec.kiwi.activating.usbboot">
+  <title>The KIWI usbboot image</title>
+  <para>
+   TODO
+  </para>
  </sect2>
 </sect1>
 

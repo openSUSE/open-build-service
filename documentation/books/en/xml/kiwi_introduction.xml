@@ -126,7 +126,13 @@
       are found on a real disk as well. Such an image can be used as disk
       for full-virtual systems like Qemu or VMware. Kiwi also creates the
       VMware configuration file if requested. The generated image requires
-      a virtualisation software to be installed
+      a virtualisation software to be installed. In a full virtualized
+      all components are virtualized. This includes the storage devices
+      as well as the processor and all other parts of the system.
+      To activate a virtual disk system system the user only needs to call the
+      correct <quote>player</quote> application which in case of QEMU is
+      <command>qemu</command> and in case of VMware <command>vmplayer</command>
+      is used.
      </para>
     </listitem>
    </varlistentry>
