@@ -13,6 +13,5 @@ class CreateFlags < ActiveRecord::Migration
 
   def self.down
     drop_table :flags
-    #TODO: delete old flag tables
   end
 end
