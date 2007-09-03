@@ -2,7 +2,6 @@ class DbPackage < ActiveRecord::Base
   belongs_to :db_project
 
   has_many :package_user_role_relationships, :dependent => :destroy
-  has_many :disabled_repos, :include => [:architecture, :repository], :dependent => :destroy
   has_many :messages, :as => :object, :dependent => :destroy
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
@@ -289,16 +288,8 @@ class DbPackage < ActiveRecord::Base
       package.person( :userid => u.login, :role => u.role_name )
     end
 
-#TODO remove OLD DISABLED FUNCTION
-      disreps = disabled_repos.find(:all, :include => [:repository, :architecture])
-      disreps.each do |dr|
-        opts = Hash.new
-        opts[:repository] = dr.repository.name if dr.repository
-        opts[:arch] = dr.architecture.name if dr.architecture
-        package.disable( opts )
-      end
 
-      package.url( url ) if url
+    package.url( url ) if url
 
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"

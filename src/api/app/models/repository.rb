@@ -4,7 +4,7 @@ class Repository < ActiveRecord::Base
 
   has_many :path_elements, :foreign_key => 'parent_id', :dependent => :destroy
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
-  has_many :disabled_repos, :dependent => :destroy
+#  has_many :disabled_repos, :dependent => :destroy
   has_many :download_stats
 
   has_and_belongs_to_many :architectures
