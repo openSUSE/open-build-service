@@ -751,9 +751,55 @@ DISK=/dev/sda</screen>
  <sect2 id="sec.kiwi.activating.isoboot">
   <title>The KIWI isoboot image</title>
   <para>
-   TODO
-  </para>
- </sect2>
+   Normally an image will be installed on a disk or into the main memory of a
+   computer. This is done by a deployment architecture which transfers the
+   image via a boot image into its final destination. such a boot image can
+   also exist on a CD. In terms of kiwi this is handled by the isoboot image.
+   Booting a live system can happen by using two techniques:
+   </para>
+   <itemizedlist>
+   <listitem>
+    <para>
+     Using the <emphasis>old</emphasis> style will split the system image
+     into a Read-Only and a Read/Write. The Read/Write image is pushed
+     into main memory whereas the Read-Only part will make it on the CD.
+     (optional compression of the Read-Only part is possible)
+     The isoboot image will take care to make one root tree from both
+     parts by using symbolic links. The CD-Boot structure of KIWI will put
+     the directories
+     <filename>/bin</filename>, <filename>/boot</filename>,
+     <filename>/lib</filename>, <filename>/opt</filename>,
+     <filename>/sbin</filename> and <filename>/usr</filename> on the CD and the
+     rest into the main memory of the system.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+      Using the <emphasis>new</emphasis> style will make use of the new
+      overlay filesystems like aufs or unionfs. In this case the
+      system image is not divided and the isoboot boot image will create
+      a writable RAM space which is overlayed into one root filesystem.
+      The result is one filesystem which is completely Read/Write.
+      Optionally one can compress the system image which allows to put
+      more data on the CD. The new style is preferred over the old
+      style
+    </para>
+   </listitem>
+   </itemizedlist>
+   <para>
+    Each isoboot description contains a directory named
+    <emphasis>cdboot</emphasis>. In there the files
+    <emphasis>isolinux.cfg</emphasis> and <emphasis>isolinux.msg</emphasis>
+    The first one defines which boot parameters are used for booting
+    the kernel and the second defines the message which is displayed if
+    isolinux doesn't boot in graphics mode. The additional file named
+    <emphasis>isolinux.sh</emphasis> is a link to the standard
+    suse-isolinux script which creates an iso image from a specified
+    CD tree. The script will work for non SUSE distributions as well
+    but in CD header of such an image contains information which should
+    be replaced if the distribution is no SUSE based.
+   </para>
+  </sect2>
  <sect2 id="sec.kiwi.activating.isoinstboot">
   <title>The KIWI isoinst image</title>
   <para>

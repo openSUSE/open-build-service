@@ -426,31 +426,23 @@ xm create -c /tmp/full-suse-10.2.i686-1.1.2.xenconfig
  <sect2 id="sec.kiwi.deploying.live">
   <title>Live CD system</title>
   <para>
-   Normally an image will be installed on a disk or into the main memory of a
-   computer. This is done by a deployment architecture which transfers the
-   image via a boot image into its final destination. such a boot image can
-   also exist on a CD. The task of the CD-Boot image is to setup a system
-   which is divided into two parts:
+   LiveDistro or Live CD is a generic term for an operating system
+   distribution that is executed upon boot, without installation on a
+   hard drive. Typically, it is stored on a bootable medium, such as a
+   CD-ROM (Live CD), DVD (Live DVD). The term "live" derives from the
+   fact that these distributions are a complete, runnable—i.e.,
+   "live"—instance of the operating system residing on the distribution
+   medium, rather than the typical case of a collection of packages that
+   must first be installed on the target machine before using the OS.
   </para>
-  <itemizedlist>
-   <listitem>
-    <para>
-     Read-Only part which is obtained from the CD
-    </para>
-   </listitem>
-   <listitem>
-    <para>
-     Read/Write part which is pushed into main memory
-    </para>
-   </listitem>
-  </itemizedlist>
   <para>
-   An image which works partially on disk and partially on RAM is called a
-   live CD system. The CD-Boot structure of KIWI will put the directories
-   <filename>/bin</filename>, <filename>/boot</filename>,
-   <filename>/lib</filename>, <filename>/opt</filename>,
-   <filename>/sbin</filename> and <filename>/usr</filename> on the CD and the
-   rest into the main memory of the system.
+   A LiveDistro does not alter the current operating system or files
+   unless the user specifically requests it. The system returns to
+   its previous state when the LiveDistro is ejected and the computer
+   is rebooted. It does this by placing the files that typically would
+   be stored on a hard drive into temporary memory, such as a ram disk.
+   In fact, a hard drive is not needed at all. However, this does cut
+   down on the RAM available to applications, reducing performance somewhat.
   </para>
   <sect3 id="sec.kiwi.deploying.live.setup">
    <title>How to Setup an Image as Live CD</title>
@@ -475,60 +467,6 @@ xm create -c /tmp/full-suse-10.2.i686-1.1.2.xenconfig
     starting point for this is to use an existing boot image and adapt it to
     your needs.
    </para>
-  </sect3>
-  <sect3 id="sec.kiwi.deploying.live.work">
-   <title>How does the Boot Image Work</title>
-   <para>
-    The boot process from a CD works in five steps:
-   </para>
-   <orderedlist>
-    <listitem>
-     <para>
-      After the image has been prepared which means a physical extend
-      exists the process of building the logical extend will split
-      the physical part into two physical extends:
-     </para>
-     <itemizedlist>
-      <listitem>
-       <para>
-	read/write extend which is loaded into RAM
-       </para>
-      </listitem>
-      <listitem>
-       <para>
-	read-only extend consisting of the data stored in the
-	<filename>/bin</filename>, <filename>/boot</filename>,
-	<filename>/lib</filename>, <filename>/opt</filename>,
-	<filename>/sbin</filename> and <filename>/usr</filename> directories
-       </para>
-      </listitem>
-     </itemizedlist>
-    </listitem>
-    <listitem>
-     <para>
-      From the two physical extends kiwi will create two
-      <systemitem>ext2</systemitem> based logical images.
-     </para>
-    </listitem>
-    <listitem>
-     <para>
-      Next kiwi prepares and creates in one step the boot image given as the
-      type of the image configuration file <filename>config.xml</filename>.
-     </para>
-    </listitem>
-    <listitem>
-     <para>
-      Next kiwi will setup the CD directory structure and copy all image and
-      kernel files as well as the isolinux data into this directory tree.
-     </para>
-    </listitem>
-    <listitem>
-     <para>
-      At last kiwi calls the <filename>isolinux.sh</filename> script provided
-      by the ISO boot image to create an .iso file from the CD directory tree.
-     </para>
-    </listitem>
-   </orderedlist>
   </sect3>
  </sect2>
 </sect1>
