@@ -66,7 +66,8 @@
  <sect2 id="sec.kiwi.activating.netboot">
   <title>The KIWI netboot image</title>
   <para>
-   The KIWI netboot image can be used to install an operating system image to a
+   The KIWI netboot boot image can be used to install an operating system
+   image to a
    network client. To establish communication with the client, a boot server
    infrastructure with the following services is required:
   </para>
@@ -597,6 +598,46 @@ KIWI_INITRD=/boot/<replaceable>&lt;name-of-initrd-file&gt;</replaceable></screen
      </listitem>
     </varlistentry>
     <varlistentry>
+     <term><code>NFSROOT</code></term>
+     <listitem>
+      <para>
+       For netboot images there is the possibility to mount the system
+       image root filesystem remotely via NFS (Network File System).
+       This means there is a server which
+       exports the root filesystem of the network client in a way that
+       the client can mount it read/write. In order to do that the boot
+       image needs to know the server IP address and the path name on
+       where the root directory exists on this server. The information
+       must be provided like the following example shows:
+      </para>
+<screen>
+NFSROOT=<replaceable>&lt;NFS.Server.IP.address&gt;</replaceable>;<replaceable>&lt;/path/to/root/tree&gt;</replaceable>
+</screen>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><code>NBDROOT</code></term>
+     <listitem>
+      <para>
+       For netboot images there is the possibility to mount the system image
+       image root filesystem remotely via NBD (Network Block Device). This
+       means there is a server which exports the root directory of the system
+       image via a specified port. The kernel provides the block layer together
+       with a remote port using the program <command>nbd-server</command>.
+       For detailed information how to setup the server please consult the
+       man page of nbd-server. The kernel on the remote client can setup a
+       special network block device named <command>/dev/nd0</command> using
+       the command <command>nbd-client</command>. Once this device exists
+       the <command>mount</command> program is used to mount the root
+       filesystem. In order to allow the kiwi boot image to that the
+       following information must be provided:
+<screen>
+NBDROOT=<replaceable>&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable>&lt;NBD-Port-Number&gt;</replaceable>
+</screen>
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
      <term><code>UNIONFS_CONFIG</code></term>
      <listitem>
       <para>
@@ -612,7 +653,8 @@ KIWI_INITRD=/boot/<replaceable>&lt;name-of-initrd-file&gt;</replaceable></screen
        setup like the following example shows:
       </para>
 <screen>
-UNIONFS_CONFIG=/dev/sda2,/dev/sda3,aufs</screen>
+UNIONFS_CONFIG=/dev/sda2,/dev/sda3,aufs
+</screen>
       <para>
        In this example the first device <filename>/dev/sda2</filename>
        represents the read/write filesystem and the second device
@@ -674,11 +716,36 @@ DISK=/dev/sda</screen>
     <filename>/var/lib/tftpboot/upload</filename>.
    </para>
   </sect3>
+  <sect3 id="sec.kiwi.activating.netboot.hwinfofile">
+   <title>
+    The netboot client Hardware-Info File <filename>hwinfo.<replaceable>&lt;MAC
+      Address&gt;</replaceable></filename>
+   </title>
+   <para>
+    The hardware info file is primarily used to inform about hardware details
+    of new netboot clients. In this case, there is no configuration file
+    corresponding to the client MAC address available. Using the MAC address
+    information, the hardware info file is created and uploaded to the
+    TFTP servers upload directory
+    <filename>/var/lib/tftpboot/upload</filename>.
+   </para>
+  </sect3>
  </sect2>
  <sect2 id="sec.kiwi.activating.xennetboot">
   <title>The KIWI xennetboot image</title>
   <para>
-   TODO
+   The KIWI xennetboot boot image works exactly the same way than the netboot
+   boot image. The only difference is the kernel which is used to boot the
+   client machine. With netboot a standard kernel is used whereas the 
+   xennetboot image uses the Xen kernel within the boot image. This allows
+   to boot the system image directly with an enabled Xen kernel and therefore
+   turn the system image into a hypervisor without reboot. In order to be
+   able to boot a Xen kernel via PXE over the network an additional boot
+   loader called mboot.c32 is required. mboot.c32 is a COM32 module for
+   H. Peter Anvin's fine SYSLINUX bootloader, to load multiboot kernels
+   and modules. This allows Xen to be network-booted. Instructions for
+   using mboot.c32 can be found here:
+   <ulink url="http://www.kernel.org/git/?p=boot/syslinux/syslinux.git;a=blob;f=com32/modules/mboot.doc"><guilabel>com32/modules/mboot.doc</guilabel></ulink>
   </para>
  </sect2>
  <sect2 id="sec.kiwi.activating.isoboot">
