@@ -152,47 +152,6 @@ kiwi --bootstick /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
    </para>
   </sect3>
  </sect2>
- <sect2 id="sec.kiwi.deploying.cd">
-  <title>Installation on a Client via CD</title>
-  <para>
-   If there is no network infrastructure available a client can only receive
-   the system image from a storage media like a CD or an USB stick. This
-   section explains how to create a CD with kiwi which supports system image
-   installation to the storage device of the client. The following steps needs
-   to be processed:
-  </para>
-  <procedure>
-   <step>
-    <para>
-     Create the boot image which takes over the task of installing the system
-     image. For that purpose kiwi provides the
-     <systemitem>isoinstboot</systemitem> boot image type.
-    </para>
-   </step>
-   <step>
-    <para>
-     Next step is creating the system image which should make it on the
-     client. The boot and the system image package source should be the same.
-     The system image description requires a <literal>deploy</literal> section
-     within the <filename>config.xml</filename> file. The deploy section
-     describes how the clients storage device should be partitioned and which
-     device is the root device for the later image.
-    </para>
-   </step>
-   <step>
-    <para>
-     Last step is to create an .iso file together with the boot- and
-      system image. Therefore call kiwi like the following example:
-    </para>
-<screen>
-kiwi --installcd bootImageName --installcd-system systemImageName</screen>
-   </step>
-  </procedure>
- </sect2>
- <sect2 id="sec.kiwi.deploying.client_usb">
-  <title>Installation on a Client via USB Stick</title>
-  <para>*** not yet implemented ***</para>
- </sect2>
  <sect2 id="sec.kiwi.deploying.split_pxe">
   <title>Split image system via PXE</title>
   <para>

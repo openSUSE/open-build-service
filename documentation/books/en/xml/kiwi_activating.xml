@@ -632,7 +632,7 @@ NFSROOT=<replaceable>&lt;NFS.Server.IP.address&gt;</replaceable>;<replaceable>&l
        filesystem. In order to allow the kiwi boot image to that the
        following information must be provided:
 <screen>
-NBDROOT=<replaceable>&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable>&lt;NBD-Port-Number&gt;</replaceable>
+NBDROOT=<replaceable>&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable>&lt;NBD-Port-Number&gt;</replaceable>;/dev/<replaceable>&lt;NBD-Device&gt;</replaceable>
 </screen>
       </para>
      </listitem>
@@ -800,34 +800,73 @@ DISK=/dev/sda</screen>
     be replaced if the distribution is no SUSE based.
    </para>
   </sect2>
- <sect2 id="sec.kiwi.activating.isoinstboot">
-  <title>The KIWI isoinst image</title>
-  <para>
-   TODO
-  </para>
- </sect2>
  <sect2 id="sec.kiwi.activating.vmxboot">
   <title>The KIWI vmxboot image</title>
   <para>
-   TODO
+   The KIWI vmxboot boot image is used for <emphasis>full</emphasis>
+   virtualized machines like they are provided by VMware or Qemu.
+   The result of an image created with the vmx type is always a virtual
+   disk containing the vmxboot image the system image a virtual disk
+   geometry and a boot loader (grub) to boot the vmxboot boot image.
+   The vmxboot boot image takes over the task of detecting the device
+   of the virtual disk and activates the system on the virtual disk.
+   The boot image also writes some default files like /etc/fstab in order
+   to allow the system default initrd to be created and used. This on
+   the other means that the vmxboot image is replaced during first boot
+   by the default system initrd. The replacement only takes place if the
+   default system initrd is able to boot the image which is not the case
+   if for example a compressed image solution with overlay filesystem
+   like aufs is used.
   </para>
  </sect2>
  <sect2 id="sec.kiwi.activating.oemboot">
   <title>The KIWI oemboot image</title>
   <para>
-   TODO
+   The KIWI oemboot boot image works only with the <emphasis>vmx</emphasis>
+   boot type and therefore only with virtual disks. The oemboot was
+   designed for OEM customers who want to have a pre-installed linux
+   delivered to their customers. The idea is to have a virtual disk image
+   which is simply copied on the real disk of a computer. As soon as the
+   first boot takes place the oemboot boot image takes over the task of
+   repartitioning the real disk which it detects first followed by
+   preparing the system to activate the YaST second stage process. At the 
+   end the oemboot image boots into the system and YaST starts with
+   a special configuration sequence made for pre installed systems.
   </para>
  </sect2>
  <sect2 id="sec.kiwi.activating.xenboot">
   <title>The KIWI xenboot image</title>
   <para>
-   TODO
+   The KIWI xenboot boot image works only with the <emphasis>xen</emphasis>
+   boot type. The xen boot type creates all information needed to run a
+   Xen virtual machine with the previosly created image. All files in this
+   case means the system image itself which is just a file containing the
+   operating system data and the filesystem, the xenboot boot image as
+   compressed initrd file, the xen kernel and the xen configuration file
+   which references the previosly mentioned files. After kiwi has finished
+   its image creation process a user only needs to call:
+<screen>
+xm create -c xen-configuration-file
+</screen> 
+   The primary task of the xenboot boot image is to load the required
+   xen modules and to find out how the disk appears in the kernel. Once
+   this is done the system can be activated.
   </para>
  </sect2>
  <sect2 id="sec.kiwi.activating.usbboot">
   <title>The KIWI usbboot image</title>
   <para>
-   TODO
+   The KIWI usbboot image works only with the <emphasis>usb</emphasis>
+   boot type. The usb boot type creates all files needed to install
+   a USB stick with an operating system. The installation is done by
+   using the kiwi options <option>--bootstick , --bootstick-system</option>.
+   The files needed in this case are the system image itself and
+   the usboot boot image (initrd). The primary task of the usbboot
+   boot image is to find out how the BIOS mapped the USB stick. Once
+   the device was found the system can be activated. kiwi also installs the
+   boot manager to the USB stick so that each systen could use the stick
+   as main operating system as soon as the BIOS is able to boot from
+   a USB stick.
   </para>
  </sect2>
 </sect1>
