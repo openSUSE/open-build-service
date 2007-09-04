@@ -16,7 +16,7 @@
  <title>Introduction</title>
  <abstract>
   <para>
-   The OpenSuSE KIWI Image System provides a complete operating system image
+   The openSUSE KIWI Image System provides a complete operating system image
    solution for Linux supported hardware platforms as well as for
    virtualisation systems like Xen, VMware and others. The KIWI architecture
    is designed as a two stage system. The first stage, based on a

@@ -52,7 +52,7 @@
    could be deployed. Boot images consists of the image itself and the
    appropriate kernel to that image. Both file must be stored in the directory
    <filename>/var/lib/tftpboot/boot</filename>. Assuming there is no prebuild
-   boot image for the openSuSE 10.2 distribution the steps to create it are as
+   boot image for the openSUSE 10.2 distribution the steps to create it are as
    follows:
   </para>
 <screen>
