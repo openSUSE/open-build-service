@@ -5,6 +5,8 @@
 	:action => 'add_target_simple', :project => @project %>
 </h3>
 
+<li  id="error_message_flags" class="error_message" style="display:none;"></li>
+
 <% if @project.has_element? :repository -%>
 	<table class="grid targets">
 		<tr class="header">
