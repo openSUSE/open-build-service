@@ -37,7 +37,7 @@
    software to build a system. A repository consists of software packages,
    organized in a package tree that also includes some meta data. Software
    repositories can exist in different formats, therefore KIWI uses a
-   Package-Manager to access them. With kiwi you have the choice for either
+   Package-Manager to access them. With KIWI you have the choice for either
    <emphasis>smart</emphasis> or <emphasis>zypper</emphasis> to be used
    as package manager. Smart handles a wide range and also the most
    important repository formats. More information on smart is available
@@ -100,7 +100,7 @@
    The logical extend is the final result of an image creation process
    and represents an operating system as part of a specific filesystem
    which could also be covered by the structures of real or virtual
-   hardware layers. There are different types of images whereas kiwi
+   hardware layers. There are different types of images whereas KIWI
    supports the following:
   </para>
   <variablelist>
@@ -124,7 +124,7 @@
       The vmx type is used to create a virtual disk. The disk provides
       the partition information the boot manager and all other data which
       are found on a real disk as well. Such an image can be used as disk
-      for full-virtual systems like Qemu or VMware. Kiwi also creates the
+      for full-virtual systems like Qemu or VMware. KIWI also creates the
       VMware configuration file if requested. The generated image requires
       a virtualisation software to be installed. In a full virtualized
       all components are virtualized. This includes the storage devices
@@ -144,7 +144,7 @@
       a given filesystem including a special xen boot image, the xen kernel
       and the xen configuration file. If the current system is a xen
       hypervisor one can create new para virtual machines with the
-      data provided by kiwi. The generated image requires a Xen hypervisor
+      data provided by KIWI. The generated image requires a Xen hypervisor
       running on the computer.
      </para>
     </listitem>
@@ -154,12 +154,12 @@
     <listitem>
      <para>
       The usb type is used to create an operating system image based on
-      a given filesystem including a special usb boot image. kiwi is able
+      a given filesystem including a special usb boot image. KIWI is able
       to install the generated image onto an USB stick. If your system
       BIOS is able to boot from a USB stick you can use this stick as
       complete operating system. Compared to a live system an USB stick
       provides permanent storage of your private data as well. The
-      generated image can be installed by a subsequent kiwi call
+      generated image can be installed by a subsequent KIWI call
      </para>
     </listitem>
    </varlistentry>

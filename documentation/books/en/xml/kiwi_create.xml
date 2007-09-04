@@ -16,7 +16,7 @@
  <title>Creating Operating System Images</title>
  <abstract>
   <para>
-   When starting to create an image with kiwi it's required to create
+   When starting to create an image with KIWI it's required to create
    a so called <emphasis>system image description</emphasis>. Such a
    description is a directory containing at least one file named
    <emphasis>config.xml</emphasis>. The config.xml describes what
@@ -31,7 +31,7 @@
    description is normally provided as architecture independent
    package. For your reference download the
    <emphasis>kiwi-desc-livesystem</emphasis> from here: 
-   <ulink url="http://software.opensuse.org/openSUSE:/Tools"/>.
+   <ulink url="http://download.opensuse.org/repositories/openSUSE:/Tools"/>.
    This package contains descriptions for openSUSE live systems which
    can serve as basis for any other image type as well.
   </para>
@@ -53,27 +53,27 @@
 <screen>
  kiwi --create /tmp/myroot --destdir /tmp/myimages
 </screen>
-   The destination directory /tmp/myimages must exist and kiwi will
+   The destination directory /tmp/myimages must exist and KIWI will
    store all file for the requested image type below it.
-   kiwi allows to specify <emphasis>defaultroot</emphasis> and
+   KIWI allows to specify <emphasis>defaultroot</emphasis> and
    <emphasis>defaultdestination</emphasis> attributes as part of the
    config.xml. If these are present and no --root and/or --destdir
    options are specified the information from this default
    attributes are used.
   </para>
   <para>
-   kiwi does not only create your system image it also provides a
+   KIWI does not only create your system image it also provides a
    subsystem for the image deployment. Each system image somehow needs
    to be activated. For example the system image for a network client
    needs to be downloaded from a server, it must be installed, maybe
    a disk needs to be partitioned, etc. All the steps before a system
    image is activated are done in the so called <emphasis>boot image</emphasis>.
-   kiwi provides boot images for all of its supported image types and
-   furthermore kiwi creates them automatically while the 
+   KIWI provides boot images for all of its supported image types and
+   furthermore KIWI creates them automatically while the 
    <emphasis>create</emphasis> step is called. People who are used to
-   Linux may know the name <emphasis>initrd</emphasis>, the kiwi boot
+   Linux may know the name <emphasis>initrd</emphasis>, the KIWI boot
    images are special initrd images concerning the image type they should
-   activate. The boot images are implemented as normal kiwi image
+   activate. The boot images are implemented as normal KIWI image
    descriptions and are stored in a subdirectory below /usr/share/kiwi/image.
    The subdirectories there use the naming scheme <emphasis>type</emphasis>boot.
    Concerning this the boot images for network images are stored in the

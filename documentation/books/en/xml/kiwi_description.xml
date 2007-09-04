@@ -18,7 +18,7 @@
   The creation of operating system images from a physical extend is based on
   image description trees. An image description tree contains a set of files
   in a certain directory structure that are required to generate an image
-  using <filename>kiwi</filename>. An image description tree is organized
+  using <filename>KIWI</filename>. An image description tree is organized
   as follows:
  </para>
 <screen>
@@ -95,7 +95,7 @@
   <para>
    In order to use <filename>/root/autoinst.xml</filename> move it to the
    images description tree and rename it to
-   <filename>config-yast.xml</filename>. kiwi will process the file and setup
+   <filename>config-yast.xml</filename>. KIWI will process the file and setup
    your image as follows:
   </para>
   <itemizedlist>
@@ -225,7 +225,7 @@
      current date. The version number is extracted from the directory in which
      the description files for this image are located. When using the optional
      attribute <sgmltag class="attribute">inherit</sgmltag> with a path to
-     another kiwi description, this description will be prepended to the
+     another KIWI description, this description will be prepended to the
      current one. The mandatory attribute
      <sgmltag class="attribute">schemeversion</sgmltag> must be set and
      allows version <emphasis>1.4</emphasis> at the moment.
@@ -288,7 +288,7 @@
 	 <listitem>
 	  <para>
 	   attribute to specify the primary type. The
-	   <systemitem>kiwi</systemitem> option <option>--type</option>
+	   <systemitem>KIWI</systemitem> option <option>--type</option>
 	   allows to select between the types
 	  </para>
 	 </listitem>
@@ -299,7 +299,7 @@
 	  <para>
 	   attribute to specify the boot image (<filename>initrd</filename>)
 	   which should be used and created for this system image
-	   description. The boot images for kiwi are stored at
+	   description. The boot images for KIWI are stored at
 	   <filename>/usr/share/kiwi/image</filename> and are grouped
 	   by function into the following directories:
 	   <filename>isoboot</filename>, <filename>netboot</filename>,
@@ -338,7 +338,7 @@
        <para>
 	The following list is an overview of different boot image
     (<filename>initrd</filename>) types. While creating the system
-    image kiwi automatically creates the specified
+    image KIWI automatically creates the specified
     <emphasis>...boot</emphasis> boot image. The description
     for the boot image must exist in
     <emphasis>/usr/share/kiwi/image/...boot/suse-...</emphasis>
@@ -379,7 +379,7 @@
         class="attvalue">squashfs</sgmltag> or <sgmltag
 	    class="attvalue">reiserfs</sgmltag>
        The created system and boot images are suitable to run on an USB stick
-       and can be deployed to it with the kiwi
+       and can be deployed to it with the KIWI
        <option>--bootstick / --bootstick-system</option> options
 	  </para>
 	 </listitem>
@@ -468,7 +468,7 @@
 	    class="attvalue">cramfs</sgmltag> or <sgmltag
 	    class="attvalue">squashfs</sgmltag>. Booting split images is only
 	   supported by the netboot and xennetboot boot images which need to
-	   be created with a separate kiwi run.
+	   be created with a separate KIWI run.
 	  </para>
 	 </listitem>
 	</varlistentry>
@@ -518,13 +518,13 @@
        </para>
        <note>
 	<para>
-	 kiwi supports the feature of extending the image size automatically
+	 KIWI supports the feature of extending the image size automatically
 	 if the specified value is too small. If the actual size is more than
-	 100MB larger than the spcified one,  kiwi will abort with an error
-	 message. On the other hand, kiwi does <emphasis>not</emphasis>
+	 100MB larger than the spcified one,  KIWI will abort with an error
+	 message. On the other hand, KIWI does <emphasis>not</emphasis>
 	 automatically reduce the images size if the specified value is too
 	 large, because the extra space may be needed to, for example, run
-	 custom scripts. If no size is specified at all kiwi will use the
+	 custom scripts. If no size is specified at all KIWI will use the
      required size plus approximately 10% free space.
 	</para>
        </note>
@@ -546,7 +546,7 @@
       <listitem>
        <para>
 	The compressed flag indicates whether the system image should be
-    compressed or not. This affects only the kiwi output file itself and
+    compressed or not. This affects only the KIWI output file itself and
     has no influence on the operating system living in the image.
     For network clients it makes sense to download the image as
     compressed image.
@@ -573,7 +573,7 @@
 	<filename>/usr/share/zoneinfo</filename>. Specify the attribute value
 	relative to <filename>/usr/share/zoneinfo</filename>&mdash; e.g.
 	<sgmltag class="attvalue">Europe/Berlin</sgmltag> for
-	<filename>/usr/share/zoneinfo/Europe/Berlin</filename>. kiwi uses this
+	<filename>/usr/share/zoneinfo/Europe/Berlin</filename>. KIWI uses this
 	value to set up the timezone in <filename>/etc/localtime</filename>
 	for the image.
        </para>
@@ -595,7 +595,7 @@
        <para>
     Optional attribute <sgmltag class="attribute">defaultdestination</sgmltag>
     is used if the option <option>destdir</option> is not specified while
-    calling kiwi.
+    calling KIWI.
        </para>
       </listitem>
      </varlistentry>  
@@ -605,7 +605,7 @@
        <para>
     Optional attribute <sgmltag class="attribute">defaultroot</sgmltag>
     is used if the option <option>root</option> is not specified while 
-    calling kiwi.
+    calling KIWI.
        </para>
       </listitem>
      </varlistentry>
@@ -747,16 +747,16 @@
      <sgmltag>partition</sgmltag> which defines the type
      (see sfdisk --list-type), partition number, size , optional mountpoint
      and optional information whether this partition is the system image target
-     partition or not. With the kiwi netboot image the first partition is always
+     partition or not. With the KIWI netboot image the first partition is always
      the swap partition and the second partition is by default used for
      the system image. With the optional target flag it is possible to
      indicate another than the second partition to be the one the system
      image is installed on.
-     If <emphasis>size</emphasis> is set to "image" kiwi will calculate
+     If <emphasis>size</emphasis> is set to "image" KIWI will calculate
      the required size for this partition in order to have enough space
      for the later image.
      The optional <sgmltag>union</sgmltag> is used if the system image is
-     based on a read-only filesystem like squashfs. In this case kiwi
+     based on a read-only filesystem like squashfs. In this case KIWI
      can setup an aditional write partition and combine both with the
      given overlay filesystem. Right now there are two of such filesystems
      one is called <emphasis>unionfs</emphasis> and the other

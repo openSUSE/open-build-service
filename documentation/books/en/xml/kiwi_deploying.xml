@@ -26,11 +26,11 @@
    the same system in another environment.
   </para>
   <para>
-   kiwi doesn't stick to a specific system environment but therefore it leaves
-   out important tasks concerning the deployment architecture. So to say kiwi
+   KIWI doesn't stick to a specific system environment but therefore it leaves
+   out important tasks concerning the deployment architecture. So to say KIWI
    is an image creator but it doesn't setup the deployment infrastructure.
    This chapter provides information about the different possibilities to
-   deploy an image and how kiwi fits into this picture.
+   deploy an image and how KIWI fits into this picture.
   </para>
  </abstract>
  <sect2 id="sec.kiwi.deploying.net_pxe">
@@ -40,9 +40,9 @@
    some network cards. If activated it broadcasts the network for a DHCP to
    obtain an IP address and the information where to find a TFTP server to
    manage file transfers. If such a server exists the second stage bootloader
-   controls the subsequently boot process. Using PXE with kiwi requires the
+   controls the subsequently boot process. Using PXE with KIWI requires the
    infrastructure explained in section FIXME \ref{section:tftpstruct} and a
-   TFTP server as well as a DHCP server running. kiwi provides the package
+   TFTP server as well as a DHCP server running. KIWI provides the package
    <systemitem>kiwi-pxeboot</systemitem> which setup the boot structure and
    installs some prebuild boot images.
   </para>
@@ -69,7 +69,7 @@ ls -1 /tmp/initrd-netboot*
    /tmp/initrd-netboot-suse-10.2.i686-2.1.1.kernel.2.6.18.2-31-default</screen>
   <para>
    If you don't want to prepare/create the boot image manually you can let
-   kiwi do the job by setting up the <literal>pxe</literal> type in your
+   KIWI do the job by setting up the <literal>pxe</literal> type in your
    system image <filename>config.xml</filename> file. For example:
   </para>
 <screen>
@@ -96,7 +96,7 @@ cp initrd-netboot.i686-2.1.1.kernel.2.6.18.2-31-default \
   /var/lib/tftpboot/boot/linux</screen>
   <para>
    Switching on the target machine, which needs to run PXE by default, will
-   load the linux kernel and the kiwi created initrd. The initrd will register
+   load the linux kernel and the KIWI created initrd. The initrd will register
    the machine if there is no configuration found in
    <filename>/var/lib/tftpboot/KIWI</filename>. Registration means a file
    including the MAC address of the machine is uploaded into the directory
@@ -110,13 +110,13 @@ IMAGE=/dev/sda2;full-suse-10.2.i686;1.1.2;192.168.100.2;4096
 PART=1024;S;x,x;L;/
 DISK=/dev/sda</screen>
   <para>
-   According to this configuration the kiwi boot image will try to download a
+   According to this configuration the KIWI boot image will try to download a
    system image named <filename>full-suse-10.2.i686-1.1.2</filename> from the
    TFTP server with IP address 192.168.100.2. On the TFTP server the system
    images are stored in <filename>/var/lib/tftpboot/image</filename>. The boot
    image will prepare the disk and create a 1GB swap partition and another
    full size linux partition. The process of creating this full-suse-10.2
-   image can be done by using kiwi. Once the boot image has successfully
+   image can be done by using KIWI. Once the boot image has successfully
    downloaded the system image it is getting activated and operates as
    configured. 
   </para>
@@ -129,7 +129,7 @@ DISK=/dev/sda</screen>
     a DHCP and a TFTP server the problem can be solved by storing the boot
     image on another bootable medium like a CD or an USB stick. Referring to
     the information from the section above it is easy to create a bootable CD
-    / USB stick with kiwi:
+    / USB stick with KIWI:
    </para>
 <screen>
 kiwi --bootcd /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
@@ -142,7 +142,7 @@ kiwi --bootcd /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
 <screen>
 kiwi --bootstick /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
    <para>
-    The command will create a bootable USB stick. kiwi is searching for the
+    The command will create a bootable USB stick. KIWI is searching for the
     USB stick plugged in before and lists all devices found. The user needs to
     select one of the devices by typing one of the suggested device names. It
     is important to be careful at that stage because all data on the given
@@ -155,7 +155,7 @@ kiwi --bootstick /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
  <sect2 id="sec.kiwi.deploying.split_pxe">
   <title>Split image system via PXE</title>
   <para>
-   kiwi supports system images to be splitted into two parts, a read-only part
+   KIWI supports system images to be splitted into two parts, a read-only part
    and a read-write part. This allows to put data on different filesystems
    which is mostly used to have read-only data available on a compressed
    filesystem like cramfs or squasfs. Please note that almost all compressed
@@ -177,7 +177,7 @@ kiwi --bootstick /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
    one of them will contain the <literal>-read-only</literal> extension in its
    name. Ay one may imagine booting such an image always requires a boot
    process which must be able to bring both images together again. Because of
-   this, split images can only deployed in combination with one of the kiwi
+   this, split images can only deployed in combination with one of the KIWI
    boot images.
   </para>
   <para>
@@ -226,11 +226,11 @@ COMBINED_IMAGE=yes</screen>
    System
   </title>
   <para>
-   In principal kiwi was designed to upload an image onto a client in
+   In principal KIWI was designed to upload an image onto a client in
    different ways but out there you will find diskless machines as well. Those
    devices doesn't provide permanent storage and rely on the network. The most
    oft used process to activate such terminals is to NFS mount the system
-   image via the network. kiwi supports that as well but it additionally
+   image via the network. KIWI supports that as well but it additionally
    requires a terminal server configuration which needs to export the system
    image using a NFS server. The following steps needs to be performed in
    order to activate a diskless station:
@@ -240,7 +240,9 @@ COMBINED_IMAGE=yes</screen>
     <para>
      Prepare the system image using
     </para>
-<screen>kiwi --root /tmp/kiwi.nfsroot --prepare ...</screen>
+<screen>
+kiwi --root /tmp/kiwi.nfsroot --prepare ...
+</screen>
    </step>
    <step>
     <para>
@@ -254,7 +256,7 @@ COMBINED_IMAGE=yes</screen>
    <step>
     <para>
      Create an appropriate netboot boot image (<filename>initrd</filename>)
-     with kiwi. Appropriate means the package repository for the system image
+     with KIWI. Appropriate means the package repository for the system image
      and the netboot image must be the same
     </para>
    </step>
@@ -291,7 +293,7 @@ COMBINED_IMAGE=yes</screen>
    A very popular method is storing complete operating systems on an USB
    stick. This means not only the boot image and the kernel is stored on the
    stick but also the entire system image is part of the stick. To be able to
-   do this kiwi provides special boot image(s) located in
+   do this KIWI provides special boot image(s) located in
    <filename>/usr/share/kiwi/image/usbboot</filename>. Currently it is tested
    and available for SuSE Linux 10.2 only but can be adapted to other versions
    as well. To use your system image on a boot stick setup the system's

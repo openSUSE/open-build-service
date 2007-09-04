@@ -21,7 +21,7 @@
    develops and you don't want your solution to become outdated. Because of
    this together with an image people always should think of
    <quote>image-maintenance</quote>. The following paragraph just reflects
-   ideas how to maintain images created by kiwi.
+   ideas how to maintain images created by KIWI.
   </para>
  </abstract>
  <figure id="fig.kiwi.maintenance">
@@ -40,8 +40,8 @@
   become updated. The first reason for updating an image are changes to the
   software, for example a new kernel should be used. If this change doesn't
   require additional software or changes in the configuration the update can
-  be done by kiwi itself using its <option>upgrade</option> option. In
-  combination with <option>upgrade</option> kiwi allows to add an additional
+  be done by KIWI itself using its <option>upgrade</option> option. In
+  combination with <option>upgrade</option> KIWI allows to add an additional
   repository which may be needed if the updated software is not part of the
   original repository. An important thing to know is that this additional
   repository is <emphasis>not</emphasis> stored into the original

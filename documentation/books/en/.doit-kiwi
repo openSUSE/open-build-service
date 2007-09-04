@@ -1,5 +1,8 @@
 #/bin/bash
 
-. ./ENV-Build_Service
-make ROOTID=cha.kiwi pdf
+#. ./ENV-Build_Service
+. ./ENV-KIWI
+make pdf
+#make ROOTID=cha.kiwi pdf
+#make ROOTID=cha.kiwi html
 

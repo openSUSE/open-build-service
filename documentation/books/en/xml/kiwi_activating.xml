@@ -25,7 +25,7 @@
     dumping (with the command <command>dd</command>) the image file on a
     previously created partition on a local harddisk. To activate the system a
     boot manager like grub or lilo needs to be used. An USB stick system
-    is also treated as a local system but kiwi supports you with the
+    is also treated as a local system but KIWI supports you with the
     installation of such a system by its own --bootstick option.
    </para>
   </listitem>
@@ -38,13 +38,13 @@
     automatically calls a program named <command>linuxrc</command> which takes
     over all tasks needed to download and install the system image. The
     installation can be done persistently on disk or temporary into the RAM of
-    the machine. The network boot protocol supported by kiwi is PXE
+    the machine. The network boot protocol supported by KIWI is PXE
    </para>
   </listitem>
   <listitem>
    <para>
     In case of a <emphasis>para virtualized target system</emphasis> like Xen,
-    the image can be be installed by copying the image file and the kiwi created
+    the image can be be installed by copying the image file and the KIWI created
     xen configuration file onto the target system. To activate the virtual
     system the command <screen> xm create -c <replaceable>&lt;xen config file&gt;</replaceable></screen> is used.
    </para>
@@ -61,7 +61,7 @@
   No matter which of the above mentioned scenarios applies, there is always
   a special image which takes over control of the activation or deployment
   process. These images are called boot images and the following sections
-  will explain the kiwi provided boot images in detail. 
+  will explain the KIWI provided boot images in detail. 
  </para>
  <sect2 id="sec.kiwi.activating.netboot">
   <title>The KIWI netboot image</title>
@@ -175,8 +175,15 @@
       loaded from the server directory
       <filename>/var/lib/tftpboot/KIWI</filename> via TFTP. At this point, the
       client expects the file <filename> config.<replaceable>&lt;MAC
-	Address&gt;</replaceable></filename>. If this file is not available and
-      cannot be loaded, it is assumed that the client hasn't existed before and can be immediately
+	  Address&gt;</replaceable></filename>. If this file is not available
+      the next search is for config.<replaceable>&lt;HEX-IP&gt;</replaceable>.
+      HEX-IP is the IP address of the client which each of the four parts of an
+      IPv4 address converted into a hexadecimal value. If this file is not
+      available the IP address search will check only three out of four
+      IP tokens and so on. If still no file can be found the last search is
+      for a file named <filename>config.default</filename>. If this file also
+      is not available and cannot be loaded, it is assumed that the client
+      hasn't existed before and can be immediately
       registered by uploading a control file to the
       TFTP server's upload directory
       <filename>/var/lib/tftpboot/upload</filename>. After the upload, the
@@ -585,7 +592,7 @@ DISK=/dev/hda</screen>
      <term><code>KIWI_INITRD</code></term>
      <listitem>
       <para>
-       Specifies the kiwi initrd to be used for a local boot of the system.
+       Specifies the KIWI initrd to be used for a local boot of the system.
        The variable's value must be set to the name of the initrd file which
        is used via PXE network boot. If the standard tftp setup suggested with
        the kiwi-pxeboot package is used, all initrd files reside in
@@ -629,7 +636,7 @@ NFSROOT=<replaceable>&lt;NFS.Server.IP.address&gt;</replaceable>;<replaceable>&l
        special network block device named <command>/dev/nd0</command> using
        the command <command>nbd-client</command>. Once this device exists
        the <command>mount</command> program is used to mount the root
-       filesystem. In order to allow the kiwi boot image to that the
+       filesystem. In order to allow the KIWI boot image to that the
        following information must be provided:
 <screen>
 NBDROOT=<replaceable>&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable>&lt;NBD-Port-Number&gt;</replaceable>;/dev/<replaceable>&lt;NBD-Device&gt;</replaceable>
@@ -754,7 +761,7 @@ DISK=/dev/sda</screen>
    Normally an image will be installed on a disk or into the main memory of a
    computer. This is done by a deployment architecture which transfers the
    image via a boot image into its final destination. such a boot image can
-   also exist on a CD. In terms of kiwi this is handled by the isoboot image.
+   also exist on a CD. In terms of KIWI this is handled by the isoboot image.
    Booting a live system can happen by using two techniques:
    </para>
    <itemizedlist>
@@ -843,7 +850,7 @@ DISK=/dev/sda</screen>
    case means the system image itself which is just a file containing the
    operating system data and the filesystem, the xenboot boot image as
    compressed initrd file, the xen kernel and the xen configuration file
-   which references the previosly mentioned files. After kiwi has finished
+   which references the previosly mentioned files. After KIWI has finished
    its image creation process a user only needs to call:
 <screen>
 xm create -c xen-configuration-file
@@ -859,11 +866,11 @@ xm create -c xen-configuration-file
    The KIWI usbboot image works only with the <emphasis>usb</emphasis>
    boot type. The usb boot type creates all files needed to install
    a USB stick with an operating system. The installation is done by
-   using the kiwi options <option>--bootstick , --bootstick-system</option>.
+   using the KIWI options <option>--bootstick , --bootstick-system</option>.
    The files needed in this case are the system image itself and
    the usboot boot image (initrd). The primary task of the usbboot
    boot image is to find out how the BIOS mapped the USB stick. Once
-   the device was found the system can be activated. kiwi also installs the
+   the device was found the system can be activated. KIWI also installs the
    boot manager to the USB stick so that each systen could use the stick
    as main operating system as soon as the BIOS is able to boot from
    a USB stick.
