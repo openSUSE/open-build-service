@@ -5,4 +5,4 @@
 
 
 
-<%= render :partial => "outer_flag_table"%>
+<%= render :partial => "outer_flag_table" unless @package.my_project.repositories.empty?%>

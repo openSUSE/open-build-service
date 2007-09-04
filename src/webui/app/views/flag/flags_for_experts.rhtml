@@ -2,4 +2,4 @@
 <h3>
   Flags for Experts
 </h3>
-<%= render :partial => "project_flags"%>
+<%= render :partial => "project/project_flags" unless @project.repositories.empty? %>
