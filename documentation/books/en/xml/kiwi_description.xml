@@ -388,7 +388,7 @@
 	 <term>
 	  <code>
 	   &lt;type boot="vmxboot/suse-..."
-	   filesystem="ext3"&gt;vmx&lt;/type&gt;
+	   filesystem="ext3" format="..."&gt;vmx&lt;/type&gt;
 	  </code>
 	 </term>
 	 <listitem>
@@ -400,7 +400,32 @@
 	    class="attvalue">reiserfs</sgmltag>.
        The final result is one file appearing as virtual disk which
        includes the system and boot images as well as the disk geometry
-       partition information and the boot manager
+       partition information and the boot manager. The attribute <sgmltag
+       class="attribute">format</sgmltag> specifies one of
+       <sgmltag class="attvalue">vvfat</sgmltag>,
+       <sgmltag class="attvalue">vpc</sgmltag>,
+       <sgmltag class="attvalue">bochs</sgmltag>,
+       <sgmltag class="attvalue">dmg</sgmltag>,
+       <sgmltag class="attvalue">cloop</sgmltag>,
+       <sgmltag class="attvalue">vmdk</sgmltag>,
+       <sgmltag class="attvalue">qcow</sgmltag>,
+       <sgmltag class="attvalue">cow</sgmltag> or
+       <sgmltag class="attvalue">iso</sgmltag>. Except the iso format these
+       are all virtual disk formats supported by the Qemu disk tool
+       named qemu-convert. The iso format has a special meaning and makes
+       only sense in combination with an <emphasis>oemboot</emphasis>
+       boot image. Using this format will generate a so called install
+       CD/DVD from the created virtual disk image. In order to be able to
+       install the virtual disk system from a CD onto a real hard disk
+       of a computer the oemboot boot image must be used. The process will
+       create a bootable ISO image including the virtual disk image and
+       the oemboot boot image. The oemboot image's first task is to install
+       the virtual disk image file onto the real hard disk using the
+       <emphasis>dd</emphasis> command. As the virtual hard disk contains
+       a boot manager the newly installed system is able to boot after
+       the installation. The oemboot image's second task is to re-partition
+       the disk according to its real disk geometry, install the
+       distribution default initrd and boot into the final system. 
 	  </para>
 	 </listitem>
 	</varlistentry>
@@ -777,7 +802,7 @@
    <callout arearefs="co.kiwi.config.packages">
     <para>
      The <sgmltag>packages</sgmltag> element contains the list of packages
-     and/or pattern names  to be used with the image. There are three
+     and/or pattern names  to be used with the image. There are five
      different types of package sets or patterns. The type is specified with
      the attribute <sgmltag class="attribute">type</sgmltag>:
     </para>
@@ -824,6 +849,19 @@
     the virtual system requires and what kind of device the disk should
     appear in the virtual instance. This information is used to create the
     appropriate VMware configuration file.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><sgmltag class="attvalue">delete</sgmltag></term>
+      <listitem>
+       <para>
+    Packages stored for later deletion. The package names are available
+    in the variable <varname>$delete</varname> of the .profile created by
+    KIWI. The function <emphasis>baseGetPackagesForDeletion()</emphasis>
+    returns the contents of this environment variable and can be used
+    to delete the packages without taking care for requirements or
+    dependencies.
        </para>
       </listitem>
      </varlistentry>

@@ -287,6 +287,40 @@ kiwi --root /tmp/kiwi.nfsroot --prepare ...
    </step>
   </procedure>
  </sect2>
+ <sect2 id="sec.kiwi.deploying.cd.install">
+  <title>Installation from CD or DVD</title>
+  <para> 
+   Sometimes it makes sense to create a CD or DVD which contains an image
+   to become installed on a hard disk of the computer. The installation
+   process in KIWI is rather simple. It doesn't take care for already
+   installed operating systems or disk partitions so be careful with this
+   deployment method. The process of booting a CD with an image as content
+   and the later first boot of this image is handled by the KIWI oemboot
+   boot image. The system image in that case must be a virtual disk type
+   which requires oemboot to be used in combination with the vmx image
+   type. To indicate that the resulting virtual disk system image should
+   be part of an ISO and the later install CD the attribute format with
+   the value <emphasis>iso</emphasis> must be set. Referring to this the
+   system image description needs the following type specification:
+<screen>
+&lt;preferences&gt;
+  &lt;type filesystem="ext3" boot="oemboot/suse-... format="iso"&gt;vmx&lt;/type&gt;
+  ...
+&lt;/preferences&gt;
+</screen>
+   Referring to the information above the following KIWI commands needs
+   to be called to create an install ISO image:
+  </para>
+<screen>
+kiwi --prepare /path/to/the/system/image/description --root /tmp/myRoot
+kiwi --create /tmp/myRoot
+</screen>
+  <para>
+   The command will create a bootable ISO image which only needs to be burned
+   on a CD. KIWI will inform the user about the file name to be burned on CD
+   or DVD. 
+  </para>
+ </sect2>
  <sect2 id="sec.kiwi.deploying.usb">
   <title>USB stick system</title>
   <para>
