@@ -2,14 +2,16 @@ class Package < ActiveXML::Base
   belongs_to :project
 
   #cache variables
-  @@my_pro = nil
+  @@my_pro = Hash.new
   attr_accessor :my_architectures
 
   attr_accessor :build_flags
   attr_accessor :publish_flags
+  attr_accessor :debug_flags
 
   attr_accessor :bf_updated;  @bf_updated = false
   attr_accessor :pf_updated;  @pf_updated = false
+  attr_accessor :df_updated;  @df_updated = false
 
 
   def initialize(*args)
@@ -18,7 +20,8 @@ class Package < ActiveXML::Base
 
   # accessor method, because class variables are private to a class and its instances ;)
   def my_project
-    @@my_pro ||= {self.project.to_sym => Project.find(self.project) }
+    @@my_pro[self.project.to_sym] ||= Project.find(self.project)
+    logger.debug "class variable @@my_pro references now #{@@my_pro.keys.size} projects"
     return @@my_pro[self.project.to_sym]
   end
 
@@ -53,6 +56,11 @@ class Package < ActiveXML::Base
   end
 
 
+  def set_debugflags(flags_as_hash)
+    self.debug_flags = flags_as_hash
+  end
+
+
   def buildflags
     unless self.bf_updated == true or not self.build_flags.nil?
       self.bf_updated = true
@@ -74,6 +82,16 @@ class Package < ActiveXML::Base
     return publish_flags
   end
 
+
+  def debugflags
+    unless self.df_updated == true or not self.debug_flags.nil?
+      self.df_updated = true
+      create_flag_matrix(:flagtype => 'debug')
+      update_flag_matrix(:flagtype => 'debug')
+    end
+
+    return debug_flags
+  end
 
 
   def to_s
@@ -214,97 +232,107 @@ class Package < ActiveXML::Base
 
 
   def create_flag_matrix( opts={} )
-    flagtype = opts[:flagtype]
-    logger.debug "[PACKAGE-FLAGS] Creating flag matrix for flagtype: #{flagtype}"
-
-    flags = Hash.new
-
-    key = 'all::all'
-
-    df = Flag.new
-    df.id = key
-    df.name = "#{flagtype}"
-    df.description = 'package default'
-    df.architecture = nil
-    df.repository = nil
-    df.status = 'default'
-    df.explicit = false
-    df.set_implicit_setters( self.my_project.send("#{flagtype}flags")[key.to_sym] )
-
-    value = df
-
-    flags.merge! key.to_sym => value
-
-    #get repositories and architectures
-    self.repositories.each do |repo|
-      #generate repo::all flags and set the default
-      key = repo.name + '::all'
-
-      rdf = Flag.new
-      rdf.id = key
-      rdf.name = "#{flagtype}"
-      rdf.description = 'package repository default'
-      rdf.architecture = nil
-      rdf.repository = repo.name
-      rdf.status = 'default'
-      rdf.explicit = false
-      rdf.set_implicit_setters( flags['all::all'.to_sym],  self.my_project.send("#{flagtype}flags")[key.to_sym] )
-
-      value = rdf
-      flags.merge! key.to_sym => value
-
-      #set defaults for each architecture
-      repo.each_arch do |arch|
-        unless flags.keys.include? "all::#{arch.to_s}".to_sym
-          key = 'all::' + arch.to_s
-
-          adf = Flag.new
-          adf.id = key
-          adf.name = "#{flagtype}"
-          adf.description = 'package architecture default'
-          adf.architecture = arch.to_s
-          adf.repository = nil
-          adf.status = 'default'
-          adf.explicit = false
-          #adf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
-          adf.set_implicit_setters( flags['all::all'.to_sym], self.my_project.send("#{flagtype}flags")[key.to_sym] )
-
-          value = adf
-          flags.merge! key.to_sym => value
-        end #end unless
-
-        #set defaults for each other flags
-        unless flags.keys.include? "#{repo}::#{arch}".to_sym
-          key = repo.name.to_s + '::' + arch.to_s
-
-          adf = Flag.new
-          adf.id = key
-          adf.name = "#{flagtype}"
-          adf.description = 'package flag'
-          adf.architecture = arch.to_s
-          adf.repository = repo.name
-          adf.status = 'default'
-          adf.explicit = false
-
-          firstflag = flags["#{repo.name}::all".to_sym]
-          secondflag = flags["all::#{arch.to_s}".to_sym]
-
-          thirdflag  = flags["all::all".to_sym]
-          forthflag = self.my_project.send("#{flagtype}flags")[key.to_sym]
-
-          adf.set_implicit_setters( firstflag, secondflag, thirdflag, forthflag  )
-
-          value = adf
-
-          flags.merge! key.to_sym => value
-        end
-      end
-    end
-
-
-    ft = "set_"+"#{flagtype}"+"flags"
-    self.send ft.to_sym , flags
-    logger.debug "[PACKAGE-FLAGS] Creation done."
+    begin
+	    flagtype = opts[:flagtype]
+	    logger.debug "[PACKAGE-FLAGS] Creating flag matrix for flagtype: #{flagtype}"
+      
+	    flags = Hash.new
+	
+	    key = 'all::all'
+	
+	    df = Flag.new
+	    df.id = key
+	    df.name = "#{flagtype}"
+	    df.description = 'package default'
+	    df.architecture = nil
+	    df.repository = nil
+	    df.status = 'default'
+	    df.explicit = false
+	    df.set_implicit_setters( self.my_project.send("#{flagtype}flags")[key.to_sym] )
+	
+	    value = df
+	
+	    flags.merge! key.to_sym => value
+	
+	    #get repositories and architectures
+	    raise RuntimeError.new("[PACKAGE-FLAGS] Warning: The Project #{self.project} has no " +
+	      "repository specified, therefore the creation of the flag-matrix on #{self.name} is not possible.") \
+	      if self.repositories.empty?    
+	    self.repositories.each do |repo|
+	      #generate repo::all flags and set the default
+	      key = repo.name + '::all'
+	
+	      rdf = Flag.new
+	      rdf.id = key
+	      rdf.name = "#{flagtype}"
+	      rdf.description = 'package repository default'
+	      rdf.architecture = nil
+	      rdf.repository = repo.name
+	      rdf.status = 'default'
+	      rdf.explicit = false
+	      rdf.set_implicit_setters( flags['all::all'.to_sym],  self.my_project.send("#{flagtype}flags")[key.to_sym] )
+	
+	      value = rdf
+	      flags.merge! key.to_sym => value
+	
+	      #set defaults for each architecture
+	      repo.each_arch do |arch|
+	        unless flags.keys.include? "all::#{arch.to_s}".to_sym
+	          key = 'all::' + arch.to_s
+	
+	          adf = Flag.new
+	          adf.id = key
+	          adf.name = "#{flagtype}"
+	          adf.description = 'package architecture default'
+	          adf.architecture = arch.to_s
+	          adf.repository = nil
+	          adf.status = 'default'
+	          adf.explicit = false
+	          #adf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
+	          adf.set_implicit_setters( flags['all::all'.to_sym], self.my_project.send("#{flagtype}flags")[key.to_sym] )
+	
+	          value = adf
+	          flags.merge! key.to_sym => value
+	        end #end unless
+	
+	        #set defaults for each other flags
+	        unless flags.keys.include? "#{repo}::#{arch}".to_sym
+	          key = repo.name.to_s + '::' + arch.to_s
+	
+	          adf = Flag.new
+	          adf.id = key
+	          adf.name = "#{flagtype}"
+	          adf.description = 'package flag'
+	          adf.architecture = arch.to_s
+	          adf.repository = repo.name
+	          adf.status = 'default'
+	          adf.explicit = false
+	
+	          firstflag = flags["#{repo.name}::all".to_sym]
+	          secondflag = flags["all::#{arch.to_s}".to_sym]
+	
+	          thirdflag  = flags["all::all".to_sym]
+	          forthflag = self.my_project.send("#{flagtype}flags")[key.to_sym]
+	
+	          adf.set_implicit_setters( firstflag, secondflag, thirdflag, forthflag  )
+	
+	          value = adf
+	
+	          flags.merge! key.to_sym => value
+	        end
+	      end
+	    end
+	
+	
+	    ft = "set_"+"#{flagtype}"+"flags"
+	    self.send ft.to_sym , flags
+	    logger.debug "[PACKAGE-FLAGS] Creation done."
+    rescue RuntimeError => error
+      logger.debug error
+      raise
+    rescue
+      raise
+    end    
   end
 
 
@@ -316,45 +344,51 @@ class Package < ActiveXML::Base
 
     return unless self.has_element? flagtype.to_sym
     self.send(flagtype).each do |elem|
-      key = nil
-      value = nil
-      if elem.has_attribute? :repository and elem.has_attribute? :arch
-        key = elem.repository.to_s + '::' + elem.arch.to_s
-        f = self.send("#{flagtype}flags")[key.to_sym]
-        f.repository = elem.repository
-        f.architecture = elem.arch.to_s
-        f.status = elem.element_name
-        f.explicit = true
-        value = f
-      elsif elem.has_attribute? :repository
-        key  =  elem.repository.to_s + '::all'
-        f = self.send("#{flagtype}flags")[key.to_sym]
-        f.description = 'package repository default'
-        f.repository = elem.repository
-        f.architecture = nil
-        f.status = elem.element_name
-        f.explicit = true
-        value =  f
-      elsif elem.has_attribute? :arch
-        key = 'all::' + elem.arch.to_s
-        f = self.send("#{flagtype}flags")[key.to_sym]
-        f.description = 'package architecture default'
-        f.repository = nil
-        f.architecture = elem.arch.to_s
-        f.status = elem.element_name
-        f.explicit = true
-        value =  f
-      else
-        #dickes default
-        key = 'all::all'
-        f = self.send("#{flagtype}flags")[key.to_sym]
-        f.description = 'package default'
-        f.repository = nil
-        f.architecture = nil
-        f.status = elem.element_name
-        f.explicit = true
-        value =  f
-      end
+	    begin
+        key = nil
+	      value = nil
+	      if elem.has_attribute? :repository and elem.has_attribute? :arch
+	        key = elem.repository.to_s + '::' + elem.arch.to_s
+	        f = self.send("#{flagtype}flags")[key.to_sym]
+	        f.repository = elem.repository
+	        f.architecture = elem.arch.to_s
+	        f.status = elem.element_name
+	        f.explicit = true
+	        value = f
+	      elsif elem.has_attribute? :repository
+	        key  =  elem.repository.to_s + '::all'
+	        f = self.send("#{flagtype}flags")[key.to_sym]
+	        f.description = 'package repository default'
+	        f.repository = elem.repository
+	        f.architecture = nil
+	        f.status = elem.element_name
+	        f.explicit = true
+	        value =  f
+	      elsif elem.has_attribute? :arch
+	        key = 'all::' + elem.arch.to_s
+	        f = self.send("#{flagtype}flags")[key.to_sym]
+	        f.description = 'package architecture default'
+	        f.repository = nil
+	        f.architecture = elem.arch.to_s
+	        f.status = elem.element_name
+	        f.explicit = true
+	        value =  f
+	      else
+	        #dickes default
+	        key = 'all::all'
+	        f = self.send("#{flagtype}flags")[key.to_sym]
+	        f.description = 'package default'
+	        f.repository = nil
+	        f.architecture = nil
+	        f.status = elem.element_name
+	        f.explicit = true
+	        value =  f
+	      end
+	    rescue NoMethodError => error
+        logger.debug "[PACKAGE-FLAGS] flag-matrix update warning: for the " + 
+          "requested flag-repo-arch-combination exists no entry in the flag-matrix" +
+          " ...ignored!"
+      end      
     end
     logger.debug "[PACKAGE-FLAGS] Update done."
   end
