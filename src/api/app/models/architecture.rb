@@ -8,6 +8,7 @@ class Architecture < ActiveRecord::Base
   has_many :build_flags
   has_many :publish_flags
   has_many :debug_flags
+  has_many :useforbuild_flags
 
 
   def self.archcache
