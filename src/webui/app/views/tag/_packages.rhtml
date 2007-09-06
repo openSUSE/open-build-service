@@ -1,6 +1,14 @@
 <div id="packages">
 <% if @packages and @packages != [] %>
-    <h2>Packages tagged with <%=h params[:tag] %></h2>
+    <h2>Packages tagged with
+	
+	  <% if session[:tagcloud] == :hierarchical_browsing and not @concatenated_tags.nil? %>
+		<%=h @concatenated_tags.gsub("::",", ") %>
+	  <% else %>
+		<%=h params[:tag] %>
+	  <% end %>
+	 
+	 </h2>
     <table>
       <tr>
         <th>Project</th>
