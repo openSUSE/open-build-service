@@ -195,96 +195,96 @@ class Project < ActiveXML::Base
   #TODO use setter method!
   def create_flag_matrix( opts )
     begin
-	    flagtype = opts[:flagtype]
-	    logger.debug "[PROJECT-FLAGS] Creating flag matrix for flagtype: #{flagtype}"
-	    flags = Hash.new
-	
-	      key = 'all::all'
-	
-	      df = Flag.new
-	      df.id = key
-	      df.name = "#{flagtype}"
-	      df.description = 'project default'
-	      df.architecture = nil
-	      df.repository = nil
-	      df.status = 'enable'
-	      df.explicit = true
-	
-	      value = df
-	
-	      flags.merge! key.to_sym => value
-	
-	      #get repositories and architectures
+      flagtype = opts[:flagtype]
+      logger.debug "[PROJECT-FLAGS] Creating flag matrix for flagtype: #{flagtype}"
+      flags = Hash.new
+
+        key = 'all::all'
+
+        df = Flag.new
+        df.id = key
+        df.name = "#{flagtype}"
+        df.description = 'project default'
+        df.architecture = nil
+        df.repository = nil
+        df.status = 'enable'
+        df.explicit = true
+
+        value = df
+
+        flags.merge! key.to_sym => value
+
+        #get repositories and architectures
         raise RuntimeError.new("[PROJECT-FLAGS] Warning: The Project #{self.name} has no " +
           "repository specified, therefore the creation of the flag-matrix is not possible.") \
           if self.repositories.empty?
-	      self.repositories.each do |repo|
-	        #generate repo::all flags and set the default
-	        key = repo.name.to_s + '::all'
-	
-	        rdf = Flag.new
-	        rdf.id = key
-	        rdf.name = "#{flagtype}"
-	        rdf.description = 'project repository default'
-	        rdf.architecture = nil
-	        rdf.repository = repo.name
-	        rdf.status = 'default'
-	        rdf.explicit = false
-	        #rdf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
-	        rdf.set_implicit_setters( flags['all::all'.to_sym] )
-	
-	        value = rdf
-	        #self.send("#{flagtype}_flags").merge! key.to_sym => value
-	        flags.merge! key.to_sym => value
-	
-	        #set defaults for each architecture
-	        repo.each_arch do |arch|
-	          #unless self.send("#{flagtype}flags").keys.include? "all::#{arch.to_s}".to_sym
-	          unless flags.keys.include? "all::#{arch.to_s}".to_sym
-	            key = 'all::' + arch.to_s
-	
-	            adf = Flag.new
-	            adf.id = key
-	            adf.name = "#{flagtype}"
-	            adf.description = 'project architecture default'
-	            adf.architecture = arch.to_s
-	            adf.repository = nil
-	            adf.status = 'default'
-	            adf.explicit = false
-	            #adf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
-	            adf.set_implicit_setters( flags['all::all'.to_sym] )
-	
-	            value = adf
-	            flags.merge! key.to_sym => value
-	          end #end unless
-	
-	          unless flags.keys.include? "#{repo.name}::#{arch.to_s}".to_sym
-	            key = repo.name + '::' + arch.to_s
-	
-	            adf = Flag.new
-	            adf.id = key
-	            adf.name = "#{flagtype}"
-	            adf.description = 'project flag'
-	            adf.architecture = arch.to_s
-	            adf.repository = repo.name
-	            adf.status = 'default'
-	            adf.explicit = false
-	
-	            firstflag = flags["#{repo.name}::all".to_sym]
-	            secondflag = flags["all::#{arch.to_s}".to_sym]
-	            adf.set_implicit_setters( firstflag, secondflag  )
-	
-	
-	            value = adf
-	            flags.merge! key.to_sym => value
-	          end
-	        end
-	      end
-	
-	    ft = "set_"+"#{flagtype}"+"flags"
-	    self.send ft.to_sym , flags
-	
-	    logger.debug "[PROJECT-FLAGS] Creation done."
+        self.repositories.each do |repo|
+          #generate repo::all flags and set the default
+          key = repo.name.to_s + '::all'
+
+          rdf = Flag.new
+          rdf.id = key
+          rdf.name = "#{flagtype}"
+          rdf.description = 'project repository default'
+          rdf.architecture = nil
+          rdf.repository = repo.name
+          rdf.status = 'default'
+          rdf.explicit = false
+          #rdf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
+          rdf.set_implicit_setters( flags['all::all'.to_sym] )
+
+          value = rdf
+          #self.send("#{flagtype}_flags").merge! key.to_sym => value
+          flags.merge! key.to_sym => value
+
+          #set defaults for each architecture
+          repo.each_arch do |arch|
+            #unless self.send("#{flagtype}flags").keys.include? "all::#{arch.to_s}".to_sym
+            unless flags.keys.include? "all::#{arch.to_s}".to_sym
+              key = 'all::' + arch.to_s
+
+              adf = Flag.new
+              adf.id = key
+              adf.name = "#{flagtype}"
+              adf.description = 'project architecture default'
+              adf.architecture = arch.to_s
+              adf.repository = nil
+              adf.status = 'default'
+              adf.explicit = false
+              #adf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
+              adf.set_implicit_setters( flags['all::all'.to_sym] )
+
+              value = adf
+              flags.merge! key.to_sym => value
+            end #end unless
+
+            unless flags.keys.include? "#{repo.name}::#{arch.to_s}".to_sym
+              key = repo.name + '::' + arch.to_s
+
+              adf = Flag.new
+              adf.id = key
+              adf.name = "#{flagtype}"
+              adf.description = 'project flag'
+              adf.architecture = arch.to_s
+              adf.repository = repo.name
+              adf.status = 'default'
+              adf.explicit = false
+
+              firstflag = flags["#{repo.name}::all".to_sym]
+              secondflag = flags["all::#{arch.to_s}".to_sym]
+              adf.set_implicit_setters( firstflag, secondflag  )
+
+
+              value = adf
+              flags.merge! key.to_sym => value
+            end
+          end
+        end
+
+      ft = "set_"+"#{flagtype}"+"flags"
+      self.send ft.to_sym , flags
+
+      logger.debug "[PROJECT-FLAGS] Creation done."
     rescue RuntimeError => error
       logger.debug error.message
       raise
@@ -303,44 +303,44 @@ class Project < ActiveXML::Base
 
     self.send(flagtype).each do |elem|
       begin
-	      key = nil
-	      value = nil
-	      if elem.has_attribute? :repository and elem.has_attribute? :arch
-	        key = elem.repository.to_s + '::' + elem.arch.to_s
-	        f = self.send("#{flagtype}flags")[key.to_sym]
-	        f.repository = elem.repository
-	        f.architecture = elem.arch.to_s
-	        f.status = elem.element_name
-	        f.explicit = true
-	        value = f
-	      elsif elem.has_attribute? :repository
-	        key  =  elem.repository.to_s + '::all'
-	        f = self.send("#{flagtype}flags")[key.to_sym]
-	        f.repository = elem.repository
-	        f.architecture = nil
-	        f.status = elem.element_name
-	        f.explicit = true
-	        value =  f
-	      elsif elem.has_attribute? :arch
-	        key = 'all::' + elem.arch.to_s
-	        f = self.send("#{flagtype}flags")[key.to_sym]
-	        f.repository = nil
-	        f.architecture = elem.arch.to_s
-	        f.status = elem.element_name
-	        f.explicit = true
-	        value =  f
-	      else
-	        #dickes default
-	        key = 'all::all'
-	        f = self.send("#{flagtype}flags")[key.to_sym]
-	        f.repository = nil
-	        f.architecture = nil
-	        f.status = elem.element_name
-	        f.explicit = true
-	        value =  f
-	      end
+        key = nil
+        value = nil
+        if elem.has_attribute? :repository and elem.has_attribute? :arch
+          key = elem.repository.to_s + '::' + elem.arch.to_s
+          f = self.send("#{flagtype}flags")[key.to_sym]
+          f.repository = elem.repository
+          f.architecture = elem.arch.to_s
+          f.status = elem.element_name
+          f.explicit = true
+          value = f
+        elsif elem.has_attribute? :repository
+          key  =  elem.repository.to_s + '::all'
+          f = self.send("#{flagtype}flags")[key.to_sym]
+          f.repository = elem.repository
+          f.architecture = nil
+          f.status = elem.element_name
+          f.explicit = true
+          value =  f
+        elsif elem.has_attribute? :arch
+          key = 'all::' + elem.arch.to_s
+          f = self.send("#{flagtype}flags")[key.to_sym]
+          f.repository = nil
+          f.architecture = elem.arch.to_s
+          f.status = elem.element_name
+          f.explicit = true
+          value =  f
+        else
+          #dickes default
+          key = 'all::all'
+          f = self.send("#{flagtype}flags")[key.to_sym]
+          f.repository = nil
+          f.architecture = nil
+          f.status = elem.element_name
+          f.explicit = true
+          value =  f
+        end
       rescue NoMethodError => error
-        logger.debug "[PROJECT-FLAGS] flag-matrix update warning: for the " + 
+        logger.debug "[PROJECT-FLAGS] flag-matrix update warning: for the " +
           "requested flag-repo-arch-combination exists no entry in the flag-matrix" +
           " ...ignored!"
       end
