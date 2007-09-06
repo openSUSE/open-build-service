@@ -1,0 +1,121 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+home:tscholz:
+  "<project name='home:tscholz'>
+    <title>tscholz's Home Project</title>
+    <description/>
+    <build>
+      <disable/>
+      <enable repository='openSUSE_10.2' arch='i586'/>
+    </build>
+    <person userid='tscholz' role='maintainer'/>
+    <repository name='openSUSE_10.2'>
+      <path project='openSUSE:10.2' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+    <repository name='openSUSE_Factory'>
+      <path project='openSUSE:Factory' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+  </project>"
+
+
+project_with_publishflags:
+  "<project name='project_with_publishflags'>
+    <title/>
+    <description/>
+    <publish>
+      <disable/>
+      <enable repository='openSUSE_10.2' arch='i586'/>
+    </publish>
+    <person userid='tscholz' role='maintainer'/>
+    <repository name='openSUSE_10.2'>
+      <path project='openSUSE:10.2' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+    <repository name='openSUSE_Factory'>
+      <path project='openSUSE:Factory' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+  </project>"
+
+
+project_with_debugflags:
+  "<project name='project_with_debugflags'>
+    <title/>
+    <description/>
+    <debug>
+      <disable/>
+      <enable repository='openSUSE_10.2' arch='i586'/>
+    </debug>
+    <person userid='tscholz' role='maintainer'/>
+    <repository name='openSUSE_10.2'>
+      <path project='openSUSE:10.2' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+    <repository name='openSUSE_Factory'>
+      <path project='openSUSE:Factory' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+  </project>"
+
+  
+project_without_flags_and_repos:
+  "<project name='home:tscholz'>
+    <title>tscholz's Home Project</title>
+    <description/>
+    <person userid='tscholz' role='maintainer'/>
+   </project>"
+
+    
+project_without_flags:
+  "<project name='home:tscholz'>
+    <title>tscholz's Home Project</title>
+    <description/>
+    <person userid='tscholz' role='maintainer'/>
+    <repository name='openSUSE_10.2'>
+      <path project='openSUSE:10.2' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+    <repository name='openSUSE_Factory'>
+      <path project='openSUSE:Factory' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+  </project>"   
+
+
+project_with_flags_and_without_repo: 
+  "<project name='project_with_flags_and_without_repo'>
+    <title/>
+    <description/>
+    <build>
+      <disable/>
+      <enable repository='openSUSE_10.2' arch='i586'/>
+    </build>
+    <person userid='tscholz' role='maintainer'/>
+   </project>"
+
+ 
+project_with_flags_and_improper_repo: 
+  "<project name='project_with_flags_and_improper_repo'>
+    <title/>
+    <description/>
+    <build>
+      <disable/>
+      <enable repository='openSUSE_XX.X' arch='i586'/>
+    </build>
+    <person userid='tscholz' role='maintainer'/>
+    <repository name='openSUSE_Factory'>
+      <path project='openSUSE:Factory' repository='standard'/>
+      <arch>i586</arch>
+    </repository>
+   </project>"   
+   
+ 
