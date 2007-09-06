@@ -9,13 +9,16 @@ class Package < ActiveXML::Base
   attr_accessor :publish_flags
   attr_accessor :debug_flags
 
-  attr_accessor :bf_updated;  @bf_updated = false
-  attr_accessor :pf_updated;  @pf_updated = false
-  attr_accessor :df_updated;  @df_updated = false
+  attr_accessor :bf_updated
+  attr_accessor :pf_updated
+  attr_accessor :df_updated
 
 
   def initialize(*args)
     super(*args)
+    @bf_updated = false
+    @pf_updated = false
+    @df_updated = false
   end
 
   # accessor method, because class variables are private to a class and its instances ;)
