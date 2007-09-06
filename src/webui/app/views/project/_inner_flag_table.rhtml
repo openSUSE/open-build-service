@@ -11,25 +11,15 @@
 			</span>
 		</td>
 	</tr>
-<!--	<tr>
-		<td>
+	<tr>
+<!--	<td>
 			UFB
-		</td>
+		</td> -->
 		<td>
-			D
+			<span id="<%="#{debugflag.name}_#{debugflag.id}"%>">
+				<%= render :partial => "flag_status", :locals => {:flag => debugflag} %>
+			</span>
 		</td>
-	</tr> -->
+	</tr>
 
 </table>
-
-<!--
-
-
-
-		<td><%#= check_box("publish", "flag", {}, "yes", "no") %></td>
-		<td>Publish!</td>
-		
-		
-				<td><%#= check_box("useforbuild", "flag", {}, "yes", "no") %></td>
-		<td>Use for build!</td>
-		-->
