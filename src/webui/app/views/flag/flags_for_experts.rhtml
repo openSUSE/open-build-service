@@ -1,7 +1,8 @@
 <%
 @crumb_list = [
   link_to( 'Projects', :action => :list_public),
-  @project.name
+  link_to (@project.name, :action => :show, :project => @project.name),
+  "Flags for Experts"
 ]
 -%>
 <li id="error_message_flags" style="display:none;"></li>
