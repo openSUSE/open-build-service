@@ -1,0 +1,23 @@
+<% @pagetitle = "Edit File" %>
+
+<script language="javascript">
+window.onload = function() {
+  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+  dp.SyntaxHighlighter.HighlightAll('code');
+}
+</script>
+
+<%
+@crumb_list = [
+  link_to( 'Projects', :controller => 'project', :action => :list_public),
+  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+  link_to( @package, :action => :show, :project => @project, :package => @package ),
+  'View File'
+]
+-%>
+<h2>View File <%=h @filename %> for package <%=h @package %> (Project <%=h @project %>)</h2>
+
+  <pre name="code" class="spec">
+    <%= @file %>
+  </pre>
+
