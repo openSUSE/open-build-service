@@ -433,6 +433,15 @@ class PackageController < ApplicationController
       :package => @package, :filename => @filename )
   end
 
+  def view_file
+    @project = params[:project]
+    @package = params[:package]
+    @filename = params[:file]
+
+    @file = frontend.get_source( :project => @project,
+     :package => @package, :filename => @filename )
+  end
+
 
   def save_modified_file
     project = params[:project]
