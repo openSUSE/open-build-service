@@ -177,7 +177,7 @@
     &lt;specification&gt;<replaceable>Specification</replaceable>&lt;/specification&gt;
   &lt;/description&gt;
   &lt;preferences&gt;<co id="co.kiwi.config.preferences"/>
-    &lt;type primary="true" boot="..." filesystem="..." flags="..."&gt;Type&lt;/type&gt;
+    &lt;type primary="true" boot="..." filesystem="..." flags="..." bootprofile="..."&gt;Type&lt;/type&gt;
     &lt;version&gt;<replaceable>Version</replaceable>&lt;/version&gt;
     &lt;size unit="<replaceable>Unit</replaceable>"&gt;<replaceable>Size</replaceable>&lt;/size&gt;
     &lt;packagemanager&gt;<replaceable>Name</replaceable>&lt;/packagemanager&gt;
@@ -303,7 +303,7 @@
 	   <filename>/usr/share/kiwi/image</filename> and are grouped
 	   by function into the following directories:
 	   <filename>isoboot</filename>, <filename>netboot</filename>,
-	   <filename>xennetboot</filename>, <filename>usbboot</filename>,
+	   <filename>usbboot</filename>,
 	   <filename>vmxboot</filename> and <filename>xenboot</filename>. The
 	   attribute value is the path relative to
 	   <filename>/usr/share/kiwi/image</filename>.
@@ -334,6 +334,20 @@
 	  </para>
 	 </listitem>
 	</varlistentry>
+    <varlistentry>
+     <term><sgmltag>bootprofile</sgmltag></term>
+     <listitem>
+      <para>
+       attribute to specify an addon boot profile. Within config.xml it is
+       possible to bind specific packages/drivers into a namespace. This is
+       called a profile. The information there is used if the KIWI option
+       <option>--add-profile</option> is used or if the profile name is
+       included as value to the bootprofile attribute. This feature is used
+       within the netboot image to distinguish between different kernels
+       for example between the default and the Xen kernel.
+      </para>
+     </listitem>
+    </varlistentry>
        </variablelist>
        <para>
 	The following list is an overview of different boot image
@@ -462,8 +476,8 @@
        specifies one of <sgmltag class="attvalue">ext2</sgmltag>,<sgmltag
 	    class="attvalue">ext3</sgmltag>, or <sgmltag
 	    class="attvalue">reiserfs</sgmltag> and the value of <sgmltag
-	    class="attribute">boot</sgmltag> is the path to a netboot or
-	   xennetboot boot image description. The created system and boot 
+	    class="attribute">boot</sgmltag> is the path to a netboot
+	   boot image description. The created system and boot 
        images are suitable to drive a network client station. An appropriate
        network infrastructure including a DHCP and TFTP server is required
        in order to activate a network client.
@@ -492,7 +506,7 @@
 	    class="attvalue">reiserfs</sgmltag>, <sgmltag
 	    class="attvalue">cramfs</sgmltag> or <sgmltag
 	    class="attvalue">squashfs</sgmltag>. Booting split images is only
-	   supported by the netboot and xennetboot boot images which need to
+	   supported by the netboot boot images which need to
 	   be created with a separate KIWI run.
 	  </para>
 	 </listitem>

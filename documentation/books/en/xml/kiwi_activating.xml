@@ -633,14 +633,20 @@ NFSROOT=<replaceable>&lt;NFS.Server.IP.address&gt;</replaceable>;<replaceable>&l
        with a remote port using the program <command>nbd-server</command>.
        For detailed information how to setup the server please consult the
        man page of nbd-server. The kernel on the remote client can setup a
-       special network block device named <command>/dev/nd0</command> using
+       special network block device named <command>/dev/nb0</command> using
        the command <command>nbd-client</command>. Once this device exists
        the <command>mount</command> program is used to mount the root
        filesystem. In order to allow the KIWI boot image to that the
        following information must be provided:
 <screen>
-NBDROOT=<replaceable>&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable>&lt;NBD-Port-Number&gt;</replaceable>;/dev/<replaceable>&lt;NBD-Device&gt;</replaceable>
+NBDROOT=<replaceable>&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable>&lt;NBD-Port-Number&gt;</replaceable>;/dev/<replaceable>&lt;NBD-Device&gt;</replaceable><replaceable>&lt;NBD-Swap-Port-Number&gt;</replaceable>;/dev/<replaceable>&lt;NBD-Swap-Device&gt;</replaceable>
 </screen>
+       The variables NBD-Device, NBD-Swap-Port-Number and NBD-Swap-Device
+       are optional. If not set the default values aplies which are
+       /dev/nb0 for the NBD-Device, port number 9210 for the
+       NBD-Swap-Port-Number and /dev/nb1 for the NBD-Swap-Device.
+       The swap space over network using a network block device is only
+       established if the client has less than 48 MB of RAM.
       </para>
      </listitem>
     </varlistentry>
@@ -736,24 +742,21 @@ DISK=/dev/sda</screen>
     TFTP servers upload directory
     <filename>/var/lib/tftpboot/upload</filename>.
    </para>
+   <para>
+    The netboot boot image support two profiles. The already explained
+    standard (default) profile and a special xen profile. If the bootprofile
+    attribute is set to <emphasis>xen</emphasis> the Xen kernel and modules
+    will be used within the boot image. This allows to boot the system
+    image directly with an enabled Xen kernel and therefore turn the system
+    image into a hypervisor without reboot. In order to be able to boot a
+    Xen kernel via PXE over the network an additional boot loader called
+    mboot.c32 is required. mboot.c32 is a COM32 module for
+    H. Peter Anvin's fine SYSLINUX bootloader, to load multiboot kernels
+    and modules. This allows Xen to be network-booted. Instructions for
+    using mboot.c32 can be found here:
+    <ulink url="http://www.kernel.org/git/?p=boot/syslinux/syslinux.git;a=blob;f=com32/modules/mboot.doc"><guilabel>com32/modules/mboot.doc</guilabel></ulink>
+   </para>
   </sect3>
- </sect2>
- <sect2 id="sec.kiwi.activating.xennetboot">
-  <title>The KIWI xennetboot image</title>
-  <para>
-   The KIWI xennetboot boot image works exactly the same way than the netboot
-   boot image. The only difference is the kernel which is used to boot the
-   client machine. With netboot a standard kernel is used whereas the 
-   xennetboot image uses the Xen kernel within the boot image. This allows
-   to boot the system image directly with an enabled Xen kernel and therefore
-   turn the system image into a hypervisor without reboot. In order to be
-   able to boot a Xen kernel via PXE over the network an additional boot
-   loader called mboot.c32 is required. mboot.c32 is a COM32 module for
-   H. Peter Anvin's fine SYSLINUX bootloader, to load multiboot kernels
-   and modules. This allows Xen to be network-booted. Instructions for
-   using mboot.c32 can be found here:
-   <ulink url="http://www.kernel.org/git/?p=boot/syslinux/syslinux.git;a=blob;f=com32/modules/mboot.doc"><guilabel>com32/modules/mboot.doc</guilabel></ulink>
-  </para>
  </sect2>
  <sect2 id="sec.kiwi.activating.isoboot">
   <title>The KIWI isoboot image</title>

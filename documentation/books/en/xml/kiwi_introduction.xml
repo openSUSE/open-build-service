@@ -185,7 +185,7 @@
       access and the second portion represents the read-only data. According
       to this the second porition can be part of a compressed read-only
       filesystem. This image type doesn't automatically create its boot
-      image and works only with netboot and xennetboot boot images. The
+      image and works only with netboot boot images. The
       generated image requires a DHCP/TFTP network infrastructure
       running on a server
      </para>
