@@ -10,4 +10,4 @@ doc: apidocs
 	xsltproc xs3p.xsl status.xsd >status.html
 
 validate:
-	./validate_xml.rb
+	restility/validate_xml.rb
