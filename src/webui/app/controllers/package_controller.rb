@@ -787,12 +787,8 @@ class PackageController < ApplicationController
 
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
-      file[:ext] = file[:name].downcase.split(/\./)[-1]
-
-      editable = true
-      editable = false if file[:size].to_i > 2**20  # max. 1 MB
-      editable = false if no_edit_ext.include? file[:ext]
-      file[:editable] = editable
+      file[:ext] = Pathname.new(file[:name]).extname
+      file[:editable] = not(no_edit_ext.include? file[:ext]) and file[:size].to_i < 2**20  # max. 1 MB
 
       files << file
     end
