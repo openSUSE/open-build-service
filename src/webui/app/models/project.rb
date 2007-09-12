@@ -4,10 +4,12 @@ class Project < ActiveXML::Base
   attr_accessor :build_flags
   attr_accessor :publish_flags
   attr_accessor :debug_flags
+  attr_accessor :useforbuild_flags
 
   attr_accessor :bf_updated
   attr_accessor :pf_updated
   attr_accessor :df_updated
+  attr_accessor :uf_updated
 
   #cache variables
   attr_accessor :my_repositories
@@ -47,7 +49,12 @@ class Project < ActiveXML::Base
   def set_debugflags(flags_as_hash)
     self.debug_flags = flags_as_hash
   end
-    
+
+
+  def set_useforbuildflags(flags_as_hash)
+    self.useforbuild_flags = flags_as_hash
+  end
+
 
   def buildflags
     if self.bf_updated.nil? or self.build_flags.nil?
@@ -84,6 +91,18 @@ class Project < ActiveXML::Base
     return debug_flags
   end  
 
+
+  def useforbuildflags
+    if self.uf_updated.nil? or self.useforbuild_flags.nil?
+      self.uf_updated = true
+      create_flag_matrix(:flagtype => 'useforbuild')
+      update_flag_matrix(:flagtype => 'useforbuild')
+
+    end
+
+    return useforbuild_flags
+  end
+  
 
   def to_s
     name.to_s

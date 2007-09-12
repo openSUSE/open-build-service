@@ -154,7 +154,7 @@ class ProjectController < ApplicationController
 
   def flags_for_experts
     @project = Project.find(params[:project])
-    render :template => "flag/flags_for_experts"
+    render :template => "flag/project_flags_for_experts"
   end
 
   #update project flags

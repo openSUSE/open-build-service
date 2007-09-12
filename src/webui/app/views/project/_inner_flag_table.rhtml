@@ -10,11 +10,11 @@
 				<%= render :partial => "flag_status", :locals => {:flag => publishflag} %>
 			</span>
 		</td>
-	</tr>
-	<tr>
-<!--	<td>
-			UFB
-		</td> -->
+		<td>
+			<span id="<%="#{useforbuildflag.name}_#{useforbuildflag.id}"%>">
+				<%= render :partial => "flag_status", :locals => {:flag => useforbuildflag} %>
+			</span>
+		</td>
 		<td>
 			<span id="<%="#{debugflag.name}_#{debugflag.id}"%>">
 				<%= render :partial => "flag_status", :locals => {:flag => debugflag} %>
