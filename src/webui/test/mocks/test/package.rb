@@ -17,6 +17,10 @@ class Package
           name = args.first[:name]
         end
         yaml = {name => yaml[name]} 
+        if yaml[name].nil?
+          raise RuntimeError.new("Package #{args.first[:name]} couldn't be found.")
+        end        
+        
         return self.yaml_to_axml(yaml)
     end
     
@@ -31,7 +35,7 @@ class Package
     yaml.each do |key,value|
       packages << Package.new(value)
     end
-
+    
     if packages.size > 1 then
       return packages
     else

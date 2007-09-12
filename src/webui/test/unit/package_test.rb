@@ -90,11 +90,24 @@ class PackageTest < Test::Unit::TestCase
   
   
   def test_package_with_flags_but_without_repo
+    #the error should be raised in the project-create_flag_matrix-function
     assert_raises (RuntimeError){
-      @package_with_flags_and_without_repo.create_flag_matrix(:flagtype => 'build')
+      @package_with_flags_and_without_repo.create_flag_matrix(:flagtype => 'build').inspect
     }
   end  
   
+  
+  def test_complex_flag_configuration?
+    @package = Package.find(:name => "package_with_complex_flag_configuration")
+    assert_equal true, @package.complex_flag_configuration?('build')
+    @package = Package.find(:name => "testpack")
+    assert_equal false, @package.complex_flag_configuration?('build')
+    
+    @package = Package.find(:name => "package_using_flags_with_repos_are_not_in_project_config") 
+    assert_equal true, @package.complex_flag_configuration?('build')
+    
+  end
+    
   
   #more than one project can be referenced through the class variable my_pro
   #(accessor/reader function is my_project)
@@ -114,7 +127,11 @@ class PackageTest < Test::Unit::TestCase
   
   def test_repositories
     assert_equal "openSUSE_10.2", @package.repositories[0].name
-    assert_equal "openSUSE_Factory", @package.repositories[1].name    
+    assert_equal "openSUSE_Factory", @package.repositories[1].name
+    #the same again :)
+    assert_equal "openSUSE_10.2", @package.my_project.repositories[0].name
+    assert_equal "openSUSE_Factory", @package.repositories[1].name 
   end
-      
+    
+  
 end

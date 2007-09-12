@@ -63,6 +63,28 @@ project_with_debugflags:
       <arch>x86_64</arch>
     </repository>
   </project>"
+  
+
+project_with_useforbuildflags:
+  "<project name='project_with_useforbuildflags'>
+    <title/>
+    <description/>
+    <useforbuild>
+      <disable/>
+      <enable repository='openSUSE_10.2' arch='i586'/>
+    </useforbuild>
+    <person userid='tscholz' role='maintainer'/>
+    <repository name='openSUSE_10.2'>
+      <path project='openSUSE:10.2' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+    <repository name='openSUSE_Factory'>
+      <path project='openSUSE:Factory' repository='standard'/>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+    </repository>
+  </project>"
 
   
 project_without_flags_and_repos:

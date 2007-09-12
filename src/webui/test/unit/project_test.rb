@@ -124,6 +124,30 @@ class ProjectTest < Test::Unit::TestCase
   end    
   
   
+  def test_update_useforbuildflag_matrix
+    
+    project = Project.find(:name => "project_with_useforbuildflags")
+
+    project.create_flag_matrix(:flagtype => 'useforbuild')
+
+    #check preconditions
+    ['openSUSE_10.2::i586'].each do |key|
+      flag = project.useforbuild_flags[key.to_sym]
+      assert_equal 'default', flag.status
+    end
+
+    #update flags with the project-config
+    project.update_flag_matrix(:flagtype => 'useforbuild')
+
+    #check results
+    ['openSUSE_10.2::i586'].each do |key|
+      flag = project.useforbuild_flags[key.to_sym]
+      assert_equal 'enable', flag.status
+    end
+    
+  end
+    
+  
   def test_project_with_flags_but_without_repo
     @project = Project.find(:name => "project_with_flags_and_without_repo") 
     assert_raises (RuntimeError){

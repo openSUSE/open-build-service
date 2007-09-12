@@ -21,7 +21,10 @@ class Project
         else
           name = args.first[:name]
         end
-        yaml = {name => yaml[name]} 
+        yaml = {name => yaml[name]}
+        if yaml[name].nil?
+          raise RuntimeError.new("Project #{args.first[:name]} couldn't be found.")
+        end            
         return self.yaml_to_axml(yaml)
     end
     
