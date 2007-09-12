@@ -747,12 +747,6 @@ class PackageController < ApplicationController
   end
 
 
-  def flags_for_experts
-    @package = Package.find(params[:package], :project => params[:project])
-    #render :template => "flags_for_experts"
-  end
-
-
   # update package flags
   def update_flag
     begin
@@ -775,6 +769,13 @@ class PackageController < ApplicationController
     @flag = @package.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
   end
 
+  
+  def flags_for_experts
+    @package = Package.find(params[:package], :project => params[:project])
+    flags_for_experts = true
+    render :template => "flag/package_flags_for_experts"
+  end
+    
 
   private
 

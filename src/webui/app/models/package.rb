@@ -8,10 +8,12 @@ class Package < ActiveXML::Base
   attr_accessor :build_flags
   attr_accessor :publish_flags
   attr_accessor :debug_flags
+  attr_accessor :useforbuild_flags
 
   attr_accessor :bf_updated
   attr_accessor :pf_updated
   attr_accessor :df_updated
+  attr_accessor :uf_updated
 
 
   def initialize(*args)
@@ -19,18 +21,16 @@ class Package < ActiveXML::Base
     @bf_updated = false
     @pf_updated = false
     @df_updated = false
+    @uf_updated = false
   end
 
   # accessor method, because class variables are private to a class and its instances ;)
   def my_project
     @@my_pro[self.project.to_sym] ||= Project.find(self.project)
-    logger.debug "class variable @@my_pro references now #{@@my_pro.keys.size} projects"
     return @@my_pro[self.project.to_sym]
   end
 
 
-  #TODO untested!!!!
-  #TODO same function as in project
   def complex_flag_configuration? ( flagtype )
 
     unless self.has_element? flagtype.to_sym
@@ -38,13 +38,26 @@ class Package < ActiveXML::Base
     end
 
     flag_hash = Hash.new
-    #iterates over the package.xml
+    #iterates over the package.xml and check for identically with different states 
     self.send(flagtype).each do |flag|
       arch = ( (flag.arch if flag.has_attribute? :arch) or 'all' )
       repo = ( (flag.repository if flag.has_attribute? :repository) or 'all' )
       return true if flag_hash["#{repo}::#{arch}".to_sym] == true
       flag_hash.merge! "#{repo}::#{arch}".to_sym => true
     end
+    #Find package-flags for architectures and repositories not included in the 
+    #project config. This check is done separately because we will add support
+    #for these flags to the webclient later. (and than this check will be obsolete)
+    self.send(flagtype).each do |flag|
+      project_repos = Array.new
+      self.my_project.repositories.each do |repo|
+        project_repos << repo.name
+      end
+      if flag.has_attribute? :repository
+        return true if not project_repos.include? flag.repository
+      end
+    end
+    
     return false
   end
 
@@ -61,6 +74,11 @@ class Package < ActiveXML::Base
 
   def set_debugflags(flags_as_hash)
     self.debug_flags = flags_as_hash
+  end
+
+ 
+  def set_useforbuildflags(flags_as_hash)
+    self.useforbuild_flags = flags_as_hash
   end
 
 
@@ -96,6 +114,17 @@ class Package < ActiveXML::Base
     return debug_flags
   end
 
+  
+  def useforbuildflags
+    unless self.uf_updated == true or not self.useforbuild_flags.nil?
+      self.uf_updated = true
+      create_flag_matrix(:flagtype => 'useforbuild')
+      update_flag_matrix(:flagtype => 'useforbuild')
+    end
+
+    return useforbuild_flags
+  end
+    
 
   def to_s
     name.to_s

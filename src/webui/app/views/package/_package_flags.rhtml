@@ -1,3 +1,5 @@
+<% flags_for_experts ||= false %>
+
 <h3>
   Package Flags
   <li  id="error_message_flags" class="error_message" style="display:none;"></li>
@@ -5,4 +7,16 @@
 
 
 
-<%= render :partial => "outer_flag_table" unless @package.my_project.repositories.empty?%>
+<%= render :partial => "outer_flag_table",
+	:locals => {:flags_for_experts => flags_for_experts} unless @package.my_project.repositories.empty?%>
+
+<% unless flags_for_experts %>
+<table>
+	<tr>
+		<td style="align: left">
+		  <%= link_to "[Flags for Experts]", :action => 'flags_for_experts',
+				:project => @package.project, :package => @package%>
+		</td>
+  	</tr>
+</table>
+<% end %>
