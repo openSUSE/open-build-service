@@ -209,7 +209,7 @@
     &lt;union rw="<replaceable>RW-Device</replaceable>" ro="<replaceable>RO-Device</replaceable>" type="aufs|unionfs"/&gt;
     &lt;configuration source="<replaceable>Source</replaceable>" dest="<replaceable>Destination</replaceable>"/&gt;
   &lt;/deploy&gt;
-  &lt;packages type="<replaceable>Type</replaceable>" profiles="<replaceable>Name</replaceable>"&gt;<co id="co.kiwi.config.packages"/>
+  &lt;packages type="<replaceable>Type</replaceable>" patternType="onlyRequired|plusSuggested|plusRecommended" patternPackageType="onlyRequired|plusSuggested|plusRecommended" profiles="<replaceable>Name</replaceable>"&gt;<co id="co.kiwi.config.packages"/>
     &lt;package name="<replaceable>Packagename</replaceable>" arch="<replaceable>Arch</replaceable>"/&gt;
     &lt;opensusePattern name="<replaceable>Patternname</replaceable>"/&gt;
     &lt;ignore name="<replaceable>Packagename</replaceable>"/&gt;
@@ -883,7 +883,20 @@
     <para>
      Using a pattern name will enhance the package list with a number of
      additional packages belonging to this pattern. Support for patterns is
-     SuSE-specific and available from openSUSE 10.2 or higher. If a pattern
+     SuSE-specific and available from openSUSE 10.2 or higher.
+     The optional attributes <sgmltag class="attribute">patternType</sgmltag>
+     and <sgmltag class="attribute">patternPackageType</sgmltag> contains
+     information which allows to specify which pattern references or packages
+     should be used from a given pattern. The value can be one of
+     <emphasis>onlyRequired</emphasis> which would incorporate only
+     patterns and packages which are required by the given pattern,
+     <emphasis>plusSuggested</emphasis> which would incorporate
+     patterns and packages which are required and suggested by the given
+     pattern, <emphasis>plusRecommended</emphasis> which would incorporate
+     patterns and packages which are required and recommended by the given
+     pattern. By default only required patterns and packages are used.
+     It is possible to specify different values for patternType and
+     patternPackageType. If a pattern
      contains unwanted packages it is possible to specify a an ignore list
      with the element <sgmltag>ignore</sgmltag> and the attribute <sgmltag
       class="attribute">name</sgmltag> containing the package name.

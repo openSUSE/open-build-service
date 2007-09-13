@@ -288,10 +288,10 @@ kiwi --root /tmp/kiwi.nfsroot --prepare ...
   </procedure>
  </sect2>
  <sect2 id="sec.kiwi.deploying.cd.install">
-  <title>Installation from CD or DVD</title>
+  <title>Installation from CD/DVD or USB stick</title>
   <para> 
-   Sometimes it makes sense to create a CD or DVD which contains an image
-   to become installed on a hard disk of the computer. The installation
+   Sometimes it makes sense to create a CD,DVD or USB stick which contains
+   an image to become installed on a hard disk of the computer. The installation
    process in KIWI is rather simple. It doesn't take care for already
    installed operating systems or disk partitions so be careful with this
    deployment method. The process of booting a CD with an image as content
@@ -305,6 +305,16 @@ kiwi --root /tmp/kiwi.nfsroot --prepare ...
 <screen>
 &lt;preferences&gt;
   &lt;type filesystem="ext3" boot="oemboot/suse-... format="iso"&gt;vmx&lt;/type&gt;
+  ...
+&lt;/preferences&gt;
+</screen>
+   To indicate that the resulting virtual disk system image should
+   be part of a installation virtual disk which can be dumped on an USB
+   stick the value <emphasis>usb</emphasis> must be set. Referring to this the
+   system image description needs the following type specification:
+<screen>
+&lt;preferences&gt;
+  &lt;type filesystem="ext3" boot="oemboot/suse-... format="usb"&gt;vmx&lt;/type&gt;
   ...
 &lt;/preferences&gt;
 </screen>
