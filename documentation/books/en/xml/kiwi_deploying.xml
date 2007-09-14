@@ -120,37 +120,6 @@ DISK=/dev/sda</screen>
    downloaded the system image it is getting activated and operates as
    configured. 
   </para>
-  <sect3 id="sec.kiwi.deploying.net_pxe.tftp">
-   <title>Deploying via TFTP with Initial Boot from CD or USB Stick</title>
-   <para>
-    Sometimes it is not possible to use PXE as boot protocol. This could
-    happen if the target machine doesn't support PXE or the installed network
-    card doesn't provide a PXE boot rom. Preconditioned your network provides
-    a DHCP and a TFTP server the problem can be solved by storing the boot
-    image on another bootable medium like a CD or an USB stick. Referring to
-    the information from the section above it is easy to create a bootable CD
-    / USB stick with KIWI:
-   </para>
-<screen>
-kiwi --bootcd /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
-   <para>
-    The command will create a bootable ISO image which only needs to be burned
-    on a CD. The following file will be created after the call:
-    <filename>/tmp/initrd-netboot-suse-10.2.i686-2.1.1.cdboot.iso</filename>.
-   </para>
-   <para>Plug in an USB stick then call:</para>
-<screen>
-kiwi --bootstick /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz</screen>
-   <para>
-    The command will create a bootable USB stick. KIWI is searching for the
-    USB stick plugged in before and lists all devices found. The user needs to
-    select one of the devices by typing one of the suggested device names. It
-    is important to be careful at that stage because all data on the given
-    device will be lost. Because of this reason the user has to type the
-    device name which hopefully increases the chance not to do something
-    thoughtlessly.
-   </para>
-  </sect3>
  </sect2>
  <sect2 id="sec.kiwi.deploying.split_pxe">
   <title>Split image system via PXE</title>
