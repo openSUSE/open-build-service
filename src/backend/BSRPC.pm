@@ -90,10 +90,11 @@ sub rpc {
     *S = *{$param->{'socket'}};
     $path = $uri;
   } else {
-    die("bad uri: $uri\n") unless $uri =~ /^http:\/\/([^\/:]+)(:\d+)?(\/.*)$/;
-    ($host, $port, $path) = ($1, $2, $3);
+    my $proto;
+    die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/([^\/:]+)(:\d+)?(\/.*)$/;
+    ($proto, $host, $port, $path) = ($1, $2, $3, $4);
     my $hostport = $port ? "$host$port" : $host;
-    $port = substr($port || ":80", 1);
+    $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
     if (!$hostlookupcache{$host}) {
       my $hostaddr = inet_aton($host);
       die("unknown host '$host'\n") unless $hostaddr;
@@ -102,6 +103,10 @@ sub rpc {
     socket(S, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
     connect(S, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
     unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
+    if ($proto eq 'https') {
+      die("https not supported\n") unless $param->{'https'};
+      *S = $param->{'https'}->(\*S);
+    }
   }
 
   my $act = $param->{'request'} || 'GET';

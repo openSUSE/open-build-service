@@ -444,119 +444,6 @@ sub workerstate {
   return $BSStdServer::return_ok;
 }
 
-my $workerdircache = {};
-my $builddircache = {};
-
-sub assignjob {
-  my ($job, $idlename, $arch) = @_;
-
-  print "assignjob $job -> $idlename\n";
-  my $worker = readxml("$workersdir/idle/$idlename", $BSXML::worker, 1);
-  return undef unless $worker;
-  # ready for building!
-  unlink("$workersdir/idle/$idlename");
-  my $infoxml = readstr("$jobsdir/$arch/$job:dir/info.xml");
-  my $info = XMLin($BSXML::buildinfo, $infoxml);
-  my $prp = $info->{'path'}->[0];
-  my $statusdir = "$reporoot/$prp->{'project'}/$prp->{'repository'}/$info->{'arch'}/$info->{'package'}";
-  mkdir_p($statusdir);
-  my $workercode = getcodemd5('worker', $workerdircache);
-  my $buildcode = getcodemd5('build', $builddircache);
-  eval {
-    BSRPC::rpc({
-      'uri'     => "http://$worker->{'ip'}:$worker->{'port'}/build",
-      'timeout' => 10,
-      'request' => "PUT",
-      'headers' => [ "Content-Type: text/xml" ],
-      'data'    => $infoxml,
-    }, undef, "port=$port", "workercode=$workercode", "buildcode=$buildcode");
-  };
-  if ($@) {
-    print "rpc error: $@";
-    return undef;
-  }
-  my $status = readxml("$statusdir/status", $BSXML::buildstatus, 1);
-  $status = {} unless $status;
-  $status->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
-  $status->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
-  $status->{'starttime'} = time();
-  $status->{'hostarch'} = $worker->{'hostarch'};
-  $status->{'status'} = 'building';
-  $status->{'arch'} = $arch;
-  $status->{'job'} = $job;
-  eval { writexml("$statusdir/.status$$", "$statusdir/status", $status, $BSXML::buildstatus); };
-  warn($@) if $@;
-  unlink("$jobsdir/$arch/$job:dir/status.xml");
-  link("$statusdir/status", "$jobsdir/$arch/$job:dir/status.xml") || warn("link $statusdir/status $jobsdir/$arch/$job:dir/status.xml: $!\n");
-  mkdir_p("$workersdir/building");
-  unlink("$workersdir/building/$idlename");
-  link("$statusdir/status", "$workersdir/building/$idlename") || warn("link $statusdir/status $workersdir/building/$idlename: $!\n");
-  return 1;
-}
-
-sub jobloop {
-  local *D;
-  while (1) {
-    my @idle;
-    my $assigned = 0;
-    if (opendir(D, "$workersdir/idle")) {
-      @idle = grep {!/^\./} readdir D;
-      closedir D;
-    }
-    my %idlearch;
-    for my $idle (@idle) {
-      my $harch = (split(':', $idle, 2))[0];
-      for (@{$cando{$harch} || []}) {
-	push @{$idlearch{$_}}, $idle;
-      }
-    }
-    my @archs = List::Util::shuffle(keys %idlearch);
-    for my $arch (@archs) {
-      my @b;
-      if (opendir(D, "$jobsdir/$arch")) {
-        @b = grep {!/^\./ && !/:new$/} readdir D;
-        closedir D;
-      }
-      my %locked = map {$_ => 1} grep {/:dir$/} @b;
-      @b = grep {!/:dir$/} @b;
-      @b = grep {!$locked{"$_:dir"}} @b;
-
-      #poor man's project priority
-      my @bn = grep {!/^Ports:DebianBased:Auto/} @b;
-      @b = @bn if @bn;
-
-      for my $job (List::Util::shuffle(@b)) {
-        for my $idle (map {$_} List::Util::shuffle(@{$idlearch{$arch} || []})) {
-          mkdir("$jobsdir/$arch/$job:dir") || next;
-          if (!link("$jobsdir/$arch/$job", "$jobsdir/$arch/$job:dir/info.xml")) {
-	    rmdir("$jobsdir/$arch/$job:dir");
-	    next;
-	  }
-	  if (!assignjob($job, $idle, $arch)) {
-	    unlink("$jobsdir/$arch/$job:dir/info.xml");
-	    rmdir("$jobsdir/$arch/$job:dir");
-	    my $harch = (split(':', $idle, 2))[0];
-	    for (@{$cando{$harch} || []}) {
-	      $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
-	    }
-	    next;
-	  }
-	  my $harch = (split(':', $idle, 2))[0];
-	  for (@{$cando{$harch} || []}) {
-	    $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
-	  }
-	  $assigned++;
-	  last;
-	}
-      }
-    }
-    next if $assigned;
-    sleep(1);
-    my $ppid = getppid();
-    exit 0 if $ppid == 1 || ! kill 0, $ppid;
-  }
-}
-
 sub ping {
   my ($arch) = @_;
   local *F;
@@ -657,6 +544,7 @@ sub forwardevent {
   my @archs = $arch ? ($arch) : ls($eventdir);
   for my $a (@archs) {
     next unless -d "$eventdir/$a";
+    next if $a eq 'publish';
     writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
     ping($a);
   }
@@ -1113,38 +1001,6 @@ sub abortbuild {
   return $BSStdServer::return_ok;
 }
 
-sub getcodemd5 {
-  my ($dir, $cache) = @_;
-  my $md5 = '';
-  my %new;
-  my $doclean;
-  my @files = grep {!/^\./} ls($dir);
-  my @bfiles = grep {!/^\./} ls("$dir/Build");
-  my %bfiles = map {$_ => 1} @bfiles;
-  @files = sort(@files, @bfiles);
-  $cache ||= {};
-  for my $file (@files) {
-    my $f = $bfiles{$file} ? "$dir/Build/$file" : "$dir/$file";
-    next unless -f $f;
-    my @s = stat _;
-    my $id = "$s[9]/$s[7]/$s[1]";
-    $new{$id} = 1;
-    if ($cache->{$id}) {
-      $md5 .= "$cache->{$id}  $file\n";
-      next;
-    }
-    $cache->{$id} = Digest::MD5::md5_hex(readstr($f));
-    $md5 .= "$cache->{$id}  $file\n";
-    $doclean = 1;
-  }
-  if ($doclean) {
-    for (keys %$cache) {
-      delete $cache->{$_} unless $new{$_};
-    }
-  }
-  return Digest::MD5::md5_hex($md5);
-}
-
 sub getcode {
   my ($cgi, $dir) = @_;
   my @send;
@@ -1211,6 +1067,7 @@ sub prp_to_repoinfo {
     if (-s "$reporoot/$prp/:repoinfo") {
       $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo");
       for (@{$repoinfo->{'prpsearchpath'} || []}) {
+	next if ref($_);	# legacy
         my ($p, $r) = split('/', $_, 2);
         $_ = {'project' => $p, 'repository' => $r};
       }
@@ -1382,7 +1239,6 @@ sub makeymp {
   $ymp->{'xmlns:os'} = 'http://opensuse.org/Standards/One_Click_Install';
   $ymp->{'xmlns'} = 'http://opensuse.org/Standards/One_Click_Install';
   my @group;
-  my $inner_group = {};
   $ymp->{'group'} = \@group;
   my @repos;
   for my $pa (@{$repo->{'path'} || []}) {
@@ -1409,6 +1265,7 @@ sub makeymp {
   } else {
     $pkg->{'summary'} = "The $pkg->{'name'} package";
   }
+  my $inner_group = {};
   $inner_group->{'repositories'} = {'repository' => \@repos };
   $inner_group->{'software'} = {'item' => [$pkg]};
   push @group, $inner_group;
@@ -1535,7 +1392,6 @@ my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
   'setkeepalive' => 1, 
-  'fork' => [ \&jobloop ],
 };
 
 my $aconf = {

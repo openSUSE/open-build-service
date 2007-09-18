@@ -452,6 +452,7 @@ our $binarylist = [
 	'package',
      [[ 'binary' =>
 	    'filename',
+	    'size',
 	    'mtime',
      ]],
 ];
@@ -542,31 +543,31 @@ our $ymp = [
         'xmlns:os',
         'xmlns',
         [],
-      [[ 'group' =>
-        [],
-        'name',
-        'summary',
-        'description',
-        [ 'repositories' =>
-         [[ 'repository' =>
-                'format',
-                'recommended',
-                [],
-                'name',
-                'summary',
-                'description',
-                'url',
-         ]],
-        ],
-        [ 'software' =>
-         [[ 'item' =>
-                'type',
-                [],
-                'name',
-                'summary',
-                'description',
-         ]]
-        ],
+     [[ 'group' =>
+	    [],
+	    'name',
+	    'summary',
+	    'description',
+	  [ 'repositories' =>
+	     [[ 'repository' =>
+		    'format',
+		    'recommended',
+		    [],
+		    'name',
+		    'summary',
+		    'description',
+		    'url',
+	     ]],
+	    ],
+	  [ 'software' =>
+	     [[ 'item' =>
+		    'type',
+		    [],
+		    'name',
+		    'summary',
+		    'description',
+	     ]],
+	  ],
       ]],
 ];
 

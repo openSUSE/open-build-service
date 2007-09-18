@@ -681,6 +681,7 @@ BSServer::read_file('job.new');
 my $infoxml = readstr('job.new');
 die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
 my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
+$buildcode = codemd5('build');
 if ($cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
   print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
   my $peer = "${BSServer::peer}:$cgi->{'port'}";
