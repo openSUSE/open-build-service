@@ -98,7 +98,7 @@ class ApplicationController < ActionController::Base
                            :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
                                        "<p>Please stay tuned until you get approval message.</p>"
             else
-              render_error :message => "Your user is either invalid or net yet confirmned (state #{@http_user.state}).", 
+              render_error :message => "Your user is either invalid or net yet confirmed (state #{@http_user.state}).", 
                            :status => 403,
                            :errorcode => "unconfirmed_user",
                            :details => "Please contact the openSUSE admin team <admin@opensuse.org>"
