@@ -300,43 +300,426 @@ kiwi --create /tmp/myRoot
    or DVD. 
   </para>
  </sect2>
- <sect2 id="sec.kiwi.deploying.usb">
+
+ <sect2 id="sec.kiwi.deploying.usb" lang="en">
+	<sect2info>
+		<author>
+			<firstname>Jan-Christoph</firstname>
+			<surname>Bornschlegel</surname>
+		</author>
+	</sect2info>
   <title>USB stick system</title>
   <para>
-   A very popular method is storing complete operating systems on an USB
-   stick. This means not only the boot image and the kernel is stored on the
-   stick but also the entire system image is part of the stick. To be able to
-   do this KIWI provides special boot image(s) located in
-   <filename>/usr/share/kiwi/image/usbboot</filename>. Currently it is tested
-   and available for SuSE Linux 10.2 only but can be adapted to other versions
-   as well. To use your system image on a boot stick setup the system's
-   <filename>config.xml</filename> as follows:
-  </para>
-<screen>
-&lt;preferences&gt;
-  &lt;type filesystem="ext3" boot="usbboot/suse-10.2"&gt;usb&lt;/type&gt;
-  ...
-&lt;/preferences&gt;</screen>
-  <para>
-   After this the boot and system image needs to be created. Concerning to the
-   size of the stick the image is not allowed to grow beyond it. Assuming the
-   system image is named full-suse-10.2 the command is as follows:
-  </para>
-<screen>
-kiwi --prepare full-suse-10.2 --root /tmp/mysystem
-kiwi --create /tmp/mysystem -d /tmp</screen>
-  <para>
-   The result of the command above is represented in the image file
-   <filename>/tmp/full-suse-10.2.i686-1.1.2</filename>. The usbboot image is
-   created automatically and is stored as
-   <filename>/tmp/initrd-usbboot-suse-10.2.i686-2.1.1.gz</filename>. To create
-   a bootable stick with a SuSE Linux 10.2 operating system on it, plug in the
-   stick and call:
-  </para>
-<screen>
-kiwi --bootstick /tmp/initrd-usbboot-suse-10.2.i686-2.1.1.gz \
-     --bootstick-system /tmp/full-suse-10.2.i686-1.1.2</screen>
- </sect2>
+		A very popular method is storing complete operating systems on an USB
+		stick.
+		This means that all required system and user data is stored completely on the stick.
+	</para>
+	<para>
+		This tutorial explains what must be done to be able to create a bootable USB system on a concrete device.
+		Several assumptions are made and upon those the process is decribed step by step.
+		In a final section there will be an overview about known problems to avoid false positives.
+	</para>
+
+	<sect3 id="sec.kiwi.deploying.usb.assumptions" lang="en">
+		<title>Assumptions</title>
+		<para>
+			<itemizedlist>
+				<listitem>
+					<para>
+						A bootable USB image shall be the result
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Either openSUSE or compatible Linux derivate is available on the build host.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The latest version of KIWI is installed.
+						This is the following three packages are required:
+					</para>
+					<para>
+						<itemizedlist>
+							<listitem>
+								<para>kiwi</para>
+							</listitem>
+							<listitem>
+								<para>kiwi-desc-isoboot</para>
+							</listitem>
+							<listitem>
+								<para>kiwi-desc-livesystem</para>
+							</listitem>
+						</itemizedlist>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						If this is not the case there are two options: downloading these packages and install them from openSUSE BuildService or obtaining the latest svn snapshot from <systemitem class="server">svn.berlios.de</systemitem>
+						<itemizedlist>
+							<listitem>
+								<para>
+									checkout the latest version from svn.berlios.de
+									<screen>svn co https://anonymous@svn.berlios.de/svnroot/repos/kiwi/kiwi-head</screen>
+									Of course "anonymous" can be replaced by a valid BerliOS account if available.
+								</para>
+							</listitem>
+							<listitem>
+								<para>Check if the packages <filename>kiwi-desc-isoboot</filename>, <filename>kiwi-desc-livesystem</filename> and <filename>kiwi-desc-usbboot</filename> are installed
+								<screen>rpm -qa kiwi*</screen>
+								</para>
+							</listitem>
+							<listitem>
+								<para>Change directory to the kiwi checkout dir (where the makefile resides) and execute
+								<screen>make &amp;&amp; [sudo] make install</screen>
+								To perform the install step root privileges are required because files are copied to <filename class="directory">/usr/share/kiwi</filename> and <filename class="directory">/usr/sbin</filename>.
+								It may be necessary to add the sudo command prefix if the commands before are run as normal user.
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Create a working directory (recommended in <varname>$HOME</varname>), for example <filename class="directory">configs</filename> and check out the image descriptions from <systemitem class="server">forgesvn1.novell.com</systemitem>:
+									<screen>svn co https://forgesvn1.novell.com/svn/opensuse/trunk/distribution/images <filename class="directory">configs</filename></screen>
+								</para>
+							</listitem>
+						</itemizedlist>
+					</para>
+				</listitem>
+			</itemizedlist>
+			After this procedure kiwi is installed as <filename>/usr/sbin/kiwi</filename> and the image descriptions reside in <filename class="directory">/usr/share/kiwi/images/</filename>.
+			Caveat: those subdirectories contain files called <filename>config.xml</filename>.
+			Those files are used by <command>kiwi</command> internally and must not be modified for whatever reason.
+			Caveat: if <command>kiwi</command> is installed from subversion repository, it does not show up as installed package.
+			The rpm files contain dependencies that have to be resolved manually in that case.
+			A list of dependencies is collected in the <filename>README</filename> in the base directory of the KIWI repository.
+		</para>
+	</sect3>
+
+	<sect3 id="sec.kiwi.deploying.usb.workflow" lang="en">
+	<title>Workflow</title>
+	<para>
+		The main workflow consitst of three consecutive comamnds shown in [lst:workflow].
+		<screen>kiwi -r &lt;rootdir&gt; --prepare &lt;imagedir&gt;
+kiwi --create &lt;rootdir&gt; --type usb -d &lt;outputdir&gt;
+kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
+     --bootstick-system &lt;outputdir&gt;/&lt;imagefile&gt;;</screen>
+
+		In this listing the terms in braces have the following meaning and requirements:
+		<variablelist>
+			<title>Explanation of options</title>
+			<varlistentry>
+				<term>rootdir</term>
+				<listitem>
+				<para>
+					The directory where the installed system is created. This directory is created by <command>kiwi</command>; if it existed before, <command>kiwi</command> exits with a warning message.
+				</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>imagedir</term>
+				<listitem>
+				<para>
+					This is the directory where your (heavily edited) <filename>config.xml</filename> file resides.
+				</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>outputdir</term>
+				<listitem>
+				<para>
+					This directory is used for the generated output files which are the following:
+					<itemizedlist>
+						<listitem>
+							<para>initrd-*.gz</para>
+						</listitem>
+						<listitem>
+							<para>initrd-*.kernel</para>
+						</listitem>
+						<listitem>
+							<para>initrd-*.kernel.&lt;version&gt;.&lt;type&gt;</para>
+						</listitem>
+						<listitem>
+							<para>initrd-*.md5 -- the MD5 checksum</para>
+						</listitem>
+						<listitem>
+							<para>initrd-*.stickboot</para>
+						</listitem>
+						<listitem>
+							<para>&lt;imagefile&gt; as named in first line of <filename>config.xml</filename>, for example <filename>USB-Image-suse-10.3-Alpha5-Plus-&lt;arch&gt;-&lt;version&gt;</filename></para>
+						</listitem>
+						<listitem>
+							<para>imagefile's md5 sum</para>
+						</listitem>
+					</itemizedlist>
+				</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		There are several corners where the user can modify the image creation.
+		Those are explained in the respecitve sections where the interaction makes sense.
+		</para>
+	</sect3>
+
+	<sect3 id="sec.kiwi.deploying.usb.configxml" lang="en">
+	<title>Preparation of <filename>config.xml</filename></title>
+	<para>
+		Several changes can and must be made to the <filename>config.xml</filename> file delivered with the package <filename>kiwi-desc-livesystem</filename>.
+		First of all the correct installation source must be used.
+		In SuSE internal builds the FACTORY tree is used which can be accessed by NFS at <filename class="directory">/mounts/machcd2/factory/FACTORY/inst-source/</filename>.
+
+		If -- for some reason -- factory is broken, another installation source can be used instead.
+		The most recent image uses <filename class="directory">/mounts/dist/install/SLP/openSUSE-10.3-LATEST-DVD/i386/DVD1</filename> as source.
+		Unfortunately there are no <package>squashfs</package> and <package>aufs</package> packages in this tree so these have to be imported from elsewhere.
+
+		It is possible to declare multiple installation sources if necessary.
+		Any folder containing several RPM files that have to be installed additionally (which are not contained in a repository already) can be added as repository.
+		This might be the latest version of some super cool new package that shall be tested in a live system or deployed within a company wide installation.
+
+		An example configuration file is shown in [\vref{lst:config-xml-example}].
+
+
+<!--\begin{lstlisting}[language=xml, label={lst:config-xml-example}, caption={\textit{config.xml} File}]-->
+		<screen id="config.xml.example">&lt;image name="USB-Image-suse-10.3-Alpha5plus"&gt;
+	&lt;description type="system"&gt;
+		&lt;author&gt;Jan-Christoph Bornschlegel&lt;/author&gt;
+		&lt;contact&gt;jcbornschlegel@novell.com&lt;/contact&gt;
+		&lt;specification&gt;openSUSE 10.3 USB boot system&lt;/specification&gt;
+	&lt;/description&gt;
+	&lt;preferences&gt;
+		&lt;type primary="true" boot="isoboot/suse-10.3" flags="unified"&gt;iso&lt;/type&gt;
+		&lt;type boot="vmxboot/suse-10.3" filesystem="ext3" format="vmdk"&gt;vmx&lt;/type&gt;
+		&lt;type boot="xenboot/suse-10.3" filesystem="ext3"&gt;xen&lt;/type&gt;
+		&lt;type boot="usbboot/suse-10.3" filesystem="squashfs"&gt;usb&lt;/type&gt;
+		&lt;version&gt;1.1.2&lt;/version&gt;
+		&lt;size unit="M"&gt;2000&lt;/size&gt;
+		&lt;packagemanager&gt;smart&lt;/packagemanager&gt;
+		&lt;rpm-check-signatures&gt;False&lt;/rpm-check-signatures&gt;
+		&lt;rpm-force&gt;True&lt;/rpm-force&gt;
+	&lt;/preferences&gt;
+	&lt;users group="users"&gt;
+		&lt;user name="linux" pwd="..." home="/home/linux"/&gt;
+	&lt;/users&gt;
+	&lt;repository type="yast2"&gt;
+		&lt;source path="opensuse://SL-OSS-factory"/&gt;
+	&lt;/repository&gt;
+	&lt;repository type="rpm-dir"&gt;
+		&lt;source path="[some plain RPM dir]"/&gt;
+	&lt;/repository&gt;
+	&lt;packages type="image" patternType="plusSuggested"&gt;
+		&lt;package name="subversion"/&gt;
+		&lt;package name="xkeyboard-config"/&gt;
+		&lt;package name="vim"/&gt;
+		&lt;package name="yast2-schema"/&gt;
+		&lt;package name="yast2-theme-openSUSE"/&gt;
+		&lt;package name="yast2-control-center"/&gt;
+		&lt;package name="yast2-control-center-qt"/&gt;
+		&lt;package name="yast2-live-installer"/&gt;
+		&lt;opensusePattern name="default"/&gt;
+		&lt;opensusePattern name="base"/&gt;
+		&lt;opensusePattern name="enhanced_base"/&gt;
+		&lt;opensusePattern name="x11"/&gt;
+		&lt;opensusePattern name="yast2_basis"/&gt;
+		&lt;opensusePattern name="yast2_install_wf"/&gt;
+		&lt;opensusePattern name="apparmor"/&gt;
+		&lt;opensusePattern name="imaging"/&gt;
+		&lt;opensusePattern name="kde"/&gt;
+		&lt;opensusePattern name="kde_basis"/&gt;
+		&lt;opensusePattern name="kde_imaging"/&gt;
+		&lt;opensusePattern name="office"/&gt;
+		&lt;ignore  name="ash"/&gt;
+		...
+		<!--&lt;ignore  name="black-box"/&gt;
+		&lt;ignore  name="delayacct-utils"/&gt;
+		&lt;ignore  name="kdeedu3"/&gt;
+		&lt;ignore  name="pfstmo"/&gt;
+		&lt;ignore  name="pfstools"/&gt;
+		&lt;ignore  name="synergy"/&gt;
+		&lt;ignore  name="yast2-cd-creator"/&gt;
+		&lt;ignore  name="smtp_daemon"/&gt;
+		&lt;ignore  name="pfscalibratio"/&gt;
+		&lt;ignore  name="jaf-demo"/&gt;
+		&lt;ignore  name="jaf-javadoc"/&gt;
+		&lt;ignore  name="jaf-manual"/&gt;
+		&lt;ignore  name="jai"/&gt;
+		&lt;ignore  name="java-1_4_2-sun"/&gt;
+		&lt;ignore  name="java-1_4_2-sun-alsa"/&gt;
+		&lt;ignore  name="java-1_4_2-sun-devel"/&gt;
+		&lt;ignore  name="java-1_4_2-sun-jdbc"/&gt;
+		&lt;ignore  name="java-1_4_2-sun-plugin"/&gt;
+		&lt;ignore  name="javamail-manual"/&gt;
+		&lt;ignore  name="jmx-javadoc"/&gt;
+		&lt;ignore  name="jta-javadoc"/&gt;
+		&lt;ignore  name="mcelog"/&gt;
+		&lt;ignore  name="numactl"/&gt;
+		&lt;ignore  name="wesnoth-data-small"/&gt;
+		&lt;ignore  name="sendmail"/&gt;
+		&lt;ignore  name="exim"/&gt;
+		&lt;ignore  name="AdobeICCProfiles"/&gt;
+		&lt;ignore  name="RealPlayer"/&gt;
+		&lt;ignore  name="agfa-fonts"/&gt;
+		&lt;ignore  name="flash-player"/&gt;
+		&lt;ignore  name="java-1_5_0-sun"/&gt;
+		&lt;ignore  name="java-1_5_0-sun-plugin"/&gt;
+		&lt;ignore  name="java-1_5_0-sun-jdbc"/&gt;
+		&lt;ignore  name="java-1_5_0-sun-devel"/&gt;
+		&lt;ignore  name="java-1_5_0-sun-alsa"/&gt;
+		&lt;ignore  name="opensuse-quickstart_en"/&gt;
+		&lt;ignore  name="util-linux-crypto"/&gt;-->
+		&lt;ignore  name="krb5-32bit"/&gt;
+	&lt;/packages&gt;
+	&lt;packages type="xen" memory="512" disk="/dev/sda"&gt;
+		&lt;package name="kernel-xen"/&gt;
+		&lt;package name="xen"/&gt;
+	&lt;/packages&gt;
+	&lt;packages type="vmware" memory="512" disk="ide0"&gt;
+	&lt;/packages&gt;
+    &lt;packages type="boot"&gt;
+        &lt;package name="filesystem"/&gt; 
+        &lt;package name="glibc-locale"/&gt;
+		&lt;package name="kernel-default"/&gt;
+        &lt;package name="devs"/&gt;
+    &lt;/packages&gt;
+&lt;/image&gt;</screen>
+
+		</para>
+
+		<para>
+		First the image needs a name - which sets the file name mentioned in <xref linkend="sec.kiwi.deploying.usb.workflow"/> as &lt;imagename&gt; (line 1).
+		Then set author and contact information accordingly.
+		
+		Lines 9-11 set the respective configs for the desired image type.
+		In order to use a specific type, the folder <filename class="directory">/usr/share/kiwi/image/&lt;type entry&gt;</filename> must exist.
+		You may have to check out additional modules or install additional <package>kiwi-desc-&lt;type&gt;</package> packages.
+		The <varname>version</varname> tag in line 12 is added to the image's filename.
+		
+		The <option>size</option> mentioned in line 13 is the size to which the stick's filesystem is expanded at first boot.
+		
+		As mentioned above the additional installation source - in my particular case a plain directory containing some RPM files - is added here in lines 28-20.
+		
+		The most changes will be made in the &lt;package name"..."/&gt; section.
+		The tag <varname>&lt;package name="something"/&gt;</varname> adds the package &lt;something-*.rpm&gt; to the installation whereby "*" will be a mix or version number and architecture.
+		The tag <varname>&lt;opensusePattern name="somepattern"/&gt;</varname> adds all packages required by the pattern &lt;somepattern&gt; to the installation.
+		The tag <varname>&lt;ignore name="someignoredpackage"/&gt;</varname> omits the package &lt;someignoredpackage&gt;.
+		
+		The latter is an ugly method to resolve pattern bugs.
+		It happens that a pattern requires some package that cannot be resolved because it does not exist in the given installation sources or the name changed or something like that.
+		If this happens, the <varname>prepare</varname> step has to be repeated.
+		</para>
+	</sect3>
+
+	<sect3 id="sec.kiwi.deploying.usb.prepare" lang="en">
+	<title>Prepareing the Installation Source Directory</title>
+
+	<para>
+		The prepare step collects all packages as listed in the <filename>config.xml</filename> file and all packages required by the patterns included.
+		With the <option>-r</option> option the target directory is specified which will be created by <command>kiwi</command> (and reports an error message if it already exists).
+		Important at that time is that this step reveals all pattern problems and missing packages.
+		Unfortunately these things have to be fixed manually using several techniques described below.
+		
+		Unresolved dependencies are a severe problem because it shows that some package should be in the installation source but are not.
+		In that case several solutions are possible: find the package somewhere else and put it in using the &lt;package name="..."/&gt; tag;
+		if a lot of packages are missing and all of them can be found in the same repository then this particular one should be added using the &lt;repository type="..."&gt; ... &lt;/repository&gt; tags.
+		
+		Otherwise the packages could be stored in a local directory and that directory could be daclared as additional installation source of the type "rpm-dir" (plain RPM directory).
+		In that case the line looks like this:
+		<screen>&lt;repository type="rpm-dir"&gt;
+&lt;source path="/some/directory/where/be/RPMS/"/&gt;
+&lt;/repository&gt;</screen>
+
+	</para>
+	</sect3>
+
+
+	<sect3 id="sec.kiwi.deploying.usb.modify" lang="en">
+	<title>Modifying the Installation Source Directory</title>
+		<para>
+After the <option>--prepare</option> step completed successfully, the installation source can be modified further.
+You can always perform a <command>chroot</command> command and then install packages using <command>smart</command> (or <command>rpm</command>).
+There is just one obstacle: the rpms must be accessible through the available channels (which means you can add anything which is in the repositories declared in the <filename>config.xml</filename> file) or you must copy (or hardlink) them somewhere in the chroot environment before actually chrooting there.
+Also <command>smart</command> cannot resolve certain dependencies.
+If there were the packages <package>yast2-control-center</package> and <package>yast2-control-center-qt</package> copied or linked to <filename class="directory">&lt;rootdir&gt;/tmp</filename> for example, you can install by calling the following commands:
+<screen id="invoke-smart-in-chroot">cp /some/directory/where/be/RPMS/yast2-* &lt;rootdir&gt;/tmp
+chroot &lt;rootdir&gt;
+smart install /tmp/yast2-control-center /tmp/yast2-control-center-qt</screen>
+
+If only the latter would be installed <command>smart</command> does not find the first one cwalthough it requires the first.
+This is the reason why it is necessary to specify both.
+All of the repositories specified in the configuration file are added as smart channels and any package within those can be installed after the prepare step manually if necessary. 
+It is also possible to uninstall packages again if the image becomes too large for instance.
+		</para>
+	</sect3>			
+<!--
+
+%============================================
+% SUBSECTION
+%============================================
+\hypertarget{kiwi-usbboot-image-workflow:workflow:create}{%
+\subsection{Create the Images}
+\label{sec:usbboot-image-workflow:create}
+}
+
+As soon as everything is prepared in the chroot environment the images can be created.
+This is achieved by simply running the second command in \vref{lst:workflow}.
+The target directory <outputdir> must be created before (in contradiction to the prepare step where \textit{kiwi} creates the directory.
+Some of the ``failed'' messages can be safely ignored because they reflect known bugs.
+The files which are created are listed in \vref{sec:usbboot-image-workflow:workflow}.
+
+It is possible to create images for different architecures in the same target directory because the filenames include the architectue.
+
+
+
+
+%============================================
+% SUBSECTION
+%============================================
+\hypertarget{kiwi-usbboot-image-workflow:workflow:dumponstick}{%
+\subsection{Dump the Images on the USB Device}
+\label{sec:usbboot-image-workflow:dumponstick}
+}
+
+Finally if the images are created you can dump them on the USB stick.
+Some things must be considered before:\\
+\begin{itemize}
+	\item{Any data on the stick before will be lost}
+	\item{It is not possible to save a partition}
+\end{itemize}
+
+\textit{Kiwi} will ask you to enter the device file after it computes a list of possible devices.
+All connected USB ``writable'' devices should be listed and you may want to check using for example \textit{dmesg}.
+After you entered the correct device file the filesystem is created on the stick.
+Depending on the stick's write speed this may take several minutes.
+There is a trick to check the progress - because \textit{kiwi} uses \textit{dd} to write the image on the device, it is possible to send the dd process a signal \texttt{USR1} on which dd writes the current state without stopping.
+\begin{lstlisting}[language=bash, label={lst:trick-dd-progress}, caption={Trick to retrieve \textit{dd} status}]
+cd newimage
+kiwi -bootstick initrd-usbboot-suse-10.3.i686-2.1.1.gz \
+-bootstick-system USB-Image-suse-10.3-Factory.i686-1.1.2
+(other shell)
+killall -USR1 dd
+\end{lstlisting}
+
+
+
+
+%============================================
+% SECTION
+%============================================
+\hypertarget{kiwi-usbboot-image-workflow:assumptions:issues}{%
+\section{Known Issues}
+\label{sec:usbboot-image-workflow:issues}
+}
+
+You have to use a real USB mass storage device to create the image.
+In the here discussed project USB flash memories were used.
+There have been tests with mini-harddisk USB devices which showed some problems on some machines.
+Some problems arise when you try to boot a laptop with special input devices (IBM ThinkPad with its funny joystick device for example), touchpad support is still a missing item.
+
+Another known problem is the workaround time to fix missing package dependencies.
+It can happen with some installation sources that several packages are missing.
+-
+-->
+
+	</sect2>
+
  <sect2 id="sec.kiwi.deploying.virtula">
   <title>Virtual disk system (QEMU or VMware)</title>
   <para>
