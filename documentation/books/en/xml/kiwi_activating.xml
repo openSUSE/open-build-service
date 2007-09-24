@@ -173,7 +173,7 @@
      <para>
       If <varname>LOCAL_BOOT</varname> is not set, the configuration file is
       loaded from the server directory
-      <filename>/var/lib/tftpboot/KIWI</filename> via TFTP. At this point, the
+      <filename>/srv/tftpboot/KIWI</filename> via TFTP. At this point, the
       client expects the file <filename> config.<replaceable>&lt;MAC
 	  Address&gt;</replaceable></filename>. If this file is not available
       the next search is for config.<replaceable>&lt;HEX-IP&gt;</replaceable>.
@@ -186,7 +186,7 @@
       hasn't existed before and can be immediately
       registered by uploading a control file to the
       TFTP server's upload directory
-      <filename>/var/lib/tftpboot/upload</filename>. After the upload, the
+      <filename>/srv/tftpboot/upload</filename>. After the upload, the
       client branches off into a loop in which the following steps are taken:
      </para>
      <itemizedlist>
@@ -346,7 +346,7 @@
      <term>Image configurations</term>
      <listitem>
       <para>
-       The <filename>/var/lib/tftpboot/KIWI/</filename> directory contains the
+       The <filename>/srv/tftpboot/KIWI/</filename> directory contains the
        various <filename>config.<replaceable>&lt;MAC
 	 Address&gt;</replaceable></filename> image configuration files.
       </para>
@@ -356,7 +356,7 @@
      <term>Configuration files</term>
      <listitem>
       <para>
-       The <filename>/var/lib/tftpboot/KIWI/<replaceable>&lt;MAC
+       The <filename>/srv/tftpboot/KIWI/<replaceable>&lt;MAC
 	 Address&gt;</replaceable>/</filename> directory contains the various
        system configuration files, such as <filename>xorg.conf</filename>.
       </para>
@@ -366,7 +366,7 @@
      <term>Boot files</term>
      <listitem>
       <para>
-       The <filename>/var/lib/tftpboot/boot/</filename> directory is where the
+       The <filename>/srv/tftpboot/boot/</filename> directory is where the
        <filename>initrd.gz</filename>, and the kernel to boot are kept.
       </para>
      </listitem>
@@ -375,7 +375,7 @@
      <term>PXE second stage boot loader(s)</term>
      <listitem>
       <para>
-       The <filename>/var/lib/tftpboot/</filename> directory is where the boot
+       The <filename>/srv/tftpboot/</filename> directory is where the boot
        loaders for PXE are kept (<filename>pxelinux.0</filename>,
        <filename>mboot.c32</filename>)
       </para>
@@ -385,7 +385,7 @@
      <term>PXE configuration file</term>
      <listitem>
       <para>
-       <filename>/var/lib/tftpboot/pxelinux.cfg</filename> is the location of
+       <filename>/srv/tftpboot/pxelinux.cfg</filename> is the location of
        the PXE configuration file.
       </para>
      </listitem>
@@ -394,7 +394,7 @@
      <term>Image files and checksums</term>
      <listitem>
       <para>
-       The <filename>/var/lib/tftpboot/image/</filename> directory is where all
+       The <filename>/srv/tftpboot/image/</filename> directory is where all
        the image files and their checksums are kept.
       </para>
      </listitem>
@@ -403,7 +403,7 @@
      <term>Upload area</term>
      <listitem>
       <para>
-       The directory <filename>/var/lib/tftpboot/upload/</filename> is the
+       The directory <filename>/srv/tftpboot/upload/</filename> is the
        directory into which the <filename>hwtype.<replaceable>&lt;MAC
 	 Address&gt;</replaceable></filename> files for registering new netboot
        clients are uploaded.
@@ -418,7 +418,7 @@
     The configuration file contains data about image, configuration,
     synchronization, and partition parameters. The configuration file is
     loaded from the TFTP server directory
-    <filename>/var/lib/tftpboot/KIWI</filename> via TFTP for previously
+    <filename>/srv/tftpboot/KIWI</filename> via TFTP for previously
     installed netboot clients. New netboot clients are immediately registered
     and a new configuration file with the corresponding MAC address is
     created. This is an example for a cash register configuration file:
@@ -596,7 +596,7 @@ DISK=/dev/hda</screen>
        The variable's value must be set to the name of the initrd file which
        is used via PXE network boot. If the standard tftp setup suggested with
        the kiwi-pxeboot package is used, all initrd files reside in
-       <filename>/var/lib/tftpboot/boot/</filename> directory. Because the
+       <filename>/srv/tftpboot/boot/</filename> directory. Because the
        tftpserver does a <command>chroot</command> into the tftp server path
        you need to specify the initrd file as follows:
       </para>
@@ -726,7 +726,7 @@ DISK=/dev/sda</screen>
     case, there is no configuration file corresponding to the client MAC
     address available. Using the MAC address information, the control file is
     created and uploaded to the TFTP servers upload directory
-    <filename>/var/lib/tftpboot/upload</filename>.
+    <filename>/srv/tftpboot/upload</filename>.
    </para>
   </sect3>
   <sect3 id="sec.kiwi.activating.netboot.hwinfofile">
@@ -740,7 +740,7 @@ DISK=/dev/sda</screen>
     corresponding to the client MAC address available. Using the MAC address
     information, the hardware info file is created and uploaded to the
     TFTP servers upload directory
-    <filename>/var/lib/tftpboot/upload</filename>.
+    <filename>/srv/tftpboot/upload</filename>.
    </para>
    <para>
     The netboot boot image support two profiles. The already explained

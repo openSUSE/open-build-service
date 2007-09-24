@@ -51,7 +51,7 @@
    exist, it is needed to create a custom boot image before a system image
    could be deployed. Boot images consists of the image itself and the
    appropriate kernel to that image. Both file must be stored in the directory
-   <filename>/var/lib/tftpboot/boot</filename>. Assuming there is no prebuild
+   <filename>/srv/tftpboot/boot</filename>. Assuming there is no prebuild
    boot image for the openSUSE 10.2 distribution the steps to create it are as
    follows:
   </para>
@@ -85,37 +85,37 @@ ls -1 /tmp/initrd-netboot*
   <para>
    The next step is to make the boot image known to the TFTP server. To do
    this the files must be copied to the
-   <filename>/var/lib/tftpboot/boot</filename>} directory. Optionally they can
+   <filename>/srv/tftpboot/boot</filename>} directory. Optionally they can
    be renamed. For the following example the boot image is renamed to
    <filename>initrd</filename> and the boot kernel is renamed to
    <filename>linux</filename>.
   </para>
 <screen>
-cp initrd-netboot.i686-2.1.1.gz /var/lib/tftpboot/boot/initrd
+cp initrd-netboot.i686-2.1.1.gz /srv/tftpboot/boot/initrd
 cp initrd-netboot.i686-2.1.1.kernel.2.6.18.2-31-default \
-  /var/lib/tftpboot/boot/linux</screen>
+  /srv/tftpboot/boot/linux</screen>
   <para>
    Switching on the target machine, which needs to run PXE by default, will
    load the linux kernel and the KIWI created initrd. The initrd will register
    the machine if there is no configuration found in
-   <filename>/var/lib/tftpboot/KIWI</filename>. Registration means a file
+   <filename>/srv/tftpboot/KIWI</filename>. Registration means a file
    including the MAC address of the machine is uploaded into the directory
-   <filename>/var/lib/tftpboot/upload</filename>. For information about
+   <filename>/srv/tftpboot/upload</filename>. For information about
    creating the configuration refer to section FIXME \ref{section:confmac}.
    The following example configuration fits for a machine including a disk on
    <filename>/dev/sda</filename>:
   </para>
 <screen>
-IMAGE=/dev/sda2;full-suse-10.2.i686;1.1.2;192.168.100.2;4096
+IMAGE=/dev/sda2;my-example-suse-10.2.i686;1.1.2;192.168.100.2;4096
 PART=1024;S;x,x;L;/
 DISK=/dev/sda</screen>
   <para>
    According to this configuration the KIWI boot image will try to download a
-   system image named <filename>full-suse-10.2.i686-1.1.2</filename> from the
+   system image named <filename>my-example-suse-10.2.i686-1.1.2</filename> from the
    TFTP server with IP address 192.168.100.2. On the TFTP server the system
-   images are stored in <filename>/var/lib/tftpboot/image</filename>. The boot
+   images are stored in <filename>/srv/tftpboot/image</filename>. The boot
    image will prepare the disk and create a 1GB swap partition and another
-   full size linux partition. The process of creating this full-suse-10.2
+   full size linux partition. The process of creating this my-example-suse-10.2
    image can be done by using KIWI. Once the boot image has successfully
    downloaded the system image it is getting activated and operates as
    configured. 
@@ -232,7 +232,7 @@ kiwi --root /tmp/kiwi.nfsroot --prepare ...
    <step>
     <para>
      Copy the boot image/kernel to the PXE server in
-     <filename>/var/lib/tftpboot/boot</filename> The package<systemitem>
+     <filename>/srv/tftpboot/boot</filename> The package<systemitem>
       kiwi-pxeboot</systemitem> helps you in setting up the PXE/TFTP server.
     </para>
    </step>
@@ -240,7 +240,7 @@ kiwi --root /tmp/kiwi.nfsroot --prepare ...
     <para>
      Create a
      <filename>config.<replaceable>&lt;MAC&gt;</replaceable></filename> file
-     in <filename>/var/lib/tftpboot/KIWI</filename> with the following
+     in <filename>/srv/tftpboot/KIWI</filename> with the following
      contents:
     </para>
 <screen>NFSROOT=129.168.100.7;/tmp/kiwi.nfsroot</screen>
@@ -739,7 +739,7 @@ It can happen with some installation sources that several packages are missing.
    called:
   </para>
 <screen>
-kiwi --prepare full-suse-10.2 --root /tmp/mysystem
+kiwi --prepare my-example-suse-10.2 --root /tmp/mysystem
 kiwi --create /tmp/mysystem -d /tmp</screen>
   <para>
    The result of the command above is a set of virtual disks, one with suffix
@@ -748,7 +748,7 @@ kiwi --create /tmp/mysystem -d /tmp</screen>
    with for example qemu call:
   </para>
 <screen>
-qemu /tmp/full-suse-10.2.i686-1.1.2.qemu</screen>
+qemu /tmp/my-example-suse-10.2.i686-1.1.2.qemu</screen>
  </sect2>
  <sect2 id="sec.kiwi.deploying.xen">
   <title>Para Virtual Image for Xen</title>
@@ -771,13 +771,13 @@ qemu /tmp/full-suse-10.2.i686-1.1.2.qemu</screen>
    to be called:
   </para>
 <screen>
-kiwi --prepare full-suse-10.2 --root /tmp/mysystem
+kiwi --prepare my-example-suse-10.2 --root /tmp/mysystem
 kiwi --create /tmp/mysystem -d /tmp</screen>
   <para>
    To run the system within Xen one need to call:
   </para>
 <screen>
-xm create -c /tmp/full-suse-10.2.i686-1.1.2.xenconfig
+xm create -c /tmp/my-example-suse-10.2.i686-1.1.2.xenconfig
 </screen>
  </sect2>
  <sect2 id="sec.kiwi.deploying.live">
