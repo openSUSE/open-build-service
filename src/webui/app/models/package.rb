@@ -2,9 +2,10 @@ class Package < ActiveXML::Base
   belongs_to :project
 
   #cache variables
-  @@my_pro = Hash.new
+  attr_accessor :my_pro
   attr_accessor :my_architectures
 
+  #flags
   attr_accessor :build_flags
   attr_accessor :publish_flags
   attr_accessor :debug_flags
@@ -24,10 +25,10 @@ class Package < ActiveXML::Base
     @uf_updated = false
   end
 
-  # accessor method, because class variables are private to a class and its instances ;)
+
   def my_project
-    @@my_pro[self.project.to_sym] ||= Project.find(self.project)
-    return @@my_pro[self.project.to_sym]
+    self.my_pro ||= Project.find(self.project)
+    return self.my_pro
   end
 
 
