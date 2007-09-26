@@ -22,7 +22,7 @@
  <chapterinfo>
   <date><?dbtimestamp?></date>
   <releaseinfo>Basic structure only</releaseinfo>
-  <releaseinfo>$Revision: 212 $</releaseinfo>
+  <releaseinfo>$Revision$</releaseinfo>
   <releaseinfo>$Date: 2007-06-13 15:50:32 +0200 (Wed, 13 Jun 2007) $</releaseinfo>
   <authorgroup>
    <author>
