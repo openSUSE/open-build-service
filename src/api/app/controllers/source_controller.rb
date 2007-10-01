@@ -29,17 +29,14 @@ class SourceController < ApplicationController
       render :text => @dir.dump_xml, :content_type => "text/xml"
       return
     elsif request.delete?
-
-      #allowed = permissions.project_change? project_name
-      allowed = user.has_role? "Admin"
-      if not allowed
+      unless @http_user.can_modify_project?(pro)
         logger.debug "No permission to delete project #{project_name}"
         render_error :status => 403, :errorcode => 'delete_project_no_permission',
           :message => "Permission denied (delete project #{project_name})"
         return
       end
 
-      #check for linking repos
+      #find linking repos
       lreps = Array.new
       pro.repositories.each do |repo|
         repo.linking_repositories.each do |lrep|
@@ -48,10 +45,19 @@ class SourceController < ApplicationController
       end
 
       if lreps.length > 0
-        lrepstr = lreps.map{|l| l.db_project.name+'/'+l.name}.join "\n"
-
-        render_error :status => 400, :errorcode => "repo_dependency",
-          :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n"
+        if params[:force] and not params[:force].empty?
+          #replace links to this projects with links to the "deleted" project
+          del_repo = DbProject.find_by_name("deleted").repositories[0]
+          lreps.each do |link_rep|
+            pe = link_rep.path_elements.find(:first, :include => ["link"], :conditions => ["db_project_id = ?", pro.id])
+            pe.link = del_repo
+            pe.save
+          end
+        else
+          lrepstr = lreps.map{|l| l.db_project.name+'/'+l.name}.join "\n"
+          render_error :status => 400, :errorcode => "repo_dependency",
+            :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n"
+        end
         return
       end
 
@@ -69,8 +75,8 @@ class SourceController < ApplicationController
         logger.info "destroying project #{pro.name}"
         pro.destroy
         logger.debug "delete request to backend: /source/#{pro.name}"
-        #Suse::Backend.delete "/source/#{pro.name}"
         #FIXME: insert deletion request to backend
+        Suse::Backend.delete "/source/#{pro.name}"
       end
 
       render_ok
