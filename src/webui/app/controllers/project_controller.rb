@@ -50,8 +50,10 @@ class ProjectController < ApplicationController
   end
 
   def new
+    @namespace = params[:ns]
+
     @project_name = params[:project]
-    if @project_name =~ /home:(.*)/
+    if @project_name =~ /home:(.+)/
       @project_title = "#$1's Home Project"
     else
       @project_title = ""
@@ -257,13 +259,14 @@ class ProjectController < ApplicationController
 
   def save_new
     logger.debug( "save_new" )
-
-    if !valid_project_name?( params[:name] )
-      flash[:error] = "Invalid project name '#{params[:name]}'."
+    project_name = params[:name]
+    project_name = params[:ns].to_s + ":" + project_name if params[:ns]
+    if !valid_project_name?(project_name)
+      flash[:error] = "Invalid project name '#{project_name}'."
       redirect_to :action => "new"
     else
       #store project
-      @project = Project.new( :name => params[:name] )
+      @project = Project.new(:name => project_name)
 
       @project.title.data.text = params[:title]
       @project.description.data.text = params[:description]
@@ -275,7 +278,7 @@ class ProjectController < ApplicationController
         flash[:error] = "Failed to save project '#{@project}'"
       end
 
-      redirect_to :action => 'show', :project => params[:name]
+      redirect_to :action => 'show', :project => project_name
     end
   end
 

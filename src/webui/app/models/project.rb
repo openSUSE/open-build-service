@@ -17,6 +17,16 @@ class Project < ActiveXML::Base
   attr_accessor :my_repositories
   attr_accessor :my_architectures
 
+  #check if named project exists
+  def self.exists?(pro_name)
+    begin
+      Project.find pro_name
+      return true
+    rescue ActiveXML::NotFoundError
+      return false
+    end
+  end
+
 
   #TODO untested!!!!
   #TODO same function as in package

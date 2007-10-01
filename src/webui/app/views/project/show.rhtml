@@ -21,6 +21,7 @@
 </table>
 
 <%= render :partial => "watch_link" %>
+<%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %>
 
 <div class="description">
   <% description = @project.description.data.text %>

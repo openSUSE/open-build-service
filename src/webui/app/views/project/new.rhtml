@@ -1,4 +1,18 @@
 <% @pagetitle = "New Project" %>
+<%
+if @namespace and Project.exists?(@namespace)
+  @crumb_list = [
+    link_to( 'Projects', :action => :list_public),
+    link_to( @namespace, :action => :show, :project => @namespace),
+    'Create Subproject'
+  ]
+else
+  @crumb_list = [
+    link_to( 'Projects', :action => :list_public),
+    'Create New Project'
+  ]
+end
+-%>
 <h2>New Project</h2>
 
 <div class="description"/>
@@ -8,7 +22,7 @@ mailing list to request a new project outside of your home:&lt;login&gt; namespa
 
 
 
-<%= form_tag :action => :save_new %>
+<% form_tag 'save_new' do -%>
 <b>Name:</b>
 <% if @project_name %>
   <%= @project_name %>
@@ -16,6 +30,10 @@ mailing list to request a new project outside of your home:&lt;login&gt; namespa
   <br/>
 <% else %>
   <br/>
+  <%if @namespace-%>
+  <%= hidden_field_tag('ns',@namespace)%>
+  <strong><%=@namespace%>:</strong>
+  <%end-%>
   <%= text_field_tag 'name', '', :size => 80 %>
   <br/>
 <% end %>
@@ -25,4 +43,4 @@ mailing list to request a new project outside of your home:&lt;login&gt; namespa
 <%= text_area_tag 'description', '', :cols => 80,
   :rows => 10 %>
 <p><%= submit_tag "Create Project" %></p>
-<%= end_form_tag %>
+<% end -%>
