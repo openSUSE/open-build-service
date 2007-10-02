@@ -755,3 +755,38 @@ Tue Jul 17 12:18:08 +0200 2007 - abauer
   for project/package names that conatain colons (:)
 
 
+------------------------------------------------------------------------
+Tue Oct 02 17:10:00 +0200 2007 - bauersman
+
+- update from svn revision 2112 to 2301
+-replaced a lot of tabs by blanks
+-removed unnecessary blanks
+  ( but i like eclipse ;) ) 
+-added crumb list on the extended project-flags-page
+-crumb list improvement (flags for experts) 
+-added debug-flag support to the webclient
+-added some fixtures and tests to the webclient (rake -t doesn't work atm. but...)
+-optimized crumb-list for tag-based browsing
+- Added file show ability
+- some javascript files (NOT all in use)
+- view file template
+- minimize the get_files function
+- added beautiful flag-icons. Thanks to Robert for the icons.
+- added debug-flag- and useforbuild-flag-support for projects to the webclient
+- added debug-flag- and useforbuild-flag-support for packages to the webclient
+- added and updated fixtures and unit-tests for projects and packages  
+- moved the left parenthesis ;)
+-build icons modified (by rlihm)
+- add openSUSE 10.3 distro button
+-disabled the category-partial for projects and packages
+- replaced a class variable that causes strangely behavior in the production-mode.
+- enable keyword expansion so the about pages shows a meaningfull svn
+  revision
+- the <enable/> tag is no longer stored for projects (Bug 327125)
+- the sequence of the flags, how they appear in the xml, is now:  (repo::arch)*, (all::arch)*, (repo::all)*, (all::all)*
+- moved functions to an extra module
+- added a green hook to the status graphics (enabled)
+- tabs are evil, mmkay?
+- added possibility for project maintainers to create subprojects
+
+
