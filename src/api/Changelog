@@ -756,3 +756,13 @@ Fri Jul 27 19:50:31 +0200 2007 - bauersman
 - fix broken apidocs link
 
 
+------------------------------------------------------------------------
+Tue Oct 02 17:09:09 +0200 2007 - bauersman
+
+- update from svn revision 2094 to 2299
+-added missing model-relationship for 'useforbuild' flags
+- typo fix
+- added option to force project deletion even if other repositories
+  link against it
+
+
