@@ -3,6 +3,8 @@ class Package < ActiveXML::Base
   
   belongs_to :project
 
+  handles_xml_element 'package'
+
   #cache variables
   attr_accessor :my_pro
   attr_accessor :my_architectures

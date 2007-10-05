@@ -17,6 +17,8 @@ class Project < ActiveXML::Base
   attr_accessor :my_repositories
   attr_accessor :my_architectures
 
+  handles_xml_element 'project'
+
   #check if named project exists
   def self.exists?(pro_name)
     begin

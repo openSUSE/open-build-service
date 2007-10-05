@@ -1,5 +1,7 @@
 class Person < ActiveXML::Base
   default_find_parameter :login
+
+  handles_xml_element 'person'
   
   # redefine make_stub so that Person.new( :login => 'login_name' ) works
   class << self

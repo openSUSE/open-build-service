@@ -1,5 +1,7 @@
 class Platform < ActiveXML::Base
 
+  handles_xml_element 'platform'
+
   def to_s
     name.to_s
   end
