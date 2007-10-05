@@ -17,28 +17,8 @@
 		  <th>Action</th>
 		</tr>
 		<% @project.each_repository do |repo| -%>
-			<tr class="target">
-			  <th>
-			    <strong><%=h repo.name %></strong>
-			    <% begin -%>
-				    <% repo.each_path do |path| -%>
-				    <%=h path.project+"/"+path.repository %><br/>
-			    <% end -%>
-			    <% rescue; end %>
-			    <%=  link_to 'Goto Repository', repo_url( @project.name, repo.name ) -%>
-			  </th>
-			  <% @arch_list.each do |arch| -%>
-			  	<td>
-			  		<%= format_packstatus_for( repo.name, arch )%>
-					build: <%= render :partial => "flag", :locals => {:flagtype => "build", :arch => "#{arch}", :repo => "#{repo.name}"}%>
-					<br/>
-					publish: <%= render :partial => "flag", :locals => {:flagtype => "publish", :arch => "#{arch}", :repo => "#{repo.name}"}%>
-				</td>
-			  <% end -%>
-			  <td><%= link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
-			                              {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} %></td>
-			</tr>
-		<% end #each_repository -%>
+			<tr class="target" id="<%=repo.name%>"><%= render :partial => 'repository_item', :locals => { :repo => repo } %></tr>
+		<%- end #each_repository -%>
 	</table>
 
 <% end #has_element? -%>

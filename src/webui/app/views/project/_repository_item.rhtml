@@ -1,0 +1,30 @@
+<th>
+	<strong><%=h repo.name %></strong>
+	<% begin -%>
+		<% repo.each_path do |path| -%>
+		<%=h path.project+"/"+path.repository %><br/>
+	<% end -%>
+	<% rescue; end %>
+	<%=	link_to 'Goto Repository', repo_url( @project.name, repo.name ) -%>
+</th>
+<% @arch_list.each do |arch| -%>
+	<td id="<%=repo.name+'_'+arch%>">
+	<%- if repo.archs.include? arch -%>
+		<%= format_packstatus_for( repo.name, arch )%>
+		build: <%= render :partial => "flag", :locals => {:flagtype => "build", :arch => arch, :repo => repo.name } %>
+		<br/>
+		publish: <%= render :partial => "flag", :locals => {:flagtype => "publish", :arch => arch, :repo => repo.name } %>
+	<%- else -%>
+		<%= link_to_remote "[Enable]", :update => repo.name,
+				:url => { :action => :enable_arch, :project => @project, :repo => repo.name, :arch => arch},
+                :loading => "{ $('#{repo.name}_#{arch}').innerHTML = '" + render(:partial => "loading", :locals => {:text => 'enabling...'}).strip + "'; }"
+                %>
+	<%- end -%>
+</td>
+<% end -%>
+<td>
+	<%= link_to_remote "[Edit]", :update => repo.name,
+						:url => {:action => :edit_target, :project => @project, :repo => repo.name} %>
+	<%= link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
+							{:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} %><br/>
+</td>

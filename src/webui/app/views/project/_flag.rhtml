@@ -1,4 +1,4 @@
-<% 	flag = @project.send("#{flagtype}"+"flags")["#{repo}::#{arch.to_s}".to_sym]
+<% 	flag = @project.send("#{flagtype}flags")["#{repo}::#{arch.to_s}".to_sym]
 
 	 if flag %>
 		<span id="<%="#{flag.name}_#{flag.id}"%>" >

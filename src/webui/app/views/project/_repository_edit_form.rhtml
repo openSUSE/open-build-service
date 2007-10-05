@@ -1,0 +1,10 @@
+<td colspan="<%=@arch_list.length + 1 %>"><%= form_remote_tag :update => repo.name, :url => { :action => :update_target } %>
+<b>Name:</b> <%= text_field_tag :name, repo.name %><br/>
+<% @arch_list.each do |arch| -%>
+<%= check_box_tag "arch[#{arch}]", "", repo.archs.include?(arch) %>
+<label for="arch[<%=arch%>]"><%=arch%></label>
+<br/>
+<% end -%>
+<%= hidden_field_tag :project, @project %> <%= hidden_field_tag :repo, repo.name %>
+<%= submit_tag 'Update' %>
+<%= end_form_tag %></td>

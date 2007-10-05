@@ -2,6 +2,7 @@ class Project < ActiveXML::Base
   include FlagModelHelper
   
   has_many :package
+  has_many :repository
 
   attr_accessor :build_flags
   attr_accessor :publish_flags
@@ -14,10 +15,49 @@ class Project < ActiveXML::Base
   attr_accessor :uf_updated
 
   #cache variables
-  attr_accessor :my_repositories
+  attr_accessor :my_repositories, :my_repo_hash
   attr_accessor :my_architectures
 
   handles_xml_element 'project'
+
+  class Repository < ActiveXML::Node
+    handles_xml_element 'repository'
+    xml_attr_accessor 'name'
+
+    def archs
+      @archs ||= each_arch.map { |a| a.to_s }
+      return @archs
+    end
+
+    def add_arch (arch)
+      return nil if archs.include? arch
+      @archs.push arch
+      e = data.add_element('arch')
+      e.text = arch
+    end
+
+    def remove_arch (arch)
+      return nil unless archs.include? arch
+      each_arch do |a|
+        delete_element a if a.to_s == arch
+      end
+      @archs.delete arch
+    end
+
+    def set_archs (new_archs)
+      new_archs.map!{ |a| a.to_s }
+      archs.reject{ |a| new_archs.include? a }.each{ |arch| remove_arch arch }
+      new_archs.reject{ |a| archs.include? a }.each{ |arch| add_arch arch }
+    end
+    def archs= (new_archs)
+      set_archs new_archs
+    end
+
+#    def name= (name)
+#      data.attributes['name'] = name
+#    end
+
+  end
 
   #check if named project exists
   def self.exists?(pro_name)
@@ -28,7 +68,6 @@ class Project < ActiveXML::Base
       return false
     end
   end
-
 
   #TODO untested!!!!
   #TODO same function as in package
@@ -244,6 +283,12 @@ class Project < ActiveXML::Base
     return self.my_repositories
   end
 
+  def repository
+    my_repo_hash ||= Hash[* repositories.map { |repo| [repo.name, repo] }.flatten ] # hacky way to make a hash from a map
+    return my_repo_hash
+  end
+    
+
   #TODO use setter method!
   def create_flag_matrix( opts )
     begin
@@ -255,55 +300,49 @@ class Project < ActiveXML::Base
 
         df = Flag.new
         df.id = key
-        df.name = "#{flagtype}"
+        df.name = flagtype
         df.description = 'project default'
         df.architecture = nil
         df.repository = nil
         df.status = 'enable'
         df.explicit = true
 
-        value = df
-
-        flags.merge! key.to_sym => value
+        flags.merge! key.to_sym => df
 
         #get repositories and architectures
         raise RuntimeError.new("[PROJECT-FLAGS] Warning: The Project #{self.name} has no " +
           "repository specified, therefore the creation of the flag-matrix is not possible.") \
           if self.repositories.empty?
+
         self.repositories.each do |repo|
           #generate repo::all flags and set the default
           key = repo.name.to_s + '::all'
 
           rdf = Flag.new
           rdf.id = key
-          rdf.name = "#{flagtype}"
+          rdf.name = flagtype
           rdf.description = 'project repository default'
           rdf.architecture = nil
           rdf.repository = repo.name
           rdf.status = 'default'
           rdf.explicit = false
-          #rdf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
           rdf.set_implicit_setters( flags['all::all'.to_sym] )
 
-          value = rdf
-          #self.send("#{flagtype}_flags").merge! key.to_sym => value
-          flags.merge! key.to_sym => value
+          flags.merge! key.to_sym => rdf
 
           #set defaults for each architecture
           repo.each_arch do |arch|
-            #unless self.send("#{flagtype}flags").keys.include? "all::#{arch.to_s}".to_sym
             unless flags.keys.include? "all::#{arch.to_s}".to_sym
               key = 'all::' + arch.to_s
 
               adf = Flag.new
               adf.id = key
-              adf.name = "#{flagtype}"
+              adf.name = flagtype
               adf.description = 'project architecture default'
               adf.architecture = arch.to_s
               adf.repository = nil
               adf.status = 'default'
               adf.explicit = false
-              #adf.set_implicit_setters( self.send("#{flagtype}flags")['all::all'.to_sym] )
               adf.set_implicit_setters( flags['all::all'.to_sym] )
 
               value = adf
@@ -315,7 +354,7 @@ class Project < ActiveXML::Base
 
               adf = Flag.new
               adf.id = key
-              adf.name = "#{flagtype}"
+              adf.name = flagtype
               adf.description = 'project flag'
               adf.architecture = arch.to_s
               adf.repository = repo.name
@@ -326,15 +365,13 @@ class Project < ActiveXML::Base
               secondflag = flags["all::#{arch.to_s}".to_sym]
               adf.set_implicit_setters( firstflag, secondflag  )
 
-
-              value = adf
-              flags.merge! key.to_sym => value
+              flags.merge! key.to_sym => adf
             end
           end
         end
 
-      ft = "set_"+"#{flagtype}"+"flags"
-      self.send ft.to_sym , flags
+      ft = "set_#{flagtype}flags"
+      self.send ft , flags
 
       logger.debug "[PROJECT-FLAGS] Creation done."
     rescue RuntimeError => error
@@ -355,8 +392,6 @@ class Project < ActiveXML::Base
 
     self.send(flagtype).each do |elem|
       begin
-        key = nil
-        value = nil
         if elem.has_attribute? :repository and elem.has_attribute? :arch
           key = elem.repository.to_s + '::' + elem.arch.to_s
           f = self.send("#{flagtype}flags")[key.to_sym]
@@ -364,7 +399,6 @@ class Project < ActiveXML::Base
           f.architecture = elem.arch.to_s
           f.status = elem.element_name
           f.explicit = true
-          value = f
         elsif elem.has_attribute? :repository
           key  =  elem.repository.to_s + '::all'
           f = self.send("#{flagtype}flags")[key.to_sym]
@@ -372,7 +406,6 @@ class Project < ActiveXML::Base
           f.architecture = nil
           f.status = elem.element_name
           f.explicit = true
-          value =  f
         elsif elem.has_attribute? :arch
           key = 'all::' + elem.arch.to_s
           f = self.send("#{flagtype}flags")[key.to_sym]
@@ -380,7 +413,6 @@ class Project < ActiveXML::Base
           f.architecture = elem.arch.to_s
           f.status = elem.element_name
           f.explicit = true
-          value =  f
         else
           #dickes default
           key = 'all::all'
@@ -389,7 +421,6 @@ class Project < ActiveXML::Base
           f.architecture = nil
           f.status = elem.element_name
           f.explicit = true
-          value =  f
         end
       rescue NoMethodError => error
         logger.debug "[PROJECT-FLAGS] flag-matrix update warning: for the " +

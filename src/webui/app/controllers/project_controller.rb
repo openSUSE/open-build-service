@@ -90,22 +90,26 @@ class ProjectController < ApplicationController
     #@project_name parameter needed for _watch_link partial
     @project_name = @project.name
 
-    tmp = Hash.new
-    @project.each_repository do |repo|
-      repo.each_arch do |arch|
-        tmp[arch.to_s] = 1
-      end
-    end
-
     @email_hash = Hash.new
     @project.each_person do |person|
       @email_hash[person.userid.to_s] = Person.find( person.userid ).email.to_s
     end
 
-    @arch_list = tmp.keys.sort
+    @arch_list = arch_list
     @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
     @rating = Rating.find( :project => @project )
+  end
+
+  def arch_list
+    if @arch_list.nil?
+      tmp = []
+      @project.each_repository do |repo|
+        tmp += repo.archs
+      end
+      @arch_list = tmp.sort.uniq
+    end
+    return @arch_list
   end
 
   def get_tags(params)
@@ -180,6 +184,38 @@ class ProjectController < ApplicationController
 
     @flag = @project.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
 
+  end
+
+  def enable_arch
+    @project = Project.find(params[:project])
+    @arch_list = arch_list
+    repo = @project.repository[params[:repo]]
+    repo.add_arch params[:arch]
+    if @project.save
+      render :partial => 'repository_item', :locals => { :repo => repo }
+    else
+      render_text 'sorry woe error'
+    end
+  end
+
+  def edit_target
+    @project = Project.find(params[:project])
+    repo = @project.repository[params[:repo]]
+    @arch_list = arch_list
+    render :partial => 'repository_edit_form', :locals => { :repo => repo }
+  end
+
+  def update_target
+    @project = Project.find(params[:project])
+    repo = @project.repository[params[:repo]]
+    repo.name = params[:name]
+    repo.archs = params[:arch].to_a
+    if @project.save
+      @arch_list = arch_list
+      render :partial => 'repository_item', :locals => { :repo => repo }
+    else
+      render_text 'sorry woe neco nevyslo'
+    end
   end
 
 
@@ -318,8 +354,8 @@ class ProjectController < ApplicationController
       return
     end
 
-    @project.title.data.text = params[:title]
-    @project.description.data.text = params[:description]
+    @project.title.text = params[:title]
+    @project.description.text = params[:description]
 
     if @project.save
       flash[:note] = "Project '#{@project}' was saved successfully"
