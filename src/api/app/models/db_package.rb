@@ -235,61 +235,44 @@ class DbPackage < ActiveRecord::Base
       package.title( title )
       package.description( description )
 
-    #TODO put the flag stuff in a loop
-    unless self.build_flags.empty?
-      package.build do
-        self.build_flags.each do |build_flag|
-#          project.__send__(build_flag.status.to_s,
-#                            :arch => build_flag.architecture.name.to_s,
-#                            :repo => build_flag.repo.to_s
-#                            )
-          package << build_flag.to_xml.to_s + "\n"
+      each_user do |u|
+        package.person( :userid => u.login, :role => u.role_name )
+      end
+
+      #TODO put the flag stuff in a loop
+      unless self.build_flags.empty?
+        package.build do
+          self.build_flags.each do |build_flag|
+            package << build_flag.to_xml.to_s + "\n"
+          end
         end
       end
-    end
 
-    unless self.publish_flags.empty?
-      package.publish do
-        self.publish_flags.each do |publish_flag|
-#          project.__send__(publish_flag.status.to_s,
-#                            :arch => publish_flag.architecture.name.to_s,
-#                            :repo => publish_flag.repo.to_s
-#                            )
-          package << publish_flag.to_xml.to_s + "\n"
+      unless self.publish_flags.empty?
+        package.publish do
+          self.publish_flags.each do |publish_flag|
+            package << publish_flag.to_xml.to_s + "\n"
+          end
         end
       end
-    end
 
-    unless self.debug_flags.empty?
-      package.debug do
-        self.debug_flags.each do |debug_flag|
-#          package.__send__(debug_flag.status.to_s,
-#                            :arch => debug_flag.architecture.name.to_s,
-#                            :repo => debug_flag.repo.to_s
-#                            )
-          package << debug_flag.to_xml.to_s + "\n"
+      unless self.debug_flags.empty?
+        package.debug do
+          self.debug_flags.each do |debug_flag|
+            package << debug_flag.to_xml.to_s + "\n"
+          end
         end
       end
-    end
 
-    unless self.useforbuild_flags.empty?
-      package.useforbuild do
-        self.useforbuild_flags.each do |useforbuild_flags|
-#          package.__send__(useforbuild_flags.status.to_s,
-#                            :arch => useforbuild_flags.architecture.name.to_s,
-#                            :repo => useforbuild_flags.repo.to_s
-#                            )
-          package << useforbuild_flags.to_xml.to_s + "\n"
+      unless self.useforbuild_flags.empty?
+        package.useforbuild do
+          self.useforbuild_flags.each do |useforbuild_flags|
+            package << useforbuild_flags.to_xml.to_s + "\n"
+          end
         end
       end
-    end
-
-    each_user do |u|
-      package.person( :userid => u.login, :role => u.role_name )
-    end
-
-
-    package.url( url ) if url
+      
+      package.url( url ) if url
 
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
