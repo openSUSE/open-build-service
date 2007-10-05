@@ -1,8 +1,13 @@
 <package name="kdelibs" project="KDE" created="2005-01-01T00:00:02+01:00" updated="2007-01-19T10:44:45+01:00">
   <title>KDE libraries</title>
   <description>Base libraries of the KDE framework</description>
-  <url>http://kde.org/download/</url>
   <person role="maintainer" userid="ernie"/>
-  <group>Desktop/Libraries</group>
-  <disable repository="SLE_10" arch="x86_64"/>
+  <publish>
+  </publish>
+  <build>
+    <disable />
+  </build>
+  <useforbuild>
+    <disable />
+  </useforbuild>
 </package>
