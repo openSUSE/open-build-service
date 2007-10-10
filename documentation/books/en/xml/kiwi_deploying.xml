@@ -115,8 +115,8 @@ cp initrd-netboot.i686-2.1.1.kernel.2.6.18.2-31-default \
     <filename>initrd</filename> registers the machine if no configuration is found in
     <filename>/srv/tftpboot/KIWI</filename>. <quote>Registration</quote> means that a file including
    the MAC address of the machine is uploaded into the <filename>/srv/tftpboot/upload</filename>
-   directory. For information on creating the configuration, see &lt;xref linkend=�
-   sec.kiwi.activating.netboot.configfile� xrefstyle=�HeadingOnPage�/>. The following sample
+   directory. For information on creating the configuration, see &lt;xref
+   linkend="sec.kiwi.activating.netboot.configfile" xrefstyle="HeadingOnPage"/>. The following sample
    configuration is for a machine that has a disk on <filename>/dev/sda</filename>: </para>
 
   <screen>IMAGE=/dev/sda2;my-example-suse-10.2.i686;1.1.2;192.168.100.2;4096
@@ -154,8 +154,8 @@ DISK=/dev/sda</screen>
    split images can only be deployed in combination with one of the KIWI boot images.</para>
   <para>To deploy the image, use PXE or a boot CD/USB-stick. The most important part of using a
    split images is the configuration for the target machine. For more information on this config.MAC
-   file, see &lt;xref linkend=� sec.kiwi.activating.netboot.configfile�
-   xrefstyle=�HeadingOnPage�/>. When using a split image, the following information must be
+   file, see &lt;xref linkend="sec.kiwi.activating.netboot.configfile" xrefstyle="HeadingOnPage"/>.
+   When using a split image, the following information must be
    provided:</para>
   <itemizedlist mark="bullet" spacing="normal">
    <listitem>
@@ -622,7 +622,7 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
     </listitem>
     <listitem>
      <para>The packages can be stored in a local directory, and that directory can be declared as an
-      additional installation source of the type �rpm-dir� (plain RPM directory). In that case, the
+      additional installation source of the type "rpm-dir" (plain RPM directory). In that case, the
       line looks like this:</para>
 
      <screen>&lt;repository type="rpm-dir"&gt;
@@ -790,8 +790,8 @@ kiwi --create /tmp/mysystem -d /tmp</screen>
   <title>Using a Live CD System</title>
   <para>LiveDistro or Live CD is a generic term for an operating system distribution that is
    executed upon boot, without installation, on a hard drive. Typically, it is stored on a bootable
-   medium, such as a CD-ROM (Live CD) or DVD (Live DVD). The term �live� comes from the fact that
-   these distributions are a complete, runnable (that is, �live�) instance of the operating system
+   medium, such as a CD-ROM (Live CD) or DVD (Live DVD). The term "live" comes from the fact that
+   these distributions are a complete, runnable (that is, "live") instance of the operating system
    residing on the distribution medium, rather than the typical collection of packages that must
    first be installed on the target machine before using the operating system.</para>
   <para>A LiveDistro does not alter the current operating system or files unless the user
@@ -813,7 +813,7 @@ kiwi --create /tmp/mysystem -d /tmp</screen>
   <para>The <literal>boot</literal> attribute specifies the CD boot image which must exist in
     <filename>/usr/share/kiwi/image/isoboot</filename>. As with all boot images, the most important
    point is that the boot image must match the operating system image. This means that the kernel of
-   the boot and operating system image must be the same. If you don�t have a boot image that matches
+   the boot and operating system image must be the same. If you don't have a boot image that matches
    your operating system image, you should create your own boot image description. You can use an
    existing boot image and adapt it to your needs.</para>
  </sect2>
