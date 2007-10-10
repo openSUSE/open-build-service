@@ -20,7 +20,7 @@
 
 <chapter id="cha.kiwi" xml:base="kiwi.xml">
  <chapterinfo>
-  <date><?dbtimestamp?></date>
+  <!--<date><?dbtimestamp?></date>
   <releaseinfo>Basic structure only</releaseinfo>
    <releaseinfo>$Revision$</releaseinfo>
    <releaseinfo>$Date: 2007-02-22 17:21:45 +0100 (Thu, 22 Feb 2007) $</releaseinfo>
@@ -33,7 +33,7 @@
     <firstname>Frank</firstname>
     <surname>Sundermeyer</surname>
    </author>
-  </authorgroup>
+  </authorgroup>-->
   <keywordset>
    <keyword>Build Service</keyword>
    <keyword>KIWI Image System</keyword>
@@ -41,12 +41,30 @@
   </keywordset>
  </chapterinfo>
  <title>Image Building with KIWI</title>
- <abstract>
-  <para>
-   TODO: Abstract
-  </para>
- </abstract>
-
+   <para>
+     The openSUSE KIWI Image System provides a complete operating system image solution for Linux-supported hardware platforms as well as for virtualization systems such as Xen and VMware. KIWI is an ideal solution for creating and imaging thin client devices.
+   </para>
+     <itemizedlist >
+   <listitem>
+    <para><xref linkend="sec.kiwi.introduction" xrefstyle="SectTitleOnPage"/></para>
+   </listitem>
+   <listitem>
+    <para><xref linkend="sec.kiwi.create" xrefstyle="SectTitleOnPage"/></para>
+   </listitem>
+   <listitem>
+    <para><xref linkend="sec.kiwi.description" xrefstyle="SectTitleOnPage"/></para>
+   </listitem>
+   <listitem>
+    <para><xref linkend="sec.kiwi.activating" xrefstyle="SectTitleOnPage"/></para>
+   </listitem>
+   <listitem>
+    <para><xref linkend="sec.kiwi.maintenance" xrefstyle="SectTitleOnPage"/></para>
+   </listitem>
+   <listitem>
+    <para><xref linkend="sec.kiwi.deploying" xrefstyle="SectTitleOnPage"/></para>
+   </listitem>   
+  </itemizedlist>
+ 
  <!-- Include all KIWI related files here -->
 
  <xi:include href="kiwi_introduction.xml"/>
@@ -55,7 +73,6 @@
  <xi:include href="kiwi_activating.xml"/>
  <xi:include href="kiwi_maintenance.xml"/>
  <xi:include href="kiwi_deploying.xml"/>
- <xi:include href="kiwi_troubleshooting.xml"/>
 
 </chapter>
 <!-- Keep this comment at the end of the file

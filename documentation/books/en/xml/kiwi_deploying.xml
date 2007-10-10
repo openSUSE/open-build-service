@@ -12,474 +12,480 @@
  ***************************************************
 -->
 
-<sect1 id="sec.kiwi.deploying" xml:base="kiwi_deploying.xml">
+<sect1 id="sec.kiwi.deploying">
  <title>Real-Life Scenarios - A Tutorial</title>
- <abstract>
-  <para>
-   Creating an operating system image always implies the question how to
-   activate the image on the target system. As there are many possible targets
-   the so called image deployment higly depends on the system environment. If
-   a customer buys a product for example SLEPOS the system environment is
-   given and it is required to take care for the rules to successfully deploy
-   the image. On the one hand this makes it easy for customers to control a
-   complex system but on the other hand one will loose the flexibility to use
-   the same system in another environment.
-  </para>
-  <para>
-   KIWI doesn't stick to a specific system environment but therefore it leaves
-   out important tasks concerning the deployment architecture. So to say KIWI
-   is an image creator but it doesn't setup the deployment infrastructure.
-   This chapter provides information about the different possibilities to
-   deploy an image and how KIWI fits into this picture.
-  </para>
- </abstract>
+ <para>When you create an operating system image, you must decide how to activate the image on the
+  target system. Because there are many possible target systems, the image deployment depends
+  greatly on the system environment. For example, if a customer buys the SLEPOS product, the system
+  environment is predetermined, so the he or she must follow the set rules to successfully deploy
+  the image. This makes it easy for customers to control a complex system, but it also means that
+  you lose the flexibility to use the same system in another environment.</para>
+ <para>KIWI doesn't require a specific system environment, and it does leave out some important
+  tasks concerning the deployment architecture. So while KIWI is an image creator, it doesn't set up
+  the deployment infrastructure. This chapter provides some examples of ways to deploy an image.</para>
+ <itemizedlist role="subtoc">
+  <listitem>
+   <para>
+    <xref linkend="sec.kiwi.deploying.net_pxe" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <xref linkend="sec.kiwi.deploying.split_pxe" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <xref linkend="sec.kiwi.deploying.nfs" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <xref linkend="sec.kiwi.deploying.cd.install" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <xref linkend="sec.kiwi.deploying.usb" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <xref linkend="sec.kiwi.deploying.virtual" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <xref linkend="sec.kiwi.deploying.xen" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+  <listitem>
+   <para>
+    <xref linkend="sec.kiwi.deploying.live" xrefstyle="SectTitleOnPage"/>
+   </para>
+  </listitem>
+ </itemizedlist>
  <sect2 id="sec.kiwi.deploying.net_pxe">
-  <title>Deploying via Network Using the PXE Protocol</title>
-  <para>
-   PXE is a boot protocol mostly implemented in todays BIOS's or boot ROMs of
-   some network cards. If activated it broadcasts the network for a DHCP to
-   obtain an IP address and the information where to find a TFTP server to
-   manage file transfers. If such a server exists the second stage bootloader
-   controls the subsequently boot process. Using PXE with KIWI requires the
-   infrastructure explained in section FIXME \ref{section:tftpstruct} and a
-   TFTP server as well as a DHCP server running. KIWI provides the package
-   <systemitem>kiwi-pxeboot</systemitem> which setup the boot structure and
-   installs some prebuild boot images.
-  </para>
-  <para>
-   If the plan is to use a system image for which no prebuild boot image
-   exist, it is needed to create a custom boot image before a system image
-   could be deployed. Boot images consists of the image itself and the
-   appropriate kernel to that image. Both file must be stored in the directory
-   <filename>/srv/tftpboot/boot</filename>. Assuming there is no prebuild
-   boot image for the openSUSE 10.2 distribution the steps to create it are as
-   follows:
-  </para>
-<screen>
-cd /usr/share/kiwi/image
+  <title>Using the PXE Protocol to Deploy an Image via the Network </title>
+  <para>PXE is a boot protocol generally implemented in the BIOS or boot ROM of network cards. When
+   activated, it searches the network for a DHCP server from which it can obtain an IP address, and
+   for information on where to find a TFTP server that can manage file transfers. If such a server
+   exists, the second stage bootloader controls the subsequent boot process. Using PXE with KIWI
+   requires the infrastructure explained in "The TFTP Server Structure," a TFTP server, and a DHCP server. KIWI provides the
+    <systemitem>kiwi-pxeboot</systemitem> package, which sets up the boot structure and installs
+   some prebuilt boot images.</para>
+  <para>If you plan on using a system image for which no prebuilt boot image exist, you must create
+   a custom boot image before a system image can be deployed. Boot images consists of the image
+   itself and the appropriate kernel for that image. Both file must be stored in the
+    <filename>/srv/tftpboot/boot</filename> directory. Assuming there is no prebuilt boot image for
+   the openSUSE 10.2 distribution, the steps to create it are as follows:</para>
+
+  <screen>cd /usr/share/kiwi/image
 kiwi --prepare netboot/suse-10.2 --root /tmp/myroot
-kiwi --create /tmp/myroot -d /tmp</screen>
-  <para>
-   The result of this example is created in the /tmp<filename></filename>
-   directory:
-  </para>
-<screen>
-ls -1 /tmp/initrd-netboot*
+kiwi --create /tmp/myroot -d /tmp </screen>
+
+  <para>The result of this example is created in the <filename>/tmp</filename> directory:</para>
+
+  <screen>ls -1 /tmp/initrd-netboot*
    /tmp/initrd-netboot-suse-10.2.i686-2.1.1.gz
    /tmp/initrd-netboot-suse-10.2.i686-2.1.1.kernel.2.6.18.2-31-default</screen>
-  <para>
-   If you don't want to prepare/create the boot image manually you can let
-   KIWI do the job by setting up the <literal>pxe</literal> type in your
-   system image <filename>config.xml</filename> file. For example:
-  </para>
-<screen>
-&lt;preferences&gt;
+  <para>If you don't want to prepare or create the boot image manually, you can let KIWI do the job
+   by setting up the <literal>pxe</literal> type in your system image
+   <filename>config.xml</filename> file. For example:</para>
+
+  <screen>&lt;preferences&gt;
   &lt;type filesystem="ext3" boot="netboot/suse-10.2"&gt;pxe&lt;/type&gt;
   ...
 &lt;/preferences&gt;</screen>
-  <para>
-   In this case the boot image will be created automatically and from the same
-   source as the system image as soon as the \textbf{creation} step is
-   performed for the system image.
-  </para>
-  <para>
-   The next step is to make the boot image known to the TFTP server. To do
-   this the files must be copied to the
-   <filename>/srv/tftpboot/boot</filename>} directory. Optionally they can
-   be renamed. For the following example the boot image is renamed to
-   <filename>initrd</filename> and the boot kernel is renamed to
-   <filename>linux</filename>.
-  </para>
-<screen>
-cp initrd-netboot.i686-2.1.1.gz /srv/tftpboot/boot/initrd
+
+  <para>In this case, the boot image is created automatically, using the same source as the system
+   image, when the <literal>\textbf{creation}</literal> step is performed for the system image.</para>
+  <para>The next step is to make the boot image known to the TFTP server. To do this, the files must
+   be copied to the <filename>/srv/tftpboot/boot</filename> directory. They can also be renamed. For
+   the following example, the boot image is renamed to <filename>initrd</filename>, and the boot
+   kernel is renamed to <filename>linux</filename>.</para>
+
+  <screen>cp initrd-netboot.i686-2.1.1.gz /srv/tftpboot/boot/initrd
 cp initrd-netboot.i686-2.1.1.kernel.2.6.18.2-31-default \
   /srv/tftpboot/boot/linux</screen>
-  <para>
-   Switching on the target machine, which needs to run PXE by default, will
-   load the linux kernel and the KIWI created initrd. The initrd will register
-   the machine if there is no configuration found in
-   <filename>/srv/tftpboot/KIWI</filename>. Registration means a file
-   including the MAC address of the machine is uploaded into the directory
-   <filename>/srv/tftpboot/upload</filename>. For information about
-   creating the configuration refer to section FIXME \ref{section:confmac}.
-   The following example configuration fits for a machine including a disk on
-   <filename>/dev/sda</filename>:
-  </para>
-<screen>
-IMAGE=/dev/sda2;my-example-suse-10.2.i686;1.1.2;192.168.100.2;4096
+
+
+  <para>Switching the target machine on, which must run PXE by default, loads the
+   <filename>linux</filename> kernel and the KIWI-created <filename>initrd</filename>. The
+    <filename>initrd</filename> registers the machine if no configuration is found in
+    <filename>/srv/tftpboot/KIWI</filename>. <quote>Registration</quote> means that a file including
+   the MAC address of the machine is uploaded into the <filename>/srv/tftpboot/upload</filename>
+   directory. For information on creating the configuration, see &lt;xref linkend=�
+   sec.kiwi.activating.netboot.configfile� xrefstyle=�HeadingOnPage�/>. The following sample
+   configuration is for a machine that has a disk on <filename>/dev/sda</filename>: </para>
+
+  <screen>IMAGE=/dev/sda2;my-example-suse-10.2.i686;1.1.2;192.168.100.2;4096
 PART=1024;S;x,x;L;/
 DISK=/dev/sda</screen>
-  <para>
-   According to this configuration the KIWI boot image will try to download a
-   system image named <filename>my-example-suse-10.2.i686-1.1.2</filename> from the
-   TFTP server with IP address 192.168.100.2. On the TFTP server the system
-   images are stored in <filename>/srv/tftpboot/image</filename>. The boot
-   image will prepare the disk and create a 1GB swap partition and another
-   full size linux partition. The process of creating this my-example-suse-10.2
-   image can be done by using KIWI. Once the boot image has successfully
-   downloaded the system image it is getting activated and operates as
-   configured. 
-  </para>
+
+
+  <para>According to this configuration, the KIWI boot image tries to download a system image named
+    <filename>my-example-suse-10.2.i686-1.1.2</filename> from the TFTP server with an IP address of
+   192.168.100.2. On the TFTP server, the system images are stored in
+   <filename>/srv/tftpboot/image</filename>. The boot image prepares the disk, and creates a 1 GB
+   swap partition and another full-sized linux partition. The process of creating this
+    <filename>my-example-suse-10.2</filename> image can be done using KIWI. After the boot image has
+   successfully downloaded the system image, it is activated and operates as configured.</para>
  </sect2>
  <sect2 id="sec.kiwi.deploying.split_pxe">
-  <title>Split image system via PXE</title>
-  <para>
-   KIWI supports system images to be splitted into two parts, a read-only part
-   and a read-write part. This allows to put data on different filesystems
-   which is mostly used to have read-only data available on a compressed
-   filesystem like cramfs or squasfs. Please note that almost all compressed
-   filesystems available have some kind of restrictions which needs attention
-   before starting to use it in an image.
-  </para>
-  <para>
-   To turn a system image into a split image only the type of the image must
-   be adapted. This information is part of the <filename>config.xml</filename>
-   file and could be changed like the following example shows:
-  </para>
-<screen>
-&lt;preferences&gt;
+  <title>Deploying a Split Image System via PXE</title>
+  <para>KIWI supports system images split into two parts: a read-only part, and a read-write part.
+   This lets you put data on different filesystems that usually contain read-only data available on
+   a compressed filesystem such as cramfs or squasfs. Almost all available compressed filesystems
+   have some kind of restrictions which needs attention before you use it in an image.</para>
+  <para>To turn a system image into a split image, only the type of the image must be adapted. This
+   information is part of the <filename>config.xml</filename> file, and can be edited as in the
+   following example:</para>
+
+  <screen>&lt;preferences&gt;
   &lt;type filesystem="ext3,cramfs"&gt;split&lt;/type&gt;
   ...
 &lt;/preferences&gt;</screen>
-  <para>
-   Creating an image from this description results in two image files whereas
-   one of them will contain the <literal>-read-only</literal> extension in its
-   name. Ay one may imagine booting such an image always requires a boot
-   process which must be able to bring both images together again. Because of
-   this, split images can only deployed in combination with one of the KIWI
-   boot images.
-  </para>
-  <para>
-   To deploy the image only PXE or a boot CD / USB-stick can be used. The most
-   important part while making use of split images is the configuration for
-   the target machine. More information on this config.MAC file can be found
-   in section FIXME \ref{section:confmac}. In case of a split image the
-   following information must be provided:
-  </para>
-  <itemizedlist>
+
+
+  <para>Creating an image from this description results in two image files. One of the files
+   contains the <literal>-read-only</literal> extension in its name. Booting such an image always
+   requires a boot process which must be able to bring both images together again. Because of this,
+   split images can only be deployed in combination with one of the KIWI boot images.</para>
+  <para>To deploy the image, use PXE or a boot CD/USB-stick. The most important part of using a
+   split images is the configuration for the target machine. For more information on this config.MAC
+   file, see &lt;xref linkend=� sec.kiwi.activating.netboot.configfile�
+   xrefstyle=�HeadingOnPage�/>. When using a split image, the following information must be
+   provided:</para>
+  <itemizedlist mark="bullet" spacing="normal">
    <listitem>
-    <para>
-     The <varname>IMAGE</varname> key must contain both images the read-write
-     and the read-only image. The read-write image must appear as first entry
-     in the list.
-    </para>
+    <para>The <option>IMAGE</option> key must contain both the read-write and the read-only image.
+     The read-write image must appear as the first entry in the list.</para>
    </listitem>
    <listitem>
-    <para>
-     The <varname>PART</varname> key has to specifiy a partition table with at
-     least three partitions. A swap partition and two system partitions which
-     provides enough space for the first and the second image portion
-    </para>
+    <para>The <option>PART</option> key must specify a partition table with at least three
+     partitions: a swap partition, and two system partitions which provide enough space for the
+     first and second image portion.</para>
    </listitem>
    <listitem>
-    <para>
-     The Option <varname>COMBINED_IMAGE</varname> to tell the boot image to
-     combine both images into one entire system
-    </para>
+    <para>The <option>COMBINED_IMAGE</option> option, which tells the boot image to combine both
+     images into one complete system.</para>
    </listitem>
   </itemizedlist>
-  <para>
-   The following example shows the configuration of a split image named
-   minimal-10.1 / minimal-10.1-read-only
-  </para>
-<screen>
-IMAGE=/dev/sda2;minimal-10.1.i686;1.1.2;192.168.100.2;4096,\
+  <para>The following example shows the configuration of a split image named <filename>minimal-10.1
+    / minimal-10.1-read-only</filename>:</para>
+
+  <screen>IMAGE=/dev/sda2;minimal-10.1.i686;1.1.2;192.168.100.2;4096,\
       /dev/sda3;minimal-10.1-read-only.i686;1.1.2;192.168.100.2;4096
 PART=200;S;x,500;L;/,x;L;
 DISK=/dev/sda
 COMBINED_IMAGE=yes</screen>
+
+
  </sect2>
  <sect2 id="sec.kiwi.deploying.nfs">
-  <title>
-   Deploying via Network Using an NFS Mounted <systemitem>root</systemitem>
-   System
-  </title>
-  <para>
-   In principal KIWI was designed to upload an image onto a client in
-   different ways but out there you will find diskless machines as well. Those
-   devices doesn't provide permanent storage and rely on the network. The most
-   oft used process to activate such terminals is to NFS mount the system
-   image via the network. KIWI supports that as well but it additionally
-   requires a terminal server configuration which needs to export the system
-   image using a NFS server. The following steps needs to be performed in
-   order to activate a diskless station:
-  </para>
-  <procedure>
-   <step>
-    <para>
-     Prepare the system image using
-    </para>
-<screen>
-kiwi --root /tmp/kiwi.nfsroot --prepare ...
+  <title> Using an NFS Mounted <systemitem>root</systemitem> System to Deploy an Image via the
+   Network </title>
+  <para>KIWI was designed to upload an image onto a client in several different ways, including onto
+   diskless machines. These devices don't provide permanent storage, and rely on the network. The
+   most often-used process to activate such terminals is to NFS-mount the system image via the
+   network. KIWI supports this as well, but it requires a terminal server configuration to export
+   the system image using a NFS server.</para>
+  <para>To activate a diskless station, use the following steps:</para>
+  <procedure id="bc483y1">
+   <step id="bc483y2" performance="required">
+    <para>Prepare the system image using the following command: </para>
+
+    <screen>kiwi --root /tmp/kiwi.nfsroot --prepare ...</screen>
+
+   </step>
+   <step id="bc4840s" performance="required">
+    <para>Set up an NFS server which exports the <filename>/tmp/kiwi.nfsroot</filename> path. </para>
+    <para>We recommend using the following export options in <filename>/etc/exports</filename>:</para>
+
+    <screen>/tmp/kiwi.nfsroot  *(rw,no_root_squash,sync,no_subtree_check) </screen>
+
+   </step>
+   <step id="bc4842s" performance="required">
+    <para>Use KIWI to create an appropriate netboot boot image (<filename>initrd</filename>).</para>
+    <para><quote>Appropriate</quote> means that the package repository for the system image and the
+     netboot image are the same.</para>
+   </step>
+   <step id="bc4848m" performance="required">
+    <para>Copy the boot image/kernel to the PXE server in <filename>/srv/tftpboot/boot</filename>.</para>
+    <para>The <systemitem>kiwi-pxeboot</systemitem> package helps you set up the PXE/TFTP
+    server.</para>
+   </step>
+   <step id="bc4849t" performance="required">
+    <para>Create a <filename>config.&lt;<replaceable>MAC</replaceable>></filename> file in
+      <filename>/srv/tftpboot/KIWI</filename> with the following contents:</para>
+
+    <screen>
+NFSROOT=129.168.100.7;/tmp/kiwi.nfsroot
 </screen>
+
    </step>
-   <step>
-    <para>
-     Setup an NFS server which exports the
-     <filename>/tmp/kiwi.nfsroot</filename> path. The following export options
-     in <filename>/etc/exports</filename> are recommended:
-    </para>
-<screen>
-/tmp/kiwi.nfsroot  *(rw,no\_root\_squash,sync,no\_subtree\_check)</screen>
-   </step>
-   <step>
-    <para>
-     Create an appropriate netboot boot image (<filename>initrd</filename>)
-     with KIWI. Appropriate means the package repository for the system image
-     and the netboot image must be the same
-    </para>
-   </step>
-   <step>
-    <para>
-     Copy the boot image/kernel to the PXE server in
-     <filename>/srv/tftpboot/boot</filename> The package<systemitem>
-      kiwi-pxeboot</systemitem> helps you in setting up the PXE/TFTP server.
-    </para>
-   </step>
-   <step>
-    <para>
-     Create a
-     <filename>config.<replaceable>&lt;MAC&gt;</replaceable></filename> file
-     in <filename>/srv/tftpboot/KIWI</filename> with the following
-     contents:
-    </para>
-<screen>NFSROOT=129.168.100.7;/tmp/kiwi.nfsroot</screen>
-   </step>
-   <step>
-    <para>
-     Boot the client. If everything works the client will receive the boot
-     image and kernel via PXE/TFTP. The boot image NFS mounts the system image
-     according to the data in
-     <filename>config.<replaceable>&lt;MAC&gt;</replaceable></filename>. After
-     that the mounted root filesystem will be activated.  
-    </para>
+   <step id="bc484by" performance="required">
+    <para>Boot the client.</para>
+    <para>If everything works properly, the client receives the boot image and kernel via PXE/TFTP.
+     The boot image NFS mounts the system image according to the data in
+      config.&lt;<replaceable>MAC</replaceable>>. After that, the mounted root filesystem is
+     activated.</para>
    </step>
   </procedure>
  </sect2>
  <sect2 id="sec.kiwi.deploying.cd.install">
-  <title>Installation from CD/DVD or USB stick</title>
-  <para> 
-   Sometimes it makes sense to create a CD,DVD or USB stick which contains
-   an image to become installed on a hard disk of the computer. The installation
-   process in KIWI is rather simple. It doesn't take care for already
-   installed operating systems or disk partitions so be careful with this
-   deployment method. The process of booting a CD with an image as content
-   and the later first boot of this image is handled by the KIWI oemboot
-   boot image. The system image in that case must be a virtual disk type
-   which requires oemboot to be used in combination with the vmx image
-   type. To indicate that the resulting virtual disk system image should
-   be part of an ISO and the later install CD the attribute format with
-   the value <emphasis>iso</emphasis> must be set. Referring to this the
-   system image description needs the following type specification:
-<screen>
+  <title>Installing an Image from a CD, DVD, or USB Stick</title>
+  <para>You can create a CD, DVD, or USB stick which contains an image you want to install on the
+   hard disk of a computer. The installation process in KIWI is rather simple, but it doesn't
+   consider previously installed operating systems or disk partitions, so be careful with this
+   deployment method.</para>
+  <para>The process of booting a CD with an image as the content and the later first boot of this
+   image is handled by the KIWI oemboot boot image. The system image in this case must be a virtual
+   disk type, which requires oemboot to be used in combination with the vmx image type. To indicate
+   that the resulting virtual disk system image should be part of an ISO and the later install CD,
+   set the attribute format with the value of <literal>iso</literal>. The system image description
+   requires the following type specification:</para>
+
+  <screen>
 &lt;preferences&gt;
   &lt;type filesystem="ext3" boot="oemboot/suse-... format="iso"&gt;vmx&lt;/type&gt;
   ...
 &lt;/preferences&gt;
 </screen>
-   To indicate that the resulting virtual disk system image should
-   be part of a installation virtual disk which can be dumped on an USB
-   stick the value <emphasis>usb</emphasis> must be set. Referring to this the
-   system image description needs the following type specification:
-<screen>
+
+
+  <para>To indicate that the resulting virtual disk system image should be part of a installation
+   virtual disk which can be dumped on an USB stick, the value <literal>usb</literal> must be
+   set.The system image description requires the following type specification:</para>
+
+  <screen>
 &lt;preferences&gt;
   &lt;type filesystem="ext3" boot="oemboot/suse-... format="usb"&gt;vmx&lt;/type&gt;
   ...
 &lt;/preferences&gt;
 </screen>
-   Referring to the information above the following KIWI commands needs
-   to be called to create an install ISO image:
-  </para>
-<screen>
+
+
+  <para>Use the following KIWI commands to create an install ISO image:</para>
+
+  <screen>
 kiwi --prepare /path/to/the/system/image/description --root /tmp/myRoot
 kiwi --create /tmp/myRoot
 </screen>
-  <para>
-   The command will create a bootable ISO image which only needs to be burned
-   on a CD. KIWI will inform the user about the file name to be burned on CD
-   or DVD. 
-  </para>
+
+
+  <para>The command creates a bootable ISO image which should be burned on a CD. KIWI informs the
+   user about the file name to be burned on CD or DVD. </para>
  </sect2>
+ <sect2 id="sec.kiwi.deploying.usb">
+  <title>USB Stick System</title>
+  <remark>Author: Jan-Christoph Bornschlegel</remark>
+  <para>It has become popular to store complete operating systems on a USB stick. All required
+   system and user data is stored completely on the stick.</para>
+  <para>This tutorial explains how to create a bootable USB system on a concrete device. Several
+   assumptions are made, and the process is described step-by-step. This section also includes an
+   overview of known problems to help you avoid false positives. </para>
+  <itemizedlist role="subtoc">
+   <listitem>
+    <para>
+     <xref linkend="sec.kiwi.deploying.usb.assumptions" xrefstyle="HeadingOnPage"/>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <xref linkend="sec.kiwi.deploying.usb.workflow" xrefstyle="HeadingOnPage"/>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <xref linkend="sec.kiwi.deploying.usb.configxml" xrefstyle="HeadingOnPage"/>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <xref linkend="sec.kiwi.deploying.usb.prepare" xrefstyle="HeadingOnPage"/>
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     <xref linkend="sec.kiwi.deploying.usb.modify" xrefstyle="HeadingOnPage"/>
+    </para>
+   </listitem>
+  </itemizedlist>
+  <sect3 id="sec.kiwi.deploying.usb.assumptions">
+   <title>Assumptions</title>
+   <itemizedlist mark="bullet" spacing="normal">
+    <listitem>
+     <para>A bootable USB image is the result.</para>
+    </listitem>
+    <listitem>
+     <para>Either openSUSE or a compatible Linux derivative is available on the build host.</para>
+    </listitem>
+    <listitem>
+     <para>The latest version of KIWI is installed, with the following required packages:</para>
+     <itemizedlist mark="bullet" spacing="normal">
+      <listitem>
+       <para>
+        <filename>kiwi</filename>
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        <filename>kiwi-desc-isoboot</filename>
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        <filename>kiwi-desc-livesystem</filename>
+       </para>
+      </listitem>
+     </itemizedlist>
+    </listitem>
+   </itemizedlist>
+   <para>You can download and install these packages from the openSUSE BuildService, or you can
+    obtain the latest svn snapshot from svn.berlios.de.</para>
+   <procedure id="bc4954d">
+    <step id="bc4954e" performance="required">
+     <para>Check out the latest version from svn.berlios.de.</para>
 
- <sect2 id="sec.kiwi.deploying.usb" lang="en">
-	<sect2info>
-		<author>
-			<firstname>Jan-Christoph</firstname>
-			<surname>Bornschlegel</surname>
-		</author>
-	</sect2info>
-  <title>USB stick system</title>
-  <para>
-		A very popular method is storing complete operating systems on an USB
-		stick.
-		This means that all required system and user data is stored completely on the stick.
-	</para>
-	<para>
-		This tutorial explains what must be done to be able to create a bootable USB system on a concrete device.
-		Several assumptions are made and upon those the process is decribed step by step.
-		In a final section there will be an overview about known problems to avoid false positives.
-	</para>
+     <screen>
+svn co https://<replaceable>anonymous</replaceable>@svn.berlios.de/svnroot/repos/kiwi/kiwi-head
+</screen>
 
-	<sect3 id="sec.kiwi.deploying.usb.assumptions" lang="en">
-		<title>Assumptions</title>
-		<para>
-			<itemizedlist>
-				<listitem>
-					<para>
-						A bootable USB image shall be the result
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Either openSUSE or compatible Linux derivate is available on the build host.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						The latest version of KIWI is installed.
-						This is the following three packages are required:
-					</para>
-					<para>
-						<itemizedlist>
-							<listitem>
-								<para>kiwi</para>
-							</listitem>
-							<listitem>
-								<para>kiwi-desc-isoboot</para>
-							</listitem>
-							<listitem>
-								<para>kiwi-desc-livesystem</para>
-							</listitem>
-						</itemizedlist>
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						If this is not the case there are two options: downloading these packages and install them from openSUSE BuildService or obtaining the latest svn snapshot from <systemitem class="server">svn.berlios.de</systemitem>
-						<itemizedlist>
-							<listitem>
-								<para>
-									checkout the latest version from svn.berlios.de
-									<screen>svn co https://anonymous@svn.berlios.de/svnroot/repos/kiwi/kiwi-head</screen>
-									Of course "anonymous" can be replaced by a valid BerliOS account if available.
-								</para>
-							</listitem>
-							<listitem>
-								<para>Check if the packages <filename>kiwi-desc-isoboot</filename>, <filename>kiwi-desc-livesystem</filename> and <filename>kiwi-desc-usbboot</filename> are installed
-								<screen>rpm -qa kiwi*</screen>
-								</para>
-							</listitem>
-							<listitem>
-								<para>Change directory to the kiwi checkout dir (where the makefile resides) and execute
-								<screen>make &amp;&amp; [sudo] make install</screen>
-								To perform the install step root privileges are required because files are copied to <filename class="directory">/usr/share/kiwi</filename> and <filename class="directory">/usr/sbin</filename>.
-								It may be necessary to add the sudo command prefix if the commands before are run as normal user.
-								</para>
-							</listitem>
-							<listitem>
-								<para>
-									Create a working directory (recommended in <varname>$HOME</varname>), for example <filename class="directory">configs</filename> and check out the image descriptions from <systemitem class="server">forgesvn1.novell.com</systemitem>:
-									<screen>svn co https://forgesvn1.novell.com/svn/opensuse/trunk/distribution/images <filename class="directory">configs</filename></screen>
-								</para>
-							</listitem>
-						</itemizedlist>
-					</para>
-				</listitem>
-			</itemizedlist>
-			After this procedure kiwi is installed as <filename>/usr/sbin/kiwi</filename> and the image descriptions reside in <filename class="directory">/usr/share/kiwi/images/</filename>.
-			Caveat: those subdirectories contain files called <filename>config.xml</filename>.
-			Those files are used by <command>kiwi</command> internally and must not be modified for whatever reason.
-			Caveat: if <command>kiwi</command> is installed from subversion repository, it does not show up as installed package.
-			The rpm files contain dependencies that have to be resolved manually in that case.
-			A list of dependencies is collected in the <filename>README</filename> in the base directory of the KIWI repository.
-		</para>
-	</sect3>
+     <para>Replace <replaceable>anonymous</replaceable> with a valid BerliOS account if one is
+      available.</para>
+    </step>
+    <step id="bc495lo" performance="required">
+     <para>Make sure that the <filename>kiwi-desc-isoboot</filename>,<filename>
+      kiwi-desc-livesystem</filename>, and <filename> kiwi-desc-usbboot</filename> packages are
+      installed. </para>
 
-	<sect3 id="sec.kiwi.deploying.usb.workflow" lang="en">
-	<title>Workflow</title>
-	<para>
-		The main workflow consitst of three consecutive comamnds shown in [lst:workflow].
-		<screen>kiwi -r &lt;rootdir&gt; --prepare &lt;imagedir&gt;
+     <screen>
+rpm -qa kiwi*
+</screen>
+
+    </step>
+    <step id="bc496bm" performance="required">
+     <para>Cd to the kiwi checkout directory (where the makefile resides), then execute the
+      following:</para>
+
+     <screen>make &amp;&amp; [sudo] make install</screen>
+
+
+     <para><systemitem>Root</systemitem> privileges are required to perform the install step because
+      files are copied to <filename>/usr/share/kiwi</filename> and <filename>/usr/sbin</filename>.
+      It might be necessary to add the sudo command prefix if the previous commands were run as a
+      normal user.</para>
+    </step>
+    <step id="bc496i2" performance="required">
+     <para>Create a working directory (recommended in <literal>$HOME</literal>), for example
+       <filename>configs</filename>, and check out the image descriptions from forgesvn1.novell.com.</para>
+
+     <screen>svn co https://forgesvn1.novell.com/svn/opensuse/trunk/distribution/images <filename>configs</filename></screen>
+
+
+    </step>
+   </procedure>
+   <para>After this procedure, KIWI is installed as <filename>/usr/sbin/kiwi</filename>, and the
+    image descriptions in <filename>/usr/share/kiwi/images/</filename>. These subdirectories contain
+     <filename>config.xml</filename> files, which are used by the <command>kiwi</command> command
+    internally, and must not be modified for any reason. If <command>kiwi</command> is installed
+    from the subversion repository, it will not show up as an installed package. The rpm files
+    contain dependencies that must be resolved manually. A list of dependencies is collected in the
+     <filename>README</filename> file in the base directory of the KIWI repository.</para>
+  </sect3>
+  <sect3 id="sec.kiwi.deploying.usb.workflow">
+   <title>Workflow</title>
+   <para>The main workflow consists of three consecutive commands shown in the following example:</para>
+
+   <screen>kiwi -r &lt;rootdir&gt; --prepare &lt;imagedir&gt;
 kiwi --create &lt;rootdir&gt; --type usb -d &lt;outputdir&gt;
 kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
      --bootstick-system &lt;outputdir&gt;/&lt;imagefile&gt;;</screen>
 
-		In this listing the terms in braces have the following meaning and requirements:
-		<variablelist>
-			<title>Explanation of options</title>
-			<varlistentry>
-				<term>rootdir</term>
-				<listitem>
-				<para>
-					The directory where the installed system is created. This directory is created by <command>kiwi</command>; if it existed before, <command>kiwi</command> exits with a warning message.
-				</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>imagedir</term>
-				<listitem>
-				<para>
-					This is the directory where your (heavily edited) <filename>config.xml</filename> file resides.
-				</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>outputdir</term>
-				<listitem>
-				<para>
-					This directory is used for the generated output files which are the following:
-					<itemizedlist>
-						<listitem>
-							<para>initrd-*.gz</para>
-						</listitem>
-						<listitem>
-							<para>initrd-*.kernel</para>
-						</listitem>
-						<listitem>
-							<para>initrd-*.kernel.&lt;version&gt;.&lt;type&gt;</para>
-						</listitem>
-						<listitem>
-							<para>initrd-*.md5 -- the MD5 checksum</para>
-						</listitem>
-						<listitem>
-							<para>initrd-*.stickboot</para>
-						</listitem>
-						<listitem>
-							<para>&lt;imagefile&gt; as named in first line of <filename>config.xml</filename>, for example <filename>USB-Image-suse-10.3-Alpha5-Plus-&lt;arch&gt;-&lt;version&gt;</filename></para>
-						</listitem>
-						<listitem>
-							<para>imagefile's md5 sum</para>
-						</listitem>
-					</itemizedlist>
-				</para>
-				</listitem>
-			</varlistentry>
-		</variablelist>
-		There are several corners where the user can modify the image creation.
-		Those are explained in the respecitve sections where the interaction makes sense.
-		</para>
-	</sect3>
 
-	<sect3 id="sec.kiwi.deploying.usb.configxml" lang="en">
-	<title>Preparation of <filename>config.xml</filename></title>
-	<para>
-		Several changes can and must be made to the <filename>config.xml</filename> file delivered with the package <filename>kiwi-desc-livesystem</filename>.
-		First of all the correct installation source must be used.
-		In SuSE internal builds the FACTORY tree is used which can be accessed by NFS at <filename class="directory">/mounts/machcd2/factory/FACTORY/inst-source/</filename>.
+   <para>In this example, the terms in braces (&lt; >) have the following meaning and
+    requirements: </para>
+   <variablelist>
+    <title>Explanation of Options</title>
+    <varlistentry id="bc4moae">
+     <term>rootdir</term>
+     <listitem>
+      <para>Specifies the directory where the installed system is created. This directory is created
+       by the <command>kiwi</command> command. If it existed previously, before,
+       <command>kiwi</command> exits with a warning message.</para>
+     </listitem>
+    </varlistentry>
+    <varlistentry id="bc4mpag">
+     <term>imagedir</term>
+     <listitem>
+      <para>Specifies the location of your edited <filename>config.xml</filename> file.</para>
+     </listitem>
+    </varlistentry>
+    <varlistentry id="bc4mqbi">
+     <term>outputdir</term>
+     <listitem>
+      <para>Specifies the location of the following generated output files:</para>
+      <itemizedlist mark="bullet" spacing="normal">
+       <listitem>
+        <para>
+         <filename>initrd-*.gz</filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         <filename>initrd-*.kernel</filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         <filename>initrd-*.kernel.&lt;<replaceable>version</replaceable>>;&lt;<replaceable>type</replaceable>></filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         <filename>initrd-*.md5 -- the MD5 checksum</filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         <filename>initrd-*.stickboot</filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para><filename>&lt;<replaceable>imagefile</replaceable>></filename> as named in the
+         first line of <filename>config.xml</filename></para>
+        <para>For example:
+         <filename>USB-Image-suse-10.3-Alpha5-Plus-&lt;arch>-&lt;version></filename></para>
+       </listitem>
+       <listitem>
+        <para>imagefile's md5 sum</para>
+       </listitem>
+      </itemizedlist>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+   <para>There are several areas where the user can modify the image creation. These areas are
+    explained in the respective sections where the interaction makes sense.</para>
+  </sect3>
+  <sect3 id="sec.kiwi.deploying.usb.configxml">
+   <title>Preparing <filename>config.xml</filename></title>
+   <para>Several changes should be made to the <filename>config.xml</filename> file delivered with
+    the <filename>kiwi-desc-livesystem</filename> package. For example, the correct installation
+    source must be used. In SuSE internal builds, the FACTORY tree, which can be accessed by NFS at
+     <filename>/mounts/machcd2/factory/FACTORY/inst-source/</filename>, is used. If FACTORY is
+    broken, you can use another installation source, such as
+     <filename>/mounts/dist/install/SLP/openSUSE-10.3-LATEST-DVD/i386/DVD1</filename>.Unfortunately,
+    there are no <filename>squashfs</filename> and <filename>aufs</filename> packages in this tree,
+    so you will have to import these packaged from another location.</para>
+   <para>If necessary, you can declare multiple installation sources. Any folder containing multiple
+    RPM files that must be installed additionally (which are not already contained in a repository)
+    can be added as a repository. A sample configuration file is shown here: </para>
 
-		If -- for some reason -- factory is broken, another installation source can be used instead.
-		The most recent image uses <filename class="directory">/mounts/dist/install/SLP/openSUSE-10.3-LATEST-DVD/i386/DVD1</filename> as source.
-		Unfortunately there are no <package>squashfs</package> and <package>aufs</package> packages in this tree so these have to be imported from elsewhere.
 
-		It is possible to declare multiple installation sources if necessary.
-		Any folder containing several RPM files that have to be installed additionally (which are not contained in a repository already) can be added as repository.
-		This might be the latest version of some super cool new package that shall be tested in a live system or deployed within a company wide installation.
-
-		An example configuration file is shown in [\vref{lst:config-xml-example}].
-
-
-<!--\begin{lstlisting}[language=xml, label={lst:config-xml-example}, caption={\textit{config.xml} File}]-->
-		<screen id="config.xml.example">&lt;image name="USB-Image-suse-10.3-Alpha5plus"&gt;
+   <!--\begin{lstlisting}[language=xml, label={lst:config-xml-example}, caption={\textit{config.xml} File}]-->
+   <screen id="config.xml.example">&lt;image name="USB-Image-suse-10.3-Alpha5plus"&gt;
 	&lt;description type="system"&gt;
 		&lt;author&gt;Jan-Christoph Bornschlegel&lt;/author&gt;
 		&lt;contact&gt;jcbornschlegel@novell.com&lt;/contact&gt;
@@ -581,74 +587,92 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
     &lt;/packages&gt;
 &lt;/image&gt;</screen>
 
-		</para>
+   <para>First, the image needs a name, which sets the filename mentioned in <xref
+     linkend="sec.kiwi.deploying.usb.workflow" xrefstyle="HeadingOnPage"/> as &lt;imagename>
+    (line 1). Then set the author and contact information. Lines 9-11 set the respective
+    configurations for the desired image type. To use a specific type, the folder
+     <filename>/usr/share/kiwi/image/&lt;type entry></filename> must already exist. You might
+    have to check out additional modules or install additional
+    <filename>kiwi-desc-&lt;type></filename> packages.</para>
+   <para>The <option>version</option> tag in line 12 is added to the image's filename. The
+     <option>size</option> option mentioned in line 13 is the size to which the stick's filesystem
+    is expanded at first boot. The additional installation source (in this case, a plain directory
+    containing some RPM files) is added in lines 28-20.</para>
+   <para>The majority of changes are made in the &lt;package name"..."/&gt; section. The
+     <varname>&lt;package name="something"/&gt;</varname> tag adds the
+    &lt;something-*.rpm&gt; package to the installation, where "*" is a mix of version
+    number and architecture. The <varname>&lt;opensusePattern
+    name="somepattern"/&gt;</varname> tag adds all packages required by the
+    &lt;somepattern&gt; pattern to the installation. The <varname>&lt;ignore
+     name="someignoredpackage"/&gt;</varname> tag omits the &lt;someignoredpackage&gt;
+    package. This is an ugly method used to resolve pattern bugs. It happens when a pattern requires
+    a package that cannot be resolved because it does not exist in the given installation sources
+    (or the name changed). If this happens, the <varname>prepare</varname> step must be repeated
+    (see <xref linkend="sec.kiwi.deploying.usb.prepare" xrefstyle="HeadingOnPage"/> for more
+    information).</para>
 
-		<para>
-		First the image needs a name - which sets the file name mentioned in <xref linkend="sec.kiwi.deploying.usb.workflow"/> as &lt;imagename&gt; (line 1).
-		Then set author and contact information accordingly.
-		
-		Lines 9-11 set the respective configs for the desired image type.
-		In order to use a specific type, the folder <filename class="directory">/usr/share/kiwi/image/&lt;type entry&gt;</filename> must exist.
-		You may have to check out additional modules or install additional <package>kiwi-desc-&lt;type&gt;</package> packages.
-		The <varname>version</varname> tag in line 12 is added to the image's filename.
-		
-		The <option>size</option> mentioned in line 13 is the size to which the stick's filesystem is expanded at first boot.
-		
-		As mentioned above the additional installation source - in my particular case a plain directory containing some RPM files - is added here in lines 28-20.
-		
-		The most changes will be made in the &lt;package name"..."/&gt; section.
-		The tag <varname>&lt;package name="something"/&gt;</varname> adds the package &lt;something-*.rpm&gt; to the installation whereby "*" will be a mix or version number and architecture.
-		The tag <varname>&lt;opensusePattern name="somepattern"/&gt;</varname> adds all packages required by the pattern &lt;somepattern&gt; to the installation.
-		The tag <varname>&lt;ignore name="someignoredpackage"/&gt;</varname> omits the package &lt;someignoredpackage&gt;.
-		
-		The latter is an ugly method to resolve pattern bugs.
-		It happens that a pattern requires some package that cannot be resolved because it does not exist in the given installation sources or the name changed or something like that.
-		If this happens, the <varname>prepare</varname> step has to be repeated.
-		</para>
-	</sect3>
+  </sect3>
+  <sect3 id="sec.kiwi.deploying.usb.prepare">
+   <title>Preparing the Installation Source Directory</title>
+   <para>The prepare step collects all packages listed in the <filename>config.xml</filename> file
+    and all packages required by the included patterns. Use the <option>-r</option> option to
+    specify the target directory which is created by <command>kiwi</command>. An error message is
+    reported if the directory already exists.</para>
+   <para>This step reveals all pattern problems and missing packages. Unfortunately, these issues
+    must be fixed manually using the techniques described below. Unresolved dependencies can be a
+    severe problem because it shows that some package should be in the installation source but are
+    not. In that case, several solutions are possible: </para>
+   <itemizedlist mark="bullet" spacing="normal">
+    <listitem>
+     <para>Find the package somewhere else and put it in using the <literal>&lt;package
+       name="..."/></literal> tag.</para>
+    </listitem>
+    <listitem>
+     <para>If a lot of packages are missing, and all of them can be found in the same repository,
+      use the <literal>&lt;repository type="..."> ...&lt;/repository></literal> tags.</para>
+    </listitem>
+    <listitem>
+     <para>The packages can be stored in a local directory, and that directory can be declared as an
+      additional installation source of the type �rpm-dir� (plain RPM directory). In that case, the
+      line looks like this:</para>
 
-	<sect3 id="sec.kiwi.deploying.usb.prepare" lang="en">
-	<title>Prepareing the Installation Source Directory</title>
-
-	<para>
-		The prepare step collects all packages as listed in the <filename>config.xml</filename> file and all packages required by the patterns included.
-		With the <option>-r</option> option the target directory is specified which will be created by <command>kiwi</command> (and reports an error message if it already exists).
-		Important at that time is that this step reveals all pattern problems and missing packages.
-		Unfortunately these things have to be fixed manually using several techniques described below.
-		
-		Unresolved dependencies are a severe problem because it shows that some package should be in the installation source but are not.
-		In that case several solutions are possible: find the package somewhere else and put it in using the &lt;package name="..."/&gt; tag;
-		if a lot of packages are missing and all of them can be found in the same repository then this particular one should be added using the &lt;repository type="..."&gt; ... &lt;/repository&gt; tags.
-		
-		Otherwise the packages could be stored in a local directory and that directory could be daclared as additional installation source of the type "rpm-dir" (plain RPM directory).
-		In that case the line looks like this:
-		<screen>&lt;repository type="rpm-dir"&gt;
+     <screen>&lt;repository type="rpm-dir"&gt;
 &lt;source path="/some/directory/where/be/RPMS/"/&gt;
 &lt;/repository&gt;</screen>
 
-	</para>
-	</sect3>
 
+    </listitem>
+   </itemizedlist>
+  </sect3>
+  <sect3 id="sec.kiwi.deploying.usb.modify">
+   <title>Modifying the Installation Source Directory</title>
+   <para>After the <option>--prepare</option> step is successfully completed, the installation
+    source can be modified further. You can always perform a <command>chroot</command> command, then
+    install packages using <command>smart</command> or <command>rpm</command>. The rpms must be
+    accessible through the available channels, which means that you can add anything listed in the
+    repositories declared in the <filename>config.xml</filename> file, or you can copy (or hardlink)
+    them somewhere in the chroot environment before you chrooting there.</para>
+   <para>Be aware that the <command>smart</command> command cannot resolve certain dependencies. Foe
+    example, if you have the packages <filename>yast2-control-center</filename> and
+     <filename>yast2-control-center-qt</filename> copied or linked to
+     <filename>&lt;rootdir>;/tmp</filename>, you can install by calling the following commands:</para>
 
-	<sect3 id="sec.kiwi.deploying.usb.modify" lang="en">
-	<title>Modifying the Installation Source Directory</title>
-		<para>
-After the <option>--prepare</option> step completed successfully, the installation source can be modified further.
-You can always perform a <command>chroot</command> command and then install packages using <command>smart</command> (or <command>rpm</command>).
-There is just one obstacle: the rpms must be accessible through the available channels (which means you can add anything which is in the repositories declared in the <filename>config.xml</filename> file) or you must copy (or hardlink) them somewhere in the chroot environment before actually chrooting there.
-Also <command>smart</command> cannot resolve certain dependencies.
-If there were the packages <package>yast2-control-center</package> and <package>yast2-control-center-qt</package> copied or linked to <filename class="directory">&lt;rootdir&gt;/tmp</filename> for example, you can install by calling the following commands:
-<screen id="invoke-smart-in-chroot">cp /some/directory/where/be/RPMS/yast2-* &lt;rootdir&gt;/tmp
+   <screen id="invoke-smart-in-chroot">cp /some/directory/where/be/RPMS/yast2-* &lt;rootdir&gt;/tmp
 chroot &lt;rootdir&gt;
 smart install /tmp/yast2-control-center /tmp/yast2-control-center-qt</screen>
 
-If only the latter would be installed <command>smart</command> does not find the first one cwalthough it requires the first.
-This is the reason why it is necessary to specify both.
-All of the repositories specified in the configuration file are added as smart channels and any package within those can be installed after the prepare step manually if necessary. 
-It is also possible to uninstall packages again if the image becomes too large for instance.
-		</para>
-	</sect3>			
-<!--
+
+   <para>If you install only <filename>yast2-control-center-qt</filename>, <command>smart</command>
+    will not find <filename>yast2-control-center</filename> although it is required. This is why it
+    is necessary to specify both packages if you use <command>smart</command>. </para>
+   <para>All of the repositories specified in the configuration file are added as
+    <command>smart</command> channels, and any package within these channels can be manually
+    installed after the prepare step if necessary. You can also uninstall packages if the image
+    becomes too large. </para>
+
+  </sect3>
+
+  <!--
 
 %============================================
 % SUBSECTION
@@ -718,116 +742,102 @@ It can happen with some installation sources that several packages are missing.
 -
 -->
 
-	</sect2>
+ </sect2>
+ <sect2 id="sec.kiwi.deploying.virtual">
+  <title>Using a Virtual Disk System (QEMU or VMware)</title>
+  <para>To use a virtualized system, you must first create a virtual disk. You can do this by
+   specifying the following <literal>type</literal> in the system's image
+   <filename>config.xml</filename> file:</para>
 
- <sect2 id="sec.kiwi.deploying.virtula">
-  <title>Virtual disk system (QEMU or VMware)</title>
-  <para>
-   To be able to use a virtualization system a virtual disk needs to be
-   created. This can be done by specifying the following type in the system's
-   image <filename>config.xml</filename>:
-  </para>
-<screen>
+  <screen>
 &lt;preferences&gt;
   &lt;type filesystem="ext3" boot="vmxboot/suse-10.2"&gt;vmx&lt;/type&gt;
   ...
 &lt;/preferences&gt;</screen>
-  <para>
-   After this the system image can be created. The process will create the
-   system image and the specified vmxboot/suse-10.2 boot image. The result is
-   then used to create the virtual disk. The following command needs to be
-   called:
-  </para>
-<screen>
+
+
+  <para>After you do this, you can create the system image. The process creates the system image and
+   the specified boot image (<filename>vmxboot/suse-10.2</filename> in our example). The result is
+   then used to create the virtual disk. To create the system image, use the following command:</para>
+
+  <screen>
 kiwi --prepare my-example-suse-10.2 --root /tmp/mysystem
 kiwi --create /tmp/mysystem -d /tmp</screen>
-  <para>
-   The result of the command above is a set of virtual disks, one with suffix
-   <filename>.qemu</filename> (QEMU) and the other with the suffix
-   <filename>.vmdk</filename> (VMware). To run the system on the virtual disk
-   with for example qemu call:
-  </para>
-<screen>
-qemu /tmp/my-example-suse-10.2.i686-1.1.2.qemu</screen>
+
+
+  <para>The result of this command is a set of virtual disks, one with a <filename>.qemu</filename>
+   suffix (QEMU), and one with a <filename>.vmdk</filename> suffix (VMware). To run the system on
+   the virtual disk (with qemu as the example), use the following:</para>
+
+  <screen>
+qemu /tmp/my-example-suse-10.2.i686-1.1.2.qemu
+</screen>
+
  </sect2>
  <sect2 id="sec.kiwi.deploying.xen">
-  <title>Para Virtual Image for Xen</title>
-  <para>
-   To be able to use an image within Xen a system image and an
-   <filename>initrd</filename> file needs to be created. This can be done by
-   specifying the following type in the system's image
-   <filename>config.xml</filename>:
-  </para>
-<screen>
+  <title>Using a Paravirtual Image with Xen</title>
+  <para>To use an image within Xen, create a system image and an <filename>initrd</filename> file.
+   You can do this by specifying the following <literal>type</literal> in the system's image
+    <filename>config.xml</filename> file:</para>
+
+  <screen>
 &lt;preferences&gt;
   &lt;type filesystem="ext3" boot="xenboot/suse-10.2"&gt;xen&lt;/type&gt;
   ...
 &lt;/preferences&gt;</screen>
-  <para>
-   After this the system image can be created. The process will create the
-   system image and the specified xenboot/suse-10.2 boot image. Additionally
-   an appropriate Xen configuration file will be created. The config file will
-   use the <filename>.xenconfig</filename> suffix. The following command needs
-   to be called:
-  </para>
-<screen>
+
+
+  <para>After you do this, you can create the system image. The process creates the system image and
+   the specified boot image (<filename>xenboot/suse-10.2</filename> in our example). An appropriate
+   Xen configuration file, with a <filename>.xenconfig</filename> suffix, is also created. To create
+   the system image, use the following command:</para>
+
+  <screen>
 kiwi --prepare my-example-suse-10.2 --root /tmp/mysystem
 kiwi --create /tmp/mysystem -d /tmp</screen>
-  <para>
-   To run the system within Xen one need to call:
-  </para>
-<screen>
+
+
+  <para>To run the system within Xen, use the following command: </para>
+
+  <screen>
 xm create -c /tmp/my-example-suse-10.2.i686-1.1.2.xenconfig
 </screen>
+
+
  </sect2>
  <sect2 id="sec.kiwi.deploying.live">
-  <title>Live CD system</title>
-  <para>
-   LiveDistro or Live CD is a generic term for an operating system
-   distribution that is executed upon boot, without installation on a
-   hard drive. Typically, it is stored on a bootable medium, such as a
-   CD-ROM (Live CD), DVD (Live DVD). The term "live" derives from the
-   fact that these distributions are a complete, runnable—i.e.,
-   "live"—instance of the operating system residing on the distribution
-   medium, rather than the typical case of a collection of packages that
-   must first be installed on the target machine before using the OS.
-  </para>
-  <para>
-   A LiveDistro does not alter the current operating system or files
-   unless the user specifically requests it. The system returns to
-   its previous state when the LiveDistro is ejected and the computer
-   is rebooted. It does this by placing the files that typically would
-   be stored on a hard drive into temporary memory, such as a ram disk.
-   In fact, a hard drive is not needed at all. However, this does cut
-   down on the RAM available to applications, reducing performance somewhat.
-  </para>
-  <sect3 id="sec.kiwi.deploying.live.setup">
-   <title>How to Setup an Image as Live CD</title>
-   <para>
-    To create an .iso image which can be burned on CD you only need to specify
-    the boot image which should handle your live system. This is done by
-    setting the <literal>type</literal> of the image in the
-    <filename>config.xml</filename> file as follows:
-   </para>
-<screen>
+  <title>Using a Live CD System</title>
+  <para>LiveDistro or Live CD is a generic term for an operating system distribution that is
+   executed upon boot, without installation, on a hard drive. Typically, it is stored on a bootable
+   medium, such as a CD-ROM (Live CD) or DVD (Live DVD). The term �live� comes from the fact that
+   these distributions are a complete, runnable (that is, �live�) instance of the operating system
+   residing on the distribution medium, rather than the typical collection of packages that must
+   first be installed on the target machine before using the operating system.</para>
+  <para>A LiveDistro does not alter the current operating system or files unless the user
+   specifically requests it. The system returns to its previous state when the LiveDistro is ejected
+   and the computer is rebooted. It does this by placing the files that are typically stored on the
+   hard drive into temporary memory, such as a RAM disk. In fact, a hard drive is not needed at all.
+   However, the lack of a hard drive cuts down on the RAM available to applications, which can
+   reduce performance.</para>
+  <para>To create an <filename>.iso</filename> image that can be burned on CD, specify the boot
+   image that should handle your live system. You can do this by setting the <literal>type</literal>
+   of the image in the <filename>config.xml</filename> file as follows:</para>
+
+  <screen>
 &lt;preferences&gt;
   &lt;type boot="isoboot/suse-10.3"&gt;iso&lt;/type&gt;
   ...
 &lt;/preferences&gt;</screen>
-   <para>
-    The attribute <literal>boot</literal> refers to the CD boot image which
-    must exist in <filename>/usr/share/kiwi/image/isoboot</filename>. Like for
-    all boot images the most important point is that the boot image has to
-    match the operating system image. This means the kernel of the boot- and
-    operating system image must be the same. If there is no boot image which
-    matches you need to create your own boot image description. A good
-    starting point for this is to use an existing boot image and adapt it to
-    your needs.
-   </para>
-  </sect3>
+
+
+  <para>The <literal>boot</literal> attribute specifies the CD boot image which must exist in
+    <filename>/usr/share/kiwi/image/isoboot</filename>. As with all boot images, the most important
+   point is that the boot image must match the operating system image. This means that the kernel of
+   the boot and operating system image must be the same. If you don�t have a boot image that matches
+   your operating system image, you should create your own boot image description. You can use an
+   existing boot image and adapt it to your needs.</para>
  </sect2>
 </sect1>
-
 <!-- Keep this comment at the end of the file
 Local variables:
 coding:utf-8
