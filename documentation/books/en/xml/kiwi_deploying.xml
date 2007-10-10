@@ -220,9 +220,7 @@ COMBINED_IMAGE=yes</screen>
     <para>Create a <filename>config.&lt;<replaceable>MAC</replaceable>></filename> file in
       <filename>/srv/tftpboot/KIWI</filename> with the following contents:</para>
 
-    <screen>
-NFSROOT=129.168.100.7;/tmp/kiwi.nfsroot
-</screen>
+    <screen>NFSROOT=129.168.100.7;/tmp/kiwi.nfsroot</screen>
 
    </step>
    <step id="bc484by" performance="required">
@@ -247,33 +245,26 @@ NFSROOT=129.168.100.7;/tmp/kiwi.nfsroot
    set the attribute format with the value of <literal>iso</literal>. The system image description
    requires the following type specification:</para>
 
-  <screen>
-&lt;preferences&gt;
+  <screen>&lt;preferences&gt;
   &lt;type filesystem="ext3" boot="oemboot/suse-... format="iso"&gt;vmx&lt;/type&gt;
   ...
-&lt;/preferences&gt;
-</screen>
+&lt;/preferences&gt;</screen>
 
 
   <para>To indicate that the resulting virtual disk system image should be part of a installation
    virtual disk which can be dumped on an USB stick, the value <literal>usb</literal> must be
    set.The system image description requires the following type specification:</para>
 
-  <screen>
-&lt;preferences&gt;
+  <screen>&lt;preferences&gt;
   &lt;type filesystem="ext3" boot="oemboot/suse-... format="usb"&gt;vmx&lt;/type&gt;
   ...
-&lt;/preferences&gt;
-</screen>
+&lt;/preferences&gt;</screen>
 
 
   <para>Use the following KIWI commands to create an install ISO image:</para>
 
-  <screen>
-kiwi --prepare /path/to/the/system/image/description --root /tmp/myRoot
-kiwi --create /tmp/myRoot
-</screen>
-
+  <screen>kiwi --prepare /path/to/the/system/image/description --root /tmp/myRoot
+kiwi --create /tmp/myRoot</screen>
 
   <para>The command creates a bootable ISO image which should be burned on a CD. KIWI informs the
    user about the file name to be burned on CD or DVD. </para>
@@ -361,9 +352,7 @@ svn co https://<replaceable>anonymous</replaceable>@svn.berlios.de/svnroot/repos
       kiwi-desc-livesystem</filename>, and <filename> kiwi-desc-usbboot</filename> packages are
       installed. </para>
 
-     <screen>
-rpm -qa kiwi*
-</screen>
+     <screen>rpm -qa kiwi*</screen>
 
     </step>
     <step id="bc496bm" performance="required">
@@ -749,8 +738,7 @@ It can happen with some installation sources that several packages are missing.
    specifying the following <literal>type</literal> in the system's image
    <filename>config.xml</filename> file:</para>
 
-  <screen>
-&lt;preferences&gt;
+  <screen>&lt;preferences&gt;
   &lt;type filesystem="ext3" boot="vmxboot/suse-10.2"&gt;vmx&lt;/type&gt;
   ...
 &lt;/preferences&gt;</screen>
@@ -760,8 +748,7 @@ It can happen with some installation sources that several packages are missing.
    the specified boot image (<filename>vmxboot/suse-10.2</filename> in our example). The result is
    then used to create the virtual disk. To create the system image, use the following command:</para>
 
-  <screen>
-kiwi --prepare my-example-suse-10.2 --root /tmp/mysystem
+  <screen>kiwi --prepare my-example-suse-10.2 --root /tmp/mysystem
 kiwi --create /tmp/mysystem -d /tmp</screen>
 
 
@@ -769,9 +756,7 @@ kiwi --create /tmp/mysystem -d /tmp</screen>
    suffix (QEMU), and one with a <filename>.vmdk</filename> suffix (VMware). To run the system on
    the virtual disk (with qemu as the example), use the following:</para>
 
-  <screen>
-qemu /tmp/my-example-suse-10.2.i686-1.1.2.qemu
-</screen>
+  <screen>qemu /tmp/my-example-suse-10.2.i686-1.1.2.qemu</screen>
 
  </sect2>
  <sect2 id="sec.kiwi.deploying.xen">
@@ -780,8 +765,7 @@ qemu /tmp/my-example-suse-10.2.i686-1.1.2.qemu
    You can do this by specifying the following <literal>type</literal> in the system's image
     <filename>config.xml</filename> file:</para>
 
-  <screen>
-&lt;preferences&gt;
+  <screen>&lt;preferences&gt;
   &lt;type filesystem="ext3" boot="xenboot/suse-10.2"&gt;xen&lt;/type&gt;
   ...
 &lt;/preferences&gt;</screen>
@@ -792,16 +776,13 @@ qemu /tmp/my-example-suse-10.2.i686-1.1.2.qemu
    Xen configuration file, with a <filename>.xenconfig</filename> suffix, is also created. To create
    the system image, use the following command:</para>
 
-  <screen>
-kiwi --prepare my-example-suse-10.2 --root /tmp/mysystem
+  <screen>kiwi --prepare my-example-suse-10.2 --root /tmp/mysystem
 kiwi --create /tmp/mysystem -d /tmp</screen>
 
 
   <para>To run the system within Xen, use the following command: </para>
 
-  <screen>
-xm create -c /tmp/my-example-suse-10.2.i686-1.1.2.xenconfig
-</screen>
+  <screen>xm create -c /tmp/my-example-suse-10.2.i686-1.1.2.xenconfig</screen>
 
 
  </sect2>
@@ -823,8 +804,7 @@ xm create -c /tmp/my-example-suse-10.2.i686-1.1.2.xenconfig
    image that should handle your live system. You can do this by setting the <literal>type</literal>
    of the image in the <filename>config.xml</filename> file as follows:</para>
 
-  <screen>
-&lt;preferences&gt;
+  <screen>&lt;preferences&gt;
   &lt;type boot="isoboot/suse-10.3"&gt;iso&lt;/type&gt;
   ...
 &lt;/preferences&gt;</screen>
@@ -838,6 +818,7 @@ xm create -c /tmp/my-example-suse-10.2.i686-1.1.2.xenconfig
    existing boot image and adapt it to your needs.</para>
  </sect2>
 </sect1>
+
 <!-- Keep this comment at the end of the file
 Local variables:
 coding:utf-8

@@ -333,8 +333,7 @@
     netboot clients are immediately registered, and a new configuration file with the corresponding
     MAC address is created.</para>
    <para> The following is an example of a cash register configuration file: </para>
-   <screen>
-IMAGE=/dev/hda2;image/browser;1.1.1;192.168.1.1;4096
+   <screen>IMAGE=/dev/hda2;image/browser;1.1.1;192.168.1.1;4096
 CONF=/KIWI/00:30:05:1D:75:D2/ntp.conf;/etc/ntp.conf;192.168.1.1;1024,     \
      /KIWI/00:30:05:1D:75:D2/xorg.xonf;/etc/X11/xorg.xonf;192.168.1.1;1024
 PART=200;S;x,300;L;/,500;L;/opt,x;L;/home
@@ -486,8 +485,7 @@ DISK=/dev/hda</screen>
         <filename>/srv/tftpboot/boot/</filename> directory. Because the TFTP server does a
         <command>chroot</command> into the TFTP server path, you must specify the initrd file as
        follows: </para>
-      <screen>
-KIWI_INITRD=/boot/<replaceable>&lt;name-of-initrd-file&gt;</replaceable></screen>
+      <screen>KIWI_INITRD=/boot/<replaceable>&lt;name-of-initrd-file&gt;</replaceable></screen>
      </listitem>
     </varlistentry>
     <varlistentry>
@@ -500,9 +498,9 @@ KIWI_INITRD=/boot/<replaceable>&lt;name-of-initrd-file&gt;</replaceable></screen
        network client in such a way that the client can mount it read/write. In order to do that,
        the boot image must know the server IP address and the path name where the root directory
        exists on this server. The information must be provided as in the following example: </para>
-      <screen>
-NFSROOT=<replaceable>&lt;NFS.Server.IP.address&gt;</replaceable>;<replaceable>&lt;/path/to/root/tree&gt;</replaceable>
-</screen>
+      <screen>NFSROOT=<replaceable
+        >&lt;NFS.Server.IP.address&gt;</replaceable>;<replaceable
+          >&lt;/path/to/root/tree&gt;</replaceable></screen>
      </listitem>
     </varlistentry>
     <varlistentry>
@@ -519,10 +517,12 @@ NFSROOT=<replaceable>&lt;NFS.Server.IP.address&gt;</replaceable>;<replaceable>&l
         <command>nbd-client</command> command. After this device exists, the
        <command>mount</command> program is used to mount the root filesystem. To allow the KIWI boot
        image to use that, the following information must be provided:
-       <screen>
-NBDROOT=<replaceable>&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable>&lt;NBD-Port-Number&gt;</replaceable>;/dev/<replaceable>&lt;NBD-Device&gt;</replaceable>
-<replaceable>&lt;NBD-Swap-Port-Number&gt;</replaceable>;/dev/<replaceable>&lt;NBD-Swap-Device&gt;</replaceable>
-</screen>
+       <screen>NBDROOT=<replaceable
+         >&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable
+           >&lt;NBD-Port-Number&gt;</replaceable>;/dev/<replaceable
+             >&lt;NBD-Device&gt;</replaceable>
+<replaceable>&lt;NBD-Swap-Port-Number&gt;</replaceable>;/dev/<replaceable
+  >&lt;NBD-Swap-Device&gt;</replaceable></screen>
        The NBD-Device, NBD-Swap-Port-Number, and NBD-Swap-Device variables are optional. If they are
        not set, the default values are used (/dev/nb0 for the NBD-Device, port number 9210 for the
        NBD-Swap-Port-Number, and /dev/nb1 for the NBD-Swap-Device). The swap space over the network
@@ -543,9 +543,7 @@ NBDROOT=<replaceable>&lt;NBD.Server.IP.address&gt;</replaceable>;<replaceable>&l
        filesystem. For a PXE network image, the netboot image requires a
          <filename>config.<replaceable>&lt;MAC&gt;</replaceable></filename> configuration as
        in the following example: </para>
-      <screen>
-UNIONFS_CONFIG=/dev/sda2,/dev/sda3,aufs
-</screen>
+      <screen>UNIONFS_CONFIG=/dev/sda2,/dev/sda3,aufs</screen>
       <para> In this example, the first device <filename>/dev/sda2</filename> represents the
        read/write filesystem, and the second device <filename>/dev/sda3</filename> represents the
        compressed system image filesystem. The container filesystem aufs is used to cover the
@@ -554,8 +552,7 @@ UNIONFS_CONFIG=/dev/sda2,/dev/sda3,aufs
        filesystem. The device specifications in <code>UNIONFS_CONFIG</code> must correspond with the
         <code>IMAGE</code> and <code>PART</code> information. The following example illustrates the
        interconnections: </para>
-      <screen>
-IMAGE=/dev/sda3;image/browser;1.1.1;192.168.1.1;4096
+      <screen>IMAGE=/dev/sda3;image/browser;1.1.1;192.168.1.1;4096
 PART=200;S;x,300;L;/,x;L;x
 UNIONFS_CONFIG=/dev/sda2,/dev/sda3,aufs
 DISK=/dev/sda</screen>
@@ -682,9 +679,7 @@ DISK=/dev/sda</screen>
    configuration file (which references the previously mentioned files). After KIWI finishes the
    image creation process, use the following command:</para>
 
-  <screen>
-xm create -c xen-configuration-file
-</screen>
+  <screen>xm create -c xen-configuration-file</screen>
 
   <para>The primary task of the xenboot boot image is to load the required Xen modules, and to find
    out how the disk appears in the kernel. After this is done, the system can be activated.</para>

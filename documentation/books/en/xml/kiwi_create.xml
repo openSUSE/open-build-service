@@ -28,9 +28,7 @@
     requires at least the path to your system image description and an optional destination
     directory as arguments.</para>
 
-  <screen>
-kiwi --prepare /path_to_description --root /tmp/myroot
-</screen>
+  <screen>kiwi --prepare /path_to_description --root /tmp/myroot</screen>
 
   <para>The result of this step is an operating system which has its root directory below the given
     destination directory (<filename>/tmp/myroot</filename> in this example). After this step, the
@@ -38,9 +36,7 @@ kiwi --prepare /path_to_description --root /tmp/myroot
     This step is called the <emphasis>create</emphasis> step, and requires, at minimum, the path to
     your previously created new root environment and a destination directory for the image files.</para>
 
-  <screen>
-kiwi --create /tmp/myroot --destdir /tmp/myimages
-</screen>
+  <screen>kiwi --create /tmp/myroot --destdir /tmp/myimages</screen>
 
   <para>The destination directory (<filename>/tmp/myimages</filename> in this example) must exist
     before you run the command. KIWI stores all files for the requested image type below this

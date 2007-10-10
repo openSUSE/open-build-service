@@ -17,8 +17,7 @@
  <para> An image description tree is used to create an operating system image from a physical
   extend. It contains the set of files required to generate an image, and is arranged in the
   following order: </para>
- <screen>
- |
+ <screen> |
  |- config.xml
  |- config [optional]
  |   |- package configuration scripts
@@ -33,8 +32,7 @@
  |- config-yast.xml [optional]
  |- config-cdroot.tgz [optional]
  |- root [optional]
-     |- root tree files/directories
-</screen>
+     |- root tree files/directories</screen>
  <sect2 id="sec.kiwi.description.config.xml">
   <title>
    <filename>config.xml</filename>
@@ -49,26 +47,24 @@
     <quote>package script.</quote> This means that the <filename>config.xml</filename> file
    parameters are available as variables that can be sourced via script. This kind of script should
    follow this template (replace <replaceable>name</replaceable> with the actual image name): </para>
-  <screen>
- #!/bin/sh
- test -f /.kconfig &amp;&amp; . /.kconfig test -f /.profile
- test -f /.profile &amp;&amp; . /.profile test -f /.profile
- echo "Configure image: [$name]..."
- ...
- exit 0
-     </screen>
+  <screen>#!/bin/sh
+test -f /.kconfig &amp;&amp; . /.kconfig test -f /.profile
+test -f /.profile &amp;&amp; . /.profile test -f /.profile
+echo "Configure image: [$name]..."
+...
+exit 0</screen>
   <para> This kind of script is called within the image environment, which means that is not
    possible to damage the host system with this script even if you are using absolute paths. </para>
   <para>The following is a sample <filename>config.xml</filename> file:</para>
-  <screen>
-&lt;image name="Name" inherit="optional path" schemeversion="1.4"&gt;<co id="co.kiwi.config.image"/>
+  <screen>&lt;image name="Name" inherit="optional path" schemeversion="1.4"&gt;<co id="co.kiwi.config.image"/>
   &lt;description type="boot|system"&gt;<co id="co.kiwi.config.description"/>
     &lt;author&gt;<replaceable>Author</replaceable>&lt;/author&gt;
     &lt;contact&gt;<replaceable>Contact</replaceable>&lt;/contact&gt;
     &lt;specification&gt;<replaceable>Specification</replaceable>&lt;/specification&gt;
   &lt;/description&gt;
   &lt;preferences&gt;<co id="co.kiwi.config.preferences"/>
-    &lt;type primary="true" boot="..." filesystem="..." flags="..." bootprofile="..."&gt;Type&lt;/type&gt;
+    &lt;type primary="true" boot="..." filesystem="..." flags="..."
+          bootprofile="...">Type&lt;/type>
     &lt;version&gt;<replaceable>Version</replaceable>&lt;/version&gt;
     &lt;size unit="<replaceable>Unit</replaceable>"&gt;<replaceable>Size</replaceable>&lt;/size&gt;
     &lt;packagemanager&gt;<replaceable>Name</replaceable>&lt;/packagemanager&gt;
@@ -82,26 +78,36 @@
     &lt;compressed&gt;Yes|No&lt;/compressed&gt;
   &lt;/preferences&gt;
   &lt;profiles&gt;<co id="co.kiwi.config.profiles"/>
-    &lt;profile name="<replaceable>Name</replaceable>" description="<replaceable>Description</replaceable>"/&gt;
+    &lt;profile name="<replaceable>Name</replaceable>"
+          description="<replaceable>Description</replaceable>"/&gt;
   &lt;/profiles&gt;
   &lt;users group="<replaceable>Groupname</replaceable>"&gt;<co id="co.kiwi.config.users"/>
-    &lt;user name="<replaceable>User</replaceable>" pwd="<replaceable>Password</replaceable>" home="<replaceable>Homedirectory</replaceable>"/&gt;
+    &lt;user name="<replaceable>User</replaceable>" 
+          pwd="<replaceable>Password</replaceable>" home="<replaceable>Homedirectory</replaceable>"/&gt;
   &lt;/users&gt;
-  &lt;drivers type="<replaceable>Type</replaceable>" profiles="<replaceable>Name</replaceable>"&gt;<co id="co.kiwi.config.drivers"/>
+  &lt;drivers type="<replaceable>Type</replaceable>"
+    profiles="<replaceable>Name</replaceable>"&gt;<co id="co.kiwi.config.drivers"/>
     &lt;file name="<replaceable>Filename</replaceable>"/&gt;
   &lt;/drivers&gt;
   &lt;repository type="<replaceable>Type</replaceable>"&gt;<co id="co.kiwi.config.repository"/>
     &lt;source path="<replaceable>Url</replaceable>"/&gt;
   &lt;/repository&gt;
-  &lt;/deploy server="<replaceable>IP address</replaceable>" blocksize="<replaceable>Size</replaceable>"&gt;<co id="co.kiwi.config.deploy"/>
+  &lt;/deploy server="<replaceable>IP address</replaceable>"
+    blocksize="<replaceable>Size</replaceable>"&gt;<co id="co.kiwi.config.deploy"/>
     &lt;partitions device="<replaceable>Devicename</replaceable>"&gt;
-      &lt;partition type="<replaceable>Type</replaceable>" number="<replaceable>Number</replaceable>" size="<replaceable>Size</replaceable>"/&gt;
+      &lt;partition type="<replaceable>Type</replaceable>" 
+          number="<replaceable>Number</replaceable>" size="<replaceable>Size</replaceable>"/&gt;
     &lt;/partitions&gt;
     &lt;union rw="<replaceable>RW-Device</replaceable>" ro="<replaceable>RO-Device</replaceable>" type="aufs|unionfs"/&gt;
-    &lt;configuration source="<replaceable>Source</replaceable>" dest="<replaceable>Destination</replaceable>"/&gt;
+    &lt;configuration source="<replaceable>Source</replaceable>" 
+          dest="<replaceable>Destination</replaceable>"/&gt;
   &lt;/deploy&gt;
-  &lt;packages type="<replaceable>Type</replaceable>" patternType="onlyRequired|plusSuggested|plusRecommended" patternPackageType="onlyRequired|plusSuggested|plusRecommended" profiles="<replaceable>Name</replaceable>"&gt;<co id="co.kiwi.config.packages"/>
-    &lt;package name="<replaceable>Packagename</replaceable>" arch="<replaceable>Arch</replaceable>"/&gt;
+  &lt;packages type="<replaceable>Type</replaceable>"
+          patternType="onlyRequired|plusSuggested|plusRecommended" 
+          patternPackageType="onlyRequired|plusSuggested|plusRecommended" 
+          profiles="<replaceable>Name</replaceable>"&gt;<co id="co.kiwi.config.packages"/>
+    &lt;package name="<replaceable>Packagename</replaceable>" 
+          arch="<replaceable>Arch</replaceable>"/&gt;
     &lt;opensusePattern name="<replaceable>Patternname</replaceable>"/&gt;
     &lt;ignore name="<replaceable>Packagename</replaceable>"/&gt;
   &lt;/packages&gt;
