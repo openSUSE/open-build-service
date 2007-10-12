@@ -443,7 +443,7 @@ class Package < ActiveXML::Base
     # it's necessary because the order of elements is important.
     # wished order:
     element_order = [
-      :title, :description, :person, :disable, :notify, :delete_notify,
+      :title, :description, :person, :build, :publish, :useforbuild, :notify, :delete_notify,
       :url, :group, :license, :keyword, :file
     ]
     until element_order.pop == element or element_order.empty? do end
