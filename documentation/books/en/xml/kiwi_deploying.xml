@@ -387,12 +387,14 @@ svn co https://<replaceable>anonymous</replaceable>@svn.berlios.de/svnroot/repos
   <sect3 id="sec.kiwi.deploying.usb.workflow">
    <title>Workflow</title>
    <para>The main workflow consists of three consecutive commands shown in the following example:</para>
-
+ 
+		<example id="ex.kiwi.deploying.usb.workflow.1">
+    <title>Basic kiwi Commands</title>
    <screen>kiwi -r &lt;rootdir&gt; --prepare &lt;imagedir&gt;
 kiwi --create &lt;rootdir&gt; --type usb -d &lt;outputdir&gt;
 kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
      --bootstick-system &lt;outputdir&gt;/&lt;imagefile&gt;;</screen>
-
+   </example>
 
    <para>In this example, the terms in braces (&lt; >) have the following meaning and
     requirements: </para>
@@ -416,7 +418,8 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
      <term>outputdir</term>
      <listitem>
       <para>Specifies the location of the following generated output files:</para>
-      <itemizedlist mark="bullet" spacing="normal">
+      <itemizedlist id="lst.usbboot.workflow.files" mark="bullet" spacing="normal">
+      <title>Result Files of Second Stage</title>
        <listitem>
         <para>
          <filename>initrd-*.gz</filename>
@@ -462,19 +465,20 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
    <title>Preparing <filename>config.xml</filename></title>
    <para>Several changes should be made to the <filename>config.xml</filename> file delivered with
     the <filename>kiwi-desc-livesystem</filename> package. For example, the correct installation
-    source must be used. In SuSE internal builds, the FACTORY tree, which can be accessed by NFS at
-     <filename>/mounts/machcd2/factory/FACTORY/inst-source/</filename>, is used. If FACTORY is
+    source must be used. In SuSE internal builds, the FACTORY tree is used. If FACTORY is
     broken, you can use another installation source, such as
      <filename>/mounts/dist/install/SLP/openSUSE-10.3-LATEST-DVD/i386/DVD1</filename>.Unfortunately,
     there are no <filename>squashfs</filename> and <filename>aufs</filename> packages in this tree,
-    so you will have to import these packaged from another location.</para>
+    so you will have to import these packages from another location.</para>
    <para>If necessary, you can declare multiple installation sources. Any folder containing multiple
     RPM files that must be installed additionally (which are not already contained in a repository)
     can be added as a repository. A sample configuration file is shown here: </para>
 
 
    <!--\begin{lstlisting}[language=xml, label={lst:config-xml-example}, caption={\textit{config.xml} File}]-->
-   <screen id="config.xml.example">&lt;image name="USB-Image-suse-10.3-Alpha5plus"&gt;
+   <example id="config.xml.example">
+   <title>Example Configuration File</title>
+   <screen>&lt;image name="USB-Image-suse-10.3-Alpha5plus"&gt;
 	&lt;description type="system"&gt;
 		&lt;author&gt;Jan-Christoph Bornschlegel&lt;/author&gt;
 		&lt;contact&gt;jcbornschlegel@novell.com&lt;/contact&gt;
@@ -575,6 +579,7 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
         &lt;package name="devs"/&gt;
     &lt;/packages&gt;
 &lt;/image&gt;</screen>
+   </example>
 
    <para>First, the image needs a name, which sets the filename mentioned in <xref
      linkend="sec.kiwi.deploying.usb.workflow" xrefstyle="HeadingOnPage"/> as &lt;imagename>
@@ -587,10 +592,10 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
      <option>size</option> option mentioned in line 13 is the size to which the stick's filesystem
     is expanded at first boot. The additional installation source (in this case, a plain directory
     containing some RPM files) is added in lines 28-20.</para>
-   <para>The majority of changes are made in the &lt;package name"..."/&gt; section. The
+   <para>The majority of changes are made in the &lt;package name="..."/&gt; section. The
      <varname>&lt;package name="something"/&gt;</varname> tag adds the
     &lt;something-*.rpm&gt; package to the installation, where "*" is a mix of version
-    number and architecture. The <varname>&lt;opensusePattern
+    number, release number and architecture. The <varname>&lt;opensusePattern
     name="somepattern"/&gt;</varname> tag adds all packages required by the
     &lt;somepattern&gt; pattern to the installation. The <varname>&lt;ignore
      name="someignoredpackage"/&gt;</varname> tag omits the &lt;someignoredpackage&gt;
@@ -641,7 +646,7 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
     accessible through the available channels, which means that you can add anything listed in the
     repositories declared in the <filename>config.xml</filename> file, or you can copy (or hardlink)
     them somewhere in the chroot environment before you chrooting there.</para>
-   <para>Be aware that the <command>smart</command> command cannot resolve certain dependencies. Foe
+   <para>Be aware that the <command>smart</command> command cannot resolve certain dependencies. For
     example, if you have the packages <filename>yast2-control-center</filename> and
      <filename>yast2-control-center-qt</filename> copied or linked to
      <filename>&lt;rootdir>;/tmp</filename>, you can install by calling the following commands:</para>
@@ -661,77 +666,81 @@ smart install /tmp/yast2-control-center /tmp/yast2-control-center-qt</screen>
 
   </sect3>
 
-  <!--
+  <sect3 id="sec.kiwi.deploying.usb.create" lang="en">
+   <title>Creating the Images</title>
+   <para>
+The images can be created as soon as everything is prepared in the chroot environment.
+Simply run the second command in <xref linkend="ex.kiwi.deploying.usb.workflow.1" xrefstyle="HeadingOnPage"/>.
+The target directory &lt;outputdir&gt; must be manually created before, in contrast to the prepare step where <command>kiwi</command> creates the directory.
+Some of the "failed" messages can be safely ignored because they reflect known bugs and do not break the image creation.
+The files created are listed in <xref linkend="lst.usbboot.workflow.files" xrefstyle="HeadingOnPage"/>.
+   </para>
+   <para>
+You can create images for different architecures in the same target directory, because the filenames include the architectue.
+   </para>
+  </sect3>
 
-%============================================
-% SUBSECTION
-%============================================
-\hypertarget{kiwi-usbboot-image-workflow:workflow:create}{%
-\subsection{Create the Images}
-\label{sec:usbboot-image-workflow:create}
-}
+  <sect3 id="sec.kiwi.deploying.usb.dump" lang="en">
+  <title>Dump the Images on the USB Device</title>
+   <para>
+As the images are eventually created they can be dumped on the USB device.
+Some things must be considered before:
+   </para>
+   <itemizedlist id="lst.kiwi.deploying.usb.dump.caution">
+   <title>Considerations before Dump</title>
+    <listitem>
+     <para>
+		Any data on the stick before will be lost
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+		  It is not possible to save a partition
+     </para>
+    </listitem>
+   </itemizedlist>
 
-As soon as everything is prepared in the chroot environment the images can be created.
-This is achieved by simply running the second command in \vref{lst:workflow}.
-The target directory <outputdir> must be created before (in contradiction to the prepare step where \textit{kiwi} creates the directory.
-Some of the ``failed'' messages can be safely ignored because they reflect known bugs.
-The files which are created are listed in \vref{sec:usbboot-image-workflow:workflow}.
-
-It is possible to create images for different architecures in the same target directory because the filenames include the architectue.
-
-
-
-
-%============================================
-% SUBSECTION
-%============================================
-\hypertarget{kiwi-usbboot-image-workflow:workflow:dumponstick}{%
-\subsection{Dump the Images on the USB Device}
-\label{sec:usbboot-image-workflow:dumponstick}
-}
-
-Finally if the images are created you can dump them on the USB stick.
-Some things must be considered before:\\
-\begin{itemize}
-	\item{Any data on the stick before will be lost}
-	\item{It is not possible to save a partition}
-\end{itemize}
-
-\textit{Kiwi} will ask you to enter the device file after it computes a list of possible devices.
-All connected USB ``writable'' devices should be listed and you may want to check using for example \textit{dmesg}.
-After you entered the correct device file the filesystem is created on the stick.
-Depending on the stick's write speed this may take several minutes.
-There is a trick to check the progress - because \textit{kiwi} uses \textit{dd} to write the image on the device, it is possible to send the dd process a signal \texttt{USR1} on which dd writes the current state without stopping.
-\begin{lstlisting}[language=bash, label={lst:trick-dd-progress}, caption={Trick to retrieve \textit{dd} status}]
-cd newimage
+   <para>
+   <command>kiwi</command> will request the device file after it computes a list of possible devices.
+All connected USB "writable" devices should be listed; it is recommended to verify using for example <command>dmesg</command>.
+After the correct device file was entered the filesystem on the stick is created.
+This may take several minutes depending on the stick's write speed.
+There is a mathod for checking the progress. <command>Kiwi</command> uses <command>dd</command> to write the image on the device, so you can send the respective process a signal <systemitem>USR1</systemitem>.
+As result <command>dd</command> prints its current statistics to <systemitem>stdout</systemitem> and continues normally.
+   </para>
+   <example id="ex:trick-dd-progress">
+   <title>How to Retrieve <command>dd</command> status</title>
+   <screen>cd newimage
 kiwi -bootstick initrd-usbboot-suse-10.3.i686-2.1.1.gz \
 -bootstick-system USB-Image-suse-10.3-Factory.i686-1.1.2
 (other shell)
-killall -USR1 dd
-\end{lstlisting}
+killall -USR1 dd</screen>
+   </example>
+  </sect3>
 
 
-
-
-%============================================
-% SECTION
-%============================================
-\hypertarget{kiwi-usbboot-image-workflow:assumptions:issues}{%
-\section{Known Issues}
-\label{sec:usbboot-image-workflow:issues}
-}
-
-You have to use a real USB mass storage device to create the image.
-In the here discussed project USB flash memories were used.
+  <sect3 id="sec.kiwi.deploying.usb.issues" lang="en">
+  <title>Known Issues</title>
+   <para>
 There have been tests with mini-harddisk USB devices which showed some problems on some machines.
-Some problems arise when you try to boot a laptop with special input devices (IBM ThinkPad with its funny joystick device for example), touchpad support is still a missing item.
-
+Some problems arise trying to boot a laptop with special input devices (IBM ThinkPad with its joystick device for example), touchpad support is still a missing item.
+   </para>
+   <para>
 Another known problem is the workaround time to fix missing package dependencies.
-It can happen with some installation sources that several packages are missing.
--
--->
-
+It happened with some installation sources that several packages were missing.
+It is also strongly recommended not to modify the repositories themselves because then the metadata becomes incorrect and must be recreated.
+This is possible, but not very convenient.
+   </para>
+   <para>
+Conflicts may arise depending on the used <command>smart</command> version, especially in one particular case:
+The host system's <command>smart</command> is used for the first stage of the image creation, the changeroot environment.
+For the second step the version installed in the changeroot environment is used.
+This leads to problems if the host's version is newer and can handle <command>gzip</command> compressed metadata and the installed version can not.
+   </para>
+  </sect3>
  </sect2>
+
+
  <sect2 id="sec.kiwi.deploying.virtual">
   <title>Using a Virtual Disk System (QEMU or VMware)</title>
   <para>To use a virtualized system, you must first create a virtual disk. You can do this by
