@@ -13,7 +13,8 @@ class ApplicationController < ActionController::Base
 
   before_filter :authorize, :set_return_to, :set_http_headers
   after_filter :set_charset
-
+  
+  layout "application2"
 
   def min_votes_for_rating
     MIN_VOTES_FOR_RATING

@@ -1,0 +1,92 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : nav_slidingdoorII.css
+**  Funktion    : Formatierung der Hauptnavigation: Reiternavigation "Sliding Doors of CSS II"
+**
+*/
+
+@media all
+{
+/* ######################################################################################################
+** ### Hauptnavigation: "Sliding Doors of CSS II" von A List Apart ######################################
+** ######################################################################################################
+*/
+
+#nav_main {
+	width:100%;
+	float:left;
+	color: #fff;
+    background-color:#1f1e2e;
+    background:#1f1e2e url("gfx/sliding_doorII/nav_rund/bg.gif") repeat-x bottom;	
+}
+
+#nav_main ul {
+  white-space: nowrap;
+  line-height: 1em;
+  margin:0;
+  padding:0 0 0 50px;
+  list-style:none;
+}
+  
+#nav_main li {
+  float:left;
+  background: #8f8cad url("gfx/sliding_doorII/nav_rund/left.gif") no-repeat top left;
+/*  margin-right: 2px;  nur einfügen bei ECKIGEN Ecken */
+  padding: 0 0 0 3px;
+  margin: 0;
+  border-bottom:1px solid #000;
+}
+
+#nav_main a {
+  float:left;
+  display:block;
+  color:#334;
+
+  background: transparent;
+  background: url("gfx/sliding_doorII/nav_rund/right.gif") no-repeat top right;
+  padding:5px 11px 3px 8px;
+  text-transform: none;
+  text-decoration:none;
+  font-weight:normal;
+    
+  width: auto; /* nur IE 5.x */
+  width/**/:/**/ .1em; /* für IE 6.0 */
+}
+
+#nav_main > ul a {width:auto;}  /* für alle anderen Browser */
+
+/* Commented Backslash Hack
+   hides rule from IE5-Mac \*/
+#nav_main a {float:none;}
+/* End IE5-Mac hack */
+
+#nav_main li:hover, #nav_main li:hover a { background-position:0% -80px; }
+#nav_main li:hover a { background-position:100% -80px; }
+
+#nav_main #current { background-position:top left }
+#nav_main #current a { background-position:top right }
+
+#nav_main a:hover { 
+    color:#fff;
+    background-color: transparent;
+    background:    url("gfx/sliding_doorII/nav_rund/right.gif") no-repeat top right;
+}
+
+#nav_main #current {
+  background-image:    url("gfx/sliding_doorII/nav_rund/left_on.gif");
+  border-width:0
+}
+
+#nav_main #current a {
+  color:#334;
+  background-image:     url("gfx/sliding_doorII/nav_rund/right_on.gif");
+  font-weight:bold;
+  padding-bottom:4px;
+  padding-top:5px;
+}
+
+}

@@ -1,0 +1,21 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : iehacks_3col_vlines.css
+**  Funktion    : IE-Korrektur-Stylesheet für das Standard-Layout von YAML (3 Spalten ohne Spaltentrenner) 
+**
+*/
+
+/* LAYOUT-UNABHÄNGIGE ANPASSUNGEN -------------------------------------------------------------------- */
+@import url(../main/iehacks.css);
+
+/* LAYOUT-ABHÄNGIGE ANPASSUNGEN ---------------------------------------------------------------------- */
+@media screen
+{
+/* Bug: Korrektur der Breitenangaben der Listenelemente des Submenüs im Internet Explorer 5.x/Win */
+@import url(iehacks_vlist.css);
+
+}

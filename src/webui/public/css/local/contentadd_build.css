@@ -1,0 +1,41 @@
+/* 
+**
+**  $Id: $
+**
+**  Funktion:  Provides all styles for build.openSUSE.org
+**  Author:    Frank Sundermeyer <fs@opensuse.org>
+**  License:   see copyright/COPYRIGHT
+*/
+
+/*****************
+* General Styles *
+*****************/
+
+.navlist {
+    list-style-image:url(/css/common/images/liDot_double_darkgrey.png);
+}
+.skipLinks {
+    display: none;
+}
+#searchbox {
+    text-align: right;
+}
+#searchbox .topleft {
+    background: #fff url(images/darkgrey_searchbox/top_left_corner.png) top left no-repeat;
+}
+#searchbox .topright {
+    background: url(images/darkgrey_searchbox/top_right_corner.png) top right no-repeat;
+}
+#searchbox .bottomleft {
+    background: url(images/darkgrey_searchbox/bottom_left_corner.png) bottom left no-repeat;
+}
+#searchbox .bottomright {
+    background: url(images/darkgrey_searchbox/bottom_right_corner.png) bottom right no-repeat;
+}
+#pt-personal,
+#pt-personal a {
+    color: #ACB1B5;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #5d666e;
+}

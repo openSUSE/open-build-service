@@ -1,0 +1,204 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : base.css
+**  Funktion    : Basis-Stylesheet
+**
+**  Don't make any changes in this file! 
+**  Any changes should be placed in basemod-files in css/modifications directory.
+*/
+
+@media all
+{
+/* ######################################################################################################
+** ### Vorbereitende Maßnahmen | Reset ##################################################################
+** ######################################################################################################
+*/
+	/* Hiermit werden die Randabstände und border aller HTML-Elemente auf Null gesetzt. Damit wird das       
+	** Aussehen der Webseite in unterschiedlichen Browsern vereinheitlicht. 
+	*/
+	
+	* { margin:0; padding: 0; } 
+
+	/* Das zurücksetzen der Innen- und Außenabstände verursacht zu kleine Selectboxen. Dies wird korrigiert */
+	option {padding-left: 0.4em}
+	
+	/*
+	** Die nachfolgenden Angaben entstammen dem Artikel 'Useful Code Snippets' von Mike Foskett
+	** [http://www.websemantics.co.uk/tutorials/useful_css_snippets/]
+	*/
+	
+	/* Vertikalen Scrollbalken im Netscape & Firefox erzwingen. Dies verhindert, dass zentrierte Layouts 
+	** um 10 Pixel springen wenn der Seiteninhalt kleiner wird als die Höhe des Browserfensters. */
+	html { height: 100% } 
+	body { 
+		min-height: 101%;	
+	/* Beseitigung des Rundungsfehlers bei Schriftgrößen im Opera sowie Standardformatierungen */
+		font-size: 100.01%; 
+	/* FIX: Verhindert, dass positionierte Elemente nicht verschoben werden when die Größe des Browser 
+			Fensters geändert wird. */
+		position: relative; 
+	
+	/* Vorgabe der Standardfarben und Textausrichtung*/     
+		color: #000;        
+		background: #fff;
+		text-align: left; 
+	} 
+	
+	/* Standardrahmen zurücksetzen */
+	fieldset, img { border:0; }
+	
+	/* Anpassung für Safari Browser. font-size:100% ist für den Safari in Formularen zu groß */ 
+	select, input, textarea { font-size: 99% }
+	
+/* ######################################################################################################
+** ### DIV-Container des Basislayouts ###################################################################
+** ######################################################################################################
+*/
+	
+	#header { position:relative }
+
+	#topnav {
+		position:absolute;
+		top: 10px;
+		right: 10px;
+		color: #fff;
+		background: transparent;
+		text-align: right; /* Erforderlich, damit im Opera 6 wirklich rechts plaziert ! */
+	}
+	
+	#nav { clear:both; width: auto; }
+	#main {	clear:both; width: auto; }
+	
+	
+	#col1 {
+		float: left;
+		width: 200px; /* Standard-Wert, falls keine anderen Vorgaben gemacht werden */
+	}
+	
+	#col2 {
+		float:right; 
+		width: 200px; /* Standard-Wert, falls keine anderen Vorgaben gemacht werden */
+	}
+	
+	#col3
+	{
+		width:auto;
+		margin-left: 200px; /* Standard-Wert, falls keine anderen Vorgaben gemacht werden */
+		margin-right: 200px; /* Standard-Wert, falls keine anderen Vorgaben gemacht werden */
+	}
+	
+	#footer { clear:both; }	/* Backup für IE-Clearing */
+	
+	/* Der z-Index verhindert, dass im Falle des noch bestehenden IE-Bugs die Texte vor 
+	** dem Spaltenhintergrund erscheinen. */
+	#col1 {z-index: 3;}
+	#col2 {z-index: 5;}
+	#col3 {z-index: 1;}
+	#col1_content {z-index: 4;}
+	#col2_content {z-index: 6;}
+	#col3_content {z-index: 2;}
+	
+	#col1_content, #col2_content, #col3_content { position:relative; }
+
+/* ######################################################################################################
+** ### Markupfreie CSS-Floatclearing-Lösungen ###########################################################
+** ######################################################################################################
+*/
+
+	/* Clearfix-Methode zum Clearen der Float-Umgebungen */
+	 .clearfix:after {
+		content: "."; 
+		display: block; 
+		height: 0; 
+		clear: both; 
+		visibility: hidden;
+	}
+	
+	/* Diese Angabe benötigt der Safari-Browser zwingend !! */
+	.clearfix { display: block; } 
+	
+	/* Overflow-Methode zum Clearen der Float-Umgebungen */
+	.floatbox { overflow:hidden; }
+	
+	/* IE-Clearing: Benötigt nur der Internet Explorer und über iehacks.css zugeschaltet */
+	#ie_clearing { display: none }
+
+/* ######################################################################################################
+** ### IE-Clearing bis YAML V2.4 ########################################################################
+** ######################################################################################################
+**
+** Die CSS-Definition des IE-Clearings, welches bis YAML 2.4 verwendet wurde, ist aus Gründen der 
+** Abwärtskompatibilität des Basis-Stylesheets weiterhin enthalten.
+*/
+	/* Clearen der 3 Inhaltsspalten mittels dieses speziellen hr-Tags */
+	hr.clear_columns {	
+		clear: both; 
+		float: left; 
+		content: "."; 
+		display: block;  
+		height: 0; 
+		line-height: 0px; 
+		visibility: hidden; 
+		border: 0; 
+		padding: 0;
+		margin: -1.1em 0 0 0; /* erforderlich damit kein Leerraum zwischen Spalten und Footer entsteht */
+	}
+
+/* ######################################################################################################
+** ### Standard-Formatierungen für Listen & Zitate ######################################################
+** ######################################################################################################
+*/
+
+	ul, ol, dl { margin: 0 0 1em 1em }
+	li { margin-left: 1.5em; line-height: 1.5em; }
+	
+	dt { font-weight: bold; }
+	dd { margin: 0 0 1em 2em; }
+	
+	blockquote, cite { margin: 0 0 1em 1.5em; font-size: 0.93em; width: auto;}
+
+/* ######################################################################################################
+** ### Subtemplates #####################################################################################
+** ######################################################################################################
+*/
+
+	.subcolumns { 
+		width: 100%;
+		padding: 0 1px 0 1px; 
+		margin: 0 -1px 0 -1px; 
+		overflow:hidden;
+	}
+		
+	.c50l, .c25l, .c33l, .c38l, .c66l, .c75l, .c62l {float: left; overflow: hidden;}
+	.c50r, .c25r, .c33r, .c38r, .c66r, .c75r, .c62r {float: right; overflow: hidden;}
+	
+	.c25l, .c25r { width: 24.999%; }
+	.c33l, .c33r { width: 33.333%; }
+	.c50l, .c50r { width: 49.999%; }
+	.c66l, .c66r { width: 66.666%; }
+	.c75l, .c75r { width: 74.999%; }
+	.c38l, .c38r { width: 38.196%; } /* Goldener Schnitt */
+	.c62l, .c62r { width: 61.803%; } /* Goldener Schnitt */
+	
+	.subc  { padding: 0 0.5em 0 0.5em; overflow: hidden; }
+	.subcl { padding: 0 1em 0 0; overflow: hidden; }
+	.subcr { padding: 0 0 0 1em; overflow: hidden; }
+}
+
+/* ######################################################################################################
+** ### Skiplink-Navigation ##############################################################################
+** ######################################################################################################
+*/
+@media screen, print
+{
+.skip {
+	position: absolute;
+	left: -1000em; 
+	width: 20em;
+}
+
+}

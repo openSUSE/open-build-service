@@ -1,0 +1,138 @@
+/* 
+**
+**  $Id: $
+**
+**  Funktion: Provides general printing styles for openSUSE.org
+**  Author:  Frank Sundermeyer <fs@opensuse.org>
+**  License:  see copyright/COPYRIGHT
+*/
+
+
+/* Work in progress */
+
+
+@media print {
+
+  /***********
+  * Elements *
+  ***********/
+
+  a {
+    background: none;
+    padding-right: 0;
+  }
+
+  body * {
+    font-size: 12pt;
+    font-family: "Times New Roman", Times, serif;
+    margin:0;
+    padding: 0;
+  }
+
+  blockquote {
+    font-family: "Times New Roman", Times, serif;
+  }
+  
+  h1 {
+    font-size: 16pt;
+    font-weight:bold;
+    margin:1.4em 0;
+    border-bottom: 1px #fff solid;
+  }
+  h2 {
+    font-size: 14pt;
+    font-weight:bold;
+    margin:1.2em 0;
+    padding: 0.3em;
+  }
+  h3 {
+    font-size: 12pt;
+    font-weight:bold;
+    margin:1em 0;
+  }
+
+  /* Avoid page breaks after headlines */
+  h1,h2,h3 {
+    page-break-after:avoid;
+  }
+
+  p {
+    margin: .8em 0;
+  } 
+ 
+  pre {
+    font-family:"Courier New", Courier, mono;
+    border: none;
+  }
+
+  ul {
+    list-style-image: none;
+  }
+  
+  /********* 
+  * Layout *
+  **********/
+
+
+  #page_margins,
+  #page {
+    min-width: inherit;
+    margin:0;
+    padding: 0;
+    border: 0;
+  }
+
+  #main {
+    margin: 0;
+    padding: 0;
+  }
+
+  #col3,
+  #col3_content {
+    margin:0;
+    padding: 0;
+    border:0;
+  }
+
+  /* hiding elements */
+  #col1,
+  #col1_content,
+  #col2,
+  #col2_content,
+  #banner_green,
+  #banner_orange,
+  #banner_darkgrey,
+  #page_actions,
+  #langsel,
+  #toc,
+  #page_footer,
+  #rightnav {
+    display:none;
+  }
+
+  /******** 
+  * Boxes *
+  ********/
+  
+  .box_top_row,
+  .box_title_row,
+  .box_left,
+  .box_right
+   {
+    display: none;
+  }
+  
+  .box_content {
+    border: 0 !important;
+    padding: 0 !important;
+  }
+
+  /*********
+  * Styles *
+  *********/
+
+  .skipLinks {
+    display: none;
+  }
+
+}

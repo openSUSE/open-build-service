@@ -1,0 +1,36 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : iehacks_2col_left.css
+**  Funktion    : IE-Korrektur-Stylesheet für das YAML 2col_left-Layout
+**
+*/
+
+/* LAYOUT-UNABHÄNGIGE ANPASSUNGEN -------------------------------------------------------------------- */
+@import url(../main/iehacks.css);
+
+/* LAYOUT-ABHÄNGIGE ANPASSUNGEN ---------------------------------------------------------------------- */
+@media screen
+{
+/* Bug: Korrektur der Breitenangaben der Listenelemente des Submenüs im Internet Explorer 5.x/Win */
+@import url(iehacks_vlist.css);
+
+/*-----------------------------------------------------------------------------------------------------*/
+/* Bug: 3-Pixel-Jog des Internet Explorers *
+**
+** IE5.x/Win - x
+** IE5.x/Mac - 0
+** IE6       - x
+** IE7       - 0
+*/	
+
+/* Hides from IE-mac \*/
+* html #col3 { height: 1%; }
+* html #col1 {margin-right: -3px;}
+* html #col3 { margin-left: 21.5%; } 
+/* End hide from IE-mac */
+/*-----------------------------------------------------------------------------------------------------*/
+}

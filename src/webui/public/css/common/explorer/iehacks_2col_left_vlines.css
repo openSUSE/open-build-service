@@ -1,0 +1,21 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06 
+**  Datei       : iehacks_2col_left_vlines.css
+**  Funktion    : IE-Korrektur-Stylesheet für ein 2-Spalten-Layout mit einfachen #col3-Spaltentrennern
+**
+*/
+
+/* LAYOUT-UNABHÄNGIGE ANPASSUNGEN -------------------------------------------------------------------- */
+@import url(../main/iehacks.css);
+
+/* LAYOUT-ABHÄNGIGE ANPASSUNGEN ---------------------------------------------------------------------- */
+@media screen
+{
+
+/* IE5.x kollabierendes padding bei #main abfangen */
+* html #main {margin-top: 1em; padding-top: 0; } 
+}

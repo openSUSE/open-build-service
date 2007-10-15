@@ -1,0 +1,90 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : nav_vlist.css
+**  Funktion    : Vertikale Navigationsliste "Sliding Doors"
+**
+*/
+
+@media all
+{
+/* ######################################################################################################
+** ### Vertikale Listennavigation #######################################################################
+** ######################################################################################################
+*/
+
+	#submenu { 
+		width: 100%; 
+		overflow: hidden;
+		margin: 2.4em 0 1.5em 0; 
+		list-style-type: none; 
+		border-top: 2px #ddd solid; 
+		border-bottom: 2px #ddd solid; 
+	}
+	
+	#submenu a { display:block; text-decoration: none; }
+	#submenu li { float:left; width: 100%; margin:0; padding: 0 }
+
+	#submenu li span { 
+		display:block; 
+		width: 90%; 
+		padding: 3px 0px 3px 10%; 
+		background-color:#f4f4f4; 
+		color: #444; 
+		font-weight: bold; 
+		border-bottom: 1px #ddd solid;
+	}
+	
+	#submenu li a { 
+		width: 90%; 
+		padding: 3px 0px 3px 10%; 
+		background-color:#fff; 
+		color: #444; 
+		border-bottom: 1px #eee solid;
+	}
+	#submenu li a:hover { background-color:#f63; color: #fff; }
+	
+	#submenu li ul { list-style-type: none; margin:0; padding: 0; }
+	#submenu li ul li { float:left; width: 100%; margin:0; padding:0; }
+	#submenu li ul li a { 
+		width: 80%; 
+		padding: 3px 0px 3px 20%; 
+		background-color:#f8f8f8; 
+		color: #666; 
+		border-bottom: 1px #ddd solid; 
+	}
+
+	#submenu li ul li a:hover { background-color:#f63; color: #fff; }
+	
+	#submenu li#title { 
+		width: 90%; 
+		padding: 3px 0px 3px 10%; 
+		font-weight: bold; 
+		color: #444; 
+		background-color: #fff; 
+		border-bottom: 4px #888 solid; 
+	}
+	
+	#submenu li#active { 
+		width: 90%; 
+		padding: 3px 0px 3px 10%; 
+		font-weight: bold; 
+		color: #fff; 
+		background-color:#aab; 
+		border-bottom: 1px #eee solid;
+	}
+	
+	#submenu li ul li#active { 
+		width: 80%; 
+		padding: 3px 0px 3px 20%; 
+		font-weight: bold; 
+		color: #fff; 
+		background-color:#aab; 
+		border-bottom: 1px #fff solid;
+	}
+
+
+}

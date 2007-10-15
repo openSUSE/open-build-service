@@ -1,0 +1,15 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : layout_3-2-1.css
+**  Funktion    : Zentrales Stylesheet 3-2-1-Layout 
+**
+*/
+@import url(main/base.css);
+@import url(modifications/basemod_simple.css);
+@import url(modifications/basemod_3-2-1.css);
+@import url(main/content.css);
+@import url(print/print_003.css);

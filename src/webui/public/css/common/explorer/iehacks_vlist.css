@@ -1,0 +1,33 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 17.10.06  
+**  Datei       : iehacks_list.css
+**  Funktion    : IE-Korrektur-Stylesheet für das YAML Submenu
+**
+*/
+
+/*-----------------------------------------------------------------------------------------------------*/
+/* Box-Model Bug: Korrektur der Breitenangaben der Listenelemente des Submenüs im IE 5.x/Win 
+**                
+** Hinweis: Befindet sich der IE6 im Quirk-Modus, so benötigt er ebenfalls 100%-Werte !!
+**
+** IE5.x/Win - x
+** IE5.x/Mac - 0
+** IE6       - 0
+** IE7       - 0
+*/	
+
+/* Hides from IE-mac \*/
+* html #submenu li a { width: 100%; w\idth: 90%; }	
+* html #submenu li ul li a { width: 100%; w\idth: 80%; }    
+* html #submenu li span { width: 100%; w\idth: 90%; }      
+* html #submenu li#title { width: 100%; w\idth: 90%; }
+* html #submenu li#active { width: 100%; w\idth: 90%; }
+* html #submenu li ul li#active { width: 100%; w\idth: 80%; }
+/* End hide from IE-mac */
+/*-----------------------------------------------------------------------------------------------------*/
+
+}

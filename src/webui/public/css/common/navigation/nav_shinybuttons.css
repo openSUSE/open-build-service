@@ -1,0 +1,83 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : nav_shinybuttons.css
+**  Funktion    : Formatierung der Hauptnavigation: Button-Navigation "Shiny Buttons"
+**
+*/
+
+@media all
+{
+
+/* ######################################################################################################
+** ### Hauptnavigation: "Shiny Buttons" von Dirk Jesse ##################################################
+** ######################################################################################################
+*/
+
+#nav_main {
+    width: 100%;		/* Einfassen der Floats im IE */
+    float:left;         /* Einfassen der Floats in allen anderen Browsern */
+    background: #b8b8b8 url("gfx/shiny_buttons/background.gif") repeat-x center right;
+    border-top: 1px #333 solid; 
+    border-bottom: 1px #333 solid;
+    line-height: 0px;
+}
+
+#nav_main ul {
+    float:left;
+    display:inline;		/* Fix für IE Doubled Float Margin Bug    */ 
+    margin:0;			/* Standard-Listendefinition zurücksetzen */
+    padding: 0;
+    margin-left: 50px;  /* Abstand des ersten Buttons vom linken Rand (-2 Pixel für 3D-Schatten) über basemod.css anpassen */
+
+    border-left: 1px #aaa solid; 
+    border-right: 1px #fff solid;
+}
+
+#nav_main ul li {
+    float: left;
+    display:inline;     /* Fix für IE Doubled Float Margin Bug    */ 
+    margin: 0;
+    padding: 0;
+    font-size: 1.0em;
+    line-height: 1em;
+    list-style-type: none;
+    border-left: 1px #fff solid;
+    border-right: 1px #aaa solid;
+}
+
+#nav_main ul li a {
+    display:block;
+    width: auto;
+    font-size: 1em;
+    font-weight: bold;
+    background: transparent;
+    text-decoration: none;
+    color: #000;
+    margin: 0;
+    padding: 0.5em 0.8em 0.5em 0.8em;
+}
+
+#nav_main ul li a:hover {
+    background: #eee;
+    color: #333;
+    text-decoration: none;
+}
+
+#nav_main ul li#current { 
+    border-left: 1px #444 solid; 
+    border-right: 1px #888 solid;
+    background: transparent url("gfx/shiny_buttons/background_active.gif") repeat-x center right;	
+}
+
+#nav_main ul li#current a,
+#nav_main ul li#current a:hover {
+    color: #fff;
+    background: transparent;
+    text-decoration: none;
+}
+
+}

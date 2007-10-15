@@ -1,0 +1,66 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : print_003.css
+**  Funktion    : Druck-Stylesheet - druckt die Spalte #col3
+**
+*/
+
+@media print
+{
+body * {font-size: 12pt; font-family: "Times New Roman", Times, serif; }
+blockquote { font-family: "Times New Roman", Times, serif; }
+code.css, code.xhtml, em.file { font-family:"Courier New", Courier, mono;}
+
+h1 {font-size: 16pt; font-weight:bold; color: #336699;  background:inherit;  margin:0.4em 0 0.5em 0; border-bottom: 1px #ccc solid;}
+h2 {font-size: 14pt; font-weight:bold; color: #666; background: inherit;   margin:0.2em 0 0.5em 0; padding: 0.3em; }
+h3 {font-size: 12pt; font-weight:bold; margin:0.4em 0 0.3em 0;}
+
+/* Vermeidung von Seitenumbrüchen direkt nach einer Überschrift */
+h1,h2,h3 { page-break-after:avoid; }
+
+abbr[title]:after, acronym[title]:after { content: '(' attr(title) ')'; }
+
+/* Sichtbare Auszeichnung der URLs von Links */
+#col3 a[href^="http:"], #col3 a[href^="https:"], 
+#col1 p a[href^="http:"], #col1 p a[href^="https:"],
+#col2 p a[href^="http:"], #col2 p a[href^="https:"]
+{
+	padding-left: 0;
+	background-image: none;
+}
+
+a[href]:after {
+ content:" <URL: "attr(href)">";
+ color:#444;
+ background-color:inherit;
+ font-style:italic;
+} 
+
+/* Umformatierung der Layoutboxen */
+body {margin:0; padding: 0;}
+#page_margins, #page {min-width: inherit; margin:0; padding: 0; border: 0; } 
+#topnav {display: none;}
+
+#header {height: auto;}
+#header img {position:relative; top:0; left:0; padding:0; }
+#nav_main {display:none;}
+#teaser { margin: 1em 0 0 0; padding: 0; border:0; }
+
+#main {margin: 0; padding: 0;}
+
+#col1 {display:none;}
+#col1_content {display:none;}
+
+#col2 {display:none;}
+#col2_content {display:none;}
+
+#col3 { margin:0; padding: 0; border:0; }
+#col3_content {margin:0; padding: 0; border:0; }
+
+#footer {display: none;}
+
+}

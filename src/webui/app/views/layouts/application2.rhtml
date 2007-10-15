@@ -1,0 +1,394 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>DEV <%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
+  <%= stylesheet_link_tag "opensuse", :media => "all" %>
+  <%= stylesheet_link_tag "SyntaxHighlighter", :media => "all" %>
+
+  <%= javascript_include_tag 'prototype', 'effects', 'application' %>
+  <%= javascript_include_tag 'shCore', 'shBrushSpec', 'shBrushXml' %>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="css/local/build.css" rel="stylesheet" type="text/css"/>
+  <!--[if lte IE 7]>
+  <link href="css/common/explorer/iehacks_2col_left.css" rel="stylesheet" type="text/css"/>
+  <link href="css/common/explorer/iehacks_opensuse.css" rel="stylesheet" type="text/css"/>
+  <![endif]-->
+  <script type="text/javascript" src="javascript/common/langsel.js"></script>
+ </head>
+</head>
+<body class="project">
+
+  <div id="page_margins">
+   <div id="page" class="hold_floats">
+    <!-- Begin 2 column main part -->
+    <div id="main">
+     <!-- Begin left column -->
+     <div id="col1">
+      <div id="col1_content" class="clearfix">
+       <!-- Begin Logo -->
+       <div class="grey_box" id="logo">
+        <div class="box_content_row">
+         <div class="box_content" id="logo_content">
+          <a href="http://build.opensuse.org"><img src="/images/common/geeko.jpg" alt="openSUSE" /></a>
+         </div>
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <!-- End Logo -->
+       <!-- Begin openSUSE navigation -->
+       <div class="grey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          openSUSE
+         </div>
+        </div>
+        <div class="box_content">
+         <ul class="navlist">
+          <li style="list-style-image: url(css/common/images/liDot_download.png)"><a href="#">Download</a></li>
+          <li style="list-style-image: url(css/common/images/liDot_wiki.png)"><a href="#">Wiki</a></li>
+          <li style="list-style-image: url(css/common/images/liDot_build.png)"><a href="#">Build Service</a></li>
+         </ul>
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+       <!-- End openSUSE navigation -->
+       <!-- Begin custom navigation -->
+<% if session[:login] -%> 
+       <div class="darkgrey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          Home
+         </div>
+        </div>
+        <div class="box_content">
+ 
+    Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
+    <%= link_to "Watched Projects", :controller => "project", :action => :list_my %><br/>
+    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %><br/>
+    <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
+
+         </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+  <% end -%>
+
+       <div class="darkgrey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          Create it
+         </div>
+        </div>
+        <div class="box_content">
+         <ul class="navlist">
+          <li><a href="#">foobar</a></li>
+
+
+
+  <%
+    @helplinks = [
+      { 'help about ...'     => '' },
+      { 'the buildservice'   => 'http://en.opensuse.org/Build_Service' },
+      { 'building packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
+      { 'writing spec files' => 'http://forgeftp.novell.com//library/SUSE%20Package%20Conventions/spc.html' },
+      { 'reporting a bug'    => 'http://en.opensuse.org/Submit_a_Bug' }
+    ]
+  %>
+  <li class="help">
+    <form action="">
+    <select size="1" name="helplinks" onchange="goto_url(this.form.helplinks.options[this.form.helplinks.options.selectedIndex].value)">
+      <% @helplinks.each do |helplink| %>
+        <% for k in helplink.keys %>
+          <option value="<%= helplink[k] -%>"><%= k %></option>
+        <% end %>
+      <% end %>
+    </select>
+    </form>
+  </li>
+
+
+          </li>
+         </ul>
+         </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+
+      </div>
+     </div>
+     <!-- End left column -->
+     <!-- Begin right cloumn -->
+     <div id="col3">
+      <div id="col3_content" class="clearfix">
+       <div class="darkgrey_box_double" id="banner_darkgrey">
+        <div class="box_content_row">
+         <div class="box_content" id="banner_content">
+          <div id="pt-personal">
+           <!-- Begin Personal links (Login, etc.) -->
+           <a href="#">Register | Login</a>
+           <!-- End Personal links (Login, etc.) -->
+          </div>
+          <div class="subcolumns">
+           <div class="c50l">
+            <div class="subcl">
+	     <div id="slogan">
+	      <img src="/images/local/create.png" alt="Create it" />
+             </div>
+            </div>
+           </div>
+           <div class="c50r">
+            <div class="subcr">
+             <div id="searchbox">
+              <!-- Begin search -->
+              <form action="">
+               <div class="topleft">
+                <div class="topright">
+                 <div class="bottomleft">
+                  <div class="bottomright">
+                   <input id="searchInput" name="search" type="text" accesskey="f" value="" />
+                  </div>
+                 </div>
+                </div>
+               </div>
+               <!-- <input type="image" name="go" value="Go" src="css/local/images/darkgrey_searchbox/go.png" class="button" />&nbsp; --><input type="image" name="fulltext" value="Search" src="css/local/images/darkgrey_searchbox/search.png" class="button" />
+              </form>
+              <!-- End search -->
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br style="clear: right;" />
+       <div id="contentarea"> 
+        <div class="grey_box_double" style="float:left; width: 100%;">
+         <div class="box_top_row">
+          <div class="box_left"></div>
+          <div class="box_right"></div>
+         </div>
+         <div class="box_title_row">
+          <div class="box_title">
+           <div id="langsel" class="hide">
+            <!-- Begin language select -->
+            <form action="" name="langsel">
+             <select name="lang" onchange="langRedirect()">
+              <option value="">In other languages</option>
+              <option value="http://de.test.opensuse.org/Main_Page">Deutsch</option>
+              <option value="http://fr.test.opensuse.org/Main_Page">Français</option>
+             </select>
+            </form>
+            <!-- End langauge select -->
+           </div>
+           <div id="page_actions">
+            <!-- Begin page actions -->
+            <ul>
+             <li><a href="#">Article</a></li>
+             <li><a href="#">Discussion</a></li>
+             <li><a href="#">View Source</a></li>
+             <li><a href="#">History</a></li>
+            </ul>
+            <!-- End page actions --> 
+           </div>
+          </div>
+         </div>
+         <div class="box_content" id="bodyContent">
+<!-- Begin content area -->
+          <h1>Content area</h1>
+          <p class="special">
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content<br />
+           Content
+          </p>
+<!-- End content area -->
+         </div>
+         <div class="box_footer_row">
+          <div id="page_footer" class="box_footer">
+           <!-- Begin Footer -->
+           This site uses the <a href="http://www.yaml.de">YAML</a> CSS framework.
+           <br />
+           <a href="http://en.opensuse.org/openSUSE:About">About openSUSE</a> | <a href="http://en.opensuse.org/Legal">Legal information</a> | <a href="mailto:webmaster@opensuse.org">Feedback</a>
+           <br />
+           This page was last modified 14:17, 30 April 2007 and has been accessed 45 times.
+           <br />
+           <br />
+           <a href="http://www.novell.com/linux/"><img src="images/common/founded_novell.gif" alt="Founded by Novell" /></a>
+           <!-- End Footer -->
+          </div>
+         </div>
+         <div class="box_bottom_row">
+          <div class="box_left"></div>
+          <div class="box_right"></div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <!-- IE Column Clearing -->
+      <div id="ie_clearing">&nbsp;</div>
+      <!-- Ende: IE Column Clearing -->
+     </div>
+     <!-- End middle column -->
+    </div>
+    <!-- End 2 cloumn main part -->
+   </div>
+  </div>
+
+
+<!-- old content -->
+<div id="header">
+  <h1 id="logo"><a href="/"><img src="/images/logo-buildservice.png" alt="openSUSE build service"></a></h1>
+  <div id="login">
+  <% if session[:login] -%>
+    Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
+    <%= link_to "Watched Projects", :controller => "project", :action => :list_my %><br/>
+    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %><br/>
+    <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
+  <% else -%>
+    <% if ICHAIN_MODE == 'on' or ICHAIN_MODE == 'simulate' %>
+      <form id="loginfrm" action="https://build.opensuse.org/ICSLogin/auth-up" method="post" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="url" value="http://build.opensuse.org/privacy/ichain_login" />
+        <input type="hidden" name="context" value="default" />
+        <input type="hidden" name="proxypath" value="reverse" />
+        <input type="hidden" name="message" value="Please log In" />
+        <table cellpadding="0" cellspacing="0">
+          <tr>
+            <td>Username:</td>
+            <td><input type="text" id="nlogin_uname_inpt" name="username" maxlength="50" size="8" onfocus="select()" tabindex="1" /></td>
+          </tr>
+          <tr>
+            <td>Password:</td>
+            <td><input type="password" id="nlogin_pw_inpt" name="password" maxlength="50" size="8" onfocus="select()" tabindex="2" /></td>
+          </tr>
+          <tr align="center">
+            <td><a href="https://secure-www.novell.com/selfreg/jsp/forgotPassword.jsp" onclick="forgotPassword();return false;">forgot password?</a></td>
+            <td><%= image_submit_tag 'ichain_login.png', :tabindex => '3' %></td>
+          </tr>
+        </table>
+      </form>
+    <% else %>
+      <% form_tag :controller => 'user', :action => "store_login" do -%>
+        <table cellpadding="0" cellspacing="0">
+          <tr>
+            <td>Username:</td>
+            <td><%= text_field_tag 'user_login', '', :maxlength => 50, :size => 30 -%></td>
+          </tr>
+          <tr>
+            <td>Password:</td>
+            <td><%= password_field_tag 'user_password', '', :maxlength => 50, :size => 30 -%></td>
+          </tr>
+          <tr align="center">
+            <td>&nbsp;</td>
+            <td><%= image_submit_tag 'ichain_login.png', :tabindex => '3' %></td>
+          </tr>
+        </table>
+      <% end %>
+    <% end %>
+  <% end -%>
+  </div>
+</div>
+
+<!-- k -->
+
+
+<ul id="crumbs" class="nav">
+
+  <%
+    @helplinks = [
+      { 'help about ...'     => '' },
+      { 'the buildservice'   => 'http://en.opensuse.org/Build_Service' },
+      { 'building packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
+      { 'writing spec files' => 'http://forgeftp.novell.com//library/SUSE%20Package%20Conventions/spc.html' },
+      { 'reporting a bug'    => 'http://en.opensuse.org/Submit_a_Bug' }
+    ]
+  %>
+  <li class="help">
+    <form action="">
+    <select size="1" name="helplinks" onchange="goto_url(this.form.helplinks.options[this.form.helplinks.options.selectedIndex].value)">
+      <% @helplinks.each do |helplink| %>
+        <% for k in helplink.keys %>
+          <option value="<%= helplink[k] -%>"><%= k %></option>
+        <% end %>
+      <% end %>
+    </select>
+    </form>
+  </li>
+
+<!-- help is moved -->
+
+
+  <% if session[:login] -%>
+  <li class="searchbox"><%= render :partial => "main/search_form" %></li>
+  <% end -%>
+
+  <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
+  <% if @crumb_list -%>
+  <% @crumb_list.each do |link| -%>
+  <li><%= link %></li>
+  <% end -%>
+  <% end -%>
+</ul>
+
+<div id="body">
+  <div id="content">
+
+    <% if flash[:note] %>
+    <div class="message info"><%=h flash[:note] %></div>
+    <% end %>
+    <% if flash[:error] %>
+    <div class="message error"><%=h flash[:error] %></div>
+    <% end %>
+    <%= @content_for_layout %>
+  </div>
+
+  <div id="footer">
+      openSUSE and SUSE are trademarks of Novell, Inc. in the United States 
+      and other countries.<br>
+      <a href="http://en.opensuse.org/Legal">Legal Information</a>
+      <a href="mailto:webmaster@opensuse.org">Feedback</a>
+  </div>
+
+</div>
+</body>
+</html>

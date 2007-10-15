@@ -1,0 +1,254 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : iehacks.css
+**  Funktion    : Basis-Stylesheet [Korrektur der Rendering-Bugs des Internet Explorers]
+**
+**  Don't make any changes in this file! 
+**  Any changes should be placed in adaptation-files in css/explorer directory.
+*/
+
+/* LAYOUT-UNABHÄNGIGE ANPASSUNGEN ------------------------------------------------------------------------- */
+@media all
+{
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Debugging: Um festzustellen, ob der IE die Anpassungs-Stylesheets wirklich erhält kann während der   */
+	/*            Testphase der Farbwechsel aktiviert werden. Ist der Seitenhintergrund grün, so ist alles  */
+	/*            in Ordnung.                                                                               */
+
+	/* body { background: #0f0; background-image: none; }                                                   */  
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Anpassung für Firefox/Netsape aus der base.css für den Internet Explorer rückgängig machen           */
+	/* 
+	** IE5.x/Win - x
+	** IE5.x/Mac - x
+	** IE6       - x
+	** IE7       - x
+	*/	
+	
+	body { min-height: none; }                                                
+	html { height: auto; }   
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Workaround: Clearfix-Anpassung für diverse IE-Versionen */
+	/* 
+	** IE5.x/Mac - x
+	** IE7       - x
+	*/	
+	.clearfix { display: inline-block; }  /* ... Clearing für IE5/Mac und IE7 */
+
+	/*
+	** IE5.x/Win - x
+	** IE6       - x
+	*/	
+	/* Hides from IE-mac \*/
+	* html .clearfix { height: 1%; }   /* ... für IE5 + IE6/Win | IE-Clearing aktivieren */
+	.clearfix { display: block; }      /* ... für IE5,IE6,IE7 | Mac-Einstellungen für IE/Win zurücksetzen */
+	/* End hide from IE-mac */
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Workaround Anpassung der .floatbox-Klasse für IE */
+	/* 
+	** IE5.x/Win - x
+	** IE5.x/Mac - x
+	** IE6       - x
+	** IE7       - 0
+	*/	
+
+	* html .floatbox { width:100%; }
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: Unvollständige Darstellung der Spalteninhalte / Spaltentrenner                                  */
+	/* 
+	** IE5.x/Win - x
+	** IE5.x/Mac - unbekannt
+	** IE6       - x
+	** IE7       - x
+	*/		
+
+	* html #col1 { position:relative; } /* Nur für < IE7, sonst gibts im IE7 neue Positionierungsprobleme */
+	* html #col2 { position:relative; } /* Nur für < IE7, sonst gibts im IE7 neue Positionierungsprobleme */
+	* html #col3 { position:relative; }
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: "Escaping Floats Bug" Der Hack sorgt im IE dafür, dass Floats ihre Breite behalten und nicht    */
+	/* unkontrolliert seitlich ausbrechen. */
+	/* 
+	** IE5.x/Win - x
+	** IE5.x/Mac - 0
+	** IE6       - x
+	** IE7       - x
+	*/	
+	   
+	/* Hides from IE-mac \*/
+	.hold_floats { height: 1%; }
+	/* End hide from IE-mac */
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: "Disappearing List-Background Bug" */
+	/*
+	** IE5.x/Win - x
+	** IE5.x/Mac - x
+	** IE6       - x
+	** IE7       - 0
+	*/
+	
+	* html ul { position: relative }
+	* html ol { position: relative }
+	* html dl { position: relative }
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: "Disappearing Backgrounds in various HTML-Elements". To be extended on demand ... */
+	/*
+	** IE5.x/Win - x ( IE5 reagiert hier auf zoom:1 )
+	** IE5.x/Mac - ???
+	** IE6       - x
+	** IE7       - 0
+	*/
+
+	* html blockquote { zoom:1 }
+	/*------------------------------------------------------------------------------------------------------*/
+	
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Allgemeine IE-Layouthilfe, um die freie Spaltenanordnung zu gewährleisten und die Robustheit der     */
+	/* DIV-Container für beliebige Inhalte zu erhöhen. Die Eigenschaft "zoom" erzwingt "hasLayout" im IE.   */
+	/* 
+	** IE5.01/Win - 0 (Eigenschaft "zoom" wird nicht interpretiert)
+	** IE5.x/Win - x
+	** IE5.x/Mac - x
+	** IE6       - x
+	** IE7       - x
+	*/	
+
+	#page_margins, #page, #header, #nav, #main, #footer { zoom: 1; }
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: "Doubled Float Margins" des Internet Explorers *
+	**
+	** IE5.x/Win - x
+	** IE5.x/Mac - x
+	** IE6       - x
+	** IE7       - 0
+	*/
+
+	* html #col1 { display: inline; }
+	* html #col2 { display: inline; }
+	/*------------------------------------------------------------------------------------------------------*/
+	
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: 'Internet Explorer and Italics Problem'  
+	** Bei Verwendung des Schriftstils 'Italics' mittels der HTML-Tags <i> oder <em> erweitert der Internet 
+	** Explorer die Breite der umgebenden Box, falls diese Tags sich am Ende einer Zeile befinden. Die 
+	** Erweiterung der Box führt zu Layoutproblemen, da die Box plötzlich nicht mehr in das Layout passt.
+ 	** Durch 'overflow:visible' wird dieses Problem im IE5.5+ aufgehoben. 
+	**
+	** IE5.0/Win - x (nicht zu beheben !!)
+	** IE5.5/Win - x 
+	** IE5.x/Mac - x
+	** IE6       - x
+	** IE7       - 0
+	*/
+
+	* html #col1_content { overflow: visible; }
+	* html #col2_content { overflow: visible; }
+	* html #col3_content { overflow: visible; }
+	* html i, * html em { overflow: visible; display:inline-block; }
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: 'kollabierender Margin an #col3 beim Clearing der Spalten' 
+	** 
+	** Im speziellen Fall dass im 3-Spalten-Layout (1-3-2 oder 2-3-1) die linke Spalte die kürzeste und die 
+	** rechte Spalte gleichzeitig die längste der drei Spalte ist, kollabiert im Internet Explorer der 
+	** linken Margin von #col3 durch das Clearen der Spalten mittels "clear:both". 
+	** Im IE6 und IE7 lässt sich das Problem beseitigen durch eine trickreiche alternative Clearing-Lösung.
+	**
+	** IE5.0/Win - x (Bug nicht zu beheben! Stattdessen wird normales Clearing eingesetzt)
+	** IE5.5/Win - x (Bug nicht zu beheben! Stattdessen wird normales Clearing eingesetzt)
+	** IE5.x/Mac - ???
+	** IE6       - x
+	** IE7       - x
+	*/
+	
+	#ie_clearing {
+		display:block;       /* DIV sichtbar machen */
+		\clear:both;         /* nur für IE5.x/Win gedacht, um normales Clearing zu aktivieren */ 
+
+		width: 100%;         /* IE-Clearing mit 100%-DIV für IE 6 */
+		font-size:0;         /* reduziert zusammen mit dem negativen Margin die Höhe des DIVs auf 2 Pixel */
+		margin: -2px 0 -1em 1px; /* IE-Clearing mit übergroßem DIV für IE7 */  
+	}
+
+	* html #ie_clearing { margin: 0 0 -1em 0} 		
+	
+	html {margin-right: 1px} /* Vermeidung horizontaler Scrollbalken bei randabfallenden Layouts im IE7 */
+	* html {margin-right: 0} /* Der IE6 benötigt das nicht */
+
+	#col3_content {margin-bottom:-2px; } /* Beseitigt auch die letzten 2 Pixel des IE-Clearings */
+	#col3 { position:relative; } /* notwendig für den IE 7 */
+	/*------------------------------------------------------------------------------------------------------*/
+
+	/*------------------------------------------------------------------------------------------------------*/
+	/* IE-Anpassung für Subtemplates  */
+
+	.c50l, .c25l, .c33l, .c38l, .c66l, .c75l, .c62l { display:inline; } /* Float-Margin Hack */
+	.c50r, .c25r, .c33r, .c38r, .c66r, .c75r, .c62r { display:inline; } /* Float-Margin Hack */
+
+	.subc, .subcl, .subcr { width:auto; zoom: 1; } /* IE-Clearing mittels hasLayout für IE6 und IE7 */
+	.subc, .subcl, .subcr { width:100%; w\idth: auto; } /* IE-Clearing für IE5.x/win */
+
+	/*------------------------------------------------------------------------------------------------------*/
+}
+
+@media screen
+{
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: 'Internet Explorer and the Expanding Box Problem' 
+	/* Erläuterungen zum Hack: http://www.positioniseverything.net/explorer/expandingboxbug.html
+	**
+	** Der Lösungsvorschlag mittels overflow:hidden macht in den IE-Versionen 5.01 und 5.5 massive Probleme. 
+	** Die DIVs werden dort überhaupt nicht mehr angezeigt. Der erzwungene Textumbruch funktioniert hingegen
+	** und kann angewandt werden. Sieht allerdings nicht sonderlich schön aus. 
+	**
+	** IE5.x/Win - x
+	** IE5.x/Mac - x
+	** IE6       - x
+	** IE7       - 0
+	*/	
+
+	* html #col1_content { word-wrap: break-word; }
+	* html #col2_content { word-wrap: break-word; }
+	* html #col3_content { word-wrap: break-word; }
+	/*------------------------------------------------------------------------------------------------------*/
+	
+	/*------------------------------------------------------------------------------------------------------*/
+	/* Bug: "IE/Win Guillotine Bug"  
+	** Ausgelöst durch: Hovereffekte mit Wechsel der Hintergrundfarbe bei Hyperlinks
+	** Die Fälle für sein Eintreten sind zahlreich: http://www.positioniseverything.net/explorer/guillotine.html
+	** Abhängig vom fertigen Layout können daher weitere Anpassungen erforderliche werden. 
+	**
+	** IE5.x/Win - x
+	** IE5.x/Mac - x
+	** IE6       - x
+	** IE7       - x
+	*/
+
+	* html a, 
+	* html a:hover { background-color: transparent; }
+	* html #footer a, 
+	* html #footer a:hover { background-color: transparent; }
+	
+	/*------------------------------------------------------------------------------------------------------*/
+}

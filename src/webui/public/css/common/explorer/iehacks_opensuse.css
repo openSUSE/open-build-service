@@ -1,0 +1,48 @@
+/* 
+**
+**  $Id: basemod_opensuse.css 19504 2007-05-03 12:57:32Z fs $
+**
+**  Function : Modifications of the basic styles and structural
+**             additions for the openSUSE layout
+**             --> Hacks for IE
+**  Author:    Frank Sundermeyer <fs@opensuse.org>
+**  License:   see copyright/COPYRIGHT
+**
+*/
+
+@media screen {
+
+* html #col3 {
+    margin-left: 14em;
+}
+
+.darkgrey_box,
+.darkgrey_box_double,
+.orange_box,
+.orange_box_double,
+.green_box,
+.green_box_double,
+.grey_box,
+.grey_box_double {
+    width: 100%;
+}
+
+#logo,
+#banner_green,
+#banner_orange,
+#banner_darkgrey {
+    margin-bottom:0;
+    padding-bottom:0;
+}
+#logo_content {
+    height: 101px;
+}
+#banner_content {
+    height: 101px;
+}
+#contentarea {
+margin:0;
+}
+
+
+} 

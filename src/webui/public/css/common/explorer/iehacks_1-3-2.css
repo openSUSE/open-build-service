@@ -1,0 +1,35 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : iehacks_1-3-2.css
+**  Funktion    : IE-Korrektur-Stylesheet für das 1-3-2-Layout von YAML 
+**
+*/
+
+/* LAYOUT-UNABHÄNGIGE ANPASSUNGEN -------------------------------------------------------------------- */
+@import url(../main/iehacks.css);
+
+/* LAYOUT-ABHÄNGIGE ANPASSUNGEN ---------------------------------------------------------------------- */
+@media screen
+{
+/*-----------------------------------------------------------------------------------------------------*/
+/* Bug: 3-Pixel-Jog des Internet Explorers *
+**
+** IE5.x/Win - x
+** IE5.x/Mac - 0
+** IE6       - x
+** IE7       - 0
+*/	
+
+/* Hides from IE-mac \*/
+* html #col3 {height: 1%;}				/* Hack für 3-Pixel-Jog Bug aktivieren */
+* html #col1 {margin-right: -3px;}
+* html #col2 {margin-left: -3px;}
+* html #col3 { margin-left: 24%; margin-right: 24%; }
+/* End hide from IE-mac */ 
+/*-----------------------------------------------------------------------------------------------------*/
+
+}
