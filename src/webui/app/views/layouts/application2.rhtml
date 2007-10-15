@@ -247,7 +247,6 @@
            <div class="message error"><%=h flash[:error] %></div>
             <% end %>
            <%= @content_for_layout %>
-
           </p>
 <!-- End content area -->
          </div>
@@ -281,120 +280,5 @@
     <!-- End 2 cloumn main part -->
    </div>
   </div>
-
-<!-- old content -->
-<div id="header">
-  <h1 id="logo"><a href="/"><img src="/images/logo-buildservice.png" alt="openSUSE build service"></a></h1>
-  <div id="login">
-  <% if session[:login] -%>
-    Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
-    <%= link_to "Watched Projects", :controller => "project", :action => :list_my %><br/>
-    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %><br/>
-    <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
-  <% else -%>
-    <% if ICHAIN_MODE == 'on' or ICHAIN_MODE == 'simulate' %>
-      <form id="loginfrm" action="https://build.opensuse.org/ICSLogin/auth-up" method="post" enctype="application/x-www-form-urlencoded">
-        <input type="hidden" name="url" value="http://build.opensuse.org/privacy/ichain_login" />
-        <input type="hidden" name="context" value="default" />
-        <input type="hidden" name="proxypath" value="reverse" />
-        <input type="hidden" name="message" value="Please log In" />
-        <table cellpadding="0" cellspacing="0">
-          <tr>
-            <td>Username:</td>
-            <td><input type="text" id="nlogin_uname_inpt" name="username" maxlength="50" size="8" onfocus="select()" tabindex="1" /></td>
-          </tr>
-          <tr>
-            <td>Password:</td>
-            <td><input type="password" id="nlogin_pw_inpt" name="password" maxlength="50" size="8" onfocus="select()" tabindex="2" /></td>
-          </tr>
-          <tr align="center">
-            <td><a href="https://secure-www.novell.com/selfreg/jsp/forgotPassword.jsp" onclick="forgotPassword();return false;">forgot password?</a></td>
-            <td><%= image_submit_tag 'ichain_login.png', :tabindex => '3' %></td>
-          </tr>
-        </table>
-      </form>
-    <% else %>
-      <% form_tag :controller => 'user', :action => "store_login" do -%>
-        <table cellpadding="0" cellspacing="0">
-          <tr>
-            <td>Username:</td>
-            <td><%= text_field_tag 'user_login', '', :maxlength => 50, :size => 30 -%></td>
-          </tr>
-          <tr>
-            <td>Password:</td>
-            <td><%= password_field_tag 'user_password', '', :maxlength => 50, :size => 30 -%></td>
-          </tr>
-          <tr align="center">
-            <td>&nbsp;</td>
-            <td><%= image_submit_tag 'ichain_login.png', :tabindex => '3' %></td>
-          </tr>
-        </table>
-      <% end %>
-    <% end %>
-  <% end -%>
-  </div>
-</div>
-
-<!-- k -->
-
-
-<ul id="crumbs" class="nav">
-
-  <%
-    @helplinks = [
-      { 'help about ...'     => '' },
-      { 'the buildservice'   => 'http://en.opensuse.org/Build_Service' },
-      { 'building packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
-      { 'writing spec files' => 'http://forgeftp.novell.com//library/SUSE%20Package%20Conventions/spc.html' },
-      { 'reporting a bug'    => 'http://en.opensuse.org/Submit_a_Bug' }
-    ]
-  %>
-  <li class="help">
-    <form action="">
-    <select size="1" name="helplinks" onchange="goto_url(this.form.helplinks.options[this.form.helplinks.options.selectedIndex].value)">
-      <% @helplinks.each do |helplink| %>
-        <% for k in helplink.keys %>
-          <option value="<%= helplink[k] -%>"><%= k %></option>
-        <% end %>
-      <% end %>
-    </select>
-    </form>
-  </li>
-
-<!-- help is moved -->
-
-
-  <% if session[:login] -%>
-  <li class="searchbox"><%= render :partial => "main/search_form" %></li>
-  <% end -%>
-
-  <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
-  <% if @crumb_list -%>
-  <% @crumb_list.each do |link| -%>
-  <li><%= link %></li>
-  <% end -%>
-  <% end -%>
-</ul>
-
-<div id="body">
-  <div id="content">
-
-    <% if flash[:note] %>
-    <div class="message info"><%=h flash[:note] %></div>
-    <% end %>
-    <% if flash[:error] %>
-    <div class="message error"><%=h flash[:error] %></div>
-    <% end %>
-    <%= @content_for_layout %>
-  </div>
-
-  <div id="footer">
-      openSUSE and SUSE are trademarks of Novell, Inc. in the United States 
-      and other countries.<br>
-      <a href="http://en.opensuse.org/Legal">Legal Information</a>
-      <a href="mailto:webmaster@opensuse.org">Feedback</a>
-  </div>
-
-</div>
 </body>
 </html>
