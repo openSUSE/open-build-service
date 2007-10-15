@@ -305,7 +305,7 @@ kiwi --create /tmp/myRoot</screen>
    </listitem>
   </itemizedlist>
   <sect3 id="sec.kiwi.deploying.usb.assumptions">
-   <title>Assumptions</title>
+   <title>USB Assumptions</title>
    <itemizedlist mark="bullet" spacing="normal">
     <listitem>
      <para>A bootable USB image is the result.</para>
@@ -385,7 +385,7 @@ svn co https://<replaceable>anonymous</replaceable>@svn.berlios.de/svnroot/repos
      <filename>README</filename> file in the base directory of the KIWI repository.</para>
   </sect3>
   <sect3 id="sec.kiwi.deploying.usb.workflow">
-   <title>Workflow</title>
+   <title>USB Workflow</title>
    <para>The main workflow consists of three consecutive commands shown in the following example:</para>
  
 		<example id="ex.kiwi.deploying.usb.workflow.1">
@@ -462,11 +462,11 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
     explained in the respective sections where the interaction makes sense.</para>
   </sect3>
   <sect3 id="sec.kiwi.deploying.usb.configxml">
-   <title>Preparing <filename>config.xml</filename></title>
+   <title>Preparing <filename>config.xml</filename> for USB</title>
    <para>Several changes should be made to the <filename>config.xml</filename> file delivered with
     the <filename>kiwi-desc-livesystem</filename> package. For example, the correct installation
     source must be used. In SuSE internal builds, the FACTORY tree is used. If FACTORY is
-    broken, you can use another installation source, such as
+    currently rebuilt or in an unsynchronous state, you can use another installation source, such as
      <filename>/mounts/dist/install/SLP/openSUSE-10.3-LATEST-DVD/i386/DVD1</filename>.Unfortunately,
     there are no <filename>squashfs</filename> and <filename>aufs</filename> packages in this tree,
     so you will have to import these packages from another location.</para>
@@ -477,8 +477,8 @@ kiwi --bootstick &lt;outputdir&gt;/initrd*.gz \
 
    <!--\begin{lstlisting}[language=xml, label={lst:config-xml-example}, caption={\textit{config.xml} File}]-->
    <example id="config.xml.example">
-   <title>Example Configuration File</title>
-   <screen>&lt;image name="USB-Image-suse-10.3-Alpha5plus"&gt;
+   <title>Example USB Configuration File</title>
+   <screen linenumbering="numbered">&lt;image name="USB-Image-suse-10.3-Alpha5plus"&gt;
 	&lt;description type="system"&gt;
 		&lt;author&gt;Jan-Christoph Bornschlegel&lt;/author&gt;
 		&lt;contact&gt;jcbornschlegel@novell.com&lt;/contact&gt;
@@ -667,7 +667,7 @@ smart install /tmp/yast2-control-center /tmp/yast2-control-center-qt</screen>
   </sect3>
 
   <sect3 id="sec.kiwi.deploying.usb.create" lang="en">
-   <title>Creating the Images</title>
+   <title>Creating the USB Images</title>
    <para>
 The images can be created as soon as everything is prepared in the chroot environment.
 Simply run the second command in <xref linkend="ex.kiwi.deploying.usb.workflow.1" xrefstyle="HeadingOnPage"/>.
@@ -681,7 +681,7 @@ You can create images for different architecures in the same target directory, b
   </sect3>
 
   <sect3 id="sec.kiwi.deploying.usb.dump" lang="en">
-  <title>Dump the Images on the USB Device</title>
+  <title>Dump the USB Images on the USB Device</title>
    <para>
 As the images are eventually created they can be dumped on the USB device.
 Some things must be considered before:
@@ -740,6 +740,133 @@ This leads to problems if the host's version is newer and can handle <command>gz
   </sect3>
  </sect2>
 
+ <sect2 id="sec.kiwi.deploying.oemboot">
+  <title>OEM Boot System</title>
+  <remark>Author: Jan-Christoph Bornschlegel</remark>
+  <sect3 id="sec.kiwi.deploying.assumptions">
+   <title>OEM Assumptions</title>
+   <para>
+    This tutorial explains how a preload harddisk image is created with <command>kiwi</command>.
+    A harddisk image allows hardware vendors to deploy a preconfigured system with the hardware
+    to achieve convenient use and cost effective installation at the same time.
+   </para>
+   <para>
+    The image will be prepared and configured once and then deployed to many computers using a
+    simple copy.
+   </para>
+   <para>
+    In addition to the packages and preconditions mentioned in 
+    <xref linkend="sec.kiwi.deploying.usb.assumptions" xrefstyle="HeadingOnPage"/>
+    one more package must be installed which contains the OEM boot configuration and scripts:
+    <package>kiwi-desc-oemboot</package>. Alternatively the files can also be obtained from
+    the kiwi subversion repository. If you decide to use the repository version of <command>kiwi</command>
+    the folder is already checked out.
+   </para>
+  </sect3>
+  <sect3 id="sec.kiwi.deploying.workflow">
+   <title>OEM Workflow</title>
+   <para>
+    The workflow is comparable to the USB workflow as described in <xref linkend="sec.kiwi.deploying.usb" xrefstyle="HeadingOnPage"/>
+    but involves only two <command>kiwi</command>
+    invocations. Deployment is done by any copy mechanism, for example as simple as <command>dd</command>.
+   </para> 
+		<example id="ex.kiwi.deploying.oem.workflow.1">
+    <title>Basic kiwi Commands for OEM</title>
+   <screen>kiwi -r &lt;rootdir&gt; --prepare &lt;imagedir&gt;
+kiwi --create &lt;rootdir&gt; -d &lt;outputdir&gt;</screen>
+   </example>
+   <para>
+     The files in brackets have exactly the same meaning as explained in <xref linkend="sec.kiwi.deploying.usb.workflow" xrefstyle="HeadingOnPage"/>,
+     the resulting files are different:
+   </para>
+      <itemizedlist id="lst.oemboot.workflow.files" mark="bullet" spacing="normal">
+      <title>Result Files of Second Stage OEM</title>
+       <listitem>
+        <para>
+         <filename>initrd-oemboot-*.gz</filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         <filename>initrd-oemboot-*.kernel</filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         <filename>initrd-oemboot-*.kernel.&lt;<replaceable>version</replaceable>>;&lt;<replaceable>type</replaceable>></filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         <filename>initrd-oemboot-*.md5 -- the MD5 checksum</filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para>
+         <filename></filename>
+        </para>
+       </listitem>
+       <listitem>
+        <para><filename>&lt;<replaceable>imagefile</replaceable>></filename> as named in the
+         first line of <filename>config.xml</filename> plus architecture and version number</para>
+        <para>For example:
+         <filename>preload-suse-SLED10.i686-1.1.2</filename></para>
+       </listitem>
+       <listitem>
+        <para>imagefile's md5 sum</para>
+       </listitem>
+       <listitem>
+        <para>The image as dumpable file (extension .raw)</para>
+        <para>For example:
+         <filename>preload-suse-SLED10.i686-1.1.2.raw</filename></para>
+       </listitem>
+      </itemizedlist>
+
+   <para>
+    The ".raw" file can be dumped to the harddisk of the target system directly.
+    For distribution, download or a recovery disk the image can be shrinked using
+    <command>gzip</command>.
+    In test environment we used the following method for deployment:
+   </para>
+    <procedure id="proc.kiwi.deploying.oemboot.deploy">
+    <title>Deploying the OEM Image on Test Machine</title>
+     <step>
+      <para>Boot the test machine from any device but harddisk.</para>
+      <para>This is a very beautiful use case for the USB boot image explained in
+       <xref linkend="sec.kiwi.deploying.usb" xrefstyle="HeadingOnPage"/>.</para>
+     </step>
+     <step>
+      <para>Create a NFS export on the machine which hosts the image.</para>
+      <para>Edit the file <filename>/etc/exports</filename> and add a line like this:</para>
+      <screen>/folder/on/host	*.&gt;domain>(ro,root_squash,sync)</screen>
+      <para>Restart (or start) the NFS server:</para>
+      <screen>[sudo] rcnfsserver restart</screen>
+      <para>Additionally it may be necessary to add the NFS port in your firewall configuration.</para>
+     </step>
+     <step>
+      <para>mount the exported diretory on the test machine:</para>
+      <screen>mount <replaceable>host</replaceable>:<replaceable>folder</replaceable> <replaceable>mountpoint</replaceable></screen>
+     </step>
+     <step>
+      <para>Dump the image to the harddisk using the device file.</para>
+      <screen>dd if=<replaceable>mountpoint</replaceable>/<replaceable>imagefile</replaceable> of=/dev/sda</screen>
+      <para>In case of a compressed image these commands must be:</para>
+      <screen>zcat <replaceable>mountpoint</replaceable>/<replaceable>imagefile</replaceable>.gz | dd of=/dev/sda</screen>
+     </step>
+    </procedure>
+  </sect3>
+
+  <sect3 id="sec.kiwi.deploying.oem.issues" lang="en">
+  <title>OEM Image Known Issues</title>
+   <para>
+    The workaround time is rather long if the image has a lot of packages installed.
+    The <filename><replaceable>imagename</replaceable>.raw file</filename> becomes huge if you set a size in
+    the <filename>config.xml</filename> file. If you comment this line, <command>kiwi</command> determines a size
+    automatically which is rather small. Even with this it is still possible to compress the image and save
+    another 30-50% of the size which allows the image to fit on a single layer DVD for instance for recovery disks.
+   </para>
+  </sect3>
+ </sect2>
 
  <sect2 id="sec.kiwi.deploying.virtual">
   <title>Using a Virtual Disk System (QEMU or VMware)</title>
