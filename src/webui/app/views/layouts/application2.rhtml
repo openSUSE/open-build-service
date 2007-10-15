@@ -104,30 +104,42 @@
         <div class="box_content">
          <ul class="navlist">
           <li><a href="#">foobar</a></li>
+         
+         </ul>
+         </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
 
-
+       <div class="darkgrey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          Help
+         </div>
+        </div>
+        <div class="box_content">
+         <ul class="navlist">
 
   <%
     @helplinks = [
-      { 'help about ...'     => '' },
       { 'the buildservice'   => 'http://en.opensuse.org/Build_Service' },
       { 'building packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
       { 'writing spec files' => 'http://forgeftp.novell.com//library/SUSE%20Package%20Conventions/spc.html' },
       { 'reporting a bug'    => 'http://en.opensuse.org/Submit_a_Bug' }
     ]
-  %>
-  <li class="help">
-    <form action="">
-    <select size="1" name="helplinks" onchange="goto_url(this.form.helplinks.options[this.form.helplinks.options.selectedIndex].value)">
-      <% @helplinks.each do |helplink| %>
-        <% for k in helplink.keys %>
-          <option value="<%= helplink[k] -%>"><%= k %></option>
-        <% end %>
-      <% end %>
-    </select>
-    </form>
-  </li>
-
+ 
+    @helplinks.each do |helplink| 
+    for k in helplink.keys %>
+         <li><a href="<%= helplink[k] -%>"><%= k %></a></li>
+       <% end %>
+     <% end %>
 
           </li>
          </ul>
@@ -212,10 +224,14 @@
            <div id="page_actions">
             <!-- Begin page actions -->
             <ul>
-             <li><a href="#">Article</a></li>
-             <li><a href="#">Discussion</a></li>
-             <li><a href="#">View Source</a></li>
-             <li><a href="#">History</a></li>
+
+              <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
+                <% if @crumb_list -%>
+                  <% @crumb_list.each do |link| -%>
+                  <li><%= link %></li>
+                  <% end -%>
+                <% end -%>
+
             </ul>
             <!-- End page actions --> 
            </div>
@@ -223,24 +239,15 @@
          </div>
          <div class="box_content" id="bodyContent">
 <!-- Begin content area -->
-          <h1>Content area</h1>
           <p class="special">
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content<br />
-           Content
+            <% if flash[:note] %>
+              <div class="message info"><%=h flash[:note] %></div>
+            <% end %>
+            <% if flash[:error] %>
+           <div class="message error"><%=h flash[:error] %></div>
+            <% end %>
+           <%= @content_for_layout %>
+
           </p>
 <!-- End content area -->
          </div>
@@ -274,7 +281,6 @@
     <!-- End 2 cloumn main part -->
    </div>
   </div>
-
 
 <!-- old content -->
 <div id="header">
