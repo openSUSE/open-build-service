@@ -57,8 +57,8 @@ class SourceController < ApplicationController
           lrepstr = lreps.map{|l| l.db_project.name+'/'+l.name}.join "\n"
           render_error :status => 400, :errorcode => "repo_dependency",
             :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n"
+          return
         end
-        return
       end
 
       #destroy all packages
@@ -75,7 +75,6 @@ class SourceController < ApplicationController
         logger.info "destroying project #{pro.name}"
         pro.destroy
         logger.debug "delete request to backend: /source/#{pro.name}"
-        #FIXME: insert deletion request to backend
         Suse::Backend.delete "/source/#{pro.name}"
       end
 
