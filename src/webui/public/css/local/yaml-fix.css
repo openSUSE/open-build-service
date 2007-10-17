@@ -1,0 +1,348 @@
+/* 
+**
+**  $Id: opensuse_boxes.css 21171 2007-10-16 rlihm $
+**
+**  Funktion: fix yaml vs. raily raltive path problem
+**  Authors:  Frank Sundermeyer <fs@opensuse.org>
+**            Robert Lihm <rlihm@opensuse.org>
+**  License:  see copyright/COPYRIGHT
+*/
+
+
+/* opensuse_boxes.css fix */
+
+.box_bottom_row {
+    background-image: url('/css/common/images/bottom_middle.png');
+}
+
+.box_bottom_row .box_left {
+    background-image: url('/css/common/images/bottom_left_corner.png');
+}
+
+.box_bottom_row .box_right {
+    background-image: url('/css/common/images/bottom_right_corner.png');
+}
+
+/**************
+*  Grey box *
+**************/
+
+.grey_box .box_top_row,
+.grey_box_double .box_top_row {
+    background-image: url('/css/common/images/grey_box/top_middle.png');
+}
+
+.grey_box .box_top_row .box_left,
+.grey_box_double .box_top_row .box_left {
+    background-image: url('/css/common/images/grey_box/top_left_corner.png');
+}
+
+.grey_box .box_top_row .box_right,
+.grey_box_double .box_top_row .box_right {
+    background-image: url('/css/common/images/grey_box/top_right_corner.png');
+}
+
+.grey_box .box_title_row,
+.grey_box_double .box_title_row {
+    background-image: url('/css/common/images/grey_box/title_right.png');
+}
+
+.grey_box .box_title,
+.grey_box_double .box_title {
+    background-image: url('/css/common/images/grey_box/title_left.png');
+}
+
+.grey_box_double .box_footer_row {
+    background-image: url('/css/common/images/grey_box/title_right.png');
+}
+
+.grey_box_double .box_footer {
+    background-image: url('/css/common/images/grey_box/title_left.png');
+}
+
+.grey_box_double .box_bottom_row {
+    background-image: url('/css/common/images/grey_box/bottom_middle_grey.png');
+}
+
+.grey_box_double .box_bottom_row .box_left {
+    background-image: url('/css/common/images/grey_box/bottom_left_corner_grey.png');
+}
+
+.grey_box_double .box_bottom_row .box_right {
+    background-image: url('/css/common/images/grey_box/bottom_right_corner_grey.png');
+}
+
+.grey_box .box_bottom_row {
+    background-image: url('/css/common/images/bottom_middle.png');
+}
+
+.grey_box .box_bottom_row .box_left {
+    background-image: url('/css/common/images/bottom_left_corner.png');
+}
+
+.grey_box .box_bottom_row .box_right {
+    background-image: url('/css/common/images/bottom_right_corner.png');
+}
+/**************
+*  Darkgrey box *
+**************/
+
+.darkgrey_box .box_top_row,
+.darkgrey_box_double .box_top_row {
+    background-image: url('/css/common/images/darkgrey_box/top_middle.png');
+}
+
+.darkgrey_box .box_top_row .box_left,
+.darkgrey_box_double .box_top_row .box_left {
+    background-image: url('/css/common/images/darkgrey_box/top_left_corner.png');
+}
+
+.darkgrey_box .box_top_row .box_right,
+.darkgrey_box_double .box_top_row .box_right {
+    background-image: url('/css/common/images/darkgrey_box/top_right_corner.png');
+}
+
+.darkgrey_box .box_title_row,
+.darkgrey_box_double .box_title_row {
+    background-image: url('/css/common/images/darkgrey_box/title_right.png');
+}
+
+.darkgrey_box .box_title,
+.darkgrey_box_double .box_title {
+    background-image: url('/css/common/images/darkgrey_box/title_left.png');
+}
+
+.darkgrey_box_double .box_footer_row {
+    background-image:; url('/css/common/images/darkgrey_box/title_right.png');
+}
+
+.darkgrey_box_double .box_footer {
+    background-image: url('/css/common/images/darkgrey_box/title_left.png');
+}
+
+.darkgrey_box_double .box_bottom_row {
+    background-image: url('/css/common/images/darkgrey_box/bottom_middle_darkgrey.png');
+}
+
+.darkgrey_box_double .box_bottom_row .box_left {
+    background-image: url('/css/common/images/darkgrey_box/bottom_left_corner_darkgrey.png');
+}
+
+.darkgrey_box_double .box_bottom_row .box_right {
+    background-image: url('/css/common/images/darkgrey_box/bottom_right_corner_darkgrey.png');
+}
+
+/* do not move the following three styles - this allows to have grey boxes
+*  within a grey doublebox
+*/
+.darkgrey_box .box_bottom_row {
+    background-image: url('/css/common/images/bottom_middle.png');
+}
+
+.darkgrey_box .box_bottom_row .box_left {
+    background-image: url('/css/common/images/bottom_left_corner.png');
+}
+
+.darkgrey_box .box_bottom_row .box_right {
+    background-image: url('/css/common/images/bottom_right_corner.png');
+}
+
+/**************
+*  Green box *
+**************/
+
+.green_box .box_top_row,
+.green_box_double .box_top_row {
+    background-image: url('/css/common/images/green_box/top_middle.png');
+}
+
+.green_box .box_top_row .box_left,
+.green_box_double .box_top_row .box_left {
+    background-image: url('/css/common/images/green_box/top_left_corner.png');
+}
+
+.green_box .box_top_row .box_right,
+.green_box_double .box_top_row .box_right {
+    background-image: url('/css/common/images/green_box/top_right_corner.png');
+}
+
+.green_box .box_title_row,
+.green_box_double .box_title_row {
+    background-image: url('/css/common/images/green_box/title_right.png');
+}
+
+.green_box .box_title,
+.green_box_double .box_title {
+    background-image: url('/css/common/images/green_box/title_left.png');
+}
+.green_box_double .box_footer_row {
+    background-image: url('/css/common/images/green_box/title_right.png');
+}
+
+.green_box_double .box_footer {
+    background-image: url('/css/common/images/green_box/title_left.png');
+}
+
+.green_box_double .box_bottom_row {
+    background-image: url('/css/common/images/green_box/bottom_middle_green.png');
+}
+
+.green_box_double .box_bottom_row .box_left {
+    background-image: url('/css/common/images/green_box/bottom_left_corner_green.png');
+}
+
+.green_box_double .box_bottom_row .box_right {
+    background-image: url('/css/common/images/green_box/bottom_right_corner_green.png');
+}
+
+.green_box .box_bottom_row {
+    background-image: url('/css/common/images/bottom_middle.png');
+}
+
+.green_box .box_bottom_row .box_left {
+    background-image: url('/css/common/images/bottom_left_corner.png');
+}
+
+.green_box .box_bottom_row .box_right {
+    background-image: url('/css/common/images/bottom_right_corner.png');
+}
+
+/**************
+*  Orange box *
+**************/
+
+.orange_box .box_top_row,
+.orange_box_double .box_top_row {
+    background-image: url('/css/common/images/orange_box/top_middle.png');
+}
+
+.orange_box .box_top_row .box_left,
+.orange_box_double .box_top_row .box_left {
+    background-image: url('/css/common/images/orange_box/top_left_corner.png');
+}
+
+.orange_box .box_top_row .box_right,
+.orange_box_double .box_top_row .box_right {
+    background-image: url('/css/common/images/orange_box/top_right_corner.png');
+}
+
+.orange_box .box_title_row,
+.orange_box_double .box_title_row {
+    background-image: url('/css/common/images/orange_box/title_right.png');
+}
+
+.orange_box .box_title,
+.orange_box_double .box_title {
+    background-image: url('/css/common/images/orange_box/title_left.png');
+}
+
+.orange_box_double .box_footer_row {
+    background-image: url('/css/common/images/orange_box/title_right.png');
+}
+
+.orange_box_double .box_footer {
+    background-image: url('/css/common/images/orange_box/title_left.png');
+}
+
+.orange_box_double .box_bottom_row {
+    background-image: url('/css/common/images/orange_box/bottom_middle_orange.png');
+}
+
+.orange_box_double .box_bottom_row .box_left {
+    background-image: url('/css/common/images/orange_box/bottom_left_corner_orange.png');
+}
+
+.orange_box_double .box_bottom_row .box_right {
+    background-image: url('/css/common/images/orange_box/bottom_right_corner_orange.png');
+}
+
+.orange_box .box_bottom_row {
+    background-image: url('/css/common/images/bottom_middle.png');
+}
+
+.orange_box .box_bottom_row .box_left {
+    background-image: url('/css/common/images/bottom_left_corner.png');
+}
+
+.orange_box .box_bottom_row .box_right {
+    background-image: url('/css/common/images/bottom_right_corner.png');
+}
+/****************
+*  Header boxes *
+****************/
+
+/* Logo */
+
+#logo .box_content_row {
+    background-image: url('/css/common/images/logo/title_right.png');
+}
+
+#logo .box_content {
+    background-image: url('/css/common/images/logo/title_left.png');
+}
+#logo .box_bottom_row {
+    background-image: url('/css/common/images/logo/bottom_middle_grey.png');
+}
+#logo .box_left {
+    background-image: url('/css/common/images/logo/bottom_left_corner_grey.png');
+}
+#logo .box_right {
+    background-image: url('/css/common/images/logo/bottom_right_corner_grey.png');
+}
+
+/* Darkgrey */
+
+#banner_darkgrey .box_content_row {
+    background-image: url('/css/common/images/darkgrey_headerbox/title_right.png');
+}
+#banner_darkgrey .box_content {
+    background-image: url('/css/common/images/darkgrey_headerbox/title_left.png');
+}
+#banner_darkgrey .box_bottom_row {
+	  background-image: url('/css/common/images/darkgrey_headerbox/bottom_middle_darkgrey.png');
+}
+
+#banner_darkgrey .box_left {
+    background-image: url('/css/common/images/darkgrey_headerbox/bottom_left_corner_darkgrey.png');
+}
+#banner_darkgrey .box_right {
+    background-image: url('/css/common/images/darkgrey_headerbox/bottom_right_corner_darkgrey.png');
+}
+
+/* Green */
+
+#banner_green .box_content_row {
+    background-image: url('/css/common/images/green_headerbox/title_right.png');
+}
+#banner_green .box_content {
+    background-image: url('/css/common/images/green_headerbox/title_left.png');
+}
+#banner_green .box_bottom_row {
+    background-image: url('/css/common/images/green_headerbox/bottom_middle_green.png');
+}
+
+#banner_green .box_left {
+    background-image: url('/css/common/images/green_headerbox/bottom_left_corner_green.png');
+}
+#banner_green .box_right {
+    background-image: url('/css/common/images/green_headerbox/bottom_right_corner_green.png');
+}
+
+/* Orange */
+
+#banner_orange .box_content_row {
+    background-image: url('/css/common/images/orange_headerbox/title_right.png');
+}
+#banner_orange .box_content {
+    background-image: url('/css/common/images/orange_headerbox/title_left.png');
+}
+#banner_orange .box_bottom_row {
+    background-image: url('/css/common/images/orange_headerbox/bottom_middle_orange.png');
+}
+
+#banner_orange .box_left {
+    background-image: url('/css/common/images/orange_headerbox/bottom_left_corner_orange.png');
+}
+#banner_orange .box_right {
+    background-image: url('/css/common/images/orange_headerbox/bottom_right_corner_orange.png');
+}

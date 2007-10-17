@@ -140,4 +140,5 @@ ActiveXML::Base.config do |conf|
 
 
   end
+  Project.transport.set_additional_header "X-Username", "rlihm"
 end
