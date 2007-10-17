@@ -8,6 +8,7 @@ class StatusMessageController < ApplicationController
     if request.get?
 
       @messages = StatusMessage.find :all,
+        :conditions => "ISNULL(deleted_at)",
         :limit => params[:limit],
         :order => 'created_at DESC'
       @count = StatusMessage.find( :first, :select => 'COUNT(*) AS cnt' ).cnt
