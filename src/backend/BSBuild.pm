@@ -41,7 +41,7 @@ sub gen_meta {
   my (%helper1, %helper2, %helper3, %bad);
   for (@deps) {
     $helper1{$_} = tr!/!/!;     # count '/'
-    /^([^ ]+  )((?:.*\/)?)([^\/]*)$/ or die;
+    /^([^ ]+  )((?:.*\/)?)([^\/]*)$/ or die("bad dependency line: $_\n");
     $helper2{$_} = "$2$3";
     $helper3{$_} = "$1$3";
 #    $helper2{$_} = $_;
@@ -50,7 +50,7 @@ sub gen_meta {
 #    $helper3{$_} = $_;
 #    $helper3{$_} =~ s/  .*\//  /;
     if ("/$2$3/" =~ /$subpackre/) {
-      /  ([^\/]+)/ or die;
+      /  ([^\/]+)/ or die("bad dependency line: $_\n");
       $bad{$1} = 1;
     }
   }

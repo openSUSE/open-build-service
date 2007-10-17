@@ -1222,7 +1222,7 @@ sub makeymp {
   my ($projid, $repoid, $binary) = @_;
 
   my $data = Build::query($binary, 'description' => 1);
-  die("no such binary\n") unless $data;
+  #die("no such binary\n") unless $data;
   my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'nopackages', "project=$projid", "repository=$repoid");
   my $proj = $projpack->{'project'}->[0];
   die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
@@ -1241,9 +1241,11 @@ sub makeymp {
   my @group;
   $ymp->{'group'} = \@group;
   my @repos;
-  for my $pa (@{$repo->{'path'} || []}) {
+  my @pa = @{$repo->{'path'} || []};
+  while (@pa) {
+    my $pa = shift @pa;
     my $r = {};
-    $r->{'recommended'} = 'true';
+    $r->{'recommended'} = @pa || !@repos ? 'true' : 'false';
     $r->{'name'} = $pa->{'project'};
     if ($pa->{'project'} eq $projid) {
       $r->{'summary'} = $proj->{'title'};
@@ -1254,12 +1256,25 @@ sub makeymp {
     }
     my $prp_ext = "$pa->{'project'}/$pa->{'repository'}";
     $prp_ext =~ s/:/:\//g;
-    $r->{'url'} = "$BSConfig::repodownload/$prp_ext";
+    $r->{'url'} = "$BSConfig::repodownload/$prp_ext/";
     push @repos, $r;
   }
   my $pkg = {};
-  $pkg->{'name'} = str2utf8($data->{'name'});
-  $pkg->{'description'} = str2utf8($data->{'description'});
+  if ($data) {
+    $pkg->{'name'} = str2utf8($data->{'name'});
+    $pkg->{'description'} = str2utf8($data->{'description'});
+  } else {
+    if ($binary =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+      $pkg->{'name'} = str2utf8($1);
+    } elsif ($binary =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+      $pkg->{'name'} = str2utf8($1);
+    } elsif ($binary =~ /(?:^|\/)([^\/]+)\.(?:rpm|deb)$/) {
+      $pkg->{'name'} = str2utf8($1);
+    } else {
+      die("bad package: $binary\n");
+    }
+    $pkg->{'description'} = "The $pkg->{'name'} package";
+  }
   if (defined $data->{'summary'}) {
     $pkg->{'summary'} = str2utf8($data->{'summary'});
   } else {
@@ -1308,10 +1323,10 @@ sub publishedfile {
   my $prp_ext = "$projid/$repoid";
   $prp_ext .= "/$arch" if defined $arch;
   $prp_ext =~ s/:/:\//g;
-  die("no such file\n") unless -f "$extrepodir/$prp_ext/$filename";
   if ($cgi->{'view'} && $cgi->{'view'} eq 'ymp') {
     return makeymp($projid, $repoid, "$extrepodir/$prp_ext/$filename");
   }
+  die("no such file\n") unless -f "$extrepodir/$prp_ext/$filename";
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo') {
     return fileinfo($cgi, "$extrepodir/$prp_ext/$filename", $filename);
   }
@@ -1392,6 +1407,7 @@ my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
   'setkeepalive' => 1, 
+  'maxchild' => 10,
 };
 
 my $aconf = {

@@ -30,6 +30,15 @@ use BSHTTP;
 use strict;
 
 my %hostlookupcache;
+my $tossl;
+
+sub import {
+  if (grep {$_ eq ':https'} @_) {
+    require BSSSL;
+    $tossl = \&BSSSL::tossl;
+  }
+}
+
 
 my $tcpproto = getprotobyname('tcp');
 
@@ -104,8 +113,13 @@ sub rpc {
     connect(S, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
     unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
     if ($proto eq 'https') {
-      die("https not supported\n") unless $param->{'https'};
-      *S = $param->{'https'}->(\*S);
+      if ($param->{'https'}) {
+        $param->{'https'}->(\*S);
+      } elsif ($tossl) {
+        $tossl->(\*S);
+      } else {
+        die("https not supported\n");
+      }
     }
   }
 

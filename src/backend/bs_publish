@@ -218,7 +218,13 @@ sub createrepo_rpmmd {
   # --update requires a newer createrepo version, tested with version 0.4.10
   my @update;
   @update = '--update' if -f "$extrep/repodata/primary.xml.gz";
-  qsystem('createrepo', @update, $extrep) && print("    createrepo failed: $?\n");
+  if (qsystem('createrepo', @update, $extrep)) {
+    print("    createrepo failed: $?\n");
+    if (@update) {
+      print "    re-running without --update\n";
+      qsystem('createrepo', $extrep) && print("    createrepo failed again: $?\n");
+    }
+  }
   if ($BSConfig::repodownload) {
     print "    running repoview\n";
     qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
@@ -401,7 +407,7 @@ sub createpatterns_ymp {
       }
       my $sprp_ext = "$sprojid/$srepoid";
       $sprp_ext =~ s/:/:\//g;
-      $r->{'url'} = "$BSConfig::repodownload/$sprp_ext";
+      $r->{'url'} = "$BSConfig::repodownload/$sprp_ext/";
       push @repos, $r;
     }    
     $group->{'repositories'} = {'repository' => \@repos };
@@ -462,6 +468,7 @@ sub deleterepo {
   $prp_ext =~ s/:/:\//g;
   my $extrep = "$extrepodir/$prp_ext";
   if (! -d $extrep) {
+    rmdir("$extrepodir/$projid_ext");
     print "    nothing to delete...\n";
     unlink("$reporoot/$prp/:repoinfo");
     rmdir("$reporoot/$prp");
@@ -518,6 +525,7 @@ sub deleterepo {
     print "    running trigger rsync to $1\n";
     qsystem('rsync', '-aH', "$extrepodir_sync/$projid", "$1::$2/$projid") && print("    trigger rsync failed: $?\n");
   }
+  rmdir("$extrepodir/$projid_ext");
 }
 
 sub publish {
@@ -560,6 +568,10 @@ sub publish {
     print "    got the lock...\n";
   }
 
+  my $prp_ext = $prp;
+  $prp_ext =~ s/:/:\//g;
+  my $extrep = "$extrepodir/$prp_ext";
+
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
   my @archs = @{$repo->{'arch'} || {}};
@@ -595,9 +607,14 @@ sub publish {
       } else {
 	next;
       }
-      next if $bins{$p}; # first arch wins
+      # next if $bins{$p}; # first arch wins
       my @s = stat("$reporoot/$prp/$arch/:repo/$bin");
       next unless @s;
+      if ($bins{$p}) {
+        # keep old file (FIXME: should do this different)
+        my @s2 = stat("$extrep/$p");
+        next if !@s2 || "$s[9]/$s[7]/$s[1]" ne "$s2[9]/$s2[7]/$s2[1]";
+      }
       $bins{$p} = "$r/$bin";
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
       $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$bin} if defined $repoinfo->{'binaryorigins'}->{$bin};
@@ -605,9 +622,6 @@ sub publish {
   }
 
   # now update external repository
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
-  my $extrep = "$extrepodir/$prp_ext";
   my $changed = 0;
   my @changed;
   my @deleted;

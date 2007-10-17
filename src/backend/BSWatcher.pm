@@ -343,16 +343,26 @@ nextchunk:
       delete $jev->{'paused'};
     }
     # this is scary
+    $olduri =~ s/\&inprogress$//;
     eval {
       local $BSServerEvents::gev = $stay[0];
-      rpc($olduri);
+      my $param = {
+	'uri' => $olduri,
+	'verbatim_uri' => 1,
+      };
+      rpc($param);
       die("could not restart rpc\n") unless $rpcs{$olduri};
     };
     if ($@ || !$rpcs{$olduri}) {
       # terminate all old rpcs
       my $err = $@ || "internal error\n";
+      $err =~ s/\n$//s;
       for my $jev (@stay) {
-	rpc_error($jev, $err);
+	$jev->{'rpcdone'} = $olduri;
+	$jev->{'rpcerror'} = $err;
+	redo_request($jev);
+	delete $jev->{'rpcdone'};
+	delete $jev->{'rpcerror'};
       }
     } else {
       my $nev = $rpcs{$olduri};

@@ -661,7 +661,8 @@ sub getprojpack {
   my @res;
   for my $projid (@$projids) {
     my $jinfo = { 'name' => $projid };
-    my $proj = readproj($projid);
+    my $proj = readproj($projid, 1);
+    next unless $proj;
     if ($cgi->{'withconfig'}) {
       my $config = readstr("$projectsdir/$projid.conf", 1);
       if ($config) {
@@ -881,6 +882,23 @@ sub putproject {
   notify_repservers('projevent', $projid);
   $proj = readproj($projid);
   return ($proj, $BSXML::proj);
+}
+
+sub delproject {
+  my ($cgi, $projid) = @_;
+
+  die("project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  if (-d "$projectsdir/$projid.pkg") {
+    # delete those packages
+    for my $f (ls("$projectsdir/$projid.pkg")) {
+      unlink("$projectsdir/$projid.pkg/$f");
+    }
+    rmdir("$projectsdir/$projid.pkg") || die("rmdir $projectsdir/$projid.pkg: $!\n");
+  }
+  unlink("$projectsdir/$projid.conf");
+  unlink("$projectsdir/$projid.xml");
+  notify_repservers('srcevent', $projid);
+  return $BSStdServer::return_ok;
 }
 
 sub putpackage {
@@ -1107,7 +1125,7 @@ sub getfile {
   my ($cgi, $projid, $packid, $filename) = @_;
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
-  my $rev = getrev($projid, $packid, $cgi->{'rev'});
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   die("$filename: no such project/package\n") unless $rev;
   my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
   die("$filename: no such file\n") unless $files->{$filename};
@@ -1796,6 +1814,7 @@ my $dispatches = [
   # /source name space: manage project and package data
   '/source' => \&getprojectlist,
   '/source/$project' => \&getpackagelist,
+  'DELETE:/source/$project' => \&delproject,
   '/source/$project/_meta' => \&getproject,
   'PUT:/source/$project/_meta' => \&putproject,
   '/source/$project/_config' => \&getprojectconfig,
@@ -1873,6 +1892,7 @@ my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
   'setkeepalive' => 1,
+  'maxchild' => 10,
 };
 
 my $aconf = {

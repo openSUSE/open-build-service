@@ -191,6 +191,14 @@ sub server {
   };
 
   setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
+  if ($conf->{'accept'}) {
+    eval {
+      $conf->{'accept'}->($conf, $peer);
+    };
+    reply_error($conf, $@) if $@;
+    close CLNT;
+    exit(0);
+  }
   if ($conf->{'dispatch'}) {
     eval {
       my $req = readrequest();
@@ -492,6 +500,7 @@ sub dispatch_checkcgi {
 sub compile_dispatches {
   my ($disps, $verifyers, $callfunction) = @_;
   my @disps = @$disps;
+  $verifyers ||= {};
   my @out;
   while (@disps) {
     my $p = shift @disps;
@@ -516,10 +525,10 @@ sub compile_dispatches {
         my $var = $1;
         my $vartype = $var;
 	($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
-        die("no verifyer for $vartype\n") unless $verifyers->{$vartype};
+        die("no verifyer for $vartype\n") unless $vartype eq '' || $verifyers->{$vartype};
         $pp = "([^\\/]*)";
         $code .= "\$cgi->{'$var'} = \$$num;\n";
-        $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'});\n";
+        $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'});\n" if $vartype ne '';
 	push @args, $var;
 	$known .= ", '$var'";
         $num++;

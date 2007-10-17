@@ -550,7 +550,7 @@ sub sendpublishevent {
     'repository' => $repoid,
   };
   mkdir_p("$eventdir/publish");
-  writexml("$eventdir/publish/.$evname", "$eventdir/publish/$evname", $ev, $BSXML::event);
+  writexml("$eventdir/publish/.$evname$$", "$eventdir/publish/$evname", $ev, $BSXML::event);
   local *F;
   if (sysopen(F, "$eventdir/publish/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
     syswrite(F, 'x');
@@ -561,7 +561,7 @@ sub sendpublishevent {
 # $packs : packages in project
 #          undef -> arch no longer builds this repository
 sub prpfinished {
-  my ($prp, $packs) = @_;
+  my ($prp, $packs, $pubenabled) = @_;
 
   return if $prp =~ /^MicroSUSE/;
   print "    prp $prp is finished...\n";
@@ -591,11 +591,28 @@ sub prpfinished {
     return;
   }
 
-  # link all packages into :repo
   my $rdir = "$reporoot/$prp/$myarch/:repo";
+
+  my $rinfo = {};
+  if (@$packs && $pubenabled && grep {!$_} values(%$pubenabled)) {
+    $rinfo = Storable::retrieve("${rdir}info") if -s "${rdir}info";
+  }
+  $rinfo->{'binaryorigins'} ||= {};
+
+  # link all packages into :repo
   my %origin;
   my $changed;
-  for my $packid (@{$packs || []}) {
+  for my $packid (@$packs) {
+    if ($pubenabled && !$pubenabled->{$packid}) {
+      # publishing of this package is disabled
+      print "        $packid: publishing disabled\n";
+      my @all = grep {$rinfo->{'binaryorigins'}->{$_} eq $packid} keys %{$rinfo->{'binaryorigins'}};
+      for my $bin (@all) {
+        next if exists $origin{$bin};	# first one wins
+        $origin{$bin} = $packid;
+      }
+      next;
+    }
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = grep {/\.(?:deb|rpm)$/} ls($pdir);
     for my $bin (@all) {
@@ -606,10 +623,10 @@ sub prpfinished {
         my @s = stat("$pdir/$bin");
         next unless @s;
         next if "$s[9]/$s[7]/$s[1]" eq "$sr[9]/$sr[7]/$sr[1]";
-        print "      ! :repo/$bin\n";
+        print "      ! :repo/$bin ($packid)\n";
         unlink("$rdir/$bin");
       } else {
-        print "      + :repo/$bin\n";
+        print "      + :repo/$bin ($packid)\n";
         mkdir_p($rdir) unless -d $rdir;
       }
       link("$pdir/$bin", "$rdir/$bin") || die("link $pdir/$bin $rdir/$bin: $!\n");
@@ -623,8 +640,8 @@ sub prpfinished {
     $changed = 1;
   }
 
-  # write rpminfo
-  my $rinfo = {'binaryorigins' => \%origin};
+  # write new rpminfo
+  $rinfo = {'binaryorigins' => \%origin};
   Storable::nstore($rinfo, "${rdir}info");
 
   # release lock and ping publisher
@@ -904,11 +921,16 @@ my %prpfinished;
 while(1) {
   print "package loop\n";
 
+  # Step 0: check for deleted projects
+  my @delprojids = sort(ls($reporoot));
+  @delprojids = grep {!$projpacks->{$_}} @delprojids;
+  $changed{$_} = 1 for @delprojids;
+
   # Step 1: check for deleted repositories
-  for my $projid (sort keys %$projpacks) {
+  for my $projid ((sort keys %$projpacks), @delprojids) {
     next unless $changed{$projid};
     my %repoids;
-    for my $repo (@{$projpacks->{$projid}->{'repository'} || []}) {
+    for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
       $repoids{$repo->{'name'}} = 1 if grep {$_ eq $myarch} @{$repo->{'arch'} || []};
     }
     for my $repoid (ls("$reporoot/$projid")) {
@@ -950,6 +972,7 @@ while(1) {
 	}
       }
     }
+    rmdir("$reporoot/$projid");
   }
 
   # Step 2: go through each project/repository
@@ -1442,9 +1465,19 @@ while(1) {
 	}
       }
       if (! -e "$reporoot/$prp/$myarch/:repodone") {
-        if (enabled($repoid, $projpacks->{$projid}->{'publish'}, 1)) {
+        my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
+        my %pubenabled;
+        for my $packid (@packs) {
+	  my $pdata = $packs->{$packid};
+          if ($pdata->{'publish'}) {
+            $pubenabled{$packid} = enabled($repoid, $pdata->{'publish'}, $pubenabled);
+	  } else {
+            $pubenabled{$packid} = $pubenabled;
+	  }
+	}
+        if (!@packs || grep {$_} values %pubenabled) {
           mkdir_p("$reporoot/$prp/$myarch");
-          prpfinished($prp, \@packs);
+          prpfinished($prp, \@packs, \%pubenabled);
 	  $oldrepodone = $projpacks->{$projid}->{'patternmd5'} || '';
 	  writestr("$reporoot/$prp/$myarch/:repodone", undef, $oldrepodone);
         } else {
