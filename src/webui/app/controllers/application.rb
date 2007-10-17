@@ -129,7 +129,7 @@ class ApplicationController < ActionController::Base
       @details = api_error.elements['details'].text if api_error.elements['details']
       @api_exception = api_error.elements['exception'] if api_error.elements['exception']
     else
-      @code = 500
+      @code = "unknown"
       @message = exception.message
       @exception = exception
     end
@@ -146,10 +146,10 @@ class ApplicationController < ActionController::Base
       if @code == "unregistered_ichain_user" 
         redirect_to :controller => 'user', :action => 'request_ichain'
       else
-        render_error :code => @code, :message => @message
+        render_error :code => @code, :message => @message, :status => 401
       end
     when ActiveXML::Transport::ConnectionError
-      render_error :message => "Unable to connect to API"
+      render_error :message => "Unable to connect to API", :status => 200
 #   when ActiveXML::Error
 #     render_error :code => @code, :message => @messag
     else
@@ -163,7 +163,8 @@ class ApplicationController < ActionController::Base
         logger.debug "tagcreation_error" 
       else
         logger.debug "default exception handling"
-        render_error :code => @code, :message => @message, :exception => @exception, :api_exception => @api_exception
+        render_error :status => 400, :code => @code, :message => @message,
+                     :exception => @exception, :api_exception => @api_exception
       end
     end
   end
@@ -173,6 +174,7 @@ class ApplicationController < ActionController::Base
     @message = opt[:message] || "No message set"
     @exception_xml = opt[:exception_xml]
     @exception = opt[:exception]
+    @status = opt[:status] || 400
 
     logger.debug "ERROR: #{@code} #{@error_message}"
 
@@ -186,7 +188,11 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    render :template => 'error', :status => @code
+    if request.xhr?
+      render :text => @message, :status => @status, :layout => false
+    else
+      render :template => 'error', :status => @status
+    end
   end
 
   def local_request?

@@ -55,3 +55,10 @@ function goto_url(url) {
   document.forms[0].elements[0].blur();
 }
 
+function hide_dialog() {
+  Element.getElementsByClassName(document,"dialog").invoke("hide")
+}
+
+function remove_dialog() {
+  Element.getElementsByClassName(document,"dialog").invoke("remove")
+}

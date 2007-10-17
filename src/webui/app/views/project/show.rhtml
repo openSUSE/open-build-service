@@ -21,9 +21,11 @@
 </table>
 
 <%= render :partial => "watch_link" %>
-<%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %>
+<%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %><br/>
+<%= link_to_remote '[Delete Project]', 
+        :url => {:action => :delete, :project => @project.name}  %>
 
-<div class="description">
+<div class="description" id="description">
   <% description = @project.description.data.text %>
   <% if description %>
     <% linecount=0 %>

@@ -75,7 +75,8 @@ ActiveXML::Base.config do |conf|
     map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
 
     map.connect :project, "rest:///source/:name/_meta",
-        :all    => "rest:///source/"
+        :all    => "rest:///source/",
+        :delete => "rest:///source/:name?:force"
     map.connect :package, "rest:///source/:project/:name/_meta",
         :all    => "rest:///source/:project"
 
@@ -140,5 +141,4 @@ ActiveXML::Base.config do |conf|
 
 
   end
-  Project.transport.set_additional_header "X-Username", "rlihm"
 end

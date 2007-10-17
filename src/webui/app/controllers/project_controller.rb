@@ -101,6 +101,21 @@ class ProjectController < ApplicationController
     @rating = Rating.find( :project => @project )
   end
 
+  def delete
+    @project = Project.find params[:project]
+    begin
+      if params[:force] == "1"
+        @project.delete :force => 1
+      else
+        @project.delete
+      end
+    rescue ActiveXML::Transport::Error => err
+      @error = REXML::Document.new(err.message).root
+      @code = @error.attributes['code']
+      @summary = @error.elements['summary'].text
+    end
+  end
+
   def arch_list
     if @arch_list.nil?
       tmp = []

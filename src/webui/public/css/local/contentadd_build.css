@@ -60,3 +60,69 @@ h1, h2, h3, h4, h5, h6 {
  margin: 0.5em 0 0.2em;
  color: #666;
 }
+
+.dialog {
+  z-index: 90;
+  position: fixed;
+  top: 44%;
+  left: 40%;
+  height: 10em;
+  width: 24em;
+}
+  
+.dialog#disable_mask {
+  z-index: 89;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  background-image: url(/images/transparency_grey_20.png)
+}
+
+.dialog#delete_dialog {
+  border: 2px solid black;
+  background: #dddddd;
+}
+
+.dialog#delete_dialog ul#delete_buttons {
+  border: 1px solid black;
+}
+
+.dialog .content {
+  padding: 2%;
+  width: 96%;
+  position: absolute;
+  height: 7.8em;
+}
+
+.dialog .buttons {
+  padding: 2%;
+  border-top: 2px solid #333;
+  position: absolute;
+  width: 96%;
+  top: 7.8em;
+  height: 2em;
+}
+
+.dialog .buttons a {
+  padding: 1px;
+  padding-left: 3px;
+  margin: 4px;
+  border-top: 2px solid #ddd;
+  border-left: 2px solid #ddd;
+  border-right: 2px solid #333;
+  border-bottom: 2px solid #333;
+  background: #999;
+  color: black;
+}
+
+.dialog .buttons a:visited {
+  text-decoration: none;
+  color: black;
+}
+
+.dialog .buttons a:hover {
+  text-decoration: none;
+  color: black;
+  background: #dd77dd;
+}
