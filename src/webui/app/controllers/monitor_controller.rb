@@ -34,7 +34,7 @@ class MonitorController < ApplicationController
   def delete_message
     message = Statusmessage.find( :id => params[:id] )
     begin
-      message.delete( params[:id] )
+      message.delete
     rescue ActiveXML::Transport::ForbiddenError
       @denied = true
     end

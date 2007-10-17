@@ -2,6 +2,7 @@ require 'rexml/document'
 
 class Statusmessage < ActiveXML::Base
 
+  default_find_parameter :id
 
   class << self
 
@@ -17,10 +18,7 @@ class Statusmessage < ActiveXML::Base
 
   end #self
 
-
-  def delete( msg_id )
-    self.class.transport.delete( self, msg_id )
+  def id
+    @init_options[:id]
   end
-
-
 end
