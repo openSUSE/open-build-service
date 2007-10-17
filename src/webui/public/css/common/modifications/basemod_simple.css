@@ -1,0 +1,70 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : basemod_simple.css
+**  Funktion    : Basis-Modifikation für Browsertests
+**
+*/
+
+@media all
+{
+
+/* Formatierung der Seite */
+body {
+	background: #fff;
+	padding: 10px;	
+	font-size: small;
+}
+
+/* Hier kann ein umlaufender Rand um die gesamte Webseite erzeugt werden */
+#page{ border: 4px #ccc solid; background: #fff; }
+#page_margins {border: 4px #eee solid; min-width: 756px; max-width: 80em; margin:auto;}
+
+/* Formatierung der Kopfbereiches */
+#header { color:#88c; background:#ddd; position:relative; padding: 10px; }
+#nav { color:#fff; background:#888; padding: 1em; }
+
+/* Formatierung der Fußzeile */
+#footer { color:#888; background:#ddd; padding: 10px;}
+
+/* ######################################################################################################
+** ### Formatierung der Inhaltsspalten ##################################################################
+** ######################################################################################################
+*/
+#main { color: #000; background: #fff ; margin: 0; padding: 0; } 
+
+/* linke Spalte */
+#col1 {	width: 20%; }	
+#col1_content {	padding-top:1.5em; margin-left: 10px; margin-right: 10px; color: #444; background:inherit; }
+
+/* Rechte Spalte */
+#col2 {	width: 30%; }
+#col2_content {	padding-top:1.5em; margin-left: 10px; margin-right: 10px; }
+
+/* Mittlere Spalte */
+#col3
+{
+  	margin-left: 20%; 
+   	margin-right: 30%; 
+	border-left: 0px dotted #ddd;
+	border-right: 0px dotted #ddd;
+}
+
+#col3_content { padding-top:1.5em; margin-left: 10px; margin-right: 10px; }
+
+/* ######################################################################################################
+** ### Farbschema für Browsertests ######################################################################
+** ######################################################################################################
+*/
+	#col1 {background: #fee; }
+	#col1_content {background: #edd; }
+	#col2 {background: #efe; }
+	#col2_content {background: #ded; }
+	#col3 {background: #eef; } 
+	#col3_content {background: #dde; }
+	#main {background: #fff; }
+	
+} 

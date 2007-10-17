@@ -1,0 +1,18 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : basemod_bsp_spaltentrenner.css
+**  Funktion    : Einschalten der vertikalen Spaltentrenner an #col3 (beidseitig)
+**
+*/
+
+@media screen
+{
+/* Spaltentrenner */
+#col3 {border-left: 2px #ddd dotted;}
+#col3 {border-right: 2px #ddd dotted;}
+
+} 

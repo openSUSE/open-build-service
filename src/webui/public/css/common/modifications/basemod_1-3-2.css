@@ -1,0 +1,23 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : basemod_1-3-2.css
+**  Funktion    : Variation des Basislayouts - Spaltenanordnung: 1-3-2
+**
+*/
+
+@media screen
+{
+/* #col1 wird zur linken Spalte */
+#col1 {	width: 21.999%; }	
+
+/* #col2 wird zur rechten Spalte */
+#col2 {	width: 22%; }
+
+/* #col3 wird zur mittleren Spalte */
+#col3 { margin-left: 21.999%; margin-right: 22%; }
+
+} 

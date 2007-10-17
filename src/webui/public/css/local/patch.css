@@ -1,3 +1,7 @@
+/*
+in this file I override the old styles.
+*/
+
 #logo {
   margin-top: 0;
 }
@@ -7,8 +11,11 @@
 }
 
 body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
+a:visited {
+  color: #2A4D66;
+} 
 

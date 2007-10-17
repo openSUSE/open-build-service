@@ -1,0 +1,82 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : basemod.css
+**  Funktion    : Basis-Modifikation für das Layout des YAML-Tutorials
+**
+*/
+
+@media all
+{
+
+/* Formatierung der Seite */
+body { background: #99a; padding: 10px;	}
+
+/* Hier kann ein umlaufender Rand um die gesamte Webseite erzeugt werden */
+#page{ border: 1px #667 solid; background: #fff; }
+#page_margins {border: 1px #889 solid; min-width: 756px; max-width: 100em; margin:auto;}
+
+/* Formatierung der Kopfbereiches */
+#header { height: 140px; color: #fff; background: #1f1e2e url(../../img/yaml_bg.gif) repeat-x top; }
+#header img {margin: 48px 0 0 40px; font-size:208%;}
+
+/* Formatierung der Fußzeile */
+#footer { color:#888; background:#fff; margin: 0 1em; padding: 1em 0; border-top: 1px #ddd solid; line-height: 2em;}
+
+/* ######################################################################################################
+** ### Formatierung der Inhaltsspalten ##################################################################
+** ######################################################################################################
+*/
+#main { background: #fff ; padding: 1em 0; } 
+
+/* linke Spalte */
+#col1 {	width: 22.5%; }	
+#col1_content { margin-left: 1em; margin-right: 1em; color: #444; background:inherit; }
+
+/* Rechte Spalte */
+#col2 {	width: 280px; }
+#col2_content {	margin-left: 1em; margin-right: 1em; }
+
+/* Mittlere Spalte */
+#col3
+{
+  	margin-left: 22.5%; 
+   	margin-right: 280px; 
+	border-left: 0px dotted #ddd;
+	border-right: 0px dotted #ddd;
+}
+
+#col3_content { margin-left: 1em; margin-right: 1em; }
+
+
+/* ######################################################################################################
+** ### Formatierung des Teasers der Startseite ##########################################################
+** ######################################################################################################
+*/
+
+#teaser { 
+	margin: 0em 1em 0em 1em; 
+	background: #f4f4f4; 
+	border-bottom: 1px #ccc solid; 
+	padding: 0.5em 0em 0em 30px; 
+	color: #5f5d75; 
+}
+
+#teaser div {float:left; width: auto; margin-right: 1em; }
+#teaser .block1 {padding-top:1em; font-size: 0.82em; }
+#teaser .block3 {width: 50%; padding-top:0.5em; font-size: 0.82em; }
+
+#teaser .block3 .title {
+	font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif; 
+	display:block;
+	font-size: 1.2em; 
+	font-weight:bold; 
+	color: #336699;  
+	background:inherit;  
+	margin: 0 0 0.5em 0; 
+}
+
+} 

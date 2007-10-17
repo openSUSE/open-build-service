@@ -10,7 +10,9 @@
 /*****************
 * General Styles *
 *****************/
-
+#bodyContent {
+  min-height: 23em;
+}
 .navlist {
     list-style-image:url(/css/common/images/liDot_double_darkgrey.png);
 }
@@ -38,4 +40,23 @@
 }
 h1, h2, h3, h4, h5, h6 {
     color: #5d666e;
+}
+
+/* login-form */
+#loginform {
+  width: 13em;
+  margin-top: 3%;
+  margin-left: auto !important;
+  margin-right: auto !important;
+
+  /*background: #f9f;*/
+}
+#loginform #login_form input {
+  width: 90%;
+  margin: 0;
+}
+#loginform #login_form label {
+ display: block;
+ margin: 0.5em 0 0.2em;
+ color: #666;
 }

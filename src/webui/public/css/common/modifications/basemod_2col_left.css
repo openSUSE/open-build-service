@@ -1,0 +1,24 @@
+/* ######################################################################################################
+** # "Yet Another Multicolum Layout" (c) by Dirk Jesse (http://www.yaml.de) #############################
+** ######################################################################################################
+** 
+**  YAML Version: 2.5.2
+**  Dateiversion: 01.11.06  
+**  Datei       : basemod_2col_left.css
+**  Funktion    : Variation des Basislayouts (2-Spalten-Layout)
+**
+*/
+
+@media screen
+{
+#main { padding-top: 0; }
+#teaser { border-top: 1em #fff solid; } 
+
+/* linke Spalte */
+#col1 {	width: 22.5%; }	
+
+/* Rechte Spalte */
+#col2, #col2_content { display:none; } 
+
+#col3 { margin-left: 22.5%; margin-right: 0; }
+} 
