@@ -8,6 +8,7 @@
 -%>
 
 <h2>Project <%=h @project %> Status Monitor</h2>
+<div id="monitor-wrapper">
 
 <p id="info_message" style="display:none;"></p>
 
@@ -87,3 +88,4 @@
 
 <p><%= link_to "[Back to #{@project}]", :action => :show, :project => @project %></p>
 <p><%= link_to "[Build Status Monitor]", :controller => "monitor", :action => :index %></p>
+</div>

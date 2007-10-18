@@ -73,6 +73,12 @@ h1, h2, h3, h4, h5, h6 {
  color: #666;
 }
 
+/* a try to handle the long monitor-tabel */
+#monitor-wrapper {
+  overflow: auto;
+}
+
+
 .dialog {
   z-index: 90;
   position: fixed;
