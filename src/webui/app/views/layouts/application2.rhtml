@@ -76,13 +76,13 @@
          </div>
         </div>
         <div class="box_content">
- 
-    Logged in as <%= link_to session[:login], :controller => 'home', :action => :index %><br/>
-    <%= link_to "Watched Projects", :controller => "project", :action => :list_my %><br/>
-    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %><br/>
-    <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
-
-         </div>
+          <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong><br/>
+          <ul class="navlist"> 
+           <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li> 
+           <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
+           <li><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></li>
+          </ul>
+        </div>
         <div class="box_bottom_row">
          <div class="box_left"></div>
          <div class="box_right"></div>
@@ -90,6 +90,39 @@
        </div>
        <br />
   <% end -%>
+
+  <% if session[:login] -%>
+       <div class="darkgrey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+           Locations <!-- Proceed to:<--> 
+         </div>
+        </div>
+        <div class="box_content">
+         <ul class="navlist">
+           <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
+           <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
+           <li><%= link_to "OBS Status", :controller => "monitor", :action => :index %></li>
+           <li>
+             <%= link_to "Statistics", :controller => "statistics", :action => :index %>
+             <%= image_tag 'beta.png', :title => 'The statistics are still under development' -%>
+           </li>
+        </ul>
+
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+
+<% end -%>
+
        <!--
        <div class="darkgrey_box">
         <div class="box_top_row">
@@ -161,9 +194,13 @@
         <div class="box_content_row">
          <div class="box_content" id="banner_content">
           <div id="pt-personal">
-           <!-- Begin Personal links (Login, etc.) -->
-           <a href="/main/index2">Register | Login</a>
-           <!-- End Personal links (Login, etc.) -->
+            <!-- Begin Personal links (Login, etc.) -->
+            <% if session[:login] -%>
+             <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
+            <% else %>
+             <a href="/main/index2">Register | Login</a>
+            <% end %>
+            <!-- End Personal links (Login, etc.) -->
           </div>
           <div class="subcolumns">
            <div class="c50l">
