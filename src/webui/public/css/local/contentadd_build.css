@@ -48,6 +48,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* login & logout */
 #loginform,
+#seachform_wrapper,
 #logout {
   width: 13em;
   margin-top: 4%;
@@ -72,6 +73,27 @@ h1, h2, h3, h4, h5, h6 {
  margin: 0.5em 0 0.2em;
  color: #666;
 }
+#seachform_wrapper {
+  width: 20em;
+}
+#seachform_wrapper input {
+  display: block;
+  float:left;
+  background: transparent;
+  border: none;
+}
+#seachform_wrapper input#search_text {
+  background:#FAFAFA;
+  border:1px solid #CCC;
+}
+#seachform_wrapper a {
+  display: block;
+  float:left;
+  width: 16px;
+  height:16px;
+  margin:6px;
+}
+#seachform_wrapper a img {}
 
 /* a try to handle the long monitor-tabel */
 #monitor-wrapper {
