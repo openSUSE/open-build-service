@@ -13,6 +13,7 @@
 #bodyContent {
   min-height: 23em;
 }
+li,
 .navlist {
     list-style-image:url(/css/common/images/liDot_double_darkgrey.png);
 }
@@ -45,6 +46,13 @@ h1, h2, h3, h4, h5, h6 {
 .grey-medium {
   color: #666;  
 }
+
+/*
+a,
+a:hover {
+  color:#777777;
+}
+*/
 
 /* login & logout */
 #loginform,
@@ -95,11 +103,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 #seachform_wrapper a img {}
 
-/* a try to handle the long monitor-tabel */
-#monitor-wrapper {
+#monitor-wrapper { /* a try to handle the long monitor-tabel */
   overflow: auto;
 }
-
 
 .dialog {
   z-index: 90;

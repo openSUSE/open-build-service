@@ -15,9 +15,36 @@ body {
   padding: 0;
 }
 
-a:visited {
-  color: #2A4D66;
-} 
+/* Tag Cloud */
+/* TODO 
+ * The link stuff should be handled in the common section.
+ */
+a,
+a:link,
+#contentarea a {
+  text-decoration: none;
+}
+#contentarea a:hover {
+  text-decoration: underline;
+}
+
+#contentarea a,
+#contentarea a:visited,
+#contentarea a:hover,
+#contentarea a:active,
+a:link, .inlets li a strong,
+a:hover, .inlets li a strong,
+a:focus, .inlets li a strong,
+a:visited, .inlets li a:visited strong {
+  color:#777;
+}
+
+#tagcloud{
+  border-color: #ccc;
+}
+.tag {
+  color: #ccc;
+}
 
 /* build status monitor for projects */
 #contentarea .buildstatus tr:hover {
