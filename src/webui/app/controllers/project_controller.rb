@@ -103,16 +103,19 @@ class ProjectController < ApplicationController
 
   def delete
     @project = Project.find params[:project]
-    begin
-      if params[:force] == "1"
-        @project.delete :force => 1
-      else
-        @project.delete
+    @confirmed = params[:confirmed]
+    if @confirmed == "1"
+      begin
+        if params[:force] == "1"
+          @project.delete :force => 1
+        else
+          @project.delete
+        end
+      rescue ActiveXML::Transport::Error => err
+        @error = REXML::Document.new(err.message).root
+        @code = @error.attributes['code']
+        @summary = @error.elements['summary'].text
       end
-    rescue ActiveXML::Transport::Error => err
-      @error = REXML::Document.new(err.message).root
-      @code = @error.attributes['code']
-      @summary = @error.elements['summary'].text
     end
   end
 

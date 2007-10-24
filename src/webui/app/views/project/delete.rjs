@@ -1,7 +1,7 @@
 if @error
   if @code == "repo_dependency"
     @repos = @summary.split("\n")[1..-1]
-    page.replace 'dialog_wrapper', :partial => 'delete_box'
+    page.replace 'dialog_wrapper', :partial => 'delete_dialog'
   else
     page.replace_html 'error_message', @summary
     page.show 'error_message'
@@ -9,6 +9,10 @@ if @error
       page.hide 'error_message'
     end
   end
+elsif not @confirmed
+  @message = "Really delete project #{@project}?"
+  page.replace 'dialog_wrapper', :partial => 'confirm_dialog',
+    :locals => {:buttons => [['Yes', {:url => {:action => 'delete', :confirmed => 1}}], ['No', :abort]]}
 else
   flash[:note] = "Deleted project #{@project}"
   page.redirect_to :action => :list_public
