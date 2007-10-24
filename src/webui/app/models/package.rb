@@ -308,7 +308,6 @@ class Package < ActiveXML::Base
         rdf.repository = repo.name
         rdf.status = 'default'
         rdf.explicit = false
-        rdf.position = 
         rdf.set_implicit_setters( flags['all::all'.to_sym],  self.my_project.send("#{flagtype}flags")[key.to_sym] )
 
         value = rdf
