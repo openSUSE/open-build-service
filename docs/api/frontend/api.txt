@@ -123,6 +123,12 @@ XmlBody: pattern
 
 XmlResult: status
 
+DELETE /source/project/_pattern/<patternfile>
+
+  Remove pattern
+
+XmlResult: status
+
 
 === Packages
 
