@@ -192,6 +192,8 @@ class ApplicationController < ActionController::Base
         response = Suse::Backend.post_source( path, request.raw_post )
       when :put
         response = Suse::Backend.put_source( path, request.raw_post )
+      when :delete
+        response = Suse::Backend.delete_source( path )
       end
     elsif opt[:server] == :repo
       case opt[:method]
