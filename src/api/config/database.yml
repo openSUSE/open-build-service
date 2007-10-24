@@ -32,4 +32,10 @@ production:
   password: secret_password
   host: storage
 
+stage:
+  adapter: mysql
+  database: frontend_stage
+  username: opensuse
+  password: secret_password
+  host: storage
 
