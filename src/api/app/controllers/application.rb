@@ -60,7 +60,7 @@ class ApplicationController < ActionController::Base
       ichain_user = request.env['HTTP_X_USERNAME']
 
       if ichain_user 
-        logger.debug "iChain user extracted from header: #{ichain_user}"
+        logger.info "iChain user extracted from header: #{ichain_user}"
       else
 # TEST vv
         if ichain_mode == :simulate
@@ -79,15 +79,15 @@ class ApplicationController < ActionController::Base
       # However we have to care for the status of the user that must not be
       # unconfirmed or ichain requested
       if ichain_user 
-        @http_user = User.find :first,
-                                 :conditions => [ 'login = ? AND state=2', ichain_user ]
-                                 
-      # If we do not find a User here, we need to create a user and wait for 
-      # the confirmation by the user and the BS Admin Team.
+        @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', ichain_user ]
+        @http_user.update_email_from_ichain_env(request.env)
+
+        # If we do not find a User here, we need to create a user and wait for 
+        # the confirmation by the user and the BS Admin Team.
         if @http_user == nil 
           @http_user = User.find :first, 
                                    :conditions => ['login = ?', ichain_user ]
-          if @http_user == nil 
+          if @http_user == nil
             render_error :message => "iChain user not yet registered", :status => 403,
                          :errorcode => "unregistered_ichain_user",
                          :details => "Please register your iChain user via the web application once."
@@ -382,6 +382,6 @@ class ApplicationController < ActionController::Base
     par.delete 'action'
     pairs = []
     par.sort.each { |pair| pairs << pair.join('=') }
-    url_for( options ).split('://').last + "/#{pairs.join(',').gsub(' ', '-')}"
+    url_for( options ).split('://').last + "/"+ pairs.join(',').gsub(' ', '-')
   end
 end
