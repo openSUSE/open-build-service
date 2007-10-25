@@ -91,3 +91,8 @@ a:visited, .inlets li a:visited strong {
 #contentarea .status_blocked a:visited {
   color: #e55;
 }
+
+
+.star-rating li {
+  list-style-image: none;
+}
