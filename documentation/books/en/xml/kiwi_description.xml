@@ -64,7 +64,7 @@ exit 0</screen>
   &lt;/description&gt;
   &lt;preferences&gt;<co id="co.kiwi.config.preferences"/>
     &lt;type primary="true" boot="..." filesystem="..." flags="..."
-          bootprofile="...">Type&lt;/type>
+          bootprofile="..." baseroot="..." checkprebuilt="true|false">Type&lt;/type>
     &lt;version&gt;<replaceable>Version</replaceable>&lt;/version&gt;
     &lt;size unit="<replaceable>Unit</replaceable>"&gt;<replaceable>Size</replaceable>&lt;/size&gt;
     &lt;packagemanager&gt;<replaceable>Name</replaceable>&lt;/packagemanager&gt;
@@ -75,6 +75,7 @@ exit 0</screen>
     &lt;locale&gt;<replaceable>Name</replaceable>&lt;/locale&gt;
     &lt;defaultdestination&gt;<replaceable>Path</replaceable>&lt;/defaultdestination&gt;
     &lt;defaultroot&gt;<replaceable>Path</replaceable>&lt;/defaultroot&gt;
+    &lt;defaultbaseroot&gt;<replaceable>Path</replaceable>&lt;/defaultbaseroot&gt;
     &lt;compressed&gt;Yes|No&lt;/compressed&gt;
   &lt;/preferences&gt;
   &lt;profiles&gt;<co id="co.kiwi.config.profiles"/>
@@ -196,6 +197,28 @@ exit 0</screen>
            the <option>bootprofile</option> attribute. This feature is used with the netboot image
            to distinguish between different kernels (for example, between the default kernel and the
            Xen kernel).</para>
+         </formalpara>
+        </listitem>
+        <listitem>
+         <formalpara id="bc1jf01">
+          <title>baseroot:</title>
+          <para>attribute to specify the path to a pre created base root system.
+           With KIWI it's possible to prepare and create an image based on
+           a non empty root directory, the so called base root. KIWI will setup
+           the image based on the contents of this directory. This could speedup
+           the build process a lot. Depending on the output type KIWI will call
+           itself in order to be able to create the boot image required for the
+           output type. To make this boot image aware of a possible base root
+           path the attribute <emphasis>baseroot</emphasis> is used.
+          </para>
+         </formalpara>
+        </listitem>
+        <listitem>
+         <formalpara id="bc1jf02">
+          <title>checkprebuilt:</title>
+          <para>Specifies whether or not kiwi should search for a prebuilt boot image. The prebuilt boot
+           images must be stored in a directory named <filename>/usr/share/kiwi/image/*boot/*-prebuilt</filename>.
+          </para>
          </formalpara>
         </listitem>
        </itemizedlist>
@@ -375,6 +398,26 @@ exit 0</screen>
       </listitem>
      </varlistentry>
      <varlistentry id="bc15ttv">
+      <term>defaultroot</term>
+      <listitem>
+       <para>Optional element <sgmltag class="attribute">defaultroot</sgmltag>
+        is used if the option <option>root</option> is not specified while
+        calling KIWI.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="bc15ttw">
+      <term>defaultbaseroot</term>
+      <listitem>
+       <para> Optional element <sgmltag class="attribute">defaulbasetroot</sgmltag>
+        is used if the option <option>--base-root</option> is not specified while
+        calling KIWI. It's possible to prepare and create an image using a predefined
+        non empty root directory as base information. This could speedup the build
+        process a lot if the base root path already contains most of the image data.
+       </para>
+      </listitem>
+     </varlistentry>
+     <varlistentry id="bc15ttx">
       <term>defaultroot</term>
       <listitem>
        <para>(Optional) Used used if the <option>root</option> option is not specified when calling
