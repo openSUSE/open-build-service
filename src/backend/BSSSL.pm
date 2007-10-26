@@ -72,7 +72,7 @@ sub TIEHANDLE {
   } else {
     Net::SSLeay::connect($ssl) || die("SSL_connect");
   }
-  return bless \$ssl;
+  return bless [$ssl, $socket];
 }
 
 sub PRINT {
@@ -80,20 +80,20 @@ sub PRINT {
   my $r = 0;
   for my $msg (@_) {
     next unless defined $msg;
-    $r = Net::SSLeay::write($$sslr, $msg) or last;
+    $r = Net::SSLeay::write($sslr->[0], $msg) or last;
   }
   return $r;
 }
 
 sub READLINE {
   my ($sslr) = @_;
-  return Net::SSLeay::ssl_read_until($$sslr); 
+  return Net::SSLeay::ssl_read_until($sslr->[0]); 
 }
 
 sub READ {
   my ($sslr, undef, $len, $offset) = @_;
   my $buf = \$_[1];
-  my $r = Net::SSLeay::read($$sslr, $len);
+  my $r = Net::SSLeay::read($sslr->[0], $len);
   return undef unless defined $r;
   return length($$buf = $r) unless defined $offset;
   my $bl = length($$buf);
@@ -105,17 +105,30 @@ sub READ {
 sub WRITE {
   my ($sslr, $buf, $len, $offset) = @_;
   return $len unless $len;
-  return Net::SSLeay::write($$sslr, substr($buf, $offset || 0, $len)) ? $len : undef;
+  return Net::SSLeay::write($sslr->[0], substr($buf, $offset || 0, $len)) ? $len : undef;
 }
 
 sub FILENO {
   my ($sslr) = @_;
-  return Net::SSLeay::get_fd($$sslr);
+  return Net::SSLeay::get_fd($sslr->[0]);
 }
 
 sub CLOSE {
   my ($sslr) = @_;
-  Net::SSLeay::free($$sslr);
+  if (tied($sslr->[1]) && tied($sslr->[1]) eq $sslr) {
+    untie($sslr->[1]);
+    close($sslr->[1]);
+  } else {
+    Net::SSLeay::free($sslr->[0]);
+    undef $sslr->[0];
+  }
+  undef $sslr->[1];
+}
+
+sub UNTIE {
+  my ($sslr) = @_;
+  Net::SSLeay::free($sslr->[0]);
+  undef $sslr->[0];
 }
 
 1;

@@ -1194,6 +1194,19 @@ sub listpublished {
   return @r;
 }
 
+sub findympbinary {
+  my ($binarydir, $binaryname) = @_;
+  for my $b (ls($binarydir)) {
+    next unless $b =~ /\.(?:rpm|deb)$/;
+    next unless $b =~ /^\Q$binaryname\E/;
+    my $data = Build::query("$binarydir/$b", 'evra' => 1);
+    if ($data->{'name'} eq $binaryname || "$data->{'name'}-$data->{'version'}" eq $binaryname) {
+      return "$binarydir/$b";
+    }
+  }
+  return undef;
+}
+
 sub publisheddir {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my @res = ();
@@ -1210,6 +1223,18 @@ sub publisheddir {
   } else {
     my $prp_ext = "$projid/$repoid";
     $prp_ext =~ s/:/:\//g;
+    if ($cgi->{'view'} eq 'ymp') {
+      my $binaryname = $arch;
+      my $binary;
+      my @archs = ls("$extrepodir/$prp_ext");
+      for my $a (@archs) {
+	next unless -d "$extrepodir/$prp_ext/$a";
+        $binary = findympbinary("$extrepodir/$prp_ext/$a", $binaryname);
+	last if $binary;
+      }
+      $binary ||= "$extrepodir/$prp_ext/$binaryname";
+      return makeymp($projid, $repoid, $binary);
+    }
     return publishedfile($cgi, $projid, $repoid, undef, $arch) if -f "$extrepodir/$prp_ext/$arch";
     @res = ls("$extrepodir/$prp_ext/$arch");
   }
@@ -1221,7 +1246,20 @@ sub publisheddir {
 sub makeymp {
   my ($projid, $repoid, $binary) = @_;
 
-  my $data = Build::query($binary, 'description' => 1);
+  my $binaryname;
+  my $data;
+  if ($binary =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+    $binaryname = $1;
+  } elsif ($binary =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+    $binaryname = $1;
+  } elsif ($binary =~ /(?:^|\/)([^\/]+)\.(?:rpm|deb)$/) {
+    $binaryname = $1;
+  } else {
+    my $binarydir;
+    ($binarydir, $binaryname) = $binary =~ /^(.*)\/([^\/]*)$/;
+    $binary = findympbinary($binarydir, $binaryname) || $binary;
+  }
+  $data = Build::query($binary, 'description' => 1);
   #die("no such binary\n") unless $data;
   my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'nopackages', "project=$projid", "repository=$repoid");
   my $proj = $projpack->{'project'}->[0];
@@ -1264,15 +1302,7 @@ sub makeymp {
     $pkg->{'name'} = str2utf8($data->{'name'});
     $pkg->{'description'} = str2utf8($data->{'description'});
   } else {
-    if ($binary =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
-      $pkg->{'name'} = str2utf8($1);
-    } elsif ($binary =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
-      $pkg->{'name'} = str2utf8($1);
-    } elsif ($binary =~ /(?:^|\/)([^\/]+)\.(?:rpm|deb)$/) {
-      $pkg->{'name'} = str2utf8($1);
-    } else {
-      die("bad package: $binary\n");
-    }
+    $pkg->{'name'} = str2utf8($binaryname);
     $pkg->{'description'} = "The $pkg->{'name'} package";
   }
   if (defined $data->{'summary'}) {
