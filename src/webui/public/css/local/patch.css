@@ -91,7 +91,9 @@ a:visited, .inlets li a:visited strong {
 #contentarea .status_blocked a:visited {
   color: #e55;
 }
-
+.overflow_wrapper { /* just a workaround for package on small screens */
+  overflow: auto;  
+}
 
 .star-rating li {
   list-style-image: none;

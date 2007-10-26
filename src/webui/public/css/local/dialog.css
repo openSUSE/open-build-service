@@ -28,40 +28,63 @@
   height: 10em;
   border-left: 1px solid #444;
   border-right: 1px solid #444;
+
+  background-color: transparent;
 }
 
 .dialog .box_top_row {
-  background: transparent url(/css/local/images/darkgrey_box/top_middle_dialog.png) repeat scroll left bottom;
+  background: none;
+  /*background: transparent url(/css/local/images/darkgrey_box/top_middle_dialog.png) repeat scroll left bottom;*/
+  /*border: 1px solid #f9f;*/
 }
+.dialog .box_middle {
+  float: left;
+  width: 94%;
+  margin: 0 10px;
+  background: transparent url(/css/common/images/darkgrey_box/top_middle.png) repeat-x scroll 10px 0;
 
+}
+.dialog .box_top_row .box_right,
 .dialog .box_top_row .box_left {
-  background: transparent url(/css/local/images/darkgrey_box/top_left_corner_dialog.png) no-repeat scroll left bottom;
+  position: absolute;
 }
-
 .dialog .box_top_row .box_right {
-  background: transparent url(/css/local/images/darkgrey_box/top_right_corner_dialog.png) no-repeat scroll right bottom;
+  position: absolute;
+  right: auto;
+  left: 0;
+  background: transparent url(/css/local/images/darkgrey_box/top_left_corner.png) no-repeat scroll right bottom;
+}
+.dialog .box_top_row .box_left {
+  position: absolute;
+  right: 0;
+  left: auto;
+  background: transparent url(/css/local/images/darkgrey_box/top_right_corner.png) no-repeat scroll right bottom;
 }
 
 .dialog .box_title_row {
-  background: #5D666E url(/css/local/images/darkgrey_box/title_right_dialog.png) repeat-y scroll right top;
+  /*background: #5D666E url(/css/local/images/darkgrey_box/title_right.png) repeat-y scroll right top;*/
 }
 
 .dialog .box_title_row .box_title {
-  background: transparent url(/css/local/images/darkgrey_box/title_left_dialog.png) repeat-y scroll left top;
+  /*background: transparent url(/css/local/images/darkgrey_box/title_left_dialog.png) repeat-y scroll left top;*/
 }
 
 .dialog .box_bottom_row {
   position: relative;
   top: 10em;
-  background: transparent url(/css/local/images/darkgrey_box/bottom_middle_darkgrey_dialog.png) repeat-x scroll left top;
+  background: transparent url(/css/common/images/darkgrey_box/bottom_middle_darkgrey.png) repeat-x scroll 10px 0;
+ 
+  /*background: transparent url(/css/local/images/darkgrey_box/bottom_middle_darkgrey_dialog.png) repeat-x scroll left top;*/
+  /*background: none !important;*/
+
 }
 
 .dialog .box_bottom_row .box_left {
-  background: transparent url(/css/local/images/darkgrey_box/bottom_left_corner_darkgrey_dialog.png) no-repeat scroll left top;
+  background: transparent url(/css/local/images/darkgrey_box/bottom_left_corner.png) no-repeat scroll left top;
 } 
 
 .dialog .box_bottom_row .box_right {
-  background: transparent url(/css/local/images/darkgrey_box/bottom_right_corner_darkgrey_dialog.png) no-repeat scroll right top;
+  background: transparent url(/css/local/images/darkgrey_box/bottom_right_corner.png) no-repeat scroll right top;
 }
 
 .dialog .buttons {
@@ -95,3 +118,34 @@
   color: black;
   background: #dd77dd;
 }
+
+/* rlihm pfusch */
+
+/*
+
+       <div class="grey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          openSUSE
+         </div>
+        </div>
+        <div class="box_content">
+        
+        <!-- content --> 
+         
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+
+*/
+
+
+

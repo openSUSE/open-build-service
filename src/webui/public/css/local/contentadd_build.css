@@ -106,3 +106,11 @@ a:hover {
 #monitor-wrapper { /* a try to handle the long monitor-tabel */
   overflow: auto;
 }
+
+.dialog_wrapper .darkgrey_box .box_top_row,
+.dialog_wrapper .darkgrey_box_double .box_top_row { 
+/*background:transparent url(../images/darkgrey_box/top_middle.png) repeat-x scroll left bottom;*/
+background:transparent !important;
+}
+
+
