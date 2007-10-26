@@ -23,7 +23,14 @@
 <%= render :partial => "watch_link" %>
 <%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %><br/>
 <%= link_to_remote '[Delete Project]', 
-        :url => {:action => :delete, :project => @project.name}  %>
+:url => {:action => :delete, :project => @project.name}  %>
+
+<% if @debug %>
+<div style="border: 1px solid red; padding: 4px">
+<%= link_to_remote '[Dialog 1 (confirm)]', :url => {:action => :debug_dialog, :dialog => "confirm"}%>
+<%= link_to_remote '[Dialog 2 (delete)]', :url => {:action => :debug_dialog, :dialog => "delete"}%>
+</div>
+<% end %>
 
 <div class="description" id="description">
   <% description = @project.description.data.text %>

@@ -2,7 +2,7 @@ class ProjectController < ApplicationController
 
   before_filter :check_parameter_project, :except =>
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
-      :toggle_watch, :search_project, :show_projects_by_tag ]
+      :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog ]
 
   def index
     redirect_to :action => 'list_all'
@@ -62,6 +62,7 @@ class ProjectController < ApplicationController
 
   def show
     begin
+      @debug = params[:debug]
       @project = Project.find( params[:project] )
       # create array of package-names
       if !@packages
@@ -99,6 +100,22 @@ class ProjectController < ApplicationController
     @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
     @rating = Rating.find( :project => @project )
+  end
+
+  def debug_dialog
+    if params[:dialog] == "confirm"
+      @confirmed = false
+      @error = false
+    elsif params[:dialog] == "delete"
+      @error = true
+      @code = "repo_dependency"
+      @summary = "\n"+%w(home:bauersman:test/standard home:bauersman:test2/standard proj3/blub ding/dong a/b c/d e/f g/h).join("\n")
+      @project = Object.new
+      def @project.name
+        "dsfoiasenldsfjnasldkf"
+      end
+    end
+    render :action => :delete
   end
 
   def delete
