@@ -25,37 +25,43 @@
   width: 95%;
   padding: 2%;
   position: absolute;
-  height: 10em;
-  border-left: 1px solid #444;
-  border-right: 1px solid #444;
+  height: 9em;
+  border-left: 1px solid #E0E0E0;
+  border-right: 1px solid #E0E0E0;
 
-  background-color: transparent;
+  background-color: white;
 }
 
-.dialog .box_top_row {
+.dialog .box_top_row,
+.dialog .box_bottom_row {
   background-image: none;
-  /*background: transparent url(/css/local/images/darkgrey_box/top_middle_dialog.png) repeat scroll left bottom;*/
-  /*border: 1px solid #f9f;*/
 }
-.dialog .box_middle {
+.dialog .box_middle,
+.dialog .box_bottom_row .box_middle{
   float: left;
   width: 94%;
   height: 10px;
   margin: 0 10px;
-  background:red url(/css/common/images/darkgrey_box/top_middle.png) repeat-x scroll left bottom;
-  /*border: 1px solid red;*/
+  background:transparent url(/css/common/images/darkgrey_box/top_middle.png) repeat-x scroll left bottom;
 }
+.dialog .box_bottom_row .box_middle {
+   background:red url(/css/common/images/darkgrey_box/bottom_middle_darkgrey.png) repeat-x scroll left bottom;
+ }
+.dialog .box_bottom_row .box_right,
+.dialog .box_bottom_row .box_left,
 .dialog .box_top_row .box_right,
 .dialog .box_top_row .box_left {
   position: absolute;
 }
-.dialog .box_top_row .box_right {
+.dialog .box_top_row .box_right,
+.dialog .box_bottom_row .box_right{
   position: absolute;
   right: auto;
   left: 0;
   background: transparent url(/css/local/images/darkgrey_box/top_left_corner.png) no-repeat scroll right bottom;
 }
-.dialog .box_top_row .box_left {
+.dialog .box_top_row .box_left,
+.dialog .box_bottom_row .box_left{
   position: absolute;
   right: 0;
   left: auto;
@@ -73,24 +79,32 @@
 .dialog .box_bottom_row {
   position: relative;
   top: 10em;
-  background: transparent url(/css/common/images/darkgrey_box/bottom_middle_darkgrey.png) repeat-x scroll 10px 0;
+  /*background: transparent url(/css/common/images/darkgrey_box/bottom_middle_darkgrey.png) repeat-x scroll 10px 0;*/
  
   /*background: transparent url(/css/local/images/darkgrey_box/bottom_middle_darkgrey_dialog.png) repeat-x scroll left top;*/
   /*background: none !important;*/
 
 }
 
+.dialog .box_footer_row {
+
+  width:100%; 
+
+}
+
 .dialog .box_bottom_row .box_left {
-  background: transparent url(/css/local/images/darkgrey_box/bottom_left_corner.png) no-repeat scroll left top;
+  background: transparent url(/css/local/images/darkgrey_box/bottom_right_corner.png) no-repeat scroll left top;
 } 
 
 .dialog .box_bottom_row .box_right {
-  background: transparent url(/css/local/images/darkgrey_box/bottom_right_corner.png) no-repeat scroll right top;
+  background: transparent url(/css/local/images/darkgrey_box/bottom_left_corner.png) no-repeat scroll right top;
 }
 
 .dialog .buttons {
   padding: 2%;
-  border-top: 2px solid #333;
+  border-top: 1px solid #ccc;
+
+  
   position: absolute;
   width: 96%;
   top: 7.8em;
