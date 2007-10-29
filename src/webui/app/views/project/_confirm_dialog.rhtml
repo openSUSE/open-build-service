@@ -10,8 +10,14 @@
       <div class="box_title">Confirmation</div>
     </div>
     <div class="box_content">
-      <%=@message%>
-      <div class="buttons">
+        <table>
+          <tr>
+            <td>
+              <%=@message%>
+            </td>
+          </tr>
+        </table>
+            <div class="buttons">
         <%
         logger.debug buttons
 buttons.each do |but|

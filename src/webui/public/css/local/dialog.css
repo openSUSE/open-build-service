@@ -28,9 +28,17 @@
   height: 9em;
   border-left: 1px solid #E0E0E0;
   border-right: 1px solid #E0E0E0;
-
+  text-align: center; 
   background-color: white;
 }
+.dialog .box_content table { /* content of dialog box */
+  width:100%;
+} 
+  .dialog .box_content td {
+    height:6em;
+    text-align: center;
+    vertical-align: middle;
+  } 
 
 .dialog .box_top_row,
 .dialog .box_bottom_row {
@@ -69,27 +77,18 @@
 }
 
 .dialog .box_title_row {
-  /*background: #5D666E url(/css/local/images/darkgrey_box/title_right.png) repeat-y scroll right top;*/
 }
 
 .dialog .box_title_row .box_title {
-  /*background: transparent url(/css/local/images/darkgrey_box/title_left_dialog.png) repeat-y scroll left top;*/
 }
 
 .dialog .box_bottom_row {
   position: relative;
   top: 10em;
-  /*background: transparent url(/css/common/images/darkgrey_box/bottom_middle_darkgrey.png) repeat-x scroll 10px 0;*/
- 
-  /*background: transparent url(/css/local/images/darkgrey_box/bottom_middle_darkgrey_dialog.png) repeat-x scroll left top;*/
-  /*background: none !important;*/
-
 }
 
 .dialog .box_footer_row {
-
   width:100%; 
-
 }
 
 .dialog .box_bottom_row .box_left {
@@ -102,36 +101,36 @@
 
 .dialog .buttons {
   padding: 2%;
-  border-top: 1px solid #ccc;
-
-  
   position: absolute;
   width: 96%;
-  top: 7.8em;
+  bottom: 1em;
   height: 2em;
 }
 
 .dialog .buttons a {
-  padding: 1px;
-  padding-left: 3px;
+  padding: 3px 1ex;
+  /*padding-left: 1ex;*/
   margin: 4px;
+  font-size: 1.2em;
+  font-weight: bold;
+  /*
   border-top: 2px solid #ddd;
   border-left: 2px solid #ddd;
   border-right: 2px solid #333;
   border-bottom: 2px solid #333;
   background: #999;
-  color: black;
+  */
+  color: #999;
 }
 
 .dialog .buttons a:visited {
   text-decoration: none;
-  color: black;
 }
 
 .dialog .buttons a:hover {
   text-decoration: none;
-  color: black;
-  background: #dd77dd;
+  color: #666;
+  /*background: #dd77dd;*/
 }
 
 /* rlihm pfusch */
