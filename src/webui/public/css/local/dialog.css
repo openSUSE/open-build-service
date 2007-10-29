@@ -33,16 +33,17 @@
 }
 
 .dialog .box_top_row {
-  background: none;
+  background-image: none;
   /*background: transparent url(/css/local/images/darkgrey_box/top_middle_dialog.png) repeat scroll left bottom;*/
   /*border: 1px solid #f9f;*/
 }
 .dialog .box_middle {
   float: left;
   width: 94%;
+  height: 10px;
   margin: 0 10px;
-  background: transparent url(/css/common/images/darkgrey_box/top_middle.png) repeat-x scroll 10px 0;
-
+  background:red url(/css/common/images/darkgrey_box/top_middle.png) repeat-x scroll left bottom;
+  /*border: 1px solid red;*/
 }
 .dialog .box_top_row .box_right,
 .dialog .box_top_row .box_left {
