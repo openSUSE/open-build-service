@@ -182,8 +182,8 @@
      <listitem>
       <para>The split image type is used to create an operating system image based on two given
        filesystems. The image is divided into two portions, with the first portion representing the
-       data which requires Read/Write access and the second portion representing the Read-only data.
-       The second portion can be part of a compressed Read-only filesystem. This image type does not
+       data which requires Read-only access and the second portion representing the Read-write data.
+       The first portion can be part of a compressed Read-only filesystem. This image type does not
        automatically create a boot image, and it works only with netboot boot images. The generated
        image requires a DHCP/TFTP network infrastructure running on a server.</para>
      </listitem>
