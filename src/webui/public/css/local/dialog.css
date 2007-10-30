@@ -1,10 +1,14 @@
 .dialog {
   z-index: 90;
   position: fixed;
-  top: 44%;
+  top: 30%;
   left: 40%;
   height: 10em;
   width: 24em;
+}
+
+#del_dialog {
+  top: 23% !important;
 }
   
 .dialog#disable_mask {
@@ -20,7 +24,13 @@
   border: 2px solid black;
   background: #dddddd;
 }
+#del_dialog h3 {
+  margin: 1em auto 1em;
 
+
+  font-size: 1.2em;
+  color: #CCC;
+}
 .dialog .box_content {
   width: 95%;
   padding: 2%;
@@ -31,6 +41,10 @@
   text-align: center; 
   background-color: white;
 }
+
+ .heigh17em { /* it's just a workaround */
+   height: 23em !important;
+ }
 .dialog .box_content table { /* content of dialog box */
   width:100%;
 } 
@@ -39,7 +53,12 @@
     text-align: center;
     vertical-align: middle;
   } 
-
+.dialog #list_usedrepo {
+  text-align: left;
+  height: 14em;
+  overflow: auto;
+  border-bottom: 1px solid #eee;
+}
 .dialog .box_top_row,
 .dialog .box_bottom_row {
   background-image: none;
@@ -86,7 +105,9 @@
   position: relative;
   top: 10em;
 }
-
+#del_dialog .box_bottom_row {
+  top: 23em;
+}
 .dialog .box_footer_row {
   width:100%; 
 }

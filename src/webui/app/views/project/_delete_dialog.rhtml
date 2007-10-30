@@ -1,21 +1,40 @@
 <div id="dialog_wrapper">
-<div class="dialog" id="disable_mask"></div>
-<div class="dialog" id="delete_dialog">
-  <div class="content" style="overflow:auto">
-    Following repositories use this project:
-    <ul>
-<% @repos.each do |repo| -%>
-      <li><%=repo%></li>
-<% end %>
-    </ul>
-  </div>
-  <div class="buttons">
-    <%= link_to_remote 'Delete Anyway',
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box" id="del_dialog">
+    <div class="box_top_row">
+      <div class="box_left"></div>
+      <div  class="box_middle"></div>
+      <div class="box_right"></div>
+    </div>
+    <div class="box_title_row">
+      <div class="box_title">Confirmation</div>
+    </div>
+    <div class="box_content heigh17em">
+        <h3>Following repositories use this project:</h3>
+       <div id="list_usedrepo"> 
+          <ul>
+      <% @repos.each do |repo| -%>
+        <li><%=repo%></li>
+      <% end %>
+      </ul>
+    </div>
+<!-- Delete Anyway -->
+       <div class="buttons">
+    <%= link_to_remote 'Delete',
       :url => {:action => :delete, :project => @project.name, :force => 1},
       :loading => 'hide_dialog()',
       :complete => 'remove_dialog()'
     %>
     <%= link_to_function 'Abort', 'remove_dialog()' %>
+      </div>
+    </div>
+    <div class="box_bottom_row">
+      <div class="box_title_row box_footer_row">
+        <div class="box_title"></div>
+      </div>
+      <div class="box_left"></div>
+      <div  class="box_middle"></div>
+      <div class="box_right"></div>
+    </div>
   </div>
-</div>
 </div>
