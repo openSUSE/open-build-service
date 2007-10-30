@@ -72,7 +72,7 @@
   background:transparent url(/css/common/images/darkgrey_box/top_middle.png) repeat-x scroll left bottom;
 }
 .dialog .box_bottom_row .box_middle {
-   background:red url(/css/common/images/darkgrey_box/bottom_middle_darkgrey.png) repeat-x scroll left bottom;
+   background: transparent url(/css/common/images/darkgrey_box/bottom_middle_darkgrey.png) repeat-x scroll left bottom;
  }
 .dialog .box_bottom_row .box_right,
 .dialog .box_bottom_row .box_left,
