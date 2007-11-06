@@ -790,3 +790,83 @@ Tue Oct 02 17:10:00 +0200 2007 - bauersman
 - added possibility for project maintainers to create subprojects
 
 
+------------------------------------------------------------------------
+Tue Nov 06 17:53:26 +0100 2007 - bauersman
+
+- update from svn revision 2302 to 2496
+  improved functionality to ActiveXML::Node
+  
+- handles_xml_element
+  specifies that this subclass of Node should be used 
+  to represent certain xml elements
+  
+- xml_attr_reader, xml_attr_writer, xml_attr_accessor
+  automatically creates accessors for xml attributes
+  
+- text and text= methods for direct access to data.text
+  
+  updated model classes with handles_xml_element calls
+  where appropriate
+  
+- slight cleanup of Project model code (plus adjustments here and there)
+- class Repository for <repository> elements
+- support for enabling/disabling architectures and renaming repositories
+  
+- made package model aware of flag group elements
+- started with implementation of new o.o layout
+- fixed colour of liDot
+- added the cookie-trail-navigation to content-head
+- added help-box to the left column
+- added content to the content-area
+- added link to Register/Login
+- added few graphics
+- added a css file to neutralize old style due developement
+- removed old useless stuff
+- fixed few path problems in css
+- removed search form from head
+- removed useless box in the left column
+- fixed few image paths
+  
+- fixed path of li-dots in openSUSE-box
+- added missing file
+- added styles for login
+- designed login.
+- removed script-tag in head
+- using fixed delete code in status messages
+- fixed error rendering for ajax requests
+- project deletion
+- designed logout view
+-added a box ('locations') to the left column
+-did some styling on the home-box
+-the 'Register|Login' changes now to 'Logout' when you are loged in
+- made a workaround for the project status monitor table
+- fixed link colours for thestatus  table
+- did some syling on the search form
+- changed icons
+- unified link colours
+- unified list images (dots)
+- added confirmation dialog to project deletion
+- moved dialog styles to own stylesheet
+- tried to use the rounded box style for dialogs (looks ugly for now)
+- syntax error fix
+- removed the list-image at the rating stars
+- staging config for web client
+- changed headline type at login and logout page to h1
+- added debug code for dialogs
+  did some design work on dialog box:
+- added corners mit alpha
+- started with rewritng of css and hatm
+- round edges of dilaog work on top row
+- round corners work now in confirmation box
+- confirm dialog is okey now (not tested on IE)
+- removed useless comments and code from dialog.css
+- designed delete-dialoig (css needs to be cleaned up)
+- changed background-color of dialog footer
+- fixed width at Build Repositories table
+- add Ubuntu 7.10 buttons
+- make sure the login return path is properly initialized (#306247)
+- transfer confirmed state to delete action
+- use GET instead of POST for search forms
+- transmit ichain email addres from webclient to api
+
+
