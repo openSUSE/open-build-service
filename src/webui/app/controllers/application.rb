@@ -61,6 +61,7 @@ class ApplicationController < ActionController::Base
         # Do the transport
         transport = ActiveXML::Config.transport_for( :project )
         transport.set_additional_header( "X-Username", ichain_user )
+        transport.set_additional_header( "X-Email", request.env['HTTP_X_EMAIL'] )
     
         # set user object reachable from controller
         @user = Person.find( ichain_user )
