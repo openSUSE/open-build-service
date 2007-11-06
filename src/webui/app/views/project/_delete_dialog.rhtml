@@ -21,7 +21,7 @@
 <!-- Delete Anyway -->
        <div class="buttons">
     <%= link_to_remote 'Delete',
-      :url => {:action => :delete, :project => @project.name, :force => 1},
+      :url => {:action => :delete, :project => @project.name, :force => 1, :confirmed => 1},
       :loading => 'hide_dialog()',
       :complete => 'remove_dialog()'
     %>
