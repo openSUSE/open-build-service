@@ -1,6 +1,6 @@
 
 <p id="search_form">
-  <% form_tag :controller => 'main', :action => 'search_result' do -%>
+  <% form_tag({:controller => 'main', :action => 'search_result'}, {:method => :get}) do -%>
   <table>
     <tr>
       <th style="background:none;">&nbsp;</th>
