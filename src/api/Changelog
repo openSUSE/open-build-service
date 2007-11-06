@@ -766,3 +766,16 @@ Tue Oct 02 17:09:09 +0200 2007 - bauersman
   link against it
 
 
+------------------------------------------------------------------------
+Tue Nov 06 17:53:06 +0100 2007 - bauersman
+
+- update from svn revision 2300 to 2494
+- fixed order of elements in package metadata (package before flaggroups)
+- don't return deleted status messages
+- added eager loading of user data to status messages
+- fixed misplaced return in project deletion
+- added delete capability to forward_data
+- added rails config for staging area
+- update user email address from ichain header
+
+
