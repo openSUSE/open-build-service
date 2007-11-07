@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-  <title>DEV <%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
+  <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
   <%= stylesheet_link_tag "opensuse", :media => "all" %>
   <%= stylesheet_link_tag "SyntaxHighlighter", :media => "all" %>
 
@@ -51,9 +51,9 @@
         </div>
         <div class="box_content">
          <ul class="navlist">
-          <li style="list-style-image: url(/css/common/images/liDot_download.png)"><a href="#">Download</a></li>
-          <li style="list-style-image: url(/css/common/images/liDot_wiki.png)"><a href="#">Wiki</a></li>
-          <li style="list-style-image: url(/css/common/images/liDot_build.png)"><a href="#">Build Service</a></li>
+          <li style="list-style-image: url(/css/common/images/liDot_download.png)"><a href="http://software.opensuse.org/">Download</a></li>
+            <li style="list-style-image: url(/css/common/images/liDot_wiki.png)"><a href="http://en.opensuse.org/">Wiki</a></li>
+          <li style="list-style-image: url(/css/common/images/liDot_build.png)"><a href="http://build.opensuse.org/">Build Service</a></li>
          </ul>
         </div>
         <div class="box_bottom_row">
