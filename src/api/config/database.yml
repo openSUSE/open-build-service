@@ -9,7 +9,7 @@ development:
   adapter: mysql
   database: frontend_development
   username: root
-  password: hammer
+  password:
   host: 127.0.0.1
 
   #host: localhost
@@ -22,7 +22,7 @@ test:
   adapter: mysql
   database: frontend_test
   username: root
-  password: hammer
+  password:
   host: 127.0.0.1
 
 production:
