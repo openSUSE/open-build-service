@@ -366,8 +366,7 @@ class StatisticsController < ApplicationController
     # no permission needed
 
     ds = DownloadStat.find :first, :order => "counted_at DESC", :limit => 1
-    @newest_stats = ds.counted_at.xmlschema
-
+    @newest_stats = ds.nil? ? Time.at(0).xmlschema : ds.counted_at.xmlschema
   end
  
 

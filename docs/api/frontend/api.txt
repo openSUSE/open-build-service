@@ -836,6 +836,7 @@ GET /statistics/newest_stats
   Get the timestamp of the newest stats in build service. This is useful for the
   create_stats_xml.rb script. Using this value it can import only those 
   statistics that changed from the last import of statistics.
+  If there are no statistics yet, returns "1970-01-01T01:00:00+01:00"
 XmlResult: newest_stats
 
 
