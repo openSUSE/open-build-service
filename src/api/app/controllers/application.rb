@@ -80,7 +80,7 @@ class ApplicationController < ActionController::Base
       # unconfirmed or ichain requested
       if ichain_user 
         @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', ichain_user ]
-        @http_user.update_email_from_ichain_env(request.env)
+        @http_user.update_email_from_ichain_env(request.env) unless @http_user.nil?
 
         # If we do not find a User here, we need to create a user and wait for 
         # the confirmation by the user and the BS Admin Team.
