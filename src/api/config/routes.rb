@@ -142,6 +142,10 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'statistics/activity/:project/:package',
     :controller => 'statistics', :action => 'activity'
 
+  # Newest stats
+  #
+  map.connect 'statistics/newest_stats',
+    :controller => 'statistics', :action => 'newest_stats'
 
   ### /status_message
 

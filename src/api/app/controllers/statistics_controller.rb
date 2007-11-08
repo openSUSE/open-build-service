@@ -310,6 +310,7 @@ class StatisticsController < ApplicationController
 
   def redirect_stats
 
+    #breakpoint "redirect problem"
     # check permissions
     unless permissions.set_download_counters
       render_error :status => 403, :errorcode => "permission denied",
@@ -359,6 +360,16 @@ class StatisticsController < ApplicationController
       return
     end
   end
+
+  def newest_stats
+    # check permissions
+    # no permission needed
+
+    ds = DownloadStat.find :first, :order => "counted_at DESC", :limit => 1
+    @newest_stats = ds.counted_at.xmlschema
+
+  end
+ 
 
 
   def most_active

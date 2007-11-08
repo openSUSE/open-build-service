@@ -27,8 +27,8 @@ ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
 
     #change default_server to your backend
-    map.default_server :rest, "buildservice.suse.de:5352" #real backend
-    #map.default_server :rest, "buildservice.suse.de:6362" #test backend
+    #map.default_server :rest, "buildservice.suse.de:5352" #real backend
+    map.default_server :rest, "buildservice.suse.de:6362" #test backend
 
     map.connect :project, "bssql:///", :write_through => :false
     map.connect :package, "bssql:///", :write_through => :false
@@ -118,7 +118,8 @@ end
 #filter = ['Apache:Modules', 'Apache', 'Fedora:Core5', 'Mandriva:2006', 'openSUSE:10.2', 'SUSE:SLES-9', 'SUSE:SLE-10:SDK',
 #  'Java:Sun-Java-1.5', 'SUSE:SL-10.1', 'SUSE:SL-10.0', 'SUSE:SL-9.3', 'SUSE:SLE-10', 'openSUSE:Factory'
 #];
-filter = ['home:bauersman']
+#filter = ['home:mkudlvasr']
+filter = []
 
 projects = Xproject.find(:all)
 

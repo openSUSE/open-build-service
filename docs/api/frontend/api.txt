@@ -832,6 +832,14 @@ PUT /statistics/redirect_stats
 XmlResult: redirect_stats
 
 
+GET /statistics/newest_stats
+  Get the timestamp of the newest stats in build service. This is useful for the
+  create_stats_xml.rb script. Using this value it can import only those 
+  statistics that changed from the last import of statistics.
+XmlResult: newest_stats
+
+
+
 == Status Messages
 
 Host: api.opensuse.org
