@@ -19,7 +19,8 @@
    <emphasis>physical extend</emphasis> as provided by an image description. The second stage
   creates an operating system image from the physical extend. This image is called a
    <emphasis>logical extend</emphasis> or <emphasis>operating system image</emphasis>. In the third
-  stage, you deploy the new image.</para>
+   stage, you deploy the new image.</para>
+ <remark>toms 2007-11-09: I would delete this mini toc (as in kiwi.xml):</remark>
  <itemizedlist mark="bullet" spacing="normal">
   <listitem>
    <para>
@@ -54,7 +55,9 @@
    <command>kiwi -p <replaceable>/path</replaceable></command>
   </para>
   <para><replaceable>/path</replaceable> is the location of your <filename>config.xml</filename>
-   file.</para>
+  file.</para>
+   <remark>toms 2007-11-09: Could we remove the &lt;...> between the
+     replaceable?</remark>
   <para>This command creates the directory
     <filename>/tmp/kiwi.&lt;<replaceable>random</replaceable>></filename>, where
     <replaceable>random</replaceable> is a random string.</para>
@@ -78,7 +81,9 @@
     <replaceable>/path2</replaceable> is the destination output path.</para>
   <para>This command creates an image file and an associated MD5 checksum.</para>
   <para>For more detailed information, see <xref linkend="sec.kiwi.description"
-    xrefstyle="SectTitleOnPage"/>.</para>
+  xrefstyle="SectTitleOnPage"/>.</para>
+  <remark>toms 2007-11-09: I would delete this mini toc (as in kiwi.xml)
+    and insert the links into the para before.</remark>
   <itemizedlist mark="bullet" spacing="normal">
    <listitem>
     <para>

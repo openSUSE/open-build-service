@@ -44,7 +44,11 @@
    <para>
      The openSUSE KIWI Image System provides a complete operating system image solution for Linux-supported hardware platforms as well as for virtualization systems such as Xen and VMware. KIWI is an ideal solution for creating and imaging thin client devices.
    </para>
-     <itemizedlist >
+  <remark>toms 2007-11-09: I would delete this mini toc because,
+    a) it can be created automatically
+    b) the reader can have a look in the general toc anyway.
+    :</remark>
+   <itemizedlist>
    <listitem>
     <para><xref linkend="sec.kiwi.introduction" xrefstyle="SectTitleOnPage"/></para>
    </listitem>
