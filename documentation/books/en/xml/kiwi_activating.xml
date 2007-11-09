@@ -41,7 +41,7 @@
   </listitem>
   <listitem>
    <para>For a <emphasis>full virtualized target system</emphasis> such as VMware or QEMU, the image
-    represents a virtual disk which can be &lt;quote>played&lt;/quote> by the virtualization
+    represents a virtual disk which can be <quote>played</quote> by the virtualization
     system.</para>
   </listitem>
  </itemizedlist>
