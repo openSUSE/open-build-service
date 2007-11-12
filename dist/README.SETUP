@@ -1,0 +1,176 @@
+
+This file does briefly describe how to setup an openSUSE Build Service (OBS)
+with the rpm packages from the openSUSE project. 
+ By default all service run on the same system, but they can get distributed
+to increase reliability and do load balancing.
+
+1. run the backend
+==================
+The backend hosts all sources, build packages and calculates the jobs.
+You need to install the "obs-server" package for this.
+
+1.1 Start the following service in this order
+=============================================
+
+WARNING: The following starts services which are accessable from the outside.
+         Do not do this on a system connected to an untrusted network or be
+         sure to block the ports via a firewall.
+
+ # rcobsrepserver start
+ # rcobssrcserver start
+ # rcobsscheduler start
+
+The data get hosted inside of /srv/obs directory by default.
+
+2. start the workers
+====================
+The workers ask the backend for open build jobs and do the build.
+You need to install the "obs-worker" package for this.
+
+2.1 local worker
+================
+A worker can be started on the localhost by calling
+
+ # rcobsworker start
+
+2.2 setup multiple workers on remote systems
+============================================
+
+3. run the frontend
+===================
+You need to install the "obs-api" package for this and a mysql server on this or
+a remote host.
+
+3.1 Setup and configure the MySQL database
+==========================================
+
+* rcmysql start    # use "insserv mysql" for permanent start
+* /usr/bin/mysqladmin -u root password 'your-password'
+* configure password in
+Configure your used mysql user in
+
+ /srv/www/obs/frontend/config/database.yml
+ /srv/www/obs/webclient/config/database.yml
+
+under the "development:" section.
+* mysql -u root -p
+  mysql> create database frontend_development;
+  mysql> quit
+* cd /srv/www/obs/frontend/
+* rake migrate
+
+3.2 Setup and configure the frontend and webclient
+==================================================
+
+Afterwards the configuration of the frontend (and webclient) rails
+interface is needed. A configuration for accessing via http://127.0.42.1 and
+http://127.0.42.2 gets automatically installed into /etc/lighttpd/vhosts.d/obs.conf
+
+You need to add the following to /etc/lighttpd/lighttpd.conf , if there are these 
+settings missing:
+
+ var.conf_dir    = "/etc/lighttpd/"
+ include "vhosts.d/obs.conf"
+
+The modules "mod_magnet" and "mod_rewrite" needs to be enabled in 
+/etc/lighttpd/modules.conf . Additionally you need to enable FastCGI via
+removing the comment before the
+
+  include "conf.d/fastcgi.conf"
+
+line inside of this file.
+
+
+Afterwards you can start the OBS via 
+
+* rclighttpd start  # use "insserv lighttpd" for permanent start
+
+4. Setup initial distributions
+==============================
+
+The easiest way is reuse a base distro hosted at opensuse.org.
+You can use a provided script to mirror such a base distribution.
+
+To do this execute the following commands:
+
+ # become root user
+ su -
+
+ # validate that osc has account data, you may need to enter your
+ # account data for api.opensuse.org here
+ osc
+
+ # run the script to mirror openSUSE:Factory for example
+ obs_mirror_project openSUSE:Factory standard i586
+
+ # restart the scheduler to scan the new project
+ rcobsscheduler restart
+
+5. Access
+=========
+
+By default you can access the api via using any browser with the URL
+
+  http://127.0.42.2
+
+The web interface is accessable via
+
+  http://127.0.42.1
+
+The default user is "Admin" with the password "opensuse".
+
+6. Updating
+===========
+
+When the obs-api package has been updated, it might be rquired to upgrade
+the database. Therefore, you should do
+* cd /srv/www/obs/frontend/
+* rake migrate
+after updating obs-api.
+
+7. Using osc with your local build service:
+===========================================
+In order to use the command line tool for the build service, change your ~/.oscrc to something 
+like this:
+
+[general]
+
+# Downloaded packages are cached here. Must be writable by you.
+#packagecachedir = /var/tmp/osbuild-packagecache
+
+# Wrapper to call build as root (sudo, su -, ...)
+#su-wrapper = su -c
+
+# rootdir to setup the chroot environment
+# can contain %(repo)s and/or %(arch)s for replacement
+#build-root = /var/tmp/build-root
+
+# use this API server
+# (it needs a section [api.opensuse.org] with the credentials)
+#apisrv = api.opensuse.org
+
+# our local build service api:
+apisrv = 127.0.42.2
+
+# for local build service, use http (not https)
+scheme = http
+
+# local default admin account
+[127.0.42.2]
+user = Admin
+pass = opensuse
+
+# normal build service account
+[api.opensuse.org]
+user = foo
+pass = bar
+
+
+8. Feedback
+===========
+
+Please send feedback to this file or packages to adrian@suse.de
+
+
+
+

@@ -1,0 +1,11 @@
+## Path:        Applications/OBS
+## Description: define for which architectures the packages should get build
+## Type:        stringlist
+## Default:     "i586"
+## Config:      OBS
+#
+# This needs to be a space seperated list of all supported architectures
+
+OBS_SCHEDULER_ARCHITECTURES="i586"
+
+

@@ -1,0 +1,35 @@
+#
+# usage:
+# $HTTP["host"] == "someapp.opensuse.org" {
+#   rails_app   = "someapp"
+#   rails_root  = "/srv/www/opensuse/someapp"
+#   rails_procs = 4
+#   # production/development are typical values here
+#   rails_mode  = "production"
+#   include "vhosts.d/rails.inc"
+# }
+
+  #
+  # quick fix for security bug in rails 1.1
+  #
+  url.rewrite-once = ( "^/(app|components|config|db|doc|lib|log|public|script|test|tmp|vendor)/" => "/index.html" )
+  url.rewrite += ("^/apidocs(/|)$" => "/apidocs/index.html")
+  magnet.attract-physical-path-to = ( conf_dir + "/cleanurl-v5.lua" )
+  accesslog.filename              = log_root + "/obs-" + rails_app + "-access.log"
+  rails_tmp   = rails_root + "/tmp"
+
+  server.document-root  = rails_root + "/public"
+  fastcgi.server = ( ".fcgi" =>
+    ( rails_app =>
+      ( "socket"          => rails_tmp + "/sockets/fcgi.socket",
+        "bin-path"        => server.document-root + "/dispatch.fcgi",
+        "bin-environment" => (
+           "RAILS_ENV" => rails_mode,
+           "TMP"       => rails_tmp 
+        ),
+        "max-procs"       => rails_procs,
+        "idle-timeout"    => 3600,
+      )
+    )
+  )
+

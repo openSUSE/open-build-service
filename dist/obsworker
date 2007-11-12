@@ -1,0 +1,133 @@
+#! /bin/sh
+# Copyright (c) 2007, Novell Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obsworker
+#   and its symbolic  link
+# /usr/sbin/rcobsworker
+#
+### BEGIN INIT INFO
+# Provides:          obsworker
+# Required-Start:    $time $network $syslog
+# Required-Stop:
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 4 6
+# Description:       openSUSE build service worker
+### END INIT INFO
+
+. /etc/rc.status
+
+. /etc/sysconfig/obs-worker
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+workerdir=/var/run/obsworker
+workerbootdir="$workerdir"/boot
+screenrc=/var/run/obsworker/boot/screenrc
+obsopt=""
+
+if [ -z "$OBS_STORAGE_SERVER" ]; then
+	OBS_STORAGE_SERVER="localhost:6262"
+fi
+
+if [ -f /etc/buildhost.config ];then
+	. /etc/buildhost.config
+	obsopt=--xen
+fi
+
+rc_reset
+case "$1" in
+    start)
+		# reset screenrc
+		rm -rf "$workerdir"
+		mkdir -p "$workerbootdir"
+		echo "zombie on"       > $screenrc
+		echo "caption always" >> $screenrc
+
+		if [ "$OBS_WORKER_INSTANCES" -gt 0 ]; then
+			NUM="$OBS_WORKER_INSTANCES"
+		else
+			# start one build backend per CPU
+			NUM=`grep ^processor /proc/cpuinfo  | wc -l`
+		fi
+		I=0
+		ROOT="/tmp"
+		[ -d /BUILD ] && ROOT="/BUILD"
+		[ -d /abuild ] && ROOT="/abuild"
+		[ -n "$OBS_WORKER_DIRECTORY" ] && ROOT="$OBS_WORKER_DIRECTORY"
+		echo "Run $NUM obsworker using $ROOT"
+
+		# fetch worker sources from server
+		pushd "$workerbootdir"
+		curl -q "$OBS_STORAGE_SERVER"/getworkercode | cpio --extract
+		ln -s . XML 
+		chmod 755 bs_worker
+		popd
+
+		while test "$NUM" -gt "$I"; do
+			I=$(( $I + 1 ))
+			title="$HOSTNAME/$I"
+			# prepare obsworker startup in screen...
+			# FIXME: implement command line parameter to define the server
+			echo "screen -t $title ./bs_worker $obsopt --root $ROOT/root_$I" --statedir $workerdir/$I --id "$HOSTNAME/$I" \
+				>> $screenrc
+                        mkdir $workerdir/$I
+			# prepare xen build setup...
+			# requires the file /etc/buildhost.config which contains
+			# the following variables:
+			# ---
+			# XEN_ROOT=[n]
+			# XEN_SWAP=[n]
+			# XEN_MEMX=[n]
+			# ---
+			if [ -d $ROOT/root_$I ];then
+				rm -rf $ROOT/root_$I
+			else
+				mkdir -p $ROOT/root_$I
+			fi
+			if [ ! -z $obsopt ];then
+				dd if=/dev/zero of=$ROOT/root_$I/root bs=1M seek=$XEN_ROOT count=1
+				dd if=/dev/zero of=$ROOT/root_$I/swap bs=1M seek=$XEN_SWAP count=1
+				echo $XEN_MEMX > $ROOT/root_$I/memory
+			fi
+		done
+		pushd "$workerbootdir"
+		screen -m -d -c $screenrc
+		popd
+	;;
+	stop)
+		echo -n "Shutting down obsworker"
+		killall bs_worker 
+		rc_status -v
+	;;
+	restart)
+		## If first returns OK call the second, if first or
+		## second command fails, set echo return value.
+		$0 stop &&  $0 start
+		rc_status
+	;;
+	try-restart)
+		$0 status
+		if test $? = 0; then
+			$0 restart
+		else
+			rc_reset        # Not running is not a failure.
+		fi
+		# Remember status and be quiet
+		rc_status
+	;;
+	reload)
+	;;
+	status)
+		echo -n "Checking for obsworker: "
+		checkproc bs_worker
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit

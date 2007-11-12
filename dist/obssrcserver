@@ -1,0 +1,70 @@
+#! /bin/sh
+# Copyright (c) 2007, Novell Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obssrcserver
+#   and its symbolic  link
+# /usr/sbin/rcobssrcserver
+#
+### BEGIN INIT INFO
+# Provides:          obssrcserver
+# Required-Start:    $time $syslog
+# Required-Stop:
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 4 6
+# Description:       openSUSE build service source repository server
+### END INIT INFO
+
+. /etc/rc.status
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+
+obsdir=/usr/lib/obs/server/
+
+rc_reset
+case "$1" in
+    start)
+		echo -n "Initializing obssrcserver"
+		cd "$obsdir"
+                # FIXME: not nice, this should receive a proper daemon handling, 
+                #        including real logging, pid file and startproc
+		./bs_srcserver >& /srv/obs/log/src_server.log &
+		rc_status -v
+	;;
+	stop)
+		echo -n "Shutting down obssrcserver"
+		killall bs_srcserver 
+		rc_status -v
+	;;
+	restart)
+		## If first returns OK call the second, if first or
+		## second command fails, set echo return value.
+		$0 stop &&  $0 start
+		rc_status
+	;;
+	try-restart)
+		$0 status
+		if test $? = 0; then
+			$0 restart
+		else
+			rc_reset        # Not running is not a failure.
+		fi
+		# Remember status and be quiet
+		rc_status
+	;;
+	reload)
+	;;
+	status)
+		echo -n "Checking for obssrcserver: "
+		checkproc bs_srcserver
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit

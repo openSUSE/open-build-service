@@ -1,0 +1,71 @@
+#!/usr/bin/ruby
+
+# This script mirrors a base distribution from the opensuse.org 
+# Build Service. You can use it to create initial base projects
+# in your build service to build for.
+#
+# This script does mirror only build packages, not the sources. 
+# Yes, it is just a fast hack for now, please submit cleanups :)
+#
+# Missing: * switch off building of mirror projects
+#            (baserepos are disabled anyway by default)
+#          * mirroring of package meta data, needed to build packages
+#          * use mirrors by default for downloading
+
+if ARGV.length != 3
+  print "Call this script with <project> <repository> <architecture> arguments.\n"
+  print "To mirror openSUSE 10.2 as base distro, please call:\n"
+  print " \n"
+  print "  obs_mirror_project openSUSE:10.2 standard i586 \n"
+  print " \n"
+  exit(1)
+end
+
+project=ARGV[0]
+repository=ARGV[1]
+architecture=ARGV[2]
+
+rootdir="/srv/obs/" # package default
+ownership="obsrun"
+
+projectdir = rootdir + "/projects/" 
+
+destinationdir = rootdir + "build/" + project + "/" + repository + "/" + architecture + "/:full/"
+downloadurl = "http://download.opensuse.org/repositories/" + project + "/" + repository 
+
+require 'rexml/document'
+include REXML
+
+# prepare project
+system("mkdir -p #{destinationdir} #{projectdir}")
+
+# create meta data
+system("osc meta prj #{project} > #{projectdir}/#{project}.xml")
+system("osc meta prjconf #{project} > #{projectdir}/#{project}.conf")
+
+# download all binary packages
+process = File::popen("osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository", "r")
+filelist = Document.new process
+filelist.elements.each("binarylist/binary"){ |binary| 
+  fname = binary.attributes["filename"];
+  # skip src and nosrc rpms
+  unless fname[-7..-1] == "src.rpm"
+    print "Download " + fname + "\n"
+# FIXME: we can not use the mirrors atm, since the full expanded package name is unknown
+#    unless system("wget -q -N -O #{destinationdir}/#{fname} #{downloadurl}/#{archdir}/#{fname}")
+      # fallback to api download
+#      print "failed, try via api for #{fname} \n"
+      unless system("osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname} > #{destinationdir}/#{fname}")
+        print "Unable to download #{name} from mirror AND api\n"
+        exit(1)
+      end
+#    end
+  end
+}
+
+# fix ownership in case this script did run as root
+system("chown -R #{ownership} #{rootdir}/build #{projectdir}")
+
+print "Mirroring succeeded :)\n"
+print "Please restart the scheduler to rescan your projects ! \n"
+

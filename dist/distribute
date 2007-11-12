@@ -1,0 +1,276 @@
+#!/bin/bash
+
+# copyright (C) 2007, Novell Inc.
+# License: GPL v2 or later
+# Author:  Susanne Oberhauser  froh@novell.com
+
+usage="${0} [--help]
+
+Prepare and update an openSUSE build server package to the current
+repository code level.
+
+\$PWD is a directory with all files that need to go to the package.
+
+The distribution and build server specifics are read from ./.distrc
+
+LASTSTEP= one of
+  checkout      get the current code from the build server
+  freshtar      update the tar ball
+  diff          compare what is in SCM with what is in obs
+  update        update the obs workign directory with what is in the SCM
+  localbuild    build it on the local machine
+  upload        upload to the build server
+
+--help          display this message"
+
+###################################################################
+# be scrupulous
+set -o nounset
+set -o errexit
+set -o pipefail
+
+
+function verbose {
+    echo ${VERBOSE:+$*}
+}
+function debug {
+    echo ${DEBUG:+$*}
+}
+
+###################################################################
+
+source ./.distrc
+
+# check the environment
+: ${PROJECT:?PROJECT unset. set in .distrc or environment.}
+: ${PACKAGE:?PACKAGE unset. set in .distrc or environment.}
+: ${TARGET:?TARGET unset. set in .distrc or environment.}
+: ${ARCH:=i586}
+: ${SPECFILE:=*.spec}
+
+: ${SVNDIR:?SVNDIR unset. set in .distrc or environment.}
+: ${BUILDOPTS:=}
+
+: ${EXCLUDES:=}
+# be smart: the following files are hardly ever part of a package.
+# after checkpout, there will also be a directory with the project name in $PWD
+: ${CANONICAL_EXCLUDES:=distribute .distrc *~ .*~ .svn .osc RCS .cvs . .. $PROJECT}
+
+: ${LASTSTEP=localbuild}
+
+###################################################################
+# command line
+
+# At this time, there is no command line arguments, if there is one,
+# give help on usage, then exit.
+
+if [ $# != 0 ]
+then
+    echo "$usage
+
+Environment:
+"
+
+    for var in \
+	PROJECT PACKAGE TARGET ARCH SPECFILE \
+	EXCLUDES CANONICAL_EXCLUDES \
+	LASTSTEP
+    do
+      echo "$var=${!var:-null or unset}"
+    done
+    exit 1
+fi
+
+###################################################################
+# sanitize the environment
+#
+set -x
+# all but some specific files belong to the package
+EXCLUDES=$(
+    echo ${EXCLUDES} ${CANONICAL_EXCLUDES} |
+    tr --squeeze "[:blank:]" "\n" |
+    sort -u )
+PACKAGE_FILES=$( comm -13 <(echo "${EXCLUDES}") <(ls -1d * .*) )
+
+
+###################################################################
+# check what needs to be done
+
+# defaults, something means yes, null means no
+
+: ${DO_CHECKOUT:=no}
+: ${DO_FRESHTAR:=yes}
+: ${DO_DIFF:=yes}
+: ${DO_ASK=yes} 
+: ${DO_UPDATE:=no}
+: ${DO_BUILD:=no}
+: ${DO_CHECKIN:=no}
+
+
+case $LASTSTEP in
+    checkout)
+	DO_CHECKOUT=y
+	unset DO_DIFF DO_TAR DO_ASK DO_UPDATE DO_BUILD DO_CHECKIN
+	;;
+    tar)
+	# self detect wether checkout is needed
+	DO_TAR=y
+	unset DO_UPDATE DO_ASK DO_BUILD DO_CHECKIN
+	;;
+    diff)
+	# self detect wether checkout is needed
+	DO_TAR=y
+	DO_DIFF=y
+	unset DO_UPDATE DO_ASK DO_BUILD DO_CHECKIN
+    	;;
+    update)
+	# self detect wether checkout is needed
+	DO_TAR=y
+	DO_DIFF=y
+	DO_ASK=y #default is ask
+	DO_UPDATE=y
+	# leave DO_ASK allone here, needs to be unset explicitely
+	unset DO_BUILD DO_CHECKIN
+    	;;
+    localbuild)
+	# self detect wether checkout is needed
+	DO_TAR=y
+	DO_DIFF=y
+	DO_ASK=y
+	DO_UPDATE=y
+	DO_BUILD=y
+	unset DO_CHECKIN
+	;;
+    upload)
+	# self detect wether checkout is needed
+	DO_TAR=y
+	DO_DIFF=y
+	DO_ASK=y
+	DO_UPDATE=y
+	DO_BUILD=y
+	DO_CHECKIN=y
+	;;
+    *)
+	echo "unknown LASTSTEP"
+	exit 1
+esac
+
+# make sure no means no:  set 'no' to null
+for var in DO_CHECKOUT DO_DIFF DO_ASK DO_UPDATE DO_BUILD DO_CHECKIN
+do
+  case X${!var:-} in
+      Xy|XY|Xyes|XYes|XYES)
+	  eval $var=yes
+	  ;;
+      Xn|XN|Xno|XNo|XNO|X)
+	  eval $var=
+	  ;;
+      *)
+	  echo "please set $var to (y|Y|yes|Yes|YES) or (n|N|no|No|NO|).  Current value: <${!var}>"
+	  exit 1
+	  ;;
+  esac
+done
+
+export DO_CHECKOUT DO_DIFF DO_ASK DO_UPDATE DO_BUILD DO_CHECKIN
+
+###################################################################
+# do what needs to be done
+
+# checkout if the package is not there
+if test ! -d "${PROJECT}/${PACKAGE}/.osc"; then
+    DO_CHECKOUT=true
+fi
+
+if [ ${DO_CHECKOUT} ]; then
+    osc co "${PROJECT}" "${PACKAGE}"
+fi
+
+if [ ${DO_TAR} ]; then
+
+    # Could also do a svn export and parse the revsion from the
+    # output.
+
+    # Actually the method to create the tar ball and figure the
+    # version information depends on the SCM and the working style of
+    # the project.
+
+    # TODO: I think factoring this into a helper function that creates
+    # the tar ball and echoes the revision, and then have just one
+    # variable in .distrc that controls the export method will be a
+    # smart thing to do.
+
+    # For the time being: create the tar ball from a checked out
+    # working copy.
+
+    SVNVERSION=$(svnversion ${SVNDIR})
+    : ${TARFILE:=${PACKAGE}-${SVNVERSION}}
+
+    if [ ! -f ${TARFILE}.tar.bz2 ] ; then
+
+	#svn status --no-ignore ${SVNDIR} | grep  -E "^(\?|I)" | cut -c8-
+
+	tar cvjf ${TARFILE}.tar.bz2 \
+	    --exclude-from <( svn status --no-ignore ${SVNDIR} | grep -E "^(\?|I)" | cut -c8-) \
+	    --exclude=".svn" \
+	    ${SVNDIR}
+    fi
+
+    # update version in specfile
+    sed --in-place -e "s/^%define svnversion .*/%define svnversion ${SVNVERSION}/" ${SPECFILE}
+
+fi
+
+DEPRECATED_FILES=$(
+    comm -12 \
+	<( echo "$PACKAGE_FILES" ) \
+	<( { ls -1 --ignore .osc "${PROJECT}/${PACKAGE}"; 
+	     echo "$EXCLUDES" } | sort -u  ) )
+
+echo $DEPRECATED_FILES
+
+
+if [ ${DO_DIFF} ]; then
+    for f in $PACKAGE_FILES; do
+        # ignore errors from diff.
+	diff -Nu "${PROJECT}/${PACKAGE}/$f"  $f || true
+    done;
+    for f in $DEPRECATED_FILES; do
+        # ignore errors from diff.
+	diff -Nu "${PROJECT}/${PACKAGE}/$f"  $f || true
+    done
+fi
+
+if [ ${DO_ASK} ]; then
+    echo "Proceede?
+  Interrupt (^c) to stop here.
+  Hit RETURN to update the local working copy."
+    read
+fi
+
+if [ ${DO_UPDATE} ]; then
+    cp -vdpP $PACKAGE_FILES ${PROJECT}/${PACKAGE}
+    pushd ${PROJECT}/${PACKAGE}
+    if [ "${DEPRECATED_FILES}" ] ; then rm -v $DEPRECATED_FILES ; fi
+    popd
+fi
+
+pushd "${PROJECT}/${PACKAGE}"
+
+if [ ${DO_BUILD} ]; then
+    osc build ${BUILDOPTS} "${TARGET}" "${ARCH}" "${SPECFILE}"
+fi
+
+
+if [ ${DO_CHECKIN} ]; then
+    if [ ${DO_ASK} ]; then
+	echo "Proceede?
+  Interrupt (^c) to stop here.
+  Hit RETURN to check in to the build server."
+	    read
+    fi
+    osc ci
+fi
+
+popd
+# EOF

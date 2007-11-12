@@ -1,0 +1,29 @@
+-------------------------------------------------------------------
+Fri Jan 26 16:20:12 CET 2007 - poeml@suse.de
+
+- implement status/restart in the init scripts
+
+-------------------------------------------------------------------
+Fri Jan 26 09:48:48 CET 2007 - poeml@suse.de
+
+- added dependency on createrepo
+
+-------------------------------------------------------------------
+Fri Jan 26 01:17:21 CET 2007 - poeml@suse.de
+
+- update to r1110
+  - revert last change, and do it the ruby way, by creating a new
+  migration for it... so existing installations are upgraded
+  - fix truncated line in sorting algorithm
+  - add missing mkdir
+  - add url to package metadata
+- fix build / install sysconfig files
+- fix copyright headers in init script
+- fix path in README where to copy packages to
+
+-------------------------------------------------------------------
+Thu Jan 25 14:34:31 CET 2007 - poeml@suse.de
+
+- update to r1108
+  create a few more architectures, when initializing the database
+

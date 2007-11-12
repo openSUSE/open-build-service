@@ -1,0 +1,86 @@
+--- webclient/app/views/main/index.rhtml.orig	2007-01-24 11:48:41.000000000 +0100
++++ webclient/app/views/main/index.rhtml	2007-01-24 11:49:27.000000000 +0100
+@@ -14,68 +14,6 @@
+ 
+ <p class="description">Everyone can download the resulting software packages via the <a href="http://software.opensuse.org">software browsing interface</a>.</p>
+ 
+-<!--
+-<div id="tagcloud">
+-  <span class="tag size0">brabbel</span>
+-  <span class="tag size14">brabbel</span>
+-  <span class="tag size1">brabbel</span>
+-  <span class="tag size12">brabbel</span>
+-  <span class="tag size7">brabbel</span>
+-  <span class="tag size8">brabbel</span>
+-  <span class="tag size10">brabbel</span>
+-  <span class="tag size3">brabbel</span>
+-  <span class="tag size13">brabbel</span>
+-</div>
+-
+-<div style="clear: both; height:1px;">&nbsp;</div>
+--->
+-
+-<div id="statistics">
+-<!--
+-  <span>
+-    <h5>Highest Rated:</h5>
+-    <ol>
+-      <% @highest_rated.each do |item| %>
+-      <li><%= link_to item, '#' -%></li>
+-      <% end %>
+-    </ol>
+-  </span>
+-  <span>
+-    <h5>Most Active:</h5>
+-    <ol>
+-      <% @most_active.each do |item| %>
+-      <li><%= link_to item, '#' -%></li>
+-      <% end %>
+-    </ol>
+-  </span>
+-  <% if session[:login] %>
+-  <span>
+-    <h5>Latest Built:</h5>
+-    <ol>
+-      <% @latest_built.each do |item| %>
+-      <li><%= link_to item, '#' -%></li>
+-      <% end %>
+-    </ol>
+-  </span>
+-  <% end %>
+--->
+-  <span>
+-    <%= render :partial => 'most_downloaded' -%>
+-    <%= link_to 'more...', { :controller => 'main', :action => 'most_downloaded',
+-      :more => true, :limit => 25 } -%>
+-  </span>
+-  <span>
+-    <%= render :partial => 'latest_added' -%>
+-    <%= link_to 'more...', { :controller => 'main', :action => 'latest_added',
+-      :more => true, :limit => 25 } -%>
+-  </span>
+-  <span class="last">
+-    <%= render :partial => 'latest_updated' -%>
+-    <%= link_to 'more...', { :controller => 'main', :action => 'latest_updated',
+-      :more => true, :limit => 25 } -%>
+-  </span>
+-  <div style="clear: both;">&nbsp;</div>
+-</div>
+ 
+ <% if session[:login] -%>
+   <p>Proceed to:</p>
+--- webclient/app/controllers/main_controller.rb.orig	2007-01-24 11:54:01.000000000 +0100
++++ webclient/app/controllers/main_controller.rb	2007-01-24 11:54:10.000000000 +0100
+@@ -6,9 +6,9 @@
+ 
+ 
+   def index
+-    @latest_added    = Collection.find( :statistics, :type => 'latest_added' , :limit => 10 )
+-    @latest_updated  = Collection.find( :statistics, :type => 'latest_updated' , :limit => 10 )
+-    @most_downloaded = Collection.find( :statistics, :type => 'most_downloaded' , :limit => 10 )
++#    @latest_added    = Collection.find( :statistics, :type => 'latest_added' , :limit => 10 )
++#    @latest_updated  = Collection.find( :statistics, :type => 'latest_updated' , :limit => 10 )
++#    @most_downloaded = Collection.find( :statistics, :type => 'most_downloaded' , :limit => 10 )
+   end
+ 
+ 

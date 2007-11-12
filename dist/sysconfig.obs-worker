@@ -1,0 +1,30 @@
+## Path:        Applications/OBS
+## Description: define server host to be used
+## Type:        string
+## Default:     "localhost:6262"
+## Config:      OBS
+#
+#
+
+OBS_STORAGE_SERVER=""
+
+## Path:        Applications/OBS
+## Description: define number of build instances
+## Type:        integer
+## Default:     0
+## Config:      OBS
+#
+# 0 instances will automatically use the number of CPU's
+
+OBS_WORKER_INSTANCES="0"
+
+## Path:        Applications/OBS
+## Description: The base directory, where sub directories for each worker will get created
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+#
+
+OBS_WORKER_DIRECTORY=""
+
