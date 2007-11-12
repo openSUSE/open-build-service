@@ -17,7 +17,7 @@ PreReq:         %fillup_prereq %insserv_prereq
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Autoreqprov:    on
-%define svnversion 2418M
+%define svnversion 2418_2547M
 Version:        0.1.1_%{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service

@@ -29,14 +29,14 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
-
 function verbose {
-    echo ${VERBOSE:+$*}
+    ${VERBOSE:+$*}
 }
 function debug {
-    echo ${DEBUG:+$*}
+    ${DEBUG:+$*}
 }
 
+debug verbose set -x
 ###################################################################
 
 source ./.distrc
@@ -84,7 +84,7 @@ fi
 ###################################################################
 # sanitize the environment
 #
-set -x
+
 # all but some specific files belong to the package
 EXCLUDES=$(
     echo ${EXCLUDES} ${CANONICAL_EXCLUDES} |
@@ -92,7 +92,7 @@ EXCLUDES=$(
     sort -u )
 PACKAGE_FILES=$( comm -13 <(echo "${EXCLUDES}") <(ls -1d * .*) )
 
-
+debug echo $PACKAGE_FILES
 ###################################################################
 # check what needs to be done
 
@@ -203,7 +203,13 @@ if [ ${DO_TAR} ]; then
     # For the time being: create the tar ball from a checked out
     # working copy.
 
-    SVNVERSION=$(svnversion ${SVNDIR})
+    SVNVERSION=$( svnversion ${SVNDIR} )
+
+    # Svnversion can give a REV1:REV2 label.  tar then interprets REV1
+    # as hostname to connect to.  get rid of the colons in favour of
+    # underbars...
+    SVNVERSION=${SVNVERSION//:/_}
+
     : ${TARFILE:=${PACKAGE}-${SVNVERSION}}
 
     if [ ! -f ${TARFILE}.tar.bz2 ] ; then
@@ -227,8 +233,7 @@ DEPRECATED_FILES=$(
 	<( { ls -1 --ignore .osc "${PROJECT}/${PACKAGE}"; 
 	     echo "$EXCLUDES" } | sort -u  ) )
 
-echo $DEPRECATED_FILES
-
+debug echo $DEPRECATED_FILES
 
 if [ ${DO_DIFF} ]; then
     for f in $PACKAGE_FILES; do
