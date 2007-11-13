@@ -17,7 +17,7 @@ PreReq:         %fillup_prereq %insserv_prereq
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Autoreqprov:    on
-%define svnversion 2418_2547M
+%define svnversion 2557M
 Version:        0.1.1_%{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
@@ -170,6 +170,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/BSServer.pm
 /usr/lib/obs/server/BSServerEvents.pm
 /usr/lib/obs/server/BSSrcdiff.pm
+/usr/lib/obs/server/BSSSL.pm
 /usr/lib/obs/server/BSStdServer.pm
 /usr/lib/obs/server/BSUtil.pm
 /usr/lib/obs/server/BSVerify.pm

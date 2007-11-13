@@ -44,46 +44,69 @@ a remote host.
 3.1 Setup and configure the MySQL database
 ==========================================
 
-* rcmysql start    # use "insserv mysql" for permanent start
-* /usr/bin/mysqladmin -u root password 'your-password'
-* configure password in
-Configure your used mysql user in
+* start the mysql database
 
- /srv/www/obs/frontend/config/database.yml
- /srv/www/obs/webclient/config/database.yml
+      # rcmysql start    # use "insserv mysql" for permanent start
 
-under the "development:" section.
-* mysql -u root -p
-  mysql> create database frontend_development;
-  mysql> quit
-* cd /srv/www/obs/frontend/
-* rake migrate
+  If you do this for the first time, mysql will initialize itself and
+  ask to create a root password in the database, like this:
+
+      # /usr/bin/mysqladmin -u root password 'your-password'
+
+* Create the empty development databases:
+
+      # mysql -u root -p
+      mysql> create database frontend_development;
+      mysql> create database webclient_development;
+      mysql> quit
+
+* If you use the mysql database for other services, too, then
+  it's reccommended to add a separate mysql user, e.g.g 'obs', like
+  this:
+
+      # mysql -u root -p='your-password'
+      GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP 
+      ON frontend.* 
+      TO 'obs'@'%' IDENTIFIED BY 'obspwd', 
+      'obs'@'localhost' IDENTIFIED BY 'obspwd';
+
+* Configure your mysql user and password in
+
+    /srv/www/obs/frontend/config/database.yml
+    /srv/www/obs/webclient/config/database.yml
+
+  in the "development:" section.
+
+* populate the database
+
+    # cd /srv/www/obs/frontend/
+    # rake db:migrate
 
 3.2 Setup and configure the frontend and webclient
 ==================================================
 
 Afterwards the configuration of the frontend (and webclient) rails
-interface is needed. A configuration for accessing via http://127.0.42.1 and
-http://127.0.42.2 gets automatically installed into /etc/lighttpd/vhosts.d/obs.conf
+interface is needed. A configuration for accessing via
+http://127.0.42.1 and http://127.0.42.2 gets automatically installed
+into /etc/lighttpd/vhosts.d/obs.conf
 
-You need to add the following to /etc/lighttpd/lighttpd.conf , if there are these 
-settings missing:
+Make sure the following is in the 'custom includes section' at the
+bottom of /etc/lighttpd/lighttpd.conf :
 
- var.conf_dir    = "/etc/lighttpd/"
- include "vhosts.d/obs.conf"
+  var.conf_dir    = "/etc/lighttpd/"
+  include "vhosts.d/obs.conf"
 
-The modules "mod_magnet" and "mod_rewrite" needs to be enabled in 
-/etc/lighttpd/modules.conf . Additionally you need to enable FastCGI via
-removing the comment before the
+The modules "mod_magnet" and "mod_rewrite" needs to be enabled in
+/etc/lighttpd/modules.conf . Additionally you need to enable FastCGI
+by uncommenting
 
   include "conf.d/fastcgi.conf"
 
-line inside of this file.
-
+in that file.
 
 Afterwards you can start the OBS via 
 
-* rclighttpd start  # use "insserv lighttpd" for permanent start
+   # rclighttpd start  # use "insserv lighttpd" for permanent start
 
 4. Setup initial distributions
 ==============================
@@ -122,16 +145,19 @@ The default user is "Admin" with the password "opensuse".
 6. Updating
 ===========
 
-When the obs-api package has been updated, it might be rquired to upgrade
-the database. Therefore, you should do
-* cd /srv/www/obs/frontend/
-* rake migrate
+When the obs-api package has been updated, it might be required to
+upgrade the database. Therefore, you should do
+
+    # cd /srv/www/obs/frontend/
+    # rake db:migrate
+
 after updating obs-api.
 
 7. Using osc with your local build service:
 ===========================================
-In order to use the command line tool for the build service, change your ~/.oscrc to something 
-like this:
+
+In order to use the command line tool for the build service, change
+your ~/.oscrc to something like this:
 
 [general]
 
@@ -169,8 +195,5 @@ pass = bar
 8. Feedback
 ===========
 
-Please send feedback to this file or packages to adrian@suse.de
-
-
-
-
+Please send feedback to this file or packages to
+opensuse-buildservice@suse.de
