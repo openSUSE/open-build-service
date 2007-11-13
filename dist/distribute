@@ -54,7 +54,7 @@ source ./.distrc
 : ${EXCLUDES:=}
 # be smart: the following files are hardly ever part of a package.
 # after checkpout, there will also be a directory with the project name in $PWD
-: ${CANONICAL_EXCLUDES:=distribute .distrc *~ .*~ .svn .osc RCS .cvs . .. $PROJECT}
+: ${CANONICAL_EXCLUDES:=svn-commit*.tmp \#*\# .\#* distribute .distrc *~ .*~ .svn .osc RCS .cvs . .. $PROJECT}
 
 : ${LASTSTEP=localbuild}
 
@@ -81,18 +81,6 @@ Environment:
     exit 1
 fi
 
-###################################################################
-# sanitize the environment
-#
-
-# all but some specific files belong to the package
-EXCLUDES=$(
-    echo ${EXCLUDES} ${CANONICAL_EXCLUDES} |
-    tr --squeeze "[:blank:]" "\n" |
-    sort -u )
-PACKAGE_FILES=$( comm -13 <(echo "${EXCLUDES}") <(ls -1d * .*) )
-
-debug echo $PACKAGE_FILES
 ###################################################################
 # check what needs to be done
 
@@ -166,7 +154,8 @@ do
 	  eval $var=
 	  ;;
       *)
-	  echo "please set $var to (y|Y|yes|Yes|YES) or (n|N|no|No|NO|).  Current value: <${!var}>"
+	  echo "please set $var to (y|Y|yes|Yes|YES) or (n|N|no|No|NO|).
+  Current value: <${!var}>"
 	  exit 1
 	  ;;
   esac
@@ -176,8 +165,9 @@ export DO_CHECKOUT DO_DIFF DO_ASK DO_UPDATE DO_BUILD DO_CHECKIN
 
 ###################################################################
 # do what needs to be done
-
+###################################################################
 # checkout if the package is not there
+
 if test ! -d "${PROJECT}/${PACKAGE}/.osc"; then
     DO_CHECKOUT=true
 fi
@@ -185,6 +175,11 @@ fi
 if [ ${DO_CHECKOUT} ]; then
     osc co "${PROJECT}" "${PACKAGE}"
 fi
+
+###################################################################
+# update the tar ball
+
+# TODO: check oscupstream for this
 
 if [ ${DO_TAR} ]; then
 
@@ -214,12 +209,20 @@ if [ ${DO_TAR} ]; then
 
     if [ ! -f ${TARFILE}.tar.bz2 ] ; then
 
-	#svn status --no-ignore ${SVNDIR} | grep  -E "^(\?|I)" | cut -c8-
-
+	# add the tar file to the file system, so svn status knows about it.
+	touch ${TARFILE}.tar.bz2
 	tar cvjf ${TARFILE}.tar.bz2 \
 	    --exclude-from <( svn status --no-ignore ${SVNDIR} | grep -E "^(\?|I)" | cut -c8-) \
 	    --exclude=".svn" \
 	    ${SVNDIR}
+    fi
+
+
+    # remove the old tar ball if it still is there.
+    OLDTARVERSION=$(sed -ne "/^%define svnversion */s///p" ${SPECFILE})
+    if [ -f ${PACKAGE}-${OLDTARVERSION}.tar.bz2 -a "${OLDTARVERSION}" != "${SVNVERSION}" ]
+    then
+	rm -v ${PACKAGE}-${OLDTARVERSION}.tar.bz2
     fi
 
     # update version in specfile
@@ -227,38 +230,63 @@ if [ ${DO_TAR} ]; then
 
 fi
 
-DEPRECATED_FILES=$(
-    comm -12 \
-	<( echo "$PACKAGE_FILES" ) \
-	<( { ls -1 --ignore .osc "${PROJECT}/${PACKAGE}"; 
-	     echo "$EXCLUDES" } | sort -u  ) )
+###################################################################
+# check the package file list
+EXCLUDES=$(
+    echo ${EXCLUDES} ${CANONICAL_EXCLUDES} |
+    tr --squeeze "[:blank:]" "\n" |
+    sort -u )
 
-debug echo $DEPRECATED_FILES
+debug echo EXCLUDES="${EXCLUDES}"
 
+PACKAGE_FILES=$( comm -13 <(echo "${EXCLUDES}") <(ls -1d * .*) )
+
+debug echo PACKAGE_FILES="$PACKAGE_FILES"
+
+DEPRECATED_FILES=$( debug set -x; comm -13 \
+	<( cat <( echo "$PACKAGE_FILES" ) <( echo "${CANONICAL_EXCLUDES}")  |
+	   tr --squeeze "[:blank:]" "\n" |
+	   sort -u ) \
+	<( cat <( ls -1 --ignore .osc "${PROJECT}/${PACKAGE}" ) <( echo "$EXCLUDES" ) |
+	   tr --squeeze "[:blank:]" "\n" |
+	   sort -u  ) )
+
+debug echo DEPRECATED_FILES="$DEPRECATED_FILES"
+
+###################################################################
+# compare what's in svn to what is in the osc working copy
 if [ ${DO_DIFF} ]; then
+    echo "You are about to update the following files in the osc working copy:"
     for f in $PACKAGE_FILES; do
         # ignore errors from diff.
 	diff -Nu "${PROJECT}/${PACKAGE}/$f"  $f || true
     done;
+    
+    echo "You are about to remove the following files from the osc working copy:"
     for f in $DEPRECATED_FILES; do
-        # ignore errors from diff.
+	test ! -f "${PROJECT}/${PACKAGE}/$f" ||
 	diff -Nu "${PROJECT}/${PACKAGE}/$f"  $f || true
     done
 fi
 
 if [ ${DO_ASK} ]; then
-    echo "Proceede?
+    echo "Update the local working copy?
   Interrupt (^c) to stop here.
   Hit RETURN to update the local working copy."
     read
 fi
 
+###################################################################
+# update the osc working copy
 if [ ${DO_UPDATE} ]; then
     cp -vdpP $PACKAGE_FILES ${PROJECT}/${PACKAGE}
     pushd ${PROJECT}/${PACKAGE}
-    if [ "${DEPRECATED_FILES}" ] ; then rm -v $DEPRECATED_FILES ; fi
+    if [ "${DEPRECATED_FILES}" ] ; then rm -vf $DEPRECATED_FILES ; fi
     popd
 fi
+
+###################################################################
+# build the package and check in
 
 pushd "${PROJECT}/${PACKAGE}"
 
@@ -269,7 +297,7 @@ fi
 
 if [ ${DO_CHECKIN} ]; then
     if [ ${DO_ASK} ]; then
-	echo "Proceede?
+	echo "Check in to the build server?
   Interrupt (^c) to stop here.
   Hit RETURN to check in to the build server."
 	    read
