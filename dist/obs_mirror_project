@@ -50,21 +50,29 @@ filelist.elements.each("binarylist/binary") { |binary|
   fname = binary.attributes["filename"];
 
   # skip src and nosrc rpms
+  inform_user_about_hacky_reget=false
   unless fname[-7..-1] == "src.rpm"
     if File.file?("#{destinationdir}/#{fname}")
+
+      puts "package #{destinationdir}/#{fname} already exists."
+      inform_user_about_hacky_reget=true
+
+      next
 
       # TODO: maybe get server side file size or md5 hash or both into
       # _repository, then test if file size matches?  Or maybe even
       # have reget, resuming at file size, then check md5?
 
-      # At this time: check the integrity of the file, remove it if
-      # it's broken to refetch it from the server.
-      if system("rpm --checksig #{destinationdir}/#{fname}")
-        next
-      else
-        puts "Removing broken download #{destinationdir}/#{fname}"
-        File.unlink("#{destinationdir}/#{fname}")
-      end
+      # Checking the integrity of the file, removing it if it's broken
+      # to refetch it from the server like this takes aaages, no fun.
+
+      #if system("rpm --checksig #{destinationdir}/#{fname}")
+      #  next
+      #else
+      #  puts "Removing broken download #{destinationdir}/#{fname}"
+      #  File.unlink("#{destinationdir}/#{fname}")
+      #end
+
     end
     print "Download " + fname + "\n"
     # FIXME: we can not use the mirrors atm, since the full expanded package name is unknown
@@ -73,15 +81,35 @@ filelist.elements.each("binarylist/binary") { |binary|
     #      print "failed, try via api for #{fname} \n"
     
     unless system("osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname} > #{destinationdir}/#{fname}")
-      print "Unable to download #{name} from mirror AND api\n"
+      print "Unable to download #{fname} from mirror AND api\n"
       exit(1)
     end
+  end
+
+  if inform_user_about_hacky_reget
+    puts "\
+
+I skipped the download of packages that already exist.  I did not
+check wether those files were correctly or completely downloaded
+before.
+
+When you restart the scheduler it will tell you about broken packages
+in it's log file in /srv/obs/log/ .  Simply remove the broken package
+and re-run this script to update the broken file.
+
+The paranoid may run rpm --checksig, like this:
+  rpm --checksig #{destinationdir}/*.rpm
+
+"
   end
 }
 
 # fix ownership in case this script did run as root
 system("chown -R #{ownership} #{rootdir}/build #{projectdir}")
 
-print "Mirroring succeeded :)\n"
-print "Please restart the scheduler to rescan your projects ! \n"
+puts "\
+Mirroring succeeded :)
+Please restart the scheduler to rescan your projects:
+
+  rcobsscheduler restart"
 
