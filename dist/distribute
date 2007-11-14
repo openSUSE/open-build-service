@@ -295,7 +295,12 @@ fi
 ###################################################################
 # update the osc working copy
 if [ ${DO_UPDATE} ]; then
-    cp -vudpP $PACKAGE_FILES ${PROJECT}/${PACKAGE}    
+    for f in $PACKAGE_FILES; do
+	test -f ${PROJECT}/${PACKAGE}/$f &&
+	cmp --quiet $f ${PROJECT}/${PACKAGE}/$f ||
+	cp -vdpP $f ${PROJECT}/${PACKAGE}/$f
+    done
+
     pushd ${PROJECT}/${PACKAGE}
     if [ "${DEPRECATED_FILES}" ] ; then rm -vf $DEPRECATED_FILES ; fi
 
