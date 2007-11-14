@@ -46,20 +46,36 @@ system("osc meta prjconf #{project} > #{projectdir}/#{project}.conf")
 # download all binary packages
 process = File::popen("osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository", "r")
 filelist = Document.new process
-filelist.elements.each("binarylist/binary"){ |binary| 
+filelist.elements.each("binarylist/binary") { |binary| 
   fname = binary.attributes["filename"];
+
   # skip src and nosrc rpms
   unless fname[-7..-1] == "src.rpm"
-    print "Download " + fname + "\n"
-# FIXME: we can not use the mirrors atm, since the full expanded package name is unknown
-#    unless system("wget -q -N -O #{destinationdir}/#{fname} #{downloadurl}/#{archdir}/#{fname}")
-      # fallback to api download
-#      print "failed, try via api for #{fname} \n"
-      unless system("osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname} > #{destinationdir}/#{fname}")
-        print "Unable to download #{name} from mirror AND api\n"
-        exit(1)
+    if File.file?("#{destinationdir}/#{fname}")
+
+      # TODO: maybe get server side file size or md5 hash or both into
+      # _repository, then test if file size matches?  Or maybe even
+      # have reget, resuming at file size, then check md5?
+
+      # At this time: check the integrity of the file, remove it if
+      # it's broken to refetch it from the server.
+      if system("rpm --checksig #{destinationdir}/#{fname}")
+        next
+      else
+        puts "Removing broken download #{destinationdir}/#{fname}"
+        File.unlink("#{destinationdir}/#{fname}")
       end
-#    end
+    end
+    print "Download " + fname + "\n"
+    # FIXME: we can not use the mirrors atm, since the full expanded package name is unknown
+    #    unless system("wget -q -N -O #{destinationdir}/#{fname} #{downloadurl}/#{archdir}/#{fname}")
+    # fallback to api download
+    #      print "failed, try via api for #{fname} \n"
+    
+    unless system("osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname} > #{destinationdir}/#{fname}")
+      print "Unable to download #{name} from mirror AND api\n"
+      exit(1)
+    end
   end
 }
 
