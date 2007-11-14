@@ -17,7 +17,7 @@ PreReq:         %fillup_prereq %insserv_prereq
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Autoreqprov:    on
-%define svnversion 2557M
+%define svnversion updated_by_script
 Version:        0.1.1_%{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
@@ -36,6 +36,8 @@ Source10:       README.SETUP
 Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
+Source14:       obsdispatcher
+Source15:       obspublisher
 Patch:          HOTFIX.diff
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildArchitectures: noarch
@@ -118,9 +120,9 @@ cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 # install mirror script
 install -m 0755 %SOURCE13 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
-install -m 0755 %SOURCE1 %SOURCE4 %SOURCE5 %SOURCE6 \
+install -m 0755 %SOURCE1 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE14 %SOURCE15 \
            $RPM_BUILD_ROOT/etc/init.d/
-for i in obssrcserver obsrepserver obsscheduler obsworker ; do
+for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher ; do
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
 done
 install -m 0644 %SOURCE3 $RPM_BUILD_ROOT/usr/lib/obs/server/
@@ -153,12 +155,16 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
-/etc/init.d/obssrcserver
+/etc/init.d/obsdispatcher
+/etc/init.d/obspublisher
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
-/usr/sbin/rcobssrcserver
+/etc/init.d/obssrcserver
+/usr/sbin/rcobsdispatcher
+/usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
 /usr/sbin/rcobsscheduler
+/usr/sbin/rcobssrcserver
 /usr/sbin/obs_mirror_project
 /usr/lib/obs/server/BSBuild.pm
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
