@@ -14,12 +14,26 @@ repository code level.
 The distribution and build server specifics are read from ./.distrc
 
 LASTSTEP= one of
-  checkout      get the current code from the build server
-  freshtar      update the tar ball
-  diff          compare what is in SCM with what is in obs
-  update        update the obs workign directory with what is in the SCM
-  localbuild    build it on the local machine
-  upload        upload to the build server
+  checkout      create a local osc working directory like this
+                   osc co \${PROJECT} \${PACKAGE}
+
+  tar           update the tar ball
+
+                currently works only with svn.  creates a tar ball
+                like this:
+                   \${PACKAGE}-\$(svnversion \${SVNDIR//:/_}).tar.bz2
+
+                reference that from the spec file like this:
+                   %define svnversion updated_by_script
+                   Source:         %{name}-%{svnversion}.tar.bz2  
+
+  diff          compare \$PWD with what is in obs
+
+  update        update the obs working directory with what is in \$PWD
+
+  localbuild    'osc build' on the local machine
+
+  upload        'osc ci' to the build server
 
 --help          display this message"
 
@@ -87,7 +101,7 @@ fi
 # defaults, something means yes, null means no
 
 : ${DO_CHECKOUT:=no}
-: ${DO_FRESHTAR:=yes}
+: ${DO_TAR:=yes}
 : ${DO_DIFF:=yes}
 : ${DO_ASK=yes} 
 : ${DO_UPDATE:=no}
@@ -183,9 +197,6 @@ fi
 
 if [ ${DO_TAR} ]; then
 
-    # Could also do a svn export and parse the revsion from the
-    # output.
-
     # Actually the method to create the tar ball and figure the
     # version information depends on the SCM and the working style of
     # the project.
@@ -195,14 +206,17 @@ if [ ${DO_TAR} ]; then
     # variable in .distrc that controls the export method will be a
     # smart thing to do.
 
+    # Could also do a svn export and parse the revsion from the
+    # output.
+
     # For the time being: create the tar ball from a checked out
     # working copy.
 
     SVNVERSION=$( svnversion ${SVNDIR} )
 
-    # Svnversion can give a REV1:REV2 label.  tar then interprets REV1
-    # as hostname to connect to.  get rid of the colons in favour of
-    # underbars...
+    # Get rid of the colons in favour of underbars: Svnversion can
+    # give a REV1:REV2 label.  tar then interprets REV1 as hostname to
+    # connect to.
     SVNVERSION=${SVNVERSION//:/_}
 
     : ${TARFILE:=${PACKAGE}-${SVNVERSION}}
@@ -217,16 +231,18 @@ if [ ${DO_TAR} ]; then
 	    ${SVNDIR}
     fi
 
+    # remove old tar balls if they still are there.
+    comm -23 \
+	<( ls -1 ${PACKAGE}-*.tar.bz2 |	rev | cut -d. -f3- | cut -d- -f1 | rev ) \
+	<( echo $SVNVERSION)  |
+    while read ver; do
+	# Don't ask.  It will annoy soon.
+	rm -v ${PACKAGE}-${ver}.tar.bz2
+    done
 
-    # remove the old tar ball if it still is there.
-    OLDTARVERSION=$(sed -ne "/^%define svnversion */s///p" ${SPECFILE})
-    if [ -f ${PACKAGE}-${OLDTARVERSION}.tar.bz2 -a "${OLDTARVERSION}" != "${SVNVERSION}" ]
-    then
-	rm -v ${PACKAGE}-${OLDTARVERSION}.tar.bz2
-    fi
-
-    # update version in specfile
-    sed --in-place -e "s/^%define svnversion .*/%define svnversion ${SVNVERSION}/" ${SPECFILE}
+    # The version information in the specfile is only updated in the
+    # copy in the osc build directory.  This allows the tar ball to
+    # contain a locally unmodified file
 
 fi
 
@@ -279,9 +295,15 @@ fi
 ###################################################################
 # update the osc working copy
 if [ ${DO_UPDATE} ]; then
-    cp -vdpP $PACKAGE_FILES ${PROJECT}/${PACKAGE}
+    cp -vudpP $PACKAGE_FILES ${PROJECT}/${PACKAGE}    
     pushd ${PROJECT}/${PACKAGE}
     if [ "${DEPRECATED_FILES}" ] ; then rm -vf $DEPRECATED_FILES ; fi
+
+    # update version information in the specfile
+    sed --in-place \
+	-e "s/^%define svnversion updated_by_script/%define svnversion ${SVNVERSION}/" \
+	${SPECFILE}
+
     popd
 fi
 
