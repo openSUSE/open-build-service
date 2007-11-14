@@ -1,24 +1,23 @@
-
-This file does briefly describe how to setup an openSUSE Build Service (OBS)
-with the rpm packages from the openSUSE project. 
- By default all service run on the same system, but they can get distributed
-to increase reliability and do load balancing.
+This file briefly describes how to setup an openSUSE Build Service
+(OBS) with the rpm packages from the openSUSE project.  By default all
+service run on the same system, but you can also distribute them to
+increase reliability and do load balancing.
 
 1. run the backend
 ==================
 The backend hosts all sources, build packages and calculates the jobs.
 You need to install the "obs-server" package for this.
 
-1.1 Start the following service in this order
-=============================================
+1.1 start the following services in this order
+==============================================
 
 WARNING: The following starts services which are accessable from the outside.
          Do not do this on a system connected to an untrusted network or be
          sure to block the ports via a firewall.
 
- # rcobsrepserver start
- # rcobssrcserver start
- # rcobsscheduler start
+   # rcobsrepserver start
+   # rcobssrcserver start
+   # rcobsscheduler start
 
 The data get hosted inside of /srv/obs directory by default.
 
@@ -31,22 +30,23 @@ You need to install the "obs-worker" package for this.
 ================
 A worker can be started on the localhost by calling
 
- # rcobsworker start
+   # rcobsworker start
 
 2.2 setup multiple workers on remote systems
 ============================================
 
 3. run the frontend
 ===================
-You need to install the "obs-api" package for this and a mysql server on this or
-a remote host.
+
+You need to install the "obs-api" package for this and a mysql server
+on this or a remote host.
 
 3.1 Setup and configure the MySQL database
 ==========================================
 
 * start the mysql database
 
-      # rcmysql start    # use "insserv mysql" for permanent start
+    # rcmysql start    # use "insserv mysql" for permanent start
 
   If you do this for the first time, mysql will initialize itself and
   ask to create a root password in the database, like this:
@@ -195,5 +195,5 @@ pass = bar
 8. Feedback
 ===========
 
-Please send feedback to this file or packages to
+Please send feedback about this file or the packages to
 opensuse-buildservice@suse.de
