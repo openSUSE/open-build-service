@@ -2,18 +2,20 @@
 # Copyright (c) 2007, Novell Inc.
 #
 # Author: adrian@suse.de
+#         Martin Mohring <martin.mohring@5etech.eu>
+#         Susanne Oberhauser  <froh@novell.com>
 #
-# /etc/init.d/obsscheduler
+# /etc/init.d/obsdispatcher
 #   and its symbolic  link
-# /usr/sbin/rcobsscheduler
+# /usr/sbin/rcobsdispatcher
 #
 ### BEGIN INIT INFO
-# Provides:          obsscheduler
+# Provides:          obsdispatcher
 # Required-Start:    $time $syslog obssrcserver obsrepserver
 # Required-Stop:
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Description:       openSUSE build service scheduler
+# Description:       openSUSE build service
 ### END INIT INFO
 
 . /etc/rc.status
@@ -28,19 +30,16 @@ obsdir=/usr/lib/obs/server/
 rc_reset
 case "$1" in
     start)
-		echo -n "Initializing obsscheduler"
+		echo -n "Initializing obsdispatcher"
 		cd "$obsdir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-		test -z "$OBS_SCHEDULER_ARCHITECTURES" && OBS_SCHEDULER_ARCHITECTURES=i586
-		for i in $OBS_SCHEDULER_ARCHITECTURES; do
-		        ./bs_sched $i >& /srv/obs/log/scheduler_$i.log &
-		done
+	        ./bs_dispatch >& /srv/obs/log/dispatcher.log &
 		rc_status -v
 	;;
 	stop)
-		echo -n "Shutting down obsscheduler"
-		killall bs_sched 
+		echo -n "Shutting down obsdispatcher"
+		killall bs_dispatch
 		rc_status -v
 	;;
 	restart)
@@ -62,8 +61,8 @@ case "$1" in
 	reload)
 	;;
 	status)
-		echo -n "Checking for obsscheduler: "
-		checkproc bs_sched
+		echo -n "Checking for obsdispatcher:"
+		checkproc bs_dispatch
 		rc_status -v
 	;;
 	*)
