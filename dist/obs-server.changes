@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Nov 15 17:45:05 CET 2007 - froh@suse.de
+
+- depend on exact rails version
+- generate package from buildservice/dist dir
+- update README.SETUP
+- add publisher and dispatcher
+
+-------------------------------------------------------------------
 Fri Jan 26 16:20:12 CET 2007 - poeml@suse.de
 
 - implement status/restart in the init scripts
