@@ -62,7 +62,7 @@ Summary:        The openSUSE Build Service -- Build Host Component
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
-Requires:       rubygem-rails >= 1.2.3
+Requires:       rubygem-rails = 1.2.3
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
 
