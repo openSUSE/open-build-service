@@ -86,6 +86,10 @@ class PersonController < ApplicationController
     password = xml.elements["/unregisteredperson/password"].text
     note = xml.elements["/unregisteredperson/note"].text
 
+    if auth_method == :ichain
+      email = request.env['HTTP_X_EMAIL']
+    end
+
     newuser = User.create( 
               :login => login,
               :password => password,
@@ -99,10 +103,8 @@ class PersonController < ApplicationController
     newuser.save
     
     if !newuser.errors.empty?
-      details = ""
-      newuser.errors.each{ |key, msg| 
-        details = details + "#{key}: #{msg}"
-      } 
+      details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(", ")
+      
       render_error :message => "Could not save the registration",
                    :errorcode => "err_register_save",
                    :details => details, :status => 500 
