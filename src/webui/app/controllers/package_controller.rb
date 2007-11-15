@@ -329,6 +329,7 @@ class PackageController < ApplicationController
     else
       flash[:error] = 'No file or URI given.'
       redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
+      return
     end
 
     # extra escaping of filename (workaround for rails bug)
