@@ -619,10 +619,13 @@ class ProjectController < ApplicationController
     if ( !params[:project] )
       flash[:error] = "Missing parameter 'project'"
       redirect_to :action => :list_public
+      return false
     elsif !valid_project_name?( params[:project] )
       flash[:error] = "Invalid project name '#{params[:project]}'"
       redirect_to :action => :list_public
+      return false
     end
+    return true
   end
 
   def paginate_collection(collection, options = {})
