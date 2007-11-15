@@ -1,11 +1,13 @@
 This file briefly describes how to setup an openSUSE Build Service
 (OBS) with the rpm packages from the openSUSE project.  By default all
-service run on the same system, but you can also distribute them to
-increase reliability and do load balancing.
+services run on the same system.  This document does not describe how
+to distribute them to increase reliability and do load balancing, but
+this is possible.
 
 1. run the backend
 ==================
-The backend hosts all sources, build packages and calculates the jobs.
+The backend hosts all sources and built packages.  It also schedules
+the jobs.
 You need to install the "obs-server" package for this.
 
 1.1 start the following services in this order
@@ -18,6 +20,9 @@ WARNING: The following starts services which are accessable from the outside.
    # rcobsrepserver start
    # rcobssrcserver start
    # rcobsscheduler start
+   # sleep 5
+   # rcobsdispatcher start
+   # rcobspublisher  start
 
 The data get hosted inside of /srv/obs directory by default.
 
@@ -46,7 +51,7 @@ on this or a remote host.
 
 * start the mysql database
 
-    # rcmysql start    # use "insserv mysql" for permanent start
+     # rcmysql start    # use "insserv mysql" for permanent start
 
   If you do this for the first time, mysql will initialize itself and
   ask to create a root password in the database, like this:
@@ -79,8 +84,8 @@ on this or a remote host.
 
 * populate the database
 
-    # cd /srv/www/obs/frontend/
-    # rake db:migrate
+      # cd /srv/www/obs/frontend/
+      # rake db:migrate
 
 3.2 Setup and configure the frontend and webclient
 ==================================================
@@ -104,15 +109,19 @@ by uncommenting
 
 in that file.
 
-Afterwards you can start the OBS via 
+Afterwards you can start the OBS web frontends via 
 
-   # rclighttpd start  # use "insserv lighttpd" for permanent start
+     # rclighttpd start  # use "insserv lighttpd" for permanent start
+
 
 4. Setup initial distributions
 ==============================
 
 The easiest way is reuse a base distro hosted at opensuse.org.
 You can use a provided script to mirror such a base distribution.
+
+4.1 import into the backend
+===========================
 
 To do this execute the following commands:
 
@@ -123,11 +132,18 @@ To do this execute the following commands:
  # account data for api.opensuse.org here
  osc
 
- # run the script to mirror openSUSE:Factory for example
- obs_mirror_project openSUSE:Factory standard i586
+ # run the script to mirror openSUSE:10.2 for example
+ obs_mirror_project openSUSE:10.2 standard i586
 
  # restart the scheduler to scan the new project
  rcobsscheduler restart
+
+
+4.2. Import into the frontend DB.
+=================================
+
+Run the frontend import script:
+/srv/www/obs/frontend/script # ruby import
 
 5. Access
 =========
@@ -142,18 +158,8 @@ The web interface is accessable via
 
 The default user is "Admin" with the password "opensuse".
 
-6. Updating
-===========
 
-When the obs-api package has been updated, it might be required to
-upgrade the database. Therefore, you should do
-
-    # cd /srv/www/obs/frontend/
-    # rake db:migrate
-
-after updating obs-api.
-
-7. Using osc with your local build service:
+6. Using osc with your local build service:
 ===========================================
 
 In order to use the command line tool for the build service, change
@@ -173,24 +179,89 @@ your ~/.oscrc to something like this:
 
 # use this API server
 # (it needs a section [api.opensuse.org] with the credentials)
-#apisrv = api.opensuse.org
+#apisrv = https://api.opensuse.org
 
 # our local build service api:
-apisrv = 127.0.42.2
-
-# for local build service, use http (not https)
-scheme = http
+apisrv = http://127.0.42.2
 
 # local default admin account
-[127.0.42.2]
+[http://127.0.42.2]
 user = Admin
 pass = opensuse
 
 # normal build service account
-[api.opensuse.org]
+[https://api.opensuse.org]
 user = foo
 pass = bar
 
+6.1. Test build
+===============
+You can do a test build like this:
+
+(in a svn co of the current openSUSE build server, in the
+buildservice/dist subdir)
+
+Add an openSUSE:Tools project with an obs-server package.  the
+following commands offer you a tempalte project or package description
+file.  In the self- explanatory xml, only enable the 10.2 distro on
+i586:
+
+   osc -A http://127.0.42.2 meta prj openSUSE:Tools -e
+
+check wether that worked on http://127.0.42.1/project/list_all
+
+   osc -A http://127.0.42.2 meta pkg openSUSE:Tools obs-server -e
+
+check wether that worked on
+http://127.0.42.1/project/show?project=openSUSE%3ATools
+
+Now prepare for a check-in.  This will do a checkout and locally build
+using the packages from your local buildserver:
+
+  OBSOPT="-A http://127.0.42.2" ./distribute
+
+now do a check-in into the build server:
+
+  cd openSUSE:Tools/obs-server
+  osc add *
+  osc ci
+
+The rebuild will automatically be triggered.  Monitor the build status
+here:
+
+  http://127.0.42.1/project/monitor?project=openSUSE%3ATools
+
+7. Updating
+===========
+
+When the obs-api package has been updated, it might be required to
+upgrade the database. Therefore, you should do
+
+    # cd /srv/www/obs/frontend/
+    # rake db:migrate
+
+after updating obs-api.
+
+To start and stop everything you can use the following command sequences:
+
+  rcmysql start
+  rcobsrepserver start
+  rcobssrcserver start
+  rcobsscheduler start
+  sleep 5
+  rcobsworker start
+  rcobsdispatcher start
+  rcobspublisher  start
+  rclighttpd start
+
+  rclighttpd stop
+  rcobspublisher  stop
+  rcobsdispatcher stop
+  rcobsworker stop
+  rcobsscheduler stop
+  rcobssrcserver stop
+  rcobsrepserver stop
+  rcmysql stop
 
 8. Feedback
 ===========
