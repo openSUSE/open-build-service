@@ -15,7 +15,7 @@ The distribution and build server specifics are read from ./.distrc
 
 LASTSTEP= one of
   checkout      create a local osc working directory like this
-                   osc co \${PROJECT} \${PACKAGE}
+                   osc \${OSCOPTS} co \${PROJECT} \${PACKAGE}
 
   tar           update the tar ball
 
@@ -31,9 +31,11 @@ LASTSTEP= one of
 
   update        update the obs working directory with what is in \$PWD
 
-  localbuild    'osc build' on the local machine
+  localbuild    build on the local machine, like this:
+                   'osc \${OSCOPTS} build \\
+                        \${BUILDOPTS} \${PROJECT} \${PACKAGE} \${ARCH}'
 
-  upload        'osc ci' to the build server
+  upload        'osc \${OSCOPTS} ci' to the build server
 
 --help          display this message"
 
@@ -65,6 +67,8 @@ source ./.distrc
 : ${SVNDIR:?SVNDIR unset. set in .distrc or environment.}
 : ${BUILDOPTS:=}
 
+: ${OSCOPTS:=}
+
 : ${EXCLUDES:=}
 # be smart: the following files are hardly ever part of a package.
 # after checkpout, there will also be a directory with the project name in $PWD
@@ -88,7 +92,7 @@ Environment:
     for var in \
 	PROJECT PACKAGE TARGET ARCH SPECFILE \
 	EXCLUDES CANONICAL_EXCLUDES \
-	LASTSTEP
+	LASTSTEP OSCOPTS BUILDOPTS
     do
       echo "$var=${!var:-null or unset}"
     done
@@ -187,7 +191,7 @@ if test ! -d "${PROJECT}/${PACKAGE}/.osc"; then
 fi
 
 if [ ${DO_CHECKOUT} ]; then
-    osc co "${PROJECT}" "${PACKAGE}"
+    osc ${OSCOPTS} co "${PROJECT}" "${PACKAGE}"
 fi
 
 ###################################################################
@@ -318,7 +322,7 @@ fi
 pushd "${PROJECT}/${PACKAGE}"
 
 if [ ${DO_BUILD} ]; then
-    osc build ${BUILDOPTS} "${TARGET}" "${ARCH}" "${SPECFILE}"
+    osc ${OSCOPTS} build ${BUILDOPTS} "${TARGET}" "${ARCH}" "${SPECFILE}"
 fi
 
 
@@ -329,7 +333,7 @@ if [ ${DO_CHECKIN} ]; then
   Hit RETURN to check in to the build server."
 	    read
     fi
-    osc ci
+    osc ${OSCOPTS} ci
 fi
 
 popd
