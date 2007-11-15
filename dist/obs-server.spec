@@ -38,7 +38,7 @@ Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
 Source14:       obsdispatcher
 Source15:       obspublisher
-Patch:          HOTFIX.diff
+Patch:          hostsetup.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildArchitectures: noarch
 
@@ -70,7 +70,7 @@ Summary:        The openSUSE Build Service -- The Frontend part
 
 %prep
 %setup -q -n buildservice/src/
-#%patch0
+%patch0
 cp %SOURCE10 .
 
 %build

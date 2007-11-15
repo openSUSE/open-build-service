@@ -1,0 +1,17 @@
+- clean up config
+
+- clean up log files
+
+- start in screen
+
+- fix ports
+
+  currently:
+    5352 -> SR in Hex "source repo"
+    5252 -> RR in Hex "rpm repo"
+
+    6352, 6252 have been internal test instances
+  So there is no need to stay with the existing port numbers while
+  finding more appropriate official ones.
+
+- "deleted" project in the backend is a feature...
