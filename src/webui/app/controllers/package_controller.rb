@@ -501,13 +501,9 @@ class PackageController < ApplicationController
         @log_chunk.gsub!("\n","<br/>")
       end
 
-    rescue ActiveXML::Transport::Error => ex
-      if ex.message.root.elements['code'].text == "404"
-        @log_chunk = "No live log available"
-        @finished = true
-      else
-        raise
-      end
+    rescue ActiveXML::Transport::NotFoundError => ex
+      @log_chunk = "No live log available"
+      @finished = true
     end
 
     render :partial => 'update_build_log'
