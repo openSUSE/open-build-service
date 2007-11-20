@@ -90,8 +90,13 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     rev = params[:rev]
-    user = params[:user]
     comment = params[:comment]
+    if @http_user
+      user = @http_user.login
+    else
+      user = params[:user]
+    end
+
 
     path = "/source/#{project_name}/#{package_name}"
     query = Array.new
@@ -141,6 +146,15 @@ class SourceController < ApplicationController
 
   def pattern_meta
     valid_http_methods :get, :put, :delete
+
+    comment = params[:comment]
+    rev = params[:rev]
+    if @http_user
+      user = @http_user.login
+    else
+      user = params[:user]
+    end
+    
     if request.get?
       pass_to_source
     else
@@ -166,11 +180,9 @@ class SourceController < ApplicationController
         return
       end
       
-      path = request.path
-      unless request.query_string.empty?
-        path += "?" + request.query_string
-      end
-
+      query_string = [['rev',rev],['user',user],['comment',comment]].reject{|x| x[1].nil?}.map{|x| x.join('=')}.join('&')
+      path = "#{request.path}?#{query_string}"
+      
       forward_data path, :method => request.method
     end
   end
@@ -362,8 +374,12 @@ class SourceController < ApplicationController
     package_name = params[ :package ]
     file = params[ :file ]
     rev = params[:rev]
-    user = params[:user]
     comment = params[:comment]
+    if @http_user
+      user = @http_user.login
+    else
+      user = params[:user]
+    end
 
     
     path = "/source/#{project_name}/#{package_name}/#{file}"
