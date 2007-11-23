@@ -28,6 +28,7 @@ require Exporter;
 
 use XML::Structured;
 use POSIX;
+use Fcntl qw(:DEFAULT :flock);
 use Encode;
 
 use strict;
@@ -173,6 +174,33 @@ sub data2utf8 {
       }
     }
   }
+}
+
+sub lockopen {
+  my ($fg, $op, $fn) = @_;
+
+  local *F = $fg; 
+  while (1) {
+    return undef unless open(F, $op, $fn);
+    flock(F, LOCK_EX) || die("flock $fn: $!\n");
+    my @s = stat(F);
+    return 1 if @s && $s[3];
+    close F;
+  }
+}
+
+sub lockopenxml {
+  my ($fg, $op, $fn, $dtd, $nonfatal) = @_;
+  if (!lockopen($fg, $op, $fn)) {
+    die("$fn: $!\n") unless $nonfatal;
+    return undef;
+  }
+  my $d = readxml($fn, $dtd, $nonfatal);
+  if (!$d) {
+    local *F = $fg;
+    close F;
+  }
+  return $d;
 }
 
 1;

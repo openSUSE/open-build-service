@@ -46,6 +46,7 @@ my $testmode;
 
 my $buildlog_maxsize = 70 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
+my $xenstore_maxsize = 20 * 1000000;
 
 my %cando = (
   'i586'   => ['i586'],
@@ -662,6 +663,9 @@ if ($path eq '/info') {
   die("unknown request: $path\n");
 }
 
+if ($xen && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
+  die("xenstore too big:".(-s '/var/lib/xenstored/tdb')."\n");
+}
 my $state = lockstate();
 if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode) {
   $state->{'state'} = 'rebooting';
@@ -677,10 +681,14 @@ if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercod
 }
 
 die("I am not idle!\n") unless $state->{'state'} eq 'idle';
+
 BSServer::read_file('job.new');
 my $infoxml = readstr('job.new');
 die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
 my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
+my $jobid = $cgi->{'jobid'};
+$jobid ||= Digest::MD5::md5_hex($infoxml);
+
 $buildcode = codemd5('build');
 if ($cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
   print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
@@ -699,7 +707,9 @@ print "got job, run build...\n";
 unlink("$buildroot/.build.log");
 unlink("$buildroot/.build.meta");
 unlink("$buildroot/.build.packages");
+
 $state->{'state'} = 'building';
+$state->{'jobid'} = $jobid;
 commitstate($state);
 
 my $repo = $buildinfo->{'path'}->[0];
@@ -781,7 +791,7 @@ if (!$testmode) {
       chunked => 1,
       data => \&BSHTTP::cpio_sender,
       cpiofiles => \@send,
-    }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "infomd5=".Digest::MD5::md5_hex($infoxml));
+    }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid");
   };
   if ($@) {
     print "rpc failed: $@\nsleeping one minute just in case...\n";

@@ -154,7 +154,7 @@ sub selectpath {
 
 sub values {
   my ($db, $path, $lkeys) = @_;
-  if ($db->{'noindex'} && $db->{'noindex'}->{$path}) {
+  if (($db->{'noindex'} && $db->{'noindex'}->{$path}) || ($lkeys && $db->{'cheapfetch'})) {
     $lkeys = [ $db->keys() ] unless $lkeys;
     my @v;
     for my $k (@$lkeys) {

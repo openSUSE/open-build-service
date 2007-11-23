@@ -162,6 +162,8 @@ sub addrev {
   my $srcmd5 = addmeta($projid, $packid, $files);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release};
   $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $version);
+  # kill upload revision as we did a real commit
+  unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
   notify_repservers('srcevent', $projid, $packid);
   return $rev;
 }
@@ -521,7 +523,15 @@ sub handlelinks {
   my $vrevdone = $rev ? 0 : 1;
   while ($files->{'_link'}) {
     my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
-    return '_link is bad' unless $l && $l->{'package'} && $l->{'project'};
+    return '_link is bad' unless $l;
+    eval {
+      BSVerify::verify_link($l);
+    };
+    if ($@) {
+      my $err = $@;
+      $err =~ s/\n$//s;
+      return "_link is bad: $err";
+    }
     $linkinfo[-1]->{'link'} = $l;
     $packid = $l->{'package'};
     my $lrev = $l->{'rev'} || '';
@@ -775,6 +785,15 @@ sub getprojpack {
 	  my $aggregatelist = readxml("$srcrep/$packid/$files->{'_aggregate'}-_aggregate", $BSXML::aggregatelist, 1);
 	  if (!$aggregatelist) {
 	    $pinfo->{'error'} = "bad aggregatelist data";
+	    next;
+	  }
+          eval {
+	    BSVerify::verify_aggregatelist($aggregatelist);
+          };
+	  if ($@) {
+	    my $err = $@;
+	    $err =~ s/\n$//s;
+	    $pinfo->{'error'} = "bad aggregatelist: $err";
 	    next;
 	  }
 	  $pinfo->{'aggregatelist'} = $aggregatelist;
@@ -1205,8 +1224,6 @@ sub sourcecommit {
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   $rev = addrev($projid, $packid, $files, $user, $comment);
-  # always kill upload revision
-  unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
   return ($rev, $BSXML::revision);
 }
 
@@ -1248,11 +1265,15 @@ sub putfilelist {
   if (@missing) {
     my $res = {'name' => $packid, 'error' => 'missing', 'entry' => \@missing};
     return ($res, $BSXML::dir);
-  } else {
-    my $rev = addrev($projid, $packid, $files, $user, $comment);
-    $cgi->{'rev'} = $rev->{'rev'};
-    return getfilelist($cgi, $projid, $packid);
   }
+  if (-e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") {
+    # autocommit old update revision so that it doesn't get lost
+    my $uploadfiles = lsrep($projid, $packid, 'upload');
+    addrev($projid, $packid, $uploadfiles, $user, 'autocommit');
+  }
+  my $rev = addrev($projid, $packid, $files, $user, $comment);
+  $cgi->{'rev'} = $rev->{'rev'};
+  return getfilelist($cgi, $projid, $packid);
 }
 
 sub delfile {
@@ -1292,103 +1313,6 @@ sub getarchlist {
   die("$repoid: no such repository\n") unless @repo;
   my @res = map {{'name' => $_}} @{$repo[0]->{'arch'} || []};
   return ({'entry' => \@res}, $BSXML::dir);
-}
-
-sub getstatus_obsolete {
-  my ($cgi, $projid, $repoid, $packid) = @_;
-
-  my $proj = readproj($projid);
-  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
-  die("unknown repository\n") unless $repo;
-  my @prpas = map {"$projid/$repoid/$_"} @{$repo->{'arch'} || []};
-  my $ps;
-  for my $rrserver ($BSConfig::reposerver) {
-    my @args = map {"prpa=$_"} @prpas;
-    push @args, "package=$packid";
-    eval {
-      $ps = BSWatcher::rpc("$rrserver/status", $BSXML::packstatuslistlist, @args);
-    };
-  }
-  die("bad answer\n") unless $ps;
-  my @ret;
-  my ($failed, $succeeded) = (0, 0);
-  for my $p (@{$ps->{'packstatuslist'} || []}) {
-    my $pp = ($p->{'packstatus'} || [])->[0];
-    if (!$pp) {
-      push @ret, {'name' => "$projid/$repoid/$p->{'arch'}", 'status' => 'unknown'};
-      $failed++;
-    } else {
-      push @ret, {'name' => "$projid/$repoid/$p->{'arch'}", 'status' => $pp->{'status'}};
-      $ret[-1]->{'error'} = $pp->{'error'} if $pp->{'error'};
-      if ($pp->{'status'} eq 'succeeded') {
-        $succeeded++;
-      } else {
-        $failed++;
-      }
-    }
-  }
-  push @ret, {'name' => "$projid/$repoid/:all", 'succeeded' => $succeeded, 'failed' => $failed};
-  return ({'statussum' => \@ret}, $BSXML::buildstatussumlist);
-}
-
-sub getpackstatus {
-  my ($cgi, $projid) = @_;
-
-  if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
-    my @args = "oldstate=$cgi->{'oldstate'}";
-    push @args, "summary" if $cgi->{'summary'};
-    push @args, "summaryonly" if $cgi->{'summaryonly'};
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-    BSHandoff::handoff($ajaxsocket, "/status/$projid", undef, @args);
-    exit(0);
-  }
-
-  my $proj = readproj($projid);
-  my @prpas;
-  for my $repo (@{$proj->{'repository'} || []}) {
-    push @prpas, map {"$projid/$repo->{'name'}/$_"} @{$repo->{'arch'} || []};
-  }
-
-  BSWatcher::addfilewatcher("$projectsdir/$projid.xml") if $BSStdServer::isajax;
-
-  if (!@prpas) {
-    my $state = "00000000000000000000000000000000";
-    return undef if $BSStdServer::isajax && $cgi->{'oldstate'} && $state eq $cgi->{'oldstate'};
-    return ({'state' => $state}, $BSXML::packstatuslistlist);
-  }
-
-  my $ps = {};
-  # XXX FIXME multiple repo handling
-  my @oldstate;
-  push @oldstate, "oldstate=$cgi->{'oldstate'}" if $cgi->{'oldstate'};
-  for my $rrserver ($BSConfig::reposerver) {
-    my @args = @oldstate;
-    push @args, map {"prpa=$_"} @prpas;
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-    eval {
-      $ps = BSWatcher::rpc("$rrserver/status", $BSXML::packstatuslistlist, @args);
-    };
-    if ($@) {
-      print "warning: $rrserver: $@";
-      $ps = {};
-    }
-  }
-  return if $BSStdServer::isajax && !defined($ps);
-  if ($cgi->{'summary'} || $cgi->{'summaryonly'}) {
-    my @order = ('succeeded', 'failed', 'expansion error', 'broken', 'scheduled');
-    my %order = map {$_ => 1} @order;
-    for my $p (@{$ps->{'packstatuslist'} || []}) {
-      my %sum;
-      for my $pp (@{$p->{'packstatus'} || []}) {
-        $sum{$pp->{'status'}}++ if $pp->{'status'};
-      }
-      my @sum = grep {exists $sum{$_}} @order;
-      push @sum, grep {!$order{$_}} sort keys %sum;
-      $p->{'packstatussummary'} = [ map {{'status' => $_, 'count' => $sum{$_}}} @sum ];
-      delete $p->{'packstatus'} unless $cgi->{'summary'};
-    }
-  }
-  return ($ps, $BSXML::packstatuslistlist);
 }
 
 sub getresult {
@@ -1783,11 +1707,6 @@ sub hello {
 my $dispatches = [
   '/' => \&hello,
 
-  # /status name space -> obsolete
-  '/status' => \&getprojectlist,
-  '/status/$project summary:bool? summaryonly:bool? oldstate:md5? package*' => \&getpackstatus,
-  '/status/$project/$repository/$package' => \&getstatus_obsolete,
-
   # /platform name space -> obsolete
   '/platform' => \&getprojectlist,
   '/platform/$project' => \&getrepositorylist,
@@ -1881,7 +1800,6 @@ my $dispatches = [
 my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
-  '/status/$project summary:bool? summaryonly:bool? oldstate:md5? package*' => \&getpackstatus,
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
 ];

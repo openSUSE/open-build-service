@@ -174,6 +174,46 @@ sub verify_pack {
   }
 }
 
+sub verify_link {
+  my ($l) = @_;
+  verify_projid($l->{'project'});
+  verify_packid($l->{'package'});
+  verify_rev($l->{'rev'}) if exists $l->{'rev'};
+  if (exists $l->{'cicount'}) {
+    if ($l->{'cicount'} ne 'add' && $l->{'cicount'} ne 'copy' && $l->{'cicount'} ne 'local') {
+      die("unknown cicount '$l->{'cicount'}'\n");
+    }
+  }
+  return unless $l->{'patches'} && $l->{'patches'}->{''};
+  for my $p (@{$l->{'patches'}->{''}}) {
+    die("more than one type in patch\n") unless keys(%$p) == 1;
+    my $type = (keys %$p)[0];
+    my $pd = $p->{$type};
+    if ($type eq 'add' || $type eq 'apply') {
+      verify_filename($pd->{'name'});
+    } elsif ($type ne 'topadd') {
+      die("unknown patch type '$type'\n");
+    }
+  }
+}
+
+sub verify_aggregatelist {
+  my ($al) = @_;
+  for my $a (@{$al->{'aggregate'} || []}) {
+    verify_projid($a->{'project'});
+    for my $p (@{$a->{'package'} || []}) {
+      verify_packid($p);
+    }
+    for my $b (@{$a->{'binary'} || []}) {
+      verify_filename($b);
+    }
+    for my $r (@{$a->{'repository'} || []}) {
+      verify_repoid($r->{'source'}) if exists $r->{'source'};
+      verify_repoid($r->{'target'}) if exists $r->{'target'};
+    }
+  }
+}
+
 our $verifyers = {
   'project' => \&verify_projid,
   'package' => \&verify_packid,

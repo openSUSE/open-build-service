@@ -389,36 +389,32 @@ sub jobname {
 }
 
 sub killjob {
-  my ($jobname) = @_;
-  my $jobdatadir = "$myjobsdir/$jobname:dir";
-  if (mkdir($jobdatadir)) {
-    print "        (job was not building yet)\n";
-    #job was not stated, just discard it
-    unlink("$myjobsdir/$jobname");
-    rmdir($jobdatadir);
+  my ($job) = @_;
+  local *F;
+  my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
+  if (!$js) {
+    print "        (job was not building)\n";
+    unlink("$myjobsdir/$job");
     return;
   }
-  my $status = readxml("$jobdatadir/status.xml", $BSXML::buildstatus, 1);
-  my $infoxml = readstr("$jobdatadir/info.xml", 1);
-  if (!$status || !$infoxml) {
-    print "        (incomplete job data, cannot kill)\n";
-  } else {
-    my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
-    print "        (job was building on $status->{'workerid'})\n";
+  if ($js->{'code'} eq 'building') {
+    print "        (job was building on $js->{'workerid'})\n";
     my $req = {
-      'uri' => "$status->{'uri'}/discard",
+      'uri' => "$js->{'uri'}/discard",
       'timeout' => 60,
     };
     eval {
-      BSRPC::rpc($req, undef, "jobid=$infoxmlmd5");
+      BSRPC::rpc($req, undef, "jobid=$js->{'jobid'}");
     };
-    warn("kill $jobname: $@") if $@;
+    warn("kill $job: $@") if $@;
   }
-  unlink("$myjobsdir/$jobname");
-  rename($jobdatadir, "$jobdatadir.$$");
-  $jobdatadir = "$jobdatadir.$$";
-  unlink("$jobdatadir/$_") for ls($jobdatadir);
-  rmdir($jobdatadir);
+  if (-d "$myjobsdir/$job:dir") {
+    unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
+    rmdir("$myjobsdir/$job:dir");
+  }
+  unlink("$myjobsdir/$job");
+  unlink("$myjobsdir/$job:status");
+  close(F);
 }
 
 sub set_building {
@@ -463,7 +459,7 @@ sub set_building {
     killjob($otherjob);
   }
 
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time()}, $BSXML::buildstatus);
+  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $f}, $BSXML::buildstatus);
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
@@ -744,9 +740,10 @@ sub update_dst_full {
 }
 
 sub addjobhist {
-  my ($info, $status) = @_;
+  my ($info, $status, $js) = @_;
   my $jobhist = {};
-  $jobhist->{$_} = $status->{$_} for qw{readytime starttime endtime status error uri hostarch};
+  $jobhist->{$_} = $status->{$_} for qw{readytime status};
+  $jobhist->{$_} = $js->{$_} for qw{starttime endtime uri hostarch};
   $jobhist->{$_} = $info->{$_} for qw{project repository package arch srcmd5};
   BSFileDB::fdb_add("$myinfodir/jobhistory", $BSXML::jobhistlay, $jobhist);
 }
@@ -781,14 +778,21 @@ sub get_projpacks {
     $projpacks = {};
   }
   my $projpacksin;
-  eval {
-    $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', "arch=$myarch", @args);
-  };
-  if ($@) {
-    die($@) unless @args;
-    print "retrying...\n";
-    get_projpacks();
-    return;
+  while (1) {
+    eval {
+      $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', "arch=$myarch", @args);
+    };
+    if ($@ || !$projpacksin) {
+      if (@args) {
+        print "retrying...\n";
+        get_projpacks();
+        return;
+      }
+      printf("could not get project/package information, sleeping 1 minute\n");
+      sleep(60);
+      print "retrying...\n";
+    }
+    last;
   }
   for my $proj (@{$projpacksin->{'project'} || []}) {
     if (defined($packid)) {
@@ -873,6 +877,129 @@ sub killbuilding {
   }
 }
 
+
+# jobfinished - called when a build job is finished
+#
+# - move built packages into :full tree
+#   (updates corresponding $repodata entry)
+# - set changed flags
+#
+sub jobfinished {
+  my ($job, $js, $repodatas, $changed) = @_;
+
+  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  if (!$info || ! -d $jobdatadir) {
+    print " - $job is bad\n";
+    return;
+  }
+  my $prp = $info->{'path'}->[0];
+  my $projid = $prp->{'project'};
+  my $repoid = $prp->{'repository'};
+  my $packid = $info->{'package'};
+  $prp = "$projid/$repoid";
+  if ($info->{'arch'} ne $myarch) {
+    print " - $job has bad arch\n";
+    return;
+  }
+  if (!$projpacks->{$projid}) {
+    print " - $job belongs to an unknown project\n";
+    return;
+  }
+  my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid};
+  if (!$pdata) {
+    print " - $job belongs to an unknown package, discard\n";
+    return;
+  }
+  my $statusdir = "$reporoot/$prp/$myarch/$packid";
+  if (! -d $statusdir) {
+    print " - $job belongs to obsolete package\n";
+    return;
+  }
+  my $status = readxml("$statusdir/status", $BSXML::buildstatus, 1);
+  if (!$status) {
+    print " - $job has no status\n";
+    return;
+  }
+  if (!$status->{'job'} || $status->{'job'} ne $job) {
+    print " - $job is outdated\n";
+    return;
+  }
+  delete $status->{'job'};	# no longer building
+
+  delete $status->{'arch'};	# obsolete
+  delete $status->{'uri'};	# obsolete
+
+  my @all = ls($jobdatadir);
+  my %all = map {$_ => 1} @all;
+  @all = map {"$jobdatadir/$_"} @all;
+  my $jobrepo = findbins_dir(\@all);
+
+  my $gdst = "$reporoot/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  mkdir_p($dst);
+  mkdir_p("$gdst/:meta");
+  mkdir_p("$gdst/:logfiles.fail");
+  mkdir_p("$gdst/:logfiles.success");
+  unlink("$reporoot/$prp/$myarch/:repodone");
+  if (!$all{'meta'}) {
+    if (%$jobrepo) {
+      print " - $job claims success but there is no meta\n";
+      return;
+    }
+    # severe failure, create src change fake...
+    writestr("$jobdatadir/meta", undef, "$info->{'srcmd5'}  $packid\nfake to detect source changes...  fake\n");
+    push @all, "$jobdatadir/meta";
+    $all{'meta'} = 1;
+  }
+  my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
+  if (!%$jobrepo) {
+    print "  - $job: build failed\n";
+    link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+    rename("$jobdatadir/logfile", "$dst/logfile");
+    rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
+    rename($meta, "$gdst/:meta/$packid") if $meta;
+    unlink($_) for @all;
+    rmdir($jobdatadir);
+    $status->{'status'} = 'failed';
+    addjobhist($info, $status, $js);
+    writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
+    $changed->{$prp} ||= 1;	# package is no longer blocking
+    return;
+  }
+  print "  - $prp: $packid built: ".(keys %$jobrepo). " packages\n";
+  mkdir_p("$gdst/:logfiles.success");
+  mkdir_p("$gdst/:logfiles.fail");
+
+  $repodatas->{$prp} ||= {};
+  my $repodata = $repodatas->{$prp};
+
+  my $useforbuildenabled = 1;
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  update_dst_full($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled);
+  $changed->{$prp} = 2 if $useforbuildenabled;
+  $changed->{$prp} ||= 1;
+
+  # save meta file
+  rename($meta, "$gdst/:meta/$packid") if $meta;
+
+  # write new status
+  $status->{'status'} = 'succeeded';
+  addjobhist($info, $status, $js);
+  writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
+  # write history file
+  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => time(), 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}};
+  BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
+
+  # save logfile
+  link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+  rename("$jobdatadir/logfile", "$dst/logfile");
+  rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
+  unlink("$gdst/:logfiles.fail/$packid");
+  unlink($_) for @all;
+  rmdir($jobdatadir);
+}
 
 ##########################################################################
 ##########################################################################
@@ -1507,152 +1634,35 @@ while(1) {
     my @events = ls($myeventdir);
     @events = grep {!/^\./} @events;
     for my $event (@events) {
-      # special case for built events
+      my $ev;
       if ($event =~ /^finished:(.*)/) {
-	my $job = $1;
-	unlink("$myeventdir/$event");
-	my $jobdatadir = "$myjobsdir/$job:dir";
-	next unless -e "$jobdatadir/finished";
-	my $info = readxml("$jobdatadir/info.xml", $BSXML::buildinfo);
-	next unless $info;
-	my $prp = $info->{'path'}->[0];
-	my $projid = $prp->{'project'};
-	my $repoid = $prp->{'repository'};
-	my $packid = $info->{'package'};
-        $prp = "$projid/$repoid";
-	if ($info->{'arch'} ne $myarch) {
-	  print " - $job has bad arch, ignored\n";
-	  next;
-	}
-	if (!$projpacks->{$projid}) {
-	  print " - $job belongs to unknown project, discard\n";
-	  unlink("$myjobsdir/$job");
-	  unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
-	  rmdir($jobdatadir);
-	  next;
-	}
-	my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid};
-	if (!$pdata) {
-	  print " - $job belongs to unknown package, discard\n";
-	  unlink("$myjobsdir/$job");
-	  unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
-	  rmdir($jobdatadir);
-	  next;
-	}
-        my $bjob = $job;
-        my $srcmd5;
-        $srcmd5 = $1 if $bjob =~ s/-([0-9a-f]{32})$//;
-	if (jobname($prp, $packid) ne $bjob) {
-	  print " - $job has strange info, ignored\n";
-	  next;
-	}
-        if ($srcmd5 && $info->{'srcmd5'} ne $srcmd5) {
-	  print " - $job has strange srcmd5, ignored\n";
-	  next;
-	}
-	my $statusdir = "$reporoot/$prp/$myarch/$packid";
-	if (! -d $statusdir) {
-	  print " - $job belongs to obsolete package, discard\n";
-	  unlink("$myjobsdir/$job");
-	  unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
-	  rmdir($jobdatadir);
-	  next;
-	}
-        my $status = readxml("$statusdir/status", $BSXML::buildstatus, 1);
-	if (!$status) {
-	  print " - $job has no status, ignored\n";
-	  next;
-	}
-	delete $status->{'arch'};	# no longer building
-	delete $status->{'job'};	# no longer building
-	my @all = ls($jobdatadir);
-	my %all = map {$_ => 1} @all;
-	@all = map {"$jobdatadir/$_"} @all;
-	my $jobrepo = findbins_dir(\@all);
-
-	my $gdst = "$reporoot/$prp/$myarch";
-	my $dst = "$gdst/$packid";
-	mkdir_p($dst);
-	mkdir_p("$gdst/:meta");
-	mkdir_p("$gdst/:logfiles.fail");
-	mkdir_p("$gdst/:logfiles.success");
-        unlink("$reporoot/$prp/$myarch/:repodone");
-        if (!$all{'meta'}) {
-	  if (%$jobrepo) {
-	    print " - $job claims success but there is no meta\n";
-	    next;
-	  }
-	  # severe failure, create src change fake...
-	  writestr("$jobdatadir/meta", undef, "$info->{'srcmd5'}  $packid\nfake to detect source changes...  fake\n");
-	  push @all, "$jobdatadir/meta";
-	  $all{'meta'} = 1;
-	}
-	my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
-	if (!%$jobrepo) {
-	  print "  - $job: build failed\n";
-	  link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
-	  rename("$jobdatadir/logfile", "$dst/logfile");
-	  rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
-	  rename("$jobdatadir/status.xml", "$dst/status");
-	  rename($meta, "$gdst/:meta/$packid") if $meta;
-	  unlink($_) for @all;
-	  $status->{'status'} = 'failed';
-	  addjobhist($info, $status);
-	  delete $status->{'uri'};
-	  writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
-	  unlink("$myjobsdir/$job");
-	  rmdir($jobdatadir);
-	  $changed{$prp} ||= 1;	# package is no longer blocking
-	  next;
-	}
-        print "  - $prp: $packid built: ".(keys %$jobrepo). " packages\n";
-	mkdir_p("$gdst/:logfiles.success");
-	mkdir_p("$gdst/:logfiles.fail");
-
-	$repodata{$prp} ||= {};
-	my $repodata = $repodata{$prp};
-
-	my $useforbuildenabled = 1;
-	$useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-	$useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-        update_dst_full($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled);
-	$changed{$prp} = 2 if $useforbuildenabled;
-	$changed{$prp} ||= 1;
-
-        # save meta file
-	rename($meta, "$gdst/:meta/$packid") if $meta;
-
-	# write new status
-	$status->{'status'} = 'succeeded';
-        addjobhist($info, $status);
-	delete $status->{'uri'};
-	writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
-	# write history file
-	my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => time(), 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}};
-        BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
-
-	# save logfile
-	link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
-	rename("$jobdatadir/logfile", "$dst/logfile");
-	rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
-	unlink("$gdst/:logfiles.fail/$packid");
-	unlink($_) for @all;
-	unlink("$myjobsdir/$job");
-	rmdir($jobdatadir);
-	next;
+	$ev = {'type' => 'built', 'job' => $1};
+      } else {
+        $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
       }
-      local *F;
-      if (!open(F, '<', "$myeventdir/$event")) {
-	unlink("$myeventdir/$event");
-	next;
-      }
-      my $eventxml = '';
-      1 while sysread(F, $eventxml, 8192, length($eventxml));
-      close F;
       unlink("$myeventdir/$event");
-      next unless $eventxml =~ /<.*?>/s;
-      my $ev = XMLin($BSXML::event, $eventxml);
       next unless $ev && $ev->{'type'};
+
+      if ($ev->{'type'} eq 'built') {
+	my $job = $ev->{'job'};
+	local *F;
+	my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
+	if (!$js || $js->{'code'} ne 'finished') {
+	  print " - $job was not finished\n";
+	  close F;
+	  next;
+	}
+	jobfinished($job, $js, \%repodata, \%changed);
+	if (-d "$myjobsdir/$job:dir") {
+	  unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
+	  rmdir("$myjobsdir/$job:dir");
+	}
+	unlink("$myjobsdir/$job");
+	unlink("$myjobsdir/$job:status");
+	close F;
+	next;
+      }
+
       if ($ev->{'type'} eq 'srcevent') {
 	my $projid = $ev->{'project'};
 	my $packid = $ev->{'package'};
@@ -1747,6 +1757,7 @@ while(1) {
 	  $changed{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
 	}
         $changed{$projid} = 2;
+        next;
       }
     }
     last if %changed;

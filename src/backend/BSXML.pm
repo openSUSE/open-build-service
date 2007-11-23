@@ -232,6 +232,23 @@ our $buildinfo = [
      ]]
 ];
 
+our $jobstatus = [
+    'jobstatus' =>
+	'code',
+	'details',
+	[],
+	'starttime',
+	'endtime',
+	'workerid',
+	'hostarch',
+
+	'uri',		# uri to reach worker
+
+	'arch',		# our architecture
+	'job',		# our jobname
+	'jobid',	# md5 of job info file
+];
+
 our $buildstatus = [
     'status' =>
 	'package',
@@ -240,33 +257,17 @@ our $buildstatus = [
 	'error',	# obsolete, now details
 	[],
 	'details',
-	'uri',
-	'workerid',
+
+	'workerid',	# last build data
 	'hostarch',
 	'readytime',
 	'starttime',
 	'endtime',
-	'arch',		# internal, arch when building
+
 	'job',		# internal, job when building
-];
 
-our $buildstatussum = [
-    'statussum' =>
-	'name',
-#XXX	[],
-	'status',
-	'packages',
-	'building',
-	'delayed',
-	'rpms',
-	'succeeded',
-	'failed',
-	'error',
-];
-
-our $buildstatussumlist = [
-    'statussumlist' =>
-      [ $buildstatussum ],
+	'uri',		# obsolete
+	'arch',		# obsolete
 ];
 
 our $event = [
@@ -276,6 +277,7 @@ our $event = [
 	'project',
 	'repository',
 	'package',
+	'job',
 ];
 
 our $revision = [
@@ -317,6 +319,9 @@ our $worker = [
 	'ip',
 	'port',
 	'workerid',
+	[],
+	'job',		# set when worker is busy
+	'arch',		# set when worker is busy
 ];
 
 our $packstatuslist = [
@@ -394,7 +399,8 @@ our $workerstatus = [
 
 our $workerstate = [
     'workerstate' =>
-	'state'
+	'state',
+	'jobid',
 ];
 
 our $jobhistlay = [
@@ -544,14 +550,18 @@ our $ymp = [
         'xmlns',
         [],
      [[ 'group' =>
+	    'recommended',
+	    'distversion',
 	    [],
 	    'name',
 	    'summary',
 	    'description',
+	    'remainSubscribed',
 	  [ 'repositories' =>
 	     [[ 'repository' =>
-		    'format',
 		    'recommended',
+		    'format',
+		    'producturi',
 		    [],
 		    'name',
 		    'summary',
@@ -562,6 +572,9 @@ our $ymp = [
 	  [ 'software' =>
 	     [[ 'item' =>
 		    'type',
+		    'recommended',
+		    'architectures',
+		    'action',
 		    [],
 		    'name',
 		    'summary',

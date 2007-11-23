@@ -212,7 +212,7 @@ sub createrepo_rpmmd {
   unlink("$extrep/repodata/index.html");
   qsystem('rm', '-rf', "$extrep/repodata/repoview") if -d "$extrep/repodata/repoview";
   qsystem('rm', '-rf', "$extrep/repodata/.olddata") if -d "$extrep/repodata/.olddata";
-  qsystem('rm', '-f', "$extrep/repodata/patterns.*");
+  qsystem('rm', '-f', "$extrep/repodata/patterns*");
 
   # create generic rpm-md meta data
   # --update requires a newer createrepo version, tested with version 0.4.10
@@ -268,6 +268,7 @@ sub createrepo_susetags {
   $lt[5] += 1900;
   my $str = sprintf("openSUSE Build Service\n%04d%02d%02d%02d%02d%02d\n1\n", @lt[5,4,3,2,1,0]);
   writestr("$extrep/media.1/.media", "$extrep/media.1/media", $str);
+  writestr("$extrep/media.1/.directory.yast", "$extrep/media.1/directory.yast", "media\n");
   $str = <<"EOL";
 PRODUCT openSUSE Build Service $projid $repoid
 VERSION 1.0-0
@@ -286,14 +287,19 @@ EOL
   writestr("$extrep/.content", "$extrep/content", $str);
   print "    running create_package_descr\n";
   qsystem('chdir', $extrep, 'create_package_descr', '-o', 'descr', '-x', '/dev/null') && print "    create_package_descr failed: $?\n";
+  unlink("$extrep/descr/directory.yast");
+  my @d = map {"$_\n"} sort(ls("$extrep/descr"));
+  writestr("$extrep/descr/.directory.yast", "$extrep/descr/directory.yast", join('', @d));
 }
 
 sub deleterepo_susetags {
   my ($extrep) = @_;
 
+  unlink("$extrep/directory.yast");
+  unlink("$extrep/content");
   unlink("$extrep/media.1/media");
+  unlink("$extrep/media.1/directory.yast");
   rmdir("$extrep/media.1");
-  unlink("$extrep/media.1/content");
   qsystem('rm', '-rf', "$extrep/descr") if -d "$extrep/descr";
 }
 
@@ -345,7 +351,7 @@ sub createpatterns_rpmmd {
 sub deletepatterns_rpmmd {
   my ($extrep) = @_;
   for my $pat (ls("$extrep/repodata")) {
-    next unless $pat =~ /^patterns\./;
+    next unless $pat =~ /^patterns/;
     unlink("$extrep/repodata/$pat");
   }
 }
@@ -424,7 +430,7 @@ sub createpatterns_ymp {
     }
     for my $entry (@{$pat->{'rpm:suggests'}->{'rpm:entry'} || []}) {
       next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
-      push @software, {'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+      push @software, {'recommended' => 'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
       fillpkgdescription($software[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
     }
     $group->{'software'} = { 'item' => \@software };
@@ -782,6 +788,17 @@ sub publish {
     createpatterns_rpmmd($extrep, $projid, $repoid, $repoinfo, $patterns);
   } else {
     deletepatterns_rpmmd($extrep, $projid, $repoid);
+  }
+
+  # post process step: create directory listing for poor YaST
+  if ($repotype{'suse'}) {
+    unlink("$extrep/directory.yast");
+    my @d = sort(ls($extrep));
+    for (@d) {
+      $_ .= '/' if -d "$extrep/$_";
+      $_ .= "\n";
+    }
+    writestr("$extrep/.directory.yast", "$extrep/directory.yast", join('', @d));
   }
 
   # push to stageserver

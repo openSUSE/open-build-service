@@ -29,6 +29,7 @@ use POSIX;
 use Data::Dumper;
 use Digest::MD5 ();
 use List::Util;
+use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 
 use BSConfig;
@@ -106,17 +107,35 @@ my $builddircache = {};
 
 sub assignjob {
   my ($job, $idlename, $arch) = @_;
+  local *F;
 
   print "assignjob $job -> $idlename\n";
+  my $jobstatus = {
+    'code' => 'dispatching',
+    'job' => $job,
+  };
+  writexml("$jobsdir/$arch/.dispatch.$$", undef, $jobstatus, $BSXML::jobstatus);
+  open(F, '<', "$jobsdir/$arch/.dispatch.$$") || die("$jobsdir/$arch/.dispatch.$$: $!");
+  flock(F, LOCK_EX | LOCK_NB) || die("lock: $!\n");
+  if (!link("$jobsdir/$arch/.dispatch.$$", "$jobsdir/$arch/$job:status")) {
+    print "job lock failed: $!\n";
+    unlink("$jobsdir/$arch/.dispatch.$$");
+    return undef;
+  }
+  unlink("$jobsdir/$arch/.dispatch.$$");
+
   my $worker = readxml("$workersdir/idle/$idlename", $BSXML::worker, 1);
-  return undef unless $worker;
+  if (!$worker) {
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    return undef;
+  }
   # ready for building!
   unlink("$workersdir/idle/$idlename");
-  my $infoxml = readstr("$jobsdir/$arch/$job:dir/info.xml");
+  my $infoxml = readstr("$jobsdir/$arch/$job");
+  my $jobid = Digest::MD5::md5_hex($infoxml);
   my $info = XMLin($BSXML::buildinfo, $infoxml);
   my $prp = $info->{'path'}->[0];
-  my $statusdir = "$reporoot/$prp->{'project'}/$prp->{'repository'}/$info->{'arch'}/$info->{'package'}";
-  mkdir_p($statusdir);
   my $workercode = getcodemd5('worker', $workerdircache);
   my $buildcode = getcodemd5('build', $builddircache);
   eval {
@@ -130,24 +149,28 @@ sub assignjob {
   };
   if ($@) {
     print "rpc error: $@";
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
     return undef;
   }
-  my $status = readxml("$statusdir/status", $BSXML::buildstatus, 1);
-  $status = {} unless $status;
-  $status->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
-  $status->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
-  $status->{'starttime'} = time();
-  $status->{'hostarch'} = $worker->{'hostarch'};
-  $status->{'status'} = 'building';
-  $status->{'arch'} = $arch;
-  $status->{'job'} = $job;
-  eval { writexml("$statusdir/.status$$", "$statusdir/status", $status, $BSXML::buildstatus); };
-  warn($@) if $@;
-  unlink("$jobsdir/$arch/$job:dir/status.xml");
-  link("$statusdir/status", "$jobsdir/$arch/$job:dir/status.xml") || warn("link $statusdir/status $jobsdir/$arch/$job:dir/status.xml: $!\n");
+  $jobstatus->{'job'} = $job;
+  $jobstatus->{'jobid'} = $jobid;
+  $jobstatus->{'code'} = 'building';
+  $jobstatus->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
+  $jobstatus->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
+  $jobstatus->{'starttime'} = time();
+  $jobstatus->{'hostarch'} = $worker->{'hostarch'};
+  $jobstatus->{'jobid'} = $jobid;
+
+  # put worker into building list
+  $worker->{'job'} = $arch;
+  $worker->{'arch'} = $arch;
   mkdir_p("$workersdir/building");
-  unlink("$workersdir/building/$idlename");
-  link("$statusdir/status", "$workersdir/building/$idlename") || warn("link $statusdir/status $workersdir/building/$idlename: $!\n");
+  writexml("$workersdir/building/.$idlename", "$workersdir/building/$idlename", $worker, $BSXML::worker);
+
+  # write new status and release lock
+  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  close F;
   return 1;
 }
 
@@ -166,10 +189,10 @@ while (1) {
   }
   my @archs = List::Util::shuffle(keys %idlearch);
   for my $arch (@archs) {
-    my @b = grep {!/^\./ && !/:new$/} ls("$jobsdir/$arch");
-    my %locked = map {$_ => 1} grep {/:dir$/} @b;
-    @b = grep {!/:dir$/} @b;
-    @b = grep {!$locked{"$_:dir"}} @b;
+    my @b = grep {!/^\./} ls("$jobsdir/$arch");
+    my %locked = map {$_ => 1} grep {/:status$/} @b;
+    @b = grep {!/:(?:dir|status|new)$/} @b;
+    @b = grep {!$locked{"$_:status"}} @b;
 
     #poor man's project priority
     my @bn = grep {!/^Ports:DebianBased:Auto/} @b;
@@ -177,14 +200,7 @@ while (1) {
 
     for my $job (List::Util::shuffle(@b)) {
       for my $idle (map {$_} List::Util::shuffle(@{$idlearch{$arch} || []})) {
-	mkdir("$jobsdir/$arch/$job:dir") || next;
-	if (!link("$jobsdir/$arch/$job", "$jobsdir/$arch/$job:dir/info.xml")) {
-	  rmdir("$jobsdir/$arch/$job:dir");
-	  next;
-	}
 	if (!assignjob($job, $idle, $arch)) {
-	  unlink("$jobsdir/$arch/$job:dir/info.xml");
-	  rmdir("$jobsdir/$arch/$job:dir");
 	  my $harch = (split(':', $idle, 2))[0];
 	  for (@{$cando{$harch} || []}) {
 	    $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
@@ -201,4 +217,5 @@ while (1) {
     }
   }
   sleep(1) unless $assigned;
+  printf("assigned $assigned jobs\n") if $assigned;
 }
