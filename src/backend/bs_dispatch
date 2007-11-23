@@ -112,7 +112,6 @@ sub assignjob {
   print "assignjob $job -> $idlename\n";
   my $jobstatus = {
     'code' => 'dispatching',
-    'job' => $job,
   };
   writexml("$jobsdir/$arch/.dispatch.$$", undef, $jobstatus, $BSXML::jobstatus);
   open(F, '<', "$jobsdir/$arch/.dispatch.$$") || die("$jobsdir/$arch/.dispatch.$$: $!");
@@ -153,8 +152,6 @@ sub assignjob {
     close F;
     return undef;
   }
-  $jobstatus->{'job'} = $job;
-  $jobstatus->{'jobid'} = $jobid;
   $jobstatus->{'code'} = 'building';
   $jobstatus->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
   $jobstatus->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
@@ -163,7 +160,7 @@ sub assignjob {
   $jobstatus->{'jobid'} = $jobid;
 
   # put worker into building list
-  $worker->{'job'} = $arch;
+  $worker->{'job'} = $job;
   $worker->{'arch'} = $arch;
   mkdir_p("$workersdir/building");
   writexml("$workersdir/building/.$idlename", "$workersdir/building/$idlename", $worker, $BSXML::worker);
