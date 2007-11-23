@@ -26,17 +26,28 @@ obsdir=/usr/lib/obs/server/
 
 rc_reset
 case "$1" in
-    start)
+	start)
 		echo -n "Initializing obssrcserver"
-		cd "$obsdir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-		./bs_srcserver >& /srv/obs/log/src_server.log &
+		startproc -l /srv/obs/log/src_server.log "$obsdir"/bs_srcserver
+		[ "$?" -ne 0 ] && rc_status -v
+
+		# FIXME:
+
+		# We'd need to wait for the sockets to come up, or for
+		# some other interaction between the server and the
+		# start script, or the server should fork itself into
+		# background _after_ the sockets are up and the server
+		# is reachable.
+
+		# until then a little ugly nap does the trick...
+		sleep 4
 		rc_status -v
 	;;
 	stop)
 		echo -n "Shutting down obssrcserver"
-		killall bs_srcserver 
+		killproc "$obsdir"/bs_srcserver 
 		rc_status -v
 	;;
 	restart)
@@ -59,7 +70,7 @@ case "$1" in
 	;;
 	status)
 		echo -n "Checking for obssrcserver: "
-		checkproc bs_srcserver
+		checkproc "$obsdir"/bs_srcserver
 		rc_status -v
 	;;
 	*)

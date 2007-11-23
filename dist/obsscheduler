@@ -10,6 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsscheduler
 # Required-Start:    $time $syslog obssrcserver obsrepserver
+# Should-Start:      obssrcserver obsrepserver
 # Required-Stop:
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
@@ -27,7 +28,7 @@ obsdir=/usr/lib/obs/server/
 
 rc_reset
 case "$1" in
-    start)
+	start)
 		echo -n "Initializing obsscheduler"
 		cd "$obsdir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
@@ -40,7 +41,7 @@ case "$1" in
 	;;
 	stop)
 		echo -n "Shutting down obsscheduler"
-		killall bs_sched 
+		killall bs_sched
 		rc_status -v
 	;;
 	restart)
@@ -63,7 +64,7 @@ case "$1" in
 	;;
 	status)
 		echo -n "Checking for obsscheduler: "
-		checkproc bs_sched
+		checkproc  "$obsdir"/bs_sched
 		rc_status -v
 	;;
 	*)

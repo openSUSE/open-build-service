@@ -26,17 +26,16 @@ obsdir=/usr/lib/obs/server/
 
 rc_reset
 case "$1" in
-    start)
+	start)
 		echo -n "Initializing obsrepserver"
-		cd "$obsdir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-		./bs_repserver >& /srv/obs/log/rep_server.log &
+		startproc -l /srv/obs/log/rep_server.log "$obsdir"/bs_repserver
 		rc_status -v
 	;;
 	stop)
 		echo -n "Shutting down obsrepserver"
-		killall bs_repserver 
+		killproc "$obsdir"/bs_repserver 
 		rc_status -v
 	;;
 	restart)
@@ -59,7 +58,7 @@ case "$1" in
 	;;
 	status)
 		echo -n "Checking for obsrepserver: "
-		checkproc bs_repserver
+		checkproc "$obsdir"/bs_repserver
 		rc_status -v
 	;;
 	*)

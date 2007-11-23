@@ -20,7 +20,6 @@ WARNING: The following starts services which are accessable from the outside.
    # rcobsrepserver start
    # rcobssrcserver start
    # rcobsscheduler start
-   # sleep 5
    # rcobsdispatcher start
    # rcobspublisher  start
 
@@ -248,7 +247,6 @@ To start and stop everything you can use the following command sequences:
   rcobsrepserver start
   rcobssrcserver start
   rcobsscheduler start
-  sleep 5
   rcobsworker start
   rcobsdispatcher start
   rcobspublisher  start
@@ -262,6 +260,17 @@ To start and stop everything you can use the following command sequences:
   rcobssrcserver stop
   rcobsrepserver stop
   rcmysql stop
+
+
+To automatically start everything at system boot you can use the following:
+
+  chkconfig --add \
+	rcmysql  rcobssrcserver  rcobsrepserver \
+	rcobsscheduler  rcobspublisher  rcobsdispatcher \
+	rcobsworker  \
+	rclighttpd 
+
+use chkconfig --del to no longer automatically start them at boot...
 
 8. Feedback
 ===========

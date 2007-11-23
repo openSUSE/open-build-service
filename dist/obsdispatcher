@@ -12,6 +12,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsdispatcher
 # Required-Start:    $time $syslog obssrcserver obsrepserver
+# Should-Start:      obsscheduler
 # Required-Stop:
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
@@ -31,15 +32,15 @@ rc_reset
 case "$1" in
     start)
 		echo -n "Initializing obsdispatcher"
-		cd "$obsdir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-	        ./bs_dispatch >& /srv/obs/log/dispatcher.log &
+	        startproc -l /srv/obs/log/dispatcher.log \
+		     "$obsdir"/bs_dispatch
 		rc_status -v
 	;;
 	stop)
 		echo -n "Shutting down obsdispatcher"
-		killall bs_dispatch
+		killproc "$obsdir"/bs_dispatch
 		rc_status -v
 	;;
 	restart)
@@ -62,7 +63,7 @@ case "$1" in
 	;;
 	status)
 		echo -n "Checking for obsdispatcher:"
-		checkproc bs_dispatch
+		checkproc "$obsdir"/bs_dispatch
 		rc_status -v
 	;;
 	*)

@@ -22,7 +22,9 @@
 #
 
 BEGIN {
-  unshift @INC, 'build'; 
+  my ($wd) = $0 =~ m-(.*)/- ;
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
 }
 
 use XML::Structured ':bytes';
