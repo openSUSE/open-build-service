@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Nov 26 17:16:27 CET 2007 - froh@suse.de
+
+- use startproc
+- have correct "Should-Start" dependencies
+- ensure all services come up at boot
+
+-------------------------------------------------------------------
 Thu Nov 15 17:45:05 CET 2007 - froh@suse.de
 
 - depend on exact rails version
