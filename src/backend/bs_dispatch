@@ -23,8 +23,14 @@
 
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
-  unshift @INC,  "$wd/build";
-  unshift @INC,  "$wd";
+  # FIXME: currently the bs_dispatcher makes assumptions on being in a
+  # properly set up working dir, e.g. with subdirs 'worker' and
+  # 'build'.  Either that is cleaned up or this stays in, for the sake
+  # of startproc and others being able to start a bs_srcserver without
+  # knowing that it has to be started in the right directory....
+
+  chdir "$wd";
+  unshift @INC,  "build";
 }
 
 use POSIX;
