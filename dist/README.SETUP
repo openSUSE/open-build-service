@@ -265,12 +265,13 @@ To start and stop everything you can use the following command sequences:
 To automatically start everything at system boot you can use the following:
 
   chkconfig --add \
-	rcmysql  rcobssrcserver  rcobsrepserver \
-	rcobsscheduler  rcobspublisher  rcobsdispatcher \
-	rcobsworker  \
-	rclighttpd 
+	mysql  obssrcserver  obsrepserver \
+	obsscheduler  obspublisher  obsdispatcher \
+	obsworker  \
+	lighttpd 
 
-use chkconfig --del to no longer automatically start them at boot...
+Use chkconfig --del analogously to no longer automatically start them
+at boot.
 
 8. Feedback
 ===========
