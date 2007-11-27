@@ -22,18 +22,19 @@
 
 package BSConfig;
 
-our $srcserver = 'http://storage:5352';
-our $reposerver = 'http://storage:5252';
-our $stageserver = 'rsync://149.44.161.5/put-repos-main';
-our $stageserver_sync = 'rsync://149.44.161.5/trigger-repos-sync';
-our $repodownload = 'http://download.opensuse.org/repositories';
-our $sign = '/root/bin/sign';
-our $bsdir = '/bs';
-our $keyfile = '/bs/openSUSE-Build-Service.asc';
+our $srcserver = 'http://127.0.42.1:5352';
+our $reposerver = 'http://127.0.42.1:5252';
+#our $stageserver = 'rsync://127.0.42.1/put-repos-main';
+#our $stageserver_sync = 'rsync://127.0.42.1/trigger-repos-sync';
+our $repodownload = 'http://127.0.42.1/repositories';
+our $sign = '/usr/bin/sign';
+our $bsdir = '/srv/obs';
+#our $keyfile = '/srv/obs/my-public-key-file.asc';
 
-our @reposervers = ('http://storage:5252', 'http://storage:6262');
+#our @reposervers = ('http://127.0.42.1:5252', 'http://127.0.42.1:6262');
+our @reposervers = ('http://127.0.42.1:5252');
 
-our $bsuser = 'bsrun';
-our $bsgroup = 'bsrun';
+our $bsuser = 'adrian';
+our $bsgroup = 'users';
 
 1;
