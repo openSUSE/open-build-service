@@ -34,7 +34,7 @@ our $bsdir = '/srv/obs';
 #our @reposervers = ('http://127.0.42.1:5252', 'http://127.0.42.1:6262');
 our @reposervers = ('http://127.0.42.1:5252');
 
-our $bsuser = 'adrian';
-our $bsgroup = 'users';
+our $bsuser = 'obsrun';
+our $bsgroup = 'obsrun';
 
 1;
