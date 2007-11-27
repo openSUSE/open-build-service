@@ -22,6 +22,13 @@
 # dispatch table.
 #
 
+# global variables:
+#   *MS   - master socket
+#   *CLNT - client socket
+#   *LCK  - lock for exclusive access to *MS
+
+#   $peer - address:port of connected client
+
 package BSServer;
 
 use Socket;
@@ -36,6 +43,8 @@ our $peer;
 our $peerport;
 
 sub xfork {
+  # behaves as blocking fork, but uses non-blocking fork
+  # tries to fork every 5 seconds, until fork succeeds without blocking
   my $pid;
   while (1) {
     $pid = fork();
@@ -54,12 +63,21 @@ sub deamonize {
     exit(0) if $pid;
   }
   POSIX::setsid();
-  $SIG{'PIPE'} = 'IGNORE'; 
-  $| = 1;
+  $SIG{'PIPE'} = 'IGNORE';
+  $| = 1; # flush all output immediately
 }
 
 sub serveropen {
+  # creates MS (=master socket) socket
+  # 512 connections maximum
+  # $port:  
+  #     reference              - port is assigned by system and is returned using this reference
+  #     string starting with & - named socket according to the string (&STDOUT, &1)
+  #     other string           - tcp socket on $port (assumes it is a number)
+  # $user, $group:
+  #     if defined, try to set appropriate UID, EUID, GID, EGID ( $<, $>, $(, $) )
   my ($port, $user, $group) = @_;
+  # check if $user and $group exist on this system
   !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
   !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
   my $tcpproto = getprotobyname('tcp');
@@ -89,6 +107,12 @@ sub serveropen {
 }
 
 sub serveropen_unix {
+  # creates MS (=master socket) socket
+  # 512 connections maximum
+  # creates named socket according to $filename
+  # race-condition safe (locks)
+  # $user, $group:
+  #     if defined, try to set appropriate UID, EUID, GID, EGID ( $<, $>, $(, $) )
   my ($filename, $user, $group) = @_;
   !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
   !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
@@ -134,6 +158,8 @@ sub getsocket {
 }
 
 sub setsocket {
+  # with argument    - set current client socket
+  # without argument - close it
   $peer = 'unknown';
   if (defined($_[0])) {
     (*CLNT) = @_;
@@ -222,6 +248,11 @@ sub msg {
 }
 
 sub reply {
+  # $str:
+  #     some data to be written after http header
+  # @hi:
+  #     http header lines, 1st line can contain status
+  # reads and discards all data from CLNT, writes reply to CLNT
   my ($str, @hi) = @_;
 
   if (@hi && $hi[0] =~ /^status: (\d+.*)/i) {
@@ -285,6 +316,9 @@ sub getpeerdata {
 }
 
 sub gethead {
+  # parses http header and fills hash
+  # $h: reference to the hash to be filled
+  # $t: http header as string
   my ($h, $t) = @_;
 
   my ($field, $data);
