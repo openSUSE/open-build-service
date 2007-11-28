@@ -187,6 +187,7 @@ sub server {
   my $peeraddr;
 
   while (1) {
+    # listen on MS until there is an incoming connection
     my $rin = '';
     vec($rin, fileno(MS), 1) = 1;
     my $r = select($rin, undef, undef, $timeout || 5);
@@ -194,21 +195,26 @@ sub server {
       next if $! == POSIX::EINTR;
       die("select: $!\n");
     }
+    # now we know there is a connection on MS waiting to be accepted
     my $pid;
     if ($r) {
       $peeraddr = accept(CLNT, MS);
       next unless $peeraddr;
       $pid = fork();
       last if $pid == 0;
-      die if $pid == -1;
+      die if $pid == -1; # XXX pid cannot be -1 according to perl manual on fork
       close CLNT;
       $chld{$pid} = 1;
     }
+    # if there are already $maxchild connected, make blocking waitpid
+    # otherwise make non-blocking waitpid
     while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
       delete $chld{$pid};
     }
+    # timeout was set in the $conf and select timeouted on this value. There was no new connection -> exit.
     return 0 if !$r && defined $timeout;
   }
+  # from now on, this is only the child process
   $peer = 'unknown';
   eval {
     my $peera;
@@ -219,6 +225,7 @@ sub server {
   setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
   if ($conf->{'accept'}) {
     eval {
+      # XXX what does conf->accept do? nothing sets conf->accept
       $conf->{'accept'}->($conf, $peer);
     };
     reply_error($conf, $@) if $@;
@@ -283,6 +290,7 @@ sub reply_error  {
   $err =~ s/\n$//s;
   my $code = 404;
   my $tag = '';
+  # "parse" err string 
   if ($err =~ /^(\d+)\s*([^\r\n]*)/) {
     $code = $1;
     $tag = $2;
@@ -291,6 +299,7 @@ sub reply_error  {
   } else {
     $tag = 'Error';
   }
+  # send reply through custom function or standard reply
   if ($conf && $conf->{'errorreply'}) {
     $conf->{'errorreply'}->($err, $code, $tag);
   } else {
@@ -341,6 +350,13 @@ sub gethead {
 }
 
 sub parse_cgi {
+  # $req:
+  #      the part of URI after ?
+  # $multis:
+  #      hash of separators
+  #      key does not exist - multiple cgi values are not allowed
+  #      key is undef - multiple cgi values are put into array
+  #      key is - then value is used as separator between cgi values
   my ($req, $multis) = @_;
 
   my $query_string = $req->{'query'};
@@ -349,9 +365,11 @@ sub parse_cgi {
   while (@query_string) {
     my ($name, $value) = split('=', shift(@query_string), 2);
     next unless defined $name && $name ne '';
+    # convert from URI format
     $name  =~ tr/+/ /;
     $name  =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     if (defined($value)) {
+      # convert from URI format
       $value =~ tr/+/ /;
       $value =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     } else {
@@ -365,7 +383,7 @@ sub parse_cgi {
           $cgi{$name} = $value;
         }
       } else {
-	push @{$cgi{$name}}, $value;
+        push @{$cgi{$name}}, $value; # this can possibly initialize $cgi{$name}
       }
     } else {
       die("parameter '$name' set multiple times\n") if exists $cgi{$name};
@@ -380,11 +398,13 @@ sub readrequest {
   $qu = '' unless defined $qu;
   undef $post_hdrs;
   my $req;
+  # read first query line
   while (1) {
     if ($qu =~ /^(.*?)\r?\n/s) {
       $req = $1;
       last;
     }
+    # sysreads appends read data at the end of $qu
     die($qu eq '' ? "empty query\n" : "received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
   }
   my ($act, $path, $vers, undef) = split(' ', $req, 4);
@@ -392,29 +412,32 @@ sub readrequest {
   die("400 No method name\n") if !$act;
   if ($vers) {
     die("501 Bad method: $act\n") if $act ne 'GET' && $act ne 'HEAD' && $act ne 'POST' && $act ne 'PUT' && $act ne 'DELETE';
+    # really ugly way of reading until request ends (regexp on the whole string every time!)
     while ($qu !~ /^(.*?)\r?\n\r?\n(.*)$/s) {
       die("501 received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
     }
     $qu =~ /^(.*?)\r?\n\r?\n(.*)$/s;
     $qu = $2;
-    gethead(\%headers, "Request: $1");
+    gethead(\%headers, "Request: $1"); # put 1st line of http request into $headers{'Request'}
   } else {
+    # if there is no version in http request (HTTP/1.1), assume that there are no more headers
     die("501 Bad method, must be GET\n") if $act ne 'GET';
-    $qu = '';
+    $qu = ''; # and assume that there are no more request data
   }
   my $query_string = '';
   if ($path =~ /^(.*?)\?(.*)$/) {
     $path = $1;
     $query_string = $2;
   }
-  $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-  die("501 invalid path\n") unless $path =~ /^\//s;
+  $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge; # here comes the conversion from URI  again
+  die("501 invalid path\n") unless $path =~ /^\//s; # forbid relative paths
   my $res = {};
   $res->{'action'} = $act;
   $res->{'path'} = $path;
   $res->{'query'} = $query_string;
   $res->{'headers'} = \%headers;
   if ($act eq 'POST' || $act eq 'PUT') {
+    # if client expects our response, respond
     if ($headers{'expect'}) {
       die("417 unknown expect\n") unless lc($headers{'expect'}) eq '100-continue';
       my $data = "HTTP/1.1 100 continue\r\n\r\n";
@@ -424,9 +447,10 @@ sub readrequest {
         $data = substr($data, $l);
       }
     }
+    
     if ($act eq 'PUT' || !$headers{'content-type'} || lc($headers{'content-type'}) ne 'application/x-www-form-urlencoded') {
       $headers{'__data'} = $qu;
-      $post_hdrs = \%headers;
+      $post_hdrs = \%headers; # $post_hdrs is global (module local) variable
       return $res;
     }
     $query_string = '';
