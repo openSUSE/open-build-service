@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC 
+  "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.docbook.org/xml/4.4/docbookx.dtd"
+>
+
+<article lang="en">
+  <title>Quick Start with KIWI</title>
+  <articleinfo>
+    <authorgroup>
+      <author>
+        <firstname>Marcus</firstname>
+        <surname>Schäfer</surname>
+        <contrib>Developer</contrib>
+      </author>
+      <author>
+        <firstname>Thomas</firstname>
+        <surname>Schraitle</surname>
+        <contrib>Dokumentation</contrib>
+      </author>
+    </authorgroup>
+    <pubdate><?dbtimestamp?></pubdate>
+    <releaseinfo>$Id:$</releaseinfo>
+  </articleinfo>
+  
+  <sect1 id="sec.kiwi.whatis">
+    <title>What is KIWI?</title>
+    <para>FIXME</para>
+  </sect1>
+  
+</article>
