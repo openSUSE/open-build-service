@@ -358,6 +358,15 @@
             about the building process.</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term><ulink url="file:///usr/share/kiwi/modules/KIWIScheme.xsd"/></term>
+        <listitem>
+          <para>The KIWI W3C XML Schema file. This file, and with the
+            help of a XML editor, you can create any
+            <filename>config.xml</filename> file manually.
+          </para>
+        </listitem>
+      </varlistentry>      
     </variablelist>
     
   </refsect1>
