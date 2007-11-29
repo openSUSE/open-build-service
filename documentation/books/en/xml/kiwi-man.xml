@@ -68,7 +68,7 @@
       description. Such a description is represented by a directory
       which includes at least one <filename>config.xml</filename> file
       but can also include other files like scripts or configuration
-      data. With kiwi two example descriptions are provided in
+      data. With KIWI two example descriptions are provided in
         <filename>/usr/share/doc/packages/kiwi/examples</filename>. A
       detailed description of the contents of an image description
       exists in the system design document in
@@ -167,9 +167,9 @@
   <refsect1 id="kiwi.image.postproc">
     <title>Image Postprocessing Modes</title>
     <para>
-      The kiwi postprocessing modes are used for special image deployment
+      The KIWI postprocessing modes are used for special image deployment
       tasks, like install the image on a USB stick. The postprocessing modes
-      are the third step after prepare and create and if possible kiwi calls
+      are the third step after prepare and create and if possible KIWI calls
       them automatically depending on the specified output image type and
       attributes.
     </para>    
@@ -318,7 +318,7 @@
         <term><optional><option>--log-port <replaceable>PortNumber</replaceable></option></optional></term>
         <listitem>
           <para>Set the log server port. By default port 9000 is used. If
-            multiple kiwi processes runs on one system it's recommended
+            multiple KIWI processes runs on one system it's recommended
             to set the logging port per process </para>
         </listitem>
       </varlistentry>
