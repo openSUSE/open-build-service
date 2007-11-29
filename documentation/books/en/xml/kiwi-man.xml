@@ -32,7 +32,7 @@
   </refmeta>
   <refnamediv>
     <refname>kiwi</refname>
-    <refpurpose>Creating system images</refpurpose>
+    <refpurpose>Creating operating system images</refpurpose>
   </refnamediv>
   <refsynopsisdiv>
     <title>Synopsis</title>
@@ -64,7 +64,26 @@
   </refsynopsisdiv>
   <refsect1 id="kiwi.image.prepcreate">
     <title>Image Preparation and Creation</title>
-    <para><remark>FIXME: Add some explanations</remark>
+    <para>
+      KIWI is a complete imaging solution that is based on an image
+      description. Such a description is represented by a directory
+      which includes at least one config.xml file but can also include
+      other files like scripts or configuration data. With kiwi two
+      example descriptions are provided in
+      /usr/share/doc/packages/kiwi/examples. A detailed description
+      of the contents of an image description exists in the system
+      design document in /usr/share/doc/packages/kiwi/kiwi.pdf.
+      kiwi always operates in two steps the first step is the
+      prepare step and if that step was successful a create step
+      follows which is able to create different image output types.
+      In the prepare step, you prepare a directory containing the
+      contents of your new filesystem based on one or more software
+      package source(s) (such as openSUSE 10.3). The create step is
+      based on the result of the create step and uses the contents
+      of the new image root tree to create the output image. If
+      the image type iso was requested the output image would be
+      a file with the suffix .iso representing a live system on CD or
+      DVD.
     </para>    
     <cmdsynopsis>
       <command>kiwi</command>
@@ -104,7 +123,14 @@
 
   <refsect1 id="kiwi.image.upgrade">
     <title>Image Upgrade</title>
-    <para><remark>FIXME: Add some explanations</remark>
+    <para>
+      If the image root tree is stored and not removed it can be used for
+      upgrading the image root tree according to the changes made in the
+      repositories used for this image. If a distributor provides an update
+      channel for package updates and an image config.xml includes this
+      update channel as repository it is useful to store the image root
+      tree and upgrade the tree according to changes on the update
+      channel.
     </para>    
     <cmdsynopsis>
       <command>kiwi</command>
@@ -119,7 +145,15 @@
 
   <refsect1 id="kiwi.image.system2image">
     <title>System to Image Migration</title>
-    <para><remark>FIXME: Add some explanations</remark>
+    <para>
+      The migration module allows you to migrate your currently running
+      system into an image description. The module will check for files
+      not managed by a package manager and it will guess a repository from
+      which this operating system could be rebuild. Among some other magic
+      the result is quite useful but in almost all cases a manual fine
+      tuning is needed. This includes the repository selection and the
+      unmanaged files along with the configuration details of your
+      currently running operating system.
     </para>    
     <cmdsynopsis><command>kiwi</command> 
       <group choice="req">
@@ -135,7 +169,12 @@
   
   <refsect1 id="kiwi.image.postproc">
     <title>Image Postprocessing Modes</title>
-    <para><remark>FIXME: Add some explanations</remark>
+    <para>
+      The kiwi postprocessing modes are used for special image deployment
+      tasks, like install the image on a USB stick. The postprocessing modes
+      are the third step after prepare and create and if possible kiwi calls
+      them automatically depending on the specified output image type and
+      attributes.
     </para>    
     <cmdsynopsis><command>kiwi</command>
       <arg choice="plain">--bootstick <replaceable>Initrd</replaceable></arg>
@@ -163,12 +202,15 @@
   
   <refsect1>
     <title>Helper Tools</title>
-    <para><remark>FIXME: Add some explanations</remark>
+    <para>
+      The helper tools provides optional functions like the
+      creation of a crypted password string for the users section of
+      the config.xml file or signing the image description with an md5sum
+      hash as well as adding splash data to the boot image used by the
+      bootloader.
     </para>
     <cmdsynopsis><command>kiwi</command> <arg choice="plain">--createpassword</arg></cmdsynopsis>
     <cmdsynopsis><command>kiwi</command> <arg choice="plain">--createhash
-      <replaceable>Imagepath</replaceable></arg></cmdsynopsis>
-    <cmdsynopsis><command>kiwi</command> <arg choice="plain">--create-instsource
       <replaceable>Imagepath</replaceable></arg></cmdsynopsis>
     <cmdsynopsis><command>kiwi</command> <arg choice="plain">--setup-grub-splash
       <replaceable>Initrd</replaceable></arg></cmdsynopsis>
