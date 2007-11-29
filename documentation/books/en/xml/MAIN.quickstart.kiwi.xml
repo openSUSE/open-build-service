@@ -19,11 +19,17 @@
         <contrib>Dokumentation</contrib>
       </author>
     </authorgroup>
-    <pubdate><?dbtimestamp?></pubdate>
+    <keywordset>
+      <keyword>KIWI</keyword>
+      <keyword>KIWI Image System</keyword>
+      <keyword>Live DVD</keyword>
+      <keyword>Live CD</keyword>
+    </keywordset>    
+    <pubdate>Created: <?dbtimestamp?></pubdate>
     <releaseinfo>$Id$</releaseinfo>
   </articleinfo>
   
-  <sect1 id="sec.kiwi.whatis">
+  <sect1 id="sec.kiwi.whatis" os="sles10">
     <title>What is KIWI?</title>
     <para>KIWI is a system for creating ISO images to boot as Live DVD,
       Live USB, or as image for virtualization systems like Xen, Qemu or
@@ -40,7 +46,7 @@
       </listitem>
       <listitem>
         <para>Build your own installable ISO images to customize
-          available packages, patterns, etc.</para>
+          available packages, patterns, services, etc.</para>
       </listitem>
       <listitem>
         <para>Test new hardware with a predefinied image.</para>
@@ -48,14 +54,37 @@
       <listitem>
         <remark>FIXME: Add more advantages.</remark>
       </listitem>
-    </itemizedlist>
-    
+    </itemizedlist>   
     
   </sect1>
   
-  <sect1 id="sec.kiwi.preparation">
-    <title>Preparations</title>
-    <para></para>
+  <sect1 id="sec.kiwi.preparation" os="sled10">
+    <title>What do I need?</title>
+    <para>To build images with KIWI, you need the following
+    preconditions:</para>
+    <orderedlist>
+      <listitem>
+        <para>A decent desktop with <remark>X</remark> Megabyte RAM</para>
+      </listitem>
+      <listitem>
+        <para>A minimum of <remark>Y</remark> Gigabyte of free space.</para>
+      </listitem>
+      <listitem>
+        <para>An installed KIWI system, see <remark>FIXME: LINK</remark></para>
+      </listitem>
+      <listitem>
+        <para>Recommended openSUSE 10.3</para>
+      </listitem>
+      <listitem>
+        <remark>FIXME: Add more preconditions</remark>
+      </listitem>
+    </orderedlist>
+    
+  </sect1>
+  
+  <sect1 id="sec.kiwi.building">
+    <title>Building Images with KIWI</title>
+    <para>FIXME</para>
   </sect1>
   
   
