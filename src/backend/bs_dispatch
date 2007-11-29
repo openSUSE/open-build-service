@@ -202,6 +202,7 @@ while (1) {
     #poor man's project priority
     my @bn = grep {!/^Ports:DebianBased:Auto/} @b;
     @bn = grep {!/^openSUSE:Factory/} @bn;
+    @bn = grep {!/^home:rguenther:playground/} @bn;
     @b = @bn if @bn;
 
     for my $job (List::Util::shuffle(@b)) {
