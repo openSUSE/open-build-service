@@ -8,7 +8,7 @@
     <productname>KIWI</productname>
     <!--<productnumber></productnumber>-->
     <date>Created: <?dbtimestamp?></date>
-    <releaseinfo role="SVN">$Date:$</releaseinfo>
+    <releaseinfo role="SVN">$Date$</releaseinfo>
     <authorgroup>
       <author>
         <firstname>Marcus</firstname>
@@ -64,7 +64,8 @@
   </refsynopsisdiv>
   <refsect1 id="kiwi.image.prepcreate">
     <title>Image Preparation and Creation</title>
-    <remark>FIXME: Add some explanations</remark>
+    <para><remark>FIXME: Add some explanations</remark>
+    </para>    
     <cmdsynopsis>
       <command>kiwi</command>
       <group choice="req">
@@ -103,7 +104,8 @@
 
   <refsect1 id="kiwi.image.upgrade">
     <title>Image Upgrade</title>
-    <remark>FIXME: Add some explanations</remark>
+    <para><remark>FIXME: Add some explanations</remark>
+    </para>    
     <cmdsynopsis>
       <command>kiwi</command>
       <group choice="req">
@@ -117,7 +119,8 @@
 
   <refsect1 id="kiwi.image.system2image">
     <title>System to Image Migration</title>
-    <remark>FIXME: Add some explanations</remark>
+    <para><remark>FIXME: Add some explanations</remark>
+    </para>    
     <cmdsynopsis><command>kiwi</command> 
       <group choice="req">
         <arg choice="plain">-m</arg>
@@ -132,7 +135,8 @@
   
   <refsect1 id="kiwi.image.postproc">
     <title>Image Postprocessing Modes</title>
-    <remark>FIXME: Add some explanations</remark>
+    <para><remark>FIXME: Add some explanations</remark>
+    </para>    
     <cmdsynopsis><command>kiwi</command>
       <arg choice="plain">--bootstick <replaceable>Initrd</replaceable></arg>
       <arg choice="opt">--bootstick-system <replaceable>SystemImage</replaceable></arg>
@@ -159,7 +163,8 @@
   
   <refsect1>
     <title>Helper Tools</title>
-    <remark>FIXME: Add some explanations</remark>
+    <para><remark>FIXME: Add some explanations</remark>
+    </para>
     <cmdsynopsis><command>kiwi</command> <arg choice="plain">--createpassword</arg></cmdsynopsis>
     <cmdsynopsis><command>kiwi</command> <arg choice="plain">--createhash
       <replaceable>Imagepath</replaceable></arg></cmdsynopsis>
@@ -171,7 +176,8 @@
   
   <refsect1 id="kiwi.options">
     <title>Options</title>
-    <remark>FIXME: Add some explanations</remark>
+    <para>KIWI has the following options:</para>
+    
     <variablelist>
       <varlistentry>
         <term><optional><option>-d</option> | <option>--destdir
