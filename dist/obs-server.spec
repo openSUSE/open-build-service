@@ -49,6 +49,9 @@ Authors:
 
 %package -n obs-worker
 Requires:       perl-Socket-MsgHdr perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
+%ifarch x86_64
+Requires:       linux32
+%endif
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
