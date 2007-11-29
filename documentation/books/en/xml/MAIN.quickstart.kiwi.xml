@@ -20,12 +20,43 @@
       </author>
     </authorgroup>
     <pubdate><?dbtimestamp?></pubdate>
-    <releaseinfo>$Id:$</releaseinfo>
+    <releaseinfo>$Id$</releaseinfo>
   </articleinfo>
   
   <sect1 id="sec.kiwi.whatis">
     <title>What is KIWI?</title>
-    <para>FIXME</para>
+    <para>KIWI is a system for creating ISO images to boot as Live DVD,
+      Live USB, or as image for virtualization systems like Xen, Qemu or
+      VMWare. KIWI provides the following advantages:
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>Create your own Live CD/DVD which contains only those
+          packages that you really need. </para>
+      </listitem>
+      <listitem>
+        <para>Debug a new distribution by creating all necessary
+          packages.</para>
+      </listitem>
+      <listitem>
+        <para>Build your own installable ISO images to customize
+          available packages, patterns, etc.</para>
+      </listitem>
+      <listitem>
+        <para>Test new hardware with a predefinied image.</para>
+      </listitem>
+      <listitem>
+        <remark>FIXME: Add more advantages.</remark>
+      </listitem>
+    </itemizedlist>
+    
+    
   </sect1>
+  
+  <sect1 id="sec.kiwi.preparation">
+    <title>Preparations</title>
+    <para></para>
+  </sect1>
+  
   
 </article>
