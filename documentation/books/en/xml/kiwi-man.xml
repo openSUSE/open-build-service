@@ -32,7 +32,7 @@
   </refmeta>
   <refnamediv>
     <refname>kiwi</refname>
-    <refpurpose>Creating operating system images</refpurpose>
+    <refpurpose>Creating Operating System Images</refpurpose>
   </refnamediv>
   <refsynopsisdiv>
     <title>Synopsis</title>
@@ -90,10 +90,10 @@
         <arg choice="plain">-p</arg>
         <arg choice="plain">--prepare</arg>
       </group>
-      <arg choice="plain"><replaceable>Imagepath</replaceable></arg>
-      <arg choice="plain"><replaceable>Imagepath</replaceable></arg>
+      <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
+      <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
       <sbr/>
-      <arg choice="opt">--base-root <replaceable>Basepath</replaceable></arg>
+      <arg choice="opt">--base-root <replaceable>BasePath</replaceable></arg>
       <arg choice="opt">--base-root-mode <group choice="req">
           <arg choice="plain">copy</arg>
           <arg choice="plain">union</arg>
@@ -107,9 +107,9 @@
         <arg choice="plain">-c</arg>
         <arg choice="plain">--create</arg>
       </group>
-      <arg choice="plain"><replaceable>Imageroot</replaceable></arg>
+      <arg choice="plain"><replaceable>ImageRoot</replaceable></arg>
       <sbr/>
-      <arg choice="opt">--base-root <replaceable>Basepath</replaceable></arg>
+      <arg choice="opt">--base-root <replaceable>BasePath</replaceable></arg>
       <arg choice="opt">--base-root-mode <group choice="req">
           <arg choice="plain">copy</arg>
           <arg choice="plain">union</arg>
@@ -158,7 +158,7 @@
         <arg choice="plain">--migrate</arg>
       </group>
       <arg choice="plain"><replaceable>name</replaceable></arg>
-      <arg choice="plain">--destdir <replaceable>Destinationpath</replaceable></arg>
+      <arg choice="plain">--destdir <replaceable>DestinationPath</replaceable></arg>
       <arg choice="opt" rep="repeat">--exclude <replaceable>Directory</replaceable></arg>
       <arg choice="opt">--report</arg>
     </cmdsynopsis>
@@ -218,11 +218,11 @@
     <variablelist>
       <varlistentry>
         <term><optional><option>-d</option> | <option>--destdir
-          <replaceable>Destinationpath</replaceable></option></optional></term>
+          <replaceable>DestinationPath</replaceable></option></optional></term>
         <listitem>
           <para>Specify destination directory to store the image file(s)
             If not specified the the attribute
-              <replaceable>Defaultdestination</replaceable> is used. If
+              <replaceable>DefaultDestination</replaceable> is used. If
             no destination can be found an error occurs</para>
         </listitem>
       </varlistentry>
@@ -240,7 +240,7 @@
       </varlistentry>
       <varlistentry>
         <term><optional><option>-r</option> | <option>--root
-          <replaceable>Rootpath</replaceable></option></optional></term>
+          <replaceable>RootPath</replaceable></option></optional></term>
         <listitem>
           <para>Setup the physical extend, chroot system below the given
             root-path path. If no <option>--root</option> option is
@@ -259,7 +259,7 @@
       </varlistentry>
       <varlistentry>
         <term><optional><option>--add-repo
-          <replaceable>Repopath</replaceable></option>,
+          <replaceable>RepoPath</replaceable></option>,
           <option>--add-repotype <replaceable>Type</replaceable></option>
         </optional></term>
         <listitem>
@@ -281,7 +281,7 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><optional><option>--set-repo <replaceable>Repopath</replaceable>
+        <term><optional><option>--set-repo <replaceable>RepoPath</replaceable>
         <optional><option>--set-repotype <replaceable>Type</replaceable></option></optional></option></optional></term>
         <listitem>
           <para>Set the given repository and optional type for the first
