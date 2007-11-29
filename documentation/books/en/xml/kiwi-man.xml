@@ -49,7 +49,7 @@
         <arg choice="plain">-i</arg>
         <arg choice="plain">--list-profiles</arg>
       </group>
-      <arg choice="plain"><replaceable>Imagepath</replaceable></arg>
+      <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
     </cmdsynopsis>
     <cmdsynopsis>
       <command>kiwi</command>
@@ -57,9 +57,9 @@
         <arg choice="plain">-x</arg>
         <arg choice="plain">--listxmlinfo</arg>
       </group>
-      <arg choice="plain"><replaceable>Imagepath</replaceable></arg>
+      <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
       <arg choice="opt">--type
-      <replaceable>Imagetype</replaceable></arg>
+      <replaceable>ImageType</replaceable></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
   <refsect1 id="kiwi.image.prepcreate">
@@ -68,11 +68,11 @@
       description. Such a description is represented by a directory
       which includes at least one <filename>config.xml</filename> file
       but can also include other files like scripts or configuration
-      data. With KIWI two example descriptions are provided in
-        <filename>/usr/share/doc/packages/kiwi/examples</filename>. A
+      data. With KIWI two example descriptions are provided in <ulink
+        url="file:///usr/share/doc/packages/kiwi/examples/"/>. A
       detailed description of the contents of an image description
-      exists in the system design document in
-        <filename>/usr/share/doc/packages/kiwi/kiwi.pdf</filename>. KIWI
+      exists in the system design document in <ulink
+        url="file:///usr/share/doc/packages/kiwi/kiwi.pdf"/>. KIWI
       always operates in two steps the first step is the prepare step
       and if that step was successful a create step follows which is
       able to create different image output types. In the prepare step,
@@ -332,5 +332,35 @@
       </varlistentry>      
     </variablelist>    
   </refsect1>  
+  
+  <refsect1 id="kiwi.moreinfo">
+    <title>For More Information</title>
+    <para>More information about KIWI, its files can be found at:</para>
+    <variablelist>
+      <varlistentry>
+        <term><ulink url="http://kiwi.berlios.de"/></term>
+        <listitem>
+          <para>Homepage of KIWI</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><filename>config.xml</filename></term>
+        <listitem>
+          <para>The configuration XML file that contains every
+            aspect for the image creation.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><ulink
+        url="file:///usr/share/doc/packages/kiwi/kiwi.pdf"/></term>
+        <listitem>
+          <para>The system design document which describes some details
+            about the building process.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    
+  </refsect1>
+  
   
 </refentry>
