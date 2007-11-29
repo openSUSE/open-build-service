@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC 
+  "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.docbook.org/xml/4.4/docbookx.dtd">
+
+<refentry>
+  <refentryinfo>
+    <productname>KIWI</productname>
+    <!--<productnumber></productnumber>-->
+    <date>Created: <?dbtimestamp?></date>
+    <authorgroup>
+      <author>
+        <firstname>Marcus</firstname>
+        <surname>Schäfer</surname>
+        <contrib>Developer</contrib>
+        <email>ms (AT) suse.de</email>
+      </author>
+      <author>
+        <firstname>Thomas</firstname>
+        <surname>Schraitle</surname>
+        <contrib>Manpage author</contrib>
+        <email>thomas.schraitle (AT) suse.de</email>
+      </author>  
+    </authorgroup>    
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle>kiwi</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class="version">v1.98, r847</refmiscinfo>
+    <refmiscinfo class="manual">KIWI Manualpage</refmiscinfo>
+  </refmeta>
+  <refnamediv>
+    <refname>kiwi</refname>
+    <refpurpose>Creating system images</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <title>Synopsis</title>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <group choice="req">
+        <arg choice="plain">-l</arg>
+        <arg choice="plain">--list</arg>
+      </group>
+    </cmdsynopsis>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <group choice="req">
+        <arg choice="plain">-i</arg>
+        <arg choice="plain">--list-profiles</arg>
+      </group>
+      <arg choice="plain"><replaceable>Imagepath</replaceable></arg>
+    </cmdsynopsis>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <group choice="req">
+        <arg choice="plain">-x</arg>
+        <arg choice="plain">--listxmlinfo</arg>
+      </group>
+      <arg choice="plain"><replaceable>Imagepath</replaceable></arg>
+      <arg choice="opt">--type
+      <replaceable>Imagetype</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1 id="kiwi.image.prepcreate">
+    <title>Image Preparation and Creation</title>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <group choice="req">
+        <arg choice="plain">-p</arg>
+        <arg choice="plain">--prepare</arg>
+      </group>
+      <arg choice="plain"><replaceable>Imagepath</replaceable></arg>
+      <arg choice="plain"><replaceable>Imagepath</replaceable></arg>
+      <sbr/>
+      <arg choice="opt">--base-root <replaceable>Basepath</replaceable></arg>
+      <arg choice="opt">--base-root-mode <group choice="req">
+          <arg choice="plain">copy</arg>
+          <arg choice="plain">union</arg>
+          <arg choice="plain">recycle</arg>
+        </group></arg>
+      <arg>--add-profile <replaceable>Profilename</replaceable></arg>
+    </cmdsynopsis>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <group choice="req">
+        <arg choice="plain">-c</arg>
+        <arg choice="plain">--create</arg>
+      </group>
+      <arg choice="plain"><replaceable>Imageroot</replaceable></arg>
+      <sbr/>
+      <arg choice="opt">--base-root <replaceable>Basepath</replaceable></arg>
+      <arg choice="opt">--base-root-mode <group choice="req">
+          <arg choice="plain">copy</arg>
+          <arg choice="plain">union</arg>
+          <arg choice="plain">recycle</arg>
+        </group></arg>
+      <arg choice="opt">--prebuiltbootimage
+        <replaceable>Directory</replaceable></arg>
+    </cmdsynopsis>
+  </refsect1>
+
+  <refsect1 id="kiwi.image.upgrade">
+    <title>Image Upgrade</title>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <group choice="req">
+        <arg choice="plain">-u</arg>
+        <arg choice="plain">--upgrade</arg>
+      </group>
+      <arg choice="plain"><replaceable>Imageroot</replaceable></arg>
+      <arg choice="opt">--base-root <replaceable>Basepath</replaceable></arg>
+    </cmdsynopsis>
+  </refsect1>
+
+  <refsect1 id="kiwi.image.system2image">
+    <title>System to Image Migration</title>
+    <cmdsynopsis><command>kiwi</command> 
+      <group choice="req">
+        <arg choice="plain">-m</arg>
+        <arg choice="plain">--migrate</arg>
+      </group>
+      <arg choice="plain"><replaceable>name</replaceable></arg>
+      <arg choice="plain">--destdir <replaceable>Destinationpath</replaceable></arg>
+      <arg choice="opt" rep="repeat">--exclude <replaceable>Directory</replaceable></arg>
+      <arg choice="opt">--report</arg>
+    </cmdsynopsis>
+  </refsect1>
+  
+  <refsect1 id="kiwi.image.postproc">
+    <title>Image Postprocessing Modes</title>
+    <cmdsynopsis><command>kiwi</command>
+      <arg choice="plain">--bootstick <replaceable>Initrd</replaceable></arg>
+      <arg choice="opt">--bootstick-system <replaceable>SystemImage</replaceable></arg>
+      <arg choice="opt">--bootstick-device <replaceable>Device</replaceable></arg>
+    </cmdsynopsis>
+    <cmdsynopsis><command>kiwi</command>
+      <arg choice="plain">--bootvm <replaceable>Initrd</replaceable></arg>
+      <arg choice="plain">--bootvm-system <replaceable>SystemImage</replaceable></arg>
+      <arg choice="opt">--bootvm-disksize <replaceable>Size</replaceable></arg>
+      <arg choice="opt">--bootvm-format <replaceable>Format</replaceable></arg>
+    </cmdsynopsis>
+    <cmdsynopsis><command>kiwi</command>
+      <arg choice="plain">--bootcd <replaceable>Initrd</replaceable></arg>
+    </cmdsynopsis>
+    <cmdsynopsis><command>kiwi</command>
+      <arg choice="plain">--installcd <replaceable>Initrd</replaceable></arg>
+      <arg choice="plain">--installcd-system <replaceable>VMXSystemImage</replaceable></arg>
+    </cmdsynopsis>
+    <cmdsynopsis><command>kiwi</command>
+      <arg choice="plain">--installstick <replaceable>Initrd</replaceable></arg>
+      <arg choice="plain">--installstick-system <replaceable>VMXSystemImage</replaceable></arg>
+    </cmdsynopsis>
+  </refsect1>
+  
+  <refsect1>
+    <title>Helper Tools</title>
+    <cmdsynopsis><command>kiwi</command> <arg choice="plain">--createpassword</arg></cmdsynopsis>
+    <cmdsynopsis><command>kiwi</command> <arg choice="plain">--createhash
+      <replaceable>Imagepath</replaceable></arg></cmdsynopsis>
+    <cmdsynopsis><command>kiwi</command> <arg choice="plain">--create-instsource
+      <replaceable>Imagepath</replaceable></arg></cmdsynopsis>
+    <cmdsynopsis><command>kiwi</command> <arg choice="plain">--setup-grub-splash
+      <replaceable>Initrd</replaceable></arg></cmdsynopsis>
+  </refsect1>
+  
+  <refsect1 id="kiwi.options">
+    <title>Options</title>
+    <variablelist>
+      <varlistentry>
+        <term><optional><option>-d</option> | <option>--destdir
+          <replaceable>Destinationpath</replaceable></option></optional></term>
+        <listitem>
+          <para>Specify destination directory to store the image file(s)
+            If not specified the the attribute
+              <replaceable>Defaultdestination</replaceable> is used. If
+            no destination can be found an error occurs</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>-t</option> | <option>--type
+          <replaceable>Imagetype</replaceable></option></optional></term>
+        <listitem>
+          <para>Specify the output image type to use for this image The
+            type must exist in the <filename>config.xml</filename>
+            description. By the default the primary type will be used. If
+            there is no primary attribute set the first type entry of
+            the preferences section is the primary type makes only sense
+            in combination with <option>--create</option></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>-r</option> | <option>--root
+          <replaceable>Rootpath</replaceable></option></optional></term>
+        <listitem>
+          <para>Setup the physical extend, chroot system below the given
+            root-path path. If no <option>--root</option> option is
+            given KIWI will search for the attribute defaultroot in
+              <filename>config.xml</filename>. If no root directory is
+            known a <command>mktmp</command> directory will be created
+            and used as root directory</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>-s</option> | <option>--strip</option></optional></term>
+        <listitem>
+          <para>Strip shared objects and executables makes only sense in
+            combination with <option>--create</option></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--add-repo
+          <replaceable>Repopath</replaceable></option>,
+          <option>--add-repotype <replaceable>Type</replaceable></option>
+        </optional></term>
+        <listitem>
+          <para>Add the given repository and type for this run of an
+            image prepare or upgrade process. Multiple
+              <option>--add-repo</option>/<option>--add-repotype</option>
+            options are possible. The change will not be written to the
+              <filename>config.xml</filename> file</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--ignore-repos</option></optional></term>
+        <listitem>
+          <para>Ignore all repositories specified so far, in XML or
+            otherwise. This option should be used in conjunction with
+            subsequent calls to <option>--add-repo</option> to specify
+            repositories at the commandline that override previous
+            specifications.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--set-repo <replaceable>Repopath</replaceable>
+        <optional><option>--set-repotype <replaceable>Type</replaceable></option></optional></option></optional></term>
+        <listitem>
+          <para>Set the given repository and optional type for the first
+            repository entry within the <filename>config.xml</filename>.
+            The change will not be written to the XML file and is valid
+            for this run of image prepare or upgrade process.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--logfile <replaceable>Filename</replaceable></option>
+          | <option>terminal</option></optional></term>
+        <listitem>
+          <para>Write to the log file
+            <replaceable>Filename</replaceable> instead of the terminal.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--gzip-cmd <replaceable>cmd</replaceable></option></optional></term>
+        <listitem>
+          <para>Specify an alternate command to run when compressing
+            boot and system images. Command must accept
+            <command>gzip</command> options.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--force-new-root</option></optional></term>
+        <listitem>
+          <para>Force creation of new root directory. If the directory
+            already exists, it is deleted.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--log-port <replaceable>PortNumber</replaceable></option></optional></term>
+        <listitem>
+          <para>Set the log server port. By default port 9000 is used. If
+            multiple kiwi processes runs on one system it's recommended
+            to set the logging port per process </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--rebuiltbootimage
+          <replaceable>Directory</replaceable></option></optional></term>
+        <listitem>
+          <para>Search in <replaceable>Directory</replaceable> for
+            pre-built boot images.</para>
+        </listitem>
+      </varlistentry>
+      
+    </variablelist>
+    
+  </refsect1>
+  
+  
+</refentry>
