@@ -61,6 +61,7 @@
     <title>What do I need?</title>
     <para>To build images with KIWI, you need the following
     preconditions:</para>
+    <remark>FIXME: Add more preconditions?</remark>
     <orderedlist>
       <listitem>
         <para>A decent desktop with <remark>X</remark> Megabyte RAM</para>
@@ -88,9 +89,6 @@
       </listitem>
       <listitem>
         <para>Recommended distribution is openSUSE 10.3</para>
-      </listitem>
-      <listitem>
-        <remark>FIXME: Add more preconditions</remark>
       </listitem>
     </orderedlist>
         
@@ -129,7 +127,33 @@
   
   <sect1 id="sec.kiwi.livecd">
     <title>Creating a Live ISO CD</title>
-    <para>FIXME</para>
+    <para>The KIWI package contains two example files which create
+    different images:</para>
+    
+    <variablelist>
+      <varlistentry>
+        <term><filename>/usr/share/doc/packages/kiwi/examples/test1</filename></term>
+        <listitem>
+          <para>Is an openSUSE 10.3 KDE system, based on patterns.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><filename>/usr/share/doc/packages/kiwi/examples/test2</filename></term>
+        <listitem>
+          <para>This is an openSUSE 10.3 console system, based on a
+            package list.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    
+    <para>Both examples have the users <systemitem
+      class="username">root</systemitem> and <systemitem 
+        class="username">linux</systemitem> both with the password
+      <literal>linux</literal>.
+    </para>
+    <para>To create an ISO image, proceed as follows:</para>
+    
+    
   </sect1>
   
   
