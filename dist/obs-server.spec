@@ -48,11 +48,14 @@ Authors:
     The openSUSE Team <opensuse-buildservice@opensuse.org>
 
 %package -n obs-worker
-Requires:       perl-Socket-MsgHdr perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
+Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
 %ifarch x86_64
-Requires:       linux32
+Requires:	linux32
 %endif
-%if 0%{?suse_version:1}
+%ifarch ppc64
+Requires:	powerpc32
+%endif
+%if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 Group:          Productivity/Networking/Web/Utilities
@@ -61,7 +64,7 @@ Summary:        The openSUSE Build Service -- Build Host Component
 %description -n obs-worker
 
 %package -n obs-api
-%if 0%{?suse_version:1}
+%if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
