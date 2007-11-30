@@ -393,8 +393,22 @@ sub jobname {
 sub killjob {
   my ($job) = @_;
   local *F;
+  if (! -e "$myjobsdir/$job:status") {
+    # create locked status
+    my $js = {'code' => 'deleting'};
+    if (!BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
+      print "        (job was not building)\n";
+      unlink("$myjobsdir/$job");
+      unlink("$myjobsdir/$job:status");
+      close F;
+      return;
+    }
+    # lock failed, dispatcher was faster!
+    die("$myjobsdir/$job:status: $!") unless -e "$myjobsdir/$job:status: $!";
+  }
   my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
   if (!$js) {
+    # can't happen actually
     print "        (job was not building)\n";
     unlink("$myjobsdir/$job");
     return;

@@ -1450,7 +1450,7 @@ my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
   'setkeepalive' => 1, 
-  'maxchild' => 10,
+  'maxchild' => 20,
 };
 
 my $aconf = {

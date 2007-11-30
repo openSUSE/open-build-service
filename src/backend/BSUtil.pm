@@ -203,4 +203,20 @@ sub lockopenxml {
   return $d;
 }
 
+sub lockcreatexml {
+  my ($fg, $fn, $fnf, $dd, $dtd) = @_;
+
+  local *F = $fg; 
+  writexml($fn, undef, $dd, $dtd);
+  open(F, '<', $fn) || die("$fn: $!\n");
+  flock(F, LOCK_EX | LOCK_NB) || die("lock: $!\n");
+  if (!link($fn, $fnf)) {
+    unlink($fn);
+    close F;
+    return undef;
+  }
+  unlink($fn);
+  return 1;
+}
+
 1;

@@ -117,27 +117,33 @@ sub assignjob {
   my ($job, $idlename, $arch) = @_;
   local *F;
 
-  print "assignjob $job -> $idlename\n";
+  print "assignjob $arch/$job -> $idlename\n";
   my $jobstatus = {
     'code' => 'dispatching',
   };
-  writexml("$jobsdir/$arch/.dispatch.$$", undef, $jobstatus, $BSXML::jobstatus);
-  open(F, '<', "$jobsdir/$arch/.dispatch.$$") || die("$jobsdir/$arch/.dispatch.$$: $!");
-  flock(F, LOCK_EX | LOCK_NB) || die("lock: $!\n");
-  if (!link("$jobsdir/$arch/.dispatch.$$", "$jobsdir/$arch/$job:status")) {
-    print "job lock failed: $!\n";
-    unlink("$jobsdir/$arch/.dispatch.$$");
+  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.dispatch.$$", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+    print "job lock failed!\n";
     return undef;
   }
-  unlink("$jobsdir/$arch/.dispatch.$$");
 
+  # got the lock, re-check if job is still there
+  if (! -e "$jobsdir/$arch/$job") {
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    print "job disappered!\n";
+    return undef;
+  }
+
+  # get the worker data
   my $worker = readxml("$workersdir/idle/$idlename", $BSXML::worker, 1);
   if (!$worker) {
     unlink("$jobsdir/$arch/$job:status");
     close F;
+    print "worker is gone!\n";
     return undef;
   }
-  # ready for building!
+
+  # ready for building, send info to worker!
   unlink("$workersdir/idle/$idlename");
   my $infoxml = readstr("$jobsdir/$arch/$job");
   my $jobid = Digest::MD5::md5_hex($infoxml);
@@ -207,6 +213,7 @@ while (1) {
 
     for my $job (List::Util::shuffle(@b)) {
       for my $idle (map {$_} List::Util::shuffle(@{$idlearch{$arch} || []})) {
+	next unless -e "$jobsdir/$arch/$job";
 	if (!assignjob($job, $idle, $arch)) {
 	  my $harch = (split(':', $idle, 2))[0];
 	  for (@{$cando{$harch} || []}) {
