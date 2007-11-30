@@ -4,7 +4,7 @@
   "http://www.docbook.org/xml/4.4/docbookx.dtd"
 >
 
-<article lang="en">
+<article lang="en" revision="draft" class="whitepaper">
   <title>KIWI Quick Start</title>
   <articleinfo>
     <authorgroup>
@@ -54,6 +54,40 @@
       <listitem>
         <para>Test new hardware with a predefinied image.</para>
       </listitem>
+      <listitem>
+        <remark>man kann mit kiwi images bauen die eigene nicht
+          distributierte software enthalten</remark>
+        <para>Create KIWI images which contains software that is
+          not included in the official distribution.</para>
+      </listitem>
+      <listitem>
+        <remark>man kann mit kiwi images bauen die direkt in
+          Virtualisierungssystemen wie zB VMware oder Xen benutzt werden
+          können. KIWI generiert auch die dafür notwendige guest
+          Konfigurationsdatei</remark>
+        <para>Build KIWI image that can be directly used by
+          virtualisation systems like Xen or VMware.</para>
+      </listitem>
+      <listitem>
+        <remark>man kann mit einer kiwi image Beschreibung leicht auf
+          eine andere Architektur wechseln indem man das image mit einer
+          für die Architektur angepasstes repo baut</remark>
+        <para>Generate KIWI images for different processor architectures
+          only by switching to a different repository.</para>
+      </listitem>
+      <listitem>
+        <remark>man kann mit kiwi kleinere images bauen als es mit einer
+          normalen Installation möglich ist. Bedingt durch mögliche
+          Kompression und Einflussnahme ausserhalb des
+        Paketmanagers.</remark>
+        <para>Create smaller images than with a normal installation.</para>
+      </listitem>
+      <listitem>
+        <remark>man kann mit kiwi images für Netzwerk Systeme erstellen. kiwi
+          unterstützt einen auch im Aufbau der Infrastruktur (PXE)</remark>
+        <para>Build images for network systems. KIWI supports you by
+          establishing the infrastrucutre, for example PXE.</para>
+      </listitem>
     </itemizedlist>    
   </sect1>
   
@@ -95,7 +129,7 @@
   </sect1>
   
   <sect1 id="sec.kiwi.process">
-    <title>Knowing the Building Image Process</title>
+    <title>Knowing KIWI's Build Process</title>
     <para>The building process of KIWI is separated into three steps:</para>
     <orderedlist>
       <listitem>
@@ -126,7 +160,7 @@
   </sect1>
   
   <sect1 id="sec.kiwi.livecd">
-    <title>Creating a Live ISO CD</title>
+    <title>Creating a Graphical Live ISO CD</title>
     <para>The KIWI package contains two example files which create
     different images:</para>
     
@@ -169,7 +203,7 @@
 >kiwi</command> --prepare /usr/share/doc/packages/kiwi/examples/test1 \
     --root /tmp/kiwi-test1</screen>
         <para>If everything is correct, you see the message
-            <errortext>KIWI exited sucessfully</errortext>.</para>
+            <errortext>KIWI exited sucessfully</errortext>.</para>       
       </step>
       <step>
         <para>Build the ISO image:</para>
