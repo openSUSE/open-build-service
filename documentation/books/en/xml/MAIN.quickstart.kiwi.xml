@@ -153,7 +153,35 @@
     </para>
     <para>To create an ISO image, proceed as follows:</para>
     
-    
+    <procedure>
+      <step>
+        <para>Install the package <package>kiwi</package> and resolve
+          any dependencies.
+        </para>
+      </step>
+      <step>
+        <para>Open a shell and become root.</para>
+      </step>
+      <step>
+        <para>Run KIWI with the following command to prepare the first
+          phase (<quote>physical extend</quote>):</para>
+        <screen><command
+>kiwi</command> --prepare /usr/share/doc/packages/kiwi/examples/test1 \
+    --root /tmp/kiwi-test1</screen>
+        <para>If everything is correct, you see the message
+            <errortext>KIWI exited sucessfully</errortext>.</para>
+      </step>
+      <step>
+        <para>Build the ISO image:</para>
+        <screen><command
+>kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
+        <para>KIWI builds the ISO image and if successfully, it print
+          the message <errortext>KIWI exited sucessfully</errortext>.</para>
+      </step>
+      <step>
+        <para>Test the ISO image with Qemu, Vmware or VirtualBox.</para>
+      </step>
+    </procedure>    
   </sect1>
   
   
