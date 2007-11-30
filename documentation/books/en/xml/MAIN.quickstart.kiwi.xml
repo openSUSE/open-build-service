@@ -5,7 +5,7 @@
 >
 
 <article lang="en">
-  <title>Quick Start with KIWI</title>
+  <title>KIWI Quick Start</title>
   <articleinfo>
     <authorgroup>
       <author>
@@ -22,6 +22,7 @@
     <keywordset>
       <keyword>KIWI</keyword>
       <keyword>KIWI Image System</keyword>
+      <keyword>config.xml</keyword>
       <keyword>Live DVD</keyword>
       <keyword>Live CD</keyword>
     </keywordset>    
@@ -32,13 +33,15 @@
   <sect1 id="sec.kiwi.whatis" os="sles10">
     <title>What is KIWI?</title>
     <para>KIWI is a system for creating ISO images to boot as Live DVD,
-      Live USB, or as image for virtualization systems like Xen, Qemu or
-      VMWare. KIWI provides the following advantages:
+      Live USB, or as an image for virtualization systems like Xen, Qemu or
+      Vmware. KIWI provides the following advantages:
     </para>
+    <remark>FIXME: Add more advantages.</remark>
     <itemizedlist>
       <listitem>
         <para>Create your own Live CD/DVD which contains only those
-          packages that you really need. </para>
+          packages that you really need.
+        </para>
       </listitem>
       <listitem>
         <para>Debug a new distribution by creating all necessary
@@ -51,11 +54,7 @@
       <listitem>
         <para>Test new hardware with a predefinied image.</para>
       </listitem>
-      <listitem>
-        <remark>FIXME: Add more advantages.</remark>
-      </listitem>
-    </itemizedlist>   
-    
+    </itemizedlist>    
   </sect1>
   
   <sect1 id="sec.kiwi.preparation" os="sled10">
@@ -70,20 +69,66 @@
         <para>A minimum of <remark>Y</remark> Gigabyte of free space.</para>
       </listitem>
       <listitem>
-        <para>An installed KIWI system, see <remark>FIXME: LINK</remark></para>
+        <para>An installed KIWI system. Generally, install the following
+        packages:</para>
+        <remark>FIXME: Insert more packages?</remark>
+        <itemizedlist>
+          <listitem>
+            <para>kiwi</para>
+          </listitem>
+          <listitem>
+            <para>kiwi-desc-livesystem</para>
+          </listitem>
+          <listitem>
+            <para>kiwi-desc-isoboot</para>
+          </listitem>
+        </itemizedlist>
+        <para>There are other packages that are needed for
+          virtualization, but in this article we do not use them.</para>
       </listitem>
       <listitem>
-        <para>Recommended openSUSE 10.3</para>
+        <para>Recommended distribution is openSUSE 10.3</para>
       </listitem>
       <listitem>
         <remark>FIXME: Add more preconditions</remark>
       </listitem>
     </orderedlist>
-    
+        
   </sect1>
   
-  <sect1 id="sec.kiwi.building">
-    <title>Building Images with KIWI</title>
+  <sect1 id="sec.kiwi.process">
+    <title>Knowing the Building Image Process</title>
+    <para>The building process of KIWI is separated into three steps:</para>
+    <orderedlist>
+      <listitem>
+        <formalpara>
+          <title>Physical Extend</title>
+          <para>This stage is a preparation step actually.</para>
+        </formalpara>        
+      </listitem>
+      <listitem>
+        <formalpara>
+          <title>Logical Extend</title>
+          <para>This stage creates the operating system image.</para>
+        </formalpara>        
+      </listitem>
+      <listitem>
+        <formalpara>
+          <title>Deployment</title>
+          <para>The resulting ISO image can be deployed with different
+            methods like installed on a harddisc or played by a
+            virtualization system (Vmware, Qemu, VirtualBox).</para>
+        </formalpara>        
+      </listitem>
+    </orderedlist>
+    <para>Detailed background can be found in the 
+      <citetitle>System Design</citetitle> paper, 
+      see <filename>/usr/share/doc/packages/kiwi/kiwi.pdf</filename>.
+      </para>
+  </sect1>
+  
+  <sect1 id="sec.kiwi.livecd">
+    <title>Creating a Live ISO CD</title>
     <para>FIXME</para>
   </sect1>
   
