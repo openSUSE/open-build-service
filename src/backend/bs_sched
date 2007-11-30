@@ -396,7 +396,7 @@ sub killjob {
   if (! -e "$myjobsdir/$job:status") {
     # create locked status
     my $js = {'code' => 'deleting'};
-    if (!BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
+    if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
       print "        (job was not building)\n";
       unlink("$myjobsdir/$job");
       unlink("$myjobsdir/$job:status");
