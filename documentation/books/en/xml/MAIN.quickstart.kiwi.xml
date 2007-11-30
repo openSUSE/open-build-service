@@ -175,7 +175,7 @@
         <para>Build the ISO image:</para>
         <screen><command
 >kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
-        <para>KIWI builds the ISO image and if successfully, it print
+        <para>KIWI builds the ISO image. If everything is correct, it print
           the message <errortext>KIWI exited sucessfully</errortext>.</para>
       </step>
       <step>
