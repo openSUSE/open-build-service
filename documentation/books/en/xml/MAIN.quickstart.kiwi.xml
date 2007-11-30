@@ -98,28 +98,38 @@
     <remark>FIXME: Add more preconditions?</remark>
     <orderedlist>
       <listitem>
-        <para>A decent desktop with <remark>X</remark> Megabyte RAM</para>
-      </listitem>
-      <listitem>
         <para>A minimum of <remark>Y</remark> Gigabyte of free space.</para>
       </listitem>
       <listitem>
-        <para>An installed KIWI system. Generally, install the following
-        packages:</para>
-        <remark>FIXME: Insert more packages?</remark>
-        <itemizedlist>
-          <listitem>
-            <para>kiwi</para>
-          </listitem>
-          <listitem>
-            <para>kiwi-desc-livesystem</para>
-          </listitem>
-          <listitem>
-            <para>kiwi-desc-isoboot</para>
-          </listitem>
-        </itemizedlist>
-        <para>There are other packages that are needed for
-          virtualization, but in this article we do not use them.</para>
+        <para>KIWI is split into several packages, targeted to different
+        image types. In every case you need the base package,
+          <package>kiwi</package>. Depending on your target image, you need the
+        following additional packages:</para>
+        
+        <informaltable>
+          <tgroup cols="2">
+            <tbody>
+              <row>
+                <entry>Installation media</entry>
+                <entry><package>kiwi-desc-oemboot</package>, 
+                  <package>kiwi-desc-vmxboot</package></entry>
+              </row>
+              <row>
+                <entry>Virtualization</entry>
+                <entry><package>kiwi-desc-vmxboot</package>, 
+                  <package>kiwi-desc-xenboot</package></entry>
+              </row>
+              <row>
+                <entry>USB sticks</entry>
+                <entry><package>kiwi-desc-usbboot</package></entry>
+              </row>
+              <row>
+                <entry>Network client</entry>
+                <entry><package>kiwi-desc-netboot</package></entry>
+              </row>
+            </tbody>
+          </tgroup>          
+        </informaltable>
       </listitem>
       <listitem>
         <para>Recommended distribution is openSUSE 10.3</para>
