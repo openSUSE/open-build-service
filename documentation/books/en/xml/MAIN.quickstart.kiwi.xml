@@ -145,13 +145,17 @@
       <listitem>
         <formalpara>
           <title>Physical Extend</title>
-          <para>This stage is a preparation step actually.</para>
+          <para>This stage prepares the content of your new filesystem.
+            During this stage, you determine which packages are
+            installed on your image and which configuration fiels are
+            included.</para>
         </formalpara>        
       </listitem>
       <listitem>
         <formalpara>
           <title>Logical Extend</title>
-          <para>This stage creates the operating system image.</para>
+          <para>This stage creates the operating system image based on
+            the the first step.</para>
         </formalpara>        
       </listitem>
       <listitem>
@@ -227,6 +231,5 @@
       </step>
     </procedure>    
   </sect1>
-  
-  
+   
 </article>
