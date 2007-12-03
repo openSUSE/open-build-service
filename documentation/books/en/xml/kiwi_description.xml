@@ -29,7 +29,7 @@
  |
  |- config.sh [optional]
  |- images.sh [optional]
- |- config-yast.xml [optional]
+ |- config-yast-firstboot.xml [optional]
  |- config-cdroot.tgz [optional]
  |- root [optional]
      |- root tree files/directories</screen>
@@ -647,18 +647,19 @@ exit 0</screen>
    the image creation process during the creation of the logical extend. This script removes the
    programs and files only needed while the physical extend exists. </para>
  </sect2>
- <sect2 id="sec.kiwi.description.config-yast.xml">
+
+ <sect2 id="sec.kiwi.description.config-yast-autoyast.xml">
   <title>
-   <filename>config-yast.xml</filename>
+   <filename>config-yast-autoyast.xml</filename>
   </title>
-  <para><filename>config-yast.xml</filename> is an optional &ay; configuration file that creates
+  <para><filename>config-yast-autoyast.xml</filename> is an optional &ay; configuration file that creates
    a ready-to-use profile (<filename>/root/autoinst.xml</filename>) that can be used to create a
    clone of a particular installation. To generate this file, select <guimenu>Clone This System for
     &ay;</guimenu> during the installation of &product;. To create an autoinstallation file
    from scratch, or to edit an existing autoinstallation file, use the
    <guimenu>Autoinstallation</guimenu> &yast; module.</para>
   <para>To use <filename>/root/autoinst.xml</filename>, copy the file to the image description tree,
-   then change the name to <filename>config-yast.xml</filename>. KIWI processes the file and sets up
+   then change the name to <filename>config-yast-autoyast.xml</filename>. KIWI processes the file and sets up
    your image as follows:</para>
   <itemizedlist mark="bullet" spacing="normal">
    <listitem>
@@ -666,13 +667,28 @@ exit 0</screen>
    </listitem>
    <listitem>
     <para>&yast; configures the system by applying the rules from
-     <filename>config-yast.xml</filename>.</para>
+     <filename>config-yast-autoyast.xml</filename>.</para>
    </listitem>
    <listitem>
     <para>If the process finishes successfully, the environment is cleaned, and &ay; will not be
      started with the next reboot.</para>
    </listitem>
   </itemizedlist>
+ </sect2>
+ <sect2 id="sec.kiwi.description.config-yast-firstboot.xml">
+  <title>
+   <filename>config-yast-firstboot.xml</filename>
+  </title>
+  <para><filename>config-yast-firstboot.xml</filename> is an optional &ay; configuration file
+   which is used with the YaST2 firstboot mechanism. The use of this system requires the
+   package yast2-firstboot to be installed. The firstboot system is preferred over the
+   autoyast system. This means you can either have config-yast-autoyast.xml or config-yast-firstboot.xml
+   in your image description. The format of both files are different. For information on the
+   firstboot system only the documentation in /usr/share/doc/packages/yast2-firstboot exists.
+   The workflow of the firstboot system is similar to the autoyast system. The goal is to allow
+   yast to do configurations at first startup of the system. KIWI integrates the firstboot xml
+   information if present and starts the firstboot service on first boot of the system.
+  </para>
  </sect2>
  <sect2 id="sec.kiwi.description.config-cdroot.tgz">
   <title>
