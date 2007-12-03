@@ -243,7 +243,14 @@
         </div>
        </div>
        <br style="clear: right;" />
-       <div id="contentarea"> 
+       <div id="contentarea">
+	      <% if !session[:login] -%> 
+	      <!-- Snippet for starting page (3-column layout) -->
+        <div class="subcolumns">
+         <div class="c75l">
+          <div class="subcl">
+          <!-- End Snippet -->
+	      <% end %>
         <div class="grey_box_double" style="float:left; width: 100%;">
          <div class="box_top_row">
           <div class="box_left"></div>
@@ -279,17 +286,17 @@
           </div>
          </div>
          <div class="box_content" id="bodyContent">
-<!-- Begin content area -->
+         <!-- Begin content area -->
           <p class="special">
             <% if flash[:note] %>
-              <div class="message info"><%=h flash[:note] %></div>
+               <div class="message info"><%=h flash[:note] %></div>
             <% end %>
             <% if flash[:error] %>
-           <div class="message error"><%=h flash[:error] %></div>
+               <div class="message error"><%=h flash[:error] %></div>
             <% end %>
            <%= @content_for_layout %>
           </p>
-<!-- End content area -->
+         <!-- End content area -->
          </div>
          <div class="box_footer_row">
           <div id="page_footer" class="box_footer">
@@ -312,6 +319,42 @@
         </div>
        </div>
       </div>
+      <% if !session[:login] -%> 
+      <!-- Insert right navigation bar -->
+      <div class="c25r" id="rightnav">
+        <div class="subcr">
+          <div class="darkgrey_box">
+           <div class="box_top_row">
+            <div class="box_left"></div>
+            <div class="box_right"></div>
+           </div>
+           <div class="box_title_row">
+            <div class="box_title">
+            Sponsored by
+            </div>
+           </div>
+           <div class="box_content" id="platin_sponsor">
+            <div style="text-align: center; padding: 7px 0; overflow: hidden;">
+              <a href="http://en.opensuse.org/Sponsors"><img src="http://files.opensuse.org/opensuse/en/5/54/Amd.png" title="Sponsored by AMD" alt="Sponsored by AMD"/></a>
+              <a href="http://en.opensuse.org/Sponsors"><img title="Sponsored by: IP Exchange" alt="Sponsored by: IP Exchange" src="http://files.opensuse.org/opensuse/en/b/b6/Ip-exchange.gif"/></a> 
+            </div>
+           </div>
+           <div class="box_bottom_row">
+            <div class="box_left"></div>
+            <div class="box_right"></div>
+           </div>
+          </div>
+          <br />
+         </div>
+        </div>
+        <!-- End insert right navigation bar -->
+        <!-- Snippet for starting page (3-column layout) -->
+        </div>
+       </div>
+      </div>
+      <!-- End Snippet -->
+      <% end %>
+
       <!-- IE Column Clearing -->
       <div id="ie_clearing">&nbsp;</div>
       <!-- Ende: IE Column Clearing -->
