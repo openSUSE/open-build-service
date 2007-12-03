@@ -23,6 +23,7 @@
 
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
   # FIXME: currently the bs_srcserver makes assumptions on being in a
   # properly set up working dir, e.g. with subdirs 'worker' and
   # 'build'.  Either that is cleaned up or this stays in, for the sake
@@ -34,6 +35,7 @@ BEGIN {
 }
 
 use POSIX;
+use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Storable ();
 use Data::Dumper;
@@ -81,6 +83,7 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
 my $infodir = "$BSConfig::bsdir/info";
 my $uploaddir = "$BSConfig::bsdir/upload";
+my $rundir = "$BSConfig::bsdir/run";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodb = "$BSConfig::bsdir/db/published";
 
@@ -517,11 +520,29 @@ sub workerstatus {
   @idle = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @idle;
   @building = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @building;
   @waiting = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @waiting;
+
+  my @scheddata;
+  my @schedarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
+  for my $schedarch (@schedarchs) {
+    local *F;
+    my $scheddata = {'arch' => $schedarch, 'state' => 'dead'};
+    if (open(F, '<', "$rundir/bs_sched.$schedarch.lock")) {
+      if (!flock(F, LOCK_EX | LOCK_NB)) {
+        my @s = stat(F);
+        $scheddata->{'state'} = 'running';
+        $scheddata->{'starttime'} = $s[9] if @s;
+      }
+      close F;
+    }
+    push @scheddata, $scheddata;
+  }
+
   my $ret = {};
   $ret->{'clients'} = @building + @idle;
   $ret->{'building'} = \@building;
   $ret->{'waiting'} = \@waiting;
   $ret->{'idle'} = \@idle;
+  $ret->{'scheduler'} = \@scheddata;
   return ($ret, $BSXML::workerstatus);
 }
 
@@ -540,7 +561,7 @@ sub putjob {
   die("job info does not match\n") if $infoxmlmd5 ne $jobid;
 
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
-  my $prp = $info->{'path'}->[0];
+  my $projid = $info->{'path'}->[0]->{'project'};
 
   $jobstatus->{'code'} = 'built';
   $jobstatus->{'endtime'} = time();
@@ -556,12 +577,21 @@ sub putjob {
   my $uploaded = BSServer::read_cpio($dir, 'accept' => '^(meta|.*\.rpm|.*\.deb|logfile)$');
   die("upload error\n") unless $uploaded;
   if ($BSConfig::sign) {
+    my $signargs = [];
+    my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
+    if ($signkey) {
+      mkdir_p("$uploaddir");
+      writestr("$uploaddir/repserver.$$", undef, $signkey);
+      $signargs = [ '-P', "$uploaddir/repserver.$$" ];
+    }
+    # get us the sign key
     for my $file (@$uploaded) {
       next unless $file->{'name'} =~ /\.rpm$/;
-      if (system($BSConfig::sign, '-r', "$dir/$file->{'name'}")) {
+      if (system($BSConfig::sign, @$signargs, '-r', "$dir/$file->{'name'}")) {
 	print "sign $dir/$file->{'name'} failed: $?\n";
       }
     }
+    unlink("$uploaddir/repserver.$$") if $signkey;
   }
 
   # write now jobstatus and free lock

@@ -23,6 +23,7 @@
 
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
   unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
 }
@@ -1696,6 +1697,25 @@ sub published {
   return undef;
 }
 
+sub getsignkey {
+  my ($cgi, $projid) = @_;
+
+  while ($projid ne '') {
+    my $sk = readstr("$projectsdir/$projid.signkey", 1);
+    if ($sk) {
+      if ($cgi->{'withpubkey'}) {
+        my $pk = readstr("$projectsdir/$projid.pubkey", 1);
+        $sk .= "\n" unless $sk =~ /\n$/s;
+        $sk .= $pk;
+      }
+      return ($sk, 'Content-Type: text/plain') if $sk;
+    }
+    $projid =~ s/[^:]*$//;
+    $projid =~ s/:$//;
+  }
+  return ('', 'Content-Type: text/plain');
+}
+
 ####################################################################
 
 sub hello {
@@ -1766,6 +1786,9 @@ my $dispatches = [
   '/getmacros $project $repository' => \&getmacros,
   '/getconfig $project $repository' => \&getconfig,
 
+  '/getsignkey $project withpubkey:bool?' => \&getsignkey,
+
+  # search interface
   '/search $in: $match: return:? values:bool?' => \&search,
   '/search/project $match:' => \&search_proj,
   '/search/project/id $match:' => \&search_proj_id,

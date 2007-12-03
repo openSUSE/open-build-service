@@ -23,6 +23,7 @@
 
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
   unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
 }
@@ -64,6 +65,7 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $extrepodb = "$BSConfig::bsdir/db/published";
+my $uploaddir = "$BSConfig::bsdir/upload";
 
 my $myeventdir = "$eventdir/publish";
 
@@ -202,7 +204,7 @@ sub getpatterns {
 ##########################################################################
 
 sub createrepo_rpmmd {
-  my ($extrep, $projid, $repoid, $repoinfo) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
 
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
@@ -232,11 +234,8 @@ sub createrepo_rpmmd {
     qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
     }
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
-    qsystem($BSConfig::sign, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
-    if ($BSConfig::keyfile) {
-      my $key = readstr($BSConfig::keyfile);
-      writestr("$extrep/repodata/repomd.xml.key", undef, $key);
-    }
+    qsystem($BSConfig::sign, @$signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
+    writestr("$extrep/repodata/repomd.xml.key", undef, $pubkey) if $pubkey;
   }
   if ($BSConfig::repodownload) {
     local *FILE;
@@ -246,7 +245,12 @@ sub createrepo_rpmmd {
     print FILE "type=rpm-md\n";
     print FILE "baseurl=$BSConfig::repodownload/$prp_ext/\n";
     print FILE "gpgcheck=1\n";
-    print FILE "gpgkey=http://download.opensuse.org/openSUSE-Build-Service.asc\n";
+    if (!@$signargs) {
+      # standard key XXX: move to BSConfig!
+      print FILE "gpgkey=http://download.opensuse.org/openSUSE-Build-Service.asc\n";
+    } else {
+      print FILE "gpgkey=$BSConfig::repodownload/$prp_ext/repodata/repomd.xml.key\n";
+    }
     print FILE "enabled=1\n";
     close(FILE) || die("close: $!\n");
     rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
@@ -261,7 +265,7 @@ sub deleterepo_rpmmd {
 }
 
 sub createrepo_susetags {
-  my ($extrep, $projid, $repoid, $repoinfo) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
 
   mkdir_p("$extrep/media.1");
   mkdir_p("$extrep/descr");
@@ -306,7 +310,7 @@ sub deleterepo_susetags {
 }
 
 sub createrepo_debian {
-  my ($extrep) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
 
   unlink("$extrep/Packages");
   unlink("$extrep/Packages.gz");
@@ -331,7 +335,7 @@ sub deleterepo_debian {
 ##########################################################################
 
 sub createpatterns_rpmmd {
-  my ($extrep, $projid, $repoid, $repoinfo, $patterns) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
 
   deletepatterns_rpmmd($extrep);
   return unless @{$patterns || []};
@@ -346,7 +350,7 @@ sub createpatterns_rpmmd {
   }
   # re-sign changed repomd.xml file
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
-    qsystem($BSConfig::sign, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @$signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
   }
 }
 
@@ -359,7 +363,7 @@ sub deletepatterns_rpmmd {
 }
 
 sub createpatterns_ymp {
-  my ($extrep, $projid, $repoid, $repoinfo, $patterns) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
 
   deletepatterns_ymp($extrep, $projid, $repoid);
   return unless @{$patterns || []};
@@ -560,12 +564,13 @@ sub publish {
   }
   my $repo = $proj->{'repository'}->[0];
   die("no such repository $repoid\n") unless $repo && $repo->{'name'} eq $repoid;
+  # this is the already expanded path as we used 'expandedrepos' above
+  my $prpsearchpath = $repo->{'path'};
 
   # we need the config for repotype/patterntype
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   $config = Build::read_config('noarch', [ split("\n", $config) ]);
   $config->{'repotype'} = [ 'rpm-md' ] unless @{$config->{'repotype'} || []};
-  my $prpsearchpath = $repo->{'path'};
 
   # get us the lock
   local *F;
@@ -704,6 +709,21 @@ sub publish {
 
   mkdir_p($extrep) unless -d $extrep;
 
+  # get sign key
+  my $signargs = [];
+  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1");
+  my $pubkey;
+  if ($signkey) {
+    ($signkey, $pubkey) = split("\n", $signkey, 2);
+    mkdir_p("$uploaddir");
+    writestr("$uploaddir/publisher.$$", undef, $signkey);
+    $signargs = [ '-P', "$uploaddir/publisher.$$" ];
+  } else {
+    if ($BSConfig::keyfile) {
+      $pubkey = readstr($BSConfig::keyfile);
+    }
+  }
+
   # get all patterns
   my $patterns = [];
   if ($proj->{'patternmd5'}) {
@@ -766,31 +786,33 @@ sub publish {
   my %patterntype = map {$_ => 1} @{$config->{'patterntype'} || []};
 
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $projid, $repoid, $repoinfo);
+    createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   } else {
-    deleterepo_rpmmd($extrep, $projid, $repoid, $repoinfo);
+    deleterepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   }
   if ($repotype{'suse'}) {
-    createrepo_susetags($extrep, $projid, $repoid, $repoinfo);
+    createrepo_susetags($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   } else {
-    deleterepo_susetags($extrep, $projid, $repoid, $repoinfo);
+    deleterepo_susetags($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   }
   if ($repotype{'debian'}) {
-    createrepo_debian($extrep, $projid, $repoid, $repoinfo);
+    createrepo_debian($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   } else {
-    deleterepo_debian($extrep, $projid, $repoid, $repoinfo);
+    deleterepo_debian($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   }
 
   if ($patterntype{'ymp'}) {
-    createpatterns_ymp($extrep, $projid, $repoid, $repoinfo, $patterns);
+    createpatterns_ymp($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns);
   } else {
-    deletepatterns_ymp($extrep, $projid, $repoid);
+    deletepatterns_ymp($extrep, $projid, $repoid, $signargs, $pubkey);
   }
   if ($patterntype{'rpm-md'}) {
-    createpatterns_rpmmd($extrep, $projid, $repoid, $repoinfo, $patterns);
+    createpatterns_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns);
   } else {
-    deletepatterns_rpmmd($extrep, $projid, $repoid);
+    deletepatterns_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey);
   }
+
+  unlink("$uploaddir/publisher.$$") if $signkey;
 
   # post process step: create directory listing for poor YaST
   if ($repotype{'suse'}) {

@@ -395,6 +395,11 @@ our $workerstatus = [
 	    'arch',
 	    'jobs',
      ]],
+     [[ 'scheduler' =>
+	    'arch',
+	    'state',
+	    'starttime',
+     ]],
 ];
 
 our $workerstate = [
