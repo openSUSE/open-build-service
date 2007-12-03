@@ -64,23 +64,24 @@
   </refsynopsisdiv>
   <refsect1 id="kiwi.image.prepcreate">
     <title>Image Preparation and Creation</title>
-    <para>KIWI is a complete imaging solution that is based on an image
+    <para>KIWI is a complete imaging solution that is based on image
       description. Such a description is represented by a directory
       which includes at least one <filename>config.xml</filename> file
-      but can also include other files like scripts or configuration
-      data. With KIWI two example descriptions are provided in <ulink
+      and may as well include other files like scripts or configuration
+      data. Two example descriptions are provided with KIWI in <ulink
         url="file:///usr/share/doc/packages/kiwi/examples/"/>. A
       detailed description of the contents of an image description
       exists in the system design document in <ulink
         url="file:///usr/share/doc/packages/kiwi/kiwi.pdf"/>. KIWI
-      always operates in two steps the first step is the prepare step
-      and if that step was successful a create step follows which is
-      able to create different image output types. In the prepare step,
-      you prepare a directory containing the contents of your new
+      always operates in two steps. The first step is the preparation step
+      and if that step was successful, a creation step follows which is
+      able to create different image output types. In the preparation step,
+      you prepare a directory including the contents of your new
       filesystem based on one or more software package source(s) (such
-      as openSUSE 10.3). The create step is based on the result of the
+      as openSUSE 10.3). The creation step is based on the result of the
+      <!--mdejmek: you mean preparation step here, right?-->
       create step and uses the contents of the new image root tree to
-      create the output image. If the image type iso was requested the
+      create the output image. If the image type ISO was requested, the
       output image would be a file with the suffix <filename
         class="extension">.iso</filename> representing a live system on
       CD or DVD. </para>    
@@ -122,12 +123,12 @@
 
   <refsect1 id="kiwi.image.upgrade">
     <title>Image Upgrade</title>
-    <para> If the image root tree is stored and not removed it can be
+    <para> If the image root tree is stored and not removed, it can be
       used for upgrading the image root tree according to the changes
       made in the repositories used for this image. If a distributor
       provides an update channel for package updates and an image
         <filename>config.xml</filename> includes this update channel as
-      repository it is useful to store the image root tree and upgrade
+      repository, it is useful to store the image root tree and upgrade
       the tree according to changes on the update channel. </para>    
     <cmdsynopsis>
       <command>kiwi</command>
@@ -144,10 +145,12 @@
     <title>System to Image Migration</title>
     <para>
       The migration module allows you to migrate your currently running
-      system into an image description. The module will check for files
+      system into an image description. 
+      <!--mdejmek: maybe you can find something else for 'guess' and 'among other magic' here?-->
+      The module will check for files
       not managed by a package manager and it will guess a repository from
       which this operating system could be rebuild. Among some other magic
-      the result is quite useful but in almost all cases a manual fine
+      the result is quite useful but in most of the cases a manual fine
       tuning is needed. This includes the repository selection and the
       unmanaged files along with the configuration details of your
       currently running operating system.
@@ -167,9 +170,11 @@
   <refsect1 id="kiwi.image.postproc">
     <title>Image Postprocessing Modes</title>
     <para>
-      The KIWI postprocessing modes are used for special image deployment
-      tasks, like install the image on a USB stick. The postprocessing modes
-      are the third step after prepare and create and if possible KIWI calls
+      The KIWI post-processing modes are used for special image deployment
+      tasks, like installing the image on a USB stick. They are the third step after 
+      preparing and creating 
+      <!-- ... an image? auf keinen Fall die normale Verbform, dann lieber: preparation and creation-->
+      and if possible, KIWI calls
       them automatically depending on the specified output image type and
       attributes.
     </para>    
@@ -199,8 +204,8 @@
   
   <refsect1>
     <title>Helper Tools</title>
-    <para> The helper tools provides optional functions like the
-      creation of a crypted password string for the users section of the
+    <para> The helper tools provide optional functions like
+      creating a crypted password string for the users section of the
         <filename>config.xml</filename> file or signing the image
       description with an md5sum hash as well as adding splash data to
       the boot image used by the bootloader. </para>
@@ -221,39 +226,44 @@
           <replaceable>DestinationPath</replaceable></option></optional></term>
         <listitem>
           <para>Specify destination directory to store the image file(s)
-            If not specified the the attribute
+            If not specified the attribute <!--mdejmek: if not specified IN the attribute??-->
               <replaceable>DefaultDestination</replaceable> is used. If
-            no destination can be found an error occurs</para>
+            no destination can be found, an error occurs</para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term><optional><option>-t</option> | <option>--type
           <replaceable>Imagetype</replaceable></option></optional></term>
         <listitem>
-          <para>Specify the output image type to use for this image The
+          <para>Specify the output image type to use for this image. The
             type must exist in the <filename>config.xml</filename>
-            description. By the default the primary type will be used. If
-            there is no primary attribute set the first type entry of
+            description. By default, the primary type will be used. If
+            there is no primary attribute set, the first type entry of
             the preferences section is the primary type makes only sense
-            in combination with <option>--create</option></para>
+            in combination with <option>--create</option>
+	    <!-- mdejmek: do you mean: If
+		 there is no primary attribute set, the first type entry of
+		 the preferences section is the primary type. This makes only sense
+            in combination with <option>- -create</option> ???-->
+    </para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term><optional><option>-r</option> | <option>--root
           <replaceable>RootPath</replaceable></option></optional></term>
         <listitem>
-          <para>Setup the physical extend, chroot system below the given
+          <para>Set up the physical extend, chroot system below the given
             root-path path. If no <option>--root</option> option is
-            given KIWI will search for the attribute defaultroot in
+            given, KIWI will search for the attribute defaultroot in
               <filename>config.xml</filename>. If no root directory is
-            known a <command>mktmp</command> directory will be created
+            known, a <command>mktmp</command> directory will be created
             and used as root directory</para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term><optional><option>-s</option> | <option>--strip</option></optional></term>
         <listitem>
-          <para>Strip shared objects and executables makes only sense in
+          <para>Strip shared objects and executables only make sense in
             combination with <option>--create</option></para>
         </listitem>
       </varlistentry>
@@ -274,7 +284,7 @@
         <term><optional><option>--ignore-repos</option></optional></term>
         <listitem>
           <para>Ignore all repositories specified so far, in XML or
-            otherwise. This option should be used in conjunction with
+            elsewhere. This option should be used in conjunction with
             subsequent calls to <option>--add-repo</option> to specify
             repositories at the commandline that override previous
             specifications.</para>
@@ -287,7 +297,10 @@
           <para>Set the given repository and optional type for the first
             repository entry within the <filename>config.xml</filename>.
             The change will not be written to the XML file and is valid
-            for this run of image prepare or upgrade process.</para>
+	    <!-- mdejmek: preparation process??-->
+	    for this run of image prepare or upgrade process.
+   
+    </para>
         </listitem>
       </varlistentry>
       <varlistentry>
