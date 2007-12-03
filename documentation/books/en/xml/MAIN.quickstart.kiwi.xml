@@ -233,8 +233,46 @@
   </sect1>
    
   <sect1 id="sec.kiwi.livecd.packages">
-    <title>Creating a Graphical Live ISO CD with User Definied Packages</title>
-    <para>FIXME</para>
+    <title>Creating a Minimal Image with Configuration File</title>
+    <para>If you want to start with a minimal example and extend it
+    later, proceed as follows:</para>
+    
+    <procedure>
+      <step>
+        <para>Copy the example directory from <filename>test1</filename>
+        from your KIWI package:</para>
+        <screen>cp -a /usr/share/doc/packages/kiwi/examples/test1/ .</screen>
+      </step>
+      <step>
+        <para>Use the following configuration file:</para>
+        <example>
+          <title>Minimal Configuration File for KIWI</title>
+          <screen>*** TO BE DEFINIED ***</screen>
+        </example>
+        <note>
+          <para>The following lines are essential and
+            <emphasis>must</emphasis> always be present:</para>
+          <screen>&lt;packages type="boot">
+  &lt;package name="filesystem"/>
+  &lt;package name="glibc-locale"/>
+&lt;/packages></screen>          
+        </note>
+      </step>
+      <step>
+        <para>Save the configuration file under
+          <filename>test1/config.xml</filename>.</para>
+      </step>
+      <step>
+        <para>Run the first step:</para>
+        <screen><command
+>kiwi</command> --prepare test1 --root /tmp/kiwi-test1</screen>
+      </step>
+      <step>
+        <para>Run the second step:</para>
+        <screen><command
+>kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
+      </step>
+    </procedure>    
   </sect1>
 
 </article>
