@@ -232,4 +232,9 @@
     </procedure>    
   </sect1>
    
+  <sect1 id="sec.kiwi.livecd.packages">
+    <title>Creating a Graphical Live ISO CD with User Definied Packages</title>
+    <para>FIXME</para>
+  </sect1>
+
 </article>
