@@ -1,7 +1,7 @@
 class UserController < ApplicationController
 require 'opensuse/frontend'
   skip_before_filter :authorize, :transmit_credentials
-  skip_before_filter :set_return_to, :only => :store_login
+  skip_before_filter :set_return_to, :only => [:store_login, :register, :request_ichain]
   
   def login
 
@@ -85,11 +85,17 @@ require 'opensuse/frontend'
 
   def register
      logger.debug "Creating new person #{session[:login]}"
+     unreg_person_opts = {
+       :login => session[:login],
+       :email => session[:email],
+       :realname => "",
+       :explanation => ""
+     }
 
-     person = Unregisteredperson.new( :login => session[:login], :email => params[:email], 
-                                      :realname => params[:realname], 
-                                      :explanation => params[:explanation] )
+     person = Unregisteredperson.new(unreg_person_opts)
      person.save
+
+     redirect_back_or_default
   end
 
 end

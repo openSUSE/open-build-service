@@ -1,41 +1,33 @@
-<% @pagetitle = "Request Approval" %>
+<% @pagetitle = "Welcome" %>
 
-<h2>Your account is not yet enabled</h2>
+<h2>Welcome to the openSUSE Build Service, <%= session[:login] %> </h2>
 
-  <p>To finish build service registration for your iChain user 
-  <%= session[:login] %>,
-  please fill in the data below and submit your request.</p>
   <p>
-  Please note that this service does still run in EXPERIMENTAL mode
+  Please note that this service still runs in EXPERIMENTAL mode
   and we can't guarantee support should you encounter any problems
-  or need help packaging.
-  </p>
+  or need help packaging.</p>
+
+  <p>
+  If you want to try to get support anyway, join us in the channel
+  #opensuse-buildservice on freenode or
+  <a href="mailto:opensuse-buildservice+subscribe@opensuse.org">subscribe</a> to the 
+  <a href="http://lists.opensuse.org/opensuse-buildservice/">buildservice mailing list</a>.</p>
+
+  <p>
+  Also make sure you have read
+  <a href="http://en.opensuse.org/Application_Black_List">http://en.opensuse.org/Application_Black_List</a>
+  and understood why you can't build some packages in the openSUSE Build Service.</p>
+  
   <p>
   You do NOT need an account to download packages. Please go to
   <a href="http://software.opensuse.org/search/">http://software.opensuse.org/search/</a>
   for searching and installing packages.
   </p>
-  <p>The build service team will enable your account for the 
-     build service as quickly as possible.</p>
 
+  <p>Have fun building software.</p>
+  <p>Your Build Service Team</p>
   
   <%= form_tag :action => 'register' %>
-    <table border="0">
-      <tr><td>Real Name:</td>
-          <td><%= text_field_tag( "realname", "", :size => 40 ) %></td>
-      </tr>
-      <tr>
-          <td>Email Address:</td>
-          <td><%= text_field_tag( "email", "", :size => 40 ) %></td>
-      </tr>
-      <tr>
-          <td colspan="2">Please explain shortly what you intend to do with the openSUSE build service:</td>
-      </tr>
-      <tr>
-          <td colspan="2"><%= text_area_tag "explanation", nil, :size => "25x10" %></td>
-      </tr>
-
-    </table>
-    <%= submit_tag "Submit" %>
+    <%= submit_tag "Let me build my packages!" %>
   <%= end_form_tag %>
 
