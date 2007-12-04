@@ -14,6 +14,15 @@
 #               : 
 #               :
 # STATUS        : Development
+#
+# TODO          : These are some
+#               : - Isolate more attribute patterns?
+#               : - Document the patterns
+#               : - Improve Schema with datatypes?
+#               : - Test, test, test...
+#               : - Rework users element to be required. Extend the
+#               :   content modell with a required root user
+#               :
 #****************
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
