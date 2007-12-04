@@ -330,15 +330,20 @@
           <note>
             <title>Getting Pattern Names</title>
             <para>You can get the names of pattern in your installed
-              system under <filename>/var/cache/zypp/raw/<replaceable
-                >REPO</replaceable>/suse/setup/descr/</filename>
-              (replace <replaceable>REPO</replaceable> with the name
-              of your system, for example <filename
-                >openSUSE-10.3-retail 10.3</filename>.)
+              system under <filename class="directory"
+                  >/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
+              (replace <replaceable>REPO</replaceable> with the name of
+              your system, for example <filename>openSUSE-10.3-retail
+                10.3</filename>) or look into the directory <filename
+                class="directory">suse/setup/descr/</filename> on your
+              DVD or first CD.
             </para>
           </note>
-          <para>Depending what your interests in development is, </para>
-          <table>
+          <para>Depending what your interests in development are, you
+            have to add more patterns. <xref linkend="tab.kiwi.pattern"
+            xrefstyle="select:label nopage"/> contains an overview of
+            some common pattern names.</para>
+          <table id="tab.kiwi.pattern">
             <title>Examples of Pattern Names for Development</title>
             <tgroup cols="2">
               <thead>
