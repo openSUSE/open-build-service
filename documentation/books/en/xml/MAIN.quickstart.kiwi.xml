@@ -283,6 +283,9 @@
         <screen><command
 >kiwi</command> --create /tmp/kiwi-test2 -d /tmp --type iso</screen>
       </step>
+      <step>
+        <para>Test the ISO image.</para>
+      </step>
     </procedure>    
   </sect1>
 
