@@ -1,41 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
-  This is the RELAX NG Schema for KIWI configuration files
-  
-  *****************************************************
-               THIS IS A DRAFT VERSION!
-  *****************************************************
-  
-  Based on the W3C Schema Definition by Marcus Schäfer
-  (see file "KIWIScheme.xsd")
-  
-  TODO:
-  - isolate more attribute patterns?
-  - Document the patterns
-  - Improve Schema with datatypes?
-  - Test, test, test...
-  
-  Author:  Thomas Schraitle <thomas.schraitle (AT) suse.de>
-  License: GPL
-  Created: 2007-30-11
-  $Id:$
-  
+  ================
+  FILE          : KIWISchema.rnc
+  - - - - - - - - - - - - - - - -
+  PROJECT       : OpenSUSE Build-Service
+  COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
+                :
+  AUTHOR        : Thomas Schraitle <toms@suse.de>
+  AUTHOR        : Marcus Schaefer <ms@suse.de>
+                :
+  BELONGS TO    : Operating System images
+                :
+  DESCRIPTION   : This is the RELAX NG Schema for KIWI
+                : configuration files
+                : 
+                :
+  STATUS        : Development
+  - - - - - - - - - - - - - - - - 
 -->
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <!--
+    ==========================================
+    start with image description
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <start>
     <ref name="k.image"/>
   </start>
-  <!---->
+  <!--
+    ==========================================
+    main block: <image>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- image -->
     <define name="k.image.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
     <define name="k.image.inherit.attribute">
-      <attribute name="inherit">
-        <a:documentation>??</a:documentation>
-      </attribute>
+      <attribute name="inherit"/>
     </define>
     <define name="k.image.schemeversion.attribute">
       <attribute name="schemeversion">
@@ -51,12 +53,9 @@
     </define>
     <define name="k.image">
       <element name="image">
-        <a:documentation>The image root element</a:documentation>
         <ref name="k.image.attlist"/>
         <ref name="k.description"/>
-        <optional>
-          <ref name="k.preferences"/>
-        </optional>
+        <ref name="k.preferences"/>
         <optional>
           <ref name="k.profiles"/>
         </optional>
@@ -69,9 +68,9 @@
         <zeroOrMore>
           <ref name="k.drivers"/>
         </zeroOrMore>
-        <zeroOrMore>
+        <oneOrMore>
           <ref name="k.repository"/>
-        </zeroOrMore>
+        </oneOrMore>
         <optional>
           <ref name="k.deploy"/>
         </optional>
@@ -81,94 +80,85 @@
         <zeroOrMore>
           <ref name="k.packages"/>
         </zeroOrMore>
+        <ref name="k.bootstrap"/>
       </element>
     </define>
   </div>
   <!--
-    - - - - - - - - - - - - - - - - - - - - - - -
-    Predefinied attributes:
+    ==========================================
+    common attributes
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   -->
+  <define name="k.name.attribute">
+    <attribute name="name"/>
+  </define>
   <define name="k.arch.attribute">
-    <attribute name="arch">
-      <a:documentation>??</a:documentation>
-    </attribute>
+    <attribute name="arch"/>
   </define>
   <define name="k.description.attribute">
-    <attribute name="description">
-      <a:documentation>A short description</a:documentation>
-    </attribute>
-  </define>
-  <define name="k.name.attribute">
-    <attribute name="name">
-      <a:documentation>The name of the object</a:documentation>
-    </attribute>
+    <attribute name="description"/>
   </define>
   <define name="k.path.attribute">
-    <attribute name="path">
-      <a:documentation>A path</a:documentation>
-    </attribute>
+    <attribute name="path"/>
   </define>
   <define name="k.profiles.attribute">
-    <attribute name="profiles">
-      <a:documentation>??</a:documentation>
-    </attribute>
+    <attribute name="profiles"/>
   </define>
   <define name="k.pwd.attribute">
-    <attribute name="pwd">
-      <a:documentation>??</a:documentation>
-    </attribute>
+    <attribute name="pwd"/>
   </define>
   <define name="k.script.attribute">
-    <attribute name="script">
-      <a:documentation>Points to a script ?</a:documentation>
-    </attribute>
+    <attribute name="script"/>
   </define>
   <define name="k.source.attribute">
-    <attribute name="source">
-      <a:documentation>??</a:documentation>
-    </attribute>
+    <attribute name="source"/>
   </define>
   <define name="k.type.attribute">
-    <attribute name="type">
-      <a:documentation>??</a:documentation>
-    </attribute>
+    <attribute name="type"/>
   </define>
-  <!-- - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!--
+    ==========================================
+    common element <author>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- author -->
     <define name="k.author.attlist">
       <empty/>
     </define>
     <define name="k.author">
       <element name="author">
-        <a:documentation>An author</a:documentation>
         <ref name="k.author.attlist"/>
         <text/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <compressed>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- compressed -->
     <define name="k.compressed.attlist">
       <empty/>
     </define>
     <define name="k.compressed">
       <element name="compressed">
-        <a:documentation>??</a:documentation>
         <ref name="k.compressed.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <configuration>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- configuration -->
     <define name="k.configuration.source.attribute">
       <ref name="k.source.attribute"/>
     </define>
     <define name="k.configuration.dest.attribute">
-      <attribute name="dest">
-        <a:documentation>Destination path ??</a:documentation>
-      </attribute>
+      <attribute name="dest"/>
     </define>
     <define name="k.configuration.attlist">
       <interleave>
@@ -178,192 +168,122 @@
     </define>
     <define name="k.configuration">
       <element name="configuration">
-        <a:documentation>??</a:documentation>
         <ref name="k.configuration.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <commandline>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- commandline -->
     <define name="k.commandline.attlist">
       <empty/>
     </define>
     <define name="k.commandline">
       <element name="commandline">
-        <a:documentation/>
         <ref name="k.commandline.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <contact>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- contact -->
     <define name="k.contact.attlist">
       <empty/>
     </define>
     <define name="k.contact">
       <element name="contact">
-        <a:documentation>??</a:documentation>
         <ref name="k.contact.attlist"/>
         <text/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <defaultbaseroot>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- defaultbaseroot -->
     <define name="k.defaultbaseroot.attlist">
       <empty/>
     </define>
     <define name="k.defaultbaseroot">
       <element name="defaultbaseroot">
-        <a:documentation/>
         <ref name="k.defaultbaseroot.attlist"/>
         <text/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <defaultdestination>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- defaultdestination -->
     <define name="k.defaultdestination.attlist">
       <empty/>
     </define>
     <define name="k.defaultdestination">
       <element name="defaultdestination">
-        <a:documentation/>
         <ref name="k.defaultdestination.attlist"/>
         <text/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <defaultroot>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- defaultroot -->
     <define name="k.defaultroot.attlist">
       <empty/>
     </define>
     <define name="k.defaultroot">
       <element name="defaultroot">
-        <a:documentation/>
         <ref name="k.defaultroot.attlist"/>
         <text/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <file>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- deploy -->
-    <define name="k.deploy.server.attribute">
-      <attribute name="server">
-        <a:documentation>??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.deploy.blocksize.attribute">
-      <attribute name="blocksize">
-        <a:documentation>??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.deploy.attlist">
-      <interleave>
-        <ref name="k.deploy.server.attribute"/>
-        <ref name="k.deploy.blocksize.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.deploy">
-      <element name="deploy">
-        <a:documentation>??</a:documentation>
-        <ref name="k.deploy.attlist"/>
-        <optional>
-          <ref name="k.timeout"/>
-        </optional>
-        <optional>
-          <ref name="k.commandline"/>
-        </optional>
-        <optional>
-          <ref name="k.kernel"/>
-        </optional>
-        <optional>
-          <ref name="k.initrd"/>
-        </optional>
-        <optional>
-          <ref name="k.partitions"/>
-        </optional>
-        <optional>
-          <ref name="k.union"/>
-        </optional>
-        <zeroOrMore>
-          <ref name="k.configuration"/>
-        </zeroOrMore>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- description -->
-    <define name="k.description.type.attribute">
-      <attribute name="type">
-        <a:documentation>??</a:documentation>
-        <choice>
-          <value>boot</value>
-          <value>system</value>
-          <value>delete</value>
-        </choice>
-      </attribute>
-    </define>
-    <define name="k.description.attlist">
-      <ref name="k.description.type.attribute"/>
-    </define>
-    <define name="k.description">
-      <element name="description">
-        <a:documentation>A long description</a:documentation>
-        <ref name="k.description.attlist"/>
-        <ref name="k.author"/>
-        <oneOrMore>
-          <ref name="k.contact"/>
-        </oneOrMore>
-        <ref name="k.specification"/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- drivers -->
-    <define name="k.drivers.type.attribute">
-      <ref name="k.type.attribute"/>
-    </define>
-    <define name="k.drivers.profiles.attribute">
-      <ref name="k.profiles.attribute"/>
-    </define>
-    <define name="k.drivers.attlist">
-      <interleave>
-        <ref name="k.drivers.type.attribute"/>
-        <ref name="k.drivers.profiles.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.drivers">
-      <element name="drivers">
-        <a:documentation>A list of drivers</a:documentation>
-        <ref name="k.drivers.attlist"/>
-        <oneOrMore>
-          <ref name="k.file"/>
-        </oneOrMore>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- file -->
     <define name="k.file.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
+    <define name="k.file.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.file.attlist">
-      <ref name="k.file.name.attribute"/>
+      <interleave>
+        <ref name="k.file.name.attribute"/>
+        <ref name="k.file.arch.attribute"/>
+      </interleave>
     </define>
     <define name="k.file">
       <element name="file">
-        <a:documentation>A filename</a:documentation>
         <ref name="k.file.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <ignore>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- ignore -->
     <define name="k.ignore.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
@@ -372,39 +292,41 @@
     </define>
     <define name="k.ignore">
       <element name="ignore">
-        <a:documentation>??</a:documentation>
         <ref name="k.ignore.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <initrd>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- initrd -->
     <define name="k.initrd.attlist">
       <empty/>
     </define>
     <define name="k.initrd">
       <element name="initrd">
-        <a:documentation>??</a:documentation>
         <ref name="k.initrd.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <instrepo>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- instrepo -->
     <define name="k.instrepo.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
     <define name="k.instrepo.priority.attribute">
-      <attribute name="priority">
-        <a:documentation>??</a:documentation>
-      </attribute>
+      <attribute name="priority"/>
     </define>
     <define name="k.instrepo.username.attribute">
-      <attribute name="username">
-        <a:documentation>A username ??</a:documentation>
-      </attribute>
+      <attribute name="username"/>
     </define>
     <define name="k.instrepo.pwd.attribute">
       <ref name="k.pwd.attribute"/>
@@ -419,58 +341,48 @@
     </define>
     <define name="k.instrepo">
       <element name="instrepo">
-        <a:documentation>A installation repository</a:documentation>
         <ref name="k.instrepo.attlist"/>
         <ref name="k.source"/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <kernel>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- instsource -->
-    <define name="k.instsource.arch.attribute">
-      <ref name="k.arch.attribute"/>
-    </define>
-    <define name="k.instsource.attlist">
-      <ref name="k.instsource.arch.attribute"/>
-    </define>
-    <define name="k.instsource">
-      <element name="instsource">
-        <a:documentation>Installation source</a:documentation>
-        <ref name="k.instsource.attlist"/>
-        <oneOrMore>
-          <ref name="k.instrepo"/>
-        </oneOrMore>
-        <ref name="k.metadata"/>
-        <ref name="k.packages"/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- kernel -->
     <define name="k.kernel.attlist">
       <empty/>
     </define>
     <define name="k.kernel">
       <element name="kernel">
-        <a:documentation/>
         <ref name="k.kernel.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <keytable>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- keytable -->
     <define name="k.keytable.attlist">
       <empty/>
     </define>
     <define name="k.keytable">
       <element name="keytable">
-        <a:documentation/>
         <ref name="k.keytable.attlist"/>
         <text/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <locale>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
     <!-- locale -->
     <define name="k.locale.attlist">
@@ -478,20 +390,22 @@
     </define>
     <define name="k.locale">
       <element name="locale">
-        <a:documentation/>
         <ref name="k.locale.attlist"/>
         <text/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <metadata>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- metadata -->
     <define name="k.metadata.attlist">
       <empty/>
     </define>
     <define name="k.metadata">
       <element name="metadata">
-        <a:documentation>??</a:documentation>
         <ref name="k.metadata.attlist"/>
         <oneOrMore>
           <ref name="k.package"/>
@@ -502,20 +416,20 @@
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <metafile>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- metafile -->
     <define name="k.metafile.url.attribute">
-      <attribute name="url">
-        <a:documentation>A URL ??</a:documentation>
-      </attribute>
+      <attribute name="url"/>
     </define>
     <define name="k.metafile.script.attribute">
       <ref name="k.script.attribute"/>
     </define>
     <define name="k.metafile.target.attribute">
-      <attribute name="target">
-        <a:documentation>??</a:documentation>
-      </attribute>
+      <attribute name="target"/>
     </define>
     <define name="k.metafile.attlist">
       <interleave>
@@ -526,14 +440,17 @@
     </define>
     <define name="k.metafile">
       <element name="metafile">
-        <a:documentation>A metafile ??</a:documentation>
         <ref name="k.metafile.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <opensusePattern>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- opensusePattern -->
     <define name="k.opensusepattern.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
@@ -542,14 +459,17 @@
     </define>
     <define name="k.opensusepattern">
       <element name="opensusePattern">
-        <a:documentation>??</a:documentation>
         <ref name="k.opensusepattern.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <package>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- package -->
     <define name="k.package.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
@@ -557,19 +477,13 @@
       <ref name="k.arch.attribute"/>
     </define>
     <define name="k.package.priority.attribute">
-      <attribute name="priority">
-        <a:documentation>??</a:documentation>
-      </attribute>
+      <attribute name="priority"/>
     </define>
     <define name="k.package.addarch.attribute">
-      <attribute name="addarch">
-        <a:documentation>??</a:documentation>
-      </attribute>
+      <attribute name="addarch"/>
     </define>
     <define name="k.package.removearch.attribute">
-      <attribute name="removearch">
-        <a:documentation>??</a:documentation>
-      </attribute>
+      <attribute name="removearch"/>
     </define>
     <define name="k.package.source.attribute">
       <ref name="k.source.attribute"/>
@@ -590,89 +504,38 @@
     </define>
     <define name="k.package">
       <element name="package">
-        <a:documentation>A package</a:documentation>
         <ref name="k.package.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <packagemanager>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- packagemanager -->
     <define name="k.packagemanager.attlist">
       <empty/>
     </define>
     <define name="k.packagemanager">
       <element name="packagemanager">
-        <a:documentation>Specifies the packagemanager to be used</a:documentation>
         <ref name="k.packagemanager.attlist"/>
         <text/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <partitions>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- packages -->
-    <define name="k.packages.type.attribute">
-      <ref name="k.type.attribute"/>
-    </define>
-    <define name="k.packages.memory.attribute">
-      <attribute name="memory">
-        <a:documentation>??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.packages.disk.attribute">
-      <attribute name="disk">
-        <a:documentation>??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.packages.profiles.attribute">
-      <attribute name="profiles">
-        <a:documentation>??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.packages.patternType.attribute">
-      <attribute name="patternType">
-        <a:documentation>??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.packages.patternPackageType.attribute">
-      <attribute name="patternPackageType">
-        <a:documentation>??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.packages.attlist">
-      <interleave>
-        <ref name="k.packages.type.attribute"/>
-        <ref name="k.packages.memory.attribute"/>
-        <ref name="k.packages.disk.attribute"/>
-        <ref name="k.packages.profiles.attribute"/>
-        <ref name="k.packages.patternType.attribute"/>
-        <ref name="k.packages.patternPackageType.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.packages">
-      <element name="packages">
-        <a:documentation>A package ??</a:documentation>
-        <ref name="k.packages.attlist"/>
-        <zeroOrMore>
-          <ref name="k.package"/>
-        </zeroOrMore>
-        <zeroOrMore>
-          <ref name="k.opensusepattern"/>
-        </zeroOrMore>
-        <zeroOrMore>
-          <ref name="k.ignore"/>
-        </zeroOrMore>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- partitions -->
     <define name="k.partitions.attlist">
       <empty/>
     </define>
     <define name="k.partitions">
       <element name="partitions">
-        <a:documentation>A list of partitions</a:documentation>
         <ref name="k.partitions.attlist"/>
         <zeroOrMore>
           <ref name="k.partition"/>
@@ -680,8 +543,12 @@
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <partition>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- partition -->
     <define name="k.partition.type.attribute">
       <ref name="k.type.attribute"/>
     </define>
@@ -708,20 +575,22 @@
     </define>
     <define name="k.partition">
       <element name="partition">
-        <a:documentation>A partition</a:documentation>
         <ref name="k.partition.attlist"/>
         <empty/>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <persistent>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- persistent -->
     <define name="k.persistent.attlist">
       <empty/>
     </define>
     <define name="k.persistent">
       <element name="persistent">
-        <a:documentation/>
         <ref name="k.persistent.attlist"/>
         <zeroOrMore>
           <ref name="k.file"/>
@@ -729,17 +598,514 @@
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    common element <profile>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!--
-      preferences
-      No attributes
-    -->
+    <define name="k.profile.name.attribute">
+      <ref name="k.name.attribute"/>
+    </define>
+    <define name="k.profile.description.attribute">
+      <attribute name="description"/>
+    </define>
+    <define name="k.profile.attlist">
+      <interleave>
+        <ref name="k.profile.name.attribute"/>
+        <ref name="k.profile.description.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.profile">
+      <element name="profile">
+        <ref name="k.profile.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <repository>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.repository.type.attribute">
+      <ref name="k.type.attribute"/>
+    </define>
+    <define name="k.repository.status.attribute">
+      <attribute name="status"/>
+    </define>
+    <define name="k.repository.attlist">
+      <interleave>
+        <ref name="k.repository.type.attribute"/>
+        <ref name="k.repository.status.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.repository">
+      <element name="repository">
+        <ref name="k.repository.attlist"/>
+        <ref name="k.source"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <rpm-check-signatures>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.rpm-check-signatures.attlist">
+      <empty/>
+    </define>
+    <define name="k.rpm-check-signatures">
+      <element name="rpm-check-signatures">
+        <ref name="k.rpm-check-signatures.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <rpm-force>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.rpm-force.attlist">
+      <empty/>
+    </define>
+    <define name="k.rpm-force">
+      <element name="rpm-force">
+        <ref name="k.rpm-force.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <size>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.size.unit.attribute">
+      <attribute name="unit">
+        <choice>
+          <value>M</value>
+          <value>G</value>
+        </choice>
+      </attribute>
+    </define>
+    <!-- was: text -->
+    <define name="k.size.attlist">
+      <ref name="k.size.unit.attribute"/>
+    </define>
+    <define name="k.size">
+      <element name="size">
+        <ref name="k.size.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <source>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.source.path.attribute">
+      <ref name="k.path.attribute"/>
+    </define>
+    <define name="k.source.attlist">
+      <ref name="k.source.path.attribute"/>
+    </define>
+    <define name="k.source">
+      <element name="source">
+        <ref name="k.source.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <specification>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.specification.attlist">
+      <empty/>
+    </define>
+    <define name="k.specification">
+      <element name="specification">
+        <ref name="k.specification.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <temporary>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.temporary.attlist">
+      <empty/>
+    </define>
+    <define name="k.temporary">
+      <element name="temporary">
+        <ref name="k.temporary.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <timeout>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.timeout.attlist">
+      <empty/>
+    </define>
+    <define name="k.timeout">
+      <element name="timeout">
+        <ref name="k.timeout.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <timezone>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.timezone.attlist">
+      <empty/>
+    </define>
+    <define name="k.timezone">
+      <element name="timezone">
+        <ref name="k.timezone.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <type>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.type.checkprebuilt.attribute">
+      <attribute name="checkprebuilt"/>
+    </define>
+    <define name="k.type.bootprofile.attribute">
+      <attribute name="bootprofile"/>
+    </define>
+    <define name="k.type.boot.attribute">
+      <attribute name="boot"/>
+    </define>
+    <define name="k.type.flags.attribute">
+      <attribute name="flags"/>
+    </define>
+    <define name="k.type.filesystem.attribute">
+      <attribute name="filesystem"/>
+    </define>
+    <define name="k.type.baseroot.attribute">
+      <attribute name="baseroot"/>
+    </define>
+    <define name="k.type.format.attribute">
+      <attribute name="format"/>
+    </define>
+    <define name="k.type.attlist">
+      <interleave>
+        <ref name="k.type.checkprebuilt.attribute"/>
+        <ref name="k.type.bootprofile.attribute"/>
+        <ref name="k.type.boot.attribute"/>
+        <ref name="k.type.flags.attribute"/>
+        <ref name="k.type.filesystem.attribute"/>
+        <ref name="k.type.baseroot.attribute"/>
+        <ref name="k.type.format.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.type">
+      <element name="type">
+        <ref name="k.type.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <union>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.union.attlist">
+      <empty/>
+    </define>
+    <define name="k.union">
+      <element name="union">
+        <ref name="k.union.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <user>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.user.name.attribute">
+      <ref name="k.name.attribute"/>
+    </define>
+    <define name="k.user.realname.attribute">
+      <attribute name="realname"/>
+    </define>
+    <define name="k.user.pwd.attribute">
+      <ref name="k.pwd.attribute"/>
+    </define>
+    <define name="k.user.home.attribute">
+      <attribute name="home"/>
+    </define>
+    <define name="k.user.shell.attribute">
+      <attribute name="shell"/>
+    </define>
+    <define name="k.user.attlist">
+      <interleave>
+        <ref name="k.user.name.attribute"/>
+        <ref name="k.user.realname.attribute"/>
+        <ref name="k.user.pwd.attribute"/>
+        <ref name="k.user.home.attribute"/>
+        <ref name="k.user.shell.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.user">
+      <element name="users">
+        <ref name="k.user.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <version>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.version.attlist">
+      <empty/>
+    </define>
+    <define name="k.version">
+      <element name="version">
+        <ref name="k.version.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <deploy>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.deploy.server.attribute">
+      <attribute name="server"/>
+    </define>
+    <define name="k.deploy.blocksize.attribute">
+      <attribute name="blocksize"/>
+    </define>
+    <define name="k.deploy.attlist">
+      <interleave>
+        <ref name="k.deploy.server.attribute"/>
+        <ref name="k.deploy.blocksize.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.deploy">
+      <element name="deploy">
+        <ref name="k.deploy.attlist"/>
+        <optional>
+          <ref name="k.timeout"/>
+        </optional>
+        <optional>
+          <ref name="k.commandline"/>
+        </optional>
+        <optional>
+          <ref name="k.kernel"/>
+        </optional>
+        <optional>
+          <ref name="k.initrd"/>
+        </optional>
+        <optional>
+          <ref name="k.partitions"/>
+        </optional>
+        <optional>
+          <ref name="k.union"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="k.configuration"/>
+        </zeroOrMore>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <description>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.description.type.attribute">
+      <attribute name="type">
+        <choice>
+          <value>boot</value>
+          <value>system</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.description.attlist">
+      <ref name="k.description.type.attribute"/>
+    </define>
+    <define name="k.description">
+      <element name="description">
+        <ref name="k.description.attlist"/>
+        <ref name="k.author"/>
+        <oneOrMore>
+          <ref name="k.contact"/>
+        </oneOrMore>
+        <ref name="k.specification"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <drivers>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.drivers.type.attribute">
+      <ref name="k.type.attribute"/>
+    </define>
+    <define name="k.drivers.profiles.attribute">
+      <ref name="k.profiles.attribute"/>
+    </define>
+    <define name="k.drivers.attlist">
+      <interleave>
+        <ref name="k.drivers.type.attribute"/>
+        <ref name="k.drivers.profiles.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.drivers">
+      <element name="drivers">
+        <ref name="k.drivers.attlist"/>
+        <oneOrMore>
+          <ref name="k.file"/>
+        </oneOrMore>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <instsource>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.instsource.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
+    <define name="k.instsource.attlist">
+      <ref name="k.instsource.arch.attribute"/>
+    </define>
+    <define name="k.instsource">
+      <element name="instsource">
+        <ref name="k.instsource.attlist"/>
+        <oneOrMore>
+          <ref name="k.instrepo"/>
+        </oneOrMore>
+        <ref name="k.metadata"/>
+        <ref name="k.packages"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <packages>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.packages.type.attribute">
+      <ref name="k.type.attribute"/>
+    </define>
+    <define name="k.packages.memory.attribute">
+      <attribute name="memory"/>
+    </define>
+    <define name="k.packages.disk.attribute">
+      <attribute name="disk"/>
+    </define>
+    <define name="k.packages.profiles.attribute">
+      <attribute name="profiles"/>
+    </define>
+    <define name="k.packages.patternType.attribute">
+      <attribute name="patternType"/>
+    </define>
+    <define name="k.packages.patternPackageType.attribute">
+      <attribute name="patternPackageType"/>
+    </define>
+    <define name="k.packages.attlist">
+      <interleave>
+        <ref name="k.packages.type.attribute"/>
+        <ref name="k.packages.memory.attribute"/>
+        <ref name="k.packages.disk.attribute"/>
+        <ref name="k.packages.profiles.attribute"/>
+        <ref name="k.packages.patternType.attribute"/>
+        <ref name="k.packages.patternPackageType.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.packages">
+      <element name="packages">
+        <ref name="k.packages.attlist"/>
+        <zeroOrMore>
+          <ref name="k.package"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="k.opensusepattern"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="k.ignore"/>
+        </zeroOrMore>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <bootstrap>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
+    <define name="k.bootstrap.profiles.attribute">
+      <attribute name="profiles"/>
+    </define>
+    <define name="k.bootstrap.attlist">
+      <ref name="k.bootstrap.profiles.attribute"/>
+    </define>
+    <define name="k.bootstrap">
+      <element name="bootstrap">
+        <ref name="k.bootstrap.attlist"/>
+        <zeroOrMore>
+          <ref name="k.package"/>
+        </zeroOrMore>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <preferences>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
+  <div>
     <define name="k.preferences.attlist">
       <empty/>
     </define>
     <define name="k.preferences">
       <element name="preferences">
-        <a:documentation/>
         <ref name="k.preferences.attlist"/>
         <oneOrMore>
           <ref name="k.type"/>
@@ -781,146 +1147,31 @@
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    main block: <profiles>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- profiles -->
     <define name="k.profiles">
       <element name="profiles">
-        <a:documentation>Collection of profiles</a:documentation>
         <zeroOrMore>
           <ref name="k.profile"/>
         </zeroOrMore>
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    main block: <split>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- profile -->
-    <define name="k.profile.name.attribute">
-      <ref name="k.name.attribute"/>
-    </define>
-    <define name="k.profile.description.attribute">
-      <attribute name="description"/>
-    </define>
-    <define name="k.profile.attlist">
-      <interleave>
-        <ref name="k.profile.name.attribute"/>
-        <ref name="k.profile.description.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.profile">
-      <element name="profile">
-        <a:documentation/>
-        <ref name="k.profile.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- repository -->
-    <define name="k.repository.type.attribute">
-      <ref name="k.type.attribute"/>
-    </define>
-    <define name="k.repository.status.attribute">
-      <attribute name="status"/>
-    </define>
-    <define name="k.repository.attlist">
-      <interleave>
-        <ref name="k.repository.type.attribute"/>
-        <ref name="k.repository.status.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.repository">
-      <element name="repository">
-        <a:documentation>A repository: source path and type used by the packagemanager</a:documentation>
-        <ref name="k.repository.attlist"/>
-        <ref name="k.source"/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- rpm-check-signatures -->
-    <define name="k.rpm-check-signatures.attlist">
-      <empty/>
-    </define>
-    <define name="k.rpm-check-signatures">
-      <element name="rpm-check-signatures">
-        <a:documentation>An author</a:documentation>
-        <ref name="k.rpm-check-signatures.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- rpm-force -->
-    <define name="k.rpm-force.attlist">
-      <empty/>
-    </define>
-    <define name="k.rpm-force">
-      <element name="rpm-force">
-        <a:documentation/>
-        <ref name="k.rpm-force.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- size -->
-    <define name="k.size.unit.attribute">
-      <attribute name="unit">
-        <choice>
-          <value>M</value>
-          <value>G</value>
-        </choice>
-      </attribute>
-    </define>
-    <!-- was: text -->
-    <define name="k.size.attlist">
-      <ref name="k.size.unit.attribute"/>
-    </define>
-    <define name="k.size">
-      <element name="size">
-        <a:documentation>Specifies the size of an image</a:documentation>
-        <ref name="k.size.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- source -->
-    <define name="k.source.path.attribute">
-      <ref name="k.path.attribute"/>
-    </define>
-    <define name="k.source.attlist">
-      <ref name="k.source.path.attribute"/>
-    </define>
-    <define name="k.source">
-      <element name="source">
-        <a:documentation>A source</a:documentation>
-        <ref name="k.source.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- specification -->
-    <define name="k.specification.attlist">
-      <empty/>
-    </define>
-    <define name="k.specification">
-      <element name="specification">
-        <a:documentation>A specification</a:documentation>
-        <ref name="k.specification.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- split -->
     <define name="k.split.attlist">
       <empty/>
     </define>
     <define name="k.split">
       <element name="split">
-        <a:documentation/>
         <ref name="k.split.attlist"/>
         <optional>
           <ref name="k.temporary"/>
@@ -931,102 +1182,12 @@
       </element>
     </define>
   </div>
+  <!--
+    ==========================================
+    main block: <users>
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  -->
   <div>
-    <!-- temporary -->
-    <define name="k.temporary.attlist">
-      <empty/>
-    </define>
-    <define name="k.temporary">
-      <element name="temporary">
-        <a:documentation/>
-        <ref name="k.temporary.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- timeout -->
-    <define name="k.timeout.attlist">
-      <empty/>
-    </define>
-    <define name="k.timeout">
-      <element name="timeout">
-        <a:documentation/>
-        <ref name="k.timeout.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- timezone -->
-    <define name="k.timezone.attlist">
-      <empty/>
-    </define>
-    <define name="k.timezone">
-      <element name="timezone">
-        <a:documentation/>
-        <ref name="k.timezone.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- type -->
-    <define name="k.type.checkprebuilt.attribute">
-      <attribute name="checkprebuilt"/>
-    </define>
-    <define name="k.type.bootprofile.attribute">
-      <attribute name="bootprofile"/>
-    </define>
-    <define name="k.type.boot.attribute">
-      <attribute name="boot"/>
-    </define>
-    <define name="k.type.flags.attribute">
-      <attribute name="flags"/>
-    </define>
-    <define name="k.type.filesystem.attribute">
-      <attribute name="filesystem"/>
-    </define>
-    <define name="k.type.baseroot.attribute">
-      <attribute name="baseroot"/>
-    </define>
-    <define name="k.type.format.attribute">
-      <attribute name="format"/>
-    </define>
-    <define name="k.type.attlist">
-      <interleave>
-        <ref name="k.type.checkprebuilt.attribute"/>
-        <ref name="k.type.bootprofile.attribute"/>
-        <ref name="k.type.boot.attribute"/>
-        <ref name="k.type.flags.attribute"/>
-        <ref name="k.type.filesystem.attribute"/>
-        <ref name="k.type.baseroot.attribute"/>
-        <ref name="k.type.format.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.type">
-      <element name="type">
-        <a:documentation>A type</a:documentation>
-        <ref name="k.type.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- union -->
-    <define name="k.union.attlist">
-      <empty/>
-    </define>
-    <define name="k.union">
-      <element name="union">
-        <a:documentation/>
-        <ref name="k.union.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- users -->
     <define name="k.users.group.attribute">
       <attribute name="group"/>
     </define>
@@ -1035,58 +1196,10 @@
     </define>
     <define name="k.users">
       <element name="users">
-        <a:documentation>A list of users</a:documentation>
         <ref name="k.users.attlist"/>
         <oneOrMore>
           <ref name="k.user"/>
         </oneOrMore>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- user -->
-    <define name="k.user.name.attribute">
-      <ref name="k.name.attribute"/>
-    </define>
-    <define name="k.user.realname.attribute">
-      <attribute name="realname"/>
-    </define>
-    <define name="k.user.pwd.attribute">
-      <ref name="k.pwd.attribute"/>
-    </define>
-    <define name="k.user.home.attribute">
-      <attribute name="home"/>
-    </define>
-    <define name="k.user.shell.attribute">
-      <attribute name="shell"/>
-    </define>
-    <define name="k.user.attlist">
-      <interleave>
-        <ref name="k.user.name.attribute"/>
-        <ref name="k.user.realname.attribute"/>
-        <ref name="k.user.pwd.attribute"/>
-        <ref name="k.user.home.attribute"/>
-        <ref name="k.user.shell.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.user">
-      <element name="users">
-        <a:documentation>A single user</a:documentation>
-        <ref name="k.user.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <div>
-    <!-- version -->
-    <define name="k.version.attlist">
-      <empty/>
-    </define>
-    <define name="k.version">
-      <element name="version">
-        <a:documentation>A three-part version number in the form major.minor.release</a:documentation>
-        <ref name="k.version.attlist"/>
-        <empty/>
       </element>
     </define>
   </div>

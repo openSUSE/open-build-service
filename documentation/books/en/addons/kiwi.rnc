@@ -1,677 +1,710 @@
-#
-# This is the RELAX NG Schema for KIWI configuration files
-#
-# *****************************************************
-#              THIS IS A DRAFT VERSION!
-# *****************************************************
-#
-# Based on the W3C Schema Definition by Marcus Schäfer
-# (see file "KIWIScheme.xsd")
-#
-# TODO:
-# - isolate more attribute patterns?
-# - Document the patterns
-# - Improve Schema with datatypes?
-# - Test, test, test...
-#
-# Author:  Thomas Schraitle <thomas.schraitle (AT) suse.de>
-# License: GPL
-# Created: 2007-30-11
-# $Id:$
-#
+#================
+# FILE          : KIWISchema.rnc
+#----------------
+# PROJECT       : OpenSUSE Build-Service
+# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
+#               :
+# AUTHOR        : Thomas Schraitle <toms@suse.de>
+# AUTHOR        : Marcus Schaefer <ms@suse.de>
+#               :
+# BELONGS TO    : Operating System images
+#               :
+# DESCRIPTION   : This is the RELAX NG Schema for KIWI
+#               : configuration files
+#               : 
+#               :
+# STATUS        : Development
+#----------------
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
+#==========================================
+# start with image description
+#------------------------------------------
 start = k.image
 
-
-#
-div { # image
-  k.image.name.attribute = k.name.attribute
-  k.image.inherit.attribute =
-    ## ??
-    attribute inherit { text }
-  k.image.schemeversion.attribute = attribute schemeversion { "1.4" }
-  
-  k.image.attlist = 
-    k.image.name.attribute
-    & k.image.inherit.attribute
-    & k.image.schemeversion.attribute
-
-  k.image =
-    ## The image root element
-  element image {
-    k.image.attlist,
-    k.description,
-    k.preferences?,
-    k.profiles?,
-    k.instsource?,
-    k.users*,
-    k.drivers*,
-    k.repository*,
-    k.deploy?,
-    k.split?,
-    k.packages*
-  }
+#==========================================
+# main block: <image>
+#------------------------------------------
+div {
+	k.image.name.attribute = k.name.attribute
+	k.image.inherit.attribute = attribute inherit { text }
+	k.image.schemeversion.attribute = attribute schemeversion { "1.4" }
+	k.image.attlist = 
+		k.image.name.attribute &
+		k.image.inherit.attribute &
+		k.image.schemeversion.attribute
+	k.image = element image {
+		k.image.attlist,
+		k.description,
+		k.preferences,
+		k.profiles?,
+		k.instsource?,
+		k.users*,
+		k.drivers*,
+		k.repository+,
+		k.deploy?,
+		k.split?,
+		k.packages*,
+		k.bootstrap
+	}
 }
 
+#==========================================
+# common attributes
+#------------------------------------------
+k.name.attribute        = attribute name { text }
+k.arch.attribute        = attribute arch { text }
+k.description.attribute = attribute description { text }
+k.path.attribute        = attribute path { text }
+k.profiles.attribute    = attribute profiles { text }
+k.pwd.attribute         = attribute pwd { text }
+k.script.attribute      = attribute script { text }
+k.source.attribute      = attribute source { text }
+k.type.attribute        = attribute type { text }
 
-# -----------------------
-# Predefinied attributes:
-
-k.arch.attribute =
-  ## ??
-  attribute arch { text }
-
-k.description.attribute =
-  ## A short description
-  attribute description { text }
-
-k.name.attribute =
-  ## The name of the object
-  attribute name { text }
-  
-k.path.attribute =
-  ## A path
-  attribute path { text }
-
-k.profiles.attribute =
-  ## ??
-  attribute profiles { text }
-
-k.pwd.attribute =
-  ## ??
-  attribute pwd { text }
-
-k.script.attribute =
-  ## Points to a script ?
-  attribute script { text }
-  
-k.source.attribute =
-  ## ??
-  attribute source { text }
-  
-k.type.attribute =
-  ## ??
-  attribute type { text }
-
-
-# -----------------------
-
-div { # author
-  k.author.attlist = empty
-  k.author =
-    ## An author
-    element author { k.author.attlist, text }
+#==========================================
+# common element <author>
+#------------------------------------------
+div {
+	k.author.attlist = empty
+	k.author = element author { k.author.attlist, text }
 }
 
-div { # compressed
-  k.compressed.attlist = empty
-  k.compressed =
-    ## ??
-    element compressed { k.compressed.attlist, empty }
+#==========================================
+# common element <compressed>
+#------------------------------------------
+div {
+	k.compressed.attlist = empty
+	k.compressed = element compressed {
+		k.compressed.attlist,
+		empty
+	}
 }
 
-div { # configuration
-  k.configuration.source.attribute = k.source.attribute
-  k.configuration.dest.attribute =
-    ## Destination path ??
-    attribute dest { text }
-  k.configuration.attlist = 
-    k.configuration.source.attribute
-    & k.configuration.dest.attribute
-  
-  k.configuration =
-    ## ??
-    element configuration { k.configuration.attlist, empty }
+#==========================================
+# common element <configuration>
+#------------------------------------------
+div {
+	k.configuration.source.attribute = k.source.attribute
+	k.configuration.dest.attribute = attribute dest { text }
+	k.configuration.attlist = 
+		k.configuration.source.attribute &
+		k.configuration.dest.attribute
+	k.configuration = element configuration {
+		k.configuration.attlist,
+		empty
+	}
 }
 
-div { # commandline
-  k.commandline.attlist = empty
-  k.commandline =
-    ##
-    element commandline { k.commandline.attlist, empty }
+#==========================================
+# common element <commandline>
+#------------------------------------------
+div {
+	k.commandline.attlist = empty
+	k.commandline = element commandline {
+		k.commandline.attlist,
+		empty
+	}
 }
 
-div { # contact
-  k.contact.attlist = empty
-  k.contact =
-    ## ??
-    element contact { k.contact.attlist, text }
+#==========================================
+# common element <contact>
+#------------------------------------------
+div {
+	k.contact.attlist = empty
+	k.contact = element contact {
+		k.contact.attlist,
+		text
+	}
 }
 
-div { # defaultbaseroot
-  k.defaultbaseroot.attlist = empty
-  k.defaultbaseroot =
-    ##
-    element defaultbaseroot { k.defaultbaseroot.attlist, text }
+#==========================================
+# common element <defaultbaseroot>
+#------------------------------------------
+div {
+	k.defaultbaseroot.attlist = empty
+	k.defaultbaseroot = element defaultbaseroot {
+		k.defaultbaseroot.attlist,
+		text
+	}
 }
 
-div { # defaultdestination
-  k.defaultdestination.attlist = empty
-  k.defaultdestination =
-    ##
-    element defaultdestination { k.defaultdestination.attlist, text }
+#==========================================
+# common element <defaultdestination>
+#------------------------------------------
+div {
+	k.defaultdestination.attlist = empty
+	k.defaultdestination = element defaultdestination {
+		k.defaultdestination.attlist,
+		text
+	}
 }
 
-div { # defaultroot
-  k.defaultroot.attlist = empty
-  k.defaultroot =
-    ##
-    element defaultroot { k.defaultroot.attlist, text }
+#==========================================
+# common element <defaultroot>
+#------------------------------------------
+div {
+	k.defaultroot.attlist = empty
+	k.defaultroot = element defaultroot {
+		k.defaultroot.attlist,
+		text
+	}
 }
 
-div { # deploy
-  k.deploy.server.attribute =
-    ## ??
-    attribute server { text }
-  k.deploy.blocksize.attribute =
-    ## ??
-    attribute blocksize { text }
-  k.deploy.attlist =
-    k.deploy.server.attribute
-    & k.deploy.blocksize.attribute
-    
-  k.deploy = 
-    ## ??
-    element deploy {
-      k.deploy.attlist,
-      k.timeout?,
-      k.commandline?,
-      k.kernel?,
-      k.initrd?,
-      k.partitions?,
-      k.union?,
-      k.configuration*
-    }
+#==========================================
+# common element <file>
+#------------------------------------------
+div {
+	k.file.name.attribute = k.name.attribute
+	k.file.arch.attribute = k.arch.attribute
+	k.file.attlist =
+		k.file.name.attribute &
+		k.file.arch.attribute
+	k.file = element file {
+		k.file.attlist,
+		empty
+	}
 }
 
-div { # description
-  k.description.type.attribute =
-    ## ??
-    attribute type { "boot" | "system" | "delete" }
-  k.description.attlist = k.description.type.attribute
-  
-  k.description =
-    ## A long description
-    element description {
-      k.description.attlist,
-      k.author,
-      k.contact+,
-      k.specification
-    }
+#==========================================
+# common element <ignore>
+#------------------------------------------
+div {
+	k.ignore.name.attribute = k.name.attribute
+	k.ignore.attlist = k.ignore.name.attribute
+	k.ignore = element ignore {
+		k.ignore.attlist,
+		empty
+	}
 }
 
-div { # drivers
-  k.drivers.type.attribute = k.type.attribute
-  k.drivers.profiles.attribute = k.profiles.attribute
-  k.drivers.attlist = 
-    k.drivers.type.attribute
-    & k.drivers.profiles.attribute
-    
-  k.drivers =
-    ## A list of drivers
-    element drivers {
-      k.drivers.attlist,
-      k.file+
-    }
+#==========================================
+# common element <initrd>
+#------------------------------------------
+div {
+	k.initrd.attlist = empty
+	k.initrd = element initrd {
+		k.initrd.attlist,
+		empty
+	}
 }
 
-div { # file
-  k.file.name.attribute = k.name.attribute
-  k.file.attlist = k.file.name.attribute
-  
-  k.file = 
-    ## A filename
-    element file {
-      k.file.attlist,
-      empty
-    }
+#==========================================
+# common element <instrepo>
+#------------------------------------------
+div {
+	k.instrepo.name.attribute = k.name.attribute
+	k.instrepo.priority.attribute = attribute priority { text }
+	k.instrepo.username.attribute = attribute username { text }
+	k.instrepo.pwd.attribute = k.pwd.attribute
+	k.instrepo.attlist =
+		k.instrepo.name.attribute &
+		k.instrepo.priority.attribute &
+		k.instrepo.username.attribute &
+		k.instrepo.pwd.attribute
+	k.instrepo = element instrepo {
+		k.instrepo.attlist,
+		k.source
+	}
 }
 
-div { # ignore
-  k.ignore.name.attribute = k.name.attribute
-  k.ignore.attlist = k.ignore.name.attribute
-  
-  k.ignore = 
-    ## ??
-    element ignore {
-      k.ignore.attlist,
-      empty
-    }
+#==========================================
+# common element <kernel>
+#------------------------------------------
+div {
+	k.kernel.attlist = empty
+	k.kernel = element kernel {
+		k.kernel.attlist,
+		empty
+	}
 }
 
-div { # initrd
-  k.initrd.attlist = empty
-  k.initrd =
-    ## ??
-    element initrd { k.initrd.attlist, empty }
+#==========================================
+# common element <keytable>
+#------------------------------------------
+div {
+	k.keytable.attlist = empty
+	k.keytable = element keytable {
+		k.keytable.attlist,
+		text
+	}
 }
 
-div { # instrepo
-  k.instrepo.name.attribute = k.name.attribute
-  k.instrepo.priority.attribute =
-    ## ??
-    attribute priority { text }
-  k.instrepo.username.attribute =
-    ## A username ??
-    attribute username { text }
-  k.instrepo.pwd.attribute = k.pwd.attribute
-  k.instrepo.attlist =
-    k.instrepo.name.attribute
-    & k.instrepo.priority.attribute
-    & k.instrepo.username.attribute
-    & k.instrepo.pwd.attribute
-    
-  k.instrepo =
-    ## A installation repository
-    element instrepo {
-      k.instrepo.attlist,
-      k.source
-    }
-}
-
-div { # instsource
-  k.instsource.arch.attribute = k.arch.attribute
-  k.instsource.attlist = k.instsource.arch.attribute
-  
-  k.instsource =
-    ## Installation source
-    element instsource {
-      k.instsource.attlist,
-      k.instrepo+,
-      k.metadata,
-      k.packages
-    }
-}
-
-div { # kernel
-  k.kernel.attlist = empty
-  k.kernel =
-    ##
-    element kernel { k.kernel.attlist, empty }
-}
-
-div { # keytable
-  k.keytable.attlist = empty
-  k.keytable =
-    ##
-    element keytable { k.keytable.attlist, text }
-}
-
+#==========================================
+# common element <locale>
+#------------------------------------------
 div { # locale
-  k.locale.attlist = empty
-  k.locale =
-    ##
-    element locale { k.locale.attlist, text }
+	k.locale.attlist = empty
+	k.locale = element locale {
+		k.locale.attlist,
+		text
+	}
 }
 
-div { # metadata
-  k.metadata.attlist = empty
-  k.metadata =
-    ## ??
-    element metadata {
-      k.metadata.attlist,
-      k.package+,
-      k.metafile*
-    }    
+#==========================================
+# common element <metadata>
+#------------------------------------------
+div {
+	k.metadata.attlist = empty
+	k.metadata = element metadata {
+		k.metadata.attlist,
+		k.package+,
+		k.metafile*
+	}
 }
 
-div { # metafile
-  k.metafile.url.attribute =
-    ## A URL ??
-    attribute url { text }
-  k.metafile.script.attribute = k.script.attribute
-  k.metafile.target.attribute =
-    ## ??
-    attribute target { text }
-  k.metafile.attlist =
-    k.metafile.url.attribute
-    & k.metafile.script.attribute
-    & k.metafile.target.attribute
-  
-  k.metafile =
-    ## A metafile ??
-    element metafile {
-      k.metafile.attlist,
-      empty
-    }
+#==========================================
+# common element <metafile>
+#------------------------------------------
+div {
+	k.metafile.url.attribute = attribute url { text }
+	k.metafile.script.attribute = k.script.attribute
+	k.metafile.target.attribute = attribute target { text }
+	k.metafile.attlist =
+		k.metafile.url.attribute &
+		k.metafile.script.attribute &
+		k.metafile.target.attribute
+	k.metafile = element metafile {
+		k.metafile.attlist,
+		empty
+	}
 }
 
-div { # opensusePattern
-  k.opensusepattern.name.attribute = k.name.attribute
-  k.opensusepattern.attlist = k.opensusepattern.name.attribute
-  
-  k.opensusepattern = 
-    ## ??
-    element opensusePattern {
-      k.opensusepattern.attlist,
-      empty
-    }
+#==========================================
+# common element <opensusePattern>
+#------------------------------------------
+div {
+	k.opensusepattern.name.attribute = k.name.attribute
+	k.opensusepattern.attlist = k.opensusepattern.name.attribute
+	k.opensusepattern = element opensusePattern {
+		k.opensusepattern.attlist,
+		empty
+	}
 }
 
-div { # package
-  k.package.name.attribute = k.name.attribute
-  k.package.arch.attribute = k.arch.attribute
-  k.package.priority.attribute =
-    ## ??
-    attribute priority { text }
-  k.package.addarch.attribute =
-    ## ??
-    attribute addarch { text }
-  k.package.removearch.attribute =
-    ## ??
-    attribute removearch { text }
-  k.package.source.attribute = k.source.attribute
-  k.package.script.attribute = k.script.attribute
-  k.package.attlist =
-    k.package.name.attribute
-    & k.package.arch.attribute
-    & k.package.priority.attribute
-    & k.package.addarch.attribute
-    & k.package.removearch.attribute
-    & k.package.source.attribute
-    & k.package.script.attribute
-  
-  k.package = 
-    ## A package
-    element package {
-      k.package.attlist,
-      empty
-    }  
+#==========================================
+# common element <package>
+#------------------------------------------
+div {
+	k.package.name.attribute = k.name.attribute
+	k.package.arch.attribute = k.arch.attribute
+	k.package.priority.attribute = attribute priority { text }
+	k.package.addarch.attribute = attribute addarch { text }
+	k.package.removearch.attribute = attribute removearch { text }
+	k.package.source.attribute = k.source.attribute
+	k.package.script.attribute = k.script.attribute
+	k.package.attlist =
+		k.package.name.attribute &
+		k.package.arch.attribute &
+		k.package.priority.attribute &
+		k.package.addarch.attribute &
+		k.package.removearch.attribute &
+		k.package.source.attribute &
+		k.package.script.attribute
+	k.package = element package {
+		k.package.attlist,
+		empty
+	}
 }
 
-div { # packagemanager
-  k.packagemanager.attlist = empty
-  k.packagemanager =
-    ## Specifies the packagemanager to be used
-    element packagemanager {
-      k.packagemanager.attlist,
-      text
-    }
+#==========================================
+# common element <packagemanager>
+#------------------------------------------
+div {
+	k.packagemanager.attlist = empty
+	k.packagemanager = element packagemanager {
+		k.packagemanager.attlist,
+		text
+	}
 }
 
-div { # packages
-  k.packages.type.attribute = k.type.attribute
-  k.packages.memory.attribute =
-    ## ??
-    attribute memory { text }
-  k.packages.disk.attribute =
-    ## ??
-    attribute disk { text }
-  k.packages.profiles.attribute =
-    ## ??
-    attribute profiles { text }
-  k.packages.patternType.attribute =
-    ## ??
-    attribute patternType { text }
-  k.packages.patternPackageType.attribute =
-    ## ??
-    attribute patternPackageType { text }
-  k.packages.attlist =
-    k.packages.type.attribute
-    & k.packages.memory.attribute
-    & k.packages.disk.attribute
-    & k.packages.profiles.attribute
-    & k.packages.patternType.attribute
-    & k.packages.patternPackageType.attribute
-    
-  k.packages =
-    ## A package ??
-    element packages {
-      k.packages.attlist,
-      k.package*,
-      k.opensusepattern*,
-      k.ignore*
-    }
+#==========================================
+# common element <partitions>
+#------------------------------------------
+div {
+	k.partitions.attlist = empty
+	k.partitions = element partitions { 
+		k.partitions.attlist, 
+		k.partition*
+	}
 }
 
-div { # partitions
-  k.partitions.attlist = empty
-  k.partitions =
-    ## A list of partitions
-    element partitions { 
-      k.partitions.attlist, 
-      k.partition*
-    }
+#==========================================
+# common element <partition>
+#------------------------------------------
+div {
+	k.partition.type.attribute = k.type.attribute
+	k.partition.number.attribute = attribute number { text }
+	k.partition.size.attribute = attribute size { text }
+	k.partition.mountpoint.attribute = attribute mountpoint { text }
+	k.partition.target.attribute = attribute target { text }
+	k.partition.attlist =
+		k.partition.type.attribute &
+		k.partition.number.attribute &
+		k.partition.size.attribute &
+		k.partition.mountpoint.attribute &
+		k.partition.target.attribute
+	k.partition = element partition {
+		k.partition.attlist,
+		empty
+	}
 }
 
-div { # partition
-  k.partition.type.attribute = k.type.attribute
-  k.partition.number.attribute = attribute number { text }
-  k.partition.size.attribute = attribute size { text }
-  k.partition.mountpoint.attribute = attribute mountpoint { text }
-  k.partition.target.attribute = attribute target { text }
-  k.partition.attlist =
-    k.partition.type.attribute 
-    & k.partition.number.attribute
-    & k.partition.size.attribute
-    & k.partition.mountpoint.attribute
-    & k.partition.target.attribute
-    
-  k.partition =
-    ## A partition
-    element partition {
-      k.partition.attlist,
-      empty
-    }
+#==========================================
+# common element <persistent>
+#------------------------------------------
+div {
+	k.persistent.attlist = empty
+	k.persistent = element persistent {
+		k.persistent.attlist ,
+		k.file*
+	}
 }
 
-div { # persistent
-  k.persistent.attlist = empty
-  k.persistent = 
-    ## 
-    element persistent {
-      k.persistent.attlist ,
-      k.file*
-    }
+#==========================================
+# common element <profile>
+#------------------------------------------
+div {
+	k.profile.name.attribute = k.name.attribute
+	k.profile.description.attribute = attribute description { text }  
+	k.profile.attlist =
+		k.profile.name.attribute &
+		k.profile.description.attribute
+	k.profile = element profile {
+		k.profile.attlist,
+		empty
+	}
 }
 
-div { # preferences
-  # No attributes
-  k.preferences.attlist = empty
-  k.preferences =
-    ##
-    element preferences {
-      k.preferences.attlist,
-      k.type+,
-      k.version,
-      k.size?,
-      k.compressed?,
-      k.packagemanager?,
-      k.rpm-check-signatures?,
-      k.rpm-force?,
-      k.keytable?,
-      k.timezone?,
-      k.locale?,
-      k.defaultdestination?,
-      k.defaultroot?,
-      k.defaultbaseroot?
-    }
+#==========================================
+# common element <repository>
+#------------------------------------------
+div {
+	k.repository.type.attribute = k.type.attribute
+	k.repository.status.attribute = attribute status { text }
+	k.repository.attlist = 
+		k.repository.type.attribute &
+		k.repository.status.attribute
+	k.repository = element repository {
+		k.repository.attlist,
+		k.source
+	}
 }
 
-div { # profiles
-  
-  k.profiles = 
-    ## Collection of profiles
-    element profiles {
-      k.profile*
-    }
+#==========================================
+# common element <rpm-check-signatures>
+#------------------------------------------
+div {
+	k.rpm-check-signatures.attlist = empty
+	k.rpm-check-signatures = element rpm-check-signatures {
+		k.rpm-check-signatures.attlist,
+		text
+	}
 }
 
-div { # profile
-  k.profile.name.attribute = k.name.attribute
-  k.profile.description.attribute = attribute description { text }  
-  k.profile.attlist =
-    k.profile.name.attribute
-    & k.profile.description.attribute
-  
-  k.profile =
-    ##
-    element profile {
-      k.profile.attlist,
-      empty
-    }  
+#==========================================
+# common element <rpm-force>
+#------------------------------------------
+div {
+	k.rpm-force.attlist = empty
+	k.rpm-force = element rpm-force {
+		k.rpm-force.attlist,
+		text
+	}
 }
 
-div { # repository
-  k.repository.type.attribute = k.type.attribute
-  k.repository.status.attribute = attribute status { text }
-  k.repository.attlist = 
-    k.repository.type.attribute 
-    & k.repository.status.attribute
-    
-  k.repository =
-    ## A repository: source path and type used by the packagemanager
-    element repository {
-      k.repository.attlist,
-      k.source
-    }
+#==========================================
+# common element <size>
+#------------------------------------------
+div {
+	k.size.unit.attribute = attribute unit { "M" | "G" } # was: text
+	k.size.attlist = k.size.unit.attribute
+	k.size = element size {
+		k.size.attlist,
+		text
+	}
 }
 
-div { # rpm-check-signatures
-  k.rpm-check-signatures.attlist = empty
-  k.rpm-check-signatures =
-    ## An author
-    element rpm-check-signatures { k.rpm-check-signatures.attlist, text }
+#==========================================
+# common element <source>
+#------------------------------------------
+div {
+	k.source.path.attribute = k.path.attribute
+	k.source.attlist = k.source.path.attribute
+	k.source = element source {
+		k.source.attlist,
+		empty
+	}
 }
 
-div { # rpm-force
-  k.rpm-force.attlist = empty
-  k.rpm-force =
-    ##
-    element rpm-force { k.rpm-force.attlist, text }
+#==========================================
+# common element <specification>
+#------------------------------------------
+div {
+	k.specification.attlist = empty
+	k.specification = element specification {
+		k.specification.attlist,
+		text
+	}
 }
 
-div { # size
-  k.size.unit.attribute = attribute unit { "M" | "G" } # was: text
-  k.size.attlist = k.size.unit.attribute
-  k.size =
-    ## Specifies the size of an image
-    element size { k.size.attlist, text }
+#==========================================
+# common element <temporary>
+#------------------------------------------
+div {
+	k.temporary.attlist = empty
+	k.temporary = element temporary {
+		k.temporary.attlist,
+		empty
+	}
 }
 
-div { # source
-  k.source.path.attribute = k.path.attribute
-  k.source.attlist = k.source.path.attribute
-  
-  k.source =
-    ## A source
-    element source {
-      k.source.attlist,
-      empty
-    }
+#==========================================
+# common element <timeout>
+#------------------------------------------
+div {
+	k.timeout.attlist = empty
+	k.timeout = element timeout {
+		k.timeout.attlist,
+		empty
+	}
 }
 
-div { # specification
-  k.specification.attlist = empty
-  k.specification =
-    ## A specification
-    element specification { k.specification.attlist, text }
+#==========================================
+# common element <timezone>
+#------------------------------------------
+div {
+	k.timezone.attlist = empty
+	k.timezone = element timezone {
+		k.timezone.attlist,
+		text
+	}
 }
 
-div { # split
-  k.split.attlist = empty
-  k.split = 
-    ##
-    element split {
-      k.split.attlist,
-      k.temporary?,
-      k.persistent?
-    }
+#==========================================
+# common element <type>
+#------------------------------------------
+div {
+	k.type.checkprebuilt.attribute = attribute checkprebuilt { text }
+	k.type.bootprofile.attribute = attribute bootprofile { text }
+	k.type.boot.attribute = attribute boot { text }
+	k.type.flags.attribute = attribute flags { text }
+	k.type.filesystem.attribute = attribute filesystem { text }
+	k.type.baseroot.attribute = attribute baseroot { text }
+	k.type.format.attribute = attribute format { text }
+	k.type.attlist = 
+		k.type.checkprebuilt.attribute &
+		k.type.bootprofile.attribute &
+		k.type.boot.attribute &
+		k.type.flags.attribute &
+		k.type.filesystem.attribute &
+		k.type.baseroot.attribute &
+		k.type.format.attribute
+	k.type = element type { 
+		k.type.attlist, 
+		empty 
+	}
 }
 
-div { # temporary
-  k.temporary.attlist = empty
-  k.temporary =
-    ##
-    element temporary { k.temporary.attlist, empty }
+#==========================================
+# common element <union>
+#------------------------------------------
+div {
+	k.union.attlist = empty
+	k.union = element union {
+		k.union.attlist,
+		empty
+	}
 }
 
-div { # timeout
-  k.timeout.attlist = empty
-  k.timeout =
-    ##
-    element timeout { k.timeout.attlist, empty }
+#==========================================
+# common element <user>
+#------------------------------------------
+div {
+	k.user.name.attribute = k.name.attribute
+	k.user.realname.attribute = attribute realname { text }
+	k.user.pwd.attribute = k.pwd.attribute
+	k.user.home.attribute = attribute home { text }
+	k.user.shell.attribute = attribute shell { text }
+	k.user.attlist = 
+		k.user.name.attribute &
+		k.user.realname.attribute &
+		k.user.pwd.attribute &
+		k.user.home.attribute &
+		k.user.shell.attribute
+	k.user = element users {
+		k.user.attlist,
+		empty
+	}
 }
 
-div { # timezone
-  k.timezone.attlist = empty
-  k.timezone =
-    ##
-    element timezone { k.timezone.attlist, text }
+#==========================================
+# common element <version>
+#------------------------------------------
+div {
+	k.version.attlist = empty
+	k.version = element version {
+		k.version.attlist,
+		empty
+	}
 }
 
-div { # type
-  k.type.checkprebuilt.attribute = attribute checkprebuilt { text }
-  k.type.bootprofile.attribute = attribute bootprofile { text }
-  k.type.boot.attribute = attribute boot { text }
-  k.type.flags.attribute = attribute flags { text }
-  k.type.filesystem.attribute = attribute filesystem { text }
-  k.type.baseroot.attribute = attribute baseroot { text }
-  k.type.format.attribute = attribute format { text }
-  
-  k.type.attlist = 
-    k.type.checkprebuilt.attribute
-    & k.type.bootprofile.attribute
-    & k.type.boot.attribute
-    & k.type.flags.attribute
-    & k.type.filesystem.attribute
-    & k.type.baseroot.attribute
-    & k.type.format.attribute 
-  
-  k.type =
-    ## A type
-    element type { 
-      k.type.attlist, 
-      empty 
-    }
+#==========================================
+# main block: <deploy>
+#------------------------------------------
+div {
+	k.deploy.server.attribute = attribute server { text }
+	k.deploy.blocksize.attribute = attribute blocksize { text }
+	k.deploy.attlist =
+		k.deploy.server.attribute &
+		k.deploy.blocksize.attribute
+	k.deploy = element deploy {
+		k.deploy.attlist,
+		k.timeout?,
+		k.commandline?,
+		k.kernel?,
+		k.initrd?,
+		k.partitions?,
+		k.union?,
+		k.configuration*
+	}
 }
 
-div { # union
-  k.union.attlist = empty
-  k.union =
-    ##
-    element union { k.union.attlist, empty }
+#==========================================
+# main block: <description>
+#------------------------------------------
+div {
+	k.description.type.attribute = attribute type { "boot" | "system" }
+	k.description.attlist = k.description.type.attribute
+	k.description = element description {
+		k.description.attlist,
+		k.author,
+		k.contact+,
+		k.specification
+	}
 }
 
-div { # users
-  k.users.group.attribute = attribute group { text }
-  k.users.attlist = k.users.group.attribute
-  
-  k.users =
-    ## A list of users
-    element users {
-      k.users.attlist,
-      k.user+
-    }
+#==========================================
+# main block: <drivers>
+#------------------------------------------
+div {
+	k.drivers.type.attribute = k.type.attribute
+	k.drivers.profiles.attribute = k.profiles.attribute
+	k.drivers.attlist = 
+		k.drivers.type.attribute &
+		k.drivers.profiles.attribute
+	k.drivers = element drivers {
+		k.drivers.attlist,
+		k.file+
+	}
 }
 
-div { # user
-  k.user.name.attribute = k.name.attribute
-  k.user.realname.attribute = attribute realname { text }
-  k.user.pwd.attribute = k.pwd.attribute
-  k.user.home.attribute = attribute home { text }
-  k.user.shell.attribute = attribute shell { text }
-  
-  k.user.attlist = 
-    k.user.name.attribute
-    & k.user.realname.attribute
-    & k.user.pwd.attribute
-    & k.user.home.attribute
-    & k.user.shell.attribute
-  
-  k.user =
-    ## A single user
-    element users {
-      k.user.attlist,
-      empty
-    }
+#==========================================
+# main block: <instsource>
+#------------------------------------------
+div {
+	k.instsource.arch.attribute = k.arch.attribute
+	k.instsource.attlist = k.instsource.arch.attribute
+	k.instsource = element instsource {
+		k.instsource.attlist,
+		k.instrepo+,
+		k.metadata,
+		k.packages
+	}
 }
 
-div { # version
-  k.version.attlist = empty
-  k.version =
-    ## A three-part version number in the form major.minor.release
-    element version { k.version.attlist, empty }
+#==========================================
+# main block: <packages>
+#------------------------------------------
+div {
+	k.packages.type.attribute = k.type.attribute
+	k.packages.memory.attribute = attribute memory { text }
+	k.packages.disk.attribute = attribute disk { text }
+	k.packages.profiles.attribute = attribute profiles { text }
+	k.packages.patternType.attribute = attribute patternType { text }
+	k.packages.patternPackageType.attribute = attribute patternPackageType { text }
+	k.packages.attlist =
+		k.packages.type.attribute &
+		k.packages.memory.attribute &
+		k.packages.disk.attribute &
+		k.packages.profiles.attribute &
+		k.packages.patternType.attribute &
+		k.packages.patternPackageType.attribute
+	k.packages = element packages {
+		k.packages.attlist,
+		k.package*,
+		k.opensusepattern*,
+		k.ignore*
+	}
 }
+
+#==========================================
+# main block: <bootstrap>
+#------------------------------------------
+div {
+	k.bootstrap.profiles.attribute = attribute profiles { text }
+	k.bootstrap.attlist = k.bootstrap.profiles.attribute
+	k.bootstrap = element bootstrap {
+		k.bootstrap.attlist,
+		k.package*
+	}
+}
+
+#==========================================
+# main block: <preferences>
+#------------------------------------------
+div {
+	k.preferences.attlist = empty
+	k.preferences = element preferences {
+		k.preferences.attlist,
+		k.type+,
+		k.version,
+		k.size?,
+		k.compressed?,
+		k.packagemanager?,
+		k.rpm-check-signatures?,
+		k.rpm-force?,
+		k.keytable?,
+		k.timezone?,
+		k.locale?,
+		k.defaultdestination?,
+		k.defaultroot?,
+		k.defaultbaseroot?
+	}
+}
+
+#==========================================
+# main block: <profiles>
+#------------------------------------------
+div {
+	k.profiles = element profiles {
+		k.profile*
+	}
+}
+
+#==========================================
+# main block: <split>
+#------------------------------------------
+div {
+	k.split.attlist = empty
+	k.split = element split {
+		k.split.attlist,
+		k.temporary?,
+		k.persistent?
+	}
+}
+
+#==========================================
+# main block: <users>
+#------------------------------------------
+div {
+	k.users.group.attribute = attribute group { text }
+	k.users.attlist = k.users.group.attribute
+	k.users = element users {
+		k.users.attlist,
+		k.user+
+	}
+}
+
+
