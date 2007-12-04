@@ -149,7 +149,7 @@
   </sect1>
   
   <sect1 id="sec.kiwi.process">
-    <title>Knowing KIWI's Build Process</title>
+    <title>Knowing KIWI&rsquo;s Build Process</title>
     <para>The building process of KIWI is separated into three steps:</para>
     <orderedlist>
       <listitem>
