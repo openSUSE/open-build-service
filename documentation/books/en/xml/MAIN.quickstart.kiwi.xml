@@ -46,7 +46,6 @@
       Live USB, or as an image for virtualization systems like Xen, Qemu or
       Vmware. KIWI provides the following advantages:
     </para>
-    <remark>FIXME: Add more advantages.</remark>
     <itemizedlist>
       <listitem>
         <para>Create your own Live CD/DVD which contains only those
