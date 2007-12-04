@@ -331,10 +331,64 @@
             <title>Getting Pattern Names</title>
             <para>You can get the names of pattern in your installed
               system under <filename>/var/cache/zypp/raw/<replaceable
-                >NAME</replaceable>/suse/setup/descr/</filename>
-              (<replaceable>NAME</replaceable> is the repository name.)
+                >REPO</replaceable>/suse/setup/descr/</filename>
+              (replace <replaceable>REPO</replaceable> with the name
+              of your system, for example <filename
+                >openSUSE-10.3-retail 10.3</filename>.)
             </para>
           </note>
+          <para>Depending what your interests in development is, </para>
+          <table>
+            <title>Examples of Pattern Names for Development</title>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry>Pattern</entry>
+                  <entry>Explanation</entry>
+                </row>
+              </thead>
+              <tbody>
+                <row>
+                  <entry>devel_C_C++</entry>
+                  <entry>Tools and libraries for software development
+                    using C/C++ and other derivative of the C
+                    programming language</entry>
+                </row>
+                <row>
+                  <entry>devel_basis</entry>
+                  <entry>Minimal set of tools for compiling and linking
+                    applications</entry>
+                </row>
+                <row>
+                  <entry>devel_ide</entry>
+                  <entry>Integrated Development Environments</entry>
+                </row>
+                <row>
+                  <entry>devel_java</entry>
+                  <entry>Tools and libraries for software development
+                    using the Java programming language</entry>
+                </row>
+                <row>
+                  <entry>devel_kernel</entry>
+                  <entry>Tools for Linux kernel development</entry>
+                  <!-- git, quilt, indent, patch-utils -->
+                </row>
+                <row>
+                  <entry>devel_python</entry>
+                  <entry>Tools and libraries for software development
+                  using the Python programming language</entry>
+                  <!-- eric, libxml2-python, libxslt-python, python-qt, pyxml, treeline -->
+                </row>
+                <row>
+                  <entry>devel_web</entry>
+                  <entry>Tools and libraries for Web application
+                  development</entry>
+                  <!-- bluefish, nvu, html-dtd, latex2html, php5, tidy,
+                    selfhtml, kdewebdev3 -->
+                </row>
+              </tbody>
+            </tgroup>            
+          </table>
         </step>
         <step>
           <para>Save the configuration file.</para>
