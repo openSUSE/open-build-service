@@ -263,12 +263,12 @@
           <filename>test1/config.xml</filename>.</para>
       </step>
       <step>
-        <para>Run the first step:</para>
+        <para>Run the first step (physical extend):</para>
         <screen><command
 >kiwi</command> --prepare test1 --root /tmp/kiwi-test1</screen>
       </step>
       <step>
-        <para>Run the second step:</para>
+        <para>Run the second step (logical extend):</para>
         <screen><command
 >kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
       </step>
