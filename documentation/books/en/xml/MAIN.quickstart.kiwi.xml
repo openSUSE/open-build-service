@@ -3,6 +3,14 @@
   "-//OASIS//DTD DocBook XML V4.4//EN"
   "http://www.docbook.org/xml/4.4/docbookx.dtd"
 [
+  <!-- Support xi:include elements -->
+  <!ENTITY % xinclude SYSTEM "xinclude.mod">
+  %xinclude;
+
+  <!--<!ENTITY % local.common.attrib "%xmlnsxi;">-->
+  <!ENTITY % local.chapter.class "| xi:include">
+  <!ENTITY % local.section.class "| xi:include">
+  <!ENTITY % local.info.class "|xi:include">
 
 ]>
 
