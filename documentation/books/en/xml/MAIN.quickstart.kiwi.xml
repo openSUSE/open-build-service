@@ -2,7 +2,9 @@
 <!DOCTYPE article PUBLIC 
   "-//OASIS//DTD DocBook XML V4.4//EN"
   "http://www.docbook.org/xml/4.4/docbookx.dtd"
->
+[
+
+]>
 
 <article lang="en" revision="draft" class="whitepaper">
   <title>KIWI Quick Start</title>
@@ -233,22 +235,25 @@
   </sect1>
    
   <sect1 id="sec.kiwi.livecd.packages">
-    <title>Creating a Minimal Image with Configuration File</title>
+    <title>Creating a Minimal Image</title>
     <para>If you want to start with a minimal example and extend it
     later, proceed as follows:</para>
     
     <procedure>
       <step>
-        <para>Copy the example directory from <filename>test1</filename>
+        <para>Copy the example directory from <filename>test2</filename>
         from your KIWI package:</para>
-        <screen>cp -a /usr/share/doc/packages/kiwi/examples/test1/ .</screen>
+        <screen>cp -a /usr/share/doc/packages/kiwi/examples/test2/ .</screen>
       </step>
       <step>
-        <para>Use the following configuration file:</para>
-        <example>
-          <title>Minimal Configuration File for KIWI</title>
-          <screen>*** TO BE DEFINIED ***</screen>
-        </example>
+        <para>Open the configuration file <filename>test1/config.xml</filename>
+        and locate the XML element <sgmltag>packages</sgmltag>:</para>
+        <screen>&lt;packages>
+  &lt;package name="aaa_base"/>
+	&lt;package name="aaa_skel"/>
+	&lt;package name="acl"/>
+	&lt;package name="acpid"/>       
+&lt;/packages></screen>
         <note>
           <para>The following lines are essential and
             <emphasis>must</emphasis> always be present:</para>
@@ -259,18 +264,24 @@
         </note>
       </step>
       <step>
-        <para>Save the configuration file under
-          <filename>test1/config.xml</filename>.</para>
+        <para>Change the list of packages to your needs, but be aware
+          not to remove essential ones like
+          <package>aaa_base</package>, <package>aaa_skel</package> and
+          others.</para>
+        <remark>FIXME: Link to list of required packages?</remark>
+      </step>
+      <step>
+        <para>Save the configuration file.</para>
       </step>
       <step>
         <para>Run the first phase (physical extend):</para>
         <screen><command
->kiwi</command> --prepare test1 --root /tmp/kiwi-test1</screen>
+>kiwi</command> --prepare test1 --root /tmp/kiwi-test2</screen>
       </step>
       <step>
         <para>Run the second phase (logical extend):</para>
         <screen><command
->kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
+>kiwi</command> --create /tmp/kiwi-test2 -d /tmp --type iso</screen>
       </step>
     </procedure>    
   </sect1>
