@@ -1,6 +1,6 @@
 #================
 # FILE          : KIWISchema.rnc
-#----------------
+#****************
 # PROJECT       : OpenSUSE Build-Service
 # COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
 #               :
@@ -14,18 +14,18 @@
 #               : 
 #               :
 # STATUS        : Development
-#----------------
+#****************
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
 #==========================================
 # start with image description
-#------------------------------------------
+#
 start = k.image
 
 #==========================================
 # main block: <image>
-#------------------------------------------
+#
 div {
 	k.image.name.attribute = k.name.attribute
 	k.image.inherit.attribute = attribute inherit { text }
@@ -52,7 +52,7 @@ div {
 
 #==========================================
 # common attributes
-#------------------------------------------
+#
 k.name.attribute        = attribute name { text }
 k.arch.attribute        = attribute arch { text }
 k.description.attribute = attribute description { text }
@@ -65,7 +65,7 @@ k.type.attribute        = attribute type { text }
 
 #==========================================
 # common element <author>
-#------------------------------------------
+#
 div {
 	k.author.attlist = empty
 	k.author = element author { k.author.attlist, text }
@@ -73,7 +73,7 @@ div {
 
 #==========================================
 # common element <compressed>
-#------------------------------------------
+#
 div {
 	k.compressed.attlist = empty
 	k.compressed = element compressed {
@@ -84,7 +84,7 @@ div {
 
 #==========================================
 # common element <configuration>
-#------------------------------------------
+#
 div {
 	k.configuration.source.attribute = k.source.attribute
 	k.configuration.dest.attribute = attribute dest { text }
@@ -99,7 +99,7 @@ div {
 
 #==========================================
 # common element <commandline>
-#------------------------------------------
+#
 div {
 	k.commandline.attlist = empty
 	k.commandline = element commandline {
@@ -110,7 +110,7 @@ div {
 
 #==========================================
 # common element <contact>
-#------------------------------------------
+#
 div {
 	k.contact.attlist = empty
 	k.contact = element contact {
@@ -121,7 +121,7 @@ div {
 
 #==========================================
 # common element <defaultbaseroot>
-#------------------------------------------
+#
 div {
 	k.defaultbaseroot.attlist = empty
 	k.defaultbaseroot = element defaultbaseroot {
@@ -132,7 +132,7 @@ div {
 
 #==========================================
 # common element <defaultdestination>
-#------------------------------------------
+#
 div {
 	k.defaultdestination.attlist = empty
 	k.defaultdestination = element defaultdestination {
@@ -143,7 +143,7 @@ div {
 
 #==========================================
 # common element <defaultroot>
-#------------------------------------------
+#
 div {
 	k.defaultroot.attlist = empty
 	k.defaultroot = element defaultroot {
@@ -154,7 +154,7 @@ div {
 
 #==========================================
 # common element <file>
-#------------------------------------------
+#
 div {
 	k.file.name.attribute = k.name.attribute
 	k.file.arch.attribute = k.arch.attribute
@@ -169,7 +169,7 @@ div {
 
 #==========================================
 # common element <ignore>
-#------------------------------------------
+#
 div {
 	k.ignore.name.attribute = k.name.attribute
 	k.ignore.attlist = k.ignore.name.attribute
@@ -181,7 +181,7 @@ div {
 
 #==========================================
 # common element <initrd>
-#------------------------------------------
+#
 div {
 	k.initrd.attlist = empty
 	k.initrd = element initrd {
@@ -192,7 +192,7 @@ div {
 
 #==========================================
 # common element <instrepo>
-#------------------------------------------
+#
 div {
 	k.instrepo.name.attribute = k.name.attribute
 	k.instrepo.priority.attribute = attribute priority { text }
@@ -211,7 +211,7 @@ div {
 
 #==========================================
 # common element <kernel>
-#------------------------------------------
+#
 div {
 	k.kernel.attlist = empty
 	k.kernel = element kernel {
@@ -222,7 +222,7 @@ div {
 
 #==========================================
 # common element <keytable>
-#------------------------------------------
+#
 div {
 	k.keytable.attlist = empty
 	k.keytable = element keytable {
@@ -233,7 +233,7 @@ div {
 
 #==========================================
 # common element <locale>
-#------------------------------------------
+#
 div { # locale
 	k.locale.attlist = empty
 	k.locale = element locale {
@@ -244,7 +244,7 @@ div { # locale
 
 #==========================================
 # common element <metadata>
-#------------------------------------------
+#
 div {
 	k.metadata.attlist = empty
 	k.metadata = element metadata {
@@ -256,7 +256,7 @@ div {
 
 #==========================================
 # common element <metafile>
-#------------------------------------------
+#
 div {
 	k.metafile.url.attribute = attribute url { text }
 	k.metafile.script.attribute = k.script.attribute
@@ -273,7 +273,7 @@ div {
 
 #==========================================
 # common element <opensusePattern>
-#------------------------------------------
+#
 div {
 	k.opensusepattern.name.attribute = k.name.attribute
 	k.opensusepattern.attlist = k.opensusepattern.name.attribute
@@ -285,7 +285,7 @@ div {
 
 #==========================================
 # common element <package>
-#------------------------------------------
+#
 div {
 	k.package.name.attribute = k.name.attribute
 	k.package.arch.attribute = k.arch.attribute
@@ -310,7 +310,7 @@ div {
 
 #==========================================
 # common element <packagemanager>
-#------------------------------------------
+#
 div {
 	k.packagemanager.attlist = empty
 	k.packagemanager = element packagemanager {
@@ -321,7 +321,7 @@ div {
 
 #==========================================
 # common element <partitions>
-#------------------------------------------
+#
 div {
 	k.partitions.attlist = empty
 	k.partitions = element partitions { 
@@ -332,7 +332,7 @@ div {
 
 #==========================================
 # common element <partition>
-#------------------------------------------
+#
 div {
 	k.partition.type.attribute = k.type.attribute
 	k.partition.number.attribute = attribute number { text }
@@ -353,7 +353,7 @@ div {
 
 #==========================================
 # common element <persistent>
-#------------------------------------------
+#
 div {
 	k.persistent.attlist = empty
 	k.persistent = element persistent {
@@ -364,7 +364,7 @@ div {
 
 #==========================================
 # common element <profile>
-#------------------------------------------
+#
 div {
 	k.profile.name.attribute = k.name.attribute
 	k.profile.description.attribute = attribute description { text }  
@@ -379,7 +379,7 @@ div {
 
 #==========================================
 # common element <repository>
-#------------------------------------------
+#
 div {
 	k.repository.type.attribute = k.type.attribute
 	k.repository.status.attribute = attribute status { text }
@@ -394,7 +394,7 @@ div {
 
 #==========================================
 # common element <rpm-check-signatures>
-#------------------------------------------
+#
 div {
 	k.rpm-check-signatures.attlist = empty
 	k.rpm-check-signatures = element rpm-check-signatures {
@@ -405,7 +405,7 @@ div {
 
 #==========================================
 # common element <rpm-force>
-#------------------------------------------
+#
 div {
 	k.rpm-force.attlist = empty
 	k.rpm-force = element rpm-force {
@@ -416,7 +416,7 @@ div {
 
 #==========================================
 # common element <size>
-#------------------------------------------
+#
 div {
 	k.size.unit.attribute = attribute unit { "M" | "G" } # was: text
 	k.size.attlist = k.size.unit.attribute
@@ -428,7 +428,7 @@ div {
 
 #==========================================
 # common element <source>
-#------------------------------------------
+#
 div {
 	k.source.path.attribute = k.path.attribute
 	k.source.attlist = k.source.path.attribute
@@ -440,7 +440,7 @@ div {
 
 #==========================================
 # common element <specification>
-#------------------------------------------
+#
 div {
 	k.specification.attlist = empty
 	k.specification = element specification {
@@ -451,7 +451,7 @@ div {
 
 #==========================================
 # common element <temporary>
-#------------------------------------------
+#
 div {
 	k.temporary.attlist = empty
 	k.temporary = element temporary {
@@ -462,7 +462,7 @@ div {
 
 #==========================================
 # common element <timeout>
-#------------------------------------------
+#
 div {
 	k.timeout.attlist = empty
 	k.timeout = element timeout {
@@ -473,7 +473,7 @@ div {
 
 #==========================================
 # common element <timezone>
-#------------------------------------------
+#
 div {
 	k.timezone.attlist = empty
 	k.timezone = element timezone {
@@ -484,7 +484,7 @@ div {
 
 #==========================================
 # common element <type>
-#------------------------------------------
+#
 div {
 	k.type.checkprebuilt.attribute = attribute checkprebuilt { text }
 	k.type.bootprofile.attribute = attribute bootprofile { text }
@@ -509,7 +509,7 @@ div {
 
 #==========================================
 # common element <union>
-#------------------------------------------
+#
 div {
 	k.union.attlist = empty
 	k.union = element union {
@@ -520,7 +520,7 @@ div {
 
 #==========================================
 # common element <user>
-#------------------------------------------
+#
 div {
 	k.user.name.attribute = k.name.attribute
 	k.user.realname.attribute = attribute realname { text }
@@ -541,7 +541,7 @@ div {
 
 #==========================================
 # common element <version>
-#------------------------------------------
+#
 div {
 	k.version.attlist = empty
 	k.version = element version {
@@ -552,7 +552,7 @@ div {
 
 #==========================================
 # main block: <deploy>
-#------------------------------------------
+#
 div {
 	k.deploy.server.attribute = attribute server { text }
 	k.deploy.blocksize.attribute = attribute blocksize { text }
@@ -573,7 +573,7 @@ div {
 
 #==========================================
 # main block: <description>
-#------------------------------------------
+#
 div {
 	k.description.type.attribute = attribute type { "boot" | "system" }
 	k.description.attlist = k.description.type.attribute
@@ -587,7 +587,7 @@ div {
 
 #==========================================
 # main block: <drivers>
-#------------------------------------------
+#
 div {
 	k.drivers.type.attribute = k.type.attribute
 	k.drivers.profiles.attribute = k.profiles.attribute
@@ -602,7 +602,7 @@ div {
 
 #==========================================
 # main block: <instsource>
-#------------------------------------------
+#
 div {
 	k.instsource.arch.attribute = k.arch.attribute
 	k.instsource.attlist = k.instsource.arch.attribute
@@ -616,7 +616,7 @@ div {
 
 #==========================================
 # main block: <packages>
-#------------------------------------------
+#
 div {
 	k.packages.type.attribute = k.type.attribute
 	k.packages.memory.attribute = attribute memory { text }
@@ -641,7 +641,7 @@ div {
 
 #==========================================
 # main block: <bootstrap>
-#------------------------------------------
+#
 div {
 	k.bootstrap.profiles.attribute = attribute profiles { text }
 	k.bootstrap.attlist = k.bootstrap.profiles.attribute
@@ -653,7 +653,7 @@ div {
 
 #==========================================
 # main block: <preferences>
-#------------------------------------------
+#
 div {
 	k.preferences.attlist = empty
 	k.preferences = element preferences {
@@ -676,7 +676,7 @@ div {
 
 #==========================================
 # main block: <profiles>
-#------------------------------------------
+#
 div {
 	k.profiles = element profiles {
 		k.profile*
@@ -685,7 +685,7 @@ div {
 
 #==========================================
 # main block: <split>
-#------------------------------------------
+#
 div {
 	k.split.attlist = empty
 	k.split = element split {
@@ -697,7 +697,7 @@ div {
 
 #==========================================
 # main block: <users>
-#------------------------------------------
+#
 div {
 	k.users.group.attribute = attribute group { text }
 	k.users.attlist = k.users.group.attribute
