@@ -100,6 +100,12 @@
     </itemizedlist>    
   </sect1>
   
+  <sect1 id="sec.kiwi.backgroundd">
+    <title></title>
+    <para></para>
+  </sect1>
+  
+  
   <sect1 id="sec.kiwi.preparation" os="sled10">
     <title>What do I need?</title>
     <para>To build images with KIWI, you need the following
@@ -107,7 +113,7 @@
     <remark>FIXME: Add more preconditions?</remark>
     <orderedlist>
       <listitem>
-        <para>A minimum of <remark>Y</remark> Gigabyte of free space.</para>
+        <para>Free space. The more the better.</para>
       </listitem>
       <listitem>
         <para>KIWI is split into several packages, targeted to different
@@ -142,6 +148,28 @@
       </listitem>
       <listitem>
         <para>Recommended distribution is openSUSE 10.3</para>
+      </listitem>
+      <listitem>
+        <para>Example files from the <package>kiwi</package> packages:</para>
+        <variablelist>
+          <varlistentry>
+            <term><filename>/usr/share/doc/packages/kiwi/examples/test1</filename></term>
+            <listitem>
+              <para>Is an openSUSE 10.3 KDE system, based on patterns.</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><filename>/usr/share/doc/packages/kiwi/examples/test2</filename></term>
+            <listitem>
+              <para>This is an openSUSE 10.3 console system, based on a
+                package list.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+        <para>Both examples have the users <systemitem class="username"
+            >root</systemitem> and <systemitem class="username"
+          >linux</systemitem> with the password
+          <literal>linux</literal>. </para>
       </listitem>
     </orderedlist>
         
@@ -184,30 +212,6 @@
   
   <sect1 id="sec.kiwi.livecd">
     <title>Creating a Graphical Live ISO CD</title>
-    <para>The KIWI package contains two example files which create
-    different images:</para>
-    
-    <variablelist>
-      <varlistentry>
-        <term><filename>/usr/share/doc/packages/kiwi/examples/test1</filename></term>
-        <listitem>
-          <para>Is an openSUSE 10.3 KDE system, based on patterns.</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term><filename>/usr/share/doc/packages/kiwi/examples/test2</filename></term>
-        <listitem>
-          <para>This is an openSUSE 10.3 console system, based on a
-            package list.</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-    
-    <para>Both examples have the users <systemitem
-      class="username">root</systemitem> and <systemitem 
-        class="username">linux</systemitem> both with the password
-      <literal>linux</literal>.
-    </para>
     <para>To create an ISO image, proceed as follows:</para>
     
     <procedure>
@@ -414,6 +418,12 @@
       </procedure>      
     </sect2>
     <!-- More to come... -->
+    
+    <!--<sect2>
+      <title></title>
+      <para></para>
+    </sect2>
+    -->
   </sect1>
   
   
