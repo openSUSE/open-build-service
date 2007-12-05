@@ -261,9 +261,9 @@
         and locate the XML element <sgmltag>packages</sgmltag>:</para>
         <screen>&lt;packages>
   &lt;package name="aaa_base"/>
-	&lt;package name="aaa_skel"/>
-	&lt;package name="acl"/>
-	&lt;package name="acpid"/>       
+  &lt;package name="aaa_skel"/>
+  &lt;package name="acl"/>
+  &lt;package name="acpid"/>       
 &lt;/packages></screen>
         <note>
           <para>The following lines are essential and
