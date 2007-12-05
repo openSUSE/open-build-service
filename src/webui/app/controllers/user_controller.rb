@@ -63,10 +63,6 @@ require 'opensuse/frontend'
     @user = session[:user]
 
     @user.realname.data.text = params[:realname]
-    @user.source_backend.host.data.text = params[:source_host]
-    @user.source_backend.port.data.text = params[:source_port]
-    @user.rpm_backend.host.data.text = params[:rpm_host]
-    @user.rpm_backend.port.data.text = params[:rpm_port]
 
     if @user.save
       flash[:note] = "User data for user '#{@user.login}' successfully saved."
