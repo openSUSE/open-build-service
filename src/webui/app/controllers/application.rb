@@ -56,12 +56,16 @@ class ApplicationController < ActionController::Base
       end
 
       if ichain_user
-        logger.debug "Setting Session login to #{ichain_user}"
-        @session[:login] = ichain_user
+        ichain_email = request.env['HTTP_X_EMAIL']
+        logger.debug "Setting Session login to #{ichain_user}, email: #{ichain_email}"
+        
+        session[:login] = ichain_user
+        session[:email] = ichain_email
+
         # Do the transport
         transport = ActiveXML::Config.transport_for( :project )
         transport.set_additional_header( "X-Username", ichain_user )
-        transport.set_additional_header( "X-Email", request.env['HTTP_X_EMAIL'] )
+        transport.set_additional_header( "X-Email", ichain_email )
     
         # set user object reachable from controller
         @user = Person.find( ichain_user )
@@ -166,6 +170,11 @@ class ApplicationController < ActionController::Base
         logger.debug "default exception handling"
         render_error :status => 400, :code => @code, :message => @message,
                      :exception => @exception, :api_exception => @api_exception
+
+        unless exception.kind_of? ::ActionController::RoutingError
+          ExceptionNotifier.deliver_exception_notification(exception, self,
+            request, {})
+        end
       end
     end
   end
