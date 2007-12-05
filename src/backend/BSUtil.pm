@@ -92,15 +92,21 @@ sub ls {
 }
 
 sub mkdir_p {
-  my $dir = shift;
+  my ($dir) = @_;
 
   return 1 if -d $dir;
+  my $pdir;
   if ($dir =~ /^(.*)\//) {
-    mkdir_p($1) || return undef;
+    $pdir = $1;
+    mkdir_p($pdir) || return undef;
   }
-  if (!mkdir($dir, 0777)) {
+  while (!mkdir($dir, 0777)) {
     my $e = $!;
     return 1 if -d $dir;
+    if (defined($pdir) && ! -d $pdir) {
+      mkdir_p($pdir) || return undef;
+      next;
+    }
     $! = $e;
     warn("mkdir: $dir: $!\n");
     return undef;
@@ -217,6 +223,12 @@ sub lockcreatexml {
   }
   unlink($fn);
   return 1;
+}
+
+sub isotime {
+  my ($t) = @_;
+  my @lt = localtime($t || time());
+  return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
 }
 
 1;
