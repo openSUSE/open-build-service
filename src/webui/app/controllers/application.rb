@@ -171,10 +171,6 @@ class ApplicationController < ActionController::Base
         render_error :status => 400, :code => @code, :message => @message,
                      :exception => @exception, :api_exception => @api_exception
 
-        unless exception.kind_of? ::ActionController::RoutingError
-          ExceptionNotifier.deliver_exception_notification(exception, self,
-            request, {})
-        end
       end
     end
   end
