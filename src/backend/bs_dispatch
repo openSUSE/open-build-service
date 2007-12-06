@@ -23,6 +23,7 @@
 
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
   # FIXME: currently the bs_dispatcher makes assumptions on being in a
   # properly set up working dir, e.g. with subdirs 'worker' and
   # 'build'.  Either that is cleaned up or this stays in, for the sake
@@ -73,6 +74,7 @@ my %cando = (
   'sh4'    => ['sh4'],
 );
 
+my $rundir = "$BSConfig::bsdir/run";
 my $workersdir = "$BSConfig::bsdir/workers";
 my $jobsdir = "$BSConfig::bsdir/jobs";
 
@@ -187,6 +189,12 @@ sub assignjob {
 
 $| = 1;
 print "starting build service dispatcher\n";
+
+# get lock
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_dispatch.lock") || die("$rundir/bs_dispatch.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dispatcher is already running!\n");
+utime undef, undef, "$rundir/bs_dispatch.lock";
 
 while (1) {
   my $assigned = 0;

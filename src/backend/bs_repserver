@@ -487,15 +487,19 @@ sub ping {
 }
 
 sub workerstatus {
+  my ($cgi) = @_;
   local *D;
   my @idle;
-  for my $w (ls("$workersdir/idle")) {
-    my $worker = readxml("$workersdir/idle/$w", $BSXML::worker, 1);
-    next unless $worker;
-    push @idle, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
+  if (!$cgi->{'scheduleronly'}) {
+    for my $w (ls("$workersdir/idle")) {
+      my $worker = readxml("$workersdir/idle/$w", $BSXML::worker, 1);
+      next unless $worker;
+      push @idle, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
+    }
   }
   my @building;
-  my @a = ls($jobsdir);
+  my @a;
+  @a = ls($jobsdir) unless $cgi->{'scheduleronly'};
   my @waiting;
   for my $a (@a) {
     my @d = grep {!/^\./ && !/:(?:dir|new)$/} ls("$jobsdir/$a");
@@ -523,10 +527,16 @@ sub workerstatus {
 
   my @scheddata;
   my @schedarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
+  push @schedarchs, 'dispatcher' if -e "$rundir/bs_dispatch.lock";
+  push @schedarchs, 'publisher' if -e "$rundir/bs_publish.lock";
+  @schedarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $schedarch (@schedarchs) {
     local *F;
     my $scheddata = {'arch' => $schedarch, 'state' => 'dead'};
-    if (open(F, '<', "$rundir/bs_sched.$schedarch.lock")) {
+    my $lock = "bs_sched.$schedarch.lock";
+    $lock = 'bs_dispatch.lock' if $schedarch eq 'dispatcher';
+    $lock = 'bs_publish.lock' if $schedarch eq 'publisher';
+    if (open(F, '<', "$rundir/$lock")) {
       if (!flock(F, LOCK_EX | LOCK_NB)) {
         my @s = stat(F);
         $scheddata->{'state'} = 'running';
@@ -538,10 +548,12 @@ sub workerstatus {
   }
 
   my $ret = {};
-  $ret->{'clients'} = @building + @idle;
-  $ret->{'building'} = \@building;
-  $ret->{'waiting'} = \@waiting;
-  $ret->{'idle'} = \@idle;
+  if (!$cgi->{'scheduleronly'}) {
+    $ret->{'clients'} = @building + @idle;
+    $ret->{'building'} = \@building;
+    $ret->{'waiting'} = \@waiting;
+    $ret->{'idle'} = \@idle;
+  }
   $ret->{'scheduler'} = \@scheddata;
   return ($ret, $BSXML::workerstatus);
 }
@@ -1461,7 +1473,7 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&publishedfile,
 
   # info
-  '/workerstatus' => \&workerstatus,
+  '/workerstatus scheduleronly:bool? arch*' => \&workerstatus,
   '/info/$arch/jobhistory' => \&getjobhistory,
 
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,

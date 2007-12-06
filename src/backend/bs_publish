@@ -66,6 +66,7 @@ my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $extrepodb = "$BSConfig::bsdir/db/published";
 my $uploaddir = "$BSConfig::bsdir/upload";
+my $rundir = "$BSConfig::bsdir/run";
 
 my $myeventdir = "$eventdir/publish";
 
@@ -340,14 +341,26 @@ sub createpatterns_rpmmd {
   deletepatterns_rpmmd($extrep);
   return unless @{$patterns || []};
 
-  for my $pattern (@{$patterns || []}) {
-    my $pname = "patterns.$pattern->{'name'}";
-    $pname =~ s/\.xml$//;
-    print "    adding pattern $pattern->{'name'} to repodata\n";
-    writestr("$extrep/repodata/$pname.xml", undef, $pattern->{'data'});
-    qsystem('modifyrepo', "$extrep/repodata/$pname.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
-    unlink("$extrep/repodata/$pname.xml");
+  # create patterns data structure
+  my @pats;
+  for my $pattern (@$patterns) {
+    push @pats, XMLin($BSXML::pattern, $pattern->{'data'});
   }
+  print "    adding patterns to repodata\n";
+  my $pats = {'pattern' => \@pats, 'count' => scalar(@pats)};
+  writexml("$extrep/repodata/patterns.xml", undef, $pats, $BSXML::patterns);
+  qsystem('modifyrepo', "$extrep/repodata/patterns.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+  unlink("$extrep/repodata/patterns.xml");
+
+#  for my $pattern (@{$patterns || []}) {
+#    my $pname = "patterns.$pattern->{'name'}";
+#    $pname =~ s/\.xml$//;
+#    print "    adding pattern $pattern->{'name'} to repodata\n";
+#    writestr("$extrep/repodata/$pname.xml", undef, $pattern->{'data'});
+#    qsystem('modifyrepo', "$extrep/repodata/$pname.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+#    unlink("$extrep/repodata/$pname.xml");
+#  }
+
   # re-sign changed repomd.xml file
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     qsystem($BSConfig::sign, @$signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
@@ -847,6 +860,9 @@ sub publish {
 
 $| = 1;
 print "starting build service publisher\n";
+open(RUNLOCK, '>>', "$rundir/bs_publish.lock") || die("$rundir/bs_publish.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("publisher is already running!\n");
+utime undef, undef, "$rundir/bs_publish.lock";
 
 mkdir_p($myeventdir);
 if (!-p "$myeventdir/.ping") {

@@ -1545,7 +1545,10 @@ sub getbuildstatus {
 
 sub getworkerstatus {
   my ($cgi) = @_;
-  my $ws = BSWatcher::rpc("$BSConfig::reposerver/workerstatus", $BSXML::workerstatus);
+  my @args;
+  push @args, 'scheduleronly' if $cgi->{'scheduleronly'};
+  push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
+  my $ws = BSWatcher::rpc("$BSConfig::reposerver/workerstatus", $BSXML::workerstatus, @args);
   delete $_->{'uri'} for @{$ws->{'idle'}};
   delete $_->{'uri'} for @{$ws->{'building'}};
   return ($ws, $BSXML::workerstatus);
@@ -1800,7 +1803,7 @@ my $dispatches = [
 
   # new /build API
   '/build' => \&getprojectlist,
-  '/build/_workerstatus' => \&getworkerstatus,
+  '/build/_workerstatus scheduleronly:bool? arch*' => \&getworkerstatus,
   'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,

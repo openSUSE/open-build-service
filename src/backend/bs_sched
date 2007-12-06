@@ -1413,8 +1413,8 @@ print "starting build service scheduler\n";
 
 # get lock
 mkdir_p($rundir);
-open(SCHEDLOCK, '>>', "$rundir/bs_sched.$myarch.lock") || die("$rundir/bs_sched.$myarch.lock: $!\n");
-flock(SCHEDLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myarch!\n");
+open(RUNLOCK, '>>', "$rundir/bs_sched.$myarch.lock") || die("$rundir/bs_sched.$myarch.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myarch!\n");
 utime undef, undef, "$rundir/bs_sched.$myarch.lock";
 
 # setup event mechanism
@@ -1432,10 +1432,15 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 # get project and package information from src server
 get_projpacks();
 
-my %lastcheck;
 my %changed;
 my %prpfinished;
-my $continued;
+my %lastcheck;
+
+# changed: 1: something "local" changed, :full unchanged,
+#          2: the :full repo is changed
+# set all projects and prps to :full repo changed
+%changed = map {$_ => 2} @prps;
+$changed{$_} = 2 for keys %$projpacks;
 
 # read old state if present
 if (-s "$rundir/bs_sched.$myarch.state") {
@@ -1451,6 +1456,7 @@ if (-s "$rundir/bs_sched.$myarch.state") {
     my @newprps = grep {!$oldprps{$_}} @prps;
 
     # update changed hash
+    %changed = ();
     for my $prp (@newprps) {
       $changed{$prp} = 2;
       $changed{(split('/', $prp, 2))[0]} = 2;
@@ -1474,32 +1480,12 @@ if (-s "$rundir/bs_sched.$myarch.state") {
     for my $prp (@prps) {
       $prpfinished{$prp} = $oldprpfinished->{$prp} if exists $oldprpfinished->{$prp};
     }
-    $continued = 1;
   }
-}
-
-
-if (!$continued) {
-  # XXX: actually no longer needed
-  print "searching for binary packages in ".@prps." repositories\n";
-  for my $prp (@prps) {
-    print "  - $prp\n";
-    if (-d "$reporoot/$prp/$myarch") {
-      $repodata{$prp} = findbins($prp);
-    } else {
-      delete $repodata{$prp};
-    }
-  }
-
-  # changed: 1: something "local" changed, :full unchanged,
-  #          2: the :full repo is changed
-  %changed = map {$_ => 2} @prps;
-  $changed{$_} = 2 for sort keys %$projpacks;
 }
 
 ### here is the big scheduling loop
 while(1) {
-  print "package loop\n";
+  print "checking package states\n";
 
   # Step 0: check for deleted projects
   my @delprojids = sort(ls($reporoot));
@@ -1561,6 +1547,7 @@ while(1) {
   # Step 2: go through each project/repository
   for my $prp (@prps) {
     if (!$changed{$prp}) {
+      # FIXME: aggregates do not use the full tree!
       next unless grep {$changed{$_} && $changed{$_} != 1} @{$prpdeps{$prp}};
     }
 
@@ -1755,6 +1742,12 @@ while(1) {
 	    if ($astatus eq 'scheduled') {
 	      # aerror contains new meta file in this case
 	      ($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%repodata, \%changed, $aerror);
+	      if ($astatus eq 'scheduled') {
+	        # aerror contains jobid in this case
+	        $notready{$packid} = 'building';
+	        $building{$packid} = $aerror || 'job';
+		undef $aerror;
+	      }
 	      unlink("$reporoot/$prp/$myarch/:repodone");
 	    }
 	    $notready{$packid} = "blocked: $aerror" if $astatus eq 'blocked';
@@ -1812,6 +1805,15 @@ while(1) {
 	$notready{$packid} = "blocked: ".join(', ', @blocked);
         $packstatus{$packid} = 'blocked';
         $packerror{$packid} = join(', ', @blocked);
+	next;
+      }
+      my $job = jobname($prp, $packid)."-$pdata->{'srcmd5'}";
+      if (-s "$myjobsdir/$job") {
+        print "      - $packid ($packtype)\n";
+	print "        already scheduled\n";
+        $building{$packid} = $job;
+        $notready{$packid} = 'building';
+        $packstatus{$packid} = 'scheduled';
 	next;
       }
       if (open(F, '<', "$reporoot/$prp/$myarch/:meta/$packid")) {
@@ -1888,7 +1890,8 @@ while(1) {
 	print "      - $packid ($packtype)\n";
 	print "        start build\n";
       }
-      my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp});
+      my $joberror;
+      ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp});
       if (!$job) {
 	# could not start job...
 	if ($joberror =~ /^expansion error: (.*)$/) {
@@ -1901,7 +1904,7 @@ while(1) {
 	next;
       }
       $building{$packid} = $job;
-      $notready{$packid} = "building";
+      $notready{$packid} = 'building';
       $packstatus{$packid} = 'scheduled';
     }
 
@@ -1959,8 +1962,9 @@ while(1) {
     }
   }
 
-  # jobs are started, now collect all done jobs
-
+  # all packages are checked, jobs started
+  # now process events and thus collect all built jobs
+  print "processing events\n";
   %changed = ();
 
   while (1) {
@@ -2024,6 +2028,7 @@ while(1) {
         $changed{$projid} ||= 1;
 	next;
       }
+
       if ($ev->{'type'} eq 'projevent') {
 	my $projid = $ev->{'project'};
 	get_projpacks($projid);
@@ -2043,6 +2048,7 @@ while(1) {
         $changed{$projid} ||= 1;
 	next;
       }
+
       if ($ev->{'type'} eq 'rebuild' || $ev->{'type'} eq 'recheck') {
 	my $projid = $ev->{'project'};
 	my $packid = $ev->{'package'};
@@ -2052,6 +2058,7 @@ while(1) {
         $changed{$projid} ||= 1;
 	next;
       }
+
       if ($ev->{'type'} eq 'scanrepo') {
 	my $projid = $ev->{'project'};
 	my $repoid = $ev->{'repository'};
@@ -2064,6 +2071,7 @@ while(1) {
 	}
 	next;
       }
+
       if ($ev->{'type'} eq 'dumprepo') {
 	my $prp = "$ev->{'project'}/$ev->{'repository'}";
 	my $repodata = $repodata{$prp} || {};
@@ -2074,6 +2082,7 @@ while(1) {
 	close F;
 	next;
       }
+
       if ($ev->{'type'} eq 'wipe') {
 	my $projid = $ev->{'project'};
 	my $repoid = $ev->{'repository'};
@@ -2099,6 +2108,7 @@ while(1) {
         $changed{$projid} = 2;
         next;
       }
+
       if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'dumpstate') {
         print "exiting...\n" if $ev->{'type'} eq 'exit';
         print "dumping scheduler state...\n" if $ev->{'type'} eq 'dumpstate';
@@ -2120,8 +2130,12 @@ while(1) {
 	}
         next;
       }
+
+      print "unknown event type: $ev->{'type'}\n";
     }
+
     last if %changed;
+    # all events processed and no packages to check, so wait
     print "waiting for an event...\n";
     sysread(PING, $dummy, 1, 0);
   }
