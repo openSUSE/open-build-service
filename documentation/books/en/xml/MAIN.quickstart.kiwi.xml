@@ -276,7 +276,7 @@
   &lt;package name="acpid"/>       
 &lt;/packages></screen>
         <note>
-          <
+          <title>Essential Packages</title>
           <para>The following lines are essential and
             <emphasis>must</emphasis>
             always be present:</para>
