@@ -13,7 +13,6 @@
   <!ENTITY % local.info.class "|xi:include">
 
 ]>
-
 <article lang="en" revision="draft" class="whitepaper">
   <title>KIWI Quick Start</title>
   <articleinfo>
@@ -35,16 +34,17 @@
       <keyword>config.xml</keyword>
       <keyword>Live DVD</keyword>
       <keyword>Live CD</keyword>
-    </keywordset>    
-    <pubdate>Created: <?dbtimestamp?></pubdate>
-    <releaseinfo>$Id$</releaseinfo>
+    </keywordset>
+    <pubdate>Created:
+      <?dbtimestamp?></pubdate>
+    <releaseinfo>$Id: MAIN.quickstart.kiwi.xml 2741 2007-12-05 15:43:52Z
+      thomas-schraitle $</releaseinfo>
   </articleinfo>
-  
   <sect1 id="sec.kiwi.whatis" os="sles10">
     <title>What is KIWI?</title>
     <para>KIWI is a system for creating ISO images to boot as Live DVD,
-      Live USB, or as an image for virtualization systems like Xen, Qemu or
-      Vmware. KIWI provides the following advantages:
+      Live USB, or as an image for virtualization systems like Xen, Qemu
+      or Vmware. KIWI provides the following advantages:
     </para>
     <itemizedlist>
       <listitem>
@@ -66,8 +66,8 @@
       <listitem>
         <remark>man kann mit kiwi images bauen die eigene nicht
           distributierte software enthalten</remark>
-        <para>Create KIWI images which contains software that is
-          not included in the official distribution.</para>
+        <para>Create KIWI images which contains software that is not
+          included in the official distribution.</para>
       </listitem>
       <listitem>
         <remark>man kann mit kiwi images bauen die direkt in
@@ -87,29 +87,25 @@
       <listitem>
         <remark>man kann mit kiwi kleinere images bauen als es mit einer
           normalen Installation möglich ist. Bedingt durch mögliche
-          Kompression und Einflussnahme ausserhalb des
-        Paketmanagers.</remark>
+          Kompression und Einflussnahme ausserhalb des Paketmanagers.</remark>
         <para>Create smaller images than with a normal installation.</para>
       </listitem>
       <listitem>
-        <remark>man kann mit kiwi images für Netzwerk Systeme erstellen. kiwi
-          unterstützt einen auch im Aufbau der Infrastruktur (PXE)</remark>
+        <remark>man kann mit kiwi images für Netzwerk Systeme erstellen.
+          kiwi unterstützt einen auch im Aufbau der Infrastruktur (PXE)</remark>
         <para>Build images for network systems. KIWI supports you by
           establishing the infrastrucutre, for example PXE.</para>
       </listitem>
-    </itemizedlist>    
+    </itemizedlist>
   </sect1>
-  
   <sect1 id="sec.kiwi.backgroundd">
     <title>Background</title>
     <para>FIXME</para>
   </sect1>
-  
-  
   <sect1 id="sec.kiwi.preparation" os="sled10">
     <title>What do I need?</title>
     <para>To build images with KIWI, you need the following
-    preconditions:</para>
+      preconditions:</para>
     <remark>FIXME: Add more preconditions?</remark>
     <orderedlist>
       <listitem>
@@ -117,64 +113,78 @@
       </listitem>
       <listitem>
         <para>KIWI is split into several packages, targeted to different
-        image types. In every case you need the base package,
-          <package>kiwi</package>. Depending on your target image, you need the
-        following additional packages:</para>
-        
+          image types. In every case you need the base package,
+          <package>kiwi</package>. Depending on your target image, you
+          need the following additional packages:</para>
         <informaltable>
           <tgroup cols="2">
             <tbody>
               <row>
                 <entry>Installation media</entry>
-                <entry><package>kiwi-desc-oemboot</package>, 
-                  <package>kiwi-desc-vmxboot</package></entry>
+                <entry>
+                  <package>kiwi-desc-oemboot</package>,
+                  <package>kiwi-desc-vmxboot</package>
+                </entry>
               </row>
               <row>
                 <entry>Virtualization</entry>
-                <entry><package>kiwi-desc-vmxboot</package>, 
-                  <package>kiwi-desc-xenboot</package></entry>
+                <entry>
+                  <package>kiwi-desc-vmxboot</package>,
+                  <package>kiwi-desc-xenboot</package>
+                </entry>
               </row>
               <row>
                 <entry>USB sticks</entry>
-                <entry><package>kiwi-desc-usbboot</package></entry>
+                <entry>
+                  <package>kiwi-desc-usbboot</package>
+                </entry>
               </row>
               <row>
                 <entry>Network client</entry>
-                <entry><package>kiwi-desc-netboot</package></entry>
+                <entry>
+                  <package>kiwi-desc-netboot</package>
+                </entry>
               </row>
             </tbody>
-          </tgroup>          
+          </tgroup>
         </informaltable>
       </listitem>
       <listitem>
         <para>Recommended distribution is openSUSE 10.3</para>
       </listitem>
       <listitem>
-        <para>Example files from the <package>kiwi</package> packages:</para>
+        <para>Example files from the
+          <package>kiwi</package>
+          packages:</para>
         <variablelist>
           <varlistentry>
-            <term><filename>/usr/share/doc/packages/kiwi/examples/test1</filename></term>
+            <term>
+              <filename>/usr/share/doc/packages/kiwi/examples/test1</filename>
+            </term>
             <listitem>
               <para>Is an openSUSE 10.3 KDE system, based on patterns.</para>
             </listitem>
           </varlistentry>
           <varlistentry>
-            <term><filename>/usr/share/doc/packages/kiwi/examples/test2</filename></term>
+            <term>
+              <filename>/usr/share/doc/packages/kiwi/examples/test2</filename>
+            </term>
             <listitem>
               <para>This is an openSUSE 10.3 console system, based on a
                 package list.</para>
             </listitem>
           </varlistentry>
         </variablelist>
-        <para>Both examples have the users <systemitem class="username"
-            >root</systemitem> and <systemitem class="username"
-          >linux</systemitem> with the password
-          <literal>linux</literal>. </para>
+        <para>Both examples have the users
+          <systemitem class="username">root</systemitem>
+          and
+          <systemitem class="username">linux</systemitem>
+          with the password
+          <literal>linux</literal>.
+        </para>
       </listitem>
     </orderedlist>
-        
   </sect1>
-  
   <sect1 id="sec.kiwi.process">
     <title>Knowing KIWI&rsquo;s Build Process</title>
     <para>The building process of KIWI is separated into three steps:</para>
@@ -186,14 +196,14 @@
             During this stage, you determine which packages are
             installed on your image and which configuration fiels are
             included.</para>
-        </formalpara>        
+        </formalpara>
       </listitem>
       <listitem>
         <formalpara>
           <title>Logical Extend</title>
           <para>This stage creates the operating system image based on
             the the first step.</para>
-        </formalpara>        
+        </formalpara>
       </listitem>
       <listitem>
         <formalpara>
@@ -201,23 +211,23 @@
           <para>The resulting ISO image can be deployed with different
             methods like installed on a harddisc or played by a
             virtualization system (Vmware, Qemu, VirtualBox).</para>
-        </formalpara>        
+        </formalpara>
       </listitem>
     </orderedlist>
-    <para>Detailed background can be found in the 
-      <citetitle>System Design</citetitle> paper, 
-      see <filename>/usr/share/doc/packages/kiwi/kiwi.pdf</filename>.
-      </para>
+    <para>Detailed background can be found in the
+      <citetitle>System Design</citetitle>
+      paper, see
+      <filename>/usr/share/doc/packages/kiwi/kiwi.pdf</filename>.
+    </para>
   </sect1>
-  
   <sect1 id="sec.kiwi.livecd">
     <title>Creating a Graphical Live ISO CD</title>
     <para>To create an ISO image, proceed as follows:</para>
-    
     <procedure>
       <step>
-        <para>Install the package <package>kiwi</package> and resolve
-          any dependencies.
+        <para>Install the package
+          <package>kiwi</package>
+          and resolve any dependencies.
         </para>
       </step>
       <step>
@@ -226,39 +236,39 @@
       <step>
         <para>Run KIWI with the following command to prepare the first
           phase (<quote>physical extend</quote>):</para>
-        <screen><command
->kiwi</command> --prepare /usr/share/doc/packages/kiwi/examples/test1 \
+        <screen><command>kiwi</command> --prepare /usr/share/doc/packages/kiwi/examples/test1 \
     --root /tmp/kiwi-test1</screen>
         <para>If everything is correct, you see the message
-            <errortext>KIWI exited sucessfully</errortext>.</para>       
+          <errortext>KIWI exited sucessfully</errortext>.</para>
       </step>
       <step>
         <para>Build the ISO image:</para>
-        <screen><command
->kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
-        <para>KIWI builds the ISO image. If everything is correct, it print
-          the message <errortext>KIWI exited sucessfully</errortext>.</para>
+        <screen><command>kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
+        <para>KIWI builds the ISO image. If everything is correct, it
+          print the message
+          <errortext>KIWI exited sucessfully</errortext>.</para>
       </step>
       <step>
         <para>Test the ISO image with Qemu, Vmware or VirtualBox.</para>
       </step>
-    </procedure>    
+    </procedure>
   </sect1>
-   
   <sect1 id="sec.kiwi.livecd.packages">
     <title>Creating a Minimal Image</title>
     <para>If you want to start with a minimal example and extend it
-    later, proceed as follows:</para>
-    
+      later, proceed as follows:</para>
     <procedure>
       <step>
-        <para>Copy the example directory from <filename>test2</filename>
-        from your KIWI package:</para>
+        <para>Copy the example directory from
+          <filename>test2</filename>
+          from your KIWI package:</para>
         <screen>cp -a /usr/share/doc/packages/kiwi/examples/test2/ .</screen>
       </step>
       <step>
-        <para>Open the configuration file <filename>test1/config.xml</filename>
-        and locate the XML element <sgmltag>packages</sgmltag>:</para>
+        <para>Open the configuration file
+          <filename>test1/config.xml</filename>
+          and locate the XML element
+          <sgmltag>packages</sgmltag>:</para>
         <screen>&lt;packages>
   &lt;package name="aaa_base"/>
   &lt;package name="aaa_skel"/>
@@ -266,19 +276,22 @@
   &lt;package name="acpid"/>       
 &lt;/packages></screen>
         <note>
+          <
           <para>The following lines are essential and
-            <emphasis>must</emphasis> always be present:</para>
+            <emphasis>must</emphasis>
+            always be present:</para>
           <screen>&lt;packages type="boot">
   &lt;package name="filesystem"/>
   &lt;package name="glibc-locale"/>
-&lt;/packages></screen>          
+&lt;/packages></screen>
         </note>
       </step>
       <step>
         <para>Change the list of packages to your needs, but be aware
           not to remove essential ones like
-          <package>aaa_base</package>, <package>aaa_skel</package> and
-          others.</para>
+          <package>aaa_base</package>,
+          <package>aaa_skel</package>
+          and others.</para>
         <remark>FIXME: Link to list of required packages?</remark>
       </step>
       <step>
@@ -286,45 +299,49 @@
       </step>
       <step>
         <para>Run the first phase (physical extend):</para>
-        <screen><command
->kiwi</command> --prepare test1 --root /tmp/kiwi-test2</screen>
+        <screen><command>kiwi</command> --prepare test1 --root /tmp/kiwi-test2</screen>
       </step>
       <step>
         <para>Run the second phase (logical extend):</para>
-        <screen><command
->kiwi</command> --create /tmp/kiwi-test2 -d /tmp --type iso</screen>
+        <screen><command>kiwi</command> --create /tmp/kiwi-test2 -d /tmp --type iso</screen>
       </step>
       <step>
         <para>Test the ISO image.</para>
+        <step>
+          <title>sdfasdfasdfasdfasdf</title>sdfsdfsf</step>
       </step>
-    </procedure>    
+    </procedure>
   </sect1>
-
   <sect1 id="sec.kiwi.custom.imag">
     <title>Creating Customized Images</title>
-    <para></para>
+    <para/>
     <sect2 id="sec.kiwi.livecd.developer">
       <title>Creating a Developer Image</title>
-      <para>If you need a image for developing programs, you can add some
-        patterns in your configuration file. In this case, proceed as
-        follows:</para>
+      <para>If you need a image for developing programs, you can add
+        some patterns in your configuration file. In this case, proceed
+        as follows:</para>
       <procedure>
         <step>
-          <para>Copy the example directory from <filename>test2</filename>
+          <para>Copy the example directory from
+            <filename>test2</filename>
             from your KIWI package:</para>
-          <screen
- >cp -a /usr/share/doc/packages/kiwi/examples/test2/  devel/</screen>
+          <screen>cp -a /usr/share/doc/packages/kiwi/examples/test2/  devel/</screen>
         </step>
         <step>
           <para>Open the configuration file
-            <filename>devel/config.xml</filename> and change the
-            attribute <sgmltag class="attribute">name</sgmltag> in
-            element <sgmltag>image</sgmltag> to
+            <filename>devel/config.xml</filename>
+            and change the attribute
+            <sgmltag class="attribute">name</sgmltag>
+            in element
+            <sgmltag>image</sgmltag>
+            to
             <sgmltag class="attvalue">devel</sgmltag>.</para>
         </step>
         <step>
-          <para>Add your patterns into the <sgmltag>packages</sgmltag>
-            element but before <sgmltag class="endtag">packages</sgmltag>:</para>
+          <para>Add your patterns into the
+            <sgmltag>packages</sgmltag>
+            element but before
+            <sgmltag class="endtag">packages</sgmltag>:</para>
           <screen>&lt;packages type="...">
   &lt;packages name="aaa_base"/>
   &lt;!&#x2d;&#x2d; More package elements follows &#x2d;&#x2d;>
@@ -334,19 +351,21 @@
           <note>
             <title>Getting Pattern Names</title>
             <para>You can get the names of pattern in your installed
-              system under <filename class="directory"
-                  >/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
-              (replace <replaceable>REPO</replaceable> with the name of
-              your system, for example <filename>openSUSE-10.3-retail
-                10.3</filename>) or look into the directory <filename
-                class="directory">suse/setup/descr/</filename> on your
-              DVD or first CD.
+              system under
+              <filename class="directory">/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
+              (replace
+              <replaceable>REPO</replaceable>
+              with the name of your system, for example
+              <filename>openSUSE-10.3-retail 10.3</filename>) or look
+              into the directory
+              <filename class="directory">suse/setup/descr/</filename>
+              on your DVD or first CD.
             </para>
           </note>
           <para>Depending what your interests in development are, you
-            have to add more patterns. <xref linkend="tab.kiwi.pattern"
-            xrefstyle="select:label nopage"/> contains an overview of
-            some common pattern names.</para>
+            have to add more patterns.
+            <xref linkend="tab.kiwi.pattern" xrefstyle="select:label nopage"/>
+            contains an overview of some common pattern names.</para>
           <table id="tab.kiwi.pattern">
             <title>Examples of Pattern Names for Development</title>
             <tgroup cols="2">
@@ -385,47 +404,41 @@
                 <row>
                   <entry>devel_python</entry>
                   <entry>Tools and libraries for software development
-                  using the Python programming language</entry>
+                    using the Python programming language</entry>
                   <!-- eric, libxml2-python, libxslt-python, python-qt, pyxml, treeline -->
                 </row>
                 <row>
                   <entry>devel_web</entry>
                   <entry>Tools and libraries for Web application
-                  development</entry>
+                    development</entry>
                   <!-- bluefish, nvu, html-dtd, latex2html, php5, tidy,
                     selfhtml, kdewebdev3 -->
                 </row>
               </tbody>
-            </tgroup>            
+            </tgroup>
           </table>
         </step>
         <step>
           <para>Save the configuration file.</para>
         </step>
         <step>
-        <para>Run the first phase (physical extend):</para>
-        <screen><command
->kiwi</command> --prepare devel --root /tmp/kiwi-devel</screen>
-      </step>
-      <step>
-        <para>Run the second phase (logical extend):</para>
-        <screen><command
->kiwi</command> --create /tmp/kiwi-devel -d /tmp --type iso</screen>
-      </step>
-      <step>
-        <para>Test the ISO image.</para>
-      </step>
-      </procedure>      
+          <para>Run the first phase (physical extend):</para>
+          <screen><command>kiwi</command> --prepare devel --root /tmp/kiwi-devel</screen>
+        </step>
+        <step>
+          <para>Run the second phase (logical extend):</para>
+          <screen><command>kiwi</command> --create /tmp/kiwi-devel -d /tmp --type iso</screen>
+        </step>
+        <step>
+          <para>Test the ISO image.</para>
+        </step>
+      </procedure>
     </sect2>
-    <!-- More to come... -->
-    
-    <!--<sect2>
-      <title></title>
-      <para></para>
-    </sect2>
+    <!-- More Ideas:
+      * Creating a Rescue System
+      * Creating a Router/Firewall System
+      * Building an Image for Printserver Functionality
+      * Creating an Image for Publishing Tasks
     -->
   </sect1>
-  
-  
-  
 </article>
