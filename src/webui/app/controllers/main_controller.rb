@@ -11,7 +11,7 @@ class MainController < ApplicationController
 
 
   def index2
-    redirect_to "/"
+    redirect_to :action => :index
   end
 
 
