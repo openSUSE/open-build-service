@@ -45,7 +45,7 @@ div {
 	k.image.inherit.attribute = attribute inherit { text }
 	k.image.schemeversion.attribute = attribute schemeversion { "1.4" }
 	k.image.attlist = k.image.name.attribute 
-	  & k.image.inherit.attribute?
+	  & k.image.inherit.attribute
 	  & k.image.schemeversion.attribute
 	  & k.image.noNamespaceSchemaLocation.attribute?
 	  & k.image.schemaLocation.attribute?
