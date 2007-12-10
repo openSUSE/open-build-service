@@ -35,10 +35,9 @@
       <keyword>Live DVD</keyword>
       <keyword>Live CD</keyword>
     </keywordset>
-    <pubdate>Created:
-      <?dbtimestamp?></pubdate>
-    <releaseinfo>$Id: MAIN.quickstart.kiwi.xml 2741 2007-12-05 15:43:52Z
-      thomas-schraitle $</releaseinfo>
+    <pubdate>Created: <?dbtimestamp?></pubdate>
+    <releaseinfo
+ >$Id$</releaseinfo>
   </articleinfo>
   <sect1 id="sec.kiwi.whatis" os="sles10">
     <title>What is KIWI?</title>
@@ -102,7 +101,7 @@
     <title>Background</title>
     <para>FIXME</para>
   </sect1>
-  <sect1 id="sec.kiwi.preparation" os="sled10">
+  <sect1 id="sec.kiwi.preparation">
     <title>What do I need?</title>
     <para>To build images with KIWI, you need the following
       preconditions:</para>
@@ -253,7 +252,7 @@
       </step>
     </procedure>
   </sect1>
-  <sect1 id="sec.kiwi.livecd.packages">
+  <sect1 id="sec.kiwi.minimal">
     <title>Creating a Minimal Image</title>
     <para>If you want to start with a minimal example and extend it
       later, proceed as follows:</para>
@@ -310,9 +309,15 @@
       </step>
     </procedure>
   </sect1>
-  <sect1 id="sec.kiwi.custom.imag">
+  <sect1 id="sec.kiwi.custom">
     <title>Creating Customized Images</title>
-    <para/>
+    <para>This section describes different scenarios.</para>
+    <!-- More Ideas:
+      * Creating a Rescue System
+      * Creating a Router/Firewall System
+      * Building an Image for Printserver Functionality
+      * Creating an Image for Publishing Tasks
+    -->
     <sect2 id="sec.kiwi.livecd.developer">
       <title>Creating a Developer Image</title>
       <para>If you need a image for developing programs, you can add
@@ -432,11 +437,16 @@
         </step>
       </procedure>
     </sect2>
-    <!-- More Ideas:
-      * Creating a Rescue System
-      * Creating a Router/Firewall System
-      * Building an Image for Printserver Functionality
-      * Creating an Image for Publishing Tasks
-    -->
+    
+    <sect2 id="sec.kiwi.publishing">
+      <title>Creating a Rescue System</title>
+      <para>FIXME</para>
+      <!-- 
+      cp -a /usr/share/doc/packages/kiwi/examples/test2/ rescue
+      Install aufs and squashfs
+      Edit config.xml
+      -->
+    </sect2>
+    
   </sect1>
 </article>
