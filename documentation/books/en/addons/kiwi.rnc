@@ -25,6 +25,7 @@
 #               :
 #****************
 namespace rng = "http://relaxng.org/ns/structure/1.0"
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
 #==========================================
@@ -37,13 +38,21 @@ start = k.image
 #
 div {
 	k.image.name.attribute = k.name.attribute
+	k.image.noNamespaceSchemaLocation.attribute = attribute
+	xsi:noNamespaceSchemaLocation { xsd:anyURI }
+	k.image.schemaLocation.attribute = attribute
+	xsi:schemaLocation { xsd:anyURI }
 	k.image.inherit.attribute = attribute inherit { text }
 	k.image.schemeversion.attribute = attribute schemeversion { "1.4" }
-	k.image.attlist = 
-		k.image.name.attribute &
-		k.image.inherit.attribute &
-		k.image.schemeversion.attribute
-	k.image = element image {
+	k.image.attlist = k.image.name.attribute 
+	  & k.image.inherit.attribute?
+	  & k.image.schemeversion.attribute
+	  & k.image.noNamespaceSchemaLocation.attribute?
+	  & k.image.schemaLocation.attribute?
+
+	k.image =
+	  ## The root element of the configuration file
+	  element image {
 		k.image.attlist,
 		k.description,
 		k.preferences,
@@ -502,17 +511,18 @@ div {
 	k.type.filesystem.attribute = attribute filesystem { text }
 	k.type.baseroot.attribute = attribute baseroot { text }
 	k.type.format.attribute = attribute format { text }
-	k.type.attlist = 
-		k.type.checkprebuilt.attribute &
-		k.type.bootprofile.attribute &
-		k.type.boot.attribute &
-		k.type.flags.attribute &
-		k.type.filesystem.attribute &
-		k.type.baseroot.attribute &
-		k.type.format.attribute
+	k.type.primary.attribute = attribute primary { xsd:boolean }
+	k.type.attlist = k.type.checkprebuilt.attribute 
+	  &	k.type.bootprofile.attribute 
+	  &	k.type.boot.attribute 
+	  &	k.type.flags.attribute 
+	  &	k.type.filesystem.attribute 
+	  &	k.type.baseroot.attribute 
+	  &	k.type.format.attribute
+		& k.type.primary.attribute?
 	k.type = element type { 
 		k.type.attlist, 
-		empty 
+		text 
 	}
 }
 
@@ -555,7 +565,7 @@ div {
 	k.version.attlist = empty
 	k.version = element version {
 		k.version.attlist,
-		empty
+		text
 	}
 }
 
