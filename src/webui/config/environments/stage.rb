@@ -15,7 +15,7 @@ config.action_controller.consider_all_requests_local = false
 config.action_controller.perform_caching             = true
 
 # Enable serving of images, stylesheets, and javascripts from an asset server
-# config.action_controller.asset_host                  = "http://assets.example.com"
+#config.action_controller.asset_host                  = "https://build.opensuse.org/stage"
 
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
@@ -24,6 +24,7 @@ FRONTEND_HOST = "api-internal.opensuse.org"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
 
+BUGZILLA_HOST = "http://bugzilla.novell.com"
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "on"
 

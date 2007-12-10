@@ -24,6 +24,8 @@ FRONTEND_HOST = "api-internal.opensuse.org"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
 
+BUGZILLA_HOST = "https://bugzilla.novell.com"
+
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "on"
 

@@ -23,6 +23,8 @@ FRONTEND_PORT = 3001
 #FRONTEND_PORT = 9001
 FRONTEND_PROTOCOL = 'http'
 
+BUGZILLA_HOST = nil
+
 # set the iChain host to something not nil to use iChain. Note
 # that the IP is not used atm but that might change.
 # If ICHAIN_HOST is set to "simulate", iChain is simulated in the
