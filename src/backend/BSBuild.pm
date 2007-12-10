@@ -27,7 +27,7 @@ use strict;
 sub gen_meta {
   my ($myself, $subp, @deps) = @_;
 
-  my %depsseen = ();
+  my %depseen;
   my @subp = @{$subp || []};
   my $subpackre = '';
   for (@subp) {
@@ -37,34 +37,34 @@ sub gen_meta {
     $subpackre = substr($subpackre, 1);
     $subpackre = qr/$subpackre/;
   }
-#  $depsseen{$_} = 1 for @subp;
-  my (%helper1, %helper2, %helper3, %bad);
+  my (%helper1, %helper2, %helper3, %cycle);
   for (@deps) {
-    $helper1{$_} = tr!/!/!;     # count '/'
-    /^([^ ]+  )((?:.*\/)?)([^\/]*)$/ or die("bad dependency line: $_\n");
-    $helper2{$_} = "$2$3";
-    $helper3{$_} = "$1$3";
-#    $helper2{$_} = $_;
-#    $helper2{$_} =~ s/.*  //;
-#    $direct{$helper2{$_}} = 1 if $helper1{$_} == 0;
-#    $helper3{$_} = $_;
-#    $helper3{$_} =~ s/  .*\//  /;
-    if ("/$2$3/" =~ /$subpackre/) {
+    $helper1{$_} = tr/\///;     # count '/'
+    /^([^ ]+  )((?:.*\/)?([^\/]*))$/ or die("bad dependency line: $_\n");
+    $helper2{$_} = $2;		# path
+    $helper3{$_} = "$1$3";	# md5  lastpkg
+    if ($subpackre && "/$2/" =~ /$subpackre/) {
       /  ([^\/]+)/ or die("bad dependency line: $_\n");
-      $bad{$1} = 1;
+      $cycle{$1} = 1; # detected a cycle!
     }
   }
+  if (%cycle) {
+    my $cyclere = '';
+    for (sort keys %cycle) {
+      $cyclere .= "|\Q/$_/\E";
+    }
+    $cyclere = substr($cyclere, 1);
+    $cyclere = qr/$cyclere/;
+    # kill all deps that use a package that we see directly
+    @deps = grep {"$_/" !~ /$cyclere/} @deps;
+  }
   @deps = sort {$helper1{$a} <=> $helper1{$b} || $helper2{$a} cmp $helper2{$b} || $a cmp $b} @deps;
-  my @meta = ();
+  my @meta;
   push @meta, $myself if defined($myself) && $myself ne '';
   for my $d (@deps) {
-    next if $depsseen{$helper3{$d}};
-#    next if grep {$direct{$_}} splice(@{[split('/', $helper2{$d})]}, 1);
+    next if $depseen{$helper3{$d}};	# skip if we already have this pkg with this md5
     next if $subpackre && "/$helper2{$d}/" =~ /$subpackre/;
-    if (%bad && ($d =~ /\/([^\/]+)$/)) {
-      next if $bad{$1};
-    }
-    $depsseen{$helper3{$d}} = 1;
+    $depseen{$helper3{$d}} = 1;
     push @meta, $d;
   }
   return @meta;

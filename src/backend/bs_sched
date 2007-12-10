@@ -1158,7 +1158,7 @@ sub jobfinished {
   mkdir_p("$gdst/:logfiles.success");
   mkdir_p("$gdst/:logfiles.fail");
 
-  $repodatas->{$prp} ||= {};
+  $repodatas->{$prp} ||= findbins($prp);
   my $repodata = $repodatas->{$prp};
 
   my $useforbuildenabled = 1;
@@ -1375,7 +1375,7 @@ sub rebuildaggregate {
   my $gdst = "$reporoot/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
-  $repodatas->{$prp} ||= {};
+  $repodatas->{$prp} ||= findbins($prp);
   my $repodata = $repodatas->{$prp};
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
@@ -1406,8 +1406,6 @@ sub rebuildaggregate {
 ## Here comes the big loop
 ##
 
-my %repodata;
-
 $| = 1;
 print "starting build service scheduler\n";
 
@@ -1432,6 +1430,7 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 # get project and package information from src server
 get_projpacks();
 
+my %repodata;
 my %changed;
 my %prpfinished;
 my %lastcheck;
@@ -1469,11 +1468,11 @@ if (-s "$rundir/bs_sched.$myarch.state") {
       $changed{$prp} = $oldchanged->{$prp} if exists $oldchanged->{$prp};
     }
 
-    # update repodata hash
-    my $oldrepodata = $schedstate->{'repodata'} || {};
-    for my $prp (@prps) {
-      $repodata{$prp} = $oldrepodata->{$prp} if exists $oldrepodata->{$prp};
-    }
+    ## update repodata hash
+    #my $oldrepodata = $schedstate->{'repodata'} || {};
+    #for my $prp (@prps) {
+    #  $repodata{$prp} = $oldrepodata->{$prp} if exists $oldrepodata->{$prp};
+    #}
 
     # update prpfinished hash
     my $oldprpfinished = $schedstate->{'prpfinished'} || {};
@@ -1584,7 +1583,7 @@ while(1) {
       delete $lastcheck{"$prp/$packid"};
       my $gdst = "$reporoot/$prp/$myarch";
       # delete full entries
-      $repodata{$prp} ||= {};
+      $repodata{$prp} ||= findbins($prp);
       my $repodata = $repodata{$prp};
       update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1);
       $changed{$prp} = 2;
@@ -1603,9 +1602,7 @@ while(1) {
     my %dep2rpm;
     my @repos;
     for my $rprp (@{$prpsearchpath{$prp}}) {
-      if (!$repodata{$rprp}) {
-	$repodata{$rprp} = findbins($rprp) || {};
-      }
+      $repodata{$rprp} ||= findbins($rprp);
       push @repos, $repodata{$rprp};
     }
     for my $rd (reverse @repos) {
@@ -1681,120 +1678,120 @@ while(1) {
 	  unshift @cpacks, $packid;
 	  $packid = shift @cnext;
 	  $cycpass{$packid} = 1;
-	      $incycle = 1;
-	      if (@cnext == 1) {
-		if (grep {$building{$_}} @{$cychash{$packid}}) {
-		  $cycpass{$_} = 2 for @{$cychash{$packid}};
-		}
-	      }
+	  $incycle = 1;
+	  if (@cnext == 1) {
+	    if (grep {$building{$_}} @{$cychash{$packid}}) {
+	      $cycpass{$_} = 2 for @{$cychash{$packid}};
 	    }
 	  }
-	  my $pdata = $packs->{$packid};
-	  if ($pdata->{'error'}) {
-	    print "      - $packid ($pdata->{'error'})\n";
-	    if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'excluded') {
-	      $packstatus{$packid} = $pdata->{'error'};
-	      next;
-	    }
-	    $packstatus{$packid} = 'broken';
-	    $packerror{$packid} = $pdata->{'error'};
-	    next;
-	  }
+	}
+      }
+      my $pdata = $packs->{$packid};
+      if ($pdata->{'error'}) {
+	print "      - $packid ($pdata->{'error'})\n";
+	if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'excluded') {
+	  $packstatus{$packid} = $pdata->{'error'};
+	  next;
+	}
+	$packstatus{$packid} = 'broken';
+	$packerror{$packid} = $pdata->{'error'};
+	next;
+      }
 
-	  if ($pdata->{'build'}) {
-	    if (!enabled($repoid, $pdata->{'build'}, $projbuildenabled)) {
-	      if ($projbuildenabled) {
-		print "      - $packid (disabled)\n";
-	      } else {
-		print "      - $packid (disabled on project level, not enabled)\n";
-	      }
-	      $packstatus{$packid} = 'disabled';
-	      next;
-	    }
+      if ($pdata->{'build'}) {
+	if (!enabled($repoid, $pdata->{'build'}, $projbuildenabled)) {
+	  if ($projbuildenabled) {
+	    print "      - $packid (disabled)\n";
 	  } else {
-	    if (!$projbuildenabled) {
-	      print "      - $packid (disabled on project level)\n";
-	      $packstatus{$packid} = 'disabled';
-	      next;
-	    }
+	    print "      - $packid (disabled on project level, not enabled)\n";
 	  }
+	  $packstatus{$packid} = 'disabled';
+	  next;
+	}
+      } else {
+	if (!$projbuildenabled) {
+	  print "      - $packid (disabled on project level)\n";
+	  $packstatus{$packid} = 'disabled';
+	  next;
+	}
+      }
 
-	  my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
-	  my $info = $info{$repoid};
-	  if (!$info) {
-	    for ($prptype, 'spec', 'dsc') {
-	      last if $info = $info{":$_"};
-	    }
-	  }
-	  if ($info->{'error'}) {
-	    print "      - $packid ($info->{'error'})\n";
-	    if ($info->{'error'} eq 'disabled' || $info->{'error'} eq 'excluded') {
-	      $packstatus{$packid} = $info->{'error'};
-	      next;
-	    }
-	    $packstatus{$packid} = 'broken';
-	    $packerror{$packid} = $pdata->{'error'};
-	    next;
-	  }
+      my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
+      my $info = $info{$repoid};
+      if (!$info) {
+	for ($prptype, 'spec', 'dsc') {
+	  last if $info = $info{":$_"};
+	}
+      }
+      if ($info->{'error'}) {
+	print "      - $packid ($info->{'error'})\n";
+	if ($info->{'error'} eq 'disabled' || $info->{'error'} eq 'excluded') {
+	  $packstatus{$packid} = $info->{'error'};
+	  next;
+	}
+	$packstatus{$packid} = 'broken';
+	$packerror{$packid} = $pdata->{'error'};
+	next;
+      }
 
-	  if ($pdata->{'aggregatelist'}) {
-	    my ($astatus, $aerror) = checkaggregate($projid, $repoid, $packid, $pdata, \%prpfinished);
-	    if ($astatus eq 'scheduled') {
-	      # aerror contains new meta file in this case
-	      ($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%repodata, \%changed, $aerror);
-	      if ($astatus eq 'scheduled') {
-	        # aerror contains jobid in this case
-	        $notready{$packid} = 'building';
-	        $building{$packid} = $aerror || 'job';
-		undef $aerror;
-	      }
-	      unlink("$reporoot/$prp/$myarch/:repodone");
-	    }
-	    $notready{$packid} = "blocked: $aerror" if $astatus eq 'blocked';
-	    $packstatus{$packid} = $astatus;
-	    $packerror{$packid} = $aerror if defined $aerror;
-	    next;
+      if ($pdata->{'aggregatelist'}) {
+	my ($astatus, $aerror) = checkaggregate($projid, $repoid, $packid, $pdata, \%prpfinished);
+	if ($astatus eq 'scheduled') {
+	  # aerror contains new meta file in this case
+	  ($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%repodata, \%changed, $aerror);
+	  if ($astatus eq 'scheduled') {
+	    # aerror contains jobid in this case
+	    $notready{$packid} = 'building';
+	    $building{$packid} = $aerror || 'job';
+	    undef $aerror;
 	  }
+	  unlink("$reporoot/$prp/$myarch/:repodone");
+	}
+	$notready{$packid} = "blocked: $aerror" if $astatus eq 'blocked';
+	$packstatus{$packid} = $astatus;
+	$packerror{$packid} = $aerror if defined $aerror;
+	next;
+      }
 
-	  if (!exists $info->{'file'}) {
-	    print "      - $packid (no spec/dscfile)\n";
-	    $packstatus{$packid} = 'broken';
-	    $packerror{$packid} = 'no spec/dscfile';
-	    next;
-	  }
-	  $info->{'file'} =~ /\.(spec|dsc)$/;
-	  my $packtype = $1 || 'spec';
-	  #print "      - $packid ($packtype)\n";
+      if (!exists $info->{'file'}) {
+	print "      - $packid (no spec/dscfile)\n";
+	$packstatus{$packid} = 'broken';
+	$packerror{$packid} = 'no spec/dscfile';
+	next;
+      }
+      $info->{'file'} =~ /\.(spec|dsc)$/;
+      my $packtype = $1 || 'spec';
+      #print "      - $packid ($packtype)\n";
 
-	  if ($experrors{$packid}) {
-	    # retry expansion of this one
-	    my @deps = @{$info->{'dep'} || []};
-	    if ($packtype ne $prptype) {
-	      push @deps, ($packtype eq 'spec' ? 'rpm' : 'dpkg');
-	    }
-	    my ($eok, @edeps) = Build::get_deps($bconf, $subpacks{$info->{'name'}}, @deps);
-	    if (! $eok) {
-	      print "      - $packid ($packtype)\n";
-	      print "        expansion errors:\n";
-	      print "            $_\n" for @edeps;
-	      $packstatus{$packid} = 'expansion error';
-	      $packerror{$packid} = join(', ', @edeps);
-	      next;
-	    }
-	    delete $experrors{$packid};
-	    $pdeps{$packid} = \@edeps;
-	  }
+      if ($experrors{$packid}) {
+	# retry expansion of this one
+	my @deps = @{$info->{'dep'} || []};
+	if ($packtype ne $prptype) {
+	  push @deps, ($packtype eq 'spec' ? 'rpm' : 'dpkg');
+	}
+	my ($eok, @edeps) = Build::get_deps($bconf, $subpacks{$info->{'name'}}, @deps);
+	if (! $eok) {
+	  print "      - $packid ($packtype)\n";
+	  print "        expansion errors:\n";
+	  print "            $_\n" for @edeps;
+	  $packstatus{$packid} = 'expansion error';
+	  $packerror{$packid} = join(', ', @edeps);
+	  next;
+	}
+	delete $experrors{$packid};
+	$pdeps{$packid} = \@edeps;
+      }
 
-	  my @blocked = grep {$notready{$dep2src{$_}}} @{$pdeps{$packid}};
-	  if ($cychash{$packid}) {
-	    next if $building{$packid} || $notready{$packid};	# already done 
-	    if ($cycpass{$packid} && $cycpass{$packid} == 2) {
-	      print "      - $packid ($packtype)\n";
-	      print "        blocked by cycle builds\n";
-	      $notready{$packid} = "blocked: ".join(', ', @blocked);
-	      $packstatus{$packid} = 'blocked';
-	      $packerror{$packid} = join(', ', @blocked);
-	      next;
+      my @blocked = grep {$notready{$dep2src{$_}}} @{$pdeps{$packid}};
+      if ($cychash{$packid}) {
+	next if $building{$packid} || $notready{$packid};	# already done 
+	if ($cycpass{$packid} && $cycpass{$packid} == 2) {
+	  print "      - $packid ($packtype)\n";
+	  print "        blocked by cycle builds\n";
+	  $notready{$packid} = "blocked: ".join(', ', @blocked);
+	  $packstatus{$packid} = 'blocked';
+	  $packerror{$packid} = join(', ', @blocked);
+	  next;
 	}
 	my %cycs = map {$_ => 1} @{$cychash{$packid}};
 	@blocked = grep {!$cycs{$_} || !$building{$_}} @blocked;
@@ -1809,8 +1806,8 @@ while(1) {
       }
       my $job = jobname($prp, $packid)."-$pdata->{'srcmd5'}";
       if (-s "$myjobsdir/$job") {
-        print "      - $packid ($packtype)\n";
-	print "        already scheduled\n";
+        # print "      - $packid ($packtype)\n";
+	# print "        already scheduled\n";
         $building{$packid} = $job;
         $notready{$packid} = 'building';
         $packstatus{$packid} = 'scheduled';
@@ -2062,6 +2059,11 @@ while(1) {
       if ($ev->{'type'} eq 'scanrepo') {
 	my $projid = $ev->{'project'};
 	my $repoid = $ev->{'repository'};
+	if (!defined($projid) && !defined($repoid)) {
+	  print "flushing all repository data\n";
+	  %repodata = ();
+	  next;
+	}
         if (defined($projid) && defined($repoid)) {
 	  my $prp = "$projid/$repoid";
 	  print "reading packages of repository $projid/$repoid\n";
@@ -2093,7 +2095,7 @@ while(1) {
 	print "wiping $prp $packid\n";
 	next unless -d "$gdst/$packid";
 	# delete full entries
-	$repodata{$prp} ||= {};
+        $repodata{$prp} ||= findbins($prp);
 	my $repodata = $repodata{$prp};
 	update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1);
 	# delete other files
@@ -2116,9 +2118,9 @@ while(1) {
         my $schedstate = {};
         #$schedstate->{'projpacks'} = $projpacks;
         #$schedstate->{'lastcheck'} = \%lastcheck;
+        #$schedstate->{'repodata'} = \%repodata;
         $schedstate->{'prps'} = \@prps;
         $schedstate->{'changed'} = \%changed;
-        $schedstate->{'repodata'} = \%repodata;
         $schedstate->{'prpfinished'} = \%prpfinished;
         unlink("$rundir/bs_sched.$myarch.state");
         if (!Storable::nstore($schedstate, "$rundir/bs_sched.$myarch.state")) {
