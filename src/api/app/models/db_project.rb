@@ -88,8 +88,8 @@ class DbProject < ActiveRecord::Base
             purr = ProjectUserRoleRelationship.find_by_sql [
                 "SELECT purr.*
                 FROM project_user_role_relationships purr
-                LEFT OUTER JOIN users ON user.id = purr.bs_user_id
-                WHERE user.login = ?", person.userid]
+                LEFT OUTER JOIN users ON users.id = purr.bs_user_id
+                WHERE users.login = ?", person.userid]
 
             purr.role = Role.rolecache[person.role]
             purr.save!
