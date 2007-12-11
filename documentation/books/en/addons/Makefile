@@ -8,8 +8,13 @@
 # - trang: Converts the schema
 # - jing:  Validates the schema
 #
-
+.SUFFIXES:
 .SUFFIXES: .rng .html .rnc
+
+RNG2XHTML=rng2xhtml.xsl
+RELAXNG=relaxng.rng
+
+
 .PHONY: all
 all:  kiwi.rng html
 
@@ -19,19 +24,18 @@ html: kiwi.html
 .PHONY: validate val
 validate val:
 	@echo "*** Validating KIWI Schema..."
-	jing relaxng.rng kiwi.rng
+	jing $(RELAXNG) kiwi.rng
 
-.rnc.rng:
+%.html: %.rng $(RNG2XHTML)
+	@echo "*** Creating documentation from KIWI RNG..."
+	xsltproc --output $@ $(RNG2XHTML) $<
+
+%.rng: %.rnc $(RELAXNG)
 	@echo "*** Converting KIWI RNC -> RNG..."
 	trang -I rnc -O rng $< $@
 	@echo "*** Validating KIWI Schema..."
-	jing relaxng.rng kiwi.rng
-
-%.html: %.rng rng2xhtml.xsl
-	@echo "*** Creating documentation from KIWI RNG..."
-	xsltproc --output $@ rng2xhtml.xsl $<
-
-
+	jing $(RELAXNG) $@
+	
 #
 # EOF
 #
