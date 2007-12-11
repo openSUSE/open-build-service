@@ -16,7 +16,7 @@ all:  kiwi.rng html
 .PHONY: html
 html: kiwi.html
 
-.PHONE: validate val
+.PHONY: validate val
 validate val:
 	@echo "*** Validating KIWI Schema..."
 	jing relaxng.rng kiwi.rng
