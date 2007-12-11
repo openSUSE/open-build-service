@@ -99,7 +99,7 @@ div {
 	k.compressed.attlist = empty
 	k.compressed = element compressed {
 		k.compressed.attlist,
-		empty
+		text
 	}
 }
 

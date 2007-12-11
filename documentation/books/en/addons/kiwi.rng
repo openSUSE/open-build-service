@@ -179,7 +179,7 @@
     <define name="k.compressed">
       <element name="compressed">
         <ref name="k.compressed.attlist"/>
-        <empty/>
+        <text/>
       </element>
     </define>
   </div>
