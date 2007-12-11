@@ -82,6 +82,7 @@ k.pwd.attribute         = attribute pwd { text }
 k.script.attribute      = attribute script { text }
 k.source.attribute      = attribute source { text }
 k.type.attribute        = attribute type { text }
+k.size.attribute        = attribute size { text }
 
 #==========================================
 # common element <author>
@@ -345,10 +346,15 @@ div {
 # common element <partitions>
 #
 div {
-	k.partitions.attlist = empty
-	k.partitions = element partitions { 
-		k.partitions.attlist, 
-		k.partition*
+  k.partitions.device.attribute = attribute device { text }
+  
+	k.partitions.attlist = k.partitions.device.attribute?
+	  
+	k.partitions =
+	  ## A list of partitions
+	  element partitions { 
+  		k.partitions.attlist, 
+	  	k.partition*
 	}
 }
 
@@ -358,18 +364,20 @@ div {
 div {
 	k.partition.type.attribute = k.type.attribute
 	k.partition.number.attribute = attribute number { text }
-	k.partition.size.attribute = attribute size { text }
+	k.partition.size.attribute = k.size.attribute
 	k.partition.mountpoint.attribute = attribute mountpoint { text }
 	k.partition.target.attribute = attribute target { text }
 	k.partition.attlist =
-		k.partition.type.attribute &
-		k.partition.number.attribute &
-		k.partition.size.attribute &
-		k.partition.mountpoint.attribute &
-		k.partition.target.attribute
-	k.partition = element partition {
-		k.partition.attlist,
-		empty
+		k.partition.type.attribute?
+		&	k.partition.number.attribute? 
+		&	k.partition.size.attribute?
+		&	k.partition.mountpoint.attribute?
+		&	k.partition.target.attribute?
+	k.partition =
+	  ## A partition
+	  element partition {
+		  k.partition.attlist,
+		  empty
 	}
 }
 
@@ -440,10 +448,12 @@ div {
 #
 div {
 	k.size.unit.attribute = attribute unit { "M" | "G" } # was: text
-	k.size.attlist = k.size.unit.attribute
-	k.size = element size {
-		k.size.attlist,
-		text
+	k.size.attlist = k.size.unit.attribute?
+	k.size =
+	  ## 
+	  element size {
+		  k.size.attlist,
+		  text
 	}
 }
 

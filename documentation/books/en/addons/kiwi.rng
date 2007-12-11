@@ -148,6 +148,9 @@
   <define name="k.type.attribute">
     <attribute name="type"/>
   </define>
+  <define name="k.size.attribute">
+    <attribute name="size"/>
+  </define>
   <!--
     ==========================================
     common element <author>
@@ -578,11 +581,17 @@
     
   -->
   <div>
+    <define name="k.partitions.device.attribute">
+      <attribute name="device"/>
+    </define>
     <define name="k.partitions.attlist">
-      <empty/>
+      <optional>
+        <ref name="k.partitions.device.attribute"/>
+      </optional>
     </define>
     <define name="k.partitions">
       <element name="partitions">
+        <a:documentation>A list of partitions</a:documentation>
         <ref name="k.partitions.attlist"/>
         <zeroOrMore>
           <ref name="k.partition"/>
@@ -603,7 +612,7 @@
       <attribute name="number"/>
     </define>
     <define name="k.partition.size.attribute">
-      <attribute name="size"/>
+      <ref name="k.size.attribute"/>
     </define>
     <define name="k.partition.mountpoint.attribute">
       <attribute name="mountpoint"/>
@@ -613,15 +622,26 @@
     </define>
     <define name="k.partition.attlist">
       <interleave>
-        <ref name="k.partition.type.attribute"/>
-        <ref name="k.partition.number.attribute"/>
-        <ref name="k.partition.size.attribute"/>
-        <ref name="k.partition.mountpoint.attribute"/>
-        <ref name="k.partition.target.attribute"/>
+        <optional>
+          <ref name="k.partition.type.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.number.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.size.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.mountpoint.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.target.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.partition">
       <element name="partition">
+        <a:documentation>A partition</a:documentation>
         <ref name="k.partition.attlist"/>
         <empty/>
       </element>
@@ -745,10 +765,13 @@
     </define>
     <!-- was: text -->
     <define name="k.size.attlist">
-      <ref name="k.size.unit.attribute"/>
+      <optional>
+        <ref name="k.size.unit.attribute"/>
+      </optional>
     </define>
     <define name="k.size">
       <element name="size">
+        <a:documentation/>
         <ref name="k.size.attlist"/>
         <text/>
       </element>
