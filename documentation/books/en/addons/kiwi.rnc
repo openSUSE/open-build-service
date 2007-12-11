@@ -462,7 +462,7 @@ div {
 	k.size.unit.attribute = attribute unit { "M" | "G" } # was: text
 	k.size.attlist = k.size.unit.attribute?
 	k.size =
-	  ## 
+	  ## Specifies the size of an image in (M)egabyte or (G)igabyte
 	  element size {
 		  k.size.attlist,
 		  text
@@ -614,9 +614,11 @@ div {
 #
 div {
 	k.version.attlist = empty
-	k.version = element version {
-		k.version.attlist,
-		text
+	k.version =
+	  ## A version number for the image, consists of Major.Minor.Release 
+	  element version {
+		  k.version.attlist,
+		  text
 	}
 }
 

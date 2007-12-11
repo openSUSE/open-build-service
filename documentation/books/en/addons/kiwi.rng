@@ -785,7 +785,7 @@
     </define>
     <define name="k.size">
       <element name="size">
-        <a:documentation/>
+        <a:documentation>Specifies the size of an image in (M)egabyte or (G)igabyte</a:documentation>
         <ref name="k.size.attlist"/>
         <text/>
       </element>
@@ -1042,6 +1042,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.version">
       <element name="version">
+        <a:documentation>A version number for the image, consists of Major.Minor.Release </a:documentation>
         <ref name="k.version.attlist"/>
         <text/>
       </element>
