@@ -303,7 +303,9 @@
     <define name="k.file.attlist">
       <interleave>
         <ref name="k.file.name.attribute"/>
-        <ref name="k.file.arch.attribute"/>
+        <optional>
+          <ref name="k.file.arch.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.file">
@@ -1105,6 +1107,7 @@
     </define>
     <define name="k.drivers">
       <element name="drivers">
+        <a:documentation>A collection of driver files </a:documentation>
         <ref name="k.drivers.attlist"/>
         <oneOrMore>
           <ref name="k.file"/>

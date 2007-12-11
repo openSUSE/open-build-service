@@ -181,7 +181,7 @@ div {
 	k.file.arch.attribute = k.arch.attribute
 	k.file.attlist =
 		k.file.name.attribute &
-		k.file.arch.attribute
+		k.file.arch.attribute?
 	k.file = element file {
 		k.file.attlist,
 		empty
