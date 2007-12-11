@@ -627,8 +627,8 @@ div {
 	k.drivers.type.attribute = k.type.attribute
 	k.drivers.profiles.attribute = k.profiles.attribute
 	k.drivers.attlist = 
-		k.drivers.type.attribute &
-		k.drivers.profiles.attribute
+		k.drivers.type.attribute? &
+		k.drivers.profiles.attribute?
 	k.drivers = element drivers {
 		k.drivers.attlist,
 		k.file+
