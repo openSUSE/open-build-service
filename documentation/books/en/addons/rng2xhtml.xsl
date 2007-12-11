@@ -14,18 +14,26 @@
   doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"/>
 
 
+<xsl:key name="div" match="r:div" use="db:refname"/>
+<xsl:key name="element" match="r:element" use="@name"/>
+<xsl:key name="define" match="r:define" use="@name"/>
+<xsl:key name="elemdef" match="r:define" use="r:element/@name"/>
+
+
 <xsl:param name="html.title">RELAX NG Schema Documentation</xsl:param>
 <xsl:param name="html.stylesheet"></xsl:param>
 <xsl:param name="html.head">KIWI Schema Documentation</xsl:param>
 <xsl:param name="separator"> ::= </xsl:param>
-
+<xsl:param name="schema.name">KIWI</xsl:param>
 
 <xsl:template match="/">
   <html>
-    <head></head>
+    <head>
+      <meta name="generator"   content="RNG2XHTML"/>
+      <meta name="description" content="RNG to XHTML documentation"/>
+      <meta name="schema"      content="{$schema.name}"/>
+    </head>
     <title><xsl:value-of select="$html.title"/></title>
-    <meta name="generator" content="RNG2XHTML"/>
-    <meta name="description" content="RNG to XHTML documentation"/>
     <style type="text/css"><xsl:text>
 .define, .start { 
   border: 1pt dashed darkgray;
@@ -42,7 +50,8 @@
     </xsl:if>
     <xsl:choose>
       <xsl:when test="r:grammar">
-        <xsl:apply-templates/>    
+        <!-- <xsl:apply-templates/> -->
+        <xsl:apply-templates mode="elements"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message terminate="yes">ERROR: Expected grammar element!</xsl:message>
@@ -51,6 +60,68 @@
   </html>
 </xsl:template>
 
+
+<!-- ###################################### -->
+
+<xsl:template match="r:grammar" mode="elements">
+  <body>
+    <h1>RELAX NG Schema Documentation for <xsl:value-of select="$schema.name"/></h1>
+    <div class="elementdiv" id="elementstoc">
+      <h2>Elements</h2>
+      <span>
+        <xsl:apply-templates select=".//r:element" mode="elements">
+          <xsl:sort/>
+        </xsl:apply-templates>
+      </span>
+    </div>
+    
+    <hr/>
+    
+    <div class="start" id="startpattern">
+      <h2>Start Pattern</h2>
+      <xsl:apply-templates select="r:start" mode="elements"/>
+    </div>
+    
+    <hr/>
+    <div class="definediv" id="elementpattern">
+      <h2>Element Patterns</h2>
+      <xsl:apply-templates select="r:div/r:define" mode="elements">
+        <xsl:sort/>
+      </xsl:apply-templates>
+    </div>
+    
+  </body>
+</xsl:template>
+
+
+<xsl:template match="r:grammar/r:start" mode="elements">  
+  <xsl:apply-templates/>
+</xsl:template>
+
+
+<xsl:template match="r:element" mode="elements">
+    <a>
+      <xsl:message> ==><xsl:value-of 
+        select="local-name(..)"/>:  <xsl:value-of 
+        select="@name"/> "<xsl:value-of 
+          select="ancestor::r:define/@name"/>" </xsl:message>
+      
+      <xsl:attribute name="href">
+        <xsl:text>#</xsl:text>
+        <xsl:value-of select="ancestor::r:define/@name"/>
+      </xsl:attribute>
+      <xsl:value-of select="./@name"/>
+    </a>
+</xsl:template>
+
+<xsl:template match="r:define[r:element]" mode="elements">
+  <div class="define" id="{@name}">
+    <xsl:value-of select="@name"/>
+    <xsl:value-of select="$separator"/>
+  </div>
+</xsl:template>
+
+<!-- ###################################### -->
 
 <!-- Default templates -->
 <xsl:template match="*">
@@ -133,5 +204,43 @@
     </div>
   </div>
 </xsl:template>
+
+<xsl:template mode="r:group">
+  <span class="group">
+    <xsl:text>( </xsl:text>
+    <xsl:apply-templates/>
+    <xsl:text> ) </xsl:text>
+  </span>
+</xsl:template>
+
+<xsl:template match="r:element">
+  <span class="element">
+    <xsl:value-of select="@name"/>
+    <xsl:apply-templates/>
+  </span>
+</xsl:template>
+
+<xsl:template match="r:optional">
+  <span class="optional">
+    <xsl:apply-templates/>
+    <xsl:text>?</xsl:text>
+  </span>
+</xsl:template>
+
+<xsl:template match="r:zeroOrMore">
+  <span class="zeroormore">
+    <xsl:apply-templates/>
+    <xsl:text>*</xsl:text>
+  </span>
+</xsl:template>
+
+<xsl:template match="r:oneOrMore">
+  <span class="oneormore">
+    <xsl:apply-templates/>
+    <xsl:text>*</xsl:text>
+  </span>
+</xsl:template>
+
+
 
 </xsl:stylesheet>
