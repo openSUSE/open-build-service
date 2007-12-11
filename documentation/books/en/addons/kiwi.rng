@@ -49,7 +49,7 @@
                   - Insert bootstrap in image
                   - Rename repository -> repositories and source -> repository
                   - Change repository+ -> repositories
-                  - 
+                  - [...]
                 :
   ****************
 -->
@@ -176,16 +176,29 @@
     </attribute>
   </define>
   <define name="k.script.attribute">
-    <attribute name="script"/>
+    <attribute name="script">
+      <a:documentation>FIXME: ??</a:documentation>
+    </attribute>
   </define>
   <define name="k.source.attribute">
-    <attribute name="source"/>
+    <attribute name="source">
+      <a:documentation>FIXME: ??</a:documentation>
+    </attribute>
   </define>
   <define name="k.type.attribute">
-    <attribute name="type"/>
+    <attribute name="type">
+      <a:documentation>FIXME: ??</a:documentation>
+    </attribute>
   </define>
   <define name="k.size.attribute">
-    <attribute name="size"/>
+    <attribute name="size">
+      <a:documentation>FIXME: ??</a:documentation>
+    </attribute>
+  </define>
+  <define name="k.dest.attribute">
+    <attribute name="dest">
+      <a:documentation>Destination of a ressource</a:documentation>
+    </attribute>
   </define>
   <!--
     ==========================================
@@ -198,6 +211,7 @@
     </define>
     <define name="k.author">
       <element name="author">
+        <a:documentation>Author of the image</a:documentation>
         <ref name="k.author.attlist"/>
         <text/>
       </element>
@@ -214,6 +228,7 @@
     </define>
     <define name="k.compressed">
       <element name="compressed">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.compressed.attlist"/>
         <text/>
       </element>
@@ -229,7 +244,7 @@
       <ref name="k.source.attribute"/>
     </define>
     <define name="k.configuration.dest.attribute">
-      <attribute name="dest"/>
+      <ref name="k.dest.attribute"/>
     </define>
     <define name="k.configuration.attlist">
       <interleave>
@@ -239,6 +254,7 @@
     </define>
     <define name="k.configuration">
       <element name="configuration">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.configuration.attlist"/>
         <empty/>
       </element>
@@ -287,6 +303,7 @@
     </define>
     <define name="k.defaultbaseroot">
       <element name="defaultbaseroot">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.defaultbaseroot.attlist"/>
         <text/>
       </element>
@@ -303,6 +320,7 @@
     </define>
     <define name="k.defaultdestination">
       <element name="defaultdestination">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.defaultdestination.attlist"/>
         <text/>
       </element>
@@ -319,6 +337,7 @@
     </define>
     <define name="k.defaultroot">
       <element name="defaultroot">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.defaultroot.attlist"/>
         <text/>
       </element>
@@ -346,6 +365,7 @@
     </define>
     <define name="k.file">
       <element name="file">
+        <a:documentation>A pointer to a file</a:documentation>
         <ref name="k.file.attlist"/>
         <empty/>
       </element>
@@ -365,7 +385,7 @@
     </define>
     <define name="k.ignore">
       <element name="ignore">
-        <a:documentation>??</a:documentation>
+        <a:documentation>Ignores a package</a:documentation>
         <ref name="k.ignore.attlist"/>
         <empty/>
       </element>
@@ -382,6 +402,7 @@
     </define>
     <define name="k.initrd">
       <element name="initrd">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.initrd.attlist"/>
         <empty/>
       </element>
@@ -415,6 +436,7 @@
     </define>
     <define name="k.instrepo">
       <element name="instrepo">
+        <a:documentation>Name of an installation repository</a:documentation>
         <ref name="k.instrepo.attlist"/>
         <ref name="k.source"/>
       </element>
@@ -431,6 +453,7 @@
     </define>
     <define name="k.kernel">
       <element name="kernel">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.kernel.attlist"/>
         <empty/>
       </element>
@@ -447,6 +470,7 @@
     </define>
     <define name="k.keytable">
       <element name="keytable">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.keytable.attlist"/>
         <text/>
       </element>
@@ -464,6 +488,7 @@
     </define>
     <define name="k.locale">
       <element name="locale">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.locale.attlist"/>
         <text/>
       </element>
@@ -480,6 +505,7 @@
     </define>
     <define name="k.metadata">
       <element name="metadata">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.metadata.attlist"/>
         <oneOrMore>
           <ref name="k.package"/>
@@ -514,6 +540,7 @@
     </define>
     <define name="k.metafile">
       <element name="metafile">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.metafile.attlist"/>
         <empty/>
       </element>
@@ -533,6 +560,7 @@
     </define>
     <define name="k.opensusepattern">
       <element name="opensusePattern">
+        <a:documentation>Name of a pattern from openSUSE</a:documentation>
         <ref name="k.opensusepattern.attlist"/>
         <empty/>
       </element>
@@ -592,7 +620,7 @@
     </define>
     <define name="k.package">
       <element name="package">
-        <a:documentation>A package</a:documentation>
+        <a:documentation>Name of a package</a:documentation>
         <ref name="k.package.attlist"/>
         <empty/>
       </element>
@@ -609,8 +637,12 @@
     </define>
     <define name="k.packagemanager">
       <element name="packagemanager">
-        <ref name="k.packagemanager.attlist"/>
-        <text/>
+        <a:documentation>The package manager used for package installation </a:documentation>
+        <group>
+          <ref name="k.packagemanager.attlist"/>
+          <text/>
+        </group>
+        <!-- zypper or smart -->
       </element>
     </define>
   </div>
@@ -697,6 +729,7 @@
     </define>
     <define name="k.persistent">
       <element name="persistent">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.persistent.attlist"/>
         <zeroOrMore>
           <ref name="k.file"/>
@@ -724,6 +757,7 @@
     </define>
     <define name="k.profile">
       <element name="profile">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.profile.attlist"/>
         <empty/>
       </element>
@@ -751,6 +785,7 @@
     </define>
     <define name="k.repository">
       <element name="repository">
+        <a:documentation>The name of the repository</a:documentation>
         <ref name="k.repository.attlist"/>
         <ref name="k.source"/>
       </element>
@@ -767,6 +802,7 @@
     </define>
     <define name="k.rpm-check-signatures">
       <element name="rpm-check-signatures">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.rpm-check-signatures.attlist"/>
         <text/>
       </element>
@@ -783,6 +819,7 @@
     </define>
     <define name="k.rpm-force">
       <element name="rpm-force">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.rpm-force.attlist"/>
         <text/>
       </element>
@@ -830,6 +867,7 @@
     </define>
     <define name="k.source">
       <element name="source">
+        <a:documentation>A pointer to a repository</a:documentation>
         <ref name="k.source.attlist"/>
         <empty/>
       </element>
@@ -846,6 +884,7 @@
     </define>
     <define name="k.specification">
       <element name="specification">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.specification.attlist"/>
         <text/>
       </element>
@@ -862,6 +901,7 @@
     </define>
     <define name="k.temporary">
       <element name="temporary">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.temporary.attlist"/>
         <empty/>
       </element>
@@ -878,6 +918,7 @@
     </define>
     <define name="k.timeout">
       <element name="timeout">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.timeout.attlist"/>
         <empty/>
       </element>
@@ -894,6 +935,7 @@
     </define>
     <define name="k.timezone">
       <element name="timezone">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.timezone.attlist"/>
         <text/>
       </element>
@@ -1003,6 +1045,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.union">
       <element name="union">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.union.attlist"/>
         <empty/>
       </element>
@@ -1093,6 +1136,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.deploy">
       <element name="deploy">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.deploy.attlist"/>
         <optional>
           <ref name="k.timeout"/>
@@ -1137,6 +1181,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.description">
       <element name="description">
+        <a:documentation>A short description</a:documentation>
         <ref name="k.description.attlist"/>
         <ref name="k.author"/>
         <oneOrMore>
@@ -1192,6 +1237,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.instsource">
       <element name="instsource">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.instsource.attlist"/>
         <oneOrMore>
           <ref name="k.instrepo"/>
@@ -1249,6 +1295,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.packages">
       <element name="packages">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.packages.attlist"/>
         <zeroOrMore>
           <ref name="k.package"/>
@@ -1276,7 +1323,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.bootstrap">
       <element name="bootstrap">
-        <a:documentation/>
+        <a:documentation>Packages that MUST available at boot time</a:documentation>
         <ref name="k.bootstrap.attlist"/>
         <zeroOrMore>
           <ref name="k.package"/>
@@ -1295,6 +1342,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.preferences">
       <element name="preferences">
+        <a:documentation>Configuration information needed for logical extend</a:documentation>
         <ref name="k.preferences.attlist"/>
         <oneOrMore>
           <ref name="k.type"/>
@@ -1344,6 +1392,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
   <div>
     <define name="k.profiles">
       <element name="profiles">
+        <a:documentation>FIXME: ??</a:documentation>
         <zeroOrMore>
           <ref name="k.profile"/>
         </zeroOrMore>
@@ -1361,6 +1410,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.split">
       <element name="split">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.split.attlist"/>
         <optional>
           <ref name="k.temporary"/>

@@ -47,7 +47,7 @@
 #                 - Insert bootstrap in image
 #                 - Rename repository -> repositories and source -> repository
 #                 - Change repository+ -> repositories
-#                 - 
+#                 - [...]
 #               :
 #****************
 
@@ -119,17 +119,30 @@ k.profiles.attribute    = attribute profiles { text }
 k.pwd.attribute         =
   ## The password
   attribute pwd { text }
-k.script.attribute      = attribute script { text }
-k.source.attribute      = attribute source { text }
-k.type.attribute        = attribute type { text }
-k.size.attribute        = attribute size { text }
+k.script.attribute      =
+  ## FIXME: ??
+  attribute script { text }
+k.source.attribute      =
+  ## FIXME: ??
+  attribute source { text }
+k.type.attribute        =
+  ## FIXME: ??
+  attribute type { text }
+k.size.attribute        =
+  ## FIXME: ??
+  attribute size { text }
+k.dest.attribute        =
+  ## Destination of a ressource
+  attribute dest { text }
 
 #==========================================
 # common element <author>
 #
 div {
 	k.author.attlist = empty
-	k.author = element author { k.author.attlist, text }
+	k.author =
+	  ## Author of the image
+	  element author { k.author.attlist, text }
 }
 
 #==========================================
@@ -137,9 +150,11 @@ div {
 #
 div {
 	k.compressed.attlist = empty
-	k.compressed = element compressed {
-		k.compressed.attlist,
-		text
+	k.compressed =
+	  ## FIXME: ??
+	  element compressed {
+		  k.compressed.attlist,
+		  text
 	}
 }
 
@@ -148,13 +163,16 @@ div {
 #
 div {
 	k.configuration.source.attribute = k.source.attribute
-	k.configuration.dest.attribute = attribute dest { text }
+	k.configuration.dest.attribute = k.dest.attribute
 	k.configuration.attlist = 
-		k.configuration.source.attribute &
-		k.configuration.dest.attribute
-	k.configuration = element configuration {
-		k.configuration.attlist,
-		empty
+		k.configuration.source.attribute
+		&	k.configuration.dest.attribute
+
+	k.configuration =
+	  ## FIXME: ??
+	  element configuration {
+		  k.configuration.attlist,
+		  empty
 	}
 }
 
@@ -185,9 +203,11 @@ div {
 #
 div {
 	k.defaultbaseroot.attlist = empty
-	k.defaultbaseroot = element defaultbaseroot {
-		k.defaultbaseroot.attlist,
-		text
+	k.defaultbaseroot =
+	  ## FIXME: ??
+	  element defaultbaseroot {
+		  k.defaultbaseroot.attlist,
+		  text
 	}
 }
 
@@ -196,9 +216,11 @@ div {
 #
 div {
 	k.defaultdestination.attlist = empty
-	k.defaultdestination = element defaultdestination {
-		k.defaultdestination.attlist,
-		text
+	k.defaultdestination =
+	  ## FIXME: ??
+	  element defaultdestination {
+		  k.defaultdestination.attlist,
+		  text
 	}
 }
 
@@ -207,9 +229,11 @@ div {
 #
 div {
 	k.defaultroot.attlist = empty
-	k.defaultroot = element defaultroot {
-		k.defaultroot.attlist,
-		text
+	k.defaultroot =
+	  ## FIXME: ??
+	  element defaultroot {
+		  k.defaultroot.attlist,
+		  text
 	}
 }
 
@@ -222,9 +246,11 @@ div {
 	k.file.attlist =
 		k.file.name.attribute &
 		k.file.arch.attribute?
-	k.file = element file {
-		k.file.attlist,
-		empty
+	k.file =
+	  ## A pointer to a file
+	  element file {
+		  k.file.attlist,
+		  empty
 	}
 }
 
@@ -235,7 +261,7 @@ div {
 	k.ignore.name.attribute = k.name.attribute
 	k.ignore.attlist = k.ignore.name.attribute
 	k.ignore = 
-	  ## ??
+	  ## Ignores a package
 	  element ignore {
 		k.ignore.attlist,
 		empty
@@ -247,9 +273,11 @@ div {
 #
 div {
 	k.initrd.attlist = empty
-	k.initrd = element initrd {
-		k.initrd.attlist,
-		empty
+	k.initrd =
+	  ## FIXME: ??
+	  element initrd {
+		  k.initrd.attlist,
+		  empty
 	}
 }
 
@@ -266,9 +294,11 @@ div {
 		k.instrepo.priority.attribute &
 		k.instrepo.username.attribute &
 		k.instrepo.pwd.attribute
-	k.instrepo = element instrepo {
-		k.instrepo.attlist,
-		k.source
+	k.instrepo =
+	  ## Name of an installation repository
+	  element instrepo {
+		  k.instrepo.attlist,
+		  k.source
 	}
 }
 
@@ -277,9 +307,11 @@ div {
 #
 div {
 	k.kernel.attlist = empty
-	k.kernel = element kernel {
-		k.kernel.attlist,
-		empty
+	k.kernel =
+	  ## FIXME: ??
+	  element kernel {
+		  k.kernel.attlist,
+		  empty
 	}
 }
 
@@ -288,9 +320,11 @@ div {
 #
 div {
 	k.keytable.attlist = empty
-	k.keytable = element keytable {
-		k.keytable.attlist,
-		text
+	k.keytable =
+	  ## FIXME: ??
+	  element keytable {
+		  k.keytable.attlist,
+		  text
 	}
 }
 
@@ -299,9 +333,11 @@ div {
 #
 div { # locale
 	k.locale.attlist = empty
-	k.locale = element locale {
-		k.locale.attlist,
-		text
+	k.locale =
+	  ## FIXME: ??
+	  element locale {
+		  k.locale.attlist,
+		  text
 	}
 }
 
@@ -310,10 +346,12 @@ div { # locale
 #
 div {
 	k.metadata.attlist = empty
-	k.metadata = element metadata {
-		k.metadata.attlist,
-		k.package+,
-		k.metafile*
+	k.metadata =
+	  ## FIXME: ??
+	  element metadata {
+		  k.metadata.attlist,
+		  k.package+,
+		  k.metafile*
 	}
 }
 
@@ -328,9 +366,11 @@ div {
 		k.metafile.url.attribute &
 		k.metafile.script.attribute &
 		k.metafile.target.attribute
-	k.metafile = element metafile {
-		k.metafile.attlist,
-		empty
+	k.metafile =
+	  ## FIXME: ??
+	  element metafile {
+  		k.metafile.attlist,
+	  	empty
 	}
 }
 
@@ -340,9 +380,11 @@ div {
 div {
 	k.opensusepattern.name.attribute = k.name.attribute
 	k.opensusepattern.attlist = k.opensusepattern.name.attribute
-	k.opensusepattern = element opensusePattern {
-		k.opensusepattern.attlist,
-		empty
+	k.opensusepattern =
+	  ## Name of a pattern from openSUSE
+	  element opensusePattern {
+		  k.opensusepattern.attlist,
+		  empty
 	}
 }
 
@@ -366,10 +408,10 @@ div {
 		&	k.package.source.attribute? 
 		&	k.package.script.attribute?
 	k.package =
-	  ## A package
+	  ## Name of a package
 	  element package {
-		k.package.attlist,
-		empty
+		  k.package.attlist,
+	  	empty
 	}
 }
 
@@ -378,9 +420,11 @@ div {
 #
 div {
 	k.packagemanager.attlist = empty
-	k.packagemanager = element packagemanager {
-		k.packagemanager.attlist,
-		text
+	k.packagemanager =
+	  ## The package manager used for package installation 
+	  element packagemanager {
+		  k.packagemanager.attlist,
+		  text # zypper or smart
 	}
 }
 
@@ -428,9 +472,11 @@ div {
 #
 div {
 	k.persistent.attlist = empty
-	k.persistent = element persistent {
-		k.persistent.attlist ,
-		k.file*
+	k.persistent =
+	  ## FIXME: ??
+	  element persistent {
+		  k.persistent.attlist ,
+		  k.file*
 	}
 }
 
@@ -443,9 +489,11 @@ div {
 	k.profile.attlist =
 		k.profile.name.attribute &
 		k.profile.description.attribute
-	k.profile = element profile {
-		k.profile.attlist,
-		empty
+	k.profile =
+	  ## FIXME: ??
+	  element profile {
+		  k.profile.attlist,
+		  empty
 	}
 }
 
@@ -457,9 +505,11 @@ div {
 	k.repository.status.attribute = attribute status { text }
 	k.repository.attlist = k.repository.type.attribute 
 		&	k.repository.status.attribute?
-	k.repository = element repository {
-		k.repository.attlist,
-		k.source
+	k.repository =
+	  ## The name of the repository
+	  element repository {
+		  k.repository.attlist,
+		  k.source
 	}
 }
 
@@ -468,9 +518,11 @@ div {
 #
 div {
 	k.rpm-check-signatures.attlist = empty
-	k.rpm-check-signatures = element rpm-check-signatures {
-		k.rpm-check-signatures.attlist,
-		text
+	k.rpm-check-signatures =
+	  ## FIXME: ??
+	  element rpm-check-signatures {
+		  k.rpm-check-signatures.attlist,
+		  text
 	}
 }
 
@@ -479,9 +531,11 @@ div {
 #
 div {
 	k.rpm-force.attlist = empty
-	k.rpm-force = element rpm-force {
-		k.rpm-force.attlist,
-		text
+	k.rpm-force =
+	  ## FIXME: ??
+	  element rpm-force {
+		  k.rpm-force.attlist,
+		  text
 	}
 }
 
@@ -505,9 +559,11 @@ div {
 div {
 	k.source.path.attribute = k.path.attribute
 	k.source.attlist = k.source.path.attribute
-	k.source = element source {
-		k.source.attlist,
-		empty
+	k.source =
+	  ## A pointer to a repository
+	  element source {
+		  k.source.attlist,
+		  empty
 	}
 }
 
@@ -516,9 +572,11 @@ div {
 #
 div {
 	k.specification.attlist = empty
-	k.specification = element specification {
-		k.specification.attlist,
-		text
+	k.specification =
+	  ## FIXME: ??
+	  element specification {
+		  k.specification.attlist,
+		  text
 	}
 }
 
@@ -527,9 +585,11 @@ div {
 #
 div {
 	k.temporary.attlist = empty
-	k.temporary = element temporary {
-		k.temporary.attlist,
-		empty
+	k.temporary =
+	  ## FIXME: ??
+	  element temporary {
+		  k.temporary.attlist,
+		  empty
 	}
 }
 
@@ -538,9 +598,11 @@ div {
 #
 div {
 	k.timeout.attlist = empty
-	k.timeout = element timeout {
-		k.timeout.attlist,
-		empty
+	k.timeout = 
+	  ## FIXME: ??
+	  element timeout {
+		  k.timeout.attlist,
+		  empty
 	}
 }
 
@@ -549,9 +611,11 @@ div {
 #
 div {
 	k.timezone.attlist = empty
-	k.timezone = element timezone {
-		k.timezone.attlist,
-		text
+	k.timezone =  
+	  ## FIXME: ??
+	  element timezone {
+		  k.timezone.attlist,
+		  text
 	}
 }
 
@@ -611,9 +675,11 @@ div {
 #
 div {
 	k.union.attlist = empty
-	k.union = element union {
-		k.union.attlist,
-		empty
+	k.union =  
+	  ## FIXME: ??
+	  element union {
+		  k.union.attlist,
+		  empty
 	}
 }
 
@@ -661,15 +727,17 @@ div {
 	k.deploy.attlist =
 		k.deploy.server.attribute &
 		k.deploy.blocksize.attribute
-	k.deploy = element deploy {
-		k.deploy.attlist,
-		k.timeout?,
-		k.commandline?,
-		k.kernel?,
-		k.initrd?,
-		k.partitions?,
-		k.union?,
-		k.configuration*
+	k.deploy =  
+	  ## FIXME: ??
+	  element deploy {
+		  k.deploy.attlist,
+		  k.timeout?,
+		  k.commandline?,
+		  k.kernel?,
+		  k.initrd?,
+		  k.partitions?,
+		  k.union?,
+		  k.configuration*
 	}
 }
 
@@ -679,11 +747,13 @@ div {
 div {
 	k.description.type.attribute = attribute type { "boot" | "system" }
 	k.description.attlist = k.description.type.attribute
-	k.description = element description {
-		k.description.attlist,
-		k.author,
-		k.contact+,
-		k.specification
+	k.description =  
+	  ## A short description
+	  element description {
+		  k.description.attlist,
+		  k.author,
+		  k.contact+,
+		  k.specification
 	}
 }
 
@@ -711,11 +781,13 @@ div {
 div {
 	k.instsource.arch.attribute = k.arch.attribute
 	k.instsource.attlist = k.instsource.arch.attribute
-	k.instsource = element instsource {
-		k.instsource.attlist,
-		k.instrepo+,
-		k.metadata,
-		k.packages
+	k.instsource =  
+	  ## FIXME: ??
+	  element instsource {
+		  k.instsource.attlist,
+		  k.instrepo+,
+		  k.metadata,
+		  k.packages
 	}
 }
 
@@ -736,11 +808,13 @@ div {
 		k.packages.profiles.attribute? &
 		k.packages.patternType.attribute? &
 		k.packages.patternPackageType.attribute?
-	k.packages = element packages {
-		k.packages.attlist,
-		k.package*,
-		k.opensusepattern*,
-		k.ignore*
+	k.packages =  
+	  ## FIXME: ??
+	  element packages {
+		  k.packages.attlist,
+		  k.package*,
+		  k.opensusepattern*,
+		  k.ignore*
 	}
 }
 
@@ -751,7 +825,7 @@ div {
 	k.bootstrap.profiles.attribute = attribute profiles { text }
 	k.bootstrap.attlist = k.bootstrap.profiles.attribute
 	k.bootstrap =
-	  ## 
+	  ## Packages that MUST available at boot time
 	  element bootstrap {
 		  k.bootstrap.attlist,
 		  k.package*
@@ -763,21 +837,23 @@ div {
 #
 div {
 	k.preferences.attlist = empty
-	k.preferences = element preferences {
-		k.preferences.attlist,
-		k.type+,
-		k.version,
-		k.size?,
-		k.compressed?,
-		k.packagemanager?,
-		k.rpm-check-signatures?,
-		k.rpm-force?,
-		k.keytable?,
-		k.timezone?,
-		k.locale?,
-		k.defaultdestination?,
-		k.defaultroot?,
-		k.defaultbaseroot?
+	k.preferences =  
+	  ## Configuration information needed for logical extend
+	  element preferences {
+	  	k.preferences.attlist,
+		  k.type+,
+		  k.version,
+		  k.size?,
+		  k.compressed?,
+		  k.packagemanager?,
+		  k.rpm-check-signatures?,
+		  k.rpm-force?,
+		  k.keytable?,
+		  k.timezone?,
+		  k.locale?,
+		  k.defaultdestination?,
+		  k.defaultroot?,
+		  k.defaultbaseroot?
 	}
 }
 
@@ -785,8 +861,10 @@ div {
 # main block: <profiles>
 #
 div {
-	k.profiles = element profiles {
-		k.profile*
+	k.profiles =  
+	  ## FIXME: ??
+	  element profiles {
+		  k.profile*
 	}
 }
 
@@ -795,10 +873,12 @@ div {
 #
 div {
 	k.split.attlist = empty
-	k.split = element split {
-		k.split.attlist,
-		k.temporary?,
-		k.persistent?
+	k.split =  
+	  ## FIXME: ??
+	  element split {
+		  k.split.attlist,
+		  k.temporary?,
+		  k.persistent?
 	}
 }
 
