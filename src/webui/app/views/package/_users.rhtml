@@ -11,13 +11,13 @@
     <dt>Maintainers</dt>
     <% package_persons=[] %>
 
-    <% @package.each_person do |person| -%>
+    <% @package.each_person("@role='maintainer'") do |person| -%>
       <% package_persons << person.userid %>
       <dd>
         <%=h person.userid -%>
         <%= link_to image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
-        'mailto:' + Person.find(person.userid).email.to_s + '?subject=openSUSE build service' -%>
-        <%- if @project.each_person.length > 1 %>
+        'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE build service' -%>
+        <%- if @project.person_count > 1 %>
           <%= link_to "[x]",
           { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
           { :confirm => "Really remove user '#{person.userid}'?", :class => "x" } -%>
@@ -25,15 +25,39 @@
       </dd>
     <% end #each_person -%>
 
-    <% @project.each_person do |person| %>
+    <% @project.each_person("@role='maintainer'") do |person| %>
       <% if package_persons.grep( person.userid ).empty? %>
         <dd style="color: #999;" title="implicit involved user - involved in project <%= @project.name -%>">
           <%=h person.userid -%>
           <%= link_to image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
-          'mailto:' + Person.find(person.userid).email.to_s + '?subject=openSUSE build service' -%>
+          'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE build service' -%>
         </dd>
       <% end -%>
     <% end #each_person -%>
+
+    <% if @package.bugowner or @project.bugowner -%>
+    <dt>Bugowner</dt>
+      <% package_persons=[] %>
+      <% @package.each_person("@role='bugowner'") do |person| -%>
+        <% package_persons << person.userid %>
+        <dd>
+          <%=h person.userid -%>
+          <%- if @project.person_count > 1 %>
+            <%= link_to "[x]",
+            { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
+            { :confirm => "Really remove user '#{person.userid}'?", :class => "x" } -%>
+          <% end -%>
+        </dd>
+      <% end #each_person -%>
+
+      <% @project.each_person("@role='bugowner'") do |person| %>
+        <% if package_persons.grep( person.userid ).empty? %>
+          <dd style="color: #999;" title="implicit involved user - involved in project <%= @project.name -%>">
+            <%=h person.userid -%>
+          </dd>
+        <% end -%>
+      <% end #each_person -%>
+    <% end -%>
   </dl>
 
   <% else -%>

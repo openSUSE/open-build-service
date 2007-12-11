@@ -22,7 +22,7 @@
       <% end #each_person -%>
       </dd>
     </dl>
-    <% if @project.has_element? "person[@role='bugowner']" -%>
+    <% if @project.bugowner -%>
     <dl>
       <dt>Bugowner</dt>
       <% @project.each_person("@role='bugowner'") do |person| -%>

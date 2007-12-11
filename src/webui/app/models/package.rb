@@ -431,8 +431,13 @@ class Package < ActiveXML::Base
     logger.debug "[PACKAGE-FLAGS] Update done."
   end
 
-  
-
+  def bugowner
+    if has_element? "person[@role='bugowner']"
+      return person("@role='bugowner'").userid.to_s
+    else
+      return nil
+    end
+  end
 
   private
 
@@ -456,6 +461,5 @@ class Package < ActiveXML::Base
     end
     return elem_cache
   end
-
 end
 

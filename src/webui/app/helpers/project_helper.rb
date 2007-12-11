@@ -75,8 +75,4 @@ module ProjectHelper
 
     button_to label, btn_to_opt
   end
-
-  def novell_bugzilla_url(user)
-    "https://bugzilla.novell.com/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd%20party%20software&assigned_to=#{user}"
-  end
 end

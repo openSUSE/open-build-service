@@ -431,7 +431,16 @@ class Project < ActiveXML::Base
 
     logger.debug "[PROJECT-FLAGS] Update done."
   end
-  
-  private
 
+  def bugowner
+    if has_element? "person[@role='bugowner']"
+      return person("@role='bugowner'").userid.to_s
+    else
+      return nil
+    end
+  end
+
+  def person_count
+    @person_count ||= each_person.length
+  end
 end
