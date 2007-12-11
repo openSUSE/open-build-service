@@ -70,31 +70,29 @@ class DbProject < ActiveRecord::Base
 
       #--- update users ---#
       usercache = Hash.new
-      self.each_user do |user|
-        usercache[user.login] = {:role => user.role_name, :dbid => user.id}
+      self.project_user_role_relationships.each do |purr|
+        h = usercache[purr.user.login] ||= Hash.new
+        h[purr.role.title] = purr
       end
 
       project.each_person do |person|
-        if usercache.has_key?(person.userid)
+        if usercache.has_key? person.userid
           # user has already a role in this project
           pcache = usercache[person.userid]
-          if pcache[:role] != person.role
-            #role in xml differs from role in database, update
-
+          if pcache.has_key? person.role
+            #role already defined, only remove from cache
+            pcache[person.role] = :keep
+          else
+            #new role
             if not Role.rolecache.has_key? person.role
               raise RuntimeError, "illegal role name '#{person.role}'"
             end
-
-            purr = ProjectUserRoleRelationship.find_by_sql [
-                "SELECT purr.*
-                FROM project_user_role_relationships purr
-                LEFT OUTER JOIN users ON users.id = purr.bs_user_id
-                WHERE users.login = ?", person.userid]
-
-            purr.role = Role.rolecache[person.role]
-            purr.save!
+            ProjectUserRoleRelationship.create(
+              :user => User.find_by_login(person.userid),
+              :role => Role.rolecache[person.role],
+              :db_project => self
+            )
           end
-          usercache.delete person.userid
         else
           begin
             ProjectUserRoleRelationship.create(
@@ -103,7 +101,6 @@ class DbProject < ActiveRecord::Base
               :db_project => self
             )
           rescue ActiveRecord::StatementInvalid => err
-            logger.debug "ping"
             if err =~ /^#23000Duplicate entry /
               logger.debug "user '#{person.userid}' already has the role '#{person.role}' in project '#{self.name}'"
             else
@@ -112,11 +109,15 @@ class DbProject < ActiveRecord::Base
           end
         end
       end
-
-      user_ids_to_delete = usercache.map {|login, hash| hash[:dbid]}.join ", "
-      unless user_ids_to_delete.empty?
-        ProjectUserRoleRelationship.destroy_all ["db_project_id = ? AND bs_user_id IN (#{user_ids_to_delete})", self.id]
+      
+      #delete all roles that weren't found in the uploaded xml
+      usercache.each do |user, roles|
+        roles.each do |role, object|
+          next if object == :keep
+          object.destroy
+        end
       end
+
       #--- end update users ---#
 
       #--- update flag group ---#

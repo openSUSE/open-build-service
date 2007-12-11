@@ -77,31 +77,29 @@ class DbPackage < ActiveRecord::Base
 
       #--- update users ---#
       usercache = Hash.new
-      self.each_user do |user|
-        usercache[user.login] = {:role => user.role_name, :dbid => user.id}
+      self.package_user_role_relationships.each do |purr|
+        h = usercache[purr.user.login] ||= Hash.new
+        h[purr.role.title] = purr
       end
 
       package.each_person do |person|
-        if usercache.has_key?(person.userid)
+        if usercache.has_key? person.userid
           #user has already a role in this package
           pcache = usercache[person.userid]
-          if pcache[:role] != person.role
-            #role in xml differs from role in database, update
-
+          if pcache.has_key? person.role
+            #role already defined, only remove from cache
+            pcache[person.role] = :keep
+          else
+            #new role
             if not Role.rolecache.has_key? person.role
               raise RuntimeError, "illegal role name '#{person.role}'"
             end
-
-            purr = PackageUserRoleRelationship.find_by_sql [
-                "SELECT purr.*
-                FROM package_user_role_relationships purr
-                LEFT OUTER JOIN users ON users.id = purr.bs_user_id
-                WHERE users.login = ?", person.userid]
-
-            purr.role = Role.rolecache[person.role]
-            purr.save!
+            PackageUserRoleRelationship.create(
+              :user => User.find_by_login(person.userid),
+              :role => Role.rolecache[person.role],
+              :db_package => self
+            )
           end
-          usercache.delete person.userid
         else
           begin
             PackageUserRoleRelationship.create(
@@ -119,10 +117,14 @@ class DbPackage < ActiveRecord::Base
         end
       end
 
-      user_ids_to_delete = usercache.map {|login, hash| hash[:dbid]}.join ", "
-      unless user_ids_to_delete.empty?
-        PackageUserRoleRelationship.destroy_all ["db_package_id = ? AND bs_user_id IN (#{user_ids_to_delete})", self.id]
+      #delete all roles that weren't found in uploaded xml
+      usercache.each do |user, roles|
+        roles.each do |role, object|
+          next if object == :keep
+          object.destroy
+        end
       end
+
       #--- end update users ---#
 
 
