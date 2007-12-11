@@ -1117,12 +1117,24 @@
     </define>
     <define name="k.packages.attlist">
       <interleave>
-        <ref name="k.packages.type.attribute"/>
-        <ref name="k.packages.memory.attribute"/>
-        <ref name="k.packages.disk.attribute"/>
-        <ref name="k.packages.profiles.attribute"/>
-        <ref name="k.packages.patternType.attribute"/>
-        <ref name="k.packages.patternPackageType.attribute"/>
+        <optional>
+          <ref name="k.packages.type.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.memory.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.disk.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.profiles.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.patternType.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.patternPackageType.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.packages">

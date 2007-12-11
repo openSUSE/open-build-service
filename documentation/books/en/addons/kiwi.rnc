@@ -315,14 +315,16 @@ div {
 	k.package.source.attribute = k.source.attribute
 	k.package.script.attribute = k.script.attribute
 	k.package.attlist =
-		k.package.name.attribute &
-		k.package.arch.attribute &
-		k.package.priority.attribute &
-		k.package.addarch.attribute &
-		k.package.removearch.attribute &
-		k.package.source.attribute &
-		k.package.script.attribute
-	k.package = element package {
+		k.package.name.attribute? 
+		&	k.package.arch.attribute? 
+		&	k.package.priority.attribute? 
+		&	k.package.addarch.attribute? 
+		&	k.package.removearch.attribute? 
+		&	k.package.source.attribute? 
+		&	k.package.script.attribute?
+	k.package =
+	  ## A package
+	  element package {
 		k.package.attlist,
 		empty
 	}
@@ -648,12 +650,12 @@ div {
 	k.packages.patternType.attribute = attribute patternType { text }
 	k.packages.patternPackageType.attribute = attribute patternPackageType { text }
 	k.packages.attlist =
-		k.packages.type.attribute &
-		k.packages.memory.attribute &
-		k.packages.disk.attribute &
-		k.packages.profiles.attribute &
-		k.packages.patternType.attribute &
-		k.packages.patternPackageType.attribute
+		k.packages.type.attribute? &
+		k.packages.memory.attribute? &
+		k.packages.disk.attribute? &
+		k.packages.profiles.attribute? &
+		k.packages.patternType.attribute? &
+		k.packages.patternPackageType.attribute?
 	k.packages = element packages {
 		k.packages.attlist,
 		k.package*,
