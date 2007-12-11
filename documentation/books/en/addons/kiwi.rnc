@@ -544,7 +544,10 @@ div {
 	  # FIXME: What means zero and what means one?
 	  ## Specifies if KIWI should search for a prebuild boot image
 	  attribute checkprebuilt { xsd:boolean }
-	k.type.flags.attribute = attribute flags { text }
+	k.type.flags.attribute =
+	  # FIXME: Should this be a list? compressed | iso
+	  ## Specifies flags for the image type
+	  attribute flags { text }
 	k.type.filesystem.attribute = 
 	  # FIXME: Should this attribute a list of possible/allowed
 	  #        attributes?

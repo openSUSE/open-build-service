@@ -905,7 +905,10 @@ to /usr/share/kiwi/image</a:documentation>
       </attribute>
     </define>
     <define name="k.type.flags.attribute">
-      <attribute name="flags"/>
+      <!-- FIXME: Should this be a list? compressed | iso -->
+      <attribute name="flags">
+        <a:documentation>Specifies flags for the image type</a:documentation>
+      </attribute>
     </define>
     <define name="k.type.filesystem.attribute">
       <!--
