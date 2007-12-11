@@ -1390,9 +1390,13 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     
   -->
   <div>
+    <define name="k.profiles.attlist">
+      <empty/>
+    </define>
     <define name="k.profiles">
       <element name="profiles">
         <a:documentation>FIXME: ??</a:documentation>
+        <ref name="k.profiles.attlist"/>
         <zeroOrMore>
           <ref name="k.profile"/>
         </zeroOrMore>
@@ -1428,7 +1432,9 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
   -->
   <div>
     <define name="k.users.group.attribute">
-      <attribute name="group"/>
+      <attribute name="group">
+        <a:documentation>Contains the group to which the user belongs</a:documentation>
+      </attribute>
     </define>
     <define name="k.users.attlist">
       <ref name="k.users.group.attribute"/>

@@ -861,9 +861,11 @@ div {
 # main block: <profiles>
 #
 div {
+  k.profiles.attlist = empty
 	k.profiles =  
 	  ## FIXME: ??
 	  element profiles {
+	    k.profiles.attlist,
 		  k.profile*
 	}
 }
@@ -886,7 +888,9 @@ div {
 # main block: <users>
 #
 div {
-	k.users.group.attribute = attribute group { text }
+	k.users.group.attribute =
+	  ## Contains the group to which the user belongs
+	  attribute group { text }
 	k.users.attlist = k.users.group.attribute
 	k.users = 
 	  ## A list of users
