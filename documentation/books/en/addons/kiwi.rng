@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ================
-  FILE          : KIWISchema.rnc
+  FILE          : kiwi.rnc
   ****************
   PROJECT       : OpenSUSE Build-Service
   COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
@@ -12,7 +12,9 @@
   BELONGS TO    : Operating System images
                 :
   DESCRIPTION   : This is the RELAX NG Schema for KIWI
-                : configuration files
+                : configuration files.
+                : This RNG Schema is derived from the
+                : original XSD file.
                 : 
                 :
   STATUS        : Development
@@ -35,7 +37,7 @@
   -->
   <start>
     <ref name="k.image">
-      <a:documentation>The start pattern</a:documentation>
+      <a:documentation>The start pattern of an image</a:documentation>
     </ref>
   </start>
   <!--
@@ -122,22 +124,32 @@
     
   -->
   <define name="k.name.attribute">
-    <attribute name="name"/>
+    <attribute name="name">
+      <a:documentation>A name</a:documentation>
+    </attribute>
   </define>
   <define name="k.arch.attribute">
-    <attribute name="arch"/>
+    <attribute name="arch">
+      <a:documentation>An architecture</a:documentation>
+    </attribute>
   </define>
   <define name="k.description.attribute">
-    <attribute name="description"/>
+    <attribute name="description">
+      <a:documentation>A short description</a:documentation>
+    </attribute>
   </define>
   <define name="k.path.attribute">
-    <attribute name="path"/>
+    <attribute name="path">
+      <a:documentation>A path</a:documentation>
+    </attribute>
   </define>
   <define name="k.profiles.attribute">
     <attribute name="profiles"/>
   </define>
   <define name="k.pwd.attribute">
-    <attribute name="pwd"/>
+    <attribute name="pwd">
+      <a:documentation>The password</a:documentation>
+    </attribute>
   </define>
   <define name="k.script.attribute">
     <attribute name="script"/>
@@ -868,29 +880,51 @@
     
   -->
   <div>
-    <define name="k.type.checkprebuilt.attribute">
-      <attribute name="checkprebuilt"/>
+    <define name="k.type.baseroot.attribute">
+      <attribute name="baseroot">
+        <a:documentation>Specify the path to a pre created base root system.</a:documentation>
+      </attribute>
     </define>
     <define name="k.type.bootprofile.attribute">
-      <attribute name="bootprofile"/>
+      <attribute name="bootprofile">
+        <a:documentation>Specifies the boot profile. Used when KIWI option --add-profile
+is used</a:documentation>
+      </attribute>
     </define>
     <define name="k.type.boot.attribute">
-      <attribute name="boot"/>
+      <attribute name="boot">
+        <a:documentation>Specifies the path of the boot image (initrd), relative
+to /usr/share/kiwi/image</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.type.checkprebuilt.attribute">
+      <!-- FIXME: What means zero and what means one? -->
+      <attribute name="checkprebuilt">
+        <a:documentation>Specifies if KIWI should search for a prebuild boot image</a:documentation>
+        <data type="boolean"/>
+      </attribute>
     </define>
     <define name="k.type.flags.attribute">
       <attribute name="flags"/>
     </define>
     <define name="k.type.filesystem.attribute">
-      <attribute name="filesystem"/>
-    </define>
-    <define name="k.type.baseroot.attribute">
-      <attribute name="baseroot"/>
+      <!--
+        FIXME: Should this attribute a list of possible/allowed
+               attributes?
+      -->
+      <attribute name="filesystem">
+        <a:documentation>Specifies the filesystem:
+ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
+      </attribute>
     </define>
     <define name="k.type.format.attribute">
-      <attribute name="format"/>
+      <attribute name="format">
+        <a:documentation>??</a:documentation>
+      </attribute>
     </define>
     <define name="k.type.primary.attribute">
       <attribute name="primary">
+        <a:documentation>Specifies the primary type (choose KIWI option --type)</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
@@ -924,7 +958,7 @@
     </define>
     <define name="k.type">
       <element name="type">
-        <a:documentation/>
+        <a:documentation>The image type of the logical exxtend.</a:documentation>
         <ref name="k.type.attlist"/>
         <text/>
       </element>

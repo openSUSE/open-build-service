@@ -1,5 +1,5 @@
 #================
-# FILE          : KIWISchema.rnc
+# FILE          : kiwi.rnc
 #****************
 # PROJECT       : OpenSUSE Build-Service
 # COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
@@ -10,7 +10,9 @@
 # BELONGS TO    : Operating System images
 #               :
 # DESCRIPTION   : This is the RELAX NG Schema for KIWI
-#               : configuration files
+#               : configuration files.
+#               : This RNG Schema is derived from the
+#               : original XSD file.
 #               : 
 #               :
 # STATUS        : Development
@@ -32,7 +34,7 @@ datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 # start with image description
 #
 start =
-  ## The start pattern
+  ## The start pattern of an image
   k.image
 
 #==========================================
@@ -73,12 +75,22 @@ div {
 #==========================================
 # common attributes
 #
-k.name.attribute        = attribute name { text }
-k.arch.attribute        = attribute arch { text }
-k.description.attribute = attribute description { text }
-k.path.attribute        = attribute path { text }
+k.name.attribute        =
+  ## A name
+  attribute name { text }
+k.arch.attribute        =
+  ## An architecture
+  attribute arch { text }
+k.description.attribute =
+  ## A short description
+  attribute description { text }
+k.path.attribute        =
+  ## A path
+  attribute path { text }
 k.profiles.attribute    = attribute profiles { text }
-k.pwd.attribute         = attribute pwd { text }
+k.pwd.attribute         =
+  ## The password
+  attribute pwd { text }
 k.script.attribute      = attribute script { text }
 k.source.attribute      = attribute source { text }
 k.type.attribute        = attribute type { text }
@@ -517,14 +529,34 @@ div {
 # common element <type>
 #
 div {
-	k.type.checkprebuilt.attribute = attribute checkprebuilt { text }
-	k.type.bootprofile.attribute = attribute bootprofile { text }
-	k.type.boot.attribute = attribute boot { text }
+	k.type.baseroot.attribute =
+	  ## Specify the path to a pre created base root system.
+	  attribute baseroot { text }
+	k.type.bootprofile.attribute =
+	  ## Specifies the boot profile. Used when KIWI option --add-profile
+	  ## is used
+	  attribute bootprofile { text }
+	k.type.boot.attribute =
+	  ## Specifies the path of the boot image (initrd), relative
+	  ## to /usr/share/kiwi/image
+	  attribute boot { text }
+	k.type.checkprebuilt.attribute =
+	  # FIXME: What means zero and what means one?
+	  ## Specifies if KIWI should search for a prebuild boot image
+	  attribute checkprebuilt { xsd:boolean }
 	k.type.flags.attribute = attribute flags { text }
-	k.type.filesystem.attribute = attribute filesystem { text }
-	k.type.baseroot.attribute = attribute baseroot { text }
-	k.type.format.attribute = attribute format { text }
-	k.type.primary.attribute = attribute primary { xsd:boolean }
+	k.type.filesystem.attribute = 
+	  # FIXME: Should this attribute a list of possible/allowed
+	  #        attributes?
+	  ## Specifies the filesystem:
+	  ## ext2 | ext3 | reiserfs | squashfs | cpio
+	  attribute filesystem { text } 
+	k.type.format.attribute =
+	  ## ??
+	  attribute format { text }
+	k.type.primary.attribute =
+	  ## Specifies the primary type (choose KIWI option --type)
+	  attribute primary { xsd:boolean }
 	k.type.attlist = k.type.checkprebuilt.attribute?
 	  &	k.type.bootprofile.attribute? 
 	  &	k.type.boot.attribute?
@@ -534,7 +566,7 @@ div {
 	  &	k.type.format.attribute?
 		& k.type.primary.attribute?
 	k.type =
-	  ## 
+	  ## The image type of the logical exxtend.
 	  element type { 
 		  k.type.attlist, 
 		  text 
