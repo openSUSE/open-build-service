@@ -65,8 +65,8 @@ div {
 		k.repository+,
 		k.deploy?,
 		k.split?,
-		k.packages*,
-		k.bootstrap
+		k.packages*
+		# k.bootstrap # Future element
 	}
 }
 
@@ -670,9 +670,11 @@ div {
 div {
 	k.bootstrap.profiles.attribute = attribute profiles { text }
 	k.bootstrap.attlist = k.bootstrap.profiles.attribute
-	k.bootstrap = element bootstrap {
-		k.bootstrap.attlist,
-		k.package*
+	k.bootstrap =
+	  ## 
+	  element bootstrap {
+		  k.bootstrap.attlist,
+		  k.package*
 	}
 }
 

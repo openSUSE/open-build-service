@@ -83,34 +83,36 @@
     <define name="k.image">
       <element name="image">
         <a:documentation>The root element of the configuration file</a:documentation>
-        <ref name="k.image.attlist"/>
-        <ref name="k.description"/>
-        <ref name="k.preferences"/>
-        <optional>
-          <ref name="k.profiles"/>
-        </optional>
-        <optional>
-          <ref name="k.instsource"/>
-        </optional>
-        <zeroOrMore>
-          <ref name="k.users"/>
-        </zeroOrMore>
-        <zeroOrMore>
-          <ref name="k.drivers"/>
-        </zeroOrMore>
-        <oneOrMore>
-          <ref name="k.repository"/>
-        </oneOrMore>
-        <optional>
-          <ref name="k.deploy"/>
-        </optional>
-        <optional>
-          <ref name="k.split"/>
-        </optional>
-        <zeroOrMore>
-          <ref name="k.packages"/>
-        </zeroOrMore>
-        <ref name="k.bootstrap"/>
+        <group>
+          <ref name="k.image.attlist"/>
+          <ref name="k.description"/>
+          <ref name="k.preferences"/>
+          <optional>
+            <ref name="k.profiles"/>
+          </optional>
+          <optional>
+            <ref name="k.instsource"/>
+          </optional>
+          <zeroOrMore>
+            <ref name="k.users"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.drivers"/>
+          </zeroOrMore>
+          <oneOrMore>
+            <ref name="k.repository"/>
+          </oneOrMore>
+          <optional>
+            <ref name="k.deploy"/>
+          </optional>
+          <optional>
+            <ref name="k.split"/>
+          </optional>
+          <zeroOrMore>
+            <ref name="k.packages"/>
+          </zeroOrMore>
+        </group>
+        <!-- k.bootstrap # Future element -->
       </element>
     </define>
   </div>
@@ -523,17 +525,32 @@
     </define>
     <define name="k.package.attlist">
       <interleave>
-        <ref name="k.package.name.attribute"/>
-        <ref name="k.package.arch.attribute"/>
-        <ref name="k.package.priority.attribute"/>
-        <ref name="k.package.addarch.attribute"/>
-        <ref name="k.package.removearch.attribute"/>
-        <ref name="k.package.source.attribute"/>
-        <ref name="k.package.script.attribute"/>
+        <optional>
+          <ref name="k.package.name.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.package.arch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.package.priority.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.package.addarch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.package.removearch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.package.source.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.package.script.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.package">
       <element name="package">
+        <a:documentation>A package</a:documentation>
         <ref name="k.package.attlist"/>
         <empty/>
       </element>
@@ -1166,6 +1183,7 @@
     </define>
     <define name="k.bootstrap">
       <element name="bootstrap">
+        <a:documentation/>
         <ref name="k.bootstrap.attlist"/>
         <zeroOrMore>
           <ref name="k.package"/>
