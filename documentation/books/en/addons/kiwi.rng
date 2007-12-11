@@ -668,7 +668,9 @@
     <define name="k.repository.attlist">
       <interleave>
         <ref name="k.repository.type.attribute"/>
-        <ref name="k.repository.status.attribute"/>
+        <optional>
+          <ref name="k.repository.status.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.repository">

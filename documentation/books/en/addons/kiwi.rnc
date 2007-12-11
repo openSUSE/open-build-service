@@ -403,9 +403,8 @@ div {
 div {
 	k.repository.type.attribute = k.type.attribute
 	k.repository.status.attribute = attribute status { text }
-	k.repository.attlist = 
-		k.repository.type.attribute &
-		k.repository.status.attribute
+	k.repository.attlist = k.repository.type.attribute 
+		&	k.repository.status.attribute?
 	k.repository = element repository {
 		k.repository.attlist,
 		k.source
