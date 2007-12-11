@@ -25,10 +25,36 @@
 #               : - Rework users element to be required. Extend the
 #               :   content modell with a required root user
 #               :
+# Future Changes: - Required attributes:
+#                   * <profile name="" description=""/>
+#                   * <package name=""/>
+#                   * <metafile url="" target=""/>
+#                   * <packages type="">
+#                   * <opensusePattern name=""/>
+#                   * <ignore name=""/>
+#                   * <users group="users">
+#                   * <user name="" home="" pwd=""/>
+#                   * <drivers type="">
+#                   * <file name=""/>
+#                   * <repository type="">
+#                   * <source path=""/>
+#                   * <deploy blocksize="" server="">
+#                   * <partitions device="/dev/sda">
+#                   * <partition type="" mountpoint="" number="" size="" target="true"/>
+#                   * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
+#                   * <configuration dest="" source=""/>
+#                   * 
+#                 - Insert bootstrap in image
+#                 - Rename repository -> repositories and source -> repository
+#                 - Change repository+ -> repositories
+#                 - 
+#               :
 #****************
+
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace d   = "http://docbook.org/ns/docbook"
 
 #==========================================
 # start with image description
@@ -40,6 +66,7 @@ start =
 #==========================================
 # main block: <image>
 #
+
 div {
 	k.image.name.attribute = k.name.attribute
 	k.image.noNamespaceSchemaLocation.attribute = attribute
@@ -71,6 +98,7 @@ div {
 		# k.bootstrap # Future element
 	}
 }
+
 
 #==========================================
 # common attributes
@@ -206,7 +234,9 @@ div {
 div {
 	k.ignore.name.attribute = k.name.attribute
 	k.ignore.attlist = k.ignore.name.attribute
-	k.ignore = element ignore {
+	k.ignore = 
+	  ## ??
+	  element ignore {
 		k.ignore.attlist,
 		empty
 	}

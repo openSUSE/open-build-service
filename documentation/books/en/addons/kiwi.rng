@@ -27,9 +27,33 @@
                 : - Rework users element to be required. Extend the
                 :   content modell with a required root user
                 :
+  Future Changes: - Required attributes:
+                    * <profile name="" description=""/>
+                    * <package name=""/>
+                    * <metafile url="" target=""/>
+                    * <packages type="">
+                    * <opensusePattern name=""/>
+                    * <ignore name=""/>
+                    * <users group="users">
+                    * <user name="" home="" pwd=""/>
+                    * <drivers type="">
+                    * <file name=""/>
+                    * <repository type="">
+                    * <source path=""/>
+                    * <deploy blocksize="" server="">
+                    * <partitions device="/dev/sda">
+                    * <partition type="" mountpoint="" number="" size="" target="true"/>
+                    * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
+                    * <configuration dest="" source=""/>
+                    * 
+                  - Insert bootstrap in image
+                  - Rename repository -> repositories and source -> repository
+                  - Change repository+ -> repositories
+                  - 
+                :
   ****************
 -->
-<grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:d="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <!--
     ==========================================
     start with image description
@@ -341,6 +365,7 @@
     </define>
     <define name="k.ignore">
       <element name="ignore">
+        <a:documentation>??</a:documentation>
         <ref name="k.ignore.attlist"/>
         <empty/>
       </element>
