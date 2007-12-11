@@ -11,13 +11,13 @@
 
 .SUFFIXES: .rng .html .rnc
 .PHONY: all
-all:  kiwi.rng kiwi.html
+all:  kiwi.rng html
 
 .PHONY: html
 html: kiwi.html
 
-.PHONE: validate
-validate:
+.PHONE: validate val
+validate val:
 	@echo "*** Validating KIWI Schema..."
 	jing relaxng.rng kiwi.rng
 
