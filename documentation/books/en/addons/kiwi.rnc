@@ -25,7 +25,7 @@
 #               : - Rework users element to be required. Extend the
 #               :   content modell with a required root user
 #               :
-# Future Changes: - Required attributes:
+# FUTURE CHANGES: - Required attributes:
 #                   * <profile name="" description=""/>
 #                   * <package name=""/>
 #                   * <metafile url="" target=""/>
@@ -40,10 +40,10 @@
 #                   * <source path=""/>
 #                   * <deploy blocksize="" server="">
 #                   * <partitions device="/dev/sda">
-#                   * <partition type="" mountpoint="" number="" size="" target="true"/>
+#                   * <partition type="" mountpoint="" number="" size="" target=""/>
 #                   * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
 #                   * <configuration dest="" source=""/>
-#                   * 
+#                   * ...
 #                 - Insert bootstrap in image
 #                 - Rename repository -> repositories and source -> repository
 #                 - Change repository+ -> repositories
@@ -84,17 +84,17 @@ div {
 	k.image =
 	  ## The root element of the configuration file
 	  element image {
-		k.image.attlist,
-		k.description,
-		k.preferences,
-		k.profiles?,
-		k.instsource?,
-		k.users*,
-		k.drivers*,
-		k.repository+,
-		k.deploy?,
-		k.split?,
-		k.packages*
+  		k.image.attlist,
+	  	k.description,
+  		k.preferences,
+	  	k.profiles?,
+  		k.instsource?,
+  		k.users*,
+  		k.drivers*,
+  		k.repository+,
+  		k.deploy?,
+  		k.split?,
+  		k.packages*
 		# k.bootstrap # Future element
 	}
 }
@@ -115,7 +115,9 @@ k.description.attribute =
 k.path.attribute        =
   ## A path
   attribute path { text }
-k.profiles.attribute    = attribute profiles { text }
+k.profiles.attribute    =
+  ## FIXME: ??
+  attribute profiles { text }
 k.pwd.attribute         =
   ## The password
   attribute pwd { text }
@@ -134,6 +136,9 @@ k.size.attribute        =
 k.dest.attribute        =
   ## Destination of a ressource
   attribute dest { text }
+k.username.attribute    =
+  ## A name of a user
+  attribute username { text }
 
 #==========================================
 # common element <author>
@@ -181,9 +186,11 @@ div {
 #
 div {
 	k.commandline.attlist = empty
-	k.commandline = element commandline {
-		k.commandline.attlist,
-		empty
+	k.commandline = 
+	  ## FIXME: ??
+	  element commandline {
+		  k.commandline.attlist,
+		  empty
 	}
 }
 
@@ -192,7 +199,9 @@ div {
 #
 div {
 	k.contact.attlist = empty
-	k.contact = element contact {
+	k.contact = 
+	  ## Contact information from the author, like email etc.
+	  element contact {
 		k.contact.attlist,
 		text
 	}
@@ -244,8 +253,8 @@ div {
 	k.file.name.attribute = k.name.attribute
 	k.file.arch.attribute = k.arch.attribute
 	k.file.attlist =
-		k.file.name.attribute &
-		k.file.arch.attribute?
+		k.file.name.attribute 
+		&	k.file.arch.attribute?
 	k.file =
 	  ## A pointer to a file
 	  element file {
@@ -263,8 +272,8 @@ div {
 	k.ignore = 
 	  ## Ignores a package
 	  element ignore {
-		k.ignore.attlist,
-		empty
+		  k.ignore.attlist,
+		  empty
 	}
 }
 
@@ -286,8 +295,10 @@ div {
 #
 div {
 	k.instrepo.name.attribute = k.name.attribute
-	k.instrepo.priority.attribute = attribute priority { text }
-	k.instrepo.username.attribute = attribute username { text }
+	k.instrepo.priority.attribute =
+	  ## FIXME: ??
+	  attribute priority { text }
+	k.instrepo.username.attribute = k.username.attribute
 	k.instrepo.pwd.attribute = k.pwd.attribute
 	k.instrepo.attlist =
 		k.instrepo.name.attribute &

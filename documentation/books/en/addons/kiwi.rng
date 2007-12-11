@@ -27,7 +27,7 @@
                 : - Rework users element to be required. Extend the
                 :   content modell with a required root user
                 :
-  Future Changes: - Required attributes:
+  FUTURE CHANGES: - Required attributes:
                     * <profile name="" description=""/>
                     * <package name=""/>
                     * <metafile url="" target=""/>
@@ -42,10 +42,10 @@
                     * <source path=""/>
                     * <deploy blocksize="" server="">
                     * <partitions device="/dev/sda">
-                    * <partition type="" mountpoint="" number="" size="" target="true"/>
+                    * <partition type="" mountpoint="" number="" size="" target=""/>
                     * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
                     * <configuration dest="" source=""/>
-                    * 
+                    * ...
                   - Insert bootstrap in image
                   - Rename repository -> repositories and source -> repository
                   - Change repository+ -> repositories
@@ -168,7 +168,9 @@
     </attribute>
   </define>
   <define name="k.profiles.attribute">
-    <attribute name="profiles"/>
+    <attribute name="profiles">
+      <a:documentation>FIXME: ??</a:documentation>
+    </attribute>
   </define>
   <define name="k.pwd.attribute">
     <attribute name="pwd">
@@ -198,6 +200,11 @@
   <define name="k.dest.attribute">
     <attribute name="dest">
       <a:documentation>Destination of a ressource</a:documentation>
+    </attribute>
+  </define>
+  <define name="k.username.attribute">
+    <attribute name="username">
+      <a:documentation>A name of a user</a:documentation>
     </attribute>
   </define>
   <!--
@@ -271,6 +278,7 @@
     </define>
     <define name="k.commandline">
       <element name="commandline">
+        <a:documentation>FIXME: ??</a:documentation>
         <ref name="k.commandline.attlist"/>
         <empty/>
       </element>
@@ -287,6 +295,7 @@
     </define>
     <define name="k.contact">
       <element name="contact">
+        <a:documentation>Contact information from the author, like email etc.</a:documentation>
         <ref name="k.contact.attlist"/>
         <text/>
       </element>
@@ -418,10 +427,12 @@
       <ref name="k.name.attribute"/>
     </define>
     <define name="k.instrepo.priority.attribute">
-      <attribute name="priority"/>
+      <attribute name="priority">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.instrepo.username.attribute">
-      <attribute name="username"/>
+      <ref name="k.username.attribute"/>
     </define>
     <define name="k.instrepo.pwd.attribute">
       <ref name="k.pwd.attribute"/>
