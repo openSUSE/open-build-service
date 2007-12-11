@@ -27,12 +27,15 @@
     <meta name="generator" content="RNG2XHTML"/>
     <meta name="description" content="RNG to XHTML documentation"/>
     <style type="text/css"><xsl:text>
-.define { border: 1pt dashed darkgray; }
+.define, .start { 
+  border: 1pt dashed darkgray;
+  margin-bottom: 2em;
+}
+
 .patterndef { 
   color:black; background-color:lightgray;
   margin-bottom: 2em;
 }
-
     </xsl:text></style>
     <xsl:if test="$html.stylesheet">
       <link rel="stylesheet" href="{$html.stylesheet}" type="text/css"/>  
