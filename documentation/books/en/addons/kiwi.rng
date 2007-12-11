@@ -27,14 +27,16 @@
                 :
   ****************
 -->
-<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+<grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <!--
     ==========================================
     start with image description
     
   -->
   <start>
-    <ref name="k.image"/>
+    <ref name="k.image">
+      <a:documentation>The start pattern</a:documentation>
+    </ref>
   </start>
   <!--
     ==========================================
@@ -44,6 +46,16 @@
   <div>
     <define name="k.image.name.attribute">
       <ref name="k.name.attribute"/>
+    </define>
+    <define name="k.image.noNamespaceSchemaLocation.attribute">
+      <attribute name="xsi:noNamespaceSchemaLocation">
+        <data type="anyURI"/>
+      </attribute>
+    </define>
+    <define name="k.image.schemaLocation.attribute">
+      <attribute name="xsi:schemaLocation">
+        <data type="anyURI"/>
+      </attribute>
     </define>
     <define name="k.image.inherit.attribute">
       <attribute name="inherit"/>
@@ -56,12 +68,21 @@
     <define name="k.image.attlist">
       <interleave>
         <ref name="k.image.name.attribute"/>
-        <ref name="k.image.inherit.attribute"/>
+        <optional>
+          <ref name="k.image.inherit.attribute"/>
+        </optional>
         <ref name="k.image.schemeversion.attribute"/>
+        <optional>
+          <ref name="k.image.noNamespaceSchemaLocation.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.image.schemaLocation.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.image">
       <element name="image">
+        <a:documentation>The root element of the configuration file</a:documentation>
         <ref name="k.image.attlist"/>
         <ref name="k.description"/>
         <ref name="k.preferences"/>
@@ -824,21 +845,44 @@
     <define name="k.type.format.attribute">
       <attribute name="format"/>
     </define>
+    <define name="k.type.primary.attribute">
+      <attribute name="primary">
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.type.attlist">
       <interleave>
-        <ref name="k.type.checkprebuilt.attribute"/>
-        <ref name="k.type.bootprofile.attribute"/>
-        <ref name="k.type.boot.attribute"/>
-        <ref name="k.type.flags.attribute"/>
-        <ref name="k.type.filesystem.attribute"/>
-        <ref name="k.type.baseroot.attribute"/>
-        <ref name="k.type.format.attribute"/>
+        <optional>
+          <ref name="k.type.checkprebuilt.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.bootprofile.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.boot.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.flags.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.filesystem.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.baseroot.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.format.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.primary.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.type">
       <element name="type">
+        <a:documentation/>
         <ref name="k.type.attlist"/>
-        <empty/>
+        <text/>
       </element>
     </define>
   </div>
@@ -881,15 +925,26 @@
     </define>
     <define name="k.user.attlist">
       <interleave>
-        <ref name="k.user.name.attribute"/>
-        <ref name="k.user.realname.attribute"/>
-        <ref name="k.user.pwd.attribute"/>
-        <ref name="k.user.home.attribute"/>
-        <ref name="k.user.shell.attribute"/>
+        <optional>
+          <ref name="k.user.name.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.user.realname.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.user.pwd.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.user.home.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.user.shell.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.user">
-      <element name="users">
+      <element name="user">
+        <a:documentation>A user with name, password, path to its home and shell</a:documentation>
         <ref name="k.user.attlist"/>
         <empty/>
       </element>
@@ -907,7 +962,7 @@
     <define name="k.version">
       <element name="version">
         <ref name="k.version.attlist"/>
-        <empty/>
+        <text/>
       </element>
     </define>
   </div>
@@ -1205,6 +1260,7 @@
     </define>
     <define name="k.users">
       <element name="users">
+        <a:documentation>A list of users</a:documentation>
         <ref name="k.users.attlist"/>
         <oneOrMore>
           <ref name="k.user"/>

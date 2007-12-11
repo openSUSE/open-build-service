@@ -31,7 +31,9 @@ datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 #==========================================
 # start with image description
 #
-start = k.image
+start =
+  ## The start pattern
+  k.image
 
 #==========================================
 # main block: <image>
@@ -45,7 +47,7 @@ div {
 	k.image.inherit.attribute = attribute inherit { text }
 	k.image.schemeversion.attribute = attribute schemeversion { "1.4" }
 	k.image.attlist = k.image.name.attribute 
-	  & k.image.inherit.attribute
+	  & k.image.inherit.attribute?
 	  & k.image.schemeversion.attribute
 	  & k.image.noNamespaceSchemaLocation.attribute?
 	  & k.image.schemaLocation.attribute?
@@ -512,17 +514,19 @@ div {
 	k.type.baseroot.attribute = attribute baseroot { text }
 	k.type.format.attribute = attribute format { text }
 	k.type.primary.attribute = attribute primary { xsd:boolean }
-	k.type.attlist = k.type.checkprebuilt.attribute 
-	  &	k.type.bootprofile.attribute 
-	  &	k.type.boot.attribute 
-	  &	k.type.flags.attribute 
-	  &	k.type.filesystem.attribute 
-	  &	k.type.baseroot.attribute 
-	  &	k.type.format.attribute
+	k.type.attlist = k.type.checkprebuilt.attribute?
+	  &	k.type.bootprofile.attribute? 
+	  &	k.type.boot.attribute?
+	  &	k.type.flags.attribute? 
+	  &	k.type.filesystem.attribute? 
+	  &	k.type.baseroot.attribute?
+	  &	k.type.format.attribute?
 		& k.type.primary.attribute?
-	k.type = element type { 
-		k.type.attlist, 
-		text 
+	k.type =
+	  ## 
+	  element type { 
+		  k.type.attlist, 
+		  text 
 	}
 }
 
@@ -546,15 +550,16 @@ div {
 	k.user.pwd.attribute = k.pwd.attribute
 	k.user.home.attribute = attribute home { text }
 	k.user.shell.attribute = attribute shell { text }
-	k.user.attlist = 
-		k.user.name.attribute &
-		k.user.realname.attribute &
-		k.user.pwd.attribute &
-		k.user.home.attribute &
-		k.user.shell.attribute
-	k.user = element users {
-		k.user.attlist,
-		empty
+	k.user.attlist = k.user.name.attribute? 
+	  & k.user.realname.attribute? 
+	  & k.user.pwd.attribute?
+	  & k.user.home.attribute? 
+	  &	k.user.shell.attribute?
+	k.user =
+	  ## A user with name, password, path to its home and shell
+	  element user {
+		  k.user.attlist,
+		  empty
 	}
 }
 
@@ -720,9 +725,11 @@ div {
 div {
 	k.users.group.attribute = attribute group { text }
 	k.users.attlist = k.users.group.attribute
-	k.users = element users {
-		k.users.attlist,
-		k.user+
+	k.users = 
+	  ## A list of users
+	  element users {
+		  k.users.attlist,
+		  k.user+
 	}
 }
 
