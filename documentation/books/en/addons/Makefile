@@ -22,19 +22,25 @@ all:  kiwi.rng html
 html: kiwi.html
 
 .PHONY: validate val
-validate val:
-	@echo "*** Validating KIWI Schema..."
-	jing $(RELAXNG) kiwi.rng
+validate val: .validate
+#	@echo "*** Validating KIWI Schema..."
+#	jing $(RELAXNG) kiwi.rng
 
-%.html: %.rng $(RNG2XHTML)
+.validate: kiwi.rng
+	@echo "*** Validating KIWI Schema..."
+	@touch $@
+	jing $(RELAXNG) $<
+
+
+%.html: %.rng $(RNG2XHTML) .validate
 	@echo "*** Creating documentation from KIWI RNG..."
 	xsltproc --output $@ $(RNG2XHTML) $<
 
-%.rng: %.rnc $(RELAXNG)
+%.rng: %.rnc
 	@echo "*** Converting KIWI RNC -> RNG..."
 	trang -I rnc -O rng $< $@
-	@echo "*** Validating KIWI Schema..."
-	jing $(RELAXNG) $@
+	# @echo "*** Validating KIWI Schema..."
+	# jing $(RELAXNG) $@
 	
 #
 # EOF
