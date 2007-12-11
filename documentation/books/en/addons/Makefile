@@ -1,5 +1,5 @@
 #
-# $Id:$
+# $Id$
 #
 # Makefile to transform a RNC file into a RNG file
 # validates the RNG file automatically.
@@ -9,12 +9,26 @@
 # - jing:  Validates the schema
 #
 
+.SUFFIXES: .rng .html .rnc
 .PHONY: all
-all:  kiwi.rng
+all:  kiwi.rng kiwi.html
+
+.PHONE: validate
+validate:
 	@echo "*** Validating KIWI Schema..."
 	jing relaxng.rng kiwi.rng
 
-kiwi.rng: kiwi.rnc
+.rnc.rng:
 	@echo "*** Converting KIWI RNC -> RNG..."
-	trang -I rnc -O rng $< $@ 
+	trang -I rnc -O rng $< $@
+	@echo "*** Validating KIWI Schema..."
+	jing relaxng.rng kiwi.rng
 
+%.html: %.rng rng2xhtml.xsl
+	@echo "*** Creating documentation from KIWI RNG..."
+	xsltproc --output $@ rng2xhtml.xsl $<
+
+
+#
+# EOF
+#
