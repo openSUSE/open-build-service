@@ -51,7 +51,11 @@
 
 <!-- Default templates -->
 <xsl:template match="*">
-  
+  <xsl:message> No template for element '<xsl:value-of 
+    select="concat('{', 
+                   namespace-uri(), 
+                   '}',
+                   local-name())"/>'</xsl:message>
 </xsl:template>
 
 
