@@ -13,6 +13,9 @@
 .PHONY: all
 all:  kiwi.rng kiwi.html
 
+.PHONY: html
+html: kiwi.html
+
 .PHONE: validate
 validate:
 	@echo "*** Validating KIWI Schema..."
