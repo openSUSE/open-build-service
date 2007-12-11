@@ -629,9 +629,12 @@ div {
 	k.drivers.attlist = 
 		k.drivers.type.attribute? &
 		k.drivers.profiles.attribute?
-	k.drivers = element drivers {
-		k.drivers.attlist,
-		k.file+
+		
+	k.drivers =
+	  ## A collection of driver files 
+	  element drivers {
+		  k.drivers.attlist,
+		  k.file+
 	}
 }
 

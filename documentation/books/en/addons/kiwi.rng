@@ -1095,8 +1095,12 @@
     </define>
     <define name="k.drivers.attlist">
       <interleave>
-        <ref name="k.drivers.type.attribute"/>
-        <ref name="k.drivers.profiles.attribute"/>
+        <optional>
+          <ref name="k.drivers.type.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.drivers.profiles.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.drivers">
