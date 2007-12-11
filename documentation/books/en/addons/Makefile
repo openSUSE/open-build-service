@@ -5,8 +5,9 @@
 # validates the RNG file automatically.
 #
 # Used tools:
-# - trang: Converts the schema
-# - jing:  Validates the schema
+# - trang: Converts the Schema
+# - jing:  Validates the Schema
+# - msv:   Another Schema validator
 #
 .SUFFIXES:
 .SUFFIXES: .rng .html .rnc
@@ -20,6 +21,15 @@ all:  kiwi.rng html
 
 .PHONY: html
 html: kiwi.html
+
+.PHONY: test
+test: kiwi.rng
+	@echo "**** Small Unit Test ****"
+	@echo "*** Validating with xmllint..."
+	xmllint --noout --relaxng kiwi.rng  /usr/share/kiwi/image/isoboot/*/config.xml
+	@echo "*** Validating with msv..."
+	msv kiwi.rng /usr/share/kiwi/image/isoboot/*/config.xml
+	@echo "*** Finished."
 
 .PHONY: validate val
 validate val: .validate
