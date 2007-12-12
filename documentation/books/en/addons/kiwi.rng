@@ -1000,7 +1000,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.type.format.attribute">
       <attribute name="format">
-        <a:documentation>??</a:documentation>
+        <a:documentation>FIXME: ??</a:documentation>
       </attribute>
     </define>
     <define name="k.type.primary.attribute">
@@ -1039,7 +1039,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.type">
       <element name="type">
-        <a:documentation>The image type of the logical exxtend.</a:documentation>
+        <a:documentation>The image type of the logical extend.</a:documentation>
         <ref name="k.type.attlist"/>
         <text/>
       </element>
@@ -1051,8 +1051,27 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     
   -->
   <div>
+    <define name="k.union.ro.attribute">
+      <attribute name="ro"/>
+    </define>
+    <define name="k.union.rw.attribute">
+      <attribute name="ro"/>
+    </define>
+    <define name="k.union.type.attribute">
+      <ref name="k.type.attribute"/>
+    </define>
     <define name="k.union.attlist">
-      <empty/>
+      <interleave>
+        <optional>
+          <ref name="k.union.ro.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.union.rw.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.union.type.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.union">
       <element name="union">

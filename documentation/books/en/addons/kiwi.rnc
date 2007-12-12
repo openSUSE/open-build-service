@@ -47,6 +47,7 @@
 #                 - Insert bootstrap in image
 #                 - Rename repository -> repositories and source -> repository
 #                 - Change repository+ -> repositories
+#                 - Rename attribute schemeversion -> schemaversion or version
 #                 - [...]
 #               :
 #****************
@@ -660,7 +661,7 @@ div {
 	  ## ext2 | ext3 | reiserfs | squashfs | cpio
 	  attribute filesystem { text } 
 	k.type.format.attribute =
-	  ## ??
+	  ## FIXME: ??
 	  attribute format { text }
 	k.type.primary.attribute =
 	  ## Specifies the primary type (choose KIWI option --type)
@@ -674,7 +675,7 @@ div {
 	  &	k.type.format.attribute?
 		& k.type.primary.attribute?
 	k.type =
-	  ## The image type of the logical exxtend.
+	  ## The image type of the logical extend.
 	  element type { 
 		  k.type.attlist, 
 		  text 
@@ -685,7 +686,13 @@ div {
 # common element <union>
 #
 div {
-	k.union.attlist = empty
+  k.union.ro.attribute = attribute ro { text }
+  k.union.rw.attribute = attribute ro { text }
+  k.union.type.attribute = k.type.attribute
+	k.union.attlist = k.union.ro.attribute?
+	  & k.union.rw.attribute?
+	  & k.union.type.attribute?
+	
 	k.union =  
 	  ## FIXME: ??
 	  element union {
