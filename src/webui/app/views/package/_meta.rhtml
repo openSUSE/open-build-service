@@ -31,7 +31,7 @@
   {:confirm => "Really remove package '#{@package}'?"}%>
   <% if @package.bugowner -%>
     <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@package.bugowner]) %>
-  <% else -%>
+  <% elsif @project.bugowner -%>
     <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@project.bugowner]) %>
   <% end -%>
   <br/><br/>
