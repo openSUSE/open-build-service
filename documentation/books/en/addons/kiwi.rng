@@ -1070,7 +1070,7 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
       </attribute>
     </define>
     <define name="k.union.rw.attribute">
-      <attribute name="ro">
+      <attribute name="rw">
         <a:documentation>Device for Read-Write</a:documentation>
       </attribute>
     </define>

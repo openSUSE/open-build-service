@@ -701,7 +701,7 @@ div {
     attribute ro { text }
   k.union.rw.attribute =
     ## Device for Read-Write
-    attribute ro { text }
+    attribute rw { text }
   k.union.type.attribute = k.type.attribute
 	k.union.attlist = k.union.ro.attribute?
 	  & k.union.rw.attribute?
