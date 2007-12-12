@@ -33,8 +33,13 @@ test: kiwi.rng
 
 .PHONY: validate val
 validate val: .validate
-#	@echo "*** Validating KIWI Schema..."
-#	jing $(RELAXNG) kiwi.rng
+	@echo "*** Validating KIWI Schema..."
+	@echo "    --- xmllint validation..."
+	xmllint --noout --relaxng $(RELAXNG) kiwi.rng
+	@echo "    --- jing validation..."
+	jing $(RELAXNG) kiwi.rng
+	@echo "    --- msv validation..."
+	msv $(RELAXNG) kiwi.rng
 
 .validate: kiwi.rng
 	@echo "*** Validating KIWI Schema..."
