@@ -48,7 +48,14 @@
 #                 - Rename repository -> repositories and source -> repository
 #                 - Change repository+ -> repositories
 #                 - Rename attribute schemeversion -> schemaversion or version
-#                 - [...]
+#                 - repository: Add attributes pwd and username
+#                 - image: rename attribute "name" -> basename
+#                 - user: rename attribute "name" -> "login"
+#                 - instrepo, opensusepattern, package: find a better(?)
+#                   name for attribute "name"
+#                 - union: rename attribute "name" -> "overlay" (?)
+#                 - Fix camel case in element opensusePattern and
+#                   attributes patternPackageType and patternType
 #               :
 #****************
 
@@ -690,10 +697,10 @@ div {
 #
 div {
   k.union.ro.attribute =
-    ## Read-only attribute
+    ## Device only for read-only 
     attribute ro { text }
   k.union.rw.attribute =
-    ## Read-Write attribute
+    ## Device for Read-Write
     attribute ro { text }
   k.union.type.attribute = k.type.attribute
 	k.union.attlist = k.union.ro.attribute?

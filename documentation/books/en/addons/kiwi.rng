@@ -50,7 +50,14 @@
                   - Rename repository -> repositories and source -> repository
                   - Change repository+ -> repositories
                   - Rename attribute schemeversion -> schemaversion or version
-                  - [...]
+                  - repository: Add attributes pwd and username
+                  - image: rename attribute "name" -> basename
+                  - user: rename attribute "name" -> "login"
+                  - instrepo, opensusepattern, package: find a better(?)
+                    name for attribute "name"
+                  - union: rename attribute "name" -> "overlay" (?)
+                  - Fix camel case in element opensusePattern and
+                    attributes patternPackageType and patternType
                 :
   ****************
 -->
@@ -1059,12 +1066,12 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
   <div>
     <define name="k.union.ro.attribute">
       <attribute name="ro">
-        <a:documentation>Read-only attribute</a:documentation>
+        <a:documentation>Device only for read-only </a:documentation>
       </attribute>
     </define>
     <define name="k.union.rw.attribute">
       <attribute name="ro">
-        <a:documentation>Read-Write attribute</a:documentation>
+        <a:documentation>Device for Read-Write</a:documentation>
       </attribute>
     </define>
     <define name="k.union.type.attribute">
