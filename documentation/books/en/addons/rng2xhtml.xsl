@@ -73,11 +73,11 @@
     <hr/>
     <div class="elementdiv" id="elementstoc">
       <h2>Elements</h2>
-      <span>
-        <xsl:apply-templates select=".//r:element" mode="toc">
+      <ul>
+      <xsl:apply-templates select="r:div/r:define/r:element" mode="toc">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-      </span>
+      </ul>
     </div>
     
     <hr/>
@@ -97,8 +97,31 @@
   </body>
 </xsl:template>
 
+<!-- 
+  Templates in mode="toc" create a table of contents of all elements
+-->
 
-  <!--  -->
+<xsl:template match="r:element" mode="toc">
+  <li>
+  <p>
+    <a>
+      <xsl:attribute name="href">
+        <xsl:text>#</xsl:text>
+        <xsl:value-of select="ancestor::r:define/@name"/>
+      </xsl:attribute>      
+      <xsl:value-of select="@name"/>
+    </a>
+    <xsl:if test="a:documentation">
+      <xsl:text> &#x2013; </xsl:text>
+      <xsl:value-of select="a:documentation"/>  
+    </xsl:if>    
+  </p>
+  </li>
+</xsl:template>
+
+<!-- 
+   Templates in mode="synopsis" creates the content model
+-->
 <xsl:template match="r:grammar/r:start" mode="synopsis">
     <code>
       <xsl:text>start</xsl:text>
@@ -106,23 +129,7 @@
       <xsl:apply-templates mode="synopsis"/>
     </code>
 </xsl:template>
-
-
-
-<xsl:template match="r:element" mode="toc">
-    <a>
-      <xsl:attribute name="href">
-        <xsl:text>#</xsl:text>
-        <xsl:value-of select="ancestor::r:define/@name"/>
-      </xsl:attribute>
-      <xsl:value-of select="@name"/>
-    </a>
-  <xsl:text> </xsl:text>
-</xsl:template>
-
-
-
-
+  
 <xsl:template match="r:define[r:element]" mode="synopsis">
   <xsl:variable name="title" select="r:element/@name"/>
   
