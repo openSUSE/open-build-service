@@ -129,7 +129,9 @@
   <div class="define" id="{@name}">
     <h3>Element <xsl:value-of select="$title"/></h3>
     <!-- Doku -->
-    <p>bla bla bla bla bla ...</p>
+    <xsl:if test="r:element/a:documentation">
+      <p><xsl:value-of select="r:element/a:documentation"/></p>
+    </xsl:if>
     <h4>Content Modell</h4>
     <code>
       <xsl:apply-templates mode="synopsis"/>
