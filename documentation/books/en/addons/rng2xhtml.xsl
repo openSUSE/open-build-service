@@ -334,4 +334,20 @@
   </tr>
 </xsl:template>
 
+<xsl:template match="r:attribute/r:choice" mode="attributes">
+  <xsl:text>( </xsl:text>
+  <xsl:apply-templates mode="attributes"/>
+  <xsl:text>)</xsl:text>
+</xsl:template>
+
+<xsl:template match="r:choice/r:value" mode="attributes">
+  <xsl:text>"</xsl:text>
+  <xsl:apply-templates mode="attributes"/>
+  <xsl:text>"</xsl:text>
+  <xsl:if test="following-sibling::r:value">
+    <xsl:text> | </xsl:text>
+  </xsl:if>
+</xsl:template>
+
+
 </xsl:stylesheet>
