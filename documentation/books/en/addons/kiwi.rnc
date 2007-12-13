@@ -62,11 +62,12 @@
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
-namespace d   = "http://docbook.org/ns/docbook"
+namespace db  = "http://docbook.org/ns/docbook"
 
 #==========================================
 # start with image description
 #
+
 start =
   ## The start pattern of an image
   k.image
@@ -77,17 +78,25 @@ start =
 
 div {
 	k.image.name.attribute = k.name.attribute
-	k.image.noNamespaceSchemaLocation.attribute = attribute
-	xsi:noNamespaceSchemaLocation { xsd:anyURI }
-	k.image.schemaLocation.attribute = attribute
-	xsi:schemaLocation { xsd:anyURI }
-	k.image.inherit.attribute = attribute inherit { text }
-	k.image.schemeversion.attribute = attribute schemeversion { "1.4" }
+	k.image.noNamespaceSchemaLocation.attribute =
+	  ## The location of the XSD Schema (not relevant for RELAX NG or DTD)
+	  attribute	xsi:noNamespaceSchemaLocation { xsd:anyURI }
+	k.image.schemaLocation.attribute =
+	  ## A pair of URI references: First is a namespace name,
+	  ## second the location of the XSD Schema
+	  ## (not relevant for RELAX NG or DTD)
+	  attribute xsi:schemaLocation { xsd:anyURI }
+	k.image.inherit.attribute =
+	  ## FIXME: ??
+	  attribute inherit { text }
+	k.image.schemeversion.attribute =
+	  ## The allowed Schema version (fixed value)
+	  attribute schemeversion { "1.4" }
 	k.image.attlist = k.image.name.attribute 
 	  & k.image.inherit.attribute?
 	  & k.image.schemeversion.attribute
-	  & k.image.noNamespaceSchemaLocation.attribute?
-	  & k.image.schemaLocation.attribute?
+	  & ( k.image.noNamespaceSchemaLocation.attribute?
+	      | k.image.schemaLocation.attribute? )?
 
 	k.image =
 	  ## The root element of the configuration file
@@ -381,9 +390,13 @@ div {
 # common element <metafile>
 #
 div {
-	k.metafile.url.attribute = attribute url { text }
+	k.metafile.url.attribute =
+	  ## FIXME: ??
+	  attribute url { text }
 	k.metafile.script.attribute = k.script.attribute
-	k.metafile.target.attribute = attribute target { text }
+	k.metafile.target.attribute =
+	  ## FIXME: ??
+	  attribute target { text }
 	k.metafile.attlist =
 		k.metafile.url.attribute &
 		k.metafile.script.attribute &
@@ -416,9 +429,15 @@ div {
 div {
 	k.package.name.attribute = k.name.attribute
 	k.package.arch.attribute = k.arch.attribute
-	k.package.priority.attribute = attribute priority { text }
-	k.package.addarch.attribute = attribute addarch { text }
-	k.package.removearch.attribute = attribute removearch { text }
+	k.package.priority.attribute =
+	  ## FIXME: ??
+	  attribute priority { text }
+	k.package.addarch.attribute =
+	  ## FIXME: ??
+	  attribute addarch { text }
+	k.package.removearch.attribute =
+	  ## FIXME: ??
+	  attribute removearch { text }
 	k.package.source.attribute = k.source.attribute
 	k.package.script.attribute = k.script.attribute
 	k.package.attlist =
@@ -454,7 +473,9 @@ div {
 # common element <partitions>
 #
 div {
-  k.partitions.device.attribute = attribute device { text }
+  k.partitions.device.attribute =
+    ## FIXME: ??
+    attribute device { text }
   
 	k.partitions.attlist = k.partitions.device.attribute?
 	  
@@ -471,10 +492,16 @@ div {
 #
 div {
 	k.partition.type.attribute = k.type.attribute
-	k.partition.number.attribute = attribute number { text }
+	k.partition.number.attribute =
+	  ## FIXME: ??
+	  attribute number { text }
 	k.partition.size.attribute = k.size.attribute
-	k.partition.mountpoint.attribute = attribute mountpoint { text }
-	k.partition.target.attribute = attribute target { text }
+	k.partition.mountpoint.attribute = 
+	  ## FIXME: ??
+	  attribute mountpoint { text }
+	k.partition.target.attribute =
+	  ## FIXME: ??
+	  attribute target { text }
 	k.partition.attlist =
 		k.partition.type.attribute?
 		&	k.partition.number.attribute? 
@@ -507,7 +534,9 @@ div {
 #
 div {
 	k.profile.name.attribute = k.name.attribute
-	k.profile.description.attribute = attribute description { text }  
+	k.profile.description.attribute =
+	  ## FIXME: ??
+	  attribute description { text }  
 	k.profile.attlist =
 		k.profile.name.attribute &
 		k.profile.description.attribute
@@ -524,7 +553,9 @@ div {
 #
 div {
 	k.repository.type.attribute = k.type.attribute
-	k.repository.status.attribute = attribute status { text }
+	k.repository.status.attribute =
+	  ## FIXME: ??
+	  attribute status { text }
 	k.repository.attlist = k.repository.type.attribute 
 		&	k.repository.status.attribute?
 	k.repository =
@@ -565,7 +596,9 @@ div {
 # common element <size>
 #
 div {
-	k.size.unit.attribute = attribute unit { "M" | "G" } # was: text
+	k.size.unit.attribute =
+	  ## The unit of the image
+	  attribute unit { "M" | "G" } # was: text
 	k.size.attlist = k.size.unit.attribute?
 	k.size =
 	  ## Specifies the size of an image in (M)egabyte or (G)igabyte

@@ -61,7 +61,7 @@
                 :
   ****************
 -->
-<grammar xmlns:d="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <!--
     ==========================================
     start with image description
@@ -83,19 +83,26 @@
     </define>
     <define name="k.image.noNamespaceSchemaLocation.attribute">
       <attribute name="xsi:noNamespaceSchemaLocation">
+        <a:documentation>The location of the XSD Schema (not relevant for RELAX NG or DTD)</a:documentation>
         <data type="anyURI"/>
       </attribute>
     </define>
     <define name="k.image.schemaLocation.attribute">
       <attribute name="xsi:schemaLocation">
+        <a:documentation>A pair of URI references: First is a namespace name,
+second the location of the XSD Schema
+(not relevant for RELAX NG or DTD)</a:documentation>
         <data type="anyURI"/>
       </attribute>
     </define>
     <define name="k.image.inherit.attribute">
-      <attribute name="inherit"/>
+      <attribute name="inherit">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.image.schemeversion.attribute">
       <attribute name="schemeversion">
+        <a:documentation>The allowed Schema version (fixed value)</a:documentation>
         <value>1.4</value>
       </attribute>
     </define>
@@ -107,10 +114,14 @@
         </optional>
         <ref name="k.image.schemeversion.attribute"/>
         <optional>
-          <ref name="k.image.noNamespaceSchemaLocation.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.image.schemaLocation.attribute"/>
+          <choice>
+            <optional>
+              <ref name="k.image.noNamespaceSchemaLocation.attribute"/>
+            </optional>
+            <optional>
+              <ref name="k.image.schemaLocation.attribute"/>
+            </optional>
+          </choice>
         </optional>
       </interleave>
     </define>
@@ -547,13 +558,17 @@
   -->
   <div>
     <define name="k.metafile.url.attribute">
-      <attribute name="url"/>
+      <attribute name="url">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.metafile.script.attribute">
       <ref name="k.script.attribute"/>
     </define>
     <define name="k.metafile.target.attribute">
-      <attribute name="target"/>
+      <attribute name="target">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.metafile.attlist">
       <interleave>
@@ -603,13 +618,19 @@
       <ref name="k.arch.attribute"/>
     </define>
     <define name="k.package.priority.attribute">
-      <attribute name="priority"/>
+      <attribute name="priority">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.package.addarch.attribute">
-      <attribute name="addarch"/>
+      <attribute name="addarch">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.package.removearch.attribute">
-      <attribute name="removearch"/>
+      <attribute name="removearch">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.package.source.attribute">
       <ref name="k.source.attribute"/>
@@ -677,7 +698,9 @@
   -->
   <div>
     <define name="k.partitions.device.attribute">
-      <attribute name="device"/>
+      <attribute name="device">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.partitions.attlist">
       <optional>
@@ -704,16 +727,22 @@
       <ref name="k.type.attribute"/>
     </define>
     <define name="k.partition.number.attribute">
-      <attribute name="number"/>
+      <attribute name="number">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.partition.size.attribute">
       <ref name="k.size.attribute"/>
     </define>
     <define name="k.partition.mountpoint.attribute">
-      <attribute name="mountpoint"/>
+      <attribute name="mountpoint">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.partition.target.attribute">
-      <attribute name="target"/>
+      <attribute name="target">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.partition.attlist">
       <interleave>
@@ -771,7 +800,9 @@
       <ref name="k.name.attribute"/>
     </define>
     <define name="k.profile.description.attribute">
-      <attribute name="description"/>
+      <attribute name="description">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.profile.attlist">
       <interleave>
@@ -797,7 +828,9 @@
       <ref name="k.type.attribute"/>
     </define>
     <define name="k.repository.status.attribute">
-      <attribute name="status"/>
+      <attribute name="status">
+        <a:documentation>FIXME: ??</a:documentation>
+      </attribute>
     </define>
     <define name="k.repository.attlist">
       <interleave>
@@ -857,6 +890,7 @@
   <div>
     <define name="k.size.unit.attribute">
       <attribute name="unit">
+        <a:documentation>The unit of the image</a:documentation>
         <choice>
           <value>M</value>
           <value>G</value>
