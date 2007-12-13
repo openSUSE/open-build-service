@@ -401,6 +401,9 @@ class ProjectController < ApplicationController
     redirect_to :action => 'show', :project => @project
   end
 
+  def add_repository
+  end
+
   def add_target_simple
     @project = params[:project]
   end
