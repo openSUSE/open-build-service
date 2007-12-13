@@ -16,10 +16,10 @@
 
 
 
-<xsl:key name="div" match="r:div" use="db:refname"/>
-<xsl:key name="elems" match="r:element" use="@name"/>
+<!--<xsl:key name="div" match="r:div" use="db:refname"/>
+<xsl:key name="elems" match="r:element" use="@name"/>-->
 <xsl:key name="defs" match="r:define" use="@name"/>
-<xsl:key name="pattern" match="r:define" use="@name"/>
+<!--<xsl:key name="pattern" match="r:define" use="@name"/>-->
 <xsl:key name="elemdef" match="r:define" use="r:element/@name"/>
 
 <!--  -->
@@ -137,13 +137,12 @@
       <xsl:apply-templates mode="synopsis"/>
     </code>
     <h4>Attributes</h4>
-    <!--<xsl:apply-templates mode="attributes"/>-->
+    <xsl:apply-templates mode="attributes"/>
   </div>
 </xsl:template>
 
 
 <xsl:template match="r:element" mode="synopsis">
-  <xsl:variable name="xdefs" select="key('elemdef', @name)"/>
   
   <xsl:message> ==><xsl:value-of 
     select="local-name(..)"/>:  <xsl:value-of 
@@ -152,14 +151,11 @@
   --></xsl:message>
   
   <xsl:value-of select="@name"/>
-  <xsl:if test="count($xdefs) &gt; 1">
-     <xsl:text> (</xsl:text>
-     <xsl:value-of select="../@name"/>
-     <xsl:text>)</xsl:text>
-  </xsl:if>
   <xsl:value-of select="$separator"/>
   
+  <xsl:text>( </xsl:text>
   <xsl:apply-templates mode="synopsis"/>
+  <xsl:text> )</xsl:text>
   
 </xsl:template>
 
@@ -207,11 +203,22 @@
 
 
 <xsl:template match="r:group" mode="synopsis">
-  <xsl:text> ( </xsl:text>
-  <xsl:apply-templates mode="synopsis"/>
-  <xsl:text> ) </xsl:text>
+  <xsl:choose>
+    <xsl:when test="parent::r:element">
+      <xsl:apply-templates mode="synopsis"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text> ( </xsl:text>
+      <xsl:apply-templates mode="synopsis"/>
+      <xsl:text> ) </xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
+<!-- Attributes -->
+
+<xsl:template match="a:documentation" mode="attributes"/>
+  
 
 
 </xsl:stylesheet>
