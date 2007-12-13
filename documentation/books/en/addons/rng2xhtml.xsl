@@ -318,13 +318,19 @@
   
   <xsl:apply-templates select="key('defs', @name)" mode="attributes"/>
 </xsl:template>
+  
+  
+<xsl:template match="r:define/r:interleave" mode="attributes">
+  <xsl:apply-templates mode="attributes"/>
+</xsl:template>
+
 
 
 <xsl:template match="r:attribute" mode="attributes">
   <xsl:param name="context"/>
   
-  <tr>
-    <td><code class="attribute"><xsl:value-of select="@name"/></code></td>
+  <tr valign="top">
+    <td><p><code class="attribute"><xsl:value-of select="@name"/></code></p></td>
     <td>
       <xsl:if test="a:documentation">
         <p><xsl:value-of select="a:documentation"/></p>
@@ -347,6 +353,17 @@
   <xsl:if test="following-sibling::r:value">
     <xsl:text> | </xsl:text>
   </xsl:if>
+</xsl:template>
+
+<xsl:template match="r:attribute/r:value" mode="attributes">
+  <xsl:text>"</xsl:text>
+  <xsl:apply-templates mode="attributes"/>
+  <xsl:text>"</xsl:text>   
+</xsl:template>
+
+<xsl:template match="r:attribute/r:data" mode="attributes">
+  <xsl:text>Datatype: </xsl:text>
+  <xsl:value-of select="@type"/>
 </xsl:template>
 
 
