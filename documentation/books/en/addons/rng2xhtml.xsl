@@ -21,6 +21,8 @@
 <xsl:key name="defs" match="r:define" use="@name"/>
 <!--<xsl:key name="pattern" match="r:define" use="@name"/>-->
 <xsl:key name="elemdef" match="r:define" use="r:element/@name"/>
+<xsl:key name="attrdef" match="r:define" use="r:attribute/@name"/>
+<xsl:key name="refdef" match="r:element" use="r:ref/@name"/>
 
 <!--  -->
 <xsl:param name="html.title">RELAX NG Schema Documentation</xsl:param>
@@ -47,6 +49,19 @@
   color:black; background-color:lightgray;
   margin-bottom: 2em;
 }
+
+#toc ul li {
+  margin-top:0em;
+  margin-bottom:0em;
+}
+#toc ul li p {
+  margin-top:0em;
+  margin-bottom:0em;
+}
+
+.footer {
+  font-size: x-small;
+}
     </xsl:text></style>
     <xsl:if test="$html.stylesheet">
       <link rel="stylesheet" href="{$html.stylesheet}" type="text/css"/>  
@@ -71,8 +86,9 @@
   <body>
     <h1>RELAX NG Schema Documentation for <xsl:value-of select="$schema.name"/></h1>
     <hr/>
-    <div class="elementdiv" id="elementstoc">
+    <div class="elementdiv" id="toc">
       <h2>Elements</h2>
+      <p>Number of elements: <xsl:value-of select="count(r:div/r:define/r:element)"/></p>
       <ul>
       <xsl:apply-templates select="r:div/r:define/r:element" mode="toc">
           <xsl:sort select="@name"/>
@@ -88,12 +104,18 @@
     </div>
     
     <hr/>
+    
     <div class="definediv" id="elementpattern">
       <h2>Element Patterns</h2>
       <xsl:apply-templates select="r:div/r:define[r:element]" mode="synopsis">
         <xsl:sort select="@name"/>
       </xsl:apply-templates>
-    </div>    
+    </div>
+    
+    <div class="footer">
+      <p>This documentation was created by the stylesheet 
+        <code>rng2xhtml.xsl</code>, developed by Thomas Schraitle.</p>
+    </div>
   </body>
 </xsl:template>
 
@@ -129,7 +151,8 @@
       <xsl:apply-templates mode="synopsis"/>
     </code>
 </xsl:template>
-  
+
+
 <xsl:template match="r:define[r:element]" mode="synopsis">
   <xsl:variable name="title" select="r:element/@name"/>
   
@@ -144,33 +167,55 @@
       <xsl:apply-templates mode="synopsis"/>
     </code>
     <h4>Attributes</h4>
-    <xsl:apply-templates mode="attributes"/>
+    <xsl:choose>
+      <!-- Hack! Test is not very stable -->
+      <xsl:when test="contains(r:element/r:ref/@name,
+        '.attlist')">
+        <table>
+          <thead>
+            <tr>
+              <th>Attribute</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <xsl:apply-templates select="self::r:define[r:element]" mode="attributes"/>
+            </tr>
+          </tbody>
+        </table>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>No attributes</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </div>
 </xsl:template>
 
 
 <xsl:template match="r:element" mode="synopsis">
   
-  <xsl:message> ==><xsl:value-of 
+  <!--<xsl:message> ==><xsl:value-of 
     select="local-name(..)"/>:  <xsl:value-of 
       select="@name"/> "<xsl:value-of 
-      select="ancestor::r:define/@name"/>" <!-- 
-  --></xsl:message>
+      select="ancestor::r:define/@name"/>" </xsl:message>-->
   
   <xsl:value-of select="@name"/>
   <xsl:value-of select="$separator"/>
   
   <xsl:text>( </xsl:text>
   <xsl:apply-templates mode="synopsis"/>
-  <xsl:text> )</xsl:text>
-  
+  <xsl:text> )</xsl:text>  
 </xsl:template>
 
+
 <xsl:template match="a:documentation|text()" mode="synopsis"/>
+
 
 <xsl:template match="r:text" mode="synopsis">
   <xsl:text>text</xsl:text>
 </xsl:template>
+
 
 <xsl:template match="r:empty" mode="synopsis">
   <xsl:text>empty</xsl:text>
@@ -181,7 +226,7 @@
   <xsl:variable name="elemName"
       select="(key('defs', @name)/r:element)[1]/@name"/>
   
-  <xsl:message>   ref = <xsl:value-of select="$elemName"/></xsl:message>
+  <!--<xsl:message>   ref = <xsl:value-of select="$elemName"/></xsl:message>-->
   <xsl:if test="$elemName != ''">
       <a href="#{@name}">
         <xsl:value-of select="key('defs',@name)/r:element/@name"/>
@@ -208,7 +253,6 @@
   <xsl:text>? </xsl:text>
 </xsl:template>
 
-
 <xsl:template match="r:group" mode="synopsis">
   <xsl:choose>
     <xsl:when test="parent::r:element">
@@ -224,8 +268,70 @@
 
 <!-- Attributes -->
 
-<xsl:template match="a:documentation" mode="attributes"/>
-  
+<!--<xsl:template match="*" mode="attributes">
+  <xsl:message>  <xsl:value-of select="name()"/></xsl:message>
+  <xsl:apply-templates mode="attributes"/>
+</xsl:template>-->
 
+<xsl:template match="a:documentation" mode="attributes"/>
+
+<xsl:template match="r:define[r:element]" mode="attributes">
+<!--  <xsl:variable name="refs" select="r:element/r:ref"/>
+  <xsl:variable name="__" select="key('refs', $refs[1]/@name)"/>
+  
+  <xsl:message>r:define[r:element]: "<xsl:value-of 
+    select="name($__)"/>"</xsl:message>
+  <xsl:for-each select="$refs">
+    <xsl:variable name="refname" select="r:element/r:ref/@name"/>
+    <xsl:variable name="" select="key('refs', 
+      )"></xsl:variable>
+    
+    <xsl:value-of select="@name"/>
+    <xsl:text> </xsl:text>
+  </xsl:for-each>
+ --> 
+ 
+  <xsl:apply-templates mode="attributes"/>
+</xsl:template>
+
+<xsl:template match="r:define[r:attribute]" mode="attributes">
+  <!--<span>#<xsl:value-of select="@name"/></span>
+  <xsl:text> </xsl:text>-->
+      <xsl:apply-templates mode="attributes"/>
+</xsl:template>
+
+<xsl:template match="r:ref" mode="attributes">
+    <xsl:variable name="attrName"
+    select="(key('defs', @name)/r:attribute)[1]/@name"/>
+   <xsl:variable name="attrRefs"
+      select="(key('defs', @name)/r:ref)[1]/@name"/>
+ 
+  <xsl:message> ==><xsl:value-of 
+    select="local-name(.)"/>(mode=attributes):  point to="<xsl:value-of 
+      select="@name"/>"   ancestor define="<xsl:value-of 
+      select="ancestor::r:define/@name"/>" 
+    "<xsl:value-of
+      select="name($attrName)"/>" "<xsl:value-of
+      select="string($attrRefs)"/>" <xsl:value-of 
+        select="name(key('defs', @name))"/>  
+  </xsl:message>
+  
+  <xsl:apply-templates select="key('defs', @name)" mode="attributes"/>
+</xsl:template>
+
+
+<xsl:template match="r:attribute" mode="attributes">
+  <xsl:param name="context"/>
+  
+  <tr>
+    <td><code class="attribute"><xsl:value-of select="@name"/></code></td>
+    <td>
+      <xsl:if test="a:documentation">
+        <p><xsl:value-of select="a:documentation"/></p>
+      </xsl:if>
+      <p><xsl:apply-templates mode="attributes"/></p>
+    </td>      
+  </tr>
+</xsl:template>
 
 </xsl:stylesheet>
