@@ -1,0 +1,20 @@
+<request id="12">
+ <merge>
+   <source project="home:kfreitag" package="kraft"/>
+   <target project="openSUSE_10_3" package="kraft"/>
+ </merge>
+
+ <lifecycle currentState="new">
+   <tag state="new" who="freitag" when="2007-12-12T07:00:00">
+     <comment>Please add this to openSUSE</comment>
+   </tag>
+   <tag state="deleted" who="adrian" when="2007-12-30T09:00:00">
+     <comment>Forgetit!</comment>
+   </tag>
+ </lifecycle>
+
+ <name>Kraft</name>
+ <description>Kraft is KDE software for craftsmen and should urgently
+ be added to the openSUSE distribution.</description>
+</request>
+

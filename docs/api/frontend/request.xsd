@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:k="http://xml.opensuse.org/" elementFormDefault="qualified">
+
+  <xs:annotation>
+      <xs:documentation>
+      This schema describes the buildservice request in general and its
+      specialised forms.
+    </xs:documentation>
+  </xs:annotation>
+  
+  <xs:simpleType name="states">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="new"/>
+      <xs:enumeration value="deleted"/>
+      <xs:enumeration value="declined"/>
+      <xs:enumeration value="accepted"/>
+      <xs:enumeration value="review"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+
+  <xs:element name="request">
+    <xs:annotation>
+      <xs:documentation>
+        Top level element for the request.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType>
+      <xs:sequence>
+      
+        <xs:choice>
+          <xs:element ref="merge" />
+          <xs:element ref="review"/>
+        </xs:choice>
+        <xs:element ref="lifecycle"/>
+        <xs:element ref="name" minOccurs="0"/>
+        <xs:element ref="description" minOccurs="0"/>
+
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:integer" use="required"/>
+      
+    </xs:complexType>
+   
+  </xs:element>
+  
+  <xs:element name="lifecycle">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tag" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="currentState" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="tag">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="comment"/>
+      </xs:sequence>
+      <xs:attribute name="state" type="states" use="required"/>
+      <xs:attribute name="who"   type="xs:string" use="required"/>
+      <xs:attribute name="when"  type="xs:dateTime" use="required"/>
+    </xs:complexType> 
+  </xs:element>
+  
+  <xs:element name="name" type="xs:string"/>
+  <xs:element name="description" type="xs:string"/>
+  <xs:element name="comment" type="xs:string"/>
+  
+  <xs:element name="merge">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="source"/>
+        <xs:element ref="target"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="source">
+    <xs:complexType>
+      <xs:attribute name="project" type="xs:string" use="required" />
+      <xs:attribute name="package" type="xs:string" use="optional" />
+    </xs:complexType>
+  </xs:element>
+        
+  <xs:element name="target" >
+    <xs:complexType>
+      <xs:attribute name="project" type="xs:string" use="required" />
+      <xs:attribute name="package" type="xs:string" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="review">
+    <xs:complexType>
+      <xs:attribute name="project" type="xs:string" use="required" />
+      <xs:attribute name="package" type="xs:string" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+
