@@ -577,12 +577,6 @@
                   <entry>
                     <package>xfsdump</package>
                   </entry>
-                  <entry></entry>
-                </row>
-                <row>
-                  <entry>
-                    <package>xfsprogs</package>
-                  </entry>
                   <entry>Administrative Utilities for the XFS File System</entry>
                 </row>
                 <row>
