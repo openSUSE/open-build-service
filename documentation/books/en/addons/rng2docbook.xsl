@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsl:stylesheet version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+  xmlns:rng="http://relaxng.org/ns/structure/1.0" 
+  extension-element-prefixes="rng a">
+
+<!--
+  http://www.techquila.com/download/LICENSE.txt
+Copyright (c) 2004 Khalil Ahmed. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. The end-user documentation included with the redistribution, if any, must include the following acknowledgment:
+
+    "This product includes software developed by Kal Ahmed (http://www.techquila.com/)."
+
+Alternately, this acknowledgment may appear in the software itself, if and wherever such third-party acknowledgments normally appear.
+
+THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+- - - - - - - - - - - - - - - - - - - - - 
+
+The stylesheet was modified by Thomas Schraitle:
+- Output a DocBook refentry
+
+
+-->
+
+  <xsl:output indent="yes"
+    doctype-public="-//OASIS//DTD DocBook XML V4.5//EN"
+    doctype-system="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"/>
+  
+
+  <!-- 
+  The main title for the generated documentation. 
+-->
+  <xsl:param name="title">RELAX-NG KIWI Schema Documentation</xsl:param>
+
+  <!-- 
+  The text to provide as a default string for elements, patterns or 
+  attributes with no documentation strings.
+-->
+  <xsl:param name="default.documentation.string"
+    select="'No documentation available.'"/>
+
+  <!-- 
+  The name of an XML file to be included in the documentation. 
+  If specified, the content of this XML file should be an XML 
+  fragment rooted on the Docbook <section> tag.
+-->
+  <xsl:param name="intro"/>
+
+  <!-- 
+  If specified, limits the documentation generated to just the named 
+  element or define. If there are multiple matches (i.e. you have used 
+  the same name for both an element and a pattern) then documentation
+  will be generated for all matches.
+-->
+  <xsl:param name="target"/>
+
+
+  <xsl:template match="rng:grammar">
+    <xsl:message>Processing with intro=<xsl:value-of select="$intro"/></xsl:message>
+    <article>
+      <title><xsl:value-of select="$title"/></title>
+      <xsl:if test="$intro">
+        <xsl:copy-of select="document($intro)"/>
+      </xsl:if>
+      <sect1>
+        <title>Grammar Documentation</title>
+        <xsl:if test="@ns">
+          <para>Namespace: <xsl:value-of select="@ns"/></para>
+        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="$target">
+            <xsl:apply-templates
+              select="//rng:element[@name=$target or rng:name=$target]"/>
+            <xsl:apply-templates select="//rng:define[@name=$target]"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="//rng:element">
+              <xsl:sort select="@name|rng:name" order="ascending"/>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="//rng:define">
+              <xsl:sort select="@name" order="ascending"/>
+            </xsl:apply-templates>
+          </xsl:otherwise>
+        </xsl:choose>
+      </sect1>
+    </article>
+  </xsl:template>
+
+  <xsl:template match="rng:element">
+    <xsl:variable name="name" select="@name|rng:name"/>
+    <xsl:variable name="nsuri">
+      <xsl:choose>
+        <xsl:when test="ancestor::rng:div[@ns]">
+          <xsl:value-of select="ancestor::rng:div[@ns][1]/@ns"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="ancestor::rng:grammar[@ns][1]/@ns"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="nsprefix">
+      <xsl:if test="$nsuri">
+        <xsl:value-of select="name(namespace::*[.=$nsuri])"/>
+      </xsl:if>
+    </xsl:variable>
+    <xsl:variable name="qname">
+      <xsl:choose>
+        <xsl:when test="not($nsprefix='')">
+          <xsl:value-of select="$nsprefix"/>:<xsl:value-of
+            select="$name"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$name"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="hasatts">
+      <xsl:apply-templates select="." mode="has-attributes"/>
+    </xsl:variable>
+    
+    <sect2>
+      <title>Element: <xsl:value-of select="$qname"/></title>     
+      <refentry>
+        <xsl:attribute name="id">
+          <xsl:call-template name="makeid">
+            <xsl:with-param name="node" select="."/>
+          </xsl:call-template>
+        </xsl:attribute>
+        <refnamediv>
+          <refname><xsl:value-of select="$qname"/></refname>
+          <refpurpose>
+            <xsl:choose>
+              <xsl:when test="a:documentation">
+                <xsl:apply-templates select="a:documentation"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="$default.documentation.string"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </refpurpose>
+        </refnamediv>
+        <refsynopsisdiv>
+          <title>Content Model</title>
+          <para><xsl:apply-templates mode="content-model"/></para>
+        </refsynopsisdiv>
+        <refsect1>
+          <title>Attributes</title>
+          <informaltable>
+            <tgroup cols="3">
+              <thead>
+                <row>
+                  <entry role="header">
+                    <para>Attribute</para>
+                  </entry>
+                  <entry role="header">
+                    <para>Type</para>
+                  </entry>
+                  <entry role="header">
+                    <para>Use</para>
+                  </entry>
+                  <entry role="header">
+                    <para>Documentation</para>
+                  </entry>
+                </row>
+              </thead>              
+              <tbody>
+                <xsl:variable name="nesting"
+                  select="count(ancestor::rng:element)"/>
+                <xsl:apply-templates
+                  select=".//rng:attribute[count(ancestor::rng:element)=$nesting+1] | .//rng:ref[count(ancestor::rng:element)=$nesting+1]"
+                  mode="attributes">
+                  <xsl:with-param name="matched" select="."/>
+                  <xsl:with-param name="optional">
+                    <xsl:value-of select="false()"/>
+                  </xsl:with-param>
+                </xsl:apply-templates>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </refsect1>
+        <refsect1>
+          <title>Source</title>
+          <programlisting><xsl:text 
+		    disable-output-escaping="yes">&lt;![CDATA[</xsl:text><xsl:copy-of
+		    select="."/><xsl:text 
+		      disable-output-escaping="yes">]]&gt;</xsl:text></programlisting>
+        </refsect1>
+      </refentry>
+    </sect2>
+  </xsl:template>
+
+  <xsl:template match="rng:attribute" mode="attributes">
+    <xsl:param name="matched"/>
+    <xsl:param name="optional"/>
+    <row>
+      <entry>
+        <xsl:value-of select="@name"/>
+      </entry>
+      <entry>
+        <xsl:choose>
+          <xsl:when test="rng:data"> xsd:<xsl:value-of
+              select="rng:data/@type"/>
+          </xsl:when>
+          <xsl:when test="rng:text"> TEXT </xsl:when>
+          <xsl:when test="rng:choice"> Enumeration:<xsl:text> </xsl:text>
+            <xsl:for-each select="rng:choice/rng:value"> "<xsl:value-of
+                select="."/>" <xsl:if test="following-sibling::*"> |
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
+          <xsl:otherwise> TEXT </xsl:otherwise>
+        </xsl:choose>
+      </entry>
+      <entry>
+        <xsl:choose>
+          <xsl:when test="ancestor::rng:optional">Optional</xsl:when>
+          <xsl:when test="boolean($optional)">Optional</xsl:when>
+          <xsl:otherwise>Required</xsl:otherwise>
+        </xsl:choose>
+      </entry>
+      <entry>
+        <para>
+          <xsl:apply-templates select="a:documentation[1]"/>
+        </para>
+      </entry>
+    </row>
+  </xsl:template>
+
+  <xsl:template match="rng:ref" mode="attributes">
+    <xsl:param name="matched"/>
+    <xsl:param name="optional"/>
+    <xsl:variable name="name" select="@name"/>
+    <xsl:variable name="opt" select="count(ancestor::rng:optional) > 0"/>
+    <xsl:apply-templates select="//rng:define[@name=$name]"
+      mode="attributes">
+      <xsl:with-param name="matched" select="$matched"/>
+      <xsl:with-param name="optional"
+        select="boolean($optional) or boolean($opt)"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:template match="rng:define" mode="attributes">
+    <xsl:param name="matched"/>
+    <xsl:param name="optional"/>
+    <xsl:if test="not(count(matched)=count(matched|.))">
+      <xsl:apply-templates
+        select=".//rng:attribute[not(ancestor::rng:element)] | .//rng:ref[not(ancestor::rng:element)]"
+        mode="attributes">
+        <xsl:with-param name="matched" select="$matched|."/>
+        <xsl:with-param name="optional"
+          select="$optional or ancestor::rng:optional"/>
+      </xsl:apply-templates>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:element" mode="has-attributes">
+    <xsl:choose>
+      <xsl:when
+        test=".//rng:attribute[count(ancestor::rng:element)=count(current()/ancestor::rng:element) + 1]"
+        >true</xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates
+          select=".//rng:ref[count(ancestor::rng:element)=count(current()/ancestor::rng:element) + 1]"
+          mode="has-attributes"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="rng:ref" mode="has-attributes">
+    <xsl:variable name="name" select="@name"/>
+    <xsl:apply-templates select="//rng:define[@name=$name]"
+      mode="has-attributes"/>
+  </xsl:template>
+
+  <xsl:template match="rng:define" mode="has-attributes">
+    <xsl:choose>
+      <xsl:when test=".//rng:attribute[not(ancestor::rng:element)]">true</xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates
+          select=".//rng:ref[not(ancestor::rng:element)]"
+          mode="has-attributes"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="rng:*" mode="has-attributes">
+    <xsl:apply-templates mode="has-attributes"/>
+  </xsl:template>
+
+  <xsl:template match="*|node()" mode="has-attributes">
+    <!-- suppress -->
+  </xsl:template>
+
+  <xsl:template match="rng:define">
+    <xsl:variable name="name" select="@name"/>
+    
+    <sect1>
+      <title>Pattern</title>
+    <xsl:choose>
+      <xsl:when
+        test="following::rng:define[@name=$name and not(@combine)]">
+        <xsl:apply-templates
+          select="//rng:define[@name=$name and not(@combine)]"
+          mode="define-base"/>
+      </xsl:when>
+      <xsl:when test="not(preceding::rng:define[@name=$name])">
+        <xsl:apply-templates select="." mode="define-base"/>
+      </xsl:when>
+    </xsl:choose>
+    </sect1>
+    
+  </xsl:template>
+
+  <xsl:template match="rng:define" mode="define-base">
+    <xsl:variable name="name" select="@name"/>
+    <xsl:variable name="haselements">
+      <xsl:apply-templates select="." mode="find-element">
+        <xsl:with-param name="matched" select=".."/>
+      </xsl:apply-templates>
+    </xsl:variable>
+    <xsl:variable name="combined">
+      <xsl:if test="@combine">
+        <xsl:value-of select="following::rng:define[@name=$name]"/>
+      </xsl:if>
+      <xsl:if test="not(@combine)">
+        <xsl:value-of select="//rng:define[@name=$name and @combine]"/>
+      </xsl:if>
+    </xsl:variable>
+    <xsl:variable name="nsuri">
+      <xsl:choose>
+        <xsl:when test="ancestor::rng:div[@ns][1]">
+          <xsl:value-of select="ancestor::rng:div[@ns][1]/@ns"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="ancestor::rng:grammar[@ns][1]/@ns"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <sect2>
+      <xsl:attribute name="id">
+        <xsl:value-of select="@name"/>
+      </xsl:attribute>
+      <title>Pattern: <xsl:value-of select="@name"/></title>
+      <table>
+        <title>Pattern: <xsl:value-of select="@name"/></title>
+        <tgroup cols="2">
+          <colspec colnum="1"/>
+          <colspec colnum="2" colwidth="*"/>
+          <tbody>
+            <row>
+              <entry class="header" valign="top">
+                <para>Namespace</para>
+              </entry>
+              <entry>
+                <para>
+                  <xsl:value-of select="$nsuri"/>
+                </para>
+              </entry>
+            </row>
+            <xsl:if
+              test="a:documentation or not($default.documentation.string='')">
+              <row>
+                <entry class="header" valign="top">
+                  <para>Documentation</para>
+                </entry>
+                <entry>
+                  <para>
+                    <xsl:choose>
+                      <xsl:when test="a:documentation">
+                        <xsl:apply-templates select="a:documentation"/>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:value-of
+                          select="$default.documentation.string"/>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </para>
+                </entry>
+              </row>
+            </xsl:if>
+            <xsl:if test="starts-with($haselements, 'true')">
+              <row valign="top">
+                <entry class="header">
+                  <para>Content Model</para>
+                </entry>
+                <entry>
+                  <para>
+                    <xsl:apply-templates select="*" mode="content-model"/>
+                    <xsl:if test="@combine">
+                      <xsl:apply-templates
+                        select="following::rng:define[@name=$name]"
+                        mode="define-combine"/>
+                    </xsl:if>
+                    <xsl:if test="not(@combine)">
+                      <xsl:apply-templates
+                        select="//rng:define[@name=$name and @combine]"
+                        mode="define-combine"/>
+                    </xsl:if>
+                  </para>
+                </entry>
+              </row>
+            </xsl:if>
+            <xsl:variable name="hasatts">
+              <xsl:apply-templates select="." mode="has-attributes"/>
+            </xsl:variable>
+            <xsl:if test="starts-with($hasatts, 'true')">
+              <row valign="top">
+                <entry class="header">Attributes</entry>
+                <entrytbl cols="3">
+                  <thead>
+                    <row>
+                      <entry role="header">
+                        <para>Attribute</para>
+                      </entry>
+                      <entry role="header">
+                        <para>Type</para>
+                      </entry>
+                      <entry role="header">
+                        <para>Use</para>
+                      </entry>
+                      <entry role="header">
+                        <para>Documentation</para>
+                      </entry>
+                    </row>
+                  </thead>
+                  <tbody>
+                    <xsl:variable name="nesting"
+                      select="count(ancestor::rng:element)"/>
+                    <xsl:apply-templates
+                      select=".//rng:attribute[count(ancestor::rng:element)=$nesting] | .//rng:ref[count(ancestor::rng:element)=$nesting]"
+                      mode="attributes">
+                      <xsl:with-param name="matched" select="."/>
+                    </xsl:apply-templates>
+                  </tbody>
+                </entrytbl>
+              </row>
+            </xsl:if>
+          </tbody>
+        </tgroup>
+      </table>
+    </sect2>
+  </xsl:template>
+
+  <xsl:template match="rng:define" mode="define-combine">
+    <xsl:choose>
+      <xsl:when test="@combine='choice'"> | (<xsl:apply-templates
+          mode="content-model"/>) </xsl:when>
+      <xsl:when test="@combine='interleave'"> &amp;
+          (<xsl:apply-templates mode="content-model"/>) </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="rng:element" mode="makeid">
+    <xsl:apply-templates select="ancestor::rng:element[1]" mode="makeid"
+      />.<xsl:value-of select="@name"/>
+  </xsl:template>
+
+  <xsl:template match="rng:define" mode="makeid">
+    <xsl:value-of select="@name"/>
+  </xsl:template>
+
+  <xsl:template match="*" mode="makeid">
+    <xsl:apply-templates
+      select="ancestor::rng:element[1] | ancestor::rng:define[1]"/>
+  </xsl:template>
+
+  <xsl:template name="makeid">
+    <xsl:param name="node"/>
+    <xsl:variable name="id">
+      <xsl:apply-templates select="$node" mode="makeid"/>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="ancestor-or-self::rng:define">
+        <xsl:value-of select="ancestor-or-self::rng:define[1]/@name"/>
+        <xsl:value-of select="$id"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="substring-after($id, '.')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- ================================================= -->
+  <!-- CONTENT MODEL PATTERNS                            -->
+  <!-- The following patterns construct a text           -->
+  <!-- description of an element content model           -->
+  <!-- ================================================= -->
+  <xsl:template match="rng:element" mode="content-model">
+    <link>
+      <xsl:attribute name="linkend">
+        <xsl:call-template name="makeid">
+          <xsl:with-param name="node" select="."/>
+        </xsl:call-template>
+      </xsl:attribute>
+      <xsl:value-of select="@name"/>
+    </link>
+    <xsl:if
+      test="not(parent::rng:choice) and 
+            (following-sibling::rng:element 
+            | following-sibling::rng:optional
+            | following-sibling::rng:oneOrMore 
+            | following-sibling::rng:zeroOrMore)"
+      >,</xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:group" mode="content-model">
+      (<xsl:apply-templates mode="content-model"/>) </xsl:template>
+
+  <xsl:template match="rng:optional" mode="content-model">
+    <xsl:if
+      test=".//rng:element | .//rng:ref[not(ancestor::rng:attribute)]">
+      <xsl:apply-templates mode="content-model"/>? <xsl:if
+        test="not(parent::rng:choice) and 
+              (following-sibling::rng:element 
+              | following-sibling::rng:optional 
+              | following-sibling::rng:oneOrMore 
+              | following-sibling::rng:zeroOrMore)"
+        >,</xsl:if>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:oneOrMore" mode="content-model">
+      (<xsl:apply-templates mode="content-model"/>)+ <xsl:if
+      test="not(parent::rng:choice) and 
+            (following-sibling::rng:element 
+            | following-sibling::rng:optional 
+            | following-sibling::rng:oneOrMore 
+            | following-sibling::rng:zeroOrMore)"
+      >,</xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:zeroOrMore" mode="content-model">
+      (<xsl:apply-templates mode="content-model"/>)* <xsl:if
+      test="not(parent::rng:choice) and 
+            (following-sibling::rng:element 
+            | following-sibling::rng:optional 
+            | following-sibling::rng:oneOrMore 
+            | following-sibling::rng:zeroOrMore)"
+      >,</xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:choice" mode="content-model"> 
+    <xsl:text> (</xsl:text>
+    <xsl:for-each select="*">
+      <xsl:apply-templates select="." mode="content-model"/>
+      <xsl:if test="following-sibling::rng:*"> | </xsl:if>
+    </xsl:for-each>
+    <xsl:text>) </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="rng:value" mode="content-model"> 
+    <xsl:text> "</xsl:text>
+    <xsl:value-of select="."/>  
+    <xsl:text>" </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="rng:empty" mode="content-model">
+    <xsl:text> EMPTY</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="rng:ref" mode="content-model">
+    <xsl:variable name="haselement">
+      <xsl:apply-templates select="." mode="find-element"/>
+    </xsl:variable>
+    <xsl:if test="starts-with($haselement, 'true')">
+      <link linkend="{@name}">%<xsl:value-of select="@name"/>;</link>
+      <xsl:if test="not(parent::rng:choice) and 
+                    (following-sibling::rng:element
+                    | following-sibling::rng:optional 
+                    | following-sibling::rng:oneOrMore 
+                    | following-sibling::rng:zeroOrMore)"
+        >, </xsl:if>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:text" mode="content-model"> 
+    <xsl:text> TEXT </xsl:text>
+    <xsl:if
+      test="not(parent::rng:choice) and 
+            (following-sibling::rng:element 
+            | following-sibling::rng:optional 
+            | following-sibling::rng:oneOrMore 
+            | following-sibling::rng:zeroOrMore)"
+      >, </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:data" mode="content-model">
+    <xsl:text> xsd:</xsl:text>
+    <xsl:value-of select="@type"/>
+  </xsl:template>
+
+  <xsl:template match="*" mode="content-model">
+    <!-- suppress -->
+  </xsl:template>
+
+  <xsl:template match="rng:define" mode="find-element">
+    <xsl:param name="matched"/>
+    <xsl:if test="not(count($matched | .)=count($matched))">
+      <xsl:choose>
+        <xsl:when test=".//rng:element|.//rng:text">
+          <xsl:value-of select="true()"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates
+            select=".//rng:ref[not(ancestor::rng:attribute)]"
+            mode="find-element">
+            <xsl:with-param name="matched" select="$matched | ."/>
+          </xsl:apply-templates>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:ref" mode="find-element">
+    <xsl:param name="matched" select="."/>
+    <xsl:variable name="ref" select="@name"/>
+    <xsl:apply-templates select="//rng:define[@name=$ref]"
+      mode="find-element">
+      <xsl:with-param name="matched" select="$matched"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+
+</xsl:stylesheet>
