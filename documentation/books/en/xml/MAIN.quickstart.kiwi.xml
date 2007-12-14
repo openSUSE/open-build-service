@@ -39,7 +39,7 @@
     <releaseinfo
  >$Id$</releaseinfo>
   </articleinfo>
-  <sect1 id="sec.kiwi.whatis" os="sles10">
+  <sect1 id="sec.kiwi.whatis">
     <title>What is KIWI?</title>
     <para>KIWI is a system for creating ISO images to boot as Live DVD,
       Live USB, or as an image for virtualization systems like Xen, Qemu
@@ -97,10 +97,12 @@
       </listitem>
     </itemizedlist>
   </sect1>
+  <!--
   <sect1 id="sec.kiwi.backgroundd">
     <title>Background</title>
-    <para>FIXME</para>
+    <para></para>
   </sect1>
+  -->
   <sect1 id="sec.kiwi.preparation">
     <title>What do I need?</title>
     <para>To build images with KIWI, you need the following
@@ -440,7 +442,175 @@
     
     <sect2 id="sec.kiwi.publishing">
       <title>Creating a Rescue System</title>
-      <para>FIXME</para>
+      <para>A rescue system lets you debug your system. It contains
+        tools that are required for these tasks. Mainly the overall
+        procedure is very similar to the last one. Proceed as follows:</para>
+      <procedure>
+        <step>
+          <para>Install on your system the packages
+            <package>aufs</package> and <package>squashfs</package>.</para>
+        </step>
+        <step>
+          <para>Copy the example directory from
+            <filename>test2</filename> from your KIWI package:</para>
+          <screen>cp -a /usr/share/doc/packages/kiwi/examples/test2/ rescue/</screen>
+        </step>
+        <step>
+          <para>Open the configuration file
+            <filename>devel/config.xml</filename> and change the
+            attribute <sgmltag class="attribute">name</sgmltag> in
+            element <sgmltag>image</sgmltag> to <sgmltag
+              class="attvalue">rescue</sgmltag>.</para>
+        </step>
+        <step>
+          <para>Add your packages into <filename>config.xml</filename>.
+            Insert before the <sgmltag
+              class="endtag">packages</sgmltag> end tag the following
+              packages:</para>
+          <table id="tab.kiwi.rescuepackages">
+            <title>Examples of Pattern Names for Development</title>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry>Pattern</entry>
+                  <entry>Explanation</entry>
+                </row>
+              </thead>
+              <tbody>
+                <row>
+                  <entry>
+                    <package>dar</package>
+                  </entry>
+                  <entry>Backup and Restore Application</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>ddrescue</package>
+                  </entry>
+                  <entry>Data Copying in the Presence of I/O Errors</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>dmraid</package>
+                  </entry>
+                  <entry>A Device-Mapper Software RAID Support Tool</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>fuse</package>
+                  </entry>
+                  <entry>User space File System</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>fuseiso</package>
+                  </entry>
+                  <entry>FUSE module to mount CD-ROM images with ISO9660 filesystems in them</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>fusesmb</package>
+                  </entry>
+                  <entry>SMB for FUSE</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>hfsutils</package>
+                  </entry>
+                  <entry>Tools Used for the Macintosh's Hierarchical File System</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>jfsutils</package>
+                  </entry>
+                  <entry>IBM JFS Utility Programs</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>mtools</package>
+                  </entry>
+                  <entry>floppy daemon for remote access to floppy drive</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>ntfsprogs</package>
+                  </entry>
+                  <entry>NTFS filesystem libraries and utilities</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>parted</package>
+                  </entry>
+                  <entry>GNU partitioner</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>scpm</package>
+                  </entry>
+                  <entry>System Configuration Profile Management</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>squashfs</package>
+                  </entry>
+                  <entry>A Read-Only File System with Efficient Compression</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>sshfs</package>
+                  </entry>
+                  <entry>Filesystem client based on SSH file transfer protocol</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>sudo</package>
+                  </entry>
+                  <entry>Execute some commands as root</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>udftools</package>
+                  </entry>
+                  <entry>UDF filesystem tools</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>xfsdump</package>
+                  </entry>
+                  <entry></entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>xfsprogs</package>
+                  </entry>
+                  <entry>Administrative Utilities for the XFS File System</entry>
+                </row>
+                <row>
+                  <entry>
+                    <package>xfsprogs</package>
+                  </entry>
+                  <entry>Utilities for managing the XFS file system</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </table>
+        </step>
+        <step>
+          <para>Save the configuration file.</para>
+        </step>
+        <step>
+          <para>Run the first phase (physical extend):</para>
+          <screen><command>kiwi</command> --prepare devel --root /tmp/kiwi-devel</screen>
+        </step>
+        <step>
+          <para>Run the second phase (logical extend):</para>
+          <screen><command>kiwi</command> --create /tmp/kiwi-devel -d /tmp --type iso</screen>
+        </step>
+        <step>
+          <para>Test the ISO image.</para>
+        </step>
+      </procedure>
+      
       <!-- 
       cp -a /usr/share/doc/packages/kiwi/examples/test2/ rescue
       Install aufs and squashfs
