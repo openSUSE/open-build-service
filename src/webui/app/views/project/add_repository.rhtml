@@ -1,1 +1,29 @@
 <h1>Add Repository</h1>
+
+<div id="left_cnt_col">
+
+  <div style="dropable_items">
+
+    <div id="dummy">
+      Dummy Item
+    </div>
+    
+
+
+  <%= draggable_element "dummy", :revert => true %>
+
+  </div>
+
+</div>
+
+<div id="right_cnt_col">
+  <div id="drop_zone">
+    <!-- <p>
+      Drop<br/>
+      Here
+    </p> -->
+  </div>
+  
+</div>
+
+<%= drop_receiving_element("drop_zone") %>

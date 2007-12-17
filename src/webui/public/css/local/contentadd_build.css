@@ -114,3 +114,45 @@ background:transparent !important;
 }
 
 
+/* Repo DropZone */
+
+#right_cnt_col,
+#left_cnt_col {
+  width: 49%;
+  position: relative;
+  float: left;
+  
+/*  border: 1px solid green;*/
+}
+#right_cnt_col {
+/*  background: yellow;*/
+}
+#left_cnt_col {
+/*  background: fuchsia;*/
+}
+#dummy {
+  border: 1px dotted fuchsia;
+  width: 100px;
+}
+
+#drop_zone {
+  display: block;
+/*  width: 165px;*/
+/*  height: 165px;*/
+  width: 165px;
+  height: 300px;
+  
+  text-align: center;
+  
+  background: transparent url('images/drop_zone_0.png') no-repeat scroll center center;
+  border: 1px dotted fuchsia;
+}
+
+#drop_zone p {
+  font-size: 2em;
+  font-weight: bold;
+  color: #DDD;
+  padding-top: 40px;
+}
+
+/* /Repo DropZone */
