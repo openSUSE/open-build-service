@@ -29,16 +29,18 @@ test: kiwi.rng
 	xmllint --noout --relaxng kiwi.rng  /usr/share/kiwi/image/isoboot/*/config.xml
 	@echo "*** Validating with msv..."
 	msv kiwi.rng /usr/share/kiwi/image/isoboot/*/config.xml
+	@echo "*** Validating with jing..."
+	jing kiwi.rng /usr/share/kiwi/image/isoboot/*/config.xml
 	@echo "*** Finished."
 
 .PHONY: validate val
 validate val: .validate
 	@echo "*** Validating KIWI Schema..."
-	@echo "    --- xmllint validation..."
+	@echo "    ---(1) xmllint validation..."
 	xmllint --noout --relaxng $(RELAXNG) kiwi.rng
-	@echo "    --- jing validation..."
+	@echo "    ---(2) jing validation..."
 	jing $(RELAXNG) kiwi.rng
-	@echo "    --- msv validation..."
+	@echo "    ---(3) msv validation..."
 	msv $(RELAXNG) kiwi.rng
 
 .validate: kiwi.rng
@@ -54,8 +56,6 @@ validate val: .validate
 %.rng: %.rnc
 	@echo "*** Converting KIWI RNC -> RNG..."
 	trang -I rnc -O rng $< $@
-	# @echo "*** Validating KIWI Schema..."
-	# jing $(RELAXNG) $@
 	
 #
 # EOF
