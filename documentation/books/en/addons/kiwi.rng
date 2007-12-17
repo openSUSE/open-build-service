@@ -97,7 +97,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.image.inherit.attribute">
       <attribute name="inherit">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Path to an image description directory from which
+the package Information is inherited</a:documentation>
       </attribute>
     </define>
     <define name="k.image.schemeversion.attribute">
@@ -128,36 +129,33 @@ second the location of the XSD Schema
     <define name="k.image">
       <element name="image">
         <a:documentation>The root element of the configuration file</a:documentation>
-        <group>
-          <ref name="k.image.attlist"/>
-          <ref name="k.description"/>
-          <ref name="k.preferences"/>
-          <optional>
-            <ref name="k.profiles"/>
-          </optional>
-          <optional>
-            <ref name="k.instsource"/>
-          </optional>
-          <zeroOrMore>
-            <ref name="k.users"/>
-          </zeroOrMore>
-          <zeroOrMore>
-            <ref name="k.drivers"/>
-          </zeroOrMore>
-          <oneOrMore>
-            <ref name="k.repository"/>
-          </oneOrMore>
-          <optional>
-            <ref name="k.deploy"/>
-          </optional>
-          <optional>
-            <ref name="k.split"/>
-          </optional>
-          <zeroOrMore>
-            <ref name="k.packages"/>
-          </zeroOrMore>
-        </group>
-        <!-- k.bootstrap # Future element -->
+        <ref name="k.image.attlist"/>
+        <ref name="k.description"/>
+        <ref name="k.preferences"/>
+        <optional>
+          <ref name="k.profiles"/>
+        </optional>
+        <optional>
+          <ref name="k.instsource"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="k.users"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="k.drivers"/>
+        </zeroOrMore>
+        <oneOrMore>
+          <ref name="k.repository"/>
+        </oneOrMore>
+        <optional>
+          <ref name="k.deploy"/>
+        </optional>
+        <optional>
+          <ref name="k.split"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="k.packages"/>
+        </zeroOrMore>
       </element>
     </define>
   </div>
@@ -188,7 +186,7 @@ second the location of the XSD Schema
   </define>
   <define name="k.profiles.attribute">
     <attribute name="profiles">
-      <a:documentation>FIXME: ??</a:documentation>
+      <a:documentation>A profile name which binds the section to this name</a:documentation>
     </attribute>
   </define>
   <define name="k.pwd.attribute">
@@ -198,22 +196,19 @@ second the location of the XSD Schema
   </define>
   <define name="k.script.attribute">
     <attribute name="script">
-      <a:documentation>FIXME: ??</a:documentation>
+      <a:documentation>A script hook for meta files to be called after the
+file was fetched</a:documentation>
     </attribute>
   </define>
   <define name="k.source.attribute">
     <attribute name="source">
-      <a:documentation>FIXME: ??</a:documentation>
-    </attribute>
-  </define>
-  <define name="k.type.attribute">
-    <attribute name="type">
-      <a:documentation>FIXME: ??</a:documentation>
+      <a:documentation>A location where packages can be found to build an
+installation source from</a:documentation>
     </attribute>
   </define>
   <define name="k.size.attribute">
     <attribute name="size">
-      <a:documentation>FIXME: ??</a:documentation>
+      <a:documentation>A partition size or optional image size</a:documentation>
     </attribute>
   </define>
   <define name="k.dest.attribute">
@@ -224,11 +219,6 @@ second the location of the XSD Schema
   <define name="k.username.attribute">
     <attribute name="username">
       <a:documentation>A name of a user</a:documentation>
-    </attribute>
-  </define>
-  <define name="k.profile.attribute">
-    <attribute name="profiles">
-      <a:documentation>FIXME: ??</a:documentation>
     </attribute>
   </define>
   <!--
@@ -259,7 +249,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.compressed">
       <element name="compressed">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Compress image. The compression may be changed by the
+code according to the image output type</a:documentation>
         <ref name="k.compressed.attlist"/>
         <text/>
       </element>
@@ -285,7 +276,9 @@ second the location of the XSD Schema
     </define>
     <define name="k.configuration">
       <element name="configuration">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the network deploy configuration this section 
+specifies the configuration files which should be included
+into the image after deployment</a:documentation>
         <ref name="k.configuration.attlist"/>
         <empty/>
       </element>
@@ -302,7 +295,9 @@ second the location of the XSD Schema
     </define>
     <define name="k.commandline">
       <element name="commandline">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the network deploy configuration this section
+specifies the kernel boot commandline used when the image
+gets deployed</a:documentation>
         <ref name="k.commandline.attlist"/>
         <empty/>
       </element>
@@ -336,7 +331,7 @@ second the location of the XSD Schema
     </define>
     <define name="k.defaultbaseroot">
       <element name="defaultbaseroot">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Default path if --baseroot option is no specified</a:documentation>
         <ref name="k.defaultbaseroot.attlist"/>
         <text/>
       </element>
@@ -353,7 +348,7 @@ second the location of the XSD Schema
     </define>
     <define name="k.defaultdestination">
       <element name="defaultdestination">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Default path if --destdir option is not specified</a:documentation>
         <ref name="k.defaultdestination.attlist"/>
         <text/>
       </element>
@@ -370,7 +365,7 @@ second the location of the XSD Schema
     </define>
     <define name="k.defaultroot">
       <element name="defaultroot">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Default root directory name if --root option is not specified</a:documentation>
         <ref name="k.defaultroot.attlist"/>
         <text/>
       </element>
@@ -435,7 +430,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.initrd">
       <element name="initrd">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the network deploy configuration this element
+specifies where the boot image (initrd) can be found</a:documentation>
         <ref name="k.initrd.attlist"/>
         <empty/>
       </element>
@@ -452,7 +448,7 @@ second the location of the XSD Schema
     </define>
     <define name="k.instrepo.priority.attribute">
       <attribute name="priority">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Search priority for packages in this repo</a:documentation>
       </attribute>
     </define>
     <define name="k.instrepo.username.attribute">
@@ -471,7 +467,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.instrepo">
       <element name="instrepo">
-        <a:documentation>Name of an installation repository</a:documentation>
+        <a:documentation>Name of a repository which is used to create an
+installation source</a:documentation>
         <ref name="k.instrepo.attlist"/>
         <ref name="k.source"/>
       </element>
@@ -488,7 +485,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.kernel">
       <element name="kernel">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the network deploy configuration this section
+specifies the where to find the boot kernel</a:documentation>
         <ref name="k.kernel.attlist"/>
         <empty/>
       </element>
@@ -505,7 +503,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.keytable">
       <element name="keytable">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Image keytable setup. The value will be part of
+/etc/sysconfig/keyboard</a:documentation>
         <ref name="k.keytable.attlist"/>
         <text/>
       </element>
@@ -523,7 +522,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.locale">
       <element name="locale">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Image locale setup. The value will be part of
+/etc/sysconfig/language</a:documentation>
         <ref name="k.locale.attlist"/>
         <text/>
       </element>
@@ -540,7 +540,11 @@ second the location of the XSD Schema
     </define>
     <define name="k.metadata">
       <element name="metadata">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>When building an installation source not only packages are
+relevant but also metadata. metadata are files or packages combined
+with script calls. If a package is specified as metadata it will
+not be installed by rpm but its cpio archive is extracted in a
+specific way</a:documentation>
         <ref name="k.metadata.attlist"/>
         <oneOrMore>
           <ref name="k.package"/>
@@ -559,7 +563,7 @@ second the location of the XSD Schema
   <div>
     <define name="k.metafile.url.attribute">
       <attribute name="url">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>URL where to find the metafile</a:documentation>
       </attribute>
     </define>
     <define name="k.metafile.script.attribute">
@@ -567,7 +571,7 @@ second the location of the XSD Schema
     </define>
     <define name="k.metafile.target.attribute">
       <attribute name="target">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Destination path where to download the file</a:documentation>
       </attribute>
     </define>
     <define name="k.metafile.attlist">
@@ -579,7 +583,7 @@ second the location of the XSD Schema
     </define>
     <define name="k.metafile">
       <element name="metafile">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>A file pointer optionally bundled with a script</a:documentation>
         <ref name="k.metafile.attlist"/>
         <empty/>
       </element>
@@ -607,6 +611,72 @@ second the location of the XSD Schema
   </div>
   <!--
     ==========================================
+    common element <repopackage>
+    
+  -->
+  <div>
+    <define name="k.repopackage.name.attribute">
+      <ref name="k.name.attribute"/>
+    </define>
+    <define name="k.repopackage.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
+    <define name="k.repopackage.priority.attribute">
+      <attribute name="priority">
+        <a:documentation>Specifies the search priority</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.repopackage.addarch.attribute">
+      <attribute name="addarch">
+        <a:documentation>Specifies that this package should
+additionally add the same package from the given arch</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.repopackage.removearch.attribute">
+      <attribute name="removearch">
+        <a:documentation>Specifies that the package with the
+given arch should be removed</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.repopackage.forcearch.attribute">
+      <attribute name="forcearch">
+        <a:documentation>Specifies that the package with
+the given arch should be used in any case</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.repopackage.source.attribute">
+      <ref name="k.source.attribute"/>
+    </define>
+    <define name="k.repopackage.script.attribute">
+      <ref name="k.script.attribute"/>
+    </define>
+    <define name="k.repopackage.attlist">
+      <interleave>
+        <ref name="k.repopackage.name.attribute"/>
+        <ref name="k.repopackage.arch.attribute"/>
+        <ref name="k.repopackage.priority.attribute"/>
+        <optional>
+          <ref name="k.repopackage.addarch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repopackage.removearch.attribute"/>
+        </optional>
+        <ref name="k.repopackage.source.attribute"/>
+        <optional>
+          <ref name="k.repopackage.script.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.repopackage">
+      <element name="package">
+        <a:documentation>Name of an instsource package</a:documentation>
+        <ref name="k.repopackage.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <package>
     
   -->
@@ -617,55 +687,17 @@ second the location of the XSD Schema
     <define name="k.package.arch.attribute">
       <ref name="k.arch.attribute"/>
     </define>
-    <define name="k.package.priority.attribute">
-      <attribute name="priority">
-        <a:documentation>FIXME: ??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.package.addarch.attribute">
-      <attribute name="addarch">
-        <a:documentation>FIXME: ??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.package.removearch.attribute">
-      <attribute name="removearch">
-        <a:documentation>FIXME: ??</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.package.source.attribute">
-      <ref name="k.source.attribute"/>
-    </define>
-    <define name="k.package.script.attribute">
-      <ref name="k.script.attribute"/>
-    </define>
     <define name="k.package.attlist">
       <interleave>
-        <optional>
-          <ref name="k.package.name.attribute"/>
-        </optional>
+        <ref name="k.package.name.attribute"/>
         <optional>
           <ref name="k.package.arch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.package.priority.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.package.addarch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.package.removearch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.package.source.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.package.script.attribute"/>
         </optional>
       </interleave>
     </define>
     <define name="k.package">
       <element name="package">
-        <a:documentation>Name of a package</a:documentation>
+        <a:documentation>Name of an image package</a:documentation>
         <ref name="k.package.attlist"/>
         <empty/>
       </element>
@@ -682,7 +714,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.packagemanager">
       <element name="packagemanager">
-        <a:documentation>The package manager used for package installation </a:documentation>
+        <a:documentation>The package manager used for package installation
+could be either zypper or smart</a:documentation>
         <group>
           <ref name="k.packagemanager.attlist"/>
           <text/>
@@ -699,7 +732,8 @@ second the location of the XSD Schema
   <div>
     <define name="k.partitions.device.attribute">
       <attribute name="device">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the network deploy configuration this section
+specifies the disk device name</a:documentation>
       </attribute>
     </define>
     <define name="k.partitions.attlist">
@@ -711,9 +745,9 @@ second the location of the XSD Schema
       <element name="partitions">
         <a:documentation>A list of partitions</a:documentation>
         <ref name="k.partitions.attlist"/>
-        <zeroOrMore>
+        <oneOrMore>
           <ref name="k.partition"/>
-        </zeroOrMore>
+        </oneOrMore>
       </element>
     </define>
   </div>
@@ -724,11 +758,13 @@ second the location of the XSD Schema
   -->
   <div>
     <define name="k.partition.type.attribute">
-      <ref name="k.type.attribute"/>
+      <attribute name="type">
+        <a:documentation>Partition Type identifier, see fdisk for details</a:documentation>
+      </attribute>
     </define>
     <define name="k.partition.number.attribute">
       <attribute name="number">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Partition ID</a:documentation>
       </attribute>
     </define>
     <define name="k.partition.size.attribute">
@@ -736,31 +772,23 @@ second the location of the XSD Schema
     </define>
     <define name="k.partition.mountpoint.attribute">
       <attribute name="mountpoint">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Mount path for this partition</a:documentation>
       </attribute>
     </define>
     <define name="k.partition.target.attribute">
       <attribute name="target">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Is a real target or not which means is part of
+the /etc/fstab file or not</a:documentation>
+        <data type="boolean"/>
       </attribute>
     </define>
     <define name="k.partition.attlist">
       <interleave>
-        <optional>
-          <ref name="k.partition.type.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.partition.number.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.partition.size.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.partition.mountpoint.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.partition.target.attribute"/>
-        </optional>
+        <ref name="k.partition.type.attribute"/>
+        <ref name="k.partition.number.attribute"/>
+        <ref name="k.partition.size.attribute"/>
+        <ref name="k.partition.mountpoint.attribute"/>
+        <ref name="k.partition.target.attribute"/>
       </interleave>
     </define>
     <define name="k.partition">
@@ -782,7 +810,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.persistent">
       <element name="persistent">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the split section the persistent element
+specifies file names which are in the read-write disk area</a:documentation>
         <ref name="k.persistent.attlist"/>
         <zeroOrMore>
           <ref name="k.file"/>
@@ -801,7 +830,7 @@ second the location of the XSD Schema
     </define>
     <define name="k.profile.description.attribute">
       <attribute name="description">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Description of how this profiles influences the image</a:documentation>
       </attribute>
     </define>
     <define name="k.profile.attlist">
@@ -812,7 +841,10 @@ second the location of the XSD Schema
     </define>
     <define name="k.profile">
       <element name="profile">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Profiles creates a namespace on an image description and
+thus can be used to have one description with different
+profiles for example KDE and GNOME including different
+packages</a:documentation>
         <ref name="k.profile.attlist"/>
         <empty/>
       </element>
@@ -825,11 +857,30 @@ second the location of the XSD Schema
   -->
   <div>
     <define name="k.repository.type.attribute">
-      <ref name="k.type.attribute"/>
+      <attribute name="type">
+        <choice>
+          <value>apt-deb</value>
+          <value>apt-rpm</value>
+          <value>deb-dir</value>
+          <value>mirrors</value>
+          <value>red-carpet</value>
+          <value>rpm-dir</value>
+          <value>rpm-md</value>
+          <value>slack-site</value>
+          <value>up2date-mirrors</value>
+          <value>urpmi</value>
+          <value>yast2</value>
+        </choice>
+      </attribute>
     </define>
     <define name="k.repository.status.attribute">
       <attribute name="status">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>specifies the status of the repository. This can be
+replacable or if not specified it's a must have repository</a:documentation>
+        <choice>
+          <value>replaceable</value>
+          <value>fixed</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.repository.attlist">
@@ -859,7 +910,9 @@ second the location of the XSD Schema
     </define>
     <define name="k.rpm-check-signatures">
       <element name="rpm-check-signatures">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Setup if the package manager should check the package
+signature or not. This option could be ignored according
+to the used package manager</a:documentation>
         <ref name="k.rpm-check-signatures.attlist"/>
         <text/>
       </element>
@@ -876,7 +929,9 @@ second the location of the XSD Schema
     </define>
     <define name="k.rpm-force">
       <element name="rpm-force">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Setup if the package manager should force the install of the
+package or not. This option could be ignored according
+to the used package manager</a:documentation>
         <ref name="k.rpm-force.attlist"/>
         <text/>
       </element>
@@ -897,7 +952,6 @@ second the location of the XSD Schema
         </choice>
       </attribute>
     </define>
-    <!-- was: text -->
     <define name="k.size.attlist">
       <optional>
         <ref name="k.size.unit.attribute"/>
@@ -925,7 +979,7 @@ second the location of the XSD Schema
     </define>
     <define name="k.source">
       <element name="source">
-        <a:documentation>A pointer to a repository</a:documentation>
+        <a:documentation>A pointer to a repository/package source</a:documentation>
         <ref name="k.source.attlist"/>
         <empty/>
       </element>
@@ -942,7 +996,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.specification">
       <element name="specification">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>A detailed description of this image and what it can be
+used for.</a:documentation>
         <ref name="k.specification.attlist"/>
         <text/>
       </element>
@@ -959,7 +1014,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.temporary">
       <element name="temporary">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the split section the temporary element
+specifies file names which are in the RAM disk  area</a:documentation>
         <ref name="k.temporary.attlist"/>
         <empty/>
       </element>
@@ -976,7 +1032,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.timeout">
       <element name="timeout">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the network deploy configuration this section 
+specifies an atftp download timeout</a:documentation>
         <ref name="k.timeout.attlist"/>
         <empty/>
       </element>
@@ -993,7 +1050,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.timezone">
       <element name="timezone">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Image timezone setup. The value will be used to search
+the correct timezone and copy it to /etc/localtime</a:documentation>
         <ref name="k.timezone.attlist"/>
         <text/>
       </element>
@@ -1012,8 +1070,8 @@ second the location of the XSD Schema
     </define>
     <define name="k.type.bootprofile.attribute">
       <attribute name="bootprofile">
-        <a:documentation>Specifies the boot profile. Used when KIWI option --add-profile
-is used</a:documentation>
+        <a:documentation>Specifies the boot profile if defined in the boot image
+description. Used when KIWI option --add-profile is used</a:documentation>
       </attribute>
     </define>
     <define name="k.type.boot.attribute">
@@ -1023,31 +1081,52 @@ to /usr/share/kiwi/image</a:documentation>
       </attribute>
     </define>
     <define name="k.type.checkprebuilt.attribute">
-      <!-- FIXME: What means zero and what means one? -->
       <attribute name="checkprebuilt">
-        <a:documentation>Specifies if KIWI should search for a prebuild boot image</a:documentation>
+        <a:documentation>Activates whether KIWI should search for a prebuild boot
+image or not</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
     <define name="k.type.flags.attribute">
-      <!-- FIXME: Should this be a list? compressed | iso -->
       <attribute name="flags">
-        <a:documentation>Specifies flags for the image type</a:documentation>
+        <a:documentation>Specifies flags for the image type. This could be compressed
+or unified and applies to the iso type only</a:documentation>
+        <choice>
+          <value>unified</value>
+          <value>compressed</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.type.filesystem.attribute">
-      <!--
-        FIXME: Should this attribute a list of possible/allowed
-               attributes?
-      -->
       <attribute name="filesystem">
         <a:documentation>Specifies the filesystem:
 ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
+        <choice>
+          <value>ext2</value>
+          <value>ext3</value>
+          <value>reiserfs</value>
+          <value>squashfs</value>
+          <value>cpio</value>
+          <value>cramfs</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.type.format.attribute">
       <attribute name="format">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Specifies the format of the virtual disk. This applies to the
+vmx/oem types only.</a:documentation>
+        <choice>
+          <value>vvfat</value>
+          <value>vpc</value>
+          <value>bochs</value>
+          <value>dmg</value>
+          <value>cloop</value>
+          <value>vmdk</value>
+          <value>qcow</value>
+          <value>cow</value>
+          <value>iso</value>
+          <value>usb</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.type.primary.attribute">
@@ -1109,24 +1188,27 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
       </attribute>
     </define>
     <define name="k.union.type.attribute">
-      <ref name="k.type.attribute"/>
+      <attribute name="type">
+        <choice>
+          <value>aufs</value>
+          <value>unionfs</value>
+        </choice>
+      </attribute>
     </define>
     <define name="k.union.attlist">
       <interleave>
-        <optional>
-          <ref name="k.union.ro.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.union.rw.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.union.type.attribute"/>
-        </optional>
+        <ref name="k.union.ro.attribute"/>
+        <ref name="k.union.rw.attribute"/>
+        <ref name="k.union.type.attribute"/>
       </interleave>
     </define>
     <define name="k.union">
       <element name="union">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>As part of the network deploy configuration this section
+specifies the overlay filesystem setup if required by the
+filesystem type of the system image. An overlay setup is
+only required if the system image uses a squashfs compressed
+filesystem.</a:documentation>
         <ref name="k.union.attlist"/>
         <empty/>
       </element>
@@ -1161,18 +1243,12 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.user.attlist">
       <interleave>
-        <optional>
-          <ref name="k.user.name.attribute"/>
-        </optional>
+        <ref name="k.user.name.attribute"/>
         <optional>
           <ref name="k.user.realname.attribute"/>
         </optional>
-        <optional>
-          <ref name="k.user.pwd.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.user.home.attribute"/>
-        </optional>
+        <ref name="k.user.pwd.attribute"/>
+        <ref name="k.user.home.attribute"/>
         <optional>
           <ref name="k.user.shell.attribute"/>
         </optional>
@@ -1211,12 +1287,12 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
   <div>
     <define name="k.deploy.server.attribute">
       <attribute name="server">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Name or IP Address of server for downloading the data</a:documentation>
       </attribute>
     </define>
     <define name="k.deploy.blocksize.attribute">
       <attribute name="blocksize">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Blocksize value used for atftp downloads</a:documentation>
       </attribute>
     </define>
     <define name="k.deploy.attlist">
@@ -1227,7 +1303,9 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.deploy">
       <element name="deploy">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>The deploy section is used to allow kiwi to create the
+config.&lt;MAC&gt; file required by PXE based network images.
+the contents of this file controls the image deploy process</a:documentation>
         <ref name="k.deploy.attlist"/>
         <optional>
           <ref name="k.timeout"/>
@@ -1235,12 +1313,8 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
         <optional>
           <ref name="k.commandline"/>
         </optional>
-        <optional>
-          <ref name="k.kernel"/>
-        </optional>
-        <optional>
-          <ref name="k.initrd"/>
-        </optional>
+        <ref name="k.kernel"/>
+        <ref name="k.initrd"/>
         <optional>
           <ref name="k.partitions"/>
         </optional>
@@ -1261,12 +1335,15 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
   <div>
     <define name="k.description.type.attribute">
       <attribute name="type">
-        <a:documentation>FIXME: ?</a:documentation>
+        <a:documentation>Kiwi distinguishes between two basic image description types
+which uses the same format but one is created and provided by
+the kiwi developers and the other is created by the users of
+kiwi. The type=boot specifies a boot image (initrd) which should
+be provided by the kiwi developers wheras type=system specifies
+a standard image description created by a kiwi user.</a:documentation>
         <choice>
           <value>boot</value>
-          <a:documentation>FIXME: ?</a:documentation>
           <value>system</value>
-          <a:documentation>FIXME: ?</a:documentation>
         </choice>
       </attribute>
     </define>
@@ -1292,16 +1369,21 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
   -->
   <div>
     <define name="k.drivers.type.attribute">
-      <ref name="k.type.attribute"/>
+      <attribute name="type">
+        <choice>
+          <value>drivers</value>
+          <value>usbdrivers</value>
+          <value>scsidrivers</value>
+          <value>netdrivers</value>
+        </choice>
+      </attribute>
     </define>
     <define name="k.drivers.profiles.attribute">
       <ref name="k.profiles.attribute"/>
     </define>
     <define name="k.drivers.attlist">
       <interleave>
-        <optional>
-          <ref name="k.drivers.type.attribute"/>
-        </optional>
+        <ref name="k.drivers.type.attribute"/>
         <optional>
           <ref name="k.drivers.profiles.attribute"/>
         </optional>
@@ -1331,13 +1413,38 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.instsource">
       <element name="instsource">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>The instsource element is used to describe the packages
+and the metadata which is required to build an installation
+source suitable for Novell SUSE Linux installation media.
+From such a source it should be possible to create the
+standard SUSE CD/DVD's as well as use this source as
+repository for image building</a:documentation>
         <ref name="k.instsource.attlist"/>
         <oneOrMore>
           <ref name="k.instrepo"/>
         </oneOrMore>
         <ref name="k.metadata"/>
-        <ref name="k.packages"/>
+        <ref name="k.repopackages"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <repopackages>
+    
+  -->
+  <div>
+    <define name="k.repopackages.attlist">
+      <empty/>
+    </define>
+    <define name="k.repopackages">
+      <element name="repopackages">
+        <a:documentation>The repopackages elements specifies a set of packages which
+are used for creating a Novell SUSE installation source</a:documentation>
+        <ref name="k.repopackages.attlist"/>
+        <zeroOrMore>
+          <ref name="k.repopackage"/>
+        </zeroOrMore>
       </element>
     </define>
   </div>
@@ -1348,38 +1455,59 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
   -->
   <div>
     <define name="k.packages.type.attribute">
-      <ref name="k.type.attribute"/>
+      <attribute name="type">
+        <choice>
+          <value>image</value>
+          <value>boot</value>
+          <value>delete</value>
+          <value>xen</value>
+          <value>vmware</value>
+        </choice>
+      </attribute>
     </define>
     <define name="k.packages.memory.attribute">
       <attribute name="memory">
-        <a:documentation>FIXME: ?</a:documentation>
+        <a:documentation>The memory setup for the guest VM. Used only with the
+packages types xen and vmware</a:documentation>
       </attribute>
     </define>
     <define name="k.packages.disk.attribute">
       <attribute name="disk">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>The virtual disk device name of the guest VM. Used only
+with the packages types xen and vmware</a:documentation>
       </attribute>
     </define>
     <define name="k.packages.profiles.attribute">
       <attribute name="profiles">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Namespace this section applies to. If not specified it
+applies to all namespaces</a:documentation>
       </attribute>
     </define>
     <define name="k.packages.patternType.attribute">
       <attribute name="patternType">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Selection type for patterns. Could be onlyRequired
+plusSuggested or plusRecommended</a:documentation>
+        <choice>
+          <value>onlyRequired</value>
+          <value>plusSuggested</value>
+          <value>plusRecommended</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.packages.patternPackageType.attribute">
       <attribute name="patternPackageType">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Selection type for packages in patterns. Could be
+onlyRequired, plusSuggested or plusRecommended</a:documentation>
+        <choice>
+          <value>onlyRequired</value>
+          <value>plusSuggested</value>
+          <value>plusRecommended</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.packages.attlist">
       <interleave>
-        <optional>
-          <ref name="k.packages.type.attribute"/>
-        </optional>
+        <ref name="k.packages.type.attribute"/>
         <optional>
           <ref name="k.packages.memory.attribute"/>
         </optional>
@@ -1399,7 +1527,9 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.packages">
       <element name="packages">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>The packages elements specifies a set of packages and/or patterns
+which are used in different stages of the image building process
+and also depends of the selected image output type</a:documentation>
         <ref name="k.packages.attlist"/>
         <zeroOrMore>
           <ref name="k.package"/>
@@ -1409,28 +1539,6 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
         </zeroOrMore>
         <zeroOrMore>
           <ref name="k.ignore"/>
-        </zeroOrMore>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <bootstrap>
-    
-  -->
-  <div>
-    <define name="k.bootstrap.profiles.attribute">
-      <ref name="k.profile.attribute"/>
-    </define>
-    <define name="k.bootstrap.attlist">
-      <ref name="k.bootstrap.profiles.attribute"/>
-    </define>
-    <define name="k.bootstrap">
-      <element name="bootstrap">
-        <a:documentation>Packages that MUST available at boot time</a:documentation>
-        <ref name="k.bootstrap.attlist"/>
-        <zeroOrMore>
-          <ref name="k.package"/>
         </zeroOrMore>
       </element>
     </define>
@@ -1499,11 +1607,13 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.profiles">
       <element name="profiles">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>Namespace section which creates a namespace and the
+description of this namespace. The section packages and
+drivers can bind itself to one of the listed namespaces</a:documentation>
         <ref name="k.profiles.attlist"/>
-        <zeroOrMore>
+        <oneOrMore>
           <ref name="k.profile"/>
-        </zeroOrMore>
+        </oneOrMore>
       </element>
     </define>
   </div>
@@ -1518,7 +1628,10 @@ ext2 | ext3 | reiserfs | squashfs | cpio</a:documentation>
     </define>
     <define name="k.split">
       <element name="split">
-        <a:documentation>FIXME: ??</a:documentation>
+        <a:documentation>When the image type split is requested the image will be splitted
+into a read-only and a read-write image portion. Each portion
+can have different filesystems and the split section describes
+which files/directories should go in what portion</a:documentation>
         <ref name="k.split.attlist"/>
         <optional>
           <ref name="k.temporary"/>
