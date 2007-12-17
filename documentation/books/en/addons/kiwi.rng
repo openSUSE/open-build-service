@@ -18,47 +18,6 @@
                 : 
                 :
   STATUS        : Development
-  
-  TODO          : These are some
-                : - Isolate more attribute patterns?
-                : - Document the patterns
-                : - Improve Schema with datatypes?
-                : - Test, test, test...
-                : - Rework users element to be required. Extend the
-                :   content modell with a required root user
-                :
-  FUTURE CHANGES: - Required attributes:
-                    * <profile name="" description=""/>
-                    * <package name=""/>
-                    * <metafile url="" target=""/>
-                    * <packages type="">
-                    * <opensusePattern name=""/>
-                    * <ignore name=""/>
-                    * <users group="users">
-                    * <user name="" home="" pwd=""/>
-                    * <drivers type="">
-                    * <file name=""/>
-                    * <repository type="">
-                    * <source path=""/>
-                    * <deploy blocksize="" server="">
-                    * <partitions device="/dev/sda">
-                    * <partition type="" mountpoint="" number="" size="" target=""/>
-                    * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
-                    * <configuration dest="" source=""/>
-                    * ...
-                  - Insert bootstrap in image
-                  - Rename repository -> repositories and source -> repository
-                  - Change repository+ -> repositories
-                  - Rename attribute schemeversion -> schemaversion or version
-                  - repository: Add attributes pwd and username
-                  - image: rename attribute "name" -> basename
-                  - user: rename attribute "name" -> "login"
-                  - instrepo, opensusepattern, package: find a better(?)
-                    name for attribute "name"
-                  - union: rename attribute "name" -> "overlay" (?)
-                  - Fix camel case in element opensusePattern and
-                    attributes patternPackageType and patternType
-                :
   ****************
 -->
 <grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
@@ -299,7 +258,7 @@ into the image after deployment</a:documentation>
 specifies the kernel boot commandline used when the image
 gets deployed</a:documentation>
         <ref name="k.commandline.attlist"/>
-        <empty/>
+        <text/>
       </element>
     </define>
   </div>
@@ -433,7 +392,7 @@ gets deployed</a:documentation>
         <a:documentation>As part of the network deploy configuration this element
 specifies where the boot image (initrd) can be found</a:documentation>
         <ref name="k.initrd.attlist"/>
-        <empty/>
+        <text/>
       </element>
     </define>
   </div>
@@ -461,8 +420,12 @@ specifies where the boot image (initrd) can be found</a:documentation>
       <interleave>
         <ref name="k.instrepo.name.attribute"/>
         <ref name="k.instrepo.priority.attribute"/>
-        <ref name="k.instrepo.username.attribute"/>
-        <ref name="k.instrepo.pwd.attribute"/>
+        <optional>
+          <ref name="k.instrepo.username.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.instrepo.pwd.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.instrepo">
@@ -488,7 +451,7 @@ installation source</a:documentation>
         <a:documentation>As part of the network deploy configuration this section
 specifies the where to find the boot kernel</a:documentation>
         <ref name="k.kernel.attlist"/>
-        <empty/>
+        <text/>
       </element>
     </define>
   </div>
@@ -547,7 +510,7 @@ not be installed by rpm but its cpio archive is extracted in a
 specific way</a:documentation>
         <ref name="k.metadata.attlist"/>
         <oneOrMore>
-          <ref name="k.package"/>
+          <ref name="k.repopackage"/>
         </oneOrMore>
         <zeroOrMore>
           <ref name="k.metafile"/>
@@ -653,22 +616,28 @@ the given arch should be used in any case</a:documentation>
     <define name="k.repopackage.attlist">
       <interleave>
         <ref name="k.repopackage.name.attribute"/>
-        <ref name="k.repopackage.arch.attribute"/>
-        <ref name="k.repopackage.priority.attribute"/>
+        <optional>
+          <ref name="k.repopackage.arch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repopackage.priority.attribute"/>
+        </optional>
         <optional>
           <ref name="k.repopackage.addarch.attribute"/>
         </optional>
         <optional>
           <ref name="k.repopackage.removearch.attribute"/>
         </optional>
-        <ref name="k.repopackage.source.attribute"/>
+        <optional>
+          <ref name="k.repopackage.source.attribute"/>
+        </optional>
         <optional>
           <ref name="k.repopackage.script.attribute"/>
         </optional>
       </interleave>
     </define>
     <define name="k.repopackage">
-      <element name="package">
+      <element name="repopackage">
         <a:documentation>Name of an instsource package</a:documentation>
         <ref name="k.repopackage.attlist"/>
         <empty/>
@@ -787,8 +756,12 @@ the /etc/fstab file or not</a:documentation>
         <ref name="k.partition.type.attribute"/>
         <ref name="k.partition.number.attribute"/>
         <ref name="k.partition.size.attribute"/>
-        <ref name="k.partition.mountpoint.attribute"/>
-        <ref name="k.partition.target.attribute"/>
+        <optional>
+          <ref name="k.partition.mountpoint.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.target.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.partition">
@@ -1035,7 +1008,7 @@ specifies file names which are in the RAM disk  area</a:documentation>
         <a:documentation>As part of the network deploy configuration this section 
 specifies an atftp download timeout</a:documentation>
         <ref name="k.timeout.attlist"/>
-        <empty/>
+        <text/>
       </element>
     </define>
   </div>

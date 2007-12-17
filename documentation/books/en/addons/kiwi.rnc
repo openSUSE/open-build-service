@@ -16,47 +16,6 @@
 #               : 
 #               :
 # STATUS        : Development
-#
-# TODO          : These are some
-#               : - Isolate more attribute patterns?
-#               : - Document the patterns
-#               : - Improve Schema with datatypes?
-#               : - Test, test, test...
-#               : - Rework users element to be required. Extend the
-#               :   content modell with a required root user
-#               :
-# FUTURE CHANGES: - Required attributes:
-#                   * <profile name="" description=""/>
-#                   * <package name=""/>
-#                   * <metafile url="" target=""/>
-#                   * <packages type="">
-#                   * <opensusePattern name=""/>
-#                   * <ignore name=""/>
-#                   * <users group="users">
-#                   * <user name="" home="" pwd=""/>
-#                   * <drivers type="">
-#                   * <file name=""/>
-#                   * <repository type="">
-#                   * <source path=""/>
-#                   * <deploy blocksize="" server="">
-#                   * <partitions device="/dev/sda">
-#                   * <partition type="" mountpoint="" number="" size="" target=""/>
-#                   * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
-#                   * <configuration dest="" source=""/>
-#                   * ...
-#                 - Insert bootstrap in image
-#                 - Rename repository -> repositories and source -> repository
-#                 - Change repository+ -> repositories
-#                 - Rename attribute schemeversion -> schemaversion or version
-#                 - repository: Add attributes pwd and username
-#                 - image: rename attribute "name" -> basename
-#                 - user: rename attribute "name" -> "login"
-#                 - instrepo, opensusepattern, package: find a better(?)
-#                   name for attribute "name"
-#                 - union: rename attribute "name" -> "overlay" (?)
-#                 - Fix camel case in element opensusePattern and
-#                   attributes patternPackageType and patternType
-#               :
 #****************
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
@@ -207,7 +166,7 @@ div {
 		## gets deployed
 		element commandline {
 			k.commandline.attlist,
-			empty
+			text
 		}
 }
 
@@ -304,7 +263,7 @@ div {
 		## specifies where the boot image (initrd) can be found
 		element initrd {
 			k.initrd.attlist,
-			empty
+			text
 		}
 }
 
@@ -321,8 +280,8 @@ div {
 	k.instrepo.attlist =
 		k.instrepo.name.attribute &
 		k.instrepo.priority.attribute &
-		k.instrepo.username.attribute &
-		k.instrepo.pwd.attribute
+		k.instrepo.username.attribute? &
+		k.instrepo.pwd.attribute?
 	k.instrepo =
 		## Name of a repository which is used to create an
 		## installation source
@@ -342,7 +301,7 @@ div {
 		## specifies the where to find the boot kernel
 		element kernel {
 			k.kernel.attlist,
-			empty
+			text
 		}
 }
 
@@ -387,7 +346,7 @@ div {
 		## specific way
 		element metadata {
 			k.metadata.attlist,
-			k.package+,
+			k.repopackage+,
 			k.metafile*
 		}
 }
@@ -454,15 +413,15 @@ div {
 	k.repopackage.script.attribute = k.script.attribute
 	k.repopackage.attlist =
 		k.repopackage.name.attribute & 
-		k.repopackage.arch.attribute &
-		k.repopackage.priority.attribute &
+		k.repopackage.arch.attribute? &
+		k.repopackage.priority.attribute? &
 		k.repopackage.addarch.attribute? &
 		k.repopackage.removearch.attribute? &
-		k.repopackage.source.attribute &
+		k.repopackage.source.attribute? &
 		k.repopackage.script.attribute?
 	k.repopackage =
 		## Name of an instsource package
-		element package {
+		element repopackage {
 			k.repopackage.attlist,
 			empty
 		}
@@ -538,8 +497,8 @@ div {
 		k.partition.type.attribute &
 		k.partition.number.attribute & 
 		k.partition.size.attribute &
-		k.partition.mountpoint.attribute &
-		k.partition.target.attribute
+		k.partition.mountpoint.attribute? &
+		k.partition.target.attribute?
 	k.partition =
 		## A partition
 		element partition {
@@ -706,7 +665,7 @@ div {
 		## specifies an atftp download timeout
 		element timeout {
 			k.timeout.attlist,
-			empty
+			text
 		}
 }
 
