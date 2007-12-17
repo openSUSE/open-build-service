@@ -1,0 +1,1 @@
+page.insert_html(:bottom, 'drop_list', "<li>"+@id+"</li>")

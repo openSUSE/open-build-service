@@ -18,12 +18,10 @@
 
 <div id="right_cnt_col">
   <div id="drop_zone">
-    <!-- <p>
-      Drop<br/>
-      Here
-    </p> -->
+    <ul id="drop_list">
+    </ul>
   </div>
   
 </div>
 
-<%= drop_receiving_element("drop_zone") %>
+<%= drop_receiving_element("drop_zone", :url => {:action => "receive_repository", :project => @project}) %>

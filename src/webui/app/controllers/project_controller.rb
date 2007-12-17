@@ -402,6 +402,11 @@ class ProjectController < ApplicationController
   end
 
   def add_repository
+    @project = params[:project]
+  end
+
+  def receive_repository
+    @id = params[:id]
   end
 
   def add_target_simple
