@@ -496,7 +496,7 @@ div {
 	k.partition.attlist =
 		k.partition.type.attribute &
 		k.partition.number.attribute & 
-		k.partition.size.attribute &
+		k.partition.size.attribute? &
 		k.partition.mountpoint.attribute? &
 		k.partition.target.attribute?
 	k.partition =
@@ -830,8 +830,8 @@ div {
 			k.deploy.attlist,
 			k.timeout?,
 			k.commandline?,
-			k.kernel,
-			k.initrd,
+			k.kernel?,
+			k.initrd?,
 			k.partitions?,
 			k.union?,
 			k.configuration*

@@ -755,7 +755,9 @@ the /etc/fstab file or not</a:documentation>
       <interleave>
         <ref name="k.partition.type.attribute"/>
         <ref name="k.partition.number.attribute"/>
-        <ref name="k.partition.size.attribute"/>
+        <optional>
+          <ref name="k.partition.size.attribute"/>
+        </optional>
         <optional>
           <ref name="k.partition.mountpoint.attribute"/>
         </optional>
@@ -1286,8 +1288,12 @@ the contents of this file controls the image deploy process</a:documentation>
         <optional>
           <ref name="k.commandline"/>
         </optional>
-        <ref name="k.kernel"/>
-        <ref name="k.initrd"/>
+        <optional>
+          <ref name="k.kernel"/>
+        </optional>
+        <optional>
+          <ref name="k.initrd"/>
+        </optional>
         <optional>
           <ref name="k.partitions"/>
         </optional>
