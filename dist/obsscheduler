@@ -64,7 +64,8 @@ case "$1" in
 	;;
 	status)
 		echo -n "Checking for obsscheduler: "
-		checkproc  "$obsdir"/bs_sched
+                # FIXME: needs proper checking for all invoked schedulers
+		checkproc bs_sched
 		rc_status -v
 	;;
 	*)
