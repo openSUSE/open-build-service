@@ -3,7 +3,7 @@
 **  $Id: $
 **
 **  Funktion:  Provides all styles for build.openSUSE.org
-**  Author:    Frank Sundermeyer <fs@opensuse.org>
+**  Author:    Frank Sundermeyer <fs@opensuse.org>, Robert Lihm <rlihm@opensuse.org>
 **  License:   see copyright/COPYRIGHT
 */
 
@@ -12,6 +12,8 @@
 *****************/
 #bodyContent {
   min-height: 23em;
+  position: relative;
+  
 }
 li,
 .navlist {
@@ -114,8 +116,46 @@ background:transparent !important;
 }
 
 
-/* Repo DropZone */
+/* Add Repo & DropZone */
 
+#simple_targets_wrapper,
+#other_targets_wrapper {
+  display: table;
+  width: 95%;
+  height: auto;
+/*  border: 1px dotted fuchsia;*/
+}
+#simple_targets_wrapper { /* contains distros */
+  margin-bottom: 2em;
+/*  border: 1px dotted red;*/
+}
+#other_targets_wrapper {
+/*  bottom: 0;*/
+}
+  #simple_targets_wrapper div.distro_wrapper {
+    position: relative;
+    min-width: 125px;
+    min-height: 210px;
+    float: left;
+    margin: 0 0.2em;
+    
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9;
+    
+/*    border: 1px dotted yellow;*/
+  }
+  #simple_targets_wrapper ul {
+    margin: 0;
+    padding: 0;
+  }
+  #simple_targets_wrapper li {
+    margin: 0;
+    padding: 0;
+    list-style: none outside none;
+  }
+#other_targets_wrapper {
+  clear: left;
+}
 #right_cnt_col,
 #left_cnt_col {
   width: 49%;
@@ -137,11 +177,9 @@ background:transparent !important;
 
 #drop_zone {
   display: block;
-/*  width: 165px;*/
-/*  height: 165px;*/
   width: 165px;
-  height: 300px;
-  
+  height: 165px;
+
   text-align: center;
   
   background: transparent url('images/drop_zone_0.png') no-repeat scroll center center;
@@ -155,4 +193,9 @@ background:transparent !important;
   padding-top: 40px;
 }
 
-/* /Repo DropZone */
+#progress {
+  display: none;
+}
+
+
+/* /Add Repo & Repo DropZone */
