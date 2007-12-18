@@ -27,12 +27,14 @@
 
   <br/>
   <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
+  <br/>
   <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
   {:confirm => "Really remove package '#{@package}'?"}%>
+  <br/>
   <% if @package.bugowner -%>
-    <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@package.bugowner]) %>
+    <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@package.bugowner], "[#{@project.name}/#{@package.name}]") %>
   <% elsif @project.bugowner -%>
-    <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@project.bugowner]) %>
+    <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@project.bugowner], "[#{@project.name}/#{@package.name}]") %>
   <% end -%>
   <br/><br/>
 

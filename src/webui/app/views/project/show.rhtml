@@ -22,9 +22,9 @@
 
 <%= render :partial => "watch_link" %>
 <%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %><br/>
-<%= link_to_remote '[Delete Project]', :url => {:action => :delete, :project => @project.name} %>
+<%= link_to_remote '[Delete Project]', :url => {:action => :delete, :project => @project.name} %><br/>
 <% if @project.bugowner -%>
-  <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@project.bugowner]) %>
+  <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@project.bugowner], "[#{@project.name}]") %>
 <% end -%>
 
 

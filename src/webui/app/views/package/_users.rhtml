@@ -35,8 +35,8 @@
       <% end -%>
     <% end #each_person -%>
 
-    <% if @package.bugowner or @project.bugowner -%>
     <dt>Bugowner</dt>
+    <% if @package.bugowner or @project.bugowner -%>
       <% package_persons=[] %>
       <% @package.each_person("@role='bugowner'") do |person| -%>
         <% package_persons << person.userid %>
@@ -57,7 +57,10 @@
           </dd>
         <% end -%>
       <% end #each_person -%>
+    <% else -%>
+      <dd>No bugowner defined, bug reporting disabled</dd>  
     <% end -%>
+      
   </dl>
 
   <% else -%>

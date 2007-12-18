@@ -1,10 +1,10 @@
- <!-- Involved users -->
- <div class="section" id="contacts">
-	<h3>
-	  Involved Users
-	  <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
-	  :action => :add_person, :project => @project %>
-	</h3>
+<!-- Involved users -->
+<div class="section" id="contacts">
+  <h3>
+    Involved Users
+    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
+    :action => :add_person, :project => @project %>
+  </h3>
     <% if @project.has_element? :person -%>
     <dl>
       <dt>Maintainers</dt>
@@ -19,19 +19,21 @@
       {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
       {:confirm => "Really remove user '#{person.userid}'?", :class => "x"}%>
       <%- end %>
-      <% end #each_person -%>
       </dd>
+      <% end #each_person -%>
     </dl>
-    <% if @project.bugowner -%>
     <dl>
       <dt>Bugowner</dt>
+    <% if @project.bugowner -%>
       <% @project.each_person("@role='bugowner'") do |person| -%>
       <dd><%=h person.userid -%>
       <% end -%>
-    </dl>
-    <% end -%>
     <% else -%>
-    <b>No maintainer in this project</b>
-    <% end #if has_element? person -%>
-    <p><%= link_to "[Add User]", :action => :add_person, :project => @project %></p>
+      <dd>No bugowner defined, bug reporting disabled</dd>
+    <% end -%>
+    </dl>
+  <% else -%>
+  <b>No roles defined in this project</b>
+  <% end #if has_element? person -%>
+  <p><%= link_to "[Add User]", :action => :add_person, :project => @project %></p>
 </div>
