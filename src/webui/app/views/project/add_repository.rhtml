@@ -38,32 +38,49 @@
   </div>  
 </div>
 
+
 <div id="other_targets_wrapper">
-  <div id="left_cnt_col">
+  <div id="left_col" class="col_wrapper">
 
-    <div style="dropable_items">
+    <div id="dropable_items">
 
-      <div id="dummy" class="dummy">
-        Dummy Item
-      </div>
+      <div id="dummy" class="dummy">Dummy Item</div>
 
-    <%= draggable_element "dummy", :revert => true %>
+
+      <%= draggable_element "dummy", :revert => true %>
 
     </div>
-
   </div>
 
-  <div id="right_cnt_col">
+</div>
+
+<div id="dropzone_wrapper">
+
+  <div id="right_col" class="col_wrapper">
     <div id="drop_zone">
 
-      <ul id="drop_list">
-      </ul>
+      <p>
+        Drop<br/>
+        Here
+      </p>
+      
+      
+
 
     </div>
-
+    <div id="selection_wrapper">
+      <h4 style="text-align: center;">Your Selection</h4>
+      <ul id="drop_list">
+      </ul>
+    </div>
   </div>
-  
+  <!-- <div id="selection_wrapper">
+    <h4 style="text-align: center;">Your Selection</h4>
+    <ul id="drop_list">
+    </ul>
+  </div> -->
 </div>
+
 
 
 <%= drop_receiving_element("drop_zone", :url => {:action => "receive_repository", :project => @project}) %>

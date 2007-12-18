@@ -119,25 +119,26 @@ background:transparent !important;
 /* Add Repo & DropZone */
 
 #simple_targets_wrapper,
-#other_targets_wrapper {
+#other_targets_wrapper,
+#dropzone_wrapper {
   display: table;
   width: 95%;
   height: auto;
-/*  border: 1px dotted fuchsia;*/
+/*  border: 1px dashed fuchsia;*/
 }
 #simple_targets_wrapper { /* contains distros */
   margin-bottom: 2em;
-/*  border: 1px dotted red;*/
 }
 #other_targets_wrapper {
 /*  bottom: 0;*/
 }
-  #simple_targets_wrapper div.distro_wrapper {
+  #simple_targets_wrapper div.distro_wrapper,
+  div.col_wrapper {
     position: relative;
     min-width: 125px;
     min-height: 210px;
     float: left;
-    margin: 0 0.2em;
+    margin: 0.2em;
     
     border-top: 1px solid #eee;
     background-color: #f9f9f9;
@@ -153,37 +154,54 @@ background:transparent !important;
     padding: 0;
     list-style: none outside none;
   }
+
 #other_targets_wrapper {
-  clear: left;
-}
-#right_cnt_col,
-#left_cnt_col {
-  width: 49%;
-  position: relative;
   float: left;
-  
-/*  border: 1px solid green;*/
+  width: 20em;
 }
-#right_cnt_col {
-/*  background: yellow;*/
+#dropzone_wrapper {
+  width: 20em;
 }
-#left_cnt_col {
-/*  background: fuchsia;*/
-}
-#dummy {
-  border: 1px dotted fuchsia;
-  width: 100px;
+#other_targets_wrapper,
+#dropzone_wrapper {
+  min-width: 350px;
 }
 
+#left_col,
+#right_col {
+  float: left!important;
+}
+
+  div.col_wrapper {
+
+    min-width: 168px;
+    min-height: 168px;
+    background-color: inherit;
+/*    background-color: #f9f;*/
+    
+    border: none;
+  }
+
+#dummy {
+  border: 1px dotted fuchsia;
+/*  width: 100px;*/
+}
+
+
+
 #drop_zone {
+  
   display: block;
+/*  position: absolute;*/
   width: 165px;
   height: 165px;
+
+  right: 0;
 
   text-align: center;
   
   background: transparent url('images/drop_zone_0.png') no-repeat scroll center center;
-  border: 1px dotted fuchsia;
+/*  border: 1px dotted fuchsia;*/
 }
 
 #drop_zone p {
@@ -191,6 +209,12 @@ background:transparent !important;
   font-weight: bold;
   color: #DDD;
   padding-top: 40px;
+}
+
+#selection_wrapper {
+  border-top: 1px solid #eee;
+  padding-top: 0.5em;
+  border: 1px dotted fuchsia;
 }
 
 #progress {
