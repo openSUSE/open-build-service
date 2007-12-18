@@ -44,10 +44,10 @@
 
     <div id="dropable_items">
 
-      <div id="dummy" class="dummy">Dummy Item</div>
+      <div id="dummy" class="draggable_element">Dummy Item</div>
 
 
-      <%= draggable_element "dummy", :revert => true %>
+      <%= draggable_element "dummy", :revert => true, :ghosting => true %>
 
     </div>
   </div>

@@ -141,6 +141,7 @@ background:transparent !important;
     margin: 0.2em;
     
     border-top: 1px solid #eee;
+    border-bottom: 1px dashed #eee;
     background-color: #f9f9f9;
     
 /*    border: 1px dotted yellow;*/
@@ -176,7 +177,7 @@ background:transparent !important;
 
     min-width: 168px;
     min-height: 168px;
-    background-color: inherit;
+    background-color: #FCFCFC;
 /*    background-color: #f9f;*/
     
     border: none;
@@ -184,42 +185,35 @@ background:transparent !important;
 
 #dummy {
   border: 1px dotted fuchsia;
-/*  width: 100px;*/
 }
-
+  .draggable_element {
+    cursor: move;
+    background: white;
+  }
 
 
 #drop_zone {
-  
   display: block;
-/*  position: absolute;*/
   width: 165px;
   height: 165px;
-
-  right: 0;
-
   text-align: center;
-  
   background: transparent url('images/drop_zone_0.png') no-repeat scroll center center;
-/*  border: 1px dotted fuchsia;*/
 }
 
 #drop_zone p {
   font-size: 2em;
   font-weight: bold;
   color: #DDD;
+  width: 165px; /* IE hack! */
   padding-top: 40px;
 }
 
 #selection_wrapper {
-  border-top: 1px solid #eee;
+  margin: 1em 0.5em 2em;
   padding-top: 0.5em;
-  border: 1px dotted fuchsia;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+/*  border: 1px dotted fuchsia;*/
 }
-
-#progress {
-  display: none;
-}
-
 
 /* /Add Repo & Repo DropZone */
