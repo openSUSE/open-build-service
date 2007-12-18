@@ -197,15 +197,22 @@ background:transparent !important;
   width: 165px;
   height: 165px;
   text-align: center;
+  color: #eee;
   background: transparent url('images/drop_zone_0.png') no-repeat scroll center center;
 }
+
+ .hover {
+   color: #ddd!important;
+   background-image: url('images/drop_zone_1.png')!important;
+  }
+
 
 #drop_zone p {
   font-size: 2em;
   font-weight: bold;
-  color: #DDD;
+  
   width: 165px; /* IE hack! */
-  padding-top: 40px;
+  padding-top: 45px;
 }
 
 #selection_wrapper {
