@@ -47,14 +47,15 @@
           <% n = 0 %>
           <% arr_dummy.each do |item| %>
             <% if item.class == Array  %>
-              <% item.each do |sub_item| %>
-
+              <ul class="sub_list">
+              <% item.each do |sub_item| %>              
                 <% element_id = sub_item +"_" + n.to_s %>
                 <li id="<%= element_id%>" class="draggable_sub_element"><%= item %></li>
                 <%= draggable_element "#{element_id}", :revert => true, :ghosting => true %>
                 <% n+=1 %>
 
-              <% end  %> 
+              <% end  %>
+              </ul> 
             <% else %>
               <% element_id = item +"_" + n.to_s %>
               <li id="<%= element_id %>" class="draggable_element"><%= item %></li>

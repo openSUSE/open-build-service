@@ -166,10 +166,14 @@ background:transparent !important;
 /* Repo List */
 
 #repository_wrapper {}
-#repository_wrapper ul {
+#repository_wrapper ul,
+#repository_wrapper ul ul {
   max-width: 23em;
   margin: -0.5em 1em 0 0;
 }
+  #repository_wrapper ul ul {
+    margin: 0;
+  }
 .draggable_element,
 .draggable_sub_element,
 #drop_list li {
