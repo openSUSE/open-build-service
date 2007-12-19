@@ -120,6 +120,7 @@ background:transparent !important;
 
 #simple_targets_wrapper {
   display: table; 
+  display: block;
   width: 95%;
   height: auto;
   margin-bottom: 2em;
@@ -132,7 +133,7 @@ background:transparent !important;
     min-height: 210px;
     float: left;
     margin: 0.2em;
-    
+        
     border-top: 1px solid #eee;
     border-bottom: 1px dashed #eee;
     background-color: #f9f9f9;
@@ -154,7 +155,9 @@ background:transparent !important;
 #selection_wrapper {
   width: 95%;
   height: 100%;
+  margin-top: 2em;
   border-collapse: separate;
+  clear: left;
 }
 
 #selection_wrapper td {
