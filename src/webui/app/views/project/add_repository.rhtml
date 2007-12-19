@@ -38,50 +38,39 @@
   </div>  
 </div>
 
+  <table id="selection_wrapper" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td id="repository_wrapper">
+<!-- DUMMY CONTENT ======================================================= -->
+        <% arr_dummy = ['Item_1', 'Item_2', 'Item_3', ['Item_4-0', 'Item_4-1'], 'Item_5', 'Item_6', 'Item_7', 'Item_8', ['Item_9-0', 'Item_9-1'], 'Item_10'] %>
+        <ul>
+          <% n = 0 %>
+          <% arr_dummy.each do |item| %>
+            <% if item.class == Array  %>
+              <% item.each do |sub_item| %>
 
-<div id="other_targets_wrapper">
-  <div id="left_col" class="col_wrapper">
+                <% element_id = sub_item +"_" + n.to_s %>
+                <li id="<%= element_id%>" class="draggable_sub_element"><%= item %></li>
+                <%= draggable_element "#{element_id}", :revert => true, :ghosting => true %>
+                <% n+=1 %>
 
-    <div id="dropable_items">
+              <% end  %> 
+            <% else %>
+              <% element_id = item +"_" + n.to_s %>
+              <li id="<%= element_id %>" class="draggable_element"><%= item %></li>
+              <%= draggable_element "#{element_id}", :revert => true, :ghosting => true %>
+              <% n+=1 %>
 
-      <div id="dummy" class="draggable_element">Dummy Item</div>
-
-
-      <%= draggable_element "dummy", :revert => true, :ghosting => true %>
-
-    </div>
-  </div>
-
-</div>
-
-<div id="dropzone_wrapper">
-
-  <div id="right_col" class="col_wrapper">
-    <div id="drop_zone">
-
-      <p>
-        Drop<br/>
-        Here
-      </p>
-      
-      
-
-
-    </div>
-    <div id="selection_wrapper">
-      <h4 style="text-align: center;">Your Selection</h4>
-      <ul id="drop_list">
-      </ul>
-    </div>
-  </div>
-  <!-- <div id="selection_wrapper">
-    <h4 style="text-align: center;">Your Selection</h4>
-    <ul id="drop_list">
-    </ul>
-  </div> -->
-</div>
-
-
-
-<%= drop_receiving_element("drop_zone", :url => {:action => "receive_repository", :project => @project}, :hoverclass => 'hover') %>
-
+            <% end %>
+          <% end %>
+        </ul>
+<!-- /DUMMY CONTENT  ====================================================== -->
+      </td>
+      <td id="drop_zone">
+          <h3>Your Selection</h3>
+          <ul id="drop_list">
+          </ul>
+        <%= drop_receiving_element("drop_zone", :url => {:action => "receive_repository", :project => @project}, :hoverclass => 'hover') %>
+      </td>
+    </tr>
+  </table>

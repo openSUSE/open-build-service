@@ -116,26 +116,19 @@ background:transparent !important;
 }
 
 
-/* Add Repo & DropZone */
+/* Add Repo & DropZone **************************************************** */
 
-#simple_targets_wrapper,
-#other_targets_wrapper,
-#dropzone_wrapper {
-  display: table;
+#simple_targets_wrapper {
+  display: table; 
   width: 95%;
   height: auto;
-/*  border: 1px dashed fuchsia;*/
-}
-#simple_targets_wrapper { /* contains distros */
   margin-bottom: 2em;
 }
-#other_targets_wrapper {
-/*  bottom: 0;*/
-}
+
   #simple_targets_wrapper div.distro_wrapper,
   div.col_wrapper {
     position: relative;
-    min-width: 125px;
+    min-width: 142px;
     min-height: 210px;
     float: left;
     margin: 0.2em;
@@ -143,8 +136,6 @@ background:transparent !important;
     border-top: 1px solid #eee;
     border-bottom: 1px dashed #eee;
     background-color: #f9f9f9;
-    
-/*    border: 1px dotted yellow;*/
   }
   #simple_targets_wrapper ul {
     margin: 0;
@@ -155,72 +146,94 @@ background:transparent !important;
     padding: 0;
     list-style: none outside none;
   }
+  
+/********************/
+  
+  
 
-#other_targets_wrapper {
-  float: left;
-  width: 20em;
-}
-#dropzone_wrapper {
-  width: 20em;
-}
-#other_targets_wrapper,
-#dropzone_wrapper {
-  min-width: 350px;
+#selection_wrapper {
+  width: 95%;
+  height: 100%;
+  border-collapse: separate;
 }
 
-#left_col,
-#right_col {
-  float: left!important;
+#selection_wrapper td {
+  width: 49%;
+  padding: 0;
+  margin: 0;
 }
 
-  div.col_wrapper {
+/* Repo List */
 
-    min-width: 168px;
-    min-height: 168px;
-    background-color: #FCFCFC;
-/*    background-color: #f9f;*/
-    
-    border: none;
+#repository_wrapper {}
+#repository_wrapper ul {
+  max-width: 23em;
+  margin: -0.5em 1em 0 0;
+}
+.draggable_element,
+.draggable_sub_element,
+#drop_list li {
+  list-style: none outside none;
+  margin: 0.5em;
+  cursor: move;
+  color: #666;
+  padding: 0.2em 0.5em;
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+}
+  .draggable_sub_element {
+    background: #fafafa;
+
   }
-
-#dummy {
-  border: 1px dotted fuchsia;
+.draggable_element:hover,
+.draggable_sub_element:hover {
+  color: #690;
+  border-style: dashed;
+  border-color: #690;
 }
-  .draggable_element {
-    cursor: move;
-    background: white;
-  }
 
+  .draggable_element:hover {
+    background-color: #f8f8f8;
+  }
+  .draggable_sub_element:hover {
+    background-color: #fcfcfc;
+  }
+  
+.draggable_element {}
+.draggable_sub_element {
+  font-weight: bold;
+}
+/* /Repo List */  
+
+#drop_zone h3 {
+  padding-top: 0.5em;
+  text-align: center;
+  color: #ddd;
+}
 
 #drop_zone {
-  display: block;
-  width: 165px;
-  height: 165px;
-  text-align: center;
+  text-align: left;
+  vertical-align: top;
+  max-width: 23em;
+  margin:0.2em;
   color: #eee;
   background: transparent url('images/drop_zone_0.png') no-repeat scroll center center;
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+
+
+  border-top-style: dashed;
+  border-left-style: dashed;
 }
+
+  #drop_zone ul {
+    margin: 0;
+  }
 
  .hover {
    color: #ddd!important;
+   border-color: #690!important;
    background-image: url('images/drop_zone_1.png')!important;
   }
 
-
-#drop_zone p {
-  font-size: 2em;
-  font-weight: bold;
-  
-  width: 165px; /* IE hack! */
-  padding-top: 45px;
-}
-
-#selection_wrapper {
-  margin: 1em 0.5em 2em;
-  padding-top: 0.5em;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
-/*  border: 1px dotted fuchsia;*/
-}
-
-/* /Add Repo & Repo DropZone */
+/* /Add Repo & Repo DropZone ********************************************** */
