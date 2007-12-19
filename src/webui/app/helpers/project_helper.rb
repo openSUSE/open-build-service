@@ -75,4 +75,11 @@ module ProjectHelper
 
     button_to label, btn_to_opt
   end
+
+  def draggable_repo( label, opt={} )
+    out = String.new
+    out << "<li id='repo_#{label}' class='draggable_sub_element'>#{label}</li>"
+    out << draggable_element("repo_#{label}", :ghosting => true, :revert => true, :snap => true)
+    out
+  end
 end
