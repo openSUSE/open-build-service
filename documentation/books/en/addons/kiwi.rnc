@@ -1,5 +1,5 @@
 #================
-# FILE          : kiwi.rnc
+# FILE          : KIWIScheme.rnc
 #****************
 # PROJECT       : OpenSUSE Build-Service
 # COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
@@ -10,9 +10,9 @@
 # BELONGS TO    : Operating System images
 #               :
 # DESCRIPTION   : This is the RELAX NG Schema for KIWI
-#               : configuration files.
-#               : This RNG Schema is derived from the
-#               : original XSD file.
+#               : configuration files. The schema is maintained
+#               : in the relax compact syntax. Any changes should
+#               : made in !! *** KIWIScheme.rnc *** !!
 #               : 
 #               :
 # STATUS        : Development
@@ -708,10 +708,9 @@ div {
 		attribute flags { "unified" | "compressed" }
 	k.type.filesystem.attribute = 
 		## Specifies the filesystem:
-		## ext2 | ext3 | reiserfs | squashfs | cpio
-		attribute filesystem {
-			"ext2" | "ext3" | "reiserfs" | "squashfs" | "cpio" | "cramfs"
-		} 
+		## ext2 | ext3 | reiserfs | squashfs | cpio. or a combination
+		## of two of these types with the split image type
+		attribute filesystem { text }
 	k.type.format.attribute =
 		## Specifies the format of the virtual disk. This applies to the
 		## vmx/oem types only.
@@ -820,8 +819,8 @@ div {
 		## Blocksize value used for atftp downloads
 		attribute blocksize { text }
 	k.deploy.attlist =
-		k.deploy.server.attribute &
-		k.deploy.blocksize.attribute
+		k.deploy.server.attribute? &
+		k.deploy.blocksize.attribute?
 	k.deploy =
 		## The deploy section is used to allow kiwi to create the
 		## config.<MAC> file required by PXE based network images.
