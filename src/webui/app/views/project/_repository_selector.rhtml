@@ -1,0 +1,18 @@
+<div id="ajax_error"/>
+<td id="repository_wrapper">
+<%- if @project_list -%>
+  <ul>
+    <%- @project_list.each do |item| -%>
+    <%- element_id = "prj_#{item.name}" -%>
+    <li id="<%=element_id %>" class="draggable_element"><%= item.name %></li>
+    <%= draggable_element element_id, :ghosting => true, :revert => true, :reverteffect => "function(element, top_offset, left_offset) {new Effect.Move( element, {x: -left_offset, y: -top_offset, duration: 0})}" %>
+    <%- end -%>
+  </ul>
+  <%- else -%>
+<script type="text/javascript">
+//<![CDATA[
+new Ajax.Updater({success: 'repository_wrapper', failure: 'ajax_error'}, "init_repository_selector?project=<%=@project%>", {evalScripts: true});
+//]]>
+</script>
+<%- end -%>
+</td>

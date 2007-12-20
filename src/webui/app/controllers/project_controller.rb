@@ -409,6 +409,11 @@ class ProjectController < ApplicationController
     @id = params[:id]
   end
 
+  def init_repository_selector
+    @project_list = Project.find :all
+    render :partial => "repository_selector"
+  end
+
   def add_target_simple
     @project = params[:project]
   end

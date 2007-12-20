@@ -39,33 +39,7 @@
 
   <table id="selection_wrapper" border="0" cellspacing="0" cellpadding="0">
     <tr>
-      <td id="repository_wrapper">
-<!-- DUMMY CONTENT ======================================================= -->
-        <% arr_dummy = ['Item_1', 'Item_2', 'Item_3', ['Item_4-0', 'Item_4-1'], 'Item_5', 'Item_6', 'Item_7', 'Item_8', ['Item_9-0', 'Item_9-1'], 'Item_10'] %>
-        <ul>
-          <% n = 0 %>
-          <% arr_dummy.each do |item| %>
-            <% if item.class == Array  %>
-              <ul class="sub_list">
-              <% item.each do |sub_item| %>              
-                <% element_id = sub_item +"_" + n.to_s %>
-                <li id="<%= element_id%>" class="draggable_sub_element"><%= item %></li>
-                <%= draggable_element "#{element_id}", :ghosting => true %>
-                <% n+=1 %>
-
-              <% end  %>
-              </ul> 
-            <% else %>
-              <% element_id = item +"_" + n.to_s %>
-              <li id="<%= element_id %>" class="draggable_element"><%= item %></li>
-              <%= draggable_element "#{element_id}", :ghosting => true %>
-              <% n+=1 %>
-
-            <% end %>
-          <% end %>
-        </ul>
-<!-- /DUMMY CONTENT  ====================================================== -->
-      </td>
+      <%= render :partial => "repository_selector" %>
       <td id="drop_zone">
           <h3>Your Selection</h3>
           <ul id="drop_list">
