@@ -9,21 +9,20 @@
   }
 </script>
 <td id="repository_wrapper">
-<%- if @project_list -%>
-  <ul>
-    <%- @project_list.each do |item| -%>
-    <%- element_id = "prj_#{item.name}" -%>
-    <li id="<%=element_id %>" class="draggable_element">
-      <div onclick="toggle_repolist('<%=item.name%>')"><%= item.name %></div>
-      <div style="display:none" id="repolist_<%=item.name%>"></div>
-    </li>
-    <%- end -%>
+  <div id="filter_wrapper">
+    <input type="text" name="project_list_filter" value="" id="project_list_filter" />
+    <%= observe_field(:project_list_filter,
+                :url => {:action => :update_project_list, :project => @project},
+                :frequency => 1,
+                :update => "project_list",
+                :with => "filter")
+    %>
+  </div>
+  <ul id="project_list">
+    <script type="text/javascript">
+    //<![CDATA[
+    new Ajax.Updater({success: 'project_list', failure: 'ajax_error'}, "update_project_list?project=<%=@project%>", {evalScripts: true});
+    //]]>
+    </script>
   </ul>
-  <%- else -%>
-<script type="text/javascript">
-//<![CDATA[
-new Ajax.Updater({success: 'repository_wrapper', failure: 'ajax_error'}, "init_repository_selector?project=<%=@project%>", {evalScripts: true});
-//]]>
-</script>
-<%- end -%>
 </td>

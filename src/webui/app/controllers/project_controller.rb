@@ -409,16 +409,21 @@ class ProjectController < ApplicationController
     @id = params[:id]
   end
 
-  def init_repository_selector
-    @project_list = Project.find :all
-    render :partial => "repository_selector"
+  def update_project_list
+    if params[:filter]
+      @project_list = Collection.find :id, :what => "project", :predicate => "contains(@name,'#{params[:filter]}')"
+    else
+      @project_list = Project.find :all
+    end
+    render :partial => "project_list"
+      
   end
 
   def update_repolist
     logger.debug "updating repolist for project #{params[:project]}"
     project = Project.find params[:project]
     if project.has_element? :repository
-      render :partial => "repository_list", :locals => {:project => project}
+      render :partial => "repository_list", :locals => {:project => params[:project], :repos => project.each_repository}
     else
       render :text => "<b>No repositories found</b>"
     end

@@ -114,6 +114,7 @@ ActiveXML::Base.config do |conf|
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"
 
     map.connect :collection, "rest:///search/:what?match=:predicate",
+        :id => "rest:///search/:what/id?match=:predicate",
         :tag => "rest:///tag/:tagname/:type",
         :tags_by_user => "rest:///user/:user/tags/:type",
         :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"

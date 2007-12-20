@@ -37,19 +37,14 @@
   </div>  
 </div>
 
-  <table id="selection_wrapper" border="0" cellspacing="0" cellpadding="0">
-    <tr>
-      
-      <div id="filter_wrapper">
-        <input type="text" name="filter_repo" value="" id="filter_repo" />
-      </div>
-      
-      <%= render :partial => "repository_selector" %>
-      <td id="drop_zone">
-          <h3>Your Selection</h3>
-          <ul id="drop_list">
-          </ul>
-        <%= drop_receiving_element("drop_zone", :url => {:action => "receive_repository", :project => @project}, :hoverclass => 'hover') %>
-      </td>
-    </tr>
-  </table>
+<table id="selection_wrapper" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <%= render :partial => "repository_selector" %>
+    <td id="drop_zone">
+        <h3>Your Selection</h3>
+        <ul id="drop_list">
+        </ul>
+      <%= drop_receiving_element("drop_zone", :url => {:action => "receive_repository", :project => @project}, :hoverclass => 'hover') %>
+    </td>
+  </tr>
+</table>
