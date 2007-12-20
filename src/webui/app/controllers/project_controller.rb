@@ -414,6 +414,16 @@ class ProjectController < ApplicationController
     render :partial => "repository_selector"
   end
 
+  def update_repolist
+    logger.debug "updating repolist for project #{params[:project]}"
+    project = Project.find params[:project]
+    if project.description.to_s.empty?
+      render :text => "No description found"
+    else
+      render :text => project.description.to_s
+    end
+  end
+
   def add_target_simple
     @project = params[:project]
   end
