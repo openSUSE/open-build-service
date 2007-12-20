@@ -1,10 +1,7 @@
-<li><ul class="sub_list">
-  <%- item.each do |sub_item| -%>
-  <%- element_id = sub_item +"_" + n.to_s -%>
-    <li id="<%= element_id%>" class="draggable_sub_element"><%= item %></li>
-      <%= draggable_element "#{element_id}", :ghosting => true, :revert => true,
-      :reverteffect => "function(element, top_offset, left_offset) {new Effect.Move( element, {x: -left_offset, y: -top_offset, duration: 0})}"
-      %>
-      <%- n+=1 -%>
-      <%- end -%>
-    </ul></li>
+<ul class="sub_list">
+  <%- project.each_repository do |repo| -%>
+  <%- element_id = "repo_"+project.name+"/"+repo.name -%>
+    <li id="<%= element_id%>" class="draggable_sub_element"><%= repo.name %></li>
+    <%= draggable_element element_id, :ghosting => true, :revert => true, :reverteffect => "function(element, top_offset, left_offset) {new Effect.Move( element, {x: -left_offset, y: -top_offset, duration: 0})}" %>
+  <%- end -%>
+</ul>

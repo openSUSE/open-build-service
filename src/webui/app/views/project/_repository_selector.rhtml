@@ -13,8 +13,8 @@
   <ul>
     <%- @project_list.each do |item| -%>
     <%- element_id = "prj_#{item.name}" -%>
-    <li id="<%=element_id %>" onclick="toggle_repolist('<%=item.name%>')" class="draggable_element">
-      <span><%= item.name %></span>
+    <li id="<%=element_id %>" class="draggable_element">
+      <div onclick="toggle_repolist('<%=item.name%>')"><%= item.name %></div>
       <div style="display:none" id="repolist_<%=item.name%>"></div>
     </li>
     <%- end -%>

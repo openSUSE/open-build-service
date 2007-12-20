@@ -417,10 +417,10 @@ class ProjectController < ApplicationController
   def update_repolist
     logger.debug "updating repolist for project #{params[:project]}"
     project = Project.find params[:project]
-    if project.description.to_s.empty?
-      render :text => "No description found"
+    if project.has_element? :repository
+      render :partial => "repository_list", :locals => {:project => project}
     else
-      render :text => project.description.to_s
+      render :text => "<b>No repositories found</b>"
     end
   end
 
