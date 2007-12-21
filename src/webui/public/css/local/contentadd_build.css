@@ -156,6 +156,7 @@ background:transparent !important;
 
 #selection_wrapper {
   width: 95%;
+  max-width: 56em;
   height: 100%;
   margin-top: 2em;
   border-collapse: separate;
@@ -170,12 +171,17 @@ background:transparent !important;
 
 /* Repo List */
 
-#repository_wrapper {}
+
+
+#repository_wrapper {
+  vertical-align: top;
+}
 #repository_wrapper ul,
 #repository_wrapper ul ul {
-  max-width: 23em;
-  margin: -0.5em 1em 0 0;
+/*  max-width: 23em;*/
+  margin: 0 1em 0 0;
 }
+
   #repository_wrapper .sub_item {
     margin: 0;
     border-top: 1px solid #eee;
@@ -183,6 +189,21 @@ background:transparent !important;
     background: #fff;
     padding: 0.2em;
   }
+
+#filter_wrapper {
+  margin: 0 0 1em;
+}
+
+  #project_list_filter {
+    width: 20em;
+  }
+
+#project_list {
+  height: 23em;
+  overflow: auto;
+  border-top: 1px solid #eee;
+}
+
 .draggable_element,
 .draggable_sub_element,
 
