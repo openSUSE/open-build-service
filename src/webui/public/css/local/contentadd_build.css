@@ -206,11 +206,10 @@ background:transparent !important;
 
 .draggable_element,
 .draggable_sub_element,
-
 #drop_list li {
   list-style: none outside none;
   margin: 0.5em;
-  cursor: move;
+  cursor: pointer;
   color: #666;
   padding: 0.2em 0.5em;
   background: #f4f4f4;
@@ -218,14 +217,14 @@ background:transparent !important;
 }
   .draggable_sub_element {
     background: #fafafa;
-
+    cursor: move;
   }
-.draggable_element:hover,
-.draggable_sub_element:hover {
-  color: #690;
-  border-style: dashed;
-  border-color: #690;
-}
+  .draggable_element:hover,
+  .draggable_sub_element:hover {
+    color: #690;
+    border-style: dashed;
+    border-color: #690;
+  }
 
   .draggable_element:hover {
     background-color: #f8f8f8;
@@ -252,14 +251,9 @@ background:transparent !important;
   max-width: 23em;
   margin:0.2em;
   color: #eee;
-  background: transparent url('images/drop_zone_0.png') no-repeat scroll center 7em ;
-/*  background-position: static/relative/absolute/fixed;*/
+  background: transparent url('images/drop_zone_0.png') no-repeat scroll center 7em;
   background-color: #fafafa;
-  border: 1px solid #ddd;
-
-
-  border-top-style: dashed;
-  border-left-style: dashed;
+  border: 1px dashed #ddd;
 }
 
   #drop_zone ul {
