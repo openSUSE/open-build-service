@@ -161,6 +161,7 @@ background:transparent !important;
   margin-top: 2em;
   border-collapse: separate;
   clear: left;
+  background-color: #f9f9f9;
 }
 
 #selection_wrapper td {
@@ -171,10 +172,9 @@ background:transparent !important;
 
 /* Repo List */
 
-
-
 #repository_wrapper {
   vertical-align: top;
+  background: white;
 }
 #repository_wrapper ul,
 #repository_wrapper ul ul {
@@ -215,9 +215,13 @@ background:transparent !important;
   background: #f4f4f4;
   border: 1px solid #ddd;
 }
+  .draggable {
+
+  }
   .draggable_sub_element {
     background: #fafafa;
     cursor: move;
+    z-index: 999999!important;   
   }
   .draggable_element:hover,
   .draggable_sub_element:hover {
@@ -252,7 +256,7 @@ background:transparent !important;
   margin:0.2em;
   color: #eee;
   background: transparent url('images/drop_zone_0.png') no-repeat scroll center 7em;
-  background-color: #fafafa;
+/*  background-color: #fafafa;*/
   border: 1px dashed #ddd;
 }
 
