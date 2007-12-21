@@ -13,16 +13,16 @@
     <input type="text" name="project_list_filter" value="" id="project_list_filter" />
     <%= observe_field(:project_list_filter,
                 :url => {:action => :update_project_list, :project => @project},
-                :frequency => 1,
-                :update => "project_list",
+                :update => "project_list_wrapper",
+                :frequency => 0.5,
                 :with => "filter")
     %>
   </div>
-  <ul id="project_list">
+  <div id="project_list_wrapper">
     <script type="text/javascript">
     //<![CDATA[
-    new Ajax.Updater({success: 'project_list', failure: 'ajax_error'}, "update_project_list?project=<%=@project%>", {evalScripts: true});
+    new Ajax.Updater({success: 'project_list_wrapper', failure: 'ajax_error'}, "update_project_list?project=<%=@project%>", {evalScripts: true});
     //]]>
     </script>
-  </ul>
+  </div>
 </td>
