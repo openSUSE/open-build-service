@@ -416,10 +416,16 @@ class SourceController < ApplicationController
       query_string = query.join('&')
       path += "?#{query_string}" unless query_string.empty?
       
-      Suse::Backend.delete path
-      package = Package.find( package_name, :project => project_name )
-      package.update_timestamp
-      render_ok
+      allowed = permissions.package_change? package_name, project_name
+      if  allowed
+        Suse::Backend.delete path
+        package = Package.find( package_name, :project => project_name )
+        package.update_timestamp
+        render_ok
+      else
+        render_error :status => 403, :errorcode => 'delete_file_no_permission',
+          :message => "Insufficient permissions to delete file"
+      end
     end
   end
 
