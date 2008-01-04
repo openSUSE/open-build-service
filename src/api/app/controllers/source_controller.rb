@@ -387,13 +387,15 @@ class SourceController < ApplicationController
     query_string = ""
 
     if request.get?
-      query_string = URI.escape("rev=#{rev}") if rev
-      path += "?#{query_string}" unless query_string.empty?
-
+      query_string << URI.escape("rev=#{rev}") if rev
+      query_string = "?"+query_string unless query_string.empty?
+      path += query_string
+      
       #get file size
-      file_list = Suse::Backend.get_source("/source/#{project_name}/#{package_name}")
+      file_list = Suse::Backend.get_source("/source/#{project_name}/#{package_name}"+query_string)
       regexp = file_list.body.match(/name=["']#{Regexp.quote file}["'].*size=["']([^"']*)["']/)
       if regexp
+        logger.info "streaming #{path}"
         fsize = regexp[1]
        
         headers.update(
