@@ -393,32 +393,31 @@ class SourceController < ApplicationController
       #get file size
       file_list = Suse::Backend.get_source("/source/#{project_name}/#{package_name}")
       regexp = file_list.body.match(/name=["']#{Regexp.quote file}["'].*size=["']([^"']*)["']/)
-      unless regexp
-        render_error :status => 404, :errorcode => 'file_not_found',
-          :message => "Package '#{project_name}/#{package_name}' has no file named '#{file}'"
-        return
-      end
-      fsize = regexp[1]
-     
-      headers.update(
-        'Content-Disposition' => %(attachment; filename="#{file}"),
-        'Content-Transfer-Encoding' => 'binary',
-        'Content-Type' => 'application/octet-stream',
-        'Content-Length' => fsize
-      )
- 
-      @performed_render = false
+      if regexp
+        fsize = regexp[1]
+       
+        headers.update(
+          'Content-Disposition' => %(attachment; filename="#{file}"),
+          'Content-Transfer-Encoding' => 'binary',
+          'Content-Type' => 'application/octet-stream',
+          'Content-Length' => fsize
+        )
+   
+        @performed_render = false
 
-      render :status => 200, :text => Proc.new {|request,output|
-        backend_request = Net::HTTP::Get.new(path)
-        response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
-          http.request(backend_request) do |response|
-            response.read_body do |chunk|
-              output.write(chunk)
+        render :status => 200, :text => Proc.new {|request,output|
+          backend_request = Net::HTTP::Get.new(path)
+          response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
+            http.request(backend_request) do |response|
+              response.read_body do |chunk|
+                output.write(chunk)
+              end
             end
           end
-        end
-      }
+        }
+      else
+        forward_data path
+      end
     elsif request.put?
       query << URI.escape("rev=#{rev}") if rev
       query << URI.escape("user=#{user}") if user
