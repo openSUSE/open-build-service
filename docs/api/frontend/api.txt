@@ -2,7 +2,7 @@
 
 Version: 0.1
 
-  Only authenticated users are allowed to acces the API. Authentication is done
+  Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header.
 
 <project>: Project name
@@ -410,7 +410,9 @@ XmlResult: buildinfo
 
 POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
 
-  Get build info for local building using the POSTed specfile
+  Get build info for local building using the POSTed specfile.
+  <package> can be "_repository", if the designated package does not yet exist
+  on the server. Usefull for local build test before committing the initial package.
 
 Body: specfile
 
