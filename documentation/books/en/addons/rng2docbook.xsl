@@ -27,14 +27,16 @@ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLU
 
 The stylesheet was modified by Thomas Schraitle:
 - Output a DocBook refentry
-
+- Include parameter with-source and with-content-model
 
 -->
 
-  <xsl:output indent="yes"
+  <xsl:output indent="yes" method="xml"
     doctype-public="-//OASIS//DTD DocBook XML V4.5//EN"
     doctype-system="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"/>
   
+
+ <xsl:strip-space elements="*"/>
 
   <!-- 
   The main title for the generated documentation. 
@@ -77,10 +79,10 @@ The stylesheet was modified by Thomas Schraitle:
 
 
   <xsl:template match="rng:grammar">
-    <xsl:message>Processing with intro=<xsl:value-of select="$intro"/></xsl:message>
     <article>
       <title><xsl:value-of select="$title"/></title>
       <xsl:if test="$intro">
+        <xsl:message>Processing with intro=<xsl:value-of select="$intro"/></xsl:message>
         <xsl:copy-of select="document($intro)"/>
       </xsl:if>
       <sect1>
@@ -98,11 +100,14 @@ The stylesheet was modified by Thomas Schraitle:
             <xsl:apply-templates select="//rng:element">
               <xsl:sort select="@name|rng:name" order="ascending"/>
             </xsl:apply-templates>
-            <xsl:apply-templates select="//rng:define">
-              <xsl:sort select="@name" order="ascending"/>
-            </xsl:apply-templates>
           </xsl:otherwise>
         </xsl:choose>
+      </sect1>
+      <sect1>
+        <title>Pattern Documentation</title>
+        <xsl:apply-templates select="//rng:define">
+          <xsl:sort select="@name" order="ascending"/>
+        </xsl:apply-templates>
       </sect1>
     </article>
   </xsl:template>
@@ -139,7 +144,7 @@ The stylesheet was modified by Thomas Schraitle:
       <xsl:apply-templates select="." mode="has-attributes"/>
     </xsl:variable>
     
-    <sect2>
+    <sect2><!--  id="@qname" -->
       <title>Element: <xsl:value-of select="$qname"/></title>     
       <refentry>
         <xsl:attribute name="id">
@@ -168,41 +173,51 @@ The stylesheet was modified by Thomas Schraitle:
             </para>
           </refsynopsisdiv>
         </xsl:if>
+        
         <refsect1>
           <title>Attributes</title>
-          <informaltable>
-            <tgroup cols="3">
-              <thead>
-                <row>
-                  <entry role="header">
-                    <para>Attribute</para>
-                  </entry>
-                  <entry role="header">
-                    <para>Type</para>
-                  </entry>
-                  <entry role="header">
-                    <para>Use</para>
-                  </entry>
-                  <entry role="header">
-                    <para>Documentation</para>
-                  </entry>
-                </row>
-              </thead>              
-              <tbody>
-                <xsl:variable name="nesting"
-                  select="count(ancestor::rng:element)"/>
-                <xsl:apply-templates
-                  select=".//rng:attribute[count(ancestor::rng:element)=$nesting+1] | .//rng:ref[count(ancestor::rng:element)=$nesting+1]"
-                  mode="attributes">
-                  <xsl:with-param name="matched" select="."/>
-                  <xsl:with-param name="optional">
-                    <xsl:value-of select="false()"/>
-                  </xsl:with-param>
-                </xsl:apply-templates>
-              </tbody>
-            </tgroup>
-          </informaltable>
+          <xsl:choose>
+            <xsl:when test="$hasatts = 'true'">
+              <informaltable>
+                <tgroup cols="3">
+                  <thead>
+                    <row>
+                      <entry role="header">
+                        <para>Attribute</para>
+                      </entry>
+                      <entry role="header">
+                        <para>Type</para>
+                      </entry>
+                      <entry role="header">
+                        <para>Use</para>
+                      </entry>
+                      <entry role="header">
+                        <para>Documentation</para>
+                      </entry>
+                    </row>
+                  </thead>              
+                  <tbody>
+                    <xsl:variable name="nesting"
+                      select="count(ancestor::rng:element)"/>
+                    <xsl:apply-templates
+                      select=".//rng:attribute[count(ancestor::rng:element)=$nesting+1] | 
+                      .//rng:ref[count(ancestor::rng:element)=$nesting+1]"
+                      mode="attributes">
+                      <xsl:with-param name="matched" select="."/>
+                      <xsl:with-param name="optional">
+                        <xsl:value-of select="false()"/>
+                      </xsl:with-param>
+                    </xsl:apply-templates>
+                  </tbody>
+                </tgroup>
+              </informaltable>
+            </xsl:when>
+            <xsl:otherwise>
+              <para>No attributes available.</para>
+            </xsl:otherwise>
+          </xsl:choose>          
         </refsect1>
+        
         <xsl:if test="$with-source != 0">
           <refsect1>
             <title>Source</title>
@@ -326,11 +341,10 @@ The stylesheet was modified by Thomas Schraitle:
   <xsl:template match="rng:define">
     <xsl:variable name="name" select="@name"/>
     
-    <sect1>
-      <title>Pattern</title>
+    <sect2>
+      <title><xsl:value-of select="$name"/></title>
     <xsl:choose>
-      <xsl:when
-        test="following::rng:define[@name=$name and not(@combine)]">
+      <xsl:when test="following::rng:define[@name=$name and not(@combine)]">
         <xsl:apply-templates
           select="//rng:define[@name=$name and not(@combine)]"
           mode="define-base"/>
@@ -339,7 +353,7 @@ The stylesheet was modified by Thomas Schraitle:
         <xsl:apply-templates select="." mode="define-base"/>
       </xsl:when>
     </xsl:choose>
-    </sect1>
+    </sect2>
     
   </xsl:template>
 
@@ -349,6 +363,9 @@ The stylesheet was modified by Thomas Schraitle:
       <xsl:apply-templates select="." mode="find-element">
         <xsl:with-param name="matched" select=".."/>
       </xsl:apply-templates>
+    </xsl:variable>
+    <xsl:variable name="hasatts">
+      <xsl:apply-templates select="." mode="has-attributes"/>
     </xsl:variable>
     <xsl:variable name="combined">
       <xsl:if test="@combine">
@@ -369,10 +386,81 @@ The stylesheet was modified by Thomas Schraitle:
       </xsl:choose>
     </xsl:variable>
 
-    <sect2>
-      <xsl:attribute name="id">
-        <xsl:value-of select="@name"/>
-      </xsl:attribute>
+    <refentry id="{@name}">
+      <refnamediv>
+          <refname><xsl:value-of select="@name"/></refname>
+          <refpurpose>
+            <xsl:apply-templates select="a:documentation"/>
+          </refpurpose>
+      </refnamediv>
+      <xsl:if test="$nsuri != ''">
+        <refsynopsisdiv>
+          <title>Namespaces</title>
+          <para><xsl:value-of select="$nsuri"/></para>
+        </refsynopsisdiv>
+      </xsl:if>
+      <xsl:if test="starts-with($haselements, 'true')">
+        <refsynopsisdiv>
+          <title>Content Model</title>
+          <para>
+            <xsl:apply-templates select="*" mode="content-model"/>
+            <xsl:if test="@combine">
+              <xsl:apply-templates
+                select="following::rng:define[@name=$name]"
+                mode="define-combine"/>
+            </xsl:if>
+            <xsl:if test="not(@combine)">
+              <xsl:apply-templates
+                select="//rng:define[@name=$name and @combine]"
+                mode="define-combine"/>
+            </xsl:if>
+          </para>
+        </refsynopsisdiv>
+      </xsl:if>
+     
+      <refsect1>
+        <title>Attributes</title>
+        <xsl:choose>
+          <xsl:when test="starts-with($hasatts, 'true')">
+            <informaltable>
+              <tgroup cols="3">
+                <thead>
+                  <row>
+                    <entry role="header">
+                      <para>Attribute</para>
+                    </entry>
+                    <entry role="header">
+                      <para>Type</para>
+                    </entry>
+                    <entry role="header">
+                      <para>Use</para>
+                    </entry>
+                    <entry role="header">
+                      <para>Documentation</para>
+                    </entry>
+                  </row>
+                </thead>
+                <tbody>
+                  <xsl:variable name="nesting"
+                    select="count(ancestor::rng:element)"/>
+                  <xsl:apply-templates
+                    select=".//rng:attribute[count(ancestor::rng:element)=$nesting] | .//rng:ref[count(ancestor::rng:element)=$nesting]"
+                    mode="attributes">
+                    <xsl:with-param name="matched" select="."/>
+                  </xsl:apply-templates>
+                </tbody>
+              </tgroup>
+            </informaltable>
+          </xsl:when>
+          <xsl:otherwise>
+            <para>No attributes available.</para>
+          </xsl:otherwise>
+        </xsl:choose>
+      </refsect1>
+    </refentry>
+    
+    <!-- ********** -->
+    <!--<sect2 id="{@name}">
       <title>Pattern: <xsl:value-of select="@name"/></title>
       <table>
         <title>Pattern: <xsl:value-of select="@name"/></title>
@@ -471,7 +559,7 @@ The stylesheet was modified by Thomas Schraitle:
           </tbody>
         </tgroup>
       </table>
-    </sect2>
+    </sect2>-->
   </xsl:template>
 
   <xsl:template match="rng:define" mode="define-combine">
