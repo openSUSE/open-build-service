@@ -5,6 +5,12 @@
 div.sect2 div.titlepage 
 {
   font-size:larger;
+  background-color: #629900;
+  color:white;
+  padding-left: 2pt;
+  padding-top:0pt;
+  padding-right: 2pt;
+  margin-top:1em;
 }
 
 div.sect2
