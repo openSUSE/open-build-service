@@ -86,7 +86,12 @@ The stylesheet was modified by Thomas Schraitle:
 
   <xsl:template match="rng:grammar">        
     <article>
-      <title><xsl:value-of select="$title"/></title>
+      <articleinfo>
+        <pubdate>Published: <xsl:processing-instruction name="dbtimestamp"/></pubdate>
+        <releaseinfo>$Id:$</releaseinfo>
+        <releaseinfo>Version 1.4</releaseinfo>        
+        <title><xsl:value-of select="$title"/></title>
+      </articleinfo>      
       <xsl:if test="$intro">
         <xsl:message>Processing with intro=<xsl:value-of select="$intro"/></xsl:message>
         <xsl:copy-of select="document($intro)"/>
