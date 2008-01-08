@@ -2,8 +2,9 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
-  xmlns:rng="http://relaxng.org/ns/structure/1.0" 
-  extension-element-prefixes="rng a">
+  xmlns:rng="http://relaxng.org/ns/structure/1.0"
+  xmlns:db="http://docbook.org/ns/docbook"
+  exclude-result-prefixes="db a rng">
 
 <!--
   http://www.techquila.com/download/LICENSE.txt
@@ -88,8 +89,35 @@ The stylesheet was modified by Thomas Schraitle:
     <article>
       <articleinfo>
         <pubdate>Published: <xsl:processing-instruction name="dbtimestamp"/></pubdate>
-        <releaseinfo>$Id:$</releaseinfo>
-        <releaseinfo>Version 1.4</releaseinfo>        
+        <xsl:if test="db:releaseinfo">
+          <releaseinfo><xsl:value-of select="db:releaseinfo"/></releaseinfo>  
+        </xsl:if>        
+        <releaseinfo>Version 1.4</releaseinfo>
+        <legalnotice>
+          <title>Legal Notice</title>
+          <para>This product includes software developed by Khalil Ahmed
+              (<ulink url="http://www.techquila.com"/></para>
+        </legalnotice>
+        <authorgroup>
+          <author>
+            <contrib>Wrote original XSD Schema</contrib>
+            <firstname>Marcus</firstname>
+            <surname>Schäfer</surname>
+            <email>ms (AT) suse.de</email>
+          </author>
+          <othercredit>
+            <contrib>Original Stylesheet</contrib>
+            <firstname>Khalil</firstname>
+            <surname>Ahmed</surname>
+          </othercredit>
+          <othercredit>
+            <contrib>Rewrote XSD into RNC</contrib>
+            <contrib>Modified XSLT stylesheet to output DocBook refentry</contrib>
+            <firstname>Thomas</firstname>
+            <surname>Schraitle</surname>
+            <email>thomas.schraitle (AT) suse.de</email>
+          </othercredit>
+        </authorgroup>
         <title><xsl:value-of select="$title"/></title>
       </articleinfo>      
       <xsl:if test="$intro">
