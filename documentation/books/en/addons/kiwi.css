@@ -2,6 +2,20 @@
     CSS for KIWI DocBook documentation
 */
 
+
+div.authorgroup,
+div.authorgroup *
+{
+  font-size:small;
+}
+
+div.authorgroup div.author h3,
+div.authorgroup div.othercredit h3
+{
+  margin-bottom: 0em;
+}
+
+
 div.sect2 div.titlepage 
 {
   font-size:larger;
