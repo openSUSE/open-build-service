@@ -63,6 +63,7 @@ namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 namespace db  = "http://docbook.org/ns/docbook"
 
+db:releaseinfo [ "$Id:$"]
 
 #==========================================
 # start with image description
