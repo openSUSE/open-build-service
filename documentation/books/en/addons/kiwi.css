@@ -30,6 +30,17 @@ div.legalnotice p.legalnotice-title b
   margin-bottom:0em;
 }
 
+
+div.refentry div.refnamediv h2,
+div.refentry div.refsynopsisdiv h2,
+div.refentry div.refsect1 h2
+{
+  margin-top: 2em;
+  margin-bottom:-0em;
+}
+
+
+
 div.sect2 div.titlepage 
 {
   font-size:larger;
@@ -51,4 +62,11 @@ div.refentry div.refsect1 h2,
 div.refentry div.refnamediv h2
 {
   font-size:smaller;
+}
+
+
+p.releaseinfo 
+{
+  font-size:small;
+  /* font-family:monospace; */
 }
