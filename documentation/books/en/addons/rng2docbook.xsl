@@ -77,8 +77,14 @@ The stylesheet was modified by Thomas Schraitle:
   -->
   <xsl:param name="with-source" select="0"/>
 
+  <!-- 
+    Parameter for content modell separation
+  -->
+  <xsl:param name="CMseparator"> ::= </xsl:param>
 
-  <xsl:template match="rng:grammar">
+ 
+
+  <xsl:template match="rng:grammar">        
     <article>
       <title><xsl:value-of select="$title"/></title>
       <xsl:if test="$intro">
@@ -144,14 +150,14 @@ The stylesheet was modified by Thomas Schraitle:
       <xsl:apply-templates select="." mode="has-attributes"/>
     </xsl:variable>
     
-    <sect2><!--  id="@qname" -->
-      <title>Element: <xsl:value-of select="$qname"/></title>     
-      <refentry>
-        <xsl:attribute name="id">
-          <xsl:call-template name="makeid">
-            <xsl:with-param name="node" select="."/>
-          </xsl:call-template>
-        </xsl:attribute>
+    <sect2>
+      <xsl:attribute name="id">
+        <xsl:call-template name="makeid">
+          <xsl:with-param name="node" select="."/>
+        </xsl:call-template>
+      </xsl:attribute>
+      <title>Element: <xsl:value-of select="$qname"/></title>
+      <refentry><!--  id="@qname" -->
         <refnamediv>
           <refname><xsl:value-of select="$qname"/></refname>
           <refpurpose>
@@ -168,9 +174,11 @@ The stylesheet was modified by Thomas Schraitle:
         <xsl:if test="$with-content-model != 0">
           <refsynopsisdiv>
             <title>Content Model</title>
-            <para>
+            <screen>
+              <xsl:value-of select="@name"/>
+              <xsl:value-of select="$CMseparator"/>
               <xsl:apply-templates mode="content-model"/>
-            </para>
+            </screen>
           </refsynopsisdiv>
         </xsl:if>
         
@@ -300,6 +308,10 @@ The stylesheet was modified by Thomas Schraitle:
     </xsl:if>
   </xsl:template>
 
+<!-- 
+
+-->
+
   <xsl:template match="rng:element" mode="has-attributes">
     <xsl:choose>
       <xsl:when
@@ -338,24 +350,31 @@ The stylesheet was modified by Thomas Schraitle:
     <!-- suppress -->
   </xsl:template>
 
-  <xsl:template match="rng:define">
+
+<!-- 
+
+-->
+
+
+<xsl:template match="rng:define">
     <xsl:variable name="name" select="@name"/>
     
     <sect2>
       <title><xsl:value-of select="$name"/></title>
-    <xsl:choose>
-      <xsl:when test="following::rng:define[@name=$name and not(@combine)]">
-        <xsl:apply-templates
-          select="//rng:define[@name=$name and not(@combine)]"
-          mode="define-base"/>
-      </xsl:when>
-      <xsl:when test="not(preceding::rng:define[@name=$name])">
-        <xsl:apply-templates select="." mode="define-base"/>
-      </xsl:when>
-    </xsl:choose>
-    </sect2>
-    
-  </xsl:template>
+      <xsl:choose>
+        <xsl:when
+          test="following::rng:define[@name=$name and not(@combine)]">
+          <xsl:apply-templates
+            select="//rng:define[@name=$name and not(@combine)]"
+            mode="define-base"/>
+        </xsl:when>
+        <xsl:when test="not(preceding::rng:define[@name=$name])">
+          <xsl:apply-templates select="." mode="define-base"/>
+        </xsl:when>
+      </xsl:choose>
+    </sect2>    
+</xsl:template>
+
 
   <xsl:template match="rng:define" mode="define-base">
     <xsl:variable name="name" select="@name"/>
@@ -582,7 +601,7 @@ The stylesheet was modified by Thomas Schraitle:
       <xsl:apply-templates select="." mode="find-element"/>
     </xsl:variable>
     <xsl:if test="starts-with($haselement, 'true')">
-      <link linkend="{@name}">%<xsl:value-of select="@name"/>;</link>
+      <link linkend="{@name}"><xsl:value-of select="@name"/></link>
       <xsl:if test="not(parent::rng:choice) and 
                     (following-sibling::rng:element
                     | following-sibling::rng:optional 
@@ -638,6 +657,5 @@ The stylesheet was modified by Thomas Schraitle:
       <xsl:with-param name="matched" select="$matched"/>
     </xsl:apply-templates>
   </xsl:template>
-
 
 </xsl:stylesheet>
