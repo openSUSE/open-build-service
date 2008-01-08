@@ -62,6 +62,18 @@ The stylesheet was modified by Thomas Schraitle:
   will be generated for all matches.
 -->
   <xsl:param name="target"/>
+  
+  <!-- 
+    If specified, a refsect1 with the content modell is generated
+    1=yes, 0=no
+  -->
+  <xsl:param name="with-content-model" select="1"/>
+  
+  <!-- 
+    If specified, include the source code of the respective element
+    1=yes, 0=no
+  -->
+  <xsl:param name="with-source" select="0"/>
 
 
   <xsl:template match="rng:grammar">
@@ -148,10 +160,14 @@ The stylesheet was modified by Thomas Schraitle:
             </xsl:choose>
           </refpurpose>
         </refnamediv>
-        <refsynopsisdiv>
-          <title>Content Model</title>
-          <para><xsl:apply-templates mode="content-model"/></para>
-        </refsynopsisdiv>
+        <xsl:if test="$with-content-model != 0">
+          <refsynopsisdiv>
+            <title>Content Model</title>
+            <para>
+              <xsl:apply-templates mode="content-model"/>
+            </para>
+          </refsynopsisdiv>
+        </xsl:if>
         <refsect1>
           <title>Attributes</title>
           <informaltable>
@@ -187,13 +203,15 @@ The stylesheet was modified by Thomas Schraitle:
             </tgroup>
           </informaltable>
         </refsect1>
-        <refsect1>
-          <title>Source</title>
-          <programlisting><xsl:text 
-		    disable-output-escaping="yes">&lt;![CDATA[</xsl:text><xsl:copy-of
-		    select="."/><xsl:text 
-		      disable-output-escaping="yes">]]&gt;</xsl:text></programlisting>
-        </refsect1>
+        <xsl:if test="$with-source != 0">
+          <refsect1>
+            <title>Source</title>
+            <programlisting><xsl:text 
+              disable-output-escaping="yes">&lt;![CDATA[</xsl:text><xsl:copy-of 
+              select="."/><xsl:text
+                disable-output-escaping="yes">]]&gt;</xsl:text></programlisting>
+          </refsect1>
+        </xsl:if>
       </refentry>
     </sect2>
   </xsl:template>
@@ -212,8 +230,12 @@ The stylesheet was modified by Thomas Schraitle:
           </xsl:when>
           <xsl:when test="rng:text"> TEXT </xsl:when>
           <xsl:when test="rng:choice"> Enumeration:<xsl:text> </xsl:text>
-            <xsl:for-each select="rng:choice/rng:value"> "<xsl:value-of
-                select="."/>" <xsl:if test="following-sibling::*"> |
+            <xsl:for-each select="rng:choice/rng:value"> 
+              <xsl:text>"</xsl:text>
+              <sgmltag class="attvalue"><xsl:value-of select="."/></sgmltag>
+              <xsl:text>"</xsl:text>
+              <xsl:if test="following-sibling::*"> 
+                <xsl:text> | </xsl:text>
               </xsl:if>
             </xsl:for-each>
           </xsl:when>
@@ -253,7 +275,8 @@ The stylesheet was modified by Thomas Schraitle:
     <xsl:param name="optional"/>
     <xsl:if test="not(count(matched)=count(matched|.))">
       <xsl:apply-templates
-        select=".//rng:attribute[not(ancestor::rng:element)] | .//rng:ref[not(ancestor::rng:element)]"
+        select=".//rng:attribute[not(ancestor::rng:element)] | 
+                .//rng:ref[not(ancestor::rng:element)]"
         mode="attributes">
         <xsl:with-param name="matched" select="$matched|."/>
         <xsl:with-param name="optional"
