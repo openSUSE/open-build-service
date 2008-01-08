@@ -96,7 +96,7 @@ The stylesheet was modified by Thomas Schraitle:
         <legalnotice>
           <title>Legal Notice</title>
           <para>This product includes software developed by Khalil Ahmed
-              (<ulink url="http://www.techquila.com"/></para>
+              (<ulink url="http://www.techquila.com"/>).</para>
         </legalnotice>
         <authorgroup>
           <author>
