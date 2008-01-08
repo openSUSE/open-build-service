@@ -1,0 +1,20 @@
+/*
+    CSS for KIWI DocBook documentation
+*/
+
+div.sect2 div.titlepage 
+{
+  font-size:larger;
+}
+
+div.sect2
+{
+  border-top: 1pt dotted gray;
+}
+
+div.refentry div.refsynopsisdiv h2,
+div.refentry div.refsect1 h2,
+div.refentry div.refnamediv h2
+{
+  font-size:smaller;
+}
