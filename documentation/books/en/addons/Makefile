@@ -19,16 +19,16 @@ RELAXNG=relaxng.rng
 
 
 .PHONY: all
-all:  kiwi.rng html docbook db-html
+all:  kiwi.rng docbook html
 
 .PHONY: html
-html: kiwi.html
+html-old: kiwi.html
 
 .PHONY: docbook
 docbook: kiwi.xml
 
 .PHONY: db-html
-db-html: kiwi-db.html
+html: kiwi-db.html
 
 .PHONY: test
 test: kiwi.rng
