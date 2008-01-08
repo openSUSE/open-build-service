@@ -65,9 +65,11 @@ validate val: .validate
 	@echo "*** Converting KIWI RNC -> RNG..."
 	trang -I rnc -O rng $< $@
 
-%.xml: %.rng
+%.xml: %.rng $(RNG2DOCBOOK) .validate
 	@echo "*** Converting KIWI RNG -> DocBook..."
 	xsltproc --output $@ $(RNG2DOCBOOK) $<
+	@echo "*** Validating $@..."
+	xmllint --valid --noout $@
 
 %-db.html: %.xml
 	@echo "*** Converting KIWI DocBook XML -> HTML..."
