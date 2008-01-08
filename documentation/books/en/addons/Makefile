@@ -22,13 +22,13 @@ RELAXNG=relaxng.rng
 all:  kiwi.rng docbook html
 
 .PHONY: html
-html-old: kiwi.html
+html-old: kiwi.xhtml
 
 .PHONY: docbook
 docbook: kiwi.xml
 
 .PHONY: db-html
-html: kiwi-db.html
+html: kiwi.html
 
 .PHONY: test
 test: kiwi.rng
@@ -57,7 +57,7 @@ validate val: .validate
 	jing $(RELAXNG) $<
 
 
-%.html: %.rng $(RNG2XHTML) .validate
+%.xhtml: %.rng $(RNG2XHTML) .validate
 	@echo "*** Creating documentation from KIWI RNG..."
 	xsltproc --output $@ $(RNG2XHTML) $<
 
@@ -71,7 +71,7 @@ validate val: .validate
 	@echo "*** Validating $@..."
 	xmllint --valid --noout $@
 
-%-db.html: %.xml
+%.html: %.xml
 	@echo "*** Converting KIWI DocBook XML -> HTML..."
 	xsltproc --output $@ --stringparam html.stylesheet kiwi.css $(DBHTML) $<
 
