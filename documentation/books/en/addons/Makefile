@@ -73,7 +73,7 @@ validate val: .validate
 
 %-db.html: %.xml
 	@echo "*** Converting KIWI DocBook XML -> HTML..."
-	xsltproc --output $@ $(DBHTML) $<
+	xsltproc --output $@ --stringparam html.stylesheet kiwi.css $(DBHTML) $<
 
 
 
