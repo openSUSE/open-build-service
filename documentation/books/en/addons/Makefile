@@ -13,14 +13,22 @@
 .SUFFIXES: .rng .html .rnc
 
 RNG2XHTML=rng2xhtml.xsl
+RNG2DOCBOOK=rng2docbook.xsl
+DBHTML=/usr/share/xml/docbook/stylesheet/nwalsh/current//html/docbook.xsl
 RELAXNG=relaxng.rng
 
 
 .PHONY: all
-all:  kiwi.rng html
+all:  kiwi.rng html docbook db-html
 
 .PHONY: html
 html: kiwi.html
+
+.PHONY: docbook
+docbook: kiwi.xml
+
+.PHONY: db-html
+db-html: kiwi-db.html
 
 .PHONY: test
 test: kiwi.rng
@@ -56,7 +64,17 @@ validate val: .validate
 %.rng: %.rnc
 	@echo "*** Converting KIWI RNC -> RNG..."
 	trang -I rnc -O rng $< $@
-	
+
+%.xml: %.rng
+	@echo "*** Converting KIWI RNG -> DocBook..."
+	xsltproc --output $@ $(RNG2DOCBOOK) $<
+
+%-db.html: %.xml
+	@echo "*** Converting KIWI DocBook XML -> HTML..."
+	xsltproc --output $@ $(DBHTML) $<
+
+
+
 #
 # EOF
 #
