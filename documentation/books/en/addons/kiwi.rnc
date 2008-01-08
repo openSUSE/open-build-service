@@ -16,11 +16,53 @@
 #               : 
 #               :
 # STATUS        : Development
+#
+# TODO          : These are some
+#               : - Isolate more attribute patterns?
+#               : - Document the patterns
+#               : - Improve Schema with datatypes?
+#               : - Test, test, test...
+#               : - Rework users element to be required. Extend the
+#               :   content modell with a required root user
+#
+# FUTURE CHANGES: - Required attributes:
+#                   * <profile name="" description=""/>
+#                   * <package name=""/>
+#                   * <metafile url="" target=""/>
+#                   * <packages type="">
+#                   * <opensusePattern name=""/>
+#                   * <ignore name=""/>
+#                   * <users group="users">
+#                   * <user name="" home="" pwd=""/>
+#                   * <drivers type="">
+#                   * <file name=""/>
+#                   * <repository type="">
+#                   * <source path=""/>
+#                   * <deploy blocksize="" server="">
+#                   * <partitions device="/dev/sda">
+#                   * <partition type="" mountpoint="" number="" size="" target=""/>
+#                   * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
+#                   * <configuration dest="" source=""/>
+#                   * ...
+#                 - Insert bootstrap in image
+#                 - Rename repository -> repositories and source -> repository
+#                 - Change repository+ -> repositories
+#                 - Rename attribute schemeversion -> schemaversion or version
+#                 - repository: Add attributes pwd and username
+#                 - image: rename attribute "name" -> basename
+#                 - user: rename attribute "name" -> "login"
+#                 - instrepo, opensusepattern, package: find a better(?)
+#                   name for attribute "name"
+#                 - union: rename attribute "name" -> "overlay" (?)
+#                 - Fix camel case in element opensusePattern and
+#                   attributes patternPackageType and patternType
+#
 #****************
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 namespace db  = "http://docbook.org/ns/docbook"
+
 
 #==========================================
 # start with image description
