@@ -422,11 +422,6 @@ The stylesheet was modified by Thomas Schraitle:
 
   <xsl:template match="rng:define" mode="define-base">
     <xsl:variable name="name" select="@name"/>
-    <xsl:variable name="haselements">
-      <xsl:apply-templates select="." mode="find-element">
-        <xsl:with-param name="matched" select=".."/>
-      </xsl:apply-templates>
-    </xsl:variable>
     <xsl:variable name="hasatts">
       <xsl:apply-templates select="." mode="has-attributes"/>
     </xsl:variable>
@@ -448,7 +443,8 @@ The stylesheet was modified by Thomas Schraitle:
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-
+    <xsl:variable name="xdefs" select="key('elemdef', rng:element/@name)"/>
+    
     <refentry id="{@name}">
       <refnamediv>
           <refname><xsl:value-of select="@name"/></refname>
@@ -462,7 +458,7 @@ The stylesheet was modified by Thomas Schraitle:
           <para><xsl:value-of select="$nsuri"/></para>
         </refsynopsisdiv>
       </xsl:if>
-      <xsl:if test="starts-with($haselements, 'true')">
+      <xsl:if test="$xdefs">
         <refsynopsisdiv>
           <title>Content Model</title>
           <para>
@@ -570,9 +566,9 @@ The stylesheet was modified by Thomas Schraitle:
   <xsl:template match="rng:element" mode="content-model">
     <!--<xsl:variable name="xdefs" select="key('elemdef', @name)"/>-->
 
-    <xsl:message>rng:element (mode="content-model")
+    <!--<xsl:message>rng:element (mode="content-model")
       name:  "<xsl:value-of select="@name"/>"
-    </xsl:message>
+    </xsl:message>-->
 
     <link linkend="def.{@name}">
       <!--<xsl:attribute name="linkend">
@@ -681,31 +677,5 @@ The stylesheet was modified by Thomas Schraitle:
     <!-- suppress -->
   </xsl:template>
 
-  <xsl:template match="rng:define" mode="find-element">
-    <xsl:param name="matched"/>
-    <xsl:if test="not(count($matched | .)=count($matched))">
-      <xsl:choose>
-        <xsl:when test=".//rng:element|.//rng:text">
-          <xsl:value-of select="true()"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:apply-templates
-            select=".//rng:ref[not(ancestor::rng:attribute)]"
-            mode="find-element">
-            <xsl:with-param name="matched" select="$matched | ."/>
-          </xsl:apply-templates>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template match="rng:ref" mode="find-element">
-    <xsl:param name="matched" select="."/>
-    <xsl:variable name="ref" select="@name"/>
-    <xsl:apply-templates select="//rng:define[@name=$ref]"
-      mode="find-element">
-      <xsl:with-param name="matched" select="$matched"/>
-    </xsl:apply-templates>
-  </xsl:template>
 
 </xsl:stylesheet>
