@@ -36,8 +36,15 @@ The stylesheet was modified by Thomas Schraitle:
     doctype-public="-//OASIS//DTD DocBook XML V4.5//EN"
     doctype-system="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"/>
   
-
  <xsl:strip-space elements="*"/>
+
+
+  <xsl:key name="define" match="rng:define" use="@name"/>
+  <xsl:key name="element" match="rng:element" use="@name"/>
+  <xsl:key name="attribute" match="rng:attribute" use="@name"/>
+  <xsl:key name="elemdef" match="rng:define" use="rng:element/@name"/>
+  <xsl:key name="attrdef" match="rng:define" use="rng:attribute/@name"/>
+
 
   <!-- 
   The main title for the generated documentation. 
@@ -89,10 +96,11 @@ The stylesheet was modified by Thomas Schraitle:
     <article>
       <articleinfo>
         <pubdate>Published: <xsl:processing-instruction name="dbtimestamp"/></pubdate>
-        <xsl:if test="db:releaseinfo">
-          <releaseinfo><xsl:value-of select="db:releaseinfo"/></releaseinfo>  
-        </xsl:if>        
-        <releaseinfo>Version 1.4</releaseinfo>
+        <xsl:if test="db:info/db:releaseinfo">
+          <xsl:for-each select="db:info/db:releaseinfo">
+            <releaseinfo><xsl:apply-templates select="."/></releaseinfo>   
+          </xsl:for-each>           
+        </xsl:if>
         <legalnotice>
           <title>Legal Notice</title>
           <para>This product includes software developed by Khalil Ahmed
@@ -183,13 +191,17 @@ The stylesheet was modified by Thomas Schraitle:
       <xsl:apply-templates select="." mode="has-attributes"/>
     </xsl:variable>
     
-    <sect2>
-      <xsl:attribute name="id">
-        <xsl:call-template name="makeid">
-          <xsl:with-param name="node" select="."/>
-        </xsl:call-template>
-      </xsl:attribute>
-      <title>Element: <xsl:value-of select="$qname"/></title>
+
+    <!--<xsl:message>rng:element
+      name:  "<xsl:value-of select="$name"/>"
+      qname: "<xsl:value-of select="$qname"/>"
+      nsuri: "<xsl:value-of select="$nsuri"/>"
+      nsprefix: "<xsl:value-of select="$nsprefix"/>"
+    </xsl:message>-->
+
+    
+    <sect2 id="def.{@name}">
+      <title>Element: <sgmltag><xsl:value-of select="$qname"/></sgmltag></title>
       <refentry><!--  id="@qname" -->
         <refnamediv>
           <refname><xsl:value-of select="$qname"/></refname>
@@ -388,8 +400,7 @@ The stylesheet was modified by Thomas Schraitle:
 
 -->
 
-
-<xsl:template match="rng:define">
+  <xsl:template match="rng:define">
     <xsl:variable name="name" select="@name"/>
     
     <sect2>
@@ -406,7 +417,7 @@ The stylesheet was modified by Thomas Schraitle:
         </xsl:when>
       </xsl:choose>
     </sect2>    
-</xsl:template>
+  </xsl:template>
 
 
   <xsl:template match="rng:define" mode="define-base">
@@ -557,12 +568,18 @@ The stylesheet was modified by Thomas Schraitle:
   <!-- description of an element content model           -->
   <!-- ================================================= -->
   <xsl:template match="rng:element" mode="content-model">
-    <link>
-      <xsl:attribute name="linkend">
+    <!--<xsl:variable name="xdefs" select="key('elemdef', @name)"/>-->
+
+    <xsl:message>rng:element (mode="content-model")
+      name:  "<xsl:value-of select="@name"/>"
+    </xsl:message>
+
+    <link linkend="def.{@name}">
+      <!--<xsl:attribute name="linkend">
         <xsl:call-template name="makeid">
           <xsl:with-param name="node" select="."/>
         </xsl:call-template>
-      </xsl:attribute>
+      </xsl:attribute>-->
       <xsl:value-of select="@name"/>
     </link>
     <xsl:if
@@ -630,11 +647,11 @@ The stylesheet was modified by Thomas Schraitle:
   </xsl:template>
 
   <xsl:template match="rng:ref" mode="content-model">
-    <xsl:variable name="haselement">
-      <xsl:apply-templates select="." mode="find-element"/>
-    </xsl:variable>
-    <xsl:if test="starts-with($haselement, 'true')">
-      <link linkend="{@name}"><xsl:value-of select="@name"/></link>
+    <xsl:variable name="elemName"
+      select="(key('define', @name)/rng:element)[1]/@name"/>
+        
+    <xsl:if test="$elemName">
+      <link linkend="def.{$elemName}"><xsl:value-of select="$elemName"/></link>
       <xsl:if test="not(parent::rng:choice) and 
                     (following-sibling::rng:element
                     | following-sibling::rng:optional 
