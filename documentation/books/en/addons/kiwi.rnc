@@ -63,7 +63,14 @@ namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 namespace db  = "http://docbook.org/ns/docbook"
 
-db:releaseinfo [ "$Id:$"]
+
+db:info [
+  db:releaseinfo [ "$Id$"]
+  db:releaseinfo [ "RNC Schema Version 1.4" ]
+
+  db:pubdate [ "START" ]
+  db:pubdate [ "2008-01-08" ]
+]
 
 #==========================================
 # start with image description
