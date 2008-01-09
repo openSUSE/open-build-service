@@ -13,8 +13,6 @@ class ApplicationController < ActionController::Base
   # controller in frontend
   layout nil
 
-  session_options[:prefix] = "ruby_frontend_sess."
-  session_options[:session_key] = "opensuse_frontend_session"
   @user_permissions = nil
   @http_user = nil
   

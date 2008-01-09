@@ -8,17 +8,12 @@ config.cache_classes     = false
 # Log error messages when you accidentally call methods on nil.
 config.whiny_nils        = true
 
-# Enable the breakpoint server that script/breakpointer connects to
-config.breakpoint_server = true
-
 # Show full error reports and disable caching
 config.action_controller.consider_all_requests_local = false
 config.action_controller.perform_caching             = false
 
 # Don't care if the mailer can't send
 config.action_mailer.raise_delivery_errors = false
-
-BREAKPOINT_SERVER_PORT=42532
 
 SOURCE_HOST = "buildservice.suse.de"
 #SOURCE_HOST = "localhost"

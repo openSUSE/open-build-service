@@ -13,25 +13,19 @@ Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
   
   # Skip frameworks you're not going to use
-  # config.frameworks -= [ :action_web_service, :action_mailer ]
+  config.frameworks -= [ :action_web_service, :active_resource ]
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
   if( RAILS_ENV ==  'production' )
     config.load_paths << File.expand_path("/srv/www/opensuse/common/current/lib")
   else
-    STDERR.puts ">>>>>>>>>>>>>>>>>>>>>>> #{File.expand_path("#{RAILS_ROOT}/../common/lib")} <<<<<<<<<<<<<<<<<<<<<<<<<<"
     config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
   end
 
   # RAILS_ROOT is not working directory when running under lighttpd, so it has
   # to be added to load path
   #config.load_paths << RAILS_ROOT unless config.load_paths.include? RAILS_ROOT
-
-  # XXX: add active_rbac model path to load paths (not sure if this is a activerbac bug)
-  #config.load_paths << File.expand_path("#{RAILS_ROOT}/vendor/plugins/active_rbac/app/model")
-
-  #config.plugins = ['active_rbac']
 
   # Force all environments to use the same logger level 
   # (by default production uses :info, the others :debug)
@@ -40,6 +34,12 @@ Rails::Initializer.run do |config|
   # Use the database for sessions instead of the file system
   # (create the session table with 'rake create_sessions_table')
   # config.action_controller.session_store = :active_record_store
+
+  config.action_controller.session = {
+    :prefix => "ruby_frontend_session.",
+    :session_key => "opensuse_frontend_session",
+    :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
+  }
 
   # Enable page/fragment caching by setting a file-based store
   # (remember to create the caching directory and make it readable to the application)
@@ -83,8 +83,8 @@ ActionController::Base.perform_caching = true
 
 ActiveRbac.controller_layout = "rbac"
 
-require 'custom_logger'
-RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
+#require 'custom_logger'
+#RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'rails_put_fix'
 require 'rails_unescape_fix'
