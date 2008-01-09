@@ -63,13 +63,12 @@ namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 namespace db  = "http://docbook.org/ns/docbook"
 
-
 db:info [
-  db:releaseinfo [ "$Id$"]
-  db:releaseinfo [ "RNC Schema Version 1.4" ]
+	db:releaseinfo [ "$Id$"]
+	db:releaseinfo [ "RNC Schema Version 1.4" ]
 
-  db:pubdate [ "START" ]
-  db:pubdate [ "2008-01-08" ]
+	db:pubdate [ "START" ]
+	db:pubdate [ "2008-01-08" ]
 ]
 
 #==========================================
@@ -239,7 +238,7 @@ div {
 div {
 	k.defaultbaseroot.attlist = empty
 	k.defaultbaseroot =
-		## Default path if --baseroot option is no specified
+		## Default path if baseroot option is no specified
 		element defaultbaseroot {
 			k.defaultbaseroot.attlist,
 			text
@@ -252,7 +251,7 @@ div {
 div {
 	k.defaultdestination.attlist = empty
 	k.defaultdestination =
-		## Default path if --destdir option is not specified
+		## Default path if destdir option is not specified
 		element defaultdestination {
 			k.defaultdestination.attlist,
 			text
@@ -265,7 +264,7 @@ div {
 div {
 	k.defaultroot.attlist = empty
 	k.defaultroot =
-		## Default root directory name if --root option is not specified
+		## Default root directory name if root option is not specified
 		element defaultroot {
 			k.defaultroot.attlist,
 			text
@@ -467,6 +466,7 @@ div {
 		k.repopackage.priority.attribute? &
 		k.repopackage.addarch.attribute? &
 		k.repopackage.removearch.attribute? &
+		k.repopackage.forcearch.attribute? &
 		k.repopackage.source.attribute? &
 		k.repopackage.script.attribute?
 	k.repopackage =
@@ -742,7 +742,7 @@ div {
 		attribute baseroot { text }
 	k.type.bootprofile.attribute =
 		## Specifies the boot profile if defined in the boot image
-		## description. Used when KIWI option --add-profile is used
+		## description. Used when KIWI option add-profile is used
 		attribute bootprofile { text }
 	k.type.boot.attribute =
 		## Specifies the path of the boot image (initrd), relative
@@ -769,7 +769,7 @@ div {
 			"cow" | "iso" | "usb"
 		}
 	k.type.primary.attribute =
-		## Specifies the primary type (choose KIWI option --type)
+		## Specifies the primary type (choose KIWI option type)
 		attribute primary { xsd:boolean }
 	k.type.attlist =
 		k.type.checkprebuilt.attribute? &

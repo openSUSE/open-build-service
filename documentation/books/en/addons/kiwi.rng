@@ -18,9 +18,56 @@
                 : 
                 :
   STATUS        : Development
+  
+  TODO          : These are some
+                : - Isolate more attribute patterns?
+                : - Document the patterns
+                : - Improve Schema with datatypes?
+                : - Test, test, test...
+                : - Rework users element to be required. Extend the
+                :   content modell with a required root user
+  
+  FUTURE CHANGES: - Required attributes:
+                    * <profile name="" description=""/>
+                    * <package name=""/>
+                    * <metafile url="" target=""/>
+                    * <packages type="">
+                    * <opensusePattern name=""/>
+                    * <ignore name=""/>
+                    * <users group="users">
+                    * <user name="" home="" pwd=""/>
+                    * <drivers type="">
+                    * <file name=""/>
+                    * <repository type="">
+                    * <source path=""/>
+                    * <deploy blocksize="" server="">
+                    * <partitions device="/dev/sda">
+                    * <partition type="" mountpoint="" number="" size="" target=""/>
+                    * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
+                    * <configuration dest="" source=""/>
+                    * ...
+                  - Insert bootstrap in image
+                  - Rename repository -> repositories and source -> repository
+                  - Change repository+ -> repositories
+                  - Rename attribute schemeversion -> schemaversion or version
+                  - repository: Add attributes pwd and username
+                  - image: rename attribute "name" -> basename
+                  - user: rename attribute "name" -> "login"
+                  - instrepo, opensusepattern, package: find a better(?)
+                    name for attribute "name"
+                  - union: rename attribute "name" -> "overlay" (?)
+                  - Fix camel case in element opensusePattern and
+                    attributes patternPackageType and patternType
+  
   ****************
 -->
 <grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <db:info>
+    <db:releaseinfo>$Id$</db:releaseinfo>
+    <db:releaseinfo>RNC Schema Version 1.4</db:releaseinfo>
+    <db:pubdate>START</db:pubdate>
+    <db:pubdate>2008-01-08</db:pubdate>
+  </db:info>
   <!--
     ==========================================
     start with image description
@@ -290,7 +337,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.defaultbaseroot">
       <element name="defaultbaseroot">
-        <a:documentation>Default path if --baseroot option is no specified</a:documentation>
+        <a:documentation>Default path if baseroot option is no specified</a:documentation>
         <ref name="k.defaultbaseroot.attlist"/>
         <text/>
       </element>
@@ -307,7 +354,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.defaultdestination">
       <element name="defaultdestination">
-        <a:documentation>Default path if --destdir option is not specified</a:documentation>
+        <a:documentation>Default path if destdir option is not specified</a:documentation>
         <ref name="k.defaultdestination.attlist"/>
         <text/>
       </element>
@@ -324,7 +371,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.defaultroot">
       <element name="defaultroot">
-        <a:documentation>Default root directory name if --root option is not specified</a:documentation>
+        <a:documentation>Default root directory name if root option is not specified</a:documentation>
         <ref name="k.defaultroot.attlist"/>
         <text/>
       </element>
@@ -627,6 +674,9 @@ the given arch should be used in any case</a:documentation>
         </optional>
         <optional>
           <ref name="k.repopackage.removearch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repopackage.forcearch.attribute"/>
         </optional>
         <optional>
           <ref name="k.repopackage.source.attribute"/>
@@ -1046,7 +1096,7 @@ the correct timezone and copy it to /etc/localtime</a:documentation>
     <define name="k.type.bootprofile.attribute">
       <attribute name="bootprofile">
         <a:documentation>Specifies the boot profile if defined in the boot image
-description. Used when KIWI option --add-profile is used</a:documentation>
+description. Used when KIWI option add-profile is used</a:documentation>
       </attribute>
     </define>
     <define name="k.type.boot.attribute">
@@ -1099,7 +1149,7 @@ vmx/oem types only.</a:documentation>
     </define>
     <define name="k.type.primary.attribute">
       <attribute name="primary">
-        <a:documentation>Specifies the primary type (choose KIWI option --type)</a:documentation>
+        <a:documentation>Specifies the primary type (choose KIWI option type)</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
