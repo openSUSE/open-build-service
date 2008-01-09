@@ -1,7 +1,7 @@
 
-<%= form_remote_tag :url => { :action => 'save_message' },
+<% form_remote_tag :url => { :action => 'save_message' },
   :loading => "toggle_visibility('message_save_spinner')",
-  :complete => "toggle_visibility('message_save_spinner')" %>
+  :complete => "toggle_visibility('message_save_spinner')" do %>
 
   <%= text_field_tag 'message', '', { :size => 40 } %>
   <%= select_tag 'severity', options_for_select(
@@ -10,5 +10,5 @@
   <%= image_tag 'rotating-tail.gif', :id => 'message_save_spinner',
     :style => "visibility:hidden;" -%>
 
-<%= end_form_tag %>
+<% end %>
 

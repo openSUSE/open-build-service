@@ -9,7 +9,7 @@
 -%>
 <h2>Editing Package <%=h @package %> (Project <%=h @project %>)</h2>
 
-<%= form_tag :action => :save %>
+<% form_tag :action => :save do %>
   <b>Title:</b><br/>
   <%= text_field_tag( 'title', @package.title, :size => 80 ) %><br/>
 
@@ -28,4 +28,4 @@
   <p><%= submit_tag %></p>
   <%= hidden_field_tag( "project", @project.name ) %>
   <%= hidden_field_tag( "package", @package.name ) %>
-<%= end_form_tag %>
+<% end %>

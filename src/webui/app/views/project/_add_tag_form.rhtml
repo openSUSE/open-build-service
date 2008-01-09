@@ -1,12 +1,10 @@
+<p>
 <% form_id = "tag_form" %>
-<%= form_remote_tag :url => {:action => :add_tag, :controller => "project", :project => @project},
-    :loading => "toggle_visibility('spinner')",
-    :complete => "toggle_visibility('spinner')"-%>
-  <!--  #:update => 'tag_area'-%> -->
-
-  <p>
-    <%= text_field_tag( "tag", @tag , :size => 15) %>
-    <%= image_submit_tag "ok"%>
-    <%= image_tag 'rotating-tail.gif', :id => 'spinner', :style => "visibility:hidden;" -%>
-    <%= end_form_tag %>
-  </p>
+<% form_remote_tag :url => {:action => :add_tag, :controller => "project", :project => @project},
+  :loading => "toggle_visibility('spinner')",
+  :complete => "toggle_visibility('spinner')"-%>
+  <%= text_field_tag( "tag", @tag , :size => 15) %>
+  <%= image_submit_tag "ok"%>
+  <%= image_tag 'rotating-tail.gif', :id => 'spinner', :style => "visibility:hidden;" -%>
+  <% end %>
+</p>

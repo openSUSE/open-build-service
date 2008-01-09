@@ -11,7 +11,7 @@ Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
 
   # Skip frameworks you're not going to use
-  # config.frameworks -= [ :action_web_service, :action_mailer ]
+  config.frameworks -= [ :action_web_service, :active_resource ]
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
@@ -28,6 +28,11 @@ Rails::Initializer.run do |config|
   # Use the database for sessions instead of the file system
   # (create the session table with 'rake create_sessions_table')
   # config.action_controller.session_store = :active_record_store
+  config.action_controller.session = {
+    :prefix => "ruby_webclient_session",
+    :session_key => "opensuse_webclient_session",
+    :secret => "iofupo3i4u5097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
+  }
 
   # Enable page/fragment caching by setting a file-based store
   # (remember to create the caching directory and make it readable to the application)
@@ -63,8 +68,8 @@ end
 MIN_VOTES_FOR_RATING = 3
 
 
-require 'custom_logger'
-RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
+#require 'custom_logger'
+#RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'activexml'
 

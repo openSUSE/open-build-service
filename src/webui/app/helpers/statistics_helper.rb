@@ -12,7 +12,7 @@ module StatisticsHelper
     out << hidden_field_tag( 'arch', @arch) if @arch
     out << image_submit_tag( 'system-search.png' )
     out << image_tag( 'rotating-tail.gif', :border => 0, :style => 'display: none;', :id => 'spinner' )
-    out << end_form_tag
+    out << "</form>"
     out << observe_field( :limit, :update => action,
       :url => { :action  => action, :more => true,
         :project => @project, :package => @package,

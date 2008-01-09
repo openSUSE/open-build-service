@@ -9,7 +9,7 @@
 -%>
 <h2>Add File (Project <%=h @project.name %>, Package <%=h @package.name %>)</h2>
 
-<%= form_tag({:action => :save_file}, {:multipart => true})%>
+<% form_tag({:action => :save_file}, {:multipart => true}) do %>
 <b>Filename (leave empty to take from upload or uri):</b><br/>
 <%= text_field_tag 'filename', '', :size => 80 %><br/>
 <b>Filetype:</b><br/>
@@ -31,4 +31,4 @@
 <%= hidden_field_tag 'project', @project %>
 <%= hidden_field_tag 'package', @package %>
 <p><%= submit_tag %></p>
-<%= end_form_tag %>
+<% end %>

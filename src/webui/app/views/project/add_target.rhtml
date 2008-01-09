@@ -9,7 +9,7 @@
 
 <h2>Add Repository (Project <%=h @project %>)</h2>
 
-<%= form_tag :action => :save_target %>
+<% form_tag :action => :save_target do %>
 <b>Name:</b><br/>
 <%= text_field_tag 'targetname', @targetname %><br/>
 <table>
@@ -28,4 +28,4 @@
 </table>
 <%= hidden_field_tag 'project', @project %>
 <p><%= submit_tag %></p>
-<%= end_form_tag %>
+<% end %>

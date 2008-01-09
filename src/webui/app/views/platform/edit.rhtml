@@ -1,7 +1,7 @@
 <% @pagetitle = "Edit Platform" %>
 <h2>Editing Platform <%= @platform %> (Project <%= @platform.project %>)</h2>
 
-<%= form_tag :action => :save %>
+<% form_tag :action => :save do %>
   <b>Title:</b></br>
   <%= text_field_tag 'title', @platform.title, :size => 80 %><br/>
   <b>Description:</b><br/>
@@ -9,4 +9,4 @@
   <p><%= submit_tag %></p>
   <%= hidden_field_tag "platform", @platform.name %>
   <%= hidden_field_tag "project", @platform.project %>
-<%= end_form_tag %>
+<% end %>

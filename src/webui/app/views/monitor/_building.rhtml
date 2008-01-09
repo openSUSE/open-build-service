@@ -5,7 +5,7 @@
 %>
 <h2>Building</h2>
 <div class="info">
-  <% form_tag -%>
+  <% form_tag do -%>
     Filter projects:
     <%= text_field_tag :project, @project_filter, :style => "width: 15em;" -%>
     <%= link_to image_tag( 'clear.png', :id => 'clear', :alt => 'clear',
@@ -15,7 +15,7 @@
           ),
           :controller => params[:controller], :action => params[:action] %>
     <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
-  <% end_form_tag -%>
+  <% end -%>
   <%= observe_field( :project, :frequency => 0.5, :update => 'building_list',
       :url => { :controller => 'monitor', :action  => 'filtered_list' },
       :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",

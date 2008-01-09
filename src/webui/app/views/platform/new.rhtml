@@ -1,7 +1,7 @@
 <% @pagetitle = "New Platform" %>
 <h2>New Platform</h2>
 
-<%= form_tag :action => :create %>
+<%= form_tag :action => :create do %>
 <b>Project:</b>
 <%= select_tag 'project', options_for_select(@projects) %><br/>
 <b>Name:</b><br/>
@@ -12,4 +12,4 @@
 <%= text_area_tag 'description', '', :cols => 80,
   :rows => 10 %>
 <p><%= submit_tag %></p>
-<%= end_form_tag %>
+<% end %>

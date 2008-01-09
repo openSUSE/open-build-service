@@ -7,7 +7,7 @@ class TagController < ApplicationController
 
   def edit
 
-    @projects, @packages = get_tagged_objects_by_user(@session[:login])
+    @projects, @packages = get_tagged_objects_by_user(session[:login])
     @tagcloud = get_tagcloud
 
   end
@@ -67,7 +67,7 @@ class TagController < ApplicationController
 
   # render the input form for tags
   def edit_taglist_form
-    user = @session[:login]
+    user = session[:login]
     project = params[:project]
     package = params[:package]
 
@@ -92,7 +92,7 @@ class TagController < ApplicationController
     end
     begin
 
-      @tag_xml = Tag.new(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => params[:tags])
+      @tag_xml = Tag.new(:user => session[:login], :project => params[:project], :package => params[:package], :tag => params[:tags])
       @tag_xml.save
 
     rescue ActiveXML::Transport::Error => exception
@@ -102,7 +102,7 @@ class TagController < ApplicationController
       @unsaved_tags = true
     end
 
-    @object = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])
+    @object = Tag.find(:user => session[:login], :project => params[:project], :package => params[:package])
     @tagcloud = get_tagcloud
 
     render :action => "edit_taglist_ajax"

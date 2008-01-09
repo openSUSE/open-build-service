@@ -20,14 +20,14 @@ class PackageController < ApplicationController
 
     tags = []
     tags << params[:tag]
-    old_tags = Tag.find(:user => @session[:login], :project => params[:project], :package => params[:package])
+    old_tags = Tag.find(:user => session[:login], :project => params[:project], :package => params[:package])
 
     old_tags.each_tag do |tag|
       tags << tag.name
     end
     logger.debug "[TAG:] saving tags #{tags.join(" ")} for package #{params[:package]} (project #{params[:project]})."
 
-    @tag_xml = Tag.new(:user => @session[:login], :project => params[:project], :package => params[:package], :tag => tags.join(" "))
+    @tag_xml = Tag.new(:user => session[:login], :project => params[:project], :package => params[:package], :tag => tags.join(" "))
     begin
       @tag_xml.save()
     rescue ActiveXML::Transport::Error => exception
@@ -37,7 +37,7 @@ class PackageController < ApplicationController
       @unsaved_tags = true
     end
 
-    @tags, @user_tags_array = get_tags(:user => @session[:login], :project => params[:project], :package => params[:package])
+    @tags, @user_tags_array = get_tags(:user => session[:login], :project => params[:project], :package => params[:package])
 
     render :update do |page|
       page.replace_html 'tag_area', :partial => "tags_ajax"
@@ -99,7 +99,7 @@ class PackageController < ApplicationController
         
         @buildresult = Buildresult.find( :project => project, :package => package, :view => ['status', 'binarylist'] )
 
-        @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
+        @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
         @rating = Rating.find( :project => @project, :package => @package )
       end
     end
@@ -122,10 +122,10 @@ class PackageController < ApplicationController
     @package = Package.find( package, :project => project )
     @project = Project.find( project )
 
-    #@tags = Tag.find(:user => @session[:login], :project => @project.name, :package => @package.name)
+    #@tags = Tag.find(:user => session[:login], :project => @project.name, :package => @package.name)
 
     #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
-    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
+    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
 
     @downloads = Downloadcounter.find( :project => project, :package => package )
     @rating = Rating.find( :project => @project, :package => @package )

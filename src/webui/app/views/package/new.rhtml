@@ -8,7 +8,7 @@
 -%>
 <h2>New Package in project <%= @project.name %></h2>
 
-<%= form_tag :action => "save_new" %>
+<%= form_tag :action => "save_new" do %>
 <b>Name:</b><br/>
 <%= text_field_tag 'name', '', :size => 80 %><br/>
 <b>Title:</b><br/>
@@ -18,4 +18,4 @@
 <%= check_box_tag "createSpecFileTemplate", 1, false %>Create RPM SPEC file template
 <p><%= submit_tag %></p>
 <%= hidden_field_tag 'project', @project.name %>
-<%= end_form_tag %>
+<% end %>

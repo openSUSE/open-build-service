@@ -1,7 +1,7 @@
 class UserController < ApplicationController
 require 'opensuse/frontend'
   skip_before_filter :authorize, :transmit_credentials
-  skip_before_filter :set_return_to, :only => [:store_login, :register, :request_ichain]
+  skip_before_filter :set_return_to, :only => [:login, :store_login, :register, :request_ichain]
   
   def login
 
@@ -37,6 +37,7 @@ require 'opensuse/frontend'
   # store current uri in  the session.
   # we can return to this location by calling return_location
   def store_location
+    logger.debug "storing :return_to : #{request.request_uri}"
     session[:return_to] = request.request_uri
   end
 
@@ -45,11 +46,12 @@ require 'opensuse/frontend'
     if !default  
       default = url_for :controller => ''
     end
-    logger.debug "Default url = #{default}"
     if session[:return_to].nil?
+      logger.debug "redirecting to default url: #{default}"
       redirect_to default
     else
-      redirect_to_url session[:return_to]
+      logger.debug "redirecting to stored url: #{session[:return_to]}"
+      redirect_to session[:return_to]
       session[:return_to] = nil
     end
   end

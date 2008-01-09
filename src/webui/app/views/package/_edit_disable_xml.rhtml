@@ -1,5 +1,5 @@
 
-<%= form_tag :action => :save_disable_xml %>
+<% form_tag :action => :save_disable_xml do %>
   <p><%= text_area_tag( "xml", @xml, :cols => "20", :rows => "5" ) %></p>
   <p>
     <%= submit_tag %>
@@ -8,4 +8,4 @@
   </p>
   <%= hidden_field_tag( "project", @project ) %>
   <%= hidden_field_tag( "package", @package ) %>
-<%= end_form_tag %>
+<% end %>

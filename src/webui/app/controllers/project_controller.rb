@@ -98,7 +98,7 @@ class ProjectController < ApplicationController
 
     @arch_list = arch_list
     @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
-    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
+    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
     @rating = Rating.find( :project => @project )
   end
 
@@ -170,10 +170,10 @@ class ProjectController < ApplicationController
     @updated_timestamp = LatestUpdated.find( :specific,
       :project => @project ).project.updated
 
-    #@tags = Tag.find(:user => @session[:login], :project => @project.name)
+    #@tags = Tag.find(:user => session[:login], :project => @project.name)
 
     #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
-    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => @session[:login])
+    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
 
     @downloads = Downloadcounter.find( :project => @project )
     @rating = Rating.find( :project => @project )
@@ -188,7 +188,7 @@ class ProjectController < ApplicationController
     @collection.each_project do |project|
       @projects << project
     end
-    @tagcloud ||= Tagcloud.new(:user => @session[:login], :tagcloud => session[:tagcloud])
+    @tagcloud ||= Tagcloud.new(:user => session[:login], :tagcloud => session[:tagcloud])
     render :action => "../tag/list_objects_by_tag"
   end
 
@@ -265,13 +265,13 @@ class ProjectController < ApplicationController
     logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}."
     tags = []
     tags << params[:tag]
-    old_tags = Tag.find(:user => @session[:login], :project => params[:project])
+    old_tags = Tag.find(:user => session[:login], :project => params[:project])
     old_tags.each_tag do |tag|
       tags << tag.name
     end
     logger.debug "[TAG:] saving tags #{tags.join(" ")} for project #{params[:project]}."
 
-    @tag_xml = Tag.new(:project => params[:project], :tag => tags.join(" "), :user => @session[:login])
+    @tag_xml = Tag.new(:project => params[:project], :tag => tags.join(" "), :user => session[:login])
     begin
       @tag_xml.save
 
@@ -282,7 +282,7 @@ class ProjectController < ApplicationController
       @unsaved_tags = true
     end
 
-    @tags, @user_tags_array = get_tags(:user => @session[:login], :project => params[:project])
+    @tags, @user_tags_array = get_tags(:user => session[:login], :project => params[:project])
 
     render :update do |page|
       page.replace_html 'tag_area', :partial => "tags_ajax"

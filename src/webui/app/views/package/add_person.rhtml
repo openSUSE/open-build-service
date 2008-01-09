@@ -9,7 +9,7 @@
 -%>
 <h2>Add User (Project <%=h @project%>, Package <%=h @package%>)</h2>
 
-<%= form_tag :action => :save_person %>
+<% form_tag :action => :save_person do %>
 <b>User ID:</b><br/>
 <%= text_field_tag 'userid', params[:userid] %><br/>
 <b>Role:</b><br/>
@@ -17,4 +17,4 @@
 <%= hidden_field_tag 'package', @package %>
 <%= hidden_field_tag 'project', @project %>
 <p><%= submit_tag %></p>
-<%= end_form_tag %>
+<% end %>
