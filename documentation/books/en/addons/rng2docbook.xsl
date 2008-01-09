@@ -4,7 +4,8 @@
   xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
   xmlns:rng="http://relaxng.org/ns/structure/1.0"
   xmlns:db="http://docbook.org/ns/docbook"
-  exclude-result-prefixes="db a rng">
+  xmlns:exsl="http://exslt.org/common"
+  exclude-result-prefixes="db a rng exsl">
 
 <!--
   http://www.techquila.com/download/LICENSE.txt
@@ -190,14 +191,22 @@ The stylesheet was modified by Thomas Schraitle:
     <xsl:variable name="hasatts">
       <xsl:apply-templates select="." mode="has-attributes"/>
     </xsl:variable>
+    <xsl:variable name="rtf">
+        <xsl:apply-templates mode="get-attributes"/>
+    </xsl:variable>
+    <xsl:variable name="attrs" select="exsl:node-set($rtf)/rng:attribute"/>
     
 
-    <!--<xsl:message>rng:element
-      name:  "<xsl:value-of select="$name"/>"
-      qname: "<xsl:value-of select="$qname"/>"
-      nsuri: "<xsl:value-of select="$nsuri"/>"
-      nsprefix: "<xsl:value-of select="$nsprefix"/>"
-    </xsl:message>-->
+    <xsl:message>rng:element <xsl:value-of select="$name"/>
+      <!--name:  "<xsl:value-of select="$name"/>"
+      hasatts:  "<xsl:value-of select="$hasatts"/>"
+      attrs:    "<xsl:value-of select="count($attrs)"/>"-->
+      toms.attr:    "<xsl:value-of select="count($attrs)"/>"
+      attributes:   <xsl:for-each select="$attrs">
+        <!--<xsl:value-of select="concat('* &lt;', name(.), '&gt; ')"/>-->
+        <xsl:value-of select="concat(@name, ' ')"/>
+      </xsl:for-each>
+    </xsl:message>
 
     
     <sect2 id="def.{@name}">
@@ -230,7 +239,7 @@ The stylesheet was modified by Thomas Schraitle:
         <refsect1>
           <title>Attributes</title>
           <xsl:choose>
-            <xsl:when test="$hasatts = 'true'">
+            <xsl:when test="count($attrs) > 0">
               <informaltable>
                 <tgroup cols="3">
                   <thead>
@@ -250,7 +259,25 @@ The stylesheet was modified by Thomas Schraitle:
                     </row>
                   </thead>              
                   <tbody>
-                    <xsl:variable name="nesting"
+                    <xsl:apply-templates
+                      select="//rng:attribute[$attrs]" mode="attributes">
+                      <xsl:with-param name="matched" select="."/>
+                      <xsl:with-param name="optional">
+                        <xsl:value-of select="false()"/>
+                      </xsl:with-param>
+                    </xsl:apply-templates>
+                    <!--<xsl:for-each select="$attrs">
+                      <row>
+                        <entry>
+                          <xsl:value-of select="@name"/>
+                        </entry>
+                        <entry/>
+                        <entry/>
+                        <entry><xsl:apply-templates
+                          select="a:documentation"/></entry>
+                      </row>
+                    </xsl:for-each>-->
+                    <!--<xsl:variable name="nesting"
                       select="count(ancestor::rng:element)"/>
                     <xsl:apply-templates
                       select=".//rng:attribute[count(ancestor::rng:element)=$nesting+1] | 
@@ -260,7 +287,7 @@ The stylesheet was modified by Thomas Schraitle:
                       <xsl:with-param name="optional">
                         <xsl:value-of select="false()"/>
                       </xsl:with-param>
-                    </xsl:apply-templates>
+                    </xsl:apply-templates>-->
                   </tbody>
                 </tgroup>
               </informaltable>
@@ -356,7 +383,53 @@ The stylesheet was modified by Thomas Schraitle:
 <!-- 
 
 -->
+  <!--<xsl:template match="*" mode="get-attributes">
+     <xsl:app-templates mode="get-attributes"/>
+  </xsl:template>-->
+  
+  <xsl:template match="rng:define" mode="get-attributes">
+    <xsl:message>rng:define (mode="get-attributes")
+      @name: <xsl:value-of select="@name"/>
+      <xsl:text> </xsl:text>
+      <xsl:for-each select="rng:*">
+        <xsl:value-of select="concat('&lt;', name(.), '&gt;')"/>
+        <xsl:text>, </xsl:text>
+      </xsl:for-each>
+    </xsl:message>
+    <xsl:apply-templates mode="get-attributes"/>
+    
+    <!--<xsl:choose>
+      <xsl:when test="rng:attribute">
+        <xsl:copy-of select="self::rng:attribute"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates mode="get-attributes"/>
+      </xsl:otherwise>
+    </xsl:choose>-->
+  </xsl:template>
 
+  <xsl:template match="rng:attribute" mode="get-attributes">
+    <xsl:message>rng:attribute (mode="get-attributes")
+      @name: <xsl:value-of select="@name"/>
+    </xsl:message>
+    <xsl:copy-of select="."/>
+  </xsl:template>
+
+  <xsl:template match="rng:ref" mode="get-attributes">
+    <xsl:variable name="defs" select="key('define', @name)"/>
+    
+    <xsl:message>rng:ref (mode="get-attributes")
+      defs: "<xsl:value-of select="$defs/@name"/>"
+    </xsl:message>
+    
+    <xsl:apply-templates select="$defs" mode="get-attributes"/>
+    
+  </xsl:template>
+
+
+<!-- 
+
+-->
   <xsl:template match="rng:element" mode="has-attributes">
     <xsl:choose>
       <xsl:when
@@ -528,35 +601,6 @@ The stylesheet was modified by Thomas Schraitle:
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="rng:element" mode="makeid">
-    <xsl:apply-templates select="ancestor::rng:element[1]" mode="makeid"
-      />.<xsl:value-of select="@name"/>
-  </xsl:template>
-
-  <xsl:template match="rng:define" mode="makeid">
-    <xsl:value-of select="@name"/>
-  </xsl:template>
-
-  <xsl:template match="*" mode="makeid">
-    <xsl:apply-templates
-      select="ancestor::rng:element[1] | ancestor::rng:define[1]"/>
-  </xsl:template>
-
-  <xsl:template name="makeid">
-    <xsl:param name="node"/>
-    <xsl:variable name="id">
-      <xsl:apply-templates select="$node" mode="makeid"/>
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="ancestor-or-self::rng:define">
-        <xsl:value-of select="ancestor-or-self::rng:define[1]/@name"/>
-        <xsl:value-of select="$id"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="substring-after($id, '.')"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
 
   <!-- ================================================= -->
   <!-- CONTENT MODEL PATTERNS                            -->
@@ -571,11 +615,6 @@ The stylesheet was modified by Thomas Schraitle:
     </xsl:message>-->
 
     <link linkend="def.{@name}">
-      <!--<xsl:attribute name="linkend">
-        <xsl:call-template name="makeid">
-          <xsl:with-param name="node" select="."/>
-        </xsl:call-template>
-      </xsl:attribute>-->
       <xsl:value-of select="@name"/>
     </link>
     <xsl:if
