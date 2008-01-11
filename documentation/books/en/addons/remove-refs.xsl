@@ -42,8 +42,5 @@
   <xsl:apply-templates mode="removerefs"/>
 </xsl:template>
 
-<xsl:template match="rng:grammar/rng:div|rng:grammar/rng:define" mode="removerefs"/>
-  
-
 
 </xsl:stylesheet>
