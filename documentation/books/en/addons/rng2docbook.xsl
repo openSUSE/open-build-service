@@ -215,7 +215,14 @@ The stylesheet was modified by Thomas Schraitle:
             </screen>
         </refsynopsisdiv>
       </xsl:if>
-              <refsect1>
+      <xsl:if test="db:para">
+        <refsect1>
+          <title>Description</title>
+          <para><xsl:value-of select="db:para"/></para>
+        </refsect1>
+      </xsl:if>
+      
+      <refsect1>
           <title>Attributes</title>
           <xsl:choose>
             <xsl:when test="count($attrs) > 0">
