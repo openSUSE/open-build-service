@@ -41,9 +41,9 @@ div.refentry div.refsect1 h2
 
 
 
-div.sect2 div.titlepage 
+div.sect2 div.titlepage, 
+div.refentry div.refnamediv h2
 {
-  font-size:larger;
   background-color: #629900;
   color:white;
   padding-left: 2pt;
@@ -57,12 +57,6 @@ div.sect2
   border-top: 1pt dotted gray;
 }
 
-div.refentry div.refsynopsisdiv h2,
-div.refentry div.refsect1 h2,
-div.refentry div.refnamediv h2
-{
-  font-size:smaller;
-}
 
 
 p.releaseinfo 
