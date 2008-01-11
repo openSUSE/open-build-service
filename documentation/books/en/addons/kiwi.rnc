@@ -106,12 +106,12 @@ div {
 
 	k.image =
 		## The root element of the configuration file		
-    [
-      db:para [
-        "Each KIWI configuration file consists of a root element\x{a}" ~
-        "        image."
-      ]
-    ]
+		[
+		db:para [
+			"Each KIWI configuration file consists of a root element\x{a}" ~
+			"        image."
+		]
+		]
 		element image {
 			k.image.attlist,
 			k.description,
@@ -183,8 +183,11 @@ div {
 	k.compressed.attlist = empty
 	k.compressed =
 		## Compress image. 
-		#[ db:para [ "The compression may be changed by the
-		#  code according to the image output type" ]
+		#[
+		#db:para [
+		#	"The compression may be changed by the" ~
+		#	"code according to the image output type"
+		#]
 		#]
 		element compressed {
 			k.compressed.attlist,
@@ -203,15 +206,15 @@ div {
 		k.configuration.dest.attribute
 
 	k.configuration =
-	  ## Specifies Configuration files
-    [
-      db:para [
-        "As part of the network deploy configuration this section\x{a}" ~
-        "specifies the configuration files which should be included\x{a}"~
-        "into the image after deployment."
-      ]
-    ]
-    element configuration {
+		## Specifies Configuration files
+		[
+		db:para [
+			"As part of the network deploy configuration this section\x{a}" ~
+			"specifies the configuration files which should be included\x{a}"~
+			"into the image after deployment."
+		]
+		]
+		element configuration {
 			k.configuration.attlist,
 			empty
 		}
@@ -223,14 +226,14 @@ div {
 div {
 	k.commandline.attlist = empty
 	k.commandline = 
-	  ## Specifies the Kernel Boot Commandline
+		## Specifies the Kernel Boot Commandline
 		[
-      db:para [
-        "As part of the network deploy configuration this section\x{a}"~
-		    "specifies the kernel boot commandline used when the image\x{a}"~
-		    "gets deployed."
-      ]
-    ]
+		db:para [
+			"As part of the network deploy configuration this section\x{a}"~
+			"specifies the kernel boot commandline used when the image\x{a}"~
+			"gets deployed."
+		]
+		]
 		element commandline {
 			k.commandline.attlist,
 			text
@@ -326,13 +329,13 @@ div {
 div {
 	k.initrd.attlist = empty
 	k.initrd =
-	  ## Specifies where the Boot Image can be Found
-	  [
-	    db:para [
-	      "As part of the network deploy configuration this element\x{a}"~
-	      "specifies where the boot image (initrd) can be found."
-	    ]
-	  ]
+		## Specifies where the Boot Image can be Found
+		[
+		db:para [
+			"As part of the network deploy configuration this element\x{a}"~
+			"specifies where the boot image (initrd) can be found."
+		]
+		]
 		element initrd {
 			k.initrd.attlist,
 			text
@@ -355,13 +358,12 @@ div {
 		k.instrepo.username.attribute? &
 		k.instrepo.pwd.attribute?
 	k.instrepo =
-	  ## Name of a Installation Repository
+		## Name of a Installation Repository
 		[
-		  db:para
-		   [
-		    "Name of a repository which is used to create an\x{a}" ~
-		    "installation source"
-		  ]
+		db:para [
+			"Name of a repository which is used to create an\x{a}" ~
+			"installation source"
+		]
 		]
 		element instrepo {
 			k.instrepo.attlist,
@@ -377,11 +379,10 @@ div {
 	k.kernel =
 		## Specifies Where to Find the Boot Kernel
 		[
-		  db:para
-		   [
-		    "As part of the network deploy configuration this section\x{a}" ~
-		    "specifies the where to find the boot kernel."
-		  ]
+		db:para [
+			"As part of the network deploy configuration this section\x{a}" ~
+			"specifies the where to find the boot kernel."
+		]
 		]
 		element kernel {
 			k.kernel.attlist,
@@ -397,10 +398,9 @@ div {
 	k.keytable =
 		## Image keytable setup.
 		[
-		  db:para
-		  [
-		    "The value will be part of /etc/sysconfig/keyboard"
-		  ]
+		db:para [
+			"The value will be part of /etc/sysconfig/keyboard"
+		]
 		]
 		element keytable {
 			k.keytable.attlist,
@@ -416,10 +416,9 @@ div { # locale
 	k.locale =
 		## Image locale setup.
 		[
-		  db:para
-		  [
-		    "The value will be part of /etc/sysconfig/keyboard"
-		  ]
+		db:para [
+			"The value will be part of /etc/sysconfig/keyboard"
+		]
 		]
 		element locale {
 			k.locale.attlist,
@@ -433,16 +432,15 @@ div { # locale
 div {
 	k.metadata.attlist = empty
 	k.metadata =
-	  ## Contains Metadata
+		## Contains Metadata
 		[
-		  db:para
-		  [
-		    "When building an installation source not only packages are\x{a}" ~
-		    "relevant but also metadata. metadata are files or packages\x{a}"~
-		    "combined with script calls. If a package is specified as\x{a}"~
-		    "metadata it will not be installed by rpm but its cpio\x{a}"~
-		    "archive is extracted in a specific way."		    
-		  ]
+		db:para [
+			"When building an installation source not only packages are\x{a}" ~
+			"relevant but also metadata. metadata are files or packages\x{a}"~
+			"combined with script calls. If a package is specified as\x{a}"~
+			"metadata it will not be installed by rpm but its cpio\x{a}"~
+			"archive is extracted in a specific way."		    
+		]
 		]
 		element metadata {
 			k.metadata.attlist,
@@ -551,13 +549,12 @@ div {
 div {
 	k.packagemanager.attlist = empty
 	k.packagemanager =
-	  ## Name of the Package Manager
+		## Name of the Package Manager
 		[
-		  db:para
-		  [
-		    "The package manager used for package installation\x{a}"~
-		    "could be either zypper or smart"
-		  ]
+		db:para [
+			"The package manager used for package installation\x{a}"~
+			"could be either zypper or smart"
+		]
 		]
 		element packagemanager {
 			k.packagemanager.attlist,
@@ -622,11 +619,10 @@ div {
 	k.persistent =
 		## Specifies Filenames in the Read-Write Disk Area
 		[
-		  db:para
-		  [
-		    "As part of the split section the persistent element\x{a}"~
-		    "specifies filenames which are in the read-write disk area"
-		  ]
+		db:para [
+			"As part of the split section the persistent element\x{a}"~
+			"specifies filenames which are in the read-write disk area"
+		]
 		]
 		element persistent {
 			k.persistent.attlist ,
@@ -646,15 +642,14 @@ div {
 		k.profile.name.attribute &
 		k.profile.description.attribute
 	k.profile =
-	  ## Creates Profiles
+		## Creates Profiles
 		[
-		  db:para
-		  [
-		    "Profiles creates a namespace on an image description and\x{a}"~
-		    "thus can be used to have one description with different\x{a}"~
-		    "profiles for example KDE and GNOME including different\x{a}"~
-		    "packages."
-		  ]
+		db:para [
+			"Profiles creates a namespace on an image description and\x{a}"~
+			"thus can be used to have one description with different\x{a}"~
+			"profiles for example KDE and GNOME including different\x{a}"~
+			"packages."
+		]
 		]
 		element profile {
 			k.profile.attlist,
@@ -696,12 +691,11 @@ div {
 	k.rpm-check-signatures =
 		## Setup a Package Signature
 		[
-		  db:para
-		  [
-		    "Setup if the package manager should check the package\x{a}"~
-		    "signature or not. This option could be ignored according\x{a}"~
-		    "to the used package manager."
-		  ]
+		db:para [
+			"Setup if the package manager should check the package\x{a}"~
+			"signature or not. This option could be ignored according\x{a}"~
+			"to the used package manager."
+		]
 		]
 		element rpm-check-signatures {
 			k.rpm-check-signatures.attlist,
@@ -715,14 +709,13 @@ div {
 div {
 	k.rpm-force.attlist = empty
 	k.rpm-force =
-	  ## Force the Installation of a Package
+		## Force the Installation of a Package
 		[
-		  db:para
-		  [
-		    "Setup if the package manager should force the install of the\x{a}"~
-		    "package or not. This option could be ignored according\x{a}"~
-		    "to the used package manager."
-		  ]
+		db:para [
+			"Setup if the package manager should force the install of the\x{a}"~
+			"package or not. This option could be ignored according\x{a}"~
+			"to the used package manager."
+		]
 		]
 		element rpm-force {
 			k.rpm-force.attlist,
@@ -768,11 +761,10 @@ div {
 	k.specification =
 		## A Detailed Description
 		[
-		  db:para
-		  [
-		    "A detailed description of this image and what it can be\x{a}"~
-		    "used for."
-		  ]
+		db:para [
+			"A detailed description of this image and what it can be\x{a}"~
+			"used for."
+		]
 		]
 		element specification {
 			k.specification.attlist,
@@ -788,11 +780,10 @@ div {
 	k.temporary =
 		## Specifies Files in RAM
 		[
-		  db:para
-		  [
-		    "As part of the split section the temporary element\x{a}"~
-		    "specifies file names which are in the RAM disk area."
-		  ]
+		db:para [
+			"As part of the split section the temporary element\x{a}"~
+			"specifies file names which are in the RAM disk area."
+		]
 		]
 		element temporary {
 			k.temporary.attlist,
@@ -808,11 +799,10 @@ div {
 	k.timeout = 
 		## Specifies an ATFTP Download Timeout
 		[
-		  db:para
-		  [
-		    "As part of the network deploy configuration this section \x{a}"~
-		    "specifies an ATFTP download timeout"
-		  ]
+		db:para [
+			"As part of the network deploy configuration this section \x{a}"~
+			"specifies an ATFTP download timeout"
+		]
 		]
 		element timeout {
 			k.timeout.attlist,
@@ -828,11 +818,10 @@ div {
 	k.timezone =  
 		## Setup Image Timezone setup
 		[
-		  db:para
-		  [
-		    "Image timezone setup. The value will be used to search\x{a}"~
-		    "the correct timezone and copy it to /etc/localtime."
-		  ]
+		db:para [
+			"Image timezone setup. The value will be used to search\x{a}"~
+			"the correct timezone and copy it to /etc/localtime."
+		]
 		]
 		element timezone {
 			k.timezone.attlist,
@@ -914,14 +903,13 @@ div {
 	k.union =  
 		## Specifies the Overlay Filesystem
 		[
-		  db:para
-		  [
-		    "As part of the network deploy configuration this section\x{a}"~
-		    "specifies the overlay filesystem setup if required by the\x{a}"~
-		    "filesystem type of the system image. An overlay setup is\x{a}"~
-		    "only required if the system image uses a squashfs compressed\x{a}"~
-		    "filesystem."
-		  ]
+		db:para [
+			"As part of the network deploy configuration this section\x{a}"~
+			"specifies the overlay filesystem setup if required by the\x{a}"~
+			"filesystem type of the system image. An overlay setup is\x{a}"~
+			"only required if the system image uses a squashfs compressed\x{a}"~
+			"filesystem."
+		]
 		]
 		element union {
 			k.union.attlist,
@@ -985,14 +973,13 @@ div {
 		k.deploy.server.attribute? &
 		k.deploy.blocksize.attribute?
 	k.deploy =
-	  ## Controls the Image Deploy Process
+		## Controls the Image Deploy Process
 		[
-		  db:para
-		  [
-		    "The deploy section is used to allow kiwi to create the\x{a}"~
-		    "config.<MAC> file required by PXE based network images.\x{a}"~
-		    "the contents of this file controls the image deploy process."
-		  ]
+		db:para [
+			"The deploy section is used to allow kiwi to create the\x{a}"~
+			"config.<MAC> file required by PXE based network images.\x{a}"~
+			"the contents of this file controls the image deploy process."
+		]
 		]
 		element deploy {
 			k.deploy.attlist,
@@ -1056,17 +1043,16 @@ div {
 	k.instsource.arch.attribute = k.arch.attribute
 	k.instsource.attlist = k.instsource.arch.attribute
 	k.instsource =
-	  ## Describe Packages and Metadata
+		## Describe Packages and Metadata
 		[
-		  db:para
-		  [
-		    "The instsource element is used to describe the packages\x{a}"~
-		    "and the metadata which is required to build an installation\x{a}"~
-		    "source suitable for Novell SUSE Linux installation media.\x{a}"~
-		    "From such a source it should be possible to create the\x{a}"~
-		    "standard SUSE CD/DVD's as well as use this source as\x{a}"~
-		    "repository for image building."
-		  ]
+		db:para [
+			"The instsource element is used to describe the packages\x{a}"~
+			"and the metadata which is required to build an installation\x{a}"~
+			"source suitable for Novell SUSE Linux installation media.\x{a}"~
+			"From such a source it should be possible to create the\x{a}"~
+			"standard SUSE CD/DVD's as well as use this source as\x{a}"~
+			"repository for image building."
+		]
 		]
 		element instsource {
 			k.instsource.attlist,
@@ -1084,11 +1070,10 @@ div {
 	k.repopackages =  
 		## Specifies Packages for Installation Source
 		[
-		  db:para
-		  [
-		    "The repopackages elements specifies a set of packages which\x{a}"~
-		    "are used for creating a Novell SUSE installation source."
-		  ]
+		db:para [
+			"The repopackages elements specifies a set of packages which\x{a}"~
+			"are used for creating a Novell SUSE installation source."
+		]
 		]
 		element repopackages {
 			k.repopackages.attlist,
@@ -1135,15 +1120,14 @@ div {
 		k.packages.patternType.attribute? &
 		k.packages.patternPackageType.attribute?
 	k.packages =
-	  ## Specifies Packages/Patterns Used in Different Stages
+		## Specifies Packages/Patterns Used in Different Stages
 		[
-		  db:para
-		  [
-		    "The packages elements specifies a set of packages\x{a}"~
-		    "and/or patterns which are used in different stages of the\x{a}"~
-		    "image building process\x{a}"~
-		    "and also depends of the selected image output type."
-		  ]
+		db:para [
+			"The packages elements specifies a set of packages\x{a}"~
+			"and/or patterns which are used in different stages of the\x{a}"~
+			"image building process\x{a}"~
+			"and also depends of the selected image output type."
+		]
 		]
 		element packages {
 			k.packages.attlist,
@@ -1186,11 +1170,10 @@ div {
 	k.profiles =  
 		## Creates Namespace Section for Drivers
 		[
-		  db:para
-		  [
-		    "Namespace section which creates a namespace and the\x{a}"~
-		    "drivers can bind itself to one of the listed namespaces."
-		  ]
+		db:para [
+			"Namespace section which creates a namespace and the\x{a}"~
+			"drivers can bind itself to one of the listed namespaces."
+		]
 		]
 		element profiles {
 			k.profiles.attlist,
@@ -1206,14 +1189,13 @@ div {
 	k.split =  
 		## Describes Images in Read-Only and Read-Write Portions
 		[
-		  db:para
-		  [
-		    "When the image type split is requested the image will be\x{a}"~
-		    "splitted into a read-only and a read-write image portion.\x{a}"~
-		    "Each portion can have different filesystems and the split\x{a}"~
-		    "section describes which files/directories should go in\x{a}"~
-		    "what portion."
-		  ]
+		db:para [
+			"When the image type split is requested the image will be\x{a}"~
+			"splitted into a read-only and a read-write image portion.\x{a}"~
+			"Each portion can have different filesystems and the split\x{a}"~
+			"section describes which files/directories should go in\x{a}"~
+			"what portion."
+		]
 		]
 		element split {
 			k.split.attlist,

@@ -63,7 +63,7 @@
 -->
 <grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
-    <db:releaseinfo>$Id: kiwi.rnc 2951 2008-01-11 11:48:42Z thomas-schraitle $</db:releaseinfo>
+    <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 1.4</db:releaseinfo>
     <db:pubdate>START</db:pubdate>
     <db:pubdate>2008-01-08</db:pubdate>
@@ -257,8 +257,11 @@ installation source from</a:documentation>
     </define>
     <define name="k.compressed">
       <!--
-        [ db:para [ "The compression may be changed by the
-         code according to the image output type" ]
+        [
+        db:para [
+        	"The compression may be changed by the" ~
+        	"code according to the image output type"
+        ]
         ]
       -->
       <element name="compressed">
