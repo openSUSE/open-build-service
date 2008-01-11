@@ -666,13 +666,15 @@ div {
 # common element <repository>
 #
 div {
-	k.repository.type.attribute = attribute type {
+	k.repository.type.attribute =
+	  ## Type of repository
+	  attribute type {
 		"apt-deb" | "apt-rpm" | "deb-dir" | "mirrors" | "red-carpet" |
 		"rpm-dir" | "rpm-md"  | "slack-site" | "up2date-mirrors" | "urpmi" |
 		"yast2"
 	}
 	k.repository.status.attribute =
-		## specifies the status of the repository. This can be
+		## Specifies the status of the repository. This can be
 		## replacable or if not specified it's a must have repository
 		attribute status { "replaceable" | "fixed" }
 	k.repository.attlist =

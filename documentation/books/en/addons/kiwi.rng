@@ -63,7 +63,7 @@
 -->
 <grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
-    <db:releaseinfo>$Id$</db:releaseinfo>
+    <db:releaseinfo>$Id: kiwi.rnc 2951 2008-01-11 11:48:42Z thomas-schraitle $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 1.4</db:releaseinfo>
     <db:pubdate>START</db:pubdate>
     <db:pubdate>2008-01-08</db:pubdate>
@@ -134,7 +134,9 @@ the package Information is inherited</a:documentation>
     </define>
     <define name="k.image">
       <element name="image">
-        <a:documentation>The root element of the configuration file</a:documentation>
+        <a:documentation>The root element of the configuration file		</a:documentation>
+        <db:para>Each KIWI configuration file consists of a root element
+        image.</db:para>
         <ref name="k.image.attlist"/>
         <ref name="k.description"/>
         <ref name="k.preferences"/>
@@ -254,9 +256,13 @@ installation source from</a:documentation>
       <empty/>
     </define>
     <define name="k.compressed">
+      <!--
+        [ db:para [ "The compression may be changed by the
+         code according to the image output type" ]
+        ]
+      -->
       <element name="compressed">
-        <a:documentation>Compress image. The compression may be changed by the
-code according to the image output type</a:documentation>
+        <a:documentation>Compress image. </a:documentation>
         <ref name="k.compressed.attlist"/>
         <text/>
       </element>
@@ -282,9 +288,10 @@ code according to the image output type</a:documentation>
     </define>
     <define name="k.configuration">
       <element name="configuration">
-        <a:documentation>As part of the network deploy configuration this section 
+        <a:documentation>Specifies Configuration files</a:documentation>
+        <db:para>As part of the network deploy configuration this section
 specifies the configuration files which should be included
-into the image after deployment</a:documentation>
+into the image after deployment.</db:para>
         <ref name="k.configuration.attlist"/>
         <empty/>
       </element>
@@ -301,9 +308,10 @@ into the image after deployment</a:documentation>
     </define>
     <define name="k.commandline">
       <element name="commandline">
-        <a:documentation>As part of the network deploy configuration this section
+        <a:documentation>Specifies the Kernel Boot Commandline</a:documentation>
+        <db:para>As part of the network deploy configuration this section
 specifies the kernel boot commandline used when the image
-gets deployed</a:documentation>
+gets deployed.</db:para>
         <ref name="k.commandline.attlist"/>
         <text/>
       </element>
@@ -320,7 +328,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.contact">
       <element name="contact">
-        <a:documentation>Contact information from the author, like email etc.</a:documentation>
+        <a:documentation>Contact Information from the Author, like Email etc.</a:documentation>
         <ref name="k.contact.attlist"/>
         <text/>
       </element>
@@ -337,7 +345,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.defaultbaseroot">
       <element name="defaultbaseroot">
-        <a:documentation>Default path if baseroot option is no specified</a:documentation>
+        <a:documentation>Default Path if baseroot Option is not Specified</a:documentation>
         <ref name="k.defaultbaseroot.attlist"/>
         <text/>
       </element>
@@ -354,7 +362,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.defaultdestination">
       <element name="defaultdestination">
-        <a:documentation>Default path if destdir option is not specified</a:documentation>
+        <a:documentation>Default Path if destdir Otion is Not Specified</a:documentation>
         <ref name="k.defaultdestination.attlist"/>
         <text/>
       </element>
@@ -371,7 +379,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.defaultroot">
       <element name="defaultroot">
-        <a:documentation>Default root directory name if root option is not specified</a:documentation>
+        <a:documentation>Default Root Directory Name if root Option is Not Specified</a:documentation>
         <ref name="k.defaultroot.attlist"/>
         <text/>
       </element>
@@ -399,7 +407,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.file">
       <element name="file">
-        <a:documentation>A pointer to a file</a:documentation>
+        <a:documentation>A Pointer to a File</a:documentation>
         <ref name="k.file.attlist"/>
         <empty/>
       </element>
@@ -419,7 +427,7 @@ gets deployed</a:documentation>
     </define>
     <define name="k.ignore">
       <element name="ignore">
-        <a:documentation>Ignores a package</a:documentation>
+        <a:documentation>Ignores a Package</a:documentation>
         <ref name="k.ignore.attlist"/>
         <empty/>
       </element>
@@ -436,8 +444,9 @@ gets deployed</a:documentation>
     </define>
     <define name="k.initrd">
       <element name="initrd">
-        <a:documentation>As part of the network deploy configuration this element
-specifies where the boot image (initrd) can be found</a:documentation>
+        <a:documentation>Specifies where the Boot Image can be Found</a:documentation>
+        <db:para>As part of the network deploy configuration this element
+specifies where the boot image (initrd) can be found.</db:para>
         <ref name="k.initrd.attlist"/>
         <text/>
       </element>
@@ -477,8 +486,9 @@ specifies where the boot image (initrd) can be found</a:documentation>
     </define>
     <define name="k.instrepo">
       <element name="instrepo">
-        <a:documentation>Name of a repository which is used to create an
-installation source</a:documentation>
+        <a:documentation>Name of a Installation Repository</a:documentation>
+        <db:para>Name of a repository which is used to create an
+installation source</db:para>
         <ref name="k.instrepo.attlist"/>
         <ref name="k.source"/>
       </element>
@@ -495,8 +505,9 @@ installation source</a:documentation>
     </define>
     <define name="k.kernel">
       <element name="kernel">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the where to find the boot kernel</a:documentation>
+        <a:documentation>Specifies Where to Find the Boot Kernel</a:documentation>
+        <db:para>As part of the network deploy configuration this section
+specifies the where to find the boot kernel.</db:para>
         <ref name="k.kernel.attlist"/>
         <text/>
       </element>
@@ -513,8 +524,8 @@ specifies the where to find the boot kernel</a:documentation>
     </define>
     <define name="k.keytable">
       <element name="keytable">
-        <a:documentation>Image keytable setup. The value will be part of
-/etc/sysconfig/keyboard</a:documentation>
+        <a:documentation>Image keytable setup.</a:documentation>
+        <db:para>The value will be part of /etc/sysconfig/keyboard</db:para>
         <ref name="k.keytable.attlist"/>
         <text/>
       </element>
@@ -532,8 +543,8 @@ specifies the where to find the boot kernel</a:documentation>
     </define>
     <define name="k.locale">
       <element name="locale">
-        <a:documentation>Image locale setup. The value will be part of
-/etc/sysconfig/language</a:documentation>
+        <a:documentation>Image locale setup.</a:documentation>
+        <db:para>The value will be part of /etc/sysconfig/keyboard</db:para>
         <ref name="k.locale.attlist"/>
         <text/>
       </element>
@@ -550,11 +561,12 @@ specifies the where to find the boot kernel</a:documentation>
     </define>
     <define name="k.metadata">
       <element name="metadata">
-        <a:documentation>When building an installation source not only packages are
-relevant but also metadata. metadata are files or packages combined
-with script calls. If a package is specified as metadata it will
-not be installed by rpm but its cpio archive is extracted in a
-specific way</a:documentation>
+        <a:documentation>Contains Metadata</a:documentation>
+        <db:para>When building an installation source not only packages are
+relevant but also metadata. metadata are files or packages
+combined with script calls. If a package is specified as
+metadata it will not be installed by rpm but its cpio
+archive is extracted in a specific way.</db:para>
         <ref name="k.metadata.attlist"/>
         <oneOrMore>
           <ref name="k.repopackage"/>
@@ -593,7 +605,7 @@ specific way</a:documentation>
     </define>
     <define name="k.metafile">
       <element name="metafile">
-        <a:documentation>A file pointer optionally bundled with a script</a:documentation>
+        <a:documentation>A file Pointer Optionally Bundled With a Script</a:documentation>
         <ref name="k.metafile.attlist"/>
         <empty/>
       </element>
@@ -613,7 +625,7 @@ specific way</a:documentation>
     </define>
     <define name="k.opensusepattern">
       <element name="opensusePattern">
-        <a:documentation>Name of a pattern from openSUSE</a:documentation>
+        <a:documentation>Name of a Pattern From openSUSE</a:documentation>
         <ref name="k.opensusepattern.attlist"/>
         <empty/>
       </element>
@@ -688,7 +700,7 @@ the given arch should be used in any case</a:documentation>
     </define>
     <define name="k.repopackage">
       <element name="repopackage">
-        <a:documentation>Name of an instsource package</a:documentation>
+        <a:documentation>Name of an instsource Package</a:documentation>
         <ref name="k.repopackage.attlist"/>
         <empty/>
       </element>
@@ -716,7 +728,7 @@ the given arch should be used in any case</a:documentation>
     </define>
     <define name="k.package">
       <element name="package">
-        <a:documentation>Name of an image package</a:documentation>
+        <a:documentation>Name of an image Package</a:documentation>
         <ref name="k.package.attlist"/>
         <empty/>
       </element>
@@ -733,8 +745,9 @@ the given arch should be used in any case</a:documentation>
     </define>
     <define name="k.packagemanager">
       <element name="packagemanager">
-        <a:documentation>The package manager used for package installation
-could be either zypper or smart</a:documentation>
+        <a:documentation>Name of the Package Manager</a:documentation>
+        <db:para>The package manager used for package installation
+could be either zypper or smart</db:para>
         <group>
           <ref name="k.packagemanager.attlist"/>
           <text/>
@@ -762,7 +775,7 @@ specifies the disk device name</a:documentation>
     </define>
     <define name="k.partitions">
       <element name="partitions">
-        <a:documentation>A list of partitions</a:documentation>
+        <a:documentation>A List of Partitions</a:documentation>
         <ref name="k.partitions.attlist"/>
         <oneOrMore>
           <ref name="k.partition"/>
@@ -818,7 +831,7 @@ the /etc/fstab file or not</a:documentation>
     </define>
     <define name="k.partition">
       <element name="partition">
-        <a:documentation>A partition</a:documentation>
+        <a:documentation>A Partition</a:documentation>
         <ref name="k.partition.attlist"/>
         <empty/>
       </element>
@@ -835,8 +848,9 @@ the /etc/fstab file or not</a:documentation>
     </define>
     <define name="k.persistent">
       <element name="persistent">
-        <a:documentation>As part of the split section the persistent element
-specifies file names which are in the read-write disk area</a:documentation>
+        <a:documentation>Specifies Filenames in the Read-Write Disk Area</a:documentation>
+        <db:para>As part of the split section the persistent element
+specifies filenames which are in the read-write disk area</db:para>
         <ref name="k.persistent.attlist"/>
         <zeroOrMore>
           <ref name="k.file"/>
@@ -866,10 +880,11 @@ specifies file names which are in the read-write disk area</a:documentation>
     </define>
     <define name="k.profile">
       <element name="profile">
-        <a:documentation>Profiles creates a namespace on an image description and
+        <a:documentation>Creates Profiles</a:documentation>
+        <db:para>Profiles creates a namespace on an image description and
 thus can be used to have one description with different
 profiles for example KDE and GNOME including different
-packages</a:documentation>
+packages.</db:para>
         <ref name="k.profile.attlist"/>
         <empty/>
       </element>
@@ -883,6 +898,7 @@ packages</a:documentation>
   <div>
     <define name="k.repository.type.attribute">
       <attribute name="type">
+        <a:documentation>Type of repository</a:documentation>
         <choice>
           <value>apt-deb</value>
           <value>apt-rpm</value>
@@ -900,7 +916,7 @@ packages</a:documentation>
     </define>
     <define name="k.repository.status.attribute">
       <attribute name="status">
-        <a:documentation>specifies the status of the repository. This can be
+        <a:documentation>Specifies the status of the repository. This can be
 replacable or if not specified it's a must have repository</a:documentation>
         <choice>
           <value>replaceable</value>
@@ -918,7 +934,7 @@ replacable or if not specified it's a must have repository</a:documentation>
     </define>
     <define name="k.repository">
       <element name="repository">
-        <a:documentation>The name of the repository</a:documentation>
+        <a:documentation>The Name of the Repository</a:documentation>
         <ref name="k.repository.attlist"/>
         <ref name="k.source"/>
       </element>
@@ -935,9 +951,10 @@ replacable or if not specified it's a must have repository</a:documentation>
     </define>
     <define name="k.rpm-check-signatures">
       <element name="rpm-check-signatures">
-        <a:documentation>Setup if the package manager should check the package
+        <a:documentation>Setup a Package Signature</a:documentation>
+        <db:para>Setup if the package manager should check the package
 signature or not. This option could be ignored according
-to the used package manager</a:documentation>
+to the used package manager.</db:para>
         <ref name="k.rpm-check-signatures.attlist"/>
         <text/>
       </element>
@@ -954,9 +971,10 @@ to the used package manager</a:documentation>
     </define>
     <define name="k.rpm-force">
       <element name="rpm-force">
-        <a:documentation>Setup if the package manager should force the install of the
+        <a:documentation>Force the Installation of a Package</a:documentation>
+        <db:para>Setup if the package manager should force the install of the
 package or not. This option could be ignored according
-to the used package manager</a:documentation>
+to the used package manager.</db:para>
         <ref name="k.rpm-force.attlist"/>
         <text/>
       </element>
@@ -984,7 +1002,7 @@ to the used package manager</a:documentation>
     </define>
     <define name="k.size">
       <element name="size">
-        <a:documentation>Specifies the size of an image in (M)egabyte or (G)igabyte</a:documentation>
+        <a:documentation>Specifies the Size of an Image in (M)egabyte or (G)igabyte</a:documentation>
         <ref name="k.size.attlist"/>
         <text/>
       </element>
@@ -1004,7 +1022,7 @@ to the used package manager</a:documentation>
     </define>
     <define name="k.source">
       <element name="source">
-        <a:documentation>A pointer to a repository/package source</a:documentation>
+        <a:documentation>A Pointer to a Repository/Package Source</a:documentation>
         <ref name="k.source.attlist"/>
         <empty/>
       </element>
@@ -1021,8 +1039,9 @@ to the used package manager</a:documentation>
     </define>
     <define name="k.specification">
       <element name="specification">
-        <a:documentation>A detailed description of this image and what it can be
-used for.</a:documentation>
+        <a:documentation>A Detailed Description</a:documentation>
+        <db:para>A detailed description of this image and what it can be
+used for.</db:para>
         <ref name="k.specification.attlist"/>
         <text/>
       </element>
@@ -1039,8 +1058,9 @@ used for.</a:documentation>
     </define>
     <define name="k.temporary">
       <element name="temporary">
-        <a:documentation>As part of the split section the temporary element
-specifies file names which are in the RAM disk  area</a:documentation>
+        <a:documentation>Specifies Files in RAM</a:documentation>
+        <db:para>As part of the split section the temporary element
+specifies file names which are in the RAM disk area.</db:para>
         <ref name="k.temporary.attlist"/>
         <empty/>
       </element>
@@ -1057,8 +1077,9 @@ specifies file names which are in the RAM disk  area</a:documentation>
     </define>
     <define name="k.timeout">
       <element name="timeout">
-        <a:documentation>As part of the network deploy configuration this section 
-specifies an atftp download timeout</a:documentation>
+        <a:documentation>Specifies an ATFTP Download Timeout</a:documentation>
+        <db:para>As part of the network deploy configuration this section 
+specifies an ATFTP download timeout</db:para>
         <ref name="k.timeout.attlist"/>
         <text/>
       </element>
@@ -1075,8 +1096,9 @@ specifies an atftp download timeout</a:documentation>
     </define>
     <define name="k.timezone">
       <element name="timezone">
-        <a:documentation>Image timezone setup. The value will be used to search
-the correct timezone and copy it to /etc/localtime</a:documentation>
+        <a:documentation>Setup Image Timezone setup</a:documentation>
+        <db:para>Image timezone setup. The value will be used to search
+the correct timezone and copy it to /etc/localtime.</db:para>
         <ref name="k.timezone.attlist"/>
         <text/>
       </element>
@@ -1183,7 +1205,7 @@ vmx/oem types only.</a:documentation>
     </define>
     <define name="k.type">
       <element name="type">
-        <a:documentation>The image type of the logical extend.</a:documentation>
+        <a:documentation>The Image Type of the Logical Extend</a:documentation>
         <ref name="k.type.attlist"/>
         <text/>
       </element>
@@ -1222,11 +1244,12 @@ vmx/oem types only.</a:documentation>
     </define>
     <define name="k.union">
       <element name="union">
-        <a:documentation>As part of the network deploy configuration this section
+        <a:documentation>Specifies the Overlay Filesystem</a:documentation>
+        <db:para>As part of the network deploy configuration this section
 specifies the overlay filesystem setup if required by the
 filesystem type of the system image. An overlay setup is
 only required if the system image uses a squashfs compressed
-filesystem.</a:documentation>
+filesystem.</db:para>
         <ref name="k.union.attlist"/>
         <empty/>
       </element>
@@ -1274,7 +1297,7 @@ filesystem.</a:documentation>
     </define>
     <define name="k.user">
       <element name="user">
-        <a:documentation>A user with name, password, path to its home and shell</a:documentation>
+        <a:documentation>A User with Name, Password, Path to Its Home And Shell</a:documentation>
         <ref name="k.user.attlist"/>
         <empty/>
       </element>
@@ -1291,7 +1314,7 @@ filesystem.</a:documentation>
     </define>
     <define name="k.version">
       <element name="version">
-        <a:documentation>A version number for the image, consists of Major.Minor.Release </a:documentation>
+        <a:documentation>A Version Number for the Image, Consists of Major.Minor.Release </a:documentation>
         <ref name="k.version.attlist"/>
         <text/>
       </element>
@@ -1325,9 +1348,10 @@ filesystem.</a:documentation>
     </define>
     <define name="k.deploy">
       <element name="deploy">
-        <a:documentation>The deploy section is used to allow kiwi to create the
+        <a:documentation>Controls the Image Deploy Process</a:documentation>
+        <db:para>The deploy section is used to allow kiwi to create the
 config.&lt;MAC&gt; file required by PXE based network images.
-the contents of this file controls the image deploy process</a:documentation>
+the contents of this file controls the image deploy process.</db:para>
         <ref name="k.deploy.attlist"/>
         <optional>
           <ref name="k.timeout"/>
@@ -1378,7 +1402,7 @@ a standard image description created by a kiwi user.</a:documentation>
     </define>
     <define name="k.description">
       <element name="description">
-        <a:documentation>A short description</a:documentation>
+        <a:documentation>A Short Description</a:documentation>
         <ref name="k.description.attlist"/>
         <ref name="k.author"/>
         <oneOrMore>
@@ -1417,7 +1441,7 @@ a standard image description created by a kiwi user.</a:documentation>
     </define>
     <define name="k.drivers">
       <element name="drivers">
-        <a:documentation>A collection of driver files </a:documentation>
+        <a:documentation>A Collection of Driver Files </a:documentation>
         <ref name="k.drivers.attlist"/>
         <oneOrMore>
           <ref name="k.file"/>
@@ -1439,12 +1463,13 @@ a standard image description created by a kiwi user.</a:documentation>
     </define>
     <define name="k.instsource">
       <element name="instsource">
-        <a:documentation>The instsource element is used to describe the packages
+        <a:documentation>Describe Packages and Metadata</a:documentation>
+        <db:para>The instsource element is used to describe the packages
 and the metadata which is required to build an installation
 source suitable for Novell SUSE Linux installation media.
 From such a source it should be possible to create the
 standard SUSE CD/DVD's as well as use this source as
-repository for image building</a:documentation>
+repository for image building.</db:para>
         <ref name="k.instsource.attlist"/>
         <oneOrMore>
           <ref name="k.instrepo"/>
@@ -1465,8 +1490,9 @@ repository for image building</a:documentation>
     </define>
     <define name="k.repopackages">
       <element name="repopackages">
-        <a:documentation>The repopackages elements specifies a set of packages which
-are used for creating a Novell SUSE installation source</a:documentation>
+        <a:documentation>Specifies Packages for Installation Source</a:documentation>
+        <db:para>The repopackages elements specifies a set of packages which
+are used for creating a Novell SUSE installation source.</db:para>
         <ref name="k.repopackages.attlist"/>
         <zeroOrMore>
           <ref name="k.repopackage"/>
@@ -1553,9 +1579,11 @@ onlyRequired, plusSuggested or plusRecommended</a:documentation>
     </define>
     <define name="k.packages">
       <element name="packages">
-        <a:documentation>The packages elements specifies a set of packages and/or patterns
-which are used in different stages of the image building process
-and also depends of the selected image output type</a:documentation>
+        <a:documentation>Specifies Packages/Patterns Used in Different Stages</a:documentation>
+        <db:para>The packages elements specifies a set of packages
+and/or patterns which are used in different stages of the
+image building process
+and also depends of the selected image output type.</db:para>
         <ref name="k.packages.attlist"/>
         <zeroOrMore>
           <ref name="k.package"/>
@@ -1580,7 +1608,7 @@ and also depends of the selected image output type</a:documentation>
     </define>
     <define name="k.preferences">
       <element name="preferences">
-        <a:documentation>Configuration information needed for logical extend</a:documentation>
+        <a:documentation>Configuration Information Needed for Logical Extend</a:documentation>
         <ref name="k.preferences.attlist"/>
         <oneOrMore>
           <ref name="k.type"/>
@@ -1633,9 +1661,9 @@ and also depends of the selected image output type</a:documentation>
     </define>
     <define name="k.profiles">
       <element name="profiles">
-        <a:documentation>Namespace section which creates a namespace and the
-description of this namespace. The section packages and
-drivers can bind itself to one of the listed namespaces</a:documentation>
+        <a:documentation>Creates Namespace Section for Drivers</a:documentation>
+        <db:para>Namespace section which creates a namespace and the
+drivers can bind itself to one of the listed namespaces.</db:para>
         <ref name="k.profiles.attlist"/>
         <oneOrMore>
           <ref name="k.profile"/>
@@ -1654,10 +1682,12 @@ drivers can bind itself to one of the listed namespaces</a:documentation>
     </define>
     <define name="k.split">
       <element name="split">
-        <a:documentation>When the image type split is requested the image will be splitted
-into a read-only and a read-write image portion. Each portion
-can have different filesystems and the split section describes
-which files/directories should go in what portion</a:documentation>
+        <a:documentation>Describes Images in Read-Only and Read-Write Portions</a:documentation>
+        <db:para>When the image type split is requested the image will be
+splitted into a read-only and a read-write image portion.
+Each portion can have different filesystems and the split
+section describes which files/directories should go in
+what portion.</db:para>
         <ref name="k.split.attlist"/>
         <optional>
           <ref name="k.temporary"/>
@@ -1684,7 +1714,7 @@ which files/directories should go in what portion</a:documentation>
     </define>
     <define name="k.users">
       <element name="users">
-        <a:documentation>A list of users</a:documentation>
+        <a:documentation>A List of Users</a:documentation>
         <ref name="k.users.attlist"/>
         <oneOrMore>
           <ref name="k.user"/>
