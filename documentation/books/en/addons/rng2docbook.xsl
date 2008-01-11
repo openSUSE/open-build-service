@@ -105,8 +105,8 @@ The stylesheet was modified by Thomas Schraitle:
  </xsl:template>
    
   <xsl:template match="rng:grammar">        
-    <article>
-      <articleinfo>
+    <reference>
+      <referenceinfo>
         <pubdate>Published: <xsl:processing-instruction name="dbtimestamp"/></pubdate>
         <xsl:if test="db:info/db:releaseinfo">
           <xsl:for-each select="db:info/db:releaseinfo">
@@ -138,17 +138,8 @@ The stylesheet was modified by Thomas Schraitle:
             <email>thomas.schraitle (AT) suse.de</email>
           </othercredit>
         </authorgroup>
-        <title><xsl:value-of select="$title"/></title>
-      </articleinfo>      
-      <xsl:if test="$intro">
-        <xsl:message>Processing with intro=<xsl:value-of select="$intro"/></xsl:message>
-        <xsl:copy-of select="document($intro)"/>
-      </xsl:if>
-      <sect1>
-        <title>Grammar Documentation</title>
-        <xsl:if test="@ns">
-          <para>Namespace: <xsl:value-of select="@ns"/></para>
-        </xsl:if>
+      </referenceinfo>
+      <title><xsl:value-of select="$title"/></title>
         <xsl:choose>
           <xsl:when test="$target">
             <xsl:apply-templates
@@ -161,8 +152,7 @@ The stylesheet was modified by Thomas Schraitle:
             </xsl:apply-templates>
           </xsl:otherwise>
         </xsl:choose>
-      </sect1>
-    </article>
+    </reference>
   </xsl:template>
 
   <xsl:template match="rng:element">
@@ -200,35 +190,32 @@ The stylesheet was modified by Thomas Schraitle:
       select="$defsimpl/rng:element/*[not(rng:element)]//rng:attribute"/>
     <xsl:variable name="elementname"
       select="$defsimpl/rng:element/@name"/>
-        
-    <sect2 id="def.{@name}">
-      <title>Element: <sgmltag><xsl:value-of select="$qname"/></sgmltag></title>
-      <refentry><!--  id="@qname" -->
-        <refnamediv>
-          <refname><xsl:value-of select="$qname"/></refname>
-          <refpurpose>
-            <xsl:choose>
-              <xsl:when test="a:documentation">
-                <xsl:apply-templates select="a:documentation"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="$default.documentation.string"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </refpurpose>
-        </refnamediv>
-        <xsl:if test="$with-content-model != 0">
-          <refsynopsisdiv>
-            <title>Content Model</title>
-            <screen>
+    
+    <refentry id="def.{@name}">
+      <refnamediv>
+        <refname><sgmltag><xsl:value-of select="$qname"/></sgmltag></refname>
+        <refpurpose>
+          <xsl:choose>
+            <xsl:when test="a:documentation">
+              <xsl:apply-templates select="a:documentation"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$default.documentation.string"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </refpurpose>
+      </refnamediv>
+      <xsl:if test="$with-content-model != 0">
+        <refsynopsisdiv>
+          <title>Content Model</title>
+          <screen>
               <xsl:value-of select="@name"/>
               <xsl:value-of select="$CMseparator"/>
               <xsl:apply-templates mode="content-model"/>
             </screen>
-          </refsynopsisdiv>
-        </xsl:if>
-        
-        <refsect1>
+        </refsynopsisdiv>
+      </xsl:if>
+              <refsect1>
           <title>Attributes</title>
           <xsl:choose>
             <xsl:when test="count($attrs) > 0">
@@ -263,8 +250,9 @@ The stylesheet was modified by Thomas Schraitle:
                 disable-output-escaping="yes">]]&gt;</xsl:text></programlisting>
           </refsect1>
         </xsl:if>
-      </refentry>
-    </sect2>
+
+    </refentry>
+    
   </xsl:template>
 
   <xsl:template match="rng:attribute" mode="attributes">
