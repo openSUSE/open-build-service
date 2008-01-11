@@ -57,10 +57,12 @@ div.sect2
   border-top: 1pt dotted gray;
 }
 
-
-
 p.releaseinfo 
 {
   font-size:small;
   /* font-family:monospace; */
+}
+
+.type {
+  font-family:monospace;
 }
