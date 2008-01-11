@@ -7,7 +7,6 @@
 ]
 -%>
 
-<h2>Project <%=h @project %> Status Monitor</h2>
 <div id="monitor-wrapper">
 
 <p id="info_message" style="display:none;"></p>
@@ -30,7 +29,7 @@
   <tr>
     <td></td>
     <% @repohash.sort.each do |repo, archlist| -%>
-    <% archlist.each do |arch| -%>
+    <% archlist.sort.each do |arch| -%>
     <th><%=h arch %></th>
     <% end -%>
     <% end -%>
@@ -42,7 +41,7 @@
     <td><%= link_to packname, :controller => "package", :action => "show",
       :package => packname, :project => @project.to_s %></td>
     <% @repohash.sort.each do |repo, archlist| -%>
-    <% archlist.each do |arch| -%>
+    <% archlist.sort.each do |arch| -%>
       <% 
         status = status_for(repo, arch, packname)
         status_id = status_id_for( repo, arch, packname)
@@ -85,7 +84,4 @@
 </div>
 </p>
 <% end -%>
-
-<p><%= link_to "[Back to #{@project}]", :action => :show, :project => @project %></p>
-<p><%= link_to "[Build Status Monitor]", :controller => "monitor", :action => :index %></p>
 </div>
