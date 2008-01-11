@@ -206,7 +206,7 @@ The stylesheet was modified by Thomas Schraitle:
         </refpurpose>
       </refnamediv>
       <xsl:if test="$with-content-model != 0">
-        <refsynopsisdiv>
+        <refsynopsisdiv role="contentmodel">
           <title>Content Model</title>
           <screen>
               <xsl:value-of select="@name"/>
@@ -222,7 +222,7 @@ The stylesheet was modified by Thomas Schraitle:
         </refsect1>
       </xsl:if>
       
-      <refsect1>
+      <refsect1 role="attributes">
           <title>Attributes</title>
           <xsl:choose>
             <xsl:when test="count($attrs) > 0">
@@ -471,12 +471,6 @@ The stylesheet was modified by Thomas Schraitle:
   <!-- description of an element content model           -->
   <!-- ================================================= -->
   <xsl:template match="rng:element" mode="content-model">
-    <!--<xsl:variable name="xdefs" select="key('elemdef', @name)"/>-->
-
-    <!--<xsl:message>rng:element (mode="content-model")
-      name:  "<xsl:value-of select="@name"/>"
-    </xsl:message>-->
-
     <link linkend="def.{@name}">
       <xsl:value-of select="@name"/>
     </link>
@@ -485,51 +479,66 @@ The stylesheet was modified by Thomas Schraitle:
             (following-sibling::rng:element 
             | following-sibling::rng:optional
             | following-sibling::rng:oneOrMore 
-            | following-sibling::rng:zeroOrMore)"
-      >,</xsl:if>
+            | following-sibling::rng:zeroOrMore)">
+      <xsl:text>,&#10;</xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:group" mode="content-model">
-      (<xsl:apply-templates mode="content-model"/>) </xsl:template>
+    <xsl:text>(</xsl:text>
+    <xsl:apply-templates mode="content-model"/>
+    <xsl:text>)</xsl:text> 
+  </xsl:template>
 
   <xsl:template match="rng:optional" mode="content-model">
-    <xsl:if
-      test=".//rng:element | .//rng:ref[not(ancestor::rng:attribute)]">
-      <xsl:apply-templates mode="content-model"/>? <xsl:if
-        test="not(parent::rng:choice) and 
+    <xsl:if test=".//rng:element | .//rng:ref[not(ancestor::rng:attribute)]">
+      <xsl:apply-templates mode="content-model"/>
+      <xsl:text>?</xsl:text>
+      <xsl:if test="not(parent::rng:choice) and 
               (following-sibling::rng:element 
               | following-sibling::rng:optional 
               | following-sibling::rng:oneOrMore 
-              | following-sibling::rng:zeroOrMore)"
-        >,</xsl:if>
+              | following-sibling::rng:zeroOrMore)">
+        <xsl:text>,&#10;</xsl:text>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:oneOrMore" mode="content-model">
-      (<xsl:apply-templates mode="content-model"/>)+ <xsl:if
-      test="not(parent::rng:choice) and 
+    <xsl:text>(</xsl:text>
+    <xsl:apply-templates mode="content-model"/>
+    <xsl:text>)+</xsl:text>
+    <xsl:if test="not(parent::rng:choice) and 
             (following-sibling::rng:element 
             | following-sibling::rng:optional 
             | following-sibling::rng:oneOrMore 
-            | following-sibling::rng:zeroOrMore)"
-      >,</xsl:if>
+            | following-sibling::rng:zeroOrMore
+            | following-sibling::rng:ref)">
+      <xsl:text>,&#10;</xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:zeroOrMore" mode="content-model">
-      (<xsl:apply-templates mode="content-model"/>)* <xsl:if
-      test="not(parent::rng:choice) and 
+    <xsl:text>(</xsl:text>
+    <xsl:apply-templates mode="content-model"/>
+    <xsl:text>)*</xsl:text>
+    <xsl:if test="not(parent::rng:choice) and 
             (following-sibling::rng:element 
             | following-sibling::rng:optional 
             | following-sibling::rng:oneOrMore 
-            | following-sibling::rng:zeroOrMore)"
-      >,</xsl:if>
+            | following-sibling::rng:zeroOrMore
+            | following-sibling::rng:ref)">
+      <xsl:text>,&#10;</xsl:text>
+    </xsl:if>
   </xsl:template>
 
-  <xsl:template match="rng:choice" mode="content-model"> 
+  <xsl:template match="rng:choice" mode="content-model">
     <xsl:text> (</xsl:text>
     <xsl:for-each select="*">
       <xsl:apply-templates select="." mode="content-model"/>
-      <xsl:if test="following-sibling::rng:*"> | </xsl:if>
+      <xsl:if test="following-sibling::rng:*">
+        <xsl:text> | </xsl:text>
+      </xsl:if>
     </xsl:for-each>
     <xsl:text>) </xsl:text>
   </xsl:template>
@@ -554,8 +563,10 @@ The stylesheet was modified by Thomas Schraitle:
                     (following-sibling::rng:element
                     | following-sibling::rng:optional 
                     | following-sibling::rng:oneOrMore 
-                    | following-sibling::rng:zeroOrMore)"
-        >, </xsl:if>
+                    | following-sibling::rng:zeroOrMore
+                    | following-sibling::rng:ref)">
+        <xsl:text>,&#10;</xsl:text>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 
@@ -566,8 +577,9 @@ The stylesheet was modified by Thomas Schraitle:
             (following-sibling::rng:element 
             | following-sibling::rng:optional 
             | following-sibling::rng:oneOrMore 
-            | following-sibling::rng:zeroOrMore)"
-      >, </xsl:if>
+            | following-sibling::rng:zeroOrMore)">
+      <xsl:text>,&#10;</xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:data" mode="content-model">
