@@ -200,15 +200,7 @@ The stylesheet was modified by Thomas Schraitle:
       select="$defsimpl/rng:element/*[not(rng:element)]//rng:attribute"/>
     <xsl:variable name="elementname"
       select="$defsimpl/rng:element/@name"/>
-    
-    <xsl:message>rng:element <xsl:value-of select="$name"/>
-      defname: <xsl:value-of select="$defname"/>
-      defsimple: <xsl:value-of select="count($defsimpl)"/>
-      attrs: <xsl:value-of select="count($attrs)"/>
-      elementname: <xsl:value-of select="$elementname"/>
-    </xsl:message>
-
-    
+        
     <sect2 id="def.{@name}">
       <title>Element: <sgmltag><xsl:value-of select="$qname"/></sgmltag></title>
       <refentry><!--  id="@qname" -->
@@ -252,45 +244,6 @@ The stylesheet was modified by Thomas Schraitle:
                   </thead>              
                   <tbody>
                     <xsl:apply-templates select="$attrs" mode="attributes"/>
-                    <!--<xsl:apply-templates
-                      select="//rng:attribute[$attrs]" mode="attributes">
-                      <xsl:with-param name="matched" select="."/>
-                      <xsl:with-param name="optional">
-                        <xsl:value-of select="false()"/>
-                      </xsl:with-param>
-                    </xsl:apply-templates>-->
-                    <!--<xsl:for-each select="$attrs">
-                      <row>
-                        <entry>
-                          <xsl:value-of select="@name"/>
-                        </entry>
-                        <entry/>
-                        <entry/>
-                        <entry><xsl:apply-templates
-                          select="a:documentation"/></entry>
-                      </row>
-                    </xsl:for-each>-->
-                    
-                    <!--<xsl:apply-templates
-                      select=".//rng:ref[contains(@name, '.attlist') or
-                      contains(@name, '.attribute')]" mode="attributes">
-                      <xsl:with-param name="matched" select="."/>
-                      <xsl:with-param name="optional">
-                        <xsl:value-of select="false()"/>
-                      </xsl:with-param>
-                    </xsl:apply-templates>-->
-                    
-                    <!--<xsl:variable name="nesting"
-                    select="count(ancestor::rng:element)"/>                    
-                    <xsl:apply-templates
-                      select=".//rng:attribute[count(ancestor::rng:element)=$nesting+1] | 
-                      .//rng:ref[count(ancestor::rng:element)=$nesting+1]"
-                      mode="attributes">
-                      <xsl:with-param name="matched" select="."/>
-                      <xsl:with-param name="optional">
-                        <xsl:value-of select="false()"/>
-                      </xsl:with-param>
-                    </xsl:apply-templates>-->
                   </tbody>
                 </tgroup>
               </informaltable>
