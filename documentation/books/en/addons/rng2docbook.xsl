@@ -48,7 +48,6 @@ The stylesheet was modified by Thomas Schraitle:
   <xsl:key name="elemdef" match="rng:define" use="rng:element/@name"/>
   <xsl:key name="attrdef" match="rng:define" use="rng:attribute/@name"/>
 
-
   <!-- 
   The main title for the generated documentation. 
 -->
@@ -183,14 +182,12 @@ The stylesheet was modified by Thomas Schraitle:
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:variable name="defname" select="parent::rng:define/@name"/>
-    <xsl:variable name="defsimpl"
-      select="$simplified.tree//rng:define[@name=$defname]"/>
+    <xsl:variable name="parentdefname" select="parent::rng:define/@name"/>
+    <xsl:variable name="def.element"
+      select="$simplified.tree//rng:define[@name=$parentdefname]/rng:element"/>
     <xsl:variable name="attrs"
-      select="$defsimpl/rng:element/*[not(rng:element)]//rng:attribute"/>
-    <xsl:variable name="elementname"
-      select="$defsimpl/rng:element/@name"/>
-    
+      select="$def.element/*[not(rng:element)]//rng:attribute"/>
+
     <refentry id="def.{@name}">
       <refnamediv>
         <refname><sgmltag><xsl:value-of select="$qname"/></sgmltag></refname>
@@ -480,7 +477,7 @@ The stylesheet was modified by Thomas Schraitle:
             | following-sibling::rng:optional
             | following-sibling::rng:oneOrMore 
             | following-sibling::rng:zeroOrMore)">
-      <xsl:text>,&#10;</xsl:text>
+      <xsl:text>,&#10;  </xsl:text>
     </xsl:if>
   </xsl:template>
 
@@ -499,7 +496,7 @@ The stylesheet was modified by Thomas Schraitle:
               | following-sibling::rng:optional 
               | following-sibling::rng:oneOrMore 
               | following-sibling::rng:zeroOrMore)">
-        <xsl:text>,&#10;</xsl:text>
+        <xsl:text>,&#10;  </xsl:text>
       </xsl:if>
     </xsl:if>
   </xsl:template>
@@ -514,7 +511,7 @@ The stylesheet was modified by Thomas Schraitle:
             | following-sibling::rng:oneOrMore 
             | following-sibling::rng:zeroOrMore
             | following-sibling::rng:ref)">
-      <xsl:text>,&#10;</xsl:text>
+      <xsl:text>,&#10;  </xsl:text>
     </xsl:if>
   </xsl:template>
 
@@ -528,7 +525,7 @@ The stylesheet was modified by Thomas Schraitle:
             | following-sibling::rng:oneOrMore 
             | following-sibling::rng:zeroOrMore
             | following-sibling::rng:ref)">
-      <xsl:text>,&#10;</xsl:text>
+      <xsl:text>,&#10;  </xsl:text>
     </xsl:if>
   </xsl:template>
 
@@ -565,7 +562,7 @@ The stylesheet was modified by Thomas Schraitle:
                     | following-sibling::rng:oneOrMore 
                     | following-sibling::rng:zeroOrMore
                     | following-sibling::rng:ref)">
-        <xsl:text>,&#10;</xsl:text>
+        <xsl:text>,&#10;  </xsl:text>
       </xsl:if>
     </xsl:if>
   </xsl:template>
@@ -578,7 +575,7 @@ The stylesheet was modified by Thomas Schraitle:
             | following-sibling::rng:optional 
             | following-sibling::rng:oneOrMore 
             | following-sibling::rng:zeroOrMore)">
-      <xsl:text>,&#10;</xsl:text>
+      <xsl:text>,&#10;  </xsl:text>
     </xsl:if>
   </xsl:template>
 
