@@ -16,7 +16,9 @@ RNG2XHTML=rng2xhtml.xsl
 RNG2DOCBOOK=rng2docbook.xsl
 DBHTML=/usr/share/xml/docbook/stylesheet/nwalsh/current//html/docbook.xsl
 RELAXNG=relaxng.rng
-
+HTMLPARAM=--stringparam refentry.generate.name 0 \
+	--stringparam refentry.generate.title 1 \
+	--stringparam html.stylesheet kiwi.css 
 
 .PHONY: all
 all:  kiwi.rng docbook html
@@ -73,7 +75,7 @@ validate val: .validate
 
 %.html: %.xml
 	@echo "*** Converting KIWI DocBook XML -> HTML..."
-	xsltproc --output $@ --stringparam html.stylesheet kiwi.css $(DBHTML) $<
+	xsltproc --output $@ $(HTMLPARAM) $(DBHTML) $<
 
 
 
