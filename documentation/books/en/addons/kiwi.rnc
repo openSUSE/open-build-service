@@ -105,7 +105,13 @@ div {
 		  | k.image.schemaLocation.attribute? )?
 
 	k.image =
-		## The root element of the configuration file
+		## The root element of the configuration file		
+    [
+      db:para [
+        "Each KIWI configuration file consists of a root element\x{a}" ~
+        "        image."
+      ]
+    ]
 		element image {
 			k.image.attlist,
 			k.description,
@@ -176,8 +182,10 @@ div {
 div {
 	k.compressed.attlist = empty
 	k.compressed =
-		## Compress image. The compression may be changed by the
-		## code according to the image output type
+		## Compress image. 
+		#[ db:para [ "The compression may be changed by the
+		#  code according to the image output type" ]
+		#]
 		element compressed {
 			k.compressed.attlist,
 			text
@@ -195,10 +203,15 @@ div {
 		k.configuration.dest.attribute
 
 	k.configuration =
-		## As part of the network deploy configuration this section 
-		## specifies the configuration files which should be included
-		## into the image after deployment
-		element configuration {
+	  ## Specifies Configuration files
+    [
+      db:para [
+        "As part of the network deploy configuration this section\x{a}" ~
+        "specifies the configuration files which should be included\x{a}"~
+        "into the image after deployment."
+      ]
+    ]
+    element configuration {
 			k.configuration.attlist,
 			empty
 		}
@@ -210,9 +223,14 @@ div {
 div {
 	k.commandline.attlist = empty
 	k.commandline = 
-		## As part of the network deploy configuration this section
-		## specifies the kernel boot commandline used when the image
-		## gets deployed
+	  ## Specifies the Kernel Boot Commandline
+		[
+      db:para [
+        "As part of the network deploy configuration this section\x{a}"~
+		    "specifies the kernel boot commandline used when the image\x{a}"~
+		    "gets deployed."
+      ]
+    ]
 		element commandline {
 			k.commandline.attlist,
 			text
@@ -225,7 +243,7 @@ div {
 div {
 	k.contact.attlist = empty
 	k.contact = 
-		## Contact information from the author, like email etc.
+		## Contact Information from the Author, like Email etc.
 		element contact {
 			k.contact.attlist,
 			text
@@ -238,7 +256,7 @@ div {
 div {
 	k.defaultbaseroot.attlist = empty
 	k.defaultbaseroot =
-		## Default path if baseroot option is no specified
+		## Default Path if baseroot Option is not Specified
 		element defaultbaseroot {
 			k.defaultbaseroot.attlist,
 			text
@@ -251,7 +269,7 @@ div {
 div {
 	k.defaultdestination.attlist = empty
 	k.defaultdestination =
-		## Default path if destdir option is not specified
+		## Default Path if destdir Otion is Not Specified
 		element defaultdestination {
 			k.defaultdestination.attlist,
 			text
@@ -264,7 +282,7 @@ div {
 div {
 	k.defaultroot.attlist = empty
 	k.defaultroot =
-		## Default root directory name if root option is not specified
+		## Default Root Directory Name if root Option is Not Specified
 		element defaultroot {
 			k.defaultroot.attlist,
 			text
@@ -281,7 +299,7 @@ div {
 		k.file.name.attribute &
 		k.file.arch.attribute?
 	k.file =
-		## A pointer to a file
+		## A Pointer to a File
 		element file {
 			k.file.attlist,
 			empty
@@ -295,7 +313,7 @@ div {
 	k.ignore.name.attribute = k.name.attribute
 	k.ignore.attlist = k.ignore.name.attribute
 	k.ignore = 
-		## Ignores a package
+		## Ignores a Package
 		element ignore {
 			k.ignore.attlist,
 			empty
@@ -308,8 +326,13 @@ div {
 div {
 	k.initrd.attlist = empty
 	k.initrd =
-		## As part of the network deploy configuration this element
-		## specifies where the boot image (initrd) can be found
+	  ## Specifies where the Boot Image can be Found
+	  [
+	    db:para [
+	      "As part of the network deploy configuration this element\x{a}"~
+	      "specifies where the boot image (initrd) can be found."
+	    ]
+	  ]
 		element initrd {
 			k.initrd.attlist,
 			text
@@ -332,8 +355,14 @@ div {
 		k.instrepo.username.attribute? &
 		k.instrepo.pwd.attribute?
 	k.instrepo =
-		## Name of a repository which is used to create an
-		## installation source
+	  ## Name of a Installation Repository
+		[
+		  db:para
+		   [
+		    "Name of a repository which is used to create an\x{a}" ~
+		    "installation source"
+		  ]
+		]
 		element instrepo {
 			k.instrepo.attlist,
 			k.source
@@ -346,8 +375,14 @@ div {
 div {
 	k.kernel.attlist = empty
 	k.kernel =
-		## As part of the network deploy configuration this section
-		## specifies the where to find the boot kernel
+		## Specifies Where to Find the Boot Kernel
+		[
+		  db:para
+		   [
+		    "As part of the network deploy configuration this section\x{a}" ~
+		    "specifies the where to find the boot kernel."
+		  ]
+		]
 		element kernel {
 			k.kernel.attlist,
 			text
@@ -360,8 +395,13 @@ div {
 div {
 	k.keytable.attlist = empty
 	k.keytable =
-		## Image keytable setup. The value will be part of
-		## /etc/sysconfig/keyboard
+		## Image keytable setup.
+		[
+		  db:para
+		  [
+		    "The value will be part of /etc/sysconfig/keyboard"
+		  ]
+		]
 		element keytable {
 			k.keytable.attlist,
 			text
@@ -374,8 +414,13 @@ div {
 div { # locale
 	k.locale.attlist = empty
 	k.locale =
-		## Image locale setup. The value will be part of
-		## /etc/sysconfig/language
+		## Image locale setup.
+		[
+		  db:para
+		  [
+		    "The value will be part of /etc/sysconfig/keyboard"
+		  ]
+		]
 		element locale {
 			k.locale.attlist,
 			text
@@ -388,11 +433,17 @@ div { # locale
 div {
 	k.metadata.attlist = empty
 	k.metadata =
-		## When building an installation source not only packages are
-		## relevant but also metadata. metadata are files or packages combined
-		## with script calls. If a package is specified as metadata it will
-		## not be installed by rpm but its cpio archive is extracted in a
-		## specific way
+	  ## Contains Metadata
+		[
+		  db:para
+		  [
+		    "When building an installation source not only packages are\x{a}" ~
+		    "relevant but also metadata. metadata are files or packages\x{a}"~
+		    "combined with script calls. If a package is specified as\x{a}"~
+		    "metadata it will not be installed by rpm but its cpio\x{a}"~
+		    "archive is extracted in a specific way."		    
+		  ]
+		]
 		element metadata {
 			k.metadata.attlist,
 			k.repopackage+,
@@ -416,7 +467,7 @@ div {
 		k.metafile.script.attribute &
 		k.metafile.target.attribute
 	k.metafile =
-		## A file pointer optionally bundled with a script
+		## A file Pointer Optionally Bundled With a Script
 		element metafile {
 			k.metafile.attlist,
 			empty
@@ -430,7 +481,7 @@ div {
 	k.opensusepattern.name.attribute = k.name.attribute
 	k.opensusepattern.attlist = k.opensusepattern.name.attribute
 	k.opensusepattern =
-		## Name of a pattern from openSUSE
+		## Name of a Pattern From openSUSE
 		element opensusePattern {
 			k.opensusepattern.attlist,
 			empty
@@ -470,7 +521,7 @@ div {
 		k.repopackage.source.attribute? &
 		k.repopackage.script.attribute?
 	k.repopackage =
-		## Name of an instsource package
+		## Name of an instsource Package
 		element repopackage {
 			k.repopackage.attlist,
 			empty
@@ -487,7 +538,7 @@ div {
 		k.package.name.attribute &
 		k.package.arch.attribute?
 	k.package =
-		## Name of an image package
+		## Name of an image Package
 		element package {
 			k.package.attlist,
 			empty
@@ -500,8 +551,14 @@ div {
 div {
 	k.packagemanager.attlist = empty
 	k.packagemanager =
-		## The package manager used for package installation
-		## could be either zypper or smart
+	  ## Name of the Package Manager
+		[
+		  db:para
+		  [
+		    "The package manager used for package installation\x{a}"~
+		    "could be either zypper or smart"
+		  ]
+		]
 		element packagemanager {
 			k.packagemanager.attlist,
 			text # zypper or smart
@@ -518,7 +575,7 @@ div {
 		attribute device { text }
 	k.partitions.attlist = k.partitions.device.attribute?
 	k.partitions =
-		## A list of partitions
+		## A List of Partitions
 		element partitions { 
 			k.partitions.attlist, 
 			k.partition+
@@ -550,7 +607,7 @@ div {
 		k.partition.mountpoint.attribute? &
 		k.partition.target.attribute?
 	k.partition =
-		## A partition
+		## A Partition
 		element partition {
 			k.partition.attlist,
 			empty
@@ -563,8 +620,14 @@ div {
 div {
 	k.persistent.attlist = empty
 	k.persistent =
-		## As part of the split section the persistent element
-		## specifies file names which are in the read-write disk area
+		## Specifies Filenames in the Read-Write Disk Area
+		[
+		  db:para
+		  [
+		    "As part of the split section the persistent element\x{a}"~
+		    "specifies filenames which are in the read-write disk area"
+		  ]
+		]
 		element persistent {
 			k.persistent.attlist ,
 			k.file*
@@ -583,10 +646,16 @@ div {
 		k.profile.name.attribute &
 		k.profile.description.attribute
 	k.profile =
-		## Profiles creates a namespace on an image description and
-		## thus can be used to have one description with different
-		## profiles for example KDE and GNOME including different
-		## packages
+	  ## Creates Profiles
+		[
+		  db:para
+		  [
+		    "Profiles creates a namespace on an image description and\x{a}"~
+		    "thus can be used to have one description with different\x{a}"~
+		    "profiles for example KDE and GNOME including different\x{a}"~
+		    "packages."
+		  ]
+		]
 		element profile {
 			k.profile.attlist,
 			empty
@@ -610,7 +679,7 @@ div {
 		k.repository.type.attribute &
 		k.repository.status.attribute?
 	k.repository =
-		## The name of the repository
+		## The Name of the Repository
 		element repository {
 			k.repository.attlist,
 			k.source
@@ -623,9 +692,15 @@ div {
 div {
 	k.rpm-check-signatures.attlist = empty
 	k.rpm-check-signatures =
-		## Setup if the package manager should check the package
-		## signature or not. This option could be ignored according
-		## to the used package manager
+		## Setup a Package Signature
+		[
+		  db:para
+		  [
+		    "Setup if the package manager should check the package\x{a}"~
+		    "signature or not. This option could be ignored according\x{a}"~
+		    "to the used package manager."
+		  ]
+		]
 		element rpm-check-signatures {
 			k.rpm-check-signatures.attlist,
 			text
@@ -638,9 +713,15 @@ div {
 div {
 	k.rpm-force.attlist = empty
 	k.rpm-force =
-		## Setup if the package manager should force the install of the
-		## package or not. This option could be ignored according
-		## to the used package manager
+	  ## Force the Installation of a Package
+		[
+		  db:para
+		  [
+		    "Setup if the package manager should force the install of the\x{a}"~
+		    "package or not. This option could be ignored according\x{a}"~
+		    "to the used package manager."
+		  ]
+		]
 		element rpm-force {
 			k.rpm-force.attlist,
 			text
@@ -656,7 +737,7 @@ div {
 		attribute unit { "M" | "G" }
 	k.size.attlist = k.size.unit.attribute?
 	k.size =
-		## Specifies the size of an image in (M)egabyte or (G)igabyte
+		## Specifies the Size of an Image in (M)egabyte or (G)igabyte
 		element size {
 			k.size.attlist,
 			text
@@ -670,7 +751,7 @@ div {
 	k.source.path.attribute = k.path.attribute
 	k.source.attlist = k.source.path.attribute
 	k.source =
-		## A pointer to a repository/package source
+		## A Pointer to a Repository/Package Source
 		element source {
 			k.source.attlist,
 			empty
@@ -683,8 +764,14 @@ div {
 div {
 	k.specification.attlist = empty
 	k.specification =
-		## A detailed description of this image and what it can be
-		## used for.
+		## A Detailed Description
+		[
+		  db:para
+		  [
+		    "A detailed description of this image and what it can be\x{a}"~
+		    "used for."
+		  ]
+		]
 		element specification {
 			k.specification.attlist,
 			text
@@ -697,8 +784,14 @@ div {
 div {
 	k.temporary.attlist = empty
 	k.temporary =
-		## As part of the split section the temporary element
-		## specifies file names which are in the RAM disk  area
+		## Specifies Files in RAM
+		[
+		  db:para
+		  [
+		    "As part of the split section the temporary element\x{a}"~
+		    "specifies file names which are in the RAM disk area."
+		  ]
+		]
 		element temporary {
 			k.temporary.attlist,
 			empty
@@ -711,8 +804,14 @@ div {
 div {
 	k.timeout.attlist = empty
 	k.timeout = 
-		## As part of the network deploy configuration this section 
-		## specifies an atftp download timeout
+		## Specifies an ATFTP Download Timeout
+		[
+		  db:para
+		  [
+		    "As part of the network deploy configuration this section \x{a}"~
+		    "specifies an ATFTP download timeout"
+		  ]
+		]
 		element timeout {
 			k.timeout.attlist,
 			text
@@ -725,8 +824,14 @@ div {
 div {
 	k.timezone.attlist = empty
 	k.timezone =  
-		## Image timezone setup. The value will be used to search
-		## the correct timezone and copy it to /etc/localtime
+		## Setup Image Timezone setup
+		[
+		  db:para
+		  [
+		    "Image timezone setup. The value will be used to search\x{a}"~
+		    "the correct timezone and copy it to /etc/localtime."
+		  ]
+		]
 		element timezone {
 			k.timezone.attlist,
 			text
@@ -781,7 +886,7 @@ div {
 		k.type.format.attribute? &
 		k.type.primary.attribute?
 	k.type =
-		## The image type of the logical extend.
+		## The Image Type of the Logical Extend
 		element type { 
 			k.type.attlist, 
 			text 
@@ -805,11 +910,17 @@ div {
 		k.union.type.attribute
 	
 	k.union =  
-		## As part of the network deploy configuration this section
-		## specifies the overlay filesystem setup if required by the
-		## filesystem type of the system image. An overlay setup is
-		## only required if the system image uses a squashfs compressed
-		## filesystem.
+		## Specifies the Overlay Filesystem
+		[
+		  db:para
+		  [
+		    "As part of the network deploy configuration this section\x{a}"~
+		    "specifies the overlay filesystem setup if required by the\x{a}"~
+		    "filesystem type of the system image. An overlay setup is\x{a}"~
+		    "only required if the system image uses a squashfs compressed\x{a}"~
+		    "filesystem."
+		  ]
+		]
 		element union {
 			k.union.attlist,
 			empty
@@ -838,7 +949,7 @@ div {
 		k.user.home.attribute &
 		k.user.shell.attribute?
 	k.user =
-		## A user with name, password, path to its home and shell
+		## A User with Name, Password, Path to Its Home And Shell
 		element user {
 			k.user.attlist,
 			empty
@@ -851,7 +962,7 @@ div {
 div {
 	k.version.attlist = empty
 	k.version =
-		## A version number for the image, consists of Major.Minor.Release 
+		## A Version Number for the Image, Consists of Major.Minor.Release 
 		element version {
 			k.version.attlist,
 			text
@@ -872,9 +983,15 @@ div {
 		k.deploy.server.attribute? &
 		k.deploy.blocksize.attribute?
 	k.deploy =
-		## The deploy section is used to allow kiwi to create the
-		## config.<MAC> file required by PXE based network images.
-		## the contents of this file controls the image deploy process
+	  ## Controls the Image Deploy Process
+		[
+		  db:para
+		  [
+		    "The deploy section is used to allow kiwi to create the\x{a}"~
+		    "config.<MAC> file required by PXE based network images.\x{a}"~
+		    "the contents of this file controls the image deploy process."
+		  ]
+		]
 		element deploy {
 			k.deploy.attlist,
 			k.timeout?,
@@ -901,7 +1018,7 @@ div {
 		attribute type { "boot" | "system" }
 	k.description.attlist = k.description.type.attribute
 	k.description =  
-		## A short description
+		## A Short Description
 		element description {
 			k.description.attlist,
 			k.author,
@@ -923,7 +1040,7 @@ div {
 		k.drivers.profiles.attribute?
 		
 	k.drivers =
-		## A collection of driver files 
+		## A Collection of Driver Files 
 		element drivers {
 			k.drivers.attlist,
 			k.file+
@@ -936,13 +1053,19 @@ div {
 div {
 	k.instsource.arch.attribute = k.arch.attribute
 	k.instsource.attlist = k.instsource.arch.attribute
-	k.instsource =  
-		## The instsource element is used to describe the packages
-		## and the metadata which is required to build an installation
-		## source suitable for Novell SUSE Linux installation media.
-		## From such a source it should be possible to create the
-		## standard SUSE CD/DVD's as well as use this source as
-		## repository for image building
+	k.instsource =
+	  ## Describe Packages and Metadata
+		[
+		  db:para
+		  [
+		    "The instsource element is used to describe the packages\x{a}"~
+		    "and the metadata which is required to build an installation\x{a}"~
+		    "source suitable for Novell SUSE Linux installation media.\x{a}"~
+		    "From such a source it should be possible to create the\x{a}"~
+		    "standard SUSE CD/DVD's as well as use this source as\x{a}"~
+		    "repository for image building."
+		  ]
+		]
 		element instsource {
 			k.instsource.attlist,
 			k.instrepo+,
@@ -957,8 +1080,14 @@ div {
 div {
 	k.repopackages.attlist = empty
 	k.repopackages =  
-		## The repopackages elements specifies a set of packages which
-		## are used for creating a Novell SUSE installation source
+		## Specifies Packages for Installation Source
+		[
+		  db:para
+		  [
+		    "The repopackages elements specifies a set of packages which\x{a}"~
+		    "are used for creating a Novell SUSE installation source."
+		  ]
+		]
 		element repopackages {
 			k.repopackages.attlist,
 			k.repopackage*
@@ -1004,9 +1133,16 @@ div {
 		k.packages.patternType.attribute? &
 		k.packages.patternPackageType.attribute?
 	k.packages =
-		## The packages elements specifies a set of packages and/or patterns
-		## which are used in different stages of the image building process
-		## and also depends of the selected image output type
+	  ## Specifies Packages/Patterns Used in Different Stages
+		[
+		  db:para
+		  [
+		    "The packages elements specifies a set of packages\x{a}"~
+		    "and/or patterns which are used in different stages of the\x{a}"~
+		    "image building process\x{a}"~
+		    "and also depends of the selected image output type."
+		  ]
+		]
 		element packages {
 			k.packages.attlist,
 			k.package*,
@@ -1021,7 +1157,7 @@ div {
 div {
 	k.preferences.attlist = empty
 	k.preferences =  
-		## Configuration information needed for logical extend
+		## Configuration Information Needed for Logical Extend
 		element preferences {
 			k.preferences.attlist,
 			k.type+,
@@ -1046,9 +1182,14 @@ div {
 div {
 	k.profiles.attlist = empty
 	k.profiles =  
-		## Namespace section which creates a namespace and the
-		## description of this namespace. The section packages and
-		## drivers can bind itself to one of the listed namespaces
+		## Creates Namespace Section for Drivers
+		[
+		  db:para
+		  [
+		    "Namespace section which creates a namespace and the\x{a}"~
+		    "drivers can bind itself to one of the listed namespaces."
+		  ]
+		]
 		element profiles {
 			k.profiles.attlist,
 			k.profile+
@@ -1061,10 +1202,17 @@ div {
 div {
 	k.split.attlist = empty
 	k.split =  
-		## When the image type split is requested the image will be splitted
-		## into a read-only and a read-write image portion. Each portion
-		## can have different filesystems and the split section describes
-		## which files/directories should go in what portion
+		## Describes Images in Read-Only and Read-Write Portions
+		[
+		  db:para
+		  [
+		    "When the image type split is requested the image will be\x{a}"~
+		    "splitted into a read-only and a read-write image portion.\x{a}"~
+		    "Each portion can have different filesystems and the split\x{a}"~
+		    "section describes which files/directories should go in\x{a}"~
+		    "what portion."
+		  ]
+		]
 		element split {
 			k.split.attlist,
 			k.temporary?,
@@ -1081,7 +1229,7 @@ div {
 		attribute group { text }
 	k.users.attlist = k.users.group.attribute
 	k.users = 
-		## A list of users
+		## A List of Users
 		element users {
 			k.users.attlist,
 			k.user+
