@@ -60,13 +60,7 @@ The stylesheet was modified by Thomas Schraitle:
   <xsl:param name="default.documentation.string"
     select="'No documentation available.'"/>
 
-  <!-- 
-  The name of an XML file to be included in the documentation. 
-  If specified, the content of this XML file should be an XML 
-  fragment rooted on the Docbook <section> tag.
--->
-  <xsl:param name="intro"/>
-
+ 
   <!-- 
   If specified, limits the documentation generated to just the named 
   element or define. If there are multiple matches (i.e. you have used 
