@@ -20,7 +20,7 @@ HTMLPARAM=--stringparam refentry.generate.name 0 \
 	--stringparam html.stylesheet kiwi.css 
 
 .PHONY: all
-all:  kiwi.rng docbook html
+all:  kiwi.rng kiwi.dtd kiwi.xsd docbook html
 
 .PHONY: html
 html-old: kiwi.xhtml
@@ -61,6 +61,14 @@ validate val: .validate
 %.rng: %.rnc
 	@echo "*** Converting KIWI RNC -> RNG..."
 	trang -I rnc -O rng $< $@
+
+%.xsd: %.rnc
+	@echo "*** Converting KIWI RNC -> XSD..."
+	trang $< $@
+
+%.dtd: %.rnc
+	@echo "*** Converting KIWI RNC -> DTD..."
+	trang $< $@
 
 %.xml: %.rng $(RNG2DOCBOOK) .validate
 	@echo "*** Converting KIWI RNG -> DocBook..."
