@@ -25,7 +25,7 @@
       <author>
         <firstname>Thomas</firstname>
         <surname>Schraitle</surname>
-        <contrib>Dokumentation</contrib>
+        <contrib>Documentation</contrib>
       </author>
     </authorgroup>
     <keywordset>
@@ -184,6 +184,15 @@
           <literal>linux</literal>.
         </para>
       </listitem>
+      <listitem>
+        <para>The documentation of the KIWI RELAX NG Schema. The KIWI
+          configuration file is in XML format and the structure is
+          documented in the package <package>kiwi</package> under
+            <filename>/usr/share/doc/packages/kiwi/kiwi.html</filename>.
+          The information therein is needed to know the correct elements
+          and attributes to create a valid XML file.
+        </para>
+      </listitem>
     </orderedlist>
   </sect1>
   <sect1 id="sec.kiwi.process">
@@ -267,9 +276,8 @@
       </step>
       <step>
         <para>Open the configuration file
-          <filename>test1/config.xml</filename>
-          and locate the XML element
-          <sgmltag>packages</sgmltag>:</para>
+          <filename>test1/config.xml</filename> and locate the XML
+          element <sgmltag>packages</sgmltag>:</para>
         <screen>&lt;packages>
   &lt;package name="aaa_base"/>
   &lt;package name="aaa_skel"/>
