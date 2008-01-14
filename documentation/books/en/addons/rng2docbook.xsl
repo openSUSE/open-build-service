@@ -30,7 +30,8 @@ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLU
 The stylesheet was modified by Thomas Schraitle:
 - Output a DocBook refentry
 - Include parameter with-source and with-content-model
-
+- Import additional stylesheet remove-refs.xsl
+- Used keys where appropriate
 -->
 
   <xsl:import href="remove-refs.xsl"/>
@@ -43,10 +44,7 @@ The stylesheet was modified by Thomas Schraitle:
 
 
   <xsl:key name="define" match="rng:define" use="@name"/>
-  <xsl:key name="element" match="rng:element" use="@name"/>
-  <xsl:key name="attribute" match="rng:attribute" use="@name"/>
   <xsl:key name="elemdef" match="rng:define" use="rng:element/@name"/>
-  <xsl:key name="attrdef" match="rng:define" use="rng:attribute/@name"/>
 
   <!-- 
   The main title for the generated documentation. 
@@ -203,6 +201,8 @@ The stylesheet was modified by Thomas Schraitle:
               <xsl:apply-templates select="a:documentation"/>
             </xsl:when>
             <xsl:otherwise>
+              <xsl:message>WARNING: No RNG doc string found for '<xsl:value-of 
+                  select="$qname"/>'.</xsl:message>
               <xsl:value-of select="$default.documentation.string"/>
             </xsl:otherwise>
           </xsl:choose>
@@ -311,9 +311,7 @@ The stylesheet was modified by Thomas Schraitle:
         </xsl:choose>
       </entry>
       <entry>
-        <para>
-          <xsl:apply-templates select="a:documentation[1]"/>
-        </para>
+        <xsl:apply-templates select="a:documentation"/>
       </entry>
     </row>
   </xsl:template>
@@ -400,7 +398,18 @@ The stylesheet was modified by Thomas Schraitle:
       <refnamediv>
           <refname><xsl:value-of select="@name"/></refname>
           <refpurpose>
-            <xsl:apply-templates select="a:documentation"/>
+            <xsl:choose>
+              <xsl:when test="a:documentation">
+                <xsl:apply-templates select="a:documentation"/>    
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:message>WARNING: WARNING: No RNG doc string found
+                  for define '<xsl:value-of 
+                  select="$name"/>'.</xsl:message>
+              </xsl:otherwise>
+            </xsl:choose>
+            
+            
           </refpurpose>
       </refnamediv>
       <xsl:if test="$nsuri != ''">
@@ -606,5 +615,12 @@ The stylesheet was modified by Thomas Schraitle:
     <!-- suppress -->
   </xsl:template>
 
+
+<!-- Documentation -->
+  <xsl:template mode="a:documentation">
+    <para>
+      <xsl:apply-templates/>
+    </para>    
+  </xsl:template>
 
 </xsl:stylesheet>
