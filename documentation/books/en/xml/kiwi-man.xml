@@ -223,10 +223,10 @@
           <replaceable>DestinationPath</replaceable></option></optional></term>
         <listitem>
           <para>Specify destination directory to store the image file(s)
-            If not specified kiwi try to find the attribute 
+            If not specified, KIWI will try to find the attribute 
             <replaceable>defaultdestination</replaceable> which can be
             specified in the <replaceable>preferences</replaceable> section
-            of the config.xml file. If it exists its value is used as
+            of the <filename>config.xml</filename> file. If it exists its value is used as
             destination directory. If no destination information can be found,
             an error occurs</para>
         </listitem>
@@ -238,8 +238,8 @@
           <para>Specify the output image type to use for this image. Each type
             is described in a <replaceable>type</replaceable> section of the
             preferences section. At least one type has to be specified in the
-            <filename>config.xml</filename> description. By default those type
-            specifying the <emphasis>primary</emphasis> attribute will be
+            <filename>config.xml</filename> description. By default,
+            the types specifying the <emphasis>primary</emphasis> attribute will be
             used. If there is no primary attribute set, the first type
             section of the preferences section is the primary type.
             The types are only evaluated when kiwi runs the
