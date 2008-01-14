@@ -201,8 +201,10 @@ The stylesheet was modified by Thomas Schraitle:
               <xsl:apply-templates select="a:documentation"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:message>WARNING: No RNG doc string found for '<xsl:value-of 
-                  select="$qname"/>'.</xsl:message>
+              <xsl:message>
+                <xsl:text>WARNING: No RNG doc string found for element</xsl:text>
+                <xsl:value-of select='concat(" &apos;", $qname, "&apos;.")'/>
+              </xsl:message>
               <xsl:value-of select="$default.documentation.string"/>
             </xsl:otherwise>
           </xsl:choose>
