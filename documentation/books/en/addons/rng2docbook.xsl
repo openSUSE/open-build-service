@@ -179,8 +179,20 @@ The stylesheet was modified by Thomas Schraitle:
     <xsl:variable name="parentdefname" select="parent::rng:define/@name"/>
     <xsl:variable name="def.element"
       select="$simplified.tree//rng:define[@name=$parentdefname]/rng:element"/>
-    <xsl:variable name="attrs"
-      select="$def.element/*[not(rng:element)]//rng:attribute"/>
+    <xsl:variable name="rtf">
+      <xsl:apply-templates select="$def.element//rng:attribute" mode="check">
+        <xsl:with-param name="name" select="$name"/>
+      </xsl:apply-templates>
+    </xsl:variable>
+    <xsl:variable name="newattrs" select="exsl:node-set($rtf)/*"/>
+    
+    <!--<xsl:message>rng:element "<xsl:value-of select="$name"/>"
+      count($newattrs):    <xsl:value-of select="count($newattrs)"/>
+                           <xsl:text>: </xsl:text>
+                           <xsl:for-each select="$newattrs">
+                             <xsl:value-of select="concat(@name, ' ')"/>
+                           </xsl:for-each>
+    </xsl:message>-->
 
     <refentry id="def.{@name}">
       <refnamediv>
@@ -216,7 +228,7 @@ The stylesheet was modified by Thomas Schraitle:
       <refsect1 role="attributes">
           <title>Attributes</title>
           <xsl:choose>
-            <xsl:when test="count($attrs) > 0">
+            <xsl:when test="count($newattrs) > 0">
               <informaltable>
                 <tgroup cols="3">
                   <thead>
@@ -228,7 +240,7 @@ The stylesheet was modified by Thomas Schraitle:
                     </row>
                   </thead>              
                   <tbody>
-                    <xsl:apply-templates select="$attrs" mode="attributes"/>
+                    <xsl:apply-templates select="$newattrs" mode="attributes"/>
                   </tbody>
                 </tgroup>
               </informaltable>
@@ -248,8 +260,20 @@ The stylesheet was modified by Thomas Schraitle:
                 disable-output-escaping="yes">]]&gt;</xsl:text></programlisting>
           </refsect1>
         </xsl:if>
+    </refentry>    
+  </xsl:template>
 
-    </refentry>
+
+  <xsl:template match="rng:attribute" mode="check">
+    <xsl:param name="name"/>
+    <xsl:variable name="ancest" select="ancestor::rng:element[1]"/>
+    
+    <xsl:choose>
+      <xsl:when test="$ancest[@name=$name]">
+        <xsl:copy-of select="."/>
+      </xsl:when>
+      <xsl:otherwise/><!-- Do nothing -->
+    </xsl:choose>
     
   </xsl:template>
 
