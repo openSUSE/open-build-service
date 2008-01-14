@@ -125,7 +125,7 @@ background:transparent !important;
 #simple_targets_wrapper {
   display: table; 
   display: block;
-  width: 95%;
+  /* width: 95%; */
   height: auto;
 }
 
@@ -189,7 +189,7 @@ background:transparent !important;
   .toggle_box_bottom {
     position: relative;       
     background: #eee;
-    width: 96%;
+    /*width: 96%;*/
   }
   
   .toggle_box_top {
@@ -198,7 +198,7 @@ background:transparent !important;
     border-bottom: 2px solid #e5e5e5;
     font-weight: bold;
     color: #999;
-    background:#eee url(/css/local/images/icons/folder-open.png) no-repeat scroll 25em bottom;
+    background:#eee url(/css/local/images/icons/folder-open.png) no-repeat scroll 99% bottom;
     cursor: pointer;
   }
   
@@ -233,7 +233,7 @@ background:transparent !important;
 
 #selection_wrapper td {
   width: 49%;
-  padding: 0;
+  padding: 0 1em 0 0;
   margin: 0;
 }
 
@@ -247,7 +247,6 @@ background:transparent !important;
 #repository_wrapper ul ul {
 /*  max-width: 23em;*/
   margin: 0 1em 0 0;
-
   margin: 0;
 }
 
@@ -287,6 +286,7 @@ background:transparent !important;
 
 #drop_list li {
   /*border: 1px dotted fuchsia;*/
+  width: 95%;
 }
    #drop_list li a {
      float:right;
