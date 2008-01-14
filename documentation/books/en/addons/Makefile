@@ -12,7 +12,6 @@
 .SUFFIXES:
 .SUFFIXES: .rng .html .rnc
 
-RNG2XHTML=rng2xhtml.xsl
 RNG2DOCBOOK=rng2docbook.xsl
 DBHTML=/usr/share/xml/docbook/stylesheet/nwalsh/current//html/docbook.xsl
 RELAXNG=relaxng.rng
@@ -58,10 +57,6 @@ validate val: .validate
 	@touch $@
 	jing $(RELAXNG) $<
 
-
-%.xhtml: %.rng $(RNG2XHTML) .validate
-	@echo "*** Creating documentation from KIWI RNG..."
-	xsltproc --output $@ $(RNG2XHTML) $<
 
 %.rng: %.rnc
 	@echo "*** Converting KIWI RNC -> RNG..."
