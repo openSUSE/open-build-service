@@ -79,8 +79,7 @@
       you prepare a directory including the contents of your new
       filesystem based on one or more software package source(s) (such
       as openSUSE 10.3). The creation step is based on the result of the
-      <!--mdejmek: you mean preparation step here, right?-->
-      create step and uses the contents of the new image root tree to
+      preparation step and uses the contents of the new image root tree to
       create the output image. If the image type ISO was requested, the
       output image would be a file with the suffix <filename
         class="extension">.iso</filename> representing a live system on
@@ -145,13 +144,11 @@
     <title>System to Image Migration</title>
     <para>
       The migration module allows you to migrate your currently running
-      system into an image description. 
-      <!--mdejmek: maybe you can find something else for 'guess' and 'among other magic' here?-->
-      The module will check for files
-      not managed by a package manager and it will guess a repository from
-      which this operating system could be rebuild. Among some other magic
-      the result is quite useful but in most of the cases a manual fine
-      tuning is needed. This includes the repository selection and the
+      system into an image description. The module will check for files
+      not managed by a package manager and it will suggest a repository from
+      which this operating system could be rebuild. 
+      The result is quite useful but in most cases a manual fine
+      tuning is required. This includes the repository selection and the
       unmanaged files along with the configuration details of your
       currently running operating system.
     </para>    
@@ -226,25 +223,29 @@
           <replaceable>DestinationPath</replaceable></option></optional></term>
         <listitem>
           <para>Specify destination directory to store the image file(s)
-            If not specified the attribute <!--mdejmek: if not specified IN the attribute??-->
-              <replaceable>DefaultDestination</replaceable> is used. If
-            no destination can be found, an error occurs</para>
+            If not specified kiwi try to find the attribute 
+            <replaceable>defaultdestination</replaceable> which can be
+            specified in the <replaceable>preferences</replaceable> section
+            of the config.xml file. If it exists its value is used as
+            destination directory. If no destination information can be found,
+            an error occurs</para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term><optional><option>-t</option> | <option>--type
           <replaceable>Imagetype</replaceable></option></optional></term>
         <listitem>
-          <para>Specify the output image type to use for this image. The
-            type must exist in the <filename>config.xml</filename>
-            description. By default, the primary type will be used. If
-            there is no primary attribute set, the first type entry of
-            the preferences section is the primary type makes only sense
-            in combination with <option>--create</option>
-	    <!-- mdejmek: do you mean: If
-		 there is no primary attribute set, the first type entry of
-		 the preferences section is the primary type. This makes only sense
-            in combination with <option>- -create</option> ???-->
+          <para>Specify the output image type to use for this image. Each type
+            is described in a <replaceable>type</replaceable> section of the
+            preferences section. At least one type has to be specified in the
+            <filename>config.xml</filename> description. By default those type
+            specifying the <emphasis>primary</emphasis> attribute will be
+            used. If there is no primary attribute set, the first type
+            section of the preferences section is the primary type.
+            The types are only evaluated when kiwi runs the
+            <option>--create</option> step. With the
+            option <option>--type</option> one can distinguish between the
+            types stored in <filename>config.xml</filename>
     </para>
         </listitem>
       </varlistentry>
@@ -295,11 +296,9 @@
         <optional><option>--set-repotype <replaceable>Type</replaceable></option></optional></option></optional></term>
         <listitem>
           <para>Set the given repository and optional type for the first
-            repository entry within the <filename>config.xml</filename>.
-            The change will not be written to the XML file and is valid
-	    <!-- mdejmek: preparation process??-->
-	    for this run of image prepare or upgrade process.
-   
+          repository entry within the <filename>config.xml</filename>.
+          The change will not be written to the XML file and is valid
+  	      for the subsequent image preparation or upgrade process.
     </para>
         </listitem>
       </varlistentry>
