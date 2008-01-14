@@ -11,6 +11,9 @@
 <td id="repository_wrapper">
   <div id="filter_wrapper">
     <input type="text" name="project_list_filter" value="" id="project_list_filter" />
+    
+    <%= render :partial => "recent_repositories" %>
+    
     <%= observe_field(:project_list_filter,
                 :url => {:action => :update_project_list, :project => @project},
                 :update => "project_list_wrapper",

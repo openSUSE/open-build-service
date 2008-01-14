@@ -10,6 +10,11 @@
 /*****************
 * General Styles *
 *****************/
+body {
+  /*max-width:none;*/ /* this shoiuld be fixed globalsy in basemod_opensuse.css (line 18)*/
+}
+
+
 #bodyContent {
   min-height: 23em;
   position: relative;
@@ -115,7 +120,6 @@ a:hover {
 background:transparent !important;
 }
 
-
 /* Add Repo & DropZone **************************************************** */
 
 #simple_targets_wrapper {
@@ -123,12 +127,11 @@ background:transparent !important;
   display: block;
   width: 95%;
   height: auto;
-  margin-bottom: 2em;
 }
 
   #simple_targets_wrapper div.distro_wrapper,
   div.col_wrapper {
-    position: relative;
+/*    position: relative;
     min-width: 142px;
     min-height: 210px;
     float: left;
@@ -136,29 +139,93 @@ background:transparent !important;
         
     border-top: 1px solid #eee;
     border-bottom: 1px dashed #eee;
-    background-color: #f9f9f9;
+    background-color: #f9f9f9;*/
   }
+  
   #simple_targets_wrapper ul {
-    margin: 0;
-    padding: 0;
+/*    margin: 0;
+    padding: 0;*/
   }
   #simple_targets_wrapper li {
 /*    margin: 0;*/
 /*    padding: 0;*/
-    margin:0.3em 0pt;
+/*    margin:0.3em 0pt;
     padding:0pt 0.2em;
-    list-style: none outside none;
+    list-style: none outside none;*/
+  }
+ 
+  #opensuse_wrapper li,
+  #debian_wrapper li,
+  #fedora_wrapper li,
+  #mandriva_wrapper li, 
+  #xubuntu_wrapper li,
+  #repository_wrapper li {
+    border-right: 5px solid #ddd;
+    border-left: 5px solid #ddd;
+  }
+
+  #opensuse_wrapper li {
+    border-left-color: #669900;
+    border-right-color: #669900;
+  }
+  #debian_wrapper li {
+    border-left-color: #bf1238;
+    border-right-color: #bf1238;
+  }
+  #fedora_wrapper li {
+    border-left-color: #337ACC;
+    border-right-color: #337ACC;
+  }
+  #mandriva_wrapper li {
+    border-left-color: #FFA808;
+    border-right-color: #FFA808;
+  }
+  #xubuntu_wrapper li {
+    border-left-color: #255FB7;
+    border-right-color: #255FB7;
+  }
+
+  .toggle_box_top,
+  .toggle_box_bottom {
+    position: relative;       
+    background: #eee;
+    width: 96%;
   }
   
+  .toggle_box_top {
+    display: block;
+    height: 2em;
+    border-bottom: 2px solid #e5e5e5;
+    font-weight: bold;
+    color: #999;
+    background:#eee url(/css/local/images/icons/folder-open.png) no-repeat scroll 25em bottom;
+    cursor: pointer;
+  }
+  
+  .toggle_box_bottom {
+    border-top: 1px solid #ccc;
+    height: 4px;
+  }
+  .toggle_box_top:hover {
+    background-image: url(/css/local/images/icons/folder-open_over.png);     
+    color: #666;
+    
+  } 
+  .toggle_box_top span {
+    position: absolute;
+    width: 95%;
+    margin-left: 1em;
+    padding-top: 0.5em;
+    border-bottom: 0;
+  }
+
 /********************/
   
-  
-
 #selection_wrapper {
   width: 95%;
   max-width: 56em;
   height: 100%;
-  margin-top: 2em;
+/*  margin-top: 2em;*/
   border-collapse: separate;
   clear: left;
   background-color: #f9f9f9;
@@ -180,6 +247,8 @@ background:transparent !important;
 #repository_wrapper ul ul {
 /*  max-width: 23em;*/
   margin: 0 1em 0 0;
+
+  margin: 0;
 }
 
   #repository_wrapper .sub_item {
@@ -215,6 +284,23 @@ background:transparent !important;
   background: #f4f4f4;
   border: 1px solid #ddd;
 }
+
+#drop_list li {
+  /*border: 1px dotted fuchsia;*/
+}
+   #drop_list li a {
+     float:right;
+     display: block;
+     width: 16px;
+     height: 17px;
+     padding: 2px;
+     background: transparent url("/css/local/images/icons/edit-delete.png") no-repeat center center;
+   }
+   #drop_list li a:hover {
+     background-image:url("/css/local/images/icons/edit-delete_over.png");
+     text-decoration:none;
+   }
+
   .draggable {
 
   }
@@ -227,7 +313,6 @@ background:transparent !important;
   .draggable_sub_element:hover {
     color: #690;
     border-style: dashed;
-    border-color: #690;
   }
 
   .draggable_element:hover {
