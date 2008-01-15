@@ -105,9 +105,18 @@
       your hardware and probably select your favorite software. All this
       has to be done before you can work with your system. After the
       installation is finished you need to customize your system to your
-      needs. <xref linkend="fig.kiwi.image-types"
-        xrefstyle="select:label"/> shows you an excerpt of what image
-      types KIWI can create.</para>
+      needs. </para>
+    <para>KIWI is different: It is a commandline toolkit where you
+      define <emphasis>image types</emphasis> to create images. KIWI
+      works with a configuration file that defines all the necessary
+      parts to build such images. Either you create one yourself or you
+      copy and modify an existing one. Both ways works. Usually you
+      customize the contents in the KIWI configuration file in regard to
+      your needs. You can create a stripped down image with only a
+      minimal set of package to very specialised images, for example
+      XEN. <xref linkend="fig.kiwi.image-types" xrefstyle="select:label"
+      /> shows you what KIWI can build from your configuration
+    file.</para>
     <figure id="fig.kiwi.image-types" >
       <title>KIWI Image Types</title>
       <mediaobject>
@@ -119,13 +128,6 @@
         </imageobject>        
       </mediaobject>
     </figure>
-    
-    <para>KIWI is different: It is a commandline toolkit where you
-      define <emphasis>image types</emphasis> to create images. Usually
-      you customize the contents in the KIWI configuration file in
-      regard to your needs. You can create a stripped down image with
-      only a minimal set of package to very specialised images, for
-      example XEN.</para>
     <para>With KIWI, there are created projects like KDE&nbsp;4.0 Live
       CD, KIWI Linux Terminal Server Project (kiwi-ltsp), and many more.</para>
   </sect1>
