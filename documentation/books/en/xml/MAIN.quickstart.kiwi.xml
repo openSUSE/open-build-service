@@ -108,7 +108,7 @@
       needs. <xref linkend="fig.kiwi.image-types"
         xrefstyle="select:label"/> shows you an excerpt of what image
       types KIWI can create.</para>
-    <figure id="fig.kiwi.image-types" floatstyle="before" float="1">
+    <figure id="fig.kiwi.image-types" >
       <title>KIWI Image Types</title>
       <mediaobject>
         <imageobject role="fo">
