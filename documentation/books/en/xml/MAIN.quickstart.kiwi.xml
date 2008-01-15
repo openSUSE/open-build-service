@@ -41,10 +41,28 @@
   </articleinfo>
   <sect1 id="sec.kiwi.whatis">
     <title>What is KIWI?</title>
-    <para>KIWI is a system for creating ISO images to boot as Live DVD,
-      Live USB, or as an image for virtualization systems like Xen, Qemu
-      or Vmware. KIWI provides the following advantages:
-    </para>
+    <para>KIWI is a system for creating operating system images. An
+      image represents in one file the operating system, its
+      applications and configurations as well as the filesystem
+      structure of the OS, with possible additional metadata. Depending
+      on the image type also disk geometry and partition table data can
+      be part of the image. The image needs to be deployed at the
+      destination system in order to get activated. <xref
+        linkend="fig.kiwi.image-types" xrefstyle="select:label"/> shows
+      you the general procedure what can be done with KIWI.</para>
+    <figure id="fig.kiwi.image-types" >
+      <title>KIWI Image Types</title>
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata align="center" width="90%" fileref="kiwi-types.svg"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata align="center" width="90%" fileref="kiwi-types.png"/>
+        </imageobject>        
+      </mediaobject>
+    </figure>
+
+    <para>KIWI provides the following advantages: </para>
     <itemizedlist>
       <listitem>
         <para>Create your own Live CD/DVD which contains only those
@@ -115,21 +133,7 @@
       one. Both ways works. Usually you copy the directory and customize
       the contents of the KIWI configuration file in regard to your
       needs. You can create a stripped down image with only a minimal
-      set of packages to very specialised images, for example XEN. <xref
-        linkend="fig.kiwi.image-types" xrefstyle="select:label"/> shows
-      you an excerpt what KIWI can build from your configuration
-    file.</para>
-    <figure id="fig.kiwi.image-types" >
-      <title>KIWI Image Types</title>
-      <mediaobject>
-        <imageobject role="fo">
-          <imagedata align="center" width="90%" fileref="kiwi-types.svg"/>
-        </imageobject>
-        <imageobject role="html">
-          <imagedata align="center" width="90%" fileref="kiwi-types.png"/>
-        </imageobject>        
-      </mediaobject>
-    </figure>
+      set of packages to very specialised images, for example XEN. </para>
     <para>With KIWI, there are created projects like KDE&nbsp;4.0 Live
       CD, KIWI Linux Terminal Server Project (kiwi-ltsp), and many more.</para>
   </sect1>
