@@ -61,8 +61,38 @@
         </imageobject>        
       </mediaobject>
     </figure>
-
-    <para>KIWI provides the following advantages: </para>
+    <para>The image types in the above figure are:</para>
+    <variablelist>
+      <varlistentry>
+        <term>LiveCD, also DVD, USB Stick</term>
+        <listitem>
+          <para>deploy to media with KIWI and start your image.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Virtual Disk</term>
+        <listitem>
+          <para>play full virtual systems with VMware, for
+            exmaple. </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>XEN (Paravirtual Image for Hyphervisor)</term>
+        <listitem>
+          <para>create guest configuration with KIWI.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>PXE (Network Boot)</term>
+        <listitem>
+          <para>provides boot environment with KIWI.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    
+    
+    <para>With all these in mind, KIWI provides the following
+      advantages: </para>
     <itemizedlist>
       <listitem>
         <para>Create your own Live CD/DVD which contains only those
