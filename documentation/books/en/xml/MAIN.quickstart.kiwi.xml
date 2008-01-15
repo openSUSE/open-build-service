@@ -108,15 +108,17 @@
       needs. </para>
     <para>KIWI is different: It is a commandline toolkit where you
       define <emphasis>image types</emphasis> to create images. KIWI
-      works with a configuration file that specifies all the necessary
-      parts to build such images. Either you create one yourself or you
-      copy and modify an existing one. Both ways works. Usually you
-      customize the contents in the KIWI configuration file in regard to
-      your needs. You can create a stripped down image with only a
-      minimal set of packages to very specialised images, for example
-      XEN. <xref linkend="fig.kiwi.image-types" xrefstyle="select:label"
-      /> shows you an excerpt what KIWI can build from your
-      configuration file.</para>
+      works with a directory containing a configuration file and maybe
+      scripts that needs to be used to build such images. The directory
+      is the important part, not only the configuration file. Either you
+      create one directory yourself or you copy and modify an existing
+      one. Both ways works. Usually you copy the directory and customize
+      the contents of the KIWI configuration file in regard to your
+      needs. You can create a stripped down image with only a minimal
+      set of packages to very specialised images, for example XEN. <xref
+        linkend="fig.kiwi.image-types" xrefstyle="select:label"/> shows
+      you an excerpt what KIWI can build from your configuration
+    file.</para>
     <figure id="fig.kiwi.image-types" >
       <title>KIWI Image Types</title>
       <mediaobject>
@@ -183,9 +185,8 @@
         <para>Recommended distribution is openSUSE 10.3 or greater.</para>
       </listitem>
       <listitem>
-        <para>Example files from the
-          <package>kiwi</package>
-          packages:</para>
+        <para>Example files from the <package>kiwi</package>
+        package:</para>
         <variablelist>
           <varlistentry>
             <term>
@@ -215,7 +216,7 @@
       </listitem>
       <listitem>
         <para>The documentation of the KIWI RELAX NG Schema. The KIWI
-          configuration file is in XML format and the structure is
+          configuration file is based on XML and the structure is
           documented in the package <package>kiwi</package> under
             <filename>/usr/share/doc/packages/kiwi/kiwi.html</filename>.
           <remark>Should we use a WWW address here, instead of the local
@@ -235,7 +236,7 @@
           <title>Physical Extend</title>
           <para>This stage prepares the content of your new filesystem.
             During this stage, you determine which packages are
-            installed on your image and which configuration fiels are
+            installed on your image and which configuration files are
             included.</para>
         </formalpara>
       </listitem>
@@ -361,8 +362,8 @@
     -->
     <sect2 id="sec.kiwi.livecd.developer">
       <title>Creating a Developer Image</title>
-      <para>If you need a image for developing programs, you can add
-        some patterns in your configuration file. In this case, proceed
+      <para>If you need an image for developing programs, you can add
+        patterns in your configuration file. In this case, proceed
         as follows:</para>
       <procedure>
         <step>
