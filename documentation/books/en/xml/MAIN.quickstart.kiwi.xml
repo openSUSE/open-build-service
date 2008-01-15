@@ -108,15 +108,15 @@
       needs. </para>
     <para>KIWI is different: It is a commandline toolkit where you
       define <emphasis>image types</emphasis> to create images. KIWI
-      works with a configuration file that defines all the necessary
+      works with a configuration file that specifies all the necessary
       parts to build such images. Either you create one yourself or you
       copy and modify an existing one. Both ways works. Usually you
       customize the contents in the KIWI configuration file in regard to
       your needs. You can create a stripped down image with only a
-      minimal set of package to very specialised images, for example
+      minimal set of packages to very specialised images, for example
       XEN. <xref linkend="fig.kiwi.image-types" xrefstyle="select:label"
-      /> shows you what KIWI can build from your configuration
-    file.</para>
+      /> shows you an excerpt what KIWI can build from your
+      configuration file.</para>
     <figure id="fig.kiwi.image-types" >
       <title>KIWI Image Types</title>
       <mediaobject>
