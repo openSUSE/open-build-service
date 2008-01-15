@@ -118,24 +118,17 @@
   
   <sect1 id="sec.kiwi.background">
     <title>Background Information for <quote>Fruit Lovers</quote></title>
-    <para>If you want to an installation on your system, you need to
-      answer some questions, maybe partition your harddisc, configure
-      your hardware and probably select your favorite software. All this
-      has to be done before you can work with your system. After the
-      installation is finished you need to customize your system to your
-      needs. </para>
-    <para>KIWI is different: It is a commandline toolkit where you
-      define <emphasis>image types</emphasis> to create images. KIWI
-      works with a directory containing a configuration file and maybe
-      scripts that needs to be used to build such images. The directory
-      is the important part, not only the configuration file. Either you
-      create one directory yourself or you copy and modify an existing
-      one. Both ways works. Usually you copy the directory and customize
-      the contents of the KIWI configuration file in regard to your
-      needs. You can create a stripped down image with only a minimal
-      set of packages to very specialised images, for example XEN. </para>
-    <para>With KIWI, there are created projects like KDE&nbsp;4.0 Live
-      CD, KIWI Linux Terminal Server Project (kiwi-ltsp), and many more.</para>
+    <para>In order to create an image with KIWI it's required to create
+      an image description first. A KIWI image description is a
+      directory with one mandatory <filename>config.xml</filename> file
+      and optional other files like configuration files or
+    scripts.</para>
+    <para>Example descriptions can be found under
+        <filename>/usr/share/doc/packages/kiwi/examples/</filename>. For
+      detailed information about the content of an image description,
+      look into the <citetitle>System Design</citetitle> document,
+      located under <ulink url="/usr/share/doc/packages/kiwi/kiwi.pdf"
+      />.</para>
   </sect1>
   
   <sect1 id="sec.kiwi.preparation">
