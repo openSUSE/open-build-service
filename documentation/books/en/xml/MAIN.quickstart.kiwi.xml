@@ -164,7 +164,7 @@
         </informaltable>
       </listitem>
       <listitem>
-        <para>Recommended distribution is openSUSE 10.3</para>
+        <para>Recommended distribution is openSUSE 10.3 or greater.</para>
       </listitem>
       <listitem>
         <para>Example files from the
@@ -202,6 +202,8 @@
           configuration file is in XML format and the structure is
           documented in the package <package>kiwi</package> under
             <filename>/usr/share/doc/packages/kiwi/kiwi.html</filename>.
+          <remark>Should we use a WWW address here, instead of the local
+          one?</remark>
           The information therein is needed to know the correct elements
           and attributes to create a valid XML file.
         </para>
