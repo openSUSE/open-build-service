@@ -105,7 +105,21 @@
       your hardware and probably select your favorite software. All this
       has to be done before you can work with your system. After the
       installation is finished you need to customize your system to your
-      needs.</para>
+      needs. <xref linkend="fig.kiwi.image-types"
+        xrefstyle="select:label"/> shows you an excerpt of what image
+      types KIWI can create.</para>
+    <figure id="fig.kiwi.image-types" floatstyle="before" float="1">
+      <title>KIWI Image Types</title>
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata align="center" width="90%" fileref="kiwi-types.svg"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata align="center" width="90%" fileref="kiwi-types.png"/>
+        </imageobject>        
+      </mediaobject>
+    </figure>
+    
     <para>KIWI is different: It is a commandline toolkit where you
       define <emphasis>image types</emphasis> to create images. Usually
       you customize the contents in the KIWI configuration file in
