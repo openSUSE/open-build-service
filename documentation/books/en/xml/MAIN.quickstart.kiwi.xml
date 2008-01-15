@@ -127,8 +127,9 @@
         <filename>/usr/share/doc/packages/kiwi/examples/</filename>. For
       detailed information about the content of an image description,
       look into the <citetitle>System Design</citetitle> document,
-      located under <ulink url="/usr/share/doc/packages/kiwi/kiwi.pdf"
-      />.</para>
+      located under
+      <filename>/usr/share/doc/packages/kiwi/kiwi.pdf</filename>.
+    </para>
   </sect1>
   
   <sect1 id="sec.kiwi.preparation">
