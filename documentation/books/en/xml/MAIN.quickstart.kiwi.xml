@@ -49,7 +49,8 @@
       be part of the image. The image needs to be deployed at the
       destination system in order to get activated. <xref
         linkend="fig.kiwi.image-types" xrefstyle="select:label"/> shows
-      you the general procedure what can be done with KIWI.</para>
+      you the general procedure what can be done with KIWI <biblioref
+        linkend="bib.kiwi"/>.</para>
     <figure id="fig.kiwi.image-types" >
       <title>KIWI Image Types</title>
       <mediaobject>
@@ -89,8 +90,7 @@
         </listitem>
       </varlistentry>
     </variablelist>
-    
-    
+   
     <para>With all these in mind, KIWI provides the following
       advantages: </para>
     <itemizedlist>
@@ -157,8 +157,7 @@
         <filename>/usr/share/doc/packages/kiwi/examples/</filename>. For
       detailed information about the content of an image description,
       look into the <citetitle>System Design</citetitle> document,
-      located under
-      <filename>/usr/share/doc/packages/kiwi/kiwi.pdf</filename>.
+      see <biblioref linkend="bib.kiwi-design"/>.
     </para>
   </sect1>
   
@@ -680,5 +679,49 @@
       -->
     </sect2>
     
+  </sect1>
+  
+  <sect1 id="sec.kiwi.additional-information">
+    <title>Additional Information</title>
+    <bibliolist>
+      <biblioentry id="bib.kiwi">
+        <abbrev>kiwi</abbrev>
+        <title>KIWI Image System</title>
+        <author>
+          <firstname>Marcus</firstname>
+          <surname>Schäfer</surname>
+        </author>
+        <biblioid>WWW: <ulink url="http://developer.berlios.de/projects/kiwi/"/></biblioid>
+        <abstract>
+          <para>This is the homepage of the KIWI Image System.</para>
+        </abstract>
+      </biblioentry>
+      <biblioentry id="bib.kiwi-design">
+        <abbrev>kiwi.design</abbrev>
+        <title>KIWI Image System</title>
+        <subtitle>System Design</subtitle>
+        <author>
+          <firstname>Marcus</firstname>
+          <surname>Schäfer</surname>
+        </author>
+        <biblioid>file: <ulink
+          url="file:///usr/share/doc/packages/kiwi/kiwi.pdf"/></biblioid>
+      </biblioentry>
+      <biblioentry id="bib.kiwipackages">
+        <abbrev>packages</abbrev>
+        <title>KIWI Packages</title>
+        <biblioid>WWW: <ulink url="http://download.opensuse.org/repositories/openSUSE:/Tools/"/></biblioid>
+      </biblioentry>
+      <biblioentry id="bib.xen">
+        <abbrev>xen</abbrev>
+        <title>Xen Source</title>
+        <biblioid>WWW: <ulink url="http://www.xensource.com"/></biblioid>
+      </biblioentry>
+      <biblioentry id="bib.pxe">
+        <abbrev>pxe</abbrev>
+        <title>Preboot Execution Environment</title>
+        <biblioid>WWW: <ulink url="http://de.wikipedia.org/wiki/Preboot_Execution_Environment"/></biblioid>
+      </biblioentry>
+    </bibliolist>
   </sect1>
 </article>
