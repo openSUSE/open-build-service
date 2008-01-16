@@ -378,6 +378,59 @@
       </step>
     </procedure>
   </sect1>
+  <sect1 id="sec.kiwi.usb">
+    <title>Creating USB Sticks</title>
+    <para></para>
+    <remark>Work in progress...</remark>
+    <procedure>
+      <step>
+        <para>Install the packages <package>kiwi-desc-usbboot</package>
+          and <package>kiwi-desc-livesystem</package> and resolve any
+          dependecies.</para>
+      </step>
+      <step>
+        <para>Open a shell and become root.</para>
+      </step>
+      <step>
+        <para>Copy the directory:</para>
+        <screen>cp /usr/share/kiwi/image/kwliveCD-suse-10.3  usb-live/</screen>
+      </step>
+      <step>
+        <para>Open the configuration file
+          <filename>usb-live/config.xml</filename> with your favorite
+          editor and make the following changes: </para>
+        <substeps>
+          <step>
+            <para>Search for the first element <sgmltag>repository</sgmltag>
+              beginning with:</para>
+            <screen>&lt;source path="/mounts/dist/install/..."/></screen>
+            <para>Replace it with:</para>
+            <screen>&lt;source path="http://download.opensuse.org/distribution/10.3/repo/oss"/></screen>
+          </step>
+          <step>
+            <para>Insert after the first <sgmltag
+              class="endtag">repository</sgmltag> the following code:</para>
+            <screen>&lt;repository type="yast2">
+  &lt;source path="http://download.opensuse.org/distribution/10.3/repo/non-oss/"/>
+&lt;/repository></screen>
+          </step>
+        </substeps>        
+      </step>      
+      <step>
+        <para>Run KIWI with the following command to prepare the first
+          phase:</para>
+        <screen>kiwi --prepare usb-live/ --root /tmp/kiwi-usblive --add-profile KDE --logfile terminal</screen>
+      </step>
+      <step>
+        <para>Build the image:</para>
+        <screen>mkdir kiwi-image
+kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image --logfile term1</screen>
+      </step>
+    </procedure>
+    
+  </sect1>
+  
+  
   <sect1 id="sec.kiwi.custom">
     <title>Creating Customized Images</title>
     <para>This section describes different scenarios.</para>
