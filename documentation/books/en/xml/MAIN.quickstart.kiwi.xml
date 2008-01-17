@@ -380,8 +380,12 @@
   </sect1>
   <sect1 id="sec.kiwi.usb">
     <title>Creating USB Sticks</title>
-    <para></para>
     <remark>Work in progress...</remark>
+    <para>An USB stick with your Linux distribution is very convenient:
+      You can carry it with you and it is faster than a harddisc
+      solution. This section shows you how you can install an openSUSE
+      system on your USB stick. For the installation the stick needs a
+      miminum amount of 1 GByte.</para>
     <procedure>
       <step>
         <para>Install the packages <package>kiwi-desc-usbboot</package>
@@ -412,7 +416,8 @@
               class="endtag">repository</sgmltag> the following code:</para>
             <screen>&lt;repository type="yast2">
   &lt;source path="http://download.opensuse.org/distribution/10.3/repo/non-oss/"/>
-&lt;/repository></screen>
+&lt;/repository>
+</screen>
           </step>
         </substeps>        
       </step>      
