@@ -386,6 +386,8 @@
       solution. This section shows you how you can install an openSUSE
       system on your USB stick. For the installation the stick needs a
       miminum amount of 1 GByte.</para>
+   
+    <para>Proceed as follows:</para>
     <procedure>
       <step>
         <para>Install the packages <package>kiwi-desc-usbboot</package>
@@ -407,25 +409,32 @@
           <step>
             <para>Search for the first element <sgmltag>repository</sgmltag>
               beginning with:</para>
-            <screen>&lt;source path="/mounts/dist/install/..."/></screen>
-            <para>Replace it with:</para>
-            <screen>&lt;source path="http://download.opensuse.org/distribution/10.3/repo/oss"/></screen>
+            <screen>&lt;repository type="yast2">
+     &lt;source path="/mounts/dist/install/..."/>
+&lt;/repository></screen>
+            <para>Disable it with a XML comment:</para>
+            <screen>&lt;!&#x2d;&#x2d; &lt;repository type="yast2">
+     &lt;source path="/mounts/dist/install/..."/>
+&lt;/repository> &#x2d;&#x2d;&gt;</screen>
           </step>
           <step>
-            <para>Insert after the first <sgmltag
-              class="endtag">repository</sgmltag> the following code:</para>
+            <para>Insert after the disabled <sgmltag class="endtag"
+                >repository</sgmltag> element on a new line the
+              following code:</para>
             <screen>&lt;repository type="yast2">
+  &lt;source path="http://download.opensuse.org/distribution/10.3/repo/oss"/>
+&lt;/repository>              
+&lt;repository type="yast2">
   &lt;source path="http://download.opensuse.org/distribution/10.3/repo/non-oss/"/>
-&lt;/repository>
-</screen>
+&lt;/repository></screen>
           </step>
         </substeps>        
       </step>      
       <step>
         <para>Run KIWI with the following command to prepare the first
           phase:</para>
-        <screen>kiwi --prepare usb-live/ --root /tmp/kiwi-usblive <!-- 
---> --add-profile KDE --logfile log-prepare.txt</screen>
+        <screen>kiwi --prepare usb-live/ --root /tmp/kiwi-usblive \
+   --add-profile KDE --logfile log-prepare.txt</screen>
         <para>If you want to see what is going on, remove the option
           <option>--logfile</option> or open a new shell,
           become root, change to your respective directory and type
