@@ -379,7 +379,7 @@
     </procedure>
   </sect1>
   <sect1 id="sec.kiwi.usb">
-    <title>Creating USB Sticks</title>
+    <title>Creating Bootable USB Sticks</title>
     <remark>Work in progress...</remark>
     <para>An USB stick with your Linux distribution is very convenient:
       You can carry it with you and it is faster than a harddisc
