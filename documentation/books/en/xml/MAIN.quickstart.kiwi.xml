@@ -424,12 +424,31 @@
       <step>
         <para>Run KIWI with the following command to prepare the first
           phase:</para>
-        <screen>kiwi --prepare usb-live/ --root /tmp/kiwi-usblive --add-profile KDE --logfile terminal</screen>
+        <screen>kiwi --prepare usb-live/ --root /tmp/kiwi-usblive <!-- 
+--> --add-profile KDE --logfile log-prepare.txt</screen>
+        <para>If you want to see what is going on, remove the option
+          <option>--logfile</option> or open a new shell,
+          become root, change to your respective directory and type
+            <command>tailf</command> <filename>log-prepare.txt</filename>.</para>
       </step>
       <step>
         <para>Build the image:</para>
         <screen>mkdir kiwi-image
-kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image --logfile term1</screen>
+kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!-- 
+-->--logfile log-build.txt</screen>
+      </step>
+      <step>
+        <para>Install the image:</para>
+        <screen>kiwi --bootstick kiwi-image/initrd-usbboot-suse-<replaceable
+            >OSVERSION</replaceable>.<replaceable
+              >ARCH</replaceable>-<replaceable
+                >VERSION</replaceable>.gz \
+  --bootstick-system <!--
+         -->kiwi-image/openSUSE-<replaceable
+            >OSVERSION</replaceable>.<replaceable
+              >ARCH</replaceable>-<replaceable
+                >VERSION</replaceable></screen>
+        <para>Replace the placeholders with the appropriate values.</para>
       </step>
     </procedure>
     
