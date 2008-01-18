@@ -52,6 +52,10 @@ class SourceController < ApplicationController
             pe = link_rep.path_elements.find(:first, :include => ["link"], :conditions => ["db_project_id = ?", pro.id])
             pe.link = del_repo
             pe.save
+            #update backend
+            link_prj = link_rep.db_project
+            logger.info "updating project '#{link_prj.name}'"
+            Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
           end
         else
           lrepstr = lreps.map{|l| l.db_project.name+'/'+l.name}.join "\n"
