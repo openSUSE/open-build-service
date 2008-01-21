@@ -541,14 +541,16 @@ sub deleterepo {
   qsystem('rm', '-rf', $extrep);
   if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running rsync to $1\n";
-    qsystem('echo', "$projid_ext\0", 'rsync', '-arH0', '--delete', '--files-from=-', $extrepodir, "$1::$2") && print("    rsync failed: $?\n");
+    # rsync with a timeout of 1 hour
+    qsystem('echo', "$projid_ext\0", 'rsync', '-arH0', '--delete', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed: $?\n");
   }
   # push done trigger sync to other mirrors
   mkdir_p($extrepodir_sync);
   writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1\n";
-    qsystem('rsync', '-aH', "$extrepodir_sync/$projid", "$1::$2/$projid") && print("    trigger rsync failed: $?\n");
+    # small sync, timout 1 minute
+    qsystem('rsync', '-aH', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed: $?\n");
   }
   rmdir("$extrepodir/$projid_ext");
 }
@@ -841,7 +843,8 @@ sub publish {
   # push to stageserver
   if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running rsync to $1\n";
-    qsystem('echo', "$prp_ext\0", 'rsync', '-arH0', '--delete', '--files-from=-', $extrepodir, "$1::$2") && print("    rsync failed: $?\n");
+    # sync project repos, timeout 1 hour
+    qsystem('echo', "$prp_ext\0", 'rsync', '-arH0', '--delete', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed: $?\n");
   }
 
   # push done trigger to stageserver so that it can send it to the world
@@ -851,7 +854,8 @@ sub publish {
   writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1\n";
-    qsystem('rsync', '-aH', "$extrepodir_sync/$projid", "$1::$2/$projid") && print("    trigger rsync failed: $?\n");
+    # small sync, timeout 1 minute
+    qsystem('rsync', '-aH', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed: $?\n");
   }
   
   # all done. till next time...
