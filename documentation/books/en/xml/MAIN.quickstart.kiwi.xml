@@ -42,14 +42,14 @@
   <sect1 id="sec.kiwi.whatis">
     <title>What is KIWI?</title>
     <para>KIWI is a system for creating operating system images. An
-      image represents in one file the operating system, its
-      applications and configurations as well as the filesystem
-      structure of the OS, with possible additional metadata. Depending
-      on the image type also disk geometry and partition table data can
+      image is a directory with a file that represents the operating system, its
+      applications and configurations and the filesystem
+      structure of the OS and includes possible additional metadata. Depending
+      on the image type, also disk geometry and partition table data can
       be part of the image. The image needs to be deployed at the
       destination system in order to get activated. <xref
         linkend="fig.kiwi.image-types" xrefstyle="select:label"/> shows
-      you the general procedure what can be done with KIWI <biblioref
+      you the general procedure that can be done with KIWI <biblioref
         linkend="bib.kiwi"/>.</para>
     <figure id="fig.kiwi.image-types" >
       <title>KIWI Image Types</title>
@@ -91,7 +91,7 @@
       </varlistentry>
     </variablelist>
    
-    <para>With all these in mind, KIWI provides the following
+    <para>With all this in mind, KIWI provides the following
       advantages: </para>
     <itemizedlist>
       <listitem>
@@ -113,7 +113,7 @@
       <listitem>
         <remark>man kann mit kiwi images bauen die eigene nicht
           distributierte software enthalten</remark>
-        <para>Create KIWI images which contains software that is not
+        <para>Create KIWI images that contain software that is not
           included in the official distribution.</para>
       </listitem>
       <listitem>
@@ -121,8 +121,8 @@
           Virtualisierungssystemen wie zB VMware oder Xen benutzt werden
           können. KIWI generiert auch die dafür notwendige guest
           Konfigurationsdatei</remark>
-        <para>Build KIWI image that can be directly used by
-          virtualisation systems like Xen or VMware.</para>
+        <para>Build KIWI images that can be directly used by
+          virtualization systems like Xen or VMware.</para>
       </listitem>
       <listitem>
         <remark>man kann mit einer kiwi image Beschreibung leicht auf
@@ -148,7 +148,7 @@
   
   <sect1 id="sec.kiwi.background">
     <title>Background Information for <quote>Fruit Lovers</quote></title>
-    <para>In order to create an image with KIWI it's required to create
+    <para>In order to create an image with KIWI it is required to create
       an image description first. A KIWI image description is a
       directory with one mandatory <filename>config.xml</filename> file
       and optional other files like configuration files or
@@ -168,7 +168,7 @@
     <remark>FIXME: Add more preconditions?</remark>
     <orderedlist>
       <listitem>
-        <para>Free space. The more the better.</para>
+        <para>Free space: the more the better.</para>
       </listitem>
       <listitem>
         <para>KIWI is split into several packages, targeted to different
@@ -209,7 +209,7 @@
         </informaltable>
       </listitem>
       <listitem>
-        <para>Recommended distribution is openSUSE 10.3 or greater.</para>
+        <para>Recommended distribution is openSUSE 10.3 or later.</para>
       </listitem>
       <listitem>
         <para>Example files from the <package>kiwi</package>
@@ -242,6 +242,7 @@
         </para>
       </listitem>
       <listitem>
+      <remark>mdejmek: was gehört in den ersten satz?</remark>
         <para>The documentation of the KIWI RELAX NG Schema. The KIWI
           configuration file is based on XML and the structure is
           documented in the package <package>kiwi</package> under
@@ -271,14 +272,14 @@
         <formalpara>
           <title>Logical Extend</title>
           <para>This stage creates the operating system image based on
-            the the first step.</para>
+            the first step.</para>
         </formalpara>
       </listitem>
       <listitem>
         <formalpara>
           <title>Deployment</title>
           <para>The resulting ISO image can be deployed with different
-            methods like installed on a harddisc or played by a
+            methods like installed on a hard disk or played by a
             virtualization system (Vmware, Qemu, VirtualBox).</para>
         </formalpara>
       </listitem>
@@ -314,7 +315,7 @@
         <para>Build the ISO image:</para>
         <screen><command>kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
         <para>KIWI builds the ISO image. If everything is correct, it
-          print the message
+          prints the message
           <errortext>KIWI exited sucessfully</errortext>.</para>
       </step>
       <step>
@@ -356,7 +357,7 @@
       </step>
       <step>
         <para>Change the list of packages to your needs, but be aware
-          not to remove essential ones like
+          to not remove essential ones like
           <package>aaa_base</package>,
           <package>aaa_skel</package>
           and others.</para>
@@ -382,7 +383,7 @@
     <title>Creating Bootable USB Sticks</title>
     <remark>Work in progress...</remark>
     <para>An USB stick with your Linux distribution is very convenient:
-      You can carry it with you and it is faster than a harddisc
+      you can carry it with you and it is faster than a hard disk
       solution. This section shows you how you can install an openSUSE
       system on your USB stick. For the installation the stick needs a
       miminum amount of 1 GByte.</para>
@@ -418,9 +419,8 @@
 &lt;/repository> &#x2d;&#x2d;&gt;</screen>
           </step>
           <step>
-            <para>Insert after the disabled <sgmltag class="endtag"
-                >repository</sgmltag> element on a new line the
-              following code:</para>
+            <para>Insert the following code on a new line after the disabled <sgmltag class="endtag"
+                >repository</sgmltag> element:</para>
             <screen>&lt;repository type="yast2">
   &lt;source path="http://download.opensuse.org/distribution/10.3/repo/oss"/>
 &lt;/repository>              
@@ -508,7 +508,7 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
 &lt;/packages></screen>
           <note>
             <title>Getting Pattern Names</title>
-            <para>You can get the names of pattern in your installed
+            <para>You can get the names of patterns in your installed
               system under
               <filename class="directory">/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
               (replace
@@ -596,7 +596,7 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
     <sect2 id="sec.kiwi.publishing">
       <title>Creating a Rescue System</title>
       <para>A rescue system lets you debug your system. It contains
-        tools that are required for these tasks. Mainly the overall
+        tools that are required for these tasks. Mainly, the overall
         procedure is very similar to the last one. Proceed as follows:</para>
       <procedure>
         <step>
