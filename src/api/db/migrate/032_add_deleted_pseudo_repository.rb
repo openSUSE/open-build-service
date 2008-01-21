@@ -4,6 +4,7 @@ class AddDeletedPseudoRepository < ActiveRecord::Migration
   end
 
   def self.down
-    DbProject.find_by_name("deleted").destroy
+    pro = DbProject.find_by_name("deleted")
+    pro.destroy if pro
   end
 end

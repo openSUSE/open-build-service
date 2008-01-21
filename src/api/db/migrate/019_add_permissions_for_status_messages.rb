@@ -8,7 +8,8 @@ class AddPermissionsForStatusMessages < ActiveRecord::Migration
 
 
   def self.down
-    StaticPermission.find_by_title( "status_message_create" ).destroy
+    sp = StaticPermission.find_by_title( "status_message_create" )
+    sp.destroy if sp
     execute "DELETE FROM `roles_static_permissions` WHERE (role_id=1 AND static_permission_id=5)"
   end
 
