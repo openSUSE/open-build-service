@@ -387,7 +387,7 @@
       miminum amount of 1 GByte.</para>
    
    <note>
-     <title>USB and BIOS</title>
+     <title>Booteable USB Sticks and BIOS</title>
       <para>The BIOS should accept your stick as a bootable medium,
         otherwise you can not boot from your stick. Unfortunately, there
         are some combination of BIOS and USB sticks that does not work.
