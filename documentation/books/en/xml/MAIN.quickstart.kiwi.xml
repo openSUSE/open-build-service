@@ -380,7 +380,6 @@
   </sect1>
   <sect1 id="sec.kiwi.usb">
     <title>Creating Bootable USB Sticks</title>
-    <remark>Work in progress...</remark>
     <para>An USB stick with your Linux distribution is very convenient:
       you can carry it with you and it is faster than a hard disk
       solution. This section shows you how you can install an openSUSE
