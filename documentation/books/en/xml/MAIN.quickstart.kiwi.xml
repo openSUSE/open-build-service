@@ -393,7 +393,7 @@
         otherwise you can not boot from your stick. Unfortunately, there
         are some combination of BIOS and USB sticks that does not work.
         It is nearly impossible to know in advance if a stick works or
-        not. If you USB stick does not work, try another one from a
+        not. If your USB stick does not work, try another one from a
         different vendor.
       </para>
    </note>
