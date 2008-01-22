@@ -160,7 +160,6 @@
       see <biblioref linkend="bib.kiwi-design"/>.
     </para>
   </sect1>
-  
   <sect1 id="sec.kiwi.preparation">
     <title>What do I need?</title>
     <para>To build images with KIWI, you need the following
@@ -388,6 +387,17 @@
       system on your USB stick. For the installation the stick needs a
       miminum amount of 1 GByte.</para>
    
+   <note>
+     <title>USB and BIOS</title>
+      <para>The BIOS should accept your stick as a bootable medium,
+        otherwise you can not boot from your stick. Unfortunately, there
+        are some combination of BIOS and USB sticks that does not work.
+        It is nearly impossible to know in advance if a stick works or
+        not. If you USB stick does not work, try another one from a
+        different vendor.
+      </para>
+   </note>
+   
     <para>Proceed as follows:</para>
     <procedure>
       <step>
@@ -435,10 +445,11 @@
           phase:</para>
         <screen>kiwi --prepare usb-live/ --root /tmp/kiwi-usblive \
    --add-profile KDE --logfile log-prepare.txt</screen>
-        <para>If you want to see what is going on, remove the option
-          <option>--logfile</option> or open a new shell,
-          become root, change to your respective directory and type
-            <command>tailf</command> <filename>log-prepare.txt</filename>.</para>
+        <para>This takes some time. If you want to see what is going on,
+          remove the option <option>--logfile</option> or open a new
+          shell, become root, change to your respective directory and
+          type <command>tailf</command>
+          <filename>log-prepare.txt</filename>.</para>
       </step>
       <step>
         <para>Build the image:</para>
