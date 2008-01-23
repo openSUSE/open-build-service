@@ -517,15 +517,13 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
           <note>
             <title>Getting Pattern Names</title>
             <para>You can get the names of patterns in your installed
-              system under
-              <filename class="directory">/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
-              (replace
-              <replaceable>REPO</replaceable>
-              with the name of your system, for example
-              <filename>openSUSE-10.3-retail 10.3</filename>) or look
-              into the directory
-              <filename class="directory">suse/setup/descr/</filename>
-              on your DVD or first CD.
+              system under <filename class="directory"
+                  >/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
+              (replace <replaceable>REPO</replaceable> with the name of
+              your system, for example <filename>openSUSE-10.3-retail\
+                10.3</filename>. Watch for the space) or look into the
+              directory <filename class="directory"
+              >suse/setup/descr/</filename> on your DVD or first CD.
             </para>
           </note>
           <para>Depending what your interests in development are, you
