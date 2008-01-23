@@ -522,9 +522,9 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
               system under <filename class="directory"
                   >/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
               (replace <replaceable>REPO</replaceable> with the name of
-              your system, for example <filename>openSUSE-10.3-retail\
-                10.3</filename>. Watch for the space) or look into the
-              directory <filename class="directory"
+              your system, for example <filename
+                >openSUSE-10.3-retail&nbsp;10.3</filename>. Watch for the
+              space!) or look into the directory <filename class="directory"
               >suse/setup/descr/</filename> on your DVD or first CD.
             </para>
           </note>
