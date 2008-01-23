@@ -318,7 +318,9 @@
           <errortext>KIWI exited sucessfully</errortext>.</para>
       </step>
       <step>
-        <para>Test the ISO image with Qemu, VMware or VirtualBox.</para>
+        <para>Test the ISO image with Qemu, VMware or VirtualBox, for
+        example:</para>
+        <screen>qemu -boot d -cdrom <replaceable>ISO_FILE</replaceable> -m 512</screen>
       </step>
     </procedure>
   </sect1>
