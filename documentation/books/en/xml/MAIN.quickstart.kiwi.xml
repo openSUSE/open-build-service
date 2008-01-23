@@ -279,7 +279,7 @@
           <title>Deployment</title>
           <para>The resulting ISO image can be deployed with different
             methods like installed on a hard disk or played by a
-            virtualization system (Vmware, Qemu, VirtualBox).</para>
+            virtualization system (VMware, Qemu, VirtualBox).</para>
         </formalpara>
       </listitem>
     </orderedlist>
@@ -318,7 +318,7 @@
           <errortext>KIWI exited sucessfully</errortext>.</para>
       </step>
       <step>
-        <para>Test the ISO image with Qemu, Vmware or VirtualBox.</para>
+        <para>Test the ISO image with Qemu, VMware or VirtualBox.</para>
       </step>
     </procedure>
   </sect1>
