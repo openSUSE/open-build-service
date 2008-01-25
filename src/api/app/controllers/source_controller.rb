@@ -327,13 +327,13 @@ class SourceController < ApplicationController
           @package = Package.new( request_data, :project => project_name, :name => package_name )
         else
           logger.debug "user #{user.login} has no permission to change package #{@package}"
-    render_error :status => 403, :errorcode => "change_package_no_permission",
+          render_error :status => 403, :errorcode => "change_package_no_permission",
             :message => "no permission to change package"
           return
         end
       rescue ActiveXML::Transport::NotFoundError
         # Ok, the project is new
-  allowed = permissions.package_create?( project_name )
+        allowed = permissions.package_create?( project_name )
   
         if allowed
           #FIXME: parameters that get substituted into the url must be specified here... should happen
