@@ -130,8 +130,9 @@ background:transparent !important;
 
 /* ### inplace watchlist ### */
 #inplace_watchlist {
+  display: block;
   position: absolute;
-  z-index:1000;
+  z-index:2000;
 
   width: 20.5em;
   
