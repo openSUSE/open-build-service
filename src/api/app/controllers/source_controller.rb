@@ -138,7 +138,7 @@ class SourceController < ApplicationController
     elsif request.post?
       cmd = params[:cmd]
       
-      if not user_has_permission
+      if not user_has_permission and cmd != "diff"
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
         return
