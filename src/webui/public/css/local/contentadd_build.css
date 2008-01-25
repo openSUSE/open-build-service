@@ -44,8 +44,22 @@ li,
 }
 #pt-personal,
 #pt-personal a {
-    color: #ACB1B5;
+  color: #ACB1B5;
 }
+
+#pt-personal a:hover,
+#pt-personal div:hover {
+/*  color: #690; */
+  text-decoration: underline;
+}
+
+#pt-personal div {
+  display: inline;
+  cursor: pointer;
+}
+
+#pt-personal strong {}
+
 h1, h2, h3, h4, h5, h6 {
     color: #5d666e;
 }
@@ -54,12 +68,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #666;  
 }
 
-/*
-a,
-a:hover {
-  color:#777777;
-}
-*/
+
 
 /* login & logout */
 #loginform,
@@ -116,42 +125,62 @@ a:hover {
 
 .dialog_wrapper .darkgrey_box .box_top_row,
 .dialog_wrapper .darkgrey_box_double .box_top_row { 
-/*background:transparent url(../images/darkgrey_box/top_middle.png) repeat-x scroll left bottom;*/
 background:transparent !important;
 }
+
+/* ### inplace watchlist ### */
+#inplace_watchlist {
+  position: absolute;
+  z-index:1000;
+
+  width: 20.5em;
+  
+  top: 2em;
+  right: 2em;
+  
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #666;
+  background: #eee;
+  text-align: left;
+
+}
+
+  #inplace_watchlist a {
+    color: #666;
+    display:block;
+    width: 100%;
+    padding: 0.3em 0 0.5em 0.5em;
+  }
+  #inplace_watchlist a:hover {
+    color :#F59F1A;
+    background: #fafafa;
+  }
+  #inplace_watchlist div {
+    display: block;
+    position: relative;
+  }
+  
+  div.inner_spacer,
+  #inplace_watchlist div {
+    margin: 0.5em;
+  }
+/* ### inplace watchlist ### */
 
 /* Add Repo & DropZone **************************************************** */
 
 #simple_targets_wrapper {
   display: table; 
   display: block;
-  /* width: 95%; */
   height: auto;
 }
 
   #simple_targets_wrapper div.distro_wrapper,
   div.col_wrapper {
-/*    position: relative;
-    min-width: 142px;
-    min-height: 210px;
-    float: left;
-    margin: 0.2em;
-        
-    border-top: 1px solid #eee;
-    border-bottom: 1px dashed #eee;
-    background-color: #f9f9f9;*/
   }
   
   #simple_targets_wrapper ul {
-/*    margin: 0;
-    padding: 0;*/
   }
   #simple_targets_wrapper li {
-/*    margin: 0;*/
-/*    padding: 0;*/
-/*    margin:0.3em 0pt;
-    padding:0pt 0.2em;
-    list-style: none outside none;*/
   }
  
   #opensuse_wrapper li,
@@ -189,7 +218,6 @@ background:transparent !important;
   .toggle_box_bottom {
     position: relative;       
     background: #eee;
-    /*width: 96%;*/
   }
   
   .toggle_box_top {

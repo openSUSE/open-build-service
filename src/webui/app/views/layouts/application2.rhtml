@@ -200,11 +200,44 @@
           <div id="pt-personal">
             <!-- Begin Personal links (Login, etc.) -->
             <% if session[:login] -%>
-             <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
+             
+              <%= link_to session[:login], :controller => 'home', :action => :index %>
+              |
+              <div onclick="new Effect.toggle($('inplace_watchlist'), 'blind', {duration:0.5});">Watchlist</div>
+              |
+              <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
+              |
+              <strong><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></strong>
+             
             <% else %>
              <a href="/main/index2">Register | Login</a>
             <% end %>
             <!-- End Personal links (Login, etc.) -->
+
+            <style type="text/css" media="screen">
+                
+            </style>
+            
+            <div id="inplace_watchlist" style="display: none;">
+              <div class="inner_spacer">
+                <strong><%= link_to "Watchlist ...", :controller => "project", :action => :list_my %></strong>                
+              </div>
+              <div class="inner_spacer">
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+                <a href="">Foobar</a>
+              </div>
+            </div>
+            
           </div>
           <div class="subcolumns">
            <div class="c50l">
