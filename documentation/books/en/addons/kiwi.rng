@@ -137,33 +137,35 @@ the package Information is inherited</a:documentation>
         <a:documentation>The root element of the configuration file		</a:documentation>
         <db:para>Each KIWI configuration file consists of a root element
         image.</db:para>
-        <ref name="k.image.attlist"/>
-        <ref name="k.description"/>
-        <ref name="k.preferences"/>
-        <optional>
-          <ref name="k.profiles"/>
-        </optional>
-        <optional>
-          <ref name="k.instsource"/>
-        </optional>
-        <zeroOrMore>
-          <ref name="k.users"/>
-        </zeroOrMore>
-        <zeroOrMore>
-          <ref name="k.drivers"/>
-        </zeroOrMore>
-        <oneOrMore>
-          <ref name="k.repository"/>
-        </oneOrMore>
-        <optional>
-          <ref name="k.deploy"/>
-        </optional>
-        <optional>
-          <ref name="k.split"/>
-        </optional>
-        <zeroOrMore>
-          <ref name="k.packages"/>
-        </zeroOrMore>
+        <interleave>
+          <ref name="k.image.attlist"/>
+          <ref name="k.description"/>
+          <ref name="k.preferences"/>
+          <optional>
+            <ref name="k.profiles"/>
+          </optional>
+          <optional>
+            <ref name="k.instsource"/>
+          </optional>
+          <zeroOrMore>
+            <ref name="k.users"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.drivers"/>
+          </zeroOrMore>
+          <oneOrMore>
+            <ref name="k.repository"/>
+          </oneOrMore>
+          <optional>
+            <ref name="k.deploy"/>
+          </optional>
+          <optional>
+            <ref name="k.split"/>
+          </optional>
+          <zeroOrMore>
+            <ref name="k.packages"/>
+          </zeroOrMore>
+        </interleave>
       </element>
     </define>
   </div>
@@ -570,13 +572,15 @@ relevant but also metadata. metadata are files or packages
 combined with script calls. If a package is specified as
 metadata it will not be installed by rpm but its cpio
 archive is extracted in a specific way.</db:para>
-        <ref name="k.metadata.attlist"/>
-        <oneOrMore>
-          <ref name="k.repopackage"/>
-        </oneOrMore>
-        <zeroOrMore>
-          <ref name="k.metafile"/>
-        </zeroOrMore>
+        <interleave>
+          <ref name="k.metadata.attlist"/>
+          <oneOrMore>
+            <ref name="k.repopackage"/>
+          </oneOrMore>
+          <zeroOrMore>
+            <ref name="k.metafile"/>
+          </zeroOrMore>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1301,8 +1305,10 @@ filesystem.</db:para>
     <define name="k.user">
       <element name="user">
         <a:documentation>A User with Name, Password, Path to Its Home And Shell</a:documentation>
-        <ref name="k.user.attlist"/>
-        <empty/>
+        <interleave>
+          <ref name="k.user.attlist"/>
+          <empty/>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1318,8 +1324,10 @@ filesystem.</db:para>
     <define name="k.version">
       <element name="version">
         <a:documentation>A Version Number for the Image, Consists of Major.Minor.Release </a:documentation>
-        <ref name="k.version.attlist"/>
-        <text/>
+        <interleave>
+          <ref name="k.version.attlist"/>
+          <text/>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1355,28 +1363,30 @@ filesystem.</db:para>
         <db:para>The deploy section is used to allow kiwi to create the
 config.&lt;MAC&gt; file required by PXE based network images.
 the contents of this file controls the image deploy process.</db:para>
-        <ref name="k.deploy.attlist"/>
-        <optional>
-          <ref name="k.timeout"/>
-        </optional>
-        <optional>
-          <ref name="k.commandline"/>
-        </optional>
-        <optional>
-          <ref name="k.kernel"/>
-        </optional>
-        <optional>
-          <ref name="k.initrd"/>
-        </optional>
-        <optional>
-          <ref name="k.partitions"/>
-        </optional>
-        <optional>
-          <ref name="k.union"/>
-        </optional>
-        <zeroOrMore>
-          <ref name="k.configuration"/>
-        </zeroOrMore>
+        <interleave>
+          <ref name="k.deploy.attlist"/>
+          <optional>
+            <ref name="k.timeout"/>
+          </optional>
+          <optional>
+            <ref name="k.commandline"/>
+          </optional>
+          <optional>
+            <ref name="k.kernel"/>
+          </optional>
+          <optional>
+            <ref name="k.initrd"/>
+          </optional>
+          <optional>
+            <ref name="k.partitions"/>
+          </optional>
+          <optional>
+            <ref name="k.union"/>
+          </optional>
+          <zeroOrMore>
+            <ref name="k.configuration"/>
+          </zeroOrMore>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1406,12 +1416,14 @@ a standard image description created by a kiwi user.</a:documentation>
     <define name="k.description">
       <element name="description">
         <a:documentation>A Short Description</a:documentation>
-        <ref name="k.description.attlist"/>
-        <ref name="k.author"/>
-        <oneOrMore>
-          <ref name="k.contact"/>
-        </oneOrMore>
-        <ref name="k.specification"/>
+        <interleave>
+          <ref name="k.description.attlist"/>
+          <ref name="k.author"/>
+          <oneOrMore>
+            <ref name="k.contact"/>
+          </oneOrMore>
+          <ref name="k.specification"/>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1445,10 +1457,12 @@ a standard image description created by a kiwi user.</a:documentation>
     <define name="k.drivers">
       <element name="drivers">
         <a:documentation>A Collection of Driver Files </a:documentation>
-        <ref name="k.drivers.attlist"/>
-        <oneOrMore>
-          <ref name="k.file"/>
-        </oneOrMore>
+        <interleave>
+          <ref name="k.drivers.attlist"/>
+          <oneOrMore>
+            <ref name="k.file"/>
+          </oneOrMore>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1473,12 +1487,14 @@ source suitable for Novell SUSE Linux installation media.
 From such a source it should be possible to create the
 standard SUSE CD/DVD's as well as use this source as
 repository for image building.</db:para>
-        <ref name="k.instsource.attlist"/>
-        <oneOrMore>
-          <ref name="k.instrepo"/>
-        </oneOrMore>
-        <ref name="k.metadata"/>
-        <ref name="k.repopackages"/>
+        <interleave>
+          <ref name="k.instsource.attlist"/>
+          <oneOrMore>
+            <ref name="k.instrepo"/>
+          </oneOrMore>
+          <ref name="k.metadata"/>
+          <ref name="k.repopackages"/>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1496,10 +1512,12 @@ repository for image building.</db:para>
         <a:documentation>Specifies Packages for Installation Source</a:documentation>
         <db:para>The repopackages elements specifies a set of packages which
 are used for creating a Novell SUSE installation source.</db:para>
-        <ref name="k.repopackages.attlist"/>
-        <zeroOrMore>
-          <ref name="k.repopackage"/>
-        </zeroOrMore>
+        <interleave>
+          <ref name="k.repopackages.attlist"/>
+          <zeroOrMore>
+            <ref name="k.repopackage"/>
+          </zeroOrMore>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1587,16 +1605,18 @@ onlyRequired, plusSuggested or plusRecommended</a:documentation>
 and/or patterns which are used in different stages of the
 image building process
 and also depends of the selected image output type.</db:para>
-        <ref name="k.packages.attlist"/>
-        <zeroOrMore>
-          <ref name="k.package"/>
-        </zeroOrMore>
-        <zeroOrMore>
-          <ref name="k.opensusepattern"/>
-        </zeroOrMore>
-        <zeroOrMore>
-          <ref name="k.ignore"/>
-        </zeroOrMore>
+        <interleave>
+          <ref name="k.packages.attlist"/>
+          <zeroOrMore>
+            <ref name="k.package"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.opensusepattern"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.ignore"/>
+          </zeroOrMore>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1612,44 +1632,46 @@ and also depends of the selected image output type.</db:para>
     <define name="k.preferences">
       <element name="preferences">
         <a:documentation>Configuration Information Needed for Logical Extend</a:documentation>
-        <ref name="k.preferences.attlist"/>
-        <oneOrMore>
-          <ref name="k.type"/>
-        </oneOrMore>
-        <ref name="k.version"/>
-        <optional>
-          <ref name="k.size"/>
-        </optional>
-        <optional>
-          <ref name="k.compressed"/>
-        </optional>
-        <optional>
-          <ref name="k.packagemanager"/>
-        </optional>
-        <optional>
-          <ref name="k.rpm-check-signatures"/>
-        </optional>
-        <optional>
-          <ref name="k.rpm-force"/>
-        </optional>
-        <optional>
-          <ref name="k.keytable"/>
-        </optional>
-        <optional>
-          <ref name="k.timezone"/>
-        </optional>
-        <optional>
-          <ref name="k.locale"/>
-        </optional>
-        <optional>
-          <ref name="k.defaultdestination"/>
-        </optional>
-        <optional>
-          <ref name="k.defaultroot"/>
-        </optional>
-        <optional>
-          <ref name="k.defaultbaseroot"/>
-        </optional>
+        <interleave>
+          <ref name="k.preferences.attlist"/>
+          <oneOrMore>
+            <ref name="k.type"/>
+          </oneOrMore>
+          <ref name="k.version"/>
+          <optional>
+            <ref name="k.size"/>
+          </optional>
+          <optional>
+            <ref name="k.compressed"/>
+          </optional>
+          <optional>
+            <ref name="k.packagemanager"/>
+          </optional>
+          <optional>
+            <ref name="k.rpm-check-signatures"/>
+          </optional>
+          <optional>
+            <ref name="k.rpm-force"/>
+          </optional>
+          <optional>
+            <ref name="k.keytable"/>
+          </optional>
+          <optional>
+            <ref name="k.timezone"/>
+          </optional>
+          <optional>
+            <ref name="k.locale"/>
+          </optional>
+          <optional>
+            <ref name="k.defaultdestination"/>
+          </optional>
+          <optional>
+            <ref name="k.defaultroot"/>
+          </optional>
+          <optional>
+            <ref name="k.defaultbaseroot"/>
+          </optional>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1667,10 +1689,12 @@ and also depends of the selected image output type.</db:para>
         <a:documentation>Creates Namespace Section for Drivers</a:documentation>
         <db:para>Namespace section which creates a namespace and the
 drivers can bind itself to one of the listed namespaces.</db:para>
-        <ref name="k.profiles.attlist"/>
-        <oneOrMore>
-          <ref name="k.profile"/>
-        </oneOrMore>
+        <interleave>
+          <ref name="k.profiles.attlist"/>
+          <oneOrMore>
+            <ref name="k.profile"/>
+          </oneOrMore>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1691,13 +1715,15 @@ splitted into a read-only and a read-write image portion.
 Each portion can have different filesystems and the split
 section describes which files/directories should go in
 what portion.</db:para>
-        <ref name="k.split.attlist"/>
-        <optional>
-          <ref name="k.temporary"/>
-        </optional>
-        <optional>
-          <ref name="k.persistent"/>
-        </optional>
+        <interleave>
+          <ref name="k.split.attlist"/>
+          <optional>
+            <ref name="k.temporary"/>
+          </optional>
+          <optional>
+            <ref name="k.persistent"/>
+          </optional>
+        </interleave>
       </element>
     </define>
   </div>
@@ -1718,10 +1744,12 @@ what portion.</db:para>
     <define name="k.users">
       <element name="users">
         <a:documentation>A List of Users</a:documentation>
-        <ref name="k.users.attlist"/>
-        <oneOrMore>
-          <ref name="k.user"/>
-        </oneOrMore>
+        <interleave>
+          <ref name="k.users.attlist"/>
+          <oneOrMore>
+            <ref name="k.user"/>
+          </oneOrMore>
+        </interleave>
       </element>
     </define>
   </div>

@@ -113,16 +113,16 @@ div {
 		]
 		]
 		element image {
-			k.image.attlist,
-			k.description,
-			k.preferences,
-			k.profiles?,
-			k.instsource?,
-			k.users*,
-			k.drivers*,
-			k.repository+,
-			k.deploy?,
-			k.split?,
+			k.image.attlist &
+			k.description &
+			k.preferences &
+			k.profiles? &
+			k.instsource? &
+			k.users* &
+			k.drivers* &
+			k.repository+ &
+			k.deploy? &
+			k.split? &
 			k.packages*
 		}
 }
@@ -443,8 +443,8 @@ div {
 		]
 		]
 		element metadata {
-			k.metadata.attlist,
-			k.repopackage+,
+			k.metadata.attlist &
+			k.repopackage+ &
 			k.metafile*
 		}
 }
@@ -625,7 +625,7 @@ div {
 		]
 		]
 		element persistent {
-			k.persistent.attlist ,
+			k.persistent.attlist,
 			k.file*
 		}
 }
@@ -941,7 +941,7 @@ div {
 	k.user =
 		## A User with Name, Password, Path to Its Home And Shell
 		element user {
-			k.user.attlist,
+			k.user.attlist &
 			empty
 		}
 }
@@ -954,7 +954,7 @@ div {
 	k.version =
 		## A Version Number for the Image, Consists of Major.Minor.Release 
 		element version {
-			k.version.attlist,
+			k.version.attlist &
 			text
 		}
 }
@@ -982,13 +982,13 @@ div {
 		]
 		]
 		element deploy {
-			k.deploy.attlist,
-			k.timeout?,
-			k.commandline?,
-			k.kernel?,
-			k.initrd?,
-			k.partitions?,
-			k.union?,
+			k.deploy.attlist &
+			k.timeout? &
+			k.commandline? &
+			k.kernel? &
+			k.initrd? &
+			k.partitions? &
+			k.union? &
 			k.configuration*
 		}
 }
@@ -1009,9 +1009,9 @@ div {
 	k.description =  
 		## A Short Description
 		element description {
-			k.description.attlist,
-			k.author,
-			k.contact+,
+			k.description.attlist &
+			k.author &
+			k.contact+ &
 			k.specification
 		}
 }
@@ -1031,7 +1031,7 @@ div {
 	k.drivers =
 		## A Collection of Driver Files 
 		element drivers {
-			k.drivers.attlist,
+			k.drivers.attlist &
 			k.file+
 		}
 }
@@ -1055,9 +1055,9 @@ div {
 		]
 		]
 		element instsource {
-			k.instsource.attlist,
-			k.instrepo+,
-			k.metadata,
+			k.instsource.attlist &
+			k.instrepo+ &
+			k.metadata &
 			k.repopackages
 		}
 }
@@ -1076,7 +1076,7 @@ div {
 		]
 		]
 		element repopackages {
-			k.repopackages.attlist,
+			k.repopackages.attlist &
 			k.repopackage*
 		}
 }
@@ -1130,9 +1130,9 @@ div {
 		]
 		]
 		element packages {
-			k.packages.attlist,
-			k.package*,
-			k.opensusepattern*,
+			k.packages.attlist &
+			k.package* &
+			k.opensusepattern* &
 			k.ignore*
 		}
 }
@@ -1145,19 +1145,19 @@ div {
 	k.preferences =  
 		## Configuration Information Needed for Logical Extend
 		element preferences {
-			k.preferences.attlist,
-			k.type+,
-			k.version,
-			k.size?,
-			k.compressed?,
-			k.packagemanager?,
-			k.rpm-check-signatures?,
-			k.rpm-force?,
-			k.keytable?,
-			k.timezone?,
-			k.locale?,
-			k.defaultdestination?,
-			k.defaultroot?,
+			k.preferences.attlist &
+			k.type+ &
+			k.version &
+			k.size? &
+			k.compressed? &
+			k.packagemanager? &
+			k.rpm-check-signatures? &
+			k.rpm-force? &
+			k.keytable? &
+			k.timezone? &
+			k.locale? &
+			k.defaultdestination? &
+			k.defaultroot? &
 			k.defaultbaseroot?
 		}
 }
@@ -1176,7 +1176,7 @@ div {
 		]
 		]
 		element profiles {
-			k.profiles.attlist,
+			k.profiles.attlist &
 			k.profile+
 		}
 }
@@ -1198,8 +1198,8 @@ div {
 		]
 		]
 		element split {
-			k.split.attlist,
-			k.temporary?,
+			k.split.attlist &
+			k.temporary? &
 			k.persistent?
 		}
 }
@@ -1215,7 +1215,7 @@ div {
 	k.users = 
 		## A List of Users
 		element users {
-			k.users.attlist,
+			k.users.attlist &
 			k.user+
 		}
 }
