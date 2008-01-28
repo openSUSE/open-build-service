@@ -483,10 +483,16 @@ The stylesheet was modified by Thomas Schraitle:
 
   <xsl:template match="rng:define" mode="define-combine">
     <xsl:choose>
-      <xsl:when test="@combine='choice'"> | (<xsl:apply-templates
-          mode="content-model"/>) </xsl:when>
-      <xsl:when test="@combine='interleave'"> &amp;
-          (<xsl:apply-templates mode="content-model"/>) </xsl:when>
+      <xsl:when test="@combine='choice'">
+       <xsl:text> | (</xsl:text>
+       <xsl:apply-templates mode="content-model"/>
+       <xsl:text>)</xsl:text>
+      </xsl:when>
+      <xsl:when test="@combine='interleave'">
+        <xsl:text> &amp; (</xsl:text>
+        <xsl:apply-templates mode="content-model"/>
+        <xsl:text>)</xsl:text>
+      </xsl:when>
     </xsl:choose>
   </xsl:template>
 
@@ -500,14 +506,20 @@ The stylesheet was modified by Thomas Schraitle:
     <link linkend="def.{@name}">
       <xsl:value-of select="@name"/>
     </link>
-    <xsl:if
-      test="not(parent::rng:choice) and 
+    <xsl:choose>
+      <xsl:when test="parent::rng:interleave and
+        following-sibling::rng:*">
+        <xsl:text> &amp;&#10;  </xsl:text>
+      </xsl:when>
+      <xsl:when
+          test="not(parent::rng:choice) and 
             (following-sibling::rng:element 
-            | following-sibling::rng:optional
+            | following-sibling::rng:optional 
             | following-sibling::rng:oneOrMore 
             | following-sibling::rng:zeroOrMore)">
-      <xsl:text>,&#10;  </xsl:text>
-    </xsl:if>
+          <xsl:text>,&#10;  </xsl:text>
+        </xsl:when>
+      </xsl:choose>
   </xsl:template>
 
   <xsl:template match="rng:group" mode="content-model">
@@ -520,13 +532,20 @@ The stylesheet was modified by Thomas Schraitle:
     <xsl:if test=".//rng:element | .//rng:ref[not(ancestor::rng:attribute)]">
       <xsl:apply-templates mode="content-model"/>
       <xsl:text>?</xsl:text>
-      <xsl:if test="not(parent::rng:choice) and 
-              (following-sibling::rng:element 
-              | following-sibling::rng:optional 
-              | following-sibling::rng:oneOrMore 
-              | following-sibling::rng:zeroOrMore)">
-        <xsl:text>,&#10;  </xsl:text>
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="parent::rng:interleave and
+        following-sibling::rng:*">
+          <xsl:text> &amp;&#10;  </xsl:text>
+        </xsl:when>
+        <xsl:when
+          test="not(parent::rng:choice) and 
+            (following-sibling::rng:element 
+            | following-sibling::rng:optional 
+            | following-sibling::rng:oneOrMore 
+            | following-sibling::rng:zeroOrMore)">
+          <xsl:text>,&#10;  </xsl:text>
+        </xsl:when>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
 
@@ -534,28 +553,40 @@ The stylesheet was modified by Thomas Schraitle:
     <xsl:text>(</xsl:text>
     <xsl:apply-templates mode="content-model"/>
     <xsl:text>)+</xsl:text>
-    <xsl:if test="not(parent::rng:choice) and 
+    <xsl:choose>
+      <xsl:when test="parent::rng:interleave and
+        following-sibling::rng:*">
+        <xsl:text> &amp;&#10;  </xsl:text>
+      </xsl:when>
+      <xsl:when test="not(parent::rng:choice) and 
             (following-sibling::rng:element 
             | following-sibling::rng:optional 
             | following-sibling::rng:oneOrMore 
             | following-sibling::rng:zeroOrMore
             | following-sibling::rng:ref)">
-      <xsl:text>,&#10;  </xsl:text>
-    </xsl:if>
+        <xsl:text>,&#10;  </xsl:text>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="rng:zeroOrMore" mode="content-model">
     <xsl:text>(</xsl:text>
     <xsl:apply-templates mode="content-model"/>
     <xsl:text>)*</xsl:text>
-    <xsl:if test="not(parent::rng:choice) and 
+    <xsl:choose>
+      <xsl:when test="parent::rng:interleave and
+        following-sibling::rng:*">
+        <xsl:text> &amp;&#10;  </xsl:text>
+      </xsl:when>
+      <xsl:when test="not(parent::rng:choice) and 
             (following-sibling::rng:element 
             | following-sibling::rng:optional 
             | following-sibling::rng:oneOrMore 
             | following-sibling::rng:zeroOrMore
             | following-sibling::rng:ref)">
-      <xsl:text>,&#10;  </xsl:text>
-    </xsl:if>
+        <xsl:text>,&#10;  </xsl:text>
+      </xsl:when>
+    </xsl:choose>    
   </xsl:template>
 
   <xsl:template match="rng:choice" mode="content-model">
@@ -585,32 +616,58 @@ The stylesheet was modified by Thomas Schraitle:
         
     <xsl:if test="$elemName">
       <link linkend="def.{$elemName}"><xsl:value-of select="$elemName"/></link>
-      <xsl:if test="not(parent::rng:choice) and 
-                    (following-sibling::rng:element
-                    | following-sibling::rng:optional 
-                    | following-sibling::rng:oneOrMore 
-                    | following-sibling::rng:zeroOrMore
-                    | following-sibling::rng:ref)">
-        <xsl:text>,&#10;  </xsl:text>
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when
+          test="parent::rng:interleave and
+                following-sibling::rng:*">
+          <xsl:text> &amp;&#10;  </xsl:text>
+        </xsl:when>
+        <xsl:when
+          test="not(parent::rng:choice) and 
+            (following-sibling::rng:element 
+            | following-sibling::rng:optional 
+            | following-sibling::rng:oneOrMore 
+            | following-sibling::rng:zeroOrMore
+            | following-sibling::rng:ref)">
+          <xsl:text>,&#10;  </xsl:text>
+        </xsl:when>
+      </xsl:choose>    
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:text" mode="content-model"> 
     <xsl:text> TEXT </xsl:text>
-    <xsl:if
+    <!--<xsl:if
       test="not(parent::rng:choice) and 
             (following-sibling::rng:element 
             | following-sibling::rng:optional 
             | following-sibling::rng:oneOrMore 
             | following-sibling::rng:zeroOrMore)">
       <xsl:text>,&#10;  </xsl:text>
-    </xsl:if>
+    </xsl:if>-->
+    <xsl:choose>
+      <xsl:when test="parent::rng:interleave and
+        following-sibling::rng:*">
+        <xsl:text> &amp;&#10;  </xsl:text>
+      </xsl:when>
+      <xsl:when test="not(parent::rng:choice) and 
+            (following-sibling::rng:element 
+            | following-sibling::rng:optional 
+            | following-sibling::rng:oneOrMore 
+            | following-sibling::rng:zeroOrMore
+            | following-sibling::rng:ref)">
+        <xsl:text>,&#10;  </xsl:text>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="rng:data" mode="content-model">
     <xsl:text> xsd:</xsl:text>
     <xsl:value-of select="@type"/>
+  </xsl:template>
+
+  <xsl:template match="rng:interleave" mode="content-model">
+    <xsl:apply-templates mode="content-model"/>
   </xsl:template>
 
   <xsl:template match="*" mode="content-model">
