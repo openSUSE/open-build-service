@@ -20,7 +20,7 @@ HTMLPARAM=--stringparam refentry.generate.name 0 \
 	--stringparam html.stylesheet kiwi.css 
 
 .PHONY: all
-all:  kiwi.rng kiwi.dtd kiwi.xsd docbook html
+all:  kiwi.rng kiwi.xsd docbook html
 
 .PHONY: html
 html-old: kiwi.xhtml
