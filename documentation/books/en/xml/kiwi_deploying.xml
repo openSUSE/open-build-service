@@ -323,7 +323,7 @@ kiwi --create /tmp/myRoot</screen>
       </listitem>
       <listitem>
        <para>
-        <filename>kiwi-desc-isoboot</filename>
+        <filename>kiwi-desc-usbboot</filename>
        </para>
       </listitem>
       <listitem>
@@ -334,8 +334,15 @@ kiwi --create /tmp/myRoot</screen>
      </itemizedlist>
     </listitem>
    </itemizedlist>
+  <para>The livesystem package contains several example descriptions and is not mandatory. If another source of configuration files is available, it can be ignored.</para>
    <para>You can download and install these packages from the openSUSE BuildService, or you can
     obtain the latest svn snapshot from svn.berlios.de.</para>
+    <para>If the svn version is used, beware of the fact that no package management takes care of resolving dependencies.
+    This may manifest itself in very strange error messages. To be on the safe side and not run into those problems one per run,
+    you can analyse the RPM's requirements manually and install all required software, or you install the packages and uninstall them again,
+    or you risk a mix system which is absolutely not recommended.
+    Plus one problem remains: the make process requires some tools that may be missing although the RPM archives are installed.
+    For example <systemitem>jing</systemitem> is used for XML-RelaxNG validation during the build.</para>
    <procedure id="bc4954d">
     <step id="bc4954e" performance="required">
      <para>Check out the latest version from svn.berlios.de.</para>
@@ -348,21 +355,20 @@ svn co https://<replaceable>anonymous</replaceable>@svn.berlios.de/svnroot/repos
       available.</para>
     </step>
     <step id="bc495lo" performance="required">
-     <para>Make sure that the <filename>kiwi-desc-isoboot</filename>,<filename>
-      kiwi-desc-livesystem</filename>, and <filename> kiwi-desc-usbboot</filename> packages are
-      installed. </para>
+     <para>Make sure that the package <filename>kiwi-desc-usbboot</filename> and optionally <filename>kiwi-desc-livesystem</filename> are
+      installed.</para>
 
      <screen>rpm -qa kiwi*</screen>
 
     </step>
     <step id="bc496bm" performance="required">
-     <para>Cd to the kiwi checkout directory (where the makefile resides), then execute the
+     <para>Change to the kiwi checkout directory (where the makefile resides), then execute the
       following:</para>
 
      <screen>make &amp;&amp; [sudo] make install</screen>
 
 
-     <para><systemitem>Root</systemitem> privileges are required to perform the install step because
+     <para>The <systemitem>root</systemitem> privileges are required to perform the install step because
       files are copied to <filename>/usr/share/kiwi</filename> and <filename>/usr/sbin</filename>.
       It might be necessary to add the sudo command prefix if the previous commands were run as a
       normal user.</para>
