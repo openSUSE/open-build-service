@@ -31,7 +31,7 @@ class Repository < ActiveRecord::Base
   #returns a list of repositories that include path_elements linking to this one
   #or empty list
   def linking_repositories
-    return [] if links_count == 0
+    return [] if links.size == 0
     links.map {|l| l.repository}
   end
 end
