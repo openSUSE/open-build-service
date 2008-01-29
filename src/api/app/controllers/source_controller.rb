@@ -67,7 +67,7 @@ class SourceController < ApplicationController
 
       #destroy all packages
       pro.db_packages.each do |pack|
-        DbPackage.transaction(pack) do
+        DbPackage.transaction do
           logger.info "destroying package #{pack.name}"
           pack.destroy
           logger.debug "delete request to backend: /source/#{pro.name}/#{pack.name}"
@@ -75,7 +75,7 @@ class SourceController < ApplicationController
         end
       end
 
-      DbProject.transaction(pro) do
+      DbProject.transaction do
         logger.info "destroying project #{pro.name}"
         pro.destroy
         logger.debug "delete request to backend: /source/#{pro.name}"
@@ -126,7 +126,7 @@ class SourceController < ApplicationController
       
       pack = DbPackage.find_by_project_and_name( project_name, package_name )
       if pack
-        DbPackage.transaction(pack) do
+        DbPackage.transaction do
           pack.destroy
           Suse::Backend.delete "/source/#{project_name}/#{package_name}"
         end
