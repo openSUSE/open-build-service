@@ -500,7 +500,7 @@ exit 0</screen>
       <sgmltag class="attribute">yast2</sgmltag>.
       The <option>source</option> child element
      contains the <option>path</option> attribute, which specifies the location of the repository
-     (for example, &lt;code>source="/image/CDs/full-i386"&lt;/code>). The path specification
+     (for example, <code>source="/image/CDs/full-i386"</code>). The path specification
      can be any of the following, and can include the %arch macro if needed:</para>
     <itemizedlist mark="bullet" spacing="normal">
      <listitem>
