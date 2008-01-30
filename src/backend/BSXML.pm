@@ -615,9 +615,41 @@ our $pattern_id = [
 	'type',
 ];
 
+our $request = [
+    'request' =>
+	'id',
+	'type',
+      [ 'merge' =>
+	  [ 'source' =>
+		'project',
+		'package',
+	  ],
+	  [ 'target' =>
+		'project',
+		'package',
+	  ],
+      ],
+      [ 'state' =>
+	    'name',
+	    'who',
+	    'when',
+	    [],
+	    'comment',
+      ],
+     [[ 'history' =>
+	    'name',
+	    'who',
+	    'when',
+	    [],
+	    'comment',
+     ]],
+	'title',
+	'description',
+];
 
 our $collection = [
     'collection' => 
+      [ $request ],
       [ $proj ],
       [ $pack ],
       [ $binary_id ],

@@ -214,6 +214,21 @@ sub verify_aggregatelist {
   }
 }
 
+sub verify_request {
+  my ($req) = @_;
+  die("request type missing\n") unless $req->{'type'};
+  die("unknown request type '$req'\n") unless $req->{'type'} eq 'merge';
+  die("request must contain a state\n") unless $req->{'state'};
+  die("request must contain a state name\n") unless $req->{'state'}->{'name'};
+  die("merge specification missing\n") unless $req->{'merge'};
+  die("merge source missing\n") unless $req->{'merge'}->{'source'};
+  die("merge target missing\n") unless $req->{'merge'}->{'target'};
+  verify_projid($req->{'merge'}->{'source'}->{'project'});
+  verify_projid($req->{'merge'}->{'target'}->{'project'});
+  verify_packid($req->{'merge'}->{'source'}->{'package'});
+  verify_packid($req->{'merge'}->{'target'}->{'package'});
+}
+
 our $verifyers = {
   'project' => \&verify_projid,
   'package' => \&verify_packid,

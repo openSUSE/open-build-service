@@ -30,6 +30,7 @@ BEGIN {
 
 use XML::Structured ':bytes';
 use Data::Dumper;
+use Storable ();
 
 use BSConfig;
 use BSServer;
@@ -45,6 +46,12 @@ use BSStdServer;
 use BSSrcdiff;
 use Build;
 
+use BSXPath;
+use BSXPathKeys;
+use BSDB;
+use BSDBIndex;
+
+
 use strict;
 
 my $port = 5352;	#'SR'
@@ -53,7 +60,8 @@ my $ajaxsocket = "$BSConfig::bsdir/run/bs_srcserver.ajax";
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrep = "$BSConfig::bsdir/sources";
-
+my $requestsdir = "$BSConfig::bsdir/requests";
+my $reqindexdb = "$BSConfig::bsdir/db/request";
 
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment}];
 
@@ -846,7 +854,16 @@ sub getprojpack {
 	      }
 	      if (!$bconfs{$repoid}) {
 		print "reading config for $projid/$repoid $arch\n";
-		my ($c) = getconfig($cgi, $projid, $repoid);
+		my $c;
+	        eval {
+		  ($c) = getconfig($cgi, $projid, $repoid);
+		};
+		if ($@) {
+		  my $err = $@;
+		  $err =~ s/\n$//;
+		  push @dinfo, {'repository' => $repoid, 'error' => $err};
+		  next;
+		}
 		$c = [ split("\n", $c) ];
 	        $bconfs{$repoid} = Build::read_config($arch, $c);
 	      }
@@ -891,6 +908,56 @@ sub getproject {
   return ($proj, $BSXML::proj);
 }
 
+sub createkey {
+  my ($cgi, $projid) = @_;
+  die("don't know how to create a key\n") unless $BSConfig::sign;
+  die("project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
+  mkdir_p("$srcrep/:upload");
+  local *F;
+  my $pubkey = '';
+  my @keyargs = ('rsa@2048', '800');
+  open(F, '-|', $BSConfig::sign, '-P', "$srcrep/:upload/signkey.$$", '-g', @keyargs , "$projid OBS Project", "$projid\@build.opensuse.org") || die("$BSConfig::sign: $!\n");
+  1 while sysread(F, $pubkey, 4096, length($pubkey));
+  close(F) || die("$BSConfig::sign: $?\n");
+  die("sign did not create signkey\n") unless -s "$srcrep/:upload/signkey.$$";
+  mkdir_p("$projectsdir/$projid.pkg");
+  writestr("$srcrep/:upload/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", $pubkey);
+  if (!rename("$srcrep/:upload/signkey.$$", "$projectsdir/$projid.pkg/_signkey")) {
+    unlink("$projectsdir/$projid/_pubkey");
+    die("rename $srcrep/:upload/signkey.$$ $projectsdir/$projid.pkg/_signkey: $!\n");
+  }
+  return $BSStdServer::return_ok;
+}
+
+sub deletekey {
+  my ($cgi, $projid) = @_;
+  if ($BSConfig::forceprojectkeys) {
+    my $pprojid = $projid;
+    $pprojid =~ s/:[^:]*$//;
+    my $sk;
+    ($sk) = getsignkey({}, $pprojid) if $projid ne $pprojid;
+    die("must have a key for signing\n") unless $sk;
+  }
+  unlink("$projectsdir/$projid.pkg/_signkey");
+  unlink("$projectsdir/$projid.pkg/_pubkey");
+  rmdir("$projectsdir/$projid.pkg");
+  return $BSStdServer::return_ok;
+}
+
+sub getpubkey {
+  my ($cgi, $projid) = @_;
+  my $pubkey = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+  die("$projid: no pubkey available\n") unless $pubkey;
+  return ($pubkey, 'Content-Type: text/plain');
+}
+
+sub projectcmd {
+  my ($cgi, $projid) = @_;
+  my $cmd = $cgi->{'cmd'};
+  return createkey($cgi, $projid) if $cmd eq 'createkey';
+  die("unknown command '$cmd'\n");
+}
+
 sub putproject {
   my ($cgi, $projid) = @_;
   mkdir_p("$srcrep/:upload");
@@ -901,6 +968,10 @@ sub putproject {
   writexml("$srcrep/:upload/$$.2", undef, $proj, $BSXML::proj);
   unlink("$srcrep/:upload/$$");
   rename("$srcrep/:upload/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
+  if ($BSConfig::forceprojectkeys) {
+    my ($sk) = getsignkey({}, $projid);
+    createkey({}, $projid) if $sk eq '';
+  }
   notify_repservers('projevent', $projid);
   $proj = readproj($projid);
   return ($proj, $BSXML::proj);
@@ -911,7 +982,7 @@ sub delproject {
 
   die("project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
   if (-d "$projectsdir/$projid.pkg") {
-    # delete those packages
+    # delete those packages and keys
     for my $f (ls("$projectsdir/$projid.pkg")) {
       unlink("$projectsdir/$projid.pkg/$f");
     }
@@ -1704,10 +1775,10 @@ sub getsignkey {
   my ($cgi, $projid) = @_;
 
   while ($projid ne '') {
-    my $sk = readstr("$projectsdir/$projid.signkey", 1);
+    my $sk = readstr("$projectsdir/$projid.pkg/_signkey", 1);
     if ($sk) {
       if ($cgi->{'withpubkey'}) {
-        my $pk = readstr("$projectsdir/$projid.pubkey", 1);
+        my $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
         $sk .= "\n" unless $sk =~ /\n$/s;
         $sk .= $pk;
       }
@@ -1717,6 +1788,135 @@ sub getsignkey {
     $projid =~ s/:$//;
   }
   return ('', 'Content-Type: text/plain');
+}
+
+####################################################################
+
+sub getrequestlist {
+  my ($cgi) = @_;
+
+  my @requests = map {{'name' => $_}} sort(grep {!/^\./} ls($requestsdir));
+  return ({'entry' => \@requests}, $BSXML::dir);
+};
+
+sub nextreqid {
+  local *F;
+  mkdir_p($requestsdir);
+  BSUtil::lockopen(*F, '>>', "$requestsdir/.nextid");
+  my $nextid = readstr("$requestsdir/.nextid", 1);
+  $nextid ||= 1;
+  writestr("$requestsdir/.nextid.new", "$requestsdir/.nextid", $nextid + 1);
+  close F;
+  return $nextid;
+}
+
+sub putrequest {
+  my ($cgi, $id) = @_;
+  my $reqxml = BSServer::read_data(1000000);
+  my $req = XMLin($BSXML::request, $reqxml);
+  BSVerify::verify_request($req);
+  my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
+  die("no such request '$id'\n") unless $oreq;
+  $req->{'id'} = $id;
+  $req->{'history'} = [ @{$oreq->{'history'} || []} ];
+  push @{$req->{'history'}}, $oreq->{'state'};
+  $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+  my @lt = localtime(time());
+  $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
+
+  my $name = $req->{'id'};
+  writexml("$requestsdir/.$name", "$requestsdir/$name", $req, $BSXML::request);
+  mkdir_p($reqindexdb);
+  my $db = BSDB::opendb($reqindexdb, '');
+  $db->{'noindex'} = {'id' => 1};
+  $db->updateindex($req->{'id'}, $oreq, $req);
+  return $BSStdServer::return_ok;
+}
+
+sub createrequest {
+  my ($cgi) = @_;
+
+  my $reqxml = BSServer::read_data(1000000);
+  my $cmd = $cgi->{'cmd'};
+  die("unknown command '$cmd'\n") unless $cmd eq 'create';
+  my $req = XMLin($BSXML::request, $reqxml);
+  BSVerify::verify_request($req);
+  die("request must not contain an id\n") if $req->{'id'};
+  die("request must not contain a history\n") if $req->{'history'};
+  $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+  my @lt = localtime(time());
+  $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
+  $req->{'id'} = nextreqid();
+  my $name = $req->{'id'};
+  writexml("$requestsdir/.$name", "$requestsdir/$name", $req, $BSXML::request);
+  mkdir_p($reqindexdb);
+  my $db = BSDB::opendb($reqindexdb, '');
+  $db->{'noindex'} = {'id' => 1};
+  $db->updateindex($req->{'id'}, {}, $req);
+  return ($req, $BSXML::request);
+}
+
+sub getrequest {
+  my ($cgi, $id) = @_;
+  my $req = readxml("$requestsdir/$id", $BSXML::request, 1);
+  die("no such request '$id'\n") unless $req;
+  return ($req, $BSXML::request);
+}
+
+sub postrequest {
+  my ($cgi, $id) = @_;
+
+  my $cmd = $cgi->{'cmd'};
+  die("unknown command '$cmd'\n") unless $cmd eq 'changestate';
+  die("no new state\n") unless $cgi->{'newstate'};
+  my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
+  die("no such request '$id'\n") unless $oreq;
+  my $req = Storable::dclone($oreq);	# deep clone
+  die unless $req->{'id'} eq $id;
+  push @{$req->{'history'}}, $req->{'state'};
+  $req->{'state'} = {'name' => $cgi->{'newstate'}};
+  $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
+  $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
+  my @lt = localtime(time());
+  $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
+  my $name = $req->{'id'};
+  writexml("$requestsdir/.$name", "$requestsdir/$name", $req, $BSXML::request);
+  mkdir_p($reqindexdb);
+  my $db = BSDB::opendb($reqindexdb, '');
+  $db->{'noindex'} = {'id' => 1};
+  $db->updateindex($req->{'id'}, $oreq, $req);
+  return $BSStdServer::return_ok;
+}
+
+sub delrequest {
+  my ($cgi, $id) = @_;
+  my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
+  die("no such request '$id'\n") unless $oreq;
+  die unless $oreq->{'id'} eq $id;
+  my $db = BSDB::opendb($reqindexdb, '');
+  $db->{'noindex'} = {'id' => 1};
+  $db->updateindex($oreq->{'id'}, $oreq, {});
+  unlink("$requestsdir/$id");
+  return $BSStdServer::return_ok;
+}
+
+sub fetchreq {
+  my ($db, $key) = @_;
+  my $req = readxml("$requestsdir/$key", $BSXML::request, 1) || {};
+  $req->{'id'} = $key;
+  return $req;
+}
+
+sub search_request {
+  my ($cgi, $match) = @_;
+  my $db = BSDB::opendb($reqindexdb, '');
+  $db->{'noindex'} = {'id' => 1};
+  $db->{'allkeyspath'} = 'type';
+  $db->{'fetch'} = \&fetchreq;
+  my $rootnode = BSXPathKeys::node($db, '');
+  my $data = BSXPath::match($rootnode, $match) || [];
+  my $res = {'request' => $data};
+  return ($res, $BSXML::collection);
 }
 
 ####################################################################
@@ -1757,10 +1957,13 @@ my $dispatches = [
 
   # /source name space: manage project and package data
   '/source' => \&getprojectlist,
+  'POST:/source/$project cmd:' => \&projectcmd,
   '/source/$project' => \&getpackagelist,
   'DELETE:/source/$project' => \&delproject,
   '/source/$project/_meta' => \&getproject,
   'PUT:/source/$project/_meta' => \&putproject,
+  '/source/$project/_pubkey' => \&getpubkey,
+  'DELETE:/source/$project/_pubkey' => \&deletekey,
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
   'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecmd,
@@ -1819,6 +2022,14 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_history' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package_repository/$filename' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
+
+  'POST:/request cmd: user:?' => \&createrequest,
+  '/request' => \&getrequestlist,
+  'POST:/request/$id:num cmd: newstate:? user:?' => \&postrequest,
+  '/request/$id:num' => \&getrequest,
+  'PUT:/request/$id:num user:?' => \&putrequest,
+  'DELETE:/request/$id:num' => \&delrequest,
+  '/search/request $match:' => \&search_request,
 
   '/ajaxstatus' => \&getajaxstatus,
 ];

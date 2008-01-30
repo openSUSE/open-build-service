@@ -85,6 +85,9 @@ sub updateindex {
   my @newrel;
   torel($index, $key, $old, \@oldrel);
   torel($index, $key, $new, \@newrel);
+  if ($db->{'noindex'}) {
+    @newrel = grep {!$db->{'noindex'}->{$_->[0]}} @newrel;
+  }
   # delete all entries that are both in oldrel and newrel
   my %in = map {$_->[3] => 1} @oldrel;
   %in = map {$_->[3] => 1} grep {$in{$_->[3]}} @newrel;
