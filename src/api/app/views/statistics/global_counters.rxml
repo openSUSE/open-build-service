@@ -1,6 +1,6 @@
 xml.instruct!
 
-xml.global_couters do
+xml.global_counters do
 
   xml.packages( @packages )
   xml.projects( @projects )
