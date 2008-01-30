@@ -138,7 +138,7 @@ exit 0</screen>
      <varlistentry id="bc15pm7">
       <term>type</term>
       <listitem>
-       <para>The image type of the logical extend. When specifying multiple entries, the additional
+       <para>The image type of the logical extend.  When specifying multiple entries, the additional
         attribute <option>primary</option>, which specifies the primary type, must be filled in, or
         the first entry of the <option>type</option> value is used.</para>
        <para> The following values are valid for <option>type</option>:</para>
@@ -486,7 +486,19 @@ exit 0</screen>
    <callout arearefs="co.kiwi.config.repository">
     <para> The <option>repository</option> element specifies the source path and type used by the
      package manager. The <option>type</option> attribute specifies the type of the repository, for
-     example, &lt;code>type="yast2"&lt;/code>. The <option>source</option> child element
+      example, <code>type="yast2"</code>. Available values are
+      <sgmltag class="attribute">apt-deb</sgmltag>,
+      <sgmltag class="attribute">apt-rpm</sgmltag>,
+      <sgmltag class="attribute">deb-dir</sgmltag>,
+      <sgmltag class="attribute">mirrors</sgmltag>,
+      <sgmltag class="attribute">red-carpet</sgmltag>,
+      <sgmltag class="attribute">rpm-dir</sgmltag>,
+      <sgmltag class="attribute">rpm-md</sgmltag>,
+      <sgmltag class="attribute">slack-site</sgmltag>,
+      <sgmltag class="attribute">up2date-mirrors</sgmltag>,
+      <sgmltag class="attribute">urpmi</sgmltag>, and
+      <sgmltag class="attribute">yast2</sgmltag>.
+      The <option>source</option> child element
      contains the <option>path</option> attribute, which specifies the location of the repository
      (for example, &lt;code>source="/image/CDs/full-i386"&lt;/code>). The path specification
      can be any of the following, and can include the %arch macro if needed:</para>
