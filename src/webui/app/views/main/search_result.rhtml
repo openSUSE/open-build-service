@@ -13,7 +13,7 @@
 <br/>
 
 <h1>Search results
-  <% if @search_text %>for &quot;<%= @search_text -%>&quot;<% end %>
+  <% if @search_text %>for &quot;<%= h(@search_text) -%>&quot;<% end %>
   <% if @results %>&nbsp;(<%= @results.length -%>)<% end %>
 </h1>
 <%= render :partial => 'search_result' %>

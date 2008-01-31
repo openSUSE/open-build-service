@@ -31,7 +31,7 @@
         <% if @result[:data].title.to_s.empty? %>
           <i>&lt;no title&gt;</i>
         <% else %>
-          <%= highlight( @result[:data].title.to_s.dup, @search_text ) -%>
+          <%= highlight( h(@result[:data].title.to_s.dup), @search_text ) -%>
         <% end %>
       <% else %>
         <i>&lt;no title&gt;</i>
@@ -45,7 +45,7 @@
           <% descr = @result[:data].description.to_s.dup[0,150] + '...' if not
             descr = excerpt( @result[:data].description.to_s.dup, @search_text, 150 ) %>
           <% descr.split(/\n/).each do |line| -%>
-            <%= highlight( line, @search_text) -%><br/>
+            <%= highlight( h(line), @search_text) -%><br/>
           <% end %>
         <% end %>
       <% else %>
