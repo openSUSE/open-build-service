@@ -8,24 +8,35 @@
     }
   }
 </script>
-<td id="repository_wrapper">
+<td id="repository_wrapper" class="td_padding_r">
+
+  <%= render :partial => "recent_repositories" %>
+
   <div id="filter_wrapper">
-    <input type="text" name="project_list_filter" value="" id="project_list_filter" />
     
-    <%= render :partial => "recent_repositories" %>
-    
-    <%= observe_field(:project_list_filter,
-                :url => {:action => :update_project_list, :project => @project},
-                :update => "project_list_wrapper",
-                :frequency => 0.5,
-                :with => "filter")
-    %>
+    <form id="filter_repositories" action="" accept-charset="utf-8">
+      <input type="text" name="project_list_filter" value="" id="project_list_filter" />
+      <input type="submit" name="submit_search" value="Search" id="submit_search" />
+    </form>
+      
   </div>
-  <div id="project_list_wrapper">
+
+  <%= observe_field(:project_list_filter,
+              :url => {:action => :update_project_list, :project => @project},
+              :update => "project_list_wrapper",
+              :frequency => 0.5,
+              :with => "filter")
+  %>
+  
+  <div class="toggle_box_top" onclick="new Effect.toggle($('project_list_wrapper'), 'blind');">
+    <span>All Repositories</span>
+  </div>
+  <div id="project_list_wrapper" style="display: none;">
     <script type="text/javascript">
     //<![CDATA[
     new Ajax.Updater({success: 'project_list_wrapper', failure: 'ajax_error'}, "update_project_list?project=<%=@project%>", {evalScripts: true});
     //]]>
     </script>
   </div>
+  <div class="toggle_box_bottom"></div>
 </td>

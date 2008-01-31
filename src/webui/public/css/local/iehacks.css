@@ -1,0 +1,29 @@
+/* 
+**
+**  $Id: $
+**
+**  Funktion:  Provides IE specific styles for build.openSUSE.org
+**  Author:    Robert Lihm <rlihm@opensuse.org>
+**  License:   see copyright/COPYRIGHT
+*/
+
+#selection_wrapper td {
+  padding: 0;
+}
+
+#filter_wrapper form {
+  margin-left: 1em;
+}
+
+#drop_list ul {
+
+}
+
+#drop_list li {
+  padding-right: 0;
+  padding-left: 0;
+  border: 1px solid fuchsia;
+
+  width: 39%!important;
+}
+

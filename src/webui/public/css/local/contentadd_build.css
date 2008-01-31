@@ -10,11 +10,6 @@
 /*****************
 * General Styles *
 *****************/
-body {
-  /*max-width:none;*/ /* this shoiuld be fixed globalsy in basemod_opensuse.css (line 18)*/
-}
-
-
 #bodyContent {
   min-height: 23em;
   position: relative;
@@ -165,14 +160,21 @@ background:transparent !important;
   #inplace_watchlist div {
     margin: 0.5em;
   }
+  
+  .td_padding_r {
+    padding-right: 1em !important;
+  }
+  
 /* ### inplace watchlist ### */
 
 /* Add Repo & DropZone **************************************************** */
 
-#simple_targets_wrapper {
+#simple_targets_wrapper,
+#project_list_wrapper {
   display: table; 
   display: block;
   height: auto;
+  background:#f9f9f9;
 }
 
   #simple_targets_wrapper div.distro_wrapper,
@@ -251,10 +253,9 @@ background:transparent !important;
 /********************/
   
 #selection_wrapper {
-  width: 95%;
-  max-width: 56em;
-  height: 100%;
-/*  margin-top: 2em;*/
+/*  width: 95%;*/
+  width: 100%;
+  height: auto;
   border-collapse: separate;
   clear: left;
   background-color: #f9f9f9;
@@ -267,7 +268,6 @@ background:transparent !important;
 }
 
 /* Repo List */
-
 #repository_wrapper {
   vertical-align: top;
   background: white;
@@ -288,16 +288,22 @@ background:transparent !important;
   }
 
 #filter_wrapper {
-  margin: 0 0 1em;
+  margin: 0.5em 0;
+/*  padding-left: 50px;*/
+  background: #eee url('/css/local/images/icons/system-search.png') no-repeat scroll 1%;
+  border-bottom: 2px solid #e5e5e5;
 }
+  #filter_wrapper form {
+/*    margin-left: 2em;*/
+    margin-left: 10%;
+  }
 
   #project_list_filter {
-    width: 20em;
+    width: 60%;
+    min-width: 8em;
   }
 
 #project_list {
-  height: 23em;
-  overflow: auto;
   border-top: 1px solid #eee;
 }
 
@@ -314,8 +320,7 @@ background:transparent !important;
 }
 
 #drop_list li {
-  /*border: 1px dotted fuchsia;*/
-  width: 95%;
+  width: 90%;
 }
    #drop_list li a {
      float:right;
@@ -330,9 +335,8 @@ background:transparent !important;
      text-decoration:none;
    }
 
-  .draggable {
-
-  }
+  .draggable {}
+  
   .draggable_sub_element {
     background: #fafafa;
     cursor: move;
@@ -376,6 +380,9 @@ background:transparent !important;
 
   #drop_zone ul {
     margin: 0;
+    min-height: 20em;
+    
+    position: fixed;
   }
 
  .hover {

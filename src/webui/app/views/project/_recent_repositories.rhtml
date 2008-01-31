@@ -1,9 +1,7 @@
-
 <div class="toggle_box_top" onclick="new Effect.toggle($('simple_targets_wrapper'), 'blind');">
   <span>Recent Repositories</span>
 </div>
-
-<div id="simple_targets_wrapper" style="display: none;">
+<div id="simple_targets_wrapper">
   <div id="opensuse_wrapper" class="distro_wrapper">
     <ul>
       <%= draggable_repo "openSUSE 10.3", :reponame => "openSUSE_10.3", :repo => 'openSUSE:10.3/standard', :arch => [:i586, :x86_64] %>
