@@ -859,9 +859,9 @@ the /etc/fstab file or not</a:documentation>
         <db:para>As part of the split section the persistent element
 specifies filenames which are in the read-write disk area</db:para>
         <ref name="k.persistent.attlist"/>
-        <zeroOrMore>
+        <oneOrMore>
           <ref name="k.file"/>
-        </zeroOrMore>
+        </oneOrMore>
       </element>
     </define>
   </div>
@@ -1069,7 +1069,9 @@ used for.</db:para>
         <db:para>As part of the split section the temporary element
 specifies file names which are in the RAM disk area.</db:para>
         <ref name="k.temporary.attlist"/>
-        <empty/>
+        <oneOrMore>
+          <ref name="k.file"/>
+        </oneOrMore>
       </element>
     </define>
   </div>

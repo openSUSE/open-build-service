@@ -626,7 +626,7 @@ div {
 		]
 		element persistent {
 			k.persistent.attlist,
-			k.file*
+			k.file+
 		}
 }
 
@@ -787,7 +787,7 @@ div {
 		]
 		element temporary {
 			k.temporary.attlist,
-			empty
+			k.file+
 		}
 }
 
