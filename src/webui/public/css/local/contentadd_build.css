@@ -307,9 +307,25 @@ background:transparent !important;
   border-top: 1px solid #eee;
 }
 
+
+#drop_zone {
+  /*
+  text-align: left;
+  vertical-align: top;
+  max-width: 23em;
+  margin:0.2em;
+  color: #eee;*/
+  /*background: transparent url('images/drop_zone_0.png') no-repeat scroll center 7em;
+
+  border: 1px dashed #ddd;*/
+}
+
+
+
+
+
 .draggable_element,
-.draggable_sub_element,
-#drop_list li {
+.draggable_sub_element {
   list-style: none outside none;
   margin: 0.5em;
   cursor: pointer;
@@ -319,8 +335,35 @@ background:transparent !important;
   border: 1px solid #ddd;
 }
 
+#drop_list {
+ /* background: navy;*/
+  margin-right: 2em;
+  top: 17em;
+  min-height: 20em;
+  position: fixed;
+  width: 23em;
+
+
+  text-align: left;
+  vertical-align: top;
+  max-width: 23em;
+  margin:0.2em;
+  /*color: #eee;*/
+  background: transparent url('images/drop_zone_0.png') no-repeat scroll center 7em;
+
+  border: 1px dashed #ddd;
+}
+  #drop_list h3 {
+    padding-top: 0.5em;
+    text-align: center;
+    color: #ddd;
+  }
 #drop_list li {
-  width: 90%;
+  width: auto;
+/*  width: 90%;*/
+  margin: 0 0 1em;
+  right: 2em;
+  display: block;
 }
    #drop_list li a {
      float:right;
@@ -333,6 +376,10 @@ background:transparent !important;
    #drop_list li a:hover {
      background-image:url("/css/local/images/icons/edit-delete_over.png");
      text-decoration:none;
+   }
+   #drop_list li div {
+     border-left: 5px solid fuchsia;
+     border-right: 5px solid fuchsia;
    }
 
   .draggable {}
@@ -361,29 +408,6 @@ background:transparent !important;
 }
 /* /Repo List */  
 
-#drop_zone h3 {
-  padding-top: 0.5em;
-  text-align: center;
-  color: #ddd;
-}
-
-#drop_zone {
-  text-align: left;
-  vertical-align: top;
-  max-width: 23em;
-  margin:0.2em;
-  color: #eee;
-  background: transparent url('images/drop_zone_0.png') no-repeat scroll center 7em;
-/*  background-color: #fafafa;*/
-  border: 1px dashed #ddd;
-}
-
-  #drop_zone ul {
-    margin: 0;
-    min-height: 20em;
-    
-    position: fixed;
-  }
 
  .hover {
    color: #ddd!important;
