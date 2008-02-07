@@ -1,7 +1,7 @@
 #page.insert_html(:bottom, 'drop_list', "<li><a id="+@id+" title=\"Remove Item From List\">&nbsp;</a>"+@id+"</li>")
 page.insert_html(:bottom, 'drop_list', "
 <div id="'repository-'+@id+">
-  <a id="+@id+" title=\"Remove Item From List\">&nbsp;</a>"+@id+"
+  <a id="+@id+"  title=\"Remove Item From List\">&nbsp;</a>"+@id+"
   <div id="+'repo_cnt-'+@id+" class=\"repo_cnt\">
     <p>
       <a id="+@id+" title=\"Remove Item From List\">&nbsp;</a>
