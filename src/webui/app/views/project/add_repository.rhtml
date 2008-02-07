@@ -4,15 +4,13 @@
 
 <h1>Add Repository</h1>
 
-
-
 <table id="selection_wrapper" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <%= render :partial => "repository_selector" %>
     <td id="drop_zone">
         <h3>Your Selection</h3>
-        <ul id="drop_list">
-        </ul>
+        <div id="drop_list">
+        </div>
       <%= drop_receiving_element("drop_zone", :url => {:action => "receive_repository", :project => @project}, :hoverclass => 'hover') %>
     </td>
   </tr>
