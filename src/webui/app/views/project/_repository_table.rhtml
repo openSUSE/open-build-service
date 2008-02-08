@@ -1,43 +1,46 @@
 <!-- Repository table -->
 <h3>
-	Build Repositories
-	<%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Repository' ),
-	:action => 'add_target_simple', :project => @project %>
+  Build Repositories
+  <%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Repository' ),
+  :action => 'add_target_simple', :project => @project %>
 </h3>
 
 <li  id="error_message_flags" class="error_message" style="display:none;"></li>
 
 <% if @project.has_element? :repository -%>
-	<table class="grid targets">
-		<tr class="header">
-		  <th>Name</th>
-		  	<% @arch_list.each do |arch| -%>
-		  <th><%=h arch %></th>
-		  	<% end -%>
-		  <th>Action</th>
-		</tr>
-		<% @project.each_repository do |repo| -%>
-			<tr class="target" id="<%=repo.name%>"><%= render :partial => 'repository_item', :locals => { :repo => repo } %></tr>
-		<%- end #each_repository -%>
-	</table>
+  <table class="grid targets">
+    <tr class="header">
+      <th>Name</th>
+        <% @arch_list.each do |arch| -%>
+      <th><%=h arch %></th>
+        <% end -%>
+      <th>Action</th>
+    </tr>
+    <% @project.each_repository do |repo| -%>
+      <tr class="target" id="<%=repo.name%>"><%= render :partial => 'repository_item', :locals => { :repo => repo } %></tr>
+    <%- end #each_repository -%>
+  </table>
 
 <% end #has_element? -%>
 
 <table>
   <tr>
-	<td>
-	  <%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %>
-	</td>
-	<td style="align: right">
-	  <%= link_to "[Flags for Experts]", :action => 'flags_for_experts', :project => @project%>
-	</td>
+  <td>
+    <%= link_to "[Add Repository (old)]", :action => 'add_target_simple', :project => @project %>
+  </td>
+  <td>
+    <%= link_to "[Add Repository (new)]", :action => 'add_repository', :project => @project %>
+  </td>
+  <td style="align: right">
+    <%= link_to "[Flags for Experts]", :action => 'flags_for_experts', :project => @project%>
+  </td>
   </tr>
 </table
 
 
 
 <% if @packages.length > 0 and @project.has_element?(:repository) -%>
-	<p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
+  <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
 <% else -%>
-	<p><i>Add packages/repositories to enable the build monitor</i></p>
+  <p><i>Add packages/repositories to enable the build monitor</i></p>
 <% end -%>
