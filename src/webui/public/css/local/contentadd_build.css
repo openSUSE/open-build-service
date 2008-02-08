@@ -306,18 +306,7 @@ background:transparent !important;
   border-top: 1px solid #eee;
 }
 
-
-#drop_zone {
-  /*
-  text-align: left;
-  vertical-align: top;
-  max-width: 23em;
-  margin:0.2em;
-  color: #eee;*/
-  /*background: transparent url('images/drop_zone_0.png') no-repeat scroll center 7em;
-
-  border: 1px dashed #ddd;*/
-}
+#drop_zone {}
 
 .draggable_element,
 .draggable_sub_element {
@@ -331,15 +320,16 @@ background:transparent !important;
 }
 
 #drop_list {
-  position: fixed;
-  top: 17em;
-  min-height: 20em;
-
-  text-align: left;
-  width: 23em;
-  /*color: #eee;*/
-  background: #fafafa url('images/drop_zone_0.png') no-repeat scroll center 7em;
-  border: 1px dashed #ddd;
+ position: fixed;
+ top: 17em;
+ min-height: 23em;
+ width: 23em;
+ 
+ padding-bottom: 3em; 
+  
+ text-align: left;
+ background: #fafafa url('images/drop_zone_0.png') no-repeat scroll center 7em;
+ border: 1px dashed #ddd;
 }
   #drop_list h3 {
     padding-top: 0.5em;
@@ -347,28 +337,50 @@ background:transparent !important;
     color: #ddd;
   }
 #drop_list div {
-  width: auto;
-/*  width: 90%;*/
-  margin: 0 0 1em;
-  right: 2em;
   display: block;
+  width: auto;
+  margin: 0.5em 1px 0;
+  right: 2em;
+  border-bottom:2px solid #E5E5E5;
 }
-   #drop_list div a.remove_item {
-     float:right;
-     display: block;
-     width: 16px;
-     height: 17px;
-     padding: 2px;
-     background: transparent url("/css/local/images/icons/edit-delete.png") no-repeat center center;
+#drop_list div * {
+  margin: 0;
+}
+  #drop_list div h4 {
+    margin: 0;
+    padding: 0.2em;
+    font-weight: bold;
+    background: #eee;
+    }
+  #drop_list div.repo_cnt {
+    border-left: 5px solid #eee;
+    border-right: 5px solid #eee;
+    margin-bottom: 0;
+    border-bottom: 0;
+    
+    background-color: #fafafa;
+
    }
-   #drop_list div a:hover {
+  #drop_list div a.remove_item {
+    float:right;
+    display: block;
+    width: 16px;
+    height: 17px;
+    margin: 0;
+    cursor: pointer;
+    background: transparent url("/css/local/images/icons/edit-delete.png") no-repeat center center;
+    }
+  #drop_list div.repo_cnt  a.remove_item {
+    background: transparent url("/css/local/images/icons/edit-delete3.png") no-repeat center center;
+    }
+   #drop_list div a.remove_item:hover {
      background-image:url("/css/local/images/icons/edit-delete_over.png");
      text-decoration:none;
    }
-   #drop_list div div {
-     border-left: 5px solid fuchsia;
-     border-right: 5px solid fuchsia;
-   }
+    #drop_list div.repo_cnt a.remove_item:hover {
+     background-image:url("/css/local/images/icons/edit-delete_over2.png");
+    }
+
 
   .draggable {}
   
@@ -382,7 +394,7 @@ background:transparent !important;
     color: #690;
     border-style: dashed;
   }
-
+        
   .draggable_element:hover {
     background-color: #f8f8f8;
   }
