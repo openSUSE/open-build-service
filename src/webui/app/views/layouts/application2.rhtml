@@ -205,7 +205,7 @@
              
               <%= link_to session[:login], :controller => 'home', :action => :index %>
               |
-              <div onclick="new Effect.toggle($('inplace_watchlist'), 'blind', {duration:0.25});">Watchlist</div>
+              <div onclick="new Effect.toggle($('inplace_watchlist'), 'blind', {duration:0.15});">Watchlist</div>
               |
               <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
               |
@@ -384,7 +384,7 @@
       <div class="inner_spacer">
         <%- if @user and @user.has_element? :watchlist -%>
         <%- @user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
-        <%= link_to project, :action => :show, :project => project %>
+        <%= link_to project, :controller => 'project', :action => :show, :project => project %>
         <%- end #each -%>
         <%- else -%>
         Watchlist empty
