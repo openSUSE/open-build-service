@@ -11,7 +11,7 @@
 * General Styles *
 *****************/
 #bodyContent {
-  min-height: 23em;
+  min-height: 33em;
   position: relative;
   
 }
@@ -349,6 +349,7 @@ background:transparent !important;
   #drop_list div h4 {
     margin: 0;
     padding: 0.2em;
+    cursor: pointer;
     font-weight: bold;
     background: #eee;
     }
@@ -358,20 +359,23 @@ background:transparent !important;
     margin-bottom: 0;
     border-bottom: 0;
     padding-left: 0.5em;
+    
+    color: #333;
 
     background-color: #fafafa;
-   }
+  }
   #drop_list div a.remove_item {
     float:right;
     display: block;
     width: 16px;
     height: 17px;
-    margin: 0;
+    margin: 0.2em 0.4em 0 0;
     cursor: pointer;
     background: transparent url("/css/local/images/icons/edit-delete.png") no-repeat center center;
     }
 
   #drop_list div.repo_cnt  a.remove_item {
+    margin: 0;
     background: transparent url("/css/local/images/icons/edit-delete3.png") no-repeat center center;
     }
    #drop_list div a.remove_item:hover {
