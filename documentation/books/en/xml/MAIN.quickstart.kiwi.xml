@@ -158,7 +158,6 @@
         <filename>/usr/share/doc/packages/kiwi/examples/</filename>. For
       detailed information about the content of an image description,
       look into the <citetitle>System Design</citetitle> document,
-      <remark>mdejmek: wo soll man reinschauen, bzw. befindet sich das Dokument in der biblioref?</remark>      
       see <biblioref linkend="bib.kiwi-design"/>.
     </para>
   </sect1>
@@ -244,10 +243,8 @@
         </para>
       </listitem>
       <listitem>
-      <remark>mdejmek: was gehört in den ersten satz?</remark>
-        <para>The documentation of the KIWI RELAX NG Schema. The KIWI
-          configuration file is based on XML and the structure is
-          documented in the package <package>kiwi</package> under
+        <para>The KIWI configuration file is based on a RELAX NG schema
+          which is documented in the <package>kiwi</package> package under
             <filename>/usr/share/doc/packages/kiwi/kiwi.html</filename>.
           <remark>Should we use a WWW address here, instead of the local
           one?</remark>
@@ -355,9 +352,7 @@
         <note>
           <title>Essential Packages</title>
           <para>The following lines are essential and
-            <emphasis>must</emphasis>
-				<remark>mdejmek: vielleicht kann man das genauer sagen als "must be present"</remark>           
-            always be present:</para>
+            <emphasis>must</emphasis> always be available:</para>
           <screen>&lt;packages type="boot">
   &lt;package name="filesystem"/>
   &lt;package name="glibc-locale"/>
@@ -396,6 +391,16 @@
       solution. This section shows you how you can install an openSUSE
       system on your USB stick. For the installation the stick needs a
       miminum amount of 1 GByte.</para>
+   
+    <note>
+      <title>Bootable USB Sticks and BIOS</title>
+      <para>You can only boot from the stick if the BIOS accepts your
+        USB stick as bootable medium. Unfortunately, some BIOS types and
+        USB sticks do not work together. It is nearly impossible to
+        predict which combinations work, so if your USB stick cannot be
+        booted, try another one from a different vendor.</para>
+    </note>
+
    
     <para>Proceed as follows:</para>
     <procedure>
@@ -605,10 +610,10 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
     <sect2 id="sec.kiwi.publishing">
       <title>Creating a Rescue System</title>
       <para>A rescue system allows you to debug your system. It contains
-        the tools required for these tasks. 
-			<remark>mdejmek: was genau meint hier "last one"?</remark>        
-        Mainly, the overall
-        procedure is very similar to the last one. Proceed as follows:</para>
+        the tools required for these tasks. Mainly, the overall
+        procedure is very similar to <xref
+          linkend="sec.kiwi.livecd.developer"/>. Proceed as
+      follows:</para>
       <procedure>
         <step>
           <para>Install on your system the packages
