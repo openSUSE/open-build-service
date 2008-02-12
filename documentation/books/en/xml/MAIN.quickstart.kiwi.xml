@@ -41,8 +41,9 @@
   </articleinfo>
   <sect1 id="sec.kiwi.whatis">
     <title>What is KIWI?</title>
-    <para>KIWI is a system for creating operating system images. An
-      image is a directory with a file that represents the operating system, its
+    <para>KIWI is a system for creating operating system images. 
+     An image is a directory with a file containing the following informations:
+     the operating system, its
       applications and configurations and the filesystem
       structure of the OS and includes possible additional metadata. Depending
       on the image type, also disk geometry and partition table data can
@@ -67,20 +68,20 @@
       <varlistentry>
         <term>LiveCD, also DVD, USB Stick</term>
         <listitem>
-          <para>deploy to media with KIWI and start your image.</para>
+          <para>deploys to media with KIWI and start your image.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term>Virtual Disk</term>
         <listitem>
-          <para>play full virtual systems with VMware, for
+          <para>plays full virtual systems with VMware, for
             exmaple. </para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term>XEN (Paravirtual Image for Hyphervisor)</term>
         <listitem>
-          <para>create guest configuration with KIWI.</para>
+          <para>creates guest configuration with KIWI.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -95,7 +96,7 @@
       advantages: </para>
     <itemizedlist>
       <listitem>
-        <para>Create your own Live CD/DVD which contains only those
+        <para>Create your own Live CD/DVD, which contains only the
           packages that you really need.
         </para>
       </listitem>
@@ -113,7 +114,7 @@
       <listitem>
         <remark>man kann mit kiwi images bauen die eigene nicht
           distributierte software enthalten</remark>
-        <para>Create KIWI images that contain software that is not
+        <para>Create KIWI images containing software that is not
           included in the official distribution.</para>
       </listitem>
       <listitem>
@@ -135,7 +136,7 @@
         <remark>man kann mit kiwi kleinere images bauen als es mit einer
           normalen Installation möglich ist. Bedingt durch mögliche
           Kompression und Einflussnahme ausserhalb des Paketmanagers.</remark>
-        <para>Create smaller images than with a normal installation.</para>
+        <para>Create smaller images than with a usual installation.</para>
       </listitem>
       <listitem>
         <remark>man kann mit kiwi images für Netzwerk Systeme erstellen.
@@ -157,9 +158,11 @@
         <filename>/usr/share/doc/packages/kiwi/examples/</filename>. For
       detailed information about the content of an image description,
       look into the <citetitle>System Design</citetitle> document,
+      <remark>mdejmek: wo soll man reinschauen, bzw. befindet sich das Dokument in der biblioref?</remark>      
       see <biblioref linkend="bib.kiwi-design"/>.
     </para>
   </sect1>
+  
   <sect1 id="sec.kiwi.preparation">
     <title>What do I need?</title>
     <para>To build images with KIWI, you need the following
@@ -171,7 +174,7 @@
       </listitem>
       <listitem>
         <para>KIWI is split into several packages, targeted to different
-          image types. In every case you need the base package,
+          image types. In any case, you need the base package
           <package>kiwi</package>. Depending on your target image, you
           need the following additional packages:</para>
         <informaltable>
@@ -248,8 +251,8 @@
             <filename>/usr/share/doc/packages/kiwi/kiwi.html</filename>.
           <remark>Should we use a WWW address here, instead of the local
           one?</remark>
-          The information therein is needed to know the correct elements
-          and attributes to create a valid XML file.
+          There you will find informations about the correct elements
+          and attributes you need to create a valid XML file.
         </para>
       </listitem>
     </orderedlist>
@@ -261,8 +264,8 @@
       <listitem>
         <formalpara>
           <title>Physical Extend</title>
-          <para>This stage prepares the content of your new filesystem.
-            During this stage, you determine which packages are
+          <para>This stage prepares the content of your new filesystem.          
+            During this step, you determine which packages are
             installed on your image and which configuration files are
             included.</para>
         </formalpara>
@@ -277,15 +280,17 @@
       <listitem>
         <formalpara>
           <title>Deployment</title>
-          <para>The resulting ISO image can be deployed with different
+          <para>
+          <remark>mdejmek: kannst du mir den folgenden Satz noch mal auf deutsch sagen?</remark>          
+          The resulting ISO image can be deployed with different
             methods like installed on a hard disk or played by a
-            virtualization system (VMware, Qemu, VirtualBox).</para>
+            virtualization system (Vmware, Qemu, VirtualBox).</para>
         </formalpara>
       </listitem>
     </orderedlist>
     <para>Detailed background can be found in the
       <citetitle>System Design</citetitle>
-      paper, see
+      paper, see    
       <filename>/usr/share/doc/packages/kiwi/kiwi.pdf</filename>.
     </para>
   </sect1>
@@ -307,30 +312,32 @@
           phase (<quote>physical extend</quote>):</para>
         <screen><command>kiwi</command> --prepare /usr/share/doc/packages/kiwi/examples/test1 \
     --root /tmp/kiwi-test1</screen>
-        <para>If everything is correct, you see the message
+        <para>
+        	<remark>mdejmek: vielleicht lieber: if the package has been installed correctly??</remark>
+        If everything is correct, you see the message
           <errortext>KIWI exited sucessfully</errortext>.</para>
       </step>
       <step>
         <para>Build the ISO image:</para>
         <screen><command>kiwi</command> --create /tmp/kiwi-test1 -d /tmp --type iso</screen>
-        <para>KIWI builds the ISO image. If everything is correct, it
+        <para>KIWI builds the ISO image.
+			<remark>mdejmek: vielleicht lieber: if the package has been installed correctly??</remark>        
+         If everything is correct, it
           prints the message
           <errortext>KIWI exited sucessfully</errortext>.</para>
       </step>
       <step>
-        <para>Test the ISO image with Qemu, VMware or VirtualBox, for
-        example:</para>
-        <screen>qemu -boot d -cdrom <replaceable>ISO_FILE</replaceable> -m 512</screen>
+        <para>Test the ISO image with Qemu, Vmware or VirtualBox.</para>
       </step>
     </procedure>
   </sect1>
   <sect1 id="sec.kiwi.minimal">
     <title>Creating a Minimal Image</title>
-    <para>If you want to start with a minimal example and extend it
+    <para>If you want to start with a minimal image and want to extend it
       later, proceed as follows:</para>
     <procedure>
       <step>
-        <para>Copy the example directory from
+        <para>Copy the example directory
           <filename>test2</filename>
           from your KIWI package:</para>
         <screen>cp -a /usr/share/doc/packages/kiwi/examples/test2/ .</screen>
@@ -349,6 +356,7 @@
           <title>Essential Packages</title>
           <para>The following lines are essential and
             <emphasis>must</emphasis>
+				<remark>mdejmek: vielleicht kann man das genauer sagen als "must be present"</remark>           
             always be present:</para>
           <screen>&lt;packages type="boot">
   &lt;package name="filesystem"/>
@@ -382,20 +390,12 @@
   </sect1>
   <sect1 id="sec.kiwi.usb">
     <title>Creating Bootable USB Sticks</title>
+    <remark>Work in progress...</remark>
     <para>An USB stick with your Linux distribution is very convenient:
       you can carry it with you and it is faster than a hard disk
       solution. This section shows you how you can install an openSUSE
       system on your USB stick. For the installation the stick needs a
       miminum amount of 1 GByte.</para>
-   
-   <note>
-     <title>Bootable USB Sticks and BIOS</title>
-      <para>You can only boot from the stick if the BIOS accepts your
-        USB stick as bootable medium. Unfortunately, some BIOS types and
-        USB sticks do not work together. It is nearly impossible to
-        predict which combinations work, so if your USB stick cannot be
-        booted, try another one from a different vendor.</para>
-   </note>
    
     <para>Proceed as follows:</para>
     <procedure>
@@ -428,8 +428,8 @@
 &lt;/repository> &#x2d;&#x2d;&gt;</screen>
           </step>
           <step>
-            <para>Insert the following code on a new line after the disabled <sgmltag class="endtag"
-                >repository</sgmltag> element:</para>
+            <para>Insert the following code on a new line after the disabled <sgmltag class="endtag">
+            repository</sgmltag> element:</para>
             <screen>&lt;repository type="yast2">
   &lt;source path="http://download.opensuse.org/distribution/10.3/repo/oss"/>
 &lt;/repository>              
@@ -444,11 +444,10 @@
           phase:</para>
         <screen>kiwi --prepare usb-live/ --root /tmp/kiwi-usblive \
    --add-profile KDE --logfile log-prepare.txt</screen>
-        <para>This takes some time. If you want to see what is going on,
-          remove the option <option>--logfile</option> or open a new
-          shell, become root, change to your respective directory and
-          type <command>tailf</command>
-          <filename>log-prepare.txt</filename>.</para>
+        <para>If you want to see what is going on, remove the option
+          <option>--logfile</option> or open a new shell,
+          become root, change to your respective directory and type
+            <command>tailf</command> <filename>log-prepare.txt</filename>.</para>
       </step>
       <step>
         <para>Build the image:</para>
@@ -519,16 +518,18 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
           <note>
             <title>Getting Pattern Names</title>
             <para>You can get the names of patterns in your installed
-              system under <filename class="directory"
-                  >/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
-              (replace <replaceable>REPO</replaceable> with the name of
-              your system, for example <filename
-                >openSUSE-10.3-retail&nbsp;10.3</filename>. Watch for the
-              space!) or look into the directory <filename class="directory"
-              >suse/setup/descr/</filename> on your DVD or first CD.
+              system under
+              <filename class="directory">/var/cache/zypp/raw/<replaceable>REPO</replaceable>/suse/setup/descr/</filename>
+              (replace
+              <replaceable>REPO</replaceable>
+              with the name of your system, for example
+              <filename>openSUSE-10.3-retail 10.3</filename>) or look
+              into the directory
+              <filename class="directory">suse/setup/descr/</filename>
+              on your DVD or first CD.
             </para>
           </note>
-          <para>Depending what your interests in development are, you
+          <para>Depending on your interests in development, you
             have to add more patterns.
             <xref linkend="tab.kiwi.pattern" xrefstyle="select:label nopage"/>
             contains an overview of some common pattern names.</para>
@@ -603,8 +604,10 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
     
     <sect2 id="sec.kiwi.publishing">
       <title>Creating a Rescue System</title>
-      <para>A rescue system lets you debug your system. It contains
-        tools that are required for these tasks. Mainly, the overall
+      <para>A rescue system allows you to debug your system. It contains
+        the tools required for these tasks. 
+			<remark>mdejmek: was genau meint hier "last one"?</remark>        
+        Mainly, the overall
         procedure is very similar to the last one. Proceed as follows:</para>
       <procedure>
         <step>
@@ -612,7 +615,7 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
             <package>aufs</package> and <package>squashfs</package>.</para>
         </step>
         <step>
-          <para>Copy the example directory from
+          <para>Copy the example directory
             <filename>test2</filename> from your KIWI package:</para>
           <screen>cp -a /usr/share/doc/packages/kiwi/examples/test2/ rescue/</screen>
         </step>
@@ -620,14 +623,13 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
           <para>Open the configuration file
             <filename>devel/config.xml</filename> and change the
             attribute <sgmltag class="attribute">name</sgmltag> in
-            element <sgmltag>image</sgmltag> to <sgmltag
+            the <sgmltag>image</sgmltag> element to <sgmltag
               class="attvalue">rescue</sgmltag>.</para>
         </step>
         <step>
           <para>Add your packages into <filename>config.xml</filename>.
-            Insert before the <sgmltag
-              class="endtag">packages</sgmltag> end tag the following
-              packages:</para>
+            Insert the following packages before the <sgmltag
+              class="endtag">packages</sgmltag> end tag:</para>
           <table id="tab.kiwi.rescuepackages">
             <title>Examples of Pattern Names for Development</title>
             <tgroup cols="2">
@@ -666,7 +668,7 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
                   <entry>
                     <package>fuseiso</package>
                   </entry>
-                  <entry>FUSE module to mount CD-ROM images with ISO9660 filesystems in them</entry>
+                  <entry>FUSE module to mount CD-ROM images containing ISO9660 filesystems</entry>
                 </row>
                 <row>
                   <entry>
@@ -678,7 +680,7 @@ kiwi --type usb --create /tmp/kiwi-usblive/ -d kiwi-image <!--
                   <entry>
                     <package>hfsutils</package>
                   </entry>
-                  <entry>Tools Used for the Macintosh's Hierarchical File System</entry>
+                  <entry>Tools Used for Macintosh's Hierarchical File System</entry>
                 </row>
                 <row>
                   <entry>
