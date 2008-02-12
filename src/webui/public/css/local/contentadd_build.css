@@ -357,9 +357,9 @@ background:transparent !important;
     border-right: 5px solid #eee;
     margin-bottom: 0;
     border-bottom: 0;
-    
-    background-color: #fafafa;
+    padding-left: 0.5em;
 
+    background-color: #fafafa;
    }
   #drop_list div a.remove_item {
     float:right;
@@ -370,6 +370,7 @@ background:transparent !important;
     cursor: pointer;
     background: transparent url("/css/local/images/icons/edit-delete.png") no-repeat center center;
     }
+
   #drop_list div.repo_cnt  a.remove_item {
     background: transparent url("/css/local/images/icons/edit-delete3.png") no-repeat center center;
     }
