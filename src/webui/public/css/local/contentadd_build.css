@@ -354,15 +354,20 @@ background:transparent !important;
     background: #eee;
     }
   #drop_list div.repo_cnt {
+    /*
     border-left: 5px solid #eee;
     border-right: 5px solid #eee;
-    margin-bottom: 0;
+    */
+    margin: 0.2em 0;
     border-bottom: 0;
     padding-left: 0.5em;
-    
-    color: #333;
+    cursor: pointer;
+    color: #666;
 
     background-color: #fafafa;
+  }
+  #drop_list div.repo_cnt:hover {
+   color: #333; 
   }
   #drop_list div a.remove_item {
     float:right;
@@ -375,7 +380,7 @@ background:transparent !important;
     }
 
   #drop_list div.repo_cnt  a.remove_item {
-    margin: 0;
+    margin: 0 0.4em 0 0;
     background: transparent url("/css/local/images/icons/edit-delete3.png") no-repeat center center;
     }
    #drop_list div a.remove_item:hover {

@@ -1,10 +1,20 @@
 <div id='repository-<%=@id%>' >
   <a id='<%=@id%>' title='Remove Item From List' class='remove_item'>&nbsp;</a>
-  <h4 onclick="new Effect.toggle($('repo_cnt-<%=@id%>'), 'blind', {duration:0.15});">
+  <h4 onclick="new Effect.toggle($('cnt_<%=@id%>'), 'blind', {duration:0.15});">
   <%=@id%>
   </h4>
-  <div id='repo_cnt-<%=@id%>' class='repo_cnt'>
+  <div id="cnt_<%=@id%>">
+    <div id='repo_cnt-<%=@id%>' class='repo_cnt'>
       <a id='<%=@id%>' title='Remove Item From List' class='remove_item'>&nbsp;</a>
        <%=@id%>
+    </div>
+    <div id='repo_cnt-<%=@id%>' class='repo_cnt'>
+      <a id='<%=@id%>' title='Remove Item From List' class='remove_item'>&nbsp;</a>
+       <%=@id%>
+    </div>
+    <div id='repo_cnt-<%=@id%>' class='repo_cnt'>
+      <a id='<%=@id%>' title='Remove Item From List' class='remove_item'>&nbsp;</a>
+       <%=@id%>
+    </div>
   </div>
 </div>
