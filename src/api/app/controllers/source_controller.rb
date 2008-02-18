@@ -84,6 +84,15 @@ class SourceController < ApplicationController
 
       render_ok
       return
+    elsif request.post?
+      cmd = params[:cmd]
+      if @http_user.can_modify_project?(pro)
+        dispatch_command
+      else
+        render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+          :message => "no permission to execute command '#{cmd}'"
+        return
+      end
     else
       render_error :status => 400, :errorcode => "illegal_request",
         :message => "illegal POST request to #{request.request_uri}"
@@ -293,6 +302,37 @@ class SourceController < ApplicationController
     end
   end
 
+  def project_pubkey
+    valid_http_methods :get, :delete
+
+    #check if project exists
+    unless (@project = DbProject.find_by_name(params[:project]))
+      render_error :status => 404, :errorcode => 'project_not_found',
+        :message => "Unknown project #{params[:project]}"
+      return
+    end
+
+    #assemble path for backend
+    path = request.path
+    unless request.query_string.empty?
+      path += "?" + request.query_string
+    end
+
+    if request.get?
+      forward_data path
+    elsif request.delete?
+      #check for permissions
+      unless @http_user.can_modify_project?(@project)
+        render_error :status => 403, :errorcode => 'delete_project_pubkey_no_permission',
+          :message => "No permission to delete public key for project '#{params[:project]}'"
+        return
+      end
+
+      forward_data path, :method => :delete
+      return
+    end
+  end
+
   def package_meta
     #TODO: needs cleanup/split to smaller methods
    
@@ -463,6 +503,12 @@ class SourceController < ApplicationController
   end
 
   private
+
+  # POST /source/<project>?cmd=createkey
+  def index_project_createkey
+    path = request.path + "?" + request.query_string
+    forward_data path, :method => :post
+  end
 
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
   def index_package_createSpecFileTemplate

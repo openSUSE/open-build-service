@@ -58,6 +58,8 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'project_config'
   map.connect 'source/:project/_tags', :controller => 'tag',
     :action => 'project_tags'
+  map.connect 'source/:project/_pubkey', :controller => 'source',
+    :action => 'project_pubkey'
   map.connect 'source/:project/:package', :controller => "source",
     :action => 'index_package'
   map.connect 'source/:project', :controller => "source",
