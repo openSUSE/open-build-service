@@ -68,11 +68,16 @@ case "$1" in
 		popd
 
 		while test "$NUM" -gt "$I"; do
+			if [ "$OBS_WORKER_PORTBASE" -gt 0 ]; then
+				port="--port $((OBS_WORKER_PORTBASE + I))"
+			else
+				port=""
+			fi
 			I=$(( $I + 1 ))
 			title="$HOSTNAME/$I"
 			# prepare obsworker startup in screen...
 			# FIXME: implement command line parameter to define the server
-			echo "screen -t $title ./bs_worker $obsopt --root $ROOT/root_$I" \
+			echo "screen -t $title ./bs_worker $obsopt $port --root $ROOT/root_$I" \
 			    --statedir $workerdir/$I --id "$HOSTNAME/$I" \
 			    >> $screenrc
                         mkdir $workerdir/$I

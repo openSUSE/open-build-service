@@ -38,6 +38,7 @@ use BSBuild;
 use strict;
 
 my $buildroot;
+my $port;
 my $statedir;
 my $hostarch;
 my $xen = '';
@@ -104,6 +105,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --root      : buildroot directory
 
+       --port      : fixed port number
+
        --statedir  : state directory
 
        --id        : worker id
@@ -135,6 +138,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--root') {
     shift @ARGV;
     $buildroot = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--port') {
+    shift @ARGV;
+    $port = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--arch') {
@@ -511,7 +519,6 @@ sub dobuild {
 chdir($statedir) || die("$statedir: $!\n");
 
 BSServer::deamonize(@ARGV);
-my $port;
 
 # calculate code meta md5
 my $workercode = codemd5('worker');
@@ -525,7 +532,11 @@ unlink("$buildroot/.build.log");
 commitstate({'state' => 'idle'});
 
 # start server process...
-BSServer::serveropen(\$port);
+if ($port) {
+  BSServer::serveropen($port);
+} else {
+  BSServer::serveropen(\$port);
+}
 mkdir($buildroot) unless -d $buildroot;
 send_state('idle', $port, $hostarch);
 

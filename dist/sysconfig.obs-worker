@@ -28,3 +28,12 @@ OBS_WORKER_INSTANCES="0"
 
 OBS_WORKER_DIRECTORY=""
 
+## Path:        Applications/OBS
+## Description: The base for port numbers used by worker instances
+## Type:        integer
+## Default:     "0"
+## Config:      OBS
+#
+# 0 means let the operating system assign a port number
+
+OBS_WORKER_PORTBASE="0"
