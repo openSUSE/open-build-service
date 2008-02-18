@@ -419,11 +419,16 @@ background:transparent !important;
 /* /Repo List */  
 
 
- /*.hover {*/
+ /*
 .hover{
    color: #ddd!important;
    border-color: #690!important;
    background-image: url('images/drop_zone_1.png')!important;
   }
-
+  */
+.hover #drop_list {
+  color: #ddd!important;
+  border-color: #690!important;
+  background-image: url('images/drop_zone_1.png')!important;
+  }
 /* /Add Repo & Repo DropZone ********************************************** */
