@@ -217,9 +217,11 @@ background:transparent !important;
     border-right-color: #255FB7;
   }
 
+
+
+   
   .toggle_box_top,
   .toggle_box_bottom {
-    position: relative;       
     background: #eee;
   }
   
@@ -229,26 +231,41 @@ background:transparent !important;
     border-bottom: 2px solid #e5e5e5;
     font-weight: bold;
     color: #999;
-    background:#eee url(/css/local/images/icons/folder-open.png) no-repeat scroll 99% bottom;
     cursor: pointer;
   }
-  
+
   .toggle_box_bottom {
     border-top: 1px solid #ccc;
     height: 4px;
   }
-  .toggle_box_top:hover {
-    background-image: url(/css/local/images/icons/folder-open_over.png);     
-    color: #666;
-    
-  } 
+ 
   .toggle_box_top span {
     position: absolute;
     width: 95%;
-    margin-left: 1em;
+    margin-left: 1.5em;
     padding-top: 0.5em;
     border-bottom: 0;
+  } 
+ 
+ 
+ 
+  .toggle_box_top,
+  #drop_list div h4 {
+    background:#eee url(/css/local/images/icons/folder-open.png) no-repeat scroll 1% 0.5em;
   }
+  .toggle_box_top:hover,
+  #drop_list div h4:hover {
+    background-image: url(/css/local/images/icons/folder-open_over.png);     
+    color: #666;
+    
+  }
+  #repository_wrapper .toggle_box_top,
+  #repository_wrapper .toggle_box_bottom {
+   position: relative;
+  }
+  #repository_wrapper .toggle_box_top {}
+
+
 
 /********************/
   
@@ -339,58 +356,56 @@ background:transparent !important;
 #drop_list div {
   display: block;
   width: auto;
-  margin: 0.5em 1px 0;
+  /*margin: 0.5em 1px 0;*/
   right: 2em;
-  border-bottom:2px solid #E5E5E5;
+
 }
 #drop_list div * {
-  margin: 0;
+  /*margin: 0;*/
 }
-  #drop_list div h4 {
-    margin: 0;
-    padding: 0.2em;
-    cursor: pointer;
-    font-weight: bold;
-    background: #eee;
-    }
-  #drop_list div.repo_cnt {
-    /*
-    border-left: 5px solid #eee;
-    border-right: 5px solid #eee;
-    */
-    margin: 0.2em 0;
-    border-bottom: 0;
-    padding-left: 0.5em;
-    cursor: pointer;
-    color: #666;
 
-    background-color: #fafafa;
-  }
+.list_wrapper { /* e.g. used in #drop_list to wrap subrepos */
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+  border-bottom:2px solid #E5E5E5; 
+}
+#drop_list div.repo_cnt {
+  padding: 0.2em 0;
+  margin: 0;
+  border-bottom: 0;
+  padding-left: 0.5em;
+  cursor: pointer;
+  color: #666;
+
+  background-color: #fafafa;
+}
   #drop_list div.repo_cnt:hover {
-   color: #333; 
+   color: #333;
+   background-color: #f5f5f5; 
   }
-  #drop_list div a.remove_item {
-    float:right;
-    display: block;
-    width: 16px;
-    height: 17px;
-    margin: 0.2em 0.4em 0 0;
-    cursor: pointer;
-    background: transparent url("/css/local/images/icons/edit-delete.png") no-repeat center center;
-    }
+#drop_list div a.remove_item {
+  float:right;
+  display: block;
+  width: 16px;
+  height: 17px;
+  margin: 0.5em 0.4em 0 0;
+  cursor: pointer;
+  background: transparent url("/css/local/images/icons/edit-delete.png") no-repeat center center;
+}
 
-  #drop_list div.repo_cnt  a.remove_item {
-    margin: 0 0.4em 0 0;
-    background: transparent url("/css/local/images/icons/edit-delete3.png") no-repeat center center;
-    }
-   #drop_list div a.remove_item:hover {
-     background-image:url("/css/local/images/icons/edit-delete_over.png");
-     text-decoration:none;
-   }
-    #drop_list div.repo_cnt a.remove_item:hover {
-     background-image:url("/css/local/images/icons/edit-delete_over2.png");
-    }
+#drop_list div.repo_cnt  a.remove_item {
+  margin: 0 0.4em 0 0;
+  background: transparent url("/css/local/images/icons/edit-delete3.png") no-repeat center center;
+}
 
+  #drop_list div a.remove_item:hover {
+    background-image:url("/css/local/images/icons/edit-delete_over.png");
+    text-decoration:none;
+  }
+  #drop_list div.repo_cnt:hover a.remove_item, 
+  #drop_list div.repo_cnt a.remove_item:hover {
+    background-image:url("/css/local/images/icons/edit-delete_over2.png");
+  }
 
   .draggable {}
   
@@ -418,14 +433,6 @@ background:transparent !important;
 }
 /* /Repo List */  
 
-
- /*
-.hover{
-   color: #ddd!important;
-   border-color: #690!important;
-   background-image: url('images/drop_zone_1.png')!important;
-  }
-  */
 .hover #drop_list {
   color: #ddd!important;
   border-color: #690!important;
