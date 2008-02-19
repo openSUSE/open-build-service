@@ -17,11 +17,11 @@ WARNING: The following starts services which are accessable from the outside.
          Do not do this on a system connected to an untrusted network or be
          sure to block the ports via a firewall.
 
-   # rcobsrepserver start
-   # rcobssrcserver start
-   # rcobsscheduler start
-   # rcobsdispatcher start
-   # rcobspublisher  start
+   rcobsrepserver start
+   rcobssrcserver start
+   rcobsscheduler start
+   rcobsdispatcher start
+   rcobspublisher  start
 
 The data get hosted inside of /srv/obs directory by default.
 
@@ -68,18 +68,18 @@ on this or a remote host.
   it's reccommended to add a separate mysql user, e.g.g 'obs', like
   this:
 
-      # mysql -u root -p='your-password'
-      GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP 
-      ON frontend.* 
-      TO 'obs'@'%' IDENTIFIED BY 'obspwd', 
-      'obs'@'localhost' IDENTIFIED BY 'obspwd';
+      # mysql -u root -p'your-password'
+      CREATE USER obs IDENTIFIED BY 'obs-password';
+
+      GRANT all privileges
+      ON frontend_development.* 
+      TO 'obs'@'%', 'obs'@'localhost';
 
 * Configure your mysql user and password in
+  in the "development:" section of these files:
 
     /srv/www/obs/frontend/config/database.yml
     /srv/www/obs/webclient/config/database.yml
-
-  in the "development:" section.
 
 * populate the database
 
@@ -94,23 +94,57 @@ interface is needed. A configuration for accessing via
 http://127.0.42.1 and http://127.0.42.2 gets automatically installed
 into /etc/lighttpd/vhosts.d/obs.conf
 
-Make sure the following is in the 'custom includes section' at the
-bottom of /etc/lighttpd/lighttpd.conf :
+If you need other hostnames, edit that file
+/etc/lighttpd/vhosts.d/obs.conf:
 
-  var.conf_dir    = "/etc/lighttpd/"
-  include "vhosts.d/obs.conf"
+    $HTTP["host"] =~ "buildserver.my.domain.example.org" {
+      ...
+    }
 
-The modules "mod_magnet" and "mod_rewrite" needs to be enabled in
-/etc/lighttpd/modules.conf . Additionally you need to enable FastCGI
-by uncommenting
 
-  include "conf.d/fastcgi.conf"
+To enable these vhosts, make sure to uncomment the following is in the
+'custom includes' section at the bottom of
+/etc/lighttpd/lighttpd.conf:
 
-in that file.
+
+  ##
+  ## custom includes like vhosts.
+  ##
+  #include "conf.d/config.conf"
+  # following line uncommented as per
+  # /usr/share/doc/packages/obs-api/README.SETUP
+  include_shell "cat vhosts.d/*.conf"
+
+
+Also, the modules "mod_magnet", "mod_rewrite" and fastcgi need to be
+enabled by uncommenting the corresponding lines in
+/etc/lighttpd/modules.conf:
+
+    server.modules = (
+      "mod_access",
+    #  "mod_alias",
+    #  "mod_auth",
+    #  "mod_evasive",
+    #  "mod_redirect",
+      "mod_rewrite",
+    #  "mod_setenv",
+    #  "mod_usertrack",
+    )
+
+    ##
+    ## mod_magnet
+    ##
+    include "conf.d/magnet.conf"
+
+    ##
+    ## FastCGI (mod_fastcgi)
+    ##
+    include "conf.d/fastcgi.conf"
+
 
 Afterwards you can start the OBS web frontends via 
 
-     # rclighttpd start  # use "insserv lighttpd" for permanent start
+    rclighttpd start  # use "insserv lighttpd" for permanent start
 
 
 4. Setup initial distributions
