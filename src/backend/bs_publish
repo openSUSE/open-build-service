@@ -241,7 +241,9 @@ sub createrepo_rpmmd {
   if ($BSConfig::repodownload) {
     local *FILE;
     open(FILE, '>', "$extrep/$projid.repo$$") || die("$extrep/$projid.repo$$: $!\n");
-    print FILE "[$projid]\n";
+    my $projidHeader = $projid;
+    $projidHeader =~ s/:/_/g;
+    print FILE "[$projidHeader]\n";
     print FILE "name=$repoinfo->{'title'}\n";
     print FILE "type=rpm-md\n";
     print FILE "baseurl=$BSConfig::repodownload/$prp_ext/\n";
