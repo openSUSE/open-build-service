@@ -57,7 +57,6 @@
         <xsl:apply-templates mode="conv14to20"/>
       </xsl:when>
       <xsl:when test="$contents = 'split' and contains($fs, ',')">
-        <!-- Is this safe enough? -->
         <xsl:attribute name="fsreadwrite">
           <xsl:value-of select="substring-before($fs, ',')"/>
         </xsl:attribute>
@@ -70,7 +69,8 @@
       <xsl:otherwise>
         <xsl:message terminate="yes">
           <xsl:text>ERROR: If element type contains 'split', attribute </xsl:text>
-          <xsl:text>filesystem MUST contain a comma separated list.&#10;</xsl:text>
+          <xsl:text>filesystem MUST contain the name of the read-write and read-only </xsl:text>
+          <xsl:text>filesystem separated by comma.&#10;</xsl:text>
           <xsl:text>SOLUTION: Insert the respective values and </xsl:text>
           <xsl:text>separate them with commas.</xsl:text>
         </xsl:message>
