@@ -29,6 +29,7 @@
   </xsl:choose>  
 </xsl:template>
 
+
 <para xmlns="http://docbook.org/ns/docbook"> Changed attribute <tag
       class="attribute">schemeversion</tag> from <literal>1.4</literal>
     to <literal>2.0</literal>. 
@@ -41,27 +42,25 @@
 </xsl:template>
 
 
-<para xmlns="http://docbook.org/ns/docbook"> 
-  When content of element <tag>type</tag> is <literal>split</literal>,
-  then insert two new attributes and remove attribute
-  <tag class="attribute">filesystem</tag>.
+<para xmlns="http://docbook.org/ns/docbook"> Split the content of
+    attribute <tag class="attribute">filesystem</tag> at comma and
+    insert them into the new attributes <tag class="attribute"
+      >fsreadwrite</tag> and <tag class="attribute">fsreadonly</tag>
 </para>
 <xsl:template match="type" mode="conv14to20" >
+  <xsl:variable name="fs" select="normalize-space(@filesystem)"/>
+  
   <type>
-    <xsl:choose>
-      <xsl:when test="normalize-space(.) = 'split'">
-        <xsl:attribute name="filesystemRW">squashfs</xsl:attribute>
-        <xsl:attribute name="filesystemRO">
-          <xsl:value-of select="@filesystem"/>
-        </xsl:attribute>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:copy-of select="@*"/>
-      </xsl:otherwise>      
-    </xsl:choose>
+    <xsl:attribute name="fsreadwrite">
+      <xsl:value-of select="substring-before($fs, ',')"/>
+    </xsl:attribute>
+    <xsl:attribute name="fsreadonly">
+      <xsl:value-of select="substring-after($fs, ',')"/>
+    </xsl:attribute>
     <xsl:apply-templates mode="conv14to20"/>
   </type>
 </xsl:template>
+
 
 <para xmlns="http://docbook.org/ns/docbook"> 
   Change attribute value <tag class="attribute">boot</tag> to 
@@ -72,5 +71,6 @@
     <xsl:apply-templates mode="conv14to20"/>
   </packages>
 </xsl:template>
+
 
 </xsl:stylesheet>
