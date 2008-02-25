@@ -56,6 +56,9 @@
 #                 - union: rename attribute "name" -> "overlay" (?)
 #                 - Fix camel case in element opensusePattern and
 #                   attributes patternPackageType and patternType
+#                 - type: split attribute filesystem into fsreadwrite
+#                   and fsreadonly. 
+#                   DONE 2008-02-25 (toms)
 #
 #****************
 namespace rng = "http://relaxng.org/ns/structure/1.0"
@@ -109,8 +112,7 @@ div {
 		[
 		db:para [
 			"Each KIWI configuration file consists of a root element\x{a}" ~
-			"        image."
-		]
+			"        image."]
 		]
 		element image {
 			k.image.attlist &
@@ -820,8 +822,7 @@ div {
 		[
 		db:para [
 			"Image timezone setup. The value will be used to search\x{a}"~
-			"the correct timezone and copy it to /etc/localtime."
-		]
+			"the correct timezone and copy it to /etc/localtime."	]
 		]
 		element timezone {
 			k.timezone.attlist,
@@ -852,11 +853,12 @@ div {
 		## Specifies flags for the image type. This could be compressed
 		## or unified and applies to the iso type only
 		attribute flags { "unified" | "compressed" }
-	k.type.filesystem.attribute = 
-		## Specifies the filesystem:
-		## ext2 | ext3 | reiserfs | squashfs | cpio. or a combination
-		## of two of these types with the split image type
-		attribute filesystem { text }
+	k.type.fsreadwrite.attribute =
+	  ## Specifies the filesystem that is writeable
+	  attribute fsreadwrite { text }
+	k.type.fsreadonly.attribute =
+	  ## Specifies the filesystem that is read only
+	  attribute fsreadonly { text }  
 	k.type.format.attribute =
 		## Specifies the format of the virtual disk. This applies to the
 		## vmx/oem types only.
@@ -872,7 +874,8 @@ div {
 		k.type.bootprofile.attribute? &
 		k.type.boot.attribute? &
 		k.type.flags.attribute? &
-		k.type.filesystem.attribute? &
+		k.type.fsreadwrite.attribute? &
+		k.type.fsreadonly.attribute? &
 		k.type.baseroot.attribute? &
 		k.type.format.attribute? &
 		k.type.primary.attribute?
@@ -908,8 +911,7 @@ div {
 			"specifies the overlay filesystem setup if required by the\x{a}"~
 			"filesystem type of the system image. An overlay setup is\x{a}"~
 			"only required if the system image uses a squashfs compressed\x{a}"~
-			"filesystem."
-		]
+			"filesystem."]
 		]
 		element union {
 			k.union.attlist,

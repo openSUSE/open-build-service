@@ -58,12 +58,15 @@
                   - union: rename attribute "name" -> "overlay" (?)
                   - Fix camel case in element opensusePattern and
                     attributes patternPackageType and patternType
+                  - type: split attribute filesystem into fsreadwrite
+                    and fsreadonly. 
+                    DONE 2008-02-25 (toms)
   
   ****************
 -->
-<grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
-    <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
+    <db:releaseinfo>$Id: kiwi.rnc 3091 2008-02-06 14:46:19Z sax2 $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 1.4</db:releaseinfo>
     <db:pubdate>START</db:pubdate>
     <db:pubdate>2008-01-08</db:pubdate>
@@ -1153,11 +1156,14 @@ or unified and applies to the iso type only</a:documentation>
         </choice>
       </attribute>
     </define>
-    <define name="k.type.filesystem.attribute">
-      <attribute name="filesystem">
-        <a:documentation>Specifies the filesystem:
-ext2 | ext3 | reiserfs | squashfs | cpio. or a combination
-of two of these types with the split image type</a:documentation>
+    <define name="k.type.fsreadwrite.attribute">
+      <attribute name="fsreadwrite">
+        <a:documentation>Specifies the filesystem that is writeable</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.type.fsreadonly.attribute">
+      <attribute name="fsreadonly">
+        <a:documentation>Specifies the filesystem that is read only</a:documentation>
       </attribute>
     </define>
     <define name="k.type.format.attribute">
@@ -1199,7 +1205,10 @@ vmx/oem types only.</a:documentation>
           <ref name="k.type.flags.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.filesystem.attribute"/>
+          <ref name="k.type.fsreadwrite.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.fsreadonly.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.baseroot.attribute"/>
