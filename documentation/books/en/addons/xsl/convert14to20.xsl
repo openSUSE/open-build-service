@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:output method="xml" indent="yes"/>
+<xsl:output method="xml" indent="yes" omit-xml-declaration="no"/>
 
 
 <xsl:template match="*|processing-instruction()|comment()" mode="conv14to20">
@@ -49,15 +49,33 @@
 </para>
 <xsl:template match="type" mode="conv14to20" >
   <xsl:variable name="fs" select="normalize-space(@filesystem)"/>
+  <xsl:variable name="contents" select="normalize-space(.)"/>
   
   <type>
-    <xsl:attribute name="fsreadwrite">
-      <xsl:value-of select="substring-before($fs, ',')"/>
-    </xsl:attribute>
-    <xsl:attribute name="fsreadonly">
-      <xsl:value-of select="substring-after($fs, ',')"/>
-    </xsl:attribute>
-    <xsl:apply-templates mode="conv14to20"/>
+    <xsl:choose>
+      <xsl:when test="$contents != 'split'">
+        <xsl:apply-templates mode="conv14to20"/>
+      </xsl:when>
+      <xsl:when test="$contents = 'split' and contains($fs, ',')">
+        <!-- Is this safe enough? -->
+        <xsl:attribute name="fsreadwrite">
+          <xsl:value-of select="substring-before($fs, ',')"/>
+        </xsl:attribute>
+        <xsl:attribute name="fsreadonly">
+          <xsl:value-of select="substring-after($fs, ',')"/>
+        </xsl:attribute>
+        <xsl:copy-of select="@boot"/>
+        <xsl:apply-templates mode="conv14to20"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message terminate="yes">
+          <xsl:text>ERROR: If element type contains 'split', attribute </xsl:text>
+          <xsl:text>filesystem MUST contain a comma separated list.&#10;</xsl:text>
+          <xsl:text>SOLUTION: Insert the respective values and </xsl:text>
+          <xsl:text>separate them with commas.</xsl:text>
+        </xsl:message>
+      </xsl:otherwise>
+    </xsl:choose>
   </type>
 </xsl:template>
 
