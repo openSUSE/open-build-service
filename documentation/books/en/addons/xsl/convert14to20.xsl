@@ -3,7 +3,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <xsl:output method="xml" indent="yes" omit-xml-declaration="no"/>
-
+<xsl:strip-space elements="type"/>
 
 <xsl:template match="*|processing-instruction()|comment()" mode="conv14to20">
   <xsl:copy>
@@ -42,18 +42,21 @@
 </xsl:template>
 
 
-<para xmlns="http://docbook.org/ns/docbook"> Split the content of
-    attribute <tag class="attribute">filesystem</tag> at comma and
-    insert them into the new attributes <tag class="attribute"
-      >fsreadwrite</tag> and <tag class="attribute">fsreadonly</tag>
+<para xmlns="http://docbook.org/ns/docbook">
+  Copy all attributes, when contents is NOT 'split'.
+  If contents contains 'split' and attribute <tag class="attribute">filesystem</tag>
+  contains a comma, then split this attribute and create
+  two new attributes <tag class="attribute"
+      >fsreadwrite</tag> and <tag class="attribute">fsreadonly</tag>.
 </para>
 <xsl:template match="type" mode="conv14to20" >
   <xsl:variable name="fs" select="normalize-space(@filesystem)"/>
-  <xsl:variable name="contents" select="normalize-space(.)"/>
+  <xsl:variable name="contents" select="."/>
   
   <type>
     <xsl:choose>
       <xsl:when test="$contents != 'split'">
+        <xsl:copy-of select="@*"/>
         <xsl:apply-templates mode="conv14to20"/>
       </xsl:when>
       <xsl:when test="$contents = 'split' and contains($fs, ',')">
