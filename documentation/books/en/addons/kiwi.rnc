@@ -56,8 +56,7 @@
 #                 - union: rename attribute "name" -> "overlay" (?)
 #                 - Fix camel case in element opensusePattern and
 #                   attributes patternPackageType and patternType
-#                 - type: split attribute filesystem into fsreadwrite
-#                   and fsreadonly. 
+#                 - type: added additional attributes fsreadwrite and fsreadonly. 
 #                   DONE 2008-02-25 (toms)
 #
 #****************
@@ -853,11 +852,19 @@ div {
 		## Specifies flags for the image type. This could be compressed
 		## or unified and applies to the iso type only
 		attribute flags { "unified" | "compressed" }
+  k.type.filesystem.attribute =
+    ## Specifies the filesystem:
+    ## ext2 | ext3 | reiserfs | squashfs | cpio or a combination
+    ## of two of these types with the split image type.
+    ## Can not be used with fsreadwrite and fsreadonly attributes
+    attribute filesystem { text }
 	k.type.fsreadwrite.attribute =
-	  ## Specifies the filesystem that is writeable
+	  ## Specifies the filesystem that is writeable.
+	  ## Can not be used together with the filesystem attribute
 	  attribute fsreadwrite { text }
 	k.type.fsreadonly.attribute =
-	  ## Specifies the filesystem that is read only
+	  ## Specifies the filesystem that is read only.
+	  ## Can not be used together with the filesystem attribute
 	  attribute fsreadonly { text }  
 	k.type.format.attribute =
 		## Specifies the format of the virtual disk. This applies to the
@@ -869,13 +876,19 @@ div {
 	k.type.primary.attribute =
 		## Specifies the primary type (choose KIWI option type)
 		attribute primary { xsd:boolean }
+  k.type._fs.attributes =
+    # Collect fs attributes
+    k.type.fsreadwrite.attribute? &
+		k.type.fsreadonly.attribute?
+	k.type.fs-filesystem.attributes =
+	  # Only filesystem OR fsreadwrite/fsreadonly is allowed, not both:
+	  k.type.filesystem.attribute | k.type._fs.attributes
 	k.type.attlist =
 		k.type.checkprebuilt.attribute? &
 		k.type.bootprofile.attribute? &
 		k.type.boot.attribute? &
 		k.type.flags.attribute? &
-		k.type.fsreadwrite.attribute? &
-		k.type.fsreadonly.attribute? &
+		k.type.fs-filesystem.attributes? &
 		k.type.baseroot.attribute? &
 		k.type.format.attribute? &
 		k.type.primary.attribute?
