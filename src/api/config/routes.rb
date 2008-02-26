@@ -217,6 +217,16 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'published/',
     :controller => "published", :action => "pass_to_source"
 
+  ### /request
+  
+  map.resources :request
+  
+  map.connect 'request/:id', :controller => 'request',
+    :action => 'modify'
+  map.connect 'search/request', :controller => 'request', 
+    :action => 'pass_to_source'
+
+
   ### /apidocs
 
   map.apidocs 'apidocs/', :controller => "apidocs"

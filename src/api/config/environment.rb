@@ -111,6 +111,9 @@ ActiveXML::Base.config do |conf|
     map.connect :project, "bssql:///"
     map.connect :package, "bssql:///"
 
+    map.connect :bsrequest, "rest:///request/:id",
+      :all => "rest:///request"
+
     #map.connect :project, "rest:///source/:name/_meta",
     #    :all    => "rest:///source/"
     #map.connect :package, "rest:///source/:project/:name/_meta",
