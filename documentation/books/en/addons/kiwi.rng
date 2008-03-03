@@ -58,15 +58,13 @@
                   - union: rename attribute "name" -> "overlay" (?)
                   - Fix camel case in element opensusePattern and
                     attributes patternPackageType and patternType
-                  - type: added additional attributes fsreadwrite and fsreadonly. 
-                    DONE 2008-02-25 (toms)
   
   ****************
 -->
-<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
-    <db:releaseinfo>$Id: kiwi.rnc 3175 2008-02-25 12:37:04Z thomas-schraitle $</db:releaseinfo>
-    <db:releaseinfo>RNC Schema Version 1.4</db:releaseinfo>
+    <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
+    <db:releaseinfo>RNC Schema Version 2.0</db:releaseinfo>
     <db:pubdate>START</db:pubdate>
     <db:pubdate>2008-01-08</db:pubdate>
   </db:info>
@@ -112,7 +110,7 @@ the package Information is inherited</a:documentation>
     <define name="k.image.schemeversion.attribute">
       <attribute name="schemeversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>1.4</value>
+        <value>2.0</value>
       </attribute>
     </define>
     <define name="k.image.attlist">
@@ -1157,22 +1155,30 @@ or unified and applies to the iso type only</a:documentation>
     </define>
     <define name="k.type.filesystem.attribute">
       <attribute name="filesystem">
-        <a:documentation>Specifies the filesystem:
-ext2 | ext3 | reiserfs | squashfs | cpio or a combination
-of two of these types with the split image type.
-Can not be used with fsreadwrite and fsreadonly attributes</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.type.fsreadwrite.attribute">
-      <attribute name="fsreadwrite">
-        <a:documentation>Specifies the filesystem that is writeable.
-Can not be used together with the filesystem attribute</a:documentation>
+        <a:documentation>Specifies the filesystem which can be one of:
+ext2 , ext3 , reiserfs or squashfs</a:documentation>
+        <choice>
+          <value>ext2</value>
+          <value>ext3</value>
+          <value>reiserfs</value>
+          <value>squashfs</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.type.fsreadonly.attribute">
       <attribute name="fsreadonly">
-        <a:documentation>Specifies the filesystem that is read only.
-Can not be used together with the filesystem attribute</a:documentation>
+        <a:documentation>Specifies the filesystem for the read-only part of a split image</a:documentation>
+        <value>squashfs</value>
+      </attribute>
+    </define>
+    <define name="k.type.fsreadwrite.attribute">
+      <attribute name="fsreadwrite">
+        <a:documentation>Specifies the filesystem for the read-write part of a split image</a:documentation>
+        <choice>
+          <value>ext2</value>
+          <value>ext3</value>
+          <value>reiserfs</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.type.format.attribute">
@@ -1199,24 +1205,6 @@ vmx/oem types only.</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
-    <define name="k.type._fs.attributes">
-      <interleave>
-        <optional>
-          <!-- Collect fs attributes -->
-          <ref name="k.type.fsreadwrite.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.fsreadonly.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.type.fs-filesystem.attributes">
-      <choice>
-        <!-- Only filesystem OR fsreadwrite/fsreadonly is allowed, not both: -->
-        <ref name="k.type.filesystem.attribute"/>
-        <ref name="k.type._fs.attributes"/>
-      </choice>
-    </define>
     <define name="k.type.attlist">
       <interleave>
         <optional>
@@ -1232,7 +1220,13 @@ vmx/oem types only.</a:documentation>
           <ref name="k.type.flags.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.fs-filesystem.attributes"/>
+          <ref name="k.type.filesystem.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.fsreadonly.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.fsreadwrite.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.baseroot.attribute"/>
@@ -1566,7 +1560,7 @@ are used for creating a Novell SUSE installation source.</db:para>
       <attribute name="type">
         <choice>
           <value>image</value>
-          <value>boot</value>
+          <value>bootstrap</value>
           <value>delete</value>
           <value>xen</value>
           <value>vmware</value>

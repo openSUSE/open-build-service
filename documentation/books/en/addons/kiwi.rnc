@@ -56,8 +56,6 @@
 #                 - union: rename attribute "name" -> "overlay" (?)
 #                 - Fix camel case in element opensusePattern and
 #                   attributes patternPackageType and patternType
-#                 - type: added additional attributes fsreadwrite and fsreadonly. 
-#                   DONE 2008-02-25 (toms)
 #
 #****************
 namespace rng = "http://relaxng.org/ns/structure/1.0"
@@ -67,7 +65,7 @@ namespace db  = "http://docbook.org/ns/docbook"
 
 db:info [
 	db:releaseinfo [ "$Id$"]
-	db:releaseinfo [ "RNC Schema Version 1.4" ]
+	db:releaseinfo [ "RNC Schema Version 2.0" ]
 
 	db:pubdate [ "START" ]
 	db:pubdate [ "2008-01-08" ]
@@ -99,7 +97,7 @@ div {
 		attribute inherit { text }
 	k.image.schemeversion.attribute =
 		## The allowed Schema version (fixed value)
-		attribute schemeversion { "1.4" }
+		attribute schemeversion { "2.0" }
 	k.image.attlist = k.image.name.attribute 
 		& k.image.inherit.attribute?
 		& k.image.schemeversion.attribute
@@ -111,7 +109,8 @@ div {
 		[
 		db:para [
 			"Each KIWI configuration file consists of a root element\x{a}" ~
-			"        image."]
+			"        image."
+		]
 		]
 		element image {
 			k.image.attlist &
@@ -821,7 +820,8 @@ div {
 		[
 		db:para [
 			"Image timezone setup. The value will be used to search\x{a}"~
-			"the correct timezone and copy it to /etc/localtime."	]
+			"the correct timezone and copy it to /etc/localtime."
+		]
 		]
 		element timezone {
 			k.timezone.attlist,
@@ -852,20 +852,16 @@ div {
 		## Specifies flags for the image type. This could be compressed
 		## or unified and applies to the iso type only
 		attribute flags { "unified" | "compressed" }
-  k.type.filesystem.attribute =
-    ## Specifies the filesystem:
-    ## ext2 | ext3 | reiserfs | squashfs | cpio or a combination
-    ## of two of these types with the split image type.
-    ## Can not be used with fsreadwrite and fsreadonly attributes
-    attribute filesystem { text }
-	k.type.fsreadwrite.attribute =
-	  ## Specifies the filesystem that is writeable.
-	  ## Can not be used together with the filesystem attribute
-	  attribute fsreadwrite { text }
+	k.type.filesystem.attribute = 
+		## Specifies the filesystem which can be one of:
+		## ext2 , ext3 , reiserfs or squashfs
+		attribute filesystem { "ext2" | "ext3" | "reiserfs" | "squashfs" }
 	k.type.fsreadonly.attribute =
-	  ## Specifies the filesystem that is read only.
-	  ## Can not be used together with the filesystem attribute
-	  attribute fsreadonly { text }  
+		## Specifies the filesystem for the read-only part of a split image
+		attribute fsreadonly { "squashfs" }
+	k.type.fsreadwrite.attribute =
+		## Specifies the filesystem for the read-write part of a split image
+		attribute fsreadwrite { "ext2" | "ext3" | "reiserfs" }
 	k.type.format.attribute =
 		## Specifies the format of the virtual disk. This applies to the
 		## vmx/oem types only.
@@ -876,19 +872,14 @@ div {
 	k.type.primary.attribute =
 		## Specifies the primary type (choose KIWI option type)
 		attribute primary { xsd:boolean }
-  k.type._fs.attributes =
-    # Collect fs attributes
-    k.type.fsreadwrite.attribute? &
-		k.type.fsreadonly.attribute?
-	k.type.fs-filesystem.attributes =
-	  # Only filesystem OR fsreadwrite/fsreadonly is allowed, not both:
-	  k.type.filesystem.attribute | k.type._fs.attributes
 	k.type.attlist =
 		k.type.checkprebuilt.attribute? &
 		k.type.bootprofile.attribute? &
 		k.type.boot.attribute? &
 		k.type.flags.attribute? &
-		k.type.fs-filesystem.attributes? &
+		k.type.filesystem.attribute? &
+		k.type.fsreadonly.attribute? &
+		k.type.fsreadwrite.attribute? &
 		k.type.baseroot.attribute? &
 		k.type.format.attribute? &
 		k.type.primary.attribute?
@@ -924,7 +915,8 @@ div {
 			"specifies the overlay filesystem setup if required by the\x{a}"~
 			"filesystem type of the system image. An overlay setup is\x{a}"~
 			"only required if the system image uses a squashfs compressed\x{a}"~
-			"filesystem."]
+			"filesystem."
+		]
 		]
 		element union {
 			k.union.attlist,
@@ -1101,7 +1093,7 @@ div {
 #
 div {
 	k.packages.type.attribute = attribute type {
-		"image" | "boot" | "delete" | "xen" | "vmware"
+		"image" | "bootstrap" | "delete" | "xen" | "vmware"
 	}
 	k.packages.memory.attribute =
 		## The memory setup for the guest VM. Used only with the

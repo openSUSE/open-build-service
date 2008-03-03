@@ -18,6 +18,11 @@
     <xsl:when test="image[@schemeversion='1.4']">
       <xsl:apply-templates mode="conv14to20"/>
     </xsl:when>
+    <xsl:when test="image[@schemeversion='2.0']">
+      <xsl:message terminate="yes">
+        <xsl:text>Already at version 2.0... skipped</xsl:text>
+      </xsl:message>
+    </xsl:when>
     <xsl:otherwise>
       <xsl:message terminate="yes">
         <xsl:text>ERROR: The Schema version is not correct.&#10;</xsl:text>
@@ -67,6 +72,7 @@
           <xsl:value-of select="substring-after($fs, ',')"/>
         </xsl:attribute>
         <xsl:copy-of select="@boot"/>
+		<xsl:copy-of select="@format"/>
         <xsl:apply-templates mode="conv14to20"/>
       </xsl:when>
       <xsl:otherwise>
