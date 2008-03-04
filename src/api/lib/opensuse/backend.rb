@@ -145,17 +145,20 @@ module Suse
         handle_response response
       end
 
-      def write_backend_log method, host, port, path, response, data
-        @@backend_logger.info( now + " #{method} #{host}:#{port}#{path} #{response.code}" )
+      def write_backend_log(method, host, port, path, response, data)
+        @@backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code}"
         begin
           log_xml = EXTENDED_BACKEND_LOG
         rescue
         end
-        if ( log_xml )
-          if ( data[0,1] == "<" )
-            @@backend_logger.info( data )
+
+        if log_xml
+          if data.nil?
+            @@backend_logger.info "(no data)"
+          elsif data[0,1] == "<"
+            @@backend_logger.info data
           else
-            @@backend_logger.info( "(non-XML data)" )
+            @@backend_logger.info"(non-XML data)"
           end
         end
       end
