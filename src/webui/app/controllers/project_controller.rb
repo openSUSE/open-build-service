@@ -342,6 +342,7 @@ class ProjectController < ApplicationController
       @project.title.data.text = params[:title]
       @project.description.data.text = params[:description]
       @project.add_person :userid => session[:login], :role => 'maintainer'
+      @project.add_person :userid => session[:login], :role => 'bugowner'
 
       if @project.save
         flash[:note] = "Project '#{@project}' was created successfully"
