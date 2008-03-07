@@ -310,6 +310,21 @@ div {
 }
 
 #==========================================
+# common element <except>
+#
+div {
+	k.except.name.attribute = k.name.attribute
+	k.except.attlist =
+		k.except.name.attribute
+	k.except =
+		## A Pointer to a File which should be excluded
+		element except {
+			k.except.attlist,
+			empty
+		}
+}
+
+#==========================================
 # common element <ignore>
 #
 div {
@@ -625,7 +640,8 @@ div {
 		]
 		]
 		element persistent {
-			k.persistent.attlist,
+			k.persistent.attlist &
+			k.except* &
 			k.file+
 		}
 }
@@ -786,7 +802,8 @@ div {
 		]
 		]
 		element temporary {
-			k.temporary.attlist,
+			k.temporary.attlist &
+			k.except* &
 			k.file+
 		}
 }
