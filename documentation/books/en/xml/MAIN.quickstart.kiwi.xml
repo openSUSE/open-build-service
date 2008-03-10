@@ -213,24 +213,62 @@
         <para>Recommended distribution is openSUSE 10.3 or later.</para>
       </listitem>
       <listitem>
-        <para>Example files from the <package>kiwi</package>
-        package:</para>
+        <para>Example files from the <package>kiwi-doc</package> package
+          (see also the <filename>*.readme</filename> under <filename
+            class="directory"
+          >/usr/share/doc/packages/kiwi/examples/</filename>):</para>
         <variablelist>
           <varlistentry>
             <term>
-              <filename>/usr/share/doc/packages/kiwi/examples/test1</filename>
+              <filename class="directory">/usr/share/doc/packages/kiwi/examples/suse-live-iso</filename>
             </term>
             <listitem>
-              <para>Is an openSUSE 10.3 KDE system, based on patterns.</para>
+              <para>FIXME</para>
             </listitem>
           </varlistentry>
           <varlistentry>
             <term>
-              <filename>/usr/share/doc/packages/kiwi/examples/test2</filename>
+              <filename
+                class="directory">/usr/share/doc/packages/kiwi/examples/suse-live-stick/</filename>
             </term>
             <listitem>
-              <para>This is an openSUSE 10.3 console system, based on a
-                package list.</para>
+              <para>FIXME</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <filename
+                class="directory">/usr/share/doc/packages/kiwi/examples/suse-oem-preload/</filename>
+            </term>
+            <listitem>
+              <para>FIXME</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <filename
+                class="directory">/usr/share/doc/packages/kiwi/examples/suse-pxe-client/</filename>
+            </term>
+            <listitem>
+              <para>FIXME</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <filename
+                class="directory">/usr/share/doc/packages/kiwi/examples/suse-vm-gues/</filename>
+            </term>
+            <listitem>
+              <para>FIXME</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <filename
+                class="directory">/usr/share/doc/packages/kiwi/examples/suse-xen-guest/</filename>
+            </term>
+            <listitem>
+              <para>FIXME</para>
             </listitem>
           </varlistentry>
         </variablelist>
