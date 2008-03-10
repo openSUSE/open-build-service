@@ -214,7 +214,7 @@
       </listitem>
       <listitem>
         <para>Example files from the <package>kiwi-doc</package> package
-          (see also the <filename>*.readme</filename> under <filename
+          (see also the <filename>*.readme</filename> files under <filename
             class="directory"
           >/usr/share/doc/packages/kiwi/examples/</filename>):</para>
         <variablelist>
@@ -223,7 +223,10 @@
               <filename class="directory">/usr/share/doc/packages/kiwi/examples/suse-live-iso</filename>
             </term>
             <listitem>
-              <para>FIXME</para>
+              <para>Creates a live CD/DVD which allows you to boot and
+                run without using any other storage device. You can only
+                read data from your image, as this is the nature of a
+                live system.</para>
             </listitem>
           </varlistentry>
           <varlistentry>
@@ -232,7 +235,12 @@
                 class="directory">/usr/share/doc/packages/kiwi/examples/suse-live-stick/</filename>
             </term>
             <listitem>
-              <para>FIXME</para>
+              <para>Creates a live USB stick which allows you to boot
+                and run without using any other storage device. The
+                system you plug the stick in must support booting from
+                USB sticks. Normally this is the case for all new BIOS
+                systems. The USB stick serves as OS system disk in this
+                case and you can read and write data onto it.</para>
             </listitem>
           </varlistentry>
           <varlistentry>
@@ -241,7 +249,11 @@
                 class="directory">/usr/share/doc/packages/kiwi/examples/suse-oem-preload/</filename>
             </term>
             <listitem>
-              <para>FIXME</para>
+              <para>Creates an OEM image as a virtual disk. This
+                represents all partitions and bootloader information
+                like it exist on a real disk. If you are a OEM vendor,
+                this example is made for you as it enables you to deploy
+              your system independently onto your storage media.</para>
             </listitem>
           </varlistentry>
           <varlistentry>
@@ -250,16 +262,20 @@
                 class="directory">/usr/share/doc/packages/kiwi/examples/suse-pxe-client/</filename>
             </term>
             <listitem>
-              <para>FIXME</para>
+              <para>Creates a PXE image, consisting of a separately
+                available boot and system image. It needs to be copied
+                to a specific locations of a network boot server.</para>
             </listitem>
           </varlistentry>
           <varlistentry>
             <term>
               <filename
-                class="directory">/usr/share/doc/packages/kiwi/examples/suse-vm-gues/</filename>
+                class="directory">/usr/share/doc/packages/kiwi/examples/suse-vm-guest/</filename>
             </term>
             <listitem>
-              <para>FIXME</para>
+              <para>Creates a VMX image, consisting of a virtual disk
+                image for using it in full virtualization systems like
+                Qemu, VirtualBox or VMware.</para>
             </listitem>
           </varlistentry>
           <varlistentry>
@@ -268,7 +284,9 @@
                 class="directory">/usr/share/doc/packages/kiwi/examples/suse-xen-guest/</filename>
             </term>
             <listitem>
-              <para>FIXME</para>
+              <para>Creates a XEN image, consisting of a filesystem
+                based image for using in a XEN zero domain.
+              </para>
             </listitem>
           </varlistentry>
         </variablelist>
