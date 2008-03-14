@@ -1198,7 +1198,12 @@ ext2 , ext3 , reiserfs or squashfs</a:documentation>
     <define name="k.type.fsreadonly.attribute">
       <attribute name="fsreadonly">
         <a:documentation>Specifies the filesystem for the read-only part of a split image</a:documentation>
-        <value>squashfs</value>
+        <choice>
+          <value>ext2</value>
+          <value>ext3</value>
+          <value>reiserfs</value>
+          <value>squashfs</value>
+        </choice>
       </attribute>
     </define>
     <define name="k.type.fsreadwrite.attribute">

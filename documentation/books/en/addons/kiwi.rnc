@@ -875,7 +875,7 @@ div {
 		attribute filesystem { "ext2" | "ext3" | "reiserfs" | "squashfs" }
 	k.type.fsreadonly.attribute =
 		## Specifies the filesystem for the read-only part of a split image
-		attribute fsreadonly { "squashfs" }
+		attribute fsreadonly { "ext2" | "ext3" | "reiserfs" | "squashfs" }
 	k.type.fsreadwrite.attribute =
 		## Specifies the filesystem for the read-write part of a split image
 		attribute fsreadwrite { "ext2" | "ext3" | "reiserfs" }
