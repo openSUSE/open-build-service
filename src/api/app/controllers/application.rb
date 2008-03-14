@@ -182,28 +182,15 @@ class ApplicationController < ActionController::Base
     defaults = {:server => :source, :method => :get}
     opt = defaults.merge opt
 
-    if opt[:server] == :source
-      case opt[:method]
-      when :get
-        response = Suse::Backend.get_source( path )
-      when :post
-        response = Suse::Backend.post_source( path, request.raw_post )
-      when :put
-        response = Suse::Backend.put_source( path, request.raw_post )
-      when :delete
-        response = Suse::Backend.delete_source( path )
-      end
-    elsif opt[:server] == :repo
-      case opt[:method]
-      when :get
-        response = Suse::Backend.get_rpm( path )
-      when :post
-        response = Suse::Backend.post_rpm( path, request.raw_post )
-      when :put
-        response = Suse::Backend.post_rpm( path, request.raw_post )
-      end
-    else
-      raise "illegal server type: #{opt[:server].inspect}"
+    case opt[:method]
+    when :get
+      response = Suse::Backend.get_source( path )
+    when :post
+      response = Suse::Backend.post_source( path, request.raw_post )
+    when :put
+      response = Suse::Backend.put_source( path, request.raw_post )
+    when :delete
+      response = Suse::Backend.delete_source( path )
     end
 
     send_data( response.body, :type => response.fetch( "content-type" ),

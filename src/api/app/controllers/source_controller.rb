@@ -414,11 +414,12 @@ class SourceController < ApplicationController
   end
 
   def file
-    project_name = params[ :project ]
-    package_name = params[ :package ]
-    file = params[ :file ]
+    project_name = params[:project]
+    package_name = params[:package]
+    file = params[:file]
     rev = params[:rev]
     comment = params[:comment]
+    keeplink = params[:keeplink]
     if @http_user
       user = @http_user.login
     else
@@ -468,6 +469,7 @@ class SourceController < ApplicationController
       query << URI.escape("rev=#{rev}") if rev
       query << URI.escape("user=#{user}") if user
       query << URI.escape("comment=#{comment}") if comment
+      query << URI.escape("keeplink=#{keeplink}") if keeplink
       query_string = query.join('&')
       path += "?#{query_string}" unless query_string.empty?
       
@@ -486,6 +488,7 @@ class SourceController < ApplicationController
       query << URI.escape("rev=#{rev}") if rev
       query << URI.escape("user=#{user}") if user
       query << URI.escape("comment=#{comment}") if comment
+      query << URI.escape("keeplink=#{keeplink}") if keeplink
       query_string = query.join('&')
       path += "?#{query_string}" unless query_string.empty?
       
@@ -566,13 +569,34 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=commit
   def index_package_commit
-    path = request.path + "?" + request.query_string
+    query = "cmd=#{params[:cmd]}"
+    query += "&rev=#{CGI.escape params[:rev]}" if params[:rev]
+    if @http_user
+      query += "&user=#{CGI.escape @http_user.login}"
+    elsif params[:user]
+      query += "&user=#{CGI.escape params[:user]}"
+    end
+    query += "&comment=#{CGI.escape params[:comment]}" if params[:comment]
+    query += "&keeplink=#{CGI.escape params[:keeplink]}" if params[:keeplink]
+    
+    path = request.path + "?" + query
     forward_data path, :method => :post
   end
 
   # POST /source/<project>/<package>?cmd=diff
   def index_package_diff
     path = request.path + "?" + request.query_string
+    forward_data path, :method => :post
+  end
+
+  # POST /source/<project>/<package>?cmd=copy
+  def index_package_copy
+    if request.query_string.empty?
+      path = request.path
+    else
+      path = request.path + "?" + request.query_string
+    end
+
     forward_data path, :method => :post
   end
 

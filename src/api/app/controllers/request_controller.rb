@@ -16,7 +16,7 @@ class RequestController < ApplicationController
     valid_http_methods :post
     path = request.path+'?'+request.query_string
     path << "&user=#{@http_user.login}"
-    forward_data path, :method => :post, :data => request.body
+    dispatch_command
   end
 
   # PUT /request/:id
@@ -42,5 +42,8 @@ class RequestController < ApplicationController
     path = request.path+'?'+request.query_string
     path << "&user=#{@http_user.login}"
     forward_data path, :method => :post, :data => request.body
+  end
+
+  def modify_newstate
   end
 end
