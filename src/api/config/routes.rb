@@ -237,17 +237,6 @@ ActionController::Routing::Routes.draw do |map|
 
   ### DEPRECATED
 
-  ### /rpm
-
-  map.connect 'rpm/:project/:repository/:arch/:package/history',
-    :controller => 'rpm', :action => 'pass_to_repo'
-  map.connect 'rpm/:project/:repository/:arch/:package/buildinfo',
-    :controller => 'rpm', :action => 'buildinfo'
-  map.connect 'rpm/:project/:repository/:arch/:package/status',
-    :controller => 'rpm', :action => 'pass_to_repo'
-  map.connect 'rpm/:project/:repository/:package/:arch/:file',
-    :controller => 'rpm', :action => 'file'
-
   ### /platform
 
   map.connect 'platform/:project/:repository', :controller => 'platform',
