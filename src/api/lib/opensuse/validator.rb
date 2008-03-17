@@ -47,7 +47,7 @@ module ActionController
     def validate_incoming_xml
       #only validate PUT requests
       return true unless request.put?
-      Suse::Validator.new(params).validate(request.raw_post)
+      Suse::Validator.new(params).validate(request.raw_post.to_s)
     end
   end
 end

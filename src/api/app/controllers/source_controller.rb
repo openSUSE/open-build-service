@@ -478,7 +478,7 @@ class SourceController < ApplicationController
         Suse::Backend.put_source path, request.raw_post
         package = Package.find( package_name, :project => project_name )
         package.update_timestamp
-        logger.info "wrote #{request.raw_post.size} bytes to #{path}"
+        logger.info "wrote #{request.raw_post.to_s.size} bytes to #{path}"
         render_ok
       else
         render_error :status => 403, :errorcode => 'put_file_no_permission',
