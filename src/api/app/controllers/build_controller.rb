@@ -63,7 +63,7 @@ class BuildController < ApplicationController
     end
 
     if request.post?
-      response = Suse::Backend.post_rpm path, request.raw_post
+      response = Suse::Backend.post path, request.raw_post
       send_data( response.body, :type => response.fetch( "Content-Type" ), :disposition => "inline" )
     else
       forward_data path
