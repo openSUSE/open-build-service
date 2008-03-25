@@ -38,6 +38,21 @@ A worker can be started on the localhost by calling
 
 2.2 setup multiple workers on remote systems
 ============================================
+A worker can be started on other machine in your network (in Internet too, 
+but you should have really fast internet connection ;-)). You must install
+package obs-worker on this machine and change few configuration files on both
+system.
+
+2.2.1 necessary changes on machine *main* machine
+=================================================
+In file /usr/lib/obs/server/BSConfig.pm you should change variables $srcserver, $reposerver and
+array @reposervers. After install there are http://localhost but in this case you should have there
+output of hostname -f or IPs. (You should keep port number)
+
+2.2.2 necessary changes on worker machine
+=========================================
+Install package obs-worker and in file /etc/sysconfig/obs-worker change variable OBS_STORAGE_SERVER to
+main.fqdn:6262 where main.fqdn is output of hostname -f or IP on *main* machine.
 
 3. run the frontend
 ===================
