@@ -103,6 +103,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     rev = params[:rev]
+    expand = params.has_key? :expand
     comment = params[:comment]
     if @http_user
       user = @http_user.login
@@ -112,13 +113,13 @@ class SourceController < ApplicationController
 
 
     path = "/source/#{project_name}/#{package_name}"
-    query = Array.new
-    query_string = ""
 
+    query = Array.new
     #get doesn't need to check for permission, so it's handled extra
     if request.get?
-      query_string = URI.escape("rev=#{rev}") if rev
-      path += "?#{query_string}" unless query_string.empty?
+      query << "rev=#{CGI.escape rev}" if rev
+      query << "expand" if expand
+      path += "?#{query.join '&'}" unless query.empty?
 
       forward_data path
       return
