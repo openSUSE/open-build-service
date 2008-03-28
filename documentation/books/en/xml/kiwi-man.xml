@@ -93,6 +93,11 @@
       <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
       <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
       <sbr/>
+      <group choice="opt">
+        <arg choice="plain">-r</arg>
+        <arg choice="plain">--root</arg>
+        <replaceable>RootPath</replaceable>
+      </group>
       <arg choice="opt">--base-root <replaceable>BasePath</replaceable></arg>
       <arg choice="opt">--base-root-mode <group choice="req">
           <arg choice="plain">copy</arg>
@@ -109,6 +114,11 @@
       </group>
       <arg choice="plain"><replaceable>ImageRoot</replaceable></arg>
       <sbr/>
+      <group choice="opt">
+        <arg choice="plain">-d</arg>
+        <arg choice="plain">--destdir</arg>
+        <replaceable>DestinationPath</replaceable>
+      </group>
       <arg choice="opt">--base-root <replaceable>BasePath</replaceable></arg>
       <arg choice="opt">--base-root-mode <group choice="req">
           <arg choice="plain">copy</arg>
@@ -259,6 +269,15 @@
               <filename>config.xml</filename>. If no root directory is
             known, a <command>mktmp</command> directory will be created
             and used as root directory</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--base-root</option>
+          <replaceable>BasePath</replaceable></optional></term>
+        <listitem>
+          <para>Refers to an already prepared root tree. Kiwi will use
+            this tree to skip the first stage of the prepare step and
+            run the second stage directly.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
