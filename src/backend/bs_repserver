@@ -194,6 +194,7 @@ sub getbinaries {
     } else {
       push @send, {'name' => "$n.deb", 'filename' => $r};
     }
+    next if $cgi->{'nometa'};
     if ($r =~ s/\.(?:rpm|deb)$//) {
       if (-e "$r.meta" || ! -e "$r-MD5SUMS.meta") {
         push @send, {'name' => "$n.meta", 'filename' => "$r.meta"};
@@ -206,24 +207,77 @@ sub getbinaries {
   return undef;
 }
 
-sub getbinarylist {
-  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+sub getbinarylist_repository {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+
   my $prp = "$projid/$repoid";
-  my @res;
-  if ($packid eq '_repository') {
+  my $view = $cgi->{'view'};
+  if ($view && $view eq 'cache') {
+    my $repostate = readxml("$reporoot/$prp/$arch/:repostate", $BSXML::repositorystate, 1) || {};
+    my @files;
+    push @files, {
+      'name' => 'repositorystate',
+      'data' => XMLout($BSXML::repositorystate, $repostate),
+    };
+    local *F;
+    if (open(F, '<', "$reporoot/$prp/$arch/:full.cache")) {
+      push @files, {
+        'name' => 'repositorycache',
+        'filename' => \*F,
+      }
+    }
+    BSServer::reply_cpio(\@files);
+    return undef;
+  }
+  if ($view && $view eq 'cpio') {
     my $cache;
     $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
     $cache ||= {};
+    my @files;
     for my $bin (sort keys %$cache) {
       my $c = $cache->{$bin};
-      push @res, {'filename' => $c->{'path'}};
+      push @files, {'name' => $c->{'path'}, 'filename' => "$reporoot/$prp/$arch/:full/$c->{'path'}"},
     }
-  } else {
-    if (opendir(D, "$reporoot/$prp/$arch/$packid")) {
-      my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
-      closedir D;
-      @res = map {{'filename' => $_}} @bins;
+    BSServer::reply_cpio(\@files);
+    return undef;
+  }
+  my $cache;
+  $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
+  $cache ||= {};
+  my @res;
+  for my $bin (sort keys %$cache) {
+    my $c = $cache->{$bin};
+    my $r = {'filename' => $c->{'path'}};
+    if ($c->{'id'}) {
+      my @s = split('/', $c->{'id'}, 3);
+      $r->{'mtime'} = $s[0];
+      $r->{'size'} = $s[1];
     }
+    push @res, $r;
+  }
+  return ({'binary' => \@res}, $BSXML::binarylist);
+}
+
+sub getbinarylist {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  return getbinarylist_repository($cgi, $projid, $repoid, $arch) if $packid eq '_repository';
+  my $prp = "$projid/$repoid";
+  my $view = $cgi->{'view'};
+  if ($view && $view eq 'cpio') {
+    my @files = ();
+    my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+    for (sort @bins) {
+      push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"},
+    }
+    BSServer::reply_cpio(\@files);
+    return undef;
+  }
+  my @res;
+  my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+  for (sort @bins) {
+    my @s = stat("$reporoot/$prp/$arch/$packid/$_");
+    next unless @s;
+    push @res, {'filename' => $_, 'size' => $s[7], 'mtime' => $s[9]};
   }
   return ({'binary' => \@res}, $BSXML::binarylist);
 }
@@ -631,6 +685,8 @@ sub forwardevent {
   for my $a (@archs) {
     next unless -d "$eventdir/$a";
     next if $a eq 'publish';
+    next if $a eq 'repository';
+    next if $a eq 'watch';
     writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
     ping($a);
   }
@@ -793,13 +849,14 @@ sub getbuildinfo {
 
   my $uploaded;
   if (!$pdata) {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'ignoredisable', "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
     die("no such project/package/repository\n") unless $projpack->{'project'};
   } else {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', "project=$projid", "repository=$repoid", "arch=$arch");
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch");
     die("no such project/repository\n") unless $projpack->{'project'};
     $uploaded = 1;
   }
+  my %remotemap = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
   my $proj = $projpack->{'project'}->[0];
   die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
   my $repo = $proj->{'repository'}->[0];
@@ -858,9 +915,19 @@ sub getbuildinfo {
   # read repository data from cache
   my %repodata;
   for my $prp (@prp) {
-    next unless -e "$reporoot/$prp/$arch/:full.cache";
+    my ($rprojid, $rrepoid) = split('/', $prp, 2);
     my $cache;
-    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
+    if ($remotemap{$rprojid}) {
+      my $remote = $remotemap{$rprojid};
+      my $cachedata = BSRPC::rpc("$remote->{'remoteurl'}/build/$remote->{'remoteproject'}/$rrepoid/$arch/_repository", undef, "getcache");
+      next unless $cachedata;
+      eval { $cache = Storable::thaw(substr($cachedata, 4)); };
+      undef $cachedata;
+      warn($@) if $@;
+    } else {
+      next unless -e "$reporoot/$prp/$arch/:full.cache";
+      $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
+    }
     next unless ref($cache) eq 'HASH';
     $repodata{$prp} = $cache;
   }
@@ -1443,7 +1510,7 @@ my $dispatches = [
   '/' => \&hello,
 
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
-  '/build/$project/$repository/$arch/$package:package_repository' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package:package_repository view:?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
@@ -1462,7 +1529,7 @@ my $dispatches = [
   '/getbuildcode' => \&getbuildcode,
   '/getworkercode' => \&getworkercode,
   '/putjob $arch $job $jobid:md5' => \&putjob,
-  '/getbinaries $project $repository $arch binaries:' => \&getbinaries,
+  '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries:' => \&getbinaryversions,
 
   # published files

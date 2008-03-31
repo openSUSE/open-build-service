@@ -86,7 +86,7 @@ sub fdb_getmatch {
   $data =~ s/([\000-\037|=\177-\237])/sprintf("%%%02X", ord($1))/ge;
   local *F;
   if (ref($fn)) {
-    *F = $fn;
+    *F = *$fn;
   } else {
     open(F, '<', $fn) || return undef;
   }

@@ -24,6 +24,7 @@ package BSRPC;
 
 use Socket;
 use XML::Structured;
+use Symbol;
 
 use BSHTTP;
 
@@ -78,6 +79,14 @@ sub rpc {
     $data = $param->{'data'};
     @xhdrs = @{$param->{'headers'} || []};
     $chunked = 1 if $param->{'chunked'};
+    if (!defined($data) && $param->{'request'} && $param->{'request'} eq 'POST' && @args && grep {/^content-type:\sapplication\/x-www-form-urlencoded$/i} @xhdrs) {
+      for (@args) {
+        s/([\000-\040<>\"#&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
+        s/%3D/=/;
+      }
+      $data = join('&', @args);
+      @args = ();
+    }
     push @xhdrs, "Content-Length: ".length($data) if defined($data) && !ref($data) && !$chunked && !grep {/^content-length:/i} @xhdrs;
     push @xhdrs, "Transfer-Encoding: chunked" if $chunked;
     $data = '' unless defined $data;
@@ -124,21 +133,44 @@ sub rpc {
   }
 
   my $act = $param->{'request'} || 'GET';
-  my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
-  $req .= "$data" unless ref($data);
-  if ($param->{'sender'}) {
-    $param->{'sender'}->($param, \*S, $req);
-  } else {
-    while(1) {
-      BSHTTP::swrite(\*S, $req);
-      last unless ref $data;
-      $req = &$data($param, \*S);
-      if (!defined($req) || !length($req)) {
-	$req = $data = '';
-	$req = "0\r\n\r\n" if $chunked;
-	next;
+  if (!$param->{'continuation'}) {
+    my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
+    if ($param->{'verbose'}) {
+      print "> $_\n" for split("\r\n", $req);
+      #print "> $data\n" unless ref($data);
+    }
+    $req .= "$data" unless ref($data);
+    if ($param->{'sender'}) {
+      $param->{'sender'}->($param, \*S, $req);
+    } else {
+      while(1) {
+	BSHTTP::swrite(\*S, $req);
+	last unless ref $data;
+	$req = &$data($param, \*S);
+	if (!defined($req) || !length($req)) {
+	  $req = $data = '';
+	  $req = "0\r\n\r\n" if $chunked;
+	  next;
+	}
+	$req = sprintf("%X\r\n", length($req)).$req."\r\n" if $chunked;
       }
-      $req = sprintf("%X\r\n", length($req)).$req."\r\n" if $chunked;
+    }
+    if ($param->{'async'}) {
+      my $ret = {};
+      my $fd = gensym;
+      open($fd, '<&S') || die("socket clone\n");
+      close S;
+      $ret->{'uri'} = $uri;
+      $ret->{'socket'} = $fd;
+      $ret->{'async'} = 1;
+      $ret->{'continuation'} = 1;
+      $ret->{'request'} = $act;
+      $ret->{'verbose'} = $param->{'verbose'} if $param->{'verbose'};
+      $ret->{'replyheaders'} = $param->{'replyheaders'} if $param->{'replyheaders'};
+      $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
+      $ret->{$_} = $param->{$_} for grep {/^receiver:/} keys %$param;
+      $ret->{'replydtd'} = $xmlargs if $xmlargs;
+      return $ret;
     }
   }
   my $ans = '';
@@ -149,10 +181,17 @@ sub rpc {
   $ans =~ /^(.*?)\n\r?\n(.*)$/s;
   my $headers = $1;
   $ans = $2;
+  if ($param->{'verbose'}) {
+    print "< $_\n" for split(/\r?\n/, $headers);
+  }
   my %headers;
   BSHTTP::gethead(\%headers, $headers);
   if ($status !~ /^200[^\d]/) {
-    die("Remote error: $status\n") unless $param->{'ignorestatus'};
+    #if ($param->{'verbose'}) {
+    #  1 while sysread(S, $ans, 1024, length($ans));
+    #  print "< $ans\n";
+    #}
+    die("remote error: $status\n") unless $param->{'ignorestatus'};
   } else {
     undef $status;
   }
@@ -175,6 +214,10 @@ sub rpc {
   delete $headers{'__socket'};
   delete $headers{'__data'};
   ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
+  #if ($param->{'verbose'}) {
+  #  print "< $ans\n";
+  #}
+  $xmlargs ||= $param->{'replydtd'};
   if ($xmlargs) {
     die("answer is not xml\n") if $ans !~ /<.*?>/s;
     my $res = XMLin($xmlargs, $ans);

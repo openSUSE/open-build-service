@@ -379,13 +379,21 @@ sub getbinaries {
   my @todo = @bdep;
   die("no binaries needed for this package?\n") unless @todo;
   my %meta = ();
+  my $projid = $buildinfo->{'path'}->[0]->{'project'};
+  my $repoid = $buildinfo->{'path'}->[0]->{'repository'};
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last if !@todo;
+    my @args;
+    push @args, "project=$repo->{'project'}";
+    push @args, "repository=$repo->{'repository'}";
+    push @args, "arch=$buildinfo->{'arch'}";
+    push @args, "binaries=".join(',', @todo);
+    push @args, "nometa" if $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     my $res = BSRPC::rpc({
       uri => "$repo->{'server'}/getbinaries",
       directory => $dir,
       'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-    }, undef, "arch=$buildinfo->{'arch'}", "project=$repo->{'project'}", "repository=$repo->{'repository'}", "binaries=".join(',', @todo));
+    }, undef, @args);
     die("Error\n") unless ref($res) eq 'ARRAY';
     for (@$res) {
       $done{$1} = $_->{'name'} if $_->{'name'} =~ /^(.*)\.(?:rpm|deb)$/;
@@ -735,6 +743,7 @@ if ($@) {
   open(F, '>>', "$buildroot/.build.log");
   print F $@;
   close(F);
+  print "$@";
   $ex = 1;
 }
 

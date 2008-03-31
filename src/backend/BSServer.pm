@@ -453,12 +453,12 @@ sub readrequest {
       $post_hdrs = \%headers; # $post_hdrs is global (module local) variable
       return $res;
     }
-    $query_string = '';
     my $cl = $headers{'content-length'} || 0;
     while (length($qu) < $cl) {
       sysread(CLNT, $qu, $cl - length($qu), length($qu)) || die("400 Truncated body\n");
     }
-    $query_string = substr($qu, 0, $cl);
+    $query_string .= '&' if $query_string ne '';
+    $query_string .= substr($qu, 0, $cl);
     $res->{'query'} = $query_string;
     $qu = substr($qu, $cl);
   }

@@ -52,7 +52,7 @@ sub gethead {
 # read data from socket, do chunk decoding
 # hdr: header data
 # maxl = undef: read as much as you can
-# exact = 1: read maxl data
+# exact = 1: read maxl data, maxl==undef -> read to eof;
 #
 sub read_data {
   my ($hdr, $maxl, $exact) = @_;
@@ -180,13 +180,12 @@ sub file_receiver {
 sub cpio_receiver {
   my ($hdr, $param) = @_;
   my @res;
-  die("cpio_receiver: no directory\n") unless defined $param->{'directory'};
   my $dn = $param->{'directory'};
   my $withmd5 = $param->{'withmd5'};
   local *F;
   while(1) {
     my $cpiohead = read_data($hdr, 110, 1);
-    die("cpio: not a SVR4 no CRC ascii cpio\n") unless substr($cpiohead, 0, 6) eq '070701';
+    die("cpio: not a 'SVR4 no CRC ascii' cpio\n") unless substr($cpiohead, 0, 6) eq '070701';
     my $mtime = hex(substr($cpiohead, 46, 8));
     my $nsize = hex(substr($cpiohead, 94, 8));
     die("ridiculous long filename\n") if $nsize > 8192;
@@ -215,22 +214,32 @@ sub cpio_receiver {
 	$name = "$param->{'map'}$name";
       }
     }
-    push @res, {'name' => $name, 'size' => $size};
+    push @res, {'name' => $name, 'size' => $size, 'mtime' => $mtime};
     my $ctx;
     $ctx = Digest::MD5->new if $withmd5;
-    open(F, '>', "$dn/$name") || die("$dn/$name: $!\n");
+    if (defined($dn)) {
+      open(F, '>', "$dn/$name") || die("$dn/$name: $!\n");
+    } else {
+      $res[-1]->{'data'} = '';
+    }
     while ($sizepad) {
       my $m = $sizepad > 8192 ? 8192 : $sizepad;
       my $data = read_data($hdr, $m, 1);
       $sizepad -= $m;
       $size -= $m;
       $m += $size if $size < 0;
-      (syswrite(F, $data, $m) || 0) == $m || die("syswrite: $!\n");
+      if (defined($dn)) {
+        (syswrite(F, $data, $m) || 0) == $m || die("syswrite: $!\n");
+      } else {
+        $res[-1]->{'data'} .= substr($data, 0, $m);
+      }
       $ctx->add($size >= 0 ? $data : substr($data, 0, $m)) if $ctx;
     }
-    close(F) || die("close: $!\n");
+    if (defined($dn)) {
+      close(F) || die("close: $!\n");
+      utime($mtime, $mtime, "$dn/$name");
+    }
     $res[-1]->{'md5'} = $ctx->hexdigest if $ctx;
-    utime($mtime, $mtime, "$dn/$name");
   }
   return \@res;
 }

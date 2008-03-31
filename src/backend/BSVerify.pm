@@ -176,9 +176,10 @@ sub verify_pack {
 
 sub verify_link {
   my ($l) = @_;
-  verify_projid($l->{'project'});
-  verify_packid($l->{'package'});
+  verify_projid($l->{'project'}) if exists $l->{'project'};
+  verify_packid($l->{'package'}) if exists $l->{'package'};
   verify_rev($l->{'rev'}) if exists $l->{'rev'};
+  die("link must contain some target description \n") unless exists $l->{'project'} || exists $l->{'package'} || exists $l->{'rev'};
   if (exists $l->{'cicount'}) {
     if ($l->{'cicount'} ne 'add' && $l->{'cicount'} ne 'copy' && $l->{'cicount'} ne 'local') {
       die("unknown cicount '$l->{'cicount'}'\n");
@@ -191,6 +192,8 @@ sub verify_link {
     my $pd = $p->{$type};
     if ($type eq 'add' || $type eq 'apply') {
       verify_filename($pd->{'name'});
+    } elsif ($type eq 'delete') {
+      verify_filename($pd);
     } elsif ($type ne 'topadd') {
       die("unknown patch type '$type'\n");
     }
@@ -217,16 +220,17 @@ sub verify_aggregatelist {
 sub verify_request {
   my ($req) = @_;
   die("request type missing\n") unless $req->{'type'};
-  die("unknown request type '$req'\n") unless $req->{'type'} eq 'merge';
+  die("unknown request type '$req'\n") unless $req->{'type'} eq 'submit';
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
-  die("merge specification missing\n") unless $req->{'merge'};
-  die("merge source missing\n") unless $req->{'merge'}->{'source'};
-  die("merge target missing\n") unless $req->{'merge'}->{'target'};
-  verify_projid($req->{'merge'}->{'source'}->{'project'});
-  verify_projid($req->{'merge'}->{'target'}->{'project'});
-  verify_packid($req->{'merge'}->{'source'}->{'package'});
-  verify_packid($req->{'merge'}->{'target'}->{'package'});
+  die("submit specification missing\n") unless $req->{'submit'};
+  die("submit source missing\n") unless $req->{'submit'}->{'source'};
+  die("submit target missing\n") unless $req->{'submit'}->{'target'};
+  verify_projid($req->{'submit'}->{'source'}->{'project'});
+  verify_projid($req->{'submit'}->{'target'}->{'project'});
+  verify_packid($req->{'submit'}->{'source'}->{'package'});
+  verify_packid($req->{'submit'}->{'target'}->{'package'});
+  verify_rev($req->{'submit'}->{'source'}->{'rev'}) if exists $req->{'submit'}->{'source'}->{'rev'};
 }
 
 our $verifyers = {

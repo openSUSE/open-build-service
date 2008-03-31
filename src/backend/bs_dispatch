@@ -77,6 +77,7 @@ my %cando = (
 my $rundir = "$BSConfig::bsdir/run";
 my $workersdir = "$BSConfig::bsdir/workers";
 my $jobsdir = "$BSConfig::bsdir/jobs";
+my $eventdir = "$BSConfig::bsdir/events";
 
 my $reporoot = "$BSConfig::bsdir/build";
 
@@ -187,6 +188,20 @@ sub assignjob {
   return 1;
 }
 
+sub sendeventtosrcserver {
+  my ($ev) = @_;
+  die("illegal eventtype\n") unless $ev->{'type'} eq 'repoevent';
+  my @args;
+  for ('type', 'project', 'package', 'repository', 'arch', 'job') {
+    push @args, "$_=$ev->{$_}" if defined $ev->{$_};
+  }
+  my $param = {
+    'uri' => "$BSConfig::srcserver/event",
+    'timeout' => 10,
+  };
+  BSRPC::rpc($param, undef, @args);
+}
+
 $| = 1;
 print "starting build service dispatcher\n";
 
@@ -218,9 +233,8 @@ while (1) {
     @bn = grep {!/^home:rguenther:playground/} @bn;
     @b = @bn if @bn;
 
-    # Factory is our main distro, increase prio
-    @bn = grep {/^openSUSE:Factory/} @bn;
-    @b = @bn if @bn;
+    #@bn = grep {/^openSUSE:Factory/} @bn;
+    #@b = @bn if @bn;
 
     for my $job (List::Util::shuffle(@b)) {
       for my $idle (map {$_} List::Util::shuffle(@{$idlearch{$arch} || []})) {
@@ -239,6 +253,19 @@ while (1) {
 	$assigned++;
 	last;
       }
+    }
+  }
+  for my $evname (ls("$eventdir/repository")) {
+    next if $evname =~ /^\./;
+    my $ev = readxml("$eventdir/repository/$evname", $BSXML::event, 1);
+    next unless $ev;
+    eval {
+      sendeventtosrcserver($ev);
+    };
+    if ($@) {
+      warn($@);
+    } else {
+      unlink("$eventdir/repository/$evname");
     }
   }
   sleep(1) unless $assigned;

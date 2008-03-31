@@ -59,6 +59,8 @@ our $proj = [
 	 [],
         'title',
         'description',
+	'remoteurl',
+	'remoteproject',
      [[ 'person' =>
             'role',
             'userid',
@@ -121,6 +123,8 @@ our $projpack = [
 	    'description',
 	    'config',
 	    'patternmd5',
+	    'remoteurl',
+	    'remoteproject',
 	    @flags,
 	  [ $repo ],
 	 [[ 'package' =>
@@ -136,13 +140,23 @@ our $projpack = [
 		@flags,
 	 ]],
      ]],
+     [[ 'remotemap' =>
+	    'project',
+	    'remoteurl', 
+	    'remoteproject', 
+     ]],
 ];
 
 our $linkinfo = [
     'linkinfo' =>
+	# information from link
 	'project',
 	'package',
+	'rev',
 	'srcmd5',
+	# expanded / unexpanded srcmd5
+	'xsrcmd5',
+	'lsrcmd5',
 	'error',
 ];
 
@@ -151,6 +165,7 @@ our $dir = [
     'directory' =>
 	'name',
 	'rev',
+        'vrev',
 	'srcmd5',
         'tproject',
         'tpackage',
@@ -159,6 +174,7 @@ our $dir = [
         'lsrcmd5',
         'error',
         'xsrcmd5',
+        $linkinfo,
      [[ 'entry' =>
 	    'name',
 	    'md5',
@@ -276,8 +292,15 @@ our $event = [
 	[],
 	'project',
 	'repository',
+	'arch',
 	'package',
 	'job',
+];
+
+our $events = [
+    'events' =>
+	'number',
+       [ $event ],
 ];
 
 our $revision = [
@@ -619,10 +642,11 @@ our $request = [
     'request' =>
 	'id',
 	'type',
-      [ 'merge' =>
+      [ 'submit' =>
 	  [ 'source' =>
 		'project',
 		'package',
+		'rev',
 	  ],
 	  [ 'target' =>
 		'project',
@@ -645,6 +669,11 @@ our $request = [
      ]],
 	'title',
 	'description',
+];
+
+our $repositorystate = [
+    'repositorystate' => 
+      [ 'blocked' ],
 ];
 
 our $collection = [
