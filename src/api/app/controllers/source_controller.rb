@@ -570,17 +570,10 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=commit
   def index_package_commit
-    query = "cmd=#{params[:cmd]}"
-    query += "&rev=#{CGI.escape params[:rev]}" if params[:rev]
-    if @http_user
-      query += "&user=#{CGI.escape @http_user.login}"
-    elsif params[:user]
-      query += "&user=#{CGI.escape params[:user]}"
-    end
-    query += "&comment=#{CGI.escape params[:comment]}" if params[:comment]
-    query += "&keeplink=#{CGI.escape params[:keeplink]}" if params[:keeplink]
-    
-    path = request.path + "?" + query
+    params[:user] = @http_user.login if @http_user
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :keeplink])
     forward_data path, :method => :post
   end
 
@@ -592,12 +585,25 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=copy
   def index_package_copy
-    if request.query_string.empty?
-      path = request.path
-    else
-      path = request.path + "?" + request.query_string
+    params[:user] = @http_user.login if @http_user
+
+    pack = DbPackage.find_by_name(params[:package])
+    if pack.nil? 
+      render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{params[:package]}"
+      return
     end
 
+    #permission check
+    if not @http_user.can_modify_package?(pack)
+      render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+        :message => "no permission to execute command 'copy'"
+      return
+    end
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand])
+    
     forward_data path, :method => :post
   end
 

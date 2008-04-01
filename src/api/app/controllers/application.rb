@@ -353,11 +353,23 @@ class ApplicationController < ActionController::Base
     __send__ cmd_handler
   end
 
+  def esc(*args)
+    CGI.escape *args
+  end
+
+  def uesc(*args)
+    URI.escape *args
+  end
+
+  def build_query_from_hash(hash, key_list=nil)
+    #TODO: support multiple values, e.g. {:a=>[1,2,3]} -> "?a=1&a=2&a=3"
+    key_list ||= hash.keys
+    "?"+key_list.map {|key| "#{key}=#{esc hash[key].to_s}" if hash.has_key?(key)}.compact.join('&')
+  end
 
   def min_votes_for_rating
     MIN_VOTES_FOR_RATING
   end
-
 
   def action_fragment_key( options )
     # this is for customizing the path/filename of cached files (cached by the

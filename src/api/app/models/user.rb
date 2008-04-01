@@ -92,6 +92,10 @@ class User < ActiveRecord::Base
   # permission checks #
   #####################
 
+  def is_admin?
+    roles.include? Role.find_by_title("Admin")
+  end
+
   # project is instance of DbProject
   def can_modify_project?(project)
     unless project.kind_of? DbProject
@@ -156,7 +160,7 @@ class User < ActiveRecord::Base
       end
 
       #check permission of parent project
-      logger.debug "permission not found, trying parent project '#{parent.name}'"
+      logger.debug "permission not found, trying parent project '#{object.db_project.name}'"
       return has_local_permission?(perm_string, object.db_project)
     when DbProject
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
