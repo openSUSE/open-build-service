@@ -37,7 +37,11 @@ class RequestController < ApplicationController
   
   # POST /request?cmd=create
   def create_create
-    req = BsRequest.new(request.body)
+    if request.body.kind_of? StringIO
+      req = BsRequest.new(request.body.read)
+    else
+      req = BsRequest.new(request.body)
+    end
 
     if req.type == "submit"
       #check existence of source/target
