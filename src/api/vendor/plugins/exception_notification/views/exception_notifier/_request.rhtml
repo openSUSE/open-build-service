@@ -1,0 +1,3 @@
+* URL: <%= @request.protocol %><%= @host %><%= @request.request_uri %>
+* Parameters: <%= filter_sensitive_post_data_parameters(@request.parameters).inspect %>
+* Rails root: <%= @rails_root %>
