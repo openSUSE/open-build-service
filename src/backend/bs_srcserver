@@ -1914,9 +1914,6 @@ sub getbinarylist {
 
   checkprojrepoarch($projid, $repoid, $arch);
   my $view = $cgi->{'view'};
-  if ($view && $view eq 'repositorystate') {
-    return BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid", undef, "view=repositorystate");
-  }
   my @args;
   push @args, "view=$view" if $view;
   push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
@@ -1977,7 +1974,13 @@ sub getlogfile {
     BSHandoff::handoff($ajaxsocket, $url, undef, @args);
     exit(0);
   }
-  BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_log",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+    'joinable' => 1,
+  };
+  BSWatcher::rpc($param, undef, @args);
   return undef; # always streams result
 }
 
@@ -2398,19 +2401,19 @@ sub worker_getbinaries {
       utime time(), $s[9], "$remotecache/$cachemd5";
       push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
     }
-    my $slot = sprintf("%02x", (int(rand(256))));
-    print "cleaning slot $slot\n";
-    if (-d "$remotecache/$slot") {
-      my $now = time();
-      my $num = 0;
-      for my $f (ls("$remotecache/$slot")) {
-        my @s = stat("$remotecache/$slot/$f");
-	next if $s[8] >= $now - 24*3600;
-	unlink("$remotecache/$slot/$f");
-	$num++;
-      }
-      print "removed $num unused files\n" if $num;
+  }
+  my $slot = sprintf("%02x", (int(rand(256))));
+  print "cleaning slot $slot\n";
+  if (-d "$remotecache/$slot") {
+    my $now = time();
+    my $num = 0;
+    for my $f (ls("$remotecache/$slot")) {
+      my @s = stat("$remotecache/$slot/$f");
+      next if $s[8] >= $now - 24*3600;
+      unlink("$remotecache/$slot/$f");
+      $num++;
     }
+    print "removed $num unused files\n" if $num;
   }
   close(LOCK);
 

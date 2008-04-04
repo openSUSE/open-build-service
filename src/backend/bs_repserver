@@ -262,6 +262,8 @@ sub getbinarylist_repository {
     return undef;
   }
 
+  die("unsupported view '$view'\n") if $view && $view ne 'names';
+
   my $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache") || {};
   my @res;
   my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %$cache;
@@ -307,6 +309,7 @@ sub getbinarylist {
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
+  die("unsupported view '$view'\n") if $view;
   my @res;
   my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
   for (sort @bins) {
@@ -398,6 +401,7 @@ sub getlogfile {
     }
     my $param = {
       'uri' => "$jobstatus->{'uri'}/logfile",
+      'joinable' => 1,
       'receiver:application/octet-stream' => \&BSServer::reply_receiver,
     };
     eval {

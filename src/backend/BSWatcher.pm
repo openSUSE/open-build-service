@@ -235,7 +235,7 @@ sub serialize_end {
   return unless $ser;
   my $file = $ser->{'file'};
   delete $serializations{$file};
-  my @waiting = @{$serializations_waiting{$file}};
+  my @waiting = @{$serializations_waiting{$file} || []};
   delete $serializations_waiting{$file};
   while (@waiting) {
     my $jev = shift @waiting;
@@ -319,6 +319,29 @@ nextchunk:
 
   if ($rev->{'eof'}) {
     print "rpc_recv_stream_handler: EOF\n";
+    BSServerEvents::stream_close($rev, $ev);
+  }
+}
+
+sub rpc_recv_unchunked_stream_handler {
+  my ($ev) = @_;
+  my $rev = $ev->{'readev'};
+
+  #print "rpc_recv_unchunked_stream_handler\n";
+  my $cl = $rev->{'contentlength'};
+  $ev->{'paused'} = 1;	# always need more bytes!
+  my $data = $ev->{'replbuf'};
+  if (length($data) && $cl) {
+    $data = substr($data, 0, $cl) if $cl < length($data);
+    $cl -= length($data);
+    #print "feeding data handler...\n";
+    return unless $ev->{'datahandler'}->($ev, $rev, $data);
+    $rev->{'contentlength'} = $cl;
+    $ev->{'replbuf'} = '';
+  }
+  if ($rev->{'eof'} || !$cl) {
+    print "rpc_recv_unchunked_stream_handler: EOF\n";
+    $ev->{'chunktrailer'} = '';
     BSServerEvents::stream_close($rev, $ev);
   }
 }
@@ -492,7 +515,7 @@ sub rpc_recv_forward_setup {
 }
 
 sub rpc_recv_forward {
-  my ($ev, $data, @args) = @_;
+  my ($ev, $chunked, $data, @args) = @_;
 
   push @args, 'Transfer-Encoding: chunked';
   unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
@@ -514,7 +537,11 @@ sub rpc_recv_forward {
   $wev->{'replbuf'} = $data;
   $wev->{'readev'} = $ev;
   $ev->{'writeev'} = $wev;
-  $wev->{'handler'} = \&rpc_recv_stream_handler;
+  if ($chunked) {
+    $wev->{'handler'} = \&rpc_recv_stream_handler;
+  } else {
+    $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
+  }
   $wev->{'datahandler'} = \&rpc_recv_forward_data_handler;
   $wev->{'closehandler'} = \&rpc_recv_forward_close_handler;
   $ev->{'handler'} = \&BSServerEvents::stream_read_handler;
@@ -555,7 +582,7 @@ sub rpc_recv_file_close_handler {
 }
 
 sub rpc_recv_file {
-  my ($ev, $data, $filename) = @_;
+  my ($ev, $chunked, $data, $filename) = @_;
   print "rpc_recv_file $filename\n";
   my $fd = gensym;
   if (!open($fd, '>', $filename)) {
@@ -567,7 +594,11 @@ sub rpc_recv_file {
   $wev->{'readev'} = $ev;
   $ev->{'writeev'} = $wev;
   $wev->{'fd'} = $fd;
-  $wev->{'handler'} = \&rpc_recv_stream_handler;
+  if ($chunked) {
+    $wev->{'handler'} = \&rpc_recv_stream_handler;
+  } else {
+    $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
+  }
   $wev->{'datahandler'} = \&rpc_recv_file_data_handler;
   $wev->{'closehandler'} = \&rpc_recv_file_close_handler;
   $ev->{'handler'} = \&BSServerEvents::stream_read_handler;
@@ -585,7 +616,7 @@ sub rpc_recv_handler {
   my ($ev) = @_;
   my $cs = 1024;
   # needs to be bigger than the ssl package size...
-  $cs = 8192 if $ev->{'param'} && $ev->{'param'}->{'proto'} eq 'https';
+  $cs = 8192 if $ev->{'param'} && $ev->{'param'}->{'proto'} && $ev->{'param'}->{'proto'} eq 'https';
   my $r = sysread($ev->{'fd'}, $ev->{'recvbuf'}, $cs, length($ev->{'recvbuf'}));
   if (!defined($r)) {
     if ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK) {
@@ -598,12 +629,17 @@ sub rpc_recv_handler {
   my $ans;
   $ev->{'rpceof'} = 1 if !$r;
   $ans = $ev->{'recvbuf'};
-  if ($r && $ev->{'_need'} && length($ans) < $ev->{'_need'}) {
-    #shortcut for more bytes...
-    printf "... %d/%d\n", length($ans), $ev->{'_need'};
-    BSEvents::add($ev);
-    return;
+
+  if ($ev->{'_need'}) {
+    #shortcut for need more bytes...
+    if (!$ev->{'rpceof'} && length($ans) < $ev->{'_need'}) {
+      printf "... %d/%d\n", length($ans), $ev->{'_need'};
+      BSEvents::add($ev);
+      return;
+    }
+    delete $ev->{'_need'};
   }
+
   if ($ans !~ /\n\r?\n/s) {
     if ($ev->{'rpceof'}) {
       rpc_error($ev, "EOF from $ev->{'rpcdest'}");
@@ -637,37 +673,32 @@ sub rpc_recv_handler {
       $cookiestore{$1} = \@cookie;
     }
   }
-  if ($headers{'transfer-encoding'} && lc($headers{'transfer-encoding'}) eq 'chunked') {
-    if ($param->{'receiver'} && $param->{'receiver'} eq \&BSHTTP::file_receiver) {
-      rpc_recv_file($ev, $ans, $param->{'filename'});
-      return;
-    }
-    # we assume that all chunked data is streaming
-    my $ct = $headers{'content-type'} || 'application/octet-stream';
-    rpc_recv_forward($ev, $ans, "Content-Type: $ct");
-    return;
-  }
+
   my $cl = $headers{'content-length'};
-  if (!$ev->{'rpceof'} && (!$cl || length($ans) < $cl)) {
-    $ev->{'_need'} = length($headers) + $cl;
-    BSEvents::add($ev);
+  my $chunked = $headers{'transfer-encoding'} && lc($headers{'transfer-encoding'}) eq 'chunked' ? 1 : 0;
+
+  # we assume that all chunked data is streaming
+  if ($param->{'receiver'} || $chunked) {
+    $ev->{'contentlength'} = $cl if !$chunked && defined($cl);
+    if ($param->{'receiver'} && $param->{'receiver'} == \&BSHTTP::file_receiver) {
+      rpc_recv_file($ev, $chunked, $ans, $param->{'filename'});
+    } else {
+      my $ct = $headers{'content-type'} || 'application/octet-stream';
+      rpc_recv_forward($ev, $chunked, $ans, "Content-Type: $ct");
+    }
     return;
   }
-  if ($cl && length($ans) < $cl) {
+
+  if ($ev->{'rpceof'} && $cl && length($ans) < $cl) {
     rpc_error($ev, "EOF from $ev->{'rpcdest'}");
     return;
   }
-  $ans = substr($ans, 0, $cl) if $cl;
-  if ($param->{'receiver'} && $param->{'receiver'} eq \&BSHTTP::file_receiver) {
-    # eeek! Fix proxy!
-    print "WARNING: receiving streamed data in non-chunked mode!\n";
-    rpc_recv_file($ev, '', $param->{'filename'});
-    return unless $ev->{'writeev'};
-    rpc_recv_file_data_handler($ev->{'writeev'}, $ev, $ans);
-    $ev->{'writeev'}->{'chunktrailer'} = '';
-    BSServerEvents::stream_close($ev, $ev->{'writeev'});
+  if (!$ev->{'rpceof'} && (!defined($cl) || length($ans) < $cl)) {
+    $ev->{'_need'} = length($headers) + $cl if defined $cl;
+    BSEvents::add($ev);
     return;
   }
+  $ans = substr($ans, 0, $cl) if defined $cl;
   rpc_result($ev, $ans);
 }
 
@@ -725,7 +756,7 @@ sub rpc_connect_handler {
     return;
   }
   #print "rpc_connect_handler: connected!\n";
-  if ($ev->{'param'} && $ev->{'param'}->{'proto'} eq 'https') {
+  if ($ev->{'param'} && $ev->{'param'}->{'proto'} && $ev->{'param'}->{'proto'} eq 'https') {
     print "switching to https\n";
     fcntl($ev->{'fd'}, F_SETFL, 0); 	# in danger honor...
     eval {
@@ -771,7 +802,11 @@ sub rpc {
       $uri .= '?'.join('&', @args); 
     }
   }
-  if ($jev->{'rpcdone'} && $uri eq $jev->{'rpcdone'}) {
+
+  my $rpcuri = $uri;
+  $rpcuri .= ";$jev->{'id'}" unless $param->{'joinable'};
+
+  if ($jev->{'rpcdone'} && $rpcuri eq $jev->{'rpcdone'}) {
     die("$jev->{'rpcerror'}\n") if exists $jev->{'rpcerror'};
     my $ans = $jev->{'rpcresult'};
     if ($xmlargs) {
@@ -780,18 +815,20 @@ sub rpc {
     }
     return $ans;
   }
+
   $jev->{'closehandler'} = \&deljob;
-  if ($rpcs{$uri}) {
-    my $ev = $rpcs{$uri};
-    print "rpc $uri already in progress, ".@{$ev->{'joblist'} || []}." entries\n";
-    return if grep {$_ eq $jev} @{$ev->{'joblist'}};
+  if ($rpcs{$rpcuri}) {
+    my $ev = $rpcs{$rpcuri};
+    print "rpc $rpcuri already in progress, ".@{$ev->{'joblist'} || []}." entries\n";
+    return undef if grep {$_ eq $jev} @{$ev->{'joblist'}};
     if ($ev->{'rpcstate'} eq 'streaming') {
       # this seams wrong, cannot join a living stream!
       # (we're lucky to change the url when streaming...)
+      print "joining stream\n";
       rpc_recv_forward_setup($jev, $ev, @{$ev->{'replyargs'} || []});
     }
     push @{$ev->{'joblist'}}, $jev;
-    return;
+    return undef;
   }
 
   # new rpc, create rpc event
@@ -830,26 +867,27 @@ sub rpc {
   $ev->{'fd'} = $fd;
   $ev->{'sendbuf'} = $req;
   $ev->{'rpcdest'} = "$host:$port";
-  $ev->{'rpcuri'} = $uri;
+  $ev->{'rpcuri'} = $rpcuri;
   $ev->{'rpcstate'} = 'connecting';
   $ev->{'param'} = $param;
   push @{$ev->{'joblist'}}, $jev;
-  $rpcs{$uri} = $ev;
+  $rpcs{$rpcuri} = $ev;
   print "new rpc $uri\n";
   if (!connect($fd, sockaddr_in($port, $hostlookupcache{$host}))) {
     if ($! == POSIX::EINPROGRESS) {
       $ev->{'handler'} = \&rpc_connect_handler;
       $ev->{'timeouthandler'} = \&rpc_connect_timeout;
       BSEvents::add($ev, 60);	# 60s connect timeout
-      return;
+      return undef;
     }
     close $ev->{'fd'};
     delete $ev->{'fd'};
-    delete $rpcs{$uri};
+    delete $rpcs{$rpcuri};
     die("connect to $host:$port: $!\n");
   }
   $ev->{'rpcstate'} = 'sending';
   BSEvents::add($ev);
+  return undef;
 }
 
 sub getstatus {

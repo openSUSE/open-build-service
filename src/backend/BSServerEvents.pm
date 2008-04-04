@@ -452,7 +452,7 @@ sub stream_read_handler {
   if ($wev->{'paused'}) {
     delete $wev->{'paused'};
     BSEvents::add($wev);
-    # check if add killed us
+    # check if add() killed us
     return unless $ev->{'fd'};
   }
   if (length($wev->{'replbuf'}) >= 16384) {
