@@ -188,7 +188,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch/:package/:filename',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "package_index"
   map.connect 'build/:project/:repository/_buildconfig',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch',
