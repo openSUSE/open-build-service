@@ -719,7 +719,7 @@ sub forwardevent {
   # directories... maybe a architecture list in BSConfig?
   my @archs = $arch ? ($arch) : ls($eventdir);
   for my $a (@archs) {
-    next if $a =~ /^./;
+    next if $a =~ /^\./;
     next unless -d "$eventdir/$a";
     next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch';
     writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
