@@ -165,7 +165,7 @@ our $dir = [
     'directory' =>
 	'name',
 	'rev',
-        'vrev',
+	'vrev',
 	'srcmd5',
         'tproject',
         'tpackage',
@@ -299,7 +299,8 @@ our $event = [
 
 our $events = [
     'events' =>
-	'number',
+	'next',
+	'sync',
        [ $event ],
 ];
 

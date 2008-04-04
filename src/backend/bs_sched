@@ -36,7 +36,7 @@ use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 
 use BSConfig;
-use BSRPC;
+use BSRPC ':https';
 use BSUtil;
 use BSFileDB;
 use BSXML;
@@ -668,7 +668,7 @@ sub sendrepochangeevent {
   my ($projid, $repoid) = split('/', $prp, 2);
   my $evname = "${projid}::${repoid}::${myarch}";
   my $ev = {
-    'type' => 'repoevent',
+    'type' => 'repository',
     'project' => $projid,
     'repository' => $repoid,
     'arch' => $myarch,
@@ -1033,9 +1033,9 @@ sub addretryevent {
   my ($ev) = @_;
   for my $oev (@retryevents) {
     next if $ev->{'type'} ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
-    if ($ev->{'type'} eq 'repoevent') {
+    if ($ev->{'type'} eq 'repository') {
       next if $ev->{'repository'} ne $oev->{'repository'};
-    } elsif ($ev->{'type'} eq 'srcevent') {
+    } elsif ($ev->{'type'} eq 'package') {
       next if $ev->{'package'} ne $oev->{'package'};
     }
     return;
@@ -1057,7 +1057,7 @@ sub calc_projpacks_linked {
     while (($mypackid, $pack) = each %{$projpacks->{$projid}->{'package'} || {}}) {
       next unless $pack->{'linked'};
       for my $li (@{$pack->{'linked'}}) {
-	addwatchremote('source', $li->{'project'}, "/$li->{'package'}");
+	addwatchremote('project', $li->{'project'}, "/$li->{'package'}");
 	$li->{'myproject'} = $projid;
 	$li->{'mypackage'} = $mypackid;
       }
@@ -1262,7 +1262,7 @@ sub fetchremoteproj {
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
   $projid ||= $proj->{'name'};
   return $remoteprojs{$projid} if exists $remoteprojs{$projid};
-  print "fetching remote project data for $projid from $proj->{'remoteurl'}\n";
+  print "fetching remote project data for $projid\n";
   my $rproj;
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
@@ -1276,7 +1276,7 @@ sub fetchremoteproj {
     my $error = $@;
     $error =~ s/\n$//s;
     $rproj = {'error' => $error};
-    addretryevent({'type' => 'projevent', 'project' => $projid}) if $error !~ /^remote error:/;
+    addretryevent({'type' => 'project', 'project' => $projid}) if $error !~ /^remote error:/;
   }
   return undef unless $rproj;
   for (qw{name root remoteroot remoteurl remoteproject}) {
@@ -1292,7 +1292,7 @@ sub fetchremoteconfig {
   my $proj = $remoteprojs{$projid};
   return undef if !$proj || $proj->{'error'};
   return $proj->{'config'} if exists $proj->{'config'};
-  print "fetching remote project config for $projid from $proj->{'remoteurl'}\n";
+  print "fetching remote project config for $projid\n";
   my $c;
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
@@ -1305,7 +1305,7 @@ sub fetchremoteconfig {
     warn($@);
     $proj->{'error'} = $@;
     $proj->{'error'} =~ s/\n$//s;
-    addretryevent({'type' => 'projevent', 'project' => $projid}) if $proj->{'error'} !~ /^remote error:/;
+    addretryevent({'type' => 'project', 'project' => $projid}) if $proj->{'error'} !~ /^remote error:/;
     return undef;
   }
   $proj->{'config'} = $c;
@@ -1317,7 +1317,7 @@ sub findbins_remote {
   my ($projid, $repoid) = split('/', $prp, 2);
   my $proj = $remoteprojs{$projid};
   return {} if !$proj || $proj->{'error'};
-  print "fetching remote repository state for $prp from $proj->{'remoteurl'}\n";
+  print "fetching remote repository state for $prp\n";
   my $param = {
     'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$myarch/_repository",
     'timeout' => 20,
@@ -1331,7 +1331,7 @@ sub findbins_remote {
     warn($@);
     my $error = $@;
     $error =~ s/\n$//s;
-    addretryevent({'type' => 'repoevent', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+    addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
     return undef;
   }
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
@@ -1570,7 +1570,7 @@ sub checkaggregate {
       for my $apackid (@apackids) {
 	my $m = '';
         if ($remoteprojs{$aprojid}) {
-	  print "fetching remote binary data for $aprojid/$arepoid/$myarch/$apackid from $remoteprojs{$aprojid}->{'remoteurl'}\n";
+	  print "fetching remote binary data for $aprojid/$arepoid/$myarch/$apackid\n";
 	  my $param = {
 	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
 	    'timeout' => 10,
@@ -1583,7 +1583,7 @@ sub checkaggregate {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    addretryevent({'type' => 'repoevent', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
 	    last;
 	  }
 	  for my $binary (@{$binarylist->{'binary'} || []}) {
@@ -1723,7 +1723,7 @@ sub rebuildaggregate {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    addretryevent({'type' => 'repoevent', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
+	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /^remote error:/;
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {
@@ -2039,10 +2039,10 @@ while(1) {
     }
     my $watchlist = join("\0", sort keys %{$watchremote{$remoteurl}});
     my $param = {
-      'uri' => "$remoteurl/watch",
+      'uri' => "$remoteurl/lastevents",
       'async' => 1,
     };
-    my @args = map {"watch=$_"} sort keys %{$watchremote{$remoteurl}};
+    my @args = map {"filter=$_"} sort keys %{$watchremote{$remoteurl}};
     push @args, "start=$watchremote_start{$remoteurl}" if $watchremote_start{$remoteurl};
     my $ret;
     eval {
@@ -2077,29 +2077,16 @@ while(1) {
   }
   if (%remotewatchers) {
     my @readok = select_read(0, $pingsock, values %remotewatchers);
+    $gotevent = 1 if @readok;
     for my $watcher (@readok) {
-      if ($watcher->{'remoteurl'} eq 'ping') {
-	$gotevent = 1;
-	next;
-      }
+      my $remoteurl = $watcher->{'remoteurl'};
+      next if $remoteurl eq 'ping';
       if ($watcher->{'retry'}) {
-        print "retrying watches for $watcher->{'remoteurl'}\n";
-	delete $remotewatchers{$watcher->{'remoteurl'}};
-	$gotevent = 1;
-        for my $watch (sort keys %{$watchremote{$watcher->{'remoteurl'}}}) {
-	  my $projid = $watchremote{$watcher->{'remoteurl'}}->{$watch};
-	  my @ev = split('/', $watch);
-	  if ($ev[0] eq 'source') {
-	    push @remoteevents, {'type' => 'srcevent', 'project' => $projid, 'package' => $ev[2]};
-	  } elsif ($ev[0] eq 'repository') {
-	    push @remoteevents, {'type' => 'repoevent', 'project' => $projid, 'repository' => $ev[2], 'arch' => $ev[3]};
-	  } elsif ($ev[0] eq 'project') {
-	    push @remoteevents, {'type' => 'projevent', 'project' => $projid};
-	  }
-	}
+        print "retrying watcher for $remoteurl\n";
+	delete $remotewatchers{$remoteurl};
 	next;
       }
-      print "response from watcher for $watcher->{'remoteurl'}\n";
+      print "response from watcher for $remoteurl\n";
       my $ret;
       eval {
         $ret = BSRPC::rpc($watcher);
@@ -2112,27 +2099,43 @@ while(1) {
 	print "retrying in 60 seconds\n";
 	next;
       }
+      if ($ret->{'sync'} && $ret->{'sync'} eq 'lost') {
+        # ok to lose sync on call with no start (actually not, FIXME)
+        if ($watchremote_start{$remoteurl}) {
+	  # synthesize all events we watch
+	  for my $watch (sort keys %{$watchremote{$remoteurl} || {}}) {
+	    my $projid = $watchremote{$remoteurl}->{$watch};
+	    next unless defined $projid;
+	    my @s = split('/', $watch);
+	    if ($s[0] eq 'project') {
+	      push @remoteevents, {'type' => 'project', 'project' => $projid};
+	    } elsif ($s[0] eq 'package') {
+	      push @remoteevents, {'type' => 'package', 'project' => $projid, 'package' => $s[2]};
+	    } elsif ($s[0] eq 'repository') {
+	      push @remoteevents, {'type' => 'repository', 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
+	    }
+	  }
+	}
+      }
       for my $ev (@{$ret->{'event'} || []}) {
 	next unless $ev->{'project'};
 	my $watch;
-	if ($ev->{'type'} eq 'srcevent') {
-	  $watch = "source/$ev->{'project'}/$ev->{'package'}";
-	} elsif ($ev->{'type'} eq 'projevent') {
+	if ($ev->{'type'} eq 'project') {
 	  $watch = "project/$ev->{'project'}";
-	} elsif ($ev->{'type'} eq 'repoevent') {
+	} elsif ($ev->{'type'} eq 'package') {
+	  $watch = "package/$ev->{'project'}/$ev->{'package'}";
+	} elsif ($ev->{'type'} eq 'repository') {
 	  $watch = "repository/$ev->{'project'}/$ev->{'repository'}/$myarch";
 	} else {
 	  next;
 	}
-	my $projid = $watchremote{$watcher->{'remoteurl'}}->{$watch};
+	my $projid = $watchremote{$remoteurl}->{$watch};
 	next unless defined $projid;
 	push @remoteevents, {%$ev, 'project' => $projid};
       }
-      delete $remotewatchers{$watcher->{'remoteurl'}};
-      $watchremote_start{$watcher->{'remoteurl'}} = $ret->{'number'} if $ret->{'number'};
+      $watchremote_start{$remoteurl} = $ret->{'next'} if $ret->{'next'};
+      delete $remotewatchers{$remoteurl};
     }
-    $gotevent = 1 if @remoteevents;
-    next if @readok && !$gotevent;	# XXX
   } else {
     fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
     if ((sysread(PING, $dummy, 1, 0) || 0) > 0) {
@@ -2201,7 +2204,7 @@ while(1) {
 	next;
       }
 
-      if ($ev->{'type'} eq 'srcevent') {
+      if ($ev->{'type'} eq 'srcevent' || $ev->{'type'} eq 'package') {
 	my $projid = $ev->{'project'};
 	my $packid = $ev->{'package'};
 	get_projpacks($projid, $packid);
@@ -2222,7 +2225,7 @@ while(1) {
 	next;
       }
 
-      if ($ev->{'type'} eq 'projevent') {
+      if ($ev->{'type'} eq 'projevent' || $ev->{'type'} eq 'project') {
 	my $projid = $ev->{'project'};
 	get_projpacks($projid);
 	# need map to create safe copy of array
@@ -2244,7 +2247,7 @@ while(1) {
 	next;
       }
 
-      if ($ev->{'type'} eq 'repoevent') {
+      if ($ev->{'type'} eq 'repository') {
 	my $projid = $ev->{'project'};
 	my $repoid = $ev->{'repository'};
         my $prp = "$projid/$repoid";
@@ -2789,8 +2792,8 @@ while(1) {
 	for my $bpack (@{$pdeps{$packid}}) {
 	  my $r = $dep2rpm{$bpack};
 	  die unless $r;
-	  if (!$r->{'meta'}) {
-            if ($depislocal{$bpack} && $r->{'path'}) {
+          if ($depislocal{$bpack} && $r->{'path'}) {
+	    if (!$r->{'meta'}) {
 	      my @m;
 	      my $mf = substr("$reporoot/$r->{'path'}", 0, -4);
 	      #print "        reading meta for $r->{'path'}\n";
@@ -2799,17 +2802,15 @@ while(1) {
 		close F;
 		chomp @m;
 		s/  /  $bpack\// for @m;
-	        $m[0] =~ s/  .*/  $bpack/;
-	        $r->{'meta'} = \@m;
-	      } else {
-	        $r->{'meta'} = ["$r->{'hdrmd5'}  $bpack"];
+		$m[0] =~ s/  .*/  $bpack/ if @m;
 	      }
-	    } else {
-	      # no path (remote repository)
-	      $r->{'meta'} = ["$r->{'hdrmd5'}  $bpack"];
+	      @m = ("$r->{'hdrmd5'}  $bpack") unless @m;
+	      $r->{'meta'} = \@m;
 	    }
+	    push @new_meta, @{$r->{'meta'}};
+          } else {
+	    push @new_meta, "$r->{'hdrmd5'}  $bpack";
 	  }
-	  push @new_meta, @{$r->{'meta'}};
 	}
 	@new_meta = BSBuild::gen_meta($meta[0], $subpacks{$info->{'name'}}, @new_meta);
 	if (join('\n', @meta) eq join('\n', @new_meta)) {

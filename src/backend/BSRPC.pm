@@ -25,12 +25,15 @@ package BSRPC;
 use Socket;
 use XML::Structured;
 use Symbol;
+use MIME::Base64;
+use Data::Dumper;
 
 use BSHTTP;
 
 use strict;
 
 my %hostlookupcache;
+my %cookiestore;	# our session store to keep iChain fast
 my $tossl;
 
 sub import {
@@ -55,7 +58,9 @@ sub rpc {
   my $data = '';
   my @xhdrs;
   my $chunked;
-  my $param = {};
+  my $param = {'uri' => $uri};
+  my $fd;
+
   if (ref($uri) eq 'HASH') {
     $param = $uri;
     my $timeout = $param->{'timeout'};
@@ -105,12 +110,12 @@ sub rpc {
   }
   my ($host, $port, $path);
   if (exists($param->{'socket'})) {
-    *S = *{$param->{'socket'}};
+    $fd = $param->{'socket'};
     $path = $uri;
   } else {
-    my $proto;
-    die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/([^\/:]+)(:\d+)?(\/.*)$/;
-    ($proto, $host, $port, $path) = ($1, $2, $3, $4);
+    die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+    my ($proto, $auth);
+    ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
     my $hostport = $port ? "$host$port" : $host;
     $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
     if (!$hostlookupcache{$host}) {
@@ -118,16 +123,26 @@ sub rpc {
       die("unknown host '$host'\n") unless $hostaddr;
       $hostlookupcache{$host} = $hostaddr;
     }
-    socket(S, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
-    connect(S, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
+    socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+    connect($fd, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
     unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
+    if (defined $auth) {
+      $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge unless $param->{'verbatim_uri'};
+      $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+      unshift @xhdrs, "Authorization: Basic ".encode_base64($auth, '');
+    }
     if ($proto eq 'https') {
       if ($param->{'https'}) {
-        $param->{'https'}->(\*S);
+        $param->{'https'}->($fd);
       } elsif ($tossl) {
-        $tossl->(\*S);
+        $tossl->($fd);
       } else {
         die("https not supported\n");
+      }
+    }
+    if (%cookiestore) {
+      if ($param->{'uri'} =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
+        push @xhdrs, map {"Cookie: $_"} @{$cookiestore{$1} || []};
       }
     }
   }
@@ -141,12 +156,12 @@ sub rpc {
     }
     $req .= "$data" unless ref($data);
     if ($param->{'sender'}) {
-      $param->{'sender'}->($param, \*S, $req);
+      $param->{'sender'}->($param, $fd, $req);
     } else {
       while(1) {
-	BSHTTP::swrite(\*S, $req);
+	BSHTTP::swrite($fd, $req);
 	last unless ref $data;
-	$req = &$data($param, \*S);
+	$req = &$data($param, $fd);
 	if (!defined($req) || !length($req)) {
 	  $req = $data = '';
 	  $req = "0\r\n\r\n" if $chunked;
@@ -157,9 +172,6 @@ sub rpc {
     }
     if ($param->{'async'}) {
       my $ret = {};
-      my $fd = gensym;
-      open($fd, '<&S') || die("socket clone\n");
-      close S;
       $ret->{'uri'} = $uri;
       $ret->{'socket'} = $fd;
       $ret->{'async'} = 1;
@@ -175,7 +187,8 @@ sub rpc {
   }
   my $ans = '';
   do {
-    die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));  } while ($ans !~ /\n\r?\n/s);
+    die("received truncated answer\n") if !sysread($fd, $ans, 1024, length($ans));
+  } while ($ans !~ /\n\r?\n/s);
   die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
   my $status = $1;
   $ans =~ /^(.*?)\n\r?\n(.*)$/s;
@@ -188,19 +201,29 @@ sub rpc {
   BSHTTP::gethead(\%headers, $headers);
   if ($status !~ /^200[^\d]/) {
     #if ($param->{'verbose'}) {
-    #  1 while sysread(S, $ans, 1024, length($ans));
+    #  1 while sysread($fd, $ans, 1024, length($ans));
     #  print "< $ans\n";
     #}
     die("remote error: $status\n") unless $param->{'ignorestatus'};
   } else {
     undef $status;
   }
+  if ($headers{'set-cookie'} && $param->{'uri'}) {
+    my @cookie = split(',', $headers{'set-cookie'});
+    s/;.*// for @cookie;
+    if ($param->{'uri'} =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
+      my %cookie = map {$_ => 1} @cookie;
+      push @cookie, grep {!$cookie{$_}} @{$cookiestore{$1} || []};
+      splice(@cookie, 10) if @cookie > 10;
+      $cookiestore{$1} = \@cookie;
+    }
+  }
   if ($act eq 'HEAD') {
-    close S;
+    close $fd;
     ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
     return \%headers;
   }
-  $headers{'__socket'} = \*S;
+  $headers{'__socket'} = $fd;
   $headers{'__data'} = $ans;
   my $receiver;
   $receiver = $param->{'receiver:'.lc($headers{'content-type'} || '')};
@@ -210,7 +233,7 @@ sub rpc {
   } else {
     $ans = BSHTTP::read_data(\%headers, undef, 1);
   }
-  close S;
+  close $fd;
   delete $headers{'__socket'};
   delete $headers{'__data'};
   ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};

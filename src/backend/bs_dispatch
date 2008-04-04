@@ -190,7 +190,6 @@ sub assignjob {
 
 sub sendeventtosrcserver {
   my ($ev) = @_;
-  die("illegal eventtype\n") unless $ev->{'type'} eq 'repoevent';
   my @args;
   for ('type', 'project', 'package', 'repository', 'arch', 'job') {
     push @args, "$_=$ev->{$_}" if defined $ev->{$_};

@@ -27,6 +27,7 @@ use Socket;
 use Fcntl qw(:DEFAULT);
 use Symbol;
 use BSEvents;
+use Data::Dumper;
 
 use strict;
 
@@ -137,7 +138,7 @@ sub reply_stream {
   reply(undef, @args);
   my $ev = $gev;
   BSEvents::rem($ev);
-  print "reply_stream $rev -> $ev\n";
+  #print "reply_stream $rev -> $ev\n";
   $ev->{'readev'} = $rev;
   $ev->{'handler'} = \&stream_write_handler;
   $ev->{'timeouthandler'} = \&replstream_timeout;
@@ -149,10 +150,89 @@ sub reply_stream {
 }
 
 sub reply_file {
-  my ($fd, @args) = @_;
+  my ($filename, @args) = @_;
+  my $fd = $filename;
+  if (!ref($fd)) {
+    $fd = gensym;
+    open($fd, '<', $filename) || die("$filename: $!\n");
+  }
   my $rev = BSEvents::new('always');
   $rev->{'fd'} = $fd;
   $rev->{'makechunks'} = 1;
+  reply_stream($rev, @args);
+}
+
+sub makecpiohead {
+  my ($name, $s) = @_;
+  return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$s;
+  my $h = "07070100000000000081a4000000000000000000000001";
+  $h .= sprintf("%08x%08x", $s->[9], $s->[7]);
+  $h .= "00000000000000000000000000000000";
+  $h .= sprintf("%08x", length($name) + 1);
+  $h .= "00000000$name\0";
+  $h .= substr("\0\0\0\0", (length($h) & 3)) if length($h) & 3;
+  my $pad = '';
+  $pad = substr("\0\0\0\0", ($s->[7] & 3)) if $s->[7] & 3;
+  return ($h, $pad);
+}
+
+sub cpio_nextfile {
+  my ($ev) = @_;
+
+  my $data = '';
+  #print "cpio_nextfile\n";
+  $data .= $ev->{'filespad'} if defined $ev->{'filespad'};
+  delete $ev->{'filespad'};
+  my $files = $ev->{'files'};
+  my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
+  my $file;
+  if ($filesno >= @$files) {
+    if ($ev->{'cpioerrors'} ne '') {
+      $file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
+      $ev->{'cpioerrors'} = '';
+    } else {
+      $data .= makecpiohead();
+      return $data;
+    }
+  } else {
+    $ev->{'filesno'} = $filesno;
+    $file = $files->[$filesno];
+  }
+  if ($file->{'error'}) {
+    $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'error'}\n";
+    return $data.cpio_nextfile($ev);
+  }
+  my @s;
+  if (exists $file->{'filename'}) {
+    my $fd = $file->{'filename'};
+    if (!ref($fd)) {
+      $fd = gensym;
+      if (!open($fd, '<', $file->{'filename'})) {
+        $ev->{'cpioerrors'} .= "$file->{'name'}: $!\n";
+        return $data.cpio_nextfile($ev);
+      }
+    }
+    $ev->{'fd'} = $fd;
+    @s = stat($ev->{'fd'});
+  } else {
+    $s[7] = length($file->{'data'});
+    $s[9] = time();
+  }
+  my ($header, $pad) = makecpiohead($file->{'name'}, \@s);
+  $data .= $header;
+  $ev->{'filespad'} = $pad;
+  return "$data$file->{'data'}".cpio_nextfile($ev) if !exists $file->{'filename'};
+  return $data;
+}
+
+sub reply_cpio {
+  my ($files, @args) = @_;
+  my $rev = BSEvents::new('always');
+  $rev->{'files'} = $files;
+  $rev->{'cpioerrors'} = '';
+  $rev->{'makechunks'} = 1;
+  $rev->{'eofhandler'} = \&cpio_nextfile;
+  unshift @args, 'Content-Type: application/x-cpio';
   reply_stream($rev, @args);
 }
 
@@ -259,7 +339,7 @@ sub newconnect {
 
 sub cloneconnect {
   my (@reply) = @_;
-  my $ev =  $gev;
+  my $ev = $gev;
   fcntl($ev->{'nfd'}, F_SETFL, O_NONBLOCK);
   my $nev = BSEvents::new('read', $ev->{'handler'});
   $nev->{'fd'} = $ev->{'nfd'};
@@ -300,32 +380,64 @@ sub stream_close {
   }
 }
 
+#
+# read from a file descriptor (socket or file)
+# - convert to chunks if 'makechunks'
+# - put data into write event
+# - do flow control
+#
+
 sub stream_read_handler {
   my ($ev) = @_;
   #print "stream_read_handler $ev\n";
   my $wev = $ev->{'writeev'};
   $wev->{'replbuf'} = '' unless exists $wev->{'replbuf'};
   my $r;
-  if ($ev->{'makechunks'}) {
-    my $b = '';
-    $r = sysread($ev->{'fd'}, $b, 4096);
-    $wev->{'replbuf'} .= sprintf("%X\r\n", length($b)).$b."\r\n" if defined $r;
-  } else {
-    $r = sysread($ev->{'fd'}, $wev->{'replbuf'}, 4096, length($wev->{'replbuf'}));
-  }
-  if (!defined($r)) {
-    if ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK) {
-      BSEvents::add($ev);
-      return;
+  if ($ev->{'fd'}) {
+    if ($ev->{'makechunks'}) {
+      my $b = '';
+      $r = sysread($ev->{'fd'}, $b, 4096);
+      $wev->{'replbuf'} .= sprintf("%X\r\n", length($b)).$b."\r\n" if $r;
+    } else {
+      $r = sysread($ev->{'fd'}, $wev->{'replbuf'}, 4096, length($wev->{'replbuf'}));
     }
-    print "stream_read_handler: $!\n";
-    # can't do much here, fallthrough in EOF code
+    if (!defined($r)) {
+      if ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK) {
+        BSEvents::add($ev);
+        return;
+      }
+      print "stream_read_handler: $!\n";
+      # can't do much here, fallthrough in EOF code
+    }
   }
   if (!$r) {
     print "stream_read_handler: EOF\n";
+    if ($ev->{'eofhandler'}) {
+      close $ev->{'fd'} if $ev->{'fd'};
+      delete $ev->{'fd'};
+      my $data = $ev->{'eofhandler'}->($ev);
+      if (defined($data) && $data ne '') {
+        if ($ev->{'makechunks'}) {
+	  # keep those chunks small, otherwise our receiver will choke
+          while (length($data) > 4096) {
+	    my $d = substr($data, 0, 4096);
+            $wev->{'replbuf'} .= sprintf("%X\r\n", length($d)).$d."\r\n";
+	    $data = substr($data, 4096);
+          }
+          $wev->{'replbuf'} .= sprintf("%X\r\n", length($data)).$data."\r\n";
+	} else {
+          $wev->{'replbuf'} .= $data;
+	}
+      }
+      if ($ev->{'fd'}) {
+        stream_read_handler($ev);	# redo with new fd
+        return;
+      }
+    }
+    $wev->{'replbuf'} .= "0\r\n\r\n" if $ev->{'makechunks'};
     $ev->{'eof'} = 1;
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
-    close $ev->{'fd'};
+    close $ev->{'fd'} if $ev->{'fd'};
     delete $ev->{'fd'};
     if ($wev && $wev->{'paused'}) {
       if (length($wev->{'replbuf'})) {
@@ -344,12 +456,17 @@ sub stream_read_handler {
     return unless $ev->{'fd'};
   }
   if (length($wev->{'replbuf'}) >= 16384) {
-    print "write buffer too full, throttle\n";
+    #print "write buffer too full, throttle\n";
     $ev->{'paused'} = 1;
   } else {
     BSEvents::add($ev);
   }
 }
+
+#
+# write to a file descriptor (socket)
+# - do flow control
+#
 
 sub stream_write_handler {
   my ($ev) = @_;

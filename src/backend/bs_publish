@@ -604,7 +604,7 @@ sub publish {
 
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
-  my @archs = @{$repo->{'arch'} || {}};
+  my @archs = @{$repo->{'arch'} || []};
   my %bins;
   my %bins_id;
   my $binaryorigins = {};

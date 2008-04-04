@@ -421,7 +421,7 @@ sub dobuild {
   my $helper = '';
   /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
 
-  print "Building '$buildinfo->{'package'}' for project '$projid' repository '$repoid' arch 'arch'\n";
+  print "Building '$buildinfo->{'package'}' for project '$projid' repository '$repoid' arch '$arch'\n";
   print "using helper $helper\n" if $helper;
 
   unlink("$buildroot/.build.meta");
@@ -819,6 +819,8 @@ if (!$testmode) {
   } else {
     print "sent, all done...\n";
   }
+} else {
+  print "testmode, not sending anything\n";
 }
 
 unlink("$buildroot/.build.log");
