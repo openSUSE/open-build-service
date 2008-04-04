@@ -10,7 +10,6 @@ class SourceController < ApplicationController
   end
 
   def projectlist
-    #forward_data "/source"
     @dir = Project.find :all
     render :text => @dir.dump_xml, :content_type => "text/xml"
   end
@@ -102,58 +101,35 @@ class SourceController < ApplicationController
   def index_package
     project_name = params[:project]
     package_name = params[:package]
-    rev = params[:rev]
-    expand = params.has_key? :expand
-    comment = params[:comment]
-    if @http_user
-      user = @http_user.login
-    else
-      user = params[:user]
+
+    pkg = DbPackage.find_by_project_and_name(project_name, package_name)
+    unless pkg
+      render_error :status => 404, :errorcode => "unknown_package",
+        :message => "unknown package '#{package_name}' in project '#{project_name}'"
     end
 
-
-    path = "/source/#{project_name}/#{package_name}"
-
-    query = Array.new
-    #get doesn't need to check for permission, so it's handled extra
     if request.get?
-      query << "rev=#{CGI.escape rev}" if rev
-      query << "expand" if expand
-      path += "?#{query.join '&'}" unless query.empty?
-
-      forward_data path
+      pass_to_source
       return
-    end
-
-    user_has_permission = permissions.package_change?( package_name, project_name )
-
-    if request.delete?
-      if not user_has_permission
+    elsif request.delete?
+      if not @http_user.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => "delete_package_no_permission",
-          :message => "no permission to delete package"
+          :message => "no permission to delete package #{package_name}"
         return
       end
       
-      pack = DbPackage.find_by_project_and_name( project_name, package_name )
-      if pack
-        DbPackage.transaction do
-          pack.destroy
-          Suse::Backend.delete "/source/#{project_name}/#{package_name}"
-        end
-        render_ok
-      else
-        render_error :status => 404, :errorcode => "unknown_package",
-          :message => "unknown package '#{package_name}' in project '#{project_name}'"
+      DbPackage.transaction do
+        pack.destroy
+        Suse::Backend.delete "/source/#{project_name}/#{package_name}"
       end
+      render_ok
     elsif request.post?
-      cmd = params[:cmd]
-      
-      if not user_has_permission and cmd != "diff"
+      if not @http_user.can_modify_package?(pkg) and cmd != "diff"
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
         return
       end
-
+      
       dispatch_command
     end
   end
@@ -418,41 +394,27 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
-    rev = params[:rev]
-    comment = params[:comment]
-    keeplink = params[:keeplink]
-    if @http_user
-      user = @http_user.login
-    else
-      user = params[:user]
-    end
+    params[:user] = @http_user.login if @http_user
 
-    
     path = "/source/#{project_name}/#{package_name}/#{file}"
-    query = Array.new
-    query_string = ""
 
     if request.get?
-      query_string << URI.escape("rev=#{rev}") if rev
-      query_string = "?"+query_string unless query_string.empty?
-      path += query_string
       
       #get file size
-      file_list = Suse::Backend.get_source("/source/#{project_name}/#{package_name}"+query_string)
+      file_list = Suse::Backend.get("/source/#{project_name}/#{package_name}?rev=#{esc params[:rev]}")
       regexp = file_list.body.match(/name=["']#{Regexp.quote file}["'].*size=["']([^"']*)["']/)
       if regexp
-        logger.info "streaming #{path}"
         fsize = regexp[1]
+        
+        path += build_query_from_hash(params, [:user, :comment, :rev])
+        logger.info "streaming #{path}"
        
         headers.update(
           'Content-Disposition' => %(attachment; filename="#{file}"),
-          'Content-Transfer-Encoding' => 'binary',
           'Content-Type' => 'application/octet-stream',
-          'Content-Length' => fsize
+          'Transfer-Encoding' => 'binary',
         )
-   
-        @performed_render = false
-
+        
         render :status => 200, :text => Proc.new {|request,output|
           backend_request = Net::HTTP::Get.new(path)
           response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
@@ -467,12 +429,7 @@ class SourceController < ApplicationController
         forward_data path
       end
     elsif request.put?
-      query << URI.escape("rev=#{rev}") if rev
-      query << URI.escape("user=#{user}") if user
-      query << URI.escape("comment=#{comment}") if comment
-      query << URI.escape("keeplink=#{keeplink}") if keeplink
-      query_string = query.join('&')
-      path += "?#{query_string}" unless query_string.empty?
+      path += build_query_from_hash(params, [:user, :comment, :rev, :keeplink])
       
       allowed = permissions.package_change? package_name, project_name
       if  allowed
@@ -483,15 +440,10 @@ class SourceController < ApplicationController
         render_ok
       else
         render_error :status => 403, :errorcode => 'put_file_no_permission',
-          :message => "Permission denied on package write file"
+          :message => "Insufficient permissions to store file in package #{package_name}, project #{project_name}"
       end
     elsif request.delete?
-      query << URI.escape("rev=#{rev}") if rev
-      query << URI.escape("user=#{user}") if user
-      query << URI.escape("comment=#{comment}") if comment
-      query << URI.escape("keeplink=#{keeplink}") if keeplink
-      query_string = query.join('&')
-      path += "?#{query_string}" unless query_string.empty?
+      path += build_query_from_hash(params, [:user, :comment, :rev, :keeplink])
       
       allowed = permissions.package_change? package_name, project_name
       if  allowed

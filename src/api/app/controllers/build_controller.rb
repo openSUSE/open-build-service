@@ -1,4 +1,6 @@
 class BuildController < ApplicationController
+  skip_before_filter :extract_user, :only => [:package_index]
+
   def project_index
     @path = request.path
     unless request.query_string.empty?
@@ -68,5 +70,41 @@ class BuildController < ApplicationController
     else
       forward_data path
     end 
+  end
+
+  # /build/:prj/:repo/:arch/:pkg
+  # GET on ?view=cpio and ?view=cache unauthenticated and streamed
+  def package_index
+    view = params[:view]
+    raise
+    if request.get? and (view == "cpio" or view == "cache")
+      #stream without authentication
+      path = request.path+"?"+request.query_string
+      logger.info "streaming #{path}"
+      
+      headers.update(
+          'Transfer-Encoding' => 'chunked',
+          'Content-Type' => 'application/octet-stream'
+      )
+
+      render :status => 200, :text => Proc.new {|request,output|
+        backend_request = Net::HTTP::Get.new(path)
+        response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
+          http.request(backend_request) do |response|
+            response.read_body do |chunk|
+              output.write format("%x\r\n", chunk.length)
+              output.write chunk
+              output.write "\r\n"
+            end
+            output.write "0\r\n\r\n"
+          end
+        end
+      }
+      return
+    end
+
+    #authenticate
+    return unless extract_user
+    pass_to_source
   end
 end
