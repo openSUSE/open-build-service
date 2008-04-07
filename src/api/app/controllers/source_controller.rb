@@ -413,6 +413,7 @@ class SourceController < ApplicationController
           'Content-Disposition' => %(attachment; filename="#{file}"),
           'Content-Type' => 'application/octet-stream',
           'Transfer-Encoding' => 'binary',
+          'Content-Length' => fsize
         )
         
         render :status => 200, :text => Proc.new {|request,output|
