@@ -76,15 +76,13 @@ class BuildController < ApplicationController
   # GET on ?view=cpio and ?view=cache unauthenticated and streamed
   def package_index
     view = params[:view]
-    raise
     if request.get? and (view == "cpio" or view == "cache")
       #stream without authentication
       path = request.path+"?"+request.query_string
       logger.info "streaming #{path}"
       
       headers.update(
-          'Transfer-Encoding' => 'chunked',
-          'Content-Type' => 'application/octet-stream'
+        'Content-Type' => 'application/x-cpio'
       )
 
       render :status => 200, :text => Proc.new {|request,output|
@@ -92,11 +90,8 @@ class BuildController < ApplicationController
         response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
           http.request(backend_request) do |response|
             response.read_body do |chunk|
-              output.write format("%x\r\n", chunk.length)
               output.write chunk
-              output.write "\r\n"
             end
-            output.write "0\r\n\r\n"
           end
         end
       }
