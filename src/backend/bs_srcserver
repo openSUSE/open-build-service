@@ -1439,7 +1439,10 @@ sub getfile {
   die("$filename: no such project/package\n") unless $rev;
   my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
   die("$filename: no such file\n") unless $files->{$filename};
-  BSServer::reply_file("$srcrep/$packid/$files->{$filename}-$filename");
+  my @s = stat("$srcrep/$packid/$files->{$filename}-$filename");
+  my @args;
+  push @args, "Content-Length: $s[7]" if @s;
+  BSServer::reply_file("$srcrep/$packid/$files->{$filename}-$filename", @args);
   return undef;
 }
 

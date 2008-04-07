@@ -638,6 +638,8 @@ sub set_building {
 ## Repository management functions
 ##
 
+my $projpacks;		# global project/package data
+
 #
 # sendpublishevent - send a publish event to the publisher
 #
@@ -783,6 +785,77 @@ sub prpfinished {
   sendpublishevent($prp);
 }
 
+my $exportcnt = 0;
+
+sub createexportjob {
+  my ($prp, $arch, $jobrepo, $dst, $oldrepo, @exports) = @_;
+
+  # create unique id
+  my $job = "import-".Digest::MD5::md5_hex("$exportcnt.$$.$myarch.".time());
+  $exportcnt++;
+
+  local *F;
+  my $jobstatus = {
+    'code' => 'finished',
+  };
+  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.$job", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+    print "job lock failed!\n";
+    return;
+  }
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $info = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'package' => ':import',
+    'arch' => $arch,
+    'job' => $job,
+  };
+  writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+  my $dir = "$jobsdir/$arch/$job:dir";
+  mkdir_p($dir);
+  my %seen;
+  while (@exports) {
+    my ($rp, $r) = splice(@exports, 0, 2);
+    next unless $r->{'source'};
+    link("$dst/$rp", "$dir/$rp") || warn("link $dst/$rp $dir/$rp: $!\n");
+    $seen{$r->{'id'}} = 1;
+  }
+  my @replaced;
+  for my $rp (sort keys %$oldrepo) {
+    my $r = $oldrepo->{$rp};
+    next unless $r->{'source'};	# no src rpms in full tree
+    next if $seen{$r->{'id'}};
+    my $suf = $rp;
+    $suf =~ s/.*\.//;
+    push @replaced, {'name' => "$r->{'name'}.$suf", 'id' => $r->{'id'}};
+  }
+  if (@replaced) {
+    writexml("$dir/replaced.xml", undef, {'name' => 'replaced', 'entry' => \@replaced}, $BSXML::dir);
+  }
+  close F;
+  my $ev = {
+    'type' => 'import',
+    'job' => $job,
+  };
+  my $evname = "import.$job";
+  mkdir_p("$eventdir/$arch");
+  writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite(F, 'x');
+    close(F);
+  }
+}
+
+
+# FIXME: put this in proj.conf
+my %fullfilters = (
+  'i586' => {
+    '\.x86_64\.rpm$'   => '-x86_64',
+    '\.ia64\.rpm$'     => '-',
+    '-debuginfo\.rpm$' => '-',
+  },
+);
 
 #
 # moves binary packages from jobrepo to dst and updates full repository
@@ -791,40 +864,94 @@ sub prpfinished {
 sub update_dst_full {
   my ($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled) = @_;
 
-  my $gdst = "$reporoot/$prp/$myarch";
-  # get old state
-  my @oldrpms = grep {/\.(?:rpm|deb)$/} ls($dst);
-  my @oldrpms_p = map {"$dst/$_"} @oldrpms;
-  my $oldrepo = findbins_dir(\@oldrpms_p);
+  ##################################################################
+  # part 1: move binaries in package directory
 
-  # move rpms over
+  my $gdst = "$reporoot/$prp/$myarch";
+
+  my $oldrepo;
   my %new;
-  for my $rp (keys %$jobrepo) {
-    my $nn = $rp;
-    $nn =~ s/.*\///;
-    rename($rp, "$dst/$nn") || die("rename $rp $dst/$nn: $!\n");
-    $new{$nn} = $jobrepo->{$rp};
+
+  if ($dst) {
+    # get old state
+    my @oldrpms = grep {/\.(?:rpm|deb)$/} ls($dst);
+    $oldrepo = findbins_dir([ map {"$dst/$_"} @oldrpms ]);
+
+    # move rpms over
+    for my $rp (keys %$jobrepo) {
+      my $nn = $rp;
+      $nn =~ s/.*\///;
+      rename($rp, "$dst/$nn") || die("rename $rp $dst/$nn: $!\n");
+      $new{$nn} = $jobrepo->{$rp};
+    }
+    # delete old rpms in dst
+    for my $rp (grep {!$new{$_}} @oldrpms) {
+      unlink("$dst/$rp");
+    }
+  } else {
+    # dst = undef is true for importevents
+    my $jobdatadir = $jobrepo->{'.dir'};
+    delete $jobrepo->{'.dir'};
+    my $replaced = (readxml("$jobdatadir/replaced.xml", $BSXML::dir, 1) || {})->{'entry'};
+    $oldrepo = {};
+    for (@{$replaced || []}) {
+      my $rp = $_->{'name'};
+      $_->{'name'} =~ s/\.[^\.]*$//;
+      $_->{'source'} = 1;
+      $oldrepo->{$rp} = $_;
+    }
+    for my $rp (keys %$jobrepo) {
+      my $nn = $rp;
+      $nn =~ s/.*\///;
+      $new{$nn} = $jobrepo->{$rp};
+    }
+    $dst = $jobdatadir;
   }
-  # delete old rpms in dst
-  for my $rp (grep {!$new{$_}} @oldrpms) {
-    unlink("$dst/$rp");
-  }
+
+  ##################################################################
+  # part 2: link needed binaries into :full tree
 
   if (!$useforbuildenabled) {
     print "    move to :full is disabled\n";
     return;
   }
 
+  my $filter = $fullfilters{$myarch};
+
   # link new ones into full, delete old ones no longer in use
   my %fnew;
+  my %exports;
+
   mkdir_p("$gdst/:full");
-  for my $rp (keys %new) {
+  for my $rp (sort keys %new) {
     my $r = $new{$rp};
     next unless $r->{'source'};	# no src in full tree
+
+    if ($filter) {
+      my $skip;
+      for (sort keys %$filter) {
+	if ($rp =~ /$_/) {
+	  $skip = $filter->{$_};
+	  last;
+	}
+      }
+      if ($skip) {
+        for my $exportarch (split(',', substr($skip, 1))) {
+	  push @{$exports{$exportarch}}, $rp, $r;
+	}
+        next if $skip =~ /^-/;
+      }
+    }
+
     my $suf = $rp;
     $suf =~ s/.*\.//;
     my $n = $r->{'name'};
     print "      + :full/$n.$suf ($rp)\n";
+    # link gives an error if the dest exists, so we dup
+    # and rename instead.
+    # when the dest is the same file, rename doesn't do
+    # anything, so we need the unlink after the rename
+    unlink("$dst/$rp.dup");
     link("$dst/$rp", "$dst/$rp.dup");
     rename("$dst/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dst/$rp.dup $gdst/:full/$n.$suf: $!\n");
     unlink("$dst/$rp.dup");
@@ -833,17 +960,52 @@ sub update_dst_full {
     } else {
       unlink("$gdst/:full/$n.rpm");
     }
+
     if ($meta) {
       link($meta, "$meta.dup");
       rename("$meta.dup", "$gdst/:full/$n.meta");
     } else {
       unlink("$gdst/:full/$n.meta");
     }
+
     $fnew{$n} = 1;
-    delete $r->{'arch'};
+    delete $r->{'arch'};	# not in repodata
     $r->{'path'} = "$prp/$myarch/:full/$n.$suf";
     $repodata->{$n} = $r;
   }
+  if ($filter) {
+    # need also to check old entries
+    for my $rp (sort keys %$oldrepo) {
+      my $r = $oldrepo->{$rp};
+      next unless $r->{'source'};	# no src rpms in full tree
+      my $rn = $rp;
+      $rn =~ s/.*\///;
+      my $skip;
+      for (sort keys %$filter) {
+	if ($rn =~ /$_/) {
+	  $skip = $filter->{$_};
+	  last;
+	}
+      }
+      if ($skip) {
+        for my $exportarch (split(',', substr($skip, 1))) {
+	  $exports{$exportarch} ||= [];
+	}
+      }
+    }
+  }
+
+  for my $exportarch (sort keys %exports) {
+    # check if this prp supports the arch
+    my ($projid, $repoid) = split('/', $prp, 2);
+    next unless $projpacks->{$projid};
+    my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+    if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
+      print "    sending filtered packages to $exportarch\n";
+      createexportjob($prp, $exportarch, $jobrepo, $dst, $oldrepo, @{$exports{$exportarch}});
+    }
+  }
+
   # delete obsolete full entries
   for my $rp (sort keys %$oldrepo) {
     my $r = $oldrepo->{$rp};
@@ -892,8 +1054,6 @@ sub addjobhist {
 ##
 ##  project/package data collection functions
 ##
-
-my $projpacks;		# global project/package data
 
 my @prps;		# all prps we have to schedule, sorted
 my %prpsearchpath;	# maps prp -> [ prp, prp, ...]
@@ -1486,6 +1646,32 @@ sub jobfinished {
   rmdir($jobdatadir);
 }
 
+sub importevent {
+  my ($job, $js, $repodatas, $changed) = @_;
+
+  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  if (!$info || ! -d $jobdatadir) {
+    print "  - $job is bad\n";
+    return;
+  }
+  my $projid = $info->{'project'};
+  my $repoid = $info->{'repository'};
+  my $packid = $info->{'package'};
+  my $prp = "$projid/$repoid";
+  my @all = ls($jobdatadir);
+  my %all = map {$_ => 1} @all;
+  @all = map {"$jobdatadir/$_"} @all;
+  my $jobrepo = findbins_dir(\@all);
+  $jobrepo->{'.dir'} = $jobdatadir;
+  $repodatas->{$prp} ||= findbins($prp);
+  my $repodata = $repodatas->{$prp};
+  my $useforbuildenabled = 1;
+  update_dst_full($repodata, $prp, undef, $jobrepo, undef, $useforbuildenabled);
+  $changed->{$prp} = 2 if $useforbuildenabled;
+  unlink($_) for @all;
+  rmdir($jobdatadir);
+}
 
 ##########################################################################
 ##########################################################################
@@ -2179,7 +2365,7 @@ while(1) {
       }
       next unless $ev && $ev->{'type'};
 
-      if ($ev->{'type'} eq 'built') {
+      if ($ev->{'type'} eq 'built' || $ev->{'type'} eq 'import') {
 	my $job = $ev->{'job'};
 	local *F;
 	my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
@@ -2193,7 +2379,11 @@ while(1) {
 	  close F;
 	  next;
 	}
-	jobfinished($job, $js, \%repodata, \%changed);
+        if ($ev->{'type'} eq 'built') {
+	  jobfinished($job, $js, \%repodata, \%changed);
+	} else {
+	  importevent($job, $js, \%repodata, \%changed);
+	}
 	if (-d "$myjobsdir/$job:dir") {
 	  unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
 	  rmdir("$myjobsdir/$job:dir");
@@ -2234,9 +2424,9 @@ while(1) {
 	  my $lpackid = $linfo->{'mypackage'};
 	  next if $lprojid eq $projid;
 	  for my $prp (@prps) {
-	    $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
+	    $changed{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
 	  }
-	  $changed_high{$lprojid} ||= 1;
+	  $changed{$lprojid} ||= 1;
 	}
 	# we use 2 here as a config change is relevant for all
         # projects building with us

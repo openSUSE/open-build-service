@@ -103,7 +103,7 @@ sub deljob {
   my ($jev) = @_;
   print "deljob #$jev->{'id'}\n";
   for my $file (keys %filewatchers) {
-    next unless grep {$file == $jev} @{$filewatchers{$file}};
+    next unless grep {$_ == $jev} @{$filewatchers{$file}};
     @{$filewatchers{$file}} = grep {$_ != $jev} @{$filewatchers{$file}};
     if (!@{$filewatchers{$file}}) {
       delete $filewatchers{$file};

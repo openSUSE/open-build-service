@@ -181,6 +181,7 @@ our $dir = [
 	    'size',
 	    'mtime',
 	    'error',
+	    'id',
      ]]
 ];
 

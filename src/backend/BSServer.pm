@@ -465,6 +465,22 @@ sub readrequest {
   return $res;
 }
 
+sub swrite {
+  BSHTTP::swrite(\*CLNT, $_[0]);
+}
+
+sub get_content_type {
+  die("get_content_type: invalid request\n") unless $post_hdrs;
+  return $post_hdrs->{'content-type'};
+}
+
+sub header {
+  die("header: invalid request\n") unless $post_hdrs;
+  return $post_hdrs->{$_[0]};
+}
+
+###########################################################################
+
 sub read_file {
   my ($fn, @args) = @_;
   die("read_file: invalid request\n") unless $post_hdrs;
@@ -492,25 +508,26 @@ sub read_data {
   return $res;
 }
 
-sub get_content_type {
-  die("get_content_type: invalid request\n") unless $post_hdrs;
-  return $post_hdrs->{'content-type'};
-}
+###########################################################################
 
 sub reply_cpio {
   my ($files, @args) = @_;
   reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @args);
-  BSHTTP::cpio_sender({'chunked' => 1, 'cpiofiles' => $files}, \*CLNT);
-  BSHTTP::swrite(\*CLNT, "0\r\n\r\n")
+  BSHTTP::cpio_sender({'cpiofiles' => $files, 'chunked' => 1}, \*CLNT);
+  BSHTTP::swrite(\*CLNT, "0\r\n\r\n");
 }
 
 sub reply_file {
   my ($file, @args) = @_;
-  push @args, 'Transfer-Encoding: chunked';
+  my $chunked;
+  $chunked = 1 unless grep {/^content-length:/i} @args;
+  push @args, 'Transfer-Encoding: chunked' if $chunked;
   unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
   reply(undef, @args);
-  BSHTTP::file_sender({'chunked' => 1, 'filename' => $file}, \*CLNT);
-  BSHTTP::swrite(\*CLNT, "0\r\n\r\n")
+  my $param = {'filename' => $file};
+  $param->{'chunked'} = 1 if $chunked;
+  BSHTTP::file_sender($param, \*CLNT);
+  BSHTTP::swrite(\*CLNT, "0\r\n\r\n") if $chunked;
 }
 
 sub reply_receiver {
@@ -520,7 +537,7 @@ sub reply_receiver {
   my @args;
   my $st = $hdr->{'status'};
   my $ct = $hdr->{'content-type'} || 'text/plain';
-  my $chunked = 0;
+  my $chunked;
   $chunked = 1 if $hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked';
   push @args, "Status: $st" if $st; 
   push @args, "Content-Type: $ct";
@@ -535,18 +552,15 @@ sub reply_receiver {
   swrite("0\r\n\r\n") if $chunked;
 }
 
+###########################################################################
+
+# sender (like file_sender in BSHTTP) that forwards received data
+
 sub forward_sender {
   return read_data(8192);
 }
 
-sub header {
-  die("header: invalid request\n") unless $post_hdrs;
-  return $post_hdrs->{$_[0]};
-}
-
-sub swrite {
-  BSHTTP::swrite(\*CLNT, $_[0]);
-}
+###########################################################################
 
 sub dispatch_checkcgi {
   my ($cgi, @known) = @_;

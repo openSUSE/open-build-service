@@ -485,6 +485,7 @@ sub dobuild {
   push @args, '--clean';
   push @args, '--changelog';
   push @args, '--norootforbuild';
+  push @args, '--baselibs-internal';
   push @args, '--dist', "$buildroot/.config";
   push @args, '--rpmlist', "$buildroot/.rpmlist";
   push @args, '--release', "$release" if defined $release;
