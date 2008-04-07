@@ -399,25 +399,35 @@ class SourceController < ApplicationController
     path = "/source/#{project_name}/#{package_name}/#{file}"
 
     if request.get?
-      path += build_query_from_hash(params, [:rev])
-      logger.info "streaming #{path}"
-     
-      headers.update(
-        'Content-Disposition' => %(attachment; filename="#{file}"),
-        'Content-Transfer-Encoding' => 'binary',
-        'Content-Type' => 'application/octet-stream'
-      )
       
-      render :status => 200, :text => Proc.new {|request,output|
-        Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
-          http.request(Net::HTTP::Get.new(path)) do |response|
-            request.headers.update 'Content-Length' => response['Content-Length']
-            response.read_body do |chunk|
-              output.write(chunk)
+      #get file size
+      file_list = Suse::Backend.get("/source/#{project_name}/#{package_name}?rev=#{esc params[:rev]}")
+      regexp = file_list.body.match(/name=["']#{Regexp.quote file}["'].*size=["']([^"']*)["']/)
+      if regexp
+        fsize = regexp[1]
+        
+        path += build_query_from_hash(params, [:user, :comment, :rev])
+        logger.info "streaming #{path}"
+       
+        headers.update(
+          'Content-Disposition' => %(attachment; filename="#{file}"),
+          'Content-Type' => 'application/octet-stream',
+          'Transfer-Encoding' => 'binary',
+        )
+        
+        render :status => 200, :text => Proc.new {|request,output|
+          backend_request = Net::HTTP::Get.new(path)
+          response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
+            http.request(backend_request) do |response|
+              response.read_body do |chunk|
+                output.write(chunk)
+              end
             end
           end
-        end
-      }
+        }
+      else
+        forward_data path
+      end
     elsif request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :keeplink])
       
