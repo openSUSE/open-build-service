@@ -1221,7 +1221,7 @@ div {
 #
 div {
 	k.packages.type.attribute = attribute type {
-		"image" | "bootstrap" | "delete" | "xen" | "vmware"
+		"image" | "bootstrap" | "delete" | "testing" | "xen" | "vmware"
 	}
 	k.packages.memory.attribute =
 		## The memory setup for the guest VM. Used only with the

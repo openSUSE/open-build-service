@@ -1734,6 +1734,7 @@ are used for creating a Novell SUSE installation source.</db:para>
           <value>image</value>
           <value>bootstrap</value>
           <value>delete</value>
+          <value>testing</value>
           <value>xen</value>
           <value>vmware</value>
         </choice>
