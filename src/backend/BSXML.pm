@@ -24,6 +24,24 @@ package BSXML;
 
 use strict;
 
+# 
+# an explained example entry of this file
+#
+#our $pack = [             creates <package name="" project=""> space
+#    'package' =>          
+#	'name',
+#	'project',
+#	[],                before the [] all strings become attributes to <package>
+#       'title',           from here on all strings become childs like <title> </title>
+#       'description',
+#       [[ 'person' =>     creates <person> childs, the [[ ]] syntax allows any number of them including zero
+#           'role',        again role and userid attributes, both are required
+#           'userid',    
+#       ]],                this block describes a <person role="defaetist" userid="adrian" /> construct
+# 	@flags,            copies in the block of possible flag definitions
+#       [ $repo ],         refers to the repository construct and allows again any number of them (0-X)
+#];                        closes the <package> child with </package>
+
 our $repo = [
    'repository' => 
 	'name',
@@ -93,6 +111,7 @@ our $packinfo = [
 	'file',
 	'error',
 	[ 'dep' ],
+	[ 'imagetype' ],
 ];
 
 our $linked = [
@@ -112,6 +131,88 @@ our $aggregatelist = [
 		'source',
          ]],
      ]],
+];
+
+our $kiwidesc = [
+    'image' =>
+        'name',
+        'schemeversion',
+        [],
+        [ 'description' => 
+              'type',
+              [],
+              'author',
+              'contact',
+              'specification',
+        ],
+        [ 'preferences' =>
+          [[ 'type' =>
+              'primary',
+              'filesystem',
+              'boot',
+              'bootprofile',
+              'flags',
+              '_content',
+          ]],
+             'version',
+          [ 'size' =>
+              'unit',
+              '_content',
+          ],
+          [  'compressed', ],
+             'packagemanager',
+             'rpm-check-signatures',
+        ],
+        [[ 'users' =>
+             'group',
+             [],
+             [[ 'user' => 'name', 'pwd', 'home', 'realname' ]],
+        ]],
+	[[ 'repository' =>
+	       'type',
+               [],
+	       [[ 'source' => 'path' ]],
+        ]],
+        [[ 'deploy' =>
+               'server',
+               'blocksize',
+               [],
+               [[ 'partitions' =>
+                    'device',
+                    [],
+                    [[ 'partition' =>
+                       'type',
+                       'number',
+                       'size',
+                       'mountpoint',
+                       'target',
+                    ]],
+               ]],
+               [[ 'configuration' =>
+                    'source',
+                    'dest',
+               ]],
+          ]],
+	[[ 'packages' =>
+               'type',
+               'patternType',
+               'patternPackageType',
+               'memory',
+               'disk',
+               [],
+	       [['package' =>
+                     'name',
+                     'arch',
+               ]],
+	       [['opensusePattern' =>
+                     'name',
+                     'arch',
+               ]],
+	       [['ignore' =>
+                     'name',
+                     'arch',
+               ]],
+        ]],
 ];
 
 our $projpack = [
@@ -226,6 +327,7 @@ our $buildinfo = [
 	'bcnt',
 	'release',
       [ 'subpack' ],
+      [ 'imagetype' ],
       [ 'dep' ],
      [[ 'bdep' =>
 	'name',
@@ -538,8 +640,8 @@ my $rpm_entry = [
 
 our $pattern = [
     'pattern' =>
-	'xmlns',
-	'xmlns:rpm',
+	'xmlns',      # obsolete, moved to patterns
+	'xmlns:rpm',  # obsolete, moved to patterns
 	[],
 	'name',
      [[ 'summary' =>
@@ -571,6 +673,9 @@ our $pattern = [
 our $patterns = [
     'patterns' =>
 	'count',
+	'xmlns',
+	'xmlns:rpm',
+	[],
       [ $pattern ],
 ];
 

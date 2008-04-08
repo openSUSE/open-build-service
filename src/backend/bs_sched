@@ -85,6 +85,7 @@ my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 my %aliendeps = (
   'spec' => 'rpm',	# should be rpmbuild?
   'dsc' => 'dpkg',
+  'kiwi' => 'kiwi',
 );
 
 my %remoteprojs;	# remote project cache
@@ -265,10 +266,10 @@ sub findbins_dir {
   my ($dir) = @_;
   my @bins;
   if (ref($dir)) {
-    @bins = grep {/\.(?:rpm|deb)$/} @$dir;
+    @bins = grep {/\.(?:rpm|deb|iso)$/} @$dir;
   } else {
     @bins = ls($dir);
-    @bins = map {"$dir/$_"} grep {/\.(?:rpm|deb)$/} sort @bins;
+    @bins = map {"$dir/$_"} grep {/\.(?:rpm|deb|iso|raw|raw\.install)$/} sort @bins;
   }
   my $repobins = {};
   for my $bin (@bins) {
@@ -311,11 +312,11 @@ sub findbins {
   if (!opendir(D, $dir)) {
     return findbins_remote($prp);
   }
-  my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
+  my @bins = grep {/\.(?:rpm|deb|iso|raw|raw.install)$/} readdir(D);
   closedir D;
   if (!@bins && -s "$dir.subdirs") {
     for my $subdir (split(' ', readstr("$dir.subdirs"))) {
-      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
+      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb|iso)$/} ls("$dir/$subdir");
     }
   }
   my ($hits, $misses) = (0, 0);
@@ -549,9 +550,12 @@ sub set_building {
     }
   }
 
+  # Get image types defined in KIWI config file
+  my @imagetypes = @{$info->{'imagetype'} || []};
+
   # calculate packages needed for building
   my $prptype = $bconf->{'type'};
-  $info->{'file'} =~ /\.(spec|dsc)$/;
+  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   my $packtype = $1 || 'spec';
 
   my @bdeps = @{$info->{'dep'} || []};
@@ -613,6 +617,7 @@ sub set_building {
     'versrel' => $pdata->{'versrel'},
     'bcnt' => $h->{'bcnt'} + 1,
     'subpack' => ($subpacks || []),
+    'imagetype' => \@imagetypes,
     'bdep' => \@bdeps,
     'path' => $searchpath,
   };
@@ -750,7 +755,7 @@ sub prpfinished {
       next;
     }
     my $pdir = "$reporoot/$prp/$myarch/$packid";
-    my @all = grep {/\.(?:deb|rpm)$/} ls($pdir);
+    my @all = grep {/\.(?:deb|rpm|iso)$/} ls($pdir);
     for my $bin (@all) {
       next if exists $origin{$bin};	# first one wins
       $origin{$bin} = $packid;
@@ -874,7 +879,7 @@ sub update_dst_full {
 
   if ($dst) {
     # get old state
-    my @oldrpms = grep {/\.(?:rpm|deb)$/} ls($dst);
+    my @oldrpms = grep {/\.(?:rpm|deb|iso)$/} ls($dst);
     $oldrepo = findbins_dir([ map {"$dst/$_"} @oldrpms ]);
 
     # move rpms over
@@ -1014,13 +1019,16 @@ sub update_dst_full {
     $suf =~ s/.*\.//;
     my $n = $r->{'name'};
     next if $fnew{$n};		# got new version, already deleted old
+
     my @s = stat("$gdst/:full/$n" . ($rp =~ /\.rpm$/ ? '.rpm' : '.deb'));
+
     # don't delete package if not ours
     next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";
     # package no longer built, kill full entry
     print "      - :full/$n.$suf\n";
     unlink("$gdst/:full/$n.rpm");
     unlink("$gdst/:full/$n.deb");
+    unlink("$gdst/:full/$n.iso");
     unlink("$gdst/:full/$n.meta");
     unlink("$gdst/:full/$n-MD5SUMS.meta");
     delete $repodata->{$n};
@@ -2735,7 +2743,7 @@ while(1) {
     my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
     my $info = $info{$repoid};
     if (!$info) {
-      for ($prptype, 'spec', 'dsc') {
+      for ($prptype, 'spec', 'dsc', 'kiwi') {
 	last if $info = $info{":$_"};
       }
     }
@@ -2744,7 +2752,7 @@ while(1) {
       next;
     }
 
-    $info->{'file'} =~ /\.(spec|dsc)$/;
+    $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
     my $packtype = $1 || 'spec';
 
     my @deps = @{$info->{'dep'} || []};
@@ -2838,7 +2846,7 @@ while(1) {
     my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
     my $info = $info{$repoid};
     if (!$info) {
-      for ($prptype, 'spec', 'dsc') {
+      for ($prptype, 'spec', 'dsc', 'kiwi') {
 	last if $info = $info{":$_"};
       }
     }
@@ -2877,21 +2885,19 @@ while(1) {
     }
 
     if (!exists $info->{'file'}) {
-      print "      - $packid (no spec/dscfile)\n";
+      print "      - $packid (no spec/dsc/kiwi file)\n";
       $packstatus{$packid} = 'broken';
-      $packerror{$packid} = 'no spec/dscfile';
+      $packerror{$packid} = 'no spec/dsc/kiwi file';
       next;
     }
-    $info->{'file'} =~ /\.(spec|dsc)$/;
+    $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
     my $packtype = $1 || 'spec';
     #print "      - $packid ($packtype)\n";
 
     if ($experrors{$packid}) {
       # retry expansion of this one
       my @deps = @{$info->{'dep'} || []};
-      if ($packtype ne $prptype) {
-	push @deps, ($packtype eq 'spec' ? 'rpm' : 'dpkg');
-      }
+      push @deps, $aliendeps{$packtype} if $packtype ne $prptype;
       my ($eok, @edeps) = Build::get_deps($bconf, $subpacks{$info->{'name'}}, @deps);
       if (! $eok) {
 	print "      - $packid ($packtype)\n";
@@ -2939,6 +2945,7 @@ while(1) {
 	# print "        already scheduled\n";
 	$building{$packid} = $job;
 	$notready{$pname} = 1;
+        # FIXME: this leads to have "finished" jobs being displayed as "scheduled".
 	$packstatus{$packid} = 'scheduled';
 	next;
       }

@@ -24,6 +24,7 @@
 
 use Digest::MD5 ();
 use XML::Structured ':bytes';
+use Data::Dumper;
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 
@@ -428,6 +429,7 @@ sub dobuild {
   rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
   rm_rf("$buildroot/.build-srcdir") if -d "$buildroot/.build-srcdir";
   rm_rf("$buildroot/.rpms") if -d "$buildroot/.rpms";
+  rm_rf("$buildroot/kiwi-root") if -d "$buildroot/kiwi-root";
   print "fetching sources...\n";
   mkdir("$buildroot/.build-srcdir") || die("mkdir $buildroot/.build-srcdir: $!\n");
   getsources($buildinfo, "$buildroot/.build-srcdir");
@@ -469,34 +471,76 @@ sub dobuild {
 
   my @args;
   push @args, $helper if $helper;
-  push @args, "$statedir/build/build";
-  if ($xen) {
-    mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
-    push @args, '--root', "$buildroot/.mount";
+
+  $buildinfo->{'file'} =~ /\.(spec|dsc|kiwi)$/;
+  if ($1 && $1 eq 'kiwi') {
+    # will not be needed anymore with kiwi 2.36
+    rename( "$buildroot/.build-srcdir/config.kiwi", "$buildroot/.build-srcdir/config.xml" );
+
+    print "Build KIWI preparation directory\n";
+    push @args, "kiwi";
+    push @args, '--prepare', "$buildroot/.build-srcdir/";
+    push @args, '--ignore-repos';
+    push @args, '--add-repo', "$buildroot/.rpms/", "--add-repotype", "rpm-dir";
     push @args, '--logfile', "$buildroot/.build.log";
-    push @args, '--xen', "$buildroot/root";
-    push @args, '--xenswap', "$buildroot/swap";
-    my $xenmemory;
-    $xenmemory = readstr("$buildroot/memory", 1);
-    push @args, '--xenmemory', $xenmemory if $xenmemory;
+    push @args, '--root', "$buildroot/kiwi-root";
+    if (system(@args)) {
+      print "build failed\n";
+      return 1;
+    }
+
+    # loop to create all images specified in kiwi file
+    my @imagetypes = @{$buildinfo->{'imagetype'} || []};
+    mkdir("$buildroot/.build.packages") || die("mkdir $buildroot/.build.packages");
+    mkdir("$buildroot/.build.packages/KIWI") || die("mkdir $buildroot/.build.packages/KIWI");
+    for my $itype (@imagetypes) {
+      print "Build KIWI image: $itype\n";
+      @args = ();
+      push @args, $helper if $helper;
+      push @args, "kiwi";
+      push @args, "--create", "$buildroot/kiwi-root";
+      push @args, '--ignore-repos';
+      push @args, '--add-repo', "$buildroot/.rpms/", "--add-repotype", "rpm-dir";
+      push @args, '--logfile', "$buildroot/.build.log.image";
+      push @args, "-d", "$buildroot/.build.packages/KIWI";
+      push @args, "--type", $itype;
+      if (system(@args)) {
+        print "build failed\n";
+        return 1;
+      }
+      system( "cat", "$buildroot/.build.log.image", ">>", "$buildroot/.build.log" );
+      unlink( "$buildroot/.build.log.image" );
+    }
   } else {
-    push @args, '--root', $buildroot;
-  }
-  push @args, '--clean';
-  push @args, '--changelog';
-  push @args, '--norootforbuild';
-  push @args, '--baselibs-internal';
-  push @args, '--lint';
-  push @args, '--dist', "$buildroot/.config";
-  push @args, '--rpmlist', "$buildroot/.rpmlist";
-  push @args, '--release', "$release" if defined $release;
-  push @args, '--arch', $arch;
-  push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
-  push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";
-  if (system(@args)) {
-    print "build failed\n";
-    return 1;
-  }
+    push @args, "$statedir/build/build";
+    if ($xen) {
+      mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
+      push @args, '--root', "$buildroot/.mount";
+      push @args, '--logfile', "$buildroot/.build.log";
+      push @args, '--xen', "$buildroot/root";
+      push @args, '--xenswap', "$buildroot/swap";
+      my $xenmemory;
+      $xenmemory = readstr("$buildroot/memory", 1);
+      push @args, '--xenmemory', $xenmemory if $xenmemory;
+    } else {
+      push @args, '--root', $buildroot;
+    }
+    push @args, '--clean';
+    push @args, '--changelog';
+    push @args, '--norootforbuild';
+    push @args, '--baselibs-internal';
+    push @args, '--lint';
+    push @args, '--dist', "$buildroot/.config";
+    push @args, '--rpmlist', "$buildroot/.rpmlist";
+    push @args, '--release', "$release" if defined $release;
+    push @args, '--arch', $arch;
+    push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
+    push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";
+    if (system(@args)) {
+      print "build failed\n";
+      return 1;
+    }
+  };
   if (! -s "$buildroot/.build.log") {
     print "build succeeded, but no logfile?\n";
     return 1;
@@ -515,8 +559,10 @@ sub dobuild {
     mkdir_p("$buildroot/.build.packages");
     rm_rf("$buildroot/.build.packages/SRPMS");
     rm_rf("$buildroot/.build.packages/DEPS");
+    rm_rf("$buildroot/.build.packages/KIWI");
     symlink('.', "$buildroot/.build.packages/SRPMS");
     symlink('.', "$buildroot/.build.packages/DEBS");
+    symlink('.', "$buildroot/.build.packages/KIWI");
     if (system("cd $buildroot/.build.packages && cpio --extract --no-absolute-filenames -v < $buildroot/swap")) {
       die("cpio extract failed\n");
     }
@@ -787,9 +833,10 @@ if ($ex == 0) {
   }
   push @d, 'SRPMS';
   @d = ('DEBS') if $buildinfo->{'file'} =~ /\.dsc$/;
+  @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   for my $d (@d) {
     if (opendir(D, "$buildroot/.build.packages/$d")) {
-      push @send, map {"$buildroot/.build.packages/$d/$_"} grep {/\.(?:deb|rpm)$/} readdir(D);
+      push @send, map {"$buildroot/.build.packages/$d/$_"} grep {/\.(?:deb|rpm|iso)$/} readdir(D);
       close D;
     }
   }

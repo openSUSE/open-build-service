@@ -476,7 +476,7 @@ sub putbinary {
       rmdir($fdir);
     }
     mkdir_p($fdir);
-    my $uploaded = BSServer::read_cpio($fdir, 'accept' => '^.+\.(?:rpm|deb|meta)$');
+    my $uploaded = BSServer::read_cpio($fdir, 'accept' => '^.+\.(?:rpm|deb|iso|meta)$');
     die("upload error\n") unless $uploaded;
     if ($cgi->{'wipe'}) {
       for (ls($tdir)) {
@@ -678,7 +678,7 @@ sub putjob {
   # right job, fetch everything!
   my $dir = "$jobsdir/$arch/$job:dir";
   mkdir_p($dir);
-  my $uploaded = BSServer::read_cpio($dir, 'accept' => '^(meta|.*\.rpm|.*\.deb|logfile)$');
+  my $uploaded = BSServer::read_cpio($dir, 'accept' => '^(meta|.*\.rpm|.*\.deb|.*\.iso|logfile)$');
   die("upload error\n") unless $uploaded;
   if ($BSConfig::sign) {
     my $signargs = [];
@@ -909,7 +909,6 @@ sub getbuildinfo {
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
 
-
   my $ret;
   $ret->{'project'} = $projid;
   $ret->{'repository'} = $repoid;
@@ -943,13 +942,21 @@ sub getbuildinfo {
   }
 
   my $info = $pdata->{'info'}->[0];
-  die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
+  die("bad info\n") unless $info && ( $info->{'repository'} eq $repoid || $info->{'repository'} eq "images" );
   if ($info->{'error'}) {
     $ret->{'error'} = $info->{'error'};
     return ($ret, $BSXML::buildinfo);
   }
   $ret->{'specfile'} = $info->{'file'} unless $uploaded;
   $ret->{'file'} = $info->{'file'} unless $uploaded;
+  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
+  if ($1 && 'kiwi' eq $1) {
+    # Dependency breaking shall be ignored for real usage
+    $bconf->{'ignore'} = '';
+    # Collect kiwi image types
+    my @types = @{$info->{'imagetype'} || []};
+    $ret->{'imagetype'} = \@types unless $uploaded;
+  }
 
   # read repository data from cache
   my %repodata;
@@ -998,9 +1005,17 @@ sub getbuildinfo {
   #$ret->{'subpack'} = \@subpacks;
   Build::readdeps($bconf, undef, reverse @repos);
   my @deps = @{$info->{'dep'} || []};
-  $info->{'file'} =~ /\.(spec|dsc)$/;
+  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   if ($1 && $1 ne $bconf->{'type'}) {
-    push @deps, ($1 eq 'spec' ? 'rpm' : 'dpkg');
+    if ( $1 eq 'spec' ) {
+      push @deps, 'rpm';
+    } elsif ( $1 eq 'dsc' ) {
+      push @deps, 'dpkg';
+    } elsif ( $1 eq 'kiwi' ) {
+      push @deps, 'kiwi';
+    } else {
+      die( "unknown depency type!" );
+    };
   }
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   my @edeps = Build::get_deps($bconf, \@subpacks, @deps);
@@ -1070,6 +1085,7 @@ sub getbuildinfo {
   $ret->{'dep'} = \@edeps;
   $ret->{'bdep'} = \@bdeps;
   $ret->{'pdep'} = \@pdeps;
+
   return ($ret, $BSXML::buildinfo);
 }
 

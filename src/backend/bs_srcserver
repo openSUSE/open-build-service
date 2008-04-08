@@ -165,11 +165,11 @@ sub addrev {
   die("bad files\n") if grep {/\//} keys %$files;
   die("bad files\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
 
-  # get version/release from spec/dsc file
+  # get version/release from rpm spec/deb dsc/kiwi xml file
   my $version = 'unknown';
   my $release;
   my $bconf = Build::read_config('noarch');
-  for my $type ('spec', 'dsc') {
+  for my $type ('spec', 'dsc', 'kiwi') {
     my $file = findfile($projid, $packid, undef, $type, $files);
     next unless defined $file;
     my $d = Build::parse($bconf, "$srcrep/$packid/$files->{$file}-$file");
@@ -675,6 +675,7 @@ sub readpack {
   return $pack;
 }
 
+# find matching .spec/.dsc/.kiwi file depending on packid and/or repoid
 sub findfile {
   my ($projid, $packid, $repoid, $ext, $files, $ambigp) = @_;
   $files = lsrep($projid, $packid, $files) unless ref $files;
@@ -775,7 +776,9 @@ sub getprojpack {
     @packages = () if $cgi->{'nopackages'};
     my @pinfo;
     my %bconfs;
+
     for my $packid (@packages) {
+
       next if $packids && !$packids->{$packid};
       my $pinfo = {'name' => $packid};
       push @pinfo, $pinfo;
@@ -827,6 +830,7 @@ sub getprojpack {
 	  next;
 	}
         delete $pinfo->{'vrev'};
+
 	if ($files->{'_aggregate'}) {
 	  my $aggregatelist = readxml("$srcrep/$packid/$files->{'_aggregate'}-_aggregate", $BSXML::aggregatelist, 1);
 	  if (!$aggregatelist) {
@@ -856,12 +860,95 @@ sub getprojpack {
 	    $pinfo->{'info'} = \@dinfo if @dinfo;
 	  }
         } elsif ($cgi->{'withdeps'}) {
-	  my $needrepos;
+          my $needrepos;
           my @dinfo;
+          my $ambig;
+          my $kiwidesc = ();
+
+          # look for kiwi image description files
+          my ($md5, $file) = findfile($projid, $packid, undef, 'kiwi', $files, \$ambig);
+          if ( $md5 && $file ) {
+            $kiwidesc = readxml("$srcrep/$packid/$md5-$file", $BSXML::kiwidesc, 1);
+            if (!$kiwidesc) {
+              $pinfo->{'error'} = "bad kiwi description data";
+              next;
+            }
+
+# FIXME / XXX: write kiwi verification code
+#            eval {
+#	      BSVerify::verify_kiwidesc($kiwidesc);
+#            };
+#	    if ($@) {
+#	      my $err = $@;
+#	      $err =~ s/\n$//s;
+#	      $pinfo->{'error'} = "bad kiwidesc: $err";
+#	      next;
+#	    }
+
+            my @alltypes = ();
+            for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
+              push( @alltypes, $type->{'_content'} );
+            };
+#            $pinfo->{'imagetype'} = \@alltypes} if @alltypes;
+
+	    my @dinfo = ();
+            # FIXME: read all patterns&packages from preferences, where do we get them from ?
+          
+            if ( defined ($kiwidesc->{'packages'}) && defined ($kiwidesc->{'repository'}) ) {
+              # collect all possible needed repositories
+              my @allrepos = ();
+              my $use_project_repos;
+              $use_project_repos = "no";
+              for my $repository (@{$kiwidesc->{'repository'} || []}) {
+                for my $kiwisource (@{$repository->{'source'} || []}) {
+                  if ( $kiwisource->{'path'} eq 'opensuse:.' ) {
+                    # use repos from project setup
+                    $use_project_repos = "yes";
+                  } elsif ( $kiwisource->{'path'} =~/opensuse:\/\/(\w+)/ ) {
+                    push( @allrepos, $1 );
+	          } else {
+	    	    $pinfo->{'error'} = "Non Build Service KIWI source found: $kiwisource->{'path'}";
+                    next;
+                  };
+                };
+              };
+
+              # collect all package requires from all packages groups.
+              my @allpackages = ();
+              for my $packagegroup (@{$kiwidesc->{'packages'} || []}) {
+                for my $package (@{$packagegroup->{'package'} || []}) {
+                    # FIXME: add check if arch is specified !
+                    push( @allpackages, $package->{'name'} );
+                };
+                # FIXME: add support for opensusePatterns
+              };
+
+              # Add implicit the package manager package
+              my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
+              if ( $packman eq "smart" ) { 
+                push( @allpackages, "smart" );
+              } elsif ( $packman eq "zypper" ) { 
+                push( @allpackages, "zypper" );
+              } else {
+	    	$pinfo->{'error'} = "Unknown package manager: $kiwidesc->{'packages'}->{'packagemanager'}";
+              };
+              # use implicit repository name "images"
+              push @dinfo, {'repository' => 'images', 'file' => $file, 'name' => $kiwidesc->{'name'},
+                            'dep' => \@allpackages, 'imagetype' => \@alltypes};
+            } else {
+              push @dinfo, {'repository' => 'images', 'error' => "kiwi config file parse error"};
+            }
+            $pinfo->{'info'} = \@dinfo if @dinfo;
+
+            next;
+          };
+
+          #
+          # handle standard build descriptions
+          #
           my %type2file;
           #for my $type ('spec', 'dsc')
           for my $type (()) {
-	    my $ambig;
 	    my ($md5, $file) = findfile($projid, $packid, undef, $type, $files, \$ambig);
             $needrepos ||= $ambig;
             next unless defined $file;
@@ -916,6 +1003,7 @@ sub getprojpack {
 		  $md5 = $files->{$file};
 		}
                 next unless defined $file;
+                # get build dependency info
                 my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
 		if (defined($d->{'name'})) {
 		  push @dinfo, {'repository' => $repoid, 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
@@ -957,7 +1045,10 @@ sub getprojectlist {
 
 sub getproject {
   my ($cgi, $projid) = @_;
+  # Read the project xml file
   my $proj = readproj($projid);
+
+  # return project meta data
   return ($proj, $BSXML::proj);
 }
 
@@ -1589,7 +1680,6 @@ sub keeplink {
   unlink("$srcrep/:upload/$$");
   my @dfiles;
   for my $file (sort keys %{{%$files, %$ofiles}}) {
-print "... $file\n";
     if ($ofiles->{$file}) {
       if (!$files->{$file}) {
 	push @dfiles, $file;
@@ -1610,7 +1700,6 @@ print "... $file\n";
     }
     # both are ascii, create diff
     mkdir_p("$srcrep/:upload");
-print "run diff...\n";
     if (!rundiff($ofiles->{$file} ? "$srcrep/$packid/$ofiles->{$file}-$file" : '/dev/null', "$srcrep/$packid/$files->{$file}-$file", $file, "$srcrep/:upload/$$")) {
       $nfiles->{$file} = $files->{$file};
     }
@@ -1631,11 +1720,8 @@ print "run diff...\n";
     $lchanged = 1;
   }
   if ($lchanged) {
-print "link changed, writing new link\n";
     writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
     $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
-  } else {
-print "link unchanged\n";
   }
   print Dumper($nfiles);
   return $nfiles;
