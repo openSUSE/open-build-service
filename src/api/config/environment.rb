@@ -7,7 +7,7 @@
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-RAILS_GEM_VERSION = '1.2.3' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.0.2' unless defined? RAILS_GEM_VERSION
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -36,8 +36,7 @@ Rails::Initializer.run do |config|
   # config.action_controller.session_store = :active_record_store
 
   config.action_controller.session = {
-    :prefix => "ruby_frontend_session.",
-    :session_key => "opensuse_frontend_session",
+    :session_key => "_frontend_session",
     :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
   }
 
@@ -111,13 +110,13 @@ ActiveXML::Base.config do |conf|
     map.connect :project, "bssql:///"
     map.connect :package, "bssql:///"
 
-    map.connect :bsrequest, "rest:///request/:id",
-      :all => "rest:///request"
-
     #map.connect :project, "rest:///source/:name/_meta",
     #    :all    => "rest:///source/"
     #map.connect :package, "rest:///source/:project/:name/_meta",
     #    :all    => "rest:///source/:project"
+    
+    map.connect :bsrequest, "rest:///request/:id",
+      :all => "rest:///request"
 
     map.connect :packstatus, "rest:///status/:project?summaryonly=:summaryonly"
   end
