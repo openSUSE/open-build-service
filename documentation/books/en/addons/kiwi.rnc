@@ -130,6 +130,9 @@ div {
 #==========================================
 # common attributes
 #
+k.id.attribute        =
+	## An ID
+	attribute id { xsd:ID }
 k.name.attribute        =
 	## A name
 	attribute name { text }
@@ -460,7 +463,9 @@ div {
 		element metadata {
 			k.metadata.attlist &
 			k.repopackage+ &
-			k.metafile*
+			k.metafile* &
+			k.chroot* &
+			k.productinfo*
 		}
 }
 
@@ -1064,8 +1069,7 @@ div {
 # main block: <instsource>
 #
 div {
-	k.instsource.arch.attribute = k.arch.attribute
-	k.instsource.attlist = k.instsource.arch.attribute
+	k.instsource.attlist = empty
 	k.instsource =
 		## Describe Packages and Metadata
 		[
@@ -1074,15 +1078,122 @@ div {
 			"and the metadata which is required to build an installation\x{a}"~
 			"source suitable for Novell SUSE Linux installation media.\x{a}"~
 			"From such a source it should be possible to create the\x{a}"~
-			"standard SUSE CD/DVD's as well as use this source as\x{a}"~
+			"standard SUSE CDs and DVDs as well as use this source as\x{a}"~
 			"repository for image building."
 		]
 		]
 		element instsource {
 			k.instsource.attlist &
+			k.architectures &
 			k.instrepo+ &
 			k.metadata &
 			k.repopackages
+		}
+}
+
+#==========================================
+# main block: <architectures>
+#
+div {
+	k.architectures.attlist = empty
+	k.architectures =
+		## Describe Packages and Metadata
+		[
+		db:para [
+			"The architectures element contains a list of architectures\x{a}"~
+			"for which the installation source is designed. At least one\x{a}"~
+			"architecture must be defined. Fallback mecahnisms apply.\x{a}"~
+			"Each arch element has an optional attribute <fallback>\x{a}"~
+			"which is the next in the chain. An omitted value results in\x{a}"~
+			"undefined value thus terminating the chain."
+		]
+		]
+		element architectures {
+			k.architectures.attlist &
+			k.arch+ 
+		}
+}
+
+#==========================================
+# main block: <arch>
+#
+div {
+	k.arch.name.attribute = k.name.attribute
+        k.arch.id.attribute = k.id.attribute
+        k.arch.fallback.attribute = attribute fallback { xsd:IDREF }
+
+	k.arch.attlist = k.arch.id.attribute &
+			 k.arch.name.attribute &
+			 k.arch.fallback.attribute?
+
+	k.arch =
+		## Describe Packages and Metadata
+		[
+		db:para [
+			"The arch element carries the information for an architecture,\x{a}"~
+			"its name and its fallback (optional)."
+		]
+		]
+		element arch {
+			k.arch.attlist &
+			empty
+		}
+}
+
+#==========================================
+# main block: <productinfo>
+#
+div {
+	k.productinfo.attlist = k.name.attribute 
+	#k.productinfo.text.content = xsd:normalizedString {
+	#		maxLength = "2048"
+	#}
+	# FIXME (libxml guys, someone?) This does not work correctly with libxml2 v. 2.6.30-4.
+	# It validates with jing and msv but not with perl-XML-LibXML-1.62001-57/libxml2-2.6.30-4
+	
+
+	k.productinfo =
+		## Describe Packages and Metadata
+		[
+		db:para [
+			"The productinfo element contains one particular environment\x{a}"~
+			"variable and its value. Shell rules for the names apply.\x{a}"~
+			"The value must not exceed a certain length for sanity reasons.\x{a}"~
+			"Any funny characters like tabs, line break, carriage return or\x{a}"~
+			"combinations are converted to spaces (one each) which may lead\x{a}"~
+			"to unexpected contents."
+		]
+		]
+		element productinfo {
+			k.productinfo.attlist &
+			# text: workaround for the above mentioned problem
+			text
+			#k.productinfo.text.content	
+			#xsd:normalizedString { maxLength = "2048" }
+		}
+}
+
+#==========================================
+# main block: <chroot>
+#
+div {
+	k.chroot.attlist = attribute requires { text } 
+
+	k.chroot =
+		## Describe Packages and Metadata
+		[
+		db:para [
+			"The chroot element contains one particular environment\x{a}"~
+			"variable and its value. Shell rules for the names apply.\x{a}"~
+			"The value must not exceed a certain length for sanity reasons.\x{a}"~
+			"Any funny characters like tabs, line break, carriage return or\x{a}"~
+			"combinations are converted to spaces (one each) which may lead\x{a}"~
+			"to unexpected contents."
+		]
+		]
+		element chroot {
+			k.chroot.attlist &
+			text
 		}
 }
 
