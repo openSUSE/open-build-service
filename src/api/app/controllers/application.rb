@@ -362,9 +362,16 @@ class ApplicationController < ActionController::Base
   end
 
   def build_query_from_hash(hash, key_list=nil)
-    #TODO: support multiple values, e.g. {:a=>[1,2,3]} -> "?a=1&a=2&a=3"
     key_list ||= hash.keys
-    "?"+key_list.map {|key| "#{key}=#{esc hash[key].to_s}" if hash.has_key?(key)}.compact.join('&')
+    query = key_list.map do |key|
+      hash[key].map {|x| "#{key}=#{esc hash[key].to_s}"}.join("&") if hash.has_key?(key)
+    end
+
+    if query.empty?
+      return ""
+    else
+      return "?"+query.compact.join('&')
+    end
   end
 
   def min_votes_for_rating

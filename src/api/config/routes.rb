@@ -228,8 +228,8 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /lastevents
 
-  map.connect "/lastevents", :controller => 'build',
-    :action => 'pass_to_source'
+  map.connect "/lastevents", :controller => 'main',
+    :action => 'lastevents'
 
 
   ### /apidocs
