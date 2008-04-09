@@ -20,6 +20,7 @@
         <xs:element ref="title"/>
         <xs:element ref="description"/>
         <xs:element ref="remoteurl"/>
+        <xs:element ref="remoteproject"/>
         <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
         <xs:group ref="toggleGroup" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="repository"/>
@@ -140,7 +141,17 @@
   <xs:element name="remoteurl" type="xs:string">
     <xs:annotation>
       <xs:documentation>
-         Access of remote buildservice instances. Change requires Admin privileges
+         Access of remote buildservice instances. Change requires Admin privileges.
+         Defines remote Build Service Instances.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="remoteproject" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+         Access of remote buildservice instances. Change requires Admin privileges.
+         Defines remote Build Service Project.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
