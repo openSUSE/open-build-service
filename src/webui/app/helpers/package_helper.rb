@@ -18,7 +18,7 @@ module PackageHelper
   def rpm_url( project, package, repository, arch, filename )
     #get_frontend_url_for( :controller => 'rpm' ) +
     #  "/#{project}/#{repository}/#{package}/#{arch}/#{filename}"
-    "https://api.opensuse.org/rpm/#{project}/#{repository}/#{package}/#{arch}/#{filename}"
+    "https://api.opensuse.org/build/#{project}/#{repository}/#{arch}/#{package}/#{filename}"
   end
 
   def human_readable_fsize( bytes )
