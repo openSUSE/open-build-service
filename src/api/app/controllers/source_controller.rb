@@ -3,7 +3,8 @@ require "rexml/document"
 class SourceController < ApplicationController
   validate_action :index => :directory, :packagelist => :directory, :filelist => :directory
   validate_action :project_meta => :project, :package_meta => :package, :pattern_meta => :pattern
-  
+ 
+  skip_before_filter :extract_user, :only => [:file, :project_meta, :project_config] 
 
   def index
     projectlist
@@ -205,7 +206,12 @@ class SourceController < ApplicationController
       end
       render :text => @project.to_axml, :content_type => 'text/xml'
       return
-    elsif request.put?
+    end
+
+    #authenticate
+    return unless extract_user
+
+    if request.put?
       # Need permission
       logger.debug "Checking permission for the put"
       allowed = false
@@ -266,8 +272,13 @@ class SourceController < ApplicationController
 
     if request.get?
       forward_data path
-    elsif request.put?
-      #check for permissions
+      return
+    end
+
+    #authenticate
+    return unless extract_user
+
+    if request.put?
       unless @http_user.can_modify_project?(@project)
         render_error :status => 403, :errorcode => 'put_project_config_no_permission',
           :message => "No permission to write build configuration for project '#{params[:project]}'"
@@ -399,7 +410,6 @@ class SourceController < ApplicationController
     path = "/source/#{project_name}/#{package_name}/#{file}"
 
     if request.get?
-      
       #get file size
       fpath = "/source/#{project_name}/#{package_name}" + build_query_from_hash(params, [:rev])
       file_list = Suse::Backend.get(fpath)
@@ -430,6 +440,12 @@ class SourceController < ApplicationController
       else
         forward_data path
       end
+      return
+    end
+
+    #authenticate
+    return unless extract_user
+
     elsif request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :keeplink])
       
