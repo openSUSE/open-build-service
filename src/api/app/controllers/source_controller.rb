@@ -119,7 +119,7 @@ class SourceController < ApplicationController
       end
       
       DbPackage.transaction do
-        pack.destroy
+        pkg.destroy
         Suse::Backend.delete "/source/#{project_name}/#{package_name}"
       end
       render_ok
@@ -401,12 +401,13 @@ class SourceController < ApplicationController
     if request.get?
       
       #get file size
-      file_list = Suse::Backend.get("/source/#{project_name}/#{package_name}?rev=#{esc params[:rev]}")
+      fpath = "/source/#{project_name}/#{package_name}" + build_query_from_hash(params, [:rev])
+      file_list = Suse::Backend.get(fpath)
       regexp = file_list.body.match(/name=["']#{Regexp.quote file}["'].*size=["']([^"']*)["']/)
       if regexp
         fsize = regexp[1]
         
-        path += build_query_from_hash(params, [:user, :comment, :rev])
+        path += build_query_from_hash(params, [:rev])
         logger.info "streaming #{path}"
        
         headers.update(
