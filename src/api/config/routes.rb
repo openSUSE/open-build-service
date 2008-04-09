@@ -226,6 +226,11 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'search/request', :controller => 'request', 
     :action => 'pass_to_source'
 
+  ### /lastevents
+
+  map.connect "/lastevents", :controller => 'build',
+    :action => 'pass_to_source'
+
 
   ### /apidocs
 
