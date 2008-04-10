@@ -55,6 +55,12 @@ module ProjectHelper
   end
 
   def simple_repo_button_to( label, opt={} )
+    reponame = String.new
+    if BASE_NAMESPACE
+      reponame << BASE_NAMESPACE << ":"
+    end
+    reponame << opt[:repo]
+
     defaults = {
       :arch => [],
       :project => @project,
@@ -64,7 +70,7 @@ module ProjectHelper
 
     btn_to_opt = {
       :targetname => opt[:reponame],
-      :platform => opt[:repo],
+      :platform => reponame,
       :project => opt[:project],
       :action => opt[:action]
     }
