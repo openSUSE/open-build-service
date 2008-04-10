@@ -446,7 +446,7 @@ class SourceController < ApplicationController
     #authenticate
     return unless extract_user
 
-    elsif request.put?
+    if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :keeplink])
       
       allowed = permissions.package_change? package_name, project_name
