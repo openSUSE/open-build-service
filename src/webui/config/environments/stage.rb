@@ -28,6 +28,8 @@ BUGZILLA_HOST = "http://bugzilla.novell.com"
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "on"
 
+BASE_NAMESPACE = nil
+
 ### not nescessary any more as of 2006.12.01:
 ### ICHAIN_HOST = "212.12.12.12"
 

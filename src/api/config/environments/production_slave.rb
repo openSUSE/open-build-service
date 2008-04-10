@@ -2,13 +2,11 @@
 
 # The production environment is meant for finished, "live" apps.
 # Code is not reloaded between requests
-config.cache_classes = true
+config.cache_classes = false
 
 # Use a different logger for distributed setups
 # config.logger        = SyslogLogger.new
-
-config.log_level        = :debug
-
+config.log_level = :info
 
 # Full error reports are disabled and caching is turned on
 config.action_controller.consider_all_requests_local = false
@@ -20,16 +18,15 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-FRONTEND_HOST = "api-internal.opensuse.org"
-FRONTEND_PORT = 80
-FRONTEND_PROTOCOL = 'http'
+ICHAIN_MODE = :off
 
-BUGZILLA_HOST = "https://bugzilla.novell.com"
+# ICHAIN_HOST = "212.12.12.12"
 
-# ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
-ICHAIN_MODE = "on"
+SOURCE_HOST = "localhost"
+SOURCE_PORT = 6362
 
-BASE_NAMESPACE = nil
+RPM_HOST = "localhost"
+RPM_PORT = 6262
 
-### not nescessary any more as of 2006.12.01:
-### ICHAIN_HOST = "212.12.12.12"
+APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/public/apidocs/html")+"/"
+SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"

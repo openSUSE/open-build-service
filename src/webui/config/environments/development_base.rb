@@ -22,6 +22,8 @@ FRONTEND_PROTOCOL = 'http'
 
 BUGZILLA_HOST = nil
 
+BASE_NAMESPACE = nil
+
 # set the iChain host to something not nil to use iChain. Note
 # that the IP is not used atm but that might change.
 # If ICHAIN_HOST is set to "simulate", iChain is simulated in the

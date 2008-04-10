@@ -2,12 +2,12 @@
 
 # The production environment is meant for finished, "live" apps.
 # Code is not reloaded between requests
-config.cache_classes = true
+config.cache_classes = false
 
 # Use a different logger for distributed setups
 # config.logger        = SyslogLogger.new
 
-config.log_level        = :debug
+config.log_level        = :info
 
 
 # Full error reports are disabled and caching is turned on
@@ -20,16 +20,14 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-FRONTEND_HOST = "api-internal.opensuse.org"
+FRONTEND_HOST = "127.0.42.2"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
 
 BUGZILLA_HOST = "https://bugzilla.novell.com"
 
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
-ICHAIN_MODE = "on"
+ICHAIN_MODE = "off"
 
-BASE_NAMESPACE = nil
+BASE_NAMESPACE = "openSUSE.org"
 
-### not nescessary any more as of 2006.12.01:
-### ICHAIN_HOST = "212.12.12.12"
