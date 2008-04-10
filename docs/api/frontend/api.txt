@@ -121,7 +121,7 @@ GET /source/<project>/_pattern/<patternfile>
 XmlResult: pattern
 
 
-PUT /source/project/_pattern/<patternfile>
+PUT /source/<project>/_pattern/<patternfile>
 
   Write pattern
 
@@ -129,7 +129,7 @@ XmlBody: pattern
 
 XmlResult: status
 
-DELETE /source/project/_pattern/<patternfile>
+DELETE /source/<project>/_pattern/<patternfile>
 
   Remove pattern
 
