@@ -2427,7 +2427,7 @@ sub findremote {
   if ($proj) {
     return ($BSConfig::reposerver, $projid) if !$proj->{'remoteurl'};
     die("no remoteproject specified\n") unless $proj->{'remoteproject'};
-    return ($proj->{'remote'}, $proj->{'remoteproject'});
+    return ($proj->{'remoteurl'}, $proj->{'remoteproject'});
   }
   my $rsuf = '';
   while ($projid =~ /^(.*)(:.*?)$/) {
