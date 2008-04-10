@@ -20,7 +20,9 @@
         <xs:element ref="title"/>
         <xs:element ref="description"/>
         <xs:element ref="remoteurl"/>
+<!-- Not yet supported by backend
         <xs:element ref="remoteproject"/>
+-->
         <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
         <xs:group ref="toggleGroup" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="repository"/>
