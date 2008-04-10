@@ -58,15 +58,11 @@ class DbProject < ActiveRecord::Base
         raise RuntimeError, "project name mismatch: #{self.name} != #{project.name}"
       end
 
-      if self.title != project.title.to_s
-        self.title = project.title.to_s
-        self.save!
-      end
-
-      if self.description != project.description.to_s
-        self.description = project.description.to_s
-        self.save!
-      end
+      self.title = project.title.to_s
+      self.description = project.description.to_s
+      self.remoteurl = project.has_element?(:remoteurl) ? project.remoteurl.to_s : nil
+      self.remoteproject = project.has_element?(:remoteproject) ? project.remoteproject.to_s : nil
+      self.save!
 
       #--- update users ---#
       usercache = Hash.new
@@ -297,6 +293,8 @@ class DbProject < ActiveRecord::Base
     xml = builder.project( :name => name ) do |project|
       project.title( title )
       project.description( description )
+      project.remoteurl(remoteurl) unless remoteurl.blank?
+      project.remoteproject(remoteproject) unless remoteproject.blank?
 
       each_user do |u|
         project.person( :userid => u.login, :role => u.role_name )

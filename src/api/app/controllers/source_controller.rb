@@ -244,6 +244,12 @@ class SourceController < ApplicationController
         return
       end
 
+      if (p.has_element? :remoteurl or p.has_element? :remoteproject) and not @http_user.is_admin?
+        render_error :status => 403, :errorcode => "change_project_no_permission",
+          :message => "admin rights are required to change remoteurl or remoteproject"
+        return
+      end
+
       p.add_person(:userid => @http_user.login) unless @project
       p.save
 
