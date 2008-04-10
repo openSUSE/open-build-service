@@ -16,15 +16,28 @@ class Repository < ActiveRecord::Base
     end
 
     def find_by_project_and_repo_name( project, repo )
-      sql =<<-END_SQL
-      SELECT r.*
-      FROM repositories r
-      LEFT JOIN db_projects p ON p.id = r.db_project_id
-      WHERE p.name = BINARY ? AND r.name = BINARY ?
-      END_SQL
+      result = find :first, :include => :db_project,
+        :conditions => ["db_projects.name = BINARY ? AND repositories.name = BINARY ? AND ISNULL(remote_project_name)", project, repo]
 
-      result = find_by_sql [sql, project, repo]
-      result[0]
+      return result unless result.nil?
+
+      #no local repository found, check if remote repo possible
+      fragments = project.split /:/
+      local_project = String.new
+      remote_project = nil
+      
+      while fragments.length > 0
+        remote_project = [fragments.pop, remote_project].compact.join ":"
+        local_project = fragments.join ":"
+        logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
+        if (lpro = DbProject.find_by_name local_project)
+          if not lpro.remoteurl.nil?
+            return find_or_create_by_db_project_id_and_name_and_remote_project_name(lpro.id, repo, remote_project)
+          end
+        end
+      end
+
+      return nil
     end
   end
 

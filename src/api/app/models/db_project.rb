@@ -335,11 +335,16 @@ class DbProject < ActiveRecord::Base
       end
 
 
-      repos = repositories.find( :all, :include => [:path_elements, :architectures] )
+      repos = repositories.find( :all, :include => [:path_elements, :architectures], :conditions => "ISNULL(remote_project_name)" )
       repos.each do |repo|
         project.repository( :name => repo.name ) do |r|
           repo.path_elements.each do |pe|
-            r.path( :project => pe.link.db_project.name, :repository => pe.link.name )
+            if pe.link.remote_project_name.blank?
+              project_name = pe.link.db_project.name
+            else
+              project_name = pe.link.db_project.name+":"+pe.link.remote_project_name
+            end
+            r.path( :project => project_name, :repository => pe.link.name )
           end
           repo.architectures.each do |arch|
             r.arch arch.name
