@@ -4,7 +4,7 @@
 
 Use openSUSE.org:openSUSE:10.3 for example to build against the openSUSE:10.3 project as specified on the opensuse.org Build Service.
 </description>
-<!--
+<!-- Keep in mind that this file is accessable via the api, before entering your password here !
   <remoteurl>https://<account>:<password>@api.opensuse.org/</remoteurl>
 -->
   <remoteurl>https://api.opensuse.org/</remoteurl>
