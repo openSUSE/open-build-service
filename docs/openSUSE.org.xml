@@ -8,8 +8,4 @@ Use openSUSE.org:openSUSE:10.3 for example to build against the openSUSE:10.3 pr
   <remoteurl>https://<account>:<password>@api.opensuse.org/</remoteurl>
 -->
   <remoteurl>https://api.opensuse.org/</remoteurl>
-  <repository name="standard">
-    <arch>i586</arch>
-    <arch>x86_64</arch>
-  </repository>
 </project>
