@@ -2863,7 +2863,7 @@ while(1) {
 	next;
       }
       $packstatus{$packid} = 'broken';
-      $packerror{$packid} = $pdata->{'error'};
+      $packerror{$packid} = $info->{'error'};
       next;
     }
 
