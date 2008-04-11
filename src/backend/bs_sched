@@ -2504,6 +2504,8 @@ while(1) {
 	my $gdst = "$reporoot/$prp/$myarch";
 	print "wiping $prp $packid\n";
 	next unless -d "$gdst/$packid";
+	# delete repository done flag
+	unlink("$gdst/:repodone");
 	# delete full entries
 	$repodata{$prp} ||= findbins($prp);
 	my $repodata = $repodata{$prp};
