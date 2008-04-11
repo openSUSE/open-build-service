@@ -143,8 +143,11 @@ sub server {
       $per_ev->{'conf'} = $aconf;
       BSEvents::add($per_ev, 3);
       BSServer::msg("AJAX: $name started");
-      BSEvents::schedule();
-      # not reached
+      eval {
+        BSEvents::schedule();
+      };
+      writestr("$rundir/$name.AJAX.died", undef, $@);
+      die("AJAX: died\n");
     }
   }
   # intialize xml converter to speed things up

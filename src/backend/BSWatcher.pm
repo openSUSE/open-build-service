@@ -51,18 +51,21 @@ sub import {
 sub reply {
   my $jev = $BSServerEvents::gev;
   return BSServer::reply(@_) unless $jev;
+  deljob($jev) if @_ && defined($_[0]);
   return BSServerEvents::reply(@_);
 }
 
 sub reply_file {
   my $jev = $BSServerEvents::gev;
   return BSServer::reply_file(@_) unless $jev;
+  deljob($jev);
   return BSServerEvents::reply_file(@_);
 }
 
 sub reply_cpio {
   my $jev = $BSServerEvents::gev;
   return BSServer::reply_cpio(@_) unless $jev;
+  deljob($jev);
   return BSServerEvents::reply_cpio(@_);
 }
 
@@ -96,6 +99,7 @@ sub redo_request {
     $conf->{'stdreply'}->(@res) if $conf->{'stdreply'};
     return;
   };
+  print $@ if $@;
   BSServerEvents::reply_error($conf, $@) if $@;
 }
 
@@ -220,7 +224,7 @@ sub serialize {
   die("unly supported in AJAX servers\n") unless $jev;
   if ($serializations{$file}) {
     if ($serializations{$file} != $jev) {
-      print "adding to serialization queue\n";
+      print "adding to serialization queue of $file\n";
       push @{$serializations_waiting{$file}}, $jev unless grep {$_ eq $jev} @{$serializations_waiting{$file}};
       return undef;
     }
@@ -234,11 +238,13 @@ sub serialize_end {
   my ($ser) = @_;
   return unless $ser;
   my $file = $ser->{'file'};
+  print "serialize_end for $file\n";
   delete $serializations{$file};
   my @waiting = @{$serializations_waiting{$file} || []};
   delete $serializations_waiting{$file};
   while (@waiting) {
     my $jev = shift @waiting;
+    print "waking up $jev\n";
     redo_request($jev);
     if ($serializations{$file}) {
       push @{$serializations_waiting{$file}}, @waiting;
