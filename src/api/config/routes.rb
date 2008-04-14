@@ -228,7 +228,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /lastevents
 
-  map.connect "/lastevents", :controller => 'main',
+  map.connect "/lastevents", :controller => 'public',
     :action => 'lastevents'
 
 
@@ -238,6 +238,19 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect '/active_rbac/registration/confirm/:user/:token',
     :controller => 'active_rbac/registration', :action => 'confirm'
+
+  ### /public
+    
+  map.connect '/public/build/:prj/:repo/:arch/:pkg',
+    :controller => 'public', :action => 'build'
+  map.connect '/public/source/:prj/_meta',
+    :controller => 'public', :action => 'project_meta'
+  map.connect '/public/source/:prj/_config',
+    :controller => 'public', :action => 'project_config'
+  map.connect '/public/source/:prj/:pkg/:file',
+    :controller => 'public', :action => 'source_file'
+  map.connect '/public/lastevents',
+    :controller => 'public', :action => 'lastevents'
 
 
   ### DEPRECATED

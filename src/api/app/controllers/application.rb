@@ -12,13 +12,14 @@ class ApplicationController < ActionController::Base
   # Do never use a layout here since that has impact on every
   # controller in frontend
   layout nil
+  session :disabled => true
 
   @user_permissions = nil
   @http_user = nil
   
   #session options for tag admin
-  session_options[:sort] ||= "ASC"
-  session_options[:column] ||= "id"
+  #session_options[:sort] ||= "ASC"
+  #session_options[:column] ||= "id"
   
   helper RbacHelper
  
@@ -372,6 +373,19 @@ class ApplicationController < ActionController::Base
     else
       return "?"+query.compact.join('&')
     end
+  end
+
+  def query_parms_missing?(*list)
+    missing = Array.new
+    for param in list
+      missing << param unless params.has_key? param
+    end
+
+    if missing.length > 0
+      render_error :status => 400, :errorcode => "missing_query_parameters",
+        :message => "missing query parameters: #{missing.join ', '}"
+    end
+    return false
   end
 
   def min_votes_for_rating
