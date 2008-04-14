@@ -2167,14 +2167,14 @@ while(1) {
     @lookat_oob = grep {!$lookat_oobhigh{$_}} @lookat_oob;
     
     # remove too big projects from oob (FIXME!)
-    for my $prp (@lookat_oob) {
-      my ($projid, $repoid) = split('/', $prp, 2);
-      my $packs = $projpacks->{$projid}->{'package'} || {};
-      my $npacks = scalar(keys %$packs);
-      if ($npacks > 50) {
-	$prp = undef if rand($npacks) > 50;
-      }
-    }
+#    for my $prp (@lookat_oob) {
+#      my ($projid, $repoid) = split('/', $prp, 2);
+#      my $packs = $projpacks->{$projid}->{'package'} || {};
+#      my $npacks = scalar(keys %$packs);
+#      if ($npacks > 50) {
+#	$prp = undef if rand($npacks) > 50;
+#      }
+#    }
     @lookat_oob = grep {defined($_)} @lookat_oob;
     # XXX disable med prio: @lookat_oob = ();
 
