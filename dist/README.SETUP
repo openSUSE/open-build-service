@@ -200,7 +200,7 @@ In addition to that, it is also possible to copy base projects via an provided s
 Import the reference project pointing to the openSUSE.org build service with 
 the following command:
 
- # curl -0 --user "Admin:openSUSE" -X PUT \
+ # curl -0 --user "Admin:opensuse" -X PUT \
         -T /usr/share/doc/packages/obs-api/openSUSE.org.xml  \
         http://127.0.42.2/source/openSUSE.org/_meta
 
