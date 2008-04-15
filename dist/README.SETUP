@@ -13,7 +13,7 @@ You need to install the "obs-server" package for this.
 1.1 start the following services in this order
 ==============================================
 
-WARNING: The following starts services which are accessable from the outside.
+WARNING: The following starts services which are accessible from the outside.
          Do not do this on a system connected to an untrusted network or be
          sure to block the ports via a firewall.
 
@@ -39,7 +39,7 @@ A worker can be started on the localhost by calling
 2.2 setup multiple workers on remote systems
 ============================================
 A worker can be started on other machine in your network (in Internet too, 
-but you should have really fast internet connection ;-)). You must install
+but you should have really fast Internet connection ;-)). You must install
 package obs-worker on this machine and change few configuration files on both
 system.
 
@@ -57,20 +57,20 @@ main.fqdn:6262 where main.fqdn is output of hostname -f or IP on *main* machine.
 3. run the frontend
 ===================
 
-You need to install the "obs-api" package for this and a mysql server
+You need to install the "obs-api" package for this and a MySQL server
 on this or a remote host.
 
 3.1 Setup and configure the MySQL database
 ==========================================
 
-3.1.1 Initialise fresh Database
+3.1.1 Initialize fresh Database
 ===============================
 
-* start the mysql database
+* start the MySQL database
 
      # rcmysql start    # use "insserv mysql" for permanent start
 
-  If you do this for the first time, mysql will initialize itself and
+  If you do this for the first time, MySQL will initialize itself and
   ask to create a root password in the database, like this:
 
       # /usr/bin/mysqladmin -u root password 'your-password'
@@ -82,8 +82,8 @@ on this or a remote host.
       mysql> create database webclient_production;
       mysql> quit
 
-* If you use the mysql database for other services, too, then
-  it's reccommended to add a separate mysql user, e.g.g 'obs', like
+* If you use the MySQL database for other services, too, then
+  it's recommended to add a separate MySQL user, e.g.g 'obs', like
   this:
 
       # mysql -u root -p'your-password'
@@ -93,7 +93,7 @@ on this or a remote host.
       ON frontend_development.* 
       TO 'obs'@'%', 'obs'@'localhost';
 
-* Configure your mysql user and password in
+* Configure your MySQL user and password in
   in the "development:" section of these files:
 
     /srv/www/obs/frontend/config/database.yml
@@ -108,7 +108,7 @@ on this or a remote host.
 ============================
 
 Updaters of build server versions before 0.9 needs to rename their databases from
-"developement" to production. This can be performed by the following steps:
+"development" to production. This can be performed by the following steps:
 
       # mysql -u root -p
       mysql> create database frontend_production;
@@ -189,18 +189,18 @@ Afterwards you can start the OBS web frontends via
 4. Setup initial distributions
 ==============================
 
-The easiest way is reuse a base distro hosted at opensuse.org.
+The easiest way is reuse a base distro hosted at openSUSE.org.
 The Build Service has a mechanism to reuse projects from a remote instance
 since version 0.9. It is recommended to use this mechanism.
 In addition to that, it is also possible to copy base projects via an provided scripts.
 
-4.1 Reuse projects hosted on opensuse.org build service
+4.1 Reuse projects hosted on openSUSE.org build service
 =======================================================
 
 Import the reference project pointing to the openSUSE.org build service with 
 the following command:
 
- # curl -0 --user "Admin:opensuse" -X PUT \
+ # curl -0 --user "Admin:openSUSE" -X PUT \
         -T /usr/share/doc/packages/obs-api/openSUSE.org.xml  \
         http://127.0.42.2/source/openSUSE.org/_meta
 
@@ -214,7 +214,7 @@ To do this execute the following commands:
  su -
 
  # validate that osc has account data, you may need to enter your
- # account data for api.opensuse.org here
+ # account data for api.openSUSE.org here
  osc
 
  # run the script to mirror openSUSE:10.2 for example
@@ -234,11 +234,11 @@ By default you can access the api via using any browser with the URL
 
   http://127.0.42.2
 
-The web interface is accessable via
+The web interface is accessible via
 
   http://127.0.42.1
 
-The default user is "Admin" with the password "opensuse".
+The default user is "Admin" with the password "openSUSE".
 
 
 6. Using osc with your local build service:
@@ -284,17 +284,17 @@ You can do a test build like this:
 buildservice/dist subdir)
 
 Add an openSUSE:Tools project with an obs-server package.  the
-following commands offer you a tempalte project or package description
+following commands offer you a template project or package description
 file.  In the self- explanatory xml, only enable the 10.2 distro on
 i586:
 
    osc -A http://127.0.42.2 meta prj openSUSE:Tools -e
 
-check wether that worked on http://127.0.42.1/project/list_all
+check whether that worked on http://127.0.42.1/project/list_all
 
    osc -A http://127.0.42.2 meta pkg openSUSE:Tools obs-server -e
 
-check wether that worked on
+check whether that worked on
 http://127.0.42.1/project/show?project=openSUSE%3ATools
 
 Now prepare for a check-in.  This will do a checkout and locally build
