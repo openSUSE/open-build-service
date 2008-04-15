@@ -867,7 +867,14 @@ sub getprojpack {
 
           # look for kiwi image description files
           my ($md5, $file) = findfile($projid, $packid, undef, 'kiwi', $files, \$ambig);
-          if ( $md5 && $file ) {
+          if ($md5 && $file) {
+	    if ($BSConfig::kiwiprojects) {
+	      my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
+	      if (!$kiwiprojects{$projid}) {
+                $pinfo->{'error'} = "kiwi is not enabled for this project";
+                next;
+	      }
+	    }
             $kiwidesc = readxml("$srcrep/$packid/$md5-$file", $BSXML::kiwidesc, 1);
             if (!$kiwidesc) {
               $pinfo->{'error'} = "bad kiwi description data";
@@ -889,12 +896,12 @@ sub getprojpack {
             for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
               push( @alltypes, $type->{'_content'} );
             };
-#            $pinfo->{'imagetype'} = \@alltypes} if @alltypes;
+#            $pinfo->{'imagetype'} = \@alltypes if @alltypes;
 
 	    my @dinfo = ();
             # FIXME: read all patterns&packages from preferences, where do we get them from ?
           
-            if ( defined ($kiwidesc->{'packages'}) && defined ($kiwidesc->{'repository'}) ) {
+            if (defined ($kiwidesc->{'packages'}) && defined ($kiwidesc->{'repository'})) {
               # collect all possible needed repositories
               my @allrepos = ();
               my $use_project_repos;
@@ -907,7 +914,7 @@ sub getprojpack {
                   } elsif ( $kiwisource->{'path'} =~/opensuse:\/\/(\w+)/ ) {
                     push( @allrepos, $1 );
 	          } else {
-	    	    $pinfo->{'error'} = "Non Build Service KIWI source found: $kiwisource->{'path'}";
+	    	    $pinfo->{'error'} = "non Build Service KIWI source found: $kiwisource->{'path'}";
                     next;
                   };
                 };
@@ -2730,6 +2737,8 @@ my $dispatches = [
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num?' => \&worker_lastevents,
   '/event type: project: package:? repository:? arch:? job:?' => \&newevent,
+  # tmp until lightty gets fixed
+  '/public/lastevents $filter:* start:num?' => \&worker_lastevents,
 
   # search interface
   '/search $in: $match: return:? values:bool?' => \&search,
