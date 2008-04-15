@@ -11,9 +11,9 @@ class PublicController < ApplicationController
       return
     end
 
-    unless %w(cpio cache).include?(params[:view])
+    unless %w(names cpio cache).include?(params[:view])
       render_error :status => 400, :errorcode => "missing_parameter",
-        :message => "query parameter 'view' has to be either cpio or cache"
+        :message => "query parameter 'view' has to be either names, cpio or cache"
       return
     end
 
