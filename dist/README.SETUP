@@ -63,6 +63,9 @@ on this or a remote host.
 3.1 Setup and configure the MySQL database
 ==========================================
 
+3.1.1 Initialise fresh Database
+===============================
+
 * start the mysql database
 
      # rcmysql start    # use "insserv mysql" for permanent start
@@ -75,8 +78,8 @@ on this or a remote host.
 * Create the empty development databases:
 
       # mysql -u root -p
-      mysql> create database frontend_development;
-      mysql> create database webclient_development;
+      mysql> create database frontend_production;
+      mysql> create database webclient_production;
       mysql> quit
 
 * If you use the mysql database for other services, too, then
@@ -99,7 +102,28 @@ on this or a remote host.
 * populate the database
 
       # cd /srv/www/obs/frontend/
-      # rake db:migrate
+      # RAILS_ENV="production_slave" rake db:migrate
+
+3.1.2 Update Database Schema
+============================
+
+Updaters of build server versions before 0.9 needs to rename their databases from
+"developement" to production. This can be performed by the following steps:
+
+      # mysql -u root -p
+      mysql> create database frontend_production;
+      mysql> create database webclient_production;
+      mysql> quit
+      # mysqldump -p frontend_development > DUMP
+      # mysql -u root -p frontend_production < DUMP
+      # mysqldump -p webclient_development > DUMP
+      # mysql -u root -p webclient_production < DUMP
+
+All Updaters needs to update their database schema in any case by running the
+following commands:
+
+      # cd /srv/www/obs/frontend/
+      # RAILS_ENV="production_slave" rake db:migrate
 
 3.2 Setup and configure the frontend and webclient
 ==================================================
@@ -166,9 +190,22 @@ Afterwards you can start the OBS web frontends via
 ==============================
 
 The easiest way is reuse a base distro hosted at opensuse.org.
-You can use a provided script to mirror such a base distribution.
+The Build Service has a mechanism to reuse projects from a remote instance
+since version 0.9. It is recommended to use this mechanism.
+In addition to that, it is also possible to copy base projects via an provided scripts.
 
-4.1 import into the backend
+4.1 Reuse projects hosted on opensuse.org build service
+=======================================================
+
+Import the reference project pointing to the openSUSE.org build service with 
+the following command:
+
+ # curl -0 --user "Admin:opensuse" -X PUT \
+        -T /usr/share/doc/packages/obs-api/openSUSE.org.xml  \
+        http://127.0.42.2/source/openSUSE.org/_meta
+
+
+4.2 import into the backend
 ===========================
 
 To do this execute the following commands:
@@ -186,12 +223,9 @@ To do this execute the following commands:
  # restart the scheduler to scan the new project
  rcobsscheduler restart
 
-
-4.2. Import into the frontend DB.
-=================================
-
-Run the frontend import script:
-/srv/www/obs/frontend/script # ruby import
+ Run the frontend import script:
+ # cd /srv/www/obs/frontend/script
+ # ruby import
 
 5. Access
 =========

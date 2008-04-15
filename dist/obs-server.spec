@@ -17,13 +17,11 @@ PreReq:         %fillup_prereq %insserv_prereq
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Autoreqprov:    on
-%define svnversion updated_by_script
-Version:        0.1.1_%{svnversion}
+Version:        0.9
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component
-# svn export https://forgesvn1.novell.com/svn/opensuse/trunk/buildservice
-Source:         %{name}-%{svnversion}.tar.bz2
+Source:         %{name}-%{version}.tar.bz2
 Source1:        obsworker
 Source3:        BSConfig.pm
 Source4:        obsrepserver
@@ -38,7 +36,6 @@ Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
 Source14:       obsdispatcher
 Source15:       obspublisher
-Patch:          hostsetup.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildArchitectures: noarch
 
@@ -68,21 +65,21 @@ Summary:        The openSUSE Build Service -- Build Host Component
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
-Requires:       rubygem-rails = 1.2.3
+Requires:       rubygem-rails-2_0
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
 
 %description -n obs-api
 
 %prep
-%setup -q -n buildservice/src/
-%patch0
+%setup -q -n buildservice-%version/
 cp %SOURCE10 .
 
 %build
 echo empty build section
 
 %install
+cd src
 #
 # Install all web and frontend parts.
 #
@@ -111,6 +108,9 @@ sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
   && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb"
 mkdir -p $RPM_BUILD_ROOT/srv/www/docs/api/
 cp -a ../docs/api/frontend $RPM_BUILD_ROOT/srv/www/docs/api/
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/public/schema/
+cp -a ../docs/api/frontend/*.{rng,xsd} \
+   $RPM_BUILD_ROOT/srv/www/obs/frontend/public/schema/
 #
 # Install all backend parts.
 #
@@ -212,10 +212,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-api
 %defattr(-,root,root)
-%doc README.SETUP
+%doc README.SETUP docs/openSUSE.org.xml ReleaseNotes-0.9
 %dir /srv/www/obs
 /srv/www/docs
 /srv/www/obs/common
+%dir /srv/www/obs/frontend
 /srv/www/obs/frontend/app
 /srv/www/obs/frontend/Changelog
 /srv/www/obs/frontend/components
@@ -228,6 +229,7 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/frontend/script
 /srv/www/obs/frontend/test
 /srv/www/obs/frontend/vendor
+%dir /srv/www/obs/webclient
 /srv/www/obs/webclient/app
 /srv/www/obs/webclient/Changelog
 /srv/www/obs/webclient/components

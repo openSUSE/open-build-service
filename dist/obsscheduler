@@ -41,17 +41,13 @@ case "$1" in
 	;;
 	stop)
 		echo -n "Shutting down obsscheduler"
-		test -z "$OBS_SCHEDULER_ARCHITECTURES" && OBS_SCHEDULER_ARCHITECTURES=i586
-		for i in $OBS_SCHEDULER_ARCHITECTURES; do
-		        echo "<event type="exit" />" > /srv/obs/events/$i/exit
-		done
+		killall bs_sched
 		rc_status -v
 	;;
 	restart)
 		## If first returns OK call the second, if first or
 		## second command fails, set echo return value.
-                # hard kill to enforce a cold start.
-		killall bs_sched && $0 start
+		$0 stop &&  $0 start
 		rc_status
 	;;
 	try-restart)
@@ -65,7 +61,6 @@ case "$1" in
 		rc_status
 	;;
 	reload)
-                # NOT implemented, should emit signal to kill scheduler, wait for shutdown and restart it
 	;;
 	status)
 		echo -n "Checking for obsscheduler: "

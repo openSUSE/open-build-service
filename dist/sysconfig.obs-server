@@ -6,6 +6,5 @@
 #
 # This needs to be a space seperated list of all supported architectures
 
-OBS_SCHEDULER_ARCHITECTURES="i586"
-
-
+#OBS_SCHEDULER_ARCHITECTURES="i586"
+OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
