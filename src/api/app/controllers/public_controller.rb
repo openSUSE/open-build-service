@@ -20,11 +20,14 @@ class PublicController < ApplicationController
     path = unshift_public(request.path)
     path << "?#{request.query_string}"
 
-    headers.update(
-      'Content-Type' => 'application/x-cpio'
-    )
-
-    render_stream(Net::HTTP::Get.new(path))
+    if params[:view] == "names"
+      forward_data path
+    else
+      headers.update(
+        'Content-Type' => 'application/x-cpio'
+      )
+      render_stream(Net::HTTP::Get.new(path))
+    end
   end
 
   # GET /public/source/:prj/_meta
