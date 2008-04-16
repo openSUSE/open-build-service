@@ -1734,7 +1734,7 @@ are used for creating a Novell SUSE installation source.</db:para>
           <value>image</value>
           <value>bootstrap</value>
           <value>delete</value>
-          <value>testing</value>
+          <value>testsuite</value>
           <value>xen</value>
           <value>vmware</value>
         </choice>
@@ -1750,6 +1750,17 @@ packages types xen and vmware</a:documentation>
       <attribute name="disk">
         <a:documentation>The virtual disk device name of the guest VM. Used only
 with the packages types xen and vmware</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.packages.HWversion.attribute">
+      <attribute name="HWversion">
+        <a:documentation>The virtual HW version number for the VMware configuration</a:documentation>
+        <data type="integer"/>
+      </attribute>
+    </define>
+    <define name="k.packages.guestOS.attribute">
+      <attribute name="guestOS">
+        <a:documentation>the virtual guestOS identification string for VMware</a:documentation>
       </attribute>
     </define>
     <define name="k.packages.profiles.attribute">
@@ -1788,6 +1799,12 @@ onlyRequired, plusSuggested or plusRecommended</a:documentation>
         </optional>
         <optional>
           <ref name="k.packages.disk.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.HWversion.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.guestOS.attribute"/>
         </optional>
         <optional>
           <ref name="k.packages.profiles.attribute"/>

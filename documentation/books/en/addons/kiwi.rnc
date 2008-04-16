@@ -1221,7 +1221,7 @@ div {
 #
 div {
 	k.packages.type.attribute = attribute type {
-		"image" | "bootstrap" | "delete" | "testing" | "xen" | "vmware"
+		"image" | "bootstrap" | "delete" | "testsuite" | "xen" | "vmware"
 	}
 	k.packages.memory.attribute =
 		## The memory setup for the guest VM. Used only with the
@@ -1231,6 +1231,12 @@ div {
 		## The virtual disk device name of the guest VM. Used only
 		## with the packages types xen and vmware
 		attribute disk { text }
+	k.packages.HWversion.attribute =
+		## The virtual HW version number for the VMware configuration
+		attribute HWversion { xsd:integer }
+	k.packages.guestOS.attribute =
+		## the virtual guestOS identification string for VMware
+		attribute guestOS { text }
 	k.packages.profiles.attribute =
 		## Namespace this section applies to. If not specified it
 		## applies to all namespaces
@@ -1251,6 +1257,8 @@ div {
 		k.packages.type.attribute &
 		k.packages.memory.attribute? &
 		k.packages.disk.attribute? &
+		k.packages.HWversion.attribute? &
+		k.packages.guestOS.attribute? &
 		k.packages.profiles.attribute? &
 		k.packages.patternType.attribute? &
 		k.packages.patternPackageType.attribute?
