@@ -1994,9 +1994,10 @@ sub docommand {
 sub checkprojrepoarch {
   my ($projid, $repoid, $arch, $remoteok) = @_;
   my $proj = readproj($projid, 1);
-  $proj = remoteprojid($projid) if $remoteok && !$proj;
+  $proj = remoteprojid($projid) if $remoteok && (!$proj || $proj->{'remoteurl'});
   die("project '$projid' does not exist\n") if !$proj;
   die("project '$projid' is remote\n") if $proj->{'remoteurl'} && !$remoteok;
+  return $proj if $proj->{'remoteurl'};
   return $proj unless defined $repoid;
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   die("project has no repository '$repoid'\n") unless $repo;
@@ -2032,7 +2033,20 @@ sub getbinarylist {
 
 sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $filename) = @_;
-  checkprojrepoarch($projid, $repoid, $arch);
+  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
+  if ($proj->{'remoteurl'}) {
+    # hack: reroute to /getbinaries so that our local cache is used
+    die("can only access remote _repository files\n") unless $packid eq '_repository';
+    die("need the raw package name as filename for remote repository access\n") if $filename =~ /\.(?:rpm|deb)$/;
+    my @args;
+    push @args, "project=$projid";
+    push @args, "repository=$repoid";
+    push @args, "arch=$arch";
+    push @args, "binaries=$filename";
+    push @args, "raw=1";
+    BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
+    exit(0);
+  }
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/$filename",
     'ignorestatus' => 1,
@@ -2567,6 +2581,14 @@ sub worker_getbinaries {
       push @reply, {'name' => $_, 'error' => 'not available'};
     }
   }
+  if ($cgi->{'raw'}) {
+    die("can only transport one binary in raw mode\n") unless @reply == 1;
+    my $f = $reply[0];
+    die("$f->{'name'}: $f->{'error'}\n") if $f->{'error'};
+    die("$f->{'name'}: not found\n") unless $f->{'filename'};
+    BSWatcher::reply_file($f->{'filename'});
+    return undef;
+  }
   BSWatcher::reply_cpio(\@reply);
   return undef;
 }
@@ -2788,7 +2810,7 @@ my $dispatches_ajax = [
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename*' => \&getbinarylist,
-  '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num?' => \&worker_lastevents,
 ];
 
