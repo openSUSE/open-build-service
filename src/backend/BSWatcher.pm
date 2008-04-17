@@ -622,7 +622,7 @@ sub rpc_recv_handler {
   my ($ev) = @_;
   my $cs = 1024;
   # needs to be bigger than the ssl package size...
-  $cs = 8192 if $ev->{'param'} && $ev->{'param'}->{'proto'} && $ev->{'param'}->{'proto'} eq 'https';
+  $cs = 16384 if $ev->{'param'} && $ev->{'param'}->{'proto'} && $ev->{'param'}->{'proto'} eq 'https';
   my $r = sysread($ev->{'fd'}, $ev->{'recvbuf'}, $cs, length($ev->{'recvbuf'}));
   if (!defined($r)) {
     if ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK) {
