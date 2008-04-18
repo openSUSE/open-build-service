@@ -44,6 +44,8 @@ my $statedir;
 my $hostarch;
 my $xen = '';
 my $workerid;
+my $srcserver;
+my @reposervers;
 my $testmode;
 
 my $buildlog_maxsize = 70 * 1000000;
@@ -112,6 +114,10 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --id        : worker id
 
+       --srcserver : define source server to be used
+
+       --reposerver: define reposerver, can be used multiple times
+
        --arch      : define hostarch (overrides 'uname -m')
                      currently supported architectures: 
                      @{[sort keys %cando]}
@@ -156,6 +162,17 @@ while (@ARGV) {
     $statedir = shift @ARGV;
     next;
   }
+  if ($ARGV[0] eq '--srcserver') {
+    shift @ARGV;
+    $srcserver = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--reposerver') {
+    shift @ARGV;
+    my $server = shift @ARGV;
+    push @reposervers, $server;
+    next;
+  }
   if ($ARGV[0] eq '--id') {
     shift @ARGV;
     $workerid = shift @ARGV;
@@ -191,6 +208,13 @@ if (!$hostarch) {
 }
 
 die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch};
+
+if (!defined($srcserver)) {
+  $srcserver = $BSConfig::srcserver;
+}
+if (!@reposervers) {
+  @reposervers = @BSConfig::reposervers;
+};
 
 if ($justbuild) {
   my $buildinfo = readxml($ARGV[0], $BSXML::buildinfo);
@@ -239,8 +263,7 @@ sub send_state {
   my ($state, $p, $ba, $exclude) = @_;
   my @args = ("state=$state", "arch=$ba", "port=$p");
   push @args, "workerid=$workerid" if defined $workerid;
-  my @servers = @BSConfig::reposervers;
-  for my $server (@servers) {
+  for my $server (@reposervers) {
     next if $exclude && $server eq $exclude;
     eval {
       BSRPC::rpc({
@@ -349,7 +372,7 @@ sub getsources {
   my $repo = $buildinfo->{'path'}->[0];
   my $projid = $repo->{'project'};
   my $res = BSRPC::rpc({
-    uri => "$BSConfig::srcserver/getsources",
+    uri => "$srcserver/getsources",
     directory => $dir,
     withmd5 => 1,
     'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
@@ -448,7 +471,7 @@ sub dobuild {
   my @meta = BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @deps);
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
   
-  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+  my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   writestr("$buildroot/.config", undef, $config);
 
   my @rpmlist;

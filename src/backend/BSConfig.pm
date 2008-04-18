@@ -22,19 +22,32 @@
 
 package BSConfig;
 
-our $srcserver = 'http://127.0.42.1:5352';
-our $reposerver = 'http://127.0.42.1:5252';
-#our $stageserver = 'rsync://127.0.42.1/put-repos-main';
-#our $stageserver_sync = 'rsync://127.0.42.1/trigger-repos-sync';
-our $repodownload = 'http://127.0.42.1/repositories';
-our $sign = '/usr/bin/sign';
+use Net::Domain;
+my $hostname = Net::Domain::hostfqdn();
+$hostname = "localhost" unless defined($hostname);
+
+# configured to run on your localhost only
+our $srcserver = "http://$hostname:6362";
+our $reposerver = "http://$hostname:6262";
+our $repodownload = "http://$hostname/repositories";
+
+# For the workers only, it is possible to define multiple repository servers here.
+# But only one source server is possible yet.
+our @reposervers = ("http://$hostname:6262");
+
+# Package defaults
 our $bsdir = '/srv/obs';
-#our $keyfile = '/srv/obs/my-public-key-file.asc';
-
-#our @reposervers = ('http://127.0.42.1:5252', 'http://127.0.42.1:6262');
-our @reposervers = ('http://127.0.42.1:5252');
-
 our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
+
+#No extra stage server sync
+#our $stageserver = 'rsync://127.0.0.1/put-repos-main';
+#our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
+
+#No public download server
+#our $repodownload = 'http://software.opensuse.org/download/repositories';
+
+#No package signing server
+#our $sign = '/root/bin/sign';
 
 1;
