@@ -248,7 +248,22 @@ XmlResult: status
 
 == Build Results
 
-<repository>: Build repository
+<build>: Build repository
+
+Host: api.opensuse.org
+
+GET /build/
+
+  List all repositories
+
+XmlResult: directory
+
+
+GET /build/<project>
+
+  List all repositories of the specified project
+
+XmlResult: directory
 
 === Binaries
 
