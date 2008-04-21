@@ -246,24 +246,6 @@ Parameters:
 XmlResult: status
 
 
-== Repository data
-
-Host: api.opensuse.org
-
-GET /repository/
-
-  List all repositories
-
-XmlResult: directory
-
-
-GET /repository/<project>
-
-  List all repositories of the specified project
-
-XmlResult: directory
-
-
 == Build Results
 
 <repository>: Build repository
