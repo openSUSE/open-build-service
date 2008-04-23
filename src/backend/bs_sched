@@ -1434,7 +1434,7 @@ sub fetchremoteproj {
   my $rproj;
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
-    'timeout' => 10,
+    'timeout' => 30,
   };
   eval {
     $rproj = BSRPC::rpc($param, $BSXML::proj);
@@ -1464,7 +1464,7 @@ sub fetchremoteconfig {
   my $c;
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
-    'timeout' => 10,
+    'timeout' => 30,
   };
   eval {
     $c = BSRPC::rpc($param);
@@ -1488,7 +1488,7 @@ sub findbins_remote {
   print "fetching remote repository state for $prp\n";
   my $param = {
     'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$myarch/_repository",
-    'timeout' => 20,
+    'timeout' => 200,
     'receiver' => \&BSHTTP::cpio_receiver,
   };
   my $cpio;
@@ -1767,7 +1767,7 @@ sub checkaggregate {
 	  print "fetching remote binary data for $aprojid/$arepoid/$myarch/$apackid\n";
 	  my $param = {
 	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
-	    'timeout' => 10,
+	    'timeout' => 20,
 	  };
 	  my $binarylist;
 	  eval {
@@ -1908,7 +1908,7 @@ sub rebuildaggregate {
 	    'receiver' => \&BSHTTP::cpio_receiver,
 	    'directory' => $jobdatadir,
 	    'map' => "upload:",
-	    'timeout' => 60,
+	    'timeout' => 300,
 	  };
 	  eval {
 	    $cpio = BSRPC::rpc($param, undef, "view=cpio");
