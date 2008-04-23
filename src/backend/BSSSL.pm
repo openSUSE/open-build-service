@@ -51,8 +51,8 @@ sub freectx {
 }
 
 sub tossl {
-  local *S = shift @_;
-  tie(*S, 'BSSSL', *S, @_);
+  local *S = $_[0];
+  tie(*S, 'BSSSL', @_);
 }
 
 sub TIEHANDLE {
