@@ -59,7 +59,6 @@ sub rpc {
   my @xhdrs;
   my $chunked;
   my $param = {'uri' => $uri};
-  my $fd;
 
   if (ref($uri) eq 'HASH') {
     $param = $uri;
@@ -108,9 +107,10 @@ sub rpc {
       $uri .= '?'.join('&', @args);
     }
   }
+  local *S;
   my ($host, $port, $path);
   if (exists($param->{'socket'})) {
-    $fd = $param->{'socket'};
+    *S = $param->{'socket'};
     $path = $uri;
   } else {
     die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
@@ -123,8 +123,8 @@ sub rpc {
       die("unknown host '$host'\n") unless $hostaddr;
       $hostlookupcache{$host} = $hostaddr;
     }
-    socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
-    connect($fd, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
+    socket(S, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+    connect(S, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
     unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
     if (defined $auth) {
       $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge unless $param->{'verbatim_uri'};
@@ -133,9 +133,9 @@ sub rpc {
     }
     if ($proto eq 'https') {
       if ($param->{'https'}) {
-        $param->{'https'}->($fd);
+        $param->{'https'}->(\*S);
       } elsif ($tossl) {
-        $tossl->($fd);
+        $tossl->(\*S);
       } else {
         die("https not supported\n");
       }
@@ -156,12 +156,12 @@ sub rpc {
     }
     $req .= "$data" unless ref($data);
     if ($param->{'sender'}) {
-      $param->{'sender'}->($param, $fd, $req);
+      $param->{'sender'}->($param, \*S, $req);
     } else {
       while(1) {
-	BSHTTP::swrite($fd, $req);
+	BSHTTP::swrite(\*S, $req);
 	last unless ref $data;
-	$req = &$data($param, $fd);
+	$req = &$data($param, \*S);
 	if (!defined($req) || !length($req)) {
 	  $req = $data = '';
 	  $req = "0\r\n\r\n" if $chunked;
@@ -173,6 +173,8 @@ sub rpc {
     if ($param->{'async'}) {
       my $ret = {};
       $ret->{'uri'} = $uri;
+      my $fd = gensym;
+      *$fd = \*S;
       $ret->{'socket'} = $fd;
       $ret->{'async'} = 1;
       $ret->{'continuation'} = 1;
@@ -187,7 +189,7 @@ sub rpc {
   }
   my $ans = '';
   do {
-    die("received truncated answer\n") if !sysread($fd, $ans, 1024, length($ans));
+    die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));
   } while ($ans !~ /\n\r?\n/s);
   die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
   my $status = $1;
@@ -201,7 +203,7 @@ sub rpc {
   BSHTTP::gethead(\%headers, $headers);
   if ($status !~ /^200[^\d]/) {
     #if ($param->{'verbose'}) {
-    #  1 while sysread($fd, $ans, 1024, length($ans));
+    #  1 while sysread(S, $ans, 1024, length($ans));
     #  print "< $ans\n";
     #}
     die("remote error: $status\n") unless $param->{'ignorestatus'};
@@ -219,11 +221,11 @@ sub rpc {
     }
   }
   if ($act eq 'HEAD') {
-    close $fd;
+    close S;
     ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
     return \%headers;
   }
-  $headers{'__socket'} = $fd;
+  $headers{'__socket'} = \*S;
   $headers{'__data'} = $ans;
   my $receiver;
   $receiver = $param->{'receiver:'.lc($headers{'content-type'} || '')};
@@ -233,7 +235,7 @@ sub rpc {
   } else {
     $ans = BSHTTP::read_data(\%headers, undef, 1);
   }
-  close $fd;
+  close S;
   delete $headers{'__socket'};
   delete $headers{'__data'};
   ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
