@@ -1,7 +1,7 @@
 class PublicController < ApplicationController
   skip_before_filter :extract_user
 
-  # GET /public/:prj/:repo/:arch/:pkg?:view
+  # GET /public/:prj/:repo/:arch/:pkg
   def build
     valid_http_methods :get
     
@@ -11,22 +11,26 @@ class PublicController < ApplicationController
       return
     end
 
-    unless %w(names cpio cache).include?(params[:view])
-      render_error :status => 400, :errorcode => "missing_parameter",
-        :message => "query parameter 'view' has to be either names, cpio or cache"
-      return
-    end
-
     path = unshift_public(request.path)
-    path << "?#{request.query_string}"
+    path << "?#{request.query_string}" unless request.query_string.empty?
 
-    if params[:view] == "names"
-      forward_data path
+    if params[:view]
+      unless %w(names cpio cache).include?(params[:view])
+        render_error :status => 400, :errorcode => "missing_parameter",
+          :message => "query parameter 'view' has to be either names, cpio or cache"
+        return
+      end
+
+      if params[:view] == "names"
+        forward_data path
+      else
+        headers.update(
+          'Content-Type' => 'application/x-cpio'
+        )
+        render_stream(Net::HTTP::Get.new(path))
+      end
     else
-      headers.update(
-        'Content-Type' => 'application/x-cpio'
-      )
-      render_stream(Net::HTTP::Get.new(path))
+      forward_data path
     end
   end
 
@@ -42,12 +46,23 @@ class PublicController < ApplicationController
     end
   end
 
+  # GET /public/source/:prj/_config
   def project_config
     valid_http_methods :get
     path = unshift_public(request.path)
+    path += "?#{request.query_string}" unless request.query_string.empty?
     forward_data path
   end
 
+  # GET /public/source/:prj/:pkg
+  def package_index
+    valid_http_methods :get
+    path = unshift_public(request.path)
+    path += "?#{request.query_string}" unless request.query_string.empty?
+    forward_data path
+  end
+
+  # GET /public/source/:prj/:pkg/:file
   def source_file
     valid_http_methods :get
     path = unshift_public(request.path)
@@ -69,6 +84,7 @@ class PublicController < ApplicationController
     render_stream Net::HTTP::Get.new(path)
   end
 
+  # GET /public/lastevents
   def lastevents
     valid_http_methods :get
     

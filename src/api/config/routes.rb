@@ -247,6 +247,8 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'public', :action => 'project_meta'
   map.connect '/public/source/:prj/_config',
     :controller => 'public', :action => 'project_config'
+  map.connect '/public/source/:prj/:pkg',
+    :controller => 'public', :action => 'package_index'
   map.connect '/public/source/:prj/:pkg/:file',
     :controller => 'public', :action => 'source_file'
   map.connect '/public/lastevents',
