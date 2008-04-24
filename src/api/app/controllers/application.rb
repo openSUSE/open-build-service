@@ -287,6 +287,7 @@ class ApplicationController < ActionController::Base
     render_to_string :template => 'status'
 
     logger.info "errorcode '#@errorcode' - #@summary"
+    response.headers['X-Opensuse-Errorcode'] = @errorcode
     render :template => 'status', :status => opt[:status], :layout => false
   end
   

@@ -146,6 +146,13 @@ class SourceController < ApplicationController
       user = params[:user]
     end
     
+    @project = DbProject.find_by_name params[:project]
+    unless @project
+      render_error :message => "Unknown project '#{params[:project]}'",
+        :status => 404, :errorcode => "unknown_project"
+      return
+    end
+
     if request.get?
       pass_to_source
     else
@@ -155,13 +162,6 @@ class SourceController < ApplicationController
         permerrormsg = "no permission to store pattern"
       elsif request.delete?
         permerrormsg = "no permission to delete pattern"
-      end
-
-      @project = DbProject.find_by_name params[:project]
-      unless @project
-        render_error :message => "Unknown project '#{project_name}'",
-          :status => 404, :errorcode => "unknown_project"
-        return
       end
 
       unless @http_user.can_modify_project? @project
@@ -342,6 +342,18 @@ class SourceController < ApplicationController
     if package_name.nil?
       render_error :status => 400, :errorcode => "parameter_missing",
         :message => "parameter 'package' missing"
+      return
+    end
+
+    unless pro = DbProject.find_by_name(project_name)
+      render_error :status => 404, :errorcode => "unknown_project",
+        :message => "Unknown project '#{project_name}'"
+      return
+    end
+
+    unless pack = pro.db_packages.find_by_name(package_name)
+      render_error :status => 404, :errorcode => "unknown_package",
+        :message => "Unknown package '#{package_name}'"
       return
     end
 
