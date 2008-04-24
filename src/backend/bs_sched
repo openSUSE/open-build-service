@@ -886,7 +886,9 @@ sub update_dst_full {
     for my $rp (keys %$jobrepo) {
       my $nn = $rp;
       $nn =~ s/.*\///;
-      rename($rp, "$dst/$nn") || die("rename $rp $dst/$nn: $!\n");
+      if ($rp ne "$dst/$nn") {
+        rename($rp, "$dst/$nn") || die("rename $rp $dst/$nn: $!\n");
+      }
       $new{$nn} = $jobrepo->{$rp};
     }
     # delete old rpms in dst
@@ -969,6 +971,7 @@ sub update_dst_full {
     if ($meta) {
       link($meta, "$meta.dup");
       rename("$meta.dup", "$gdst/:full/$n.meta");
+      unlink("$meta.dup");
     } else {
       unlink("$gdst/:full/$n.meta");
     }
@@ -1604,6 +1607,18 @@ sub jobfinished {
     push @all, "$jobdatadir/meta";
     $all{'meta'} = 1;
   }
+
+  # update packstatus so that it doesn't fall back to scheduled
+  my $ps = readxml("$reporoot/$prp/$myarch/:packstatus", $BSXML::packstatuslist, 1);
+  if ($ps) {
+    for (@{$ps->{'packstatus'} || []}) {
+      next unless $_->{'name'} eq $packid;
+      $_->{'status'} = 'finished';
+      $_->{'error'} = %$jobrepo ? 'succeeded' : 'failed';
+    }
+    writexml("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps, $BSXML::packstatuslist);
+  }
+
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   if (!%$jobrepo) {
     print "  - $job: build failed\n";
@@ -2167,14 +2182,14 @@ while(1) {
     @lookat_oob = grep {!$lookat_oobhigh{$_}} @lookat_oob;
     
     # remove too big projects from oob (FIXME!)
-#    for my $prp (@lookat_oob) {
-#      my ($projid, $repoid) = split('/', $prp, 2);
-#      my $packs = $projpacks->{$projid}->{'package'} || {};
-#      my $npacks = scalar(keys %$packs);
-#      if ($npacks > 50) {
-#	$prp = undef if rand($npacks) > 50;
-#      }
-#    }
+    for my $prp (@lookat_oob) {
+      my ($projid, $repoid) = split('/', $prp, 2);
+      my $packs = $projpacks->{$projid}->{'package'} || {};
+      my $npacks = scalar(keys %$packs);
+      if ($npacks > 100) {
+	$prp = undef if rand($npacks) > 100;
+      }
+    }
     @lookat_oob = grep {defined($_)} @lookat_oob;
     # XXX disable med prio: @lookat_oob = ();
 
@@ -2357,6 +2372,7 @@ while(1) {
     # check for events
     my @events = ls($myeventdir);
     @events = grep {!/^\./} @events;
+    @events = sort @events;
     while (@events || @remoteevents) {
       my $ev;
       if (@events) {
@@ -2548,6 +2564,38 @@ while(1) {
 	  print "bye.\n";
 	  exit(0);
 	}
+	next;
+      }
+
+      if ($ev->{'type'} eq 'useforbuild') {
+	my $projid = $ev->{'project'};
+	my $repoid = $ev->{'repository'};
+	my $prp = "$projid/$repoid";
+	my $packs = $projpacks->{$projid}->{'package'} || {};
+	my @packs;
+	if ($ev->{'package'}) {
+	  @packs = ($ev->{'package'});
+	} else {
+	  @packs = sort keys %$packs;
+	}
+	for my $packid (@packs) {
+	  my $gdst = "$reporoot/$prp/$myarch";
+	  next unless -d "$gdst/$packid";
+	  my $useforbuildenabled = 1;
+	  my $pdata = $packs->{$packid};
+	  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+	  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+	  next unless $useforbuildenabled;
+	  $repodata{$prp} ||= findbins($prp);
+	  my $jobrepo = findbins_dir("$gdst/$packid");
+	  my $meta = "$gdst/:meta/$packid";
+          undef $meta unless -s $meta;
+	  update_dst_full($repodata{$prp}, $prp, "$gdst/$packid", $jobrepo, $meta, $useforbuildenabled);
+	}
+	for $prp (@prps) {
+	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+	}
+	$changed_high{$projid} = 2;
 	next;
       }
 
