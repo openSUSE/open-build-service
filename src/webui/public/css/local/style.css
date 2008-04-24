@@ -1,0 +1,18 @@
+/* 
+**
+**  $Id: $
+**
+**  Funktion:  Master CSS-file for build.openSUSE.org
+**  Author:    Frank Sundermeyer <fs@opensuse.org>
+**  License:   see copyright/COPYRIGHT
+*/
+
+@import url(http://static.opensuse.org/c/css/yaml/core/base.css);
+@import url(http://static.opensuse.org/c/css/common/basemod_opensuse.css);
+@import url(http://static.opensuse.org/c/css/yaml/screen/content_default.css);
+@import url(http://static.opensuse.org/c/css/common/contentmod_opensuse.css);
+@import url(http://static.opensuse.org/hosts/build.o.o/css/contentadd_style.css);
+@import url(http://static.opensuse.org/c/css/common/opensuse_boxes.css);
+@import url(http://static.opensuse.org/c/css/common/print/print_003.css);
+@import url(http://static.opensuse.org/hosts/build.o.o/css/patch.css); /* overrides old styles */
+@import url(http://static.opensuse.org/hosts/build.o.o/css/dialog.css); /* style for dialog boxes */
