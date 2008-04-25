@@ -339,6 +339,7 @@ class SourceController < ApplicationController
 
   def package_meta
     #TODO: needs cleanup/split to smaller methods
+    valid_http_methods :put, :get
    
     project_name = params[:project]
     package_name = params[:package]
@@ -361,15 +362,14 @@ class SourceController < ApplicationController
       return
     end
 
-    unless pack = pro.db_packages.find_by_name(package_name)
-      render_error :status => 404, :errorcode => "unknown_package",
-        :message => "Unknown package '#{package_name}'"
-      return
-    end
-
     if request.get?
-      @package = Package.find( package_name, :project => project_name )
-      render :text => @package.dump_xml, :content_type => 'text/xml'
+      unless pack = pro.db_packages.find_by_name(package_name)
+        render_error :status => 404, :errorcode => "unknown_package",
+          :message => "Unknown package '#{package_name}'"
+        return
+      end
+
+      render :text => pack.to_axml, :content_type => 'text/xml'
     elsif request.put?
       allowed = false
       request_data = request.raw_post
@@ -421,11 +421,6 @@ class SourceController < ApplicationController
       else
         logger.debug "user #{user.login} has no permission to write package meta for package #@package"
       end
-    else
-      # neither put nor get
-      #TODO: return correct error code
-      render_error :status => 400, :errorcode => 'illegal_request',
-        :message => "Illegal request: POST #{request.path}"
     end
   end
 
