@@ -179,8 +179,16 @@ class SourceController < ApplicationController
     end
   end
 
+  # GET /source/:project/_pattern
   def index_pattern
     valid_http_methods :get
+
+    unless DbProject.find_by_name(params[:project])
+      render_error :message => "Unknown project '#{params[:project]}'",
+        :status => 404, :errorcode => "unknown_project"
+      return
+    end
+    
     pass_to_source
   end
 
