@@ -107,6 +107,7 @@ class SourceController < ApplicationController
     unless pkg
       render_error :status => 404, :errorcode => "unknown_package",
         :message => "unknown package '#{package_name}' in project '#{project_name}'"
+      return
     end
 
     if request.get?
