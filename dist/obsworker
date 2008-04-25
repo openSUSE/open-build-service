@@ -29,11 +29,8 @@ workerbootdir="$workerdir"/boot
 screenrc=/var/run/obsworker/boot/screenrc
 obsopt=""
 
-if [ -z "$OBS_SRC_SERVER" ]; then
-	OBS_SRC_SERVER="localhost:6362"
-fi
-if [ -z "$OBS_REPO_SERVER" ]; then
-	OBS_REPO_SERVER="localhost:6262"
+if [ -z "$OBS_STORAGE_SERVER" ]; then
+	OBS_STORAGE_SERVER="localhost:6262"
 fi
 
 if [ -f /etc/buildhost.config ];then
@@ -65,7 +62,7 @@ case "$1" in
 
 		# fetch worker sources from server
 		pushd "$workerbootdir"
-		curl -q "http://$OBS_REPO_SERVER"/getworkercode | cpio --extract
+		curl -q "$OBS_STORAGE_SERVER"/getworkercode | cpio --extract
 		ln -s . XML 
 		chmod 755 bs_worker
 		popd
@@ -79,9 +76,9 @@ case "$1" in
 			I=$(( $I + 1 ))
 			title="$HOSTNAME/$I"
 			# prepare obsworker startup in screen...
+			# FIXME: implement command line parameter to define the server
 			echo "screen -t $title ./bs_worker $obsopt $port --root $ROOT/root_$I" \
-			    --statedir $workerdir/$I --id "$HOSTNAME/$I --reposerver http://$OBS_REPO_SERVER" \
-			    --srcserver http://$OBS_SRC_SERVER" \
+			    --statedir $workerdir/$I --id "$HOSTNAME/$I" \
 			    >> $screenrc
                         mkdir $workerdir/$I
 			# prepare xen build setup...

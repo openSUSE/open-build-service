@@ -10,14 +10,14 @@
 
 
 Name:           obs-server
-Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo
+Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Autoreqprov:    on
-Version:        0.9
+Version:        0.9.1
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component

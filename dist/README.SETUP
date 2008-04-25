@@ -75,7 +75,7 @@ on this or a remote host.
 
       # /usr/bin/mysqladmin -u root password 'your-password'
 
-* Create the empty development databases:
+* Create the empty production databases:
 
       # mysql -u root -p
       mysql> create database frontend_production;
@@ -90,11 +90,15 @@ on this or a remote host.
       CREATE USER obs IDENTIFIED BY 'obs-password';
 
       GRANT all privileges
-      ON frontend_development.* 
+      ON frontend_production.* 
+      TO 'obs'@'%', 'obs'@'localhost';
+
+      GRANT all privileges
+      ON webclient_production.* 
       TO 'obs'@'%', 'obs'@'localhost';
 
 * Configure your MySQL user and password in
-  in the "development:" section of these files:
+  in the "production:" section of these files:
 
     /srv/www/obs/frontend/config/database.yml
     /srv/www/obs/webclient/config/database.yml
@@ -205,10 +209,12 @@ the following command:
         http://127.0.42.2/source/openSUSE.org/_meta
 
 
-4.2 import into the backend
-===========================
+4.2 import base distributions into the backend
+==============================================
 
-To do this execute the following commands:
+This point can be skipped, when you did run point 4.1 successfully. 
+In case you want a full copy of a base distribution you need to do
+the following steps:
 
  # become root user
  su -

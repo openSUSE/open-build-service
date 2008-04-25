@@ -1,4 +1,33 @@
 -------------------------------------------------------------------
+Wed Apr 23 19:35:42 CEST 2008 - mls@suse.de
+
+- increase timeouts in scheduler
+- fix circular reference in BSSSL
+- fix auto socket close in BSRPC
+
+-------------------------------------------------------------------
+Thu Apr 17 17:39:21 CEST 2008 - adrian@suse.de
+
+- apply fix for
+  * local osc support building for remote projects
+  * fix ssl protocol handling
+
+-------------------------------------------------------------------
+Thu Apr 17 00:02:43 CEST 2008 - mrueckert@suse.de
+
+- added perl-Net_SSLeay
+
+-------------------------------------------------------------------
+Wed Apr 16 08:49:11 CEST 2008 - adrian@suse.de
+
+- update to version 0.9 release
+  * Inter Build Service Connect support
+  * rpmlint support
+  * KIWI imaging support
+  * baselibs build support
+  * submission request support
+
+-------------------------------------------------------------------
 Mon Nov 26 17:16:27 CET 2007 - froh@suse.de
 
 - use startproc
