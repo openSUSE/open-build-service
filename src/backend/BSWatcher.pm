@@ -848,7 +848,9 @@ sub rpc {
     die("unknown host '$host'\n") unless $hostaddr;
     $hostlookupcache{$host} = $hostaddr;
   }
+  unshift @xhdrs, "User-Agent: $BSRPC::useragent" unless !defined($BSRPC::useragent) || grep {/^user-agent:/si} @xhdrs;
   unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;;
+
   if (defined $auth) {
     $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge unless $param->{'verbatim_uri'};
     $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;

@@ -32,6 +32,8 @@ use BSHTTP;
 
 use strict;
 
+our $useragent = 'BSRPC 0.9.1';
+
 my %hostlookupcache;
 my %cookiestore;	# our session store to keep iChain fast
 my $tossl;
@@ -125,6 +127,7 @@ sub rpc {
     }
     socket(S, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
     connect(S, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
+    unshift @xhdrs, "User-Agent: $useragent" unless !defined($useragent) || grep {/^user-agent:/si} @xhdrs;
     unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
     if (defined $auth) {
       $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge unless $param->{'verbatim_uri'};
