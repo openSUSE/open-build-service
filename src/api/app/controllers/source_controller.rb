@@ -102,6 +102,7 @@ class SourceController < ApplicationController
   def index_package
     project_name = params[:project]
     package_name = params[:package]
+    cmd = params[:cmd]
 
     pkg = DbPackage.find_by_project_and_name(project_name, package_name)
     unless pkg
