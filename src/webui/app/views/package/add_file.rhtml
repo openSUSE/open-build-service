@@ -12,10 +12,6 @@
 <% form_tag({:action => :save_file}, {:multipart => true}) do %>
 <b>Filename (leave empty to take from upload or uri):</b><br/>
 <%= text_field_tag 'filename', '', :size => 80 %><br/>
-<b>Filetype:</b><br/>
-<%= select_tag 'filetype', options_for_select(%w{source patch}) %><br/>
-<br/>
-
 
 <b>Local File:</b><br/>
 <%= file_field_tag 'file', :size => 70 %><br/>
