@@ -2,7 +2,7 @@
 <%= link_to "openSUSE API Documentation", "/apidocs/" %>
 </p>
 
-<% if http_user && http_user.has_role? "Admin" %>
+<% if http_user and http_user.is_admin? %>
 <p>
   <%= link_to "Admin Interface", { :controller => "admin" } %>
 </p>
