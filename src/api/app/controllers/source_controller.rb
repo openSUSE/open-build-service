@@ -580,7 +580,7 @@ class SourceController < ApplicationController
   def index_package_copy
     params[:user] = @http_user.login if @http_user
 
-    pack = DbPackage.find_by_name(params[:package])
+    pack = DbPackage.find_by_project_and_name(params[:project], params[:package])
     if pack.nil? 
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{params[:package]}"
