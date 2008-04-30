@@ -94,6 +94,7 @@ our $pack = [
 	[],
         'title',
         'description',
+        [ 'develproject' ],
      [[ 'person' =>
             'role',
             'userid',
