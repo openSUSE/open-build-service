@@ -244,7 +244,7 @@ The web interface is accessible via
 
   http://127.0.42.1
 
-The default user is "Admin" with the password "openSUSE".
+The default user is "Admin" with the password "opensuse".
 
 
 6. Using osc with your local build service:
@@ -326,7 +326,7 @@ When the obs-api package has been updated, it might be required to
 upgrade the database. Therefore, you should do
 
     # cd /srv/www/obs/frontend/
-    # rake db:migrate
+    # RAILS_ENV="production_slave" rake db:migrate
 
 after updating obs-api.
 
