@@ -80,8 +80,8 @@ case "$1" in
 			title="$HOSTNAME/$I"
 			# prepare obsworker startup in screen...
 			echo "screen -t $title ./bs_worker $obsopt $port --root $ROOT/root_$I" \
-			    --statedir $workerdir/$I --id "$HOSTNAME/$I --reposerver http://$OBS_REPO_SERVER" \
-			    --srcserver http://$OBS_SRC_SERVER" \
+			     "--statedir $workerdir/$I --id $HOSTNAME/$I --reposerver http://$OBS_REPO_SERVER" \
+			     "--srcserver http://$OBS_SRC_SERVER" \
 			    >> $screenrc
                         mkdir $workerdir/$I
 			# prepare xen build setup...
