@@ -1,12 +1,22 @@
 ## Path:        Applications/OBS
-## Description: define server host to be used
+## Description: define source server host to be used
+## Type:        string
+## Default:     "localhost:6362"
+## Config:      OBS
+#
+#
+
+OBS_SRC_SERVER=""
+
+## Path:        Applications/OBS
+## Description: define repository server host to be used
 ## Type:        string
 ## Default:     "localhost:6262"
 ## Config:      OBS
 #
 #
 
-OBS_STORAGE_SERVER=""
+OBS_REPO_SERVER=""
 
 ## Path:        Applications/OBS
 ## Description: define number of build instances
