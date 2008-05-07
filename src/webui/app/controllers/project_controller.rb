@@ -440,9 +440,12 @@ class ProjectController < ApplicationController
     #TODO: don't hardcode
     @priority_namespaces = %{
       Mandriva
+      openSUSE
       SUSE
+      RedHat
       Fedora
       Debian
+      Ubuntu
     }
 
     def @priority_namespaces.include_ns?(projname)
