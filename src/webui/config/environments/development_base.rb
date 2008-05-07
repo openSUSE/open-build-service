@@ -15,10 +15,12 @@ config.action_controller.perform_caching             = false
 # Don't care if the mailer can't send
 config.action_mailer.raise_delivery_errors = false
 
-FRONTEND_HOST = "localhost"
-FRONTEND_PORT = 3001
+config.log_level        = :debug
+
+FRONTEND_HOST = "api.opensuse.org"
+FRONTEND_PORT = 443
 #FRONTEND_PORT = 9001
-FRONTEND_PROTOCOL = 'http'
+FRONTEND_PROTOCOL = 'https'
 
 BUGZILLA_HOST = nil
 
@@ -41,5 +43,5 @@ ICHAIN_MODE = "off"
 
 ### not nescessary any more as of 2006.12.01:
 ### ICHAIN_HOST = "212.12.12.12"
-ICHAIN_TEST_USER = "test"
+#ICHAIN_TEST_USER = "adrianSuSE"
 

@@ -73,7 +73,7 @@ MIN_VOTES_FOR_RATING = 3
 
 require 'activexml'
 
-#TRANSPORT = Suse::Frontend.new("https://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
+#TRANSPORT = Suse::Frontend.new("#{FRONTEND_PROTOCOL}://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
