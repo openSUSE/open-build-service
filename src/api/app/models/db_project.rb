@@ -1,4 +1,5 @@
 class DbProject < ActiveRecord::Base
+  class SaveError < Exception; end
 
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :db_packages, :dependent => :destroy
@@ -55,7 +56,7 @@ class DbProject < ActiveRecord::Base
     DbProject.transaction do
       logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{project.name.to_s}"
       if self.name != project.name.to_s
-        raise RuntimeError, "project name mismatch: #{self.name} != #{project.name}"
+        raise SaveError, "project name mismatch: #{self.name} != #{project.name}"
       end
 
       self.title = project.title.to_s
@@ -81,7 +82,7 @@ class DbProject < ActiveRecord::Base
           else
             #new role
             if not Role.rolecache.has_key? person.role
-              raise RuntimeError, "illegal role name '#{person.role}'"
+              raise SaveError, "illegal role name '#{person.role}'"
             end
             ProjectUserRoleRelationship.create(
               :user => User.find_by_login(person.userid),
@@ -153,7 +154,7 @@ class DbProject < ActiveRecord::Base
         repo.each_path do |path|
           link_repo = Repository.find_by_project_and_repo_name( path.project, path.repository )
           if link_repo.nil?
-            raise RuntimeError, "unable to walk on path '#{path.project}/#{path.repository}'"
+            raise SaveError, "unable to walk on path '#{path.project}/#{path.repository}'"
           end
           current_repo.path_elements.create :link => link_repo
         end
@@ -163,7 +164,7 @@ class DbProject < ActiveRecord::Base
 
         repo.each_arch do |arch|
           unless Architecture.archcache.has_key? arch.to_s
-            raise RuntimeError, "unknown architecture: '#{arch}'"
+            raise SaveError, "unknown architecture: '#{arch}'"
           end
           current_repo.architectures << Architecture.archcache[arch.to_s]
         end
@@ -178,7 +179,7 @@ class DbProject < ActiveRecord::Base
         unless list.empty?
           logger.debug "offending repo: #{object.inspect}"
           linking_repos = list.map {|x| x.repository.db_project.name+"/"+x.repository.name}.join "\n"
-          raise RuntimeError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
+          raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
         end
         logger.debug "deleting repository '#{name}'"
         object.destroy
@@ -231,7 +232,7 @@ class DbProject < ActiveRecord::Base
     role = Role.rolecache[role_title]
     if role.global
       #only nonglobal roles may be set in a project
-      raise RuntimeError, "tried to set global role '#{role_title}' for user '#{login}' in project '#{self.name}'"
+      raise SaveError, "tried to set global role '#{role_title}' for user '#{login}' in project '#{self.name}'"
     end
 
     ProjectUserRoleRelationship.create(
@@ -422,7 +423,7 @@ class DbProject < ActiveRecord::Base
       when :useforbuild
         flagtype = "useforbuild_flags"
       else
-        raise  RuntimeError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
+        raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
     end
 
     if project.has_element? opts[:flagtype].to_sym
@@ -439,7 +440,7 @@ class DbProject < ActiveRecord::Base
           arch = nil
           if xmlflag.has_attribute? :arch
             arch = Architecture.find_by_name(xmlflag.arch)
-            raise RuntimeError.new( "Error: Architecture type '#{xmlarch}' not found." ) if arch.nil?
+            raise SaveError.new( "Error: Architecture type '#{xmlarch}' not found." ) if arch.nil?
           end
 
           repo = xmlflag.repository if xmlflag.has_attribute? :repository
@@ -476,7 +477,7 @@ class DbProject < ActiveRecord::Base
     if project.has_element? :build and
       ( project.has_element? :disable or project.has_element? :enable )
       logger.debug "[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags."
-      raise RuntimeError.new("[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags.")
+      raise SaveError.new("[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags.")
     end
   end
 

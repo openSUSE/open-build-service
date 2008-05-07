@@ -1,5 +1,8 @@
 class DbPackage < ActiveRecord::Base
+  class SaveError < Exception; end
   belongs_to :db_project
+
+  belongs_to :develproject, :class_name => "DbProject"
 
   has_many :package_user_role_relationships, :dependent => :destroy
   has_many :messages, :as => :object, :dependent => :destroy
@@ -31,7 +34,7 @@ class DbPackage < ActiveRecord::Base
         if not( dbp = DbPackage.find_by_project_and_name(project_name, package.name) )
           pro = DbProject.find_by_name project_name
           if pro.nil?
-            raise RuntimeError, "unknown project '#{project_name}'"
+            raise SaveError, "unknown project '#{project_name}'"
           end
           dbp = DbPackage.new( :name => package.name.to_s )
           pro.db_packages << dbp
@@ -65,15 +68,19 @@ class DbPackage < ActiveRecord::Base
 
   def store_axml( package )
     DbPackage.transaction do
-      if self.title != package.title.to_s
-        self.title = package.title.to_s
-        #self.save!
-      end
+      self.title = package.title.to_s
+      self.description = package.description.to_s
 
-      if self.description != package.description.to_s
-        self.description = package.description.to_s
-        #self.save!
+      #--- devel project ---#
+      if package.has_element? :develproject
+        unless develprj = DbProject.find_by_name(package.develproject.to_s)
+          raise SaveError, "value of develproject has to be a existing project (project '#{package.develproject}' does not exist)"
+        end
+        self.develproject = develprj
+      else
+        self.develproject = nil
       end
+      #--- end devel project ---#
 
       #--- update users ---#
       usercache = Hash.new
@@ -92,7 +99,7 @@ class DbPackage < ActiveRecord::Base
           else
             #new role
             if not Role.rolecache.has_key? person.role
-              raise RuntimeError, "illegal role name '#{person.role}'"
+              raise SaveError, "illegal role name '#{person.role}'"
             end
             PackageUserRoleRelationship.create(
               :user => User.find_by_login(person.userid),
@@ -143,11 +150,9 @@ class DbPackage < ActiveRecord::Base
       if package.has_element? :url
         if self.url != package.url.to_s
           self.url = package.url.to_s
-          #self.save!
         end
       else
         self.url = nil
-        #self.save!
       end
       #--- end update url ---#
 
@@ -174,7 +179,7 @@ class DbPackage < ActiveRecord::Base
     role = Role.rolecache[role_title]
     if role.global
       #only nonglobal roles may be set in a project
-      raise RuntimeError, "tried to set global role '#{role_title}' for user '#{login}' in package '#{self.name}'"
+      raise SaveError, "tried to set global role '#{role_title}' for user '#{login}' in package '#{self.name}'"
     end
 
     PackageUserRoleRelationship.create(
@@ -236,6 +241,7 @@ class DbPackage < ActiveRecord::Base
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
       package.description( description )
+      package.develproject( develproject.name ) unless develproject.nil?
 
       each_user do |u|
         package.person( :userid => u.login, :role => u.role_name )
@@ -350,7 +356,7 @@ class DbPackage < ActiveRecord::Base
       when :useforbuild
         flagtype = "useforbuild_flags"
       else
-        raise  RuntimeError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
+        raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
     end
 
     if package.has_element? opts[:flagtype].to_sym
@@ -367,7 +373,7 @@ class DbPackage < ActiveRecord::Base
           arch = nil
           if xmlflag.has_attribute? :arch
             arch = Architecture.find_by_name(xmlflag.arch)
-            raise RuntimeError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
+            raise SaveError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
           end
 
           repo = xmlflag.repository if xmlflag.has_attribute? :repository
@@ -406,7 +412,7 @@ class DbPackage < ActiveRecord::Base
     if package.has_element? :build and
       ( package.has_element? :disable or package.has_element? :enable )
       logger.debug "[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags."
-      raise RuntimeError.new("[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags.")
+      raise SaveError.new("[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags.")
     end
   end
 

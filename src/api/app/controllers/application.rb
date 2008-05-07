@@ -220,6 +220,10 @@ class ApplicationController < ActionController::Base
       render_error :message => "XML validation failed", :details => exception.message , :status => 400
     when InvalidHttpMethodError
       render_error :message => exception.message, :errorcode => "invalid_http_method", :status => 400
+    when DbPackage::SaveError
+      render_error :message => "error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
+    when DbProject::SaveError
+      render_error :message => "error saving project: #{exception.message}", :errorcode => "package_save_error", :status => 400
     else
       render_error :exception => exception
     end
