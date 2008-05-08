@@ -175,16 +175,20 @@ class DbPackage < ActiveRecord::Base
   end
 
 
-  def add_user( login, role_title )
+  def add_user( user, role_title )
     role = Role.rolecache[role_title]
     if role.global
       #only nonglobal roles may be set in a project
-      raise SaveError, "tried to set global role '#{role_title}' for user '#{login}' in package '#{self.name}'"
+      raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in package '#{self.name}'"
+    end
+
+    unless user.kind_of? User
+      user = User.find_by_login(user.to_s)
     end
 
     PackageUserRoleRelationship.create(
         :db_package => self,
-        :user => User.find_by_login( login ),
+        :user => user,
         :role => role )
   end
 

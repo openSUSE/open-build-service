@@ -227,17 +227,21 @@ class DbProject < ActiveRecord::Base
     self.class.find_parent_for self.name
   end
 
-  def add_user( login, role_title )
-    logger.debug "adding user: #{login}, #{role_title}"
+  def add_user( user, role_title )
+    logger.debug "adding user: #{user}, #{role_title}"
     role = Role.rolecache[role_title]
     if role.global
       #only nonglobal roles may be set in a project
-      raise SaveError, "tried to set global role '#{role_title}' for user '#{login}' in project '#{self.name}'"
+      raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in project '#{self.name}'"
+    end
+
+    unless user.kind_of? User
+      user = User.find_by_login(user.to_s)
     end
 
     ProjectUserRoleRelationship.create(
         :db_project => self,
-        :user => User.find_by_login( login ),
+        :user => user,
         :role => role )
   end
 

@@ -127,7 +127,7 @@ class SourceController < ApplicationController
       end
       render_ok
     elsif request.post?
-      if not @http_user.can_modify_package?(pkg) and cmd != "diff"
+      if not @http_user.can_modify_package?(pkg) and not ['diff', 'branch'].include?(cmd)
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
         return
@@ -583,7 +583,7 @@ class SourceController < ApplicationController
     pack = DbPackage.find_by_project_and_name(params[:project], params[:package])
     if pack.nil? 
       render_error :status => 404, :errorcode => 'unknown_package',
-        :message => "Unknown package #{params[:package]}"
+        :message => "Unknown package #{params[:package]} in project #{params[:project]}"
       return
     end
 
@@ -598,6 +598,60 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand])
     
     forward_data path, :method => :post
+  end
+
+  # POST /source/<project>/<package>?cmd=branch
+  def index_package_branch
+    params[:user] = @http_user.login
+    prj_name = params[:project]
+    pkg_name = params[:package]
+
+    pkg = DbPackage.find_by_project_and_name(prj_name, pkg_name)
+    if pkg.nil?
+      render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{pkg_name} in project #{prj_name}"
+      return
+    end
+
+    prj = DbProject.find_by_name prj_name
+    oprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
+    opkg_name = pkg_name
+
+    unless @http_user.can_create_project?(oprj_name)
+      render_error :status => 403, :errorcode => "create_project_no_permission",
+        :message => "no permission to create project '#{oprj_name}' while executing branch command"
+      return
+    end
+
+    #create branch container
+    oprj = DbProject.find_by_name oprj_name
+    if oprj.nil?
+      DbProject.transaction do
+        oprj = DbProject.new :name => oprj_name, :title => prj.title, :description => prj.description
+        oprj.add_user @http_user, "maintainer"
+        prj.repositories.each do |repo|
+          orepo = Repository.new :name => repo.name
+          orepo.architectures = repo.architectures
+          orepo.path_elements << PathElement.new(:link => repo)
+          oprj.repositories << orepo
+        end
+        oprj.save
+      end
+    end
+    Project.find(oprj_name).save
+
+    #create branch package
+    opkg = DbPackage.new(:name => opkg_name, :title => pkg.title, :description => pkg.description)
+    oprj.db_packages << opkg
+    
+    opkg.add_user @http_user, "maintainer"
+    Package.find(opkg_name, :project => oprj_name).save
+
+    #link sources
+    link_data = "<link project='#{prj_name}' package='#{pkg_name}'/>"
+    Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
+
+    render_ok
   end
 
   def valid_project_name? name
