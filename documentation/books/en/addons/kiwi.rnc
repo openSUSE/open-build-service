@@ -527,6 +527,10 @@ div {
 		## Specifies that the package with
 		## the given arch should be used in any case
 		attribute forcearch { text }
+	k.repopackage.medium.attribute =
+		## Specifies that the package will be put
+		## to the specific medium number (CD1, DVD7, ...)
+		attribute medium { xsd:nonNegativeInteger }
 	k.repopackage.source.attribute = k.source.attribute
 	k.repopackage.script.attribute = k.script.attribute
 	k.repopackage.attlist =
@@ -537,7 +541,8 @@ div {
 		k.repopackage.removearch.attribute? &
 		k.repopackage.forcearch.attribute? &
 		k.repopackage.source.attribute? &
-		k.repopackage.script.attribute?
+		k.repopackage.script.attribute? &
+		k.repopackage.medium.attribute?
 	k.repopackage =
 		## Name of an instsource Package
 		element repopackage {
@@ -873,17 +878,27 @@ div {
 	k.type.flags.attribute =
 		## Specifies flags for the image type. This could be compressed
 		## or unified and applies to the iso type only
-		attribute flags { "unified" | "compressed" }
+		attribute flags { "unified" | "compressed" | "unified-cromfs" | "compressed-cromfs"}
 	k.type.filesystem.attribute = 
 		## Specifies the filesystem which can be one of:
-		## ext2 , ext3 , reiserfs or squashfs
-		attribute filesystem { "ext2" | "ext3" | "reiserfs" | "squashfs" }
+		## ext2 , ext3 , reiserfs ,squashfs or cromfs
+		attribute filesystem { "ext2" | "ext3" | "reiserfs" | "squashfs" | "cromfs" }
 	k.type.fsreadonly.attribute =
 		## Specifies the filesystem for the read-only part of a split image
-		attribute fsreadonly { "ext2" | "ext3" | "reiserfs" | "squashfs" }
+		attribute fsreadonly { "ext2" | "ext3" | "reiserfs" | "squashfs" | "cromfs" }
 	k.type.fsreadwrite.attribute =
 		## Specifies the filesystem for the read-write part of a split image
 		attribute fsreadwrite { "ext2" | "ext3" | "reiserfs" }
+
+	k.type.ec2privatekeyfile.attribute =
+		## AWS user's PEM encoded RSA private key file
+		attribute ec2privatekeyfile { text }
+	k.type.ec2certfile.attribute =
+		## AWS user's PEM encoded RSA pubkey certificate file
+		attribute ec2certfile { text }
+	k.type.ec2accountnr.attribute =
+		## The user's EC2 user ID (Note: AWS account number, NOT Access Key ID)
+		attribute ec2accountnr { xsd:nonNegativeInteger }
 	k.type.format.attribute =
 		## Specifies the format of the virtual disk. This applies to the
 		## vmx/oem types only.
@@ -902,6 +917,9 @@ div {
 		k.type.filesystem.attribute? &
 		k.type.fsreadonly.attribute? &
 		k.type.fsreadwrite.attribute? &
+		k.type.ec2privatekeyfile.attribute? &
+		k.type.ec2certfile.attribute? &
+		k.type.ec2accountnr.attribute? &
 		k.type.baseroot.attribute? &
 		k.type.format.attribute? &
 		k.type.primary.attribute?
@@ -935,9 +953,9 @@ div {
 		db:para [
 			"As part of the network deploy configuration this section\x{a}"~
 			"specifies the overlay filesystem setup if required by the\x{a}"~
-			"filesystem type of the system image. An overlay setup is\x{a}"~
-			"only required if the system image uses a squashfs compressed\x{a}"~
-			"filesystem."
+			"filesystem type of the system image. An overlay setup is only\x{a}"~
+			"required if the system image uses a squashfs or cromfs\x{a}"~
+			"compressed filesystem."
 		]
 		]
 		element union {

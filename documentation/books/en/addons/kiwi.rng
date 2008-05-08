@@ -705,6 +705,13 @@ given arch should be removed</a:documentation>
 the given arch should be used in any case</a:documentation>
       </attribute>
     </define>
+    <define name="k.repopackage.medium.attribute">
+      <attribute name="medium">
+        <a:documentation>Specifies that the package will be put
+to the specific medium number (CD1, DVD7, ...)</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
     <define name="k.repopackage.source.attribute">
       <ref name="k.source.attribute"/>
     </define>
@@ -734,6 +741,9 @@ the given arch should be used in any case</a:documentation>
         </optional>
         <optional>
           <ref name="k.repopackage.script.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repopackage.medium.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -1192,18 +1202,21 @@ or unified and applies to the iso type only</a:documentation>
         <choice>
           <value>unified</value>
           <value>compressed</value>
+          <value>unified-cromfs</value>
+          <value>compressed-cromfs</value>
         </choice>
       </attribute>
     </define>
     <define name="k.type.filesystem.attribute">
       <attribute name="filesystem">
         <a:documentation>Specifies the filesystem which can be one of:
-ext2 , ext3 , reiserfs or squashfs</a:documentation>
+ext2 , ext3 , reiserfs ,squashfs or cromfs</a:documentation>
         <choice>
           <value>ext2</value>
           <value>ext3</value>
           <value>reiserfs</value>
           <value>squashfs</value>
+          <value>cromfs</value>
         </choice>
       </attribute>
     </define>
@@ -1215,6 +1228,7 @@ ext2 , ext3 , reiserfs or squashfs</a:documentation>
           <value>ext3</value>
           <value>reiserfs</value>
           <value>squashfs</value>
+          <value>cromfs</value>
         </choice>
       </attribute>
     </define>
@@ -1226,6 +1240,22 @@ ext2 , ext3 , reiserfs or squashfs</a:documentation>
           <value>ext3</value>
           <value>reiserfs</value>
         </choice>
+      </attribute>
+    </define>
+    <define name="k.type.ec2privatekeyfile.attribute">
+      <attribute name="ec2privatekeyfile">
+        <a:documentation>AWS user's PEM encoded RSA private key file</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.type.ec2certfile.attribute">
+      <attribute name="ec2certfile">
+        <a:documentation>AWS user's PEM encoded RSA pubkey certificate file</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.type.ec2accountnr.attribute">
+      <attribute name="ec2accountnr">
+        <a:documentation>The user's EC2 user ID (Note: AWS account number, NOT Access Key ID)</a:documentation>
+        <data type="nonNegativeInteger"/>
       </attribute>
     </define>
     <define name="k.type.format.attribute">
@@ -1274,6 +1304,15 @@ vmx/oem types only.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.fsreadwrite.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.ec2privatekeyfile.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.ec2certfile.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.ec2accountnr.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.baseroot.attribute"/>
@@ -1330,9 +1369,9 @@ vmx/oem types only.</a:documentation>
         <a:documentation>Specifies the Overlay Filesystem</a:documentation>
         <db:para>As part of the network deploy configuration this section
 specifies the overlay filesystem setup if required by the
-filesystem type of the system image. An overlay setup is
-only required if the system image uses a squashfs compressed
-filesystem.</db:para>
+filesystem type of the system image. An overlay setup is only
+required if the system image uses a squashfs or cromfs
+compressed filesystem.</db:para>
         <ref name="k.union.attlist"/>
         <empty/>
       </element>

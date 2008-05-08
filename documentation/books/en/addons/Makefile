@@ -20,7 +20,7 @@ HTMLPARAM=--stringparam refentry.generate.name 0 \
 	--stringparam html.stylesheet kiwi.css 
 
 .PHONY: all
-all:  kiwi.rng kiwi.xsd docbook html
+all:  test.rng kiwi.rng kiwi.xsd docbook html
 
 .PHONY: html
 html-old: kiwi.xhtml
@@ -29,10 +29,10 @@ html-old: kiwi.xhtml
 docbook: kiwi.xml
 
 .PHONY: db-html
-html: kiwi.html
+html: kiwi.html test.html
 
-.PHONY: test
-test: kiwi.rng
+.PHONY: lala
+lala: kiwi.rng
 	@echo "**** Small Unit Test ****"
 	@echo "*** Validating with xmllint..."
 	xmllint --noout --relaxng kiwi.rng  /usr/share/kiwi/image/isoboot/*/config.xml
@@ -40,6 +40,17 @@ test: kiwi.rng
 	msv kiwi.rng /usr/share/kiwi/image/isoboot/*/config.xml
 	@echo "*** Validating with jing..."
 	jing kiwi.rng /usr/share/kiwi/image/isoboot/*/config.xml
+	@echo "*** Finished."
+
+.PHONY: bob
+bob: test.rng
+	@echo "**** Small Unit Test ****"
+	@echo "*** Validating with xmllint..."
+	xmllint --noout --relaxng test.rng  /usr/share/kiwi/test/*/test-case.xml
+	@echo "*** Validating with msv..."
+	msv test.rng /usr/share/kiwi/test/*/test-case.xml
+	@echo "*** Validating with jing..."
+	jing test.rng /usr/share/kiwi/test/*/test-case.xml
 	@echo "*** Finished."
 
 .PHONY: validate val
@@ -52,11 +63,24 @@ validate val: .validate
 	@echo "    ---(3) msv validation..."
 	msv $(RELAXNG) kiwi.rng
 
+.PHONY: validate.test val
+	@echo "*** Validating KIWI Test Schema..."
+	@echo "    ---(1) xmllint validation..."
+	xmllint --noout --relaxng $(RELAXNG) test.rng
+	@echo "    ---(2) jing validation..."
+	jing $(RELAXNG) test.rng
+	@echo "    ---(3) msv validation..."
+	msv $(RELAXNG) test.rng
+
 .validate: kiwi.rng
 	@echo "*** Validating KIWI Schema..."
 	@touch $@
 	jing $(RELAXNG) $<
 
+.validate.test: test.rng
+	@echo "*** Validating KIWI Test Schema..."
+	@touch $@
+	jing $(RELAXNG) $<
 
 %.rng: %.rnc
 	@echo "*** Converting KIWI RNC -> RNG..."
@@ -70,7 +94,7 @@ validate val: .validate
 	@echo "*** Converting KIWI RNC -> DTD..."
 	trang $< $@
 
-%.xml: %.rng $(RNG2DOCBOOK) .validate
+%.xml: %.rng $(RNG2DOCBOOK) .validate .validate.test
 	@echo "*** Converting KIWI RNG -> DocBook..."
 	xsltproc --output $@ $(RNG2DOCBOOK) $<
 	@echo "*** Validating $@..."
