@@ -471,6 +471,7 @@ sub rpc_recv_forward_data_handler {
       my $param = {
 	'uri' => $olduri,
 	'verbatim_uri' => 1,
+	'joinable' => 1,
       };
       rpc($param);
       die("could not restart rpc\n") unless $rpcs{$olduri};
@@ -479,7 +480,13 @@ sub rpc_recv_forward_data_handler {
       # terminate all old rpcs
       my $err = $@ || "internal error\n";
       $err =~ s/\n$//s;
+      warn("$err\n");
       for my $jev (@stay) {
+	if ($jev->{'streaming'}) {
+	  # can't do much here, sorry
+	  BSServerEvents::reply_error($jev->{'conf'}, $err);
+	  next;
+	}
 	$jev->{'rpcdone'} = $olduri;
 	$jev->{'rpcerror'} = $err;
 	redo_request($jev);
@@ -826,7 +833,7 @@ sub rpc {
   if ($rpcs{$rpcuri}) {
     my $ev = $rpcs{$rpcuri};
     print "rpc $rpcuri already in progress, ".@{$ev->{'joblist'} || []}." entries\n";
-    return undef if grep {$_ eq $jev} @{$ev->{'joblist'}};
+    return undef if grep {$_ == $jev} @{$ev->{'joblist'}};
     if ($ev->{'rpcstate'} eq 'streaming') {
       # this seams wrong, cannot join a living stream!
       # (we're lucky to change the url when streaming...)
