@@ -151,6 +151,9 @@ sub modify {
       $changes++;
     }
     if (!$changes) {
+      if (!@data) {
+        unlink("$dbdir/$dn/$fn") || die("unlink $dbdir/$dn/$fn: $!\n");
+      }
       close($usedfiles{$file});
       delete $usedfiles{$file};
       next;

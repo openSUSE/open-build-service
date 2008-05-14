@@ -172,6 +172,10 @@ sub verify_pack {
   for my $f ('build', 'debuginfo', 'useforbuild', 'publish') {
     verify_disableenable($pack->{$f}) if $pack->{$f};
   }
+  if ($pack->{'devel'}) {
+    verify_projid($pack->{'devel'}->{'project'});
+    verify_packid($pack->{'devel'}->{'package'}) if exists $pack->{'devel'}->{'package'};
+  }
 }
 
 sub verify_link {

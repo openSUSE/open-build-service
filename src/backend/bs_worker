@@ -209,12 +209,8 @@ if (!$hostarch) {
 
 die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch};
 
-if (!defined($srcserver)) {
-  $srcserver = $BSConfig::srcserver;
-}
-if (!@reposervers) {
-  @reposervers = @BSConfig::reposervers;
-};
+$srcserver = $BSConfig::srcserver unless defined $srcserver;
+@reposervers = @BSConfig::reposervers unless @reposervers;
 
 if ($justbuild) {
   my $buildinfo = readxml($ARGV[0], $BSXML::buildinfo);
@@ -495,8 +491,7 @@ sub dobuild {
   my @args;
   push @args, $helper if $helper;
 
-  $buildinfo->{'file'} =~ /\.(spec|dsc|kiwi)$/;
-  if ($1 && $1 eq 'kiwi') {
+  if ($buildinfo->{'file'} =~ /\.kiwi$/) {
     # will not be needed anymore with kiwi 2.36
     rename( "$buildroot/.build-srcdir/config.kiwi", "$buildroot/.build-srcdir/config.xml" );
 
@@ -542,8 +537,7 @@ sub dobuild {
       push @args, '--logfile', "$buildroot/.build.log";
       push @args, '--xen', "$buildroot/root";
       push @args, '--xenswap', "$buildroot/swap";
-      my $xenmemory;
-      $xenmemory = readstr("$buildroot/memory", 1);
+      my $xenmemory = readstr("$buildroot/memory", 1);
       push @args, '--xenmemory', $xenmemory if $xenmemory;
     } else {
       push @args, '--root', $buildroot;
@@ -556,6 +550,7 @@ sub dobuild {
     push @args, '--dist', "$buildroot/.config";
     push @args, '--rpmlist', "$buildroot/.rpmlist";
     push @args, '--release', "$release" if defined $release;
+    push @args, '--debug' if $buildinfo->{'debuginfo'};
     push @args, '--arch', $arch;
     push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
     push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";

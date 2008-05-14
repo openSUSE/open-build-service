@@ -94,7 +94,9 @@ our $pack = [
 	[],
         'title',
         'description',
-        [ 'develproject' ],
+      [ 'devel', =>
+	    'project',
+      ],
      [[ 'person' =>
             'role',
             'userid',
@@ -327,6 +329,7 @@ our $buildinfo = [
 	'versrel',
 	'bcnt',
 	'release',
+	'debuginfo',
       [ 'subpack' ],
       [ 'imagetype' ],
       [ 'dep' ],
@@ -399,6 +402,7 @@ our $event = [
 	'arch',
 	'package',
 	'job',
+	'due',
 ];
 
 our $events = [

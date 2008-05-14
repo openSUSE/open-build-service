@@ -416,6 +416,8 @@ sub getconfig {
 ## Job management functions
 ##
 
+my $projpacks;		# global project/package data
+
 #
 # killjob - kill a single build job
 #
@@ -630,6 +632,11 @@ sub set_building {
     $binfo->{'release'} =~ s/\<CI_CNT\>/$release/g;
     $binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
   }
+  my $debuginfo = $bconf->{'debuginfo'};
+  $debuginfo = enabled($repoid, $projpacks->{$projid}->{'debuginfo'}, $debuginfo);
+  $debuginfo = enabled($repoid, $pdata->{'debuginfo'}, $debuginfo);
+  $binfo->{'debuginfo'} = 1 if $debuginfo;
+
   writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
@@ -642,8 +649,6 @@ sub set_building {
 ##
 ## Repository management functions
 ##
-
-my $projpacks;		# global project/package data
 
 #
 # sendpublishevent - send a publish event to the publisher
@@ -858,7 +863,12 @@ my %fullfilters = (
   'i586' => {
     '\.x86_64\.rpm$'   => '-x86_64',
     '\.ia64\.rpm$'     => '-',
-    '-debuginfo\.rpm$' => '-',
+    '-debuginfo\..*\.rpm$' => '-',
+    '-debugsrc\..*\.rpm$' => '-',
+  },
+  'x86_64' => {
+    '-debuginfo\..*\.rpm$' => '-',
+    '-debugsrc\..*\.rpm$' => '-',
   },
 );
 
@@ -2047,6 +2057,48 @@ sub select_read {
   }
 }
 
+sub changed2lookat {
+  my ($changed, $changed_high, $lookat_oobhigh, $lookat_oob, $lookat) = @_;
+
+  push @$lookat_oobhigh, grep {$changed_high->{$_}} sort keys %$changed;
+  push @$lookat_oob, grep {!$changed_high->{$_}} sort keys %$changed;
+  @$lookat_oobhigh = unify(@$lookat_oobhigh);
+  @$lookat_oob = unify(@$lookat_oob);
+  my %lookat_oobhigh = map {$_ => 1} @$lookat_oobhigh;
+  @$lookat_oob = grep {!$lookat_oobhigh{$_}} @$lookat_oob;
+
+  # calculate new_lookat from changed hash
+  my @new_lookat;
+  for my $prp (@prps) {
+    if (!$changed->{$prp}) {
+      # FIXME: aggregates do not use the full tree!
+      next unless grep {$changed->{$_} && $changed->{$_} != 1} @{$prpdeps{$prp}};
+    }
+    push @new_lookat, $prp;
+  }
+
+  # integrate new_lookat into lookat
+  my $idx = 0;
+  while (@new_lookat) {
+    while ($idx < @$lookat) {
+      last if $lookat->[$idx] eq $new_lookat[0];
+      $idx++;
+    }
+    if ($idx >= @$lookat) {
+      push @$lookat, @new_lookat;
+      last;
+    }
+    shift @new_lookat;
+  }
+
+  #if (@lookat && (@lookat_oob || @lookat_oobhigh)) {
+  #  # do not look twice in a row at the same prp
+  #  shift @lookat if (@lookat_oobhigh, @lookat_oob)[-1] eq $lookat[0];
+  #}     
+  %$changed = ();
+  %$changed_high = ();
+}
+
 ##########################################################################
 ##########################################################################
 ##
@@ -2171,54 +2223,11 @@ if (!$projpacks) {
 }
 
 my %remotewatchers;
+my %nextmed;
 
 while(1) {
   if (%changed) {
-    push @lookat_oobhigh, grep {$changed_high{$_}} sort keys %changed;
-    push @lookat_oob, grep {!$changed_high{$_}} sort keys %changed;
-    @lookat_oobhigh = unify(@lookat_oobhigh);
-    @lookat_oob = unify(@lookat_oob);
-    my %lookat_oobhigh = map {$_ => 1} @lookat_oobhigh;
-    @lookat_oob = grep {!$lookat_oobhigh{$_}} @lookat_oob;
-    
-    # remove too big projects from oob (FIXME!)
-    for my $prp (@lookat_oob) {
-      my ($projid, $repoid) = split('/', $prp, 2);
-      my $packs = $projpacks->{$projid}->{'package'} || {};
-      my $npacks = scalar(keys %$packs);
-      if ($npacks > 100) {
-	$prp = undef if rand($npacks) > 100;
-      }
-    }
-    @lookat_oob = grep {defined($_)} @lookat_oob;
-    # XXX disable med prio: @lookat_oob = ();
-
-    my @new_lookat;
-    for my $prp (@prps) {
-      if (!$changed{$prp}) {
-        # FIXME: aggregates do not use the full tree!
-        next unless grep {$changed{$_} && $changed{$_} != 1} @{$prpdeps{$prp}};
-      }
-      push @new_lookat, $prp;
-    }
-    my $idx = 0;
-    while (@new_lookat) {
-      while ($idx < @lookat) {
-	last if $lookat[$idx] eq $new_lookat[0];
-	$idx++;
-      }
-      if ($idx >= @lookat) {
-	push @lookat, @new_lookat;
-	last;
-      }
-      shift @new_lookat;
-    }
-    #if (@lookat && (@lookat_oob || @lookat_oobhigh)) {
-    #  # do not look twice in a row at the same prp
-    #  shift @lookat if (@lookat_oobhigh, @lookat_oob)[-1] eq $lookat[0];
-    #}     
-    %changed = ();
-    %changed_high = ();
+    changed2lookat(\%changed, \%changed_high, \@lookat_oobhigh, \@lookat_oob, \@lookat);
     next;
   }
 
@@ -2373,6 +2382,7 @@ while(1) {
     my @events = ls($myeventdir);
     @events = grep {!/^\./} @events;
     @events = sort @events;
+    my $lastevprojid;
     while (@events || @remoteevents) {
       my $ev;
       if (@events) {
@@ -2388,6 +2398,18 @@ while(1) {
         $ev = shift @remoteevents;
       }
       next unless $ev && $ev->{'type'};
+
+      if ($ev->{'project'}) {
+	if ($lastevprojid && $lastevprojid ne $ev->{'project'} && (%changed || %changed_high)) {
+	  # going to work on another project, commit changed hashes
+	  for (keys %changed_high) {
+	    next if $changed{$_} && $changed{$_} == 2;
+	    $changed{$_} = $changed_high{$_};
+	  }
+	  changed2lookat(\%changed, \%changed_high, \@lookat_oobhigh, \@lookat_oob, \@lookat);
+	}
+	$lastevprojid = $ev->{'project'};
+      }
 
       if ($ev->{'type'} eq 'built' || $ev->{'type'} eq 'import') {
 	my $job = $ev->{'job'};
@@ -2614,12 +2636,26 @@ while(1) {
     print "looking at high prio $prp";
   } elsif (@lookat_oob) {
     $prp = shift @lookat_oob;
-    print "looking at med prio $prp";
-  } else {
+    if ($nextmed{$prp}) {
+      my $now = time();
+      my @notyet;
+      while ($nextmed{$prp} && $now < $nextmed{$prp}) {
+	print "  not yet $prp\n";
+	push @notyet, $prp;
+	$prp = shift @lookat_oob;
+	last unless defined $prp;
+      }
+      unshift @lookat_oob, @notyet;
+      $prp = shift @lookat_oob if !defined($prp) && !@lookat;
+    }
+    print "looking at med prio $prp" if defined $prp;
+  }
+  if (!defined($prp)) {
     $prp = shift @lookat;
     print "looking at low prio $prp";
   }
   print " (".@lookat_oobhigh."/".@lookat_oob."/".@lookat."/".@prps.")\n";
+  delete $nextmed{$prp};
 
   my ($projid, $repoid) = split('/', $prp, 2);
   if (!defined($repoid)) {
@@ -2770,6 +2806,8 @@ while(1) {
     print "    $error\n";
     next;
   }
+
+  my $prpchecktime = time();
 
 #    for my $rd (reverse @repos) {
 #      for (keys %$rd) {
@@ -3135,12 +3173,15 @@ while(1) {
   my $ps = { 'packstatus' => \@packstatuslist, 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch};
   writexml("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps, $BSXML::packstatuslist);
 
+  $prpchecktime = time() - $prpchecktime;
+
   # write some stats
   for my $status (sort keys %{{map {$_ => 1} values %packstatus}}) {
     print "    $status: ".scalar(grep {$_ eq $status} values %packstatus)."\n";
   }
   print "    looked harder: $nharder\n" if $nharder;
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready)."\n";
+  print "    took $prpchecktime seconds to check the packages\n";
   if (!%notready) {
     my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
     my %pubenabled;
@@ -3184,5 +3225,6 @@ while(1) {
     delete $prpfinished{$prp};
     unlink("$reporoot/$prp/$myarch/:repodone");
   }
+  $nextmed{$prp} = time() + 2 * $prpchecktime;
 }
 

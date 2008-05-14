@@ -2329,6 +2329,26 @@ sub nextreqid {
   return $nextid;
 }
 
+sub writereq {
+  my ($oreq, $req) = @_;
+
+  my $id;
+  $id = $req->{'id'} if $req;
+  $id = $oreq->{'id'} if $oreq && !defined($id);
+  die unless defined $id;
+  my $name = $id;
+  if ($req) {
+    writexml("$requestsdir/.$name", "$requestsdir/$name", $req, $BSXML::request);
+  }
+  mkdir_p($reqindexdb);
+  my $db = BSDB::opendb($reqindexdb, '');
+  $db->{'noindex'} = {'id' => 1};
+  $db->updateindex($id, $oreq || {}, $req || {});
+  if (!$req) {
+    unlink("$requestsdir/$name");
+  }
+}
+
 sub putrequest {
   my ($cgi, $id) = @_;
   my $reqxml = BSServer::read_data(1000000);
@@ -2342,13 +2362,7 @@ sub putrequest {
   $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
-
-  my $name = $req->{'id'};
-  writexml("$requestsdir/.$name", "$requestsdir/$name", $req, $BSXML::request);
-  mkdir_p($reqindexdb);
-  my $db = BSDB::opendb($reqindexdb, '');
-  $db->{'noindex'} = {'id' => 1};
-  $db->updateindex($req->{'id'}, $oreq, $req);
+  writereq($oreq, $req);
   return $BSStdServer::return_ok;
 }
 
@@ -2366,12 +2380,7 @@ sub createrequest {
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   $req->{'id'} = nextreqid();
-  my $name = $req->{'id'};
-  writexml("$requestsdir/.$name", "$requestsdir/$name", $req, $BSXML::request);
-  mkdir_p($reqindexdb);
-  my $db = BSDB::opendb($reqindexdb, '');
-  $db->{'noindex'} = {'id' => 1};
-  $db->updateindex($req->{'id'}, {}, $req);
+  writereq(undef, $req);
   return ($req, $BSXML::request);
 }
 
@@ -2398,12 +2407,7 @@ sub postrequest {
   $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
-  my $name = $req->{'id'};
-  writexml("$requestsdir/.$name", "$requestsdir/$name", $req, $BSXML::request);
-  mkdir_p($reqindexdb);
-  my $db = BSDB::opendb($reqindexdb, '');
-  $db->{'noindex'} = {'id' => 1};
-  $db->updateindex($req->{'id'}, $oreq, $req);
+  writereq($oreq, $req);
   return $BSStdServer::return_ok;
 }
 
@@ -2412,10 +2416,7 @@ sub delrequest {
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
   die("no such request '$id'\n") unless $oreq;
   die unless $oreq->{'id'} eq $id;
-  my $db = BSDB::opendb($reqindexdb, '');
-  $db->{'noindex'} = {'id' => 1};
-  $db->updateindex($oreq->{'id'}, $oreq, {});
-  unlink("$requestsdir/$id");
+  writereq($oreq, undef);
   return $BSStdServer::return_ok;
 }
 
@@ -2793,7 +2794,7 @@ my $dispatches = [
 
   'POST:/request cmd: user:?' => \&createrequest,
   '/request' => \&getrequestlist,
-  'POST:/request/$id:num cmd: newstate:? user:?' => \&postrequest,
+  'POST:/request/$id:num cmd: newstate:? user:? comment:?' => \&postrequest,
   '/request/$id:num' => \&getrequest,
   'PUT:/request/$id:num user:?' => \&putrequest,
   'DELETE:/request/$id:num' => \&delrequest,
