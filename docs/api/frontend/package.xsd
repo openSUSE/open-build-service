@@ -19,7 +19,7 @@
       <xs:sequence>
         <xs:element ref="title"/>
         <xs:element ref="description"/>
-	<xs:element minOccurs="0" maxOccurs="1" ref="develproject"/>
+	<xs:element minOccurs="0" maxOccurs="1" ref="devel"/>
         <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
 	<xs:element minOccurs="0" maxOccurs="1" ref="notify"/>
 	<xs:element minOccurs="0" maxOccurs="1" ref="delete-notify"/>
@@ -76,12 +76,15 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="develproject" type="xs:string">
+  <xs:element name="devel">
     <xs:annotation>
       <xs:documentation>
         Specify the project where this package gets prepared for submission.
       </xs:documentation>
     </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="project" type="xs:string"/>
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="notify" type="xs:string">
