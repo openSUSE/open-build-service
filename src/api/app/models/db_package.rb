@@ -72,9 +72,9 @@ class DbPackage < ActiveRecord::Base
       self.description = package.description.to_s
 
       #--- devel project ---#
-      if package.has_element? :develproject
-        unless develprj = DbProject.find_by_name(package.develproject.to_s)
-          raise SaveError, "value of develproject has to be a existing project (project '#{package.develproject}' does not exist)"
+      if package.has_element? :devel
+        unless develprj = DbProject.find_by_name(package.devel.project.to_s)
+          raise SaveError, "value of develproject has to be a existing project (project '#{package.devel.project}' does not exist)"
         end
         self.develproject = develprj
       else
@@ -245,7 +245,7 @@ class DbPackage < ActiveRecord::Base
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
       package.description( description )
-      package.develproject( develproject.name ) unless develproject.nil?
+      package.devel( :project => develproject.name ) unless develproject.nil?
 
       each_user do |u|
         package.person( :userid => u.login, :role => u.role_name )
