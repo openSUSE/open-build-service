@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 #
 # Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
 #
