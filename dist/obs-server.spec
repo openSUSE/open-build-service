@@ -38,7 +38,8 @@ Source10:       README.SETUP
 Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
-Source14:       obsdispatcher
+Source14:       obs_mirror_project.py
+Source15:       obsdispatcher
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
@@ -145,9 +146,9 @@ install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 # install executables and code
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 # install mirror script
-install -m 0755 %SOURCE13 $RPM_BUILD_ROOT/usr/sbin/
+install -m 0755 %SOURCE13 %SOURCE14 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
-install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE14 \
+install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 \
            $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher ; do
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
@@ -192,6 +193,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobsscheduler
 /usr/sbin/rcobssrcserver
 /usr/sbin/obs_mirror_project
+/usr/sbin/obs_mirror_project.py
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSEvents.pm
