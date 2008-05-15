@@ -22,6 +22,11 @@
         <xsl:text>Got 1.4, but expected 2.0.</xsl:text>
       </xsl:message>
     </xsl:when>
+    <xsl:when test="image[@schemeversion='2.1']">
+      <xsl:message terminate="yes">
+        <xsl:text>Already at version 2.1... skipped</xsl:text>
+      </xsl:message>
+    </xsl:when>
     <xsl:when test="image[@schemeversion='2.0']">
       <xsl:apply-templates mode="conv20to21"/>
     </xsl:when>
