@@ -1,4 +1,31 @@
 -------------------------------------------------------------------
+Thu May 15 11:16:05 CEST 2008 - martin.mohring@5etech.eu
+
+- made apidocs working (finally)
+- got back to old svn version numbering so that ./distribute generates all
+- updated to newer versions of rcobs scripts
+- switchable comment for x86_64 scheduler in sysconfig.obs-server
+- removed obsoleted files from svn and .spec file
+- updates of obs-server.changes from openSUSE:Tools:Unstable project
+
+-------------------------------------------------------------------
+Wed May 14 08:13:46 CEST 2008 - adrian@suse.de
+
+- update to current svn trunk
+- avoid more hardcoded server names
+- bsworker can be installed on remote systems now and configured
+  via sysconfig settings
+- add apidocs generation and correct installation
+
+-------------------------------------------------------------------
+Fri Apr 25 16:54:20 CEST 2008 - adrian@suse.de
+
+- update to version 0.9.1
+  - fixes from the changelog entries before
+- Version 0.9.1 is required now to use the build service
+  inter connect feature with api.opensuse.org
+
+-------------------------------------------------------------------
 Wed Apr 23 19:35:42 CEST 2008 - mls@suse.de
 
 - increase timeouts in scheduler

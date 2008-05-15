@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: ${OBSOPT:="-A https://api.opensuse.org"}
+: ${OSCOPTS:="-A https://api.opensuse.org"}
 : ${PROJECT:=openSUSE:Tools:Unstable}
 : ${PACKAGE:=obs-server-svn}
 : ${TARGET:=openSUSE_10.2}

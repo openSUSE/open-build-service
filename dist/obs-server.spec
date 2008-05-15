@@ -11,19 +11,23 @@
 
 Name:           obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
+BuildRequires:  rubygem-builder python-devel
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Autoreqprov:    on
-Version:        0.9.1
+
+%define svnversion updated_by_script
+
+Version:        %{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component
-Source:         %{name}-%{version}.tar.bz2
+Source:         %{name}-%{svnversion}.tar.bz2
 Source1:        obsworker
-Source3:        BSConfig.pm
+Source3:        obspublisher
 Source4:        obsrepserver
 Source5:        obssrcserver
 Source6:        obsscheduler
@@ -35,7 +39,13 @@ Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
 Source14:       obsdispatcher
-Source15:       obspublisher
+%if 0%{?suse_version} >= 1020
+Recommends:     yum yum-metadata-parser repoview dpkg
+Requires:       createrepo >= 0.4.10
+%else
+Requires:       yum yum-metadata-parser repoview dpkg
+Requires:       createrepo >= 0.4.10
+%endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildArchitectures: noarch
 
@@ -65,24 +75,29 @@ Summary:        The openSUSE Build Service -- Build Host Component
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
-Requires:       rubygem-rails-2_0
+Requires:       rubygem-rails >= 2.0
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
 
 %description -n obs-api
 
 %prep
-%setup -q -n buildservice-%version/
+%setup -q -n buildservice
 cp %SOURCE10 .
 
 %build
-echo empty build section
+#
+# generate apidocs
+#
+cd docs/api/frontend
+make apidocs
+cd -
 
 %install
-cd src
 #
 # Install all web and frontend parts.
 #
+cd src
 for i in common frontend webclient; do
   mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
   cp -a $i $RPM_BUILD_ROOT/srv/www/obs/$i
@@ -99,18 +114,24 @@ for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
   sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
     "$i" > "$i"_ && mv "$i"_ "$i"
 done
+
+#
 #set default api on localhost for the webclient
+# 
 sed 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
   $RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb > tmp-file \
   && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb"
 sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
   $RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb > tmp-file \
   && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb"
-mkdir -p $RPM_BUILD_ROOT/srv/www/docs/api/
-cp -a ../docs/api/frontend $RPM_BUILD_ROOT/srv/www/docs/api/
+
+#
+# install apidocs
+# 
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/public/apidocs/html/
+cp -a ../docs/api/html           $RPM_BUILD_ROOT/srv/www/obs/frontend/public/apidocs/
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/public/schema/
-cp -a ../docs/api/frontend/*.{rng,xsd} \
-   $RPM_BUILD_ROOT/srv/www/obs/frontend/public/schema/
+cp -a ../docs/api/frontend/*.{rng,xsd}    $RPM_BUILD_ROOT/srv/www/obs/frontend/public/schema/
 #
 # Install all backend parts.
 #
@@ -126,12 +147,11 @@ cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 # install mirror script
 install -m 0755 %SOURCE13 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
-install -m 0755 %SOURCE1 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE14 %SOURCE15 \
+install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE14 \
            $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher ; do
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
 done
-install -m 0644 %SOURCE3 $RPM_BUILD_ROOT/usr/lib/obs/server/
 # Ship latest version of build to be always in sync. do not use the symlink.
 rm -rf $RPM_BUILD_ROOT/usr/lib/obs/server/build
 cp -a ../build $RPM_BUILD_ROOT/usr/lib/obs/server/build
@@ -173,7 +193,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobssrcserver
 /usr/sbin/obs_mirror_project
 /usr/lib/obs/server/BSBuild.pm
-%config(noreplace) /usr/lib/obs/server/BSConfig.pm
+/usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSEvents.pm
 /usr/lib/obs/server/BSFileDB.pm
 /usr/lib/obs/server/BSHTTP.pm
@@ -212,9 +232,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-api
 %defattr(-,root,root)
-%doc README.SETUP docs/openSUSE.org.xml ReleaseNotes-0.9
+%doc README.SETUP docs/openSUSE.org.xml ReleaseNotes-0.9 ReleaseNotes-0.9.1
 %dir /srv/www/obs
-/srv/www/docs
 /srv/www/obs/common
 %dir /srv/www/obs/frontend
 /srv/www/obs/frontend/app

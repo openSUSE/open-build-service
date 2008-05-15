@@ -13,7 +13,7 @@
   # quick fix for security bug in rails 1.1
   #
   url.rewrite-once = ( "^/(app|components|config|db|doc|lib|log|public|script|test|tmp|vendor)/" => "/index.html" )
-  url.rewrite += ("^/apidocs(/|)$" => "/apidocs/index.html")
+  url.rewrite += ("^/apidocs(/|)$" => "/apidocs/html/index.html")
   magnet.attract-physical-path-to = ( conf_dir + "/cleanurl-v5.lua" )
   accesslog.filename              = log_root + "/obs-" + rails_app + "-access.log"
   rails_tmp   = rails_root + "/tmp"
