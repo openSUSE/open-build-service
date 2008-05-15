@@ -218,9 +218,7 @@
       <xs:element name="build"        type="enable_list_type" minOccurs="0" />
       <xs:element name="publish"      type="enable_list_type" minOccurs="0" />
       <xs:element name="useforbuild"  type="enable_list_type" minOccurs="0" />
-<!-- Not supported in backend atm
       <xs:element name="debuginfo"    type="enable_list_type" minOccurs="0" />
--->
     </xs:choice>
   </xs:group>
 
