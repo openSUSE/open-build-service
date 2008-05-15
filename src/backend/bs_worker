@@ -46,6 +46,8 @@ my $xen = '';
 my $xen_root = '';
 my $xen_swap = '';
 my $workerid;
+my $srcserver;
+my @reposervers;
 my $testmode;
 
 my $buildlog_maxsize = 70 * 1000000;
@@ -114,15 +116,19 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --id        : worker id
 
+       --srcserver : define source server to be used
+
+       --reposerver: define reposerver, can be used multiple times
+
        --arch      : define hostarch (overrides 'uname -m')
                      currently supported architectures: 
                      @{[sort keys %cando]}
 
        --xen       : enable xen
 
-       --xen-device: set xen root device (default is <root>/root file)
+       --xendevice : set xen root device (default is <root>/root file)
 
-       --xen-swap  : set xen swap device (default is <root>/swap file)
+       --xenswap   : set xen swap device (default is <root>/swap file)
 
        --test      : enable test mode
 
@@ -162,6 +168,17 @@ while (@ARGV) {
     $statedir = shift @ARGV;
     next;
   }
+  if ($ARGV[0] eq '--srcserver') {
+    shift @ARGV;
+    $srcserver = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--reposerver') {
+    shift @ARGV;
+    my $server = shift @ARGV;
+    push @reposervers, $server;
+    next;
+  }
   if ($ARGV[0] eq '--id') {
     shift @ARGV;
     $workerid = shift @ARGV;
@@ -177,12 +194,12 @@ while (@ARGV) {
     shift @ARGV;
     next;
   }
-  if ($ARGV[0] eq '--xen-device') {
+  if ($ARGV[0] eq '--xendevice') {
     shift @ARGV;
     $xen_root = shift @ARGV;
     next;
   }
-  if ($ARGV[0] eq '--xen-swap') {
+  if ($ARGV[0] eq '--xenswap') {
     shift @ARGV;
     $xen_swap = shift @ARGV;
     next;
@@ -210,6 +227,9 @@ if (!$hostarch) {
 }
 
 die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch};
+
+$srcserver = $BSConfig::srcserver unless defined $srcserver;
+@reposervers = @BSConfig::reposervers unless @reposervers;
 
 if ($justbuild) {
   my $buildinfo = readxml($ARGV[0], $BSXML::buildinfo);
@@ -258,8 +278,7 @@ sub send_state {
   my ($state, $p, $ba, $exclude) = @_;
   my @args = ("state=$state", "arch=$ba", "port=$p");
   push @args, "workerid=$workerid" if defined $workerid;
-  my @servers = @BSConfig::reposervers;
-  for my $server (@servers) {
+  for my $server (@reposervers) {
     next if $exclude && $server eq $exclude;
     eval {
       BSRPC::rpc({
@@ -368,7 +387,7 @@ sub getsources {
   my $repo = $buildinfo->{'path'}->[0];
   my $projid = $repo->{'project'};
   my $res = BSRPC::rpc({
-    uri => "$BSConfig::srcserver/getsources",
+    uri => "$srcserver/getsources",
     directory => $dir,
     withmd5 => 1,
     'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
@@ -467,7 +486,7 @@ sub dobuild {
   my @meta = BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @deps);
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
   
-  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+  my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   writestr("$buildroot/.config", undef, $config);
 
   my @rpmlist;
@@ -491,8 +510,7 @@ sub dobuild {
   my @args;
   push @args, $helper if $helper;
 
-  $buildinfo->{'file'} =~ /\.(spec|dsc|kiwi)$/;
-  if ($1 && $1 eq 'kiwi') {
+  if ($buildinfo->{'file'} =~ /\.kiwi$/) {
     # will not be needed anymore with kiwi 2.36
     rename( "$buildroot/.build-srcdir/config.kiwi", "$buildroot/.build-srcdir/config.xml" );
 
@@ -538,8 +556,7 @@ sub dobuild {
       push @args, '--logfile', "$buildroot/.build.log";
       push @args, '--xen', "$xen_root";
       push @args, '--xenswap', "$xen_swap";
-      my $xenmemory;
-      $xenmemory = readstr("$buildroot/memory", 1);
+      my $xenmemory = readstr("$buildroot/memory", 1);
       push @args, '--xenmemory', $xenmemory if $xenmemory;
     } else {
       push @args, '--root', $buildroot;
@@ -552,6 +569,7 @@ sub dobuild {
     push @args, '--dist', "$buildroot/.config";
     push @args, '--rpmlist', "$buildroot/.rpmlist";
     push @args, '--release', "$release" if defined $release;
+    push @args, '--debug' if $buildinfo->{'debuginfo'};
     push @args, '--arch', $arch;
     push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
     push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";
