@@ -223,7 +223,7 @@ if [ ${DO_TAR} ]; then
     # connect to.
     SVNVERSION=${SVNVERSION//:/_}
 
-    : ${TARFILE:=${PACKAGE}-${SVNVERSION}}
+    : ${TARFILE:=${SPECFILE%.spec}-${SVNVERSION}}
 
     if [ ! -f ${TARFILE}.tar.bz2 ] ; then
 

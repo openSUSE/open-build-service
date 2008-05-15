@@ -1,7 +1,8 @@
 #!/bin/bash
 
-: ${PROJECT:=openSUSE:Tools}
-: ${PACKAGE:=obs-server}
+: ${OBSOPT:="-A https://api.opensuse.org"}
+: ${PROJECT:=openSUSE:Tools:Unstable}
+: ${PACKAGE:=obs-server-svn}
 : ${TARGET:=openSUSE_10.2}
 : ${ARCH:=i586}
 : ${SPECFILE:=obs-server.spec}
