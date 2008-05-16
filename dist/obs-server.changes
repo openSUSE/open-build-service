@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
 Fri May 16 21:45:37 CEST 2008 - martin.mohring@5etech.eu
 
+- update to svn trunc -r 3983, incl. all build/obs_worker changes
 - readded fix for changing download addresses in webclient
 -------------------------------------------------------------------
 Thu May 15 12:29:47 CEST 2008 - martin.mohring@5etech.eu
