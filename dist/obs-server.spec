@@ -125,6 +125,9 @@ sed 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
 sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
   $RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb > tmp-file \
   && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb"
+sed 's,api.opensuse.org,127.0.42.2,' \
+  $RPM_BUILD_ROOT/srv/www/obs/webclient/app/helpers/package_helper.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/app/helpers/package_helper.rb"
 
 #
 # install apidocs

@@ -1,4 +1,8 @@
 -------------------------------------------------------------------
+Fri May 16 21:45:37 CEST 2008 - martin.mohring@5etech.eu
+
+- readded fix for changing download addresses in webclient
+-------------------------------------------------------------------
 Thu May 15 12:29:47 CEST 2008 - martin.mohring@5etech.eu
 
 - added also old python written script obs_mirror_project.py from James Oakley
