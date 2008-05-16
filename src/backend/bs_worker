@@ -126,9 +126,9 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --xen       : enable xen
 
-       --xendevice : set xen root device (default is <root>/root file)
+       --xendevice: set xen root device (default is <root>/root file)
 
-       --xenswap   : set xen swap device (default is <root>/swap file)
+       --xenswap  : set xen swap device (default is <root>/swap file)
 
        --test      : enable test mode
 
@@ -587,7 +587,7 @@ sub dobuild {
     print "extracting built packages...\n";
     @args = ();
     push @args, "$statedir/build/extractbuild";
-    push @args, '--xen', "$xen_root";
+    push @args, '--xenroot', "$xen_root";
     push @args, '--xenswap', "$xen_swap";
     if (system(@args)) {
       die("extractbuild failed\n");
