@@ -16,47 +16,6 @@
 #               : 
 #               :
 # STATUS        : Development
-#
-# TODO          : These are some
-#               : - Isolate more attribute patterns?
-#               : - Document the patterns
-#               : - Improve Schema with datatypes?
-#               : - Test, test, test...
-#               : - Rework users element to be required. Extend the
-#               :   content modell with a required root user
-#
-# FUTURE CHANGES: - Required attributes:
-#                   * <profile name="" description=""/>
-#                   * <package name=""/>
-#                   * <metafile url="" target=""/>
-#                   * <packages type="">
-#                   * <opensusePattern name=""/>
-#                   * <ignore name=""/>
-#                   * <users group="users">
-#                   * <user name="" home="" pwd=""/>
-#                   * <drivers type="">
-#                   * <file name=""/>
-#                   * <repository type="">
-#                   * <source path=""/>
-#                   * <deploy blocksize="" server="">
-#                   * <partitions device="/dev/sda">
-#                   * <partition type="" mountpoint="" number="" size="" target=""/>
-#                   * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
-#                   * <configuration dest="" source=""/>
-#                   * ...
-#                 - Insert bootstrap in image
-#                 - Rename repository -> repositories and source -> repository
-#                 - Change repository+ -> repositories
-#                 - Rename attribute schemeversion -> schemaversion or version
-#                 - repository: Add attributes pwd and username
-#                 - image: rename attribute "name" -> basename
-#                 - user: rename attribute "name" -> "login"
-#                 - instrepo, opensusepattern, package: find a better(?)
-#                   name for attribute "name"
-#                 - union: rename attribute "name" -> "overlay" (?)
-#                 - Fix camel case in element opensusePattern and
-#                   attributes patternPackageType and patternType
-#
 #****************
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
@@ -464,8 +423,7 @@ div {
 			k.metadata.attlist &
 			k.repopackage+ &
 			k.metafile* &
-			k.chroot* &
-			k.productinfo*
+			k.chroot*
 		}
 }
 
@@ -969,6 +927,9 @@ div {
 #
 div {
 	k.user.name.attribute = k.name.attribute
+	k.user.id.attribute = 
+		## The user ID for this user
+		attribute id { xsd:nonNegativeInteger }
 	k.user.realname.attribute =
 		## The name of an user
 		attribute realname { text }
@@ -981,6 +942,7 @@ div {
 		attribute shell { text }
 	k.user.attlist =
 		k.user.name.attribute &
+		k.user.id.attribute? &
 		k.user.realname.attribute? &
 		k.user.pwd.attribute &
 		k.user.home.attribute &
@@ -1103,6 +1065,7 @@ div {
 		element instsource {
 			k.instsource.attlist &
 			k.architectures &
+			k.productoptions &
 			k.instrepo+ &
 			k.metadata &
 			k.repopackages
@@ -1129,6 +1092,51 @@ div {
 		element architectures {
 			k.architectures.attlist &
 			k.arch+ 
+		}
+}
+
+#==========================================
+# main block: <productoptions>
+#
+div {
+	k.productoptions.attlist = empty
+	k.productoptions =
+		## Describe Packages and Metadata
+		[
+		db:para [
+			"The productoptions element contains a list of options\x{a}"~
+			"that influence the instsource creation process in a\x{a}"~
+			"general manner. For instance an option could specify\x{a}"~
+			"a default medium number for source packages and the like."
+		]
+		]
+		element productoptions {
+			k.productoptions.attlist &
+			k.productoption* &
+			k.productinfo* &
+			k.productvar*
+		}
+}
+
+#==========================================
+# main block: <productoption>
+#
+div {
+	k.productoption.attlist = k.name.attribute
+
+	k.productoption =
+		## Describe Packages and Metadata
+		[
+		db:para [
+			"The productoption element carries the information for an productoptionitecture,\x{a}"~
+			"its name and its fallback (productoptional)."
+		]
+		]
+		element productoption {
+			k.productoption.attlist &
+			text
+			#k.productinfo.text.content	
+			#xsd:normalizedString { maxLength = "2048" }
 		}
 }
 
@@ -1187,6 +1195,37 @@ div {
 			# text: workaround for the above mentioned problem
 			text
 			#k.productinfo.text.content	
+			#xsd:normalizedString { maxLength = "2048" }
+		}
+}
+
+#==========================================
+# main block: <productvar>
+#
+div {
+	k.productvar.attlist =
+		k.name.attribute 
+	#k.productvar = xsd:normalizedString {
+	#		maxLength = "2048"
+	#}
+	# FIXME (libxml guys, someone?) This does not work correctly with libxml2 v. 2.6.30-4.
+	# It validates with jing and msv but not with perl-XML-LibXML-1.62001-57/libxml2-2.6.30-4
+	
+
+	k.productvar =
+		## Describe Packages and Metadata
+		[
+		db:para [
+			"The productinfo element contains one particular environment\x{a}"~
+			"variable and its value. Shell rules for the names apply.\x{a}"~
+			"The value is used to create the content file."
+		]
+		]
+		element productvar {
+			k.productvar.attlist &
+			# text: workaround for the above mentioned problem
+			text
+			#k.productvar	
 			#xsd:normalizedString { maxLength = "2048" }
 		}
 }
@@ -1252,9 +1291,14 @@ div {
 	k.packages.HWversion.attribute =
 		## The virtual HW version number for the VMware configuration
 		attribute HWversion { xsd:integer }
-	k.packages.guestOS.attribute =
-		## the virtual guestOS identification string for VMware
-		attribute guestOS { text }
+	k.packages.guestOS_32Bit.attribute =
+		## the virtual guestOS identification string for VMware for 
+		## 32bit guest systems
+		attribute guestOS_32Bit { text }
+	k.packages.guestOS_64Bit.attribute =
+		## the virtual guestOS identification string for VMware for 
+		## 64bit guest systems
+		attribute guestOS_64Bit { text }
 	k.packages.profiles.attribute =
 		## Namespace this section applies to. If not specified it
 		## applies to all namespaces
@@ -1276,7 +1320,8 @@ div {
 		k.packages.memory.attribute? &
 		k.packages.disk.attribute? &
 		k.packages.HWversion.attribute? &
-		k.packages.guestOS.attribute? &
+		k.packages.guestOS_32Bit.attribute? &
+		k.packages.guestOS_64Bit.attribute? &
 		k.packages.profiles.attribute? &
 		k.packages.patternType.attribute? &
 		k.packages.patternPackageType.attribute?
@@ -1372,7 +1417,11 @@ div {
 	k.users.group.attribute =
 		## Contains the group to which the user belongs
 		attribute group { text }
+	k.users.id.attribute =
+		## Contains the group ID to which the user belongs
+		attribute id { xsd:nonNegativeInteger }
 	k.users.attlist = k.users.group.attribute
+		& k.users.id.attribute ?
 	k.users = 
 		## A List of Users
 		element users {

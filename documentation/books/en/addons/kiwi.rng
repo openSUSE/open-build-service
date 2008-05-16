@@ -18,47 +18,6 @@
                 : 
                 :
   STATUS        : Development
-  
-  TODO          : These are some
-                : - Isolate more attribute patterns?
-                : - Document the patterns
-                : - Improve Schema with datatypes?
-                : - Test, test, test...
-                : - Rework users element to be required. Extend the
-                :   content modell with a required root user
-  
-  FUTURE CHANGES: - Required attributes:
-                    * <profile name="" description=""/>
-                    * <package name=""/>
-                    * <metafile url="" target=""/>
-                    * <packages type="">
-                    * <opensusePattern name=""/>
-                    * <ignore name=""/>
-                    * <users group="users">
-                    * <user name="" home="" pwd=""/>
-                    * <drivers type="">
-                    * <file name=""/>
-                    * <repository type="">
-                    * <source path=""/>
-                    * <deploy blocksize="" server="">
-                    * <partitions device="/dev/sda">
-                    * <partition type="" mountpoint="" number="" size="" target=""/>
-                    * <union type="" ro="/dev/sda" rw="/dev/sdb"/>
-                    * <configuration dest="" source=""/>
-                    * ...
-                  - Insert bootstrap in image
-                  - Rename repository -> repositories and source -> repository
-                  - Change repository+ -> repositories
-                  - Rename attribute schemeversion -> schemaversion or version
-                  - repository: Add attributes pwd and username
-                  - image: rename attribute "name" -> basename
-                  - user: rename attribute "name" -> "login"
-                  - instrepo, opensusepattern, package: find a better(?)
-                    name for attribute "name"
-                  - union: rename attribute "name" -> "overlay" (?)
-                  - Fix camel case in element opensusePattern and
-                    attributes patternPackageType and patternType
-  
   ****************
 -->
 <grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
@@ -608,9 +567,6 @@ archive is extracted in a specific way.</db:para>
           </zeroOrMore>
           <zeroOrMore>
             <ref name="k.chroot"/>
-          </zeroOrMore>
-          <zeroOrMore>
-            <ref name="k.productinfo"/>
           </zeroOrMore>
         </interleave>
       </element>
@@ -1386,6 +1342,12 @@ compressed filesystem.</db:para>
     <define name="k.user.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
+    <define name="k.user.id.attribute">
+      <attribute name="id">
+        <a:documentation>The user ID for this user</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
     <define name="k.user.realname.attribute">
       <attribute name="realname">
         <a:documentation>The name of an user</a:documentation>
@@ -1407,6 +1369,9 @@ compressed filesystem.</db:para>
     <define name="k.user.attlist">
       <interleave>
         <ref name="k.user.name.attribute"/>
+        <optional>
+          <ref name="k.user.id.attribute"/>
+        </optional>
         <optional>
           <ref name="k.user.realname.attribute"/>
         </optional>
@@ -1602,6 +1567,7 @@ repository for image building.</db:para>
         <interleave>
           <ref name="k.instsource.attlist"/>
           <ref name="k.architectures"/>
+          <ref name="k.productoptions"/>
           <oneOrMore>
             <ref name="k.instrepo"/>
           </oneOrMore>
@@ -1635,6 +1601,62 @@ undefined value thus terminating the chain.</db:para>
             <ref name="k.arch"/>
           </oneOrMore>
         </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <productoptions>
+    
+  -->
+  <div>
+    <define name="k.productoptions.attlist">
+      <empty/>
+    </define>
+    <define name="k.productoptions">
+      <element name="productoptions">
+        <a:documentation>Describe Packages and Metadata</a:documentation>
+        <db:para>The productoptions element contains a list of options
+that influence the instsource creation process in a
+general manner. For instance an option could specify
+a default medium number for source packages and the like.</db:para>
+        <interleave>
+          <ref name="k.productoptions.attlist"/>
+          <zeroOrMore>
+            <ref name="k.productoption"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.productinfo"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.productvar"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <productoption>
+    
+  -->
+  <div>
+    <define name="k.productoption.attlist">
+      <ref name="k.name.attribute"/>
+    </define>
+    <define name="k.productoption">
+      <element name="productoption">
+        <a:documentation>Describe Packages and Metadata</a:documentation>
+        <db:para>The productoption element carries the information for an productoptionitecture,
+its name and its fallback (productoptional).</db:para>
+        <interleave>
+          <ref name="k.productoption.attlist"/>
+          <text/>
+        </interleave>
+        <!--
+          k.productinfo.text.content	
+          xsd:normalizedString { maxLength = "2048" }
+        -->
       </element>
     </define>
   </div>
@@ -1708,6 +1730,40 @@ to unexpected contents.</db:para>
         </interleave>
         <!--
           k.productinfo.text.content	
+          xsd:normalizedString { maxLength = "2048" }
+        -->
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <productvar>
+    
+  -->
+  <div>
+    <define name="k.productvar.attlist">
+      <ref name="k.name.attribute"/>
+    </define>
+    <!--
+      k.productvar = xsd:normalizedString {
+      		maxLength = "2048"
+      }
+      FIXME (libxml guys, someone?) This does not work correctly with libxml2 v. 2.6.30-4.
+      It validates with jing and msv but not with perl-XML-LibXML-1.62001-57/libxml2-2.6.30-4
+    -->
+    <define name="k.productvar">
+      <element name="productvar">
+        <a:documentation>Describe Packages and Metadata</a:documentation>
+        <db:para>The productinfo element contains one particular environment
+variable and its value. Shell rules for the names apply.
+The value is used to create the content file.</db:para>
+        <interleave>
+          <ref name="k.productvar.attlist"/>
+          <!-- text: workaround for the above mentioned problem -->
+          <text/>
+        </interleave>
+        <!--
+          k.productvar	
           xsd:normalizedString { maxLength = "2048" }
         -->
       </element>
@@ -1797,9 +1853,16 @@ with the packages types xen and vmware</a:documentation>
         <data type="integer"/>
       </attribute>
     </define>
-    <define name="k.packages.guestOS.attribute">
-      <attribute name="guestOS">
-        <a:documentation>the virtual guestOS identification string for VMware</a:documentation>
+    <define name="k.packages.guestOS_32Bit.attribute">
+      <attribute name="guestOS_32Bit">
+        <a:documentation>the virtual guestOS identification string for VMware for 
+32bit guest systems</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.packages.guestOS_64Bit.attribute">
+      <attribute name="guestOS_64Bit">
+        <a:documentation>the virtual guestOS identification string for VMware for 
+64bit guest systems</a:documentation>
       </attribute>
     </define>
     <define name="k.packages.profiles.attribute">
@@ -1843,7 +1906,10 @@ onlyRequired, plusSuggested or plusRecommended</a:documentation>
           <ref name="k.packages.HWversion.attribute"/>
         </optional>
         <optional>
-          <ref name="k.packages.guestOS.attribute"/>
+          <ref name="k.packages.guestOS_32Bit.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.guestOS_64Bit.attribute"/>
         </optional>
         <optional>
           <ref name="k.packages.profiles.attribute"/>
@@ -1996,8 +2062,19 @@ what portion.</db:para>
         <a:documentation>Contains the group to which the user belongs</a:documentation>
       </attribute>
     </define>
+    <define name="k.users.id.attribute">
+      <attribute name="id">
+        <a:documentation>Contains the group ID to which the user belongs</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
     <define name="k.users.attlist">
-      <ref name="k.users.group.attribute"/>
+      <interleave>
+        <ref name="k.users.group.attribute"/>
+        <optional>
+          <ref name="k.users.id.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.users">
       <element name="users">
