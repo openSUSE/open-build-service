@@ -92,8 +92,11 @@ class DbProject < ActiveRecord::Base
           end
         else
           begin
+            if not (user=User.find_by_login(person.userid))
+              raise SaveError, "unknown user '#{person.userid}'"
+            end
             ProjectUserRoleRelationship.create(
-              :user => User.find_by_login(person.userid),
+              :user => user,
               :role => Role.rolecache[person.role],
               :db_project => self
             )
