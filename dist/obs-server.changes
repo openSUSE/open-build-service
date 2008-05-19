@@ -3,6 +3,7 @@ Mon May 19 19:11:22 CEST 2008 - martin.mohring@5etech.eu
 
 - update to svn trunc -r 3996, bugfixes
 - incl. latest osc alignments for 1.0 release
+- added obs-server-test.spec for building osc, build, obs-server from one source
 -------------------------------------------------------------------
 Fri May 16 21:45:37 CEST 2008 - martin.mohring@5etech.eu
 
