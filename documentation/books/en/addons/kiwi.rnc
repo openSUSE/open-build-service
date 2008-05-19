@@ -708,6 +708,122 @@ div {
 }
 
 #==========================================
+# common element <oem-swapsize>
+#
+div {
+	k.oem-swapsize.attlist = empty
+	k.oem-swapsize =
+		## For oemboot driven images: Set the size of the swap
+		## partition in MB
+		[
+		db:para [
+			"For oemboot driven images: Set the size of the swap\x{a}"~
+			"partition in MB. No swapspace with oem-swap set to false."
+		]
+		]
+		element oem-swapsize {
+			k.oem-swapsize.attlist,
+			xsd:nonNegativeInteger
+		}
+}
+
+#==========================================
+# common element <oem-systemsize>
+#
+div {
+	k.oem-systemsize.attlist = empty
+	k.oem-systemsize =
+		## For oemboot driven images: Set the size of the system
+		## (root) partition in MB
+		[
+		db:para [
+			"For oemboot driven images: Set the size of the system\x{a}"~
+			"(root) partition in MB."
+		]
+		]
+		element oem-systemsize {
+			k.oem-systemsize.attlist,
+			xsd:nonNegativeInteger
+		}
+}
+
+#==========================================
+# common element <oem-swap>
+#
+div {
+	k.oem-swap.attlist = empty
+	k.oem-swap =
+		## For oemboot driven images: use a swap partition yes/no
+		[
+		db:para [
+			"For oemboot driven images: use a swap partition yes/no."
+		]
+		]
+		element oem-swap {
+			k.oem-swap.attlist,
+			text
+		}
+}
+
+#==========================================
+# common element <oem-home>
+#
+div {
+	k.oem-home.attlist = empty
+	k.oem-home =
+		## For oemboot driven images: use a home partition yes/no
+		[
+		db:para [
+			"For oemboot driven images: use a home partition yes/no."
+		]
+		]
+		element oem-home {
+			k.oem-home.attlist,
+			text
+		}
+}
+
+#==========================================
+# common element <oem-boot-title>
+#
+div {
+	k.oem-boot-title.attlist = empty
+	k.oem-boot-title =
+		## For oemboot driven images: setup of the boot menu text
+		## displayed within the square brackets after first reboot
+		## of the OEM image 
+        [
+		db:para [
+			"For oemboot driven images: setup of the boot menu text\x{a}"~
+			"displayed within the square brackets after first reboot\x{a}"~
+			"of the OEM image."
+		]
+		]
+		element oem-boot-title {
+			k.oem-boot-title.attlist,
+			text
+		}
+}
+
+#==========================================
+# common element <oem-reboot>
+#
+div {
+	k.oem-reboot.attlist = empty
+	k.oem-reboot =
+		## For oemboot driven images: reboot after first deployment yes/no
+		[
+		db:para [
+			"For oemboot driven images: reboot after first deployment yes/no."
+		]
+		]
+		element oem-reboot {
+			k.oem-reboot.attlist,
+			text
+		}
+}
+
+#==========================================
 # common element <size>
 #
 div {
@@ -1356,6 +1472,11 @@ div {
 			k.version &
 			k.size? &
 			k.compressed? &
+			k.oem-swap? &
+			k.oem-home? &
+			k.oem-boot-title? &
+			k.oem-swapsize? &
+			k.oem-systemsize? &
 			k.packagemanager? &
 			k.rpm-check-signatures? &
 			k.rpm-force? &

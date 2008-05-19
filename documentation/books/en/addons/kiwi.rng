@@ -992,6 +992,122 @@ to the used package manager.</db:para>
   </div>
   <!--
     ==========================================
+    common element <oem-swapsize>
+    
+  -->
+  <div>
+    <define name="k.oem-swapsize.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-swapsize">
+      <element name="oem-swapsize">
+        <a:documentation>For oemboot driven images: Set the size of the swap
+partition in MB</a:documentation>
+        <db:para>For oemboot driven images: Set the size of the swap
+partition in MB. No swapspace with oem-swap set to false.</db:para>
+        <ref name="k.oem-swapsize.attlist"/>
+        <data type="nonNegativeInteger"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <oem-systemsize>
+    
+  -->
+  <div>
+    <define name="k.oem-systemsize.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-systemsize">
+      <element name="oem-systemsize">
+        <a:documentation>For oemboot driven images: Set the size of the system
+(root) partition in MB</a:documentation>
+        <db:para>For oemboot driven images: Set the size of the system
+(root) partition in MB.</db:para>
+        <ref name="k.oem-systemsize.attlist"/>
+        <data type="nonNegativeInteger"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <oem-swap>
+    
+  -->
+  <div>
+    <define name="k.oem-swap.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-swap">
+      <element name="oem-swap">
+        <a:documentation>For oemboot driven images: use a swap partition yes/no</a:documentation>
+        <db:para>For oemboot driven images: use a swap partition yes/no.</db:para>
+        <ref name="k.oem-swap.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <oem-home>
+    
+  -->
+  <div>
+    <define name="k.oem-home.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-home">
+      <element name="oem-home">
+        <a:documentation>For oemboot driven images: use a home partition yes/no</a:documentation>
+        <db:para>For oemboot driven images: use a home partition yes/no.</db:para>
+        <ref name="k.oem-home.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <oem-boot-title>
+    
+  -->
+  <div>
+    <define name="k.oem-boot-title.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-boot-title">
+      <element name="oem-boot-title">
+        <a:documentation>For oemboot driven images: setup of the boot menu text
+displayed within the square brackets after first reboot
+of the OEM image </a:documentation>
+        <db:para>For oemboot driven images: setup of the boot menu text
+displayed within the square brackets after first reboot
+of the OEM image.</db:para>
+        <ref name="k.oem-boot-title.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <oem-reboot>
+    
+  -->
+  <div>
+    <define name="k.oem-reboot.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-reboot">
+      <element name="oem-reboot">
+        <a:documentation>For oemboot driven images: reboot after first deployment yes/no</a:documentation>
+        <db:para>For oemboot driven images: reboot after first deployment yes/no.</db:para>
+        <ref name="k.oem-reboot.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <size>
     
   -->
@@ -1967,6 +2083,21 @@ and also depends of the selected image output type.</db:para>
           </optional>
           <optional>
             <ref name="k.compressed"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-swap"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-home"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-boot-title"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-swapsize"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-systemsize"/>
           </optional>
           <optional>
             <ref name="k.packagemanager"/>
