@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon May 19 19:11:22 CEST 2008 - martin.mohring@5etech.eu
+
+- update to svn trunc -r 3996, bugfixes
+- incl. latest osc alignments for 1.0 release
+-------------------------------------------------------------------
 Fri May 16 21:45:37 CEST 2008 - martin.mohring@5etech.eu
 
 - update to svn trunc -r 3983, incl. all build/obs_worker changes
