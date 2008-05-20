@@ -136,6 +136,29 @@ DELETE /source/<project>/_pattern/<patternfile>
 XmlResult: status
 
 
+GET /source/<project>/_pubkey
+
+  Get project GPG key. If the project has no own key (default), it uses
+  the first available one in the namespace hierarchy, ending at the global
+  buildservice key.
+
+Result: gpgkey
+
+
+DELETE /source/<project>/_pubkey
+
+  Removes the current gpg key. Has no effect if no key is set.
+
+XmlResult: status
+
+
+POST /source/<project>?cmd=createkey
+
+  Generate a new gpg key. If the project already has an own gpg key, the old
+  key is discarded.0
+
+XmlResult: status
+
 === Packages
 
 
@@ -163,6 +186,13 @@ DELETE /source/<project>/<package>
 XmlResult: status
 
 
+GET /source/<project>/<package>/_history
+
+  Get package commit history
+
+XmlResult: revisionlist
+
+
 POST /source/<project>/<package>?cmd=diff
 
   Create a source diff
@@ -177,11 +207,33 @@ Parameters:
 Result: diff as text/plain
 
 
-GET /source/<project>/<package>/_history
+POST /source/<project>/<package>?cmd=branch
 
-  Get package commit history
+  Create a source link from a package of an existing project to a 
+  new subproject of the requesters home project (home:<user>:branches:<project>)
 
-XmlResult: revisionlist
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=createSpecFileTemplate
+
+  Create template for RPM SPEC file. Returns an error, if the SPEC file already
+  exists.
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=commit
+
+  Commits package changes to buildservice
+
+Parameters:
+
+  rev: revision, mandatory
+  comment: comment, optional
+  user: user, optional
+
+XmlResult: status
 
 
 === Source files
@@ -217,31 +269,6 @@ XmlResult: status
 DELETE /source/<project>/<package>/<filename>
 
   Delete source file.
-
-XmlResult: status
-
-
-=== RPM spec file template
-
-POST /source/<project>/<package>?cmd=createSpecFileTemplate
-
-  Create template for RPM SPEC file. Returns an error, if the SPEC file already
-  exists.
-
-XmlResult: status
-
-
-=== Commit changes
-
-POST /source/<project>/<package>?cmd=commit&rev=<revision>&comment=<comment>&user=<user>
-
-  Commits package changes to buildservice
-
-Parameters:
-
-  rev: revision, mandatory
-  comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
