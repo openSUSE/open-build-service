@@ -3,6 +3,7 @@ package XML::Structured;
 
 use vars qw($VERSION @ISA @EXPORT);
 
+require Exporter;
 @ISA               = qw(Exporter);
 @EXPORT            = qw(XMLin XMLinfile XMLout);
 $VERSION           = '1.0';
@@ -105,7 +106,7 @@ sub _workout {
   my $ret = "$indent<$am";
   my $inelem;
   my %d2 = %$d;
-  my $gotel;
+  my $gotel = 0;
   if ($am eq '') {
     $ret = '';
     $gotel = $inelem = 1;
@@ -125,6 +126,12 @@ sub _workout {
     $en = $en->[0] if ref($en);
     next unless exists $d2{$en};
     my $ee = _escape($en);
+    if (!ref($e) && $e eq '_content' && !$gotel) {
+      $gotel = 2;	# special marker to strip indent
+      $ret .= ">"._escape($d2{$e})."\n";
+      delete $d2{$e};
+      next;
+    }
     $ret .= ">\n" unless $gotel;
     $gotel = 1;
     if (!ref($e)) {
@@ -162,7 +169,9 @@ sub _workout {
     }
   }
   die("excess hash entries: ".join(', ', sort keys %d2)."\n") if %d2;
-  if ($gotel) {
+  if ($gotel == 2 && $ret =~ s/\n$//s) {
+    $ret .= "</$am>\n" unless $am eq '';
+  } elsif ($gotel) {
     $ret .= "$indent</$am>\n" unless $am eq '';
   } else {
     $ret .= " />\n";
