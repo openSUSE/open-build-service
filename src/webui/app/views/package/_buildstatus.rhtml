@@ -18,7 +18,7 @@
   </h3>
   <table class="grid">
     <% current_repo = nil -%>
-    <% @buildresult.each_result do |result| -%>
+    <% @buildresult.each_result.sort {|a,b| a.repository <=> b.repository}.each do |result| -%>
     <% if result.repository != current_repo -%>
     <% current_repo = result.repository -%>
     <tr>
