@@ -17,10 +17,11 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="summary" minOccurs="0"/>
-        <xs:element ref="details" minOccurs="0"/>
+        <xs:element ref="summary" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="details" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="data" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
-      <xs:attribute name="code" type="xs:string"/>
+      <xs:attribute name="code" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
 
@@ -35,9 +36,31 @@
   <xs:element name="details" type="xs:string">
     <xs:annotation>
       <xs:documentation>
-        Detailed information about the status.
+        Detailed, human readable information about the status.
       </xs:documentation>
     </xs:annotation>
+  </xs:element>
+
+  <xs:element name="data">
+    <xs:complexType>
+      <xs:annotation>
+        <xs:documentation>
+        Additional data tag that can be processed by the client. 
+        Machine readable. 
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="name" use="required">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="targetproject"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
   </xs:element>
 
 </xs:schema>
