@@ -293,7 +293,7 @@ sub reply_error  {
   my $code = 404;
   my $tag = '';
   # "parse" err string 
-  if ($err =~ /^(\d+)\s*([^\r\n]*)/) {
+  if ($err =~ /^(\d+)\s+([^\r\n]*)/) {
     $code = $1;
     $tag = $2;
   } elsif ($err =~ /^([^\r\n]+)/) {
