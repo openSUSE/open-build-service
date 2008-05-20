@@ -36,6 +36,15 @@ class SourceController < ApplicationController
         return
       end
 
+      #deny deleting if other packages use this as develproject
+      unless pro.develpackages.empty?
+        msg = "Unable to delete project #{pro.name}; following packages use this project as develproject: "
+        msg += pro.develpackages.map {|pkg| pkg.db_project.name+"/"+pkg.name}.join(", ")
+        render_error :status => 400, :errorcode => 'develproject_dependency',
+          :message => msg
+        return
+      end
+
       #find linking repos
       lreps = Array.new
       pro.repositories.each do |repo|
@@ -232,14 +241,14 @@ class SourceController < ApplicationController
         #project exists, change it
         unless @http_user.can_modify_project? @project
           logger.debug "user #{user.login} has no permission to modify project #{@project}"
-    render_error :status => 403, :errorcode => "change_project_no_permission", 
+          render_error :status => 403, :errorcode => "change_project_no_permission", 
             :message => "no permission to change project"
           return
         end
       else
         #project is new
         unless @http_user.can_create_project? project_name
-    logger.debug "Not allowed to create new project"
+          logger.debug "Not allowed to create new project"
           render_error :status => 403, :errorcode => 'create_project_no_permission',
             :message => "not allowed to create new project '#{project_name}'"
           return

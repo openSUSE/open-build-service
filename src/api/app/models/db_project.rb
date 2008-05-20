@@ -6,6 +6,8 @@ class DbProject < ActiveRecord::Base
   has_many :repositories, :dependent => :destroy
   has_many :messages, :as => :object, :dependent => :destroy
 
+  has_many :develpackages, :class_name => "DbPackage", :foreign_key => 'develproject_id'
+
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
 
@@ -84,6 +86,7 @@ class DbProject < ActiveRecord::Base
             if not Role.rolecache.has_key? person.role
               raise SaveError, "illegal role name '#{person.role}'"
             end
+
             ProjectUserRoleRelationship.create(
               :user => User.find_by_login(person.userid),
               :role => Role.rolecache[person.role],
@@ -91,10 +94,15 @@ class DbProject < ActiveRecord::Base
             )
           end
         else
+          if not Role.rolecache.has_key? person.role
+            raise SaveError, "illegal role name '#{person.role}'"
+          end
+
+          if not (user=User.find_by_login(person.userid))
+            raise SaveError, "unknown user '#{person.userid}'"
+          end
+
           begin
-            if not (user=User.find_by_login(person.userid))
-              raise SaveError, "unknown user '#{person.userid}'"
-            end
             ProjectUserRoleRelationship.create(
               :user => user,
               :role => Role.rolecache[person.role],
