@@ -2058,7 +2058,7 @@ sub select_read {
 }
 
 sub changed2lookat {
-  my ($changed, $changed_high, $lookat_oobhigh, $lookat_oob, $lookat) = @_;
+  my ($changed, $changed_high, $lookat_oobhigh, $lookat_oob, $lookat_next) = @_;
 
   push @$lookat_oobhigh, grep {$changed_high->{$_}} sort keys %$changed;
   push @$lookat_oob, grep {!$changed_high->{$_}} sort keys %$changed;
@@ -2066,35 +2066,13 @@ sub changed2lookat {
   @$lookat_oob = unify(@$lookat_oob);
   my %lookat_oobhigh = map {$_ => 1} @$lookat_oobhigh;
   @$lookat_oob = grep {!$lookat_oobhigh{$_}} @$lookat_oob;
-
-  # calculate new_lookat from changed hash
-  my @new_lookat;
   for my $prp (@prps) {
     if (!$changed->{$prp}) {
       # FIXME: aggregates do not use the full tree!
       next unless grep {$changed->{$_} && $changed->{$_} != 1} @{$prpdeps{$prp}};
     }
-    push @new_lookat, $prp;
+    $lookat_next->{$prp} = 1;
   }
-
-  # integrate new_lookat into lookat
-  my $idx = 0;
-  while (@new_lookat) {
-    while ($idx < @$lookat) {
-      last if $lookat->[$idx] eq $new_lookat[0];
-      $idx++;
-    }
-    if ($idx >= @$lookat) {
-      push @$lookat, @new_lookat;
-      last;
-    }
-    shift @new_lookat;
-  }
-
-  #if (@lookat && (@lookat_oob || @lookat_oobhigh)) {
-  #  # do not look twice in a row at the same prp
-  #  shift @lookat if (@lookat_oobhigh, @lookat_oob)[-1] eq $lookat[0];
-  #}     
   %$changed = ();
   %$changed_high = ();
 }
@@ -2138,6 +2116,7 @@ my %prpfinished;
 my %lastcheck;
 
 my @lookat;             # not so important
+my %lookat_next;	# not so important, next series
 my @lookat_oob;         # do those first (out of band)
 my @lookat_oobhigh;     # do those really first so that our users are happy
 
@@ -2225,9 +2204,14 @@ if (!$projpacks) {
 my %remotewatchers;
 my %nextmed;
 
+if (@lookat) {
+  %lookat_next = map {$_ => 1} @lookat;
+  @lookat = ();
+}
+
 while(1) {
   if (%changed) {
-    changed2lookat(\%changed, \%changed_high, \@lookat_oobhigh, \@lookat_oob, \@lookat);
+    changed2lookat(\%changed, \%changed_high, \@lookat_oobhigh, \@lookat_oob, \%lookat_next);
     next;
   }
 
@@ -2382,7 +2366,6 @@ while(1) {
     my @events = ls($myeventdir);
     @events = grep {!/^\./} @events;
     @events = sort @events;
-    my $lastevprojid;
     while (@events || @remoteevents) {
       my $ev;
       if (@events) {
@@ -2398,18 +2381,6 @@ while(1) {
         $ev = shift @remoteevents;
       }
       next unless $ev && $ev->{'type'};
-
-      if ($ev->{'project'}) {
-	if ($lastevprojid && $lastevprojid ne $ev->{'project'} && (%changed || %changed_high)) {
-	  # going to work on another project, commit changed hashes
-	  for (keys %changed_high) {
-	    next if $changed{$_} && $changed{$_} == 2;
-	    $changed{$_} = $changed_high{$_};
-	  }
-	  changed2lookat(\%changed, \%changed_high, \@lookat_oobhigh, \@lookat_oob, \@lookat);
-	}
-	$lastevprojid = $ev->{'project'};
-      }
 
       if ($ev->{'type'} eq 'built' || $ev->{'type'} eq 'import') {
 	my $job = $ev->{'job'};
@@ -2565,6 +2536,8 @@ while(1) {
       if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'dumpstate') {
 	print "exiting...\n" if $ev->{'type'} eq 'exit';
 	print "dumping scheduler state...\n" if $ev->{'type'} eq 'dumpstate';
+	my @new_lookat = @lookat;
+        push @new_lookat, grep {$lookat_next{$_}} @prps;
 	# here comes our scheduler state
 	my $schedstate = {};
 	#$schedstate->{'projpacks'} = $projpacks;
@@ -2573,7 +2546,7 @@ while(1) {
 	$schedstate->{'prps'} = \@prps;
 	$schedstate->{'changed'} = \%changed;
 	$schedstate->{'changed_high'} = \%changed_high;
-	$schedstate->{'lookat'} = \@lookat;
+	$schedstate->{'lookat'} = \@new_lookat;
 	$schedstate->{'lookat_oob'} = \@lookat_oob;
 	$schedstate->{'lookat_oobhigh'} = \@lookat_oobhigh;
 	$schedstate->{'prpfinished'} = \%prpfinished;
@@ -2630,6 +2603,13 @@ while(1) {
     }
     next;
   }
+
+  # if lookat array is empty, start new series with lookat_next
+  if (!@lookat && %lookat_next) {
+    @lookat = grep {$lookat_next{$_}} @prps;
+    %lookat_next = ();
+  }
+
   my $prp;
   if (@lookat_oobhigh) {
     $prp = shift @lookat_oobhigh;
@@ -2654,7 +2634,7 @@ while(1) {
     $prp = shift @lookat;
     print "looking at low prio $prp";
   }
-  print " (".@lookat_oobhigh."/".@lookat_oob."/".@lookat."/".@prps.")\n";
+  print " (".@lookat_oobhigh."/".@lookat_oob."/".@lookat."/".(keys %lookat_next)."/".@prps.")\n";
   delete $nextmed{$prp};
 
   my ($projid, $repoid) = split('/', $prp, 2);
