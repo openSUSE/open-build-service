@@ -796,6 +796,24 @@ div {
 }
 
 #==========================================
+# common element <oem-recovery>
+#
+div {
+	k.oem-recovery.attlist = empty
+	k.oem-recovery =
+		## For oemboot driven images: create a recovery archive yes/no
+		[
+		db:para [
+			"For oemboot driven images: create a recovery archive yes/no"
+		]
+		]
+		element oem-recovery {
+			k.oem-recovery.attlist,
+			text
+		}
+}
+
+#==========================================
 # common element <oem-boot-title>
 #
 div {
@@ -1489,6 +1507,7 @@ div {
 			k.oem-boot-title? &
 			k.oem-swapsize? &
 			k.oem-systemsize? &
+			k.oem-recovery? &
 			k.packagemanager? &
 			k.rpm-check-signatures? &
 			k.rpm-force? &

@@ -1092,6 +1092,24 @@ partition in MB. No swapspace with oem-swap set to false.</db:para>
   </div>
   <!--
     ==========================================
+    common element <oem-recovery>
+    
+  -->
+  <div>
+    <define name="k.oem-recovery.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-recovery">
+      <element name="oem-recovery">
+        <a:documentation>For oemboot driven images: create a recovery archive yes/no</a:documentation>
+        <db:para>For oemboot driven images: create a recovery archive yes/no</db:para>
+        <ref name="k.oem-recovery.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-boot-title>
     
   -->
@@ -2122,6 +2140,9 @@ and also depends of the selected image output type.</db:para>
           </optional>
           <optional>
             <ref name="k.oem-systemsize"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-recovery"/>
           </optional>
           <optional>
             <ref name="k.packagemanager"/>
