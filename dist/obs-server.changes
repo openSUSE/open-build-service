@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sat May 24 00:36:09 CEST 2008 - martin.mohring@5etech.eu
+
+- update to svn trunc -r 4026, bugfixes
+- exchanged dpkg package by deb package, provided by newer openSUSE Distros
+-------------------------------------------------------------------
 Mon May 19 19:11:22 CEST 2008 - martin.mohring@5etech.eu
 
 - update to svn trunc -r 3996, bugfixes
