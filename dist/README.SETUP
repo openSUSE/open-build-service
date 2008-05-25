@@ -231,7 +231,7 @@ the following steps:
 
  Run the frontend import script:
  # cd /srv/www/obs/frontend/script
- # ruby import
+ # RAILS_ENV="production_slave" ruby import
 
 5. Access
 =========
