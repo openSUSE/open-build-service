@@ -49,7 +49,7 @@
         :package => @package, :project => params[:project], :arch => result.arch, :repository => result.repository %></td>
     </tr>
     <% if result.has_element? :binarylist -%>
-    <% result.binarylist.each_binary do |binary| %>
+    <% result.binarylist.each_binary.sort {|a,b| a.filename <=> b.filename}.each do |binary| %>
     <tr>
       <td colspan="3"><%= link_to binary.filename, rpm_url( @project, @package,
         result.repository, result.arch, binary.filename ) %></td>
