@@ -295,10 +295,14 @@ class ApplicationController < ActionController::Base
     render :template => 'status', :status => opt[:status], :layout => false
   end
   
-  def render_ok( details='' )
+  def render_ok(opt={})
+    # keep compatible to old call style
+    opt = {:details => opt} if opt.kind_of? String
+    
     @errorcode = "ok"
     @summary = "Ok"
-    @details = details
+    @details = opt[:details] if opt[:details]
+    @data = opt[:data] if opt[:data]
     render :template => 'status', :status => 200, :layout => false
   end
   

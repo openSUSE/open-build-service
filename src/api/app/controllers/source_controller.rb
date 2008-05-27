@@ -615,14 +615,27 @@ class SourceController < ApplicationController
     prj_name = params[:project]
     pkg_name = params[:package]
 
-    pkg = DbPackage.find_by_project_and_name(prj_name, pkg_name)
+    prj = DbProject.find_by_name prj_name
+    pkg = prj.db_packages.find_by_name(pkg_name)
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{pkg_name} in project #{prj_name}"
       return
     end
 
-    prj = DbProject.find_by_name prj_name
+    # reroute if develproject is set
+    if pkg.develproject and not params[:nodevelproject]
+      prj = pkg.develproject
+      prj_name = prj.name
+      pkg = prj.db_packages.find_by_name(pkg_name)
+
+      if pkg.nil?
+        render_error :status => 404, :errorcode => 'unknown_package',
+          :message => "Unknown package #{pkg_name} in project #{prj_name}"
+        return
+      end
+    end
+ 
     oprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
     opkg_name = pkg_name
 
@@ -646,21 +659,28 @@ class SourceController < ApplicationController
         end
         oprj.save
       end
+      Project.find(oprj_name).save
     end
-    Project.find(oprj_name).save
 
     #create branch package
-    opkg = DbPackage.new(:name => opkg_name, :title => pkg.title, :description => pkg.description)
-    oprj.db_packages << opkg
+    if opkg = oprj.db_packages.find_by_name(opkg_name)
+      render_error :status => 400, :errorcode => "double_branch_package",
+        :message => "branch target package already exists: #{oprj_name}/#{opkg_name}"
+      return
+    else
+      opkg = DbPackage.new(:name => opkg_name, :title => pkg.title, :description => pkg.description)
+      oprj.db_packages << opkg
     
-    opkg.add_user @http_user, "maintainer"
-    Package.find(opkg_name, :project => oprj_name).save
+      opkg.add_user @http_user, "maintainer"
+      Package.find(opkg_name, :project => oprj_name).save
+    end
 
     #link sources
     link_data = "<link project='#{prj_name}' package='#{pkg_name}'/>"
-    Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
+    logger.debug "link_data: #{link_data}"
+    #Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
 
-    render_ok
+    render_ok :data => {:targetproject => oprj_name}
   end
 
   def valid_project_name? name
