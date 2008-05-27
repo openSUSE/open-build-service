@@ -33,17 +33,17 @@ module Suse
 
       def get_log( project, repository, package, arch )
         path = "/build/#{project}/#{repository}/#{arch}/#{package}/_log"
-        get source_host, source_port, path
+        get path
       end
 
       def get_log_chunk( project, repository, package, arch, start=0 )
         path = "/build/#{project}/#{repository}/#{arch}/#{package}/_log?nostream=1&start=#{start}"
-        get source_host, source_port, path
+        get path
       end
 
       def get_rpmlist( project, repository, package, arch )
         path = "/build/#{project}/#{repository}/#{arch}/#{package}"
-        get source_host, source_port, path
+        get path
       end
 
       def get(path, in_headers={})
