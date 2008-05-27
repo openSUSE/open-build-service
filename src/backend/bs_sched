@@ -2345,6 +2345,13 @@ while(1) {
     }
     fcntl(PING,F_SETFL,0);
   }
+
+  # if lookat array is empty, start new series with lookat_next
+  if (!@lookat && %lookat_next) {
+    @lookat = grep {$lookat_next{$_}} @prps;
+    %lookat_next = ();
+  }
+
   if (!$gotevent && !@lookat && !@lookat_oob && !@lookat_oobhigh) {
     print "waiting for an event...\n";
     my $timeout;
@@ -2602,12 +2609,6 @@ while(1) {
       $changed{$_} = $changed_high{$_};
     }
     next;
-  }
-
-  # if lookat array is empty, start new series with lookat_next
-  if (!@lookat && %lookat_next) {
-    @lookat = grep {$lookat_next{$_}} @prps;
-    %lookat_next = ();
   }
 
   my $prp;
