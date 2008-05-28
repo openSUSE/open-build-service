@@ -97,6 +97,8 @@ on this or a remote host.
       ON webclient_production.* 
       TO 'obs'@'%', 'obs'@'localhost';
 
+      FLUSH PRIVILEGES;
+
 * Configure your MySQL user and password in
   in the "production:" section of these files:
 
