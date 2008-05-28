@@ -96,7 +96,7 @@ sub mkdir_p {
 
   return 1 if -d $dir;
   my $pdir;
-  if ($dir =~ /^(.*)\//) {
+  if ($dir =~ /^(.+)\//) {
     $pdir = $1;
     mkdir_p($pdir) || return undef;
   }
