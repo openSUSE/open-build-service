@@ -13,7 +13,7 @@
 
 	<div id="search_results">
 		<table class="grid">
-			<% @packages.each do |package| -%>
+			<% @packages.sort.each do |package| -%>
 			<tr>
 			  <td><%= link_to package, :controller => 'package', :action => :show,
 			    :project=> @project, :package => package %></td>
