@@ -491,6 +491,9 @@ our $linkpatch = [
       [ 'apply' =>
 	    'name',
       ],
+      [ 'delete' =>
+	    'name',
+      ],
         'topadd',
 ];
 
