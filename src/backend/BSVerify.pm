@@ -194,10 +194,8 @@ sub verify_link {
     die("more than one type in patch\n") unless keys(%$p) == 1;
     my $type = (keys %$p)[0];
     my $pd = $p->{$type};
-    if ($type eq 'add' || $type eq 'apply') {
+    if ($type eq 'add' || $type eq 'apply' || $type eq 'delete') {
       verify_filename($pd->{'name'});
-    } elsif ($type eq 'delete') {
-      verify_filename($pd);
     } elsif ($type ne 'topadd') {
       die("unknown patch type '$type'\n");
     }
