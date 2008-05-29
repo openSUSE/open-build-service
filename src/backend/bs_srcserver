@@ -1320,7 +1320,7 @@ sub remote_getrev {
       'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/$entry->{'name'}",
       'filename' => "$srcrep/:upload/$$",
       'withmd5' => 1,
-      'receiver:application/octet-stream' => \&BSHTTP::file_receiver,
+      'receiver' => \&BSHTTP::file_receiver,
     };
     my $res = BSRPC::rpc($param, undef, "rev=$rev->{'srcmd5'}");
     die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
