@@ -228,7 +228,7 @@ sub patchspec {
   }
   my %patches;
   for (@preamble) {
-    next unless /^patch(\d*)\s*:/i;
+    next unless /^patch(\d*)\s*:/i;  
     $patches{0 + ($1 eq '' ? 0 : $1)} = $_;
   }
   my @patches = sort {$a <=> $b} keys %patches;
@@ -321,6 +321,7 @@ sub patchspec {
   rename("$dir/.patchspec$$", "$dir/$spec") || die("rename $dir/.patchspec$$ $dir/$spec: $!\n");
   return '';
 }
+# " Make emacs wired syntax highlighting happy
 
 sub topaddspec {
   my ($p, $dir, $spec) = @_;
@@ -372,7 +373,7 @@ sub applylink {
         push @patches, { 'type' => $type, 'text' => $_->{$type}};
 	$simple = 0;
       } elsif ($type eq 'delete') {
-        push @patches, { 'type' => $type, 'name' => $_->{$type}};
+        push @patches, { 'type' => $type, %{$_->{$type} || {}}};
 	push @simple_delete, $_->{$type};
       } else {
         push @patches, { 'type' => $type, %{$_->{$type} || {}}};
@@ -1713,7 +1714,7 @@ sub keeplink {
   }
   my $lchanged;
   for (@dfiles) {
-    push @{$l->{'patches'}->{''}}, {'delete' => $_};
+    push @{$l->{'patches'}->{''}}, {'delete' => {'name' => $_}};
     $lchanged = 1;
   }
   if (-s "$srcrep/:upload/$$") {
@@ -2177,7 +2178,6 @@ sub search_pack {
   $match =~ s/^\[(.*)\]$/$1/s;
   my $data = [];
   for my $projid (findprojects()) {
-    my $proj = readproj($projid);
     my @packages = findpackages($projid);
     for my $packid (@packages) {
       my $pack = readpack($projid, $packid);
@@ -2232,7 +2232,6 @@ sub search {
     }
   } elsif ($in eq 'packages') {
     for my $projid (findprojects()) {
-      my $proj = readproj($projid);
       my @packages = findpackages($projid);
       for my $packid (@packages) {
         my $pack = readpack($projid, $packid);

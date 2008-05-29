@@ -153,7 +153,7 @@ sub server {
   # intialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
-  BSServer::msg("$name started");
+  BSServer::msg("$name started on port $conf->{port}");
   my @forks;
   if ($conf->{'fork'}) {
     for my $h (@{$conf->{'fork'}}) {
