@@ -624,7 +624,7 @@ class SourceController < ApplicationController
     end
 
     # reroute if develproject is set
-    if pkg.develproject and not params[:nodevelproject]
+    if pkg.develproject and not params[:ignoredevel]
       prj = pkg.develproject
       prj_name = prj.name
       pkg = prj.db_packages.find_by_name(pkg_name)

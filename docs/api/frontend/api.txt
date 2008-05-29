@@ -215,6 +215,15 @@ POST /source/<project>/<package>?cmd=branch
 XmlResult: status
 
 
+POST /source/<project>/<package>?cmd=branch&ignoredevel
+
+  Create a source link from a package of an existing project to a 
+  new subproject of the requesters home project (home:<user>:branches:<project>).
+  A possible defined devel project in he package meta data gets ignored.
+
+XmlResult: status
+
+
 POST /source/<project>/<package>?cmd=createSpecFileTemplate
 
   Create template for RPM SPEC file. Returns an error, if the SPEC file already
