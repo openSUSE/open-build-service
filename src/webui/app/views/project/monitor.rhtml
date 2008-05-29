@@ -79,6 +79,16 @@
   <% end -%>
 </table>
 <p><div id="refresh_date">Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></div></p>
+<p><div id="agenda"><b>Agenda</b>:
+<br>succeeded -- Package has build successfull and can be used to build further packages.</br>
+<br>failed -- The package does not build successfull. No package has been created. A possibly former built package will be used to build dependending packages.</br>
+<br>expansion error -- The build can not get started, because required packages are either missing or not explicit defined.</br>
+<br>blocked -- This package waits for other packages to be build. These can be in the same or other project. </br>
+<br>scheduled -- A package has been marked for build, but the build has not started yet. </br>
+<br>building -- The package is currently building. </br>
+<br>dispatching -- A package gets currently copied to a build host. This is an intermediate state before building. </br>
+<br>finished -- The package has been build, but has not yet been picked up by the server. This is an intermediate state to succeeded or failed. </br>
+</div></p>
 
 <div id="start_link">
 </div>
