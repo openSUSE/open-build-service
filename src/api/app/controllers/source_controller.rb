@@ -623,7 +623,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # reroute if develproject is set
+    # reroute if devel project is set
     if pkg.develproject and not params[:ignoredevel]
       prj = pkg.develproject
       prj_name = prj.name
@@ -678,7 +678,7 @@ class SourceController < ApplicationController
     #link sources
     link_data = "<link project='#{prj_name}' package='#{pkg_name}'/>"
     logger.debug "link_data: #{link_data}"
-    #Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
+    Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
 
     render_ok :data => {:targetproject => oprj_name}
   end
