@@ -10,6 +10,7 @@
 <h2>Add Repository (Project <%=h @project%>)</h2>
 
 <ul>
+  <li><%= simple_repo_button_to "openSUSE 11.0", :reponame => "openSUSE_11.0", :repo => 'openSUSE:11.0/standard', :arch => [:i586, :x86_64] %></li>
   <li><%= simple_repo_button_to "openSUSE 10.3", :reponame => "openSUSE_10.3", :repo => 'openSUSE:10.3/standard', :arch => [:i586, :x86_64] %></li>
   <li><%= simple_repo_button_to "openSUSE 10.2", :reponame => "openSUSE_10.2", :repo => 'openSUSE:10.2/standard', :arch => [:i586, :x86_64] %></li>
   <li><%= simple_repo_button_to "SLE 10", :reponame => "SLE_10", :repo => 'SUSE:SLE-10:SDK/standard', :arch => [:i586, :x86_64] %></li>
