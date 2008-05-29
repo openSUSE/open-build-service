@@ -79,7 +79,7 @@
   <% end -%>
 </table>
 <p><div id="refresh_date">Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></div></p>
-<p><div id="agenda"><b>Agenda</b>:
+<p><div id="legend"><b>Legend</b>:
 <br>succeeded -- Package has build successfull and can be used to build further packages.</br>
 <br>failed -- The package does not build successfull. No package has been created. A possibly former built package will be used to build dependending packages.</br>
 <br>expansion error -- The build can not get started, because required packages are either missing or not explicit defined.</br>
