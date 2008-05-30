@@ -881,7 +881,7 @@ while(1) {
   # drain ping pipe
   my $dummy;
   fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
-  1 while sysread(PING, $dummy, 1024, 0) > 0;
+  1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
   fcntl(PING,F_SETFL,0);
 
   # check for events
