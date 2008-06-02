@@ -1,0 +1,37 @@
+<% @pagetitle = "New Package" %>
+
+<h2><%= @wizard.label %></h2>
+<p><%= @wizard.legend %></p>
+<%
+  if @wizard.last == "true"
+    action = "show"
+    submit = "Finish"
+  else
+    action = "wizard"
+    submit = "Next"
+  end
+%>
+<% form_tag({:action => action}, {:multipart => true}) do %>
+  <% @wizard.each_entry do |entry| %>
+    <p>
+    <b><label for="wizard[<%= entry.name %>]"><%= entry.label %></label></b><br/>
+    <%= typ3 = entry.data.attributes["type"] # entry.type would call Oject#type
+        case typ3
+        when "text":
+          text_field_tag("wizard[#{entry.name}]", entry.value)
+        when "longtext":
+          text_area_tag("wizard[#{entry.name}]", entry.value)
+        when "file":
+          file_field_tag("wizard_files[#{entry.name}]")
+        else
+          raise RuntimeError.new("WizardError: unknown entry type #{typ3}")
+        end
+    %>
+    <br/>
+    <i><%= entry.legend %></i>
+    </p>
+  <% end %>
+  <%= submit_tag(submit) %>
+  <%= hidden_field_tag 'project', @project.name %>
+  <%= hidden_field_tag 'package', @package.name %>
+<% end %>

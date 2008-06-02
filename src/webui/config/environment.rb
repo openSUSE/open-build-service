@@ -102,6 +102,8 @@ ActiveXML::Base.config do |conf|
 
     map.connect :architecture, "rest:///architecture"
 
+    map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
+
     ##DEPRECATED
     map.connect :platform, "rest:///platform/:project/:name",
         :all => "rest:///platform/"

@@ -1,0 +1,14 @@
+xml.instruct!
+xml.wizard("last" => @wizard_form.last ? "true" : "false") do
+  xml.label(@wizard_form.label)
+  xml.legend(@wizard_form.legend)
+  @wizard_form.entries.each do |entry|
+    xml.entry("name" => entry.name, "type" => entry.type) do
+      xml.label(entry.label)
+      xml.legend(entry.legend)
+      xml.value(entry.value)
+    end
+  end
+end
+
+# vim:et:ts=2:sw=2

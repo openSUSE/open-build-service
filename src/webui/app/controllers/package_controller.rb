@@ -157,6 +157,54 @@ class PackageController < ApplicationController
     @project = Project.find( params[:project] )
   end
 
+  def wizard_new
+    @project = Project.find( params[:project] )
+    if params[:name]
+      if !valid_package_name? params[:name]
+        flash[:error] = "Invalid package name: '#{params[:name]}'"
+        redirect_to :action => 'wizard_new', :project => params[:project]
+      else
+        @package = Package.new( :name => params[:name], :project => @project )
+        if @package.save
+          redirect_to :action => 'wizard', :project => params[:project], :package => params[:name]
+        else
+          flash[:note] = "Failed to save package '#{@package}'"
+          redirect_to :controller => 'project', :action => 'show', :project => params[:project]
+        end
+      end
+    end
+  end
+
+  def wizard
+    @project = Project.find( params[:project] )
+    @package = Package.find( params[:package], :project => params[:project] )
+    files = params[:wizard_files]
+    fnames = {}
+    if files
+      logger.debug "files: #{files.inspect}"
+      files.each_key do |key|
+        file = files[key]
+        next if ! file.respond_to?(:original_filename)
+        fname = file.original_filename
+        fnames[key] = fname
+        # TODO: reuse code from PackageController#save_file and add_file.rhtml
+        # to also support fetching remote urls
+        @package.save_file :file => file, :filename => fname
+      end
+    end
+    other = params[:wizard]
+    if other
+      response = other.merge(fnames)
+    elsif ! fnames.empty?
+      response = fnames
+    else
+      response = nil
+    end
+    @wizard = Wizard.find(:project => params[:project],
+                          :package => params[:package],
+                          :response => response)
+  end
+
   def edit
     @project = Project.find( params[:project] )
     @package = Package.find( params[:package], :project => params[:project] )
@@ -801,3 +849,5 @@ class PackageController < ApplicationController
 
 
 end
+
+# vim:et:ts=2:sw=2
