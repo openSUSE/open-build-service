@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Jun  2 21:14:03 CEST 2008 - martin.mohring@5etech.eu
+
+- update to svn trunc -r 4074, bugfixes
+- added file of the spec file wizard now added
+- new debtransform features
+- build now has opensuse 11.0 config
+- osc develproj and branch support
+-------------------------------------------------------------------
 Sat May 24 00:36:09 CEST 2008 - martin.mohring@5etech.eu
 
 - update to svn trunc -r 4026, bugfixes

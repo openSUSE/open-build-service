@@ -246,6 +246,7 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/frontend/components
 /srv/www/obs/frontend/db
 /srv/www/obs/frontend/doc
+/srv/www/obs/frontend/files
 /srv/www/obs/frontend/lib
 /srv/www/obs/frontend/public
 /srv/www/obs/frontend/Rakefile
