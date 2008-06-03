@@ -226,6 +226,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/bs_*
 /usr/lib/obs/server/build
 /usr/lib/obs/server/worker
+/usr/lib/obs/server/BSHermes.pm
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
 
