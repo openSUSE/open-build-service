@@ -354,11 +354,22 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><optional><option>--rebuiltbootimage
+        <term><optional><option>--prebuiltbootimage
           <replaceable>Directory</replaceable></option></optional></term>
         <listitem>
           <para>Search in <replaceable>Directory</replaceable> for
             pre-built boot images.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><optional><option>--isocheck</option></optional></term>
+        <listitem>
+          <para>
+            in case of an iso image the checkmedia program generates
+			a md5sum into the iso header. If the --isocheck option is
+			specified a new boot menu entry will be generated which
+			allows to check this media
+          </para>
         </listitem>
       </varlistentry>      
     </variablelist>    
