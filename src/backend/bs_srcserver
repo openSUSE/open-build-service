@@ -46,6 +46,7 @@ use BSXPath;
 use BSStdServer;
 use BSSrcdiff;
 use Build;
+use BSHermes;
 
 use BSXPath;
 use BSXPathKeys;
@@ -147,10 +148,12 @@ sub addrev {
   if ($packid eq '_pattern') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'pattern');
     notify_repservers('project', $projid);
+
     return {'rev' => 'pattern', 'srcmd5' => $srcmd5};
   }
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
+    BSHermes::notify( "SRCSRV_UPLOAD", { "project" => $projid, "package" => $packid, "files" => $files } );
     return {'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
@@ -186,8 +189,12 @@ sub addrev {
   my $srcmd5 = addmeta($projid, $packid, $files);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release};
   $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $version);
+  BSHermes::notify( "SRCSRV_COMMIT", {"project" => $projid, "package" => $packid, "files" => $files} );
+
   # kill upload revision as we did a real commit
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
+  # XXX: Hermes?
+
   notify_repservers('package', $projid, $packid);
   return $rev;
 }
@@ -1125,6 +1132,8 @@ sub putproject {
     createkey({}, $projid) if $sk eq '';
   }
   notify_repservers('project', $projid);
+  BSHermes::notify( "SRCSRV_UPDATE_PROJECT", { "project" => $projid } );
+
   $proj = readproj($projid);
   return ($proj, $BSXML::proj);
 }
@@ -1143,6 +1152,9 @@ sub delproject {
   unlink("$projectsdir/$projid.conf");
   unlink("$projectsdir/$projid.xml");
   notify_repservers('project', $projid);
+
+  BSHermes::notify( "SRCSRV_DELETE_PROJECT", { "project" => $projid } );
+
   return $BSStdServer::return_ok;
 }
 
@@ -1201,6 +1213,8 @@ sub delpackage {
   unlink("$projectsdir/$projid.pkg/$packid.rev");
   unlink("$projectsdir/$projid.pkg/$packid.xml");
   notify_repservers('package', $projid, $packid);
+  BSHermes::notify( "SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid } );
+
   return $BSStdServer::return_ok;
 }
 
@@ -1435,6 +1449,8 @@ sub putprojectconfig {
     unlink("$projectsdir/$projid.conf") || die("unlink $projectsdir/$projid.conf: $!\n");
   }
   notify_repservers('project', $projid);
+  BSHermes::notify( "SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid } );
+
   return $BSStdServer::return_ok;
 }
 
@@ -2362,6 +2378,7 @@ sub putrequest {
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   writereq($oreq, $req);
+  BSHermes::notify( "SRCSRV_REQUEST_CHANGE", $req );
   return $BSStdServer::return_ok;
 }
 
@@ -2400,6 +2417,7 @@ sub createrequest {
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   $req->{'id'} = nextreqid();
   writereq(undef, $req);
+  BSHermes::notify( "SRCSRV_REQUEST_CREATE", $req );
   return ($req, $BSXML::request);
 }
 
@@ -2420,13 +2438,16 @@ sub postrequest {
   die("no such request '$id'\n") unless $oreq;
   my $req = Storable::dclone($oreq);	# deep clone
   die unless $req->{'id'} eq $id;
-  push @{$req->{'history'}}, $req->{'state'};
+  my $oldstate = $req->{'state'};
+  push @{$req->{'history'}}, $oldstate;
   $req->{'state'} = {'name' => $cgi->{'newstate'}};
   $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
   $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   writereq($oreq, $req);
+  $req->{'oldstate'} = $oldstate;
+  BSHermes::notify( "SRCSRV_REQUEST_STATECHANGE", $req );
   return $BSStdServer::return_ok;
 }
 
@@ -2436,6 +2457,7 @@ sub delrequest {
   die("no such request '$id'\n") unless $oreq;
   die unless $oreq->{'id'} eq $id;
   writereq($oreq, undef);
+  BSHermes::notify( "SRCSRV_REQUEST_DELETE", $oreq );
   return $BSStdServer::return_ok;
 }
 
@@ -2852,4 +2874,8 @@ my $aconf = {
   'setkeepalive' => 1,
 };
 
+BSHermes::notify( "SRCSRV_START", $conf );
+				 
+
 BSStdServer::server('bs_srcserver', \@ARGV, $conf, $aconf);
+

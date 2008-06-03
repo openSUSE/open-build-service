@@ -23,6 +23,8 @@
 package BSConfig;
 
 use Net::Domain;
+use BSServer;
+
 my $hostname = Net::Domain::hostfqdn();
 $hostname = "localhost" unless defined($hostname);
 
@@ -30,6 +32,8 @@ $hostname = "localhost" unless defined($hostname);
 our $srcserver = "http://$hostname:6362";
 our $reposerver = "http://$hostname:6262";
 our $repodownload = "http://$hostname/repositories";
+our $hermesserver = "http://$hostname/hermes";
+our $hermesnamespace = "OBS";
 
 # For the workers only, it is possible to define multiple repository servers here.
 # But only one source server is possible yet.
@@ -49,5 +53,24 @@ our $bsgroup = 'obsrun';
 
 #No package signing server
 #our $sign = '/root/bin/sign';
+
+# host specific configs
+my $hostconfig = "bsconfig." . Net::Domain::hostname();
+# print STDERR "TRYING TO READ CONFIG <$hostconfig>\n";
+
+if( -r $hostconfig ) {
+  my $return = do $hostconfig;
+  if( $return ) {
+    BSServer::msg( "Read local config <$hostconfig>" );
+  } else {
+    if( $@ ) {
+      warn( "Cannot compile $hostconfig: $@" );
+    } elsif( $! ) {
+      warn( "Cannot read $hostconfig: $!" );
+    } else {
+      warn( "Cannot find $hostconfig" );
+    }
+  }
+}
 
 1;

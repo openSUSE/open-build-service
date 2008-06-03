@@ -54,6 +54,27 @@ sub urlencode {
   return $url;
 }
 
+#
+# handled paramters:
+# timeout
+# uri
+# data
+# headers (array)
+# chunked
+# request
+# verbatim_uri
+# socket
+# https
+# continuation
+# verbose
+# sender
+# async
+# replyheaders
+# receiver
+# ignorestatus
+# replydtd
+#
+
 sub rpc {
   my ($uri, $xmlargs, @args) = @_;
 
