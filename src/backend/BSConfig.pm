@@ -32,8 +32,8 @@ $hostname = "localhost" unless defined($hostname);
 our $srcserver = "http://$hostname:6362";
 our $reposerver = "http://$hostname:6262";
 our $repodownload = "http://$hostname/repositories";
-our $hermesserver = "http://$hostname/hermes";
-our $hermesnamespace = "OBS";
+#our $hermesserver = "http://$hostname/hermes";
+#our $hermesnamespace = "OBS";
 
 # For the workers only, it is possible to define multiple repository servers here.
 # But only one source server is possible yet.
