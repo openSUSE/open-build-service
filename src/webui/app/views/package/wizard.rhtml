@@ -1,7 +1,7 @@
 <% @pagetitle = "New Package" %>
 
 <h2><%= @wizard.label %></h2>
-<p><%= @wizard.legend %></p>
+<p><%= @wizard.legend.to_s.gsub(URI.regexp, '<a href="\0">\0</a>') %></p>
 <%
   if @wizard.last == "true"
     action = "show"
@@ -28,7 +28,7 @@
         end
     %>
     <br/>
-    <i><%= entry.legend %></i>
+    <i><%= entry.legend.to_s.gsub(URI.regexp, '<a href="\0">\0</a>') %></i>
     </p>
   <% end %>
   <%= submit_tag(submit) %>
