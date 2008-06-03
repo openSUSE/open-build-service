@@ -8,7 +8,7 @@ Summary:        @summary@
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
-@description@
+@description-wrapped@
 
 %prep
 %setup
