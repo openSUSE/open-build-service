@@ -37,12 +37,13 @@ sub notify($$) {
   $type = "UNKNOWN" unless $type;
   # prepend something BS specific
   my $prefix = $BSConfig::hermesnamespace || "OBS";
-  $type =  $prefix . "_" . $type;
+  $type =  "${prefix}_$type";
 
   push @args, "type=$type";
 
   if ($paramRef) {
     for my $key (sort keys %$paramRef) {
+      next if ref $paramRef->{$key};
       push @args, "$key=$paramRef->{$key}";
     }
   }
@@ -58,8 +59,7 @@ sub notify($$) {
   eval {
     BSRPC::rpc( $param, undef, @args );
   };
-  print "warning Hermes: $@\n" if ( $@ );
+  warn("Hermes: $@") if $@;
 }
 
 1;
-

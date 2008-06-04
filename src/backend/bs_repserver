@@ -59,6 +59,7 @@ use BSXPath;
 use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
+use BSHermes;
 
 use strict;
 
@@ -707,6 +708,15 @@ sub putjob {
   my $ev = {'type' => 'built', 'job' => $job};
   writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
   ping($arch);
+
+  my $success = 0;
+  for my $file (@$uploaded) {
+    next unless $file->{'name'} =~ /\.(?:rpm|deb|iso)$/;
+    $success = 1;
+    last;
+  }
+  BSHermes::notify($success ? "BUILD_SUCCESS" :  "BUILD_FAIL", $info);
+
   return $BSStdServer::return_ok;
 }
 
