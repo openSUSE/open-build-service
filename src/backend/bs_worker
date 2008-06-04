@@ -35,7 +35,6 @@ use BSUtil;
 use BSXML;
 use BSHTTP;
 use BSBuild;
-use BSHermes;
 
 use strict;
 
@@ -575,7 +574,6 @@ sub dobuild {
     push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
     push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";
     if (system(@args)) {
-	BSHermes::notify( "BSWORKER_BUILD_FAIL", $buildinfo );
       print "build failed\n";
       return 1;
     }
@@ -584,8 +582,6 @@ sub dobuild {
     print "build succeeded, but no logfile?\n";
     return 1;
   }
-
-  BSHermes::notify( "BSWORKER_BUILD_SUCCESS", $buildinfo );
 
   print "build succeeded\n";
   if ($xen) {
