@@ -42,6 +42,19 @@ class PersonController < ApplicationController
                 return
               end
             end
+            if !user and @http_user.is_admin?
+              user = User.create( 
+                     :login => login,
+                     :password => "notset",
+                     :password_confirmation => "notset",
+                     :email => "TEMP" )
+              user.state = "locked"
+            else
+                logger.debug "User has no permission to create new user"
+                render_error :status => 403, :errorcode => 'create_user_no_permission',
+                  :message => "no permission to create new user #{user.login}"
+                return
+            end
           end
         
           xml = REXML::Document.new( request.raw_post )
