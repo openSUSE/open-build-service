@@ -1,9 +1,9 @@
 Name:           <%= @wizard_state.get_data("name") %>
-# List of aditional build dependencies
+# List of additional build dependencies
 #BuildRequires:  gcc-c++ libxml2-devel
 Version:        <%= @wizard_state.get_data("version") %>
 Release:        1
-License:        GPL
+License:        <%= @wizard_state.get_data("license") %>
 Source:         <%= @wizard_state.get_data("tarball") %>
 Group:          <%= @wizard_state.get_data("group") %>
 Summary:        <%= @wizard_state.get_data("summary") %>
