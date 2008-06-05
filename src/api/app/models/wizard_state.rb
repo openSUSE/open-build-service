@@ -1,40 +1,58 @@
-class WizardState
+require 'rexml/document'
 
-  attr_reader(:dirty)
+# Stores two kinds of information: data and guesses
+# wizard_state.data[key] reads or stores data
+# wizard_state.guess[key] reads or stores guesses
+# wizard_state.[key] returns data or guess
+# wizard_state.dirty returns true if either data or guess were modified
+# wizard_state.serialize stores data & guesses as XML
+class WizardState
+  class Table
+    attr_reader(:dirty)
+
+    def initialize(hash = {})
+      @table = hash
+      @dirty = false
+    end
+
+    def [](key)
+      @table[key]
+    end
+
+    def []=(key, value)
+      if @table[key] != value
+        @table[key] = value
+        @dirty = true
+      end
+    end
+
+    def each(&block)
+      @table.each(&block)
+    end
+  end
+
+  attr_reader(:data, :guess)
 
   def initialize(text = "")
-    @data = {}
-    @guess = {}
-    @dirty = false
+    data = {}
+    guess = {}
     xml = REXML::Document.new(text)
     xml.elements.each("wizard/data") do |element|
-      @data[element.attributes["name"]] = element.text
+      data[element.attributes["name"]] = element.text
     end
     xml.elements.each("wizard/guess") do |element|
-      @guess[element.attributes["name"]] = element.text
+      guess[element.attributes["name"]] = element.text
     end
+    @data = Table.new(data)
+    @guess = Table.new(guess)
   end
 
-  def store(name, value)
-    if @data[name] != value
-      @data[name] = value
-      @dirty = true
-    end
-  end
-
-  def store_guess(name, value)
-    if @guess[name] != value
-      @guess[name] = value
-      @dirty = true
-    end
-  end
-
-  def get(name)
+  def [](name)
     return @data[name] || @guess[name]
   end
 
-  def get_data(name)
-    return @data[name]
+  def dirty
+    return @data.dirty || @guess.dirty
   end
 
   def serialize
@@ -56,7 +74,6 @@ class WizardState
     xml.write(res)
     return res
   end
-
 end
 
 # vim:et:ts=2:sw=2

@@ -1,16 +1,16 @@
-Name:           <%= @wizard_state.get_data("name") %>
+Name:           <%= @wizard_state["name"] %>
 # List of additional build dependencies
 #BuildRequires:  gcc-c++ libxml2-devel
-Version:        <%= @wizard_state.get_data("version") %>
+Version:        <%= @wizard_state["version"] %>
 Release:        1
-License:        <%= @wizard_state.get_data("license") %>
-Source:         <%= @wizard_state.get_data("tarball") %>
-Group:          <%= @wizard_state.get_data("group") %>
-Summary:        <%= @wizard_state.get_data("summary") %>
+License:        <%= @wizard_state["license"] %>
+Source:         <%= @wizard_state["tarball"] %>
+Group:          <%= @wizard_state["group"] %>
+Summary:        <%= @wizard_state["summary"] %>
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
-<%= @wizard_state.get_data("description").gsub(/([^\n]{1,70})([ \t]+|\n|$)/, "\\1\n") %>
+<%= @wizard_state["description"].gsub(/([^\n]{1,70})([ \t]+|\n|$)/, "\\1\n") %>
 
 %prep
 %setup
@@ -38,9 +38,9 @@ rm -rf %buildroot
 %files -f filelist
 %defattr(-,root,root)
 # This is a place for a proper filelist:
-# /usr/bin/<%= @wizard_state.get_data("name") %>
+# /usr/bin/<%= @wizard_state["name"] %>
 # You can also use shell wildcards:
-# /usr/share/<%= @wizard_state.get_data("name") %>/*
+# /usr/share/<%= @wizard_state["name"] %>/*
 # This installs documentation files from the top build directory
 # into /usr/share/doc/...
 # %doc README COPYING
@@ -50,4 +50,4 @@ rm -rf %buildroot
 
 %changelog
 * <%= Date.today.strftime("%a %b %d %Y") %> <%= @http_user.email %>
-- packaged <%= @wizard_state.get_data("name") %> version <%= @wizard_state.get_data("version") %> using the buildservice spec file wizard
+- packaged <%= @wizard_state["name"] %> version <%= @wizard_state["version"] %> using the buildservice spec file wizard
