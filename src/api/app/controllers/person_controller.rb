@@ -49,11 +49,6 @@ class PersonController < ApplicationController
                      :password_confirmation => "notset",
                      :email => "TEMP" )
               user.state = "locked"
-            else
-                logger.debug "User has no permission to create new user"
-                render_error :status => 403, :errorcode => 'create_user_no_permission',
-                  :message => "no permission to create new user #{user.login}"
-                return
             end
           end
         
