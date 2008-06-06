@@ -6,7 +6,7 @@ class Project < ActiveXML::Base
 
   attr_accessor :build_flags
   attr_accessor :publish_flags
-  attr_accessor :debug_flags
+  attr_accessor :debuginfo_flags
   attr_accessor :useforbuild_flags
 
   attr_accessor :bf_updated
@@ -99,8 +99,8 @@ class Project < ActiveXML::Base
   end
 
   
-  def set_debugflags(flags_as_hash)
-    self.debug_flags = flags_as_hash
+  def set_debuginfoflags(flags_as_hash)
+    self.debuginfo_flags = flags_as_hash
   end
 
 
@@ -133,15 +133,15 @@ class Project < ActiveXML::Base
   end
   
   
-  def debugflags
-    if self.df_updated.nil? or self.debug_flags.nil?
+  def debuginfoflags
+    if self.df_updated.nil? or self.debuginfo_flags.nil?
       self.df_updated = true
-      create_flag_matrix(:flagtype => 'debug')
-      update_flag_matrix(:flagtype => 'debug')
+      create_flag_matrix(:flagtype => 'debuginfo')
+      update_flag_matrix(:flagtype => 'debuginfo')
 
     end
 
-    return debug_flags
+    return debuginfo_flags
   end  
 
 

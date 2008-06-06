@@ -64,6 +64,7 @@ module ApplicationHelper
       return
     end
 
+      logger.error "Controller given for get_frontend_url_for()."
     return "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
   end
 

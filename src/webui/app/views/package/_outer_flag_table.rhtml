@@ -19,13 +19,13 @@
 				buildflag = @package.buildflags[key]
 				publishflag = @package.publishflags[key]
 				if flags_for_experts then
-					debugflag = @package.debugflags[key] 
+					debuginfoflag = @package.debuginfoflags[key] 
 					useforbuildflag = @package.useforbuildflags[key]
 				end
 			%>
 			<%= render :partial => "inner_flag_table",
 				:locals => {:buildflag => buildflag, :publishflag => publishflag,
-					:debugflag => debugflag, :useforbuildflag => useforbuildflag,
+					:debuginfoflag => debuginfoflag, :useforbuildflag => useforbuildflag,
 					:flags_for_experts => flags_for_experts }
 			%>
 		</td>
@@ -37,13 +37,13 @@
 				buildflag = @package.buildflags[key]
 				publishflag = @package.publishflags[key]
 				if flags_for_experts then
-					debugflag = @package.debugflags[key] 
+					debuginfoflag = @package.debuginfoflags[key] 
 					useforbuildflag = @package.useforbuildflags[key]
 				end
 			%>
 			<%= render :partial => "inner_flag_table",
 				:locals => {:buildflag => buildflag, :publishflag => publishflag,
-				:debugflag => debugflag, :useforbuildflag => useforbuildflag,
+				:debuginfoflag => debuginfoflag, :useforbuildflag => useforbuildflag,
 				:flags_for_experts => flags_for_experts }
 			%>
 			</td>
@@ -61,13 +61,13 @@
 				buildflag = @package.buildflags[key]
 				publishflag = @package.publishflags[key]
 				if flags_for_experts then
-					debugflag = @package.debugflags[key] 
+					debuginfoflag = @package.debuginfoflags[key] 
 					useforbuildflag = @package.useforbuildflags[key]
 				end 
 			%>
 			<%= render :partial => "inner_flag_table",
 				:locals => {:buildflag => buildflag, :publishflag => publishflag,
-				:debugflag => debugflag, :useforbuildflag => useforbuildflag,
+				:debuginfoflag => debuginfoflag, :useforbuildflag => useforbuildflag,
 				:flags_for_experts => flags_for_experts }
 			%>
 		</td>
@@ -78,7 +78,7 @@
 					buildflag = @package.buildflags[key]
 					publishflag = @package.publishflags[key]
 					if flags_for_experts then
-						debugflag = @package.debugflags[key] 
+						debuginfoflag = @package.debuginfoflags[key] 
 						useforbuildflag = @package.useforbuildflags[key]
 					end
 					
@@ -87,12 +87,12 @@
 					if !flags_for_experts and (buildflag.nil? or publishflag.nil?) %>
 						n/a
 				<%	elsif flags_for_experts and (buildflag.nil? or publishflag.nil? or
-						debugflag.nil? or useforbuildflag.nil?) %>
+						debuginfoflag.nil? or useforbuildflag.nil?) %>
 							n/a
 				<%	else %>
 				<%=		render :partial => "inner_flag_table",
 						:locals => {:buildflag => buildflag, :publishflag => publishflag,
-						:debugflag => debugflag, :useforbuildflag => useforbuildflag,
+						:debuginfoflag => debuginfoflag, :useforbuildflag => useforbuildflag,
 						:flags_for_experts => flags_for_experts }
 				%>	
 				<%	end %>

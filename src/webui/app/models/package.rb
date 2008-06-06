@@ -12,7 +12,7 @@ class Package < ActiveXML::Base
   #flags
   attr_accessor :build_flags
   attr_accessor :publish_flags
-  attr_accessor :debug_flags
+  attr_accessor :debuginfo_flags
   attr_accessor :useforbuild_flags
 
   attr_accessor :bf_updated
@@ -77,8 +77,8 @@ class Package < ActiveXML::Base
   end
 
 
-  def set_debugflags(flags_as_hash)
-    self.debug_flags = flags_as_hash
+  def set_debuginfoflags(flags_as_hash)
+    self.debuginfo_flags = flags_as_hash
   end
 
  
@@ -109,14 +109,14 @@ class Package < ActiveXML::Base
   end
 
 
-  def debugflags
-    unless self.df_updated == true or not self.debug_flags.nil?
+  def debuginfoflags
+    unless self.df_updated == true or not self.debuginfo_flags.nil?
       self.df_updated = true
-      create_flag_matrix(:flagtype => 'debug')
-      update_flag_matrix(:flagtype => 'debug')
+      create_flag_matrix(:flagtype => 'debuginfo')
+      update_flag_matrix(:flagtype => 'debuginfo')
     end
 
-    return debug_flags
+    return debuginfo_flags
   end
 
   
