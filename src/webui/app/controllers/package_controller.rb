@@ -233,12 +233,6 @@ class PackageController < ApplicationController
         #@project.add_package @package
 
         if @package.save #and @project.save
-          if params[:createSpecFileTemplate]
-            logger.debug( "CREATE SPEC FILE TEMPLATE" )
-            frontend.cmd_package( @project, @package.name,
-              "createSpecFileTemplate" )
-          end
-
           flash[:note] = "Package '#{@package}' was created successfully"
           redirect_to :action => 'show', :project => params[:project], :package => params[:name]
         else

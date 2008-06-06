@@ -16,7 +16,6 @@
 <%= text_field_tag 'title', '', :size => 80 %><br/>
 <b>Description:</b><br/>
 <%= text_area_tag 'description', '', :cols => 80, :rows => 10 %><br/>
-<%= check_box_tag "createSpecFileTemplate", 1, false %>Create RPM SPEC file template
 <p><%= submit_tag %></p>
 <%= hidden_field_tag 'project', @project.name %>
 <% end %>
