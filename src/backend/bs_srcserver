@@ -2092,6 +2092,30 @@ sub putbinary {
 sub getlogfile {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
+
+  if (!$cgi->{'start'}) {
+    # check if the package is broken
+    my $rev = getrev($projid, $packid, 'build');
+    if ($rev) {
+      my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+      if (ref($files) && $files->{'_link'}) {
+	my %lrev = %$rev;
+        $lrev{'name'} = $packid;
+        $files = handlelinks($projid, \%lrev, $files, $rev);
+	if (!ref $files) {
+	  my $error = "$files\n";
+	  if ($lrev{'srcmd5'}) {
+	    $files = lsrep($projid, $packid, $lrev{'srcmd5'});
+	    if ($files->{'_linkerror'}) {
+	      $error = readstr("$srcrep/$packid/$files->{'_linkerror'}-_linkerror", 1);
+	    }
+	  }
+	  return $error;
+	}
+      }
+    }
+  }
+
   my @args = ();
   push @args, 'nostream' if $cgi->{'nostream'};
   push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
