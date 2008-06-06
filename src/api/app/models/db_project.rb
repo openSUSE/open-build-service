@@ -17,7 +17,7 @@ class DbProject < ActiveRecord::Base
   has_many :flags
   has_many :publish_flags,  :order => :position
   has_many :build_flags,  :order => :position
-  has_many :debug_flags,  :order => :position
+  has_many :debuginfo_flags,  :order => :position
   has_many :useforbuild_flags,  :order => :position
 
   class << self
@@ -132,7 +132,7 @@ class DbProject < ActiveRecord::Base
       # and recreate the flag groups and flags again
       flag_compatibility_check( :project => project )
 
-      ['build', 'publish', 'debug', 'useforbuild'].each do |flagtype|
+      ['build', 'publish', 'debuginfo', 'useforbuild'].each do |flagtype|
         update_flags( :project => project, :flagtype => flagtype )
       end
 
@@ -334,10 +334,10 @@ class DbProject < ActiveRecord::Base
         end
       end
 
-      unless self.debug_flags.empty?
-        project.debug do
-          self.debug_flags.each do |debug_flag|
-          project << debug_flag.to_xml.to_s + "\n"
+      unless self.debuginfo_flags.empty?
+        project.debuginfo do
+          self.debuginfo_flags.each do |debuginfo_flag|
+          project << debuginfo_flag.to_xml.to_s + "\n"
           end
         end
       end
@@ -433,8 +433,8 @@ class DbProject < ActiveRecord::Base
         flagtype = "build_flags"
       when :publish
         flagtype = "publish_flags"
-      when :debug
-        flagtype = "debug_flags"
+      when :debuginfo
+        flagtype = "debuginfo_flags"
       when :useforbuild
         flagtype = "useforbuild_flags"
       else

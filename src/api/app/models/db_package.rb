@@ -16,7 +16,7 @@ class DbPackage < ActiveRecord::Base
   has_many :flags
   has_many :publish_flags,  :order => :position
   has_many :build_flags,  :order => :position
-  has_many :debug_flags,  :order => :position
+  has_many :debuginfo_flags,  :order => :position
   has_many :useforbuild_flags,  :order => :position
 
   # disable automatic timestamp updates (updated_at and created_at)
@@ -137,7 +137,7 @@ class DbPackage < ActiveRecord::Base
 
       #---begin enable / disable flags ---#
       flag_compatibility_check( :package => package )
-      ['build', 'publish', 'debug', 'useforbuild'].each do |flagtype|
+      ['build', 'publish', 'debuginfo', 'useforbuild'].each do |flagtype|
         update_flags( :package => package, :flagtype => flagtype )
       end
 
@@ -268,10 +268,10 @@ class DbPackage < ActiveRecord::Base
         end
       end
 
-      unless self.debug_flags.empty?
-        package.debug do
-          self.debug_flags.each do |debug_flag|
-            package << debug_flag.to_xml.to_s + "\n"
+      unless self.debuginfo_flags.empty?
+        package.debuginfo do
+          self.debuginfo_flags.each do |debuginfo_flag|
+            package << debuginfo_flag.to_xml.to_s + "\n"
           end
         end
       end
@@ -355,8 +355,8 @@ class DbPackage < ActiveRecord::Base
         flagtype = "build_flags"
       when :publish
         flagtype = "publish_flags"
-      when :debug
-        flagtype = "debug_flags"
+      when :debuginfo
+        flagtype = "debuginfo_flags"
       when :useforbuild
         flagtype = "useforbuild_flags"
       else
