@@ -859,16 +859,20 @@ sub createexportjob {
 
 
 # FIXME: put this in proj.conf
-my %fullfilters = (
+my %default_exportfilters = (
   'i586' => {
-    '\.x86_64\.rpm$'   => '-x86_64',
-    '\.ia64\.rpm$'     => '-',
-    '-debuginfo\..*\.rpm$' => '-',
-    '-debugsrc\..*\.rpm$' => '-',
+    '\.x86_64\.rpm$'   => [ 'x86_64' ],
+    '\.ia64\.rpm$'     => [],
+    '-debuginfo\..*\.rpm$' => [],
+    '-debugsrc\..*\.rpm$' => [],
   },
   'x86_64' => {
-    '-debuginfo\..*\.rpm$' => '-',
-    '-debugsrc\..*\.rpm$' => '-',
+    '-debuginfo\..*\.rpm$' => [],
+    '-debugsrc\..*\.rpm$' => [],
+  },
+  'ppc' => {
+    '-debuginfo\..*\.rpm$' => [],
+    '-debugsrc\..*\.rpm$' => [],
   },
 );
 
@@ -877,7 +881,7 @@ my %fullfilters = (
 #
 
 sub update_dst_full {
-  my ($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled) = @_;
+  my ($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled, $prpsearchpath) = @_;
 
   ##################################################################
   # part 1: move binaries in package directory
@@ -933,7 +937,12 @@ sub update_dst_full {
     return;
   }
 
-  my $filter = $fullfilters{$myarch};
+  # argh, this slows us down a bit
+  my $bconf = {};
+  $bconf = getconfig($myarch, $prpsearchpath) || {} if $prpsearchpath;
+  my $filter = $bconf->{'exportfilter'};
+  undef $filter if $filter && !%$filter;
+  $filter ||= $default_exportfilters{$myarch};
 
   # link new ones into full, delete old ones no longer in use
   my %fnew;
@@ -953,10 +962,15 @@ sub update_dst_full {
 	}
       }
       if ($skip) {
-        for my $exportarch (split(',', substr($skip, 1))) {
+	my $myself;
+        for my $exportarch (@$skip) {
+	  if ($exportarch eq '.') {
+	    $myself = 1;
+	    next;
+	  }
 	  push @{$exports{$exportarch}}, $rp, $r;
 	}
-        next if $skip =~ /^-/;
+        next unless $myself;
       }
     }
 
@@ -1006,8 +1020,8 @@ sub update_dst_full {
 	}
       }
       if ($skip) {
-        for my $exportarch (split(',', substr($skip, 1))) {
-	  $exports{$exportarch} ||= [];
+        for my $exportarch (@$skip) {
+	  $exports{$exportarch} ||= [] if $exportarch ne '.';
 	}
       }
     }
@@ -1654,7 +1668,7 @@ sub jobfinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled);
+  update_dst_full($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -1700,7 +1714,7 @@ sub importevent {
   $repodatas->{$prp} ||= findbins($prp);
   my $repodata = $repodatas->{$prp};
   my $useforbuildenabled = 1;
-  update_dst_full($repodata, $prp, undef, $jobrepo, undef, $useforbuildenabled);
+  update_dst_full($repodata, $prp, undef, $jobrepo, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   unlink($_) for @all;
   rmdir($jobdatadir);
@@ -2004,7 +2018,7 @@ sub rebuildaggregate {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($repodata, $prp, $dst, $jobrepo, undef, $useforbuildenabled);
+  update_dst_full($repodata, $prp, $dst, $jobrepo, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -2525,7 +2539,7 @@ while(1) {
 	# delete full entries
 	$repodata{$prp} ||= findbins($prp);
 	my $repodata = $repodata{$prp};
-	update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1);
+	update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
         delete $repounchanged{$prp};
 	# delete other files
 	unlink("$gdst/:logfiles.success/$packid");
@@ -2592,7 +2606,7 @@ while(1) {
 	  my $jobrepo = findbins_dir("$gdst/$packid");
 	  my $meta = "$gdst/:meta/$packid";
           undef $meta unless -s $meta;
-	  update_dst_full($repodata{$prp}, $prp, "$gdst/$packid", $jobrepo, $meta, $useforbuildenabled);
+	  update_dst_full($repodata{$prp}, $prp, "$gdst/$packid", $jobrepo, $meta, $useforbuildenabled, $prpsearchpath{$prp});
 	}
 	for $prp (@prps) {
 	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
@@ -2699,8 +2713,7 @@ while(1) {
     next;
   }
 
-  my $bconf;
-  $bconf = getconfig($myarch, $prpsearchpath{$prp});
+  my $bconf = getconfig($myarch, $prpsearchpath{$prp});
   if (!$bconf) {
     # see if it is caused by a remote error
     my $error;
@@ -2740,7 +2753,7 @@ while(1) {
     # delete full entries
     $repodata{$prp} ||= findbins($prp);
     my $repodata = $repodata{$prp};
-    update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1);
+    update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
     $changed{$prp} = 2;
     sendrepochangeevent($prp);
     # delete other files
