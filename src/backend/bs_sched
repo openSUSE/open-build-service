@@ -991,7 +991,7 @@ sub update_dst_full {
       if ($skip) {
 	my $myself;
         for my $exportarch (@$skip) {
-	  if ($exportarch eq '.') {
+	  if ($exportarch eq '.' || $exportarch eq $myarch) {
 	    $myself = 1;
 	    next;
 	  }
@@ -1048,7 +1048,7 @@ sub update_dst_full {
       }
       if ($skip) {
         for my $exportarch (@$skip) {
-	  $exports{$exportarch} ||= [] if $exportarch ne '.';
+	  $exports{$exportarch} ||= [] if $exportarch ne '.' && $exportarch ne $myarch;
 	}
       }
     }
