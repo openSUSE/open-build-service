@@ -916,6 +916,7 @@ sub update_dst_full {
 
   my $oldrepo;
   my %new;
+  my $isimport;
 
   if ($dst) {
     # get old state
@@ -937,6 +938,7 @@ sub update_dst_full {
     }
   } else {
     # dst = undef is true for importevents
+    $isimport = 1;
     my $jobdatadir = $jobrepo->{'.dir'};
     delete $jobrepo->{'.dir'};
     my $replaced = (readxml("$jobdatadir/replaced.xml", $BSXML::dir, 1) || {})->{'entry'};
@@ -963,10 +965,10 @@ sub update_dst_full {
     return;
   }
 
+  my $filter;
   # argh, this slows us down a bit
   my $bconf;
   $bconf = getconfig($myarch, $prpsearchpath) if $prpsearchpath;
-  my $filter;
   $filter = $bconf->{'exportfilter'} if $bconf;
   undef $filter if $filter && !%$filter;
   $filter ||= $default_exportfilters{$myarch};
@@ -995,6 +997,7 @@ sub update_dst_full {
 	    $myself = 1;
 	    next;
 	  }
+	  next if $isimport;	# no re-exports
 	  push @{$exports{$exportarch}}, $rp, $r;
 	}
         next unless $myself;
@@ -1032,7 +1035,7 @@ sub update_dst_full {
     $r->{'path'} = "$prp/$myarch/:full/$n.$suf";
     $repodata->{$n} = $r;
   }
-  if ($filter) {
+  if ($filter && !$isimport) {
     # need also to check old entries
     for my $rp (sort keys %$oldrepo) {
       my $r = $oldrepo->{$rp};
