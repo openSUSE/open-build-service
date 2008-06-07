@@ -706,9 +706,16 @@ sub sendrepochangeevent {
 #                       undef -> arch no longer builds this repository
 #         $pubenabled - only publish those packages
 #                       undef -> publish all packages
+#         $bconf      - the config for this prp
 #
+
+my $default_publishfilter = [
+  '-debuginfo-.*\.rpm$',
+  '-debugsource-.*\.rpm$',
+];
+
 sub prpfinished {
-  my ($prp, $packs, $pubenabled) = @_;
+  my ($prp, $packs, $pubenabled, $bconf) = @_;
 
   print "    prp $prp is finished...\n";
 
@@ -748,6 +755,11 @@ sub prpfinished {
   # link all packages into :repo
   my %origin;
   my $changed;
+  my $filter;
+  $filter = $bconf->{'publishfilter'} if $bconf;
+  undef $filter if $filter && !@$filter;
+  $filter ||= $default_publishfilter;
+
   for my $packid (@$packs) {
     if ($pubenabled && !$pubenabled->{$packid}) {
       # publishing of this package is disabled
@@ -764,6 +776,15 @@ sub prpfinished {
     for my $bin (@all) {
       next if exists $origin{$bin};	# first one wins
       $origin{$bin} = $packid;
+      if ($filter) {
+	my $bad;
+	for (@$filter) {
+	  next unless $bin =~ /$_/;
+	  $bad = 1;
+	  last;
+	}
+	next if $bad;
+      }
       my @sr = stat("$rdir/$bin");
       if (@sr) {
         my @s = stat("$pdir/$bin");
@@ -858,21 +879,26 @@ sub createexportjob {
 }
 
 
-# FIXME: put this in proj.conf
 my %default_exportfilters = (
   'i586' => {
     '\.x86_64\.rpm$'   => [ 'x86_64' ],
-    '\.ia64\.rpm$'     => [],
-    '-debuginfo\..*\.rpm$' => [],
-    '-debugsrc\..*\.rpm$' => [],
+    '\.ia64\.rpm$'     => [ 'ia64' ],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
   },
   'x86_64' => {
-    '-debuginfo\..*\.rpm$' => [],
-    '-debugsrc\..*\.rpm$' => [],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
   },
   'ppc' => {
-    '-debuginfo\..*\.rpm$' => [],
-    '-debugsrc\..*\.rpm$' => [],
+    '\.ppc64\.rpm$'   => [ 'ppc64' ],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
+  },
+  'ppc64' => {
+    '\.ppc\.rpm$'   => [ 'ppc' ],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
   },
 );
 
@@ -938,9 +964,10 @@ sub update_dst_full {
   }
 
   # argh, this slows us down a bit
-  my $bconf = {};
-  $bconf = getconfig($myarch, $prpsearchpath) || {} if $prpsearchpath;
-  my $filter = $bconf->{'exportfilter'};
+  my $bconf;
+  $bconf = getconfig($myarch, $prpsearchpath) if $prpsearchpath;
+  my $filter;
+  $filter = $bconf->{'exportfilter'} if $bconf;
   undef $filter if $filter && !%$filter;
   $filter ||= $default_exportfilters{$myarch};
 
@@ -3199,7 +3226,7 @@ while(1) {
     if (! -e "$reporoot/$prp/$myarch/:repodone") {
       if (!@packs || grep {$_} values %pubenabled) {
 	mkdir_p("$reporoot/$prp/$myarch");
-	prpfinished($prp, \@packs, \%pubenabled);
+	prpfinished($prp, \@packs, \%pubenabled, $bconf);
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate);
       } else {
 	print "    publishing is disabled\n";
