@@ -1670,6 +1670,17 @@ sub putinsrcrep {
   return $md5;
 }
 
+sub findprojectpatchname {
+  my ($files) = @_;
+
+  my $i = "";
+  while ($files->{"project$i.diff"}) {
+    $i = '0' unless $i;
+    $i++;
+  }
+  return "project$i.diff";
+}
+
 sub keeplink {
   my ($projid, $packid, $files) = @_;
 
@@ -1734,14 +1745,12 @@ sub keeplink {
     $lchanged = 1;
   }
   if (-s "$srcrep/:upload/$$") {
-    my $i = "";
-    while ($nfiles->{"project$i.diff"}) {
-      $i = '0' unless $i;
-      $i++;
-    }
-    $nfiles->{"project$i.diff"} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", "project$i.diff");
-    push @{$l->{'patches'}->{''}}, {'apply' => {'name' => "project$i.diff"}};
+    my $ppatch = findprojectpatchname($nfiles);
+    $nfiles->{$ppatch} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", $ppatch);
+    push @{$l->{'patches'}->{''}}, {'apply' => {'name' => $ppatch}};
     $lchanged = 1;
+  } else {
+    unlink("$srcrep/:upload/$$");
   }
   if ($lchanged) {
     writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
@@ -1749,6 +1758,62 @@ sub keeplink {
   }
   print Dumper($nfiles);
   return $nfiles;
+}
+
+# integrate link from opackid to packid into packid
+sub integratelink {
+  my ($files, $projid, $packid, $ofiles, $oprojid, $opackid, $l) = @_;
+
+  my $nl = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
+
+  # FIXME: remove hunks from patches that deal with replaced/deleted files
+  my $lchanged;
+  my %dontcopy;
+  $dontcopy{'_link'} = 1;
+  if ($nl->{'patches'}) {
+    for (@{$l->{'patches'}->{''} || []}) {
+      my $type = (keys %$_)[0];
+      if ($type eq 'add' || $type eq 'apply') {
+	$dontcopy{$_->{$type}->{'name'}} = 1;
+      }
+    }
+  }
+  if ($l->{'patches'}) {
+    for (@{$l->{'patches'}->{''} || []}) {
+      my $type = (keys %$_)[0];
+      if ($type eq 'delete' && $files->{$_->{'delete'}->{'name'}}) {
+	delete $files->{$_->{'delete'}->{'name'}};
+      } else {
+	$lchanged = 1;
+	$nl->{'patches'} ||= {};
+	if ($type eq 'apply') {
+	  my $oppatch = $_->{'apply'}->{'name'};
+	  if ($files->{$oppatch}) {
+	    $dontcopy{$oppatch} = 1;
+	    # argh, patch file already exists, rename...
+	    my $ppatch = findprojectpatchname($files);
+            $files->{$ppatch} = putinsrcrep($projid, $packid, "$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", $ppatch);
+	    push @{$nl->{'patches'}->{''}}, {'apply' => {'name' => $ppatch}};
+	    next;
+	  }
+	}
+	if ($type eq 'add') {
+	  my $oppatch = $_->{'add'}->{'name'};
+	  die("cannot apply patch $oppatch twice\n") if $dontcopy{$oppatch};
+	}
+        push @{$nl->{'patches'}->{''}}, $_;
+      }
+    }
+  }
+  if ($lchanged) {
+    writexml("$srcrep/:upload/$$", undef, $nl, $BSXML::link);
+    $files->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
+  }
+  for (sort keys %$ofiles) {
+    next if $dontcopy{$_};
+    $files->{$_} = $ofiles->{$_};
+  }
+  return $files;
 }
 
 sub sourcecommit {
@@ -1808,7 +1873,35 @@ sub sourcecopy {
   my $orev = $cgi->{'orev'};
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
   my $files = lsrep($oprojid, $opackid, $orev->{'srcmd5'});
-  die("need a revision to copy\n") if !$orev && !$cgi->{'rev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
+  die("need a revision to copy\n") if !$cgi->{'rev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
+
+  my $autosimplifylink;
+
+  if ($files->{'_link'}) {
+    # fix me: do this in a more generic way
+    my $l = readxml("$srcrep/$opackid/$files->{'_link'}-_link", $BSXML::link, 1);
+    if ($l) {
+      my $lprojid = $oprojid;
+      my $lpackid = $opackid;
+      my $lrev = $l->{'rev'};
+      $lprojid = $l->{'project'} if exists $l->{'project'};
+      $lpackid = $l->{'package'} if exists $l->{'package'};
+      if ($lprojid eq $projid && $lpackid eq $packid) {
+        # copy destination is target of link
+	# we're integrating this link
+        $lrev = getrev($lprojid, $lpackid, $lrev);
+	my $lfiles = lsrep($lprojid, $lpackid, $lrev->{'srcmd5'});
+	if ($lfiles->{'_link'}) {
+	  $files = integratelink($lfiles, $lprojid, $lpackid, $files, $oprojid, $opackid, $l);
+	} else {
+	  # auto expand
+	  $cgi->{'expand'} = 1;
+	}
+	$autosimplifylink = $l;
+      }
+    }
+  }
+
   if ($files->{'_link'} && $cgi->{'expand'}) {
     my %olrev = %$orev;
     $olrev{'name'} = $opackid;
@@ -1831,6 +1924,25 @@ sub sourcecopy {
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   my $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
+
+  if ($autosimplifylink && !$autosimplifylink->{'rev'}) {
+    eval {
+      my $latestorev = getrev($oprojid, $opackid);
+      if ($latestorev->{'srcmd5'} eq $orev->{'srcmd5'}) {
+        # simplify link
+        my $nl = {};
+        $nl->{'project'} = $autosimplifylink->{'project'} if $autosimplifylink->{'project'};
+        $nl->{'package'} = $autosimplifylink->{'package'} if $autosimplifylink->{'package'};
+        $nl->{'cicount'} = $autosimplifylink->{'cicount'} if $autosimplifylink->{'cicount'};
+        writexml("$srcrep/:upload/$$", undef, $nl, $BSXML::link);
+        my $ofiles = {};
+        $ofiles->{'_link'} = putinsrcrep($oprojid, $opackid, "$srcrep/:upload/$$", '_link');
+        addrev($oprojid, $opackid, $ofiles, 'buildservice-autocommit', "auto commit by copy to link target\n");
+      }
+    };
+    warn($@) if $@;
+  }
+
   return ($rev, $BSXML::revision);
 }
 
