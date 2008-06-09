@@ -32,8 +32,13 @@ module FlagModelHelper
     
     # don't store the global enable-flag for projects
     if self.class == Project
+      if flag.name == "debuginfo"
+      sortedflags.delete_if {|flag| flag.repository.nil? and
+        flag.architecture.nil? and not flag.enabled? }
+      else
       sortedflags.delete_if {|flag| flag.repository.nil? and
         flag.architecture.nil? and flag.enabled? }
+      end
     end
     
     #create new flag section from the flag matrix
