@@ -304,7 +304,11 @@ class Project < ActiveXML::Base
         df.description = 'project default'
         df.architecture = nil
         df.repository = nil
-        df.status = 'enable'
+        if opts[:flagtype] == "debuginfo"
+          df.status = 'disable'
+        else
+          df.status = 'enable'
+        end
         df.explicit = true
 
         flags.merge! key.to_sym => df
@@ -383,7 +387,7 @@ class Project < ActiveXML::Base
   end
 
 
-  #TODO beim repository loeschen muessen auch die flags aktualisiert werden!!!
+  #TODO remove flags on repository remove
   def update_flag_matrix(opts)
     flagtype = opts[:flagtype]
     logger.debug "[PROJECT-FLAGS] Updating flag matrix for flagtype: #{flagtype}"
