@@ -1,0 +1,48 @@
+For Updaters from OBS 0.9.x releases
+====================================
+
+1) Define download URL in rails config.
+
+The new introduced "DOWNLOAD_URL" need to be defined in your settings
+below /srv/www/obs/webclient/config/environments/ directory. 
+If you do not have a download server, simply define
+
+DOWNLOAD_URL = nil
+
+in your configuration.
+
+2) Recommended rake migrate update
+
+A rake migrate is recommended, but not neccessary. It would reimport 
+buginfo flags from the backend to fix broken usage in frontend before.
+
+When the obs-api package has been updated, it might be required to
+upgrade the database. Therefore, you should do
+
+    # cd /srv/www/obs/frontend/
+    # RAILS_ENV="production_slave" rake db:migrate
+
+after updating obs-api.
+
+Updater from before 0.9 release
+===============================
+
+Updaters of build server versions before 0.9 needs to rename their databases from
+"development" to production. This can be performed by the following steps:
+
+      # mysql -u root -p
+      mysql> create database frontend_production;
+      mysql> create database webclient_production;
+      mysql> quit
+      # mysqldump -p frontend_development > DUMP
+      # mysql -u root -p frontend_production < DUMP
+      # mysqldump -p webclient_development > DUMP
+      # mysql -u root -p webclient_production < DUMP
+
+All Updaters needs to update their database schema in any case by running the
+following commands:
+
+      # cd /srv/www/obs/frontend/
+      # RAILS_ENV="production_slave" rake db:migrate
+
+

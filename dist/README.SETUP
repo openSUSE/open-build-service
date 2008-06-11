@@ -63,8 +63,8 @@ on this or a remote host.
 3.1 Setup and configure the MySQL database
 ==========================================
 
-3.1.1 Initialize fresh Database
-===============================
+3.1 Initialize fresh Database
+=============================
 
 * start the MySQL database
 
@@ -104,27 +104,6 @@ on this or a remote host.
     /srv/www/obs/webclient/config/database.yml
 
 * populate the database
-
-      # cd /srv/www/obs/frontend/
-      # RAILS_ENV="production_slave" rake db:migrate
-
-3.1.2 Update Database Schema
-============================
-
-Updaters of build server versions before 0.9 needs to rename their databases from
-"development" to production. This can be performed by the following steps:
-
-      # mysql -u root -p
-      mysql> create database frontend_production;
-      mysql> create database webclient_production;
-      mysql> quit
-      # mysqldump -p frontend_development > DUMP
-      # mysql -u root -p frontend_production < DUMP
-      # mysqldump -p webclient_development > DUMP
-      # mysql -u root -p webclient_production < DUMP
-
-All Updaters needs to update their database schema in any case by running the
-following commands:
 
       # cd /srv/www/obs/frontend/
       # RAILS_ENV="production_slave" rake db:migrate
@@ -319,16 +298,8 @@ here:
 
   http://127.0.42.1/project/monitor?project=openSUSE%3ATools
 
-7. Updating
-===========
-
-When the obs-api package has been updated, it might be required to
-upgrade the database. Therefore, you should do
-
-    # cd /srv/www/obs/frontend/
-    # RAILS_ENV="production_slave" rake db:migrate
-
-after updating obs-api.
+6.2. Run and Stop the Service
+=============================
 
 To start and stop everything you can use the following command sequences:
 
@@ -362,7 +333,7 @@ To automatically start everything at system boot you can use the following:
 Use chkconfig --del analogously to no longer automatically start them
 at boot.
 
-8. Feedback
+7. Feedback
 ===========
 
 Please send feedback about this file or the packages to

@@ -18,14 +18,11 @@ PreReq:         %fillup_prereq %insserv_prereq
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Autoreqprov:    on
-
-%define svnversion updated_by_script
-
-Version:        %{svnversion}
+Version:        1.0.0
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component
-Source:         %{name}-%{svnversion}.tar.bz2
+Source:         buildservice-1.0.0.tar.bz2
 Source1:        obsworker
 Source3:        obspublisher
 Source4:        obsrepserver
@@ -34,11 +31,9 @@ Source6:        obsscheduler
 Source7:        obs.conf
 Source8:        cleanurl-v5.lua
 Source9:        rails.include
-Source10:       README.SETUP
 Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
-Source14:       obs_mirror_project.py
 Source15:       obsdispatcher
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
@@ -83,8 +78,7 @@ Summary:        The openSUSE Build Service -- The Frontend part
 %description -n obs-api
 
 %prep
-%setup -q -n buildservice
-cp %SOURCE10 .
+%setup -q -n buildservice-%version
 
 %build
 #
@@ -149,7 +143,7 @@ install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 # install executables and code
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 # install mirror script
-install -m 0755 %SOURCE13 %SOURCE14 $RPM_BUILD_ROOT/usr/sbin/
+install -m 0755 %SOURCE13 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 \
            $RPM_BUILD_ROOT/etc/init.d/
@@ -168,15 +162,25 @@ cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
+%preun
+for service in obssrcserver obsrepserver obsscheduler obspublisher; do
+%stop_on_removal $service
+done
+
 %post -n obs-server
 %{fillup_and_insserv -n obs-server}
+for service in obssrcserver obsrepserver obsscheduler obspublisher; do
+%restart_on_update $service
+done
 
 %post -n obs-worker
 %{fillup_and_insserv -n obs-worker}
+%restart_on_update obsworker
 
 %post -n obs-api
 touch /srv/www/obs/{webclient,frontend}/log/development.log
 chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
+%restart_on_update lighttpd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -196,7 +200,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobsscheduler
 /usr/sbin/rcobssrcserver
 /usr/sbin/obs_mirror_project
-/usr/sbin/obs_mirror_project.py
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSEvents.pm
@@ -238,7 +241,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-api
 %defattr(-,root,root)
-%doc README.SETUP docs/openSUSE.org.xml ReleaseNotes-0.9 ReleaseNotes-0.9.1
+%doc dist/README.UPDATERS dist/README.SETUP docs/openSUSE.org.xml ReleaseNotes-*
 %dir /srv/www/obs
 /srv/www/obs/common
 %dir /srv/www/obs/frontend
