@@ -1,8 +1,13 @@
 -------------------------------------------------------------------
- - martin.mohring@5etech.eu
+Wed Jun 11 12:42:39 CEST 2008 - martin.mohring@5etech.eu
 
-- update to svn trunc -r 4094
-- includes hermes fixes in config and the worker
+- update to svn trunc -r 4169
+- heading toward OBS 1.0
+- fixed requires again
+- dont copy doc files, they are packaged already in .tar.bz2
+- put all docu files in obs-api package
+- some %pre / %post alignments
+- schemata and doc now mentioned in config
 -------------------------------------------------------------------
 Tue Jun  3 19:48:07 CEST 2008 - martin.mohring@5etech.eu
 
