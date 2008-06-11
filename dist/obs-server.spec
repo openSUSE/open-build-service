@@ -244,7 +244,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-api
 %defattr(-,root,root)
-%doc dist/README.UPDATERS dist/README.SETUP docs/openSUSE.org.xml ReleaseNotes-*
+%doc dist/{TODO,README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING
 %dir /srv/www/obs
 /srv/www/obs/common
 %dir /srv/www/obs/frontend
