@@ -24,7 +24,8 @@ FRONTEND_HOST = "127.0.42.2"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
 
-BUGZILLA_HOST = "https://bugzilla.novell.com"
+BUGZILLA_HOST = "http://my.bugzilla/"
+DOWNLOAD_URL = "http://127.0.42.3/"
 
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "off"
