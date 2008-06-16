@@ -709,10 +709,12 @@ sub sendrepochangeevent {
 #         $bconf      - the config for this prp
 #
 
-my $default_publishfilter = [
-  '-debuginfo-.*\.rpm$',
-  '-debugsource-.*\.rpm$',
-];
+#my $default_publishfilter = [
+#  '-debuginfo-.*\.rpm$',
+#  '-debugsource-.*\.rpm$',
+#];
+
+my $default_publishfilter;
 
 sub prpfinished {
   my ($prp, $packs, $pubenabled, $bconf) = @_;
