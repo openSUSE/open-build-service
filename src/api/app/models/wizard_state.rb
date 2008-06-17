@@ -31,7 +31,7 @@ class WizardState
     end
   end
 
-  attr_reader(:data, :guess)
+  attr_reader(:version, :data, :guess)
 
   def initialize(text = "")
     data = {}
@@ -45,6 +45,16 @@ class WizardState
     end
     @data = Table.new(data)
     @guess = Table.new(guess)
+    @version = xml.root ? (xml.root.attributes["version"] || 0) : 0
+    @version = @version.to_i
+    @dirty = false
+  end
+
+  def version=(value)
+    if @version != value
+      @version = value
+      @dirty = true
+    end
   end
 
   def [](name)
@@ -52,12 +62,13 @@ class WizardState
   end
 
   def dirty
-    return @data.dirty || @guess.dirty
+    return @dirty || @data.dirty || @guess.dirty
   end
 
   def serialize
     xml = REXML::Document.new
     xml.add_element(REXML::Element.new("wizard"))
+    xml.root.attributes["version"] = @version.to_s
     @data.each do |name, value|
       e = REXML::Element.new("data")
       e.attributes["name"] = name
