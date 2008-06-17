@@ -26,7 +26,6 @@ class ProjectController < ApplicationController
   end
 
   def list_my
-    @projects = Project.find(:all).each_entry
     @user ||= Person.find( :login => session[:login] )
     if @user.has_element? :watchlist
       #extract a list of project names and sort them case insensitive
