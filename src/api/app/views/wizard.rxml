@@ -7,6 +7,14 @@ xml.wizard("last" => @wizard_form.last ? "true" : "false") do
       xml.label(entry.label)
       xml.legend(entry.legend)
       xml.value(entry.value)
+      if entry.options
+        entry.options.each do |option|
+          xml.option("name" => option[0]) do
+            xml.label(option[1])
+            xml.legend(option[2])
+          end
+        end
+      end
     end
   end
 end

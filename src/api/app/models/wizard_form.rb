@@ -11,18 +11,24 @@ class WizardForm
   end
 
   class Entry
-    attr_reader(:name, :type, :label, :legend, :value)
-    def initialize(name, type, label, legend, value)
+    attr_reader(:name, :type, :label, :legend, :value, :options)
+    def initialize(name, type, label, legend, value, options=nil)
       @name = name
       @type = type
       @label = label
       @legend = legend
       @value = value
+      @options = options
     end
   end
 
   def add_entry(name, type, label, legend="", value="")
     e = Entry.new(name, type, label, legend, value)
+    @entries << e
+  end
+
+  def add_select_entry(name, type, label, legend, value, options)
+    e = Entry.new(name, type, label, legend, value, options)
     @entries << e
   end
 

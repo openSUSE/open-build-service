@@ -23,6 +23,13 @@
           text_area_tag("wizard[#{entry.name}]", entry.value)
         when "file":
           file_field_tag("wizard_files[#{entry.name}]")
+        when "select":
+          options = []
+          entry.each_option do |option|
+            options << [option.label, option.name]
+          end
+          select_tag("wizard[#{entry.name}]", options_for_select(options,
+                                                           entry.value.to_s))
         else
           raise RuntimeError.new("WizardError: unknown entry type #{typ3}")
         end
@@ -35,3 +42,5 @@
   <%= hidden_field_tag 'project', @project.name %>
   <%= hidden_field_tag 'package', @package.name %>
 <% end %>
+<%# vim:ts=2:sw=2:et
+%>
