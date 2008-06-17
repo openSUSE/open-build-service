@@ -4,10 +4,25 @@
 -%>
 
 <p>
-The Buildservice API does currently not allow querying for projects you're involved in.
-We're working on it.
+<h2>Watched Projects</h2>
+<%= render :partial => 'watch_list' %>
 </p>
 
-<h2>Watched Projects</h2>
+<p>
+<h2>Involved Projects</h2>
+<% @iprojects.each do |project| -%>
+<%= link_to project, :action => :show, :project => project %><br/>
+<% end -%>
+</p>
 
-<%= render :partial => 'watch_list' %>
+<p>
+  <h2>Involved Packages</h2>
+  <% @ipackages.each do |prj, packs| -%>
+  <h5><%=prj%></h5>
+  <ul>
+    <% packs.each do |pkg| -%>
+    <li><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></li>
+    <% end -%>
+  </ul>
+  <% end -%>
+</p>

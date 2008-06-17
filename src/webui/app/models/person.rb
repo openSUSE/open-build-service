@@ -49,4 +49,16 @@ class Person < ActiveXML::Base
   def watches?(name)
     has_element?(:watchlist) and watchlist.has_element?("project[@name='#{name}']")
   end
+
+  def involved_projects
+    Collection.find :id, :what => 'project', :predicate => %(person/@userid='#{login}')
+  end
+
+  def involved_packages
+    Collection.find :id, :what => 'package', :predicate => %(person/@userid='#{login}')
+  end
+
+  def packagesorter(a, b)
+    a.project == b.project ? a.name <=> b.name : a.project <=> b.project
+  end
 end

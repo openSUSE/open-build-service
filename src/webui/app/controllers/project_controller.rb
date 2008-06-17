@@ -27,11 +27,20 @@ class ProjectController < ApplicationController
 
   def list_my
     @projects = Project.find(:all).each_entry
-    logger.debug "Have this session login: #{session[:login]}"
     @user ||= Person.find( :login => session[:login] )
     if @user.has_element? :watchlist
       #extract a list of project names and sort them case insensitive
       @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
+    end
+
+    @iprojects = @user.involved_projects.each.map {|x| x.name}.sort
+    @ipackages = Hash.new
+    @user.involved_packages.each.sort(&@user.method('packagesorter')).each do |pack|
+      #don't display packages from involved projects
+      logger.debug "pack.project. #{pack.project}"
+      next if @iprojects.include?(pack.project)
+      @ipackages[pack.project] ||= Array.new
+      @ipackages[pack.project] << pack.name
     end
   end
 
