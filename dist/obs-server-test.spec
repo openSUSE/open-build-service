@@ -1,7 +1,7 @@
 #
-# spec file for package obs-server (Version 0.1)
+# spec file for package obs-server (Version MACRO)
 #
-# Copyright (c) 2007 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2008 SUSE LINUX Products GmbH, Nuernberg, Germany.
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
@@ -9,21 +9,19 @@
 #
 
 
+
 Name:           obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
-BuildRequires:  rubygem-builder python-devel
+BuildRequires:  python-devel rubygem-builder
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
-Autoreqprov:    on
-
+AutoReqProv:    on
 %define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 %define py_sitedir %{python_sitelib}
-
 %define svnversion updated_by_script
-
 Version:        %{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
@@ -84,12 +82,13 @@ Authors:
     Peter Poeml <poeml@suse.de>
 
 %package -n build-obs
-Requires:	lzma
+
+Requires:       lzma
 %ifarch x86_64
-Requires:	linux32
+Requires:       linux32
 %endif
 %ifarch ppc64
-Requires:	powerpc32
+Requires:       powerpc32
 %endif
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
@@ -102,13 +101,14 @@ This package provides a script for building RPMs for SUSE Linux in a
 chroot environment.
 
 %package -n obs-worker
-Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
-Requires:	lzma
+
+Requires:       perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
+Requires:       lzma
 %ifarch x86_64
-Requires:	linux32
+Requires:       linux32
 %endif
 %ifarch ppc64
-Requires:	powerpc32
+Requires:       powerpc32
 %endif
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
@@ -119,6 +119,7 @@ Summary:        The openSUSE Build Service -- Build Host Component
 %description -n obs-worker
 
 %package -n obs-api
+
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -137,7 +138,6 @@ Summary:        The openSUSE Build Service -- The Frontend part
 cd docs/api/frontend
 make apidocs
 cd -
-
 # compile osc python files
 cd src/clientlib/python/osc
 CFLAGS="%{optflags}" %{__python} setup.py build
@@ -145,7 +145,6 @@ cd -
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
 #
 # Install all osc files
 #
@@ -154,7 +153,6 @@ cd src/clientlib/python/osc
 ln -s osc-wrapper.py %{buildroot}/%{_bindir}/osc
 mkdir -p %{buildroot}/var/lib/osc-plugins
 cd -
-
 #
 # Install all build files
 #
@@ -169,7 +167,6 @@ cp -a mkbaselibs baselibs.conf baselibs_global.conf $RPM_BUILD_ROOT/usr/lib/buil
 cp -a build.1 $RPM_BUILD_ROOT/usr/share/man/man1
 ln -s /usr/lib/build/build $RPM_BUILD_ROOT/usr/bin/build
 cd -
-
 #
 # Install all web and frontend parts.
 #
@@ -200,7 +197,6 @@ done
 #sed 's,api.opensuse.org,127.0.42.2,' \
 #  $RPM_BUILD_ROOT/srv/www/obs/webclient/app/helpers/package_helper.rb > tmp-file \
 #  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/app/helpers/package_helper.rb"
-
 #
 # install apidocs
 # 
@@ -241,13 +237,13 @@ cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
-for service in obssrcserver obsrepserver obsscheduler obspublisher; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher ; do
 %stop_on_removal $service
 done
 
 %post -n obs-server
 %{fillup_and_insserv -n obs-server}
-for service in obssrcserver obsrepserver obsscheduler obspublisher; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher ; do
 %restart_on_update $service
 done
 
@@ -375,12 +371,88 @@ rm -rf $RPM_BUILD_ROOT
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
 
-%changelog -n obs-server
-* Fri Jan 26 2007 - poeml@suse.de
+%changelog
+* Wed Jun 18 2008 dmueller@suse.de
+- also restart dispatcher on update
+* Wed Jun 11 2008 martin.mohring@5etech.eu
+- update to svn trunc -r 4169
+- heading toward OBS 1.0
+- fixed requires again
+- dont copy doc files, they are packaged already in .tar.bz2
+- put all docu files in obs-api package
+- some %%pre / %%post alignments
+- schemata and doc now mentioned in config
+* Tue Jun 03 2008 martin.mohring@5etech.eu
+- update to svn trunc -r 4091
+- incl. bugfixes, see svn log
+- added hermes
+* Mon Jun 02 2008 martin.mohring@5etech.eu
+- update to svn trunc -r 4074, bugfixes
+- added file of the spec file wizard now added
+- new debtransform features
+- build now has opensuse 11.0 config
+- osc develproj and branch support
+* Sat May 24 2008 martin.mohring@5etech.eu
+- update to svn trunc -r 4026, bugfixes
+- exchanged dpkg package by deb package, provided by newer openSUSE Distros
+* Mon May 19 2008 martin.mohring@5etech.eu
+- update to svn trunc -r 3996, bugfixes
+- incl. latest osc alignments for 1.0 release
+- added obs-server-test.spec for building osc, build, obs-server from one source
+* Fri May 16 2008 martin.mohring@5etech.eu
+- update to svn trunc -r 3983, incl. all build/obs_worker changes
+- readded fix for changing download addresses in webclient
+* Thu May 15 2008 martin.mohring@5etech.eu
+- added also old python written script obs_mirror_project.py from James Oakley
+* Thu May 15 2008 martin.mohring@5etech.eu
+- made apidocs working (finally)
+- got back to old svn version numbering so that ./distribute generates all
+- updated to newer versions of rcobs scripts
+- switchable comment for x86_64 scheduler in sysconfig.obs-server
+- removed obsoleted files from svn and .spec file
+- updates of obs-server.changes from openSUSE:Tools:Unstable project
+* Wed May 14 2008 adrian@suse.de
+- update to current svn trunk
+- avoid more hardcoded server names
+- bsworker can be installed on remote systems now and configured
+  via sysconfig settings
+- add apidocs generation and correct installation
+* Fri Apr 25 2008 adrian@suse.de
+- update to version 0.9.1
+  - fixes from the changelog entries before
+- Version 0.9.1 is required now to use the build service
+  inter connect feature with api.opensuse.org
+* Wed Apr 23 2008 mls@suse.de
+- increase timeouts in scheduler
+- fix circular reference in BSSSL
+- fix auto socket close in BSRPC
+* Thu Apr 17 2008 adrian@suse.de
+- apply fix for
+  * local osc support building for remote projects
+  * fix ssl protocol handling
+* Thu Apr 17 2008 mrueckert@suse.de
+- added perl-Net_SSLeay
+* Wed Apr 16 2008 adrian@suse.de
+- update to version 0.9 release
+  * Inter Build Service Connect support
+  * rpmlint support
+  * KIWI imaging support
+  * baselibs build support
+  * submission request support
+* Mon Nov 26 2007 froh@suse.de
+- use startproc
+- have correct "Should-Start" dependencies
+- ensure all services come up at boot
+* Thu Nov 15 2007 froh@suse.de
+- depend on exact rails version
+- generate package from buildservice/dist dir
+- update README.SETUP
+- add publisher and dispatcher
+* Fri Jan 26 2007 poeml@suse.de
 - implement status/restart in the init scripts
-* Fri Jan 26 2007 - poeml@suse.de
+* Fri Jan 26 2007 poeml@suse.de
 - added dependency on createrepo
-* Fri Jan 26 2007 - poeml@suse.de
+* Fri Jan 26 2007 poeml@suse.de
 - update to r1110
   - revert last change, and do it the ruby way, by creating a new
   migration for it... so existing installations are upgraded
@@ -390,6 +462,6 @@ rm -rf $RPM_BUILD_ROOT
 - fix build / install sysconfig files
 - fix copyright headers in init script
 - fix path in README where to copy packages to
-* Thu Jan 25 2007 - poeml@suse.de
+* Thu Jan 25 2007 poeml@suse.de
 - update to r1108
   create a few more architectures, when initializing the database
