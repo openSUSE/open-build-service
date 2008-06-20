@@ -406,7 +406,7 @@ sub getsources {
     $md5 .= "$res{$f}->{'md5'}  $f\n";
   }
   $md5 = Digest::MD5::md5_hex($md5);
-  die("source verification failes: $md5 != $buildinfo->{'verifymd5'}\n") if $md5 ne $buildinfo->{'verifymd5'};
+  die("source verification fails: $md5 != $buildinfo->{'verifymd5'}\n") if $md5 ne $buildinfo->{'verifymd5'};
 }
 
 sub getbinaries {

@@ -32,12 +32,12 @@ use strict;
 #	'name',
 #	'project',
 #	[],                before the [] all strings become attributes to <package>
-#       'title',           from here on all strings become childs like <title> </title>
+#       'title',           from here on all strings become children like <title> </title>
 #       'description',
-#       [[ 'person' =>     creates <person> childs, the [[ ]] syntax allows any number of them including zero
+#       [[ 'person' =>     creates <person> children, the [[ ]] syntax allows any number of them including zero
 #           'role',        again role and userid attributes, both are required
 #           'userid',    
-#       ]],                this block describes a <person role="defaetist" userid="adrian" /> construct
+#       ]],                this block describes a <person role="defeatist" userid="statler" /> construct
 # 	@flags,            copies in the block of possible flag definitions
 #       [ $repo ],         refers to the repository construct and allows again any number of them (0-X)
 #];                        closes the <package> child with </package>
