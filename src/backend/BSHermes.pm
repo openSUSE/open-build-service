@@ -39,7 +39,7 @@ sub notify($$) {
   my $prefix = $BSConfig::hermesnamespace || "OBS";
   $type =  "${prefix}_$type";
 
-  push @args, "type=$type";
+  push @args, "_type=$type";
 
   if ($paramRef) {
     for my $key (sort keys %$paramRef) {
@@ -50,7 +50,7 @@ sub notify($$) {
 
   my $hermesuri = "$BSConfig::hermesserver/index.cgi";
 
-  print STDERR "Notifying hermes at $hermesuri: <" . join( ', ', @args ) . ">\n";
+  # print STDERR "Notifying hermes at $hermesuri: <" . join( ', ', @args ) . ">\n";
 
   my $param = {
     'uri' => $hermesuri,
