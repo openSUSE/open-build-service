@@ -62,4 +62,32 @@ sub notify($$) {
   warn("Hermes: $@") if $@;
 }
 
+# assemble hermes conform parameters for BS Requests
+sub requestParams( $$ )
+{
+  my ($req, $user) = @_;
+
+  my %reqinfo;
+
+  $reqinfo{'id'} = $req->{'id'} || '';
+  $reqinfo{'type'} = $req->{'type'} || '';
+  $reqinfo{'state'} = '';
+  $reqinfo{'when'}  = '';
+  if( $req->{'state'} ) {
+    $reqinfo{'state'} = $req->{'state'}->{'name'} || '';
+    $reqinfo{'when'}  = $req->{'state'}->{'when'} || '';
+  }
+  $reqinfo{'who'} = $user || 'unknown';
+
+  if( $req->{'type'} eq 'submit' && $req->{'submit'} && $req->{'submit'}->{'source'} &&
+      $req->{'submit'}->{'target'}) {
+      $reqinfo{'sourceproject'}  = $req->{'submit'}->{'source'}->{'project'};
+      $reqinfo{'sourcepackage'}  = $req->{'submit'}->{'source'}->{'package'};
+      $reqinfo{'sourcerevision'} = $req->{'submit'}->{'source'}->{'rev'};
+      $reqinfo{'targetproject'}  = $req->{'submit'}->{'target'}->{'project'};
+      $reqinfo{'targetpackage'}  = $req->{'submit'}->{'target'}->{'package'};
+  }
+  return \%reqinfo;
+}
+
 1;

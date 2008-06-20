@@ -2514,7 +2514,7 @@ sub putrequest {
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   writereq($oreq, $req);
-  BSHermes::notify("SRCSRV_REQUEST_CHANGE", $req);
+  BSHermes::notify("SRCSRV_REQUEST_CHANGE", BSHermes::requestParams($req, $cgi->{'user'}));
   return $BSStdServer::return_ok;
 }
 
@@ -2553,7 +2553,7 @@ sub createrequest {
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   $req->{'id'} = nextreqid();
   writereq(undef, $req);
-  BSHermes::notify("SRCSRV_REQUEST_CREATE", $req);
+  BSHermes::notify("SRCSRV_REQUEST_CREATE", BSHermes::requestParams( $req, $cgi->{'user'}));
   return ($req, $BSXML::request);
 }
 
@@ -2583,7 +2583,7 @@ sub postrequest {
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   writereq($oreq, $req);
   $req->{'oldstate'} = $oldstate;
-  BSHermes::notify("SRCSRV_REQUEST_STATECHANGE", $req);
+  BSHermes::notify( "SRCSRV_REQUEST_STATECHANGE", BSHermes::requestParams($req, $cgi->{'user'}));
   return $BSStdServer::return_ok;
 }
 
@@ -2593,7 +2593,7 @@ sub delrequest {
   die("no such request '$id'\n") unless $oreq;
   die unless $oreq->{'id'} eq $id;
   writereq($oreq, undef);
-  BSHermes::notify("SRCSRV_REQUEST_DELETE", $oreq);
+  BSHermes::notify("SRCSRV_REQUEST_DELETE", BSHermes::requestParams($oreq, $cgi->{'user'}));
   return $BSStdServer::return_ok;
 }
 
