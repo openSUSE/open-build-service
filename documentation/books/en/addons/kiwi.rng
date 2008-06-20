@@ -1163,14 +1163,26 @@ of the OEM image.</db:para>
         </choice>
       </attribute>
     </define>
+    <define name="k.size.additive.attribute">
+      <attribute name="additive">
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.size.attlist">
-      <optional>
-        <ref name="k.size.unit.attribute"/>
-      </optional>
+      <interleave>
+        <optional>
+          <ref name="k.size.unit.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.size.additive.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.size">
       <element name="size">
-        <a:documentation>Specifies the Size of an Image in (M)egabyte or (G)igabyte</a:documentation>
+        <a:documentation>Specifies the Size of an Image in (M)egabyte or (G)igabyte
+If the attribute additive is set the value will be added
+to the required size of the image</a:documentation>
         <ref name="k.size.attlist"/>
         <text/>
       </element>

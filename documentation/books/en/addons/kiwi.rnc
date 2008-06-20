@@ -860,9 +860,15 @@ div {
 	k.size.unit.attribute =
 		## The unit of the image
 		attribute unit { "M" | "G" }
-	k.size.attlist = k.size.unit.attribute?
+	k.size.additive.attribute =
+		attribute additive { xsd:boolean }
+	k.size.attlist =
+		k.size.unit.attribute? &
+		k.size.additive.attribute?
 	k.size =
 		## Specifies the Size of an Image in (M)egabyte or (G)igabyte
+		## If the attribute additive is set the value will be added
+		## to the required size of the image
 		element size {
 			k.size.attlist,
 			text
