@@ -141,6 +141,7 @@ sub filediff {
     my $fx = defined($f1) && !ref($f1) ? '-' : '+';
     my $lcnt = 0;
     $lcnt = $$lcntp if $lcntp;
+    return '' if $f =~ /\.(?:zip|tar|jar|zoo)(?:\.gz|\.bz2)?$/;
     local *F;
     if ($f =~ /\.gz$/i) {
       open(F, "-|", 'gunzip', '-dc', $f) || die("open $f: $!\n");
@@ -157,8 +158,16 @@ sub filediff {
       $d .= "-$_\n" for @$f1;
       $lcnt += @$f1;
     }
+    my $bintest;
     while(<F>) {
       ++$lcnt;
+      if (!$bintest) {
+	if (tr/\000-\037// > 3) {
+	  close F;
+	  return '';
+	}
+        $bintest = 1;
+      }
       $d .= "$fx$_" if !defined($max) || $lcnt <= $max;
     }
     close(F);
