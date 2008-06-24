@@ -1014,7 +1014,7 @@ div {
 		## vmx/oem types only.
 		attribute format {
 			"vvfat" | "vpc" | "bochs" | "dmg" | "cloop" | "vmdk" | "qcow" |
-			"cow" | "iso" | "usb"
+			"cow" | "iso" | "usb" | "ovf"
 		}
 	k.type.primary.attribute =
 		## Specifies the primary type (choose KIWI option type)

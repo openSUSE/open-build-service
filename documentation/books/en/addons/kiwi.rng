@@ -1399,6 +1399,7 @@ vmx/oem types only.</a:documentation>
           <value>cow</value>
           <value>iso</value>
           <value>usb</value>
+          <value>ovf</value>
         </choice>
       </attribute>
     </define>
