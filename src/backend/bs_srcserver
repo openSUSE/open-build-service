@@ -1731,6 +1731,7 @@ sub keeplink {
     } else {
       if (!isascii("$srcrep/$packid/$files->{$file}-$file")) {
 	$nfiles->{$file} = $files->{$file};
+	next;
       }
     }
     # both are ascii, create diff
