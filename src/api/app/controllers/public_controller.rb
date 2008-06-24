@@ -81,7 +81,7 @@ class PublicController < ApplicationController
       'Transfer-Encoding' => 'binary'
     )
 
-    render_stream Net::HTTP::Get.new(path)
+    render_stream Net::HTTP::Get.new(path+build_query_from_hash(params, [:rev]))
   end
 
   # GET /public/lastevents
