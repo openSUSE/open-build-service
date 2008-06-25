@@ -1,0 +1,174 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2008 Adrian Schroeter, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The Admin Tool
+#
+
+use POSIX;
+use Data::Dumper;
+use Getopt::Long;
+use Storable ();
+use XML::Structured ':bytes';
+
+use BSConfig;
+use BSFileDB;
+use BSWatcher;
+use BSUtil;
+use BSXML;
+
+my $reporoot  = "$BSConfig::bsdir/build";
+my $eventroot = "$BSConfig::bsdir/events";
+
+sub echo_help {
+    print "\n
+The openSUSE Build Service Admin Tool
+=====================================
+
+*** This tool is only intended to be used by experienced admins on the backend server ! ***
+
+General options
+===============
+
+ --help
+   Gives this help output.
+
+Job Controlling
+===============
+
+ --shutdown-scheduler
+   Stops the scheduler nicely with dumping out its current state.
+
+ --check-project
+   Check status of a project and its repositories again
+
+ --rescan-repository
+   Asks the scheduler to scan a repository for new packages and add them to the cache file.
+
+Debug Options
+=============
+
+ --dump-cache
+   Dumps out the content of a binary cache file.
+   This shows all the content of a repository, including all provides and requires.
+
+ --dump-state
+
+";
+};
+
+sub dump_cache {
+  my ($project, $repo, $arch) = @_;
+  my $cache = Storable::retrieve("$reporoot/$project/$repo/$arch/:full.cache") || {};
+  print Dumper( $cache );
+};
+
+sub write_event {
+  my ($project, $repo, $arch, $event) = @_;
+  my $evname = "${project}::${repo}::$event";
+  my $ev = { "type" => $event };
+  $ev->{ 'project' } = $project if defined($project);
+  $ev->{ 'repository' } = $repo if defined($repo);
+  writexml("$eventroot/$arch/.$evname$$", "$eventroot/$arch/$evname", $ev, $BSXML::event);
+  local *F;
+  if (sysopen(F, "$eventroot/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite(F, 'x');
+    close(F);
+  }
+};
+
+sub scan_repo {
+  my ($project, $repo, $arch) = @_;
+  write_event( $project, $repo, $arch, 'scanrepo' );
+};
+
+sub dump_state {
+  my ($arch) = @_;
+  write_event( undef, undef, $arch, 'dumpstate' );
+};
+
+sub shutdown_scheduler {
+  my ($arch) = @_;
+  write_event( undef, undef, $arch, 'exit' );
+};
+
+sub check_project {
+  my ($project, $arch) = @_;
+  write_event( $project, undef, $arch, 'recheck' );
+};
+
+#
+# Argument parsing
+#
+if ( @ARGV < 1 ){
+  echo_help;
+}
+
+while (defined (my $arg = shift @ARGV)) {
+  if ( $arg eq "--help" ) {
+    echo_help;
+    exit;
+  };
+  if ( $arg eq "--dump-cache" ) {
+    if ( @ARGV < 3 ){
+      print "ERROR: need project, repository and architecture as argument !\n";
+      exit
+    }
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $arch = shift @ARGV;
+    dump_cache( $project, $repo, $arch );
+  };
+  if ( $arg eq "--dump-state" ) {
+    if ( @ARGV < 1 ){
+      print "ERROR: need architecture as argument !\n";
+      exit
+    }
+    my $arch = shift @ARGV;
+    dump_state( $arch );
+  };
+  if ( $arg eq "--shutdown-scheduler" ) {
+    if ( @ARGV < 1 ){
+      print "ERROR: need architecture as argument !\n";
+      exit
+    }
+    my $arch = shift @ARGV;
+    shutdown_scheduler( $arch );
+  };
+  if ( $arg eq "--check-project" ) {
+    if ( @ARGV < 2 ){
+      print "ERROR: need project and architecture as argument !\n";
+      exit
+    }
+    my $arch = shift @ARGV;
+    check_project( $arch );
+  };
+  if ( $arg eq "--rescan-repository" ) {
+    if ( @ARGV < 3 ){
+      print "ERROR: need project, repository and architecture as argument !\n";
+      exit
+    }
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $arch = shift @ARGV;
+#    drop_cache( $project, $repo, $arch );
+    scan_repo( $project, $repo, $arch );
+  };
+};
+
