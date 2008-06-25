@@ -1,7 +1,7 @@
 <h2>New user</h2>
 
 <% form_tag :action => 'create' do %>
-  <%= render_partial 'form' %>
+  <%= render :partial => 'form' %>
   
   <%= submit_tag "Create", :name => 'submit[create]' %>
 <% end %>

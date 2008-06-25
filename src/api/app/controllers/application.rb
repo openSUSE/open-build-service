@@ -29,7 +29,7 @@ class ApplicationController < ActionController::Base
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
 
-  #contains current authentification method, one of (:ichain, :basic_auth)
+  #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
 
   def restrict_admin_pages
@@ -49,10 +49,10 @@ class ApplicationController < ActionController::Base
   end
 
   def extract_user
-    @http_user = nil;
+    @http_user = nil
 
     if ichain_mode != :off # configured in the the environment file
-      auth_method = :ichain
+      @auth_method = :ichain
 
       logger.debug "configured iChain mode: #{ichain_mode.to_s},  remote_ip: #{request.remote_ip()}"
 
@@ -111,7 +111,7 @@ class ApplicationController < ActionController::Base
       end
     else 
       #active_rbac is used for authentication
-      auth_method = :active_rbac
+      @auth_method = :basic
 
       if request.env.has_key? 'X-HTTP_AUTHORIZATION' 
         # try to get it where mod_rewrite might have put it 

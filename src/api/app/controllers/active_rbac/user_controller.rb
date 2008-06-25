@@ -25,7 +25,7 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
     redirect_to :action  => 'list'
   end
 
-   def list
+  def list
     if params[:onlyunconfirmed]
       @user_pages, @users = paginate :user, :conditions => [ "state = 5"], :order_by => "id", :per_page => 200
     else
@@ -51,7 +51,6 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
 
   # Displays a form to create a new user. Posts to the #create action.
   def new
-    @ichain_mode = ichain_mode
     @user = User.new
   end
 
@@ -94,7 +93,6 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
   # the database and displays an edit form with the user.
   def edit
     @user = User.find(params[:id])
-
   rescue ActiveRecord::RecordNotFound
     flash[:error] = 'You sent an invalid request.'
     redirect_to :action => 'list'
