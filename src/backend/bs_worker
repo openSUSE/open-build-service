@@ -49,18 +49,27 @@ my $workerid;
 my $srcserver;
 my @reposervers;
 my $testmode;
+my $noworkercheck;
+my $oneshot;
 
 my $buildlog_maxsize = 70 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
 my $xenstore_maxsize = 20 * 1000000;
 
 my %cando = (
-  'i586'   => ['i586'],
-  'i686'   => ['i586', 'i686'],
-  'x86_64' => ['x86_64', 'i586:linux32', 'i686:linux32'],
-  'ppc'    => ['ppc'],
-  'ppc64'  => ['ppc64', 'ppc:powerpc32'],
-  'sh4'    => ['sh4'],
+  'i586'    => ['i586'],
+  'i686'    => ['i586', 'i686'],
+  'x86_64'  => ['x86_64', 'i586:linux32', 'i686:linux32'],
+  'ppc'     => ['ppc'],
+  'ppc64'   => ['ppc64', 'ppc:powerpc32'],
+  'sh4'     => ['sh4'],
+  'ia64'    => ['ia64'],
+  's390'    => ['s390'],
+  's390x'   => ['s390x', 's390:s390'],
+  'sparc'   => ['sparc'],
+  'sparc64' => ['sparc64', 'sparc:sparc32'],
+  'mips'    => ['mips'],
+  'mips64'  => ['mips64', 'mips:mips32'],
 );
 
 sub lockstate {
@@ -135,6 +144,13 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --build     : just build the package, don't send anything back
                      (needs a buildinfo file as argument)
 
+       --noworkercheck
+                   : do not check if the worker is up-to-date
+
+       --oneshot <seconds>
+		   : just build one package, do not wait more then
+                     <seconds> seconds if nothing is available
+
        --help      : this message
 
 EOF
@@ -207,6 +223,16 @@ while (@ARGV) {
   if ($ARGV[0] eq '--build') {
     shift @ARGV;
     $justbuild = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--oneshot') {
+    shift @ARGV;
+    $oneshot = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--noworkercheck') {
+    shift @ARGV;
+    $noworkercheck = shift @ARGV;
     next;
   }
   last;
@@ -609,6 +635,10 @@ sub dobuild {
 }
 
 
+if (defined($oneshot)) {
+  $oneshot = time() + $oneshot;
+}
+
 # better safe than sorry...
 chdir($statedir) || die("$statedir: $!\n");
 
@@ -647,6 +677,10 @@ while (!BSServer::server($conf)) {
   next unless $state;
 
   if ($state->{'state'} eq 'idle') {
+    if ($oneshot && time() > $oneshot) {
+      print "exiting.\n";
+      exit(0);
+    }
     $idlecnt++;
     if ($idlecnt % 30 == 0) {
       # send idle message every 5 minutes in case the server was down
@@ -773,7 +807,7 @@ if ($xen && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_m
   die("xenstore too big:".(-s '/var/lib/xenstored/tdb')."\n");
 }
 my $state = lockstate();
-if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode) {
+if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode && !$noworkercheck) {
   $state->{'state'} = 'rebooting';
   my $peer = "${BSServer::peer}:$cgi->{'port'}";
   $workercode = getcode('worker', "http://$peer/getworkercode");
@@ -844,6 +878,7 @@ if ($state->{'state'} eq 'discarded') {
   unlink("$buildroot/job");
   $state = {'state' => 'idle'};
   commitstate($state);
+  exit(0) if $oneshot && time() > $oneshot;
   send_state('idle', $port, $hostarch);
   exit(0);
 }
@@ -918,6 +953,7 @@ print "\n";
 $state = {'state' => 'idle'};
 commitstate($state);
 
+exit(0) if $oneshot && time() > $oneshot;
 send_state('idle', $port, $hostarch);
-exit(0);
 
+exit(0);
