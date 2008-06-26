@@ -49,7 +49,7 @@ my $workerid;
 my $srcserver;
 my @reposervers;
 my $testmode;
-my $noworkercheck;
+my $noworkercheck = 0;
 my $oneshot;
 
 my $buildlog_maxsize = 70 * 1000000;
@@ -232,7 +232,7 @@ while (@ARGV) {
   }
   if ($ARGV[0] eq '--noworkercheck') {
     shift @ARGV;
-    $noworkercheck = shift @ARGV;
+    $noworkercheck = 1;
     next;
   }
   last;
@@ -820,7 +820,7 @@ my $jobid = $cgi->{'jobid'};
 $jobid ||= Digest::MD5::md5_hex($infoxml);
 
 $buildcode = codemd5('build');
-if ($cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
+if (!$noworkercheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
   print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
   my $peer = "${BSServer::peer}:$cgi->{'port'}";
   $buildcode = getcode('build', "http://$peer/getbuildcode");
