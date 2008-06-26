@@ -609,28 +609,18 @@ sub dobuild {
     return 1;
   }
 
-  print "build succeeded\n";
   if ($xen) {
-    print "extracting built packages...\n";
-    @args = ();
-    push @args, "$statedir/build/extractbuild";
-    push @args, '--xenroot', "$xen_root";
-    push @args, '--xenswap', "$xen_swap";
-    if (system(@args)) {
-      die("extractbuild failed\n");
+    rm_rf("$buildroot/.build.packages");
+    if(!rename($buildroot.'/.mount/.build.packages', "$buildroot/.build.packages")) {
+      print "final rename failed: $!";
+      return 1;
     }
-    # FIXME stream directly from swap
-    mkdir_p("$buildroot/.build.packages");
-    rm_rf("$buildroot/.build.packages/SRPMS");
-    rm_rf("$buildroot/.build.packages/DEPS");
-    rm_rf("$buildroot/.build.packages/KIWI");
+    # XXX: extracted cpio is flat but code below expects those directories...
     symlink('.', "$buildroot/.build.packages/SRPMS");
     symlink('.', "$buildroot/.build.packages/DEBS");
     symlink('.', "$buildroot/.build.packages/KIWI");
-    if (system("cd $buildroot/.build.packages && cpio --extract --no-absolute-filenames -v < $xen_swap")) {
-      die("cpio extract failed\n");
-    }
   }
+  print "build succeeded\n";
   return 0;
 }
 
@@ -944,6 +934,8 @@ if (!$testmode) {
   }
 } else {
   print "testmode, not sending anything\n";
+  use Data::Dumper;
+  print Dumper(\@send);
 }
 
 unlink("$buildroot/.build.log");
