@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 #
 # Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+# Copyright (c) 2008 Michael Schroeder, Novell Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -81,12 +82,6 @@ my $myeventdir = "$eventdir/$myarch";
 my $myinfodir = "$infodir/$myarch";
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
-
-my %aliendeps = (
-  'spec' => 'rpm',	# should be rpmbuild?
-  'dsc' => 'dpkg',
-  'kiwi' => 'kiwi',
-);
 
 my %remoteprojs;	# remote project cache
 
@@ -561,7 +556,6 @@ sub set_building {
   my $packtype = $1 || 'spec';
 
   my @bdeps = @{$info->{'dep'} || []};
-  push @bdeps, $aliendeps{$packtype} if $packtype ne $prptype;
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {
@@ -2764,7 +2758,12 @@ while(1) {
     next;
   }
   my $prptype = $bconf->{'type'};
-  print "  - $prp ($prptype)\n";
+  if ( $bconf->{'type'} eq 'kiwi' ) {
+    # ignore the "Ignore:" statements for Image builds
+    delete $bconf->{'ignore'};
+    delete $bconf->{'ignoreh'};
+  };
+  print "  - $prp\n";
 
   if (grep {$_->{'name'} eq $repoid && $_->{'status'} && $_->{'status'} eq 'disabled'} @{$projpacks->{$projid}->{'repository'}}) {
     print "      disabled\n";
@@ -2870,7 +2869,6 @@ while(1) {
     my $packtype = $1 || 'spec';
 
     my @deps = @{$info->{'dep'} || []};
-    push @deps, $aliendeps{$packtype} if $packtype ne $prptype;
     my ($eok, @edeps) = Build::get_deps($bconf, $subpacks{$info->{'name'}}, @deps);
     if (! $eok) {
       @edeps = @deps;
@@ -2956,7 +2954,6 @@ while(1) {
 	next;
       }
     }
-
     my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
     my $info = $info{$repoid};
     if (!$info) {
@@ -2997,7 +2994,6 @@ while(1) {
       $packerror{$packid} = $aerror if defined $aerror;
       next;
     }
-
     if (!exists $info->{'file'}) {
       print "      - $packid (no spec/dsc/kiwi file)\n";
       $packstatus{$packid} = 'broken';
@@ -3011,7 +3007,6 @@ while(1) {
     if ($experrors{$packid}) {
       # retry expansion of this one
       my @deps = @{$info->{'dep'} || []};
-      push @deps, $aliendeps{$packtype} if $packtype ne $prptype;
       my ($eok, @edeps) = Build::get_deps($bconf, $subpacks{$info->{'name'}}, @deps);
       if (! $eok) {
 	print "      - $packid ($packtype)\n";

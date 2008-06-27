@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 #
 # Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+# Copyright (c) 2008 Adrian Schroeter, Novell Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -685,7 +686,7 @@ sub readpack {
 
 # find matching .spec/.dsc/.kiwi file depending on packid and/or repoid
 sub findfile {
-  my ($projid, $packid, $repoid, $ext, $files, $ambigp) = @_;
+  my ($projid, $packid, $repoid, $ext, $files) = @_;
   $files = lsrep($projid, $packid, $files) unless ref $files;
   return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
   return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"} && defined($repoid);
@@ -694,7 +695,6 @@ sub findfile {
   return ($files->{$files[0]}, $files[0]) if @files == 1;
   if (@files > 1) {
     if (!defined($repoid)) {
-      $$ambigp = 1 if $ambigp;
       # return (undef, undef);
       @files = sort @files;
       return ($files->{$files[0]}, $files[0]);
@@ -868,168 +868,148 @@ sub getprojpack {
 	    $pinfo->{'info'} = \@dinfo if @dinfo;
 	  }
         } elsif ($cgi->{'withdeps'}) {
-          my $needrepos;
-          my @dinfo;
-          my $ambig;
-          my $kiwidesc = ();
+	  my @dinfo = ();
 
-          # look for kiwi image description files
-          my ($md5, $file) = findfile($projid, $packid, undef, 'kiwi', $files, \$ambig);
-          if ($md5 && $file) {
-	    if ($BSConfig::kiwiprojects) {
-	      my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
-	      if (!$kiwiprojects{$projid}) {
-                $pinfo->{'error'} = "kiwi is not enabled for this project";
-                next;
-	      }
+          # Build config cache for all repositories
+	  for my $repo (@{$proj->{'repository'} || []}) {
+	    my $repoid = $repo->{'name'};
+	    next if $repoids && !$repoids->{$repoid};
+
+	    if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
+	      push @dinfo, {'repository' => $repoid, 'error' => 'disabled'};
+	      next;
 	    }
-            $kiwidesc = readxml("$srcrep/$packid/$md5-$file", $BSXML::kiwidesc, 1);
-            if (!$kiwidesc) {
-              $pinfo->{'error'} = "bad kiwi description data";
-              next;
-            }
-
-# FIXME / XXX: write kiwi verification code
-#            eval {
-#	      BSVerify::verify_kiwidesc($kiwidesc);
-#            };
-#	    if ($@) {
-#	      my $err = $@;
-#	      $err =~ s/\n$//s;
-#	      $pinfo->{'error'} = "bad kiwidesc: $err";
-#	      next;
-#	    }
-
-            my @alltypes = ();
-            for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
-              push( @alltypes, $type->{'_content'} );
+            if ( !$bconfs{$repoid} ) {
+	      print "reading config for $projid/$repoid $arch\n";
+	      my $c;
+	      eval {
+	        ($c) = getconfig($cgi, $projid, $repoid);
+	      };
+	      if ($@) {
+	        my $err = $@;
+	        $err =~ s/\n$//;
+	        push @dinfo, {'repository' => $repoid, 'error' => $err};
+	        next;
+	      }
+	      $c = [ split("\n", $c) ];
+	      $bconfs{$repoid} = Build::read_config($arch, $c);
             };
-#            $pinfo->{'imagetype'} = \@alltypes if @alltypes;
+	    my $conf = $bconfs{$repoid};
+	    my @myconftypes = $conf->{'type'};
 
-	    my @dinfo = ();
-            # FIXME: read all patterns&packages from preferences, where do we get them from ?
-          
-            if (defined ($kiwidesc->{'packages'}) && defined ($kiwidesc->{'repository'})) {
-              # collect all possible needed repositories
-              my @allrepos = ();
-              my $use_project_repos;
-              $use_project_repos = "no";
-              for my $repository (@{$kiwidesc->{'repository'} || []}) {
-                for my $kiwisource (@{$repository->{'source'} || []}) {
-                  if ( $kiwisource->{'path'} eq 'opensuse:.' ) {
-                    # use repos from project setup
-                    $use_project_repos = "yes";
-                  } elsif ( $kiwisource->{'path'} =~/opensuse:\/\/(\w+)/ ) {
-                    push( @allrepos, $1 );
-	          } else {
-	    	    $pinfo->{'error'} = "non Build Service KIWI source found: $kiwisource->{'path'}";
-                    next;
-                  };
-                };
-              };
+            #
+            # look for kiwi image description files
+            #
+            my ($md5, $file) = findfile($projid, $packid, $repoid, 'kiwi', $files);
+            if ($md5 && $file) {
+	      if ($BSConfig::kiwiprojects) {
+	        my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
+	        if (!$kiwiprojects{$projid}) {
+                  $pinfo->{'error'} = "kiwi is not enabled for this project";
+                  next;
+	        }
+	      }
+              my $kiwidesc = readxml("$srcrep/$packid/$md5-$file", $BSXML::kiwidesc, 1);
+              if (!$kiwidesc) {
+                $pinfo->{'error'} = "bad kiwi description data";
+                next;
+              }
 
-              # collect all package requires from all packages groups.
-              my @allpackages = ();
-              for my $packagegroup (@{$kiwidesc->{'packages'} || []}) {
-                for my $package (@{$packagegroup->{'package'} || []}) {
-                    # FIXME: add check if arch is specified !
-                    push( @allpackages, $package->{'name'} );
-                };
-                # FIXME: add support for opensusePatterns
-              };
-
-              # Add implicit the package manager package
-              my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
-              if ( $packman eq "smart" ) { 
-                push( @allpackages, "smart" );
-              } elsif ( $packman eq "zypper" ) { 
-                push( @allpackages, "zypper" );
+              if ( ! grep { $_ eq "kiwi" } @myconftypes ) {
+	        push @dinfo, {'repository' => "$repoid", 'file' => $file, 'name' => $packid };
+	        $dinfo[-1]->{'error'} = 'excluded';
               } else {
-	    	$pinfo->{'error'} = "Unknown package manager: $kiwidesc->{'packages'}->{'packagemanager'}";
-              };
-              # use implicit repository name "images"
-              push @dinfo, {'repository' => 'images', 'file' => $file, 'name' => $kiwidesc->{'name'},
-                            'dep' => \@allpackages, 'imagetype' => \@alltypes};
-            } else {
-              push @dinfo, {'repository' => 'images', 'error' => "kiwi config file parse error"};
+                my @alltypes = ();
+                for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
+                  push( @alltypes, $type->{'_content'} );
+                };
+
+                # FIXME: read all patterns&packages from preferences, where do we get them from ?
+                # FIXME: add all Recommended patterns&packages if configured
+            
+                if (defined ($kiwidesc->{'packages'}) && defined ($kiwidesc->{'repository'})) {
+                  # collect all possible needed repositories
+                  # this should maybe moved above to the expandrepos calls without harming performance
+                  my @allrepos = ();
+                  my $use_project_repos;
+                  $use_project_repos = "no";
+                  for my $repository (@{$kiwidesc->{'repository'} || []}) {
+                    for my $kiwisource (@{$repository->{'source'} || []}) {
+                      if ( $kiwisource->{'path'} eq 'obs:.' ) {
+                        # use repos from project setup
+                        $use_project_repos = "yes";
+                      } elsif ( $kiwisource->{'path'} =~ /obs:\/\/(.+)/ ) {
+ 	                my @s = split('/', $1, 2);
+	                # Project in remote build service instance ?
+	                if ($withremotemap && !exists($remotemap{$s[0]})) {
+	                  $remotemap{$s[0]} = remoteprojid($s[0]);
+	                }
+	                my $prp = {'project' => $s[0], 'repository' => $s[1]};
+                        push( @allrepos, $prp );
+	              } else {
+	                $pinfo->{'error'} = "non Build Service KIWI source found: $kiwisource->{'path'}";
+                        next;
+                      };
+                    };
+                  };
+	          $repo->{'path'} = \@allrepos unless "$use_project_repos" eq "yes";
+
+                  # collect all package requires from all packages groups.
+                  my @allpackages = ();
+                  for my $packagegroup (@{$kiwidesc->{'packages'} || []}) {
+                    for my $package (@{$packagegroup->{'package'} || []}) {
+                        # FIXME: add check if arch is specified !
+                        push( @allpackages, $package->{'name'} );
+                    };
+                    # FIXME: add support for opensusePatterns
+                  };
+
+                  # Add implicit the package manager package
+                  my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
+                  if ( $packman eq "smart" ) { 
+                    push( @allpackages, "smart" );
+                  } elsif ( $packman eq "zypper" ) { 
+                    push( @allpackages, "zypper" );
+                  } else {
+	            $pinfo->{'error'} = "Unknown package manager: $kiwidesc->{'packages'}->{'packagemanager'}";
+                  };
+                  # collect all possible needed repositories
+                  push @dinfo, {'repository' => $repoid, 'file' => $file, 'name' => $kiwidesc->{'name'},
+                                'dep' => \@allpackages, 'imagetype' => \@alltypes};
+                } else {
+                  push @dinfo, {'repository' => $repoid, 'error' => "kiwi config file parse error"};
+                }
+              }
+              $pinfo->{'info'} = \@dinfo if @dinfo;
+              next;
+            };
+            #
+            # handle spec and dsc build descriptions
+            #
+	    #print "$projid/$packid is repo dependant\n";
+
+            # exclude kiwi exclusive builds (no spec or dsc build)
+            if ( ! (grep { $_ eq "spec" } @myconftypes) && ! (grep { $_ eq "dsc" } @myconftypes) ) {
+              push @dinfo, {'repository' => $repoid, 'error' => 'excluded'};
+	      next;
             }
-            $pinfo->{'info'} = \@dinfo if @dinfo;
-
-            next;
-          };
-
-          #
-          # handle standard build descriptions
-          #
-          my %type2file;
-          #for my $type ('spec', 'dsc')
-          for my $type (()) {
-	    my ($md5, $file) = findfile($projid, $packid, undef, $type, $files, \$ambig);
-            $needrepos ||= $ambig;
-            next unless defined $file;
-	    $type2file{$type} = $file unless $ambig;
-            my $d = Build::parse($bconf, "$srcrep/$packid/$md5-$file");
-	    $needrepos ||= $d->{'configdependent'};
+            # Find spec or dsc file depending on configured build type
+            $md5 = undef;
+            my $mytype = shift @myconftypes;
+            while ( $mytype && !defined($md5) ) {
+              ($md5, $file) = findfile($projid, $packid, $repoid, $mytype, $files) unless $mytype eq "kiwi";
+              $mytype = shift @myconftypes;
+            };
+            next unless defined $md5;
+            # get build dependency info
+            my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
-	      push @dinfo, {'repository' => ":$type", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+	      push @dinfo, {'repository' => "$repoid", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
 	      $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
 	    } else {
-	      push @dinfo, {'repository' => ":$type", 'file' => $file, 'error' => "$type file parse error"};
-	    }
-          }
-	  if (1 || $needrepos || $repoids || ($enable && %$enable) || ($disable && %$disable)) {
-	    @dinfo = ();
-	    #print "$projid/$packid is repo dependant\n";
-	    for my $repo (@{$proj->{'repository'} || []}) {
-	      my $repoid = $repo->{'name'};
-	      next if $repoids && !$repoids->{$repoid};
-	      if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
-	        push @dinfo, {'repository' => $repoid, 'error' => 'disabled'};
-		next;
-	      }
-	      if (!$bconfs{$repoid}) {
-		print "reading config for $projid/$repoid $arch\n";
-		my $c;
-	        eval {
-		  ($c) = getconfig($cgi, $projid, $repoid);
-		};
-		if ($@) {
-		  my $err = $@;
-		  $err =~ s/\n$//;
-		  push @dinfo, {'repository' => $repoid, 'error' => $err};
-		  next;
-		}
-		$c = [ split("\n", $c) ];
-	        $bconfs{$repoid} = Build::read_config($arch, $c);
-	      }
-	      my $conf = $bconfs{$repoid};
-
-              my ($md5, $file);
-	      my $mytypedone;
-              for my $type ($conf->{'type'}, 'spec', 'dsc') {
-		next if $type eq $conf->{'type'} && $mytypedone;
-		$mytypedone = 1;
-		$file = $type2file{$type};
-		if (!defined($file)) {
-	          ($md5, $file) = findfile($projid, $packid, $repoid, $type, $files);
-		} else {
-		  $md5 = $files->{$file};
-		}
-                next unless defined $file;
-                # get build dependency info
-                my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
-		if (defined($d->{'name'})) {
-		  push @dinfo, {'repository' => $repoid, 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
-		  $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
-	          my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
-          	  $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
-		} else {
-		  push @dinfo, {'repository' => $repoid, 'error' => "$type file parse error"};
-		}
-		last;
-              }
+	      push @dinfo, {'repository' => "$repoid", 'file' => $file, 'error' => "file parse error"};
 	    }
 	  }
 	  $pinfo->{'versrel'} ||= "unknown-$rev->{'vrev'}";
@@ -1757,7 +1737,6 @@ sub keeplink {
     writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
     $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
   }
-  print Dumper($nfiles);
   return $nfiles;
 }
 
@@ -2951,7 +2930,7 @@ my $dispatches = [
   '/search/published/binary/id $match:' => \&search_published_binary_id,
   '/search/published/pattern/id $match:' => \&search_published_pattern_id,
 
-  # new /build API
+  # build calls for binary files
   '/build' => \&getprojectlist,
   '/build/_workerstatus scheduleronly:bool? arch*' => \&getworkerstatus,
   'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,

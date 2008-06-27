@@ -895,7 +895,6 @@ sub getjobhistory {
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid, $pdata) = @_;
   my $projpack;
-
   my $uploaded;
   if (!$pdata) {
     $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
@@ -952,7 +951,7 @@ sub getbuildinfo {
   }
 
   my $info = $pdata->{'info'}->[0];
-  die("bad info\n") unless $info && ( $info->{'repository'} eq $repoid || $info->{'repository'} eq "images" );
+  die("bad info\n") unless $info && ( $info->{'repository'} eq $repoid );
   if ($info->{'error'}) {
     $ret->{'error'} = $info->{'error'};
     return ($ret, $BSXML::buildinfo);
@@ -962,10 +961,12 @@ sub getbuildinfo {
   $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   if ($1 && 'kiwi' eq $1) {
     # Dependency breaking shall be ignored for real usage
+    # package installer tools do not care about project ignores either ;)
     $bconf->{'ignore'} = '';
+    $bconf->{'ignoreh'} = '';
     # Collect kiwi image types
-    my @types = @{$info->{'imagetype'} || []};
-    $ret->{'imagetype'} = \@types unless $uploaded;
+    my @itypes = @{$info->{'imagetype'} || []};
+    $ret->{'imagetype'} = \@itypes unless $uploaded;
   }
 
   # read repository data from cache
@@ -1143,6 +1144,7 @@ sub getbuildinfo_post {
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
   my $pdata = {'info' => [ $info ]};
+
   return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
 }
 
