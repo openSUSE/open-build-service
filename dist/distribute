@@ -223,7 +223,7 @@ if [ ${DO_TAR} ]; then
     # connect to.
     SVNVERSION=${SVNVERSION//:/_}
 
-    : ${TARFILE:=obs-server-${SVNVERSION}}
+    : ${TARFILE:=obs-server-${OBSREV}.${SVNVERSION}}
 
     if [ ! -f ${TARFILE}.tar.bz2 ] ; then
 
@@ -311,7 +311,7 @@ if [ ${DO_UPDATE} ]; then
     # update version information in the specfile
     for spf in ${SPECFILE}
     do
-    sed --in-place -e "s/^%define svnversion updated_by_script/%define svnversion ${SVNVERSION}/" ${spf}
+    sed --in-place -e "s/^%define svnversion updated_by_script/%define svnversion ${OBSREV}.${SVNVERSION}/" ${spf}
     done
     popd
 fi

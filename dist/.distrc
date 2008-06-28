@@ -9,3 +9,4 @@
 # files from $PWD that are not part of the distribution, one on a line
 : ${EXCLUDES:=README.SETUP README.UPDATERS TODO}
 : ${SVNDIR:=../../buildservice}
+: ${OBSREV:=0.99.9}
