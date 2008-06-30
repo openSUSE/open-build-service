@@ -150,27 +150,31 @@ our $kiwidesc = [
         ],
         [ 'preferences' =>
           [[ 'type' =>
-              'primary',
-              'filesystem',
-              'boot',
               'bootprofile',
+              'boot',
               'flags',
+              'filesystem',
+              'format',
+              'primary',
               '_content',
           ]],
-             'version',
+          'version',
           [ 'size' =>
               'unit',
               '_content',
           ],
-          [  'compressed', ],
-             'packagemanager',
-             'rpm-check-signatures',
+          'compressed',
+          'packagemanager',
+          'rpm-check-signatures',
         ],
         [[ 'users' =>
              'group',
              [],
              [[ 'user' => 'name', 'pwd', 'home', 'realname' ]],
         ]],
+        [ 'profiles' =>
+             [[ 'profile' => 'name', 'description' ]],
+        ],
 	[[ 'repository' =>
 	       'type',
                [],
@@ -198,6 +202,7 @@ our $kiwidesc = [
           ]],
 	[[ 'packages' =>
                'type',
+               'profiles',
                'patternType',
                'patternPackageType',
                'memory',
