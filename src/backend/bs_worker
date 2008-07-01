@@ -50,7 +50,9 @@ my $srcserver;
 my @reposervers;
 my $testmode;
 my $noworkercheck = 0;
+my $nobuildcodecheck = 0;
 my $oneshot;
+my $silent;
 
 my $buildlog_maxsize = 70 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
@@ -144,8 +146,14 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --build     : just build the package, don't send anything back
                      (needs a buildinfo file as argument)
 
-       --noworkercheck
+       --noworkerupdate
                    : do not check if the worker is up-to-date
+
+       --nobuildupdate
+                   : do not check if the build code is up-to-date
+
+       --nocodeupdate
+                   : do not update both worker and build code
 
        --oneshot <seconds>
 		   : just build one package, do not wait more then
@@ -230,9 +238,25 @@ while (@ARGV) {
     $oneshot = shift @ARGV;
     next;
   }
-  if ($ARGV[0] eq '--noworkercheck') {
+  if ($ARGV[0] eq '--nocodeupdate') {
     shift @ARGV;
     $noworkercheck = 1;
+    $nobuildcodecheck = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--noworkerupdate') {
+    shift @ARGV;
+    $noworkercheck = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--nobuildupdate') {
+    shift @ARGV;
+    $nobuildcodecheck = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--silent') {
+    shift @ARGV;
+    $silent= 1;
     next;
   }
   last;
@@ -476,6 +500,22 @@ sub getbinaries {
   }
 }
 
+sub qsystem {
+  my (@args) = @_;
+  if ($silent) {
+    my $pid;
+    if (!($pid = xfork())) {
+      open(STDOUT, ">/dev/null");
+      exec(@args);
+      die("$args[0]: $!\n"); 
+    }
+    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n"); 
+    return $?;
+  } else {
+    return system @args;
+  }
+}
+
 sub dobuild {
   my ($buildinfo) = @_;
 
@@ -540,14 +580,14 @@ sub dobuild {
     # will not be needed anymore with kiwi 2.36
     rename( "$buildroot/.build-srcdir/config.kiwi", "$buildroot/.build-srcdir/config.xml" );
 
-    print "Build KIWI preparation directory\n";
+    print "building KIWI preparation directory...\n";
     push @args, "kiwi";
     push @args, '--prepare', "$buildroot/.build-srcdir/";
     push @args, '--ignore-repos';
     push @args, '--add-repo', "$buildroot/.rpms/", "--add-repotype", "rpm-dir";
     push @args, '--logfile', "$buildroot/.build.log";
     push @args, '--root', "$buildroot/kiwi-root";
-    if (system(@args)) {
+    if (qsystem(@args)) {
       print "build failed\n";
       return 1;
     }
@@ -557,7 +597,7 @@ sub dobuild {
     mkdir("$buildroot/.build.packages") || die("mkdir $buildroot/.build.packages");
     mkdir("$buildroot/.build.packages/KIWI") || die("mkdir $buildroot/.build.packages/KIWI");
     for my $itype (@imagetypes) {
-      print "Build KIWI image: $itype\n";
+      print "building KIWI image: $itype...\n";
       @args = ();
       push @args, $helper if $helper;
       push @args, "kiwi";
@@ -567,7 +607,7 @@ sub dobuild {
       push @args, '--logfile', "$buildroot/.build.log.image";
       push @args, "-d", "$buildroot/.build.packages/KIWI";
       push @args, "--type", $itype;
-      if (system(@args)) {
+      if (qsystem(@args)) {
         print "build failed\n";
         return 1;
       }
@@ -575,6 +615,7 @@ sub dobuild {
       unlink( "$buildroot/.build.log.image" );
     }
   } else {
+    print "building...\n" if $silent;
     push @args, "$statedir/build/build";
     if ($xen) {
       mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
@@ -599,7 +640,7 @@ sub dobuild {
     push @args, '--arch', $arch;
     push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
     push @args, "$buildroot/.build-srcdir/$buildinfo->{'file'}";
-    if (system(@args)) {
+    if (qsystem(@args)) {
       print "build failed\n";
       return 1;
     }
@@ -668,6 +709,7 @@ while (!BSServer::server($conf)) {
 
   if ($state->{'state'} eq 'idle') {
     if ($oneshot && time() > $oneshot) {
+      send_state('exit', $port, $hostarch);
       print "exiting.\n";
       exit(0);
     }
@@ -820,7 +862,7 @@ my $jobid = $cgi->{'jobid'};
 $jobid ||= Digest::MD5::md5_hex($infoxml);
 
 $buildcode = codemd5('build');
-if (!$noworkercheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
+if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
   print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
   my $peer = "${BSServer::peer}:$cgi->{'port'}";
   $buildcode = getcode('build', "http://$peer/getbuildcode");
