@@ -151,8 +151,6 @@ class ApplicationController < ActionController::Base
     # initialize backend on every request
     Suse::Backend.source_host = SOURCE_HOST
     Suse::Backend.source_port = SOURCE_PORT
-    Suse::Backend.rpm_host = RPM_HOST
-    Suse::Backend.rpm_port = RPM_PORT
     
     if @http_user
       if @http_user.source_host && !@http_user.source_host.empty?
@@ -163,15 +161,7 @@ class ApplicationController < ActionController::Base
         Suse::Backend.source_port = @http_user.source_port
       end
 
-      if @http_user.rpm_host && !@http_user.rpm_host.empty?
-        Suse::Backend.rpm_host = @http_user.rpm_host
-      end
-
-      if @http_user.rpm_port
-        Suse::Backend.rpm_port = @http_user.rpm_port
-      end
-      
-      logger.debug "User's source backend <#{@http_user.source_host}:#{@http_user.source_port}>, rpm backend: <#{@http_user.rpm_host}:#{@http_user.rpm_port}>"
+      logger.debug "User's source backend <#{@http_user.source_host}:#{@http_user.source_port}>"
     end
   end
 
