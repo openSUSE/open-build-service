@@ -8,6 +8,7 @@
         <xs:element ref="email"/>
         <xs:element ref="realname"/>
         <xs:element ref="source_backend"/>
+<!-- rpm_backend is obsolete and ignored at runtime -->
         <xs:element ref="rpm_backend"/>
         <xs:element ref="watchlist" minOccurs="0"/>
       </xs:sequence>
@@ -29,6 +30,7 @@
     </xs:complexType>
   </xs:element>
 
+<!-- rpm_backend is obsolete and ignored at runtime -->
   <xs:element name="rpm_backend">
     <xs:complexType>
       <xs:sequence>

@@ -25,8 +25,5 @@ ICHAIN_MODE = :off
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 6362
 
-RPM_HOST = "localhost"
-RPM_PORT = 6262
-
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/public/apidocs/html")+"/"
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"

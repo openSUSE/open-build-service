@@ -25,8 +25,5 @@ ICHAIN_HOST = "212.12.12.12"
 SOURCE_HOST = "storage"
 SOURCE_PORT = 5352
 
-RPM_HOST = "storage"
-RPM_PORT = 5252
-
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/public/apidocs/html")+"/"
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"

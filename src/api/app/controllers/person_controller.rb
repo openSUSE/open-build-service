@@ -65,12 +65,6 @@ class PersonController < ApplicationController
             user.source_port = e.elements['port'].text
           end
 
-          e = xml.elements["/person/rpm_backend"]
-          if ( e )
-            user.rpm_host = e.elements['host'].text
-            user.rpm_port = e.elements['port'].text
-          end
-
           update_watchlist( user, xml )
 
           user.save!

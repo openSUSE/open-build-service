@@ -9,15 +9,11 @@ module Suse
     @source_host = SOURCE_HOST
     @source_port = SOURCE_PORT
 
-    @rpm_host = RPM_HOST
-    @rpm_port = RPM_PORT
-
     @@backend_logger = Logger.new( "#{RAILS_ROOT}/log/backend_access.log" )
     
     class << self
 
       attr_accessor :source_host, :source_port
-      attr_accessor :rpm_host, :rpm_port
 
       def host
         @source_host
