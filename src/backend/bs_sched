@@ -68,7 +68,6 @@ my $reporoot = "$BSConfig::bsdir/build";
 my $jobsdir = "$BSConfig::bsdir/jobs";
 my $infodir = "$BSConfig::bsdir/info";
 my $eventdir = "$BSConfig::bsdir/events";
-my $projectsdir = "$BSConfig::bsdir/projects";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $extrepodb = "$BSConfig::bsdir/db/published";
@@ -295,6 +294,13 @@ sub findbins {
     warn($@) if $@;
     undef $cache unless ref($cache) eq 'HASH';
     if ($cache) {
+      if ($cache->{'/external'}) {
+	delete $cache->{'/external'};
+	for (values %$cache) {
+	  $_->{'path'} = "$prp/$myarch/:full/$_->{'path'}";
+	}
+	return $cache;
+      }
       my $byid = {};
       for (keys %$cache) {
 	my $v = $cache->{$_};
@@ -370,24 +376,24 @@ sub enabled {
   return $default;
 }
 
-#
+
+
+
+my $projpacks;		# global project/package data
+
 # this is basically getconfig from the source server
 # we do not need any macros, just the config
-#
-# XXX: this is wrong, the scheduler may have no direct access to
-# the config
-#
 sub getconfig {
   my ($arch, $path) = @_;
   my $config = '';
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
     my $c;
-    if (-s "$projectsdir/$p.conf") {
-      $c = readstr("$projectsdir/$p.conf", 1);
-    } elsif ($remoteprojs{$p}) {
+    if ($remoteprojs{$p}) {
       $c = fetchremoteconfig($p); 
       return undef unless defined $c;
+    } elsif ($projpacks->{$p}) {
+      $c = $projpacks->{$p}->{'config'};
     }
     next unless defined $c;
     $config .= "\n### from $p\n";
@@ -410,8 +416,6 @@ sub getconfig {
 ##
 ## Job management functions
 ##
-
-my $projpacks;		# global project/package data
 
 #
 # killjob - kill a single build job
@@ -1179,7 +1183,7 @@ sub get_projpacks {
   my $projpacksin;
   while (1) {
     eval {
-      $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', "arch=$myarch", @args);
+      $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', "arch=$myarch", @args);
     };
     if ($@ || !$projpacksin) {
       print $@ if $@;
@@ -2758,7 +2762,7 @@ while(1) {
     next;
   }
   my $prptype = $bconf->{'type'};
-  if ( $bconf->{'type'} eq 'kiwi' ) {
+  if ($bconf->{'type'} eq 'kiwi') {
     # ignore the "Ignore:" statements for Image builds
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
