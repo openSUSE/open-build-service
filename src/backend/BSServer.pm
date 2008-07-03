@@ -41,8 +41,10 @@ use BSHTTP;
 
 use strict;
 
+# FIXME: store in request and make request available
 our $peer;
 our $peerport;
+our $forwardedfor;
 
 sub xfork {
   # behaves as blocking fork, but uses non-blocking fork
@@ -426,6 +428,7 @@ sub readrequest {
     die("501 Bad method, must be GET\n") if $act ne 'GET';
     $qu = ''; # and assume that there are no more request data
   }
+  $forwardedfor = $headers{'x-forwarded-for'};
   my $query_string = '';
   if ($path =~ /^(.*?)\?(.*)$/) {
     $path = $1;

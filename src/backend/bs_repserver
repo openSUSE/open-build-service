@@ -70,12 +70,19 @@ my $ajaxsocket = "$BSConfig::bsdir/run/bs_repserver.ajax";
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 
 my %cando = (
-  'i586'   => ['i586'],
-  'i686'   => ['i586', 'i686'],
-  'x86_64' => ['x86_64', 'i586', 'i686'],
-  'ppc'    => ['ppc'],
-  'ppc64'  => ['ppc64', 'ppc'],
-  'sh4'    => ['sh4'],
+  'i586'    => ['i586'],
+  'i686'    => ['i586', 'i686'],
+  'x86_64'  => ['x86_64', 'i586', 'i686'],
+  'ppc'     => ['ppc'],
+  'ppc64'   => ['ppc64', 'ppc'],
+  'sh4'     => ['sh4'],
+  'ia64'    => ['ia64'],
+  's390'    => ['s390'],
+  's390x'   => ['s390', 's390x'],
+  'sparc'   => ['sparc'],
+  'sparc64' => ['sparc64', 'sparc'],
+  'mips'    => ['mips'],
+  'mips64'  => ['mips64', 'mips'],
 );
 
 my $reporoot = "$BSConfig::bsdir/build";
@@ -108,6 +115,20 @@ sub findbinaries {
   if (!@bins && -s "$dir.subdirs") {
     for my $subdir (split(' ', readstr("$dir.subdirs"))) {
       push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
+    }
+  }
+  if (!@bins && -s "$dir.cache") {
+    my $cache;
+    eval { $cache = Storable::retrieve("$dir.cache"); };
+    warn($@) if $@;
+    undef $cache unless ref($cache) eq 'HASH';
+    if ($cache->{'/external'}) {
+      for (keys %bins) {
+        next unless $cache->{$_};
+        my $bin = "$prp/$arch/:full/$cache->{$_}->{'path'}";
+	$bins{$_} = $bin if -f "$reporoot/$bin";
+      }
+      return \%bins;
     }
   }
   for (sort @bins) {
@@ -242,6 +263,7 @@ sub getbinarylist_repository {
 
   if ($view eq 'cpio') {
     my $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache") || {};
+    delete $cache->{'/external'};
     my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %$cache;
     my @files;
     for my $bin (@bins) {
@@ -265,8 +287,12 @@ sub getbinarylist_repository {
 
   die("unsupported view '$view'\n") if $view && $view ne 'names';
 
-  my $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache") || {};
+  my $cache = {};
+  eval {
+    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache") || {};
+  };
   my @res;
+  delete $cache->{'/external'};
   my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %$cache;
   for my $bin (@bins) {
     my $c = $cache->{$bin};
@@ -281,6 +307,12 @@ sub getbinarylist_repository {
       my @s = split('/', $c->{'id'}, 3);
       $r->{'mtime'} = $s[0];
       $r->{'size'} = $s[1];
+    } else {
+      my @s = stat("$reporoot/$prp/$arch/:full/$c->{'path'}");
+      if (@s) {
+        $r->{'mtime'} = $s[9];
+        $r->{'size'} = $s[7];
+      }
     }
     push @res, $r;
   }
@@ -531,7 +563,7 @@ sub workerstate {
   my $workerid = defined($cgi->{'workerid'}) ? $cgi->{'workerid'} : "$peerip:$peerport";
   my $idlename = "$harch:$workerid";
   $idlename =~ s/\//_/g;
-  if ($state eq 'building') {
+  if ($state eq 'building' || $state eq 'exit') {
     unlink("$workersdir/idle/$idlename");
   } elsif ($state eq 'idle') {
     if (-e "$workersdir/building/$idlename") {
@@ -846,6 +878,11 @@ sub docommand {
   for my $prpa (@$prpas) {
     my ($projid, $repoid, $arch) = split('/', $prpa);
     my @packids = @{$cgi->{'package'} || []};
+    my $allpacks;
+    if (@packids && $packids[0] eq '*') {
+      shift @packids;
+      $allpacks = 1;
+    }
     if (%code) {
       my $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1) || {};
       fixpackstatus($prpa, $ps, \%buildingjobs);
@@ -877,8 +914,13 @@ sub docommand {
 	warn("$@") if $@;
       }
     } elsif ($cmd eq 'wipe') {
-      for my $packid (@packids) {
-	forwardevent($cgi, 'wipe', $projid, $packid, $repoid, $arch);
+      undef $allpacks;
+      if ($allpacks) {
+        forwardevent($cgi, 'wipe', $projid, undef, $repoid, $arch);
+      } else {
+        for my $packid (@packids) {
+	  forwardevent($cgi, 'wipe', $projid, $packid, $repoid, $arch);
+        }
       }
     }
   }
@@ -962,8 +1004,8 @@ sub getbuildinfo {
   if ($1 && 'kiwi' eq $1) {
     # Dependency breaking shall be ignored for real usage
     # package installer tools do not care about project ignores either ;)
-    $bconf->{'ignore'} = '';
-    $bconf->{'ignoreh'} = '';
+    delete $bconf->{'ignore'};
+    delete $bconf->{'ignoreh'};
     # Collect kiwi image types
     my @itypes = @{$info->{'imagetype'} || []};
     $ret->{'imagetype'} = \@itypes unless $uploaded;
@@ -992,6 +1034,7 @@ sub getbuildinfo {
     } else {
       next unless -e "$reporoot/$prp/$arch/:full.cache";
       $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
+      delete $cache->{'/external'};
     }
     next unless ref($cache) eq 'HASH';
     $repodata{$prp} = $cache;
@@ -1241,6 +1284,7 @@ sub postrepo {
     my $cache;
     $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
     next unless ref($cache) eq 'HASH';
+    delete $cache->{'/external'};
     %data = (%data, %$cache);
   }
   my @data;
@@ -1492,8 +1536,12 @@ sub makeymp {
       $r->{'description'} = $nprojpack{$pa->{'project'}}->{'description'};
     }
     my $prp_ext = "$pa->{'project'}/$pa->{'repository'}";
-    $prp_ext =~ s/:/:\//g;
-    $r->{'url'} = "$BSConfig::repodownload/$prp_ext/";
+    if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$prp_ext}) {
+      $r->{'url'} = $BSConfig::prp_ext_map->{$prp_ext};
+    } else {
+      $prp_ext =~ s/:/:\//g;
+      $r->{'url'} = "$BSConfig::repodownload/$prp_ext/";
+    }
     push @repos, $r;
   }
   my $pkg = {};

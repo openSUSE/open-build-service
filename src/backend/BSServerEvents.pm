@@ -33,6 +33,32 @@ use strict;
 
 our $gev;	# our event
 
+sub gethead {
+  # parses http header and fills hash
+  # $h: reference to the hash to be filled
+  # $t: http header as string
+  my ($h, $t) = @_; 
+
+  my ($field, $data);
+  for (split(/[\r\n]+/, $t)) {
+    next if $_ eq ''; 
+    if (/^[ \t]/) {
+      next unless defined $field;
+      s/^\s*/ /;
+      $h->{$field} .= $_; 
+    } else {
+      ($field, $data) = split(/\s*:\s*/, $_, 2); 
+      $field =~ tr/A-Z/a-z/;
+      if ($h->{$field} && $h->{$field} ne '') {
+        $h->{$field} = $h->{$field}.','.$data;
+      } else {
+        $h->{$field} = $data;
+      }   
+    }   
+  }
+}
+
+
 sub replstream_timeout {
   my ($ev) = @_;
   print "replstream timeout for $ev->{'peer'}\n";
@@ -293,8 +319,12 @@ sub getrequest {
 	BSEvents::add($ev);
 	return;
       }
+      my %headers;
+      gethead(\%headers, "Request: $1");
+      $ev->{'headers'} = \%headers;
     } elsif ($act ne 'get') {
       die("501 Bad method, must be GET\n") if $act ne 'GET';
+      $ev->{'headers'} = {};
     }
     my $query_string = '';
     if ($path =~ /^(.*?)\?(.*)$/) {
@@ -345,6 +375,7 @@ sub cloneconnect {
   $nev->{'fd'} = $ev->{'nfd'};
   delete $ev->{'nfd'};
   $nev->{'conf'} = $ev->{'conf'};
+  $nev->{'headers'} = $ev->{'headers'};
   my $peer = 'unknown';
   eval {
     my $peername = getpeername($nev->{'fd'});

@@ -66,12 +66,19 @@ my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 
 my %cando = (
-  'i586'   => ['i586'],
-  'i686'   => ['i586', 'i686'],
-  'x86_64' => ['x86_64', 'i586', 'i686'],
-  'ppc'    => ['ppc'],
-  'ppc64'  => ['ppc64', 'ppc'],
-  'sh4'    => ['sh4'],
+  'i586'    => ['i586'],
+  'i686'    => ['i586', 'i686'],
+  'x86_64'  => ['x86_64', 'i586', 'i686'],
+  'ppc'     => ['ppc'],
+  'ppc64'   => ['ppc64', 'ppc'],
+  'sh4'     => ['sh4'],
+  'ia64'    => ['ia64'],
+  's390'    => ['s390'],
+  's390x'   => ['s390x', 's390'],
+  'sparc'   => ['sparc'],
+  'sparc64' => ['sparc64', 'sparc'],
+  'mips'    => ['mips'],
+  'mips64'  => ['mips64', 'mips'],
 );
 
 my $rundir = "$BSConfig::bsdir/run";
@@ -265,6 +272,25 @@ while (1) {
       warn($@);
     } else {
       unlink("$eventdir/repository/$evname");
+    }
+  }
+  for my $evname (ls("$eventdir/dispatch")) {
+    next if $evname =~ /^\./;
+    my $ev = readxml("$eventdir/dispatch/$evname", $BSXML::event, 1);
+    next unless $ev;
+    next if $ev->{'due'} && time() < $ev->{'due'};
+    delete $ev->{'due'};
+    eval {
+      if ($ev->{'type'} eq 'built') {
+        # resend to rep server
+      } else {
+        sendeventtosrcserver($ev);
+      }
+    };
+    if ($@) {
+      warn($@);
+    } else {
+      unlink("$eventdir/dispatch/$evname");
     }
   }
   sleep(1) unless $assigned;

@@ -42,11 +42,19 @@ sub handoff {
   local *SOCK;
   socket(SOCK, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
   connect(SOCK, sockaddr_un($sockname)) || die("connect: $!\n");
-  return BSRPC::rpc({
+  my $param = {
     'uri' => $path,
     'socket' => *SOCK,
     'sender' => \&handoffsender,
-  }, @args);
+  };
+  my @headers;
+  if ($BSServer::forwardedfor) {
+    push @headers, "X-Peer: $BSServer::forwardedfor";
+  } elsif ($BSServer::peer) {
+    push @headers, "X-Peer: $BSServer::peer";
+  }
+  $param->{'headers'} = \@headers if @headers;
+  return BSRPC::rpc($param, @args);
 }
 
 sub receive {
