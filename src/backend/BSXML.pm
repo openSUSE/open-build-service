@@ -113,8 +113,12 @@ our $packinfo = [
 	'name',
 	'file',
 	'error',
-	[ 'dep' ],
-	[ 'imagetype' ],
+	  [ 'dep' ],
+	  [ 'imagetype' ],
+	 [[ 'path' =>
+		'project',
+		'repository',
+	]],
 ];
 
 our $linked = [
@@ -581,6 +585,7 @@ our $ajaxstatus = [
 		'id',
 		'ev',
 		'fd',
+		'peer',
 	 ]],
      ]],
      [[ 'rpc' =>
@@ -592,6 +597,7 @@ our $ajaxstatus = [
 		'id',
 		'ev',
 		'fd',
+		'peer',
 	 ]],
      ]],
 ];
