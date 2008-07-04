@@ -33,6 +33,7 @@ use XML::Structured ':bytes';
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
+use Storable ();
 
 use BSConfig;
 use BSRPC;
@@ -64,9 +65,10 @@ my $reporoot = "$BSConfig::bsdir/build";
 my $eventdir = "$BSConfig::bsdir/events";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
-my $extrepodb = "$BSConfig::bsdir/db/published";
 my $uploaddir = "$BSConfig::bsdir/upload";
 my $rundir = "$BSConfig::bsdir/run";
+
+my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $myeventdir = "$eventdir/publish";
 
@@ -93,8 +95,12 @@ sub qsystem {
       open(STDOUT, '>', $args[1]) || die("$args[1]: $!\n");
       splice(@args, 0, 2);
     }
-    exec(@args);
-    die("$args[0]: $!\n");
+    eval {
+      exec(@args);
+      die("$args[0]: $!\n");
+    };
+    warn($@) if $@;
+    exit 1;
   }
   if ($args[0] eq 'echo') {
     close RH;
@@ -128,6 +134,85 @@ sub fillpkgdescription {
   $pkg->{'summary'} = str2utf8($data->{'summary'}) if defined $data->{'summary'};
 }
 
+
+############################################################################################
+
+#sub db_open {
+#  my ($name) = @_;
+#  return undef unless $extrepodb;
+#  return undef if $name eq 'repoinfo';
+#  mkdir_p($extrepodb) unless -d $extrepodb;
+#  return BSDB::opendb($extrepodb, $name);
+#}
+#
+#sub db_updateindex_rel {
+#  my ($db, $rem, $add) = @_;
+#  $db->updateindex_rel($rem, $add);
+#}
+#
+#sub db_store {
+#  my ($db, $k, $v) = @_;
+#  $db->store($k, $v);
+#}
+#
+#sub db_sync {
+#}
+
+
+my @db_sync;
+my $db_oldsync_read;
+
+sub db_open {
+  my ($name) = @_;
+
+  return undef unless $extrepodb;
+  if (!$db_oldsync_read) {
+    if (-s "$extrepodb.sync") {
+      my $oldsync = Storable::retrieve("$extrepodb.sync");
+      @db_sync = @{$oldsync || []};
+    }
+    $db_oldsync_read = 1;
+  }
+  return {'name' => $name, 'index' => "$name/"};
+}
+
+sub db_updateindex_rel {
+  my ($db, $rem, $add) = @_;
+  push @db_sync, $db->{'name'}, $rem, $add;
+}
+
+sub db_store {
+  my ($db, $k, $v) = @_;
+  push @db_sync, $db->{'name'}, $k, $v;
+}
+
+sub db_sync {
+  return undef unless $extrepodb;
+  db_open('') unless $db_oldsync_read;
+  return unless @db_sync;
+  my $data = Storable::nfreeze(\@db_sync);
+  my $param = {
+    'uri' => "$BSConfig::srcserver/search/published",
+    'request' => 'POST',
+    'timeout' => 60,
+    'headers' => [ 'Content-Type: application/octet-stream' ],
+    'data' => $data,
+  };
+  eval {
+    BSRPC::rpc($param, undef, 'cmd=updatedb');
+  };
+  if ($@) {
+    warn($@);
+    Storable::nstore(\@db_sync, "$extrepodb.sync.new");
+    rename("$extrepodb.sync.new", "$extrepodb.sync") || die("rename $extrepodb.sync.new $extrepodb.sync: $!\n");
+  } else {
+    @db_sync = ();
+    unlink("$extrepodb.sync");
+  }
+}
+
+############################################################################################
+
 sub updatebinaryindex {
   my ($db, $keyrem, $keyadd) = @_;
 
@@ -157,17 +242,7 @@ sub updatebinaryindex {
     }
     push @rem, ["$index/name", $n, $key];
   }
-  if (@rem + @add < 256) {
-    return BSDBIndex::modify($db, \@rem, \@add);
-  }
-  while (@rem) {
-    my @chunk = splice(@rem, 0, 256);
-    BSDBIndex::modify($db, \@chunk, []);
-  }
-  while (@add) {
-    my @chunk = splice(@add, 0, 256);
-    BSDBIndex::modify($db, [], \@chunk);
-  }
+  db_updateindex_rel($db, \@rem, \@add);
 }
 
 
@@ -385,11 +460,7 @@ sub createpatterns_ymp {
 
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
-  my $patterndb;
-  if ($extrepodb) {
-    mkdir_p($extrepodb);
-    $patterndb = BSDB::opendb($extrepodb, 'pattern');
-  }
+  my $patterndb = db_open('pattern');
 
   # get title/description data for all involved projects
   my %nprojpack;
@@ -426,17 +497,21 @@ sub createpatterns_ymp {
       my $sprojid = $sprp->{'project'};
       my $srepoid = $sprp->{'repository'};
       my $r = {};
-      $r->{'recommended'} = @sprp ? 'true' : 'false';
+      $r->{'recommended'} = @sprp || !@repos ? 'true' : 'false';
       $r->{'name'} = $sprojid;
       if ($nprojpack{$sprojid}) {
         $r->{'summary'} = $nprojpack{$sprojid}->{'title'};
         $r->{'description'} = $nprojpack{$sprojid}->{'description'};
       }
       my $sprp_ext = "$sprojid/$srepoid";
-      $sprp_ext =~ s/:/:\//g;
-      $r->{'url'} = "$BSConfig::repodownload/$sprp_ext/";
+      if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$sprp_ext}) {
+	$r->{'url'} = $BSConfig::prp_ext_map->{$sprp_ext};
+      } else {
+        $sprp_ext =~ s/:/:\//g;
+        $r->{'url'} = "$BSConfig::repodownload/$sprp_ext/";
+      }
       push @repos, $r;
-    }    
+    }
     $group->{'repositories'} = {'repository' => \@repos };
     my @software;
     for my $entry (@{$pat->{'rpm:requires'}->{'rpm:entry'} || []}) {
@@ -465,7 +540,7 @@ sub createpatterns_ymp {
     $ympidx->{'summary'} = $pat->{'summary'}->[0]->{'_content'} if $pat->{'summary'};;
     $ympidx->{'description'} = $pat->{'description'}->[0]->{'_content'} if $pat->{'description'};
     $ympidx->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
-    $patterndb->store("$prp_ext/$ympname", $ympidx) if $patterndb;
+    db_store($patterndb, "$prp_ext/$ympname", $ympidx) if $patterndb;
   }
 }
 
@@ -474,11 +549,10 @@ sub deletepatterns_ymp {
 
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
-  my $patterndb;
-  $patterndb = BSDB::opendb($extrepodb, 'pattern') if -d $extrepodb;
+  my $patterndb = db_open('pattern');
   for my $ympname (ls($extrep)) {
     next unless $ympname =~ /\.ymp$/;
-    $patterndb->store("$prp_ext/$ympname", undef) if $patterndb;
+    db_store($patterndb, "$prp_ext/$ympname", undef) if $patterndb;
     unlink("$extrep/$ympname");
   }
 }
@@ -518,11 +592,11 @@ sub deleterepo {
   # update repoinfo
   unlink("$reporoot/$prp/:repoinfo");
   rmdir("$reporoot/$prp");
+
   # update published database
-  if ($extrepodb && -d $extrepodb) {
-    my $binarydb = BSDB::opendb($extrepodb, 'binary');
-    updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ], []);
-  }
+  my $binarydb = db_open('binary');
+  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ], []) if $binarydb;
+
   if ($BSConfig::markfileorigins) {
     for my $f (sort @deleted) {
       my $req = {
@@ -754,18 +828,18 @@ sub publish {
     'title' => $title,
     'state' => $state,
   };
+  my $repoinfodb = db_open('repoinfo');
   if ($state ne '') {
     Storable::nstore($repoinfo, "$reporoot/$prp/:repoinfo");
+    db_store($repoinfodb, $prp, $repoinfo) if $repoinfodb;
   } else {
     unlink("$reporoot/$prp/:repoinfo");
+    db_store($repoinfodb, $prp, undef) if $repoinfodb;
   }
 
   # put in published database
-  if ($extrepodb) {
-    mkdir_p($extrepodb) unless -d $extrepodb;
-    my $binarydb = BSDB::opendb($extrepodb, 'binary');
-    updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ], [ map {"$prp_ext/$_"} @changed ]);
-  }
+  my $binarydb = db_open('binary');
+  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ], [ map {"$prp_ext/$_"} @changed ]) if $binarydb;
 
   # mark file origins so we can gather per package statistics
   if ($BSConfig::markfileorigins) {
@@ -877,6 +951,8 @@ if (!-p "$myeventdir/.ping") {
 }
 sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
 
+db_sync();
+
 while(1) {
   # drain ping pipe
   my $dummy;
@@ -907,6 +983,7 @@ while(1) {
     } else {
       unlink("$myeventdir/${event}::inprogress");
     }
+    db_sync();
   }
   print "waiting for an event...\n";
   sysread(PING, $dummy, 1, 0);

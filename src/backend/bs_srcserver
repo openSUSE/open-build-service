@@ -65,7 +65,9 @@ my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
 my $requestsdir = "$BSConfig::bsdir/requests";
+
 my $reqindexdb = "$BSConfig::bsdir/db/request";
+my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $remotecache = "$BSConfig::bsdir/remotecache";
 
@@ -2340,23 +2342,177 @@ sub search_pack_id {
   return search_pack(@_, 1);
 }
 
-sub search_published_id {
-  my ($cgi, $what, $match) = @_;
-  my $res;
-  for my $rrserver ($BSConfig::reposerver) {
-    $res = BSRPC::rpc("$rrserver/search/published/$what/id", $BSXML::collection, "match=$match");
-    last if $res;
+#############################################################################
+
+sub search_published_updatedb {
+  my ($cgi) = @_;
+  die("unknown command '$cgi->{'cmd'}'\n") unless $cgi->{'cmd'} eq 'updatedb';
+  my $data = BSServer::read_data();
+  $data = Storable::thaw($data);
+  die("no data\n") unless $data && @$data;
+  my $patterndb;
+  my $binarydb;
+  my $repoinfodb;
+  mkdir_p($extrepodb) unless -d $extrepodb;
+  while (@$data) {
+    my ($w, $k, $v) = splice(@$data, 0, 3);
+    if ($w eq 'binary') {
+      $binarydb = BSDB::opendb($extrepodb, 'binary') unless $binarydb;
+      $binarydb->updateindex_rel($k || [], $v || []);
+    } elsif ($w eq 'pattern') {
+      $patterndb = BSDB::opendb($extrepodb, 'pattern') unless $patterndb;
+      $patterndb->store($k, $v);
+    } elsif ($w eq 'repoinfo') {
+      if (!$repoinfodb) {
+        $repoinfodb = BSDB::opendb($extrepodb, 'repoinfo');
+        $repoinfodb->{'noindexatall'} = 1;
+      };
+      $repoinfodb->store($k, $v);
+    } else {
+      die("bad data type: '$w'\n");
+    }
   }
-  return ($res, $BSXML::collection);
+  return $BSStdServer::return_ok;
+}
+
+#sub search_published_id {
+#  my ($cgi, $what, $match) = @_;
+#  my $res;
+#  for my $rrserver ($BSConfig::reposerver) {
+#    $res = BSRPC::rpc("$rrserver/search/published/$what/id", $BSXML::collection, "match=$match");
+#    last if $res;
+#  }
+#  return ($res, $BSXML::collection);
+#}
+#
+#sub search_published_binary_id {
+#  return search_published_id($_[0], 'binary', $_[1]);
+#}
+#
+#sub search_published_pattern_id {
+#  return search_published_id($_[0], 'pattern', $_[1]);
+#}
+
+my %prp_to_repoinfo;
+
+sub prp_to_repoinfo {
+  my ($prp) = @_;
+
+  my $repoinfo = $prp_to_repoinfo{$prp};
+  if (!$repoinfo) {
+    my $repoinfodb = BSDB::opendb($extrepodb, 'repoinfo');
+    $repoinfo = $repoinfodb->fetch($prp);
+    if ($repoinfo) {
+      for (@{$repoinfo->{'prpsearchpath'} || []}) {
+	next if ref($_);	# legacy
+	my ($p, $r) = split('/', $_, 2);
+	$_ = {'project' => $p, 'repository' => $r};
+      }
+    } else {
+      $repoinfo = {'binaryorigins' => {}};
+    }
+    $prp_to_repoinfo{$prp} = $repoinfo;
+  }
+  return $repoinfo;
+}
+
+sub binary_key_to_data {
+  my ($db, $key) = @_; 
+  my @p = split('/', $key);
+  my $binary = pop(@p);
+  my $name = $binary;
+  my $version = '';
+  if ($name =~ s/-([^-]+-[^-]+)\.[^\.]+\.rpm$//) {
+    $version = $1;
+  } elsif ($name =~ s/_([^_]+)_[^_]+\.deb$//) {
+    $version = $1;
+  }
+  my $arch = pop(@p);
+  while (@p > 1 && $p[0] =~ /:$/) {
+    splice(@p, 0, 2, "$p[0]$p[1]");
+  }
+  my $project = shift(@p);
+  while (@p > 1 && $p[0] =~ /:$/) {
+    splice(@p, 0, 2, "$p[0]$p[1]");
+  }
+  my $repository = shift(@p);
+  my $prp = "$project/$repository";
+  my $repoinfo = $prp_to_repoinfo{$prp} || prp_to_repoinfo($prp);
+  my $type;
+  $type = 'rpm' if $binary =~ /\.rpm$/;
+  $type = 'deb' if $binary =~ /\.deb$/;
+  my $res = {
+    'name' => $name,
+    'version' => $version,
+    'arch' => $arch,
+    'type' => $type,
+    'project' => $project,
+    'repository' => $repository,
+    'filename' => $binary,
+    'filepath' => $key,
+  };
+  $res->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
+  $res->{'package'} = $repoinfo->{'binaryorigins'}->{"$arch/$binary"} if defined $repoinfo->{'binaryorigins'}->{"$arch/$binary"};
+  $res->{'baseproject'} = $res->{'path'}->[-1]->{'project'} if $res->{'path'};
+  return $res;
+}
+
+sub pattern_key_to_data {
+  my ($db, $key) = @_; 
+  my @p = split('/', $key);
+  my $filename = pop(@p);
+  while (@p > 1 && $p[0] =~ /:$/) {
+    splice(@p, 0, 2, "$p[0]$p[1]");
+  }
+  my $project = shift(@p);
+  while (@p > 1 && $p[0] =~ /:$/) {
+    splice(@p, 0, 2, "$p[0]$p[1]");
+  }
+  my $repository = shift(@p);
+  my @v = BSDBIndex::getvalues($db, $db->{'table'}, $key);
+  return {} unless @v;
+  my $res = $v[0];
+  $res->{'baseproject'} = $res->{'path'}->[-1]->{'project'} if $res->{'path'};
+  $res->{'project'} = $project;
+  $res->{'repository'} = $repository;
+  $res->{'filename'} = $filename;
+  $res->{'filepath'} = $key;
+  return $res;
 }
 
 sub search_published_binary_id {
-  return search_published_id($_[0], 'binary', $_[1]);
+  my ($cgi, $match) = @_;
+  my $binarydb = BSDB::opendb($extrepodb, 'binary');
+  $binarydb->{'allkeyspath'} = 'name';
+  $binarydb->{'noindex'} = {'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1};
+  $binarydb->{'fetch'} = \&binary_key_to_data;
+  $binarydb->{'cheapfetch'} = 1;
+  my $rootnode = BSXPathKeys::node($binarydb, '');
+  my $data = BSXPath::match($rootnode, $match) || [];
+  # epoch?
+  @$data = sort {Build::Rpm::verscmp($b->{'version'}, $a->{'version'}) || $a->{'name'} cmp $b->{'name'} || $a->{'arch'} cmp $b->{'arch'}} @$data;
+  delete $_->{'path'} for @$data;
+  my $res = {'binary' => $data};
+  return ($res, $BSXML::collection);
 }
 
 sub search_published_pattern_id {
-  return search_published_id($_[0], 'pattern', $_[1]);
+  my ($cgi, $match) = @_;
+  my $patterndb = BSDB::opendb($extrepodb, 'pattern');
+  $patterndb->{'noindex'} = {'project' => 1, 'repository' => 1};
+  $patterndb->{'fetch'} = \&pattern_key_to_data;
+  my $rootnode = BSXPathKeys::node($patterndb, '');
+  my $data = BSXPath::match($rootnode, $match) || [];
+  for (@$data) {
+    delete $_->{'path'};
+    delete $_->{'description'};
+    delete $_->{'summary'};
+  }
+  my $res = {'pattern' => $data};
+  return ($res, $BSXML::collection);
 }
+
+#############################################################################
 
 sub search {
   my ($cgi, $in, $match) = @_;
@@ -2932,6 +3088,7 @@ my $dispatches = [
   '/search/package $match:' => \&search_pack,
   '/search/package/id $match:' => \&search_pack_id,
 
+  'POST:/search/published cmd:' => \&search_published_updatedb,
   '/search/published/binary/id $match:' => \&search_published_binary_id,
   '/search/published/pattern/id $match:' => \&search_published_pattern_id,
 

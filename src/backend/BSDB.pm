@@ -76,6 +76,24 @@ sub torel {
   }
 }
 
+sub updateindex_rel {
+  my ($db, $oldrel, $newrel) = @_;
+
+  return unless @$oldrel || @$newrel;
+  if (@$oldrel + @$newrel > 256) {
+    while (@$oldrel) {
+      my @chunk = splice(@$oldrel, 0, 256);
+      BSDBIndex::modify($db, \@chunk);
+    }
+    while (@$newrel) {
+      my @chunk = splice(@$newrel, 0, 256);
+      BSDBIndex::modify($db, undef, \@chunk);
+    }
+  } else {
+    BSDBIndex::modify($db, $oldrel, $newrel);
+  }
+}
+
 sub updateindex {
   my ($db, $key, $old, $new) = @_;
 
@@ -93,20 +111,8 @@ sub updateindex {
   %in = map {$_->[3] => 1} grep {$in{$_->[3]}} @newrel;
   @oldrel = grep {!$in{$_->[3]}} @oldrel;
   @newrel = grep {!$in{$_->[3]}} @newrel;
-  return 1 unless @oldrel || @newrel;
-  if (@oldrel + @newrel > 256) {
-    # chunk because of fd limit
-    while (@oldrel) {
-      my @chunk = splice(@oldrel, 0, 256);
-      BSDBIndex::modify($db, \@chunk);
-    }
-    while (@newrel) {
-      my @chunk = splice(@newrel, 0, 256);
-      BSDBIndex::modify($db, undef, \@chunk);
-    }
-  } else {
-    BSDBIndex::modify($db, \@oldrel, \@newrel);
-  }
+  return unless @oldrel || @newrel;
+  updateindex_rel($db, \@oldrel, \@newrel);
 }
 
 sub store_callback {
@@ -114,7 +120,7 @@ sub store_callback {
   my $old = ($data || [])[0];
   my $new = $rel->[3];
   my $key = $rel->[1];
-  updateindex($db, $key, $old, $new);
+  updateindex($db, $key, $old, $new) unless $db->{'noindexatall'};
   if (defined($new)) {
     @$data = ($new);
   } else {
