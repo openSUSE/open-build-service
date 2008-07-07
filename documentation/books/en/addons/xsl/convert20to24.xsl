@@ -69,7 +69,7 @@
                              local-name(.) = 'guestOS_32Bit' or
                              local-name(.) = 'guestOS_64Bit')
                              ]"/>
-     <xsl:copy/>
+     <xsl:apply-templates mode="conv20to24"/>
    </packages>
 </xsl:template>
 
