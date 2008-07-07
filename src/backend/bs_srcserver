@@ -1792,7 +1792,9 @@ sub integratelink {
 	    $dontcopy{$oppatch} = 1;
 	    # argh, patch file already exists, rename...
 	    my $ppatch = findprojectpatchname($files);
-            $files->{$ppatch} = putinsrcrep($projid, $packid, "$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", $ppatch);
+	    unlink("$srcrep/:upload/$$");
+	    link("$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", "$srcrep/:upload/$$") || die("link $srcrep/$opackid/$ofiles->{$oppatch}-$oppatch $srcrep/:upload/$$: $!\n");
+            $files->{$ppatch} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", $ppatch);
 	    push @{$nl->{'patches'}->{''}}, {'apply' => {'name' => $ppatch}};
 	    next;
 	  }
