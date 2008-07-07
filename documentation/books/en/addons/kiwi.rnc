@@ -23,9 +23,10 @@ datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 namespace db  = "http://docbook.org/ns/docbook"
 
 db:info [
-	db:releaseinfo [ "$Id$"]
-	db:releaseinfo [ "RNC Schema Version 2.0" ]
-
+	db:releaseinfo [
+		"$Id$"
+	]
+	db:releaseinfo [ "RNC Schema Version 2.4" ]
 	db:pubdate [ "START" ]
 	db:pubdate [ "2008-01-08" ]
 ]
@@ -56,7 +57,7 @@ div {
 		attribute inherit { text }
 	k.image.schemeversion.attribute =
 		## The allowed Schema version (fixed value)
-		attribute schemeversion { "2.0" }
+		attribute schemeversion { "2.4" }
 	k.image.kiwirevision.attribute =
 		## A kiwi SVN revision number which is known to build
 		## a working image from this description. If the kiwi SVN
@@ -94,7 +95,9 @@ div {
 			k.repository+ &
 			k.deploy? &
 			k.split? &
-			k.packages*
+			k.packages* &
+			k.vmwareconfig? &
+			k.xenconfig?
 		}
 }
 
@@ -988,14 +991,20 @@ div {
 	k.type.flags.attribute =
 		## Specifies flags for the image type. This could be compressed
 		## or unified and applies to the iso type only
-		attribute flags { "unified" | "compressed" | "unified-cromfs" | "compressed-cromfs"}
+		attribute flags {
+			"unified" | "compressed" | "unified-cromfs" | "compressed-cromfs"
+		}
 	k.type.filesystem.attribute = 
 		## Specifies the filesystem which can be one of:
 		## ext2 , ext3 , reiserfs ,squashfs or cromfs
-		attribute filesystem { "ext2" | "ext3" | "reiserfs" | "squashfs" | "cromfs" }
+		attribute filesystem {
+			"ext2" | "ext3" | "reiserfs" | "squashfs" | "cromfs"
+		}
 	k.type.fsreadonly.attribute =
 		## Specifies the filesystem for the read-only part of a split image
-		attribute fsreadonly { "ext2" | "ext3" | "reiserfs" | "squashfs" | "cromfs" }
+		attribute fsreadonly {
+			"ext2" | "ext3" | "reiserfs" | "squashfs" | "cromfs"
+		}
 	k.type.fsreadwrite.attribute =
 		## Specifies the filesystem for the read-write part of a split image
 		attribute fsreadwrite { "ext2" | "ext3" | "reiserfs" }
@@ -1063,7 +1072,7 @@ div {
 		db:para [
 			"As part of the network deploy configuration this section\x{a}"~
 			"specifies the overlay filesystem setup if required by the\x{a}"~
-			"filesystem type of the system image. An overlay setup is only\x{a}"~
+			"filesystem type of the system image.An overlay setup is only\x{a}"~
 			"required if the system image uses a squashfs or cromfs\x{a}"~
 			"compressed filesystem."
 		]
@@ -1117,6 +1126,92 @@ div {
 		element version {
 			k.version.attlist &
 			text
+		}
+}
+
+#==========================================
+# common element <vmwarenic>
+#
+div {
+	k.vmwarenic.driver.attribute =
+		## The driver used for the VM network interface
+		attribute driver { text }
+	k.vmwarenic.interface.attribute =
+		## The interface ID for the VM network interface
+		attribute interface { xsd:nonNegativeInteger }
+	k.vmwarenic.mode.attribute =
+		## The VM network mode
+		attribute mode { text }
+	k.vmwarenic.attlist =
+		k.vmwarenic.driver.attribute &
+		k.vmwarenic.interface.attribute &
+		k.vmwarenic.mode.attribute
+	k.vmwarenic =
+		## The VMware network interface definition
+		element vmwarenic {
+			k.vmwarenic.attlist &
+			empty
+		}
+}
+
+#==========================================
+# common element <vmwaredisk>
+#
+div {
+	k.vmwaredisk.controller.attribute =
+		## The disk controller used for the VMware guest
+		attribute controller { "ide" | "scsi" }
+	k.vmwaredisk.id.attribute =
+		## The disk ID for the VM disk
+		attribute id { xsd:nonNegativeInteger }
+	k.vmwaredisk.attlist =
+		k.vmwaredisk.controller.attribute &
+		k.vmwaredisk.id.attribute
+	k.vmwaredisk =
+		## The VMware disk definition. You can setup either a
+		## scsi disk or an ide disk
+		element vmwaredisk {
+			k.vmwaredisk.attlist &
+			empty
+		}
+}
+
+#==========================================
+# common element <vmwarecdrom>
+#
+div {
+	k.vmwarecdrom.controller.attribute =
+		## The CD/DVD controller used for the VMware guest
+		attribute controller { "ide" | "scsi" }
+	k.vmwarecdrom.id.attribute =
+		## The CD/DVD ID for the VM CD rom drive
+		attribute id { xsd:nonNegativeInteger }
+	k.vmwarecdrom.attlist =
+		k.vmwarecdrom.controller.attribute &
+		k.vmwarecdrom.id.attribute
+	k.vmwarecdrom =
+		## The VMware CD/DVD drive definition. You can setup either a
+		## scsi CD or an ide CD drive
+		element vmwarecdrom {
+			k.vmwarecdrom.attlist &
+			empty
+		}
+}
+
+#==========================================
+# common element <xendisk>
+#
+div {
+	k.xendisk.device.attribute =
+		## The disk device to appear in the Xen guest
+		attribute device { text }
+	k.xendisk.attlist =
+		k.xendisk.device.attribute
+	k.xendisk =
+		## The Xen disk device definition.
+		element xendisk {
+			k.xendisk.attlist &
+			empty
 		}
 }
 
@@ -1220,7 +1315,7 @@ div {
 			k.productoptions &
 			k.instrepo+ &
 			k.metadata &
-			k.repopackages
+			k.repopackages+
 		}
 }
 
@@ -1280,8 +1375,8 @@ div {
 		## Describe Packages and Metadata
 		[
 		db:para [
-			"The productoption element carries the information for an productoptionitecture,\x{a}"~
-			"its name and its fallback (productoptional)."
+			"The productoption element carries the information for a\x{a}"~
+			"product option its name and its fallback (productoptional)."
 		]
 		]
 		element productoption {
@@ -1308,7 +1403,7 @@ div {
 		## Describe Packages and Metadata
 		[
 		db:para [
-			"The arch element carries the information for an architecture,\x{a}"~
+			"The arch element providdes the information for an arch,\x{a}"~
 			"its name and its fallback (optional)."
 		]
 		]
@@ -1323,23 +1418,16 @@ div {
 #
 div {
 	k.productinfo.attlist = k.name.attribute 
-	#k.productinfo.text.content = xsd:normalizedString {
-	#		maxLength = "2048"
-	#}
-	# FIXME (libxml guys, someone?) This does not work correctly with libxml2 v. 2.6.30-4.
-	# It validates with jing and msv but not with perl-XML-LibXML-1.62001-57/libxml2-2.6.30-4
-	
-
 	k.productinfo =
 		## Describe Packages and Metadata
 		[
 		db:para [
 			"The productinfo element contains one particular environment\x{a}"~
 			"variable and its value. Shell rules for the names apply.\x{a}"~
-			"The value must not exceed a certain length for sanity reasons.\x{a}"~
-			"Any funny characters like tabs, line break, carriage return or\x{a}"~
-			"combinations are converted to spaces (one each) which may lead\x{a}"~
-			"to unexpected contents."
+			"The value must not exceed a certain length for sanity.\x{a}"~
+			"reasons Any funny characters like tabs, line break,\x{a}"~
+			"carriage return or combinations are converted to spaces\x{a}"~
+			"(one each) which may lead to unexpected contents."
 		]
 		]
 		element productinfo {
@@ -1357,13 +1445,6 @@ div {
 div {
 	k.productvar.attlist =
 		k.name.attribute 
-	#k.productvar = xsd:normalizedString {
-	#		maxLength = "2048"
-	#}
-	# FIXME (libxml guys, someone?) This does not work correctly with libxml2 v. 2.6.30-4.
-	# It validates with jing and msv but not with perl-XML-LibXML-1.62001-57/libxml2-2.6.30-4
-	
-
 	k.productvar =
 		## Describe Packages and Metadata
 		[
@@ -1394,10 +1475,10 @@ div {
 		db:para [
 			"The chroot element contains one particular environment\x{a}"~
 			"variable and its value. Shell rules for the names apply.\x{a}"~
-			"The value must not exceed a certain length for sanity reasons.\x{a}"~
-			"Any funny characters like tabs, line break, carriage return or\x{a}"~
-			"combinations are converted to spaces (one each) which may lead\x{a}"~
-			"to unexpected contents."
+			"The value must not exceed a certain length for sanity.\x{a}"~
+			"reasons Any funny characters like tabs, line break, \x{a}"~
+			"carriage return or combinations are converted to spaces\x{a}"~
+			"(one each) which may lead to unexpected contents."
 		]
 		]
 		element chroot {
@@ -1426,31 +1507,74 @@ div {
 }
 
 #==========================================
+# main block: <vmwareconfig>
+#
+div {
+	k.vmwareconfig.arch.attribute = 
+		## the VMware architecture type
+		attribute arch { "ix86" | "x86_64" | "%arch" }
+	k.vmwareconfig.HWversion.attribute =
+		## The virtual HW version number for the VMware configuration
+		attribute HWversion { xsd:integer }
+	k.vmwareconfig.guestOS.attribute =
+		## the virtual guestOS identification string for VMware
+		attribute guestOS { text }
+	k.vmwareconfig.memory.attribute =
+		## The memory setup for the guest VM.
+		attribute memory { text }
+	k.vmwareconfig.attlist =
+		k.vmwareconfig.arch.attribute? &
+		k.vmwareconfig.HWversion.attribute? &
+		k.vmwareconfig.guestOS.attribute? &
+		k.vmwareconfig.memory.attribute
+	k.vmwareconfig =
+		## specifies the VMware configuration sections
+		[
+		db:para [
+			"The vmwareconfig element specifies the VMware guest\x{a}"~
+			"configuration options which are used by the VMware\x{a}"~
+			"virtual machine when running the image."
+		]
+		]
+		element vmwareconfig {
+			k.vmwareconfig.attlist &
+			k.vmwarenic ? &
+			k.vmwaredisk ? &
+			k.vmwarecdrom ?
+		}
+}
+
+#==========================================
+# main block: <xenconfig>
+#
+div {
+	k.xenconfig.memory.attribute =
+		## The memory setup for the Xen guest.
+		attribute memory { text }
+	k.xenconfig.attlist =
+		k.xenconfig.memory.attribute ?
+	k.xenconfig =
+		## specifies the Xen configuration sections
+		[
+		db:para [
+			"The xenconfig element specifies the Xen guest\x{a}"~
+			"configuration options which are used by the Xen\x{a}"~
+			"para virtual machine when running the image."
+		]
+		]
+		element xenconfig {
+			k.xenconfig.attlist &
+			k.xendisk ?
+		}
+}
+
+#==========================================
 # main block: <packages>
 #
 div {
 	k.packages.type.attribute = attribute type {
 		"image" | "bootstrap" | "delete" | "testsuite" | "xen" | "vmware"
 	}
-	k.packages.memory.attribute =
-		## The memory setup for the guest VM. Used only with the
-		## packages types xen and vmware
-		attribute memory { text }
-	k.packages.disk.attribute =
-		## The virtual disk device name of the guest VM. Used only
-		## with the packages types xen and vmware
-		attribute disk { text }
-	k.packages.HWversion.attribute =
-		## The virtual HW version number for the VMware configuration
-		attribute HWversion { xsd:integer }
-	k.packages.guestOS_32Bit.attribute =
-		## the virtual guestOS identification string for VMware for 
-		## 32bit guest systems
-		attribute guestOS_32Bit { text }
-	k.packages.guestOS_64Bit.attribute =
-		## the virtual guestOS identification string for VMware for 
-		## 64bit guest systems
-		attribute guestOS_64Bit { text }
 	k.packages.profiles.attribute =
 		## Namespace this section applies to. If not specified it
 		## applies to all namespaces
@@ -1469,11 +1593,6 @@ div {
 		}
 	k.packages.attlist =
 		k.packages.type.attribute &
-		k.packages.memory.attribute? &
-		k.packages.disk.attribute? &
-		k.packages.HWversion.attribute? &
-		k.packages.guestOS_32Bit.attribute? &
-		k.packages.guestOS_64Bit.attribute? &
 		k.packages.profiles.attribute? &
 		k.packages.patternType.attribute? &
 		k.packages.patternPackageType.attribute?

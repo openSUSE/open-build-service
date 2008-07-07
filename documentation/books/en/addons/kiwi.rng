@@ -20,10 +20,10 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
-    <db:releaseinfo>RNC Schema Version 2.0</db:releaseinfo>
+    <db:releaseinfo>RNC Schema Version 2.4</db:releaseinfo>
     <db:pubdate>START</db:pubdate>
     <db:pubdate>2008-01-08</db:pubdate>
   </db:info>
@@ -69,7 +69,7 @@ the package Information is inherited</a:documentation>
     <define name="k.image.schemeversion.attribute">
       <attribute name="schemeversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>2.0</value>
+        <value>2.4</value>
       </attribute>
     </define>
     <define name="k.image.kiwirevision.attribute">
@@ -148,6 +148,12 @@ named /etc/ImageID</a:documentation>
           <zeroOrMore>
             <ref name="k.packages"/>
           </zeroOrMore>
+          <optional>
+            <ref name="k.vmwareconfig"/>
+          </optional>
+          <optional>
+            <ref name="k.xenconfig"/>
+          </optional>
         </interleave>
       </element>
     </define>
@@ -1496,7 +1502,7 @@ vmx/oem types only.</a:documentation>
         <a:documentation>Specifies the Overlay Filesystem</a:documentation>
         <db:para>As part of the network deploy configuration this section
 specifies the overlay filesystem setup if required by the
-filesystem type of the system image. An overlay setup is only
+filesystem type of the system image.An overlay setup is only
 required if the system image uses a squashfs or cromfs
 compressed filesystem.</db:para>
         <ref name="k.union.attlist"/>
@@ -1578,6 +1584,145 @@ compressed filesystem.</db:para>
         <interleave>
           <ref name="k.version.attlist"/>
           <text/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <vmwarenic>
+    
+  -->
+  <div>
+    <define name="k.vmwarenic.driver.attribute">
+      <attribute name="driver">
+        <a:documentation>The driver used for the VM network interface</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.vmwarenic.interface.attribute">
+      <attribute name="interface">
+        <a:documentation>The interface ID for the VM network interface</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
+    <define name="k.vmwarenic.mode.attribute">
+      <attribute name="mode">
+        <a:documentation>The VM network mode</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.vmwarenic.attlist">
+      <interleave>
+        <ref name="k.vmwarenic.driver.attribute"/>
+        <ref name="k.vmwarenic.interface.attribute"/>
+        <ref name="k.vmwarenic.mode.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.vmwarenic">
+      <element name="vmwarenic">
+        <a:documentation>The VMware network interface definition</a:documentation>
+        <interleave>
+          <ref name="k.vmwarenic.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <vmwaredisk>
+    
+  -->
+  <div>
+    <define name="k.vmwaredisk.controller.attribute">
+      <attribute name="controller">
+        <a:documentation>The disk controller used for the VMware guest</a:documentation>
+        <choice>
+          <value>ide</value>
+          <value>scsi</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.vmwaredisk.id.attribute">
+      <attribute name="id">
+        <a:documentation>The disk ID for the VM disk</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
+    <define name="k.vmwaredisk.attlist">
+      <interleave>
+        <ref name="k.vmwaredisk.controller.attribute"/>
+        <ref name="k.vmwaredisk.id.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.vmwaredisk">
+      <element name="vmwaredisk">
+        <a:documentation>The VMware disk definition. You can setup either a
+scsi disk or an ide disk</a:documentation>
+        <interleave>
+          <ref name="k.vmwaredisk.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <vmwarecdrom>
+    
+  -->
+  <div>
+    <define name="k.vmwarecdrom.controller.attribute">
+      <attribute name="controller">
+        <a:documentation>The CD/DVD controller used for the VMware guest</a:documentation>
+        <choice>
+          <value>ide</value>
+          <value>scsi</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.vmwarecdrom.id.attribute">
+      <attribute name="id">
+        <a:documentation>The CD/DVD ID for the VM CD rom drive</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
+    <define name="k.vmwarecdrom.attlist">
+      <interleave>
+        <ref name="k.vmwarecdrom.controller.attribute"/>
+        <ref name="k.vmwarecdrom.id.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.vmwarecdrom">
+      <element name="vmwarecdrom">
+        <a:documentation>The VMware CD/DVD drive definition. You can setup either a
+scsi CD or an ide CD drive</a:documentation>
+        <interleave>
+          <ref name="k.vmwarecdrom.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <xendisk>
+    
+  -->
+  <div>
+    <define name="k.xendisk.device.attribute">
+      <attribute name="device">
+        <a:documentation>The disk device to appear in the Xen guest</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.xendisk.attlist">
+      <ref name="k.xendisk.device.attribute"/>
+    </define>
+    <define name="k.xendisk">
+      <element name="xendisk">
+        <a:documentation>The Xen disk device definition.</a:documentation>
+        <interleave>
+          <ref name="k.xendisk.attlist"/>
+          <empty/>
         </interleave>
       </element>
     </define>
@@ -1743,7 +1888,9 @@ repository for image building.</db:para>
             <ref name="k.instrepo"/>
           </oneOrMore>
           <ref name="k.metadata"/>
-          <ref name="k.repopackages"/>
+          <oneOrMore>
+            <ref name="k.repopackages"/>
+          </oneOrMore>
         </interleave>
       </element>
     </define>
@@ -1818,8 +1965,8 @@ a default medium number for source packages and the like.</db:para>
     <define name="k.productoption">
       <element name="productoption">
         <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The productoption element carries the information for an productoptionitecture,
-its name and its fallback (productoptional).</db:para>
+        <db:para>The productoption element carries the information for a
+product option its name and its fallback (productoptional).</db:para>
         <interleave>
           <ref name="k.productoption.attlist"/>
           <text/>
@@ -1860,7 +2007,7 @@ its name and its fallback (productoptional).</db:para>
     <define name="k.arch">
       <element name="arch">
         <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The arch element carries the information for an architecture,
+        <db:para>The arch element providdes the information for an arch,
 its name and its fallback (optional).</db:para>
         <interleave>
           <ref name="k.arch.attlist"/>
@@ -1878,22 +2025,15 @@ its name and its fallback (optional).</db:para>
     <define name="k.productinfo.attlist">
       <ref name="k.name.attribute"/>
     </define>
-    <!--
-      k.productinfo.text.content = xsd:normalizedString {
-      		maxLength = "2048"
-      }
-      FIXME (libxml guys, someone?) This does not work correctly with libxml2 v. 2.6.30-4.
-      It validates with jing and msv but not with perl-XML-LibXML-1.62001-57/libxml2-2.6.30-4
-    -->
     <define name="k.productinfo">
       <element name="productinfo">
         <a:documentation>Describe Packages and Metadata</a:documentation>
         <db:para>The productinfo element contains one particular environment
 variable and its value. Shell rules for the names apply.
-The value must not exceed a certain length for sanity reasons.
-Any funny characters like tabs, line break, carriage return or
-combinations are converted to spaces (one each) which may lead
-to unexpected contents.</db:para>
+The value must not exceed a certain length for sanity.
+reasons Any funny characters like tabs, line break,
+carriage return or combinations are converted to spaces
+(one each) which may lead to unexpected contents.</db:para>
         <interleave>
           <ref name="k.productinfo.attlist"/>
           <!-- text: workaround for the above mentioned problem -->
@@ -1915,13 +2055,6 @@ to unexpected contents.</db:para>
     <define name="k.productvar.attlist">
       <ref name="k.name.attribute"/>
     </define>
-    <!--
-      k.productvar = xsd:normalizedString {
-      		maxLength = "2048"
-      }
-      FIXME (libxml guys, someone?) This does not work correctly with libxml2 v. 2.6.30-4.
-      It validates with jing and msv but not with perl-XML-LibXML-1.62001-57/libxml2-2.6.30-4
-    -->
     <define name="k.productvar">
       <element name="productvar">
         <a:documentation>Describe Packages and Metadata</a:documentation>
@@ -1954,10 +2087,10 @@ The value is used to create the content file.</db:para>
         <a:documentation>Describe Packages and Metadata</a:documentation>
         <db:para>The chroot element contains one particular environment
 variable and its value. Shell rules for the names apply.
-The value must not exceed a certain length for sanity reasons.
-Any funny characters like tabs, line break, carriage return or
-combinations are converted to spaces (one each) which may lead
-to unexpected contents.</db:para>
+The value must not exceed a certain length for sanity.
+reasons Any funny characters like tabs, line break, 
+carriage return or combinations are converted to spaces
+(one each) which may lead to unexpected contents.</db:para>
         <interleave>
           <ref name="k.chroot.attlist"/>
           <text/>
@@ -1990,6 +2123,104 @@ are used for creating a Novell SUSE installation source.</db:para>
   </div>
   <!--
     ==========================================
+    main block: <vmwareconfig>
+    
+  -->
+  <div>
+    <define name="k.vmwareconfig.arch.attribute">
+      <attribute name="arch">
+        <a:documentation>the VMware architecture type</a:documentation>
+        <choice>
+          <value>ix86</value>
+          <value>x86_64</value>
+          <value>%arch</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.vmwareconfig.HWversion.attribute">
+      <attribute name="HWversion">
+        <a:documentation>The virtual HW version number for the VMware configuration</a:documentation>
+        <data type="integer"/>
+      </attribute>
+    </define>
+    <define name="k.vmwareconfig.guestOS.attribute">
+      <attribute name="guestOS">
+        <a:documentation>the virtual guestOS identification string for VMware</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.vmwareconfig.memory.attribute">
+      <attribute name="memory">
+        <a:documentation>The memory setup for the guest VM.</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.vmwareconfig.attlist">
+      <interleave>
+        <optional>
+          <ref name="k.vmwareconfig.arch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.vmwareconfig.HWversion.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.vmwareconfig.guestOS.attribute"/>
+        </optional>
+        <ref name="k.vmwareconfig.memory.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.vmwareconfig">
+      <element name="vmwareconfig">
+        <a:documentation>specifies the VMware configuration sections</a:documentation>
+        <db:para>The vmwareconfig element specifies the VMware guest
+configuration options which are used by the VMware
+virtual machine when running the image.</db:para>
+        <interleave>
+          <ref name="k.vmwareconfig.attlist"/>
+          <optional>
+            <ref name="k.vmwarenic"/>
+          </optional>
+          <optional>
+            <ref name="k.vmwaredisk"/>
+          </optional>
+          <optional>
+            <ref name="k.vmwarecdrom"/>
+          </optional>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <xenconfig>
+    
+  -->
+  <div>
+    <define name="k.xenconfig.memory.attribute">
+      <attribute name="memory">
+        <a:documentation>The memory setup for the Xen guest.</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.xenconfig.attlist">
+      <optional>
+        <ref name="k.xenconfig.memory.attribute"/>
+      </optional>
+    </define>
+    <define name="k.xenconfig">
+      <element name="xenconfig">
+        <a:documentation>specifies the Xen configuration sections</a:documentation>
+        <db:para>The xenconfig element specifies the Xen guest
+configuration options which are used by the Xen
+para virtual machine when running the image.</db:para>
+        <interleave>
+          <ref name="k.xenconfig.attlist"/>
+          <optional>
+            <ref name="k.xendisk"/>
+          </optional>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     main block: <packages>
     
   -->
@@ -2004,36 +2235,6 @@ are used for creating a Novell SUSE installation source.</db:para>
           <value>xen</value>
           <value>vmware</value>
         </choice>
-      </attribute>
-    </define>
-    <define name="k.packages.memory.attribute">
-      <attribute name="memory">
-        <a:documentation>The memory setup for the guest VM. Used only with the
-packages types xen and vmware</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.packages.disk.attribute">
-      <attribute name="disk">
-        <a:documentation>The virtual disk device name of the guest VM. Used only
-with the packages types xen and vmware</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.packages.HWversion.attribute">
-      <attribute name="HWversion">
-        <a:documentation>The virtual HW version number for the VMware configuration</a:documentation>
-        <data type="integer"/>
-      </attribute>
-    </define>
-    <define name="k.packages.guestOS_32Bit.attribute">
-      <attribute name="guestOS_32Bit">
-        <a:documentation>the virtual guestOS identification string for VMware for 
-32bit guest systems</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.packages.guestOS_64Bit.attribute">
-      <attribute name="guestOS_64Bit">
-        <a:documentation>the virtual guestOS identification string for VMware for 
-64bit guest systems</a:documentation>
       </attribute>
     </define>
     <define name="k.packages.profiles.attribute">
@@ -2067,21 +2268,6 @@ onlyRequired, plusSuggested or plusRecommended</a:documentation>
     <define name="k.packages.attlist">
       <interleave>
         <ref name="k.packages.type.attribute"/>
-        <optional>
-          <ref name="k.packages.memory.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.packages.disk.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.packages.HWversion.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.packages.guestOS_32Bit.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.packages.guestOS_64Bit.attribute"/>
-        </optional>
         <optional>
           <ref name="k.packages.profiles.attribute"/>
         </optional>
