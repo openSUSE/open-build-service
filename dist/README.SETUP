@@ -98,7 +98,7 @@ on this or a remote host.
       FLUSH PRIVILEGES;
 
 * Configure your MySQL user and password in
-  in the "production:" section of these files:
+  in the "production_slave:" section of these files:
 
     /srv/www/obs/frontend/config/database.yml
     /srv/www/obs/webclient/config/database.yml
