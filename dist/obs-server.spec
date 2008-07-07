@@ -22,7 +22,7 @@ Version:        1.0.0
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component
-Source:         buildservice-1.0.0.tar.bz2
+Source:         buildservice-%version.tar.bz2
 Source1:        obsworker
 Source3:        obspublisher
 Source4:        obsrepserver
@@ -37,7 +37,7 @@ Source13:       obs_mirror_project
 Source15:       obsdispatcher
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
-Requires:       createrepo >= 0.4.10
+Recommends:     createrepo >= 0.4.10
 %else
 Requires:       yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
@@ -60,6 +60,9 @@ Requires:	powerpc32
 %endif
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
+%endif
+%if 0%{?suse_version} <= 1030
+Requires:       lzma
 %endif
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- Build Host Component
