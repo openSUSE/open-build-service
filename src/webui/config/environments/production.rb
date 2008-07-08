@@ -24,6 +24,8 @@ FRONTEND_HOST = "api-internal.opensuse.org"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
 
+EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
+
 BUGZILLA_HOST = "https://bugzilla.novell.com"
 DOWNLOAD_URL = "http://download.opensuse.org/repositories"
 
