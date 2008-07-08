@@ -797,29 +797,18 @@ sub getkiwipackages {
 
 sub getprojquotapackage {
   my ($projid) = @_;
-  if ( not exists($packagequota{':packages'}) ) {
-    my $quotaxml = readxml( $BSConfig::bsquotafile, $BSXML::quota, 1 );
-    %packagequota = ();
+  if (!exists($packagequota{':packages'})) {
+    my $quotaxml = readxml($BSConfig::bsquotafile, $BSXML::quota, 1);
     for my $p (@{$quotaxml->{'project'} || []}) {
-      $packagequota{$p->{'name'}}=$p->{'packages'};
+      $packagequota{$p->{'name'}} = $p->{'packages'};
     }
     $packagequota{':packages'} = $quotaxml->{'packages'};
   }
-  do {
-    if ( exists($packagequota{$projid}) ){
-      return $packagequota{$projid};
-    }
-    # look for parent project definition in name space
-    if ( $projid =~ m/:/ ) {
-      $projid =~ s/:$//;
-      $projid =~ s/(.*:).*/$1/;
-    } else {
-      $projid="";
-    }
-  } while ( $projid );
-  return $packagequota{':packages'} if exists( $packagequota{':packages'} );
-  # by default no quota exist
-  return -1;
+  while ($projid) {
+    return $packagequota{$projid} if exists $packagequota{$projid};
+    last unless $projid =~ s/:[^:]*$//;
+  }
+  return $packagequota{':packages'};
 }
 
 sub getprojpack {
@@ -874,13 +863,13 @@ sub getprojpack {
       $pdisabled = 1 if grep {!exists($_->{'repository'}) && (!exists($_->{'arch'}) || $_->{'arch'} eq $arch)} @{$jinfo->{'build'}->{'disable'} || []};
       undef $pdisabled if $pdisabled && grep {!exists($_->{'repository'}) && (!exists($_->{'arch'}) || $_->{'arch'} eq $arch)} @{$jinfo->{'build'}->{'enable'} || []};
     }
-    # Check quota
-    my $quota_exceeded = 0;
-    if ( defined( $BSConfig::bsquotafile ) ){
-      my $number_packages = @packages;
+
+    # Check package number quota
+    my $quota_exceeded;
+    if ($BSConfig::bsquotafile) {
       my $pquota = getprojquotapackage($projid);
-      $quota_exceeded = 1 if ( $pquota >= 0 && $number_packages > $pquota );
-    };
+      $quota_exceeded = 1 if defined($pquota) && @packages > $pquota;
+    }
 
     if ($cgi->{'withrepos'}) {
       if ($repoids) {
