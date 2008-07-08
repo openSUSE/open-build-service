@@ -15,7 +15,7 @@ module PackageHelper
 
   def rpm_url( project, package, repository, arch, filename )
     get_frontend_url_for( :controller => 'build' ) +
-      "/#{project}/#{repository}/#{package}/#{arch}/#{filename}"
+      "/#{project}/#{repository}/#{arch}/#{package}/#{filename}"
   end
 
   def human_readable_fsize( bytes )
