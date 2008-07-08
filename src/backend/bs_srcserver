@@ -74,6 +74,7 @@ my $remotecache = "$BSConfig::bsdir/remotecache";
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment}];
 my $eventlay = [qw{number time type project package repository arch}];
 
+my %packagequota;
 
 sub notify_repservers {
   my ($type, $projid, $packid) = @_;
@@ -794,6 +795,33 @@ sub getkiwipackages {
   return (undef, \@allrepos, \@allpackages, \@alltypes);
 }
 
+sub getprojquotapackage {
+  my ($projid) = @_;
+  if ( not exists($packagequota{':packages'}) ) {
+    my $quotaxml = readxml( $BSConfig::bsquotafile, $BSXML::quota, 1 );
+    %packagequota = ();
+    for my $p (@{$quotaxml->{'project'} || []}) {
+      $packagequota{$p->{'name'}}=$p->{'packages'};
+    }
+    $packagequota{':packages'} = $quotaxml->{'packages'};
+  }
+  do {
+    if ( exists($packagequota{$projid}) ){
+      return $packagequota{$projid};
+    }
+    # look for parent project definition in name space
+    if ( $projid =~ m/:/ ) {
+      $projid =~ s/:$//;
+      $projid =~ s/(.*:).*/$1/;
+    } else {
+      $projid="";
+    }
+  } while ( $projid );
+  return $packagequota{':packages'} if exists( $packagequota{':packages'} );
+  # by default no quota exist
+  return -1;
+}
+
 sub getprojpack {
   my ($cgi, $projids, $repoids, $packids, $arch) = @_;
   $arch ||= 'noarch';
@@ -840,11 +868,20 @@ sub getprojpack {
     for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
+    # Check build flags in project meta data
     my $pdisabled;
     if ($jinfo->{'build'} && !$cgi->{'ignoredisable'}) {
       $pdisabled = 1 if grep {!exists($_->{'repository'}) && (!exists($_->{'arch'}) || $_->{'arch'} eq $arch)} @{$jinfo->{'build'}->{'disable'} || []};
       undef $pdisabled if $pdisabled && grep {!exists($_->{'repository'}) && (!exists($_->{'arch'}) || $_->{'arch'} eq $arch)} @{$jinfo->{'build'}->{'enable'} || []};
     }
+    # Check quota
+    my $quota_exceeded = 0;
+    if ( defined( $BSConfig::bsquotafile ) ){
+      my $number_packages = @packages;
+      my $pquota = getprojquotapackage($projid);
+      $quota_exceeded = 1 if ( $pquota >= 0 && $number_packages > $pquota );
+    };
+
     if ($cgi->{'withrepos'}) {
       if ($repoids) {
 	$jinfo->{'repository'} = [ grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []} ];
@@ -909,6 +946,10 @@ sub getprojpack {
       }
       if ((!$disable || $pdisabled) && $enable && !%$enable) {
 	$pinfo->{'error'} = 'disabled';
+	next;
+      }
+      if ($quota_exceeded) {
+	$pinfo->{'error'} = 'quota exceeded';
 	next;
       }
       if ($cgi->{'withsrcmd5'} || $cgi->{'withdeps'}) {
@@ -1005,6 +1046,10 @@ sub getprojpack {
 	    }
 	    if ($type eq 'kiwi') {
 	      my ($error, $kiwirepos, $kiwipackages, $kiwitypes) = getkiwipackages($md5, $file, $projid, $packid, $arch);
+	      if (defined $error) {
+		push @dinfo, {'repository' => $repoid, 'error' => $error};
+		next;
+	      }
 	      push @dinfo, {'repository' => $repoid, 'file' => $file, 'name' => $packid,
 			    'dep' => \@{$kiwipackages}, 'imagetype' => \@{$kiwitypes}, 'path' => $kiwirepos};
 	      next;

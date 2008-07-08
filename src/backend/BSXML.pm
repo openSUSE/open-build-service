@@ -812,4 +812,12 @@ our $collection = [
       [ 'value' ],
 ];
 
+our $quota = [
+ 'quota' => 'packages',
+ [[ 'project' =>
+      'name',
+      'packages',
+ ]],
+];
+
 1;

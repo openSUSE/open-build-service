@@ -43,6 +43,7 @@ our @reposervers = ("http://$hostname:6262");
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
+#our $bsquotafile = '/srv/obs/quota.xml';
 
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
