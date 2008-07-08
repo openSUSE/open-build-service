@@ -1555,9 +1555,8 @@ sub getfile {
   my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
   die("$filename: no such file\n") unless $files->{$filename};
   my @s = stat("$srcrep/$packid/$files->{$filename}-$filename");
-  my @args;
-  push @args, "Content-Length: $s[7]" if @s;
-  BSServer::reply_file("$srcrep/$packid/$files->{$filename}-$filename", @args);
+  die("$srcrep/$packid/$files->{$filename}-$filename: $!\n") unless @s;
+  BSServer::reply_file("$srcrep/$packid/$files->{$filename}-$filename", "Content-Length: $s[7]");
   return undef;
 }
 
@@ -2739,6 +2738,10 @@ sub worker_getbinaries {
 	close F;
       }
     }
+
+    # work around api bug: only get 50 packages at a time
+    @fetch = splice(@fetch, 0, 50) if !$cpio && @fetch > 50;
+
     $cpio ||= BSWatcher::rpc($param, undef, "view=cpio", map {"binary=$_"} @fetch);
     return undef if $BSStdServer::isajax && !$cpio;
     for my $f (@{$cpio || []}) {
@@ -2757,6 +2760,12 @@ sub worker_getbinaries {
       delete $fetch{$bin};
     }
     BSWatcher::serialize_end($serial);
+
+    if (@{$cpio || []} >= 50) {
+      # work around api bug: get rest
+      return worker_getbinaries($cgi, $projid, $repoid, $arch);
+    }
+
     for (sort keys %fetch) {
       push @reply, {'name' => $_, 'error' => 'not available'};
     }
