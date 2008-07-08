@@ -41,7 +41,14 @@
 </para>
 <xsl:template match="image" mode="conv20to24">
   <image schemeversion="2.4">
-    <xsl:copy-of select="@name"/>
+     <xsl:choose>
+        <xsl:when test="@name">
+           <xsl:copy-of select="@name"/>
+        </xsl:when>
+        <xsl:otherwise>
+           <xsl:attribute name="name">FIXME</xsl:attribute>
+        </xsl:otherwise>
+     </xsl:choose>
     <xsl:apply-templates mode="conv20to24"/>
   </image>
 </xsl:template>
@@ -71,6 +78,18 @@
                              ]"/>
      <xsl:apply-templates mode="conv20to24"/>
    </packages>
+</xsl:template>
+
+
+<xsl:template match="version" mode="conv20to24">
+   <xsl:variable name="text" select="normalize-space(.)"/>
+   
+   <xsl:choose>
+      <xsl:when test=""></xsl:when>
+      <xsl:otherwise></xsl:otherwise>
+   </xsl:choose>
+   
+   
 </xsl:template>
 
 </xsl:stylesheet>
