@@ -10,8 +10,8 @@ class FrontendCompat
 
   def cmd_package( project, package, cmd, opt={} )
     extraparams = ''
-    extraparams << "&repo=#{opt[:repo]}" if opt[:repo]
-    extraparams << "&arch=#{opt[:arch]}" if opt[:arch]
+    extraparams << "&repo=#{CGI.escape opt[:repo]}" if opt[:repo]
+    extraparams << "&arch=#{CGI.escape opt[:arch]}" if opt[:arch]
 
     logger.debug "CMD_PACKAGE #{cmd} ; extraparams = #{extraparams}"
     transport.direct_http URI("https:///source/#{project}/#{package}?cmd=#{cmd}#{extraparams}"),
@@ -30,7 +30,7 @@ class FrontendCompat
     valid_opts = %(project package repository arch code)
     opt.each do |key, val|
       raise RuntimeError, "unknown method parameter #{key}" unless valid_opts.include? key.to_s
-      path += "&#{key.to_s}=#{val}"
+      path += "&#{key.to_s}=#{CGI.escape val}"
     end
     #logger.debug "### rebuild path: #{path}"
     transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
