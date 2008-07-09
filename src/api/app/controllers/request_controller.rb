@@ -102,8 +102,7 @@ class RequestController < ApplicationController
             :cmd => "copy",
             :user => @http_user.login,
             :oproject => src.project,
-            :opackage => src.package,
-            :expand => "1"
+            :opackage => src.package
           }
           cp_params[:orev] = src.rev if src.has_attribute? :rev
           
