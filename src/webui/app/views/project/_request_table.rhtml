@@ -1,0 +1,23 @@
+<%-
+  # local variables: 
+  #   requests - request collection
+-%>
+<table id='request-table'>
+  <tr>
+    <th>Request ID</th>
+    <th>Source Project</th>
+    <th>Package</th>
+    <th>State</th>
+    <th>Requester</th>
+  </tr>
+  <% requests.each do |req| -%>
+  <% req.return_empty_node = true %>
+  <tr>
+    <td><%= req.method_missing(:id) %></td>
+    <td><%= req.submit.source.project %></td>
+    <td><%= req.submit.source.package %></td>
+    <td><%= req.state.name %></td>
+    <td><%= req.state.who %></td>
+  </tr>
+  <% end -%>
+</table>

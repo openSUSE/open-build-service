@@ -34,13 +34,16 @@ class ProjectController < ApplicationController
 
     @iprojects = @user.involved_projects.each.map {|x| x.name}.sort
     @ipackages = Hash.new
-    @user.involved_packages.each.sort(&@user.method('packagesorter')).each do |pack|
-      #don't display packages from involved projects
-      logger.debug "pack.project. #{pack.project}"
-      next if @iprojects.include?(pack.project)
+    pkglist = @user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
+    pkglist.sort(&@user.method('packagesorter')).each do |pack|
       @ipackages[pack.project] ||= Array.new
       @ipackages[pack.project] << pack.name
     end
+
+    predicate = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ")
+    predicate = "(#{predicate}) and state/@name='new'"
+    @requests_for_me = Collection.find :what => :request, :predicate => predicate
+    @requests_by_me = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
   end
 
   def remove_watched_project
