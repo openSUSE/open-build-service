@@ -1522,10 +1522,14 @@ div {
 	k.vmwareconfig.memory.attribute =
 		## The memory setup for the guest VM.
 		attribute memory { text }
+	k.vmwareconfig.usb.attribute =
+		## Activate/Deactivate usb controller for VMware
+		attribute usb { xsd:boolean }
 	k.vmwareconfig.attlist =
 		k.vmwareconfig.arch.attribute? &
 		k.vmwareconfig.HWversion.attribute? &
 		k.vmwareconfig.guestOS.attribute? &
+		k.vmwareconfig.usb.attribute? &
 		k.vmwareconfig.memory.attribute
 	k.vmwareconfig =
 		## specifies the VMware configuration sections
