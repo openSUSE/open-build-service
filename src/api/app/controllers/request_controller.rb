@@ -52,12 +52,12 @@ class RequestController < ApplicationController
         return
       end
 
-      tpkg = tprj.db_packages.find_by_name req.submit.target.package
-      unless tpkg
-        render_error :status => 404, :errorcode => 'unknown_package',
-          :message => "Unknown package #{req.submit.target.package}"
-        return
-      end
+      #tpkg = tprj.db_packages.find_by_name req.submit.target.package
+      #unless tpkg
+      #  render_error :status => 404, :errorcode => 'unknown_package',
+      #    :message => "Unknown package #{req.submit.target.package}"
+      #  return
+      #end
 
       sprj = DbProject.find_by_name req.submit.source.project
       unless sprj
