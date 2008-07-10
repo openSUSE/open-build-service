@@ -956,7 +956,6 @@ sub getbuildinfo {
     die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
   }
 
-  my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
 
@@ -992,6 +991,7 @@ sub getbuildinfo {
     }
   }
 
+  my @prp;
   my $info = $pdata->{'info'}->[0];
   die("bad info\n") unless $info && ( $info->{'repository'} eq $repoid );
   if ($info->{'error'}) {
@@ -1009,6 +1009,10 @@ sub getbuildinfo {
     # Collect kiwi image types
     my @itypes = @{$info->{'imagetype'} || []};
     $ret->{'imagetype'} = \@itypes unless $uploaded;
+    @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+  }else{
+    # Use repositories from project definition
+    @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   }
 
   # read repository data from cache
