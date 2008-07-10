@@ -1338,7 +1338,8 @@ div {
 		]
 		element architectures {
 			k.architectures.attlist &
-			k.arch+ 
+			k.arch+ &
+			k.requiredarch+
 		}
 }
 
@@ -1409,6 +1410,28 @@ div {
 		]
 		element arch {
 			k.arch.attlist &
+			empty
+		}
+}
+
+#==========================================
+# main block: <requiredarch>
+#
+div {
+        k.requiredarch.ref.attribute = attribute ref { xsd:IDREF }
+
+	k.requiredarch.attlist = k.requiredarch.ref.attribute
+
+	k.requiredarch =
+		## Describe Packages and Metadata
+		[
+		db:para [
+			"The requiredarch element defines which  architectures\x{a}"~
+			"are the basic required ones for the media."
+		]
+		]
+		element requiredarch {
+			k.requiredarch.attlist &
 			empty
 		}
 }

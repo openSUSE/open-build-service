@@ -1918,6 +1918,9 @@ undefined value thus terminating the chain.</db:para>
           <oneOrMore>
             <ref name="k.arch"/>
           </oneOrMore>
+          <oneOrMore>
+            <ref name="k.requiredarch"/>
+          </oneOrMore>
         </interleave>
       </element>
     </define>
@@ -2011,6 +2014,32 @@ product option its name and its fallback (productoptional).</db:para>
 its name and its fallback (optional).</db:para>
         <interleave>
           <ref name="k.arch.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <requiredarch>
+    
+  -->
+  <div>
+    <define name="k.requiredarch.ref.attribute">
+      <attribute name="ref">
+        <data type="IDREF"/>
+      </attribute>
+    </define>
+    <define name="k.requiredarch.attlist">
+      <ref name="k.requiredarch.ref.attribute"/>
+    </define>
+    <define name="k.requiredarch">
+      <element name="requiredarch">
+        <a:documentation>Describe Packages and Metadata</a:documentation>
+        <db:para>The requiredarch element defines which  architectures
+are the basic required ones for the media.</db:para>
+        <interleave>
+          <ref name="k.requiredarch.attlist"/>
           <empty/>
         </interleave>
       </element>
