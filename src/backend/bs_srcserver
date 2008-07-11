@@ -1624,7 +1624,7 @@ sub sourcediff {
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
   die("unknown other project/package\n") unless $orev;
   my $ofiles = lsrep($oprojid, $opackid, $orev->{'srcmd5'});
-  if (($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
+  if ($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
     if ($files->{'_link'}) {
       my %lrev = %$rev;
