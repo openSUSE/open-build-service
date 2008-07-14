@@ -87,7 +87,7 @@ div {
 		element image {
 			k.image.attlist &
 			k.description &
-			k.preferences &
+			k.preferences+ &
 			k.profiles? &
 			k.instsource? &
 			k.users* &
@@ -1645,13 +1645,15 @@ div {
 # main block: <preferences>
 #
 div {
-	k.preferences.attlist = empty
+	k.preferences.profiles.attribute = k.profiles.attribute
+	k.preferences.attlist =
+		k.preferences.profiles.attribute?
 	k.preferences =  
 		## Configuration Information Needed for Logical Extend
 		element preferences {
 			k.preferences.attlist &
-			k.type+ &
-			k.version &
+			k.type* &
+			k.version? &
 			k.size? &
 			k.compressed? &
 			k.oem-swap? &

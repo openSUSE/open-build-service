@@ -20,7 +20,7 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 2.4</db:releaseinfo>
@@ -123,7 +123,9 @@ named /etc/ImageID</a:documentation>
         <interleave>
           <ref name="k.image.attlist"/>
           <ref name="k.description"/>
-          <ref name="k.preferences"/>
+          <oneOrMore>
+            <ref name="k.preferences"/>
+          </oneOrMore>
           <optional>
             <ref name="k.profiles"/>
           </optional>
@@ -2345,18 +2347,25 @@ and also depends of the selected image output type.</db:para>
     
   -->
   <div>
+    <define name="k.preferences.profiles.attribute">
+      <ref name="k.profiles.attribute"/>
+    </define>
     <define name="k.preferences.attlist">
-      <empty/>
+      <optional>
+        <ref name="k.preferences.profiles.attribute"/>
+      </optional>
     </define>
     <define name="k.preferences">
       <element name="preferences">
         <a:documentation>Configuration Information Needed for Logical Extend</a:documentation>
         <interleave>
           <ref name="k.preferences.attlist"/>
-          <oneOrMore>
+          <zeroOrMore>
             <ref name="k.type"/>
-          </oneOrMore>
-          <ref name="k.version"/>
+          </zeroOrMore>
+          <optional>
+            <ref name="k.version"/>
+          </optional>
           <optional>
             <ref name="k.size"/>
           </optional>
