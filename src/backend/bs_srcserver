@@ -1650,12 +1650,7 @@ sub sourcediff {
 
 sub isascii {
   my ($file) = @_;
-  local *F;
-  open(F, '<', $file) || die("$file: $!\n");
-  my $buf = '';
-  sysread(F, $buf, 0, 4096);
-  close F;
-  return 1 unless $buf =~ /[\000-\037]/s;
+  return 1 if -T $file;
   return 0;
 }
 
