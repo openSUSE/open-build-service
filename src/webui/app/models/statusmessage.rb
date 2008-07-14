@@ -11,7 +11,7 @@ class Statusmessage < ActiveXML::Base
       doc = REXML::Document.new
       #doc << XMLDecl.new( 1.0, 'UTF-8', 'no' )
       doc.add_element( REXML::Element.new( 'message' ) )
-      doc.root.add_attribute( 'severity', opt[:severity] ) if opt[:severity]
+      doc.root.add_attribute( 'severity', opt[:severity].to_s ) if opt[:severity]
       doc.root.add_text( opt[:message] )
       return doc
     end
