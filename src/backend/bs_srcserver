@@ -1656,6 +1656,7 @@ sub isascii {
   sysread(F, $buf, 0, 4096);
   close F;
   return 1 unless $buf =~ /[\000-\037]/s;
+  return 0;
 }
 
 sub rundiff {
