@@ -1,7 +1,7 @@
 #!/bin/bash
 
-: ${OSCOPTS:="-A https://api.d-atasoft.com"}
-: ${PROJECT:=openSUSE:Tools:Staging}
+: ${OSCOPTS:="-A https://api.opensuse.org"}
+: ${PROJECT:=openSUSE:Tools:Unstable}
 : ${PACKAGE:=obs-server-svn}
 : ${TARGET:=openSUSE_10.2}
 : ${ARCH:=i586}
