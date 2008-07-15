@@ -344,17 +344,26 @@ div {
 		attribute priority { text }
 	k.instrepo.username.attribute = k.username.attribute
 	k.instrepo.pwd.attribute = k.pwd.attribute
+	k.instrepo.local.attribute =
+		attribute local { xsd:boolean }
 	k.instrepo.attlist =
 		k.instrepo.name.attribute &
 		k.instrepo.priority.attribute &
 		k.instrepo.username.attribute? &
-		k.instrepo.pwd.attribute?
+		k.instrepo.pwd.attribute? &
+		k.instrepo.local.attribute?
 	k.instrepo =
 		## Name of a Installation Repository
 		[
 		db:para [
 			"Name of a repository which is used to create an\x{a}" ~
-			"installation source"
+			"installation source\x{a}"~
+			"The Priority specifies the order the repositories are\x{a}"~
+			"layered when looking for a package.\x{a}"~
+			"Username and pwd are the credentials for ftp access.\x{a}"~
+			"The local attribute tells kiwi to use hardlinks instead of\x{a}"~
+			"downloads in case the source and destination trees are on\x{a}"~
+			"the same machine."
 		]
 		]
 		element instrepo {

@@ -494,6 +494,11 @@ specifies where the boot image (initrd) can be found.</db:para>
     <define name="k.instrepo.pwd.attribute">
       <ref name="k.pwd.attribute"/>
     </define>
+    <define name="k.instrepo.local.attribute">
+      <attribute name="local">
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.instrepo.attlist">
       <interleave>
         <ref name="k.instrepo.name.attribute"/>
@@ -504,13 +509,22 @@ specifies where the boot image (initrd) can be found.</db:para>
         <optional>
           <ref name="k.instrepo.pwd.attribute"/>
         </optional>
+        <optional>
+          <ref name="k.instrepo.local.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.instrepo">
       <element name="instrepo">
         <a:documentation>Name of a Installation Repository</a:documentation>
         <db:para>Name of a repository which is used to create an
-installation source</db:para>
+installation source
+The Priority specifies the order the repositories are
+layered when looking for a package.
+Username and pwd are the credentials for ftp access.
+The local attribute tells kiwi to use hardlinks instead of
+downloads in case the source and destination trees are on
+the same machine.</db:para>
         <ref name="k.instrepo.attlist"/>
         <ref name="k.source"/>
       </element>
