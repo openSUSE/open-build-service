@@ -385,7 +385,7 @@ sub applylink {
 	$simple = 0;
       } elsif ($type eq 'delete') {
         push @patches, { 'type' => $type, %{$_->{$type} || {}}};
-	push @simple_delete, $_->{$type};
+	push @simple_delete, $patches[-1]->{'name'};
       } else {
         push @patches, { 'type' => $type, %{$_->{$type} || {}}};
 	$simple = 0;
