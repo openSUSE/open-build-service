@@ -1655,7 +1655,7 @@ sub isascii {
   my $buf = '';
   sysread(F, $buf, 4096);
   close F;
-  return 1 unless $buf =~ /[\000-\037]/s;
+  return 1 unless $buf =~ /[\000-\010\016-\037]/s;
   return 0;
 }
 
@@ -1702,6 +1702,11 @@ sub findprojectpatchname {
   return "project$i.diff";
 }
 
+#
+# we are going to commit files to projid/packid, all data is already present
+# in the src repository.
+# if it was a link before, try to keep this link
+#
 sub keeplink {
   my ($projid, $packid, $files) = @_;
 
@@ -1724,6 +1729,8 @@ sub keeplink {
 #    }
 #    $l->{'patches'}->{''} = grep {defined($_)} @{$l->{'patches'}->{''}};
 #  }
+
+  # expand old link
   my %olrev = %$orev;
   $olrev{'name'} = $packid;
   my $ofiles = handlelinks($projid, \%olrev, $ofilesl, $orev);
@@ -1731,6 +1738,7 @@ sub keeplink {
   my $lsrcmd5 = $ofiles->{'/LINK'};
   delete $ofiles->{'/LINK'};
   delete $ofiles->{'/LOCAL'};
+
   # now create diff between $ofiles and $files
   my $nfiles = { %$ofilesl };
   unlink("$srcrep/:upload/$$");
@@ -1914,7 +1922,7 @@ sub sourcecopy {
 	# we're integrating this link
         $lrev = getrev($lprojid, $lpackid, $lrev);
 	my $lfiles = lsrep($lprojid, $lpackid, $lrev->{'srcmd5'});
-	if ($lfiles->{'_link'}) {
+	if ($lfiles->{'_link'} && !$cgi->{'expand'}) {
 	  $files = integratelink($lfiles, $lprojid, $lpackid, $files, $oprojid, $opackid, $l);
 	} else {
 	  # auto expand
