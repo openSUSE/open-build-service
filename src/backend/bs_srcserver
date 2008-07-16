@@ -586,20 +586,23 @@ sub handlelinks {
     $l->{'project'} = $linkinfo[-1]->{'project'} unless exists $l->{'project'};
     $l->{'package'} = $linkinfo[-1]->{'package'} unless exists $l->{'package'};
     $linkinfo[-1]->{'link'} = $l;
+    $projid = $l->{'project'};
     $packid = $l->{'package'};
     my $lrev = $l->{'rev'} || '';
-    return 'circular package link' if $seen{"$l->{'project'}/$packid/$lrev"};
-    $seen{"$l->{'project'}/$packid/$lrev"} = 1;
+    return 'circular package link' if $seen{"$projid/$packid/$lrev"};
+    $seen{"$projid/$packid/$lrev"} = 1;
+    # record link target for projpack
+    push @{$pinfo->{'linked'}}, {'project' => $projid, 'package' => $packid};
     eval {
-      $lrev = getrev($l->{'project'}, $packid, $l->{'rev'});
+      $lrev = getrev($projid, $packid, $l->{'rev'});
     };
     if ($@) {
       my $error = $@;
       $error =~ s/\n$//s;
-      return "$l->{'project'} $packid: $error";
+      return "$projid $packid: $error";
     }
-    return "linked package '$packid' does not exist in project '$l->{'project'}'" unless $lrev;
-    $files = lsrep($l->{'project'}, $packid, $lrev->{'srcmd5'});
+    return "linked package '$packid' does not exist in project '$projid'" unless $lrev;
+    $files = lsrep($projid, $packid, $lrev->{'srcmd5'});
     return 'linked package is not in repository' unless $files;
     my $cicount = $l->{'cicount'} || 'add';
     if ($cicount eq 'copy') {
@@ -611,7 +614,7 @@ sub handlelinks {
     }
     $vrev = $lrev->{'vrev'};
     $rev->{'vrev'} += $vrev unless $vrevdone;
-    push @linkinfo, {'project' => $l->{'project'}, 'package' => $packid, 'srcmd5' => $lrev->{'srcmd5'}, 'rev' => $lrev->{'rev'}};
+    push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $lrev->{'srcmd5'}, 'rev' => $lrev->{'rev'}};
   }
   my $md5;
   my $oldl;
@@ -634,16 +637,10 @@ sub handlelinks {
     $oldl = $l;
   }
   # add extra info to pinfo
+  $projid = $linkinfo[0]->{'project'};
   $packid = $linkinfo[0]->{'package'};
   shift @linkinfo;
   $pinfo->{'srcmd5'} = $md5;
-  for (@linkinfo) {
-    # delete unneeded entries to keep projpack small
-    delete $_->{'srcmd5'};
-    delete $_->{'rev'};
-    delete $_->{'link'};
-  }
-  $pinfo->{'linked'} = \@linkinfo;
   $files = lsrep($projid, $packid, $md5);
   my $meta = '';
   for (sort keys %$files) {
