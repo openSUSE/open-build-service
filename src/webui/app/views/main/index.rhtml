@@ -10,48 +10,91 @@
 
 <h1 class="mainhead">Welcome to the openSUSE Build Service</h1>
 
-<p class="description">This is the web interface of the 
-<%= link_to 'openSUSE Build Service', 'http://en.opensuse.org/Build_Service',
-  :title => 'more Information about the Build Service in the openSUSE wiki ...' -%>.
-It can build packages for <a href="http://en.opensuse.org/Build_Service/cross_distribution_package_how_to">various Linux distributions.</a><br/>
-
-<p class="description">Everyone can download the resulting software packages via the <a href="http://software.opensuse.org/search">software search and browsing interface</a>.</p>
-
+<p class="description">
+The 
+<%= link_to 'openSUSE Build Service', 'http://en.opensuse.org/Build_Service', :title => 'more Information about the Build Service in the openSUSE wiki ...' -%>.
+is an open and complete distribution development platform that provides a transparent infrastructure for development of the openSUSE distribution.
+</p>
+<p class="description">
+The openSUSE Build Service is the only service that allows developers to package software for <%= link_to 'all major Linux distributions', 'http://en.opensuse.org/Build_Service/cross_distribution_package_how_to', :title => 'Cross Distribution Package How To' -%>. The service provides software developers with a convenient and easy to use tool to create and release open source software for <%= link_to 'openSUSE and other Linux distributions', 'http://en.opensuse.org/Build_Service/cross_distribution_package_how_to', :title => 'Cross Distribution Package How To' -%> on different hardware architectures and for a broad user audience.
+</p>
+<p class="description">
+With the openSUSE Build Service, users can easily <%= link_to 'find the latest open source packages', 'http://software.opensuse.org/search', :title => 'Software Search' -%> they are looking for and customize them. It provides a bridge between developers and users with feedback and rating functionality. For developers it is an efficient place to build up groups and work together through its project model.
+</p>
 
 <!--
-<div id="statistics">
-  <span>
     <% #= render :partial => 'most_downloaded' -%>
     <% #= link_to 'more...', { :controller => 'main', :action => 'most_downloaded',
        #:more => true, :limit => 25 } -%>
-  </span>
-  <span>
     <% #= render :partial => 'latest_added' -%>
     <% #= link_to 'more...', { :controller => 'main', :action => 'latest_added',
        #:more => true, :limit => 25 } -%>
-  </span>
-  <span class="last">
     <% #= render :partial => 'latest_updated' -%>
     <% #= link_to 'more...', { :controller => 'main', :action => 'latest_updated',
        #:more => true, :limit => 25 } -%>
-  </span>
-  <div style="clear: both;">&nbsp;</div>
-</div>
+-->
+
+<!--
+
+http://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png
+
+http://static.opensuse.org/hosts/build.o.o/images/icons/document-new.png
+
+http://static.opensuse.org/hosts/build.o.o/images/icons/system-search.png
+
+
+
+
+http://static.opensuse.org/hosts/build.o.o/images/icons/dialog-information.png
+
+http://static.opensuse.org/hosts/build.o.o/images/icons/utilities-system-monitor.png
+
+http://static.opensuse.org/hosts/build.o.o/images/icons/x-office-spreadsheet.png
+http://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png
+
 -->
 
 <% if session[:login] -%>
-  <p>Proceed to:</p>
-    <ul>
-      <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
-      <li><%= link_to "Watched Projects", :controller => "project", :action => :list_my %></li>
-      <li><%= link_to "Home Project", :controller => "project", :action => :show, :project => "home:#{session[:login]}" %></li>
-      <li><%= link_to 'Create New Project', :controller => "project", :action => :new %></li>
-      <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
-      <li><%= link_to "Build Service Status", :controller => "monitor", :action => :index %></li>
+
+<style type="text/css" media="screen">
+ /* #proceed_list {
+  }
+  #proceed_list li {
+    float: left;
+    text-align: center;
+    list-style: none;
+    margin:0;
+    width: 10em;
+  }
+  #proceed_list li img {
+    margin-bottom: 0.5em;
+  }
+*/
+</style>
+
+<p>Proceed to:</p>
+    <ul id="proceed_list">
       <li>
-        <%= link_to "Statistics", :controller => "statistics", :action => :index %>
-        <%= image_tag 'beta.png', :title => 'The statistics are still under development' -%>
+      <%= link_to "<img src='http://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png' />", :controller => "project", :action => :list_public %><br/>
+      <%= link_to "List of All Projects", :controller => "project", :action => :list_public %>
       </li>
+
+      <li>
+      <%= link_to '<img src="http://static.opensuse.org/hosts/build.o.o/images/icons/document-new.png" />', :controller => "project", :action => :new %><br/>
+      <%= link_to 'Create New Project', :controller => "project", :action => :new %>
+      </li>
+      <li>
+      <%= link_to "<img src='http://static.opensuse.org/hosts/build.o.o/images/icons/system-search.png'", :controller => 'main', :action => 'search' %><br/>
+      <%= link_to "Search", :controller => 'main', :action => 'search' %>
+      </li>
+      <li>
+      <%= link_to "<img src='http://static.opensuse.org/hosts/build.o.o/images/icons/utilities-system-monitor.png' />", :controller => "monitor", :action => :index %><br/>
+      <%= link_to "Build Service Status", :controller => "monitor", :action => :index %>
+      </li>
+<!--      <li>
+        <%= link_to "<img src='http://static.opensuse.org/hosts/build.o.o/images/icons/x-office-spreadsheet.png' />", :controller => "statistics", :action => :index %><br/>
+        <%= link_to "Statistics", :controller => "statistics", :action => :index %>
+        </li> -->
     </ul>
 <% else -%>
   <p class="description">If you are a packager and want to add / edit packages, you have to
@@ -61,11 +104,11 @@ It can build packages for <a href="http://en.opensuse.org/Build_Service/cross_di
   </strong>
   </p>
 <% end -%>
-
+<br style="clear: left;" />
 <p class="description">If you would like to discuss the Build Service please use the
-<a href="mailto:opensuse-buildservice+subscribe@opensuse.org">
-opensuse-buildservice@opensuse.org</a> mailing list.<br/>
+<a href="mailto:opensuse-buildservice+subscribe@opensuse.org">opensuse-buildservice@opensuse.org</a> mailing list.<br/>
 We have also an active IRC channel <a href="irc://irc.opensuse.org/opensuse-buildservice">#opensuse-buildservice</a> running on Freenode.<br/>
-</p><p>
-Have fun experimenting with the openSUSE Build Service :-)</p>
-
+</p>
+<p class="description">
+Have fun experimenting with the openSUSE Build Service :-)
+</p>
