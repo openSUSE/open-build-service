@@ -55,8 +55,8 @@ module ApplicationHelper
 
 
   def get_frontend_url_for( opt={} )
-    opt[:host] ||= self.class.const_defined? EXTERNAL_FRONTEND_HOST ? EXTERNAL_FRONTEND_HOST : FRONTEND_HOST
-    opt[:port] ||= self.class.const_defined? EXTERNAL_FRONTEND_PORT ? EXTERNAL_FRONTEND_PORT : FRONTEND_PORT
+    opt[:host] ||= Object.const_defined? :EXTERNAL_FRONTEND_HOST ? EXTERNAL_FRONTEND_HOST : FRONTEND_HOST
+    opt[:port] ||= Object.const_defined? :EXTERNAL_FRONTEND_PORT ? EXTERNAL_FRONTEND_PORT : FRONTEND_PORT
     opt[:protocol] ||= FRONTEND_PROTOCOL
 
     if not opt[:controller]
