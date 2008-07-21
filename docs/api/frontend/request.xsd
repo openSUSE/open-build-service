@@ -16,6 +16,7 @@
       <xs:enumeration value="declined"/>
       <xs:enumeration value="accepted"/>
       <xs:enumeration value="review"/>
+      <xs:enumeration value="revoked"/>
     </xs:restriction>
   </xs:simpleType>
 
