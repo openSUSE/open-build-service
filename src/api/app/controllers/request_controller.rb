@@ -94,8 +94,20 @@ class RequestController < ApplicationController
 
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate])
     if req.type == "submit"
-      prj = DbProject.find_by_name(req.submit.target.project)
-      if @http_user.can_modify_project? prj
+
+      # check permission to modify
+      target = DbProject.find_by_name(req.submit.target.project)
+      source = DbProject.find_by_name(req.submit.source.project)
+      if @http_user.can_modify_project? target
+        permission_granted = true
+      elsif req.state.name == "new" and params[:newstate] == "revoked" and @http_user.can_modify_project?(source)
+        # allow new -> revoked state change to maintainers of source project
+        permission_granted = true
+      else
+        permission_granted = false
+      end
+
+      if permission_granted
         if params[:newstate] == "accepted"
           src = req.submit.source
           cp_params = {
