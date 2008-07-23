@@ -123,6 +123,8 @@ sub getcodemd5 {
 my $workerdircache = {};
 my $builddircache = {};
 
+my %badhost;
+
 sub assignjob {
   my ($job, $idlename, $arch) = @_;
   local *F;
@@ -171,9 +173,14 @@ sub assignjob {
     }, undef, "port=$port", "workercode=$workercode", "buildcode=$buildcode");
   };
   if ($@) {
+    my $err = $@;
     print "rpc error: $@";
     unlink("$jobsdir/$arch/$job:status");
     close F;
+    if ($err =~ /cannot build this package/) {
+      $badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $idlename, 2))[1]]}"} = time();
+      return 'badhost';
+    }
     return undef;
   }
   $jobstatus->{'code'} = 'building';
@@ -192,7 +199,7 @@ sub assignjob {
   # write new status and release lock
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
   close F;
-  return 1;
+  return 'assigned';
 }
 
 sub sendeventtosrcserver {
@@ -234,24 +241,39 @@ while (1) {
     @b = grep {!/:(?:dir|status|new)$/} @b;
     @b = grep {!$locked{"$_:status"}} @b;
 
-    #poor man's project priority
-    my @bn = grep {!/^Ports:DebianBased:Auto/} @b;
-    @bn = grep {!/^home:rguenther:playground/} @bn;
-    @b = @bn if @bn;
-
-    #@bn = grep {/^openSUSE:Factory/} @bn;
-    #@b = @bn if @bn;
+    # pool mans priority, please replace with something sane...
+    if ($BSConfig::dispatch_prio) {
+      for my $pr (@{$BSConfig::dispatch_prio}) {
+        my @bn;
+        if ($pr =~ /^!/) {
+          my $npr = substr($pr, 1);
+          @bn = grep {!/$npr/} @b;
+        } else {
+          @bn = grep {/$pr/} @b;
+        }
+        @b = @bn if @bn;
+      }
+    }
 
     for my $job (List::Util::shuffle(@b)) {
-      for my $idle (map {$_} List::Util::shuffle(@{$idlearch{$arch} || []})) {
+      my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
+      if (%badhost) {
+	my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+	if ($info) {
+	  @idle = grep {!$badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $_, 2))[1]]}"}} @idle;
+	}
+      }
+      for my $idle (@idle) {
 	next unless -e "$jobsdir/$arch/$job";
-	if (!assignjob($job, $idle, $arch)) {
+	my $res = assignjob($job, $idle, $arch);
+	if (!$res) {
 	  my $harch = (split(':', $idle, 2))[0];
 	  for (@{$cando{$harch} || []}) {
 	    $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
 	  }
 	  next;
 	}
+	next if $res eq 'badhost';
 	my $harch = (split(':', $idle, 2))[0];
 	for (@{$cando{$harch} || []}) {
 	  $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
@@ -283,6 +305,9 @@ while (1) {
     eval {
       if ($ev->{'type'} eq 'built') {
         # resend to rep server
+      } elsif ($ev->{'type'} eq 'badhost') {
+        print "badhost event: $ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}\n";
+	$badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}"} = time();
       } else {
         sendeventtosrcserver($ev);
       }
@@ -295,4 +320,13 @@ while (1) {
   }
   sleep(1) unless $assigned;
   printf("assigned $assigned jobs\n") if $assigned;
+  if (%badhost) {
+    my $now = time();
+    for (keys %badhost) {
+      if ($badhost{$_} + 24*3600 < $now) {
+        print "deleting badhost $_\n";
+        delete $badhost{$_};
+      }
+    }
+  }
 }

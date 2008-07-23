@@ -692,6 +692,7 @@ sub rpc_recv_handler {
 
   # we assume that all chunked data is streaming
   if ($param->{'receiver'} || $chunked) {
+    die("answer is neither chunked nor does it contain a content length\n") unless $chunked || defined($cl);
     $ev->{'contentlength'} = $cl if !$chunked && defined($cl);
     if ($param->{'receiver'} && $param->{'receiver'} == \&BSHTTP::file_receiver) {
       rpc_recv_file($ev, $chunked, $ans, $param->{'filename'});

@@ -198,6 +198,7 @@ sub db_sync {
     'headers' => [ 'Content-Type: application/octet-stream' ],
     'data' => $data,
   };
+  print "    syncing database\n";
   eval {
     BSRPC::rpc($param, undef, 'cmd=updatedb');
   };

@@ -49,10 +49,11 @@ my $workerid;
 my $srcserver;
 my @reposervers;
 my $testmode;
-my $noworkercheck = 0;
-my $nobuildcodecheck = 0;
+my $noworkercheck;
+my $nobuildcodecheck;
 my $oneshot;
 my $silent;
+my $hostcheck;
 
 my $buildlog_maxsize = 70 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
@@ -156,8 +157,11 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
                    : do not update both worker and build code
 
        --oneshot <seconds>
-		   : just build one package, do not wait more then
+                   : just build one package, do not wait more then
                      <seconds> seconds if nothing is available
+
+       --hostcheck <hostcheck>
+                   : call to check if the host can build the package
 
        --help      : this message
 
@@ -236,6 +240,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--oneshot') {
     shift @ARGV;
     $oneshot = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--hostcheck') {
+    shift @ARGV;
+    $hostcheck = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--nocodeupdate') {
@@ -630,7 +639,7 @@ sub dobuild {
     }
     push @args, '--clean';
     push @args, '--changelog';
-    push @args, '--norootforbuild';
+    push @args, '--norootforbuild' unless $BSConfig::norootexceptions && $BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"};
     push @args, '--baselibs-internal';
     push @args, '--lint';
     push @args, '--dist', "$buildroot/.config";
@@ -650,11 +659,28 @@ sub dobuild {
     return 1;
   }
 
-  if ($xen) {
+  if ($xen && ($buildinfo->{'file'} !~ /\.kiwi$/)) {
     rm_rf("$buildroot/.build.packages");
-    if(!rename($buildroot.'/.mount/.build.packages', "$buildroot/.build.packages")) {
-      print "final rename failed: $!";
-      return 1;
+    if (! -d "$buildroot/.mount/.build.packages") {
+      # old style, call extractbuild
+      print "extracting built packages...\n";
+      @args = ();
+      push @args, "$statedir/build/extractbuild";
+      push @args, '--xenroot', "$xen_root";
+      push @args, '--xenswap', "$xen_swap";
+      if (system(@args)) {
+        die("extractbuild failed\n");
+      }
+      mkdir_p("$buildroot/.build.packages");
+      if (system("cd $buildroot/.build.packages && cpio --extract --no-absolute-filenames -v < $xen_swap")) {
+	die("cpio extract failed\n");
+      }
+    } else {
+      # new style, build already did extractbuild for us
+      if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
+        print "final rename failed: $!";
+        return 1;
+      }
     }
     # XXX: extracted cpio is flat but code below expects those directories...
     symlink('.', "$buildroot/.build.packages/SRPMS");
@@ -870,15 +896,24 @@ if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'build
 }
 
 rename('job.new', 'job') || die("rename job.new job: $!\n");
+
+if ($hostcheck) {
+  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", 'precheck')) {
+    unlink('job');
+    die("400 cannot build this package\n");
+  }
+}
+
 if ($testmode) {
   BSServer::reply("<status code=\"failed\">\n  <details>testmode activated</details>\n</status>\n", 'Status: 400 Testmode', 'Content-Type: text/xml');
 } else {
   BSServer::reply("<status code=\"ok\">\n  <details>so much work, so little time...</details>\n</status>\n", 'Content-Type: text/xml');
 }
 print "got job, run build...\n";
-unlink("$buildroot/.build.log");
 unlink("$buildroot/.build.meta");
 unlink("$buildroot/.build.packages");
+unlink("$buildroot/.build.log");
+writestr("$buildroot/.build.log", undef, '');
 
 $state->{'state'} = 'building';
 $state->{'jobid'} = $jobid;
@@ -929,6 +964,14 @@ if (! -s "$buildroot/.build.log") {
   $ex = 1;
 }
 
+if ($hostcheck) {
+  print "running post-build host check\n";
+  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", $ex ? 'succeeded' : 'failed', "$buildroot/.build.log")) {
+    print "post-build host check failed\n";
+    $ex = 2;
+  }
+}
+
 my @send;
 if ($ex == 0) {
   local *D;
@@ -947,26 +990,43 @@ if ($ex == 0) {
     }
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
+  if (!@send) {
+    print "build did not create packages\n";
+    $ex = 1;
+  }
 }
 if (@send) {
   print "build succeeded, send everything back...\n";
   push @send, {name => 'meta', filename => "$buildroot/.build.meta"};
-} else {
+} elsif ($ex != 2) {
   print "build failed, send back logfile...\n";
   push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$buildroot/.build.meta";
 }
 push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 
 if (!$testmode) {
-  eval {
-    my $res = BSRPC::rpc({
+  my $param = {
+    uri => "$repo->{'server'}/putjob",
+    request => 'POST',
+    headers => [ 'Content-Type: application/x-cpio' ],
+    chunked => 1,
+    data => \&BSHTTP::cpio_sender,
+    cpiofiles => \@send,
+  };
+  my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid");
+  if (!$ex) {
+    push @args, "code=succeeded";
+  } elsif ($ex == 2) {
+    $param = {
       uri => "$repo->{'server'}/putjob",
       request => 'POST',
-      headers => [ 'Content-Type: application/x-cpio' ],
-      chunked => 1,
-      data => \&BSHTTP::cpio_sender,
-      cpiofiles => \@send,
-    }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid");
+    };
+    push @args, "code=badhost";
+  } else {
+    push @args, "code=failed";
+  }
+  eval {
+    my $res = BSRPC::rpc($param, undef, @args);
   };
   if ($@) {
     print "rpc failed: $@\nsleeping one minute just in case...\n";
@@ -976,7 +1036,6 @@ if (!$testmode) {
   }
 } else {
   print "testmode, not sending anything\n";
-  use Data::Dumper;
   print Dumper(\@send);
 }
 

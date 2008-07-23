@@ -683,6 +683,20 @@ sub workerstatus {
   return ($ret, $BSXML::workerstatus);
 }
 
+sub sendbadhostevent {
+  my ($info, $idlename) = @_;
+  my $ev = {
+    'type' => 'badhost',
+    'project' => $info->{'project'},
+    'package' => $info->{'package'},
+    'arch' => $info->{'arch'},
+    'job' => $idlename,
+  };
+  my $evname = "badhost::$info->{'project'}::$info->{'package'}::$info->{'arch'}::$idlename";
+  mkdir_p("$eventdir/dispatch");
+  writexml("$eventdir/dispatch/.$evname", "$eventdir/dispatch/$evname", $ev, $BSXML::event);
+}
+
 sub putjob {
   my ($cgi, $arch, $job, $jobid) = @_;
 
@@ -707,6 +721,15 @@ sub putjob {
   $idlename =~ s/\//_/g;
   print "oops, we are not building ($idlename)?\n" unless -e "$workersdir/building/$idlename";
   unlink("$workersdir/building/$idlename");
+
+  if ($cgi->{'code'} && $cgi->{'code'} eq 'badhost') {
+    # turned out that this host couldn't build the job
+    # rebuild on some other
+    sendbadhostevent($info, $idlename);
+    unlink("$jobsdir/$arch/$job:status");
+    close(F);
+    return $BSStdServer::return_ok;
+  }
 
   # right job, fetch everything!
   my $dir = "$jobsdir/$arch/$job:dir";
@@ -991,7 +1014,7 @@ sub getbuildinfo {
     }
   }
 
-  my @prp;
+  my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   my $info = $pdata->{'info'}->[0];
   die("bad info\n") unless $info && ( $info->{'repository'} eq $repoid );
   if ($info->{'error'}) {
@@ -1000,19 +1023,17 @@ sub getbuildinfo {
   }
   $ret->{'specfile'} = $info->{'file'} unless $uploaded;
   $ret->{'file'} = $info->{'file'} unless $uploaded;
-  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
-  if ($1 && 'kiwi' eq $1) {
+  if ($info->{'file'} =~ /\.kiwi$/) {
     # Dependency breaking shall be ignored for real usage
     # package installer tools do not care about project ignores either ;)
+    # FIXME: do not mess with the config!
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
     # Collect kiwi image types
     my @itypes = @{$info->{'imagetype'} || []};
     $ret->{'imagetype'} = \@itypes unless $uploaded;
+    # use repositories defined in the kiwi config
     @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-  }else{
-    # Use repositories from project definition
-    @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   }
 
   # read repository data from cache
@@ -1655,7 +1676,7 @@ my $dispatches = [
   '/worker $arch $port $state: workerid:? working:bool?' => \&workerstate,
   '/getbuildcode' => \&getbuildcode,
   '/getworkercode' => \&getworkercode,
-  '/putjob $arch $job $jobid:md5' => \&putjob,
+  '/putjob $arch $job $jobid:md5 $code:?' => \&putjob,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries:' => \&getbinaryversions,
 
