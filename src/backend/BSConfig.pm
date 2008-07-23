@@ -53,7 +53,7 @@ our $bsgroup = 'obsrun';
 #our $repodownload = 'http://software.opensuse.org/download/repositories';
 
 #No package signing server
-#our $sign = '/root/bin/sign';
+#our $sign = '/usr/bin/sign';
 
 # host specific configs
 my $hostconfig = "bsconfig." . Net::Domain::hostname();

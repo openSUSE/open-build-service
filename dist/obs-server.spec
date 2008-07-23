@@ -19,7 +19,7 @@ PreReq:         %fillup_prereq %insserv_prereq
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 AutoReqProv:    on
-Version:        0.9.99
+Version:        1.0.99
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component
@@ -36,6 +36,7 @@ Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
 Source15:       obsdispatcher
+Source20:       obssignd
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     createrepo >= 0.4.10
@@ -83,6 +84,28 @@ Summary:        The openSUSE Build Service -- The Frontend part
 
 %description -n obs-api
 
+#-------------------------------------------------------------------------------
+%package -n obs-signd
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- gpg sign daemon
+Group:          Productivity/Networking/Web/Utilities
+
+BuildRequires:  gcc
+Requires:       gnupg
+
+#-------------------------------------------------------------------------------
+%description -n obs-signd
+#-------------------------------------------------------------------------------
+signd is a little daemon that listens for sign requests from sign,
+and either calls gpg to do the signing or forwards the request
+to another signd. The -f option makes signd fork on startup.
+
+signd uses the same configuration used for sign, /etc/sign.conf.
+It needs a gpg implementation that understands the
+"--files-are-digests" option to work correctly.
+
+Author:       Michael Schroeder
+
 %prep
 %setup -q -n buildservice-%version
 
@@ -92,6 +115,12 @@ Summary:        The openSUSE Build Service -- The Frontend part
 #
 cd docs/api/frontend
 make apidocs
+cd -
+#
+# compile signd
+#
+cd src/sign
+gcc -o sign sign.c
 cd -
 
 %install
@@ -162,6 +191,24 @@ FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 mkdir -p $FILLUP_DIR
 cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
 
+#
+# Install sign stuff
+#
+cd ../sign/
+install -d -m 0755 $RPM_BUILD_ROOT%{_mandir}/man{5,8}
+install -d -m 0755 $RPM_BUILD_ROOT/usr/bin
+install -m 0755 signd $RPM_BUILD_ROOT/usr/sbin/
+install -m 0750 sign $RPM_BUILD_ROOT/usr/bin/
+install -m 0644 sign.conf $RPM_BUILD_ROOT/etc/
+install -m 0755 %SOURCE20 $RPM_BUILD_ROOT/etc/init.d/obssignd
+ln -sf /etc/init.d/obssignd $RPM_BUILD_ROOT/usr/sbin/rcobssignd
+for j in `ls sig*.{5,8}`; do
+  gzip -9 ${j}
+done
+for k in 5 8; do
+  install -m 0644 sig*.${k}.gz $RPM_BUILD_ROOT%{_mandir}/man${k}/
+done
+
 %pre
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
@@ -198,6 +245,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
 /etc/init.d/obssrcserver
+%attr(4750,root,obsrun) /usr/bin/sign
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
@@ -285,7 +333,18 @@ rm -rf $RPM_BUILD_ROOT
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
 
+%files -n obs-signd
+%defattr(-,root,root)
+%config(noreplace) /etc/sign.conf
+/usr/sbin/signd
+/usr/sbin/rcobssignd
+/etc/init.d/obssignd
+%{_mandir}/man5/*
+%{_mandir}/man8/sign*
+
 %changelog
+* Wed Jul 09 2008 - chris@computersalat.de
+- added sign/signd stuff
 * Wed Jun 18 2008 dmueller@suse.de
 - also restart dispatcher on update
 * Wed Jun 11 2008 martin.mohring@5etech.eu
