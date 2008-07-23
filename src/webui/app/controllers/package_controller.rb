@@ -85,7 +85,7 @@ class PackageController < ApplicationController
           if ( file[:name] == "_link" )
             begin
               @link = Link.find( :project => project, :package => package )
-            rescue ActiveXML::Transport::NotFoundError
+            rescue ActiveXML::Transport::NotFoundError, REXML::ParseException
               @link = nil
             end
           end
