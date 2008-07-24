@@ -246,7 +246,7 @@ sub patchspec {
   my $nr = 0;
   if (exists $p->{'after'}) {
     $nr = 0 + $p->{'after'};
-    $nr++ while $patches{$nr}
+    $nr++ while $patches{$nr};
   } else {
     $nr = $patches[-1] + 1 if @patches;
   }
@@ -302,6 +302,7 @@ sub patchspec {
     }
   }
   @patches = sort {$a <=> $b} keys %patches;
+  $nr = 1 + $p->{'after'} if exists $p->{'after'};
   @after = map {$patches{$_}} grep {$_ < $nr} @patches if @patches;
   @after = ($patches[0] - 1) if !@after && @patches;
   @after = (@prep - 2) if !@after;
