@@ -724,7 +724,7 @@ sub getkiwipackages {
 
     # Parse included kiwi configs
     if (defined $type->{'boot'}) {
-      if ($type->{'boot'} =~ /^obs:(.+)$/ ) {
+      if ($type->{'boot'} =~ /^obs:\/\/(.+)$/ ) {
         my @s = split('/', $1, 2);
         my $subproject = $s[0];
         my $subpackage = $s[1];
@@ -741,7 +741,9 @@ sub getkiwipackages {
         my ($submd5, $subfile) = findfile($subproject, $subpackage, undef, 'kiwi', $files);
         if ($submd5 && $subfile) {
           my ($error, $kiwirepos, $kiwipackages, $kiwitypes) = getkiwipackages($submd5, $subfile, $subproject, $subpackage, $arch);
-	  # XXX do something with the returned data
+          @allrepos= @{$kiwirepos};
+          @allpackages= @{$kiwipackages};
+          # skip kiwitypes, we only build the ones from the origin file.
         } else {
           return ("refered KIWI config not found $subproject $subpackage");
         }
@@ -1508,6 +1510,12 @@ sub getfilelist {
       $ret->{'error'} = $lfiles unless ref $lfiles;
       $li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
       $li->{'error'} = $lfiles unless ref $lfiles;
+    }
+  }
+
+  if ($cgi->{'extension'}) {
+    for (keys %$files) {
+      delete $files->{$_} unless /\.\Q$cgi->{'extension'}\E$/;
     }
   }
 
@@ -3103,7 +3111,7 @@ my $dispatches = [
   'PUT:/source/$project/_config' => \&putprojectconfig,
   'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
-  '/source/$project/$package:package_pattern rev? expand:bool? view:?' => \&getfilelist,
+  '/source/$project/$package:package_pattern rev? expand:bool? view:? extension:?' => \&getfilelist,
   '/source/$project/$package:package_pattern/_history' => \&getpackagehistory,
   '/source/$project/$package/_meta' => \&getpackage,
   'PUT:/source/$project/$package/_meta' => \&putpackage,
