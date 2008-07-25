@@ -602,7 +602,12 @@ sub set_building {
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
   }
-  
+  if ($packtype eq 'kiwi') {
+    # add required sources of refered kiwi configs to build deps
+    my @bdep = findkiwisources( $projid, $packid, $info->{'file'} );
+    @bdeps = ( @bdeps, @bdep );
+  }
+
   my $vmd5 = $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
   my $binfo = {
     'project' => $projid,
@@ -1120,10 +1125,10 @@ sub addjobhist {
 ##  project/package data collection functions
 ##
 
-my @prps;		# all prps we have to schedule, sorted
+my @prps;		# all prps(project-repositories-sorted) we have to schedule, sorted
 my %prpsearchpath;	# maps prp -> [ prp, prp, ...]
                         # build packages with the packages of the prps
-my %prpdeps;		# searchpath plus aggregate deps
+my %prpdeps;		# searchpath plus aggregate deps plus kiwi deps
 			# maps prp -> [ prp, prp ... ]
 			# used for sorting
 my %prpnoleaf;		# is this prp referenced by another prp?
@@ -2136,6 +2141,57 @@ sub changed2lookat {
   %$changed_high = ();
 }
 
+# find all kiwi sources recursive.
+sub findkiwisources {
+  my ( $project, $package, $file ) = @_;
+
+  my $c;
+  my $param = {
+   'uri' => "$BSConfig::srcserver/source/$project/$package/$file",
+   'timeout' => 30,
+  };
+  eval {
+    $c = BSRPC::rpc($param);
+  };
+  if ($@) {
+    warn($@);
+    return ( "fetch error: $c" );
+  } else {
+    my $kiwidesc;
+    my @deps;
+    eval { $kiwidesc = XMLin($BSXML::kiwidesc, $c); };
+    if ( defined($@) ) {
+      for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
+        my $dir = "$type->{'boot'}";
+        if (defined $type->{'boot'}) {
+          if ($type->{'boot'} =~ /^obs:\/\/(.+)$/ ) {
+            my @s = split('/', $1, 2);
+# FIXME: add version from source version
+            my $param = {
+             'uri' => "$BSConfig::srcserver/source/$s[0]/$s[1]",
+             'timeout' => 30,
+            };
+            eval {
+              $c = BSRPC::rpc($param, $BSXML::dir, 'extension="kiwi"');
+            };
+            if ( defined($@) ) {
+              my $ifile = $c->{'entry'}[0]->{'name'};
+              my $dep = { 'name' => $ifile, 'notmeta' => 1, 'version' => '', 'arch' => 'src',
+                           'project' => $s[0], 'package' => $s[1], 'md5' => $c->{'srcmd5'} };
+              push @deps, $dep;
+              my @bdep = findkiwisources( $s[0], $s[1], $ifile );
+              @deps = ( @deps, @bdep );
+            }
+          }
+        }
+      }
+    } else {
+      return undef;
+    };
+    return ( @deps );
+  }
+  return undef;
+}
 ##########################################################################
 ##########################################################################
 ##

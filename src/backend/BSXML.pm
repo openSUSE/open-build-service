@@ -179,8 +179,14 @@ our $kiwidesc = [
         [ 'profiles' =>
              [[ 'profile' => 'name', 'description' ]],
         ],
+        [[ 'drivers' =>
+              'type',
+             [],
+             [[ 'file' => 'name' ]],
+        ]],
 	[[ 'repository' =>
 	       'type',
+	       'status',
                [],
 	       [[ 'source' => 'path' ]],
         ]],
@@ -354,6 +360,8 @@ our $buildinfo = [
 	'release',
 	'arch',
 	'project',
+	'package',
+	'md5',
 	'repository',
      ]],
       [ 'pdep' ],	# obsolete
