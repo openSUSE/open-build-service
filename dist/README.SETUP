@@ -285,7 +285,7 @@ http://127.0.42.1/project/show?project=openSUSE%3ATools
 Now prepare for a check-in.  This will do a checkout and locally build
 using the packages from your local buildserver:
 
-  OBSOPT="-A http://127.0.42.2" ./distribute
+  OSCOPT="-A http://127.0.42.2" ./distribute
 
 now do a check-in into the build server:
 
