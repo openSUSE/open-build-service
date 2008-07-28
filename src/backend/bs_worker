@@ -442,7 +442,6 @@ sub rm_rf {
 
 sub getsources {
   my ($buildinfo, $dir) = @_;
-  my $kiwimode = 1 if ($buildinfo->{'file'} =~ /\.kiwi$/);
 
   my $repo = $buildinfo->{'path'}->[0];
   my $projid = $repo->{'project'};
@@ -467,6 +466,27 @@ sub getsources {
   }
   $md5 = Digest::MD5::md5_hex($md5);
   die("source verification fails: $md5 != $buildinfo->{'verifymd5'}\n") if $md5 ne $buildinfo->{'verifymd5'};
+
+  return unless $buildinfo->{'file'} =~ /\.kiwi$/;
+
+  # get additional kiwi sources
+  my @sdep = grep {($_->{'arch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
+  for my $src (@sdep) {
+    print "$src->{'name'}, ";
+    my $idir = "$dir/images/$src->{'project'}/$src->{'package'}";
+    mkdir_p("$idir") || die("mkdir_p $idir: $!\n");
+    my $res = BSRPC::rpc({
+      uri => "$srcserver/getsources",
+      directory => $idir,
+      withmd5 => 1,
+      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    }, undef, "project=$src->{'project'}", "package=$src->{'package'}", "srcmd5=$src->{'release'}");
+    die("Error\n") unless ref($res) eq 'ARRAY';
+    if (-e "$idir/.errors") {
+      my $errors = readstr("$idir/.errors", 1);
+      die("getsources: $errors");
+    }
+  }
 }
 
 sub qsystem {
@@ -487,11 +507,10 @@ sub qsystem {
 
 sub getbinaries {
   my ($buildinfo, $dir) = @_;
-  my $kiwimode = 1 if ($buildinfo->{'file'} =~ /\.kiwi$/);
 
-  my @deps;
+  my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
   my @bdep = @{$buildinfo->{'bdep'} || []};
-  @bdep = map {ref($_) ? $_->{'name'} || $_->{'_content'} : $_} grep {($_->{'arch'}||'') ne 'src'} @bdep;
+  @bdep = map {$_->{'name'}} grep {($_->{'arch'} || '') ne 'src'} @bdep;
 
   my %done;
   my @todo = @bdep;
@@ -500,13 +519,13 @@ sub getbinaries {
   my $projid = $buildinfo->{'path'}->[0]->{'project'};
   my $repoid = $buildinfo->{'path'}->[0]->{'repository'};
   for my $repo (@{$buildinfo->{'path'} || []}) {
-    last if !@todo and !$kiwimode;
+    last if !@todo && !$kiwimode;
     my @args;
-    my $ddir;
-    if ( $kiwimode ){
-      my $projectdir = "$repo->{'project'}";
-      $projectdir =~ s/:/:\//g;
-      $ddir = "$dir/$projectdir/$repo->{'repository'}";
+    my $ddir = $dir;
+    if ($kiwimode) {
+      my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
+      $prpdir =~ s/:/:\//g;
+      $ddir .= "/$prpdir";
       # Always try to get all binaries, because kiwi needs to decide which to take
       push @args, "binaries=".join(',', @bdep);
     } else {
@@ -514,54 +533,98 @@ sub getbinaries {
       # get only missing packages
       push @args, "binaries=".join(',', @todo);
     }
-    mkdir_p("$ddir") || die("mkdir_p $ddir: $!\n");
+    mkdir_p($ddir) || die("mkdir_p $ddir: $!\n");
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
     push @args, "arch=$buildinfo->{'arch'}";
-    push @args, "nometa" if $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
+    push @args, "nometa" if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     my $res = BSRPC::rpc({
       uri => "$repo->{'server'}/getbinaries",
       directory => $ddir,
       'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
     }, undef, @args);
     die("Error\n") unless ref($res) eq 'ARRAY';
-    my @need_meta;
-    if ($res and @$res[0]->{'name'} ne ".errors" ) {
-      for (@$res) {
-        $done{$1} = $_->{'name'} if $_->{'name'} =~ /^(.*)\.(?:rpm|deb)$/;
-        $meta{$1} = 1 if $_->{'name'} =~ /^(.*)\.meta$/;
-        push @need_meta, $1;
-      }
+    for (@$res) {
+      $done{$1} = $_->{'name'} if $_->{'name'} =~ /^(.*)\.(?:rpm|deb)$/;
+      $meta{$1} = 1 if $_->{'name'} =~ /^(.*)\.meta$/;
     }
-    my @missingmeta = grep {!$meta{$_}} @need_meta;
-    if (@missingmeta) {
-      local *F;
-      open(F, "| $statedir/build/getbinaryid --createmeta --manifest -") || die("getbinaryid: $!\n");
-      print F join('', map {"$ddir/$done{$_}\n"} @missingmeta);
-      close(F) || die("getbinaryid failed: $?\n");
-    }
-    for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
-      if ( -e "$ddir/$dep.meta" ) {
-        my $m = readstr("$ddir/$dep.meta");
-        chomp $m;
-        my @m = split("\n", $m);
-        s/  /  $dep\// for @m;
-        $m[0] =~ s/  .*/  $dep/;
-        push @deps, @m;
-      }
-    }
-    if ( $kiwimode ){
-# FIXME: depend this call on repo type setting in kiwi, better modularise this in a generic way also for QA and package build usage.
-      qsystem('createrepo', "$ddir");# || die ("createrepo call failed");
+    @todo = grep {!$done{$_}} @todo;
+    if ($kiwimode) {
+      # FIXME: depend this call on repo type setting in kiwi, better
+      # modularise this in a generic way also for QA and package build usage.
+      qsystem('createrepo', $ddir); # || die ("createrepo call failed");
     }
   }
-  @todo = grep {!$done{$_}} @todo;
   die("getbinaries: missing packages: @todo\n") if @todo;
-
-  my @meta = BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @deps);
-
-  return (@meta);
+  my @missingmeta = grep {!$meta{$_}} @bdep;
+  if (@missingmeta && !$kiwimode) {
+    local *F;
+    open(F, "| $statedir/build/getbinaryid --createmeta --manifest -") || die("getbinaryid: $!\n");
+    print F join('', map {"$dir/$done{$_}\n"} @missingmeta);
+    close(F) || die("getbinaryid failed: $?\n");
+  }
 }
+
+sub calcmeta_kiwi {
+  my ($buildinfo, $dir) = @_;
+
+  my @meta;
+  push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
+  my @sdep = grep {($_->{'arch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
+  for my $sdep (@sdep) {
+    push @meta, "$sdep->{'release'}  $sdep->{'project'}/$sdep->{'package'}";
+  }
+  my @bdep = map {$_->{'name'}} grep {($_->{'arch'} || '') ne 'src'} @{$buildinfo->{'bdep'} || []};
+  my @binaries;
+  my %binaries;
+  for my $repo (@{$buildinfo->{'path'} || []}) {
+    my $ddir = $dir;
+    my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
+    $prpdir =~ s/:/:\//g;
+    $ddir .= "/$prpdir";
+    for my $bdep (@bdep) {
+      if (-e "$ddir/$bdep.rpm") {
+        push @binaries, "$ddir/$bdep.rpm";
+      } elsif (-e "$ddir/$bdep.deb") {
+        push @binaries, "$ddir/$bdep.deb";
+      } else {
+	next;
+      }
+      $binaries{$binaries[-1]} = "$repo->{'project'}/$repo->{'repository'}/$bdep";
+    }
+  }
+  return @meta unless @binaries;
+  # add meta for all binaries
+  local *F;
+  writestr("$dir/manifest", undef, join('', map {"$_\n"} @binaries));
+  system("$statedir/build/getbinaryid --manifest $dir/manifest > $dir/manifest.meta") && die("getbinaryid failed\n");
+  my @binariesmeta = split(' ', readstr("$dir/manifest.meta"));
+  unlink("$dir/manifest");
+  unlink("$dir/manifest.meta");
+  die("getbinaryid result missmatch\n")  unless @binariesmeta == @binaries;
+  for (@binaries) {
+    push @meta, (shift @binariesmeta)."  $binaries{$_}";
+  }
+  return @meta;
+}
+
+sub calcmeta {
+  my ($buildinfo, $dir) = @_;
+
+  # kiwi is very different...
+  return calcmeta_kiwi($buildinfo, $dir) if $buildinfo->{'file'} =~ /\.kiwi$/;
+  my @deps;
+  for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
+    my $m = readstr("$dir/$dep.meta");
+    chomp $m;
+    my @m = split("\n", $m);
+    s/  /  $dep\// for @m;
+    $m[0] =~ s/  .*/  $dep/;
+    push @deps, @m;
+  }
+  return BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @deps);
+}
+
 
 sub dobuild {
   my ($buildinfo) = @_;
@@ -589,30 +652,15 @@ sub dobuild {
   $pkgdir = "$srcdir/repos" if $kiwimode;
 
   print "fetching sources...";
-  mkdir("$srcdir") || die("mkdir $srcdir $!\n");
-  getsources($buildinfo, "$srcdir");
+  mkdir($srcdir) || die("mkdir $srcdir $!\n");
+  getsources($buildinfo, $srcdir);
   # Get additional sources for KIWI
-  my @sdep = @{$buildinfo->{'bdep'} || []};
-  for my $src (@sdep) {
-    next unless defined($src->{'arch'}) && $src->{'arch'} eq 'src';
-    print "$src->{'name'}, ";
-    my $dir = "$srcdir/images/$src->{'project'}/$src->{'package'}";
-    mkdir_p("$dir") || die("mkdir_p $dir: $!\n");
-    my $res = BSRPC::rpc({
-      uri => "$srcserver/getsources",
-      directory => $dir,
-      withmd5 => 1,
-      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-    }, undef, "project=$src->{'project'}", "package=$src->{'package'}", "srcmd5=$src->{'md5'}");
-    die("Error\n") unless ref($res) eq 'ARRAY';
-    if (-e "$dir/.errors") {
-      my $errors = readstr("$dir/.errors", 1);
-      die("getsources: $errors");
-    }
-  }
   print "\nfetching packages...\n";
-  my @meta = getbinaries($buildinfo, "$pkgdir");
+  getbinaries($buildinfo, $pkgdir);
+
+  my @meta = calcmeta($buildinfo, $pkgdir);
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
+
   my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   writestr("$buildroot/.config", undef, $config);
 
