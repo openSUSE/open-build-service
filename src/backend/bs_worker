@@ -480,7 +480,7 @@ sub getsources {
       directory => $idir,
       withmd5 => 1,
       'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-    }, undef, "project=$src->{'project'}", "package=$src->{'package'}", "srcmd5=$src->{'release'}");
+    }, undef, "project=$src->{'project'}", "package=$src->{'package'}", "srcmd5=$src->{'srcmd5'}");
     die("Error\n") unless ref($res) eq 'ARRAY';
     if (-e "$idir/.errors") {
       my $errors = readstr("$idir/.errors", 1);
@@ -572,7 +572,7 @@ sub calcmeta_kiwi {
   push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
   my @sdep = grep {($_->{'arch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
   for my $sdep (@sdep) {
-    push @meta, "$sdep->{'release'}  $sdep->{'project'}/$sdep->{'package'}";
+    push @meta, "$sdep->{'srcmd5'}  $sdep->{'project'}/$sdep->{'package'}";
   }
   my @bdep = map {$_->{'name'}} grep {($_->{'arch'} || '') ne 'src'} @{$buildinfo->{'bdep'} || []};
   my @binaries;

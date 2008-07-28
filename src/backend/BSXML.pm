@@ -360,9 +360,9 @@ our $buildinfo = [
 	'release',
 	'arch',
 	'project',
-	'package',
-	'md5',
 	'repository',
+	'package',
+	'srcmd5',
      ]],
       [ 'pdep' ],	# obsolete
      [[ 'path' =>
