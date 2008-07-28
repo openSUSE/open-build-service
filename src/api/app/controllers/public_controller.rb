@@ -62,6 +62,16 @@ class PublicController < ApplicationController
     forward_data path
   end
 
+  # GET /public/source/:prj/:pkg/_meta
+  def package_meta
+    valid_http_methods :get
+    if pkg = DbPackage.find_by_project_and_name(params[:prj], params[:pkg])
+      render :text => pkg.to_axml, :content_type => 'text/xml'
+    else
+      render_error :message => "Unknown package "+params[:prj]+'/'+params[:pkg]
+    end
+  end
+
   # GET /public/source/:prj/:pkg/:file
   def source_file
     valid_http_methods :get
