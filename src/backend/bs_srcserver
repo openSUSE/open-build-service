@@ -1506,6 +1506,7 @@ sub getfilelist {
       $files = $lfiles;
       %$rev = %lrev;
     } else {
+      delete $lrev{'srcmd5'} if !ref($lfiles) && ! -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
       $ret->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
       $ret->{'error'} = $lfiles unless ref $lfiles;
       $li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
@@ -1806,7 +1807,7 @@ sub integratelink {
   my %dontcopy;
   $dontcopy{'_link'} = 1;
   if ($nl->{'patches'}) {
-    for (@{$l->{'patches'}->{''} || []}) {
+    for (@{$nl->{'patches'}->{''} || []}) {
       my $type = (keys %$_)[0];
       if ($type eq 'add' || $type eq 'apply') {
 	$dontcopy{$_->{$type}->{'name'}} = 1;
