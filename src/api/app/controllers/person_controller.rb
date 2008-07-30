@@ -111,6 +111,13 @@ class PersonController < ApplicationController
                    :errorcode => "err_register_save",
                    :details => details, :status => 500 
     else
+      # create subscription for submit requests
+      if Object.const_defined? :Hermes
+        h = Hermes.new
+        h.add_user(login, email)
+        h.add_request_subscription(login)
+      end
+
       IchainNotifier.deliver_approval(newuser)
       render_ok
     end
