@@ -45,6 +45,12 @@ our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
 #our $bsquotafile = '/srv/obs/quota.xml';
 
+# optional: limit visibility of projects for some architectures
+#our %limit_projects = (
+# "ppc" => [ "openSUSE:Factory", "FATE" ],
+# "ppc64" => [ "openSUSE:Factory", "FATE" ],
+#);
+
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
 #our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
