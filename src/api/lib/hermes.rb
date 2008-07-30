@@ -33,10 +33,10 @@ class Hermes
   attr_reader :logger
 
   def initialize
-    host = 'localhost'
-    user = 'root'
-    pass = ''
-    dbname = 'hermes'
+    host = Config.dbhost
+    user = Config.dbuser
+    pass = Config.dbpass
+    dbname = Config.dbname
 
     @mysql = Mysql.new(host, user, pass, dbname)
 
