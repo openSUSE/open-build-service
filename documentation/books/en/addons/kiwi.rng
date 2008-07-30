@@ -20,7 +20,7 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 2.4</db:releaseinfo>
@@ -282,10 +282,16 @@ installation source from</a:documentation>
     <define name="k.configuration.dest.attribute">
       <ref name="k.dest.attribute"/>
     </define>
+    <define name="k.configuration.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.configuration.attlist">
       <interleave>
         <ref name="k.configuration.source.attribute"/>
         <ref name="k.configuration.dest.attribute"/>
+        <optional>
+          <ref name="k.configuration.arch.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.configuration">

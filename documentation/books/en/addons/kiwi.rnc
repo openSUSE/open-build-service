@@ -178,9 +178,11 @@ div {
 div {
 	k.configuration.source.attribute = k.source.attribute
 	k.configuration.dest.attribute = k.dest.attribute
+	k.configuration.arch.attribute = k.arch.attribute
 	k.configuration.attlist = 
 		k.configuration.source.attribute &
-		k.configuration.dest.attribute
+		k.configuration.dest.attribute &
+		k.configuration.arch.attribute?
 
 	k.configuration =
 		## Specifies Configuration files
