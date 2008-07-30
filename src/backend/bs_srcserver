@@ -814,7 +814,7 @@ sub getprojquotapackage {
 sub getprojpack {
   my ($cgi, $projids, $repoids, $packids, $arch) = @_;
   $arch ||= 'noarch';
-  $projids = $BSConfig::limit_projects{$arch} if defined($BSConfig::limit_projects{$arch});
+  $projids ||= $BSConfig::limit_projects{$arch} if $BSConfig::limit_projects;
   $projids = [ findprojects() ] unless $projids;
   $repoids = { map {$_ => 1} @$repoids } if $repoids;
   $packids = { map {$_ => 1} @$packids } if $packids;
