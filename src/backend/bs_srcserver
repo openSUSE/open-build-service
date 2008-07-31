@@ -815,7 +815,11 @@ sub getprojpack {
   my ($cgi, $projids, $repoids, $packids, $arch) = @_;
   $arch ||= 'noarch';
   $projids = [ findprojects() ] unless $projids;
-  $projids &&= $BSConfig::limit_projects{$arch} if defined($BSConfig::limit_projects{$arch});
+  if ($BSConfig::limit_projects && $BSConfig::limit_projects->{$arch}) {
+    $projids ||= $BSConfig::limit_projects->{$arch};
+    my %limit_projids = map {$_ => 1} @{$BSConfig::limit_projects->{$arch}};
+    $projids = [ grep {$limit_projids{$_}} @$projids ];
+  }
   $repoids = { map {$_ => 1} @$repoids } if $repoids;
   $packids = { map {$_ => 1} @$packids } if $packids;
   my $bconf = Build::read_config($arch);
