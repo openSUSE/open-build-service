@@ -239,6 +239,8 @@ cp -a ../docs/api/frontend/*.{rng,xsd}    $RPM_BUILD_ROOT/srv/www/obs/frontend/p
 # Install all backend parts.
 #
 cd backend/
+mv BSConfig.pm.template BSConfig.pm
+
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
 install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
