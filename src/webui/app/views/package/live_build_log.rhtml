@@ -28,7 +28,7 @@ function start_autoscroll() {
  autoscroll();
 }
 function autoscroll() {
-  window.scrollTo( 0, document.getElementById('log_space').clientHeight );
+  window.scrollTo( 0, document.getElementById('log_space_wrapper').clientHeight );
   scrolldelay = setTimeout( 'autoscroll()',100 );
 }
 function stop_autoscroll() {
@@ -53,7 +53,7 @@ function stop_autoscroll() {
 <p>
 <form>
   <!-- <textarea class="log" rows="40" style="border: 1px solid black" id="log_space"> -->
-  <div style="border: 1px solid black;">
+  <div id="log_space_wrapper" style="border: 1px solid black;">
       <code id="log_space">
         <%= @log_chunk %>
       </code>
