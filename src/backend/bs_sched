@@ -2162,7 +2162,6 @@ sub findkiwisources {
     eval { $kiwidesc = XMLin($BSXML::kiwidesc, $c); };
     if ( defined($@) ) {
       for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
-        my $dir = "$type->{'boot'}";
         if (defined $type->{'boot'}) {
           if ($type->{'boot'} =~ /^obs:\/\/(.+)$/ ) {
             my @s = split('/', $1, 2);
@@ -2172,12 +2171,12 @@ sub findkiwisources {
              'timeout' => 30,
             };
             eval {
-              $c = BSRPC::rpc($param, $BSXML::dir, 'extension="kiwi"');
+              $c = BSRPC::rpc($param, $BSXML::dir, 'extension=kiwi');
             };
             if ( defined($@) ) {
               my $ifile = $c->{'entry'}[0]->{'name'};
               my $dep = { 'name' => $ifile, 'notmeta' => 1, 'version' => '', 'arch' => 'src',
-                           'project' => $s[0], 'package' => $s[1], 'md5' => $c->{'srcmd5'} };
+                           'project' => $s[0], 'package' => $s[1], 'srcmd5' => $c->{'srcmd5'} };
               push @deps, $dep;
               my @bdep = findkiwisources( $s[0], $s[1], $ifile );
               @deps = ( @deps, @bdep );
