@@ -989,7 +989,7 @@ sub update_dst_full {
 
     if ($filter) {
       my $skip;
-      for (sort keys %$filter) {
+      for (reverse sort keys %$filter) {
 	if ($rp =~ /$_/) {
 	  $skip = $filter->{$_};
 	  last;
