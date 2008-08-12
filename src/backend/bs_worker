@@ -474,7 +474,7 @@ sub getsources {
   for my $src (@sdep) {
     print "$src->{'name'}, ";
     my $idir = "$dir/images/$src->{'project'}/$src->{'package'}";
-    mkdir_p("$idir") || die("mkdir_p $idir: $!\n");
+    mkdir_p("$idir/root") || die("mkdir_p $idir/root: $!\n");
     my $res = BSRPC::rpc({
       uri => "$srcserver/getsources",
       directory => $idir,
@@ -485,6 +485,14 @@ sub getsources {
     if (-e "$idir/.errors") {
       my $errors = readstr("$idir/.errors", 1);
       die("getsources: $errors");
+    }
+    # untar the root directory for kiwi
+    if (-e "$idir/root.tar.bz2") {
+      qsystem('tar', 'xfj', "$idir/root.tar.bz2", "-C", "$idir/root") && die ("untar call for $idir/root.tar.bz2 failed");
+    } elsif (-e "$idir/root.tar.gz") {
+      qsystem('tar', 'xfz', "$idir/root.tar.gz", "-C", "$idir/root") && die ("untar call for $idir/root.tar.gz failed");
+    } elsif (-e "$idir/root.tar") {
+      qsystem('tar', 'xf', "$idir/root.tar", "-C", "$idir/root") && die ("untar call for $idir/root.tar failed");
     }
   }
 }
