@@ -583,7 +583,12 @@ class ProjectController < ApplicationController
 
   def monitor
     @project = params[:project]
-    @buildresult = Buildresult.find( :project => @project, :view => 'status' )
+    @status_filter = (params[:code].nil? || params[:code] == 'all') ? nil : params[:code]
+    @name_filter = params[:prjname].nil? ? '' : params[:prjname]
+    @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.nil? ? nil : :code => params[:code])
+
+    @avail_status_values = ['all','failed','succeeded','disabled','expansion error','broken','blocked','unknown']
+
     #@packstatus = Packstatus.find( :project => @project )
 
     if not @buildresult.has_element? :result
@@ -595,6 +600,7 @@ class ProjectController < ApplicationController
     @statushash = Hash.new
 
     @buildresult.each_result do |result|
+      @resultvalue = result
       repo = result.repository
       arch = result.arch
 
@@ -618,7 +624,20 @@ class ProjectController < ApplicationController
       @dummy_status = ActiveXML::Node.new("<status package='unknown' code='unknown'/>")
 
       @packagenames = stathash.keys.sort if @packagenames.nil?
+
     end
+## Filter for ProjectNames #### 
+    if not @name_filter.empty?
+      @packagenames.each do |key|
+        if key.match(@name_filter)
+          @packagenames_filtered ||= Array.new
+          @packagenames_filtered << key
+        end
+      end
+      @packagenames = @packagenames_filtered
+      @packagenames.sort
+    end
+
   end
 
   def toggle_watch

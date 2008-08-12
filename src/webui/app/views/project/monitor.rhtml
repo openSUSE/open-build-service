@@ -16,6 +16,17 @@
 <% if @buildresult_unavailable -%>
 <h3>Buildstatus unavailable</h3>
 <% else -%>
+
+<div class='filter_settings'>
+<% form_tag '/project/monitor', :method => :get do %>
+  <strong>Status: </strong><%= select_tag 'code', options_for_select(@avail_status_values,@status_filter) %>
+  <strong> Packagename: </strong><%= text_field_tag "prjname", @name_filter, :size => 100 %>
+  <%= hidden_field_tag 'project', @project %>
+  <%=submit_tag 'Filter Monitor'%>
+<% end %>
+</div>
+
+<p><%= @resultvalue %></p>
 <table class="buildstatus">
   <!-- repo row -->
   <tr class="header">
