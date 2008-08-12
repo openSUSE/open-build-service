@@ -458,3 +458,23 @@ background:transparent !important;
 
 
 /* /obs-webclient 1st page */
+
+/* Project Monitor Filter */
+.filter_settings #prjname,
+.filter_settings #code {
+  width: 12em;
+  margin-right: 0.5em;
+  border: 1px solid #CCC;
+  background: white;
+}
+.filter_settings {
+  background: white;
+  margin-bottom: 2em;
+  border-bottom: 1px solid #CCC;
+  border-top: 1px solid #CCC;
+}
+.filter_settings strong {
+  margin-left: 0.5em;
+}
+
+/* /Project Monitor Filter */
