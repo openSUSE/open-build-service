@@ -559,7 +559,7 @@ sub set_building {
   $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   my $packtype = $1 || 'spec';
 
-  my @bdeps = @{$info->{'dep'} || []};
+  my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'supportdeps'} || []} );
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {

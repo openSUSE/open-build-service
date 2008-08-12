@@ -114,6 +114,7 @@ our $packinfo = [
 	'file',
 	'error',
 	  [ 'dep' ],
+	  [ 'supportdeps' ],
 	  [ 'imagetype' ],
 	 [[ 'path' =>
 		'project',

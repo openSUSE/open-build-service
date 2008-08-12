@@ -1053,7 +1053,11 @@ sub getprojpack {
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
-	      push @dinfo, {'repository' => "$repoid", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+	      if ($d->{'prereqs'}) {
+	        push @dinfo, {'repository' => "$repoid", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}, 'supportdeps' => $d->{'prereqs'}};
+              } else {
+	        push @dinfo, {'repository' => "$repoid", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
+              };
 	      $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
 	    } else {
 	      push @dinfo, {'repository' => "$repoid", 'file' => $file, 'error' => "file parse error"};
