@@ -461,7 +461,9 @@ background:transparent !important;
 
 /* Project Monitor Filter */
 .filter_settings #pkgname,
-.filter_settings #code {
+.filter_settings #code,
+.filter_settings #repo,
+.filter_settings #arch {
   width: 12em;
   margin-right: 0.5em;
   border: 1px solid #CCC;

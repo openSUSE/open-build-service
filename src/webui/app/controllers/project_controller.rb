@@ -585,6 +585,8 @@ class ProjectController < ApplicationController
     @project = params[:project]
     @status_filter = (params[:code].nil? || params[:code] == 'all') ? nil : params[:code]
     @name_filter = params[:pkgname]
+    @repo_filter = params[:repo]
+    @arch_filter = params[:arch]
     @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.nil? ? nil : :code =>@status_filter)
 
     @avail_status_values = ['all','succeeded','failed','expansion error','broken','blocked','disabled','scheduled','building','dispatching','finished','excluded','unknown']
@@ -627,6 +629,15 @@ class ProjectController < ApplicationController
     end
     @packagenames = @packagenames.flatten.uniq.sort
 
+    ## Filter for Repository ####
+    @repohash.reject! {|repo,archlist| not repo.include?(@repo_filter) } if not @repo_filter.blank?
+  
+    ## Filter for Architecture ####
+    @repohash.each do |repo, archlist|
+      archlist.reject! {|arch| not arch.include?(@arch_filter) } if not @arch_filter.blank?
+      @repohash[repo] = archlist
+    end
+    
     ## Filter for PackageNames #### 
     @packagenames.reject! {|name| not name.include?(@name_filter) } if not @name_filter.blank?
 
