@@ -587,7 +587,7 @@ class ProjectController < ApplicationController
     @name_filter = params[:pkgname]
     @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.nil? ? nil : :code =>@status_filter)
 
-    @avail_status_values = ['all','failed','succeeded','disabled','expansion error','broken','blocked','unknown']
+    @avail_status_values = ['all','succeeded','failed','expansion error','broken','blocked','disabled','scheduled','building','dispatching','finished','excluded','unknown']
 
     #@packstatus = Packstatus.find( :project => @project )
 
@@ -598,6 +598,7 @@ class ProjectController < ApplicationController
 
     @repohash = Hash.new
     @statushash = Hash.new
+    @failed = Hash.new
     @packagenames = Array.new
 
     @buildresult.each_result do |result|
@@ -611,10 +612,9 @@ class ProjectController < ApplicationController
       @statushash[repo] ||= Hash.new
       @statushash[repo][arch] = Hash.new
 
-      @failed = Hash.new
-
       stathash = @statushash[repo][arch]
       result.each_status do |status|
+
         stathash[status.package] = status
         @failed[status.package] ||= false
         if ['failed', 'expansion error'].include? status.code
@@ -622,12 +622,10 @@ class ProjectController < ApplicationController
         end
       end
 
-      @dummy_status = ActiveXML::Node.new("<status package='unknown' code='unknown'/>")
-
       @packagenames << stathash.keys
 
     end
-    @packagenames.flatten!.uniq!.sort!
+    @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames #### 
     @packagenames.reject! {|name| not name.include?(@name_filter) } if not @name_filter.blank?

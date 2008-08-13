@@ -13,18 +13,21 @@
 
 <p>
 
-<% if @buildresult_unavailable -%>
-<h3>Buildstatus unavailable</h3>
-<% else -%>
 <!-- Filter Settings -->
 <div class='filter_settings'>
 <% form_tag ({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
   <strong>Status: </strong><%= select_tag 'code', options_for_select(@avail_status_values,@status_filter) %>
   <strong> Packagename: </strong><%= text_field_tag "pkgname", @name_filter %>
   <%= hidden_field_tag 'project', @project %>
-  <%=submit_tag 'Filter Monitor'%>
+  <%= submit_tag 'Filter Monitor'%>
 <% end %>
 </div>
+
+<% if @buildresult_unavailable -%>
+<h3>Buildstatus unavailable</h3>
+<% elsif @packagenames.empty? -%>
+<h3>No Results</h3>
+<% else -%>
 
 <p><%= @resultvalue %></p>
 <table class="buildstatus">
@@ -69,7 +72,7 @@
         <% end -%>
       <% if ["expansion error", "broken", "blocked"].include? status.code -%>
         <%= link_to status.code, "javascript:alert('#{link_title}')", :title => link_title %>
-      <% elsif ["disabled"].include? status.code -%>
+      <% elsif ["disabled","-"].include? status.code -%>
         <%= status.code %>
       <% else -%>
         <%= link_to status.code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
@@ -89,6 +92,7 @@
   </tr>
   <% end -%>
 </table>
+<% end -%>
 <p><div id="refresh_date">Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></div></p>
 <p><div id="legend"><b>Legend</b>:
 <br>succeeded -- Package has build successfull and can be used to build further packages.</br>
@@ -108,5 +112,5 @@
 <div id="start_link">
 </div>
 </p>
-<% end -%>
+
 </div>
