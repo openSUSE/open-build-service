@@ -628,13 +628,11 @@ class ProjectController < ApplicationController
     end
 ## Filter for ProjectNames #### 
     if not @name_filter.empty?
+      @packagenames_filtered ||= Array.new
       @packagenames.each do |key|
-        if key.match(@name_filter)
-          @packagenames_filtered ||= Array.new
-          @packagenames_filtered << key
-        end
+        @packagenames_filtered << key if key.include?(@name_filter)
       end
-      @packagenames = @packagenames_filtered
+      @packagenames = @packagenames_filtered 
       @packagenames.sort
     end
 

@@ -16,7 +16,7 @@
 <% if @buildresult_unavailable -%>
 <h3>Buildstatus unavailable</h3>
 <% else -%>
-
+<!-- Filter Settings -->
 <div class='filter_settings'>
 <% form_tag '/project/monitor', :method => :get do %>
   <strong>Status: </strong><%= select_tag 'code', options_for_select(@avail_status_values,@status_filter) %>
