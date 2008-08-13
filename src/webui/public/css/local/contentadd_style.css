@@ -460,7 +460,7 @@ background:transparent !important;
 /* /obs-webclient 1st page */
 
 /* Project Monitor Filter */
-.filter_settings #prjname,
+.filter_settings #pkgname,
 .filter_settings #code {
   width: 12em;
   margin-right: 0.5em;
