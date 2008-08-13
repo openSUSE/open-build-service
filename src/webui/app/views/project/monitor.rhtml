@@ -18,9 +18,9 @@
 <% else -%>
 <!-- Filter Settings -->
 <div class='filter_settings'>
-<% form_tag '/project/monitor', :method => :get do %>
+<% form_tag ({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
   <strong>Status: </strong><%= select_tag 'code', options_for_select(@avail_status_values,@status_filter) %>
-  <strong> Packagename: </strong><%= text_field_tag "prjname", @name_filter, :size => 100 %>
+  <strong> Packagename: </strong><%= text_field_tag "pkgname", @name_filter %>
   <%= hidden_field_tag 'project', @project %>
   <%=submit_tag 'Filter Monitor'%>
 <% end %>
@@ -47,7 +47,7 @@
     <th>&nbsp;</th>
   </tr>
   <!-- package rows -->
-  <% @packagenames.sort.each do |packname| -%>
+  <% @packagenames.each do |packname| -%>
   <tr>
     <td><%= link_to packname, :controller => "package", :action => "show",
       :package => packname, :project => @project.to_s %></td>
