@@ -86,6 +86,14 @@ sub requestParams( $$ )
       $reqinfo{'sourcerevision'} = $req->{'submit'}->{'source'}->{'rev'};
       $reqinfo{'targetproject'}  = $req->{'submit'}->{'target'}->{'project'};
       $reqinfo{'targetpackage'}  = $req->{'submit'}->{'target'}->{'package'};
+
+      if( $req->{'history'} ) {
+        #FIXME: previous state is assumed to be always at last position in history
+        # for maximum correctness find latest history entry by comparing all 'when' attributes
+        $reqinfo{'oldstate'} = $req->{'history'}->[-1]->{'name'};
+      }
+
+      $reqinfo{'author'} = $req->{'history'} ? $req->{'history'}->[0]->{'who'} : $req->{'state'}->{'who'}
   }
   return \%reqinfo;
 }
