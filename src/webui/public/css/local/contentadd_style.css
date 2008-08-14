@@ -479,4 +479,9 @@ background:transparent !important;
   margin-left: 0.5em;
 }
 
+.nowrap {
+  white-space: nowrap;
+  display: inline;
+}
+
 /* /Project Monitor Filter */

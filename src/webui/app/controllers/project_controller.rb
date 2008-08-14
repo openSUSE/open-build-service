@@ -583,13 +583,13 @@ class ProjectController < ApplicationController
 
   def monitor
     @project = params[:project]
-    @status_filter = ( params[:code].nil? || params[:code].include?('all') ) ? nil : params[:code]
+    @status_filter = params[:code]
     @name_filter = params[:pkgname]
     @repo_filter = params[:repo]
     @arch_filter = params[:arch]
     @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.blank? ? nil : :code => @status_filter)
 
-    @avail_status_values = ['all','succeeded','failed','expansion error','broken','blocked','disabled','scheduled','building','dispatching','finished','excluded','unknown']
+    @avail_status_values = ['succeeded','failed','expansion error','broken','blocked','disabled','scheduled','building','dispatching','finished','excluded','unknown']
 
     #@packstatus = Packstatus.find( :project => @project )
 
@@ -635,8 +635,8 @@ class ProjectController < ApplicationController
 
   def filter_matches?(input,filter_string)
     result = false
+    filter_string.gsub!(/\s*/,'')
     filter_string.split(',').each { |filter|
-      filter.chomp(' ')
       no_invert = filter.match(/(^!?)(.+)/)
       if no_invert[1] == '!'
         result = input.include?(no_invert[2]) ? result : true
