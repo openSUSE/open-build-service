@@ -583,11 +583,11 @@ class ProjectController < ApplicationController
 
   def monitor
     @project = params[:project]
-    @status_filter = (params[:code].nil? || params[:code] == 'all') ? nil : params[:code]
+    @status_filter = ( params[:code].nil? || params[:code].include?('all') ) ? nil : params[:code]
     @name_filter = params[:pkgname]
     @repo_filter = params[:repo]
     @arch_filter = params[:arch]
-    @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.nil? ? nil : :code =>@status_filter)
+    @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.blank? ? nil : :code => @status_filter)
 
     @avail_status_values = ['all','succeeded','failed','expansion error','broken','blocked','disabled','scheduled','building','dispatching','finished','excluded','unknown']
 
@@ -600,7 +600,6 @@ class ProjectController < ApplicationController
 
     @repohash = Hash.new
     @statushash = Hash.new
-    @failed = Hash.new
     @packagenames = Array.new
 
     @buildresult.each_result do |result|
@@ -608,7 +607,12 @@ class ProjectController < ApplicationController
       repo = result.repository
       arch = result.arch
 
+      ## Filter for Repository ####       
+      next if( (not @repo_filter.blank?) && (not filter_matches?(repo,@repo_filter)))
       @repohash[repo] ||= Array.new
+
+      ## Filter for Architecture ####       
+      next if( (not @arch_filter.blank?) && (not filter_matches?(arch,@arch_filter)))
       @repohash[repo] << arch
 
       @statushash[repo] ||= Hash.new
@@ -616,32 +620,33 @@ class ProjectController < ApplicationController
 
       stathash = @statushash[repo][arch]
       result.each_status do |status|
-
         stathash[status.package] = status
-        @failed[status.package] ||= false
-        if ['failed', 'expansion error'].include? status.code
-          @failed[status.package] = true
-        end
       end
 
-      @packagenames << stathash.keys
+     @packagenames << stathash.keys
 
     end
     @packagenames = @packagenames.flatten.uniq.sort
 
-    ## Filter for Repository ####
-    @repohash.reject! {|repo,archlist| not repo.include?(@repo_filter) } if not @repo_filter.blank?
-  
-    ## Filter for Architecture ####
-    @repohash.each do |repo, archlist|
-      archlist.reject! {|arch| not arch.include?(@arch_filter) } if not @arch_filter.blank?
-      @repohash[repo] = archlist
-    end
-    
     ## Filter for PackageNames #### 
-    @packagenames.reject! {|name| not name.include?(@name_filter) } if not @name_filter.blank?
+    @packagenames.reject! {|name| not filter_matches?(name,@name_filter) } if not @name_filter.blank?
 
   end
+
+  def filter_matches?(input,filter_string)
+    result = false
+    filter_string.split(',').each { |filter|
+      filter.chomp(' ')
+      no_invert = filter.match(/(^!?)(.+)/)
+      if no_invert[1] == '!'
+        result = input.include?(no_invert[2]) ? result : true
+      else
+        result = input.include?(no_invert[2]) ? true : result
+      end
+    }
+    return result
+  end
+
 
   def toggle_watch
     unless session[:login]
