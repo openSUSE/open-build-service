@@ -731,7 +731,6 @@ sub dobuild {
     if ($xen) {
       mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
       push @args, '--root', "$buildroot/.mount";
-      push @args, '--logfile', "$buildroot/.build.log";
       push @args, '--xen', "$xen_root";
       push @args, '--xenswap', "$xen_swap";
       my $xenmemory = readstr("$buildroot/memory", 1);
@@ -746,6 +745,7 @@ sub dobuild {
     push @args, '--lint';
     push @args, '--dist', "$buildroot/.config";
     push @args, '--rpmlist', "$buildroot/.rpmlist";
+    push @args, '--logfile', "$buildroot/.build.log";
     push @args, '--release', "$release" if defined $release;
     push @args, '--debug' if $buildinfo->{'debuginfo'};
     push @args, '--arch', $arch;
