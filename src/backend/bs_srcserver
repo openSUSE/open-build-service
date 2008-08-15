@@ -96,7 +96,9 @@ sub notify_repservers {
 sub getrev {
   my ($projid, $packid, $rev) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
+  # FIXME: make a real transaction log for product files at least. adrian.
   return {'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
+  return {'srcmd5' => 'product', 'rev' => 'product'} if $packid eq '_product';
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
     return remote_getrev($projid, $packid, $rev);
@@ -131,6 +133,14 @@ sub addmeta {
     mkdir_p("$srcrep/:upload");
     mkdir_p("$projectsdir/$projid.pkg");
     writestr("$srcrep/:upload/$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
+  } elsif ($rev && $rev eq 'product') {
+    if ($meta ne '') {
+      mkdir_p("$srcrep/:upload");
+      mkdir_p("$projectsdir/$projid.pkg");
+      writestr("$srcrep/:upload/$$", "$projectsdir/$projid.pkg/product-MD5SUMS", $meta);
+    } else {
+      unlink("$projectsdir/$projid.pkg/product-MD5SUMS");
+    }
   } elsif ($rev && $rev eq 'pattern') {
     if ($meta ne '') {
       mkdir_p("$srcrep/:upload");
@@ -154,6 +164,12 @@ sub addrev {
     notify_repservers('project', $projid);
 
     return {'rev' => 'pattern', 'srcmd5' => $srcmd5};
+  }
+  if ($packid eq '_product') {
+    my $srcmd5 = addmeta($projid, $packid, $files, 'product');
+    notify_repservers('project', $projid);
+
+    return {'rev' => 'product', 'srcmd5' => $srcmd5};
   }
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
@@ -211,6 +227,8 @@ sub lsrep {
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   if ($srcmd5 eq 'upload') {
     open(F, '<', "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") || die("$packid/$srcmd5-$packid: not in repository\n");
+  } elsif ($srcmd5 eq 'product') {
+    open(F, '<', "$projectsdir/$projid.pkg/product-MD5SUMS") || return {};
   } elsif ($srcmd5 eq 'pattern') {
     open(F, '<', "$projectsdir/$projid.pkg/pattern-MD5SUMS") || return {};
   } elsif ($srcmd5 eq 'empty') {
