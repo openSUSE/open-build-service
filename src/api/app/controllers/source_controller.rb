@@ -114,7 +114,7 @@ class SourceController < ApplicationController
     cmd = params[:cmd]
 
     pkg = DbPackage.find_by_project_and_name(project_name, package_name)
-    unless pkg or true
+    unless pkg
       render_error :status => 404, :errorcode => "unknown_package",
         :message => "unknown package '#{package_name}' in project '#{project_name}'"
       return
