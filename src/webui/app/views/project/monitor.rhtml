@@ -16,12 +16,12 @@
 <!-- Filter Settings -->
 <div class='filter_settings'>
 <% form_tag ({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
-<div class='nowrap'> <strong>Status: </strong><%= select_tag "code[]", options_for_select(@avail_status_values,@status_filter), :multiple => true, :size => 4 %></div>
-<div class='nowrap'><strong> Packagename: </strong><%= text_field_tag "pkgname", @name_filter %></div>
+  <strong>Status: </strong><%= select_tag "code[]", options_for_select(@avail_status_values,@status_filter), :multiple => true, :size => 4, :class => 'status-select'%>
+  <div class='nowrap'><strong> Packagename: </strong><%= text_field_tag "pkgname", @name_filter %></div>
 <div class='nowrap'><strong> Repository: </strong><%= text_field_tag "repo", @repo_filter %></div>
 <div class='nowrap'><strong> Architecture: </strong><%= text_field_tag "arch", @arch_filter %></div>
   <%= hidden_field_tag 'project', @project %>
-  <%= submit_tag 'Filter Monitor'%>
+  <%= submit_tag 'Filter'%>
 <% end %>
 </div>
 
