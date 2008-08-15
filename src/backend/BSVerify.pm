@@ -35,7 +35,7 @@ sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
-  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/;
+  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ and $packid ne '_product' and $packid ne '_pattern';
 }
 
 sub verify_repoid {
@@ -64,6 +64,10 @@ sub verify_packid_repository {
 
 sub verify_packid_pattern {
   verify_packid($_[0]) unless $_[0] && $_[0] eq '_pattern';
+}
+
+sub verify_packid_product {
+  verify_packid($_[0]) unless $_[0] && $_[0] eq '_product';
 }
 
 sub verify_filename {
@@ -243,6 +247,7 @@ our $verifyers = {
   'job' => \&verify_jobid,
   'package_repository' => \&verify_packid_repository,
   'package_pattern' => \&verify_packid_pattern,
+  'package_product' => \&verify_packid_product,
   'filename' => \&verify_filename,
   'md5' => \&verify_md5,
   'rev' => \&verify_rev,

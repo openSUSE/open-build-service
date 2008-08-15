@@ -679,6 +679,10 @@ sub readproj {
 sub readpack {
   my ($projid, $packid, $nonfatal) = @_;
   my $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  if ( ! defined($pack) && ($packid eq '_pattern' || $packid eq '_product') ) {
+    $pack = {};
+    $pack->{'name'} = "Internal Meta Package.";
+  };
   if (!$pack && !$nonfatal) {
     readproj($projid);
     die("package '$packid' does not exist in project '$projid'\n");
@@ -3124,12 +3128,17 @@ my $dispatches = [
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
   '/source/$project/$package:package_pattern rev? expand:bool? view:? extension:?' => \&getfilelist,
   '/source/$project/$package:package_pattern/_history' => \&getpackagehistory,
+  '/source/$project/$package:package_product rev? expand:bool? view:? extension:?' => \&getfilelist,
+  '/source/$project/$package:package_product/_history' => \&getpackagehistory,
   '/source/$project/$package/_meta' => \&getpackage,
   'PUT:/source/$project/$package/_meta' => \&putpackage,
   'DELETE:/source/$project/$package' => \&delpackage,
   '/source/$project/$package:package_pattern/$filename rev?' => \&getfile,
   'PUT:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool?' => \&putfile,
   'DELETE:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool?' => \&delfile,
+  '/source/$project/$package:package_product/$filename rev?' => \&getfile,
+  'PUT:/source/$project/$package:package_product/$filename rev? user:? comment:? keeplink:bool?' => \&putfile,
+  'DELETE:/source/$project/$package:package_product/$filename rev? user:? comment:? keeplink:bool?' => \&delfile,
 
   # /published name spec: access published binaries
   '/published' => \&published,
