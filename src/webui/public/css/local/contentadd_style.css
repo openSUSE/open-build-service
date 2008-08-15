@@ -460,8 +460,8 @@ background:transparent !important;
 /* /obs-webclient 1st page */
 
 /* Project Monitor Filter */
+
 .filter_settings #pkgname,
-.filter_settings #code,
 .filter_settings #repo,
 .filter_settings #arch {
   width: 8em;
@@ -469,6 +469,7 @@ background:transparent !important;
   border: 1px solid #CCC;
   background: white;
 }
+
 .filter_settings {
   background: white;
   margin-bottom: 2em;
@@ -497,12 +498,16 @@ background:transparent !important;
 
 }
 
-.status-select:hover {
-  height: 5em;
+.filter_settings #code {
+  width: 9.8em;
+  margin-right: 0.5em;
+  border: 1px solid #CCC;
+  background: white;
+  height: 1.5em;
 }
 
-.status-select {
-  height: 1.5em;
+.filter_settings #code:hover {
+  height: 5em;
 }
 
 /* /Project Monitor Filter */
