@@ -114,7 +114,7 @@ class SourceController < ApplicationController
     cmd = params[:cmd]
 
     pkg = DbPackage.find_by_project_and_name(project_name, package_name)
-    unless pkg
+    unless pkg or true
       render_error :status => 404, :errorcode => "unknown_package",
         :message => "unknown package '#{package_name}' in project '#{project_name}'"
       return
@@ -136,7 +136,7 @@ class SourceController < ApplicationController
       end
       render_ok
     elsif request.post?
-      if not @http_user.can_modify_package?(pkg) and not ['diff', 'branch'].include?(cmd)
+      if not ['diff', 'branch'].include?(cmd) and not @http_user.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
         return
@@ -146,16 +146,47 @@ class SourceController < ApplicationController
     end
   end
 
+  #GET /source/:project/_product/:file
+  def product_file
+    valid_http_methods :get, :put, :delete
+
+    params[:user] = @http_user.login if @http_user
+    
+    @project = DbProject.find_by_name params[:project]
+    unless @project
+      render_error :message => "Unknown project '#{params[:project]}'",
+        :status => 404, :errorcode => "unknown_project"
+      return
+    end
+
+    if request.get?
+      pass_to_source
+    else
+      # PUT and DELETE
+      permerrormsg = nil
+      if request.put?
+        permerrormsg = "no permission to store product file"
+      elsif request.delete?
+        permerrormsg = "no permission to delete product file"
+      end
+
+      unless @http_user.can_modify_project? @project
+        logger.debug "user #{user.login} has no permission to modify project #{@project}"
+        render_error :status => 403, :errorcode => "change_project_no_permission", 
+          :message => permerrormsg
+        return
+      end
+      
+      path = request.path + build_query_from_hash(params, [:rev, :user, :comment])
+      forward_data path, :method => request.method
+    end
+  end
+
+  #GET /source/:project/_pattern/:pattern
   def pattern_meta
     valid_http_methods :get, :put, :delete
 
-    comment = params[:comment]
-    rev = params[:rev]
-    if @http_user
-      user = @http_user.login
-    else
-      user = params[:user]
-    end
+    params[:user] = @http_user.login if @http_user
     
     @project = DbProject.find_by_name params[:project]
     unless @project
@@ -182,9 +213,7 @@ class SourceController < ApplicationController
         return
       end
       
-      query_string = [['rev',rev],['user',user],['comment',comment]].reject{|x| x[1].nil?}.map{|x| x.join('=')}.join('&')
-      path = "#{request.path}?#{query_string}"
-      
+      path = request.path + build_query_from_hash(params, [:rev, :user, :comment])
       forward_data path, :method => request.method
     end
   end

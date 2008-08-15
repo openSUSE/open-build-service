@@ -44,6 +44,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'source/:project/_pattern/:pattern', :controller => 'source',
     :action => 'pattern_meta'
+  map.connect 'source/:project/_product/:file', :controller => 'source',
+    :action => 'product_file'
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta'
   map.connect 'source/:project/:package/_tags', :controller => 'tag',
@@ -54,6 +56,8 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'file'
   map.connect 'source/:project/_pattern', :controller => 'source',
     :action => 'index_pattern'
+  map.connect 'source/:project/_product', :controller => 'source',
+    :action => 'pass_to_source'
   map.connect 'source/:project/_meta', :controller => 'source',
     :action => 'project_meta'
   map.connect 'source/:project/_config', :controller => 'source',
