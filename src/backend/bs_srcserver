@@ -158,7 +158,7 @@ sub addrev {
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     my $filename = (keys %$files)[0];
-    BSHermes::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filename, comment => $comment, user => $user});
+    BSHermes::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filename, user => $user});
     return {'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
@@ -194,7 +194,7 @@ sub addrev {
   my $srcmd5 = addmeta($projid, $packid, $files);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release};
   $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $version);
-  BSHermes::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $files, rev => $rev->{'rev'}, user => $user, comment => $comment});
+  BSHermes::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $files, rev => $rev->{'rev'}, user => $user});
 
   # kill upload revision as we did a real commit
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
