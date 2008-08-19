@@ -92,7 +92,7 @@ class RequestController < ApplicationController
     req = BsRequest.find params[:id]
     params[:user] = @http_user.login if @http_user
 
-    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate])
+    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :comment])
     if req.type == "submit"
 
       # check permission to modify
