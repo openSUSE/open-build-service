@@ -44,7 +44,7 @@ sub notify($$) {
   if ($paramRef) {
     for my $key (sort keys %$paramRef) {
       next if ref $paramRef->{$key};
-      push @args, "$key=$paramRef->{$key}";
+      push @args, "$key=$paramRef->{$key}" if defined $paramRef->{$key};
     }
   }
 
@@ -76,6 +76,7 @@ sub requestParams( $$ )
   if( $req->{'state'} ) {
     $reqinfo{'state'} = $req->{'state'}->{'name'} || '';
     $reqinfo{'when'}  = $req->{'state'}->{'when'} || '';
+    $reqinfo{'comment'} = $req->{'state'}->{'comment'};
   }
   $reqinfo{'who'} = $user || 'unknown';
 
@@ -87,10 +88,8 @@ sub requestParams( $$ )
       $reqinfo{'targetproject'}  = $req->{'submit'}->{'target'}->{'project'};
       $reqinfo{'targetpackage'}  = $req->{'submit'}->{'target'}->{'package'};
 
-      if( $req->{'history'} ) {
-        #FIXME: previous state is assumed to be always at last position in history
-        # for maximum correctness find latest history entry by comparing all 'when' attributes
-        $reqinfo{'oldstate'} = $req->{'history'}->[-1]->{'name'};
+      if( $req->{'oldstate'} ) {
+        $reqinfo{'oldstate'} = $req->{'oldstate'}->{'name'};
       }
 
       $reqinfo{'author'} = $req->{'history'} ? $req->{'history'}->[0]->{'who'} : $req->{'state'}->{'who'}
