@@ -92,6 +92,12 @@ class RequestController < ApplicationController
     req = BsRequest.find params[:id]
     params[:user] = @http_user.login if @http_user
 
+    # transform request body into query parameter 'comment'
+    # the query parameter is preferred if both are set
+    if params[:comment].blank? and not request.body.eof?
+      params[:comment] = request.body.read
+    end
+
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :comment])
     if req.type == "submit"
 
