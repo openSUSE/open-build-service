@@ -1068,7 +1068,7 @@ if (! -s "$buildroot/.build.log") {
 
 if ($hostcheck) {
   print "running post-build host check\n";
-  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", $ex ? 'succeeded' : 'failed', "$buildroot/.build.log")) {
+  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", $ex ? 'failed' : 'succeeded', "$buildroot/.build.log")) {
     print "post-build host check failed\n";
     $ex = 2;
   }

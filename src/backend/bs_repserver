@@ -1083,7 +1083,7 @@ sub getbuildinfo {
   my @subpacks = grep {$dep2src{$_} eq $pname} keys %dep2src;
   #$ret->{'subpack'} = \@subpacks;
   Build::readdeps($bconf, undef, reverse @repos);
-  my @deps = ( @{$info->{'dep'} || []}, @{$info->{'supportdeps'} || []} );
+  my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
   $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   if ($1 && $1 ne $bconf->{'type'}) {
     if ( $1 eq 'spec' ) {
@@ -1211,7 +1211,7 @@ sub getbuildinfo_post {
   die("parse error\n") unless defined $d->{'name'};
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
-  $info->{'supportdeps'} = $d->{'prereqs'} if $d->{'prereqs'};
+  $info->{'prereq'} = $d->{'prereqs'} if $d->{'prereqs'};
   my $pdata = {'info' => [ $info ]};
 
   return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);

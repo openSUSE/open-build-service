@@ -729,6 +729,11 @@ sub findfile {
   return (undef, undef);
 }
 
+sub unify {
+  my %h = map {$_ => 1} @_;
+  return grep(delete($h{$_}), @_);
+}
+
 sub getkiwipackages {
   my ($md5, $file, $proj, $packid, $arch, $count) = @_;
 
@@ -736,9 +741,9 @@ sub getkiwipackages {
   $count ||= 0;
   return "Kiwi config inclusion depth limit reached (10) !" if $count++ > 10;
 
-  my @alltypes = ();
-  my @allrepos = ();
-  my @allpackages = ();
+  my @alltypes;
+  my @allrepos;
+  my @allpackages;
   my $kiwidesc = readxml("$srcrep/$packid/$md5-$file", $BSXML::kiwidesc, 1);
   return ("bad kiwi description data") unless $kiwidesc;
 
@@ -764,9 +769,9 @@ sub getkiwipackages {
         my ($submd5, $subfile) = findfile($subproject, $subpackage, undef, 'kiwi', $files);
         if ($submd5 && $subfile) {
           my ($error, $kiwirepos, $kiwipackages, $kiwitypes) = getkiwipackages($submd5, $subfile, $subproject, $subpackage, $arch);
-          @allrepos= @{$kiwirepos};
-          @allpackages= @{$kiwipackages};
-          # skip kiwitypes, we only build the ones from the origin file.
+          push @allrepos, @$kiwirepos;
+          push @allpackages, @$kiwipackages;
+          # ignore kiwitypes, we only build the ones from the origin file.
         } else {
           return ("refered KIWI config not found $subproject $subpackage");
         }
@@ -815,6 +820,9 @@ sub getkiwipackages {
   }
   my %allpackages = map {$_ => 1} @allpackages;
   @allpackages = sort keys %allpackages;
+  @allrepos = unify(@allrepos);
+  @allpackages = unify(@allpackages);
+  @alltypes = unify(@alltypes);
   return (undef, \@allrepos, \@allpackages, \@alltypes);
 }
 
@@ -1076,14 +1084,15 @@ sub getprojpack {
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
-	      if ($d->{'prereqs'}) {
-	        push @dinfo, {'repository' => "$repoid", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}, 'supportdeps' => $d->{'prereqs'}};
-              } else {
-	        push @dinfo, {'repository' => "$repoid", 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'}};
-              };
+	      push @dinfo, { 'repository' => $repoid, 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'} };
+              if ($d->{'prereqs'}) {
+		my %deps = map {$_ => 1} @{$d->{'deps'} || []};
+		my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
+		$dinfo[-1]->{'prereq'} = \@prereqs if @prereqs;
+	      }
 	      $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
 	    } else {
-	      push @dinfo, {'repository' => "$repoid", 'file' => $file, 'error' => "file parse error"};
+	      push @dinfo, {'repository' => $repoid, 'file' => $file, 'error' => "file parse error"};
 	    }
 	  }
 	  $pinfo->{'info'} = \@dinfo if @dinfo;

@@ -877,6 +877,13 @@ sub publish {
   my %repotype = map {$_ => 1} @{$config->{'repotype'} || []};
   my %patterntype = map {$_ => 1} @{$config->{'patterntype'} || []};
 
+  if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
+    if (system($BSConfig::publishprogram->{$prp}, $extrep)) {
+      die("      $BSConfig::publishprogram{$prp} failed: $?\n");
+    }
+    goto publishprog_done;
+  }
+
   if ($repotype{'rpm-md'}) {
     createrepo_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo);
   } else {
@@ -904,6 +911,7 @@ sub publish {
     deletepatterns_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey);
   }
 
+publishprog_done:
   unlink("$uploaddir/publisher.$$") if $signkey;
 
   # post process step: create directory listing for poor YaST

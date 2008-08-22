@@ -559,7 +559,7 @@ sub set_building {
   $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   my $packtype = $1 || 'spec';
 
-  my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'supportdeps'} || []} );
+  my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {
@@ -1375,7 +1375,7 @@ sub calc_prps {
   for my $projid (sort keys %$projpacks) {
     my $repos = $projpacks->{$projid}->{'repository'} || [];
     my @aggs = grep {$_->{'aggregatelist'}} values(%{$projpacks->{$projid}->{'package'} || {}});
-    my @kiwis = grep {$_->{'info'}[0]->{'path'}} values(%{$projpacks->{$projid}->{'package'} || {}});
+    my @kiwiinfos = grep {$_->{'path'}} map {@{$_->{'info'} || []}} values(%{$projpacks->{$projid}->{'package'} || {}});
     for my $repo (@$repos) {
       next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
       my $repoid = $repo->{'name'};
@@ -1384,20 +1384,10 @@ sub calc_prps {
       my @searchpath = expandsearchpath($projid, $repo);
       # map searchpath to internal prp representation
       my @sp = map {"$_->{'project'}/$_->{'repository'}"} @searchpath;
-      # Find dependencies due to kiwi image description files
-      if (@kiwis) {
-	# push source repositories used in this aggregate onto xsp, obey target mapping
-	for my $kiwi (map {@{$_->{'info'} || []}} @kiwis) {
-	  for my $prp (map {@{$kiwi->{'path'} || []}} $kiwi) {
-	    my $kprojid = $prp->{'project'};
-	    my $krepoid = $prp->{'repository'} || []; 
-	    push @sp, "$kprojid/$krepoid";
-          }
-	}
-      }
       $prpsearchpath{$prp} = \@sp;
       $prpdeps{"$projid/$repo->{'name'}"} = \@sp;
-      # Find extra dependencies due to aggregate  description files
+
+      # Find extra dependencies due to aggregate/kiwi description files
       my @xsp;
       if (@aggs) {
 	# push source repositories used in this aggregate onto xsp, obey target mapping
@@ -1412,19 +1402,26 @@ sub calc_prps {
 	    push @xsp, "$aprojid/$repoid";
           }
 	}
-        if (@xsp) {
-          # found some repos, join aggregate deps with project deps
-          for my $xsp (@xsp) {
-            my ($mprojid, $mrepoid) = split('/', $xsp, 2);
-            # we just watch the repository as it costs too much to
-            # watch every single package
-            addwatchremote('repository', $mprojid, "/$mrepoid/$myarch");
-          }
-          my %xsp = map {$_ => 1} (@sp, @xsp);
-          $prpdeps{$prp} = [ sort keys %xsp ];
-        }
       }
-      # set search path
+      if (@kiwiinfos) {
+        # push repositories used in all kiwi files
+	push @xsp, map {"$_->{'project'}/$_->{'repository'}"} map {@{$_->{'path'}}} grep {$_->{'name'} eq $repoid} @kiwiinfos;
+      }
+
+      if (@xsp) {
+        # found some repos, join extra deps with project deps
+        for my $xsp (@xsp) {
+	  next if $xsp eq $prp;
+          my ($mprojid, $mrepoid) = split('/', $xsp, 2);
+          # we just watch the repository as it costs too much to
+          # watch every single package
+          addwatchremote('repository', $mprojid, "/$mrepoid/$myarch");
+        }
+        my %xsp = map {$_ => 1} (@sp, @xsp);
+	delete $xsp{$prp};
+        $prpdeps{$prp} = [ sort keys %xsp ];
+      }
+      # set noleaf info
       for (@{$prpdeps{$prp}}) {
         $prpnoleaf{$_} = 1 if $_ ne $prp;
       }
@@ -3034,6 +3031,7 @@ while(1) {
       for ($prptype, 'spec', 'dsc', 'kiwi') {
 	last if $info = $info{":$_"};
       }
+      $info = {'error' => 'no package info'} unless $info;
     }
 
     # name of src package, needed for block detection
