@@ -105,6 +105,10 @@ validate val: .validate
 	xsltproc --output $@ $(HTMLPARAM) $(DBHTML) $<
 
 
+clean:
+	rm -f *.rng
+	rm -f *.xsd
+	rm -f *.html
 
 #
 # EOF

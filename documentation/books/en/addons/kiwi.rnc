@@ -682,9 +682,25 @@ div {
 		## Specifies the status of the repository. This can be
 		## replacable or if not specified it's a must have repository
 		attribute status { "replaceable" | "fixed" }
+	k.repository.alias.attribute =
+		## Alias name to be used for this repository. This is an
+		## optional free form text. If not set the source attribute
+		## value is used and builds the alias name by replacing
+		## each '/' with a '_'. An alias name should be set if the
+		## source argument doesn't really explain what this repository
+		## contains
+		attribute alias { text }
+	k.repository.priority.attribute =
+		## Channel priority assigned to all packages available in
+		## this channel (0 if not set). If the exact same package
+		## is available in more than one channel, the highest
+		## priority is used
+		attribute priority { xsd:integer }
 	k.repository.attlist =
 		k.repository.type.attribute &
-		k.repository.status.attribute?
+		k.repository.status.attribute? &
+		k.repository.alias.attribute? &
+		k.repository.priority.attribute?
 	k.repository =
 		## The Name of the Repository
 		element repository {
