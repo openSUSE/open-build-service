@@ -109,6 +109,7 @@ clean:
 	rm -f *.rng
 	rm -f *.xsd
 	rm -f *.html
+	rm -f .validate.test
 
 #
 # EOF
