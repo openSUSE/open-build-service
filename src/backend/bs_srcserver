@@ -1086,7 +1086,7 @@ sub getprojpack {
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
 	      push @dinfo, { 'repository' => $repoid, 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'} };
               if ($d->{'prereqs'}) {
-		my %deps = map {$_ => 1} @{$d->{'deps'} || []};
+		my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
 		my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
 		$dinfo[-1]->{'prereq'} = \@prereqs if @prereqs;
 	      }

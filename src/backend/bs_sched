@@ -3031,7 +3031,7 @@ while(1) {
       for ($prptype, 'spec', 'dsc', 'kiwi') {
 	last if $info = $info{":$_"};
       }
-      $info = {'error' => 'no package info'} unless $info;
+      $info = {} unless $info;
     }
 
     # name of src package, needed for block detection

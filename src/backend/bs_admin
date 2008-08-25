@@ -230,10 +230,11 @@ sub check_meta_xml {
 
 sub write_event {
   my ($project, $repo, $arch, $event) = @_;
-  my $evname = "${project}::${repo}::$event";
+  my $evname = "${event}::$project";
+  $evname .= "::$repo" if defined $repo;
   my $ev = { "type" => $event };
-  $ev->{ 'project' } = $project if defined($project);
-  $ev->{ 'repository' } = $repo if defined($repo);
+  $ev->{ 'project' } = $project if defined $project;
+  $ev->{ 'repository' } = $repo if defined $repo;
   writexml("$eventroot/$arch/.$evname$$", "$eventroot/$arch/$evname", $ev, $BSXML::event);
   local *F;
   if (sysopen(F, "$eventroot/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
