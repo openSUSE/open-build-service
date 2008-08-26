@@ -1091,6 +1091,7 @@ sub getprojpack {
 		$dinfo[-1]->{'prereq'} = \@prereqs if @prereqs;
 	      }
 	      $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
+	      $dinfo[-1]->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $arch} @{$d->{'badarch'}};
 	    } else {
 	      push @dinfo, {'repository' => $repoid, 'file' => $file, 'error' => "file parse error"};
 	    }
