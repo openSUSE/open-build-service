@@ -8,23 +8,46 @@
 <%= render :partial => 'watch_list' %>
 </p>
 
+<br>
 <p>
 <h2>Involved Projects</h2>
-<% @iprojects.each do |project| -%>
-<%= link_to project, :action => :show, :project => project %><br/>
-<% end -%>
+ <% if @iprojects and not @iprojects.empty? -%>
+  <table id='involved_prj-table' class='grid'>
+   <tr>
+    <th>Project</th>
+    <th>Monitor</th>
+   </tr>
+ <% @iprojects.each do |project| -%>
+   <tr>
+    <td><%= link_to project, :action => :show, :project => project %></td>
+    <td><strong><%= link_to "[m]", :action => :monitor, :project => project %></strong></td>
+   </tr>
+  <% end -%>
+  </table>
+  <% else %>
+  <p><em>Not involved in any project.</em></p>
+  <% end -%>
 </p>
+
 
 <p>
   <h2>Involved Packages</h2>
-  <% @ipackages.each do |prj, packs| -%>
-  <h5><%=prj%></h5>
-  <ul>
-    <% packs.each do |pkg| -%>
-    <li><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></li>
-    <% end -%>
-  </ul>
-  <% end -%>
+    <table id='involved_pkg-table' class='grid'>
+      <tr>
+        <th>Package</th>
+        <th>Project</th>
+        <th>Monitor</th>
+      </tr>
+      <% @ipackages.each do |prj, packs| -%>
+        <% packs.each do |pkg| -%>
+          <tr>
+            <td><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
+            <td><%= link_to prj, :action => :show, :project => prj %></td>
+            <td><strong><%= link_to "[m]", :action => :monitor, :project => prj %></strong></td>
+          </tr>
+        <% end -%>
+      <% end -%>
+   </table>
 </p>
 
 <p>
@@ -36,3 +59,4 @@
   <h2>Requests by me</h2>
   <%= render :partial => 'request_table', :locals => {:requests => @requests_by_me} %>
 </p>
+
