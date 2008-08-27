@@ -458,7 +458,7 @@ module UserMixins
           # However, this is not *so* bad since users have to answer on their email
           # to confirm their registration.
           validates_format_of :email, 
-                              :with => %r{^([\w\-\.\#\$%&!?*\'=(){}|~_]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+$},
+                              :with => %r{^([\w\-\.\#\$%&!?*\'\+=(){}|~_]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+$},
                               :message => 'must be a valid email address.'
 
           # We want to validate the format of the password and only allow alphanumeric
