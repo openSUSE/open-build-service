@@ -1,3 +1,5 @@
+require 'wizard'
+
 class WizardController < ApplicationController
 
   # GET/POST /source/<project>/<package>/_wizard
@@ -86,10 +88,9 @@ class WizardController < ApplicationController
       filename = params[:tarball]
       # heuristics
       @wizard_state.data["tarball"] = filename
-      if filename =~ /^#{params[:package]}-(.*)\.tar\.(gz|bz2)$/i
-        @wizard_state.guess["version"] = $1
-      elsif filename =~ /.*-([0-9\.]*)\.tar\.(gz|bz2)$/
-        @wizard_state.guess["version"] = $1
+      version = Wizard.guess_version(params[:package], filename)
+      if version
+        @wizard_state.guess["version"] = version
       end
       # TODO: unpack the tarball somehow and try to guess as much as possible...
     end
