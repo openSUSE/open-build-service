@@ -27,6 +27,7 @@ class WizardController < ApplicationController
       @wizard = Wizard.new("")
     end
     @wizard["name"] = pkg_name
+    @wizard["email"] = @http_user.email
     
     loop do
       questions = @wizard.run
@@ -62,14 +63,12 @@ class WizardController < ApplicationController
     package.data.elements["title"].text = @wizard["summary"]
     package.data.elements["description"].text = @wizard["description"]
     package.save
-    specfile = "#{params[:package]}.spec"
-    template = File.read("#{RAILS_ROOT}/files/wizardtemplate.spec")
-    erb = ERB.new(template)
-    template = erb.result(binding)
-    backend_put("/source/#{params[:project]}/#{params[:package]}/#{specfile}", template)
+    specname = "#{params[:package]}.spec"
+    spec = @wizard.generate_spec(File.read("#{RAILS_ROOT}/files/wizardtemplate.spec"))
+    backend_put("/source/#{params[:project]}/#{params[:package]}/#{specname}", spec)
     @wizard["created_spec"] = "true"
     @wizard_form = WizardForm.new("Finished",
-      "I created #{specfile} for you. Please review it and adjust it to fit your needs.")
+      "I created #{specname} for you. Please review it and adjust it to fit your needs.")
     @wizard_form.last = true
     render_wizard
   end

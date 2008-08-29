@@ -3,8 +3,8 @@ require 'rexml/document'
 class Wizard
   def initialize(text = nil)
     if ! text || text.empty?
-      @data = DirtyHash.new({})
-      @guess = DirtyHash.new({})
+      @data = DirtyHash.new
+      @guess = DirtyHash.new
       @version = 1
       @dirty = false
       return
@@ -47,18 +47,9 @@ class Wizard
     return res
   end
 
-  def version=(value)
-    if @version != value
-      @version = value
-      @dirty = true
-    end
-  end
-  private :version=
-
   def dirty
     return @dirty || @data.dirty || @guess.dirty
   end
-
 
   def [](name)
     return @data[name] || @guess[name]
@@ -105,8 +96,15 @@ class Wizard
     ask "version"
     ask "license"
     ask "group"
+    ask "email"
     return @questions if @questions
     return nil
+  end
+
+  def generate_spec(template)
+    erb = ERB.new(template)
+    hb = HashBinding.new(@guess.merge(@data))
+    template = erb.result(hb.getBinding)
   end
 
   private
@@ -138,7 +136,7 @@ class Wizard
         { "generic" => { 'label' => "Generic (./configure && make)"} },
         { "perl"    => { 'label' => "Perl module"} },
         { "python"  => { 'label' => "Python module"} },
-  ],
+      ],
     },
     "version"     => {
       'type'    => "text",
@@ -161,7 +159,11 @@ class Wizard
       'type'    => "text",
       'label'   => "Package group",
       'legend'  => "See http://en.opensuse.org/SUSE_Package_Conventions/RPM_Groups",
-    }
+    },
+    "email"       => {
+      'type'    => "text",
+      'label'   => "Your email",
+    },
   }
 
   public
@@ -176,27 +178,31 @@ class Wizard
 
   private
   # hash that sets a dirty flag on write
-  class DirtyHash
-    attr_reader(:dirty)
+  class DirtyHash < Hash
+    attr_reader :dirty
 
-    def initialize(hash = {})
-      @table = hash
-      @dirty = false
+    def initialize(h = {})
+      replace(h)
     end
 
-    def [](key)
-      @table[key]
-    end
-
-    def []=(key, value)
-      if @table[key] != value
-        @table[key] = value
+    def []=(key,value)
+      if self[key] != value
         @dirty = true
+        super(key,value)
+      end
+    end
+  end
+
+  # convert a hash into a binding, turning keys into instance variables
+  class HashBinding
+    def initialize(hash)
+      hash.each do |key, value|
+        instance_variable_set("@#{key}", value)
       end
     end
 
-    def each(&block)
-      @table.each(&block)
+    def getBinding
+      binding
     end
   end
 end

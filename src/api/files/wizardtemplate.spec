@@ -1,39 +1,34 @@
-<%
-	name = @wizard["name"]
-	version = @wizard["version"]
-	tarball = @wizard["tarball"]
-	packtype = @wizard["packtype"]
-%>Name:           <%= name %>
+Name:           <%= @name %>
 # List of additional build dependencies
-<% if packtype == "python"
+<% if @packtype == "python"
 %>BuildRequires:  python-devel<%
   else
 %>#BuildRequires:  gcc-c++ libxml2-devel<%
    end %>
-Version:        <%= version %>
+Version:        <%= @version %>
 Release:        1
-License:        <%= @wizard["license"] %>
-Source:         <%= tarball %>
-Group:          <%= @wizard["group"] %>
-Summary:        <%= @wizard["summary"] %>
-<% if packtype == "perl"
+License:        <%= @license %>
+Source:         <%= @tarball %>
+Group:          <%= @group %>
+Summary:        <%= @summary %>
+<% if @packtype == "perl"
 %>Requires:       perl = %{perl_version}<%
-   elsif packtype == "python"
+   elsif @packtype == "python"
 %>%py_requires<%
    end %>
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
-<%= @wizard["description"].gsub(/([^\n]{1,70})([ \t]+|\n|$)/, "\\1\n") %>
+<%= @description.gsub(/([^\n]{1,70})([ \t]+|\n|$)/, "\\1\n") %>
 
 %prep
 <%=
 # FIXME: escape special characters in name and version
-if tarball =~ /^#{name}-#{version}\.tar\.(gz|bz2)$/
+if @tarball =~ /^#{@name}-#{@version}\.tar\.(gz|bz2)$/
 "%setup -q"
-elsif tarball =~ /^(.*)-#{version}\.tar\.(gz|bz2)$/
+elsif @tarball =~ /^(.*)-#{@version}\.tar\.(gz|bz2)$/
 "%setup -q -n #{$1}-%version"
-elsif tarball =~ /^(.*)\.tar\.(gz|bz2)$/
+elsif @tarball =~ /^(.*)\.tar\.(gz|bz2)$/
 "%setup -q -n #{$1}"
 else # give up
 "%setup -q"
@@ -41,7 +36,7 @@ end
 %>
 
 %build
-<% if packtype == "generic" %>
+<% if @packtype == "generic" %>
 # Assume that the package is built by plain 'make' if there's no ./configure.
 # This test is there only because the wizard doesn't know much about the
 # package, feel free to clean it up
@@ -49,27 +44,27 @@ if test -x ./configure; then
 	%configure
 fi
 make
-<% elsif packtype == "perl" %>
+<% elsif @packtype == "perl" %>
 perl Makefile.PL
 make
-<% elsif packtype == "python" %>
+<% elsif @packtype == "python" %>
 python setup.py build
-<% else raise RuntimeError.new("WizardError: unknown packtype #{packtype}") %>
+<% else raise RuntimeError.new("WizardError: unknown packtype #{@packtype}") %>
 <% end %>
     
 
 %install
-<% if packtype == "generic" %>
+<% if @packtype == "generic" %>
 make DESTDIR=%buildroot install
-<% elsif packtype == "perl" %>
+<% elsif @packtype == "perl" %>
 make DESTDIR=%buildroot install_vendor
 %perl_process_packlist
-<% elsif packtype == "python" %>
+<% elsif @packtype == "python" %>
 python setup.py install --prefix=%_prefix --root=%buildroot --record-rpm=filelist
-<% else raise RuntimeError.new("WizardError: unknown packtype #{packtype}") %>
+<% else raise RuntimeError.new("WizardError: unknown packtype #{@packtype}") %>
 <% end %>
 
-<% if packtype != "python" %>
+<% if @packtype != "python" %>
 # Write a proper %%files section and remove these two commands and
 # the '-f filelist' option to %%files
 echo '%%defattr(-,root,root)' >filelist
@@ -84,11 +79,11 @@ rm -rf %buildroot
 <%
 # '%files -f' seems to be standard practice in python packages, so only display
 # the comment in non-python cases
-if packtype != "python" %>
+if @packtype != "python" %>
 # This is a place for a proper filelist:
-# /usr/bin/<%= name %>
+# /usr/bin/<%= @name %>
 # You can also use shell wildcards:
-# /usr/share/<%= name %>/*
+# /usr/share/<%= @name %>/*
 # This installs documentation files from the top build directory
 # into /usr/share/doc/...
 # %doc README COPYING
@@ -98,5 +93,5 @@ if packtype != "python" %>
 <% end %>
 
 %changelog
-* <%= Date.today.strftime("%a %b %d %Y") %> <%= @http_user.email %>
-- packaged <%= name %> version <%= version %> using the buildservice spec file wizard
+* <%= Date.today.strftime("%a %b %d %Y") %> <%= @email %>
+- packaged <%= @name %> version <%= @version %> using the buildservice spec file wizard
