@@ -1,8 +1,8 @@
 <%
-	name = @wizard_state["name"]
-	version = @wizard_state["version"]
-	tarball = @wizard_state["tarball"]
-	packtype = @wizard_state["packtype"]
+	name = @wizard["name"]
+	version = @wizard["version"]
+	tarball = @wizard["tarball"]
+	packtype = @wizard["packtype"]
 %>Name:           <%= name %>
 # List of additional build dependencies
 <% if packtype == "python"
@@ -12,10 +12,10 @@
    end %>
 Version:        <%= version %>
 Release:        1
-License:        <%= @wizard_state["license"] %>
+License:        <%= @wizard["license"] %>
 Source:         <%= tarball %>
-Group:          <%= @wizard_state["group"] %>
-Summary:        <%= @wizard_state["summary"] %>
+Group:          <%= @wizard["group"] %>
+Summary:        <%= @wizard["summary"] %>
 <% if packtype == "perl"
 %>Requires:       perl = %{perl_version}<%
    elsif packtype == "python"
@@ -24,7 +24,7 @@ Summary:        <%= @wizard_state["summary"] %>
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
-<%= @wizard_state["description"].gsub(/([^\n]{1,70})([ \t]+|\n|$)/, "\\1\n") %>
+<%= @wizard["description"].gsub(/([^\n]{1,70})([ \t]+|\n|$)/, "\\1\n") %>
 
 %prep
 <%=
