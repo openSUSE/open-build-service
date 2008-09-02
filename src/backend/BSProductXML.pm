@@ -20,7 +20,7 @@
 # XML templates for the BuildService. See XML/Structured.
 #
 
-package BSProjectXML;
+package BSProductXML;
 
 use strict;
 
@@ -45,6 +45,8 @@ use strict;
 our $group = [
     'group' =>
           'name',
+          'version',
+          'release',
           'relationship',
           'pattern:ordernumber',
           'pattern:category',

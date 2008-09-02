@@ -33,7 +33,7 @@ use BSWatcher;
 use BSUtil;
 use BSXML;
 use BSKiwiXML;
-use BSProjectXML;
+use BSProductXML;
 
 my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
@@ -84,6 +84,9 @@ Debug Options
 
  --check-product-xml <file>
    Is parsing a product xml file and puts out error messages, in case of errors.
+
+ --check-product-group-xml <file>
+   Is parsing a group xml file from a product definition and puts out error messages, in case of errors.
    
  --check-kiwi-xml <file>
  --check-kiwi-xml <project> <package>
@@ -185,29 +188,15 @@ sub dump_cache {
   print Dumper( $cache );
 };
 
-sub check_kiwi_xml_file {
-  my ($file) = @_;
+sub check_xml_file {
+  my ($file, $type) = @_;
 
   print "parsing $file\n";
-  my $kiwidesc = readxml("$file", $BSKiwiXML::kiwidesc, 0);
-  if ( defined($kiwidesc) ) {
+  my $xmldesc = readxml("$file", $type, 0);
+  if ( defined($xmldesc) ) {
     print "Succesfull parsed file !\n";
   }else{
-    print "ERROR: Unable to parse KIWI config !\n";
-    die;
-  };
-};
-
-sub check_product_xml_file {
-  my ($file) = @_;
-
-  print "parsing $file\n";
-  my $productdesc = readxml("$file", $BSProjectXML::productdesc, 0);
-  if ( defined($productdesc) ) {
-#    print Dumper($productdesc);
-    print "Succesfull parsed file !\n";
-  }else{
-    print "ERROR: Unable to parse product config !\n";
+    print "ERROR: Unable to parse xml file !\n";
     die;
   };
 };
@@ -220,7 +209,7 @@ sub check_kiwi_xml {
   ($md5, $file) = find_latest_file( $project, $package, 'kiwi' );
   if ( defined($md5) and defined($file) ) {
     my $f = "$srcrepdir/$package/$md5-$file";
-    check_kiwi_xml_file( $f );
+    check_kiwi_xml_file( $f, $BSKiwiXML::kiwidesc );
   }else{
     print "ERROR: No kiwi config file found in $project / $package !\n";
     die;
@@ -307,6 +296,20 @@ while (defined (my $arg = shift @ARGV)) {
       check_meta_xml( $project );
     };
   };
+  if ( $arg eq "--check-product-group-xml" ) {
+    if ( @ARGV != 1 ){
+      print "ERROR: need a file name as argument !\n";
+      exit
+    }
+    if ( @ARGV == 1 ){
+      my $file = shift @ARGV;
+      check_xml_file( $file, $BSProductXML::group );
+#    } else {
+#      my $project = shift @ARGV;
+#      my $package = shift @ARGV;
+#      check_product_xml( $project, $package );
+    };
+  };
   if ( $arg eq "--check-product-xml" ) {
     if ( @ARGV != 1 ){
       print "ERROR: need a file name as argument !\n";
@@ -314,7 +317,7 @@ while (defined (my $arg = shift @ARGV)) {
     }
     if ( @ARGV == 1 ){
       my $file = shift @ARGV;
-      check_product_xml_file( $file );
+      check_xml_file( $file, $BSProductXML::productdesc );
 #    } else {
 #      my $project = shift @ARGV;
 #      my $package = shift @ARGV;
@@ -328,7 +331,7 @@ while (defined (my $arg = shift @ARGV)) {
     }
     if ( @ARGV == 1 ){
       my $file = shift @ARGV;
-      check_kiwi_xml_file( $file );
+      check_xml_file( $file, $BSKiwiXML::kiwidesc );
     } else {
       my $project = shift @ARGV;
       my $package = shift @ARGV;
