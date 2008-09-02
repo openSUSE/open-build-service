@@ -79,7 +79,7 @@ our $productdesc = [
           'pwd',
           'local',
           [],
-          [[ 'source' => 'path' ]],
+          [[ 'source' => 'href' ]],
        ]],
        [ 'mediasets' =>
           [[ 'media' =>
@@ -96,6 +96,7 @@ our $productdesc = [
              ]],
              [[ 'metadata' =>
                 [[ 'package' => 'name' ]],
+                [[ 'file' => 'name' ]],
              ]],
              [[ 'sourcemedia' => 'disable' ]],
           ]],
