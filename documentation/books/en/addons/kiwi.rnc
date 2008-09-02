@@ -491,6 +491,20 @@ div {
 }
 
 #==========================================
+# common element <opensuseProduct>
+#
+div {
+	k.opensuseproduct.name.attribute = k.name.attribute
+	k.opensuseproduct.attlist = k.opensuseproduct.name.attribute
+	k.opensuseproduct =
+		## Name of a Product From openSUSE
+		element opensuseProduct {
+			k.opensuseproduct.attlist,
+			empty
+		}
+}
+
+#==========================================
 # common element <repopackage>
 #
 div {
@@ -1664,6 +1678,7 @@ div {
 			k.packages.attlist &
 			k.package* &
 			k.opensusepattern* &
+			k.opensuseproduct* &
 			k.ignore*
 		}
 }
