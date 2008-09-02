@@ -32,6 +32,7 @@ use BSFileDB;
 use BSWatcher;
 use BSUtil;
 use BSXML;
+use BSProjectXML;
 
 my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
@@ -80,6 +81,9 @@ Debug Options
  --check-meta-xml <project> <package>
    Is parsing a project or package xml file and puts out error messages, in case of errors.
 
+ --check-product-xml <file>
+   Is parsing a product xml file and puts out error messages, in case of errors.
+   
  --check-kiwi-xml <file>
  --check-kiwi-xml <project> <package>
    Is parsing a kiwi xml file and puts out error messages, in case of errors.
@@ -193,6 +197,19 @@ sub check_kiwi_xml_file {
   };
 };
 
+sub check_product_xml_file {
+  my ($file) = @_;
+
+  print "parsing $file\n";
+  $productdesc = readxml("$file", $BSXML::productdesc, 0);
+  if ( defined($productdesc) ) {
+    print "Succesfull parsed file !\n";
+  }else{
+    print "ERROR: Unable to parse product config !\n";
+    die;
+  };
+};
+
 sub check_kiwi_xml {
   my ($project, $package) = @_;
   my $file;
@@ -286,6 +303,20 @@ while (defined (my $arg = shift @ARGV)) {
       check_meta_xml( $project, $package );
     }else{
       check_meta_xml( $project );
+    };
+  };
+  if ( $arg eq "--check-product-xml" ) {
+    if ( @ARGV != 1 ){
+      print "ERROR: need a file name as argument !\n";
+      exit
+    }
+    if ( @ARGV == 1 ){
+      my $file = shift @ARGV;
+      check_product_xml_file( $file );
+#    } else {
+#      my $project = shift @ARGV;
+#      my $package = shift @ARGV;
+#      check_product_xml( $project, $package );
     };
   };
   if ( $arg eq "--check-kiwi-xml" ) {

@@ -41,6 +41,7 @@ use BSRPC ':https';
 use BSUtil;
 use BSFileDB;
 use BSXML;
+use BSProjectXML;
 use BSDBIndex;
 use BSBuild;
 use Build;

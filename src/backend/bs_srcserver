@@ -40,6 +40,7 @@ use BSServer;
 use BSUtil;
 use BSFileDB;
 use BSXML;
+use BSProjectXML;
 use BSVerify;
 use BSHandoff;
 use BSWatcher ':https';

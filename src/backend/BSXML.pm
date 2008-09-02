@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+# Copyright (c) 2008 Adrian Schroeter, Novell Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -139,99 +140,6 @@ our $aggregatelist = [
 		'source',
          ]],
      ]],
-];
-
-our $kiwidesc = [
-    'image' =>
-        'name',
-        'schemeversion',
-        [],
-        [ 'description' => 
-              'type',
-              [],
-              'author',
-              'contact',
-              'specification',
-        ],
-        [ 'preferences' =>
-          [[ 'type' =>
-              'bootprofile',
-              'boot',
-              'flags',
-              'filesystem',
-              'format',
-              'primary',
-              '_content',
-          ]],
-          'version',
-          [ 'size' =>
-              'unit',
-              '_content',
-          ],
-          'compressed',
-          'packagemanager',
-          'rpm-check-signatures',
-        ],
-        [[ 'users' =>
-             'group',
-             [],
-             [[ 'user' => 'name', 'pwd', 'home', 'realname' ]],
-        ]],
-        [ 'profiles' =>
-             [[ 'profile' => 'name', 'description' ]],
-        ],
-        [[ 'drivers' =>
-              'type',
-             [],
-             [[ 'file' => 'name' ]],
-        ]],
-	[[ 'repository' =>
-	       'type',
-	       'status',
-               [],
-	       [[ 'source' => 'path' ]],
-        ]],
-        [[ 'deploy' =>
-               'server',
-               'blocksize',
-               [],
-               [[ 'partitions' =>
-                    'device',
-                    [],
-                    [[ 'partition' =>
-                       'type',
-                       'number',
-                       'size',
-                       'mountpoint',
-                       'target',
-                    ]],
-               ]],
-               [[ 'configuration' =>
-                    'source',
-                    'dest',
-               ]],
-          ]],
-	[[ 'packages' =>
-               'type',
-               'profiles',
-               'patternType',
-               'patternPackageType',
-               'memory',
-               'disk',
-               [],
-	       [['package' =>
-                     'name',
-                     'arch',
-               ]],
-	       [['opensusePattern' =>
-                     'name',
-                     'arch',
-               ]],
-	       [['ignore' =>
-                     'name',
-                     'arch',
-               ]],
-        ]],
 ];
 
 our $projpack = [
