@@ -32,6 +32,7 @@ use BSFileDB;
 use BSWatcher;
 use BSUtil;
 use BSXML;
+use BSKiwiXML;
 use BSProjectXML;
 
 my $reporoot  = "$BSConfig::bsdir/build";
@@ -188,7 +189,7 @@ sub check_kiwi_xml_file {
   my ($file) = @_;
 
   print "parsing $file\n";
-  $kiwidesc = readxml("$file", $BSXML::kiwidesc, 0);
+  my $kiwidesc = readxml("$file", $BSKiwiXML::kiwidesc, 0);
   if ( defined($kiwidesc) ) {
     print "Succesfull parsed file !\n";
   }else{
@@ -201,7 +202,7 @@ sub check_product_xml_file {
   my ($file) = @_;
 
   print "parsing $file\n";
-  $productdesc = readxml("$file", $BSXML::productdesc, 0);
+  my $productdesc = readxml("$file", $BSProjectXML::productdesc, 0);
   if ( defined($productdesc) ) {
     print "Succesfull parsed file !\n";
   }else{

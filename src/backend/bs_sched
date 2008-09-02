@@ -41,7 +41,7 @@ use BSRPC ':https';
 use BSUtil;
 use BSFileDB;
 use BSXML;
-use BSProjectXML;
+use BSKiwiXML;
 use BSDBIndex;
 use BSBuild;
 use Build;
@@ -2157,7 +2157,7 @@ sub findkiwisources {
   } else {
     my $kiwidesc;
     my @deps;
-    eval { $kiwidesc = XMLin($BSXML::kiwidesc, $c); };
+    eval { $kiwidesc = XMLin($BSKiwiXML::kiwidesc, $c); };
     if ( defined($@) ) {
       for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
         if (defined $type->{'boot'}) {
