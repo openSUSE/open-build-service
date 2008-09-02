@@ -209,8 +209,14 @@ sub addrev {
   }
   my $srcmd5 = addmeta($projid, $packid, $files);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release};
+  
+  my $rev_old = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
+  $rev_old ||= {'srcmd5' => 'empty'};
+  my $files_old = lsrep($projid, $packid, $rev_old->{'srcmd5'});
+  my $filestr = BSHermes::generate_commit_flist($files_old, $files);
+
   $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $version);
-  BSHermes::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $files, rev => $rev->{'rev'}, user => $user});
+  BSHermes::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
 
   # kill upload revision as we did a real commit
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
