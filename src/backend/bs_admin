@@ -204,6 +204,7 @@ sub check_product_xml_file {
   print "parsing $file\n";
   my $productdesc = readxml("$file", $BSProjectXML::productdesc, 0);
   if ( defined($productdesc) ) {
+#    print Dumper($productdesc);
     print "Succesfull parsed file !\n";
   }else{
     print "ERROR: Unable to parse product config !\n";

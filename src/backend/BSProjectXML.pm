@@ -42,6 +42,37 @@ use strict;
 #       [ $repo ],         refers to the repository construct and allows again any number of them (0-X)
 #];                        closes the <package> child with </package>
 
+our $group = [
+    'group' =>
+          'name',
+          'relationship',
+          'pattern:ordernumber',
+          'pattern:category',
+          'pattern:icon',
+          'pattern:summary',
+          'pattern:description',
+          'pattern:visible',
+          [],
+          [[ 'pattern:provides' ]],
+          [[ 'include' => 'group' ]],
+          [[ 'pattern' =>
+             'name',
+             'path',
+             'relationship',
+             'condition',
+             'version',
+             'flag',
+          ]],
+          [[ 'conditional' => 'name' ]],
+          [[ 'package' =>
+             'name',
+             [[ 'conditional' => 'name' ]],
+             [[ 'plattform' => 'arch', 'source_arch', 'replace_native', 'excludearch', 'onlyarch' ]],
+          ]],
+];
+#  hack:greate cyclic definition!
+push @$group, [$group];
+
 our $productdesc = [
     'product' =>
        [ 'general' =>
@@ -93,6 +124,7 @@ our $productdesc = [
                 'use_suggested',
                 'use_required',
                 [[ 'package' => 'name', 'relationship' ]],
+                [[ 'groupgroup' => 'name', 'relationship' ]],
              ]],
              [[ 'metadata' =>
                 [[ 'package' => 'name' ]],
@@ -101,32 +133,7 @@ our $productdesc = [
              [[ 'sourcemedia' => 'disable' ]],
           ]],
        ],
-       [[ 'group' =>
-          'name',
-          'relationship',
-          'pattern:ordernumber',
-          'pattern:category',
-          'pattern:icon',
-          'pattern:summary',
-          'pattern:description',
-          'pattern:visible',
-          [],
-          [[ 'pattern:provides' ]],
-          [[ 'include' => 'group' ]],
-          [[ 'pattern' =>
-             'path',
-             'relationship',
-             'condition',
-             'version',
-             'flag',
-          ]],
-          [[ 'conditional' => 'name' ]],
-          [[ 'package' =>
-             'name',
-             [[ 'conditional' => 'name' ]],
-             [[ 'plattform' => 'arch', 'source_arch', 'replace_native', 'excludearch', 'onlyarch' ]],
-          ]],
-       ]],
+       [ $group ],
        [[ 'xi:include' => 'href' ]],
 ];
 
