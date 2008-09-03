@@ -1,0 +1,36 @@
+ <group name="basis" relationship="required"
+            pattern:ordernumber="1020"
+            pattern:category="Base Technologies"
+            pattern:icon="pattern-basis"
+            pattern:summary="Base System"
+            pattern:description="Very long description what the Base System is."
+            pattern:visible="true"
+            >
+            <pattern name="apparmor" relationship="recommended" />
+            <pattern name="sw_management" relationship="recommended" />
+            <pattern name="yast2_install_wf" relationship="required" />
+            <pattern:provides>basesystem</pattern:provides>
+            <!-- other examples taken from the 11.1 patterns -->
+            <pattern name="gnome" relationship="freshens" />
+            <pattern name="games" relationship="extends" />
+            <pattern name="games" relationship="supplements" />
+            <!-- conflicts -->
+            <pattern name="gnome" relationship="conflicts" />
+            <!-- obsoletes -->
+            <pattern name="voip_server" relationship="obsoletes" condition="< 10.3" />
+            <pattern name="voip_server" relationship="obsoletes" version="10.3" flag="lt" />
+            <!-- moep -->
+            <conditional name="dvd9_media_1" />
+            <package name="glibc">
+                <!-- todo: add way to include i686 arch additionally -->
+            </package>
+            <package name="libdb-4_5">
+                <conditional name="baselibs_hammer_from_i686" />
+            </package>
+            <package name="glibc-32bit">
+                <!-- the default would be taking the baselibs from i586 just use i686 here -->
+                <conditional name="baselibs_hammer_from_i686" />
+                <conditional name="dvd5_media_2" />
+            </package>
+            <package name="bash" relationship="suggested" />
+        </group>

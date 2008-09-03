@@ -1,0 +1,45 @@
+<group name="Basis-Devel" version="10" release="215"
+       pattern:ordernumber="4010"
+       pattern:category="Development"
+       pattern:summary="C/C++ Compiler and Tools"
+       pattern:description="Minimal set of tools for compiling and linking applications"
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="required">
+            <package name="autoconf" />
+            <package name="automake" />
+            <package name="cvs" />
+    </group>
+    <group relationship="recommended">
+            <package name="bin86" />
+            <package name="bison" />
+            <package name="emacs" />
+            <package name="emacs-info" />
+            <package name="emacs-x11" />
+            <package name="flex" />
+            <package name="gcc" />
+            <package name="gcc-c++" />
+            <package name="gcc-fortran" />
+            <package name="gcc-info" />
+            <package name="gcc-locale" />
+            <package name="gcc-obj-c++" />
+            <package name="gcc-objc" />
+            <package name="gdbm-devel" />
+            <package name="glibc-devel" />
+            <package name="glibc-info" />
+            <package name="gperf" />
+            <package name="itrace" />
+            <package name="libaio-devel" />
+            <package name="libgcj43" />
+            <package name="libobjc43" />
+            <package name="libstdc++-devel" />
+            <package name="libstdc++-doc" />
+            <package name="ltrace" />
+            <package name="kernel-source" />
+            <package name="ncurses-devel" />
+            <package name="pkg-config" />
+            <package name="rcs" />
+            <package name="texinfo" />
+    </group>
+</group>

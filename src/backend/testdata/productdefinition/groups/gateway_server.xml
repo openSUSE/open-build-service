@@ -1,0 +1,23 @@
+<group name="gateway_server" version="10" release="215"
+       pattern:ordernumber="3050"
+       pattern:category="Primary Functions"
+       pattern:icon="yast-dsl"
+       pattern:summary="Internet Gateway"
+       pattern:description="Software to set up a proxy, firewall, and gateway server, including a virtual private network (VPN) gateway."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="recommended">
+            <package name="squid" />
+            <package name="squidGuard" />
+            <package name="calamaris" />
+            <package name="ipsec-tools" />
+            <package name="quagga" />
+            <package name="radvd" />
+            <package name="rarpd" />
+            <package name="fetchmail" />
+            <package name="fetchmailconf" />
+            <package name="ddclient" />
+            <package name="wireshark" />
+    </group>
+</group>

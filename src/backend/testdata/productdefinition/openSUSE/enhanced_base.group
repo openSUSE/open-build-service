@@ -1,0 +1,18 @@
+<group name="enhanced-basis" pattern="enhanced_base" relationship="recommended">
+            <package name="gnome-panel-32bit">
+                <conditional name="baselibs_only_x86_64" />
+            </package>
+        </group>
+        <group name="virt" pattern="viele kleine computer in einem">
+            <package name="xen">
+                <!-- TODO: this should *NOT* overwrite the native package (can someone please shot the xen team. -->
+                <platform arch="i586" source_arch="x86_64" (replace_native="false") />
+            </package>
+        </group>
+        <group name="yast">
+            <package name="yast2-s390">
+                <platform excludearch="s390" />
+                <platform onlyarch="s390x" />
+            </package>
+        </group>
+

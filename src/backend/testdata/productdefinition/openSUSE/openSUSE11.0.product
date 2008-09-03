@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <product>
+    <!--
+    todo:
+    - local xml catalogs for xi:include
+      - check if we can map unknown protocols with it
+    - repository list
+      - assign repos per packet/group
+    - exclusion syntax for single packages
+    - pattern translations -> tool needs to create pot file from the xml
+    - solver:
+      + choose locales automatically
+      + conflicting patterns and packages
+      + group with "preferd" packages for the solver (postfix vs. sendmail)
+    -->
+    <general>
+        <vendor>Novell</vendor>
+        <name>openSUSE</name>
+        <version>11.1</version>
+        <release>0</release> 
+        <!-- ^^^ needed for example if an ISO has to rebuild /* NEEDS TO BE DISCUSSED */ -->
+
+       <update_repo_key>duncans_string</update_repo_key>
+
+        <summary>A cool distribution</summary> <!-- one line only -->
+        <summary lang="de">Einfach genial</summary>
+
+        <description>This is the coolest distribution on the world.
+        Try it out and find it useful.</description> <!-- multiple lines allowed -->
+        <description lang="de">Was soll man da sagen?
+        Einfach toll!</description>
+
+        <!-- below is a list of Flags which perhaps need to be present in buildconfig, installconfig and runtimeconfig -->
+
+        <!-- Available languages for collecting packages and during installation and runtime -->
+        <linguas>
+            <lang>da</lang> 
+            <lang>de</lang>
+        </linguas>
+
+        <urls>
+            <url name="releasenotes">http://www.suse.com/relnotes/i386/openSUSE/11.0/release-notes-openSUSE.rpm</url>
+            <url name="smolt">http://smolt.opensuse.org/register.pl</url>
+            <url name="register">http://register.opensuse.org/</url>
+        </urls>
+
+        <buildconfig>
+            <!-- This section is needed to generate the installation media -->
+            <producttheme>SuSE</producttheme>
+            <betaversion>-Alpha1plus</betaversion>
+            <linguas>
+                <!-- and now a hidden feature: additional language on the media, but not available during install -->
+                <lang>af</lang>
+            </linguas>
+        </buildconfig>
+
+        <installconfig>
+            <!-- All flags needed during installation -->
+            <defaultlang>en_US</defaultlang>
+        </installconfig>
+
+        <runtimeconfig>
+            <!-- All Flags needed in the running system -->
+            <!-- should be false for sles -->
+            <allowresolving>true</allowresolving>
+            <!-- if above is true, which packagemanager to use? -->
+            <packagemanager>zypper</packagemanager>
+        </runtimeconfig>
+
+    </general>
+
+    <conditionals>
+        <conditional name="baselibs_only_x86_64">
+                <platform onlyarch="x86_64" />
+        </conditional>
+        <conditional name="baselibs_hammer_from_i686">
+                <platform arch="x86_64" baselibs_arch="i686" />
+        </conditional>
+        <conditional name="dvd9_media_1">
+           <media number="1" />
+        </conditional>
+        <conditional name="dvd5_media_1">
+           <media number="2" />
+        </conditional>
+    </conditionals>
+
+    <instrepo name="full-i386" priority="5" username="testy" pwd="md5:d8e8fca2dc0f896fd7cb4cb0031ba249" local="true">
+      <source href="http://download.opensuse.org/distribution/10.2/oss/"/>
+    </instrepo>
+
+    <instrepo name="full-i686" priority="4" username="testy" pwd="md5:d8e8fca2dc0f896fd7cb4cb0031ba249" local="true">
+      <source href="obs://openSUSE:11.0"/>
+    </instrepo>
+
+    <instrepo name="full-i686" priority="4" username="testy" pwd="md5:d8e8fca2dc0f896fd7cb4cb0031ba249" local="true">
+      <source href="sbs://SLE-10-SP2"/>
+    </instrepo>
+
+    <instrepo name="full-x86_64" priority="6" username="testy" pwd="md5:d8e8fca2dc0f896fd7cb4cb0031ba249" local="true">
+      <source href="file:///space/tree/full-11.0-x86_64/suse"/>
+    </instrepo>
+
+    <mediasets>
+        <media type="ftp">
+            <!-- distributionstring => $distributionname-$type -->
+            <!-- PUT_CD_REQUIRES="openSUSE-release = 11.0.42 pattern:basesystem" -->
+            <use group="basis" use_recommended="true" use_suggested="false" use_required="true">
+                <!-- mark a recommended package as required on this media -->
+                <package name="kernel-xen" relationship="required" />
+            </use>
+            <use pattern="basis_enhanced" use_required="true" />
+            <use group="mozilla" />
+        </media>
+
+        <media type="dvd9">
+        </media>
+
+        <media type="dvd5">
+            <use group="basis" create_pattern="false" use_required="true" use_recommended="true" use_suggested="true" />
+            <use group="basis_enhanced" create_pattern="true" use_required="true" use_suggested="false" />
+            <sourcemedia disable="true" />
+            <metadata>
+                <!-- if you like to add a metapackage to the real media, add it in a normal group.xml file -->
+                <package name="dosutils" />
+                <package name="installation-images" />
+                <package name="yast2-slide-show-SuSELinux" />
+                <!-- needed ? -->
+                <file name="README.txt" />
+           </metadata>
+        </media>
+
+        <media type="livedvd5">
+            <use group="basis" />
+            <use group="basis_enhanced" create_pattern="true" use_required="true" />
+            <sourcemedia disable="true" />
+            <!-- /product/packages/group[@name='gnome' -->
+            <use group="gnome" create_pattern="true" use_required="true">
+                <!-- too big for this -->
+                <include group="banshee" relationship="suggested" />
+            </use>
+        </media>
+
+    </mediasets>
+
+    <xi:include href="basis.group" />
+    <xi:include href="enhanced-basis.group" />
+    <!-- ToDo: check and write catalogs for this: -->
+<!--
+    <xi:include href="obs:openSUSE_11.0/gnome.xml" />
+-->
+ </product>
+

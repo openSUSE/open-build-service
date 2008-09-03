@@ -1,0 +1,13 @@
+<group name="WBEM" version="10" release="215"
+       pattern:ordernumber="3110"
+       pattern:category="Primary Functions"
+       pattern:summary="Web-Based Enterprise Management"
+       pattern:description="Web-based enterprise management."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="required">
+            <package name="sblim-sfcb" />
+            <package name="cim-schema" />
+    </group>
+</group>
