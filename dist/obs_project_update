@@ -10,6 +10,7 @@
 # - if the list contains packages, which are not in the source, they are ignored
 # - devel project/person userid are ignored
 # - files with name "ready" are ignored
+# - not copied or nor created are project wide data/meta data like build repos
 #
 # example: > osc -A api.opensuse.org ls Base:build | obs_project_update api.opensuse.org openSUSE:Factory api.d-atasoft.com openSUSE:Factory
 #
