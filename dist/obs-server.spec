@@ -34,6 +34,7 @@ Source8:        cleanurl-v5.lua
 Source9:        rails.include
 Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
+Source17:       sysconfig.obs-server.template
 Source13:       obs_mirror_project
 Source16:       obs_project_update
 Source15:       obsdispatcher
@@ -194,7 +195,7 @@ cp -a ../build $RPM_BUILD_ROOT/usr/lib/obs/server/build
 # install fillups
 FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 mkdir -p $FILLUP_DIR
-cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
+cp -a %SOURCE11 %SOURCE12 %SOURCE17 $FILLUP_DIR/
 
 #
 # Install sign stuff
@@ -292,6 +293,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/BSHermes.pm
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
+/var/adm/fillup-templates/sysconfig.obs-server.template
 
 %files -n obs-worker
 %defattr(-,root,root)
