@@ -1,9 +1,9 @@
 #!/bin/bash
 
-: ${OSCOPTS:="-A https://api.d-atasoft.com"}
+: ${OSCOPTS:="-A https://api.opensuse.org"}
 : ${PROJECT:=openSUSE:Tools:Devel}
 : ${PACKAGE:=obs-server-svn}
-: ${TARGET:=openSUSE_10.2}
+: ${TARGET:=openSUSE_11.0}
 : ${ARCH:=i586}
 : ${SPECFILE:=}
 # files from $PWD that are not part of the distribution, one on a line
