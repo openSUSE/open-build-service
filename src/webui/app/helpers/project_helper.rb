@@ -47,7 +47,8 @@ module ProjectHelper
       ret << "n/a<br>"
     else
       result.summary.each_statuscount do |scnt|
-        ret << "#{scnt.code}:&nbsp;#{scnt.count}<br>\n"
+        ret << link_to("#{scnt.code}:&nbsp;#{scnt.count}", :action => :monitor, :project => params[:project], :code => scnt.code, :repo => repo, :arch => arch)
+        ret << "<br>\n"
       end
     end
 
