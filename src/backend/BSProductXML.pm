@@ -79,17 +79,47 @@ our $productdesc = [
     'product' =>
        [ 'general' =>
          [],
+         'vendor',
          'name',
-         'distversion',
          'version',
-         'betaversion',
-         'shortlabel',
-         'label',
-         'defaultlang',
-         'producttheme',
-         [ 'config' =>
-           'allowresolving',
-           'packagemanager',
+         'release',
+         'update_repo_key',
+         [[ 'summary' =>
+            'lang',
+            [],
+            '_content'
+         ]],
+         [[ 'description' =>
+            'lang',
+            [],
+            '_content'
+         ]],
+         [ 'linguas' =>
+           [],
+           [[ 'lang' => '_content' ]],
+         ],
+         [ 'urls' =>
+           [],
+           [[ 'url' => 
+              'name',
+              [],
+              '_content',
+           ]],
+         ],
+         [ 'buildconfig' =>
+           'producttheme',
+           'betaversion',
+           [ 'linguas' =>
+             [],
+             [[ 'lang' => '_content' ]],
+           ],
+         ],
+         [ 'installconfig' =>
+            'defaultlang',
+         ],
+         [ 'runtimeconfig' =>
+            'allowresolving',
+            'packagemanager',
          ],
        ],
        [ 'conditionals' =>
@@ -126,7 +156,7 @@ our $productdesc = [
                 'use_suggested',
                 'use_required',
                 [[ 'package' => 'name', 'relationship' ]],
-                [[ 'groupgroup' => 'name', 'relationship' ]],
+                [[ 'include' => 'group', 'relationship' ]],
              ]],
              [[ 'metadata' =>
                 [[ 'package' => 'name' ]],
