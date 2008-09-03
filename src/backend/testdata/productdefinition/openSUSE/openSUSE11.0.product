@@ -143,10 +143,7 @@
     </mediasets>
 
     <xi:include href="basis.group" />
-    <xi:include href="enhanced-basis.group" />
+    <xi:include href="enhanced_base.group" />
     <!-- ToDo: check and write catalogs for this: -->
-<!--
-    <xi:include href="obs:openSUSE_11.0/gnome.xml" />
--->
  </product>
 

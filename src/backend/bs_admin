@@ -84,6 +84,7 @@ Debug Options
 
  --check-product-xml <file>
    Is parsing a product xml file and puts out error messages, in case of errors.
+   It does expand all xi:include references and validates the result.
 
  --check-product-group-xml <file>
    Is parsing a group xml file from a product definition and puts out error messages, in case of errors.
@@ -201,6 +202,20 @@ sub check_xml_file {
   };
 };
 
+sub check_product_xml_file {
+  my ($file) = @_;
+
+  print "parsing $file\n";
+  my $xmldesc = BSProductXML::readproductxml("$file", 0 );
+  if ( defined($xmldesc) ) {
+    print "Succesfull parsed file !\n";
+  }else{
+    print "ERROR: Unable to parse xml file !\n";
+    die;
+  };
+};
+
+
 sub check_kiwi_xml {
   my ($project, $package) = @_;
   my $file;
@@ -317,7 +332,7 @@ while (defined (my $arg = shift @ARGV)) {
     }
     if ( @ARGV == 1 ){
       my $file = shift @ARGV;
-      check_xml_file( $file, $BSProductXML::productdesc );
+      check_product_xml_file( $file );
 #    } else {
 #      my $project = shift @ARGV;
 #      my $package = shift @ARGV;

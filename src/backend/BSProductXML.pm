@@ -23,6 +23,8 @@
 package BSProductXML;
 
 use strict;
+use Data::Dumper;
+use XML::Structured ':bytes';
 
 # 
 # an explained example entry of this file
@@ -168,5 +170,48 @@ our $productdesc = [
        [ $group ],
        [[ 'xi:include' => 'href' ]],
 ];
+
+sub mergexmlfiles {
+  my ($absfile) = @_;
+
+  my $data;
+  $absfile =~ /(.*\/)(.+)$/;
+  my $dir = $1;
+  my $file = $2;
+
+  local *F;
+  if (!open(F, '<', $absfile)) {
+    return undef;
+  }
+  my $str = '';
+  1 while sysread(F, $str, 8192, length($str));
+  close F;
+
+  while ( $str =~ /.*(<xi:include href="(.+)".*>).*/ ) {
+     my $ref = $2;
+     if ( $ref =~ /^obs:.+/ ) {
+       print "ERROR: obs: references are not handled yet ! \n";
+       return undef;
+     } else {
+       $file = "$dir$ref";
+       my $replace = mergexmlfiles( $file );
+       return undef if ( ! $replace );
+       $str =~ s/.*(<xi:include href="(.+)".*>).*/$replace/;
+     };
+  };
+
+  return $str;
+}
+
+sub readproductxml {
+  my ($file, $nonfatal) = @_;
+
+  my $str = mergexmlfiles( $file );
+  return undef if ( ! $str );
+
+  return XMLin($productdesc, $str) unless $nonfatal;
+  eval { $str = XMLin($productdesc, $str); };
+  return $@ ? undef : $str;
+}
 
 1;
