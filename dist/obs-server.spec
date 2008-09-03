@@ -108,6 +108,22 @@ It needs a gpg implementation that understands the
 
 Author:       Michael Schroeder
 
+#-------------------------------------------------------------------------------
+%package -n obs-utils
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- Utilities
+Group:          Productivity/Networking/Web/Utilities
+
+Requires:       osc build ruby 
+
+#-------------------------------------------------------------------------------
+%description -n obs-utils
+#-------------------------------------------------------------------------------
+obs_mirror_project is a tool to copy the binary data of a project from one obs to another
+obs_project_update is a tool to copy a packages of a project from one obs to another
+
+Authors:       Susanne Froh, Martin Mohring
+
 %prep
 %setup -q -n buildservice-%version
 
@@ -180,10 +196,8 @@ install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 # install executables and code
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 rm -rf  $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
-# install mirror script
-install -m 0755 %SOURCE13 $RPM_BUILD_ROOT/usr/sbin/
-# install copy script
-install -m 0755 %SOURCE16 $RPM_BUILD_ROOT/usr/sbin/
+# install obs mirror script and obs copy script
+install -m 0755 %SOURCE13 %SOURCE16 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 \
            $RPM_BUILD_ROOT/etc/init.d/
@@ -258,8 +272,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobsrepserver
 /usr/sbin/rcobsscheduler
 /usr/sbin/rcobssrcserver
-/usr/sbin/obs_mirror_project
-/usr/sbin/obs_project_update
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSEvents.pm
@@ -353,7 +365,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/*
 %{_mandir}/man8/sign*
 
+%files -n obs-utils
+%defattr(-,root,root)
+/usr/sbin/obs_mirror_project
+/usr/sbin/obs_project_update
+
 %changelog
+* Wed Sep 03 2008 - martin.mohring@5etech.eu
+- added obs utils as separate sub package
 * Wed Jul 09 2008 - chris@computersalat.de
 - added sign/signd stuff
 * Wed Jun 18 2008 dmueller@suse.de
