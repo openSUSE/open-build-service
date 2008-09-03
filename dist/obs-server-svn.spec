@@ -38,6 +38,7 @@ Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
 Source14:       obs_mirror_project.py
+Source16:       obs_project_update
 Source15:       obsdispatcher
 Source20:       obssignd
 %if 0%{?suse_version} >= 1020
@@ -180,6 +181,8 @@ install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 # install mirror script
 install -m 0755 %SOURCE13 %SOURCE14 $RPM_BUILD_ROOT/usr/sbin/
+# install copy script
+install -m 0755 %SOURCE16 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 \
            $RPM_BUILD_ROOT/etc/init.d/
@@ -256,6 +259,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobssrcserver
 /usr/sbin/obs_mirror_project
 /usr/sbin/obs_mirror_project.py
+/usr/sbin/obs_project_update
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSEvents.pm

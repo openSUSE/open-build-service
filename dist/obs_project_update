@@ -1,0 +1,84 @@
+#!/bin/sh
+
+##########################################################
+#Setup Vars
+###########################################################
+
+# script to copy update complete projects with the packages meta data from obs to obs
+# - uses "osc ci" to update target, so it generates a version history in the target obs for the packages
+# - packages in the target with are not in the source will not be touched
+# - if the list contains packages, which are not in the source, they are ignored
+# - devel project/person userid are ignored
+# - files with name "ready" are ignored
+#
+# example: > osc -A api.opensuse.org ls Base:build | obs_project_update api.opensuse.org openSUSE:Factory api.d-atasoft.com openSUSE:Factory
+#
+usage="usage:  $0 <source obs> <source project> <target obs> <target project> [listfile]"
+
+sourceobs=$1
+sourceprj=$2
+
+targetobs=$3
+targetprj=$4
+
+listfile=$5
+
+
+
+prjlist=$(cat $listfile | sort | uniq)
+
+echo "$0 $sourceobs $sourceprj $targetobs $targetprj $listfile"
+echo "Projects:"
+echo "$prjlist"
+echo
+
+##########################################################
+# Check out source packages
+###########################################################
+
+rm -rf S && mkdir S
+(
+cd S &&
+for f in $prjlist
+do
+(set -x && osc -A $sourceobs co -u $sourceprj/$f || osc -A $sourceobs co -u $sourceprj/$f || osc -A $sourceobs co -u $sourceprj/$f || rm -rf $sourceprj/$f)
+done
+)
+
+##########################################################
+# Check out target packages
+###########################################################
+
+rm -rf T && mkdir T
+(
+cd T &&
+for f in $prjlist
+do
+# Copy pkg meta info before checking out target package
+(set -x && osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "person userid" | grep -v "devel project" | osc -A $targetobs meta pkg -F - $targetprj/$f)
+# Check out target packages
+(set -x && osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || rm -rf $targetprj/$f)
+done
+)
+
+##########################################################
+# Copy and Commit the changes from source to target
+###########################################################
+
+rm -rf M && mkdir -p M/$targetprj && (cd S/$sourceprj && tar cf - . ) | (cd M/$targetprj && tar xf - )
+
+# Copy Packages contents from source to target
+(cd M/$targetprj && find -name '.osc' | xargs rm -rf )
+(cd M/$targetprj && find -name 'ready' | xargs rm -rf )
+(cd T/$targetprj && tar cf - $(find -name '.osc')) | (cd M/$targetprj && tar xf -)
+
+# Only commit changes to those packages of <source lnproject> existing in <source project>
+(cd M/$targetprj &&
+for f in *
+do
+DATE=$(date)
+(set -x && cd $f && osc -A $targetobs addremove && osc -A $targetobs ci -m "updated: @ $DATE from -A $sourceobs $targetprj/$f" )
+done
+)
+
+#rm -rf S T M
