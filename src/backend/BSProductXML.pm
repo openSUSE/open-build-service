@@ -175,9 +175,12 @@ sub mergexmlfiles {
   my ($absfile) = @_;
 
   my $data;
-  $absfile =~ /(.*\/)(.+)$/;
-  my $dir = $1;
-  my $file = $2;
+  my $dir;
+  if ($absfile =~ /(.*\/)(.+)$/) {
+    $dir = $1;
+  } else {
+    $dir = './';
+  }
 
   local *F;
   if (!open(F, '<', $absfile)) {
@@ -187,18 +190,18 @@ sub mergexmlfiles {
   1 while sysread(F, $str, 8192, length($str));
   close F;
 
-  while ( $str =~ /.*(<xi:include href="(.+)".*>).*/ ) {
-     my $ref = $2;
-     if ( $ref =~ /^obs:.+/ ) {
+  while ($str =~ /<xi:include href="(.+?)".*?>/s) {
+     my $ref = $1;
+     if ($ref =~ /^obs:.+/) {
        print "ERROR: obs: references are not handled yet ! \n";
        return undef;
      } else {
-       $file = "$dir$ref";
-       my $replace = mergexmlfiles( $file );
-       return undef if ( ! $replace );
-       $str =~ s/.*(<xi:include href="(.+)".*>).*/$replace/;
-     };
-  };
+       my $file = "$dir$ref";
+       my $replace = mergexmlfiles($file);
+       return undef unless $replace;
+       $str =~ s/<xi:include href=".+?".*?>/$replace/s;
+     }
+  }
 
   return $str;
 }
