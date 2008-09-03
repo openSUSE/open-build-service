@@ -251,6 +251,7 @@ install -d -m 755 $RPM_BUILD_ROOT/srv/obs/log
 install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 # install executables and code
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
+rm -rf  $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
 # install mirror script
 install -m 0755 %SOURCE13 %SOURCE14 $RPM_BUILD_ROOT/usr/sbin/
 # install copy script
@@ -331,7 +332,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobssrcserver
 /usr/sbin/obs_mirror_project
 /usr/sbin/obs_mirror_project.py
-/usr/sbin/obs_project_update
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSEvents.pm
@@ -374,6 +374,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/osc*
 %{python_sitelib}/*
 %dir /var/lib/osc-plugins
+/usr/sbin/obs_project_update
 
 %files -n build-obs
 %defattr(-,root,root)

@@ -180,6 +180,7 @@ install -d -m 755 $RPM_BUILD_ROOT/srv/obs/log
 install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 # install executables and code
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
+rm -rf  $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
 # install mirror script
 install -m 0755 %SOURCE13 %SOURCE14 $RPM_BUILD_ROOT/usr/sbin/
 # install copy script
