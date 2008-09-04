@@ -442,7 +442,7 @@ class ProjectController < ApplicationController
   end
 
   def add_target_simple
-    @project = params[:project]
+    @project = Project.find(params[:project])
   end
 
   def add_target

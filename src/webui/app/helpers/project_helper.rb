@@ -80,7 +80,11 @@ module ProjectHelper
       btn_to_opt["arch[#{arch}]"] = ""
     end
 
-    button_to label, btn_to_opt
+    if @project and @project.has_element?("repository[@name='#{opt[:reponame]}']")
+      return button_to label, btn_to_opt, {:disabled => true}
+    else
+      return button_to label, btn_to_opt
+    end
   end
 
   def draggable_repo( label, opt={} )
