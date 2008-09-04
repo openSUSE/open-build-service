@@ -155,7 +155,7 @@ our $productdesc = [
           'pwd',
           'local',
           [],
-          [[ 'source' => 'href' ]],
+          [ 'source' => 'path' ],
        ]],
        [ 'mediasets' =>
           [[ 'media' =>
@@ -172,7 +172,7 @@ our $productdesc = [
                 [[ 'include' => 'group', 'relationship' ]],
              ]],
              [[ 'metadata' =>
-                [[ 'package' => 'name' ]],
+                [[ 'package' => 'name', 'medium', 'removearch' ]],
                 [[ 'file' => 'name' ]],
              ]],
              [[ 'sourcemedia' => 'disable' ]],

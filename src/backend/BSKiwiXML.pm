@@ -102,7 +102,7 @@ our $kiwidesc = [
              'pwd',
              'local',
              [],
-	     [[ 'source' => 'path' ]],
+	     [ 'source' => 'path' ],
           ]],
           [[ 'metadata' =>
 	     [[ 'repopackage' =>

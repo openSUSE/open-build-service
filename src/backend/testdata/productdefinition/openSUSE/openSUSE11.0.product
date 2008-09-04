@@ -89,20 +89,8 @@
         </conditional>
     </conditionals>
 
-    <instrepo name="full-i386" priority="5" username="testy" pwd="md5:d8e8fca2dc0f896fd7cb4cb0031ba249" local="true">
-      <source href="http://download.opensuse.org/distribution/10.2/oss/"/>
-    </instrepo>
-
     <instrepo name="full-i686" priority="4" username="testy" pwd="md5:d8e8fca2dc0f896fd7cb4cb0031ba249" local="true">
-      <source href="obs://openSUSE:11.0"/>
-    </instrepo>
-
-    <instrepo name="full-i686" priority="4" username="testy" pwd="md5:d8e8fca2dc0f896fd7cb4cb0031ba249" local="true">
-      <source href="sbs://SLE-10-SP2"/>
-    </instrepo>
-
-    <instrepo name="full-x86_64" priority="6" username="testy" pwd="md5:d8e8fca2dc0f896fd7cb4cb0031ba249" local="true">
-      <source href="file:///space/tree/full-11.0-x86_64/suse"/>
+      <source path="obs://openSUSE:11.0"/>
     </instrepo>
 
     <mediasets>

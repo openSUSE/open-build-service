@@ -177,6 +177,14 @@ sub createInstsource( $ )
 
     $re->{architectures} = createArchitectures();
     $re->{productoptions} = createProductOptions();
+    # instrepo can be copied, but lets check if only obs:// is used.
+    my @r;
+    foreach my $repo ( @{$prodRef->{instrepo}} ){
+      die "ERROR: Non obs:// repo used in $repo->{'name'}\n" if ( $repo->{'source'}->{'path'} !~ "^obs://.+" ); 
+      push @r, $repo;
+    }
+    $re->{instrepo} = \@r;
+
     return $re;
 }
 
