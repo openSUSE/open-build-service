@@ -1,0 +1,242 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2008 Klaas Freitag, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Converter to create Kiwi- and Spec files from product definition
+#
+use strict;
+use Getopt::Std;
+use Data::Dumper;
+
+use XML::Structured ':bytes';
+use BSUtil;
+use BSProductXML;
+use BSKiwiXML;
+
+
+# read the product xml file
+
+use vars qw ( $opt_h @errors );
+
+sub usage()
+{
+  print<<END
+
+  bs_productconvert
+
+  convert a product definition file to a spec- and a kiwi source file.
+
+  Options:
+ 
+  -h:   help, print this text.
+
+END
+;
+
+  exit;
+}
+
+sub readProductFile( $ )
+{
+    my ($filename) = @_;
+
+    print "parsing product definition... ";
+    my $xml = readxml( "$filename", $BSProductXML::productdesc, 0 );
+
+    if( defined($xml) ) {
+	print "success!\n";
+    } else {
+	print "FAILED: Unable to parse $filename\n";
+	die;
+    }
+    return $xml;
+}
+
+
+sub createDescription( $ )
+{
+    my( $prodRef ) = @_;
+    my $re;
+
+    $re->{type} = "system";
+    $re->{author} = "The SUSE Team";
+    $re->{contact} = "build\@opensuse.org";
+    $re->{specification} = $prodRef->{general}->{summary}[0]->{_content};
+
+    return $re;
+}
+
+sub createPreferences( $ )
+{
+    my( $prodRef ) = @_;
+    my $re = {};
+
+    $re->{type} = [{_content => "dummy"}];
+    $re->{version} = sprintf( "%s.%s", 
+			      $prodRef->{general}->{version},
+			      $prodRef->{general}->{release}  );
+
+    # $re->{size} = ; do not give the optional size 
+    $re->{packagemanager} = "zypper" ;
+
+    return $re;
+}
+
+sub createArchitectures()
+{
+    my $re = {};
+
+    my $archfallbacks = { 'ppc64' => { name => 'Motorola 64 Bit', fallback => 'ppc' },
+			  'ppc' =>   { name => 'Motorola 32 Bit', fallback => 'noarch' },
+			  'i686' =>  { name => 'Intel x86', fallback => 'i586' },
+			  'i586' =>  { name => 'Intel x86', fallback => 'i486' },
+			  'i486' =>  { name => 'Intel x86', fallback => 'i386' },
+			  'i386' =>  { name => 'Intel x86', fallback => 'noarch' },
+			  'x86_64' =>{ name => 'AMD 64 bit', fallback => 'i686' },
+			  'src'  =>  { name => 'Source rpms', fallback => undef } };
+    my @archs;
+    foreach my $arch ( keys %$archfallbacks ) {
+	my %h;
+	$h{id} = $arch;
+	$h{name} = $archfallbacks->{$arch}->{name};
+	$h{fallback} = $archfallbacks->{$arch}->{fallback} if( $archfallbacks->{$arch}->{fallback});
+	push @archs, \%h;
+    }
+    $re->{arch} = \@archs;
+
+    my @reqXml;
+    my @reqArchs = ( 'ppc64', 'ppc', 'i686', 'x86_64' );
+    foreach ( @reqArchs ) {
+	my %h;
+	$h{ref} = $_;
+	push @reqXml, \%h;
+    }
+    $re->{requiredarch} = \@reqXml;
+
+    return $re;
+}
+
+sub createProductOptions()
+{
+    my $re = {};
+    my %options;
+
+    $options{PRODUCT_THEME} = "SuSE";
+    $options{MEDIUM_NAME} = "FTP";
+    $options{MULTIPLE_MEDIUM} = "no";
+    $options{SHA1_OPT} = "-x";
+    # add more as needed.
+    my @vars;
+    foreach my $opt ( keys %options ) {
+	push @vars, { name => $opt, _content => $options{$opt} };
+    }
+    
+    $re->{productvar} = \@vars;
+
+    my %info;
+    $info{'ARCH.x86_64'} = "x86_64 i686 i586 i486 i386 noarch";
+    $info{'ARCH.ppc64'}  = "ppc64 ppc noarch";
+    $info{'ARCH.ppc'}    = "ppc noarch";
+    $info{'ARCH.i686'}   = "i686 i586 i486 i386 noarch";
+    $info{'ARCH.i586'}   = "i586 i486 i386 noarch";
+    $info{'ARCH.i486'}   = "i486 i386 noarch";
+    $info{'ARCH.i386'}   = "i386 noarch";
+    $info{'DEFAULTBASE'} = "i586";
+    # add more ...
+    my @info;
+    foreach my $opt ( keys %info) {
+	push @info, { name => $opt, _content => $info{$opt} };
+    }
+    
+    $re->{productinfo} = \@info;
+    
+
+    return $re;
+
+}
+
+sub createInstsource( $ )
+{
+    my( $prodRef ) = @_;
+    my $re = {};
+
+    $re->{architectures} = createArchitectures();
+    $re->{productoptions} = createProductOptions();
+    return $re;
+}
+
+sub createRepository( $ )
+{
+    my( $prodRef ) = @_;
+    my @arr;
+
+    return \@arr;
+}
+
+
+# Process the commandline arguments.
+getopts('h');
+
+usage() if ($opt_h );
+
+my ($infile) = @ARGV;
+
+die( "Please specify input file" ) unless $infile;
+
+my $prodRef = readProductFile( $infile );
+
+my $kiwiImage;
+$kiwiImage->{schemeversion} = "2.4"; # ???
+my $name = sprintf( "%s %s %s, Rel. %s",
+		    $prodRef->{general}->{vendor},
+		    $prodRef->{general}->{name},
+		    $prodRef->{general}->{version},
+		    $prodRef->{general}->{release} );
+
+$kiwiImage->{name} = $name;
+
+$kiwiImage->{description} = createDescription( $prodRef );
+$kiwiImage->{preferences} = createPreferences( $prodRef );
+$kiwiImage->{instsource}  = createInstsource( $prodRef );
+# so far for all media types identical. Now loop over the media types
+# to create media type specific versions;
+
+my %generalImage = %{$kiwiImage};
+
+my $media = $prodRef->{mediasets}->{media};
+
+foreach my $medium ( @$media ){
+    print Dumper( $medium ) . "\n######################################\n";
+    my $type = $medium->{type};
+    my $kiwi = \%generalImage;
+
+    writexml( "kiwi-$type.xml$$", "kiwi-$type.xml", $kiwi, $BSKiwiXML::kiwidesc );
+
+}
+
+# 	'instsource'  => createInstsource ( $prodRef ),
+# 	'repository'  => createRepository ( $prodRef )
+#	] };
+
+
+	
+
+
+
+# end
