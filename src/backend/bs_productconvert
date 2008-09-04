@@ -57,7 +57,7 @@ sub readProductFile( $ )
     my ($filename) = @_;
 
     print "parsing product definition... ";
-    my $xml = readxml( "$filename", $BSProductXML::productdesc, 0 );
+    my $xml = BSProductXML::readproductxml( "$filename", 0 );
 
     if( defined($xml) ) {
 	print "success!\n";
@@ -165,7 +165,6 @@ sub createProductOptions()
     }
     
     $re->{productinfo} = \@info;
-    
 
     return $re;
 
@@ -189,6 +188,135 @@ sub createRepository( $ )
     return \@arr;
 }
 
+sub writeproductfile
+{
+    my( $file, $prodRef ) = @_;
+
+}
+
+sub writeproductspecfile
+{
+    my( $file, $prodRef ) = @_;
+
+    my $str="";
+    $str="${str}Name:           $prodRef->{general}->{name}-release\n";
+    $str="${str}%define product $prodRef->{general}->{name}\n";
+    $str="${str}# what's the default flavor ?\n";
+    $str="${str}%define flavor  none\n";
+    $str="${str}License:        BSD 3-Clause\n";
+    $str="${str}Group:          System/Fhs\n";
+    $str="${str}Version:        $prodRef->{general}->{version}\n";
+    $str="${str}Release:        0\n";
+    $str="${str}Provides:       aaa_version distribution-release\n";
+    $str="${str}Provides:       suse-release-oss = %{version}-%{release}\n";
+    $str="${str}Provides:       suse-release = %{version}-%{release}\n";
+    $str="${str}# Code11 product\n";
+    $str="${str}Provides:       product()\n";
+    $str="${str}Provides:       product(%{product}) = %{version}-%{release}\n";
+    $str="${str}Obsoletes:      aaa_version\n";
+    $str="${str}Obsoletes:      suse-release-oss <= 10.0 suse-release <= 10.1.42\n";
+    $str="${str}Conflicts:      sles-release <= 10 sled-release <= 10 core-release <= 10\n";
+    $str="${str}BuildRequires:  skelcd-control-$prodRef->{general}->{name}\n";
+    $str="${str}AutoReqProv:    on\n";
+    $str="${str}Summary:        $prodRef->{general}->{summary}[0]->{_content}\n";
+    $str="${str}BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
+    $str="${str}PreReq:         coreutils\n";
+    $str="${str}%define betaversion \"$prodRef->{general}->{buildconfig}->{betaversion}\"\n";
+    $str="${str}\n";
+    $str="${str}%description\n";
+    $str="${str}$prodRef->{general}->{description}[0]->{_content}\n";
+    $str="${str}\n";
+
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      $str = "${str}%package $flavor->{type}\n";
+      $str = "${str}%define flavor $flavor->{type}\n";
+      $str = "${str}License:        BSD 3-Clause\n";
+      $str = "${str}Group:          System/Fhs\n";
+      $str = "${str}Summary:        $prodRef->{general}->{summary}[0]->{_content}\n";
+      $str = "${str}\n";
+      $str = "${str}%description $flavor->{type}\n";
+      $str = "${str}$prodRef->{general}->{description}[0]->{_content}\n";
+      $str = "${str}\n";
+      $str = "${str}%files $flavor->{type}\n";
+      $str = "${str}%defattr(-,root,root)\n";
+      $str = "${str}%dir /etc/products.d\n";
+      $str = "${str}/etc/products.d/$prodRef->{general}->{name}-$flavor->{type}.prod\n";
+      $str = "${str}\n"
+    }
+
+    $str = "$str\n";
+    $str = "${str}%prep\n";
+    $str = "${str}\n";
+    $str = "${str}%build\n";
+    $str = "${str}\n";
+    $str = "${str}%install\n";
+    $str = "${str}mkdir -p \$RPM_BUILD_ROOT/etc\n";
+    $str = "${str}echo -e \"Welcome to %{product} %{betaversion} - Kernel \\\\\\r (\\\\\\l).\\n\\n\" > \$RPM_BUILD_ROOT/etc/issue\n";
+    $str = "${str}echo \"Welcome to %{product} %{betaversion} - Kernel %%r (%%t).\" > \$RPM_BUILD_ROOT/etc/issue.net\n";
+    $str = "${str}echo %{product} \"%{betaversion}\" > \$RPM_BUILD_ROOT/etc/SuSE-release\n";
+    $str = "${str}echo VERSION = %{version} >> \$RPM_BUILD_ROOT/etc/SuSE-release\n";
+    $str = "${str}echo \"Have a lot of fun...\" > \$RPM_BUILD_ROOT/etc/motd\n";
+    $str = "${str}# Bug 404141 - /etc/YaST/control.xml should be owned by some package\n";
+    $str = "${str}mkdir -p \$RPM_BUILD_ROOT/etc/YaST2/\n";
+    $str = "${str}echo \$RPM_BUILD_ROOT\n";
+    $str = "${str}cp -av /CD1/control.xml \$RPM_BUILD_ROOT/etc/YaST2/\n";
+    $str = "${str}\n";
+
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$prodRef->{general}->{name}-$flavor->{type}.prod";
+      $str = "${str}mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
+#   INI file syntax
+#      $str = "${str}echo -e \"[product]\" > $pfile\n";
+#      $str = "${str}echo -e \"name = %{product}\" >> $pfile\n";
+#      $str = "${str}echo -e \"version = %{version}-%{release}\" >> $pfile\n";
+#      $str = "${str}#%{arch} doesn't expand ?!\n";
+#      $str = "${str}#echo -e \"arch = %{arch} \ >> $pfile\n";
+#      $str = "${str}echo -e \"flavor = %{flavor}\" >> $pfile\n";
+#      $str = "${str}echo -e \"distribution = %{distribution}\" >> $pfile\n";
+#      $str = "${str}echo -e \"vendor = %{vendor}\" >> $pfile\n";
+#      $str = "${str}echo -e \"\" >> $pfile\n";
+#      $str = "${str}echo -e \"[translated]\" >> $pfile\n";
+#      foreach my $element ( "summary", "description" ){
+#        foreach my $text ( @{$prodRef->{general}->{$element}} ){
+#          $str = "$str\n echo -e \"$element";
+#          $str = "$str\[$text->{lang}\]" if ( $text->{lang} );
+#          $str = "$str = $text->{_content}\" >> $pfile\n";
+#        }
+#      }
+
+#   XML file syntax
+      my $product = $prodRef->{general};
+      my $d = {};
+      $d->{'type'} = $flavor->{type};
+      $d->{'flavor'} = "build.suse.de/SUSE:Factory:HEAD"; # FIXME
+      $product->{'distribution'} = $d;
+
+      my $xml = XMLout( $BSProductXML::generaldesc, $product );
+      die ( "ERROR: Unable to create xml for $flavor->{type} !" ) unless $xml;
+      $str = "${str}cat >$pfile << EOF\n";
+      $str = "${str}$xml\nEOF\n\n";
+    }
+
+    $str = "${str}\n";
+    $str = "${str}%post\n";
+    $str = "${str}rm -rf /etc/zypp/products.d\n";
+    $str = "${str}\n";
+    $str = "${str}%files\n";
+    $str = "${str}%defattr(644,root,root,755)\n";
+    $str = "${str}%config /etc/SuSE-release\n";
+    $str = "${str}# Bug 404141 - /etc/YaST/control.xml should be owned by some package\n";
+    $str = "${str}%dir /etc/YaST2/\n";
+    $str = "${str}%config /etc/YaST2/control.xml\n";
+    $str = "${str}%config /etc/motd\n";
+    $str = "${str}%config(noreplace) /etc/issue\n";
+    $str = "${str}%config(noreplace) /etc/issue.net\n";
+    $str = "${str};\n";
+
+    local *F;
+    open(F, '>', $file) || die("$file: $!\n");
+    (syswrite(F, $str) || 0) == length($str) || die("$file write: $!\n");
+    close(F) || die("$file close: $!\n");
+}
 
 # Process the commandline arguments.
 getopts('h');
@@ -200,6 +328,10 @@ my ($infile) = @ARGV;
 die( "Please specify input file" ) unless $infile;
 
 my $prodRef = readProductFile( $infile );
+
+#
+# Create a kiwi configuration for each distribution flavor
+#
 
 my $kiwiImage;
 $kiwiImage->{schemeversion} = "2.4"; # ???
@@ -222,13 +354,19 @@ my %generalImage = %{$kiwiImage};
 my $media = $prodRef->{mediasets}->{media};
 
 foreach my $medium ( @$media ){
-    print Dumper( $medium ) . "\n######################################\n";
     my $type = $medium->{type};
     my $kiwi = \%generalImage;
 
-    writexml( "kiwi-$type.xml$$", "kiwi-$type.xml", $kiwi, $BSKiwiXML::kiwidesc );
+    writexml( "$prodRef->{general}->{name}-$type.kiwi$$", "$prodRef->{general}->{name}-$type.kiwi", $kiwi, $BSKiwiXML::kiwidesc );
 
 }
+
+#
+# Create $product-release packages
+#
+
+#writeproductfile( "product.file", $prodRef );
+writeproductspecfile( "$prodRef->{general}->{name}.spec", $prodRef );
 
 # 	'instsource'  => createInstsource ( $prodRef ),
 # 	'repository'  => createRepository ( $prodRef )

@@ -67,6 +67,11 @@
             <packagemanager>zypper</packagemanager>
         </runtimeconfig>
 
+ <!-- 
+       this is not part of product definition, but will be generated for <general> section of yast 
+       <distribution flavor="ftp" target="build.suse.de/openSUSE:Factory" />
+-->
+
     </general>
 
     <conditionals>
@@ -102,8 +107,6 @@
 
     <mediasets>
         <media type="ftp">
-            <!-- distributionstring => $distributionname-$type -->
-            <!-- PUT_CD_REQUIRES="openSUSE-release = 11.0.42 pattern:basesystem" -->
             <use group="basis" use_recommended="true" use_suggested="false" use_required="true">
                 <!-- mark a recommended package as required on this media -->
                 <package name="kernel-xen" relationship="required" />

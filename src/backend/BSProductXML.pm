@@ -77,53 +77,64 @@ our $group = [
 #  hack:greate cyclic definition!
 push @$group, [$group];
 
-our $productdesc = [
-    'product' =>
-       [ 'general' =>
+# This is the general section of Product Definition
+# The same section gets also written out as product defintion for YaST
+our $generaldesc = [
+       'general' =>
+       [],
+       'vendor',
+       'name',
+       'version',
+       'release',
+       'update_repo_key',
+       [[ 'summary' =>
+          'lang',
+          [],
+          '_content'
+       ]],
+       [[ 'description' =>
+          'lang',
+          [],
+          '_content'
+       ]],
+       [ 'linguas' =>
          [],
-         'vendor',
-         'name',
-         'version',
-         'release',
-         'update_repo_key',
-         [[ 'summary' =>
-            'lang',
+         [[ 'lang' => '_content' ]],
+       ],
+       [ 'urls' =>
+         [],
+         [[ 'url' => 
+            'name',
             [],
-            '_content'
+            '_content',
          ]],
-         [[ 'description' =>
-            'lang',
-            [],
-            '_content'
-         ]],
+       ],
+       [ 'buildconfig' =>
+         'producttheme',
+         'betaversion',
          [ 'linguas' =>
            [],
            [[ 'lang' => '_content' ]],
          ],
-         [ 'urls' =>
-           [],
-           [[ 'url' => 
-              'name',
-              [],
-              '_content',
-           ]],
-         ],
-         [ 'buildconfig' =>
-           'producttheme',
-           'betaversion',
-           [ 'linguas' =>
-             [],
-             [[ 'lang' => '_content' ]],
-           ],
-         ],
-         [ 'installconfig' =>
-            'defaultlang',
-         ],
-         [ 'runtimeconfig' =>
-            'allowresolving',
-            'packagemanager',
-         ],
        ],
+       [ 'installconfig' =>
+          'defaultlang',
+       ],
+       [ 'runtimeconfig' =>
+          'allowresolving',
+          'packagemanager',
+       ],
+       # This tag is only used for product definition in /etc/products.d/
+       # and is arch dependend
+       [ 'distribution',
+          'type',
+          'flavor',
+       ],
+];
+
+our $productdesc = [
+    'product' =>
+       $generaldesc,
        [ 'conditionals' =>
          [[ 'conditional' =>
             'name',
@@ -168,7 +179,6 @@ our $productdesc = [
           ]],
        ],
        [ $group ],
-       [[ 'xi:include' => 'href' ]],
 ];
 
 sub mergexmlfiles {
