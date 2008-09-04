@@ -741,8 +741,12 @@ sub unify {
   return grep(delete($h{$_}), @_);
 }
 
-sub getkiwipackages {
-  my ($md5, $file, $proj, $packid, $arch, $count) = @_;
+#########################################################################
+
+# Adrian's kiwi code below, beware... ;-)
+
+sub kiwiparse  {
+  my ($md5, $file, $projid, $packid, $arch, $count) = @_;
 
   # Endless recursion is possible, so we fail after 10 !
   $count ||= 0;
@@ -751,8 +755,9 @@ sub getkiwipackages {
   my @alltypes;
   my @allrepos;
   my @allpackages;
+  my @extrasources;
   my $kiwidesc = readxml("$srcrep/$packid/$md5-$file", $BSKiwiXML::kiwidesc, 1);
-  return ("bad kiwi description data") unless $kiwidesc;
+  return ("bad kiwi description data $projid/$packid/$file") unless $kiwidesc;
 
   for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
     push @alltypes, $type->{'_content'};
@@ -760,30 +765,30 @@ sub getkiwipackages {
     # Parse included kiwi configs
     if (defined $type->{'boot'}) {
       if ($type->{'boot'} =~ /^obs:\/\/(.+)$/ ) {
-        my @s = split('/', $1, 2);
-        my $subproject = $s[0];
-        my $subpackage = $s[1];
-        my $rev = getrev($subproject, $subpackage);
+        my ($subprojid, $subpackid) = split('/', $1, 2);
+        my $rev = getrev($subprojid, $subpackid);
 	if (!$rev || $rev->{'srcmd5'} eq 'empty') {
-	  return ("Refered to non existing kiwi config in $proj $packid to $subproject $subpackage");
+	  return ("Refered to non existing kiwi config in $projid $packid to $subprojid $subpackid");
 	}
-        my $files = lsrep($subproject, $subpackage, $rev->{'srcmd5'});
+        my $files = lsrep($subprojid, $subpackid, $rev->{'srcmd5'});
 # FIXME: handle source links
 #        $files = handlelinks($projid, $pinfo, $files, $rev) if ref($files) && $files->{'_link'};
         if (!ref $files) {
-          return ("could not get file list for $subproject $subpackage");
+          return ("could not get file list for $subprojid/$subpackid");
         }
-        my ($submd5, $subfile) = findfile($subproject, $subpackage, undef, 'kiwi', $files);
+        my ($submd5, $subfile) = findfile($subprojid, $subpackid, undef, 'kiwi', $files);
         if ($submd5 && $subfile) {
-          my ($error, $kiwirepos, $kiwipackages, $kiwitypes) = getkiwipackages($submd5, $subfile, $subproject, $subpackage, $arch);
+	  push @extrasources, {'project' => $subprojid, 'package' => $subpackid, 'srcmd5' => $rev->{'srcmd5'}, 'file' => $subfile};
+          my ($error, $kiwirepos, $kiwipackages, $kiwitypes, $extrasources) = kiwiparse($submd5, $subfile, $subprojid, $subpackid, $arch);
           push @allrepos, @$kiwirepos;
           push @allpackages, @$kiwipackages;
+          push @extrasources, @$extrasources;
           # ignore kiwitypes, we only build the ones from the origin file.
         } else {
-          return ("refered KIWI config not found $subproject $subpackage");
+          return ("refered KIWI config not found $subprojid $subpackid");
         }
       } else {
-        return ("non OBS kiwi image description refered in $proj $packid $file");
+        return ("non OBS kiwi image description refered in $projid $packid $file");
       }
     }
   }
@@ -830,8 +835,10 @@ sub getkiwipackages {
   @allrepos = unify(@allrepos);
   @allpackages = unify(@allpackages);
   @alltypes = unify(@alltypes);
-  return (undef, \@allrepos, \@allpackages, \@alltypes);
+  return (undef, \@allrepos, \@allpackages, \@alltypes, \@extrasources);
 }
+
+#########################################################################
 
 sub getprojquotapackage {
   my ($projid) = @_;
@@ -1069,21 +1076,22 @@ sub getprojpack {
 		}
 		next;
 	    }
-	    if ($type eq 'kiwi' && $BSConfig::kiwiprojects) {
-	      my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
-	      if (!$kiwiprojects{$projid}) {
-		push @dinfo, {'repository' => $repoid, 'error' => 'kiwi image building is not enabled for this project'};
-		next;
-	      }
-	    }
 	    if ($type eq 'kiwi') {
-	      my ($error, $kiwirepos, $kiwipackages, $kiwitypes) = getkiwipackages($md5, $file, $projid, $packid, $arch);
+	      if ($BSConfig::kiwiprojects) {
+	        my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
+	        if (!$kiwiprojects{$projid}) {
+		  push @dinfo, {'repository' => $repoid, 'error' => 'kiwi image building is not enabled for this project'};
+		  next;
+	        }
+	      }
+	      my ($error, $kiwirepos, $kiwipackages, $kiwitypes, $extrasources) = kiwiparse($md5, $file, $projid, $packid, $arch);
 	      if (defined $error) {
 		push @dinfo, {'repository' => $repoid, 'error' => $error};
 		next;
 	      }
 	      push @dinfo, {'repository' => $repoid, 'file' => $file, 'name' => $packid,
 			    'dep' => \@{$kiwipackages}, 'imagetype' => \@{$kiwitypes}, 'path' => $kiwirepos};
+	      $dinfo[-1]->{'extrasource'} = $extrasources if @$extrasources;
 	      next;
 	    }
 	    # get build dependency info

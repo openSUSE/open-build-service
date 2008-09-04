@@ -41,7 +41,6 @@ use BSRPC ':https';
 use BSUtil;
 use BSFileDB;
 use BSXML;
-use BSKiwiXML;
 use BSDBIndex;
 use BSBuild;
 use Build;
@@ -603,10 +602,11 @@ sub set_building {
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
   }
-  if ($packtype eq 'kiwi') {
-    # add required sources of refered kiwi configs to build deps
-    my @bdep = findkiwisources( $projid, $packid, $info->{'file'} );
-    @bdeps = ( @bdeps, @bdep );
+  if ($info->{'extrasource'}) {
+    push @bdeps, map {{
+      'name' => $_->{'file'}, 'notmeta' => 1, 'version' => '', 'arch' => 'src',
+      'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
+    }} @{$info->{'extrasource'}};
   }
 
   my $vmd5 = $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
@@ -2139,56 +2139,7 @@ sub changed2lookat {
   %$changed_high = ();
 }
 
-# find all kiwi sources recursive.
-sub findkiwisources {
-  my ( $project, $package, $file ) = @_;
 
-  my $c;
-  my $param = {
-   'uri' => "$BSConfig::srcserver/source/$project/$package/$file",
-   'timeout' => 30,
-  };
-  eval {
-    $c = BSRPC::rpc($param);
-  };
-  if ($@) {
-    warn($@);
-    return ( "fetch error: $c" );
-  } else {
-    my $kiwidesc;
-    my @deps;
-    eval { $kiwidesc = XMLin($BSKiwiXML::kiwidesc, $c); };
-    if ( defined($@) ) {
-      for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
-        if (defined $type->{'boot'}) {
-          if ($type->{'boot'} =~ /^obs:\/\/(.+)$/ ) {
-            my @s = split('/', $1, 2);
-# FIXME: add version from source version
-            my $param = {
-             'uri' => "$BSConfig::srcserver/source/$s[0]/$s[1]",
-             'timeout' => 30,
-            };
-            eval {
-              $c = BSRPC::rpc($param, $BSXML::dir, 'extension=kiwi');
-            };
-            if ( defined($@) ) {
-              my $ifile = $c->{'entry'}[0]->{'name'};
-              my $dep = { 'name' => $ifile, 'notmeta' => 1, 'version' => '', 'arch' => 'src',
-                           'project' => $s[0], 'package' => $s[1], 'srcmd5' => $c->{'srcmd5'} };
-              push @deps, $dep;
-              my @bdep = findkiwisources( $s[0], $s[1], $ifile );
-              @deps = ( @deps, @bdep );
-            }
-          }
-        }
-      }
-    } else {
-      return undef;
-    };
-    return ( @deps );
-  }
-  return undef;
-}
 ##########################################################################
 ##########################################################################
 ##
@@ -2832,6 +2783,7 @@ while(1) {
   my $prptype = $bconf->{'type'};
   if ($prptype eq 'kiwi') {
     # ignore the "Ignore:" statements for Image builds
+    # FIXME: don't mess with the config!
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
   };

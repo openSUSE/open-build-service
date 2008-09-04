@@ -1161,6 +1161,15 @@ sub getbuildinfo {
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
   }
+
+  # add extra source (needed for kiwi)
+  if ($info->{'extrasource'}) {
+    push @bdeps, map {{
+      'name' => $_->{'file'}, 'notmeta' => 1, 'version' => '', 'arch' => 'src',
+      'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
+    }} @{$info->{'extrasource'}};
+  }
+
   $ret->{'dep'} = \@edeps;
   $ret->{'bdep'} = \@bdeps;
   $ret->{'pdep'} = \@pdeps;
@@ -1211,7 +1220,11 @@ sub getbuildinfo_post {
   die("parse error\n") unless defined $d->{'name'};
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
-  $info->{'prereq'} = $d->{'prereqs'} if $d->{'prereqs'};
+  if ($d->{'prereqs'}) {
+    my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
+    my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
+    $info->{'prereq'} = \@prereqs if @prereqs;
+  }
   my $pdata = {'info' => [ $info ]};
 
   return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);

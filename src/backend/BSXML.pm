@@ -121,6 +121,12 @@ our $packinfo = [
 		'project',
 		'repository',
 	]],
+	 [[ 'extrasource' =>
+		'project',
+		'package',
+		'srcmd5',
+		'file',
+	 ]],
 ];
 
 our $linked = [
