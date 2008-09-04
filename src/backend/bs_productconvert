@@ -218,13 +218,13 @@ sub writeproductspecfile
     $str="${str}Conflicts:      sles-release <= 10 sled-release <= 10 core-release <= 10\n";
     $str="${str}BuildRequires:  skelcd-control-$prodRef->{general}->{name}\n";
     $str="${str}AutoReqProv:    on\n";
-    $str="${str}Summary:        $prodRef->{general}->{summary}[0]->{_content}\n";
+    $str="${str}Summary:        $prodRef->{general}->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
     $str="${str}BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
     $str="${str}PreReq:         coreutils\n";
     $str="${str}%define betaversion \"$prodRef->{general}->{buildconfig}->{betaversion}\"\n";
     $str="${str}\n";
     $str="${str}%description\n";
-    $str="${str}$prodRef->{general}->{description}[0]->{_content}\n";
+    $str="${str}$prodRef->{general}->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
     $str="${str}\n";
 
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
@@ -232,10 +232,10 @@ sub writeproductspecfile
       $str = "${str}%define flavor $flavor->{type}\n";
       $str = "${str}License:        BSD 3-Clause\n";
       $str = "${str}Group:          System/Fhs\n";
-      $str = "${str}Summary:        $prodRef->{general}->{summary}[0]->{_content}\n";
+      $str = "${str}Summary:        $prodRef->{general}->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
       $str = "${str}\n";
       $str = "${str}%description $flavor->{type}\n";
-      $str = "${str}$prodRef->{general}->{description}[0]->{_content}\n";
+      $str = "${str}$prodRef->{general}->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
       $str = "${str}\n";
       $str = "${str}%files $flavor->{type}\n";
       $str = "${str}%defattr(-,root,root)\n";
@@ -251,7 +251,7 @@ sub writeproductspecfile
     $str = "${str}\n";
     $str = "${str}%install\n";
     $str = "${str}mkdir -p \$RPM_BUILD_ROOT/etc\n";
-    $str = "${str}echo -e \"Welcome to %{product} %{betaversion} - Kernel \\\\\\r (\\\\\\l).\\n\\n\" > \$RPM_BUILD_ROOT/etc/issue\n";
+    $str = "${str}echo -e \'Welcome to %{product} %{betaversion} - Kernel \\\\r (\\\\l).\\n\\n\' > \$RPM_BUILD_ROOT/etc/issue\n";
     $str = "${str}echo \"Welcome to %{product} %{betaversion} - Kernel %%r (%%t).\" > \$RPM_BUILD_ROOT/etc/issue.net\n";
     $str = "${str}echo %{product} \"%{betaversion}\" > \$RPM_BUILD_ROOT/etc/SuSE-release\n";
     $str = "${str}echo VERSION = %{version} >> \$RPM_BUILD_ROOT/etc/SuSE-release\n";
@@ -310,7 +310,7 @@ sub writeproductspecfile
     $str = "${str}%config /etc/motd\n";
     $str = "${str}%config(noreplace) /etc/issue\n";
     $str = "${str}%config(noreplace) /etc/issue.net\n";
-    $str = "${str};\n";
+    $str = "${str}\n";
 
     local *F;
     open(F, '>', $file) || die("$file: $!\n");
