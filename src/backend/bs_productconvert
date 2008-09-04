@@ -288,7 +288,7 @@ sub writeproductspecfile
       my $product = $prodRef->{general};
       my $d = {};
       $d->{'type'} = $flavor->{type};
-      $d->{'flavor'} = "build.suse.de/SUSE:Factory:HEAD"; # FIXME
+      $d->{'flavor'} = "build.suse.de_SUSE_Factory_HEAD-%%arch"; # FIXME
       $product->{'distribution'} = $d;
 
       my $xml = XMLout( $BSProductXML::generaldesc, $product );
