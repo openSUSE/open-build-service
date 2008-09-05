@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 #
 # Copyright (c) 2008 Klaas Freitag, Novell Inc.
+# Copyright (c) 2008 Adrian Schroeter, Novell Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -121,7 +122,8 @@ sub createArchitectures()
     $re->{arch} = \@archs;
 
     my @reqXml;
-    my @reqArchs = ( 'ppc64', 'ppc', 'i686', 'x86_64' );
+    my @reqArchs = ( 'ppc64', 'ppc', 'i686', 'x86_64' ); # We need to specify in PD which architectures should
+                                                         # be used and in which combination.
     foreach ( @reqArchs ) {
 	my %h;
 	$h{ref} = $_;
@@ -183,26 +185,32 @@ sub createInstsource( $ )
       die "ERROR: Non obs:// repo used in $repo->{'name'}\n" if ( $repo->{'source'}->{'path'} !~ "^obs://.+" ); 
       push @r, $repo;
     }
+    # Hm, should we implicit add our own Project ?
     $re->{instrepo} = \@r;
 
     return $re;
 }
 
-sub createRepository( $ )
+sub createRepository
 {
-    my( $prodRef ) = @_;
-    my @arr;
+    my( $prodRef, $outPath ) = @_;
+    my @repository;
+    my $source;
 
-    return \@arr;
+    # Do we have ever a different repo type than "yast" on products ?
+    $source->{ 'path' } = $outPath;
+    push @repository, { 'type' => 'yast2', 'source' => $source };
+
+    return \@repository;
 }
 
-sub writeproductfile
+sub writeProductFile
 {
     my( $file, $prodRef ) = @_;
 
 }
 
-sub writeproductspecfile
+sub writeProductSPECfile
 {
     my( $file, $prodRef ) = @_;
 
@@ -354,6 +362,7 @@ $kiwiImage->{name} = $name;
 $kiwiImage->{description} = createDescription( $prodRef );
 $kiwiImage->{preferences} = createPreferences( $prodRef );
 $kiwiImage->{instsource}  = createInstsource( $prodRef );
+$kiwiImage->{repository}  = createRepository ( $prodRef, "/tmp/out" );
 # so far for all media types identical. Now loop over the media types
 # to create media type specific versions;
 
@@ -373,15 +382,9 @@ foreach my $medium ( @$media ){
 # Create $product-release packages
 #
 
-#writeproductfile( "product.file", $prodRef );
-writeproductspecfile( "$prodRef->{general}->{name}.spec", $prodRef );
+#writeProductFile( "product.file", $prodRef );
+writeProductSPECfile( "$prodRef->{general}->{name}.spec", $prodRef );
 
-# 	'instsource'  => createInstsource ( $prodRef ),
-# 	'repository'  => createRepository ( $prodRef )
-#	] };
-
-
-	
 
 
 

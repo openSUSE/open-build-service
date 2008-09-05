@@ -136,7 +136,7 @@ our $kiwidesc = [
 	       'type',
 	       'status',
                [],
-	       [[ 'source' => 'path' ]],
+	       [ 'source' => 'path' ],
         ]],
         [[ 'deploy' =>
                'server',
