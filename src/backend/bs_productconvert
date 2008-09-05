@@ -44,7 +44,7 @@ sub usage()
   convert a product definition file to a spec- and a kiwi source file.
 
   Options:
- 
+
   -h:   help, print this text.
 
 END
@@ -89,11 +89,11 @@ sub createPreferences( $ )
     my $re = {};
 
     $re->{type} = [{_content => "dummy"}];
-    $re->{version} = sprintf( "%s.%s", 
+    $re->{version} = sprintf( "%s.%s",
 			      $prodRef->{general}->{version},
 			      $prodRef->{general}->{release}  );
 
-    # $re->{size} = ; do not give the optional size 
+    # $re->{size} = ; do not give the optional size
     $re->{packagemanager} = "zypper" ;
 
     return $re;
@@ -148,7 +148,7 @@ sub createProductOptions()
     foreach my $opt ( keys %options ) {
 	push @vars, { name => $opt, _content => $options{$opt} };
     }
-    
+
     $re->{productvar} = \@vars;
 
     my %info;
@@ -165,16 +165,45 @@ sub createProductOptions()
     foreach my $opt ( keys %info) {
 	push @info, { name => $opt, _content => $info{$opt} };
     }
-    
+
     $re->{productinfo} = \@info;
 
     return $re;
 
 }
 
-sub createInstsource( $ )
+sub createMetadata( $$ )
 {
-    my( $prodRef ) = @_;
+    my( $prodRef, $medium ) = @_;
+    
+    return undef unless( $medium->{'metadata'} );
+    my $re = {};
+
+    # print "> " . Dumper $medium->{metadata};
+
+    my @packages;
+    my @files;
+    foreach my $pack ( @{ $medium->{metadata}->{package} } ) {
+	push @packages, { name => $pack->{name}, 
+			  medium => "0", 
+			  removearch => "src" };
+    }
+
+    my @a;
+    return { repopackage => \@packages };
+    
+#     my @files;
+#     foreach my $file ( @{ $medium->{metadata}->{file} } ) {
+# 	push @files, { name => $file->{name} };
+#     }
+#     # push @a, { file => \@files }; CHECK: Needed?
+# 
+#     return \@a;
+}
+
+sub createInstsource( $$ )
+{
+    my( $prodRef, $medium ) = @_;
     my $re = {};
 
     $re->{architectures} = createArchitectures();
@@ -182,18 +211,30 @@ sub createInstsource( $ )
     # instrepo can be copied, but lets check if only obs:// is used.
     my @r;
     foreach my $repo ( @{$prodRef->{instrepo}} ){
-      die "ERROR: Non obs:// repo used in $repo->{'name'}\n" if ( $repo->{'source'}->{'path'} !~ "^obs://.+" ); 
+      die "ERROR: Non obs:// repo used in $repo->{'name'}\n" if ( $repo->{'source'}->{'path'} !~ "^obs://.+" );
       push @r, $repo;
     }
     # Hm, should we implicit add our own Project ?
     $re->{instrepo} = \@r;
+    
+    # metadata, media dependant
+    my $ref = createMetadata( $prodRef, $medium );
+    if( $ref ) {
+	$re->{metadata} = createMetadata( $prodRef, $medium );
+    }
+    # my @meta;
+    # push @meta, createMetadata( $prodRef, $medium );
+    # if( @meta ) {
+ #	$re->{metadata} = \@meta; 
+  #  }
+    # repopackages
 
     return $re;
 }
 
 sub createRepository
 {
-    # This is for a dummy entry, it is required by the kiwi DTD, but not used 
+    # This is for a dummy entry, it is required by the kiwi DTD, but not used
     # for installation medias.
     my( $prodRef ) = @_;
     my @repository;
@@ -368,8 +409,6 @@ $kiwiImage->{name} = $name;
 
 $kiwiImage->{description} = createDescription( $prodRef );
 $kiwiImage->{preferences} = createPreferences( $prodRef );
-$kiwiImage->{instsource}  = createInstsource( $prodRef );
-$kiwiImage->{repository}  = createRepository ( $prodRef );
 # so far for all media types identical. Now loop over the media types
 # to create media type specific versions;
 
@@ -381,8 +420,13 @@ foreach my $medium ( @$media ){
     my $type = $medium->{type};
     my $kiwi = \%generalImage;
 
-    writexml( "$prodRef->{general}->{name}-$type.kiwi$$", "$prodRef->{general}->{name}-$type.kiwi", $kiwi, $BSKiwiXML::kiwidesc );
+    $kiwi->{instsource}  = createInstsource ( $prodRef, $medium );
+    $kiwi->{repository}  = createRepository ( $prodRef );
 
+    my $outFile = "$prodRef->{general}->{name}-$type.kiwi";
+
+    writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
+    print "$outFile written.\n";
 }
 
 #
