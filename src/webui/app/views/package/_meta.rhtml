@@ -24,6 +24,12 @@
     </div>
     <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
   <% end %>
+ <br/>
+  <%- if @package.has_element? :devel %>
+  <p id="develproject_note"><strong>
+    This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => "project", :project => @package.devel.project %>
+  </strong></p>
+  <%- end -%>
 
   <br/>
   <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
