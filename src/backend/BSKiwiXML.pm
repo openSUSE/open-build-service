@@ -104,13 +104,13 @@ our $kiwidesc = [
              [],
 	     [ 'source' => 'path' ],
           ]],
-          [[ 'metadata' =>
+          [ 'metadata' =>
 	     [[ 'repopackage' =>
                 'name',
                 'medium',
                 'removearch',
              ]],
-          ]],
+          ],
           [[ 'repopackages' =>
 	     [[ 'repopackage' =>
                 'name',

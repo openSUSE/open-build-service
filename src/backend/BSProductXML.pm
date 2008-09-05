@@ -173,11 +173,11 @@ our $productdesc = [
                 [[ 'package' => 'name', 'relationship' ]],
                 [[ 'include' => 'group', 'relationship' ]],
              ]],
-             [[ 'metadata' =>
+             [ 'sourcemedia' => 'disable' ],
+             [ 'metadata' =>
                 [[ 'package' => 'name', 'medium', 'removearch' ]],
                 [[ 'file' => 'name' ]],
-             ]],
-             [[ 'sourcemedia' => 'disable' ]],
+             ],
           ]],
        ],
        [ $group ],
