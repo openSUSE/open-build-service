@@ -33,7 +33,7 @@ use BSKiwiXML;
 
 # read the product xml file
 
-use vars qw ( $opt_h @errors );
+use vars qw ( $opt_h @errors %groupRefs );
 
 sub usage()
 {
@@ -201,6 +201,65 @@ sub createMetadata( $$ )
 #     return \@a;
 }
 
+sub useToPackages( $$ )
+{
+    my ($prodRef, $medium ) = @_;
+
+    my @useStatements = @{$medium->{use} };
+
+    my @packages;
+
+    foreach my $useState ( @useStatements ) {
+
+	my $useRequired = $useState->{use_required};
+	my $useSuggested = $useState->{use_suggested};
+	my $useRecommended = $useState->{use_recommended};
+
+	if( $useState->{group} ) {
+	    push @packages, groupToPackages( $useState->{group}, 
+					     $useRequired, 
+					     $useRecommended, 
+					     $useSuggested );
+	} elsif( $useState->{pattern} ) {
+	    push @packages, PatternToPackages( $useState->{pattern}, 
+					       $useRequired, 
+					       $useRecommended, 
+					       $useSuggested );
+	    
+	}
+    }
+    
+}
+
+sub groupToPackages( $$$$ ) 
+{
+    my ($group, $useReq, $useRec, $useSug ) = @_;
+
+    my $groupsBaseDir = "testdata/productdefinition";
+    my $file = "$groupsBaseDir/groups/$group.xml";
+    return () unless( -r $file );
+
+    my $content;
+    my $groupRef;
+
+    unless( $groupRefs{$group} ) {
+	if( open( F, "$file" ) ) {
+	    $content = <F>;
+	    close F;
+	}
+	if( $content ) {
+	    $groupRef = readxml( $content, $BSProductXml::group );
+	    $groupRefs{$group} = $groupRef;
+	}
+    }
+    $groupRef = $groupRefs{$group};
+
+    return () unless $groupRefs{ $group };
+
+    return $groupRef->{package};
+}
+
+
 sub createInstsource( $$ )
 {
     my( $prodRef, $medium ) = @_;
@@ -222,12 +281,10 @@ sub createInstsource( $$ )
     if( $ref ) {
 	$re->{metadata} = createMetadata( $prodRef, $medium );
     }
-    # my @meta;
-    # push @meta, createMetadata( $prodRef, $medium );
-    # if( @meta ) {
- #	$re->{metadata} = \@meta; 
-  #  }
+
     # repopackages
+    my @packages;
+    push @packages, useToPackages( $prodRef, $medium );
 
     return $re;
 }
