@@ -218,68 +218,69 @@ sub writeProductSPECfile
     my( $file, $prodRef ) = @_;
 
     my $str="";
-    $str="${str}Name:           $prodRef->{general}->{name}-release\n";
-    $str="${str}%define product $prodRef->{general}->{name}\n";
-    $str="${str}# what's the default flavor ?\n";
-    $str="${str}%define flavor  none\n";
-    $str="${str}License:        BSD 3-Clause\n";
-    $str="${str}Group:          System/Fhs\n";
-    $str="${str}Version:        $prodRef->{general}->{version}\n";
-    $str="${str}Release:        0\n";
-    $str="${str}Provides:       aaa_version distribution-release\n";
-    $str="${str}Provides:       suse-release-oss = %{version}-%{release}\n";
-    $str="${str}Provides:       suse-release = %{version}-%{release}\n";
-    $str="${str}# Code11 product\n";
-    $str="${str}Provides:       product()\n";
-    $str="${str}Provides:       product(%{product}) = %{version}-%{release}\n";
-    $str="${str}Obsoletes:      aaa_version\n";
-    $str="${str}Obsoletes:      suse-release-oss <= 10.0 suse-release <= 10.1.42\n";
-    $str="${str}Conflicts:      sles-release <= 10 sled-release <= 10 core-release <= 10\n";
-    $str="${str}BuildRequires:  skelcd-control-$prodRef->{general}->{name}\n";
-    $str="${str}AutoReqProv:    on\n";
-    $str="${str}Summary:        $prodRef->{general}->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
-    $str="${str}BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
-    $str="${str}PreReq:         coreutils\n";
-    $str="${str}%define betaversion \"$prodRef->{general}->{buildconfig}->{betaversion}\"\n";
-    $str="${str}\n";
-    $str="${str}%description\n";
-    $str="${str}$prodRef->{general}->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
-    $str="${str}\n";
+    $str.="Name:           $prodRef->{general}->{name}-release\n";
+    $str.="%define product $prodRef->{general}->{name}\n";
+    $str.="# what's the default flavor ?\n";
+    $str.="%define flavor  none\n";
+    $str.="License:        BSD 3-Clause\n";
+    $str.="Group:          System/Fhs\n";
+    $str.="Version:        $prodRef->{general}->{version}\n";
+    $str.="Release:        0\n";
+    $str.="Provides:       aaa_version distribution-release\n";
+    $str.="Provides:       suse-release-oss = %{version}-%{release}\n";
+    $str.="Provides:       suse-release = %{version}-%{release}\n";
+    $str.="# Code11 product\n";
+    $str.="Provides:       product()\n";
+    $str.="Provides:       product(%{product}) = %{version}-%{release}\n";
+    $str.="Obsoletes:      aaa_version\n";
+    $str.="Obsoletes:      suse-release-oss <= 10.0 suse-release <= 10.1.42\n";
+    $str.="Conflicts:      sles-release <= 10 sled-release <= 10 core-release <= 10\n";
+#FIXME: add Requires based on required packages/groups in PD
+    $str.="BuildRequires:  skelcd-control-$prodRef->{general}->{name}\n";
+    $str.="AutoReqProv:    on\n";
+    $str.="Summary:        $prodRef->{general}->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
+    $str.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
+    $str.="PreReq:         coreutils\n";
+    $str.="%define betaversion \"$prodRef->{general}->{buildconfig}->{betaversion}\"\n";
+    $str.="\n";
+    $str.="%description\n";
+    $str.="$prodRef->{general}->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
+    $str.="\n";
 
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      $str = "${str}%package $flavor->{type}\n";
-      $str = "${str}%define flavor $flavor->{type}\n";
-      $str = "${str}License:        BSD 3-Clause\n";
-      $str = "${str}Group:          System/Fhs\n";
-      $str = "${str}Summary:        $prodRef->{general}->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
-      $str = "${str}\n";
-      $str = "${str}%description $flavor->{type}\n";
-      $str = "${str}$prodRef->{general}->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
-      $str = "${str}\n";
-      $str = "${str}%files $flavor->{type}\n";
-      $str = "${str}%defattr(-,root,root)\n";
-      $str = "${str}%dir /etc/products.d\n";
-      $str = "${str}/etc/products.d/$prodRef->{general}->{name}-$flavor->{type}.prod\n";
-      $str = "${str}\n"
+      $str.="%package $flavor->{type}\n";
+      $str.="%define flavor $flavor->{type}\n";
+      $str.="License:        BSD 3-Clause\n";
+      $str.="Group:          System/Fhs\n";
+      $str.="Summary:        $prodRef->{general}->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
+      $str.="\n";
+      $str.="%description $flavor->{type}\n";
+      $str.="$prodRef->{general}->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
+      $str.="\n";
+      $str.="%files $flavor->{type}\n";
+      $str.="%defattr(-,root,root)\n";
+      $str.="%dir /etc/products.d\n";
+      $str.="/etc/products.d/$prodRef->{general}->{name}-$flavor->{type}.prod\n";
+      $str.="\n"
     }
 
-    $str = "$str\n";
-    $str = "${str}%prep\n";
-    $str = "${str}\n";
-    $str = "${str}%build\n";
-    $str = "${str}\n";
-    $str = "${str}%install\n";
-    $str = "${str}mkdir -p \$RPM_BUILD_ROOT/etc\n";
-    $str = "${str}echo -e \'Welcome to %{product} %{betaversion} - Kernel \\\\r (\\\\l).\\n\\n\' > \$RPM_BUILD_ROOT/etc/issue\n";
-    $str = "${str}echo \"Welcome to %{product} %{betaversion} - Kernel %%r (%%t).\" > \$RPM_BUILD_ROOT/etc/issue.net\n";
-    $str = "${str}echo %{product} \"%{betaversion}\" > \$RPM_BUILD_ROOT/etc/SuSE-release\n";
-    $str = "${str}echo VERSION = %{version} >> \$RPM_BUILD_ROOT/etc/SuSE-release\n";
-    $str = "${str}echo \"Have a lot of fun...\" > \$RPM_BUILD_ROOT/etc/motd\n";
-    $str = "${str}# Bug 404141 - /etc/YaST/control.xml should be owned by some package\n";
-    $str = "${str}mkdir -p \$RPM_BUILD_ROOT/etc/YaST2/\n";
-    $str = "${str}echo \$RPM_BUILD_ROOT\n";
-    $str = "${str}cp -av /CD1/control.xml \$RPM_BUILD_ROOT/etc/YaST2/\n";
-    $str = "${str}\n";
+    $str.="\n";
+    $str.="%prep\n";
+    $str.="\n";
+    $str.="%build\n";
+    $str.="\n";
+    $str.="%install\n";
+    $str.="mkdir -p \$RPM_BUILD_ROOT/etc\n";
+    $str.="echo -e \'Welcome to %{product} %{betaversion} - Kernel \\\\r (\\\\l).\\n\\n\' > \$RPM_BUILD_ROOT/etc/issue\n";
+    $str.="echo \"Welcome to %{product} %{betaversion} - Kernel %%r (%%t).\" > \$RPM_BUILD_ROOT/etc/issue.net\n";
+    $str.="echo %{product} \"%{betaversion}\" > \$RPM_BUILD_ROOT/etc/SuSE-release\n";
+    $str.="echo VERSION = %{version} >> \$RPM_BUILD_ROOT/etc/SuSE-release\n";
+    $str.="echo \"Have a lot of fun...\" > \$RPM_BUILD_ROOT/etc/motd\n";
+    $str.="# Bug 404141 - /etc/YaST/control.xml should be owned by some package\n";
+    $str.="mkdir -p \$RPM_BUILD_ROOT/etc/YaST2/\n";
+    $str.="echo \$RPM_BUILD_ROOT\n";
+    $str.="cp -av /CD1/control.xml \$RPM_BUILD_ROOT/etc/YaST2/\n";
+    $str.="\n";
 
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
       my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$prodRef->{general}->{name}-$flavor->{type}.prod";
@@ -304,32 +305,35 @@ sub writeProductSPECfile
 #      }
 
 #   XML file syntax
-      my $product = $prodRef->{general};
+      my $product;
+      $product->{'general'} = $prodRef->{general};
+      $product->{'schemeversion'} = "0.0"; # FIXME: moving target, still in development.
       my $d = {};
       $d->{'type'} = $flavor->{type};
-      $d->{'flavor'} = "build.suse.de_SUSE_Factory_HEAD-%%arch"; # FIXME
-      $product->{'distribution'} = $d;
+      $d->{'flavor'} = "build.suse.de_SUSE_Factory_HEAD-%arch"; # FIXME
+      $product->{'general'}->{'distribution'} = $d;
 
-      my $xml = XMLout( $BSProductXML::generaldesc, $product );
+      my $xml = XMLout( $BSProductXML::productdesc, $product );
+      $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
       die ( "ERROR: Unable to create xml for $flavor->{type} !" ) unless $xml;
       $str = "${str}cat >$pfile << EOF\n";
       $str = "${str}$xml\nEOF\n\n";
     }
 
-    $str = "${str}\n";
-    $str = "${str}%post\n";
-    $str = "${str}rm -rf /etc/zypp/products.d\n";
-    $str = "${str}\n";
-    $str = "${str}%files\n";
-    $str = "${str}%defattr(644,root,root,755)\n";
-    $str = "${str}%config /etc/SuSE-release\n";
-    $str = "${str}# Bug 404141 - /etc/YaST/control.xml should be owned by some package\n";
-    $str = "${str}%dir /etc/YaST2/\n";
-    $str = "${str}%config /etc/YaST2/control.xml\n";
-    $str = "${str}%config /etc/motd\n";
-    $str = "${str}%config(noreplace) /etc/issue\n";
-    $str = "${str}%config(noreplace) /etc/issue.net\n";
-    $str = "${str}\n";
+    $str.="\n";
+    $str.="%post\n";
+    $str.="rm -rf /etc/zypp/products.d\n";
+    $str.="\n";
+    $str.="%files\n";
+    $str.="%defattr(644,root,root,755)\n";
+    $str.="%config /etc/SuSE-release\n";
+    $str.="# Bug 404141 - /etc/YaST/control.xml should be owned by some package\n";
+    $str.="%dir /etc/YaST2/\n";
+    $str.="%config /etc/YaST2/control.xml\n";
+    $str.="%config /etc/motd\n";
+    $str.="%config(noreplace) /etc/issue\n";
+    $str.="%config(noreplace) /etc/issue.net\n";
+    $str.="\n";
 
     local *F;
     open(F, '>', $file) || die("$file: $!\n");

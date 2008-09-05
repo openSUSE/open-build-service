@@ -134,6 +134,8 @@ our $generaldesc = [
 
 our $productdesc = [
     'product' =>
+      'schemeversion',
+      [],
        $generaldesc,
        [ 'conditionals' =>
          [[ 'conditional' =>
