@@ -386,7 +386,7 @@ foreach my $medium ( @$media ){
 #
 
 #writeProductFile( "product.file", $prodRef );
-writeProductSPECfile( "$prodRef->{general}->{name}.spec", $prodRef );
+writeProductSPECfile( "$prodRef->{general}->{name}-release.spec", $prodRef );
 
 
 
