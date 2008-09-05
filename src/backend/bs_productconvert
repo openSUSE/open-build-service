@@ -193,12 +193,15 @@ sub createInstsource( $ )
 
 sub createRepository
 {
-    my( $prodRef, $outPath ) = @_;
+    # This is for a dummy entry, it is required by the kiwi DTD, but not used 
+    # for installation medias.
+    my( $prodRef ) = @_;
     my @repository;
     my $source;
+    my $dummydir = "/var/lib/empty";
 
     # Do we have ever a different repo type than "yast" on products ?
-    $source->{ 'path' } = $outPath;
+    $source->{ 'path' } = $dummydir;
     push @repository, { 'type' => 'yast2', 'source' => $source };
 
     return \@repository;
@@ -362,7 +365,7 @@ $kiwiImage->{name} = $name;
 $kiwiImage->{description} = createDescription( $prodRef );
 $kiwiImage->{preferences} = createPreferences( $prodRef );
 $kiwiImage->{instsource}  = createInstsource( $prodRef );
-$kiwiImage->{repository}  = createRepository ( $prodRef, "/tmp/out" );
+$kiwiImage->{repository}  = createRepository ( $prodRef );
 # so far for all media types identical. Now loop over the media types
 # to create media type specific versions;
 
