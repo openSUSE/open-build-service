@@ -223,6 +223,18 @@ sub useToPackages( $$ )
 					     $useRequired, 
 					     $useRecommended, 
 					     $useSuggested );
+	    # there might be additional packages listed in the group.
+	    if( $useState->{package} ) {
+		foreach my $addPack ( @{$useState->{package} } ) {
+		    # print Dumper( $addPack ) . "\n";
+		    if( ( $useRequired    && $addPack->{relationship} eq "required") ||
+			( $useRecommended && $addPack->{relationship} eq "recommended" ) ||
+			( $useSuggested   && $addPack->{relationship} eq "suggested" ) ) {
+ 
+			push @packages, { name => $addPack->{name} };
+		    }
+		}
+	    }
 	} elsif( $useState->{pattern} ) {
 # 	    push @packages, PatternToPackages( $useState->{pattern}, 
 # 					       $useRequired, 
@@ -231,7 +243,7 @@ sub useToPackages( $$ )
 # 	    
 	}
     }
-    
+    return \@packages;
 }
 
 sub groupToPackages( $$$$ ) 
@@ -253,13 +265,21 @@ sub groupToPackages( $$$$ )
 	$groupRefs{$group} = $groupRef;
 	    
 	expandPackages( $groupRef );
-	
     }
     $groupRef = $groupRefs{$group};
+    
+    my @resultList;
+    if( $useReq && $groupRef->{_required} ) {
+	push @resultList, @{$groupRef->{_required}};
+    } 
+    if( $useRec && $groupRef->{_recommended}) {
+	push @resultList, @{$groupRef->{_recommended}};
+    } 
+    if( $useSug && $groupRef->{_suggested} ) {
+	push @resultList, @{$groupRef->{_suggested}};
+    } 
 
-    return () unless $groupRefs{ $group };
-
-    return $groupRef->{package};
+    return @resultList;
 }
 
 #
@@ -276,19 +296,20 @@ sub expandPackages( $ )
     
     my $pat = @{$groupRef->{pattern}}[0];
     $groupRef->{_pattern} = $pat;
-    $groupRef->{_packages} = ('no package yet');
 
-    my @resultPacks;
 
     foreach my $pack ( @{$groupRef->{group}} ) {
 	my $packListRef = $pack->{package};
 	my $relation = $pack->{relationship};
+	my @resultPacks;
 	foreach my $packRef ( @${packListRef} ) {
-	    push @resultPacks, $packRef->{name};
+	    print "Pushing $packRef->{name}\n";
+	    push @resultPacks, { name => $packRef->{name} }; 
 	}
-	$groupRef->{$relation} = \@resultPacks;
+	my $keyname = "_" . lc $relation;
+	print "Keyname of package list: $keyname\n";
+	$groupRef->{$keyname} = \@resultPacks;
     }
-
 }
 
 sub createInstsource( $$ )
@@ -315,7 +336,12 @@ sub createInstsource( $$ )
 
     # repopackages
     my @packages;
-    push @packages, useToPackages( $prodRef, $medium );
+    my $useToPacks = useToPackages( $prodRef, $medium );
+    if( $useToPacks ) {
+	push @packages, { repopackage => $useToPacks };
+    }
+    # print "Packlist: " . Dumper \@packages;
+    $re->{repopackages} =  \@packages;
 
     return $re;
 }
