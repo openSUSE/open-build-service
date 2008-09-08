@@ -218,7 +218,9 @@ sub useToPackages( $$ )
 	my $useSuggested = $useState->{use_suggested};
 	my $useRecommended = $useState->{use_recommended};
 
+
 	if( $useState->{group} ) {
+	    print "Handling use of group $useState->{group}\n";
 	    push @packages, groupToPackages( $useState->{group}, 
 					     $useRequired, 
 					     $useRecommended, 
@@ -262,9 +264,9 @@ sub groupToPackages( $$$$ )
     unless( $groupRefs{$group} ) {
 
 	$groupRef = readxml( $file, $BSProductXML::group );
-	$groupRefs{$group} = $groupRef;
 	    
 	expandPackages( $groupRef );
+	$groupRefs{$group} = $groupRef;
     }
     $groupRef = $groupRefs{$group};
     
@@ -303,7 +305,7 @@ sub expandPackages( $ )
 	my $relation = $pack->{relationship};
 	my @resultPacks;
 	foreach my $packRef ( @${packListRef} ) {
-	    print "Pushing $packRef->{name}\n";
+	    # print "Pushing $packRef->{name}\n";
 	    push @resultPacks, { name => $packRef->{name} }; 
 	}
 	my $keyname = "_" . lc $relation;
