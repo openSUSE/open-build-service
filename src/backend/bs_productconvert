@@ -205,6 +205,9 @@ sub useToPackages( $$ )
 {
     my ($prodRef, $medium ) = @_;
 
+    return unless $medium;
+    
+    return unless $medium->{use};
     my @useStatements = @{$medium->{use} };
 
     my @packages;
@@ -221,11 +224,11 @@ sub useToPackages( $$ )
 					     $useRecommended, 
 					     $useSuggested );
 	} elsif( $useState->{pattern} ) {
-	    push @packages, PatternToPackages( $useState->{pattern}, 
-					       $useRequired, 
-					       $useRecommended, 
-					       $useSuggested );
-	    
+# 	    push @packages, PatternToPackages( $useState->{pattern}, 
+# 					       $useRequired, 
+# 					       $useRecommended, 
+# 					       $useSuggested );
+# 	    
 	}
     }
     
@@ -237,20 +240,20 @@ sub groupToPackages( $$$$ )
 
     my $groupsBaseDir = "testdata/productdefinition";
     my $file = "$groupsBaseDir/groups/$group.xml";
-    return () unless( -r $file );
+    unless( -r $file ) {
+	print "ERR: Could not find group definition named <$file>\n";
+	return ();
+    }
 
-    my $content;
     my $groupRef;
 
     unless( $groupRefs{$group} ) {
-	if( open( F, "$file" ) ) {
-	    $content = <F>;
-	    close F;
-	}
-	if( $content ) {
-	    $groupRef = readxml( $content, $BSProductXml::group );
-	    $groupRefs{$group} = $groupRef;
-	}
+
+	$groupRef = readxml( $file, $BSProductXML::group );
+	$groupRefs{$group} = $groupRef;
+	    
+	expandPackages( $groupRef );
+	
     }
     $groupRef = $groupRefs{$group};
 
@@ -259,6 +262,34 @@ sub groupToPackages( $$$$ )
     return $groupRef->{package};
 }
 
+#
+# This sub expands the patterns 
+sub expandPackages( $ )
+{
+    my ($groupRef) = @_;
+    
+    my $name = $groupRef->{name};
+
+    print "Working on group $name\n";
+    
+    my @patterns = @{$groupRef->{pattern}};
+    
+    my $pat = @{$groupRef->{pattern}}[0];
+    $groupRef->{_pattern} = $pat;
+    $groupRef->{_packages} = ('no package yet');
+
+    my @resultPacks;
+
+    foreach my $pack ( @{$groupRef->{group}} ) {
+	my $packListRef = $pack->{package};
+	my $relation = $pack->{relationship};
+	foreach my $packRef ( @${packListRef} ) {
+	    push @resultPacks, $packRef->{name};
+	}
+	$groupRef->{$relation} = \@resultPacks;
+    }
+
+}
 
 sub createInstsource( $$ )
 {

@@ -62,7 +62,7 @@ sub _workin {
     die("unknown element: $e\n") unless $ke;
     if (!ref($ke)) {
       push @$v, '0', '' if @$v == 1;
-      die("element '$e' contains attributes\n") if %{$v->[0]};
+      die("element '$e' contains attributes @{[keys %{$v->[0]}]}\n") if %{$v->[0]};
       die("element '$e' has subelements\n") if $v->[1] ne '0';
       die("element '$e' must be singleton\n") if exists $out->{$e};
       Encode::_utf8_off($v->[2]) if $bytes;

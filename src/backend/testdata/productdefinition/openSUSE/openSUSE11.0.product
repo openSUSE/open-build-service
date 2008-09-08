@@ -95,7 +95,7 @@
 
     <mediasets>
         <media type="ftp">
-            <use group="basis" use_recommended="true" use_suggested="false" use_required="true">
+            <use group="base" use_recommended="true" use_suggested="false" use_required="true">
                 <!-- mark a recommended package as required on this media -->
                 <package name="kernel-xen" relationship="required" />
             </use>
@@ -107,8 +107,8 @@
         </media>
 
         <media type="dvd5">
-            <use group="basis" create_pattern="false" use_required="true" use_recommended="true" use_suggested="true" />
-            <use group="basis_enhanced" create_pattern="true" use_required="true" use_suggested="false" />
+            <use group="base" create_pattern="false" use_required="true" use_recommended="true" use_suggested="true" />
+            <use group="x11" create_pattern="true" use_required="true" use_suggested="false" />
             <sourcemedia disable="true" />
             <metadata>
                 <!-- if you like to add a metapackage to the real media, add it in a normal group.xml file -->
@@ -121,8 +121,8 @@
         </media>
 
         <media type="livedvd5">
-            <use group="basis" />
-            <use group="basis_enhanced" create_pattern="true" use_required="true" />
+            <use group="base" />
+            <use group="x11" create_pattern="true" use_required="true" />
             <sourcemedia disable="true" />
             <!-- /product/packages/group[@name='gnome' -->
             <use group="gnome" create_pattern="true" use_required="true">
