@@ -71,7 +71,7 @@ our $group = [
           [[ 'package' =>
              'name',
              [[ 'conditional' => 'name' ]],
-             [[ 'plattform' => 'arch', 'source_arch', 'replace_native', 'excludearch', 'onlyarch' ]],
+             [[ 'platform' => 'forcearch', 'addarch', 'removearch', 'onlyarch', 'source', 'script', 'medium', 'priority' ]],
           ]],
 ];
 #  hack:greate cyclic definition!

@@ -24,6 +24,7 @@
 use strict;
 use Getopt::Std;
 use Data::Dumper;
+use File::Basename;
 
 use XML::Structured ':bytes';
 use BSUtil;
@@ -33,7 +34,7 @@ use BSKiwiXML;
 
 # read the product xml file
 
-use vars qw ( $opt_h @errors %groupRefs );
+use vars qw ( $opt_h @errors %groupRefs $indir);
 
 sub usage()
 {
@@ -238,11 +239,8 @@ sub useToPackages( $$ )
 		}
 	    }
 	} elsif( $useState->{pattern} ) {
-# 	    push @packages, PatternToPackages( $useState->{pattern}, 
-# 					       $useRequired, 
-# 					       $useRecommended, 
-# 					       $useSuggested );
-# 	    
+	    print "ERROR: Patterns are not supported for repopackages!\n";
+
 	}
     }
     return \@packages;
@@ -252,11 +250,28 @@ sub groupToPackages( $$$$ )
 {
     my ($group, $useReq, $useRec, $useSug ) = @_;
 
-    my $groupsBaseDir = "testdata/productdefinition";
-    my $file = "$groupsBaseDir/groups/$group.xml";
-    unless( -r $file ) {
-	print "ERR: Could not find group definition named <$file>\n";
-	return ();
+    my @searchdirs = ( "$indir", "testdata/productdefinition/groups" );
+    my $file;
+
+    foreach my $sd ( @searchdirs ) {
+	$file = "$sd/$group.xml";
+	print "Checking for groupfile <$file>\n";
+	if( -r $file ) {
+	    print "Reading group $file\n";
+	    last;
+	} 
+	$file = "$sd/$group.group";
+	print "Checking for groupfile <$file>\n";
+	if( -r $file ) {
+	    print "Reading group $file\n";
+	    last;
+	} 
+
+    }
+
+    if( ! $file ) {
+	print "ERROR: No group file $group found!\n";
+	return;
     }
 
     my $groupRef;
@@ -306,7 +321,16 @@ sub expandPackages( $ )
 	my @resultPacks;
 	foreach my $packRef ( @${packListRef} ) {
 	    # print "Pushing $packRef->{name}\n";
-	    push @resultPacks, { name => $packRef->{name} }; 
+	    my %packValues;
+	    $packValues{name} = $packRef->{name};
+	    if( $groupRef->{platform} ) {
+		# forcerepo??
+		foreach my $tag ('forcearch', 'addarch', 'onlyarch', 'removearch', 'source', 'script', 'medium' ) {
+		    $packValues{$tag} = $groupRef->{platform}->{$tag} if( $groupRef->{platform}->{$tag} );
+		}
+	    }
+
+	    push @resultPacks, \%packValues;
 	}
 	my $keyname = "_" . lc $relation;
 	print "Keyname of package list: $keyname\n";
@@ -466,6 +490,10 @@ usage() if ($opt_h );
 my ($infile) = @ARGV;
 
 die( "Please specify input file" ) unless $infile;
+
+my $d;
+# global indir
+($d, $indir) = fileparse( $infile );
 
 my $prodRef = readProductFile( $infile );
 

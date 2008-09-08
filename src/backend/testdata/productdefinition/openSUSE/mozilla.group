@@ -1,6 +1,7 @@
-        <group name="mozilla" pattern="Vogelsoftware">
+        <group name="mozilla">
+            <pattern name="Vogelsoftware"/>
             <package name="MozillaFirefox">
-                <platform arch="x86_64" source_arch="i586" replace_native="true" />
+                <platform forcearch="i586" />
             </package>
             <package name="mozilla-xulrunner190" />
             <package name="mozilla-xulrunner190-32bit">
