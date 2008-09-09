@@ -340,7 +340,9 @@ div {
 # common element <instrepo>
 #
 div {
-	k.instrepo.name.attribute = k.name.attribute
+	#k.instrepo.name.attribute = k.id.attribute
+	k.instrepo.name.attribute = 
+		attribute name { xsd:ID }
 	k.instrepo.priority.attribute =
 		## Search priority for packages in this repo
 		attribute priority { text }
@@ -510,9 +512,9 @@ div {
 div {
 	k.repopackage.name.attribute = k.name.attribute
 	k.repopackage.arch.attribute = k.arch.attribute
-	k.repopackage.priority.attribute =
+	k.repopackage.forcerepo.attribute =
 		## Specifies the search priority
-		attribute priority { text }
+		attribute forcerepo { xsd:IDREF }
 	k.repopackage.addarch.attribute =
 		## Specifies that this package should
 		## additionally add the same package from the given arch
@@ -521,10 +523,10 @@ div {
 		## Specifies that the package with the
 		## given arch should be removed
 		attribute removearch { text }
-	k.repopackage.forcearch.attribute =
+	k.repopackage.onlyarch.attribute =
 		## Specifies that the package with
 		## the given arch should be used in any case
-		attribute forcearch { text }
+		attribute onlyarch { text }
 	k.repopackage.medium.attribute =
 		## Specifies that the package will be put
 		## to the specific medium number (CD1, DVD7, ...)
@@ -534,10 +536,10 @@ div {
 	k.repopackage.attlist =
 		k.repopackage.name.attribute & 
 		k.repopackage.arch.attribute? &
-		k.repopackage.priority.attribute? &
+		k.repopackage.forcerepo.attribute? &
 		k.repopackage.addarch.attribute? &
 		k.repopackage.removearch.attribute? &
-		k.repopackage.forcearch.attribute? &
+		k.repopackage.onlyarch.attribute? &
 		k.repopackage.source.attribute? &
 		k.repopackage.script.attribute? &
 		k.repopackage.medium.attribute?
@@ -739,6 +741,26 @@ div {
 		]
 		element rpm-check-signatures {
 			k.rpm-check-signatures.attlist,
+			text
+		}
+}
+
+#==========================================
+# common element <rpm-excludedocs>
+#
+div {
+	k.rpm-excludedocs.attlist = empty
+	k.rpm-excludedocs =
+		## Setup a Package Signature
+		[
+		db:para [
+			"Setup if the package manager should exclude docs files\x{a}"~
+			"during package installation. This option could be ignored\x{a}"~
+			"according to the used package manager."
+		]
+		]
+		element rpm-excludedocs {
+			k.rpm-excludedocs.attlist,
 			text
 		}
 }
@@ -1706,6 +1728,7 @@ div {
 			k.oem-recovery? &
 			k.packagemanager? &
 			k.rpm-check-signatures? &
+			k.rpm-excludedocs? &
 			k.rpm-force? &
 			k.keytable? &
 			k.timezone? &
