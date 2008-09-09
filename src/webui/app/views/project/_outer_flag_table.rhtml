@@ -39,7 +39,7 @@
 	</tr>
 	
 	<!-- renders each line in flag table, excepting the 'all' row -->
-	<% @project.each_repository do |repo| %>
+	<% @project.repositories.each do |repo| %>
 	<tr>
 		<td>
 			<%=h repo.name %>

@@ -1,5 +1,5 @@
 class Package < ActiveXML::Base
-  include FlagModelHelper
+  include FlagModelHelper 
   
   belongs_to :project
 
@@ -59,7 +59,8 @@ class Package < ActiveXML::Base
         project_repos << repo.name
       end
       if flag.has_attribute? :repository
-        return true if not project_repos.include? flag.repository
+        #is now handled from the invalid repo check method
+        #return true if not project_repos.include? flag.repository
       end
     end
     
@@ -264,7 +265,8 @@ class Package < ActiveXML::Base
 
   #get all repositories
   def repositories
-    return self.my_project.repositories
+    #repos = my_project.repositories
+    return invalid_repo_check(my_project,self)
   end
 
 

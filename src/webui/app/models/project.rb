@@ -1,5 +1,5 @@
 class Project < ActiveXML::Base
-  include FlagModelHelper
+  include FlagModelHelper 
   
   has_many :package
   has_many :repository
@@ -82,7 +82,8 @@ class Project < ActiveXML::Base
     self.send(flagtype).each do |flag|
       arch = ( (flag.arch if flag.has_attribute? :arch) or 'all' )
       repo = ( (flag.repository if flag.has_attribute? :repository) or 'all' )
-      return true if flag_hash["#{repo}::#{arch}".to_sym] == true
+      #is now handled from the invalid repo check method
+      #return true if flag_hash["#{repo}::#{arch}".to_sym] == true
       flag_hash.merge! "#{repo}::#{arch}".to_sym => true
     end
     return false
@@ -279,9 +280,11 @@ class Project < ActiveXML::Base
   #eg. object attribute, ...
   def repositories
     #saves 50ms
-    self.my_repositories ||= self.each_repository
-    return self.my_repositories
+    #self.my_repositories ||= self.each_repository
+    #return self.my_repositories
+    return invalid_repo_check(self,self)
   end
+
 
   def repository
     my_repo_hash ||= Hash[* repositories.map { |repo| [repo.name, repo] }.flatten ] # hacky way to make a hash from a map

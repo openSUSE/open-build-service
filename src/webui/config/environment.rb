@@ -72,6 +72,7 @@ MIN_VOTES_FOR_RATING = 3
 #RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'activexml'
+require 'ostruct'
 
 #TRANSPORT = Suse::Frontend.new("#{FRONTEND_PROTOCOL}://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
 

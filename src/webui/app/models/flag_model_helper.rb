@@ -27,7 +27,7 @@ module FlagModelHelper
     #get the altered flag and toggle its status
     flag = self.send("#{opts[:flag_name]}"+"flags")[opts[:flag_id].to_sym]
     flag.toggle_status
-    
+    logger.debug("[FLAG Replace] trying to replace flag #{opts[:flag_name]} ") 
     sortedflags = sort_flags_by_attributes(flag.name)
     
     # don't store the global enable-flag for projects
@@ -77,5 +77,62 @@ module FlagModelHelper
     self.save
 
   end
+
+#checks the meta file for $object(project or package) to get not configured repos, 
+#that should be displayed in the webclient for proper flag configuration
+  def invalid_repo_check(project,object)
+    logger.debug("[INVALID REPO CHECK] ")
+    project.my_repositories ||= project.each_repository
+    repos = project.my_repositories
+    repo_names = Array.new
+    invalid_repo_names = Array.new
+    repos.each do |repo|
+        repo_names << repo.name
+    end
+    
+    #check for repositories, set in flag config, but not in project config
+    ['build','publish','usedforbuild','debuginfo'].each do |flagtype|
+      if object.has_element? flagtype 
+        object.send(flagtype).each do |flag|
+
+          #add architecture to already found repo
+          if flag.has_attribute? :repository
+            if invalid_repo_names.include? flag.repository and flag.has_attribute? :arch
+
+              repos.each do |x|
+                if x.name == flag.repository
+                  arch_element = ActiveXML::Node.new("<arch>#{flag.arch}</arch>")
+                  x.arch << arch_element
+                  logger.debug("[INVALID REPO CHECK] new arch for repo found #{flag.arch}")
+                end
+              end
+            #add an 'invalid' repo
+            elsif not repo_names.include? flag.repository
+              logger.debug("[INVALID REPO CHECK] new repo found #{flag.repository}")
+
+              rep = OpenStruct.new
+              rep.name = flag.repository
+              if flag.has_attribute? :arch
+                arch_element = ActiveXML::Node.new("<arch>#{flag.arch}</arch>")
+                rep.arch ||= Array.new
+                rep.arch << arch_element
+              end
+              repos << rep
+              repo_names << rep.name
+              invalid_repo_names << rep.name
+                  
+              def rep.each_arch
+                arch.each { |a| yield a } if arch and block_given?
+                return arch
+              end
+
+            end
+          end
+        end
+      end
+    end
+    return repos
+  end
+
 
 end

@@ -65,22 +65,22 @@ class Flag
       end
     end
 
-#    #three setters
-#    if self.my_implicit_setters.kind_of? Array and self.my_implicit_setters.size == 3
-#      candidate = self.my_implicit_setters[0].oder(self.my_implicit_setters[1])
-#
-#      #candidate = candidate.oder(self.my_implicit_setters[2])
-#
-#      if candidate.explicit_set?
-#          return candidate
-#      end
-#
-#      if self.my_implicit_setters[2].explicit_set?
-#          return self.my_implicit_setters[2]
-#      end
-#
-#      return self.my_implicit_setters[2].implicit_setter
-#    end
+     #three setters
+     if self.my_implicit_setters.kind_of? Array and self.my_implicit_setters.size == 3
+       candidate = self.my_implicit_setters[0].oder(self.my_implicit_setters[1])
+ 
+       #candidate = candidate.oder(self.my_implicit_setters[2])
+ 
+       if candidate.explicit_set?
+           return candidate
+       end
+ 
+       if self.my_implicit_setters[2].explicit_set?
+           return self.my_implicit_setters[2]
+       end
+ 
+       return self.my_implicit_setters[2].implicit_setter
+     end
 
 
     #four setters
