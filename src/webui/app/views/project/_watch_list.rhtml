@@ -10,7 +10,7 @@
         <tr>
           <td><%= link_to project, :action => :show, :project => project %></td>
           <td><%= link_to_remote "[x]", {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %></td>
-          <td><strong><%= link_to "[m]", :action => :montitor, :project => project %></strong></td>
+          <td><strong><%= link_to "[m]", :action => :monitor, :project => project %></strong></td>
         </tr>
       <%- end -%>
     </table>

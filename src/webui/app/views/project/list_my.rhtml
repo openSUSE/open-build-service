@@ -43,7 +43,7 @@
           <tr>
             <td><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
             <td><%= link_to prj, :action => :show, :project => prj %></td>
-            <td><strong><%= link_to "[m]", :action => :monitor, :project => prj %></strong></td>
+            <td><strong><%= link_to "[m]", :action => :monitor, :project => prj, :pkgname => pkg %></strong></td>
           </tr>
         <% end -%>
       <% end -%>
