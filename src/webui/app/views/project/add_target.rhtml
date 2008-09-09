@@ -20,7 +20,7 @@
     </td>
     <td valign="top">
       <b>Architectures:</b><br/>
-      <% [:i586, :x86_64, :ppc, :ppc64].each do |arch| %>
+      <% [:i586, :x86_64].each do |arch| %>
       <%= check_box_tag "arch[#{arch}]", "", true %><%=arch%><br>
       <% end %>
     </td>
