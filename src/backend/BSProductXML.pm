@@ -77,66 +77,70 @@ our $group = [
 #  hack:greate cyclic definition!
 push @$group, [$group];
 
-# This is the general section of Product Definition
-# The same section gets also written out as product defintion for YaST
-our $generaldesc = [
-       'general' =>
-       [],
-       'vendor',
-       'name',
-       'version',
-       'release',
-       'update_repo_key',
-       [[ 'summary' =>
-          'lang',
-          [],
-          '_content'
-       ]],
-       [[ 'description' =>
-          'lang',
-          [],
-          '_content'
-       ]],
-       [ 'linguas' =>
-         [],
-         [[ 'lang' => '_content' ]],
-       ],
-       [ 'urls' =>
-         [],
-         [[ 'url' => 
-            'name',
-            [],
-            '_content',
-         ]],
-       ],
-       [ 'buildconfig' =>
-         'producttheme',
-         'betaversion',
-         [ 'linguas' =>
-           [],
-           [[ 'lang' => '_content' ]],
-         ],
-       ],
-       [ 'installconfig' =>
-          'defaultlang',
-       ],
-       [ 'runtimeconfig' =>
-          'allowresolving',
-          'packagemanager',
-       ],
-       # This tag is only used for product definition in /etc/products.d/
-       # and is arch dependend
-       [ 'distribution',
-          'type',
-          'flavor',
-       ],
-];
-
 our $productdesc = [
-    'product' =>
+    'productdefinition' =>
+      'xmlns:xi',
       'schemeversion',
       [],
-       $generaldesc,
+      [ 'products' =>
+        [[ 'product' =>
+           'id',
+           [],
+           'vendor',
+           'name',
+           'version',
+           'release',
+           [[ 'register' => 
+              [],
+              'target',
+              'release',
+              'flavor',
+           ]],
+           'updaterepokey',
+           [[ 'summary' =>
+              'lang',
+              [],
+              '_content'
+           ]],
+           [[ 'description' =>
+              'lang',
+              [],
+              '_content'
+           ]],
+           [ 'linguas' =>
+             [],
+             [[ 'lang' => '_content' ]],
+           ],
+           [ 'urls' =>
+             [],
+             [[ 'url' => 
+                'name',
+                [],
+                '_content',
+             ]],
+           ],
+           [ 'buildconfig' =>
+             'producttheme',
+             'betaversion',
+             [ 'linguas' =>
+               [],
+               [[ 'lang' => '_content' ]],
+             ],
+             'allowresolving',
+             'packagemanager',
+           ],
+           [ 'installconfig' =>
+              'defaultlang',
+              'datadir',
+              'descrdir',
+              [ 'references' => 'name', 'version' ],
+              'distribution',
+           ],
+           [ 'runtimeconfig' =>
+              'allowresolving',
+           ],
+         ]],
+       ],
        [ 'conditionals' =>
          [[ 'conditional' =>
             'name',
@@ -150,30 +154,39 @@ our $productdesc = [
             ],
          ]],
        ],
-       [[ 'instrepo' =>
-          'name',
-          'priority',
-          'username',
-          'pwd',
-          'local',
-          [],
-          [ 'source' => 'path' ],
-       ]],
+       [ 'repositories' =>
+         [[ 'repository' =>
+            'name',
+            'priority',
+            'path',
+         ]],
+       ],
        [ 'mediasets' =>
           [[ 'media' =>
              'type',
-             [],
+             'product',
+             'name',
+             'sourcemedia',
+             'create_pattern',
+             'use_recommended',
+             'use_suggested',
+             'use_required',
+             [ 'mediaarchs' =>
+               [[ 'archset' => 
+                    'basearch',
+                    [],
+                    [[ 'arch' => '_content' ]],
+               ]],
+             ],
              [[ 'use' =>
                 'group',
-                'create_pattern',
-                'pattern',
                 'use_recommended',
                 'use_suggested',
                 'use_required',
+                'create_pattern',
                 [[ 'package' => 'name', 'relationship' ]],
                 [[ 'include' => 'group', 'relationship' ]],
              ]],
-             [ 'sourcemedia' => 'disable' ],
              [ 'metadata' =>
                 [[ 'package' => 'name', 'medium', 'removearch' ]],
                 [[ 'file' => 'name' ]],
@@ -210,7 +223,10 @@ sub mergexmlfiles {
      } else {
        my $file = "$dir$ref";
        my $replace = mergexmlfiles($file);
-       return undef unless $replace;
+       if ( ! $replace ) {
+         print "ERROR: Unable to read $file !\n";
+         return undef unless $replace;
+       }
        $str =~ s/<xi:include href=".+?".*?>/$replace/s;
      }
   }
