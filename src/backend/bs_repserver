@@ -557,7 +557,7 @@ sub putbinary {
 
 sub workerstate {
   my ($cgi, $harch, $peerport, $state) = @_;
-  die("unsupported architecture '$harch'\n") unless $cando{$harch};
+# die("unsupported architecture '$harch'\n") unless $cando{$harch};
   my $peerip = BSServer::getpeerdata();
   die("cannot get your ip address\n") unless $peerip;
   my $workerid = defined($cgi->{'workerid'}) ? $cgi->{'workerid'} : "$peerip:$peerport";
