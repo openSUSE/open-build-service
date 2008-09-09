@@ -10,7 +10,7 @@
 
 
 
-Name:           obs-all
+Name:           obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
 BuildRequires:  python-devel rubygem-builder
 %if 0%{?suse_version:1}
@@ -26,7 +26,7 @@ Version:        %{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component
-Source:         %{name}-%{svnversion}.tar.bz2
+Source:         obs-all-svn-%{svnversion}.tar.bz2
 Source1:        obsworker
 Source3:        obspublisher
 Source4:        obsrepserver
