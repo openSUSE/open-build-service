@@ -112,6 +112,7 @@ module FlagModelHelper
 
               rep = OpenStruct.new
               rep.name = flag.repository
+              rep.arch ||= Array.new
               if flag.has_attribute? :arch
                 arch_element = ActiveXML::Node.new("<arch>#{flag.arch}</arch>")
                 rep.arch ||= Array.new
