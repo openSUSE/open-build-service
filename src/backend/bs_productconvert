@@ -40,7 +40,7 @@ sub usage()
 {
   print<<END
 
-  bs_productconvert
+  bs_productconvert product_file output_directory
 
   convert a product definition file to a spec- and a kiwi source file.
 
@@ -298,9 +298,9 @@ sub useToPackages( $$ )
 	    if( $useState->{package} ) {
 		foreach my $addPack ( @{$useState->{package} } ) {
 		    # print Dumper( $addPack ) . "\n";
-		    if( ( $useRequired    && $addPack->{relationship} eq "required") ||
-			( $useRecommended && $addPack->{relationship} eq "recommended" ) ||
-			( $useSuggested   && $addPack->{relationship} eq "suggested" ) ) {
+		    if( ( $useRequired    && $addPack->{relationship} eq "requires") ||
+			( $useRecommended && $addPack->{relationship} eq "recommends" ) ||
+			( $useSuggested   && $addPack->{relationship} eq "suggests" ) ) {
  
 			push @packages, { name => $addPack->{name} };
 		    }
@@ -340,12 +340,12 @@ sub groupToPackages( $$$$$ )
 
     my @packagelists = @{$groupRef->{packagelist}};
 
-    my $useFlags = { required => $useReq || 0, recommended => $useRec || 0, suggested => $useSug || 0 };
+    my $useFlags = { requires => $useReq || 0, recommends => $useRec || 0, suggests => $useSug || 0 };
 
     my @resultList;
 
     foreach my $packList ( @packagelists ) {
-	my $relation = $packList->{relationship} || 'required';
+	my $relation = $packList->{relationship} || 'requires';
 	
 	if( $useFlags->{$relation} ) {
 	    # parse the package in 
@@ -526,9 +526,10 @@ getopts('dh');
 
 usage() if ($opt_h );
 
-my ($infile) = @ARGV;
+my ($infile, $outdir) = @ARGV;
 
 die( "Please specify input file" ) unless $infile;
+die( "Please specify output directory" ) unless $outdir;
 
 my $d;
 # global indir
@@ -552,7 +553,8 @@ for my $p ( $prodRef->{'products'} ) {
     };
   };
   if ( -e "$templateFile" ) {
-    writeProductSPECfile( "$product->{name}-release.spec", $templateFile, $prodRef, $product );
+    mkdir_p( "$outdir/$product->{name}-release" ) || die ("Unable to create $outdir\n");
+    writeProductSPECfile( "$outdir/$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
   } else {
     print "No release template file $templateFile does exist.\nSPEC file generation skipped !\n";
   };
