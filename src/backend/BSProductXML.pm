@@ -82,6 +82,7 @@ our $group = [
 our $product = [
            'product' =>
            'id',
+           'schemeversion',
            [],
            'vendor',
            'name',

@@ -64,7 +64,7 @@ sub readProductFile( $ )
 
     if( defined($xml) ) {
 	print "success!\n";
-	print Dumper $xml;
+#	print Dumper $xml;
     } else {
 	print "FAILED: Unable to parse $filename\n";
 	die;
@@ -165,8 +165,7 @@ sub createArchitectures()
     $re->{arch} = \@archs;
 
     my @reqXml;
-    my @reqArchs = ( 'ppc64', 'ppc', 'i686', 'x86_64' ); # We need to specify in PD which architectures should
-                                                         # be used and in which combination.
+    my @reqArchs = ( 'ppc64', 'ppc', 'i686', 'x86_64' );
     foreach ( @reqArchs ) {
 	my %h;
 	$h{ref} = $_;
@@ -432,15 +431,9 @@ sub createRepository
     return \@repository;
 }
 
-sub writeProductFile
-{
-    my( $file, $prodRef ) = @_;
-
-}
-
 sub writeProductSPECfile
 {
-    my( $file, $infile, $prodRef ) = @_;
+    my( $file, $infile, $prodRef, $product ) = @_;
 
     my $product_flavors="";
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
@@ -448,53 +441,33 @@ sub writeProductSPECfile
       $product_flavors.="%define flavor $flavor->{type}\n";
       $product_flavors.="License:        BSD 3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
-      $product_flavors.="Summary:        $prodRef->{general}->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
+      $product_flavors.="Summary:        $product->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
       $product_flavors.="\n";
       $product_flavors.="%description $flavor->{type}\n";
-      $product_flavors.="$prodRef->{general}->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
+      $product_flavors.="$product->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
       $product_flavors.="\n";
       $product_flavors.="%files $flavor->{type}\n";
       $product_flavors.="%defattr(-,root,root)\n";
       $product_flavors.="%dir /etc/products.d\n";
-      $product_flavors.="/etc/products.d/$prodRef->{general}->{name}-$flavor->{type}.prod\n";
+      $product_flavors.="/etc/products.d/$product->{name}-$flavor->{type}.prod\n";
       $product_flavors.="\n"
     }
 
     my $zypp_product_file = "";
     $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$prodRef->{general}->{name}-$flavor->{type}.prod";
-#   INI file syntax
-#      $str = "${str}echo -e \"[product]\" > $pfile\n";
-#      $str = "${str}echo -e \"name = %{product}\" >> $pfile\n";
-#      $str = "${str}echo -e \"version = %{version}-%{release}\" >> $pfile\n";
-#      $str = "${str}#%{arch} doesn't expand ?!\n";
-#      $str = "${str}#echo -e \"arch = %{arch} \ >> $pfile\n";
-#      $str = "${str}echo -e \"flavor = %{flavor}\" >> $pfile\n";
-#      $str = "${str}echo -e \"distribution = %{distribution}\" >> $pfile\n";
-#      $str = "${str}echo -e \"vendor = %{vendor}\" >> $pfile\n";
-#      $str = "${str}echo -e \"\" >> $pfile\n";
-#      $str = "${str}echo -e \"[translated]\" >> $pfile\n";
-#      foreach my $element ( "summary", "description" ){
-#        foreach my $text ( @{$prodRef->{general}->{$element}} ){
-#          $str = "$str\n echo -e \"$element";
-#          $str = "$str\[$text->{lang}\]" if ( $text->{lang} );
-#          $str = "$str = $text->{_content}\" >> $pfile\n";
-#        }
-#      }
+      my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}-$flavor->{type}.prod";
 
-#   XML file syntax
-      my $product;
-      $product->{'general'} = $prodRef->{general};
-      $product->{'schemeversion'} = "0.0"; # FIXME: moving target, still in development.
-      my $d = {};
-      $d->{'type'} = $flavor->{type};
-      $d->{'flavor'} = "build.suse.de_SUSE_Factory_HEAD-%arch"; # FIXME
-      $product->{'general'}->{'distribution'} = $d;
+      my $zypp_product;
+      $zypp_product = $product;
+      $zypp_product->{'schemeversion'} = "0"; # FIXME: moving target, still in development.
+      my @d;
+      push @d, { "target" => "%arch", "release" => $flavor->{type}, "flavor" => "build.suse.de_SUSE_Factory_HEAD-%arch" };
+      $zypp_product->{'register'} = \@d;
 
-      my $xml = XMLout( $BSProductXML::productdesc, $product );
-      $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
+      my $xml = XMLout( $BSProductXML::product, $zypp_product );
       die ( "ERROR: Unable to create xml for $flavor->{type} !" ) unless $xml;
+      $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
       $zypp_product_file .= "cat >$pfile << EOF\n";
       $zypp_product_file .= "$xml\nEOF\n\n";
     }
@@ -509,13 +482,13 @@ sub writeProductSPECfile
     close IF;
 
     # replace all strings
-    $str =~ s/___VERSION___/$prodRef->{general}->{version}/g;
-    $str =~ s/___BETA_VERSION___/$prodRef->{general}->{buildconfig}->{betaversion}/g;
+    $str =~ s/___VERSION___/$product->{version}/g;
+    $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
     $str =~ s/___RELEASE___/0/g;
-    $str =~ s/___PACKAGE_NAME___/$prodRef->{general}->{name}-release/g;
-    $str =~ s/___PRODUCT_NAME___/$prodRef->{general}->{name}/g;
-    $str =~ s/___SUMMARY___/$prodRef->{general}->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
-    $str =~ s/___DESCRIPTION___/$prodRef->{general}->{description}[0]->{_content}/g; # FIXME: find the non-lang one
+    $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
+    $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
+    $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
+    $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
     $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
     $str =~ s/___CREATE_PRODUCT_FILES___/$zypp_product_file/g;
 
@@ -542,9 +515,25 @@ my $d;
 my $prodRef = readProductFile( $infile );
 
 #
-# Create a kiwi configuration for each distribution flavor
+# Create $product-release packages
 #
 
+for my $p ( $prodRef->{'products'} ) {
+  my $product = $p->{'product'}[0];
+  my $templateFile;
+  if ($infile =~ /(.*\/)(.+)$/) {
+    $templateFile = "$1/release.spec";
+  };
+  if ( -e "$templateFile" ) {
+    writeProductSPECfile( "$product->{name}-release.spec", $templateFile, $prodRef, $product );
+  } else {
+    print "No release template file $templateFile does exist.\nSPEC file generation skipped !\n";
+  };
+};
+
+#
+# Create a kiwi configuration for each distribution flavor
+#
 
 my $productRef = $prodRef->{products}{product}[0]; # FIXME: Support multiple products.
 
@@ -587,21 +576,6 @@ foreach my $medium ( @$media ){
     writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
     print "$outFile written.\n";
 }
-
-#
-# Create $product-release packages
-#
-
-#writeProductFile( "product.file", $prodRef );
-my $templateFile;
-if ($infile =~ /(.*\/)(.+)$/) {
-    $templateFile = "$1/release.spec";
-};
-if ( -e "$templateFile" ) {
-  writeProductSPECfile( "$prodRef->{general}->{name}-release.spec", $templateFile, $prodRef );
-} else {
-  print "No release template file $templateFile does exist.\nSPEC file generation skipped !\n";
-};
 
 
 
