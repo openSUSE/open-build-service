@@ -88,12 +88,16 @@ our $kiwidesc = [
           [ 'productoptions' => 
             [[ 'productvar' =>
                'name',
-               '_content',
+               '_content'
             ]],
             [[ 'productinfo' =>
                'name',
-               '_content',
+               '_content'
             ]],
+	    [[ 'productoption' =>
+               'name',
+               '_content'
+            ]]
           ],
           [[ 'instrepo' =>
              'name',

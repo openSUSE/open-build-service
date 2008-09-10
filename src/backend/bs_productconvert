@@ -64,7 +64,7 @@ sub readProductFile( $ )
 
     if( defined($xml) ) {
 	print "success!\n";
-#	print Dumper $xml;
+	# print Dumper $xml;
     } else {
 	print "FAILED: Unable to parse $filename\n";
 	die;
@@ -92,7 +92,7 @@ sub createPreferences( $ )
     my $re = {};
 
     $re->{type} = [{_content => "dummy"}];
-    $re->{version} = sprintf( "%s.%s",
+    $re->{version} = sprintf( "%s.%s.0",
 			      $prodRef->{version},
 			      $prodRef->{release}  );
 
@@ -121,6 +121,7 @@ sub parseRepositories( $ )
 sub parseConditionals( $ )
 {
     my ($conditionalRef) = @_;
+    # print Dumper $conditionalRef;
     return unless( $conditionalRef );
 
     foreach my $condRef (@{$conditionalRef}) {
@@ -153,7 +154,8 @@ sub createArchitectures()
 			  'i486' =>  { name => 'Intel x86', fallback => 'i386' },
 			  'i386' =>  { name => 'Intel x86', fallback => 'noarch' },
 			  'x86_64' =>{ name => 'AMD 64 bit', fallback => 'i686' },
-			  'src'  =>  { name => 'Source rpms', fallback => undef } };
+			  'src'  =>  { name => 'Source rpms', fallback => undef },
+			  'noarch' =>{ name => 'platform independent' } };
     my @archs;
     foreach my $arch ( keys %$archfallbacks ) {
 	my %h;
@@ -179,19 +181,30 @@ sub createArchitectures()
 sub createProductOptions()
 {
     my $re = {};
-    my %options;
 
-    $options{PRODUCT_THEME} = "SuSE";
-    $options{MEDIUM_NAME} = "FTP";
-    $options{MULTIPLE_MEDIUM} = "no";
-    $options{SHA1_OPT} = "-x";
-    # add more as needed.
+    my %varsH;
+
+    $varsH{PRODUCT_THEME} = "SuSE";
+    $varsH{MEDIUM_NAME} = "FTP";
+    $varsH{MULTIPLE_MEDIUM} = "no";
+    $varsH{SHA1_OPT} = "-x";
+
     my @vars;
+    foreach my $opt ( keys %varsH ) {
+	push @vars, { name => $opt, _content => $varsH{$opt} };
+    }
+
+    $re->{productvar} = \@vars;
+
+    my %options;
+    $options{SOURCEMEDIUM} = "1";
+    # add more as needed.
+    @vars = ();
     foreach my $opt ( keys %options ) {
 	push @vars, { name => $opt, _content => $options{$opt} };
     }
 
-    $re->{productvar} = \@vars;
+    $re->{productoption} = \@vars;
 
     my %info;
     $info{'ARCH.x86_64'} = "x86_64 i686 i586 i486 i386 noarch";
@@ -256,14 +269,15 @@ sub useToPackages( $$ )
 
     foreach my $useState ( @useStatements ) {
 
-	my $useRequired = $useState->{use_required};
-	my $useSuggested = $useState->{use_suggested};
-	my $useRecommended = $useState->{use_recommended};
+	my $useRequired = $useState->{use_required} || 1 ;
+	my $useSuggested = $useState->{use_suggested} || 0;
+	my $useRecommended = $useState->{use_recommended} || 0;
 
 
 	if( $useState->{group} ) {
 	    print "Handling use of group $useState->{group}\n";
-	    push @packages, groupToPackages( $useState->{group}, 
+	    push @packages, groupToPackages( $prodRef, 
+					     $useState->{group}, 
 					     $useRequired, 
 					     $useRecommended, 
 					     $useSuggested );
@@ -287,55 +301,48 @@ sub useToPackages( $$ )
     return \@packages;
 }
 
-sub groupToPackages( $$$$ ) 
+sub groupToPackages( $$$$$ ) 
 {
-    my ($group, $useReq, $useRec, $useSug ) = @_;
+    my ($prodRef, $group, $useReq, $useRec, $useSug ) = @_;
 
-    my @searchdirs = ( "$indir", "testdata/productdefinition/groups" );
-    my $file;
+    my @groups = $prodRef->{group}[0]; 
+    my $groupRef;
 
-    foreach my $sd ( @searchdirs ) {
-	$file = "$sd/$group.xml";
-	print "Checking for groupfile <$file>\n";
-	if( -r $file ) {
-	    print "Reading group $file\n";
+    foreach my $gl( @groups ) {
+	if( $gl->{name} eq $group ) {
+	    $groupRef = $gl;
 	    last;
-	} 
-	$file = "$sd/$group.group";
-	print "Checking for groupfile <$file>\n";
-	if( -r $file ) {
-	    print "Reading group $file\n";
-	    last;
-	} 
-
+	}
     }
 
-    if( ! $file ) {
-	print "ERROR: No group file $group found!\n";
+    unless( $groupRef ) {
+	print "ERROR: Group <$group> not found!\n";
+	return ();
+    }
+    
+    unless( $groupRef->{packagelist} ) {
+	print "ERROR: Group <$group> has no package lists!\n";
 	return;
     }
 
-    my $groupRef;
+    my @packagelists = @{$groupRef->{packagelist}};
 
-    unless( $groupRefs{$group} ) {
+    my $useFlags = { required => $useReq || 0, recommended => $useRec || 0, suggested => $useSug || 0 };
 
-	$groupRef = readxml( $file, $BSProductXML::group );
-	    
-	expandPackages( $groupRef );
-	$groupRefs{$group} = $groupRef;
-    }
-    $groupRef = $groupRefs{$group};
-    
     my @resultList;
-    if( $useReq && $groupRef->{_required} ) {
-	push @resultList, @{$groupRef->{_required}};
-    } 
-    if( $useRec && $groupRef->{_recommended}) {
-	push @resultList, @{$groupRef->{_recommended}};
-    } 
-    if( $useSug && $groupRef->{_suggested} ) {
-	push @resultList, @{$groupRef->{_suggested}};
-    } 
+
+    foreach my $packList ( @packagelists ) {
+	my $relation = $packList->{relationship} || 'required';
+	
+	if( $useFlags->{$relation} ) {
+	    # parse the package in 
+	    my @packs = @{$packList->{package}};
+	    foreach my $pack ( @packs ) {
+		push @resultList, { name => $pack->{name} };
+	    }
+	}
+
+    }
 
     return @resultList;
 }
@@ -388,11 +395,12 @@ sub createInstsource( $$ )
     $re->{productoptions} = createProductOptions();
     
     my @r;
-    foreach my $repo ( @{$medium->{repositories} } ) {
+    print Dumper $prodRef;
+    foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
 	my %h;
 	$h{name} = $repo->{name};
 	$h{priority} = $repo->{priority};
-	$h{source} = { path => $repo->{href} };
+	$h{source} = { path => $repo->{path} };
 	push @r, \%h;
     }
     $re->{instrepo} = \@r;
@@ -406,10 +414,11 @@ sub createInstsource( $$ )
     # repopackages
     my @packages;
     my $useToPacks = useToPackages( $prodRef, $medium );
+
     if( $useToPacks ) {
 	push @packages, { repopackage => $useToPacks };
     }
-    # print "Packlist: " . Dumper \@packages;
+    print "Packlist: " . Dumper \@packages;
     $re->{repopackages} =  \@packages;
 
     return $re;
@@ -557,8 +566,8 @@ $kiwiImage->{preferences} = createPreferences( $productRef );
 # so far for all media types identical. Now loop over the media types
 # to create media type specific versions;
 
-parseConditionals( $prodRef->{conditionals} );
-parseRepositories( $prodRef->{repositories} );
+parseConditionals( $prodRef->{conditionals}->{conditional} );
+parseRepositories( $prodRef->{repositories}->{repository} );
 
 #########
 
@@ -576,7 +585,7 @@ foreach my $medium ( @$media ){
     $kiwi->{instsource}  = createInstsource ( $prodRef, $medium );
     $kiwi->{repository}  = createRepository ( $prodRef );
 
-    my $outFile = "$prodRef->{general}->{name}-$type.kiwi";
+    my $outFile = "kiwitest/$medium->{name}-$type.kiwi";
 
     writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
     print "$outFile written.\n";
