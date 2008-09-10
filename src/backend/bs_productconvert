@@ -186,8 +186,17 @@ sub createProductOptions()
 
     $varsH{PRODUCT_THEME} = "SuSE";
     $varsH{MEDIUM_NAME} = "FTP";
-    $varsH{MULTIPLE_MEDIUM} = "no";
+    $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{SHA1_OPT} = "-x";
+
+    $varsH{MANUFACTURER} = "SuSE Linux Products GmbH";
+    $varsH{DISTNAME} = "openSUSE";
+    $varsH{VERSION} = "11.1"; # FIXME
+    $varsH{FLAVOUR} = "FTP"; # FIXME
+    $varsH{RELEASE} = "0";
+    $varsH{PRODUCT_DIR} = "/"; # FIXMNE for addon
+    $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOUR';
+    $varsH{PRODUCT_VERSION} = '$VERSION';
 
     my @vars;
     foreach my $opt ( keys %varsH ) {
@@ -197,14 +206,14 @@ sub createProductOptions()
     $re->{productvar} = \@vars;
 
     my %options;
-    $options{SOURCEMEDIUM} = "1";
+    $options{'SOURCEMEDIUM'} = "1";
     # add more as needed.
-    @vars = ();
+    my @vars1;
     foreach my $opt ( keys %options ) {
-	push @vars, { name => $opt, _content => $options{$opt} };
+	push @vars1, { name => $opt, _content => $options{$opt} };
     }
 
-    $re->{productoption} = \@vars;
+    $re->{productoption} = \@vars1;
 
     my %info;
     $info{'ARCH.x86_64'} = "x86_64 i686 i586 i486 i386 noarch";
@@ -215,6 +224,10 @@ sub createProductOptions()
     $info{'ARCH.i486'}   = "i486 i386 noarch";
     $info{'ARCH.i386'}   = "i386 noarch";
     $info{'DEFAULTBASE'} = "i586";
+
+    $info{'DESCRDIR'}    = '$DATADIR/setup/descr';
+    $info{'DATADIR'}     = 'suse';
+
     # add more ...
     my @info;
     foreach my $opt ( keys %info) {
