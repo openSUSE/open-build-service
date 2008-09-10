@@ -24,6 +24,7 @@ package BSProductXML;
 
 use strict;
 use Data::Dumper;
+use File::Basename;
 use XML::Structured ':bytes';
 
 # 
@@ -92,7 +93,7 @@ our $product = [
               'release',
               'flavor',
            ]],
-           'updaterepokey',
+           'update_repo_key',
            [[ 'summary' =>
               'lang',
               [],
@@ -203,15 +204,10 @@ our $productdesc = [
 ];
 
 sub mergexmlfiles {
-  my ($absfile) = @_;
+  my ($absfile, $debug) = @_;
 
   my $data;
-  my $dir;
-  if ($absfile =~ /(.*\/)(.+)$/) {
-    $dir = $1;
-  } else {
-    $dir = './';
-  }
+  my ($dummy, $dir) = fileparse( $absfile );
 
   local *F;
   if (!open(F, '<', $absfile)) {
@@ -221,6 +217,14 @@ sub mergexmlfiles {
   1 while sysread(F, $str, 8192, length($str));
   close F;
 
+  # wipe out comments globally
+  $str =~ s/<!--.+?-->//gs;
+
+  if( $debug && open F, ">/tmp/naked.xml" ) {
+    print F $str;
+    close F;
+  }
+
   while ($str =~ /<xi:include href="(.+?)".*?>/s) {
      my $ref = $1;
      if ($ref =~ /^obs:.+/) {
@@ -228,22 +232,29 @@ sub mergexmlfiles {
        return undef;
      } else {
        my $file = "$dir$ref";
-       my $replace = mergexmlfiles($file);
+       my $replace = mergexmlfiles( $file, $debug );
        if ( ! $replace ) {
          print "ERROR: Unable to read $file !\n";
          return undef unless $replace;
        }
+       # This is a subfile, so wipe out the xml header.
+       $replace =~ s/<\?xml .+\?>//;
        $str =~ s/<xi:include href=".+?".*?>/$replace/s;
      }
+  }
+
+  if( $debug && open F, ">/tmp/naked_all.xml" ) {
+    print F $str;
+    close F;
   }
 
   return $str;
 }
 
-sub readproductxml {
-  my ($file, $nonfatal) = @_;
+sub readproductxml( $$$ ) {
+  my ($file, $nonfatal, $debug) = @_;
 
-  my $str = mergexmlfiles( $file );
+  my $str = mergexmlfiles( $file, $debug );
   return undef if ( ! $str );
 
   return XMLin($productdesc, $str) unless $nonfatal;

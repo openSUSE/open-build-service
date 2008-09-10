@@ -34,7 +34,7 @@ use BSKiwiXML;
 
 # read the product xml file
 
-use vars qw ( $opt_h @errors %groupRefs $indir);
+use vars qw ( $opt_h $opt_d @errors %conditionals %repositories %groupRefs $indir);
 
 sub usage()
 {
@@ -47,6 +47,7 @@ sub usage()
   Options:
 
   -h:   help, print this text.
+  -d:   debug, create debug output and files
 
 END
 ;
@@ -59,10 +60,11 @@ sub readProductFile( $ )
     my ($filename) = @_;
 
     print "parsing product definition... ";
-    my $xml = BSProductXML::readproductxml( "$filename", 0 );
+    my $xml = BSProductXML::readproductxml( "$filename", 0, $opt_d );
 
     if( defined($xml) ) {
 	print "success!\n";
+	print Dumper $xml;
     } else {
 	print "FAILED: Unable to parse $filename\n";
 	die;
@@ -79,7 +81,7 @@ sub createDescription( $ )
     $re->{type} = "system";
     $re->{author} = "The SUSE Team";
     $re->{contact} = "build\@opensuse.org";
-    $re->{specification} = $prodRef->{general}->{summary}[0]->{_content};
+    $re->{specification} = $prodRef->{summary}[0]->{_content};  # FIXME: lang dependent
 
     return $re;
 }
@@ -91,13 +93,53 @@ sub createPreferences( $ )
 
     $re->{type} = [{_content => "dummy"}];
     $re->{version} = sprintf( "%s.%s",
-			      $prodRef->{general}->{version},
-			      $prodRef->{general}->{release}  );
+			      $prodRef->{version},
+			      $prodRef->{release}  );
 
     # $re->{size} = ; do not give the optional size
     $re->{packagemanager} = "zypper" ;
 
     return $re;
+}
+
+sub parseRepositories( $ )
+{
+    my( $repoListRef ) = @_;
+
+    foreach my $repoRef ( @{$repoListRef } ) {
+	my $name = $repoRef->{name};
+	print "Repository $name parsed.\n";
+	$repositories{$name} = { href => $repoRef->{href}, priority => $repoRef->{priority} };
+    }
+}
+
+#
+# The conditionals are kind of macros which are used all over the product definition.
+# The conditionals part of the product def is parsed into the global conditionalhash
+# with the conditional name as key.
+#
+sub parseConditionals( $ )
+{
+    my ($conditionalRef) = @_;
+    return unless( $conditionalRef );
+
+    foreach my $condRef (@{$conditionalRef}) {
+	my $name = $condRef->{name};
+	print "Parsed conditional $name\n";
+	my $platRef = $condRef->{platform};
+	if( $platRef && $platRef->{onlyarch} ) {
+	    $conditionals{onlyarch} = $platRef->{onlyarch};
+	}
+	if( $platRef && $platRef->{arch} ) {
+	    $conditionals{arch} = $platRef->{arch};
+	}
+	if( $platRef && $platRef->{baselibs_arch} ) {
+	    $conditionals{baselibs_arch} = $platRef->{baselibs_arch};
+	}
+	if( $platRef && $platRef->{media} ) {
+	    $conditionals{media} = $platRef->{media};
+	}
+    }
 }
 
 sub createArchitectures()
@@ -345,13 +387,15 @@ sub createInstsource( $$ )
 
     $re->{architectures} = createArchitectures();
     $re->{productoptions} = createProductOptions();
-    # instrepo can be copied, but lets check if only obs:// is used.
+    
     my @r;
-    foreach my $repo ( @{$prodRef->{instrepo}} ){
-      die "ERROR: Non obs:// repo used in $repo->{'name'}\n" if ( $repo->{'source'}->{'path'} !~ "^obs://.+" );
-      push @r, $repo;
+    foreach my $repo ( @{$medium->{repositories} } ) {
+	my %h;
+	$h{name} = $repo->{name};
+	$h{priority} = $repo->{priority};
+	$h{source} = { path => $repo->{href} };
+	push @r, \%h;
     }
-    # Hm, should we implicit add our own Project ?
     $re->{instrepo} = \@r;
     
     # metadata, media dependant
@@ -483,7 +527,7 @@ sub writeProductSPECfile
 }
 
 # Process the commandline arguments.
-getopts('h');
+getopts('dh');
 
 usage() if ($opt_h );
 
@@ -501,20 +545,28 @@ my $prodRef = readProductFile( $infile );
 # Create a kiwi configuration for each distribution flavor
 #
 
-my $kiwiImage;
+
+my $productRef = $prodRef->{products}{product}[0]; # FIXME: Support multiple products.
+
+my $kiwiImage = {};
 $kiwiImage->{schemeversion} = "2.4"; # ???
 my $name = sprintf( "%s %s %s, Rel. %s",
-		    $prodRef->{general}->{vendor},
-		    $prodRef->{general}->{name},
-		    $prodRef->{general}->{version},
-		    $prodRef->{general}->{release} );
+		    $productRef->{vendor},
+		    $productRef->{name},
+		    $productRef->{version},
+		    $productRef->{release} );
 
 $kiwiImage->{name} = $name;
 
-$kiwiImage->{description} = createDescription( $prodRef );
-$kiwiImage->{preferences} = createPreferences( $prodRef );
+$kiwiImage->{description} = createDescription( $productRef );
+$kiwiImage->{preferences} = createPreferences( $productRef );
 # so far for all media types identical. Now loop over the media types
 # to create media type specific versions;
+
+parseConditionals( $prodRef->{conditionals} );
+parseRepositories( $prodRef->{repositories} );
+
+#########
 
 my %generalImage = %{$kiwiImage};
 
@@ -522,6 +574,9 @@ my $media = $prodRef->{mediasets}->{media};
 
 foreach my $medium ( @$media ){
     my $type = $medium->{type};
+    my $product = $medium->{product};  # note: this needs to reference a product from the products section 
+    my $name = $medium->{name};
+   
     my $kiwi = \%generalImage;
 
     $kiwi->{instsource}  = createInstsource ( $prodRef, $medium );
