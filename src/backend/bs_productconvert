@@ -555,8 +555,8 @@ for my $p ( $prodRef->{'products'} ) {
     };
   };
   if ( -e "$templateFile" ) {
-    mkdir_p( "$outdir/$product->{name}-release" ) || die ("Unable to create $outdir\n");
-    writeProductSPECfile( "$outdir/$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
+    mkdir_p( "$outdir/_product_$product->{name}-release" ) || die ("Unable to create $outdir\n");
+    writeProductSPECfile( "$outdir/_product_$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
   } else {
     print "No release template file $templateFile does exist.\nSPEC file generation skipped !\n";
   };
@@ -602,8 +602,10 @@ foreach my $medium ( @$media ){
     $kiwi->{instsource}  = createInstsource ( $prodRef, $medium );
     $kiwi->{repository}  = createRepository ( $prodRef );
 
-    my $outFile = "kiwitest/$medium->{name}-$type.kiwi";
+    my $kiwiDir = "$outdir/_product_$medium->{name}-$type/";
+    my $outFile = "$kiwiDir/$medium->{name}-$type.kiwi";
 
+    mkdir_p( "$kiwiDir" ) || die ("Unable to create $kiwiDir\n");
     writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
     print "$outFile written.\n";
 }
