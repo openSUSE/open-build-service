@@ -522,7 +522,12 @@ for my $p ( $prodRef->{'products'} ) {
   my $product = $p->{'product'}[0];
   my $templateFile;
   if ($infile =~ /(.*\/)(.+)$/) {
-    $templateFile = "$1/release.spec";
+    $templateFile = "$1/$product->{name}-release.spec";
+  };
+  if ( ! -e "$templateFile" ) {
+    if ($infile =~ /(.*\/)(.+)$/) {
+      $templateFile = "$1/release.spec";
+    };
   };
   if ( -e "$templateFile" ) {
     writeProductSPECfile( "$product->{name}-release.spec", $templateFile, $prodRef, $product );
