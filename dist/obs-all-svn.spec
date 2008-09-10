@@ -26,7 +26,7 @@ Version:        %{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component
-Source:         obs-all-svn-%{svnversion}.tar.bz2
+Source:         obs-all-%{svnversion}.tar.bz2
 Source1:        obsworker
 Source3:        obspublisher
 Source4:        obsrepserver
