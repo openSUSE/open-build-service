@@ -283,9 +283,10 @@ sub useToPackages( $$ )
     foreach my $useState ( @useStatements ) {
 
 	my $useRequired = $useState->{use_required} || 1 ;
-	my $useSuggested = $useState->{use_suggested} || 0;
-	my $useRecommended = $useState->{use_recommended} || 0;
+	my $useSuggested = $useState->{use_suggested} || 1;
+	my $useRecommended = $useState->{use_recommended} || 1;
 
+	print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
 
 	if( $useState->{group} ) {
 	    print "Handling use of group $useState->{group}\n";
@@ -318,7 +319,7 @@ sub groupToPackages( $$$$$ )
 {
     my ($prodRef, $group, $useReq, $useRec, $useSug ) = @_;
 
-    my @groups = $prodRef->{group}[0]; 
+    my @groups = @{$prodRef->{group}}; 
     my $groupRef;
 
     foreach my $gl( @groups ) {
@@ -340,14 +341,15 @@ sub groupToPackages( $$$$$ )
 
     my @packagelists = @{$groupRef->{packagelist}};
 
-    my $useFlags = { requires => $useReq || 0, recommends => $useRec || 0, suggests => $useSug || 0 };
+    my $useFlags = { required => $useReq || 0, recommended => $useRec || 0, suggested => $useSug || 0 };
+
 
     my @resultList;
 
     foreach my $packList ( @packagelists ) {
 	my $relation = $packList->{relationship} || 'requires';
-	
-	if( $useFlags->{$relation} ) {
+	print "Relation: $relation\n";
+	if( $useFlags->{$relation} && $packList->{package} ) {
 	    # parse the package in 
 	    my @packs = @{$packList->{package}};
 	    foreach my $pack ( @packs ) {
@@ -408,7 +410,7 @@ sub createInstsource( $$ )
     $re->{productoptions} = createProductOptions();
     
     my @r;
-    print Dumper $prodRef;
+    
     foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
 	my %h;
 	$h{name} = $repo->{name};
@@ -431,7 +433,7 @@ sub createInstsource( $$ )
     if( $useToPacks ) {
 	push @packages, { repopackage => $useToPacks };
     }
-    print "Packlist: " . Dumper \@packages;
+    # print "Packlist: " . Dumper \@packages;
     $re->{repopackages} =  \@packages;
 
     return $re;
