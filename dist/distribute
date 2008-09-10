@@ -63,6 +63,7 @@ source ./.distrc
 : ${TARGET:?TARGET unset. set in .distrc or environment.}
 : ${ARCH:=i586}
 : ${SPECFILE:=*.spec}
+: ${TARPACKAGE:=obs-server}
 
 : ${SVNDIR:?SVNDIR unset. set in .distrc or environment.}
 : ${BUILDOPTS:=}
@@ -223,7 +224,7 @@ if [ ${DO_TAR} ]; then
     # connect to.
     SVNVERSION=${SVNVERSION//:/_}
 
-    : ${TARFILE:=${PACKAGE}-${OBSREV}.${SVNVERSION}}
+    : ${TARFILE:=${TARPACKAGE}-${OBSREV}.${SVNVERSION}}
 
     if [ ! -f ${TARFILE}.tar.bz2 ] ; then
 

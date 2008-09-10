@@ -3,6 +3,7 @@
 : ${OSCOPTS:="-A https://api.opensuse.org"}
 : ${PROJECT:=openSUSE:Tools:Devel}
 : ${PACKAGE:=obs-server-svn}
+: ${TARPACKAGE:=obs-server}
 : ${TARGET:=openSUSE_11.0}
 : ${ARCH:=i586}
 : ${SPECFILE:=}
