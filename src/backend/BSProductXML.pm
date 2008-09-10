@@ -58,9 +58,9 @@ our $group = [
             [ 'name' => '_content' ],
             [ 'icon' => '_content' ],
             [ 'visible' => '_content' ],
-            [ 'category' => 'lang', [], '_content' ],
-            [ 'summary' => 'lang', [], '_content' ],
-            [ 'description' => 'lang', [], '_content' ],
+            [ 'category' => 'language', [], '_content' ],
+            [ 'summary' => 'language', [], '_content' ],
+            [ 'description' => 'language', [], '_content' ],
             [ 'relationships' =>
                [],
                [[ 'pattern' => 'name', 'relationship' ]],
@@ -94,20 +94,20 @@ our $product = [
               'release',
               'flavor',
            ]],
-           'update_repo_key',
+           'updaterepokey',
            [[ 'summary' =>
-              'lang',
+              'language',
               [],
               '_content'
            ]],
            [[ 'description' =>
-              'lang',
+              'language',
               [],
               '_content'
            ]],
            [ 'linguas' =>
              [],
-             [[ 'lang' => '_content' ]],
+             [[ 'language' => '_content' ]],
            ],
            [ 'urls' =>
              [],
@@ -122,7 +122,7 @@ our $product = [
              'betaversion',
              [ 'linguas' =>
                [],
-               [[ 'lang' => '_content' ]],
+               [[ 'language' => '_content' ]],
              ],
              'allowresolving',
              'packagemanager',
@@ -130,8 +130,8 @@ our $product = [
            [ 'installconfig' =>
               'defaultlang',
               'datadir',
-              'descrdir',
-              [ 'references' => 'name', 'version' ],
+              'descriptiondir',
+              [ 'releasepackage' => 'name', 'version' ],
               'distribution',
            ],
            [ 'runtimeconfig' =>
@@ -169,6 +169,14 @@ our $productdesc = [
            'path',
         ]],
       ],
+      [ 'archsets' =>
+        [[ 'archset' => 
+             'name',
+             'productarch',
+             [],
+             [[ 'arch' => '_content' ]],
+        ]],
+      ],
       [ 'mediasets' =>
          [[ 'media' =>
             'type',
@@ -179,13 +187,11 @@ our $productdesc = [
             'use_recommended',
             'use_suggested',
             'use_required',
-            [ 'mediaarchs' =>
+            [[ 'archsets' =>
               [[ 'archset' => 
-                   'basearch',
-                   [],
-                   [[ 'arch' => '_content' ]],
+                   'ref',
               ]],
-            ],
+            ]],
             [[ 'use' =>
                'group',
                'use_recommended',
