@@ -115,7 +115,6 @@ module FlagModelHelper
               rep.arch ||= Array.new
               if flag.has_attribute? :arch
                 arch_element = ActiveXML::Node.new("<arch>#{flag.arch}</arch>")
-                rep.arch ||= Array.new
                 rep.arch << arch_element
               end
               repos << rep
