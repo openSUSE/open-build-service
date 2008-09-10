@@ -49,41 +49,37 @@ our $group = [
           'name',
           'version',
           'release',
-          'relationship',
-          'pattern:ordernumber',
-          'pattern:category',
-          'pattern:icon',
-          'pattern:summary',
-          'pattern:description',
-          'pattern:visible',
           [],
-          [[ 'pattern:provides' ]],
           [[ 'include' => 'group' ]],
-          [[ 'pattern' =>
-             'name',
-             'path',
+          [ 'pattern' =>
+            'ordernumber',
+            [],
+            [ 'name' => '_content' ],
+            [ 'icon' => '_content' ],
+            [ 'visible' => '_content' ],
+            [ 'category' => 'lang', [], '_content' ],
+            [ 'summary' => 'lang', [], '_content' ],
+            [ 'description' => 'lang', [], '_content' ],
+            [ 'relationships' =>
+               [],
+               [[ 'pattern' => 'name', 'relationship' ]],
+            ],
+          ],
+          [[ 'packagelist' =>
              'relationship',
-             'condition',
-             'version',
-             'flag',
-          ]],
-          [[ 'conditional' => 'name' ]],
-          [[ 'package' =>
-             'name',
-             [[ 'conditional' => 'name' ]],
-             [[ 'platform' => 'forcearch', 'addarch', 'removearch', 'onlyarch', 'source', 'script', 'medium', 'priority' ]],
+             'id',
+             [],
+             [[ 'package' => 'name',
+#'forcearch', 'addarch', 'removearch', 'onlyarch', 'source', 'script', 'medium', 'priority'
+                [[ 'conditional' => 'name' ]],
+                [[ 'plattform' => 'excludearch', 'onlyarch', 'arch', 'soruce_arch', 'replace_native' ]],
+             ]],
           ]],
 ];
-#  hack:greate cyclic definition!
-push @$group, [$group];
 
-our $productdesc = [
-    'productdefinition' =>
-      'xmlns:xi',
-      'schemeversion',
-      [],
-      [ 'products' =>
-        [[ 'product' =>
+# Defines a single product, will be used in installed system to indentify it 
+our $product = [
+           'product' =>
            'id',
            [],
            'vendor',
@@ -139,61 +135,71 @@ our $productdesc = [
            [ 'runtimeconfig' =>
               'allowresolving',
            ],
-         ]],
-       ],
-       [ 'conditionals' =>
-         [[ 'conditional' =>
+];
+
+# Complete product definition. Defines how a media is setup
+# and which products are available.
+our $productdesc = [
+    'productdefinition' =>
+      'xmlns:xi',
+      'schemeversion',
+      [],
+      [ 'products' =>
+        [ $product ],
+      ],
+      [ 'conditionals' =>
+        [[ 'conditional' =>
+           'name',
+           [ 'platform' => 
+             'onlyarch',
+             'arch',
+             'baselibs_arch',
+           ],
+           [ 'media' => 
+             'number',
+           ],
+        ]],
+      ],
+      [ 'repositories' =>
+        [[ 'repository' =>
+           'name',
+           'priority',
+           'path',
+        ]],
+      ],
+      [ 'mediasets' =>
+         [[ 'media' =>
+            'type',
+            'product',
             'name',
-            [ 'platform' => 
-              'onlyarch',
-              'arch',
-              'baselibs_arch',
+            'sourcemedia',
+            'create_pattern',
+            'use_recommended',
+            'use_suggested',
+            'use_required',
+            [ 'mediaarchs' =>
+              [[ 'archset' => 
+                   'basearch',
+                   [],
+                   [[ 'arch' => '_content' ]],
+              ]],
             ],
-            [ 'media' => 
-              'number',
+            [[ 'use' =>
+               'group',
+               'use_recommended',
+               'use_suggested',
+               'use_required',
+               'create_pattern',
+               [[ 'package' => 'name', 'relationship' ]],
+               [[ 'include' => 'group', 'relationship' ]],
+            ]],
+            [ 'metadata' =>
+               [[ 'package' => 'name', 'medium', 'removearch' ]],
+               [[ 'file' => 'name' ]],
             ],
          ]],
-       ],
-       [ 'repositories' =>
-         [[ 'repository' =>
-            'name',
-            'priority',
-            'path',
-         ]],
-       ],
-       [ 'mediasets' =>
-          [[ 'media' =>
-             'type',
-             'product',
-             'name',
-             'sourcemedia',
-             'create_pattern',
-             'use_recommended',
-             'use_suggested',
-             'use_required',
-             [ 'mediaarchs' =>
-               [[ 'archset' => 
-                    'basearch',
-                    [],
-                    [[ 'arch' => '_content' ]],
-               ]],
-             ],
-             [[ 'use' =>
-                'group',
-                'use_recommended',
-                'use_suggested',
-                'use_required',
-                'create_pattern',
-                [[ 'package' => 'name', 'relationship' ]],
-                [[ 'include' => 'group', 'relationship' ]],
-             ]],
-             [ 'metadata' =>
-                [[ 'package' => 'name', 'medium', 'removearch' ]],
-                [[ 'file' => 'name' ]],
-             ],
-          ]],
-       ],
-       [ $group ],
+      ],
+      [ $group ],
 ];
 
 sub mergexmlfiles {
