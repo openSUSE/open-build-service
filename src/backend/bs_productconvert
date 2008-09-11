@@ -330,13 +330,13 @@ sub useToPackages( $$ )
 
     my @packages;
 
+    my $useRequired = ($medium->{use_required} eq "true" );
+    my $useSuggested = ($medium->{use_suggested} eq "true" );
+    my $useRecommended = ($medium->{use_recommended} eq "true" );
+
+    print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
+    
     foreach my $useState ( @useStatements ) {
-
-	my $useRequired = $useState->{use_required} || 1 ;
-	my $useSuggested = $useState->{use_suggested} || 1;
-	my $useRecommended = $useState->{use_recommended} || 1;
-
-	# print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
 
 	if( $useState->{group} ) {
 	    print "Handling use of group $useState->{group}\n";
