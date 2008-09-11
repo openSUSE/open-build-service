@@ -121,7 +121,7 @@ our $kiwidesc = [
           [[ 'repopackages' =>
 	     [[ 'repopackage' =>
                 'name',
-                'addarch',
+                'addarch', 'arch', 'baselibs_arch', 
                 'forcearch','removearch', 'onlyarch', 'source', 'script', 'medium', 'priority'
              ]],
           ]],

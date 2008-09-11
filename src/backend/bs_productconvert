@@ -130,19 +130,8 @@ sub parseConditionals( $ )
     foreach my $condRef (@{$conditionalRef}) {
 	my $name = $condRef->{name};
 	print "Parsed conditional $name\n";
-	my $platRef = $condRef->{platform};
-	if( $platRef && $platRef->{onlyarch} ) {
-	    $conditionals{onlyarch} = $platRef->{onlyarch};
-	}
-	if( $platRef && $platRef->{arch} ) {
-	    $conditionals{arch} = $platRef->{arch};
-	}
-	if( $platRef && $platRef->{baselibs_arch} ) {
-	    $conditionals{baselibs_arch} = $platRef->{baselibs_arch};
-	}
-	if( $platRef && $platRef->{media} ) {
-	    $conditionals{media} = $platRef->{media};
-	}
+
+	$conditionals{$name} = $condRef;
     }
 }
 
@@ -197,15 +186,6 @@ sub createArchitectures( $ )
 
 	my $archfallbacks = \%archMatrix;
 	    
-    # { 'ppc64' => { name => 'Motorola 64 Bit', fallback => 'ppc' },
-    #   'ppc' =>   { name => 'Motorola 32 Bit', fallback => 'noarch' },
-    #   'i686' =>  { name => 'Intel x86', fallback => 'i586' },
-    #   'i586' =>  { name => 'Intel x86', fallback => 'i486' },
-    #   'i486' =>  { name => 'Intel x86', fallback => 'i386' },
-    #   'i386' =>  { name => 'Intel x86', fallback => 'noarch' },
-    #   'x86_64' =>{ name => 'AMD 64 bit', fallback => 'i686' },
-    #   'src'  =>  { name => 'Source rpms', fallback => undef },
-    #   'noarch' =>{ name => 'platform independent' } };
 	foreach my $arch ( keys %$archfallbacks ) {
 	    my %h;
 	    $h{id} = $arch;
@@ -372,6 +352,7 @@ sub groupToPackages( $$$$$ )
     my @groups = @{$prodRef->{group}}; 
     my $groupRef;
 
+    # search for the group we should convert here.
     foreach my $gl( @groups ) {
 	if( $gl->{name} eq $group ) {
 	    $groupRef = $gl;
@@ -389,10 +370,11 @@ sub groupToPackages( $$$$$ )
 	return;
     }
 
+    # ok, here we have a valid group reference.
+
     my @packagelists = @{$groupRef->{packagelist}};
 
-    my $useFlags = { required => $useReq || 0, recommended => $useRec || 0, suggested => $useSug || 0 };
-
+    my $useFlags = { requires => $useReq || 0, recommends => $useRec || 0, suggests => $useSug || 0 };
 
     my @resultList;
 
@@ -403,7 +385,26 @@ sub groupToPackages( $$$$$ )
 	    # parse the package in 
 	    my @packs = @{$packList->{package}};
 	    foreach my $pack ( @packs ) {
-		push @resultList, { name => $pack->{name} };
+		my %h;
+
+		# print Dumper $pack;
+
+		foreach my $cond( @{$pack->{conditional} } ) {
+		    my $name = $cond->{name};
+		    my $cond = $conditionals{$name};
+		    my $valRef = $cond->{platform};
+		    if( $valRef ) {
+			foreach( keys %{$valRef} ) {
+			    $h{$_} = $valRef->{$_};
+			}
+		    }
+		    if( $cond->{media} ) {
+			$h{medium} = $cond->{media}->{number};
+		    }
+		}
+
+		$h{name} = $pack->{name};
+		push @resultList, \%h;
 	    }
 	}
 
