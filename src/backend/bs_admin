@@ -206,7 +206,7 @@ sub check_product_xml_file {
   my ($file) = @_;
 
   print "parsing $file\n";
-  my $xmldesc = BSProductXML::readproductxml("$file", 0 );
+  my $xmldesc = BSProductXML::readproductxml("$file", 0, 1 );
   if ( defined($xmldesc) ) {
     print "Succesfull parsed file !\n";
   }else{
