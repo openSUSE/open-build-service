@@ -164,7 +164,9 @@ sub createArchitectures( $ )
     my $re = {};
 
     my @archs;
-    my @reqArchs;
+    my %reqArchs;
+
+    my %archMatrix;
 
     foreach my $requiredArch( @{$archSetList} ) {
 	my $ref = $requiredArch->{ref};
@@ -177,31 +179,27 @@ sub createArchitectures( $ )
 	
 	print "WARN: last arch in archset must be noarch\n" unless( $archis[$border-1] eq "noarch" );
 
-	push @reqArchs, $archSets{$ref}->{productarch};
+	$reqArchs{ $archSets{$ref}->{productarch} } = 1; # will be requiredarch in kiwi
 	
-	my %archMatrix;
-	for( my $i = 0; $i < $border-1; $i++ ) {
+	for( my $i = 0; $i < $border; $i++ ) {
 	    $archMatrix{ $archis[$i] } = { fallback => $archis[$i+1] };
 	}
-
-	my $archfallbacks = \%archMatrix;
-	    
-	foreach my $arch ( keys %$archfallbacks ) {
-	    my %h;
-	    $h{id} = $arch;
-	    if( $archfallbacks->{$arch}->{name} ) {
-  	       $h{name} = $archfallbacks->{$arch}->{name};
-            } else {
-  	       $h{name} = "dummy"; # FIXME: should become optional
-            };
-	    $h{fallback} = $archfallbacks->{$arch}->{fallback} if( $archfallbacks->{$arch}->{fallback});
-	    push @archs, \%h;
-	}
+    }
+    foreach my $arch ( keys %archMatrix ) {
+	my %h;
+	$h{id} = $arch;
+	if( $archMatrix{$arch}->{name} ) {
+	    $h{name} = $archMatrix{$arch}->{name};
+	} else {
+	    $h{name} = "dummy"; # FIXME: should become optional
+	};
+	$h{fallback} = $archMatrix{$arch}->{fallback} if( $archMatrix{$arch}->{fallback});
+	push @archs, \%h;
     }
     
     my @reqXml;
 
-    foreach ( @reqArchs ) {
+    foreach ( keys %reqArchs ) {
 	my %h;
 	$h{ref} = $_;
 	push @reqXml, \%h;
