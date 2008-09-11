@@ -713,12 +713,9 @@ class ProjectController < ApplicationController
   end
 
   def filter_packages( project, filterstring )
-    all_packages = Package.find( :all, :project => project )
-    matching_packages = Array.new
-    all_packages.each_entry do |entry|
-      matching_packages << entry.name if entry.name.include? filterstring
-    end
-    return matching_packages
+    result = Collection.find :id, :what => "package",
+      :predicate => "@project='#{project}' and contains(@name,'#{filterstring}')"
+    return result.each.map {|x| x.name}
   end
 
 end
