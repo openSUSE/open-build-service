@@ -420,6 +420,7 @@ sub createInstsource( $$ )
 	$h{priority} = $repo->{priority};
         $localpath = $repo->{path};
         if ($repo->{path} =~ /^obs:\/\/(.+)$/ ) {
+	  $h{local} = "true";
           $localpath = $1;
         } else {
           die( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
