@@ -1,37 +1,26 @@
 <!-- Package table -->
 <h3>
-	Packages
-	<%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Package' ),
-	:controller => 'package', :action => :new, :project => @project %>
+  Packages
+  <%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Package' ),
+  :controller => 'package', :action => :new, :project => @project %>
 </h3>
 
-<% if @packages.length.to_i > 0 -%>
-
-	<% if @packages.length.to_i > 10 || params[:filter_active] -%>
-	<%= render :partial => 'filter_packages' %>
-	<% end %>
-
-	<div id="search_results">
-		<table class="grid">
-			<% @packages.sort.each do |package| -%>
-			<tr>
-			  <td><%= link_to package, :controller => 'package', :action => :show,
-			    :project=> @project, :package => package %></td>
-			  <!-- remove link disabled
-			  <td><%= link_to "[Remove]", {:controller => 'package', :action => :remove,
-			    :project => @project, :package => package}, {:confirm => "Really remove package '#{package}'?", :class => 'x'} %></td>
-			  -->
-			</tr>
-			<% end #each_entry %>
-		</table>
-	</div>
-<% end #count > 0 -%>
+<%= render :partial => 'filter_packages' %>
+<div id="search_results">
+  <script language="javascript">
+    <%= remote_function :update => 'search_results',
+      :url => {:action => :search_package, :project => params[:project]},
+      :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",
+      :with => "'searchtext='"
+    %>
+  </script>
+</div>
 
 <p>
-	<%= link_to "[Add Package]", :controller => 'package', :action => :new,
-	:project => @project %>
+  <%= link_to "[Add Package]", :controller => 'package', :action => :new,
+  :project => @project %>
 </p>
 <p>
-	<%= link_to "[Link Package from other Project]", :controller => 'package',
-	:action => :new_link, :project => @project %>
+  <%= link_to "[Link Package from other Project]", :controller => 'package',
+  :action => :new_link, :project => @project %>
 </p>

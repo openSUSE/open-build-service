@@ -75,14 +75,6 @@ class ProjectController < ApplicationController
     begin
       @debug = params[:debug]
       @project = Project.find( params[:project] )
-      # create array of package-names
-      if !@packages
-        @packages_xml = Package.find( :all, :project => params[:project] )
-        @packages = Array.new
-        @packages_xml.each_entry do |package|
-          @packages << package.name
-        end
-      end
     rescue ActiveXML::Transport::NotFoundError
       # create home project if none is there
       logger.debug "caught Transport::NotFoundError in ProjectController#show"

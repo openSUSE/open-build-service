@@ -39,8 +39,8 @@
 
 
 
-<% if @packages.length > 0 and @project.has_element?(:repository) -%>
+<% if @project.has_element?(:repository) -%>
   <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
 <% else -%>
-  <p><i>Add packages/repositories to enable the build monitor</i></p>
+  <p><i>Add repositories to enable the build monitor</i></p>
 <% end -%>
