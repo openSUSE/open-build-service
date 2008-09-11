@@ -11,7 +11,7 @@
 
 Name:           obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
-BuildRequires:  rubygem-builder python-devel
+BuildRequires:  rubygem-builder python-devel lighttpd 
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -78,6 +78,7 @@ Summary:        The openSUSE Build Service -- Build Host Component
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
+BuildRequires:  lighttpd
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
 Requires:       rubygem-rails >= 2.0
 Group:          Productivity/Networking/Web/Utilities
@@ -156,6 +157,10 @@ install -m 0644 %SOURCE9 $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/rails.inc
 install -m 0644 %SOURCE8 $RPM_BUILD_ROOT/etc/lighttpd/
 rm $RPM_BUILD_ROOT/srv/www/obs/frontend/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/frontend/files/specfiletemplate
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/log
+touch $RPM_BUILD_ROOT/srv/www/obs/frontend/log/development.log
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webclient/log
+touch $RPM_BUILD_ROOT/srv/www/obs/webclient/log/development.log
 # fix path
 for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
   sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
@@ -251,8 +256,6 @@ done
 %restart_on_update obsworker
 
 %post -n obs-api
-touch /srv/www/obs/{webclient,frontend}/log/development.log
-chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 %restart_on_update lighttpd
 
 %clean
@@ -350,8 +353,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/frontend/config
 %config(noreplace) /srv/www/obs/webclient/config
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
+%attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/tmp
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
+%attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/tmp
 %config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
 %config /etc/lighttpd/cleanurl-v5.lua
