@@ -35,7 +35,7 @@ use BSConfig;
 
 # read the product xml file
 
-use vars qw ( $opt_h $opt_l $opt_d @errors %conditionals %repositories %groupRefs $indir $runOnServer);
+use vars qw ( $opt_h $opt_l $opt_d @errors %conditionals %repositories %groupRefs %archSets $indir $runOnServer);
 
 sub usage()
 {
@@ -145,38 +145,85 @@ sub parseConditionals( $ )
     }
 }
 
-sub createArchitectures()
+sub parseArchsets( $ ) 
 {
+    my ($archSetsRef ) = @_;
+
+    foreach my $archSet ( @{$archSetsRef } ) {
+	# print "Parsing Archset $archSet->{name}\n";
+
+	# print "XXXX " . Dumper( $archSet ) . "\n";
+	if( $archSet->{name} ) {
+	    my %h;
+	    $h{productarch} = $archSet->{productarch};
+	    my @a;
+	    foreach my $cRef ( @{$archSet->{arch}} ) {
+		push @a, $cRef->{_content};
+	    }
+	    $h{archList} = \@a;
+	    $archSets{$archSet->{name}} = \%h;
+	}
+    }
+    # print Dumper %archSets;
+}
+
+sub createArchitectures( $ )
+{
+    my ($archSetList) = @_;
+
     my $re = {};
 
-    my $archfallbacks = { 'ppc64' => { name => 'Motorola 64 Bit', fallback => 'ppc' },
-			  'ppc' =>   { name => 'Motorola 32 Bit', fallback => 'noarch' },
-			  'i686' =>  { name => 'Intel x86', fallback => 'i586' },
-			  'i586' =>  { name => 'Intel x86', fallback => 'i486' },
-			  'i486' =>  { name => 'Intel x86', fallback => 'i386' },
-			  'i386' =>  { name => 'Intel x86', fallback => 'noarch' },
-			  'x86_64' =>{ name => 'AMD 64 bit', fallback => 'i686' },
-			  'src'  =>  { name => 'Source rpms', fallback => undef },
-			  'noarch' =>{ name => 'platform independent' } };
     my @archs;
-    foreach my $arch ( keys %$archfallbacks ) {
-	my %h;
-	$h{id} = $arch;
-	$h{name} = $archfallbacks->{$arch}->{name};
-	$h{fallback} = $archfallbacks->{$arch}->{fallback} if( $archfallbacks->{$arch}->{fallback});
-	push @archs, \%h;
-    }
-    $re->{arch} = \@archs;
+    my @reqArchs;
 
+    foreach my $requiredArch( @{$archSetList} ) {
+	my $ref = $requiredArch->{ref};
+	unless( $archSets{$ref} ) {
+	    print "ERROR: No such archset $requiredArch\n";
+	    next;
+	}
+	my @archis = @{ $archSets{$ref}->{archList} };
+	my $border = @archis; # the amount of entries
+	
+	print "WARN: last arch in archset must be noarch\n" unless( $archis[$border-1] eq "noarch" );
+
+	push @reqArchs, $archSets{$ref}->{productarch};
+	
+	my %archMatrix;
+	for( my $i = 0; $i < $border-1; $i++ ) {
+	    $archMatrix{ $archis[$i] } = { fallback => $archis[$i+1] };
+	}
+
+	my $archfallbacks = \%archMatrix;
+	    
+    # { 'ppc64' => { name => 'Motorola 64 Bit', fallback => 'ppc' },
+    #   'ppc' =>   { name => 'Motorola 32 Bit', fallback => 'noarch' },
+    #   'i686' =>  { name => 'Intel x86', fallback => 'i586' },
+    #   'i586' =>  { name => 'Intel x86', fallback => 'i486' },
+    #   'i486' =>  { name => 'Intel x86', fallback => 'i386' },
+    #   'i386' =>  { name => 'Intel x86', fallback => 'noarch' },
+    #   'x86_64' =>{ name => 'AMD 64 bit', fallback => 'i686' },
+    #   'src'  =>  { name => 'Source rpms', fallback => undef },
+    #   'noarch' =>{ name => 'platform independent' } };
+	foreach my $arch ( keys %$archfallbacks ) {
+	    my %h;
+	    $h{id} = $arch;
+	    $h{name} = $archfallbacks->{$arch}->{name} if( $archfallbacks->{$arch}->{name} );
+	    $h{fallback} = $archfallbacks->{$arch}->{fallback} if( $archfallbacks->{$arch}->{fallback});
+	    push @archs, \%h;
+	}
+    }
+    
     my @reqXml;
-    my @reqArchs = ( 'ppc64', 'ppc', 'i686', 'x86_64' );
+
     foreach ( @reqArchs ) {
 	my %h;
 	$h{ref} = $_;
 	push @reqXml, \%h;
     }
+    $re->{arch} = \@archs;
     $re->{requiredarch} = \@reqXml;
-
+    
     return $re;
 }
 
@@ -403,12 +450,22 @@ sub expandPackages( $ )
     }
 }
 
-sub createInstsource( $$ )
+#
+# Creation of the instsource part of the kiwi file
+#
+# note that the product spec contains a list of archsets. For each of these archsets and 
+# for each of the media must be a separate kiwi file.
+#
+# 1. parameter: the reference on the product datastructure
+# 2. parameter: the reference on the current media datastructure
+# 3. parameter: list of the archs for this kiwi file.
+#
+sub createInstsource( $$$ )
 {
-    my( $prodRef, $medium ) = @_;
+    my( $prodRef, $medium, $archSetList ) = @_;
     my $re = {};
 
-    $re->{architectures} = createArchitectures();
+    $re->{architectures} = createArchitectures( $archSetList );
     $re->{productoptions} = createProductOptions();
     
     my @r;
@@ -605,6 +662,7 @@ $kiwiImage->{preferences} = createPreferences( $productRef );
 
 parseConditionals( $prodRef->{conditionals}->{conditional} );
 parseRepositories( $prodRef->{repositories}->{repository} );
+parseArchsets( $prodRef->{archsets}{archset} );
 
 #########
 
@@ -617,17 +675,31 @@ foreach my $medium ( @$media ){
     my $product = $medium->{product};  # note: this needs to reference a product from the products section 
     my $name = $medium->{name};
    
-    my $kiwi = \%generalImage;
+    # create one kiwi file each for every of the archsets
+    my @archSets = @{$medium->{archsets}};
+    foreach my $arch ( @archSets ) {
+	my $kiwi = \%generalImage;
 
-    $kiwi->{instsource}  = createInstsource ( $prodRef, $medium );
-    $kiwi->{repository}  = createRepository ( $prodRef );
+	$kiwi->{instsource}  = createInstsource ( $prodRef, $medium, $arch->{archset} );
+	$kiwi->{repository}  = createRepository ( $prodRef );
 
-    my $kiwiDir = "$outdir/_product_$medium->{name}-$type/";
-    my $outFile = "$kiwiDir/$medium->{name}-$type.kiwi";
+	my $archStr;
+	my @archsets = @{$arch->{archset}};
+	foreach my $ar ( @archsets ) {
+	    if( $archSets{$ar->{ref}} ) {
+		$archStr .= "_" if( $archStr );
+		$archStr .= "$archSets{$ar->{ref}}->{productarch}";
+	    }
+	}
 
-    mkdir_p( "$kiwiDir" ) || die ("Unable to create $kiwiDir\n");
-    writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
-    print "$outFile written.\n";
+	my $file = "$product-$type-$archStr";
+	my $kiwiDir = "$outdir/_product_$file/";
+	my $outFile = "$kiwiDir/$file.kiwi";
+
+	mkdir_p( "$kiwiDir" ) || die ("Unable to create $kiwiDir\n");
+	writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
+	print "$outFile written.\n";
+    }
 }
 
 
