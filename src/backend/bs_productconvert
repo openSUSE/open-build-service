@@ -35,7 +35,8 @@ use BSConfig;
 
 # read the product xml file
 
-use vars qw ( $opt_h $opt_l $opt_d @errors %conditionals %repositories %groupRefs %archSets $indir $runOnServer);
+use vars qw ( $opt_h $opt_l $opt_d $opt_m 
+              @errors %conditionals %repositories %groupRefs %archSets $indir $runOnServer);
 
 sub usage()
 {
@@ -50,7 +51,7 @@ sub usage()
   -h:   help, print this text.
   -l:   Run local on server, use direct path instead of obs:// URL.
   -d:   debug, create debug output and files
-
+  -m:   mediaset, build only for the given mediaset, identify by name
 END
 ;
 
@@ -335,7 +336,7 @@ sub useToPackages( $$ )
 	my $useSuggested = $useState->{use_suggested} || 1;
 	my $useRecommended = $useState->{use_recommended} || 1;
 
-	print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
+	# print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
 
 	if( $useState->{group} ) {
 	    print "Handling use of group $useState->{group}\n";
@@ -397,7 +398,7 @@ sub groupToPackages( $$$$$ )
 
     foreach my $packList ( @packagelists ) {
 	my $relation = $packList->{relationship} || 'requires';
-	print "Relation: $relation\n";
+	# print "Relation: $relation\n";
 	if( $useFlags->{$relation} && $packList->{package} ) {
 	    # parse the package in 
 	    my @packs = @{$packList->{package}};
@@ -600,7 +601,7 @@ sub writeProductSPECfile
 }
 
 # Process the commandline arguments.
-getopts('dlh');
+getopts('dlhm:');
 
 usage() if ($opt_h );
 $runOnServer = "true" if ($opt_l );
@@ -670,11 +671,17 @@ my %generalImage = %{$kiwiImage};
 
 my $media = $prodRef->{mediasets}->{media};
 
+if( $opt_m ) {
+    print "Generating only media set $opt_m, due to commandline switch\n";
+}
+
 foreach my $medium ( @$media ){
     my $type = $medium->{type};
     my $product = $medium->{product};  # note: this needs to reference a product from the products section 
     my $name = $medium->{name};
    
+    next if( $opt_m && $name ne $opt_m );
+
     # create one kiwi file each for every of the archsets
     my @archSets = @{$medium->{archsets}};
     foreach my $arch ( @archSets ) {
