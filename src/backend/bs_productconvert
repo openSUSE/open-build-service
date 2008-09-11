@@ -190,7 +190,7 @@ sub createArchitectures( $ )
 	    my %h;
 	    $h{id} = $arch;
 	    if( $archfallbacks->{$arch}->{name} ) {
-  	       $h{name} = $archfallbacks->{$arch}->{name} if( $archfallbacks->{$arch}->{name} );
+  	       $h{name} = $archfallbacks->{$arch}->{name};
             } else {
   	       $h{name} = "dummy"; # FIXME: should become optional
             };
@@ -378,6 +378,14 @@ sub groupToPackages( $$$$$ )
 
     my @packagelists = @{$groupRef->{packagelist}};
 
+    my %conditionTemplate;
+    foreach my $condList( @{$groupRef->{conditional} } ) {
+	my $cond = $conditionals{ $condList->{name} };
+	if( $cond->{platform} ) {
+	    %conditionTemplate = %{$cond->{platform}};
+	}
+    }
+
     my $useFlags = { requires => $useReq || 0, recommends => $useRec || 0, suggests => $useSug || 0 };
 
     my @resultList;
@@ -389,18 +397,19 @@ sub groupToPackages( $$$$$ )
 	    # parse the package in 
 	    my @packs = @{$packList->{package}};
 	    foreach my $pack ( @packs ) {
-		my %h;
+		my %h = %conditionTemplate;
 
 		# print Dumper $pack;
-
-		foreach my $cond( @{$pack->{conditional} } ) {
-		    my $name = $cond->{name};
+		foreach my $condList( @{$pack->{conditional} } ) {
+		    my $name = $condList->{name};
 		    my $cond = $conditionals{$name};
 		    my $valRef = $cond->{platform};
 		    if( $valRef ) {
-			foreach( keys %{$valRef} ) {
-			    $h{$_} = $valRef->{$_};
-			}
+			%h = (%h, %{$valRef});
+
+			# foreach( keys %{$valRef} ) {
+			#     $h{$_} = $valRef->{$_};
+			# }
 		    }
 		    if( $cond->{media} ) {
 			$h{medium} = $cond->{media}->{number};

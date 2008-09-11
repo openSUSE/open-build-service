@@ -51,6 +51,7 @@ our $group = [
           'version',
           'release',
           [],
+          [[ 'conditional' => 'name' ]],
           [[ 'include' => 'group' ]],
           [ 'pattern' =>
             'ordernumber',
