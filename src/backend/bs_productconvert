@@ -30,11 +30,12 @@ use XML::Structured ':bytes';
 use BSUtil;
 use BSProductXML;
 use BSKiwiXML;
+use BSConfig;
 
 
 # read the product xml file
 
-use vars qw ( $opt_h $opt_d @errors %conditionals %repositories %groupRefs $indir);
+use vars qw ( $opt_h $opt_l $opt_d @errors %conditionals %repositories %groupRefs $indir $runOnServer);
 
 sub usage()
 {
@@ -47,6 +48,7 @@ sub usage()
   Options:
 
   -h:   help, print this text.
+  -l:   Run local on server, use direct path instead of obs:// URL.
   -d:   debug, create debug output and files
 
 END
@@ -413,10 +415,26 @@ sub createInstsource( $$ )
     
     foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
 	my %h;
+        my $localpath;
 	$h{name} = $repo->{name};
 	$h{priority} = $repo->{priority};
-	$h{source} = { path => $repo->{path} };
-	push @r, \%h;
+        $localpath = $repo->{path};
+        if ($repo->{path} =~ /^obs:\/\/(.+)$/ ) {
+          $localpath = $1;
+        } else {
+          die( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
+        };
+        if ( $runOnServer ) {
+          for my $arch ( @{$re->{architectures}->{requiredarch}} ) {
+  	     my $path = "$BSConfig::bsdir/build/$localpath/$arch->{'ref'}/:full";
+  	     $h{source} = { path => $path };
+	     push @r, \%h;
+             print "WARNING: local path $path does not exist !\n" if ( ! -e "$path" );
+          };
+        }else{
+	  $h{source} = { path => $repo->{path} };
+	  push @r, \%h;
+        };
     }
     $re->{instrepo} = \@r;
     
@@ -524,9 +542,10 @@ sub writeProductSPECfile
 }
 
 # Process the commandline arguments.
-getopts('dh');
+getopts('dlh');
 
 usage() if ($opt_h );
+$runOnServer = "true" if ($opt_l );
 
 my ($infile, $outdir) = @ARGV;
 
