@@ -72,6 +72,9 @@ our $kiwidesc = [
           'compressed',
           'packagemanager',
           'rpm-check-signatures',
+          'rpm-force',
+          'locale',
+          'keytable',
         ],
         [ 'instsource' =>
           [],
