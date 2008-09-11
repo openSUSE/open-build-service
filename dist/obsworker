@@ -10,8 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsworker
 # Required-Start:    $time $network $syslog
-# Required-Stop:
-# Should-Start:      obsscheduler
+# Required-Stop:     $time $network $syslog
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
 # Description:       openSUSE build service worker
