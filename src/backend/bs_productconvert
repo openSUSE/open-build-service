@@ -189,7 +189,11 @@ sub createArchitectures( $ )
 	foreach my $arch ( keys %$archfallbacks ) {
 	    my %h;
 	    $h{id} = $arch;
-	    $h{name} = $archfallbacks->{$arch}->{name} if( $archfallbacks->{$arch}->{name} );
+	    if( $archfallbacks->{$arch}->{name} ) {
+  	       $h{name} = $archfallbacks->{$arch}->{name} if( $archfallbacks->{$arch}->{name} );
+            } else {
+  	       $h{name} = "dummy"; # FIXME: should become optional
+            };
 	    $h{fallback} = $archfallbacks->{$arch}->{fallback} if( $archfallbacks->{$arch}->{fallback});
 	    push @archs, \%h;
 	}
