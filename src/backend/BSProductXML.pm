@@ -88,12 +88,12 @@ our $product = [
            'name',
            'version',
            'release',
-           [[ 'register' => 
+           [ 'register' => 
               [],
               'target',
               'release',
               'flavor',
-           ]],
+           ],
            'updaterepokey',
            [[ 'summary' =>
               'language',
@@ -225,7 +225,7 @@ sub mergexmlfiles {
   close F;
 
   # wipe out comments globally
-  $str =~ s/<!--.+?-->//gs;
+#  $str =~ s/<!--.+?-->//gs;
 
   if( $debug && open F, ">/tmp/naked.xml" ) {
     print F $str;
