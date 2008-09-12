@@ -737,17 +737,18 @@ sub putjob {
   my $uploaded = BSServer::read_cpio($dir, 'accept' => '^(meta|.*\.rpm|.*\.deb|.*\.iso|logfile)$');
   die("upload error\n") unless $uploaded;
   if ($BSConfig::sign) {
-    my $signargs = [];
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
     my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
     if ($signkey) {
       mkdir_p("$uploaddir");
       writestr("$uploaddir/repserver.$$", undef, $signkey);
-      $signargs = [ '-P', "$uploaddir/repserver.$$" ];
+      push @signargs, '-P', "$uploaddir/repserver.$$";
     }
     # get us the sign key
     for my $file (@$uploaded) {
       next unless $file->{'name'} =~ /\.rpm$/;
-      if (system($BSConfig::sign, @$signargs, '-r', "$dir/$file->{'name'}")) {
+      if (system($BSConfig::sign, @signargs, '-r', "$dir/$file->{'name'}")) {
 	print "sign $dir/$file->{'name'} failed: $?\n";
       }
     }

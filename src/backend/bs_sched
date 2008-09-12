@@ -1914,7 +1914,8 @@ sub checkaggregate {
 sub resign {
   my ($projid, @bins) = @_;
   return unless $BSConfig::sign;
-  my $signargs = [];
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
   my $signkey;
   while(1) {
     eval {
@@ -1930,12 +1931,12 @@ sub resign {
   if ($signkey) {
     mkdir_p("$uploaddir");
     writestr("$uploaddir/sched.$$", undef, $signkey);
-    $signargs = [ '-P', "$uploaddir/sched.$$" ];
+    push @signargs, '-P', "$uploaddir/sched.$$";
   }
   for my $bin (@bins) {
     next unless $bin =~ /.rpm$/;
     system('rpm', '--delsign', $bin) && warn("delsign failed\n");
-    system($BSConfig::sign, @$signargs, '-r', $bin) && warn("sign failed\n");
+    system($BSConfig::sign, @signargs, '-r', $bin) && warn("sign failed\n");
   }
   unlink("$uploaddir/sched.$$") if $signkey;
 }

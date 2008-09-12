@@ -55,7 +55,6 @@ use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
 
-
 use strict;
 
 my $port = 5352;	#'SR'
@@ -1135,7 +1134,9 @@ sub createkey {
   local *F;
   my $pubkey = '';
   my @keyargs = ('dsa@1024', '800');
-  open(F, '-|', $BSConfig::sign, '-P', "$srcrep/:upload/signkey.$$", '-g', @keyargs , "$projid OBS Project", "$projid\@build.opensuse.org") || die("$BSConfig::sign: $!\n");
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
+  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$srcrep/:upload/signkey.$$", '-g', @keyargs , "$projid OBS Project", "$projid\@build.opensuse.org") || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $pubkey, 4096, length($pubkey));
   close(F) || die("$BSConfig::sign: $?\n");
   die("sign did not create signkey\n") unless -s "$srcrep/:upload/signkey.$$";

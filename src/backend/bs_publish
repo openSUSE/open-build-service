@@ -309,9 +309,12 @@ sub createrepo_rpmmd {
   if ($BSConfig::repodownload) {
     print "    running repoview\n";
     qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
-    }
+  }
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
-    qsystem($BSConfig::sign, @$signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @$signargs;
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $pubkey) if $pubkey;
   }
   if ($BSConfig::repodownload) {
@@ -441,7 +444,10 @@ sub createpatterns_rpmmd {
 
   # re-sign changed repomd.xml file
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
-    qsystem($BSConfig::sign, @$signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @$signargs;
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
   }
 }
 
