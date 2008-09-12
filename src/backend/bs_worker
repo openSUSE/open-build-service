@@ -670,7 +670,7 @@ sub dobuild {
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
   my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
-  writestr("$buildroot/.config", undef, $config);
+  writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
 
@@ -724,7 +724,7 @@ sub dobuild {
     push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
     push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
     push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
-    writestr("$buildroot/.rpmlist", undef, join("\n", @rpmlist)."\n");
+    writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
 
     print "building...\n" if $silent;
     push @args, "$statedir/build/build";
@@ -743,8 +743,8 @@ sub dobuild {
     push @args, '--norootforbuild' unless $BSConfig::norootexceptions && $BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"};
     push @args, '--baselibs-internal';
     push @args, '--lint';
-    push @args, '--dist', "$buildroot/.config";
-    push @args, '--rpmlist', "$buildroot/.rpmlist";
+    push @args, '--dist', "$buildroot/.build.config";
+    push @args, '--rpmlist', "$buildroot/.build.rpmlist";
     push @args, '--logfile', "$buildroot/.build.log";
     push @args, '--release', "$release" if defined $release;
     push @args, '--debug' if $buildinfo->{'debuginfo'};
