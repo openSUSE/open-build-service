@@ -50,7 +50,7 @@ my $tcpproto = getprotobyname('tcp');
 
 sub urlencode {
   my $url = $_[0];
-  $url =~ s/([\000-\040<>\"#\?&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
+  $url =~ s/([\000-\040<>;\"#\?&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
   return $url;
 }
 
