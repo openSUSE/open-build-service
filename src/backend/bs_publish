@@ -878,7 +878,14 @@ sub publish {
   my %patterntype = map {$_ => 1} @{$config->{'patterntype'} || []};
 
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
-    if (system($BSConfig::publishprogram->{$prp}, $extrep)) {
+    local *PPLOCK;
+    open(PPLOCK, '>', "$reporoot/$prp/.pplock") || die("$reporoot/$prp/.pplock: $!\n");
+    flock(PPLOCK, LOCK_EX) || die("flock: $!\n");
+    if (xfork()) {
+      close PPLOCK;
+      return;
+    }
+    if (system($BSConfig::publishprogram->{$prp}, $prp, $extrep)) {
       die("      $BSConfig::publishprogram{$prp} failed: $?\n");
     }
     goto publishprog_done;
@@ -944,6 +951,9 @@ publishprog_done:
   }
   
   # all done. till next time...
+  if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
+    exit(0);
+  }
 }
 
 
@@ -962,6 +972,8 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 
 db_sync();
 
+my %publish_retry;
+
 while(1) {
   # drain ping pipe
   my $dummy;
@@ -973,6 +985,7 @@ while(1) {
   my @events = ls($myeventdir);
   @events = grep {!/^\./} @events;
   for my $event (@events) {
+    next if $publish_retry{$event};
     my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
     if (!$ev || !$ev->{'type'} || $ev->{'type'} ne 'publish') {
       unlink("$myeventdir/$event");
@@ -982,6 +995,20 @@ while(1) {
       unlink("$myeventdir/$event");
       next;
     }
+    my $prp = "$ev->{'project'}/$ev->{'repository'}";
+    if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
+      # check if background publish is still running
+      local *PPLOCK;
+      if (open(PPLOCK, '<', "$reporoot/$prp/.pplock")) {
+        if (flock(PPLOCK, LOCK_EX | LOCK_NB)) {
+	  close PPLOCK;
+	  print "external publish program still running\n";
+	  $publish_retry{$event} = time() + 60;
+	  next;
+	}
+	close PPLOCK;
+      }
+    }
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
     eval {
       publish($ev->{'project'}, $ev->{'repository'});
@@ -989,11 +1016,21 @@ while(1) {
     if ($@) {
       warn("publish failed: $@");
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
+      $publish_retry{$event} = time() + 60;
     } else {
       unlink("$myeventdir/${event}::inprogress");
     }
     db_sync();
   }
-  print "waiting for an event...\n";
-  sysread(PING, $dummy, 1, 0);
+  if (%publish_retry) {
+    my $now = time();
+    for (sort keys %publish_retry) {
+      delete($publish_retry{$_}) if $publish_retry{$_} < $now;
+    }
+    print "sleeping 10 seconds...\n";
+    sleep(10);
+  } else {
+    print "waiting for an event...\n";
+    sysread(PING, $dummy, 1, 0);
+  }
 }
