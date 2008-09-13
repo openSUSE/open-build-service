@@ -233,9 +233,7 @@ install -m 0644 %SOURCE8 $RPM_BUILD_ROOT/etc/lighttpd/
 rm $RPM_BUILD_ROOT/srv/www/obs/frontend/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/frontend/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/log
-touch $RPM_BUILD_ROOT/srv/www/obs/frontend/log/development.log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webclient/log
-touch $RPM_BUILD_ROOT/srv/www/obs/webclient/log/development.log
 # fix path
 for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
   sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
@@ -439,10 +437,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/frontend/config
 %config(noreplace) /srv/www/obs/webclient/config
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
-%attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/tmp
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
-%attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/tmp
 %config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
 %config /etc/lighttpd/cleanurl-v5.lua
