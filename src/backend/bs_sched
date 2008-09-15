@@ -966,11 +966,6 @@ sub update_dst_full {
   ##################################################################
   # part 2: link needed binaries into :full tree
 
-  if (!$useforbuildenabled) {
-    print "    move to :full is disabled\n";
-    return;
-  }
-
   my $filter;
   # argh, this slows us down a bit
   my $bconf;
@@ -983,7 +978,8 @@ sub update_dst_full {
   my %fnew;
   my %exports;
 
-  mkdir_p("$gdst/:full");
+  # find destination for all new binaries
+  my @movetofull;
   for my $rp (sort keys %new) {
     my $r = $new{$rp};
     next unless $r->{'source'};	# no src in full tree
@@ -1009,37 +1005,7 @@ sub update_dst_full {
         next unless $myself;
       }
     }
-
-    my $suf = $rp;
-    $suf =~ s/.*\.//;
-    my $n = $r->{'name'};
-    print "      + :full/$n.$suf ($rp)\n";
-    # link gives an error if the dest exists, so we dup
-    # and rename instead.
-    # when the dest is the same file, rename doesn't do
-    # anything, so we need the unlink after the rename
-    unlink("$dst/$rp.dup");
-    link("$dst/$rp", "$dst/$rp.dup");
-    rename("$dst/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dst/$rp.dup $gdst/:full/$n.$suf: $!\n");
-    unlink("$dst/$rp.dup");
-    if ($suf eq 'rpm') {
-      unlink("$gdst/:full/$n.deb");
-    } else {
-      unlink("$gdst/:full/$n.rpm");
-    }
-
-    if ($meta) {
-      link($meta, "$meta.dup");
-      rename("$meta.dup", "$gdst/:full/$n.meta");
-      unlink("$meta.dup");
-    } else {
-      unlink("$gdst/:full/$n.meta");
-    }
-
-    $fnew{$n} = 1;
-    delete $r->{'arch'};	# not in repodata
-    $r->{'path'} = "$prp/$myarch/:full/$n.$suf";
-    $repodata->{$n} = $r;
+    push @movetofull, $rp;
   }
   if ($filter && !$isimport) {
     # need also to check old entries
@@ -1063,15 +1029,58 @@ sub update_dst_full {
     }
   }
 
-  for my $exportarch (sort keys %exports) {
-    # check if this prp supports the arch
-    my ($projid, $repoid) = split('/', $prp, 2);
-    next unless $projpacks->{$projid};
-    my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
-    if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
-      print "    sending filtered packages to $exportarch\n";
-      createexportjob($prp, $exportarch, $jobrepo, $dst, $oldrepo, @{$exports{$exportarch}});
+  if ($filter && !$isimport) {
+    # we always export, the other schedulers are free to reject the job
+    # if move to full is also disabled for them
+    for my $exportarch (sort keys %exports) {
+      # check if this prp supports the arch
+      my ($projid, $repoid) = split('/', $prp, 2);
+      next unless $projpacks->{$projid};
+      my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+      if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
+	print "    sending filtered packages to $exportarch\n";
+	createexportjob($prp, $exportarch, $jobrepo, $dst, $oldrepo, @{$exports{$exportarch}});
+      }
     }
+  }
+
+  if (!$useforbuildenabled) {
+    print "    move to :full is disabled\n";
+    return;
+  }
+
+  # move em over into :full
+  for my $rp (@movetofull) {
+    my $r = $new{$rp};
+    my $suf = $rp;
+    $suf =~ s/.*\.//;
+    my $n = $r->{'name'};
+    print "      + :full/$n.$suf ($rp)\n";
+    # link gives an error if the dest exists, so we dup
+    # and rename instead.
+    # when the dest is the same file, rename doesn't do
+    # anything, so we need the unlink after the rename
+    unlink("$dst/$rp.dup");
+    link("$dst/$rp", "$dst/$rp.dup");
+    rename("$dst/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dst/$rp.dup $gdst/:full/$n.$suf: $!\n");
+    unlink("$dst/$rp.dup");
+    if ($suf eq 'rpm') {
+      unlink("$gdst/:full/$n.deb");
+    } else {
+      unlink("$gdst/:full/$n.rpm");
+    }
+    if ($meta) {
+      link($meta, "$meta.dup");
+      rename("$meta.dup", "$gdst/:full/$n.meta");
+      unlink("$meta.dup");
+    } else {
+      unlink("$gdst/:full/$n.meta");
+    }
+
+    $fnew{$n} = 1;
+    delete $r->{'arch'};	# not in repodata
+    $r->{'path'} = "$prp/$myarch/:full/$n.$suf";
+    $repodata->{$n} = $r;
   }
 
   # delete obsolete full entries
