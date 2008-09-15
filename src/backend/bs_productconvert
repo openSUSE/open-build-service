@@ -95,7 +95,7 @@ sub createPreferences( $ )
     my $re = {};
 
     $re->{type} = [{_content => "dummy"}];
-    $re->{version} = sprintf( "%s.%s.0",
+    $re->{version} = sprintf( "%s.%s",
 			      $prodRef->{version},
 			      $prodRef->{release}  );
 
