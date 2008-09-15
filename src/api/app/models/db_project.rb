@@ -20,6 +20,8 @@ class DbProject < ActiveRecord::Base
   has_many :debuginfo_flags,  :order => :position
   has_many :useforbuild_flags,  :order => :position
 
+  has_one :meta_cache, :as => :cachable, :dependent => :delete
+  
   class << self
 
     def find_by_name(name)
@@ -203,6 +205,11 @@ class DbProject < ActiveRecord::Base
       # update 'updated_at' timestamp
       self.save! if project.has_attribute? 'updated' and self.updated_at.xmlschema != project.updated
 
+      # update cache
+      build_meta_cache if meta_cache.nil?
+      meta_cache.content = project.dump_xml
+      meta_cache.save!
+
       if write_through?
         path = "/source/#{self.name}/_meta"
         Suse::Backend.put_source( path, project.dump_xml )
@@ -302,7 +309,11 @@ class DbProject < ActiveRecord::Base
   end
 
   def to_axml
+    create_meta_cache(:content => render_axml) if meta_cache.nil?
+    return meta_cache.content
+  end
 
+  def render_axml
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering project #{name} ------------------------"

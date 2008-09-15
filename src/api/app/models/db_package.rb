@@ -19,6 +19,8 @@ class DbPackage < ActiveRecord::Base
   has_many :debuginfo_flags,  :order => :position
   has_many :useforbuild_flags,  :order => :position
 
+  has_one :meta_cache, :as => :cachable, :dependent => :delete
+
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
   def record_timestamps
@@ -160,6 +162,11 @@ class DbPackage < ActiveRecord::Base
       self.update_timestamp
       self.save!
 
+      # update cache
+      build_meta_cache if meta_cache.nil?
+      meta_cache.content = package.dump_xml
+      meta_cache.save!
+
       #--- write through to backend ---#
       if write_through?
         path = "/source/#{self.db_project.name}/#{self.name}/_meta"
@@ -237,8 +244,12 @@ class DbPackage < ActiveRecord::Base
     return users
   end
 
-
   def to_axml
+    create_meta_cache(:content => render_axml) if meta_cache.nil?
+    return meta_cache.content
+  end
+
+  def render_axml
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering package #{name} ------------------------"
