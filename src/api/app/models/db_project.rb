@@ -207,7 +207,7 @@ class DbProject < ActiveRecord::Base
 
       # update cache
       build_meta_cache if meta_cache.nil?
-      meta_cache.content = project.dump_xml
+      meta_cache.content = render_axml
       meta_cache.save!
 
       if write_through?
