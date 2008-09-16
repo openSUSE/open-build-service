@@ -2,7 +2,7 @@
 <!-- Links -->
 <div id="package_link">
   <% if @link %>
-  <%- link_project = @link.has_element?(:project) ? @link.project : @project.name -%>
+  <%- link_project = @link.has_attribute?(:project) ? @link.project : @project.name -%>
   <h3>Link</h3>
   <p>
     This package links to the sources of the package
