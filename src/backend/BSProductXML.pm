@@ -132,7 +132,7 @@ our $product = [
               'defaultlang',
               'datadir',
               'descriptiondir',
-              [ 'releasepackage' => 'name', 'version' ],
+              [ 'releasepackage' => 'name', 'flag', 'version' ],
               'distribution',
            ],
            [ 'runtimeconfig' =>

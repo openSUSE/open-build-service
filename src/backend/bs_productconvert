@@ -210,23 +210,28 @@ sub createArchitectures( $ )
     return $re;
 }
 
-sub createProductOptions()
+sub createProductOptions($$)
 {
-    my $re = {};
+    my( $prodRef, $medium ) = @_;
 
+    # General FIXME: this works only with a single product on media.
+    my $product = $prodRef->{products}{product}[0];
+    die( "Handling of multiple products on one media is not specified !\n" ) if $prodRef->{products}{product}[1];
+
+    my $re = {};
     my %varsH;
 
     $varsH{PRODUCT_THEME} = "SuSE";
-    $varsH{MEDIUM_NAME} = "FTP";
+    $varsH{MEDIUM_NAME} = $medium->{'type'};
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{SHA1_OPT} = "-x";
 
     $varsH{MANUFACTURER} = "SuSE Linux Products GmbH";
-    $varsH{DISTNAME} = "openSUSE";
-    $varsH{VERSION} = "11.1"; # FIXME
-    $varsH{FLAVOUR} = "FTP"; # FIXME
+    $varsH{DISTNAME} = $product->{'name'};
+    $varsH{VERSION} = $product->{'version'};
+    $varsH{FLAVOUR} = $medium->{'type'};
     $varsH{RELEASE} = "0";
-    $varsH{PRODUCT_DIR} = "/"; # FIXMNE for addon
+    $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOUR';
     $varsH{PRODUCT_VERSION} = '$VERSION';
 
@@ -248,17 +253,18 @@ sub createProductOptions()
     $re->{productoption} = \@vars1;
 
     my %info;
-    $info{'ARCH.x86_64'} = "x86_64 i686 i586 i486 i386 noarch";
-    $info{'ARCH.ppc64'}  = "ppc64 ppc noarch";
-    $info{'ARCH.ppc'}    = "ppc noarch";
-    $info{'ARCH.i686'}   = "i686 i586 i486 i386 noarch";
-    $info{'ARCH.i586'}   = "i586 i486 i386 noarch";
-    $info{'ARCH.i486'}   = "i486 i386 noarch";
-    $info{'ARCH.i386'}   = "i386 noarch";
-    $info{'DEFAULTBASE'} = "i586";
-
-    $info{'DESCRDIR'}    = '$DATADIR/setup/descr';
-    $info{'DATADIR'}     = 'suse';
+    $info{'CONTENTSTYLE'} = "11"; # Hardcoded for now. We need anyway to touch the generator when changing
+    $info{'NAME'}         = $product->{'name'};
+    my $rp = $product->{'installconfig'}->{'releasepackage'};
+    $info{'REFERENCES'}   = "$rp->{'name'} $rp->{'flag'} $rp->{'version'}";
+    $info{'VERSION'}      = $product->{'version'};
+    $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
+    $info{'FLAVOR'}       = $medium->{'type'};
+    $info{'DESCRDIR'}     = '$DATADIR/setup/descr';
+    $info{'DATADIR'}      = 'suse';
+    $info{'LABEL'}        = "SUSE Linux Enterprise Server 11";
+    $info{'BASEARCHS'}    = "i586";
+    $info{'RELNOTESURL'}  = ""; 
 
     # add more ...
     my @info;
@@ -479,7 +485,7 @@ sub createInstsource( $$$ )
     my $re = {};
 
     $re->{architectures} = createArchitectures( $archSetList );
-    $re->{productoptions} = createProductOptions();
+    $re->{productoptions} = createProductOptions( $prodRef, $medium );
     
     my @r;
     
@@ -701,8 +707,8 @@ foreach my $medium ( @$media ){
     foreach my $arch ( @archSets ) {
 	my $kiwi = \%generalImage;
 
-	$kiwi->{instsource}  = createInstsource ( $prodRef, $medium, $arch->{archset} );
-	$kiwi->{repository}  = createRepository ( $prodRef );
+	$kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
+	$kiwi->{repository} = createRepository ( $prodRef );
 
 	my $archStr;
 	my @archsets = @{$arch->{archset}};
