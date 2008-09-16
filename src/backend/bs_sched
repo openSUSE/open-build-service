@@ -1050,6 +1050,7 @@ sub update_dst_full {
   }
 
   # move em over into :full
+  mkdir_p("$gdst/:full") if @movetofull && ! -d "$gdst/:full";
   for my $rp (@movetofull) {
     my $r = $new{$rp};
     my $suf = $rp;
