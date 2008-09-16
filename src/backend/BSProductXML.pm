@@ -72,9 +72,8 @@ our $group = [
              'id',
              [],
              [[ 'package' => 'name',
-#'forcearch', 'addarch', 'removearch', 'onlyarch', 'source', 'script', 'medium', 'priority'
                 [[ 'conditional' => 'name' ]],
-                [[ 'platform' => 'excludearch', 'onlyarch', 'arch', 'soruce_arch', 'replace_native' ]],
+                [[ 'platform' => 'excludearch', 'onlyarch', 'arch', 'baselibs_arch', 'addarch' ]],
              ]],
           ]],
 ];

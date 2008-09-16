@@ -210,9 +210,9 @@ sub createArchitectures( $ )
     return $re;
 }
 
-sub createProductOptions($$)
+sub createProductOptions($$$)
 {
-    my( $prodRef, $medium ) = @_;
+    my( $prodRef, $medium, $archSetList ) = @_;
 
     # General FIXME: this works only with a single product on media.
     my $product = $prodRef->{products}{product}[0];
@@ -262,9 +262,20 @@ sub createProductOptions($$)
     $info{'FLAVOR'}       = $medium->{'type'};
     $info{'DESCRDIR'}     = '$DATADIR/setup/descr';
     $info{'DATADIR'}      = 'suse';
-    $info{'LABEL'}        = "SUSE Linux Enterprise Server 11";
-    $info{'BASEARCHS'}    = "i586";
-    $info{'RELNOTESURL'}  = ""; 
+    foreach my $summary ( @{$product->{'summary'}} ){
+      $info{'LABEL'}        = $summary->{'_content'} if ( ! $summary->{'language'} );
+    }
+    foreach my $url ( @{$product->{'urls'}->{'url'}} ){
+      $info{'RELNOTESURL'}  = $url->{'_content'} if ( $url->{'name'} eq 'releasenotes' );
+    }
+    $info{'LINGUAS'} = "";
+    foreach my $language ( @{$product->{'linguas'}->{'language'}} ){
+      $info{'LINGUAS'} .= "$language->{'_content'} ";
+    }
+    $info{'BASEARCHS'} = "";
+    foreach my $ar ( @$archSetList ) {
+        $info{'BASEARCHS'} .= "$archSets{$ar->{ref}}->{productarch} " if( $archSets{$ar->{ref}} );
+    }
 
     # add more ...
     my @info;
@@ -485,7 +496,7 @@ sub createInstsource( $$$ )
     my $re = {};
 
     $re->{architectures} = createArchitectures( $archSetList );
-    $re->{productoptions} = createProductOptions( $prodRef, $medium );
+    $re->{productoptions} = createProductOptions( $prodRef, $medium, $archSetList );
     
     my @r;
     
