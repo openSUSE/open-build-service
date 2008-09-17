@@ -685,10 +685,6 @@ sub readproj {
 sub readpack {
   my ($projid, $packid, $nonfatal) = @_;
   my $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
-  if ( ! defined($pack) && ($packid eq '_pattern' || $packid eq '_product') ) {
-    $pack = {};
-    $pack->{'name'} = "Internal Meta Package.";
-  };
   if (!$pack && !$nonfatal) {
     readproj($projid);
     die("package '$packid' does not exist in project '$projid'\n");
