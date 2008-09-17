@@ -224,7 +224,7 @@ sub createProductOptions($$$)
     $varsH{PRODUCT_THEME} = "SuSE";
     $varsH{MEDIUM_NAME} = $medium->{'type'};
     $varsH{MULTIPLE_MEDIA} = "no";
-    $varsH{SHA1_OPT} = "-x";
+    $varsH{SHA1OPT} = "-x";
 
     $varsH{MANUFACTURER} = "SuSE Linux Products GmbH";
     $varsH{DISTNAME} = $product->{'name'};
