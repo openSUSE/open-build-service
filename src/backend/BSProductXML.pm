@@ -213,8 +213,12 @@ our $productdesc = [
 ];
 
 sub mergexmlfiles {
-  my ($absfile, $debug) = @_;
+  my ($absfile, $seen, $debug) = @_;
 
+  if ($seen->{$absfile}) {
+    print "ERROR: cyclic file include ($absfile)!\n";
+    return undef;
+  }
   my $data;
   my ($dummy, $dir) = fileparse( $absfile );
 
@@ -240,9 +244,15 @@ sub mergexmlfiles {
        print "ERROR: obs: references are not handled yet ! \n";
        return undef;
      } else {
+       if ($ref =~ /^\."/ || $ref =~ /\//) {
+         print "ERROR: obs: reference to illegal file ! \n";
+         return undef;
+       }
        my $file = "$dir$ref";
-       my $replace = mergexmlfiles( $file, $debug );
-       if ( ! $replace ) {
+       $seen->{$absfile} = 1;
+       my $replace = mergexmlfiles( $file, $seen, $debug );
+       delete $seen->{$absfile};
+       if ( ! defined $replace ) {
          print "ERROR: Unable to read $file !\n";
          return undef unless $replace;
        }
@@ -263,7 +273,7 @@ sub mergexmlfiles {
 sub readproductxml( $$$ ) {
   my ($file, $nonfatal, $debug) = @_;
 
-  my $str = mergexmlfiles( $file, $debug );
+  my $str = mergexmlfiles( $file, {}, $debug );
   return undef if ( ! $str );
 
   return XMLin($productdesc, $str) unless $nonfatal;
