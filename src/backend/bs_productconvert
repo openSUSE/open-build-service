@@ -579,7 +579,7 @@ sub writeProductSPECfile
       $product_flavors.="\n";
       $product_flavors.="%description $flavor->{type}\n";
       foreach my $description ( @{$product->{'description'}} ){
-        $product_flavors.="$description->{_content}\n" if ( ! $summary->{'description'} );
+        $product_flavors.="$description->{_content}\n" if ( ! $description->{'description'} );
       }
       $product_flavors.="\n";
       $product_flavors.="%files $flavor->{type}\n";
