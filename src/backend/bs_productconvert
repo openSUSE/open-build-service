@@ -616,14 +616,7 @@ sub writeProductSPECfile
       $zypp_product_file .= "$xml\nEOF\n\n";
     }
 
-    my $str='';
-    # read template file
-    local *IF;
-    if (!open(IF, '<', $infile)) {
-      die("$infile: $!\n");
-    }
-    1 while sysread(IF, $str, 8192, length($str));
-    close IF;
+    my $str = readstr($infile);
 
     # replace all strings
     $str =~ s/___VERSION___/$product->{version}/g;
@@ -637,22 +630,19 @@ sub writeProductSPECfile
     $str =~ s/___CREATE_PRODUCT_FILES___/$zypp_product_file/g;
 
     # write out the modified file.
-    local *OF;
-    open(OF, '>', $file) || die("$file: $!\n");
-    (syswrite(OF, $str) || 0) == length($str) || die("$file write: $!\n");
-    close(OF) || die("$file close: $!\n");
+    writestr($file, undef, $str);
 }
 
 # Process the commandline arguments.
 getopts('dlhm:');
 
-usage() if ($opt_h );
-$runOnServer = "true" if ($opt_l );
+usage() if $opt_h;
+$runOnServer = "true" if $opt_l;
 
 my ($infile, $outdir) = @ARGV;
 
-die( "Please specify input file" ) unless $infile;
-die( "Please specify output directory" ) unless $outdir;
+die( "Please specify input file\n" ) unless $infile;
+die( "Please specify output directory\n" ) unless $outdir;
 
 my $d;
 # global indir
@@ -670,16 +660,16 @@ for my $p ( $prodRef->{'products'} ) {
   if ($infile =~ /(.*\/)(.+)$/) {
     $templateFile = "$1/$product->{name}-release.spec";
   };
-  if ( ! -e "$templateFile" ) {
+  if ( !$templateFile || ! -e $templateFile ) {
     if ($infile =~ /(.*\/)(.+)$/) {
       $templateFile = "$1/release.spec";
     };
   };
-  if ( -e "$templateFile" ) {
+  if ( $templateFile && -e $templateFile ) {
     mkdir_p( "$outdir/_product_$product->{name}-release" ) || die ("Unable to create $outdir\n");
     writeProductSPECfile( "$outdir/_product_$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
   } else {
-    print "No release template file $templateFile does exist.\nSPEC file generation skipped !\n";
+    print "No release template file $templateFile exists.\nSPEC file generation skipped !\n";
   };
 };
 
