@@ -73,7 +73,6 @@ our $group = [
              [],
              [[ 'package' => 'name',
                 [[ 'conditional' => 'name' ]],
-                [[ 'platform' => 'excludearch', 'onlyarch', 'arch', 'baselibs_arch', 'addarch' ]],
              ]],
           ]],
 ];
@@ -152,11 +151,14 @@ our $productdesc = [
       [ 'conditionals' =>
         [[ 'conditional' =>
            'name',
-           [ 'platform' => 
-             'onlyarch',
-             'arch',
-             'baselibs_arch',
-           ],
+           [[ 'platform' =>
+              'excludearch',
+              'onlyarch',
+              'arch',
+              'baselibs_arch',
+              'addarch',
+              'replace_native'
+           ]],
            [ 'media' => 
              'number',
            ],
