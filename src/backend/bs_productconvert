@@ -571,10 +571,16 @@ sub writeProductSPECfile
       $product_flavors.="%define flavor $flavor->{type}\n";
       $product_flavors.="License:        BSD 3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
-      $product_flavors.="Summary:        $product->{summary}[0]->{_content}\n"; #FIXME: search for non-lang 
+      $product_flavors.="Provides:       product_flavor()\n";
+      $product_flavors.="Provides:       product_flavor($product->{name}) = %{version}-%{release}\n";
+      foreach my $summary ( @{$product->{'summary'}} ){
+        $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
+      }
       $product_flavors.="\n";
       $product_flavors.="%description $flavor->{type}\n";
-      $product_flavors.="$product->{description}[0]->{_content}\n"; #FIXME: search for non-lang 
+      foreach my $description ( @{$product->{'description'}} ){
+        $product_flavors.="$description->{_content}\n" if ( ! $summary->{'description'} );
+      }
       $product_flavors.="\n";
       $product_flavors.="%files $flavor->{type}\n";
       $product_flavors.="%defattr(-,root,root)\n";
