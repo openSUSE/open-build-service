@@ -130,7 +130,7 @@ sub parseConditionals( $ )
     foreach my $condRef (@{$conditionalRef}) {
 	my $name = $condRef->{name};
 	print "Parsed conditional $name\n";
-
+	# print Dumper $condRef;
 	$conditionals{$name} = $condRef;
     }
 }
@@ -333,7 +333,7 @@ sub useToPackages( $$ )
     my $useSuggested = ($medium->{use_suggested} eq "true" );
     my $useRecommended = ($medium->{use_recommended} eq "true" );
 
-    print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
+    # print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
     
     foreach my $useState ( @useStatements ) {
 
@@ -390,14 +390,19 @@ sub groupToPackages( $$$$$ )
     }
 
     # ok, here we have a valid group reference.
-
+    print " * resolving group <$groupRef->{name}>\n";
     my @packagelists = @{$groupRef->{packagelist}};
 
     my %conditionTemplate;
     foreach my $condList( @{$groupRef->{conditional} } ) {
+	print "Handling group conditional $condList->{name}\n";
 	my $cond = $conditionals{ $condList->{name} };
+
 	if( $cond->{platform} ) {
-	    %conditionTemplate = %{$cond->{platform}};
+	    my @platforms = @{$cond->{platform}};
+	    foreach my $p ( @platforms ) {
+		%conditionTemplate = (%conditionTemplate, %{$p});
+	    }
 	}
     }
 
@@ -418,13 +423,14 @@ sub groupToPackages( $$$$$ )
 		foreach my $condList( @{$pack->{conditional} } ) {
 		    my $name = $condList->{name};
 		    my $cond = $conditionals{$name};
-		    my $valRef = $cond->{platform};
-		    if( $valRef ) {
-			%h = (%h, %{$valRef});
-
-			# foreach( keys %{$valRef} ) {
-			#     $h{$_} = $valRef->{$_};
-			# }
+		    print "Handling package conditional $name\n";
+		    # print Dumper "Conditional: ". $cond . "\n";
+		    
+		    if( $cond->{platform} ) {
+			my @platforms = @{$cond->{platform}};
+			foreach my $p ( @platforms ) {
+			    %h= (%h, %{$p});
+			}
 		    }
 		    if( $cond->{media} ) {
 			$h{medium} = $cond->{media}->{number};
