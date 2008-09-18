@@ -90,6 +90,7 @@ require 'rails_unescape_fix'
 #require 'active_rbac_user_model_crypt_hack'
 
 require 'activexml'
+#require 'smartactivexml'
 #require 'custom_dispatcher'
 
 #Dependencies.log_activity = true
@@ -122,5 +123,11 @@ ActiveXML::Base.config do |conf|
       :all => "rest:///request"
 
     map.connect :packstatus, "rest:///status/:project?summaryonly=:summaryonly"
+
+    map.connect :collection, "rest:///search/:what?:match",
+      :id => "rest:///search/:what/id?:match",
+      :package => "rest:///search/package?:match",
+      :project => "rest:///search/project?:match"
+
   end
 end

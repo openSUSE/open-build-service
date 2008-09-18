@@ -146,39 +146,29 @@ class SourceController < ApplicationController
     end
   end
 
-  #GET /source/:project/_product/:file
-  def product_file
-    valid_http_methods :get, :put, :delete
+  # updates packages automatically generated in the backend after submitting a product file
+  def update_product_autopackages
+    backend_pkgs = Collection.find :package, :match => "@project='#{params[:project]}' and starts-with(@name,'_product:')"
+    b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+    frontend_pkgs = DbProject.find_by_name(params[:project]).db_packages.find(:all, :conditions => "name LIKE '_product:%'")
+    f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
 
-    params[:user] = @http_user.login if @http_user
-    
-    @project = DbProject.find_by_name params[:project]
-    unless @project
-      render_error :message => "Unknown project '#{params[:project]}'",
-        :status => 404, :errorcode => "unknown_project"
-      return
-    end
+    all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 
-    if request.get?
-      pass_to_source
-    else
-      # PUT and DELETE
-      permerrormsg = nil
-      if request.put?
-        permerrormsg = "no permission to store product file"
-      elsif request.delete?
-        permerrormsg = "no permission to delete product file"
+    wt_state = ActiveXML::Config.global_write_through
+    begin
+      ActiveXML::Config.global_write_through = false
+      all_pkgs.each do |pkg|
+        if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
+          # new autopackage, import in database
+          Package.new(b_pkg_index[pkg].dump_xml, :project => params[:project]).save
+        elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
+          # autopackage was removed, remove from database
+          f_pkg_index[pkg].destroy
+        end
       end
-
-      unless @http_user.can_modify_project? @project
-        logger.debug "user #{user.login} has no permission to modify project #{@project}"
-        render_error :status => 403, :errorcode => "change_project_no_permission", 
-          :message => permerrormsg
-        return
-      end
-      
-      path = request.path + build_query_from_hash(params, [:rev, :user, :comment])
-      forward_data path, :method => request.method
+    ensure
+      ActiveXML::Config.global_write_through = wt_state
     end
   end
 
@@ -516,6 +506,9 @@ class SourceController < ApplicationController
         package = Package.find( package_name, :project => project_name )
         package.update_timestamp
         logger.info "wrote #{request.raw_post.to_s.size} bytes to #{path}"
+        if package_name == "_product"
+          update_product_autopackages
+        end
         render_ok
       else
         render_error :status => 403, :errorcode => 'put_file_no_permission',
@@ -606,6 +599,10 @@ class SourceController < ApplicationController
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :keeplink])
     forward_data path, :method => :post
+
+    if params[:package] == "_product"
+      update_product_autopackages
+    end
   end
 
   # POST /source/<project>/<package>?cmd=diff
