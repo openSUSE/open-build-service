@@ -62,6 +62,19 @@ sub errreply {
   BSWatcher::reply($opresultxml, "Status: $code $tag", 'Content-Type: text/xml');
 }
 
+sub authenticate {
+  my ($conf, $req, $auth) = @_;
+  return () unless $BSConfig::ipaccess;
+  my %auths;
+  my $peer = $BSServer::peer;
+  for (sort keys %$BSConfig::ipaccess) {
+    $auths{$BSConfig::ipaccess->{$_}} = 1 if $peer =~ /$_/;
+  }
+  return () if grep {$auths{$_}} split(',', $auth);
+  die("500 access denied @{[sort keys %auths]} $auth\n");
+  die("500 access denied\n");
+}
+
 sub dispatch {
   my ($conf, $req) = @_;
   if ($isajax) {
@@ -114,6 +127,7 @@ sub server {
     $conf->{'dispatch'} = \&dispatch unless exists $conf->{'dispatch'};
     $conf->{'stdreply'} = \&stdreply unless exists $conf->{'stdreply'};
     $conf->{'errorreply'} = \&errreply unless exists $conf->{'errorreply'};
+    $conf->{'authenticate'} = \&authenticate unless exists $conf->{'authenticate'};
     $conf->{'name'} = $name;
     $conf->{'timeout'} = 1;
   }

@@ -146,6 +146,14 @@ sub assignjob {
     return undef;
   }
 
+  # prepare job data
+  my $infoxml = readstr("$jobsdir/$arch/$job");
+  my $jobid = Digest::MD5::md5_hex($infoxml);
+  my $info = XMLin($BSXML::buildinfo, $infoxml);
+  my $prp = $info->{'path'}->[0];
+  my $workercode = getcodemd5('worker', $workerdircache);
+  my $buildcode = getcodemd5('build', $builddircache);
+
   # get the worker data
   my $worker = readxml("$workersdir/idle/$idlename", $BSXML::worker, 1);
   if (!$worker) {
@@ -154,15 +162,9 @@ sub assignjob {
     print "worker is gone!\n";
     return undef;
   }
-
   # ready for building, send info to worker!
   unlink("$workersdir/idle/$idlename");
-  my $infoxml = readstr("$jobsdir/$arch/$job");
-  my $jobid = Digest::MD5::md5_hex($infoxml);
-  my $info = XMLin($BSXML::buildinfo, $infoxml);
-  my $prp = $info->{'path'}->[0];
-  my $workercode = getcodemd5('worker', $workerdircache);
-  my $buildcode = getcodemd5('build', $builddircache);
+
   eval {
     BSRPC::rpc({
       'uri'     => "http://$worker->{'ip'}:$worker->{'port'}/build",
@@ -255,7 +257,9 @@ while (1) {
       }
     }
 
+    my $tries = 0;
     for my $job (List::Util::shuffle(@b)) {
+      last if $assigned && $tries >= 5;
       my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
       if (%badhost) {
 	my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
@@ -265,6 +269,8 @@ while (1) {
       }
       for my $idle (@idle) {
 	next unless -e "$jobsdir/$arch/$job";
+        last if $assigned && $tries >= 5;
+	$tries++;
 	my $res = assignjob($job, $idle, $arch);
 	if (!$res) {
 	  my $harch = (split(':', $idle, 2))[0];

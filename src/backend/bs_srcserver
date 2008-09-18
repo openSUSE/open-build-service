@@ -242,6 +242,7 @@ sub addrev {
 
     return {'rev' => 'pattern', 'srcmd5' => $srcmd5};
   }
+  die("package '$packid' is read-only\n") if $packid =~ /^_product:/;
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     my $filename = (keys %$files)[0];
@@ -1357,6 +1358,7 @@ sub delpackage {
   my ($cgi, $projid, $packid) = @_;
   die("project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
   die("package '$packid' does not exist in project '$projid'\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
+  die("package '$packid' is read-only\n") if $packid =~ /^_product:/;
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
   unlink("$projectsdir/$projid.pkg/$packid.rev");
   unlink("$projectsdir/$projid.pkg/$packid.xml");
@@ -2496,6 +2498,22 @@ sub search_proj {
 sub search_pack {
   my ($cgi, $match, $id) = @_;
   $match =~ s/^\[(.*)\]$/$1/s;
+  # really ugly hack to speed up needed api call
+  if ($match =~ /^\@project='(.+)' and starts-with\(\@name,'(.+)'\)$/) {
+    my $projid = $1;
+    my $startswith = $2;
+    $projid =~ s/''/'/g;
+    $startswith =~ s/''/'/g;
+    my @packages = findpackages($projid);
+    my $data = [];
+    for my $packid (grep {/^\Q$startswith\E/} @packages) {
+      my $pack = readpack($projid, $packid);
+      $pack->{'project'} = $projid;
+      push @$data, $pack;
+    }
+    my $res = {'package' => $data};
+    return ($res, $BSXML::collection);
+  }
   my $data = [];
   for my $projid (findprojects()) {
     my @packages = findpackages($projid);
@@ -3205,6 +3223,10 @@ sub hello {
 
 my $dispatches = [
   '/' => \&hello,
+
+  '!rw :' => undef,
+  '!- GET:' => undef,
+  '!- HEAD:' => undef,
 
   # /platform name space -> obsolete
   '/platform' => \&getprojectlist,

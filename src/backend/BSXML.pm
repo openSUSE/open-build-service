@@ -383,7 +383,11 @@ our $worker = [
 	'ip',
 	'port',
 	'workerid',
-	[],
+      [ 'buildarch' ],
+	'memory',	# in MBytes
+	'disk',		# in MBytes
+	'tellnojob',
+
 	'job',		# set when worker is busy
 	'arch',		# set when worker is busy
 ];

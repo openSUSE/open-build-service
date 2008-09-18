@@ -582,16 +582,20 @@ sub compile_dispatches {
   while (@disps) {
     my $p = shift @disps;
     my $f = shift @disps;
-    my $needsauth = 0;
-    $needsauth = 1 if $p =~ s/^!//;
+    my $needsauth;
+    if ($p =~ /^!([^\/\s]*)\s*(.*?)$/) {
+      $needsauth = $1 || 'auth';
+      $p = $2;
+    }
     if ($p eq '/') {
       push @out, '^(?:GET|HEAD|POST):/$', $f;
+      $out[-1] = [ $needsauth eq '-' ? undef : $needsauth, $out[-1] ] if $needsauth;
       next;
     }
     my @cgis = split(' ', $p);
     s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @cgis;
     $p = shift @cgis;
-    my @p = split('/', $p);
+    my @p = split('/', $p, -1);
     my $code = "my (\@args);\n";
     my $code2 = '';
     my $num = 1;
@@ -613,6 +617,8 @@ sub compile_dispatches {
         $pp = "\Q$pp\E";
       }
     }
+    $p[0] .= ".*" if @p == 1 && $p[0] =~ /^[A-Z]*\\:$/;
+    $p[0] = '.*' if $p[0] eq '\\:.*';
     $p[0] = "(?:GET|HEAD|POST):$p[0]" if $p[0] !~ /:/;
     my $multis = '';
     for my $pp (@cgis) {
@@ -635,9 +641,9 @@ sub compile_dispatches {
       $known .= ", '$var'";
     }
     $code = "my \$cgi = parse_cgi(\$req, {$multis});\n$code";
-    if ($needsauth) {
-      $code = "die(\"500 no authenticate method defined\\n\") unless \$conf->{'authenticate'};\nmy \@auth = \$conf->{'authenticate'}->(\$conf, \$req);\nreturn \@auth if \@auth;\n$code";
-    }
+    #if ($needsauth) {
+    #  $code = "die(\"500 no authenticate method defined\\n\") unless \$conf->{'authenticate'};\nmy \@auth = \$conf->{'authenticate'}->(\$conf, \$req);\nreturn \@auth if \@auth;\n$code";
+    #}
     $code2 .= "push \@args, \$cgi->{'$_'};\n" for @args;
     $code2 .= "&dispatch_checkcgi(\$cgi$known);\n";
     if ($callfunction) {
@@ -648,7 +654,9 @@ sub compile_dispatches {
     my $np = join('/', @p);
     push @out, "^$np\$";
     eval "push \@out, sub {my (\$conf, \$req) = \@_;\n$code};";
+    $out[-1] = undef unless defined $f;
     die("compile_dispatches: $@\n") if $@;
+    $out[-1] = [ $needsauth eq '-' ? undef : $needsauth, $out[-1] ] if $needsauth;
   }
   return \@out;
 }
@@ -661,10 +669,25 @@ sub dispatch {
   my @disps = @$disps;
   my $path = "$req->{'action'}:$req->{'path'}";
   my $ppath = $path;
+  # strip trailing slash
   $ppath =~ s/\/+$// if substr($ppath, -1, 1) eq '/' && $ppath !~ /^[A-Z]*:\/$/s;
+  my $auth;
   while (@disps) {
     my ($p, $f) = splice(@disps, 0, 2);
     next unless $ppath =~ /$p/;
+    if (ref($f) eq 'ARRAY') {
+      $auth = $f->[0];
+      $f = $f->[1];
+      next unless $f;
+    }
+    if ($auth) {
+      die("500 no authenticate method defined\n") unless $conf->{'authenticate'};
+      my @r = $conf->{'authenticate'}->($conf, $req, $auth);
+      if (@r) {
+        return $stdreply->(@r) if $stdreply;
+	return @r;
+      }
+    }
     return $stdreply->($f->($conf, $req)) if $stdreply;
     return $f->($conf, $req);
   }

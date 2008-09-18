@@ -586,6 +586,9 @@ sub workerstate {
       'port' => $peerport,
       'workerid' => $workerid,
     };
+    $worker->{'buildarch'} = $cgi->{'buildarch'} if $cgi->{'buildarch'};
+    $worker->{'memory'} = $cgi->{'memory'} if $cgi->{'memory'};
+    $worker->{'tellnojob'} = $cgi->{'tellnojob'} if $cgi->{'tellnojob'};
     if (-d "$workersdir/disable") {
       my @dis = ls("$workersdir/disable");
       for (@dis) {
@@ -1672,6 +1675,8 @@ sub hello {
 my $dispatches = [
   '/' => \&hello,
 
+  '!rw :' => undef,
+
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
@@ -1688,12 +1693,12 @@ my $dispatches = [
   '/event $type: $project $package?' => \&forwardevent,
 
   # worker calls
-  '/worker $arch $port $state: workerid:? working:bool?' => \&workerstate,
-  '/getbuildcode' => \&getbuildcode,
-  '/getworkercode' => \&getworkercode,
-  '/putjob $arch $job $jobid:md5 $code:?' => \&putjob,
-  '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
-  '/getbinaryversions $project $repository $arch binaries:' => \&getbinaryversions,
+  '!worker /worker $hostarch:arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
+  '!worker /getbuildcode' => \&getbuildcode,
+  '!worker /getworkercode' => \&getworkercode,
+  '!worker /putjob $arch $job $jobid:md5 $code:?' => \&putjob,
+  '!worker /getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
+  '!worker /getbinaryversions $project $repository $arch binaries:' => \&getbinaryversions,
 
   # published files
   '/published' => \&publisheddir,
