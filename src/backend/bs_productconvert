@@ -651,11 +651,20 @@ my $d;
 my $prodRef = readProductFile( $infile );
 
 #
+# Sanity checks
+#
+die("product definition contains no products\n") unless $prodRef->{'products'};
+for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
+  die("no product name set\n") unless $product->{'name'};
+  die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /^[_\.]/;
+  die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\000-\037]/;
+}
+
+#
 # Create $product-release packages
 #
 
-for my $p ( $prodRef->{'products'} ) {
-  my $product = $p->{'product'}[0];
+for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
   my $templateFile;
   if ($infile =~ /(.*\/)(.+)$/) {
     $templateFile = "$1/$product->{name}-release.spec";
@@ -677,7 +686,7 @@ for my $p ( $prodRef->{'products'} ) {
 # Create a kiwi configuration for each distribution flavor
 #
 
-my $productRef = $prodRef->{products}{product}[0]; # FIXME: Support multiple products.
+my $productRef = $prodRef->{products}->{product}->[0]; # FIXME: Support multiple products.
 
 my $kiwiImage = {};
 $kiwiImage->{schemeversion} = "2.4"; # ???
@@ -726,17 +735,20 @@ foreach my $medium ( @$media ){
 	my $archStr;
 	my @archsets = @{$arch->{archset}};
 	foreach my $ar ( @archsets ) {
-	    if( $archSets{$ar->{ref}} ) {
-		$archStr .= "_" if( $archStr );
-		$archStr .= "$archSets{$ar->{ref}}->{productarch}";
+	    if( $archSets{$ar->{'ref'}} ) {
+		$archStr .= "_" if $archStr;
+		$archStr .= "$archSets{$ar->{'ref'}}->{'productarch'}";
 	    }
 	}
 
 	my $file = "$product-$type-$archStr";
+        die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
+        die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
+
 	my $kiwiDir = "$outdir/_product_$file/";
 	my $outFile = "$kiwiDir/$file.kiwi";
 
-	mkdir_p( "$kiwiDir" ) || die ("Unable to create $kiwiDir\n");
+	mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
 	writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
 	print "$outFile written.\n";
     }
