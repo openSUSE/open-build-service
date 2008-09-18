@@ -71,7 +71,6 @@ sub authenticate {
     $auths{$BSConfig::ipaccess->{$_}} = 1 if $peer =~ /^$_$/s;
   }
   return () if grep {$auths{$_}} split(',', $auth);
-  die("500 access denied @{[sort keys %auths]} $auth\n");
   die("500 access denied\n");
 }
 
