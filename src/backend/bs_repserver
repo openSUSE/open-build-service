@@ -1693,7 +1693,7 @@ my $dispatches = [
   '/event $type: $project $package?' => \&forwardevent,
 
   # worker calls
-  '!worker /worker $hostarch:arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
+  '!worker /worker $arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
   '!worker /putjob $arch $job $jobid:md5 $code:?' => \&putjob,
