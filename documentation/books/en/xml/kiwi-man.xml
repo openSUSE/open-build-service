@@ -12,7 +12,7 @@
     <authorgroup>
       <author>
         <firstname>Marcus</firstname>
-        <surname>Schäfer</surname>
+        <surname>Schaefer</surname>
         <contrib>Developer</contrib>
         <email>ms (AT) suse.de</email>
       </author>
@@ -42,24 +42,6 @@
         <arg choice="plain">-l</arg>
         <arg choice="plain">--list</arg>
       </group>
-    </cmdsynopsis>
-    <cmdsynopsis>
-      <command>kiwi</command>
-      <group choice="req">
-        <arg choice="plain">-i</arg>
-        <arg choice="plain">--list-profiles</arg>
-      </group>
-      <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
-    </cmdsynopsis>
-    <cmdsynopsis>
-      <command>kiwi</command>
-      <group choice="req">
-        <arg choice="plain">-x</arg>
-        <arg choice="plain">--listxmlinfo</arg>
-      </group>
-      <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
-      <arg choice="opt">--type
-      <replaceable>ImageType</replaceable></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
   <refsect1 id="kiwi.image.prepcreate">
@@ -215,12 +197,36 @@
       creating a crypted password string for the users section of the
         <filename>config.xml</filename> file or signing the image
       description with an md5sum hash as well as adding splash data to
-      the boot image used by the bootloader. </para>
+      the boot image used by the bootloader and the testsuite mode which
+      allows testing the integrity of the new root tree.</para>
+	<cmdsynopsis><command>kiwi</command>
+	  <arg choice="plain">--testsuite <replaceable>image-root</replaceable></arg>
+      <arg choice="opt" rep="repeat">--test <replaceable>name</replaceable></arg></cmdsynopsis>
     <cmdsynopsis><command>kiwi</command> <arg choice="plain">--createpassword</arg></cmdsynopsis>
     <cmdsynopsis><command>kiwi</command> <arg choice="plain">--createhash
-      <replaceable>Imagepath</replaceable></arg></cmdsynopsis>
-    <cmdsynopsis><command>kiwi</command> <arg choice="plain">--setup-grub-splash
-      <replaceable>Initrd</replaceable></arg></cmdsynopsis>
+      <replaceable>image-path</replaceable></arg></cmdsynopsis>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <group choice="req">
+        <arg choice="plain">-i</arg>
+        <arg choice="plain">--list-profiles</arg>
+      </group>
+      <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
+    </cmdsynopsis>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <group choice="req">
+        <arg choice="plain">-x</arg>
+        <arg choice="plain">--list-xmlinfo</arg>
+      </group>
+      <arg choice="plain"><replaceable>ImagePath</replaceable></arg>
+      <arg choice="opt">--type
+      <replaceable>ImageType</replaceable></arg>
+    </cmdsynopsis>
+    <cmdsynopsis>
+      <command>kiwi</command>
+      <arg choice="plain">--setup-splash <replaceable>initrd</replaceable></arg>
+    </cmdsynopsis>
   </refsect1>
   
   <refsect1 id="kiwi.options">
@@ -228,6 +234,49 @@
     <para>KIWI has the following options:</para>
     
     <variablelist>
+	  <varlistentry>
+        <term><optional><option>--createpassword</option></optional></term>
+        <listitem>
+          <para>Create a crypted password hash</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--createhash <replaceable>image-path</replaceable></option>
+		</optional></term>
+        <listitem>
+          <para>Sign your image description with a md5sum</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>-i</option> | <option>--list-profiles <replaceable>image-path</replaceable></option>
+		</optional></term>
+        <listitem>
+          <para>List the profile names of the image description if any</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>-x</option> | <option>--list-xmlinfo <replaceable>image-path</replaceable></option>
+		</optional></term>
+        <listitem>
+          <para>List general information about the image description</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--setup-splash <replaceable>initrd</replaceable></option>
+		</optional></term>
+        <listitem>
+          <para>Create splash screen from the data inside the initrd
+          and re-create the initrd with the splash screen attached
+          to the initrd cpio archive. This enables the kernel
+          to load the splash screen at boot time. If splashy is used
+          only a link to the original initrd will be created</para>
+        </listitem>
+      </varlistentry>
+
       <varlistentry>
         <term><optional><option>-d</option> | <option>--destdir
           <replaceable>DestinationPath</replaceable></option></optional></term>
@@ -241,6 +290,7 @@
             an error occurs</para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>-t</option> | <option>--type
           <replaceable>Imagetype</replaceable></option></optional></term>
@@ -256,9 +306,10 @@
             <option>--create</option> step. With the
             option <option>--type</option> one can distinguish between the
             types stored in <filename>config.xml</filename>
-    </para>
+            </para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>-r</option> | <option>--root
           <replaceable>RootPath</replaceable></option></optional></term>
@@ -271,6 +322,7 @@
             and used as root directory</para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>--base-root</option>
           <replaceable>BasePath</replaceable></optional></term>
@@ -280,6 +332,7 @@
             run the second stage directly.</para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>-s</option> | <option>--strip</option></optional></term>
         <listitem>
@@ -287,6 +340,7 @@
             combination with <option>--create</option></para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>--add-repo
           <replaceable>RepoPath</replaceable></option>,
@@ -300,6 +354,31 @@
               <filename>config.xml</filename> file</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--(add|set)-repoalias <replaceable>alias name</replaceable></option>
+		</optional></term>
+        <listitem>
+          <para>Alias name to be used for this repository. This is an
+          optional free form text. If not set the source attribute
+          value is used and builds the alias name by replacing
+          each '/' with a '_'. An alias name should be set if the
+          source argument doesn't really explain what this repository
+          contains</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--(add|set)-repoprio <replaceable>number</replaceable></option>
+		</optional></term>
+        <listitem>
+          <para>Channel priority assigned to all packages available in
+          this channel (0 if not set). If the exact same package
+          is available in more than one channel, the highest
+          priority is used</para>
+        </listitem>
+      </varlistentry>
+
       <varlistentry>
         <term><optional><option>--ignore-repos</option></optional></term>
         <listitem>
@@ -310,6 +389,7 @@
             specifications.</para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>--set-repo <replaceable>RepoPath</replaceable>
         <optional><option>--set-repotype <replaceable>Type</replaceable></option></optional></option></optional></term>
@@ -318,9 +398,20 @@
           repository entry within the <filename>config.xml</filename>.
           The change will not be written to the XML file and is valid
   	      for the subsequent image preparation or upgrade process.
-    </para>
+          </para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--add-package</option> <replaceable>package</replaceable>
+        </optional></term>
+        <listitem>
+          <para>Add the given package name to the list of image packages
+          multiple --add-package options are possible. The change
+          will not be written to the xml description</para>
+        </listitem>
+      </varlistentry>
+
       <varlistentry>
         <term><optional><option>--logfile <replaceable>Filename</replaceable></option>
           | <option>terminal</option></optional></term>
@@ -330,6 +421,7 @@
           </para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>--gzip-cmd <replaceable>cmd</replaceable></option></optional></term>
         <listitem>
@@ -338,6 +430,7 @@
             <command>gzip</command> options.</para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>--force-new-root</option></optional></term>
         <listitem>
@@ -345,6 +438,7 @@
             already exists, it is deleted.</para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>--log-port <replaceable>PortNumber</replaceable></option></optional></term>
         <listitem>
@@ -353,6 +447,7 @@
             to set the logging port per process </para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>--prebuiltbootimage
           <replaceable>Directory</replaceable></option></optional></term>
@@ -361,6 +456,7 @@
             pre-built boot images.</para>
         </listitem>
       </varlistentry>
+
       <varlistentry>
         <term><optional><option>--isocheck</option></optional></term>
         <listitem>
@@ -371,7 +467,58 @@
 			allows to check this media
           </para>
         </listitem>
-      </varlistentry>      
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--testsuite <replaceable>image-root</replaceable></option>
+        <option>--test <replaceable>name</replaceable></option>
+        </optional></term>
+        <listitem>
+          <para>run test(s) on prepared image root tree.
+          If additional name is omitted default set of tests will be
+          used. Otherwise only provided tests will be executed</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--package-manager <replaceable>smart|zypper</replaceable></option>
+        </optional></term>
+        <listitem>
+          <para>Set the package manager to use for this image. If set it
+          will temporarly overwrite the value set in the xml
+          description</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--fs-blocksize <replaceable>number</replaceable></option>
+        </optional></term>
+        <listitem>
+          <para>When calling kiwi in creation mode this option will set
+          the block size in bytes. For ISO images with the old style
+          ramdisk setup a blocksize of 4096 bytes is required</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--fs-journalsize <replaceable>number</replaceable></option>
+        </optional></term>
+        <listitem>
+          <para>When calling kiwi in creation mode this option will set
+          the journal size in mega bytes for ext[23] based filesystems
+          and in blocks if the reiser filesystem is used</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><optional><option>--fs-inodesize <replaceable>number</replaceable></option>
+        </optional></term>
+        <listitem>
+          <para>When calling kiwi in creation mode this option will set
+          the inode size in bytes. This option has no effect if the
+          reiser filesystem is used</para>
+        </listitem>
+      </varlistentry>
     </variablelist>    
   </refsect1>  
   
@@ -401,16 +548,24 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><ulink url="file:///usr/share/kiwi/modules/KIWIScheme.xsd"/></term>
+        <term><ulink url="file:///usr/share/kiwi/modules/KIWIScheme.rnc"/></term>
         <listitem>
-          <para>The KIWI W3C XML Schema file. This file, and with the
-            help of a XML editor, you can create any
-            <filename>config.xml</filename> file manually.
+          <para>The KIWI RelaxNG XML Schema file. This file, and with the
+          help of a XML editor, you can create any
+          <filename>config.xml</filename> file manually.
           </para>
         </listitem>
-      </varlistentry>      
+      </varlistentry>
+      <varlistentry>
+        <term><ulink url="file:///usr/share/kiwi/modules/KIWISchemeTest.rnc"/></term>
+        <listitem>
+          <para>The KIWI RelaxNG XML Schema file. This file, and with the
+          help of a XML editor, you can create any
+          <filename>(testsuite-name).xml</filename> file manually.
+          </para>
+        </listitem>
+      </varlistentry>
     </variablelist>
-    
   </refsect1>
   
   
