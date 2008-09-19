@@ -1039,14 +1039,14 @@ sub getprojpack {
       my $enable = {};
       undef($enable) if $cgi->{'ignoredisable'};
       if ($enable && $pinfo->{'build'} && $pinfo->{'build'}->{'enable'}) {
-	for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pack->{'enable'}}) {
+	for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pinfo->{'build'}->{'enable'}}) {
 	  undef($enable), last unless exists $_->{'repository'};
 	  $enable->{$_->{'repository'}} = 1;
         }
       }
       if ($enable) {
 	if ($pinfo->{'build'} && $pinfo->{'build'}->{'disable'}) {
-	  for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pack->{'disable'}}) {
+	  for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pinfo->{'build'}->{'disable'}}) {
 	    undef($disable), last unless exists $_->{'repository'};
 	    $disable->{$_->{'repository'}} = 1;
 	  }
