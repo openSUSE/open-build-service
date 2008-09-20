@@ -382,26 +382,47 @@ sub patchspec {
   }
   %patches = ();
   my $ln = -1;
+  # find outmost pushd/popd calls and insert new patches after a pushd/popd block
+  # $blevel == 0 indicates the outmost block
+  my %bend = ();
+  my $bln = undef;
+  $$bln = $ln;
+  my $blevel = -1;
   for (@prep) {
     $ln++;
+    $blevel++ if /^pushd/;
+    if (/^popd/) {
+      unless ($blevel) {
+        $$bln = $ln;
+        undef $bln;
+        $$bln = $ln;
+      }
+      $blevel--;
+    }
     next unless /%patch(\d*)(.*)/;
     if ($1 ne '') {
       $patches{0 + $1} = $ln;
+      $bend{0 + $1} = $bln if $blevel >= 0;
       next;
     }
+    my $pnum = 0;
     my @a = split(' ', $2);
     if (! grep {$_ eq '-P'} @a) {
-      $patches{0} = $ln;
+      $patches{$pnum} = $ln;
     } else {
       while (@a) {
         next if shift(@a) ne '-P';
         next if !@a || $a[0] !~ /^\d+$/;
-        $patches{0 + shift(@a)} = $ln;
+        $pnum = 0 + shift(@a);
+        $patches{$pnum} = $ln;
       }
     }
+    $bend{$pnum} = $bln if $blevel >= 0;
   }
+  return "specfile has broken %prep section" unless $blevel == -1;
   @patches = sort {$a <=> $b} keys %patches;
   $nr = 1 + $p->{'after'} if exists $p->{'after'};
+  %patches = map { $_ => exists $bend{$_} ? ${$bend{$_}} : $patches{$_} } @patches;
   @after = map {$patches{$_}} grep {$_ < $nr} @patches if @patches;
   @after = ($patches[0] - 1) if !@after && @patches;
   @after = (@prep - 2) if !@after;
