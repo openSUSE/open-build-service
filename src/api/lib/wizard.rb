@@ -197,6 +197,9 @@ class Wizard
   class HashBinding
     def initialize(hash)
       hash.each do |key, value|
+        if key !~ /^[a-zA-Z][a-zA-Z0-9_]*$/
+          raise RuntimeError.new("Illegal key: #{key}")
+        end
         instance_variable_set("@#{key}", value)
       end
     end
