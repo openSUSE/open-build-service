@@ -131,4 +131,9 @@ sub UNTIE {
   undef $sslr->[0];
 }
 
+sub DESTROY {
+  my ($sslr) = @_;
+  UNTIE($sslr) if $sslr && $sslr->[0];
+}
+
 1;
