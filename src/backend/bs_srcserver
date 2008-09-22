@@ -1598,7 +1598,13 @@ sub getconfig {
     $macros .= "\n### from $projid\n";
     $macros .= "%_repository $repoid\n";
   }
-  $macros .= "\n%distribution $projid / $repoid\n";
+
+  my $distinfo = "$projid / $repoid";
+  if ($repoid eq 'standard') {
+    $distinfo = $projid;
+  } 
+
+  $macros .= "\n%distribution $distinfo\n";
   $config .= "\nMacros:\n$macros" if $macros ne '';
   return ($config, 'Content-Type: text/plain');
 }
