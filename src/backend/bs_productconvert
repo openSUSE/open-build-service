@@ -574,11 +574,11 @@ sub writeProductSPECfile
     my $product_flavors="";
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
       $product_flavors.="%package $flavor->{type}\n";
-      $product_flavors.="%define flavor $flavor->{type}\n";
       $product_flavors.="License:        BSD 3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       product_flavor($product->{name}) = %{version}-%{release}\n";
+      $product_flavors.="Provides:       flavor($flavor->{type})\n";
       foreach my $summary ( @{$product->{'summary'}} ){
         $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
       }
@@ -587,34 +587,27 @@ sub writeProductSPECfile
       foreach my $description ( @{$product->{'description'}} ){
         $product_flavors.="$description->{_content}\n" if ( ! $description->{'description'} );
       }
-      $product_flavors.="\n";
-      $product_flavors.="%files $flavor->{type}\n";
-      $product_flavors.="%defattr(-,root,root)\n";
-      $product_flavors.="%dir /etc/products.d\n";
-      $product_flavors.="/etc/products.d/$product->{name}-$flavor->{type}.prod\n";
       $product_flavors.="\n"
     }
 
+    # Create product file to be packaged
     my $zypp_product_file = "";
     $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
-    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}-$flavor->{type}.prod";
+    my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}.prod";
 
-      my $zypp_product;
-      $zypp_product = $product;
-      $zypp_product->{'schemeversion'} = "0"; # FIXME: moving target, still in development.
-      my $d;
-      $d->{"target"}  = $product->{'register'}->{'target'};
-      $d->{"release"} = $product->{'register'}->{'release'};
-      $d->{"flavor"}  = $flavor->{'type'} ;
-      $zypp_product->{'register'} = $d;
+    my $zypp_product;
+    $zypp_product = $product;
+    $zypp_product->{'schemeversion'} = "0"; # FIXME: moving target, still in development.
+    my $d;
+    $d->{"target"}  = $product->{'register'}->{'target'};
+    $d->{"release"} = $product->{'register'}->{'release'};
+    $zypp_product->{'register'} = $d;
 
-      my $xml = XMLout( $BSProductXML::product, $zypp_product );
-      die ( "ERROR: Unable to create xml for $flavor->{type} !" ) unless $xml;
-      $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
-      $zypp_product_file .= "cat >$pfile << EOF\n";
-      $zypp_product_file .= "$xml\nEOF\n\n";
-    }
+    my $xml = XMLout( $BSProductXML::product, $zypp_product );
+    die ( "ERROR: Unable to create xml for $product->{name} !" ) unless $xml;
+    $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
+    $zypp_product_file .= "cat >$pfile << EOF\n";
+    $zypp_product_file .= "$xml\nEOF\n\n";
 
     my $str = readstr($infile);
 
