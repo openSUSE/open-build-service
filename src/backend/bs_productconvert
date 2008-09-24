@@ -577,7 +577,7 @@ sub writeProductSPECfile
       $product_flavors.="License:        BSD 3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
       $product_flavors.="Provides:       product_flavor()\n";
-      $product_flavors.="Provides:       product_flavor($product->{name}) = %{version}-%{release}\n";
+      $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{'version'}-$product->{'release'}\n";
       $product_flavors.="Provides:       flavor($flavor->{type})\n";
       foreach my $summary ( @{$product->{'summary'}} ){
         $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
