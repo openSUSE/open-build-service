@@ -1296,13 +1296,17 @@ sub putproject {
   BSVerify::verify_proj($proj, $projid);
   writexml("$srcrep/:upload/$$.2", undef, $proj, $BSXML::proj);
   unlink("$srcrep/:upload/$$");
+  if (! -e "$projectsdir/$projid.xml") {
+    BSHermes::notify("SRCSRV_CREATE_PROJECT", { "project" => $projid });
+  } else {
+    BSHermes::notify("SRCSRV_UPDATE_PROJECT", { "project" => $projid });
+  }
   rename("$srcrep/:upload/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
   if ($BSConfig::forceprojectkeys) {
     my ($sk) = getsignkey({}, $projid);
     createkey({}, $projid) if $sk eq '';
   }
   notify_repservers('project', $projid);
-  BSHermes::notify("SRCSRV_UPDATE_PROJECT", { "project" => $projid });
 
   $proj = readproj($projid);
   return ($proj, $BSXML::proj);
@@ -1363,6 +1367,11 @@ sub putpackage {
   unlink("$srcrep/:upload/$$");
   my $proj = readproj($projid);
   mkdir_p("$projectsdir/$projid.pkg");
+  if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
+    BSHermes::notify("SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid});
+  } else {
+    BSHermes::notify("SRCSRV_UPDATE_PACKAGE", { "project" => $projid, "package" => $packid});
+  }
   rename("$srcrep/:upload/$$.2", "$projectsdir/$projid.pkg/$packid.xml") || die("rename to $projectsdir/$projid.pkg/$packid.xml: $!\n");
 #  my %packages = map {$_->{'name'} => 1} @{$proj->{'package'} || []};
 #  if (!$packages{$packid}) {
