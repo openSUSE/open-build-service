@@ -590,7 +590,7 @@ sub writeProductSPECfile
       $product_flavors.="\n";
       $product_flavors.="%files $flavor->{type}\n";
       $product_flavors.="%defattr(-,root,root)\n";
-      $product_flavors.="%{_defaultdocdir}/$product->{name}-release-$flavor->{type}/README\n";
+      $product_flavors.="%doc %{_defaultdocdir}/$product->{name}-release-$flavor->{type}\n";
       $product_flavors.="\n"
     }
 
@@ -614,9 +614,10 @@ sub writeProductSPECfile
     $zypp_product_file .= "$xml\nEOF\n\n";
 
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      my $readmefile = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{type}/README";
-      $zypp_product_file .= "cat >$pfile << EOF\n";
-      $zypp_product_file .= "This package just exist just for providing the product Flavor.\n";
+      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{type}";
+      $zypp_product_file .= "mkdir -p $readmedir\n";
+      $zypp_product_file .= "cat >$readmedir/README << EOF\n";
+      $zypp_product_file .= "This package just exist just for providing the product flavor.\n";
       $zypp_product_file .= "\nEOF\n\n";
     }
 
