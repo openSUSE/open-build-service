@@ -69,22 +69,6 @@ my $ajaxsocket = "$BSConfig::bsdir/run/bs_repserver.ajax";
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 
-my %cando = (
-  'i586'    => ['i586'],
-  'i686'    => ['i586', 'i686'],
-  'x86_64'  => ['x86_64', 'i586', 'i686'],
-  'ppc'     => ['ppc'],
-  'ppc64'   => ['ppc64', 'ppc'],
-  'sh4'     => ['sh4'],
-  'ia64'    => ['ia64'],
-  's390'    => ['s390'],
-  's390x'   => ['s390', 's390x'],
-  'sparc'   => ['sparc'],
-  'sparc64' => ['sparc64', 'sparc'],
-  'mips'    => ['mips'],
-  'mips64'  => ['mips64', 'mips'],
-);
-
 my $reporoot = "$BSConfig::bsdir/build";
 my $workersdir = "$BSConfig::bsdir/workers";
 my $jobsdir = "$BSConfig::bsdir/jobs";
@@ -557,7 +541,6 @@ sub putbinary {
 
 sub workerstate {
   my ($cgi, $harch, $peerport, $state) = @_;
-# die("unsupported architecture '$harch'\n") unless $cando{$harch};
   my $peerip = BSServer::getpeerdata();
   die("cannot get your ip address\n") unless $peerip;
   my $workerid = defined($cgi->{'workerid'}) ? $cgi->{'workerid'} : "$peerip:$peerport";
