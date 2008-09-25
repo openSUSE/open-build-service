@@ -749,7 +749,7 @@ foreach my $medium ( @$media ){
         die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
         die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
 
-	my $kiwiDir = "$outdir/_product_$file/";
+	my $kiwiDir = "$outdir/_product:$file/";
 	my $outFile = "$kiwiDir/$file.kiwi";
 
 	mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
