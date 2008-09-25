@@ -587,6 +587,10 @@ sub writeProductSPECfile
       foreach my $description ( @{$product->{'description'}} ){
         $product_flavors.="$description->{_content}\n" if ( ! $description->{'description'} );
       }
+      $product_flavors.="\n";
+      $product_flavors.="%files $flavor->{type}\n";
+      $product_flavors.="%defattr(-,root,root)\n";
+      $product_flavors.="%{_defaultdocdir}/$product->{name}-release-$flavor->{type}/README\n";
       $product_flavors.="\n"
     }
 
@@ -608,6 +612,13 @@ sub writeProductSPECfile
     $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
     $zypp_product_file .= "cat >$pfile << EOF\n";
     $zypp_product_file .= "$xml\nEOF\n\n";
+
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      my $readmefile = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{type}/README";
+      $zypp_product_file .= "cat >$pfile << EOF\n";
+      $zypp_product_file .= "This package just exist just for providing the product Flavor.\n";
+      $zypp_product_file .= "\nEOF\n\n";
+    }
 
     my $str = readstr($infile);
 
