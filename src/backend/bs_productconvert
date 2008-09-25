@@ -244,6 +244,8 @@ sub createProductOptions($$$)
 
     my %options;
     $options{'SOURCEMEDIUM'} = "1";
+    $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/suse-11.0"; # FIXME: this needs to become part of PD ?
+    $options{'INI_DIR'} = "/usr/share/kiwi/modules/plugins/suse-11.0";
     # add more as needed.
     my @vars1;
     foreach my $opt ( keys %options ) {
