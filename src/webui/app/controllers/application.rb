@@ -222,7 +222,7 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_package_name? name
-    name =~ /^\w[-_+\w\.]*$/
+    name =~ /^\w[-_+\w\.:]*$/
   end
 
 end
