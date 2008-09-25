@@ -7,3 +7,6 @@
 # This needs to be a space seperated list of all supported architectures
 
 OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
+#OBS_SCHEDULER_ARCHITECTURES="armv4l i586 x86_64"
+#OBS_SCHEDULER_ARCHITECTURES="armv4l ppc ppc64"
+#OBS_SCHEDULER_ARCHITECTURES="armv4l ppc ppc64 i586 x86"
