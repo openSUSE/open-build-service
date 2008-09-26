@@ -89,6 +89,18 @@ sub unify {
   return grep(delete($h{$_}), @_);
 }
 
+sub sendevent {
+  my ($ev, $arch, $evname) = @_;
+
+  mkdir_p("$eventdir/$arch");
+  writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+  local *F;
+  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite(F, 'x');
+    close(F);
+  }
+}
+
 #
 # input: depsp  -> hash of arrays
 #        mapp   -> hash of strings
@@ -663,34 +675,25 @@ sub sendpublishevent {
   my ($prp) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
-  my $evname = "${projid}::$repoid";
   my $ev = {
     'type' => 'publish',
     'project' => $projid,
     'repository' => $repoid,
   };
-  mkdir_p("$eventdir/publish");
-  writexml("$eventdir/publish/.$evname$$", "$eventdir/publish/$evname", $ev, $BSXML::event);
-  local *F;
-  if (sysopen(F, "$eventdir/publish/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
-  }
+  sendevent($ev, 'publish', "${projid}::$repoid");
 }
 
 sub sendrepochangeevent {
   my ($prp) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
-  my $evname = "${projid}::${repoid}::${myarch}";
   my $ev = {
     'type' => 'repository',
     'project' => $projid,
     'repository' => $repoid,
     'arch' => $myarch,
   };
-  mkdir_p("$eventdir/repository");
-  writexml("$eventdir/repository/.$evname$$", "$eventdir/repository/$evname", $ev, $BSXML::event);
+  sendevent($ev, 'repository', "${projid}::${repoid}::${myarch}");
 }
 
 #
@@ -875,13 +878,7 @@ sub createexportjob {
     'type' => 'import',
     'job' => $job,
   };
-  my $evname = "import.$job";
-  mkdir_p("$eventdir/$arch");
-  writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
-  }
+  sendevent($ev, $arch, "import.$job");
 }
 
 
@@ -1781,6 +1778,189 @@ sub importevent {
 ##########################################################################
 ##########################################################################
 ##
+##  kiwi package type handling
+##
+sub checkkiwi {
+  my ($projid, $repoid, $packid, $pdata, $info) = @_;
+
+  # hmm, should get the arch from the kiwi info
+  # but how can we map it to the buildarchs?
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  return ('broken', 'missing repo') unless $repo;	# can't happen
+  my @archs = @{$repo->{'arch'} || []};
+  my @deps = @{$info->{'dep'} || []};	# expanded?
+  my %deps = map {$_ => 1} @deps;
+  delete $deps{''};
+  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+
+  if (!grep {$_ eq $myarch} @archs) {
+    print "      - $packid (kiwi)\n";
+    print "        not mine\n";
+    return ('excluded');
+  }
+
+  my @blocked;
+  my @rpms;
+
+#print "packids: @packids\n";
+#print "prps: @aprps\n";
+#print "archs: @archs\n";
+#print "deps: @deps\n";
+
+  for my $aprp (@aprps) {
+    my %known;
+    my ($aprojid, $arepoid) = split('/', $aprp, 2);
+    my $pdatas = $projpacks->{$aprojid}->{'package'} || {};
+    my @apackids = sort keys %$pdatas;
+    for my $apackid (@apackids) {
+      my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
+      $known{$apackid} = $info->{'name'} if $info && $info->{'name'};
+    }
+    for my $arch ($archs[0] eq $myarch ? @archs : $myarch) {
+      my $ps = (readxml("$reporoot/$aprp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+      for my $apackid (@apackids) {
+        if ($deps{$apackid} || $deps{$known{$apackid} || ''}) {
+	  # hey, we probably need this package! wait till it's finished
+	  my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked')} @$ps;
+	  if (@notyet) {
+	    push @blocked, map {"$aprp/$arch/$_->{'name'}"} @notyet;
+	    next;
+	  }
+        }
+        # hmm, we don't know if we really need it. scan content.
+	my @got;
+	my $needit;
+        for my $b (ls("$reporoot/$aprp/$arch/$apackid")) {
+	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.[a-zA-Z][^\.\-]*\.rpm$/;
+	  $needit = 1 if $deps{$1};
+	  push @got, "$aprp/$arch/$apackid/$b";
+        }
+	next unless $needit;
+	# ok we need it. check if they are built.
+        my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked')} @$ps;
+        if (@notyet) {
+	  push @blocked, map {"$aprp/$arch/$_->{'name'}"} @notyet;
+	  next;
+        }
+	push @rpms, @got;
+      }
+    }
+  }
+  if (@blocked) {
+    print "      - $packid (kiwi)\n";
+    print "        blocked (@blocked)\n";
+    return ('blocked', join(', ', @blocked));
+  }
+
+  if ($archs[0] ne $myarch) {
+    # looks good from our side. tell master arch
+    # to check it
+    my $ev = {
+      'type' => 'unblocked',
+      'project' => $projid,
+      'repository' => $packid,
+    };
+    my $evname = "unblocked::${projid}::${repoid}";
+    sendevent($ev, $archs[0], "unblocked::${projid}::${repoid}");
+    print "      - $packid (kiwi)\n";
+    print "        unblocked\n";
+    return ('excluded');
+  }
+
+  # now create meta info
+  my @new_meta;
+  for my $rpm (sort @rpms) {
+    my $id = Build::queryhdrmd5("$reporoot/$rpm");
+    if (!$id) {
+      print "      - $packid (kiwi)\n";
+      print "        broken ($rpm)\n";
+      return ('broken', $rpm);
+    }
+    push @new_meta, "$id  $rpm\n";
+  }
+  my @meta;
+  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+    @meta = <F>;
+    close F;
+    chomp @meta;
+  }
+  if (join('\n', @meta) eq join('\n', @new_meta)) {
+    print "      - $packid (kiwi)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+  my @diff = diffsortedmd5(0, \@meta, \@new_meta);
+  print "      - $packid (kiwi)\n";
+  print "        $_\n" for @diff;
+  my $new_meta = join('', map {"$_\n"} @new_meta);
+  return ('scheduled', $new_meta);
+}
+
+sub rebuildkiwi {
+  my ($projid, $repoid, $packid, $pdata, $info, $prpsearchpath, $new_meta) = @_;
+
+  my $prp = "$projid/$repoid";
+  my $srcmd5 = $pdata->{'srcmd5'};
+  my $f = jobname($prp, $packid);
+  return ('scheduled', "$f-$srcmd5") if -s "$myjobsdir/$f-$srcmd5";
+  $f = "$f-$srcmd5";
+
+  my $searchpath = [];
+  for (@$prpsearchpath) {
+    my @pr = split('/', $_, 2);
+    if ($remoteprojs{$pr[0]}) {
+      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+    } else {
+      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+    }    
+  }
+
+  my @bdeps;
+  my @new_meta = split("\n", $new_meta);
+  for my $meta (@new_meta) {
+    next unless $meta =~ /^[0-9a-fA-F]{32}  (.*)$/;
+    my @b = split('/', $1);
+    next unless @b == 5;
+    next unless $b[4] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+    push @bdeps, {
+      'name' => $1,
+      'version' => $2,
+      'release' => $3,
+      'arch' => $4,
+      'project' => $b[0],
+      'repository' => $b[1],
+      'repoarch' => $b[2],
+      'package' => $b[3],
+    };
+  }
+  if ($info->{'extrasource'}) {
+    push @bdeps, map {{
+      'name' => $_->{'file'}, 'notmeta' => 1, 'version' => '', 'repoarch' => 'src',
+      'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
+    }} @{$info->{'extrasource'}};
+  }
+
+  my $binfo = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'package' => $packid,
+    'job' => $f,
+    'arch' => $myarch,
+    'srcmd5' => $srcmd5,
+    'verifymd5' => $pdata->{'verifymd5'} || $srcmd5,
+    'rev' => $pdata->{'rev'},
+    'file' => $info->{'file'},
+    'bdep' => \@bdeps,
+  };
+  mkdir_p("$reporoot/$prp/$myarch/$packid");
+  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $f}, $BSXML::buildstatus);
+  writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
+  return ('scheduled', $f);
+}
+
+##########################################################################
+##########################################################################
+##
 ##  aggregate package type handling
 ##
 
@@ -2555,6 +2735,17 @@ while(1) {
 	next;
       }
 
+      if ($ev->{'type'} eq 'unblocked') {
+	my $projid = $ev->{'project'};
+	my $repoid = $ev->{'repository'};
+	if (defined($projid) && defined($repoid)) {
+	  my $prp = "$projid/$repoid";
+	  print "$prp is unblocked\n";
+	  $changed{$prp} ||= 1;
+	}
+	next;
+      }
+
       if ($ev->{'type'} eq 'scanrepo') {
 	my $projid = $ev->{'project'};
 	my $repoid = $ev->{'repository'};
@@ -2912,6 +3103,10 @@ while(1) {
     $pdeps{$packid} = \@edeps;
   }
 
+  # write dependency information
+  Storable::nstore(\%pdeps, "$reporoot/$prp/$myarch/.:depends");
+  rename("$reporoot/$prp/$myarch/.:depends", "$reporoot/$prp/$myarch/:depends");
+
   # sort packages by pdeps
   print "    sorting ".@packs." packages\n";
   my %cychash;
@@ -3012,7 +3207,22 @@ while(1) {
       next;
     }
 
+    # calculate package build type
+    my $packtype;
     if ($pdata->{'aggregatelist'}) {
+      $packtype = 'aggregate';
+    } elsif ($info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi)$/) {
+      $packtype = $1;
+    }
+    if (!$packtype) {
+      print "      - $packid (no spec/dsc/kiwi file)\n";
+      $packstatus{$packid} = 'broken';
+      $packerror{$packid} = 'no spec/dsc/kiwi file';
+      next;
+    }
+    #print "      - $packid ($packtype)\n";
+
+    if ($packtype eq 'aggregate') {
       my ($astatus, $aerror) = checkaggregate($projid, $repoid, $packid, $pdata, \%prpfinished);
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
@@ -3030,15 +3240,27 @@ while(1) {
       $packerror{$packid} = $aerror if defined $aerror;
       next;
     }
-    if (!exists $info->{'file'}) {
-      print "      - $packid (no spec/dsc/kiwi file)\n";
-      $packstatus{$packid} = 'broken';
-      $packerror{$packid} = 'no spec/dsc/kiwi file';
+
+    if ($packtype eq 'kiwi') {
+      my ($astatus, $aerror) = checkkiwi($projid, $repoid, $packid, $pdata, $info);
+      if ($astatus eq 'scheduled') {
+	# aerror contains new meta file in this case
+	($astatus, $aerror) = rebuildkiwi($projid, $repoid, $packid, $pdata, $info, $prpsearchpath{$prp}, $aerror);
+	if ($astatus eq 'scheduled') {
+	  # aerror contains jobid in this case
+	  $notready{$pname} = 1;
+	  $building{$packid} = $aerror || 'job';
+	  undef $aerror;
+	}
+	unlink("$reporoot/$prp/$myarch/:repodone");
+      }
+      $notready{$pname} = 1 if $astatus eq 'blocked';
+      $packstatus{$packid} = $astatus;
+      $packerror{$packid} = $aerror if defined $aerror;
       next;
     }
-    $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
-    my $packtype = $1 || 'spec';
-    #print "      - $packid ($packtype)\n";
+
+    # packtype is now spec/kiwi
 
     if ($experrors{$packid}) {
       # retry expansion of this one
