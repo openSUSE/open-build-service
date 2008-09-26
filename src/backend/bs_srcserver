@@ -883,22 +883,49 @@ sub kiwiparse  {
     }
   }
 
-  # collect all possible needed repositories
-  # this should maybe moved above to the expandrepos calls without harming performance
-  for my $repository (@{$kiwidesc->{'repository'} || []}) {
-    for my $kiwisource (@{$repository->{'source'} || []}) {
+  if ($kiwidesc->{'instsource'}) {
+    for my $repository (@{$kiwidesc->{'instsource'}->{'instrepo'}}) {
+      my $kiwisource =  $repository->{'source'};
       if ($kiwisource->{'path'} =~ /^obs:\/\/(.+)$/) {
-        my @s = split('/', $1, 2);
-        # Project in remote build service instance ?
+	my @s = split('/', $1, 2);
+	# Project in remote build service instance ?
 # FIXME: handle remote projects
 #        if ($withremotemap && !exists($remotemap{$s[0]})) {
 #          $remotemap{$s[0]} = remoteprojid($s[0]);
 #        }
-        my $prp = {'project' => $s[0], 'repository' => $s[1]};
-        push @allrepos, $prp;
+	my $prp = {'project' => $s[0], 'repository' => $s[1]};
+	push @allrepos, $prp;
       } else {
-        return ("non Build Service KIWI source found: $kiwisource->{'path'}");
+	return ("non Build Service KIWI source found: $kiwisource->{'path'}");
       }
+    }
+    for my $repopackages (@{$kiwidesc->{'instsource'}->{'repopackages'} || []}) {
+      for my $repopackage (@{$repopackages->{'repopackage'} || []}) {
+        push @allpackages, $repopackage->{'name'};
+      }
+    }
+    if ($kiwidesc->{'instsource'}->{'metadata'}) {
+      for my $repopackage (@{$kiwidesc->{'instsource'}->{'metadata'}->{'repopackage'} || []}) {
+        push @allpackages, $repopackage->{'name'};
+      }
+    }
+  }
+
+  # collect all possible needed repositories
+  # this should maybe moved above to the expandrepos calls without harming performance
+  for my $repository (@{$kiwidesc->{'repository'} || []}) {
+    my $kiwisource =  $repository->{'source'};
+    if ($kiwisource->{'path'} =~ /^obs:\/\/(.+)$/) {
+      my @s = split('/', $1, 2);
+      # Project in remote build service instance ?
+# FIXME: handle remote projects
+#        if ($withremotemap && !exists($remotemap{$s[0]})) {
+#          $remotemap{$s[0]} = remoteprojid($s[0]);
+#        }
+      my $prp = {'project' => $s[0], 'repository' => $s[1]};
+      push @allrepos, $prp;
+    } elsif ($kiwisource->{'path'} ne '/var/lib/empty') {
+      return ("non Build Service KIWI source found: $kiwisource->{'path'}");
     }
   }
 
