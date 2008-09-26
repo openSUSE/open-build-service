@@ -199,6 +199,7 @@ our $productdesc = [
                'use_recommended',
                'use_suggested',
                'use_required',
+               'use_undecided', # take all packages, even the ungrouped ones
                'create_pattern',
                [[ 'package' => 'name', 'relationship' ]],
                [[ 'include' => 'group', 'relationship' ]],
