@@ -276,6 +276,7 @@ our $buildinfo = [
 	'arch',
 	'project',
 	'repository',
+	'repoarch',
 	'package',
 	'srcmd5',
      ]],
