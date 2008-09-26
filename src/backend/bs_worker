@@ -749,7 +749,7 @@ sub dobuild {
     push @args, '--release', "$release" if defined $release;
     push @args, '--debug' if $buildinfo->{'debuginfo'};
     push @args, '--arch', $arch;
-    push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}";
+    push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
     push @args, "$srcdir/$buildinfo->{'file'}";
     if (qsystem(@args)) {
       print "build failed\n";
