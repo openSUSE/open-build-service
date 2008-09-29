@@ -350,10 +350,15 @@ sub useToPackages( $$ )
 	    if( $useState->{package} ) {
 		foreach my $addPack ( @{$useState->{package} } ) {
 		    # print Dumper( $addPack ) . "\n";
+		    my $relType = $addPack->{relationship};
+		    unless( $relType eq "requires" || $relType eq "recommends" || $relType eq "suggests" ) {
+			print "ERROR: Unknown relation type string for package add!\n";
+			exit;
+		    }
 		    if( ( $useRequired    && $addPack->{relationship} eq "requires") ||
 			( $useRecommended && $addPack->{relationship} eq "recommends" ) ||
 			( $useSuggested   && $addPack->{relationship} eq "suggests" ) ) {
- 
+			
 			push @packages, { name => $addPack->{name} };
 		    }
 		}
