@@ -1801,6 +1801,7 @@ sub checkkiwiproduct {
 
   my @blocked;
   my @rpms;
+  my %rpms_meta;
 
 #print "packids: @packids\n";
 #print "prps: @aprps\n";
@@ -1834,6 +1835,7 @@ sub checkkiwiproduct {
 	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.[a-zA-Z][^\.\-]*\.rpm$/;
 	  $needit = 1 if $deps{$1};
 	  push @got, "$aprp/$arch/$apackid/$b";
+	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1";
         }
 	next unless $needit;
 	# ok we need it. check if they are built.
@@ -1869,14 +1871,16 @@ sub checkkiwiproduct {
 
   # now create meta info
   my @new_meta;
-  for my $rpm (sort @rpms) {
+  push @new_meta, "$pdata->{'srcmd5'}  $packid";
+  push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
+  for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b}} @rpms) {
     my $id = Build::queryhdrmd5("$reporoot/$rpm");
     if (!$id) {
       print "      - $packid (kiwi)\n";
       print "        broken ($rpm)\n";
       return ('broken', $rpm);
     }
-    push @new_meta, "$id  $rpm\n";
+    push @new_meta, "$id  $rpms_meta{$rpm}\n";
   }
   my @meta;
   if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
@@ -1892,12 +1896,11 @@ sub checkkiwiproduct {
   my @diff = diffsortedmd5(0, \@meta, \@new_meta);
   print "      - $packid (kiwi)\n";
   print "        $_\n" for @diff;
-  my $new_meta = join('', map {"$_\n"} @new_meta);
-  return ('scheduled', $new_meta);
+  return ('scheduled', \@rpms);
 }
 
 sub rebuildkiwiproduct {
-  my ($projid, $repoid, $packid, $pdata, $info, $prpsearchpath, $new_meta) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $prpsearchpath, $rpms) = @_;
 
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
@@ -1916,10 +1919,8 @@ sub rebuildkiwiproduct {
   }
 
   my @bdeps;
-  my @new_meta = split("\n", $new_meta);
-  for my $meta (@new_meta) {
-    next unless $meta =~ /^[0-9a-fA-F]{32}  (.*)$/;
-    my @b = split('/', $1);
+  for my $rpm (@{$rpms || []}) {
+    my @b = split('/', $rpm);
     next unless @b == 5;
     next unless $b[4] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
     push @bdeps, {
@@ -1951,6 +1952,7 @@ sub rebuildkiwiproduct {
     'rev' => $pdata->{'rev'},
     'file' => $info->{'file'},
     'bdep' => \@bdeps,
+    'path' => [{'project' => $projid, 'repository' => $repoid, 'server' => $BSConfig::srcserver}],
   };
   mkdir_p("$reporoot/$prp/$myarch/$packid");
   writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $f}, $BSXML::buildstatus);
