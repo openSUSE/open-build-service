@@ -1832,10 +1832,10 @@ sub checkkiwiproduct {
 	my @got;
 	my $needit;
         for my $b (ls("$reporoot/$aprp/$arch/$apackid")) {
-	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.[a-zA-Z][^\.\-]*\.rpm$/;
+	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  $needit = 1 if $deps{$1};
 	  push @got, "$aprp/$arch/$apackid/$b";
-	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1";
+	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1.$2";
         }
 	next unless $needit;
 	# ok we need it. check if they are built.
