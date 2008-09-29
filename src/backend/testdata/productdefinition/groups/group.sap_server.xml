@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="sap_server" version="10" release="235.2">
+    <pattern ordernumer="3080">
+        <category>Primary Functions</category>
+        <description>Set up the server for installing SAP systems.</description>
+        <summary>SAP Application Server Base</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="basesystem" relationship="required" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="required" id="sap_server.required">
+            <package name="sapconf" />
+    </packagelist>
+    <packagelist relationship="recommended" id="sap_server.recommended">
+            <package name="sap-locale" />
+    </packagelist>
+</group>

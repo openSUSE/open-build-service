@@ -1,10 +1,12 @@
 #!/usr/bin/perl -w
 # $Id: create_product_config.pl,v 1.1 2008/09/02 12:54:59 lrupp Exp $
 #
+
 BEGIN {
   $abuild_base_dir = "/work/abuild/lib/abuild";
   unshift @INC, "$abuild_base_dir/modules";
 }
+
 use strict;
 use RPMQ;
 use XML::Simple qw(:strict);
@@ -13,15 +15,10 @@ use FileHandle;
 
 my %xml;
 my $debug=0;
-my $outputpath="/tmp/xml";
+our $verbose=0;
+my $outputdir="/tmp/xml";
 my $packagedir="/work/cd/lib/put_built_to_cd/CDs/sles11-dvd-i386/CD1";
-
-our $rootpath=".";
-our $output_dir="";
-our $content_file="";
-our $descr_dir="";
-our $verbose=1;
-our @meta_packs=('smtp_daemon','banshee-player');
+our $descr_dir="/mounts/dist/install/SLP/SLES-11-LATEST/i386/DVD1/suse/setup/descr";
 our %rpmtags=( Prq => 'required',
 		       Prc => 'recommended',
 			   Psg => 'suggested');
@@ -35,10 +32,23 @@ my %unknown_groups=( baselibs_x86_64 => '32bit',
                      baselibs_ia64   => 'x86',
                      baselibs_s390x  => '32bit',
 					 baselibs_ppc64  => '64bit');
-our %patterns_to_check;
 our $pattern_files;
 our $used_pattern_files;
-our $search_packages_file=0;
+
+sub usage {
+	my $exit_code=shift || 1;
+	print <<EOF
+    Usage: $0 [OPTIONS]
+           --patternsdir <directory> : directory containing pattern files
+           --outputdir <directory>   : output directory
+           --packagedir <directory>  : directory containing packages which 
+                                       should end on the media
+           --verbose                 : verbose output
+EOF
+;
+
+exit $exit_code;
+}
 
 sub OpenFileWrite {
   my $filename = shift;
@@ -101,20 +111,69 @@ sub getFiles {
 }
 
 
-sub writePatternRelationship {
-	my $tag=shift; 
-}
-
 sub writeData {
 	my $fh=shift;
 	my $key=shift || 'package';
 	my $value=shift;
 	if ($key eq "package"){
-#		print $fh "            <package xmlns=\"http://linux.duke.edu/metadata/common\" type=\"rpm\">\n";
-#		print $fh "                <name>$value</name>\n";
-#		print $fh "            </package>\n";
 		print $fh "            <package name=\"$value\" />\n";
 	}
+}
+
+sub print_pattern_tags {
+	my $fh=shift;
+	my $tags=shift;
+    my $patterntags=shift;
+	my %wantedtags=( 	Vis => 'visible',
+						Ico => 'icon',
+						Sum => 'summary',
+						Cat => 'category',
+						Des => 'description' 
+					);
+
+	if (defined($tags->{'Ord'})){
+		print $fh "    <pattern ordernumer=\"".$tags->{'Ord'}."\">\n";
+	} else {
+		print $fh "    <pattern>\n";
+	}
+
+	foreach my $key (sort(keys %$tags)){
+		foreach my $wanted (keys %wantedtags){
+	
+			if ( "$key" eq "$wanted" ){
+				print $fh "        <".$wantedtags{"$wanted"}.">".$tags->{"$key"}."</".$wantedtags{"$wanted"}.">\n";
+			}
+		}
+	}
+    print $fh "        <relationships>\n";
+    for my $patkey (keys %$patterntags){
+        if (defined($tags->{$patkey})){
+            foreach my $patname (split(/\n/,$tags->{$patkey})){
+                print $fh "           <pattern name=\"$patname\" relationship=\"$patterntags{$patkey}\" />\n";
+            }
+        }
+    }
+    print $fh "        </relationships>\n";
+    print $fh "    </pattern>\n";
+}
+
+while (my $param=shift (@ARGV)){
+  if (($param eq '--help') || ($param eq '-h')) {
+    usage('0');
+  }
+  if ($param eq '--packagedir'){
+	$packagedir=shift @ARGV;
+  }
+  if ($param eq '--patternsdir'){
+	$descr_dir=shift @ARGV;
+  }
+  if ($param eq '--outputdir'){
+    $outputdir=shift @ARGV;	
+  }
+  if ($param eq '--verbose'){
+    $verbose=1;
+  }
+#  die (usage(1));
 }
 
 # get the current packages on the media
@@ -122,17 +181,26 @@ opendir(P,$packagedir) || die "Could not open $packagedir : $!\n";
 my %packages=grep { ! /^\./  } readdir(P);
 closedir(P);
 
-$rootpath="/mounts/dist/install/SLP/SLES-11-LATEST/i386/DVD1";
-$content_file="$rootpath/content";
-$descr_dir="$rootpath/suse/setup/descr";
+if (-d "$outputdir"){
+	print "Removing $outputdir/* [Y/n]? ";
+    my $ans=<STDIN>;
+	chomp($ans);
+    if (("$ans" eq "n") || ("$ans" eq "N")){
+         print "WARNING:  The script will overwrite existing files in $outputdir\n";
+    } else {
+         system("rm -rf $outputdir/*");
+    }
+} else {
+	system("mkdir -p $outputdir");
+}
 
 # get the current pattern files
 $pattern_files=getFiles($descr_dir,'.pat');
 $pattern_files=getFiles($descr_dir,'.pat.gz') unless ( $pattern_files ne "0" );
 
 if ( $verbose ){
-    print "INFO:    CD-Path           = ".$rootpath."\n";
-    print "INFO:    content file      = ".$content_file."\n";
+    print "INFO:    output_dir        = ".$outputdir."\n";
+    print "INFO:    packagedir        = ".$packagedir."\n";
     print "INFO:    descr directory   = ".$descr_dir."\n";
     print "INFO:    pattern files     = ";
     foreach (@$pattern_files){
@@ -141,37 +209,25 @@ if ( $verbose ){
     print "\n";
 }
 
-print "Vorher:        ".scalar (keys %packages)."\t Pakete\n" if ($verbose);
-print "Vorher:        ".scalar (@$pattern_files)."\t Pattern\n" if ($verbose);
+print "Before:        ".scalar (keys %packages)."\t packages\n" if ($verbose);
+print "Before:        ".scalar (@$pattern_files)."\t patterns\n" if ($verbose);
 if ( "$pattern_files" ne "0" ){
     for my $patfile (@$pattern_files){
         my $pattern = ParsePatternFile("$descr_dir/$patfile");
 		# FIXME: handle first whitespace better
 		my ($dummy,$pattern_name,$pattern_version,$pattern_release,$pattern_arch) = split(/ /,$pattern->{'Pat'},5);
-		my $fh = OpenFileWrite( "$outputpath/$pattern_name.xml");
-		print $fh "<group name=\"$pattern_name\" version=\"$pattern_version\" release=\"$pattern_release\"\n";
-		print $fh "       pattern:ordernumber=\"".$pattern->{'Ord'}."\"\n";
-		print $fh "       pattern:category=\"".$pattern->{'Cat'}."\"\n";
-		print $fh "       pattern:icon=\"".$pattern->{'Ico'}."\"\n" if (defined($pattern->{'Ico'}));
-		print $fh "       pattern:summary=\"".$pattern->{'Sum'}."\"\n";
-		print $fh "       pattern:description=\"".join('\n',$pattern->{'Des'})."\"\n";
-		print $fh "       pattern:visible=\"".$pattern->{'Vis'}."\"\n";
-		print $fh ">\n";
-		for my $patkey (keys %patterntags){
-			if (defined($pattern->{$patkey})){
-				foreach my $patname (split(/\n/,$pattern->{$patkey})){
-					print $fh "    <pattern name=\"$patname\" relationship=\"$patterntags{$patkey}\" />\n";
-				}
-			}
-		}
+		my $fh = OpenFileWrite( "$outputdir/group.$pattern_name.xml");
+        print $fh "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+		print $fh "<group name=\"$pattern_name\" version=\"$pattern_version\" release=\"$pattern_release\">\n";
+		print_pattern_tags($fh,$pattern,\%patterntags);
         for my $key (keys %rpmtags){
 			if (defined($pattern->{$key})){
-				print $fh "    <group relationship=\"$rpmtags{$key}\">\n";
-				foreach my $rpm (split(/\n/,$pattern->{$key})){
+				print $fh "    <packagelist relationship=\"$rpmtags{$key}\" id=\"$pattern_name.$rpmtags{$key}\">\n";
+				foreach my $rpm (sort(split(/\n/,$pattern->{$key}))){
 					writeData($fh,'package',"$rpm");
 					delete $packages{$rpm};
 				}
-				print $fh "    </group>\n";
+				print $fh "    </packagelist>\n";
 			}
 		}
 		print $fh "</group>\n";
@@ -179,37 +235,38 @@ if ( "$pattern_files" ne "0" ){
 	}
 }
 
-# jetzt zu den "unbekannten" RPMs...
-print "Zwischenstand: ".scalar (keys %packages)."\t (Nun folgen Baselibs)\n" if ($verbose);
+print "prel. result : ".scalar (keys %packages)."\t (Nun folgen Baselibs)\n" if ($verbose);
 
 foreach my $name (keys %unknown_groups){
-    my $fh = OpenFileWrite( "$outputpath/$name.xml");
-	print $fh "<group name=\"$name\">\n";
-	print $fh "    <group relationship=\"recommended\">\n";
-    foreach my $rpm (keys %packages){
+    my $fh = OpenFileWrite( "$outputdir/group.$name.xml");
+    print $fh "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	print $fh "<group name=\"$name\" version=\"11\" release=\"0\">\n";
+	print $fh "    <packagelist relationship=\"recommended\">\n";
+    foreach my $rpm (sort(keys %packages)){
 		if ( $rpm =~ /.*-$unknown_groups{$name}/ ){
 			writeData($fh,'package',"$rpm");	
 			delete($packages{$rpm});
 		}
 	}	
-	print $fh "    </group>\n";
+	print $fh "    </packagelist>\n";
 	print $fh "</group>\n";
 	close($fh);
 }
 
-print "Übrig:         ".scalar (keys %packages)."\t (Pakete ohne Zuordnung: Rest)\n" if ($verbose);
+print "Left:          ".scalar (keys %packages)."\t (Pakete ohne Zuordnung: Rest)\n" if ($verbose);
 
-foreach my $name ('DVD-REST'){
-    my $fh = OpenFileWrite( "$outputpath/$name.xml");
-    print $fh "<group name=\"$name\">\n";
-    print $fh "    <group relationship=\"suggested\">\n";
-    foreach my $rpm (keys %packages){
+foreach my $name ('DVD_REST'){
+    my $fh = OpenFileWrite( "$outputdir/group.$name.xml");
+    print $fh "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    print $fh "<group name=\"$name\" version=\"11\" release=\"0\">\n";
+    print $fh "    <packagelist relationship=\"suggested\">\n";
+    foreach my $rpm (sort(keys %packages)){
         writeData($fh,'package',"$rpm");
     	delete($packages{$rpm});
     }
-    print $fh "    </group>\n";
+    print $fh "    </packagelist>\n";
     print $fh "</group>\n";
     close($fh);
 }
 
-print "Zum Schluss:   ".scalar (keys %packages)."\t (sollte 0 sein ;-)\n" if ($verbose);
+print "At the end:      ".scalar (keys %packages)."\t (should be 0 ;-)\n" if ($verbose);
