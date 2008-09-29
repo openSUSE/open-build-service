@@ -19,6 +19,7 @@ ActionController::Routing::Routes.draw do |map|
   ### /person
 
   map.connect 'person/register', :controller => 'person', :action => 'register'
+  map.connect 'person/:login/_watchlist', :controller => 'person', :action => 'watchlist'
   map.connect 'person/:login/_roles', :controller => 'person', :action => 'roleinfo'
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo'
 
@@ -261,6 +262,8 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'public', :action => 'source_file'
   map.connect '/public/lastevents',
     :controller => 'public', :action => 'lastevents'
+  map.connect '/public/person/:login/_watchlist', 
+    :controller => 'public', :action => 'watchlist'
 
 
   ### DEPRECATED

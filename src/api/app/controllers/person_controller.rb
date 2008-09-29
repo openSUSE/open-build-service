@@ -75,6 +75,32 @@ class PersonController < ApplicationController
   
   end
 
+  def watchlist
+    valid_http_methods :get
+    if !@http_user
+      logger.debug "No user logged in, permission to userinfo denied"
+      @errorcode = 401
+      @summary = "No user logged in, permission to userinfo denied"
+      render :template => 'error', :status => 401
+    else
+        if params[:login]
+          login = URI.unescape( params[:login] )
+          logger.debug "Generating for user from parameter #{login}"
+          @render_user = User.find_by_login( login )
+          if ! @render_user 
+            logger.debug "User is not valid!"
+            render_error :status => 404, :errorcode => 'unknown_user',
+              :message => "Unknown user: #{login}"
+          end
+        else 
+          logger.debug "Generating user info for logged in user #{@http_user.login}"
+          @render_user = @http_user
+        end
+      # see the corresponding view watchlist.rxml that generates a xml
+      # response for the caller.
+    end
+  end
+
   def register
     xml = REXML::Document.new( request.raw_post )
     
