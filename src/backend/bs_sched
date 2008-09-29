@@ -3075,6 +3075,7 @@ while(1) {
   Build::readdeps($bconf, undef, reverse @repos);
 
   my %pdeps;
+  my %pkg2src;
   for my $packid (@packs) {
     my $pdata = $packs->{$packid};
 
@@ -3090,6 +3091,7 @@ while(1) {
       $pdeps{$packid} = [];
       next;
     }
+    $pkg2src{$packid} = $info->{'name'};
 
     $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
     my $packtype = $1 || 'spec';
@@ -3104,7 +3106,11 @@ while(1) {
   }
 
   # write dependency information
-  Storable::nstore(\%pdeps, "$reporoot/$prp/$myarch/.:depends");
+  Storable::nstore({
+    'pkgdeps' => \%pdeps,
+    'subpacks' => \%subpacks,
+    'pkg2src' => \%pkg2src,
+  }, "$reporoot/$prp/$myarch/.:depends");
   rename("$reporoot/$prp/$myarch/.:depends", "$reporoot/$prp/$myarch/:depends");
 
   # sort packages by pdeps
