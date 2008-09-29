@@ -1778,9 +1778,9 @@ sub importevent {
 ##########################################################################
 ##########################################################################
 ##
-##  kiwi package type handling
+##  kiwi-product package type handling
 ##
-sub checkkiwi {
+sub checkkiwiproduct {
   my ($projid, $repoid, $packid, $pdata, $info) = @_;
 
   # hmm, should get the arch from the kiwi info
@@ -1896,7 +1896,7 @@ sub checkkiwi {
   return ('scheduled', $new_meta);
 }
 
-sub rebuildkiwi {
+sub rebuildkiwiproduct {
   my ($projid, $repoid, $packid, $pdata, $info, $prpsearchpath, $new_meta) = @_;
 
   my $prp = "$projid/$repoid";
@@ -3226,6 +3226,12 @@ while(1) {
       $packerror{$packid} = 'no spec/dsc/kiwi file';
       next;
     }
+    if ($packtype eq 'kiwi') {
+      # check if it is kiwi-product
+      if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
+	$packtype = 'kiwi-product';
+      }
+    }
     #print "      - $packid ($packtype)\n";
 
     if ($packtype eq 'aggregate') {
@@ -3247,11 +3253,11 @@ while(1) {
       next;
     }
 
-    if ($packtype eq 'kiwi') {
-      my ($astatus, $aerror) = checkkiwi($projid, $repoid, $packid, $pdata, $info);
+    if ($packtype eq 'kiwi-product') {
+      my ($astatus, $aerror) = checkkiwiproduct($projid, $repoid, $packid, $pdata, $info);
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
-	($astatus, $aerror) = rebuildkiwi($projid, $repoid, $packid, $pdata, $info, $prpsearchpath{$prp}, $aerror);
+	($astatus, $aerror) = rebuildkiwiproduct($projid, $repoid, $packid, $pdata, $info, $prpsearchpath{$prp}, $aerror);
 	if ($astatus eq 'scheduled') {
 	  # aerror contains jobid in this case
 	  $notready{$pname} = 1;
@@ -3266,7 +3272,7 @@ while(1) {
       next;
     }
 
-    # packtype is now spec/kiwi
+    # packtype is now spec/deb/kiwi
 
     if ($experrors{$packid}) {
       # retry expansion of this one
