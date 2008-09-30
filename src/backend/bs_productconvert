@@ -331,20 +331,23 @@ sub useToPackages( $$ )
 
     my @packages;
 
-    my $useRequired = ($medium->{use_required} eq "true" );
-    my $useSuggested = ($medium->{use_suggested} eq "true" );
-    my $useRecommended = ($medium->{use_recommended} eq "true" );
-
     # print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
     
     foreach my $useState ( @useStatements ) {
+        my $useRequired = ($medium->{use_required} eq "true" );
+        my $useSuggested = ($medium->{use_suggested} eq "true" );
+        my $useRecommended = ($medium->{use_recommended} eq "true" );
 
+        $useRequired    = $useState->{'use_required'} if ( defined($useState->{'use_required'}) );
+        $useRecommended = $useState->{'use_recommended'} if ( defined($useState->{'use_recommended'}) );
+        $useSuggested   = $useState->{'use_suggested'} if ( defined($useState->{'use_suggested'}) );
+    
 	if( $useState->{group} ) {
 	    print "Handling use of group $useState->{group}\n";
 	    push @packages, groupToPackages( $prodRef, 
 					     $useState->{group}, 
 					     $useRequired, 
-					     $useRecommended, 
+					     $useRecommended,
 					     $useSuggested );
 	    # there might be additional packages listed in the group.
 	    if( $useState->{package} ) {
