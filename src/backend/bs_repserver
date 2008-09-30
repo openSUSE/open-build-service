@@ -1217,6 +1217,36 @@ sub getbuildinfo_post {
   return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
 }
 
+sub getbuilddepinfo {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my %packids = map {$_ => 1} @{$cgi->{'package'} || []};
+  my $depends;
+  eval {
+    $depends = Storable::retrieve("$reporoot/$projid/$repoid/$arch/:depends");
+  };
+  return ({'package' => []}, $BSXML::builddepinfo) unless $depends;
+  my $subpacks = $depends->{'subpacks'} || {};
+  my $pkgdeps = $depends->{'pkgdeps'} || {};
+  my $pkg2src = $depends->{'pkg2src'} || {};
+  my @res;
+  for my $packid (sort keys %$pkg2src) {
+    next if %packids && !$packids{$packid};
+    my $n = $pkg2src->{$packid};
+    my @sp = sort @{$subpacks->{$n} || []};
+    push @sp, $n unless @sp;
+    if ($n ne $sp[0] && (grep {$_ eq $n} @sp)) {
+      @sp = grep {$_ ne $n} @sp;
+      unshift @sp, $n;
+    }
+    push @res, {'name' => $packid, 
+	'source' => $n,
+	'pkgdep' => ($pkgdeps->{$packid} || []),
+	'subpkg' => \@sp,
+    };
+  }
+  return ({'package' => \@res}, $BSXML::builddepinfo);
+}
+
 ### FIXME: read status instead!
 sub findjob {
   my ($projid, $repoid, $arch, $packid) = @_;
@@ -1661,6 +1691,7 @@ my $dispatches = [
   '!rw :' => undef,
 
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
+  '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,

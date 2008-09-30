@@ -939,13 +939,15 @@ sub kiwiparse  {
   }
 
   # Add implicit the package manager package
-  my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
-  if ($packman eq "smart") { 
-    push @allpackages, "smart";
-  } elsif ($packman eq "zypper") { 
-    push @allpackages, "zypper";
-  } else {
-    return ("unknown package manager: $packman");
+  if (!$kiwidesc->{'instsource'}) {
+    my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
+    if ($packman eq 'smart') { 
+      push @allpackages, 'smart';
+    } elsif ($packman eq 'zypper') { 
+      push @allpackages, 'zypper';
+    } else {
+      return ("unknown package manager: $packman");
+    }
   }
   my %allpackages = map {$_ => 1} @allpackages;
   @allpackages = sort keys %allpackages;
@@ -2368,6 +2370,16 @@ sub checkprojrepoarch {
   return $proj;
 }
 
+sub getbuilddepinfo {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+
+  checkprojrepoarch($projid, $repoid, $arch);
+  my @args;
+  push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+  my $res = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/_builddepinfo", $BSXML::builddepinfo, @args);
+  return ($res, $BSXML::builddepinfo);
+}
+
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
@@ -3382,6 +3394,7 @@ my $dispatches = [
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig' => \&getconfig,
   '/build/$project/$repository/$arch' => \&getpackagelist,
+  '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,

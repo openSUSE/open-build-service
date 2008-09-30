@@ -326,6 +326,17 @@ our $buildstatus = [
 	'arch',		# obsolete
 ];
 
+our $builddepinfo = [
+    'builddepinfo' =>
+     [[ 'package' =>
+	    'name',
+	    [],
+	    'source',
+	  [ 'pkgdep' ],
+	  [ 'subpkg' ],
+     ]],
+];
+
 our $event = [
     'event' =>
 	'type',
