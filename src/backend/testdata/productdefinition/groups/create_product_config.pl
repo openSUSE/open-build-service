@@ -17,21 +17,22 @@ my %xml;
 my $debug=0;
 our $verbose=0;
 my $outputdir="/tmp/xml";
-my $packagedir="/work/cd/lib/put_built_to_cd/CDs/sles11-dvd-i386/CD1";
-our $descr_dir="/mounts/dist/install/SLP/SLES-11-LATEST/i386/DVD1/suse/setup/descr";
-our %rpmtags=( Prq => 'required',
-		       Prc => 'recommended',
-			   Psg => 'suggested');
+my $packagedir="";
+our $descr_dir="";
+our %rpmtags=( Prq => 'requires',
+		       Prc => 'recommends',
+			   Psg => 'suggests');
 our %patterntags=( Obs => 'obsoletes',
 				   Fre => 'freshens',
-				   Req => 'required',
-				   Rec => 'recommended',
+				   Req => 'requires',
+				   Rec => 'recommends',
 				   Prv => 'provides',
-				   Sug => 'suggested');
+				   Sug => 'suggests');
 my %unknown_groups=( baselibs_x86_64 => '32bit',
                      baselibs_ia64   => 'x86',
                      baselibs_s390x  => '32bit',
 					 baselibs_ppc64  => '64bit');
+my %patterns=();
 our $pattern_files;
 our $used_pattern_files;
 
@@ -138,8 +139,8 @@ sub print_pattern_tags {
 	}
 
 	foreach my $key (sort(keys %$tags)){
+		# TODO: for now only a short list is allowed
 		foreach my $wanted (keys %wantedtags){
-	
 			if ( "$key" eq "$wanted" ){
 				print $fh "        <".$wantedtags{"$wanted"}.">".$tags->{"$key"}."</".$wantedtags{"$wanted"}.">\n";
 			}
@@ -225,7 +226,9 @@ if ( "$pattern_files" ne "0" ){
 				print $fh "    <packagelist relationship=\"$rpmtags{$key}\" id=\"$pattern_name.$rpmtags{$key}\">\n";
 				foreach my $rpm (sort(split(/\n/,$pattern->{$key}))){
 					writeData($fh,'package',"$rpm");
-					delete $packages{$rpm};
+					$patterns{$pattern_name}{$rpm}=$rpmtags{$key};
+# FIXME: too late for SLE11
+#					delete $packages{$rpm};
 				}
 				print $fh "    </packagelist>\n";
 			}
@@ -235,17 +238,18 @@ if ( "$pattern_files" ne "0" ){
 	}
 }
 
-print "prel. result : ".scalar (keys %packages)."\t (Nun folgen Baselibs)\n" if ($verbose);
+print "prel. result : ".scalar (keys %packages)."\t (now baselibs...)\n" if ($verbose);
 
 foreach my $name (keys %unknown_groups){
     my $fh = OpenFileWrite( "$outputdir/group.$name.xml");
     print $fh "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	print $fh "<group name=\"$name\" version=\"11\" release=\"0\">\n";
-	print $fh "    <packagelist relationship=\"recommended\">\n";
+	print $fh "    <packagelist relationship=\"$patterntags{'Rec'}\">\n";
     foreach my $rpm (sort(keys %packages)){
 		if ( $rpm =~ /.*-$unknown_groups{$name}/ ){
 			writeData($fh,'package',"$rpm");	
-			delete($packages{$rpm});
+# FIXME: too late for SLE11
+#			delete($packages{$rpm});
 		}
 	}	
 	print $fh "    </packagelist>\n";
@@ -253,13 +257,13 @@ foreach my $name (keys %unknown_groups){
 	close($fh);
 }
 
-print "Left:          ".scalar (keys %packages)."\t (Pakete ohne Zuordnung: Rest)\n" if ($verbose);
+print "Left:          ".scalar (keys %packages)."\t (Pakages without classification: rest)\n" if ($verbose);
 
 foreach my $name ('DVD_REST'){
     my $fh = OpenFileWrite( "$outputdir/group.$name.xml");
     print $fh "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     print $fh "<group name=\"$name\" version=\"11\" release=\"0\">\n";
-    print $fh "    <packagelist relationship=\"suggested\">\n";
+    print $fh "    <packagelist relationship=\"$patterntags{'Rec'}\">\n";
     foreach my $rpm (sort(keys %packages)){
         writeData($fh,'package',"$rpm");
     	delete($packages{$rpm});
@@ -270,3 +274,4 @@ foreach my $name ('DVD_REST'){
 }
 
 print "At the end:      ".scalar (keys %packages)."\t (should be 0 ;-)\n" if ($verbose);
+

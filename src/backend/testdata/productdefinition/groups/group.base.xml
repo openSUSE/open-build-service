@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="base" version="10" release="235.2">
-    <pattern ordernumer="1010">
+    <pattern ordernumber="1010">
         <category>Base Technologies</category>
         <description>This is the base runtime system.  It contains only a minimal multiuser booting system. For running on real hardware, you need to add additional packages and pattern to make this pattern useful on its own.</description>
         <icon>yast-software</icon>
@@ -10,7 +10,7 @@
            <pattern name="basesystem" relationship="provides" />
         </relationships>
     </pattern>
-    <packagelist relationship="required" id="base.required">
+    <packagelist relationship="requires" id="base.requires">
             <package name="aaa_base" />
             <package name="aaa_skel" />
             <package name="acl" />
@@ -165,7 +165,7 @@
             <package name="yast2_theme" />
             <package name="zlib" />
     </packagelist>
-    <packagelist relationship="recommended" id="base.recommended">
+    <packagelist relationship="recommends" id="base.recommends">
             <package name="FirmwareUpdateKit" />
             <package name="OpenIPMI" />
             <package name="SPident" />

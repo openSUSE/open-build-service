@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="Dom0" version="10" release="235.2">
-    <pattern ordernumer="1090">
+    <pattern ordernumber="1090">
         <category>Base Technologies</category>
         <description>This is a minimal system with a running Hypbervisor.</description>
         <icon>yast-uml</icon>
@@ -10,10 +10,10 @@
            <pattern name="basesystem" relationship="provides" />
         </relationships>
     </pattern>
-    <packagelist relationship="required" id="Dom0.required">
+    <packagelist relationship="requires" id="Dom0.requires">
             <package name="xen" />
     </packagelist>
-    <packagelist relationship="recommended" id="Dom0.recommended">
+    <packagelist relationship="recommends" id="Dom0.recommends">
             <package name="bridge-utils" />
             <package name="libvirt-cim" />
             <package name="virt-viewer" />

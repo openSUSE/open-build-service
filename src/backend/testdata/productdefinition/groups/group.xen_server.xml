@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="xen_server" version="10" release="235.2">
-    <pattern ordernumer="3100">
+    <pattern ordernumber="3100">
         <category>Primary Functions</category>
         <description>Software to set up a server for configuring, managing, and monitoring virtual machines on a single physical machine.</description>
         <icon>yast-uml</icon>
         <summary>Xen Virtual Machine Host Server</summary>
         <visible>true</visible>
         <relationships>
-           <pattern name="basesystem" relationship="required" />
+           <pattern name="basesystem" relationship="requires" />
         </relationships>
     </pattern>
-    <packagelist relationship="required" id="xen_server.required">
+    <packagelist relationship="requires" id="xen_server.requires">
             <package name="xen" />
     </packagelist>
-    <packagelist relationship="recommended" id="xen_server.recommended">
+    <packagelist relationship="recommends" id="xen_server.recommends">
             <package name="bridge-utils" />
             <package name="libvirt-cim" />
             <package name="virt-viewer" />

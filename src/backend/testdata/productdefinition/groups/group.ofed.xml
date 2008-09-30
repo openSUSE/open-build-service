@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="ofed" version="10" release="235.2">
-    <pattern ordernumer="3045">
+    <pattern ordernumber="3045">
         <category>Primary Functions</category>
         <description>This pattern defines the OpenFabrics Enterprise Distribution (OFED) software base packages. The base pattern includes the packages you need to get your Infiniband adapter operational, that is IB kernel modules and basic user level libraries.</description>
         <icon>yast-dsl</icon>
         <summary>Infiniband (OFED)</summary>
         <visible>true</visible>
         <relationships>
-           <pattern name="basesystem" relationship="required" />
+           <pattern name="basesystem" relationship="requires" />
         </relationships>
     </pattern>
-    <packagelist relationship="required" id="ofed.required">
+    <packagelist relationship="requires" id="ofed.requires">
             <package name="ofed" />
     </packagelist>
-    <packagelist relationship="recommended" id="ofed.recommended">
+    <packagelist relationship="recommends" id="ofed.recommends">
             <package name="cxgb3-firmware" />
             <package name="ib-bonding" />
             <package name="ibutils" />

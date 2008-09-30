@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="kde" version="10" release="235.2">
-    <pattern ordernumer="2020">
+    <pattern ordernumber="2020">
         <category>Graphical Environments</category>
         <description>KDE 4 is a powerful free software graphical desktop environment for Linux workstations. It combines ease of use, contemporary functionality, and outstanding graphical design with the technology of the Linux operating system.</description>
         <icon>kde</icon>
         <summary>KDE Desktop Environment</summary>
         <visible>true</visible>
         <relationships>
-           <pattern name="x11" relationship="required" />
-           <pattern name="basesystem" relationship="required" />
+           <pattern name="x11" relationship="requires" />
+           <pattern name="basesystem" relationship="requires" />
         </relationships>
     </pattern>
-    <packagelist relationship="suggested" id="kde.suggested">
+    <packagelist relationship="suggests" id="kde.suggests">
             <package name="kde4-kalarm" />
             <package name="kde4-kcharselect" />
             <package name="kde4-kcolorchooser" />
@@ -34,7 +34,7 @@
             <package name="kdirstat" />
             <package name="okteta" />
     </packagelist>
-    <packagelist relationship="required" id="kde.required">
+    <packagelist relationship="requires" id="kde.requires">
             <package name="kde4-dolphin" />
             <package name="kde4-kupdateapplet" />
             <package name="kde4-kwin" />
@@ -43,7 +43,7 @@
             <package name="kdebase4-session" />
             <package name="kdebase4-workspace" />
     </packagelist>
-    <packagelist relationship="recommended" id="kde.recommended">
+    <packagelist relationship="recommends" id="kde.recommends">
             <package name="NetworkManager" />
             <package name="NetworkManager-kde" />
             <package name="PolicyKit-kde" />

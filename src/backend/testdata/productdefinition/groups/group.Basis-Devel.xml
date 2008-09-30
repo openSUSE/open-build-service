@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="Basis-Devel" version="10" release="235.2">
-    <pattern ordernumer="4010">
+    <pattern ordernumber="4010">
         <category>Development</category>
         <description>Minimal set of tools for compiling and linking applications</description>
         <summary>C/C++ Compiler and Tools</summary>
         <visible>true</visible>
         <relationships>
-           <pattern name="basesystem" relationship="required" />
+           <pattern name="basesystem" relationship="requires" />
         </relationships>
     </pattern>
-    <packagelist relationship="required" id="Basis-Devel.required">
+    <packagelist relationship="requires" id="Basis-Devel.requires">
             <package name="autoconf" />
             <package name="automake" />
             <package name="cvs" />
     </packagelist>
-    <packagelist relationship="recommended" id="Basis-Devel.recommended">
+    <packagelist relationship="recommends" id="Basis-Devel.recommends">
             <package name="bison" />
             <package name="emacs" />
             <package name="emacs-info" />

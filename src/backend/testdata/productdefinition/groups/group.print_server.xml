@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="print_server" version="10" release="235.2">
-    <pattern ordernumer="3020">
+    <pattern ordernumber="3020">
         <category>Primary Functions</category>
         <description>Software used to host print queues so that they may be accessed by other computers on the same network. LPD, CUPS, and SMB print servers and queues are supported.</description>
         <icon>printer2</icon>
         <summary>Print Server</summary>
         <visible>true</visible>
         <relationships>
-           <pattern name="basesystem" relationship="required" />
+           <pattern name="basesystem" relationship="requires" />
         </relationships>
     </pattern>
-    <packagelist relationship="required" id="print_server.required">
+    <packagelist relationship="requires" id="print_server.requires">
             <package name="cups" />
     </packagelist>
-    <packagelist relationship="recommended" id="print_server.recommended">
+    <packagelist relationship="recommends" id="print_server.recommends">
             <package name="cups-SUSE-ppds-dat" />
             <package name="cups-autoconfig" />
             <package name="cups-drivers" />

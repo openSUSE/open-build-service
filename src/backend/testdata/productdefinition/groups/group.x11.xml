@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="x11" version="10" release="235.2">
-    <pattern ordernumer="2030">
+    <pattern ordernumber="2030">
         <category>Graphical Environments</category>
         <description>The X Window System provides the only standard platform-independent networked graphical window system bridging the heterogeneous platforms in today's enterprise: from network servers to desktops, thin clients, laptops, and handhelds, independent of operating system and hardware.</description>
         <icon>yast-x11</icon>
         <summary>X Window System</summary>
         <visible>true</visible>
         <relationships>
-           <pattern name="basesystem" relationship="required" />
+           <pattern name="basesystem" relationship="requires" />
         </relationships>
     </pattern>
-    <packagelist relationship="required" id="x11.required">
+    <packagelist relationship="requires" id="x11.requires">
             <package name="MozillaFirefox" />
             <package name="mozilla-xulrunner190" />
             <package name="xterm" />
@@ -18,7 +18,7 @@
             <package name="yast2-qt-pkg" />
             <package name="yast2-x11" />
     </packagelist>
-    <packagelist relationship="recommended" id="x11.recommended">
+    <packagelist relationship="recommends" id="x11.recommends">
             <package name="3ddiag" />
             <package name="CheckHardware" />
             <package name="ConsoleKit-x11" />
