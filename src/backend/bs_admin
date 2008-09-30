@@ -291,113 +291,71 @@ sub check_project {
 #
 if ( @ARGV < 1 ){
   echo_help;
+  exit(1);
 }
 
-while (defined (my $arg = shift @ARGV)) {
-  if ( $arg eq "--help" ) {
+while (@ARGV) {
+  my $arg = shift @ARGV;
+  if ($arg eq "--help") {
     echo_help;
-    exit;
+    exit(0);
   };
-  if ( $arg eq "--check-meta-xml" ) {
-    if ( @ARGV < 1 ){
-      print "ERROR: need at least a project name as argument !\n";
-      exit
-    }
+  if ($arg eq "--check-meta-xml") {
+    die("ERROR: need at least a project name as argument!\n") if @ARGV < 1;
     my $project = shift @ARGV;
-    if ( @ARGV == 1 ){
+    if (@ARGV == 1) {
       my $package = shift @ARGV;
-      check_meta_xml( $project, $package );
-    }else{
-      check_meta_xml( $project );
-    };
-  };
-  if ( $arg eq "--check-product-group-xml" ) {
-    if ( @ARGV != 1 ){
-      print "ERROR: need a file name as argument !\n";
-      exit
+      check_meta_xml($project, $package);
+    } else {
+      check_meta_xml($project);
     }
-    if ( @ARGV == 1 ){
+  } elsif ($arg eq "--check-product-group-xml") {
+    die("ERROR: need a file name as argument!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    check_xml_file($file, $BSProductXML::group);
+  } elsif ($arg eq "--check-product-xml") {
+    die("ERROR: need a file name as argument!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    check_product_xml_file($file);
+  } elsif ($arg eq "--check-kiwi-xml") {
+    die("ERROR: need either file name or project and package as argument!\n") if @ARGV < 1;
+    if (@ARGV == 1){
       my $file = shift @ARGV;
-      check_xml_file( $file, $BSProductXML::group );
-#    } else {
-#      my $project = shift @ARGV;
-#      my $package = shift @ARGV;
-#      check_product_xml( $project, $package );
-    };
-  };
-  if ( $arg eq "--check-product-xml" ) {
-    if ( @ARGV != 1 ){
-      print "ERROR: need a file name as argument !\n";
-      exit
-    }
-    if ( @ARGV == 1 ){
-      my $file = shift @ARGV;
-      check_product_xml_file( $file );
-#    } else {
-#      my $project = shift @ARGV;
-#      my $package = shift @ARGV;
-#      check_product_xml( $project, $package );
-    };
-  };
-  if ( $arg eq "--check-kiwi-xml" ) {
-    if ( @ARGV < 1 ){
-      print "ERROR: need either file name or project and package as argument !\n";
-      exit
-    }
-    if ( @ARGV == 1 ){
-      my $file = shift @ARGV;
-      check_xml_file( $file, $BSKiwiXML::kiwidesc );
+      check_xml_file($file, $BSKiwiXML::kiwidesc);
     } else {
       my $project = shift @ARGV;
       my $package = shift @ARGV;
-      check_kiwi_xml( $project, $package );
-    };
-  };
-  if ( $arg eq "--dump-cache" ) {
-    if ( @ARGV < 3 ){
-      print "ERROR: need project, repository and architecture as argument !\n";
-      exit
+      check_kiwi_xml($project, $package);
     }
+  } elsif ($arg eq "--dump-cache") {
+    die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
     my $project = shift @ARGV;
     my $repo = shift @ARGV;
     my $arch = shift @ARGV;
-    dump_cache( $project, $repo, $arch );
-  };
-  if ( $arg eq "--dump-state" ) {
-    if ( @ARGV < 1 ){
-      print "ERROR: need architecture as argument !\n";
-      exit
-    }
+    dump_cache($project, $repo, $arch);
+  } elsif ($arg eq "--dump-state") {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
     dump_state( $arch );
-  };
-  if ( $arg eq "--shutdown-scheduler" ) {
-    if ( @ARGV < 1 ){
-      print "ERROR: need architecture as argument !\n";
-      exit
-    }
+  } elsif ($arg eq "--shutdown-scheduler") {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
     shutdown_scheduler( $arch );
-  };
-  if ( $arg eq "--check-project" ) {
-    if ( @ARGV < 2 ){
-      print "ERROR: need project and architecture as argument !\n";
-      exit
-    }
+  } elsif ( $arg eq "--check-project" ) {
+    die("ERROR: need project and architecture as argument!\n") if @ARGV < 2;
     my $project = shift @ARGV;
     my $arch = shift @ARGV;
-    check_project( $project, $arch );
-  };
-  if ( $arg eq "--rescan-repository" ) {
-    if ( @ARGV < 3 ){
-      print "ERROR: need project, repository and architecture as argument !\n";
-      exit
-    }
+    check_project($project, $arch);
+  } elsif ($arg eq "--rescan-repository") {
+    die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
     my $project = shift @ARGV;
     my $repo = shift @ARGV;
     my $arch = shift @ARGV;
 #    drop_cache( $project, $repo, $arch );
     scan_repo( $project, $repo, $arch );
-  };
-};
+  } else {
+    echo_help();
+    exit(1)
+  }
+}
 
