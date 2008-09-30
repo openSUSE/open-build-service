@@ -89,6 +89,15 @@ sub createDescription( $ )
     return $re;
 }
 
+sub convertFlags( $ )
+{
+    my ($flag)=@_;
+    $flag =~ s/GE/>/sg;
+    $flag =~ s/EQ/=/sg;
+    $flag =~ s/LT/</sg;
+    return $flag;
+}
+
 sub createPreferences( $ )
 {
     my( $prodRef ) = @_;
@@ -108,11 +117,16 @@ sub createPreferences( $ )
 sub parseRepositories( $ )
 {
     my( $repoListRef ) = @_;
-
+    my $priority=0;
+    my $href="";
     foreach my $repoRef ( @{$repoListRef } ) {
 	my $name = $repoRef->{name};
+        $href=$repoRef->{path} if defined($repoRef->{path});
+        $href=$repoRef->{href} if defined($repoRef->{href});
 	print "Repository $name parsed.\n";
-	$repositories{$name} = { href => $repoRef->{href}, priority => $repoRef->{priority} };
+	$priority=$repoRef->{'priority'} if (defined($repoRef->{'priority'}));
+        $repositories{$name} = { href => "$href", priority => "$priority" };
+	$priority++;
     }
 }
 
@@ -258,7 +272,7 @@ sub createProductOptions($$$)
     $info{'CONTENTSTYLE'} = "11"; # Hardcoded for now. We need anyway to touch the generator when changing
     $info{'NAME'}         = $product->{'name'};
     my $rp = $product->{'installconfig'}->{'releasepackage'};
-    $info{'REFERENCES'}   = "$rp->{'name'} $rp->{'flag'} $rp->{'version'}";
+    $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
     $info{'VERSION'}      = $product->{'version'};
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
     $info{'FLAVOR'}       = $medium->{'type'};
@@ -268,7 +282,15 @@ sub createProductOptions($$$)
       $info{'LABEL'}        = $summary->{'_content'} if ( ! $summary->{'language'} );
     }
     foreach my $url ( @{$product->{'urls'}->{'url'}} ){
-      $info{'RELNOTESURL'}  = $url->{'_content'} if ( $url->{'name'} eq 'releasenotes' );
+        if ( $url->{'name'} eq 'releasenotes' ){
+            my $arch="i586";
+            my $relnotesurl=$url->{'_content'};
+            foreach my $ar ( @$archSetList ) {
+                $arch=$archSets{$ar->{ref}}->{productarch} if ($archSets{$ar->{ref}});
+            }
+            $relnotesurl=~ s/%{_target_cpu}/$arch/g;
+            $info{'RELNOTESURL'}=$relnotesurl;
+        }
     }
     $info{'LINGUAS'} = "";
     foreach my $language ( @{$product->{'linguas'}->{'language'}} ){
@@ -515,12 +537,11 @@ sub createInstsource( $$$ )
     $re->{productoptions} = createProductOptions( $prodRef, $medium, $archSetList );
     
     my @r;
-    
     foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
 	my %h;
         my $localpath;
-	$h{name} = $repo->{name};
-	$h{priority} = $repo->{priority};
+	$h{name} = $repo->{'name'};
+	$h{priority} = $repo->{'priority'};
         $localpath = $repo->{path};
         if ($repo->{path} =~ /^obs:\/\/(.+)$/ ) {
 	  $h{local} = "true";
