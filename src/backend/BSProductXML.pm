@@ -184,11 +184,15 @@ our $productdesc = [
             'type',
             'product',
             'name',
+            'flavor',
             'sourcemedia',
             'create_pattern',
             'use_recommended',
             'use_suggested',
             'use_required',
+            'allow_overflow',
+            'next_media_in_set',
+            'size',
             [[ 'archsets' =>
               [[ 'archset' => 
                    'ref',
