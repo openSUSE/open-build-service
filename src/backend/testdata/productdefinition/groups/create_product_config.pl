@@ -132,7 +132,7 @@ sub print_pattern_tags {
 					);
 
 	if (defined($tags->{'Ord'})){
-		print $fh "    <pattern ordernumer=\"".$tags->{'Ord'}."\">\n";
+		print $fh "    <pattern ordernumber=\"".$tags->{'Ord'}."\">\n";
 	} else {
 		print $fh "    <pattern>\n";
 	}
