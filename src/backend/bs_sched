@@ -1880,7 +1880,7 @@ sub checkkiwiproduct {
       print "        broken ($rpm)\n";
       return ('broken', $rpm);
     }
-    push @new_meta, "$id  $rpms_meta{$rpm}\n";
+    push @new_meta, "$id  $rpms_meta{$rpm}";
   }
   my @meta;
   if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
