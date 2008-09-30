@@ -1807,6 +1807,7 @@ sub checkkiwiproduct {
 #print "prps: @aprps\n";
 #print "archs: @archs\n";
 #print "deps: @deps\n";
+  my $allpacks = $deps{'*'} ? 1 : 0;
 
   for my $aprp (@aprps) {
     my %known;
@@ -1820,7 +1821,7 @@ sub checkkiwiproduct {
     for my $arch ($archs[0] eq $myarch ? @archs : $myarch) {
       my $ps = (readxml("$reporoot/$aprp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
       for my $apackid (@apackids) {
-        if ($deps{$apackid} || $deps{$known{$apackid} || ''}) {
+        if ($allpacks || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
 	  my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked')} @$ps;
 	  if (@notyet) {
@@ -1831,6 +1832,7 @@ sub checkkiwiproduct {
         # hmm, we don't know if we really need it. scan content.
 	my @got;
 	my $needit;
+	$needit = 1 if $allpacks;
         for my $b (ls("$reporoot/$aprp/$arch/$apackid")) {
 	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  $needit = 1 if $deps{$1};
@@ -3097,8 +3099,14 @@ while(1) {
 
     $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
     my $packtype = $1 || 'spec';
-
     my @deps = @{$info->{'dep'} || []};
+    if ($packtype eq 'kiwi') {
+      if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
+        # do not expand kiwi instsource dependencies
+	$pdeps{$packid} = \@deps;
+	next;
+      }
+    }
     my ($eok, @edeps) = Build::get_deps($bconf, $subpacks{$info->{'name'}}, @deps);
     if (! $eok) {
       @edeps = @deps;
