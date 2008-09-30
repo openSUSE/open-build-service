@@ -87,6 +87,7 @@ our $product = [
            'name',
            'version',
            'release',
+           'productline',
            [ 'register' => 
               [],
               'target',
@@ -130,7 +131,7 @@ our $product = [
               'defaultlang',
               'datadir',
               'descriptiondir',
-              [ 'releasepackage' => 'name', 'flag', 'version' ],
+              [ 'releasepackage' => 'name', 'flag', 'version', 'release' ],
               'distribution',
            ],
            [ 'runtimeconfig' =>
