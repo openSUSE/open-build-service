@@ -770,6 +770,7 @@ if( $opt_m ) {
 
 foreach my $medium ( @$media ){
     my $type = $medium->{type};
+    my $flavor = $medium->{flavor};
     my $product = $medium->{product};  # note: this needs to reference a product from the products section 
     my $name = $medium->{name};
    
@@ -792,7 +793,7 @@ foreach my $medium ( @$media ){
 	    }
 	}
 
-	my $file = "$product-$type-$archStr";
+	my $file = "$product-$type-$flavor-$archStr";
         die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
         die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
 
