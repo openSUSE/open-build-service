@@ -102,11 +102,15 @@ sub createPreferences( $ )
 {
     my( $prodRef ) = @_;
     my $re = {};
+    my $version = $prodRef->{version};
+    $version = $version.".0" unless ( $version =~ /\./ ); # needed for products without minor number
+    my $release = $prodRef->{release};
+    $release = "0" unless (defined($prodRef->{release}));
 
     $re->{type} = [{_content => "product"}];
     $re->{version} = sprintf( "%s.%s",
-			      $prodRef->{version},
-			      $prodRef->{release}  );
+			      $version,
+			      $release  );
 
     # $re->{size} = ; do not give the optional size
     $re->{packagemanager} = "zypper" ;
@@ -544,11 +548,13 @@ sub createInstsource( $$$ )
     $re->{productoptions} = createProductOptions( $prodRef, $medium, $archSetList );
     
     my @r;
+    my $count = 0;
     foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
 	my %h;
         my $localpath;
+        $count = $count + 1;
 	$h{name} = $repo->{'name'};
-	$h{priority} = $repo->{'priority'};
+	$h{priority} = $count;
         $localpath = $repo->{path};
         if ($repo->{path} =~ /^obs:\/\/(.+)$/ ) {
 	  $h{local} = "true";
