@@ -280,7 +280,7 @@ sub createProductOptions($$$)
     $info{'DESCRDIR'}     = '$DATADIR/setup/descr';
     $info{'DATADIR'}      = 'suse';
     foreach my $summary ( @{$product->{'summary'}} ){
-      $info{'LABEL'}        = $summary->{'_content'}." ".$product->{'version'} if ( ! $summary->{'language'} );
+      $info{'LABEL'}        = $summary->{'_content'} if ( ! $summary->{'language'} );
     }
     foreach my $url ( @{$product->{'urls'}->{'url'}} ){
         if ( $url->{'name'} eq 'releasenotes' ){
