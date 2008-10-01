@@ -349,13 +349,19 @@ sub useToPackages( $$ )
 
     return unless $medium;
     
+    my @packages;
+
+    if ($medium->{use_undecided} eq "true" ) {
+       # Simply take all packages ?
+       push @packages, { name => "*" };
+       return \@packages;
+    };
+
     return unless $medium->{use};
     my @useStatements = @{$medium->{use} };
 
-    my @packages;
-
     # print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
-    
+
     foreach my $useState ( @useStatements ) {
         my $useRequired = ($medium->{use_required} eq "true" );
         my $useSuggested = ($medium->{use_suggested} eq "true" );
