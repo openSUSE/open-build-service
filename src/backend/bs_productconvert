@@ -236,14 +236,14 @@ sub createProductOptions($$$)
     my %varsH;
 
     $varsH{PRODUCT_THEME} = "SuSE";
-    $varsH{MEDIUM_NAME} = $medium->{'type'};
+    $varsH{MEDIUM_NAME} = $medium->{'name'};
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{SHA1OPT} = "-x";
 
     $varsH{MANUFACTURER} = "SuSE Linux Products GmbH";
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
-    $varsH{FLAVOUR} = $medium->{'type'};
+    $varsH{FLAVOUR} = $medium->{'flavor'};
     $varsH{RELEASE} = "0";
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOUR';
@@ -276,7 +276,7 @@ sub createProductOptions($$$)
     $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
     $info{'VERSION'}      = $product->{'version'};
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
-    $info{'FLAVOR'}       = $medium->{'type'};
+    $info{'FLAVOR'}       = $medium->{'flavor'};
     $info{'DESCRDIR'}     = '$DATADIR/setup/descr';
     $info{'DATADIR'}      = 'suse';
     foreach my $summary ( @{$product->{'summary'}} ){
@@ -611,24 +611,25 @@ sub writeProductSPECfile
 
     my $product_flavors="";
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      $product_flavors.="%package $flavor->{type}\n";
+      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      $product_flavors.="%package $flavor->{flavor}\n";
       $product_flavors.="License:        BSD 3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{'version'}-$product->{'release'}\n";
-      $product_flavors.="Provides:       flavor($flavor->{type})\n";
+      $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
       foreach my $summary ( @{$product->{'summary'}} ){
         $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
       }
       $product_flavors.="\n";
-      $product_flavors.="%description $flavor->{type}\n";
+      $product_flavors.="%description $flavor->{flavor}\n";
       foreach my $description ( @{$product->{'description'}} ){
         $product_flavors.="$description->{_content}\n" if ( ! $description->{'description'} );
       }
       $product_flavors.="\n";
-      $product_flavors.="%files $flavor->{type}\n";
+      $product_flavors.="%files $flavor->{flavor}\n";
       $product_flavors.="%defattr(-,root,root)\n";
-      $product_flavors.="%doc %{_defaultdocdir}/$product->{name}-release-$flavor->{type}\n";
+      $product_flavors.="%doc %{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}\n";
       $product_flavors.="\n"
     }
 
@@ -644,7 +645,6 @@ sub writeProductSPECfile
     $d->{"target"}  = $product->{'register'}->{'target'};
     $d->{"release"} = $product->{'register'}->{'release'};
     $zypp_product->{'register'} = $d;
-
     my $xml = XMLout( $BSProductXML::product, $zypp_product );
     die ( "ERROR: Unable to create xml for $product->{name} !" ) unless $xml;
     $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
@@ -652,7 +652,8 @@ sub writeProductSPECfile
     $zypp_product_file .= "$xml\nEOF\n\n";
 
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{type}";
+      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}";
       $zypp_product_file .= "mkdir -p $readmedir\n";
       $zypp_product_file .= "cat >$readmedir/README << EOF\n";
       $zypp_product_file .= "This package just exist just for providing the product flavor.\n";
