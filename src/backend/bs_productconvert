@@ -238,13 +238,20 @@ sub createProductOptions($$$)
 
     my $re = {};
     my %varsH;
+    # we need the "default" arch for 
+    # - MEDIUM_NAME
+    # - releasenotesurl
+    my $arch="i586";
+    foreach my $ar ( @$archSetList ) {
+        $arch=$archSets{$ar->{ref}}->{productarch} if ($archSets{$ar->{ref}});
+    }
 
-    $varsH{PRODUCT_THEME} = "SuSE";
-    $varsH{MEDIUM_NAME} = $medium->{'name'};
+    $varsH{PRODUCT_THEME} = $product->{'buildconfig'}->{'producttheme'};
+    $varsH{MEDIUM_NAME} = $medium->{'name'}."-$arch";
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{SHA1OPT} = "-x";
 
-    $varsH{MANUFACTURER} = "SuSE Linux Products GmbH";
+    $varsH{MANUFACTURER} = $product->{'vendor'};
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
     $varsH{FLAVOUR} = $medium->{'flavor'};
@@ -281,20 +288,16 @@ sub createProductOptions($$$)
     $info{'VERSION'}      = $product->{'version'};
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
     $info{'FLAVOR'}       = $medium->{'flavor'};
-    $info{'DESCRDIR'}     = '$DATADIR/setup/descr';
-    $info{'DATADIR'}      = 'suse';
+    $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
+    $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
     foreach my $summary ( @{$product->{'summary'}} ){
       $info{'LABEL'}        = $summary->{'_content'} if ( ! $summary->{'language'} );
     }
     foreach my $url ( @{$product->{'urls'}->{'url'}} ){
         if ( $url->{'name'} eq 'releasenotes' ){
-            my $arch="i586";
-            my $relnotesurl=$url->{'_content'};
-            foreach my $ar ( @$archSetList ) {
-                $arch=$archSets{$ar->{ref}}->{productarch} if ($archSets{$ar->{ref}});
-            }
-            $relnotesurl=~ s/%{_target_cpu}/$arch/g;
-            $info{'RELNOTESURL'}=$relnotesurl;
+            my $relnotesurl = $url->{'_content'};
+            $relnotesurl =~ s/%{_target_cpu}/$arch/g;
+            $info{'RELNOTESURL'} = $relnotesurl;
         }
     }
     $info{'LINGUAS'} = "";
@@ -313,9 +316,7 @@ sub createProductOptions($$$)
     }
 
     $re->{productinfo} = \@info;
-
     return $re;
-
 }
 
 sub createMetadata( $$ )
@@ -560,7 +561,7 @@ sub createInstsource( $$$ )
 	  $h{local} = "true";
           $localpath = $1;
         } else {
-          die( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
+          warn( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
         };
         if ( $runOnServer ) {
           for my $arch ( @{$re->{architectures}->{requiredarch}} ) {
