@@ -1823,7 +1823,7 @@ sub checkkiwiproduct {
       for my $apackid (@apackids) {
         if ($allpacks || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
-	  my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked')} @$ps;
+	  my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
 	  if (@notyet) {
 	    push @blocked, map {"$aprp/$arch/$_->{'name'}"} @notyet;
 	    next;
@@ -1841,7 +1841,7 @@ sub checkkiwiproduct {
         }
 	next unless $needit;
 	# ok we need it. check if they are built.
-        my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked')} @$ps;
+        my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked') || $_->{'status'} eq 'finished'} @$ps;
         if (@notyet) {
 	  push @blocked, map {"$aprp/$arch/$_->{'name'}"} @notyet;
 	  next;
@@ -1876,12 +1876,11 @@ sub checkkiwiproduct {
   push @new_meta, "$pdata->{'srcmd5'}  $packid";
   push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b}} @rpms) {
-    my $id = Build::queryhdrmd5("$reporoot/$rpm");
-    if (!$id) {
-      print "      - $packid (kiwi)\n";
-      print "        broken ($rpm)\n";
-      return ('broken', $rpm);
-    }
+    my $id;
+    eval {
+      $id = Build::queryhdrmd5("$reporoot/$rpm");
+    };
+    $id = "deaddeaddeaddeaddeaddeaddeaddead" unless $id;
     push @new_meta, "$id  $rpms_meta{$rpm}";
   }
   my @meta;
