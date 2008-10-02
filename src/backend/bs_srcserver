@@ -25,6 +25,7 @@
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
   $wd ||= '.';
+  chdir($wd);
   unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
 }
@@ -723,6 +724,8 @@ sub handlelinks {
       return "$projid $packid: $error";
     }
     return "linked package '$packid' does not exist in project '$projid'" unless $lrev;
+    return "linked package '$packid' is empty" if $lrev->{'srcmd5'} eq 'empty';
+    return "linked package '$packid' is strange" unless $lrev->{'srcmd5'} =~ /^[0-9a-f]{32}$/;
     $files = lsrep($projid, $packid, $lrev->{'srcmd5'});
     return 'linked package is not in repository' unless $files;
     my $cicount = $l->{'cicount'} || 'add';
