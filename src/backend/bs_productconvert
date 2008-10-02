@@ -268,7 +268,7 @@ sub createProductOptions($$$)
     $re->{productvar} = \@vars;
 
     my %options;
-    $options{'SOURCEMEDIUM'} = "1";
+    $options{'SOURCEMEDIUM'} = "2"; # put sources always on media 2, needs to be fixed for multiple media handling in PD
     $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/suse-11.0"; # FIXME: this needs to become part of PD ?
     $options{'INI_DIR'} = "/usr/share/kiwi/modules/plugins/suse-11.0";
     $options{'BETA_VERSION'} = $product->{'buildconfig'}->{'betaversion'} if (defined($product->{'buildconfig'}->{'betaversion'}));
