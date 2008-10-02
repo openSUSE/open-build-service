@@ -1825,7 +1825,7 @@ sub checkkiwiproduct {
 	  # hey, we probably need this package! wait till it's finished
 	  my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
 	  if (@notyet) {
-	    push @blocked, map {"$aprp/$arch/$_->{'name'}"} @notyet;
+	    push @blocked, "$aprp/$arch/$apackid";
 	    next;
 	  }
         }
@@ -1843,7 +1843,7 @@ sub checkkiwiproduct {
 	# ok we need it. check if they are built.
         my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked') || $_->{'status'} eq 'finished'} @$ps;
         if (@notyet) {
-	  push @blocked, map {"$aprp/$arch/$_->{'name'}"} @notyet;
+	  push @blocked, "$aprp/$arch/$apackid";
 	  next;
         }
 	push @rpms, @got;
