@@ -339,7 +339,7 @@ sub createMetadata( $$$ )
 	    print "ERROR: No such archset $requiredArch\n";
 	    next;
 	}
-        $onlyarch .= "$archSets{$ref}->{productarch}, ";
+        $onlyarch .= "$archSets{$ref}->{productarch},";
     };
     foreach my $pack ( @{ $medium->{metadata}->{package} } ) {
 	push @packages, { name => $pack->{name}, 
