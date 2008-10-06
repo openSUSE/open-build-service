@@ -116,6 +116,7 @@ our $kiwidesc = [
                 'name',
                 'medium',
                 'removearch',
+                'onlyarch',
              ]],
           ],
           [[ 'repopackages' =>

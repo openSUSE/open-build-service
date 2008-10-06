@@ -319,9 +319,9 @@ sub createProductOptions($$$)
     return $re;
 }
 
-sub createMetadata( $$ )
+sub createMetadata( $$$ )
 {
-    my( $prodRef, $medium ) = @_;
+    my( $prodRef, $medium, $archSetList ) = @_;
     
     return undef unless( $medium->{'metadata'} );
     my $re = {};
@@ -330,9 +330,19 @@ sub createMetadata( $$ )
 
     my @packages;
     my @files;
+    my $onlyarch;
+    foreach my $requiredArch( @{$archSetList} ) {
+	my $ref = $requiredArch->{ref};
+	unless( $archSets{$ref} ) {
+	    print "ERROR: No such archset $requiredArch\n";
+	    next;
+	}
+        $onlyarch .= "$archSets{$ref}->{productarch}, ";
+    };
     foreach my $pack ( @{ $medium->{metadata}->{package} } ) {
 	push @packages, { name => $pack->{name}, 
 			  medium => "0", 
+			  onlyarch => $onlyarch,
 			  removearch => "src" };
     }
 
@@ -578,9 +588,9 @@ sub createInstsource( $$$ )
     $re->{instrepo} = \@r;
     
     # metadata, media dependant
-    my $ref = createMetadata( $prodRef, $medium );
+    my $ref = createMetadata( $prodRef, $medium, $archSetList );
     if( $ref ) {
-	$re->{metadata} = createMetadata( $prodRef, $medium );
+	$re->{metadata} = createMetadata( $prodRef, $medium, $archSetList );
     }
 
     # repopackages
