@@ -1953,7 +1953,7 @@ sub rebuildkiwiproduct {
     'rev' => $pdata->{'rev'},
     'file' => $info->{'file'},
     'bdep' => \@bdeps,
-    'path' => [{'project' => $projid, 'repository' => $repoid, 'server' => $BSConfig::srcserver}],
+    'path' => [{'project' => $projid, 'repository' => $repoid, 'server' => $BSConfig::reposerver}],
   };
   mkdir_p("$reporoot/$prp/$myarch/$packid");
   writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $f}, $BSXML::buildstatus);
