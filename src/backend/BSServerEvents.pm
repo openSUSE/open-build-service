@@ -206,49 +206,54 @@ sub cpio_nextfile {
   my ($ev) = @_;
 
   my $data = '';
-  #print "cpio_nextfile\n";
-  $data .= $ev->{'filespad'} if defined $ev->{'filespad'};
-  delete $ev->{'filespad'};
-  my $files = $ev->{'files'};
-  my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
-  my $file;
-  if ($filesno >= @$files) {
-    if ($ev->{'cpioerrors'} ne '') {
-      $file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
-      $ev->{'cpioerrors'} = '';
-    } else {
-      $data .= makecpiohead();
-      return $data;
-    }
-  } else {
-    $ev->{'filesno'} = $filesno;
-    $file = $files->[$filesno];
-  }
-  if ($file->{'error'}) {
-    $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'error'}\n";
-    return $data.cpio_nextfile($ev);
-  }
-  my @s;
-  if (exists $file->{'filename'}) {
-    my $fd = $file->{'filename'};
-    if (!ref($fd)) {
-      $fd = gensym;
-      if (!open($fd, '<', $file->{'filename'})) {
-        $ev->{'cpioerrors'} .= "$file->{'name'}: $!\n";
-        return $data.cpio_nextfile($ev);
+  while(1) {
+    #print "cpio_nextfile\n";
+    $data .= $ev->{'filespad'} if defined $ev->{'filespad'};
+    delete $ev->{'filespad'};
+    my $files = $ev->{'files'};
+    my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
+    my $file;
+    if ($filesno >= @$files) {
+      if ($ev->{'cpioerrors'} ne '') {
+	$file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
+	$ev->{'cpioerrors'} = '';
+      } else {
+	$data .= makecpiohead();
+	return $data;
       }
+    } else {
+      $ev->{'filesno'} = $filesno;
+      $file = $files->[$filesno];
     }
-    $ev->{'fd'} = $fd;
-    @s = stat($ev->{'fd'});
-  } else {
-    $s[7] = length($file->{'data'});
-    $s[9] = time();
+    if ($file->{'error'}) {
+      $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'error'}\n";
+      next;
+    }
+    my @s;
+    if (exists $file->{'filename'}) {
+      my $fd = $file->{'filename'};
+      if (!ref($fd)) {
+	$fd = gensym;
+	if (!open($fd, '<', $file->{'filename'})) {
+	  $ev->{'cpioerrors'} .= "$file->{'name'}: $!\n";
+	  next;
+	}
+      }
+      $ev->{'fd'} = $fd;
+      @s = stat($ev->{'fd'});
+    } else {
+      $s[7] = length($file->{'data'});
+      $s[9] = time();
+    }
+    my ($header, $pad) = makecpiohead($file->{'name'}, \@s);
+    $data .= $header;
+    $ev->{'filespad'} = $pad;
+    if (!exists $file->{'filename'}) {
+      $data .= $file->{'data'};
+      next;
+    }
+    return $data;
   }
-  my ($header, $pad) = makecpiohead($file->{'name'}, \@s);
-  $data .= $header;
-  $ev->{'filespad'} = $pad;
-  return "$data$file->{'data'}".cpio_nextfile($ev) if !exists $file->{'filename'};
-  return $data;
 }
 
 sub reply_cpio {
