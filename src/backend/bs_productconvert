@@ -251,7 +251,7 @@ sub createProductOptions($$$)
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{SHA1OPT} = "-x";
 
-    $varsH{MANUFACTURER} = $product->{'vendor'};
+    $varsH{VENDOR} = $product->{'vendor'};
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
     $varsH{FLAVOUR} = $medium->{'flavor'};
