@@ -270,6 +270,8 @@ sub createProductOptions($$$)
     my %options;
     if (defined($medium->{'sourcemedia'})) {
       $options{'SOURCEMEDIUM'} = $medium->{'sourcemedia'};
+    }else{
+      $options{'SOURCEMEDIUM'} = 1;
     };
     $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/suse-11.0"; # FIXME: this needs to become part of PD ?
     $options{'INI_DIR'} = "/usr/share/kiwi/modules/plugins/suse-11.0";
