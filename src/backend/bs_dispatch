@@ -150,7 +150,7 @@ sub assignjob {
   my $infoxml = readstr("$jobsdir/$arch/$job");
   my $jobid = Digest::MD5::md5_hex($infoxml);
   my $info = XMLin($BSXML::buildinfo, $infoxml);
-  my $prp = $info->{'path'}->[0];
+
   my $workercode = getcodemd5('worker', $workerdircache);
   my $buildcode = getcodemd5('build', $builddircache);
 
@@ -238,6 +238,42 @@ while (1) {
   }
   my @archs = List::Util::shuffle(keys %idlearch);
   for my $arch (@archs) {
+
+    if ($BSConfig::specialdispatch && grep {$arch eq $_} values %$BSConfig::specialdispatch) {
+      # FIXME: do not duplicate code!
+      my @specials = grep {$BSConfig::specialdispatch->{$_} eq $arch} keys %$BSConfig::specialdispatch;
+      for my $special (@specials) {
+	my ($sproj, $srepo, $sarch) = split('/', $special, 3);
+	my @b = grep {!/^\./} ls("$jobsdir/$sarch");
+	my %locked = map {$_ => 1} grep {/:status$/} @b;
+	@b = grep {!/:(?:dir|status|new)$/} @b;
+	@b = grep {!$locked{"$_:status"}} @b;
+	for my $job (List::Util::shuffle(@b)) {
+	  my $info = readxml("$jobsdir/$sarch/$job", $BSXML::buildinfo, 1);
+	  next unless $info->{'project'} eq $sproj && $info->{'repository'} eq $srepo;
+	  my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
+	  for my $idle (@idle) {
+	    my $res = assignjob($job, $idle, $arch);
+	    if (!$res) {
+	      my $harch = (split(':', $idle, 2))[0];
+	      for (@{$cando{$harch} || []}) {
+		$idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
+	      }
+	      next;
+	    }
+	    next if $res eq 'badhost';
+	    my $harch = (split(':', $idle, 2))[0];
+	    for (@{$cando{$harch} || []}) {
+	      $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
+	    }
+	    $assigned++;
+	    last;
+	  }
+	}
+      }
+      next;
+    }
+
     my @b = grep {!/^\./} ls("$jobsdir/$arch");
     my %locked = map {$_ => 1} grep {/:status$/} @b;
     @b = grep {!/:(?:dir|status|new)$/} @b;
@@ -261,11 +297,12 @@ while (1) {
     for my $job (List::Util::shuffle(@b)) {
       last if $assigned && $tries >= 5;
       my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
-      if (%badhost) {
+      last unless @idle;
+      if (%badhost || $BSConfig::specialdispatch) {
 	my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-	if ($info) {
-	  @idle = grep {!$badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $_, 2))[1]]}"}} @idle;
-	}
+	next unless $info;
+	next if $BSConfig::specialdispatch && $BSConfig::specialdispatch->{"$info->{'project'}/$info->{'repository'}/$arch"};
+	@idle = grep {!$badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $_, 2))[1]]}"}} @idle;
       }
       for my $idle (@idle) {
 	next unless -e "$jobsdir/$arch/$job";
