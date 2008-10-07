@@ -187,6 +187,19 @@ our $kiwidesc = [
                      'arch',
                ]],
         ]],
+        [ 'vmwareconfig' =>
+               'memory',
+               'guestOS',
+               'HWversion',
+               [],
+               [[ 'vmwaredisk' => 'controller', 'id' ]],
+               [[ 'vmwarenic' => 'driver', 'interface', 'mode' ]],
+        ],
+        [ 'xenconfig' =>
+               'memory',
+               [],
+               [[ 'xendisk' => 'device' ]],
+        ],
 ];
 
 1;
