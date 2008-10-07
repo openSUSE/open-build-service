@@ -8,6 +8,7 @@ Wed Jun 11 12:42:39 CEST 2008 - martin.mohring@5etech.eu
 - put all docu files in obs-api package
 - some %pre / %post alignments
 - schemata and doc now mentioned in config
+- includes hermes fixes in config and the worker
 -------------------------------------------------------------------
 Tue Jun  3 19:48:07 CEST 2008 - martin.mohring@5etech.eu
 
