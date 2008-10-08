@@ -108,8 +108,8 @@ sub rpc {
     $chunked = 1 if $param->{'chunked'};
     if (!defined($data) && $param->{'request'} && $param->{'request'} eq 'POST' && @args && grep {/^content-type:\sapplication\/x-www-form-urlencoded$/i} @xhdrs) {
       for (@args) {
-        s/([\000-\040<>;\"#&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
-        s/%3D/=/;
+	$_ = urlencode($_);
+        s/%3D/=/;	# convert now escaped = back
       }
       $data = join('&', @args);
       @args = ();
@@ -121,8 +121,8 @@ sub rpc {
   $uri = urlencode($uri) unless $param->{'verbatim_uri'};
   if (@args) {
     for (@args) {
-      s/([\000-\040<>;\"#&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
-      s/%3D/=/;
+      $_ = urlencode($_);
+      s/%3D/=/;	# convert now escaped = back
     }
     if ($uri =~ /\?/) {
       $uri .= '&'.join('&', @args);
