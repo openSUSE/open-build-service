@@ -1627,11 +1627,10 @@ sub jobfinished {
     print "  - $job is bad\n";
     return;
   }
-  my $prp = $info->{'path'}->[0];
   my $projid = $prp->{'project'};
   my $repoid = $prp->{'repository'};
   my $packid = $info->{'package'};
-  $prp = "$projid/$repoid";
+  my $prp = "$projid/$repoid";
   if ($info->{'arch'} ne $myarch) {
     print "  - $job has bad arch\n";
     return;
@@ -1794,7 +1793,7 @@ sub checkkiwiproduct {
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
   if (!grep {$_ eq $myarch} @archs) {
-    print "      - $packid (kiwi)\n";
+    print "      - $packid (kiwi-product)\n";
     print "        not mine\n";
     return ('excluded');
   }
@@ -1841,7 +1840,7 @@ sub checkkiwiproduct {
         }
 	next unless $needit;
 	# ok we need it. check if they are built.
-        my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked') || $_->{'status'} eq 'finished'} @$ps;
+        my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
         if (@notyet) {
 	  push @blocked, "$aprp/$arch/$apackid";
 	  next;
@@ -1851,7 +1850,7 @@ sub checkkiwiproduct {
     }
   }
   if (@blocked) {
-    print "      - $packid (kiwi)\n";
+    print "      - $packid (kiwi-product)\n";
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
@@ -1866,7 +1865,7 @@ sub checkkiwiproduct {
     };
     my $evname = "unblocked::${projid}::${repoid}";
     sendevent($ev, $archs[0], "unblocked::${projid}::${repoid}");
-    print "      - $packid (kiwi)\n";
+    print "      - $packid (kiwi-product)\n";
     print "        unblocked\n";
     return ('excluded');
   }
@@ -1890,12 +1889,12 @@ sub checkkiwiproduct {
     chomp @meta;
   }
   if (join('\n', @meta) eq join('\n', @new_meta)) {
-    print "      - $packid (kiwi)\n";
+    print "      - $packid (kiwi-product)\n";
     print "        nothing changed\n";
     return ('done');
   }
   my @diff = diffsortedmd5(0, \@meta, \@new_meta);
-  print "      - $packid (kiwi)\n";
+  print "      - $packid (kiwi-product)\n";
   print "        $_\n" for @diff;
   return ('scheduled', \@rpms);
 }
