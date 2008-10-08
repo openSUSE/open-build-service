@@ -1627,8 +1627,8 @@ sub jobfinished {
     print "  - $job is bad\n";
     return;
   }
-  my $projid = $prp->{'project'};
-  my $repoid = $prp->{'repository'};
+  my $projid = $info->{'project'};
+  my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
   my $prp = "$projid/$repoid";
   if ($info->{'arch'} ne $myarch) {
