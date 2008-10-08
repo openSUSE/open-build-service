@@ -475,9 +475,19 @@ GET /build/<project>/<repository>/<arch>/_binarylist
 XmlResult: binarylist
 
 
+GET /build/<project>/<repository>/<arch>/_builddepinfo
+
+  Returns dependency information of packages in the specified repository. One or more
+  packages can be specified with the 'package' parameter. By default dependencies for
+  all packages are returned.
+
+XmlResult: builddepinfo
+
+
 GET /build/<project>/<repository>/<arch>/_buildinfo
 
   ???
+
 
 GET /build/<project>/<repository>/_buildconfig
 
