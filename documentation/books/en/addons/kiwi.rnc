@@ -1279,6 +1279,27 @@ div {
 }
 
 #==========================================
+# common element <xenbridge>
+#
+div {
+	k.xenbridge.mac.attribute =
+		## The Mac address to assign to the virtual interface
+		attribute mac { text }
+	k.xenbridge.name.attribute =
+		## The Xen bridged interface name
+		attribute name { text }
+	k.xenbridge.attlist =
+		k.xenbridge.mac.attribute ? &
+		k.xenbridge.name.attribute
+	k.xenbridge =
+		## The VMware network interface definition
+		element xenbridge {
+			k.xenbridge.attlist &
+			empty
+		}
+}
+
+#==========================================
 # main block: <deploy>
 #
 div {
@@ -1378,7 +1399,7 @@ div {
 			k.productoptions &
 			k.instrepo+ &
 			k.metadata &
-			k.repopackages+
+			k.repopackages*
 		}
 }
 
@@ -1654,7 +1675,8 @@ div {
 		]
 		element xenconfig {
 			k.xenconfig.attlist &
-			k.xendisk ?
+			k.xendisk ? &
+			k.xenbridge*
 		}
 }
 

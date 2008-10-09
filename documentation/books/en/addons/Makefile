@@ -14,13 +14,14 @@
 
 RNG2DOCBOOK=rng2docbook.xsl
 DBHTML=/usr/share/xml/docbook/stylesheet/nwalsh/current//html/docbook.xsl
-RELAXNG=relaxng.rng
+RELAXNG=kiwi.rng
+RELAXNG_TEST=test.rng
 HTMLPARAM=--stringparam refentry.generate.name 0 \
 	--stringparam refentry.generate.title 1 \
 	--stringparam html.stylesheet kiwi.css 
 
 .PHONY: all
-all:  test.rng kiwi.rng kiwi.xsd docbook html
+all:  test.rng kiwi.rng kiwi.xsd test.xsd docbook html
 
 .PHONY: html
 html-old: kiwi.xhtml
@@ -66,9 +67,9 @@ validate val: .validate
 .PHONY: validate.test val
 	@echo "*** Validating KIWI Test Schema..."
 	@echo "    ---(1) xmllint validation..."
-	xmllint --noout --relaxng $(RELAXNG) test.rng
+	xmllint --noout --relaxng $(RELAXNG_TEST) test.rng
 	@echo "    ---(2) jing validation..."
-	jing $(RELAXNG) test.rng
+	jing $(RELAXNG_TEST) test.rng
 	@echo "    ---(3) msv validation..."
 	msv $(RELAXNG) test.rng
 
@@ -80,7 +81,7 @@ validate val: .validate
 .validate.test: test.rng
 	@echo "*** Validating KIWI Test Schema..."
 	@touch $@
-	jing $(RELAXNG) $<
+	jing $(RELAXNG_TEST) $<
 
 %.rng: %.rnc
 	@echo "*** Converting KIWI RNC -> RNG..."
