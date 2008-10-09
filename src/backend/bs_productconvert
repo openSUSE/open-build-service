@@ -248,7 +248,11 @@ sub createProductOptions($$$)
 
     $varsH{PRODUCT_THEME} = $product->{'buildconfig'}->{'producttheme'};
     $varsH{MEDIUM_NAME} = $medium->{'name'}."-$arch";
-    $varsH{MULTIPLE_MEDIA} = "no";
+    if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1) {
+      $varsH{MULTIPLE_MEDIA} = "yes";
+    }else{
+      $varsH{MULTIPLE_MEDIA} = "no";
+    };
     $varsH{SHA1OPT} = "-x";
 
     $varsH{VENDOR} = $product->{'vendor'};
