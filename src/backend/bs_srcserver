@@ -168,7 +168,7 @@ sub expandproduct {
   for my $file (sort keys %$files) {
     link("$srcrep/$packid/$files->{$file}-$file", "$dir/$file") || die("link $srcrep/$packid/$files->{$file}-$file $dir/$file: $!\n");
   }
-  my @prods = grep {/produdct\..+\.xml$/}  sort keys %$files;
+  my @prods = grep {/.product$/}  sort keys %$files;
   my %pids;
   for my $prod (@prods) {
     print "converting product $prod\n";
