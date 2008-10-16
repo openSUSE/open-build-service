@@ -23,10 +23,8 @@
 package BSConfig;
 
 use Net::Domain;
-use BSServer;
 
-my $hostname = Net::Domain::hostfqdn();
-$hostname = "localhost" unless defined($hostname);
+my $hostname = Net::Domain::hostfqdn() || 'localhost';
 
 # configured to run on your localhost only
 our $srcserver = "http://$hostname:6362";
@@ -63,21 +61,9 @@ our $bsgroup = 'obsrun';
 
 # host specific configs
 my $hostconfig = "bsconfig." . Net::Domain::hostname();
-# print STDERR "TRYING TO READ CONFIG <$hostconfig>\n";
-
-if( -r $hostconfig ) {
-  my $return = do $hostconfig;
-  if( $return ) {
-    BSServer::msg( "Read local config <$hostconfig>" );
-  } else {
-    if( $@ ) {
-      warn( "Cannot compile $hostconfig: $@" );
-    } elsif( $! ) {
-      warn( "Cannot read $hostconfig: $!" );
-    } else {
-      warn( "Cannot find $hostconfig" );
-    }
-  }
+if(-r $hostconfig) {
+  print "reading $hostconfig...\n";
+  require $hostconfig;
 }
 
 1;
