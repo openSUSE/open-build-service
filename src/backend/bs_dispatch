@@ -79,6 +79,7 @@ my %cando = (
   'sparc64' => ['sparc64', 'sparc'],
   'mips'    => ['mips'],
   'mips64'  => ['mips64', 'mips'],
+  'local'   => ['local'],
 );
 
 my $rundir = "$BSConfig::bsdir/run";
@@ -162,8 +163,6 @@ sub assignjob {
     print "worker is gone!\n";
     return undef;
   }
-  # ready for building, send info to worker!
-  unlink("$workersdir/idle/$idlename");
 
   eval {
     BSRPC::rpc({
@@ -183,8 +182,10 @@ sub assignjob {
       $badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $idlename, 2))[1]]}"} = time();
       return 'badhost';
     }
+    unlink("$workersdir/idle/$idlename");	# broken client
     return undef;
   }
+  unlink("$workersdir/idle/$idlename");	# no longer idle
   $jobstatus->{'code'} = 'building';
   $jobstatus->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
   $jobstatus->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
@@ -241,6 +242,7 @@ while (1) {
 
     if ($BSConfig::specialdispatch && grep {$arch eq $_} values %$BSConfig::specialdispatch) {
       # FIXME: do not duplicate code!
+      print "specials for $arch\n";
       my @specials = grep {$BSConfig::specialdispatch->{$_} eq $arch} keys %$BSConfig::specialdispatch;
       for my $special (@specials) {
 	my ($sproj, $srepo, $sarch) = split('/', $special, 3);
@@ -253,7 +255,7 @@ while (1) {
 	  next unless $info->{'project'} eq $sproj && $info->{'repository'} eq $srepo;
 	  my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
 	  for my $idle (@idle) {
-	    my $res = assignjob($job, $idle, $arch);
+	    my $res = assignjob($job, $idle, $sarch);
 	    if (!$res) {
 	      my $harch = (split(':', $idle, 2))[0];
 	      for (@{$cando{$harch} || []}) {
