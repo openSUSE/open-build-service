@@ -316,7 +316,7 @@ sub tardiff {
     extracttar($f2, \@l2) if $e2cnt;
   }
   my $lcnt = 0;
-  my $d;
+  my $d = '';
   for my $f (@f) {
     next if $f eq '';
     if ($ren{$f}) {
