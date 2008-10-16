@@ -332,7 +332,7 @@ class DbProject < ActiveRecord::Base
       unless self.build_flags.empty?
         project.build do
           self.build_flags.each do |build_flag|
-          project << build_flag.to_xml.to_s + "\n"
+          project << " "*4 + build_flag.to_xml.to_s + "\n"
           end
         end
       end
@@ -340,7 +340,7 @@ class DbProject < ActiveRecord::Base
       unless self.publish_flags.empty?
         project.publish do
           self.publish_flags.each do |publish_flag|
-          project << publish_flag.to_xml.to_s + "\n"
+          project << " "*4 + publish_flag.to_xml.to_s + "\n"
           end
         end
       end
@@ -348,7 +348,7 @@ class DbProject < ActiveRecord::Base
       unless self.debuginfo_flags.empty?
         project.debuginfo do
           self.debuginfo_flags.each do |debuginfo_flag|
-          project << debuginfo_flag.to_xml.to_s + "\n"
+          project << " "*4 + debuginfo_flag.to_xml.to_s + "\n"
           end
         end
       end
@@ -356,7 +356,7 @@ class DbProject < ActiveRecord::Base
       unless self.useforbuild_flags.empty?
         project.useforbuild do
           self.useforbuild_flags.each do |useforbuild_flags|
-          project << useforbuild_flags.to_xml.to_s + "\n"
+          project << " "*4 + useforbuild_flags.to_xml.to_s + "\n"
           end
         end
       end

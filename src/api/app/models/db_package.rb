@@ -266,7 +266,7 @@ class DbPackage < ActiveRecord::Base
       unless self.build_flags.empty?
         package.build do
           self.build_flags.each do |build_flag|
-            package << build_flag.to_xml.to_s + "\n"
+            package << " "*4 + build_flag.to_xml.to_s + "\n"
           end
         end
       end
@@ -274,7 +274,7 @@ class DbPackage < ActiveRecord::Base
       unless self.publish_flags.empty?
         package.publish do
           self.publish_flags.each do |publish_flag|
-            package << publish_flag.to_xml.to_s + "\n"
+            package << " "*4 + publish_flag.to_xml.to_s + "\n"
           end
         end
       end
@@ -282,7 +282,7 @@ class DbPackage < ActiveRecord::Base
       unless self.debuginfo_flags.empty?
         package.debuginfo do
           self.debuginfo_flags.each do |debuginfo_flag|
-            package << debuginfo_flag.to_xml.to_s + "\n"
+            package << " "*4 + debuginfo_flag.to_xml.to_s + "\n"
           end
         end
       end
@@ -290,7 +290,7 @@ class DbPackage < ActiveRecord::Base
       unless self.useforbuild_flags.empty?
         package.useforbuild do
           self.useforbuild_flags.each do |useforbuild_flags|
-            package << useforbuild_flags.to_xml.to_s + "\n"
+            package << " "*4 + useforbuild_flags.to_xml.to_s + "\n"
           end
         end
       end
