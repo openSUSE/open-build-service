@@ -114,6 +114,56 @@ sub mkdir_p {
   return 1;
 }
 
+sub cleandir {
+  my ($dir) = @_;
+
+  my $ret = 1;
+  return 1 unless -d $dir;
+  for my $c (ls($dir)) {
+    if (! -l "$dir/$c" && -d _) {
+      cleandir("$dir/$c");
+      $ret = undef unless rmdir("$dir/$c");
+    } else {
+      $ret = undef unless unlink("$dir/$c");
+    }
+  }
+  return $ret;
+}
+
+sub linktree {
+  my ($from, $to) = @_;
+  return unless -d $from;
+  mkdir_p($to);
+  my @todo = sort(ls($from));
+  while (@todo) {
+    my $f = shift @todo;
+    if (! -l "$from/$f" && -d _) {
+      mkdir_p("$to/$f");
+      unshift @todo, map {"$f/$_"} ls("$from/$f");
+    } else {
+      link("$from/$f", "$to/$f") || die("link $from/$f $to/$f: $!\n");
+    }
+  }
+}
+
+sub treeinfo {
+  my ($dir) = @_;
+  my @info;
+  my @todo = sort(ls($dir));
+  while (@todo) {
+    my $f = shift @todo;
+    my @s = lstat("$dir/$f");
+    next unless @s;
+    if (-d _) { 
+      push @info, "$f";
+      unshift @todo, map {"$f/$_"} ls("$dir/$f");
+    } else {
+      push @info, "$f $s[9]/$s[7]/$s[1]";
+    }    
+  }
+  return \@info;
+}
+
 sub xfork {
   my $pid;
   while (1) {
