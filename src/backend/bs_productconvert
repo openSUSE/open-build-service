@@ -28,8 +28,10 @@ use File::Basename;
 
 use XML::Structured ':bytes';
 use BSUtil;
+use BSXML;
 use BSProductXML;
 use BSKiwiXML;
+use BSXML;
 use BSConfig;
 
 
@@ -38,11 +40,13 @@ use BSConfig;
 use vars qw ( $opt_h $opt_l $opt_d $opt_m 
               @errors %conditionals %repositories %groupRefs %archSets $indir $runOnServer);
 
+my %product_requires;
+
 sub usage()
 {
   print<<END
 
-  bs_productconvert product_file output_directory
+  bs_productconvert product_file output_directory [project_name]
 
   convert a product definition file to a spec- and a kiwi source file.
 
@@ -693,6 +697,9 @@ sub writeProductSPECfile
     $str =~ s/___RELEASE___/0/g;
     $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
     $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      $str =~ s/___PRODUCT_REQUIRES___/$product_requires{$flavor}/g;
+    }
     $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
     $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
     $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
@@ -708,10 +715,10 @@ getopts('dlhm:');
 usage() if $opt_h;
 $runOnServer = "true" if $opt_l;
 
-my ($infile, $outdir) = @ARGV;
+my ($infile, $outdir, $project) = @ARGV;
 
-die( "Please specify input file\n" ) unless $infile;
-die( "Please specify output directory\n" ) unless $outdir;
+die( "Please specify input file, output directory and project name\n" ) unless $infile;
+die( "Please specify output directory and project name\n" ) unless $outdir;
 
 my $d;
 # global indir
@@ -728,28 +735,6 @@ for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
   die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /^[_\.]/;
   die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\000-\037]/;
 }
-
-#
-# Create $product-release packages
-#
-
-for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
-  my $templateFile;
-  if ($infile =~ /(.*\/)(.+)$/) {
-    $templateFile = "$1/$product->{name}-release.spec";
-  };
-  if ( !$templateFile || ! -e $templateFile ) {
-    if ($infile =~ /(.*\/)(.+)$/) {
-      $templateFile = "$1/release.spec";
-    };
-  };
-  if ( $templateFile && -e $templateFile ) {
-    mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
-    writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
-  } else {
-    print "No release template file $templateFile exists.\nSPEC file generation skipped !\n";
-  };
-};
 
 #
 # Create a kiwi configuration for each distribution flavor
@@ -797,6 +782,10 @@ foreach my $medium ( @$media ){
     # create one kiwi file each for every of the archsets
     my @archSets = @{$medium->{archsets}};
     foreach my $arch ( @archSets ) {
+        my $buildflags;
+        my @archs;
+        $buildflags->{'disable'} = [{}]; # disabled by default
+ 
 	my $kiwi = \%generalImage;
 
 	$kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
@@ -806,24 +795,72 @@ foreach my $medium ( @$media ){
 	my @archsets = @{$arch->{archset}};
 	foreach my $ar ( @archsets ) {
 	    if( $archSets{$ar->{'ref'}} ) {
+		my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
 		$archStr .= "_" if $archStr;
-		$archStr .= "$archSets{$ar->{'ref'}}->{'productarch'}";
+		$archStr .= "$architecture";
+                # enable this architecture in scheduler
+                # FIXME: the scheduler arch may have a different name than the rpm archs !
+                push @archs, { 'arch' => $architecture };
+                # Heuristic: we need to make this configurable at a more central place
+                push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
+                push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
+                push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
+                push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
 	    }
 	}
+        $buildflags->{'enable'} = \@archs;
 
 	my $file = "$product-$type-$flavor-$archStr";
         die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
         die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
 
-	my $kiwiDir = "$outdir/_product:$file/";
+	my $pkgName = "_product:$file";
+	my $kiwiDir = "$outdir/$pkgName/";
 	my $outFile = "$kiwiDir/$file.kiwi";
+	my $metaFile = "$kiwiDir/_meta";
 
 	mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
 	writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
 	print "$outFile written.\n";
+
+        # Create meta file to enable it only for needed architectures
+        if ( $project ) {
+	  my $pkgmeta;
+	  $pkgmeta->{'name'} = $pkgName;
+	  $pkgmeta->{'project'} = $project;
+	  $pkgmeta->{'title'} = "KIWI image build" ;
+	  $pkgmeta->{'description'} = "Automatically generate from _product" ;
+	  $pkgmeta->{'build'} = $buildflags;
+	  writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
+	  print "metafile written.\n";
+        } else {
+	  print "metafile SKIPPED ! (need project name argument for it)\n";
+        }
     }
 }
 
+
+#
+# Create $product-release packages
+#
+
+for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
+  my $templateFile;
+  if ($infile =~ /(.*\/)(.+)$/) {
+    $templateFile = "$1/$product->{name}-release.spec";
+  };
+  if ( !$templateFile || ! -e $templateFile ) {
+    if ($infile =~ /(.*\/)(.+)$/) {
+      $templateFile = "$1/release.spec";
+    };
+  };
+  if ( $templateFile && -e $templateFile ) {
+    mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
+    writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
+  } else {
+    print "No release template file $templateFile exists.\nSPEC file generation skipped !\n";
+  };
+};
 
 
 
