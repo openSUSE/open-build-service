@@ -563,6 +563,25 @@ sub workerstate {
       }
     }
     unlink("$workersdir/building/$idlename");
+
+    # make sure that we can connect to the client
+    if ($BSConfig::checkclientconnectivity) {
+      my $param = {
+	'uri' => "http://$peerip:$peerport/status",
+        'async' => 1,
+        'timeout' => 1,
+	'sender' => sub {},
+      };
+      eval {
+        my $ret = BSRPC::rpc($param);
+        close($ret->{'socket'});
+      };
+      if ($@) {
+	warn($@);
+	die("cannot reach you!\n");
+      }
+    }
+    
     my $worker = {
       'hostarch' => $harch,
       'ip' => $peerip,
@@ -751,7 +770,8 @@ sub putjob {
   writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
   ping($arch);
 
-  my $success = 0;
+  # uploaded is empty for local image building
+  my $success = @$uploaded ? 0 : 1;
   for my $file (@$uploaded) {
     next unless $file->{'name'} =~ /\.(?:rpm|deb|iso)$/;
     $success = 1;
