@@ -2111,7 +2111,7 @@ sub sourcecopy {
   my $orev = $cgi->{'orev'};
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
   my $files = lsrep($oprojid, $opackid, $orev->{'srcmd5'});
-  die("need a revision to copy\n") if !$cgi->{'rev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
+  die("need a revision to copy\n") if !$cgi->{'rev'} && !$cgi->{'orev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
 
   my $autosimplifylink;
 
