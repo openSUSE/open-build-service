@@ -325,11 +325,11 @@ sub findbins {
   if (!opendir(D, $dir)) {
     return findbins_remote($prp);
   }
-  my @bins = grep {/\.(?:rpm|deb|iso|raw|raw.install)$/} readdir(D);
+  my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
   closedir D;
   if (!@bins && -s "$dir.subdirs") {
     for my $subdir (split(' ', readstr("$dir.subdirs"))) {
-      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb|iso)$/} ls("$dir/$subdir");
+      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
     }
   }
   my ($hits, $misses) = (0, 0);
@@ -740,7 +740,7 @@ sub prpfinished {
     my $r = "$reporoot/$prp/$myarch/:repo";
     unlink("${r}info");
     if (-d $r) {
-      unlink("$r/$_") for ls($r);
+      BSUtil::cleandir($r);
       rmdir($r) || die("rmdir $r: $!\n");
     } else {
       print "    nothing to delete...\n";
@@ -781,7 +781,8 @@ sub prpfinished {
       next;
     }
     my $pdir = "$reporoot/$prp/$myarch/$packid";
-    my @all = grep {/\.(?:deb|rpm|iso)$/} ls($pdir);
+    my @all = sort(ls($pdir));
+    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status'} @all;
     for my $bin (@all) {
       next if exists $origin{$bin};	# first one wins
       $origin{$bin} = $packid;
@@ -794,25 +795,46 @@ sub prpfinished {
 	}
 	next if $bad;
       }
-      my @sr = stat("$rdir/$bin");
+      my @sr = lstat("$rdir/$bin");
       if (@sr) {
-        my @s = stat("$pdir/$bin");
+	my $risdir = -d _ ? 1 : 0;
+        my @s = lstat("$pdir/$bin");
+	my $pisdir = -d _ ? 1 : 0;
         next unless @s;
         next if "$s[9]/$s[7]/$s[1]" eq "$sr[9]/$sr[7]/$sr[1]";
+	if ($risdir && $pisdir) {
+	  my $rinfo = BSUtil::treeinfo("$rdir/$bin");
+	  my $pinfo = BSUtil::treeinfo("$pdir/$bin");
+	  next if join(',', @$rinfo) eq join(',', @$pinfo);
+	}
         print "      ! :repo/$bin ($packid)\n";
-        unlink("$rdir/$bin");
+	if ($risdir) {
+	  BSUtil::cleandie("$rdir/$bin");
+          rmdir("$rdir/$bin");
+	} else {
+          unlink("$rdir/$bin");
+	}
       } else {
         print "      + :repo/$bin ($packid)\n";
         mkdir_p($rdir) unless -d $rdir;
       }
-      link("$pdir/$bin", "$rdir/$bin") || die("link $pdir/$bin $rdir/$bin: $!\n");
+      if (! -l "$pdir/$bin" && -d _) {
+	BSUtil::linktree("$pdir/$bin", "$rdir/$bin");
+      } else {
+        link("$pdir/$bin", "$rdir/$bin") || die("link $pdir/$bin $rdir/$bin: $!\n");
+      }
       $changed = 1;
     }
   }
   for my $bin (sort(ls($rdir))) {
     next if exists $origin{$bin};
     print "      - :repo/$bin\n";
-    unlink("$rdir/$bin") || die("unlink $rdir/$bin: $!\n");
+    if (! -l "$rdir/$bin" && -d _) {
+      BSUtil::cleandir("$rdir/$bin");
+      rmdir("$rdir/$bin") || die("rmdir $rdir/$bin: $!\n");
+    } else {
+      unlink("$rdir/$bin") || die("unlink $rdir/$bin: $!\n");
+    }
     $changed = 1;
   }
 
@@ -910,41 +932,57 @@ my %default_exportfilters = (
 #
 
 sub update_dst_full {
-  my ($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled, $prpsearchpath) = @_;
+  my ($repodata, $prp, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath) = @_;
+
+  my $jobrepo;
+  my @jobfiles;
+  if (defined($jobdir)) {
+    @jobfiles = sort(ls($jobdir));
+    @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status'} @jobfiles;
+    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/} @jobfiles ]);
+  } else {
+    $jobrepo = {};
+  }
 
   ##################################################################
-  # part 1: move binaries in package directory
+  # part 1: move files into package directory ($dst)
 
   my $gdst = "$reporoot/$prp/$myarch";
 
   my $oldrepo;
-  my %new;
   my $isimport;
 
-  if ($dst) {
+  if ($dst && $dst eq $jobdir) {
+    # a "refresh" operation, nothing to do here
+    $oldrepo = $jobrepo;
+  } elsif ($dst) {
     # get old state
-    my @oldrpms = grep {/\.(?:rpm|deb|iso)$/} ls($dst);
-    $oldrepo = findbins_dir([ map {"$dst/$_"} @oldrpms ]);
+    my @oldfiles = sort(ls($dst));
+    @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status'} @oldfiles;
+    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/} @oldfiles ]);
 
-    # move rpms over
-    for my $rp (keys %$jobrepo) {
-      my $nn = $rp;
-      $nn =~ s/.*\///;
-      if ($rp ne "$dst/$nn") {
-        rename($rp, "$dst/$nn") || die("rename $rp $dst/$nn: $!\n");
+    # move files over
+    my %new;
+    for my $f (@jobfiles) {
+      if (! -l "$dst/$f" && -d _) {
+	BSUtil::cleandir("$dst/$f");
+	rmdir("$dst/$f");
       }
-      $new{$nn} = $jobrepo->{$rp};
+      rename("$jobdir/$f", "$dst/$f") || die("rename $jobdir/$f $dst/$f: $!\n");
+      $new{$f} = 1;
     }
-    # delete old rpms in dst
-    for my $rp (grep {!$new{$_}} @oldrpms) {
-      unlink("$dst/$rp");
+    for my $f (grep {!$new{$_}} @oldfiles) {
+      if (! -l "$dst/$f" && -d _) {
+	BSUtil::cleandir("$dst/$f");
+	rmdir("$dst/$f");
+      } else {
+	unlink("$dst/$f") ;
+      }
     }
   } else {
     # dst = undef is true for importevents
     $isimport = 1;
-    my $jobdatadir = $jobrepo->{'.dir'};
-    delete $jobrepo->{'.dir'};
-    my $replaced = (readxml("$jobdatadir/replaced.xml", $BSXML::dir, 1) || {})->{'entry'};
+    my $replaced = (readxml("$jobdir/replaced.xml", $BSXML::dir, 1) || {})->{'entry'};
     $oldrepo = {};
     for (@{$replaced || []}) {
       my $rp = $_->{'name'};
@@ -952,12 +990,7 @@ sub update_dst_full {
       $_->{'source'} = 1;
       $oldrepo->{$rp} = $_;
     }
-    for my $rp (keys %$jobrepo) {
-      my $nn = $rp;
-      $nn =~ s/.*\///;
-      $new{$nn} = $jobrepo->{$rp};
-    }
-    $dst = $jobdatadir;
+    $dst = $jobdir;	# get em from the jobdir
   }
 
   ##################################################################
@@ -972,8 +1005,14 @@ sub update_dst_full {
   $filter ||= $default_exportfilters{$myarch};
 
   # link new ones into full, delete old ones no longer in use
-  my %fnew;
   my %exports;
+
+  my %new;
+  for my $rp (keys %$jobrepo) {
+    my $nn = $rp;
+    $nn =~ s/.*\///;
+    $new{$nn} = $jobrepo->{$rp};
+  }
 
   # find destination for all new binaries
   my @movetofull;
@@ -1048,6 +1087,7 @@ sub update_dst_full {
 
   # move em over into :full
   mkdir_p("$gdst/:full") if @movetofull && ! -d "$gdst/:full";
+  my %fnew;
   for my $rp (@movetofull) {
     my $r = $new{$rp};
     my $suf = $rp;
@@ -1664,9 +1704,15 @@ sub jobfinished {
   delete $status->{'uri'};	# obsolete
 
   my @all = ls($jobdatadir);
+  my $code = 'failed';
+  for (@all) {
+    next if $_ eq 'meta' || $_ eq 'logfile';
+    $code = 'succeeded';
+    last;
+  }
+
   my %all = map {$_ => 1} @all;
   @all = map {"$jobdatadir/$_"} @all;
-  my $jobrepo = findbins_dir(\@all);
 
   my $gdst = "$reporoot/$prp/$myarch";
   my $dst = "$gdst/$packid";
@@ -1676,7 +1722,7 @@ sub jobfinished {
   mkdir_p("$gdst/:logfiles.success");
   unlink("$reporoot/$prp/$myarch/:repodone");
   if (!$all{'meta'}) {
-    if (%$jobrepo) {
+    if ($code eq 'succeeded') {
       print "  - $job claims success but there is no meta\n";
       return;
     }
@@ -1692,13 +1738,13 @@ sub jobfinished {
     for (@{$ps->{'packstatus'} || []}) {
       next unless $_->{'name'} eq $packid;
       $_->{'status'} = 'finished';
-      $_->{'error'} = %$jobrepo ? 'succeeded' : 'failed';
+      $_->{'error'} = $code;
     }
     writexml("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps, $BSXML::packstatuslist);
   }
 
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
-  if (!%$jobrepo) {
+  if ($code eq 'failed') {
     print "  - $job: build failed\n";
     link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
     rename("$jobdatadir/logfile", "$dst/logfile");
@@ -1712,7 +1758,7 @@ sub jobfinished {
     $changed->{$prp} ||= 1;	# package is no longer blocking
     return;
   }
-  print "  - $prp: $packid built: ".(keys %$jobrepo). " packages\n";
+  print "  - $prp: $packid built: ".(@all). " files\n";
   mkdir_p("$gdst/:logfiles.success");
   mkdir_p("$gdst/:logfiles.fail");
 
@@ -1722,7 +1768,7 @@ sub jobfinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($repodata, $prp, $dst, $jobrepo, $meta, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($repodata, $prp, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -1763,12 +1809,10 @@ sub importevent {
   my @all = ls($jobdatadir);
   my %all = map {$_ => 1} @all;
   @all = map {"$jobdatadir/$_"} @all;
-  my $jobrepo = findbins_dir(\@all);
-  $jobrepo->{'.dir'} = $jobdatadir;
   $repodatas->{$prp} ||= findbins($prp);
   my $repodata = $repodatas->{$prp};
   my $useforbuildenabled = 1;
-  update_dst_full($repodata, $prp, undef, $jobrepo, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($repodata, $prp, undef, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   unlink($_) for @all;
   rmdir($jobdatadir);
@@ -1786,17 +1830,29 @@ sub checkkiwiproduct {
   # but how can we map it to the buildarchs?
   my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
   return ('broken', 'missing repo') unless $repo;	# can't happen
-  my @archs = @{$repo->{'arch'} || []};
-  my @deps = @{$info->{'dep'} || []};	# expanded?
-  my %deps = map {$_ => 1} @deps;
-  delete $deps{''};
-  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
+  # calculate all involved architectures
+  my @archs;
+  my $savemyarch = $myarch;
+  for my $arch (@{$repo->{'arch'} || []}) {
+    my $enabled = 1;
+    $myarch = $arch;
+    $enabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1);
+    $enabled = enabled($repoid, $pdata->{'build'}, $enabled);
+    push @archs, $arch if $enabled;
+  }
+  $myarch = $savemyarch;
+  
   if (!grep {$_ eq $myarch} @archs) {
     print "      - $packid (kiwi-product)\n";
     print "        not mine\n";
     return ('excluded');
   }
+
+  my @deps = @{$info->{'dep'} || []};	# expanded?
+  my %deps = map {$_ => 1} @deps;
+  delete $deps{''};
+  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
   my @blocked;
   my @rpms;
@@ -1808,6 +1864,7 @@ sub checkkiwiproduct {
 #print "deps: @deps\n";
   my $allpacks = $deps{'*'} ? 1 : 0;
 
+  my $maxblocked = 20;
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
@@ -1825,6 +1882,7 @@ sub checkkiwiproduct {
 	  my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
 	  if (@notyet) {
 	    push @blocked, "$aprp/$arch/$apackid";
+	    last if @blocked > $maxblocked;
 	    next;
 	  }
         }
@@ -1843,13 +1901,17 @@ sub checkkiwiproduct {
         my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
         if (@notyet) {
 	  push @blocked, "$aprp/$arch/$apackid";
+	  last if @blocked > $maxblocked;
 	  next;
         }
 	push @rpms, @got;
       }
+      last if @blocked > $maxblocked;
     }
+    last if @blocked > $maxblocked;
   }
   if (@blocked) {
+    push @blocked, '...' if @blocked > $maxblocked;
     print "      - $packid (kiwi-product)\n";
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
@@ -1861,7 +1923,7 @@ sub checkkiwiproduct {
     my $ev = {
       'type' => 'unblocked',
       'project' => $projid,
-      'repository' => $packid,
+      'repository' => $repoid,
     };
     my $evname = "unblocked::${projid}::${repoid}";
     sendevent($ev, $archs[0], "unblocked::${projid}::${repoid}");
@@ -2259,7 +2321,7 @@ sub rebuildaggregate {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($repodata, $prp, $dst, $jobrepo, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($repodata, $prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -2856,10 +2918,9 @@ while(1) {
 	  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
 	  next unless $useforbuildenabled;
 	  $repodata{$prp} ||= findbins($prp);
-	  my $jobrepo = findbins_dir("$gdst/$packid");
 	  my $meta = "$gdst/:meta/$packid";
           undef $meta unless -s $meta;
-	  update_dst_full($repodata{$prp}, $prp, "$gdst/$packid", $jobrepo, $meta, $useforbuildenabled, $prpsearchpath{$prp});
+	  update_dst_full($repodata{$prp}, $prp, "$gdst/$packid", "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
 	}
 	for $prp (@prps) {
 	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
@@ -2928,7 +2989,7 @@ while(1) {
 	# need lock for deleting publish area
 	next if $dir eq ':repo' || $dir eq ':repoinfo';
 	if (-d "$reporoot/$prp/$myarch/$dir") {
-	  unlink("$reporoot/$prp/$myarch/$dir/$_") for ls("$reporoot/$prp/$myarch/$dir");
+	  BSUtil::cleandir("$reporoot/$prp/$myarch/$dir");
 	  rmdir("$reporoot/$prp/$myarch/$dir") || die("$reporoot/$prp/$myarch/$dir: $!\n");
 	} else {
 	  unlink("$reporoot/$prp/$myarch/$dir") || die("$reporoot/$prp/$myarch/$dir: $!\n");
@@ -2940,7 +3001,7 @@ while(1) {
       prpfinished($prp);
       # now that :repo is gone we can remove the directory
       rmdir("$reporoot/$prp/$myarch") || die("$reporoot/$prp/$myarch: $!\n");
-      # XXX this should be rewitten if :repoinfo lives somewhere else
+      # XXX this should be rewritten if :repoinfo lives somewhere else
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if (!$repo) {
 	# this repo doesn't exist any longer!
@@ -3019,7 +3080,7 @@ while(1) {
     unlink("$gdst/:logfiles.success/$packid");
     unlink("$gdst/:logfiles.fail/$packid");
     unlink("$gdst/:meta/$packid");
-    unlink("$gdst/$packid/$_") for ls("$gdst/$packid");
+    BSUtil::cleandir("$gdst/$packid");
     rmdir("$gdst/$packid");
     killbuilding($prp, $packid);
     unlink("$reporoot/$prp/$myarch/:repodone");
