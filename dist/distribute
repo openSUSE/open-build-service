@@ -17,7 +17,7 @@ LASTSTEP= one of
   checkout      create a local osc working directory like this
                    osc \${OSCOPTS} co \${PROJECT} \${PACKAGE}
 
-  tar           update the tar ball
+  tar           update the tar ball _unless_ MAINTENANCE is set
 
                 currently works only with svn.  creates a tar ball
                 like this:
@@ -36,6 +36,7 @@ LASTSTEP= one of
                         \${BUILDOPTS} \${PROJECT} \${PACKAGE} \${ARCH}'
 
   upload        'osc \${OSCOPTS} ci' to the build server
+
 
 --help          display this message"
 
@@ -70,6 +71,8 @@ source ./.distrc
 
 : ${OSCOPTS:=}
 
+: ${MAINTENANCE:=}
+
 : ${EXCLUDES:=}
 # be smart: the following files are hardly ever part of a package.
 # after checkpout, there will also be a directory with the project name in $PWD
@@ -93,7 +96,9 @@ Environment:
     for var in \
 	PROJECT PACKAGE TARGET ARCH SPECFILE \
 	EXCLUDES CANONICAL_EXCLUDES \
-	LASTSTEP OSCOPTS BUILDOPTS
+	LASTSTEP OSCOPTS BUILDOPTS \
+	MAINTENANCE \
+	DEBUG VERBOSE
     do
       echo "$var=${!var:-null or unset}"
     done
@@ -200,7 +205,11 @@ fi
 
 # TODO: check oscupstream for this
 
-if [ ${DO_TAR} ]; then
+if [ ${MAINTENANCE} ]; then
+    echo "MAINTENANCE mode, skipping tar ball update."
+fi
+if [ ${DO_TAR} -a ! ${MAINTENANCE} ]; then
+
 
     # Actually the method to create the tar ball and figure the
     # version information depends on the SCM and the working style of
@@ -224,7 +233,7 @@ if [ ${DO_TAR} ]; then
     # connect to.
     SVNVERSION=${SVNVERSION//:/_}
 
-    : ${TARFILE:=${TARPACKAGE}-${OBSREV}.${SVNVERSION}}
+    : ${TARFILE:=${TARPACKAGE}-${VERSION}.${SVNVERSION}}
 
     if [ ! -f ${TARFILE}.tar.bz2 ] ; then
 
@@ -309,10 +318,14 @@ if [ ${DO_UPDATE} ]; then
     pushd ${PROJECT}/${PACKAGE}
     if [ "${DEPRECATED_FILES}" ] ; then rm -vf $DEPRECATED_FILES ; fi
 
-    # update version information in the specfile
+    # update version information in the specfile unless in maintenance
+    # mode
     for spf in ${SPECFILE}
     do
-    sed --in-place -e "s/^%define svnversion updated_by_script/%define svnversion ${OBSREV}.${SVNVERSION}/" ${spf}
+ 	if [ ! ${MAINTENANCE} ]
+ 	then
+ 	    sed --in-place -e "s/^%define svnversion updated_by_script.*/%define svnversion ${VERSION}.${SVNVERSION}/" ${spf}
+ 	fi
     done
     popd
 fi
@@ -323,7 +336,14 @@ fi
 pushd "${PROJECT}/${PACKAGE}"
 
 if [ ${DO_BUILD} ]; then
-    osc ${OSCOPTS} build ${BUILDOPTS} "${TARGET}" "${ARCH}" "${SPECFILE}"
+    for spec in ${SPECFILE}
+    do
+	osc ${OSCOPTS} build ${BUILDOPTS} "${TARGET}" "${ARCH}" "${spec}"
+	# TODO: somehow smartly deal with the results of different
+	# builds in case of several spec files.  Currently the last
+	# one survives, the other ones are lost.  Only relevant in
+	# case of several spec files in one package
+    done
 fi
 
 

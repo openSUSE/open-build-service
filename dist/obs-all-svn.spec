@@ -1,5 +1,5 @@
 #
-# spec file for package obs-server (Version MACRO)
+# spec file for package obs-server
 #
 # Copyright (c) 2008 SUSE LINUX Products GmbH, Nuernberg, Germany.
 # This file and all modifications and additions to the pristine
@@ -7,8 +7,6 @@
 #
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
-
-
 
 Name:           obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
@@ -21,7 +19,7 @@ Group:          Productivity/Networking/Web/Utilities
 AutoReqProv:    on
 %define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 %define py_sitedir %{python_sitelib}
-%define svnversion updated_by_script
+%define svnversion updated_by_script # edit VERSION in .distrc
 Version:        %{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service

@@ -1,5 +1,5 @@
 #
-# spec file for package obs-server (Version 0.9.99)
+# spec file for package obs-server
 #
 # Copyright (c) 2008 SUSE LINUX Products GmbH, Nuernberg, Germany.
 # This file and all modifications and additions to the pristine
@@ -19,7 +19,8 @@ PreReq:         %fillup_prereq %insserv_prereq
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 AutoReqProv:    on
-Version:        1.0.99
+%define svnversion updated_by_script # edit VERSION in .distrc
+Version:        %{svnversion}
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component

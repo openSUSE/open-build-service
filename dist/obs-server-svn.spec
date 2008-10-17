@@ -19,9 +19,9 @@ License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Autoreqprov:    on
 
-%define svnversion updated_by_script
-
+%define svnversion updated_by_script # edit VERSION in .distrc
 Version:        %{svnversion}
+
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 Summary:        The openSUSE Build Service -- Server Component
