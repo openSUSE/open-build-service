@@ -10,4 +10,4 @@
 # files from $PWD that are not part of the distribution, one on a line
 : ${EXCLUDES:=README.SETUP README.UPDATERS TODO .dist* obs-server-test.spec.template obs.conf.template sysconfig.obs-worker.template }
 : ${SVNDIR:=../../buildservice}
-: ${OBSREV:=1.1.0}
+: ${VERSION:=1.1.0}
