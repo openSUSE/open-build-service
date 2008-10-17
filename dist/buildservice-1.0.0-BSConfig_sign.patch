@@ -1,0 +1,12 @@
+diff -ruN buildservice-1.0.0-orig/src/backend/BSConfig.pm buildservice-1.0.0/src/backend/BSConfig.pm
+--- buildservice-1.0.0-orig/src/backend/BSConfig.pm	2008-07-07 06:01:48.000000000 +0000
++++ buildservice-1.0.0/src/backend/BSConfig.pm	2008-07-10 13:24:26.448133869 +0000
+@@ -52,7 +52,7 @@
+ #our $repodownload = 'http://software.opensuse.org/download/repositories';
+ 
+ #No package signing server
+-#our $sign = '/root/bin/sign';
++#our $sign = '/usr/bin/sign';
+ 
+ # host specific configs
+ my $hostconfig = "bsconfig." . Net::Domain::hostname();

@@ -1,5 +1,5 @@
 #
-# spec file for package obs-server (Version 0.1)
+# spec file for package obs-server
 #
 # Copyright (c) 2007 SUSE LINUX Products GmbH, Nuernberg, Germany.
 # This file and all modifications and additions to the pristine
@@ -8,20 +8,19 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+#Distribution:   %dist
+#Packager:       %packager
+#Vendor:         %vendor
 
 Name:           obs-server
-Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
-BuildRequires:  rubygem-builder python-devel
-%if 0%{?suse_version:1}
-PreReq:         %fillup_prereq %insserv_prereq
-%endif
+Summary:        The openSUSE Build Service -- Server Component
+
+Version:        1.0.1
+
+Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
-Autoreqprov:    on
-Version:        1.0.0
-Release:        0
 Url:            http://en.opensuse.org/Build_Service
-Summary:        The openSUSE Build Service -- Server Component
 Source:         buildservice-%version.tar.bz2
 Source1:        obsworker
 Source3:        obspublisher
@@ -35,6 +34,21 @@ Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
 Source15:       obsdispatcher
+Source20:       signd.init
+Patch:          buildservice-1.0.0-signd-pid.patch
+Patch1:         buildservice-1.0.0-sign_conf.patch
+Patch2:         buildservice-1.0.0-BSConfig_sign.patch
+Patch3:         webclient-EXTERNAL_FRONTEND_HOST.patch
+Patch4:         webclient-RAILS_GEM_VERSION.patch
+BuildArch:      noarch
+Autoreqprov:    on
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  rubygem-builder python-devel
+
+%if 0%{?suse_version:1}
+PreReq:         %fillup_prereq %insserv_prereq
+%endif
+
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     createrepo >= 0.4.10
@@ -42,56 +56,112 @@ Recommends:     createrepo >= 0.4.10
 Requires:       yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
 %endif
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildArchitectures: noarch
+Requires:       createrepo
+Requires:       perl-Compress-Zlib perl-Net_SSLeay perl-Socket-MsgHdr perl-XML-Parser
 
+#-------------------------------------------------------------------------------
 %description
+#-------------------------------------------------------------------------------
 Authors:
 --------
     The openSUSE Team <opensuse-buildservice@opensuse.org>
 
+--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 %package -n obs-worker
-Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
-%ifarch x86_64
-Requires:	linux32
-%endif
-%ifarch ppc64
-Requires:	powerpc32
-%endif
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- Build Host Component
+Group:          Productivity/Networking/Web/Utilities
+
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 %if 0%{?suse_version} <= 1030
 Requires:       lzma
 %endif
-Group:          Productivity/Networking/Web/Utilities
-Summary:        The openSUSE Build Service -- Build Host Component
 
+Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
+
+%ifarch x86_64
+Requires:	linux32
+%endif
+
+%ifarch ppc64
+Requires:	powerpc32
+%endif
+
+#-------------------------------------------------------------------------------
 %description -n obs-worker
+#-------------------------------------------------------------------------------
 
+#-------------------------------------------------------------------------------
 %package -n obs-api
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- The Frontend part
+Group:          Productivity/Networking/Web/Utilities
+
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
+
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
 Requires:       rubygem-rails >= 2.0
-Group:          Productivity/Networking/Web/Utilities
-Summary:        The openSUSE Build Service -- The Frontend part
 
+#-------------------------------------------------------------------------------
 %description -n obs-api
+#-------------------------------------------------------------------------------
 
+#-------------------------------------------------------------------------------
+%package -n obs-signd
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- gpg sign daemon
+Group:          Productivity/Networking/Web/Utilities
+
+BuildRequires:  gcc
+Requires:       gnupg
+
+#-------------------------------------------------------------------------------
+%description -n obs-signd
+#-------------------------------------------------------------------------------
+signd is a little daemon that listens for sign requests from sign,
+and either calls gpg to do the signing or forwards the request
+to another signd. The -f option makes signd fork on startup.
+
+signd uses the same configuration used for sign, /etc/sign.conf.
+It needs a gpg implementation that understands the
+"--files-are-digests" option to work correctly.
+
+  Author:	Michael Schroeder
+
+--------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
 %prep
+#-------------------------------------------------------------------------------
 %setup -q -n buildservice-%version
+%patch -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p2
+%patch4 -p2
 
+#-------------------------------------------------------------------------------
 %build
+#-------------------------------------------------------------------------------
 #
 # generate apidocs
 #
 cd docs/api/frontend
 make apidocs
 cd -
+cd src/sign
+gcc -o sign sign.c
+cd -
 
+#-------------------------------------------------------------------------------
 %install
+#-------------------------------------------------------------------------------
 #
 # Install all web and frontend parts.
 #
@@ -161,37 +231,69 @@ FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 mkdir -p $FILLUP_DIR
 cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
 
+#
+# Install sign stuff
+#
+cd ../sign/
+install -d -m 0755 $RPM_BUILD_ROOT%{_mandir}/man{5,8}
+install -d -m 0755 $RPM_BUILD_ROOT/usr/bin
+install -m 0755 signd $RPM_BUILD_ROOT/usr/sbin/
+install -m 0750 sign $RPM_BUILD_ROOT/usr/bin/
+install -m 0644 sign.conf $RPM_BUILD_ROOT/etc/
+install -m 0755 %{S:20} $RPM_BUILD_ROOT/etc/init.d/signd
+for j in `ls sig*.{5,8}`; do
+  gzip -9 ${j}
+done
+for k in 5 8; do
+  install -m 0644 sig*.${k}.gz $RPM_BUILD_ROOT%{_mandir}/man${k}/
+done
+
+#-------------------------------------------------------------------------------
 %pre
+#-------------------------------------------------------------------------------
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
+#-------------------------------------------------------------------------------
 %preun
+#-------------------------------------------------------------------------------
 for service in obssrcserver obsrepserver obsscheduler obspublisher; do
 %stop_on_removal $service
 done
 
+#-------------------------------------------------------------------------------
 %post -n obs-server
+#-------------------------------------------------------------------------------
 %{fillup_and_insserv -n obs-server}
 for service in obssrcserver obsrepserver obsscheduler obspublisher; do
 %restart_on_update $service
 done
 
+#-------------------------------------------------------------------------------
 %post -n obs-worker
+#-------------------------------------------------------------------------------
 %{fillup_and_insserv -n obs-worker}
 %restart_on_update obsworker
 
+#-------------------------------------------------------------------------------
 %post -n obs-api
+#-------------------------------------------------------------------------------
 touch /srv/www/obs/{webclient,frontend}/log/development.log
 chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 %restart_on_update lighttpd
 
+#-------------------------------------------------------------------------------
 %clean
-rm -rf $RPM_BUILD_ROOT
+#-------------------------------------------------------------------------------
+[ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && %{__rm} -rf $RPM_BUILD_ROOT
 
+#-------------------------------------------------------------------------------
 %files
+#-------------------------------------------------------------------------------
 %defattr(-,root,root)
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
+%config(noreplace) /etc/sign.conf
 /etc/init.d/obsdispatcher
 /etc/init.d/obspublisher
 /etc/init.d/obsrepserver
@@ -203,6 +305,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobsscheduler
 /usr/sbin/rcobssrcserver
 /usr/sbin/obs_mirror_project
+%attr(4750,root,obsrun) /usr/bin/sign
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSEvents.pm
@@ -235,14 +338,21 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/BSHermes.pm
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
+%{_mandir}/man5/*
+%{_mandir}/man8/sign.8.gz
 
+
+#-------------------------------------------------------------------------------
 %files -n obs-worker
+#-------------------------------------------------------------------------------
 %defattr(-,root,root)
 /var/adm/fillup-templates/sysconfig.obs-worker
 /etc/init.d/obsworker
 /usr/sbin/rcobsworker
 
+#-------------------------------------------------------------------------------
 %files -n obs-api
+#-------------------------------------------------------------------------------
 %defattr(-,root,root)
 %doc dist/README.UPDATERS dist/README.SETUP docs/openSUSE.org.xml ReleaseNotes-*
 %dir /srv/www/obs
@@ -284,21 +394,15 @@ rm -rf $RPM_BUILD_ROOT
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
 
+#-------------------------------------------------------------------------------
+%files -n obs-signd
+#-------------------------------------------------------------------------------
+%defattr(-,root,root)
+%config(noreplace) /etc/sign.conf
+/etc/init.d/signd
+/usr/sbin/signd
+%{_mandir}/man5/*
+%{_mandir}/man8/signd.8.gz
+
+#-------------------------------------------------------------------------------
 %changelog -n obs-server
-* Fri Jan 26 2007 - poeml@suse.de
-- implement status/restart in the init scripts
-* Fri Jan 26 2007 - poeml@suse.de
-- added dependency on createrepo
-* Fri Jan 26 2007 - poeml@suse.de
-- update to r1110
-  - revert last change, and do it the ruby way, by creating a new
-  migration for it... so existing installations are upgraded
-  - fix truncated line in sorting algorithm
-  - add missing mkdir
-  - add url to package metadata
-- fix build / install sysconfig files
-- fix copyright headers in init script
-- fix path in README where to copy packages to
-* Thu Jan 25 2007 - poeml@suse.de
-- update to r1108
-  create a few more architectures, when initializing the database

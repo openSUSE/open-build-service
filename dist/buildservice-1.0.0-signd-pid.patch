@@ -1,0 +1,25 @@
+diff -ruN buildservice-1.0.0-orig/src/sign/signd buildservice-1.0.0/src/sign/signd
+--- buildservice-1.0.0-orig/src/sign/signd	2008-07-07 06:02:00.000000000 +0000
++++ buildservice-1.0.0/src/sign/signd	2008-06-25 22:20:08.000000000 +0000
+@@ -217,13 +217,19 @@
+ if ($ARGV[0] eq '-f') {
+   my $pid = fork();
+   die("fork") if  !defined($pid) || $pid < 0;
+-  exit(0) if $pid > 0;
++  #exit(0) if $pid > 0;
++  if ( $pid > 0 ){
++    open(PID, '>/var/run/signd.pid') || die("/var/run/signd.pid: $!\n");
++    print PID "$pid\n";
++    close(PID);
++    exit(0);
++  }
+ }
+ POSIX::setsid();
+ $SIG{'PIPE'} = 'IGNORE'; 
+ $| = 1;
+ my @lt = localtime(time);
+-printf "%04d-%02d-%02d %02d:%02d:%02d: $myname started\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
++#printf "%04d-%02d-%02d %02d:%02d:%02d: $myname started\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
+ 
+ socket(MS , PF_INET, SOCK_STREAM, IPPROTO_TCP) || die "socket: $!\n";
+ setsockopt(MS, SOL_SOCKET, SO_REUSEADDR, pack("l",1));

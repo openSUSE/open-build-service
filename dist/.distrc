@@ -1,11 +1,11 @@
 #!/bin/bash
 
 : ${OSCOPTS:="-A https://api.opensuse.org"}
-: ${PROJECT:=openSUSE:Tools:Unstable}
-: ${PACKAGE:=obs-server-svn}
+: ${PROJECT:=openSUSE:Tools}
+: ${PACKAGE:=obs-server}
 : ${TARGET:=openSUSE_10.2}
 : ${ARCH:=i586}
 : ${SPECFILE:=obs-server.spec}
 # files from $PWD that are not part of the distribution, one on a line
 : ${EXCLUDES:=}
-: ${SVNDIR:=../../buildservice}
+: ${SVNDIR:=../../../../branches/buildservice/1.0}

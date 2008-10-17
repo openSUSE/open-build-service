@@ -1,7 +1,25 @@
 -------------------------------------------------------------------
- - martin.mohring@5etech.eu
+Thu Oct 16 15:22:58 CEST 2008 - froh@novell.com
+
+- add signd
+- update to svn branches/buildservice/1.0 -r5344:
+- webclient-EXTERNAL_FRONTEND_HOST.patch:
+  adds optional EXTERNAL_FRONTEND_HOST config value for situations
+  when FRONTEND_HOST isn't available publicly (ichain setups)
+- webclient-RAILS_GEM_VERSION.patch:
+  enforce the right rails version
+- use cleaned ups spec file from openSUSE:Tools:Unstable
+- fix previous changelog entry
+-------------------------------------------------------------------
+Wed Jun 11 12:42:39 CEST 2008 - martin.mohring@5etech.eu
 
 - update to svn trunc -r 4094
+- heading toward OBS 1.0
+- fixed requires again
+- dont copy doc files, they are packaged already in .tar.bz2
+- put all docu files in obs-api package
+- some %pre / %post alignments
+- schemata and doc now mentioned in config
 - includes hermes fixes in config and the worker
 -------------------------------------------------------------------
 Tue Jun  3 19:48:07 CEST 2008 - martin.mohring@5etech.eu
