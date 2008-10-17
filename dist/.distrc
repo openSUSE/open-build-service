@@ -1,11 +1,27 @@
 #!/bin/bash
 
+# options to all osc commands
 : ${OSCOPTS:="-A https://api.opensuse.org"}
+# the project in question
 : ${PROJECT:=openSUSE:Tools}
 : ${PACKAGE:=obs-server}
-: ${TARGET:=openSUSE_10.2}
-: ${ARCH:=i586}
+# this is the specfile to test-build locally:
 : ${SPECFILE:=obs-server.spec}
+: ${TARGET:=openSUSE_11.0}
+: ${ARCH:=i586}
 # files from $PWD that are not part of the distribution, one on a line
-: ${EXCLUDES:=}
+# There is a second list, $CANONICAL_EXCLUDES, of files which usually
+# never are part of the package (.svn, the .distrc, ..), see the
+# 'distribute' script for details.
+#
+# these are now taken from the tar ball, makes the spec file more
+# readable:
+: ${EXCLUDES:=README.SETUP README.UPDATERS}
+# this package is in maintenance mode.
+# that means the tar ball isn't udpated any longer, only patches will be added.
+: ${MAINTENANCE:=true}
+# as this branch is in maintenance mode, this is merely for
+# documentation purposes.  actually this setting here is even la sweet
+# little lie, because the tarball (buildservice-1.0.tbz) was created
+# manually by another maintainer ;)
 : ${SVNDIR:=../../../../branches/buildservice/1.0}
