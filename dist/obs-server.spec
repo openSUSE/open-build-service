@@ -15,9 +15,9 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.0.1
+Version:        1.0.0
 
-Release:        0
+Release:        1
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://en.opensuse.org/Build_Service
