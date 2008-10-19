@@ -378,7 +378,7 @@ sub useToPackages( $$ )
     
     my @packages;
 
-    if ($medium->{use_undecided} eq "true" ) {
+    if (defined($medium->{use_undecided}) && $medium->{use_undecided} eq "true" ) {
        # Simply take all packages ?
        push @packages, { name => "*" };
        return \@packages;
