@@ -206,7 +206,7 @@ our $productdesc = [
                'use_suggested',
                'use_required',
                'create_pattern',
-               [[ 'package' => 'name', 'relationship' ]],
+               [[ 'package' => 'name', 'medium', 'relationship' ]],
                [[ 'include' => 'group', 'relationship' ]],
             ]],
             [ 'metadata' =>

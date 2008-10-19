@@ -419,8 +419,12 @@ sub useToPackages( $$ )
 		    if( ( $useRequired    && $addPack->{relationship} eq "requires") ||
 			( $useRecommended && $addPack->{relationship} eq "recommends" ) ||
 			( $useSuggested   && $addPack->{relationship} eq "suggests" ) ) {
-			
-			push @packages, { name => $addPack->{name} };
+		
+			if ( defined($addPack->{medium}) ) {	
+			  push @packages, { name => $addPack->{name}, medium => $addPack->{medium} };
+                        } else { 
+			  push @packages, { name => $addPack->{name} };
+                        }
 		    }
 		}
 	    }
