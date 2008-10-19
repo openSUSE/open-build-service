@@ -2003,6 +2003,11 @@ sub rebuildkiwiproduct {
     }} @{$info->{'extrasource'}};
   }
 
+  # find the last build count we used for this version/release
+  mkdir_p("$reporoot/$prp/$myarch/$packid");
+  my $h = BSFileDB::fdb_getmatch("$reporoot/$prp/$myarch/$packid/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
+  $h = {'bcnt' => 0} unless $h;
+
   my $binfo = {
     'project' => $projid,
     'repository' => $repoid,
@@ -2013,6 +2018,8 @@ sub rebuildkiwiproduct {
     'verifymd5' => $pdata->{'verifymd5'} || $srcmd5,
     'rev' => $pdata->{'rev'},
     'file' => $info->{'file'},
+    'versrel' => $pdata->{'versrel'},
+    'bcnt' => $h->{'bcnt'} + 1,
     'bdep' => \@bdeps,
     'path' => [{'project' => $projid, 'repository' => $repoid, 'server' => $BSConfig::reposerver}],
   };
