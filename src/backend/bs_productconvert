@@ -780,62 +780,64 @@ foreach my $medium ( @$media ){
     next if( $opt_m && $name ne $opt_m );
 
     # create one kiwi file each for every of the archsets
-    my @archSets = @{$medium->{archsets}};
-    foreach my $arch ( @archSets ) {
-        my $buildflags;
-        my @archs;
-        $buildflags->{'disable'} = [{}]; # disabled by default
- 
-	my $kiwi = \%generalImage;
-
-	$kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
-	$kiwi->{repository} = createRepository ( $prodRef );
-
-	my $archStr;
-	my @archsets = @{$arch->{archset}};
-	foreach my $ar ( @archsets ) {
-	    if( $archSets{$ar->{'ref'}} ) {
-		my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
-		$archStr .= "_" if $archStr;
-		$archStr .= "$architecture";
-                # enable this architecture in scheduler
-                # FIXME: the scheduler arch may have a different name than the rpm archs !
-                push @archs, { 'arch' => $architecture };
-                # Heuristic: we need to make this configurable at a more central place
-                push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
-                push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
-                push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
-                push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
-	    }
-	}
-        $buildflags->{'enable'} = \@archs;
-
-	my $file = "$product-$type-$flavor-$archStr";
-        die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
-        die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
-
-	my $pkgName = "_product:$file";
-	my $kiwiDir = "$outdir/$pkgName/";
-	my $outFile = "$kiwiDir/$file.kiwi";
-	my $metaFile = "$kiwiDir/_meta";
-
-	mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
-	writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
-	print "$outFile written.\n";
-
-        # Create meta file to enable it only for needed architectures
-        if ( $project ) {
-	  my $pkgmeta;
-	  $pkgmeta->{'name'} = $pkgName;
-	  $pkgmeta->{'project'} = $project;
-	  $pkgmeta->{'title'} = "KIWI image build" ;
-	  $pkgmeta->{'description'} = "Automatically generate from _product" ;
-	  $pkgmeta->{'build'} = $buildflags;
-	  writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
-	  print "metafile written.\n";
-        } else {
-	  print "metafile SKIPPED ! (need project name argument for it)\n";
-        }
+    if ( defined(@{$medium->{archsets}}) ) {
+      my @archSets = @{$medium->{archsets}};
+      foreach my $arch ( @archSets ) {
+          my $buildflags;
+          my @archs;
+          $buildflags->{'disable'} = [{}]; # disabled by default
+      
+          my $kiwi = \%generalImage;
+      
+          $kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
+          $kiwi->{repository} = createRepository ( $prodRef );
+      
+          my $archStr;
+          my @archsets = @{$arch->{archset}};
+          foreach my $ar ( @archsets ) {
+              if( $archSets{$ar->{'ref'}} ) {
+          	my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
+          	$archStr .= "_" if $archStr;
+          	$archStr .= "$architecture";
+                  # enable this architecture in scheduler
+                  # FIXME: the scheduler arch may have a different name than the rpm archs !
+                  push @archs, { 'arch' => $architecture };
+                  # Heuristic: we need to make this configurable at a more central place
+                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
+                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
+                  push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
+                  push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
+              }
+          }
+          $buildflags->{'enable'} = \@archs;
+      
+          my $file = "$product-$type-$flavor-$archStr";
+          die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
+          die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
+      
+          my $pkgName = "_product:$file";
+          my $kiwiDir = "$outdir/$pkgName/";
+          my $outFile = "$kiwiDir/$file.kiwi";
+          my $metaFile = "$kiwiDir/_meta";
+      
+          mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
+          writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
+          print "$outFile written.\n";
+      
+          # Create meta file to enable it only for needed architectures
+          if ( $project ) {
+            my $pkgmeta;
+            $pkgmeta->{'name'} = $pkgName;
+            $pkgmeta->{'project'} = $project;
+            $pkgmeta->{'title'} = "KIWI image build" ;
+            $pkgmeta->{'description'} = "Automatically generate from _product" ;
+            $pkgmeta->{'build'} = $buildflags;
+            writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
+            print "metafile written.\n";
+          } else {
+            print "metafile SKIPPED ! (need project name argument for it)\n";
+          }
+      }
     }
 }
 
