@@ -812,6 +812,7 @@ foreach my $medium ( @$media ){
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
                   push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
+                  push @archs, { 'arch' => 'ppc64' } if ( $architecture eq "ppc" ); # ppc is using ppc64 stuff in openSUSE
                   push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
               }
           }
