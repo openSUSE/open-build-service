@@ -1,7 +1,7 @@
 -------------------------------------------------------------------
 Thu Oct 16 15:22:58 CEST 2008 - froh@novell.com
 
-* update to svn branches/buildservice/1.0 -r5344:
+update to svn branches/buildservice/1.0 -r5344:
 - add signd
 - webclient-EXTERNAL_FRONTEND_HOST.patch:
   adds optional EXTERNAL_FRONTEND_HOST config value for situations
@@ -11,6 +11,7 @@ Thu Oct 16 15:22:58 CEST 2008 - froh@novell.com
 - use cleaned up spec file from openSUSE:Tools:Unstable
 - make the download server setup in obs.conf a knowing decision,
   instead a secret default
+- satisfy rpmlint so it only warns and no longer fails
 - fix previous changelog entry
 -------------------------------------------------------------------
 Wed Jun 11 12:42:39 CEST 2008 - martin.mohring@5etech.eu

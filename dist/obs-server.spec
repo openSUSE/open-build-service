@@ -40,10 +40,13 @@ Patch1:         buildservice-1.0.0-sign_conf.patch
 Patch2:         buildservice-1.0.0-BSConfig_sign.patch
 Patch3:         webclient-EXTERNAL_FRONTEND_HOST.patch
 Patch4:         webclient-RAILS_GEM_VERSION.patch
-BuildArch:      noarch
 Autoreqprov:    on
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  rubygem-builder python-devel
+
+%if 0%{?suse_version} >= 1030
+BuildRequires:  fdupes
+%endif
 
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
@@ -155,6 +158,9 @@ It needs a gpg implementation that understands the
 cd docs/api/frontend
 make apidocs
 cd -
+#
+# make sign binary
+#
 cd src/sign
 gcc -o sign sign.c
 cd -
@@ -232,6 +238,13 @@ mkdir -p $FILLUP_DIR
 cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
 
 #
+# turn duplicates into hard links
+#
+#%fdupes $RPM_BUILD_ROOT/srv/www/obs/frontend
+#%fdupes $RPM_BUILD_ROOT/srv/www/obs/webclient
+# There's dupes between webclient and frontend:
+%fdupes $RPM_BUILD_ROOT/srv/www/obs
+#
 # Install sign stuff
 #
 cd ../sign/
@@ -285,7 +298,7 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 #-------------------------------------------------------------------------------
 %clean
 #-------------------------------------------------------------------------------
-[ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && %{__rm} -rf $RPM_BUILD_ROOT
+#[ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && %{__rm} -rf $RPM_BUILD_ROOT
 
 #-------------------------------------------------------------------------------
 %files
@@ -384,8 +397,39 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 /srv/www/obs/webclient/script
 /srv/www/obs/webclient/test
 /srv/www/obs/webclient/vendor
-%config(noreplace) /srv/www/obs/frontend/config
-%config(noreplace) /srv/www/obs/webclient/config
+#
+# some files below config actually are _not_ config files
+# so here we go, file by file
+#
+/srv/www/obs/frontend/config/boot.rb
+/srv/www/obs/frontend/config/routes.rb
+/srv/www/obs/frontend/config/environments/development.rb
+
+%config(noreplace) /srv/www/obs/frontend/config/database.yml
+%config(noreplace) /srv/www/obs/frontend/config/environment.rb
+%config(noreplace) /srv/www/obs/frontend/config/deploy.rb.template
+%config(noreplace) /srv/www/obs/frontend/config/lighttpd.conf
+%config(noreplace) /srv/www/obs/frontend/config/environments/production_slave.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/development.L12.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/production.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/test.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/stage.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/development_base.rb
+%config(noreplace) /srv/www/obs/frontend/config/active_rbac_config.rb
+
+/srv/www/obs/webclient/config/routes.rb
+/srv/www/obs/webclient/config/environments/development.rb
+
+%config(noreplace) /srv/www/obs/webclient/config/database.yml
+%config(noreplace) /srv/www/obs/webclient/config/boot.rb
+%config(noreplace) /srv/www/obs/webclient/config/environment.rb
+%config(noreplace) /srv/www/obs/webclient/config/deploy.rb.template
+%config(noreplace) /srv/www/obs/webclient/config/environments/production_slave.rb
+%config(noreplace) /srv/www/obs/webclient/config/environments/production.rb
+%config(noreplace) /srv/www/obs/webclient/config/environments/test.rb
+%config(noreplace) /srv/www/obs/webclient/config/environments/stage.rb
+%config(noreplace) /srv/www/obs/webclient/config/environments/development_base.rb
+
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/tmp
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
