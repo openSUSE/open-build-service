@@ -102,4 +102,50 @@ class BuildController < ApplicationController
     return unless extract_user
     pass_to_source
   end
+
+  # /build/:project/:repository/:arch/:package/:filename
+  def file
+    valid_http_methods :get
+    path = request.path+"?"+request.query_string
+
+    #check if binary exists and for size
+    fpath = "/build/"+[:project,:repository,:arch,:package].map {|x| params[x]}.join("/")+request.query_string
+    file_list = Suse::Backend.get(fpath)
+    regexp = file_list.body.match(/entry.*?name=["']#{Regexp.quote params[:filename]}["'].*size=["']([^"']*)["']/)
+    if regexp
+      fsize = regexp[1]
+      logger.info "streaming #{path}"
+
+      c_type = case params[:filename].split(/\./)[-1]
+               when rpm
+                 "application/x-rpm"
+               when deb
+                 "application/x-deb"
+               when iso
+                 "application/x-cd-image"
+               else
+                 "application/octet-stream"
+               end
+
+      headers.update(
+        'Content-Disposition' => %(attachment; filename="#{file}"),
+        'Content-Type' => c_type,
+        'Transfer-Encoding' => 'binary',
+        'Content-Length' => fsize
+      )
+      
+      render :status => 200, :text => Proc.new {|request,output|
+        backend_request = Net::HTTP::Get.new(path)
+        response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
+          http.request(backend_request) do |response|
+            response.read_body do |chunk|
+              output.write(chunk)
+            end
+          end
+        end
+      }
+    else
+      forward_data path
+    end
+  end
 end
