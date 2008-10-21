@@ -328,10 +328,11 @@ sub getbinarylist {
   }
   die("unsupported view '$view'\n") if $view;
   my @res;
-  my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'history'} ls("$reporoot/$prp/$arch/$packid");
   for (sort @bins) {
     my @s = stat("$reporoot/$prp/$arch/$packid/$_");
     next unless @s;
+    next if -d _;
     push @res, {'filename' => $_, 'size' => $s[7], 'mtime' => $s[9]};
   }
   return ({'binary' => \@res}, $BSXML::binarylist);
@@ -872,14 +873,12 @@ sub getresult {
       push @{$sl->{'status'}}, $s;
       if ($cgi->{'withbinarylist'}) {
 	my @b;
-	if (opendir(D, "$reporoot/$prpa/$packid")) {
-	  @b = grep {/\.(?:rpm|deb)$/} readdir(D);
-	  closedir D;
-	}
-	for (@b) {
+	for (sort(ls("$reporoot/$prpa/$packid"))) {
+	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'history';
 	  my @s = stat("$reporoot/$prpa/$packid/$_");
-	  $_ = {'filename' => $_};
-	  $_->{'mtime'} = $s[9] if @s;
+	  next unless @s;
+	  next if -d _;
+	  push @b, {'filename' => $_, 'mtime' => $s[9], 'size' => $s[7]};
 	}
 	my $bl = {'package' => $packid, 'binary' => \@b};
 	push @{$sl->{'binarylist'}}, $bl;
