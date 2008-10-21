@@ -262,10 +262,10 @@ sub createProductOptions($$$)
     $varsH{VENDOR} = $product->{'vendor'};
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
-    $varsH{FLAVOUR} = $medium->{'flavor'};
+    $varsH{FLAVOR} = $medium->{'flavor'};
     $varsH{RELEASE} = "0";
     $varsH{PRODUCT_DIR} = "/";
-    $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOUR';
+    $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
     $varsH{PRODUCT_VERSION} = '$VERSION';
 
     my @vars;
