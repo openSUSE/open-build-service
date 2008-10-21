@@ -683,6 +683,11 @@ sub publish {
   $prp_ext =~ s/:/:\//g;
   my $extrep = "$extrepodir/$prp_ext";
 
+  if ($BSConfig::publishredirect && exists($BSConfig::publishredirect->{$prp})) {
+    $extrep = $BSConfig::publishredirect->{$prp};
+    $prp_ext = undef;
+  }
+  
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
   my @archs = @{$repo->{'arch'} || []};
@@ -698,7 +703,7 @@ sub publish {
     }
     $repoinfo->{'binaryorigins'} ||= {};
     for my $bin (sort(ls($r))) {
-      next unless $bin =~ /\.(?:rpm|deb)$/;
+      #next unless $bin =~ /\.(?:rpm|deb)$/;
       my $p;
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm$/) {
 	$p = "$1/$bin";
@@ -716,8 +721,15 @@ sub publish {
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
 	$p .= "_$q->{'arch'}.deb";
       } else {
-	next;
+	if ($bin =~ /\.iso$/) {
+	  $p = "iso/$bin";
+	} elsif (-d "$r/$bin") {
+	  $p = "repo/$bin";
+	} else {
+	  next;
+	}
       }
+      next unless defined $p;
       # next if $bins{$p}; # first arch wins
       my @s = stat("$reporoot/$prp/$arch/:repo/$bin");
       next unless @s;
@@ -734,8 +746,9 @@ sub publish {
 
   # now update external repository
   my $changed = 0;
-  my @changed;
-  my @deleted;
+
+  my @changed;	# for published db update
+  my @deleted;	# for published db update
 
   my %bins_done;
   for my $arch (sort(ls($extrep))) {
@@ -745,21 +758,46 @@ sub publish {
     next unless -d $r;
     for my $bin (sort(ls($r))) {
       my $p = "$arch/$bin";
+      my @s = lstat("$r/$bin");
+      die("$r/$bin: $!\n") unless @s;
       if (!exists($bins{$p})) {
 	print "      - $p\n";
-	unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
-	push @deleted, $p;
+	if (-d _) {
+	  BSUtil::cleandir("$r/$bin");
+	  rmdir("$r/$bin") || die("rmdir $r/$bin: $!\n");
+	} else {
+	  unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+	}
+	push @deleted, $p if $p =~ /\.(?:rpm|deb)$/;
         $changed = 1;
 	next;
       }
-      my @s = stat("$r/$bin");
-      die("$r/$bin: $!\n") unless @s;
       if ("$s[9]/$s[7]/$s[1]" ne $bins_id{$p}) {
         # changed, link over
-	print "      ! $p\n";
-	unlink("$r/$bin");
-        link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
-	push @changed, $p;
+	if (-d _) {
+	  if (! -l $bins{$p} && -d _) {
+	    # both are directories, compare info
+	    # should MIX instead?
+	    my $info1 = BSUtil::treeinfo($bins{$p});
+	    my $info2 = BSUtil::treeinfo("$r/$bin");
+	    if (join(',', @$info1) eq join(',', @$info2)) {
+	      $bins_done{$p} = 1;
+	      next;
+	    }
+	  }
+	  print "      ! $p\n";
+	  BSUtil::cleandir("$r/$bin");
+	  rmdir("$r/$bin") || die("rmdir $r/$bin: $!\n");
+	} else {
+	  print "      ! $p\n";
+	  unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+	}
+	if (! -l $bins{$p} && -d _) {
+	  BSUtil::linktree($bins{$p}, "$r/$bin");
+	} else {
+          link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+	}
+	push @changed, $p if $p =~ /\.(?:rpm|deb)$/;
         $changed = 1;
       }
       $bins_done{$p} = 1;
@@ -772,8 +810,12 @@ sub publish {
     my $r = "$extrep/$arch";
     mkdir_p($r) unless -d $r;
     print "      + $p\n";
-    link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
-    push @changed, $p;
+    if (! -l $bins{$p} && -d _) {
+      BSUtil::linktree($bins{$p}, "$r/$bin");
+    } else {
+      link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+    }
+    push @changed, $p if $p =~ /\.(?:rpm|deb)$/;
     $changed = 1;
   }
 
@@ -846,10 +888,10 @@ sub publish {
 
   # put in published database
   my $binarydb = db_open('binary');
-  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ], [ map {"$prp_ext/$_"} @changed ]) if $binarydb;
+  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ], [ map {"$prp_ext/$_"} @changed ]) if $binarydb && defined($prp_ext);
 
   # mark file origins so we can gather per package statistics
-  if ($BSConfig::markfileorigins) {
+  if ($BSConfig::markfileorigins && defined($prp_ext)) {
     print "    marking file origins\n";
     for my $f (sort @changed) {
       my $origin = $binaryorigins->{$f};
@@ -939,21 +981,23 @@ publishprog_done:
   }
 
   # push to stageserver
-  if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
+  if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/ && defined($prp_ext)) {
     print "    running rsync to $1\n";
     # sync project repos, timeout 1 hour
     qsystem('echo', "$prp_ext\0", 'rsync', '-arH0', '--delete', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed: $?\n");
   }
 
   # push done trigger to stageserver so that it can send it to the world
-  mkdir_p($extrepodir_sync);
-  my $projid_ext = $projid;
-  $projid_ext =~ s/:/:\//g;
-  writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
-  if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-    print "    running trigger rsync to $1\n";
-    # small sync, timeout 1 minute
-    qsystem('rsync', '-aH', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed: $?\n");
+  if (defined($prp_ext)) {
+    mkdir_p($extrepodir_sync);
+    my $projid_ext = $projid;
+    $projid_ext =~ s/:/:\//g;
+    writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
+    if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
+      print "    running trigger rsync to $1\n";
+      # small sync, timeout 1 minute
+      qsystem('rsync', '-aH', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed: $?\n");
+    }
   }
   
   # all done. till next time...
