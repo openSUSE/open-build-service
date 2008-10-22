@@ -582,7 +582,10 @@ sub set_building {
 
   # find the last build count we used for this version/release
   mkdir_p("$reporoot/$prp/$myarch/$packid");
-  my $h = BSFileDB::fdb_getmatch("$reporoot/$prp/$myarch/$packid/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
+  my $h;
+  if (-e "$reporoot/$prp/$myarch/$packid/history") {
+    $h = BSFileDB::fdb_getmatch("$reporoot/$prp/$myarch/$packid/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
+  }
   $h = {'bcnt' => 0} unless $h;
 
   # kill those ancient other jobs
@@ -809,7 +812,7 @@ sub prpfinished {
 	}
         print "      ! :repo/$bin ($packid)\n";
 	if ($risdir) {
-	  BSUtil::cleandie("$rdir/$bin");
+	  BSUtil::cleandir("$rdir/$bin");
           rmdir("$rdir/$bin");
 	} else {
           unlink("$rdir/$bin");
