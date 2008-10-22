@@ -3,6 +3,14 @@ class Package < ActiveXML::Base
     @init_options[:project]
   end
 
+  def name=(new_name)
+    data.attributes["name"] = new_name.to_s
+  end
+
+  def project=(new_project)
+    data.attributes["project"] = new_project.to_s
+  end
+
   def parent_project
     Project.find parent_project_name
   end
@@ -29,6 +37,19 @@ class Package < ActiveXML::Base
     merge_data elem_cache
   end
 
+  def remove_all_persons
+    data.each_element("person") do |e|
+      data.delete_element e
+    end
+  end
+
+  def remove_all_flags
+    %w(build publish debuginfo useforbuild).each do |flag|
+      data.each_element(flag) do |e|
+        data.delete_element e
+      end
+    end
+  end
 
   def update_timestamp
     # save will call DbPackage.store_axml() through ActiveXML::Transport.save()
