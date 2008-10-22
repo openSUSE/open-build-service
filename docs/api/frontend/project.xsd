@@ -75,8 +75,14 @@
 
   <xs:simpleType name="buildarchitectures">
     <xs:restriction base="xs:string">
+      <xs:enumeration value="local"/>
       <xs:enumeration value="i586"/>
       <xs:enumeration value="x86_64"/>
+      <xs:enumeration value="ppc"/>
+      <xs:enumeration value="ppc64"/>
+      <xs:enumeration value="ia64"/>
+      <xs:enumeration value="s390"/>
+      <xs:enumeration value="s390x"/>
     </xs:restriction>
   </xs:simpleType>
 
