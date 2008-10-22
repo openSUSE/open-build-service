@@ -1,4 +1,4 @@
-class AddArchs  < ActiveRecord::Migration
+class AddLocalArch  < ActiveRecord::Migration
 
 
   def self.up
