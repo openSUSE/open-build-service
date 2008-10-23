@@ -1,0 +1,576 @@
+#!/usr/bin/perl
+
+BEGIN {
+  unshift @INC,  "build";
+}
+
+use Fcntl qw(:DEFAULT :flock);
+
+use XML::Structured ':bytes';
+use BSXML;
+use BSRPC;
+use BSKiwiXML;
+use BSUtil;
+use BSConfig;
+use BSServer;
+use Build;
+use Data::Dumper;
+
+use strict;
+
+my $user = $BSConfig::bsuser;
+my $group = $BSConfig::bsgroup;
+
+!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
+!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+if (defined $group) {
+  ($(, $)) = ($group, $group);
+  die "setgid: $!\n" if ($) != $group);
+}
+if (defined $user) {
+  ($<, $>) = ($user, $user); 
+  die "setuid: $!\n" if ($> != $user); 
+}
+
+my $srcserver;
+my $workerid;
+my $statedir;
+my $justbuild;
+my $buildroot;
+my $hostarch;
+my $port;
+my $myip;
+my @reposervers;
+my $testmode;
+
+my $jobid;
+my $buildinfo;
+
+# not much to see here, create repos, run kiwi
+
+my $buildarea = "$BSConfig::bsdir/kiwi/area";
+my $reporoot = "$BSConfig::bsdir/build";
+my $jobsdir = "$BSConfig::bsdir/jobs";
+my $workersdir = "$BSConfig::bsdir/workers";
+
+sub getbinaries_kiwiproduct {
+  my ($buildinfo, $dir) = @_;
+  # create list of prpaps
+  my %prpaps;
+  my %collected;
+  my %collected_meta;
+  for my $dep (@{$buildinfo->{'bdep'} || []}) {
+    next unless $dep->{'package'};
+    my $repoarch = $dep->{'repoarch'} || $buildinfo->{'arch'};
+    next if $repoarch eq 'src';
+    $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
+  }
+  my %meta;
+  for my $prpap (sort keys %prpaps) {
+    my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
+    my $ddir = $dir;
+    my $prpdir = "$projid/$repoid";
+    $prpdir =~ s/:/:\//g;
+    $ddir .= "/$prpdir";
+    mkdir_p($ddir);
+    for my $name (sort(grep {/\.rpm$/} ls("$reporoot/$prpap"))) {
+      next unless $name =~ /^(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+      my ($n, $arch) = ($1, $2);
+      mkdir_p("$ddir/$arch");
+      unlink("$ddir/$arch/$name");
+      link("$reporoot/$prpap/$name", "$ddir/$arch/$name") || warn("link $reporoot/$prpap/$name $ddir/$arch/$name: $!\n");
+      my $id = Build::queryhdrmd5("$ddir/$arch/$name") || "deaddeaddeaddeaddeaddeaddeaddead";
+      $meta{"$prpap/$n.$arch"} = $id;
+      $collected{"$prpap/$name"} = "$ddir/$arch/$name";
+      $collected_meta{"$prpap/$name"} = "$prpap/$n.$arch";
+    }
+  }
+  # create meta;
+  my @meta;
+  for (sort keys %meta) {
+    push @meta, "$meta{$_}  $_";
+  }
+  return @meta;
+}
+
+sub getsources {
+  my ($buildinfo, $dir) = @_;
+
+  my @meta;
+  push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
+  my $repo = $buildinfo->{'path'}->[0];
+  my $projid = $repo->{'project'};
+  my $res = BSRPC::rpc({
+    uri => "$srcserver/getsources",
+    directory => $dir,
+    withmd5 => 1,
+    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+  }, undef, "project=$projid", "package=$buildinfo->{'package'}", "srcmd5=$buildinfo->{'srcmd5'}");
+  die("Error\n") unless ref($res) eq 'ARRAY';
+  if (-e "$dir/.errors") {
+    my $errors = readstr("$dir/.errors", 1);
+    die("getsources: $errors");
+  }
+  # verify sources
+  my %res = map {$_->{'name'} => $_} @$res;
+  my $md5 = '';
+  my @f = ls($dir);
+  for my $f (sort @f) {
+    die("unexpected file: $f") unless $res{$f};
+    $md5 .= "$res{$f}->{'md5'}  $f\n";
+  }
+  $md5 = Digest::MD5::md5_hex($md5);
+  die("source verification fails: $md5 != $buildinfo->{'verifymd5'}\n") if $md5 ne $buildinfo->{'verifymd5'};
+
+  return unless $buildinfo->{'file'} =~ /\.kiwi$/;
+
+  # get additional kiwi sources
+  my @sdep = grep {($_->{'repoarch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
+  for my $src (@sdep) {
+    print "$src->{'name'}, ";
+    my $idir = "$dir/images/$src->{'project'}/$src->{'package'}";
+    mkdir_p("$idir/root") || die("mkdir_p $idir/root: $!\n");
+    my $res = BSRPC::rpc({
+      uri => "$srcserver/getsources",
+      directory => $idir,
+      withmd5 => 1,
+      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    }, undef, "project=$src->{'project'}", "package=$src->{'package'}", "srcmd5=$src->{'srcmd5'}");
+    die("Error\n") unless ref($res) eq 'ARRAY';
+    if (-e "$idir/.errors") {
+      my $errors = readstr("$idir/.errors", 1);
+      die("getsources: $errors");
+    }
+    push @meta, "$src->{'srcmd5'}  $src->{'project'}/$src->{'package'}";
+  }
+  return @meta;
+}
+
+
+sub dobuild {
+  my ($buildinfo) = @_;
+  my $job = $buildinfo->{'job'};
+
+  if (-d $buildroot && ls($buildroot)) {
+    print "deleting old tree...\n";
+    system('rm', '-rf', $buildroot);
+  }
+  mkdir_p($buildroot);
+  my $srcdir = "$buildroot";
+  my $pkgdir = "$srcdir/repos";
+
+  my @meta;
+  print "fetching sources...\n";
+  mkdir_p($srcdir);
+  push @meta, getsources($buildinfo, $srcdir);
+  print "fetching packages...\n";
+  push @meta, getbinaries_kiwiproduct($buildinfo, $pkgdir);
+  writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
+  mkdir("$buildroot/config");
+  my $kiwi = readxml("$srcdir/$buildinfo->{'file'}", $BSKiwiXML::kiwidesc);
+  die("no instsource section in kiwi file\n") unless $kiwi->{'instsource'};
+  #
+  # test... test...
+  #if (!$kiwi->{'instsource'}->{'repopackages'}) {
+  #  $kiwi->{'instsource'}->{'repopackages'} = [{
+  #    'repopackage' => [{'name' => '*'}],
+  #  }];
+  #}
+
+  my %media;
+  my $mediumbase;
+  my @vars;
+  my $ftp_only="false";
+  for my $productinfo (@{$kiwi->{'instsource'}->{'productoptions'}->{'productinfo'} || []}) {
+    # kind of a hack, do not create medias for ftp only releases !
+    if ( $productinfo->{'name'} eq 'FLAVOR' ) {
+      $ftp_only="true" if ( $productinfo->{'_content'} eq 'ftp' );
+    }
+  }
+  for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
+    if ($productvar->{'name'} eq 'MEDIUM_NAME') {
+      $mediumbase = $productvar->{'_content'} if $productvar->{'name'} eq 'MEDIUM_NAME';
+      # Extend medium name with build number
+      my $bcnt = 0;
+      if ( defined($buildinfo->{'bcnt'}) ) { # temporary needed for old scheduler
+         $bcnt = $buildinfo->{'bcnt'};
+      };
+      $mediumbase .= sprintf("-Build%04d-Media", $bcnt);
+      push @vars, { name => 'MEDIUM_NAME', _content => $mediumbase };
+    }else{
+      push @vars, { name => $productvar->{'name'}, _content => $productvar->{'_content'} };
+    }
+  }
+  die("no MEDIUM_NAME set\n") unless defined $mediumbase;
+  $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
+
+  my $srcmedium;
+  for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productoption'} || []}) {
+    $srcmedium = $productvar->{'_content'} if $productvar->{'name'} eq 'SOURCEMEDIUM';
+  }
+  $media{$srcmedium} = 1 if defined $srcmedium;
+  for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
+    for my $repopackage (@{$repopackages->{'repopackage'} || []}) {
+      $media{$repopackage->{'medium'}} = 1 if defined $repopackage->{'medium'};
+    }
+  }
+  if ($kiwi->{'instsource'}->{'metadata'}) {
+    for my $repopackage (@{$kiwi->{'instsource'}->{'metadata'}->{'repopackage'} || []}) {
+      $media{$repopackage->{'medium'}} = 1 if defined $repopackage->{'medium'};
+    }
+  }
+  delete $media{''};
+  delete $media{'0'};	# meta packages only
+# ADRIAN: No idea what this is for, but it works better without ;)
+#  my @media = sort {$a <=> $b} keys %media;
+#print Dumper( @media );
+#print "next\n";
+  my @media = keys %media;
+  @media = ('1') unless @media;
+  @media = map {"$mediumbase$_"} @media;
+  # fix kiwi!
+  @media = $mediumbase if (defined($srcmedium) && $srcmedium eq '1' );
+  print "expected media: @media\n";
+
+  #
+  for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
+    next unless grep {$_->{'name'} eq '*'} @{$repopackages->{'repopackage'} || []};
+    # hey, a substitute all modifier!
+    my @rp;
+    my %allpkgs;
+    for my $m (@meta) {
+      # md5  proj/rep/arch/pack/bin.arch
+      my @s = split('/', $m);
+      next unless $s[-1] =~ /^(.*)\.([^\.]*)$/;
+      next if $2 eq 'src' || $2 eq 'nosrc';
+      $allpkgs{$1} ||= {};
+      $allpkgs{$1}->{$2} = 1;
+    }
+    for my $rp (@{$repopackages->{'repopackage'} || []}) {
+      if ($rp->{'name'} ne '*') {
+	push @rp, $rp;
+	next;
+      }
+      for my $pkg (sort keys %allpkgs) {
+	push @rp, {'name' => $pkg, 'addarch' => join(',', sort keys %{$allpkgs{$pkg}})};
+      }
+    }
+    $repopackages->{'repopackage'} = \@rp;
+  }
+
+  writexml("$buildroot/config/config.xml", undef, $kiwi, $BSKiwiXML::kiwidesc);
+
+  print "running kiwi...\n";
+  $ENV{'PATH'} = "$BSConfig::bsdir/kiwi/prgs:$ENV{'PATH'}";
+  my $kiwiprg = '/usr/sbin/kiwi';
+  $kiwiprg = 'kiwitee';
+  if (system($kiwiprg, '--root', "$buildroot/root", '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
+    die("kiwi failed: $?\n");
+  }
+
+  my @result;
+  my $outdir = "$buildroot/root/main";
+  die("no output directory created\n") unless -d $outdir;
+  print "creating ISOs\n";
+  for my $medium (@media) {
+    if (! -d "$outdir/$medium") {
+      print "WARNING: $medium was not created in $outdir\n";
+      next;
+    }
+    push @result, $medium;
+    next if ( $ftp_only eq "true" );
+    if (system("/usr/share/kiwi/image/isoboot/suse-isolinux $outdir/$medium $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
+      print "WARNING: suse-isolinux failed: $?\n";
+      next;
+    }
+    if (! -s "$outdir/$medium.iso") {
+      print "WARNING: suse-isolinux dir not create iso\n";
+      next;
+    }
+    push @result, "$medium.iso";
+  }
+  return \@result;
+}
+
+$| = 1;
+
+$srcserver = $BSConfig::srcserver unless defined $srcserver;
+
+sub lockstate {
+  while (1) {
+    open(STATELOCK, '>>', "$statedir/state") || die("$statedir/state: $!\n");
+    flock(STATELOCK, LOCK_EX) || die("flock $statedir/state: $!\n");
+    my @s = stat(STATELOCK);
+    last if $s[3];      # check nlink
+    close(STATELOCK);   # race, try again
+  }
+  my $oldstate = readxml("$statedir/state", $BSXML::workerstate, 1);
+  $oldstate = {} unless $oldstate;
+  return $oldstate;
+}
+
+sub unlockstate {
+  close(STATELOCK);
+}
+
+sub commitstate {
+  my ($newstate) = @_;
+  writexml("$statedir/state.new", "$statedir/state", $newstate, $BSXML::workerstate) if $newstate;
+  close(STATELOCK);
+}
+
+sub stream_logfile {
+  my ($nostream, $start, $end) = @_;
+  open(F, "<$buildroot/.build.log") || die("$buildroot/.build.log: $!\n");
+  my @s = stat(F);
+  $start ||= 0;
+  if (defined($end)) {
+    $end -= $start;
+    die("end is smaller than start\n") if $end < 0;
+  }
+  die("Logfile is not that big\n") if $s[7] < $start;
+  defined(sysseek(F, $start, 0)) || die("sysseek: $!\n");
+
+  BSServer::reply(undef, 'Content-Type: application/octet-stream', 'Transfer-Encoding: chunked');
+  my $pos = $start;
+  while(!defined($end) || $end) {
+    @s = stat(F);
+    if ($s[7] <= $pos) {
+      last if !$s[3];
+      select(undef, undef, undef, .5);
+      next;
+    }
+    my $data = '';
+    my $l = $s[7] - $pos;
+    $l = 4096 if $l > 4096;
+    sysread(F, $data, $l);
+    next unless length($data);
+    $data = substr($data, 0, $end) if defined($end) && length($data) > $end;
+    $pos += length($data);
+    $end -= length($data) if defined $end;
+    $data = sprintf("%X\r\n", length($data)).$data."\r\n";
+    BSServer::swrite($data);
+    last if $nostream && $pos >= $s[7];
+  }
+  close F;
+  BSServer::swrite("0\r\n\r\n");
+}
+
+sub send_state {
+  my ($state, $exclude) = @_;
+  my @args = ("state=$state", "arch=$hostarch", "port=$port");
+  push @args, "workerid=$workerid" if defined $workerid;
+  for my $server (@reposervers) {
+    next if $exclude && $server eq $exclude;
+    eval {
+      BSRPC::rpc({
+        'uri' => "$server/worker",
+        'timeout' => 3,
+      }, undef, @args);
+    };
+    print "send_state $server: $@" if $@;
+  }
+}
+
+sub usage {
+  my ($ret) = @_;
+
+print <<EOF;
+Usage: $0 --root <directory>
+
+       --root      : buildroot directory
+
+       --statedir  : state directory
+
+       --id        : worker id
+
+       --arch      : define hostarch
+
+       --build     : just build the package, don't send anything back
+                     (needs a buildinfo file as argument)
+EOF
+  exit $ret || 0;
+}
+
+while (@ARGV) {
+  usage(0) if $ARGV[0] eq '--help';
+  if ($ARGV[0] eq '--root') {
+    shift @ARGV;
+    $buildroot = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--arch') {
+    shift @ARGV;
+    $hostarch = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--build') {
+    shift @ARGV;
+    $justbuild = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--id') {
+    shift @ARGV;
+    $workerid = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--statedir') {
+    shift @ARGV;
+    $statedir = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--testmode') {
+    shift @ARGV;
+    $testmode = 1;
+    next;
+  }
+  last;
+}
+
+
+usage(1) unless $buildroot && $hostarch && $statedir;
+
+@reposervers = @BSConfig::reposervers unless @reposervers;
+mkdir($buildroot) unless -d $buildroot;
+mkdir($statedir) unless -d $statedir;
+
+if (!$justbuild) {
+  print "starting bs_localkiwiworker\n";
+  chdir($statedir) || die("chdir $statedir: $!\n");
+  BSServer::deamonize(@ARGV);
+  if ($port) {
+    BSServer::serveropen($port);
+  } else {
+    BSServer::serveropen(\$port);
+  }
+  commitstate({'state' => 'idle'});
+  send_state('idle');
+  my $conf = {
+    'timeout' => 10,
+  };
+  while (!BSServer::server($conf)) {
+    # check state
+  }
+  my $req = BSServer::readrequest();
+  my $path = $req->{'path'};
+  my $cgi = BSServer::parse_cgi($req);
+  if ($path eq '/info') {
+    my $info = readstr("$statedir/job");
+    BSServer::reply($info, 'Content-Type: text/xml');
+  } elsif ($path eq '/logfile') {
+    my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
+    die("not building\n") if $state->{'state'} ne 'building';
+    if ($cgi->{'jobid'}) {
+      my $infoxml = readstr('job');
+      die("building a different job\n") unless $cgi->{'jobid'} eq Digest::MD5::md5_hex($infoxml);
+    }
+    stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
+    exit(0);
+  } elsif ($path eq '/build' && $req->{'action'} eq 'PUT') {
+    my $state = lockstate();
+    die("I am not idle!\n") unless $state->{'state'} eq 'idle';
+    BSServer::read_file('job.new');
+    my $infoxml = readstr('job.new');
+    $jobid = $cgi->{'jobid'};
+    $jobid ||= Digest::MD5::md5_hex($infoxml);
+    $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
+    die("can only build kiwi jobs\n") unless $buildinfo->{'file'} =~ /\.kiwi$/;
+    rename('job.new', 'job') || die("rename job.new job: $!\n");
+    if ($testmode) {
+      BSServer::reply("<status code=\"failed\">\n  <details>testmode activated</details>\n</status>\n", 'Status: 400 Testmode', 'Content-Type: text/xml');
+    } else {
+      BSServer::reply("<status code=\"ok\">\n  <details>so much work, so little time...</details>\n</status>\n", 'Content-Type: text/xml');
+    }
+    print "got job, run build...\n";
+    unlink("$buildroot/.build.meta");
+    unlink("$buildroot/.build.packages");
+    unlink("$buildroot/.build.log");
+    writestr("$buildroot/.build.log", undef, '');
+    $state->{'state'} = 'building';
+    $state->{'jobid'} = $jobid;
+    commitstate($state);
+    my $repo = $buildinfo->{'path'}->[0];
+    send_state('building', $repo->{'server'});
+  } else {
+    die("unknown request: $path\n");
+  }
+} else {
+  $buildinfo = readxml($ARGV[0], $BSXML::buildinfo);
+  unlink("$buildroot/.build.meta");
+  unlink("$buildroot/.build.packages");
+  unlink("$buildroot/.build.log");
+  writestr("$buildroot/.build.log", undef, '');
+}
+my $ex = 0;
+my $result;
+eval {
+  $result = dobuild($buildinfo);
+};
+if ($@) {
+  local *F;
+  if (open(F, '>>', "$buildroot/.build.log")) {
+    print F $@;
+    close(F);
+  }
+  print "$@";
+  $ex = 1;
+}
+$ex = 1 unless $result && @$result;
+
+exit($ex) if $justbuild;
+
+my $state = lockstate();
+if ($state->{'state'} eq 'discarded') {
+  print "build discarded...\n";
+  unlink("$buildroot/.build.log");
+  unlink('job');
+  $state = {'state' => 'idle'};
+  commitstate($state);
+  send_state('idle');
+  exit(0);
+}
+if ($state->{'state'} ne 'building') {
+  $ex = 1;
+}
+if (!$testmode) {
+  my $jdir = "$jobsdir/$buildinfo->{'arch'}/$buildinfo->{'job'}:dir";
+  mkdir_p($jdir);
+  if ($ex == 0) {
+    BSUtil::cleandir($jdir);
+    my $outdir = "$buildroot/root/main";
+    for (@$result) {
+      rename("$outdir/$_", "$jdir/$_") || die("rename $outdir/$_ $jdir/$_: $!\n");
+    }
+  }
+  rename("$buildroot/.build.log", "$jdir/logfile");
+  rename("$buildroot/.build.meta", "$jdir/meta");
+
+  # notify server
+  my $repo = $buildinfo->{'path'}->[0];
+  my $param = {
+    uri => "$repo->{'server'}/putjob",
+    request => 'POST',
+    headers => [ 'Content-Type: application/x-cpio' ],
+    chunked => 1,
+    data => \&BSHTTP::cpio_sender,
+    cpiofiles => [],
+  };
+  my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid");
+  push @args, $ex ? 'code=failed' : 'code=succeeded';
+  eval {
+    my $res = BSRPC::rpc($param, undef, @args);
+  };
+  if ($@) {
+    print "rpc failed: $@\nsleeping one minute just in case...\n";
+    sleep(60);
+  } else {
+    print "sent, all done...\n";
+  }
+}
+unlink("$buildroot/.build.log");
+unlink('job');
+print "\n";
+$state = {'state' => 'idle'};
+commitstate($state);
+send_state('idle');
+exit(0);
