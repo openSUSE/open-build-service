@@ -49,7 +49,6 @@ our $group = [
     'group' =>
           'name',
           'version',
-          'patchlevel',
           'release',
           [],
           [[ 'conditional' => 'name' ]],
@@ -87,6 +86,7 @@ our $product = [
            'vendor',
            'name',
            'version',
+           'patchlevel',
            'release',
            'productline',
            [ 'register' => 
