@@ -298,12 +298,14 @@ sub createProductOptions($$$)
     my $rp = $product->{'installconfig'}->{'releasepackage'};
     $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
     $info{'VERSION'}      = $product->{'version'};
+    $info{'SP_VERSION'}   = $product->{'patchlevel'} if (defined($product->{'patchlevel'}));
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
     $info{'FLAVOR'}       = $medium->{'flavor'};
     $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
     $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
     foreach my $summary ( @{$product->{'summary'}} ){
-      $info{'LABEL'}        = $summary->{'_content'} if ( ! $summary->{'language'} );
+      $info{'SUMMARY'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
+      $info{'LABEL'}        = $summary->{'_content'}." ".$product->{'version'} if ( ! $summary->{'language'} );
     }
     foreach my $url ( @{$product->{'urls'}->{'url'}} ){
         if ( $url->{'name'} eq 'releasenotes' ){
@@ -353,7 +355,7 @@ sub createMetadata( $$$ )
     };
     $onlyarch .= "noarch";
     my $metadata_medium = "0";
-    $metadata_medium = "1" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
+#    $metadata_medium = "1" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     foreach my $pack ( @{ $medium->{metadata}->{package} } ) {
 	push @packages, { name => $pack->{name}, 
 			  medium => $metadata_medium, 
