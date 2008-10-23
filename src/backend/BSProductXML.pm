@@ -49,6 +49,7 @@ our $group = [
     'group' =>
           'name',
           'version',
+          'patchlevel',
           'release',
           [],
           [[ 'conditional' => 'name' ]],
