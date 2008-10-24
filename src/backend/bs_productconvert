@@ -131,7 +131,7 @@ sub parseRepositories( $ )
 	my $name = $repoRef->{name};
         $href=$repoRef->{path} if defined($repoRef->{path});
         $href=$repoRef->{href} if defined($repoRef->{href});
-	print "Repository $name parsed.\n";
+#	print "Repository $name parsed.\n";
 	$priority=$repoRef->{'priority'} if (defined($repoRef->{'priority'}));
         $repositories{$name} = { href => "$href", priority => "$priority" };
 	$priority++;
@@ -151,7 +151,7 @@ sub parseConditionals( $ )
 
     foreach my $condRef (@{$conditionalRef}) {
 	my $name = $condRef->{name};
-	print "Parsed conditional $name\n";
+#	print "Parsed conditional $name\n";
 	# print Dumper $condRef;
 	$conditionals{$name} = $condRef;
     }
@@ -403,7 +403,7 @@ sub useToPackages( $$ )
         $useSuggested   = $useState->{'use_suggested'} if ( defined($useState->{'use_suggested'}) );
     
 	if( $useState->{group} ) {
-	    print "Handling use of group $useState->{group}\n";
+#	    print "Handling use of group $useState->{group}\n";
 	    push @packages, groupToPackages( $prodRef, 
 					     $useState->{group}, 
 					     $useRequired, 
@@ -464,12 +464,12 @@ sub groupToPackages( $$$$$ )
     }
 
     # ok, here we have a valid group reference.
-    print " * resolving group <$groupRef->{name}>\n";
+#    print " * resolving group <$groupRef->{name}>\n";
     my @packagelists = @{$groupRef->{packagelist}};
 
     my %conditionTemplate;
     foreach my $condList( @{$groupRef->{conditional} } ) {
-	print "Handling group conditional $condList->{name}\n";
+#	print "Handling group conditional $condList->{name}\n";
 	my $cond = $conditionals{ $condList->{name} };
 
 	if( $cond->{platform} ) {
@@ -842,7 +842,7 @@ foreach my $medium ( @$media ){
             $pkgmeta->{'description'} = "Automatically generate from _product" ;
             $pkgmeta->{'build'} = $buildflags;
             writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
-            print "metafile written.\n";
+#            print "metafile written.\n";
           } else {
             print "metafile SKIPPED ! (need project name argument for it)\n";
           }
@@ -869,7 +869,7 @@ for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
     mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
     writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
   } else {
-    print "No release template file $templateFile exists.\nSPEC file generation skipped !\n";
+    print "No release template file $templateFile exists --> SPEC file generation skipped !\n";
   };
 };
 
