@@ -264,7 +264,7 @@ sub dobuild {
   $ENV{'PATH'} = "$BSConfig::bsdir/kiwi/prgs:$ENV{'PATH'}";
   my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
-  if (system($kiwiprg, '--root', "$buildroot/root", '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
+  if (system($kiwiprg, '-v', '-v', '--root', "$buildroot/root", '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
     die("kiwi failed: $?\n");
   }
 
