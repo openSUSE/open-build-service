@@ -193,6 +193,8 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch/:package/_history',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/:filename',
+    :controller => "build", :action => "file"
+  map.connect 'build/:project/:repository/:arch/_builddepinfo',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package',
     :controller => "build", :action => "package_index"
