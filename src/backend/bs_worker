@@ -1087,7 +1087,7 @@ if ($ex == 0) {
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   for my $d (@d) {
     if (opendir(D, "$buildroot/.build.packages/$d")) {
-      push @send, map {"$buildroot/.build.packages/$d/$_"} grep {/\.(?:deb|rpm|iso)$/} readdir(D);
+      push @send, map {"$buildroot/.build.packages/$d/$_"} grep {/\.(?:deb|rpm|iso|desktopfiles)$/} readdir(D);
       close D;
     }
   }
