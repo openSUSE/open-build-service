@@ -209,6 +209,7 @@ sub dobuild {
     $srcmedium = $productvar->{'_content'} if $productvar->{'name'} eq 'SOURCEMEDIUM';
   }
   $media{$srcmedium} = 1 if defined $srcmedium;
+  $media{"1"} = "1" if ( defined($srcmedium) && $srcmedium > 1 ); # Use implicit medium 1, since it is the default
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
     for my $repopackage (@{$repopackages->{'repopackage'} || []}) {
       $media{$repopackage->{'medium'}} = 1 if defined $repopackage->{'medium'};
