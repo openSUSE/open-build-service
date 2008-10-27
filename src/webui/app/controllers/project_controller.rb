@@ -13,14 +13,9 @@ class ProjectController < ApplicationController
   end
 
   def list_public
-    logger.debug "inside list_public"
-    @projects = Project.find(:all).each_entry.sort do |a,b|
-      a.name.downcase <=> b.name.downcase
-    end
-
-    @projects.reject! do |p|
-      p.name.to_s =~ /^home:/
-    end
+    result = Collection.find :id, :what => "project",
+      :predicate => "not(starts-with(@name,'home:'))"
+    @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
   end
 
   def list_my
