@@ -262,6 +262,8 @@ sub dobuild {
 
   print "running kiwi...\n";
   $ENV{'PATH'} = "$BSConfig::bsdir/kiwi/prgs:$ENV{'PATH'}";
+  $ENV{'KIWI_ISO'} = "1";  # currently a hack to enable kiwi iso creation
+  delete $ENV{'LANG'};     # set locale to POSIX to have the same always sort order
   my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
   if (system($kiwiprg, '-v', '-v', '--root', "$buildroot/root", '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
@@ -279,13 +281,15 @@ sub dobuild {
     }
     push @result, $medium;
     next if ( $ftp_only eq "true" );
-    if (system("/usr/share/kiwi/image/isoboot/suse-isolinux $outdir/$medium $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
-      print "WARNING: suse-isolinux failed: $?\n";
-      next;
-    }
-    if (! -s "$outdir/$medium.iso") {
-      print "WARNING: suse-isolinux dir not create iso\n";
-      next;
+    if ( ! -e "$outdir/$medium.iso" ) { # Do not overwrite iso file created from kiwi !
+      if (system("/usr/share/kiwi/image/isoboot/suse-isolinux $outdir/$medium $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
+        print "WARNING: suse-isolinux failed: $?\n";
+        next;
+      }
+      if (! -s "$outdir/$medium.iso") {
+        print "WARNING: suse-isolinux dir not create iso\n";
+        next;
+      }
     }
     push @result, "$medium.iso";
   }
