@@ -9,9 +9,7 @@ class ProjectController < ApplicationController
   end
 
   def list_all
-    @projects = Project.find(:all).each_entry.sort do |a,b|
-      a.name.downcase <=> b.name.downcase
-    end
+    @projects = filter_projects
   end
 
   def list_public
@@ -702,14 +700,10 @@ class ProjectController < ApplicationController
     return [pages, slice]
   end
 
-  def filter_projects( filterstring )
-    projectlist = Project.find(:all).each_entry.sort do |a,b|
-      a.name.downcase <=> b.name.downcase
-    end
-    projectlist.reject! do |p|
-      not p.name.to_s.downcase.include? filterstring.downcase
-    end
-    return projectlist
+  def filter_projects( filterstring="" )
+    result = Collection.find :id, :what => "project",
+      :predicate => "contains(@name,'#{filterstring}')"
+    return result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
   end
 
   def filter_packages( project, filterstring )
