@@ -207,7 +207,7 @@ sub createArchitectures( $ )
 	    $archMatrix{ $archis[$i] } = { fallback => $archis[$i+1] };
 	}
     }
-    foreach my $arch ( keys %archMatrix ) {
+    foreach my $arch ( sort keys %archMatrix ) {
 	my %h;
 	$h{id} = $arch;
 	if( $archMatrix{$arch}->{name} ) {
@@ -221,7 +221,7 @@ sub createArchitectures( $ )
     
     my @reqXml;
 
-    foreach ( keys %reqArchs ) {
+    foreach ( sort keys %reqArchs ) {
 	my %h;
 	$h{ref} = $_;
 	push @reqXml, \%h;
@@ -269,7 +269,7 @@ sub createProductOptions($$$)
     $varsH{PRODUCT_VERSION} = '$VERSION';
 
     my @vars;
-    foreach my $opt ( keys %varsH ) {
+    foreach my $opt ( sort keys %varsH ) {
 	push @vars, { name => $opt, _content => $varsH{$opt} };
     }
 
@@ -286,14 +286,13 @@ sub createProductOptions($$$)
     $options{'BETA_VERSION'} = $product->{'buildconfig'}->{'betaversion'} if (defined($product->{'buildconfig'}->{'betaversion'}));
     # add more as needed.
     my @vars1;
-    foreach my $opt ( keys %options ) {
+    foreach my $opt ( sort keys %options ) {
 	push @vars1, { name => $opt, _content => $options{$opt} };
     }
 
     $re->{productoption} = \@vars1;
 
     my %info;
-    $info{'CONTENTSTYLE'} = "11"; # Hardcoded for now. We need anyway to touch the generator when changing
     $info{'NAME'}         = $product->{'name'};
     my $rp = $product->{'installconfig'}->{'releasepackage'};
     $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
@@ -325,7 +324,8 @@ sub createProductOptions($$$)
 
     # add more ...
     my @info;
-    foreach my $opt ( keys %info) {
+    push @info, { name => 'CONTENTSTYLE', _content => '11' }; # Needs to be first !
+    foreach my $opt ( sort keys %info) {
 	push @info, { name => $opt, _content => $info{$opt} };
     }
 
