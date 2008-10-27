@@ -747,8 +747,9 @@ sub publish {
   # now update external repository
   my $changed = 0;
 
-  my @changed;	# for published db update
-  my @deleted;	# for published db update
+  my @db_deleted;  	# for published db update
+  my @db_changed;	# for published db update
+  my @changed;  	# All changed files for hooks.
 
   my %bins_done;
   for my $arch (sort(ls($extrep))) {
@@ -768,7 +769,7 @@ sub publish {
 	} else {
 	  unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
 	}
-	push @deleted, $p if $p =~ /\.(?:rpm|deb)$/;
+	push @db_deleted, $p if $p =~ /\.(?:rpm|deb)$/;
         $changed = 1;
 	next;
       }
@@ -797,7 +798,8 @@ sub publish {
 	} else {
           link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
 	}
-	push @changed, $p if $p =~ /\.(?:rpm|deb)$/;
+	push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
+	push @changed, $p;
         $changed = 1;
       }
       $bins_done{$p} = 1;
@@ -815,7 +817,8 @@ sub publish {
     } else {
       link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
     }
-    push @changed, $p if $p =~ /\.(?:rpm|deb)$/;
+    push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
+    push @changed, $p;
     $changed = 1;
   }
 
@@ -888,12 +891,12 @@ sub publish {
 
   # put in published database
   my $binarydb = db_open('binary');
-  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @deleted ], [ map {"$prp_ext/$_"} @changed ]) if $binarydb && defined($prp_ext);
+  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], [ map {"$prp_ext/$_"} @db_changed ]) if $binarydb && defined($prp_ext);
 
   # mark file origins so we can gather per package statistics
   if ($BSConfig::markfileorigins && defined($prp_ext)) {
     print "    marking file origins\n";
-    for my $f (sort @changed) {
+    for my $f (sort @db_changed) {
       my $origin = $binaryorigins->{$f};
       $origin = "?" unless defined $origin;
       my $req = {
@@ -907,7 +910,7 @@ sub publish {
       };
       print "      $f: $@" if $@;
     }
-    for my $f (sort @deleted) {
+    for my $f (sort @db_deleted) {
       my $req = {
         'uri' => "$BSConfig::markfileorigins/$prp_ext/$f",
         'request' => 'HEAD',
@@ -999,9 +1002,8 @@ publishprog_done:
       qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed: $?\n");
     }
   }
-  
   if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$prp}) {
-    qsystem($BSConfig::publishedhook->{$prp}, $prp, $extrep) && warn("    $BSConfig::publishedhook failed: $?");
+    qsystem($BSConfig::publishedhook->{$prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook failed: $?");
   }
 
   # all done. till next time...
