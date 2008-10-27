@@ -1000,6 +1000,10 @@ publishprog_done:
     }
   }
   
+  if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$prp}) {
+    qsystem($BSConfig::publishedhook->{$prp}, $prp, $extrep) && warn("    $BSConfig::publishedhook failed: $?");
+  }
+
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     exit(0);
