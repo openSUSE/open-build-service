@@ -56,9 +56,9 @@ function goto_url(url) {
 }
 
 function hide_dialog() {
-  Element.getElementsByClassName(document,"dialog").invoke("hide")
+  Element.getElementsBySelector(document,".dialog").invoke("hide")
 }
 
 function remove_dialog() {
-  Element.getElementsByClassName(document,"dialog").invoke("remove")
+  Element.getElementsBySelector(document,".dialog").invoke("remove")
 }
