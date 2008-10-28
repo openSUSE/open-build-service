@@ -55,7 +55,7 @@ class XpathEngine
   end
 
   def find(xpath, opt={})
-    defaults = {:order => :asc}
+    defaults = HashWithIndifferentAccess.new({:order => :asc})
     opt = defaults.merge opt
     logger.debug "---------------------- parsing xpath: #{xpath} -----------------------"
 
