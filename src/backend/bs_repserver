@@ -740,7 +740,7 @@ sub putjob {
   # right job, fetch everything!
   my $dir = "$jobsdir/$arch/$job:dir";
   mkdir_p($dir);
-  my $uploaded = BSServer::read_cpio($dir, 'accept' => '^(meta|.*\.rpm|.*\.deb|.*\.iso|logfile)$');
+  my $uploaded = BSServer::read_cpio($dir, 'accept' => '^(meta|.*\.rpm|.*\.deb|.*\.iso|.*\.desktopfiles|logfile)$');
   die("upload error\n") unless $uploaded;
   if ($BSConfig::sign) {
     my @signargs;
