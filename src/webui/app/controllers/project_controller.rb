@@ -4,19 +4,40 @@ class ProjectController < ApplicationController
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
       :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog ]
 
+  ##############################
+  # index/list_all/list_public
+  # 
+
   def index
     redirect_to :action => 'list_all'
   end
 
   def list_all
-    @projects = filter_projects
+    list :with_homes
   end
 
   def list_public
-    result = Collection.find :id, :what => "project",
-      :predicate => "not(starts-with(@name,'home:'))"
-    @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
+    list :without_homes
   end
+
+  def list(mode=:without_homes)
+    filterstring = params[:projectsearch] || params[:searchtext]
+
+    predicate = "contains(@name, '#{filterstring}')"
+    predicate += " and not(starts-with(@name,'home:'))" if mode==:without_homes
+
+    result = Collection.find :id, :what => "project", :predicate => predicate
+    @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
+
+    if request.xhr?
+      render :partial => 'search_project', :locals => {:project_list => @projects}
+    else
+      if @projects.length == 1
+        redirect_to :action => 'show', :project => @projects.first
+      end
+    end
+  end
+  private :list
 
   def list_my
     @user ||= Person.find( :login => session[:login] )
@@ -308,21 +329,6 @@ class ProjectController < ApplicationController
     end
   end
 
-  def search_project
-    if params[:projectsearch]
-      # user pressed enter to search -> no ajax, old-fashioned form-submit
-      @projects = filter_projects params[:projectsearch]
-      if @projects.length == 1
-        redirect_to :action => 'show', :project => @projects.first
-      else
-        render :action => 'list_all'
-      end
-    else
-      # ajax live-search
-      @projects = filter_projects params[:searchtext]
-      render :partial => "search_project"
-    end
-  end
 
   def save_new
     logger.debug( "save_new" )
@@ -693,12 +699,6 @@ class ProjectController < ApplicationController
     last = [first + options[:per_page], collection.size].min
     slice = collection[first...last]
     return [pages, slice]
-  end
-
-  def filter_projects( filterstring="" )
-    result = Collection.find :id, :what => "project",
-      :predicate => "contains(@name,'#{filterstring}')"
-    return result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
   end
 
   def filter_packages( project, filterstring )

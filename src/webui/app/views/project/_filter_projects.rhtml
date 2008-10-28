@@ -1,6 +1,10 @@
+<% # locals:
+   #   filter_observer_action: observer of the filter field sends its requests to
+   #                           this action in project controller
+-%>
 <b>Filter projects (case insensitive):</b><br/>
 
-<% form_tag :action => 'search_project' do -%>
+<% form_tag({:action => filter_observer_action}, {:method => :get}) do -%>
 <%= text_field_tag "projectsearch" -%>
 <img id="projectsearch_clear" alt="clear" title="clear input" src="/images/clear.png" 
   onclick="e=document.getElementById('projectsearch'); e.value=''; e.focus();"
@@ -16,6 +20,6 @@
 </script>
 
 <%= observe_field( :projectsearch, :frequency => 0.5, :update => :project_list,
-    :url => { :controller => 'project', :action  => 'search_project' },
+    :url => { :controller => 'project', :action  => filter_observer_action },
     :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",
     :with => "'searchtext=' + escape(value)") %>

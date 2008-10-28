@@ -1,8 +1,9 @@
+<% # locals:
+   #   project_list: list of projects to show
+-%>
 <table>
-  <tr><th>Name</th>
-  <% for project in @projects %>
-  <tr><td>
-    <%= link_to project.name, :action => :show, :project => project %>
-  </td></tr>
-  <% end %>
+  <tr><th>Name</th></tr>
+  <% for project in project_list -%>
+  <tr><td><%= link_to project.name, :action => :show, :project => project %></td></tr>
+  <% end -%>
 </table>
