@@ -81,9 +81,9 @@ module ProjectHelper
     end
 
     if @project and @project.has_element?("repository[@name='#{opt[:reponame]}']")
-      return button_to label, btn_to_opt, {:disabled => true}
+      return button_to(label, btn_to_opt, {:disabled => true})
     else
-      return button_to label, btn_to_opt
+      return button_to(label, btn_to_opt)
     end
   end
 
