@@ -2,31 +2,20 @@ class SearchController < ApplicationController
 
   require 'xpath_engine'
 
-  def project(render_all=true)
-    predicate = predicate_from_match_parameter(params[:match])
-    
-    logger.debug "searching in projects, predicate: '#{predicate}'"
-    xpath = "/project[#{predicate}]"
-
-    render :text => search(xpath, render_all), :content_type => "text/xml"
+  def project
+    render :text => search(:project, true), :content_type => "text/xml"
   end
 
   def project_id
-    project(false)
+    render :text => search(:project, false), :content_type => "text/xml"
   end
 
-  #search  in package metadata
-  def package(render_all=true)
-    predicate = predicate_from_match_parameter(params[:match])
-    
-    logger.debug "searching in packages, predicate: '#{predicate}'"
-    xpath = "/package[#{predicate}]"
-
-    render :text => search(xpath, render_all), :content_type => "text/xml"
+  def package
+    render :text => search(:package, true), :content_type => "text/xml"
   end
 
   def package_id
-    package( false )
+    render :text => search(:package, false), :content_type => "text/xml"
   end
 
   private
@@ -41,24 +30,43 @@ class SearchController < ApplicationController
     return pred
   end
 
-  def search(xpath, render_all)
-    xe = XpathEngine.new
-    collection = xe.find( xpath )
+  def search(what, render_all)
+    predicate = predicate_from_match_parameter(params[:match])
+    
+    logger.debug "searching in #{what}s, predicate: '#{predicate}'"
 
+    xe = XpathEngine.new
+    collection = xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order))
     output = String.new
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<collection>\n"
 
     collection.each do |item|
-      if render_all
-        str = item.to_axml
-      else 
-        str = item.to_axml_id
-      end
+      str = (render_all ? item.to_axml : item.to_axml_id)
       output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
     end
 
     output << "</collection>\n"
     return output
+  end
+
+  def __search_stream(xpath)
+    defaults = {:render_all => true, :sort_by => nil, :order => :asc}
+    opt = defaults.merge opt
+
+    xe = XpathEngine.new
+    collection = xe.find(xpath, opt.slice(:sort_by, :order))
+    return Proc.new do |request,output|
+      output.write "<?xml version='1.0' encoding='UTF-8'?>\n<collection>\n"
+      collection.each do |item|
+        if render_all
+          str = item.to_axml
+        else 
+          str = item.to_axml_id
+        end
+        output.write str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
+      end
+      output.write "</collection>\n"
+    end
   end
 end
