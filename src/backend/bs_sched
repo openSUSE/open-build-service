@@ -3552,7 +3552,7 @@ while(1) {
   print "    looked harder: $nharder\n" if $nharder;
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready)."\n";
   print "    took $prpchecktime seconds to check the packages\n";
-  if (!%notready) {
+  if (!%notready || defined($BSConfig::immediate_push{$prp}) ) {
     my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
     my %pubenabled;
     for my $packid (@packs) {
@@ -3570,7 +3570,7 @@ while(1) {
     $repodonestate = Digest::MD5::md5_hex($repodonestate);
     if (-e "$reporoot/$prp/$myarch/:repodone") {
       my $oldrepodone = readstr("$reporoot/$prp/$myarch/:repodone", 1) || '';
-      unlink("$reporoot/$prp/$myarch/:repodone") if $oldrepodone  ne $repodonestate;
+      unlink("$reporoot/$prp/$myarch/:repodone") if $oldrepodone ne $repodonestate;
     }
     if (! -e "$reporoot/$prp/$myarch/:repodone") {
       if (!@packs || grep {$_} values %pubenabled) {
@@ -3579,6 +3579,11 @@ while(1) {
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate);
       } else {
 	print "    publishing is disabled\n";
+      }
+    }elsif ( defined($BSConfig::immediate_push{$prp}) ) {
+      if (!@packs || grep {$_} values %pubenabled) {
+	mkdir_p("$reporoot/$prp/$myarch");
+	prpfinished($prp, \@packs, \%pubenabled, $bconf);
       }
     }
     $prpfinished{$prp} = 1;
