@@ -195,8 +195,9 @@ sub dobuild {
       if ( defined($buildinfo->{'bcnt'}) ) { # temporary needed for old scheduler
          $bcnt = $buildinfo->{'bcnt'};
       };
-      $mediumbase .= sprintf("-Build%04d-Media", $bcnt);
+      $mediumbase .= sprintf("-Build%04d", $bcnt);
       push @vars, { name => 'MEDIUM_NAME', _content => $mediumbase };
+      push @vars, { name => 'BUILD_ID', _content => $mediumbase };
     }else{
       push @vars, { name => $productvar->{'name'}, _content => $productvar->{'_content'} };
     }
@@ -228,7 +229,7 @@ sub dobuild {
 #print "next\n";
   my @media = keys %media;
   @media = ('1') unless @media;
-  @media = map {"$mediumbase$_"} @media;
+  @media = map {"$mediumbase-Media$_"} @media;
   # fix kiwi!
   @media = $mediumbase if (defined($srcmedium) && $srcmedium eq '1' );
   print "expected media: @media\n";
