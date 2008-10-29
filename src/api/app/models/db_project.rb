@@ -365,7 +365,7 @@ class DbProject < ActiveRecord::Base
       repos = repositories.find( :all, :include => [:path_elements, :architectures], :conditions => "ISNULL(remote_project_name)" )
       repos.each do |repo|
         project.repository( :name => repo.name ) do |r|
-          repo.path_elements.each do |pe|
+          repo.path_elements.sort {|a,b| a.position <=> b.position}.each do |pe|
             if pe.link.remote_project_name.blank?
               project_name = pe.link.db_project.name
             else
