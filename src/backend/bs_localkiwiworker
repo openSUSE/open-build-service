@@ -207,11 +207,15 @@ sub dobuild {
   $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
 
   my $srcmedium;
+  my $debugmedium;
   for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productoption'} || []}) {
     $srcmedium = $productvar->{'_content'} if $productvar->{'name'} eq 'SOURCEMEDIUM';
+    $debugmedium = $productvar->{'_content'} if $productvar->{'name'} eq 'DEBUGMEDIUM';
   }
   $media{$srcmedium} = 1 if defined $srcmedium;
+  $media{$debugmedium} = 1 if defined $debugmedium;
   $media{"1"} = "1" if ( defined($srcmedium) && $srcmedium > 1 ); # Use implicit medium 1, since it is the default
+  $media{"1"} = "1" if ( defined($debugmedium) && $debugmedium > 1 ); # Use implicit medium 1, since it is the default
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
     for my $repopackage (@{$repopackages->{'repopackage'} || []}) {
       $media{$repopackage->{'medium'}} = 1 if defined $repopackage->{'medium'};
