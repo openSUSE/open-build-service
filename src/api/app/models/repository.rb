@@ -6,7 +6,7 @@ class Repository < ActiveRecord::Base
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
   has_many :download_stats
 
-  has_and_belongs_to_many :architectures
+  has_and_belongs_to_many :architectures, :order => "position", :list => true
 
 
   class << self

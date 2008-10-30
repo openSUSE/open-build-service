@@ -1,0 +1,42 @@
+HabtmList
+=========
+
+This plugin arose out of a page on the Rails wiki:
+http://wiki.rubyonrails.org/rails/pages/BetterHabtmList
+
+The purpose is to allow position-based "acts_as_list"-like behavior in a has_and_belongs_to_many association.  Methods are included to move members up and down in the list.  
+
+The original author of the technique, according to the wiki history, was "Matt."  Sorry, I don't know his last name; I'll give proper credit if he turns up to take it.  I refactored and fixed some bugs in the code, and now I'm simply putting it up on Github.  I'm claiming no ownership rights on this code whatsoever; use it any way you like.
+
+
+Usage
+-----
+class Category < ActiveRecord::Base
+  has_and_belongs_to_many :products,
+                          :order => 'position',
+						  :list => true
+end
+
+Methods
+-------
+*first?(item)* - returns true if item is first in the list
+*last?(item)* - returns true if item is last in the list
+*in_list?(item)* - returns true if item exists in the list
+*higher_item(item)* - returns the item one position above the given item in the list
+*lower_item(item)* - returns the item one position below the given item in the list
+*move_higher(item)* - moves the item up one position in the list
+*move_lower(item)* - moves the item down one position in the list
+*move_to_top(item)* - moves the item to the first position in the list
+*move_to_bottom(item)* - moves the item to the last position in the list
+*add_to_list_top(item)* - adds the item to the list in the first position
+*add_to_list_bottom(item)* - adds the item to the list in the last position
+*move_to_position(item, position)* - moves the item to the stated position in the list
+*reset_positions* - "first aid" method to restore list positions if positions become duplicated or go out of sync (e.g., if records are inserted or updated by external methods)
+
+Support
+-------
+I don't promise any, but if you have any questions or complaints you're welcome to e-mail me at sfeley@gmail.com.
+
+Also check out my podcast, Escape Pod [http://escapepod.org], if you're interested in science fiction short stories.
+ 
+ - Steve Eley
