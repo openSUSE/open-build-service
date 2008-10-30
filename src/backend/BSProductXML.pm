@@ -134,6 +134,7 @@ our $product = [
               'descriptiondir',
               [ 'releasepackage' => 'name', 'flag', 'version', 'release' ],
               'distribution',
+              'runmediacheck',
            ],
            [ 'runtimeconfig' =>
               'allowresolving',

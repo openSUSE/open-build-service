@@ -274,6 +274,9 @@ sub createProductOptions($$$)
     $re->{productvar} = \@vars;
 
     my %options;
+    if (defined($product->{'installconfig'}->{'runmediacheck'})) {
+      $options{'RUN_MEDIA_CHECK'} = $product->{'installconfig'}->{'runmediacheck'};
+    };
     if (defined($medium->{'sourcemedia'})) {
       $options{'SOURCEMEDIUM'} = $medium->{'sourcemedia'};
     }else{

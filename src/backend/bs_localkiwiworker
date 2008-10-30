@@ -181,6 +181,7 @@ sub dobuild {
   my $mediumbase;
   my @vars;
   my $ftp_only="false";
+  my $tag_media="";
   for my $productinfo (@{$kiwi->{'instsource'}->{'productoptions'}->{'productinfo'} || []}) {
     # kind of a hack, do not create medias for ftp only releases !
     if ( $productinfo->{'name'} eq 'FLAVOR' ) {
@@ -189,7 +190,7 @@ sub dobuild {
   }
   for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
     if ($productvar->{'name'} eq 'MEDIUM_NAME') {
-      $mediumbase = $productvar->{'_content'} if $productvar->{'name'} eq 'MEDIUM_NAME';
+      $mediumbase = $productvar->{'_content'};
       # Extend medium name with build number
       my $bcnt = 0;
       if ( defined($buildinfo->{'bcnt'}) ) { # temporary needed for old scheduler
@@ -199,6 +200,8 @@ sub dobuild {
       push @vars, { name => 'BUILD_ID', _content => $mediumbase };
       $mediumbase .= "-Media";
       push @vars, { name => 'MEDIUM_NAME', _content => $mediumbase };
+    }elsif ($productvar->{'name'} eq 'RUN_MEDIA_CHECK') {
+      $tag_media = "--check --pad 150" if $productvar->{'_content'} eq 'true';
     }else{
       push @vars, { name => $productvar->{'name'}, _content => $productvar->{'_content'} };
     }
@@ -296,6 +299,13 @@ sub dobuild {
       if (! -s "$outdir/$medium.iso") {
         print "WARNING: suse-isolinux dir not create iso\n";
         next;
+      }
+      if ( -d "$outdir/$medium/suse" ){
+        # tag medias for self check
+        if (system("/usr/bin/tagmedia --md5 $tag_media $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
+          print "WARNING: tagmedia failed: $?\n";
+          next;
+        }
       }
     }
     push @result, "$medium.iso";
