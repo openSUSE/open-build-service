@@ -214,6 +214,15 @@ sub cpio_receiver {
 	$name = "$param->{'map'}$name";
       }
     }
+    if (!defined($name)) {
+      # skip entry
+      while ($sizepad) {
+        my $m = $sizepad > 8192 ? 8192 : $sizepad;
+        read_data($hdr, $m, 1);
+        $sizepad -= $m;
+      }
+      next;
+    }
     push @res, {'name' => $name, 'size' => $size, 'mtime' => $mtime};
     my $ctx;
     $ctx = Digest::MD5->new if $withmd5;
