@@ -443,6 +443,9 @@ sub rm_rf {
 sub getsources {
   my ($buildinfo, $dir) = @_;
 
+  my @meta;
+  push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
+
   my $repo = $buildinfo->{'path'}->[0];
   my $projid = $repo->{'project'};
   my $res = BSRPC::rpc({
@@ -467,10 +470,10 @@ sub getsources {
   $md5 = Digest::MD5::md5_hex($md5);
   die("source verification fails: $md5 != $buildinfo->{'verifymd5'}\n") if $md5 ne $buildinfo->{'verifymd5'};
 
-  return unless $buildinfo->{'file'} =~ /\.kiwi$/;
+  return @meta unless $buildinfo->{'file'} =~ /\.kiwi$/;
 
   # get additional kiwi sources
-  my @sdep = grep {($_->{'arch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
+  my @sdep = grep {($_->{'repoarch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
   for my $src (@sdep) {
     print "$src->{'name'}, ";
     my $idir = "$dir/images/$src->{'project'}/$src->{'package'}";
@@ -486,6 +489,7 @@ sub getsources {
       my $errors = readstr("$idir/.errors", 1);
       die("getsources: $errors");
     }
+    push @meta, "$src->{'srcmd5'}  $src->{'project'}/$src->{'package'}";
     # untar the root directory for kiwi
     if (-e "$idir/root.tar.bz2") {
       qsystem('tar', 'xfj', "$idir/root.tar.bz2", "-C", "$idir/root") && die ("untar call for $idir/root.tar.bz2 failed");
@@ -495,6 +499,7 @@ sub getsources {
       qsystem('tar', 'xf', "$idir/root.tar", "-C", "$idir/root") && die ("untar call for $idir/root.tar failed");
     }
   }
+  return @meta;
 }
 
 sub qsystem {
@@ -513,19 +518,95 @@ sub qsystem {
   }
 }
 
+sub getbinaries_kiwiproduct {
+  my ($buildinfo, $dir) = @_;
+
+  # we need the Build package for queryhdrmd5
+  if (!defined &Build::queryhdrmd5) {
+    unshift @INC, "$statedir/build";
+    require Build;
+    Build->import();
+  }
+
+  # create list of prpaps
+  my %prpaps;
+  for my $dep (@{$buildinfo->{'bdep'} || []}) {
+    next unless $dep->{'package'};
+    my $repoarch = $dep->{'repoarch'} || $buildinfo->{'arch'};
+    next if $repoarch eq 'src';
+    $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
+  }
+
+  # FIXME: multiple servers?
+  my $repo = $buildinfo->{'path'}->[0];
+
+  my %meta;
+  for my $prpap (sort keys %prpaps) {
+    my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
+    my $ddir = $dir;
+    my $prpdir = "$projid/$repoid";
+    $prpdir =~ s/:/:\//g;
+    $ddir .= "/$prpdir";
+    mkdir_p($ddir);
+    my $res = BSRPC::rpc({
+      'uri' => "$repo->{'server'}/build/$projid/$repoid/$arch/$packid",
+      'directory' => $ddir,
+      'map' => sub {
+	my ($param, $name) = @_;
+	if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	  my $arch = $1;
+	  mkdir_p("$param->{'directory'}/$arch");
+	  $name = "$arch/$name";
+	}
+	return $name;
+      },
+      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    }, undef, "view=cpio");
+    die unless $res;
+    my @todometa;
+    my @todometa_f;
+    for my $f (@$res) {
+      my (undef, $name) = split('/', $f->{'name'}, 2);
+      next unless defined($name) && $name =~ /^(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+      my ($n, $arch) = ($1, $2);
+      my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
+      $meta{"$prpap/$n.$arch"} = $id;
+    }
+  }
+  # create meta
+  my @meta;
+  for (sort keys %meta) {
+    push @meta, "$meta{$_}  $_";
+  } 
+  return @meta;
+}
+
 sub getbinaries {
   my ($buildinfo, $dir) = @_;
 
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
+
+  # NOTYET
+  #return getbinaries_kiwiproduct($buildinfo, $dir) if $kiwimode;
+
+  # we need the Build package for queryhdrmd5
+  if (!defined &Build::queryhdrmd5) {
+    unshift @INC, "$statedir/build";
+    require Build;
+    Build->import();
+  }
+
   my @bdep = @{$buildinfo->{'bdep'} || []};
-  @bdep = map {$_->{'name'}} grep {($_->{'arch'} || '') ne 'src'} @bdep;
+  @bdep = map {$_->{'name'}} grep {($_->{'repoarch'} || '') ne 'src'} @bdep;
 
   my %done;
   my @todo = @bdep;
   die("no binaries needed for this package?\n") unless @todo;
-  my %meta = ();
+  my @meta;
+  my %meta;
   my $projid = $buildinfo->{'path'}->[0]->{'project'};
   my $repoid = $buildinfo->{'path'}->[0]->{'repository'};
+
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last if !@todo && !$kiwimode;
     my @args;
@@ -547,8 +628,8 @@ sub getbinaries {
     push @args, "arch=$buildinfo->{'arch'}";
     push @args, "nometa" if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     my $res = BSRPC::rpc({
-      uri => "$repo->{'server'}/getbinaries",
-      directory => $ddir,
+      'uri' => "$repo->{'server'}/getbinaries",
+      'directory' => $ddir,
       'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
     }, undef, @args);
     die("Error\n") unless ref($res) eq 'ARRAY';
@@ -558,81 +639,39 @@ sub getbinaries {
     }
     @todo = grep {!$done{$_}} @todo;
     if ($kiwimode) {
+      for my $f (@$res) {
+	next unless $f->{'name'} =~ /^(.*)\.(?:rpm|deb)$/;
+	my $n = $1;
+	my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
+	push @meta, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
+      }
       # FIXME: depend this call on repo type setting in kiwi, better
       # modularise this in a generic way also for QA and package build usage.
       qsystem('createrepo', $ddir); # || die ("createrepo call failed");
     }
   }
   die("getbinaries: missing packages: @todo\n") if @todo;
-  my @missingmeta = grep {!$meta{$_}} @bdep;
-  if (@missingmeta && !$kiwimode) {
-    local *F;
-    open(F, "| $statedir/build/getbinaryid --createmeta --manifest -") || die("getbinaryid: $!\n");
-    print F join('', map {"$dir/$done{$_}\n"} @missingmeta);
-    close(F) || die("getbinaryid failed: $?\n");
-  }
-}
 
-sub calcmeta_kiwi {
-  my ($buildinfo, $dir) = @_;
-
-  my @meta;
-  push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
-  my @sdep = grep {($_->{'arch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
-  for my $sdep (@sdep) {
-    push @meta, "$sdep->{'srcmd5'}  $sdep->{'project'}/$sdep->{'package'}";
-  }
-  my @bdep = map {$_->{'name'}} grep {($_->{'arch'} || '') ne 'src'} @{$buildinfo->{'bdep'} || []};
-  my @binaries;
-  my %binaries;
-  for my $repo (@{$buildinfo->{'path'} || []}) {
-    my $ddir = $dir;
-    my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
-    $prpdir =~ s/:/:\//g;
-    $ddir .= "/$prpdir";
-    for my $bdep (@bdep) {
-      if (-e "$ddir/$bdep.rpm") {
-        push @binaries, "$ddir/$bdep.rpm";
-      } elsif (-e "$ddir/$bdep.deb") {
-        push @binaries, "$ddir/$bdep.deb";
+  if (!$kiwimode) {
+    for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
+      my $m;
+      $m = readstr("$dir/$dep.meta", 1) if $meta{$dep};
+      if (!$m) {
+	my $id = Build::queryhdrmd5("$dir/$done{$dep}") || "deaddeaddeaddeaddeaddeaddeaddead";
+	push @meta, "$id  $dep";
       } else {
-	next;
+	chomp $m;
+	my @m = split("\n", $m);
+	s/  /  $dep\// for @m;
+	$m[0] =~ s/  .*/  $dep/;
+	push @meta, @m;
       }
-      $binaries{$binaries[-1]} = "$repo->{'project'}/$repo->{'repository'}/$bdep";
     }
-  }
-  return @meta unless @binaries;
-  # add meta for all binaries
-  local *F;
-  writestr("$dir/manifest", undef, join('', map {"$_\n"} @binaries));
-  system("$statedir/build/getbinaryid --manifest $dir/manifest > $dir/manifest.meta") && die("getbinaryid failed\n");
-  my @binariesmeta = split(' ', readstr("$dir/manifest.meta"));
-  unlink("$dir/manifest");
-  unlink("$dir/manifest.meta");
-  die("getbinaryid result missmatch\n")  unless @binariesmeta == @binaries;
-  for (@binaries) {
-    push @meta, (shift @binariesmeta)."  $binaries{$_}";
+    @meta = BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @meta);
+    shift @meta;	# strip srcinfo again
   }
   return @meta;
 }
-
-sub calcmeta {
-  my ($buildinfo, $dir) = @_;
-
-  # kiwi is very different...
-  return calcmeta_kiwi($buildinfo, $dir) if $buildinfo->{'file'} =~ /\.kiwi$/;
-  my @deps;
-  for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
-    my $m = readstr("$dir/$dep.meta");
-    chomp $m;
-    my @m = split("\n", $m);
-    s/  /  $dep\// for @m;
-    $m[0] =~ s/  .*/  $dep/;
-    push @deps, @m;
-  }
-  return BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @deps);
-}
-
 
 sub dobuild {
   my ($buildinfo) = @_;
@@ -659,14 +698,13 @@ sub dobuild {
   my $pkgdir = "$buildroot/.pkgs";
   $pkgdir = "$srcdir/repos" if $kiwimode;
 
+  my @meta;
   print "fetching sources...";
   mkdir($srcdir) || die("mkdir $srcdir $!\n");
-  getsources($buildinfo, $srcdir);
-  # Get additional sources for KIWI
+  push @meta, getsources($buildinfo, $srcdir);
   print "\nfetching packages...\n";
-  getbinaries($buildinfo, $pkgdir);
+  push @meta, getbinaries($buildinfo, $pkgdir);
 
-  my @meta = calcmeta($buildinfo, $pkgdir);
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
   my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
@@ -750,12 +788,13 @@ sub dobuild {
     push @args, '--debug' if $buildinfo->{'debuginfo'};
     push @args, '--arch', $arch;
     push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
+    push @args, '--disturl', "srcrep:$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
     push @args, "$srcdir/$buildinfo->{'file'}";
     if (qsystem(@args)) {
       print "build failed\n";
       return 1;
     }
-  };
+  }
   if (! -s "$buildroot/.build.log") {
     print "build succeeded, but no logfile?\n";
     return 1;
@@ -1030,9 +1069,10 @@ eval {
 };
 if ($@) {
   local *F;
-  open(F, '>>', "$buildroot/.build.log");
-  print F $@;
-  close(F);
+  if (open(F, '>>', "$buildroot/.build.log")) {
+    print F $@;
+    close(F);
+  }
   print "$@";
   $ex = 1;
 }
@@ -1058,11 +1098,13 @@ if ($state->{'state'} ne 'building') {
 }
 
 if (! -s "$buildroot/.build.log") {
-  if (defined($workerid)) {
-    writestr("$buildroot/.build.log", undef, "build on $workerid did not create a logfile\n");
-  } else {
-    writestr("$buildroot/.build.log", undef, "build did not create a logfile\n");
-  }
+  eval {
+    if (defined($workerid)) {
+      writestr("$buildroot/.build.log", undef, "build on $workerid did not create a logfile\n");
+    } else {
+      writestr("$buildroot/.build.log", undef, "build did not create a logfile\n");
+    }
+  };
   $ex = 1;
 }
 
@@ -1086,24 +1128,28 @@ if ($ex == 0) {
   @d = ('DEBS') if $buildinfo->{'file'} =~ /\.dsc$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   for my $d (@d) {
-    if (opendir(D, "$buildroot/.build.packages/$d")) {
-      push @send, map {"$buildroot/.build.packages/$d/$_"} grep {/\.(?:deb|rpm|iso|desktopfiles)$/} readdir(D);
-      close D;
-    }
+    my @files = sort(ls("$buildroot/.build.packages/$d"));
+    @files = grep {/\.(?:deb|rpm|iso|desktopfiles)$/} @files;
+    push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
   if (!@send) {
-    print "build did not create packages\n";
+    print "build did not create anything to send back!\n";
     $ex = 1;
   }
 }
-if (@send) {
+my $code;
+if (!$ex) {
   print "build succeeded, send everything back...\n";
-  push @send, {name => 'meta', filename => "$buildroot/.build.meta"};
-} elsif ($ex != 2) {
+  $code = 'succeeded';
+} elsif ($ex == 2) {
+  print "build failed due to a bad host...\n";
+  $code = 'badhost';
+} else {
   print "build failed, send back logfile...\n";
-  push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$buildroot/.build.meta";
+  $code = 'failed';
 }
+push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$buildroot/.build.meta";
 push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 
 if (!$testmode) {
@@ -1115,17 +1161,13 @@ if (!$testmode) {
     data => \&BSHTTP::cpio_sender,
     cpiofiles => \@send,
   };
-  my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid");
-  if (!$ex) {
-    push @args, "code=succeeded";
-  } elsif ($ex == 2) {
+  my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid", "code=$code");
+  if ($code eq 'badhost') {
+    # don't transmit anything in the badhost case
     $param = {
       uri => "$repo->{'server'}/putjob",
       request => 'POST',
     };
-    push @args, "code=badhost";
-  } else {
-    push @args, "code=failed";
   }
   eval {
     my $res = BSRPC::rpc($param, undef, @args);
