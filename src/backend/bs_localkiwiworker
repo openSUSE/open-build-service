@@ -57,8 +57,6 @@ sub getbinaries_kiwiproduct {
   my ($buildinfo, $dir) = @_;
   # create list of prpaps
   my %prpaps;
-  my %collected;
-  my %collected_meta;
   for my $dep (@{$buildinfo->{'bdep'} || []}) {
     next unless $dep->{'package'};
     my $repoarch = $dep->{'repoarch'} || $buildinfo->{'arch'};
@@ -81,8 +79,6 @@ sub getbinaries_kiwiproduct {
       link("$reporoot/$prpap/$name", "$ddir/$arch/$name") || warn("link $reporoot/$prpap/$name $ddir/$arch/$name: $!\n");
       my $id = Build::queryhdrmd5("$ddir/$arch/$name") || "deaddeaddeaddeaddeaddeaddeaddead";
       $meta{"$prpap/$n.$arch"} = $id;
-      $collected{"$prpap/$name"} = "$ddir/$arch/$name";
-      $collected_meta{"$prpap/$name"} = "$prpap/$n.$arch";
     }
   }
   # create meta;
