@@ -16,6 +16,7 @@ DUMMY_USER_ATTR = {
 
 ### boot rails ###
 Rails::Initializer.run do |config|
+  config.frameworks -= [ :action_web_service, :active_resource ]
   config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
 end
 
@@ -55,7 +56,7 @@ def store_project( p )
     STDERR.puts "success"
     store_packages_for p
     return true
-  rescue RuntimeError => e
+  rescue DbProject::SaveError => e
     if e.message =~ /^unable to walk on path/
       STDERR.puts "delayed"
       return false
@@ -74,6 +75,8 @@ def store_packages_for( p )
     list.each_entry do |entry|
       STDERR.print "     #{entry.name} => "
       xpack = Xpackage.find entry.name, :project => p.name
+      # remove devel entries
+      xpack.data.each_element('devel') {|e| xpack.data.delete_element e}
       pack = Package.new( xpack.dump_xml, :project => p.name )
       
       create_missing_users_for xpack
@@ -111,22 +114,21 @@ def create_missing_users_for( meta )
   end
 end
 
-
+filter = Array.new
 #filter = ["Fedora:Core6", "Fedory:Extras6"];
 #filter = ['Apache:Modules', 'Apache', 'Fedora:Core5', 'Mandriva:2006', 'openSUSE:10.2', 'SUSE:SLES-9', 'SUSE:SLE-10:SDK',
 #  'Java:Sun-Java-1.5', 'SUSE:SL-10.1', 'SUSE:SL-10.0', 'SUSE:SL-9.3', 'SUSE:SLE-10', 'openSUSE:Factory'
 #];
-#filter = ['home:mkudlvasr']
-filter = []
+filter = %w(devel:tools:building SUSE:SLE-10:SP2:SDK home:dirkmueller:playground:kde4)
 
 projects = Xproject.find(:all)
 
 # maps project name to an array: [project_object, {packagename => package_object, ...}]
 cache = Hash.new
+restart = false
 
 STDERR.puts "--> storing projects"
 projects.each_entry do |entry|
-  next if entry.name == "abc>def"
 
   #if filter is set, only fetch the projects in the array
   if not filter.empty?
@@ -152,13 +154,22 @@ while( cache.length > 0 )
   STDERR.puts "--> trying to store previously unsaved projects, run [#{run_count += 1}]"
   tmp = cache.values.clone
   tmp.each do |p|
-  begin
-    if store_project(p)
-      cache.delete p.name.to_s
-      STDERR.puts "*** cache.length: #{cache.length}"
+    p.each_repository do |repo|
+      repo.each_path do |path|
+        unless cache.has_key?(path.project.to_s) or DbProject.find_by_name(path.project.to_s)
+          STDERR.puts "fetching dependency #{path.project}"
+          cache[path.project.to_s] = Project.new(Xproject.find(path.project.to_s).dump_xml) 
+        end
+      end
     end
-  rescue ActiveRecord::StatementInvalid => e
-    raise e
-  end
+
+    begin
+      if store_project(p)
+        cache.delete p.name.to_s
+        STDERR.puts "*** cache.length: #{cache.length}"
+      end
+    rescue ActiveRecord::StatementInvalid => e
+      raise e
+    end
   end
 end
