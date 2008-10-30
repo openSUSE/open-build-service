@@ -134,7 +134,6 @@ our $product = [
               'descriptiondir',
               [ 'releasepackage' => 'name', 'flag', 'version', 'release' ],
               'distribution',
-              'runmediacheck',
            ],
            [ 'runtimeconfig' =>
               'allowresolving',
@@ -191,6 +190,7 @@ our $productdesc = [
             'sourcemedia',
             'debugmedia',
             'create_pattern',
+            'run_media_check',
             'use_recommended',
             'use_suggested',
             'use_required',
