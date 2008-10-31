@@ -32,7 +32,12 @@ use BSXML;
 use BSProductXML;
 use BSKiwiXML;
 use BSXML;
-use BSConfig;
+
+my $bsdir;
+eval{
+  require BSConfig;
+  $bsdir = "$BSConfig::bsdir" if defined($BSConfig::bsdir);
+};
 
 
 # read the product xml file
@@ -635,7 +640,7 @@ sub createInstsource( $$$ )
         };
         if ( $runOnServer ) {
           for my $arch ( @{$re->{architectures}->{requiredarch}} ) {
-  	     my $path = "$BSConfig::bsdir/build/$localpath/$arch->{'ref'}/:full";
+  	     my $path = "$bsdir/build/$localpath/$arch->{'ref'}/:full";
   	     $h{source} = { path => $path };
 	     push @r, \%h;
              print "WARNING: local path $path does not exist !\n" if ( ! -e "$path" );
