@@ -500,11 +500,15 @@ sub groupToPackages( $$$$$ )
 		my @condArchs;
 		@condArchs  = split( /\s*,\s*/, $p->{arch} ) if( $p->{arch} );
 		# 
-		my $takeIt = 0;
-		foreach my $validArch( @validArchs ) {
-		    if( grep( /$validArch/, @condArchs ) ) {
-			$takeIt = 1;
-			last;
+		
+		my $takeIt = 1; # Take all condition tags if no arch-tag is there
+		if( $p->{arch} ) {
+		    $takeIt = 0;
+		    foreach my $validArch( @validArchs ) {
+			if( grep( /$validArch/, @condArchs ) ) {
+			    $takeIt = 1;
+			    last;
+			}
 		    }
 		}
 		if( $takeIt ) {
