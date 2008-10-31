@@ -366,7 +366,10 @@ sub findbins {
   return $repobins;
 }
 
-
+sub enabled {
+  my ($repoid, $disen, $default) = @_;
+  return BSUtil::enabled($repoid, $disen, $default, $myarch);
+}
 
 
 my $projpacks;		# global project/package data
@@ -550,6 +553,7 @@ sub set_building {
   my $packtype = $1 || 'spec';
 
   my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
+  push @bdeps, 'kiwi' if $packtype eq 'kiwi';
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {
@@ -597,7 +601,7 @@ sub set_building {
   }
   if ($info->{'extrasource'}) {
     push @bdeps, map {{
-      'name' => $_->{'file'}, 'notmeta' => 1, 'version' => '', 'arch' => 'src',
+      'name' => $_->{'file'}, 'notmeta' => 1, 'version' => '', 'repoarch' => 'src',
       'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
     }} @{$info->{'extrasource'}};
   }
@@ -630,8 +634,8 @@ sub set_building {
     $binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
   }
   my $debuginfo = $bconf->{'debuginfo'};
-  $debuginfo = enabled($repoid, $projpacks->{$projid}->{'debuginfo'}, $debuginfo, $myarch);
-  $debuginfo = enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
+  $debuginfo = enabled($repoid, $projpacks->{$projid}->{'debuginfo'}, $debuginfo);
+  $debuginfo = enabled($repoid, $pdata->{'debuginfo'}, $debuginfo);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
   writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
@@ -1747,8 +1751,8 @@ sub jobfinished {
   my $repodata = $repodatas->{$prp};
 
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   update_dst_full($repodata, $prp, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
@@ -1802,6 +1806,99 @@ sub importevent {
 ##########################################################################
 ##########################################################################
 ##
+##  kiwi-image package type handling
+##
+sub checkkiwiimage {
+  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $repodatas, $notready) = @_;
+
+  my $prp = "$projid/$repoid";
+  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+
+  my @repos;
+  for my $aprp (@aprps) {
+    $repodatas->{$aprp} ||= findbins($aprp);
+    my $repodata = $repodatas->{$aprp}; 
+    if (!$repodata) {
+      print "      - $packid (kiwi-image)\n";
+      print "        repository $aprp is unavailable";
+      return ('broken', "repository $aprp is unavailable");
+    }
+    push @repos, $repodata;
+  }
+  # clone config so that we can change it
+  $bconf = Storable::dclone($bconf);
+  delete $bconf->{'ignore'};
+  delete $bconf->{'ignoreh'};
+  Build::readdeps($bconf, undef, reverse @repos);
+  # expand deps for that path
+  my @deps = @{$info->{'dep'} || []};
+  my ($eok, @edeps) = Build::get_deps($bconf, [], @deps);
+  if (!$eok) {
+    print "      - $packid (kiwi-image)\n";
+    print "        expansion errors:\n";
+    print "            $_\n" for @edeps;
+    return ('expansion error', join(', ', @edeps));
+  }
+
+  my @new_meta;
+  push @new_meta, "$pdata->{'srcmd5'}  $packid";
+  for (@{$info->{'extrasource'} || []}) {
+    push @new_meta, "$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}";
+  }
+  my @blocked;
+  for my $aprp (@aprps) {
+    $repodatas->{$aprp} ||= findbins($aprp);
+    my $repodata = $repodatas->{$aprp};
+    my $gn = ($prp eq $aprp ? $notready : $globalnotready{$aprp}) || {};
+    my @b = grep {$gn->{$_}} @edeps;
+    if (@b) {
+      @b = map {"$aprp/$_"} @b if $prp ne $aprp;
+      push @blocked, @b;
+    }
+    next if @blocked;
+    for my $dep (@edeps) {
+      my $r = $repodata->{$dep};
+      next unless $r;
+      push @new_meta, "$r->{'hdrmd5'}  $aprp/$dep";
+    }
+  }
+  if (@blocked) {
+    print "      - $packid (kiwi-image)\n";
+    print "        blocked (@blocked)\n";
+    return ('blocked', join(', ', @blocked));
+  }
+  my @meta = split("\n", (readstr("$reporoot/$prp/$myarch/:meta/$packid", 1) || ''));
+  if (!$meta[0] || $meta[0] ne $new_meta[0]) {
+    print "      - $packid (kiwi-image)\n";
+    print "        src change, start build\n";
+    return ('scheduled', $bconf);
+  }
+  if (join('\n', @meta) eq join('\n', @new_meta)) {
+    print "      - $packid (kiwi-image)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+  my @diff = diffsortedmd5(0, \@meta, \@new_meta);
+  print "      - $packid (kiwi-image)\n";
+  print "        $_\n" for @diff;
+  print "        meta change, start build\n";
+  return ('scheduled', $bconf);
+}
+
+sub rebuildkiwiimage {
+  my ($projid, $repoid, $packid, $pdata, $info, $bconf) = @_;
+  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $info->{'dep'} || [], \@aprps);
+  if ($job) {
+    return ('scheduled', $job);
+  } else {
+    return ('broken', $joberror);
+  }
+}
+
+##########################################################################
+##########################################################################
+##
 ##  kiwi-product package type handling
 ##
 sub checkkiwiproduct {
@@ -1818,8 +1915,8 @@ sub checkkiwiproduct {
   for my $arch (@{$repo->{'arch'} || []}) {
     my $enabled = 1;
     $myarch = $arch;
-    $enabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1, $myarch);
-    $enabled = enabled($repoid, $pdata->{'build'}, $enabled, $myarch);
+    $enabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1);
+    $enabled = enabled($repoid, $pdata->{'build'}, $enabled);
     push @archs, $arch if $enabled;
   }
   $myarch = $savemyarch;
@@ -2307,8 +2404,8 @@ sub rebuildaggregate {
   $repodatas->{$prp} ||= findbins($prp);
   my $repodata = $repodatas->{$prp};
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   update_dst_full($repodata, $prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
@@ -2902,8 +2999,8 @@ while(1) {
 	  next unless -d "$gdst/$packid";
 	  my $useforbuildenabled = 1;
 	  my $pdata = $packs->{$packid};
-	  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-	  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
+	  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+	  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
 	  next unless $useforbuildenabled;
 	  $repodata{$prp} ||= findbins($prp);
 	  my $meta = "$gdst/:meta/$packid";
@@ -3148,11 +3245,9 @@ while(1) {
     my $packtype = $1 || 'spec';
     my @deps = @{$info->{'dep'} || []};
     if ($packtype eq 'kiwi') {
-      if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
-        # do not expand kiwi instsource dependencies
-	$pdeps{$packid} = \@deps;
-	next;
-      }
+      # do not expand kiwi dependencies
+      $pdeps{$packid} = \@deps;
+      next;
     }
     my ($eok, @edeps) = Build::get_deps($bconf, $subpacks{$info->{'name'}}, @deps);
     if (! $eok) {
@@ -3182,7 +3277,7 @@ while(1) {
   push @packs, @packs_experrors;
 
   my $projbuildenabled = 1;
-  $projbuildenabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1, $myarch) if $projpacks->{$projid}->{'build'};
+  $projbuildenabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1) if $projpacks->{$projid}->{'build'};
 
   # Step 2d: check status of all packages
   my %packstatus = ();
@@ -3231,7 +3326,7 @@ while(1) {
     }
 
     if ($pdata->{'build'}) {
-      if (!enabled($repoid, $pdata->{'build'}, $projbuildenabled, $myarch)) {
+      if (!enabled($repoid, $pdata->{'build'}, $projbuildenabled)) {
 	if ($projbuildenabled) {
 	  print "      - $packid (disabled)\n";
 	} else {
@@ -3287,6 +3382,8 @@ while(1) {
       # check if it is kiwi-product
       if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
 	$packtype = 'kiwi-product';
+      } else {
+	$packtype = 'kiwi-image';
       }
     }
     #print "      - $packid ($packtype)\n";
@@ -3329,7 +3426,26 @@ while(1) {
       next;
     }
 
-    # packtype is now spec/deb/kiwi
+    if ($packtype eq 'kiwi-image') {
+      my ($astatus, $aerror) = checkkiwiimage($projid, $repoid, $packid, $pdata, $info, $bconf, \%repodata, \%notready);
+      if ($astatus eq 'scheduled') {
+	# aerror contains new meta file in this case
+	($astatus, $aerror) = rebuildkiwiimage($projid, $repoid, $packid, $pdata, $info, $aerror);
+	if ($astatus eq 'scheduled') {
+	  # aerror contains jobid in this case
+	  $notready{$pname} = 1;
+	  $building{$packid} = $aerror || 'job';
+	  undef $aerror;
+	}
+	unlink("$reporoot/$prp/$myarch/:repodone");
+      }
+      $notready{$pname} = 1 if $astatus eq 'blocked';
+      $packstatus{$packid} = $astatus;
+      $packerror{$packid} = $aerror if defined $aerror;
+      next;
+    }
+
+    # packtype is now spec/deb
 
     if ($experrors{$packid}) {
       # retry expansion of this one
@@ -3530,13 +3646,14 @@ while(1) {
   print "    looked harder: $nharder\n" if $nharder;
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready)."\n";
   print "    took $prpchecktime seconds to check the packages\n";
-  if (!%notready || defined($BSConfig::immediate_push{$prp}) ) {
-    my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1, $myarch);
+  # we always publish kiwi...
+  if (!%notready || $prptype eq 'kiwi') {
+    my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
     my %pubenabled;
     for my $packid (@packs) {
       my $pdata = $packs->{$packid};
       if ($pdata->{'publish'}) {
-        $pubenabled{$packid} = enabled($repoid, $pdata->{'publish'}, $pubenabled, $myarch);
+        $pubenabled{$packid} = enabled($repoid, $pdata->{'publish'}, $pubenabled);
       } else {
         $pubenabled{$packid} = $pubenabled;
       }
@@ -3545,6 +3662,7 @@ while(1) {
     for my $packid (@packs) {
       $repodonestate .= "\0$packid" if $pubenabled{$packid};
     }
+    $repodonestate .= "\0$_" for sort keys %notready;
     $repodonestate = Digest::MD5::md5_hex($repodonestate);
     if (-e "$reporoot/$prp/$myarch/:repodone") {
       my $oldrepodone = readstr("$reporoot/$prp/$myarch/:repodone", 1) || '';
@@ -3558,20 +3676,17 @@ while(1) {
       } else {
 	print "    publishing is disabled\n";
       }
-    }elsif ( defined($BSConfig::immediate_push{$prp}) ) {
-      if (!@packs || grep {$_} values %pubenabled) {
-	mkdir_p("$reporoot/$prp/$myarch");
-	prpfinished($prp, \@packs, \%pubenabled, $bconf);
-      }
     }
-    $prpfinished{$prp} = 1;
-    if (!$prpnoleaf{$prp}) {
-      # only free data if all projects we depend on are finished, too.
-      # (we always have to do the expansion if something changes)
-      if (! grep {!$prpfinished{$_}} @{$prpdeps{$prp}}) {
-        print "    leaf prp, freeing data\n";
-        delete $repodata{$prp};
-        delete $lastcheck{"$prp/$_"} for @packs;
+    if (!%notready) {
+      $prpfinished{$prp} = 1;
+      if (!$prpnoleaf{$prp}) {
+	# only free data if all projects we depend on are finished, too.
+	# (we always have to do the expansion if something changes)
+	if (! grep {!$prpfinished{$_}} @{$prpdeps{$prp}}) {
+	  print "    leaf prp, freeing data\n";
+	  delete $repodata{$prp};
+	  delete $lastcheck{"$prp/$_"} for @packs;
+	}
       }
     }
   } else {

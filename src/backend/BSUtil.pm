@@ -24,7 +24,7 @@ package BSUtil;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8 enabled};
+@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8};
 
 use XML::Structured;
 use POSIX;
@@ -281,6 +281,7 @@ sub isotime {
   return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
 }
 
+# XXX: does that really belong here?
 sub enabled {
   my ($repoid, $disen, $default, $arch) = @_;
   return $default unless $disen;

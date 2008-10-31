@@ -875,6 +875,9 @@ sub kiwiparse  {
         if ($submd5 && $subfile) {
 	  push @extrasources, {'project' => $subprojid, 'package' => $subpackid, 'srcmd5' => $rev->{'srcmd5'}, 'file' => $subfile};
           my ($error, $kiwirepos, $kiwipackages, $kiwitypes, $extrasources) = kiwiparse($submd5, $subfile, $subprojid, $subpackid, $arch);
+	  if ($error) {
+	    return "$subprojid/$subpackid/$subfile: $error";
+	  }
           push @allrepos, @$kiwirepos;
           push @allpackages, @$kiwipackages;
           push @extrasources, @$extrasources;
