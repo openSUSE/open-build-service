@@ -187,6 +187,7 @@ our $productdesc = [
             'product',
             'name',
             'flavor',
+            'mediastyle',
             'sourcemedia',
             'debugmedia',
             'create_pattern',
