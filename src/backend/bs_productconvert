@@ -381,12 +381,12 @@ sub createMetadata( $$$ )
 #     return \@a;
 }
 
-sub useToPackages( $$ )
+sub useToPackages( $$$ )
 {
-    my ($prodRef, $medium ) = @_;
+    my ($prodRef, $medium, $archSetList ) = @_;
 
     return unless $medium;
-    
+
     my @packages;
 
     if (defined($medium->{use_undecided}) && $medium->{use_undecided} eq "true" ) {
@@ -410,7 +410,7 @@ sub useToPackages( $$ )
     
 	if( $useState->{group} ) {
 #	    print "Handling use of group $useState->{group}\n";
-	    push @packages, groupToPackages( $prodRef, 
+	    push @packages, groupToPackages( $prodRef, $archSetList,
 					     $useState->{group}, 
 					     $useRequired, 
 					     $useRecommended,
@@ -446,7 +446,18 @@ sub useToPackages( $$ )
 
 sub groupToPackages( $$$$$ ) 
 {
-    my ($prodRef, $group, $useReq, $useRec, $useSug ) = @_;
+    my ($prodRef, $archSetList, $group, $useReq, $useRec, $useSug ) = @_;
+
+    # generate the list of current architectures out of the archSetList
+    # FIXME: In all product configs I saw so far, there is only one entry 
+    # in the archsetlist.
+    # What does it mean if there are more? The following code takes all
+    # and allows all.
+    my @validArchs;
+    foreach my $archHashRef (@$archSetList) {
+	my $archSetRef = $archSets{$archHashRef->{ref}};
+	push @validArchs, $archSetRef->{productarch};
+    }
 
     my @groups = @{$prodRef->{group}}; 
     my $groupRef;
@@ -480,8 +491,24 @@ sub groupToPackages( $$$$$ )
 
 	if( $cond->{platform} ) {
 	    my @platforms = @{$cond->{platform}};
+
+	    # the condition only becomes a template
 	    foreach my $p ( @platforms ) {
-		%conditionTemplate = (%conditionTemplate, %{$p});
+		my @condArchs;
+		@condArchs  = split( /\s*,\s*/, $p->{arch} ) if( $p->{arch} );
+		# 
+		my $takeIt = 0;
+		foreach my $validArch( @validArchs ) {
+		    if( grep( /$validArch/, @condArchs ) ) {
+			$takeIt = 1;
+			last;
+		    }
+		}
+		if( $takeIt ) {
+		    %conditionTemplate = (%conditionTemplate, %{$p});
+		} else {
+		    # print "Skipping, condition arch does not match!\n";
+		}
 	    }
 	}
     }
@@ -621,7 +648,7 @@ sub createInstsource( $$$ )
 
     # repopackages
     my @packages;
-    my $useToPacks = useToPackages( $prodRef, $medium );
+    my $useToPacks = useToPackages( $prodRef, $medium, $archSetList );
 
     if( $useToPacks ) {
 	push @packages, { repopackage => $useToPacks };
