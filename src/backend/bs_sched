@@ -366,28 +366,6 @@ sub findbins {
   return $repobins;
 }
 
-sub enabled {
-  my ($repoid, $disen, $default) = @_;
-  return $default unless $disen;
-  if (($default || !defined($default)) && $disen->{'disable'}) {
-    for (@{$disen->{'disable'}}) {
-      next if exists($_->{'arch'}) && $_->{'arch'} ne $myarch;
-      next if exists($_->{'repository'}) && $_->{'repository'} ne $repoid;
-      $default = 0;
-      last;
-    }
-  }
-  if (!$default && $disen->{'enable'}) {
-    for (@{$disen->{'enable'}}) {
-      next if exists($_->{'arch'}) && $_->{'arch'} ne $myarch;
-      next if exists($_->{'repository'}) && $_->{'repository'} ne $repoid;
-      $default = 1;
-      last;
-    }
-  }
-  return $default;
-}
-
 
 
 
@@ -652,8 +630,8 @@ sub set_building {
     $binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
   }
   my $debuginfo = $bconf->{'debuginfo'};
-  $debuginfo = enabled($repoid, $projpacks->{$projid}->{'debuginfo'}, $debuginfo);
-  $debuginfo = enabled($repoid, $pdata->{'debuginfo'}, $debuginfo);
+  $debuginfo = enabled($repoid, $projpacks->{$projid}->{'debuginfo'}, $debuginfo, $myarch);
+  $debuginfo = enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
   writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
@@ -1769,8 +1747,8 @@ sub jobfinished {
   my $repodata = $repodatas->{$prp};
 
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   update_dst_full($repodata, $prp, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
@@ -1840,8 +1818,8 @@ sub checkkiwiproduct {
   for my $arch (@{$repo->{'arch'} || []}) {
     my $enabled = 1;
     $myarch = $arch;
-    $enabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1);
-    $enabled = enabled($repoid, $pdata->{'build'}, $enabled);
+    $enabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1, $myarch);
+    $enabled = enabled($repoid, $pdata->{'build'}, $enabled, $myarch);
     push @archs, $arch if $enabled;
   }
   $myarch = $savemyarch;
@@ -2329,8 +2307,8 @@ sub rebuildaggregate {
   $repodatas->{$prp} ||= findbins($prp);
   my $repodata = $repodatas->{$prp};
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   update_dst_full($repodata, $prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
@@ -2924,8 +2902,8 @@ while(1) {
 	  next unless -d "$gdst/$packid";
 	  my $useforbuildenabled = 1;
 	  my $pdata = $packs->{$packid};
-	  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-	  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+	  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+	  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
 	  next unless $useforbuildenabled;
 	  $repodata{$prp} ||= findbins($prp);
 	  my $meta = "$gdst/:meta/$packid";
@@ -3204,7 +3182,7 @@ while(1) {
   push @packs, @packs_experrors;
 
   my $projbuildenabled = 1;
-  $projbuildenabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1) if $projpacks->{$projid}->{'build'};
+  $projbuildenabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1, $myarch) if $projpacks->{$projid}->{'build'};
 
   # Step 2d: check status of all packages
   my %packstatus = ();
@@ -3253,7 +3231,7 @@ while(1) {
     }
 
     if ($pdata->{'build'}) {
-      if (!enabled($repoid, $pdata->{'build'}, $projbuildenabled)) {
+      if (!enabled($repoid, $pdata->{'build'}, $projbuildenabled, $myarch)) {
 	if ($projbuildenabled) {
 	  print "      - $packid (disabled)\n";
 	} else {
@@ -3553,12 +3531,12 @@ while(1) {
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready)."\n";
   print "    took $prpchecktime seconds to check the packages\n";
   if (!%notready || defined($BSConfig::immediate_push{$prp}) ) {
-    my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
+    my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1, $myarch);
     my %pubenabled;
     for my $packid (@packs) {
       my $pdata = $packs->{$packid};
       if ($pdata->{'publish'}) {
-        $pubenabled{$packid} = enabled($repoid, $pdata->{'publish'}, $pubenabled);
+        $pubenabled{$packid} = enabled($repoid, $pdata->{'publish'}, $pubenabled, $myarch);
       } else {
         $pubenabled{$packid} = $pubenabled;
       }

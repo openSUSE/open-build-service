@@ -24,7 +24,7 @@ package BSUtil;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8};
+@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8 enabled};
 
 use XML::Structured;
 use POSIX;
@@ -279,6 +279,28 @@ sub isotime {
   my ($t) = @_;
   my @lt = localtime($t || time());
   return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
+}
+
+sub enabled {
+  my ($repoid, $disen, $default, $arch) = @_;
+  return $default unless $disen;
+  if (($default || !defined($default)) && $disen->{'disable'}) {
+    for (@{$disen->{'disable'}}) {
+      next if exists($_->{'arch'}) && $_->{'arch'} ne $arch;
+      next if exists($_->{'repository'}) && $_->{'repository'} ne $repoid;
+      $default = 0;
+      last;
+    }
+  }
+  if (!$default && $disen->{'enable'}) {
+    for (@{$disen->{'enable'}}) {
+      next if exists($_->{'arch'}) && $_->{'arch'} ne $arch;
+      next if exists($_->{'repository'}) && $_->{'repository'} ne $repoid;
+      $default = 1;
+      last;
+    }
+  }
+  return $default;
 }
 
 1;

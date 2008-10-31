@@ -971,7 +971,7 @@ sub getbuildinfo {
     $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
     die("no such project/package/repository\n") unless $projpack->{'project'};
   } else {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch");
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", defined($packid) ? "package=$packid" : ());
     die("no such project/repository\n") unless $projpack->{'project'};
     $uploaded = 1;
   }
@@ -1001,6 +1001,9 @@ sub getbuildinfo {
     $ret->{'error'} = $pdata->{'error'};
     return ($ret, $BSXML::buildinfo);
   }
+  my $debuginfo = enabled($repoid, $proj->{'debuginfo'}, 0, $arch);
+  $debuginfo = enabled($repoid, $proj->{'package'}->[0]->{'debuginfo'}, $debuginfo, $arch) if defined($packid);
+  $ret->{'debuginfo'} = $debuginfo;
 
   if (defined($packid) && exists($pdata->{'versrel'})) {
     $ret->{'versrel'} = $pdata->{'versrel'};
