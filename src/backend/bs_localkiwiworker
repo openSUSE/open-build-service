@@ -269,6 +269,7 @@ sub dobuild {
   print "running kiwi...\n";
   $ENV{'PATH'} = "$BSConfig::bsdir/kiwi/prgs:$ENV{'PATH'}";
   $ENV{'KIWI_ISO'} = "1";  # currently a hack to enable kiwi iso creation
+  $ENV{'APPID'} = "-"; # default value
   delete $ENV{'LANG'};     # set locale to POSIX to have the same always sort order
   my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
