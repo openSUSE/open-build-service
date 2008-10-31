@@ -177,13 +177,13 @@ sub expandproduct {
     mkdir_p($odir);
     if (system('./bs_productconvert', "$dir/$prod", $odir)) {
       warn("bs_productconvert failed: $?\n");
-      next;
+      return 0;
     }
     my @out = sort(ls($odir));
     if (!@out) {
       warn("bs_productconvert produced nothing\n");
       rmdir($odir);
-      next;
+      return 0;
     }
     for my $p (@out) {
       my $pdir = "$odir/$p";
@@ -233,6 +233,8 @@ sub expandproduct {
     unlink("$projectsdir/$projid.pkg/$opid.xml");
     notify_repservers('package', $projid, $opid);
   }
+
+  return 1;
 }
 
 sub addrev {
@@ -261,6 +263,10 @@ sub addrev {
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   die("bad files\n") if grep {/\//} keys %$files;
   die("bad files\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
+
+  if ($packid eq '_product') {
+    die("Product Conversation failed\n") if ( !expandproduct($projid, $packid, $files, $user) );
+  }
 
   # get version/release from rpm spec/deb dsc/kiwi xml file
   my $version = 'unknown';
@@ -294,10 +300,6 @@ sub addrev {
   # kill upload revision as we did a real commit
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
   # XXX: Hermes?
-
-  if ($packid eq '_product') {
-    expandproduct($projid, $packid, $files, $user);
-  }
 
   notify_repservers('package', $projid, $packid);
   return $rev;
