@@ -847,7 +847,7 @@ if (defined($oneshot)) {
 chdir($statedir) || die("$statedir: $!\n");
 
 
-BSServer::deamonize(@ARGV);
+BSServer::deamonize(@ARGV) unless $oneshot;
 
 # calculate code meta md5
 my $workercode = codemd5('worker');
