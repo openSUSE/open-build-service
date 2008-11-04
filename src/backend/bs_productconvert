@@ -359,6 +359,7 @@ sub createMetadata( $$$ )
     my @packages;
     my @files;
     my $onlyarch;
+    my $removearch;
     foreach my $requiredArch( @{$archSetList} ) {
 	my $ref = $requiredArch->{ref};
 	unless( $archSets{$ref} ) {
@@ -367,14 +368,19 @@ sub createMetadata( $$$ )
 	}
         $onlyarch .= "$archSets{$ref}->{productarch},";
     };
-    $onlyarch .= "noarch";
     my $metadata_medium = "0";
 #    $metadata_medium = "1" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     foreach my $pack ( @{ $medium->{metadata}->{package} } ) {
+        if ($pack->{removearch}){
+          next if containsMyArch( $prodRef, $archSetList, $pack->{removearch} );
+          $removearch = "$pack->{removearch},src,nosrc";
+        }else{
+          $removearch = "src,nosrc";
+        }
 	push @packages, { name => $pack->{name}, 
 			  medium => $metadata_medium, 
-			  onlyarch => $onlyarch,
-			  removearch => "src" };
+			  removearch => $removearch,
+			  onlyarch => $onlyarch };
     }
 
     my @a;
@@ -387,6 +393,23 @@ sub createMetadata( $$$ )
 #     # push @a, { file => \@files }; CHECK: Needed?
 # 
 #     return \@a;
+}
+
+sub containsMyArch( $$$ )
+{
+    my ($prodRef, $archSetList, $archList ) = @_;
+
+    foreach my $s( split( /\s*,\s*/, $archList ) ){
+      foreach my $requiredArch( @{$archSetList} ) {
+	my $ref = $requiredArch->{ref};
+	unless( $archSets{$ref} ) {
+	    print "ERROR: No such archset $requiredArch\n";
+	    next;
+	}
+        return 1 if ( $s eq $archSets{$ref}->{productarch} );
+      }
+    }
+    return 0;
 }
 
 sub useToPackages( $$$ )
@@ -435,12 +458,15 @@ sub useToPackages( $$$ )
 		    if( ( $useRequired    && $addPack->{relationship} eq "requires") ||
 			( $useRecommended && $addPack->{relationship} eq "recommends" ) ||
 			( $useSuggested   && $addPack->{relationship} eq "suggests" ) ) {
-		
-			if ( defined($addPack->{medium}) ) {	
-			  push @packages, { name => $addPack->{name}, medium => $addPack->{medium} };
-                        } else { 
-			  push @packages, { name => $addPack->{name} };
+
+			my %tmp;
+                        $tmp{name} = $addPack->{name};
+                        $tmp{medium} = $addPack->{medium} if (defined($addPack->{medium}));
+                        if ($addPack->{removearch}) {
+                          next if containsMyArch( $prodRef, $archSetList, $addPack->{removearch} );
+                          $tmp{removearch} = $addPack->{removearch};
                         }
+			push @packages, \%tmp;
 		    }
 		}
 	    }
