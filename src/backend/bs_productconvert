@@ -531,7 +531,6 @@ sub groupToPackages( $$$$$ )
 		my @condArchs;
 		@condArchs  = split( /\s*,\s*/, $p->{arch} ) if( $p->{arch} );
 		# 
-		
 		my $takeIt = 1; # Take all condition tags if no arch-tag is there
 		if( $p->{arch} ) {
 		    $takeIt = 0;
@@ -545,12 +544,15 @@ sub groupToPackages( $$$$$ )
 		if( $takeIt ) {
 		    %conditionTemplate = (%conditionTemplate, %{$p});
 		} else {
-		    # print "Skipping, condition arch does not match!\n";
+		    # This condition does not match, so drop it
 		}
 	    }
 	}
     }
 
+    # Drop this group, if condition(s) exist for it, but none matches for this platform
+    return () if ( @{$groupRef->{conditional}} > 0 && !keys %conditionTemplate );
+ 
     my $useFlags = { requires => $useReq || 0, recommends => $useRec || 0, suggests => $useSug || 0 };
 
     my @resultList;
@@ -563,11 +565,16 @@ sub groupToPackages( $$$$$ )
 	    my @packs = @{$packList->{package}};
 	    foreach my $pack ( @packs ) {
 		my %h = %conditionTemplate;
+                my $takeIt = 1;
+
+                $takeIt = 0 unless $pack->{conditional};
 
 		# print Dumper $pack;
 		foreach my $condList( @{$pack->{conditional} } ) {
 		    my $name = $condList->{name};
 		    my $cond = $conditionals{$name};
+                    next unless defined $h{$name};
+                    $takeIt = 1;
 		    print "Handling package conditional $name\n";
 		    # print Dumper "Conditional: ". $cond . "\n";
 		    
@@ -581,7 +588,6 @@ sub groupToPackages( $$$$$ )
 			$h{medium} = $cond->{media}->{number};
 		    }
 		}
-
 		$h{name} = $pack->{name};
 		push @resultList, \%h;
 	    }
