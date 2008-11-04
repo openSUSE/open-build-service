@@ -406,6 +406,8 @@ sub getcode {
     die("bs_worker selftest failed\n") if system("cd $ndir && ./bs_worker --selftest");
   } elsif ($dir eq 'build') {
     symlink('.', "$ndir/Build") || die("symlink: $!\n");
+    symlink('.', "$ndir/Date") || die("symlink: $!\n");
+    symlink('.', "$ndir/Time") || die("symlink: $!\n");
     # we just change everyfile to be on the safe side
     chmod(0755, "$ndir/$_->{'name'}") for @$res;
   }
@@ -684,8 +686,12 @@ sub dobuild {
   my $helper = '';
   /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
 
-  print "Building '$buildinfo->{'package'}' for project '$projid' repository '$repoid' arch '$arch'\n";
-  print "using helper $helper\n" if $helper;
+  my @lt = localtime(time());
+  my $timestring = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
+  
+  print "$timestring: building '$buildinfo->{'package'}' for project '$projid' repository '$repoid' arch '$arch'";
+  print " using helper $helper" if $helper;
+  print "\n";
 
   unlink("$buildroot/.build.meta");
   rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
@@ -699,10 +705,10 @@ sub dobuild {
   $pkgdir = "$srcdir/repos" if $kiwimode;
 
   my @meta;
-  print "fetching sources...";
+  print "fetching sources, ";
   mkdir($srcdir) || die("mkdir $srcdir $!\n");
   push @meta, getsources($buildinfo, $srcdir);
-  print "\nfetching packages...\n";
+  print "packages, ";
   push @meta, getbinaries($buildinfo, $pkgdir);
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
@@ -764,7 +770,7 @@ sub dobuild {
     push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
     writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
 
-    print "building...\n" if $silent;
+    print "building...\n";
     push @args, "$statedir/build/build";
     if ($xen) {
       mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
@@ -1039,7 +1045,7 @@ if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'build
 rename('job.new', 'job') || die("rename job.new job: $!\n");
 
 if ($hostcheck) {
-  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", 'precheck')) {
+  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", 'precheck', $buildroot)) {
     unlink('job');
     die("400 cannot build this package\n");
   }

@@ -858,6 +858,7 @@ sub createexportjob {
     'arch' => $arch,
     'job' => $job,
   };
+  mkdir_p("$jobsdir/$arch") unless -d "$jobsdir/$arch";
   writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
   my $dir = "$jobsdir/$arch/$job:dir";
   mkdir_p($dir);
