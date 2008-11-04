@@ -859,7 +859,7 @@ sub kiwiparse  {
 
     # Parse included kiwi configs
     if (defined $type->{'boot'}) {
-      if ($type->{'boot'} =~ /^obs:\/\/(.+)$/ ) {
+      if ($type->{'boot'} =~ /^obs:\/\/\/?([^\/]+\/[^\/]+)\/?$/ ) {
         my ($subprojid, $subpackid) = split('/', $1, 2);
         my $rev = getrev($subprojid, $subpackid);
 	if (!$rev || $rev->{'srcmd5'} eq 'empty') {
@@ -894,7 +894,7 @@ sub kiwiparse  {
   if ($kiwidesc->{'instsource'}) {
     for my $repository (@{$kiwidesc->{'instsource'}->{'instrepo'}}) {
       my $kiwisource =  $repository->{'source'};
-      if ($kiwisource->{'path'} =~ /^obs:\/\/(.+)$/) {
+      if ($kiwisource->{'path'} =~ /^obs:\/\/\/?([^\/]+\/[^\/]+)\/?$/) {
 	my @s = split('/', $1, 2);
 	# Project in remote build service instance ?
 # FIXME: handle remote projects
@@ -923,7 +923,7 @@ sub kiwiparse  {
   # this should maybe moved above to the expandrepos calls without harming performance
   for my $repository (@{$kiwidesc->{'repository'} || []}) {
     my $kiwisource =  $repository->{'source'};
-    if ($kiwisource->{'path'} =~ /^obs:\/\/(.+)$/) {
+    if ($kiwisource->{'path'} =~ /^obs:\/\/\/?([^\/]+\/[^\/]+)\/?$/) {
       my @s = split('/', $1, 2);
       # Project in remote build service instance ?
 # FIXME: handle remote projects
