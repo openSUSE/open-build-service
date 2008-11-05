@@ -321,7 +321,9 @@ sub createProductOptions($$$)
       $info{'LABEL'}        = $summary->{'_content'}." ".$product->{'version'} if ( ! $summary->{'language'} );
     }
     foreach my $url ( @{$product->{'urls'}->{'url'}} ){
-        if ( $url->{'name'} eq 'releasenotes' ){
+        if ( $url->{'name'} eq 'repository' ){
+            $info{'REPO_LOCATION'} = $url->{'_content'};
+        }elsif ( $url->{'name'} eq 'releasenotes' ){
             my $relnotesurl = $url->{'_content'};
             $relnotesurl =~ s/%{_target_cpu}/$arch/g;
             $info{'RELNOTESURL'} = $relnotesurl;
