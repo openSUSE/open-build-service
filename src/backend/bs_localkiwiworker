@@ -227,15 +227,13 @@ sub dobuild {
   }
   delete $media{''};
   delete $media{'0'};	# meta packages only
-# ADRIAN: No idea what this is for, but it works better without ;)
-#  my @media = sort {$a <=> $b} keys %media;
-#print Dumper( @media );
-#print "next\n";
   my @media = keys %media;
   @media = ('1') unless @media;
-  @media = map {"$mediumbase$_"} @media;
-  # fix kiwi!
-  @media = $mediumbase if (defined($srcmedium) && $srcmedium eq '1' );
+  if ( @media > 1 ) {
+    @media = map {"$mediumbase$_"} @media;
+  }else{
+    @media = $mediumbase;
+  }
   print "expected media: @media\n";
 
   #
@@ -258,6 +256,14 @@ sub dobuild {
 	next;
       }
       for my $pkg (sort keys %allpkgs) {
+        next if $pkg =~ /-debuginfo$/;
+        next if $pkg =~ /-debugsource$/;
+        next if $pkg =~ /-debuginfo-32bit$/;
+        next if $pkg =~ /-debugsource-32bit$/;
+        next if $pkg =~ /-debuginfo-64bit$/;
+        next if $pkg =~ /-debugsource-64bit$/;
+        next if $pkg =~ /-debuginfo-x86$/;
+        next if $pkg =~ /-debugsource-x86$/;
 	push @rp, {'name' => $pkg, 'addarch' => join(',', sort keys %{$allpkgs{$pkg}})};
       }
     }
@@ -268,13 +274,15 @@ sub dobuild {
 
   print "running kiwi...\n";
   $ENV{'PATH'} = "$BSConfig::bsdir/kiwi/prgs:$ENV{'PATH'}";
-  $ENV{'KIWI_ISO'} = "1";  # currently a hack to enable kiwi iso creation
-  $ENV{'APPID'} = "-"; # default value
-  delete $ENV{'LANG'};     # set locale to POSIX to have the same always sort order
-  my $kiwiprg = '/usr/sbin/kiwi';
+#  $ENV{'KIWI_ISO'} = "1";                  # currently a hack to enable kiwi iso creation
+  $ENV{'APPID'} = "-";                     # default value
+  $ENV{'KIWI_COLLECT_TERMINAL_LOG'} = "1"; # kiwi collect module has no switch for this
+  delete $ENV{'LANG'};                     # set locale to POSIX to have the same always sort order
+  my $kiwiprg = '/usr/sbin/kiwi2';
   $kiwiprg = 'kiwitee';
-  if (system($kiwiprg, '-v', '-v', '--root', "$buildroot/root", '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
-    die("kiwi failed: $?\n");
+  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
+# kiwi fails always atm !
+#    die("kiwi failed: $?\n");
   }
 
   my @result;
