@@ -19,6 +19,7 @@ class DbProject < ActiveRecord::Base
   has_many :build_flags,  :order => :position
   has_many :debuginfo_flags,  :order => :position
   has_many :useforbuild_flags,  :order => :position
+  has_many :binarydownload_flags,  :order => :position
 
   has_one :meta_cache, :as => :cachable, :dependent => :delete
   
@@ -134,7 +135,7 @@ class DbProject < ActiveRecord::Base
       # and recreate the flag groups and flags again
       flag_compatibility_check( :project => project )
 
-      ['build', 'publish', 'debuginfo', 'useforbuild'].each do |flagtype|
+      %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
         update_flags( :project => project, :flagtype => flagtype )
       end
 
@@ -327,40 +328,16 @@ class DbProject < ActiveRecord::Base
         project.person( :userid => u.login, :role => u.role_name )
       end
 
-
-      #TODO put the flag stuff in a loop
-      unless self.build_flags.empty?
-        project.build do
-          self.build_flags.each do |build_flag|
-          project << " "*4 + build_flag.to_xml.to_s + "\n"
+      %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|
+        flaglist = __send__(flag_name+"_flags")
+        unless flaglist.empty?
+          project.__send__(flag_name) do
+            flaglist.each do |flag|
+              project << " "*4 + flag.to_xml.to_s+"\n"
+            end
           end
         end
       end
-
-      unless self.publish_flags.empty?
-        project.publish do
-          self.publish_flags.each do |publish_flag|
-          project << " "*4 + publish_flag.to_xml.to_s + "\n"
-          end
-        end
-      end
-
-      unless self.debuginfo_flags.empty?
-        project.debuginfo do
-          self.debuginfo_flags.each do |debuginfo_flag|
-          project << " "*4 + debuginfo_flag.to_xml.to_s + "\n"
-          end
-        end
-      end
-
-      unless self.useforbuild_flags.empty?
-        project.useforbuild do
-          self.useforbuild_flags.each do |useforbuild_flags|
-          project << " "*4 + useforbuild_flags.to_xml.to_s + "\n"
-          end
-        end
-      end
-
 
       repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
       repos.each do |repo|
@@ -439,17 +416,10 @@ class DbProject < ActiveRecord::Base
     flag = nil
 
     #translate the flag types as used in the xml to model name + s
-    case opts[:flagtype].to_sym
-      when :build
-        flagtype = "build_flags"
-      when :publish
-        flagtype = "publish_flags"
-      when :debuginfo
-        flagtype = "debuginfo_flags"
-      when :useforbuild
-        flagtype = "useforbuild_flags"
-      else
-        raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
+    if %w(build publish debuginfo useforbuild binarydownload).include? opts[:flagtype].to_s
+      flagtype = opts[:flagtype].to_s + "_flags"
+    else
+      raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
     end
 
     if project.has_element? opts[:flagtype].to_sym

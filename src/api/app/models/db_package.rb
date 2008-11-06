@@ -18,6 +18,7 @@ class DbPackage < ActiveRecord::Base
   has_many :build_flags,  :order => :position
   has_many :debuginfo_flags,  :order => :position
   has_many :useforbuild_flags,  :order => :position
+  has_many :binarydownload_flags,  :order => :position
 
   has_one :meta_cache, :as => :cachable, :dependent => :delete
 
@@ -139,7 +140,7 @@ class DbPackage < ActiveRecord::Base
 
       #---begin enable / disable flags ---#
       flag_compatibility_check( :package => package )
-      ['build', 'publish', 'debuginfo', 'useforbuild'].each do |flagtype|
+      %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
         update_flags( :package => package, :flagtype => flagtype )
       end
 
@@ -262,39 +263,17 @@ class DbPackage < ActiveRecord::Base
         package.person( :userid => u.login, :role => u.role_name )
       end
 
-      #TODO put the flag stuff in a loop
-      unless self.build_flags.empty?
-        package.build do
-          self.build_flags.each do |build_flag|
-            package << " "*4 + build_flag.to_xml.to_s + "\n"
+      %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|
+        flaglist = __send__(flag_name+"_flags")
+        unless flaglist.empty?
+          package.__send__(flag_name) do
+            flaglist.each do |flag|
+              package << " "*4 + flag.to_xml.to_s+"\n"
+            end
           end
         end
       end
-
-      unless self.publish_flags.empty?
-        package.publish do
-          self.publish_flags.each do |publish_flag|
-            package << " "*4 + publish_flag.to_xml.to_s + "\n"
-          end
-        end
-      end
-
-      unless self.debuginfo_flags.empty?
-        package.debuginfo do
-          self.debuginfo_flags.each do |debuginfo_flag|
-            package << " "*4 + debuginfo_flag.to_xml.to_s + "\n"
-          end
-        end
-      end
-
-      unless self.useforbuild_flags.empty?
-        package.useforbuild do
-          self.useforbuild_flags.each do |useforbuild_flags|
-            package << " "*4 + useforbuild_flags.to_xml.to_s + "\n"
-          end
-        end
-      end
-      
+     
       package.url( url ) if url
 
     end
@@ -361,17 +340,10 @@ class DbPackage < ActiveRecord::Base
     flag = nil
 
     #translates the flag types as used in the xml to model name + s
-    case opts[:flagtype].to_sym
-      when :build
-        flagtype = "build_flags"
-      when :publish
-        flagtype = "publish_flags"
-      when :debuginfo
-        flagtype = "debuginfo_flags"
-      when :useforbuild
-        flagtype = "useforbuild_flags"
-      else
-        raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
+    if %w(build publish debuginfo useforbuild binarydownload).include? opts[:flagtype].to_s
+      flagtype = opts[:flagtype].to_s + "_flags"
+    else
+      raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
     end
 
     if package.has_element? opts[:flagtype].to_sym

@@ -9,6 +9,7 @@ class Architecture < ActiveRecord::Base
   has_many :publish_flags
   has_many :debuginfo_flags
   has_many :useforbuild_flags
+  has_many :binarydownload_flags
 
 
   def self.archcache
