@@ -478,8 +478,10 @@ sub getsources {
   my @sdep = grep {($_->{'repoarch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
   for my $src (@sdep) {
     print "$src->{'name'}, ";
-    my $idir = "$dir/images/$src->{'project'}/$src->{'package'}";
-    mkdir_p("$idir/root") || die("mkdir_p $idir/root: $!\n");
+    my $idir = "$src->{'project'}/$src->{'package'}";
+    $idir =~ s/:/:\//g;	# grr!
+    $idir = "$dir/images/$idir";
+    mkdir_p($idir);
     my $res = BSRPC::rpc({
       uri => "$srcserver/getsources",
       directory => $idir,
@@ -492,14 +494,6 @@ sub getsources {
       die("getsources: $errors");
     }
     push @meta, "$src->{'srcmd5'}  $src->{'project'}/$src->{'package'}";
-    # untar the root directory for kiwi
-    if (-e "$idir/root.tar.bz2") {
-      qsystem('tar', 'xfj', "$idir/root.tar.bz2", "-C", "$idir/root") && die ("untar call for $idir/root.tar.bz2 failed");
-    } elsif (-e "$idir/root.tar.gz") {
-      qsystem('tar', 'xfz', "$idir/root.tar.gz", "-C", "$idir/root") && die ("untar call for $idir/root.tar.gz failed");
-    } elsif (-e "$idir/root.tar") {
-      qsystem('tar', 'xf', "$idir/root.tar", "-C", "$idir/root") && die ("untar call for $idir/root.tar failed");
-    }
   }
   return @meta;
 }
@@ -584,7 +578,7 @@ sub getbinaries_kiwiproduct {
 }
 
 sub getbinaries {
-  my ($buildinfo, $dir) = @_;
+  my ($buildinfo, $dir, $srcdir) = @_;
 
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
 
@@ -599,6 +593,7 @@ sub getbinaries {
   }
 
   my @bdep = @{$buildinfo->{'bdep'} || []};
+  my %bdep_notmeta = map {$_->{'name'} => 1} grep {$_->{'notmeta'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
   @bdep = map {$_->{'name'}} grep {($_->{'repoarch'} || '') ne 'src'} @bdep;
 
   my %done;
@@ -616,7 +611,7 @@ sub getbinaries {
     if ($kiwimode) {
       my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
       $prpdir =~ s/:/:\//g;
-      $ddir .= "/$prpdir";
+      $ddir = "$srcdir/repos/$prpdir";
       # Always try to get all binaries, because kiwi needs to decide which to take
       push @args, "binaries=".join(',', @bdep);
     } else {
@@ -646,10 +641,10 @@ sub getbinaries {
 	my $n = $1;
 	my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
 	push @meta, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
+	if ($bdep_notmeta{$n}) {
+	  link("$ddir/$f->{'name'}", "$dir/$f->{'name'}") unless -e "$dir/$f->{'name'}";
+	}
       }
-      # FIXME: depend this call on repo type setting in kiwi, better
-      # modularise this in a generic way also for QA and package build usage.
-      qsystem('createrepo', $ddir); # || die ("createrepo call failed");
     }
   }
   die("getbinaries: missing packages: @todo\n") if @todo;
@@ -697,19 +692,16 @@ sub dobuild {
   rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
   rm_rf("$buildroot/.build-srcdir") if -d "$buildroot/.build-srcdir";
   rm_rf("$buildroot/.pkgs") if -d "$buildroot/.pkgs";
-  rm_rf("$buildroot/kiwi-root") if -d "$buildroot/kiwi-root";
 
-  # set directory defaults, kiwi needs repos and sources in same directory
   my $srcdir = "$buildroot/.build-srcdir";
   my $pkgdir = "$buildroot/.pkgs";
-  $pkgdir = "$srcdir/repos" if $kiwimode;
 
   my @meta;
   print "fetching sources, ";
   mkdir($srcdir) || die("mkdir $srcdir $!\n");
   push @meta, getsources($buildinfo, $srcdir);
   print "packages, ";
-  push @meta, getbinaries($buildinfo, $pkgdir);
+  push @meta, getbinaries($buildinfo, $pkgdir, $srcdir);
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
@@ -721,85 +713,56 @@ sub dobuild {
   my @args;
   push @args, $helper if $helper;
 
+  # build rpmlist for build script
+  my @rpmlist;
+  my @bdep = @{$buildinfo->{'bdep'} || []};
   if ($kiwimode) {
-    print "building KIWI preparation directory...\n";
-    push @args, "kiwi";
-    push @args, '--prepare', "$srcdir/";
-    push @args, '--logfile', "$buildroot/.build.log";
-    push @args, '--root', "$buildroot/kiwi-root";
-    if (qsystem(@args)) {
-      print "build failed\n";
-      return 1;
-    }
-
-    # loop to create all images specified in kiwi file
-    my @imagetypes = @{$buildinfo->{'imagetype'} || []};
-    mkdir("$buildroot/.build.packages") || die("mkdir $buildroot/.build.packages");
-    mkdir("$buildroot/.build.packages/KIWI") || die("mkdir $buildroot/.build.packages/KIWI");
-    for my $itype (@imagetypes) {
-      print "building KIWI image: $itype...\n";
-      @args = ();
-      push @args, $helper if $helper;
-      push @args, "kiwi";
-      push @args, "--create", "$buildroot/kiwi-root";
-      push @args, '--logfile', "$buildroot/.build.log.image";
-      push @args, "-d", "$buildroot/.build.packages/KIWI";
-      push @args, "--type", $itype;
-      if (qsystem(@args)) {
-        print "build failed\n";
-        return 1;
-      }
-      system( "cat", "$buildroot/.build.log.image", ">>", "$buildroot/.build.log" );
-      unlink( "$buildroot/.build.log.image" );
-    }
-  } else {
-    # build rpmlist for build script
-    my @rpmlist;
-    my @bdep = @{$buildinfo->{'bdep'} || []};
-    for my $bdep (map {$_->{'name'}} @bdep) {
-      if (-e "$pkgdir/$bdep.rpm") {
-        push @rpmlist, "$bdep $pkgdir/$bdep.rpm";
-      } elsif (-e "$pkgdir/$bdep.deb") {
-        push @rpmlist, "$bdep $pkgdir/$bdep.deb";
-      } else {
-        die("missing package: $bdep\n");
-      }
-    }
-    push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
-    push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
-    push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
-    writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
-
-    print "building...\n";
-    push @args, "$statedir/build/build";
-    if ($xen) {
-      mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
-      push @args, '--root', "$buildroot/.mount";
-      push @args, '--xen', "$xen_root";
-      push @args, '--xenswap', "$xen_swap";
-      my $xenmemory = readstr("$buildroot/memory", 1);
-      push @args, '--xenmemory', $xenmemory if $xenmemory;
+    @bdep = grep {$_->{'notmeta'}}
+    @bdep = grep {$_->{'notmeta'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
+  }
+  for my $bdep (map {$_->{'name'}} @bdep) {
+    if (-e "$pkgdir/$bdep.rpm") {
+      push @rpmlist, "$bdep $pkgdir/$bdep.rpm";
+    } elsif (-e "$pkgdir/$bdep.deb") {
+      push @rpmlist, "$bdep $pkgdir/$bdep.deb";
     } else {
-      push @args, '--root', $buildroot;
+      die("missing package: $bdep\n");
     }
-    push @args, '--clean';
-    push @args, '--changelog';
-    push @args, '--norootforbuild' unless $BSConfig::norootexceptions && $BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"};
-    push @args, '--baselibs-internal';
-    push @args, '--lint';
-    push @args, '--dist', "$buildroot/.build.config";
-    push @args, '--rpmlist', "$buildroot/.build.rpmlist";
-    push @args, '--logfile', "$buildroot/.build.log";
-    push @args, '--release', "$release" if defined $release;
-    push @args, '--debug' if $buildinfo->{'debuginfo'};
-    push @args, '--arch', $arch;
-    push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
-    push @args, '--disturl', "srcrep:$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
-    push @args, "$srcdir/$buildinfo->{'file'}";
-    if (qsystem(@args)) {
-      print "build failed\n";
-      return 1;
-    }
+  }
+  push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
+  push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
+  push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
+  writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
+
+  print "building...\n";
+  push @args, "$statedir/build/build";
+  if ($xen) {
+    mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
+    push @args, '--root', "$buildroot/.mount";
+    push @args, '--xen', "$xen_root";
+    push @args, '--xenswap', "$xen_swap";
+    my $xenmemory = readstr("$buildroot/memory", 1);
+    push @args, '--xenmemory', $xenmemory if $xenmemory;
+  } else {
+    push @args, '--root', $buildroot;
+  }
+  push @args, '--clean';
+  push @args, '--changelog';
+  push @args, '--norootforbuild' unless $BSConfig::norootexceptions && $BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"};
+  push @args, '--baselibs-internal';
+  push @args, '--lint';
+  push @args, '--dist', "$buildroot/.build.config";
+  push @args, '--rpmlist', "$buildroot/.build.rpmlist";
+  push @args, '--logfile', "$buildroot/.build.log";
+  push @args, '--release', "$release" if defined $release;
+  push @args, '--debug' if $buildinfo->{'debuginfo'};
+  push @args, '--arch', $arch;
+  push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
+  push @args, '--disturl', "srcrep:$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
+  push @args, "$srcdir/$buildinfo->{'file'}";
+  if (qsystem(@args)) {
+    print "build failed\n";
+    return 1;
   }
   if (! -s "$buildroot/.build.log") {
     print "build succeeded, but no logfile?\n";
@@ -1135,7 +1098,7 @@ if ($ex == 0) {
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   for my $d (@d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
-    @files = grep {/\.(?:deb|rpm|iso|desktopfiles)$/} @files;
+    @files = grep {-f $_} @files;
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
