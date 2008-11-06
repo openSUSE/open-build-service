@@ -950,15 +950,13 @@ sub kiwiparse  {
   if (!$kiwidesc->{'instsource'}) {
     my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
     if ($packman eq 'smart') { 
-      push @allpackages, 'smart';
+      unshift @allpackages, 'smart';
     } elsif ($packman eq 'zypper') { 
-      push @allpackages, 'zypper';
+      unshift @allpackages, 'zypper';
     } else {
       return ("unknown package manager: $packman");
     }
   }
-  my %allpackages = map {$_ => 1} @allpackages;
-  @allpackages = sort keys %allpackages;
   @allrepos = unify(@allrepos);
   @allpackages = unify(@allpackages);
   @alltypes = unify(@alltypes);
