@@ -553,13 +553,28 @@ sub set_building {
   my $packtype = $1 || 'spec';
 
   my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
-  push @bdeps, 'kiwi' if $packtype eq 'kiwi';
+
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {
     print "        expansion errors:\n";
     print "          $_\n" for @bdeps;
     return (undef, "expansion error: ".join(', ', @bdeps));
+  }
+
+  if ($packtype eq 'kiwi') {
+    $edeps = [ @bdeps ];
+    # find out which packages we need to run kiwi and friends
+    # packagemanager is always first dep
+    ($eok, @bdeps) = Build::get_build($bconf, [], 'kiwi', $info->{'dep'}->[0], 'createrepo', 'squashfs', 'tar');
+    if (!$eok) {
+      print "        expansion errors:\n";
+      print "          $_\n" for @bdeps;
+      return (undef, "expansion error: ".join(', ', @bdeps));
+    }
+    # remove all bdeps from edeps so that they are marked notmeta
+    my %bdeps = map {$_ => 1} @bdeps;
+    $edeps = [ grep {!$bdeps{$_}} @$edeps ];
   }
 
   # find the last build count we used for this version/release
@@ -601,7 +616,7 @@ sub set_building {
   }
   if ($info->{'extrasource'}) {
     push @bdeps, map {{
-      'name' => $_->{'file'}, 'notmeta' => 1, 'version' => '', 'repoarch' => 'src',
+      'name' => $_->{'file'}, 'version' => '', 'repoarch' => 'src',
       'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
     }} @{$info->{'extrasource'}};
   }
@@ -2077,7 +2092,7 @@ sub rebuildkiwiproduct {
   }
   if ($info->{'extrasource'}) {
     push @bdeps, map {{
-      'name' => $_->{'file'}, 'notmeta' => 1, 'version' => '', 'repoarch' => 'src',
+      'name' => $_->{'file'}, 'version' => '', 'repoarch' => 'src',
       'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
     }} @{$info->{'extrasource'}};
   }
