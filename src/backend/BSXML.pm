@@ -70,6 +70,7 @@ our @flags = (
       [ 'publish' => @disableenable ],
       [ 'debuginfo' => @disableenable ],
       [ 'useforbuild' => @disableenable ],
+      [ 'binarydownload' => @disableenable ],
 );
 
 our $proj = [
