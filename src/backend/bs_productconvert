@@ -284,13 +284,9 @@ sub createProductOptions($$$)
     };
     if (defined($medium->{'sourcemedia'})) {
       $options{'SOURCEMEDIUM'} = $medium->{'sourcemedia'};
-    }else{
-      $options{'SOURCEMEDIUM'} = 1;
     };
     if (defined($medium->{'debugmedia'})) {
       $options{'DEBUGMEDIUM'} = $medium->{'debugmedia'};
-    }else{
-      $options{'DEBUGMEDIUM'} = 1;
     };
     
     my $mediaStyle = "suse-11.1"; # fallback value
