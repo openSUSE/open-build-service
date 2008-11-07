@@ -270,6 +270,7 @@ our $buildinfo = [
 	'vminstall',
 	'runscripts',
 	'notmeta',
+	'noinstall',
 
 	'epoch',
 	'version',
