@@ -153,7 +153,6 @@ class Flag < ActiveRecord::Base
   def is_relevant_for?(in_repo, in_arch)
     arch = architecture ? architecture.name : nil
 
-    # if flag has no arch and repo, it is relevant for any repo/arch
     if arch.nil? and repo.nil?
       return true
     elsif arch.nil? and not repo.nil?
