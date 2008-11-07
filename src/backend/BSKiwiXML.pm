@@ -75,6 +75,7 @@ our $kiwidesc = [
           'rpm-force',
           'locale',
           'keytable',
+          'oem-home',
         ],
         [ 'instsource' =>
           [],
