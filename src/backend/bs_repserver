@@ -79,6 +79,11 @@ my $rundir = "$BSConfig::bsdir/run";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodb = "$BSConfig::bsdir/db/published";
 
+sub unify {
+  my %h = map {$_ => 1} @_;
+  return grep(delete($h{$_}), @_); 
+}
+
 # XXX read jobs instead?
 
 sub jobname {
@@ -985,6 +990,12 @@ sub getbuildinfo {
     die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
   }
 
+  my $info = $pdata->{'info'}->[0];
+  die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
+
+  my $packtype = 'spec';
+  $packtype = $1 if $info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
+
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
 
@@ -994,6 +1005,12 @@ sub getbuildinfo {
   $ret->{'package'} = $packid if defined $packid;
   $ret->{'arch'} = $arch;
   $ret->{'path'} = $repo->{'path'} || [];
+  $ret->{'path'} = $info->{'path'} if $packtype eq 'kiwi' && $info->{'path'};
+  if ($cgi->{'internal'}) {
+    for (@{$ret->{'path'}}) {
+      $_->{'server'} = $BSConfig::reposerver;
+    }
+  }
   $ret->{'srcmd5'} = $pdata->{'srcmd5'} if $pdata->{'srcmd5'};
   $ret->{'verifymd5'} = $pdata->{'verifymd5'} || $pdata->{'srcmd5'} if $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
   $ret->{'rev'} = $pdata->{'rev'} if $pdata->{'rev'};
@@ -1024,15 +1041,13 @@ sub getbuildinfo {
   }
 
   my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
-  my $info = $pdata->{'info'}->[0];
-  die("bad info\n") unless $info && ( $info->{'repository'} eq $repoid );
   if ($info->{'error'}) {
     $ret->{'error'} = $info->{'error'};
     return ($ret, $BSXML::buildinfo);
   }
   $ret->{'specfile'} = $info->{'file'} unless $uploaded;
   $ret->{'file'} = $info->{'file'} unless $uploaded;
-  if ($info->{'file'} =~ /\.kiwi$/) {
+  if ($packtype eq 'kiwi') {
     # Dependency breaking shall be ignored for real usage
     # package installer tools do not care about project ignores either ;)
     # FIXME: do not mess with the config!
@@ -1093,24 +1108,17 @@ sub getbuildinfo {
   #$ret->{'subpack'} = \@subpacks;
   Build::readdeps($bconf, undef, reverse @repos);
   my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
-  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
-  if ($1 && $1 ne $bconf->{'type'}) {
-    if ( $1 eq 'spec' ) {
-      push @deps, 'rpm';
-    } elsif ( $1 eq 'dsc' ) {
-      push @deps, 'dpkg';
-    } elsif ( $1 eq 'kiwi' ) {
-      push @deps, 'kiwi';
-    } else {
-      die( "unknown depency type!" );
-    };
-  }
   $Build::expand_dbg = 1 if $cgi->{'debug'};
+  @subpacks = () if $packtype eq 'kiwi';
   my @edeps = Build::get_deps($bconf, \@subpacks, @deps);
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @edeps) {
     $ret->{'error'} = "expansion error: ".join(', ', @edeps);
     return ($ret, $BSXML::buildinfo);
+  }
+  if ($packtype eq 'kiwi') {
+    # packages used for build environment
+    @deps = ('kiwi', $info->{'dep'}->[0], 'createrepo', 'tar');
   }
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   my @bdeps;
@@ -1124,39 +1132,29 @@ sub getbuildinfo {
     $ret->{'error'} = "expansion error: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
-  if ($cgi->{'internal'}) {
-    $ret->{'dep'} = \@edeps;
-    @bdeps = map {{'name' => $_}} @bdeps;
-    $ret->{'bdep'} = \@bdeps;
-    $ret->{'pdep'} = [ Build::get_preinstalls($bconf) ];
-    return ($ret, $BSXML::buildinfo);
-  }
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
+  my %bdeps = map {$_ => 1} @bdeps;
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @edeps;
 
-  @bdeps = (@pdeps, @vmdeps, @edeps, @bdeps);
-  my %ddeps;
-  for (splice(@bdeps)) {
-    next if $ddeps{$_};
-    push @bdeps, $_;
-    $ddeps{$_} = 1; 
+  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps);
+  my @bdepsp;
+  if (!$cgi->{'internal'}) {
+    for (@bdeps) {
+      my $p = $dep2rpm{$_}->{'path'};
+      $p =~ s/.*\///;
+      push @bdepsp, "$reporoot/$dep2prp{$_}/$arch/:full/$p";
+    }
+    @bdepsp = getbinarydata(@bdepsp);
   }
-  my @bdepsp = ();
-  for (@bdeps) {
-    my $p = $dep2rpm{$_}->{'path'};
-    $p =~ s/.*\///;
-    push @bdepsp, "$reporoot/$dep2prp{$_}/$arch/:full/$p";
-  }
-  @bdepsp = getbinarydata(@bdepsp);
   my %bdepsp = map {$_->{'name'} => $_} grep {exists($_->{'name'})} @bdepsp;
   for (@bdeps) {
     $_ = {'name' => $_};
-    if ($dep2prp{$_->{'name'}}) {
+    if ($dep2prp{$_->{'name'}} && !$cgi->{'internal'}) {
       ($_->{'project'}, $_->{'repository'}) = split('/', $dep2prp{$_->{'name'}}, 2);
     }
     my $r = $bdepsp{$_->{'name'}};
@@ -1169,20 +1167,18 @@ sub getbuildinfo {
     $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
+    $_->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_->{'name'}} && !($bdeps{$_->{'name'}} || $vmdeps{$_->{'name'}} || $pdeps{$_->{'name'}});
   }
 
   # add extra source (needed for kiwi)
   if ($info->{'extrasource'}) {
     push @bdeps, map {{
-      'name' => $_->{'file'}, 'notmeta' => 1, 'version' => '', 'arch' => 'src',
+      'name' => $_->{'file'}, 'version' => '', 'repoarch' => 'src',
       'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
     }} @{$info->{'extrasource'}};
   }
 
-  $ret->{'dep'} = \@edeps;
   $ret->{'bdep'} = \@bdeps;
-  $ret->{'pdep'} = \@pdeps;
-
   return ($ret, $BSXML::buildinfo);
 }
 
