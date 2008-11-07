@@ -1098,7 +1098,7 @@ if ($ex == 0) {
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   for my $d (@d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
-    @files = grep {-f $_} @files;
+    @files = grep {-f "$buildroot/.build.packages/$d/$_"} @files;
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
