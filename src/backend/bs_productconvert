@@ -303,6 +303,7 @@ sub createProductOptions($$$)
     $re->{productoption} = \@vars1;
 
     my %info;
+    $info{'VENDOR'}       = $product->{'vendor'};
     $info{'NAME'}         = $product->{'name'};
     my $rp = $product->{'installconfig'}->{'releasepackage'};
     $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
