@@ -88,6 +88,7 @@ our $product = [
            'version',
            'patchlevel',
            'release',
+           'arch',
            'productline',
            [ 'register' => 
               [],

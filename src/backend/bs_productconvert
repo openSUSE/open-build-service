@@ -753,6 +753,7 @@ sub writeProductSPECfile
 
     my $zypp_product;
     $zypp_product = $product;
+    $zypp_product->{'arch'} = '%{_target_cpu}'; # write product architecture during rpm build
     $zypp_product->{'schemeversion'} = "0"; # FIXME: moving target, still in development.
     my $d;
     $d->{"target"}  = $product->{'register'}->{'target'};
