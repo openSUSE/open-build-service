@@ -14,11 +14,11 @@ class DbPackage < ActiveRecord::Base
   has_many :ratings, :as => :object, :dependent => :destroy
 
   has_many :flags
-  has_many :publish_flags,  :order => :position
-  has_many :build_flags,  :order => :position
-  has_many :debuginfo_flags,  :order => :position
-  has_many :useforbuild_flags,  :order => :position
-  has_many :binarydownload_flags,  :order => :position
+  has_many :publish_flags,  :order => :position, :extend => FlagExtension
+  has_many :build_flags,  :order => :position, :extend => FlagExtension
+  has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension
+  has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension
+  has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
 
   has_one :meta_cache, :as => :cachable, :dependent => :delete
 

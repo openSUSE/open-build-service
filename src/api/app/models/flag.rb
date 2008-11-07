@@ -18,7 +18,7 @@ class Flag < ActiveRecord::Base
   def move_to_top
     if self.position == 1
       return true
-  end
+    end
 
     if self.db_package_id.nil?
       flags = Array.new
@@ -46,14 +46,9 @@ class Flag < ActiveRecord::Base
 
 
   def insert_at(pos=1)
-
     if pos == 0
       raise
     end
-
-#    if position == 1
-#      move_to_top
-#    end
 
     if self.position < pos
       1..(pos-self.position).times do
@@ -68,7 +63,6 @@ class Flag < ActiveRecord::Base
     else
       return true
     end
-
   end
 
 
@@ -155,6 +149,37 @@ class Flag < ActiveRecord::Base
     return false
   end
 
+  # returns true when flag is relevant for the given repo/arch combination
+  def is_relevant_for?(in_repo, in_arch)
+    arch = architecture ? architecture.name : nil
+
+    # if flag has no arch and repo, it is relevant for any repo/arch
+    if arch.nil? and repo.nil?
+      return true
+    elsif arch.nil? and not repo.nil?
+      return true if in_repo == repo
+    elsif not arch.nil? and repo.nil?
+      return true if in_arch == arch
+    else
+      return true if in_arch == arch and in_repo == repo
+    end
+
+    return false
+  end
+
+  def state
+    (status+"d").to_sym
+  end
+
+  class << self
+    def default_state(state=nil)
+      if state
+        @@default_state = state
+      end
+      @@default_state
+    end
+  end
+
 
   protected
   def validate
@@ -175,7 +200,6 @@ class Flag < ActiveRecord::Base
     end
   end
 
-
   private
   def set_position
     if self.db_package_id.nil?
@@ -186,6 +210,5 @@ class Flag < ActiveRecord::Base
     #Warning: The position will not be updated atm. Please delete flags,
     #starting at the end of the lis
   end
-
 
 end
