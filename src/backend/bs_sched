@@ -554,27 +554,17 @@ sub set_building {
 
   my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
 
+  if ($packtype eq 'kiwi') {
+    # packages used for build environment
+    @bdeps = ('kiwi', $info->{'dep'}->[0], 'createrepo', 'squashfs', 'tar');
+  }
+
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {
     print "        expansion errors:\n";
     print "          $_\n" for @bdeps;
     return (undef, "expansion error: ".join(', ', @bdeps));
-  }
-
-  if ($packtype eq 'kiwi') {
-    $edeps = [ @bdeps ];
-    # find out which packages we need to run kiwi and friends
-    # packagemanager is always first dep
-    ($eok, @bdeps) = Build::get_build($bconf, [], 'kiwi', $info->{'dep'}->[0], 'createrepo', 'squashfs', 'tar');
-    if (!$eok) {
-      print "        expansion errors:\n";
-      print "          $_\n" for @bdeps;
-      return (undef, "expansion error: ".join(', ', @bdeps));
-    }
-    # remove all bdeps from edeps so that they are marked notmeta
-    my %bdeps = map {$_ => 1} @bdeps;
-    $edeps = [ grep {!$bdeps{$_}} @$edeps ];
   }
 
   # find the last build count we used for this version/release
@@ -597,22 +587,18 @@ sub set_building {
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
+  my %bdeps = map {$_ => 1} @bdeps;
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @$edeps;
-  @bdeps = (@pdeps, @vmdeps, @$edeps, @bdeps);
-  my %ddeps;
-  for (splice(@bdeps)) {
-    next if $ddeps{$_};
-    push @bdeps, $_;
-    $ddeps{$_} = 1;
-  }
+  @bdeps = unify(@pdeps, @vmdeps, @$edeps, @bdeps);
   for (@bdeps) {
     $_ = {'name' => $_};
     $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
     $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
+    $_->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_->{'name'}} && !($bdeps{$_->{'name'}} || $vmdeps{$_->{'name'}} || $pdeps{$_->{'name'}});
   }
   if ($info->{'extrasource'}) {
     push @bdeps, map {{
@@ -1898,13 +1884,15 @@ sub checkkiwiimage {
   print "      - $packid (kiwi-image)\n";
   print "        $_\n" for @diff;
   print "        meta change, start build\n";
-  return ('scheduled', $bconf);
+  return ('scheduled', [ $bconf, \@edeps ]);
 }
 
 sub rebuildkiwiimage {
-  my ($projid, $repoid, $packid, $pdata, $info, $bconf) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $data) = @_;
+  my $bconf = $data->[0];
+  my $edeps = $data->[1];
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $info->{'dep'} || [], \@aprps);
+  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps);
   if ($job) {
     return ('scheduled', $job);
   } else {

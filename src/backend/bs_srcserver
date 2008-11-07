@@ -884,7 +884,7 @@ sub kiwiparse  {
           return ("refered KIWI config not found $subprojid $subpackid");
         }
       } else {
-        return ("non OBS kiwi image description refered in $projid $packid $file");
+        return ("non OBS kiwi image description refered in $projid $packid $file: $type->{'boot'}") if $type->{'boot'} =~ /^\//;
       }
     }
   }

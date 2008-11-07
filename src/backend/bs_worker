@@ -292,6 +292,7 @@ $srcserver = $BSConfig::srcserver unless defined $srcserver;
 
 if ($justbuild) {
   my $buildinfo = readxml($ARGV[0], $BSXML::buildinfo);
+  $| = 1;
   dobuild($buildinfo);
   exit(0);
 }
@@ -580,6 +581,7 @@ sub getbinaries_kiwiproduct {
 sub getbinaries {
   my ($buildinfo, $dir, $srcdir) = @_;
 
+  mkdir_p($dir);
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
 
   # NOTYET
@@ -593,6 +595,7 @@ sub getbinaries {
   }
 
   my @bdep = @{$buildinfo->{'bdep'} || []};
+  my %bdep_noinstall = map {$_->{'name'} => 1} grep {$_->{'noinstall'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
   my %bdep_notmeta = map {$_->{'name'} => 1} grep {$_->{'notmeta'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
   @bdep = map {$_->{'name'}} grep {($_->{'repoarch'} || '') ne 'src'} @bdep;
 
@@ -639,9 +642,11 @@ sub getbinaries {
       for my $f (@$res) {
 	next unless $f->{'name'} =~ /^(.*)\.(?:rpm|deb)$/;
 	my $n = $1;
-	my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
-	push @meta, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
-	if ($bdep_notmeta{$n}) {
+	if (!$bdep_notmeta{$n}) {
+	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
+	  push @meta, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
+	}
+	if (!$bdep_noinstall{$n}) {
 	  link("$ddir/$f->{'name'}", "$dir/$f->{'name'}") unless -e "$dir/$f->{'name'}";
 	}
       }
@@ -717,8 +722,8 @@ sub dobuild {
   my @rpmlist;
   my @bdep = @{$buildinfo->{'bdep'} || []};
   if ($kiwimode) {
-    @bdep = grep {$_->{'notmeta'}}
-    @bdep = grep {$_->{'notmeta'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
+    @bdep = grep {($_->{'repoarch'} || '') ne 'src'} @bdep;
+    @bdep = grep {!$_->{'noinstall'}} @bdep;
   }
   for my $bdep (map {$_->{'name'}} @bdep) {
     if (-e "$pkgdir/$bdep.rpm") {
@@ -815,6 +820,7 @@ BSServer::deamonize(@ARGV) unless $oneshot;
 # calculate code meta md5
 my $workercode = codemd5('worker');
 my $buildcode = codemd5('build');
+$| = 1;
 print "starting worker $workercode build $buildcode\n";
 
 # we always start idle
