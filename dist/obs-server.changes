@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Oct 24 12:07:20 CEST 2008 - froh@novell.com
+
+- fix webclient rails version requirement to be the same as the
+  api one
+
+-------------------------------------------------------------------
 Thu Oct 16 15:22:58 CEST 2008 - froh@novell.com
 
 update to svn branches/buildservice/1.0 -r5344:
