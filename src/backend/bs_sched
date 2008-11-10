@@ -2050,7 +2050,14 @@ sub rebuildkiwiproduct {
   my $srcmd5 = $pdata->{'srcmd5'};
   my $f = jobname($prp, $packid);
   return ('scheduled', "$f-$srcmd5") if -s "$myjobsdir/$f-$srcmd5";
+  my @otherjobs = grep {/^\Q$f\E-[0-9a-f]{32}$/} ls($myjobsdir);
   $f = "$f-$srcmd5";
+
+  # kill those ancient other jobs
+  for my $otherjob (@otherjobs) {
+    print "        killing old job $otherjob\n";
+    killjob($otherjob);
+  }
 
   my $searchpath = [];
   for (@$prpsearchpath) {
