@@ -35,6 +35,7 @@ Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
 Source15:       obsdispatcher
 Source20:       signd.init
+Source21:       bs_productconvert
 Patch:          buildservice-1.0.0-signd-pid.patch
 Patch1:         buildservice-1.0.0-sign_conf.patch
 Patch2:         buildservice-1.0.0-BSConfig_sign.patch
@@ -137,8 +138,15 @@ It needs a gpg implementation that understands the
   Author:	Michael Schroeder
 
 --------------------------------------------------------------------------------
-
-
+%package -n obs-productconverter
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- product definition utility
+Group:          Productivity/Networking/Web/Utilities
+#-------------------------------------------------------------------------------
+%description -n obs-productconverter
+#-------------------------------------------------------------------------------
+bs_productconvert is a utility to create Kiwi- and Spec- files from a
+product definition.
 #-------------------------------------------------------------------------------
 %prep
 #-------------------------------------------------------------------------------
@@ -260,6 +268,10 @@ done
 for k in 5 8; do
   install -m 0644 sig*.${k}.gz $RPM_BUILD_ROOT%{_mandir}/man${k}/
 done
+#
+# Install the bs_productconvert script
+# 
+install -m 0755 %SOURCE21 $RPM_BUILD_ROOT/usr/lib/obs/server/
 
 #-------------------------------------------------------------------------------
 %pre
@@ -447,6 +459,12 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 /usr/sbin/signd
 %{_mandir}/man5/*
 %{_mandir}/man8/signd.8.gz
+
+#-------------------------------------------------------------------------------
+%files -n obs-productconverter
+#-------------------------------------------------------------------------------
+%defattr(-,root,root)
+/usr/lib/obs/server/bs_productconvert
 
 #-------------------------------------------------------------------------------
 %changelog -n obs-server

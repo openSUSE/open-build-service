@@ -1,9 +1,13 @@
 -------------------------------------------------------------------
+Mon Nov 10 12:43:37 CET 2008 - froh@novell.com
+
+- add bs_productconvert and obs-productconvert subpackage as temporary
+  kludge to make this tool available.
+-------------------------------------------------------------------
 Fri Oct 24 12:07:20 CEST 2008 - froh@novell.com
 
 - fix webclient rails version requirement to be the same as the
   api one
-
 -------------------------------------------------------------------
 Thu Oct 16 15:22:58 CEST 2008 - froh@novell.com
 

@@ -1,0 +1,956 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2008 Klaas Freitag, Novell Inc.
+# Copyright (c) 2008 Adrian Schroeter, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Converter to create Kiwi- and Spec files from product definition
+#
+use strict;
+use Getopt::Std;
+use Data::Dumper;
+use File::Basename;
+
+use XML::Structured ':bytes';
+use BSUtil;
+use BSXML;
+use BSProductXML;
+use BSKiwiXML;
+use BSXML;
+
+my $bsdir;
+eval{
+  require BSConfig;
+  $bsdir = "$BSConfig::bsdir" if defined($BSConfig::bsdir);
+};
+
+
+# read the product xml file
+
+use vars qw ( $opt_h $opt_l $opt_d $opt_m 
+              @errors %conditionals %repositories %groupRefs %archSets $indir $runOnServer);
+
+my %product_requires;
+
+sub usage()
+{
+  print<<END
+
+  bs_productconvert product_file output_directory [project_name]
+
+  convert a product definition file to a spec- and a kiwi source file.
+
+  Options:
+
+  -h:   help, print this text.
+  -l:   Run local on server, use direct path instead of obs:// URL.
+  -d:   debug, create debug output and files
+  -m:   mediaset, build only for the given mediaset, identify by name
+END
+;
+
+  exit;
+}
+
+sub readProductFile( $ )
+{
+    my ($filename) = @_;
+
+    print "parsing product definition... ";
+    my $xml = BSProductXML::readproductxml( "$filename", 0, $opt_d );
+
+    if( defined($xml) ) {
+	print "success!\n";
+	# print Dumper $xml;
+    } else {
+	print "FAILED: Unable to parse $filename\n";
+	die;
+    }
+    return $xml;
+}
+
+
+sub createDescription( $ )
+{
+    my( $prodRef ) = @_;
+    my $re;
+
+    $re->{type} = "system";
+    $re->{author} = "The SUSE Team";
+    $re->{contact} = "build\@opensuse.org";
+    $re->{specification} = $prodRef->{summary}[0]->{_content};  # FIXME: lang dependent
+
+    return $re;
+}
+
+sub convertFlags( $ )
+{
+    my ($flag)=@_;
+    $flag =~ s/GE/>/sg;
+    $flag =~ s/EQ/=/sg;
+    $flag =~ s/LT/</sg;
+    return $flag;
+}
+
+sub createPreferences( $ )
+{
+    my( $prodRef ) = @_;
+    my $re = {};
+    my $version = $prodRef->{version};
+    $version = $version.".0" unless ( $version =~ /\./ ); # needed for products without minor number
+    my $release = $prodRef->{release};
+    $release = "0" unless (defined($prodRef->{release}));
+
+    $re->{type} = [{_content => "product"}];
+    $re->{version} = sprintf( "%s.%s",
+			      $version,
+			      $release  );
+
+    # $re->{size} = ; do not give the optional size
+    $re->{packagemanager} = "zypper" ;
+
+    return $re;
+}
+
+sub parseRepositories( $ )
+{
+    my( $repoListRef ) = @_;
+    my $priority=0;
+    my $href="";
+    foreach my $repoRef ( @{$repoListRef } ) {
+	my $name = $repoRef->{name};
+        $href=$repoRef->{path} if defined($repoRef->{path});
+        $href=$repoRef->{href} if defined($repoRef->{href});
+#	print "Repository $name parsed.\n";
+	$priority=$repoRef->{'priority'} if (defined($repoRef->{'priority'}));
+        $repositories{$name} = { href => "$href", priority => "$priority" };
+	$priority++;
+    }
+}
+
+#
+# The conditionals are kind of macros which are used all over the product definition.
+# The conditionals part of the product def is parsed into the global conditionalhash
+# with the conditional name as key.
+#
+sub parseConditionals( $ )
+{
+    my ($conditionalRef) = @_;
+    # print Dumper $conditionalRef;
+    return unless( $conditionalRef );
+
+    foreach my $condRef (@{$conditionalRef}) {
+	my $name = $condRef->{name};
+#	print "Parsed conditional $name\n";
+	# print Dumper $condRef;
+	$conditionals{$name} = $condRef;
+    }
+}
+
+sub parseArchsets( $ ) 
+{
+    my ($archSetsRef ) = @_;
+
+    foreach my $archSet ( @{$archSetsRef } ) {
+	# print "Parsing Archset $archSet->{name}\n";
+
+	# print "XXXX " . Dumper( $archSet ) . "\n";
+	if( $archSet->{name} ) {
+	    my %h;
+	    $h{productarch} = $archSet->{productarch};
+	    my @a;
+	    foreach my $cRef ( @{$archSet->{arch}} ) {
+		push @a, $cRef->{_content};
+	    }
+	    $h{archList} = \@a;
+	    $archSets{$archSet->{name}} = \%h;
+	}
+    }
+    # print Dumper %archSets;
+}
+
+sub createArchitectures( $ )
+{
+    my ($archSetList) = @_;
+
+    my $re = {};
+
+    my @archs;
+    my %reqArchs;
+
+    my %archMatrix;
+
+    foreach my $requiredArch( @{$archSetList} ) {
+	my $ref = $requiredArch->{ref};
+	unless( $archSets{$ref} ) {
+	    print "ERROR: No such archset $requiredArch\n";
+	    next;
+	}
+	my @archis = @{ $archSets{$ref}->{archList} };
+	my $border = @archis; # the amount of entries
+	
+	print "WARN: last arch in archset must be noarch\n" unless( $archis[$border-1] eq "noarch" );
+
+	$reqArchs{ $archSets{$ref}->{productarch} } = 1; # will be requiredarch in kiwi
+	
+	for( my $i = 0; $i < $border; $i++ ) {
+	    $archMatrix{ $archis[$i] } = { fallback => $archis[$i+1] };
+	}
+    }
+    foreach my $arch ( sort keys %archMatrix ) {
+	my %h;
+	$h{id} = $arch;
+	if( $archMatrix{$arch}->{name} ) {
+	    $h{name} = $archMatrix{$arch}->{name};
+	} else {
+	    $h{name} = "dummy"; # FIXME: should become optional
+	};
+	$h{fallback} = $archMatrix{$arch}->{fallback} if( $archMatrix{$arch}->{fallback});
+	push @archs, \%h;
+    }
+    
+    my @reqXml;
+
+    foreach ( sort keys %reqArchs ) {
+	my %h;
+	$h{ref} = $_;
+	push @reqXml, \%h;
+    }
+    $re->{arch} = \@archs;
+    $re->{requiredarch} = \@reqXml;
+    
+    return $re;
+}
+
+sub createProductOptions($$$)
+{
+    my( $prodRef, $medium, $archSetList ) = @_;
+
+    # General FIXME: this works only with a single product on media.
+    my $product = $prodRef->{products}{product}[0];
+    die( "Handling of multiple products on one media is not specified !\n" ) if $prodRef->{products}{product}[1];
+
+    my $re = {};
+    my %varsH;
+    # we need the "default" arch for 
+    # - MEDIUM_NAME
+    # - releasenotesurl
+    my $arch="i586";
+    foreach my $ar ( @$archSetList ) {
+        $arch=$archSets{$ar->{ref}}->{productarch} if ($archSets{$ar->{ref}});
+    }
+
+    $varsH{PRODUCT_THEME} = $product->{'buildconfig'}->{'producttheme'};
+    $varsH{MEDIUM_NAME} = $medium->{'name'}."-$arch";
+    $varsH{MULTIPLE_MEDIA} = "no";
+    $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
+    $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
+    $varsH{SHA1OPT} = "-x";
+
+    $varsH{VENDOR} = $product->{'vendor'};
+    $varsH{DISTNAME} = $product->{'name'};
+    $varsH{VERSION} = $product->{'version'};
+    $varsH{FLAVOR} = $medium->{'flavor'};
+    $varsH{RELEASE} = "0";
+    $varsH{PRODUCT_DIR} = "/";
+    $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
+    $varsH{PRODUCT_VERSION} = '$VERSION';
+
+    my @vars;
+    foreach my $opt ( sort keys %varsH ) {
+	push @vars, { name => $opt, _content => $varsH{$opt} };
+    }
+
+    $re->{productvar} = \@vars;
+
+    my %options;
+    if (defined($medium->{'run_media_check'})) {
+      $options{'RUN_MEDIA_CHECK'} = $medium->{'run_media_check'};
+    };
+    if (defined($medium->{'sourcemedia'})) {
+      $options{'SOURCEMEDIUM'} = $medium->{'sourcemedia'};
+    };
+    if (defined($medium->{'debugmedia'})) {
+      $options{'DEBUGMEDIUM'} = $medium->{'debugmedia'};
+    };
+    
+    my $mediaStyle = "suse-11.1"; # fallback value
+    $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
+    $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
+    $options{'INI_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
+    $options{'BETA_VERSION'} = $product->{'buildconfig'}->{'betaversion'} if (defined($product->{'buildconfig'}->{'betaversion'}));
+    # add more as needed.
+    my @vars1;
+    foreach my $opt ( sort keys %options ) {
+	push @vars1, { name => $opt, _content => $options{$opt} };
+    }
+
+    $re->{productoption} = \@vars1;
+
+    my %info;
+    $info{'VENDOR'}       = $product->{'vendor'};
+    $info{'NAME'}         = $product->{'name'};
+    my $rp = $product->{'installconfig'}->{'releasepackage'};
+    $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
+    $info{'VERSION'}      = $product->{'version'};
+    $info{'SP_VERSION'}   = $product->{'patchlevel'} if (defined($product->{'patchlevel'}));
+    $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
+    $info{'FLAVOR'}       = $medium->{'flavor'};
+    $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
+    $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
+    foreach my $summary ( @{$product->{'summary'}} ){
+      $info{'SUMMARY'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
+      $info{'LABEL'}        = $summary->{'_content'}." ".$product->{'version'} if ( ! $summary->{'language'} );
+    }
+    foreach my $url ( @{$product->{'urls'}->{'url'}} ){
+        if ( $url->{'name'} eq 'repository' ){
+            $info{'REPO_LOCATION'} = $url->{'_content'};
+        }elsif ( $url->{'name'} eq 'releasenotes' ){
+            my $relnotesurl = $url->{'_content'};
+            $relnotesurl =~ s/%{_target_cpu}/$arch/g;
+            $info{'RELNOTESURL'} = $relnotesurl;
+        }
+    }
+    $info{'LINGUAS'} = "";
+    foreach my $language ( @{$product->{'linguas'}->{'language'}} ){
+      $info{'LINGUAS'} .= "$language->{'_content'} ";
+    }
+    $info{'BASEARCHS'} = "";
+    foreach my $ar ( @$archSetList ) {
+        $info{'BASEARCHS'} .= "$archSets{$ar->{ref}}->{productarch} " if( $archSets{$ar->{ref}} );
+    }
+
+    # add more ...
+    my @info;
+    push @info, { name => 'CONTENTSTYLE', _content => '11' }; # Needs to be first !
+    foreach my $opt ( sort keys %info) {
+	push @info, { name => $opt, _content => $info{$opt} };
+    }
+
+    $re->{productinfo} = \@info;
+    return $re;
+}
+
+sub createMetadata( $$$ )
+{
+    my( $prodRef, $medium, $archSetList ) = @_;
+    
+    return undef unless( $medium->{'metadata'} );
+    my $re = {};
+
+    # print "> " . Dumper $medium->{metadata};
+
+    my @packages;
+    my @files;
+    my $onlyarch;
+    my $removearch;
+    foreach my $requiredArch( @{$archSetList} ) {
+	my $ref = $requiredArch->{ref};
+	unless( $archSets{$ref} ) {
+	    print "ERROR: No such archset $requiredArch\n";
+	    next;
+	}
+        $onlyarch .= "$archSets{$ref}->{productarch},";
+    };
+    my $metadata_medium = "0";
+#    $metadata_medium = "1" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
+    foreach my $pack ( @{ $medium->{metadata}->{package} } ) {
+        if ($pack->{removearch}){
+          next if containsMyArch( $prodRef, $archSetList, $pack->{removearch} );
+          $removearch = "$pack->{removearch},src,nosrc";
+        }else{
+          $removearch = "src,nosrc";
+        }
+	push @packages, { name => $pack->{name}, 
+			  medium => $metadata_medium, 
+			  removearch => $removearch,
+			  onlyarch => $onlyarch };
+    }
+
+    my @a;
+    return { repopackage => \@packages };
+    
+#     my @files;
+#     foreach my $file ( @{ $medium->{metadata}->{file} } ) {
+# 	push @files, { name => $file->{name} };
+#     }
+#     # push @a, { file => \@files }; CHECK: Needed?
+# 
+#     return \@a;
+}
+
+sub containsMyArch( $$$ )
+{
+    my ($prodRef, $archSetList, $archList ) = @_;
+
+    foreach my $s( split( /\s*,\s*/, $archList ) ){
+      foreach my $requiredArch( @{$archSetList} ) {
+	my $ref = $requiredArch->{ref};
+	unless( $archSets{$ref} ) {
+	    print "ERROR: No such archset $requiredArch\n";
+	    next;
+	}
+        return 1 if ( $s eq $archSets{$ref}->{productarch} );
+      }
+    }
+    return 0;
+}
+
+sub useToPackages( $$$ )
+{
+    my ($prodRef, $medium, $archSetList ) = @_;
+
+    return unless $medium;
+
+    my @packages;
+
+    if (defined($medium->{use_undecided}) && $medium->{use_undecided} eq "true" ) {
+       # Simply take all packages ?
+       push @packages, { name => "*" };
+    };
+
+    return unless $medium->{use};
+    my @useStatements = @{$medium->{use} };
+
+    # print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
+
+    foreach my $useState ( @useStatements ) {
+        my $useRequired = ($medium->{use_required} eq "true" );
+        my $useSuggested = ($medium->{use_suggested} eq "true" );
+        my $useRecommended = ($medium->{use_recommended} eq "true" );
+
+        $useRequired    = $useState->{'use_required'} if ( defined($useState->{'use_required'}) );
+        $useRecommended = $useState->{'use_recommended'} if ( defined($useState->{'use_recommended'}) );
+        $useSuggested   = $useState->{'use_suggested'} if ( defined($useState->{'use_suggested'}) );
+    
+	if( $useState->{group} ) {
+#	    print "Handling use of group $useState->{group}\n";
+	    push @packages, groupToPackages( $prodRef, $archSetList,
+					     $useState->{group}, 
+					     $useRequired, 
+					     $useRecommended,
+					     $useSuggested );
+	    # there might be additional packages listed in the group.
+	    if( $useState->{package} ) {
+		foreach my $addPack ( @{$useState->{package} } ) {
+		    # print Dumper( $addPack ) . "\n";
+		    my $relType = $addPack->{relationship};
+		    unless( $relType eq "requires" || $relType eq "recommends" || $relType eq "suggests" ) {
+			print "ERROR: Unknown relation type string for package add!\n";
+			exit;
+		    }
+		    if( ( $useRequired    && $addPack->{relationship} eq "requires") ||
+			( $useRecommended && $addPack->{relationship} eq "recommends" ) ||
+			( $useSuggested   && $addPack->{relationship} eq "suggests" ) ) {
+
+			my %tmp;
+                        $tmp{name} = $addPack->{name};
+                        $tmp{medium} = $addPack->{medium} if (defined($addPack->{medium}));
+                        if ($addPack->{removearch}) {
+                          next if containsMyArch( $prodRef, $archSetList, $addPack->{removearch} );
+                          $tmp{removearch} = $addPack->{removearch};
+                        }
+			push @packages, \%tmp;
+		    }
+		}
+	    }
+	} elsif( $useState->{pattern} ) {
+	    print "ERROR: Patterns are not supported for repopackages!\n";
+
+	}
+    }
+    return \@packages;
+}
+
+sub groupToPackages( $$$$$ ) 
+{
+    my ($prodRef, $archSetList, $group, $useReq, $useRec, $useSug ) = @_;
+
+    # generate the list of current architectures out of the archSetList
+    # FIXME: In all product configs I saw so far, there is only one entry 
+    # in the archsetlist.
+    # What does it mean if there are more? The following code takes all
+    # and allows all.
+    my @validArchs;
+    foreach my $archHashRef (@$archSetList) {
+	my $archSetRef = $archSets{$archHashRef->{ref}};
+	push @validArchs, $archSetRef->{productarch};
+    }
+
+    my @groups = @{$prodRef->{group}}; 
+    my $groupRef;
+
+    # search for the group we should convert here.
+    foreach my $gl( @groups ) {
+	if( $gl->{name} eq $group ) {
+	    $groupRef = $gl;
+	    last;
+	}
+    }
+
+    unless( $groupRef ) {
+	print "ERROR: Group <$group> not found!\n";
+	return ();
+    }
+    
+    unless( $groupRef->{packagelist} ) {
+	print "ERROR: Group <$group> has no package lists!\n";
+	return;
+    }
+
+    # ok, here we have a valid group reference.
+#    print " * resolving group <$groupRef->{name}>\n";
+    my @packagelists = @{$groupRef->{packagelist}};
+
+    my %conditionTemplate;
+    foreach my $condList( @{$groupRef->{conditional} } ) {
+#	print "Handling group conditional $condList->{name}\n";
+	my $cond = $conditionals{ $condList->{name} };
+
+	if( $cond->{platform} ) {
+	    my @platforms = @{$cond->{platform}};
+
+	    # the condition only becomes a template
+	    foreach my $p ( @platforms ) {
+		my @condArchs;
+		@condArchs  = split( /\s*,\s*/, $p->{arch} ) if( $p->{arch} );
+		# 
+		my $takeIt = 1; # Take all condition tags if no arch-tag is there
+		if( $p->{arch} ) {
+		    $takeIt = 0;
+		    foreach my $validArch( @validArchs ) {
+			if( grep( /$validArch/, @condArchs ) ) {
+			    $takeIt = 1;
+			    last;
+			}
+		    }
+		}
+		if( $takeIt ) {
+		    %conditionTemplate = (%conditionTemplate, %{$p});
+		} else {
+		    # This condition does not match, so drop it
+		}
+	    }
+	}
+    }
+
+    # Drop this group, if condition(s) exist for it, but none matches for this platform
+    return () if ( @{$groupRef->{conditional}} > 0 && !keys %conditionTemplate );
+ 
+    my $useFlags = { requires => $useReq || 0, recommends => $useRec || 0, suggests => $useSug || 0 };
+
+    my @resultList;
+
+    foreach my $packList ( @packagelists ) {
+	my $relation = $packList->{relationship} || 'requires';
+	# print "Relation: $relation\n";
+	if( $useFlags->{$relation} && $packList->{package} ) {
+	    # parse the package in 
+	    my @packs = @{$packList->{package}};
+	    foreach my $pack ( @packs ) {
+		my %h = %conditionTemplate;
+                my $takeIt = 1;
+
+                $takeIt = 0 unless $pack->{conditional};
+
+		# print Dumper $pack;
+		foreach my $condList( @{$pack->{conditional} } ) {
+		    my $name = $condList->{name};
+		    my $cond = $conditionals{$name};
+                    next unless defined $h{$name};
+                    $takeIt = 1;
+		    print "Handling package conditional $name\n";
+		    # print Dumper "Conditional: ". $cond . "\n";
+		    
+		    if( $cond->{platform} ) {
+			my @platforms = @{$cond->{platform}};
+			foreach my $p ( @platforms ) {
+			    %h= (%h, %{$p});
+			}
+		    }
+		    if( $cond->{media} ) {
+			$h{medium} = $cond->{media}->{number};
+		    }
+		}
+		$h{name} = $pack->{name};
+		push @resultList, \%h;
+	    }
+	}
+
+    }
+
+    return @resultList;
+}
+
+#
+# This sub expands the patterns 
+sub expandPackages( $ )
+{
+    my ($groupRef) = @_;
+    
+    my $name = $groupRef->{name};
+
+    print "Working on group $name\n";
+    
+    my @patterns = @{$groupRef->{pattern}};
+    
+    my $pat = @{$groupRef->{pattern}}[0];
+    $groupRef->{_pattern} = $pat;
+
+
+    foreach my $pack ( @{$groupRef->{group}} ) {
+	my $packListRef = $pack->{package};
+	my $relation = $pack->{relationship};
+	my @resultPacks;
+	foreach my $packRef ( @${packListRef} ) {
+	    # print "Pushing $packRef->{name}\n";
+	    my %packValues;
+	    $packValues{name} = $packRef->{name};
+	    if( $groupRef->{platform} ) {
+		# forcerepo??
+		foreach my $tag ('forcearch', 'addarch', 'onlyarch', 'removearch', 'source', 'script', 'medium' ) {
+		    $packValues{$tag} = $groupRef->{platform}->{$tag} if( $groupRef->{platform}->{$tag} );
+		}
+	    }
+
+	    push @resultPacks, \%packValues;
+	}
+	my $keyname = "_" . lc $relation;
+	print "Keyname of package list: $keyname\n";
+	$groupRef->{$keyname} = \@resultPacks;
+    }
+}
+
+#
+# Creation of the instsource part of the kiwi file
+#
+# note that the product spec contains a list of archsets. For each of these archsets and 
+# for each of the media must be a separate kiwi file.
+#
+# 1. parameter: the reference on the product datastructure
+# 2. parameter: the reference on the current media datastructure
+# 3. parameter: list of the archs for this kiwi file.
+#
+sub createInstsource( $$$ )
+{
+    my( $prodRef, $medium, $archSetList ) = @_;
+    my $re = {};
+
+    $re->{architectures} = createArchitectures( $archSetList );
+    $re->{productoptions} = createProductOptions( $prodRef, $medium, $archSetList );
+    
+    my @r;
+    my $count = 0;
+    foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
+	my %h;
+        my $localpath;
+        $count = $count + 1;
+	$h{name} = $repo->{'name'};
+	$h{priority} = $count;
+        $localpath = $repo->{path};
+        if ($repo->{path} =~ /^obs:\/\/(.+)$/ ) {
+	  $h{local} = "true";
+          $localpath = $1;
+        } else {
+          warn( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
+        };
+        if ( $runOnServer ) {
+          for my $arch ( @{$re->{architectures}->{requiredarch}} ) {
+  	     my $path = "$bsdir/build/$localpath/$arch->{'ref'}/:full";
+  	     $h{source} = { path => $path };
+	     push @r, \%h;
+             print "WARNING: local path $path does not exist !\n" if ( ! -e "$path" );
+          };
+        }else{
+	  $h{source} = { path => $repo->{path} };
+	  push @r, \%h;
+        };
+    }
+    $re->{instrepo} = \@r;
+    
+    # metadata, media dependant
+    my $ref = createMetadata( $prodRef, $medium, $archSetList );
+    if( $ref ) {
+	$re->{metadata} = createMetadata( $prodRef, $medium, $archSetList );
+    }
+
+    # repopackages
+    my @packages;
+    my $useToPacks = useToPackages( $prodRef, $medium, $archSetList );
+
+    if( $useToPacks ) {
+	push @packages, { repopackage => $useToPacks };
+    }
+    # print "Packlist: " . Dumper \@packages;
+    $re->{repopackages} =  \@packages;
+
+    return $re;
+}
+
+sub createRepository
+{
+    # This is for a dummy entry, it is required by the kiwi DTD, but not used
+    # for installation medias.
+    my( $prodRef ) = @_;
+    my @repository;
+    my $source;
+    my $dummydir = "/var/lib/empty";
+
+    # Do we have ever a different repo type than "yast" on products ?
+    $source->{ 'path' } = $dummydir;
+    push @repository, { 'type' => 'yast2', 'source' => $source };
+
+    return \@repository;
+}
+
+sub writeProductSPECfile
+{
+    my( $file, $infile, $prodRef, $product ) = @_;
+
+    my $product_flavors="";
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      $product_flavors.="%package $flavor->{flavor}\n";
+      $product_flavors.="License:        BSD 3-Clause\n";
+      $product_flavors.="Group:          System/Fhs\n";
+      $product_flavors.="Provides:       product_flavor()\n";
+      $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{'version'}-$product->{'release'}\n";
+      $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
+      foreach my $summary ( @{$product->{'summary'}} ){
+        $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
+      }
+      $product_flavors.="\n";
+      $product_flavors.="%description $flavor->{flavor}\n";
+      foreach my $description ( @{$product->{'description'}} ){
+        $product_flavors.="$description->{_content}\n" if ( ! $description->{'description'} );
+      }
+      $product_flavors.="\n";
+      $product_flavors.="%files $flavor->{flavor}\n";
+      $product_flavors.="%defattr(-,root,root)\n";
+      $product_flavors.="%doc %{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}\n";
+      $product_flavors.="\n"
+    }
+
+    # Create product file to be packaged
+    my $zypp_product_file = "";
+    $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
+    my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}.prod";
+
+    my $zypp_product;
+    $zypp_product = $product;
+    $zypp_product->{'arch'} = '%{_target_cpu}'; # write product architecture during rpm build
+    $zypp_product->{'schemeversion'} = "0"; # FIXME: moving target, still in development.
+    my $d;
+    $d->{"target"}  = $product->{'register'}->{'target'};
+    $d->{"release"} = $product->{'register'}->{'release'};
+    $zypp_product->{'register'} = $d;
+    my $xml = XMLout( $BSProductXML::product, $zypp_product );
+    die ( "ERROR: Unable to create xml for $product->{name} !" ) unless $xml;
+    $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
+    $zypp_product_file .= "cat >$pfile << EOF\n";
+    $zypp_product_file .= "$xml\nEOF\n\n";
+
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}";
+      $zypp_product_file .= "mkdir -p $readmedir\n";
+      $zypp_product_file .= "cat >$readmedir/README << EOF\n";
+      $zypp_product_file .= "This package just exist just for providing the product flavor.\n";
+      $zypp_product_file .= "\nEOF\n\n";
+    }
+
+    my $str = readstr($infile);
+
+    # replace all strings
+    $str =~ s/___VERSION___/$product->{version}/g;
+    $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
+    $str =~ s/___RELEASE___/0/g;
+    $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
+    $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      $str =~ s/___PRODUCT_REQUIRES___/$product_requires{$flavor}/g;
+    }
+    $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
+    $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
+    $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
+    $str =~ s/___CREATE_PRODUCT_FILES___/$zypp_product_file/g;
+
+    # write out the modified file.
+    writestr($file, undef, $str);
+}
+
+# Process the commandline arguments.
+getopts('dlhm:');
+
+usage() if $opt_h;
+$runOnServer = "true" if $opt_l;
+
+my ($infile, $outdir, $project) = @ARGV;
+
+die( "Please specify input file, output directory and project name\n" ) unless $infile;
+die( "Please specify output directory and project name\n" ) unless $outdir;
+
+my $d;
+# global indir
+($d, $indir) = fileparse( $infile );
+
+my $prodRef = readProductFile( $infile );
+
+#
+# Sanity checks
+#
+die("product definition contains no products\n") unless $prodRef->{'products'};
+for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
+  die("no product name set\n") unless $product->{'name'};
+  die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /^[_\.]/;
+  die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\000-\037]/;
+}
+
+#
+# Create a kiwi configuration for each distribution flavor
+#
+
+my $productRef = $prodRef->{products}->{product}->[0]; # FIXME: Support multiple products.
+
+my $kiwiImage = {};
+$kiwiImage->{schemeversion} = "2.4"; # ???
+my $name = sprintf( "%s %s %s, Rel. %s",
+		    $productRef->{vendor},
+		    $productRef->{name},
+		    $productRef->{version},
+		    $productRef->{release} );
+
+$kiwiImage->{name} = $name;
+
+$kiwiImage->{description} = createDescription( $productRef );
+$kiwiImage->{preferences} = createPreferences( $productRef );
+# so far for all media types identical. Now loop over the media types
+# to create media type specific versions;
+
+parseConditionals( $prodRef->{conditionals}->{conditional} );
+parseRepositories( $prodRef->{repositories}->{repository} );
+parseArchsets( $prodRef->{archsets}{archset} );
+
+#########
+
+my %generalImage = %{$kiwiImage};
+
+my $media = $prodRef->{mediasets}->{media};
+
+if( $opt_m ) {
+    print "Generating only media set $opt_m, due to commandline switch\n";
+}
+
+foreach my $medium ( @$media ){
+    my $type = $medium->{type};
+    my $flavor = $medium->{flavor};
+    my $product = $medium->{product};  # note: this needs to reference a product from the products section 
+    my $name = $medium->{name};
+   
+    next if( $opt_m && $name ne $opt_m );
+
+    # create one kiwi file each for every of the archsets
+    if ( defined(@{$medium->{archsets}}) ) {
+      my @archSets = @{$medium->{archsets}};
+      foreach my $arch ( @archSets ) {
+          my $buildflags;
+          my @archs;
+          $buildflags->{'disable'} = [{}]; # disabled by default
+      
+          my $kiwi = \%generalImage;
+      
+          $kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
+          $kiwi->{repository} = createRepository ( $prodRef );
+      
+          my $archStr;
+          my @archsets = @{$arch->{archset}};
+          foreach my $ar ( @archsets ) {
+              if( $archSets{$ar->{'ref'}} ) {
+          	my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
+          	$archStr .= "_" if $archStr;
+          	$archStr .= "$architecture";
+                  # enable this architecture in scheduler
+                  # FIXME: the scheduler arch may have a different name than the rpm archs !
+                  push @archs, { 'arch' => $architecture };
+                  # Heuristic: we need to make this configurable at a more central place
+                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
+                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
+                  push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
+                  push @archs, { 'arch' => 'ppc64' } if ( $architecture eq "ppc" ); # ppc is using ppc64 stuff in openSUSE
+                  push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
+              }
+          }
+          $buildflags->{'enable'} = \@archs;
+      
+          my $file = "$product-$type-$flavor-$archStr";
+          die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
+          die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
+      
+          my $pkgName = "_product:$file";
+          my $kiwiDir = "$outdir/$pkgName/";
+          my $outFile = "$kiwiDir/$file.kiwi";
+          my $metaFile = "$kiwiDir/_meta";
+      
+          mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
+          writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
+          print "$outFile written.\n";
+      
+          # Create meta file to enable it only for needed architectures
+          if ( $project ) {
+            my $pkgmeta;
+            $pkgmeta->{'name'} = $pkgName;
+            $pkgmeta->{'project'} = $project;
+            $pkgmeta->{'title'} = "KIWI image build" ;
+            $pkgmeta->{'description'} = "Automatically generate from _product" ;
+            $pkgmeta->{'build'} = $buildflags;
+            writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
+#            print "metafile written.\n";
+          } else {
+            print "metafile SKIPPED ! (need project name argument for it)\n";
+          }
+      }
+    }
+}
+
+
+#
+# Create $product-release packages
+#
+
+for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
+  my $templateFile;
+  if ($infile =~ /(.*\/)(.+)$/) {
+    $templateFile = "$1/$product->{name}-release.spec";
+  };
+  if ( !$templateFile || ! -e $templateFile ) {
+    if ($infile =~ /(.*\/)(.+)$/) {
+      $templateFile = "$1/release.spec";
+    };
+  };
+  if ( $templateFile && -e $templateFile ) {
+    mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
+    writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
+  } else {
+    print "No release template file $templateFile exists --> SPEC file generation skipped !\n";
+  };
+};
+
+
+
+
+# end
