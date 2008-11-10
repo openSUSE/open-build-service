@@ -28,7 +28,6 @@ class DbPackage < ActiveRecord::Base
     false
   end
 
-
   class << self
     def store_axml( package )
       dbp = nil
@@ -67,7 +66,6 @@ class DbPackage < ActiveRecord::Base
       ')'
     end
   end
-
 
   def store_axml( package )
     DbPackage.transaction do
@@ -176,12 +174,10 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-
   def write_through?
     conf = ActiveXML::Config
     conf.global_write_through && (conf::TransportMap.options_for(:package)[:write_through] != :false)
   end
-
 
   def add_user( user, role_title )
     role = Role.rolecache[role_title]
@@ -199,7 +195,6 @@ class DbPackage < ActiveRecord::Base
         :user => user,
         :role => role )
   end
-
 
   # returns true if the specified user is associated with that package. possible
   # options are :login and :role
@@ -287,7 +282,6 @@ class DbPackage < ActiveRecord::Base
     xml = builder.package( :name => name, :project => db_project.name )
   end
 
-
   def rating( user_id=nil )
     score = 0
     self.ratings.each do |rating|
@@ -306,7 +300,6 @@ class DbPackage < ActiveRecord::Base
     return { :score => score, :count => count, :user_score => user_score }
   end
 
-
   def activity
     package = DbPackage.find :first,
       :from => 'db_packages pac, db_projects pro',
@@ -316,7 +309,6 @@ class DbPackage < ActiveRecord::Base
         "IF( @activity<0, 0, @activity ) AS activity_value"
     return package.activity_value.to_f
   end
-
 
   def update_timestamp
     # the value we add to the activity, when the object gets updated
@@ -330,7 +322,6 @@ class DbPackage < ActiveRecord::Base
     self.updated_at = Time.now
     self.update_counter += 1
   end
-
 
   def update_flags( opts={} )
     #needed opts: :package, :flagtype
@@ -391,7 +382,6 @@ class DbPackage < ActiveRecord::Base
     return true
   end
 
-
   #TODO this function should be removed if no longer old-style-flags in use
   #no build_flags and old-style-flags should be used at once
   def flag_compatibility_check( opts={} )
@@ -420,5 +410,4 @@ class DbPackage < ActiveRecord::Base
     #return fake_package
     update_flags(:flagtype => 'build', :package => fake_package)
   end
-
 end
