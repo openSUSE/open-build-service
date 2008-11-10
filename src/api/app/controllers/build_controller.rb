@@ -106,6 +106,16 @@ class BuildController < ApplicationController
   # /build/:project/:repository/:arch/:package/:filename
   def file
     valid_http_methods :get
+    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
+    if pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch])
+      # check downloader role
+      unless @http_user.can_download_binaries?(pkg)
+        render_error :status => 403, :errorcode => "download_binary_no_permission",
+          :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+        return
+      end
+    end
+
     path = request.path+"?"+request.query_string
 
     #check if binary exists and for size

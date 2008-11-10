@@ -135,6 +135,17 @@ class User < ActiveRecord::Base
     return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
   end
 
+  def can_download_binaries?(package)
+    return true if has_global_permission? "download_binaries"
+
+    unless package.kind_of? DbPackage
+      raise RuntimeError, "illegal argument to can_download_binaries, DbPackage expected, got #{package.class.name}"
+    end
+
+    return true if has_local_permission?("download_binaries", package)
+    return false
+  end
+
   # add deprecation warning to has_permission method
   alias_method :has_global_permission?, :has_permission?
   def has_permission?(*args)
