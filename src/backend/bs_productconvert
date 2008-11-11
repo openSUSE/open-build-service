@@ -777,6 +777,7 @@ sub writeProductSPECfile
     my $str = readstr($infile);
 
     # replace all strings
+    $str =~ s/___DISTNAME___/$product->{name}/g;
     $str =~ s/___VERSION___/$product->{version}/g;
     $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
     $str =~ s/___RELEASE___/0/g;
