@@ -1873,7 +1873,7 @@ sub checkkiwiimage {
   if (!$meta[0] || $meta[0] ne $new_meta[0]) {
     print "      - $packid (kiwi-image)\n";
     print "        src change, start build\n";
-    return ('scheduled', $bconf);
+    return ('scheduled', [ $bconf, \@edeps ]);
   }
   if (join('\n', @meta) eq join('\n', @new_meta)) {
     print "      - $packid (kiwi-image)\n";
