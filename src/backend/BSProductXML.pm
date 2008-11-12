@@ -200,6 +200,11 @@ our $productdesc = [
             'allow_overflow',
             'next_media_in_set',
             'size',
+            [[ 'preselected_patterns' => 
+               [[ 'pattern' =>
+                  'name',
+	       ]]
+            ]],
             [[ 'archsets' =>
               [[ 'archset' => 
                    'ref',

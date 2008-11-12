@@ -313,6 +313,11 @@ sub createProductOptions($$$)
     $info{'FLAVOR'}       = $medium->{'flavor'};
     $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
     $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
+    if (defined($medium->{'preselected_patterns'})){
+        foreach my $pattern ( @{$medium->{'preselected_patterns'}[0]->{'pattern'}} ){
+            $info{'PATTERNS'} .= "$pattern->{'name'} "; 
+        }	
+    }
     foreach my $summary ( @{$product->{'summary'}} ){
       $info{'SUMMARY'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
       $info{'LABEL'}        = $summary->{'_content'}." ".$product->{'version'} if ( ! $summary->{'language'} );
