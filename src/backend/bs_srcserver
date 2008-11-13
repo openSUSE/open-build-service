@@ -853,7 +853,9 @@ sub kiwiparse  {
   return ("bad kiwi description data $projid/$packid/$file") unless $kiwidesc;
 
   for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
+    next unless @{$kiwidesc->{'preferences'}->{'type'}} == 1 || $type->{'primary'};
     push @alltypes, $type->{'_content'};
+    push @allpackages, "kiwi-filesystem:$type->{'filesystem'}" if $type->{'filesystem'};
 
     # Parse included kiwi configs
     if (defined $type->{'boot'}) {
@@ -938,7 +940,13 @@ sub kiwiparse  {
   # collect all package requires from all packages groups.
   for my $packagegroup (@{$kiwidesc->{'packages'} || []}) {
     for my $package (@{$packagegroup->{'package'} || []}) {
-        # FIXME: add check if arch is specified !
+	if ($package->{'arch'}) {
+	  my $ma = $arch;
+	  $ma =~ s/i[456]86/i386/;
+	  my $pa = $package->{'arch'};
+	  $pa =~ s/i[456]86/i386/;
+	  next if $ma ne $pa;
+        }
         push @allpackages, $package->{'name'};
     }
     # FIXME: add support for patterns
@@ -947,13 +955,7 @@ sub kiwiparse  {
   # Add implicit the package manager package
   if (!$kiwidesc->{'instsource'}) {
     my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
-    if ($packman eq 'smart') { 
-      unshift @allpackages, 'smart';
-    } elsif ($packman eq 'zypper') { 
-      unshift @allpackages, 'zypper';
-    } else {
-      return ("unknown package manager: $packman");
-    }
+    push @allpackages, "kiwi-packagemanager:$packman";
   }
   @allrepos = unify(@allrepos);
   @allpackages = unify(@allpackages);
