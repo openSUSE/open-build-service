@@ -987,7 +987,7 @@ sub update_dst_full {
     for my $rp (sort keys %$jobrepo) {
       my $nn = $rp;
       $nn =~ s/.*\///;
-      $bininfo .= "$rp->{'hdrmd5'}  $nn\n";
+      $bininfo .= "$jobrepo->{$rp}->{'hdrmd5'}  $nn\n";
     }
     writestr("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
   }
@@ -3213,12 +3213,12 @@ while(1) {
       print "      - $packid: is obsolete\n";
     } else {
       my $pdata = $packs->{$packid};
-      if ($pdata->{'error'} eq 'excluded') {
+      if (($pdata->{'error'} || '') eq 'excluded') {
         print "      - $packid: is excluded\n";
       } else {
 	my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
 	my $info = $info{$repoid};
-	next unless $info && $info->{'error'} eq 'excluded';
+	next unless $info && ($info->{'error'} || '') eq 'excluded';
         print "      - $packid: is excluded\n";
       }
     }
