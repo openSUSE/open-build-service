@@ -556,7 +556,8 @@ sub set_building {
 
   if ($packtype eq 'kiwi') {
     # packages used for build environment
-    @bdeps = ('kiwi', $info->{'dep'}->[0], 'createrepo', 'squashfs', 'tar');
+    @bdeps = ('kiwi', 'createrepo', 'tar');
+    push @bdeps, grep {/^kiwi-/} @{$info->{'dep'} || []};
   }
 
   my $eok;
@@ -980,6 +981,17 @@ sub update_dst_full {
     $dst = $jobdir;	# get em from the jobdir
   }
 
+  if (!$isimport) {
+    # write .bininfo file
+    my $bininfo;
+    for my $rp (sort keys %$jobrepo) {
+      my $nn = $rp;
+      $nn =~ s/.*\///;
+      $bininfo .= "$rp->{'hdrmd5'}  $nn\n";
+    }
+    writestr("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
+  }
+
   ##################################################################
   # part 2: link needed binaries into :full tree
 
@@ -995,7 +1007,7 @@ sub update_dst_full {
   my %exports;
 
   my %new;
-  for my $rp (keys %$jobrepo) {
+  for my $rp (sort keys %$jobrepo) {
     my $nn = $rp;
     $nn =~ s/.*\///;
     $new{$nn} = $jobrepo->{$rp};
@@ -1905,6 +1917,8 @@ sub rebuildkiwiimage {
 ##
 ##  kiwi-product package type handling
 ##
+my %bininfo_cache;
+
 sub checkkiwiproduct {
   my ($projid, $repoid, $packid, $pdata, $info) = @_;
 
@@ -1939,6 +1953,7 @@ sub checkkiwiproduct {
   my @blocked;
   my @rpms;
   my %rpms_meta;
+  my %rpms_hdrmd5;
 
 #print "packids: @packids\n";
 #print "prps: @aprps\n";
@@ -1972,11 +1987,40 @@ sub checkkiwiproduct {
 	my @got;
 	my $needit;
 	$needit = 1 if $allpacks;
-        for my $b (ls("$reporoot/$aprp/$arch/$apackid")) {
-	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	  $needit = 1 if $deps{$1};
-	  push @got, "$aprp/$arch/$apackid/$b";
-	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1.$2";
+	my $bis;
+	my @bininfo_s = stat("$reporoot/$aprp/$arch/$apackid/.bininfo");
+        if (-s _) {
+	  $bis = $bininfo_cache{"$aprp/$arch/$apackid/.bininfo"};
+	  if ($bis->[0] ne "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]") {
+	    local *F;
+	    undef $bis;
+	    if (open(F, '<', "$reporoot/$aprp/$arch/$apackid/.bininfo")) {
+	      @bininfo_s = stat(F);
+	      die unless @bininfo_s;
+	      my $bisc = '';
+	      1 while sysread(F, $bisc, 8192, length($bisc));
+	      close F;
+	      $bis = ["$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]", $bisc];
+	      $bininfo_cache{"$aprp/$arch/$apackid/.bininfo"} = $bis;
+	    }
+	  }
+	}
+	if ($bis) {
+	  for my $bi (split("\n", $bis->[1])) {
+	    my $b = substr($bi, 34);
+	    next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	    $needit = 1 if $deps{$1};
+	    push @got, "$aprp/$arch/$apackid/$b";
+	    $rpms_hdrmd5{$got[-1]} = substr($bi, 0, 32);
+	    $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1.$2";
+	  }
+	} else {
+          for my $b (ls("$reporoot/$aprp/$arch/$apackid")) {
+	    next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	    $needit = 1 if $deps{$1};
+	    push @got, "$aprp/$arch/$apackid/$b";
+	    $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1.$2";
+          }
         }
 	next unless $needit;
 	# ok we need it. check if they are built.
@@ -2019,9 +2063,9 @@ sub checkkiwiproduct {
   push @new_meta, "$pdata->{'srcmd5'}  $packid";
   push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b}} @rpms) {
-    my $id;
+    my $id = $rpms_hdrmd5{$rpm};
     eval {
-      $id = Build::queryhdrmd5("$reporoot/$rpm");
+      $id ||= Build::queryhdrmd5("$reporoot/$rpm");
     };
     $id = "deaddeaddeaddeaddeaddeaddeaddead" unless $id;
     push @new_meta, "$id  $rpms_meta{$rpm}";
@@ -2956,7 +3000,7 @@ while(1) {
 	unlink("$gdst/:logfiles.success/$packid");
 	unlink("$gdst/:logfiles.fail/$packid");
 	unlink("$gdst/:meta/$packid");
-	unlink("$gdst/$packid/$_") for ls("$gdst/$packid");
+        BSUtil::cleandir("$gdst/$packid");
 	rmdir("$gdst/$packid");
 	for $prp (@prps) {
 	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
@@ -3161,9 +3205,23 @@ while(1) {
   my $packs = $projpacks->{$projid}->{'package'} || {};
   my @packs = sort keys %$packs;
 
-  # Step 2a: check if packages got deleted
-  for my $packid (grep {!/^:/ && !$packs->{$_}} ls("$reporoot/$prp/$myarch")) {
-    print "      - $packid: is obsolete\n";
+  # XXX: setup packid2info hash?
+
+  # Step 2a: check if packages got deleted/excluded
+  for my $packid (grep {!/^:/} ls("$reporoot/$prp/$myarch")) {
+    if (!$packs->{$packid}) {
+      print "      - $packid: is obsolete\n";
+    } else {
+      my $pdata = $packs->{$packid};
+      if ($pdata->{'error'} eq 'excluded') {
+        print "      - $packid: is excluded\n";
+      } else {
+	my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
+	my $info = $info{$repoid};
+	next unless $info && $info->{'error'} eq 'excluded';
+        print "      - $packid: is excluded\n";
+      }
+    }
     delete $lastcheck{"$prp/$packid"};
     my $gdst = "$reporoot/$prp/$myarch";
     # delete full entries
