@@ -1870,7 +1870,7 @@ sub checkkiwiimage {
       push @blocked, @b;
     }
     next if @blocked;
-    for my $dep (@edeps) {
+    for my $dep (sort(@edeps)) {
       my $r = $repodata->{$dep};
       next unless $r;
       push @new_meta, "$r->{'hdrmd5'}  $aprp/$dep";
