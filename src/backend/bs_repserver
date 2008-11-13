@@ -1118,7 +1118,8 @@ sub getbuildinfo {
   }
   if ($packtype eq 'kiwi') {
     # packages used for build environment
-    @deps = ('kiwi', $info->{'dep'}->[0], 'createrepo', 'tar');
+    @deps = ('kiwi', 'createrepo', 'tar');
+    push @deps, grep {/^kiwi-/} @{$info->{'dep'} || []};
   }
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   my @bdeps;
