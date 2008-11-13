@@ -639,17 +639,19 @@ sub getbinaries {
     }
     @todo = grep {!$done{$_}} @todo;
     if ($kiwimode) {
+      my @m;
       for my $f (@$res) {
 	next unless $f->{'name'} =~ /^(.*)\.(?:rpm|deb)$/;
 	my $n = $1;
 	if (!$bdep_notmeta{$n}) {
 	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
-	  push @meta, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
+	  push @m, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
 	}
 	if (!$bdep_noinstall{$n}) {
 	  link("$ddir/$f->{'name'}", "$dir/$f->{'name'}") unless -e "$dir/$f->{'name'}";
 	}
       }
+      push @meta, sort {substr($a, 34) cmp substr($b, 34)} @m;
     }
   }
   die("getbinaries: missing packages: @todo\n") if @todo;
