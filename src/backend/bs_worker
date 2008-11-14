@@ -712,7 +712,12 @@ sub dobuild {
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
-  my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+  my @configpath;
+  if ($kiwimode) {
+    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'path'} || []};
+    unshift @configpath, "path=$projid/$repoid" unless @configpath;
+  }
+  my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
