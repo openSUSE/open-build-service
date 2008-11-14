@@ -1618,6 +1618,10 @@ sub expandsearchpath {
 sub getconfig {
   my ($cgi, $projid, $repoid) = @_;
   my @path = expandsearchpath($projid, $repoid);
+  if ($cgi->{'path'}) {
+    @path = @{$cgi->{'path'}};
+    unshift @path, "$projid/$repoid" unless @path && $path[0] eq "$projid/$repoid";
+  }
   my $config = '';
   my $macros = "%vendor openSUSE Build Service\n";
   my $lastr = '';
@@ -3375,7 +3379,7 @@ my $dispatches = [
 
   # worker calls
   '/getsources $project $package $srcmd5:md5' => \&getsources,
-  '/getconfig $project $repository' => \&getconfig,
+  '/getconfig $project $repository path:prp*' => \&getconfig,
 
   '/getsignkey $project withpubkey:bool?' => \&getsignkey,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
