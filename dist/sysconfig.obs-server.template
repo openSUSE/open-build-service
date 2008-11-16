@@ -7,6 +7,7 @@
 # This needs to be a space seperated list of all supported architectures
 
 #OBS_SCHEDULER_ARCHITECTURES="armv4l"
+#OBS_SCHEDULER_ARCHITECTURES="armv5el"
 #OBS_SCHEDULER_ARCHITECTURES="ppc"
 #OBS_SCHEDULER_ARCHITECTURES="ppc64"
 #OBS_SCHEDULER_ARCHITECTURES="i586"
@@ -14,7 +15,7 @@
 OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
 #OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc"
 #OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64"
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 armv4l"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 armv4l armv5el"
 
 # This is the list of all currently known archs by rpm/deb and the obs backend
 # Each of them can be put inside in any combination
@@ -22,4 +23,4 @@ OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
 # E.g. a system with 4 schedulers and appropriately loaded sources/binaries can eat 1-2 GB RAM
 # If you also have workers there, each worker can also need 1 GB RAM in some known cases (e.g. compiling gcc)
 #
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 s390 s390x ia64 sparc sparc64 mips mips64 armv4l sh4"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 s390 s390x ia64 sparc sparc64 mips mips64 armv4l armv5el sh4"
