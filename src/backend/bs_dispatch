@@ -66,6 +66,8 @@ my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 
 my %cando = (
+  'armv4l'  => ['armv4l'],
+  'armv5el' => ['armv5el', 'armv4l'],
   'i586'    => ['i586'],
   'i686'    => ['i586', 'i686'],
   'x86_64'  => ['x86_64', 'i586', 'i686'],

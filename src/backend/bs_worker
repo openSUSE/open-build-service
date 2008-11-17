@@ -60,6 +60,8 @@ my $buildlog_maxidle = 8 * 3600;
 my $xenstore_maxsize = 20 * 1000000;
 
 my %cando = (
+  'armv4l'  => ['armv4l'],
+  'armv5el' => ['armv5el', 'armv4l'],
   'i586'    => ['i586'],
   'i686'    => ['i586', 'i686'],
   'x86_64'  => ['x86_64', 'i586:linux32', 'i686:linux32'],
