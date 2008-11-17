@@ -266,7 +266,7 @@ sub createProductOptions($$$)
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
     $varsH{FLAVOR} = $medium->{'flavor'};
-    $varsH{RELEASE} = "0";
+    $varsH{RELEASE} = $product->{'release'};
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
     $varsH{PRODUCT_VERSION} = '$VERSION';
@@ -308,6 +308,7 @@ sub createProductOptions($$$)
     my $rp = $product->{'installconfig'}->{'releasepackage'};
     $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
     $info{'VERSION'}      = $product->{'version'};
+    $info{'RELEASE'}      = $product->{'release'};
     $info{'SP_VERSION'}   = $product->{'patchlevel'} if (defined($product->{'patchlevel'}));
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
     $info{'FLAVOR'}       = $medium->{'flavor'};
@@ -745,7 +746,7 @@ sub writeProductSPECfile
       $product_flavors.="\n";
       $product_flavors.="%files $flavor->{flavor}\n";
       $product_flavors.="%defattr(-,root,root)\n";
-      $product_flavors.="%doc %{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}\n";
+      $product_flavors.="%doc %{_defaultdocdir}/%{name}/$product->{name}-release-$flavor->{flavor}\n";
       $product_flavors.="\n"
     }
 
@@ -770,7 +771,7 @@ sub writeProductSPECfile
 
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
       next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
-      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}";
+      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/%{name}/$product->{name}-release-$flavor->{flavor}";
       $zypp_product_file .= "mkdir -p $readmedir\n";
       $zypp_product_file .= "cat >$readmedir/README << EOF\n";
       $zypp_product_file .= "This package just exist just for providing the product flavor.\n";
