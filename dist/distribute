@@ -268,7 +268,7 @@ EXCLUDES=$(
 
 debug echo EXCLUDES="${EXCLUDES}"
 
-PACKAGE_FILES=$( comm -13 <(echo "${EXCLUDES}") <(ls -1d * .*) )
+PACKAGE_FILES=$( comm -13 <(echo "${EXCLUDES}") <(find  -maxdepth 1 -type f -printf "%f\n" | sort -u) )
 
 debug echo PACKAGE_FILES="$PACKAGE_FILES"
 
@@ -276,7 +276,7 @@ DEPRECATED_FILES=$( debug set -x; comm -13 \
 	<( cat <( echo "$PACKAGE_FILES" ) <( echo "${CANONICAL_EXCLUDES}")  |
 	   tr --squeeze "[:blank:]" "\n" |
 	   sort -u ) \
-	<( cat <( ls -1 --ignore .osc "${PROJECT}/${PACKAGE}" ) <( echo "$EXCLUDES" ) |
+	<( cat <( find "${PROJECT}/${PACKAGE}"  -maxdepth 1 -type f -printf "%f\n" ) <( echo "$EXCLUDES" ) |
 	   tr --squeeze "[:blank:]" "\n" |
 	   sort -u  ) )
 
@@ -309,9 +309,12 @@ fi
 # update the osc working copy
 if [ ${DO_UPDATE} ]; then
     for f in $PACKAGE_FILES; do
-	test -f ${PROJECT}/${PACKAGE}/$f &&
-	cmp --quiet $f ${PROJECT}/${PACKAGE}/$f ||
-	cp -vdpP $f ${PROJECT}/${PACKAGE}/$f
+	if \
+	    test -f ${PROJECT}/${PACKAGE}/$f &&
+    	    ! cmp --quiet $f ${PROJECT}/${PACKAGE}/$f
+	then
+	    cp -vdpP $f ${PROJECT}/${PACKAGE}/$f
+	fi
     done
 
     pushd ${PROJECT}/${PACKAGE}
