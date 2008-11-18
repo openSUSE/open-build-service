@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Nov 11 17:12:46 CET 2008 - froh@novell.com
+
+- fix init scripts for stricter 11.1 requirements.
+- get rid of strict rails dependency.
+- there's no more rubygems-builder. use active_support instead.
+-------------------------------------------------------------------
 Mon Nov 10 12:43:37 CET 2008 - froh@novell.com
 
 - add bs_productconvert and obs-productconvert subpackage as temporary

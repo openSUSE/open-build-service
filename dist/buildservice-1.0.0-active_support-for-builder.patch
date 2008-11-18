@@ -1,0 +1,27 @@
+Take ruby gem builder from active_support, as it's not packaged
+individually anymore.Index: buildservice-1.0.0/docs/api/restility/bin/rest_doc
+===================================================================
+--- buildservice-1.0.0.orig/docs/api/restility/bin/rest_doc
++++ buildservice-1.0.0/docs/api/restility/bin/rest_doc
+@@ -2,7 +2,7 @@
+ 
+ require 'optparse'
+ require 'rubygems'
+-require 'builder'
++require 'active_support'
+ 
+ require 'erb'
+ include ERB::Util
+Index: buildservice-1.0.0/src/common/lib/activexml/transport.rb
+===================================================================
+--- buildservice-1.0.0.orig/src/common/lib/activexml/transport.rb
++++ buildservice-1.0.0/src/common/lib/activexml/transport.rb
+@@ -70,7 +70,7 @@ module ActiveXML
+ 
+ 
+ 
+-    require 'builder'
++    require 'active_support' # this is just to get for "builder".
+     class BSSQL < Abstract
+       register_protocol 'bssql'
+ 

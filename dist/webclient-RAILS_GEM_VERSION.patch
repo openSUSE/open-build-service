@@ -1,14 +1,26 @@
-- fix 'EXTERNAL_FRONTEND_HOST' webclient config option problem
-- use specific rails version in the webclient
-Index: ../1.0/src/webclient/config/environment.rb
+- use specific rails version
+Index: buildservice-1.0.0/src/webclient/config/environment.rb
 ===================================================================
---- ../1.0/src/webclient/config/environment.rb	(revision 4388)
-+++ ../1.0/src/webclient/config/environment.rb	(working copy)
+--- buildservice-1.0.0.orig/src/webclient/config/environment.rb
++++ buildservice-1.0.0/src/webclient/config/environment.rb
 @@ -3,6 +3,7 @@
  # Uncomment below to force Rails into production mode when
  # you don't control web/app server and can't set it the proper way
  # ENV['RAILS_ENV'] ||= 'production'
-+RAILS_GEM_VERSION = "2.0.2"
++RAILS_GEM_VERSION = ">=2.0"
+ 
+ # Bootstrap the Rails environment, frameworks, and default configuration
+ require File.join(File.dirname(__FILE__), 'boot')
+Index: buildservice-1.0.0/src/software/config/environment.rb
+===================================================================
+--- buildservice-1.0.0.orig/src/software/config/environment.rb
++++ buildservice-1.0.0/src/software/config/environment.rb
+@@ -5,7 +5,7 @@
+ # ENV['RAILS_ENV'] ||= 'production'
+ 
+ # Specifies gem version of Rails to use when vendor/rails is not present
+-RAILS_GEM_VERSION = '1.2.3' unless defined? RAILS_GEM_VERSION
++RAILS_GEM_VERSION = '>=2.0.0' unless defined? RAILS_GEM_VERSION
  
  # Bootstrap the Rails environment, frameworks, and default configuration
  require File.join(File.dirname(__FILE__), 'boot')

@@ -41,9 +41,10 @@ Patch1:         buildservice-1.0.0-sign_conf.patch
 Patch2:         buildservice-1.0.0-BSConfig_sign.patch
 Patch3:         webclient-EXTERNAL_FRONTEND_HOST.patch
 Patch4:         webclient-RAILS_GEM_VERSION.patch
+Patch5:         buildservice-1.0.0-active_support-for-builder.patch
 Autoreqprov:    on
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:  rubygem-builder python-devel
+BuildRequires:  python-devel rubygem-activesupport
 
 %if 0%{?suse_version} >= 1030
 BuildRequires:  fdupes
@@ -155,8 +156,8 @@ product definition.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p2
-%patch4 -p2
-
+%patch4 -p1
+%patch5 -p1
 #-------------------------------------------------------------------------------
 %build
 #-------------------------------------------------------------------------------
