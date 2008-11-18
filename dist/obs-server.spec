@@ -171,7 +171,7 @@ cd -
 # make sign binary
 #
 cd src/sign
-gcc -o sign sign.c
+gcc $RPM_OPT_FLAGS -o sign sign.c
 cd -
 
 #-------------------------------------------------------------------------------
@@ -197,6 +197,8 @@ for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
   sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
     "$i" > "$i"_ && mv "$i"_ "$i"
 done
+
+touch $RPM_BUILD_ROOT/srv/www/obs/{webclient,frontend}/log/development.log
 
 #
 #set default api on localhost for the webclient
@@ -304,8 +306,6 @@ done
 #-------------------------------------------------------------------------------
 %post -n obs-api
 #-------------------------------------------------------------------------------
-touch /srv/www/obs/{webclient,frontend}/log/development.log
-chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 %restart_on_update lighttpd
 
 #-------------------------------------------------------------------------------
@@ -319,7 +319,6 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 %defattr(-,root,root)
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
-%config(noreplace) /etc/sign.conf
 /etc/init.d/obsdispatcher
 /etc/init.d/obspublisher
 /etc/init.d/obsrepserver
@@ -331,7 +330,6 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 /usr/sbin/rcobsscheduler
 /usr/sbin/rcobssrcserver
 /usr/sbin/obs_mirror_project
-%attr(4750,root,obsrun) /usr/bin/sign
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSEvents.pm
@@ -365,8 +363,9 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
 %{_mandir}/man5/*
+# the sign client goes with the server
+%attr(4750,root,obsrun) /usr/bin/sign
 %{_mandir}/man8/sign.8.gz
-
 
 #-------------------------------------------------------------------------------
 %files -n obs-worker
@@ -414,9 +413,13 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 # some files below config actually are _not_ config files
 # so here we go, file by file
 #
+
 /srv/www/obs/frontend/config/boot.rb
 /srv/www/obs/frontend/config/routes.rb
 /srv/www/obs/frontend/config/environments/development.rb
+
+%dir /srv/www/obs/frontend/config
+%dir /srv/www/obs/frontend/config/environments
 
 %config(noreplace) /srv/www/obs/frontend/config/database.yml
 %config(noreplace) /srv/www/obs/frontend/config/environment.rb
@@ -429,6 +432,9 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 %config(noreplace) /srv/www/obs/frontend/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/frontend/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/frontend/config/active_rbac_config.rb
+
+%dir /srv/www/obs/webclient/config
+%dir /srv/www/obs/webclient/config/environments
 
 /srv/www/obs/webclient/config/routes.rb
 /srv/www/obs/webclient/config/environments/development.rb
@@ -443,11 +449,16 @@ chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
 %config(noreplace) /srv/www/obs/webclient/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/webclient/config/environments/development_base.rb
 
-%attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log/development.log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/tmp
-%attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/tmp
 %config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
+# these dirs primarily belong to lighttpd:
+%dir /etc/lighttpd
+%dir /etc/lighttpd/vhosts.d
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
 
