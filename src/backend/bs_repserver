@@ -1342,7 +1342,7 @@ sub getbuildinfo_post {
   if (looks_like_dsc($fn)) {
     $d = Build::Deb::parse($bconf, $fn);
     $info->{'file'} = 'upload.dsc';
-  } elsif (looks_like_dsc($fn)) {
+  } elsif (looks_like_kiwi($fn)) {
     my ($error, $kiwirepos, $kiwipackages, $kiwitypes) = kiwiparse($fn, $arch);
     die("parse error: $error\n") if $error;
     $d = {
