@@ -439,14 +439,20 @@ sub useToPackages( $$$ )
         my $useSuggested;
 
         # Media default settings
-        $useRequired    = $medium->{'use_required'} if ( defined($medium->{'use_required'}) );
-        $useRecommended = $medium->{'use_recommended'} if ( defined($medium->{'use_recommended'}) );
-        $useSuggested   = $medium->{'use_suggested'} if ( defined($medium->{'use_suggested'}) );
+        $useRequired    = $medium->{'use_required'}
+                          if ( defined($medium->{'use_required'}) && $medium->{'use_required'} eq "true" );
+        $useRecommended = $medium->{'use_recommended'}
+                          if ( defined($medium->{'use_recommended'}) && $medium->{'use_recommended'} eq "true" );
+        $useSuggested   = $medium->{'use_suggested'}
+                          if ( defined($medium->{'use_suggested'}) && $medium->{'use_suggested'} eq "true" );
 
         # can get overriden by "use group" settings
-        $useRequired    = $useState->{'use_required'} if ( defined($useState->{'use_required'}) );
-        $useRecommended = $useState->{'use_recommended'} if ( defined($useState->{'use_recommended'}) );
-        $useSuggested   = $useState->{'use_suggested'} if ( defined($useState->{'use_suggested'}) );
+        $useRequired    = $useState->{'use_required'}
+                          if ( defined($useState->{'use_required'}) && $useState->{'use_required'} eq "true" );
+        $useRecommended = $useState->{'use_recommended'}
+                          if ( defined($useState->{'use_recommended'}) && $useState->{'use_recommended'} eq "true" );
+        $useSuggested   = $useState->{'use_suggested'}
+                          if ( defined($useState->{'use_suggested'}) && $useState->{'use_suggested'} eq "true" );
     
 	if( $useState->{group} ) {
 #	    print "Handling use of group $useState->{group}\n";
