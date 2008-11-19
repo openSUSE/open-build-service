@@ -50,6 +50,7 @@ use BSUtil;
 use BSHTTP;
 use BSFileDB;
 use BSXML;
+use BSKiwiXML;
 use BSVerify;
 use BSHandoff;
 use Build;
@@ -997,9 +998,19 @@ sub getbuildinfo {
   $packtype = $1 if $info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
 
   my @configpath;
+  my @kiwiarchs;
   if ($packtype eq 'kiwi') {
     @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     unshift @configpath, "path=$projid/$repoid" unless @configpath;
+    if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
+      for my $karch (@{$repo->{'arch'} || []}) {
+	my $enabled = 1;
+        $enabled = BSUtil::enabled($repoid, $proj->{'build'}, $enabled, $karch);
+        $enabled = BSUtil::enabled($repoid, $pdata->{'build'}, $enabled, $karch);
+	push @kiwiarchs, $karch if $enabled;
+      }
+      die("no architecture enabled\n") unless @kiwiarchs;
+    }
   }
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
@@ -1148,6 +1159,7 @@ sub getbuildinfo {
   my %edeps = map {$_ => 1} @edeps;
 
   @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps);
+
   my @bdepsp;
   if (!$cgi->{'internal'}) {
     for (@bdeps) {
@@ -1208,6 +1220,113 @@ sub looks_like_dsc {
   return 0;
 }
 
+sub looks_like_kiwi {
+  my ($fn) = @_;
+  local *F;
+  if (!open(F, '<', $fn)) {
+    return 0;
+  }
+  my $l = <F>;
+  if ($l =~ /^\<\?xml/) {
+    $l = <F>;
+  }
+  if ($l =~ /^\s*\<image/) {
+    close F;
+    return 1;
+  }
+  close F;
+  return 0;
+}
+
+# stripped down version from bs_srcserver
+# should but into generic module with callback for sub kiwi files
+sub kiwiparse  {
+  my ($kiwidesc, $arch) = @_;
+
+  my @alltypes;
+  my @allrepos;
+  my @allpackages;
+  $kiwidesc = readxml($kiwidesc, $BSKiwiXML::kiwidesc, 1);
+  return ("bad kiwi description data") unless $kiwidesc;
+
+  for my $type (@{$kiwidesc->{'preferences'}->{'type'} || []}) {
+    next unless @{$kiwidesc->{'preferences'}->{'type'}} == 1 || $type->{'primary'};
+    push @alltypes, $type->{'_content'};
+    push @allpackages, "kiwi-filesystem:$type->{'filesystem'}" if $type->{'filesystem'};
+
+    # Parse included kiwi configs
+    if (defined $type->{'boot'}) {
+      if ($type->{'boot'} =~ /^obs:\/\/\/?([^\/]+\/[^\/]+)\/?$/ ) {
+	warn("kiwi boot obs references not implemented yet...\n");
+      } else {
+        if ($type->{'boot'} =~ /^([^\/]+)\/([^\/]+)$/) {
+	  push @allpackages, "kiwi-boot:$1";
+	} else {
+          return ("non OBS kiwi image description refered: $type->{'boot'}");
+	}
+      }
+    }
+  }
+
+  if ($kiwidesc->{'instsource'}) {
+    for my $repository (@{$kiwidesc->{'instsource'}->{'instrepo'}}) {
+      my $kiwisource =  $repository->{'source'};
+      if ($kiwisource->{'path'} =~ /^obs:\/\/\/?([^\/]+)\/([^\/]+)\/?$/) {
+	push @allrepos, {'project' => $1, 'repository' => $2};
+      } else {
+	return ("non Build Service KIWI source found: $kiwisource->{'path'}");
+      }
+    }
+    for my $repopackages (@{$kiwidesc->{'instsource'}->{'repopackages'} || []}) {
+      for my $repopackage (@{$repopackages->{'repopackage'} || []}) {
+        push @allpackages, $repopackage->{'name'};
+      }
+    }
+    if ($kiwidesc->{'instsource'}->{'metadata'}) {
+      for my $repopackage (@{$kiwidesc->{'instsource'}->{'metadata'}->{'repopackage'} || []}) {
+        push @allpackages, $repopackage->{'name'};
+      }
+    }
+  }
+
+  # collect all possible needed repositories
+  # this should maybe moved above to the expandrepos calls without harming performance
+  for my $repository (@{$kiwidesc->{'repository'} || []}) {
+    my $kiwisource =  $repository->{'source'};
+    if ($kiwisource->{'path'} =~ /^obs:\/\/\/?([^\/]+)\/([^\/]+)\/?$/) {
+      push @allrepos, {'project' => $1, 'repository' => $2};
+    } elsif ($kiwisource->{'path'} ne '/var/lib/empty') {
+      return ("non Build Service KIWI source found: $kiwisource->{'path'}");
+    }
+  }
+
+  # collect all package requires from all packages groups.
+  for my $packagegroup (@{$kiwidesc->{'packages'} || []}) {
+    for my $package (@{$packagegroup->{'package'} || []}) {
+	if ($package->{'arch'}) {
+	  my $ma = $arch;
+	  $ma =~ s/i[456]86/i386/;
+	  my $pa = $package->{'arch'};
+	  $pa =~ s/i[456]86/i386/;
+	  next if $ma ne $pa;
+        }
+        push @allpackages, $package->{'name'};
+    }
+    # FIXME: add support for patterns
+  }
+  # Add implicit the package manager package
+  if (!$kiwidesc->{'instsource'}) {
+    my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
+    push @allpackages, "kiwi-packagemanager:$packman";
+  } else {
+    push @allpackages, "kiwi-packagemanager:instsource";
+  }
+  @allrepos = unify(@allrepos);
+  @allpackages = unify(@allpackages);
+  @alltypes = unify(@alltypes);
+  return (undef, \@allrepos, \@allpackages, \@alltypes);
+}
+
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
@@ -1223,6 +1342,16 @@ sub getbuildinfo_post {
   if (looks_like_dsc($fn)) {
     $d = Build::Deb::parse($bconf, $fn);
     $info->{'file'} = 'upload.dsc';
+  } elsif (looks_like_dsc($fn)) {
+    my ($error, $kiwirepos, $kiwipackages, $kiwitypes) = kiwiparse($fn, $arch);
+    die("parse error: $error\n") if $error;
+    $d = {
+      'deps' => $kiwipackages,
+      'name' => 'kiwiimage',
+    };
+    $info->{'imagetype'} = $kiwitypes;
+    $info->{'path'} = $kiwirepos;
+    $info->{'file'} = 'upload.kiwi';
   } else {
     $d = Build::Rpm::parse($bconf, $fn);
     $info->{'file'} = 'upload.spec';
