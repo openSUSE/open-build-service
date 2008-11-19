@@ -960,6 +960,8 @@ sub kiwiparse  {
   if (!$kiwidesc->{'instsource'}) {
     my $packman = $kiwidesc->{'preferences'}->{'packagemanager'};
     push @allpackages, "kiwi-packagemanager:$packman";
+  } else {
+    push @allpackages, "kiwi-packagemanager:instsource";
   }
   @allrepos = unify(@allrepos);
   @allpackages = unify(@allpackages);
@@ -1717,7 +1719,7 @@ sub getfilelist {
       $files = $lfiles;
       %$rev = %lrev;
     } else {
-      delete $lrev{'srcmd5'} if !ref($lfiles) && ! -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
+      delete $lrev{'srcmd5'} if !ref($lfiles) && $lrev{'srcmd5'} && ! -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
       $ret->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
       $ret->{'error'} = $lfiles unless ref $lfiles;
       $li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
@@ -3406,7 +3408,7 @@ my $dispatches = [
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
-  '/build/$project/$repository/_buildconfig' => \&getconfig,
+  '/build/$project/$repository/_buildconfig path:prp*' => \&getconfig,
   '/build/$project/$repository/$arch' => \&getpackagelist,
   '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
