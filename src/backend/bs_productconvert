@@ -434,10 +434,16 @@ sub useToPackages( $$$ )
     # print "Use Required: <$useRequired>, Suggested: <$useSuggested>, Recommended: <$useRecommended>\n";
 
     foreach my $useState ( @useStatements ) {
-        my $useRequired = ($medium->{use_required} eq "true" );
-        my $useSuggested = ($medium->{use_suggested} eq "true" );
-        my $useRecommended = ($medium->{use_recommended} eq "true" );
+        my $useRequired;
+        my $useRecommended;
+        my $useSuggested;
 
+        # Media default settings
+        $useRequired    = $medium->{'use_required'} if ( defined($medium->{'use_required'}) );
+        $useRecommended = $medium->{'use_recommended'} if ( defined($medium->{'use_recommended'}) );
+        $useSuggested   = $medium->{'use_suggested'} if ( defined($medium->{'use_suggested'}) );
+
+        # can get overriden by "use group" settings
         $useRequired    = $useState->{'use_required'} if ( defined($useState->{'use_required'}) );
         $useRecommended = $useState->{'use_recommended'} if ( defined($useState->{'use_recommended'}) );
         $useSuggested   = $useState->{'use_suggested'} if ( defined($useState->{'use_suggested'}) );
