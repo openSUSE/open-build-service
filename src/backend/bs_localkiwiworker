@@ -213,8 +213,8 @@ sub dobuild {
   }
   $media{$srcmedium} = 1 if defined $srcmedium;
   $media{$debugmedium} = 1 if defined $debugmedium;
-  $media{"1"} = "1" if ( defined($srcmedium) && $srcmedium > 1 ); # Use implicit medium 1, since it is the default
-  $media{"1"} = "1" if ( defined($debugmedium) && $debugmedium > 1 ); # Use implicit medium 1, since it is the default
+  $media{"1"} = "1" if ( defined($srcmedium) && $srcmedium != 1 ); # Use implicit medium 1, since it is the default
+  $media{"1"} = "1" if ( defined($debugmedium) && $debugmedium != 1 ); # Use implicit medium 1, since it is the default
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
     for my $repopackage (@{$repopackages->{'repopackage'} || []}) {
       $media{$repopackage->{'medium'}} = 1 if defined $repopackage->{'medium'};
@@ -229,7 +229,7 @@ sub dobuild {
   delete $media{'0'};	# meta packages only
   my @media = keys %media;
   @media = ('1') unless @media;
-  if ( @media > 1 ) {
+  if ( @media > 1 || ( defined($srcmedium) && $srcmedium != 1 ) || ( defined($srcmedium) && $srcmedium != 1 ) ) {
     @media = map {"$mediumbase$_"} @media;
   }else{
     @media = $mediumbase;
@@ -278,9 +278,9 @@ sub dobuild {
   $ENV{'APPID'} = "-";                     # default value
   $ENV{'KIWI_COLLECT_TERMINAL_LOG'} = "1"; # kiwi collect module has no switch for this
   delete $ENV{'LANG'};                     # set locale to POSIX to have the same always sort order
-  my $kiwiprg = '/usr/sbin/kiwi2';
+  my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
-  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
+  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '--local', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
 # kiwi fails always atm !
 #    die("kiwi failed: $?\n");
   }
@@ -297,7 +297,7 @@ sub dobuild {
     push @result, $medium;
     next if ( $ftp_only eq "true" );
     if ( ! -e "$outdir/$medium.iso" ) { # Do not overwrite iso file created from kiwi !
-      if (system("/usr/share/kiwi/image/isoboot/suse-isolinux $outdir/$medium $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
+      if (system("/usr/bin/suse-isolinux $outdir/$medium $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
         print "WARNING: suse-isolinux failed: $?\n";
         next;
       }
