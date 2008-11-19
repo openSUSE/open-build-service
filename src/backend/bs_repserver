@@ -996,7 +996,12 @@ sub getbuildinfo {
   my $packtype = 'spec';
   $packtype = $1 if $info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
 
-  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+  my @configpath;
+  if ($packtype eq 'kiwi') {
+    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+    unshift @configpath, "path=$projid/$repoid" unless @configpath;
+  }
+  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
 
   my $ret;
