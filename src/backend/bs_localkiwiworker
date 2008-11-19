@@ -213,8 +213,8 @@ sub dobuild {
   }
   $media{$srcmedium} = 1 if defined $srcmedium;
   $media{$debugmedium} = 1 if defined $debugmedium;
-  $media{"1"} = "1" if ( defined($srcmedium) && $srcmedium != 1 ); # Use implicit medium 1, since it is the default
-  $media{"1"} = "1" if ( defined($debugmedium) && $debugmedium != 1 ); # Use implicit medium 1, since it is the default
+  $media{"1"} = "1" if ( defined($srcmedium) && $srcmedium > 1 ); # Use implicit medium 1, since it is the default
+  $media{"1"} = "1" if ( defined($debugmedium) && $debugmedium > 1 ); # Use implicit medium 1, since it is the default
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
     for my $repopackage (@{$repopackages->{'repopackage'} || []}) {
       $media{$repopackage->{'medium'}} = 1 if defined $repopackage->{'medium'};
@@ -229,7 +229,7 @@ sub dobuild {
   delete $media{'0'};	# meta packages only
   my @media = keys %media;
   @media = ('1') unless @media;
-  if ( @media > 1 || ( defined($srcmedium) && $srcmedium != 1 ) || ( defined($srcmedium) && $srcmedium != 1 ) ) {
+  if ( @media > 1 ) {
     @media = map {"$mediumbase$_"} @media;
   }else{
     @media = $mediumbase;
@@ -280,7 +280,7 @@ sub dobuild {
   delete $ENV{'LANG'};                     # set locale to POSIX to have the same always sort order
   my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
-  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '--local', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
+  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '--instsource-local', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
 # kiwi fails always atm !
 #    die("kiwi failed: $?\n");
   }
