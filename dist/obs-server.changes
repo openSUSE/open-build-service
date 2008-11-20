@@ -1,4 +1,8 @@
 -------------------------------------------------------------------
+Thu Nov 20 11:48:42 CET 2008 - froh@novell.com
+
+- get setuid handling right (bnc#446164)
+-------------------------------------------------------------------
 Tue Nov 11 17:12:46 CET 2008 - froh@novell.com
 
 - fix init scripts for stricter 11.1 requirements.

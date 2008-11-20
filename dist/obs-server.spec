@@ -106,7 +106,7 @@ Summary:        The openSUSE Build Service -- The Frontend part
 Group:          Productivity/Networking/Web/Utilities
 
 %if 0%{?suse_version}
-PreReq:         %fillup_prereq %insserv_prereq
+PreReq:         %fillup_prereq %insserv_prereq permissions
 %endif
 
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
@@ -292,10 +292,16 @@ done
 #-------------------------------------------------------------------------------
 %post -n obs-server
 #-------------------------------------------------------------------------------
+%run_permissions
 %{fillup_and_insserv -n obs-server}
 for service in obssrcserver obsrepserver obsscheduler obspublisher; do
 %restart_on_update $service
 done
+
+#-------------------------------------------------------------------------------
+%verifyscript -n obs-server
+#-------------------------------------------------------------------------------
+%verify_permissions -e /usr/bin/sign
 
 #-------------------------------------------------------------------------------
 %post -n obs-worker
@@ -364,7 +370,7 @@ done
 /var/adm/fillup-templates/sysconfig.obs-server
 %{_mandir}/man5/*
 # the sign client goes with the server
-%attr(4750,root,obsrun) /usr/bin/sign
+%verify(not mode) %attr(0750,root,obsrun) /usr/bin/sign
 %{_mandir}/man8/sign.8.gz
 
 #-------------------------------------------------------------------------------
