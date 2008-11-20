@@ -482,7 +482,6 @@ sub getsources {
   for my $src (@sdep) {
     print "$src->{'name'}, ";
     my $idir = "$src->{'project'}/$src->{'package'}";
-    $idir =~ s/:/:\//g;	# grr!
     $idir = "$dir/images/$idir";
     mkdir_p($idir);
     my $res = BSRPC::rpc({
@@ -544,7 +543,6 @@ sub getbinaries_kiwiproduct {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
     my $ddir = $dir;
     my $prpdir = "$projid/$repoid";
-    $prpdir =~ s/:/:\//g;
     $ddir .= "/$prpdir";
     mkdir_p($ddir);
     my $res = BSRPC::rpc({
@@ -615,7 +613,6 @@ sub getbinaries {
     my $ddir = $dir;
     if ($kiwimode) {
       my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
-      $prpdir =~ s/:/:\//g;
       $ddir = "$srcdir/repos/$prpdir";
       # Always try to get all binaries, because kiwi needs to decide which to take
       push @args, "binaries=".join(',', @bdep);
