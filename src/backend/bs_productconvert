@@ -734,6 +734,20 @@ sub createRepository
     return \@repository;
 }
 
+sub createFlavorReadme( $$ ){
+    my($prodRef,$product)=@_;
+    my $reame_file="";
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}";
+      $reame_file .= "mkdir -p $readmedir\n";
+      $reame_file .= "cat >$readmedir/README << EOF\n";
+      $reame_file .= "This package just exist just for providing the product flavor \'$flavor->{flavor}\'.\n";
+      $reame_file .= "\nEOF\n\n";
+    }
+    return $reame_file;
+}
+
 sub writeProductSPECfile
 {
     my( $file, $infile, $prodRef, $product ) = @_;
@@ -763,32 +777,8 @@ sub writeProductSPECfile
     }
 
     # Create product file to be packaged
-    my $zypp_product_file = "";
-    $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
-    my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}.prod";
-
-    my $zypp_product;
-    $zypp_product = $product;
-    $zypp_product->{'arch'} = '%{_target_cpu}'; # write product architecture during rpm build
-    $zypp_product->{'schemeversion'} = "0"; # FIXME: moving target, still in development.
-    my $d;
-    $d->{"target"}  = $product->{'register'}->{'target'};
-    $d->{"release"} = $product->{'register'}->{'release'};
-    $zypp_product->{'register'} = $d;
-    my $xml = XMLout( $BSProductXML::product, $zypp_product );
-    die ( "ERROR: Unable to create xml for $product->{name} !" ) unless $xml;
-    $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
-    $zypp_product_file .= "cat >$pfile << EOF\n";
-    $zypp_product_file .= "$xml\nEOF\n\n";
-
-    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
-      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/%{name}/$product->{name}-release-$flavor->{flavor}";
-      $zypp_product_file .= "mkdir -p $readmedir\n";
-      $zypp_product_file .= "cat >$readmedir/README << EOF\n";
-      $zypp_product_file .= "This package just exist just for providing the product flavor.\n";
-      $zypp_product_file .= "\nEOF\n\n";
-    }
+    my $zypp_product_file = createProductFile($product);
+       $zypp_product_file.= createFlavorReadme($prodRef,$product);
 
     my $str = readstr($infile);
 
@@ -810,6 +800,144 @@ sub writeProductSPECfile
     # write out the modified file.
     writestr($file, undef, $str);
 }
+
+sub createSPECfileFlavors ( $$ ) {
+    my ( $prodRef,$product ) = @_;
+    my $product_flavors="";
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      $product_flavors.="%package $flavor->{flavor}\n";
+      $product_flavors.="License:        BSD 3-Clause\n";
+      $product_flavors.="Group:          System/Fhs\n";
+      $product_flavors.="Provides:       product_flavor()\n";
+      $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{'version'}-$product->{'release'}\n";
+      $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
+      foreach my $summary ( @{$product->{'summary'}} ){
+        $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
+      }
+      $product_flavors.="\n";
+      $product_flavors.="%description $flavor->{flavor}\n";
+      foreach my $description ( @{$product->{'description'}} ){
+        $product_flavors.="$description->{_content}\n" if ( ! $description->{'description'} );
+      }
+      $product_flavors.="\n";
+      $product_flavors.="%files $flavor->{flavor}\n";
+      $product_flavors.="%defattr(-,root,root)\n";
+      $product_flavors.="%doc %{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}\n";
+      $product_flavors.="\n"
+    }
+    return $product_flavors;
+}
+
+sub createSPECfileInstallSection ( $ ) {
+        my ($product) = @_;
+        my $content="";
+        my $is_main_product=0;
+        if ( $is_main_product ){
+                my $content="mkdir -p %{buildroot}/%{_sysconfdir}
+echo -e 'Welcome to %{product} %{version} %{betaversion} - Kernel \\r (\\l).\n\n' > %{buildroot}/etc/issue
+echo \"Welcome to %{product} %{version} %{betaversion} - Kernel %%r (%%t).\" > %{buildroot}/etc/issue.net
+echo \"%{product} %{version} %{betaversion} (%{_target_cpu})\" > %{buildroot}/etc/SuSE-release
+echo \"VERSION = %{version}\" >> %{buildroot}/etc/SuSE-release
+echo \"Have a lot of fun...\" > %{buildroot}/etc/motd
+# Bug 404141 - /etc/YaST/control.xml should be owned by some package
+mkdir -p %{buildroot}/etc/YaST2/
+install -m 644 /CD1/control.xml %{buildroot}/etc/YaST2/
+install -m 644 -D /CD1/EULA.txt %{buildroot}/%{_docdir}/%{name}/%{product}-EULA.txt
+";
+}
+        $content="mkdir -p %{buildroot}/etc/products.d";
+        return $content;
+}
+
+sub createProductFile ( $ ) {
+    my ($product ) = @_;
+    my $zypp_product_file = "";
+    my $zypp_product = $product;
+    my $d;
+    my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}.prod";
+
+    $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
+    $zypp_product->{'arch'} = '%{_target_cpu}'; # write product architecture during rpm build
+    $zypp_product->{'schemeversion'} = "0"; # FIXME: moving target, still in development.
+
+    $d->{"target"}  = $product->{'register'}->{'target'};
+    $d->{"release"} = $product->{'register'}->{'release'};
+    $zypp_product->{'register'} = $d;
+
+    my $xml = XMLout( $BSProductXML::product, $zypp_product );
+    die ( "ERROR: Unable to create xml for $product->{name} !" ) unless $xml;
+    $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
+    $zypp_product_file .= "cat >$pfile << EOF\n";
+    $zypp_product_file .= "$xml\nEOF\n\n";
+}
+
+sub createProductSPECfile ( $$$ ) {
+        my ( $file, $prodRef, $product ) = @_;
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
+        $year += 1900;
+        my $content=();
+        # write the specfile header
+        $content="#
+# spec file for package $product->{name}-release (Version $product->{version})
+#
+# Copyright (c) $year $product->{'vendor'}.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An \"Open Source License\" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+";
+        if (( $product->{'vendor'} =~ /.*SUSE LINUX.*/i ) || ( $product->{'vendor'} =~ /.*Novell.*/i)){
+                $content.="\n# Please submit bugfixes or comments via http://bugs.opensuse.org/\n#\n\n";
+        }
+        $content.="# norootforbuild\n";
+        $content.="\n\n";
+        $content.="Name:           $product->{name}-release\n";
+        $content.="%define         product $product->{name}\n";
+        if (defined ($product->{'buildconfig'}->{'betaversion'})){
+          $content.="%define         betaversion $product->{'buildconfig'}->{'betaversion'}\n";
+        }
+        foreach my $summary ( @{$product->{'summary'}} ){
+          $content.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
+        }
+        $content.="Version:        $product->{version}\n";
+        $content.="Release:        0\n"; # FIXME: check if this is this really handled via BS
+        $content.="License:        BSD 3-Clause\n";
+        $content.="Group:          System/Fhs\n";
+        $content.="Provides:       %name-%version\n";
+        $content.="Provides:       product()\n";
+        $content.="Provides:       product($product->{name}) = $product->{'version'}-$product->{'release'}\n";
+        $content.="Requires:       product_flavor($product->{name}) = $product->{'version'}\n";
+        $content.="AutoReqProv:    on\n";
+        $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
+        $content.="\n%description\n";
+        foreach my $description ( @{$product->{'description'}} ){
+          $content.="$description->{_content}\n" if ( ! $description->{'description'} );
+        }
+        $content.="\n\n";
+        $content.=createSPECfileFlavors($prodRef,$product);
+        $content.="\n%prep\n";
+        $content.="\n%build\n\n";
+        $content.="\n%install\n";
+        $content.=createFlavorReadme($prodRef,$product);
+        $content.=createProductFile($product);
+        $content.="\n%clean\n";
+        $content.="rm -rf %buildroot\n";
+        $content.="\n%files\n";
+        $content.="%defattr(644,root,root,755)\n";
+        $content.="%dir /etc/products.d\n";
+        $content.="/etc/products.d/*.prod\n";
+        $content.="\n%changelog\n";
+
+        # write out the modified file.
+        writestr($file, undef, $content);
+}
+
 
 # Process the commandline arguments.
 getopts('dlhm:');
@@ -963,7 +1091,9 @@ for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
     mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
     writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
   } else {
-    print "No release template file $templateFile exists --> SPEC file generation skipped !\n";
+    mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
+    createProductSPECfile("$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $prodRef, $product);
+#    print "No release template file $templateFile exists --> SPEC file generation skipped !\n";
   };
 };
 
