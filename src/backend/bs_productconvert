@@ -98,13 +98,20 @@ sub createDescription( $ )
     return $re;
 }
 
-sub convertFlags( $ )
-{
+sub convertFlags( $ ){
     my ($flag)=@_;
     $flag =~ s/GE/>/sg;
     $flag =~ s/EQ/=/sg;
     $flag =~ s/LT/</sg;
     return $flag;
+}
+
+sub convertRelationship( $ ){
+    my ( $relationship ) = @_;
+    $relationship =~ s/suggests/Suggests/sg;
+    $relationship =~ s/recommends/Recommends/sg;
+    $relationship =~ s/requires/Requires/sg;
+    return $relationship;
 }
 
 sub createPreferences( $ )
@@ -184,6 +191,19 @@ sub parseArchsets( $ )
     # print Dumper %archSets;
 }
 
+sub getUrl( $$$ ){
+    my ($product,$arch,$searchstring) = @_;
+    my $url="";
+    foreach my $url ( @{$product->{'urls'}->{'url'}} ){
+        if ( "$url->{'name'}" eq "$searchstring" ){
+            my $url = $url->{'_content'};
+            $url =~ s/%{_target_cpu}/$arch/g;
+            return $url;
+	}
+    }
+    return $url;
+}
+
 sub createArchitectures( $ )
 {
     my ($archSetList) = @_;
@@ -243,7 +263,7 @@ sub createProductOptions($$$)
 
     # General FIXME: this works only with a single product on media.
     my $product = $prodRef->{products}{product}[0];
-    die( "Handling of multiple products on one media is not specified !\n" ) if $prodRef->{products}{product}[1];
+    die( "Handling of multiple products on one media is currently not specified !\n" ) if $prodRef->{products}{product}[1];
 
     my $re = {};
     my %varsH;
@@ -314,19 +334,14 @@ sub createProductOptions($$$)
       $info{'SUMMARY'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
       $info{'LABEL'}        = $summary->{'_content'}." ".$product->{'version'} if ( ! $summary->{'language'} );
     }
-    foreach my $url ( @{$product->{'urls'}->{'url'}} ){
-        if ( $url->{'name'} eq 'repository' ){
-            $options{'REPO_LOCATION'} = $url->{'_content'};
-        }elsif ( $url->{'name'} eq 'releasenotes' ){
-            my $relnotesurl = $url->{'_content'};
-            $relnotesurl =~ s/%{_target_cpu}/$arch/g;
-            $info{'RELNOTESURL'} = $relnotesurl;
-        }
-    }
+    $options{'REPO_LOCATION'} = getUrl($product,$arch,"repository");
+    $info{'RELNOTESURL'} = getUrl($product,$arch,"releasenotes");
+
     $info{'LINGUAS'} = "";
     foreach my $language ( @{$product->{'linguas'}->{'language'}} ){
       $info{'LINGUAS'} .= "$language->{'_content'} ";
     }
+
     $info{'BASEARCHS'} = "";
     foreach my $ar ( @$archSetList ) {
         $info{'BASEARCHS'} .= "$archSets{$ar->{ref}}->{productarch} " if( $archSets{$ar->{ref}} );
@@ -477,10 +492,7 @@ sub useToPackages( $$$ )
 			my %tmp;
                         $tmp{name} = $addPack->{name};
                         $tmp{medium} = $addPack->{medium} if (defined($addPack->{medium}));
-                        $tmp{arch} = $addPack->{arch} if (defined($addPack->{arch}));
-                        $tmp{addarch} = $addPack->{addarch} if (defined($addPack->{addarch}));
                         if ($addPack->{removearch}) {
-                          # skip package from kiwi file in remove arch case to avoid waiting for it.
                           next if containsMyArch( $prodRef, $archSetList, $addPack->{removearch} );
                           $tmp{removearch} = $addPack->{removearch};
                         }
@@ -751,57 +763,113 @@ sub createFlavorReadme( $$ ){
     return $reame_file;
 }
 
-sub writeProductSPECfile
+
+sub writeProductSPECfile( $$$$ )
 {
-    my( $file, $infile, $prodRef, $product ) = @_;
-
+    my( $file, $infile, $prodRef,$product ) = @_;
     my $product_flavors="";
-    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
-      $product_flavors.="%package $flavor->{flavor}\n";
-      $product_flavors.="License:        BSD 3-Clause\n";
-      $product_flavors.="Group:          System/Fhs\n";
-      $product_flavors.="Provides:       product_flavor()\n";
-      $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{'version'}-$product->{'release'}\n";
-      $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
-      foreach my $summary ( @{$product->{'summary'}} ){
-        $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
-      }
-      $product_flavors.="\n";
-      $product_flavors.="%description $flavor->{flavor}\n";
-      foreach my $description ( @{$product->{'description'}} ){
-        $product_flavors.="$description->{_content}\n" if ( ! $description->{'description'} );
-      }
-      $product_flavors.="\n";
-      $product_flavors.="%files $flavor->{flavor}\n";
-      $product_flavors.="%defattr(-,root,root)\n";
-      $product_flavors.="%doc %{_defaultdocdir}/%{name}/$product->{name}-release-$flavor->{flavor}\n";
-      $product_flavors.="\n"
+    if ("$infile" eq ""){
+     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
+     $year += 1900;
+     my $content=();
+     # write the specfile header
+     $content="#
+# spec file for package $product->{name}-release (Version $product->{version})
+#
+# Copyright (c) $year $product->{'vendor'}.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An \"Open Source License\" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+";
+     my $bugtracker=getUrl($product,"i586","bugtracker");
+     $content.="\n# Please submit bugfixes or comments via $bugtracker\n#\n\n" if ("$bugtracker" ne "");
+     $content.="# norootforbuild\n";
+     $content.="\n\n";
+     $content.="Name:           $product->{name}-release\n";
+     $content.="%define         product $product->{name}\n";
+     if (defined ($product->{'buildconfig'}->{'betaversion'})){
+       $content.="%define         betaversion $product->{'buildconfig'}->{'betaversion'}\n";
+     }
+     foreach my $summary ( @{$product->{'summary'}} ){
+       $content.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
+     }
+     $content.="Version:        $product->{version}\n";
+     $content.="Release:        0\n"; # FIXME: check if this is this really handled via BS
+     $content.="License:        BSD 3-Clause\n";
+     $content.="Group:          System/Fhs\n";
+     $content.="Provides:       %name-%version\n";
+     $content.="Provides:       $prodRef->{'project'}->{'name'}\n" if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne ""));
+     $content.="Provides:       product()\n";
+     $content.="Provides:       product($product->{'name'}) = $product->{'version'}-$product->{'release'}\n";
+     if (defined($product->{'patchlevel'})){
+       $content.="Provides:       product($product->{'name'}-$product->{'patchlevel'}) = $product->{'version'}-$product->{'release'}\n";
+       $content.="Provides:       product($product->{'name'}-SP$product->{'patchlevel'}) = $product->{'version'}-$product->{'release'}\n" if (($product->{'patchlevel'}) & ($product->{'patchlevel'})) eq '0';
+       if ("$product->{'patchlevel'}" eq "0"){ # special handling for GA products
+         $content.="Requires:       product_flavor($product->{name}) = $product->{'version'}\n";
+       } else {
+         $content.="Requires:       product_flavor($product->{name}-$product->{'patchlevel'}) = $product->{'version'}\n";
+       }
+     } else {
+       $content.="Requires:       product_flavor($product->{name}) = $product->{'version'}\n";
+     }
+     $content.="AutoReqProv:    on\n";
+     $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
+     $content.="\n%description\n";
+     foreach my $description ( @{$product->{'description'}} ){
+       $content.="$description->{_content}\n" if ( ! $description->{'description'} );
+     }
+     $content.="\n\n";
+     $content.=createSPECfileFlavors($prodRef,$product);
+     $content.="\n%prep\n";
+     $content.="\n%build\n\n";
+     $content.="\n%install\n";
+     $content.=createFlavorReadme($prodRef,$product);
+     $content.=createProductFile($product);
+     $content.="\n%clean\n";
+     $content.="rm -rf %buildroot\n";
+     $content.="\n%files\n";
+     $content.="%defattr(644,root,root,755)\n";
+     $content.="%dir /etc/products.d\n";
+     $content.="/etc/products.d/*.prod\n";
+     $content.="\n%changelog\n";
+
+     # write out the modified file.
+     writestr($file, undef, $content);      
+ 
+    } else {
+
+     $product_flavors.=createSPECfileFlavors($prodRef,$product);
+
+     # Create product file to be packaged
+     my $zypp_product_file = createProductFile($product);
+        $zypp_product_file.= createFlavorReadme($prodRef,$product);
+
+     my $str = readstr($infile);
+
+     # replace all strings
+     $str =~ s/___DISTNAME___/$product->{name}/g;
+     $str =~ s/___VERSION___/$product->{version}/g;
+     $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
+     $str =~ s/___RELEASE___/0/g;
+     $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
+     $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
+     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+       $str =~ s/___PRODUCT_REQUIRES___/$product_requires{$flavor}/g;
+     }
+     $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
+     $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
+     $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
+     $str =~ s/___CREATE_PRODUCT_FILES___/$zypp_product_file/g;
+ 
+     # write out the modified file.
+     writestr($file, undef, $str);
     }
-
-    # Create product file to be packaged
-    my $zypp_product_file = createProductFile($product);
-       $zypp_product_file.= createFlavorReadme($prodRef,$product);
-
-    my $str = readstr($infile);
-
-    # replace all strings
-    $str =~ s/___DISTNAME___/$product->{name}/g;
-    $str =~ s/___VERSION___/$product->{version}/g;
-    $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
-    $str =~ s/___RELEASE___/0/g;
-    $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
-    $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
-    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      $str =~ s/___PRODUCT_REQUIRES___/$product_requires{$flavor}/g;
-    }
-    $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
-    $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
-    $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
-    $str =~ s/___CREATE_PRODUCT_FILES___/$zypp_product_file/g;
-
-    # write out the modified file.
-    writestr($file, undef, $str);
 }
 
 sub createSPECfileFlavors ( $$ ) {
@@ -812,9 +880,37 @@ sub createSPECfileFlavors ( $$ ) {
       $product_flavors.="%package $flavor->{flavor}\n";
       $product_flavors.="License:        BSD 3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
+      $product_flavors.="Provides:       $prodRef->{'project'}->{'name'}\n" if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne ""));
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{'version'}-$product->{'release'}\n";
       $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
+# below shouldn't be needed at all - disabled
+#      if (defined($product->{'patchlevel'})){
+#       $product_flavors.="Provides:       product_flavor($product->{'name'}-$product->{'patchlevel'}-$flavor->{flavor}) = $product->{'version'}-$product->{'release'}\n";
+#       $product_flavors.="Provides:       product_flavor($product->{'name'}-$product->{'patchlevel'}) = $product->{'version'}-$product->{'release'}\n";
+#       $product_flavors.="Provides:       product_flavor($product->{'name'}-SP$product->{'patchlevel'}-$flavor->{flavor}) = $product->{'version'}-$product->{'release'}\n" if (($product->{'patchlevel'}) & ($product->{'patchlevel'})) eq '0';
+#       $product_flavors.="Provides:       product_flavor($product->{'name'}-SP$product->{'patchlevel'}) = $product->{'version'}-$product->{'release'}\n" if (($product->{'patchlevel'}) & ($product->{'patchlevel'})) eq '0';
+#      }
+      if (defined($flavor->{'productdependency'})){
+	foreach my $dependency (@{$flavor->{'productdependency'}}){
+	    my $relship=convertRelationship($dependency->{'relationship'});
+            my $version=$dependency->{'version'} if (defined($dependency->{'version'}));
+            my $patchlevel="-SP".$dependency->{'patchlevel'} if (defined($dependency->{'patchlevel'}));
+            my $flavor="-".$dependency->{'flavor'} if (defined($dependency->{'flavor'}));
+            my $release=$dependency->{'release'} if (defined($dependency->{'release'}));
+            my $flag=convertFlags($dependency->{'flag'}) if (defined($dependency->{'flag'}));
+	    if (("$flag" eq "") && ("$version" ne "")){ # avoid something like Requires: sles 11
+                $flag="=";
+            }
+            if ((defined($version)) && ("$version" ne "") && (defined($release)) && ("$release" ne "")){ # rpm style for version-release
+                $release="-".$release;
+            } 
+            $patchlevel="" if (! defined($patchlevel));
+            $release="" if (! defined($release));
+            $flavor="" if (! defined($flavor));
+           $product_flavors.="$relship:       product(".$dependency->{'name'}."$patchlevel$flavor) $flag $version$release\n";
+        }
+      }
       foreach my $summary ( @{$product->{'summary'}} ){
         $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
       }
@@ -875,73 +971,6 @@ sub createProductFile ( $ ) {
     $zypp_product_file .= "$xml\nEOF\n\n";
 }
 
-sub createProductSPECfile ( $$$ ) {
-        my ( $file, $prodRef, $product ) = @_;
-        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
-        $year += 1900;
-        my $content=();
-        # write the specfile header
-        $content="#
-# spec file for package $product->{name}-release (Version $product->{version})
-#
-# Copyright (c) $year $product->{'vendor'}.
-#
-# All modifications and additions to the file contributed by third parties
-# remain the property of their copyright owners, unless otherwise agreed
-# upon. The license for this file, and modifications and additions to the
-# file, is the same license as for the pristine package itself (unless the
-# license for the pristine package is not an Open Source License, in which
-# case the license is the MIT License). An \"Open Source License\" is a
-# license that conforms to the Open Source Definition (Version 1.9)
-# published by the Open Source Initiative.
-";
-        if (( $product->{'vendor'} =~ /.*SUSE LINUX.*/i ) || ( $product->{'vendor'} =~ /.*Novell.*/i)){
-                $content.="\n# Please submit bugfixes or comments via http://bugs.opensuse.org/\n#\n\n";
-        }
-        $content.="# norootforbuild\n";
-        $content.="\n\n";
-        $content.="Name:           $product->{name}-release\n";
-        $content.="%define         product $product->{name}\n";
-        if (defined ($product->{'buildconfig'}->{'betaversion'})){
-          $content.="%define         betaversion $product->{'buildconfig'}->{'betaversion'}\n";
-        }
-        foreach my $summary ( @{$product->{'summary'}} ){
-          $content.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
-        }
-        $content.="Version:        $product->{version}\n";
-        $content.="Release:        0\n"; # FIXME: check if this is this really handled via BS
-        $content.="License:        BSD 3-Clause\n";
-        $content.="Group:          System/Fhs\n";
-        $content.="Provides:       %name-%version\n";
-        $content.="Provides:       product()\n";
-        $content.="Provides:       product($product->{name}) = $product->{'version'}-$product->{'release'}\n";
-        $content.="Requires:       product_flavor($product->{name}) = $product->{'version'}\n";
-        $content.="AutoReqProv:    on\n";
-        $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
-        $content.="\n%description\n";
-        foreach my $description ( @{$product->{'description'}} ){
-          $content.="$description->{_content}\n" if ( ! $description->{'description'} );
-        }
-        $content.="\n\n";
-        $content.=createSPECfileFlavors($prodRef,$product);
-        $content.="\n%prep\n";
-        $content.="\n%build\n\n";
-        $content.="\n%install\n";
-        $content.=createFlavorReadme($prodRef,$product);
-        $content.=createProductFile($product);
-        $content.="\n%clean\n";
-        $content.="rm -rf %buildroot\n";
-        $content.="\n%files\n";
-        $content.="%defattr(644,root,root,755)\n";
-        $content.="%dir /etc/products.d\n";
-        $content.="/etc/products.d/*.prod\n";
-        $content.="\n%changelog\n";
-
-        # write out the modified file.
-        writestr($file, undef, $content);
-}
-
-
 # Process the commandline arguments.
 getopts('dlhm:');
 
@@ -950,8 +979,8 @@ $runOnServer = "true" if $opt_l;
 
 my ($infile, $outdir, $project) = @ARGV;
 
-die( "Please specify input file, output directory and project name\n" ) unless $infile;
-die( "Please specify output directory and project name\n" ) unless $outdir;
+die( "Please specify input file, output directory (and project name)\n" ) unless $infile;
+die( "Please specify output directory (and project) name\n" ) unless $outdir;
 
 my $d;
 # global indir
@@ -1028,37 +1057,24 @@ foreach my $medium ( @$media ){
       
           my $archStr;
           my @archsets = @{$arch->{archset}};
-          my @productarch;
           foreach my $ar ( @archsets ) {
               if( $archSets{$ar->{'ref'}} ) {
           	my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
           	$archStr .= "_" if $archStr;
           	$archStr .= "$architecture";
-                # enable this architecture in scheduler
-                # FIXME: the scheduler arch may have a different name than the rpm archs !
-                push @archs, { 'arch' => $architecture };
-                push @productarch, $architecture;
-                # Heuristic: we need to make this configurable at a more central place
-                push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
-                push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
-                push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
-                push @archs, { 'arch' => 'ppc64' } if ( $architecture eq "ppc" ); # ppc is using ppc64 stuff in openSUSE
-                push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
+                  # enable this architecture in scheduler
+                  # FIXME: the scheduler arch may have a different name than the rpm archs !
+                  push @archs, { 'arch' => $architecture };
+                  # Heuristic: we need to make this configurable at a more central place
+                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
+                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
+                  push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
+                  push @archs, { 'arch' => 'ppc64' } if ( $architecture eq "ppc" ); # ppc is using ppc64 stuff in openSUSE
+                  push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
               }
           }
           $buildflags->{'enable'} = \@archs;
       
-          # add implicit the release packages to media
-          if ( $kiwi->{instsource}->{repopackages}[0] ){
-	    my %product_pack;
-            my $addarch = join( ",", @productarch );
-            my $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
-            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
-            # add the flavor package
-            $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release-".$flavor;
-            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
-          }
-
           my $file = "$product-$type-$flavor-$archStr";
           die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
           die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
@@ -1080,6 +1096,8 @@ foreach my $medium ( @$media ){
             $pkgmeta->{'title'} = "KIWI image build" ;
             $pkgmeta->{'description'} = "Automatically generate from _product" ;
             $pkgmeta->{'build'} = $buildflags;
+            $prodRef->{'project'}->{'name'}="$project";
+            $prodRef->{'project'}->{'buildflags'}=$buildflags;
             writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
 #            print "metafile written.\n";
           } else {
@@ -1088,7 +1106,6 @@ foreach my $medium ( @$media ){
       }
     }
 }
-
 
 #
 # Create $product-release packages
@@ -1104,14 +1121,12 @@ for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
       $templateFile = "$1/release.spec";
     };
   };
-  if ( $templateFile && -e $templateFile ) {
-    mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
-    writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
-  } else {
-    mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
-    createProductSPECfile("$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $prodRef, $product);
-#    print "No release template file $templateFile exists --> SPEC file generation skipped !\n";
-  };
+  if ( ! $templateFile || ! -e $templateFile ) {
+    $templateFile="";
+    print "No release template file $templateFile exists --> generating SPEC file $product->{name}-release.spec automatically\n";
+  }
+  mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
+  writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
 };
 
 
