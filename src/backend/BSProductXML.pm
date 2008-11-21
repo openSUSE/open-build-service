@@ -219,6 +219,15 @@ our $productdesc = [
                [[ 'package' => 'name', 'medium', 'relationship' ]],
                [[ 'include' => 'group', 'relationship' ]],
             ]],
+            [[ 'productdependency' =>
+               'relationship',
+               'name',
+               'version',
+               'patchlevel',
+               'release',
+               'flavor',
+               'flag',
+            ]],
             [ 'metadata' =>
                [[ 'package' => 'name', 'medium', 'removearch' ]],
                [[ 'file' => 'name' ]],
