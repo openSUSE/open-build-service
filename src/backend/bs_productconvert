@@ -477,7 +477,10 @@ sub useToPackages( $$$ )
 			my %tmp;
                         $tmp{name} = $addPack->{name};
                         $tmp{medium} = $addPack->{medium} if (defined($addPack->{medium}));
+                        $tmp{arch} = $addPack->{arch} if (defined($addPack->{arch}));
+                        $tmp{addarch} = $addPack->{addarch} if (defined($addPack->{addarch}));
                         if ($addPack->{removearch}) {
+                          # skip package from kiwi file in remove arch case to avoid waiting for it.
                           next if containsMyArch( $prodRef, $archSetList, $addPack->{removearch} );
                           $tmp{removearch} = $addPack->{removearch};
                         }
