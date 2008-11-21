@@ -963,11 +963,12 @@ my $prodRef = readProductFile( $infile );
 # Sanity checks
 #
 die("product definition contains no products\n") unless $prodRef->{'products'};
-for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
-  die("no product name set\n") unless $product->{'name'};
-  die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /^[_\.]/;
-  die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\000-\037]/;
-}
+die("product definition contains multiple products, this is not yet supported \n") if @{$prodRef->{'products'}->{'product'}} > 1;
+my $product = $prodRef->{'products'}->{'product'}[0];
+die("no product name set\n") unless $product->{'name'};
+die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /^[_\.]/;
+die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\000-\037]/;
+die("ERROR: File name does not match to product name\n") if not $infile =~ /.*\/$prodRef->{'products'}->{'product'}[0]->{'name'}.product$/;
 
 #
 # Create a kiwi configuration for each distribution flavor
