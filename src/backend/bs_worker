@@ -517,7 +517,7 @@ sub qsystem {
 }
 
 sub getbinaries_kiwiproduct {
-  my ($buildinfo, $dir) = @_;
+  my ($buildinfo, $dir, $srcdir) = @_;
 
   # we need the Build package for queryhdrmd5
   if (!defined &Build::queryhdrmd5) {
@@ -528,22 +528,24 @@ sub getbinaries_kiwiproduct {
 
   # create list of prpaps
   my %prpaps;
+  my %linkit;
   for my $dep (@{$buildinfo->{'bdep'} || []}) {
     next unless $dep->{'package'};
     my $repoarch = $dep->{'repoarch'} || $buildinfo->{'arch'};
     next if $repoarch eq 'src';
     $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
+    $linkit{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}/$dep->{'name'}"} = 1 unless $dep->{'noinstall'};
   }
 
   # FIXME: multiple servers?
   my $repo = $buildinfo->{'path'}->[0];
 
+  mkdir_p($dir);
   my %meta;
   for my $prpap (sort keys %prpaps) {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
-    my $ddir = $dir;
     my $prpdir = "$projid/$repoid";
-    $ddir .= "/$prpdir";
+    my $ddir = "$srcdir/repos/$prpdir";
     mkdir_p($ddir);
     my $res = BSRPC::rpc({
       'uri' => "$repo->{'server'}/build/$projid/$repoid/$arch/$packid",
@@ -565,8 +567,11 @@ sub getbinaries_kiwiproduct {
     for my $f (@$res) {
       my (undef, $name) = split('/', $f->{'name'}, 2);
       next unless defined($name) && $name =~ /^(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-      my ($n, $arch) = ($1, $2);
+      my ($n, $rarch) = ($1, $2);
       my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
+      if ($linkit{"$prpap/$n"}) {
+        link("$ddir/$f->{'name'}", "$dir/$n.rpm") unless -e "$dir/$n.rpm";
+      }
       $meta{"$prpap/$n.$arch"} = $id;
     }
   }
@@ -584,8 +589,9 @@ sub getbinaries {
   mkdir_p($dir);
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
 
-  # NOTYET
-  #return getbinaries_kiwiproduct($buildinfo, $dir) if $kiwimode;
+  if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+    return getbinaries_kiwiproduct($buildinfo, $dir, $srcdir);
+  }
 
   # we need the Build package for queryhdrmd5
   if (!defined &Build::queryhdrmd5) {
