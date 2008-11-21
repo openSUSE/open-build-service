@@ -716,7 +716,7 @@ sub createInstsource( $$$ )
 	push @packages, { repopackage => $useToPacks };
     }
     # print "Packlist: " . Dumper \@packages;
-    $re->{repopackages} =  \@packages;
+    $re->{repopackages} = \@packages;
 
     return $re;
 }
@@ -1027,24 +1027,37 @@ foreach my $medium ( @$media ){
       
           my $archStr;
           my @archsets = @{$arch->{archset}};
+          my @productarch;
           foreach my $ar ( @archsets ) {
               if( $archSets{$ar->{'ref'}} ) {
           	my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
           	$archStr .= "_" if $archStr;
           	$archStr .= "$architecture";
-                  # enable this architecture in scheduler
-                  # FIXME: the scheduler arch may have a different name than the rpm archs !
-                  push @archs, { 'arch' => $architecture };
-                  # Heuristic: we need to make this configurable at a more central place
-                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
-                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
-                  push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
-                  push @archs, { 'arch' => 'ppc64' } if ( $architecture eq "ppc" ); # ppc is using ppc64 stuff in openSUSE
-                  push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
+                # enable this architecture in scheduler
+                # FIXME: the scheduler arch may have a different name than the rpm archs !
+                push @archs, { 'arch' => $architecture };
+                push @productarch, $architecture;
+                # Heuristic: we need to make this configurable at a more central place
+                push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
+                push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
+                push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
+                push @archs, { 'arch' => 'ppc64' } if ( $architecture eq "ppc" ); # ppc is using ppc64 stuff in openSUSE
+                push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
               }
           }
           $buildflags->{'enable'} = \@archs;
       
+          # add implicit the main release package to media
+	  my %product_pack;
+          $product_pack{addarch} = join( ",", @productarch );
+          $product_pack{name} = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
+          $kiwi->{instsource}->{repopackages}[0]->{repopackage}[-1] = \%product_pack;
+          # add the flavor package
+	  my %product_flavor;
+          $product_flavor{addarch} = join( ",", @productarch );
+          $product_flavor{name} = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release-".$flavor;
+          $kiwi->{instsource}->{repopackages}[0]->{repopackage}[-2] = \%product_flavor;
+
           my $file = "$product-$type-$flavor-$archStr";
           die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
           die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
