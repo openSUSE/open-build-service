@@ -1048,17 +1048,15 @@ foreach my $medium ( @$media ){
           }
           $buildflags->{'enable'} = \@archs;
       
-          # add implicit the main release package to media
+          # add implicit the release packages to media
           if ( $kiwi->{instsource}->{repopackages}[0] ){
 	    my %product_pack;
-            $product_pack{addarch} = join( ",", @productarch );
-            $product_pack{name} = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
-            $kiwi->{instsource}->{repopackages}[0]->{repopackage}[-1] = \%product_pack;
+            my $addarch = join( ",", @productarch );
+            my $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
+            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
             # add the flavor package
-	    my %product_flavor;
-            $product_flavor{addarch} = join( ",", @productarch );
-            $product_flavor{name} = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release-".$flavor;
-            $kiwi->{instsource}->{repopackages}[0]->{repopackage}[-2] = \%product_flavor;
+            $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release-".$flavor;
+            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
           }
 
           my $file = "$product-$type-$flavor-$archStr";
