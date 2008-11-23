@@ -3080,7 +3080,24 @@ while(1) {
   }
 
   my $prp;
-  if (@lookat_oobhigh) {
+
+  # Check for high and medium events for projects with max time between check
+  if ( defined %BSConfig::max_project_timeout ){
+    for my $myprp (keys %BSConfig::max_project_timeout) {
+      my @p = grep {$_ eq $myprp} (@lookat_oobhigh,@lookat_oob);
+      if ( @p &&
+           ($BSConfig::max_project_timeout{$myprp}->{'timeout'}+60*time())
+            > $BSConfig::max_project_timeout{$myprp}->{'last'} ) {
+           $BSConfig::max_project_timeout{$myprp}->{'last'} = 60*time();
+        @lookat_oobhigh = grep {$_ ne $myprp} @lookat_oobhigh;
+        @lookat_oob     = grep {$_ ne $myprp} @lookat_oob;
+        $prp = $myprp;
+      }
+    }
+  }
+  if ($prp) {
+    #we have already one, do nothing
+  } elsif (@lookat_oobhigh) {
     $prp = shift @lookat_oobhigh;
     print "looking at high prio $prp";
   } elsif (@lookat_oob) {

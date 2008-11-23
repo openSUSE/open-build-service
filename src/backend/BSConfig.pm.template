@@ -49,6 +49,12 @@ our $bsgroup = 'obsrun';
 # "ppc64" => [ "openSUSE:Factory", "FATE" ],
 #};
 
+# This is for prefer a project in scheduler, if it has high or medium
+# prio events, but was not processed after $timeout minutes.
+#our %max_project_timeout = (
+# "openSUSE:Factory/standard" => { timeout => "30", last => "0" },
+#);
+
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
 #our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
