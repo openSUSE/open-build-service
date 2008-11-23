@@ -935,8 +935,8 @@ sub createSPECfileInstallSection ( $ ) {
         if ( $is_main_product ){
                 my $content="mkdir -p %{buildroot}/%{_sysconfdir}
 echo -e 'Welcome to %{product} %{version} %{?betaversion:%{betaversion}} - Kernel \\r (\\l).\n\n' > %{buildroot}/etc/issue
-echo \"Welcome to %{product} %{version} %{betaversion} - Kernel %%r (%%t).\" > %{buildroot}/etc/issue.net
-echo \"%{product} %{version} %{betaversion} (%{_target_cpu})\" > %{buildroot}/etc/SuSE-release
+echo \"Welcome to %{product} %{version} %{?betaversion:%{betaversion}}  - Kernel %%r (%%t).\" > %{buildroot}/etc/issue.net
+echo \"%{product} %{version} %{?betaversion:%{betaversion}}  (%{_target_cpu})\" > %{buildroot}/etc/SuSE-release
 echo \"VERSION = %{version}\" >> %{buildroot}/etc/SuSE-release
 echo \"Have a lot of fun...\" > %{buildroot}/etc/motd
 # Bug 404141 - /etc/YaST/control.xml should be owned by some package
