@@ -934,7 +934,7 @@ sub createSPECfileInstallSection ( $ ) {
         my $is_main_product=0;
         if ( $is_main_product ){
                 my $content="mkdir -p %{buildroot}/%{_sysconfdir}
-echo -e 'Welcome to %{product} %{version} %{betaversion} - Kernel \\r (\\l).\n\n' > %{buildroot}/etc/issue
+echo -e 'Welcome to %{product} %{version} %{?betaversion:%{betaversion}} - Kernel \\r (\\l).\n\n' > %{buildroot}/etc/issue
 echo \"Welcome to %{product} %{version} %{betaversion} - Kernel %%r (%%t).\" > %{buildroot}/etc/issue.net
 echo \"%{product} %{version} %{betaversion} (%{_target_cpu})\" > %{buildroot}/etc/SuSE-release
 echo \"VERSION = %{version}\" >> %{buildroot}/etc/SuSE-release
