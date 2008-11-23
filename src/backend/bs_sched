@@ -3092,6 +3092,7 @@ while(1) {
         @lookat_oobhigh = grep {$_ ne $myprp} @lookat_oobhigh;
         @lookat_oob     = grep {$_ ne $myprp} @lookat_oob;
         $prp = $myprp;
+        print "Configured timeout for $prp passed !";
       }
     }
   }
