@@ -3091,9 +3091,10 @@ while(1) {
     for my $myprp (keys %BSConfig::max_project_timeout) {
       my @p = grep {$_ eq $myprp} (@lookat_oobhigh,@lookat_oob);
       if ( @p &&
-           ($BSConfig::max_project_timeout{$myprp}->{'timeout'}*60+time())
-            > $BSConfig::max_project_timeout{$myprp}->{'last'} ) {
-           $BSConfig::max_project_timeout{$myprp}->{'last'} = time();
+           (time()-$BSConfig::max_project_timeout{$myprp}->{'timeout'}*60)
+            > $BSConfig::max_project_timeout{$myprp}->{'last'} )
+      {
+        $BSConfig::max_project_timeout{$myprp}->{'last'} = time();
         @lookat_oobhigh = grep {$_ ne $myprp} @lookat_oobhigh;
         @lookat_oob     = grep {$_ ne $myprp} @lookat_oob;
         $prp = $myprp;
