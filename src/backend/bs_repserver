@@ -334,7 +334,7 @@ sub getbinarylist {
   }
   die("unsupported view '$view'\n") if $view;
   my @res;
-  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'history' && $_ ne '.bininfo'} ls("$reporoot/$prp/$arch/$packid");
+  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo'} ls("$reporoot/$prp/$arch/$packid");
   for (sort @bins) {
     my @s = stat("$reporoot/$prp/$arch/$packid/$_");
     next unless @s;
@@ -355,6 +355,16 @@ sub gethistory {
     }
   }
   return ({'entry' => \@history}, $BSXML::buildhist);
+}
+
+sub getbuildreason {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+
+  my $reason = readxml("$reporoot/$projid/$repoid/$arch/$packid/reason", $BSXML::buildreason, 1) || {};
+  if ( !$reason ) {
+    $reason->{ 'code' => 'error' };
+  }
+  return ($reason, $BSXML::buildreason);
 }
 
 sub getbuildstatus {
@@ -880,7 +890,7 @@ sub getresult {
       if ($cgi->{'withbinarylist'}) {
 	my @b;
 	for (sort(ls("$reporoot/$prpa/$packid"))) {
-	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'history' || $_ eq '.bininfo';
+	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || $_ eq '.bininfo';
 	  my @s = stat("$reporoot/$prpa/$packid/$_");
 	  next unless @s;
 	  next if -d _;
@@ -1927,6 +1937,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
+  '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history' => \&gethistory,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num? handoff:bool?' => \&getlogfile,

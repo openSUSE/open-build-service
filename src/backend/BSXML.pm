@@ -307,6 +307,15 @@ our $jobstatus = [
 	'jobid',	# md5 of job info file
 ];
 
+our $buildreason = [
+    'reason' =>
+       [],
+       'explain',             # Readable reason
+       'time',                # unix time from start build
+       'oldsource',           # last build source md5 sum, if a source change was the reason
+       [ 'packagechange' ],   # Filled with an array, if the reason was meta package changes
+];
+
 our $buildstatus = [
     'status' =>
 	'package',

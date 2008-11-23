@@ -523,7 +523,7 @@ sub killbuilding {
 # not that hard, was it?
 #
 sub set_building {
-  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath, $reason) = @_;
 
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
@@ -584,6 +584,9 @@ sub set_building {
 
   # jay! ready for building, write status and job info
   writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $f}, $BSXML::buildstatus);
+  # And store reason and time
+  $reason->{time} = time();
+  writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
@@ -1896,15 +1899,15 @@ sub checkkiwiimage {
   print "      - $packid (kiwi-image)\n";
   print "        $_\n" for @diff;
   print "        meta change, start build\n";
-  return ('scheduled', [ $bconf, \@edeps ]);
+  return ('scheduled', [ $bconf, \@edeps ], @diff);
 }
 
 sub rebuildkiwiimage {
-  my ($projid, $repoid, $packid, $pdata, $info, $data) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $data, $reason) = @_;
   my $bconf = $data->[0];
   my $edeps = $data->[1];
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps);
+  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps, $reason);
   if ($job) {
     return ('scheduled', $job);
   } else {
@@ -2084,11 +2087,11 @@ sub checkkiwiproduct {
   my @diff = diffsortedmd5(0, \@meta, \@new_meta);
   print "      - $packid (kiwi-product)\n";
   print "        $_\n" for @diff;
-  return ('scheduled', \@rpms);
+  return ('scheduled', \@rpms, \@diff);
 }
 
 sub rebuildkiwiproduct {
-  my ($projid, $repoid, $packid, $pdata, $info, $prpsearchpath, $rpms) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $prpsearchpath, $rpms, $reason) = @_;
 
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
@@ -2158,6 +2161,8 @@ sub rebuildkiwiproduct {
   };
   mkdir_p("$reporoot/$prp/$myarch/$packid");
   writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $f}, $BSXML::buildstatus);
+  $reason->{time} = time();
+  writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
   writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
   return ('scheduled', $f);
 }
@@ -3086,9 +3091,9 @@ while(1) {
     for my $myprp (keys %BSConfig::max_project_timeout) {
       my @p = grep {$_ eq $myprp} (@lookat_oobhigh,@lookat_oob);
       if ( @p &&
-           ($BSConfig::max_project_timeout{$myprp}->{'timeout'}+60*time())
+           ($BSConfig::max_project_timeout{$myprp}->{'timeout'}*60+time())
             > $BSConfig::max_project_timeout{$myprp}->{'last'} ) {
-           $BSConfig::max_project_timeout{$myprp}->{'last'} = 60*time();
+           $BSConfig::max_project_timeout{$myprp}->{'last'} = time();
         @lookat_oobhigh = grep {$_ ne $myprp} @lookat_oobhigh;
         @lookat_oob     = grep {$_ ne $myprp} @lookat_oob;
         $prp = $myprp;
@@ -3500,10 +3505,13 @@ while(1) {
     }
 
     if ($packtype eq 'kiwi-product') {
-      my ($astatus, $aerror) = checkkiwiproduct($projid, $repoid, $packid, $pdata, $info);
+      my ($astatus, $aerror, $packagechange) = checkkiwiproduct($projid, $repoid, $packid, $pdata, $info);
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
-	($astatus, $aerror) = rebuildkiwiproduct($projid, $repoid, $packid, $pdata, $info, $prpsearchpath{$prp}, $aerror);
+        my $reason;
+        $reason->{explain} = "meta change";
+        $reason->{packagechange} = $packagechange;
+	($astatus, $aerror) = rebuildkiwiproduct($projid, $repoid, $packid, $pdata, $info, $prpsearchpath{$prp}, $aerror, $reason);
 	if ($astatus eq 'scheduled') {
 	  # aerror contains jobid in this case
 	  $notready{$pname} = 1;
@@ -3519,10 +3527,13 @@ while(1) {
     }
 
     if ($packtype eq 'kiwi-image') {
-      my ($astatus, $aerror) = checkkiwiimage($projid, $repoid, $packid, $pdata, $info, $bconf, \%repodata, \%notready);
+      my ($astatus, $aerror, $packagechange) = checkkiwiimage($projid, $repoid, $packid, $pdata, $info, $bconf, \%repodata, \%notready);
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
-	($astatus, $aerror) = rebuildkiwiimage($projid, $repoid, $packid, $pdata, $info, $aerror);
+        my $reason;
+        $reason->{explain} = "meta change";
+        $reason->{packagechange} = $packagechange;
+	($astatus, $aerror) = rebuildkiwiimage($projid, $repoid, $packid, $pdata, $info, $aerror, $reason);
 	if ($astatus eq 'scheduled') {
 	  # aerror contains jobid in this case
 	  $notready{$pname} = 1;
@@ -3594,6 +3605,7 @@ while(1) {
 	next;
       }
     }
+    my $reason; # for storing the build reason.
     if (open(F, '<', "$reporoot/$prp/$myarch/:meta/$packid")) {
       my @meta = <F>;
       close F;
@@ -3601,6 +3613,8 @@ while(1) {
       if ($meta[0] ne "$pdata->{srcmd5}  $packid") {
 	print "      - $packid ($packtype)\n";
 	print "        src change, start build\n";
+        $reason->{'explain'}   = "source change";
+        $reason->{'oldsource'} = $pdata->{srcmd5};
       } elsif (@meta == 2 && $meta[1] =~ /fake/) {
 	print "      - $packid ($packtype)\n";
 	my @s = stat("$reporoot/$prp/$myarch/:meta/$packid");
@@ -3611,6 +3625,7 @@ while(1) {
 	} else {
 	  print "        retrying bad build\n";
 	}
+        $reason->{'explain'} = "detected bad build";
       } else {
 	if ($incycle) {
 	  # print "      - $packid ($packtype)\n";
@@ -3666,12 +3681,15 @@ while(1) {
 	print "      - $packid ($packtype)\n";
 	print "        $_\n" for @diff;
 	print "        meta change, start build\n";
+        $reason->{'explain'} = "meta change";
+        $reason->{'packagechange'} = \@diff;
       }
     } else {
       print "      - $packid ($packtype)\n";
       print "        start build\n";
+      $reason->{'explain'} = "does not exist (first build or rebuild event)";
     }
-    my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp});
+    my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason);
     if (!$job) {
       # could not start job...
       if ($joberror =~ /^expansion error: (.*)$/) {

@@ -966,6 +966,7 @@ sub kiwiparse  {
   @allrepos = unify(@allrepos);
   @allpackages = unify(@allpackages);
   @alltypes = unify(@alltypes);
+
   return (undef, \@allrepos, \@allpackages, \@alltypes, \@extrasources);
 }
 
@@ -2540,6 +2541,13 @@ sub getbuildinfo_post {
   return ($buildinfo, $BSXML::buildinfo);
 }
 
+sub getbuildreason {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $reason = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_reason", $BSXML::buildreason);
+  return ($reason, $BSXML::buildreason);
+}
+
 sub getbuildstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
@@ -3416,6 +3424,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package_repository/$filename' => \&getbinary,
