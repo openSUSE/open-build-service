@@ -3119,6 +3119,11 @@ while(1) {
   if (!defined($prp)) {
     $prp = shift @lookat;
     print "looking at low prio $prp";
+  }else{
+    if ( defined $BSConfig::max_project_timeout{$prp} ){
+      # store current check time, if the prp is defined with maxtime
+      $BSConfig::max_project_timeout{$prp}->{'last'} = 60*time();
+    }
   }
   print " (".@lookat_oobhigh."/".@lookat_oob."/".@lookat."/".(keys %lookat_next)."/".@prps.")\n";
   delete $nextmed{$prp};
