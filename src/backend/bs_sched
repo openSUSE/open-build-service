@@ -772,7 +772,7 @@ sub prpfinished {
     }
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
-    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status'} @all;
+    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason'} @all;
     for my $bin (@all) {
       next if exists $origin{$bin};	# first one wins
       $origin{$bin} = $packid;
