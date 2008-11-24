@@ -934,9 +934,9 @@ sub createSPECfileInstallSection ( $ ) {
         my $is_main_product=0;
         if ( $is_main_product ){
                 my $content="mkdir -p %{buildroot}/%{_sysconfdir}
-echo -e 'Welcome to %{product} %{version} %{?betaversion:%{betaversion}} - Kernel \\r (\\l).\n\n' > %{buildroot}/etc/issue
-echo \"Welcome to %{product} %{version} %{?betaversion:%{betaversion}}  - Kernel %%r (%%t).\" > %{buildroot}/etc/issue.net
-echo \"%{product} %{version} %{?betaversion:%{betaversion}}  (%{_target_cpu})\" > %{buildroot}/etc/SuSE-release
+echo -e 'Welcome to %{product} %{version} %{?betaversion:%{betaversion} }- Kernel \\r (\\l).\n\n' > %{buildroot}/etc/issue
+echo \"Welcome to %{product} %{version} %{?betaversion:%{betaversion} }- Kernel %%r (%%t).\" > %{buildroot}/etc/issue.net
+echo \"%{product} %{version} %{?betaversion:%{betaversion} }(%{_target_cpu})\" > %{buildroot}/etc/SuSE-release
 echo \"VERSION = %{version}\" >> %{buildroot}/etc/SuSE-release
 echo \"Have a lot of fun...\" > %{buildroot}/etc/motd
 # Bug 404141 - /etc/YaST/control.xml should be owned by some package
@@ -1024,7 +1024,29 @@ parseConditionals( $prodRef->{conditionals}->{conditional} );
 parseRepositories( $prodRef->{repositories}->{repository} );
 parseArchsets( $prodRef->{archsets}{archset} );
 
-#########
+#
+# Create $product-release packages
+#
+
+my $SPECtemplateFile;
+if ($infile =~ /(.*\/)(.+)$/) {
+  $SPECtemplateFile = "$1/$product->{name}-release.spec";
+};
+if ( !$SPECtemplateFile || ! -e $SPECtemplateFile ) {
+  if ($infile =~ /(.*\/)(.+)$/) {
+    $SPECtemplateFile = "$1/release.spec";
+  };
+};
+if ( ! $SPECtemplateFile || ! -e $SPECtemplateFile ) {
+  $SPECtemplateFile="";
+  print "No release template file $SPECtemplateFile exists --> generating SPEC file $product->{name}-release.spec automatically\n";
+}
+mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
+writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $SPECtemplateFile, $prodRef, $product );
+
+#
+# Create kiwi images
+#
 
 my %generalImage = %{$kiwiImage};
 
@@ -1057,14 +1079,16 @@ foreach my $medium ( @$media ){
       
           my $archStr;
           my @archsets = @{$arch->{archset}};
+          my @productarch;
           foreach my $ar ( @archsets ) {
               if( $archSets{$ar->{'ref'}} ) {
-          	my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
-          	$archStr .= "_" if $archStr;
-          	$archStr .= "$architecture";
+          	  my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
+          	  $archStr .= "_" if $archStr;
+          	  $archStr .= "$architecture";
                   # enable this architecture in scheduler
                   # FIXME: the scheduler arch may have a different name than the rpm archs !
                   push @archs, { 'arch' => $architecture };
+                  push @productarch, $architecture;
                   # Heuristic: we need to make this configurable at a more central place
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
@@ -1074,7 +1098,18 @@ foreach my $medium ( @$media ){
               }
           }
           $buildflags->{'enable'} = \@archs;
-      
+
+          # add implicit the release packages to media
+          if ( $SPECtemplateFile eq "" && $kiwi->{instsource}->{repopackages}[0] ){
+            my %product_pack;
+            my $addarch = join( ",", @productarch );
+            my $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
+            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
+            # add the flavor package
+            $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release-".$flavor;
+            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
+          }
+
           my $file = "$product-$type-$flavor-$archStr";
           die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
           die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
@@ -1106,29 +1141,6 @@ foreach my $medium ( @$media ){
       }
     }
 }
-
-#
-# Create $product-release packages
-#
-
-for my $product (@{$prodRef->{'products'}->{'product'} || []}) {
-  my $templateFile;
-  if ($infile =~ /(.*\/)(.+)$/) {
-    $templateFile = "$1/$product->{name}-release.spec";
-  };
-  if ( !$templateFile || ! -e $templateFile ) {
-    if ($infile =~ /(.*\/)(.+)$/) {
-      $templateFile = "$1/release.spec";
-    };
-  };
-  if ( ! $templateFile || ! -e $templateFile ) {
-    $templateFile="";
-    print "No release template file $templateFile exists --> generating SPEC file $product->{name}-release.spec automatically\n";
-  }
-  mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
-  writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $templateFile, $prodRef, $product );
-};
-
 
 
 
