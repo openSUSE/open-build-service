@@ -111,6 +111,9 @@ sub convertRelationship( $ ){
     $relationship =~ s/suggests/Suggests/sg;
     $relationship =~ s/recommends/Recommends/sg;
     $relationship =~ s/requires/Requires/sg;
+    $relationship =~ s/provides/Provides/sg;
+    $relationship =~ s/conflicts/Conflicts/sg;
+    $relationship =~ s/obsoletes/Obsoletes/sg;
     return $relationship;
 }
 
@@ -880,7 +883,11 @@ sub createSPECfileFlavors ( $$ ) {
       $product_flavors.="%package $flavor->{flavor}\n";
       $product_flavors.="License:        BSD 3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
-      $product_flavors.="Provides:       $prodRef->{'project'}->{'name'}\n" if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne ""));
+      if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne "")){
+          # TODO: - split between ":" -> Provides: SUSE \n Provides: SUSE:Factory ...
+          #       - add plattform
+          $product_flavors.="Provides:       $prodRef->{'project'}->{'name'}\n";
+      }
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{'version'}-$product->{'release'}\n";
       $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
