@@ -2141,7 +2141,7 @@ sub rebuildkiwiproduct {
 
   # find the last build count we used for this version/release
   mkdir_p("$reporoot/$prp/$myarch/$packid");
-  my $h = BSFileDB::fdb_getmatch("$reporoot/$prp/$myarch/$packid/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
+  my $h = BSFileDB::fdb_getmatch("$reporoot/$prp/$myarch/$packid/history", $historylay, 'versrel', defined($pdata->{'versrel'}) ? $pdata->{'versrel'} : '', 1);
   $h = {'bcnt' => 0} unless $h;
 
   my $binfo = {
