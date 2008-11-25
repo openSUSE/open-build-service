@@ -360,9 +360,7 @@ sub getbuildreason {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   my $reason = readxml("$reporoot/$projid/$repoid/$arch/$packid/reason", $BSXML::buildreason, 1) || {};
-  if ( !$reason ) {
-    $reason->{ 'code' => 'error' };
-  }
+  $reason ||= {'explain' => 'no reason known'};
   return ($reason, $BSXML::buildreason);
 }
 
