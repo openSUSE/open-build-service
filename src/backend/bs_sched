@@ -986,7 +986,7 @@ sub update_dst_full {
 
   if (!$isimport) {
     # write .bininfo file
-    my $bininfo;
+    my $bininfo = '';
     for my $rp (sort keys %$jobrepo) {
       my $nn = $rp;
       $nn =~ s/.*\///;
