@@ -1160,9 +1160,10 @@ sub update_dst_full {
 sub addjobhist {
   my ($prp, $info, $status, $js) = @_;
   my $jobhist = {};
-  $jobhist->{$_} = $status->{$_} for qw{readytime status};
-  $jobhist->{$_} = $js->{$_} for qw{starttime endtime uri hostarch};
-  $jobhist->{$_} = $info->{$_} for qw{project repository package arch srcmd5};
+  $jobhist->{$_} = $status->{$_} for qw{readytime};
+  $jobhist->{'code'} = $status->{'status'};
+  $jobhist->{$_} = $js->{$_} for qw{starttime endtime uri workerid hostarch};
+  $jobhist->{$_} = $info->{$_} for qw{srcmd5 rev versrel bcnt};
   mkdir_p("$reporoot/$prp/$myarch");
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/:jobhistory", $BSXML::jobhistlay, $jobhist);
 }

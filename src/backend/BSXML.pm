@@ -503,16 +503,17 @@ our $workerstate = [
 ];
 
 our $jobhistlay = [
-	'project',
-	'repository',
 	'package',
-	'arch',
+	'rev',
 	'srcmd5',
+	'versrel',
+	'bcnt',
 	'readytime',
 	'starttime',
 	'endtime',
-	'status',
+	'code',
 	'uri',
+	'workerid',
 	'hostarch',
 ];
 
