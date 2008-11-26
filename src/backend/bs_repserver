@@ -970,9 +970,17 @@ sub docommand {
 }
 
 sub getjobhistory {
-  my ($cgi, $arch) = @_;
-  my $ret;
-  $ret->{'jobhist'} = [ BSFileDB::fdb_getall("$infodir/$arch/jobhistory", $BSXML::jobhistlay) ];
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my @hist = BSFileDB::fdb_getall("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay);
+  if ($cgi->{'package'}) {
+    my %packid = map {$_ => 1} @{$cgi->{'package'}};
+    @hist = grep {$packid{$_->{'package'}}} @hist;
+  }
+  if ($cgi->{'code'}) {
+    my %code = map {$_ => 1} @{$cgi->{'package'}};
+    @hist = grep {$code{$_->{'code'}}} @hist;
+  }
+  my $ret = {jobhist => \@hist};
   return ($ret, $BSXML::jobhistlist);
 }
 
@@ -1837,6 +1845,7 @@ my $dispatches = [
 
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
+  '/build/$project/$repository/$arch/_jobhistory package* code*' => \&getjobhistory,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
@@ -1869,7 +1878,6 @@ my $dispatches = [
 
   # info
   '/workerstatus scheduleronly:bool? arch*' => \&workerstatus,
-  '/info/$arch/jobhistory' => \&getjobhistory,
 
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
   '/_command $cmd: $prpa+ package* code:*' => \&docommand,
