@@ -66,7 +66,6 @@ if (defined $user) {
 
 my $reporoot = "$BSConfig::bsdir/build";
 my $jobsdir = "$BSConfig::bsdir/jobs";
-my $infodir = "$BSConfig::bsdir/info";
 my $eventdir = "$BSConfig::bsdir/events";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
@@ -78,7 +77,6 @@ my $myarch = $ARGV[0] || 'i586';
 
 my $myjobsdir = "$jobsdir/$myarch";
 my $myeventdir = "$eventdir/$myarch";
-my $myinfodir = "$infodir/$myarch";
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 
@@ -1160,12 +1158,13 @@ sub update_dst_full {
 }
 
 sub addjobhist {
-  my ($info, $status, $js) = @_;
+  my ($prp, $info, $status, $js) = @_;
   my $jobhist = {};
   $jobhist->{$_} = $status->{$_} for qw{readytime status};
   $jobhist->{$_} = $js->{$_} for qw{starttime endtime uri hostarch};
   $jobhist->{$_} = $info->{$_} for qw{project repository package arch srcmd5};
-  BSFileDB::fdb_add("$myinfodir/jobhistory", $BSXML::jobhistlay, $jobhist);
+  mkdir_p("$reporoot/$prp/$myarch");
+  BSFileDB::fdb_add("$reporoot/$prp/$myarch/:jobhistory", $BSXML::jobhistlay, $jobhist);
 }
 
 
@@ -1755,7 +1754,7 @@ sub jobfinished {
     unlink($_) for @all;
     rmdir($jobdatadir);
     $status->{'status'} = 'failed';
-    addjobhist($info, $status, $js);
+    addjobhist($prp, $info, $status, $js);
     writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;	# package is no longer blocking
     return;
@@ -1780,7 +1779,7 @@ sub jobfinished {
 
   # write new status
   $status->{'status'} = 'succeeded';
-  addjobhist($info, $status, $js);
+  addjobhist($prp, $info, $status, $js);
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
   # write history file
   my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => time(), 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}};
@@ -2556,7 +2555,7 @@ flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myar
 utime undef, undef, "$rundir/bs_sched.$myarch.lock";
 
 # setup event mechanism
-for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir, $infodir, $myinfodir) {
+for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir) {
   next if -d $d;
   mkdir($d) || die("$d: $!\n");
 }
