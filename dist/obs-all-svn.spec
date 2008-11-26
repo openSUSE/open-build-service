@@ -205,12 +205,13 @@ cd -
 # Install all build files
 #
 cd src/build
-mkdir -p $RPM_BUILD_ROOT/usr/{bin,lib/build,lib/build/configs,lib/build/Build,share/man/man1}
+mkdir -p $RPM_BUILD_ROOT/usr/{bin,lib/build,lib/build/configs,lib/build/Build,lib/build/Meta,share/man/man1}
 cp -a unrpm $RPM_BUILD_ROOT/usr/bin
-cp -a Build.pm build createrpmdeps order getbinaryid expanddeps extractbuild getmacros getoptflags init_buildsystem substitutedeps $RPM_BUILD_ROOT/usr/lib/build/
+cp -a Build.pm Meta.pm build createrpmdeps order getbinaryid expanddeps extractbuild getmacros getoptflags init_buildsystem substitutedeps $RPM_BUILD_ROOT/usr/lib/build/
 cp -a changelog2spec debtransform $RPM_BUILD_ROOT/usr/lib/build/
 cp -a configs/* $RPM_BUILD_ROOT/usr/lib/build/configs
 cp -a Build/* $RPM_BUILD_ROOT/usr/lib/build/Build
+cp -a Meta/* $RPM_BUILD_ROOT/usr/lib/build/Meta
 cp -a mkbaselibs baselibs.conf baselibs_global.conf $RPM_BUILD_ROOT/usr/lib/build/
 cp -a build.1 $RPM_BUILD_ROOT/usr/share/man/man1
 ln -s /usr/lib/build/build $RPM_BUILD_ROOT/usr/bin/build
