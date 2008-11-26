@@ -725,6 +725,8 @@ sub publish {
       } else {
 	if ($bin =~ /\.iso$/) {
 	  $p = "iso/$bin";
+	} elsif ($bin =~ /\.raw(:?\.install)?$/) {
+	  $p = "$bin";
 	} elsif (-d "$r/$bin") {
 	  $p = "repo/$bin";
 	} else {
@@ -758,6 +760,28 @@ sub publish {
     next if $arch =~ /^\./;
     next if $arch eq 'repodata' || $arch eq 'media.1' || $arch eq 'descr';
     my $r = "$extrep/$arch";
+    if (-f $r) {
+      $r = $extrep;
+      my $bin = $arch;
+      my $p = $arch;
+      my @s = lstat("$r/$bin");
+      if (!exists($bins{$p})) {
+	print "      - $p\n";
+        unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+        push @db_deleted, $p if $p =~ /\.(?:rpm|deb)$/;
+        $changed = 1;
+	next;
+      }
+      if ("$s[9]/$s[7]/$s[1]" ne $bins_id{$p}) {
+        unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+        link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+	push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
+	push @changed, $p;
+        $changed = 1;
+      }
+      $bins_done{$p} = 1;
+      next;
+    }
     next unless -d $r;
     for my $bin (sort(ls($r))) {
       my $p = "$arch/$bin";
@@ -811,6 +835,10 @@ sub publish {
     next if $bins_done{$p};
     # a new one
     my ($arch, $bin) = split('/', $p, 2);
+    if (!defined($bin)) {
+      $arch = '.';
+      $bin = $p;
+    }
     my $r = "$extrep/$arch";
     mkdir_p($r) unless -d $r;
     print "      + $p\n";
