@@ -135,27 +135,54 @@ sub findbinaries {
   return \%bins;
 }
 
+# can we use File::Basename? (this would be a new dependency)
+sub getfilename {
+  my $f = shift;
+  $f =~ s/.*\///;
+  return $f;
+}
+
+# naive implementation but it's sufficient for our needs
+sub getdirname {
+  my $d = shift;
+  my @dirname = split("/", $d);
+  return join("/", @dirname[0..$#dirname-1]);
+}
+
 sub getbinarydata {
   my @bins = @_;
 
   my @res;
+  my %cache; # keeps the repodata caches (for each project)
+  my %fp; # map filename to package name
   for my $bin (@bins) {
     my $filename = $bin;
     $filename =~ s/.*\///;
+    my $dirname = getdirname($bin);
+    my $data = undef;
     local *F;
     if (!open(F, '<', $bin)) {
-      push @res, {'filename' => $filename, 'error' => "$bin: $!"};
-      next;
+      if (-s "$dirname.cache") {
+        $cache{$dirname} = Storable::retrieve("$dirname.cache") unless exists $cache{$dirname};
+        $fp{$dirname} = { map { getfilename($cache{$dirname}->{$_}->{'path'}) => $_ } keys %{$cache{$dirname}} } unless exists $fp{$dirname};
+        $data = $cache{$dirname}->{$fp{$dirname}->{$filename}};
+      }
+      unless ($data) {
+        push @res, {'filename' => $filename, 'error' => "$bin: $!"};
+        next;
+      }
     }
-    my @s = stat(F);
-    my $data = Build::query([$bin, \*F], 'evra' => 1);
-    close(F);
-    if (!$data) {
-      push @res, {'filename' => $filename, 'error' => 'bad binary package'};
-      next;
+    unless ($data) {
+      my @s = stat(F);
+      $data = Build::query([$bin, \*F], 'evra' => 1);
+      close(F);
+      if (!$data) {
+        push @res, {'filename' => $filename, 'error' => 'bad binary package'};
+        next;
+      }
+      $data->{'mtime'} = $s[9];
     }
     $data->{'filename'} = $filename;
-    $data->{'mtime'} = $s[9];
     delete $data->{'hdrmd5'};
     delete $data->{'provides'};
     delete $data->{'requires'};
@@ -196,8 +223,15 @@ sub getbinaries {
   my @send;
   for my $n (@qbins) {
     if ($bins->{$n} eq '_gone') {
-      push @send, {'name' => $n, 'error' => 'not available'};
-      next;
+      my $file = '';
+      if ($cgi->{'url'}) {
+        $file = fetchbinary("$reporoot/$prp/$arch/:full.cache", "$reporoot/$prp/$arch/:full", $n, $cgi->{'url'});
+        ($bins->{$n} = $file) =~ s/$reporoot\/// if $file;
+      }
+      unless ($file) {
+        push @send, {'name' => $n, 'error' => 'not available'};
+        next;
+      }
     }
     my $r = "$reporoot/$bins->{$n}";
     if ($r =~ /\.rpm$/) {
@@ -228,6 +262,7 @@ sub getbinarylist_repository {
     my @args;
     push @args, "view=$view";
     push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
+    push @args, "url=$cgi->{'url'}" if $cgi->{'url'};
     BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/_repository", undef, @args);
     exit(0);
   }
@@ -262,9 +297,17 @@ sub getbinarylist_repository {
         next;
       }
       my $fd = gensym;
-      if (!open($fd, '<', "$reporoot/$prp/$arch/:full/$c->{'path'}")) {
-        push @files, {'name' => $bin, 'error' => 'not available'};
-        next;
+      my $fname = getfilename($c->{'path'});
+      if (!open($fd, '<', "$reporoot/$prp/$arch/:full/$fname")) {
+        my $file = '';
+        if ($cgi->{'url'}) {
+          $file = fetchbinary("$reporoot/$prp/$arch/:full.cache", "$reporoot/$prp/$arch/:full", $bin, $cgi->{'url'});
+          open($fd, '<', "$file") or warn("open: $!\n");
+        } 
+        unless ($file) {
+          push @files, {'name' => $bin, 'error' => 'not available'};
+          next;
+        }
       }
       my $n = $bin;
       $n .= $1 if $c->{'path'} =~ /(\.rpm|\.deb)$/;
@@ -455,6 +498,27 @@ sub getlogfile {
   return undef;
 }
 
+sub fetchbinary {
+  my ($cache, $dstdir, $bin, $url) = @_;
+  $cache = Storable::retrieve("$cache");
+  return '' unless exists $cache->{$bin};
+  my $file = "$dstdir/" . getfilename($cache->{$bin}->{'path'});
+  print "fetching: $url/$cache->{$bin}->{'path'}\n";
+  # FIXME: this should be "more" atomic
+  eval {
+    BSRPC::rpc({
+      uri => "$url/$cache->{$bin}->{'path'}",
+      filename => $file,
+      receiver => \&BSHTTP::file_receiver
+    }, undef, ());
+  };
+  if ($@) {
+    print "failed: $@\n";
+    return '';
+  }
+  return $file;
+}
+
 sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $bin) = @_;
   if ($packid eq '_repository' && $bin eq '_buildconfig') {
@@ -465,6 +529,12 @@ sub getbinary {
   my $path = "$reporoot/$projid/$repoid/$arch/$packid/$bin";
   if ($packid eq ':full' && ! -f $path) {
     my $bins = findbinaries("$projid/$repoid", $arch, $bin);
+    if ($bins->{$bin} eq '_gone' && exists $cgi->{'url'}) {
+      my $file = fetchbinary("$reporoot/$projid/$repoid/$arch/$packid.cache",
+                             "$reporoot/$projid/$repoid/$arch/$packid", $bin, $cgi->{'url'});
+      die("no such binary '$bin'\n") unless $file;
+      ($bins->{$bin} = $file) =~ s/$reporoot\///;
+    }
     die("no such binary '$bin'\n") if $bins->{$bin} eq '_gone';
     $path = $bin = "$reporoot/$bins->{$bin}";
     $bin =~ s/.*\///;
@@ -1846,14 +1916,14 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:*' => \&getjobhistory,
-  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* url:?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history' => \&gethistory,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num? handoff:bool?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package:package_repository/$filename' => \&getbinary,
+  '/build/$project/$repository/$arch/$package:package_repository/$filename url:?' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   '/search/published/binary/id $match:' => \&search_published_binary_id,
   '/search/published/pattern/id $match:' => \&search_published_pattern_id,
@@ -1866,7 +1936,7 @@ my $dispatches = [
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
   '!worker /putjob $arch $job $jobid:md5 $code:?' => \&putjob,
-  '!worker /getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
+  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? url:?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries:' => \&getbinaryversions,
 
   # published files
@@ -1888,7 +1958,7 @@ my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* url:?' => \&getbinarylist,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
 ];
 

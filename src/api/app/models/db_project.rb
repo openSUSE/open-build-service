@@ -12,6 +12,7 @@ class DbProject < ActiveRecord::Base
   has_many :tags, :through => :taggings
 
   has_many :download_stats
+  has_many :downloads, :dependent => :destroy
   has_many :ratings, :as => :object, :dependent => :destroy
 
   has_many :flags
@@ -141,6 +142,34 @@ class DbProject < ActiveRecord::Base
 
       #add old-style-flags as build-flags
       old_flag_to_build_flag( :project => project ) if project.has_element? :disable
+
+      dlcache = Hash.new
+      self.downloads.each do |dl|
+        dlcache["#{dl.architecture.name}"] = dl
+      end
+
+      project.each_download do |dl|
+        if dlcache.has_key? dl.arch.to_s
+          logger.debug "modifying download element, arch: #{dl.arch.to_s}"
+          cur = dlcache[dl.arch.to_s]
+        else
+          logger.debug "adding new download entry, arch #{dl.arch.to_s}"
+          cur = self.downloads.create
+          self.updated_at = Time.now
+        end
+        cur.metafile = dl.metafile.to_s
+        cur.mtype = dl.mtype.to_s
+        cur.baseurl = dl.baseurl.to_s
+        raise SaveError, "unknown architecture" unless Architecture.archcache.has_key? dl.arch.to_s
+        cur.architecture = Architecture.archcache[dl.arch.to_s]
+        cur.save!
+        dlcache.delete dl.arch.to_s
+      end
+
+      dlcache.each do |arch, object|
+        logger.debug "remove download entry #{arch}"
+        object.destroy
+      end
 
       #--- update repositories ---#
       repocache = Hash.new
@@ -326,6 +355,11 @@ class DbProject < ActiveRecord::Base
 
       each_user do |u|
         project.person( :userid => u.login, :role => u.role_name )
+      end
+
+      self.downloads.each do |dl|
+        project.download( :baseurl => dl.baseurl, :metafile => dl.metafile,
+                          :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
       %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|

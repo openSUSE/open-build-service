@@ -73,6 +73,14 @@ our @flags = (
       [ 'binarydownload' => @disableenable ],
 );
 
+our $download = [
+    'download' =>
+     'baseurl',
+     'metafile',
+     'mtype',
+     'arch',
+];
+
 our $proj = [
     'project' =>
         'name',
@@ -85,6 +93,7 @@ our $proj = [
             'role',
             'userid',
      ]],
+     [ $download ],
 	@flags,
       [ $repo ],
 ];
@@ -162,6 +171,7 @@ our $projpack = [
 	    'remoteproject',
 	    @flags,
 	  [ $repo ],
+      [ $download ],
 	 [[ 'package' =>
 		'name',
 		'rev',

@@ -626,6 +626,15 @@ sub getbinaries {
       $ddir = $dir;
       # get only missing packages
       push @args, "binaries=".join(',', @todo);
+      # XXX: should we deliver this information via the buildinfo?
+      my $proj = BSRPC::rpc({ 'uri' => "$srcserver/project/$repo->{'project'}", 'ignorestatus' => 1 });
+      # check if we have a remoteproject
+      unless ($proj =~ /^<status/) {
+        $proj = XMLin($BSXML::proj, $proj);
+        my @dl;
+	@dl = grep { $_->{'arch'} eq $buildinfo->{'arch'} } @{$proj->{'download'}} if exists $proj->{'download'};
+        push @args, "url=$dl[0]->{'baseurl'}" if @dl;
+      }
     }
     mkdir_p($ddir) || die("mkdir_p $ddir: $!\n");
     push @args, "project=$repo->{'project'}";

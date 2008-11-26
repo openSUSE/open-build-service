@@ -45,6 +45,7 @@ use BSDBIndex;
 use BSBuild;
 use Build;
 use BSDB;
+use Meta;
 
 use strict;
 
@@ -291,6 +292,8 @@ sub findbins_dir {
   return $repobins;
 }
 
+my $projpacks;		# global project/package data
+
 sub findbins {
   my ($prp) = @_;
   local *D;
@@ -323,6 +326,15 @@ sub findbins {
   if (!opendir(D, $dir)) {
     return findbins_remote($prp);
   }
+  my @prp = split("/", $prp);
+  my $projid = $prp[0];
+  my @dl = grep { $_->{'arch'} eq $myarch } @{$projpacks->{$projid}->{'download'}} if exists $projpacks->{$projid}->{'download'};
+  if (@dl) {
+    # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
+    $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
+    $cnt = keys %$repobins;
+  }
+
   my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
   closedir D;
   if (!@bins && -s "$dir.subdirs") {
@@ -370,7 +382,6 @@ sub enabled {
 }
 
 
-my $projpacks;		# global project/package data
 
 # this is basically getconfig from the source server
 # we do not need any macros, just the config
@@ -3687,7 +3698,19 @@ while(1) {
 	  $packstatus{$packid} = 'done';
 	  $nharder++;
 	  next;
-	}
+    } elsif (@meta == @new_meta) {
+      # XXX: special handling for dod (quick hack..)
+      # the default hdrmd5 of dod packages is 0 => don't trigger endless rebuilds
+      my %o = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @meta;
+      my %n = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @new_meta;
+      my @nok = grep { $n{$_} ne ($o{$_} || '') && $n{$_} ne '0' } keys %n;
+      if (!@nok) {
+        $lastcheck{"$prp/$packid"} = $check;
+        $packstatus{$packid} = 'done';
+        $nharder++;
+        next;
+      }
+    }
 	my @diff = diffsortedmd5(0, \@meta, \@new_meta);
 	print "      - $packid ($packtype)\n";
 	print "        $_\n" for @diff;
