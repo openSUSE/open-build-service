@@ -3325,6 +3325,8 @@ while(1) {
   for my $packid (@packs) {
     my $pdata = $packs->{$packid};
 
+    next if $pdata->{'error'} && $pdata->{'error'} eq 'excluded';
+
     # select correct info and set packtype
     my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
     my $info = $info{$repoid};
@@ -3337,6 +3339,11 @@ while(1) {
       $pdeps{$packid} = [];
       next;
     }
+    if ($info->{'error'} && $info->{'error'} eq 'excluded') {
+      $pdeps{$packid} = [];
+      next;
+    }
+
     $pkg2src{$packid} = $info->{'name'};
 
     $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
