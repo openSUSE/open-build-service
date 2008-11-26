@@ -1499,10 +1499,21 @@ sub getconfig {
     @path = @{$cgi->{'path'}};
     unshift @path, "$projid/$repoid" unless @path && $path[0] eq "$projid/$repoid";
   }
-  my $config = '';
+  my $config = "%define _project $projid\n";
   my $macros = "%vendor openSUSE Build Service\n";
+  $macros .= "%_project $projid\n";
   my $lastr = '';
+
+  my $distinfo = "$projid / $repoid";
+  if ($repoid eq 'standard') {
+    $distinfo = $projid;
+  } 
+
   for my $prp (reverse @path) {
+    if ($prp eq "$projid/$repoid") {
+      $macros .= "\n%distribution $distinfo\n";
+      $macros .= "%_project $projid\n";
+    }
     my ($p, $r) = split('/', $prp, 2);
     my $c;
     if (-s "$projectsdir/$p.conf") {
@@ -1527,13 +1538,10 @@ sub getconfig {
     $macros .= "\n### from $projid\n";
     $macros .= "%_repository $repoid\n";
   }
-
-  my $distinfo = "$projid / $repoid";
-  if ($repoid eq 'standard') {
-    $distinfo = $projid;
-  } 
-
-  $macros .= "\n%distribution $distinfo\n";
+  if (!@path || $path[0] ne "$projid/$repoid") {
+    $macros .= "\n%distribution $distinfo\n";
+    $macros .= "%_project $projid\n";
+  }
   $config .= "\nMacros:\n$macros" if $macros ne '';
   return ($config, 'Content-Type: text/plain');
 }
