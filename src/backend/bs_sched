@@ -3325,7 +3325,10 @@ while(1) {
   for my $packid (@packs) {
     my $pdata = $packs->{$packid};
 
-    next if $pdata->{'error'} && $pdata->{'error'} eq 'excluded';
+    if ($pdata->{'error'} && $pdata->{'error'} eq 'excluded') {
+      $pdeps{$packid} = [];
+      next;
+    }
 
     # select correct info and set packtype
     my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
