@@ -307,6 +307,7 @@ sub findbins {
     warn($@) if $@;
     undef $cache unless ref($cache) eq 'HASH';
     if ($cache) {
+      delete $cache->{'/url'};
       if ($cache->{'/external'}) {
 	delete $cache->{'/external'};
 	for (values %$cache) {
@@ -332,12 +333,13 @@ sub findbins {
   if (@dl) {
     # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
     $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
-    $repobins->{'/url'} = $dl[0]->{'baseurl'};
     # fix up path entries
     for (values %$repobins) {
-      $_->{'rpath'} = $b->{'path'};
+      $_->{'rpath'} = $_->{'path'};
       $_->{'path'} =~ s/.*\///;
+      $_->{'url'} = $dl[0]->{'baseurl'};
     }
+    $repobins->{'/url'} = $dl[0]->{'baseurl'};
     $cnt = keys %$repobins;
   }
 
@@ -375,6 +377,7 @@ sub findbins {
   if (Storable::nstore($repobins, "$dir.cache.new")) {
     rename("$dir.cache.new", "$dir.cache") || die("rename $dir.cache.new $dir.cache: $!\n");
   }
+  delete $repobins->{'/url'};
   # add dir to make real path
   for (values %$repobins) {
     $_->{'path'} = "$prp/$myarch/:full/$_->{'path'}";

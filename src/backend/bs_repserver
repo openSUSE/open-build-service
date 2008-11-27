@@ -119,18 +119,6 @@ sub findbinaries {
       }
       return \%bins;
     }
-    if ($cache->{'/url'}) {
-      for my $b (keys %bins) {
-        next unless $cache->{$b};
-        my $bin = "$prp/$arch/:full/$cache->{$b}->{'path'}";
-        if (! -f "$reporoot/$bin") {
-	  fetchbinary("$reporoot/$bin", $cache->{$b}, $cache->{'/url'});
-	  next unless -f "$reporoot/$bin";
-	}
-	$bins{$b} = $bin;
-      }
-      return \%bins;
-    }
   }
   for (sort @bins) {
     if (/(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
@@ -142,6 +130,23 @@ sub findbinaries {
     } elsif (/(?:^|\/)([^\/]+)\.(?:rpm|deb)$/) {
       next unless $bins{$1};
       $bins{$1} = "$prp/$arch/:full/$_";
+    }
+  }
+  my @todo = grep { $bins{$_} eq '_gone' } keys %bins;
+  if (@todo && -s "$dir.cache") {
+    my $cache;
+    eval { $cache = Storable::retrieve("$dir.cache"); };
+    warn($@) if $@;
+    undef $cache unless ref($cache) eq 'HASH';
+    if ($cache->{'/url'}) {
+      for my $b (@todo) {
+        next unless $cache->{$b};
+        my $bin = "$prp/$arch/:full/$cache->{$b}->{'path'}";
+        print "fetch: $b\n";
+        fetchbinary("$reporoot/$bin", $cache->{$b}, $cache->{'/url'});
+        next unless -f "$reporoot/$bin";
+        $bins{$b} = $bin;
+      }
     }
   }
   return \%bins;
@@ -158,11 +163,12 @@ sub getbinarydata_fromcache {
     return undef unless -s $cachename;
     $cache = $getbinarydata_fromcache_cache{$cachename} = Storable::retrieve($cachename);
     return undef unless $cache;
+    delete $cache->{'/url'};
     # set up filenamehash
     my %filenamehash;
     for (values %{$cache}) {
       next unless $_->{'path'} =~ /([^\/]+)$/;
-      $_->{'filename'} = $_;
+      $_->{'filename'} = $1;
       delete $_->{'hdrmd5'};
       delete $_->{'provides'};
       delete $_->{'requires'};
@@ -510,7 +516,7 @@ sub fetchbinary {
   return undef unless $c;
   return undef unless $c->{'rpath'};
   my $uri = "$url/$c->{'rpath'}";
-  print "fetching: $uri";
+  print "fetching: $uri\n";
   # FIXME: this should be "more" atomic
   eval {
     BSRPC::rpc({
@@ -1231,6 +1237,7 @@ sub getbuildinfo {
       next unless -e "$reporoot/$prp/$arch/:full.cache";
       $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
       delete $cache->{'/external'};
+      delete $cache->{'/url'};
     }
     next unless ref($cache) eq 'HASH';
     $repodata{$prp} = $cache;
