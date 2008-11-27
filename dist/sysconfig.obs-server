@@ -4,9 +4,26 @@
 ## Default:     "i586"
 ## Config:      OBS
 #
-# This needs to be a space seperated list of all supported architectures
-
+# This is the space separated list of all target architectures for
+# this obs backend
+#
+# Each of them can be put inside in any combination
+#
+# Every schedulder needs memory, so many schedulers can eat the memory
+# of your obs server, e.g. a system with 4 schedulers and
+# appropriately loaded sources/binaries can eat 1-2 GB RAM
+#
+# If you also have workers on this host, each worker can also need 1
+# GB RAM in some known cases (e.g. compiling gcc)
+#
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 s390 s390x ia64 sparc sparc64 mips mips64 armv4l armv5el sh4"
+#OBS_SCHEDULER_ARCHITECTURES="armv4l"
+#OBS_SCHEDULER_ARCHITECTURES="armv5el"
+#OBS_SCHEDULER_ARCHITECTURES="ppc"
+#OBS_SCHEDULER_ARCHITECTURES="ppc64"
+#OBS_SCHEDULER_ARCHITECTURES="i586"
+#OBS_SCHEDULER_ARCHITECTURES="x86_64"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 armv4l armv5el"
 OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
-#OBS_SCHEDULER_ARCHITECTURES="armv4l i586 x86_64"
-#OBS_SCHEDULER_ARCHITECTURES="armv4l ppc ppc64"
-#OBS_SCHEDULER_ARCHITECTURES="armv4l ppc ppc64 i586 x86_64"

@@ -1,3 +1,14 @@
+For Updaters from OBS 1.0.x releases
+====================================
+
+1) Recommended rake migrate update
+
+When the obs-api package has been updated, it is required to upgrade
+the database. Therefore, you should do
+
+    # cd /srv/www/obs/frontend/
+    # RAILS_ENV="production_slave" rake db:migrate
+
 For Updaters from OBS 0.9.x releases
 ====================================
 

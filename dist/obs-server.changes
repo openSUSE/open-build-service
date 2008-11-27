@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Thu Nov 20 15:45:08 CET 2008 - froh@suse.de
+
+- merge package fixes from 1.0:
+- move from rubygem-builder to rubygem-activesupport
+- clean up fillup-templates
+- fix permissions handling
+- "sign" is not noarch, so the package isn't
+- use fdupes to hard link duplicate files
+- provide "Group" and "Summary" where missing
+- fix log file packaging
+-------------------------------------------------------------------
 Thu Oct  9 10:41:46 CEST 2008 - froh@suse.de
 
 - reviewed for Factory submission

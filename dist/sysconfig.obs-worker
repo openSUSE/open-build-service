@@ -4,8 +4,6 @@
 ## Default:     "localhost:6362"
 ## Config:      OBS
 #
-#
-
 OBS_SRC_SERVER=""
 
 ## Path:        Applications/OBS
@@ -14,8 +12,6 @@ OBS_SRC_SERVER=""
 ## Default:     "localhost:6262"
 ## Config:      OBS
 #
-#
-
 OBS_REPO_SERVER=""
 
 ## Path:        Applications/OBS
@@ -25,7 +21,7 @@ OBS_REPO_SERVER=""
 ## Config:      OBS
 #
 # 0 instances will automatically use the number of CPU's
-
+#
 OBS_WORKER_INSTANCES="0"
 
 ## Path:        Applications/OBS
@@ -34,8 +30,6 @@ OBS_WORKER_INSTANCES="0"
 ## Default:     ""
 ## Config:      OBS
 #
-#
-
 OBS_WORKER_DIRECTORY=""
 
 ## Path:        Applications/OBS
@@ -45,5 +39,5 @@ OBS_WORKER_DIRECTORY=""
 ## Config:      OBS
 #
 # 0 means let the operating system assign a port number
-
+#
 OBS_WORKER_PORTBASE="0"

@@ -11,20 +11,16 @@
 
 
 Name:           obs-server
-Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
-BuildRequires:  python-devel rubygem-builder
-%if 0%{?suse_version:1}
-PreReq:         %fillup_prereq %insserv_prereq
-%endif
-License:        GPL
-Group:          Productivity/Networking/Web/Utilities
-AutoReqProv:    on
+Summary:        The openSUSE Build Service -- Server Component
+
 %define svnversion updated_by_script # edit VERSION in .distrc
 Version:        %{svnversion}
+
 Release:        0
+License:        GPL
+Group:          Productivity/Networking/Web/Utilities
 Url:            http://en.opensuse.org/Build_Service
-Summary:        The openSUSE Build Service -- Server Component
-Source:         buildservice-%version.tar.bz2
+Source:         obs-server-%version.tar.bz2
 Source1:        obsworker
 Source3:        obspublisher
 Source4:        obsrepserver
@@ -35,11 +31,22 @@ Source8:        cleanurl-v5.lua
 Source9:        rails.include
 Source11:       sysconfig.obs-worker
 Source12:       sysconfig.obs-server
-Source17:       sysconfig.obs-server.template
 Source13:       obs_mirror_project
 Source16:       obs_project_update
 Source15:       obsdispatcher
 Source20:       obssignd
+Autoreqprov:    on
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  python-devel rubygem-activesupport
+
+%if 0%{?suse_version} >= 1030
+BuildRequires:  fdupes
+%endif
+
+%if 0%{?suse_version:1}
+PreReq:         %fillup_prereq %insserv_prereq permissions
+%endif
+
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     createrepo >= 0.4.10
@@ -47,45 +54,62 @@ Recommends:     createrepo >= 0.4.10
 Requires:       yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
 %endif
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildArch:      noarch
+Requires:       createrepo
+Requires:       perl-Compress-Zlib perl-Net_SSLeay perl-Socket-MsgHdr perl-XML-Parser
 
+#-------------------------------------------------------------------------------
 %description
+#-------------------------------------------------------------------------------
 Authors:
 --------
     The openSUSE Team <opensuse-buildservice@opensuse.org>
 
+--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 %package -n obs-worker
+#-------------------------------------------------------------------------------
 
-Requires:       perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
-%ifarch x86_64
-Requires:       linux32
-%endif
-%ifarch ppc64
-Requires:       powerpc32
+Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
+
+Summary:        The openSUSE Build Service -- Build Host Component
+Group:          Productivity/Networking/Web/Utilities
+
+%if 0%{?suse_version}
+PreReq:         %fillup_prereq %insserv_prereq
 %endif
 %if 0%{?suse_version} <= 1030
 Requires:       lzma
 %endif
-%if 0%{?suse_version}
-PreReq:         %fillup_prereq %insserv_prereq
+%ifarch x86_64
+Requires:	linux32
 %endif
-Group:          Productivity/Networking/Web/Utilities
-Summary:        The openSUSE Build Service -- Build Host Component
 
+%ifarch ppc64
+Requires:	powerpc32
+%endif
+
+#-------------------------------------------------------------------------------
 %description -n obs-worker
+#-------------------------------------------------------------------------------
 
+#-------------------------------------------------------------------------------
 %package -n obs-api
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- The Frontend part
+Group:          Productivity/Networking/Web/Utilities
 
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
+
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
 Requires:       rubygem-rails >= 2.0
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
 
+#-------------------------------------------------------------------------------
 %description -n obs-api
+#-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 %package -n obs-signd
@@ -107,28 +131,39 @@ signd uses the same configuration used for sign, /etc/sign.conf.
 It needs a gpg implementation that understands the
 "--files-are-digests" option to work correctly.
 
-Author:       Michael Schroeder
+  Author:	Michael Schroeder
 
+--------------------------------------------------------------------------------
+%package -n obs-productconverter
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- product definition utility
+Group:          Productivity/Networking/Web/Utilities
+#-------------------------------------------------------------------------------
+%description -n obs-productconverter
+#-------------------------------------------------------------------------------
+bs_productconvert is a utility to create Kiwi- and Spec- files from a
+product definition.
 #-------------------------------------------------------------------------------
 %package -n obs-utils
 #-------------------------------------------------------------------------------
-Summary:        The openSUSE Build Service -- Utilities
+Summary:        The openSUSE Build Service -- utilities
 Group:          Productivity/Networking/Web/Utilities
-
 Requires:       osc build ruby 
-
 #-------------------------------------------------------------------------------
 %description -n obs-utils
 #-------------------------------------------------------------------------------
 obs_mirror_project is a tool to copy the binary data of a project from one obs to another
 obs_project_update is a tool to copy a packages of a project from one obs to another
 
-Authors:       Susanne Froh, Martin Mohring
+Authors:       Susanne Oberhauser, Martin Mohring
 
+#--------------------------------------------------------------------------------
 %prep
-%setup -q -n buildservice-%version
+%setup -q -n buildservice
 
+#-------------------------------------------------------------------------------
 %build
+#-------------------------------------------------------------------------------
 #
 # generate apidocs
 #
@@ -136,13 +171,15 @@ cd docs/api/frontend
 make apidocs
 cd -
 #
-# compile signd
+# make sign binary
 #
 cd src/sign
-gcc -o sign sign.c
+gcc $RPM_OPT_FLAGS -o sign sign.c
 cd -
 
+#-------------------------------------------------------------------------------
 %install
+#-------------------------------------------------------------------------------
 #
 # Install all web and frontend parts.
 #
@@ -158,6 +195,10 @@ install -m 0644 %SOURCE9 $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/rails.inc
 install -m 0644 %SOURCE8 $RPM_BUILD_ROOT/etc/lighttpd/
 rm $RPM_BUILD_ROOT/srv/www/obs/frontend/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/frontend/files/specfiletemplate
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/log
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webclient/log
+touch $RPM_BUILD_ROOT/srv/www/obs/{webclient,frontend}/log/development.log
+
 # fix path
 for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
   sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
@@ -175,6 +216,7 @@ sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
 sed 's,api.opensuse.org,127.0.42.2,' \
   $RPM_BUILD_ROOT/srv/www/obs/webclient/app/helpers/package_helper.rb > tmp-file \
   && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/app/helpers/package_helper.rb"
+
 #
 # install apidocs
 # 
@@ -211,8 +253,15 @@ cp -a ../build $RPM_BUILD_ROOT/usr/lib/obs/server/build
 # install fillups
 FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 mkdir -p $FILLUP_DIR
-cp -a %SOURCE11 %SOURCE12 %SOURCE17 $FILLUP_DIR/
+cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
 
+#
+# turn duplicates into hard links
+#
+#%fdupes $RPM_BUILD_ROOT/srv/www/obs/frontend
+#%fdupes $RPM_BUILD_ROOT/srv/www/obs/webclient
+# There's dupes between webclient and frontend:
+%fdupes $RPM_BUILD_ROOT/srv/www/obs
 #
 # Install sign stuff
 #
@@ -231,34 +280,52 @@ for k in 5 8; do
   install -m 0644 sig*.${k}.gz $RPM_BUILD_ROOT%{_mandir}/man${k}/
 done
 
+#-------------------------------------------------------------------------------
 %pre
+#-------------------------------------------------------------------------------
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
+#-------------------------------------------------------------------------------
 %preun
+#-------------------------------------------------------------------------------
 for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher; do
 %stop_on_removal $service
 done
 
+#-------------------------------------------------------------------------------
 %post -n obs-server
+#-------------------------------------------------------------------------------
+%run_permissions
 %{fillup_and_insserv -n obs-server}
 for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher; do
 %restart_on_update $service
 done
 
+#-------------------------------------------------------------------------------
+%verifyscript -n obs-server
+#-------------------------------------------------------------------------------
+%verify_permissions -e /usr/bin/sign
+
+#-------------------------------------------------------------------------------
 %post -n obs-worker
+#-------------------------------------------------------------------------------
 %{fillup_and_insserv -n obs-worker}
 %restart_on_update obsworker
 
+#-------------------------------------------------------------------------------
 %post -n obs-api
-touch /srv/www/obs/{webclient,frontend}/log/development.log
-chown lighttpd:lighttpd /srv/www/obs/{webclient,frontend}/log/development.log
+#-------------------------------------------------------------------------------
 %restart_on_update lighttpd
 
+#-------------------------------------------------------------------------------
 %clean
-rm -rf $RPM_BUILD_ROOT
+#-------------------------------------------------------------------------------
+[ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && %{__rm} -rf $RPM_BUILD_ROOT
 
+#-------------------------------------------------------------------------------
 %files
+#-------------------------------------------------------------------------------
 %defattr(-,root,root)
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
@@ -267,7 +334,6 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
 /etc/init.d/obssrcserver
-%attr(4750,root,obsrun) /usr/bin/sign
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
@@ -307,15 +373,22 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/BSHermes.pm
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
-/var/adm/fillup-templates/sysconfig.obs-server.template
+%{_mandir}/man5/*
+# the sign client goes with the server
+%verify(not mode) %attr(0750,root,obsrun) /usr/bin/sign
+%{_mandir}/man8/sign.8.gz
 
+#-------------------------------------------------------------------------------
 %files -n obs-worker
+#-------------------------------------------------------------------------------
 %defattr(-,root,root)
 /var/adm/fillup-templates/sysconfig.obs-worker
 /etc/init.d/obsworker
 /usr/sbin/rcobsworker
 
+#-------------------------------------------------------------------------------
 %files -n obs-api
+#-------------------------------------------------------------------------------
 %defattr(-,root,root)
 %doc dist/{TODO,README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING
 %dir /srv/www/obs
@@ -347,125 +420,82 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/webclient/script
 /srv/www/obs/webclient/test
 /srv/www/obs/webclient/vendor
-%config(noreplace) /srv/www/obs/frontend/config
-%config(noreplace) /srv/www/obs/webclient/config
-%attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
+#
+# some files below config actually are _not_ config files
+# so here we go, file by file
+#
+
+/srv/www/obs/frontend/config/boot.rb
+/srv/www/obs/frontend/config/routes.rb
+/srv/www/obs/frontend/config/environments/development.rb
+
+%dir /srv/www/obs/frontend/config
+%dir /srv/www/obs/frontend/config/environments
+
+%config(noreplace) /srv/www/obs/frontend/config/database.yml
+%config(noreplace) /srv/www/obs/frontend/config/environment.rb
+%config(noreplace) /srv/www/obs/frontend/config/deploy.rb.template
+%config(noreplace) /srv/www/obs/frontend/config/lighttpd.conf
+%config(noreplace) /srv/www/obs/frontend/config/environments/production_slave.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/development.L12.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/production.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/test.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/stage.rb
+%config(noreplace) /srv/www/obs/frontend/config/environments/development_base.rb
+%config(noreplace) /srv/www/obs/frontend/config/active_rbac_config.rb
+
+%dir /srv/www/obs/webclient/config
+%dir /srv/www/obs/webclient/config/environments
+
+/srv/www/obs/webclient/config/routes.rb
+/srv/www/obs/webclient/config/environments/development.rb
+
+%config(noreplace) /srv/www/obs/webclient/config/database.yml
+%config(noreplace) /srv/www/obs/webclient/config/boot.rb
+%config(noreplace) /srv/www/obs/webclient/config/environment.rb
+%config(noreplace) /srv/www/obs/webclient/config/deploy.rb.template
+%config(noreplace) /srv/www/obs/webclient/config/environments/production_slave.rb
+%config(noreplace) /srv/www/obs/webclient/config/environments/production.rb
+%config(noreplace) /srv/www/obs/webclient/config/environments/test.rb
+%config(noreplace) /srv/www/obs/webclient/config/environments/stage.rb
+%config(noreplace) /srv/www/obs/webclient/config/environments/development_base.rb
+
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log/development.log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/tmp
-%attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/tmp
 %config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
+# these dirs primarily belong to lighttpd:
+%dir /etc/lighttpd
+%dir /etc/lighttpd/vhosts.d
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
 
+#-------------------------------------------------------------------------------
 %files -n obs-signd
+#-------------------------------------------------------------------------------
 %defattr(-,root,root)
 %config(noreplace) /etc/sign.conf
 /usr/sbin/signd
 /usr/sbin/rcobssignd
 /etc/init.d/obssignd
 %{_mandir}/man5/*
-%{_mandir}/man8/sign*
+%{_mandir}/man8/signd.8.gz
 
+#-------------------------------------------------------------------------------
 %files -n obs-utils
+#-------------------------------------------------------------------------------
 %defattr(-,root,root)
 /usr/sbin/obs_mirror_project
 /usr/sbin/obs_project_update
 
-%changelog
-* Wed Sep 03 2008 - martin.mohring@5etech.eu
-- added obs utils as separate sub package
-* Wed Jul 09 2008 - chris@computersalat.de
-- added sign/signd stuff
-* Wed Jun 18 2008 dmueller@suse.de
-- also restart dispatcher on update
-* Wed Jun 11 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 4169
-- heading toward OBS 1.0
-- fixed requires again
-- dont copy doc files, they are packaged already in .tar.bz2
-- put all docu files in obs-api package
-- some %%pre / %%post alignments
-- schemata and doc now mentioned in config
-* Tue Jun 03 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 4091
-- incl. bugfixes, see svn log
-- added hermes
-* Mon Jun 02 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 4074, bugfixes
-- added file of the spec file wizard now added
-- new debtransform features
-- build now has opensuse 11.0 config
-- osc develproj and branch support
-* Sat May 24 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 4026, bugfixes
-- exchanged dpkg package by deb package, provided by newer openSUSE Distros
-* Mon May 19 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 3996, bugfixes
-- incl. latest osc alignments for 1.0 release
-- added obs-server-test.spec for building osc, build, obs-server from one source
-* Fri May 16 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 3983, incl. all build/obs_worker changes
-- readded fix for changing download addresses in webclient
-* Thu May 15 2008 martin.mohring@5etech.eu
-- added also old python written script obs_mirror_project.py from James Oakley
-* Thu May 15 2008 martin.mohring@5etech.eu
-- made apidocs working (finally)
-- got back to old svn version numbering so that ./distribute generates all
-- updated to newer versions of rcobs scripts
-- switchable comment for x86_64 scheduler in sysconfig.obs-server
-- removed obsoleted files from svn and .spec file
-- updates of obs-server.changes from openSUSE:Tools:Unstable project
-* Wed May 14 2008 adrian@suse.de
-- update to current svn trunk
-- avoid more hardcoded server names
-- bsworker can be installed on remote systems now and configured
-  via sysconfig settings
-- add apidocs generation and correct installation
-* Fri Apr 25 2008 adrian@suse.de
-- update to version 0.9.1
-  - fixes from the changelog entries before
-- Version 0.9.1 is required now to use the build service
-  inter connect feature with api.opensuse.org
-* Wed Apr 23 2008 mls@suse.de
-- increase timeouts in scheduler
-- fix circular reference in BSSSL
-- fix auto socket close in BSRPC
-* Thu Apr 17 2008 adrian@suse.de
-- apply fix for
-  * local osc support building for remote projects
-  * fix ssl protocol handling
-* Thu Apr 17 2008 mrueckert@suse.de
-- added perl-Net_SSLeay
-* Wed Apr 16 2008 adrian@suse.de
-- update to version 0.9 release
-  * Inter Build Service Connect support
-  * rpmlint support
-  * KIWI imaging support
-  * baselibs build support
-  * submission request support
-* Mon Nov 26 2007 froh@suse.de
-- use startproc
-- have correct "Should-Start" dependencies
-- ensure all services come up at boot
-* Thu Nov 15 2007 froh@suse.de
-- depend on exact rails version
-- generate package from buildservice/dist dir
-- update README.SETUP
-- add publisher and dispatcher
-* Fri Jan 26 2007 poeml@suse.de
-- implement status/restart in the init scripts
-* Fri Jan 26 2007 poeml@suse.de
-- added dependency on createrepo
-* Fri Jan 26 2007 poeml@suse.de
-- update to r1110
-  - revert last change, and do it the ruby way, by creating a new
-  migration for it... so existing installations are upgraded
-  - fix truncated line in sorting algorithm
-  - add missing mkdir
-  - add url to package metadata
-- fix build / install sysconfig files
-- fix copyright headers in init script
-- fix path in README where to copy packages to
-* Thu Jan 25 2007 poeml@suse.de
-- update to r1108
-  create a few more architectures, when initializing the database
+#-------------------------------------------------------------------------------
+%files -n obs-productconverter
+#-------------------------------------------------------------------------------
+%defattr(-,root,root)
+/usr/lib/obs/server/bs_productconvert
+
+#-------------------------------------------------------------------------------
+%changelog -n obs-server
