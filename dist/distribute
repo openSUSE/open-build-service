@@ -64,7 +64,7 @@ source ./.distrc
 : ${TARGET:?TARGET unset. set in .distrc or environment.}
 : ${ARCH:=i586}
 : ${SPECFILE:=*.spec}
-: ${TARPACKAGE:=obs-server}
+: ${TAR_NAME:=$PACKAGE}
 
 : ${SVNDIR:?SVNDIR unset. set in .distrc or environment.}
 : ${BUILDOPTS:=}
@@ -210,7 +210,6 @@ if [ ${MAINTENANCE} ]; then
 fi
 if [ ${DO_TAR} -a ! ${MAINTENANCE} ]; then
 
-
     # Actually the method to create the tar ball and figure the
     # version information depends on the SCM and the working style of
     # the project.
@@ -233,7 +232,7 @@ if [ ${DO_TAR} -a ! ${MAINTENANCE} ]; then
     # connect to.
     SVNVERSION=${SVNVERSION//:/_}
 
-    : ${TARFILE:=${TARPACKAGE}-${VERSION}.${SVNVERSION}}
+    : ${TARFILE:=${TAR_NAME}-${VERSION}.${SVNVERSION}}
 
     if [ ! -f ${TARFILE}.tar.bz2 ] ; then
 
@@ -246,13 +245,13 @@ if [ ${DO_TAR} -a ! ${MAINTENANCE} ]; then
     fi
 
     # remove old tar balls if they still are there.
-#    comm -23 \
-#	<( ls -1 ${PACKAGE}-*.tar.bz2 |	rev | cut -d. -f3- | cut -d- -f1 | rev ) \
-#	<( echo $SVNVERSION)  |
-#    while read ver; do
-#	# Don't ask.  It will annoy soon.
-#	rm -v ${PACKAGE}-${ver}.tar.bz2
-#    done
+    comm -23 \
+	<( ls -1 ${TAR_NAME}-*.tar.bz2 | rev | cut -d. -f3- | sed -e,${TAR_NAME}-,, | rev ) \
+	<( echo $SVNVERSION )  |
+    while read ver; do
+	# Don't ask.  It will annoy soon.
+	rm -v ${TAR_NAME}-${ver}.tar.bz2
+    done
 
     # The version information in the specfile is only updated in the
     # copy in the osc build directory.  This allows the tar ball to
@@ -277,7 +276,7 @@ DEPRECATED_FILES=$( debug set -x; comm -13 \
 	<( cat <( echo "$PACKAGE_FILES" ) <( echo "${CANONICAL_EXCLUDES}")  |
 	   tr --squeeze "[:blank:]" "\n" |
 	   sort -u ) \
-	<( cat <( ls -1 --ignore .osc "${PROJECT}/${PACKAGE}" ) <( echo "$EXCLUDES" ) |
+	<( cat <( find "${PROJECT}/${PACKAGE}"  -maxdepth 1 -type f -printf "%f\n" ) <( echo "$EXCLUDES" ) |
 	   tr --squeeze "[:blank:]" "\n" |
 	   sort -u  ) )
 
@@ -310,9 +309,14 @@ fi
 # update the osc working copy
 if [ ${DO_UPDATE} ]; then
     for f in $PACKAGE_FILES; do
-	test -f ${PROJECT}/${PACKAGE}/$f &&
-	cmp --quiet $f ${PROJECT}/${PACKAGE}/$f ||
-	cp -vdpP $f ${PROJECT}/${PACKAGE}/$f
+	if \
+	    test -f $f && (
+		! test -f ${PROJECT}/${PACKAGE}/$f ||
+    		! cmp --quiet "$f" "${PROJECT}/${PACKAGE}/$f"
+	    )
+	then
+	    cp -vdpP "$f" "${PROJECT}/${PACKAGE}/$f"
+	fi
     done
 
     pushd ${PROJECT}/${PACKAGE}
