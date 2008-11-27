@@ -2,7 +2,8 @@
 
 # copyright (C) 2007, Novell Inc.
 # License: GPL v2 or later
-# Author:  Susanne Oberhauser  froh@novell.com
+# Authors:  Susanne Oberhauser  froh@novell.com
+# Author:   Martin Mohring      martin.mohring@opensuse.org
 
 usage="${0} [--help]
 
@@ -64,7 +65,7 @@ source ./.distrc
 : ${TARGET:?TARGET unset. set in .distrc or environment.}
 : ${ARCH:=i586}
 : ${SPECFILE:=*.spec}
-: ${TAR_NAME:=$PACKAGE}
+: ${TARNAME:=$PACKAGE}
 
 : ${SVNDIR:?SVNDIR unset. set in .distrc or environment.}
 : ${BUILDOPTS:=}
@@ -232,7 +233,7 @@ if [ ${DO_TAR} -a ! ${MAINTENANCE} ]; then
     # connect to.
     SVNVERSION=${SVNVERSION//:/_}
 
-    : ${TARFILE:=${TAR_NAME}-${VERSION}.${SVNVERSION}}
+    : ${TARFILE:=${TARNAME}-${VERSION}.${SVNVERSION}}
 
     if [ ! -f ${TARFILE}.tar.bz2 ] ; then
 
@@ -246,11 +247,11 @@ if [ ${DO_TAR} -a ! ${MAINTENANCE} ]; then
 
     # remove old tar balls if they still are there.
     comm -23 \
-	<( ls -1 ${TAR_NAME}-*.tar.bz2 | rev | cut -d. -f3- | sed -e,${TAR_NAME}-,, | rev ) \
+	<( ls -1 ${TARNAME}-*.tar.bz2 | rev | cut -d. -f3- | sed -e,${TARNAME}-,, | rev ) \
 	<( echo $SVNVERSION )  |
     while read ver; do
 	# Don't ask.  It will annoy soon.
-	rm -v ${TAR_NAME}-${ver}.tar.bz2
+	rm -v ${TARNAME}-${ver}.tar.bz2
     done
 
     # The version information in the specfile is only updated in the
