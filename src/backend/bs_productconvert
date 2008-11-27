@@ -137,22 +137,6 @@ sub createPreferences( $ )
     return $re;
 }
 
-sub parseRepositories( $ )
-{
-    my( $repoListRef ) = @_;
-    my $priority=0;
-    my $href="";
-    foreach my $repoRef ( @{$repoListRef } ) {
-	my $name = $repoRef->{name};
-        $href=$repoRef->{path} if defined($repoRef->{path});
-        $href=$repoRef->{href} if defined($repoRef->{href});
-#	print "Repository $name parsed.\n";
-	$priority=$repoRef->{'priority'} if (defined($repoRef->{'priority'}));
-        $repositories{$name} = { href => "$href", priority => "$priority" };
-	$priority++;
-    }
-}
-
 #
 # The conditionals are kind of macros which are used all over the product definition.
 # The conditionals part of the product def is parsed into the global conditionalhash
@@ -694,8 +678,8 @@ sub createInstsource( $$$ )
 	my %h;
         my $localpath;
         $count = $count + 1;
-	$h{name} = $repo->{'name'};
 	$h{priority} = $count;
+	$h{name} = "repository_".$count;
         $localpath = $repo->{path};
         if ($repo->{path} =~ /^obs:\/\/(.+)$/ ) {
 	  $h{local} = "true";
@@ -1028,7 +1012,6 @@ $kiwiImage->{preferences} = createPreferences( $productRef );
 # to create media type specific versions;
 
 parseConditionals( $prodRef->{conditionals}->{conditional} );
-parseRepositories( $prodRef->{repositories}->{repository} );
 parseArchsets( $prodRef->{archsets}{archset} );
 
 #

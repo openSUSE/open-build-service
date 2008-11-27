@@ -169,8 +169,6 @@ our $productdesc = [
       ],
       [ 'repositories' =>
         [[ 'repository' =>
-           'name',
-           'priority',
            'path',
         ]],
       ],
