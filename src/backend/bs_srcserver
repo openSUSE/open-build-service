@@ -2294,7 +2294,7 @@ sub getjobhistory {
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
-  my $proj = checkprojrepoarch($projid, $repoid, $arch);
+  checkprojrepoarch($projid, $repoid, $arch);
   my $view = $cgi->{'view'};
   my @args;
   push @args, "view=$view" if $view;
@@ -2304,9 +2304,6 @@ sub getbinarylist {
       BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
       exit(0);
     }
-    my @dl;
-    @dl = grep { $_->{'arch'} eq $arch } @{$proj->{'download'}} if exists $proj->{'download'};
-    push @args, "url=$dl[0]->{'baseurl'}" if @dl;
     my $param = {
       'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
       'ignorestatus' => 1,
@@ -2340,9 +2337,7 @@ sub getbinary {
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
-  my @dl;
-  @dl = grep { $_->{'arch'} eq $arch } @{$proj->{'download'}} if exists $proj->{'download'};
-  BSWatcher::rpc($param, undef, @dl ? "url=$dl[0]->{'baseurl'}" : ());
+  BSWatcher::rpc($param);
   return undef;
 }
 
@@ -3079,10 +3074,7 @@ sub worker_getbinaries {
     # work around api bug: only get 50 packages at a time
     @fetch = splice(@fetch, 0, 50) if !$cpio && @fetch > 50;
 
-    my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
-    my @dl;
-    @dl = grep { $_->{'arch'} eq $arch } @{$proj->{'download'}} if exists $proj->{'download'};
-    $cpio ||= BSWatcher::rpc($param, undef, "view=cpio", @dl ? "url=$dl[0]->{'baseurl'}" : (), map {"binary=$_"} @fetch);
+    $cpio ||= BSWatcher::rpc($param, undef, "view=cpio", map {"binary=$_"} @fetch);
     return undef if $BSStdServer::isajax && !$cpio;
     for my $f (@{$cpio || []}) {
       my $bin = $f->{'name'};

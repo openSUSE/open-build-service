@@ -332,6 +332,12 @@ sub findbins {
   if (@dl) {
     # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
     $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
+    $repobins->{'/url'} = $dl[0]->{'baseurl'};
+    # fix up path entries
+    for (values %$repobins) {
+      $_->{'rpath'} = $b->{'path'};
+      $_->{'path'} =~ s/.*\///;
+    }
     $cnt = keys %$repobins;
   }
 
@@ -3698,19 +3704,19 @@ while(1) {
 	  $packstatus{$packid} = 'done';
 	  $nharder++;
 	  next;
-    } elsif (@meta == @new_meta) {
-      # XXX: special handling for dod (quick hack..)
-      # the default hdrmd5 of dod packages is 0 => don't trigger endless rebuilds
-      my %o = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @meta;
-      my %n = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @new_meta;
-      my @nok = grep { $n{$_} ne ($o{$_} || '') && $n{$_} ne '0' } keys %n;
-      if (!@nok) {
-        $lastcheck{"$prp/$packid"} = $check;
-        $packstatus{$packid} = 'done';
-        $nharder++;
-        next;
-      }
-    }
+	} elsif (@meta == @new_meta) {
+	  # XXX: special handling for dod (quick hack..)
+	  # the default hdrmd5 of dod packages is 0 => don't trigger endless rebuilds
+	  my %o = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @meta;
+	  my %n = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @new_meta;
+	  my @nok = grep { $n{$_} ne ($o{$_} || '') && $n{$_} ne '0' } keys %n;
+	  if (!@nok) {
+	    $lastcheck{"$prp/$packid"} = $check;
+	    $packstatus{$packid} = 'done';
+	    $nharder++;
+	    next;
+	  }
+	}
 	my @diff = diffsortedmd5(0, \@meta, \@new_meta);
 	print "      - $packid ($packtype)\n";
 	print "        $_\n" for @diff;

@@ -171,7 +171,7 @@ our $projpack = [
 	    'remoteproject',
 	    @flags,
 	  [ $repo ],
-      [ $download ],
+          [ $download ],
 	 [[ 'package' =>
 		'name',
 		'rev',
