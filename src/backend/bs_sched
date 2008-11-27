@@ -337,7 +337,6 @@ sub findbins {
     for (values %$repobins) {
       $_->{'rpath'} = $_->{'path'};
       $_->{'path'} =~ s/.*\///;
-      $_->{'url'} = $dl[0]->{'baseurl'};
     }
     $repobins->{'/url'} = $dl[0]->{'baseurl'};
     $cnt = keys %$repobins;
