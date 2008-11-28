@@ -9,6 +9,7 @@ Thu Nov 20 15:45:08 CET 2008 - froh@suse.de
 - use fdupes to hard link duplicate files
 - provide "Group" and "Summary" where missing
 - fix log file packaging
+- incorporate new Meta handling
 -------------------------------------------------------------------
 Thu Oct  9 10:41:46 CEST 2008 - froh@suse.de
 
