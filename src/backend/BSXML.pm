@@ -323,7 +323,10 @@ our $buildreason = [
        'explain',             # Readable reason
        'time',                # unix time from start build
        'oldsource',           # last build source md5 sum, if a source change was the reason
-       [ 'packagechange' ],   # Filled with an array, if the reason was meta package changes
+       [[ 'packagechange' =>  # list changed files which are used for building
+          'change',           # kind of change (content/meta change, additional file or removed file)
+          'key',              # file name
+       ]],
 ];
 
 our $buildstatus = [

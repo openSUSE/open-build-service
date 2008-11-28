@@ -236,6 +236,18 @@ sub sortpacks {
   return @res;
 }
 
+sub sortedmd5toreason {
+  my @res;
+  for my $line (@_) {
+    my $tag = substr( $line, 0, 1 ); # just the first char
+    $tag = "md5sum" if $tag eq "!";
+    $tag = "added" if $tag eq "+";
+    $tag = "removed" if $tag eq "-";
+    push @res, { 'change' => $tag, 'key' => substr( $line, 1 ) };
+  };
+  return \@res;
+}
+
 sub diffsortedmd5 {
   my $md5off = shift;
   my $fromp = shift;
@@ -3540,7 +3552,7 @@ while(1) {
 	# aerror contains new meta file in this case
         my $reason;
         $reason->{explain} = "meta change";
-        $reason->{packagechange} = $packagechange;
+        $reason->{'packagechange'} = sortedmd5toreason(@$packagechange);
 	($astatus, $aerror) = rebuildkiwiproduct($projid, $repoid, $packid, $pdata, $info, $prpsearchpath{$prp}, $aerror, $reason);
 	if ($astatus eq 'scheduled') {
 	  # aerror contains jobid in this case
@@ -3562,7 +3574,7 @@ while(1) {
 	# aerror contains new meta file in this case
         my $reason;
         $reason->{explain} = "meta change";
-        $reason->{packagechange} = $packagechange;
+        $reason->{'packagechange'} = sortedmd5toreason(@$packagechange);
 	($astatus, $aerror) = rebuildkiwiimage($projid, $repoid, $packid, $pdata, $info, $aerror, $reason);
 	if ($astatus eq 'scheduled') {
 	  # aerror contains jobid in this case
@@ -3724,7 +3736,7 @@ while(1) {
 	print "        $_\n" for @diff;
 	print "        meta change, start build\n";
         $reason->{'explain'} = "meta change";
-        $reason->{'packagechange'} = \@diff;
+        $reason->{'packagechange'} = sortedmd5toreason(@diff);
       }
     } else {
       print "      - $packid ($packtype)\n";
