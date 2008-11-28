@@ -258,12 +258,14 @@ sub createProductOptions($$$)
     # - MEDIUM_NAME
     # - releasenotesurl
     my $arch="i586";
+    my @allarchs;
     foreach my $ar ( @$archSetList ) {
         $arch=$archSets{$ar->{ref}}->{productarch} if ($archSets{$ar->{ref}});
+        push @allarchs, $arch;
     }
 
     $varsH{PRODUCT_THEME} = $product->{'buildconfig'}->{'producttheme'};
-    $varsH{MEDIUM_NAME} = $medium->{'name'}."-$arch";
+    $varsH{MEDIUM_NAME} = $medium->{'name'}."-".join( "_", @allarchs );
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
