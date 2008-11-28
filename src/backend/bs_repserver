@@ -338,6 +338,7 @@ sub getbinarylist_repository {
   };
   my @res;
   delete $cache->{'/external'};
+  delete $cache->{'/url'};
   my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %$cache;
   for my $bin (@bins) {
     my $c = $cache->{$bin};
