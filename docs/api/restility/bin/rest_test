@@ -2,7 +2,7 @@
 
 require 'optparse'
 require 'rubygems'
-require_gem 'builder'
+require_gem 'active_support'
 
 require 'erb'
 include ERB::Util
