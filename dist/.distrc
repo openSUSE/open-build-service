@@ -6,6 +6,7 @@
 # the obs project in question
 : ${PROJECT:=openSUSE:Tools:Devel}
 : ${PACKAGE:=obs-server-svn}
+: ${TARNAME:=obs-server}
 
 # the specfile to test-build locally (default: all spec files in $PWD)
 #: ${SPECFILE:=}
