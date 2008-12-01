@@ -265,7 +265,7 @@ sub createProductOptions($$$)
     }
 
     $varsH{PRODUCT_THEME} = $product->{'buildconfig'}->{'producttheme'};
-    $varsH{MEDIUM_NAME} = $medium->{'name'}."-".join( "_", @allarchs );
+    $varsH{MEDIUM_NAME} = $medium->{'name'}."-".join( "-", @allarchs );
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
