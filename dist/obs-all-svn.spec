@@ -155,7 +155,16 @@ It needs a gpg implementation that understands the
 "--files-are-digests" option to work correctly.
 
 Author:       Michael Schroeder
-
+#-------------------------------------------------------------------------------
+%package -n obs-productconverter
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- product definition utility
+Group:          Productivity/Networking/Web/Utilities
+#-------------------------------------------------------------------------------
+%description -n obs-productconverter
+#-------------------------------------------------------------------------------
+bs_productconvert is a utility to create Kiwi- and Spec- files from a
+product definition.
 #-------------------------------------------------------------------------------
 %package -n obs-utils
 #-------------------------------------------------------------------------------
@@ -458,6 +467,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/obs_mirror_project
 /usr/sbin/obs_mirror_project.py
 /usr/sbin/obs_project_update
+
+%files -n obs-productconverter
+%defattr(-,root,root)
+/usr/lib/obs/server/bs_productconvert
 
 %changelog
 * Wed Sep 03 2008 - martin.mohring@5etech.eu
