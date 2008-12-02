@@ -3705,7 +3705,6 @@ while(1) {
 	next;
       }
       substr($mylastcheck, 64, 32) = $check;
-      $lastcheck{"$prp/$packid"} = $mylastcheck;
       # even more work, generate new meta, check if it changed
       my @new_meta;
       for my $bpack (@{$pdeps{$packid}}) {
@@ -3737,6 +3736,7 @@ while(1) {
 	# print "        nothing changed (looked harder)\n";
 	$packstatus{$packid} = 'done';
 	$nharder++;
+	$lastcheck{"$prp/$packid"} = $mylastcheck;
 	next;
       }
       # something changed, read in old meta (if not already done)
@@ -3763,6 +3763,7 @@ while(1) {
 	if (!@nok) {
 	  $packstatus{$packid} = 'done';
 	  $nharder++;
+	  $lastcheck{"$prp/$packid"} = $mylastcheck;
 	  next;
 	}
       }
