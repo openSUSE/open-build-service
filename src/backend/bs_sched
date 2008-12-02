@@ -1877,7 +1877,7 @@ sub checkkiwiimage {
   my $bconf = getconfig($myarch, \@aprps);
   if (!$bconf) {
     print "      - $packid (kiwi-image)\n";
-    print "        no config";
+    print "        no config\n";
     return ('broken', 'no config');
   }
   delete $bconf->{'ignore'};
