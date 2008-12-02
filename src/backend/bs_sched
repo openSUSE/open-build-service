@@ -3657,7 +3657,7 @@ while(1) {
     if (!@meta_s || !$mylastcheck || substr($mylastcheck, 96) ne "$meta_s[9]/$meta_s[7]/$meta_s[1]") {
       if (open(F, '<', "$reporoot/$prp/$myarch/:meta/$packid")) {
 	@meta_s = stat F;
-        my @meta = <F>;
+        @meta = <F>;
         close F;
         chomp @meta;
 	$mylastcheck = substr($meta[0], 0, 32);
@@ -3701,7 +3701,7 @@ while(1) {
 	$packstatus{$packid} = 'done';
 	next;
       }
-      my $check = join('', @meta);
+      my $check = substr($mylastcheck, 32, 32);
       $check .= $dep2rpm{$_}->{'hdrmd5'} for sort @{$pdeps{$packid}};
       $check = Digest::MD5::md5_hex($check);
       if ($check eq substr($mylastcheck, 64, 32)) {
