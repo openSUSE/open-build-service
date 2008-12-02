@@ -1857,7 +1857,7 @@ sub importevent {
 ##  kiwi-image package type handling
 ##
 sub checkkiwiimage {
-  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $repodatas, $notready) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $repodatas, $notready) = @_;
 
   my $prp = "$projid/$repoid";
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
@@ -1873,8 +1873,8 @@ sub checkkiwiimage {
     }
     push @repos, $repodata;
   }
-  # clone config so that we can change it
-  $bconf = Storable::dclone($bconf);
+  # get config from path
+  my $bconf = getconfig($myarch, \@aprps);
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
   Build::readdeps($bconf, undef, reverse @repos);
@@ -3245,12 +3245,6 @@ while(1) {
     next;
   }
   my $prptype = $bconf->{'type'};
-  if ($prptype eq 'kiwi') {
-    # ignore the "Ignore:" statements for Image builds
-    # FIXME: don't mess with the config!
-    delete $bconf->{'ignore'};
-    delete $bconf->{'ignoreh'};
-  };
   print "  - $prp\n";
 
   if (grep {$_->{'name'} eq $repoid && $_->{'status'} && $_->{'status'} eq 'disabled'} @{$projpacks->{$projid}->{'repository'}}) {
@@ -3568,7 +3562,7 @@ while(1) {
     }
 
     if ($packtype eq 'kiwi-image') {
-      my ($astatus, $aerror, $packagechange) = checkkiwiimage($projid, $repoid, $packid, $pdata, $info, $bconf, \%repodata, \%notready);
+      my ($astatus, $aerror, $packagechange) = checkkiwiimage($projid, $repoid, $packid, $pdata, $info, \%repodata, \%notready);
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
         my $reason;
