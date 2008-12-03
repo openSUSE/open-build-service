@@ -777,11 +777,38 @@ our $collection = [
 ];
 
 our $quota = [
- 'quota' => 'packages',
- [[ 'project' =>
-      'name',
-      'packages',
- ]],
+    'quota' =>
+	'packages',
+     [[ 'project' =>
+	    'name',
+	    'packages',
+     ]],
+];
+
+our $schedulerinfo = [
+  'schedulerinfo' =>
+	'arch',
+	'started',
+	'time',
+	[],
+	'slept',
+	'notready',
+      [ 'queue' =>
+	    'high',
+	    'med',
+	    'low',
+	    'next',
+      ],
+	'projects',
+	'repositories',
+     [[ 'worst' =>
+	    'project',
+	    'repository',
+	    'packages',
+	    'time',
+     ]],
+	'avg',
+	'variance',
 ];
 
 1;

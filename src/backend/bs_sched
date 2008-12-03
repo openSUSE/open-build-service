@@ -73,6 +73,7 @@ my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $extrepodb = "$BSConfig::bsdir/db/published";
 my $uploaddir = "$BSConfig::bsdir/upload";
 my $rundir = "$BSConfig::bsdir/run";
+my $infodir = "$BSConfig::bsdir/info";
 
 my $myarch = $ARGV[0] || 'i586';
 
@@ -2703,10 +2704,16 @@ if (!$projpacks) {
 my %remotewatchers;
 my %nextmed;
 
+my %prpchecktimes;
+my %notreadies;
+
 if (@lookat) {
   %lookat_next = map {$_ => 1} @lookat;
   @lookat = ();
 }
+
+my $slept = 0;
+my $schedulerstart = time();
 
 while(1) {
   if (%changed) {
@@ -2854,6 +2861,7 @@ while(1) {
   if (!$gotevent && !@lookat && !@lookat_oob && !@lookat_oobhigh) {
     print "waiting for an event...\n";
     my $timeout;
+    my $sleepstart = time();
     if (%remotewatchers) {
       select_read($timeout, $pingsock, @retryevents, values %remotewatchers);
       next;
@@ -2861,6 +2869,7 @@ while(1) {
       sysread(PING, $dummy, 1, 0);
       $gotevent = 1;
     }
+    $slept += time() - $sleepstart;
   }
   if ($gotevent) {
     # drain ping pipe
@@ -3188,6 +3197,9 @@ while(1) {
       delete $repodata{$prp};
       delete $prpfinished{$prp};
       delete $globalnotready{$prp};
+      delete $notreadies{$prp};
+      delete $prpchecktimes{$prp};
+
       for my $dir (ls("$reporoot/$prp/$myarch")) {
 	delete $lastcheck{"$prp/$dir"};
 	# need lock for deleting publish area
@@ -3893,6 +3905,45 @@ while(1) {
     delete $prpfinished{$prp};
     unlink("$reporoot/$prp/$myarch/:repodone");
   }
-  $nextmed{$prp} = time() + 2 * $prpchecktime;
-}
 
+  if (%notready) {
+    $notreadies{$prp} = scalar(keys %notready);
+  } else {
+    delete $notreadies{$prp};
+  }
+  $prpchecktimes{$prp} = $prpchecktime;
+
+  my $now = time();
+  $nextmed{$prp} = time() + 2 * $prpchecktime;
+
+  # write stats
+  my $sinfo = {'arch' => $myarch, 'started' => $schedulerstart, 'time' => $now, 'slept' => $slept};
+  $sinfo->{'projects'} = keys %$projpacks;
+  $sinfo->{'repositories'} = @prps;
+  my $notreadysum = 0;
+  $notreadysum += $_ for values %notreadies;
+  $sinfo->{'notready'} = $notreadysum;
+  $sinfo->{'queue'} = {};
+  $sinfo->{'queue'}->{'high'} = @lookat_oobhigh;
+  $sinfo->{'queue'}->{'med'} = @lookat_oob;
+  $sinfo->{'queue'}->{'low'} = @lookat;
+  $sinfo->{'queue'}->{'next'} = keys %lookat_next;
+  my $sum = 0;
+  my $sum2 = 0;
+  my $n = keys %prpchecktimes;
+  for my $prp (sort keys %prpchecktimes) {
+    my $t = $prpchecktimes{$prp};
+    $sum += $t;
+    $sum2 += $t * $t;
+  }
+  $sinfo->{'avg'} = $sum / $n;
+  $sinfo->{'variance'} = sqrt(abs(($sum2 - $sum * $sum / $n) / $n));
+  for my $prp (splice(@{[sort {$prpchecktimes{$b} <=> $prpchecktimes{$a}} keys %prpchecktimes]}, 0, 10)) {
+    my ($projid, $repoid) = split('/', $prp, 2);
+    my $worst = {'project' => $projid, 'repository' => $repoid};
+    $worst->{'packages'} = keys %{$projpacks->{$projid}->{'package'} || {}};
+    $worst->{'time'} = $prpchecktimes{$prp};
+    push @{$sinfo->{'worst'}}, $worst;
+  }
+  writexml("$infodir/.schedulerinfo.$myarch", "$infodir/schedulerinfo.$myarch", $sinfo, $BSXML::schedulerinfo);
+}
