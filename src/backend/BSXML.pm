@@ -502,6 +502,10 @@ our $workerstatus = [
 	    'arch',
 	    'jobs',
      ]],
+     [[ 'blocked', =>
+	    'arch',
+	    'jobs',
+     ]],
      [[ 'scheduler' =>
 	    'arch',
 	    'state',
