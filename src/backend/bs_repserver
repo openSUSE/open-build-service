@@ -746,7 +746,7 @@ sub workerstatus {
     }
     push @waiting, {'arch' => $a, 'jobs' => scalar(keys %d)};
     my $si = readxml("$infodir/schedulerinfo.$a", $BSXML::schedulerinfom, 1);
-    if ($si && defined($si->{'notready'}) {
+    if ($si && defined($si->{'notready'})) {
       push @blocked, {'arch' => $a, 'jobs' => $si->{'notready'}};
     }
   }
