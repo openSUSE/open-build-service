@@ -1064,7 +1064,7 @@ sub getjobhistory {
     @hist = grep {$packid{$_->{'package'}}} @hist;
   }
   if ($cgi->{'code'}) {
-    my %code = map {$_ => 1} @{$cgi->{'package'}};
+    my %code = map {$_ => 1} @{$cgi->{'code'}};
     @hist = grep {$code{$_->{'code'}}} @hist;
   }
   my $ret = {jobhist => \@hist};
