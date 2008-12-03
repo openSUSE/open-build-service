@@ -1195,7 +1195,7 @@ sub addjobhist {
   $jobhist->{$_} = $status->{$_} for qw{readytime};
   $jobhist->{'code'} = $status->{'status'};
   $jobhist->{$_} = $js->{$_} for qw{starttime endtime uri workerid hostarch};
-  $jobhist->{$_} = $info->{$_} for qw{srcmd5 rev versrel bcnt};
+  $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt};
   mkdir_p("$reporoot/$prp/$myarch");
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/:jobhistory", $BSXML::jobhistlay, $jobhist);
 }
