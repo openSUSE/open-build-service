@@ -522,6 +522,9 @@ class SourceController < ApplicationController
         Suse::Backend.delete path
         package = Package.find( package_name, :project => project_name )
         package.update_timestamp
+        if package_name == "_product"
+          update_product_autopackages
+        end
         render_ok
       else
         render_error :status => 403, :errorcode => 'delete_file_no_permission',
