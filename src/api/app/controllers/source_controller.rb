@@ -133,6 +133,9 @@ class SourceController < ApplicationController
       DbPackage.transaction do
         pkg.destroy
         Suse::Backend.delete "/source/#{project_name}/#{package_name}"
+        if package_name == "_product"
+          update_product_autopackages
+        end
       end
       render_ok
     elsif request.post?
