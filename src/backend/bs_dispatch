@@ -66,14 +66,15 @@ my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 
 my %cando = (
-  'i586'    => [          'i586',         'armv4l', 'armv5el',                 'sh4'],
-  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el',                 'sh4'],
-  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el',                 'sh4'],
-  'ppc'     => [                                               'ppc'                ],
-  'ppc64'   => [                                               'ppc', 'ppc64',      ],
-  'armv4l'  => [                          'armv4l'                                  ],
-  'armv5el' => [                          'armv4l', 'armv5el'                       ],
-  'sh4'     => [                                                               'sh4'],
+  'i586'    => [          'i586',         'armv4l', 'armv5el', 'armv7el',                 'sh4'],
+  'i686'    => [          'i586', 'i686', 'armv4l', 'armv5el', 'armv7el',                 'sh4'],
+  'x86_64'  => ['x86_64', 'i586', 'i686', 'armv4l', 'armv5el', 'armv7el',                 'sh4'],
+  'ppc'     => [                                                          'ppc'                ],
+  'ppc64'   => [                                                          'ppc', 'ppc64',      ],
+  'armv4l'  => [                          'armv4l'                                             ],
+  'armv5el' => [                          'armv4l', 'armv5el'                                  ],
+  'armv7el' => [                          'armv4l', 'armv5el', 'armv7el'                       ],
+  'sh4'     => [                                                                          'sh4'],
   'ia64'    => ['ia64'],
   's390'    => ['s390'],
   's390x'   => ['s390x', 's390'],
