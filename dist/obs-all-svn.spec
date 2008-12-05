@@ -220,7 +220,7 @@ cp -a Build.pm build createrpmdeps order getbinaryid expanddeps extractbuild get
 cp -a changelog2spec debtransform $RPM_BUILD_ROOT/usr/lib/build/
 cp -a configs/* $RPM_BUILD_ROOT/usr/lib/build/configs
 cp -a Build/* $RPM_BUILD_ROOT/usr/lib/build/Build
-cp -a mkbaselibs baselibs.conf baselibs_global.conf $RPM_BUILD_ROOT/usr/lib/build/
+cp -a mkbaselibs baselibs_global.conf $RPM_BUILD_ROOT/usr/lib/build/
 cp -a build.1 $RPM_BUILD_ROOT/usr/share/man/man1
 ln -s /usr/lib/build/build $RPM_BUILD_ROOT/usr/bin/build
 cd -
