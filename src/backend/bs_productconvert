@@ -269,6 +269,7 @@ sub createProductOptions($$$)
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
+    $varsH{RUN_MEDIA_CHECK} = "true" if (defined($medium->{'run_media_check'}));
     $varsH{SHA1OPT} = "-x";
 
     $varsH{VENDOR} = $product->{'vendor'};
@@ -288,9 +289,6 @@ sub createProductOptions($$$)
     $re->{productvar} = \@vars;
 
     my %options;
-    if (defined($medium->{'run_media_check'})) {
-      $options{'RUN_MEDIA_CHECK'} = $medium->{'run_media_check'};
-    };
     if (defined($medium->{'sourcemedia'})) {
       $options{'SOURCEMEDIUM'} = $medium->{'sourcemedia'};
     };
