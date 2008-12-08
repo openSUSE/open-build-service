@@ -15,7 +15,7 @@
 
 <!-- Filter Settings -->
 <div class='filter_settings'>
-<% form_tag ({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
+<% form_tag({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
   <strong>Status: </strong><%= select_tag "code", options_for_select(@avail_status_values,@status_filter), :multiple => true, :size => 4, :name => 'code[]'%>
   <div class='nowrap'><strong> Packagename: </strong><%= text_field_tag "pkgname", @name_filter %></div>
   <div class='nowrap'><strong> Repository: </strong><%= text_field_tag "repo", @repo_filter %></div>
