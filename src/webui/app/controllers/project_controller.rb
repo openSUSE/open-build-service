@@ -54,10 +54,12 @@ class ProjectController < ApplicationController
       @ipackages[pack.project] << pack.name
     end
 
-    predicate = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ")
-    predicate = "(#{predicate}) and state/@name='new'"
-    @requests_for_me = Collection.find :what => :request, :predicate => predicate
-    @requests_by_me = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
+    unless @iprojects.empty?
+      predicate = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ")
+      predicate = "(#{predicate}) and state/@name='new'"
+      @requests_for_me = Collection.find :what => :request, :predicate => predicate
+      @requests_by_me = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
+    end
   end
 
   def remove_watched_project
