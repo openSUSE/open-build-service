@@ -116,6 +116,16 @@ Group:          Productivity/Networking/Web/Utilities
 
 Requires:       osc build ruby 
 
+--------------------------------------------------------------------------------
+%package -n obs-productconverter
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- product definition utility
+Group:          Productivity/Networking/Web/Utilities
+#-------------------------------------------------------------------------------
+%description -n obs-productconverter
+#-------------------------------------------------------------------------------
+bs_productconvert is a utility to create Kiwi- and Spec- files from a product definition.
+
 #-------------------------------------------------------------------------------
 %description -n obs-utils
 #-------------------------------------------------------------------------------
@@ -302,6 +312,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/README
 /usr/lib/obs/server/TODO
 /usr/lib/obs/server/XML
+/usr/lib/obs/server/Meta
 /usr/lib/obs/server/bs_*
 /usr/lib/obs/server/build
 /usr/lib/obs/server/worker
@@ -366,6 +377,10 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obssignd
 %{_mandir}/man5/*
 %{_mandir}/man8/sign*
+
+%files -n obs-productconverter
+%defattr(-,root,root)
+/usr/lib/obs/server/bs_productconvert
 
 %files -n obs-utils
 %defattr(-,root,root)
