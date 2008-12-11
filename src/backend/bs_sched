@@ -3790,8 +3790,7 @@ while(1) {
       print "      - $packid ($packtype)\n";
       print "        $_\n" for @diff;
       print "        meta change, start build\n";
-      $reason->{'explain'} = 'meta change';
-      $reason->{'packagechange'} = sortedmd5toreason(@diff);
+      $reason = { 'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff) };
     }
     my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason);
     if (!$job) {
