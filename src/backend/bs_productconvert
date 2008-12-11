@@ -311,13 +311,15 @@ sub createProductOptions($$$)
     my %info;
     $info{'VENDOR'}       = $product->{'vendor'};
     $info{'NAME'}         = $product->{'name'};
-    my $rp = $product->{'installconfig'}->{'releasepackage'};
-    $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
+    # fix for bnc #449162
+    #my $rp = $product->{'installconfig'}->{'releasepackage'};
+    #$info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
     $info{'VERSION'}      = $product->{'version'};
     $info{'RELEASE'}      = $product->{'release'};
     $info{'SP_VERSION'}   = $product->{'patchlevel'} if (defined($product->{'patchlevel'}));
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
-    $info{'FLAVOR'}       = $medium->{'flavor'};
+    # fix for bnc #449162
+    # $info{'FLAVOR'}       = $medium->{'flavor'};
     $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
     $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
     if (defined($medium->{'preselected_patterns'})){
