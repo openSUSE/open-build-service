@@ -164,6 +164,17 @@ enabled by uncommenting the corresponding lines in
     include "conf.d/fastcgi.conf"
 
 
+3.2.1 Change /srv/www/obs/webclient/config/environments/production_slave.rb
+===========================================================================
+
+If you changed the hostnames/ips of the frontend away from 10.0.42.x, you 
+need to configure also 
+/srv/www/obs/webclient/config/environments/production_slave.rb (2 entries).
+
+
+3.2.2 Restart lighttpd
+======================
+
 Afterwards you can start the OBS web frontends via 
 
     rclighttpd start  # use "insserv lighttpd" for permanent start
