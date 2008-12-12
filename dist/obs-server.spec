@@ -91,7 +91,9 @@ Requires:	powerpc32
 #-------------------------------------------------------------------------------
 %description -n obs-worker
 #-------------------------------------------------------------------------------
-
+This is the obs build host, to be installed on each machine building
+packages in this obs installation.  Install it alongside obs-server to
+run a local playground test installation.
 #-------------------------------------------------------------------------------
 %package -n obs-api
 #-------------------------------------------------------------------------------
@@ -110,7 +112,9 @@ Summary:        The openSUSE Build Service -- The Frontend part
 #-------------------------------------------------------------------------------
 %description -n obs-api
 #-------------------------------------------------------------------------------
-
+This is the obs web API (rest) frontend, and the web client to the
+obs.  See osc for a command line client.  Install obs-api alongside
+obs-server to run a local playground test installation.
 #-------------------------------------------------------------------------------
 %package -n obs-signd
 #-------------------------------------------------------------------------------
@@ -138,6 +142,8 @@ It needs a gpg implementation that understands the
 #-------------------------------------------------------------------------------
 Summary:        The openSUSE Build Service -- product definition utility
 Group:          Productivity/Networking/Web/Utilities
+# For perl library files, TODO: split out obs-lib subpackage?
+Requires:       obs-server
 #-------------------------------------------------------------------------------
 %description -n obs-productconverter
 #-------------------------------------------------------------------------------
@@ -159,7 +165,7 @@ Authors:       Susanne Oberhauser, Martin Mohring
 
 #--------------------------------------------------------------------------------
 %prep
-%setup -q -n buildservice
+%setup -q -n buildservice/1.5
 
 #-------------------------------------------------------------------------------
 %build
@@ -301,7 +307,10 @@ done
 for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher; do
 %restart_on_update $service
 done
-
+#-------------------------------------------------------------------------------
+%postun -n obs-server
+#-------------------------------------------------------------------------------
+%insserv_cleanup
 #-------------------------------------------------------------------------------
 %verifyscript -n obs-server
 #-------------------------------------------------------------------------------
@@ -317,6 +326,16 @@ done
 %post -n obs-api
 #-------------------------------------------------------------------------------
 %restart_on_update lighttpd
+
+#-------------------------------------------------------------------------------
+%postun -n obs-signd
+#-------------------------------------------------------------------------------
+%insserv_cleanup
+
+#-------------------------------------------------------------------------------
+%postun -n obs-webclient
+#-------------------------------------------------------------------------------
+%insserv_cleanup
 
 #-------------------------------------------------------------------------------
 %clean

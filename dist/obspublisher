@@ -11,9 +11,9 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obspublisher
-# Required-Start:    $time $syslog obssrcserver obsrepserver
+# Required-Start:    $time $syslog $remote_fs obssrcserver obsrepserver
 # Should-Start:      obsscheduler
-# Required-Stop:     $time $syslog obssrcserver obsrepserver
+# Required-Stop:     $time $syslog $remote_fs obssrcserver obsrepserver
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
 # Description:       openSUSE build service publisher
