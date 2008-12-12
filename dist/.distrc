@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# The svnversion of SVNDIR plus this VERSION make up the rpm package
+# 'Version:'
+: ${VERSION:=1.5.rc1}
+
 # options to all osc commands
 : ${OSCOPTS:="-A https://api.opensuse.org"}
 
@@ -29,8 +33,4 @@
 # The version and
 
 # The tar ball is updated from here
-: ${SVNDIR:=../../buildservice}
-
-# The svnversion of SVNDIR plus this VERSION make up the rpm package
-# 'Version:'
-: ${VERSION:=1.5.b1}
+: ${SVNDIR:=../../../buildservice/1.5}

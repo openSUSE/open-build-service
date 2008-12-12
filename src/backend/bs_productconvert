@@ -21,6 +21,12 @@
 #
 # Converter to create Kiwi- and Spec files from product definition
 #
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd";
+}
+
 use strict;
 use Getopt::Std;
 use Data::Dumper;
