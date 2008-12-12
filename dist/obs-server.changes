@@ -1,15 +1,47 @@
 -------------------------------------------------------------------
-Thu Nov 20 15:45:08 CET 2008 - froh@suse.de
+Thu Nov 20 11:48:42 CET 2008 - froh@novell.com
 
-- merge package fixes from 1.0:
-- move from rubygem-builder to rubygem-activesupport
+- get setuid handling right (bnc#446164)
 - clean up fillup-templates
-- fix permissions handling
 - "sign" is not noarch, so the package isn't
 - use fdupes to hard link duplicate files
 - provide "Group" and "Summary" where missing
-- fix log file packaging
+- fix permissions handling
 - incorporate new Meta handling
+- get changelog and fixes from Factory
+-------------------------------------------------------------------
+Tue Nov 11 17:12:46 CET 2008 - froh@novell.com
+
+- fix init scripts for stricter 11.1 requirements.
+- get rid of strict rails dependency.
+- there's no more rubygems-builder. use active_support instead.
+- fix file lists to satisfy 11.0 rpmlint checks
+- move log file creation from %post to %init and %files, where it belongs
+-------------------------------------------------------------------
+Mon Nov 10 12:43:37 CET 2008 - froh@novell.com
+
+- add bs_productconvert and obs-productconvert subpackage as temporary
+  kludge to make this tool available.
+-------------------------------------------------------------------
+Fri Oct 24 12:07:20 CEST 2008 - froh@novell.com
+
+- fix webclient rails version requirement to be the same as the
+  api one
+-------------------------------------------------------------------
+Thu Oct 16 15:22:58 CEST 2008 - froh@novell.com
+
+update to svn branches/buildservice/1.0 -r5344:
+- add signd
+- webclient-EXTERNAL_FRONTEND_HOST.patch:
+  adds optional EXTERNAL_FRONTEND_HOST config value for situations
+  when FRONTEND_HOST isn't available publicly (ichain setups)
+- webclient-RAILS_GEM_VERSION.patch:
+  enforce the right rails version
+- use cleaned up spec file from openSUSE:Tools:Unstable
+- make the download server setup in obs.conf a knowing decision,
+  instead a secret default
+- satisfy rpmlint so it only warns and no longer fails
+- fix previous changelog entry
 -------------------------------------------------------------------
 Thu Oct  9 10:41:46 CEST 2008 - froh@suse.de
 
