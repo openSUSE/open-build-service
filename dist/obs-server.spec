@@ -267,7 +267,9 @@ cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
 #%fdupes $RPM_BUILD_ROOT/srv/www/obs/frontend
 #%fdupes $RPM_BUILD_ROOT/srv/www/obs/webclient
 # There's dupes between webclient and frontend:
+%if 0%{?suse_version} >= 1030
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
+%endif
 #
 # Install sign stuff
 #

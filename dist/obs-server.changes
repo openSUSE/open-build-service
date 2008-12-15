@@ -8,6 +8,7 @@ Fri Dec 12 13:06:47 CET 2008 - froh@novell.com
   missing package descriptions, add missing %insserv_cleanup %postun
   calls, add missing $remote_fs init script dependencies, add
   (failing) reload command to signd init script.
+- do %fdupes only if the distro has it (fixes sle10 builds)
 
 -------------------------------------------------------------------
 Thu Nov 20 11:48:42 CET 2008 - froh@novell.com
