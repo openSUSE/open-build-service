@@ -28,6 +28,7 @@
 	<xs:element minOccurs="0" maxOccurs="unbounded" ref="license"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="keyword"/>
         <xs:group ref="toggleGroup" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="bcntsynctag"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
       <xs:attribute name="project" type="xs:string"/>
@@ -135,62 +136,13 @@
     </xs:annotation>
   </xs:element>
 
-  <xs:element name="file">
+  <xs:element name="bcntsynctag" type="xs:string">
     <xs:annotation>
       <xs:documentation>
-        A file which is part of the sources of the package.
-      </xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:attribute name="filetype" type="xs:string"/>
-      <xs:attribute name="filename" type="xs:string"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="filename" type="xs:string">
-    <xs:annotation>
-      <xs:documentation>
-        Name of file.
+        docs missing
       </xs:documentation>
     </xs:annotation>
   </xs:element>
-
-  <xs:element name="revision" type="xs:string">
-    <xs:annotation>
-      <xs:documentation>
-        Revision of file. If no revision is explicitly specified, the latest
-        revision is assumed.
-      </xs:documentation>
-    </xs:annotation>
-  </xs:element>
-
-  <xs:element name="filetype" type="filetype-type">
-    <xs:annotation>
-      <xs:documentation>
-        Type of file.
-      </xs:documentation>
-    </xs:annotation>
-  </xs:element>
-
-  <xs:simpleType name="filetype-tokens">
-    <xs:annotation>
-      <xs:documentation>
-        Possible file types.
-      </xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="source"/>
-      <xs:enumeration value="patch"/>      
-      <xs:enumeration value="spec"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:complexType name="filetype-type">
-    <xs:simpleContent>
-      <xs:extension base="filetype-tokens">
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
 
   <xs:simpleType name="buildarchitectures">
     <xs:restriction base="xs:string">
