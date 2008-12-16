@@ -115,7 +115,8 @@ our $pack = [
 	@disableenable,
 	@flags,
 	'url',
-	'group',
+	'group',	# obsolete?
+	'bcntsynctag',
 ];
 
 our $packinfo = [
@@ -183,6 +184,7 @@ our $projpack = [
 		[ $packinfo ],
 		$aggregatelist,
 		@flags,
+		'bcntsynctag',
 	 ]],
      ]],
      [[ 'remotemap' =>
