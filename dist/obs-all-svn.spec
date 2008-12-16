@@ -126,7 +126,6 @@ Summary:        The openSUSE Build Service -- Build Host Component
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
-BuildRequires:  lighttpd
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
 Requires:       rubygem-rails >= 2.0
 Group:          Productivity/Networking/Web/Utilities
