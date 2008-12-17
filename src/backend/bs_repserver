@@ -1934,7 +1934,7 @@ sub postrelsync {
   }
   $relsyncmax ||= {};
   my $changed;
-  for my $packid (%$new) {
+  for my $packid (keys %$new) {
     next unless $new->{$packid} =~ /^(.*)\.([^-]*)$/;
     next if defined($relsyncmax->{"$packid/$1"}) && $relsyncmax->{"$packid/$1"} >= $2;
     $relsyncmax->{"$packid/$1"} = $2;
