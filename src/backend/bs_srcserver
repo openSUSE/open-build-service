@@ -3225,7 +3225,7 @@ sub postrelsync {
   for my $a (@{$repo->{'arch'} || []}) {
     next if $a eq $arch;
     my $param = {
-      'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/_relsync",
+      'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$a/_relsync",
       'request' => 'POST',
       'data' => $relsyncdata,
     };
