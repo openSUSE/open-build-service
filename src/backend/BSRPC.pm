@@ -73,6 +73,7 @@ sub urlencode {
 # receiver
 # ignorestatus
 # replydtd
+# maxredirects
 #
 
 sub rpc {
@@ -225,14 +226,22 @@ sub rpc {
   }
   my %headers;
   BSHTTP::gethead(\%headers, $headers);
-  if ($status !~ /^200[^\d]/) {
+  if ($status =~ /^200[^\d]/) {
+    undef $status;
+  } elsif ($status =~ /^302[^\d]/) {
+    # XXX: should we do the redirect if $param->{'ignorestatus'} is defined?
+    close S;
+    die("error: status 302 but no 'location' header found\n") unless exists $headers{'location'};
+    $param->{'uri'} = $headers{'location'};
+    $param->{'maxredirects'} = exists $param->{'maxredirects'} ? $param->{'maxredirects'} - 1 : 3;
+    die("error: max number of redirects reached\n") if $param->{'maxredirects'} < 0;
+    return rpc($param, $xmlargs, @args);
+  } else {
     #if ($param->{'verbose'}) {
     #  1 while sysread(S, $ans, 1024, length($ans));
     #  print "< $ans\n";
     #}
     die("remote error: $status\n") unless $param->{'ignorestatus'};
-  } else {
-    undef $status;
   }
   if ($headers{'set-cookie'} && $param->{'uri'}) {
     my @cookie = split(',', $headers{'set-cookie'});
