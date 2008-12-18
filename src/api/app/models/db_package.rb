@@ -71,7 +71,7 @@ class DbPackage < ActiveRecord::Base
     DbPackage.transaction do
       self.title = package.title.to_s
       self.description = package.description.to_s
-      self.bcntsynctag = package.bcntsynctag.to_s
+      self.bcntsynctag = package.bcntsynctag.to_s if package.has_element? :bcntsynctag
 
       #--- devel project ---#
       if package.has_element? :devel
