@@ -27,11 +27,13 @@ use strict;
 use warnings;
 use Meta::Rpmmd;
 use Meta::Debmd;
+use Meta::Susetagsmd;
 
 sub parse {
   my ($fn, $type, $opts) = @_;
   return Meta::Debmd::parse($fn, $opts) if $type eq 'debmd';
   return Meta::Rpmmd::parse($fn, $opts) if $type eq 'rpmmd';
+  return Meta::Susetagsmd::parse($fn, $opts) if $type eq 'susetagsmd';
 }
 
 1;
