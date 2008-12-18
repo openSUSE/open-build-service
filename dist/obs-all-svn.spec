@@ -10,7 +10,7 @@
 
 Name:           obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
-BuildRequires:  python-devel rubygem-builder rubygem-activesupport
+BuildRequires:  python-devel rubygem-builder rubygem-activesupport lighttpd
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -126,6 +126,7 @@ Summary:        The openSUSE Build Service -- Build Host Component
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
+BuildRequires:  lighttpd
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
 Requires:       rubygem-rails >= 2.0
 Group:          Productivity/Networking/Web/Utilities
