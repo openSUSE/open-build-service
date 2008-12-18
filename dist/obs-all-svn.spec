@@ -215,7 +215,7 @@ cd -
 cd src/build
 mkdir -p $RPM_BUILD_ROOT/usr/{bin,lib/build,lib/build/configs,lib/build/Build,share/man/man1}
 cp -a unrpm $RPM_BUILD_ROOT/usr/bin
-cp -a Build.pm build createrpmdeps order getbinaryid expanddeps extractbuild getmacros getoptflags init_buildsystem substitutedeps $RPM_BUILD_ROOT/usr/lib/build/
+cp -a Build.pm Susetags.pm build createrpmdeps order getbinaryid expanddeps extractbuild getmacros getoptflags init_buildsystem substitutedeps $RPM_BUILD_ROOT/usr/lib/build/
 cp -a changelog2spec debtransform $RPM_BUILD_ROOT/usr/lib/build/
 cp -a configs/* $RPM_BUILD_ROOT/usr/lib/build/configs
 cp -a Build/* $RPM_BUILD_ROOT/usr/lib/build/Build
