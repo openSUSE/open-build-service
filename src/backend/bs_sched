@@ -1191,6 +1191,7 @@ sub update_dst_full {
     delete $pack->{'meta'};
     $pack->{'path'} =~ s/.*\///;
   }
+  mkdir_p($gdst) if ! -d "$gdst/:full";
   if (Storable::nstore($repodata, "$gdst/:full.cache.new")) {
     rename("$gdst/:full.cache.new", "$gdst/:full.cache") || die("rename $gdst/:full.cache.new $gdst/:full.cache: $!\n");
   }
