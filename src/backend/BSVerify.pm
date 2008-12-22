@@ -240,6 +240,14 @@ sub verify_request {
   verify_rev($req->{'submit'}->{'source'}->{'rev'}) if exists $req->{'submit'}->{'source'}->{'rev'};
 }
 
+sub verify_nevraquery {
+  my ($q) = @_;
+  verify_arch($q->{'arch'});
+  my $f = "$q->{'name'}-$q->{'version'}";
+  $f .= "-$q->{'release'}" if defined $q->{'release'};
+  verify_filename($q->{'arch'});
+}
+
 our $verifyers = {
   'project' => \&verify_projid,
   'package' => \&verify_packid,
