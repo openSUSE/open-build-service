@@ -1,8 +1,8 @@
-class AddArchs  < ActiveRecord::Migration
+class AddArchs3  < ActiveRecord::Migration
 
 
   def self.up
-    Architecture.create :name => "armv5el"
+    Architecture.create :name => "armv7el"
   end
 
 
