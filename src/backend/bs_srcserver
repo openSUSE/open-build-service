@@ -279,11 +279,16 @@ sub addrev {
     $release = $d->{'release'} if defined $d->{'release'};
     last;
   }
-  if (defined($release) && $release =~ /^(\d+)/) {
-    $release = $1;
-  } else {
-    $release = '0';
+  if (defined($release)) {
+    if ($release =~ /(\d+)\.<B_CNT>/) {
+      $release = $1;
+    } elsif ($release =~ /<RELEASE(\d+)>/) {
+      $release = $1;
+    } else {
+      $release = '0';
+    }
   }
+  $release ||= '0';
   my $srcmd5 = addmeta($projid, $packid, $files);
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release};
   
