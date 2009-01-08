@@ -178,13 +178,11 @@ sub dobuild {
   my @vars;
   my $ftp_only="false";
   my $tag_media="";
-  for my $productinfo (@{$kiwi->{'instsource'}->{'productoptions'}->{'productinfo'} || []}) {
-    # kind of a hack, do not create medias for ftp only releases !
-    if ( $productinfo->{'name'} eq 'FLAVOR' ) {
-      $ftp_only="true" if ( $productinfo->{'_content'} eq 'ftp' );
-    }
-  }
   for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
+    # kind of a hack, do not create medias for ftp only releases !
+    if ( $productvar->{'name'} eq 'FLAVOR' ) {
+      $ftp_only="true" if ( $productvar->{'_content'} eq 'ftp' );
+    }
     if ($productvar->{'name'} eq 'MEDIUM_NAME') {
       $mediumbase = $productvar->{'_content'};
       # Extend medium name with build number
