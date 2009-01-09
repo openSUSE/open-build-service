@@ -1346,7 +1346,6 @@ sub getbuildinfo {
   if (!$cgi->{'internal'}) {
     for (@bdeps) {
       my $p = $dep2rpm{$_}->{'path'};
-      $p =~ s/.*\///;
       push @bdepsp, "$reporoot/$dep2prp{$_}/$arch/:full/$p";
     }
     @bdepsp = getbinarydata(@bdepsp);
