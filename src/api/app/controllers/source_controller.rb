@@ -459,7 +459,6 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
-    params[:user] = @http_user.login if @http_user
 
     path = "/source/#{project_name}/#{package_name}/#{file}"
 
@@ -500,6 +499,7 @@ class SourceController < ApplicationController
     #authenticate
     return unless extract_user
 
+    params[:user] = @http_user.login
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :keeplink])
       
