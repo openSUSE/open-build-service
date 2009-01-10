@@ -874,7 +874,7 @@ sub putjob {
   # uploaded is empty for local image building
   my $success = @$uploaded ? 0 : 1;
   for my $file (@$uploaded) {
-    next unless $file->{'name'} =~ /\.(?:rpm|deb|iso)$/;
+    next unless $file->{'name'} =~ /\.(?:rpm|deb|iso|gz|raw)$/;
     $success = 1;
     last;
   }
