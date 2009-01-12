@@ -43,6 +43,7 @@ start =
 #
 div {
 	k.image.name.attribute = k.name.attribute
+	k.image.displayname.attribute = k.displayname.attribute
 	k.image.noNamespaceSchemaLocation.attribute =
 		## The location of the XSD Schema (not relevant for RELAX NG or DTD)
 		attribute xsi:noNamespaceSchemaLocation { xsd:anyURI }
@@ -69,6 +70,7 @@ div {
 		## named /etc/ImageID
 		attribute id { xsd:string {length="10"} }
 	k.image.attlist = k.image.name.attribute 
+		& k.image.displayname.attribute?
 		& k.image.inherit.attribute?
 		& k.image.kiwirevision.attribute?
 		& k.image.id?
@@ -104,12 +106,16 @@ div {
 #==========================================
 # common attributes
 #
-k.id.attribute        =
+k.id.attribute          =
 	## An ID
 	attribute id { xsd:ID }
 k.name.attribute        =
 	## A name
 	attribute name { text }
+k.displayname.attribute =
+	## A friendly display name. Used in the boot menu
+	## for isolinux and grub
+	attribute displayname { text }
 k.arch.attribute        =
 	## An architecture
 	attribute arch { text }
