@@ -1098,7 +1098,7 @@ foreach my $medium ( @$media ){
           $buildflags->{'enable'} = \@archs;
 
           # add implicit the release packages to media
-          if ( $SPECtemplateFile eq "" && $kiwi->{instsource}->{repopackages}[0] ){
+          if ( $SPECtemplateFile ne "" && $kiwi->{instsource}->{repopackages}[0] ){
             my %product_pack;
             my $addarch = join( ",", @productarch );
             my $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
