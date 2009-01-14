@@ -342,6 +342,11 @@ sub createProductOptions($$$)
         $info{'BASEARCHS'} .= "$archSets{$ar->{ref}}->{productarch} " if( $archSets{$ar->{ref}} );
     }
 
+    # Add REGISTERPRODUCT string - see: bnc#458340
+    if (defined($medium->{'productdependency'})){
+	$info{'REGISTERPRODUCT'} .= "true" if (defined($product->{'register'}));
+    }
+
     # Add Product Options
     my @vars1;
     foreach my $opt ( sort keys %options ) {
