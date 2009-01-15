@@ -969,7 +969,7 @@ sub update_dst_full {
   my @jobfiles;
   if (defined($jobdir)) {
     @jobfiles = sort(ls($jobdir));
-    @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status'} @jobfiles;
+    @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason'} @jobfiles;
     $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/} @jobfiles ]);
   } else {
     $jobrepo = {};
@@ -989,7 +989,7 @@ sub update_dst_full {
   } elsif ($dst) {
     # get old state
     my @oldfiles = sort(ls($dst));
-    @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status'} @oldfiles;
+    @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason'} @oldfiles;
     $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/} @oldfiles ]);
 
     # move files over
@@ -1753,7 +1753,7 @@ sub jobfinished {
   my @all = ls($jobdatadir);
   my $code = 'failed';
   for (@all) {
-    next if $_ eq 'meta' || $_ eq 'logfile';
+    next if $_ eq 'meta' || $_ eq 'logfile' || $_ eq 'reason' || $_ eq 'history';
     $code = 'succeeded';
     last;
   }
@@ -3769,6 +3769,7 @@ while(1) {
     }
 
     my $reason; # for storing the build reason.
+    $reason->{'explain'} = 'BUG: reason not set !';
     my @meta_s = stat("$reporoot/$prp/$myarch/:meta/$packid");
     # we store the lastcheck data in one string instead of an array
     # with 4 elements to save precious memory
