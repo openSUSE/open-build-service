@@ -1752,7 +1752,7 @@ sub sourcediff {
     }
   }
   my $tmpdir = "$srcrep/:upload/srcdiff$$";
-  my $d = BSSrcdiff::srcdiff("$srcrep/$opackid", $ofiles, "$srcrep/$packid", $files, 200, 16000, $tmpdir);
+  my $d = BSSrcdiff::diff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, 200, 16000, $tmpdir, $cgi->{'unified'});
   return ($d, 'Content-Type: text/plain');
 }
 
@@ -3295,7 +3295,7 @@ my $dispatches = [
   'DELETE:/source/$project/_pubkey' => \&deletekey,
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
-  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool?' => \&sourcecmd,
+  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? unified:bool?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
   '/source/$project/$package:package_pattern rev? expand:bool? view:? extension:?' => \&getfilelist,
   '/source/$project/$package:package_pattern/_history' => \&getpackagehistory,
