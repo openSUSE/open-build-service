@@ -1132,8 +1132,8 @@ foreach my $medium ( @$media ){
             $pkgmeta->{'name'} = $pkgName;
             $pkgmeta->{'project'} = $project;
             $pkgmeta->{'title'} = "KIWI image build" ;
-            $prodRef->{'bcntsynctag'} = "_product";  # all images shall get the same build number
-            $pkgmeta->{'description'} = "Automatically generate from _product" ;
+            $pkgmeta->{'bcntsynctag'} = "_product:".$medium->{product};  # all images for one product shall get the same build number
+            $pkgmeta->{'description'} = "Automatically generated from _product by product converter." ;
             $pkgmeta->{'build'} = $buildflags;
             $prodRef->{'project'}->{'name'}="$project";
             $prodRef->{'project'}->{'buildflags'}=$buildflags;
