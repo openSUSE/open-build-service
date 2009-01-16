@@ -271,7 +271,7 @@ class DbPackage < ActiveRecord::Base
       end
 
       package.url( url ) if url
-      package.bcntsynctag if bcntsynctag
+      package.bcntsynctag( bcntsynctag ) if bcntsynctag
 
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
