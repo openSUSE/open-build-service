@@ -10,15 +10,13 @@
 
 Name:           obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
-BuildRequires:  python-devel rubygem-builder rubygem-activesupport lighttpd
+BuildRequires:  python-devel rubygem-builder rubygem-activesupport
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 AutoReqProv:    on
-%define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
-%define py_sitedir %{python_sitelib}
 %define svnversion updated_by_script # edit VERSION in .distrc
 Version:        %{svnversion}
 Release:        0
@@ -41,14 +39,20 @@ Source14:       obs_mirror_project.py
 Source16:       obs_project_update
 Source15:       obsdispatcher
 Source20:       obssignd
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %if 0%{?suse_version} >= 1020
 Requires:       yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
+BuildRequires:  build
+BuildRequires:  -post-build-checks
 %else
 Requires:       yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
 %endif
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+%if 0%{!?py_sitelib}
+%define py_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
+%define py_sitedir %{py_sitelib}
+%endif
 
 %description
 Authors:
@@ -57,9 +61,11 @@ Authors:
 
 
 %package -n osc-obs
+Summary:        The openSUSE Build Service -- Build Service Commander
 Group:          Development/Tools/Other
 License:        GNU General Public License (GPL)
 Requires:       python-urlgrabber
+Requires:       build-obs
 Obsoletes:      osc
 %if 0%{?suse_version}
 %if %suse_version < 1020
@@ -71,7 +77,12 @@ Requires:       python-xml
 Recommends:     rpm-python
 %endif
 %endif
-Summary:        openSUSE (build service) commander
+#
+%if 0%{?fedora_version}
+%if %fedora_version < 7
+Requires:       python-elementtree
+%endif
+%endif
 
 %description -n osc-obs
 Commandline client for the openSUSE build service.
@@ -158,8 +169,9 @@ Author:       Michael Schroeder
 #-------------------------------------------------------------------------------
 %package -n obs-productconverter
 #-------------------------------------------------------------------------------
-Summary:        The openSUSE Build Service -- product definition utility
+Summary:        The openSUSE Build Service -- Product Definition Utility
 Group:          Productivity/Networking/Web/Utilities
+Requires:       obs-server
 #-------------------------------------------------------------------------------
 %description -n obs-productconverter
 #-------------------------------------------------------------------------------
@@ -201,7 +213,6 @@ CFLAGS="%{optflags}" %{__python} setup.py build
 cd -
 
 %install
-rm -rf $RPM_BUILD_ROOT
 #
 # Install all osc files
 #
@@ -344,7 +355,12 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
 /etc/init.d/obssrcserver
+%if 0%{?suse_version} >= 1110
+#with openSUSE 11.1 sbit progs have to registered
+/usr/bin/sign
+%else
 %attr(4750,root,obsrun) /usr/bin/sign
+%endif
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
@@ -394,7 +410,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc src/clientlib/python/osc/{README,TODO,NEWS}
 %{_bindir}/osc*
-%{python_sitelib}/*
+%{py_sitedir}/*
 %dir /var/lib/osc-plugins
 
 %files -n build-obs
@@ -473,6 +489,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/bs_productconvert
 
 %changelog
+* Sat Jan 17 2009 - martin.mohring@5etech.eu
+- corrected rpm lint errors
+- made build on openSUSE 11.1
+- brought up to date with upstream
 * Wed Sep 03 2008 - martin.mohring@5etech.eu
 - added obs utils as separate sub package
 * Wed Jul 09 2008 - chris@computersalat.de
