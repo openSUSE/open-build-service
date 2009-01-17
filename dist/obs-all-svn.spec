@@ -79,6 +79,7 @@ Recommends:     rpm-python
 Requires:       python-elementtree
 %endif
 %endif
+%{!?py_sitedir: %define py_sitedir %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %description -n osc-obs
 Commandline client for the openSUSE build service.
