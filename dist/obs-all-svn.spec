@@ -49,10 +49,6 @@ BuildRequires:  -post-build-checks
 Requires:       yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
 %endif
-%if 0%{!?py_sitelib}
-%define py_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
-%define py_sitedir %{py_sitelib}
-%endif
 
 %description
 Authors:
@@ -491,7 +487,8 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Sat Jan 17 2009 - martin.mohring@5etech.eu
 - corrected rpm lint errors
-- made build on openSUSE 11.1
+- made build on openSUSE 11.1 and Factory
+- replaed python libs dir with predefined py_sitedir macro
 - brought up to date with upstream
 * Wed Sep 03 2008 - martin.mohring@5etech.eu
 - added obs utils as separate sub package
