@@ -267,6 +267,7 @@ our $buildinfo = [
 	'srcmd5',
 	'verifymd5',
 	'rev',
+	'reason',       # just for the explain string of a build reason
 	'specfile',	# obsolete
 	'file',
 	'versrel',
@@ -534,6 +535,7 @@ our $jobhistlay = [
 	'uri',
 	'workerid',
 	'hostarch',
+	'reason',
 ];
 
 our $jobhist = [

@@ -658,6 +658,7 @@ sub set_building {
     'package' => $packid,
     'job' => $f,
     'arch' => $myarch,
+    'reason' => $reason->{'explain'},
     'srcmd5' => $pdata->{'srcmd5'},
     'verifymd5' => $vmd5,
     'rev' => $pdata->{'rev'},
@@ -1206,7 +1207,7 @@ sub addjobhist {
   $jobhist->{$_} = $status->{$_} for qw{readytime};
   $jobhist->{'code'} = $status->{'status'};
   $jobhist->{$_} = $js->{$_} for qw{starttime endtime uri workerid hostarch};
-  $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt};
+  $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt reason};
   mkdir_p("$reporoot/$prp/$myarch");
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/:jobhistory", $BSXML::jobhistlay, $jobhist);
 }
@@ -1718,6 +1719,7 @@ sub jobfinished {
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
   my $prp = "$projid/$repoid";
+  my $mytime = time(); # ensure that we use the same time in all logs
   if ($info->{'arch'} ne $myarch) {
     print "  - $job has bad arch\n";
     return;
@@ -1829,7 +1831,7 @@ sub jobfinished {
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
 
   # write history file
-  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => time(), 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}};
+  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $mytime, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}};
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
 
   # update relsync file
@@ -2174,6 +2176,7 @@ sub rebuildkiwiproduct {
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $f = jobname($prp, $packid);
+  my $mytime = time(); # ensure that we use the same time in all logs
   return ('scheduled', "$f-$srcmd5") if -s "$myjobsdir/$f-$srcmd5";
   my @otherjobs = grep {/^\Q$f\E-[0-9a-f]{32}$/} ls($myjobsdir);
   $f = "$f-$srcmd5";
@@ -2244,10 +2247,11 @@ sub rebuildkiwiproduct {
     'bcnt' => $h->{'bcnt'} + 1,
     'bdep' => \@bdeps,
     'path' => [{'project' => $projid, 'repository' => $repoid, 'server' => $BSConfig::reposerver}],
+    'reason' => $reason->{'explain'},
   };
   mkdir_p("$reporoot/$prp/$myarch/$packid");
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $f}, $BSXML::buildstatus);
-  $reason->{'time'} = time();
+  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $mytime, 'job' => $f}, $BSXML::buildstatus);
+  $reason->{'time'} = $mytime;
   writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
   writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
   return ('scheduled', $f);
