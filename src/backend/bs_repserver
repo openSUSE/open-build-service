@@ -874,7 +874,7 @@ sub putjob {
   # uploaded is empty for local image building
   my $success = @$uploaded ? 0 : 1;
   for my $file (@$uploaded) {
-    next unless $file->{'name'} =~ /\.(?:rpm|deb|iso|gz|raw)$/;
+    next if $file->{'name'} eq 'meta' || $file->{'name'} eq 'logfile';
     $success = 1;
     last;
   }
@@ -1934,9 +1934,14 @@ sub postrelsync {
   $relsyncmax ||= {};
   my $changed;
   for my $packid (keys %$new) {
-    next unless $new->{$packid} =~ /^(.*)\.([^-]*)$/;
-    next if defined($relsyncmax->{"$packid/$1"}) && $relsyncmax->{"$packid/$1"} >= $2;
-    $relsyncmax->{"$packid/$1"} = $2;
+    if ($packid =~ /\//) {
+      next if defined($relsyncmax->{$packid}) && $relsyncmax->{$packid} >= $new->{$packid};
+      $relsyncmax->{$packid} = $new->{$packid};
+    } else {
+      next unless $new->{$packid} =~ /^(.*)\.([^-]*)$/;
+      next if defined($relsyncmax->{"$packid/$1"}) && $relsyncmax->{"$packid/$1"} >= $2;
+      $relsyncmax->{"$packid/$1"} = $2;
+    }
     $changed = 1;
   }
   if ($changed) {
