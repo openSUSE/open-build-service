@@ -1079,6 +1079,7 @@ foreach my $medium ( @$media ){
                   push @archs, { 'arch' => $architecture };
                   push @productarch, $architecture;
                   # Heuristic: we need to make this configurable at a more central place
+#                  push @archs, { 'arch' => 'local' }; # activate this, if you run with local scheduler
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
                   push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
