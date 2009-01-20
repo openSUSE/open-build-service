@@ -45,9 +45,8 @@ system.
 
 2.2.1 necessary changes on machine *main* machine
 =================================================
-In file /usr/lib/obs/server/BSConfig.pm you should change variables $srcserver, $reposerver and
-array @reposervers. After install there are http://localhost but in this case you should have there
-output of hostname -f or IPs. (You should keep port number)
+Please check /usr/lib/obs/server/BSConfig.pm on main machine. By default everything
+is correct here, since it automatically uses the local host name.
 
 2.2.2 necessary changes on worker machine
 =========================================
