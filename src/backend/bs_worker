@@ -829,6 +829,7 @@ chdir($statedir) || die("$statedir: $!\n");
 
 
 BSServer::deamonize(@ARGV) unless $oneshot;
+$SIG{'PIPE'} = 'IGNORE' if $oneshot;
 
 # calculate code meta md5
 my $workercode = codemd5('worker');
