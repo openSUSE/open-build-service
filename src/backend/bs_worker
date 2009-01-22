@@ -787,7 +787,7 @@ sub dobuild {
     return 1;
   }
 
-  if ($xen && ($buildinfo->{'file'} !~ /\.kiwi$/)) {
+  if ($xen) {
     rm_rf("$buildroot/.build.packages");
     if (! -d "$buildroot/.mount/.build.packages") {
       # old style, call extractbuild
