@@ -45,8 +45,7 @@ function stop_autoscroll() {
 <div id="start_link"><%= link_to_remote( "[Start Refreshing]",
         :url => {:action => :update_build_log, :package => @package,
         :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
-        :after => "new Effect.Fade('start_link');new Effect.Fade('start_linkend')",
-        :complete => evaluate_remote_response )%></div>
+        :after => "new Effect.Fade('start_link');new Effect.Fade('start_linkend')")%></div>
 <p>
 <b>Status:</b> <span id="status">Live Log not started</span>
 </p>
@@ -68,7 +67,6 @@ function stop_autoscroll() {
 <div id="start_linkend"><%= link_to_remote( "[Start Refreshing]",
         :url => {:action => :update_build_log, :package => @package,
         :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
-        :after => "new Effect.Fade('start_link');new Effect.Fade('start_linkend')",
-        :complete => evaluate_remote_response )%></div>
+        :after => "new Effect.Fade('start_link');new Effect.Fade('start_linkend')")%></div>
 </p>
 <script>setscrollmode('off')</script>

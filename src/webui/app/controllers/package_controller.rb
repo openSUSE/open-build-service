@@ -554,7 +554,17 @@ class PackageController < ApplicationController
       @finished = true
     end
 
-    render :partial => 'update_build_log'
+    render :update do |page|
+      if @finished
+        page.replace_html 'status', "Build finished"
+      else
+        page.replace_html 'status', "Updating..."
+        page.insert_html :bottom, 'log_space', @log_chunk
+        page.delay(2) do 
+          page << remote_function( :url => {:action => :update_build_log, :package => @package, :project => @project, :arch => @arch, :repository => @repo, :offset => @offset} )
+        end
+      end
+    end
   end
 
   def trigger_rebuild
