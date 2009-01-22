@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obssrcserver
 # Required-Start:    $time $syslog
-# Required-Stop:     $time $syslog
+# Required-Stop:
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
 # Description:       openSUSE build service source repository server
@@ -53,7 +53,13 @@ case "$1" in
 	restart)
 		## If first returns OK call the second, if first or
 		## second command fails, set echo return value.
-		$0 stop &&  $0 start
+#		$0 stop &&  $0 start
+		$0 status
+                if test $? = 0; then
+			touch /bs/run/bs_srcserver.restart
+		else
+			$0 stop &&  $0 start
+		fi
 		rc_status
 	;;
 	try-restart)
@@ -67,6 +73,11 @@ case "$1" in
 		rc_status
 	;;
 	reload)
+		$0 status
+                if test $? = 0; then
+                        touch /bs/run/bs_srcserver.restart
+		fi
+		rc_status
 	;;
 	status)
 		echo -n "Checking for obssrcserver: "

@@ -10,7 +10,7 @@
 # Provides:       signd
 # Required-Start: $network $named $syslog $time
 # Should-Start:
-# Required-Stop:  $network $named $syslog $time
+# Required-Stop:
 # Should-Stop:
 # Default-Start:  3 5
 # Default-Stop:
