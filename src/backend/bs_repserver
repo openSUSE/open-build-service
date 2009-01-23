@@ -1920,7 +1920,7 @@ sub postrelsync {
   local *F;
   BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
   my $relsyncmax;
-  if (-e "$reporoot/$prp/$arch/:relsync.max") {
+  if (-s "$reporoot/$prp/$arch/:relsync.max") {
     eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync.max"); };
     warn($@) if $@;
   }
