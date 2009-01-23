@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsrepserver
 # Required-Start:    $time $syslog
-# Required-Stop:
+# Required-Stop:     $null
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
 # Description:       openSUSE build service repository server

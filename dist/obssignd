@@ -9,9 +9,9 @@
 ### BEGIN INIT INFO
 # Provides:       signd
 # Required-Start: $network $named $syslog $time
-# Should-Start:
-# Required-Stop:
-# Should-Stop:
+# Should-Start:   $null
+# Required-Stop:  $null
+# Should-Stop:    $null
 # Default-Start:  3 5
 # Default-Stop:
 # Description:    start the gpg sign daemon
