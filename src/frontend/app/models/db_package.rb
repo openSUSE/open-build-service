@@ -71,6 +71,7 @@ class DbPackage < ActiveRecord::Base
     DbPackage.transaction do
       self.title = package.title.to_s
       self.description = package.description.to_s
+      self.bcntsynctag = package.bcntsynctag.to_s
 
       #--- devel project ---#
       if package.has_element? :devel
@@ -268,8 +269,9 @@ class DbPackage < ActiveRecord::Base
           end
         end
       end
-     
+
       package.url( url ) if url
+      package.bcntsynctag if bcntsynctag
 
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
