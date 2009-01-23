@@ -338,6 +338,7 @@ sub getbinarylist_repository {
   };
   my @res;
   delete $cache->{'/external'};
+  delete $cache->{'/url'};
   my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %$cache;
   for my $bin (@bins) {
     my $c = $cache->{$bin};
@@ -721,9 +722,10 @@ sub workerstatus {
     }
   }
   my @building;
+  my @waiting;
+  my @blocked;
   my @a;
   @a = ls($jobsdir) unless $cgi->{'scheduleronly'};
-  my @waiting;
   for my $a (@a) {
     my @d = grep {!/^\./ && !/:(?:dir|new)$/} ls("$jobsdir/$a");
     my %d = map {$_ => 1} @d;
@@ -743,10 +745,15 @@ sub workerstatus {
       delete $d{$d};
     }
     push @waiting, {'arch' => $a, 'jobs' => scalar(keys %d)};
+    my $si = readxml("$infodir/schedulerinfo.$a", $BSXML::schedulerinfo, 1);
+    if ($si && defined($si->{'notready'})) {
+      push @blocked, {'arch' => $a, 'jobs' => $si->{'notready'}};
+    }
   }
   @idle = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @idle;
   @building = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @building;
   @waiting = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @waiting;
+  @blocked = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @blocked;
 
   my @scheddata;
   my @schedarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
@@ -775,6 +782,7 @@ sub workerstatus {
     $ret->{'clients'} = @building + @idle;
     $ret->{'building'} = \@building;
     $ret->{'waiting'} = \@waiting;
+    $ret->{'blocked'} = \@blocked;
     $ret->{'idle'} = \@idle;
   }
   $ret->{'scheduler'} = \@scheddata;
@@ -866,7 +874,7 @@ sub putjob {
   # uploaded is empty for local image building
   my $success = @$uploaded ? 0 : 1;
   for my $file (@$uploaded) {
-    next unless $file->{'name'} =~ /\.(?:rpm|deb|iso)$/;
+    next if $file->{'name'} eq 'meta' || $file->{'name'} eq 'logfile';
     $success = 1;
     last;
   }
@@ -1056,7 +1064,7 @@ sub getjobhistory {
     @hist = grep {$packid{$_->{'package'}}} @hist;
   }
   if ($cgi->{'code'}) {
-    my %code = map {$_ => 1} @{$cgi->{'package'}};
+    my %code = map {$_ => 1} @{$cgi->{'code'}};
     @hist = grep {$code{$_->{'code'}}} @hist;
   }
   my $ret = {jobhist => \@hist};
@@ -1338,7 +1346,6 @@ sub getbuildinfo {
   if (!$cgi->{'internal'}) {
     for (@bdeps) {
       my $p = $dep2rpm{$_}->{'path'};
-      $p =~ s/.*\///;
       push @bdepsp, "$reporoot/$dep2prp{$_}/$arch/:full/$p";
     }
     @bdepsp = getbinarydata(@bdepsp);
@@ -1926,10 +1933,15 @@ sub postrelsync {
   }
   $relsyncmax ||= {};
   my $changed;
-  for my $packid (%$new) {
-    next unless $new->{$packid} =~ /^(.*)\.([^-]*)$/;
-    next if defined($relsyncmax->{"$packid/$1"}) && $relsyncmax->{"$packid/$1"} >= $2;
-    $relsyncmax->{"$packid/$1"} = $2;
+  for my $packid (keys %$new) {
+    if ($packid =~ /\//) {
+      next if defined($relsyncmax->{$packid}) && $relsyncmax->{$packid} >= $new->{$packid};
+      $relsyncmax->{$packid} = $new->{$packid};
+    } else {
+      next unless $new->{$packid} =~ /^(.*)\.([^-]*)$/;
+      next if defined($relsyncmax->{"$packid/$1"}) && $relsyncmax->{"$packid/$1"} >= $2;
+      $relsyncmax->{"$packid/$1"} = $2;
+    }
     $changed = 1;
   }
   if ($changed) {

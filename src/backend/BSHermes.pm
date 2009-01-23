@@ -80,6 +80,7 @@ sub requestParams( $$ )
     $reqinfo{'comment'} = $req->{'state'}->{'comment'};
   }
   $reqinfo{'who'} = $user || 'unknown';
+  $reqinfo{'sender'} = $reqinfo{'who'};
 
   if( $req->{'type'} eq 'submit' && $req->{'submit'} && $req->{'submit'}->{'source'} &&
       $req->{'submit'}->{'target'}) {

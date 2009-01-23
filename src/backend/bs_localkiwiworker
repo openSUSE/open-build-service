@@ -178,13 +178,11 @@ sub dobuild {
   my @vars;
   my $ftp_only="false";
   my $tag_media="";
-  for my $productinfo (@{$kiwi->{'instsource'}->{'productoptions'}->{'productinfo'} || []}) {
-    # kind of a hack, do not create medias for ftp only releases !
-    if ( $productinfo->{'name'} eq 'FLAVOR' ) {
-      $ftp_only="true" if ( $productinfo->{'_content'} eq 'ftp' );
-    }
-  }
   for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
+    # kind of a hack, do not create medias for ftp only releases !
+    if ( $productvar->{'name'} eq 'FLAVOR' ) {
+      $ftp_only="true" if ( $productvar->{'_content'} eq 'ftp' );
+    }
     if ($productvar->{'name'} eq 'MEDIUM_NAME') {
       $mediumbase = $productvar->{'_content'};
       # Extend medium name with build number
@@ -255,7 +253,11 @@ sub dobuild {
 	push @rp, $rp;
 	next;
       }
+
+      my $addarchs = join(',', sort map { $_->{'ref'} } @{$kiwi->{'instsource'}->{'architectures'}->{'requiredarch'}});
       for my $pkg (sort keys %allpkgs) {
+        # exclude blind take of all debug packages. They will get taken
+        # automatically, if configured debug medium exists.
         next if $pkg =~ /-debuginfo$/;
         next if $pkg =~ /-debugsource$/;
         next if $pkg =~ /-debuginfo-32bit$/;
@@ -264,7 +266,7 @@ sub dobuild {
         next if $pkg =~ /-debugsource-64bit$/;
         next if $pkg =~ /-debuginfo-x86$/;
         next if $pkg =~ /-debugsource-x86$/;
-	push @rp, {'name' => $pkg, 'addarch' => join(',', sort keys %{$allpkgs{$pkg}})};
+	push @rp, {'name' => $pkg, 'addarch' => $addarchs};
       }
     }
     $repopackages->{'repopackage'} = \@rp;
@@ -275,7 +277,7 @@ sub dobuild {
   print "running kiwi...\n";
   $ENV{'PATH'} = "$BSConfig::bsdir/kiwi/prgs:$ENV{'PATH'}";
 #  $ENV{'KIWI_ISO'} = "1";                  # currently a hack to enable kiwi iso creation
-  $ENV{'APPID'} = "-";                     # default value
+  $ENV{'APPID'} = "-";                     # default value, will get overriden by current kiwis
   $ENV{'KIWI_COLLECT_TERMINAL_LOG'} = "1"; # kiwi collect module has no switch for this
   delete $ENV{'LANG'};                     # set locale to POSIX to have the same always sort order
   my $kiwiprg = '/usr/sbin/kiwi';

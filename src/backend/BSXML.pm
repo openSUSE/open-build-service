@@ -115,7 +115,8 @@ our $pack = [
 	@disableenable,
 	@flags,
 	'url',
-	'group',
+	'group',	# obsolete?
+	'bcntsynctag',
 ];
 
 our $packinfo = [
@@ -183,6 +184,7 @@ our $projpack = [
 		[ $packinfo ],
 		$aggregatelist,
 		@flags,
+		'bcntsynctag',
 	 ]],
      ]],
      [[ 'remotemap' =>
@@ -265,6 +267,7 @@ our $buildinfo = [
 	'srcmd5',
 	'verifymd5',
 	'rev',
+	'reason',       # just for the explain string of a build reason
 	'specfile',	# obsolete
 	'file',
 	'versrel',
@@ -323,7 +326,10 @@ our $buildreason = [
        'explain',             # Readable reason
        'time',                # unix time from start build
        'oldsource',           # last build source md5 sum, if a source change was the reason
-       [ 'packagechange' ],   # Filled with an array, if the reason was meta package changes
+       [[ 'packagechange' =>  # list changed files which are used for building
+          'change',           # kind of change (content/meta change, additional file or removed file)
+          'key',              # file name
+       ]],
 ];
 
 our $buildstatus = [
@@ -499,6 +505,10 @@ our $workerstatus = [
 	    'arch',
 	    'jobs',
      ]],
+     [[ 'blocked', =>
+	    'arch',
+	    'jobs',
+     ]],
      [[ 'scheduler' =>
 	    'arch',
 	    'state',
@@ -525,6 +535,7 @@ our $jobhistlay = [
 	'uri',
 	'workerid',
 	'hostarch',
+	'reason',
 ];
 
 our $jobhist = [
@@ -774,11 +785,38 @@ our $collection = [
 ];
 
 our $quota = [
- 'quota' => 'packages',
- [[ 'project' =>
-      'name',
-      'packages',
- ]],
+    'quota' =>
+	'packages',
+     [[ 'project' =>
+	    'name',
+	    'packages',
+     ]],
+];
+
+our $schedulerinfo = [
+  'schedulerinfo' =>
+	'arch',
+	'started',
+	'time',
+	[],
+	'slept',
+	'notready',
+      [ 'queue' =>
+	    'high',
+	    'med',
+	    'low',
+	    'next',
+      ],
+	'projects',
+	'repositories',
+     [[ 'worst' =>
+	    'project',
+	    'repository',
+	    'packages',
+	    'time',
+     ]],
+	'avg',
+	'variance',
 ];
 
 1;

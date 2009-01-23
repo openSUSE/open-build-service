@@ -210,10 +210,7 @@ sub createArchitectures( $ )
 
     foreach my $requiredArch( @{$archSetList} ) {
 	my $ref = $requiredArch->{ref};
-	unless( $archSets{$ref} ) {
-	    print "ERROR: No such archset $requiredArch\n";
-	    next;
-	}
+	die ( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref} ;
 	my @archis = @{ $archSets{$ref}->{archList} };
 	my $border = @archis; # the amount of entries
 	
@@ -271,10 +268,11 @@ sub createProductOptions($$$)
     }
 
     $varsH{PRODUCT_THEME} = $product->{'buildconfig'}->{'producttheme'};
-    $varsH{MEDIUM_NAME} = $medium->{'name'}."-".join( "_", @allarchs );
+    $varsH{MEDIUM_NAME} = $medium->{'name'}."-".join( "-", @allarchs );
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
+    $varsH{RUN_MEDIA_CHECK} = "true" if (defined($medium->{'run_media_check'}));
     $varsH{SHA1OPT} = "-x";
 
     $varsH{VENDOR} = $product->{'vendor'};
@@ -294,9 +292,6 @@ sub createProductOptions($$$)
     $re->{productvar} = \@vars;
 
     my %options;
-    if (defined($medium->{'run_media_check'})) {
-      $options{'RUN_MEDIA_CHECK'} = $medium->{'run_media_check'};
-    };
     if (defined($medium->{'sourcemedia'})) {
       $options{'SOURCEMEDIUM'} = $medium->{'sourcemedia'};
     };
@@ -313,13 +308,15 @@ sub createProductOptions($$$)
     my %info;
     $info{'VENDOR'}       = $product->{'vendor'};
     $info{'NAME'}         = $product->{'name'};
-    my $rp = $product->{'installconfig'}->{'releasepackage'};
-    $info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
+    # fix for bnc #449162
+    #my $rp = $product->{'installconfig'}->{'releasepackage'};
+    #$info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
     $info{'VERSION'}      = $product->{'version'};
     $info{'RELEASE'}      = $product->{'release'};
     $info{'SP_VERSION'}   = $product->{'patchlevel'} if (defined($product->{'patchlevel'}));
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
-    $info{'FLAVOR'}       = $medium->{'flavor'};
+    # fix for bnc #449162
+    # $info{'FLAVOR'}       = $medium->{'flavor'};
     $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
     $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
     if (defined($medium->{'preselected_patterns'})){
@@ -340,6 +337,11 @@ sub createProductOptions($$$)
     $info{'BASEARCHS'} = "";
     foreach my $ar ( @$archSetList ) {
         $info{'BASEARCHS'} .= "$archSets{$ar->{ref}}->{productarch} " if( $archSets{$ar->{ref}} );
+    }
+
+    # Add REGISTERPRODUCT string - see: bnc#458340
+    if (defined($medium->{'productdependency'})){
+	$info{'REGISTERPRODUCT'} .= "true" if (defined($product->{'register'}));
     }
 
     # Add Product Options
@@ -375,10 +377,7 @@ sub createMetadata( $$$ )
     my $removearch;
     foreach my $requiredArch( @{$archSetList} ) {
 	my $ref = $requiredArch->{ref};
-	unless( $archSets{$ref} ) {
-	    print "ERROR: No such archset $requiredArch\n";
-	    next;
-	}
+	die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
         $onlyarch .= "$archSets{$ref}->{productarch},";
     };
     my $metadata_medium = "0";
@@ -415,10 +414,7 @@ sub containsMyArch( $$$ )
     foreach my $s( split( /\s*,\s*/, $archList ) ){
       foreach my $requiredArch( @{$archSetList} ) {
 	my $ref = $requiredArch->{ref};
-	unless( $archSets{$ref} ) {
-	    print "ERROR: No such archset $requiredArch\n";
-	    next;
-	}
+	die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
         return 1 if ( $s eq $archSets{$ref}->{productarch} );
       }
     }
@@ -476,10 +472,7 @@ sub useToPackages( $$$ )
 		foreach my $addPack ( @{$useState->{package} } ) {
 		    # print Dumper( $addPack ) . "\n";
 		    my $relType = $addPack->{relationship};
-		    unless( $relType eq "requires" || $relType eq "recommends" || $relType eq "suggests" ) {
-			print "ERROR: Unknown relation type string for package add!\n";
-			exit;
-		    }
+	            die( "ERROR: Unknown relation type string for package add!\n" ) unless( $relType eq "requires" || $relType eq "recommends" || $relType eq "suggests" );
 		    if( ( $useRequired    && $addPack->{relationship} eq "requires") ||
 			( $useRecommended && $addPack->{relationship} eq "recommends" ) ||
 			( $useSuggested   && $addPack->{relationship} eq "suggests" ) ) {
@@ -496,8 +489,7 @@ sub useToPackages( $$$ )
 		}
 	    }
 	} elsif( $useState->{pattern} ) {
-	    print "ERROR: Patterns are not supported for repopackages!\n";
-
+	    die( "ERROR: Patterns are not supported for repopackages!\n" );
 	}
     }
     return \@packages;
@@ -530,13 +522,11 @@ sub groupToPackages( $$$$$ )
     }
 
     unless( $groupRef ) {
-	print "ERROR: Group <$group> not found!\n";
-	return ();
+	die( "ERROR: Group <$group> not found!\n" );
     }
     
     unless( $groupRef->{packagelist} ) {
-	print "ERROR: Group <$group> has no package lists!\n";
-	return;
+	die( "ERROR: Group <$group> has no package lists!\n" );
     }
 
     # ok, here we have a valid group reference.
@@ -693,7 +683,7 @@ sub createInstsource( $$$ )
 	  $h{local} = "true";
           $localpath = $1;
         } else {
-          warn( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
+          die( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
         };
         if ( $runOnServer ) {
           for my $arch ( @{$re->{architectures}->{requiredarch}} ) {
@@ -1058,6 +1048,7 @@ foreach my $medium ( @$media ){
     my $type = $medium->{type};
     my $flavor = $medium->{flavor};
     my $product = $medium->{product};  # note: this needs to reference a product from the products section 
+    $product = $prodRef->{'products'}->{'product'}[0]->{'name'} unless $product; # use global name as fallback
     my $name = $medium->{name};
    
     next if( $opt_m && $name ne $opt_m );
@@ -1088,6 +1079,7 @@ foreach my $medium ( @$media ){
                   push @archs, { 'arch' => $architecture };
                   push @productarch, $architecture;
                   # Heuristic: we need to make this configurable at a more central place
+#                  push @archs, { 'arch' => 'local' }; # activate this, if you run with local scheduler
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
                   push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
@@ -1098,9 +1090,10 @@ foreach my $medium ( @$media ){
           $buildflags->{'enable'} = \@archs;
 
           # add implicit the release packages to media
-          if ( $SPECtemplateFile eq "" && $kiwi->{instsource}->{repopackages}[0] ){
+          if ( $SPECtemplateFile ne "" && $kiwi->{instsource}->{repopackages}[0] ){
             my %product_pack;
             my $addarch = join( ",", @productarch );
+            # FIXME: Shouldn't we simply use local $product here ?
             my $name = $prodRef->{'products'}->{'product'}[0]->{'name'}."-release";
             push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
             # add the flavor package
@@ -1126,8 +1119,9 @@ foreach my $medium ( @$media ){
             my $pkgmeta;
             $pkgmeta->{'name'} = $pkgName;
             $pkgmeta->{'project'} = $project;
-            $pkgmeta->{'title'} = "KIWI image build" ;
-            $pkgmeta->{'description'} = "Automatically generate from _product" ;
+            $pkgmeta->{'title'} = "KIWI product image build" ;
+            $pkgmeta->{'bcntsynctag'} = "_product:".$product;  # all images for one product shall get the same build number
+            $pkgmeta->{'description'} = "Automatically generated from _product by product converter." ;
             $pkgmeta->{'build'} = $buildflags;
             $prodRef->{'project'}->{'name'}="$project";
             $prodRef->{'project'}->{'buildflags'}=$buildflags;

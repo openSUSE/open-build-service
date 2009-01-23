@@ -116,7 +116,7 @@ sub extracttar {
 }
 
 sub filediff {
-  my ($f1, $f2, $p1, $p2, $max, $arg, $lcntp) = @_;
+  my ($f1, $f2, $p1, $p2, $max, $arg, $lcntp, $noarchive) = @_;
   $arg ||= '-u';
 
   return unless defined($f1) || defined($f2);
@@ -143,13 +143,14 @@ sub filediff {
     $lcnt = $$lcntp if $lcntp;
     return '' if $f =~ /\.(?:zip|tar|jar|zoo)(?:\.gz|\.bz2)?$/;
     local *F;
-    if ($f =~ /\.gz$/i) {
-      open(F, "-|", 'gunzip', '-dc', $f) || die("open $f: $!\n");
-    } elsif ($f =~ /\.bz2$/i) {
-      open(F, "-|", 'bzip2', '-dc', $f) || die("open $f: $!\n");
-    } else {
-      open(F, '<', $f) || die("open $f: $!\n");
+    if (!$noarchive) {
+      if ($f =~ /\.gz$/i) {
+        open(F, "-|", 'gunzip', '-dc', $f) || die("open $f: $!\n");
+      } elsif ($f =~ /\.bz2$/i) {
+        open(F, "-|", 'bzip2', '-dc', $f) || die("open $f: $!\n");
+      }
     }
+    open(F, '<', $f) || die("open $f: $!\n") if !defined(fileno(F));
     my $d = '';
     $d .= "--- $p1\n";
     $d .= "+++ $p2\n";
@@ -188,20 +189,20 @@ sub filediff {
   if (!$pid) {
     local *F1;
     local *F2;
-    if ($f1 =~ /\.gz$/i) {
-      open(F1, "-|", 'gunzip', '-dc', $f1) || die("open $f1: $!\n");
-    } elsif ($f1 =~ /\.bz2$/i) {
-      open(F1, "-|", 'bzip2', '-dc', $f1) || die("open $f1: $!\n");
-    } else {
-      open(F1, '<', $f1) || die("open $f1: $!\n");
+    if (!$noarchive) {
+      if ($f1 =~ /\.gz$/i) {
+        open(F1, "-|", 'gunzip', '-dc', $f1) || die("open $f1: $!\n");
+      } elsif ($f1 =~ /\.bz2$/i) {
+        open(F1, "-|", 'bzip2', '-dc', $f1) || die("open $f1: $!\n");
+      }
+      if ($f2 =~ /\.gz$/i) {
+        open(F2, "-|", 'gunzip', '-dc', $f2) || die("open $f2: $!\n");
+      } elsif ($f2 =~ /\.bz2$/i) {
+        open(F2, "-|", 'bzip2', '-dc', $f2) || die("open $f2: $!\n");
+      } 
     }
-    if ($f2 =~ /\.gz$/i) {
-      open(F2, "-|", 'gunzip', '-dc', $f2) || die("open $f2: $!\n");
-    } elsif ($f2 =~ /\.bz2$/i) {
-      open(F2, "-|", 'bzip2', '-dc', $f2) || die("open $f2: $!\n");
-    } else {
-      open(F2, '<', $f2) || die("open $f2: $!\n");
-    }
+    open(F1, '<', $f1) || die("open $f1: $!\n") if !defined(fileno(F1));
+    open(F2, '<', $f2) || die("open $f2: $!\n") if !defined(fileno(F2));
     fcntl(F1, F_SETFD, 0);
     fcntl(F2, F_SETFD, 0);
     exec 'diff', $arg, '/dev/fd/'.fileno(F1), '/dev/fd/'.fileno(F2);
@@ -530,6 +531,62 @@ sub srcdiff {
     }
   }
   return $d;
+}
+
+sub ubeautify {
+  my ($d, $f, $orev, $rev) = @_;
+  $d =~ s/(--- \Q$f\E)$/$1 (revision \Q$orev\E)/m;
+  $d =~ s/((\+\+\+|---) \Q$f\E)$/$1 (revision \Q$rev\E)/m;
+  return $d;
+}
+
+sub udiff {
+  my ($pold, $old, $orev, $pnew, $new, $rev, $fmax) = @_;
+  my @changed;
+  my @added;
+  my @deleted;
+  my $d = '';
+  for (keys %$new) {
+    if (defined($old->{$_})) {
+      push @changed, $_ if $old->{$_} ne $new->{$_};
+    } else {
+      push @added, $_;
+    } 
+  }
+  @deleted = grep { !defined($new->{$_}) } keys %$old;
+  
+  my $hdr = "Index: %s\n" . "=" x 67 . "\n";
+  for my $f (@changed) {
+    $d .= sprintf($hdr, $f);
+    my $r .= filediff("$pold/$old->{$f}-$f", "$pnew/$new->{$f}-$f", $f, $f, $fmax, undef, undef, 1);
+    $d .= ubeautify($r, $f, $orev, $rev);
+  }
+  for my $f (@added) {
+    $d .= sprintf($hdr, $f);
+    my $lcnt = -2;
+    my $r = filediff(undef, "$pnew/$new->{$f}-$f", $f, $f, $fmax, undef, \$lcnt, 1);
+    $r =~ s/(\Q+++ $f\E)$/$1\n@@ -0,0 +1,\Q$lcnt\E @@/m;
+    $r = ubeautify($r, $f, 0, $rev);
+    $d .= $r eq '' ? "Binary file $f added\n" : $r;
+  }
+  for my $f (@deleted) {
+    $d .= sprintf($hdr, $f);
+    my $lcnt = -2;
+    my $r = filediff("$pold/$old->{$f}-$f", undef, $f, $f, $fmax, undef, \$lcnt, 1);
+    $r =~ s/(\Q+++ $f\E)$/$1\n@@ -1,\Q$lcnt\E \+0,0 @@/m;
+    $r = ubeautify($r, $f, $orev, $rev);
+    $d .= $r eq '' ? "Binary file $f deleted\n" : $r if $lcnt;
+  }
+  return $d;
+}
+
+sub diff {
+  my ($pold, $old, $orev, $pnew, $new, $rev, $fmax, $tmax, $edir, $unified) = @_;
+  if ($unified) {
+    return udiff($pold, $old, $orev, $pnew, $new, $rev, $fmax)
+  } else {
+    return srcdiff($pold, $old, $pnew, $new, $fmax, $tmax, $edir);
+  }
 }
 
 1;

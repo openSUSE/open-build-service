@@ -76,6 +76,8 @@ our $kiwidesc = [
           'locale',
           'keytable',
           'oem-home',
+          'oem-swap',
+          'oem-boot-title',
         ],
         [ 'instsource' =>
           [],
