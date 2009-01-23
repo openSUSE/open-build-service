@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Fri Dec 12 13:06:47 CET 2008 - froh@novell.com
+
+- branch to 1.5.rc1
+- include bs_productconvert search path fix (bnc#458309)
+- add ReleaseNotes-1.5 file
+- rpmlint fixes: remove executable bit from perl libraries, add
+  missing package descriptions, add missing %insserv_cleanup %postun
+  calls, add missing $remote_fs init script dependencies, add
+  (failing) reload command to signd init script.
+- do %fdupes only if the distro has it (fixes sle10 builds)
+
+-------------------------------------------------------------------
 Thu Nov 20 11:48:42 CET 2008 - froh@novell.com
 
 - get setuid handling right (bnc#446164)
