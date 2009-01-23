@@ -35,7 +35,7 @@ case "$1" in
                 #        including real logging, pid file and startproc
 		test -z "$OBS_SCHEDULER_ARCHITECTURES" && OBS_SCHEDULER_ARCHITECTURES=i586
 		for i in $OBS_SCHEDULER_ARCHITECTURES; do
-		        ./bs_sched $i >>& /srv/obs/log/scheduler_$i.log &
+		        ./bs_sched $i >> /srv/obs/log/scheduler_$i.log 2>&1 &
 		done
 		rc_status -v
 	;;
