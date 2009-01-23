@@ -2,7 +2,7 @@
 
 # The svnversion of SVNDIR plus this VERSION make up the rpm package
 # 'Version:'
-: ${VERSION:=1.5.rc1}
+: ${VERSION:=1.5.rc2}
 
 # options to all osc commands
 : ${OSCOPTS:="-A https://api.opensuse.org"}

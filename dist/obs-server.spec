@@ -386,6 +386,7 @@ done
 /usr/lib/obs/server/Meta.pm
 /usr/lib/obs/server/Meta/Debmd.pm
 /usr/lib/obs/server/Meta/Rpmmd.pm
+/usr/lib/obs/server/Meta/Susetagsmd.pm
 /usr/lib/obs/server/COPYING
 /usr/lib/obs/server/DESIGN
 /usr/lib/obs/server/License
