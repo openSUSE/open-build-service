@@ -1,0 +1,1122 @@
+Until we have a 1.5 svn server which will manage merginfo itself, this
+text file traces the trunk backports or not-backports.
+
+Cut&paste snippets for doing the merges:
+
+  REV="r4711,r4713"
+  svn merge -c$REV https://forgesvn1.novell.com/svn/opensuse/trunk/buildservice
+  svn ci -m "svn merge -c$REV https://forgesvn1.novell.com/svn/opensuse/trunk/buildservice, which see"
+
+In case of conflicts: examine the conflicting file's log history
+
+  svn log -v https://forgesvn1.novell.com/svn/opensuse/trunk/buildservice/$FILE
+
+review the diffs before $REV
+
+  svn diff -c... https://forgesvn1.novell.com/svn/opensuse/trunk/buildservice/$FILE
+
+Then add those revisions to $REV and retry
+
+If the merge attempt fails badly, just discard the result (svn revert).
+
+
+have fun
+
+> ------------------------------------------------------------------------
+> r5889 | rlihm | 2008-12-12 18:20:37 +0100 (Fri, 12 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> * added pre-order 11.1 Box to right column
+>
+ignore (for software.opensuse.org only)
+> ------------------------------------------------------------------------
+> r5890 | jimfunk | 2008-12-12 19:38:11 +0100 (Fri, 12 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/yabsc/yabsclib/results.py
+> 
+> Don't check for editflags action. It is disabled
+
+??
+
+> ------------------------------------------------------------------------
+> r5901 | bauersman | 2008-12-15 18:43:47 +0100 (Mon, 15 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/frontend/app/models/db_package.rb
+>    A /trunk/buildservice/src/frontend/db/migrate/046_add_bcntsynctag.rb
+> 
+> - added bcntsynctag to package metadata
+> 
+
+merged.
+
+> ------------------------------------------------------------------------
+> r5902 | bauersman | 2008-12-15 18:51:43 +0100 (Mon, 15 Dec 2008) | 3 lines
+> Changed paths:
+>    M /trunk/buildservice/docs/api/frontend/package.xsd
+> 
+> - removed obsolete file element from package schema
+> - added bcntsynctag element to package schema
+> 
+
+merged.
+
+> ------------------------------------------------------------------------
+> r5910 | mlschroe | 2008-12-16 11:01:27 +0100 (Tue, 16 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/build
+> 
+> - 'test' doesn't short circuit properly
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5914 | mlschroe | 2008-12-16 18:02:28 +0100 (Tue, 16 Dec 2008) | 3 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_srcserver
+> 
+> - hardcode empty md5sum
+> - add support for relsync
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5915 | mlschroe | 2008-12-16 18:02:56 +0100 (Tue, 16 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/BSXML.pm
+> 
+> - add sync tag
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5916 | mlschroe | 2008-12-16 18:03:52 +0100 (Tue, 16 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_repserver
+> 
+> - add support for relsync requests
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5917 | jimfunk | 2008-12-16 18:46:44 +0100 (Tue, 16 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/yabsc/ChangeLog
+>    M /trunk/buildservice/src/yabsc/yabsclib/__init__.py
+>    M /trunk/buildservice/src/yabsc/yabsclib/results.py
+>    M /trunk/buildservice/src/yabsc/yabsclib/submitrequests.py
+>    M /trunk/buildservice/src/yabsc/yabsclib/workers.py
+> 
+> Configurable refresh interval
+
+ignore (not packaged yet)
+
+> ------------------------------------------------------------------------
+> r5918 | MartinMohring | 2008-12-16 18:53:53 +0100 (Tue, 16 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/dist/obs-all-svn.spec
+> 
+> - changed: dont require lighttp for building
+
+ignore (package not in 1.5)
+
+> ------------------------------------------------------------------------
+> r5919 | MartinMohring | 2008-12-16 19:01:15 +0100 (Tue, 16 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/dist/obs-all-svn.spec
+> 
+> - changed: dont require lighttp for building
+
+ignore (package not in 1.5)
+
+> ------------------------------------------------------------------------
+> r5920 | jimfunk | 2008-12-16 19:46:40 +0100 (Tue, 16 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/yabsc/ChangeLog
+>    M /trunk/buildservice/src/yabsc/yabsclib/__init__.py
+>    M /trunk/buildservice/src/yabsc/yabsclib/results.py
+>    M /trunk/buildservice/src/yabsc/yabsclib/submitrequests.py
+>    M /trunk/buildservice/src/yabsc/yabsclib/workers.py
+> 
+> Show messages in the status bar when making certain API calls
+
+ignore (not packaged yet)
+
+> ------------------------------------------------------------------------
+> r5921 | jimfunk | 2008-12-16 19:52:46 +0100 (Tue, 16 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/yabsc/ChangeLog
+>    M /trunk/buildservice/src/yabsc/yabsclib/buildservice.py
+> 
+> Fix package download to match change in osc
+> ------------------------------------------------------------------------
+> r5922 | jimfunk | 2008-12-16 19:53:35 +0100 (Tue, 16 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/yabsc/setup.py
+> 
+> Prepare for 0.9.2
+
+ignore (not packaged yet)
+
+> ------------------------------------------------------------------------
+> r5925 | mlschroe | 2008-12-17 15:30:44 +0100 (Wed, 17 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_repserver
+> 
+> - use versrel.bcnt for relsync
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5930 | mlschroe | 2008-12-17 17:44:56 +0100 (Wed, 17 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_repserver
+> 
+> - add missing "keys"
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5931 | mlschroe | 2008-12-17 17:46:36 +0100 (Wed, 17 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_srcserver
+> 
+> - correct arch
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5933 | mlschroe | 2008-12-17 19:14:52 +0100 (Wed, 17 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_repserver
+> 
+> - use "-s" instead "-e" to suppress a warning
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5935 | Marcus_H | 2008-12-17 23:45:58 +0100 (Wed, 17 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/commandline.py
+> 
+> - fix #459288 (mkpac: add info how to enable the package tracking feature)
+
+ignore (other package in 1.5)
+
+> ------------------------------------------------------------------------
+> r5936 | Marcus_H | 2008-12-18 00:15:22 +0100 (Thu, 18 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/core.py
+> 
+> - fix #459292 - be more verbose if osc meta fails
+
+ignore (other package in 1.5)
+
+> ------------------------------------------------------------------------
+> r5937 | MartinMohring | 2008-12-18 02:35:56 +0100 (Thu, 18 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/dist/obs-all-svn.spec
+> 
+> - changed: support for susetags
+
+ignore (package not in 1.5)
+
+> ------------------------------------------------------------------------
+> r5940 | mlschroe | 2008-12-18 13:00:28 +0100 (Thu, 18 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_sched
+> 
+> - implement release counter syncing
+> 
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5944 | rlihm | 2008-12-18 14:24:28 +0100 (Thu, 18 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/main/index.rhtml
+> 
+> changed links to 11.1
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5945 | rlihm | 2008-12-18 14:25:47 +0100 (Thu, 18 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> changed noscript to 11.1
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5946 | rlihm | 2008-12-18 15:08:22 +0100 (Thu, 18 Dec 2008) | 4 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/public/expert.html
+> 
+> * chnged links to 11.1 ISOs
+> * added a CSS for background-color, font-color, font-family
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5947 | rlihm | 2008-12-18 15:20:24 +0100 (Thu, 18 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/software/public/expert.html
+> 
+> fixed broken torrent liks vor DVD
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5948 | bauersman | 2008-12-18 15:22:18 +0100 (Thu, 18 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/main/index.rhtml
+> 
+> - fixed page title
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5949 | rlihm | 2008-12-18 16:05:55 +0100 (Thu, 18 Dec 2008) | 2 lines
+> Changed paths:
+>    A /trunk/buildservice/src/software/public/css/local/images/metalink-12.png
+> 
+> * added metalink icon for hover in 12 x 12px
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5950 | bauersman | 2008-12-18 16:20:08 +0100 (Thu, 18 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/frontend/app/models/db_package.rb
+> 
+> - fixed bcntsynctag handling in package metadata
+
+merged.
+
+> ------------------------------------------------------------------------
+> r5951 | Marcus_H | 2008-12-18 16:29:29 +0100 (Thu, 18 Dec 2008) | 6 lines
+> Changed paths:
+>    A /trunk/buildservice/src/backend/Meta/Susetagsmd.pm
+>    M /trunk/buildservice/src/backend/Meta.pm
+>    A /trunk/buildservice/src/build/Susetags.pm
+>    M /trunk/buildservice/src/build/createyastdeps
+> 
+> - adding support for susetags to download on demand
+> - moved the susetags parser into an own module (this is basically based on createyastdeps)
+>   (see http://lists.opensuse.org/opensuse-buildservice/2008-12/msg00055.html)
+> - fixed createyastdeps so that it uses the module (parsing a current packages.gz with the
+>   old and the new createyastdeps code results in the same output)
+
+??
+
+> ------------------------------------------------------------------------
+> r5952 | Marcus_H | 2008-12-18 16:44:39 +0100 (Thu, 18 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/backend/BSRPC.pm
+> 
+> - added support for redirects (only status 302 at the moment)
+
+??
+
+> ------------------------------------------------------------------------
+> r5953 | rlihm | 2008-12-18 17:26:59 +0100 (Thu, 18 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> fixed metalink
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5954 | rlihm | 2008-12-18 18:58:59 +0100 (Thu, 18 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/public/css/local/contentadd_download.css
+> 
+> * added styles for metalinks in downloadpage
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5955 | rlihm | 2008-12-18 19:01:45 +0100 (Thu, 18 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/main/index.rhtml
+> 
+> * added metalinks
+
+ignore (s.o.o only)
+ 
+> ------------------------------------------------------------------------
+> r5956 | MartinMohring | 2008-12-18 20:32:46 +0100 (Thu, 18 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/dist/obs-all-svn.spec
+> 
+> - fixed: again. obs-server and obs-api needs lighttp because of uid/gid
+
+ignore (not in 1.5)
+
+> ------------------------------------------------------------------------
+> r5957 | rlihm | 2008-12-18 20:49:04 +0100 (Thu, 18 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> * added free shipment note
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5959 | rlihm | 2008-12-18 23:19:32 +0100 (Thu, 18 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> * fixed shipment note
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5960 | jimfunk | 2008-12-19 14:15:29 +0100 (Fri, 19 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/yabsc/yabsclib/buildservice.py
+> 
+> Create watchlist if it does not exist in watchProject()
+
+ignore (not packaged yet)
+
+> ------------------------------------------------------------------------
+> r5961 | jimfunk | 2008-12-19 14:38:00 +0100 (Fri, 19 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/yabsc/yabsclib/buildservice.py
+> 
+> Fix submitreq sorting
+
+ignore (not packaged yet)
+
+> ------------------------------------------------------------------------
+> r5962 | bauersman | 2008-12-19 15:30:36 +0100 (Fri, 19 Dec 2008) | 3 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+>    D /trunk/buildservice/src/software/app/views/main/old_10.2.rhtml
+>    M /trunk/buildservice/src/software/app/views/main/old_10.3.rhtml
+>    A /trunk/buildservice/src/software/app/views/main/old_11.0.rhtml
+> 
+> - removed old/10.2
+> - added old/11.0
+
+ignore (s.o.o only)
+
+> ------------------------------------------------------------------------
+> r5963 | Marcus_H | 2008-12-19 16:06:36 +0100 (Fri, 19 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/fetch.py
+> 
+> don't use a hardcoded path for the rpm binary otherwise it fails on distributions like debian
+
+ignore (other package)
+
+> ------------------------------------------------------------------------
+> r5964 | jimfunk | 2008-12-19 18:12:41 +0100 (Fri, 19 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/yabsc/ChangeLog
+>    M /trunk/buildservice/src/yabsc/setup.py
+>    M /trunk/buildservice/src/yabsc/yabsclib/submitrequests.py
+> 
+> - Added filtering widgets for the Submit Request view
+> - 0.9.3
+
+ignore (other package)
+
+> ------------------------------------------------------------------------
+> r5966 | cboltz | 2008-12-21 15:26:45 +0100 (Sun, 21 Dec 2008) | 9 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/public/expert.html
+> 
+> - add links to the nonOSS Addon CD which were missing completely
+> - fix PPC bittorrent links (they were empty)
+> - several colspan fixes
+> - fix in the description text - footnote 3 still said that the DVD 
+>   contains "all packages, _including_ non-Open Source Software."
+>   I changed it to "all packages, _except_ ..." to match the new DVD
+>   content.
+> - (you may want to add a footnote for the nonOSS CD)
+
+ignore (s.o.o only)
+ 
+> ------------------------------------------------------------------------
+> r5967 | cboltz | 2008-12-21 15:31:35 +0100 (Sun, 21 Dec 2008) | 9 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> - add links to the nonOSS Addon CD which were missing completely
+> - fix PPC bittorrent links (they were empty)
+> - several colspan fixes
+> - fix in the description text - footnote 3 still said that the DVD 
+>   contains "all packages, _including_ non-Open Source Software."
+>   I changed it to "all packages, _except_ ..." to match the new DVD
+>   content.
+> - (you may want to add a footnote for the nonOSS CD)
+
+ignore (s.o.o only)
+ 
+> ------------------------------------------------------------------------
+> r5968 | Marcus_H | 2008-12-22 09:54:32 +0100 (Mon, 22 Dec 2008) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/babysitter.py
+> 
+> - catch OSError exceptions which might be raised by the subprocess module (note: the subprocess module doesn't set the filename attribute so we don't get much information)
+
+ignore (other package)
+ 
+> ------------------------------------------------------------------------
+> r5971 | mlschroe | 2008-12-22 14:25:35 +0100 (Mon, 22 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/build
+> 
+> - save debian sources
+
+to be merged
+
+> ------------------------------------------------------------------------
+> r5972 | mlschroe | 2008-12-22 14:53:37 +0100 (Mon, 22 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_sched
+> 
+> - make sure project dir exists
+
+to be merged
+ 
+> ------------------------------------------------------------------------
+> r5973 | mlschroe | 2008-12-22 17:49:01 +0100 (Mon, 22 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/BSVerify.pm
+> 
+> - add verify_nevraquery
+
+to be merged
+ 
+> ------------------------------------------------------------------------
+> r5974 | mlschroe | 2008-12-23 12:07:45 +0100 (Tue, 23 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/build
+> 
+> - fix builds where /etc/profile.d doesn't exist
+
+to be merged
+ 
+> ------------------------------------------------------------------------
+> r5975 | mlschroe | 2008-12-23 12:25:54 +0100 (Tue, 23 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/build
+> 
+> - fix debtransformer builds
+
+to be merged
+ 
+> ------------------------------------------------------------------------
+> r5976 | cboltz | 2008-12-29 23:21:06 +0100 (Mon, 29 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/public/expert.html
+> 
+> fixed lots of broken links - bug 461353
+
+ignore (s.o.o only)
+ 
+> ------------------------------------------------------------------------
+> r5978 | cboltz | 2008-12-29 23:24:47 +0100 (Mon, 29 Dec 2008) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> fixed lots of broken links - bug 461353
+
+ignore (s.o.o only)
+ 
+> ------------------------------------------------------------------------
+> r5982 | AdrianSuSE | 2009-01-07 10:45:21 +0100 (Wed, 07 Jan 2009) | 2 lines
+> Changed paths:
+>    D /trunk/buildservice/src/frontend/db/migrate/043_add_archs.rb
+>    A /trunk/buildservice/src/frontend/db/migrate/043_add_archs_2.rb
+>    D /trunk/buildservice/src/frontend/db/migrate/045_add_archs.rb
+>    A /trunk/buildservice/src/frontend/db/migrate/045_add_archs_3.rb
+> 
+> make names unique
+
+??
+ 
+> ------------------------------------------------------------------------
+> r5983 | AdrianSuSE | 2009-01-07 10:48:45 +0100 (Wed, 07 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/search/_search_result.rhtml
+> 
+> remove obsolete 10.2 and before hint
+
+ignore (s.o.o only)
+ 
+> ------------------------------------------------------------------------
+> r5984 | AdrianSuSE | 2009-01-07 10:50:00 +0100 (Wed, 07 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/helpers/search_helper.rb
+> 
+> switch to 11.1 as default
+
+ignore (s.o.o only)
+ 
+> ------------------------------------------------------------------------
+> r5985 | mlschroe | 2009-01-07 15:53:49 +0100 (Wed, 07 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/substitutedeps
+> 
+> - add hack for CI_CNT/B_CNT substitution
+
+to be merged
+ 
+> ------------------------------------------------------------------------
+> r5986 | mlschroe | 2009-01-07 16:56:12 +0100 (Wed, 07 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/substitutedeps
+> 
+> - also accept RELEASE\d* for now
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r5987 | mlschroe | 2009-01-07 17:00:24 +0100 (Wed, 07 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_srcserver
+> 
+> - hacks to preset ci_cnt
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r5991 | AdrianSuSE | 2009-01-08 10:42:36 +0100 (Thu, 08 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_localkiwiworker
+> 
+> the flavor is a product var, not an info anymore
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r5992 | rlihm | 2009-01-08 13:07:59 +0100 (Thu, 08 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> removed free shipment note
+
+ignore (s.o.o)
+ 
+> ------------------------------------------------------------------------
+> r5993 | AdrianSuSE | 2009-01-09 11:03:23 +0100 (Fri, 09 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/build
+> 
+> Build image types in different root directories (patch from cthiel)
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r5994 | Marcus_H | 2009-01-09 12:04:51 +0100 (Fri, 09 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/core.py
+> 
+> - fixed #462869 (osc updatepacmetafromspec fails if %description is starting with newline)
+
+ignore (other package)
+
+> ------------------------------------------------------------------------
+> r5995 | Marcus_H | 2009-01-09 15:39:26 +0100 (Fri, 09 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/frontend/app/controllers/source_controller.rb
+> 
+> - def file: @http_user can only be used after the extract_user call
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r5996 | Marcus_H | 2009-01-09 17:12:45 +0100 (Fri, 09 Jan 2009) | 3 lines
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/build.py
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/conf.py
+> 
+> - added support for format strings like "%(project)s" and "%(package)s" which can be used in the build-root config option.
+>   For example one could use a new chroot for each package.
+
+ignore (osc package)
+
+> ------------------------------------------------------------------------
+> r5997 | mlschroe | 2009-01-09 17:57:31 +0100 (Fri, 09 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_repserver
+> 
+> - fix subdir support in full trees
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r5998 | Marcus_H | 2009-01-09 18:09:29 +0100 (Fri, 09 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/commandline.py
+> 
+> - osc diff: if 2 revisions are specified do a pretty_diff (TODO: BSSrcdiff.pm should generate unified diffs)
+
+ignore (other package)
+
+> ------------------------------------------------------------------------
+> r6001 | AdrianSuSE | 2009-01-10 13:31:05 +0100 (Sat, 10 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/BSKiwiXML.pm
+> 
+> support new oem tags in kiwi files
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6002 | AdrianSuSE | 2009-01-10 19:22:54 +0100 (Sat, 10 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/build
+> 
+> use ext3 in xen images by default to be in sync with official obs-worker-image
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6003 | adrianSuSE | 2009-01-10 20:12:04 +0100 (Sat, 10 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_repserver
+> 
+> succeed on upload of kiwi disc image files as well
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6004 | Marcus_H | 2009-01-10 23:55:25 +0100 (Sat, 10 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/commandline.py
+> 
+> - wipebinaries: added --expansion option
+
+ignore (other package)
+
+> ------------------------------------------------------------------------
+> r6007 | sax2 | 2009-01-12 16:01:04 +0100 (Mon, 12 Jan 2009) | 4 lines
+> Changed paths:
+>    M /trunk/buildservice/documentation/books/en/addons/kiwi.rnc
+> 
+> 
+> - added new displayname attribute
+
+ignore (no kiwi book packaged)
+
+> ------------------------------------------------------------------------
+> r6008 | darix | 2009-01-13 15:05:25 +0100 (Tue, 13 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/webclient/app/views/package/_url_line.rhtml
+> 
+> - encode the user input
+
+merged.
+
+> ------------------------------------------------------------------------
+> r6010 | darix | 2009-01-13 18:45:46 +0100 (Tue, 13 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/webclient/app/views/package/_url_line.rhtml
+> 
+> - do not escape the whole link_to generated text. just escape text and the link itself.
+
+merged.
+
+> ------------------------------------------------------------------------
+> r6011 | AdrianSuSE | 2009-01-14 11:01:30 +0100 (Wed, 14 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/helpers/search_helper.rb
+>    M /trunk/buildservice/src/webclient/app/views/project/add_target_simple.rhtml
+> 
+> remove Fedora 8
+
+to be merged for webclient??
+
+> ------------------------------------------------------------------------
+> r6012 | AdrianSuSE | 2009-01-14 14:09:27 +0100 (Wed, 14 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_productconvert
+> 
+> do not add -release packages with no template
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6014 | bauersman | 2009-01-14 14:28:43 +0100 (Wed, 14 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/webclient/app/views/layouts/application2.rhtml
+> 
+> - added features.opensuse.org to webclient layout
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6015 | bauersman | 2009-01-14 14:32:01 +0100 (Wed, 14 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/software/app/views/layouts/application.rhtml
+>    M /trunk/buildservice/src/software/app/views/layouts/application_no_js.rhtml
+> 
+> - added features.opensuse.org to layout
+
+ignore (s.o.o)
+ 
+> ------------------------------------------------------------------------
+> r6017 | lrupp | 2009-01-14 15:53:37 +0100 (Wed, 14 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_productconvert
+> 
+> - add REGISTERPRODUCT string - see: bnc#458340
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6018 | adrianSuSE | 2009-01-15 10:16:18 +0100 (Thu, 15 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_sched
+> 
+> * Do not loose reason file during package import from build host.
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6019 | Marcus_H | 2009-01-15 13:40:30 +0100 (Thu, 15 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/build/Susetags.pm
+> 
+> - fixed #466047 (handle multiple packages of same name/arch in repo)
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6020 | lnussel | 2009-01-15 14:16:35 +0100 (Thu, 15 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/build/init_buildsystem
+> 
+> fix rpm4 detection on Fedora 10
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6021 | lnussel | 2009-01-15 14:16:41 +0100 (Thu, 15 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/build/createyastdeps
+> 
+> fix createyastdeps for rpm3 packages files
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6022 | lnussel | 2009-01-15 14:16:45 +0100 (Thu, 15 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/build/Susetags.pm
+>    M /trunk/buildservice/src/build/createyastdeps
+> 
+> print packages on the fly instead of storing all in a hash
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6023 | Marcus_H | 2009-01-15 15:15:47 +0100 (Thu, 15 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/backend/BSSrcdiff.pm
+>    M /trunk/buildservice/src/backend/bs_srcserver
+> 
+> - added optional support for unified diffs
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6028 | lnussel | 2009-01-16 11:31:38 +0100 (Fri, 16 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/commandline.py
+> 
+> osc getbinaries: optionally also download source rpms
+
+ignore (osc not here)
+
+> ------------------------------------------------------------------------
+> r6029 | AdrianSuSE | 2009-01-16 11:34:01 +0100 (Fri, 16 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/frontend/app/models/db_package.rb
+> 
+> show bcntsync tag content in package meta data
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6031 | AdrianSuSE | 2009-01-16 11:46:34 +0100 (Fri, 16 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_productconvert
+> 
+> * Add default bcntsynctag to package meta template.
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6032 | AdrianSuSE | 2009-01-16 14:24:57 +0100 (Fri, 16 Jan 2009) | 3 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_productconvert
+>    M /trunk/buildservice/src/backend/bs_srcserver
+> 
+> * Include the product name in the bcntsync tag in product converter
+> * import package meta xml from product converter when a media gets created initial
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6034 | AdrianSuSE | 2009-01-16 15:07:19 +0100 (Fri, 16 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_productconvert
+> 
+> die on errors in all cases !
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6035 | Marcus_H | 2009-01-16 15:43:45 +0100 (Fri, 16 Jan 2009) | 5 lines
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/commandline.py
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/core.py
+> 
+> - renamed method 'pretty_diff' to 'server_diff': it can return an unified or a pretty diff (default: pretty diff)
+> - osc diff -rX:Y: the default is to return an unified diff (to get a pretty diff use the --pretty option)
+> - osc rdiff: the default is to return a pretty diff (to get an unified diff use the --unified option)
+> - osc sr show --diff: the default is to return a pretty diff (to get an unified diff use the --unified option)
+
+ignore (osc not here)
+ 
+> ------------------------------------------------------------------------
+> r6036 | Marcus_H | 2009-01-16 15:45:27 +0100 (Fri, 16 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/commandline.py
+> 
+> --typo
+
+ignore (osc not here)
+ 
+> ------------------------------------------------------------------------
+> r6039 | mlschroe | 2009-01-16 18:50:58 +0100 (Fri, 16 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/Build/Deb.pm
+>    M /trunk/buildservice/src/build/Build.pm
+> 
+> - add debian verscmp to make ~ matching work
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6048 | MartinMohring | 2009-01-17 20:41:19 +0100 (Sat, 17 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/dist/obs-all-svn.spec
+> 
+> - fixed: diverse packaging issues that rpmlint warns about
+> - fixed: sbit programs have to be registered with openSUSE 11.1
+
+ignore (not in 1.5)
+
+> ------------------------------------------------------------------------
+> r6049 | MartinMohring | 2009-01-17 22:28:51 +0100 (Sat, 17 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/dist/obs-all-svn.spec
+> 
+> - fixed: on all distros py_sitedir seems to be defined now
+
+ignore (not in 1.5)
+
+> ------------------------------------------------------------------------
+> r6050 | MartinMohring | 2009-01-17 23:20:15 +0100 (Sat, 17 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/dist/obs-all-svn.spec
+> 
+> - fixed: py_sitedir is not defined on a few distros
+
+ignore (not in 1.5)
+
+> ------------------------------------------------------------------------
+> r6051 | poeml | 2009-01-19 11:54:26 +0100 (Mon, 19 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/commandline.py
+> 
+> spelling fix, kindly reported by William Stephenson
+
+ignore (osc not here)
+ 
+> ------------------------------------------------------------------------
+> r6052 | AdrianSuSE | 2009-01-19 12:04:06 +0100 (Mon, 19 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_productconvert
+> 
+> add comment about local scheduler, if used.
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6053 | AdrianSuSE | 2009-01-19 14:06:58 +0100 (Mon, 19 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/BSXML.pm
+>    M /trunk/buildservice/src/backend/bs_sched
+> 
+> * store build trigger reason also in jobhistory
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6054 | mlschroe | 2009-01-19 17:11:21 +0100 (Mon, 19 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_repserver
+> 
+> - accept both styles of relsync data
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6056 | lnussel | 2009-01-20 10:24:20 +0100 (Tue, 20 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/build/build
+> 
+> fail if VM image cannot be umounted before starting the VM to prevent corruptions
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6057 | lnussel | 2009-01-20 10:24:27 +0100 (Tue, 20 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/build/init_buildsystem
+> 
+> set -e safety
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6058 | bauersman | 2009-01-20 10:55:33 +0100 (Tue, 20 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/webclient/app/views/layouts/application2.rhtml
+> 
+> - reverted deletion of link to users.o.o
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6059 | mlschroe | 2009-01-20 16:08:18 +0100 (Tue, 20 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_worker
+> 
+> - ignore PIPE also in oneshot mode
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6060 | AdrianSuSE | 2009-01-20 17:43:15 +0100 (Tue, 20 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/dist/README.SETUP
+> 
+> We have hostname autodetection since a while.
+
+to be merged
+ 
+> ------------------------------------------------------------------------
+> r6077 | Marcus_H | 2009-01-21 22:55:53 +0100 (Wed, 21 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/commandline.py
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/core.py
+> 
+> - fixed #458083 (importsrcpkg: set the url in the package meta)
+
+ignore (osc only)
+
+> ------------------------------------------------------------------------
+> r6089 | bauersman | 2009-01-22 15:22:58 +0100 (Thu, 22 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/webclient/app/controllers/package_controller.rb
+>    D /trunk/buildservice/src/webclient/app/views/package/_update_build_log.rhtml
+>    M /trunk/buildservice/src/webclient/app/views/package/live_build_log.rhtml
+> 
+> - fixed broken build log update
+
+merged. 
+
+> ------------------------------------------------------------------------
+> r6091 | adrianSuSE | 2009-01-22 16:40:38 +0100 (Thu, 22 Jan 2009) | 2 lines
+> Changed paths:
+>    M /trunk/buildservice/src/backend/bs_worker
+> 
+> * fix image building within XEN (last blocker for 1.5 release ! :)
+
+to be merged??
+
+> ------------------------------------------------------------------------
+> r6093 | adrianSuSE | 2009-01-22 16:43:16 +0100 (Thu, 22 Jan 2009) | 3 lines
+> Changed paths:
+>    M /trunk/buildservice/src/build/build
+>    M /trunk/buildservice/src/build/extractbuild
+>    M /trunk/buildservice/src/build/xen.conf
+> 
+> * fix xen image building
+> * small improvements in debug messages
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6094 | AdrianSuSE | 2009-01-22 17:14:52 +0100 (Thu, 22 Jan 2009) | 5 lines
+> Changed paths:
+>    M /trunk/buildservice/dist/obsdispatcher
+>    M /trunk/buildservice/dist/obspublisher
+>    M /trunk/buildservice/dist/obsrepserver
+>    M /trunk/buildservice/dist/obsscheduler
+>    M /trunk/buildservice/dist/obssignd
+>    M /trunk/buildservice/dist/obssrcserver
+> 
+> import init script fixes from Rudi and darix
+> * Append log file
+> * Fix deps
+> * Restart services nicely
+
+to be merged??
+ 
+> ------------------------------------------------------------------------
+> r6095 | poeml | 2009-01-22 17:29:01 +0100 (Thu, 22 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/TODO
+> 
+> TODO
+
+ignore (osc only)
+
+> ------------------------------------------------------------------------
+> r6096 | poeml | 2009-01-22 17:29:16 +0100 (Thu, 22 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/osc/core.py
+> 
+> bump version (0.113)
+
+ignore (osc only)
+
+> ------------------------------------------------------------------------
+> r6097 | poeml | 2009-01-22 17:35:00 +0100 (Thu, 22 Jan 2009) | 1 line
+> Changed paths:
+>    M /trunk/buildservice/src/clientlib/python/osc/NEWS
+> 
+> update NEWS
+> ------------------------------------------------------------------------
+
+ignore (osc only)
+
