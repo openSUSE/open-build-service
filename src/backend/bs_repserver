@@ -1902,6 +1902,49 @@ sub publishedfile {
   return undef;
 }
 
+sub getrelsync {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $prp = "$projid/$repoid";
+  my $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync");
+  return ($relsyncdata, 'Content-Type: application/octet-stream');
+}
+
+sub postrelsync {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $prp = "$projid/$repoid";
+
+  my $newdata = BSServer::read_data(10000000);
+  my $new = Storable::thaw(substr($newdata, 4));
+  die("no data\n") unless $new;
+
+  local *F;
+  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
+  my $relsyncmax;
+  if (-e "$reporoot/$prp/$arch/:relsync.max") {
+    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync.max"); };
+    warn($@) if $@;
+  }
+  $relsyncmax ||= {};
+  my $changed;
+  for my $packid (%$new) {
+    next unless $new->{$packid} =~ /^(.*)-([^-]*)$/;
+    next if defined($relsyncmax->{"$packid/$1"}) && $relsyncmax->{"$packid/$1"} >= $2;
+    $relsyncmax->{"$packid/$1"} = $2;
+    $changed = 1;
+  }
+  if ($changed) {
+    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync.max.new");
+    rename("$reporoot/$prp/$arch/:relsync.max.new", "$reporoot/$prp/$arch/:relsync.max");
+  }
+  close(F);
+
+  if ($changed) {
+    forwardevent($cgi, 'relsync', $projid, undef, $repoid, $arch);
+  }
+  return $BSStdServer::return_ok;
+}
+
+
 sub getajaxstatus {
   my ($cgi) = @_;
   if (!$BSStdServer::isajax) {
@@ -1926,6 +1969,8 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:*' => \&getjobhistory,
+  'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
+  '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
