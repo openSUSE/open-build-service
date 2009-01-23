@@ -1,0 +1,105 @@
+#! /bin/sh
+# Copyright (c) 2007, Novell Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/localkiwiworker
+#   and its symbolic  link
+# /usr/sbin/rclocalkiwiworker
+#
+### BEGIN INIT INFO
+# Provides:          localkiwiworker
+# Required-Start:    $time $network $syslog
+# Should-Start:      sendmail mysql obsscheduler
+# Required-Stop:     $time $network $syslog
+# Should-Stop:       sendmail mysql obsscheduler
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Short-Description: openSUSE build service worker
+# Description:       openSUSE build service worker, temporary solution, will be obsoleted later again
+### END INIT INFO
+
+. /etc/rc.status
+
+. /etc/sysconfig/obs-worker
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+workerdir=/var/run/localkiwiworker
+workerbootdir="$workerdir"/boot
+screenrc="$workerdir"/boot/screenrc
+obsopt=""
+
+LOCALWORKERBIN="/root/SVN/buildservice/src/backend/./bs_localkiwiworker"
+
+if [ -z "$OBS_WORKER_ROOT" ]; then
+    ROOT="/tmp"
+else
+    ROOT="$OBS_WORKER_ROOT"
+fi
+
+function getpid(){
+	PIDS=""
+	for PID in $(ps ax | grep bs_localkiwiworker  | grep -v grep | awk '" " { print $1 }'); do
+		PIDS="$PID "	
+	done
+	echo $PIDS
+}
+
+rc_reset
+
+case "$1" in
+    start)
+        echo "Run $NUM localkiwiworker using $ROOT"
+        # reset screenrc
+        rm -rf "$workerdir"
+        mkdir -p "$workerbootdir"
+        echo "zombie on"       > $screenrc
+        echo "caption always" >> $screenrc
+	echo "screen -t LocalKiwiWorker $LOCALWORKERBIN --root /bs/kiwi/worker_1 --statedir /bs/kiwi/state_1 --id local-1 --arch local" >> $screenrc
+        pushd "/bs/kiwi/worker_1" >/dev/null
+        screen -m -d -c $screenrc
+        popd >/dev/null
+    ;;
+    stop)
+        echo -n "Shutting down localkiwiworker"
+	PIDS=getpid
+	for pid in $PIDS; do
+		kill $pid
+	done
+        rc_status -v
+    ;;
+    restart)
+        ## If first returns OK call the second, if first or
+        ## second command fails, set echo return value.
+        $0 stop &&  $0 start
+        rc_status
+    ;;
+    try-restart)
+        $0 status
+        if test $? = 0; then
+            $0 restart
+        else
+            rc_reset        # Not running is not a failure.
+        fi
+        # Remember status and be quiet
+        rc_status
+    ;;
+    reload)
+    ;;
+    status)
+        echo -n "Checking for localkiwiworker: "
+	PIDS=getpid
+	if [ -z "$PIDS" ]; then
+		rc_failed
+	fi
+        rc_status -v
+    ;;
+    *)
+        echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+        exit 1
+    ;;
+esac
+rc_exit
+

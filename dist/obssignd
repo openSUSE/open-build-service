@@ -8,9 +8,9 @@
 #
 ### BEGIN INIT INFO
 # Provides:       signd
-# Required-Start: $network $remote_fs $named $syslog $time
+# Required-Start: $network $named $syslog $time
 # Should-Start:
-# Required-Stop:  $network $remote_fs $named $syslog $time
+# Required-Stop:
 # Should-Stop:
 # Default-Start:  3 5
 # Default-Stop:
@@ -100,12 +100,6 @@ case "$1" in
 
 	# remember status and be verbose
 	rc_status -v
-  ;;
-    reload)
-	# not implemented in signd.
-	rc_failed 3
-	rc_status -v
-
   ;;
     info)
 	echo "Info about VAR's of sign daemon (signd): "
