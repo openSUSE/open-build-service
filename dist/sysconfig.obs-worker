@@ -41,3 +41,10 @@ OBS_WORKER_DIRECTORY=""
 # 0 means let the operating system assign a port number
 #
 OBS_WORKER_PORTBASE="0"
+
+## Path:        Applications/OBS
+## Description: The base for OBS communucation directory
+## Type:        string
+## Default:     "/var/run/obs"
+## Config:      OBS
+OBS_RUN_DIR="/var/run/obs"

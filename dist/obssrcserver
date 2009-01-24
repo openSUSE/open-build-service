@@ -22,7 +22,17 @@
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
+if [ -z "$OBS_RUN_DIR" ]; then
+        OBS_RUN_DIR="/var/run/obs"
+fi
+
 obsdir=/usr/lib/obs/server/
+obsrundir="$OBS_RUN_DIR"
+rundir="$obsrundir"/server
+
+mkdir -p "$rundir"
+chown obsrun:obsrun "$obsrundir"
+chown obsrun:obsrun "$rundir"
 
 rc_reset
 case "$1" in
@@ -56,7 +66,7 @@ case "$1" in
 #		$0 stop &&  $0 start
 		$0 status
                 if test $? = 0; then
-			touch /var/run/bs_srcserver.restart
+			touch "$rundir"/bs_srcserver.restart
 		else
 			$0 stop &&  $0 start
 		fi
@@ -75,7 +85,7 @@ case "$1" in
 	reload)
 		$0 status
                 if test $? = 0; then
-                        touch /var/run/bs_srcserver.restart
+                        touch "$rundir"/bs_srcserver.restart
 		fi
 		rc_status
 	;;
