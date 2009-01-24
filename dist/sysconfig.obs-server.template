@@ -24,3 +24,10 @@ OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
 # If you also have workers there, each worker can also need 1 GB RAM in some known cases (e.g. compiling gcc)
 #
 #OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 s390 s390x ia64 sparc sparc64 mips mips64 armv4l armv5el armv7el sh4"
+
+## Path:        Applications/OBS
+## Description: The base for OBS communucation directory
+## Type:        string
+## Default:     "/var/run/obs"
+## Config:      OBS
+OBS_RUN_DIR="/var/run/obs"
