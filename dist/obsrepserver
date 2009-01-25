@@ -57,7 +57,7 @@ case "$1" in
 		## second command fails, set echo return value.
 		$0 status
                 if test $? = 0; then
-			touch "$rundir"/bs_repserver.restart && chown obsrun:obsrun "$rundir"/bs_repserver.restart
+			touch "$rundir"/bs_repserver.restart
 		else
 			$0 stop &&  $0 start
 		fi

@@ -70,7 +70,7 @@ case "$1" in
 #		$0 stop &&  $0 start
 		$0 status
                 if test $? = 0; then
-			touch "$rundir"/bs_srcserver.restart && chown obsrun:obsrun "$rundir"/bs_repserver.restart
+			touch "$rundir"/bs_srcserver.restart
 		else
 			$0 stop &&  $0 start
 		fi
@@ -89,7 +89,7 @@ case "$1" in
 	reload)
 		$0 status
                 if test $? = 0; then
-                        touch "$rundir"/bs_srcserver.restart && chown obsrun:obsrun "$rundir"/bs_repserver.restart
+                        touch "$rundir"/bs_srcserver.restart
 		fi
 		rc_status
 	;;
