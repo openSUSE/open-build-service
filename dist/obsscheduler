@@ -18,24 +18,37 @@
 ### END INIT INFO
 
 . /etc/rc.status
+
 . /etc/sysconfig/obs-server
 
 # Determine the base and follow a runlevel link name.
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
+if [ -z "$OBS_RUN_DIR" ]; then
+        OBS_RUN_DIR="/srv/obs/run"
+fi
+
+if [ -z "$OBS_LOG_DIR" ]; then
+        OBS_LOG_DIR="/srv/obs/log"
+fi
+
 obsdir=/usr/lib/obs/server/
+rundir="$OBS_RUN_DIR"
+logdir="$OBS_LOG_DIR"
 
 rc_reset
 case "$1" in
 	start)
 		echo -n "Initializing obsscheduler"
+		mkdir -p "$rundir" "$logdir"
+		chown obsrun:obsrun "$logdir" "$rundir"
 		cd "$obsdir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		test -z "$OBS_SCHEDULER_ARCHITECTURES" && OBS_SCHEDULER_ARCHITECTURES=i586
 		for i in $OBS_SCHEDULER_ARCHITECTURES; do
-		        ./bs_sched $i >> /srv/obs/log/scheduler_$i.log 2>&1 &
+		        ./bs_sched $i >> "$logdir"/scheduler_$i.log 2>&1 &
 		done
 		rc_status -v
 	;;
