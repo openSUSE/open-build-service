@@ -286,6 +286,8 @@ sub addrev {
       $release = $1;
     } elsif ($release =~ /<RELEASE(\d+)>/) {
       $release = $1;
+    } elsif ($release =~ /^(\d+)/) {
+      $release = $1;
     } else {
       $release = '0';
     }

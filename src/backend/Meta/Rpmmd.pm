@@ -111,7 +111,8 @@ sub start_handler {
 sub end_handler {
     my %cando = (
 	'armv4l'  => ['arm', 'armel',                                   'noarch'],
-	'armv5el' => ['arm', 'armel', 'armv5el',                        'noarch'],
+	'armv5el' => ['arm', 'armel', 'armv5el', 'armv5tel',            'noarch'],
+	'armv7el' => ['arm', 'armel', 'armv5el', 'armv5tel', 'armv7el', 'noarch'],
 	'armv7el' => ['arm', 'armel', 'armv5el',, 'armv7el',            'noarch'],
 	'ppc'     => ['ppc',                                            'noarch'],
 	'ppc64'   => ['ppc', 'ppc64',                                   'noarch'],

@@ -881,7 +881,7 @@ sub prpfinished {
 my $exportcnt = 0;
 
 sub createexportjob {
-  my ($prp, $arch, $jobrepo, $dst, $oldrepo, @exports) = @_;
+  my ($prp, $arch, $jobrepo, $dst, $oldrepo, $meta, @exports) = @_;
 
   # create unique id
   my $job = "import-".Digest::MD5::md5_hex("$exportcnt.$$.$myarch.".time());
@@ -908,6 +908,11 @@ sub createexportjob {
   writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
   my $dir = "$jobsdir/$arch/$job:dir";
   mkdir_p($dir);
+  if ($meta) {
+    link($meta, "$meta.dup");
+    rename("$meta.dup", "$dir/meta");
+    unlink("$meta.dup");
+  }
   my %seen;
   while (@exports) {
     my ($rp, $r) = splice(@exports, 0, 2);
@@ -1118,7 +1123,7 @@ sub update_dst_full {
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
 	print "    sending filtered packages to $exportarch\n";
-	createexportjob($prp, $exportarch, $jobrepo, $dst, $oldrepo, @{$exports{$exportarch}});
+	createexportjob($prp, $exportarch, $jobrepo, $dst, $oldrepo, $meta, @{$exports{$exportarch}});
       }
     }
   }
@@ -1838,8 +1843,7 @@ sub jobfinished {
   my $relsync;
   eval { $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync"); };
   $relsync ||= {};
-  my $tag = $pdata->{'bcntsynctag'} || $packid;
-  $relsync->{$tag} = "$info->{'versrel'}.$info->{'bcnt'}";
+  $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
   Storable::nstore($relsync, "$reporoot/$prp/$myarch/:relsync.new");
   rename("$reporoot/$prp/$myarch/:relsync.new", "$reporoot/$prp/$myarch/:relsync") || die("rename $reporoot/$prp/$myarch/:relsync.new $reporoot/$prp/$myarch/:relsync: $!\n");
   
@@ -1867,11 +1871,12 @@ sub importevent {
   my $prp = "$projid/$repoid";
   my @all = ls($jobdatadir);
   my %all = map {$_ => 1} @all;
+  my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   @all = map {"$jobdatadir/$_"} @all;
   $repodatas->{$prp} ||= findbins($prp);
   my $repodata = $repodatas->{$prp};
   my $useforbuildenabled = 1;
-  update_dst_full($repodata, $prp, undef, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($repodata, $prp, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   unlink($_) for @all;
   rmdir($jobdatadir);
@@ -1906,6 +1911,9 @@ sub checkkiwiimage {
     print "        no config\n";
     return ('broken', 'no config');
   }
+
+  my $bconfignore = $bconf->{'ignore'};
+  my $bconfignoreh = $bconf->{'ignoreh'};
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
   Build::readdeps($bconf, undef, reverse @repos);
@@ -1918,6 +1926,8 @@ sub checkkiwiimage {
     print "            $_\n" for @edeps;
     return ('expansion error', join(', ', @edeps));
   }
+  $bconf->{'ignore'} = $bconfignore if $bconfignore;
+  $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
 
   my @new_meta;
   push @new_meta, "$pdata->{'srcmd5'}  $packid";
@@ -2640,20 +2650,13 @@ sub updaterelsyncmax {
   }
   $relsyncmax ||= {};
   my $changed;
-  for my $packid (keys %$new) {
-    next unless $new->{$packid} =~ /^(.*)\.(\d+)$/;
-    next if defined($relsyncmax->{"$packid/$1"}) && $relsyncmax->{"$packid/$1"} >= $2;   
-    $relsyncmax->{"$packid/$1"} = $2;
+  for my $tag (keys %$new) {
+    next if defined($relsyncmax->{$tag}) && $relsyncmax->{$tag} >= $new->{$tag};   
+    $relsyncmax->{$tag} = $2;
     $changed = 1;
   }
   if ($cleanup) {
-    my %clean;
-    for my $packid (keys %$new) {
-      next unless $new->{$packid} =~ /^(.*)\.(\d+)$/;
-      $clean{"$packid/$1"} = 1;
-    }
-    for (keys %$relsyncmax) {
-      next if $clean{$_};
+    for (grep {!$new->{$_}} keys %$relsyncmax) {
       delete $relsyncmax->{$_};
       $changed = 1;
     }
@@ -3534,8 +3537,8 @@ while(1) {
       warn($@) if $@;
       for my $packid (@packs) {
 	my $tag = $packs->{$packid}->{'bcntsynctag'} || $packid;
-	next unless $relsync->{$tag};
-	next unless $relsync->{$tag} =~ /(.*)\.(\d+)$/;
+	next unless $relsync->{$packid};
+	next unless $relsync->{$packid} =~ /(.*)\.(\d+)$/;
 	next unless defined($relsyncmax->{"$tag/$1"}) && $2 < $relsyncmax->{"$tag/$1"};
         $relsynctrigger{$packid} = 1;
       }
@@ -4036,9 +4039,16 @@ while(1) {
   my @relsync2 = stat("$reporoot/$prp/$myarch/:relsync.sent");
   if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
     print "    updating relsync information\n";
-    my $relsyncdata = readstr("$reporoot/$prp/$myarch/:relsync");
-    # update :relsync.max
-    updaterelsyncmax($prp, $myarch, Storable::thaw(substr($relsyncdata, 4)), %notready ? 0 : 1);
+    my $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync") || {};
+    my $relsyncmax = {};
+    for my $packid (sort keys %$relsync) {
+      next unless $relsync->{$packid} =~ /^(.*)\.([^-]*)$/;
+      my $tag = ($packs->{$packid} || {})->{'bcntsynctag'} || $packid;
+      next if defined($relsyncmax->{"$tag/$1"}) && $relsyncmax->{"$tag/$1"} >= $2;
+      $relsyncmax->{"$tag/$1"} = $2;
+    }
+    updaterelsyncmax($prp, $myarch, $relsyncmax, %notready ? 0 : 1);
+    my $relsyncdata = "pst0".Storable::nfreeze($relsyncmax);
     # sent new data!
     my $param = {
       'uri' => "$BSConfig::srcserver/relsync",

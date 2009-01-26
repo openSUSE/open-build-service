@@ -1206,14 +1206,8 @@ sub getbuildinfo {
   }
   $ret->{'specfile'} = $info->{'file'} unless $uploaded;
   $ret->{'file'} = $info->{'file'} unless $uploaded;
+
   if ($packtype eq 'kiwi') {
-    if ($kiwitype ne 'product') {
-      # Dependency breaking shall be ignored for real usage
-      # package installer tools do not care about project ignores either ;)
-      # FIXME: do not mess with the config!
-      delete $bconf->{'ignore'};
-      delete $bconf->{'ignoreh'};
-    }
     # Collect kiwi image types
     my @itypes = @{$info->{'imagetype'} || []};
     $ret->{'imagetype'} = \@itypes unless $uploaded;
@@ -1275,6 +1269,14 @@ sub getbuildinfo {
   my @edeps;
   if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
     @edeps = (1, @deps);
+  } elsif ($packtype eq 'kiwi') {
+    my $bconfignore = $bconf->{'ignore'};
+    my $bconfignoreh = $bconf->{'ignoreh'};
+    delete $bconf->{'ignore'};
+    delete $bconf->{'ignoreh'};
+    @edeps = Build::get_deps($bconf, \@subpacks, @deps);
+    $bconf->{'ignore'} = $bconfignore if $bconfignore;
+    $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
   } else {
     @edeps = Build::get_deps($bconf, \@subpacks, @deps);
   }
