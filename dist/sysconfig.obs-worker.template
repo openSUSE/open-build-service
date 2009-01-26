@@ -4,7 +4,10 @@
 ## Default:     "localhost:6362"
 ## Config:      OBS
 #
-OBS_SRC_SERVER=""
+#
+
+#OBS_SRC_SERVER=""
+OBS_SRC_SERVER="thebe.d-atasoft.com:6362"
 
 ## Path:        Applications/OBS
 ## Description: define repository server host to be used
@@ -12,7 +15,10 @@ OBS_SRC_SERVER=""
 ## Default:     "localhost:6262"
 ## Config:      OBS
 #
-OBS_REPO_SERVER=""
+#
+
+#OBS_REPO_SERVER=""
+OBS_REPO_SERVER="thebe.d-atasoft.com:6262"
 
 ## Path:        Applications/OBS
 ## Description: define number of build instances
@@ -21,7 +27,7 @@ OBS_REPO_SERVER=""
 ## Config:      OBS
 #
 # 0 instances will automatically use the number of CPU's
-#
+
 OBS_WORKER_INSTANCES="0"
 
 ## Path:        Applications/OBS
@@ -30,6 +36,8 @@ OBS_WORKER_INSTANCES="0"
 ## Default:     ""
 ## Config:      OBS
 #
+#
+
 OBS_WORKER_DIRECTORY=""
 
 ## Path:        Applications/OBS
@@ -39,7 +47,7 @@ OBS_WORKER_DIRECTORY=""
 ## Config:      OBS
 #
 # 0 means let the operating system assign a port number
-#
+
 OBS_WORKER_PORTBASE="0"
 
 ## Path:        Applications/OBS

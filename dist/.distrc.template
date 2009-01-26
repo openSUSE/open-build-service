@@ -7,6 +7,7 @@
 : ${PROJECT:=openSUSE:Tools:Devel}
 : ${PACKAGE:=obs-server-svn}
 : ${TARNAME:=obs-server}
+: ${SPECFILE:=*.spec}
 
 # the specfile to test-build locally (default: all spec files in $PWD)
 #: ${SPECFILE:=}
@@ -19,7 +20,7 @@
 # 'distribute' script for details.
 #
 # These are taken from the tar ball or irrelevant during the build:
-: ${EXCLUDES:=README.SETUP README.UPDATERS TODO .dist* obs-server-test.spec.template obs.conf.template sysconfig.obs-worker.template }
+: ${EXCLUDES:=README.SETUP README.UPDATERS TODO .dist* obs.conf.template sysconfig.obs-worker.template obs-all-svn.spec.template obs-server*.*}
 
 # this package is not in maintenance mode here
 # that would mean the tar ball isn't udpated any longer, only patches

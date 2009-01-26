@@ -18,19 +18,33 @@
 
 . /etc/rc.status
 
+. /etc/sysconfig/obs-server
+
 # Determine the base and follow a runlevel link name.
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
+if [ -z "$OBS_RUN_DIR" ]; then
+        OBS_RUN_DIR="/srv/obs/run"
+fi
+
+if [ -z "$OBS_LOG_DIR" ]; then
+        OBS_LOG_DIR="/srv/obs/log"
+fi
+
 obsdir=/usr/lib/obs/server/
+rundir="$OBS_RUN_DIR"
+logdir="$OBS_LOG_DIR"
 
 rc_reset
 case "$1" in
 	start)
 		echo -n "Initializing obsrepserver"
+		mkdir -p "$rundir" "$logdir"
+		chown obsrun:obsrun "$logdir" "$rundir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-		startproc -l /srv/obs/log/rep_server.log "$obsdir"/bs_repserver
+		startproc -l "$logdir"/rep_server.log "$obsdir"/bs_repserver
 		rc_status -v
 	;;
 	stop)
@@ -43,7 +57,7 @@ case "$1" in
 		## second command fails, set echo return value.
 		$0 status
                 if test $? = 0; then
-			touch /bs/run/bs_repserver.restart
+			touch "$rundir"/bs_repserver.restart
 		else
 			$0 stop &&  $0 start
 		fi
@@ -62,7 +76,7 @@ case "$1" in
 	reload)
 		$0 status
                 if test $? = 0; then
-                        touch /bs/run/bs_repserver.restart
+                        touch "$rundir"/bs_repserver.restart
 		fi
 		rc_status
 	;;

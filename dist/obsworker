@@ -23,10 +23,17 @@
 # Determine the base and follow a runlevel link name.
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
-workerdir=/var/run/obsworker
-workerbootdir="$workerdir"/boot
-screenrc=/var/run/obsworker/boot/screenrc
-obsopt=""
+
+if [ -z "$OBS_RUN_DIR" ]; then
+	OBS_RUN_DIR="/var/run/obs"
+fi
+if [ -z "$OBS_REPO_SERVER" ]; then
+	OBS_REPO_SERVER="localhost:6262"
+fi
+
+if [ -z "$OBS_LOG_DIR" ]; then
+	OBS_LOG_DIR="/var/log/obs"
+fi
 
 if [ -z "$OBS_SRC_SERVER" ]; then
 	OBS_SRC_SERVER="localhost:6362"
@@ -40,10 +47,18 @@ if [ -f /etc/buildhost.config ];then
 	obsopt=--xen
 fi
 
+obsrundir="$OBS_RUN_DIR"
+workerdir="$obsrundir"/worker
+workerbootdir="$workerdir"/boot
+screenrc="$workerdir"/boot/screenrc
+obsopt=""
+
 rc_reset
 case "$1" in
     start)
 		# reset screenrc
+                mkdir -p "$obsrundir"
+                chown obsrun:obsrun "$obsrundir"
 		rm -rf "$workerdir"
 		mkdir -p "$workerbootdir"
 		echo "zombie on"       > $screenrc

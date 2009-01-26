@@ -45,9 +45,8 @@ system.
 
 2.2.1 necessary changes on machine *main* machine
 =================================================
-In file /usr/lib/obs/server/BSConfig.pm you should change variables $srcserver, $reposerver and
-array @reposervers. After install there are http://localhost but in this case you should have there
-output of hostname -f or IPs. (You should keep port number)
+Please check /usr/lib/obs/server/BSConfig.pm on main machine. By default everything
+is correct here, since it automatically uses the local host name.
 
 2.2.2 necessary changes on worker machine
 =========================================
@@ -163,6 +162,17 @@ enabled by uncommenting the corresponding lines in
     ##
     include "conf.d/fastcgi.conf"
 
+
+3.2.1 Change /srv/www/obs/webclient/config/environments/production_slave.rb
+===========================================================================
+
+If you changed the hostnames/ips of the frontend away from 10.0.42.x, you 
+need to configure also 
+/srv/www/obs/webclient/config/environments/production_slave.rb (2 entries).
+
+
+3.2.2 Restart lighttpd
+======================
 
 Afterwards you can start the OBS web frontends via 
 

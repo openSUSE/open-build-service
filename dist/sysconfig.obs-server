@@ -16,14 +16,28 @@
 # If you also have workers on this host, each worker can also need 1
 # GB RAM in some known cases (e.g. compiling gcc)
 #
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 s390 s390x ia64 sparc sparc64 mips mips64 armv4l armv5el sh4"
-#OBS_SCHEDULER_ARCHITECTURES="armv4l"
-#OBS_SCHEDULER_ARCHITECTURES="armv5el"
-#OBS_SCHEDULER_ARCHITECTURES="ppc"
-#OBS_SCHEDULER_ARCHITECTURES="ppc64"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 s390 s390x ia64 sparc sparc64 mips mips64 armv4l armv5el armv7el sh4"
+
 #OBS_SCHEDULER_ARCHITECTURES="i586"
 #OBS_SCHEDULER_ARCHITECTURES="x86_64"
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc"
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64"
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 armv4l armv5el"
-OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
+
+#OBS_SCHEDULER_ARCHITECTURES="armv4l armv5el armv7el"
+#OBS_SCHEDULER_ARCHITECTURES="ppc ppc64"
+
+#OBS_SCHEDULER_ARCHITECTURES="x86_64 ppc ppc64"
+#OBS_SCHEDULER_ARCHITECTURES="i586 armv4l armv5el armv7el"
+
+## Path:        Applications/OBS
+## Description: The base for OBS communucation directory
+## Type:        string
+## Default:     "/srv/obs/run"
+## Config:      OBS
+OBS_RUN_DIR="/srv/obs/run"
+
+## Path:        Applications/OBS
+## Description: The base for OBS logging directory
+## Type:        string
+## Default:     "/srv/obs/log"
+## Config:      OBS
+OBS_LOG_DIR="/srv/obs/log"
