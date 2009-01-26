@@ -1911,6 +1911,9 @@ sub checkkiwiimage {
     print "        no config\n";
     return ('broken', 'no config');
   }
+
+  my $bconfignore = $bconf->{'ignore'};
+  my $bconfignoreh = $bconf->{'ignoreh'};
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
   Build::readdeps($bconf, undef, reverse @repos);
@@ -1923,6 +1926,8 @@ sub checkkiwiimage {
     print "            $_\n" for @edeps;
     return ('expansion error', join(', ', @edeps));
   }
+  $bconf->{'ignore'} = $bconfignore if $bconfignore;
+  $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
 
   my @new_meta;
   push @new_meta, "$pdata->{'srcmd5'}  $packid";
