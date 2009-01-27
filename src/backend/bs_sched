@@ -345,7 +345,10 @@ sub findbins {
   my @dl = grep { $_->{'arch'} eq $myarch } @{$projpacks->{$projid}->{'download'}} if exists $projpacks->{$projid}->{'download'};
   if (@dl) {
     # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
-    $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
+    eval {
+      $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
+    };
+    warn("cannot read metadata ($dir/$dl[0]->{'metafile'}): $@") if $@;
     # fix up path entries
     for (values %$repobins) {
       $_->{'rpath'} = $_->{'path'};
@@ -2652,7 +2655,7 @@ sub updaterelsyncmax {
   my $changed;
   for my $tag (keys %$new) {
     next if defined($relsyncmax->{$tag}) && $relsyncmax->{$tag} >= $new->{$tag};   
-    $relsyncmax->{$tag} = $2;
+    $relsyncmax->{$tag} = $new->{$tag};
     $changed = 1;
   }
   if ($cleanup) {

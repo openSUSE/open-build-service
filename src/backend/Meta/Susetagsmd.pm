@@ -1,7 +1,7 @@
 package Meta::Susetagsmd;
 use strict;
 use warnings;
-use Susetags;
+use Build::Susetags;
 
 sub parse {
   my ($fn, $opts) = @_;
@@ -26,7 +26,7 @@ sub parse {
 	);
   my %tags = ( 'Prv' => 'provides', 'Req' => 'requires',
                'Loc' => 'path', 'Src' => 'source' );
-  my $pkgs = Susetags::parse($fn, \%tags, undef, @{$cando{$opts->{'arch'}->[0]}});
+  my $pkgs = Build::Susetags::parse($fn, \%tags, undef, @{$cando{$opts->{'arch'}->[0]}});
   my $tmp = {};
   while (my ($k, $p) = each(%$pkgs)) {
     delete $pkgs->{$k};
