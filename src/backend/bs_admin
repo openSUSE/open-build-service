@@ -183,10 +183,15 @@ sub find_latest_file {
   return ($md5, $file);
 };
 
+sub dump_nStore {
+  my ($file) = @_;
+  my $cache = Storable::retrieve("$file") || {};
+  print Dumper( $cache );
+};
+
 sub dump_cache {
   my ($project, $repo, $arch) = @_;
-  my $cache = Storable::retrieve("$reporoot/$project/$repo/$arch/:full.cache") || {};
-  print Dumper( $cache );
+  dump_nStore("$reporoot/$project/$repo/$arch/:full.cache");
 };
 
 sub check_xml_file {
@@ -284,6 +289,7 @@ sub shutdown_scheduler {
 sub check_project {
   my ($project, $arch) = @_;
   write_event( $project, undef, $arch, 'recheck' );
+  #write_event( $project, undef, $arch, 'project' );
 };
 
 #
@@ -328,11 +334,19 @@ while (@ARGV) {
       check_kiwi_xml($project, $package);
     }
   } elsif ($arg eq "--dump-cache") {
-    die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
-    my $project = shift @ARGV;
-    my $repo = shift @ARGV;
-    my $arch = shift @ARGV;
-    dump_cache($project, $repo, $arch);
+    if ( @ARGV eq 1 ) {
+      dump_nStore(shift @ARGV);
+    } else {
+      die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
+      my $project = shift @ARGV;
+      my $repo = shift @ARGV;
+      my $arch = shift @ARGV;
+      dump_cache($project, $repo, $arch);
+    };
+  } elsif ($arg eq "--dump-relsync") {
+    die("ERROR: need file as argument!\n") if @ARGV < 1;
+    my $file = shift @ARGV;
+    dump_nStore($file);
   } elsif ($arg eq "--dump-state") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
