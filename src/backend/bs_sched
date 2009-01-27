@@ -2655,7 +2655,7 @@ sub updaterelsyncmax {
   my $changed;
   for my $tag (keys %$new) {
     next if defined($relsyncmax->{$tag}) && $relsyncmax->{$tag} >= $new->{$tag};   
-    $relsyncmax->{$tag} = $2;
+    $relsyncmax->{$tag} = $new->{$tag};
     $changed = 1;
   }
   if ($cleanup) {
