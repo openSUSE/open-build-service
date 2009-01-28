@@ -613,9 +613,9 @@ sub set_building {
 
   # max with sync data
   my $tag = $pdata->{'bcntsynctag'} || $packid;
-  if ($relsyncmax->{"$packid/$pdata->{'versrel'}"}) {
-    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$packid/$pdata->{'versrel'}"}) {
-      $h->{'bcnt'} = $relsyncmax->{"$packid/$pdata->{'versrel'}"} - 1;
+  if ($relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+      $h->{'bcnt'} = $relsyncmax->{"$tag/$pdata->{'versrel'}"} - 1;
     }
   }
 
@@ -2240,9 +2240,9 @@ sub rebuildkiwiproduct {
 
   # max with sync data
   my $tag = $pdata->{'bcntsynctag'} || $packid;
-  if ($relsyncmax->{"$packid/$pdata->{'versrel'}"}) {
-    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$packid/$pdata->{'versrel'}"}) {
-      $h->{'bcnt'} = $relsyncmax->{"$packid/$pdata->{'versrel'}"} - 1;
+  if ($relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+      $h->{'bcnt'} = $relsyncmax->{"$tag/$pdata->{'versrel'}"} - 1;
     }
   }
 
