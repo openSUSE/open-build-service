@@ -10,7 +10,7 @@
 <h2>Editing file <%=h @filename %> for package <%=h @package %> (Project <%=h @project %>)</h2>
 
 <% form_tag :action => :save_modified_file, "class" => "edit" do %>
-  <p><%= text_area_tag( "file", @file, :cols => "80",
+  <p><%= text_area_tag( "file", h(@file), :cols => "80",
   :rows => "40" ) %></p>
   <p><%= submit_tag %></p>
   <%= hidden_field_tag( "project", @project ) %>
