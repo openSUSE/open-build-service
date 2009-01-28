@@ -43,7 +43,7 @@ our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
 #our $bsquotafile = '/srv/obs/quota.xml';
 
-# Package rc script communication files
+# Package rc script / backend communication + log files
 our $rundir = '/srv/obs/run';
 our $logdir = '/srv/obs/log';
 
