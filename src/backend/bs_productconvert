@@ -841,7 +841,8 @@ sub writeProductSPECfile( $$$$ )
      $str =~ s/___DISTNAME___/$product->{name}/g;
      $str =~ s/___VERSION___/$product->{version}/g;
      $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
-     $str =~ s/___RELEASE___/0/g;
+     $str =~ s/___RELEASE___/$product->{release}/g;
+     $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
      $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
      $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
      foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
