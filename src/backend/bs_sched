@@ -72,7 +72,7 @@ my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $extrepodb = "$BSConfig::bsdir/db/published";
 my $uploaddir = "$BSConfig::bsdir/upload";
-my $rundir = "$BSConfig::bsdir/run";
+my $rundir = "$BSConfig::rundir";
 my $infodir = "$BSConfig::bsdir/info";
 
 my $myarch = $ARGV[0] || 'i586';

@@ -66,7 +66,7 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $uploaddir = "$BSConfig::bsdir/upload";
-my $rundir = "$BSConfig::bsdir/run";
+my $rundir = "$BSConfig::rundir";
 
 my $extrepodb = "$BSConfig::bsdir/db/published";
 
