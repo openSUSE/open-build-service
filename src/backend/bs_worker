@@ -779,6 +779,7 @@ sub dobuild {
   }
   push @args, '--clean';
   push @args, '--changelog';
+  push @args, '--oldpackages', "$oldpkgdir" if -d "$oldpkgdir";
   push @args, '--norootforbuild' unless $BSConfig::norootexceptions && $BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"};
   push @args, '--baselibs-internal';
   push @args, '--lint';
