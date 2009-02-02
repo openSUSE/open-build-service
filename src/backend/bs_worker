@@ -585,7 +585,7 @@ sub getbinaries_kiwiproduct {
 }
 
 sub getbinaries {
-  my ($buildinfo, $dir, $srcdir) = @_;
+  my ($buildinfo, $dir, $odir, $srcdir) = @_;
 
   mkdir_p($dir);
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
@@ -663,6 +663,17 @@ sub getbinaries {
   die("getbinaries: missing packages: @todo\n") if @todo;
 
   if (!$kiwimode) {
+    # get old package build for compare and diffing tools
+    my @args;
+    mkdir_p($odir) || die("mkdir_p $odir: $!\n");
+    my $res = BSRPC::rpc({
+      'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
+      'directory' => $odir,
+      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    }, undef, "view=cpio");
+    rm_rf("$odir") unless ref($res) eq 'ARRAY'; # remove dir again, if there is no former build
+
+    # generate meta data
     for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
       my $m;
       $m = readstr("$dir/$dep.meta", 1) if $meta{$dep};
@@ -701,20 +712,22 @@ sub dobuild {
   print " using helper $helper" if $helper;
   print "\n";
 
+  my $srcdir    = "$buildroot/.build-srcdir";
+  my $pkgdir    = "$buildroot/.pkgs";
+  my $oldpkgdir = "$buildroot/.build.oldpackages";
+
   unlink("$buildroot/.build.meta");
   rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
-  rm_rf("$buildroot/.build-srcdir") if -d "$buildroot/.build-srcdir";
-  rm_rf("$buildroot/.pkgs") if -d "$buildroot/.pkgs";
-
-  my $srcdir = "$buildroot/.build-srcdir";
-  my $pkgdir = "$buildroot/.pkgs";
+  rm_rf("$srcdir") if -d "$srcdir";
+  rm_rf("$pkgdir") if -d "$pkgdir";
+  rm_rf("$oldpkgdir") if -d "$oldpkgdir";
 
   my @meta;
   print "fetching sources, ";
   mkdir($srcdir) || die("mkdir $srcdir $!\n");
   push @meta, getsources($buildinfo, $srcdir);
   print "packages, ";
-  push @meta, getbinaries($buildinfo, $pkgdir, $srcdir);
+  push @meta, getbinaries($buildinfo, $pkgdir, $oldpkgdir, $srcdir);
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
@@ -778,7 +791,12 @@ sub dobuild {
   push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', "srcrep:$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
   push @args, "$srcdir/$buildinfo->{'file'}";
-  if (qsystem(@args)) {
+  qsystem(@args);
+  if ($? eq 512) { # system exit code 2 maps to 2 * 256
+    print "build succeeded, but old build had same result !\n";
+    return 2;
+  }
+  if ($?) {
     print "build failed\n";
     return 1;
   }
@@ -1101,7 +1119,7 @@ if ($hostcheck) {
   print "running post-build host check\n";
   if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", $ex ? 'failed' : 'succeeded', "$buildroot/.build.log")) {
     print "post-build host check failed\n";
-    $ex = 2;
+    $ex = 3;
   }
 }
 
@@ -1132,6 +1150,9 @@ if (!$ex) {
   print "build succeeded, send everything back...\n";
   $code = 'succeeded';
 } elsif ($ex == 2) {
+  print "build succeeded, but does not differ to compared old build result...\n";
+  $code = 'unchanged';
+} elsif ($ex == 3) {
   print "build failed due to a bad host...\n";
   $code = 'badhost';
 } else {

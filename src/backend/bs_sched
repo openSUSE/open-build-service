@@ -659,6 +659,7 @@ sub set_building {
     'project' => $projid,
     'repository' => $repoid,
     'package' => $packid,
+    'reposerver' => $BSConfig::reposerver,
     'job' => $f,
     'arch' => $myarch,
     'reason' => $reason->{'explain'},
@@ -1760,14 +1761,10 @@ sub jobfinished {
   delete $status->{'arch'};	# obsolete
   delete $status->{'uri'};	# obsolete
 
-  my @all = ls($jobdatadir);
-  my $code = 'failed';
-  for (@all) {
-    next if $_ eq 'meta' || $_ eq 'logfile' || $_ eq 'reason' || $_ eq 'history';
-    $code = 'succeeded';
-    last;
-  }
+  my $code = $js->{'result'};
+  $code = 'failed' unless $code eq 'succeeded' || $code eq 'unchanged';
 
+  my @all = ls($jobdatadir);
   my %all = map {$_ => 1} @all;
   @all = map {"$jobdatadir/$_"} @all;
 
@@ -1801,6 +1798,23 @@ sub jobfinished {
   }
 
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
+  if ($code eq 'unchanged') {
+    print "  - $job: build results is unchanged\n";
+    if (open(F, '+>>', "$dst/logfile")) {
+      # Add a comment to logfile from last real build
+      print F "\nSkipped built at ".localtime(time());
+      close(F);
+    };
+    rename($meta, "$gdst/:meta/$packid") if $meta;
+    unlink($_) for @all;
+    rmdir($jobdatadir);
+    $status->{'status'} = 'unchanged'; # log as "unchanged" in history
+    addjobhist($prp, $info, $status, $js);
+    $status->{'status'} = 'succeeded'; # but show as "succeeded" in package status, since old build was successfull
+    writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
+    $changed->{$prp} ||= 1;	# package is no longer blocking
+    return;
+  }
   if ($code eq 'failed') {
     print "  - $job: build failed\n";
     link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
@@ -2250,6 +2264,7 @@ sub rebuildkiwiproduct {
     'project' => $projid,
     'repository' => $repoid,
     'package' => $packid,
+    'reposerver' => $BSConfig::reposerver,
     'job' => $f,
     'arch' => $myarch,
     'srcmd5' => $srcmd5,

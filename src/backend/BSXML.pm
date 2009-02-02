@@ -260,6 +260,7 @@ our $buildinfo = [
 	'project',
 	'repository',
 	'package',
+	'reposerver',
 	[],
 	'job',
 	'arch',
@@ -306,6 +307,7 @@ our $buildinfo = [
 our $jobstatus = [
     'jobstatus' =>
 	'code',
+	'result',       # succeeded, failed or unchanged
 	'details',
 	[],
 	'starttime',
