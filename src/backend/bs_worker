@@ -793,11 +793,16 @@ sub dobuild {
   push @args, '--disturl', "srcrep:$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
-  if ($? eq 512) { # system exit code 2 maps to 2 * 256
-    print "build succeeded, but old build had same result !\n";
-    return 2;
+  my $ret=$?;
+  if ($ret eq 512) { # system exit code 2 maps to 2 * 256
+    if ( $buildinfo->{'reason'} eq "rebuild counter sync" ) {
+      $ret=0;
+    }else{
+      print "build succeeded, but old build had same result !\n";
+      return 2;
+    }
   }
-  if ($?) {
+  if ($ret) {
     print "build failed\n";
     return 1;
   }
