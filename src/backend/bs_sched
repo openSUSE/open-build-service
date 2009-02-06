@@ -1805,6 +1805,7 @@ sub jobfinished {
       print F "\nSkipped built at ".localtime(time());
       close(F);
     };
+    unlink("$gdst/:logfiles.fail/$packid");
     rename($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
     rmdir($jobdatadir);

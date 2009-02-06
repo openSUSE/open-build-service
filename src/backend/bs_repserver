@@ -840,42 +840,38 @@ sub putjob {
   # right job, fetch everything!
   my $dir = "$jobsdir/$arch/$job:dir";
   mkdir_p($dir);
-  if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
+  # uploaded is empty for local image building
+  my $uploaded = BSServer::read_cpio($dir);
+  $jobstatus->{'result'} = 'failed';
+  my $success = @$uploaded ? 0 : 1;
+  for my $file (@$uploaded) {
+    next if $file->{'name'} eq 'meta' || $file->{'name'} eq 'logfile';
+    $success = 1;
+    $jobstatus->{'result'} = 'succeeded';
+    last;
+  }
+
+  if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged'){
     $jobstatus->{'result'} = 'unchanged';
-
     BSHermes::notify("BUILD_UNCHANGED", $info);
-  } else {
-    my $uploaded = BSServer::read_cpio($dir);
-    # uploaded is empty for local image building
-    $jobstatus->{'result'} = 'failed';
-    my $success = @$uploaded ? 0 : 1;
+  } elsif ($BSConfig::sign) {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
+    if ($signkey) {
+      mkdir_p("$uploaddir");
+      writestr("$uploaddir/repserver.$$", undef, $signkey);
+      push @signargs, '-P', "$uploaddir/repserver.$$";
+    }
+    # get us the sign key
     for my $file (@$uploaded) {
-      next if $file->{'name'} eq 'meta' || $file->{'name'} eq 'logfile';
-      $success = 1;
-      $jobstatus->{'result'} = 'succeeded';
-      last;
-    }
-
-    die("upload error\n") unless $uploaded;
-    if ($BSConfig::sign) {
-      my @signargs;
-      push @signargs, '--project', $projid if $BSConfig::sign_project;
-      my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
-      if ($signkey) {
-        mkdir_p("$uploaddir");
-        writestr("$uploaddir/repserver.$$", undef, $signkey);
-        push @signargs, '-P', "$uploaddir/repserver.$$";
+      next unless $file->{'name'} =~ /\.rpm$/;
+      if (system($BSConfig::sign, @signargs, '-r', "$dir/$file->{'name'}")) {
+        print "sign $dir/$file->{'name'} failed: $?\n";
+        $jobstatus->{'result'} = 'failed';
       }
-      # get us the sign key
-      for my $file (@$uploaded) {
-        next unless $file->{'name'} =~ /\.rpm$/;
-        if (system($BSConfig::sign, @signargs, '-r', "$dir/$file->{'name'}")) {
-          print "sign $dir/$file->{'name'} failed: $?\n";
-          $jobstatus->{'result'} = 'failed';
-        }
-      }
-      unlink("$uploaddir/repserver.$$") if $signkey;
     }
+    unlink("$uploaddir/repserver.$$") if $signkey;
 
     BSHermes::notify($success ? "BUILD_SUCCESS" :  "BUILD_FAIL", $info);
   }
@@ -954,7 +950,6 @@ sub fixpackstatus {
 
 sub getresult {
   my ($cgi, $prpas) = @_;
-
   if ($cgi->{'oldstate'} && $BSStdServer::isajax) {
     for my $prpa (@$prpas) {
       BSWatcher::addfilewatcher("$reporoot/$prpa/:packstatus");
@@ -2044,7 +2039,7 @@ my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
   'setkeepalive' => 1, 
-  'maxchild' => 20,
+  'maxchild' => 8,
 };
 
 my $aconf = {
