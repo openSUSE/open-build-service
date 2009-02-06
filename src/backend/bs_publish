@@ -728,7 +728,7 @@ sub publish {
 	  $p = "iso/$bin";
 	} elsif ($bin =~ /\.raw(:?\.install)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.tar.bz2$/) {
+	} elsif ($bin =~ /\.tar.gz$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.ovf$/) {
 	  $p = "$bin";
