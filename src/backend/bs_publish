@@ -728,6 +728,12 @@ sub publish {
 	  $p = "iso/$bin";
 	} elsif ($bin =~ /\.raw(:?\.install)?$/) {
 	  $p = "$bin";
+	} elsif ($bin =~ /\.tar.bz2$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /\.ovf$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /\.vmdk$/) {
+	  $p = "$bin";
 	} elsif (-d "$r/$bin") {
 	  $p = "repo/$bin";
 	} else {
