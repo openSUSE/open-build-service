@@ -26,10 +26,12 @@ use Net::Domain;
 
 my $hostname = Net::Domain::hostfqdn() || 'localhost';
 
-# configured to run on your localhost only
+our $obsname = $hostname; # unique identifier for this Build Service instance
 our $srcserver = "http://$hostname:6362";
 our $reposerver = "http://$hostname:6262";
+# public download service:
 our $repodownload = "http://$hostname/repositories";
+# optional notification service:
 #our $hermesserver = "http://$hostname/hermes";
 #our $hermesnamespace = "OBS";
 
