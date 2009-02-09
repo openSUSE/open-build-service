@@ -727,6 +727,9 @@ sub dobuild {
   writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
+  my $obsinstance = "";
+  $obsinstance = $BSConfig::obsname if defined ($BSConfig::obsname);
+  my $disttag = "obs://".$obsinstance."/".$buildinfo->{'project'}."/".$buildinfo->{'repository'};
 
   my @args;
   push @args, $helper if $helper;
@@ -777,6 +780,7 @@ sub dobuild {
   push @args, '--arch', $arch;
   push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', "srcrep:$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
+  push @args, '--disttag', "$disttag" if defined $disttag;
   push @args, "$srcdir/$buildinfo->{'file'}";
   if (qsystem(@args)) {
     print "build failed\n";
