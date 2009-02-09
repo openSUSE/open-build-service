@@ -673,7 +673,6 @@ sub getbinaries {
     # get old package build for compare and diffing tools
     my @args;
     mkdir_p($odir) || die("mkdir_p $odir: $!\n");
-print "RUN FOR $buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}\n";
     my $res = BSRPC::rpc({
       'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
       'directory' => $odir,
@@ -748,7 +747,9 @@ sub dobuild {
   writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
-  my $disttag = "obs://".$buildinfo->{'project'}."/".$buildinfo->{'repository'};
+  my $obsinstance = "";
+  $obsinstance = $BSConfig::obsname if defined ($BSConfig::obsname);
+  my $disttag = "obs://".$obsinstance."/".$buildinfo->{'project'}."/".$buildinfo->{'repository'};
 
   my @args;
   push @args, $helper if $helper;
@@ -796,7 +797,7 @@ sub dobuild {
   push @args, '--rpmlist', "$buildroot/.build.rpmlist";
   push @args, '--logfile', "$buildroot/.build.log";
   push @args, '--release', "$release" if defined $release;
-#  push @args, '--disttag', "$disttag" if defined $disttag;
+  push @args, '--disttag', "$disttag" if defined $disttag;
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
   push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
