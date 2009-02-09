@@ -1168,6 +1168,7 @@ sub getbuildinfo {
   $ret->{'project'} = $projid;
   $ret->{'repository'} = $repoid;
   $ret->{'package'} = $packid if defined $packid;
+  $ret->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;;
   $ret->{'arch'} = $arch;
   $ret->{'path'} = $repo->{'path'} || [];
   $ret->{'path'} = $info->{'path'} if $packtype eq 'kiwi' && $info->{'path'};

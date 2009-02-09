@@ -261,6 +261,7 @@ our $buildinfo = [
 	'repository',
 	'package',
 	'reposerver',
+	'downloadurl',
 	[],
 	'job',
 	'arch',
