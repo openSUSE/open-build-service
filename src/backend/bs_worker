@@ -42,9 +42,9 @@ my $buildroot;
 my $port;
 my $statedir;
 my $hostarch;
-my $xen = '';
-my $xen_root = '';
-my $xen_swap = '';
+my $vm = '';
+my $vm_root = '';
+my $vm_swap = '';
 my $workerid;
 my $srcserver;
 my @reposervers;
@@ -139,11 +139,13 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
                      currently supported architectures: 
                      @{[sort keys %cando]}
 
+       --kvm       : enable kvm
+
        --xen       : enable xen
 
-       --xendevice: set xen root device (default is <root>/root file)
+       --device    : set kvm or xen root device (default is <root>/root file)
 
-       --xenswap  : set xen swap device (default is <root>/swap file)
+       --swap      : set kvm or xen swap device (default is <root>/swap file)
 
        --test      : enable test mode
 
@@ -220,19 +222,24 @@ while (@ARGV) {
     $testmode = 1;
     next;
   }
+  if ($ARGV[0] eq '--kvm') {
+    $vm = ' --kvm';
+    shift @ARGV;
+    next;
+  }
   if ($ARGV[0] eq '--xen') {
-    $xen = ' --xen';
+    $vm = ' --xen';
     shift @ARGV;
     next;
   }
-  if ($ARGV[0] eq '--xendevice') {
+  if ($ARGV[0] eq '--xendevice' || $ARGV[0] eq '--device') {
     shift @ARGV;
-    $xen_root = shift @ARGV;
+    $vm_root = shift @ARGV;
     next;
   }
-  if ($ARGV[0] eq '--xenswap') {
+  if ($ARGV[0] eq '--xenswap' || $ARGV[0] eq '--swap') {
     shift @ARGV;
-    $xen_swap = shift @ARGV;
+    $vm_swap = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--build') {
@@ -276,8 +283,8 @@ while (@ARGV) {
 
 usage(1) unless $buildroot && $statedir;
 
-$xen_root = "$buildroot/root" unless $xen_root;
-$xen_swap = "$buildroot/swap" unless $xen_swap;
+$vm_root = "$buildroot/root" unless $vm_root;
+$vm_swap = "$buildroot/swap" unless $vm_swap;
 
 # here's the build code we want to use
 $::ENV{'BUILD_DIR'} = "$statedir/build";
@@ -666,6 +673,7 @@ sub getbinaries {
     # get old package build for compare and diffing tools
     my @args;
     mkdir_p($odir) || die("mkdir_p $odir: $!\n");
+print "RUN FOR $buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}\n";
     my $res = BSRPC::rpc({
       'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
       'directory' => $odir,
@@ -740,6 +748,7 @@ sub dobuild {
   writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
+  my $disttag = "obs://".$buildinfo->{'project'}."/".$buildinfo->{'repository'};
 
   my @args;
   push @args, $helper if $helper;
@@ -767,13 +776,13 @@ sub dobuild {
 
   print "building...\n";
   push @args, "$statedir/build/build";
-  if ($xen) {
+  if ($vm) {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
-    push @args, '--xen', "$xen_root";
-    push @args, '--xenswap', "$xen_swap";
-    my $xenmemory = readstr("$buildroot/memory", 1);
-    push @args, '--xenmemory', $xenmemory if $xenmemory;
+    push @args, $vm, "$vm_root";
+    push @args, '--swap', "$vm_swap";
+    my $vmmemory = readstr("$buildroot/memory", 1);
+    push @args, '--memory', $vmmemory if $vmmemory;
   } else {
     push @args, '--root', $buildroot;
   }
@@ -787,6 +796,7 @@ sub dobuild {
   push @args, '--rpmlist', "$buildroot/.build.rpmlist";
   push @args, '--logfile', "$buildroot/.build.log";
   push @args, '--release', "$release" if defined $release;
+#  push @args, '--disttag', "$disttag" if defined $disttag;
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
   push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
@@ -811,20 +821,20 @@ sub dobuild {
     return 1;
   }
 
-  if ($xen) {
+  if ($vm) {
     rm_rf("$buildroot/.build.packages");
     if (! -d "$buildroot/.mount/.build.packages") {
       # old style, call extractbuild
       print "extracting built packages...\n";
       @args = ();
       push @args, "$statedir/build/extractbuild";
-      push @args, '--xenroot', "$xen_root";
-      push @args, '--xenswap', "$xen_swap";
+      push @args, '--root', "$vm_root";
+      push @args, '--swap', "$vm_swap";
       if (system(@args)) {
         die("extractbuild failed\n");
       }
       mkdir_p("$buildroot/.build.packages");
-      if (system("cd $buildroot/.build.packages && cpio --extract --no-absolute-filenames -v < $xen_swap")) {
+      if (system("cd $buildroot/.build.packages && cpio --extract --no-absolute-filenames -v < $vm_swap")) {
 	die("cpio extract failed\n");
       }
     } else {
@@ -916,7 +926,7 @@ while (!BSServer::server($conf)) {
       $rekillcnt = 0;
       $state = lockstate();
       if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
-        if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ('--xen', "$xen_root") : ()), "--kill")) {
+        if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
 	  warn("could not kill job\n");
         }
       }
@@ -937,7 +947,7 @@ while (!BSServer::server($conf)) {
     next unless @s;
     if ($s[7] > $buildlog_maxsize) {
       next unless $locked;
-      if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ('--xen', "$xen_root") : ()), "--kill")) {
+      if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
 	warn("could not kill job\n");
         last;
       }
@@ -947,7 +957,7 @@ while (!BSServer::server($conf)) {
       $locked = 0;
     } elsif ($ct - $s[9] > $buildlog_maxidle) {
       next unless $locked;
-      if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ('--xen', "$xen_root") : ()), "--kill")) {
+      if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
 	warn("could not kill job\n");
         last;
       }
@@ -989,7 +999,7 @@ if ($path eq '/info') {
     my $infoxml = readstr('job');
     die("building a different job\n") unless $cgi->{'jobid'} eq Digest::MD5::md5_hex($infoxml);
   }
-  if (system("$statedir/build/build", "--root", $buildroot, ($xen ? ('--xen', "$xen_root") : ()), "--kill")) {
+  if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
     die("could not kill job\n");
   }
   local *F;
@@ -1015,9 +1025,11 @@ if ($path eq '/info') {
   die("unknown request: $path\n");
 }
 
-if ($xen && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
+# Check for XEN daemon database leak
+if ($vm eq "--xen" && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
   die("xenstore too big:".(-s '/var/lib/xenstored/tdb')."\n");
 }
+
 my $state = lockstate();
 if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode && !$noworkercheck) {
   $state->{'state'} = 'rebooting';
