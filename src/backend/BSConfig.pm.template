@@ -61,6 +61,12 @@ our $logdir = '/srv/obs/log';
 # "openSUSE:Factory/standard" => { timeout => "30", last => "0" },
 #);
 
+# Build priority, dispatcher prefers or deprefers jobs according to this:
+#our $dispatch_prio = [
+# '!^home:resourcewaster',   # de-prefer jobs (take it only, when no other jobs)
+# '^openSUSE:Factory',       # prefer (if there is a job for this project, take it)
+#];
+
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
 #our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
