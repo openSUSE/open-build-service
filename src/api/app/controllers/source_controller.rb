@@ -646,6 +646,7 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login
     prj_name = params[:project]
     pkg_name = params[:package]
+    pkg_rev = params[:rev]
 
     prj = DbProject.find_by_name prj_name
     pkg = prj.db_packages.find_by_name(pkg_name)
@@ -665,6 +666,22 @@ class SourceController < ApplicationController
         render_error :status => 404, :errorcode => 'unknown_package',
           :message => "Unknown package #{pkg_name} in project #{prj_name}"
         return
+      end
+
+      # link against srcmd5 instead of plain revision
+      unless pkg_rev.nil?
+        path = "/source/#{params[:project]}/#{params[:package]}" + build_query_from_hash(params, [:rev])
+        files = Suse::Backend.get(path)
+        # get srcmd5 from the xml data
+        match = files.body.match(/<directory['"=\w\s]+srcmd5=['"](\w{32})['"]['"=\w\s]*>/)
+        if match
+          pkg_rev = match[1]
+        else
+          # this should not happen
+          render_error :status => 400, :errorcode => 'invalid_filelist',
+            :message => "Unable parse filelist from backend"
+          return
+        end
       end
     end
  
@@ -708,7 +725,8 @@ class SourceController < ApplicationController
     end
 
     #link sources
-    link_data = "<link project='#{prj_name}' package='#{pkg_name}'/>"
+    rev = pkg_rev.nil? ? "" : "rev='#{pkg_rev}'"
+    link_data = "<link project='#{prj_name}' package='#{pkg_name}' #{rev}/>"
     logger.debug "link_data: #{link_data}"
     Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
 
