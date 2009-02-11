@@ -675,7 +675,7 @@ sub createInstsource( $$$ )
     foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
 	my %h;
         my $kiwipath;
-        next if defined($repo->{build}) && $repo->{build} eq "skip";
+        next if defined($repo->{build}) && $repo->{build} eq "ignore";
         $count = $count + 1;
 	$h{priority} = $count;
 	$h{name} = "repository_".$count;
@@ -955,13 +955,13 @@ sub createProductFile ( $ ) {
 
     $d->{"target"}  = $product->{'register'}->{'target'};
     $d->{"release"} = $product->{'register'}->{'release'};
-    my @a;
+    my @r;
     foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
         next if defined($repo->{product_file}) && $repo->{product_file} eq "ignore";
         # do only export when build name is specified
-        push @a, { "path" => $repo->{path} } if $repo->{path} =~ /^obs:\/\/(.*)\/(.*)\/(.*)/ && $1 && $2 && $3 ;
+        push @r, { "path" => $repo->{path} } if $repo->{path} =~ /^obs:\/\/(.*)\/(.*)\/(.*)/ && $1 && $2 && $3 ;
     };
-    $d->{"repositories"}{"repository"} = \@a;
+    $d->{"repositories"}{"repository"} = \@r;
     $zypp_product->{'register'} = $d;
 
     my $xml = XMLout( $BSProductXML::product, $zypp_product );
