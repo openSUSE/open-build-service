@@ -95,6 +95,11 @@ our $product = [
               'target',
               'release',
               'flavor',
+              [ 'repositories' =>
+                [[ 'repository' =>
+                   'path',
+                ]],
+              ], # this is for prod file export only
            ],
            'updaterepokey',
            [[ 'summary' =>
@@ -170,6 +175,8 @@ our $productdesc = [
       [ 'repositories' =>
         [[ 'repository' =>
            'path',
+           'build',
+           'product_file',
         ]],
       ],
       [ 'archsets' =>

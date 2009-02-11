@@ -674,26 +674,29 @@ sub createInstsource( $$$ )
     my $count = 0;
     foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
 	my %h;
-        my $localpath;
+        my $kiwipath;
+        next if defined($repo->{build}) && $repo->{build} eq "skip";
         $count = $count + 1;
 	$h{priority} = $count;
 	$h{name} = "repository_".$count;
-        $localpath = $repo->{path};
-        if ($repo->{path} =~ /^obs:\/\/(.+)$/ ) {
+        if ($repo->{path} =~ /^obs:\/\/([^\/]*)\/([^\/]*)$/ ) { #old format without obsname 
 	  $h{local} = "true";
-          $localpath = $1;
+          $kiwipath = "$1/$2";
+        } elsif ($repo->{path} =~ /^obs:\/\/([^\/]*)\/([^\/]*)\/([^\/]*)$/ ) {
+	  $h{local} = "true";
+          $kiwipath = "$2/$3";
         } else {
           die( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
         };
         if ( $runOnServer ) {
           for my $arch ( @{$re->{architectures}->{requiredarch}} ) {
-  	     my $path = "$bsdir/build/$localpath/$arch->{'ref'}/:full";
+  	     my $path = "$bsdir/build/$kiwipath/$arch->{'ref'}/:full";
   	     $h{source} = { path => $path };
 	     push @r, \%h;
              print "WARNING: local path $path does not exist !\n" if ( ! -e "$path" );
           };
         }else{
-	  $h{source} = { path => $repo->{path} };
+	  $h{source} = { path => "obs://".$kiwipath };
 	  push @r, \%h;
         };
     }
@@ -815,7 +818,7 @@ sub writeProductSPECfile( $$$$ )
      $content.="\n%build\n\n";
      $content.="\n%install\n";
      $content.=createFlavorReadme($prodRef,$product);
-     $content.=createProductFile($product);
+     $content.=createProductFile($prodRef,$product);
      $content.="\n%clean\n";
      $content.="rm -rf %buildroot\n";
      $content.="\n%files\n";
@@ -940,7 +943,7 @@ install -m 644 -D /CD1/EULA.txt %{buildroot}/%{_docdir}/%{name}/%{product}-EULA.
 }
 
 sub createProductFile ( $ ) {
-    my ($product ) = @_;
+    my ($prodRef, $product) = @_;
     my $zypp_product_file = "";
     my $zypp_product = $product;
     my $d;
@@ -952,6 +955,13 @@ sub createProductFile ( $ ) {
 
     $d->{"target"}  = $product->{'register'}->{'target'};
     $d->{"release"} = $product->{'register'}->{'release'};
+    my @a;
+    foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
+        next if defined($repo->{product_file}) && $repo->{product_file} eq "ignore";
+        # do only export when build name is specified
+        push @a, { "path" => $repo->{path} } if $repo->{path} =~ /^obs:\/\/(.*)\/(.*)\/(.*)/ && $1 && $2 && $3 ;
+    };
+    $d->{"repositories"}{"repository"} = \@a;
     $zypp_product->{'register'} = $d;
 
     my $xml = XMLout( $BSProductXML::product, $zypp_product );
