@@ -842,15 +842,20 @@ sub putjob {
   mkdir_p($dir);
   # uploaded is empty for local image building
   my $uploaded = BSServer::read_cpio($dir);
+  my $success = 0;
   $jobstatus->{'result'} = 'failed';
-  my $success = @$uploaded ? 0 : 1;
+  # upload is empty for local image building
+  if ( ! @$uploaded ) {
+    $jobstatus->{'result'} = 'succeeded';
+    $success = 1;
+  };
+  # usual build should have uploaded content.
   for my $file (@$uploaded) {
     next if $file->{'name'} eq 'meta' || $file->{'name'} eq 'logfile';
     $success = 1;
     $jobstatus->{'result'} = 'succeeded';
     last;
   }
-
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged'){
     $jobstatus->{'result'} = 'unchanged';
     BSHermes::notify("BUILD_UNCHANGED", $info);
