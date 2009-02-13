@@ -65,7 +65,7 @@ use strict;
 
 my $port = 5252;	#'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
-my $ajaxsocket = "$BSConfig::bsdir/run/bs_repserver.ajax";
+my $ajaxsocket = "$BSConfig::rundir/bs_repserver.ajax";
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 
@@ -910,6 +910,7 @@ sub forwardevent {
     next if $a =~ /^\./;
     next unless -d "$eventdir/$a";
     next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch';
+    next if $type eq 'relsync' && $BSConfig::relsync_pool{$arch} ne $BSConfig::relsync_pool{$a};
     writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
     ping($a);
   }
@@ -1172,6 +1173,7 @@ sub getbuildinfo {
   my $ret;
   $ret->{'project'} = $projid;
   $ret->{'repository'} = $repoid;
+  $ret->{'downloadurl'} = $BSConfig::repodownload;
   $ret->{'package'} = $packid if defined $packid;
   $ret->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;;
   $ret->{'arch'} = $arch;
@@ -1924,7 +1926,7 @@ sub publishedfile {
 sub getrelsync {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
-  my $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync");
+  my $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch});
   return ($relsyncdata, 'Content-Type: application/octet-stream');
 }
 
@@ -1937,10 +1939,10 @@ sub postrelsync {
   die("no data\n") unless $new;
 
   local *F;
-  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
+  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max");
   my $relsyncmax;
-  if (-s "$reporoot/$prp/$arch/:relsync.max") {
-    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync.max"); };
+  if (-s "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max") {
+    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max"); };
     warn($@) if $@;
   }
   $relsyncmax ||= {};
@@ -1957,8 +1959,8 @@ sub postrelsync {
     $changed = 1;
   }
   if ($changed) {
-    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync.max.new");
-    rename("$reporoot/$prp/$arch/:relsync.max.new", "$reporoot/$prp/$arch/:relsync.max");
+    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max.new");
+    rename("$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max.new", "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max");
   }
   close(F);
 

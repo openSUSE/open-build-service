@@ -55,6 +55,13 @@ our $logdir = '/srv/obs/log';
 # "ppc64" => [ "openSUSE:Factory", "FATE" ],
 #};
 
+# optional: allow seperation of releasnumber syncing per architecture
+# one counter pool for all ppc architectures and one for the rest in this example
+#our %relsync_pool = (
+# "ppc" => ".ppc",
+# "ppc64" => ".ppc",
+#);
+
 # This is for prefer a project in scheduler, if it has high or medium
 # prio events, but was not processed after $timeout minutes.
 #our %max_project_timeout = (
