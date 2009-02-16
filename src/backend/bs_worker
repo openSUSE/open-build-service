@@ -749,7 +749,7 @@ sub dobuild {
   my $release = $buildinfo->{'release'};
   my $obsinstance = "";
   $obsinstance = $BSConfig::obsname if defined ($BSConfig::obsname);
-  my $disttag = "obs://".$obsinstance."/".$buildinfo->{'project'}."/".$buildinfo->{'repository'};
+  my $disturl = "obs://".$obsinstance."/".$buildinfo->{'project'}."/".$buildinfo->{'repository'}."/".$buildinfo->{'srcmd5'}-$buildinfo->{'package'};
 
   my @args;
   push @args, $helper if $helper;
@@ -797,11 +797,10 @@ sub dobuild {
   push @args, '--rpmlist', "$buildroot/.build.rpmlist";
   push @args, '--logfile', "$buildroot/.build.log";
   push @args, '--release', "$release" if defined $release;
-  push @args, '--disttag', "$disttag" if defined $disttag;
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
   push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
-  push @args, '--disturl', "srcrep:$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
+  push @args, '--disturl', $disturl;
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
   my $ret=$?;
