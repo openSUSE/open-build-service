@@ -76,6 +76,7 @@ my $rundir = "$BSConfig::rundir";
 my $infodir = "$BSConfig::bsdir/info";
 
 my $myarch = $ARGV[0] || 'i586';
+my $myrelsync = $BSConfig::relsync_pool{$myarch} || '';
 
 my $myjobsdir = "$jobsdir/$myarch";
 my $myeventdir = "$eventdir/$myarch";
@@ -1859,11 +1860,11 @@ sub jobfinished {
 
   # update relsync file
   my $relsync;
-  eval { $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}); };
+  eval { $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync".$myrelsync); };
   $relsync ||= {};
   $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
-  Storable::nstore($relsync, "$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}.".new");
-  rename("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}.".new", "$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}) || die("rename $reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}.".new $reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}.": $!\n");
+  Storable::nstore($relsync, "$reporoot/$prp/$myarch/:relsync".$myrelsync.".new");
+  rename("$reporoot/$prp/$myarch/:relsync".$myrelsync.".new", "$reporoot/$prp/$myarch/:relsync".$myrelsync) || die("rename $reporoot/$prp/$myarch/:relsync".$myrelsync.".new $reporoot/$prp/$myarch/:relsync".$myrelsync.": $!\n");
   
   # save logfile
   link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
@@ -2661,10 +2662,10 @@ sub changed2lookat {
 sub updaterelsyncmax {
   my ($prp, $arch, $new, $cleanup) = @_;
   local *F;
-  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$myarch}.".max");
+  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync".$myrelsync.".max");
   my $relsyncmax;
-  if (-s "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$myarch}.".max") {
-    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$myarch}.".max"); };
+  if (-s "$reporoot/$prp/$arch/:relsync".$myrelsync.".max") {
+    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync".$myrelsync.".max"); };
     warn($@) if $@;
   }
   $relsyncmax ||= {};
@@ -2681,8 +2682,8 @@ sub updaterelsyncmax {
     }
   }
   if ($changed) {
-    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$myarch}.".max.new");
-    rename("$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$myarch}.".max.new", "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$myarch}.".max");
+    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync".$myrelsync.".max.new");
+    rename("$reporoot/$prp/$arch/:relsync".$myrelsync.".max.new", "$reporoot/$prp/$arch/:relsync".$myrelsync.".max");
   }
   close(F);
   return $changed;
@@ -3543,15 +3544,15 @@ while(1) {
   # fetch relsync data
   my $relsyncmax;
   my %relsynctrigger;
-  if (-s "$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}.".max") {
+  if (-s "$reporoot/$prp/$myarch/:relsync".$myrelsync.".max") {
     eval {
-      $relsyncmax = Storable::retrieve("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}.".max");
+      $relsyncmax = Storable::retrieve("$reporoot/$prp/$myarch/:relsync".$myrelsync.".max");
     };
     warn($@) if $@;
-    if ($relsyncmax && -s "$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}) {
+    if ($relsyncmax && -s "$reporoot/$prp/$myarch/:relsync".$myrelsync) {
       my $relsync;
       eval {
-        $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch});
+        $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync".$myrelsync);
       };
       warn($@) if $@;
       for my $packid (@packs) {
@@ -4054,11 +4055,11 @@ while(1) {
   $prpchecktimes{$prp} = $prpchecktime;
 
   # send relsync file if something has been changed
-  my @relsync1 = stat("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch});
-  my @relsync2 = stat("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}.".sent");
+  my @relsync1 = stat("$reporoot/$prp/$myarch/:relsync".$myrelsync);
+  my @relsync2 = stat("$reporoot/$prp/$myarch/:relsync".$myrelsync.".sent");
   if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
     print "    updating relsync information\n";
-    my $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}) || {};
+    my $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync".$myrelsync) || {};
     my $relsyncmax = {};
     for my $packid (sort keys %$relsync) {
       next unless $relsync->{$packid} =~ /^(.*)\.([^-]*)$/;
@@ -4078,9 +4079,9 @@ while(1) {
       BSRPC::rpc($param, undef, "project=$projid", "repository=$repoid", "arch=$myarch");
     };
     if (!$@) {
-      unlink("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}."$$");
-      link("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}, "$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}."$$");
-      rename("$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}."$$", "$reporoot/$prp/$myarch/:relsync".$BSConfig::relsync_pool{$myarch}.".sent");
+      unlink("$reporoot/$prp/$myarch/:relsync".$myrelsync."$$");
+      link("$reporoot/$prp/$myarch/:relsync".$myrelsync, "$reporoot/$prp/$myarch/:relsync".$myrelsync."$$");
+      rename("$reporoot/$prp/$myarch/:relsync".$myrelsync."$$", "$reporoot/$prp/$myarch/:relsync".$myrelsync.".sent");
     } else {
       warn($@);
     }

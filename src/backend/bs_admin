@@ -283,7 +283,7 @@ sub dump_state {
 
 sub shutdown_scheduler {
   my ($arch) = @_;
-  write_event( undef, undef, $arch, 'exit' );
+  write_event( '', undef, $arch, 'exit' );
 };
 
 sub check_project {
