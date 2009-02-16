@@ -749,7 +749,7 @@ sub dobuild {
   my $release = $buildinfo->{'release'};
   my $obsinstance = "";
   $obsinstance = $BSConfig::obsname if defined ($BSConfig::obsname);
-  my $disturl = "obs://".$obsinstance."/".$buildinfo->{'project'}."/".$buildinfo->{'repository'}."/".$buildinfo->{'srcmd5'}-$buildinfo->{'package'};
+  my $disturl = "obs://".$obsinstance."/".$buildinfo->{'project'}."/".$buildinfo->{'repository'}."/".$buildinfo->{'srcmd5'}."-".$buildinfo->{'package'};
 
   my @args;
   push @args, $helper if $helper;
