@@ -1926,7 +1926,7 @@ sub publishedfile {
 sub getrelsync {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
-  my $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch});
+  my $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync");
   return ($relsyncdata, 'Content-Type: application/octet-stream');
 }
 
@@ -1939,10 +1939,10 @@ sub postrelsync {
   die("no data\n") unless $new;
 
   local *F;
-  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max");
+  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
   my $relsyncmax;
-  if (-s "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max") {
-    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max"); };
+  if (-s "$reporoot/$prp/$arch/:relsync.max") {
+    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync.max"); };
     warn($@) if $@;
   }
   $relsyncmax ||= {};
@@ -1959,8 +1959,8 @@ sub postrelsync {
     $changed = 1;
   }
   if ($changed) {
-    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max.new");
-    rename("$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max.new", "$reporoot/$prp/$arch/:relsync".$BSConfig::relsync_pool{$arch}.".max");
+    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync.max.new");
+    rename("$reporoot/$prp/$arch/:relsync.max.new", "$reporoot/$prp/$arch/:relsync.max");
   }
   close(F);
 
