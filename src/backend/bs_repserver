@@ -978,10 +978,20 @@ sub getresult {
     for my $p (@{$ps->{'packstatus'} || []}) {
       next if %code && !$code{$p->{'status'}};
       my $packid = $p->{'name'};
-      my $s = {'package' => $packid, 'code' => $p->{'status'}};
-      $s->{'details'} = $p->{'error'} if $p->{'error'};
-      $state .= "$p->{'name'}\0$p->{'status'}\0";
-      push @{$sl->{'status'}}, $s;
+      if ($cgi->{'lastbuild'}) {
+        if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
+          push @{$sl->{'status'}}, {'package' => $packid, 'code' => 'failed'};
+        } elsif (-e "$reporoot/$prpa/:logfiles.success/$packid") {
+          push @{$sl->{'status'}}, {'package' => $packid, 'code' => 'succeeded'};
+        } else {
+          push @{$sl->{'status'}}, {'package' => $packid, 'code' => 'unknown'};
+        }
+      } else {
+        my $s = {'package' => $packid, 'code' => $p->{'status'}};
+        $s->{'details'} = $p->{'error'} if $p->{'error'};
+        $state .= "$p->{'name'}\0$p->{'status'}\0";
+        push @{$sl->{'status'}}, $s;
+      }
       if ($cgi->{'withbinarylist'}) {
 	my @b;
 	for (sort(ls("$reporoot/$prpa/$packid"))) {
@@ -2030,7 +2040,7 @@ my $dispatches = [
   # info
   '/workerstatus scheduleronly:bool? arch*' => \&workerstatus,
 
-  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool?' => \&getresult,
   '/_command $cmd: $prpa+ package* code:*' => \&docommand,
   '/ajaxstatus' => \&getajaxstatus,
 ];

@@ -59,7 +59,7 @@ use strict;
 
 my $port = 5352;	#'SR'
 $port = $1 if $BSConfig::srcserver =~ /:(\d+)$/;
-my $ajaxsocket = "$BSConfig::bsdir/run/bs_srcserver.ajax";
+my $ajaxsocket = "$BSConfig::rundir/bs_srcserver.ajax";
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
@@ -2143,6 +2143,7 @@ sub getresult {
 
   if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
     my @args = "oldstate=$cgi->{'oldstate'}";
+    push @args, "lastbuild" if $cgi->{'lastbuild'};
     push @args, map {"view=$_"} @{$cgi->{'view'} || []};
     push @args, map {"repository=$_"} @{$cgi->{'repository'} || []};
     push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
@@ -2190,6 +2191,7 @@ sub getresult {
   # XXX FIXME multiple repo handling
   for my $rrserver ($BSConfig::reposerver) {
     my @args;
+    push @args, "lastbuild" if $cgi->{'lastbuild'};
     push @args, "oldstate=$cgi->{'oldstate'}" if $cgi->{'oldstate'};
     push @args, map {"prpa=$_"} @prpas;
     push @args, map {"package=$_"} @{$cgi->{'package'} || []};
@@ -3354,7 +3356,7 @@ my $dispatches = [
   '/build/_workerstatus scheduleronly:bool? arch*' => \&getworkerstatus,
   'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
-  '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
+  '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getconfig,
   '/build/$project/$repository/$arch' => \&getpackagelist,
