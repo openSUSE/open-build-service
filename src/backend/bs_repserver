@@ -65,8 +65,6 @@ use strict;
 
 my $port = 5252;	#'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
-my $ajaxsocket = "$BSConfig::bsdir/run/bs_srcserver.ajax";
-$ajaxsocket = "$BSConfig::rundir/bs_srcserver.ajax" if $BSConfig::rundir;
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 
@@ -76,9 +74,11 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
 my $infodir = "$BSConfig::bsdir/info";
 my $uploaddir = "$BSConfig::bsdir/upload";
-my $rundir = "$BSConfig::rundir";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodb = "$BSConfig::bsdir/db/published";
+
+my $ajaxsocket = "$rundir/bs_srcserver.ajax";
 
 sub unify {
   my %h = map {$_ => 1} @_;
