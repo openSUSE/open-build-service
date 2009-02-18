@@ -38,7 +38,7 @@ our $isajax;	# is this the ajax process?
 
 our $return_ok = "<status code=\"ok\" />\n";
 
-my $rundir = "$BSConfig::rundir";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 
 sub stdreply {
   my @rep = @_;
