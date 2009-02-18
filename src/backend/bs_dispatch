@@ -85,7 +85,7 @@ my %cando = (
   'local'   => ['local'],
 );
 
-my $rundir = "$BSConfig::rundir";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $workersdir = "$BSConfig::bsdir/workers";
 my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
