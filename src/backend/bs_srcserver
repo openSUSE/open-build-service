@@ -59,13 +59,12 @@ use strict;
 
 my $port = 5352;	#'SR'
 $port = $1 if $BSConfig::srcserver =~ /:(\d+)$/;
-my $ajaxsocket = "$BSConfig::bsdir/run/bs_srcserver.ajax";
-$ajaxsocket = "$BSConfig::rundir/bs_srcserver.ajax" if $BSConfig::rundir;
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
 my $requestsdir = "$BSConfig::bsdir/requests";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 
 my $reqindexdb = "$BSConfig::bsdir/db/request";
 my $extrepodb = "$BSConfig::bsdir/db/published";
@@ -74,6 +73,8 @@ my $remotecache = "$BSConfig::bsdir/remotecache";
 
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment}];
 my $eventlay = [qw{number time type project package repository arch}];
+
+my $ajaxsocket = "$rundir/bs_srcserver.ajax";
 
 my %packagequota;
 
