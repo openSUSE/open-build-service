@@ -65,7 +65,8 @@ use strict;
 
 my $port = 5252;	#'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
-my $ajaxsocket = "$BSConfig::rundir/bs_repserver.ajax";
+my $ajaxsocket = "$BSConfig::bsdir/run/bs_srcserver.ajax";
+$ajaxsocket = "$BSConfig::rundir/bs_srcserver.ajax" unless $BSConfig::rundir;
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 

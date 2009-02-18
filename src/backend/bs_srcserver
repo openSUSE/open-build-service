@@ -59,7 +59,8 @@ use strict;
 
 my $port = 5352;	#'SR'
 $port = $1 if $BSConfig::srcserver =~ /:(\d+)$/;
-my $ajaxsocket = "$BSConfig::rundir/bs_srcserver.ajax";
+my $ajaxsocket = "$BSConfig::bsdir/run/bs_srcserver.ajax";
+$ajaxsocket = "$BSConfig::rundir/bs_srcserver.ajax" unless $BSConfig::rundir;
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
