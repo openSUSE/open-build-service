@@ -260,6 +260,7 @@ our $buildinfo = [
 	'project',
 	'repository',
 	'package',
+	'downloadurl',
 	[],
 	'job',
 	'arch',
