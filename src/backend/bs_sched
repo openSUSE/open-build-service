@@ -84,6 +84,9 @@ my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 
 my %remoteprojs;	# remote project cache
 
+# Create directory on first start
+mkdir_p($infodir) || die ("Failed to create ".$infodir);
+
 sub unify {
   my %h = map {$_ => 1} @_;
   return grep(delete($h{$_}), @_);
