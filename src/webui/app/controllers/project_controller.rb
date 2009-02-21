@@ -580,7 +580,8 @@ class ProjectController < ApplicationController
     @name_filter = params[:pkgname]
     @repo_filter = params[:repo]
     @arch_filter = params[:arch]
-    @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.blank? ? nil : :code => @status_filter)
+    @lastbuild_switch = params[:lastbuild]
+    @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.blank? ? nil : :code => @status_filter, @lastbuild_switch.blank? ? nil : :lastbuild => '1' )
 
     @avail_status_values = ['succeeded','failed','expansion error','broken','blocked','disabled','scheduled','building','dispatching','finished','excluded','unknown']
 

@@ -20,6 +20,7 @@
   <div class='nowrap'><strong> Packagename: </strong><%= text_field_tag "pkgname", @name_filter %></div>
   <div class='nowrap'><strong> Repository: </strong><%= text_field_tag "repo", @repo_filter %></div>
   <div class='nowrap'><strong> Architecture: </strong><%= text_field_tag "arch", @arch_filter %></div>
+  <div class='nowrap'><%= check_box_tag "lastbuild", 1, @lastbuild_switch %><strong>Last time results</strong></div>
   <%= hidden_field_tag 'project', @project %>
   <%= submit_tag 'Filter'%>
 <% end %>
