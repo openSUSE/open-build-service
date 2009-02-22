@@ -1180,7 +1180,6 @@ sub getbuildinfo {
   }
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
-  print Dumper($bconf);
 
   my $ret;
   $ret->{'project'} = $projid;
