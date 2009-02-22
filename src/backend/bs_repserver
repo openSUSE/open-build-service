@@ -1184,7 +1184,6 @@ sub getbuildinfo {
   my $ret;
   $ret->{'project'} = $projid;
   $ret->{'repository'} = $repoid;
-  $ret->{'downloadurl'} = $BSConfig::repodownload;
   $ret->{'package'} = $packid if defined $packid;
   $ret->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;;
   $ret->{'arch'} = $arch;
