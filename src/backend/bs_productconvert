@@ -323,8 +323,7 @@ sub createProductOptions($$$)
         $info{'PATTERNS'} .= join(' ',map( $_->{'name'},@{$medium->{'preselected_patterns'}->[0]->{'pattern'}}));
     }
     foreach my $summary ( @{$product->{'summary'}} ){
-      $info{'SUMMARY'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
-      $info{'LABEL'}        = $summary->{'_content'}." ".$product->{'version'} if ( ! $summary->{'language'} );
+      $info{'LABEL'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
     }
     $options{'REPO_LOCATION'} = getUrl($product,$arch,"repository");
     $info{'RELNOTESURL'} = getUrl($product,$arch,"releasenotes");
