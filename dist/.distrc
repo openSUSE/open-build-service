@@ -29,8 +29,8 @@
 # The version and
 
 # The tar ball is updated from here
-: ${SVNDIR:=../../buildservice}
+: ${SVNDIR:=../../../buildservice/1.5}
 
 # The svnversion of SVNDIR plus this VERSION make up the rpm package
 # 'Version:'
-: ${VERSION:=1.5.b1}
+: ${VERSION:=1.5}
