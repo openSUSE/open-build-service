@@ -835,7 +835,7 @@ sub writeProductSPECfile( $$$$ )
      $product_flavors.=createSPECfileFlavors($prodRef,$product);
 
      # Create product file to be packaged
-     my $zypp_product_file = createProductFile($product);
+     my $zypp_product_file = createProductFile($prodRef,$product);
         $zypp_product_file.= createFlavorReadme($prodRef,$product);
 
      my $str = readstr($infile);
@@ -843,7 +843,11 @@ sub writeProductSPECfile( $$$$ )
      # replace all strings
      $str =~ s/___DISTNAME___/$product->{name}/g;
      $str =~ s/___VERSION___/$product->{version}/g;
-     $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
+     if ( defined $product->{buildconfig}->{betaversion} ) {
+       $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
+     } else {
+       $str =~ s/___BETA_VERSION___//g;
+     }
      $str =~ s/___RELEASE___/$product->{release}/g;
      $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
      $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
@@ -942,7 +946,7 @@ install -m 644 -D /CD1/EULA.txt %{buildroot}/%{_docdir}/%{name}/%{product}-EULA.
         return $content;
 }
 
-sub createProductFile ( $ ) {
+sub createProductFile ( $$ ) {
     my ($prodRef, $product) = @_;
     my $zypp_product_file = "";
     my $zypp_product = $product;
