@@ -522,6 +522,7 @@ sub fetchbinary {
   eval {
     BSRPC::rpc({
       uri => $uri,
+      maxredirects => 3,
       filename => "$dest$$",
       receiver => \&BSHTTP::file_receiver
     }, undef);

@@ -231,11 +231,13 @@ sub rpc {
   } elsif ($status =~ /^302[^\d]/) {
     # XXX: should we do the redirect if $param->{'ignorestatus'} is defined?
     close S;
+    die("error: no redirects allowed\n") unless defined $param->{'maxredirects'};
     die("error: status 302 but no 'location' header found\n") unless exists $headers{'location'};
-    $param->{'uri'} = $headers{'location'};
-    $param->{'maxredirects'} = exists $param->{'maxredirects'} ? $param->{'maxredirects'} - 1 : 3;
-    die("error: max number of redirects reached\n") if $param->{'maxredirects'} < 0;
-    return rpc($param, $xmlargs, @args);
+    die("error: max number of redirects reached\n") if $param->{'maxredirects'} < 1;
+    my %myparam = %$param;
+    $myparam{'uri'} = $headers{'location'};
+    $myparam{'maxredirects'} = $param->{'maxredirects'} - 1;
+    return rpc(\%myparam, $xmlargs, @args);
   } else {
     #if ($param->{'verbose'}) {
     #  1 while sysread(S, $ans, 1024, length($ans));

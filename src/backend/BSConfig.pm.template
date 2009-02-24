@@ -49,6 +49,9 @@ our $bsgroup = 'obsrun';
 our $rundir = '/srv/obs/run';
 our $logdir = '/srv/obs/log';
 
+# enable automatic download of missing binaries
+our $enable_dod = 0;
+
 # optional: limit visibility of projects for some architectures
 #our $limit_projects = {
 # "ppc" => [ "openSUSE:Factory", "FATE" ],

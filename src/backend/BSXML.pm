@@ -75,10 +75,10 @@ our @flags = (
 
 our $download = [
     'download' =>
-     'baseurl',
-     'metafile',
-     'mtype',
-     'arch',
+	'baseurl',
+	'metafile',
+	'mtype',
+	'arch',
 ];
 
 our $proj = [
