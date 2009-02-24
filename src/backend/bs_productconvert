@@ -127,18 +127,10 @@ sub createPreferences( $ )
 {
     my( $prodRef ) = @_;
     my $re = {};
-    my $version = $prodRef->{version};
-    $version = $version.".0" unless ( $version =~ /\./ ); # needed for products without minor number
-    my $release = $prodRef->{release};
-    $release = "0" unless (defined($prodRef->{release}));
 
     $re->{type} = [{_content => "product"}];
-    $re->{version} = sprintf( "%s.%s",
-			      $version,
-			      $release  );
-
-    # $re->{size} = ; do not give the optional size
-    $re->{packagemanager} = "zypper" ;
+    $re->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
+    $re->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
 
     return $re;
 }
@@ -1093,7 +1085,7 @@ foreach my $medium ( @$media ){
                   push @archs, { 'arch' => $architecture };
                   push @productarch, $architecture;
                   # Heuristic: we need to make this configurable at a more central place
-#                  push @archs, { 'arch' => 'local' }; # activate this, if you run with local scheduler
+                  push @archs, { 'arch' => 'local' }; # activate this, if you run with local scheduler
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
                   push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
                   push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
