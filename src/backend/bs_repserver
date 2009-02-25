@@ -523,6 +523,7 @@ sub fetchbinary {
   eval {
     BSRPC::rpc({
       uri => $uri,
+      maxredirects => 3,
       filename => "$dest$$",
       receiver => \&BSHTTP::file_receiver
     }, undef);
@@ -911,7 +912,6 @@ sub forwardevent {
     next if $a =~ /^\./;
     next unless -d "$eventdir/$a";
     next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch';
-    next if $type eq 'relsync' && $BSConfig::relsync_pool && ($BSConfig::relsync_pool->{$arch} || '') ne ($BSConfig::relsync_pool->{$a} || '');
     writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
     ping($a);
   }
