@@ -3074,12 +3074,7 @@ sub worker_getbinaries {
       local *F;
       if (open(F, '<', $param->{'filename'})) {
         unlink($param->{'filename'});
-	my $hdr = {
-	  'content-length' => -s F,
-	  '__data' => '',
-	  '__socket' => \*F,
-        };
-	$cpio = BSHTTP::cpio_receiver($hdr, $param);
+	$cpio = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*F), $param);
 	close F;
       }
     }
