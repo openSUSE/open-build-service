@@ -58,6 +58,7 @@ my $hostcheck;
 my $buildlog_maxsize = 500 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
 my $xenstore_maxsize = 20 * 1000000;
+my $gettimeout = 3600; # 1 hour timeout on requests to avoid forever hanging workers
 
 my %cando = (
   'armv4l'  => [                                            'armv4l'                              ],
@@ -405,6 +406,7 @@ sub getcode {
   my $res = BSRPC::rpc({
     uri => $uri,
     directory => $ndir,
+    timeout => $gettimeout,
     withmd5 => 1,
     'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
   });
@@ -464,6 +466,7 @@ sub getsources {
   my $res = BSRPC::rpc({
     uri => "$srcserver/getsources",
     directory => $dir,
+    timeout => $gettimeout,
     withmd5 => 1,
     'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
   }, undef, "project=$projid", "package=$buildinfo->{'package'}", "srcmd5=$buildinfo->{'srcmd5'}");
@@ -495,6 +498,7 @@ sub getsources {
     my $res = BSRPC::rpc({
       uri => "$srcserver/getsources",
       directory => $idir,
+      timeout => $gettimeout,
       withmd5 => 1,
       'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
     }, undef, "project=$src->{'project'}", "package=$src->{'package'}", "srcmd5=$src->{'srcmd5'}");
@@ -558,6 +562,7 @@ sub getbinaries_kiwiproduct {
     my $res = BSRPC::rpc({
       'uri' => "$repo->{'server'}/build/$projid/$repoid/$arch/$packid",
       'directory' => $ddir,
+      timeout => $gettimeout,
       'map' => sub {
 	my ($param, $name) = @_;
 	if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
@@ -643,6 +648,7 @@ sub getbinaries {
     my $res = BSRPC::rpc({
       'uri' => "$repo->{'server'}/getbinaries",
       'directory' => $ddir,
+      'timeout' => $gettimeout,
       'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
     }, undef, @args);
     die("Error\n") unless ref($res) eq 'ARRAY';
@@ -676,6 +682,7 @@ sub getbinaries {
     my $res = BSRPC::rpc({
       'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
       'directory' => $odir,
+      'timeout' => $gettimeout,
       'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
     }, undef, "view=cpio");
     rm_rf("$odir") unless ref($res) eq 'ARRAY'; # remove dir again, if there is no former build
