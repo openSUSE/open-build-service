@@ -92,18 +92,18 @@
 <% end -%>
 <p><div id="refresh_date">Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></div></p>
 <p><div id="legend"><b>Legend</b>:
-<br>succeeded -- Package has build successfull and can be used to build further packages.</br>
-<br>failed -- The package does not build successfull. No package has been created. A possibly former built package will be used to build dependending packages.</br>
-<br>expansion error -- The build can not get started, because required packages are either missing or not explicit defined.</br>
-<br>blocked -- This package waits for other packages to be build. These can be in the same or other project. </br>
-<br>scheduled -- A package has been marked for build, but the build has not started yet. </br>
-<br>building -- The package is currently building. </br>
-<br>dispatching -- A package gets currently copied to a build host. This is an intermediate state before building. </br>
-<br>finished -- The package has been build, but has not yet been picked up by the server. This is an intermediate state to succeeded or failed. </br>
-<br>disabled -- The package build has been disabled in project or package meta data. </br>
+<br>succeeded -- Package has built successfully and can be used to build further packages.</br>
+<br>failed -- The package does not build successfully. No packages have been created. Packages that depend on this package will be built using any previously created packages, if they exist.</br>
+<br>expansion error -- The build can not begin, because required packages are either missing or not explicitly defined.</br>
+<br>blocked -- This package waits for other packages to be built. These can be in the same or other projects.</br>
+<br>scheduled -- A package has been marked for building, but the build has not started yet.</br>
+<br>building -- The package is currently being built.</br>
+<br>dispatching -- A package is being copied to a build host. This is an intermediate state before building.</br>
+<br>finished -- The package has been built, but has not yet been picked up by the server. This is an intermediate state prior to 'succeeded' or 'failed'.</br>
+<br>disabled -- The package has been disabled from building in project or package metadata.</br>
 <br>excluded -- The package build has been disabled in package build description (for example in the .spec file). </br>
-<br>broken -- The sources do either contain no build description or a source link does not work. </br>
-<br>unknown -- The scheduler never evaluated this package until now. Should be a short intermediate state for new packages. </br>
+<br>broken -- The sources either contain no build description (eg specfile) or a source link does not work.</br>
+<br>unknown -- The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.</br>
 </div></p>
 
 <div id="start_link">
