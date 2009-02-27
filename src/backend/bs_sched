@@ -84,9 +84,6 @@ my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 
 my %remoteprojs;	# remote project cache
 
-# Create directory on first start
-mkdir_p($infodir) || die ("Failed to create ".$infodir);
-
 sub unify {
   my %h = map {$_ => 1} @_;
   return grep(delete($h{$_}), @_);
@@ -2243,9 +2240,9 @@ sub rebuildkiwiproduct {
 
   # max with sync data
   my $tag = $pdata->{'bcntsynctag'} || $packid;
-  if ($relsyncmax->{"$packid/$pdata->{'versrel'}"}) {
-    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$packid/$pdata->{'versrel'}"}) {
-      $h->{'bcnt'} = $relsyncmax->{"$packid/$pdata->{'versrel'}"} - 1;
+  if ($relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+      $h->{'bcnt'} = $relsyncmax->{"$tag/$pdata->{'versrel'}"} - 1;
     }
   }
 
@@ -2691,7 +2688,7 @@ flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myar
 utime undef, undef, "$rundir/bs_sched.$myarch.lock";
 
 # setup event mechanism
-for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir) {
+for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir, $infodir) {
   next if -d $d;
   mkdir($d) || die("$d: $!\n");
 }
