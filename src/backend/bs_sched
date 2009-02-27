@@ -616,9 +616,9 @@ sub set_building {
 
   # max with sync data
   my $tag = $pdata->{'bcntsynctag'} || $packid;
-  if ($relsyncmax->{"$packid/$pdata->{'versrel'}"}) {
-    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$packid/$pdata->{'versrel'}"}) {
-      $h->{'bcnt'} = $relsyncmax->{"$packid/$pdata->{'versrel'}"} - 1;
+  if ($relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+      $h->{'bcnt'} = $relsyncmax->{"$tag/$pdata->{'versrel'}"} - 1;
     }
   }
 
@@ -658,6 +658,7 @@ sub set_building {
   }
 
   my $vmd5 = $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
+  my $bcnt = $h->{'bcnt'} + 1;
   my $binfo = {
     'project' => $projid,
     'repository' => $repoid,
@@ -670,7 +671,7 @@ sub set_building {
     'rev' => $pdata->{'rev'},
     'file' => $info->{'file'},
     'versrel' => $pdata->{'versrel'},
-    'bcnt' => $h->{'bcnt'} + 1,
+    'bcnt' => $bcnt,
     'subpack' => ($subpacks || []),
     'imagetype' => \@imagetypes,
     'bdep' => \@bdeps,
@@ -679,7 +680,6 @@ sub set_building {
   my $release = $pdata->{'versrel'};
   $release = '0' unless defined $release;
   $release =~ s/.*-//;
-  my $bcnt = $h->{'bcnt'} + 1;
   if (defined($bconf->{'release'})) {
     $binfo->{'release'} = $bconf->{'release'};
     $binfo->{'release'} =~ s/\<CI_CNT\>/$release/g;
