@@ -16,10 +16,10 @@
 #
 usage="usage:  $0 <source obs> <source project> <target obs> <target project> [listfile]"
 
-sourceobs=$1
+sourceobs="https://$1"
 sourceprj=$2
 
-targetobs=$3
+targetobs="https://$3"
 targetprj=$4
 
 listfile=$5
