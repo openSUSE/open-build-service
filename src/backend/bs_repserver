@@ -78,7 +78,7 @@ my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodb = "$BSConfig::bsdir/db/published";
 
-my $ajaxsocket = "$rundir/bs_srcserver.ajax";
+my $ajaxsocket = "$rundir/bs_repserver.ajax";
 
 sub unify {
   my %h = map {$_ => 1} @_;
