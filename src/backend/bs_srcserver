@@ -1088,8 +1088,11 @@ sub getprojpack {
 	      $bconfs{$repoid} = Build::read_config($arch, $c);
             };
 	    my $conf = $bconfs{$repoid};
-
-	    my $type = $conf->{'type'} || 'spec';
+	    my $type = $conf->{'type'};
+	    if (!$type || $type eq 'UNDEFINED') {
+	      push @dinfo, {'repository' => $repoid, 'error' => 'bad build configuration'};
+	      next;
+	    }
             my ($md5, $file) = findfile($projid, $packid, $repoid, $type, $files);
 	    if (!$md5) {
 		# no spec/dsc/kiwi file found
