@@ -46,6 +46,7 @@ our $kiwidesc = [
     'image' =>
         'name',
         'schemeversion',
+        'displayname',
         [],
         [ 'description' => 
               'type',
@@ -76,8 +77,10 @@ our $kiwidesc = [
           'locale',
           'keytable',
           'oem-home',
+          'oem-reboot',
           'oem-swap',
           'oem-boot-title',
+          'timezone',
         ],
         [ 'instsource' =>
           [],
