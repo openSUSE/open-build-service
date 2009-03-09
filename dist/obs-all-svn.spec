@@ -10,7 +10,7 @@
 
 Name:           obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
-BuildRequires:  python-devel rubygem-builder rubygem-activesupport
+BuildRequires:  python-devel rubygem-activesupport
 %if 0%{?suse_version:1}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
