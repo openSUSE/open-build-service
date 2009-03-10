@@ -589,7 +589,13 @@ class PackageController < ApplicationController
     options[:project] = project
     options[:package] = package
 
-    frontend.rebuild options
+    begin
+      frontend.rebuild options
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "No repository defined"
+      redirect_to :controller => "project", :action => :add_target_simple, :project => project
+      return
+    end
 
     logger.debug( "Triggered Rebuild for #{package}, options=#{options.inspect}" )
 
