@@ -2,6 +2,11 @@
   # local variables: 
   #   requests - request collection
 -%>
+<%-
+  if requests.nil?
+    return "<p><em>No requests</em></p>"
+  end
+-%>
 <table id='request-table' class='grid'>
   <tr>
     <th>Request ID</th>
