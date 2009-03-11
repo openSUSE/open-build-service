@@ -68,7 +68,8 @@ sub getbinaries_kiwiproduct {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
     my $ddir = $dir;
     my $prpdir = "$projid/$repoid";
-    $prpdir =~ s/:/:\//g;
+# needed for old kiwi
+#    $prpdir =~ s/:/:\//g;
     $ddir .= "/$prpdir";
     mkdir_p($ddir);
     for my $name (sort(grep {/\.rpm$/} ls("$reporoot/$prpap"))) {
@@ -282,7 +283,7 @@ sub dobuild {
   delete $ENV{'LANG'};                     # set locale to POSIX to have the same always sort order
   my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
-  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '--instsource-local', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
+  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '--instsource-local', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
 # kiwi fails always atm !
 #    die("kiwi failed: $?\n");
   }
