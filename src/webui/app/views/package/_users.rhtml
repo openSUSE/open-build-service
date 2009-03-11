@@ -11,13 +11,14 @@
     <dt>Maintainers</dt>
     <% package_persons=[] %>
 
-    <% @package.each_person("@role='maintainer'") do |person| -%>
+    <%- maintainers = @package.each_person("@role='maintainer'") -%>
+    <% maintainers.each do |person| -%>
       <% package_persons << person.userid %>
       <dd>
         <%=h person.userid -%>
         <%= link_to image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE build service' -%>
-        <%- if @project.person_count > 1 %>
+        <%- if maintainers.length > 1 %>
           <%= link_to "[x]",
           { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
           { :confirm => "Really remove user '#{person.userid}'?", :class => "x" } -%>
@@ -42,11 +43,9 @@
         <% package_persons << person.userid %>
         <dd>
           <%=h person.userid -%>
-          <%- if @project.person_count > 1 %>
-            <%= link_to "[x]",
-            { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
-            { :confirm => "Really remove user '#{person.userid}'?", :class => "x" } -%>
-          <% end -%>
+          <%= link_to "[x]",
+          { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
+          { :confirm => "Really remove bugowner '#{person.userid}'?", :class => "x" } -%>
         </dd>
       <% end #each_person -%>
 

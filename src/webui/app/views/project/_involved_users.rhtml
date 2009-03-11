@@ -8,13 +8,14 @@
     <% if @project.has_element? :person -%>
     <dl>
       <dt>Maintainers</dt>
-      <% @project.each_person("@role='maintainer'") do |person| -%>
+      <%- maintainers = @project.each_person("@role='maintainer'") -%>
+      <% maintainers.each do |person| -%>
       <dd>
       <%=h person.userid -%>
       <%= link_to(
         image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE build service' ) -%>
-      <%- if @project.each_person.length > 1 %>
+      <%- if maintainers.length > 1 %>
       <%= link_to "[x]",
       {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
       {:confirm => "Really remove user '#{person.userid}'?", :class => "x"}%>
@@ -26,7 +27,12 @@
       <dt>Bugowner</dt>
     <% if @project.bugowner -%>
       <% @project.each_person("@role='bugowner'") do |person| -%>
-      <dd><%=h person.userid -%>
+      <dd>
+      <%=h person.userid -%>
+      <%= link_to "[x]",
+      {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
+      {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x"}%>
+      </dd>
       <% end -%>
     <% else -%>
       <dd>No bugowner defined, bug reporting disabled</dd>
