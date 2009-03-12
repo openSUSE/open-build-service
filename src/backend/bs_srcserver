@@ -1921,7 +1921,7 @@ sub keeplink {
   return $files unless $ofilesl && $ofilesl->{'_link'};
   my $l = readxml("$srcrep/$packid/$ofilesl->{'_link'}-_link", $BSXML::link);
   my $changedlink = 0;
-  if ($l->{'patches'}) {
+  if ($repair && $l->{'patches'}) {
     if ($repair) {
       for (@{$l->{'patches'}->{''} || []}) {
         my $type = (keys %$_)[0];
@@ -1941,7 +1941,7 @@ sub keeplink {
 	last;
       }
     }
-    $l->{'patches'}->{''} = grep {defined($_)} @{$l->{'patches'}->{''}};
+    $l->{'patches'}->{''} = [ grep {defined($_)} @{$l->{'patches'}->{''}} ];
   }
 
   my $ofiles;
