@@ -1154,9 +1154,8 @@ sub getprojectlist {
 sub getproject {
   my ($cgi, $projid) = @_;
   # Read the project xml file
-  my $proj = readproj($projid);
-
-  # return project meta data
+  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  $proj = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta", $BSXML::proj) if $proj->{'remoteurl'};
   return ($proj, $BSXML::proj);
 }
 
@@ -1272,6 +1271,11 @@ sub getpackagelist {
 
 sub getpackage {
   my ($cgi, $projid, $packid) = @_;
+  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  if ($proj->{'remoteurl'}) {
+    my $pack = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", $BSXML::pack);
+    return ($pack, $BSXML::pack);
+  }
   my $pack = readpack($projid, $packid);
   return ($pack, $BSXML::pack);
 }
