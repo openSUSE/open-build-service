@@ -21,19 +21,10 @@ class Repository < ActiveRecord::Base
       return result unless result.nil?
 
       #no local repository found, check if remote repo possible
-      fragments = project.split /:/
-      local_project = String.new
-      remote_project = nil
-      
-      while fragments.length > 0
-        remote_project = [fragments.pop, remote_project].compact.join ":"
-        local_project = fragments.join ":"
-        logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
-        if (lpro = DbProject.find_by_name local_project)
-          if not lpro.remoteurl.nil?
-            return find_or_create_by_db_project_id_and_name_and_remote_project_name(lpro.id, repo, remote_project)
-          end
-        end
+
+      local_project, remote_project = DbProject.find_remote_project(project)
+      if local_project
+        return find_or_create_by_db_project_id_and_name_and_remote_project_name(local_project.id, repo, remote_project)
       end
 
       return nil

@@ -56,6 +56,21 @@ class DbProject < ActiveRecord::Base
       end
       result
     end
+
+    def find_remote_project(name)
+      fragments = name.split(/:/)
+      local_project = String.new
+      remote_project = nil
+
+      while fragments.length > 0
+        remote_project = [fragments.pop, remote_project].compact.join ":"
+        local_project = fragments.join ":"
+        logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
+        lpro = DbProject.find_by_name local_project
+        return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
+      end
+      return nil
+    end
   end
 
   def store_axml( project )

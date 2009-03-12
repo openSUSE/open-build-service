@@ -309,9 +309,10 @@ class ApplicationController < ActionController::Base
   end
 
   #default actions, passes data from backend
-  def pass_to_source
+  def pass_to_backend
     forward_data request.path+'?'+request.query_string, :server => :source
   end
+  alias_method :pass_to_source, :pass_to_backend
 
   def ichain_mode
       ICHAIN_MODE

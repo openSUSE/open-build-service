@@ -240,12 +240,16 @@ class SourceController < ApplicationController
 
     if request.get?
       @project = DbProject.find_by_name( project_name )
-      unless @project
+
+      if @project
+        render :text => @project.to_axml, :content_type => 'text/xml'
+      elsif DbProject.find_remote_project(project_name)
+        # project from remote buildservice, get metadata from backend
+        pass_to_backend
+      else
         render_error :message => "Unknown project '#{project_name}'",
           :status => 404, :errorcode => "unknown_project"
-        return
       end
-      render :text => @project.to_axml, :content_type => 'text/xml'
       return
     end
 
@@ -388,8 +392,12 @@ class SourceController < ApplicationController
     end
 
     unless pro = DbProject.find_by_name(project_name)
-      render_error :status => 404, :errorcode => "unknown_project",
-        :message => "Unknown project '#{project_name}'"
+      if DbProject.find_remote_project(project_name)
+        pass_to_backend
+      else
+        render_error :status => 404, :errorcode => "unknown_project",
+          :message => "Unknown project '#{project_name}'"
+      end
       return
     end
 
