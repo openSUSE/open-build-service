@@ -457,6 +457,11 @@ table.targets { }
             margin: 0.5em;
         }
 
+    #subprojects { }
+    #subprojects dd {
+      margin: 0;
+    }
+
 #mainhead {
     font-size: 225%;
 }
