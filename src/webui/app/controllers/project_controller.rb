@@ -115,6 +115,8 @@ class ProjectController < ApplicationController
       @email_hash[person.userid.to_s] = Person.find( person.userid ).email.to_s
     end
 
+    @subprojects = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#@project_name:')"
+
     @arch_list = arch_list
     @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])

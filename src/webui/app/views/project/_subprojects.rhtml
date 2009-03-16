@@ -1,0 +1,13 @@
+<div class="section" id="subprojects">
+  <h3>Subprojects</h3>
+  <dl>
+  <%- if @subprojects and @subprojects.has_element? :project -%>
+    <%- @subprojects.each_project do |prj| -%>
+    <dd><%= link_to prj.name, :action => :show, :project => prj.name %></dd>
+    <%- end -%>
+  <%- else -%>
+    <dd>No subprojects found</dd>
+  <%- end -%>
+  </dl>
+  <%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %>
+</div>
