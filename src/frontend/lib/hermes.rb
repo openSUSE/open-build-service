@@ -84,10 +84,10 @@ class Hermes
     delay_id = get_delay_id_by_name(delay)
 
     begin
-      st = @mysql.prepare("insert into msg_types_people (person_id, msg_type_id, delivery_id, delay_id) values (?,?,?,?)")
+      st = @mysql.prepare("insert into subscriptions (person_id, msg_type_id, delivery_id, delay_id) values (?,?,?,?)")
       st.execute(user_id, msg_type_id, delivery_id, delay_id)
 
-      st.prepare("select id from msg_types_people where person_id = ? and msg_type_id = ? and delivery_id = ? and delay_id = ?")
+      st.prepare("select id from subscriptions where person_id = ? and msg_type_id = ? and delivery_id = ? and delay_id = ?")
       st.execute(user_id, msg_type_id, delivery_id, delay_id)
     rescue Mysql::Error => e
       if e.message =~ /^Duplicate entry/
