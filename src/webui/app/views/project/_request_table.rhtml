@@ -16,7 +16,6 @@
     <th>Requester</th>
   </tr>
   <% requests.each do |req| -%>
-  <% req.return_empty_node = true %>
   <tr>
     <td><%= req.method_missing(:id) %></td>
     <td><%= req.submit.source.project %></td>
