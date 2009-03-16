@@ -1,0 +1,16 @@
+<% if @project.has_element? :repository -%>
+  <table class="grid targets">
+    <tr class="header">
+      <th>Name</th>
+        <% @arch_list.each do |arch| -%>
+      <th><%=h arch %></th>
+        <% end -%>
+      <th>Action</th>
+    </tr>
+    <% @project.each_repository do |repo| -%>
+      <tr class="target" id="<%=repo.name%>">
+        <%= render :partial => 'repository_item', :locals => { :repo => repo, :has_data => has_data} %>
+      </tr>
+    <%- end #each_repository -%>
+  </table>
+<% end #has_element? -%>

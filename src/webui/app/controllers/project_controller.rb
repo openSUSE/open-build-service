@@ -118,9 +118,15 @@ class ProjectController < ApplicationController
     @subprojects = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#@project_name:')"
 
     @arch_list = arch_list
-    @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
     @rating = Rating.find( :project => @project )
+  end
+
+  def buildresult
+    @project = Project.find params[:project]
+    @arch_list = arch_list
+    @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
+    render :partial => 'inner_repo_table', :locals => {:has_data => true}
   end
 
   def debug_dialog

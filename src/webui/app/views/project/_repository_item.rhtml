@@ -10,7 +10,12 @@
 <% @arch_list.each do |arch| -%>
 	<td id="<%=repo.name+'_'+arch%>">
 	<%- if repo.archs.include? arch -%>
-		<%= format_packstatus_for( repo.name, arch )%>
+          <% if has_data %>
+            <%= format_packstatus_for( repo.name, arch )%>
+          <% else %>
+            Loading data...
+            <br/>
+          <% end %>
 		build: <%= render :partial => "flag", :locals => {:flagtype => "build", :arch => arch, :repo => repo.name } %>
 		<br/>
 		publish: <%= render :partial => "flag", :locals => {:flagtype => "publish", :arch => arch, :repo => repo.name } %>
