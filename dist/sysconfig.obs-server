@@ -1,6 +1,6 @@
 ## Path:        Applications/OBS
 ## Description: define for which architectures the packages should get build
-## Type:        stringlist
+## Type:        regexp((i586|x86_64|ppc|ppc64|s390|s390x|ia64|sparc|sparc64|mips|mips64|armv4l|armv5el|armv7el|sh4)+)
 ## Default:     "i586"
 ## Config:      OBS
 #
@@ -16,17 +16,7 @@
 # If you also have workers on this host, each worker can also need 1
 # GB RAM in some known cases (e.g. compiling gcc)
 #
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 s390 s390x ia64 sparc sparc64 mips mips64 armv4l armv5el armv7el sh4"
-
-#OBS_SCHEDULER_ARCHITECTURES="i586"
-#OBS_SCHEDULER_ARCHITECTURES="x86_64"
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
-
-#OBS_SCHEDULER_ARCHITECTURES="armv4l armv5el armv7el"
-#OBS_SCHEDULER_ARCHITECTURES="ppc ppc64"
-
-#OBS_SCHEDULER_ARCHITECTURES="x86_64 ppc ppc64"
-#OBS_SCHEDULER_ARCHITECTURES="i586 armv4l armv5el armv7el"
+OBS_SCHEDULER_ARCHITECTURES="i586"
 
 ## Path:        Applications/OBS
 ## Description: The base for OBS communucation directory
