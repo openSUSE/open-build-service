@@ -29,7 +29,7 @@ module ApplicationHelper
   end
 
   def repo_url(project, repo='' )
-    "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
+      "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
   end
 
 
@@ -73,6 +73,10 @@ module ApplicationHelper
   end
 
   def bugzilla_url(email, desc="")
-    "#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd%20party%20software&assigned_to=#{email}&short_desc=#{desc}"
+#    if #{BUGZILLA_HOST} == nil
+#      "NO_BUGZILLA_HOST_DEFINED"
+#    else
+      "#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd%20party%20software&assigned_to=#{email}&short_desc=#{desc}"
+#    end
   end
 end
