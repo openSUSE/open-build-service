@@ -542,6 +542,11 @@ a.x:hover {
     top: 4px;
 }
 
+.bug_link {
+    position: relative;
+    top: 4px;
+}
+
 #package_filter {
     font-size: 75%;
     color: #888;
