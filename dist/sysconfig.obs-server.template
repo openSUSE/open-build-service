@@ -1,21 +1,24 @@
 ## Path:        Applications/OBS
 ## Description: define for which architectures the packages should get build
-## Type:        stringlist
+## Type:        regexp((i586|x86_64|ppc|ppc64|s390|s390x|ia64|sparc|sparc64|mips|mips64|armv4l|armv5el|armv7el|sh4)+)
 ## Default:     "i586"
 ## Config:      OBS
 #
 # This needs to be a space seperated list of all supported architectures
 
-#OBS_SCHEDULER_ARCHITECTURES="armv4l"
-#OBS_SCHEDULER_ARCHITECTURES="armv5el"
-#OBS_SCHEDULER_ARCHITECTURES="ppc"
-#OBS_SCHEDULER_ARCHITECTURES="ppc64"
+#OBS_SCHEDULER_ARCHITECTURES="armv4l armv5el armv7el"
+#OBS_SCHEDULER_ARCHITECTURES="ppc ppc64"
+
 #OBS_SCHEDULER_ARCHITECTURES="i586"
 #OBS_SCHEDULER_ARCHITECTURES="x86_64"
-OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc"
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64"
-#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 ppc ppc64 armv4l armv5el armv7el"
+#OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
+
+#OBS_SCHEDULER_ARCHITECTURES="x86_64 ppc ppc64"
+#OBS_SCHEDULER_ARCHITECTURES="i586 armv4l armv5el armv7el"
+
+# these are all schedulers in the current public OBS
+#
+#OBS_SCHEDULER_ARCHITECTURES="armv4l armv5el armv7el i586 ppc ppc64 x86_64"
 
 # This is the list of all currently known archs by rpm/deb and the obs backend
 # Each of them can be put inside in any combination
