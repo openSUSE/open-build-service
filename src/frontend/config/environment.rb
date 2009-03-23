@@ -88,6 +88,7 @@ ActiveRbac.controller_layout = "rbac"
 require 'rails_put_fix'
 require 'rails_unescape_fix'
 #require 'active_rbac_user_model_crypt_hack'
+require 'array_count_for_2_1_fix'
 
 require 'activexml'
 #require 'smartactivexml'
