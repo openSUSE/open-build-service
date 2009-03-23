@@ -3459,6 +3459,7 @@ while(1) {
 
   my %pdeps;
   my %pkg2src;
+  my %pkgdisabled;
   for my $packid (@packs) {
     my $pdata = $packs->{$packid};
 
@@ -3476,6 +3477,12 @@ while(1) {
       }
     }
     if (!$info || !defined($info->{'file'}) || !defined($info->{'name'})) {
+      if ($pdata->{'error'} && $pdata->{'error'} eq 'disabled') {
+        $pkgdisabled{$packid} = 1;
+      }
+      if ($info && $info->{'error'} && $info->{'error'} eq 'disabled') {
+        $pkgdisabled{$packid} = 1;
+      }
       $pdeps{$packid} = [];
       next;
     }
@@ -3502,6 +3509,20 @@ while(1) {
     $pdeps{$packid} = \@edeps;
   }
 
+  if (%pkgdisabled) {
+    # leave info of disabled packages untouched
+    my $olddepends;
+    eval {
+      $olddepends = Storable::retrieve("$reporoot/$prp/$myarch/:depends");
+    };
+    if ($olddepends) {
+      for (keys %pkgdisabled) {
+        $pdeps{$_} = $olddepends->{'pkgdeps'}->{$_} if $olddepends->{'pkgdeps'}->{$_};
+        $pkg2src{$_} = $olddepends->{'pkg2src'}->{$_} if $olddepends->{'pkg2src'}->{$_};
+      }
+    }
+  }
+
   # write dependency information
   Storable::nstore({
     'pkgdeps' => \%pdeps,
@@ -3509,6 +3530,11 @@ while(1) {
     'pkg2src' => \%pkg2src,
   }, "$reporoot/$prp/$myarch/.:depends");
   rename("$reporoot/$prp/$myarch/.:depends", "$reporoot/$prp/$myarch/:depends");
+  # remove old entries again
+  for (keys %pkgdisabled) {
+    $pdeps{$_} = [];
+    delete $pkg2src{$_};
+  }
 
   # sort packages by pdeps
   print "    sorting ".@packs." packages\n";
