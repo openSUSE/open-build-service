@@ -1201,9 +1201,9 @@ sub getbuildinfo {
     $ret->{'error'} = $pdata->{'error'};
     return ($ret, $BSXML::buildinfo);
   }
-  my $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, 0, $arch);
+  my $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, undef, $arch);
   $debuginfo = BSUtil::enabled($repoid, $proj->{'package'}->[0]->{'debuginfo'}, $debuginfo, $arch) if defined($packid);
-  $ret->{'debuginfo'} = $debuginfo;
+  $ret->{'debuginfo'} = defined($debuginfo) ? 1 : 0;
 
   if (defined($packid) && exists($pdata->{'versrel'})) {
     $ret->{'versrel'} = $pdata->{'versrel'};
