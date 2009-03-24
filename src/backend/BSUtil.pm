@@ -285,18 +285,23 @@ sub isotime {
 sub enabled {
   my ($repoid, $disen, $default, $arch) = @_;
   return $default unless $disen;
+  my $exact = 0;
   if (($default || !defined($default)) && $disen->{'disable'}) {
     for (@{$disen->{'disable'}}) {
-      next if exists($_->{'arch'}) && $_->{'arch'} ne $arch;
-      next if exists($_->{'repository'}) && $_->{'repository'} ne $repoid;
+      my $e = 0;
+      $_->{'arch'} eq $arch ? $e++ : next if exists($_->{'arch'});
+      $_->{'repository'} eq $repoid ? $e++ : next if exists($_->{'repository'});
+      $exact = $e;
       $default = 0;
       last;
     }
   }
   if (!$default && $disen->{'enable'}) {
     for (@{$disen->{'enable'}}) {
-      next if exists($_->{'arch'}) && $_->{'arch'} ne $arch;
-      next if exists($_->{'repository'}) && $_->{'repository'} ne $repoid;
+      my $e = 0;
+      $_->{'arch'} eq $arch ? $e++ : next if exists($_->{'arch'});
+      $_->{'repository'} eq $repoid ? $e++ : next if exists($_->{'repository'});
+      next if $e < $exact;
       $default = 1;
       last;
     }
