@@ -178,12 +178,15 @@ sub expandproduct {
     mkdir_p($odir);
     if (system('./bs_productconvert', "$dir/$prod", $odir, $projid)) {
       warn("bs_productconvert failed: $?\n");
+      BSUtil::cleandir($dir);
+      rmdir($dir);
       return undef;
     }
     my @out = sort(ls($odir));
     if (!@out) {
       warn("bs_productconvert produced nothing\n");
-      rmdir($odir);
+      BSUtil::cleandir($dir);
+      rmdir($dir);
       return undef;
     }
     for my $p (@out) {
@@ -223,9 +226,7 @@ sub expandproduct {
     }
     rmdir($odir);
   }
-  for my $file (sort keys %$files) {
-    unlink("$dir/$file");
-  }
+  BSUtil::cleandir($dir);
   rmdir($dir);
   # now do away with the old packages
   my @packages = grep {/^\Q${packid}:\E/} findpackages($projid);
@@ -574,6 +575,7 @@ sub applylink {
   die("$tmpdir: $!\n") unless -d $tmpdir;
   unlink("$tmpdir/$_") for ls($tmpdir);	# remove old stuff
   my %apply = map {$_->{'name'} => 1} grep {$_->{'type'} eq 'apply'} @patches;
+  $apply{$_} = 1 for keys %{$llnk->{'ignore'} || {}};	# also ignore those files, used in keeplink
   my %fl;
   for my $f (sort keys %$fsrc) {
     next if $flnk->{$f} && !$apply{$f};
@@ -686,8 +688,8 @@ sub applylink {
 
   # if we just want the patched files we're finished
   if (!$md5) {
-    # rename into md5 form
-    for my $f (@newf) {
+    # rename into md5 form, sort so that there's no collision
+    for my $f (sort {length($b) <=> length($a) || $a cmp $b} @newf) {
       rename("$tmpdir/$f", "$tmpdir/$newf->{$f}-$f");
     }
     return $newf;
@@ -1134,15 +1136,17 @@ sub getprojpack {
 	    $pinfo->{'info'} = \@dinfo if @dinfo;
 	  }
         } elsif ($cgi->{'withdeps'}) {
-	  my @dinfo = ();
+	  my @dinfo;
 
           # Build config cache for all repositories
 	  for my $repo (@{$proj->{'repository'} || []}) {
 	    my $repoid = $repo->{'name'};
 	    next if $repoids && !$repoids->{$repoid};
 
+	    my $rinfo = {'repository' => $repoid};
+	    push @dinfo, $rinfo;
 	    if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
-	      push @dinfo, {'repository' => $repoid, 'error' => 'disabled'};
+	      $rinfo->{'error'} = 'disabled';
 	      next;
 	    }
             if (!$bconfs{$repoid}) {
@@ -1154,7 +1158,7 @@ sub getprojpack {
 	      if ($@) {
 	        my $err = $@;
 	        $err =~ s/\n$//;
-	        push @dinfo, {'repository' => $repoid, 'error' => $err};
+	        $rinfo->{'error'} = $err;
 	        next;
 	      }
 	      $c = [ split("\n", $c) ];
@@ -1163,45 +1167,45 @@ sub getprojpack {
 	    my $conf = $bconfs{$repoid};
 	    my $type = $conf->{'type'};
 	    if (!$type || $type eq 'UNDEFINED') {
-	      push @dinfo, {'repository' => $repoid, 'error' => 'bad build configuration'};
+	      $rinfo->{'error'} = 'bad build configuration';
 	      next;
 	    }
             my ($md5, $file) = findfile($projid, $packid, $repoid, $type, $files);
 	    if (!$md5) {
-		# no spec/dsc/kiwi file found
-		if (grep {/\.(?:spec|dsc|kiwi)$/} keys %$files) {
-		    # only different types available
-		    push @dinfo, {'repository' => $repoid, 'error' => 'excluded'};
-		} else {
-		    push @dinfo, {'repository' => $repoid };
-		}
-		next;
+	      # no spec/dsc/kiwi file found
+	      if (grep {/\.(?:spec|dsc|kiwi)$/} keys %$files) {
+		# only different types available
+		$rinfo->{'error'} = 'excluded';
+	      }
+	      next;
 	    }
 	    if ($type eq 'kiwi' && $BSConfig::kiwiprojects) {
 	      my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
 	      if (!$kiwiprojects{$projid}) {
-	        push @dinfo, {'repository' => $repoid, 'error' => 'kiwi image building is not enabled for this project'};
+		$rinfo->{'error'} = 'kiwi image building is not enabled for this project';
 	        next;
 	      }
 	    }
+	    $rinfo->{'file'} = $file;
 	    # get build dependency info
             my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
-	      push @dinfo, { 'repository' => $repoid, 'file' => $file, 'name' => $d->{'name'}, 'dep' => $d->{'deps'} };
+	      $rinfo->{'name'} = $d->{'name'};
+	      $rinfo->{'dep'} = $d->{'deps'};
               if ($d->{'prereqs'}) {
 		my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
 		my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
-		$dinfo[-1]->{'prereq'} = \@prereqs if @prereqs;
+		$rinfo->{'prereq'} = \@prereqs if @prereqs;
 	      }
-	      $dinfo[-1]->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
-	      $dinfo[-1]->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $arch} @{$d->{'badarch'}};
+	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
+	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $arch} @{$d->{'badarch'}};
 	      for ('imagetype', 'path', 'extrasource') {
-	        $dinfo[-1]->{$_} = $d->{$_} if exists $d->{$_};
+	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	      }
 	    } else {
-	      push @dinfo, {'repository' => $repoid, 'file' => $file, 'error' => "file parse error"};
+	      $rinfo->{'error'} = 'file parse error';
 	    }
 	  }
 	  $pinfo->{'info'} = \@dinfo if @dinfo;
@@ -1921,11 +1925,13 @@ sub keeplink {
   return $files unless $ofilesl && $ofilesl->{'_link'};
   my $l = readxml("$srcrep/$packid/$ofilesl->{'_link'}-_link", $BSXML::link);
   my $changedlink = 0;
-  if ($repair && $l->{'patches'}) {
+  my %lignore;
+  if ($l->{'patches'}) {
     if ($repair) {
       for (@{$l->{'patches'}->{''} || []}) {
         my $type = (keys %$_)[0];
         if ($type eq 'apply' || $type eq 'delete' || $changedlink) {
+          $lignore{$_->{$type}->{'name'}} = 1 if $type ne 'topadd' && $type ne 'delete';
 	  $_ = undef;
 	  $changedlink = 1;
 	}
@@ -1934,6 +1940,7 @@ sub keeplink {
       for (reverse @{$l->{'patches'}->{''} || []}) {
         my $type = (keys %$_)[0];
         if ($type eq 'apply' || $type eq 'delete') {
+          $lignore{$_->{$type}->{'name'}} = 1 if $type eq 'apply';
 	  $_ = undef;
 	  $changedlink = 1;
 	  next;
@@ -1944,6 +1951,7 @@ sub keeplink {
     $l->{'patches'}->{''} = [ grep {defined($_)} @{$l->{'patches'}->{''}} ];
   }
 
+  my $ltgtsrcmd5;
   my $ofiles;
   my $ofilesdir;
   if (!$repair) {
@@ -1951,33 +1959,55 @@ sub keeplink {
     my %olrev = (%$orev, 'name' => $packid);
     $ofiles = handlelinks($projid, \%olrev, $ofilesl, $orev);
     die("bad link: $ofiles\n") unless ref $ofiles;
+    $ltgtsrcmd5 = $ofiles->{'/LINK'};
     delete $ofiles->{'/LINK'};
     delete $ofiles->{'/LOCAL'};
     $ofilesdir = "$srcrep/$packid";
   }
-  $changedlink = 0;
+
+  # get link target file list
+  my $ltgtprojid = defined($l->{'project'}) ? $l->{'project'} : $projid;
+  my $ltgtpackid = defined($l->{'package'}) ? $l->{'package'} : $projid;
+  my $ltgtfiles;
+  if ($ltgtsrcmd5) {
+    $ltgtfiles = lsrep($ltgtprojid, $ltgtpackid, $ltgtsrcmd5);
+  } else {
+    my $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $l->{'rev'});
+    $ltgtfiles = lsrep($ltgtprojid, $ltgtpackid, $ltgtrev->{'srcmd5'});
+    my %ltgtolrev = (%$ltgtrev, 'name' => $ltgtpackid);
+    $ltgtfiles = handlelinks($ltgtprojid, \%ltgtolrev, $ltgtfiles, $ltgtrev) if $ltgtfiles->{'_link'};
+    $ltgtsrcmd5 = $ltgtolrev{'srcmd5'};
+  }
+
   if ($repair || $changedlink) {
     # apply changed link
-    my $lprojid = defined($l->{'project'}) ? $l->{'project'} : $projid;
-    my $lpackid = defined($l->{'package'}) ? $l->{'package'} : $projid;
-    my $lrev = getrev($lprojid, $lpackid, $l->{'rev'});
-    my $lfiles = lsrep($lprojid, $lpackid, $lrev->{'srcmd5'});
-    my %lolrev = (%$lrev, 'name' => $lpackid);
-    $lfiles = handlelinks($lprojid, \%lolrev, $lfiles, $lrev) if $lfiles->{'_link'};
-    my $frominfo = {'project' => $lprojid, 'package' => $lpackid, 'srcmd5' => $lolrev{'srcmd5'}};
+    my $frominfo = {'project' => $ltgtprojid, 'package' => $ltgtpackid, 'srcmd5' => $ltgtsrcmd5};
     my $linkinfo = {'project' => $projid, 'package' => $packid, 'srcmd5' => $orev->{'srcmd5'}, 'link' => $l};
+    $linkinfo->{'ignore'} = \%lignore;
     $ofiles = applylink(undef, $frominfo, $linkinfo);
     die("bad link: $ofiles\n") unless ref $ofiles;
     $ofilesdir = "$srcrep/:upload/applylink$$";
   }
 
+  #print "-- ofilesl:\n";
+  #print "  $ofilesl->{$_}  $_\n" for sort keys %$ofilesl;
+  #print "-- ofiles:\n";
+  #print "  $ofiles->{$_}  $_\n" for sort keys %$ofiles;
+  #print "-- files:\n";
+  #print "  $files->{$_}  $_\n" for sort keys %$files;
+
   # now create diff between old $ofiles and $files
   my $nfiles = { %$ofilesl };
+  delete $nfiles->{$_} for keys %lignore;	# no longer used in link
   unlink("$srcrep/:upload/$$");
   my @dfiles;
   for my $file (sort keys %{{%$files, %$ofiles}}) {
     if ($ofiles->{$file}) {
       if (!$files->{$file}) {
+	if (!$ltgtfiles->{$file} && $ofilesl->{$file} && $ofilesl->{$file} eq ($ofiles->{$file} || '')) {
+	  # local file no longer needed
+	  delete $nfiles->{$file};
+	}
 	push @dfiles, $file;
 	delete $nfiles->{$file};
 	next;
@@ -1994,6 +2024,16 @@ sub keeplink {
 	$nfiles->{$file} = $files->{$file};
 	next;
       }
+    }
+    if (($ofilesl->{$file} || '') eq ($ofiles->{$file} || '')) {
+      # link did not change file, just record new content
+      if ($files->{$file} eq ($ltgtfiles->{$file} || '')) {
+	# local overwrite already in link target
+	delete $nfiles->{$file};
+	next;
+      }
+      $nfiles->{$file} = $files->{$file};
+      next;
     }
     # both are ascii, create diff
     mkdir_p("$srcrep/:upload");
