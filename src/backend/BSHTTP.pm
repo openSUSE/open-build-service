@@ -153,6 +153,25 @@ sub read_data {
   }
 }
 
+sub str2hdr {
+  my ($str) = @_;
+  my $hdr = {
+    '__data' => $str,
+    '__cl' => length($str),
+  };
+  return $hdr;
+}
+
+sub fd2hdr {
+  my ($fd) = @_;
+  my $hdr = {
+    '__data' => '',
+    '__socket' => $fd,
+    '__cl' => -s *$fd,
+  };
+  return $hdr;
+}
+
 sub file_receiver {
   my ($hdr, $param) = @_;
 
