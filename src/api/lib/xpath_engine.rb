@@ -20,6 +20,8 @@ class XpathEngine
         '@name' => {:cpart => 'db_packages.name'},
         'title' => {:cpart => 'db_packages.title'},
         'description' => {:cpart => 'db_packages.description'},
+        'devel/@project' => {:cpart => 'develproject.name', :joins => 
+          ['LEFT JOIN db_projects develproject ON develproject.id = db_packages.develproject_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']
