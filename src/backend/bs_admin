@@ -64,6 +64,11 @@ Job Controlling
  --check-project <project> <architecture>
    Check status of a project and its repositories again
 
+ --clone-repository <source project> <source repositroy> <destination repositroy>
+ --clone-repository <source project> <source repositroy> <destination project> <destination repositroy>
+   Clone an existing repo into another existing repository.
+   Usefull for creating snapshots.
+
  --rescan-repository <project> <repositroy> <architecture>
    Asks the scheduler to scan a repository for new packages and add
    them to the cache file.
@@ -193,6 +198,40 @@ sub dump_cache {
   my ($project, $repo, $arch) = @_;
   dump_nStore("$reporoot/$project/$repo/$arch/:full.cache");
 };
+
+sub clone_repository {
+  my ($srcproject, $srcrepo, $destproject, $destrepo) = @_;
+  my $srcdir  = $reporoot."/".$srcproject."/".$srcrepo;
+  my $destdir = $reporoot."/".$destproject."/".$destrepo;
+  my $tmpdir  = $BSConfig::tmpdir || "$BSConfig::bsdir/tmp";
+
+  die ( "Destination repo must get created by scheduler first !" ) unless -d $destdir;
+
+  mkdir_p($tmpdir) || die("mkdir_p $tmpdir: $!\n");
+  $tmpdir .= "/bs_admin.$$";
+  rm_rf("$tmpdir") if -d "$tmpdir";
+
+  print "cloning $srcproject / $srcrepo\n";
+  system('cp', '-al', $srcdir, $tmpdir) && die( "cloning failed !" );
+
+  print "exchanging with $destproject / $destrepo\n";
+  system('mv', $destdir, $tmpdir.".old") && die( "moving away old destdir failed ! PANIK ! " );
+  system('mv', $tmpdir, $destdir) && die( "moving in new tree failed !" );
+
+  print "tell schedulers about the change ";
+  opendir(DIR, $destdir) || die "can't opendir $destdir: $!";
+  my @archs = grep { ! /^\./ && -d "$destdir/$_" } readdir(DIR);
+  closedir DIR;
+  for my $a ( @archs ) {
+    print $a.", ";
+    write_event( $destproject, $destrepo, $a, 'recheck' );
+  }
+
+  print "\nremoving old tree in $tmpdir.old\n";
+  system( "rm", "-rf", $tmpdir.".old") && die("removing FAILED !\n");
+
+  print "finished.\n";
+}
 
 sub check_xml_file {
   my ($file, $type) = @_;
@@ -360,6 +399,20 @@ while (@ARGV) {
     my $project = shift @ARGV;
     my $arch = shift @ARGV;
     check_project($project, $arch);
+  } elsif ( $arg eq "--clone-repository" ) {
+    die("ERROR: need source project & repository and destination project & repository as argument!\n") if @ARGV < 3;
+    my $srcproject = shift @ARGV;
+    my $srcrepo = shift @ARGV;
+    my $destproject;
+    my $destrepo;
+    if ( @ARGV == 1 ) {
+       $destrepo = shift @ARGV;
+       $destproject = $srcproject;
+    } else {
+       $destproject = shift @ARGV;
+       $destrepo = shift @ARGV;
+    };
+    clone_repository($srcproject, $srcrepo, $destproject, $destrepo);
   } elsif ($arg eq "--rescan-repository") {
     die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
     my $project = shift @ARGV;
