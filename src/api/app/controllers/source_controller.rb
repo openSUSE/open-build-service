@@ -611,7 +611,7 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login if @http_user
 
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :keeplink])
+    path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :keeplink, :repairlink])
     forward_data path, :method => :post
 
     if params[:package] == "_product"
