@@ -119,7 +119,7 @@ filter = Array.new
 #filter = ['Apache:Modules', 'Apache', 'Fedora:Core5', 'Mandriva:2006', 'openSUSE:10.2', 'SUSE:SLES-9', 'SUSE:SLE-10:SDK',
 #  'Java:Sun-Java-1.5', 'SUSE:SL-10.1', 'SUSE:SL-10.0', 'SUSE:SL-9.3', 'SUSE:SLE-10', 'openSUSE:Factory'
 #];
-filter = %w(devel:tools:building SUSE:SLE-10:SP2:SDK home:dirkmueller:playground:kde4)
+#filter = %w(devel:tools:building SUSE:SLE-10:SP2:SDK home:dirkmueller:playground:kde4)
 
 projects = Xproject.find(:all)
 
