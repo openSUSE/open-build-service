@@ -286,10 +286,11 @@ sub enabled {
   my ($repoid, $disen, $default, $arch) = @_;
   return $default unless $disen;
   my $exact = 0;
+  # the arch attr has a higher score/exactness than all other attrs
   if (($default || !defined($default)) && $disen->{'disable'}) {
     for (@{$disen->{'disable'}}) {
       my $e = 0;
-      $_->{'arch'} eq $arch ? $e++ : next if exists($_->{'arch'});
+      $_->{'arch'} eq $arch ? $e+=2 : next if exists($_->{'arch'});
       $_->{'repository'} eq $repoid ? $e++ : next if exists($_->{'repository'});
       $exact = $e;
       $default = 0;
@@ -299,7 +300,7 @@ sub enabled {
   if (!$default && $disen->{'enable'}) {
     for (@{$disen->{'enable'}}) {
       my $e = 0;
-      $_->{'arch'} eq $arch ? $e++ : next if exists($_->{'arch'});
+      $_->{'arch'} eq $arch ? $e+=2 : next if exists($_->{'arch'});
       $_->{'repository'} eq $repoid ? $e++ : next if exists($_->{'repository'});
       next if $e < $exact;
       $default = 1;

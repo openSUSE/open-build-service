@@ -1008,10 +1008,21 @@ sub getprojpack {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
     # Check build flags in project meta data
+    # packages inherit the project wide settings and may override them
     my $pdisabled;
-    if ($jinfo->{'build'} && !$cgi->{'ignoredisable'}) {
-      $pdisabled = 1 if grep {!exists($_->{'repository'}) && (!exists($_->{'arch'}) || $_->{'arch'} eq $arch)} @{$jinfo->{'build'}->{'disable'} || []};
-      undef $pdisabled if $pdisabled && grep {!exists($_->{'repository'}) && (!exists($_->{'arch'}) || $_->{'arch'} eq $arch)} @{$jinfo->{'build'}->{'enable'} || []};
+    my $disable = {};
+    my $enable = {};
+    undef($enable) if $cgi->{'ignoredisable'};
+    if ($jinfo->{'build'} && $enable) {
+      for (@{$proj->{'repository'} || []}) {
+        my $disen = BSUtil::enabled($_->{'name'}, $jinfo->{'build'}, 1, $arch);
+        if ($disen) {
+          $enable->{$_->{'name'}} = 1;
+        } else {
+          $disable->{$_->{'name'}} = 1;
+        }
+      }
+      $pdisabled = 1 if !keys(%$enable);
     }
 
     # Check package number quota
@@ -1066,23 +1077,21 @@ sub getprojpack {
         $pinfo->{'build'}->{'enable'} = $pack->{'enable'} if $pack->{'enable'};
         $pinfo->{'build'}->{'disable'} = $pack->{'disable'} if $pack->{'disable'};
       }
-      my $disable = {};
-      my $enable = {};
-      undef($enable) if $cgi->{'ignoredisable'};
-      if ($enable && $pinfo->{'build'} && $pinfo->{'build'}->{'enable'}) {
-	for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pinfo->{'build'}->{'enable'}}) {
-	  undef($enable), last unless exists $_->{'repository'};
-	  $enable->{$_->{'repository'}} = 1;
+      if ($enable && $pinfo->{'build'}) {
+        for (@{$proj->{'repository'} || []}) {
+          my $default = exists($disable->{$_->{'name'}}) ? 0 : 1;
+          my $disen = BSUtil::enabled($_->{'name'}, $pinfo->{'build'}, $default, $arch);
+          if ($disen) {
+            $enable->{$_->{'name'}} = 1;
+            delete $disable->{$_->{'name'}};
+          } else {
+            $disable->{$_->{'name'}} = 1;
+            delete $enable->{$_->{'name'}};
+          }
         }
       }
-      if ($enable) {
-	if ($pinfo->{'build'} && $pinfo->{'build'}->{'disable'}) {
-	  for (grep {!exists($_->{'arch'}) || $_->{'arch'} eq $arch} @{$pinfo->{'build'}->{'disable'}}) {
-	    undef($disable), last unless exists $_->{'repository'};
-	    $disable->{$_->{'repository'}} = 1;
-	  }
-	}
-      }
+      undef($disable) if $enable && !keys(%$enable);
+      undef($enable) if $disable && !keys(%$disable);
       if ((!$disable || $pdisabled) && $enable && !%$enable) {
 	$pinfo->{'error'} = 'disabled';
 	next;
