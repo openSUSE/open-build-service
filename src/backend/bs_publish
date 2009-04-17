@@ -400,7 +400,7 @@ sub createrepo_debian {
   unlink("$extrep/Packages");
   unlink("$extrep/Packages.gz");
   print "    running dpkg-scanpackages\n";
-  qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '.', '/dev/null') && print "    apt-ftparchive failed: $?\n";
+  qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null') && print "    apt-ftparchive failed: $?\n";
   if (-f "$extrep/Packages.new") {
     link("$extrep/Packages.new", "$extrep/Packages");
     qsystem('gzip', '-9', '-f', "$extrep/Packages") && print "    gzip Packages failed: $?\n";

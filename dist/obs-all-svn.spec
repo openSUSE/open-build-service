@@ -39,8 +39,9 @@ Source16:       obs_project_update
 Source15:       obsdispatcher
 Source20:       obssignd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-%if 0%{?suse_version} >= 1020
-Requires:       yum yum-metadata-parser repoview dpkg
+%if 0%{?suse_version} >= 1030
+Requires:       yum yum-metadata-parser repoview
+Requires:       dpkg >= 1.15
 Requires:       createrepo >= 0.4.10
 BuildRequires:  build
 BuildRequires:  -post-build-checks
