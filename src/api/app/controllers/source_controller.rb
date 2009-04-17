@@ -649,12 +649,14 @@ class SourceController < ApplicationController
     forward_data path, :method => :post
   end
 
-  # POST /source/<project>/<package>?cmd=branch
+  # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"
   def index_package_branch
     params[:user] = @http_user.login
     prj_name = params[:project]
     pkg_name = params[:package]
     pkg_rev = params[:rev]
+    target_project = params[:target_project]
+    target_package = params[:target_package]
 
     prj = DbProject.find_by_name prj_name
     pkg = prj.db_packages.find_by_name(pkg_name)
@@ -695,6 +697,8 @@ class SourceController < ApplicationController
  
     oprj_name = "home:#{@http_user.login}:branches:#{prj_name}"
     opkg_name = pkg_name
+    oprj_name = target_project unless target_project.nil?
+    opkg_name = target_package unless target_package.nil?
 
     unless @http_user.can_create_project?(oprj_name)
       render_error :status => 403, :errorcode => "create_project_no_permission",
