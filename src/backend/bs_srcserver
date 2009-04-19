@@ -1010,19 +1010,22 @@ sub getprojpack {
     # Check build flags in project meta data
     # packages inherit the project wide settings and may override them
     my $pdisabled;
-    my $disable = {};
-    my $enable = {};
-    undef($enable) if $cgi->{'ignoredisable'};
-    if ($jinfo->{'build'} && $enable) {
+    my $pdisable = {};
+    my $penable = {};
+    undef($penable) if $cgi->{'ignoredisable'};
+    if ($jinfo->{'build'} && $penable) {
       for (@{$proj->{'repository'} || []}) {
         my $disen = BSUtil::enabled($_->{'name'}, $jinfo->{'build'}, 1, $arch);
         if ($disen) {
-          $enable->{$_->{'name'}} = 1;
+          $penable->{$_->{'name'}} = 1;
         } else {
-          $disable->{$_->{'name'}} = 1;
+          $pdisable->{$_->{'name'}} = 1;
         }
       }
-      $pdisabled = 1 if !keys(%$enable);
+      $pdisabled = 1 if !keys(%$penable);
+    } else {
+      # build is enabled
+      undef($penable);
     }
 
     # Check package number quota
@@ -1077,7 +1080,9 @@ sub getprojpack {
         $pinfo->{'build'}->{'enable'} = $pack->{'enable'} if $pack->{'enable'};
         $pinfo->{'build'}->{'disable'} = $pack->{'disable'} if $pack->{'disable'};
       }
-      if ($enable && $pinfo->{'build'}) {
+      my $enable = defined($penable) ? {%$penable} : undef;
+      my $disable = {%$pdisable};
+      if (!$cgi->{'ignoredisable'} && $pinfo->{'build'}) {
         for (@{$proj->{'repository'} || []}) {
           my $default = exists($disable->{$_->{'name'}}) ? 0 : 1;
           my $disen = BSUtil::enabled($_->{'name'}, $pinfo->{'build'}, $default, $arch);

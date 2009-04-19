@@ -290,7 +290,7 @@ sub enabled {
   if (($default || !defined($default)) && $disen->{'disable'}) {
     for (@{$disen->{'disable'}}) {
       my $e = 0;
-      $_->{'arch'} eq $arch ? $e+=2 : next if exists($_->{'arch'});
+      $_->{'arch'} eq $arch ? $e++ : next if exists($_->{'arch'});
       $_->{'repository'} eq $repoid ? $e++ : next if exists($_->{'repository'});
       $exact = $e;
       $default = 0;
@@ -300,7 +300,7 @@ sub enabled {
   if (!$default && $disen->{'enable'}) {
     for (@{$disen->{'enable'}}) {
       my $e = 0;
-      $_->{'arch'} eq $arch ? $e+=2 : next if exists($_->{'arch'});
+      $_->{'arch'} eq $arch ? $e++ : next if exists($_->{'arch'});
       $_->{'repository'} eq $repoid ? $e++ : next if exists($_->{'repository'});
       next if $e < $exact;
       $default = 1;
