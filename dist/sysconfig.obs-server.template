@@ -17,6 +17,10 @@
 #
 #OBS_SCHEDULER_ARCHITECTURES="armv4l armv5el armv7el i586 mips mips64 ppc ppc64 sh4 x86_64"
 
+# what seems to be the standard schedulers for standard native workers
+#
+#OBS_SCHEDULER_ARCHITECTURES="i586 ppc ppc64 x86_64"
+
 # these are all schedulers in the current public OBS
 #
 #OBS_SCHEDULER_ARCHITECTURES="armv5el i586 local ppc ppc64 x86_64"
