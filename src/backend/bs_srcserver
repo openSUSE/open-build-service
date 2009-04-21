@@ -242,6 +242,7 @@ sub expandproduct {
 
 sub addrev {
   my ($projid, $packid, $files, $user, $comment, $target) = @_;
+  die("project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
   if ($packid eq '_pattern') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'pattern');
     notify_repservers('project', $projid);
@@ -249,6 +250,7 @@ sub addrev {
     return {'rev' => 'pattern', 'srcmd5' => $srcmd5};
   }
   die("package '$packid' is read-only\n") if $packid =~ /^_product:/;
+  die("package '$packid' does not exist\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     my $filename = (keys %$files)[0];
@@ -724,7 +726,7 @@ sub applylink {
 #   sets     $pinfo->{'verifymd5'}, $pinfo->{'vrev'}
 #
 sub handlelinks {
-  my ($projid, $pinfo, $files, $rev) = @_;
+  my ($projid, $pinfo, $files, $rev, $linkrev) = @_;
   my @linkinfo;
   my %seen;
   my $packid = $pinfo->{'name'};
@@ -745,6 +747,7 @@ sub handlelinks {
     }
     $l->{'project'} = $linkinfo[-1]->{'project'} unless exists $l->{'project'};
     $l->{'package'} = $linkinfo[-1]->{'package'} unless exists $l->{'package'};
+    ($l->{'rev'}, $linkrev) = ($linkrev, undef) if $linkrev;
     $linkinfo[-1]->{'link'} = $l;
     $projid = $l->{'project'};
     $packid = $l->{'package'};
@@ -1391,6 +1394,7 @@ sub putpackage {
   writexml("$srcrep/:upload/$$.2", undef, $pack, $BSXML::pack);
   unlink("$srcrep/:upload/$$");
   my $proj = readproj($projid);
+  die("package '$packid' is read-only\n") if ($packid =~ /^_product:/) && ! -e "$projectsdir/$projid.pkg/$packid.xml";
   mkdir_p("$projectsdir/$projid.pkg");
   if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
     BSHermes::notify("SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid});
@@ -1708,14 +1712,22 @@ sub getfilelist {
   my $li = {};
   my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
   if ($files->{'_link'}) {
-    my %lrev = %$rev;
-    $lrev{'name'} = $packid;
-    my $lfiles = handlelinks($projid, \%lrev, $files, $rev);
+    if ($cgi->{'emptylink'}) {
+      my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
+      delete $l->{'patches'};
+      writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
+      $files = {};
+      $files->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link');
+      $rev = addrev($projid, $packid, $files, undef, undef, '');
+    }
+    my %lrev = (%$rev, 'name' => $packid);
+    my $lfiles = handlelinks($projid, \%lrev, $files, $rev, $cgi->{'linkrev'});
     delete $lrev{'rev'};
     if ($cgi->{'expand'}) {
       die("$lfiles\n") if !ref $lfiles;
       $files = $lfiles;
       %$rev = %lrev;
+      $rev->{'rev'} = $rev->{'srcmd5'}
     } else {
       delete $lrev{'srcmd5'} if !ref($lfiles) && $lrev{'srcmd5'} && ! -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
       $ret->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
@@ -1769,6 +1781,7 @@ sub getfilelist {
       $li->{'project'} = $l->{'project'};
       $li->{'package'} = $l->{'package'};
       $li->{'rev'} = $l->{'rev'} if $l->{'rev'};
+      $li->{'linkrev'} = $l->{'linkrev'} if $l->{'linkrev'};
       $li->{'srcmd5'} = $limd5 if $limd5;
     }
   }
@@ -1823,7 +1836,7 @@ sub putfile {
   # create new meta file
   my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
   $files->{$filename} = $uploaded->{'md5'};
-  $files = keeplink($projid, $packid, $files) if $cgi->{'keeplink'};
+  $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
@@ -1849,16 +1862,14 @@ sub sourcediff {
   if ($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
     if ($files->{'_link'}) {
-      my %lrev = %$rev;
-      $lrev{'name'} = $packid;
+      my %lrev = (%$rev, 'name' => $packid);
       $files = handlelinks($projid, \%lrev, $files, $rev);
       die("bad link: $files\n") unless ref $files;
       delete $files->{'/LINK'};
       delete $files->{'/LOCAL'};
     }
     if ($ofiles->{'_link'}) {
-      my %olrev = %$orev;
-      $olrev{'name'} = $opackid;
+      my %olrev = (%$orev, 'name' => $opackid);
       $ofiles = handlelinks($oprojid, \%olrev, $ofiles, $orev);
       die("bad link: $ofiles\n") unless ref $ofiles;
       delete $ofiles->{'/LINK'};
@@ -1930,8 +1941,9 @@ sub findprojectpatchname {
 # if it was a link before, try to keep this link
 #
 sub keeplink {
-  my ($projid, $packid, $files, $repair) = @_;
+  my ($cgi, $projid, $packid, $files) = @_;
 
+  my $repair = $cgi->{'repairlink'};
   return $files if !defined($files) || !%$files;
   return $files if $files->{'_link'};
   my $orev = getrev($projid, $packid, 'latest');
@@ -1971,7 +1983,7 @@ sub keeplink {
   if (!$repair) {
     # expand old link
     my %olrev = (%$orev, 'name' => $packid);
-    $ofiles = handlelinks($projid, \%olrev, $ofilesl, $orev);
+    $ofiles = handlelinks($projid, \%olrev, $ofilesl, $orev, $cgi->{'linkrev'});
     die("bad link: $ofiles\n") unless ref $ofiles;
     $ltgtsrcmd5 = $ofiles->{'/LINK'};
     delete $ofiles->{'/LINK'};
@@ -1986,7 +1998,7 @@ sub keeplink {
   if ($ltgtsrcmd5) {
     $ltgtfiles = lsrep($ltgtprojid, $ltgtpackid, $ltgtsrcmd5);
   } else {
-    my $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $l->{'rev'});
+    my $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $cgi->{'linkrev'} || $l->{'rev'});
     $ltgtfiles = lsrep($ltgtprojid, $ltgtpackid, $ltgtrev->{'srcmd5'});
     my %ltgtolrev = (%$ltgtrev, 'name' => $ltgtpackid);
     $ltgtfiles = handlelinks($ltgtprojid, \%ltgtolrev, $ltgtfiles, $ltgtrev) if $ltgtfiles->{'_link'};
@@ -2068,6 +2080,10 @@ sub keeplink {
   } else {
     unlink("$srcrep/:upload/$$");
   }
+  #if (($l->{'refsrcmd5'} || '') ne $ltgtsrcmd5) {
+  #  $l->{'refsrcmd5'} = $ltgtsrcmd5;
+  #  $lchanged = 1;
+  #}
   if ($lchanged) {
     writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
     $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
@@ -2142,7 +2158,7 @@ sub sourcecommit {
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   die("unknown project/package\n") unless $rev;
   my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
-  $files = keeplink($projid, $packid, $files, $cgi->{'repairlink'}) if $cgi->{'keeplink'};
+  $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   $rev = addrev($projid, $packid, $files, $user, $comment);
@@ -2175,7 +2191,7 @@ sub sourcecommitfilelist {
     my $res = {'name' => $packid, 'error' => 'missing', 'entry' => \@missing};
     return ($res, $BSXML::dir);
   }
-  $files = keeplink($projid, $packid, $files, $cgi->{'repairlink'}) if $cgi->{'keeplink'};
+  $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   if (-e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") {
     # autocommit old update revision so that it doesn't get lost
     my $uploadfiles = lsrep($projid, $packid, 'upload');
@@ -2224,13 +2240,15 @@ sub sourcecopy {
   }
 
   if ($files->{'_link'} && $cgi->{'expand'}) {
-    my %olrev = %$orev;
-    $olrev{'name'} = $opackid;
+    my %olrev = (%$orev, 'name' => $opackid);
     $files = handlelinks($oprojid, \%olrev, $files, $orev);
     die("bad link: $files\n") unless ref $files;
-    delete $files->{'/LINK'};
-    delete $files->{'/LOCAL'};
   }
+
+  # throw away link info
+  delete $files->{'/LINK'};
+  delete $files->{'/LOCAL'};
+
   if ($opackid ne $packid) {
     # link sources over
     mkdir_p("$srcrep/$packid");
@@ -2241,7 +2259,7 @@ sub sourcecopy {
       }
     }
   }
-  $files = keeplink($projid, $packid, $files) if $cgi->{'keeplink'};
+  $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   my $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
@@ -2273,6 +2291,10 @@ sub sourcecmd {
   return sourcecommit($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commit';
   return sourcecommitfilelist($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commitfilelist';
   return sourcecopy($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'copy';
+  if ($cgi->{'cmd'} eq 'deleteuploadrev') {
+    unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
+    return $BSStdServer::return_ok;
+  }
   die("unknown command \"$cgi->{'cmd'}\"\n");
 }
 
@@ -2556,8 +2578,7 @@ sub getlogfile {
     if ($rev) {
       my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
       if (ref($files) && $files->{'_link'}) {
-	my %lrev = %$rev;
-        $lrev{'name'} = $packid;
+	my %lrev = (%$rev, 'name' => $packid);
         $files = handlelinks($projid, \%lrev, $files, $rev);
 	if (!ref $files) {
 	  my $error = "$files\n";
@@ -3475,11 +3496,10 @@ my $dispatches = [
   'DELETE:/source/$project/_pubkey' => \&deletekey,
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
-  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? unified:bool?' => \&sourcecmd,
+  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev:rev? unified:bool?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
-  '/source/$project/$package:package_pattern rev? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
   '/source/$project/$package:package_pattern/_history' => \&getpackagehistory,
-  '/source/$project/$package:package_product rev? expand:bool? view:? extension:?' => \&getfilelist,
+  '/source/$project/$package:package_product rev? linkrev:rev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
   '/source/$project/$package:package_product/_history' => \&getpackagehistory,
   '/source/$project/$package/_meta' => \&getpackage,
   'PUT:/source/$project/$package/_meta' => \&putpackage,
