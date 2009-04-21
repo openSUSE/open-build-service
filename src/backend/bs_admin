@@ -64,6 +64,10 @@ Job Controlling
  --check-project <project> <architecture>
    Check status of a project and its repositories again
 
+ --deep-check-project <project> <architecture>
+   Check status of a project and its repositories again
+   This deep check includes also the sources, in case of lost events.
+
  --clone-repository <source project> <source repositroy> <destination repositroy>
  --clone-repository <source project> <source repositroy> <destination project> <destination repositroy>
    Clone an existing repo into another existing repository.
@@ -326,9 +330,12 @@ sub shutdown_scheduler {
 };
 
 sub check_project {
-  my ($project, $arch) = @_;
-  write_event( $project, undef, $arch, 'recheck' );
-  #write_event( $project, undef, $arch, 'project' );
+  my ($project, $arch, $deep) = @_;
+  if (defined $deep) {
+    write_event( $project, undef, $arch, 'project' );
+  } else {
+    write_event( $project, undef, $arch, 'recheck' );
+  }
 };
 
 #
@@ -399,6 +406,11 @@ while (@ARGV) {
     my $project = shift @ARGV;
     my $arch = shift @ARGV;
     check_project($project, $arch);
+  } elsif ( $arg eq "--deep-check-project" ) {
+    die("ERROR: need project and architecture as argument!\n") if @ARGV < 2;
+    my $project = shift @ARGV;
+    my $arch = shift @ARGV;
+    check_project($project, $arch, 1);
   } elsif ( $arg eq "--clone-repository" ) {
     die("ERROR: need source project & repository and destination project & repository as argument!\n") if @ARGV < 3;
     my $srcproject = shift @ARGV;
