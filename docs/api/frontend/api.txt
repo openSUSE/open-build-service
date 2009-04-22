@@ -245,6 +245,16 @@ Parameters:
 XmlResult: status
 
 
+POST /source/<project>/<package>?deleteuploadrev
+
+  Removes all changes made to the upload revision and reverts to last revision
+
+Parameters:
+
+  none
+
+XmlResult: status
+
 === Source files
 
 <filename>: File name
