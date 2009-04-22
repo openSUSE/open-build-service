@@ -663,6 +663,15 @@ class SourceController < ApplicationController
     forward_data path, :method => :post
   end
 
+  # POST /source/<project>/<package>?cmd=copy
+  def index_package_deleteuploadrev
+    params[:user] = @http_user.login if @http_user
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    forward_data path, :method => :post
+  end
+
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"
   def index_package_branch
     params[:user] = @http_user.login
