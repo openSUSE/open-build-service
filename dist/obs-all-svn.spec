@@ -403,11 +403,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n build-obs
 %defattr(-,root,root)
-%doc src/build/README
+%doc README
 /usr/bin/build
+/usr/bin/buildvc
 /usr/bin/unrpm
 /usr/lib/build
-%{_mandir}/man1/build.1.*
+%{_mandir}/man1/build.1*
 
 %files -n obs-worker
 %defattr(-,root,root)
