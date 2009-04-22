@@ -619,9 +619,23 @@ class SourceController < ApplicationController
     end
   end
 
+  # POST /source/<project>/<package>?cmd=commitfilelist
+  def index_package_commitfilelist
+    params[:user] = @http_user.login if @http_user
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :keeplink, :repairlink])
+    forward_data path, :method => :post
+    
+    if params[:package] == "_product"
+      update_product_autopackages
+    end
+  end
+
   # POST /source/<project>/<package>?cmd=diff
   def index_package_diff
-    path = request.path + "?" + request.query_string
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand])
     forward_data path, :method => :post
   end
 
