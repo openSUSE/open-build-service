@@ -747,6 +747,7 @@ sub handlelinks {
     }
     $l->{'project'} = $linkinfo[-1]->{'project'} unless exists $l->{'project'};
     $l->{'package'} = $linkinfo[-1]->{'package'} unless exists $l->{'package'};
+    $linkrev = $l->{'baserev'} if $linkrev && $linkrev eq 'base';
     ($l->{'rev'}, $linkrev) = ($linkrev, undef) if $linkrev;
     $linkinfo[-1]->{'link'} = $l;
     $projid = $l->{'project'};
@@ -1781,7 +1782,7 @@ sub getfilelist {
       $li->{'project'} = $l->{'project'};
       $li->{'package'} = $l->{'package'};
       $li->{'rev'} = $l->{'rev'} if $l->{'rev'};
-      $li->{'linkrev'} = $l->{'linkrev'} if $l->{'linkrev'};
+      $li->{'baserev'} = $l->{'baserev'} if $l->{'baserev'};
       $li->{'srcmd5'} = $limd5 if $limd5;
     }
   }
@@ -1977,13 +1978,16 @@ sub keeplink {
     $l->{'patches'}->{''} = [ grep {defined($_)} @{$l->{'patches'}->{''}} ];
   }
 
+  my $linkrev = $cgi->{'linkrev'};
+  $linkrev = $l->{'baserev'} if $linkrev && $linkrev eq 'base';
+
   my $ltgtsrcmd5;
   my $ofiles;
   my $ofilesdir;
   if (!$repair) {
     # expand old link
     my %olrev = (%$orev, 'name' => $packid);
-    $ofiles = handlelinks($projid, \%olrev, $ofilesl, $orev, $cgi->{'linkrev'});
+    $ofiles = handlelinks($projid, \%olrev, $ofilesl, $orev, $linkrev);
     die("bad link: $ofiles\n") unless ref $ofiles;
     $ltgtsrcmd5 = $ofiles->{'/LINK'};
     delete $ofiles->{'/LINK'};
@@ -1998,7 +2002,7 @@ sub keeplink {
   if ($ltgtsrcmd5) {
     $ltgtfiles = lsrep($ltgtprojid, $ltgtpackid, $ltgtsrcmd5);
   } else {
-    my $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $cgi->{'linkrev'} || $l->{'rev'});
+    my $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $linkrev || $l->{'rev'});
     $ltgtfiles = lsrep($ltgtprojid, $ltgtpackid, $ltgtrev->{'srcmd5'});
     my %ltgtolrev = (%$ltgtrev, 'name' => $ltgtpackid);
     $ltgtfiles = handlelinks($ltgtprojid, \%ltgtolrev, $ltgtfiles, $ltgtrev) if $ltgtfiles->{'_link'};
@@ -2080,10 +2084,11 @@ sub keeplink {
   } else {
     unlink("$srcrep/:upload/$$");
   }
-  #if (($l->{'refsrcmd5'} || '') ne $ltgtsrcmd5) {
-  #  $l->{'refsrcmd5'} = $ltgtsrcmd5;
-  #  $lchanged = 1;
-  #}
+  my $baserev = $linkrev || $ltgtsrcmd5;
+  if (($l->{'baserev'} || '') ne $baserev) {
+    $l->{'baserev'} = $baserev;
+    $lchanged = 1;
+  }
   if ($lchanged) {
     writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
     $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
@@ -2167,8 +2172,6 @@ sub sourcecommit {
 
 sub sourcecommitfilelist {
   my ($cgi, $projid, $packid) = @_;
-  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
-  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   mkdir_p("$srcrep/:upload");
   my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
   die("upload failed\n") unless $uploaded;
@@ -2191,13 +2194,17 @@ sub sourcecommitfilelist {
     my $res = {'name' => $packid, 'error' => 'missing', 'entry' => \@missing};
     return ($res, $BSXML::dir);
   }
+
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
+  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   if (-e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") {
     # autocommit old update revision so that it doesn't get lost
     my $uploadfiles = lsrep($projid, $packid, 'upload');
     addrev($projid, $packid, $uploadfiles, $user, 'autocommit');
   }
   my $rev = addrev($projid, $packid, $files, $user, $comment);
+
   $cgi->{'rev'} = $rev->{'rev'};
   return getfilelist($cgi, $projid, $packid);
 }
@@ -3496,10 +3503,10 @@ my $dispatches = [
   'DELETE:/source/$project/_pubkey' => \&deletekey,
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
-  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev:rev? unified:bool?' => \&sourcecmd,
+  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? unified:bool?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
   '/source/$project/$package:package_pattern/_history' => \&getpackagehistory,
-  '/source/$project/$package:package_product rev? linkrev:rev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
+  '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
   '/source/$project/$package:package_product/_history' => \&getpackagehistory,
   '/source/$project/$package/_meta' => \&getpackage,
   'PUT:/source/$project/$package/_meta' => \&putpackage,

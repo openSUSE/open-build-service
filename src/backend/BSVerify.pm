@@ -91,6 +91,12 @@ sub verify_rev {
   die("bad revision '$rev'\n") unless $rev =~ /^\d+$/s;
 }
 
+sub verify_linkrev {
+  my $rev = $_[0];
+  return if $rev && $rev eq 'base';
+  verify_rev($rev);
+}
+
 sub verify_port {
   my $port = $_[0];
   die("port is empty\n") unless defined($port) && $port ne '';
@@ -260,6 +266,7 @@ our $verifyers = {
   'filename' => \&verify_filename,
   'md5' => \&verify_md5,
   'rev' => \&verify_rev,
+  'linkrev' => \&verify_linkrev,
   'bool' => \&verify_bool,
   'num' => \&verify_num,
   'port' => \&verify_port,

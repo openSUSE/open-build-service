@@ -201,10 +201,12 @@ our $linkinfo = [
 	'package',
 	'rev',
 	'srcmd5',
+	'baserev',
 	# expanded / unexpanded srcmd5
 	'xsrcmd5',
 	'lsrcmd5',
 	'error',
+	'lastworking',
 ];
 
 
@@ -481,6 +483,7 @@ our $link = [
 	'package',
 	'rev',
 	'cicount',
+	'baserev',
       [ 'patches' =>
 	  [ $linkpatch ],
       ],
