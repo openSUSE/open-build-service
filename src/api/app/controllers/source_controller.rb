@@ -109,6 +109,7 @@ class SourceController < ApplicationController
   end
 
   def index_package
+    valid_http_methods :get, :delete, :post
     project_name = params[:project]
     package_name = params[:package]
     cmd = params[:cmd]
@@ -663,7 +664,7 @@ class SourceController < ApplicationController
     forward_data path, :method => :post
   end
 
-  # POST /source/<project>/<package>?cmd=copy
+  # POST /source/<project>/<package>?cmd=deleteuploadrev
   def index_package_deleteuploadrev
     params[:user] = @http_user.login if @http_user
 
