@@ -348,7 +348,6 @@ sub findbins {
   my @prp = split("/", $prp);
   my $projid = $prp[0];
   my @dl = grep { $_->{'arch'} eq $myarch } @{$projpacks->{$projid}->{'download'}} if exists $projpacks->{$projid}->{'download'};
-  if (@dl && $BSConfig::enable_dod) {
   if (@dl && ($BSConfig::enable_download_on_demand || $BSConfig::enable_dod)) {
     # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
     eval {
