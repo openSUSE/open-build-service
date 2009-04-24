@@ -43,6 +43,7 @@ use BSFileDB;
 use BSXML;
 use BSDBIndex;
 use BSBuild;
+use BSVerify;
 use Build;
 use BSDB;
 use Meta;
