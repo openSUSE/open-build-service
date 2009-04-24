@@ -43,6 +43,7 @@ use BSFileDB;
 use BSXML;
 use BSDBIndex;
 use BSBuild;
+use BSVerify;
 use Build;
 use BSDB;
 use Meta;
@@ -2643,22 +2644,23 @@ sub select_read {
 }
 
 sub changed2lookat {
-  my ($changed, $changed_high, $lookat_oobhigh, $lookat_oob, $lookat_next) = @_;
+  my ($changed_low, $changed_med, $changed_high, $lookat_oobhigh, $lookat_oob, $lookat_next) = @_;
 
-  push @$lookat_oobhigh, grep {$changed_high->{$_}} sort keys %$changed;
-  push @$lookat_oob, grep {!$changed_high->{$_}} sort keys %$changed;
+  push @$lookat_oobhigh, grep {$changed_high->{$_}} sort keys %$changed_med;
+  push @$lookat_oob, grep {!$changed_high->{$_}} sort keys %$changed_med;
   @$lookat_oobhigh = unify(@$lookat_oobhigh);
   @$lookat_oob = unify(@$lookat_oob);
   my %lookat_oobhigh = map {$_ => 1} @$lookat_oobhigh;
   @$lookat_oob = grep {!$lookat_oobhigh{$_}} @$lookat_oob;
   for my $prp (@prps) {
-    if (!$changed->{$prp}) {
+    if (!$changed_low->{$prp} && !$changed_med->{$prp}) {
       # FIXME: aggregates do not use the full tree!
-      next unless grep {$changed->{$_} && $changed->{$_} != 1} @{$prpdeps{$prp}};
+      next unless grep {$changed_med->{$_} && $changed_med->{$_} != 1} @{$prpdeps{$prp}};
     }
     $lookat_next->{$prp} = 1;
   }
-  %$changed = ();
+  %$changed_low = ();
+  %$changed_med = ();
   %$changed_high = ();
 }
 
@@ -2725,7 +2727,8 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 #          2: the :full repo is changed
 # set all projects and prps to :full repo changed
 my %repodata;
-my %changed;
+my %changed_low;
+my %changed_med;
 my %changed_high;
 my %prpfinished;
 my %lastcheck;
@@ -2769,21 +2772,25 @@ if (-s "$rundir/bs_sched.$myarch.state") {
     @lookat_oobhigh = @{$schedstate->{'lookat_oobhigh'} || []};
 
     # update changed hash
-    %changed = ();
+    %changed_low = ();
+    %changed_med = ();
     %changed_high = ();
     for my $prp (@newprps) {
-      $changed{$prp} = 2;
-      $changed{(split('/', $prp, 2))[0]} = 2;
+      $changed_med{$prp} = 2;
+      $changed_med{(split('/', $prp, 2))[0]} = 2;
     }
 
-    my $oldchanged = $schedstate->{'changed'} || {};
+    my $oldchanged_low = $schedstate->{'changed_low'} || {};
+    my $oldchanged_med = $schedstate->{'changed_med'} || {};
     my $oldchanged_high = $schedstate->{'changed_high'} || {};
     for my $projid (keys %$projpacks) {
-      $changed{$projid} = $oldchanged->{$projid} if exists $oldchanged->{$projid};
+      $changed_low{$projid} = $oldchanged_low->{$projid} if exists $oldchanged_low->{$projid};
+      $changed_med{$projid} = $oldchanged_med->{$projid} if exists $oldchanged_med->{$projid};
       $changed_high{$projid} = $oldchanged_high->{$projid} if exists $oldchanged_high->{$projid};
     }
     for my $prp (@prps) {
-      $changed{$prp} = $oldchanged->{$prp} if exists $oldchanged->{$prp};
+      $changed_low{$prp} = $oldchanged_low->{$prp} if exists $oldchanged_low->{$prp};
+      $changed_med{$prp} = $oldchanged_med->{$prp} if exists $oldchanged_med->{$prp};
       $changed_high{$prp} = $oldchanged_high->{$prp} if exists $oldchanged_high->{$prp};
     }
 
@@ -2831,8 +2838,8 @@ my $slept = 0;
 my $schedulerstart = time();
 
 while(1) {
-  if (%changed) {
-    changed2lookat(\%changed, \%changed_high, \@lookat_oobhigh, \@lookat_oob, \%lookat_next);
+  if (%changed_low) {
+    changed2lookat(\%changed_low, \%changed_med, \%changed_high, \@lookat_oobhigh, \@lookat_oob, \%lookat_next);
     next;
   }
 
@@ -3028,9 +3035,9 @@ while(1) {
 	  next;
 	}
         if ($ev->{'type'} eq 'built') {
-	  jobfinished($job, $js, \%repodata, \%changed);
+	  jobfinished($job, $js, \%repodata, \%changed_med);
 	} else {
-	  importevent($job, $js, \%repodata, \%changed);
+	  importevent($job, $js, \%repodata, \%changed_med);
 	}
 	if (-d "$myjobsdir/$job:dir") {
 	  unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
@@ -3073,10 +3080,10 @@ while(1) {
 	  next if $lprojid eq $projid;
 	  for my $prp (@prps) {
             # low prio for repos building against these
-            $lookat_next{$prp} = 1 if (split('/', $prp, 2))[0] eq $lprojid;
+            $changed_low{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
 	  }
           # med prio for repos with source linked packages
-	  $changed{$lprojid} ||= 1;
+	  $changed_med{$lprojid} ||= 1;
 	}
 	# we use 2 here as a config change is relevant for all
         # projects building with us
@@ -3114,7 +3121,7 @@ while(1) {
 	if (defined($projid) && defined($repoid)) {
 	  my $prp = "$projid/$repoid";
 	  print "$prp is $ev->{'type'}\n";
-	  $changed{$prp} ||= 1;
+	  $changed_med{$prp} ||= 1;
 	}
 	next;
       }
@@ -3188,7 +3195,8 @@ while(1) {
 	#$schedstate->{'projpacks'} = $projpacks;
 	#$schedstate->{'repodata'} = \%repodata;
 	$schedstate->{'prps'} = \@prps;
-	$schedstate->{'changed'} = \%changed;
+	$schedstate->{'changed_low'} = \%changed_low;
+	$schedstate->{'changed_med'} = \%changed_med;
 	$schedstate->{'changed_high'} = \%changed_high;
 	$schedstate->{'lookat'} = \@new_lookat;
 	$schedstate->{'lookat_oob'} = \@lookat_oob;
@@ -3241,8 +3249,8 @@ while(1) {
     }
     # add all changed_high entries to changed to make things simpler
     for (keys %changed_high) {
-      next if $changed{$_} && $changed{$_} == 2;
-      $changed{$_} = $changed_high{$_};
+      next if $changed_med{$_} && $changed_med{$_} == 2;
+      $changed_med{$_} = $changed_high{$_};
     }
     next;
   }
@@ -3330,7 +3338,7 @@ while(1) {
 	  unlink("$reporoot/$prp/$myarch/$dir") || die("$reporoot/$prp/$myarch/$dir: $!\n");
 	}
       }
-      $changed{$prp} = 2;
+      $changed_med{$prp} = 2;
       sendrepochangeevent($prp);
       killbuilding($prp);
       prpfinished($prp);
@@ -3417,7 +3425,7 @@ while(1) {
     $repodata{$prp} ||= findbins($prp);
     my $repodata = $repodata{$prp};
     update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
-    $changed{$prp} = 2;
+    $changed_med{$prp} = 2;
     sendrepochangeevent($prp);
     # delete other files
     unlink("$gdst/:logfiles.success/$packid");
@@ -3716,7 +3724,7 @@ while(1) {
       my ($astatus, $aerror) = checkaggregate($projid, $repoid, $packid, $pdata, \%prpfinished);
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
-	($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%repodata, \%changed, $aerror);
+	($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%repodata, \%changed_med, $aerror);
 	if ($astatus eq 'scheduled') {
 	  # aerror contains jobid in this case
 	  $notready{$pname} = 1;
