@@ -403,7 +403,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n build-obs
 %defattr(-,root,root)
-%doc README
+%doc src/build/README
 /usr/bin/build
 /usr/bin/buildvc
 /usr/bin/unrpm
