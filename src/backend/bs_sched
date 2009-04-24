@@ -3071,14 +3071,17 @@ while(1) {
 	  my $lpackid = $linfo->{'mypackage'};
 	  next if $lprojid eq $projid;
 	  for my $prp (@prps) {
-	    $changed{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
+            # low prio for repos building against these
+            $lookat_next{$prp} = 1 if (split('/', $prp, 2))[0] eq $lprojid;
 	  }
+          # med prio for repos with source linked packages
 	  $changed{$lprojid} ||= 1;
 	}
 	# we use 2 here as a config change is relevant for all
         # projects building with us
 	for my $prp (@prps) {
-	  $changed{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+          # low prio for repos building against these
+          $lookat_next{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
 	}
 	$changed_high{$projid} = 2;
 	next;
