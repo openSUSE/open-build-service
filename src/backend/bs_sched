@@ -299,6 +299,7 @@ sub findbins_dir {
     my $id = "$s[9]/$s[7]/$s[1]";
     my $data = Build::query($bin, 'evra' => 1);	# need arch
     next unless $data;
+    BSVerify::verify_nevraquery($data);
     $data->{'id'} = $id;
     delete $data->{'epoch'};
     delete $data->{'version'};
@@ -346,7 +347,7 @@ sub findbins {
   my @prp = split("/", $prp);
   my $projid = $prp[0];
   my @dl = grep { $_->{'arch'} eq $myarch } @{$projpacks->{$projid}->{'download'}} if exists $projpacks->{$projid}->{'download'};
-  if (@dl) {
+  if (@dl && $BSConfig::enable_dod) {
     # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
     eval {
       $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
@@ -2707,7 +2708,7 @@ flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myar
 utime undef, undef, "$rundir/bs_sched.$myarch.lock";
 
 # setup event mechanism
-for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir) {
+for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir, $infodir) {
   next if -d $d;
   mkdir($d) || die("$d: $!\n");
 }
@@ -3481,6 +3482,7 @@ while(1) {
 
   my %pdeps;
   my %pkg2src;
+  my %pkgdisabled;
   for my $packid (@packs) {
     my $pdata = $packs->{$packid};
 
@@ -3498,6 +3500,12 @@ while(1) {
       }
     }
     if (!$info || !defined($info->{'file'}) || !defined($info->{'name'})) {
+      if ($pdata->{'error'} && $pdata->{'error'} eq 'disabled') {
+        $pkgdisabled{$packid} = 1;
+      }
+      if ($info && $info->{'error'} && $info->{'error'} eq 'disabled') {
+        $pkgdisabled{$packid} = 1;
+      }
       $pdeps{$packid} = [];
       next;
     }
@@ -3524,6 +3532,20 @@ while(1) {
     $pdeps{$packid} = \@edeps;
   }
 
+  if (%pkgdisabled) {
+    # leave info of disabled packages untouched
+    my $olddepends;
+    eval {
+      $olddepends = Storable::retrieve("$reporoot/$prp/$myarch/:depends");
+    };
+    if ($olddepends) {
+      for (keys %pkgdisabled) {
+        $pdeps{$_} = $olddepends->{'pkgdeps'}->{$_} if $olddepends->{'pkgdeps'}->{$_};
+        $pkg2src{$_} = $olddepends->{'pkg2src'}->{$_} if $olddepends->{'pkg2src'}->{$_};
+      }
+    }
+  }
+
   # write dependency information
   Storable::nstore({
     'pkgdeps' => \%pdeps,
@@ -3531,6 +3553,11 @@ while(1) {
     'pkg2src' => \%pkg2src,
   }, "$reporoot/$prp/$myarch/.:depends");
   rename("$reporoot/$prp/$myarch/.:depends", "$reporoot/$prp/$myarch/:depends");
+  # remove old entries again
+  for (keys %pkgdisabled) {
+    $pdeps{$_} = [];
+    delete $pkg2src{$_};
+  }
 
   # sort packages by pdeps
   print "    sorting ".@packs." packages\n";
@@ -3918,7 +3945,7 @@ while(1) {
 	delete $lastcheck{"$prp/$packid"};
 	next;
       }
-      if (@meta == @new_meta) {
+      if ($BSConfig::enable_dod && @meta == @new_meta) {
 	# XXX: special handling for dod (quick hack..)
 	# the default hdrmd5 of dod packages is 0 => don't trigger endless rebuilds
 	my %o = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @meta;
