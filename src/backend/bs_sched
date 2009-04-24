@@ -1802,7 +1802,7 @@ sub jobfinished {
 
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   if ($code eq 'unchanged') {
-    print "  - $job: build results is unchanged\n";
+    print "  - $job: build result is unchanged\n";
     if (open(F, '+>>', "$dst/logfile")) {
       # Add a comment to logfile from last real build
       print F "\nSkipped built at ".localtime(time());
