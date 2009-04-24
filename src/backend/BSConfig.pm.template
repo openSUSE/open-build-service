@@ -47,6 +47,9 @@ our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
 #our $bsquotafile = '/srv/obs/quota.xml';
 
+# To enable package downloading from backend on demand
+# our $enable_dod = 1;
+
 # Package rc script / backend communication + log files
 our $rundir = '/srv/obs/run';
 our $logdir = '/srv/obs/log';
