@@ -42,7 +42,7 @@ sub encode_line {
   for (@$lay) {
     push @line, defined($r->{$_})  ? $r->{$_} : '';
   }
-  s/([\000-\037|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @line; 
+  s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @line; 
   return join('|', @line);
 }
 
