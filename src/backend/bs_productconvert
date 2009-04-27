@@ -504,7 +504,7 @@ sub groupToPackages( $$$$$ )
 	push @validArchs, $archSetRef->{productarch};
     }
 
-    my @groups = @{$prodRef->{group}}; 
+    my @groups = @{$prodRef->{group} || {}}; 
     my $groupRef;
 
     # search for the group we should convert here.

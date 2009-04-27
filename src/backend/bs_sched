@@ -3273,12 +3273,23 @@ while(1) {
       }
     }
   }
-  if ($prp) {
-    #we have already one, do nothing
-  } elsif (@lookat_oobhigh) {
+  if (!defined($prp) && @lookat_oobhigh) {
     $prp = shift @lookat_oobhigh;
-    print "looking at high prio $prp";
-  } elsif (@lookat_oob) {
+    if ($nextmed{$prp}) {
+      my $now = time();
+      my @notyet;
+      while ($nextmed{$prp} && $now < $nextmed{$prp}) {
+	print "  not yet $prp\n";
+	push @notyet, $prp;
+	$prp = shift @lookat_oobhigh;
+	last unless defined $prp;
+      }
+      unshift @lookat_oobhigh, @notyet;
+      $prp = shift @lookat_oobhigh if !defined($prp) && !@lookat_oob && !@lookat;
+    }
+    print "looking at high prio $prp" if defined($prp);
+  }
+  if (!defined($prp) && @lookat_oob) {
     $prp = shift @lookat_oob;
     if ($nextmed{$prp}) {
       my $now = time();
@@ -4128,7 +4139,7 @@ while(1) {
   }
 
   my $now = time();
-  $nextmed{$prp} = time() + 2 * $prpchecktime;
+  $nextmed{$prp} = time() + 10 * $prpchecktime;
 
   # write stats
   my $sinfo = {'arch' => $myarch, 'started' => $schedulerstart, 'time' => $now, 'slept' => $slept};
