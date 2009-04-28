@@ -726,6 +726,7 @@ sub workerstatus {
   my @building;
   my @waiting;
   my @blocked;
+  my @buildaverage;
   my @a;
   @a = ls($jobsdir) unless $cgi->{'scheduleronly'};
   for my $a (@a) {
@@ -751,11 +752,15 @@ sub workerstatus {
     if ($si && defined($si->{'notready'})) {
       push @blocked, {'arch' => $a, 'jobs' => $si->{'notready'}};
     }
+    if ($si && defined($si->{'buildavg'})) {
+      push @buildaverage, {'arch' => $a, 'buildavg' => $si->{'buildavg'}};
+    }
   }
   @idle = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @idle;
   @building = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @building;
   @waiting = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @waiting;
   @blocked = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @blocked;
+  @buildaverage = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @buildaverage; 
 
   my @scheddata;
   my @schedarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
@@ -785,6 +790,7 @@ sub workerstatus {
     $ret->{'building'} = \@building;
     $ret->{'waiting'} = \@waiting;
     $ret->{'blocked'} = \@blocked;
+    $ret->{'buildavg'} = \@buildaverage;
     $ret->{'idle'} = \@idle;
   }
   $ret->{'scheduler'} = \@scheddata;

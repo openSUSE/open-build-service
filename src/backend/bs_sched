@@ -88,6 +88,9 @@ my %remoteprojs;	# remote project cache
 # Create directory on first start
 mkdir_p($infodir) || die ("Failed to create ".$infodir);
 
+my $buildavg = 0;
+
+
 sub unify {
   my %h = map {$_ => 1} @_;
   return grep(delete($h{$_}), @_);
@@ -1761,6 +1764,11 @@ sub jobfinished {
     print "  - $job is outdated\n";
     return;
   }
+  # calculate exponential weighted average
+  my $myjobtime = time() - $status->{'readytime'};
+  my $weight = 0.3; 
+  $buildavg = ($weight * $myjobtime) + ((1 - $weight) * $buildavg);
+  
   delete $status->{'job'};	# no longer building
 
   delete $status->{'arch'};	# obsolete
@@ -4170,5 +4178,6 @@ while(1) {
     $worst->{'time'} = $prpchecktimes{$prp};
     push @{$sinfo->{'worst'}}, $worst;
   }
+  $sinfo->{'buildavg'} = $buildavg;
   writexml("$infodir/.schedulerinfo.$myarch", "$infodir/schedulerinfo.$myarch", $sinfo, $BSXML::schedulerinfo);
 }

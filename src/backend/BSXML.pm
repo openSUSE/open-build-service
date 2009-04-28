@@ -515,6 +515,10 @@ our $workerstatus = [
 	    'arch',
 	    'jobs',
      ]],
+     [[ 'buildavg', =>
+            'arch',
+	    'buildavg',
+     ]],
      [[ 'scheduler' =>
 	    'arch',
 	    'state',
@@ -821,6 +825,7 @@ our $schedulerinfo = [
 	    'packages',
 	    'time',
      ]],
+        'buildavg',
 	'avg',
 	'variance',
 ];
