@@ -882,6 +882,11 @@ sub putjob {
       if (system($BSConfig::sign, @signargs, '-r', "$dir/$file->{'name'}")) {
         print "sign $dir/$file->{'name'} failed: $?\n";
         $jobstatus->{'result'} = 'failed';
+	local *F;
+	open(F, '>>', "$uploaddir/logfile");
+	print F "sign $file->{'name'} failed: $?\n";
+	close F;
+	$success = 0;
       }
     }
     unlink("$uploaddir/repserver.$$") if $signkey;
