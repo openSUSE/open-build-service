@@ -132,17 +132,21 @@ class Request < Node
   end
   
   def to_s
-    @verb + " " + @path
+    p = @path.gsub(/<(.*?)\?>/, "<\\1>")
+    @verb + " " + p
   end
 
   def parameters
     result = Array.new
-    @path.scan( /<(.*?)>/ ) do |p|
+    @path.scan( /<(.*?)(\??)>/ ) do |p|
       node = self
       found = false
+      optional = $2.empty? ? false : true
       while( node && !found )
         node.children.each do |c|
-          if ( c.is_a?( Parameter ) && c.name == p.to_s )
+          STDERR.puts(c.name + " : " + $1) if c.is_a?( Parameter ) and c.name
+          if ( c.is_a?( Parameter ) && c.name == $1 )
+            c.optional = optional
             result.push c
             found = true
             break
@@ -151,7 +155,9 @@ class Request < Node
         node = node.parent
       end
       if ( !found )
-        result.push Parameter.new( p )
+        n = Parameter.new( $1 )
+        n.optional = optional
+        result.push n
       end
     end
     result
@@ -193,13 +199,20 @@ end
 
 class Parameter < Node
 
-  attr_accessor :description
+  attr_accessor :description, :optional
+
+  def initialize n = nil
+    @optional = false
+    super
+  end
 
   def to_s
+    s = @name.to_s
+    s += " (optional)" if @optional
     if ( !@description || @description.empty? )
-      @name
+      s
     else
-      @name + " - " + @description
+      s + " - " + @description
     end
   end
 
