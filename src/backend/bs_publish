@@ -725,6 +725,8 @@ sub publish {
       } else {
 	if ($bin =~ /\.iso$/ || $bin =~ /\.iso.md5$/) {
 	  $p = "iso/$bin";
+	} elsif ($bin =~ /\.raw.bz2$/ || $bin =~ /\.raw.bz2.md5$/) {
+	  $p = "$bin";
 	} elsif ($bin =~ /\.raw(:?\.install)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.tar.gz$/) {
