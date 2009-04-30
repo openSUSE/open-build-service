@@ -328,8 +328,7 @@ sub createrepo_rpmmd {
     print FILE "baseurl=$BSConfig::repodownload/$prp_ext/\n";
     print FILE "gpgcheck=1\n";
     if (!@$signargs) {
-      # standard key XXX: move to BSConfig!
-      print FILE "gpgkey=http://download.opensuse.org/openSUSE-Build-Service.asc\n";
+      print FILE "gpgkey=$BSConfig::gpg_standard_key\n" if defined($BSConfig::gpg_standard_key);
     } else {
       print FILE "gpgkey=$BSConfig::repodownload/$prp_ext/repodata/repomd.xml.key\n";
     }
@@ -626,15 +625,15 @@ sub deleterepo {
   # delete everything else
   qsystem('rm', '-rf', $extrep);
   if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-    print "    running rsync to $1\n";
+    print "    running rsync to $1 at ".localtime(time)."\n";
     # rsync with a timeout of 1 hour
-    qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', '--delete-after', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".locatime(time).": $?\n");
+    qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', '--delete-after', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
   }
   # push done trigger sync to other mirrors
   mkdir_p($extrepodir_sync);
   writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-    print "    running trigger rsync to $1\n";
+    print "    running trigger rsync to $1 at ".localtime(time)."\n";
     # small sync, timout 1 minute
     qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed at ".localtime(time).": $?\n");
   }
@@ -645,7 +644,7 @@ sub publish {
   my ($projid, $repoid) = @_;
   my $prp = "$projid/$repoid";
 
-  print "publishing $prp\n";
+  print localtime(time)." publishing $prp\n";
 
   # get info from source server about this project/repository
   # we specify "withsrcmd5" so that we get the patternmd5. It still
@@ -1022,7 +1021,7 @@ publishprog_done:
 
   # push to stageserver
   if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/ && defined($prp_ext)) {
-    print "    running rsync to $1\n";
+    print "    running rsync to $1 at ".localtime(time)."\n";
     # sync project repos, timeout 1 hour
     qsystem('echo', "$prp_ext\0", 'rsync', '-ar0', '--delete-after', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed: $?\n");
   }
@@ -1034,7 +1033,7 @@ publishprog_done:
     $projid_ext =~ s/:/:\//g;
     writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
     if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-      print "    running trigger rsync to $1\n";
+      print "    running trigger rsync to $1 at ".localtime(time)."\n";
       # small sync, timeout 1 minute
       qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed: $?\n");
     }
