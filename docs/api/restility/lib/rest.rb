@@ -323,7 +323,7 @@ class Document < Section
         result = XmlResult.new $1
         @current.add_child( result )
 
-      elsif ( line =~ /^Contents:/ )
+      elsif ( line =~ /^Contents/ )
         @current.add_child( Contents.new )
 
       elsif ( line =~ /^Version: (.*)/ )
