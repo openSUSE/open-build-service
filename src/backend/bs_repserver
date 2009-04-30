@@ -883,7 +883,7 @@ sub putjob {
         print "sign $dir/$file->{'name'} failed: $?\n";
         $jobstatus->{'result'} = 'failed';
 	local *F;
-	open(F, '>>', "$uploaddir/logfile");
+	open(F, '>>', "$dir/logfile");
 	print F "sign $file->{'name'} failed: $?\n";
 	close F;
 	$success = 0;
