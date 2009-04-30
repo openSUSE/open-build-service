@@ -144,7 +144,6 @@ class Request < Node
       optional = $2.empty? ? false : true
       while( node && !found )
         node.children.each do |c|
-          STDERR.puts(c.name + " : " + $1) if c.is_a?( Parameter ) and c.name
           if ( c.is_a?( Parameter ) && c.name == $1 )
             c.optional = optional
             result.push c
