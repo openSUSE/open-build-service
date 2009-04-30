@@ -900,7 +900,16 @@ sub publish {
     writestr("$uploaddir/publisher.$$", undef, $signkey);
     $signargs = [ '-P', "$uploaddir/publisher.$$" ];
   } else {
-    if ($BSConfig::keyfile) {
+    if ($BSConfig::sign_project && $BSConfig::sign) {
+      local *S;
+      open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
+      $pubkey = '';
+      1 while sysread(S, $pubkey, 4096, length($pubkey));
+      if (!close(S)) {
+	print "sign -p failed: $?\n";
+	$pubkey = undef;
+      }
+    } elsif ($BSConfig::keyfile) {
       $pubkey = readstr($BSConfig::keyfile);
     }
   }
