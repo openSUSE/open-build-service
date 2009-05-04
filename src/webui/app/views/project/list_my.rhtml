@@ -9,6 +9,17 @@
 </p>
 
 <br>
+
+<p>
+  <h2>Requests concerning me</h2>
+  <%= render :partial => 'request_table', :locals => {:requests => @requests_for_me} %>
+</p>
+
+<p>
+  <h2>Requests by me</h2>
+  <%= render :partial => 'request_table', :locals => {:requests => @requests_by_me} %>
+</p>
+
 <p>
 <h2>Involved Projects</h2>
  <% if @iprojects and not @iprojects.empty? -%>
@@ -48,15 +59,5 @@
         <% end -%>
       <% end -%>
    </table>
-</p>
-
-<p>
-  <h2>Requests concerning me</h2>
-  <%= render :partial => 'request_table', :locals => {:requests => @requests_for_me} %>
-</p>
-
-<p>
-  <h2>Requests by me</h2>
-  <%= render :partial => 'request_table', :locals => {:requests => @requests_by_me} %>
 </p>
 
