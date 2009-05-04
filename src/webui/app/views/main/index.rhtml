@@ -75,6 +75,11 @@ https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png
 <p>Proceed to:</p>
     <ul id="proceed_list">
       <li>
+      <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png' />", :controller => "project", :action => :list_my %><br/>
+      <%= link_to "My Projects", :controller => "project", :action => :list_my %>
+      </li>
+
+      <li>
       <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png' />", :controller => "project", :action => :list_public %><br/>
       <%= link_to "List of All Projects", :controller => "project", :action => :list_public %>
       </li>
