@@ -750,6 +750,10 @@ our $request = [
     'request' =>
 	'id',
 	'type',
+      [ 'delete' =>
+	   'project',
+	   'package',
+      ],
       [ 'submit' =>
 	  [ 'source' =>
 		'project',

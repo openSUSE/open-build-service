@@ -96,6 +96,16 @@ sub requestParams( $$ )
 
       $reqinfo{'author'} = $req->{'history'} ? $req->{'history'}->[0]->{'who'} : $req->{'state'}->{'who'}
   }
+  if( $req->{'type'} eq 'delete' && $req->{'delete'} && $req->{'delete'}->{'project'} ) {
+      $reqinfo{'deleteproject'}  = $req->{'delete'}->{'project'};
+      $reqinfo{'deletepackage'}  = $req->{'delete'}->{'package'};
+
+      if( $req->{'oldstate'} ) {
+        $reqinfo{'oldstate'} = $req->{'oldstate'}->{'name'};
+      }
+
+      $reqinfo{'author'} = $req->{'history'} ? $req->{'history'}->[0]->{'who'} : $req->{'state'}->{'who'}
+  }
   return \%reqinfo;
 }
 

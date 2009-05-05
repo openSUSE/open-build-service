@@ -233,17 +233,23 @@ sub verify_aggregatelist {
 sub verify_request {
   my ($req) = @_;
   die("request type missing\n") unless $req->{'type'};
-  die("unknown request type '$req'\n") unless $req->{'type'} eq 'submit';
+  die("unknown request type '$req->{'type'}'\n") unless $req->{'type'} eq 'submit' or $req->{'type'} eq 'delete';
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
-  die("submit specification missing\n") unless $req->{'submit'};
-  die("submit source missing\n") unless $req->{'submit'}->{'source'};
-  die("submit target missing\n") unless $req->{'submit'}->{'target'};
-  verify_projid($req->{'submit'}->{'source'}->{'project'});
-  verify_projid($req->{'submit'}->{'target'}->{'project'});
-  verify_packid($req->{'submit'}->{'source'}->{'package'});
-  verify_packid($req->{'submit'}->{'target'}->{'package'});
-  verify_rev($req->{'submit'}->{'source'}->{'rev'}) if exists $req->{'submit'}->{'source'}->{'rev'};
+  if ($req->{'type'} eq 'delete') {
+    die("delete project missing\n") unless $req->{'delete'}->{'project'};
+    verify_projid($req->{'delete'}->{'project'});
+    verify_packid($req->{'delete'}->{'package'});
+  }
+  if ($req->{'type'} eq 'submit') {
+    die("submit specification missing\n") unless $req->{'submit'};
+    die("submit source missing\n") unless $req->{'submit'}->{'source'};
+    verify_projid($req->{'submit'}->{'source'}->{'project'});
+    verify_projid($req->{'submit'}->{'target'}->{'project'});
+    verify_packid($req->{'submit'}->{'source'}->{'package'});
+    verify_packid($req->{'submit'}->{'target'}->{'package'});
+    verify_rev($req->{'submit'}->{'source'}->{'rev'}) if exists $req->{'submit'}->{'source'}->{'rev'};
+  }
 }
 
 sub verify_nevraquery {
