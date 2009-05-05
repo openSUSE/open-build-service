@@ -132,13 +132,13 @@ class Request < Node
   end
   
   def to_s
-    p = @path.gsub(/<(.*?)\?>/, "<\\1>")
+    p = @path.gsub(/<([^>]*?)\??>=/, "\\1=")
     @verb + " " + p
   end
 
   def parameters
     result = Array.new
-    @path.scan( /<(.*?)(\??)>/ ) do |p|
+    @path.scan( /[^=]<(.*?)(\??)>/ ) do |p|
       node = self
       found = false
       optional = $2.empty? ? false : true
