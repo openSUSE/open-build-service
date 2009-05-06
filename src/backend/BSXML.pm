@@ -627,6 +627,14 @@ our $opstatus = [
 	[],
 	'summary',
 	'details',
+        [ 'exception' =>
+            'type',
+            'message',
+            [ 'backtrace' =>
+                [ 'line',
+                ],
+            ],
+        ],
 ];
 
 my $rpm_entry = [
