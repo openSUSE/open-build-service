@@ -235,6 +235,9 @@ sub verify_request {
   die("request type missing\n") unless $req->{'type'};
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
+  die("request contains unknown state ".$req->{'state'}->{'name'}."\n")
+     unless $req->{'state'}->{'name'} == "new" or $req->{'state'}->{'name'} == "revoked" 
+         or $req->{'state'}->{'name'} == "accepted" or $req->{'state'}->{'name'} == "declined";
   if ($req->{'type'} eq 'delete') {
     die("delete specification missing\n") unless $req->{'delete'};
     verify_projid($req->{'delete'}->{'project'});
