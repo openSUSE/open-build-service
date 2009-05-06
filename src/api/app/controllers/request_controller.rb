@@ -43,48 +43,52 @@ class RequestController < ApplicationController
       req = BsRequest.new(request.body)
     end
 
-    if req.type == "submit"
-      #check existence of source/target
-      tprj = DbProject.find_by_name req.submit.target.project
+    if req.type == "delete"
+      #check existence of target
+      # WORKAROUND: use each_delete[0] instead of delete to workaround usage of delete function
+      delete_obj = req.each_delete[0]
+      tprj = DbProject.find_by_name delete_obj.project
       unless tprj
         render_error :status => 404, :errorcode => 'unknown_project',
-          :message => "Unknown project #{req.submit.target.project}"
+          :message => "Unknown project #{delete_obj.project}"
         return
       end
+      tpkg = tprj.db_packages.find_by_name delete_obj.package
+      unless tpkg or DbProject.find_remote_package(delete_obj.project, delete_obj.package)
+        render_error :status => 404, :errorcode => 'unknown_package',
+          :message => "Unknown package  #{delete_obj.project} / #{delete_obj.package}"
+        return
+      end
+    end
 
-      #tpkg = tprj.db_packages.find_by_name req.submit.target.package
-      #unless tpkg
-      #  render_error :status => 404, :errorcode => 'unknown_package',
-      #    :message => "Unknown package #{req.submit.target.package}"
-      #  return
-      #end
-
+    if req.type == "submit"
+      #check existence of source
       sprj = DbProject.find_by_name req.submit.source.project
-      unless sprj
+      unless sprj or DbProject.find_remote_project(req.submit.source.project)
         render_error :status => 404, :errorcode => 'unknown_project',
           :message => "Unknown project #{req.submit.source.project}"
         return
       end
 
       spkg = sprj.db_packages.find_by_name req.submit.source.package
-      unless spkg
+      unless spkg or DbProject.find_remote_project(req.submit.source.package)
         render_error :status => 404, :errorcode => 'unknown_package',
           :message => "Unknown package #{req.submit.source.package}"
         return
       end
-    end
 
-    #check permissions
-    unless @http_user.can_modify_package? spkg
-      render_error :status => 403, :errorcode => "create_request_no_permission",
-        :message => "No permission to create submit request for package '#{spkg.name}' in project '#{sprj.name}'"
-      return
+      #check permissions
+      unless @http_user.can_modify_package? spkg
+        #ADRIAN: what is the reason that we do not allow requests from random projects ?
+        render_error :status => 403, :errorcode => "create_request_no_permission",
+          :message => "No permission to create submit request for package '#{spkg.name}' in project '#{sprj.name}'"
+        return
+      end
     end
 
     params[:user] = @http_user.login if @http_user
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
-
     forward_data path, :method => :post, :data => req.dump_xml
   end
 
@@ -98,22 +102,38 @@ class RequestController < ApplicationController
       params[:comment] = request.body.read
     end
 
+    # generic permission check
+    permission_granted = false
+    if @http_user.is_admin?
+      permission_granted = true
+    elsif req.state.name == "new" and params[:newstate] == "revoked"
+      # allow new -> revoked state change to creators of request
+      for h in req.each_history
+        if h.name == "new" and h.who == @http_user.login
+          permission_granted = true
+        end
+      end
+    end
+
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :comment])
     if req.type == "submit"
 
-      # check permission to modify
-      target_prj = DbProject.find_by_name(req.submit.target.project)
-      source_prj = DbProject.find_by_name(req.submit.source.project)
-      if @http_user.can_modify_project? target_prj
-        permission_granted = true
-      elsif req.state.name == "new" and params[:newstate] == "revoked" and @http_user.can_modify_project?(source_prj)
-        # allow new -> revoked state change to maintainers of source project
-        permission_granted = true
+      source_project = DbProject.find_by_name(req.submit.source.project)
+      source_package = DbProject.find_by_name(req.submit.source.package)
+      target_project = DbProject.find_by_name(req.submit.target.project)
+      if req.submit.target.has_attribute? :package
+        target_package = target_project.db_packages.find_by_name(req.submit.target.package)
       else
-        permission_granted = false
+        target_package = target_project.db_packages.find_by_name(req.submit.source.package)
+      end
+      if ( target_package and @http_user.can_modify_package? target_package ) or
+         ( not target_package and @http_user.can_modify_project? target_project )
+         permission_granted = true
+      elsif req.state.name == "new" and params[:newstate] == "revoked" and @http_user.can_modify_package?(source_package)
+        permission_granted = true
       end
 
-      if permission_granted
+      if permission_granted == true
         if params[:newstate] == "accepted"
           src = req.submit.source
           cp_params = {
@@ -146,16 +166,42 @@ class RequestController < ApplicationController
           :message => "No permission to change state of request #{req.id} (type #{req.type})"
         return
       end
-    else
-      #request != submit
-      if @http_user.is_admin?
+    elsif req.type == "delete"
+      # WORKAROUND: use each_delete[0] instead of delete to workaround usage of delete function
+      delete_obj = req.each_delete[0]
+      # check permissions for delete
+      project = DbProject.find_by_name(delete_obj.project)
+      package = project.db_packages.find_by_name(delete_obj.package)
+      if @http_user.can_modify_project? project or @http_user.can_modify_package? package
+        permission_granted = true
+      end
+
+      if permission_granted == true
+        if params[:newstate] == "accepted" and req.state.name != "accepted" and req.state.name != "declined"
+          if not delete_obj.has_attribute? :package
+            project.destroy
+            Suse::Backend.delete "/source/#{delete_obj.project}"
+          else
+            DbPackage.transaction do
+              package.destroy
+              Suse::Backend.delete "/source/#{delete_obj.project}/#{delete_obj.package}"
+            end
+          end
+          render_ok
+        end
         forward_data path, :method => :post
       else
-        render_error :status => 403, :errorcode => "post_request_no_permission",
-          :message => "No permission to change state of request #{req.id} (type #{req.type})"
+        render_error :status => 403, :errorcode => "delete_package_no_permission",
+          :message => "no permission to delete package #{delete_obj.package} in project #{delete_obj.project}"
         return
       end
+    elsif @http_user.is_admin?
+      #request != submit
+      forward_data path, :method => :post
+    else
+      render_error :status => 403, :errorcode => "post_request_no_permission",
+        :message => "No permission to change state of request #{req.id} (type #{req.type})"
+      return
     end
-    
   end
 end
