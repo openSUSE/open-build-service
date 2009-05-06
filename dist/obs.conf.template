@@ -1,43 +1,35 @@
 $SERVER["socket"] == "[::]:443" {
 
-ssl.engine  = "enable"
-ssl.pemfile = "/etc/apache2/ssl.ds/datasoft-rsa-www.pem"
+  ssl.engine  = "enable"
+  ssl.pemfile = "/etc/apache2/ssl.ds/datasoft-rsa-www.pem"
 
-$HTTP["host"] =~ "build.d-atasoft.com\.?" {
-  rails_app   = "webclient"
-  rails_root  = "/srv/www/obs/webclient"
-  rails_procs = 6
-  # production/development are typical values here
-  # rails_mode  = "production_slave"
-  rails_mode  = "development"
+  $HTTP["host"] =~ "build.d-atasoft.com\.?" {
+    rails_app   = "webclient"
+    rails_root  = "/srv/www/obs/webclient"
+    rails_procs = 6
+    # production/development are typical values here
+    # rails_mode  = "production_slave"
+    rails_mode  = "development"
 
-  log_root = "/srv/www/obs/webclient/log"
+    log_root = "/srv/www/obs/webclient/log"
 
-  include "vhosts.d/rails.inc"
-}
+    include "vhosts.d/rails.inc"
+  }
 
-$HTTP["host"] =~ "download.d-atasoft.com\.?" {
-  server.name = "download.d-atasoft.com"
+  $HTTP["host"] =~ "api.d-atasoft.com\.?" {
+    rails_app   = "frontend"
+    rails_root  = "/srv/www/obs/frontend"
+    rails_procs = 6
+    # production/development are typical values here
+    # rails_mode  = "production_slave"
+    rails_mode  = "development"
 
-  server.document-root = "/srv/obs/repos/"
-}
+    log_root = "/srv/www/obs/frontend/log"
 
-$HTTP["host"] =~ "api.d-atasoft.com\.?" {
-  rails_app   = "frontend"
-  rails_root  = "/srv/www/obs/frontend"
-  rails_procs = 6
-  # production/development are typical values here
-  # rails_mode  = "production_slave"
-  rails_mode  = "development"
-
-  log_root = "/srv/www/obs/frontend/log"
-
-  include "vhosts.d/rails.inc"
-}
+    include "vhosts.d/rails.inc"
+  }
 
 }
-
-$SERVER["socket"] == "[::]:81" {
 
 $HTTP["host"] =~ "download.d-atasoft.com\.?" {
   server.name = "download.d-atasoft.com"
