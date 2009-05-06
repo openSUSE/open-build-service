@@ -1,9 +1,9 @@
 $SERVER["socket"] == "[::]:443" {
 
   ssl.engine  = "enable"
-  ssl.pemfile = "/etc/apache2/ssl.ds/datasoft-rsa-www.pem"
+  ssl.pemfile = "/etc/apache2/ssl.yourdomain/yourdomain-rsa-www.pem"
 
-  $HTTP["host"] =~ "build.d-atasoft.com\.?" {
+  $HTTP["host"] =~ "build.yourdomain.ext\.?" {
     rails_app   = "webclient"
     rails_root  = "/srv/www/obs/webclient"
     rails_procs = 6
@@ -16,7 +16,7 @@ $SERVER["socket"] == "[::]:443" {
     include "vhosts.d/rails.inc"
   }
 
-  $HTTP["host"] =~ "api.d-atasoft.com\.?" {
+  $HTTP["host"] =~ "api.yourdomain.ext\.?" {
     rails_app   = "frontend"
     rails_root  = "/srv/www/obs/frontend"
     rails_procs = 6
@@ -31,8 +31,8 @@ $SERVER["socket"] == "[::]:443" {
 
 }
 
-$HTTP["host"] =~ "download.d-atasoft.com\.?" {
-  server.name = "download.d-atasoft.com"
+$HTTP["host"] =~ "download.yourdomain.ext\.?" {
+  server.name = "download.yourdomain.ext"
 
   server.document-root = "/srv/obs/repos/"
 }
