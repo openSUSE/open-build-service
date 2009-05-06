@@ -64,14 +64,16 @@ class RequestController < ApplicationController
     if req.type == "submit"
       #check existence of source
       sprj = DbProject.find_by_name req.submit.source.project
-      unless sprj or DbProject.find_remote_project(req.submit.source.project)
+#      unless sprj or DbProject.find_remote_project(req.submit.source.project)
+      unless sprj
         render_error :status => 404, :errorcode => 'unknown_project',
           :message => "Unknown project #{req.submit.source.project}"
         return
       end
 
       spkg = sprj.db_packages.find_by_name req.submit.source.package
-      unless spkg or DbProject.find_remote_project(req.submit.source.package)
+#      unless spkg or DbProject.find_remote_project(req.submit.source.package)
+      unless spkg
         render_error :status => 404, :errorcode => 'unknown_package',
           :message => "Unknown package #{req.submit.source.package}"
         return
