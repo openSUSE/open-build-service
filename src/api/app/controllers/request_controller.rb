@@ -149,7 +149,8 @@ class RequestController < ApplicationController
 
           #create package unless it exists already
           unless target_package
-            target_package = Package.new(source_package.dump_xml, :project => req.submit.target.project)
+            source_pkg = Package.find src.package.to_s, :project => src.project.to_s
+            target_package = Package.new(source_pkg.dump_xml, :project => req.submit.target.project)
             target_package.name = req.submit.target.package
             target_package.remove_all_persons
             target_package.remove_all_flags
