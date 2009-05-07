@@ -2894,7 +2894,7 @@ sub search_published_binary_id {
   my ($cgi, $match) = @_;
   my $binarydb = BSDB::opendb($extrepodb, 'binary');
   $binarydb->{'allkeyspath'} = 'name';
-  $binarydb->{'noindex'} = {'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1};
+  $binarydb->{'noindex'} = {'version' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1};
   $binarydb->{'fetch'} = \&binary_key_to_data;
   $binarydb->{'cheapfetch'} = 1;
   my $rootnode = BSXPathKeys::node($binarydb, '');
