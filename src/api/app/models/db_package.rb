@@ -117,7 +117,7 @@ class DbPackage < ActiveRecord::Base
               :db_package => self
             )
           rescue ActiveRecord::StatementInvalid => err
-            if err =~ /^Mysql::Error: Duplicate entry/
+            if /^Mysql::Error: Duplicate entry/.match(err)
               logger.debug "user '#{person.userid}' already has the role '#{person.role}' in package '#{self.name}'"
             else
               raise err
