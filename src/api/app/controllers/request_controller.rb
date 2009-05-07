@@ -148,14 +148,13 @@ class RequestController < ApplicationController
           cp_params[:orev] = src.rev if src.has_attribute? :rev
 
           #create package unless it exists already
-          unless target_prj.db_packages.find_by_name(req.submit.target.package)
-            source_pkg = Package.find src.package.to_s, :project => src.project.to_s
-            target_pkg = Package.new(source_pkg.dump_xml, :project => req.submit.target.project)
-            target_pkg.name = req.submit.target.package
-            target_pkg.remove_all_persons
-            target_pkg.remove_all_flags
-            target_pkg.add_person :userid => params[:user]
-            target_pkg.save
+          unless target_package
+            target_package = Package.new(source_package.dump_xml, :project => req.submit.target.project)
+            target_package.name = req.submit.target.package
+            target_package.remove_all_persons
+            target_package.remove_all_flags
+            target_package.add_person :userid => params[:user]
+            target_package.save
           end
 
           cp_path = "/source/#{req.submit.target.project}/#{req.submit.target.package}"
