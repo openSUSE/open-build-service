@@ -43,6 +43,12 @@ class Package < ActiveXML::Base
     end
   end
 
+  def remove_devel_project
+    data.each_element("devel") do |e|
+      data.delete_element e
+    end
+  end
+
   def remove_all_flags
     %w(build publish debuginfo useforbuild).each do |flag|
       data.each_element(flag) do |e|

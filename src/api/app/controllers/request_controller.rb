@@ -153,6 +153,7 @@ class RequestController < ApplicationController
             target_package.name = req.submit.target.package
             target_package.remove_all_persons
             target_package.remove_all_flags
+            target_package.remove_devel_project
             target_package.add_person :userid => params[:user]
             target_package.save
           end
