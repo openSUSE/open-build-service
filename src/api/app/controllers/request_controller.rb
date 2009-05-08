@@ -110,19 +110,15 @@ class RequestController < ApplicationController
       permission_granted = true
     elsif req.state.name == "new" and params[:newstate] == "revoked"
       # allow new -> revoked state change to creators of request
-      for h in req.each_history
-        if h.name == "new" and h.who == @http_user.login
-          permission_granted = true
-        end
-      end
+      permission_granted = true if req.creator == @http_user.login
     end
 
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :comment])
     if req.type == "submit"
 
       source_project = DbProject.find_by_name(req.submit.source.project)
-      source_package = DbProject.find_by_name(req.submit.source.package)
       target_project = DbProject.find_by_name(req.submit.target.project)
+      source_package = source_project.db_packages.find_by_name(req.submit.source.package)
       if req.submit.target.has_attribute? :package
         target_package = target_project.db_packages.find_by_name(req.submit.target.package)
       else
@@ -132,7 +128,8 @@ class RequestController < ApplicationController
          ( not target_package and @http_user.can_modify_project? target_project )
          permission_granted = true
       elsif req.state.name == "new" and params[:newstate] == "revoked" and @http_user.can_modify_package?(source_package)
-        permission_granted = true
+         # source project owners should be able to revoke submit requests as well
+         permission_granted = true
       end
 
       if permission_granted == true
@@ -149,8 +146,7 @@ class RequestController < ApplicationController
 
           #create package unless it exists already
           unless target_package
-            source_pkg = Package.find src.package.to_s, :project => src.project.to_s
-            target_package = Package.new(source_pkg.dump_xml, :project => req.submit.target.project)
+            target_package = Package.new(source_package.to_axml, :project => req.submit.target.project)
             target_package.name = req.submit.target.package
             target_package.remove_all_persons
             target_package.remove_all_flags

@@ -10,4 +10,11 @@ class BsRequest < ActiveXML::Base
   def id(*args, &block)
     method_missing :id, *args, &block
   end
+
+  def creator
+    e = self.has_element?(:history) ? self.history('@name="new"') : state
+    raise RuntimeError, 'broken request: no state/history named "new"' if e.nil?
+    raise RuntimeError, 'broken request: no attribute named "who"' unless e.has_attribute?(:who)
+    return e.who
+  end
 end
