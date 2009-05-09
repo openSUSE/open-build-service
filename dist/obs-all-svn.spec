@@ -63,22 +63,24 @@ License:        GNU General Public License (GPL)
 Requires:       python-urlgrabber
 Requires:       build-obs
 Obsoletes:      osc
+
 %if 0%{?suse_version}
 %if %suse_version < 1020
+BuildRequires:  python-elementtree
 Requires:       python-elementtree
 %else
+BuildRequires:  python-xml
 Requires:       python-xml
 %endif
 %if %suse_version > 1000
 Recommends:     rpm-python
 %endif
 %endif
-#
-%if 0%{?fedora_version}
-%if %fedora_version < 7
+%if 0%{?rhel_version} || 0%{?centos_version}
+BuildRequires:  python-elementtree
 Requires:       python-elementtree
 %endif
-%endif
+
 %{!?py_sitedir: %define py_sitedir %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %description -n osc-obs
