@@ -402,6 +402,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/osc*
 %{py_sitedir}/*
 %dir /var/lib/osc-plugins
+%{_mandir}/man1/osc.1*
 
 %files -n build-obs
 %defattr(-,root,root)
