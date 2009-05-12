@@ -902,7 +902,8 @@ sub findfile {
   my ($projid, $packid, $repoid, $ext, $files) = @_;
   $files = lsrep($projid, $packid, $files) unless ref $files;
   return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
-  return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"} && defined($repoid);
+  # 28.4.2009 mls: deleted "&& defined($repoid)"
+  return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"};
   my @files = grep {/\.$ext$/} keys %$files;
   @files = grep {/^\Q$packid\E/i} @files if @files > 1;
   return ($files->{$files[0]}, $files[0]) if @files == 1;
