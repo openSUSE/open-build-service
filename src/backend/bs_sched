@@ -1813,6 +1813,12 @@ sub jobfinished {
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   if ($code eq 'unchanged') {
     print "  - $job: build result is unchanged\n";
+    if ( -e "$gdst/:logfiles.success/$packid" ){
+      # make sure to use the last succeeded logfile matching to these binaries
+      link("$gdst/:logfiles.success/$packid", "$dst/logfile.dup");
+      rename("$dst/logfile.dup", "$dst/logfile");
+      unlink("$dst/logfile.dup");
+    };
     if (open(F, '+>>', "$dst/logfile")) {
       # Add a comment to logfile from last real build
       print F "\nSkipped built at ".localtime(time());
