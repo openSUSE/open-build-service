@@ -232,27 +232,39 @@ sub verify_aggregatelist {
 
 sub verify_request {
   my ($req) = @_;
-  die("request type missing\n") unless $req->{'type'};
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
   die("request contains unknown state ".$req->{'state'}->{'name'}."\n")
-     unless $req->{'state'}->{'name'} == "new" or $req->{'state'}->{'name'} == "revoked" 
-         or $req->{'state'}->{'name'} == "accepted" or $req->{'state'}->{'name'} == "declined";
-  if ($req->{'type'} eq 'delete') {
-    die("delete specification missing\n") unless $req->{'delete'};
-    verify_projid($req->{'delete'}->{'project'});
-    verify_packid($req->{'delete'}->{'package'}) if exists $req->{'delete'}->{'package'};
-  } elsif ($req->{'type'} eq 'submit') {
-    die("submit specification missing\n") unless $req->{'submit'};
-    die("submit source missing\n") unless $req->{'submit'}->{'source'};
-    die("submit target missing\n") unless $req->{'submit'}->{'target'};
-    verify_projid($req->{'submit'}->{'source'}->{'project'});
-    verify_projid($req->{'submit'}->{'target'}->{'project'});
-    verify_packid($req->{'submit'}->{'source'}->{'package'});
-    verify_packid($req->{'submit'}->{'target'}->{'package'});
-    verify_rev($req->{'submit'}->{'source'}->{'rev'}) if exists $req->{'submit'}->{'source'}->{'rev'};
-  } else {
-    die("unknown request type '$req->{'type'}'\n");
+     unless $req->{'state'}->{'name'} eq "new" or $req->{'state'}->{'name'} eq "revoked" 
+         or $req->{'state'}->{'name'} eq "accepted" or $req->{'state'}->{'name'} eq "declined"
+         or $req->{'state'}->{'name'} eq "deleted";
+
+  my $requests;
+  if ($req->{'type'} && $req->{'type'} eq 'submit' && $req->{'submit'}) {
+    # old style submit requests
+    push @$requests, $req->{'submit'};
+  }else{
+    $requests = $req->{'request'};
+  };
+  die("No request specified\n") unless $requests;
+  for my $r (@{$requests || []}) {
+    if ($r->{'type'} eq 'delete') {
+      die("delete target specification missing\n") unless $r->{'target'};
+      die("delete target project specification missing\n") unless $r->{'target'}->{'project'};
+      verify_projid($r->{'target'}->{'project'});
+      verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
+    } elsif ($r->{'type'} eq 'submit' || $req->{'submit'}) {
+      die("submit source missing\n") unless $r->{'source'};
+      die("submit target missing\n") unless $r->{'target'};
+      verify_projid($r->{'source'}->{'project'});
+      verify_projid($r->{'target'}->{'project'});
+      verify_packid($r->{'source'}->{'package'});
+      verify_packid($r->{'target'}->{'package'});
+      verify_rev($r->{'source'}->{'rev'}) if exists $r->{'source'}->{'rev'};
+    } else {
+      die("No request type specified\n") unless $r->{'type'};
+      die("unknown request type '$r->{'type'}'\n");
+    }
   }
 }
 

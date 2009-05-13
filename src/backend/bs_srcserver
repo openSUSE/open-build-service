@@ -3080,13 +3080,12 @@ sub createrequest {
   my $requests;
   if ($req->{'type'} && $req->{'type'} eq 'submit' && $req->{'submit'}) {
     # old style submit requests 
-    $requests = @{$req->{'submit'}};
+    push @$requests, $req->{'submit'};
   }else{
     $requests = $req->{'request'};
   };
-  
   for my $r (@{$requests || []}) {
-    if ($r->{'type'} eq 'submit' && $r->{'source'} && !$r->{'target'}) {
+    if (($r->{'type'} eq 'submit' || $req->{'submit'}) && $r->{'source'} && !$r->{'target'}) {
       # make source link target the submit request target, if not specified
       my $projid = $r->{'source'}->{'project'};
       my $packid = $r->{'source'}->{'package'};
