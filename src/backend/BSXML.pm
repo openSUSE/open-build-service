@@ -757,12 +757,21 @@ our $pattern_id = [
 our $request = [
     'request' =>
 	'id',
-	'type',
-      [ 'delete' =>
-	   'project',
-	   'package',
-      ],
-      [ 'submit' =>
+	'type',             # obsolete in future, type will be defined per request
+      [[ 'request' =>
+	   'type',
+           [],
+	   [ 'source' =>
+	         'project',
+	         'package',
+	         'rev',
+	   ],
+	   [ 'target' =>
+	         'project',
+	         'package',
+	   ],
+      ]],
+      [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
 		'project',
 		'package',

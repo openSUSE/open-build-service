@@ -3076,23 +3076,34 @@ sub createrequest {
   my $cmd = $cgi->{'cmd'};
   die("unknown command '$cmd'\n") unless $cmd eq 'create';
   my $req = XMLin($BSXML::request, $reqxml);
-  if ($req->{'type'} eq 'submit' && $req->{'submit'} && $req->{'submit'}->{'source'} && !$req->{'submit'}->{'target'}) {
-    # special hack: make source link target the submit request target
-    my $projid = $req->{'submit'}->{'source'}->{'project'};
-    my $packid = $req->{'submit'}->{'source'}->{'package'};
-    my $rev = $req->{'submit'}->{'source'}->{'rev'};
-    BSVerify::verify_projid($projid);
-    BSVerify::verify_packid($packid);
-    BSVerify::verify_rev($rev) if defined $rev;
-    if (defined($projid) && defined($packid)) {
-      my $files = lsrep($projid, $packid, $rev);
-      if ($files->{'_link'}) {
-	my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
-        if ($l) {
-	  $projid = $l->{'project'} if exists $l->{'project'};
-	  $packid = $l->{'package'} if exists $l->{'package'};
-	  $req->{'target'} = {'project' => $projid, 'package' => $packid};
-	}
+
+  my $requests;
+  if ($req->{'type'} && $req->{'type'} eq 'submit' && $req->{'submit'}) {
+    # old style submit requests 
+    $requests = @{$req->{'submit'}};
+  }else{
+    $requests = $req->{'request'};
+  };
+  
+  for my $r (@{$requests || []}) {
+    if ($r->{'type'} eq 'submit' && $r->{'source'} && !$r->{'target'}) {
+      # make source link target the submit request target, if not specified
+      my $projid = $r->{'source'}->{'project'};
+      my $packid = $r->{'source'}->{'package'};
+      my $rev = $r->{'source'}->{'rev'};
+      BSVerify::verify_projid($projid);
+      BSVerify::verify_packid($packid);
+      BSVerify::verify_rev($rev) if defined $rev;
+      if (defined($projid) && defined($packid)) {
+        my $files = lsrep($projid, $packid, $rev);
+        if ($files->{'_link'}) {
+          my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
+          if ($l) {
+            $projid = $l->{'project'} if exists $l->{'project'};
+            $packid = $l->{'package'} if exists $l->{'package'};
+            $r->{'target'} = {'project' => $projid, 'package' => $packid};
+          }
+        }
       }
     }
   }
