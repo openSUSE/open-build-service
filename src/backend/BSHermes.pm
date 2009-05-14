@@ -82,30 +82,33 @@ sub requestParams( $$ )
   $reqinfo{'who'} = $user || 'unknown';
   $reqinfo{'sender'} = $reqinfo{'who'};
 
-  if( $req->{'type'} eq 'submit' && $req->{'submit'} && $req->{'submit'}->{'source'} &&
-      $req->{'submit'}->{'target'}) {
-      $reqinfo{'sourceproject'}  = $req->{'submit'}->{'source'}->{'project'};
-      $reqinfo{'sourcepackage'}  = $req->{'submit'}->{'source'}->{'package'};
-      $reqinfo{'sourcerevision'} = $req->{'submit'}->{'source'}->{'rev'};
-      $reqinfo{'targetproject'}  = $req->{'submit'}->{'target'}->{'project'};
-      $reqinfo{'targetpackage'}  = $req->{'submit'}->{'target'}->{'package'};
-
-      if( $req->{'oldstate'} ) {
-        $reqinfo{'oldstate'} = $req->{'oldstate'}->{'name'};
-      }
-
-      $reqinfo{'author'} = $req->{'history'} ? $req->{'history'}->[0]->{'who'} : $req->{'state'}->{'who'}
+  my $actions;
+  if ($req->{'type'} && $req->{'type'} eq 'submit' && $req->{'submit'}) {
+    # old style submit requests
+    push @$actions, $req->{'submit'};
+  }else{
+    $actions = $req->{'action'};
   }
-  if( $req->{'type'} eq 'delete' && $req->{'delete'} && $req->{'delete'}->{'project'} ) {
-      $reqinfo{'deleteproject'}  = $req->{'delete'}->{'project'};
-      $reqinfo{'deletepackage'}  = $req->{'delete'}->{'package'};
 
-      if( $req->{'oldstate'} ) {
-        $reqinfo{'oldstate'} = $req->{'oldstate'}->{'name'};
-      }
-
-      $reqinfo{'author'} = $req->{'history'} ? $req->{'history'}->[0]->{'who'} : $req->{'state'}->{'who'}
+  for my $a (@{$actions || []}) {
+    # FIXME: how to handle multiple actions in one request here ?
+    # right now the last one just wins ....
+    if( $a->{'type'} eq 'submit' && $a->{'source'} &&
+        $a->{'target'}) {
+        $reqinfo{'sourceproject'}  = $a->{'source'}->{'project'};
+        $reqinfo{'sourcepackage'}  = $a->{'source'}->{'package'};
+        $reqinfo{'sourcerevision'} = $a->{'source'}->{'rev'};
+        $reqinfo{'targetproject'}  = $a->{'target'}->{'project'};
+        $reqinfo{'targetpackage'}  = $a->{'target'}->{'package'};
+    }elsif( $a->{'type'} eq 'delete' && $a->{'target'}->{'project'} ) {
+        $reqinfo{'deleteproject'}  = $a->{'target'}->{'project'};
+        $reqinfo{'deletepackage'}  = $a->{'target'}->{'package'};
+    }
   }
+  if( $req->{'oldstate'} ) {
+    $reqinfo{'oldstate'} = $req->{'oldstate'}->{'name'};
+  }
+  $reqinfo{'author'} = $req->{'history'} ? $req->{'history'}->[0]->{'who'} : $req->{'state'}->{'who'};
   return \%reqinfo;
 }
 
