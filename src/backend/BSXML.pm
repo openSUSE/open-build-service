@@ -758,9 +758,8 @@ our $request = [
     'request' =>
 	'id',
 	'type',             # obsolete in future, type will be defined per request
-      [[ 'action' =>
+     [[ 'action' =>
 	   'type',
-           [],
 	   [ 'source' =>
 	         'project',
 	         'package',
@@ -770,7 +769,7 @@ our $request = [
 	         'project',
 	         'package',
 	   ],
-      ]],
+     ]],
       [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
 		'project',

@@ -230,29 +230,33 @@ sub verify_aggregatelist {
   }
 }
 
+my %req_states = map {$_ => 1} qw {new revoked accepted declined deleted};
+
 sub verify_request {
   my ($req) = @_;
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
   die("request contains unknown state ".$req->{'state'}->{'name'}."\n")
-     unless $req->{'state'}->{'name'} eq "new" or $req->{'state'}->{'name'} eq "revoked" 
-         or $req->{'state'}->{'name'} eq "accepted" or $req->{'state'}->{'name'} eq "declined"
-         or $req->{'state'}->{'name'} eq "deleted";
+    unless $req_states{$req->{'state'}->{'name'}};
 
   my $actions;
-  if ($req->{'type'} && $req->{'type'} eq 'submit' && $req->{'submit'}) {
-    # old style submit requests
-    push @$actions, $req->{'submit'};
-  }else{
+  if ($req->{'type'}) {
+    die("unknown old-stype request type\n") unless $req->{'type'} eq 'submit';
+    die("old-stype request with action element\n") if $req->{'action'};
+    $actions = [ $req->{'submit'} ];
+  } else {
+    die("new-stype request with submit element\n") if $req->{'submit'};
     $actions = $req->{'action'};
-  };
-  die("No request actions specified\n") unless $actions;
-  for my $r (@{$actions || []}) {
+  }
+  die("request must contain an action\n") unless $actions && @$actions;
+  for my $r (@$actions) {
+    die("request action has no type\n") unless $r->{'type'};
     if ($r->{'type'} eq 'delete') {
       die("delete target specification missing\n") unless $r->{'target'};
       die("delete target project specification missing\n") unless $r->{'target'}->{'project'};
       verify_projid($r->{'target'}->{'project'});
       verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
+      die("delete action has a source element\n") if $r->{'source'};
     } elsif ($r->{'type'} eq 'submit' || $req->{'submit'}) {
       die("submit source missing\n") unless $r->{'source'};
       die("submit target missing\n") unless $r->{'target'};
@@ -262,8 +266,7 @@ sub verify_request {
       verify_packid($r->{'target'}->{'package'});
       verify_rev($r->{'source'}->{'rev'}) if exists $r->{'source'}->{'rev'};
     } else {
-      die("No request type specified\n") unless $r->{'type'};
-      die("unknown request type '$r->{'type'}'\n");
+      die("unknown request action type '$r->{'type'}'\n");
     }
   }
 }

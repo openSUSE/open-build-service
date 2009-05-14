@@ -3077,15 +3077,18 @@ sub createrequest {
   die("unknown command '$cmd'\n") unless $cmd eq 'create';
   my $req = XMLin($BSXML::request, $reqxml);
 
-  my $actions;
-  if ($req->{'type'} && $req->{'type'} eq 'submit' && $req->{'submit'}) {
-    # old style submit requests 
-    push @$actions, $req->{'submit'};
-  }else{
-    $actions = $req->{'action'};
-  };
-  for my $r (@{$actions || []}) {
-    if (($r->{'type'} eq 'submit' || $req->{'submit'}) && $r->{'source'} && !$r->{'target'}) {
+  if ($req->{'type'}) {
+    # old style request, convert to new style
+    die("action element in old style request\n") if $req->{'action'};
+    die("old style request with unknown type\n") if $req->{'type'} ne 'submit';
+    die("old style request without submit element\n") unless $req->{'submit'};
+    $req->{'submit'}->{'type'} = 'submit';
+    $req->{'action'} = [ $req->{'submit'} ];
+    delete $req->{'submit'};
+  }
+
+  for my $r (@{$req->{'action'} || []}) {
+    if (($r->{'type'} || '') eq 'submit' && $r->{'source'} && !$r->{'target'}) {
       # make source link target the submit request target, if not specified
       my $projid = $r->{'source'}->{'project'};
       my $packid = $r->{'source'}->{'package'};
@@ -3114,7 +3117,7 @@ sub createrequest {
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   $req->{'id'} = nextreqid();
   writereq(undef, $req);
-  BSHermes::notify("SRCSRV_REQUEST_CREATE", BSHermes::requestParams( $req, $cgi->{'user'}));
+  BSHermes::notify("SRCSRV_REQUEST_CREATE", BSHermes::requestParams($req, $cgi->{'user'}));
   return ($req, $BSXML::request);
 }
 
