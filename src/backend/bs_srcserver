@@ -3077,14 +3077,14 @@ sub createrequest {
   die("unknown command '$cmd'\n") unless $cmd eq 'create';
   my $req = XMLin($BSXML::request, $reqxml);
 
-  my $requests;
+  my $actions;
   if ($req->{'type'} && $req->{'type'} eq 'submit' && $req->{'submit'}) {
     # old style submit requests 
-    push @$requests, $req->{'submit'};
+    push @$actions, $req->{'submit'};
   }else{
-    $requests = $req->{'request'};
+    $actions = $req->{'action'};
   };
-  for my $r (@{$requests || []}) {
+  for my $r (@{$actions || []}) {
     if (($r->{'type'} eq 'submit' || $req->{'submit'}) && $r->{'source'} && !$r->{'target'}) {
       # make source link target the submit request target, if not specified
       my $projid = $r->{'source'}->{'project'};

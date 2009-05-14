@@ -239,15 +239,15 @@ sub verify_request {
          or $req->{'state'}->{'name'} eq "accepted" or $req->{'state'}->{'name'} eq "declined"
          or $req->{'state'}->{'name'} eq "deleted";
 
-  my $requests;
+  my $actions;
   if ($req->{'type'} && $req->{'type'} eq 'submit' && $req->{'submit'}) {
     # old style submit requests
-    push @$requests, $req->{'submit'};
+    push @$actions, $req->{'submit'};
   }else{
-    $requests = $req->{'request'};
+    $actions = $req->{'action'};
   };
-  die("No request specified\n") unless $requests;
-  for my $r (@{$requests || []}) {
+  die("No request specified\n") unless $actions;
+  for my $r (@{$actions || []}) {
     if ($r->{'type'} eq 'delete') {
       die("delete target specification missing\n") unless $r->{'target'};
       die("delete target project specification missing\n") unless $r->{'target'}->{'project'};

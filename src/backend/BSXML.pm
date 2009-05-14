@@ -758,7 +758,7 @@ our $request = [
     'request' =>
 	'id',
 	'type',             # obsolete in future, type will be defined per request
-      [[ 'request' =>
+      [[ 'action' =>
 	   'type',
            [],
 	   [ 'source' =>
