@@ -246,7 +246,7 @@ sub verify_request {
   }else{
     $actions = $req->{'action'};
   };
-  die("No request specified\n") unless $actions;
+  die("No request actions specified\n") unless $actions;
   for my $r (@{$actions || []}) {
     if ($r->{'type'} eq 'delete') {
       die("delete target specification missing\n") unless $r->{'target'};
