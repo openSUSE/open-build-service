@@ -3086,6 +3086,7 @@ sub createrequest {
     $req->{'submit'}->{'type'} = 'submit';
     $req->{'action'} = [ $req->{'submit'} ];
     delete $req->{'submit'};
+    delete $req->{'type'};
   }
 
   for my $r (@{$req->{'action'} || []}) {
