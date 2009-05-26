@@ -21,6 +21,13 @@
 # The Admin Tool
 #
 
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
 use POSIX;
 use Data::Dumper;
 use Getopt::Long;
