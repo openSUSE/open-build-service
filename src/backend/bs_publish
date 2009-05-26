@@ -66,7 +66,7 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $uploaddir = "$BSConfig::bsdir/upload";
-my $rundir = "$BSConfig::rundir";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 
 my $extrepodb = "$BSConfig::bsdir/db/published";
 
@@ -704,7 +704,9 @@ sub publish {
       $repoinfo = Storable::retrieve("${r}info") || {};
     }
     $repoinfo->{'binaryorigins'} ||= {};
-    for my $bin (sort(ls($r))) {
+    for my $rbin (sort(ls($r))) {
+      my $bin = $rbin;
+      $bin =~ s/^.*?:://;	# strip package name for now
       #next unless $bin =~ /\.(?:rpm|deb)$/;
       my $p;
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm$/) {
@@ -713,12 +715,12 @@ sub publish {
 	$p = "$1/$bin";
       } elsif ($bin =~ /\.rpm$/) {
 	# legacy format
-	my $q = Build::query("$r/$bin", 'evra' => 1);
+	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	next unless $q;
 	$p = "$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
       } elsif ($bin =~ /\.deb$/) {
 	# legacy format
-	my $q = Build::query("$r/$bin", 'evra' => 1);
+	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
 	$p .= "_$q->{'arch'}.deb";
@@ -735,7 +737,7 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.vmdk$/) {
 	  $p = "$bin";
-	} elsif (-d "$r/$bin") {
+	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
 	} else {
 	  next;
@@ -743,16 +745,16 @@ sub publish {
       }
       next unless defined $p;
       # next if $bins{$p}; # first arch wins
-      my @s = stat("$reporoot/$prp/$arch/:repo/$bin");
+      my @s = stat("$reporoot/$prp/$arch/:repo/$rbin");
       next unless @s;
       if ($bins{$p}) {
         # keep old file (FIXME: should do this different)
         my @s2 = stat("$extrep/$p");
         next if !@s2 || "$s[9]/$s[7]/$s[1]" ne "$s2[9]/$s2[7]/$s2[1]";
       }
-      $bins{$p} = "$r/$bin";
+      $bins{$p} = "$r/$rbin";
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
-      $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$bin} if defined $repoinfo->{'binaryorigins'}->{$bin};
+      $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
     }
   }
 
@@ -927,6 +929,7 @@ sub publish {
     'title' => $title,
     'state' => $state,
   };
+  $repoinfo->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
   my $repoinfodb = db_open('repoinfo');
   if ($state ne '') {
     Storable::nstore($repoinfo, "$reporoot/$prp/:repoinfo");
