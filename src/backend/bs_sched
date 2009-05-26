@@ -386,6 +386,7 @@ sub findbins {
       $misses++;
       $data = Build::query("$dir/$bin");
       next unless $data;
+      next unless $data->{'source'};	# no src rpms, please
       $data->{'id'} = $id;
     }
     $data->{'path'} = $bin;	# no dir for now!
@@ -825,10 +826,14 @@ sub prpfinished {
     }
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
+    my $debian = grep {/\.dsc$/} @all;
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason'} @all;
     for my $bin (@all) {
-      next if exists $origin{$bin};	# first one wins
-      $origin{$bin} = $packid;
+      my $rbin = $bin;
+      # XXX: should be source name instead?
+      $rbin = "${packid}::$bin" if $debian;
+      next if exists $origin{$rbin};	# first one wins
+      $origin{$rbin} = $packid;
       if ($filter) {
 	my $bad;
 	for (@$filter) {
@@ -838,7 +843,8 @@ sub prpfinished {
 	}
 	next if $bad;
       }
-      my @sr = lstat("$rdir/$bin");
+      # link from package dir (pdir) to repo dir (rdir)
+      my @sr = lstat("$rdir/$rbin");
       if (@sr) {
 	my $risdir = -d _ ? 1 : 0;
         my @s = lstat("$pdir/$bin");
@@ -846,37 +852,37 @@ sub prpfinished {
         next unless @s;
         next if "$s[9]/$s[7]/$s[1]" eq "$sr[9]/$sr[7]/$sr[1]";
 	if ($risdir && $pisdir) {
-	  my $rinfo = BSUtil::treeinfo("$rdir/$bin");
+	  my $rinfo = BSUtil::treeinfo("$rdir/$rbin");
 	  my $pinfo = BSUtil::treeinfo("$pdir/$bin");
 	  next if join(',', @$rinfo) eq join(',', @$pinfo);
 	}
-        print "      ! :repo/$bin ($packid)\n";
+        print "      ! :repo/$rbin ($packid)\n";
 	if ($risdir) {
-	  BSUtil::cleandir("$rdir/$bin");
-          rmdir("$rdir/$bin");
+	  BSUtil::cleandir("$rdir/$rbin");
+          rmdir("$rdir/$rbin");
 	} else {
-          unlink("$rdir/$bin");
+          unlink("$rdir/$rbin");
 	}
       } else {
-        print "      + :repo/$bin ($packid)\n";
+        print "      + :repo/$rbin ($packid)\n";
         mkdir_p($rdir) unless -d $rdir;
       }
       if (! -l "$pdir/$bin" && -d _) {
-	BSUtil::linktree("$pdir/$bin", "$rdir/$bin");
+	BSUtil::linktree("$pdir/$bin", "$rdir/$rbin");
       } else {
-        link("$pdir/$bin", "$rdir/$bin") || die("link $pdir/$bin $rdir/$bin: $!\n");
+        link("$pdir/$bin", "$rdir/$rbin") || die("link $pdir/$bin $rdir/$rbin: $!\n");
       }
       $changed = 1;
     }
   }
-  for my $bin (sort(ls($rdir))) {
-    next if exists $origin{$bin};
-    print "      - :repo/$bin\n";
-    if (! -l "$rdir/$bin" && -d _) {
-      BSUtil::cleandir("$rdir/$bin");
-      rmdir("$rdir/$bin") || die("rmdir $rdir/$bin: $!\n");
+  for my $rbin (sort(ls($rdir))) {
+    next if exists $origin{$rbin};
+    print "      - :repo/$rbin\n";
+    if (! -l "$rdir/$rbin" && -d _) {
+      BSUtil::cleandir("$rdir/$rbin");
+      rmdir("$rdir/$rbin") || die("rmdir $rdir/$rbin: $!\n");
     } else {
-      unlink("$rdir/$bin") || die("unlink $rdir/$bin: $!\n");
+      unlink("$rdir/$rbin") || die("unlink $rdir/$rbin: $!\n");
     }
     $changed = 1;
   }
@@ -3092,18 +3098,16 @@ while(1) {
 	  my $lprojid = $linfo->{'myproject'};
 	  my $lpackid = $linfo->{'mypackage'};
 	  next if $lprojid eq $projid;
+	  # low prio for repos building against these
 	  for my $prp (@prps) {
-            # low prio for repos building against these
             $changed_low{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
 	  }
-          # med prio for repos with source linked packages
-	  $changed_med{$lprojid} ||= 1;
+	  $changed_low{$lprojid} ||= 1;
 	}
 	# we use 2 here as a config change is relevant for all
         # projects building with us
 	for my $prp (@prps) {
-          # low prio for repos building against these
-          $changed_low{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+          $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
 	}
 	$changed_high{$projid} = 2;
 	next;
