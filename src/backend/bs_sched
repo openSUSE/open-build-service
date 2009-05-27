@@ -3864,8 +3864,7 @@ while(1) {
       }
     }
 
-    my $reason = {}; # for storing the build reason.
-    $reason->{'explain'} = 'BUG: reason not set!';
+    my $reason;
     my @meta_s = stat("$reporoot/$prp/$myarch/:meta/$packid");
     # we store the lastcheck data in one string instead of an array
     # with 4 elements to save precious memory
@@ -3894,12 +3893,11 @@ while(1) {
     if (!$mylastcheck) {
       print "      - $packid ($packtype)\n";
       print "        start build\n";
-      $reason->{'explain'} = 'new build';
+      $reason = { 'explain' => 'new build' };
     } elsif (substr($mylastcheck, 0, 32) ne $pdata->{'srcmd5'}) {
       print "      - $packid ($packtype)\n";
       print "        src change, start build\n";
-      $reason->{'explain'}   = 'source change';
-      $reason->{'oldsource'} = substr($mylastcheck, 0, 32);
+      $reason = { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) };
     } elsif (substr($mylastcheck, 32, 32) eq 'fakefakefakefakefakefakefakefake') {
       my @s = stat("$reporoot/$prp/$myarch/:meta/$packid");
       if (!@s || $s[9] + 14400 > time()) {
@@ -3910,8 +3908,8 @@ while(1) {
       }
       print "      - $packid ($packtype)\n";
       print "        retrying bad build\n";
-      $reason->{'explain'} = 'retrying bad build';
-    } elsif (1) {
+      $reason = { 'explain' => 'retrying bad build' };
+    } else {
       # more work, check if dep rpm changed
       if ($incycle) {
 	# print "      - $packid ($packtype)\n";
@@ -3958,9 +3956,9 @@ while(1) {
       if (Digest::MD5::md5_hex(join("\n", @new_meta)) eq substr($mylastcheck, 32, 32)) {
 	# print "      - $packid ($packtype)\n";
 	# print "        nothing changed (looked harder)\n";
-	$packstatus{$packid} = 'done';
 	$nharder++;
 	$lastcheck{"$prp/$packid"} = $mylastcheck;
+	$packstatus{$packid} = 'done';
 	goto relsynccheck;
       }
       # something changed, read in old meta (if not already done)
@@ -3973,9 +3971,9 @@ while(1) {
 	# should not happen!
 	# print "      - $packid ($packtype)\n";
 	# print "        nothing changed (looked harder)\n";
-	$packstatus{$packid} = 'done';
 	$nharder++;
 	delete $lastcheck{"$prp/$packid"};
+	$packstatus{$packid} = 'done';
 	goto relsynccheck;
       }
       if (($BSConfig::enable_download_on_demand || $BSConfig::enable_dod) && @meta == @new_meta) {
@@ -3985,9 +3983,9 @@ while(1) {
 	my %n = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @new_meta;
 	my @nok = grep { $n{$_} ne ($o{$_} || '') && $n{$_} ne '0' } keys %n;
 	if (!@nok) {
-	  $packstatus{$packid} = 'done';
 	  $nharder++;
 	  $lastcheck{"$prp/$packid"} = $mylastcheck;
+	  $packstatus{$packid} = 'done';
 	  goto relsynccheck;
 	}
       }
@@ -3996,12 +3994,13 @@ while(1) {
       print "        $_\n" for @diff;
       print "        meta change, start build\n";
       $reason = { 'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff) };
-    } else {
+    }
 relsynccheck:
+    if (!$reason) {
       next unless $relsynctrigger{$packid};
       print "      - $packid ($packtype)\n";
       print "        rebuild counter sync, start build\n";
-      $reason->{'explain'}   = 'rebuild counter sync';
+      $reason = { 'explain' => 'rebuild counter sync' };
     }
     my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason, $relsyncmax);
     if (!$job) {
