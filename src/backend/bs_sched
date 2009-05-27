@@ -472,7 +472,7 @@ sub killjob {
       return;
     }
     # lock failed, dispatcher was faster!
-    die("$myjobsdir/$job:status: $!") unless -e "$myjobsdir/$job:status: $!";
+    die("$myjobsdir/$job:status: $!\n") unless -e "$myjobsdir/$job:status";
   }
   my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
   if (!$js) {
