@@ -5,7 +5,9 @@
 
 # the obs project in question
 : ${PROJECT:=openSUSE:Tools:Devel}
-: ${PACKAGE:=obs-server-svn}
+: ${PACKAGE:=obs-all-svn}
+: ${TARNAME:=obs-all}
+: ${SPECFILE:=obs-all-svn.spec}
 : ${TARNAME:=obs-server}
 
 # the specfile to test-build locally (default: all spec files in $PWD)
@@ -19,7 +21,7 @@
 # 'distribute' script for details.
 #
 # These are taken from the tar ball or irrelevant during the build:
-: ${EXCLUDES:=README.SETUP README.UPDATERS TODO .dist* obs-server-test.spec.template obs.conf.template sysconfig.obs-worker.template }
+: ${EXCLUDES:=README.SETUP README.UPDATERS TODO .dist* obs.conf.template sysconfig.obs-worker.template obs-all-svn.spec.template obs-server*.*}
 
 # this package is not in maintenance mode here
 # that would mean the tar ball isn't udpated any longer, only patches
@@ -33,4 +35,4 @@
 
 # The svnversion of SVNDIR plus this VERSION make up the rpm package
 # 'Version:'
-: ${VERSION:=1.5.b1}
+: ${VERSION:=1.6.0}
