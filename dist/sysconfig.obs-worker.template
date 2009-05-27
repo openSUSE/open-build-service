@@ -7,7 +7,7 @@
 #
 
 #OBS_SRC_SERVER=""
-OBS_SRC_SERVER="thebe.d-atasoft.com:6362"
+OBS_SRC_SERVER="saturn.yourhost.ext:6362"
 
 ## Path:        Applications/OBS
 ## Description: define repository server host to be used
@@ -18,7 +18,7 @@ OBS_SRC_SERVER="thebe.d-atasoft.com:6362"
 #
 
 #OBS_REPO_SERVER=""
-OBS_REPO_SERVER="thebe.d-atasoft.com:6262"
+OBS_REPO_SERVER="saturn.yourhost.ext:6262"
 
 ## Path:        Applications/OBS
 ## Description: define number of build instances
