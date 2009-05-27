@@ -35,4 +35,5 @@ $HTTP["host"] =~ "download.yourdomain.ext\.?" {
   server.name = "download.yourdomain.ext"
 
   server.document-root = "/srv/obs/repos/"
+  dir-listing.activate = "enable"
 }
