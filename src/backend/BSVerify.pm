@@ -267,7 +267,7 @@ sub verify_request {
       verify_projid($r->{'target'}->{'project'});
       verify_packid($r->{'source'}->{'package'}) if exists $r->{'source'}->{'package'};
       verify_packid($r->{'target'}->{'package'});
-    } elsif ($r->{'type'} eq 'change_devel' || $r->{'type'} eq 'submit') {
+    } elsif ($r->{'type'} eq 'submit') {
       die("submit source missing\n") unless $r->{'source'};
       die("submit target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});

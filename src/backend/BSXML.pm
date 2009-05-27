@@ -758,7 +758,7 @@ our $pattern_id = [
 our $request = [
     'request' =>
 	'id',
-	'type',             # obsolete in future, type will be defined per request
+	'type',             # obsolete in future, type will be defined per action
      [[ 'action' =>
 	   'type',          # currently submit, delete, change_devel
 	   [ 'source' =>
