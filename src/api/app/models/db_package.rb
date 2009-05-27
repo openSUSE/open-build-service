@@ -3,9 +3,11 @@ class DbPackage < ActiveRecord::Base
   belongs_to :db_project
 
   belongs_to :develproject, :class_name => "DbProject"
+  belongs_to :develpackage, :class_name => "DbPackage"
 
   has_many :package_user_role_relationships, :dependent => :destroy
   has_many :messages, :as => :object, :dependent => :destroy
+  has_many :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
@@ -74,13 +76,19 @@ class DbPackage < ActiveRecord::Base
       self.bcntsynctag = package.bcntsynctag.to_s if package.has_element? :bcntsynctag
 
       #--- devel project ---#
+      self.develproject = nil
+      self.develpackage = nil
       if package.has_element? :devel
         unless develprj = DbProject.find_by_name(package.devel.project.to_s)
           raise SaveError, "value of develproject has to be a existing project (project '#{package.devel.project}' does not exist)"
         end
         self.develproject = develprj
-      else
-        self.develproject = nil
+        unless package.devel.package.nil?
+          unless develpac = DbPackage.find_by_name(package.devel.package.to_s)
+            raise SaveError, "value of develpackage has to be a existing package (package '#{package.devel.package}' does not exist)"
+          end
+          self.develpackage = develpac
+        end
       end
       #--- end devel project ---#
 
@@ -253,7 +261,11 @@ class DbPackage < ActiveRecord::Base
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
       package.description( description )
-      package.devel( :project => develproject.name ) unless develproject.nil?
+      if not develproject.nil? and not develpackage.nil?
+        package.devel( :project => develproject.name, :package => develpackage.name )
+      elsif not develproject.nil?
+        package.devel( :project => develproject.name )
+      end
 
       each_user do |u|
         package.person( :userid => u.login, :role => u.role_name )

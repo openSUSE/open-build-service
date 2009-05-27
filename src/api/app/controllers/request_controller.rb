@@ -72,43 +72,63 @@ class RequestController < ApplicationController
             :message => "Unknown project #{action.project}"
           return
         end
-      end
-
-      if action.data.attributes["type"] == "submit"
+      elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
         #check existence of source
         sprj = DbProject.find_by_name action.source.project
 #        unless sprj or DbProject.find_remote_project(action.source.project)
         unless sprj
           render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown project #{action.source.project}"
+            :message => "Unknown source project #{action.source.project}"
           return
         end
 
-        spkg = sprj.db_packages.find_by_name action.source.package
-#        unless spkg or DbProject.find_remote_project(action.source.package)
-        unless spkg
-          render_error :status => 404, :errorcode => 'unknown_package',
-            :message => "Unknown package #{action.source.package}"
-          return
-        end
-
-        unless action.data.elements['target'].nil?
-          tprj = DbProject.find_by_name action.target.project
-#          unless sprj or DbProject.find_remote_project(action.source.project)
-          unless tprj
-            render_error :status => 404, :errorcode => 'unknown_project',
-              :message => "Unknown project #{action.target.project}"
+        unless action.data.attributes["type"] == "change_devel" and action.source.package.nil?
+          # source package is required for submit, but optional for change_devel
+          spkg = sprj.db_packages.find_by_name action.source.package
+#          unless spkg or DbProject.find_remote_project(action.source.package)
+          unless spkg
+            render_error :status => 404, :errorcode => 'unknown_package',
+              :message => "Unknown source package #{action.source.package}"
             return
           end
         end
 
-        #check permissions
-        unless @http_user.can_modify_package? spkg
-          #ADRIAN: what is the reason that we do not allow requests from random projects ?
-          render_error :status => 403, :errorcode => "create_request_no_permission",
-            :message => "No permission to create submit request for package '#{spkg.name}' in project '#{sprj.name}'"
-          return
+        unless action.data.attributes["type"] == "submit" and action.data.elements['target'].nil?
+          # target is required for change_devel, but optional for submit
+          tprj = DbProject.find_by_name action.target.project
+#          unless sprj or DbProject.find_remote_project(action.source.project)
+          unless tprj
+            render_error :status => 404, :errorcode => 'unknown_project',
+              :message => "Unknown target project #{action.target.project}"
+            return
+          end
+          tpkg = tprj.db_packages.find_by_name action.target.package
+          unless tpkg
+            render_error :status => 404, :errorcode => 'unknown_package',
+              :message => "Unknown target package #{action.target.package}"
+            return
+          end
         end
+
+        # We only allow submit/change_devel requests from projects where people have write access
+        # to avoid that random people can submit versions without talking to the maintainers 
+        if spkg
+          unless @http_user.can_modify_package? spkg
+            render_error :status => 403, :errorcode => "create_request_no_permission",
+              :message => "No permission to create request for package '#{spkg.name}' in project '#{sprj.name}'"
+            return
+          end
+        else
+          unless @http_user.can_modify_project? sprj
+            render_error :status => 403, :errorcode => "create_request_no_permission",
+              :message => "No permission to create request based on project '#{sprj.name}'"
+            return
+          end
+        end
+      else
+        render_error :status => 403, :errorcode => "create_unknown_request",
+          :message => "Request type is unknown '#{action.data.attributes["type"]}'"
+        return
       end
     end
 
@@ -148,12 +168,17 @@ class RequestController < ApplicationController
        path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :comment])
        # permission check for each request inside
        req.each_action do |action|
-         if action.data.attributes["type"] == "submit"
+         if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
            source_project = DbProject.find_by_name(action.source.project)
            target_project = DbProject.find_by_name(action.target.project)
            if target_project.nil?
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of request #{req.id} (type #{action.type})"
+               :message => "Target project is missing in request #{req.id} (type #{action.type})"
+             return
+           end
+           if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
+             render_error :status => 403, :errorcode => "post_request_no_permission",
+               :message => "Target package is missing in request #{req.id} (type #{action.type})"
              return
            end
            source_package = source_project.db_packages.find_by_name(action.source.package)
@@ -165,12 +190,19 @@ class RequestController < ApplicationController
            if ( target_package and @http_user.can_modify_package? target_package ) or
               ( not target_package and @http_user.can_modify_project? target_project )
               permission_granted = true
-           elsif req.state.name == "new" and params[:newstate] == "revoked" and @http_user.can_modify_package?(source_package)
+           elsif req.state.name == "new" and params[:newstate] == "revoked" 
               # source project owners should be able to revoke submit requests as well
-              permission_granted = true
+              if ( source_package and @http_user.can_modify_package? source_package ) or
+                 ( not source_package and @http_user.can_modify_project? source_project )
+                permission_granted = true
+              else
+                render_error :status => 403, :errorcode => "post_request_no_permission",
+                  :message => "No permission to revoke request #{req.id} (type #{action.type})"
+                return
+              end
            else
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of request #{req.id} (type #{action.type})"
+               :message => "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.type})"
              return
            end
     
@@ -182,12 +214,12 @@ class RequestController < ApplicationController
              permission_granted = true
            else
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of request #{req.id} (type #{action.type})"
+               :message => "No permission to change state of delete request #{req.id} (type #{action.type})"
              return
            end
          else
            render_error :status => 403, :errorcode => "post_request_no_permission",
-             :message => "No permission to change state of request #{req.id} (type #{action.type})"
+             :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.type})"
            return
          end
       end
@@ -202,7 +234,17 @@ class RequestController < ApplicationController
 
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
-      if action.data.attributes["type"] == "submit"
+      if action.data.attributes["type"] == "change_devel"
+        if params[:newstate] == "accepted"
+          target_project = DbProject.find_by_name(action.target.project)
+          target_package = target_project.db_packages.find_by_name(action.target.package)
+          tpac = Package.new(target_package.to_axml, :project => action.target.project)
+          tpac.set_devel :project => action.source.project, :package => action.source.package
+          tpac.save
+          render_ok
+        end
+        forward_data path, :method => :post
+      elsif action.data.attributes["type"] == "submit"
         if params[:newstate] == "accepted"
           src = action.source
           cp_params = {
@@ -244,12 +286,9 @@ class RequestController < ApplicationController
           render_ok
         end
         forward_data path, :method => :post
-      elsif @http_user.is_admin?
-        #request != submit and != delete
-        forward_data path, :method => :post
       else
         render_error :status => 403, :errorcode => "post_request_no_permission",
-          :message => "No permission to change state of request #{req.id} (type #{action.type})"
+          :message => "Failed to execute request state change of request #{req.id} (type #{action.type})"
         return
       end
     end

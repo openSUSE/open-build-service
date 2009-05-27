@@ -128,7 +128,7 @@ class DbProject < ActiveRecord::Base
               :db_project => self
             )
           rescue ActiveRecord::StatementInvalid => err
-            if err =~ /^#23000Duplicate entry /
+            if /^Mysql::Error: Duplicate entry/.match(err)
               logger.debug "user '#{person.userid}' already has the role '#{person.role}' in project '#{self.name}'"
             else
               raise err

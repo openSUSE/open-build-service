@@ -49,6 +49,11 @@ class Package < ActiveXML::Base
     end
   end
 
+  def set_devel( opt={} )
+    remove_devel_project
+    data.add_element( 'devel', 'project' => opt[:project], 'package' => opt[:package] )
+  end
+
   def remove_all_flags
     %w(build publish debuginfo useforbuild).each do |flag|
       data.each_element(flag) do |e|

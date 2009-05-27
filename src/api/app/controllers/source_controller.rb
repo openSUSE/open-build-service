@@ -694,7 +694,11 @@ class SourceController < ApplicationController
     if pkg.develproject and not params[:ignoredevel]
       prj = pkg.develproject
       prj_name = prj.name
-      pkg = prj.db_packages.find_by_name(pkg_name)
+      if pkg.develpackage
+        pkg = prj.db_packages.find_by_name(pkg.develpackage.name)
+      else
+        pkg = prj.db_packages.find_by_name(pkg_name)
+      end
 
       if pkg.nil?
         render_error :status => 404, :errorcode => 'unknown_package',
