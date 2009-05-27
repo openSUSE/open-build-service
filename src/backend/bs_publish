@@ -1092,6 +1092,8 @@ while(1) {
   @events = grep {!/^\./} @events;
   for my $event (@events) {
     next if $publish_retry{$event};
+    last if -e "$rundir/bs_publish.exit";
+    last if -e "$rundir/bs_publish.restart";
     my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
     if (!$ev || !$ev->{'type'} || $ev->{'type'} ne 'publish') {
       unlink("$myeventdir/$event");
@@ -1128,6 +1130,20 @@ while(1) {
     }
     db_sync();
   }
+
+  # check for restart/exit
+  if (-e "$rundir/bs_publish.exit") {
+    unlink("$rundir/bs_publish.exit");
+    print "exiting...\n";
+    exit(0);
+  }
+  if (-e "$rundir/bs_publish.restart") {
+    unlink("$rundir/bs_publish.restart");
+    print "restarting...\n";
+    exec($0);
+    die("$0: $!\n");
+  }
+
   if (%publish_retry) {
     my $now = time();
     for (sort keys %publish_retry) {
