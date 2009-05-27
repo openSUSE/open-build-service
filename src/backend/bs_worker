@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+# Copyright (c) 2006-2009 Michael Schroeder, Novell Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -445,13 +445,7 @@ sub getcode {
 
 sub rm_rf {
   my ($dir) = @_;
-  for my $f (ls($dir)) {
-    if (! -l "$dir/$f" && -d _) {
-      rm_rf("$dir/$f");
-    } else {
-      unlink("$dir/$f");
-    }
-  }
+  BSUtil::cleandir($dir);
   rmdir($dir);
 }
 
@@ -735,7 +729,7 @@ sub dobuild {
 
   unlink("$buildroot/.build.meta");
   rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
-  rm_rf($srcdir) if -d $srcdir
+  rm_rf($srcdir) if -d $srcdir;
   rm_rf($pkgdir) if -d $pkgdir;
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
@@ -992,25 +986,25 @@ my $path = $req->{'path'};
 my $cgi = BSServer::parse_cgi($req);
 if ($path eq '/info') {
   # check state?
-  my $info = readstr("$statedir/job");
+  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
+  die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
+  if ($state->{'state'} eq 'building') {
+    $info = readstr("$statedir/job");
+  } else {
+    $info = "<buildinfo>\n  <error>".$state->{'state'}."</error>\n</buildinfo>\n";
+  }
   BSServer::reply($info, 'Content-Type: text/xml');
   exit(0);
 } elsif ($path eq '/logfile') {
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
   die("not building\n") if $state->{'state'} ne 'building';
-  if ($cgi->{'jobid'}) {
-    my $infoxml = readstr('job');
-    die("building a different job\n") unless $cgi->{'jobid'} eq Digest::MD5::md5_hex($infoxml);
-  }
+  die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
   stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
   exit(0);
 } elsif ($path eq '/kill' || $path eq '/discard') {
   my $state = lockstate();
   die("not building\n") if $state->{'state'} ne 'building';
-  if ($cgi->{'jobid'}) {
-    my $infoxml = readstr('job');
-    die("building a different job\n") unless $cgi->{'jobid'} eq Digest::MD5::md5_hex($infoxml);
-  }
+  die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
   if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
     die("could not kill job\n");
   }
