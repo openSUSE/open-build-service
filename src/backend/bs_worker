@@ -58,7 +58,7 @@ my $hostcheck;
 my $buildlog_maxsize = 500 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
 my $xenstore_maxsize = 20 * 1000000;
-my $gettimeout = 3600; # 1 hour timeout on requests to avoid forever hanging workers
+my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
 
 my %cando = (
   'armv4l'  => [                                            'armv4l'                              ],
@@ -597,7 +597,7 @@ sub getbinaries_kiwiproduct {
 }
 
 sub getbinaries {
-  my ($buildinfo, $dir, $odir, $srcdir) = @_;
+  my ($buildinfo, $dir, $srcdir) = @_;
 
   mkdir_p($dir);
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
@@ -676,17 +676,6 @@ sub getbinaries {
   die("getbinaries: missing packages: @todo\n") if @todo;
 
   if (!$kiwimode) {
-    # get old package build for compare and diffing tools
-    my @args;
-    mkdir_p($odir) || die("mkdir_p $odir: $!\n");
-    my $res = BSRPC::rpc({
-      'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
-      'directory' => $odir,
-      'timeout' => $gettimeout,
-      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-    }, undef, "view=cpio");
-    rm_rf("$odir") unless ref($res) eq 'ARRAY'; # remove dir again, if there is no former build
-
     # generate meta data
     for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
       my $m;
@@ -706,6 +695,20 @@ sub getbinaries {
     shift @meta;	# strip srcinfo again
   }
   return @meta;
+}
+
+sub getoldpackages {
+  my ($buildinfo, $odir) = @_;
+
+  # get old package build for compare and diffing tools
+  mkdir_p($odir) || die("mkdir_p $odir: $!\n");
+  my $res = BSRPC::rpc({
+    'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
+    'directory' => $odir,
+    'timeout' => $gettimeout,
+    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+  }, undef, "view=cpio");
+  rmdir($odir);	# if not needed
 }
 
 sub dobuild {
@@ -732,18 +735,20 @@ sub dobuild {
 
   unlink("$buildroot/.build.meta");
   rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
-  rm_rf("$srcdir") if -d "$srcdir";
-  rm_rf("$pkgdir") if -d "$pkgdir";
-  rm_rf("$oldpkgdir") if -d "$oldpkgdir";
+  rm_rf($srcdir) if -d $srcdir
+  rm_rf($pkgdir) if -d $pkgdir;
+  rm_rf($oldpkgdir) if -d $oldpkgdir;
 
   my @meta;
   print "fetching sources, ";
-  mkdir($srcdir) || die("mkdir $srcdir $!\n");
+  mkdir($srcdir) || die("mkdir $srcdir: $!\n");
   push @meta, getsources($buildinfo, $srcdir);
   print "packages, ";
-  push @meta, getbinaries($buildinfo, $pkgdir, $oldpkgdir, $srcdir);
+  push @meta, getbinaries($buildinfo, $pkgdir, $srcdir);
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
+
+  getoldpackages($buildinfo, $oldpkgdir) if $oldpkgdir && !$kiwimode;
 
   my @configpath;
   if ($kiwimode) {
@@ -796,7 +801,7 @@ sub dobuild {
   }
   push @args, '--clean';
   push @args, '--changelog';
-  push @args, '--oldpackages', "$oldpkgdir" if -d "$oldpkgdir";
+  push @args, '--oldpackages', $oldpkgdir if $oldpkgdir && -d $oldpkgdir;
   push @args, '--norootforbuild' unless $BSConfig::norootexceptions && $BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"};
   push @args, '--baselibs-internal';
   push @args, '--lint';
@@ -1149,6 +1154,9 @@ if ($hostcheck) {
 }
 
 my @send;
+if ($ex == 0 && -f "$buildroot/.build.packages/same_result_marker") {
+  $ex = 2;
+}
 if ($ex == 0) {
   local *D;
   my @d;
@@ -1175,7 +1183,7 @@ if (!$ex) {
   print "build succeeded, send everything back...\n";
   $code = 'succeeded';
 } elsif ($ex == 2) {
-  print "build succeeded, but does not differ to compared old build result...\n";
+  print "build succeeded, but does not differ from old build result...\n";
   $code = 'unchanged';
 } elsif ($ex == 3) {
   print "build failed due to a bad host...\n";
