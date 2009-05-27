@@ -243,7 +243,9 @@ sub verify_request {
   if ($req->{'type'}) {
     die("unknown old-stype request type\n") unless $req->{'type'} eq 'submit';
     die("old-stype request with action element\n") if $req->{'action'};
-    $actions = [ $req->{'submit'} ];
+    die("old-stype request without submit element\n") unless $req->{'submit'};
+    my %oldsubmit = (%{$req->{'submit'}}, 'type' => 'submit');
+    $actions = [ \%oldsubmit ];
   } else {
     die("new-stype request with submit element\n") if $req->{'submit'};
     $actions = $req->{'action'};
@@ -257,7 +259,15 @@ sub verify_request {
       verify_projid($r->{'target'}->{'project'});
       verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
       die("delete action has a source element\n") if $r->{'source'};
-    } elsif ($r->{'type'} eq 'change_devel' || $r->{'type'} eq 'submit' || $req->{'submit'}) {
+    } elsif ($r->{'type'} eq 'change_devel') {
+      die("change_devel source missing\n") unless $r->{'source'};
+      die("change_devel target missing\n") unless $r->{'target'};
+      die("change_devel source with rev attribute\n") if exists $r->{'source'}->{'rev'};
+      verify_projid($r->{'source'}->{'project'});
+      verify_projid($r->{'target'}->{'project'});
+      verify_packid($r->{'source'}->{'package'}) if exists $r->{'source'}->{'package'};
+      verify_packid($r->{'target'}->{'package'});
+    } elsif ($r->{'type'} eq 'change_devel' || $r->{'type'} eq 'submit') {
       die("submit source missing\n") unless $r->{'source'};
       die("submit target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});
