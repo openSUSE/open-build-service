@@ -107,6 +107,7 @@ our $pack = [
         'description',
       [ 'devel', =>
 	    'project',
+	    'package',
       ],
      [[ 'person' =>
             'role',
@@ -759,7 +760,7 @@ our $request = [
 	'id',
 	'type',             # obsolete in future, type will be defined per request
      [[ 'action' =>
-	   'type',
+	   'type',          # currently submit, delete, change_devel
 	   [ 'source' =>
 	         'project',
 	         'package',

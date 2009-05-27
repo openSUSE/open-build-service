@@ -257,7 +257,7 @@ sub verify_request {
       verify_projid($r->{'target'}->{'project'});
       verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
       die("delete action has a source element\n") if $r->{'source'};
-    } elsif ($r->{'type'} eq 'submit' || $req->{'submit'}) {
+    } elsif ($r->{'type'} eq 'change_devel' || $r->{'type'} eq 'submit' || $req->{'submit'}) {
       die("submit source missing\n") unless $r->{'source'};
       die("submit target missing\n") unless $r->{'target'};
       verify_projid($r->{'source'}->{'project'});
