@@ -54,6 +54,7 @@ my $nobuildcodecheck;
 my $oneshot;
 my $silent;
 my $hostcheck;
+my $localkiwi;
 
 my $buildlog_maxsize = 500 * 1000000;
 my $buildlog_maxidle = 8 * 3600;
@@ -277,6 +278,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--silent') {
     shift @ARGV;
     $silent= 1;
+    next;
+  }
+  if ($ARGV[0] eq '--localkiwi') {
+    shift @ARGV;
+    $localkiwi = shift @ARGV;
     next;
   }
   last;
@@ -553,21 +559,33 @@ sub getbinaries_kiwiproduct {
     my $prpdir = "$projid/$repoid";
     my $ddir = "$srcdir/repos/$prpdir";
     mkdir_p($ddir);
-    my $res = BSRPC::rpc({
-      'uri' => "$repo->{'server'}/build/$projid/$repoid/$arch/$packid",
-      'directory' => $ddir,
-      timeout => $gettimeout,
-      'map' => sub {
-	my ($param, $name) = @_;
-	if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-	  my $arch = $1;
-	  mkdir_p("$param->{'directory'}/$arch");
-	  $name = "$arch/$name";
-	}
-	return $name;
-      },
-      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-    }, undef, "view=cpio");
+    my $res;
+    if ($localkiwi) {
+      $res = [];
+      for my $name (ls("$localkiwi/build/$projid/$repoid/$arch/$packid")) {
+        next unless $name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	my $arch = $1;
+	mkdir_p("$ddir/$arch") unless -d "$ddir/$arch";
+	link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$arch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$arch/$name: $!\n");
+	push @$res, {'name' => "$arch/$name"};
+      }
+    } else {
+      $res = BSRPC::rpc({
+	'uri' => "$repo->{'server'}/build/$projid/$repoid/$arch/$packid",
+	'directory' => $ddir,
+	'timeout' => $gettimeout,
+	'map' => sub {
+	  my ($param, $name) = @_;
+	  if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	    my $arch = $1;
+	    mkdir_p("$param->{'directory'}/$arch");
+	    $name = "$arch/$name";
+	  }
+	  return $name;
+	},
+	'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+      }, undef, "view=cpio");
+    }
     die unless $res;
     my @todometa;
     my @todometa_f;
@@ -753,9 +771,8 @@ sub dobuild {
   writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
-  my $obsinstance = "";
-  $obsinstance = $BSConfig::obsname if defined ($BSConfig::obsname);
-  my $disturl = "obs://".$obsinstance."/".$buildinfo->{'project'}."/".$buildinfo->{'repository'}."/".$buildinfo->{'srcmd5'}."-".$buildinfo->{'package'};
+  my $obsinstance = $BSConfig::obsname || '';
+  my $disturl = "obs://$obsinstance/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
 
   my @args;
   push @args, $helper if $helper;
@@ -810,10 +827,10 @@ sub dobuild {
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
   my $ret=$?;
-  if ($ret eq 512) { # system exit code 2 maps to 2 * 256
-    if ( $buildinfo->{'reason'} eq "rebuild counter sync" ) {
-      $ret=0;
-    }else{
+  if ($ret == 512) { # system exit code 2 maps to 2 * 256
+    if ($buildinfo->{'reason'} eq "rebuild counter sync") {
+      $ret = 0;
+    } else {
       print "build succeeded, but old build had same result !\n";
       return 2;
     }
@@ -988,6 +1005,7 @@ if ($path eq '/info') {
   # check state?
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
   die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
+  my $info;
   if ($state->{'state'} eq 'building') {
     $info = readstr("$statedir/job");
   } else {
@@ -1058,6 +1076,12 @@ die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
 my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
 my $jobid = $cgi->{'jobid'};
 $jobid ||= Digest::MD5::md5_hex($infoxml);
+
+if ($localkiwi) {
+  # make sure this is the right job for us
+  die("not a kiwi job\n") unless $buildinfo->{'file'} =~ /\.kiwi$/;
+  die("not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+}
 
 $buildcode = codemd5('build');
 if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
@@ -1148,21 +1172,18 @@ if ($hostcheck) {
 }
 
 my @send;
-if ($ex == 0 && -f "$buildroot/.build.packages/same_result_marker") {
+if ($ex == 0 && $buildinfo->{'reason'} ne "rebuild counter sync" && -f "$buildroot/.build.packages/same_result_marker") {
   $ex = 2;
 }
 if ($ex == 0) {
-  local *D;
   my @d;
-  if (opendir(D, "$buildroot/.build.packages/RPMS")) {
-    @d = map {"RPMS/$_"} grep {$_ ne '.' && $_ ne '..'} readdir(D);
-    close D;
-  }
+  push @d, map {"RPMS/$_"} sort(ls("$buildroot/.build.packages/RPMS"));
   push @d, 'SRPMS';
   @d = ('DEBS') if $buildinfo->{'file'} =~ /\.dsc$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   for my $d (@d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
+    @files = grep {$_ ne 'same_result_marker'} @files;
     @files = grep {-f "$buildroot/.build.packages/$d/$_"} @files;
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
