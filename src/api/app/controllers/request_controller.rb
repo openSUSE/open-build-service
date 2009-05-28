@@ -258,6 +258,8 @@ class RequestController < ApplicationController
 
           #create package unless it exists already
           unless target_package
+            source_project = DbProject.find_by_name(action.source.project)
+            source_package = source_project.db_packages.find_by_name(action.source.package)
             target_package = Package.new(source_package.to_axml, :project => action.target.project)
             target_package.name = action.target.package
             target_package.remove_all_persons
