@@ -173,12 +173,12 @@ class RequestController < ApplicationController
            target_project = DbProject.find_by_name(action.target.project)
            if target_project.nil?
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Target project is missing in request #{req.id} (type #{action.type})"
+               :message => "Target project is missing in request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
            if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Target package is missing in request #{req.id} (type #{action.type})"
+               :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
            source_package = source_project.db_packages.find_by_name(action.source.package)
@@ -197,12 +197,12 @@ class RequestController < ApplicationController
                 permission_granted = true
               else
                 render_error :status => 403, :errorcode => "post_request_no_permission",
-                  :message => "No permission to revoke request #{req.id} (type #{action.type})"
+                  :message => "No permission to revoke request #{req.id} (type #{action.data.attributes['type']})"
                 return
               end
            else
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.type})"
+               :message => "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.data.attributes['type']})"
              return
            end
     
@@ -214,12 +214,12 @@ class RequestController < ApplicationController
              permission_granted = true
            else
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of delete request #{req.id} (type #{action.type})"
+               :message => "No permission to change state of delete request #{req.id} (type #{action.data.attributes[:type]})"
              return
            end
          else
            render_error :status => 403, :errorcode => "post_request_no_permission",
-             :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.type})"
+             :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data.attributes['type']})"
            return
          end
       end
@@ -288,7 +288,7 @@ class RequestController < ApplicationController
         forward_data path, :method => :post
       else
         render_error :status => 403, :errorcode => "post_request_no_permission",
-          :message => "Failed to execute request state change of request #{req.id} (type #{action.type})"
+          :message => "Failed to execute request state change of request #{req.id} (type #{action.data.attributes['type']})"
         return
       end
     end
