@@ -63,7 +63,7 @@ class ProjectController < ApplicationController
 
       # Do we really need this or is just caused by messed up data in DB ?
       @requests_by_me.each do |req|
-        if not req.has_element? :state:
+        if not req.has_element? :state
           @requests_by_me.delete_element req
         end
       end
