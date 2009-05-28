@@ -6,21 +6,58 @@
   if requests.nil?
     return "<p><em>No requests</em></p>"
   end
+
 -%>
 <table id='request-table' class='grid'>
   <tr>
     <th>Request ID</th>
-    <th>Source Project</th>
-    <th>Package</th>
     <th>State</th>
+    <th>Actions</th>
     <th>Requester</th>
   </tr>
   <% requests.each do |req| -%>
   <tr>
     <td><%= req.method_missing(:id) %></td>
-    <td><%= req.submit.source.project %></td>
-    <td><%= req.submit.source.package %></td>
     <td><%= req.state.name %></td>
+    <td> <table id='action-table' class='grid'>
+    <tr>
+      <th>Action</th>
+      <th>Source</th>
+      <th>Target</th>
+    </tr>
+<%  if req.has_element? :action: 
+      elem = "action" 
+    else
+      elem = "submit" 
+    end %>
+<%  req.send("each_#{elem}") do |a| %>
+      <tr>
+        <td>
+<%      if elem == "submit": %> <!-- old style submission -->
+          submit
+<%      else %>
+<%=       a.data.attributes["type"] %>
+<%      end %>
+        </td>
+        <td>
+<%    if a.has_element? :source: %>
+        <%= a.source.project %>
+<%      if a.source.has_attribute? :package: %>
+          / <%= a.source.package %>
+<%      end %>
+<%    end %>
+        </td>
+        <td>
+<%    if a.has_element? :target: %>
+        <%= a.target.project %>
+<%      if a.target.has_attribute? :package: %>
+          / <%= a.target.package %>
+<%      end %>
+<%    end %>
+        </td>
+      </tr>
+<%  end -%>
+    </table></td>
     <td><%= req.state.who %></td>
   </tr>
   <% end -%>

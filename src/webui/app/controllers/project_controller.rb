@@ -55,10 +55,18 @@ class ProjectController < ApplicationController
     end
 
     unless @iprojects.empty?
-      predicate = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ")
-      predicate = "(#{predicate}) and state/@name='new'"
+      predicate = @iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
+      predicate2 = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ") # old, to be removed later
+      predicate = "(#{predicate} or #{predicate2}) and state/@name='new'"
       @requests_for_me = Collection.find :what => :request, :predicate => predicate
       @requests_by_me = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
+
+      # Do we really need this or is just caused by messed up data in DB ?
+      @requests_by_me.each do |req|
+        if not req.has_element? :state:
+          @requests_by_me.delete_element req
+        end
+      end
     end
   end
 
