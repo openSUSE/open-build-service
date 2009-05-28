@@ -214,7 +214,7 @@ class RequestController < ApplicationController
              permission_granted = true
            else
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of delete request #{req.id} (type #{action.data.attributes[:type]})"
+               :message => "No permission to change state of delete request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
          else
