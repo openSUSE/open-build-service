@@ -56,11 +56,13 @@ class RequestController < ApplicationController
         #check existence of target
         tprj = DbProject.find_by_name action.target.project
         if tprj
-          tpkg = tprj.db_packages.find_by_name action.target.package
-          unless tpkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown package  #{action.target.project} / #{action.target.package}"
-            return
+          if action.target.has_attribute? 'package'
+            tpkg = tprj.db_packages.find_by_name action.target.package
+            unless tpkg
+              render_error :status => 404, :errorcode => 'unknown_package',
+                :message => "Unknown package  #{action.target.project} / #{action.target.package}"
+              return
+            end
           end
         else
           unless DbProject.find_remote_project(action.target.project)
