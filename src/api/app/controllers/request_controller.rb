@@ -156,6 +156,8 @@ class RequestController < ApplicationController
       req.data.attributes['type'] = nil
     end
 
+    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :comment])
+
     # generic permission check
     permission_granted = false
     if @http_user.is_admin?
@@ -165,7 +167,6 @@ class RequestController < ApplicationController
       permission_granted = true
     else
 
-       path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :comment])
        # permission check for each request inside
        req.each_action do |action|
          if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
