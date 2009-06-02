@@ -54,22 +54,22 @@ class RequestController < ApplicationController
     req.each_action do |action|
       if action.data.attributes["type"] == "delete"
         #check existence of target
-        tprj = DbProject.find_by_name action.project
+        tprj = DbProject.find_by_name action.target.project
         if tprj
-          tpkg = tprj.db_packages.find_by_name action.package
+          tpkg = tprj.db_packages.find_by_name action.target.package
           unless tpkg
             render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown package  #{action.project} / #{action.package}"
+              :message => "Unknown package  #{action.target.project} / #{action.target.package}"
             return
           end
         else
-          unless DbProject.find_remote_project(action.project)
+          unless DbProject.find_remote_project(action.target.project)
             render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Project is on remote instance, delete not possible  #{action.project}"
+              :message => "Project is on remote instance, delete not possible  #{action.target.project}"
             return
           end
           render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown project #{action.project}"
+            :message => "Unknown project #{action.target.project}"
           return
         end
       elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
@@ -276,14 +276,16 @@ class RequestController < ApplicationController
         end
         forward_data path, :method => :post
       elsif action.data.attributes["type"] == "delete"
-        if params[:newstate] == "accepted" and req.state.name != "accepted" and req.state.name != "declined"
-          if not action.has_attribute? :package
+        if params[:newstate] == "accepted" # and req.state.name != "accepted" and req.state.name != "declined"
+          project = DbProject.find_by_name(action.target.project)
+          if not action.target.has_attribute? :package
             project.destroy
-            Suse::Backend.delete "/source/#{action.project}"
+            Suse::Backend.delete "/source/#{action.target.project}"
           else
             DbPackage.transaction do
+              package = project.db_packages.find_by_name(action.target.package)
               package.destroy
-              Suse::Backend.delete "/source/#{action.project}/#{action.package}"
+              Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
           end
           render_ok
