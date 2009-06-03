@@ -1437,6 +1437,7 @@ sub getpackagehistory {
   my ($cgi, $projid, $packid) = @_;
   my @res;
   for (BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay)) {
+    next if $cgi->{'rev'} && $cgi->{'rev'} ne $_->{'rev'} && $cgi->{'rev'} ne $_->{'srcmd5'};
     push @res, $_;
   }
   return ({'revision' => \@res}, $BSXML::revisionlist);
@@ -2514,7 +2515,7 @@ sub getjobhistory {
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
-  checkprojrepoarch($projid, $repoid, $arch);
+  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
   my $view = $cgi->{'view'};
   my @args;
   push @args, "view=$view" if $view;
@@ -2529,10 +2530,13 @@ sub getbinarylist {
       'ignorestatus' => 1,
       'receiver' => \&BSServer::reply_receiver,
     };
+    $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid" if $proj->{'remoteurl'};
     BSWatcher::rpc($param, undef, @args);
     return undef;
   }
-  my $bl = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid", $BSXML::binarylist, @args);
+  my $uri = "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid";
+  $uri = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid" if $proj->{'remoteurl'};
+  my $bl = BSWatcher::rpc($uri, $BSXML::binarylist, @args);
   return ($bl, $BSXML::binarylist);
 }
 
@@ -3506,7 +3510,7 @@ my $dispatches = [
   '/package/$project/$package' => \&getpackage,
   'PUT:/package/$project/$package' => \&putpackage,
   'DELETE:/package/$project/$package' => \&delpackage,
-  '/package/$project/$package/history' => \&getpackagehistory,
+  '/package/$project/$package/history rev?' => \&getpackagehistory,
 
   # /source name space: manage project and package data
   '/source' => \&getprojectlist,
@@ -3519,11 +3523,11 @@ my $dispatches = [
   'DELETE:/source/$project/_pubkey' => \&deletekey,
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
+
   'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? unified:bool?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
-  '/source/$project/$package:package_pattern/_history' => \&getpackagehistory,
   '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
-  '/source/$project/$package:package_product/_history' => \&getpackagehistory,
+  '/source/$project/$package:package_product/_history rev?' => \&getpackagehistory,
   '/source/$project/$package/_meta' => \&getpackage,
   'PUT:/source/$project/$package/_meta' => \&putpackage,
   'DELETE:/source/$project/$package' => \&delpackage,
