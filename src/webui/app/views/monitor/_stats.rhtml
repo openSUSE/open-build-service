@@ -1,0 +1,40 @@
+<table class="building">
+  <thead>
+    <tr>
+      <th>Host Arch</th>
+      <th>Packages in waiting queue</th>
+      <th>Packages in blocked queue</th>
+      <th><center>Average Job time</center></th>
+     </tr>
+  </thead>
+  <tbody>
+    <% @workerstatus.each_waiting.sort {|a,b| a.arch <=> b.arch }.each do |entrywaiting| %>
+      <% outblocked = " - " %>
+      <% outbuildavg = " - " %>
+      <tr>
+        <td class="arch">
+          <%= entrywaiting.arch %>
+        </td>
+          <td class="waiting">
+          <center><%= entrywaiting.jobs %></center>
+        </td>
+        <td class="blocked">
+          <% if !@workerstatus.blocked("@arch='#{entrywaiting.arch}'").nil? -%>
+            <% if @workerstatus.blocked("@arch='#{entrywaiting.arch}'").has_attribute? :jobs -%>
+              <% outblocked = @workerstatus.blocked("@arch='#{entrywaiting.arch}'").jobs %>
+            <% end %>
+          <% end %>
+          <center><%= outblocked %></center>
+        </td>
+        <td class="avgjobtime">
+          <% if !@workerstatus.buildavg("@arch='#{entrywaiting.arch}'").nil? -%>
+            <% if @workerstatus.buildavg("@arch='#{entrywaiting.arch}'").has_attribute? :buildavg -%>
+              <% outbuildavg = distance_of_time_in_words(Time.at(@workerstatus.buildavg("@arch='#{entrywaiting.arch}'").buildavg.to_i), Time.at(0), true) %>
+            <% end %>
+          <% end %>
+          <center><%= outbuildavg %> </center>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
