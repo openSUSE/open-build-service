@@ -63,6 +63,12 @@ filelist.elements.each("binarylist/binary") { |binary|
   # skip src and nosrc rpms
   inform_user_about_hacky_reget=false
   unless fname[-7..-1] == "src.rpm"
+    # skip debuginfo and debugsource packages
+    if fname.include? "-debuginfo" or fname.include? "-debugsource"
+      puts "Debug package #{fname} - skip."
+      next
+    end
+
     if File.file?("#{destinationdir}/#{fname}")
 
       puts "package #{destinationdir}/#{fname} already exists."
