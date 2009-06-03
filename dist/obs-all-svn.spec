@@ -8,7 +8,9 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-Name:           obs-server
+Name:           obs-server-svn
+Provides:       obs-server-svn
+Conflicts:      obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
 BuildRequires:  python-devel rubygem-activesupport
 %if 0%{?suse_version:1}
@@ -62,7 +64,7 @@ Group:          Development/Tools/Other
 License:        GNU General Public License (GPL)
 Requires:       python-urlgrabber
 Requires:       build-obs
-Obsoletes:      osc
+Conflicts:      osc
 
 %if 0%{?suse_version}
 %if %suse_version < 1020
@@ -96,7 +98,7 @@ Authors:
 %package -n build-obs
 
 Requires:       lzma
-Obsoletes:      build
+Conflicts:      build
 %ifarch x86_64
 Requires:       linux32
 %endif
@@ -113,10 +115,11 @@ Summary:        A Script to Build SUSE Linux RPMs and Debian DEBs
 This package provides a script for building RPMs for SUSE Linux in a
 chroot environment.
 
-%package -n obs-worker
+%package -n obs-worker-svn
 
 Requires:       perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
 Requires:       lzma
+Conflicts:      obs-worker
 %ifarch x86_64
 Requires:       linux32
 %endif
@@ -129,9 +132,9 @@ PreReq:         %fillup_prereq %insserv_prereq
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- Build Host Component
 
-%description -n obs-worker
+%description -n obs-worker-svn
 
-%package -n obs-api
+%package -n obs-api-svn
 
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
@@ -139,22 +142,24 @@ PreReq:         %fillup_prereq %insserv_prereq
 BuildRequires:  lighttpd
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql rubygem-rake
 Requires:       rubygem-rails >= 2.0
+Conflicts:      obs-api
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
 
-%description -n obs-api
+%description -n obs-api-svn
 
 #-------------------------------------------------------------------------------
-%package -n obs-signd
+%package -n obs-signd-svn
 #-------------------------------------------------------------------------------
 Summary:        The openSUSE Build Service -- gpg sign daemon
 Group:          Productivity/Networking/Web/Utilities
 
 BuildRequires:  gcc
 Requires:       gnupg
+Conflicts:      obs-signd
 
 #-------------------------------------------------------------------------------
-%description -n obs-signd
+%description -n obs-signd-svn
 #-------------------------------------------------------------------------------
 signd is a little daemon that listens for sign requests from sign,
 and either calls gpg to do the signing or forwards the request
@@ -166,26 +171,28 @@ It needs a gpg implementation that understands the
 
 Author:       Michael Schroeder
 #-------------------------------------------------------------------------------
-%package -n obs-productconverter
+%package -n obs-productconverter-svn
 #-------------------------------------------------------------------------------
 Summary:        The openSUSE Build Service -- Product Definition Utility
 Group:          Productivity/Networking/Web/Utilities
-Requires:       obs-server
+Requires:       obs-server-svn
+Conflicts:      obs-productconverter
 #-------------------------------------------------------------------------------
-%description -n obs-productconverter
+%description -n obs-productconverter-svn
 #-------------------------------------------------------------------------------
 bs_productconvert is a utility to create Kiwi- and Spec- files from a
 product definition.
 #-------------------------------------------------------------------------------
-%package -n obs-utils
+%package -n obs-utils-svn
 #-------------------------------------------------------------------------------
 Summary:        The openSUSE Build Service -- Utilities
 Group:          Productivity/Networking/Web/Utilities
 
 Requires:       osc-obs build-obs ruby 
+Conflicts:      obs-utils
 
 #-------------------------------------------------------------------------------
-%description -n obs-utils
+%description -n obs-utils-svn
 #-------------------------------------------------------------------------------
 obs_mirror_project is a tool to copy the binary data of a project from one obs to another
 obs_project_update is a tool to copy a packages of a project from one obs to another
@@ -323,17 +330,17 @@ for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher
 %stop_on_removal $service
 done
 
-%post -n obs-server
+%post -n obs-server-svn
 %{fillup_and_insserv -n obs-server}
 for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher ; do
 %restart_on_update $service
 done
 
-%post -n obs-worker
+%post -n obs-worker-svn
 %{fillup_and_insserv -n obs-worker}
 %restart_on_update obsworker
 
-%post -n obs-api
+%post -n obs-api-svn
 %restart_on_update lighttpd
 
 %clean
@@ -413,13 +420,13 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/build
 %{_mandir}/man1/build.1*
 
-%files -n obs-worker
+%files -n obs-worker-svn
 %defattr(-,root,root)
 /var/adm/fillup-templates/sysconfig.obs-worker
 /etc/init.d/obsworker
 /usr/sbin/rcobsworker
 
-%files -n obs-api
+%files -n obs-api-svn
 %defattr(-,root,root)
 %doc dist/{TODO,README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING
 %dir /srv/www/obs
@@ -461,7 +468,7 @@ rm -rf $RPM_BUILD_ROOT
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
 
-%files -n obs-signd
+%files -n obs-signd-svn
 %defattr(-,root,root)
 %config(noreplace) /etc/sign.conf
 /usr/sbin/signd
@@ -470,13 +477,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/*
 %{_mandir}/man8/sign*
 
-%files -n obs-utils
+%files -n obs-utils-svn
 %defattr(-,root,root)
 /usr/sbin/obs_mirror_project
 /usr/sbin/obs_mirror_project.py
 /usr/sbin/obs_project_update
 
-%files -n obs-productconverter
+%files -n obs-productconverter-svn
 %defattr(-,root,root)
 /usr/lib/obs/server/bs_productconvert
 
