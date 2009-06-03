@@ -9,7 +9,6 @@
 #
 
 Name:           obs-server-svn
-Provides:       obs-server-svn
 Conflicts:      obs-server
 Requires:       perl-Socket-MsgHdr perl-XML-Parser perl-Compress-Zlib createrepo perl-Net_SSLeay
 BuildRequires:  python-devel rubygem-activesupport
