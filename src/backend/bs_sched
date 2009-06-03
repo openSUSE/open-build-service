@@ -88,7 +88,7 @@ my %remoteprojs;	# remote project cache
 # Create directory on first start
 mkdir_p($infodir) || die ("Failed to create ".$infodir);
 
-my $buildavg = 0;
+my $buildavg = 1200; # start not at 0, but with 20min for the average ounter
 
 
 sub unify {
@@ -1772,7 +1772,7 @@ sub jobfinished {
   }
   # calculate exponential weighted average
   my $myjobtime = time() - $status->{'readytime'};
-  my $weight = 0.3; 
+  my $weight = 0.1; 
   $buildavg = ($weight * $myjobtime) + ((1 - $weight) * $buildavg);
   
   delete $status->{'job'};	# no longer building
