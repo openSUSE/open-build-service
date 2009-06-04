@@ -184,7 +184,7 @@ sub verify_pack {
     verify_disableenable($pack->{$f}) if $pack->{$f};
   }
   if ($pack->{'devel'}) {
-    verify_projid($pack->{'devel'}->{'project'});
+    verify_projid($pack->{'devel'}->{'project'}) if exists $pack->{'devel'}->{'project'};
     verify_packid($pack->{'devel'}->{'package'}) if exists $pack->{'devel'}->{'package'};
   }
 }
