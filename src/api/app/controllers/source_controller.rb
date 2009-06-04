@@ -131,6 +131,17 @@ class SourceController < ApplicationController
         return
       end
       
+      #deny deleting if other packages use this as develpackage
+      # Shall we offer a --force option here as well ?
+      # Shall we ask the other package owner accepting to be a devel package ?
+      unless pkg.develpackages.empty?
+        msg = "Unable to delete package #{pkg.name}; following package use this package as devel package: "
+        msg += pkg.develpackage.parent_project_name+"/"+pkg.develpackage.name
+        render_error :status => 400, :errorcode => 'develpackage_dependency',
+          :message => msg
+        return
+      end
+
       DbPackage.transaction do
         pkg.destroy
         Suse::Backend.delete "/source/#{project_name}/#{package_name}"
@@ -691,35 +702,48 @@ class SourceController < ApplicationController
     end
 
     # reroute if devel project is set
-    if pkg.develproject and not params[:ignoredevel]
-      prj = pkg.develproject
-      prj_name = prj.name
-      if pkg.develpackage
-        pkg = prj.db_packages.find_by_name(pkg.develpackage.name)
-      else
-        pkg = prj.db_packages.find_by_name(pkg_name)
+    processed = {}
+    while ( pkg.develproject or pkg.develpackage ) and not params[:ignoredevel] 
+      # cycle detection
+      if processed[prj_name+"/"+pkg_name]
+        render_error :status => 404, :errorcode => 'devel_package_cycle',
+          :message => "There is a cycle in devel definition at project #{prj_name} and package #{pkg_name}"
+        return
       end
+      processed[prj_name+"/"+pkg_name] = 1
+      # get project and package name
+      if pkg.develpackage
+        pkg_name = pkg.develpackage.name
+        prj_name = pkg.develpackage.db_project.name
+        prj = DbProject.find_by_name prj_name
+      elsif pkg.develproject
+        # Supporting the obsolete, but not yet migrated devel project table
+        prj = pkg.develproject
+        prj_name = prj.name
+      end
+      # get devel package object
+      pkg = prj.db_packages.find_by_name(pkg_name)
 
       if pkg.nil?
         render_error :status => 404, :errorcode => 'unknown_package',
           :message => "Unknown package #{pkg_name} in project #{prj_name}"
         return
       end
+    end
 
-      # link against srcmd5 instead of plain revision
-      unless pkg_rev.nil?
-        path = "/source/#{params[:project]}/#{params[:package]}" + build_query_from_hash(params, [:rev])
-        files = Suse::Backend.get(path)
-        # get srcmd5 from the xml data
-        match = files.body.match(/<directory['"=\w\s]+srcmd5=['"](\w{32})['"]['"=\w\s]*>/)
-        if match
-          pkg_rev = match[1]
-        else
-          # this should not happen
-          render_error :status => 400, :errorcode => 'invalid_filelist',
-            :message => "Unable parse filelist from backend"
-          return
-        end
+    # link against srcmd5 instead of plain revision
+    unless pkg_rev.nil?
+      path = "/source/#{params[:project]}/#{params[:package]}" + build_query_from_hash(params, [:rev])
+      files = Suse::Backend.get(path)
+      # get srcmd5 from the xml data
+      match = files.body.match(/<directory['"=\w\s]+srcmd5=['"](\w{32})['"]['"=\w\s]*>/)
+      if match
+        pkg_rev = match[1]
+      else
+        # this should not happen
+        render_error :status => 400, :errorcode => 'invalid_filelist',
+          :message => "Unable parse filelist from backend"
+        return
       end
     end
  
@@ -770,7 +794,7 @@ class SourceController < ApplicationController
     logger.debug "link_data: #{link_data}"
     Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
 
-    render_ok :data => {:targetproject => oprj_name}
+    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name}
   end
 
   def valid_project_name? name

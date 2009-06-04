@@ -2,12 +2,10 @@ class DbPackage < ActiveRecord::Base
   class SaveError < Exception; end
   belongs_to :db_project
 
-  belongs_to :develproject, :class_name => "DbProject"
-  belongs_to :develpackage, :class_name => "DbPackage"
+  belongs_to :develproject, :class_name => "DbProject" # This shall become migrated to develpackage in future
 
   has_many :package_user_role_relationships, :dependent => :destroy
   has_many :messages, :as => :object, :dependent => :destroy
-  has_many :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
@@ -23,6 +21,7 @@ class DbPackage < ActiveRecord::Base
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
 
   has_one :meta_cache, :as => :cachable, :dependent => :delete
+  has_one :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
 
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
@@ -76,19 +75,23 @@ class DbPackage < ActiveRecord::Base
       self.bcntsynctag = package.bcntsynctag.to_s if package.has_element? :bcntsynctag
 
       #--- devel project ---#
-      self.develproject = nil
       self.develpackage = nil
       if package.has_element? :devel
-        unless develprj = DbProject.find_by_name(package.devel.project.to_s)
-          raise SaveError, "value of develproject has to be a existing project (project '#{package.devel.project}' does not exist)"
+        prj_name = package.project.to_s
+        pkg_name = package.name.to_s
+        if package.devel.has_attribute? 'project'
+          prj_name = package.devel.project.to_s
         end
-        self.develproject = develprj
-        unless package.devel.package.nil?
-          unless develpac = DbPackage.find_by_name(package.devel.package.to_s)
-            raise SaveError, "value of develpackage has to be a existing package (package '#{package.devel.package}' does not exist)"
-          end
-          self.develpackage = develpac
+        if package.devel.has_attribute? 'package'
+          pkg_name = package.devel.package.to_s
         end
+        unless develprj = DbProject.find_by_name(prj_name)
+          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+        end
+        unless develpkg = develprj.db_packages.find_by_name(pkg_name)
+          raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
+        end
+        self.develpackage = develpkg
       end
       #--- end devel project ---#
 
