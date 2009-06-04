@@ -104,12 +104,6 @@ class RequestController < ApplicationController
               :message => "Unknown target project #{action.target.project}"
             return
           end
-          tpkg = tprj.db_packages.find_by_name action.target.package
-          unless tpkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown target package #{action.target.package}"
-            return
-          end
         end
 
         # We only allow submit/change_devel requests from projects where people have write access
