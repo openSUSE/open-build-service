@@ -3114,6 +3114,7 @@ sub createrequest {
         }
       }
     }
+    die ( "target project does not exist" ) if (($r->{'type'} || '') eq 'submit' && ! -e "$projectsdir/$r->{'target'}->{'project'}.xml" );
   }
   BSVerify::verify_request($req);
   die("request must not contain an id\n") if $req->{'id'};
