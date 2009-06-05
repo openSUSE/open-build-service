@@ -194,6 +194,7 @@ sub db_sync {
   my $param = {
     'uri' => "$BSConfig::srcserver/search/published",
     'request' => 'POST',
+    'maxredirects' => 3,
     'timeout' => 60,
     'headers' => [ 'Content-Type: application/octet-stream' ],
     'data' => $data,
@@ -611,6 +612,7 @@ sub deleterepo {
       my $req = {
         'uri' => "$BSConfig::markfileorigins/$prp_ext/$f",
         'request' => 'HEAD',
+        'maxredirects' => 3,
         'timeout' => 10,
         'ignorestatus' => 1,
       };
@@ -952,6 +954,7 @@ sub publish {
       my $req = {
         'uri' => "$BSConfig::markfileorigins/$prp_ext/$f",
         'request' => 'HEAD',
+        'maxredirects' => 3,
         'timeout' => 10,
         'ignorestatus' => 1,
       };
@@ -964,6 +967,7 @@ sub publish {
       my $req = {
         'uri' => "$BSConfig::markfileorigins/$prp_ext/$f",
         'request' => 'HEAD',
+        'maxredirects' => 3,
         'timeout' => 10,
         'ignorestatus' => 1,
       };
