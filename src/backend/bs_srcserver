@@ -979,11 +979,11 @@ sub getprojpack {
   my @res;
   for my $projid (@$projids) {
     my $jinfo = { 'name' => $projid };
-    my $proj = readproj($projid, 1);
-    next unless $proj;
     if ($withremotemap && !exists($remotemap{$projid})) {
       $remotemap{$projid} = remoteprojid($projid);
     }
+    my $proj = readproj($projid, 1);
+    next unless $proj;
     if ($cgi->{'withconfig'}) {
       my $config = readstr("$projectsdir/$projid.conf", 1);
       if ($config) {
@@ -3385,7 +3385,7 @@ sub worker_lastevents {
     for my $ev (splice @events) {
       if ($ev->{'type'} eq 'package') {
         next unless defined $ev->{'package'};
-        next unless $watch{"package/$ev->{'project'}/$ev->{'package'}"};
+        next unless $watch{"package/$ev->{'project'}/$ev->{'package'}"} || $watch{"package/$ev->{'project'}"};
       } elsif ($ev->{'type'} eq 'project') {
         next unless $watch{"project/$ev->{'project'}"};
       } elsif ($ev->{'type'} eq 'repository') {
