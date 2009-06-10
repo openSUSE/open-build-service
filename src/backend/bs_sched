@@ -1362,7 +1362,7 @@ sub get_projpacks {
 #
 # addwatchremote:  register for a remote resource
 #
-# input:  $type: type of resource (project/repository/source)
+# input:  $type: type of resource (project/package/repository)
 #         $projid: update just this project
 #         $watch: extra data to match
 #
@@ -1405,7 +1405,7 @@ sub calc_projpacks_linked {
     while (($mypackid, $pack) = each %{$projpacks->{$projid}->{'package'} || {}}) {
       next unless $pack->{'linked'};
       for my $li (@{$pack->{'linked'}}) {
-	addwatchremote('project', $li->{'project'}, "/$li->{'package'}");
+	addwatchremote('package', $li->{'project'}, "/$li->{'package'}");
 	$li->{'myproject'} = $projid;
 	$li->{'mypackage'} = $mypackid;
       }
@@ -2218,6 +2218,7 @@ sub checkkiwiproduct {
   my @diff = diffsortedmd5(0, \@meta, \@new_meta);
   print "      - $packid (kiwi-product)\n";
   print "        $_\n" for @diff;
+  print "        meta change, start build\n";
   return ('scheduled', [ \@rpms, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
 }
 
