@@ -1396,7 +1396,7 @@ sub calc_projpacks_linked {
     while (($mypackid, $pack) = each %{$projpacks->{$projid}->{'package'} || {}}) {
       next unless $pack->{'linked'};
       for my $li (@{$pack->{'linked'}}) {
-	addwatchremote('project', $li->{'project'}, "/$li->{'package'}");
+	addwatchremote('package', $li->{'project'}, "/$li->{'package'}");
 	$li->{'myproject'} = $projid;
 	$li->{'mypackage'} = $mypackid;
       }
