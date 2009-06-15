@@ -446,11 +446,6 @@ class SourceController < ApplicationController
           #FIXME: parameters that get substituted into the url must be specified here... should happen
           #somehow automagically... no idea how this might work
           @package = Package.new( request_data, :project => project_name, :name => package_name )
-        
-          # add package creator as maintainer if he is not added already
-          if not @package.has_element?( "person[@userid='#{user.login}']" )
-            @package.add_person( :userid => user.login )
-          end
         else
           # User is not allowed by global permission.
           logger.debug "Not allowed to create new packages"
