@@ -37,9 +37,9 @@ class SourceController < ApplicationController
       end
 
       #deny deleting if other packages use this as develproject
-      unless pro.develpackage.empty?
+      unless pro.develpackages.empty?
         msg = "Unable to delete project #{pro.name}; following packages use this project as develproject: "
-        msg += pro.develpackage.map {|pkg| pkg.db_project.name+"/"+pkg.name}.join(", ")
+        msg += pro.develpackages.map {|pkg| pkg.db_project.name+"/"+pkg.name}.join(", ")
         render_error :status => 400, :errorcode => 'develproject_dependency',
           :message => msg
         return
@@ -292,7 +292,7 @@ class SourceController < ApplicationController
           return
         end
       end
-      
+
       p = Project.new(request_data, :name => project_name)
 
       if p.name != project_name
