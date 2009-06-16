@@ -162,6 +162,14 @@ class RequestController < ApplicationController
       # allow new -> revoked state change to creators of request
       permission_granted = true
     else
+       # do not allow direct switches from accept to decline or vice versa or double actions
+       if params[:newstate] == "accepted" or params[:newstate] == "declined"
+          if req.state.name == "accepted" or req.state.name == "declined"
+             render_error :status => 403, :errorcode => "post_request_no_permission",
+               :message => "set state to #{params[:newstate]} from accepted or declined is not allowed."
+             return
+          end
+       end
 
        # permission check for each request inside
        req.each_action do |action|
