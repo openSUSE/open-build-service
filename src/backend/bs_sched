@@ -1827,7 +1827,7 @@ sub jobfinished {
     };
     if (open(F, '+>>', "$dst/logfile")) {
       # Add a comment to logfile from last real build
-      print F "\nSkipped built at ".localtime(time());
+      print F "\nRetried build at ".localtime(time())." returned same result, skipped";
       close(F);
     };
     unlink("$gdst/:logfiles.fail/$packid");
