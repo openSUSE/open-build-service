@@ -851,4 +851,17 @@ our $schedulerinfo = [
 	'variance',
 ];
 
+our $person = [
+  'person' =>
+	'login',
+	'email',
+	'realname',
+	[ 'watchlist' =>
+		[[ 'project' =>
+			'name',
+		]],
+	],
+];
+
+
 1;
