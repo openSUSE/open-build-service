@@ -264,9 +264,10 @@ class DbPackage < ActiveRecord::Base
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
       package.title( title )
       package.description( description )
-      if not develproject.nil? and not develpackage.nil?
-        package.devel( :project => develproject.name, :package => develpackage.name )
-      elsif not develproject.nil?
+      
+      if develpackage
+        package.devel( :project => develpackage.db_project.name, :package => develpackage.name )
+      elsif develproject
         package.devel( :project => develproject.name )
       end
 
