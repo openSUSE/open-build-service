@@ -2,12 +2,13 @@
 <!-- Links -->
 <div id="package_link">
   <% if @link %>
-  <%- link_project = @link.has_attribute?(:project) ? @link.project : @project.name -%>
+  <%- linked_project = @link.has_attribute?(:project) ? @link.project : @project.name -%>
+  <%- linked_package = @link.has_attribute?(:package) ? @link.package : @package.name -%>
   <h3>Link</h3>
   <p>
     This package links to the sources of the package
-    <%= link_to_package link_project, @link.package %>
-    of project <%= link_to_project link_project %>.
+    <%= link_to_package linked_project, linked_package %>
+    of project <%= link_to_project linked_project %>.
   </p>
   <% end %>
 </div>
