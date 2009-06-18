@@ -494,17 +494,20 @@ sub topaddspec {
 #
 sub applylink {
   my ($md5, $lsrc, $llnk) = @_;
-
-  if ($md5 && -e "$srcrep/$llnk->{'package'}/$md5-_linkerror") {
+  my $lprojid = $lsrc->{'project'};
+  my $lpackid = $lsrc->{'package'};
+  $lprojid = $llnk->{'project'} if exists $llnk->{'project'};
+  $lpackid = $llnk->{'package'} if exists $llnk->{'package'};
+  if ($md5 && -e "$srcrep/$lpackid/$md5-_linkerror") {
     # no need to do all the work again...
-    my $log = readstr("$srcrep/$llnk->{'package'}/$md5-_linkerror", 1);
+    my $log = readstr("$srcrep/$lpackid/$md5-_linkerror", 1);
     $log ||= "unknown error";
     chomp $log;
     $log =~ s/.*\n//s;
     $log ||= "unknown error";
     return $log;
   }
-  my $flnk = lsrep($llnk->{'project'}, $llnk->{'package'}, $llnk->{'srcmd5'});
+  my $flnk = lsrep($lprojid, $lpackid, $llnk->{'srcmd5'});
   die("applylink: $llnk->{'package'}/$llnk->{'srcmd5'}: nothing known\n") unless $flnk;
   my $fsrc = lsrep($lsrc->{'project'}, $lsrc->{'package'}, $lsrc->{'srcmd5'});
   die("applylink: $lsrc->{'package'}/$lsrc->{'srcmd5'}: nothing known\n") unless $fsrc;
@@ -2000,7 +2003,7 @@ sub keeplink {
 
   # get link target file list
   my $ltgtprojid = defined($l->{'project'}) ? $l->{'project'} : $projid;
-  my $ltgtpackid = defined($l->{'package'}) ? $l->{'package'} : $projid;
+  my $ltgtpackid = defined($l->{'package'}) ? $l->{'package'} : $packid;
   my $ltgtfiles;
   if ($ltgtsrcmd5) {
     $ltgtfiles = lsrep($ltgtprojid, $ltgtpackid, $ltgtsrcmd5);
