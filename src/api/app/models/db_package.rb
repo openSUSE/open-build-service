@@ -75,6 +75,8 @@ class DbPackage < ActiveRecord::Base
       self.bcntsynctag = package.bcntsynctag.to_s if package.has_element? :bcntsynctag
 
       #--- devel project ---#
+      self.develproject = nil      # old column, get removed now always and migrated to new develpackage
+                                   # might get reused later for defining devel projects in project meta
       self.develpackage = nil
       if package.has_element? :devel
         prj_name = package.project.to_s
