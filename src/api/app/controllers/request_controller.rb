@@ -90,7 +90,7 @@ class RequestController < ApplicationController
 #          unless spkg or DbProject.find_remote_project(action.source.package)
           unless spkg
             render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown source package #{action.source.package}"
+              :message => "Unknown source package #{action.source.package} in project #{action.source.project}"
             return
           end
         end
