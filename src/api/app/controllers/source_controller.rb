@@ -79,8 +79,6 @@ class SourceController < ApplicationController
         DbPackage.transaction do
           logger.info "destroying package #{pack.name}"
           pack.destroy
-          logger.debug "delete request to backend: /source/#{pro.name}/#{pack.name}"
-          Suse::Backend.delete "/source/#{pro.name}/#{pack.name}"
         end
       end
 
