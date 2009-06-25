@@ -288,7 +288,7 @@ sub diffsortedmd5 {
 }
 
 sub findbins_dir {
-  my ($dir) = @_;
+  my ($dir, $cache) = @_;
   my @bins;
   if (ref($dir)) {
     @bins = grep {/\.(?:rpm|deb|iso)$/} @$dir;
@@ -301,8 +301,13 @@ sub findbins_dir {
     my @s = stat($bin);
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
-    my $data = Build::query($bin, 'evra' => 1);	# need arch
-    next unless $data;
+    my $data;
+    if ($cache && $cache->{$id}) {
+      $data = { %{$cache->{$id}} };
+    } else {
+      $data = Build::query($bin, 'evra' => 1);	# need arch
+      next unless $data;
+    }
     BSVerify::verify_nevraquery($data);
     $data->{'id'} = $id;
     delete $data->{'epoch'};
@@ -993,8 +998,15 @@ sub update_dst_full {
   my @jobfiles;
   if (defined($jobdir)) {
     @jobfiles = sort(ls($jobdir));
-    @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason'} @jobfiles;
-    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/} @jobfiles ]);
+    @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @jobfiles;
+    my $cache;
+    if (-e "$jobdir/.bininfo") {
+      eval {
+        $cache = Storable::retrieve("$jobdir/.bininfo");
+      };
+      unlink("$jobdir/.bininfo");
+    }
+    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/} @jobfiles ], $cache);
   } else {
     $jobrepo = {};
   }
@@ -1013,7 +1025,7 @@ sub update_dst_full {
   } elsif ($dst) {
     # get old state
     my @oldfiles = sort(ls($dst));
-    @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason'} @oldfiles;
+    @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @oldfiles;
     $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/} @oldfiles ]);
 
     # move files over
@@ -1824,12 +1836,12 @@ sub jobfinished {
       link("$gdst/:logfiles.success/$packid", "$dst/logfile.dup");
       rename("$dst/logfile.dup", "$dst/logfile");
       unlink("$dst/logfile.dup");
-    };
+    }
     if (open(F, '+>>', "$dst/logfile")) {
       # Add a comment to logfile from last real build
       print F "\nRetried build at ".localtime(time())." returned same result, skipped";
       close(F);
-    };
+    }
     unlink("$gdst/:logfiles.fail/$packid");
     rename($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
@@ -3025,6 +3037,9 @@ while(1) {
     my @events = ls($myeventdir);
     @events = grep {!/^\./} @events;
     @events = sort @events;
+
+    my %fetchprojpacks;
+
     while (@events || @remoteevents) {
       my $ev;
       if (@events) {
@@ -3072,45 +3087,16 @@ while(1) {
 
       if ($ev->{'type'} eq 'srcevent' || $ev->{'type'} eq 'package') {
 	my $projid = $ev->{'project'};
+	next unless defined $projid;
 	my $packid = $ev->{'package'};
-	get_projpacks($projid, $packid);
-	# need map to create safe copy of array
-	for my $linfo (map {$_} grep {$_->{'project'} eq $projid && (!defined($packid) || $_->{'package'} eq $packid)} @projpacks_linked) {
-	  my $lprojid = $linfo->{'myproject'};
-	  my $lpackid = $linfo->{'mypackage'};
-	  get_projpacks($lprojid, $lpackid);
-	  for my $prp (@prps) {
-	    $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
-	  }
-	  $changed_high{$lprojid} ||= 1;
-	}
-	for my $prp (@prps) {
-	  $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
-	}
-	$changed_high{$projid} ||= 1;
+	push @{$fetchprojpacks{$projid}}, $packid;
 	next;
       }
 
       if ($ev->{'type'} eq 'projevent' || $ev->{'type'} eq 'project') {
 	my $projid = $ev->{'project'};
-	get_projpacks($projid);
-	# need map to create safe copy of array
-	for my $linfo (map {$_} grep {$_->{'project'} eq $projid} @projpacks_linked) {
-	  my $lprojid = $linfo->{'myproject'};
-	  my $lpackid = $linfo->{'mypackage'};
-	  next if $lprojid eq $projid;
-	  # low prio for repos building against these
-	  for my $prp (@prps) {
-            $changed_low{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $lprojid;
-	  }
-	  $changed_low{$lprojid} ||= 1;
-	}
-	# we use 2 here as a config change is relevant for all
-        # projects building with us
-	for my $prp (@prps) {
-          $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-	}
-	$changed_high{$projid} = 2;
+	next unless defined $projid;
+	push @{$fetchprojpacks{$projid}}, undef;
 	next;
       }
 
@@ -3204,15 +3190,18 @@ while(1) {
 	next;
       }
 
-      if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'dumpstate') {
+      if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'dumpstate') {
 	print "exiting...\n" if $ev->{'type'} eq 'exit';
+	print "exiting (with complete info)...\n" if $ev->{'type'} eq 'exitcomplete';
 	print "dumping scheduler state...\n" if $ev->{'type'} eq 'dumpstate';
 	my @new_lookat = @lookat;
         push @new_lookat, grep {$lookat_next{$_}} @prps;
 	# here comes our scheduler state
 	my $schedstate = {};
-	#$schedstate->{'projpacks'} = $projpacks;
-	#$schedstate->{'repodata'} = \%repodata;
+	if ($ev->{'type'} eq 'exitcomplete') {
+	  $schedstate->{'projpacks'} = $projpacks;
+	  $schedstate->{'repodata'} = \%repodata;
+	}
 	$schedstate->{'prps'} = \@prps;
 	$schedstate->{'changed_low'} = \%changed_low;
 	$schedstate->{'changed_med'} = \%changed_med;
@@ -3266,6 +3255,62 @@ while(1) {
 
       print "unknown event type: $ev->{'type'}\n";
     }
+
+    if (%fetchprojpacks) {
+      my %fetchlinkedprojpacks;
+      my %fetchlinkedprojpacks_high;
+      for my $projid (sort keys %fetchprojpacks) {
+	if (grep {!defined($_)} @{$fetchprojpacks{$projid}}) {
+	  # project change, get all packages
+	  get_projpacks($projid);
+	  for my $linfo (map {$_} grep {$_->{'project'} eq $projid} @projpacks_linked) {
+	    my $lprojid = $linfo->{'myproject'};
+	    my $lpackid = $linfo->{'mypackage'};
+	    push @{$fetchlinkedprojpacks{$lprojid}}, $lpackid;
+	  }
+	  for my $prp (@prps) {
+	    $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+	  }
+	  $changed_high{$projid} = 2;
+	} else {
+	  # single package (source) changes
+	  my %packids = map {$_ => 1} @{$fetchprojpacks{$projid}};
+	  get_projpacks($projid, sort keys %packids);
+	  for my $packid (sort keys %packids) {
+	    # need map to create safe copy of array
+	    for my $linfo (map {$_} grep {$_->{'project'} eq $projid && $_->{'package'} eq $packid} @projpacks_linked) {
+	      my $lprojid = $linfo->{'myproject'};
+	      my $lpackid = $linfo->{'mypackage'};
+	      push @{$fetchlinkedprojpacks{$lprojid}}, $lpackid;
+	      $fetchlinkedprojpacks_high{$lprojid} = 1;	# high for source changes, low for project changes
+	    }
+	    for my $prp (@prps) {
+	      $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
+	    }
+	    $changed_high{$projid} ||= 1;
+	    next;
+	  }
+	}
+      }
+      if (%fetchlinkedprojpacks) {
+	for my $projid (sort keys %fetchlinkedprojpacks) {
+	  my %packids = map {$_ => 1} @{$fetchlinkedprojpacks{$projid}};
+	  get_projpacks($projid, sort keys %packids);
+	  if ($fetchlinkedprojpacks_high{$projid}) {
+	    for my $prp (@prps) {
+	      $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
+	    }
+	    $changed_high{$projid} ||= 1;
+	  } else {
+	    for my $prp (@prps) {
+	      $changed_low{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
+	    }
+	    $changed_low{$projid} ||= 1;
+	  }
+	}
+      }
+    }
+
     # add all changed_high entries to changed_med to make things simpler
     for (keys %changed_high) {
       next if $changed_med{$_} && $changed_med{$_} == 2;
