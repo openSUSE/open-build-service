@@ -284,9 +284,11 @@ sub verify_request {
 sub verify_nevraquery {
   my ($q) = @_;
   verify_arch($q->{'arch'});
+  die("binary has no name\n") unless defined $q->{'name'};
+  die("binary has no version\n") unless defined $q->{'version'};
   my $f = "$q->{'name'}-$q->{'version'}";
   $f .= "-$q->{'release'}" if defined $q->{'release'};
-  verify_filename($q->{'arch'});
+  verify_filename($f);
 }
 
 our $verifyers = {
