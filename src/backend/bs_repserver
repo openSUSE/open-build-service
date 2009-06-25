@@ -864,7 +864,8 @@ sub putjob {
     $jobstatus->{'result'} = 'succeeded';
     last;
   }
-  if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged'){
+
+  if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';
     BSHermes::notify("BUILD_UNCHANGED", $info);
   } elsif ($BSConfig::sign) {
@@ -893,6 +894,19 @@ sub putjob {
 
     BSHermes::notify($success ? "BUILD_SUCCESS" :  "BUILD_FAIL", $info);
   }
+
+  # calculate binary info to speed up scheduler
+  my $bininfo = {};
+  for my $file (@$uploaded) {
+    next unless $file->{'name'} =~ /\.(?:rpm|deb)$/;
+    my @s = stat("$dir/$file->{'name'}");
+    next unless @s;
+    my $id = "$s[9]/$s[7]/$s[1]";
+    my $data = Build::query("$dir/$file->{'name'}", 'evra' => 1);
+    BSVerify::verify_nevraquery($data);
+    $bininfo->{$id} = $data;
+  }
+  Storable::nstore($bininfo, "$dir/.bininfo") if %$bininfo;
 
   # write now jobstatus and free lock
   $jobstatus->{'code'} = 'finished';
@@ -1181,6 +1195,10 @@ sub getbuildinfo {
   my @configpath;
   my $kiwitype;
   if ($packtype eq 'kiwi') {
+    if (@{$info->{'path'} || []}) {
+      my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', map {"project=$_->{'project'}"} @{$info->{'path'}});
+      %remotemap = (%remotemap, map {$_->{'project'} => $_} @{$pp->{'remotemap'} || []});
+    }
     @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     unshift @configpath, "path=$projid/$repoid" unless @configpath;
     if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
@@ -1245,7 +1263,7 @@ sub getbuildinfo {
   if ($packtype eq 'kiwi') {
     # Collect kiwi image types
     my @itypes = @{$info->{'imagetype'} || []};
-    $ret->{'imagetype'} = \@itypes unless $uploaded;
+    $ret->{'imagetype'} = \@itypes;
     # use repositories defined in the kiwi config
     @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
   }
@@ -1358,12 +1376,14 @@ sub getbuildinfo {
       next unless $bn[-1] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
       my $d = {'name' => $1, 'version' => $2, 'release' => $3, 'arch' => $4, 'project' => $bn[0], 'repository' => $bn[1], 'package' => $bn[3]};
       $d->{'repoarch'} = $bn[2] if $bn[2] ne $arch;
-      $d->{'preinstall'} = 1 if $pdeps{$1};
-      $d->{'vminstall'} = 1 if $vmdeps{$1};
-      $d->{'runscripts'} = 1 if $runscripts{$1};
-      $d->{'notmeta'} = 1 unless $edeps{$1};
       $d->{'noinstall'} = 1 if $4 eq 'src' || $4 eq 'nosrc';
       $d->{'noinstall'} = 1 unless $kdeps{$1};
+      if (!$d->{'noinstall'}) {
+        $d->{'preinstall'} = 1 if $pdeps{$1};
+        $d->{'vminstall'} = 1 if $vmdeps{$1};
+        $d->{'runscripts'} = 1 if $runscripts{$1};
+      }
+      $d->{'notmeta'} = 1 unless $edeps{$1};
       delete $kdeps{$1} unless $d->{'noinstall'};
       push @bdeps, $d;
     }
