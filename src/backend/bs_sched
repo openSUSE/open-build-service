@@ -1255,16 +1255,16 @@ sub addjobhist {
 ##
 
 my @prps;		# all prps(project-repositories-sorted) we have to schedule, sorted
-my %prpsearchpath;	# maps prp -> [ prp, prp, ...]
+my %prpsearchpath;	# maps prp => [ prp, prp, ...]
                         # build packages with the packages of the prps
 my %prpdeps;		# searchpath plus aggregate deps plus kiwi deps
-			# maps prp -> [ prp, prp ... ]
+			# maps prp => [ prp, prp ... ]
 			# used for sorting
 my %prpnoleaf;		# is this prp referenced by another prp?
 my @projpacks_linked;	# data of all linked sources
 
-my %watchremote;
-my %watchremote_start;
+my %watchremote;	# remote_url => { eventdescr => projid }
+my %watchremote_start;	# remote_url => lasteventno
 
 my %repounchanged;
 my %globalnotready;
@@ -1280,8 +1280,6 @@ my @retryevents;
 # input:  $projid: update just this project
 #         $packid: update just this package
 # output: $projpacks (global)
-#
-# calls calc_prps and calc_projpacks_linked for post-processing
 #
 
 sub get_projpacks {
@@ -1359,13 +1357,21 @@ sub get_projpacks {
       delete $proj->{'package'};
     }
   }
+}
 
+#
+# post-process projpack information
+#  calculate package link information
+#  calculate ordered prp list
+#  calculate remote info
+# 
+sub get_projpacks_postprocess {
   %watchremote = ();
   %watchremoteprojs = ();
 
   #print Dumper($projpacks);
-  calc_projpacks_linked();
-  calc_prps();
+  calc_projpacks_linked();	# modifies watchremote/watchremoteprojs
+  calc_prps();			# modifies watchremote/watchremoteprojs
 
   updateremoteprojs();
   %watchremoteprojs = ();
@@ -2789,12 +2795,11 @@ if (-s "$rundir/bs_sched.$myarch.state") {
     print "  - $_\n" for sort keys %$schedstate;
     if ($schedstate->{'projpacks'}) {
       $projpacks = $schedstate->{'projpacks'};
-      calc_projpacks_linked();
-      calc_prps();
     } else {
       # get project and package information from src server
       get_projpacks();
     }
+    get_projpacks_postprocess();
 
     my %oldprps = map {$_ => 1} @{$schedstate->{'prps'} || []};
     my @newprps = grep {!$oldprps{$_}} @prps;
@@ -2851,6 +2856,7 @@ if (!$projpacks) {
   # get project and package information from src server
   print "cold start, scanning all projects\n";
   get_projpacks();
+  get_projpacks_postprocess();
   # look at everything
   @lookat = sort keys %$projpacks;
   push @lookat, @prps;
@@ -3215,7 +3221,7 @@ while(1) {
 	if (!Storable::nstore($schedstate, "$rundir/bs_sched.$myarch.state")) {
 	  unlink("$rundir/bs_sched.$myarch.state");
 	}
-	if ($ev->{'type'} eq 'exit') {
+	if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete') {
 	  print "bye.\n";
 	  exit(0);
 	}
@@ -3257,41 +3263,47 @@ while(1) {
     }
 
     if (%fetchprojpacks) {
-      my %fetchlinkedprojpacks;
-      my %fetchlinkedprojpacks_high;
+      # pass1: fetch all projpacks
       for my $projid (sort keys %fetchprojpacks) {
 	if (grep {!defined($_)} @{$fetchprojpacks{$projid}}) {
 	  # project change, get all packages
 	  get_projpacks($projid);
-	  for my $linfo (map {$_} grep {$_->{'project'} eq $projid} @projpacks_linked) {
-	    my $lprojid = $linfo->{'myproject'};
-	    my $lpackid = $linfo->{'mypackage'};
-	    push @{$fetchlinkedprojpacks{$lprojid}}, $lpackid;
-	  }
-	  for my $prp (@prps) {
-	    $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-	  }
-	  $changed_high{$projid} = 2;
 	} else {
 	  # single package (source) changes
 	  my %packids = map {$_ => 1} @{$fetchprojpacks{$projid}};
 	  get_projpacks($projid, sort keys %packids);
+	}
+      }
+      get_projpacks_postprocess();
+
+      # pass2: postprocess, set changed_high, calculate link info
+      my %fetchlinkedprojpacks;
+      my %fetchlinkedprojpacks_high;
+      for my $projid (sort keys %fetchprojpacks) {
+	if (grep {!defined($_)} @{$fetchprojpacks{$projid}}) {
+	  for my $prp (@prps) {
+	    $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+	  }
+	  $changed_high{$projid} = 2;
+	  for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
+	    push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
+	  }
+	} else {
+	  for my $prp (@prps) {
+	    $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
+	  }
+	  $changed_high{$projid} ||= 1;
+	  my %packids = map {$_ => 1} @{$fetchprojpacks{$projid}};
 	  for my $packid (sort keys %packids) {
-	    # need map to create safe copy of array
-	    for my $linfo (map {$_} grep {$_->{'project'} eq $projid && $_->{'package'} eq $packid} @projpacks_linked) {
-	      my $lprojid = $linfo->{'myproject'};
-	      my $lpackid = $linfo->{'mypackage'};
-	      push @{$fetchlinkedprojpacks{$lprojid}}, $lpackid;
-	      $fetchlinkedprojpacks_high{$lprojid} = 1;	# high for source changes, low for project changes
+	    for my $linfo (grep {$_->{'project'} eq $projid && $_->{'package'} eq $packid} @projpacks_linked) {
+	      push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
+	      $fetchlinkedprojpacks_high{$linfo->{'myproject'}} = 1;	# high for source changes, low for project changes
 	    }
-	    for my $prp (@prps) {
-	      $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
-	    }
-	    $changed_high{$projid} ||= 1;
-	    next;
 	  }
 	}
       }
+
+      # pass3: update link information
       if (%fetchlinkedprojpacks) {
 	for my $projid (sort keys %fetchlinkedprojpacks) {
 	  my %packids = map {$_ => 1} @{$fetchlinkedprojpacks{$projid}};
@@ -3308,6 +3320,7 @@ while(1) {
 	    $changed_low{$projid} ||= 1;
 	  }
 	}
+        get_projpacks_postprocess();	# just in case...
       }
     }
 
