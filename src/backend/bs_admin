@@ -75,6 +75,9 @@ Job Controlling
    Check status of a project and its repositories again
    This deep check includes also the sources, in case of lost events.
 
+ --check-package <project> <package> <architecture>
+   Check status of a package in all repositories
+
  --clone-repository <source project> <source repositroy> <destination repositroy>
  --clone-repository <source project> <source repositroy> <destination project> <destination repositroy>
    Clone an existing repo into another existing repository.
@@ -110,7 +113,7 @@ Debug Options
    Is parsing a kiwi xml file and puts out error messages, in case of errors.
 
 ";
-};
+}
 
 #### FIXME: these functions are copied from src server. We should move it to some util class maybe.
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment}];
@@ -153,7 +156,7 @@ sub lsrep {
     if (!open(F, '<', "$srcrepdir/$packid/$srcmd5-MD5SUMS")) {
       return {'_linkerror' => $srcmd5} if -e "$srcrepdir/$packid/$srcmd5-_linkerror";
       die("$packid/$srcmd5-$packid: not in repository\n");
-    };
+    }
   }
   my @files = <F>;
   close F;
@@ -197,18 +200,18 @@ sub find_latest_file {
   }
   my ($md5, $file) = findfile($project, $package, undef, $type, $files);
   return ($md5, $file);
-};
+}
 
 sub dump_nStore {
   my ($file) = @_;
   my $cache = Storable::retrieve("$file") || {};
   print Dumper( $cache );
-};
+}
 
 sub dump_cache {
   my ($project, $repo, $arch) = @_;
   dump_nStore("$reporoot/$project/$repo/$arch/:full.cache");
-};
+}
 
 sub clone_repository {
   my ($srcproject, $srcrepo, $destproject, $destrepo) = @_;
@@ -251,11 +254,11 @@ sub check_xml_file {
   my $xmldesc = readxml("$file", $type, 0);
   if ( defined($xmldesc) ) {
     print "Succesfull parsed file !\n";
-  }else{
+  } else {
     print "ERROR: Unable to parse xml file !\n";
     die;
-  };
-};
+  }
+}
 
 sub check_product_xml_file {
   my ($file) = @_;
@@ -267,8 +270,8 @@ sub check_product_xml_file {
   }else{
     print "ERROR: Unable to parse xml file !\n";
     die;
-  };
-};
+  }
+}
 
 
 sub check_kiwi_xml {
@@ -284,7 +287,7 @@ sub check_kiwi_xml {
     print "ERROR: No kiwi config file found in $project / $package !\n";
     die;
   }
-};
+}
 
 sub check_meta_xml {
   my ($project, $package) = @_;
@@ -296,22 +299,24 @@ sub check_meta_xml {
   } else {
     $file = "$projectsdir/$project.xml";
     $metadesc = readxml("$file", $BSXML::proj, 0);
-  };
+  }
 
   if ( defined($metadesc) ) {
     print "Succesfull parsed $file !\n";
   }else{
     print "ERROR: Unable to parse Meta XML in $file !\n";
     die;
-  };
-};
+  }
+}
 
 sub write_event {
-  my ($project, $repo, $arch, $event) = @_;
+  my ($project, $repo, $arch, $event, $package) = @_;
   my $evname = "${event}::$project";
+  $evname .= "::$package" if defined $package;
   $evname .= "::$repo" if defined $repo;
   my $ev = { "type" => $event };
   $ev->{ 'project' } = $project if defined $project;
+  $ev->{ 'package' } = $package if defined $package;
   $ev->{ 'repository' } = $repo if defined $repo;
   writexml("$eventroot/$arch/.$evname$$", "$eventroot/$arch/$evname", $ev, $BSXML::event);
   local *F;
@@ -319,22 +324,22 @@ sub write_event {
     syswrite(F, 'x');
     close(F);
   }
-};
+}
 
 sub scan_repo {
   my ($project, $repo, $arch) = @_;
   write_event( $project, $repo, $arch, 'scanrepo' );
-};
+}
 
 sub dump_state {
   my ($arch) = @_;
   write_event( undef, undef, $arch, 'dumpstate' );
-};
+}
 
 sub shutdown_scheduler {
   my ($arch) = @_;
   write_event( '', undef, $arch, 'exit' );
-};
+}
 
 sub check_project {
   my ($project, $arch, $deep) = @_;
@@ -343,7 +348,12 @@ sub check_project {
   } else {
     write_event( $project, undef, $arch, 'recheck' );
   }
-};
+}
+
+sub check_package {
+  my ($project, $package, $arch) = @_;
+  write_event( $project, undef, $arch, 'package', $package );
+}
 
 #
 # Argument parsing
@@ -358,7 +368,7 @@ while (@ARGV) {
   if ($arg eq "--help") {
     echo_help;
     exit(0);
-  };
+  }
   if ($arg eq "--check-meta-xml") {
     die("ERROR: need at least a project name as argument!\n") if @ARGV < 1;
     my $project = shift @ARGV;
@@ -395,7 +405,7 @@ while (@ARGV) {
       my $repo = shift @ARGV;
       my $arch = shift @ARGV;
       dump_cache($project, $repo, $arch);
-    };
+    }
   } elsif ($arg eq "--dump-relsync") {
     die("ERROR: need file as argument!\n") if @ARGV < 1;
     my $file = shift @ARGV;
@@ -413,6 +423,12 @@ while (@ARGV) {
     my $project = shift @ARGV;
     my $arch = shift @ARGV;
     check_project($project, $arch);
+  } elsif ( $arg eq "--check-package" ) {
+    die("ERROR: need project, package and architecture as argument!\n") if @ARGV < 3;
+    my $project = shift @ARGV;
+    my $package = shift @ARGV;
+    my $arch = shift @ARGV;
+    check_package($project, $package, $arch);
   } elsif ( $arg eq "--deep-check-project" ) {
     die("ERROR: need project and architecture as argument!\n") if @ARGV < 2;
     my $project = shift @ARGV;
@@ -430,7 +446,7 @@ while (@ARGV) {
     } else {
        $destproject = shift @ARGV;
        $destrepo = shift @ARGV;
-    };
+    }
     clone_repository($srcproject, $srcrepo, $destproject, $destrepo);
   } elsif ($arg eq "--rescan-repository") {
     die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
