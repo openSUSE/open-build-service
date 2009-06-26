@@ -2866,6 +2866,7 @@ my %remotewatchers;
 my %nextmed;
 
 my %prpchecktimes;
+my %prplastcheck;
 my %notreadies;
 
 if (@lookat) {
@@ -2874,6 +2875,7 @@ if (@lookat) {
 }
 
 my $slept = 0;
+my $notlow = 0;
 my $schedulerstart = time();
 
 while(1) {
@@ -3334,21 +3336,28 @@ while(1) {
 
   my $prp;
 
-  # Check for high and medium events for projects with max time between check
-  if ( defined %BSConfig::max_project_timeout ){
-    for my $myprp (keys %BSConfig::max_project_timeout) {
-      my @p = grep {$_ eq $myprp} (@lookat_oobhigh,@lookat_oob);
-      if ( @p &&
-           (time()-$BSConfig::max_project_timeout{$myprp}->{'timeout'}*60)
-            > $BSConfig::max_project_timeout{$myprp}->{'last'} )
-      {
-        $BSConfig::max_project_timeout{$myprp}->{'last'} = time();
-        @lookat_oobhigh = grep {$_ ne $myprp} @lookat_oobhigh;
-        @lookat_oob     = grep {$_ ne $myprp} @lookat_oob;
-        $prp = $myprp;
-        print "Configured timeout for $prp passed !";
+  # Check for high and medium events for projects with max time between
+  # check. Do not use this feature!
+  if (defined $BSConfig::max_project_timeout) {
+    my @p = grep {$BSConfig::max_project_timeout->{$_}} (@lookat_oobhigh, @lookat_oob);
+    if (@p) {
+      my $now = time();
+      for my $p (@p) {
+	next unless $now - $prplastcheck{$p} > $BSConfig::max_project_timeout->{$p};
+	$prp = $p;
+        print "max timeout for $prp passed!\n";
+	@lookat_oobhigh = grep {$_ ne $prp} @lookat_oobhigh;
+	@lookat_oob = grep {$_ ne $prp} @lookat_oob;
+	last;
       }
     }
+  }
+  if (!defined($prp) && @lookat && $notlow > 10) {
+    $prp = shift @lookat;
+    print "looking at low prio $prp";
+    @lookat_oobhigh = grep {$_ ne $prp} @lookat_oobhigh;
+    @lookat_oob = grep {$_ ne $prp} @lookat_oob;
+    $notlow = 0;
   }
   if (!defined($prp) && @lookat_oobhigh) {
     $prp = shift @lookat_oobhigh;
@@ -3364,7 +3373,8 @@ while(1) {
       unshift @lookat_oobhigh, @notyet;
       $prp = shift @lookat_oobhigh if !defined($prp) && !@lookat_oob && !@lookat;
     }
-    print "looking at high prio $prp" if defined($prp);
+    print "looking at high prio $prp" if defined $prp;
+    $notlow++ if defined $prp;
   }
   if (!defined($prp) && @lookat_oob) {
     $prp = shift @lookat_oob;
@@ -3381,15 +3391,12 @@ while(1) {
       $prp = shift @lookat_oob if !defined($prp) && !@lookat;
     }
     print "looking at med prio $prp" if defined $prp;
+    $notlow++ if defined $prp;
   }
   if (!defined($prp)) {
     $prp = shift @lookat;
     print "looking at low prio $prp";
-  }else{
-    if ( defined $BSConfig::max_project_timeout{$prp} ){
-      # store current check time, if the prp is defined with maxtime
-      $BSConfig::max_project_timeout{$prp}->{'last'} = time();
-    }
+    $notlow = 0;
   }
   print " (".@lookat_oobhigh."/".@lookat_oob."/".@lookat."/".(keys %lookat_next)."/".@prps.")\n";
   delete $nextmed{$prp};
@@ -4218,6 +4225,7 @@ relsynccheck:
 
   my $now = time();
   $nextmed{$prp} = time() + 10 * $prpchecktime;
+  $prplastcheck{$prp} = $now;
 
   # write stats
   my $sinfo = {'arch' => $myarch, 'started' => $schedulerstart, 'time' => $now, 'slept' => $slept};
