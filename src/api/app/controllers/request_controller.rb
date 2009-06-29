@@ -214,8 +214,11 @@ class RequestController < ApplicationController
          elsif action.data.attributes["type"] == "delete"
            # check permissions for delete
            project = DbProject.find_by_name(action.target.project)
-           package = project.db_packages.find_by_name(action.target.package)
-           if @http_user.can_modify_project? project or @http_user.can_modify_package? package
+           package = nil
+           if action.target.has_attribute? :package
+              package = project.db_packages.find_by_name(action.target.package)
+           end
+           if @http_user.can_modify_project? project or ( package and @http_user.can_modify_package? package )
              permission_granted = true
            else
              render_error :status => 403, :errorcode => "post_request_no_permission",
