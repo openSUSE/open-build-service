@@ -158,6 +158,10 @@ class RequestController < ApplicationController
     permission_granted = false
     if @http_user.is_admin?
       permission_granted = true
+    elsif params[:newstate] == "deleted"
+      render_error :status => 403, :errorcode => "post_request_no_permission",
+               :message => "Deletion of a request is only permitted for administrators. Please revoke the request instead."
+      return
     elsif req.state.name == "new" and params[:newstate] == "revoked" and req.creator == @http_user.login
       # allow new -> revoked state change to creators of request
       permission_granted = true
