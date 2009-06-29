@@ -213,8 +213,8 @@ class RequestController < ApplicationController
     
          elsif action.data.attributes["type"] == "delete"
            # check permissions for delete
-           project = DbProject.find_by_name(action.project)
-           package = project.db_packages.find_by_name(action.package)
+           project = DbProject.find_by_name(action.target.project)
+           package = project.db_packages.find_by_name(action.target.package)
            if @http_user.can_modify_project? project or @http_user.can_modify_package? package
              permission_granted = true
            else
