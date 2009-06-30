@@ -62,8 +62,4 @@ class Package < ActiveXML::Base
     end
   end
 
-  def update_timestamp
-  end
-
-
 end

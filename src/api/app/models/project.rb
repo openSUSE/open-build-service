@@ -33,12 +33,4 @@ class Project < ActiveXML::Base
     self.description.data.text = new_desc.to_s
   end
 
-
-  def update_timestamp
-    # save will call DbProject.store_axml() through ActiveXML::Transport.save()
-    # which will do DbProject.update_timestamp() and DbProject.save()
-    save
-  end
-
-
 end

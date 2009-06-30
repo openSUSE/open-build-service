@@ -519,8 +519,8 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? package_name, project_name
       if  allowed
         Suse::Backend.put_source path, request.raw_post
-        package = Package.find( package_name, :project => project_name )
-        package.update_timestamp
+        pack = DbPackage.find_by_project_and_name(project_name, package_name)
+        pack.update_timestamp
         logger.info "wrote #{request.raw_post.to_s.size} bytes to #{path}"
         if package_name == "_product"
           update_product_autopackages
@@ -536,8 +536,8 @@ class SourceController < ApplicationController
       allowed = permissions.package_change? package_name, project_name
       if  allowed
         Suse::Backend.delete path
-        package = Package.find( package_name, :project => project_name )
-        package.update_timestamp
+        pack = DbPackage.find_by_project_and_name(project_name, package_name)
+        pack.update_timestamp
         if package_name == "_product"
           update_product_autopackages
         end
