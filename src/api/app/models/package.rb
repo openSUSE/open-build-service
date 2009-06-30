@@ -63,9 +63,6 @@ class Package < ActiveXML::Base
   end
 
   def update_timestamp
-    # save will call DbPackage.store_axml() through ActiveXML::Transport.save()
-    # which will do DbPackage.update_timestamp() and DbPackage.save()
-    save
   end
 
 
