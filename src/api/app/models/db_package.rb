@@ -23,6 +23,8 @@ class DbPackage < ActiveRecord::Base
   has_one :meta_cache, :as => :cachable, :dependent => :delete
   has_one :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
 
+  has_many :attributes, :dependent => :destroy
+
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
   def record_timestamps
