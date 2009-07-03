@@ -8,7 +8,7 @@
 
 
 class ApplicationController < ActionController::Base
-  before_filter :authorize, :set_return_to, :set_http_headers
+  before_filter :set_return_to, :authorize, :set_http_headers
   after_filter :set_charset
   
   layout "application2"
