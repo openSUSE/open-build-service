@@ -346,7 +346,7 @@ class SourceController < ApplicationController
         return
       end
 
-      forward_data path, :method => :put
+      forward_data path, :method => :put, :data => request.raw_post
       return
     end
   end
