@@ -2194,7 +2194,7 @@ sub sourcecommit {
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   $rev = addrev($projid, $packid, $files, $user, $comment);
-  sourceupdate($projid, $packid) if not $cgi->{'noservice'} && $files->{'_service'};
+  sourceupdate($projid, $packid) unless $cgi->{'noservice'} || not $files->{'_service'};
   return ($rev, $BSXML::revision);
 }
 
