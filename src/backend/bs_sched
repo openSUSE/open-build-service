@@ -604,7 +604,7 @@ sub set_building {
   my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
 
   if ($packtype eq 'kiwi') {
-    # packages used for build environment
+    # packages used for build environment, this should go to project config ...
     @bdeps = ('kiwi', 'createrepo', 'tar');
     push @bdeps, grep {/^kiwi-/} @{$info->{'dep'} || []};
   }
@@ -3780,6 +3780,13 @@ while(1) {
 
     # name of src package, needed for block detection
     my $pname = $info->{'name'} || $packid;
+
+    if (-e $eventdir."/service/".$projid."::".$packid) {
+      $notready{$pname} = 1;
+      $packstatus{$packid} = 'blocked';
+      $packerror{$packid} = "Source update running";
+      next;
+    }
 
     if ($info->{'error'}) {
       print "      - $packid ($info->{'error'})\n";

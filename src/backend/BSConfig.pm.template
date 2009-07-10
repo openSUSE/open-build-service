@@ -29,6 +29,7 @@ my $hostname = Net::Domain::hostfqdn() || 'localhost';
 our $obsname = $hostname; # unique identifier for this Build Service instance
 our $srcserver = "http://$hostname:6362";
 our $reposerver = "http://$hostname:6262";
+#our $serviceserver = "http://$hostname:6162";
 
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 # public download service:

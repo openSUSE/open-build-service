@@ -1,0 +1,435 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2009 Adrian Schroeter, Novell Inc.
+# Copyright (c) 2006-2009 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Worker build process. Builds jobs received from a Repository Server,
+# sends build binary packages back.
+#
+
+use Digest::MD5 ();
+use XML::Structured ':bytes';
+use Data::Dumper;
+use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+
+use BSRPC;
+use BSServer;
+use BSStdServer;
+use BSConfig;
+use BSUtil;
+use BSXML;
+use BSHTTP;
+use BSBuild;
+
+use strict;
+
+my $buildroot;
+my $port;
+my $vm = '';
+my $vm_root = '';
+my $vm_swap = '';
+my $workerid;
+my $srcserver;
+my @reposervers;
+my $testmode;
+my $noworkercheck;
+my $nobuildcodecheck;
+my $oneshot;
+my $silent;
+my $hostcheck;
+my $localkiwi;
+my $justprocess;
+
+my $buildlog_maxsize = 500 * 1000000;
+my $buildlog_maxidle = 8 * 3600;
+my $xenstore_maxsize = 20 * 1000000;
+my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
+
+sub trunc_logfile {
+  my $lf = shift;
+  open(LF, "<$lf") || return; 
+  my $buf;
+  sysread(LF, $buf, 1000000);
+  $buf .= "\n\n[truncated]\n\n";
+  sysseek(LF, -1000000, 2);
+  sysread(LF, $buf, 1000000, length($buf));
+  close LF;
+  $buf .= "\nLogfile got too big, killed job.\n";
+  open(LF, ">$lf.new") || return; 
+  syswrite(LF, $buf);
+  close LF;
+  rename("$lf.new", $lf);
+}
+
+sub usage {
+  my ($ret) = @_;
+
+print <<EOF;
+Usage: $0 [OPTION] --root <directory>
+
+       --root      : buildroot directory
+
+       --port      : fixed port number
+
+       --id        : worker id
+
+       --srcserver : define source server to be used
+
+       --reposerver: define reposerver, can be used multiple times
+
+       --kvm       : enable kvm
+
+       --xen       : enable xen
+
+       --device    : set kvm or xen root device (default is <root>/root file)
+
+       --swap      : set kvm or xen swap device (default is <root>/swap file)
+
+       --test      : enable test mode
+
+       --process   : just run the services, don't send anything back
+                     (needs a service job file as argument)
+
+       --oneshot <seconds>
+                   : just build one package, do not wait more then
+                     <seconds> seconds if nothing is available
+
+       --help      : this message
+
+EOF
+  exit $ret || 0;
+}
+
+my @saveargv = @ARGV;	# so we can restart ourself
+
+exit(0) if @ARGV == 1 && $ARGV[0] eq '--selftest';
+
+while (@ARGV) {
+  usage(0) if $ARGV[0] eq '--help';
+  if ($ARGV[0] eq '--root') {
+    shift @ARGV;
+    $buildroot = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--port') {
+    shift @ARGV;
+    $port = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--srcserver') {
+    shift @ARGV;
+    $srcserver = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--reposerver') {
+    shift @ARGV;
+    my $server = shift @ARGV;
+    push @reposervers, $server;
+    next;
+  }
+  if ($ARGV[0] eq '--id') {
+    shift @ARGV;
+    $workerid = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--test') {
+    shift @ARGV;
+    $testmode = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--kvm') {
+    $vm = ' --kvm';
+    shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--xen') {
+    $vm = ' --xen';
+    shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--xendevice' || $ARGV[0] eq '--device') {
+    shift @ARGV;
+    $vm_root = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--xenswap' || $ARGV[0] eq '--swap') {
+    shift @ARGV;
+    $vm_swap = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--process') {
+    shift @ARGV;
+    $justprocess = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--oneshot') {
+    shift @ARGV;
+    $oneshot = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--silent') {
+    shift @ARGV;
+    $silent= 1;
+    next;
+  }
+  last;
+}
+
+usage(1) unless $buildroot;
+
+$vm_root = "$buildroot/root" unless $vm_root;
+$vm_swap = "$buildroot/swap" unless $vm_swap;
+
+$srcserver = $BSConfig::srcserver unless defined $srcserver;
+
+sub rm_rf {
+  my ($dir) = @_;
+  BSUtil::cleandir($dir);
+  rmdir($dir);
+}
+
+sub getsources {
+  my ($projid, $packid, $dir) = @_;
+
+  # get current md5sum
+  my $projpack = BSRPC::rpc("$BSConfig::srcserver/source/$projid/$packid", $BSXML::dir);
+  
+  my $res = BSRPC::rpc({
+    uri => "$srcserver/getsources",
+    directory => $dir,
+    timeout => $gettimeout,
+    withmd5 => 1,
+    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+  }, undef, "project=$projid", "package=$packid", "srcmd5=".$projpack->{srcmd5});
+  die("Error\n") unless ref($res) eq 'ARRAY';
+  if (-e "$dir/.errors") {
+    my $errors = readstr("$dir/.errors", 1);
+    die("getsources: $errors");
+  }
+}
+
+sub qsystem {
+  my (@args) = @_;
+  if ($silent) {
+    my $pid;
+    if (!($pid = xfork())) {
+      open(STDOUT, ">/dev/null");
+      exec(@args);
+      die("$args[0]: $!\n"); 
+    }
+    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n"); 
+    return $?;
+  } else {
+    return system @args;
+  }
+}
+
+sub service_error {
+  my ($message, $projid, $packid) = @_;
+  # mark package as broken and upload error file
+  BSRPC::rpc({
+    'uri'     => $BSConfig::srcserver."/source/".$projid."/".$packid."/_service_error",
+    'timeout' => 10,
+    'request' => "PUT",
+    'data' => $message,
+  }, undef, "force");
+
+  die("Service update failed with error >".$message."<\n");
+}
+
+sub run_source_update {
+  my ($cgi, $projid, $packid) = @_;
+
+  my $myworkdir = $buildroot."/".$$;
+  BSUtil::cleandir($myworkdir);
+  mkdir_p($myworkdir);
+  die("$myworkdir not writable for me") unless -w $myworkdir;
+  chdir($myworkdir) || service_error("$myworkdir: $!\n", $projid, $packid);
+
+  # read source data
+  getsources( $projid, $packid, $myworkdir );
+  die("no _service file !") unless -e "_service";
+
+  # remove all files from former service run
+  my @oldfiles;
+  for my $file (grep {/^_service[:_]/} ls(".")) {
+    print "remove ".$file."\n";
+    unlink( $file );
+    push @oldfiles, $file;
+  }
+
+  # run all services
+  mkdir_p("tmp");
+  my $infoxml = readstr('_service');
+  my $serviceinfo = XMLin($BSXML::services, $infoxml);
+  for my $service (@{$serviceinfo->{'service'}}) {
+    print "Run for ".$service->{'name'}."\n";
+    my @run;
+    push @run, $BSConfig::servicedir."/".$service->{'name'};
+    push @run, "--outdir";
+    push @run, "tmp";
+    for my $param (@{$service->{'param'}}) {
+      push @run, "--".$param->{'name'};
+      push @run, $param->{'_content'};
+    };
+    BSUtil::cleandir("tmp");
+    qsystem(@run) && service_error( "service ".$service->{'name'}." ".join(' ',@run)." failed", $projid, $packid );
+    # copy files inside and add prefix
+    for my $file (grep {!/^[:\.]/} ls("tmp")) {
+      my $tfile = "_service:".$service->{'name'}.":".$file;
+      rename( "tmp/".$file, $tfile );
+      @oldfiles = grep(!/$tfile$/, @oldfiles);
+    }
+  };
+  BSUtil::cleandir("tmp");
+  rmdir("tmp");
+
+  # store sources back
+  for my $file (grep {/^_service\:/} ls(".")) {
+    my @s = stat($file);
+    BSRPC::rpc({
+      'uri'     => $BSConfig::srcserver."/source/".$projid."/".$packid."/".$file,
+      'timeout' => 60,
+      'request' => "PUT",
+      'headers' => [ "Content-Type: application/octet-stream",
+                     "Content-Length: ".$s[7] ],
+      'filename' => $file,
+      'data' => \&BSHTTP::file_sender
+    }, undef, "force", "rev=upload");
+  }
+  # remove disappeared files
+  for my $file (@oldfiles) {
+    BSRPC::rpc({
+      'uri'     => $BSConfig::srcserver."/source/".$projid."/".$packid."/".$file,
+      'timeout' => 60,
+      'request' => "DELETE",
+    }, undef, "force", "rev=upload");
+  }
+  # commit !
+  BSRPC::rpc({
+    'uri'     => $BSConfig::srcserver."/source/".$projid."/".$packid,
+    'timeout' => 60,
+    'request' => "POST",
+    'headers' => [ "Content-Length: 0" ],
+  }, undef, "noservice", "cmd=commit", "rev=upload", "user=_SERVICE_", "comment=Source service run");
+  
+  # clean up
+  BSUtil::cleandir($myworkdir);
+  rmdir($myworkdir);
+};
+
+sub hello {
+  my ($cgi) = @_;
+  return "<hello name=\"Source Service Server\" />\n";
+}
+
+# define server
+my $dispatches = [
+  '/' => \&hello,
+
+  '!rw :' => undef,
+  '!- GET:' => undef,
+  '!- HEAD:' => undef,
+
+  'POST:/sourceupdate/$project/$package' => \&run_source_update,
+];
+
+sub stdreply {
+  my @rep = @_;
+  return unless @rep && defined($rep[0]);
+  if (ref($rep[0]) eq 'HASH') {
+    $rep[1] = XMLout($rep[1], $rep[0]);
+    shift @rep;
+  }
+  push @rep, 'Content-Type: text/xml' if @rep == 1;
+  BSWatcher::reply(@rep);
+}
+
+sub errreply {
+  my ($err, $code, $tag) = @_;
+  my $opresult = {'code' => $code, 'summary' => $tag};
+  my $opresultxml;
+  eval {
+    $opresultxml = XMLout($BSXML::opstatus, $opresult);
+  };
+  $opresultxml ||= "<status code=\"500\"\n  <summary>internal error in errreply</summary>\n</status>\n";
+  BSWatcher::reply($opresultxml, "Status: $code $tag", 'Content-Type: text/xml');
+}
+
+sub authenticate {
+  my ($conf, $req, $auth) = @_;
+  return () unless $BSConfig::ipaccess;
+  my %auths;
+  my $peer = $BSServer::peer;
+  for (sort keys %$BSConfig::ipaccess) {
+    $auths{$BSConfig::ipaccess->{$_}} = 1 if $peer =~ /^$_$/s;
+  }
+  return () if grep {$auths{$_}} split(',', $auth);
+  die("500 access denied\n");
+}
+
+sub dispatch {
+  my ($conf, $req) = @_;
+  print "$req->{'action'} $req->{'path'}?$req->{'query'}\n";
+  BSServer::dispatch($conf, $req);
+}
+my $conf = {
+  'name' => "source service server",
+  'port' => $port,
+  'dispatches' => BSServer::compile_dispatches($dispatches, $BSVerify::verifyers),
+  'setkeepalive' => 1,
+#  'maxchild' => 20,
+  'dispatch' => \&dispatch,
+  'stdreply' => \&stdreply,
+  'errorreply' => \&errreply,
+  'authenticate' => \&authenticate,
+  'setkeepalive' => 1,
+};
+
+print "run server...\n";
+
+#$conf->{'dispatch'} = \&dispatch unless exists $conf->{'dispatch'};
+#    $conf->{'stdreply'} = \&stdreply unless exists $conf->{'stdreply'};
+#    $conf->{'errorreply'} = \&errreply unless exists $conf->{'errorreply'};
+#    $conf->{'authenticate'} = \&authenticate unless exists $conf->{'authenticate'};
+BSServer::deamonize(@ARGV);
+BSServer::serveropen($port);
+
+# intialize xml converter to speed things up
+XMLin(['startup' => '_content'], '<startup>x</startup>');
+
+BSServer::msg("source service started on port $port");
+my @forks;
+if ($conf->{'fork'}) {
+  for my $h (@{$conf->{'fork'}}) {
+    my $fpid = xfork();
+    if ($fpid == 0) {
+      $h->();
+      exit(0);
+    }
+    push @forks, $fpid;
+  }
+}
+while (1) {
+  BSServer::server($conf) && die("server returned\n");
+#  periodic($conf, \@forks);
+}
+# not reached
+

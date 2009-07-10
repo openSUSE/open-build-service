@@ -824,6 +824,15 @@ our $quota = [
      ]],
 ];
 
+our $services = [
+    'services' =>
+    [[ 'service' =>
+       'name',
+       [],
+       [[ 'param' => 'name', '_content' ]],
+    ]],
+];
+
 our $schedulerinfo = [
   'schedulerinfo' =>
 	'arch',

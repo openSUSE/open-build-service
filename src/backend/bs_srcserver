@@ -95,6 +95,20 @@ sub notify_repservers {
   }
 }
 
+sub sourceupdate{
+  my ($projid, $packid) = @_;
+  return if not defined $BSConfig::serviceserver;
+  die("No project defined for source update!") if not defined $projid;
+  die("No package defined for source update!") if not defined $packid;
+
+  BSRPC::rpc({
+    'uri'     => $BSConfig::serviceserver."/sourceupdate/".$projid."/".$packid,
+    'timeout' => 60,
+    'request' => "POST",
+    'headers' => [ "Content-Length: 0" ],
+  }, undef );
+}
+
 sub getrev {
   my ($projid, $packid, $rev) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
@@ -1122,6 +1136,10 @@ sub getprojpack {
 	$pinfo->{'srcmd5'} = $rev->{'srcmd5'};
 	$pinfo->{'rev'} = $rev->{'rev'};
 	my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+        if ($files->{'_service_error'}) {
+	  $pinfo->{'error'} = 'source service failed';
+ 	  next;
+        }
 	$files = handlelinks($projid, $pinfo, $files, $rev) if ref($files) && $files->{'_link'};
 	if (!ref $files) {
 	  $pinfo->{'error'} = defined($files) ? $files : "could not get file list";
@@ -1829,6 +1847,7 @@ sub putfile {
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   die("unknown project/package\n") unless $rev;
+  die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && not $cgi->{'force'};
   mkdir_p("$srcrep/:upload");
   my $uploaded = BSServer::read_file("$srcrep/:upload/$$", 'withmd5' => 1);
   die("upload failed\n") unless $uploaded;
@@ -1847,6 +1866,8 @@ sub putfile {
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
+# update happens only on commit atm, or we would modify on file upload time ...
+# sourceupdate($projid, $packid) if $files->{'_service'} && not ($rev eq 'upload');
   return ($rev, $BSXML::revision);
 }
 
@@ -2173,6 +2194,7 @@ sub sourcecommit {
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   $rev = addrev($projid, $packid, $files, $user, $comment);
+  sourceupdate($projid, $packid) if not $cgi->{'noservice'} && $files->{'_service'};
   return ($rev, $BSXML::revision);
 }
 
@@ -2315,6 +2337,7 @@ sub delfile {
   my ($cgi, $projid, $packid, $filename) = @_;
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
+  die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && not $cgi->{'force'};
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   die("unknown project/package\n") unless $rev;
   my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
@@ -3528,7 +3551,7 @@ my $dispatches = [
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
 
-  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? unified:bool?' => \&sourcecmd,
+  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? unified:bool? noservice:bool?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
   '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
   '/source/$project/$package:package_product/_history rev?' => \&getpackagehistory,
@@ -3536,11 +3559,8 @@ my $dispatches = [
   'PUT:/source/$project/$package/_meta' => \&putpackage,
   'DELETE:/source/$project/$package' => \&delpackage,
   '/source/$project/$package:package_pattern/$filename rev?' => \&getfile,
-  'PUT:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool?' => \&putfile,
-  'DELETE:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool?' => \&delfile,
-  '/source/$project/$package:package_product/$filename rev?' => \&getfile,
-  'PUT:/source/$project/$package:package_product/$filename rev? user:? comment:? keeplink:bool?' => \&putfile,
-  'DELETE:/source/$project/$package:package_product/$filename rev? user:? comment:? keeplink:bool?' => \&delfile,
+  'PUT:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
+  'DELETE:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
 
   # /published name spec: access published binaries
   '/published' => \&published,
