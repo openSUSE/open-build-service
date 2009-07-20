@@ -62,15 +62,16 @@ our $logdir = '/srv/obs/log';
 #};
 
 # optional: allow seperation of releasnumber syncing per architecture
-# one counter pool for all ppc architectures, one for i586/x86_64, one for arm and one for the rest in this example
+# one counter pool for all ppc architectures, one for i586/x86_64,
+# arm archs are seperated and one for the rest in this example
 our $relsync_pool = {
  "local" => "local",
  "i586" => "i586",
  "x86_64" => "i586",
  "ppc" => "ppc",
  "ppc64" => "ppc",
- "armv5el" => "arm",
- "armv7el" => "arm",
+ "armv5el" => "armv5el",
+ "armv7el" => "armv7el",
 };
 
 # This is for prefer a project in scheduler, if it has high or medium
