@@ -249,6 +249,7 @@ rm $RPM_BUILD_ROOT/srv/www/obs/frontend/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/frontend/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webclient/log
+touch $RPM_BUILD_ROOT/srv/www/obs/{webclient,frontend}/log/development.log
 # fix path
 for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
   sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
