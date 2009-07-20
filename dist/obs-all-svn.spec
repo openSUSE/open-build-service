@@ -462,8 +462,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/webclient/config
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log/development.log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log/development.log
+%verify(not size md5) %attr(0640,lighttpd,lighttpd) /srv/www/obs/frontend/log/development.log
+%verify(not size md5) %attr(0640,lighttpd,lighttpd) /srv/www/obs/webclient/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/tmp
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/tmp
 %config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
