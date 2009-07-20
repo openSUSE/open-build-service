@@ -459,9 +459,11 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/webclient/vendor
 %config(noreplace) /srv/www/obs/frontend/config
 %config(noreplace) /srv/www/obs/webclient/config
-%attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log/development.log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/tmp
-%attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/tmp
 %config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
 %config /etc/lighttpd/cleanurl-v5.lua
