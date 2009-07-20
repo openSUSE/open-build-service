@@ -172,6 +172,38 @@ class DbPackage < ActiveRecord::Base
         self.url = nil
       end
       #--- end update url ---#
+      
+      #--- update attributes ---#
+      logger.debug "--- updating attributes ---"
+
+      attribcache = Hash.new
+      self.attribs.find(:all, :include => :attrib_type).each do |attrib|
+        attribcache[attrib.cachekey] = attrib
+      end
+      
+      if package.has_element? :attributes
+        package.attributes.each_attribute do |attrib|
+          cachekey = "#{attrib.name}|#{attrib.package}"
+          if attribcache.has_key? cachekey
+            attribcache[cachekey].update_from_xml(attrib)
+            attribcache.delete cachekey
+          else
+            # check attribute type
+            atype = db_project.attrib_types.find_by_name(attrib.name)
+            raise RuntimeError, "unknown attribute type '#{attrib.name}'" if atype.blank?
+
+            self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
+          end
+        end
+      end
+
+      attribcache.each do |name, attrib|
+        logger.debug "removing attribute '#{name}'"
+        attrib.destroy
+      end
+
+      logger.debug "--- end updating attributes ---"
+      #--- end update attributes ---#
 
       # update timestamp and save
       self.update_timestamp
@@ -293,6 +325,15 @@ class DbPackage < ActiveRecord::Base
       package.url( url ) if url
       package.bcntsynctag( bcntsynctag ) if bcntsynctag
 
+      package.attributes do |a|
+        attribs.each do |attr|
+          a.attribute(:name => attr.attrib_type.name, :package => attr.subpackage) do |y|
+            attr.values.each do |val|
+              y.value(val.value)
+            end
+          end
+        end
+      end if attribs.length > 0
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 

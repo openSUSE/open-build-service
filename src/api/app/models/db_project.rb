@@ -23,6 +23,8 @@ class DbProject < ActiveRecord::Base
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
 
   has_one :meta_cache, :as => :cachable, :dependent => :delete
+
+  has_many :attrib_types, :dependent => :delete_all
   
   class << self
 
@@ -244,6 +246,40 @@ class DbProject < ActiveRecord::Base
         self.updated_at = Time.now
       end
       #--- end update repositories ---#
+      
+      #--- update attribute definitions ---#
+      logger.debug "--- updating attribute definitions ---"
+      
+      attribcache = Hash.new
+      self.attrib_types.each do |atype|
+        attribcache[atype.name] = atype
+      end
+
+      if project.has_element? :attributes
+        project.attributes.each_attribute do |attrib|
+          # not very nice... move to ActiveXML::Node class definition
+          class << attrib
+            undef_method :type
+          end
+
+          if attribcache.has_key? attrib.name
+            # attribute already known, update from xml and remove from attribcache 
+            attribcache[attrib.name].update_from_xml(attrib)
+            attribcache.delete attrib.name
+          else
+            self.attrib_types.create(:name => attrib.name, :type => attrib.type).update_from_xml(attrib)
+          end
+        end
+      end
+
+      # remaining entries in attribcache are not mentioned in the metadata, remove them
+      attribcache.each do |aname, attrib|
+        logger.debug "removing attribute definition '#{aname}'"
+        attrib.destroy
+      end
+      
+      logger.debug "--- finished updating attribute definitions ---"
+      #--- end update attribute definitions ---#
 
       #--- write through to backend ---#
 
@@ -404,6 +440,12 @@ class DbProject < ActiveRecord::Base
           end
         end
       end
+
+      project.attributes do |a|
+        attrib_types.each do |attrib_type|
+          attrib_type.render_axml(a)
+        end
+      end if attrib_types.length > 0
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 
