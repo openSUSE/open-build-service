@@ -8,15 +8,17 @@ class FixDevelpackagid < ActiveRecord::Migration
 
       list = Repository.find_by_sql sql
       result = []
+      result << "START TRANSACTION"
       result << "UPDATE db_packages SET develpackage_id=NULL"
       list.each do |l|
         if not l.develpackage_id.nil?
           result << "UPDATE db_packages SET develpackage_id=#{l.id} where id=#{l.develpackage_id}"
         end
       end
+      result << "COMMIT"
 
       result.each do |r|
-        self.connection.insert r
+        execute r
       end
   end
 
@@ -27,15 +29,17 @@ class FixDevelpackagid < ActiveRecord::Migration
 
       list = Repository.find_by_sql sql
       result = []
+      result << "START TRANSACTION"
       result << "UPDATE db_packages SET develpackage_id=NULL"
       list.each do |l|
         if not l.develpackage_id.nil?
           result << "UPDATE db_packages SET develpackage_id=#{l.id} where id=#{l.develpackage_id}"
         end
       end
+      result << "COMMIT"
 
       result.each do |r|
-        self.connection.insert r
+        execute r
       end
   end
 end
