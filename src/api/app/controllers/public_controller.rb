@@ -124,6 +124,12 @@ class PublicController < ApplicationController
     end
   end
 
+  # GET /public/distributions
+  def distributions
+    valid_http_methods :get
+    render :text => DistributionController.read_distfile, :content_type => "text/xml"
+  end
+
   private
 
   # removes /private prefix from path

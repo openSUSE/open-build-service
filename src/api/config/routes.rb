@@ -248,6 +248,11 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/active_rbac/registration/confirm/:user/:token',
     :controller => 'active_rbac/registration', :action => 'confirm'
 
+
+  ### /distributions
+
+  map.connect '/distributions', :controller => "distribution"
+
   ### /public
     
   map.connect '/public/build/:prj/:repo/:arch/:pkg',
@@ -266,6 +271,8 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'public', :action => 'lastevents'
   map.connect '/public/person/:login/_watchlist', 
     :controller => 'public', :action => 'watchlist'
+  map.connect '/public/distributions',
+    :controller => 'public', :action => 'distributions'
 
 
   ### DEPRECATED
