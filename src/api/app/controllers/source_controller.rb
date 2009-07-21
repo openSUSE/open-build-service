@@ -701,7 +701,7 @@ class SourceController < ApplicationController
       if processed[prj_name+"/"+pkg_name]
         str = prj_name+"/"+pkg_name
         processed.keys.each do |key|
-          str = str + key + " -- "
+          str = str + " -- " + key
         end
         render_error :status => 404, :errorcode => 'devel_package_cycle',
           :message => "There is a cycle in devel definition at #{str}"
