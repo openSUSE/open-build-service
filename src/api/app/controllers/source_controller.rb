@@ -699,8 +699,12 @@ class SourceController < ApplicationController
     while ( pkg.develproject or pkg.develpackage ) and not params[:ignoredevel] 
       # cycle detection
       if processed[prj_name+"/"+pkg_name]
+        str = prj_name+"/"+pkg_name
+        processed.keys.each do |key|
+          str = str + key + " -- "
+        end
         render_error :status => 404, :errorcode => 'devel_package_cycle',
-          :message => "There is a cycle in devel definition at project #{prj_name} and package #{pkg_name}"
+          :message => "There is a cycle in devel definition at #{str}"
         return
       end
       processed[prj_name+"/"+pkg_name] = 1
