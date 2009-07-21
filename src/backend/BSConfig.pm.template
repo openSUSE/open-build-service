@@ -96,6 +96,12 @@ our $relsync_pool = {
 #No package signing server
 #our $sign = '/usr/bin/sign';
 
+# Build some package only on specific hosts, or do not build on them
+# our %specialbuildhost = (
+# "openSUSE:Factory/glibc" => { good => [ "build20", "build21" ] },
+# "openSUSE:Factory/cmake" => { bad => [ "build10", "build11" ] },
+#);
+
 # host specific configs
 my $hostconfig = "bsconfig." . Net::Domain::hostname();
 if(-r $hostconfig) {

@@ -303,11 +303,25 @@ while (1) {
       last if $assigned && $tries >= 5;
       my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
       last unless @idle;
-      if (%badhost || $BSConfig::specialdispatch) {
+      if (%badhost || $BSConfig::specialdispatch || %BSConfig::specialbuildhost) {
 	my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
 	next unless $info;
 	next if $BSConfig::specialdispatch && $BSConfig::specialdispatch->{"$info->{'project'}/$info->{'repository'}/$arch"};
 	@idle = grep {!$badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $_, 2))[1]]}"}} @idle;
+        if ( defined $BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'good'} ) {
+           # positive list given for this package
+           my @newidle;
+           for my $i (@{$BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'good'}}) {
+             push @newidle, grep {/$i/} @idle;
+           }
+           @idle = @newidle;
+        }
+        if ( defined $BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'bad'} ) {
+           # positive list given for this package
+           for my $i (@{$BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'bad'}}) {
+             @idle = grep {!/^$i$/} @idle;
+           }
+        }
       }
       for my $idle (@idle) {
 	next unless -e "$jobsdir/$arch/$job";
