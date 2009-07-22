@@ -1,7 +1,7 @@
 <% if @api_exception -%>
-<h1>OpenSUSE Frontend Error:</h1>
+<h1>openSUSE Frontend Error:</h1>
 <% else -%>
-<h1>OpenSUSE Webclient Error:</h1>
+<h1>openSUSE Webclient Error:</h1>
 <% end -%>
 
 <p>
@@ -9,16 +9,16 @@
 <% when "401" -%>
 <h2>Unauthorized Access</h2>
 You need to log in to perform the operation.<br />
-Please contact the OpenSUSE admin to get an account.
+Please contact the openSUSE admin to get an account.
 <% when "403" -%>
 <h2>Permission denied</h2>
 The account that is logged into the system lacks proper permissions to perform
 the operation.<br />
-Please contact the OpenSUSE admin to get proper permissions for the user account.
+Please contact the openSUSE admin to get proper permissions for the user account.
 <% when "404" -%>
 <h2>Target not found</h2>
 A non existing page was requested. Please try again!<br />
-Please contact the OpenSUSE admin to get proper permissions for the user account.
+Please contact the openSUSE admin to get proper permissions for the user account.
 <% end -%>
 
 <p>
