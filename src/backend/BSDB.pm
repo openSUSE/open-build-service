@@ -163,6 +163,9 @@ sub selectpath {
 
 sub values {
   my ($db, $path, $lkeys) = @_;
+  if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
+    return $db->{'indexfunc'}->{$path}->($db, $path);
+  }
   if (($db->{'noindex'} && $db->{'noindex'}->{$path}) || ($lkeys && $db->{'cheapfetch'})) {
     $lkeys = [ $db->keys() ] unless $lkeys;
     my @v;
@@ -183,6 +186,9 @@ sub keys {
       return map {BSDBIndex::getvalues($db, "$db->{'index'}$db->{'allkeyspath'}", $_)} BSDBIndex::getkeys($db, "$db->{'index'}$db->{'allkeyspath'}");
     }
     return BSDBIndex::getkeys($db, $db->{'table'});
+  }
+  if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
+    return $db->{'indexfunc'}->{$path}->($db, $path, $value);
   }
   if ($db->{'noindex'} && $db->{'noindex'}->{$path}) {
     $lkeys = [ $db->keys() ] unless $lkeys;

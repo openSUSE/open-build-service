@@ -2921,11 +2921,32 @@ sub pattern_key_to_data {
   return $res;
 }
 
+sub published_projectindexfunc {
+  my ($db, $path, $value) = @_;
+  return findprojects() unless defined $value;
+  my $proj = readproj($value);
+  return () unless $proj;
+  my @repoids = map {$_->{'name'}} @{$proj->{'repository'} || []};
+  my %bins;
+  for my $repoid (@repoids) {
+    my $prp = "$value/$repoid";
+    my $prp_ext = $prp;
+    $prp_ext =~ s/:/:\//g;
+    my $repoinfo = $prp_to_repoinfo{$prp} || prp_to_repoinfo($prp);
+    for (keys %{$repoinfo->{'binaryorigins'} || {}}) {
+      next unless /\//;
+      $bins{"$prp_ext/$_"} = 1;
+    }
+  }
+  return sort keys %bins;
+}
+
 sub search_published_binary_id {
   my ($cgi, $match) = @_;
   my $binarydb = BSDB::opendb($extrepodb, 'binary');
   $binarydb->{'allkeyspath'} = 'name';
   $binarydb->{'noindex'} = {'version' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1};
+  $binarydb->{'indexfunc'} = {'project' => \&published_projectindexfunc };
   $binarydb->{'fetch'} = \&binary_key_to_data;
   $binarydb->{'cheapfetch'} = 1;
   my $rootnode = BSXPathKeys::node($binarydb, '');
