@@ -2102,6 +2102,7 @@ sub keeplink {
     }
   }
   my $lchanged;
+  $lchanged = 1 if $changedlink;
   for (@dfiles) {
     push @{$l->{'patches'}->{''}}, {'delete' => {'name' => $_}};
     $lchanged = 1;
