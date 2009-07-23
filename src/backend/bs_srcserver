@@ -1461,6 +1461,7 @@ sub getpackagehistory {
   my @res;
   for (BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay)) {
     next if $cgi->{'rev'} && $cgi->{'rev'} ne $_->{'rev'} && $cgi->{'rev'} ne $_->{'srcmd5'};
+    $_->{'comment'} = str2utf8($_->{'comment'}) if $_->{'comment'};
     push @res, $_;
   }
   return ({'revision' => \@res}, $BSXML::revisionlist);
