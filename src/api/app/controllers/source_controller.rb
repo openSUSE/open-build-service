@@ -132,9 +132,9 @@ class SourceController < ApplicationController
       #deny deleting if other packages use this as develpackage
       # Shall we offer a --force option here as well ?
       # Shall we ask the other package owner accepting to be a devel package ?
-      if pkg.develpackage and not pkg.develpackage.blank?
-        msg = "Unable to delete package #{pkg.name}; following package use this package as devel package: "
-        msg += pkg.develpackage.db_project.name+"/"+pkg.develpackage.name
+      unless pkg.develpackages.empty?
+        msg = "Unable to delete package #{pkg.name}; following packages use this package as devel package: "
+        msg += pkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
         render_error :status => 400, :errorcode => 'develpackage_dependency',
           :message => msg
         return

@@ -21,7 +21,9 @@ class DbPackage < ActiveRecord::Base
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
 
   has_one :meta_cache, :as => :cachable, :dependent => :delete
+
   belongs_to :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
+  has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
 
   has_many :attribs, :dependent => :destroy
 
