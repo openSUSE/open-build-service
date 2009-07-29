@@ -694,38 +694,9 @@ class SourceController < ApplicationController
       return
     end
 
-    # reroute if devel project is set
-    processed = {}
-    while ( pkg.develproject or pkg.develpackage ) and not params[:ignoredevel] 
-      # cycle detection
-      if processed[prj_name+"/"+pkg_name]
-        str = prj_name+"/"+pkg_name
-        processed.keys.each do |key|
-          str = str + " -- " + key
-        end
-        render_error :status => 404, :errorcode => 'devel_package_cycle',
-          :message => "There is a cycle in devel definition at #{str}"
-        return
-      end
-      processed[prj_name+"/"+pkg_name] = 1
-      # get project and package name
-      if pkg.develpackage
-        pkg_name = pkg.develpackage.name
-        prj_name = pkg.develpackage.db_project.name
-        prj = DbProject.find_by_name prj_name
-      elsif pkg.develproject
-        # Supporting the obsolete, but not yet migrated devel project table
-        prj = pkg.develproject
-        prj_name = prj.name
-      end
-      # get devel package object
-      pkg = prj.db_packages.find_by_name(pkg_name)
-
-      if pkg.nil?
-        render_error :status => 404, :errorcode => 'unknown_package',
-          :message => "Unknown package #{pkg_name} in project #{prj_name}"
-        return
-      end
+    # validate and resolve devel package or devel project definitions
+    if not params[:ignoredevel]
+      pkg = pkg.resolve_devel_package
     end
 
     # link against srcmd5 instead of plain revision

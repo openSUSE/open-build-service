@@ -72,6 +72,47 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
+  def resolve_devel_package
+    pkg = self
+    pkg_name = pkg.name
+    prj_name = pkg.db_project.name
+    processed = {}
+    if pkg = pkg.develpackage
+      raise RuntimeError, "Package defines itself as devel package"
+      return nil
+    end
+    while ( pkg.develproject or pkg.develpackage )
+      # cycle detection
+      if processed[prj_name+"/"+pkg_name]
+        str = prj_name+"/"+pkg_name
+        processed.keys.each do |key|
+          str = str + " -- " + key
+        end
+        raise RuntimeError, "There is a cycle in devel definition at #{str}"
+        return nil
+      end
+      processed[prj_name+"/"+pkg_name] = 1
+      # get project and package name
+      if pkg.develpackage
+        pkg_name = pkg.develpackage.name
+        prj_name = pkg.develpackage.db_project.name
+        prj = DbProject.find_by_name prj_name
+      elsif pkg.develproject
+        # Supporting the obsolete, but not yet migrated devel project table
+        prj = pkg.develproject
+        prj_name = prj.name
+      end
+      # get devel package object
+      pkg = prj.db_packages.find_by_name(pkg_name)
+
+      if pkg.nil?
+        raise RuntimeError, "There is a cycle in devel definition at #{str}"
+        return nil
+      end
+    end
+    return pkg
+  end
+
   def store_axml( package )
     DbPackage.transaction do
       self.title = package.title.to_s
@@ -98,6 +139,9 @@ class DbPackage < ActiveRecord::Base
           raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
         end
         self.develpackage = develpkg
+
+        # just for cycle detection
+        self.resolve_devel_package
       end
       #--- end devel project ---#
 
