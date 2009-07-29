@@ -269,6 +269,12 @@ class RequestController < ApplicationController
           cp_params[:orev] = src.rev if src.has_attribute? :rev
 
           #create package unless it exists already
+          target_project = DbProject.find_by_name(action.target.project)
+          if action.target.has_attribute? :package
+            target_package = target_project.db_packages.find_by_name(action.target.package)
+          else
+            target_package = target_project.db_packages.find_by_name(action.source.package)
+          end
           unless target_package
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
@@ -277,7 +283,6 @@ class RequestController < ApplicationController
             target_package.remove_all_persons
             target_package.remove_all_flags
             target_package.remove_devel_project
-            target_package.add_person :userid => params[:user]
             target_package.save
           end
 
