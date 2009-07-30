@@ -77,7 +77,7 @@ class DbPackage < ActiveRecord::Base
     pkg_name = pkg.name
     prj_name = pkg.db_project.name
     processed = {}
-    if pkg = pkg.develpackage
+    if pkg == pkg.develpackage
       raise RuntimeError, "Package defines itself as devel package"
       return nil
     end
