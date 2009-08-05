@@ -129,12 +129,12 @@ sub sourceupdate{
     my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
     # drop all existing service files
     for my $pfile (keys %$files) {
-      delete $files->{$pfile} if $pfile =~ /^_service:/;
+      delete $files->{$pfile} if $pfile =~ /^_service[_:]/;
     }
     # add new service files
 #    for my $pfile (map {$_->{'name'} => 1} @$receive) {
     for my $pfile (ls($odir)) {
-      die("ERROR: bs_service returned a non-_service file") unless $pfile =~ /^_service:/;
+      die("ERROR: bs_service returned a non-_service file") unless $pfile =~ /^_service[_:]/;
       $files->{$pfile} = putinsrcrep($projid, $packid, "$odir/$pfile", $pfile);
     }
     addrev( $projid, $packid, $files, "_service", "generated via source service", undef );

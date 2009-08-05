@@ -221,19 +221,6 @@ sub qsystem {
   }
 }
 
-sub service_error {
-  my ($message, $projid, $packid) = @_;
-  # mark package as broken and upload error file
-  BSRPC::rpc({
-    'uri'     => $BSConfig::srcserver."/source/".$projid."/".$packid."/_service_error",
-    'timeout' => 10,
-    'request' => "PUT",
-    'data' => $message,
-  }, undef, "force");
-
-  die("Service update failed with error >".$message."<\n");
-}
-
 sub run_source_update {
   my ($cgi, $projid, $packid) = @_;
 
@@ -241,7 +228,7 @@ sub run_source_update {
   BSUtil::cleandir($myworkdir);
   mkdir_p($myworkdir);
   die("$myworkdir not writable for me") unless -w $myworkdir;
-  chdir($myworkdir) || service_error("$myworkdir: $!\n", $projid, $packid);
+  chdir($myworkdir) || die("$myworkdir: $!\n");
 
   # unpack source data
   my $uploaded = BSServer::read_cpio($myworkdir);
@@ -271,19 +258,30 @@ sub run_source_update {
       push @run, $param->{'_content'};
     };
     BSUtil::cleandir($myworkdir."/.tmp");
-    qsystem(@run) && service_error( "service ".$service->{'name'}." ".join(' ',@run)." failed", $projid, $packid );
-    # copy files inside and add prefix
-    for my $file (grep {!/^[:\.]/} ls($myworkdir."/.tmp")) {
-      my $tfile = "_service:".$service->{'name'}.":".$file;
-      rename( $myworkdir."/.tmp/".$file, $tfile );
-      @oldfiles = grep(!/$tfile$/, @oldfiles);
+    if (qsystem(@run)) {
+      BSUtil::cleandir(".");
+     
+      # Create error file
+      local *F;
+      if (open(F, '>>', "_service_error")) {
+         print F "service ".$service->{'name'}." ".join(' ',@run)." failed\n";
+         close F;
+      }
+      last;
+    } else { 
+      # copy files inside and add prefix
+      for my $file (grep {!/^[:\.]/} ls($myworkdir."/.tmp")) {
+        my $tfile = "_service:".$service->{'name'}.":".$file;
+        rename( $myworkdir."/.tmp/".$file, $tfile );
+        @oldfiles = grep(!/$tfile$/, @oldfiles);
+      }
     }
   };
   BSUtil::cleandir($myworkdir."/.tmp");
   rmdir($myworkdir."/.tmp");
 
   # return modified sources
-  my @send = map {{'name' => $_, 'filename' => "$_"}} grep {/^_service\:/} ls(".");
+  my @send = map {{'name' => $_, 'filename' => "$_"}} grep {/^_service[_:]/} ls(".");
   BSServer::reply_cpio(\@send);
   
   # clean up
