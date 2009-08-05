@@ -238,7 +238,7 @@ sub clone_repository {
   closedir DIR;
   for my $a ( @archs ) {
     print $a.", ";
-    write_event( $destproject, $destrepo, $a, 'recheck' );
+    write_event( $destproject, $destrepo, $a, 'project' );
   }
 
   print "\nremoving old tree in $tmpdir.old\n";
