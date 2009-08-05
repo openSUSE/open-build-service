@@ -57,7 +57,8 @@ main.fqdn:6262 where main.fqdn is output of hostname -f or IP on *main* machine.
 ===================
 
 You need to install the "obs-api" package for this and a MySQL server
-on this or a remote host.
+on this or a remote host. When using SLE11, the needed packages are only
+available after adding the SDK to the available installation repositories.
 
 3.1 Setup and configure the MySQL database
 ==========================================
@@ -70,9 +71,25 @@ on this or a remote host.
      # rcmysql start    # use "insserv mysql" for permanent start
 
   If you do this for the first time, MySQL will initialize itself and
-  ask to create a root password in the database, like this:
+  ask to create a root password in the database.
 
-      # /usr/bin/mysqladmin -u root password 'your-password'
+  After starting mysql for the first time, run the program
+
+     # mysql_secure_installation
+
+  If you want to give the 'root' user the rights to always access your mysql
+  database, create a file '/root/.my.cnf' with the following content:
+  
+[client]
+user = root
+password = foobar
+[mysqladmin]
+user= root
+password = foobar
+
+  Make sure that this file has the correct permissions with the command:
+
+     # chmod 0600 /root/.my.cnf
 
 * Create the empty production databases:
 
@@ -105,6 +122,7 @@ on this or a remote host.
 * populate the database
 
       # cd /srv/www/obs/frontend/
+      # su lighttpd
       # RAILS_ENV="production_slave" rake db:migrate
 
 3.2 Setup and configure the frontend and webclient
@@ -171,7 +189,17 @@ need to configure also
 /srv/www/obs/webclient/config/environments/production_slave.rb (2 entries).
 
 
-3.2.2 Restart lighttpd
+3.2.2 Change /srv/www/obs/frontend/config/environments/production_slave.rb
+===========================================================================
+
+If your backend is not on the same machine as the frontend, change the
+SOURCE_HOST on the frontend machine in the file:
+/srv/www/obs/frontend/config/environments/production_slave.rb
+
+In this case, also make sure that the TCP port 6362 is open on the firewall
+of the backend machine.
+
+3.2.3 Restart lighttpd
 ======================
 
 Afterwards you can start the OBS web frontends via 
@@ -235,6 +263,16 @@ The web interface is accessible via
 
 The default user is "Admin" with the password "opensuse".
 
+5.1 Changing the default URLs
+=============================
+
+To change the default URLs of the frontend, configure the lighttpd vhosts
+accordingly. Edit '/etc/lighttpd/vhosts.d/obs.conf' and add the new virtual
+hostnames.
+
+Then change the FRONTEND_HOST variable in 
+/srv/www/obs/webclient/config/environments/production_slave.rb
+to also point to the new frontend URL.
 
 6. Using osc with your local build service:
 ===========================================
@@ -348,3 +386,4 @@ at boot.
 
 Please send feedback about this file or the packages to
 opensuse-buildservice@suse.de
+
