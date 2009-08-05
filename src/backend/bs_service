@@ -205,26 +205,6 @@ sub rm_rf {
   rmdir($dir);
 }
 
-sub getsources {
-  my ($projid, $packid, $dir) = @_;
-
-  # get current md5sum
-  my $projpack = BSRPC::rpc("$BSConfig::srcserver/source/$projid/$packid", $BSXML::dir);
-  
-  my $res = BSRPC::rpc({
-    uri => "$srcserver/getsources",
-    directory => $dir,
-    timeout => $gettimeout,
-    withmd5 => 1,
-    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-  }, undef, "project=$projid", "package=$packid", "srcmd5=".$projpack->{srcmd5});
-  die("Error\n") unless ref($res) eq 'ARRAY';
-  if (-e "$dir/.errors") {
-    my $errors = readstr("$dir/.errors", 1);
-    die("getsources: $errors");
-  }
-}
-
 sub qsystem {
   my (@args) = @_;
   if ($silent) {
@@ -263,8 +243,9 @@ sub run_source_update {
   die("$myworkdir not writable for me") unless -w $myworkdir;
   chdir($myworkdir) || service_error("$myworkdir: $!\n", $projid, $packid);
 
-  # read source data
-  getsources( $projid, $packid, $myworkdir );
+  # unpack source data
+  my $uploaded = BSServer::read_cpio($myworkdir);
+
   die("no _service file !") unless -e "_service";
 
   # remove all files from former service run
@@ -276,7 +257,7 @@ sub run_source_update {
   }
 
   # run all services
-  mkdir_p("tmp");
+  mkdir_p($myworkdir."/.tmp");
   my $infoxml = readstr('_service');
   my $serviceinfo = XMLin($BSXML::services, $infoxml);
   for my $service (@{$serviceinfo->{'service'}}) {
@@ -284,51 +265,26 @@ sub run_source_update {
     my @run;
     push @run, $BSConfig::servicedir."/".$service->{'name'};
     push @run, "--outdir";
-    push @run, "tmp";
+    push @run, $myworkdir."/.tmp";
     for my $param (@{$service->{'param'}}) {
       push @run, "--".$param->{'name'};
       push @run, $param->{'_content'};
     };
-    BSUtil::cleandir("tmp");
+    BSUtil::cleandir($myworkdir."/.tmp");
     qsystem(@run) && service_error( "service ".$service->{'name'}." ".join(' ',@run)." failed", $projid, $packid );
     # copy files inside and add prefix
-    for my $file (grep {!/^[:\.]/} ls("tmp")) {
+    for my $file (grep {!/^[:\.]/} ls($myworkdir."/.tmp")) {
       my $tfile = "_service:".$service->{'name'}.":".$file;
-      rename( "tmp/".$file, $tfile );
+      rename( $myworkdir."/.tmp/".$file, $tfile );
       @oldfiles = grep(!/$tfile$/, @oldfiles);
     }
   };
-  BSUtil::cleandir("tmp");
-  rmdir("tmp");
+  BSUtil::cleandir($myworkdir."/.tmp");
+  rmdir($myworkdir."/.tmp");
 
-  # store sources back
-  for my $file (grep {/^_service\:/} ls(".")) {
-    my @s = stat($file);
-    BSRPC::rpc({
-      'uri'     => $BSConfig::srcserver."/source/".$projid."/".$packid."/".$file,
-      'timeout' => 60,
-      'request' => "PUT",
-      'headers' => [ "Content-Type: application/octet-stream",
-                     "Content-Length: ".$s[7] ],
-      'filename' => $file,
-      'data' => \&BSHTTP::file_sender
-    }, undef, "force", "rev=upload");
-  }
-  # remove disappeared files
-  for my $file (@oldfiles) {
-    BSRPC::rpc({
-      'uri'     => $BSConfig::srcserver."/source/".$projid."/".$packid."/".$file,
-      'timeout' => 60,
-      'request' => "DELETE",
-    }, undef, "force", "rev=upload");
-  }
-  # commit !
-  BSRPC::rpc({
-    'uri'     => $BSConfig::srcserver."/source/".$projid."/".$packid,
-    'timeout' => 60,
-    'request' => "POST",
-    'headers' => [ "Content-Length: 0" ],
-  }, undef, "noservice", "cmd=commit", "rev=upload", "user=_SERVICE_", "comment=Source service run");
+  # return modified sources
+  my @send = map {{'name' => $_, 'filename' => "$_"}} grep {/^_service\:/} ls(".");
+  BSServer::reply_cpio(\@send);
   
   # clean up
   BSUtil::cleandir($myworkdir);

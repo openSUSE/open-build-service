@@ -100,13 +100,59 @@ sub sourceupdate{
   return if not defined $BSConfig::serviceserver;
   die("No project defined for source update!") if not defined $projid;
   die("No package defined for source update!") if not defined $packid;
+  # collect current sources to POST them
+  my $rev = getrev($projid, $packid);
 
-  BSRPC::rpc({
-    'uri'     => $BSConfig::serviceserver."/sourceupdate/".$projid."/".$packid,
-    'timeout' => 60,
-    'request' => "POST",
-    'headers' => [ "Content-Length: 0" ],
+  my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+  delete $files->{'/LINK'};
+  delete $files->{'/LOCAL'};
+  my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} keys %$files;
+  # Run the source update
+  my $odir = "$srcrep/:service/$$";
+  system('rm', '-rf', $odir) if -d $odir;
+  mkdir_p($odir);
+  my $receive = BSRPC::rpc({
+    'uri'       => $BSConfig::serviceserver."/sourceupdate/".$projid."/".$packid,
+    'request'   => "POST",
+    'headers'   => [ 'Content-Type: application/x-cpio' ],
+    'chunked'   => 1,
+    'data'      => \&BSHTTP::cpio_sender,
+    'cpiofiles' => \@send,
+    'directory' => $odir,
+    'timeout'   => 60,
+    'withmd5'   => 1,
+    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
   }, undef );
+
+  # and update source repository with the result
+  if ( $receive ) {
+    my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+    # drop all existing service files
+    for my $pfile (keys %$files) {
+      delete $files->{$pfile} if $pfile =~ /^_service:/;
+    }
+    # add new service files
+#    for my $pfile (map {$_->{'name'} => 1} @$receive) {
+    for my $pfile (ls($odir)) {
+      die("ERROR: bs_service returned a non-_service file") unless $pfile =~ /^_service:/;
+      $files->{$pfile} = putinsrcrep($projid, $packid, "$odir/$pfile", $pfile);
+    }
+    my $srcmd5 = addmeta($projid, $packid, $files);
+    my @oldrevs = BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
+    if (@oldrevs == 1 && $oldrevs[0]->{'srcmd5'} eq $srcmd5 && $oldrevs[0]->{'rev'}) {
+      # we're lucky, no change
+      next;
+    }
+    mkdir_p("$projectsdir/$projid.pkg");
+    my $prev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => "_service", 'comment' => 'generated via source service', 'version' => '1', 'vrev' => '1'};
+    unlink("$projectsdir/$projid.pkg/$packid.rev");
+    BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $prev);
+    rmdir($odir);
+    notify_repservers('package', $projid, $packid);
+  }else{
+    rmdir($odir);
+    die("ERROR: empty source result from service, not even a _service_error");
+  }
 }
 
 sub getrev {
