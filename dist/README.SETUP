@@ -122,8 +122,7 @@ password = foobar
 * populate the database
 
       # cd /srv/www/obs/frontend/
-      # su lighttpd
-      # RAILS_ENV="production_slave" rake db:migrate
+      # sudo -u lighttpd RAILS_ENV="production_slave" rake db:migrate
 
 3.2 Setup and configure the frontend and webclient
 ==================================================
