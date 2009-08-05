@@ -137,16 +137,7 @@ sub sourceupdate{
       die("ERROR: bs_service returned a non-_service file") unless $pfile =~ /^_service:/;
       $files->{$pfile} = putinsrcrep($projid, $packid, "$odir/$pfile", $pfile);
     }
-    my $srcmd5 = addmeta($projid, $packid, $files);
-    my @oldrevs = BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
-    if (@oldrevs == 1 && $oldrevs[0]->{'srcmd5'} eq $srcmd5 && $oldrevs[0]->{'rev'}) {
-      # we're lucky, no change
-      next;
-    }
-    mkdir_p("$projectsdir/$projid.pkg");
-    my $prev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => "_service", 'comment' => 'generated via source service', 'version' => '1', 'vrev' => '1'};
-    unlink("$projectsdir/$projid.pkg/$packid.rev");
-    BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $prev);
+    addrev( $projid, $packid, $files, "_service", "generated via source service", undef );
     rmdir($odir);
     notify_repservers('package', $projid, $packid);
   }else{
