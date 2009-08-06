@@ -107,42 +107,45 @@ sub sourceupdate{
   delete $files->{'/LINK'};
   delete $files->{'/LOCAL'};
   my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} keys %$files;
-  # Run the source update
-  my $odir = "$srcrep/:service/$$";
-  system('rm', '-rf', $odir) if -d $odir;
-  mkdir_p($odir);
-  my $receive = BSRPC::rpc({
-    'uri'       => $BSConfig::serviceserver."/sourceupdate/".$projid."/".$packid,
-    'request'   => "POST",
-    'headers'   => [ 'Content-Type: application/x-cpio' ],
-    'chunked'   => 1,
-    'data'      => \&BSHTTP::cpio_sender,
-    'cpiofiles' => \@send,
-    'directory' => $odir,
-    'timeout'   => 60,
-    'withmd5'   => 1,
-    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-  }, undef );
+  # Run the source update in own process (do not wait for it)
+  my $pid;
+  if (!($pid = xfork())) {
+    my $odir = "$srcrep/:service/$$";
+    system('rm', '-rf', $odir) if -d $odir;
+    mkdir_p($odir);
+    my $receive = BSRPC::rpc({
+      'uri'       => $BSConfig::serviceserver."/sourceupdate/".$projid."/".$packid,
+      'request'   => "POST",
+      'headers'   => [ 'Content-Type: application/x-cpio' ],
+      'chunked'   => 1,
+      'data'      => \&BSHTTP::cpio_sender,
+      'cpiofiles' => \@send,
+      'directory' => $odir,
+      'timeout'   => 60,
+      'withmd5'   => 1,
+      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    }, undef );
 
-  # and update source repository with the result
-  if ( $receive ) {
-    my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
-    # drop all existing service files
-    for my $pfile (keys %$files) {
-      delete $files->{$pfile} if $pfile =~ /^_service[_:]/;
+    # and update source repository with the result
+    if ( $receive ) {
+      my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+      # drop all existing service files
+      for my $pfile (keys %$files) {
+        delete $files->{$pfile} if $pfile =~ /^_service[_:]/;
+      }
+      # add new service files
+#      for my $pfile (map {$_->{'name'} => 1} @$receive) {
+      for my $pfile (ls($odir)) {
+        die("ERROR: bs_service returned a non-_service file") unless $pfile =~ /^_service[_:]/;
+        $files->{$pfile} = putinsrcrep($projid, $packid, "$odir/$pfile", $pfile);
+      }
+      addrev( $projid, $packid, $files, "_service", "generated via source service", undef );
+      rmdir($odir);
+      notify_repservers('package', $projid, $packid);
+    }else{
+      rmdir($odir);
+      die("ERROR: empty source result from service, not even a _service_error");
     }
-    # add new service files
-#    for my $pfile (map {$_->{'name'} => 1} @$receive) {
-    for my $pfile (ls($odir)) {
-      die("ERROR: bs_service returned a non-_service file") unless $pfile =~ /^_service[_:]/;
-      $files->{$pfile} = putinsrcrep($projid, $packid, "$odir/$pfile", $pfile);
-    }
-    addrev( $projid, $packid, $files, "_service", "generated via source service", undef );
-    rmdir($odir);
-    notify_repservers('package', $projid, $packid);
-  }else{
-    rmdir($odir);
-    die("ERROR: empty source result from service, not even a _service_error");
   }
 }
 
