@@ -1375,7 +1375,7 @@ sub getbuildinfo {
       my @bn = split('/', $b);
       next unless $bn[-1] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
       my $d = {'name' => $1, 'version' => $2, 'release' => $3, 'arch' => $4, 'project' => $bn[0], 'repository' => $bn[1], 'package' => $bn[3]};
-      $d->{'repoarch'} = $bn[2] if $bn[2] ne $arch;
+      $d->{'repoarch'} = $bn[2] if $bn[2] ne $d->{'arch'};
       $d->{'noinstall'} = 1 if $4 eq 'src' || $4 eq 'nosrc';
       $d->{'noinstall'} = 1 unless $kdeps{$1};
       if (!$d->{'noinstall'}) {
@@ -1389,7 +1389,7 @@ sub getbuildinfo {
     }
     if ($info->{'extrasource'}) {
       push @bdeps, map {{
-        'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'},
+        'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'}, 'arch' => 'src',
         'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
       }} @{$info->{'extrasource'}};
     }
@@ -1425,9 +1425,10 @@ sub getbuildinfo {
   }
 
   # add extra source (needed for kiwi)
+  # ADRIAN: is it not enough to do this for product only above ?
   if ($info->{'extrasource'}) {
     push @bdeps, map {{
-      'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'},
+      'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'}, 'arch' => 'src',
       'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
     }} @{$info->{'extrasource'}};
   }
