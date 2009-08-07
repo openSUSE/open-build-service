@@ -96,7 +96,7 @@ sub notify_repservers {
 }
 
 sub sourceupdate{
-  my ($projid, $packid) = @_;
+  my ($projid, $packid, $lockfile) = @_;
   return if not defined $BSConfig::serviceserver;
   die("No project defined for source update!") if not defined $projid;
   die("No package defined for source update!") if not defined $packid;
@@ -141,9 +141,11 @@ sub sourceupdate{
       }
       addrev( $projid, $packid, $files, "_service", "generated via source service", undef );
       rmdir($odir);
+      unlink($lockfile);
       notify_repservers('package', $projid, $packid);
     }else{
       rmdir($odir);
+      unlink($lockfile);
       die("ERROR: empty source result from service, not even a _service_error");
     }
   }
@@ -2237,8 +2239,15 @@ sub sourcecommit {
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  $rev = addrev($projid, $packid, $files, $user, $comment);
-  sourceupdate($projid, $packid) unless $cgi->{'noservice'} || not $files->{'_service'};
+  if ( $files->{'_service'} and not $cgi->{'noservice'} ) {
+    my $sslockfile = $eventdir."/service/".$projid."::".$packid;
+    mkdir_p($eventdir."/service");
+    BSUtil::touch($sslockfile);
+    $rev = addrev($projid, $packid, $files, $user, $comment);
+    sourceupdate($projid, $packid, $sslockfile);
+  }else{
+    $rev = addrev($projid, $packid, $files, $user, $comment);
+  }
   return ($rev, $BSXML::revision);
 }
 

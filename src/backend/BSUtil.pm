@@ -83,6 +83,18 @@ sub readxml {
   return $@ ? undef : $d;
 }
 
+sub touch($) {
+  my ($file) = @_;
+  if ( -e $file ) {
+    utime(time, time, $file); 
+  }else{
+    # create new file, mtime is anyway current
+    local *F;
+    open(F, '>', $file) || die("$file: $!\n");
+    close(F) || die("$file close: $!\n");
+  }
+}
+
 sub ls {
   local *D;
   opendir(D, $_[0]) || return ();
