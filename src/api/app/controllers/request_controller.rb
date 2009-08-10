@@ -190,7 +190,6 @@ class RequestController < ApplicationController
                :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
-           source_package = source_project.db_packages.find_by_name(action.source.package)
            if action.target.has_attribute? :package
              target_package = target_project.db_packages.find_by_name(action.target.package)
            else
@@ -199,8 +198,9 @@ class RequestController < ApplicationController
            if ( target_package and @http_user.can_modify_package? target_package ) or
               ( not target_package and @http_user.can_modify_project? target_project )
               permission_granted = true
-           elsif req.state.name == "new" and params[:newstate] == "revoked" 
+           elsif source_project and req.state.name == "new" and params[:newstate] == "revoked" 
               # source project owners should be able to revoke submit requests as well
+              source_package = source_project.db_packages.find_by_name(action.source.package)
               if ( source_package and @http_user.can_modify_package? source_package ) or
                  ( not source_package and @http_user.can_modify_project? source_project )
                 permission_granted = true
