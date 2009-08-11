@@ -259,12 +259,16 @@ class RequestController < ApplicationController
       elsif action.data.attributes["type"] == "submit"
         if params[:newstate] == "accepted"
           src = action.source
+          comment = "Copy from #{src.project}/#{src.package} via accept of submit request #{params[:id]}"
+          comment += " revision #{src.rev}" if src.has_attribute? :rev
+          comment += ".\n"
+          comment += "Request was accepted with message:\n#{params[:comment]}\n" if params[:comment]
           cp_params = {
             :cmd => "copy",
             :user => @http_user.login,
             :oproject => src.project,
             :opackage => src.package,
-            :comment => "Copy from #{src.project}/#{src.package} via accept of submit request #{params[:id]}\nRequest was accepted with message:\n#{params[:comment]}"
+            :comment => comment
           }
           cp_params[:orev] = src.rev if src.has_attribute? :rev
 
