@@ -73,6 +73,7 @@ our $kiwidesc = [
               'unit',
               '_content',
           ],
+          'boot-theme',
           'compressed',
           'packagemanager',
           'rpm-check-signatures',
