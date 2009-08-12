@@ -93,6 +93,7 @@ sub requestParams( $$ )
   for my $a (@{$actions || []}) {
     # FIXME: how to handle multiple actions in one request here ?
     # right now the last one just wins ....
+    $reqinfo{'type'} = $a->{'type'};
     if( $a->{'type'} eq 'submit' && $a->{'source'} &&
         $a->{'target'}) {
         $reqinfo{'sourceproject'}  = $a->{'source'}->{'project'};
