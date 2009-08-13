@@ -23,6 +23,13 @@
 # sends build binary packages back.
 #
 
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
 use Digest::MD5 ();
 use XML::Structured ':bytes';
 use Data::Dumper;
@@ -42,84 +49,28 @@ use strict;
 
 my $buildroot;
 my $port;
-my $vm = '';
-my $vm_root = '';
-my $vm_swap = '';
-my $workerid;
-my $srcserver;
-my @reposervers;
-my $testmode;
-my $noworkercheck;
-my $nobuildcodecheck;
-my $oneshot;
 my $silent;
-my $hostcheck;
-my $localkiwi;
-my $justprocess;
 
-my $buildlog_maxsize = 500 * 1000000;
-my $buildlog_maxidle = 8 * 3600;
-my $xenstore_maxsize = 20 * 1000000;
 my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
-
-sub trunc_logfile {
-  my $lf = shift;
-  open(LF, "<$lf") || return; 
-  my $buf;
-  sysread(LF, $buf, 1000000);
-  $buf .= "\n\n[truncated]\n\n";
-  sysseek(LF, -1000000, 2);
-  sysread(LF, $buf, 1000000, length($buf));
-  close LF;
-  $buf .= "\nLogfile got too big, killed job.\n";
-  open(LF, ">$lf.new") || return; 
-  syswrite(LF, $buf);
-  close LF;
-  rename("$lf.new", $lf);
-}
 
 sub usage {
   my ($ret) = @_;
 
 print <<EOF;
-Usage: $0 [OPTION] --root <directory>
+Usage: $0 [OPTION] [--root <directory>]
 
-       --root      : buildroot directory
+       --root      : buildroot directory (switches to daemon mode)
 
        --port      : fixed port number
 
-       --id        : worker id
-
-       --srcserver : define source server to be used
-
-       --reposerver: define reposerver, can be used multiple times
-
-       --kvm       : enable kvm
-
-       --xen       : enable xen
-
-       --device    : set kvm or xen root device (default is <root>/root file)
-
-       --swap      : set kvm or xen swap device (default is <root>/swap file)
-
-       --test      : enable test mode
-
        --process   : just run the services, don't send anything back
                      (needs a service job file as argument)
-
-       --oneshot <seconds>
-                   : just build one package, do not wait more then
-                     <seconds> seconds if nothing is available
 
        --help      : this message
 
 EOF
   exit $ret || 0;
 }
-
-my @saveargv = @ARGV;	# so we can restart ourself
-
-exit(0) if @ARGV == 1 && $ARGV[0] eq '--selftest';
 
 while (@ARGV) {
   usage(0) if $ARGV[0] eq '--help';
@@ -133,71 +84,10 @@ while (@ARGV) {
     $port = shift @ARGV;
     next;
   }
-  if ($ARGV[0] eq '--srcserver') {
-    shift @ARGV;
-    $srcserver = shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--reposerver') {
-    shift @ARGV;
-    my $server = shift @ARGV;
-    push @reposervers, $server;
-    next;
-  }
-  if ($ARGV[0] eq '--id') {
-    shift @ARGV;
-    $workerid = shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--test') {
-    shift @ARGV;
-    $testmode = 1;
-    next;
-  }
-  if ($ARGV[0] eq '--kvm') {
-    $vm = ' --kvm';
-    shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--xen') {
-    $vm = ' --xen';
-    shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--xendevice' || $ARGV[0] eq '--device') {
-    shift @ARGV;
-    $vm_root = shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--xenswap' || $ARGV[0] eq '--swap') {
-    shift @ARGV;
-    $vm_swap = shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--process') {
-    shift @ARGV;
-    $justprocess = 1;
-    next;
-  }
-  if ($ARGV[0] eq '--oneshot') {
-    shift @ARGV;
-    $oneshot = shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--silent') {
-    shift @ARGV;
-    $silent= 1;
-    next;
-  }
   last;
 }
 
 usage(1) unless $buildroot;
-
-$vm_root = "$buildroot/root" unless $vm_root;
-$vm_swap = "$buildroot/swap" unless $vm_swap;
-
-$srcserver = $BSConfig::srcserver unless defined $srcserver;
 
 sub rm_rf {
   my ($dir) = @_;
@@ -250,6 +140,13 @@ sub run_source_update {
   for my $service (@{$serviceinfo->{'service'}}) {
     print "Run for ".$service->{'name'}."\n";
     my @run;
+    if ( defined $BSConfig::service_wrapper{$service->{'name'}} ) {
+      push @run, $BSConfig::service_wrapper{$service->{'name'}};
+    }else{
+      if ( defined $BSConfig::service_wrapper{'*'} ) {
+        push @run, $BSConfig::service_wrapper{'*'};
+      }
+    }
     push @run, $BSConfig::servicedir."/".$service->{'name'};
     push @run, "--outdir";
     push @run, $myworkdir."/.tmp";
