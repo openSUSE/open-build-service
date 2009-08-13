@@ -22,7 +22,7 @@ while [ $# -gt 0 ]; do
      shift
      OUTDIR="$1"
   else
-     echo -n "$1 " >> "$MOUNTDIR/$INNERSCRIPT"
+     echo -n "\"${1/\"/_}\" " >> "$MOUNTDIR/$INNERSCRIPT"
      if [ -z "$MODE" ]; then
         case "$1" in
           download_url)
