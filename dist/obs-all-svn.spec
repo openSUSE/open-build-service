@@ -388,6 +388,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/BSXPath.pm
 /usr/lib/obs/server/BSProductXML.pm
 /usr/lib/obs/server/BSKiwiXML.pm
+/usr/lib/obs/server/call-service-in-lxc.sh
 /usr/lib/obs/server/COPYING
 /usr/lib/obs/server/DESIGN
 /usr/lib/obs/server/License
