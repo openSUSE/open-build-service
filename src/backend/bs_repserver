@@ -1186,6 +1186,7 @@ sub getbuildinfo {
     die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
   }
 
+  my $ldepfile = $pdata->{'ldepfile'};
   my $info = $pdata->{'info'}->[0];
   die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
 
@@ -1298,6 +1299,7 @@ sub getbuildinfo {
     $repodata{$prp} = $cache;
   }
   my @repos = map {$repodata{$_} || {}} @prp;
+  unshift @repos, $ldepfile if defined($ldepfile);
   my %dep2src;
   my %dep2rpm;
   my %dep2prp;
@@ -1315,7 +1317,8 @@ sub getbuildinfo {
   my $pname = $info->{'name'};
   my @subpacks = grep {$dep2src{$_} eq $pname} keys %dep2src;
   #$ret->{'subpack'} = \@subpacks;
-  Build::readdeps($bconf, undef, reverse @repos);
+  my %localdeps;
+  Build::readdeps($bconf, \%localdeps, reverse @repos);
   my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   @subpacks = () if $packtype eq 'kiwi';
@@ -1401,6 +1404,8 @@ sub getbuildinfo {
   if (!$cgi->{'internal'}) {
     for (@bdeps) {
       my $p = $dep2rpm{$_}->{'path'};
+      # p might be a local dependency
+      next unless $p;
       push @bdepsp, "$reporoot/$dep2prp{$_}/$arch/:full/$p";
     }
     @bdepsp = getbinarydata(@bdepsp);
@@ -1412,6 +1417,11 @@ sub getbuildinfo {
       ($_->{'project'}, $_->{'repository'}) = split('/', $dep2prp{$_->{'name'}}, 2);
     }
     my $r = $bdepsp{$_->{'name'}};
+    if (exists $localdeps{$_->{'name'}}) {
+      $r = $localdeps{$_->{'name'}};
+      delete $_->{'project'};
+      delete $_->{'repository'};
+    }
     if ($r) {
       $_->{'version'} = $r->{'version'};
       $_->{'release'} = $r->{'release'} if exists $r->{'release'};
@@ -1482,25 +1492,50 @@ sub getbuildinfo_post {
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
 
-  mkdir_p("$uploaddir");
   my $fn = "$uploaddir/$$";
+  my $descr = $fn;
+  my $dir = "$uploaddir/$$.dir";
+  my $depfile;
+  mkdir_p("$uploaddir");
   die("upload failed\n") unless BSServer::read_file($fn);
+
+  local *F;
+  open(F, '<', "$fn") || die("$fn: $!\n");
+  my $magic;
+  sysread(F, $magic, 6);
+  if ($magic eq "070701") {
+    sysseek(F, 0, 0);
+    mkdir_p($dir);
+    my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*F), {'directory' => $dir});
+    # should we check if the cpio archive contains <= 2 files?
+    ($depfile) = map { $_->{'name'} =~ /(deps)/ } @$uploaded;
+    $depfile = "$dir/$depfile" if defined $depfile;
+    $descr = (grep { $_->{'name'} ne "deps" } @$uploaded)[0];
+    die("no spec/dsc/kiwi file found\n") unless $descr;
+    $descr = "$dir/$descr->{'name'}";
+  }
+  close(F);
+  print "$uploaddir/$$\ndescr: $descr\ndepfile: $depfile\n";
   my $d;
   my $info = {'repository' => $repoid};
-  if (looks_like_dsc($fn)) {
-    $d = Build::Deb::parse($bconf, $fn);
+  if (looks_like_dsc($descr)) {
+    $d = Build::Deb::parse($bconf, $descr);
     $info->{'file'} = 'upload.dsc';
-  } elsif (looks_like_kiwi($fn)) {
-    $d = Build::Kiwi::parse($bconf, $fn);
+  } elsif (looks_like_kiwi($descr)) {
+    $d = Build::Kiwi::parse($bconf, $descr);
     $info->{'imagetype'} = $d->{'imagetype'};
     $info->{'path'} = $d->{'path'};
     $info->{'file'} = 'upload.kiwi';
   } else {
-    $d = Build::Rpm::parse($bconf, $fn);
+    $d = Build::Rpm::parse($bconf, $descr);
     $info->{'file'} = 'upload.spec';
   }
   unlink($fn);
-  die("parse error\n") unless defined $d->{'name'};
+  unless (defined $d->{'name'}) {
+    unlink("$dir/$_") for ls($dir);
+    rmdir($dir) if -d $dir;
+    die("parse error\n");
+  }
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
   if ($d->{'prereqs'}) {
@@ -1509,8 +1544,16 @@ sub getbuildinfo_post {
     $info->{'prereq'} = \@prereqs if @prereqs;
   }
   my $pdata = {'info' => [ $info ]};
+  $pdata->{'ldepfile'} = $depfile if defined $depfile;
 
-  return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
+  my @r;
+  eval {
+    @r = getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
+  };
+  unlink("$dir/$_") for ls($dir);
+  rmdir($dir) if -d $dir;
+  die("$@\n") if $@;
+  return @r;
 }
 
 sub getbuilddepinfo {
