@@ -298,6 +298,10 @@ sub expr {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
       $v = boolop($cwd, @args, sub {index($_[0], $_[1]) != -1}, $negpol);
+    } elsif ($f eq 'compare') {
+      unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
+      die("$f: one or two arguments required\n") unless @args == 2;
+      $v = boolop($cwd, @args, sub {$_[0] cmp $_[1]}, $negpol);
     } elsif ($f eq 'ends-with') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
@@ -324,7 +328,7 @@ sub expr {
     } elsif ($f eq 'last') {
       $v = [ map {$_->[3]} @$cwd ];
     } else {
-      die("unknown funktion: $f\n");
+      die("unknown function: $f\n");
     }
   } elsif ($expr =~ /^(\@?(?:[-a-zA-Z0-9]+|\*))(.*?)$/s) {
     # path component
