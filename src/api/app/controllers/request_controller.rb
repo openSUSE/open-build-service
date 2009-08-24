@@ -107,7 +107,7 @@ class RequestController < ApplicationController
           if action.data.attributes["type"] == "change_devel"
             tpkg = tprj.db_packages.find_by_name action.target.package
             unless tpkg
-              render_error :status => 404, :errorcode => 'unknown_project',
+              render_error :status => 404, :errorcode => 'unknown_package',
                 :message => "Unknown target package #{action.target.package}"
               return
             end
