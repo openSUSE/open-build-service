@@ -329,14 +329,24 @@ sub addrev {
     expandproduct($projid, $packid, $files, $user) || die("product conversation failed\n");
   }
 
+  my $srcmd5 = addmeta($projid, $packid, $files);
+
   # get version/release from rpm spec/deb dsc/kiwi xml file
   my $version = 'unknown';
   my $release;
   my $bconf = Build::read_config('noarch');
+
+  my $lfiles = $files;
+  #if ($files->{'_link'}) {
+  #  my $rev = {'srcmd5' => $srcmd5};
+  #  my %lrev = (%$rev, 'name' => $packid);
+  #  $lfiles = handlelinks($projid, \%lrev, $files, $rev);
+  #  $lfiles = $files unless ref $lfiles;
+  #}
   for my $type ('spec', 'dsc', 'kiwi') {
-    my $file = findfile($projid, $packid, undef, $type, $files);
+    my $file = findfile($projid, $packid, undef, $type, $lfiles);
     next unless defined $file;
-    my $d = Build::parse($bconf, "$srcrep/$packid/$files->{$file}-$file");
+    my $d = Build::parse($bconf, "$srcrep/$packid/$lfiles->{$file}-$file");
     next unless defined $d->{'version'};
     $version = $d->{'version'};
     $release = $d->{'release'} if defined $d->{'release'};
@@ -354,7 +364,7 @@ sub addrev {
     }
   }
   $release ||= '0';
-  my $srcmd5 = addmeta($projid, $packid, $files);
+
   $user = str2utf8($user) if $user;
   $comment = str2utf8($comment) if $comment;
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release};
@@ -3130,13 +3140,12 @@ sub nextreqid {
   mkdir_p($requestsdir);
   BSUtil::lockopen(*F, '>>', "$requestsdir/.nextid");
   my $nextid = readstr("$requestsdir/.nextid", 1);
-  if (not isdigit $nextid){
-    # Check if we create really create the very first request or die due to
-    # on disk corruption
-    die("ERROR: No valid content in ".$requestsdir."/.nextid, but files exist in directory. \
-         Possible data corruption on disk !") if ls($requestsdir) > 1;
+  if (!$nextid) {
+    die("nextid was lost\n") if ls($requestsdir);
     $nextid = 1;
   }
+  chomp $nextid;
+  die("nextid is bad\n") if $nextid =~ /[^0-9]/s;
   writestr("$requestsdir/.nextid.new", "$requestsdir/.nextid", $nextid + 1);
   close F;
   return $nextid;
