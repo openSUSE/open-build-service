@@ -59,6 +59,7 @@ our $kiwidesc = [
           [[ 'type' =>
               'bootprofile',
               'boot',
+              'checkprebuilt',
               'flags',
               'filesystem',
               'format',
