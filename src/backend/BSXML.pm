@@ -399,6 +399,7 @@ our $revision = [
 	'time',
 	'user',
 	'comment',
+	'requestid',
 ];
 
 our $revisionlist = [
