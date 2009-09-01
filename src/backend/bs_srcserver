@@ -3267,6 +3267,7 @@ sub postrequest {
   $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
   my @lt = localtime(time());
   $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
+  BSVerify::verify_request($req);
   writereq($oreq, $req);
   $req->{'oldstate'} = $oldstate;
   BSHermes::notify( "SRCSRV_REQUEST_STATECHANGE", BSHermes::requestParams($req, $cgi->{'user'}));
