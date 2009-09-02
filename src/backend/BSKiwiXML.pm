@@ -188,6 +188,7 @@ our $kiwidesc = [
 	       [['package' =>
                      'name',
                      'arch',
+                     'bootinclude',
                ]],
 	       [['opensusePattern' =>
                      'name',
