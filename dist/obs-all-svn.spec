@@ -37,6 +37,7 @@ Source12:       sysconfig.obs-server
 Source13:       obs_mirror_project
 Source14:       obs_mirror_project.py
 Source16:       obs_project_update
+Source17:       obs_project_srcimport
 Source15:       obsdispatcher
 Source20:       obssignd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -288,7 +289,7 @@ install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 rm -rf  $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
 # install obs mirror script and obs copy script
-install -m 0755 %SOURCE13 %SOURCE14 %SOURCE16 $RPM_BUILD_ROOT/usr/sbin/
+install -m 0755 %SOURCE13 %SOURCE14 %SOURCE16 %SOURCE17 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 \
            $RPM_BUILD_ROOT/etc/init.d/
@@ -485,6 +486,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/obs_mirror_project
 /usr/sbin/obs_mirror_project.py
 /usr/sbin/obs_project_update
+/usr/sbin/obs_project_srcimport
 
 %files -n obs-productconverter-svn
 %defattr(-,root,root)
