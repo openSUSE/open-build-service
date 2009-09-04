@@ -389,7 +389,12 @@ sub findbins {
       $hits++;
     } else {
       $misses++;
-      $data = Build::query("$dir/$bin");
+      # arch is needed for local builds of remoteprojects
+      $data = Build::query("$dir/$bin", 'evra' => 1);
+      delete $data->{'disttag'};
+      delete $data->{'epoch'};
+      delete $data->{'release'};
+      delete $data->{'version'};
       next unless $data;
       next unless $data->{'source'};	# no src rpms, please
       $data->{'id'} = $id;
@@ -1194,7 +1199,8 @@ sub update_dst_full {
     }
 
     $fnew{$n} = 1;
-    delete $r->{'arch'};	# not in repodata
+    # arch is needed for local builds of remoteprojects
+    #delete $r->{'arch'};	# not in repodata
     $r->{'path'} = "$prp/$myarch/:full/$n.$suf";
     $repodata->{$n} = $r;
   }

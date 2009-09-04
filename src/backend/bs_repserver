@@ -1426,6 +1426,12 @@ sub getbuildinfo {
       $_->{'version'} = $r->{'version'};
       $_->{'release'} = $r->{'release'} if exists $r->{'release'};
       $_->{'arch'} = $r->{'arch'};
+    } else {
+      my $pkg = $_->{'name'};
+      my ($v, $r) = map { /\Q$pkg\E = ([^-]+)(?:-(.+))?$/ } @{$dep2rpm{$_->{'name'}}->{'provides'}};
+      $_->{'version'} = $v if defined $v;
+      $_->{'release'} = $r if defined $r;
+      $_->{'arch'} = $dep2rpm{$_->{'name'}}->{'arch'} if exists $dep2rpm{$_->{'name'}}->{'arch'};
     }
     $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
     $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
