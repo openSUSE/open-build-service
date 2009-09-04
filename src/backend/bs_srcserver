@@ -152,7 +152,7 @@ sub sourceupdate {
 sub getrev {
   my ($projid, $packid, $rev) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
-  return {'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
+  return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
     return remote_getrev($projid, $packid, $rev);
