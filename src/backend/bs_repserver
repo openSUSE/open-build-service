@@ -1521,7 +1521,6 @@ sub getbuildinfo_post {
     $descr = "$dir/$descr->{'name'}";
   }
   close(F);
-  print "$uploaddir/$$\ndescr: $descr\ndepfile: $depfile\n";
   my $d;
   my $info = {'repository' => $repoid};
   if (looks_like_dsc($descr)) {
