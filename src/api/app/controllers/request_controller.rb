@@ -194,12 +194,12 @@ class RequestController < ApplicationController
        req.each_action do |action|
          if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
            source_project = DbProject.find_by_name(action.source.project)
+           target_project = DbProject.find_by_name(action.target.project)
            if target_project.nil?
              render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
-           target_project = DbProject.find_by_name(action.target.project)
            if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
              render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
