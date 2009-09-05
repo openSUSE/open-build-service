@@ -719,6 +719,7 @@ sub applylink {
       $| = 1;
       print "applying patch $pn\n";
       $::ENV{'TMPDIR'} = '.';
+      # FIXME: new patch is not supporting --unified-reject-files anymore
       exec('/usr/bin/patch', '--no-backup-if-mismatch', '--unified-reject-files', '--global-reject-file=.rejects', '-g', '0', '-f');
       die("/usr/bin/patch: $!\n");
     }
@@ -863,7 +864,7 @@ sub handlelinks {
       return '_link is bad: illegal cicount';
     }
     $vrev = $lrev->{'vrev'};
-    $rev->{'vrev'} += $vrev unless $vrevdone;
+    $rev->{'vrev'} += $lrev->{'vrev'} unless $vrevdone;
     push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $lrev->{'srcmd5'}, 'rev' => $lrev->{'rev'}};
   }
   my $md5;
@@ -2359,7 +2360,7 @@ sub sourcecopy {
       my $lrev = $l->{'rev'};
       $lprojid = $l->{'project'} if exists $l->{'project'};
       $lpackid = $l->{'package'} if exists $l->{'package'};
-      if ($lprojid eq $projid && $lpackid eq $packid) {
+      if ($lprojid eq $projid && $lpackid eq $packid && not $cgi->{'dontupdatesource'}) {
         # copy destination is target of link
 	# we're integrating this link
         $lrev = getrev($lprojid, $lpackid, $lrev);
@@ -2394,7 +2395,7 @@ sub sourcecopy {
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  my $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
+  my $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'}, $cgi->{'requestid'});
 
   if ($autosimplifylink && !$autosimplifylink->{'rev'}) {
     eval {
@@ -2408,7 +2409,7 @@ sub sourcecopy {
         writexml("$srcrep/:upload/$$", undef, $nl, $BSXML::link);
         my $ofiles = {};
         $ofiles->{'_link'} = putinsrcrep($oprojid, $opackid, "$srcrep/:upload/$$", '_link');
-        addrev($oprojid, $opackid, $ofiles, 'buildservice-autocommit', "auto commit by copy to link target\n");
+        addrev($oprojid, $opackid, $ofiles, 'buildservice-autocommit', "auto commit by copy to link target\n", undef, $cgi->{'requestid'});
       }
     };
     warn($@) if $@;
@@ -3679,7 +3680,7 @@ my $dispatches = [
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
 
-  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? unified:bool? noservice:bool?' => \&sourcecmd,
+  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? unified:bool? noservice:bool? requestid:? dontupdatesource:bool?' => \&sourcecmd,
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
   '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
   '/source/$project/$package:package_product/_history rev?' => \&getpackagehistory,

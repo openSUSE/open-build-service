@@ -766,6 +766,7 @@ our $request = [
 	         'project',
 	         'package',
 	         'rev',
+	         'modifier', # can be noupdate, update, cleanup
 	   ],
 	   [ 'target' =>
 	         'project',
