@@ -95,6 +95,13 @@ class RequestController < ApplicationController
           end
         end
 
+        if action.data.attributes["type"] == "submit" and action.source.data.attributes['modifier'].nil?
+           # cleanup implicit home branches, should be done in client with 2.0
+           if "home:#{@http_user.login}:branches:#{action.target.project}" == action.source.project
+              action.source.data.attributes['modifier'] = 'cleanup'
+           end
+        end
+
         unless action.data.attributes["type"] == "submit" and action.data.elements['target'].nil?
           # target is required for change_devel, but optional for submit
           tprj = DbProject.find_by_name action.target.project
@@ -187,15 +194,21 @@ class RequestController < ApplicationController
        req.each_action do |action|
          if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
            source_project = DbProject.find_by_name(action.source.project)
-           target_project = DbProject.find_by_name(action.target.project)
            if target_project.nil?
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Target project is missing in request #{req.id} (type #{action.data.attributes['type']})"
+               :message => "Target project is missing for request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
+           target_project = DbProject.find_by_name(action.target.project)
            if action.target.package.nil? and action.data.attributes["type"] == "change_devel"
              render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
+             return
+           end
+           source_package = source_project.db_packages.find_by_name(action.source.package)
+           if source_package.nil?
+             render_error :status => 403, :errorcode => "post_request_no_permission",
+               :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
            if action.target.has_attribute? :package
@@ -276,9 +289,11 @@ class RequestController < ApplicationController
             :user => @http_user.login,
             :oproject => src.project,
             :opackage => src.package,
+            :requestid => params[:id],
             :comment => comment
           }
           cp_params[:orev] = src.rev if src.has_attribute? :rev
+          cp_params[:dontupdatesource] = 1 if src.has_attribute? :modifier and src.modifier == "noupdate"
 
           #create package unless it exists already
           target_project = DbProject.find_by_name(action.target.project)
@@ -299,8 +314,25 @@ class RequestController < ApplicationController
           end
 
           cp_path = "/source/#{action.target.project}/#{action.target.package}"
-          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :comment])
+          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :comment, :requestid, :dontupdatesource])
           Suse::Backend.post cp_path, nil
+
+          # cleanup source project
+          if src.has_attribute? :modifier and action.source.modifier == "cleanup"
+            source_project = DbProject.find_by_name(action.source.project)
+            if source_project.db_packages.count == 1
+              # remove source project, if this is the only package
+              source_project.destroy
+              Suse::Backend.delete "/source/#{action.source.project}"
+            else
+              # just remove package
+              DbPackage.transaction do
+                source_package = source_project.db_packages.find_by_name(action.source.package)
+                source_package.destroy
+              end
+              Suse::Backend.delete "/source/#{action.source.project}/#{action.source.package}"
+            end
+          end
         end
         forward_data path, :method => :post
       elsif action.data.attributes["type"] == "delete"
