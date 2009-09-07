@@ -118,6 +118,7 @@ Debug Options
    Is parsing a pattern xml file and puts out error messages, in case of errors.
 
  --check-request-xml <file>
+   Is parsing a request xml file and puts out error messages, in case of errors.
 
  --parse-build-desc <file>
    Parse a spec, dsc or kiwi file with the Build script parser.
@@ -261,8 +262,6 @@ sub check_xml_file {
 
   print "parsing $file\n";
   my $xmldesc = readxml("$file", $type, 0);
-my $addarchs = join(',', sort map { $_->{'ref'} } @{$xmldesc->{'instsource'}->{'architectures'}->{'requiredarch'}});
-print "HAVE>".$addarchs."<\n";
   if ( defined($xmldesc) ) {
     print "Succesfull parsed file !\n";
   } else {
@@ -417,7 +416,7 @@ while (@ARGV) {
     }
   } elsif ($arg eq "--parse-build-desc") {
     die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV != 1;
-    my $ret = Build::parse(undef, $file);
+    my $ret = Build::parse(undef, shift @ARGV);
     print Dumper($ret);
   } elsif ($arg eq "--dump-cache") {
     if ( @ARGV eq 1 ) {
