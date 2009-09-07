@@ -503,10 +503,14 @@ sub getlogfile {
     die($err) if $jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'};
     # no longer building, use local logfile
   }
-  die("$packid: no logfile\n") unless -e "$reporoot/$projid/$repoid/$arch/$packid/logfile";
+  my $logfile = "$reporoot/$projid/$repoid/$arch/$packid/logfile";
+  if ($jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'finished') {
+    $logfile = "$jobsdir/$arch/$status->{'job'}:dir/logfile";
+  }
+  die("$packid: no logfile\n") unless -e $logfile;
   my $start = $cgi->{'start'} || 0;
   my $fd = gensym;
-  open($fd, '<', "$reporoot/$projid/$repoid/$arch/$packid/logfile") || die("$reporoot/$projid/$repoid/$arch/$packid/logfile: $!\n");
+  open($fd, '<', $logfile) || die("$logfile: $!\n");
   defined(sysseek($fd, $start, 0)) || die("sysseek: $!\n");
   BSWatcher::reply_file($fd, 'Content-Type: text/plain');
   close $fd unless $BSStdServer::isajax;
