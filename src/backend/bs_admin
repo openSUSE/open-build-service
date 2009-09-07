@@ -34,6 +34,8 @@ use Getopt::Long;
 use Storable ();
 use XML::Structured ':bytes';
 
+use Build;
+
 use BSConfig;
 use BSFileDB;
 use BSWatcher;
@@ -112,7 +114,13 @@ Debug Options
  --check-kiwi-xml <project> <package>
    Is parsing a kiwi xml file and puts out error messages, in case of errors.
 
+ --check-pattern-xml <file>
+   Is parsing a pattern xml file and puts out error messages, in case of errors.
+
  --check-request-xml <file>
+
+ --parse-build-desc <file>
+   Parse a spec, dsc or kiwi file with the Build script parser.
 ";
 }
 
@@ -253,6 +261,8 @@ sub check_xml_file {
 
   print "parsing $file\n";
   my $xmldesc = readxml("$file", $type, 0);
+my $addarchs = join(',', sort map { $_->{'ref'} } @{$xmldesc->{'instsource'}->{'architectures'}->{'requiredarch'}});
+print "HAVE>".$addarchs."<\n";
   if ( defined($xmldesc) ) {
     print "Succesfull parsed file !\n";
   } else {
@@ -283,7 +293,7 @@ sub check_kiwi_xml {
   ($md5, $file) = find_latest_file( $project, $package, 'kiwi' );
   if ( defined($md5) and defined($file) ) {
     my $f = "$srcrepdir/$package/$md5-$file";
-    check_kiwi_xml_file( $f, $BSKiwiXML::kiwidesc );
+    check_xml_file( $f, $BSKiwiXML::kiwidesc );
   }else{
     print "ERROR: No kiwi config file found in $project / $package !\n";
     die;
@@ -387,6 +397,10 @@ while (@ARGV) {
     die("ERROR: need a file name as argument!\n") if @ARGV != 1;
     my $file = shift @ARGV;
     check_product_xml_file($file);
+  } elsif ($arg eq "--check-pattern-xml") {
+    die("ERROR: need a file name as argument!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    check_xml_file($file, $BSXML::pattern);
   } elsif ($arg eq "--check-request-xml") {
     die("ERROR: need a file name !\n") if @ARGV != 1;
     my $file = shift @ARGV;
@@ -401,6 +415,10 @@ while (@ARGV) {
       my $package = shift @ARGV;
       check_kiwi_xml($project, $package);
     }
+  } elsif ($arg eq "--parse-build-desc") {
+    die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV != 1;
+    my $ret = Build::parse(undef, $file);
+    print Dumper($ret);
   } elsif ($arg eq "--dump-cache") {
     if ( @ARGV eq 1 ) {
       dump_nStore(shift @ARGV);
