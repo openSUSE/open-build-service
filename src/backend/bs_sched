@@ -309,10 +309,8 @@ sub findbins_dir {
       next unless $data;
     }
     BSVerify::verify_nevraquery($data);
+    delete $data->{'disttag'};
     $data->{'id'} = $id;
-    delete $data->{'epoch'};
-    delete $data->{'version'};
-    delete $data->{'release'};
     $repobins->{$bin} = $data;
   }
   return $repobins;
@@ -389,14 +387,10 @@ sub findbins {
       $hits++;
     } else {
       $misses++;
-      # arch is needed for local builds of remoteprojects
       $data = Build::query("$dir/$bin", 'evra' => 1);
-      delete $data->{'disttag'};
-      delete $data->{'epoch'};
-      delete $data->{'release'};
-      delete $data->{'version'};
       next unless $data;
       next unless $data->{'source'};	# no src rpms, please
+      delete $data->{'disttag'};
       $data->{'id'} = $id;
     }
     $data->{'path'} = $bin;	# no dir for now!
