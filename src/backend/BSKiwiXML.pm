@@ -67,6 +67,7 @@ our $kiwidesc = [
               'ec2accountnr',
               'ec2privatekeyfile',
               'ec2certfile',
+              'vga',
               '_content',
           ]],
           'version',
@@ -83,6 +84,7 @@ our $kiwidesc = [
           'keytable',
           'oem-home',
           'oem-reboot',
+          'oem-recovery',
           'oem-swap',
           'oem-boot-title',
           'timezone',
@@ -154,6 +156,7 @@ our $kiwidesc = [
 	[[ 'repository' =>
 	       'type',
 	       'status',
+	       'priority',
                [],
 	       [ 'source' => 'path' ],
         ]],
@@ -189,6 +192,7 @@ our $kiwidesc = [
                      'name',
                      'arch',
                      'bootinclude',
+                     'bootdelete',
                ]],
 	       [['opensusePattern' =>
                      'name',
