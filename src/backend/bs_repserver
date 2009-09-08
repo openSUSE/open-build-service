@@ -1404,6 +1404,51 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
 
+  if ($packtype eq 'kiwi' && $kiwitype eq 'image') {
+    my @bdepsp;
+    my %toprp;
+    for my $n (@bdeps) {
+      for my $prp (reverse @prp) {
+	my $r = $repodata{$prp};
+	next unless $r->{$n} && $r->{$n}->{'path'};
+	my $p = "$reporoot/$prp/$arch/:full/$r->{$n}->{'path'}";
+	push @bdepsp, $p;
+	$toprp{$p} = $prp;
+      }
+    }
+    my @bdepsp_tmp = getbinarydata(@bdepsp);
+    for (@bdepsp_tmp) {
+      $_->{'path'} = shift @bdepsp;
+    }
+    @bdepsp = @bdepsp_tmp;
+    
+    @bdepsp = grep {exists($_->{'name'})} @bdepsp;
+    @bdepsp = sort {$a->{'name'} cmp $b->{'name'}} @bdepsp;
+    @bdeps = ();
+    for (@bdepsp) {
+      my $b = {'name' => $_->{'name'}};
+      push @bdeps, $b;
+      my $prp = $toprp{$_->{'path'}};
+      if (!$cgi->{'internal'}) {
+        ($b->{'project'}, $b->{'repository'}) = split('/', $prp);
+      }
+      $b->{'version'} = $_->{'version'};
+      $b->{'release'} = $_->{'release'} if exists $_->{'release'};
+      $b->{'arch'} = $_->{'arch'};
+      $b->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
+      if ($prp ne $dep2prp{$_->{'name'}}) {
+        $b->{'noinstall'} = 1;
+	next;
+      }
+      $b->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
+      $b->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
+      $b->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
+      $b->{'noinstall'} = 1 if $edeps{$_->{'name'}} && !($bdeps{$_->{'name'}} || $vmdeps{$_->{'name'}} || $pdeps{$_->{'name'}});
+    }
+    $ret->{'bdep'} = \@bdeps;
+    return ($ret, $BSXML::buildinfo);
+  }
+
   my @bdepsp;
   if (!$cgi->{'internal'}) {
     for (@bdeps) {
