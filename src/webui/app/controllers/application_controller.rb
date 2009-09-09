@@ -139,16 +139,23 @@ class ApplicationController < ActionController::Base
     case exception
     when ActiveXML::Transport::UnauthorizedError
       session[:login] = nil
-      session[:passwd] = nil
-
-      flash[:error] = @message
+      session[:passwd] = nil 
+ 
+      if api_error.name == "status"
+        flash[:error] = @message
+      else 
+        flash[:error] = "Authentication failed"
+      end
 
       redirect_to :controller => 'user', :action => 'login'
+      return
     when ActiveXML::Transport::ForbiddenError
       if @code == "unregistered_ichain_user" 
         redirect_to :controller => 'user', :action => 'request_ichain'
+        return
       else
         render_error :code => @code, :message => @message, :status => 401
+        return
       end
     when ActiveXML::Transport::ConnectionError
       render_error :message => "Unable to connect to API", :status => 200
@@ -159,6 +166,7 @@ class ApplicationController < ActionController::Base
       # but the exception handling seems to be buggy atm
       if @code == "unregistered_ichain_user"
         redirect_to :controller => 'user', :action => 'request_ichain'
+        return
       elsif @code == "no more rating allowed"
         logger.debug "no more rating allowed"
       elsif @code == "tagcreation_error"
@@ -167,7 +175,7 @@ class ApplicationController < ActionController::Base
         logger.debug "default exception handling"
         render_error :status => 400, :code => @code, :message => @message,
                      :exception => @exception, :api_exception => @api_exception
-
+        return
       end
     end
   end

@@ -21,7 +21,7 @@ require 'opensuse/frontend'
     end
     
     # render_text "Alles OK: #{session[:login]}"
-    redirect_back_or_default
+    redirect_back_or_default url_for :action => 'login'
   end
 
   def logout
@@ -41,11 +41,8 @@ require 'opensuse/frontend'
     session[:return_to] = request.request_uri
   end
 
-  # move to the last store_location call or to the passed default one
-  def redirect_back_or_default(default = nil)
-    if !default  
-      default = url_for :controller => ''
-    end
+  # move to the last store_location call or to the passed default one 
+  def redirect_back_or_default(default = url_for( :controller => ''))
     if session[:return_to].nil?
       logger.debug "redirecting to default url: #{default}"
       redirect_to default
