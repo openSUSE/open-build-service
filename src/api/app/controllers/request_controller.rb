@@ -365,9 +365,7 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.source.project}"
             else
               # just remove package
-              DbPackage.transaction do
-                source_package.destroy
-              end
+              source_package.destroy
               Suse::Backend.delete "/source/#{action.source.project}/#{action.source.package}"
             end
           end
