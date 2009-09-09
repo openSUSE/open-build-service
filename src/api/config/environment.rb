@@ -103,6 +103,7 @@ end
 
 ActiveXML::Base.config do |conf|
   if RAILS_ENV == "test"
+    # changed metadata is not written to the backend server
     conf.global_write_through = false
   end
 
