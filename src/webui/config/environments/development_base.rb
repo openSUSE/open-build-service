@@ -19,7 +19,6 @@ config.log_level        = :debug
 
 FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 443
-#FRONTEND_PORT = 9001
 FRONTEND_PROTOCOL = 'https'
 
 BUGZILLA_HOST = nil
