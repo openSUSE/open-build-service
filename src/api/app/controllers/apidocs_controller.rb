@@ -17,7 +17,7 @@ class ApidocsController < ApplicationController
   end
 
   def method_missing symbol, *args
-    file = symbol.id2name
+    file = symbol.to_s
     if ( file =~ /\.(xml|xsd)$/ )
       send_file( @@apidocsbase + file, :type => "text/xml",
         :disposition => "inline" )
