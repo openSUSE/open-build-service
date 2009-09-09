@@ -15,8 +15,8 @@ config.action_controller.perform_caching             = false
 # Don't care if the mailer can't send
 config.action_mailer.raise_delivery_errors = false
 
-SOURCE_HOST = "buildservice.suse.de"
-#SOURCE_HOST = "localhost"
+#SOURCE_HOST = "buildservice.suse.de"
+SOURCE_HOST = "localhost"
 
 #SOURCE_PORT = 5352
 SOURCE_PORT = 6362 #test backend
