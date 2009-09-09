@@ -44,6 +44,16 @@ class SourceController < ApplicationController
           :message => msg
         return
       end
+      #check all packages, if any get refered as develpackage
+      pro.db_packages.each do |pkg|
+        unless pkg.develpackages.empty?
+          msg = "Unable to delete package #{pkg.name}; following packages use this package as devel package: "
+          msg += pkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
+          render_error :status => 400, :errorcode => 'develpackage_dependency',
+            :message => msg
+          return
+        end
+      end
 
       #find linking repos
       lreps = Array.new

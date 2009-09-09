@@ -98,7 +98,16 @@ class RequestController < ApplicationController
         if action.data.attributes["type"] == "submit" and action.source.data.attributes['modifier'].nil?
            # cleanup implicit home branches, should be done in client with 2.0
            if "home:#{@http_user.login}:branches:#{action.target.project}" == action.source.project
-              action.source.data.attributes['modifier'] = 'cleanup'
+             action.source.data.attributes['modifier'] = 'cleanup'
+           end
+           if action.source.data.attributes['modifier'] == 'cleanup'
+             unless spkg.develpackages.empty?
+               msg = "Unable to delete package #{spkg.name}; following packages use this package as devel package: "
+               msg += spkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
+               render_error :status => 400, :errorcode => 'develpackage_dependency',
+                 :message => msg
+               return
+             end
            end
         end
 
@@ -320,14 +329,43 @@ class RequestController < ApplicationController
           # cleanup source project
           if src.has_attribute? :modifier and action.source.modifier == "cleanup"
             source_project = DbProject.find_by_name(action.source.project)
+            source_package = source_project.db_packages.find_by_name(action.source.package)
+            # check for devel package defines
+            unless source_package.develpackages.empty?
+              msg = "Unable to delete package #{source_package.name}; following packages use this package as devel package: "
+              msg += source_package.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
+              render_error :status => 400, :errorcode => 'develpackage_dependency',
+                :message => msg
+              return
+            end
             if source_project.db_packages.count == 1
+              #find linking repos
+              lreps = Array.new
+              source_project.repositories.each do |repo|
+                repo.linking_repositories.each do |lrep|
+                  lreps << lrep
+                end
+              end
+              if lreps.length > 0
+                #replace links to this projects with links to the "deleted" project
+                del_repo = DbProject.find_by_name("deleted").repositories[0]
+                lreps.each do |link_rep|
+                  pe = link_rep.path_elements.find(:first, :include => ["link"], :conditions => ["db_project_id = ?", pro.id])
+                  pe.link = del_repo
+                  pe.save
+                  #update backend
+                  link_prj = link_rep.db_project
+                  logger.info "updating project '#{link_prj.name}'"
+                  Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+                end
+              end
+
               # remove source project, if this is the only package
               source_project.destroy
               Suse::Backend.delete "/source/#{action.source.project}"
             else
               # just remove package
               DbPackage.transaction do
-                source_package = source_project.db_packages.find_by_name(action.source.package)
                 source_package.destroy
               end
               Suse::Backend.delete "/source/#{action.source.project}/#{action.source.package}"
