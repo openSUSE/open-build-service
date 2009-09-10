@@ -95,20 +95,33 @@ class RequestController < ApplicationController
           end
         end
 
-        if action.data.attributes["type"] == "submit" and action.source.data.attributes['modifier'].nil?
-           # cleanup implicit home branches, should be done in client with 2.0
-           if "home:#{@http_user.login}:branches:#{action.target.project}" == action.source.project
-             action.source.data.attributes['modifier'] = 'cleanup'
-           end
-           if action.source.data.attributes['modifier'] == 'cleanup'
-             unless spkg.develpackages.empty?
-               msg = "Unable to delete package #{spkg.name}; following packages use this package as devel package: "
-               msg += spkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
-               render_error :status => 400, :errorcode => 'develpackage_dependency',
-                 :message => msg
-               return
+        # source update checks
+        if action.data.attributes["type"] == "submit"
+          sourceupdate = nil
+          if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
+             sourceupdate = action.options.sourceupdate
+          end
+          # cleanup implicit home branches, should be done in client with 2.0
+          if not sourceupdate
+             if "home:#{@http_user.login}:branches:#{action.target.project}" == action.source.project
+               if not action.has_element? 'options'
+                 action.data.add_element('options')
+               end
+               sourceupdate = 'cleanup'
+               action.options.data.add_element('sourceupdate')
+               action.options.data.elements["sourceupdate"].text = sourceupdate
              end
-           end
+          end
+          # allow cleanup only, if no devel package reference
+          if sourceupdate == 'cleanup'
+            unless spkg.develpackages.empty?
+              msg = "Unable to delete package #{spkg.name}; following packages use this package as devel package: "
+              msg += spkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
+              render_error :status => 400, :errorcode => 'develpackage_dependency',
+                :message => msg
+              return
+            end
+          end
         end
 
         unless action.data.attributes["type"] == "submit" and action.data.elements['target'].nil?
@@ -288,6 +301,10 @@ class RequestController < ApplicationController
         forward_data path, :method => :post
       elsif action.data.attributes["type"] == "submit"
         if params[:newstate] == "accepted"
+          sourceupdate = nil
+          if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
+            sourceupdate = action.options.sourceupdate.text
+          end
           src = action.source
           comment = "Copy from #{src.project}/#{src.package} via accept of submit request #{params[:id]}"
           comment += " revision #{src.rev}" if src.has_attribute? :rev
@@ -302,7 +319,7 @@ class RequestController < ApplicationController
             :comment => comment
           }
           cp_params[:orev] = src.rev if src.has_attribute? :rev
-          cp_params[:dontupdatesource] = 1 if src.has_attribute? :modifier and src.modifier == "noupdate"
+          cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
 
           #create package unless it exists already
           target_project = DbProject.find_by_name(action.target.project)
@@ -327,7 +344,7 @@ class RequestController < ApplicationController
           Suse::Backend.post cp_path, nil
 
           # cleanup source project
-          if src.has_attribute? :modifier and action.source.modifier == "cleanup"
+          if sourceupdate == "cleanup"
             source_project = DbProject.find_by_name(action.source.project)
             source_package = source_project.db_packages.find_by_name(action.source.package)
             # check for devel package defines

@@ -766,12 +766,15 @@ our $request = [
 	         'project',
 	         'package',
 	         'rev',
-	         'modifier', # can be noupdate, update, cleanup
 	   ],
 	   [ 'target' =>
 	         'project',
 	         'package',
 	   ],
+           [ 'options' =>
+                 [],
+	         'sourceupdate', # can be cleanup, update or noupdate
+           ],
      ]],
       [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
