@@ -7,7 +7,7 @@ class AddArchs3  < ActiveRecord::Migration
 
 
   def self.down
-    # too lazy too implement... resp. can't find the proper documentation...
+    Architecture.find_by_name("armv7el").destroy
   end
 
 

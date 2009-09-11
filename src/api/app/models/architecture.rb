@@ -44,7 +44,7 @@ class Architecture < ActiveRecord::Base
 
   def after_destroy
     logger.debug "updating arch cache (arch '#{name}' deleted)"
-    rolecache.delete name
+    archcache.delete name
   end
 end
 
