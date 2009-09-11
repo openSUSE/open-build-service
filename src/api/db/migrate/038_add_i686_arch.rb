@@ -9,7 +9,9 @@ class AddI686Arch  < ActiveRecord::Migration
 
 
   def self.down
-    # too lazy too implement... resp. can't find the proper documentation...
+    Architecture.find_by_name("i686").destroy
+    Architecture.find_by_name("mips32").destroy
+    Architecture.find_by_name("mips64").destroy
   end
 
 

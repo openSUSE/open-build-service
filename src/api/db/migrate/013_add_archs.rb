@@ -15,7 +15,15 @@ class AddArchs  < ActiveRecord::Migration
 
 
   def self.down
-    # too lazy too implement... resp. can't find the proper documentation...
+    Architecture.find_by_name("ppc").destroy
+    Architecture.find_by_name("ppc64").destroy
+    Architecture.find_by_name("s390").destroy
+    Architecture.find_by_name("s390x").destroy
+    Architecture.find_by_name("ia64").destroy
+    Architecture.find_by_name("mips").destroy
+    Architecture.find_by_name("armv4l").destroy
+    Architecture.find_by_name("sparc").destroy
+    Architecture.find_by_name("sparc64").destroy
   end
 
 
