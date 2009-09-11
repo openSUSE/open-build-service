@@ -1,5 +1,5 @@
 <h2>Idle hosts</h2>
-<% if @workerstatus.each_idle.length > 0 %>
+<% if @workerstatus.has_element? :idle and @workerstatus.each_idle.length > 0 %>
   <%= @workerstatus.each_idle.length %> of <%= pluralize(@workerstatus.clients, 'host') %> idle.
   <table class="building">
     <tr><th>Host</th><th>Arch</th></tr>

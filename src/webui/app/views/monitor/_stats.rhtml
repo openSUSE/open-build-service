@@ -19,17 +19,21 @@
           <center><%= entrywaiting.jobs %></center>
         </td>
         <td class="blocked">
-          <% if !@workerstatus.blocked("@arch='#{entrywaiting.arch}'").nil? -%>
-            <% if @workerstatus.blocked("@arch='#{entrywaiting.arch}'").has_attribute? :jobs -%>
-              <% outblocked = @workerstatus.blocked("@arch='#{entrywaiting.arch}'").jobs %>
+          <% if @workerstatus.has_element? :blocked -%>
+            <% if !@workerstatus.blocked("@arch='#{entrywaiting.arch}'").nil? -%>
+              <% if @workerstatus.blocked("@arch='#{entrywaiting.arch}'").has_attribute? :jobs -%>
+                <% outblocked = @workerstatus.blocked("@arch='#{entrywaiting.arch}'").jobs %>
+              <% end %>
             <% end %>
           <% end %>
           <center><%= outblocked %></center>
         </td>
         <td class="avgjobtime">
-          <% if !@workerstatus.buildavg("@arch='#{entrywaiting.arch}'").nil? -%>
-            <% if @workerstatus.buildavg("@arch='#{entrywaiting.arch}'").has_attribute? :buildavg -%>
-              <% outbuildavg = distance_of_time_in_words(Time.at(@workerstatus.buildavg("@arch='#{entrywaiting.arch}'").buildavg.to_i), Time.at(0), true) %>
+          <% if @workerstatus.has_element? :buildavg -%>
+            <% if !@workerstatus.buildavg("@arch='#{entrywaiting.arch}'").nil? -%>
+              <% if @workerstatus.buildavg("@arch='#{entrywaiting.arch}'").has_attribute? :buildavg -%>
+                <% outbuildavg = distance_of_time_in_words(Time.at(@workerstatus.buildavg("@arch='#{entrywaiting.arch}'").buildavg.to_i), Time.at(0), true) %>
+              <% end %>
             <% end %>
           <% end %>
           <center><%= outbuildavg %> </center>
