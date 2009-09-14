@@ -172,15 +172,15 @@ class ApplicationController < ActionController::Base
   def forward_data( path, opt={} )
     defaults = {:server => :source, :method => :get}
     opt = defaults.merge opt
-    @data = opt[:data] if opt[:data]
+#    @data = opt[:data] if opt[:data]
 
     case opt[:method]
     when :get
       response = Suse::Backend.get_source( path )
     when :post
-      response = Suse::Backend.post_source( path, @data )
+      response = Suse::Backend.post_source( path, request.raw_post )
     when :put
-      response = Suse::Backend.put_source( path, @data )
+      response = Suse::Backend.put_source( path, request.raw_post )
     when :delete
       response = Suse::Backend.delete_source( path )
     end

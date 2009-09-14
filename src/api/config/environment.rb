@@ -96,10 +96,11 @@ require 'activexml'
 #Dependencies.log_activity = true
 #Dependencies.load_once_paths << "#{RAILS_ROOT}/lib"
 
-module ActionController::Routing
-  remove_const :SEPARATORS
-  SEPARATORS = %w(/ ; ?)
-end
+# was needed for rails < 2.3
+#module ActionController::Routing
+#  remove_const :SEPARATORS
+#  SEPARATORS = %w(/ ; ?)
+#end
 
 ActiveXML::Base.config do |conf|
   if RAILS_ENV == "test"
