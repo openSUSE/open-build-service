@@ -54,7 +54,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'source/:project/:package/_wizard', :controller => 'wizard',
     :action => 'package_wizard'
   map.connect 'source/:project/:package/:file', :controller => "source",
-    :action => 'file'
+    :action => 'file', :file => /.*/
   map.connect 'source/:project/_pattern', :controller => 'source',
     :action => 'index_pattern'
   #map.connect 'source/:project/_product', :controller => 'source',
@@ -189,7 +189,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch/:package/_log',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
-    :controller => "build", :action => "buildinfo"
+    :controller => "build", :action => "buildinfo", :repository => /.*/
   map.connect 'build/:project/:repository/:arch/:package/_history',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build/:project/:repository/:arch/:package/:filename',

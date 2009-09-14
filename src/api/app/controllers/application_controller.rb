@@ -172,14 +172,15 @@ class ApplicationController < ActionController::Base
   def forward_data( path, opt={} )
     defaults = {:server => :source, :method => :get}
     opt = defaults.merge opt
+    @data = opt[:data] if opt[:data]
 
     case opt[:method]
     when :get
       response = Suse::Backend.get_source( path )
     when :post
-      response = Suse::Backend.post_source( path, request.raw_post )
+      response = Suse::Backend.post_source( path, @data )
     when :put
-      response = Suse::Backend.put_source( path, request.raw_post )
+      response = Suse::Backend.put_source( path, @data )
     when :delete
       response = Suse::Backend.delete_source( path )
     end
@@ -268,12 +269,13 @@ class ApplicationController < ActionController::Base
     # if the exception was raised inside a template (-> @template.first_render != nil), 
     # the instance variables created in here will not be injected into the template
     # object, so we have to do it manually
-    if @template.first_render
-      logger.debug "injecting error instance variables into template object"
-      %w{@summary @errorcode @exception}.each do |var|
-        @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
-      end
-    end
+# This is commented out, since it does not work with Rails 2.3 anymore and is also not needed there
+#    if @template.first_render
+#      logger.debug "injecting error instance variables into template object"
+#      %w{@summary @errorcode @exception}.each do |var|
+#        @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
+#      end
+#    end
 
     # on some occasions the status template doesn't receive the instance variables it needs
     # unless render_to_string is called before (which is an ugly workaround but I don't have any
