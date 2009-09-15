@@ -99,6 +99,9 @@ Debug Options
 
  --dump-state <architecture>
 
+ --dump-relsync <file>
+   To dump content of :relsync files.
+
  --check-meta-xml <project>
  --check-meta-xml <project> <package>
    Is parsing a project or package xml file and puts out error messages, in case of errors.
