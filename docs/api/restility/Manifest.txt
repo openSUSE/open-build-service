@@ -12,9 +12,6 @@ config/requirements.rb
 lib/rest.rb
 lib/rest_htmlprinter.rb
 lib/rest_test.rb
-lib/restility.rb
-lib/restility/version.rb
-log/debug.log
 script/destroy
 script/generate
 setup.rb

@@ -1,4 +1,4 @@
-require 'restility/version'
+#require 'restility/version'
 
 AUTHOR = 'Cornelius Schumacher'  # can also be an array of Authors
 EMAIL = "cschum@suse.de"
@@ -31,7 +31,7 @@ end
 REV = nil 
 # UNCOMMENT IF REQUIRED: 
 # REV = `svn info`.each {|line| if line =~ /^Revision:/ then k,v = line.split(': '); break v.chomp; else next; end} rescue nil
-VERS = Restility::VERSION::STRING + (REV ? ".#{REV}" : "")
+VERS = "0.0.1" + (REV ? ".#{REV}" : "")
 RDOC_OPTS = ['--quiet', '--title', 'restility documentation',
     "--opname", "index.html",
     "--line-numbers", 
