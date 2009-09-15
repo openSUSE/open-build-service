@@ -1741,7 +1741,21 @@ sub getconfig {
     # unshift @path, "$projid/$repoid" unless @path && $path[0] eq "$projid/$repoid";
   }
   my $config = "%define _project $projid\n";
-  my $macros = "%vendor openSUSE Build Service\n";
+  my $macros = '';
+
+  #$macros .= "%vendor openSUSE Build Service\n";
+
+  # find the sign project, this is what we use as vendor
+  my $vprojid = $projid;
+  while ($vprojid ne '') {
+    last if -s "$projectsdir/$vprojid.pkg/_signkey";
+    $vprojid =~ s/[^:]*$//;
+    $vprojid =~ s/:$//;
+  }
+  $vprojid = $projid if $vprojid eq '';
+  my $obsname = $BSConfig::obsname || 'build.opensuse.org';
+  $macros .= "%vendor obs://$obsname/$vprojid\n";
+
   $macros .= "%_project $projid\n";
   my $lastr = '';
 
