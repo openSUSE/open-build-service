@@ -172,7 +172,6 @@ class ApplicationController < ActionController::Base
   def forward_data( path, opt={} )
     defaults = {:server => :source, :method => :get}
     opt = defaults.merge opt
-#    @data = opt[:data] if opt[:data]
 
     case opt[:method]
     when :get
@@ -308,6 +307,13 @@ class ApplicationController < ActionController::Base
 
   def backend_put( path, data )
     backend.direct_http( URI(path), :method => "PUT", :data => data )
+  end
+
+  def backend_post( path, data )
+    backend.set_additional_header("Content-Length", data.size.to_s())
+    response = backend.direct_http( URI(path), :method => "POST", :data => data )
+    backend.delete_additional_header("Content-Length")
+    return response
   end
 
   #default actions, passes data from backend

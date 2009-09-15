@@ -168,7 +168,11 @@ class RequestController < ApplicationController
     params[:user] = @http_user.login if @http_user
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
-    forward_data path, :method => :post, :data => req.dump_xml
+    # forward_path is not working here, because we may modify the request.
+    # can get cleaned up when we moved this to the client
+    response = backend_post( path, req.dump_xml )
+    send_data( response, :disposition => "inline" )
+    return
   end
 
   def modify_changestate
