@@ -34,10 +34,10 @@ class RequestController < ApplicationController
   #end
 
   private
-  
+
   # POST /request?cmd=create
   def create_create
-    if request.body.kind_of? StringIO
+    if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream
       req = BsRequest.new(request.body.read)
     else
       req = BsRequest.new(request.body)
