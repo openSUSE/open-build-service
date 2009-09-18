@@ -101,9 +101,9 @@ class User < ActiveRecord::Base
     unless project.kind_of? DbProject
       raise RuntimeError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
-
     return true if has_global_permission? "change_project"
     return true if has_local_permission? "change_project", project
+    return false
   end
 
   # package is instance of DbPackage
@@ -114,6 +114,7 @@ class User < ActiveRecord::Base
 
     return true if has_global_permission? "change_package"
     return true if has_local_permission? "change_package", package
+    return false
   end
 
   # project is instance of DbProject
@@ -124,6 +125,7 @@ class User < ActiveRecord::Base
 
     return true if has_global_permission? "create_package"
     return true if has_local_permission? "create_package", project
+    return false
   end
 
   # project_name is name of the project
