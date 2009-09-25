@@ -116,6 +116,7 @@ ActiveXML::Base.config do |conf|
 
     map.connect :directory, "rest:///source/:project/:package"
     map.connect :link, "rest:///source/:project/:package/_link"
+    map.connect :jobhislist, "rest:///build/:project/:name/:arch/_jobhistory"
 
 
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package&:code&:lastbuild"

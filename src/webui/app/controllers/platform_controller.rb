@@ -17,6 +17,14 @@ class PlatformController < ApplicationController
       redirect_to :action => :list_all
     else
       @platform = Platform.find( params[:name], :project => @project )
+      @jobhislist = Hash.new
+
+      if @platform.has_element? :arch
+        @platform.each_arch do |arch|
+            @jobhislist.merge!({ "#{arch}" => Jobhislist.find( params[:name], :project => @project, :arch => "#{arch}" ) })
+        end
+      end
+
     end
   end
 
