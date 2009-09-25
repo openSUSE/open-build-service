@@ -130,6 +130,70 @@ class PublicController < ApplicationController
     render :text => DistributionController.read_distfile, :content_type => "text/xml"
   end
 
+  # GET /public/binary_packages/:project/:package
+  def binary_packages
+    if (@prj = DbProject.find_by_name params[:project]).blank?
+      render_error :status => 404, :errorcode => 'unknown_project'
+      return
+    end
+
+    if (@pkg = @prj.db_packages.find_by_name params[:package]).blank?
+      render_error :status => 404, :errorcode => 'unknown_package'
+      return
+    end
+
+    distfile = ActiveXML::Node.new(DistributionController.read_distfile)
+    binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{@prj.name}' and @package='#{@pkg.name}'"
+    binary_map = Hash.new
+    binaries.each do |bin|
+      next if bin.arch.to_s == "src"
+      binary_map[bin.repository.to_s] ||= Array.new
+      binary_map[bin.repository.to_s] << bin
+    end
+
+    def scan_distfile(distfile)
+      h = HashWithIndifferentAccess.new
+      distfile.each_distribution do |dist|
+        h["#{dist.project}/#{dist.repository}"] = dist
+      end
+      return h
+    end
+
+    @links = Array.new
+
+    d = scan_distfile(distfile)
+    @prj.repositories.find(:all, :include => {:path_elements => {:link => :db_project}}).each do |repo|
+      d.each do |key, dist|
+        logger.debug sprintf "-- d.each .. key: %s", key
+        if repo.path_elements.length == 1 and repo.path_elements[0].to_string == key
+          next unless binary_map.has_key? repo.name
+          binary = nil
+          if binary_map[repo.name].length > 1
+            #if package produces more than one binary, try to find one that matches
+            #the package name 
+            binary = binary_map[repo.name].select {|bin| bin.name == @pkg.name}.first
+          end
+          
+          binary = binary_map[repo.name].first unless binary
+
+          link = {:id => dist.method_missing(:id)}
+          if dist.vendor == "opensuse"
+            link[:href] = YMP_URL + binary.filepath.sub(%r([^/]+/[^/]+$), binary.name+".ymp")
+            link[:type] = "ymp"
+            @links << link
+          else
+            @links << link.merge({:type => binary.method_missing(:type), :arch => binary.arch, :href => DOWNLOAD_URL+binary.filepath})
+            repo_href = binary.filepath.sub(%r([^/]+/[^/]+$), @prj.name+".repo")
+            @links << {:id => dist.method_missing(:id), :type => "yum", :href => DOWNLOAD_URL+repo_href}
+          end
+          break
+        end
+      end
+    end
+
+    @binaries = binary_map
+  end
+
   private
 
   # removes /private prefix from path

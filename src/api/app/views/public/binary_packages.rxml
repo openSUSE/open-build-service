@@ -1,0 +1,18 @@
+xml.package :project => @prj.name, :package => @pkg.name do
+  xml.title @pkg.title
+  xml.description @pkg.description
+  @links.each do |link|
+    xml.link link
+  end
+
+  xml.binaries do
+     binaries.each do |repo,arr|
+      xml.list(:repository => repo) do
+        arr.each do |bin|
+          xml.binary :type => bin.method_missing(:type), :arch => bin.arch, :filepath => bin.filepath
+          xml << bin.dump_xml
+        end
+      end
+    end
+  end
+end
