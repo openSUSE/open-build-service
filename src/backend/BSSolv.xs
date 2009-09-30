@@ -13,6 +13,8 @@
 #include "hash.h"
 #include "repo_solv.h"
 #include "repo_write.h"
+#include "repo_rpmdb.h"
+#include "repo_deb.h"
 
 typedef struct _Expander {
   Pool *pool;
@@ -37,8 +39,78 @@ typedef Pool *BSSolv__pool;
 typedef Repo *BSSolv__repo;
 typedef Expander *BSSolv__expander;
 
+static Id buildservice_id;
+static Id buildservice_repocookie;
 
 #define MAPEXP(m, n) ((m)->size < (((n) + 7) >> 3) ? map_grow(m, n + 256) : 0)
+
+#define REPOCOOKIE "buildservice repo 1.0"
+
+static int
+myrepowritefilter(Repo *repo, Repokey *key, void *kfdata)
+{
+  int i;
+  if (key->name == SOLVABLE_URL)
+    return KEY_STORAGE_DROPPED;
+  if (key->name == SOLVABLE_HEADEREND)
+    return KEY_STORAGE_DROPPED;
+  if (key->name == SOLVABLE_PACKAGER)
+    return KEY_STORAGE_DROPPED;
+  if (key->name == SOLVABLE_GROUP)
+    return KEY_STORAGE_DROPPED;
+  if (key->name == SOLVABLE_LICENSE)
+    return KEY_STORAGE_DROPPED;
+  i = repo_write_stdkeyfilter(repo, key, kfdata);
+  if (i == KEY_STORAGE_VERTICAL_OFFSET)
+    return KEY_STORAGE_DROPPED;
+  return i;
+}
+
+static inline char *
+hvlookupstr(HV *hv, const char *key, int keyl)
+{
+  SV **svp = hv_fetch(hv, key, keyl, 0);
+  if (!svp)
+    return 0;
+  return SvPV_nolen(*svp);
+}
+
+static inline AV *
+hvlookupav(HV *hv, const char *key, int keyl)
+{
+  SV *sv, **svp = hv_fetch(hv, key, keyl, 0);
+  if (!svp)
+    return 0;
+  sv = *svp;
+  if (!sv || !SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVAV)
+    return 0;
+  return (AV *)SvRV(sv);
+}
+
+static Id
+makeevr(Pool *pool, char *e, char *v, char *r)
+{
+  char *s;
+
+  if (!v)
+    return 0;
+  if (e && !strcmp(e, "0"))
+    e = 0;
+  s = pool_tmpjoin(pool, e, ":", v);
+  if (r)
+    s = pool_tmpjoin(pool, s, "-", s);
+  return str2id(pool, s, 1);
+}
+
+static inline char *
+avlookupstr(AV *av, int n)
+{
+  SV **svp = av_fetch(av, n, 0);
+  if (!svp)
+    return 0;
+  return SvPV_nolen(*svp);
+}
+
 static inline Id
 id2name(Pool *pool, Id id)
 {
@@ -473,6 +545,8 @@ create_considered(Pool *pool)
   FOR_REPOS(ridx, repo)
     FOR_REPO_SOLVABLES(repo, p, s)
       {
+	if (s->arch == ARCH_SRC || s->arch == ARCH_NOSRC)
+	  continue;
 	pb = best[s->name];
 	if (pb)
 	  {
@@ -517,6 +591,35 @@ static int metacmp(const void *ap, const void *bp)
   if (r)
     return r;
   return a - b;
+}
+
+
+Id
+repodata_addbin(Repodata *data, char *path, char *s, int sl, char *sid)
+{
+  Pool *pool = data->repo->pool;
+  char *sp;
+  Id p;
+
+  p = pool->nsolvables;
+  if (!strcmp(s + sl - 4, ".rpm"))
+    repo_add_rpms(data->repo, (const char **)&path, 1, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|RPM_ADD_WITH_PKGID|RPM_ADD_NO_FILELIST|RPM_ADD_NO_RPMLIBREQS);
+  else if (!strcmp(s + sl - 4, ".deb"))
+    repo_add_debs(data->repo, (const char **)&path, 1, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|DEBS_ADD_WITH_PKGID);
+  else
+    return 0;
+  if (pool->nsolvables == p)
+    return 0;
+  if ((sp = strrchr(s, '/')) != 0)
+    {
+      *sp = 0;
+      repodata_set_str(data, p, SOLVABLE_MEDIADIR, s);
+      *sp = '/';
+    }
+  else
+    repodata_delete_uninternalized(data, p, SOLVABLE_MEDIADIR);
+  repodata_set_str(data, p, buildservice_id, sid);
+  return p;
 }
 
 MODULE = BSSolv		PACKAGE = BSSolv
@@ -636,7 +739,7 @@ depsort(HV *deps, SV *mapp, SV *cycp, ...)
 	      }
 	    sat_free(ht);
 
-	    if (1)
+	    if (0)
 	      {
 		printf("vertexes: %d\n", vedge.count - 1);
 		for (i = 1; i < vedge.count; i++)
@@ -982,13 +1085,19 @@ BSSolv::pool
 new(packname = "BSSolv::pool")
     char *packname;
     CODE:
-	RETVAL = pool_create();
-	printf("Created pool %p\n", RETVAL);
+	{
+	    Pool *pool = pool_create();
+	    buildservice_id = str2id(pool, "buildservice:id", 1);
+	    buildservice_repocookie= str2id(pool, "buildservice:repocookie", 1);
+	    pool_freeidhashes(pool);
+	    printf("Created pool %p\n", pool);fflush(stdout);
+	    RETVAL = pool;
+	}
     OUTPUT:
 	RETVAL
     
 BSSolv::repo
-repofromfile(BSSolv::pool pool, char *filename)
+repofromfile(BSSolv::pool pool, char *name, char *filename)
     CODE:
 	FILE *fp;
 	fp = fopen(filename, "r");
@@ -996,14 +1105,14 @@ repofromfile(BSSolv::pool pool, char *filename)
 	    croak("%s: %s\n", filename, Strerror(errno));
 	    XSRETURN_UNDEF;
 	}
-	RETVAL = repo_create(pool, 0);
+	RETVAL = repo_create(pool, name);
 	repo_add_solv(RETVAL, fp);
 	fclose(fp);
     OUTPUT:
 	RETVAL
 
 BSSolv::repo
-repofromstr(BSSolv::pool pool, SV *sv)
+repofromstr(BSSolv::pool pool, char *name, SV *sv)
     CODE:
 	FILE *fp;
 	STRLEN len;
@@ -1016,9 +1125,146 @@ repofromstr(BSSolv::pool pool, SV *sv)
 	    croak("fmemopen failed\n");
 	    XSRETURN_UNDEF;
 	}
-	RETVAL = repo_create(pool, 0);
+	RETVAL = repo_create(pool, name);
 	repo_add_solv(RETVAL, fp);
 	fclose(fp);
+    OUTPUT:
+	RETVAL
+
+BSSolv::repo
+repofrombins(BSSolv::pool pool, char *name, char *dir, ...)
+    CODE:
+	{
+	    int i;
+	    Repo *repo;
+	    Repodata *data;
+	    repo = repo_create(pool, name);
+	    data = repo_add_repodata(repo, 0);
+	    for (i = 3; i + 1 < items; i += 2)
+	      {
+		STRLEN sl;
+		char *path;
+		char *s = SvPV(ST(i), sl);
+		char *sid = SvPV_nolen(ST(i + 1));
+		if (sl < 4)
+		  continue;
+		if (strcmp(s + sl - 4, ".rpm") && strcmp(s + sl - 4, ".deb"))
+		  continue;
+		if (sl > 10 && !strcmp(s + sl - 10, ".patch.rpm"))
+		  continue;
+		if (sl > 10 && !strcmp(s + sl - 10, ".nosrc.rpm"))
+		  continue;
+		if (sl > 8 && !strcmp(s + sl - 8, ".src.rpm"))
+		  continue;
+		path = sat_dupjoin(dir, "/", s);
+		repodata_addbin(data, path, s, (int)sl, sid);
+		free(path);
+	      }
+	    repo_set_str(repo, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
+	    repo_internalize(repo);
+	    RETVAL = repo;
+	}
+    OUTPUT:
+	RETVAL
+
+BSSolv::repo
+repofromdata(BSSolv::pool pool, char *name, HV *rhv)
+    CODE:
+	{
+	    Repo *repo;
+	    Repodata *data;
+	    SV *sv;
+	    HV *hv;
+	    AV *av;
+	    int i;
+	    char *str, *key;
+	    I32 keyl;
+	    Id p;
+	    Solvable *s;
+
+	    repo = repo_create(pool, name);
+	    data = repo_add_repodata(repo, 0);
+	    hv_iterinit(rhv);
+	    while ((sv = hv_iternextsv(rhv, &key, &keyl)) != 0)
+	      {
+		if (!SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVHV)
+		  continue;
+		hv = (HV *)SvRV(sv);
+		str = hvlookupstr(hv, "name", 4);
+		if (!str)
+		  continue;	/* need to have a name */
+		p = repo_add_solvable(repo);
+		s = pool_id2solvable(pool, p);
+		s->name = str2id(pool, str, 1);
+		str = hvlookupstr(hv, "arch", 4);
+		if (!str)
+		  str = "";	/* dummy, need to have arch */
+	        s->arch = str2id(pool, str, 1);
+		s->evr = makeevr(pool, hvlookupstr(hv, "epoch", 5), hvlookupstr(hv, "version", 7), hvlookupstr(hv, "release", 7));
+		str = hvlookupstr(hv, "path", 4);
+		if (str)
+		  {
+		    char *ss = strrchr(str, '/');
+		    if (ss)
+		      {
+			*ss = 0;
+			repodata_set_str(data, p, SOLVABLE_MEDIADIR, str);
+			*ss++ = '/';
+		      }
+		    else
+		      ss = str;
+		    repodata_set_str(data, p, SOLVABLE_MEDIAFILE, ss);
+		  }
+		str = hvlookupstr(hv, "id", 2);
+		if (str)
+		  repodata_set_str(data, p, buildservice_id, str);
+		str = hvlookupstr(hv, "source", 6);
+		if (str)
+		  repodata_set_poolstr(data, p, SOLVABLE_SOURCENAME, str);
+		str = hvlookupstr(hv, "hdrmd5", 6);
+		if (str && strlen(str) == 32)
+		  repodata_set_checksum(data, p, SOLVABLE_PKGID, REPOKEY_TYPE_MD5, str);
+		av = hvlookupav(hv, "provides", 8);
+		if (av)
+		  {
+		    for (i = 0; i <= av_len(av); i++)
+		      {
+			str = avlookupstr(av, i);
+			if (str)
+			  s->provides = repo_addid_dep(repo, s->provides, dep2id(pool, str), 0);
+		      }
+		  }
+		av = hvlookupav(hv, "requires", 8);
+		if (av)
+		  {
+		    for (i = 0; i <= av_len(av); i++)
+		      {
+			str = avlookupstr(av, i);
+			if (str)
+			  s->requires = repo_addid_dep(repo, s->requires, dep2id(pool, str), 0);
+		      }
+		  }
+		if (!s->evr && s->provides)
+		  {
+		    /* look for self provides */
+		    Id pro, *prop = s->repo->idarraydata + s->provides;
+		    while ((pro = *prop++) != 0)
+		      {
+		        Reldep *rd;
+			if (!ISRELDEP(pro))
+			  continue;
+		        rd = GETRELDEP(pool, pro);
+			if (rd->name == s->name && rd->flags == REL_EQ)
+			  s->evr = rd->evr;
+		      }
+		  }
+		if (s->evr)
+		  s->provides = repo_addid_dep(repo, s->provides, rel2id(pool, s->name, s->evr, REL_EQ, 1), 0);
+	      }
+	    repo_set_str(repo, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
+	    repo_internalize(repo);
+	    RETVAL = repo;
+	}
     OUTPUT:
 	RETVAL
 
@@ -1054,9 +1300,86 @@ whatprovides(BSSolv::pool pool, char *str)
 	RETVAL
 
 void
+consideredpackages(BSSolv::pool pool)
+    PPCODE:
+	{
+	    int p, nsolv = 0;
+	    for (p = 2; p < pool->nsolvables; p++)
+	      if (MAPTST(pool->considered, p))
+		nsolv++;
+	    EXTEND(SP, nsolv);
+	    for (p = 2; p < pool->nsolvables; p++)
+	      if (MAPTST(pool->considered, p))
+		PUSHs(sv_2mortal(newSViv((IV)p)));
+	}
+	
+
+const char *
+pkg2name(BSSolv::pool pool, int p)
+    CODE:
+	RETVAL = id2str(pool, pool->solvables[p].name);
+    OUTPUT:
+	RETVAL
+
+const char *
+pkg2srcname(BSSolv::pool pool, int p)
+    CODE:
+	if (solvable_lookup_void(pool->solvables + p, SOLVABLE_SOURCENAME))
+	  RETVAL = id2str(pool, pool->solvables[p].name);
+	else
+	  RETVAL = solvable_lookup_str(pool->solvables + p, SOLVABLE_SOURCENAME);
+    OUTPUT:
+	RETVAL
+
+const char *
+pkg2pkgid(BSSolv::pool pool, int p)
+    CODE:
+	{
+	    Id type;
+	    const char *s = solvable_lookup_checksum(pool->solvables + p, SOLVABLE_PKGID, &type);
+	    RETVAL = s;
+	}
+    OUTPUT:
+	RETVAL
+
+const char *
+pkg2reponame(BSSolv::pool pool, int p)
+    CODE:
+	{
+	    Repo *repo = pool->solvables[p].repo;
+	    RETVAL = repo ? repo->name : 0;
+	}
+    OUTPUT:
+	RETVAL
+
+const char *
+pkg2path(BSSolv::pool pool, int p)
+    CODE:
+	{
+	    unsigned int medianr;
+	    RETVAL = solvable_get_location(pool->solvables + p, &medianr);
+	}
+    OUTPUT:
+	RETVAL
+	
+const char *
+pkg2fullpath(BSSolv::pool pool, int p, char *myarch)
+    CODE:
+	{
+	    unsigned int medianr;
+	    const char *s = solvable_get_location(pool->solvables + p, &medianr);
+	    Repo *repo = pool->solvables[p].repo;
+	    s = pool_tmpjoin(pool, myarch, "/:full/", s);
+	    RETVAL = pool_tmpjoin(pool, repo->name, "/", s);
+	}
+    OUTPUT:
+	RETVAL
+
+
+void
 DESTROY(BSSolv::pool pool)
     CODE:
-	printf("Goodbye pool %p\n", pool);
+	printf("Goodbye pool %p\n", pool);fflush(stdout);
         if (pool->considered)
 	  {
 	    map_free(pool->considered);
@@ -1159,7 +1482,7 @@ pkgdata(BSSolv::repo repo, int p)
 	    ss = solvable_lookup_checksum(s, SOLVABLE_PKGID, &id);
 	    if (ss && id == REPOKEY_TYPE_MD5)
 	      (void)hv_store(RETVAL, "hdrmd5", 4, newSVpv(ss, 0), 0);
-	    ss = solvable_lookup_str(s, PUBKEY_FINGERPRINT);
+	    ss = solvable_lookup_str(s, buildservice_id);
 	    if (ss)
 	      (void)hv_store(RETVAL, "id", 2, newSVpv(ss, 0), 0);
 	}
@@ -1174,7 +1497,7 @@ tofile(BSSolv::repo repo, char *filename)
 	    fp = fopen(filename, "w");
 	    if (fp == 0)
 	      croak("%s: %s\n", filename, Strerror(errno));
-	    repo_write(repo, fp, repo_write_stdkeyfilter, 0, 0);
+	    repo_write(repo, fp, myrepowritefilter, 0, 0);
 	    if (fclose(fp))
 	      croak("fclose: %s\n",  Strerror(errno));
 	}
@@ -1189,7 +1512,7 @@ tostr(BSSolv::repo repo)
 	    fp = open_memstream(&buf, &len);
 	    if (fp == 0)
 	      croak("open_memstream: %s\n", Strerror(errno));
-	    repo_write(repo, fp, repo_write_stdkeyfilter, 0, 0);
+	    repo_write(repo, fp, myrepowritefilter, 0, 0);
 	    if (fclose(fp))
 	      croak("fclose: %s\n",  Strerror(errno));
 	    RETVAL = newSVpvn(buf, len);
@@ -1198,7 +1521,153 @@ tostr(BSSolv::repo repo)
     OUTPUT:
 	RETVAL
 
+int
+updatefrombins(BSSolv::repo repo, char *dir, ...)
+    CODE:
+	{
+	    Pool *pool = repo->pool;
+	    int i;
+	    Repodata *data = 0;
+	    Hashmask hm;
+	    Hashtable ht;
+	    Hashval h, hh;
+	    int dirty = 0;
+	    Map reused;
+	    int oldend = 0;
+	    Id p, id;
+	    Solvable *s;
+	    STRLEN sl;
+	    char *path;
+	    const char *oldcookie;
+	  
+	    map_init(&reused, repo->end - repo->start);
+	    hm = mkmask(2 * repo->nsolvables + 1);
+	    ht = sat_calloc(hm + 1, sizeof(*ht));
+	    oldcookie = repo_lookup_str(repo, SOLVID_META, buildservice_repocookie);
+	    if (oldcookie && !strcmp(oldcookie, REPOCOOKIE))
+	      {
+		FOR_REPO_SOLVABLES(repo, p, s)
+		  {
+		    const char *str = solvable_lookup_str(s, buildservice_id);
+		    if (!str)
+		      continue;
+		    h = strhash(str) & hm;
+		    hh = HASHCHAIN_START;
+		    while ((id = ht[h]) != 0)
+		      h = HASHCHAIN_NEXT(h, hh, hm);
+		    ht[h] = p;
+		  }
+	      }
+	    if (repo->end != repo->start)
+	      oldend = repo->end;
 
+	    for (i = 2; i + 1 < items; i += 2)
+	      {
+		char *s = SvPV(ST(i), sl);
+		char *sid = SvPV_nolen(ST(i + 1));
+		if (sl < 4)
+		  continue;
+		if (strcmp(s + sl - 4, ".rpm") && strcmp(s + sl - 4, ".deb"))
+		  continue;
+		if (sl > 10 && !strcmp(s + sl - 10, ".patch.rpm"))
+		  continue;
+		if (sl > 10 && !strcmp(s + sl - 10, ".nosrc.rpm"))
+		  continue;
+		if (sl > 8 && !strcmp(s + sl - 8, ".src.rpm"))
+		  continue;
+		path = sat_dupjoin(dir, "/", s);
+		h = strhash(sid) & hm;
+		hh = HASHCHAIN_START;
+		while ((id = ht[h]) != 0)
+		  {
+		    const char *str = solvable_lookup_str(pool->solvables + id, buildservice_id);
+		    if (!strcmp(str, sid))
+		      {
+			/* check location */
+			unsigned int medianr;
+			str = solvable_get_location(pool->solvables + id, &medianr);
+			if (str[0] == '.' && str[1] == '/')
+			  str += 2;
+			if (!strcmp(str, s))
+		          break;
+		      }
+		    h = HASHCHAIN_NEXT(h, hh, hm);
+		  }
+		if (id)
+		  {
+		    /* same id and location, reuse old entry */
+		    MAPSET(&reused, id - repo->start);
+		  }
+		else
+		  {
+		    /* add new entry */
+		    dirty = 1;
+		    if (!data)
+		      data = repo_add_repodata(repo, 0);
+		    repodata_addbin(data, path, s, (int)sl, sid);
+		  }
+		free(path);
+	      }
+	    if (oldcookie)
+	      {
+		if (strcmp(oldcookie, REPOCOOKIE))
+		  {
+		    if (data && data != repo->repodata)
+		      repodata_internalize(data);
+		    data = repo->repodata;
+		    repodata_set_str(data, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
+		  }
+	      }
+	    else
+	      {
+	        if (!data)
+	          data = repo_add_repodata(repo, 0);
+	        repodata_set_str(data, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
+	      }
+	    if (data)
+	      repodata_internalize(data);
+	    if (oldend)
+	      {
+		for (i = repo->start; i < oldend; i++)
+		  {
+		    if (pool->solvables[i].repo != repo)
+		      continue;
+		    if (MAPTST(&reused, i - repo->start))
+		      continue;
+		    dirty = 1;
+		    repo_free_solvable_block(repo, i, 1, 0);
+		  }
+	      }
+	  RETVAL = dirty;
+	}
+    OUTPUT:
+	RETVAL
+
+
+void
+getpathid(BSSolv::repo repo)
+    PPCODE:
+	{
+	    Id p;
+	    Solvable *s;
+	    EXTEND(SP, repo->nsolvables * 2);
+	    FOR_REPO_SOLVABLES(repo, p, s)
+	      {
+		unsigned int medianr;
+		const char *str;
+		str = solvable_get_location(s, &medianr);
+		PUSHs(sv_2mortal(newSVpv(str, 0)));
+		str = solvable_lookup_str(s, buildservice_id);
+		PUSHs(sv_2mortal(newSVpv(str, 0)));
+	      }
+	}
+
+const char *
+name(BSSolv::repo repo)
+    CODE:
+	RETVAL = repo->name;
+    OUTPUT:
+	RETVAL
 
 MODULE = BSSolv		PACKAGE = BSSolv::expander	PREFIX = expander
 
@@ -1331,10 +1800,10 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 		  }
 	      }
 	    sv = get_sv("Build::expand_dbg", FALSE);
-	    if (sv && SvIV(sv))
+	    if (sv && SvTRUE(sv))
 	      xp->debug = 1;
+	    printf("Created expander %p\n", xp);fflush(stdout);
 	    RETVAL = xp;
-	    printf("Created expander %p\n", RETVAL);
 	}
     OUTPUT:
 	RETVAL
@@ -1458,7 +1927,7 @@ expand(BSSolv::expander xp, ...)
 void
 DESTROY(BSSolv::expander xp)
     CODE:
-	printf("Goodbye expander %p\n", xp);
+	printf("Goodbye expander %p\n", xp);fflush(stdout);
 	map_free(&xp->ignored);
 	map_free(&xp->ignoredx);
 	queue_free(&xp->preferposq);
