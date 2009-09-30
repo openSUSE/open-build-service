@@ -3460,7 +3460,6 @@ sub worker_getbinaries {
       'directory' => $remotecache,
       'map' => "upload$serialmd5:",
     };
-    mkdir_p($remotecache);
     my $cpio;
     if ($BSStdServer::isajax) {
       $param->{'receiver'} = \&BSHTTP::file_receiver;
