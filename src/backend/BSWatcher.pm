@@ -221,7 +221,7 @@ sub addfilewatcher {
 sub serialize {
   my ($file) = @_;
   my $jev = $BSServerEvents::gev;
-  die("unly supported in AJAX servers\n") unless $jev;
+  die("only supported in AJAX servers\n") unless $jev;
   if ($serializations{$file}) {
     if ($serializations{$file} != $jev) {
       print "adding to serialization queue of $file\n";
