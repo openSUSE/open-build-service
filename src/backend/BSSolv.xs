@@ -1352,6 +1352,13 @@ pkg2pkgid(BSSolv::pool pool, int p)
 	RETVAL
 
 const char *
+pkg2bsid(BSSolv::pool pool, int p)
+    CODE:
+	RETVAL = solvable_lookup_str(pool->solvables + p, buildservice_id);
+    OUTPUT:
+	RETVAL
+
+const char *
 pkg2reponame(BSSolv::pool pool, int p)
     CODE:
 	{
@@ -1457,7 +1464,7 @@ pkg2data(BSSolv::pool pool, int p)
 	      (void)hv_store(RETVAL, "path", 4, newSVpv(ss, 0), 0);
 	    ss = solvable_lookup_checksum(s, SOLVABLE_PKGID, &id);
 	    if (ss && id == REPOKEY_TYPE_MD5)
-	      (void)hv_store(RETVAL, "hdrmd5", 4, newSVpv(ss, 0), 0);
+	      (void)hv_store(RETVAL, "hdrmd5", 6, newSVpv(ss, 0), 0);
 	    ss = solvable_lookup_str(s, buildservice_id);
 	    if (ss)
 	      (void)hv_store(RETVAL, "id", 2, newSVpv(ss, 0), 0);
