@@ -6,6 +6,8 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#define MULTI_SEMANTICS
+
 #include "pool.h"
 #include "repo.h"
 #include "util.h"
@@ -42,7 +44,8 @@ typedef Expander *BSSolv__expander;
 static Id buildservice_id;
 static Id buildservice_repocookie;
 
-#define MAPEXP(m, n) ((m)->size < (((n) + 7) >> 3) ? map_grow(m, n + 256) : 0)
+/* make sure bit n is usable */
+#define MAPEXP(m, n) ((m)->size < (((n) + 8) >> 3) ? map_grow(m, n + 256) : 0)
 
 #define REPOCOOKIE "buildservice repo 1.0"
 
@@ -96,9 +99,12 @@ makeevr(Pool *pool, char *e, char *v, char *r)
     return 0;
   if (e && !strcmp(e, "0"))
     e = 0;
-  s = pool_tmpjoin(pool, e, ":", v);
+  if (e)
+    s = pool_tmpjoin(pool, e, ":", v);
+  else
+    s = v;
   if (r)
-    s = pool_tmpjoin(pool, s, "-", s);
+    s = pool_tmpjoin(pool, s, "-", r);
   return str2id(pool, s, 1);
 }
 
@@ -123,12 +129,20 @@ id2name(Pool *pool, Id id)
 }
 
 static Id
-dep2id(Pool *pool, const char *s)
+dep2id(Pool *pool, char *s)
 {
-  const char *n;
+  char *n;
   Id id;
   int flags;
 
+  if ((n = strchr(s, '|')) != 0)
+    {
+      id = dep2id(pool, n + 1);
+      *n = 0;
+      id = rel2id(pool, dep2id(pool, s), id, REL_OR, 1);
+      *n = '|';
+      return id;
+    }
   while (*s == ' ' || *s == '\t')
     s++;
   n = s;
@@ -235,7 +249,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
   Map conflicts;
   Solvable *s;
   Id q, p, pp;
-  int i, j, nerrors, doamb, ignoremarker;
+  int i, j, nerrors, doamb, ambcnt;
   Id id, who, whon, pn;
 
   map_init(&installed, pool->nsolvables);
@@ -281,37 +295,27 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
     }
 
   doamb = 0;
-  ignoremarker = 0;
-  queue_push2(&todo, 0, 0);
+  ambcnt = todo.count;
   while (todo.count)
     {
       id = queue_shift(&todo);
       who = queue_shift(&todo);
-
-      if (!id && !who)	/* found marker */
+      if (ambcnt == 0)
 	{
-	  if (!todo.count)
-	    break;	/* we're done! */
-
 	  if (doamb)
 	    break;	/* amb pass had no progress, stop */
-
-	  if (ignoremarker)
-	    {
-	      ignoremarker = 0;
-	      continue;
-	    }
-
 	  if (xp->debug)
 	    {
 	      printf("now doing undecided dependencies\n");
 	      fflush(stdout);
 	    }
 	  doamb = 1;	/* start amb pass */
-	  queue_push2(&todo, 0, 0);
-	  continue;
+	  ambcnt = todo.count;
 	}
-
+      else
+	ambcnt -= 2;
+// printf("todo %s %s ambcnt %d\n", id2str(pool, pool->solvables[who].name), dep2str(pool, id), ambcnt);
+// fflush(stdout);
       whon = pool->solvables[who].name;
       queue_empty(&qq);
       FOR_PROVIDES(p, pp, id)
@@ -469,13 +473,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	  fflush(stdout);
 	}
       expander_installed(xp, qq.elements[0], &installed, &conflicts, out, &todo);
-      if (doamb)
-	{
-	  /* had progress in amb pass, add new marker */
-	  doamb = 0;
-	  ignoremarker = 1;	/* ignore marker still on todo list */
-	  queue_push2(&todo, 0, 0);	/* add new marker */
-	}
+      ambcnt = todo.count;
       queue_empty(&cerrors);
     }
   map_free(&installed);
@@ -1096,6 +1094,17 @@ new(packname = "BSSolv::pool")
     OUTPUT:
 	RETVAL
     
+void
+settype(BSSolv::pool pool, char *type)
+    CODE:
+	if (!strcmp(type, "rpm"))
+	  pool->disttype = DISTTYPE_RPM;
+	else if (!strcmp(type, "deb"))
+	  pool->disttype = DISTTYPE_DEB;
+	else
+	  croak("settype: unknown type '%s'\n", type);
+
+
 BSSolv::repo
 repofromfile(BSSolv::pool pool, char *name, char *filename)
     CODE:
@@ -1375,50 +1384,17 @@ pkg2fullpath(BSSolv::pool pool, int p, char *myarch)
     OUTPUT:
 	RETVAL
 
-
-void
-DESTROY(BSSolv::pool pool)
-    CODE:
-	printf("Goodbye pool %p\n", pool);fflush(stdout);
-        if (pool->considered)
-	  {
-	    map_free(pool->considered);
-	    pool->considered = sat_free(pool->considered);
-	  }
-	pool_free(pool);
-
-MODULE = BSSolv		PACKAGE = BSSolv::repo		PREFIX = repo
-
-AV *
-pkgnames(BSSolv::repo repo)
-    CODE:
-	{
-	    Pool *pool = repo->pool;
-	    Id p;
-	    Solvable *s;
-	    RETVAL = newAV();
-	    sv_2mortal((SV*)RETVAL);
-	    FOR_REPO_SOLVABLES(repo, p, s)
-	      {
-		av_push(RETVAL, newSVpv(id2str(pool, s->name), 0));
-		av_push(RETVAL, newSViv(p));
-	      }
-	}
-    OUTPUT:
-	RETVAL
-
 HV *
-pkgdata(BSSolv::repo repo, int p)
+pkg2data(BSSolv::pool pool, int p)
     CODE:
 	{
-	    Pool *pool = repo->pool;
 	    Solvable *s = pool->solvables + p;
 	    AV *av;
 	    Id id;
 	    const char *ss, *se;
 	    unsigned int medianr;
 
-	    if (!s || s->repo != repo)
+	    if (!s->repo)
 		XSRETURN_EMPTY;
 	    RETVAL = newHV();
 	    sv_2mortal((SV*)RETVAL);
@@ -1444,7 +1420,7 @@ pkgdata(BSSolv::repo repo, int p)
 	    av = newAV();
 	    if (s->provides)
 	      {
-		Id *pp = repo->idarraydata + s->provides;
+		Id *pp = s->repo->idarraydata + s->provides;
 		while ((id = *pp++))
 		  {
 		    if (id == SOLVABLE_FILEMARKER)
@@ -1456,7 +1432,7 @@ pkgdata(BSSolv::repo repo, int p)
 	    av = newAV();
 	    if (s->requires)
 	      {
-		Id *pp = repo->idarraydata + s->requires;
+		Id *pp = s->repo->idarraydata + s->requires;
 		while ((id = *pp++))
 		  {
 		    if (id == SOLVABLE_PREREQMARKER)
@@ -1488,6 +1464,66 @@ pkgdata(BSSolv::repo repo, int p)
 	}
     OUTPUT:
 	RETVAL
+
+void
+repos(BSSolv::pool pool)
+    PPCODE:
+	{
+	    int ridx;
+	    Repo *repo;
+
+	    EXTEND(SP, pool->nrepos);
+	    FOR_REPOS(ridx, repo)
+	      {
+		SV *sv = sv_newmortal();
+		sv_setref_pv(sv, "BSSolv::repo", (void *)repo);
+		PUSHs(sv);
+	      }
+	}
+
+
+void
+tofile(BSSolv::repo repo, char *filename)
+    CODE:
+	{
+	    FILE *fp;
+	    fp = fopen(filename, "w");
+	    if (fp == 0)
+	      croak("%s: %s\n", filename, Strerror(errno));
+	    repo_write(repo, fp, myrepowritefilter, 0, 0);
+	    if (fclose(fp))
+	      croak("fclose: %s\n",  Strerror(errno));
+	}
+
+void
+DESTROY(BSSolv::pool pool)
+    CODE:
+	printf("Goodbye pool %p\n", pool);fflush(stdout);
+        if (pool->considered)
+	  {
+	    map_free(pool->considered);
+	    pool->considered = sat_free(pool->considered);
+	  }
+	pool_free(pool);
+
+MODULE = BSSolv		PACKAGE = BSSolv::repo		PREFIX = repo
+
+void
+pkgnames(BSSolv::repo repo)
+    PPCODE:
+	{
+	    Pool *pool = repo->pool;
+	    Id p;
+	    Solvable *s;
+	
+	    EXTEND(SP, 2 * repo->nsolvables);
+	    FOR_REPO_SOLVABLES(repo, p, s)
+	      {
+		PUSHs(sv_2mortal(newSVpv(id2str(pool, s->name), 0)));
+		PUSHs(sv_2mortal(newSViv(p)));
+	      }
+	}
+
 
 void
 tofile(BSSolv::repo repo, char *filename)
@@ -1898,7 +1934,7 @@ expand(BSSolv::expander xp, ...)
 			    str = pool_tmpjoin(pool, str, " ", id2str(pool, s->name));
 			  }
 			if (*str)
-			  str += 2;
+			  str++;	/* skip starting ' ' */
 			id = out.elements[i + 1];
 			who = out.elements[i + 2];
 			if (who)
