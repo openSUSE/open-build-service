@@ -552,7 +552,9 @@ create_considered(Pool *pool)
 	    sb = pool->solvables + pb;
 	    if (sb->repo != s->repo)
 	      continue;
-	    if (s->arch >= sb->arch)
+	    if (s->arch < sb->arch)
+	      continue;
+	    if (s->arch == sb->arch)
 	      {
 		/* same repo, check versions */
 		if (s->evr == sb->evr || evrcmp(pool, sb->evr, s->evr, EVRCMP_COMPARE) >= 0)
