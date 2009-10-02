@@ -1640,7 +1640,7 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		else
 		  {
 		    /* add new entry */
-		    dirty = 1;
+		    dirty++;
 		    if (!data)
 		      data = repo_add_repodata(repo, 0);
 		    repodata_addbin(data, path, s, (int)sl, sid);
@@ -1673,7 +1673,8 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		      continue;
 		    if (MAPTST(&reused, i - repo->start))
 		      continue;
-		    dirty = 1;
+		    if (dirty <= 0)
+		      dirty--;
 		    repo_free_solvable_block(repo, i, 1, 0);
 		  }
 	      }
