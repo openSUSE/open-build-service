@@ -1847,7 +1847,7 @@ sub getfilelist {
 
   my $view = $cgi->{'view'};
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  die("nothing known\n") unless $rev;
+  die("no such project/package\n") unless $rev;
   my $ret = {};
   my $li = {};
   my %linfo;
