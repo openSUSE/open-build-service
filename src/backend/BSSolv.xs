@@ -43,6 +43,7 @@ typedef Expander *BSSolv__expander;
 
 static Id buildservice_id;
 static Id buildservice_repocookie;
+static Id buildservice_external;
 
 /* make sure bit n is usable */
 #define MAPEXP(m, n) ((m)->size < (((n) + 8) >> 3) ? map_grow(m, n + 256) : 0)
@@ -1085,8 +1086,10 @@ new(packname = "BSSolv::pool")
     CODE:
 	{
 	    Pool *pool = pool_create();
+	    pool_setdisttype(pool, DISTTYPE_RPM);
 	    buildservice_id = str2id(pool, "buildservice:id", 1);
 	    buildservice_repocookie= str2id(pool, "buildservice:repocookie", 1);
+	    buildservice_external = str2id(pool, "buildservice:external", 1);
 	    pool_freeidhashes(pool);
 	    printf("Created pool %p\n", pool);fflush(stdout);
 	    RETVAL = pool;
@@ -1098,9 +1101,9 @@ void
 settype(BSSolv::pool pool, char *type)
     CODE:
 	if (!strcmp(type, "rpm"))
-	  pool->disttype = DISTTYPE_RPM;
+	  pool_setdisttype(pool, DISTTYPE_RPM);
 	else if (!strcmp(type, "deb"))
-	  pool->disttype = DISTTYPE_DEB;
+	  pool_setdisttype(pool, DISTTYPE_DEB);
 	else
 	  croak("settype: unknown type '%s'\n", type);
 
@@ -1270,7 +1273,9 @@ repofromdata(BSSolv::pool pool, char *name, HV *rhv)
 		if (s->evr)
 		  s->provides = repo_addid_dep(repo, s->provides, rel2id(pool, s->name, s->evr, REL_EQ, 1), 0);
 	      }
-	    repo_set_str(repo, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
+	    repodata_set_str(data, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
+	    if (name && !strcmp(name, "/external/"))
+	      repodata_set_void(data, SOLVID_META, buildservice_external);
 	    repo_internalize(repo);
 	    RETVAL = repo;
 	}
@@ -1488,20 +1493,6 @@ repos(BSSolv::pool pool)
 	      }
 	}
 
-
-void
-tofile(BSSolv::repo repo, char *filename)
-    CODE:
-	{
-	    FILE *fp;
-	    fp = fopen(filename, "w");
-	    if (fp == 0)
-	      croak("%s: %s\n", filename, Strerror(errno));
-	    repo_write(repo, fp, myrepowritefilter, 0, 0);
-	    if (fclose(fp))
-	      croak("fclose: %s\n",  Strerror(errno));
-	}
-
 void
 DESTROY(BSSolv::pool pool)
     CODE:
@@ -1512,6 +1503,9 @@ DESTROY(BSSolv::pool pool)
 	    pool->considered = sat_free(pool->considered);
 	  }
 	pool_free(pool);
+
+
+
 
 MODULE = BSSolv		PACKAGE = BSSolv::repo		PREFIX = repo
 
@@ -1711,6 +1705,17 @@ name(BSSolv::repo repo)
 	RETVAL = repo->name;
     OUTPUT:
 	RETVAL
+
+int
+isexternal(BSSolv::repo repo)
+    CODE:
+	RETVAL = repo_lookup_void(repo, SOLVID_META, buildservice_external) ? 1 : 0;
+    OUTPUT:
+	RETVAL
+
+
+
+
 
 MODULE = BSSolv		PACKAGE = BSSolv::expander	PREFIX = expander
 
