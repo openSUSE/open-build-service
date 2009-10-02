@@ -1,0 +1,3 @@
+BSSolv::pool 		T_PTROBJ
+BSSolv::repo		T_PTROBJ
+BSSolv::expander	T_PTROBJ
