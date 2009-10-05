@@ -214,6 +214,7 @@ our $linkinfo = [
 our $dir = [
     'directory' =>
 	'name',
+	'count',	# obsolete, the API sets this for some requests
 	'rev',
 	'vrev',
 	'srcmd5',
@@ -415,12 +416,16 @@ our $buildhist = [
 	    'versrel',
 	    'bcnt',
 	    'time',
-     ]]
+     ]],
 ];
 
 our $binaryversionlist = [
     'binaryversionlist' =>
-      [ 'binary' ]
+      [[ 'binary' =>
+	    'name',
+	    'error',
+	    'hdrid',
+      ]],
 ];
 
 our $worker = [
