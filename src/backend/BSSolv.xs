@@ -862,7 +862,7 @@ depsort(HV *deps, SV *mapp, SV *cycp, ...)
 			SV *sv = newSVpv(names[cycles.elements[i]], 0);
 			av_push(av2, sv);
 		      }
-		    av_push(av, newRV_inc((SV*)av2));
+		    av_push(av, newRV_noinc((SV*)av2));
 		    i++;
 		  }
 	      }
@@ -1464,7 +1464,7 @@ pkg2data(BSSolv::pool pool, int p)
 		    av_push(av, newSVpv(dep2str(pool, id), 0));
 		  }
 	      }
-	    (void)hv_store(RETVAL, "provides", 8, newRV_inc((SV*)av), 0);
+	    (void)hv_store(RETVAL, "provides", 8, newRV_noinc((SV*)av), 0);
 	    av = newAV();
 	    if (s->requires)
 	      {
@@ -1481,13 +1481,13 @@ pkg2data(BSSolv::pool pool, int p)
 		    av_push(av, newSVpv(ss, 0));
 		  }
 	      }
+	    (void)hv_store(RETVAL, "requires", 8, newRV_noinc((SV*)av), 0);
 	    if (solvable_lookup_void(s, SOLVABLE_SOURCENAME))
 	      ss = id2str(pool, s->name);
 	    else
 	      ss = solvable_lookup_str(s, SOLVABLE_SOURCENAME);
 	    if (ss)
 	      (void)hv_store(RETVAL, "source", 6, newSVpv(ss, 0), 0);
-	    (void)hv_store(RETVAL, "requires", 8, newRV_inc((SV*)av), 0);
 	    ss = solvable_get_location(s, &medianr);
 	    if (ss)
 	      (void)hv_store(RETVAL, "path", 4, newSVpv(ss, 0), 0);
