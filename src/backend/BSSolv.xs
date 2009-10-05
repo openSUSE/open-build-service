@@ -525,46 +525,62 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 }
 
 void
-create_considered(Pool *pool)
+create_considered(Pool *pool, Repo *repoonly, Map *considered)
 {
-  Map *considered;
   Id p, pb,*best;
   Solvable *s, *sb;
   int ridx;
   Repo *repo;
 
-  if (pool->considered)
-    {
-      map_free(pool->considered);
-      pool->considered = sat_free(pool->considered);
-    }
-  pool->considered = considered = sat_calloc(sizeof(Map), 1);
   map_init(considered, pool->nsolvables);
   best = sat_calloc(sizeof(Id), pool->ss.nstrings);
   FOR_REPOS(ridx, repo)
-    FOR_REPO_SOLVABLES(repo, p, s)
-      {
-	if (s->arch == ARCH_SRC || s->arch == ARCH_NOSRC)
-	  continue;
-	pb = best[s->name];
-	if (pb)
-	  {
-	    sb = pool->solvables + pb;
-	    if (sb->repo != s->repo)
-	      continue;
-	    if (s->arch < sb->arch)
-	      continue;
-	    if (s->arch == sb->arch)
-	      {
-		/* same repo, check versions */
-		if (s->evr == sb->evr || evrcmp(pool, sb->evr, s->evr, EVRCMP_COMPARE) >= 0)
-		  continue;
-	      }
-	    MAPCLR(considered, pb);
-	  }
-	best[s->name] = p;
-	MAPSET(considered, p);
-      }
+    {
+      if (repoonly && repo != repoonly)
+	continue;
+      FOR_REPO_SOLVABLES(repo, p, s)
+	{
+	  if (s->arch == ARCH_SRC || s->arch == ARCH_NOSRC)
+	    continue;
+	  pb = best[s->name];
+	  if (pb)
+	    {
+	      sb = pool->solvables + pb;
+	      if (s->repo != sb->repo)
+		continue;	/* first repo wins */
+	      else if (s->arch != sb->arch)
+		{
+		  int r;
+		  if (s->arch == ARCH_NOARCH || s->arch == ARCH_ALL)
+		    continue;
+		  if (sb->arch != ARCH_NOARCH && sb->arch != ARCH_ALL)
+		    {
+		      r = strcmp(id2str(pool, sb->arch), id2str(pool, s->arch));
+		      if (r >= 0)
+			continue;
+		    }
+		}
+	      else if (s->evr != sb->evr)
+		{
+		  /* same repo, check versions */
+		  int r = evrcmp(pool, sb->evr, s->evr, EVRCMP_COMPARE);
+		  if (r > 0)
+		    continue;
+		  else if (r == 0)
+		    {
+		      r = strcmp(id2str(pool, sb->evr), id2str(pool, s->evr));
+		      if (r >= 0)
+			continue;
+		    }
+		}
+	      else
+		continue;
+	      MAPCLR(considered, pb);
+	    }
+	  best[s->name] = p;
+	  MAPSET(considered, p);
+	}
+    }
   sat_free(best);
 }
 
@@ -1287,7 +1303,13 @@ repofromdata(BSSolv::pool pool, char *name, HV *rhv)
 void
 createwhatprovides(BSSolv::pool pool)
     CODE:
-	create_considered(pool);
+	if (pool->considered)
+	  {
+	    map_free(pool->considered);
+	    sat_free(pool->considered);
+	  }
+	pool->considered = sat_calloc(sizeof(Map), 1);
+	create_considered(pool, 0, pool->considered);
 	pool_createwhatprovides(pool);
 
 void
@@ -1518,13 +1540,18 @@ pkgnames(BSSolv::repo repo)
 	    Pool *pool = repo->pool;
 	    Id p;
 	    Solvable *s;
+	    Map c;
 	
+	    create_considered(pool, repo, &c);
 	    EXTEND(SP, 2 * repo->nsolvables);
 	    FOR_REPO_SOLVABLES(repo, p, s)
 	      {
+		if (!MAPTST(&c, p))
+		  continue;
 		PUSHs(sv_2mortal(newSVpv(id2str(pool, s->name), 0)));
 		PUSHs(sv_2mortal(newSViv(p)));
 	      }
+	    map_free(&c);
 	}
 
 
