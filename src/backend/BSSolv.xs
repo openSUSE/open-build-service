@@ -474,6 +474,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	  fflush(stdout);
 	}
       expander_installed(xp, qq.elements[0], &installed, &conflicts, out, &todo);
+      doamb = 0;
       ambcnt = todo.count;
       queue_empty(&cerrors);
     }
