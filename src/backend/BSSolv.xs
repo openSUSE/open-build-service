@@ -1022,12 +1022,12 @@ gen_meta(AV *subp, ...)
 				break;
 			      h = HASHCHAIN_NEXT(h, hh, hm);
 			    }
+			  *s2 = '/';
 			  if (id)
 			    {
 			      lp->killed = 1;
 			      break;
 			    }
-			  *s2 = '/';
 			  lo = s2 + 1;
 			}
 		    if (lp->killed)
@@ -1043,7 +1043,6 @@ gen_meta(AV *subp, ...)
 		    if (id)
 		      {
 		        lp->killed = 1;
-		        break;
 		      }
 		  }
 		sat_free(ht);
