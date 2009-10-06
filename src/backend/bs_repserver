@@ -32,6 +32,7 @@ BEGIN {
 
   chdir "$wd";
   unshift @INC,  "build";
+  unshift @INC,  "blib/arch/auto/BSSolv";
 }
 
 use POSIX;
@@ -60,6 +61,8 @@ use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
 use BSHermes;
+
+use BSSolv;
 
 use strict;
 
@@ -94,151 +97,107 @@ sub jobname {
   return $job;
 }
 
-sub findbinaries {
-  my ($prp, $arch, @qbins) = @_;
-  local *D;
-  my %bins = map {$_ => '_gone'} @qbins;
+
+# add :full repo to pool, make sure repo is up-to-data by
+# scanning the directory
+sub addrepo_scan {
+  my ($pool, $prp, $arch) = @_;
   my $dir = "$reporoot/$prp/$arch/:full";
-  opendir(D, $dir) || return \%bins;
-  my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
-  closedir(D);
-  if (!@bins && -s "$dir.subdirs") {
-    for my $subdir (split(' ', readstr("$dir.subdirs"))) {
-      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
-    }
-  }
-  if (!@bins && -s "$dir.cache") {
-    my $cache;
-    eval { $cache = Storable::retrieve("$dir.cache"); };
+  my $repobins = {};
+  my $cnt = 0; 
+
+  my $cache;
+  if (-s "$dir.solv") {
+    eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
-    undef $cache unless ref($cache) eq 'HASH';
-    if ($cache->{'/external'}) {
-      for (keys %bins) {
-        next unless $cache->{$_};
-        my $bin = "$prp/$arch/:full/$cache->{$_}->{'path'}";
-	$bins{$_} = $bin if -f "$reporoot/$bin";
-      }
-      return \%bins;
+    return $cache if $cache && $cache->isexternal();
+    print "local repo $prp\n";
+  }
+  my @bins;
+  local *D;
+  if (opendir(D, $dir)) {
+    @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
+    closedir D;
+    if (!@bins && -s "$dir.subdirs") {
+      for my $subdir (split(' ', readstr("$dir.subdirs"))) {
+        push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");    }
     }
   }
-  for (sort @bins) {
-    if (/(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
-      next unless $bins{$1};
-      $bins{$1} = "$prp/$arch/:full/$_";
-    } elsif (/(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
-      next unless $bins{$1};
-      $bins{$1} = "$prp/$arch/:full/$_";
-    } elsif (/(?:^|\/)([^\/]+)\.(?:rpm|deb)$/) {
-      next unless $bins{$1};
-      $bins{$1} = "$prp/$arch/:full/$_";
-    }
+  for (splice @bins) {
+    my @s = stat("$dir/$_");
+    next unless @s;
+    push @bins, $_, "$s[9]/$s[7]/$s[1]";
   }
-  my @todo = grep { $bins{$_} eq '_gone' } keys %bins;
-  if (@todo && -s "$dir.cache") {
-    my $cache;
-    eval { $cache = Storable::retrieve("$dir.cache"); };
-    warn($@) if $@;
-    undef $cache unless ref($cache) eq 'HASH';
-    if ($cache->{'/url'}) {
-      for my $b (@todo) {
-        next unless $cache->{$b};
-        my $bin = "$prp/$arch/:full/$cache->{$b}->{'path'}";
-        print "fetch: $b\n";
-        fetchbinary("$reporoot/$bin", $cache->{$b}, $cache->{'/url'});
-        next unless -f "$reporoot/$bin";
-        $bins{$b} = $bin;
-      }
-    }
+  if ($cache) {
+    $cache->updatefrombins($dir, @bins);
+  } else {
+    $cache = $pool->repofrombins($prp, $dir, @bins);
   }
-  return \%bins;
+  return $cache;
 }
 
-my %getbinarydata_fromcache_cache;
-
-sub getbinarydata_fromcache {
-  my ($bin, $filename) = @_;
-  my $cachename = $bin;
-  $cachename =~ s/\/[^\/]*$/.cache/;
-  my $cache = $getbinarydata_fromcache_cache{$cachename};
-  if (!$cache) {
-    return undef unless -s $cachename;
-    $cache = $getbinarydata_fromcache_cache{$cachename} = Storable::retrieve($cachename);
-    return undef unless $cache;
-    delete $cache->{'/url'};
-    # set up filenamehash
-    my %filenamehash;
-    for (values %{$cache}) {
-      next unless $_->{'path'} =~ /([^\/]+)$/;
-      $_->{'filename'} = $1;
-      delete $_->{'hdrmd5'};
-      delete $_->{'provides'};
-      delete $_->{'requires'};
-      delete $_->{'source'};
-      $filenamehash{$1} = $_;
-    }
-    $cache->{'filenamehash'} = \%filenamehash;
+sub addrepo_remote {
+  my ($pool, $prp, $arch, $remoteproj) = @_;
+  my ($projid, $repoid) = split('/', $prp, 2);
+  return undef unless $remoteproj;
+  print "fetching remote repository state for $prp\n";
+  my $param = {
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
+    'timeout' => 200, 
+    'receiver' => \&BSHTTP::cpio_receiver,
+  };
+  my $cpio = BSRPC::rpc($param, undef, "view=cache");
+  my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []}; 
+  my $cachedata = $cpio{'repositorycache'};
+  return undef unless $cachedata;
+  my $cache;
+  eval { $cache = Storable::thaw(substr($cachedata, 4)); };
+  undef $cachedata;
+  warn($@) if $@;
+  return undef unless $cache;
+  for (values %$cache) {
+    delete $_->{'path'};
+    delete $_->{'id'};
   }
-  return $cache->{'filenamehash'}->{$filename};
+  return $pool->repofromdata($prp, $cache);
 }
 
-sub getbinarydata {
-  my @bins = @_;
 
-  my @res;
-  for my $bin (@bins) {
-    my $filename = $bin;
-    $filename =~ s/.*\///;
-    local *F;
-    if (!open(F, '<', $bin)) {
-      my $err = "$bin: $!";	# save errno
-      my $data = getbinarydata_fromcache($bin, $filename);
-      if ($data) {	
-        data2utf8($data);
-        push @res, $data;
-        next;
-      }
-      push @res, {'filename' => $filename, 'error' => $err};
-      next;
-    }
+#XXX: DOD
+#    if ($cache->{'/url'}) {
+#      for my $b (@todo) {
+#        next unless $cache->{$b};
+#        my $bin = "$prp/$arch/:full/$cache->{$b}->{'path'}";
+#        print "fetch: $b\n";
+#        fetchbinary("$reporoot/$bin", $cache->{$b}, $cache->{'/url'});
+#        next unless -f "$reporoot/$bin";
+#        $bins{$b} = $bin;
+#      }
 
-    my @s = stat(F);
-    my $data = Build::query([$bin, \*F], 'evra' => 1);
-    close(F);
-    if (!$data) {
-      push @res, {'filename' => $filename, 'error' => 'bad binary package'};
-      next;
-    }
-    $data->{'filename'} = $filename;
-    $data->{'mtime'} = $s[9];
-    delete $data->{'hdrmd5'};
-    delete $data->{'provides'};
-    delete $data->{'requires'};
-    delete $data->{'source'};
-    data2utf8($data);
-    push @res, $data;
-  }
-  return @res;
-}
 
 sub getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
   my @qbins = split(',', $cgi->{'binaries'} || '');
-  my $bins = findbinaries($prp, $arch, @qbins);
+  my $pool = BSSolv::pool->new();
+  my $repo = addrepo_scan($pool, $prp, $arch);
+  my %rnames = $repo ? $repo->pkgnames() : ();
   my @res;
   for my $n (@qbins) {
-    if ($bins->{$n} eq '_gone') {
-      push @res, "$n _gone";
+    my $p = $rnames{$n};
+    if (!$p) {
+      push @res, {'name' => $n, 'error' => 'not available'};
       next;
     }
-    my @r = getbinarydata("$reporoot/$bins->{$n}");
-    my $r = $r[0];
-    if ($r->{'error'}) {
-      push @res, "$n _bad";
+    my $path = $pool->pkg2path($p);
+    if ($path =~ /\.rpm$/) {
+      push @res, {'name' => "$n.rpm", 'hdrid' => $pool->pkg2pkgid($p)};
     } else {
-      push @res, "$n $r->{'name'}-$r->{'version'}-$r->{'release'}-$r->{'buildtime'} $r->{'buildhost'}";
+      push @res, {'name' => "$n.deb", 'hdrid' => $pool->pkg2pkgid($p)};
     }
   }
+  undef $repo;
+  undef $pool;
   return ({ 'binary' => \@res }, $BSXML::binaryversionlist);
 }
 
@@ -246,32 +205,37 @@ sub getbinaries {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
   my @qbins = split(',', $cgi->{'binaries'} || '');
-  my $bins = findbinaries($prp, $arch, @qbins);
+
+  my $pool = BSSolv::pool->new();
+  my $repo = addrepo_scan($pool, $prp, $arch);
+  my %rnames = $repo ? $repo->pkgnames() : ();
   my @send;
   for my $n (@qbins) {
-    if ($bins->{$n} eq '_gone') {
+    my $p = $rnames{$n};
+    if (!$p) {
       push @send, {'name' => $n, 'error' => 'not available'};
       next;
     }
-    my $r = "$reporoot/$bins->{$n}";
-    if ($r =~ /\.rpm$/) {
-      push @send, {'name' => "$n.rpm", 'filename' => $r};
+    my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+    if ($path =~ /\.rpm$/) {
+      push @send, {'name' => "$n.rpm", 'filename' => $path};
     } else {
-      push @send, {'name' => "$n.deb", 'filename' => $r};
+      push @send, {'name' => "$n.deb", 'filename' => $path};
     }
     next if $cgi->{'nometa'};
-    if ($r =~ s/\.(?:rpm|deb)$//) {
-      if (-e "$r.meta" || ! -e "$r-MD5SUMS.meta") {
-        push @send, {'name' => "$n.meta", 'filename' => "$r.meta"};
-      } else {
-        push @send, {'name' => "$n.meta", 'filename' => "$r-MD5SUMS.meta"};
-      }
+    next unless $path =~ s/\.(?:rpm|deb)$//;
+    if (-e "$path.meta" || ! -e "$path-MD5SUMS.meta") {
+      push @send, {'name' => "$n.meta", 'filename' => "$path.meta"};
+    } else {
+      push @send, {'name' => "$n.meta", 'filename' => "$path-MD5SUMS.meta"};
     }
   }
+  undef $repo;
+  undef $pool;
   BSServer::reply_cpio(\@send);
   return undef;
 }
-
+  
 sub getbinarylist_repository {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
@@ -294,10 +258,34 @@ sub getbinarylist_repository {
       'data' => XMLout($BSXML::repositorystate, $repostate),
     };
     my $fd = gensym;
-    if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache")) {
-      push @files, {
-        'name' => 'repositorycache',
-        'filename' => $fd,
+    if (-s "$reporoot/$prp/$arch/:full.solv") {
+      my $pool = BSSolv::pool->new();
+      my $repo = addrepo_scan($pool, $prp, $arch);
+      if ($repo) {
+        my %data = $repo->pkgnames();
+        for my $p (values %data) {
+	  $p = $pool->pkg2data($p);
+        }
+	# the streaming code can't handle big chunks of data, so we write
+        # the result to a tmp file and stream from it
+	Storable::nstore(\%data, "$reporoot/$prp/$arch/:full.cache.$$");
+	if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache.$$")) {
+          push @files, {
+            'name' => 'repositorycache',
+	    'filename' => $fd,
+          }
+	}
+	unlink("$reporoot/$prp/$arch/:full.cache.$$");
+      }
+      undef $repo;
+      undef $pool;
+    } elsif (-s "$reporoot/$prp/$arch/:full.cache") {
+      # compatibility code, to be removed...
+      if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache")) {
+        push @files, {
+          'name' => 'repositorycache',
+          'filename' => $fd,
+        }
       }
     }
     BSWatcher::reply_cpio(\@files);
@@ -305,57 +293,61 @@ sub getbinarylist_repository {
   }
 
   if ($view eq 'cpio') {
-    my $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache") || {};
-    delete $cache->{'/external'};
-    my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %$cache;
+# XXX: DOD
+#      if ($cache->{'/url'} && ! -e "$reporoot/$prp/$arch/:full/$c->{'path'}") {
+#	fetchbinary("$reporoot/$prp/$arch/:full/$c->{'path'}", $c, $cache->{'/url'});
+#      }
     my @files;
+    my $pool = BSSolv::pool->new();
+    my $repo = addrepo_scan($pool, $prp, $arch);
+    my %names = $repo ? $repo->pkgnames() : ();
+    my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
     for my $bin (@bins) {
-      my $c = $cache->{$bin};
-      if (!$c) {
-        push @files, {'name' => $bin, 'error' => 'not available'};
-        next;
+      my $p = $names{$bin};
+      if (!$p) {
+	push @files, {'name' => $bin, 'error' => 'not available'};
+	next;
       }
-      if ($cache->{'/url'} && ! -e "$reporoot/$prp/$arch/:full/$c->{'path'}") {
-	fetchbinary("$reporoot/$prp/$arch/:full/$c->{'path'}", $c, $cache->{'/url'});
-      }
+      my $fullpath = $pool->pkg2fullpath($p, $arch);
       my $fd = gensym;
-      if (!open($fd, '<', "$reporoot/$prp/$arch/:full/$c->{'path'}")) {
-        push @files, {'name' => $bin, 'error' => 'not available'};
-        next;
+      if (!open($fd, '<', "$reporoot/$fullpath")) {
+	push @files, {'name' => $bin, 'error' => 'not available'};
+	next;
       }
       my $n = $bin;
-      $n .= $1 if $c->{'path'} =~ /(\.rpm|\.deb)$/;
+      $n .= $1 if $fullpath =~ /(\.rpm|\.deb)$/;
       push @files, {'name' => $n, 'filename' => $fd},
     }
+    undef $repo;
+    undef $pool;
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
 
   die("unsupported view '$view'\n") if $view && $view ne 'names';
 
-  my $cache = {};
-  eval {
-    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache") || {};
-  };
+  my $pool = BSSolv::pool->new();
+  my $repo = addrepo_scan($pool, $prp, $arch);
+  my %names = $repo ? $repo->pkgnames() : ();
+  my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
   my @res;
-  delete $cache->{'/external'};
-  delete $cache->{'/url'};
-  my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %$cache;
   for my $bin (@bins) {
-    my $c = $cache->{$bin};
-    if (!$c) {
+    my $p = $names{$bin};
+    if (!$p) {
       push @res, {'filename' => $bin, 'size' => 0};
       next;
     }
+    my $path = $pool->pkg2path($p);
     my $n = $bin;
-    $n .= $1 if $c->{'path'} =~ /(\.rpm|\.deb)$/;
-    my $r = {'filename' => $view eq 'names' ? $n : $c->{'path'}};
-    if ($c->{'id'}) {
-      my @s = split('/', $c->{'id'}, 3);
+    $n .= $1 if $path =~ /(\.rpm|\.deb)$/;
+    my $r = {'filename' => $view eq 'names' ? $n : $path };
+    my $id = $pool->pkg2bsid($p);
+    if ($id) {
+      my @s = split('/', $id, 3);
       $r->{'mtime'} = $s[0];
       $r->{'size'} = $s[1];
     } else {
-      my @s = stat("$reporoot/$prp/$arch/:full/$c->{'path'}");
+      my @s = stat("$reporoot/$prp/$arch/:full/$path");
       if (@s) {
         $r->{'mtime'} = $s[9];
         $r->{'size'} = $s[7];
@@ -363,6 +355,8 @@ sub getbinarylist_repository {
     }
     push @res, $r;
   }
+  undef $repo;
+  undef $pool;
   return ({'binary' => \@res}, $BSXML::binarylist);
 }
 
@@ -519,47 +513,67 @@ sub getlogfile {
   return undef;
 }
 
-sub fetchbinary {
-  my ($dest, $c, $url) = @_;
-  return undef unless $c;
-  return undef unless $c->{'rpath'};
-  my $uri = "$url/$c->{'rpath'}";
-  print "fetching: $uri\n";
-  # FIXME: this should be "more" atomic
-  eval {
-    BSRPC::rpc({
-      uri => $uri,
-      maxredirects => 3,
-      filename => "$dest$$",
-      receiver => \&BSHTTP::file_receiver
-    }, undef);
-  };
-  if ($@) {
-    print "failed: $@";
-    unlink("$dest$$");
-    return undef;
+#
+# XXX: DOD
+# 
+#sub fetchbinary {
+#  my ($dest, $c, $url) = @_;
+#  return undef unless $c;
+#  return undef unless $c->{'rpath'};
+#  my $uri = "$url/$c->{'rpath'}";
+#  print "fetching: $uri\n";
+#  # FIXME: this should be "more" atomic
+#  eval {
+#    BSRPC::rpc({
+#      uri => $uri,
+#      maxredirects => 3,
+#      filename => "$dest$$",
+#      receiver => \&BSHTTP::file_receiver
+#    }, undef);
+#  };
+#  if ($@) {
+#    print "failed: $@";
+#    unlink("$dest$$");
+#    return undef;
+#  }
+#  rename("$dest$$", $dest) || die("rename $dest$$ $dest: $!\n");
+#  return $dest;
+#}
+
+sub getbinary_repository {
+  my ($cgi, $projid, $repoid, $arch, $bin) = @_;
+  if ($bin eq '_buildconfig') {
+    my $cfg = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+    return ($cfg, 'Content-Type: text/plain');
   }
-  rename("$dest$$", $dest) || die("rename $dest$$ $dest: $!\n");
-  return $dest;
+  my $path = "$reporoot/$projid/$repoid/$arch/:full/$bin";
+  if (! -f $path) {
+    # return by name
+    my $pool = BSSolv::pool->new();
+    my $repo = addrepo_scan($pool, "$projid/$repoid", $arch);
+    my %rnames = $repo ? $repo->pkgnames() : ();
+    my $p = $rnames{$bin};
+    die("no such binary '$bin'\n") unless $p;
+    $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+    undef $repo;
+    undef $pool;
+    die("$bin: $!\n") unless -f $path;
+  }
+  my $type = 'application/octet-stream';
+  $type = 'application/x-rpm' if $path=~ /\.rpm$/;
+  $type = 'application/x-debian-package' if $path=~ /\.deb$/;
+  BSServer::reply_file($path, "Content-Type: $type");
+  return undef;
 }
 
 sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $bin) = @_;
-  if ($packid eq '_repository' && $bin eq '_buildconfig') {
-    my $cfg = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
-    return ($cfg, 'Content-Type: text/plain');
-  }
-  $packid = ':full' if $packid eq '_repository';
+  return getbinary_repository($cgi, $projid, $repoid, $arch, $bin) if $packid eq '_repository';
   my $path = "$reporoot/$projid/$repoid/$arch/$packid/$bin";
-  if ($packid eq ':full' && ! -f $path) {
-    my $bins = findbinaries("$projid/$repoid", $arch, $bin);
-    die("no such binary '$bin'\n") if $bins->{$bin} eq '_gone';
-    $path = $bin = "$reporoot/$bins->{$bin}";
-    $bin =~ s/.*\///;
-  }
   die("$bin: $!\n") unless -f $path;
-  my $type = 'application/x-rpm';
-  $type = 'application/x-debian-package' if $bin =~ /\.deb$/;
+  my $type = 'application/octet-stream';
+  $type = 'application/x-rpm' if $path=~ /\.rpm$/;
+  $type = 'application/x-debian-package' if $path=~ /\.deb$/;
   BSServer::reply_file($path, "Content-Type: $type");
   return undef;
 }
@@ -1192,7 +1206,6 @@ sub getbuildinfo {
     die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
   }
 
-  my $ldepfile = $pdata->{'ldepfile'};
   my $info = $pdata->{'info'}->[0];
   die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
 
@@ -1275,57 +1288,43 @@ sub getbuildinfo {
     @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
   }
 
-  # read repository data from cache
-  my %repodata;
+  my $pool = BSSolv::pool->new();
+  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+
+  if ($pdata->{'ldepfile'}) {
+    # have local deps, add them to pool
+    my $data = {};
+    Build::readdeps($bconf, $data, $pdata->{'ldepfile'});
+    Build::forgetdeps($bconf);
+    my $r = $pool->repofromdata('', $data);
+    die("ldepfile repo add failed\n") unless $r;
+  }
+
   for my $prp (@prp) {
     my ($rprojid, $rrepoid) = split('/', $prp, 2);
-    my $cache;
+    my $r;
     if ($remotemap{$rprojid}) {
-      my $remote = $remotemap{$rprojid};
-      print "fetching remote repository state for $rprojid\n";
-      my $param = {
-        'uri' => "$remote->{'remoteurl'}/build/$remote->{'remoteproject'}/$rrepoid/$arch/_repository",
-        'timeout' => 300,
-        'receiver' => \&BSHTTP::cpio_receiver,
-      };
-      my $cpio = BSRPC::rpc($param, undef, "view=cache");
-      my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
-      my $cachedata = $cpio{'repositorycache'};
-      next unless $cachedata;
-      eval { $cache = Storable::thaw(substr($cachedata, 4)); };
-      undef $cachedata;
-      warn($@) if $@;
+      $r = addrepo_remote($pool, $prp, $arch, $remotemap{$rprojid});
     } else {
-      next unless -e "$reporoot/$prp/$arch/:full.cache";
-      $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
-      delete $cache->{'/external'};
-      delete $cache->{'/url'};
+      $r = addrepo_scan($pool, $prp, $arch);
     }
-    next unless ref($cache) eq 'HASH';
-    $repodata{$prp} = $cache;
+    die("repository $prp not available\n") unless $r;
   }
-  my @repos = map {$repodata{$_} || {}} @prp;
-  unshift @repos, $ldepfile if defined($ldepfile);
+
+  $pool->createwhatprovides();
+  my %dep2pkg;
   my %dep2src;
-  my %dep2rpm;
-  my %dep2prp;
-  for my $prp (reverse @prp) {
-    my $r = $repodata{$prp};
-    for (keys %$r) {
-      if (!defined($r->{$_}->{'source'})) {
-	print "Warning: $_ in $prp has no source\n";
-      }
-      $dep2src{$_} = $r->{$_}->{'source'};
-      $dep2rpm{$_} = $r->{$_};
-      $dep2prp{$_} = $prp;
-    }
+  for my $p ($pool->consideredpackages()) {
+    my $n = $pool->pkg2name($p);
+    $dep2pkg{$n} = $p;
+    $dep2src{$n} = $pool->pkg2srcname($p);
   }
   my $pname = $info->{'name'};
   my @subpacks = grep {$dep2src{$_} eq $pname} keys %dep2src;
   #$ret->{'subpack'} = \@subpacks;
-  my %localdeps;
-  Build::readdeps($bconf, \%localdeps, reverse @repos);
   my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
+
+  # expand deps
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   @subpacks = () if $packtype eq 'kiwi';
   my @edeps;
@@ -1336,10 +1335,26 @@ sub getbuildinfo {
     my $bconfignoreh = $bconf->{'ignoreh'};
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
+    my $xp = BSSolv::expander->new($pool, $bconf);
+    my $ownexpand = sub {
+      $_[0] = $xp;
+      goto &BSSolv::expander::expand;
+    };
+    no warnings 'redefine';
+    local *Build::expand = $ownexpand;
+    use warnings 'redefine';
     @edeps = Build::get_deps($bconf, \@subpacks, @deps);
     $bconf->{'ignore'} = $bconfignore if $bconfignore;
     $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
   } else {
+    my $xp = BSSolv::expander->new($pool, $bconf);
+    my $ownexpand = sub {
+      $_[0] = $xp;
+      goto &BSSolv::expander::expand;
+    };
+    no warnings 'redefine';
+    local *Build::expand = $ownexpand;
+    use warnings 'redefine';
     @edeps = Build::get_deps($bconf, \@subpacks, @deps);
   }
   undef $Build::expand_dbg if $cgi->{'debug'};
@@ -1353,13 +1368,23 @@ sub getbuildinfo {
     push @deps, 'createrepo', 'tar' if $kiwitype ne 'product';
     push @deps, grep {/^kiwi-/} @{$info->{'dep'} || []};
   }
-  $Build::expand_dbg = 1 if $cgi->{'debug'};
+
   my @bdeps;
+  $Build::expand_dbg = 1 if $cgi->{'debug'};
+  my $xp = BSSolv::expander->new($pool, $bconf);
+  my $ownexpand = sub {
+    $_[0] = $xp;
+    goto &BSSolv::expander::expand;
+  };
+  no warnings 'redefine';
+  local *Build::expand = $ownexpand;
+  use warnings 'redefine';
   if (!$cgi->{'deps'}) {
     @bdeps = Build::get_build($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
   } else {
     @bdeps = Build::get_deps($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
   }
+  undef $xp;
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @bdeps) {
     $ret->{'error'} = "expansion error: ".join(', ', @bdeps);
@@ -1407,88 +1432,62 @@ sub getbuildinfo {
   }
 
   if ($packtype eq 'kiwi' && $kiwitype eq 'image') {
-    my @bdepsp;
-    my %toprp;
-    for my $n (@bdeps) {
-      for my $prp (reverse @prp) {
-	my $r = $repodata{$prp};
-	next unless $r->{$n} && $r->{$n}->{'path'};
-	my $p = "$reporoot/$prp/$arch/:full/$r->{$n}->{'path'}";
-	push @bdepsp, $p;
-	$toprp{$p} = $prp;
+    # kiwi images take the binaries from all repos
+    my %allnames;
+    for my $repo ($pool->repos()) {
+      my %names = $repo->pkgnames();
+      for (keys %names) {
+        push @{$allnames{$_}}, $names{$_};
       }
     }
-    my @bdepsp_tmp = getbinarydata(@bdepsp);
-    for (@bdepsp_tmp) {
-      $_->{'path'} = shift @bdepsp;
-    }
-    @bdepsp = @bdepsp_tmp;
-    
-    @bdepsp = grep {exists($_->{'name'})} @bdepsp;
-    @bdepsp = sort {$a->{'name'} cmp $b->{'name'}} @bdepsp;
-    @bdeps = ();
-    for (@bdepsp) {
-      my $b = {'name' => $_->{'name'}};
-      push @bdeps, $b;
-      my $prp = $toprp{$_->{'path'}};
-      if (!$cgi->{'internal'}) {
-        ($b->{'project'}, $b->{'repository'}) = split('/', $prp);
+    for (splice @bdeps) {
+      for my $p (@{$allnames{$_} || []}) {
+	my $p = $allnames{$_};
+	my $b = {'name' => $_};
+	if (!$cgi->{'internal'}) {
+	  my $prp = $pool->pkg2reponame($p);
+	  ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
+	}
+	my $d = $pool->pkg2data($p);
+        $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+	$b->{'version'} = $d->{'version'};
+	$b->{'release'} = $d->{'release'} if exists $d->{'release'};
+	$b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+	$b->{'notmeta'} = 1 unless $edeps{$_};
+	if ($p != $dep2pkg{$_}) {
+	  $b->{'noinstall'} = 1;
+	  push @bdeps, $b;
+	  next;
+	}
+	$b->{'preinstall'} = 1 if $pdeps{$_};
+	$b->{'vminstall'} = 1 if $vmdeps{$_};
+	$b->{'runscripts'} = 1 if $runscripts{$_};
+	$b->{'noinstall'} = 1 if $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
+	push @bdeps, $b;
       }
-      $b->{'version'} = $_->{'version'};
-      $b->{'release'} = $_->{'release'} if exists $_->{'release'};
-      $b->{'arch'} = $_->{'arch'};
-      $b->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
-      if ($prp ne $dep2prp{$_->{'name'}}) {
-        $b->{'noinstall'} = 1;
-	next;
-      }
-      $b->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
-      $b->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
-      $b->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
-      $b->{'noinstall'} = 1 if $edeps{$_->{'name'}} && !($bdeps{$_->{'name'}} || $vmdeps{$_->{'name'}} || $pdeps{$_->{'name'}});
     }
     $ret->{'bdep'} = \@bdeps;
     return ($ret, $BSXML::buildinfo);
   }
 
-  my @bdepsp;
-  if (!$cgi->{'internal'}) {
-    for (@bdeps) {
-      my $p = $dep2rpm{$_}->{'path'};
-      # p might be a local dependency
-      next unless $p;
-      push @bdepsp, "$reporoot/$dep2prp{$_}/$arch/:full/$p";
-    }
-    @bdepsp = getbinarydata(@bdepsp);
-  }
-  my %bdepsp = map {$_->{'name'} => $_} grep {exists($_->{'name'})} @bdepsp;
   for (@bdeps) {
-    $_ = {'name' => $_};
-    if ($dep2prp{$_->{'name'}} && !$cgi->{'internal'}) {
-      ($_->{'project'}, $_->{'repository'}) = split('/', $dep2prp{$_->{'name'}}, 2);
+    my $b = {'name' => $_};
+    my $p = $dep2pkg{$_};
+    if (!$cgi->{'internal'}) {
+      my $prp = $pool->pkg2reponame($p);
+      ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
     }
-    my $r = $bdepsp{$_->{'name'}};
-    if (exists $localdeps{$_->{'name'}}) {
-      $r = $localdeps{$_->{'name'}};
-      delete $_->{'project'};
-      delete $_->{'repository'};
-    }
-    if ($r) {
-      $_->{'version'} = $r->{'version'};
-      $_->{'release'} = $r->{'release'} if exists $r->{'release'};
-      $_->{'arch'} = $r->{'arch'};
-    } else {
-      my $pkg = $_->{'name'};
-      my ($v, $r) = map { /\Q$pkg\E = ([^-]+)(?:-(.+))?$/ } @{$dep2rpm{$_->{'name'}}->{'provides'}};
-      $_->{'version'} = $v if defined $v;
-      $_->{'release'} = $r if defined $r;
-      $_->{'arch'} = $dep2rpm{$_->{'name'}}->{'arch'} if exists $dep2rpm{$_->{'name'}}->{'arch'};
-    }
-    $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
-    $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
-    $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
-    $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
-    $_->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_->{'name'}} && !($bdeps{$_->{'name'}} || $vmdeps{$_->{'name'}} || $pdeps{$_->{'name'}});
+    my $d = $pool->pkg2data($p);
+    $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+    $b->{'version'} = $d->{'version'};
+    $b->{'release'} = $d->{'release'} if exists $d->{'release'};
+    $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+    $b->{'preinstall'} = 1 if $pdeps{$_};
+    $b->{'vminstall'} = 1 if $vmdeps{$_};
+    $b->{'runscripts'} = 1 if $runscripts{$_};
+    $b->{'notmeta'} = 1 unless $edeps{$_};
+    $b->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
+    $_ = $b;
   }
 
   # add extra source (needed for kiwi)
@@ -1729,15 +1728,17 @@ sub postrepo {
   my $repo = $proj->{'repository'}->[0];
   die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
   my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
-  my %data;
-  for my $prp (reverse @prp) {
-    next unless -e "$reporoot/$prp/$arch/:full.cache";
-    my $cache;
-    $cache = Storable::retrieve("$reporoot/$prp/$arch/:full.cache");
-    next unless ref($cache) eq 'HASH';
-    delete $cache->{'/external'};
-    %data = (%data, %$cache);
+  my $pool = BSSolv::pool->new();
+  for my $prp (@prp) {
+    addrepo_scan($pool, $prp, $arch);
   }
+  $pool->createwhatprovides();
+  my %data;
+  for my $p ($pool->consideredpackages()) {
+    my $d = $pool->pkg2data($p);
+    $data{$d->{'name'}} = $d;
+  }
+  undef $pool;
   my @data;
   for (sort keys %data) {
     push @data, $data{$_};
@@ -2188,7 +2189,7 @@ my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
   'setkeepalive' => 1, 
-  'maxchild' => 8,
+  'maxchild' => 20,
 };
 
 my $aconf = {

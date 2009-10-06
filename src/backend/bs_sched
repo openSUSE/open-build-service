@@ -26,6 +26,7 @@ BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
   $wd ||= '.';
   unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd/blib/arch/auto/BSSolv";
   unshift @INC,  "$wd";
 }
 
@@ -47,8 +48,11 @@ use BSVerify;
 use Build;
 use BSDB;
 use Meta;
+use BSSolv;
 
 use strict;
+
+my $testprojid;
 
 my $user = $BSConfig::bsuser;
 my $group = $BSConfig::bsgroup;
@@ -111,137 +115,28 @@ sub sendevent {
 #
 # input: depsp  -> hash of arrays
 #        mapp   -> hash of strings
-#        basep  -> hash of bools
-#        buildp -> hash of bools
 #
-# XXX: put this in BSSort.pm or somehow use sort
-#      from Build.pm
 # 
 sub sortpacks {
-  my ($depsp, $mapp, $basep, $buildp, $cychp, @packs) = @_;
+  my ($depsp, $mapp, $cychp, @packs) = @_;
 
   return @packs if @packs < 2;
-
-  my %deps;
-  my %rdeps;
-  my %needed;
-
-  # map and unify dependencies, create rdeps and needed
-  my %known = map {$_ => 1} @packs;
-  die("sortpacks: input not unique\n") if @packs != keys(%known);
-  for my $p (@packs) {
-    if ($basep && $basep->{$p}) {
-      $deps{$p} = [];
-      $needed{$p} = 0;
-      next;
-    }
-    my @fdeps = @{$depsp->{$p} || []};
-    @fdeps = map {$mapp->{$_} || $_} @fdeps if $mapp;
-    @fdeps = grep {$known{$_}} @fdeps;
-    my %fdeps = ($p => 1);	# no self reference
-    @fdeps = grep {!$fdeps{$_}++} @fdeps;
-    $deps{$p} = \@fdeps;
-    $needed{$p} = @fdeps;
-    push @{$rdeps{$_}}, $p for @fdeps;
-  }
-  undef %known;		# free memory
-
-  @packs = sort {$needed{$a} <=> $needed{$b} || $a cmp $b} @packs;
-  if ($buildp) {	# bring running to front
-    my @packsr = grep {$buildp->{$_}} @packs;
-    @packs = grep {!$buildp->{$_}} @packs;
-    unshift @packs, @packsr;
-  }
-  my @good;
-  my @res;
-  if ($basep) {
-    @good = grep {$basep->{$_}} @packs;
-    if (@good) {
-      @packs = grep {!$basep->{$_}} @packs;
-      push @res, @good;
-      for my $p (@good) {
-	$needed{$_}-- for @{$rdeps{$p} || []};
+  my @cycs;
+  @packs = BSSolv::depsort($depsp, $mapp, \@cycs, @packs);
+  if (@cycs) {
+    for my $cyc (@cycs) {
+      print "cycle: ".join(' -> ', @$cyc)."\n";
+      next unless $cychp;
+      my %nc = map {$_ => 1} @$cyc;
+      for my $p (@$cyc) {
+        next unless $cychp->{$p};
+	$nc{$_} = 1 for @{$cychp->{$p}};
       }
+      my $c = [ sort keys %nc ];
+      $cychp->{$_} = $c for @$c;
     }
   }
-  # the big sort loop
-  while (@packs) {
-    @good = grep {$needed{$_} == 0} @packs;
-    if (@good) {
-      @packs = grep {$needed{$_}} @packs;
-      push @res, @good;
-      for my $p (@good) {
-	$needed{$_}-- for @{$rdeps{$p}};
-      }
-      next;
-    }
-    die unless @packs > 1;
-    # uh oh, cycle alert. find and remove all cycles.
-    my %notdone = map {$_ => 1} @packs;
-    $notdone{$_} = 0 for @res;	# already did those
-    my @todo = @packs;
-    while (@todo) {
-      my $v = shift @todo;
-      if (ref($v)) {
-	$notdone{$$v} = 0;	# finished this one
-	next;   
-      }
-      my $s = $notdone{$v};
-      next unless $s;
-      my @e = grep {$notdone{$_}} @{$deps{$v}};
-      if (!@e) {
-	$notdone{$v} = 0;	# all deps done, mark as finished
-	next;
-      }
-      if ($s == 1) {
-	$notdone{$v} = 2;	# now under investigation
-	unshift @todo, @e, \$v;
-	next;
-      }
-      # reached visited package, found a cycle!
-      my @cyc = ();
-      my $cycv = $v;
-      # go back till $v is reached again
-      while(1) {
-	die unless @todo;
-	$v = shift @todo;
-	next unless ref($v);
-	$v = $$v;
-	$notdone{$v} = 1 if $notdone{$v} == 2;
-	unshift @cyc, $v;
-	last if $v eq $cycv;
-      }
-      unshift @todo, $cycv;
-      print "cycle: ".join(' -> ', @cyc)."\n";
-      if ($cychp) {
-	my %nc = map {$_ => 1} @cyc;
-	for my $p (@cyc) {
-	  next unless $cychp->{$p};
-	  $nc{$_} = 1 for @{$cychp->{$p}};
-	}
-	my $c = [ sort keys %nc ];
-	$cychp->{$_} = $c for @$c;
-      }
-      my $breakv;
-      if ($buildp) {
-	my @b = grep {$buildp->{$_}} @cyc;
-	$breakv = $b[0] if @b;
-      }
-      if (!defined($breakv)) {
-	my @b = @cyc;
-	@b = sort {$needed{$a} <=> $needed{$b} || $a cmp $b} @b;
-	$breakv = $b[0];
-      }
-      push @cyc, $cyc[0];
-      shift @cyc while $cyc[0] ne $breakv;
-      $v = $cyc[1];
-      print "  breaking with $breakv -> $v\n";
-      $deps{$breakv} = [ grep {$_ ne $v} @{$deps{$breakv}} ];
-      $rdeps{$v} = [ grep {$_ ne $breakv} @{$rdeps{$v}} ];
-      $needed{$breakv}--;
-    }
-  }
-  return @res;
+  return @packs;
 }
 
 sub sortedmd5toreason {
@@ -318,100 +213,112 @@ sub findbins_dir {
 
 my $projpacks;		# global project/package data
 
-sub findbins {
-  my ($prp) = @_;
-  local *D;
-  my $dir = "$reporoot/$prp/$myarch/:full";
-  my $repobins = {};
-  my $cnt = 0;
+#  'lastscan'   last time we scanned
+#  'meta'       meta cache
+#  'solv'       solv data cache (for remote repos)
+my %repodatas;		# our repository knowledge
 
-  my $cache;
-  if (-e "$dir.cache") {
-    eval { $cache = Storable::retrieve("$dir.cache"); };
-    warn($@) if $@;
-    undef $cache unless ref($cache) eq 'HASH';
-    if ($cache) {
-      delete $cache->{'/url'};
-      if ($cache->{'/external'}) {
-	delete $cache->{'/external'};
-	for (values %$cache) {
-	  $_->{'path'} = "$prp/$myarch/:full/$_->{'path'}";
-	}
-	return $cache;
-      }
-      my $byid = {};
-      for (keys %$cache) {
-	my $v = $cache->{$_};
-	$v->{'name'} = $_ unless exists $v->{'name'};
-	$byid->{$v->{'id'}} = $v;
-      }
-      $cache = $byid;
-    }
-  }
-  if (!opendir(D, $dir)) {
-    return findbins_remote($prp);
-  }
-  my @prp = split("/", $prp);
-  my $projid = $prp[0];
-  my @dl = grep { $_->{'arch'} eq $myarch } @{$projpacks->{$projid}->{'download'}} if exists $projpacks->{$projid}->{'download'};
-  if (@dl && ($BSConfig::enable_download_on_demand || $BSConfig::enable_dod)) {
-    # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
-    eval {
-      $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
-    };
-    warn("cannot read metadata ($dir/$dl[0]->{'metafile'}): $@") if $@;
-    # fix up path entries
-    for (values %$repobins) {
-      $_->{'rpath'} = $_->{'path'};
-      $_->{'path'} =~ s/.*\///;
-    }
-    $repobins->{'/url'} = $dl[0]->{'baseurl'};
-    $cnt = keys %$repobins;
-  }
+# add :full repo to pool
+sub addrepo {
+  my ($pool, $prp) = @_;
 
-  my @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
-  closedir D;
-  if (!@bins && -s "$dir.subdirs") {
-    for my $subdir (split(' ', readstr("$dir.subdirs"))) {
-      push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
+  my $now = time();
+  if ($repodatas{$prp} && $repodatas{$prp}->{'lastscan'} && $repodatas{$prp}->{'lastscan'} > $now - 8*3600) {
+    if (exists $repodatas{$prp}->{'solv'}) {
+      my $cache;
+      eval {$cache = $pool->repofromstr($prp, $repodatas{$prp}->{'solv'});};
+      return $cache if $cache;
+      delete $repodatas{$prp}->{'solv'};
+    }
+    my $dir = "$reporoot/$prp/$myarch/:full";
+    if (-s "$dir.solv") {
+      my $cache;
+      eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
+      return $cache if $cache;
     }
   }
-  my ($hits, $misses) = (0, 0);
-  for my $bin (sort @bins) {
-    my @s = stat("$dir/$bin");
-    next unless @s;
-    my $id = "$s[9]/$s[7]/$s[1]";
-    my $data;
-    $data = $cache->{$id} if $cache;
-    if ($data) {
-      $hits++;
-    } else {
-      $misses++;
-      $data = Build::query("$dir/$bin", 'evra' => 1);
-      next unless $data;
-      next unless $data->{'source'};	# no src rpms, please
-      delete $data->{'disttag'};
-      $data->{'id'} = $id;
-    }
-    $data->{'path'} = $bin;	# no dir for now!
-    $repobins->{$data->{'name'}} = $data;
-    $cnt++;
+  delete $repodatas{$prp}->{'solv'};
+  delete $repodatas{$prp}->{'lastscan'};
+  my ($projid, $repoid) = split('/', $prp, 2);
+  if ($remoteprojs{$projid}) {
+    return addrepo_remote($pool, $prp, $remoteprojs{$projid});
   }
-  if (!$cnt) {
-    print "    packages found: none\n";
-  } else {
-    print "    packages found: $cnt (hits: $hits, misses: $misses)\n";
-  }
-  if (Storable::nstore($repobins, "$dir.cache.new")) {
-    rename("$dir.cache.new", "$dir.cache") || die("rename $dir.cache.new $dir.cache: $!\n");
-  }
-  delete $repobins->{'/url'};
-  # add dir to make real path
-  for (values %$repobins) {
-    $_->{'path'} = "$prp/$myarch/:full/$_->{'path'}";
-  }
-  return $repobins;
+  return addrepo_scan($pool, $prp);
 }
+
+# add :full repo to pool, make sure repo is up-to-data by
+# scanning the directory
+sub addrepo_scan {
+  my ($pool, $prp) = @_;
+
+  print "scanning repo $prp...\n";
+  my $dir = "$reporoot/$prp/$myarch/:full";
+  my $cache;
+  if (-s "$dir.solv") {
+    eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
+    warn($@) if $@;
+    if ($cache && $cache->isexternal()) {
+      $repodatas{$prp}->{'lastscan'} = time();
+      return $cache;
+    }
+  }
+  my @bins;
+  local *D;
+  if (opendir(D, $dir)) {
+    @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
+    closedir D;
+    if (!@bins && -s "$dir.subdirs") {
+      for my $subdir (split(' ', readstr("$dir.subdirs"))) {
+        push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
+      }
+    }
+  } else {
+    if (!$cache) {
+      # return in-core empty repo
+      my $r = $pool->repofrombins($prp, $dir);
+      $repodatas{$prp}->{'solv'} = $r->tostr();
+      $repodatas{$prp}->{'lastscan'} = time();
+      return $r;
+    }
+  }
+  for (splice @bins) {
+    my @s = stat("$dir/$_");
+    next unless @s;
+    push @bins, $_, "$s[9]/$s[7]/$s[1]";
+  }
+  my $dirty;
+  if ($cache) {
+    $dirty = $cache->updatefrombins($dir, @bins);
+    print "(dirty: $dirty)\n" if $dirty;
+  } else {
+    $cache = $pool->repofrombins($prp, $dir, @bins);
+    $dirty = 1;
+  }
+  if ($dirty && $cache) {
+    $cache->tofile("$dir.solv.new");
+    rename("$dir.solv.new", "$dir.solv") || die("rename $dir.solv.new $dir.solv: $!\n");
+  }
+  $repodatas{$prp}->{'lastscan'} = time();
+  return $cache;
+}
+
+
+  # XXX DOD
+  #my @dl = grep { $_->{'arch'} eq $myarch } @{$projpacks->{$projid}->{'download'}} if exists $projpacks->{$projid}->{'download'};
+  #if (@dl && ($BSConfig::enable_download_on_demand || $BSConfig::enable_dod)) {
+  #  # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
+  #  eval {
+  #    $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
+  #  };
+  #  warn("cannot read metadata ($dir/$dl[0]->{'metafile'}): $@") if $@;
+  #  # fix up path entries
+  #  for (values %$repobins) {
+  #    $_->{'rpath'} = $_->{'path'};
+  #    $_->{'path'} =~ s/.*\///;
+  #  }
+  #  $repobins->{'/url'} = $dl[0]->{'baseurl'};
+  #  $cnt = keys %$repobins;
+  #}
 
 sub enabled {
   my ($repoid, $disen, $default) = @_;
@@ -991,7 +898,7 @@ my %default_exportfilters = (
 #
 
 sub update_dst_full {
-  my ($repodata, $prp, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath) = @_;
+  my ($prp, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath) = @_;
 
   my $jobrepo;
   my @jobfiles;
@@ -1162,14 +1069,24 @@ sub update_dst_full {
     return;
   }
 
+  my $pool = BSSolv::pool->new();
+  my $satrepo;
+  eval { $satrepo = $pool->repofromfile($prp, "$gdst/:full.solv"); };
+  my %old;
+  %old = $satrepo->getpathid() if $satrepo;
+
   # move em over into :full
   mkdir_p("$gdst/:full") if @movetofull && ! -d "$gdst/:full";
   my %fnew;
+  my $dep2meta;
+  $dep2meta = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
   for my $rp (@movetofull) {
     my $r = $new{$rp};
     my $suf = $rp;
     $suf =~ s/.*\.//;
     my $n = $r->{'name'};
+    my @s = stat("$dst/$rp");
+    next unless @s;
     print "      + :full/$n.$suf ($rp)\n";
     # link gives an error if the dest exists, so we dup
     # and rename instead.
@@ -1179,10 +1096,13 @@ sub update_dst_full {
     link("$dst/$rp", "$dst/$rp.dup");
     rename("$dst/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dst/$rp.dup $gdst/:full/$n.$suf: $!\n");
     unlink("$dst/$rp.dup");
+    $old{"$n.$suf"} = "$s[9]/$s[7]/$s[1]";
     if ($suf eq 'rpm') {
       unlink("$gdst/:full/$n.deb");
+      delete $old{"$n.deb"};
     } else {
       unlink("$gdst/:full/$n.rpm");
+      delete $old{"$n.rpm"};
     }
     if ($meta) {
       link($meta, "$meta.dup");
@@ -1191,15 +1111,14 @@ sub update_dst_full {
     } else {
       unlink("$gdst/:full/$n.meta");
     }
+    delete $dep2meta->{$n} if $dep2meta;
 
     $fnew{$n} = 1;
     # arch is needed for local builds of remoteprojects
-    #delete $r->{'arch'};	# not in repodata
+    #delete $r->{'arch'};	# not in repo
     $r->{'path'} = "$prp/$myarch/:full/$n.$suf";
-    $repodata->{$n} = $r;
   }
 
-  # delete obsolete full entries
   for my $rp (sort keys %$oldrepo) {
     my $r = $oldrepo->{$rp};
     next unless $r->{'source'};	# no src rpms in full tree
@@ -1208,7 +1127,7 @@ sub update_dst_full {
     my $n = $r->{'name'};
     next if $fnew{$n};		# got new version, already deleted old
 
-    my @s = stat("$gdst/:full/$n" . ($rp =~ /\.rpm$/ ? '.rpm' : '.deb'));
+    my @s = stat("$gdst/:full/$n.$suf");
 
     # don't delete package if not ours
     next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";
@@ -1219,21 +1138,19 @@ sub update_dst_full {
     unlink("$gdst/:full/$n.iso");
     unlink("$gdst/:full/$n.meta");
     unlink("$gdst/:full/$n-MD5SUMS.meta");
-    delete $repodata->{$n};
+    delete $old{"$n.rpm"};
+    delete $old{"$n.deb"};
+    delete $dep2meta->{$n} if $dep2meta;
   }
-
-  # update :full cache file
-  for my $pack (values %$repodata) {
-    delete $pack->{'meta'};
-    $pack->{'path'} =~ s/.*\///;
-  }
+  
   mkdir_p($gdst) if ! -d "$gdst/:full";
-  if (Storable::nstore($repodata, "$gdst/:full.cache.new")) {
-    rename("$gdst/:full.cache.new", "$gdst/:full.cache") || die("rename $gdst/:full.cache.new $gdst/:full.cache: $!\n");
+  if ($satrepo) {
+    $satrepo->updatefrombins("$gdst/:full", %old);
+  } else {
+    $satrepo = $pool->repofrombins($prp, "$gdst/:full", %old);
   }
-  for my $pack (values %$repodata) {
-    $pack->{'path'} = "$prp/$myarch/:full/$pack->{'path'}";
-  }
+  $satrepo->tofile("$gdst/:full.solv.new");
+  rename("$gdst/:full.solv.new", "$gdst/:full.solv") || die("rename $gdst/:full.solv.new $gdst/:full.solv: $!\n");
 }
 
 sub addjobhist {
@@ -1297,6 +1214,8 @@ sub get_projpacks {
     }
   }
 
+  $projid ||= $testprojid;
+
   my @args;
   if (@packids) {
     print "getting data for project '$projid' package '".join("', '", @packids)."' from $BSConfig::srcserver\n";
@@ -1315,6 +1234,7 @@ sub get_projpacks {
   }
   my $projpacksin;
   while (1) {
+    push @args, 'nopackages' if $testprojid && $projid ne $testprojid;
     eval {
       $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', "arch=$myarch", @args);
     };
@@ -1355,6 +1275,16 @@ sub get_projpacks {
       $proj->{'package'} = $packages;
     } else {
       delete $proj->{'package'};
+    }
+  }
+  if ($testprojid) {
+    my $proj = $projpacks->{$projid};
+    for my $repo (@{$proj->{'repository'} || []}) {
+      for my $path (@{$repo->{'path'} || []}) {
+        next if $path->{'project'} eq $testprojid;
+	next if $projid ne $testprojid && $projpacks->{$path->{'project'}};
+        get_projpacks($path->{'project'});
+      }
     }
   }
 }
@@ -1566,7 +1496,7 @@ sub calc_prps {
 
   # do the real sorting
   print "sorting projects and repositories...\n";
-  @prps = sortpacks(\%prpdeps, undef, undef, undef, undef, @prps);
+  @prps = sortpacks(\%prpdeps, undef, undef, @prps);
 }
 
 ####################################################################
@@ -1690,14 +1620,14 @@ sub fetchremoteconfig {
   return $c;
 }
 
-sub findbins_remote {
-  my ($prp) = @_;
+sub addrepo_remote {
+  my ($pool, $prp, $remoteproj) = @_;
+
   my ($projid, $repoid) = split('/', $prp, 2);
-  my $proj = $remoteprojs{$projid};
-  return {} if !$proj || $proj->{'error'};
+  return undef if !$remoteproj || $remoteproj->{'error'};
   print "fetching remote repository state for $prp\n";
   my $param = {
-    'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$myarch/_repository",
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$myarch/_repository",
     'timeout' => 200,
     'receiver' => \&BSHTTP::cpio_receiver,
   };
@@ -1717,7 +1647,7 @@ sub findbins_remote {
   $repostate = XMLin($BSXML::repositorystate, $repostate) if $repostate;
   delete $globalnotready{$prp};
   if ($repostate && $repostate->{'blocked'}) {
-    $globalnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}}};
+    $globalnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
   }
   my $cachedata = $cpio{'repositorycache'};
   return {} unless $cachedata;
@@ -1730,25 +1660,26 @@ sub findbins_remote {
     delete $_->{'path'};
     delete $_->{'id'};
   }
-  return $cache;
+  my $r = $pool->repofromdata($prp, $cache);
+  $repodatas{$prp}->{'solv'} = $r->tostr();
+  $repodatas{$prp}->{'lastscan'} = time();
+  return $r;
 }
 
 #
 # jobfinished - called when a build job is finished
 #
 # - move built packages into :full tree
-#   (updates corresponding $repodata entry)
 # - set changed flag
 #
 # input: $job       - job identification
 #        $js        - job status information (BSXML::jobstatus)
-#        $repodatas - reference of global repodata hash
 #        $changed   - reference to changed hash, mark prp if
 #                     we changed the repository
 #        $pdata     - package data
 #
 sub jobfinished {
-  my ($job, $js, $repodatas, $changed) = @_;
+  my ($job, $js, $changed) = @_;
 
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
@@ -1877,13 +1808,10 @@ sub jobfinished {
   mkdir_p("$gdst/:logfiles.success");
   mkdir_p("$gdst/:logfiles.fail");
 
-  $repodatas->{$prp} ||= findbins($prp);
-  my $repodata = $repodatas->{$prp};
-
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($repodata, $prp, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -1918,7 +1846,7 @@ sub jobfinished {
 }
 
 sub importevent {
-  my ($job, $js, $repodatas, $changed) = @_;
+  my ($job, $js, $changed) = @_;
 
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
@@ -1934,10 +1862,8 @@ sub importevent {
   my %all = map {$_ => 1} @all;
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   @all = map {"$jobdatadir/$_"} @all;
-  $repodatas->{$prp} ||= findbins($prp);
-  my $repodata = $repodatas->{$prp};
   my $useforbuildenabled = 1;
-  update_dst_full($repodata, $prp, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   unlink($_) for @all;
   rmdir($jobdatadir);
@@ -1949,22 +1875,12 @@ sub importevent {
 ##  kiwi-image package type handling
 ##
 sub checkkiwiimage {
-  my ($projid, $repoid, $packid, $pdata, $info, $repodatas, $notready, $relsynctrigger) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $notready, $relsynctrigger) = @_;
 
   my $prp = "$projid/$repoid";
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
-  my @repos;
-  for my $aprp (@aprps) {
-    $repodatas->{$aprp} ||= findbins($aprp);
-    my $repodata = $repodatas->{$aprp}; 
-    if (!$repodata) {
-      print "      - $packid (kiwi-image)\n";
-      print "        repository $aprp is unavailable";
-      return ('broken', "repository $aprp is unavailable");
-    }
-    push @repos, $repodata;
-  }
+
   # get config from path
   my $bconf = getconfig($myarch, \@aprps);
   if (!$bconf) {
@@ -1973,13 +1889,31 @@ sub checkkiwiimage {
     return ('broken', 'no config');
   }
 
+  my $pool = BSSolv::pool->new();
+  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+
+  for my $aprp (@aprps) {
+    my $r = addrepo($pool, $aprp);
+    if (!$r) {
+      print "      - $packid (kiwi-image)\n";
+      print "        repository $aprp is unavailable";
+      return ('broken', "repository $aprp is unavailable");
+    }
+  }
+  $pool->createwhatprovides();
   my $bconfignore = $bconf->{'ignore'};
   my $bconfignoreh = $bconf->{'ignoreh'};
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
-  Build::readdeps($bconf, undef, reverse @repos);
-  # expand deps for that path
   my @deps = @{$info->{'dep'} || []};
+  my $xp = BSSolv::expander->new($pool, $bconf);
+  my $ownexpand = sub {
+    $_[0] = $xp; 
+    goto &BSSolv::expander::expand;
+  };   
+  no warnings 'redefine';
+  local *Build::expand = $ownexpand;
+  use warnings 'redefine';
   my ($eok, @edeps) = Build::get_deps($bconf, [], @deps);
   if (!$eok) {
     print "      - $packid (kiwi-image)\n";
@@ -1996,9 +1930,8 @@ sub checkkiwiimage {
     push @new_meta, "$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}";
   }
   my @blocked;
-  for my $aprp (@aprps) {
-    $repodatas->{$aprp} ||= findbins($aprp);
-    my $repodata = $repodatas->{$aprp};
+  for my $repo ($pool->repos()) {
+    my $aprp = $repo->name();
     my $gn = ($prp eq $aprp ? $notready : $globalnotready{$aprp}) || {};
     my @b = grep {$gn->{$_}} @edeps;
     if (@b) {
@@ -2006,10 +1939,11 @@ sub checkkiwiimage {
       push @blocked, @b;
     }
     next if @blocked;
+    my %names = $repo->pkgnames();
     for my $dep (sort(@edeps)) {
-      my $r = $repodata->{$dep};
-      next unless $r;
-      push @new_meta, "$r->{'hdrmd5'}  $aprp/$dep";
+      my $p = $names{$dep};
+      next unless $p;
+      push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$dep";
     }
   }
   if (@blocked) {
@@ -2511,7 +2445,6 @@ sub resign {
 #         $repoid    - our repository
 #         $packid    - aggregate package
 #         $pdata     - package data information
-#         $repodatas - reference of global repodata hash
 #         $changed   - reference to changed hash, mark prp if
 #                      we changed the repository
 #         $new_meta  - the new meta file data
@@ -2521,7 +2454,7 @@ sub resign {
 # globals used: $projpacks
 #
 sub rebuildaggregate {
-  my ($projid, $repoid, $packid, $pdata, $repodatas, $changed, $new_meta) = @_;
+  my ($projid, $repoid, $packid, $pdata, $changed, $new_meta) = @_;
 
   my $prp = "$projid/$repoid";
   my @aggregates = @{$pdata->{'aggregatelist'}->{'aggregate'} || []};
@@ -2624,12 +2557,10 @@ sub rebuildaggregate {
   my $gdst = "$reporoot/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
-  $repodatas->{$prp} ||= findbins($prp);
-  my $repodata = $repodatas->{$prp};
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($repodata, $prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $changed->{$prp} ||= 1;
@@ -2744,9 +2675,11 @@ print "starting build service scheduler\n";
 
 # get lock
 mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_sched.$myarch.lock") || die("$rundir/bs_sched.$myarch.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myarch!\n");
-utime undef, undef, "$rundir/bs_sched.$myarch.lock";
+if (!$testprojid) {
+  open(RUNLOCK, '>>', "$rundir/bs_sched.$myarch.lock") || die("$rundir/bs_sched.$myarch.lock: $!\n");
+  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myarch!\n");
+  utime undef, undef, "$rundir/bs_sched.$myarch.lock";
+}
 
 # setup event mechanism
 for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir, $infodir) {
@@ -2765,7 +2698,6 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 # changed: 1: something "local" changed, :full unchanged,
 #          2: the :full repo is changed
 # set all projects and prps to :full repo changed
-my %repodata;
 my %changed_low;
 my %changed_med;
 my %changed_high;
@@ -2779,7 +2711,7 @@ my @lookat_oobhigh;     # do those really first so that our users are happy
 
 
 # read old state if present
-if (-s "$rundir/bs_sched.$myarch.state") {
+if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
   print "reading old state...\n";
   my $schedstate;
   eval {
@@ -2861,6 +2793,10 @@ if (!$projpacks) {
   @lookat = sort keys %$projpacks;
   push @lookat, @prps;
 }
+
+#XXX
+#@lookat = sort keys %$projpacks;
+#push @lookat, @prps;
 
 my %remotewatchers;
 my %nextmed;
@@ -2946,7 +2882,9 @@ while(1) {
       print "retrying ".@remoteevents." events\n";
     }
   }
-  if (%remotewatchers) {
+  if ($testprojid) {
+    print "ignoring events due to test mode\n";
+  } elsif (%remotewatchers) {
     my @readok = select_read(0, $pingsock, values %remotewatchers);
     $gotevent = 1 if @readok;
     for my $watcher (@readok) {
@@ -3023,6 +2961,7 @@ while(1) {
 
   if (!$gotevent && !@lookat && !@lookat_oob && !@lookat_oobhigh) {
     print "waiting for an event...\n";
+    exit 0 if $testprojid;
     my $timeout;
     my $sleepstart = time();
     if (%remotewatchers) {
@@ -3079,9 +3018,9 @@ while(1) {
 	  next;
 	}
         if ($ev->{'type'} eq 'built') {
-	  jobfinished($job, $js, \%repodata, \%changed_med);
+	  jobfinished($job, $js, \%changed_med);
 	} else {
-	  importevent($job, $js, \%repodata, \%changed_med);
+	  importevent($job, $js, \%changed_med);
 	}
 	if (-d "$myjobsdir/$job:dir") {
 	  unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
@@ -3112,7 +3051,7 @@ while(1) {
 	my $projid = $ev->{'project'};
 	my $repoid = $ev->{'repository'};
         my $prp = "$projid/$repoid";
-	delete $repodata{$prp};
+        delete $repodatas{$prp};
 	$changed_high{$prp} = 2;
         delete $repounchanged{$prp};
 	next;
@@ -3144,14 +3083,15 @@ while(1) {
 	my $repoid = $ev->{'repository'};
 	if (!defined($projid) && !defined($repoid)) {
 	  print "flushing all repository data\n";
-	  %repodata = ();
 	  next;
 	}
 	if (defined($projid) && defined($repoid)) {
 	  my $prp = "$projid/$repoid";
 	  print "reading packages of repository $projid/$repoid\n";
-	  delete $repodata{$prp};
-	  $repodata{$prp} = findbins($prp) if -d "$reporoot/$prp/$myarch";
+	  delete $repodatas{$prp};
+	  my $pool = BSSolv::pool->new();
+          addrepo($pool, $prp);
+	  undef $pool;
 	  $changed_high{$prp} = 2;
           delete $repounchanged{$prp};
 	}
@@ -3160,12 +3100,7 @@ while(1) {
 
       if ($ev->{'type'} eq 'dumprepo') {
 	my $prp = "$ev->{'project'}/$ev->{'repository'}";
-	my $repodata = $repodata{$prp} || {};
-	local *F;
-	open(F, '>', "/tmp/repodump");
-	print F "# repodump for $prp\n\n";
-	print F Dumper($repodata);
-	close F;
+	warn("dumprepo no longer works\n");
 	next;
       }
 
@@ -3181,9 +3116,7 @@ while(1) {
 	# delete repository done flag
 	unlink("$gdst/:repodone");
 	# delete full entries
-	$repodata{$prp} ||= findbins($prp);
-	my $repodata = $repodata{$prp};
-	update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
+	update_dst_full($prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
         delete $repounchanged{$prp};
 	# delete other files
 	unlink("$gdst/:logfiles.success/$packid");
@@ -3208,7 +3141,6 @@ while(1) {
 	my $schedstate = {};
 	if ($ev->{'type'} eq 'exitcomplete') {
 	  $schedstate->{'projpacks'} = $projpacks;
-	  $schedstate->{'repodata'} = \%repodata;
 	}
 	$schedstate->{'prps'} = \@prps;
 	$schedstate->{'changed_low'} = \%changed_low;
@@ -3249,10 +3181,9 @@ while(1) {
 	  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
 	  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
 	  next unless $useforbuildenabled;
-	  $repodata{$prp} ||= findbins($prp);
 	  my $meta = "$gdst/:meta/$packid";
           undef $meta unless -s $meta;
-	  update_dst_full($repodata{$prp}, $prp, "$gdst/$packid", "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
+	  update_dst_full($prp, "$gdst/$packid", "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
 	}
 	for $prp (@prps) {
 	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
@@ -3402,6 +3333,9 @@ while(1) {
   delete $nextmed{$prp};
 
   my ($projid, $repoid) = split('/', $prp, 2);
+
+  next if $testprojid && $projid ne $testprojid;
+
   if (!defined($repoid)) {
     # project maintenance, check for deleted repositories
     my %repoids;
@@ -3416,11 +3350,11 @@ while(1) {
       next unless -d "$reporoot/$prp/$myarch";
       # we no longer build this repoid
       print "  - deleting repository $prp\n";
-      delete $repodata{$prp};
       delete $prpfinished{$prp};
       delete $globalnotready{$prp};
       delete $notreadies{$prp};
       delete $prpchecktimes{$prp};
+      delete $repodatas{$prp};
 
       for my $dir (ls("$reporoot/$prp/$myarch")) {
 	delete $lastcheck{"$prp/$dir"};
@@ -3484,6 +3418,12 @@ while(1) {
     next;
   }
   my $prptype = $bconf->{'type'};
+  if (!$prptype || $prptype eq 'UNDEFINED') {
+    my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
+    print "  - $prp: bad config ($lastprojid)\n";
+    $prpfinished{$prp} = 1;
+    next;
+  }
   print "  - $prp\n";
 
   if (grep {$_->{'name'} eq $repoid && $_->{'status'} && $_->{'status'} eq 'disabled'} @{$projpacks->{$projid}->{'repository'}}) {
@@ -3517,9 +3457,7 @@ while(1) {
     delete $lastcheck{"$prp/$packid"};
     my $gdst = "$reporoot/$prp/$myarch";
     # delete full entries
-    $repodata{$prp} ||= findbins($prp);
-    my $repodata = $repodata{$prp};
-    update_dst_full($repodata, $prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
+    update_dst_full($prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
     $changed_med{$prp} = 2;
     sendrepochangeevent($prp);
     # delete other files
@@ -3532,56 +3470,60 @@ while(1) {
     unlink("$reporoot/$prp/$myarch/:repodone");
   }
 
-  # Step 2b: calculate build repository
+
+  # Step 2b: set up pool and repositories
+  my $pool = BSSolv::pool->new();
+  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+
   my %building;
   my %notready;
   my %dep2src;
-  my %dep2rpm;
+  my %dep2pkg;
   my %depislocal;	# used in meta calculation
-  my @repos;
   my $error;
 
   for my $rprp (@{$prpsearchpath{$prp}}) {
-    $repodata{$rprp} ||= findbins($rprp);
-    my $rd = $repodata{$rprp};
-    if (!$rd) {
+    my $r = addrepo($pool, $rprp);
+    if (!$r) {
       $error = "repository '$rprp' is unavailable";
       last;
-    }
-    push @repos, $rd;
-    my $gn = $globalnotready{$rprp} || {};
-    if ($rprp eq $prp) {
-      $gn = {};		# ignore last not ready
-      $depislocal{$_} = 1 for keys %$rd;
-    }
-    for (keys %$rd) {
-      next if exists $dep2rpm{$_};
-      $dep2rpm{$_} = $rd->{$_};
-      my $pname = $rd->{$_}->{'source'};
-      $dep2src{$_} = $pname;
-      $notready{$pname} = 2 if $gn->{$pname};
     }
   }
   if ($error) {
     print "    $error\n";
     next;
   }
+  
+  $pool->createwhatprovides();
+  for my $p ($pool->consideredpackages()) {
+    my $rprp = $pool->pkg2reponame($p);
+    my $n = $pool->pkg2name($p);
+    $dep2pkg{$n} = $p;
+    $dep2src{$n} = $pool->pkg2srcname($p);
+    if ($rprp eq $prp) {
+      $depislocal{$n} = 1;
+    } else {
+      $notready{$n} = 2 if $globalnotready{$rprp}->{$n};
+    }
+  }
+  my $xp = BSSolv::expander->new($pool, $bconf);
+  my $ownexpand = sub {
+    $_[0] = $xp;
+    goto &BSSolv::expander::expand;
+  };
+  no warnings 'redefine';
+  local *Build::expand = $ownexpand;
+  use warnings 'redefine';
+
+
 
   my $prpchecktime = time();
-
-#    for my $rd (reverse @repos) {
-#      for (keys %$rd) {
-#	$dep2src{$_} = $rd->{$_}->{'source'};
-#	$dep2rpm{$_} = $rd->{$_};
-#      }
-#    }
 
   # Step 2c: expand all dependencies, put them in %pdeps hash
   my %subpacks;
   push @{$subpacks{$dep2src{$_}}}, $_ for keys %dep2src;
   print "    expanding dependencies\n";
   my %experrors;
-  Build::readdeps($bconf, undef, reverse @repos);
 
   my %pdeps;
   my %pkg2src;
@@ -3665,10 +3607,10 @@ while(1) {
   # sort packages by pdeps
   print "    sorting ".@packs." packages\n";
   my %cychash;
-  @packs = sortpacks(\%pdeps, \%dep2src, undef, undef, \%cychash, @packs);
+  @packs = sortpacks(\%pdeps, \%dep2src, \%cychash, @packs);
 
-  # bring expansion errors to back (is this really needed? we do not modify the
-  # repodata in the build service)
+  # bring expansion errors to back (is this really needed? we do not modify
+  # the repositories in the middle of the project check)
   my @packs_experrors = grep {$experrors{$_}} @packs;
   @packs = grep {!$experrors{$_}} @packs;
   push @packs, @packs_experrors;
@@ -3826,7 +3768,7 @@ while(1) {
       my ($astatus, $aerror) = checkaggregate($projid, $repoid, $packid, $pdata, \%prpfinished);
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
-	($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%repodata, \%changed_med, $aerror);
+	($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%changed_med, $aerror);
 	if ($astatus eq 'scheduled') {
 	  # aerror contains jobid in this case
 	  $notready{$pname} = 1;
@@ -3861,7 +3803,7 @@ while(1) {
     }
 
     if ($packtype eq 'kiwi-image') {
-      my ($astatus, $aerror) = checkkiwiimage($projid, $repoid, $packid, $pdata, $info, \%repodata, \%notready, $relsynctrigger{$packid});
+      my ($astatus, $aerror) = checkkiwiimage($projid, $repoid, $packid, $pdata, $info, \%notready, $relsynctrigger{$packid});
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
 	($astatus, $aerror) = rebuildkiwiimage($projid, $repoid, $packid, $pdata, $info, $aerror, $relsyncmax);
@@ -3991,7 +3933,7 @@ while(1) {
 	next;
       }
       my $check = substr($mylastcheck, 32, 32);
-      $check .= $dep2rpm{$_}->{'hdrmd5'} for sort @{$pdeps{$packid}};
+      $check .= $pool->pkg2pkgid($dep2pkg{$_}) for sort @{$pdeps{$packid}};
       $check = Digest::MD5::md5_hex($check);
       if ($check eq substr($mylastcheck, 64, 32)) {
 	# print "      - $packid ($packtype)\n";
@@ -4002,13 +3944,19 @@ while(1) {
       substr($mylastcheck, 64, 32) = $check;
       # even more work, generate new meta, check if it changed
       my @new_meta;
+      my $dep2meta = $repodatas{$prp}->{'meta'};
+      if (!$dep2meta) {
+        $dep2meta = {};
+        $repodatas{$prp}->{'meta'} = $dep2meta;
+      }
       for my $bpack (@{$pdeps{$packid}}) {
-	my $r = $dep2rpm{$bpack};
-	die unless $r;
-	if ($depislocal{$bpack} && $r->{'path'}) {
-	  if (!$r->{'meta'}) {
+	my $pkg = $dep2pkg{$bpack};
+	my $path = $pool->pkg2fullpath($pkg, $myarch);
+	if ($depislocal{$bpack} && $path) {
+	  my $meta = $dep2meta->{$bpack};
+	  if (!$meta) {
 	    my @m;
-	    my $mf = substr("$reporoot/$r->{'path'}", 0, -4);
+	    my $mf = substr("$reporoot/$path", 0, -4);
 	    #print "        reading meta for $r->{'path'}\n";
 	    if (open(F, '<', "$mf.meta") || open(F, '<', "$mf-MD5SUMS.meta")) {
 	      @m = <F>;
@@ -4017,15 +3965,18 @@ while(1) {
 	      s/  /  $bpack\// for @m;
 	      $m[0] =~ s/  .*/  $bpack/ if @m;
 	    }
-	    @m = ("$r->{'hdrmd5'}  $bpack") unless @m;
-	    $r->{'meta'} = \@m;
+	    @m = ($pool->pkg2pkgid($pkg)."  $bpack") unless @m;
+	    $meta = \@m;
+	    $dep2meta->{$bpack} = $meta;
 	  }
-	  push @new_meta, @{$r->{'meta'}};
+	  push @new_meta, @$meta;
 	} else {
-	  push @new_meta, "$r->{'hdrmd5'}  $bpack";
+	  my $pkgid = $pool->pkg2pkgid($pkg);
+	  push @new_meta, "$pkgid  $bpack";
 	}
       }
-      @new_meta = BSBuild::gen_meta("$pdata->{'srcmd5'}  $packid", $subpacks{$info->{'name'}}, @new_meta);
+      @new_meta = BSSolv::gen_meta($subpacks{$info->{'name'}} || [], @new_meta);
+      unshift @new_meta, "$pdata->{'srcmd5'}  $packid";
       if (Digest::MD5::md5_hex(join("\n", @new_meta)) eq substr($mylastcheck, 32, 32)) {
 	# print "      - $packid ($packtype)\n";
 	# print "        nothing changed (looked harder)\n";
@@ -4180,8 +4131,8 @@ relsynccheck:
 	# (we always have to do the expansion if something changes)
 	if (! grep {!$prpfinished{$_}} @{$prpdeps{$prp}}) {
 	  print "    leaf prp, freeing data\n";
-	  delete $repodata{$prp};
 	  delete $lastcheck{"$prp/$_"} for @packs;
+	  delete $repodatas{$prp};
 	}
       }
     }
