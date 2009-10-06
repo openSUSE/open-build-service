@@ -323,11 +323,11 @@ sub stream_logfile {
     $end -= $start;
     die("end is smaller than start\n") if $end < 0;
   }
-  die("Logfile is not that big\n") if $s[7] < $start;
-  defined(sysseek(F, $start, 0)) || die("sysseek: $!\n");
+  die("Logfile is not that big\n") if $s[7] < abs($start);
+  defined(sysseek(F, $start, $start < 0 ? Fcntl::SEEK_END : Fcntl::SEEK_SET)) || die("sysseek: $!\n");
 
   BSServer::reply(undef, 'Content-Type: application/octet-stream', 'Transfer-Encoding: chunked');
-  my $pos = $start;
+  my $pos = sysseek(F, 0, Fcntl::SEEK_CUR) || die("sysseek: $!\n");
   while(!defined($end) || $end) {
     @s = stat(F);
     if ($s[7] <= $pos) {

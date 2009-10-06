@@ -110,6 +110,12 @@ sub verify_num {
   die("not a number: '$num'\n") unless $num =~ /^\d+$/;
 }
 
+sub verify_intnum {
+  my $num = $_[0];
+  die("number is empty\n") unless defined($num) && $num ne '';
+  die("not a number: '$num'\n") unless $num =~ /^-?\d+$/;
+}
+
 sub verify_bool {
   my $bool = $_[0];
   die("not boolean\n") unless defined($bool) && ($bool eq '0' || $bool eq '1');
@@ -306,6 +312,7 @@ our $verifyers = {
   'linkrev' => \&verify_linkrev,
   'bool' => \&verify_bool,
   'num' => \&verify_num,
+  'intnum' => \&verify_intnum,
   'port' => \&verify_port,
   'prp' => \&verify_prp,
   'prpa' => \&verify_prpa,

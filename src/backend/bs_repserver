@@ -507,11 +507,13 @@ sub getlogfile {
   if ($jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'finished') {
     $logfile = "$jobsdir/$arch/$status->{'job'}:dir/logfile";
   }
-  die("$packid: no logfile\n") unless -e $logfile;
+  my @s = stat($logfile);
+  die("$packid: no logfile\n") unless @s;
   my $start = $cgi->{'start'} || 0;
+  die("start out of range: $start\n") if abs($start) > $s[7];
   my $fd = gensym;
   open($fd, '<', $logfile) || die("$logfile: $!\n");
-  defined(sysseek($fd, $start, 0)) || die("sysseek: $!\n");
+  defined(sysseek($fd, $start, $start < 0 ? Fcntl::SEEK_END : Fcntl::SEEK_SET)) || die("sysseek: $!\n");
   BSWatcher::reply_file($fd, 'Content-Type: text/plain');
   close $fd unless $BSStdServer::isajax;
   return undef;
@@ -2142,7 +2144,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history' => \&gethistory,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num? handoff:bool?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository/$filename' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   '/search/published/binary/id $match:' => \&search_published_binary_id,
@@ -2177,7 +2179,7 @@ my $dispatches = [
 my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:num? end:num?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
 ];
