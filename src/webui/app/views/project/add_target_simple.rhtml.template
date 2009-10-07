@@ -15,7 +15,7 @@
   <li><%= simple_repo_button_to "openSUSE 10.2", :reponame => "openSUSE_10.2", :repo => 'openSUSE:10.2/standard', :arch => [:i586, :x86_64] %></li>
   <li><%= simple_repo_button_to "SLE 10", :reponame => "SLE_10", :repo => 'SUSE:SLE-10:SDK/standard', :arch => [:i586, :x86_64] %></li>
   <li><%= simple_repo_button_to "SLES 9", :reponame => "SLES_9", :repo => 'SUSE:SLES-9/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "openSUSE Factory", :reponame => "openSUSE_Factory", :repo => 'openSUSE:Factory/standard', :arch => [:i586, :x86_64] %></li>
+  <li><%= simple_repo_button_to "openSUSE Factory", :reponame => "openSUSE_Factory", :repo => 'openSUSE:Factory/snapshot', :arch => [:i586, :x86_64] %></li>
   <li><%= simple_repo_button_to "Debian Etch", :reponame => "Debian_Etch", :repo => 'Debian:Etch/standard', :arch => [:i586, :x86_64] %></li>
   <li><%= simple_repo_button_to "Fedora 9", :reponame => "Fedora_9", :repo => 'Fedora:9/standard', :arch => [:i586, :x86_64] %></li>
   <li><%= simple_repo_button_to "Fedora 8", :reponame => "Fedora_8", :repo => 'Fedora:8/standard', :arch => [:i586, :x86_64] %></li>
