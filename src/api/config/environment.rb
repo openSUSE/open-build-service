@@ -7,7 +7,7 @@
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-RAILS_GEM_VERSION = '~> 2.1' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.1.2' unless defined? RAILS_GEM_VERSION
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -17,8 +17,8 @@ Rails::Initializer.run do |config|
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
-  if( RAILS_ENV ==  'production' )
-    config.load_paths << File.expand_path("/srv/www/opensuse/common/current/lib")
+  if( %w(production stage production_test).include? RAILS_ENV )
+    config.load_paths << File.expand_path("/srv/www/vhosts/opensuse.org/common/current/lib")
   else
     config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
   end
@@ -68,7 +68,7 @@ end
 
 # Include your application configuration below
 
-API_VERSION="0.1.1"
+API_VERSION="0.1.2"
 
 
 # minimum count of rating votes a project/package needs to
@@ -85,22 +85,21 @@ ActiveRbac.controller_layout = "rbac"
 #require 'custom_logger'
 #RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
-require 'rails_put_fix'
 require 'rails_unescape_fix'
 require 'array_count_for_2_1_fix'
 
 require 'activexml'
-#require 'smartactivexml'
+require 'rexml-expansion-fix'
 #require 'custom_dispatcher'
 
 #Dependencies.log_activity = true
 #Dependencies.load_once_paths << "#{RAILS_ROOT}/lib"
 
 # was needed for rails < 2.3
-#module ActionController::Routing
-#  remove_const :SEPARATORS
-#  SEPARATORS = %w(/ ; ?)
-#end
+module ActionController::Routing
+  remove_const :SEPARATORS
+  SEPARATORS = %w(/ ; ?)
+end
 
 ActiveXML::Base.config do |conf|
   if RAILS_ENV == "test"
