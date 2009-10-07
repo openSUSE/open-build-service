@@ -479,6 +479,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
       queue_empty(&cerrors);
     }
   map_free(&installed);
+  map_free(&conflicts);
   nerrors = 0;
   if (errors.count || cerrors.count)
     {
@@ -1674,6 +1675,7 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		  }
 		free(path);
 	      }
+	    sat_free(ht);
 	    if (oldcookie)
 	      {
 		if (strcmp(oldcookie, REPOCOOKIE))
@@ -1705,7 +1707,8 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		    repo_free_solvable_block(repo, i, 1, 0);
 		  }
 	      }
-	  RETVAL = dirty;
+	    map_free(&reused);
+	    RETVAL = dirty;
 	}
     OUTPUT:
 	RETVAL
@@ -1947,6 +1950,8 @@ expand(BSSolv::expander xp, ...)
 		else
 		  MAPCLR(&xp->ignoredx, -id);
 	      }
+	    queue_free(&revertignore);
+	    queue_free(&in);
 
 	    if (nerrors)
 	      {
@@ -2000,6 +2005,7 @@ expand(BSSolv::expander xp, ...)
 		    PUSHs(sv_2mortal(newSVpv(id2str(pool, s->name), 0)));
 		  }
 	      }
+	    queue_free(&out);
 	}
 
 void
