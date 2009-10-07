@@ -63,10 +63,20 @@ class Hermes
   #
   def add_request_subscription(username)
     subscr_id = add_subscription(username, "OBS_SRCSRV_REQUEST_CREATE", "Mail", "NO_DELAY")
-    add_filter(subscr_id, 'sourceproject', 'special', '_myrequests')
+    if subscr_id
+      add_filter(subscr_id, 'sourceproject', 'special', '_myrequests')
+      logger.info "[hermes] added OBS_SRCSRV_REQUEST_CREATE sub for user #{username}"
+    else
+      logger.info "[hermes] !! skipped OBS_SRCSRV_REQUEST_CREATE sub for user #{username}"
+    end
     
     subscr_id = add_subscription(username, "OBS_SRCSRV_REQUEST_STATECHANGE", "Mail", "NO_DELAY")
-    add_filter(subscr_id, 'sourceproject', 'special', '_myrequests')
+    if subscr_id
+      add_filter(subscr_id, 'sourceproject', 'special', '_myrequests')
+      logger.info "[hermes] added OBS_SRCSRV_REQUEST_STATECHANGE sub for user #{username}"
+    else
+      logger.info "[hermes] !! skipped OBS_SRCSRV_REQUEST_STATECHANGE sub for user #{username}"
+    end
 
     return true
   end
