@@ -4,10 +4,9 @@
 # you don't control web/app server and can't set it the proper way
 # ENV['RAILS_ENV'] ||= 'production'
 
+RAILS_GEM_VERSION = '2.1.2' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
-
-RAILS_GEM_VERSION = '~> 2.1' unless defined? RAILS_GEM_VERSION
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -18,7 +17,7 @@ Rails::Initializer.run do |config|
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
   if( RAILS_ENV ==  'production' )
-    config.load_paths << File.expand_path("/srv/www/opensuse/common/current/lib")
+    config.load_paths << File.expand_path("/srv/www/vhosts/opensuse.org/common/current/lib")
   else
     config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
   end
@@ -70,13 +69,16 @@ end
 MIN_VOTES_FOR_RATING = 3
 
 
-#require 'custom_logger'
+require 'custom_logger'
 #RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'activexml'
 require 'ostruct'
+require 'rexml-expansion-fix'
 
-#TRANSPORT = Suse::Frontend.new("#{FRONTEND_PROTOCOL}://#{FRONTEND_HOST}:#{FRONTEND_PORT}")
+#ExceptionNotifier.sender_address = %("buildservice webclient" <admin@opensuse.org>)
+#ExceptionNotifier.email_prefix = "[webclient exception] "
+#ExceptionNotifier.exception_recipients = %w(abauer@suse.de mrueckert@suse.de)
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
