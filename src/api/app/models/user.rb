@@ -166,7 +166,8 @@ class User < ActiveRecord::Base
       #check permission for given package
       rels = package_user_role_relationships.find :all, :conditions => ["db_package_id = ?", object], :include => :role
       for rel in rels do
-        if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
+# TODO:       if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
+        if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
           logger.debug "permission granted"
           return true
         end
@@ -180,7 +181,8 @@ class User < ActiveRecord::Base
       #check permission for given project
       rels = project_user_role_relationships.find :all, :conditions => ["db_project_id = ? ", object], :include => :role
       for rel in rels do
-        if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
+# TODO:        if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
+        if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
           logger.debug "permission granted"
           return true
         end
