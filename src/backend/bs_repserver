@@ -1442,7 +1442,6 @@ sub getbuildinfo {
     }
     for (splice @bdeps) {
       for my $p (@{$allnames{$_} || []}) {
-	my $p = $allnames{$_};
 	my $b = {'name' => $_};
 	if (!$cgi->{'internal'}) {
 	  my $prp = $pool->pkg2reponame($p);
