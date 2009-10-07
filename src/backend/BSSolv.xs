@@ -1110,7 +1110,6 @@ new(packname = "BSSolv::pool")
 	    buildservice_repocookie= str2id(pool, "buildservice:repocookie", 1);
 	    buildservice_external = str2id(pool, "buildservice:external", 1);
 	    pool_freeidhashes(pool);
-	    printf("Created pool %p\n", pool);fflush(stdout);
 	    RETVAL = pool;
 	}
     OUTPUT:
@@ -1521,7 +1520,6 @@ repos(BSSolv::pool pool)
 void
 DESTROY(BSSolv::pool pool)
     CODE:
-	printf("Goodbye pool %p\n", pool);fflush(stdout);
         if (pool->considered)
 	  {
 	    map_free(pool->considered);
@@ -1883,7 +1881,6 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 	    sv = get_sv("Build::expand_dbg", FALSE);
 	    if (sv && SvTRUE(sv))
 	      xp->debug = 1;
-	    printf("Created expander %p\n", xp);fflush(stdout);
 	    RETVAL = xp;
 	}
     OUTPUT:
@@ -2011,7 +2008,6 @@ expand(BSSolv::expander xp, ...)
 void
 DESTROY(BSSolv::expander xp)
     CODE:
-	printf("Goodbye expander %p\n", xp);fflush(stdout);
 	map_free(&xp->ignored);
 	map_free(&xp->ignoredx);
 	queue_free(&xp->preferposq);
