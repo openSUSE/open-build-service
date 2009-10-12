@@ -1985,6 +1985,23 @@ sub rebuildkiwiimage {
   my $edeps = $data->[1];
   my $reason = $data->[2];
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+
+  # setup pool again
+  my $pool = BSSolv::pool->new();
+  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+  for my $aprp (@aprps) {
+    addrepo($pool, $aprp);
+  }
+  $pool->createwhatprovides();
+  my $xp = BSSolv::expander->new($pool, $bconf);
+  my $ownexpand = sub {
+    $_[0] = $xp; 
+    goto &BSSolv::expander::expand;
+  };   
+  no warnings 'redefine';
+  local *Build::expand = $ownexpand;
+  use warnings 'redefine';
+
   my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, [], $edeps, \@aprps, $reason, $relsyncmax);
   if ($job) {
     return ('scheduled', $job);
