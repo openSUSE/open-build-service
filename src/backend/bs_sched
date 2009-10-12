@@ -925,7 +925,7 @@ sub update_dst_full {
   my $oldrepo;
   my $isimport;
 
-  if ($dst && $dst eq $jobdir) {
+  if ($dst && $jobdir && $dst eq $jobdir) {
     # a "refresh" operation, nothing to do here
     $oldrepo = $jobrepo;
   } elsif ($dst) {
@@ -935,6 +935,7 @@ sub update_dst_full {
     $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/} @oldfiles ]);
 
     # move files over
+    mkdir_p($dst);
     my %new;
     for my $f (@jobfiles) {
       if (! -l "$dst/$f" && -d _) {
@@ -3474,7 +3475,7 @@ while(1) {
     delete $lastcheck{"$prp/$packid"};
     my $gdst = "$reporoot/$prp/$myarch";
     # delete full entries
-    update_dst_full($prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
+    update_dst_full($prp, "$gdst/$packid" , undef, undef, 1, $prpsearchpath{$prp});
     $changed_med{$prp} = 2;
     sendrepochangeevent($prp);
     # delete other files
