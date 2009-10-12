@@ -189,12 +189,26 @@ sub getbinaryversions {
       push @res, {'name' => $n, 'error' => 'not available'};
       next;
     }
-    my $path = $pool->pkg2path($p);
+    my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+    my $r;
     if ($path =~ /\.rpm$/) {
-      push @res, {'name' => "$n.rpm", 'hdrid' => $pool->pkg2pkgid($p)};
+      $r = {'name' => "$n.rpm"};
     } else {
-      push @res, {'name' => "$n.deb", 'hdrid' => $pool->pkg2pkgid($p)};
+      $r = {'name' => "$n.deb"};
     }
+    $r->{'hdrid'} = $pool->pkg2pkgid($p);
+    $r->{'sizek'} = $pool->pkg2sizek($p);
+    push @res, $r;
+    next if $cgi->{'nometa'};
+    next unless $path =~ s/\.(?:rpm|deb)$//;
+    local *F;
+    if (!open(F, '<', "$path.meta")) {
+      next unless open(F, '<', "$path-MD5SUMS.meta");
+    }
+    my $ctx = Digest::MD5->new;
+    $ctx->addfile(*F);
+    $r->{'metamd5'} = $ctx->hexdigest();
+    close F;
   }
   undef $repo;
   undef $pool;
@@ -2159,7 +2173,7 @@ my $dispatches = [
   '!worker /getworkercode' => \&getworkercode,
   '!worker /putjob $arch $job $jobid:md5 $code:?' => \&putjob,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
-  '!worker /getbinaryversions $project $repository $arch binaries:' => \&getbinaryversions,
+  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 
   # published files
   '/published' => \&publisheddir,

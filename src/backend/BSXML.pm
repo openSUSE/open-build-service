@@ -423,8 +423,10 @@ our $binaryversionlist = [
     'binaryversionlist' =>
       [[ 'binary' =>
 	    'name',
+	    'sizek',
 	    'error',
 	    'hdrid',
+	    'metamd5',
       ]],
 ];
 
