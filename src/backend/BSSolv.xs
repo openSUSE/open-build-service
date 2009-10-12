@@ -1420,6 +1420,13 @@ pkg2fullpath(BSSolv::pool pool, int p, char *myarch)
     OUTPUT:
 	RETVAL
 
+int
+pkg2sizek(BSSolv::pool pool, int p)
+    CODE:
+	RETVAL = solvable_lookup_num(pool->solvables + p, SOLVABLE_DOWNLOADSIZE, 0);
+    OUTPUT:
+	RETVAL
+
 HV *
 pkg2data(BSSolv::pool pool, int p)
     CODE:
