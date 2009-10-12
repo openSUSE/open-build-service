@@ -196,7 +196,7 @@ sub getbinaryversions {
     } else {
       $r = {'name' => "$n.deb"};
     }
-    $r->{'hdrid'} = $pool->pkg2pkgid($p);
+    $r->{'hdrmd5'} = $pool->pkg2pkgid($p);
     $r->{'sizek'} = $pool->pkg2sizek($p);
     push @res, $r;
     next if $cgi->{'nometa'};

@@ -425,7 +425,7 @@ our $binaryversionlist = [
 	    'name',
 	    'sizek',
 	    'error',
-	    'hdrid',
+	    'hdrmd5',
 	    'metamd5',
       ]],
 ];
