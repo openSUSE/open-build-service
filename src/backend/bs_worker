@@ -553,6 +553,28 @@ sub qsystem {
   }
 }
 
+sub link_or_copy {
+  my ($from, $to) = @_;
+  return 1 if link($from, $to);
+  local *F;
+  local *G;
+  return undef unless open(F, '<', $from);
+  if (!open(G, '>', $to)) {
+    close F;
+    return undef;
+  }
+  my $buf;
+  while (sysread(F, $buf, 8192)) {
+    (syswrite(G, $buf) || 0) == length($buf) || die("$to write: $!\n");
+  }
+  close(F);
+  if (!close(G)) {
+    unlink($to);
+    return undef;
+  }
+  return 1;
+}
+
 sub manage_cache {
   my ($prunesize, $cacheold, $cachenew) = @_;
   # get the lock
@@ -577,16 +599,19 @@ sub manage_cache {
       my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
       mkdir_p("$cachedir/".substr($cacheid, 0, 2));
       unlink("$cachefile.$$");
-      next unless link($path, "$cachefile.$$");
+      next unless link_or_copy($path, "$cachefile.$$");
       rename("$cachefile.$$", $cachefile) || die("rename $cachefile.$$ $cachefile: $!\n");
       if ($path =~ /^(.*)\.(?:deb|rpm)$/) {
         my $mpath = "$1.meta";
         if (-s $mpath) {
           unlink("$cachefile.meta.$$");
-          link($mpath, "$cachefile.meta.$$");
-          rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+          if (link_or_copy($mpath, "$cachefile.meta.$$")) {
+            rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+	  } else {
+	    unlink("$cachefile.meta");
+	  }
 	} else {
-	  unlink("$cachefile.meta.$$");
+	  unlink("$cachefile.meta");
 	}
       }
       unshift @$content, $c;
@@ -622,6 +647,9 @@ sub getbinaries_cache {
     unshift @INC, "$statedir/build";
     require Build;
     Build->import();
+  }
+  if (! -d $dir) {
+    mkdir_p($dir) || die("mkdir_p $dir: $!\n");
   }
   my %ret;
   my @args;
@@ -661,13 +689,13 @@ sub getbinaries_cache {
     my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
     my $usecache = 0;
     my $havemeta;
-    if (link($cachefile, "$dir/$bv->{'name'}")) {
+    if (link_or_copy($cachefile, "$dir/$bv->{'name'}")) {
       my @s = stat("$dir/$bv->{'name'}");
       die unless @s;
       if (!$nometa) {
 	my $mn = $bv->{'name'};
         $mn =~ s/\.(?:rpm|deb)/.meta/;
-        if (link("$cachefile.meta", "$dir/$mn")) {
+        if (link_or_copy("$cachefile.meta", "$dir/$mn")) {
 	  local *F;
 	  open(F, '<', "$dir/$mn") || die;
 	  my $ctx = Digest::MD5->new;
@@ -887,7 +915,9 @@ sub getbinaries {
 	  push @m, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
 	}
 	if (!$bdep_noinstall{$n}) {
-	  link("$ddir/$f->{'name'}", "$dir/$f->{'name'}") unless -e "$dir/$f->{'name'}";
+          if (!-e "$dir/$f->{'name'}") {
+	    link_or_copy("$ddir/$f->{'name'}", "$dir/$f->{'name'}") || die("link_or_copy $ddir/$f->{'name'} $dir/$f->{'name'}: $!\n");
+	  }
 	}
       }
       push @meta, sort {substr($a, 34) cmp substr($b, 34)} @m;
