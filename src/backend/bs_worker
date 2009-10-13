@@ -910,7 +910,7 @@ sub getbinaries {
     my $got = getbinaries_cache($ddir, $repo->{'server'}, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, $dlbins);
     for (keys %$got) {
       $done{$_} = 1;
-      $meta{$_} = 1 if $got->{$_}->{'meta'};
+      $meta{$_} = 1 if !$nometa && $got->{$_}->{'meta'};
     }
     @todo = grep {!$done{$_}} @todo;
     if ($kiwimode) {
