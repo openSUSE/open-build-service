@@ -15,12 +15,10 @@
       <xs:enumeration value="deleted"/>
       <xs:enumeration value="declined"/>
       <xs:enumeration value="accepted"/>
-      <xs:enumeration value="review"/>
+      <xs:enumeration value="reviewed"/>
       <xs:enumeration value="revoked"/>
     </xs:restriction>
   </xs:simpleType>
-
-
 
   <xs:element name="request">
     <xs:annotation>
@@ -28,55 +26,48 @@
         Top level element for the request.
       </xs:documentation>
     </xs:annotation>
-
     <xs:complexType>
       <xs:sequence>
-      
-        <xs:choice>
-          <xs:element ref="merge" />
-          <xs:element ref="review"/>
-        </xs:choice>
-        <xs:element ref="lifecycle"/>
-        <xs:element ref="name" minOccurs="0"/>
-        <xs:element ref="description" minOccurs="0"/>
-
+        <xs:element ref="action" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element ref="state" minOccurs="1" maxOccurs="1" />
+        <xs:element ref="history" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element name="title" minOccurs="0" maxOccurs="1" />
+        <xs:element name="description" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
       <xs:attribute name="id" type="xs:integer" use="required"/>
-      
-    </xs:complexType>
-   
-  </xs:element>
-  
-  <xs:element name="lifecycle">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="tag" maxOccurs="unbounded" />
-      </xs:sequence>
-      <xs:attribute name="currentState" type="xs:string"/>
     </xs:complexType>
   </xs:element>
-  
-  <xs:element name="tag">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="comment"/>
-      </xs:sequence>
-      <xs:attribute name="state" type="states" use="required"/>
+
+  <xs:element name="state">                                                                
+    <xs:complexType>                                                                     
+      <xs:sequence>                                                                      
+        <xs:element name="comment" type="xs:string"/>
+      </xs:sequence>                                                                     
+      <xs:attribute name="name"  type="states" use="required"/>                          
       <xs:attribute name="who"   type="xs:string" use="required"/>
       <xs:attribute name="when"  type="xs:dateTime" use="required"/>
-    </xs:complexType> 
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="history">
+    <xs:complexType>                                                                     
+      <xs:sequence>                                                                      
+        <xs:element name="comment" type="xs:string"/>
+      </xs:sequence>                                                                     
+      <xs:attribute name="name"  type="states" use="required"/>                          
+      <xs:attribute name="who"   type="xs:string" use="required"/>
+      <xs:attribute name="when"  type="xs:dateTime" use="required"/>
+    </xs:complexType>
   </xs:element>
   
-  <xs:element name="name" type="xs:string"/>
-  <xs:element name="description" type="xs:string"/>
-  <xs:element name="comment" type="xs:string"/>
-  
-  <xs:element name="merge">
+  <xs:element name="action">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="source"/>
-        <xs:element ref="target"/>
+        <xs:element ref="source" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="target" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="options" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
+      <xs:attribute name="type" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
   
@@ -84,6 +75,7 @@
     <xs:complexType>
       <xs:attribute name="project" type="xs:string" use="required" />
       <xs:attribute name="package" type="xs:string" use="optional" />
+      <xs:attribute name="rev" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
         
@@ -94,10 +86,9 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="review">
+  <xs:element name="options" >
     <xs:complexType>
-      <xs:attribute name="project" type="xs:string" use="required" />
-      <xs:attribute name="package" type="xs:string" use="optional" />
+      <xs:attribute name="sourceupdate" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
 

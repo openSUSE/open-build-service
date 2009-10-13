@@ -1,8 +1,16 @@
-<request id="12" type="submit">
- <submit>
+<request id="12">
+ <action type="submit">
    <source project="home:kfreitag" package="kraft" rev="23" />
-   <target project="openSUSE_10_3" package="kraft" />
- </submit>
+   <target project="openSUSE:10.3" package="kraft" />
+   <options sourceupdate="noupdate" />
+ </action>
+ <action type="delete">
+   <target project="openSUSE:10.3" package="kraft.old" />
+ </action>
+ <action type="devel_change">
+   <source project="home:kfreitag" package="kraft" />
+   <target project="openSUSE:10.3" package="kraft.old" />
+ </action>
  <state name="deleted" who="adrian" when="2007-12-30T09:00:00">
    <comment>Forgetit!</comment>
  </state>
@@ -14,6 +22,7 @@
  </history>
  <title>Kraft</title>
  <description>Kraft is KDE software for craftsmen and should urgently
- be added to the openSUSE distribution.
-</description>
+ be added to the openSUSE distribution. The version from kraft.old can be 
+ deleted and will not be used as devel package anymore.
+ </description>
 </request>
