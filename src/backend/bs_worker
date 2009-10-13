@@ -764,14 +764,19 @@ sub getbinaries_cache {
         $havemeta{$1} = 1;
       }
     }
-    if (!$nometa) {
-      for (keys %havemeta) {
-        next unless $ret{$_};
-        $ret{$_}->{'meta'} = 1;
-      }
+    for (keys %havemeta) {
+      next unless $ret{$_};
+      $ret{$_}->{'meta'} = 1;
     }
   }
   manage_cache($cachesize, \@cacheold, \@cachenew) if $cachedir;
+  if ($nometa) {
+    for (keys %ret) {
+      next unless $ret{$_}->{'meta'};
+      unlink("$dir/$_.meta");
+      delete $ret{$_}->{'meta'};
+    }
+  }
   return \%ret;
 }
 
