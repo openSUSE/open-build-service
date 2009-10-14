@@ -6,29 +6,19 @@
   'Add Repository'
 ]
 -%>
-
-<h2>Add Repository (Project <%=h @project%>)</h2>
-
+<h2>Add Repository to Project <%=h @project%></h2>
+<% for group in REPOSITORY_ADD_GROUPS %>
+<h3><%=h group[:name] -%></h3>
 <ul>
-  <li><%= simple_repo_button_to "openSUSE 11.1", :reponame => "openSUSE_11.1", :repo => 'openSUSE:11.1/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "openSUSE 11.0", :reponame => "openSUSE_11.0", :repo => 'openSUSE:11.0/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "SLES/SLED 11", :reponame => "SLE_11", :repo => 'SUSE:SLE-11/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "SLES/SLED 10", :reponame => "SLE_10", :repo => 'SUSE:SLE-10:SDK/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "SLES 9", :reponame => "SLES_9", :repo => 'SUSE:SLES-9/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "openSUSE Factory", :reponame => "openSUSE_Factory", :repo => 'openSUSE:Factory/snapshot', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "Debian 5.0 (Lenny)", :reponame => "Debian_5.0", :repo => 'Debian:5.0/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "Debian 4.0 (Etch)", :reponame => "Debian_4.0", :repo => 'Debian:Etch/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "Fedora 11", :reponame => "Fedora_11", :repo => 'Fedora:11/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "Fedora 10", :reponame => "Fedora_10", :repo => 'Fedora:10/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "RHEL 5", :reponame => "RHEL_5", :repo => 'RedHat:RHEL-5/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "RHEL 4", :reponame => "RHEL_4", :repo => 'RedHat:RHEL-4/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "CentOS 5", :reponame => "CentOS_5", :repo => 'CentOS:CentOS-5/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "Mandriva 2009.1", :reponame => "Mandriva_2009.1", :repo => 'Mandriva:2009.1/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "Mandriva 2009", :reponame => "Mandriva_2009", :repo => 'Mandriva:2009/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "xUbuntu 9.04", :reponame => "xUbuntu_9.04", :repo => 'Ubuntu:9.04/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "xUbuntu 8.10", :reponame => "xUbuntu_8.10", :repo => 'Ubuntu:8.10/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "xUbuntu 8.04", :reponame => "xUbuntu_8.04", :repo => 'Ubuntu:8.04/standard', :arch => [:i586, :x86_64] %></li>
-  <li><%= simple_repo_button_to "xUbuntu 6.06", :reponame => "xUbuntu_6.06", :repo => 'Ubuntu:6.06/standard', :arch => [:i586] %></li>
+  <% for repos in group[:repositories] %>
+    <li><%= simple_repo_button_to h(repos[:title]),
+                     :reponame => h(repos[:reponame]),
+                         :repo => h(repos[:repo]),
+                         :arch => h(repos[:arch])
+      %><%= h(repos[:comment]) if repos[:comment] -%>
+      </li>
+  <% end %>
 </ul>
 
+<% end %>
 <p><%= link_to( "[Advanced]", :action => :add_target, :project => @project ) %></p>
