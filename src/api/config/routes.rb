@@ -273,7 +273,7 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'public', :action => 'watchlist'
   map.connect '/public/distributions',
     :controller => 'public', :action => 'distributions'
-  map.conneect '/public/binary_packages/:project/:package',
+  map.connect '/public/binary_packages/:project/:package',
     :controller => 'public', :action => 'binary_packages'
 
 
