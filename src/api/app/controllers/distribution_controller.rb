@@ -1,5 +1,5 @@
 class DistributionController < ApplicationController
-  DISTFILEPATH = "#{RAILS_ROOT}/files/distributions"
+  DISTFILEPATH = "#{RAILS_ROOT}/files/distributions.xml"
   @@distfile_last_read = Date.new(0).to_time
   @@distfile = ""
 

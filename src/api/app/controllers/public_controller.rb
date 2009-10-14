@@ -154,7 +154,7 @@ class PublicController < ApplicationController
     def scan_distfile(distfile)
       h = HashWithIndifferentAccess.new
       distfile.each_distribution do |dist|
-        h["#{dist.project}/#{dist.repository}"] = dist
+        h["#{dist.project.text()}/#{dist.repository.text()}"] = dist
       end
       return h
     end
