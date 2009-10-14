@@ -32,7 +32,6 @@ BEGIN {
 
   chdir "$wd";
   unshift @INC,  "build";
-  unshift @INC,  "blib/arch/auto/BSSolv";
 }
 
 use POSIX;

@@ -26,7 +26,6 @@ BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
   $wd ||= '.';
   unshift @INC,  "$wd/build";
-  unshift @INC,  "$wd/blib/arch/auto/BSSolv";
   unshift @INC,  "$wd";
 }
 
