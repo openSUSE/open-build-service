@@ -2,7 +2,7 @@
 module ApplicationHelper
   
   def logged_in?
-     !session[:login].nil?
+    !session[:login].nil?
   end
   
   def user
@@ -29,12 +29,12 @@ module ApplicationHelper
   end
 
   def repo_url(project, repo='' )
-      "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
+    "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
   end
 
 
   def shorten_text( text, length=15 )
-  text = text[0..length-1] + '...' if text.length > length
+    text = text[0..length-1] + '...' if text.length > length
     return text
   end
 
@@ -49,7 +49,7 @@ module ApplicationHelper
   def focus_and_select_id( id )
     javascript_tag(
       "document.getElementById('#{id}').focus();" +
-      "document.getElementById('#{id}').select();"
+        "document.getElementById('#{id}').select();"
     )
   end
 
@@ -73,10 +73,7 @@ module ApplicationHelper
   end
 
   def bugzilla_url(email, desc="")
-#    if #{BUGZILLA_HOST} == nil
-#      "NO_BUGZILLA_HOST_DEFINED"
-#    else
-      "#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd%20party%20software&assigned_to=#{email}&short_desc=#{desc}"
-#    end
+    "#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd%20party%20software&assigned_to=#{email}&short_desc=#{desc}"
   end
+
 end
