@@ -56,7 +56,7 @@ class ApplicationController < ActionController::Base
         # Set the headers for direct connection to the api
         transport = ActiveXML::Config.transport_for( :project )
         transport.set_additional_header( "X-Username", ichain_user )
-        transport.set_additional_header( "X-Email", ichain_email )
+        transport.set_additional_header( "X-Email", ichain_email ) if ichain_email
         @user = Person.find( ichain_user )
       else
         redirect_to :controller => 'privacy', :action => 'ichain_login'
