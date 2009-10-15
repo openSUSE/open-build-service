@@ -4,11 +4,13 @@
 # you don't control web/app server and can't set it the proper way
 # ENV['RAILS_ENV'] ||= 'production'
 
-RAILS_GEM_VERSION = '2.1.2' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-Rails::Initializer.run do |config|
+require "common/activexml"
+
+init = Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
 
   # Skip frameworks you're not going to use
@@ -16,11 +18,6 @@ Rails::Initializer.run do |config|
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
-  if( RAILS_ENV ==  'production' )
-    config.load_paths << File.expand_path("/srv/www/vhosts/opensuse.org/common/current/lib")
-  else
-    config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
-  end
 
   # Force all environments to use the same logger level
   # (by default production uses :info, the others :debug)
@@ -50,6 +47,7 @@ Rails::Initializer.run do |config|
   # config.active_record.schema_format = :ruby
 
   # See Rails::Configuration for more options
+
 end
 
 # Add new inflection rules using the following format
@@ -68,13 +66,26 @@ end
 # have no warning sign on package/project pages
 MIN_VOTES_FOR_RATING = 3
 
-
-require 'custom_logger'
+#require 'custom_logger'
 #RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
-require 'activexml'
 require 'ostruct'
 require 'rexml-expansion-fix'
+
+if CONFIG['theme']
+  puts "Using theme view path: #{RAILS_ROOT}/app/views/vendor/#{CONFIG['theme']}"
+  ActionController::Base.prepend_view_path(RAILS_ROOT + "/app/views/vendor/#{CONFIG['theme']}")
+  puts "Using theme static path: #{RAILS_ROOT}/public/vendor/#{CONFIG['theme']}"
+  ActionController::Base.asset_host = Proc.new do |source, request|
+    path = "#{RAILS_ROOT}/public/vendor/#{CONFIG['theme']}#{source}".split("?")
+    if File.exists?(path[0])
+      puts "using themed file: #{path}"
+      "#{request.protocol}#{request.host_with_port}/vendor/#{CONFIG['theme']}"
+    else
+      ""
+    end
+  end
+end
 
 #ExceptionNotifier.sender_address = %("buildservice webclient" <admin@opensuse.org>)
 #ExceptionNotifier.email_prefix = "[webclient exception] "
@@ -85,22 +96,18 @@ ActiveXML::Base.config do |conf|
     map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
 
     map.connect :project, "rest:///source/:name/_meta",
-        :all    => "rest:///source/",
-        :delete => "rest:///source/:name?:force"
+      :all    => "rest:///source/",
+      :delete => "rest:///source/:name?:force"
     map.connect :package, "rest:///source/:project/:name/_meta",
-        :all    => "rest:///source/:project"
+      :all    => "rest:///source/:project"
 
     map.connect :tagcloud, "rest:///tag/tagcloud?limit=:limit",
-        :alltags  => "rest:///tag/tagcloud?limit=:limit",
-        :mytags => "rest:///user/:user/tags/_tagcloud?limit=:limit",
-        :hierarchical_browsing => "rest:///tag/tagcloud?limit=:limit"
-
-  #       :tagcloud_by_user => "rest:///user/:user/tags/_tagcloud"
-#       #:tagcloud  => "rest:///tag/tagcloud?limit=:limit"
-
+      :alltags  => "rest:///tag/tagcloud?limit=:limit",
+      :mytags => "rest:///user/:user/tags/_tagcloud?limit=:limit",
+      :hierarchical_browsing => "rest:///tag/tagcloud?limit=:limit"
 
     map.connect :tag, "rest:///user/:user/tags/:project/:package",
-        :tags_by_object => "rest:///source/:project/:package/_tags"
+      :tags_by_object => "rest:///source/:project/:package/_tags"
 
     map.connect :person, "rest:///person/:login"
     map.connect :unregisteredperson, "rest:///person/register"
@@ -109,12 +116,8 @@ ActiveXML::Base.config do |conf|
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 
-    ##DEPRECATED
-    map.connect :platform, "rest:///platform/:project/:name",
-        :all => "rest:///platform/"
-
     map.connect :repository, "rest:///repository/:project/:name",
-        :all    => "rest:///repository/"
+      :all    => "rest:///repository/"
 
     map.connect :directory, "rest:///source/:project/:package"
     map.connect :link, "rest:///source/:project/:package/_link"
@@ -127,10 +130,10 @@ ActiveXML::Base.config do |conf|
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"
 
     map.connect :collection, "rest:///search/:what?match=:predicate",
-        :id => "rest:///search/:what/id?match=:predicate",
-        :tag => "rest:///tag/:tagname/:type",
-        :tags_by_user => "rest:///user/:user/tags/:type",
-        :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
+      :id => "rest:///search/:what/id?match=:predicate",
+      :tag => "rest:///tag/:tagname/:type",
+      :tags_by_user => "rest:///user/:user/tags/:type",
+      :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
 
     # Monitor
     map.connect :workerstatus, 'rest:///build/_workerstatus',
@@ -152,7 +155,6 @@ ActiveXML::Base.config do |conf|
 
     # Status Messages
     map.connect :statusmessage, 'rest:///status_message/:id/?:limit'
-
 
   end
 end
