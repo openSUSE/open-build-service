@@ -2662,7 +2662,7 @@ sub getbinarylist {
   my @args;
   push @args, "view=$view" if $view;
   push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
-  if ($view && ($view eq 'cache' || $view eq 'cpio')) {
+  if ($view && ($view eq 'cache' || $view eq 'cpio' || $view eq 'solv' || $view eq 'solvstate')) {
     if (!$BSStdServer::isajax) {
       BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
       exit(0);
