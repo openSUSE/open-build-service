@@ -30,7 +30,7 @@
        <div class="grey_box" id="logo">
         <div class="box_content_row">
          <div class="box_content" id="logo_content">
-          <a href="http://build.opensuse.org"><img src="https://static.opensuse.org/c/images/common/geeko.jpg" alt="openSUSE" /></a>
+           <%= link_to "<img src=\"https://static.opensuse.org/c/images/common/geeko.jpg\" alt=\"openSUSE\" />", :controller => "main" %>
          </div>
         </div>
         <div class="box_bottom_row">
@@ -199,7 +199,7 @@
            <div class="c50l">
             <div class="subcl">
              <div id="slogan">
-              <img src="/images/local/create.png" alt="Create it" />
+               <%= image_tag "local/create.png", :alt => "Create it" %>
              </div>
             </div>
            </div>
