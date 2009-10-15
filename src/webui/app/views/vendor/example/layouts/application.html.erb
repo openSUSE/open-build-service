@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service XXX</title>
+  <%= stylesheet_link_tag "opensuse", :media => "all" %>
+  <%= stylesheet_link_tag "SyntaxHighlighter", :media => "all" %>
+  <%= stylesheet_link_tag "https://static.opensuse.org/hosts/build.o.o/css/style.css" %>
+  <%= javascript_include_tag 'prototype', 'effects', 'application', 'dragdrop' %>
+  <%= javascript_include_tag 'shCore', 'shBrushSpec', 'shBrushXml' %>
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="https://static.opensuse.org/hosts/build.o.o/images/favicon.ico" rel="shortcut icon" />
+  <!--[if lte IE 7]>
+  <link href="https://static.opensuse.org/c/css/common/iehacks_opensuse.css" rel="stylesheet" type="text/css"/>
+  <link href="https://static.opensuse.org/hosts/build.o.o/css/iehacks.css" rel="stylesheet" type="text/css"/>
+  <![endif]-->
+  <!-- <script type="text/javascript" src="javascript/common/langsel.js"></script> -->
+ </head>
+</head>
+<body class="project">
+  <div id="dialog_wrapper"></div>
+  <div id="page_margins">
+   <div id="page" class="hold_floats">
+    <!-- Begin 2 column main part -->
+    <div id="main">
+     <!-- Begin left column -->
+     <div id="col1">
+      <div id="col1_content" class="clearfix">
+       <!-- Begin Logo -->
+       <div class="grey_box" id="logo">
+        <div class="box_content_row">
+         <div class="box_content" id="logo_content">
+           <%= link_to "<img src=\"https://static.opensuse.org/c/images/common/geeko.jpg\" alt=\"openSUSE\" />", :controller => "main" %>
+         </div>
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <!-- End Logo -->
+       <!-- Begin openSUSE navigation -->
+       <div class="grey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          openSUSE
+         </div>
+        </div>
+        <div class="box_content">
+         <ul class="navlist">
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_download.png)"><a href="http://software.opensuse.org/">Get Software</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://en.opensuse.org/">Wiki</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_build.png)"><a href="http://build.opensuse.org/">Build Software</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://users.opensuse.org/">User Directory</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="https://features.opensuse.org/">Features</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://news.opensuse.org/">News</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://forums.opensuse.org">Forums</a></li>          
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://shop.opensuse.org/">Shop</a></li>
+         </ul>
+       </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+       <!-- End openSUSE navigation -->
+       <!-- Begin custom navigation -->
+<% if session[:login] -%> 
+       <div class="darkgrey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          Home
+         </div>
+        </div>
+        <div class="box_content">
+          <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong><br/>
+          <ul class="navlist"> 
+           <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li> 
+           <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
+           <li><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></li>
+          </ul>
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+  <% end -%>
+
+  <% if session[:login] -%>
+       <div class="darkgrey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+           Locations <!-- Proceed to:<--> 
+         </div>
+        </div>
+        <div class="box_content">
+         <ul class="navlist">
+           <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
+           <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
+           <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
+           <!-- <li>
+             <%#= link_to "Statistics", :controller => "statistics", :action => :index %>
+             <%#= image_tag 'beta.png', :title => 'The statistics are still under development' -%>
+           </li> -->
+        </ul>
+
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+
+<% end -%>
+
+       <div class="darkgrey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          Help
+         </div>
+        </div>
+        <div class="box_content">
+         <ul class="navlist">
+
+    <%
+    @helplinks = [
+      { 'Official Documentation'  => 'https://build.opensuse.org/documentation/obs/' },
+      { 'Wiki Pages'  => 'http://en.opensuse.org/Build_Service' },
+      { 'Building Packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
+      { 'Writing spec Files' => 'http://en.opensuse.org/SUSE_Build_Tutorial#Specfiles' },
+      { 'Reporting a Bug'   => 'http://en.opensuse.org/Submit_a_Bug' },
+      { 'Forums'             => 'http://forums.opensuse.org/opensuse-build-service-obs' }
+    ]
+ 
+    @helplinks.each do |helplink| 
+    for k in helplink.keys %>
+         <li><a href="<%= helplink[k] -%>"><%= k %></a></li>
+       <% end %>
+     <% end %>
+
+          </li>
+         </ul>
+         </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+
+      </div>
+     </div>
+     <!-- End left column -->
+     <!-- Begin right cloumn -->
+     <div id="col3">
+      <div id="col3_content" class="clearfix">
+       <div class="darkgrey_box_double" id="banner_darkgrey">
+        <div class="box_content_row">
+         <div class="box_content" id="banner_content">
+          <div id="pt-personal">
+            <!-- Begin Personal links (Login, etc.) -->
+            <% if session[:login] -%>
+             
+              <%= link_to session[:login], :controller => 'home', :action => :index %>
+              |
+              <div onclick="new Effect.toggle($('inplace_watchlist'), 'blind', {duration:0.15});">Watchlist</div>
+              |
+              <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
+              |
+              <strong><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></strong>
+             
+            <% else %>
+             <a href="/main/index2">Register | Login</a>
+            <% end %>
+            <!-- End Personal links (Login, etc.) -->
+
+          </div>
+          <div class="subcolumns">
+           <div class="c50l">
+            <div class="subcl">
+             <div id="slogan">
+               <%= image_tag "local/create.png", :alt => "Create it" %>
+             </div>
+            </div>
+           </div>
+           <div class="c50r">
+            <div class="subcr">
+             <div id="searchbox">
+              <!-- Begin search -->
+              <!--
+              <form action="">
+               <div class="topleft">
+                <div class="topright">
+                 <div class="bottomleft">
+                  <div class="bottomright">
+                   <input id="searchInput" name="search" type="text" accesskey="f" value="" />
+                  </div>
+                 </div>
+                </div>
+               </div>
+               -->
+               <!-- <input type="image" name="go" value="Go" src="/css/local/images/darkgrey_searchbox/go.png" class="button" />&nbsp; -->
+              <!--
+               <input type="image" name="fulltext" value="Search" src="/css/local/images/darkgrey_searchbox/search.png" class="button" />
+              </form>-->
+              <!-- End search -->
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br style="clear: right;" />
+       <div id="contentarea">
+	      <% if !session[:login] -%> 
+	      <!-- Snippet for starting page (3-column layout) -->
+        <div class="subcolumns">
+         <div class="c75l">
+          <div class="subcl">
+          <!-- End Snippet -->
+	      <% end %>
+        <div class="grey_box_double" style="float:left; width: 100%;">
+         <div class="box_top_row">
+          <div class="box_left"></div>
+          <div class="box_right"></div>
+         </div>
+         <div class="box_title_row">
+          <div class="box_title">
+           <div id="langsel" class="hide">
+            <!-- Begin language select -->
+            <form action="" name="langsel">
+             <select name="lang" onchange="langRedirect()">
+              <option value="">In other languages</option>
+              <option value="http://de.test.opensuse.org/Main_Page">Deutsch</option>
+              <option value="http://fr.test.opensuse.org/Main_Page">Français</option>
+             </select>
+            </form>
+            <!-- End langauge select -->
+           </div>
+           <div id="page_actions">
+            <!-- Begin page actions -->
+            <ul>
+
+              <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
+                <% if @crumb_list -%>
+                  <% @crumb_list.each do |link| -%>
+                  <li><%= link %></li>
+                  <% end -%>
+                <% end -%>
+
+            </ul>
+            <!-- End page actions --> 
+           </div>
+          </div>
+         </div>
+         <div class="box_content" id="bodyContent">
+         <!-- Begin content area -->
+          <p class="special">
+            <% if flash[:note] %>
+               <div class="message info"><%=h flash[:note] %></div>
+            <% end %>
+            <% if flash[:error] %>
+               <div class="message error"><%=h flash[:error] %></div>
+            <% end %>
+           <%= @content_for_layout %>
+          </p>
+         <!-- End content area -->
+         </div>
+         <div class="box_footer_row">
+          <div id="page_footer" class="box_footer">
+           <!-- Begin Footer -->
+           This site uses the <a href="http://www.yaml.de">YAML</a> CSS framework.
+           <br />
+           <a href="http://en.opensuse.org/openSUSE:About">About openSUSE</a> | <a href="http://en.opensuse.org/Legal">Legal information</a> | <a href="mailto:webmaster@opensuse.org">Feedback</a>
+           <br />
+           <br />
+           <a href="http://www.novell.com/linux/"><img src="https://static.opensuse.org/c/images/common/founded_novell.gif" alt="Founded by Novell" /></a>
+           <!-- End Footer -->
+          </div>
+         </div>
+         <div class="box_bottom_row">
+          <div class="box_left"></div>
+          <div class="box_right"></div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <% if !session[:login] -%> 
+      <!-- Insert right navigation bar -->
+      <div class="c25r" id="rightnav">
+        <div class="subcr">
+          <div class="darkgrey_box">
+           <div class="box_top_row">
+            <div class="box_left"></div>
+            <div class="box_right"></div>
+           </div>
+           <div class="box_title_row">
+            <div class="box_title">
+            Sponsored by
+            </div>
+           </div>
+           <div class="box_content" id="platin_sponsor">
+            <div style="text-align: center; padding: 7px 0; overflow: hidden;">
+              <p style="color: #ccc; font-size: 0.8em;">Gold Sponsor</p>
+              <p>
+                <a href="http://en.opensuse.org/Sponsors"><img src="http://files.opensuse.org/opensuse/en/5/54/Amd.png" title="Sponsored by AMD" alt="Sponsored by AMD"/></a>
+                <a href="http://en.opensuse.org/Sponsors"><img title="Sponsored by: IP Exchange" alt="Sponsored by: IP Exchange" src="http://files.opensuse.org/opensuse/en/b/b6/Ip-exchange.gif"/></a>
+              </p>
+              <p style="color: #ccc; font-size: 0.8em;">Silver Sponsor</p>
+              <p>
+                
+              <a class="external text" rel="nofollow" title="http://en.opensuse.org/Sponsors" href="http://en.opensuse.org/Sponsors">
+              <img alt="B1-systems.jpg" src="http://files.opensuse.org/opensuse/en/f/fc/B1-systems.jpg"/>
+              </a>
+              </p>
+            </div>
+           </div>
+           <div class="box_bottom_row">
+            <div class="box_left"></div>
+            <div class="box_right"></div>
+           </div>
+          </div>
+          <br />
+         </div>
+        </div>
+        <!-- End insert right navigation bar -->
+        <!-- Snippet for starting page (3-column layout) -->
+        </div>
+      <% end %>
+      <!-- IE Column Clearing -->
+      <div id="ie_clearing">&nbsp;</div>
+      <!-- Ende: IE Column Clearing -->
+     </div>
+     <!-- End middle column -->
+    </div>
+    <!-- End 2 cloumn main part -->
+   </div>
+  </div>
+  
+   <div id="inplace_watchlist" style="display: none;">
+      <div class="inner_spacer">
+        <strong><%= link_to "Watchlist ...", :controller => "project", :action => :list_my %></strong>                
+      </div>
+      <div class="inner_spacer">
+        <%- if @user and @user.has_element? :watchlist -%>
+        <%- @user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
+        <%= link_to project, :controller => 'project', :action => :show, :project => project %>
+        <%- end #each -%>
+        <%- else -%>
+        Watchlist empty
+        <%- end #if @user -%>
+      </div>
+    </div>
+  
+</body>
+</html>
