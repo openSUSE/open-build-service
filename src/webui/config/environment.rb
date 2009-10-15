@@ -71,6 +71,7 @@ MIN_VOTES_FOR_RATING = 3
 
 require 'ostruct'
 require 'rexml-expansion-fix'
+require "#{RAILS_ROOT}/config/repositories.rb"
 
 if CONFIG['theme']
   puts "Using theme view path: #{RAILS_ROOT}/app/views/vendor/#{CONFIG['theme']}"
