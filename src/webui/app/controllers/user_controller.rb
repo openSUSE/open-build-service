@@ -1,27 +1,17 @@
+require 'common/opensuse/frontend'
+
 class UserController < ApplicationController
-require 'opensuse/frontend'
+
   skip_before_filter :authorize, :transmit_credentials
   skip_before_filter :set_return_to, :only => [:login, :logout, :store_login, :register, :request_ichain]
   
   def login
-
   end
   
   def store_login
-    login = params[:user_login]
-    passwd = params[:user_password]
-
-    session[:login] = login
-    session[:passwd] = passwd
-  
-    if passwd 
-      logger.debug "#{login} wants to log in with pwd XXX"
-    else 
-      logger.debug "#{login} wants to log in with empty passwd"
-    end
-    
-    # render_text "Alles OK: #{session[:login]}"
-    redirect_back_or_default url_for :action => 'login'
+    session[:login] = params[:user_login]
+    session[:passwd] = params[:user_password]
+    redirect_back_or_default 
   end
 
   def logout

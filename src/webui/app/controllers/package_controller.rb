@@ -217,26 +217,21 @@ class PackageController < ApplicationController
       return
     end
 
-    #@project = Project.find( params[:project] )
     @project = params[:project]
-
     if params[:name]
       if !valid_package_name? params[:name]
         flash[:error] = "Invalid package name: '#{params[:name]}'"
         redirect_to :action => 'new', :project => params[:project]
       else
         @package = Package.new( :name => params[:name], :project => @project )
-
         @package.title.data.text = params[:title]
         @package.description.data.text = params[:description]
 
-        #@project.add_package @package
-
-        if @package.save #and @project.save
+        if @package.save
           flash[:note] = "Package '#{@package}' was created successfully"
           redirect_to :action => 'show', :project => params[:project], :package => params[:name]
         else
-          flash[:note] = "Failed to save package '#{@package}'"
+          flash[:note] = "Failed to create package '#{@package}'"
           redirect_to :controller => 'project', :action => 'show', :project => params[:project]
         end
       end

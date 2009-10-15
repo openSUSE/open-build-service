@@ -1,31 +1,27 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-#hack to autoload activexml and frontendcontroller on change
-#require_dependency 'activexml'
-#require_dependency 'opensuse/frontend'
-#require_dependency 'frontend_compat'
-
-
 class ApplicationController < ActionController::Base
   before_filter :set_return_to, :authorize, :set_http_headers
   after_filter :set_charset
-  
-  layout "application2"
+
+  # Scrub sensitive parameters from your log
+  filter_parameter_logging :password, :user_password
+
+  protected
 
   def min_votes_for_rating
     MIN_VOTES_FOR_RATING
   end
 
-
   #filter
   def set_return_to
     session[:return_to] = request.request_uri
-    logger.debug "return_to: #{session[:return_to]}"
+    logger.debug "setting return_to: #{session[:return_to]}"
   end
 
   def set_http_headers
-    Project.transport.set_additional_header( "User-Agent", "buildservice-webclient/0.1" )
+    ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "buildservice-webclient/0.1" )
   end
 
   def set_charset
@@ -38,7 +34,7 @@ class ApplicationController < ActionController::Base
     if ichain_mode == 'on' || ichain_mode == 'simulate'
       logger.debug "iChain mode: #{ichain_mode}"
       ichain_user = request.env['HTTP_X_USERNAME']
-# TEST vv
+      # TEST vv
       unless ichain_user
         if ichain_mode == 'simulate'
           ichain_user = ichain_test_user
@@ -47,7 +43,7 @@ class ApplicationController < ActionController::Base
         request.env.each do |name, val|
           logger.debug "Header value: #{name} = #{val}"
         end
-# TEST ^^
+        # TEST ^^
       else
         logger.debug "iChain-User from environment: #{ichain_user}"
       end
@@ -55,18 +51,13 @@ class ApplicationController < ActionController::Base
       if ichain_user
         ichain_email = request.env['HTTP_X_EMAIL']
         logger.debug "Setting Session login to #{ichain_user}, email: #{ichain_email}"
-        
         session[:login] = ichain_user
         session[:email] = ichain_email
-
-        # Do the transport
+        # Set the headers for direct connection to the api
         transport = ActiveXML::Config.transport_for( :project )
         transport.set_additional_header( "X-Username", ichain_user )
         transport.set_additional_header( "X-Email", ichain_email )
-    
-        # set user object reachable from controller
         @user = Person.find( ichain_user )
-
       else
         redirect_to :controller => 'privacy', :action => 'ichain_login'
       end
@@ -91,7 +82,7 @@ class ApplicationController < ActionController::Base
       logger.debug "authorization: #{authorization}"
       
       if ( authorization and authorization.size == 2 and
-           authorization[0] == "Basic" )
+            authorization[0] == "Basic" )
         logger.debug( "AUTH2: #{authorization[1]}" )
       
         login, passwd = Base64.decode64( authorization[1] ).split(/:/)
@@ -100,9 +91,12 @@ class ApplicationController < ActionController::Base
           session[:passwd] = passwd
         end
       end
+    else
+      logger.debug "Session request from #{session[:login]}"
     end
     
     unless session[:login] and session[:passwd]
+      logger.debug "Redirect to login page (no login + pass)"
       # if we still do not have a user in the session it's time to redirect.
       session[:return_to] = request.request_uri
       redirect_to :controller => 'user', :action => 'login'
@@ -159,8 +153,8 @@ class ApplicationController < ActionController::Base
       end
     when ActiveXML::Transport::ConnectionError
       render_error :message => "Unable to connect to API", :status => 200
-#   when ActiveXML::Error
-#     render_error :code => @code, :message => @messag
+      #   when ActiveXML::Error
+      #     render_error :code => @code, :message => @messag
     else
       # FIXME: This should be done in the ForbiddenError-Exception handling.
       # but the exception handling seems to be buggy atm
@@ -174,7 +168,7 @@ class ApplicationController < ActionController::Base
       else
         logger.debug "default exception handling"
         render_error :status => 400, :code => @code, :message => @message,
-                     :exception => @exception, :api_exception => @api_exception
+          :exception => @exception, :api_exception => @api_exception
         return
       end
     end
@@ -188,16 +182,6 @@ class ApplicationController < ActionController::Base
     @status = opt[:status] || 400
 
     logger.debug "ERROR: #{@code} #{@error_message}"
-
-    # if the exception was raised inside a template (-> @template.first_render != nil), 
-    # the instance variables created in here will not be injected into the template
-    # object, so we have to do it manually
-    if @template.first_render
-      logger.debug "injecting error instance variables into template object"
-      %w{@message @code @exception_xml @exception}.each do |var|
-        @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
-      end
-    end
 
     if request.xhr?
       render :text => @message, :status => @status, :layout => false
@@ -222,7 +206,7 @@ class ApplicationController < ActionController::Base
   end
 
   def ichain_test_user
-      ICHAIN_TEST_USER
+    ICHAIN_TEST_USER
   end
 
   def valid_project_name? name
