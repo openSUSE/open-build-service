@@ -157,5 +157,8 @@ ActiveXML::Base.config do |conf|
     # Status Messages
     map.connect :statusmessage, 'rest:///status_message/:id/?:limit'
 
+    map.connect :platform, "rest:///platform/:project/:name",
+        :all => "rest:///platform/"
+
   end
 end
