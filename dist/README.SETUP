@@ -95,7 +95,6 @@ password = foobar
 
       # mysql -u root -p
       mysql> create database frontend_production;
-      mysql> create database webclient_production;
       mysql> quit
 
 * If you use the MySQL database for other services, too, then
@@ -105,10 +104,6 @@ password = foobar
       # mysql -u root -p'your-password'
       GRANT all privileges
       ON frontend_production.* 
-      TO 'obs'@'%', 'obs'@'localhost' IDENTIFIED BY 'obs-password';
-
-      GRANT all privileges
-      ON webclient_production.* 
       TO 'obs'@'%', 'obs'@'localhost' IDENTIFIED BY 'obs-password';
 
       FLUSH PRIVILEGES;
