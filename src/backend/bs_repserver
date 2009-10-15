@@ -255,12 +255,61 @@ sub getbinarylist_repository {
   my $prp = "$projid/$repoid";
   my $view = $cgi->{'view'} || '';
 
-  if (($view eq 'cache' || $view eq 'cpio') && !$BSStdServer::isajax) {
+  if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax) {
     my @args;
     push @args, "view=$view";
     push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
     BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/_repository", undef, @args);
     exit(0);
+  }
+
+  if ($view eq 'solv') {
+    my $fd = gensym;
+    if (!open($fd, '<', "$reporoot/$prp/$arch/:full.solv")) {
+      my $pool = BSSolv::pool->new();
+      my $repo = addrepo_scan($pool, $prp, $arch);
+      if ($repo) {
+	$repo->tofile("$reporoot/$prp/$arch/:full.solv.$$");
+	if (!open($fd, '<', "$reporoot/$prp/$arch/:full.cache.$$")) {
+	  undef $fd;
+	}
+	unlink("$reporoot/$prp/$arch/:full.solv.$$");
+      } else {
+        undef $fd;
+      }
+      undef $repo;
+      undef $pool;
+    }
+    die("no solv file available") unless defined $fd;
+    BSWatcher::reply_file(\$fd, 'Content-Type: application/octet-stream');
+    return undef;
+  }
+
+  if ($view eq 'solvstate') {
+    my $repostate = readxml("$reporoot/$prp/$arch/:repostate", $BSXML::repositorystate, 1) || {};
+    my @files;
+    push @files, {
+      'name' => 'repositorystate',
+      'data' => XMLout($BSXML::repositorystate, $repostate),
+    };
+    my $fd = gensym;
+    if (open($fd, '<', "$reporoot/$prp/$arch/:full.solv")) {
+      push @files, { 'name' => 'repositorysolv', 'filename' => $fd };
+    } else {
+      my $pool = BSSolv::pool->new();
+      my $repo = addrepo_scan($pool, $prp, $arch);
+      if ($repo) {
+	$repo->tofile("$reporoot/$prp/$arch/:full.solv.$$");
+	if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache.$$")) {
+          push @files, { 'name' => 'repositorysolv', 'filename' => $fd };
+	}
+	unlink("$reporoot/$prp/$arch/:full.solv.$$");
+      }
+      undef $repo;
+      undef $pool;
+    }
+    BSWatcher::reply_cpio(\@files);
+    return undef;
   }
 
   if ($view eq 'cache') {
@@ -283,10 +332,7 @@ sub getbinarylist_repository {
         # the result to a tmp file and stream from it
 	Storable::nstore(\%data, "$reporoot/$prp/$arch/:full.cache.$$");
 	if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache.$$")) {
-          push @files, {
-            'name' => 'repositorycache',
-	    'filename' => $fd,
-          }
+          push @files, { 'name' => 'repositorycache', 'filename' => $fd };
 	}
 	unlink("$reporoot/$prp/$arch/:full.cache.$$");
       }
@@ -295,10 +341,7 @@ sub getbinarylist_repository {
     } elsif (-s "$reporoot/$prp/$arch/:full.cache") {
       # compatibility code, to be removed...
       if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache")) {
-        push @files, {
-          'name' => 'repositorycache',
-          'filename' => $fd,
-        }
+        push @files, { 'name' => 'repositorycache', 'filename' => $fd };
       }
     }
     BSWatcher::reply_cpio(\@files);
