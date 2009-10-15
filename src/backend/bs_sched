@@ -2631,14 +2631,14 @@ sub select_read {
 }
 
 sub changed2lookat {
-  my ($changed_low, $changed_med, $changed_high, $lookat_oobhigh, $lookat_oob, $lookat_next) = @_;
+  my ($changed_low, $changed_med, $changed_high, $lookat_high, $lookat_med, $lookat_next) = @_;
 
-  push @$lookat_oobhigh, grep {$changed_high->{$_}} sort keys %$changed_med;
-  push @$lookat_oob, grep {!$changed_high->{$_}} sort keys %$changed_med;
-  @$lookat_oobhigh = unify(@$lookat_oobhigh);
-  @$lookat_oob = unify(@$lookat_oob);
-  my %lookat_oobhigh = map {$_ => 1} @$lookat_oobhigh;
-  @$lookat_oob = grep {!$lookat_oobhigh{$_}} @$lookat_oob;
+  push @$lookat_high, grep {$changed_high->{$_}} sort keys %$changed_med;
+  push @$lookat_med, grep {!$changed_high->{$_}} sort keys %$changed_med;
+  @$lookat_high = unify(@$lookat_high);
+  @$lookat_med = unify(@$lookat_med);
+  my %lookat_high = map {$_ => 1} @$lookat_high;
+  @$lookat_med = grep {!$lookat_high{$_}} @$lookat_med;
   for my $prp (@prps) {
     if (!$changed_low->{$prp} && !$changed_med->{$prp}) {
       # FIXME: aggregates do not use the full tree!
@@ -2721,10 +2721,10 @@ my %changed_high;
 my %prpfinished;
 my %lastcheck;
 
-my @lookat;             # not so important
 my %lookat_next;	# not so important, next series
-my @lookat_oob;         # do those first (out of band)
-my @lookat_oobhigh;     # do those really first so that our users are happy
+my @lookat_low;         # not so important
+my @lookat_med;         # do those first (out of band), triggered through direct build results
+my @lookat_high;        # do those really first so that our users are happy, triggered through user interaction
 
 
 # read old state if present
@@ -2754,9 +2754,9 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     my @newprps = grep {!$oldprps{$_}} @prps;
 
     # update lookat arrays
-    @lookat = @{$schedstate->{'lookat'} || []};
-    @lookat_oob = @{$schedstate->{'lookat_oob'} || []};
-    @lookat_oobhigh = @{$schedstate->{'lookat_oobhigh'} || []};
+    @lookat_low = @{$schedstate->{'lookat'} || []};
+    @lookat_med = @{$schedstate->{'lookat_oob'} || []};
+    @lookat_high = @{$schedstate->{'lookat_oobhigh'} || []};
 
     # update changed hash
     %changed_low = ();
@@ -2807,13 +2807,13 @@ if (!$projpacks) {
   get_projpacks();
   get_projpacks_postprocess();
   # look at everything
-  @lookat = sort keys %$projpacks;
-  push @lookat, @prps;
+  @lookat_low = sort keys %$projpacks;
+  push @lookat_low, @prps;
 }
 
 #XXX
-#@lookat = sort keys %$projpacks;
-#push @lookat, @prps;
+#@lookat_low = sort keys %$projpacks;
+#push @lookat_low, @prps;
 
 my %remotewatchers;
 my %nextmed;
@@ -2822,9 +2822,9 @@ my %prpchecktimes;
 my %prplastcheck;
 my %notreadies;
 
-if (@lookat) {
-  %lookat_next = map {$_ => 1} @lookat;
-  @lookat = ();
+if (@lookat_low) {
+  %lookat_next = map {$_ => 1} @lookat_low;
+  @lookat_low = ();
 }
 
 my $slept = 0;
@@ -2833,7 +2833,7 @@ my $schedulerstart = time();
 
 while(1) {
   if (%changed_low || %changed_med || %changed_high) {
-    changed2lookat(\%changed_low, \%changed_med, \%changed_high, \@lookat_oobhigh, \@lookat_oob, \%lookat_next);
+    changed2lookat(\%changed_low, \%changed_med, \%changed_high, \@lookat_high, \@lookat_med, \%lookat_next);
     next;
   }
 
@@ -2970,13 +2970,13 @@ while(1) {
     fcntl(PING,F_SETFL,0);
   }
 
-  # if lookat array is empty, start new series with lookat_next
-  if (!@lookat && %lookat_next) {
-    @lookat = grep {$lookat_next{$_}} @prps;
+  # if lookat_low array is empty, start new series with lookat_next
+  if (!@lookat_low && %lookat_next) {
+    @lookat_low = grep {$lookat_next{$_}} @prps;
     %lookat_next = ();
   }
 
-  if (!$gotevent && !@lookat && !@lookat_oob && !@lookat_oobhigh) {
+  if (!$gotevent && !@lookat_low && !@lookat_med && !@lookat_high) {
     print "waiting for an event...\n";
     exit 0 if $testprojid;
     my $timeout;
@@ -3152,7 +3152,7 @@ while(1) {
 	print "exiting...\n" if $ev->{'type'} eq 'exit';
 	print "exiting (with complete info)...\n" if $ev->{'type'} eq 'exitcomplete';
 	print "dumping scheduler state...\n" if $ev->{'type'} eq 'dumpstate';
-	my @new_lookat = @lookat;
+	my @new_lookat = @lookat_low;
         push @new_lookat, grep {$lookat_next{$_}} @prps;
 	# here comes our scheduler state
 	my $schedstate = {};
@@ -3164,8 +3164,8 @@ while(1) {
 	$schedstate->{'changed_med'} = \%changed_med;
 	$schedstate->{'changed_high'} = \%changed_high;
 	$schedstate->{'lookat'} = \@new_lookat;
-	$schedstate->{'lookat_oob'} = \@lookat_oob;
-	$schedstate->{'lookat_oobhigh'} = \@lookat_oobhigh;
+	$schedstate->{'lookat_oob'} = \@lookat_med;
+	$schedstate->{'lookat_oobhigh'} = \@lookat_high;
 	$schedstate->{'prpfinished'} = \%prpfinished;
 	$schedstate->{'globalnotready'} = \%globalnotready;
 	unlink("$rundir/bs_sched.$myarch.state");
@@ -3283,70 +3283,53 @@ while(1) {
   }
 
   my $prp;
-
-  # Check for high and medium events for projects with max time between
-  # check. Do not use this feature!
-  if (defined $BSConfig::max_project_timeout) {
-    my @p = grep {$BSConfig::max_project_timeout->{$_}} (@lookat_oobhigh, @lookat_oob);
-    if (@p) {
-      my $now = time();
-      for my $p (@p) {
-	next unless $now - $prplastcheck{$p} > $BSConfig::max_project_timeout->{$p};
-	$prp = $p;
-        print "max timeout for $prp passed!\n";
-	@lookat_oobhigh = grep {$_ ne $prp} @lookat_oobhigh;
-	@lookat_oob = grep {$_ ne $prp} @lookat_oob;
-	last;
-      }
-    }
-  }
-  if (!defined($prp) && @lookat && $notlow > 10) {
-    $prp = shift @lookat;
+  if (!defined($prp) && @lookat_low && $notlow > 10) {
+    $prp = shift @lookat_low;
     print "looking at low prio $prp";
-    @lookat_oobhigh = grep {$_ ne $prp} @lookat_oobhigh;
-    @lookat_oob = grep {$_ ne $prp} @lookat_oob;
+    @lookat_high = grep {$_ ne $prp} @lookat_high;
+    @lookat_med = grep {$_ ne $prp} @lookat_med;
     $notlow = 0;
   }
-  if (!defined($prp) && @lookat_oobhigh) {
-    $prp = shift @lookat_oobhigh;
+  if (!defined($prp) && @lookat_high) {
+    $prp = shift @lookat_high;
     if ($nextmed{$prp}) {
       my $now = time();
       my @notyet;
       while ($nextmed{$prp} && $now < $nextmed{$prp}) {
 	print "  not yet $prp\n";
 	push @notyet, $prp;
-	$prp = shift @lookat_oobhigh;
+	$prp = shift @lookat_high;
 	last unless defined $prp;
       }
-      unshift @lookat_oobhigh, @notyet;
-      $prp = shift @lookat_oobhigh if !defined($prp) && !@lookat_oob && !@lookat;
+      unshift @lookat_high, @notyet;
+      $prp = shift @lookat_high if !defined($prp) && !@lookat_med && !@lookat_low;
     }
     print "looking at high prio $prp" if defined $prp;
     $notlow++ if defined $prp;
   }
-  if (!defined($prp) && @lookat_oob) {
-    $prp = shift @lookat_oob;
+  if (!defined($prp) && @lookat_med) {
+    $prp = shift @lookat_med;
     if ($nextmed{$prp}) {
       my $now = time();
       my @notyet;
       while ($nextmed{$prp} && $now < $nextmed{$prp}) {
 	print "  not yet $prp\n";
 	push @notyet, $prp;
-	$prp = shift @lookat_oob;
+	$prp = shift @lookat_med;
 	last unless defined $prp;
       }
-      unshift @lookat_oob, @notyet;
-      $prp = shift @lookat_oob if !defined($prp) && !@lookat;
+      unshift @lookat_med, @notyet;
+      $prp = shift @lookat_med if !defined($prp) && !@lookat_low;
     }
     print "looking at med prio $prp" if defined $prp;
     $notlow++ if defined $prp;
   }
   if (!defined($prp)) {
-    $prp = shift @lookat;
+    $prp = shift @lookat_low;
     print "looking at low prio $prp";
     $notlow = 0;
   }
-  print " (".@lookat_oobhigh."/".@lookat_oob."/".@lookat."/".(keys %lookat_next)."/".@prps.")\n";
+  print " (".@lookat_high."/".@lookat_med."/".@lookat_low."/".(keys %lookat_next)."/".@prps.")\n";
   delete $nextmed{$prp};
 
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -4210,9 +4193,9 @@ relsynccheck:
   $notreadysum += $_ for values %notreadies;
   $sinfo->{'notready'} = $notreadysum;
   $sinfo->{'queue'} = {};
-  $sinfo->{'queue'}->{'high'} = @lookat_oobhigh;
-  $sinfo->{'queue'}->{'med'} = @lookat_oob;
-  $sinfo->{'queue'}->{'low'} = @lookat;
+  $sinfo->{'queue'}->{'high'} = @lookat_high;
+  $sinfo->{'queue'}->{'med'} = @lookat_med;
+  $sinfo->{'queue'}->{'low'} = @lookat_low;
   $sinfo->{'queue'}->{'next'} = keys %lookat_next;
   my $sum = 0;
   my $sum2 = 0;
