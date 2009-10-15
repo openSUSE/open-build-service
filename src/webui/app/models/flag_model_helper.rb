@@ -80,8 +80,7 @@ module FlagModelHelper
 
 #checks the meta file for $object(project or package) to get not configured repos, 
 #that should be displayed in the webclient for proper flag configuration
-  def invalid_repo_check(project,object)
-    logger.debug("[INVALID REPO CHECK] ")
+  def invalid_repo_check(project, object)
     project.my_repositories ||= project.each_repository
     repos = project.my_repositories
     repo_names = Array.new
