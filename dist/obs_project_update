@@ -16,10 +16,10 @@
 #
 usage="usage:  $0 <source obs> <source project> <target obs> <target project> [listfile]"
 
-sourceobs="https://$1"
+sourceobs=$1
 sourceprj=$2
 
-targetobs="https://$3"
+targetobs=$3
 targetprj=$4
 
 listfile=$5
@@ -56,7 +56,7 @@ cd T &&
 for f in $prjlist
 do
 # Copy pkg meta info before checking out target package
-(set -x && osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | osc -A $targetobs meta pkg -F - $targetprj/$f)
+(set -x && osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | osc -A $targetobs meta pkg -F - $targetprj/$f)
 # Check out target packages
 (set -x && osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || rm -rf $targetprj/$f)
 done

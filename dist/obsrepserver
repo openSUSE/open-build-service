@@ -35,6 +35,7 @@ fi
 obsdir=/usr/lib/obs/server/
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
+FQHOSTNAME="`hostname`.`domainname`"
 
 rc_reset
 case "$1" in
@@ -45,11 +46,17 @@ case "$1" in
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		startproc -l "$logdir"/rep_server.log "$obsdir"/bs_repserver
+                if [ "$OBS_USE_SLP" == "yes" ]; then
+                   slptool register service:obs.repo_server:http://$FQHOSTNAME:6262,en,6553
+                fi
 		rc_status -v
 	;;
 	stop)
 		echo -n "Shutting down obsrepserver"
 		killproc "$obsdir"/bs_repserver 
+                if [ "$OBS_USE_SLP" == "yes" ]; then
+                   slptool deregister service:obs.repo_server:http://$FQHOSTNAME:6262
+                fi
 		rc_status -v
 	;;
 	restart)

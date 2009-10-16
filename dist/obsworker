@@ -27,16 +27,29 @@ link=${base#*[SK][0-9][0-9]}
 if [ -z "$OBS_RUN_DIR" ]; then
 	OBS_RUN_DIR="/var/run/obs"
 fi
+if [ -z "$OBS_REPO_SERVER" ]; then
+	OBS_REPO_SERVER="localhost:6262"
+fi
 
 if [ -z "$OBS_LOG_DIR" ]; then
 	OBS_LOG_DIR="/var/log/obs"
 fi
 
+if [ -z "$OBS_USE_SLP" ]; then
+	OBS_SRC_SERVER=`slptool findsrvs service:obs.source_server | sed -n 's/service:obs.source_server:\([^,]*\),.*/--srcserver \1/p' | head -n 1`
+	for i in `slptool findsrvs service:obs.repo_server | sed -n 's/service:obs.repo_server:\([^,]*\),.*/\1/p'`; do
+           if [ -z "$OBS_REPO_SERVER" ]; then
+              OBS_REPO_SERVER="$i"
+           fi
+           OBS_REPO_SERVERS="$OBS_REPO_SERVERS --reposerver $i"
+        done
+fi
 if [ -z "$OBS_SRC_SERVER" ]; then
-	OBS_SRC_SERVER="localhost:6362"
+	OBS_SRC_SERVER="--srcserver http://localhost:6362"
 fi
 if [ -z "$OBS_REPO_SERVER" ]; then
-	OBS_REPO_SERVER="localhost:6262"
+	OBS_REPO_SERVER="http://localhost:6262"
+	OBS_REPO_SERVERS="--reposerver http://localhost:6262"
 fi
 
 if [ -f /etc/buildhost.config ];then
@@ -76,7 +89,7 @@ case "$1" in
 
 		# fetch worker sources from server
 		pushd "$workerbootdir"
-		curl -q "http://$OBS_REPO_SERVER"/getworkercode | cpio --extract
+		curl -q "${OBS_REPO_SERVER}"/getworkercode | cpio --extract
 		ln -s . XML 
 		chmod 755 bs_worker
 		popd
@@ -91,8 +104,8 @@ case "$1" in
 			title="$HOSTNAME/$I"
 			# prepare obsworker startup in screen...
 			echo "screen -t $title ./bs_worker $obsopt $port --root $ROOT/root_$I" \
-			     "--statedir $workerdir/$I --id $HOSTNAME/$I --reposerver http://$OBS_REPO_SERVER" \
-			     "--srcserver http://$OBS_SRC_SERVER" \
+			     "--statedir $workerdir/$I --id $HOSTNAME/$I $OBS_REPO_SERVERS" \
+			     "$OBS_SRC_SERVER" \
 			    >> $screenrc
                         mkdir $workerdir/$I
 			# prepare xen build setup...

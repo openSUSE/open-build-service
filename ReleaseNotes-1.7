@@ -1,0 +1,24 @@
+#
+# Release Notes for openSUSE Build Service 1.7     (PRE-RELEASE)
+#
+
+Please read the README.SETUP file for initial installation
+instructions.
+
+README.UPDATE has informations for updaters.
+
+Please note that the new SLP service discovery support is
+recommended to be used. bs_worker instances will find all
+OBS server instances in the entire network. You can disable
+this via syconfig settings:
+  /etc/sysconfig/obs-server
+  /etc/sysconfig/obs-worker
+
+Main new features are:
+
+ * Rewritten dependency solver in scheduler which gave
+   a significant speed up.
+
+ * Attribute system to store an kind of informations for projects 
+   and packages as defined by the server admin.
+

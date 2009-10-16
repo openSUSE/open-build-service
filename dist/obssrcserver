@@ -23,6 +23,7 @@
 # Determine the base and follow a runlevel link name.
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
+FQHOSTNAME="`hostname`.`domainname`"
 
 if [ -z "$OBS_RUN_DIR" ]; then
         OBS_RUN_DIR="/srv/obs/run"
@@ -45,7 +46,13 @@ case "$1" in
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		startproc -l "$logdir"/src_server.log "$obsdir"/bs_srcserver
-		[ "$?" -ne 0 ] && rc_status -v
+		if [ "$?" -ne 0 ]; then
+                   rc_status -v
+                else
+                   if [ "$OBS_USE_SLP" == "yes" ]; then
+                      slptool register service:obs.source_server:http://$FQHOSTNAME:6362,en,6553
+                   fi
+                fi
 
 		# FIXME:
 
@@ -62,6 +69,9 @@ case "$1" in
 	stop)
 		echo -n "Shutting down obssrcserver"
 		killproc "$obsdir"/bs_srcserver 
+                if [ "$OBS_USE_SLP" == "yes" ]; then
+                   slptool deregister service:obs.source_server:http://$FQHOSTNAME:6362
+                fi
 		rc_status -v
 	;;
 	restart)

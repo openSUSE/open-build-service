@@ -1,7 +1,7 @@
 ## Path:        Applications/OBS
 ## Description: define for which architectures the packages should get build
 ## Type:        regexp((i586|x86_64|ppc|ppc64|s390|s390x|ia64|sparc|sparc64|mips|mips64|armv4l|armv5el|armv7el|sh4)+)
-## Default:     "i586"
+## Default:     "i586 x86_64"
 ## Config:      OBS
 #
 # This is the space separated list of all target architectures for
@@ -16,7 +16,7 @@
 # If you also have workers on this host, each worker can also need 1
 # GB RAM in some known cases (e.g. compiling gcc)
 #
-OBS_SCHEDULER_ARCHITECTURES="i586"
+OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
 
 ## Path:        Applications/OBS
 ## Description: The base for OBS communucation directory
@@ -31,3 +31,11 @@ OBS_RUN_DIR="/srv/obs/run"
 ## Default:     "/srv/obs/log"
 ## Config:      OBS
 OBS_LOG_DIR="/srv/obs/log"
+
+## Path:        Applications/OBS
+## Description: Announce services via SLP
+## Type:        yesno
+## Default:     yes
+## Config:      OBS
+OBS_USE_SLP="yes"
+
