@@ -904,7 +904,8 @@ sub putjob {
   die("job info does not match\n") if $infoxmlmd5 ne $jobid;
 
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
-  my $projid = $info->{'path'}->[0]->{'project'};
+  my $projid = $info->{'project'} || $info->{'path'}->[0]->{'project'};
+  my $repoid = $info->{'repository'} || $info->{'path'}->[0]->{'repository'};
 
   $jobstatus->{'code'} = 'built';
   $jobstatus->{'endtime'} = time();
@@ -985,6 +986,9 @@ sub putjob {
     $bininfo->{$id} = $data;
   }
   Storable::nstore($bininfo, "$dir/.bininfo") if %$bininfo;
+
+  # write build stats for dispatcher
+  BSUtil::appendstr("$jobsdir/finished", "$projid/$repoid/$arch $jobstatus->{'starttime'} $jobstatus->{'endtime'} $jobstatus->{'result'}\n");
 
   # write now jobstatus and free lock
   $jobstatus->{'code'} = 'finished';
