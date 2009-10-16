@@ -57,6 +57,16 @@ sub writestr {
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
 }
 
+sub appendstr {
+  my ($fn, $d) = @_;
+  local *F;
+  open(F, '>>', $fn) || die("$fn: $!\n");
+  if (length($d)) {
+    (syswrite(F, $d) || 0) == length($d) || die("$fn write: $!\n");
+  }
+  close(F) || die("$fn close: $!\n");
+}
+
 sub readstr {
   my ($fn, $nonfatal) = @_;
   local *F;
