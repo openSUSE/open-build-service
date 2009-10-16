@@ -9,7 +9,7 @@
 ### BEGIN INIT INFO
 # Provides:       signd
 # Required-Start: $network $named $syslog $time
-# Should-Start:   $null
+# Should-Start:   $null $remote_fs
 # Required-Stop:  $null
 # Should-Stop:    $null
 # Default-Start:  3 5
