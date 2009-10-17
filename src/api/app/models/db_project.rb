@@ -267,6 +267,15 @@ class DbProject < ActiveRecord::Base
             attribcache[attrib.name].update_from_xml(attrib)
             attribcache.delete attrib.name
           else
+            # Check if a upper project defines this attribute, we do not allow to 
+            # over write the attribute definition !
+            upper_project = self
+            while ( upper_project = upper_project.find_parent )
+              if ( upper_project.attrib_types and not upper_project.attrib_types.find_by_name(attrib.name).blank? )
+                raise RuntimeError, "Attribute definition exists already in '#{upper_project.name}'"
+              end
+            end
+
             self.attrib_types.create(:name => attrib.name, :type => attrib.type).update_from_xml(attrib)
           end
         end
