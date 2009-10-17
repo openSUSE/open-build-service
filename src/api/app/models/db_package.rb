@@ -26,6 +26,8 @@ class DbPackage < ActiveRecord::Base
   has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
 
   has_many :attribs, :dependent => :destroy
+# ADRIAN wonders if that shouldn't be that :
+#  has_many :attribs, :dependent => :delete_all
 
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
@@ -60,6 +62,20 @@ class DbPackage < ActiveRecord::Base
       END_SQL
 
       result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
+      result[0]
+    end
+
+    def find_by_attribute_type_and_value( attribute, value )
+      # One sql statement is faster than a ruby loop
+      sql =<<-END_SQL
+      SELECT pack.*
+      FROM db_packages pack
+      LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
+      LEFT OUTER JOIN attrib_values val ON attr.id = val.attrib_id
+      WHERE attr.attrib_type_id = BINARY ? AND val.value = BINARY ?
+      END_SQL
+
+      result = DbPackage.find_by_sql [sql, attribute.id.to_s, value.to_s]
       result[0]
     end
 
