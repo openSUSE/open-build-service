@@ -230,18 +230,36 @@ class DbPackage < ActiveRecord::Base
       if package.has_element? :attributes
         package.attributes.each_attribute do |attrib|
           # FIXME: add permission check !
+
+          # check attribute type in this package project or upper one (by namespace)
+          db_project_upper = db_project
+          while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
+            db_project_upper = db_project_upper.find_parent
+            raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
+          end
+          # verify with allowed values for this attribute definition
+          if atype.allowed_values.length > 0
+            logger.debug( "Verify value with allowed" )
+            attrib.each_value.each do |value|
+              found = 0
+              atype.allowed_values.each do |allowed|
+                if allowed.value == value.to_s
+                  found = 1
+                  break
+                end
+              end
+              if found == 0
+                raise RuntimeError, "attribute value #{value} for '#{attrib.name} is not allowed'"
+              end
+            end
+          end
+          # update or create attibute entry
           cachekey = "#{attrib.name}|#{attrib.package}"
           if attribcache.has_key? cachekey
             attribcache[cachekey].update_from_xml(attrib)
             attribcache.delete cachekey
           else
-            # check attribute type in this package project or upper one (by namespace)
-            db_project_upper = db_project
-            while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
-              db_project_upper = db_project_upper.find_parent
-              raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
-            end
-
+            # create the new attribute entry
             self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
           end
         end
