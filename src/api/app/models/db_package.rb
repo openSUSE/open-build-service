@@ -254,13 +254,21 @@ class DbPackage < ActiveRecord::Base
             end
           end
           # update or create attibute entry
-          cachekey = "#{attrib.name}|#{attrib.package}"
+          if attrib.has_attribute? :package
+            cachekey = "#{attrib.name}|#{attrib.package}"
+          else
+            cachekey = "#{attrib.name}"
+          end
           if attribcache.has_key? cachekey
             attribcache[cachekey].update_from_xml(attrib)
             attribcache.delete cachekey
           else
             # create the new attribute entry
-            self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
+            if attrib.has_attribute? :package
+              self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
+            else
+              self.attribs.new(:attrib_type => atype).update_from_xml(attrib)
+            end
           end
         end
       end
@@ -395,9 +403,17 @@ class DbPackage < ActiveRecord::Base
 
       package.attributes do |a|
         attribs.each do |attr|
-          a.attribute(:name => attr.attrib_type.name, :package => attr.subpackage) do |y|
-            attr.values.each do |val|
-              y.value(val.value)
+          if attr.subpackage
+            a.attribute(:name => attr.attrib_type.name, :package => attr.subpackage) do |y|
+              attr.values.each do |val|
+                y.value(val.value)
+              end
+            end
+          else
+            a.attribute(:name => attr.attrib_type.name) do |y|
+              attr.values.each do |val|
+                y.value(val.value)
+              end
             end
           end
         end
