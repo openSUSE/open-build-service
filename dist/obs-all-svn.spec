@@ -45,8 +45,10 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires:       yum yum-metadata-parser repoview
 Requires:       dpkg >= 1.15
 Requires:       createrepo >= 0.4.10
+Requires:       perl-BSSolv
 BuildRequires:  build
 BuildRequires:  -post-build-checks
+BuildRequires:  perl-BSSolv
 %else
 Requires:       yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
@@ -199,6 +201,25 @@ obs_project_update is a tool to copy a packages of a project from one obs to ano
 
 Authors:       Susanne Froh, Martin Mohring
 
+#-------------------------------------------------------------------------------
+%package -n obs-sourceservice-svn
+#-------------------------------------------------------------------------------
+Summary:        The openSUSE Build Service -- gpg sign daemon
+Group:          Productivity/Networking/Web/Utilities
+
+Conflicts:      obs-source_service
+
+#-------------------------------------------------------------------------------
+%description -n obs-sourceservice-svn
+#-------------------------------------------------------------------------------
+The OBS source service is a component to modify submitted sources
+on the server side. This may include source checkout, spec file
+generation, gpg validation, quality checks and other stuff.
+
+This component is optional and not required to run the service.
+
+Authors:       Adrian Schroeter, Michael Schroeder
+
 %prep
 %setup -q -n buildservice
 
@@ -288,6 +309,8 @@ install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 # install executables and code
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 rm -rf  $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
+rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
+
 # install obs mirror script and obs copy script
 install -m 0755 %SOURCE13 %SOURCE14 %SOURCE16 %SOURCE17 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
@@ -389,7 +412,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/BSXPath.pm
 /usr/lib/obs/server/BSProductXML.pm
 /usr/lib/obs/server/BSKiwiXML.pm
-/usr/lib/obs/server/call-service-in-lxc.sh
 /usr/lib/obs/server/COPYING
 /usr/lib/obs/server/DESIGN
 /usr/lib/obs/server/License
@@ -398,12 +420,27 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/XML
 /usr/lib/obs/server/Meta.pm
 /usr/lib/obs/server/Meta
-/usr/lib/obs/server/bs_*
+/usr/lib/obs/server/bs_admin
+/usr/lib/obs/server/bs_dispatch
+/usr/lib/obs/server/bs_localkiwiworker
+/usr/lib/obs/server/bs_publish
+/usr/lib/obs/server/bs_repserver
+/usr/lib/obs/server/bs_sched
+/usr/lib/obs/server/bs_srcserver
+/usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/build
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/BSHermes.pm
+/usr/lib/obs/server/BSSolv.pm
+/usr/lib/obs/server/BSSolv.xs
+/usr/lib/obs/server/typemap
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
+
+%files -n obs-sourceservice-svn
+%defattr(-,root,root)
+/usr/lib/obs/server/bs_service
+/usr/lib/obs/server/call-service-in-lxc.sh
 
 %files -n osc-obs
 %defattr(-,root,root)
@@ -431,6 +468,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n obs-api-svn
 %defattr(-,root,root)
 %doc dist/{TODO,README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING
+%doc /srv/www/obs/*/README*
 %dir /srv/www/obs
 /srv/www/obs/common
 %dir /srv/www/obs/frontend
@@ -443,20 +481,17 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/frontend/lib
 /srv/www/obs/frontend/public
 /srv/www/obs/frontend/Rakefile
-/srv/www/obs/frontend/README
 /srv/www/obs/frontend/script
 /srv/www/obs/frontend/test
 /srv/www/obs/frontend/vendor
 %dir /srv/www/obs/webclient
 /srv/www/obs/webclient/app
 /srv/www/obs/webclient/Changelog
-/srv/www/obs/webclient/components
 /srv/www/obs/webclient/db
 /srv/www/obs/webclient/doc
 /srv/www/obs/webclient/lib
 /srv/www/obs/webclient/public
 /srv/www/obs/webclient/Rakefile
-/srv/www/obs/webclient/README
 /srv/www/obs/webclient/script
 /srv/www/obs/webclient/test
 /srv/www/obs/webclient/vendor
@@ -493,105 +528,3 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/bs_productconvert
 
 %changelog
-* Sat Jan 17 2009 - martin.mohring@5etech.eu
-- corrected rpm lint errors
-- made build on openSUSE 11.1 and Factory
-- replaed python libs dir with predefined py_sitedir macro
-- brought up to date with upstream
-* Wed Sep 03 2008 - martin.mohring@5etech.eu
-- added obs utils as separate sub package
-* Wed Jul 09 2008 - chris@computersalat.de
-- added sign/signd stuff
-* Wed Jun 18 2008 dmueller@suse.de
-- also restart dispatcher on update
-* Wed Jun 11 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 4169
-- heading toward OBS 1.0
-- fixed requires again
-- dont copy doc files, they are packaged already in .tar.bz2
-- put all docu files in obs-api package
-- some %%pre / %%post alignments
-- schemata and doc now mentioned in config
-* Tue Jun 03 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 4091
-- incl. bugfixes, see svn log
-- added hermes
-* Mon Jun 02 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 4074, bugfixes
-- added file of the spec file wizard now added
-- new debtransform features
-- build now has opensuse 11.0 config
-- osc develproj and branch support
-* Sat May 24 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 4026, bugfixes
-- exchanged dpkg package by deb package, provided by newer openSUSE Distros
-* Mon May 19 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 3996, bugfixes
-- incl. latest osc alignments for 1.0 release
-- added obs-server-test.spec for building osc, build, obs-server from one source
-* Fri May 16 2008 martin.mohring@5etech.eu
-- update to svn trunc -r 3983, incl. all build/obs_worker changes
-- readded fix for changing download addresses in webclient
-* Thu May 15 2008 martin.mohring@5etech.eu
-- added also old python written script obs_mirror_project.py from James Oakley
-* Thu May 15 2008 martin.mohring@5etech.eu
-- made apidocs working (finally)
-- got back to old svn version numbering so that ./distribute generates all
-- updated to newer versions of rcobs scripts
-- switchable comment for x86_64 scheduler in sysconfig.obs-server
-- removed obsoleted files from svn and .spec file
-- updates of obs-server.changes from openSUSE:Tools:Unstable project
-* Wed May 14 2008 adrian@suse.de
-- update to current svn trunk
-- avoid more hardcoded server names
-- bsworker can be installed on remote systems now and configured
-  via sysconfig settings
-- add apidocs generation and correct installation
-* Fri Apr 25 2008 adrian@suse.de
-- update to version 0.9.1
-  - fixes from the changelog entries before
-- Version 0.9.1 is required now to use the build service
-  inter connect feature with api.opensuse.org
-* Wed Apr 23 2008 mls@suse.de
-- increase timeouts in scheduler
-- fix circular reference in BSSSL
-- fix auto socket close in BSRPC
-* Thu Apr 17 2008 adrian@suse.de
-- apply fix for
-  * local osc support building for remote projects
-  * fix ssl protocol handling
-* Thu Apr 17 2008 mrueckert@suse.de
-- added perl-Net_SSLeay
-* Wed Apr 16 2008 adrian@suse.de
-- update to version 0.9 release
-  * Inter Build Service Connect support
-  * rpmlint support
-  * KIWI imaging support
-  * baselibs build support
-  * submission request support
-* Mon Nov 26 2007 froh@suse.de
-- use startproc
-- have correct "Should-Start" dependencies
-- ensure all services come up at boot
-* Thu Nov 15 2007 froh@suse.de
-- depend on exact rails version
-- generate package from buildservice/dist dir
-- update README.SETUP
-- add publisher and dispatcher
-* Fri Jan 26 2007 poeml@suse.de
-- implement status/restart in the init scripts
-* Fri Jan 26 2007 poeml@suse.de
-- added dependency on createrepo
-* Fri Jan 26 2007 poeml@suse.de
-- update to r1110
-  - revert last change, and do it the ruby way, by creating a new
-  migration for it... so existing installations are upgraded
-  - fix truncated line in sorting algorithm
-  - add missing mkdir
-  - add url to package metadata
-- fix build / install sysconfig files
-- fix copyright headers in init script
-- fix path in README where to copy packages to
-* Thu Jan 25 2007 poeml@suse.de
-- update to r1108
-  create a few more architectures, when initializing the database
