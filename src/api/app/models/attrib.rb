@@ -8,7 +8,11 @@ class Attrib < ActiveRecord::Base
   end
 
   def cachekey
-    "#{attrib_type.name}|#{subpackage}"
+    if subpackage
+      "#{attrib_type.name}|#{subpackage}"
+    else
+      "#{attrib_type.name}"
+    end
   end
 
   def update_from_xml(node)
