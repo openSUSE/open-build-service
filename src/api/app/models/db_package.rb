@@ -229,14 +229,18 @@ class DbPackage < ActiveRecord::Base
       
       if package.has_element? :attributes
         package.attributes.each_attribute do |attrib|
+          # FIXME: add permission check !
           cachekey = "#{attrib.name}|#{attrib.package}"
           if attribcache.has_key? cachekey
             attribcache[cachekey].update_from_xml(attrib)
             attribcache.delete cachekey
           else
-            # check attribute type
-            atype = db_project.attrib_types.find_by_name(attrib.name)
-            raise RuntimeError, "unknown attribute type '#{attrib.name}'" if atype.blank?
+            # check attribute type in this package project or upper one (by namespace)
+            db_project_upper = db_project
+            while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
+              db_project_upper = db_project_upper.find_parent
+              raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
+            end
 
             self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
           end

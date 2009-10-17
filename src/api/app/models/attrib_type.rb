@@ -44,8 +44,10 @@ class AttribType < ActiveRecord::Base
 
   def update_from_xml(node)
     self.type = node.type
-
+  
+    logger.debug "--- NOT updating attrib_type ---"
     #TODO: store defaults and allowed values
+  
     self.save
   end
 end
