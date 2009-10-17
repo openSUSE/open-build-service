@@ -45,9 +45,51 @@ class AttribType < ActiveRecord::Base
   def update_from_xml(node)
     self.type = node.type
   
-    logger.debug "--- NOT updating attrib_type ---"
-    #TODO: store defaults and allowed values
-  
+    if node.has_element? :default
+      logger.debug "--- updating attrib default definition content ---"
+
+      update_values = false
+      update_values = true unless node.default.each_value.length == self.default_values.count
+
+      node.default.each_value.each_with_index do |val, i|
+        next if val.to_s == self.default_values[i].value
+        update_values = true
+        break
+      end unless update_values
+
+      if update_values
+        logger.debug "--- updating values ---"
+        self.default_values.delete_all
+        node.default.each_value do |val|
+          self.default_values << AttribDefaultValue.new(:value => val.to_s)
+        end
+      end
+    else
+      self.default_values.delete_all
+    end
+
+    if node.has_element? :allowed
+      logger.debug "--- updating attrib allowed definition content ---"
+      update_values = false
+      update_values = true unless node.allowed.each_value.length == self.allowed_values.count
+
+      node.allowed.each_value.each_with_index do |val, i|
+        next if val.to_s == self.allowed_values[i].value
+        update_values = true
+        break
+      end unless update_values
+
+      if update_values
+        logger.debug "--- updating values ---"
+        self.allowed_values.delete_all
+        node.allowed.each_value do |val|
+          self.allowed_values << AttribAllowedValue.new(:value => val.to_s)
+        end
+      end
+    else
+      self.allowed_values.delete_all
+    end
+
     self.save
   end
 end
