@@ -94,6 +94,17 @@ our $proj = [
             'userid',
      ]],
      [ $download ],
+     [ 'attributes' => 
+       [[ 'attribute' => 
+            'name', 
+            'type' =>
+            [[ 'modifiable_by' =>
+               'name',
+               'group',
+               'role',
+            ]],
+       ]],
+     ],
 	@flags,
       [ $repo ],
 ];
@@ -108,6 +119,13 @@ our $pack = [
       [ 'devel', =>
 	    'project',
 	    'package',
+      ],
+      [ 'attributes', => 
+        [[ 'attribute', => 
+              'name',
+              'package', =>
+                 [[ 'value' => '_content' ]]
+        ]],
       ],
      [[ 'person' =>
             'role',
