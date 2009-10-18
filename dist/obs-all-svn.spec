@@ -49,6 +49,7 @@ Requires:       perl-BSSolv
 BuildRequires:  build
 BuildRequires:  -post-build-checks
 BuildRequires:  perl-BSSolv
+Recommends:     openslp-server
 %else
 Requires:       yum yum-metadata-parser repoview dpkg
 Requires:       createrepo >= 0.4.10
