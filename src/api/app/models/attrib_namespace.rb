@@ -2,8 +2,9 @@
 # always only 1-level deep, unlike project namespaces
 
 class AttribNamespace < ActiveRecord::Base
-  has_many :attrib_types
-  belongs_to :db_project, :dependent => :destroy
+  has_many :attrib_types, :dependent => :destroy
+  belongs_to :db_project
+
 
   def update_from_xml(node)
 #    self.name = node.name
