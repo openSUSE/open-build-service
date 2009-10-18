@@ -95,9 +95,24 @@ our $proj = [
      ]],
      [ $download ],
      [ 'attributes' => 
+       [[ 'namespace' => 
+            'name', 
+            [[ 'modifiable_by' =>
+               'name',
+               'group',
+               'role',
+            ]],
+       ]],
        [[ 'attribute' => 
             'name', 
+            'namespace', 
             'type' =>
+            [ 'default' =>
+               [[ 'value' => '_content' ]],
+            ],
+            [ 'allowed' =>
+               [[ 'value' => '_content' ]],
+            ],
             [[ 'modifiable_by' =>
                'name',
                'group',
