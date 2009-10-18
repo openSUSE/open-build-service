@@ -1,3 +1,6 @@
+# Attribute container inside package meta data
+# Attribute definitions are inside attrib_type
+
 class Attrib < ActiveRecord::Base
   belongs_to :db_package
   belongs_to :attrib_type

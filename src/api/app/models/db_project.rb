@@ -25,6 +25,7 @@ class DbProject < ActiveRecord::Base
   has_one :meta_cache, :as => :cachable, :dependent => :delete
 
   has_many :attrib_types, :dependent => :delete_all
+  has_many :attrib_namespace, :dependent => :destroy
   
   class << self
 
@@ -247,6 +248,38 @@ class DbProject < ActiveRecord::Base
       end
       #--- end update repositories ---#
       
+      #--- update attribute namespace definitions ---#
+      logger.debug "--- updating attribute namespace definitions ---"
+      
+      nscache = Hash.new
+      self.attrib_namespace.each do |ans|
+        nscache[ans.name] = ans
+      end
+
+      if project.has_element? :attributes
+        project.attributes.each_namespace do |ns|
+          if db_ns = self.attrib_namespace.find_by_name(ns.name)
+            if db_ns.db_project != self
+              raise RuntimeError, "Attribute namespace definition #{ns.name} exists already in '#{db_ns.db_project.name}'"
+            else
+              # update namespace
+            end
+          else
+            # create the new namespace
+            self.attrib_namespace.create(:name => ns.name)#.update_from_xml(ns)
+          end
+        end
+      end
+
+      # remaining entries in nscache are not mentioned in the metadata, remove them
+      nscache.each do |aname, ns|
+        logger.debug "removing attribute namespace definition '#{aname}'"
+        ns.destroy
+      end
+      
+      logger.debug "--- finished updating attribute namespace definitions ---"
+      #--- end update attribute namespace definitions ---#
+
       #--- update attribute definitions ---#
       logger.debug "--- updating attribute definitions ---"
       
@@ -257,10 +290,8 @@ class DbProject < ActiveRecord::Base
 
       if project.has_element? :attributes
         project.attributes.each_attribute do |attrib|
-          # not very nice... move to ActiveXML::Node class definition
-          class << attrib
-            undef_method :type
-          end
+
+          #FIXME: store modifiable_by
 
           if attribcache.has_key? attrib.name
             # attribute already known, update from xml and remove from attribcache 
@@ -276,7 +307,7 @@ class DbProject < ActiveRecord::Base
               end
             end
 
-            self.attrib_types.create(:name => attrib.name, :type => attrib.type).update_from_xml(attrib)
+            self.attrib_types.create(:name => attrib.name, :namespace => attrib.namespace).update_from_xml(attrib)
           end
         end
       end
@@ -451,6 +482,9 @@ class DbProject < ActiveRecord::Base
       end
 
       project.attributes do |a|
+        attrib_namespace.each do |attrib_namespace|
+          attrib_namespace.render_axml(a)
+        end
         attrib_types.each do |attrib_type|
           attrib_type.render_axml(a)
         end

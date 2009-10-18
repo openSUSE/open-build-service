@@ -65,7 +65,7 @@ class DbPackage < ActiveRecord::Base
       result[0]
     end
 
-    def find_by_attribute_type_and_value( attribute, value )
+    def find_by_attribute_type_and_value( attrib_type, value )
       # One sql statement is faster than a ruby loop
       sql =<<-END_SQL
       SELECT pack.*
@@ -75,7 +75,7 @@ class DbPackage < ActiveRecord::Base
       WHERE attr.attrib_type_id = BINARY ? AND val.value = BINARY ?
       END_SQL
 
-      result = DbPackage.find_by_sql [sql, attribute.id.to_s, value.to_s]
+      result = DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
       result[0]
     end
 

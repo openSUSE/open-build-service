@@ -1,3 +1,6 @@
+# Attribute definition as part of project meta data
+# This is always inside of an attribute namespace
+
 class AttribType < ActiveRecord::Base
   belongs_to :db_project
 
@@ -10,17 +13,18 @@ class AttribType < ActiveRecord::Base
     "bla"
   end
 
-  def type
-    read_attribute :type
+  def namespace
+    read_attribute :namespace
   end
-
-  def type=(val)
-    write_attribute :type, val
+ 
+  def namespace=(val)
+    write_attribute :namespace, val
   end
 
   def render_axml(node = Builder::XmlMarkup.new(:indent=>2))
     if default_values.length > 0 or allowed_values.length > 0
-      node.attribute(:name => self.name, :type => self.type) do |attr|
+#      node.attribute(:name => self.name, :type => self.type) do |attr|
+      node.attribute(:name => self.name, :namespace => self.namespace) do |attr|
         if default_values.length > 0
           attr.default do |default|
             default_values.each do |def_val|
@@ -38,13 +42,11 @@ class AttribType < ActiveRecord::Base
         end
       end
     else
-      node.attribute(:name => self.name, :type => self.type)
+      node.attribute(:name => self.name, :namespace => self.namespace)
     end
   end
 
   def update_from_xml(node)
-    self.type = node.type
-  
     if node.has_element? :default
       logger.debug "--- updating attrib default definition content ---"
 
