@@ -14,7 +14,7 @@
     <li><%= simple_repo_button_to h(repos[:title]),
                      :reponame => h(repos[:reponame]),
                          :repo => h(repos[:repo]),
-                         :arch => h(repos[:arch])
+                         :arch => repos[:arch]
       %><%= h(repos[:comment]) if repos[:comment] -%>
       </li>
   <% end %>
