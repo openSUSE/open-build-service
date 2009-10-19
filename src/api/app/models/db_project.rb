@@ -266,10 +266,12 @@ class DbProject < ActiveRecord::Base
               nscache.delete ns.name
               # update namespace
               # FIXME: teh modified_by update is missing here
+              self.updated_at = Time.now
             end
           else
             # create the new namespace
             self.attrib_namespace.create(:name => ns.name)#.update_from_xml(ns)
+            self.updated_at = Time.now
           end
         end
       end
@@ -278,6 +280,8 @@ class DbProject < ActiveRecord::Base
       nscache.each do |aname, ans|
         logger.debug "removing attribute namespace definition '#{aname}'"
         attrib_namespace.delete ans
+        ans.destroy
+        self.updated_at = Time.now
       end
       
       logger.debug "--- finished updating attribute namespace definitions ---"
@@ -287,7 +291,7 @@ class DbProject < ActiveRecord::Base
       logger.debug "--- updating attribute definitions ---"
       
       attribcache = Hash.new
-      self.attrib_types.each do |atype|
+      attrib_types.each do |atype|
         cachekey = atype.namespace + ":" + atype.name
         attribcache[cachekey] = atype
       end
@@ -302,6 +306,7 @@ class DbProject < ActiveRecord::Base
             # attribute already known, update from xml and remove from attribcache 
             attribcache[cachekey].update_from_xml(attrib)
             attribcache.delete cachekey
+            self.updated_at = Time.now
           else
             # Check if a upper project defines this attribute, we do not allow to 
             # over write the attribute definition !
@@ -315,6 +320,7 @@ class DbProject < ActiveRecord::Base
             end
 
             self.attrib_types.create(:name => attrib.name, :namespace => attrib.namespace).update_from_xml(attrib)
+            self.updated_at = Time.now
           end
         end
       end
@@ -322,7 +328,9 @@ class DbProject < ActiveRecord::Base
       # remaining entries in attribcache are not mentioned in the metadata, remove them
       attribcache.each do |aname, attrib|
         logger.debug "removing attribute definition '#{aname}'"
+        attrib_types.delete attrib
         attrib.destroy
+        self.updated_at = Time.now
       end
       
       logger.debug "--- finished updating attribute definitions ---"
@@ -334,7 +342,7 @@ class DbProject < ActiveRecord::Base
       self.save! if project.has_attribute? 'updated' and self.updated_at.xmlschema != project.updated
 
       # update cache
-      build_meta_cache  # if meta_cache.nil?
+      build_meta_cache if meta_cache.nil?
       meta_cache.content = render_axml
       meta_cache.save!
 

@@ -41,8 +41,6 @@ class AttribType < ActiveRecord::Base
         end
       end
     else
-
-print "TRY TO RENDER, ", namespace , "\n"
       node.attribute(:name => self.name, :namespace => namespace)
     end
   end
