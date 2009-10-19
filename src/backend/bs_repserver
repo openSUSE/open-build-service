@@ -1009,7 +1009,6 @@ sub putjob {
 sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   my $job = "upload-".Digest::MD5::md5_hex("$$/$projid/$repoid/$arch/$packid".time());
-  my $jobsdir = 
   local *F;
   my $jobstatus = {
     'code' => 'finished',
@@ -1038,7 +1037,7 @@ sub uploadbuild {
   
   mkdir_p("$eventdir/$arch");
   my $ev = {'type' => 'uploadbuild', 'job' => $job};
-  writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
+  writexml("$eventdir/$arch/.uploadbuild:$job$$", "$eventdir/$arch/uploadbuild:$job", $ev, $BSXML::event);
   ping($arch);
   return $BSStdServer::return_ok;
 }
