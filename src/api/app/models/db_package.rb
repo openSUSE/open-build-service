@@ -26,8 +26,6 @@ class DbPackage < ActiveRecord::Base
   has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
 
   has_many :attribs, :dependent => :destroy
-# ADRIAN wonders if that shouldn't be that :
-#  has_many :attribs, :dependent => :delete_all
 
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances

@@ -7,24 +7,23 @@ class AttribType < ActiveRecord::Base
   has_many :attribs, :dependent => :destroy
   has_many :default_values, :class_name => 'AttribDefaultValue', :dependent => :delete_all
   has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :delete_all
-  belongs_to :attrib_namespace
+  has_one :attrib_namespace
 
   def self.inheritance_column
     "bla"
   end
 
   def namespace
-    read_attribute :namespace
+    read_attribute :attrib_namespace
   end
  
   def namespace=(val)
-    write_attribute :namespace, val
+    write_attribute :attrib_namespace, val
   end
 
   def render_axml(node = Builder::XmlMarkup.new(:indent=>2))
     if default_values.length > 0 or allowed_values.length > 0
-#      node.attribute(:name => self.name, :type => self.type) do |attr|
-      node.attribute(:name => self.name, :namespace => self.namespace) do |attr|
+      node.attribute(:name => self.name, :namespace => namespace) do |attr|
         if default_values.length > 0
           attr.default do |default|
             default_values.each do |def_val|
@@ -42,7 +41,9 @@ class AttribType < ActiveRecord::Base
         end
       end
     else
-      node.attribute(:name => self.name, :namespace => self.namespace)
+
+print "TRY TO RENDER, ", namespace , "\n"
+      node.attribute(:name => self.name, :namespace => namespace)
     end
   end
 

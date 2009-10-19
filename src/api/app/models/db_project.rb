@@ -252,8 +252,8 @@ class DbProject < ActiveRecord::Base
       logger.debug "--- updating attribute namespace definitions ---"
       
       nscache = Hash.new
-      self.attrib_namespace.each do |ans|
-        nscache[ans.name] = ans
+      attrib_namespace.each do |attrib_namespace|
+        nscache[attrib_namespace.name] = attrib_namespace
       end
 
       if project.has_element? :attributes
@@ -262,7 +262,10 @@ class DbProject < ActiveRecord::Base
             if db_ns.db_project != self
               raise RuntimeError, "Attribute namespace definition #{ns.name} exists already in '#{db_ns.db_project.name}'"
             else
+              nscache[ns.name].update_from_xml(attrib)
+              nscache.delete ns.name
               # update namespace
+              # FIXME: teh modified_by update is missing here
             end
           else
             # create the new namespace
@@ -272,9 +275,9 @@ class DbProject < ActiveRecord::Base
       end
 
       # remaining entries in nscache are not mentioned in the metadata, remove them
-      nscache.each do |aname, ns|
+      nscache.each do |aname, ans|
         logger.debug "removing attribute namespace definition '#{aname}'"
-        ns.destroy
+        attrib_namespace.delete ans
       end
       
       logger.debug "--- finished updating attribute namespace definitions ---"
@@ -285,7 +288,8 @@ class DbProject < ActiveRecord::Base
       
       attribcache = Hash.new
       self.attrib_types.each do |atype|
-        attribcache[atype.name] = atype
+        cachekey = atype.namespace + ":" + atype.name
+        attribcache[cachekey] = atype
       end
 
       if project.has_element? :attributes
@@ -293,16 +297,19 @@ class DbProject < ActiveRecord::Base
 
           #FIXME: store modifiable_by
 
-          if attribcache.has_key? attrib.name
+          cachekey = attrib.namespace + ":" + attrib.name
+          if attribcache.has_key? cachekey
             # attribute already known, update from xml and remove from attribcache 
-            attribcache[attrib.name].update_from_xml(attrib)
-            attribcache.delete attrib.name
+            attribcache[cachekey].update_from_xml(attrib)
+            attribcache.delete cachekey
           else
             # Check if a upper project defines this attribute, we do not allow to 
             # over write the attribute definition !
             upper_project = self
             while ( upper_project = upper_project.find_parent )
               if ( upper_project.attrib_types and not upper_project.attrib_types.find_by_name(attrib.name).blank? )
+                # Yes, we could in theory allow to overwrite definitions (esp. default values), but the
+                # current DB model makes it easy a mess ...
                 raise RuntimeError, "Attribute definition exists already in '#{upper_project.name}'"
               end
             end
@@ -327,7 +334,7 @@ class DbProject < ActiveRecord::Base
       self.save! if project.has_attribute? 'updated' and self.updated_at.xmlschema != project.updated
 
       # update cache
-      build_meta_cache if meta_cache.nil?
+      build_meta_cache  # if meta_cache.nil?
       meta_cache.content = render_axml
       meta_cache.save!
 
