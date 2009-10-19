@@ -1114,9 +1114,6 @@ sub update_dst_full {
     delete $dep2meta->{$n} if $dep2meta;
 
     $fnew{$n} = 1;
-    # arch is needed for local builds of remoteprojects
-    #delete $r->{'arch'};	# not in repo
-    $r->{'path'} = "$prp/$myarch/:full/$n.$suf";
   }
 
   for my $rp (sort keys %$oldrepo) {
@@ -1143,7 +1140,7 @@ sub update_dst_full {
     delete $dep2meta->{$n} if $dep2meta;
   }
   
-  mkdir_p($gdst) if ! -d "$gdst/:full";
+  mkdir_p($gdst) unless -d $gdst;
   if ($satrepo) {
     $satrepo->updatefrombins("$gdst/:full", %old);
   } else {
@@ -1843,6 +1840,44 @@ sub jobfinished {
   unlink("$gdst/:logfiles.fail/$packid");
   unlink($_) for @all;
   rmdir($jobdatadir);
+}
+
+sub uploadbuildevent {
+  my ($job, $js, $changed) = @_;
+  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  if (!$info || ! -d $jobdatadir) {
+    print "  - $job is bad\n";
+    return;
+  }
+  my $projid = $info->{'project'};
+  my $repoid = $info->{'repository'};
+  my $packid = $info->{'package'};
+  if ($info->{'arch'} ne $myarch) {
+    print "  - $job has bad arch\n";
+    return;
+  }
+  if (!$projpacks->{$projid}) {
+    print "  - $job belongs to an unknown project\n";
+    return;
+  }
+  my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid};
+  if (!$pdata) {
+    print "  - $job belongs to an unknown package, discard\n";
+    return;
+  }
+  my $prp = "$projid/$repoid";
+  my $gdst = "$reporoot/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  mkdir_p($dst);
+  my $useforbuildenabled = 1;
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  update_dst_full($prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  $changed->{$prp} = 2 if $useforbuildenabled;
+  delete $repounchanged{$prp} if $useforbuildenabled;
+  $changed->{$prp} ||= 1;
+  unlink("$reporoot/$prp/$myarch/:repodone");
 }
 
 sub importevent {
@@ -3020,7 +3055,7 @@ while(1) {
       }
       next unless $ev && $ev->{'type'};
 
-      if ($ev->{'type'} eq 'built' || $ev->{'type'} eq 'import') {
+      if ($ev->{'type'} eq 'built' || $ev->{'type'} eq 'import' || $ev->{'type'} eq 'uploadbuild') {
 	my $job = $ev->{'job'};
 	local *F;
 	my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
@@ -3036,6 +3071,8 @@ while(1) {
 	}
         if ($ev->{'type'} eq 'built') {
 	  jobfinished($job, $js, \%changed_med);
+        } elsif ($ev->{'type'} eq 'uploadbuild') {
+	  uploadbuildevent($job, $js, \%changed_med);
 	} else {
 	  importevent($job, $js, \%changed_med);
 	}

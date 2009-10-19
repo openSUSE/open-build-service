@@ -1006,6 +1006,44 @@ sub putjob {
   return $BSStdServer::return_ok;
 }
 
+sub uploadbuild {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  my $job = "upload-".Digest::MD5::md5_hex("$$/$projid/$repoid/$arch/$packid".time());
+  my $jobsdir = 
+  local *F;
+  my $jobstatus = {
+    'code' => 'finished',
+  };
+  mkdir_p("$jobsdir/$arch") unless -d "$jobsdir/$arch";
+  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.$job", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+    die("job lock failed\n");
+  }
+  my $dir = "$jobsdir/$arch/$job:dir";
+  mkdir_p($dir);
+  my $uploaded = BSServer::read_cpio($dir);
+  if (!$uploaded || !@$uploaded) {
+    rmdir($dir);
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    die("upload failed\n");
+  }
+  my $info = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'package' => $packid,
+    'arch' => $arch,
+    'job' => $job,
+  };
+  writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+  
+  mkdir_p("$eventdir/$arch");
+  my $ev = {'type' => 'uploadbuild', 'job' => $job};
+  writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
+  ping($arch);
+  return $BSStdServer::return_ok;
+}
+
+
 sub forwardevent {
   my ($cgi, $type, $projid, $packid, $repoid, $arch) = @_;
   my $ev = { type => $type, 'project' => $projid };
@@ -2203,6 +2241,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_jobhistory package* code:*' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
+  'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,

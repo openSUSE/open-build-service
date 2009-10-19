@@ -2723,6 +2723,20 @@ sub putbinary {
   return BSWatcher::rpc($param, undef, @args);
 }
 
+sub uploadbuild {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
+    'request' => 'POST',
+    'data' => \&BSServer::forward_sender,
+    'chunked' => 1,
+  };
+  # XXX add return type checking
+  return BSWatcher::rpc($param, undef);
+}
+
+
 sub getlogfile {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
@@ -3750,6 +3764,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:*' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
+  'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool?' => \&getbuildinfo,
