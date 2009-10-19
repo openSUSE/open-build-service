@@ -12,9 +12,9 @@ class Attrib < ActiveRecord::Base
 
   def cachekey
     if subpackage
-      "#{attrib_type.name}|#{subpackage}"
+      "#{attrib_type.namespace}|#{attrib_type.name}|#{subpackage}"
     else
-      "#{attrib_type.name}"
+      "#{attrib_type.namespace}|#{attrib_type.name}"
     end
   end
 

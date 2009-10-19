@@ -418,13 +418,13 @@ class DbPackage < ActiveRecord::Base
       package.attributes do |a|
         attribs.each do |attr|
           if attr.subpackage
-            a.attribute(:name => attr.attrib_type.name, :package => attr.subpackage) do |y|
+            a.attribute(:name => attr.attrib_type.namespace+":"+attr.attrib_type.name, :package => attr.subpackage) do |y|
               attr.values.each do |val|
                 y.value(val.value)
               end
             end
           else
-            a.attribute(:name => attr.attrib_type.name) do |y|
+            a.attribute(:name => attr.attrib_type.namespace+":"+attr.attrib_type.name) do |y|
               attr.values.each do |val|
                 y.value(val.value)
               end

@@ -13,6 +13,16 @@ class AttribType < ActiveRecord::Base
     "bla"
   end
 
+  class << self
+    def find_by_name(name)
+      name_parts = name.split /:/
+      if name_parts.length != 2
+        raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style" 
+      end
+      find :first, :conditions => ["name = BINARY ? and attrib_namespace = BINARY ?", name_parts[1], name_parts[0]]
+    end
+  end
+
   def namespace
     read_attribute :attrib_namespace
   end
