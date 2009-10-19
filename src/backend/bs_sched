@@ -3154,7 +3154,12 @@ while(1) {
 
       if ($ev->{'type'} eq 'dumprepo') {
 	my $prp = "$ev->{'project'}/$ev->{'repository'}";
-	warn("dumprepo no longer works\n");
+	my $repodata = $repodatas{$prp} || {};
+	local *F;
+	open(F, '>', "/tmp/repodump");
+	print F "# repodump for $prp\n\n";
+	print F Dumper($repodata);
+	close F;
 	next;
       }
 
