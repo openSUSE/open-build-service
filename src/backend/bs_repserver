@@ -988,7 +988,9 @@ sub putjob {
   Storable::nstore($bininfo, "$dir/.bininfo") if %$bininfo;
 
   # write build stats for dispatcher
-  BSUtil::appendstr("$jobsdir/finished", "$projid/$repoid/$arch $jobstatus->{'starttime'} $jobstatus->{'endtime'} $jobstatus->{'result'}\n");
+  my @l = ($projid, $repoid, $arch, $info->{'package'}, $jobstatus->{'starttime'},  $jobstatus->{'endtime'}, $jobstatus->{'result'}, $jobstatus->{'workerid'}, $jobstatus->{'hostarch'});
+  s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @l;
+  BSUtil::appendstr("$jobsdir/finished", join('|', @l)."\n");
 
   # write now jobstatus and free lock
   $jobstatus->{'code'} = 'finished';
