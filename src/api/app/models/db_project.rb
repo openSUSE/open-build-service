@@ -262,7 +262,7 @@ class DbProject < ActiveRecord::Base
             if db_ns.db_project != self
               raise RuntimeError, "Attribute namespace definition #{ns.name} exists already in '#{db_ns.db_project.name}'"
             else
-              nscache[ns.name].update_from_xml(attrib)
+              nscache[ns.name].update_from_xml(ns)
               nscache.delete ns.name
               # update namespace
               # FIXME: teh modified_by update is missing here
@@ -290,46 +290,46 @@ class DbProject < ActiveRecord::Base
       #--- update attribute definitions ---#
       logger.debug "--- updating attribute definitions ---"
       
-      attribcache = Hash.new
+      attribdef = Hash.new
       attrib_types.each do |atype|
         cachekey = atype.namespace + ":" + atype.name
-        attribcache[cachekey] = atype
+        attribdef[cachekey] = atype
       end
 
       if project.has_element? :attributes
-        project.attributes.each_attribute do |attrib|
+        project.attributes.each_definition do |definition|
 
           #FIXME: store modifiable_by
 
-          cachekey = attrib.namespace + ":" + attrib.name
-          if attribcache.has_key? cachekey
-            # attribute already known, update from xml and remove from attribcache 
-            attribcache[cachekey].update_from_xml(attrib)
-            attribcache.delete cachekey
+          cachekey = definition.namespace + ":" + definition.name
+          if attribdef.has_key? cachekey
+            # attribute already known, update from xml and remove from attribdef 
+            attribdef[cachekey].update_from_xml(definition)
+            attribdef.delete cachekey
             self.updated_at = Time.now
           else
             # Check if a upper project defines this attribute, we do not allow to 
             # over write the attribute definition !
             upper_project = self
             while ( upper_project = upper_project.find_parent )
-              if ( upper_project.attrib_types and not upper_project.attrib_types.find_by_name(attrib.name).blank? )
+              if ( upper_project.attrib_types and not upper_project.attrib_types.find_by_name(definition.name).blank? )
                 # Yes, we could in theory allow to overwrite definitions (esp. default values), but the
                 # current DB model makes it easy a mess ...
                 raise RuntimeError, "Attribute definition exists already in '#{upper_project.name}'"
               end
             end
 
-            self.attrib_types.create(:name => attrib.name, :namespace => attrib.namespace).update_from_xml(attrib)
+            self.attrib_types.create(:name => definition.name, :namespace => definition.namespace).update_from_xml(definition)
             self.updated_at = Time.now
           end
         end
       end
 
-      # remaining entries in attribcache are not mentioned in the metadata, remove them
-      attribcache.each do |aname, attrib|
+      # remaining entries in attribdef are not mentioned in the metadata, remove them
+      attribdef.each do |aname, definition|
         logger.debug "removing attribute definition '#{aname}'"
-        attrib_types.delete attrib
-        attrib.destroy
+        attrib_types.delete definition
+        definition.destroy
         self.updated_at = Time.now
       end
       
@@ -503,7 +503,7 @@ class DbProject < ActiveRecord::Base
         attrib_types.each do |attrib_type|
           attrib_type.render_axml(a)
         end
-      end if attrib_types.length > 0
+      end if attrib_types.length > 0 or attrib_namespace.length > 0
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 

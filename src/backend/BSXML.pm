@@ -103,7 +103,7 @@ our $proj = [
                'role',
             ]],
        ]],
-       [[ 'attribute' => 
+       [[ 'definition' => 
             'name', 
             'namespace', 
             'type' =>

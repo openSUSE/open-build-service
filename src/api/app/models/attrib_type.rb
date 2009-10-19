@@ -33,7 +33,7 @@ class AttribType < ActiveRecord::Base
 
   def render_axml(node = Builder::XmlMarkup.new(:indent=>2))
     if default_values.length > 0 or allowed_values.length > 0
-      node.attribute(:name => self.name, :namespace => namespace) do |attr|
+      node.definition(:name => self.name, :namespace => namespace) do |attr|
         if default_values.length > 0
           attr.default do |default|
             default_values.each do |def_val|
@@ -51,7 +51,7 @@ class AttribType < ActiveRecord::Base
         end
       end
     else
-      node.attribute(:name => self.name, :namespace => namespace)
+      node.definition(:name => self.name, :namespace => namespace)
     end
   end
 
