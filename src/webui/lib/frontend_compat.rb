@@ -1,5 +1,3 @@
-require 'activexml'
-
 class FrontendCompat
   def initialize
   end
