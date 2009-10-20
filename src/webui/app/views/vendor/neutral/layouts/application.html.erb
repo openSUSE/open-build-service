@@ -1,15 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-  <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service XXX</title>
-  <%= stylesheet_link_tag "opensuse", :media => "all" %>
-  <%= stylesheet_link_tag "SyntaxHighlighter", :media => "all" %>
-  <%= stylesheet_link_tag "https://static.opensuse.org/hosts/build.o.o/css/style.css" %>
-  <%= javascript_include_tag 'prototype', 'effects', 'application', 'dragdrop' %>
+  <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
+  <%= stylesheet_link_tag "opensuse", "SyntaxHighlighter", "local/style", :media => "all" %>
+  <%= javascript_include_tag 'prototype', 'effects', 'application' %>
   <%= javascript_include_tag 'shCore', 'shBrushSpec', 'shBrushXml' %>
   
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <link href="https://static.opensuse.org/hosts/build.o.o/images/favicon.ico" rel="shortcut icon" />
+  <link href="/images/favicon.ico" rel="shortcut icon" />
   <!--[if lte IE 7]>
   <link href="https://static.opensuse.org/c/css/common/iehacks_opensuse.css" rel="stylesheet" type="text/css"/>
   <link href="https://static.opensuse.org/hosts/build.o.o/css/iehacks.css" rel="stylesheet" type="text/css"/>
@@ -30,7 +28,7 @@
        <div class="grey_box" id="logo">
         <div class="box_content_row">
          <div class="box_content" id="logo_content">
-           <%= link_to "<img src=\"https://static.opensuse.org/c/images/common/geeko.jpg\" alt=\"openSUSE\" />", :controller => "main" %>
+           <%= link_to image_tag( "common/geeko.jpg" ), :controller => "main" %>
          </div>
         </div>
         <div class="box_bottom_row">
@@ -39,36 +37,7 @@
         </div>
        </div>
        <!-- End Logo -->
-       <!-- Begin openSUSE navigation -->
-       <div class="grey_box">
-        <div class="box_top_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-        <div class="box_title_row">
-         <div class="box_title">
-          openSUSE
-         </div>
-        </div>
-        <div class="box_content">
-         <ul class="navlist">
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_download.png)"><a href="http://software.opensuse.org/">Get Software</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://en.opensuse.org/">Wiki</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_build.png)"><a href="http://build.opensuse.org/">Build Software</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://users.opensuse.org/">User Directory</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="https://features.opensuse.org/">Features</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://news.opensuse.org/">News</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://forums.opensuse.org">Forums</a></li>          
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://shop.opensuse.org/">Shop</a></li>
-         </ul>
-       </div>
-        <div class="box_bottom_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-       </div>
-       <br />
-       <!-- End openSUSE navigation -->
+       
        <!-- Begin custom navigation -->
 <% if session[:login] -%> 
        <div class="darkgrey_box">
