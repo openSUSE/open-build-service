@@ -195,7 +195,51 @@ class SourceController < ApplicationController
     end
   end
 
-  #GET /source/:project/_pattern/:pattern
+  # /source/:project/_meta/attribute/:attribute
+  # /source/:project/:package/_meta/attribute/:attribute
+  def attribute_meta
+    valid_http_methods :get, :put, :delete
+    params[:user] = @http_user.login if @http_user
+
+    if params[:package]
+      @attrs = DbPackage.find_by_project_and_name(params[:project], params[:package])
+      unless @attrs
+        render_error :message => "Unknown project '#{params[:project]}'",
+          :status => 404, :errorcode => "unknown_project"
+        return
+      end
+    else
+      render_error :message => "Project attribute handling not yet implemented",
+        :status => 404, :errorcode => "unimplemented"
+      return
+
+      @attrs = DbProject.find_by_name(params[:project])
+      unless @attrs
+        render_error :message => "Unknown project '#{params[:project]}'",
+          :status => 404, :errorcode => "unknown_project"
+        return
+      end
+    end
+    
+    if request.get?
+      render :text => @attrs.render_attribute_axml(params[:attribute]), :content_type => 'text/xml'
+      return
+    else
+      # FIXME: permission check
+
+      if request.post?
+        @attrs.find_attribute(params[:attribute]).store_attribute_axml(request.raw_post)
+        @attrs.store
+        render_ok
+      elsif request.delete?
+        @attrs.find_attribute(params[:attribute]).destroy
+        @attrs.store
+        render_ok
+      end
+    end
+  end
+
+  # /source/:project/_pattern/:pattern
   def pattern_meta
     valid_http_methods :get, :put, :delete
 

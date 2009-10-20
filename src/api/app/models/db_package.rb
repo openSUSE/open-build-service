@@ -63,6 +63,19 @@ class DbPackage < ActiveRecord::Base
       result[0]
     end
 
+    def find_by_attribute_type( attrib_type )
+      # One sql statement is faster than a ruby loop
+      sql =<<-END_SQL
+      SELECT pack.*
+      FROM db_packages pack
+      LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
+      WHERE attr.attrib_type_id = BINARY ?
+      END_SQL
+
+      result = DbPackage.find_by_sql [sql, attrib_type.id.to_s]
+      result[0]
+    end
+
     def find_by_attribute_type_and_value( attrib_type, value )
       # One sql statement is faster than a ruby loop
       sql =<<-END_SQL
@@ -236,80 +249,100 @@ class DbPackage < ActiveRecord::Base
       #--- update attributes ---#
       logger.debug "--- updating attributes ---"
 
-      attribcache = Hash.new
-      self.attribs.find(:all, :include => :attrib_type).each do |attrib|
-        attribcache[attrib.cachekey] = attrib
-      end
+      attriblist = {}
       
       if package.has_element? :attributes
         package.attributes.each_attribute do |attrib|
-          # FIXME: add permission check !
-
-          # check attribute type in this package project or upper one (by namespace)
-          db_project_upper = db_project
-          while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
-            db_project_upper = db_project_upper.find_parent
-            raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
+          store_attribute_axml( attrib )
+          cachekey=attrib.name.gsub(/:/,"|")
+          if attrib.has_attribute? :subpackage
+            cachekey << attrib.subpackage
           end
-          # verify with allowed values for this attribute definition
-          if atype.allowed_values.length > 0
-            logger.debug( "Verify value with allowed" )
-            attrib.each_value.each do |value|
-              found = 0
-              atype.allowed_values.each do |allowed|
-                if allowed.value == value.to_s
-                  found = 1
-                  break
-                end
-              end
-              if found == 0
-                raise RuntimeError, "attribute value #{value} for '#{attrib.name} is not allowed'"
-              end
-            end
-          end
-          # update or create attibute entry
-          if attrib.has_attribute? :package
-            cachekey = "#{attrib.name}|#{attrib.package}"
-          else
-            cachekey = "#{attrib.name}"
-          end
-          if attribcache.has_key? cachekey
-            attribcache[cachekey].update_from_xml(attrib)
-            attribcache.delete cachekey
-          else
-            # create the new attribute entry
-            if attrib.has_attribute? :package
-              self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
-            else
-              self.attribs.new(:attrib_type => atype).update_from_xml(attrib)
-            end
-          end
+          attriblist[cachekey] = 1
         end
       end
 
-      attribcache.each do |name, attrib|
-        logger.debug "removing attribute '#{name}'"
-        attrib.destroy
+      self.attribs.find(:all, :include => :attrib_type).each do |attrib|
+        if not attriblist[attrib.cachekey]
+          logger.debug "removing attribute '#{attrib.name}'"
+          attrib.destroy
+        end
       end
 
       logger.debug "--- end updating attributes ---"
       #--- end update attributes ---#
 
-      # update timestamp and save
-      self.update_timestamp
-      self.save!
+      #--- regenerate cache and write result to backend ---#
+      store
+    end
+  end
 
-      # update cache
-      build_meta_cache if meta_cache.nil?
-      meta_cache.content = render_axml
-      meta_cache.save!
+  def store_attribute_axml( attrib )
+    # FIXME: add permission check !
 
-      #--- write through to backend ---#
-      if write_through?
-        path = "/source/#{self.db_project.name}/#{self.name}/_meta"
-        Suse::Backend.put_source( path, package.dump_xml )
+    # check attribute type in this package project or upper one (by namespace)
+    db_project_upper = db_project
+    while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
+      db_project_upper = db_project_upper.find_parent
+      raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
+    end
+    # verify with allowed values for this attribute definition
+    if atype.allowed_values.length > 0
+      logger.debug( "Verify value with allowed" )
+      attrib.each_value.each do |value|
+        found = 0
+        atype.allowed_values.each do |allowed|
+          if allowed.value == value.to_s
+            found = 1
+            break
+          end
+        end
+        if found == 0
+          raise RuntimeError, "attribute value #{value} for '#{attrib.name} is not allowed'"
+        end
       end
     end
+    # update or create attibute entry
+    if a = find_attribute(attrib.name)
+      a.update_from_xml(attrib)
+    else
+      # create the new attribute entry
+      if attrib.has_attribute? :package
+        self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
+      else
+        self.attribs.new(:attrib_type => atype).update_from_xml(attrib)
+      end
+    end
+  end
+
+  def store
+    # store modified values to database and xml
+
+    # update timestamp and save
+    self.update_timestamp
+    self.save!
+
+    # update cache
+    build_meta_cache if meta_cache.nil?
+    meta_cache.content = render_axml
+    meta_cache.save!
+
+    #--- write through to backend ---#
+    if write_through?
+      path = "/source/#{self.db_project.name}/#{self.name}/_meta"
+      Suse::Backend.put_source( path, render_axml )
+    end
+  end
+
+  def find_attribute( name, subpackage=nil )
+      name_parts = name.split /:/
+      if name_parts.length != 2
+        raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
+      end
+      if subpackage
+        return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id", :conditions => ["at.name = BINARY ? and at.attrib_namespace = BINARY ? and attribs.subpackage = BINARY ?", name_parts[1], name_parts[0], subpackage])
+      end
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id", :conditions => ["at.name = BINARY ? and at.attrib_namespace = BINARY ? and ISNULL(attribs.subpackage)", name_parts[1], name_parts[0]])
   end
 
   def write_through?
@@ -383,6 +416,30 @@ class DbPackage < ActiveRecord::Base
     return meta_cache.content
   end
 
+  def render_attribute_axml(name = nil )
+    builder = Builder::XmlMarkup.new( :indent => 2 )
+
+    xml = builder.attributes() do |a|
+      attribs.each do |attr|
+        type_name = attr.attrib_type.namespace+":"+attr.attrib_type.name
+        next if name and not type_name == name
+        if attr.subpackage
+          a.attribute(:name => type_name, :package => attr.subpackage) do |y|
+            attr.values.each do |val|
+              y.value(val.value)
+            end
+          end
+        else
+          a.attribute(:name => type_name) do |y|
+            attr.values.each do |val|
+              y.value(val.value)
+            end
+          end
+        end
+      end
+    end
+  end
+
   def render_axml
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
@@ -415,23 +472,7 @@ class DbPackage < ActiveRecord::Base
       package.url( url ) if url
       package.bcntsynctag( bcntsynctag ) if bcntsynctag
 
-      package.attributes do |a|
-        attribs.each do |attr|
-          if attr.subpackage
-            a.attribute(:name => attr.attrib_type.namespace+":"+attr.attrib_type.name, :package => attr.subpackage) do |y|
-              attr.values.each do |val|
-                y.value(val.value)
-              end
-            end
-          else
-            a.attribute(:name => attr.attrib_type.namespace+":"+attr.attrib_type.name) do |y|
-              attr.values.each do |val|
-                y.value(val.value)
-              end
-            end
-          end
-        end
-      end if attribs.length > 0
+      package << "  " + render_attribute_axml() + "\n" if attribs.length > 0
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 
