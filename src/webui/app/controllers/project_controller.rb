@@ -262,7 +262,7 @@ class ProjectController < ApplicationController
     repo = @project.repository[params[:repo]]
     repo.add_arch params[:arch]
     if @project.save
-      render :partial => 'repository_item', :locals => { :repo => repo }
+      render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
     else
       render_text 'sorry woe error'
     end
@@ -282,7 +282,7 @@ class ProjectController < ApplicationController
     repo.archs = params[:arch].to_a
     if @project.save
       @arch_list = arch_list
-      render :partial => 'repository_item', :locals => { :repo => repo }
+      render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
     else
       render_text 'sorry woe neco nevyslo'
     end
