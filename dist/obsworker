@@ -83,8 +83,6 @@ if [ -f /etc/buildhost.config ];then
 	obsopt=--xen
 fi
 
-set -x
-
 rc_reset
 case "$1" in
     start)
