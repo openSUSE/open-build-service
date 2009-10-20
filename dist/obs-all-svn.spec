@@ -86,7 +86,7 @@ BuildRequires:  python-elementtree
 Requires:       python-elementtree
 %endif
 
-%{!?py_sitedir: %define py_sitedir %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+%define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
 %description -n osc-obs
 Commandline client for the openSUSE build service.
@@ -248,7 +248,20 @@ cd src/clientlib/python/osc
 %{__python} setup.py install --prefix=%{_prefix} --root %{buildroot}
 ln -s osc-wrapper.py %{buildroot}/%{_bindir}/osc
 mkdir -p %{buildroot}/var/lib/osc-plugins
+mkdir -p %{buildroot}%{_sysconfdir}/profile.d
+install -m 0755 dist/complete.csh %{buildroot}%{_sysconfdir}/profile.d/osc.csh
+install -m 0755 dist/complete.sh %{buildroot}%{_sysconfdir}/profile.d/osc.sh
+%if 0%{?suse_version} > 1110
+mkdir -p %{buildroot}%{_prefix}/lib/osc
+install -m 0755 dist/osc.complete %{buildroot}%{_prefix}/lib/osc/complete
+%else
+mkdir -p %{buildroot}%{_prefix}/%{_lib}/osc
+install -m 0755 dist/osc.complete %{buildroot}%{_prefix}/%{_lib}/osc/complete
+%endif
 cd -
+
+
+
 #
 # Install all build files
 #
@@ -445,11 +458,19 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n osc-obs
 %defattr(-,root,root)
-%doc src/clientlib/python/osc/{README,TODO,NEWS}
+%doc src/clientlib/python/osc/{AUTHORS,README,TODO,NEWS}
+%doc %_mandir/man1/osc.*
 %{_bindir}/osc*
-%{py_sitedir}/*
+%{python_sitelib}/*
+%{_sysconfdir}/profile.d/*
+%if 0%{?suse_version} > 1110
+%dir %{_prefix}/lib/osc
+%{_prefix}/lib/osc/*
+%else
+%dir %{_prefix}/%{_lib}/osc
+%{_prefix}/%{_lib}/osc/*
+%endif
 %dir /var/lib/osc-plugins
-%{_mandir}/man1/osc.1*
 
 %files -n build-obs
 %defattr(-,root,root)
