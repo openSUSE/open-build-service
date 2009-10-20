@@ -78,15 +78,19 @@ if CONFIG['theme']
   ActionController::Base.prepend_view_path(RAILS_ROOT + "/app/views/vendor/#{CONFIG['theme']}")
   puts "Using theme static path: #{RAILS_ROOT}/public/vendor/#{CONFIG['theme']}"
   ActionController::Base.asset_host = Proc.new do |source, request|
-    path = "#{RAILS_ROOT}/public/vendor/#{CONFIG['theme']}#{source}".split("?")
-    if File.exists?(path[0])
-      puts "using themed file: #{path}"
-      "#{request.protocol}#{request.host_with_port}/vendor/#{CONFIG['theme']}"
+    local_path = "#{RAILS_ROOT}/public/vendor/#{CONFIG['theme']}#{source}".split("?")
+    asset_host = CONFIG['asset_host'] || "#{request.protocol}#{request.host_with_port}"
+    if File.exists?(local_path[0])
+      puts "using themed file: #{asset_host}/vendor/#{CONFIG['theme']}"
+      "#{asset_host}/vendor/#{CONFIG['theme']}"
     else
-      ""
+      "#{asset_host}"
     end
   end
 end
+
+
+
 
 #ExceptionNotifier.sender_address = %("buildservice webclient" <admin@opensuse.org>)
 #ExceptionNotifier.email_prefix = "[webclient exception] "
@@ -159,6 +163,9 @@ ActiveXML::Base.config do |conf|
 
     map.connect :platform, "rest:///platform/:project/:name",
         :all => "rest:///platform/"
+
+    map.connect :distribution, "rest:///public/distributions",
+      :all    => "rest:///public/distributions"
 
   end
 end

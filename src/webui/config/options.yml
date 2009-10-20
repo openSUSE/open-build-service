@@ -3,4 +3,9 @@
 version: 0.3
 
 # uncomment this option if you want to use a customized theme. See README.theme
-#theme: example
+#theme: neutral
+
+# Enable serving of images, stylesheets, and javascripts from an asset server
+# asset_host: https://static.opensuse.org/hosts/build.o.o
+
+
