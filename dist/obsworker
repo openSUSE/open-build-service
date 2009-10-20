@@ -75,6 +75,7 @@ if [ -n "$OBS_CACHE_SIZE" ]; then
         OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
    fi
    mkdir $OBS_CACHE_DIR
+   chown -R obsrun:obsrun "$OBS_CACHE_DIR"
    OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE "
 fi
 
