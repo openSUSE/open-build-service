@@ -774,6 +774,7 @@ sub publish {
   for my $arch (sort(ls($extrep))) {
     next if $arch =~ /^\./;
     next if $arch eq 'repodata' || $arch eq 'media.1' || $arch eq 'descr';
+    next if $arch =~ /\.repo$/;
     my $r = "$extrep/$arch";
     if (-f $r) {
       $r = $extrep;
