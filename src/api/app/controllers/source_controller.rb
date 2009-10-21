@@ -195,11 +195,14 @@ class SourceController < ApplicationController
     end
   end
 
-  # /source/:project/_meta/attribute/:attribute
-  # /source/:project/:package/_meta/attribute/:attribute
+  # /source/:project/_meta/attribute/:attribute/:subpackage
+  # /source/:project/:package/_meta/attribute/:attribute/:subpackage
   def attribute_meta
     valid_http_methods :get, :put, :delete
     params[:user] = @http_user.login if @http_user
+
+    subpackage=nil
+    subpackage=params[:subpackage] if params[:subpackage]
 
     if params[:package]
       @attrs = DbPackage.find_by_project_and_name(params[:project], params[:package])
@@ -220,19 +223,19 @@ class SourceController < ApplicationController
         return
       end
     end
-    
+
     if request.get?
-      render :text => @attrs.render_attribute_axml(params[:attribute]), :content_type => 'text/xml'
+      render :text => @attrs.render_attribute_axml(params[:attribute],subpackage), :content_type => 'text/xml'
       return
     else
       # FIXME: permission check
 
       if request.post?
-        @attrs.find_attribute(params[:attribute]).store_attribute_axml(request.raw_post)
+        @attrs.find_attribute(params[:attribute],subpackage).store_attribute_axml(request.raw_post)
         @attrs.store
         render_ok
       elsif request.delete?
-        @attrs.find_attribute(params[:attribute]).destroy
+        @attrs.find_attribute(params[:attribute],subpackage).destroy
         @attrs.store
         render_ok
       end

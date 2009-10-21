@@ -51,6 +51,8 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'package_meta'
   map.connect 'source/:project/:package/_meta/attribute/:attribute', :controller => 'source',
     :action => 'attribute_meta'
+  map.connect 'source/:project/:package/_meta/attribute/:attribute/:subpackage', :controller => 'source',
+    :action => 'attribute_meta'
   map.connect 'source/:project/:package/_tags', :controller => 'tag',
     :action => 'package_tags'
   map.connect 'source/:project/:package/_wizard', :controller => 'wizard',

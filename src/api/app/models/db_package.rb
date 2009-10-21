@@ -255,8 +255,8 @@ class DbPackage < ActiveRecord::Base
         package.attributes.each_attribute do |attrib|
           store_attribute_axml( attrib )
           cachekey=attrib.name.gsub(/:/,"|")
-          if attrib.has_attribute? :subpackage
-            cachekey << attrib.subpackage
+          if attrib.has_attribute? :package
+            cachekey << "|" << attrib.package
           end
           attriblist[cachekey] = 1
         end
@@ -303,7 +303,12 @@ class DbPackage < ActiveRecord::Base
       end
     end
     # update or create attibute entry
-    if a = find_attribute(attrib.name)
+    if attrib.has_attribute? :package
+       a = find_attribute(attrib.name, attrib.package)
+    else
+       a = find_attribute(attrib.name)
+    end
+    if a
       a.update_from_xml(attrib)
     else
       # create the new attribute entry
@@ -416,13 +421,15 @@ class DbPackage < ActiveRecord::Base
     return meta_cache.content
   end
 
-  def render_attribute_axml(name = nil )
+  def render_attribute_axml(name = nil, subpackage = nil)
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
     xml = builder.attributes() do |a|
       attribs.each do |attr|
         type_name = attr.attrib_type.namespace+":"+attr.attrib_type.name
         next if name and not type_name == name
+        next if subpackage and not attr.subpackage == subpackage
+        next if not subpackage and attr.subpackage
         if attr.subpackage
           a.attribute(:name => type_name, :package => attr.subpackage) do |y|
             attr.values.each do |val|
