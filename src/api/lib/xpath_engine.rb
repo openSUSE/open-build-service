@@ -9,6 +9,7 @@ class XpathEngine
     @lexer = REXML::Parsers::XPathParser.new
 
     @tables = {
+      'attribute' => 'attribs',
       'package' => 'db_packages',
       'project' => 'db_projects',
       'person' => 'users',
@@ -20,12 +21,16 @@ class XpathEngine
         '@name' => {:cpart => 'db_packages.name'},
         'title' => {:cpart => 'db_packages.title'},
         'description' => {:cpart => 'db_packages.description'},
-        'devel/@project' => {:cpart => 'develproject.name', :joins => 
-          ['LEFT JOIN db_projects develproject ON develproject.id = db_packages.develproject_id']},
+        'devel/@project' => {:cpart => 'develpackage.db_project_id.name', :joins => 
+          ['LEFT JOIN db_packages develpackage ON develpackage.db_project_id.id = db_packages.develproject_id']},
+        'devel/@package' => {:cpart => 'develpackage.name', :joins => 
+          ['LEFT JOIN db_packages develpackage ON develpackage.id = db_packages.develpackage_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
-           'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']
-        }
+           'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']},
+        'attribute/@name' => {:cpart => 'CONCAT(attrib_types.attrib_namespace,":",attrib_types.name)', :joins => 
+          ['LEFT JOIN attribs ON attribs.db_package_id = db_packages.id',
+           'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id']},
       },
       'db_projects' => {
         '@name' => {:cpart => 'db_projects.name'},
@@ -185,7 +190,7 @@ class XpathEngine
       end
     end
     key = a.join "/"
-    raise IllegalXpathError, "unable to evaluate '#{key}'" unless @attribs[table].has_key? key
+    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table].has_key? key
     logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:joins]
       @joins << @attribs[table][key][:joins]
