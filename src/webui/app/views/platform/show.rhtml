@@ -39,40 +39,44 @@
                </tr>
             </thead>
             <tbody>
+              <% i = 1 %>
               <% value.each_jobhist do |jobhist| %>
-                <tr>
-                  <td class="package"><%= link_to jobhist.package, :controller => 'package', :action => 'show', :project => @project, :package => jobhist.package %></td>
-                  <td>
-                    <%=h jobhist.reason rescue "none" %>
-                  </td>
-                  <%
-                    start_time = Time.at(jobhist.starttime.to_i)
-                    end_time = Time.at(jobhist.endtime.to_i)
-#                    if start_time < @dead_line
-#                      n = ((start_time - @dead_line).abs/60/@interval_steps).round
-#                      n = (@max_color < n) ? 0 : @max_color - n
-#                      warning_style = "style=\"background-color: rgb(255,#{n},0);\""
-#                    else
-                      warning_style = nil
-#                    end
-                  %>
-                  <td class="starttime"<%= warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
-                    <%= distance_of_time_in_words(end_time, start_time, true) %>
-                  </td>
-                  <td class="uri"><%=h jobhist.workerid %></td>
-                  <%
-                  if jobhist.code == "succeeded"
-                    code_style = "style=\"background-color: rgb(0,255,0);\""
-                  elsif jobhist.code == "unchanged"
-                    code_style = "style=\"background-color: rgb(255,255,0);\""
-                  elsif  jobhist.code == "failed"
-                    code_style = "style=\"background-color: rgb(255,0,0);\""
-                  else
-                    code_style = nil
-                  end
-                  %>
-                  <td <%= code_style if code_style %> ><%=h jobhist.code %></td>
-                </tr>
+              <% if i <= 20 %>
+                <% i = i + 1 %>
+                  <tr>
+                    <td class="package"><%= link_to jobhist.package, :controller => 'package', :action => 'show', :project => @project, :package => jobhist.package %></td>
+                    <td>
+                      <%=h jobhist.reason rescue "none" %>
+                    </td>
+                    <%
+                      start_time = Time.at(jobhist.starttime.to_i)
+                      end_time = Time.at(jobhist.endtime.to_i)
+  #                    if start_time < @dead_line
+  #                      n = ((start_time - @dead_line).abs/60/@interval_steps).round
+  #                      n = (@max_color < n) ? 0 : @max_color - n
+  #                      warning_style = "style=\"background-color: rgb(255,#{n},0);\""
+  #                    else
+                        warning_style = nil
+  #                    end
+                    %>
+                    <td class="starttime"<%= warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
+                      <%= distance_of_time_in_words(end_time, start_time, true) %>
+                    </td>
+                    <td class="uri"><%=h jobhist.workerid %></td>
+                    <%
+                    if jobhist.code == "succeeded"
+                      code_style = "style=\"background-color: rgb(0,255,0);\""
+                    elsif jobhist.code == "unchanged"
+                      code_style = "style=\"background-color: rgb(255,255,0);\""
+                    elsif  jobhist.code == "failed"
+                      code_style = "style=\"background-color: rgb(255,0,0);\""
+                    else
+                      code_style = nil
+                    end
+                    %>
+                    <td <%= code_style if code_style %> ><%=h jobhist.code %></td>
+                  </tr>
+                <% end %>
               <% end %>
             </tbody>
           </table>  
