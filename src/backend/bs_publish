@@ -730,13 +730,13 @@ sub publish {
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
 	$p .= "_$q->{'arch'}.deb";
       } else {
-	if ($bin =~ /\.iso$/ || $bin =~ /\.iso.md5$/) {
+	if ($bin =~ /\.iso$/ || $bin =~ /\.iso\.md5$/) {
 	  $p = "iso/$bin";
-	} elsif ($bin =~ /\.raw.bz2$/ || $bin =~ /\.raw.bz2.md5$/) {
+	} elsif ($bin =~ /\.raw\.bz2$/ || $bin =~ /\.raw\.bz2\.md5$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.raw(:?\.install)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.tar.gz$/) {
+	} elsif ($bin =~ /\.tar\.gz$/ || $bin =~ /\.tar\.bz2$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.ovf$/) {
 	  $p = "$bin";
