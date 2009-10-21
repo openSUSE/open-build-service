@@ -28,14 +28,15 @@
         <% if value.has_element? :jobhist %>
           <%=h key %>:
           <br />
-          <table class="building">
+          <table class="building table-autosort">
             <thead>
               <tr>
-                <th>Package</th>
+                <th class="table-sortable:alphanumeric">Package</th>
                 <th>Build reason</th>
                 <th>Job time</th>
                 <th>Build Host</th>
-                <th>Code</th>
+                <th class="table-sortable:alphanumeric">Code</th>
+                <th>Build Log</th>
                </tr>
             </thead>
             <tbody>
@@ -75,6 +76,7 @@
                     end
                     %>
                     <td <%= code_style if code_style %> ><%=h jobhist.code %></td>
+                    <td><%= link_to "[Build Log]", :action => 'live_build_log', :controller => 'package', :arch => key, :package => jobhist.package, :project => @project, :repository => @platform %></td>
                   </tr>
                 <% end %>
               <% end %>

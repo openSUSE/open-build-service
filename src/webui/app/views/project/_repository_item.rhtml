@@ -1,5 +1,5 @@
 <th>
-	<strong><%=h repo.name %></strong>
+	<strong><%= link_to h(repo.name), :controller => 'platform', :action => 'show', :name => repo.name, :project => @project %></strong>
 	<% begin -%>
 		<% repo.each_path do |path| -%>
 		<%=h path.project+"/"+path.repository %><br/>
