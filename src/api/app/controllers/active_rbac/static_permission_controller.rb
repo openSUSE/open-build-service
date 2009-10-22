@@ -1,4 +1,4 @@
-# This is the controller that provides CRUD functionality for the 
+# This is the controller that provides CRUD functionality for the
 # StaticPermission model.
 class ActiveRbac::StaticPermissionController < ActiveRbac::ComponentController
   # The RbacHelper allows us to render +acts_as_tree+ AR elegantly
@@ -26,10 +26,10 @@ class ActiveRbac::StaticPermissionController < ActiveRbac::ComponentController
     redirect_to :action => 'list'
   end
 
-  # Display a form to create a new permission on GET. Handle the form 
+  # Display a form to create a new permission on GET. Handle the form
   # submission from this form on POST and display errors if there were any.
   def create
-    
+
     if request.get?
       @permission = StaticPermission.new
     else
@@ -43,7 +43,7 @@ class ActiveRbac::StaticPermissionController < ActiveRbac::ComponentController
         render :action => 'create'
       end
     end
-    
+
   rescue ActiveRecord::RecordNotFound
     flash[:error] = 'You sent an invalid request.'
     redirect_to :action => 'list'
@@ -53,14 +53,14 @@ class ActiveRbac::StaticPermissionController < ActiveRbac::ComponentController
   # of this form on POST and display errors if any occured.
   def update
     @permission = StaticPermission.find(params[:id])
-    
+
     if request.get?
       # render only
     else
       # Bulk-Assign the other attributes from the form.
       if @permission.update_attributes(params[:permission])
         flash[:success] = 'Permission has been updated successfully.'
-        redirect_to :action => 'show', :id => @permission.to_param
+        redirect_to :action => 'show', :id => @permission.id
       else
         render :action => 'update'
       end
@@ -77,7 +77,7 @@ class ActiveRbac::StaticPermissionController < ActiveRbac::ComponentController
   # these role's id if it has not been deleted.
   def delete
     @permission = StaticPermission.find(params[:id])
-    
+
     if request.get?
       # render only
     else
@@ -87,7 +87,7 @@ class ActiveRbac::StaticPermissionController < ActiveRbac::ComponentController
         redirect_to :action => 'list'
       else
         flash[:success] = 'The permission has not been deleted.'
-        redirect_to :action => 'show', :id => params[:id]
+        redirect_to :action => 'show', :id => @permission.id
       end
     end
 
