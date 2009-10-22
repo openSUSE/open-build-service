@@ -1,4 +1,7 @@
 class PlatformController < ApplicationController
+
+  before_filter :check_params
+
   def index
     redirect_to :action => 'list_all'
   end
@@ -12,7 +15,7 @@ class PlatformController < ApplicationController
   def show
     name = params[:name]
     @project = params[:project]
-  
+
     if !name || !@project
       redirect_to :action => :list_all
     else
@@ -72,8 +75,7 @@ class PlatformController < ApplicationController
 
     logger.debug( "REDIRECT TO: #{project},#{@platform}" )
 
-    redirect_to( :action => 'show', :name => @platform.to_s,
-      :project => project )
+    redirect_to( :action => 'show', :name => @platform.id, :project => project )
   end
 
   def create
@@ -92,7 +94,7 @@ class PlatformController < ApplicationController
       redirect_to :action => 'edit', :name => params[:name]
       return
     end
-    
+
     @platform = Platform.new( :name => params[:name] )
 
     @platform.set_project params[:project]
@@ -106,6 +108,25 @@ class PlatformController < ApplicationController
     end
 
     redirect_to :action => 'show', :name => params[:name]
+  end
+
+  def check_params
+
+    if params[:platform] && !valid_platform_name?( params[:platform] )
+        flash[:error] = "Invalid platform name"
+        redirect_to :action => :error
+    end
+
+    if params[:name] && !valid_platform_name?( params[:name] )
+        flash[:error] = "Invalid platform name"
+        redirect_to :action => :error
+    end
+
+    if params[:project] && !valid_project_name?( params[:project] )
+        flash[:error] = "Invalid project name, may only contain alphanumeric characters"
+        redirect_to :action => :error
+    end
+
   end
 
 end

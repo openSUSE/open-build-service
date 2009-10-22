@@ -221,4 +221,8 @@ class ApplicationController < ActionController::Base
     name =~ /^\w+$/
   end
 
+  def valid_platform_name? name
+    name =~ /^\w[-_\w]*$/
+  end
+
 end
