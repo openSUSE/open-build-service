@@ -67,7 +67,7 @@ class ApplicationController < ActionController::Base
   end
 
   def basic_auth
-    unless session[:login] 
+    unless session[:login]
       # We use our own authentication
       if request.env.has_key? 'X-HTTP_AUTHORIZATION'
         # try to get it where mod_rewrite might have put it
@@ -80,21 +80,21 @@ class ApplicationController < ActionController::Base
         authorization = request.env['HTTP_AUTHORIZATION'].to_s.split
       end
       logger.debug "authorization: #{authorization}"
-      
+
       if ( authorization and authorization.size == 2 and
             authorization[0] == "Basic" )
         logger.debug( "AUTH2: #{authorization[1]}" )
-      
+
         login, passwd = Base64.decode64( authorization[1] ).split(/:/)
         if login and passwd
-          session[:login] = login  
+          session[:login] = login
           session[:passwd] = passwd
         end
       end
     else
       logger.debug "Session request from #{session[:login]}"
     end
-    
+
     unless session[:login] and session[:passwd]
       logger.debug "Redirect to login page (no login + pass)"
       # if we still do not have a user in the session it's time to redirect.
@@ -105,7 +105,7 @@ class ApplicationController < ActionController::Base
 
     # pass credentials to transport plugin
     ActiveXML::Config.transport_for(:project).login session[:login], session[:passwd]
-    
+
     # set user object reachable from controller
     @user = Person.find( session[:login] )
   end
@@ -133,18 +133,18 @@ class ApplicationController < ActionController::Base
     case exception
     when ActiveXML::Transport::UnauthorizedError
       session[:login] = nil
-      session[:passwd] = nil 
- 
+      session[:passwd] = nil
+
       if api_error.name == "status"
         flash[:error] = @message
-      else 
+      else
         flash[:error] = "Authentication failed"
       end
 
       redirect_to :controller => 'user', :action => 'login'
       return
     when ActiveXML::Transport::ForbiddenError
-      if @code == "unregistered_ichain_user" 
+      if @code == "unregistered_ichain_user"
         redirect_to :controller => 'user', :action => 'request_ichain'
         return
       else
@@ -164,7 +164,7 @@ class ApplicationController < ActionController::Base
       elsif @code == "no more rating allowed"
         logger.debug "no more rating allowed"
       elsif @code == "tagcreation_error"
-        logger.debug "tagcreation_error" 
+        logger.debug "tagcreation_error"
       else
         logger.debug "default exception handling"
         render_error :status => 400, :code => @code, :message => @message,
@@ -215,6 +215,10 @@ class ApplicationController < ActionController::Base
 
   def valid_package_name? name
     name =~ /^\w[-_+\w\.:]*$/
+  end
+
+  def valid_role_name? name
+    name =~ /^\w+$/
   end
 
 end

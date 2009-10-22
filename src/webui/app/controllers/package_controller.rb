@@ -96,7 +96,7 @@ class PackageController < ApplicationController
         persons.each do |person|
           @email_hash[person] = Person.find(person).email.to_s
         end
-        
+
         @buildresult = Buildresult.find( :project => project, :package => package, :view => ['status', 'binarylist'] )
 
         @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
@@ -555,7 +555,7 @@ class PackageController < ApplicationController
       else
         page.replace_html 'status', "Updating..."
         page.insert_html :bottom, 'log_space', @log_chunk
-        page.delay(2) do 
+        page.delay(2) do
           page << remote_function( :url => {:action => :update_build_log, :package => @package, :project => @project, :arch => @arch, :repository => @repo, :offset => @offset} )
         end
       end
@@ -626,6 +626,13 @@ class PackageController < ApplicationController
     if params[:project]
       unless valid_project_name?( params[:project] )
         flash[:error] = "Invalid project name, may only contain alphanumeric characters"
+        redirect_to :action => :error
+      end
+    end
+
+    if params[:role]
+      unless valid_role_name?( params[:role] )
+        flash[:error] = "Invalid role name"
         redirect_to :action => :error
       end
     end
@@ -825,13 +832,13 @@ class PackageController < ApplicationController
     @flag = @package.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
   end
 
-  
+
   def flags_for_experts
     @package = Package.find(params[:package], :project => params[:project])
     flags_for_experts = true
     render :template => "flag/package_flags_for_experts"
   end
-    
+
 
   private
 
