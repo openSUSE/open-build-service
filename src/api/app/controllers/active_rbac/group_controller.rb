@@ -2,7 +2,7 @@
 class ActiveRbac::GroupController < ActiveRbac::ComponentController
   # The RbacHelper allows us to render +acts_as_tree+ AR elegantly
   helper RbacHelper
-  
+
   # Use the configured layout.
   layout "rbac.rhtml"
 
@@ -25,10 +25,10 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
     redirect_to :action => 'list'
   end
 
-  # Display a form to create a new group on GET. Handle the form submission 
+  # Display a form to create a new group on GET. Handle the form submission
   # from this form on POST and display errors if there were any.
   def create
-    
+
     if request.get?
       @group = Group.new
     else
@@ -39,19 +39,19 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
 
       # assign properties to group
       if @group.save
-        # set the groups's roles to the roles from the parameters 
+        # set the groups's roles to the roles from the parameters
         params[:group][:roles] = [] if params[:group][:roles].nil?
         @group.roles = params[:group][:roles].collect { |i| Role.find(i) }
 
-        # the above should be successful if we reach here; otherwise we 
+        # the above should be successful if we reach here; otherwise we
         # have an exception and reach the rescue block below
         flash[:success] = 'The group has been created successfully.'
-        redirect_to :action => 'show', :id => @group
+        redirect_to :action => 'show', :id => @group.id
       else
         render :action => 'create'
       end
     end
-    
+
   rescue ActiveRecord::RecordNotFound
     flash[:error] = 'You sent an invalid request.'
     redirect_to :action => 'list'
@@ -61,7 +61,7 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
   # of this form on POST and display errors if any occured.
   def update
     @group = Group.find(params[:id].to_i)
-    
+
     if request.get?
       # render only
     else
@@ -80,7 +80,7 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
       # Bulk-Assign the other attributes from the form.
       if @group.update_attributes(params[:group])
         flash[:success] = 'Group has been updated successfully.'
-        redirect_to :action => 'show', :id => @group.to_param
+        redirect_to :action => 'show', :id => @group.id
       else
         render :action => 'update'
       end
@@ -100,7 +100,7 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
   # these group's id if it has not been deleted.
   def delete
     @group = Group.find(params[:id].to_i)
-    
+
     if request.get?
       # render only
     else
@@ -110,13 +110,13 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
         redirect_to :action => 'list'
       else
         flash[:success] = 'The group has not been deleted.'
-        redirect_to :action => 'show', :id => params[:id]
+        redirect_to :action => 'show', :id => @group.id
       end
     end
 
   rescue CantDeleteWithChildren
     flash[:error] = "You have to delete or move the group's children before attempting to delete the group itself."
-    redirect_to :action => 'show', :id => params[:id]
+    redirect_to :action => 'show', :id => sanitize_to_id( params[:id] )
   rescue ActiveRecord::RecordNotFound
     flash[:error] = 'This group could not be found.'
     redirect_to :action => 'list'
