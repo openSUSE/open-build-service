@@ -18,7 +18,6 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
          :only         => [ :index, :list, :show, :new, :delete ],
          :redirect_to  => { :action => 'list' },
          :add_flash    => { :error => 'You sent an invalid request!' }
-  
 
   # Simply redirects to #list
   def index
@@ -60,23 +59,23 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
     # set password and password_confirmation into [:user] parameters
     params[:user][:password] = params[:password]
     params[:user][:password_confirmation] = params[:password_confirmation]
-    
+
     @user = User.new(params[:user])
 
     # set password hash type seperatedly because it is protected
     @user.password_hash_type = params[:user][:password_hash_type]
-    
+
     # assign properties to user
     if @user.save
-      # set the user's roles to the roles from the parameters 
+      # set the user's roles to the roles from the parameters
       params[:user][:roles] = [] if params[:user][:roles].nil?
       @user.roles = params[:user][:roles].collect { |i| Role.find(i) }
 
-      # set the user's groups to the groups from the parameters 
+      # set the user's groups to the groups from the parameters
       params[:user][:groups] = [] if params[:user][:groups].nil?
       @user.groups = params[:user][:groups].collect { |i| Group.find(i) }
 
-      # the above should be successful if we reach here; otherwise we 
+      # the above should be successful if we reach here; otherwise we
       # have an exception and reach the rescue block below
       flash[:notice] = 'User was created successfully.'
       redirect_to :action => 'show', :id => @user.to_param
@@ -123,7 +122,7 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
     @user.password_hash_type = params[:user][:password_hash_type] if params[:user][:password_hash_type] != @user.password_hash_type
 
     redir_to_opts = {:action => 'list'}
-    
+
     if( params[:commit] =~ /Approve IChain Request/ )
       #grant user role
       user_role = Role.find_by_title("User")
@@ -150,7 +149,7 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
     flash[:error] = 'You sent an invalid request.'
     redirect_to :action => 'list'
   end
-  
+
   # Loads the user specified by the :id parameters from the url fragment from
   # the database and displays a "Do you really want to delete it?" form. It
   # posts to #destroy.
@@ -162,8 +161,8 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
   end
 
   # Removes a user record from the database. +destroy+ is only accessible
-  # via POST. If the answer to the form in #delete has not been "Yes", it 
-  # redirects to the #show action with the selected's userp's ID.
+  # via POST. If the answer to the form in #delete has not been "Yes", it
+  # redirects to the #show action with the selected's user's ID.
   def destroy
     if not params[:yes].nil?
       User.find(params[:id]).destroy
@@ -171,9 +170,9 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
       redirect_to :action => 'list'
     else
       flash[:notice] = 'The user has not been deleted.'
-      redirect_to :action => 'show', :id => params[:id]
+      redirect_to :action => 'show', :id => sanitize_to_id( params[:id] )
     end
-    
+
   rescue ActiveRecord::RecordNotFound
     flash[:error] = 'This user could not be found.'
     redirect_to :action => 'list'
