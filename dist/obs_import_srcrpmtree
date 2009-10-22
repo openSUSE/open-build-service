@@ -1,0 +1,46 @@
+#!/bin/bash
+
+##########################################################
+#Setup Vars
+
+#
+usage="usage:  $0 <target obs> <target project> <http server>"
+
+targetobs=$1
+targetprj=$2
+
+urlbase=$3
+
+mkdir -p tmp && curl -s -l $urlbase >& tmp/.listing
+
+if [ x"$(grep '<html>' tmp/.listing)" != x"" ]
+then
+  cat tmp/.listing | awk '{print $2}' | grep 'src.rpm' | sed -e "s/^href=\"//g" | awk -F'"' '{print $1}' >tmp/.ftplist
+  ftplist=$(cat tmp/.ftplist)
+else
+  ftplist=$(cat tmp/.listing)
+fi
+
+echo "$0 $targetobs $targetprj $urlbase"
+echo "Urllist:"
+echo "$ftplist"
+echo
+
+##########################################################
+# Check out target packages
+
+(cd tmp && set -x ; rm -rf $targetprj/*)
+for f in $ftplist
+do
+  (cd tmp &&
+     (set -x &&
+                pkgname=${f%%-[0-9]*}
+                rm -rf $targetprj/$pkgname && osc -A $targetobs rdelete $targetprj $pkgname >& /dev/null
+                wget -c -q $urlbase/$f || wget -c -q $urlbase/$f || wget -c -q $urlbase/$f
+                (
+		 cd $targetprj && osc -A $targetobs importsrcpkg -n $pkgname ../$f
+		 cd $pkgname && (osc -A $targetobs addremove ; osc -A $targetobs ci -m "imported: $urlbase/$f @ $targetobs/$pkgname")
+		)
+     )
+  )
+done
