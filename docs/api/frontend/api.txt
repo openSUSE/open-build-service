@@ -327,6 +327,22 @@ GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
 Result: binary file
 
 
+GET /build/<project>/<repository>/<arch>/_builddepinfo?package="package_name"
+
+  Shows all build dependencies of a package, a change in any of them will
+  trigger a build.
+
+Result: build dependencies
+
+
+GET /build/<project>/<repository>/<arch>/_jobhistory?package="package_name"
+
+  Get the build log of all finished builds in this repository, including
+  time and trigger reason. Optional filtering for a package is possible.
+
+Result: jobhistory
+
+
 GET /build/<project>/<repository>/<arch>/_repository
 
   Get list of binaries in given repository (binaries produced by all packages
@@ -370,6 +386,16 @@ GET /build/<project>/<repository>/<arch>/<package>/_history
   Get build history
 
 XmlResult: buildhistory
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_reasons
+
+  Detailed reason, why the last build got triggered. This may be
+  caused by a source change, meta change (binary package below changed) or
+  release number sync.
+   A user triggered build will show up as source change.
+
+XmlResult: build reason
 
 
 GET /build/<project>/<repository>/<arch>/<package>/_status
@@ -719,17 +745,6 @@ PUT user/<user>/tags/<project>/<package>
 XmlBody: tags
 
 XmlResult: status
-
-
-== Platform data (Legacy)
-
-Host: api.opensuse.org
-
-GET /platform/
-  
-  List all platforms
-  
-XmlResult: directory
 
 
 == Build Results (Legacy)
