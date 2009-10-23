@@ -402,6 +402,10 @@ sub createrepo_debian {
 
   unlink("$extrep/Packages");
   unlink("$extrep/Packages.gz");
+  unlink("$extrep/Release");
+  unlink("$extrep/Release.gpg");
+
+
   print "    running dpkg-scanpackages\n";
   qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null') && print "    apt-ftparchive failed: $?\n";
   if (-f "$extrep/Packages.new") {
@@ -410,6 +414,43 @@ sub createrepo_debian {
     unlink("$extrep/Packages");
     rename("$extrep/Packages.new", "$extrep/Packages");
   }    
+
+  my $date = POSIX::ctime(time());
+  $date =~ s/\n//m;
+  my $str = <<"EOL";
+Origin: openSUSE Build Service $projid $repoid
+Label: $repoinfo->{'title'}
+Version: 0.00
+Date: $date
+Description: openSUSE Build Service $projid $repoid
+MD5Sum:
+EOL
+
+  open(OUT,">$extrep/Release") || die("$extrep/Release: $!\n");
+  print OUT $str;
+  close(OUT) || die("close: $!\n");
+
+  open(OUT,">>$extrep/Release") || die("$extrep/Release: $!\n");
+  foreach my $f ( "Release", "Packages", "Packages.gz" ) {
+  
+    open(FILE,"<$extrep/$f") || die;
+    my @all = <FILE>;
+    close(FILE);
+    my $md5  = Digest::MD5::md5_hex(join("",@all));
+    my $size = (stat("$extrep/$f"))[7];
+    print OUT " $md5 $size $f\n";
+  
+  }
+  close(OUT) || die("close: $!\n");
+
+  # re-sign changed Release file
+  if ($BSConfig::sign && -e "$extrep/Release") {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @$signargs;
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && print("    sign failed: $?\n");
+    rename("$extrep/Release.asc","$extrep/Release.gpg");
+  }
 }
 
 sub deleterepo_debian {
@@ -417,6 +458,8 @@ sub deleterepo_debian {
 
   unlink("$extrep/Packages");
   unlink("$extrep/Packages.gz");
+  unlink("$extrep/Release");
+  unlink("$extrep/Release.gpg");
 }
 
 
