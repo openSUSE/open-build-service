@@ -207,10 +207,12 @@ Parameters:
 Result: diff as text/plain
 
 
-POST /source/<project>/<package>?cmd=branch
+POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"
 
   Create a source link from a package of an existing project to a 
-  new subproject of the requesters home project (home:<user>:branches:<project>)
+  new subproject of the requesters home project, if not specified elsewhere
+  via the target_ parameters. 
+    The default target is home:<user>:branches:<project>/<package>
 
 XmlResult: status
 
@@ -264,9 +266,15 @@ GET /source/<project>/<package>
 
   Get directory listing of all source files in the package
   
+  
 Parameters: 
   
-  rev: revision, optional
+  rev: package source revision, optional
+  linkrev: linked revision, optional
+  expand: expand links, optional
+  lastworking: auto detect last working link revision, optional
+  view: The "cpio" view will stream all files as cpio, optional
+  extension: filter for file extension, optional
 
 
 GET /source/<project>/<package>/<filename>
@@ -279,6 +287,12 @@ Result: Content of file
 PUT /source/<project>/<package>/<filename>
 
   Write source file.
+
+Parameters:
+
+  rev: empty or upload revision, optional
+  comment: comment, optional
+  keeplink: bool, optional
 
 Body: Content of file
 
@@ -305,9 +319,30 @@ GET /build/
 XmlResult: directory
 
 
+GET /build/_workerstatus
+
+  Lists all running jobs, waiting jobs, status of the backend services and general statistics.
+
+XmlResult: worker status and statistics
+
+
 GET /build/<project>
 
   List all repositories of the specified project
+
+XmlResult: directory
+
+
+GET /build/<project>/<repository>
+
+  List all architectures of the specified project repository
+
+XmlResult: directory
+
+
+GET /build/<project>/<repository/<arch>
+
+  List all packages used in this project repository for given architecture.
 
 XmlResult: directory
 
@@ -351,6 +386,14 @@ GET /build/<project>/<repository>/<arch>/_repository
 Result: binarylist
 
 
+POST /build/<project>/<repository>/<arch>/_repository?match=
+
+  Get list of binaries in given repository (binaries produced by all packages
+  of the project), filtered by given match
+
+Result: binarylist
+
+
 GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
 
   Get single binary from the given repository
@@ -377,6 +420,7 @@ Parameters:
   arch: architecture, optional, multiple
   repository: name of repository, optional, multiple
   view: summary | status | binarylist
+  lastbuild: bool, optional
 
 XmlResult: buildresult
 
