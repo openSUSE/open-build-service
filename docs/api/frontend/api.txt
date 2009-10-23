@@ -388,7 +388,7 @@ GET /build/<project>/<repository>/<arch>/<package>/_history
 XmlResult: buildhistory
 
 
-GET /build/<project>/<repository>/<arch>/<package>/_reasons
+GET /build/<project>/<repository>/<arch>/<package>/_reason
 
   Detailed reason, why the last build got triggered. This may be
   caused by a source change, meta change (binary package below changed) or
