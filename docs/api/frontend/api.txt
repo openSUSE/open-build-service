@@ -207,21 +207,28 @@ Parameters:
 Result: diff as text/plain
 
 
-POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"
+POST /source/<project>/<package>?cmd=branch
 
   Create a source link from a package of an existing project to a 
   new subproject of the requesters home project, if not specified elsewhere
   via the target_ parameters. 
     The default target is home:<user>:branches:<project>/<package>
 
+Parameters:
+  target_project: target project name, optional
+  target_package: target package name, optional
+
 XmlResult: status
 
 
-POST /source/<project>/<package>?cmd=branch&ignoredevel
+POST /source/<project>/<package>?cmd=branch
 
   Create a source link from a package of an existing project to a 
   new subproject of the requesters home project (home:<user>:branches:<project>).
   A possible defined devel project in he package meta data gets ignored.
+
+Parameters:
+  ignoredevel: bool, optional
 
 XmlResult: status
 
