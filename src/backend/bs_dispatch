@@ -40,6 +40,7 @@ use Digest::MD5 ();
 use List::Util;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
+use Storable;
 
 use BSConfig;
 use BSRPC;
