@@ -85,6 +85,10 @@ my %cando = (
   'local'   => ['local'],
 );
 
+# 4h build will add .5 to the load
+# 4h idle will half the load
+my $decay = log(.5)/(4*3600);
+
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $workersdir = "$BSConfig::bsdir/workers";
 my $jobsdir = "$BSConfig::bsdir/jobs";
@@ -231,6 +235,41 @@ flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dispatcher is already running!\n");
 utime undef, undef, "$rundir/bs_dispatch.lock";
 
 while (1) {
+
+  if (-s "$jobsdir/finished") {
+    local *F;
+    if (open(F, '<', "$jobsdir/finished")) {
+      unlink("$jobsdir/finished");
+      my $load;
+      eval {$load = Storable::retrieve("$jobsdir/load");};
+      $load ||= {};
+      while (<F>) {
+	next unless /\n$/s;
+	my @s = split('\|', $_);
+	s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @s;
+	my ($projid, $repoid, $arch, $packid, $start, $end, $result, $workerid, $hostarch) = @s;
+	next unless $start =~ /^[0-9]+$/s;
+	next unless $end=~ /^[0-9]+$/s;
+	next if $end <= $start;
+	my $prpa = "$projid/$repoid/$arch";
+	$load->{$prpa} = [0, 0] unless $load->{$prpa};
+	my $l = $load->{$prpa};
+	if ($l->[0] < $end) {
+	  my $d = $end - $l->[0];
+	  $l->[1] *= exp($decay * $d);
+	  $l->[1] += (1 - exp($decay * ($end - $start)));
+	  $l->[0] = $end;
+	} else {
+	  my $d = $l->[0] - $end;
+	  $l->[1] += (1 - exp($decay * ($end - $start))) * exp($decay * $d);
+	}
+      }
+      close F;
+      Storable::nstore($load, "$jobsdir/load.new");
+      rename("$jobsdir/load.new", "$jobsdir/load") || die("rename $jobsdir/load.new $jobsdir/load");
+    }
+  }
+
   my $assigned = 0;
   my @idle = grep {!/^\./} ls("$workersdir/idle");
   my %idlearch;
