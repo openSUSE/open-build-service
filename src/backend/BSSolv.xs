@@ -170,7 +170,10 @@ dep2id(Pool *pool, char *s)
     return id;
   while (*s == ' ' || *s == '\t')
     s++;
-  return rel2id(pool, id, str2id(pool, s, 1), flags, 1);
+  n = s;
+  while (*s && *s != ' ' && *s != '\t')
+    s++;
+  return rel2id(pool, id, strn2id(pool, n, s - n, 1), flags, 1);
 }
 
 static inline void
