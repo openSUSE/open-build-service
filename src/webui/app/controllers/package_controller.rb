@@ -344,7 +344,7 @@ class PackageController < ApplicationController
     file_url = params[:file_url]
     filename = params[:filename]
 
-    if file.size > 0
+    if !file.blank?
       # we are getting an uploaded file
       filename = file.original_filename if filename.empty?
     elsif not file_url.empty?
