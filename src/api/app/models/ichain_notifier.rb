@@ -7,6 +7,7 @@ class IchainNotifier < ActionMailer::Base
     sent_on      Time.now
     content_type 'text/plain'
     body         'user' => recipient
+    headers      'Precedence' => 'bulk'
   end
 
   def approval(recipient)
@@ -16,5 +17,6 @@ class IchainNotifier < ActionMailer::Base
     sent_on      Time.now
     content_type 'text/plain'
     body         'user' => recipient
+    headers      'Precedence' => 'bulk'
   end
 end
