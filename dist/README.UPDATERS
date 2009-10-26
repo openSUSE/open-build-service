@@ -1,3 +1,11 @@
+For Updaters to OBS 1.7
+====================================
+
+1) Webclient: 
+   - The production_slave environment has been removed, just use production. 
+   - Please copy config/repositories.rb.template to config/repositories.rb and adapt to your needs
+
+
 For Updaters from OBS 1.0.x releases
 ====================================
 
