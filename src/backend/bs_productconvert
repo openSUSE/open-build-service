@@ -274,6 +274,7 @@ sub createProductOptions($$$)
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
     $varsH{FLAVOR} = $medium->{'flavor'};
+    $varsH{REPO_ONLY} = $medium->{'repo_only'};
     $varsH{RELEASE} = $product->{'release'};
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';

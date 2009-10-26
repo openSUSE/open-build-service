@@ -193,6 +193,7 @@ our $productdesc = [
             'product',
             'name',
             'flavor',
+            'repo_only',
             'mediastyle',
             'sourcemedia',
             'debugmedia',
