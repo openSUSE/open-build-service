@@ -264,7 +264,7 @@ class DbPackage < ActiveRecord::Base
 
       self.attribs.find(:all, :include => :attrib_type).each do |attrib|
         if not attriblist[attrib.cachekey]
-          logger.debug "removing attribute '#{attrib.name}'"
+          logger.debug "removing attribute '#{attrib.attrib_type.namespace}:#{attrib.attrib_type.name}'"
           attrib.destroy
         end
       end
@@ -285,6 +285,13 @@ class DbPackage < ActiveRecord::Base
     while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
       db_project_upper = db_project_upper.find_parent
       raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
+    end
+    # verify the number of allowed values
+    if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
+      raise RuntimeError, "missmatch of value numbers for attribute '#{attrib.name}', #{attrib.each_value.length} instead of #{atype.value_count}"
+    end
+    if atype.value_count and not attrib.has_element? :value
+      raise RuntimeError, "attribute '#{attrib.name}' requires #{atype.value_count} values, but none given"
     end
     # verify with allowed values for this attribute definition
     if atype.allowed_values.length > 0
@@ -428,19 +435,14 @@ class DbPackage < ActiveRecord::Base
       attribs.each do |attr|
         type_name = attr.attrib_type.namespace+":"+attr.attrib_type.name
         next if name and not type_name == name
-        next if subpackage and not attr.subpackage == subpackage
-        next if not subpackage and attr.subpackage
-        if attr.subpackage
-          a.attribute(:name => type_name, :package => attr.subpackage) do |y|
-            attr.values.each do |val|
-              y.value(val.value)
-            end
-          end
-        else
-          a.attribute(:name => type_name) do |y|
-            attr.values.each do |val|
-              y.value(val.value)
-            end
+        next if subpackage and attr.subpackage != subpackage
+        next if subpackage == "" and attr.subpackage != ""  # switch between all and NULL subpackage
+        p={}
+        p[:name] = type_name
+        p[:package] = attr.subpackage if attr.subpackage
+        a.attribute(p) do |y|
+          attr.values.each do |val|
+            y.value(val.value)
           end
         end
       end

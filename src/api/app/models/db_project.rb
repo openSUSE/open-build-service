@@ -270,7 +270,7 @@ class DbProject < ActiveRecord::Base
             end
           else
             # create the new namespace
-            self.attrib_namespace.create(:name => ns.name)#.update_from_xml(ns)
+            self.attrib_namespace.create(:name => ns.name).update_from_xml(ns)
             self.updated_at = Time.now
           end
         end

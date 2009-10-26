@@ -7,6 +7,7 @@ class AttribType < ActiveRecord::Base
   has_many :attribs, :dependent => :destroy
   has_many :default_values, :class_name => 'AttribDefaultValue', :dependent => :delete_all
   has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :delete_all
+  has_many :attrib_type_modifiable_by, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
   has_one :attrib_namespace
 
   def self.inheritance_column
@@ -32,30 +33,85 @@ class AttribType < ActiveRecord::Base
   end
 
   def render_axml(node = Builder::XmlMarkup.new(:indent=>2))
-    if default_values.length > 0 or allowed_values.length > 0
-      node.definition(:name => self.name, :namespace => namespace) do |attr|
-        if default_values.length > 0
-          attr.default do |default|
-            default_values.each do |def_val|
-              default.value def_val.value
-            end
-          end
-        end
+     p = {}
+     p[:name]      = self.name
+     p[:namespace] = namespace
+     node.definition(p) do |attr|
 
-        if allowed_values.length > 0
-          attr.allowed do |allowed|
-            allowed_values.each do |all_val|
-              allowed.value all_val.value
-            end
-          end
-        end
+       if default_values.length > 0
+         attr.default do |default|
+           default_values.each do |def_val|
+             default.value def_val.value
+           end
+         end
+       end
+
+       if allowed_values.length > 0
+         attr.allowed do |allowed|
+           allowed_values.each do |all_val|
+             allowed.value all_val.value
+           end
+         end
+       end
+
+       if self.value_count
+         attr.count self.value_count
+       end
+
+       if attrib_type_modifiable_by.length > 0
+         attrib_type_modifiable_by.each do |mod_rule|
+           p={}
+           p[:user] = mod_rule.user.login if mod_rule.user 
+           p[:group] = mod_rule.group.title if mod_rule.group 
+           p[:role] = mod_rule.role.title if mod_rule.role 
+           attr.modifiable_by(p)
+         end
       end
-    else
-      node.definition(:name => self.name, :namespace => namespace)
-    end
+
+     end
   end
 
   def update_from_xml(node)
+
+    # FIXME, check if user is allowed to change in this namespace
+
+    #
+    # permission handling
+    #
+    # working without cache, first remove aller permissions
+    self.attrib_type_modifiable_by.delete_all
+    # create permission table
+    if node.has_element? :modifiable_by
+      node.each_modifiable_by do |m|
+        if not m.has_attribute? :user and not m.has_attribute? :group and not m.has_attribute? :role
+          raise RuntimeError, "attribute type '#{node.name}' modifiable_by element has no valid rules set" 
+        end
+        p={}
+        if m.has_attribute? :user
+          p[:user] = User.find_by_login(m.user)
+          raise RuntimeError, "Unknown user '#{m.user}' in modifiable_by element" if not p[:user]
+        end
+        if m.has_attribute? :group
+          p[:group] = Group.find_by_title(m.group)
+          raise RuntimeError, "Unknown group '#{m.group}' in modifiable_by element" if not p[:group]
+        end
+        if m.has_attribute? :role
+          p[:role] = Role.find_by_title(m.role)
+          raise RuntimeError, "Unknown role '#{m.role}' in modifiable_by element" if not p[:role]
+        end
+        self.attrib_type_modifiable_by << AttribTypeModifiableBy.new(p)
+      end
+    end
+
+    #
+    # attribute type definition
+    #
+    # set value counter (this number of values must exist, not more, not less)
+    if node.has_element? :count
+      self.value_count = node.count.to_s
+    end
+
+    # default values of a attribute stored
     if node.has_element? :default
       logger.debug "--- updating attrib default definition content ---"
 
@@ -79,6 +135,7 @@ class AttribType < ActiveRecord::Base
       self.default_values.delete_all
     end
 
+    # list of allowed values
     if node.has_element? :allowed
       logger.debug "--- updating attrib allowed definition content ---"
       update_values = false
