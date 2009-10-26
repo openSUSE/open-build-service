@@ -1511,7 +1511,7 @@ sub getbuildinfo {
       my @bn = split('/', $b);
       next unless $bn[-1] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
       my $d = {'name' => $1, 'version' => $2, 'release' => $3, 'arch' => $4, 'project' => $bn[0], 'repository' => $bn[1], 'package' => $bn[3]};
-      $d->{'repoarch'} = $bn[2] if $bn[2] ne $d->{'arch'};
+      $d->{'repoarch'} = $bn[2] if $bn[2] ne $arch;
       $d->{'noinstall'} = 1 if $4 eq 'src' || $4 eq 'nosrc';
       $d->{'noinstall'} = 1 unless $kdeps{$1};
       if (!$d->{'noinstall'}) {
