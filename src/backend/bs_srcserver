@@ -3207,7 +3207,7 @@ sub nextreqid {
   BSUtil::lockopen(*F, '>>', "$requestsdir/.nextid");
   my $nextid = readstr("$requestsdir/.nextid", 1);
   if (!$nextid) {
-    die("nextid was lost\n") if ls($requestsdir);
+    die("nextid was lost\n") if grep {$_ ne '.nextid'} ls($requestsdir);
     $nextid = 1;
   }
   chomp $nextid;
