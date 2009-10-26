@@ -135,7 +135,7 @@ If you need other hostnames, edit that file
     }
 
 
-To enable these vhosts, make sure to uncomment the following is in the
+To enable these vhosts, make sure to uncomment the following in the
 'custom includes' section at the bottom of
 /etc/lighttpd/lighttpd.conf:
 
@@ -175,12 +175,12 @@ enabled by uncommenting the corresponding lines in
     include "conf.d/fastcgi.conf"
 
 
-3.2.1 Change /srv/www/obs/webclient/config/environments/production_slave.rb
+3.2.1 Change /srv/www/obs/webclient/config/environments/production.rb
 ===========================================================================
 
 If you changed the hostnames/ips of the frontend away from 10.0.42.x, you 
 need to configure also 
-/srv/www/obs/webclient/config/environments/production_slave.rb (2 entries).
+/srv/www/obs/webclient/config/environments/production.rb (2 entries).
 
 
 3.2.2 Change /srv/www/obs/frontend/config/environments/production_slave.rb
