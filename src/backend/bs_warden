@@ -1,0 +1,125 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2009 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Check if all jobs in state building are really built on the workers
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use POSIX;
+use Data::Dumper;
+use Digest::MD5 ();
+use Fcntl qw(:DEFAULT :flock);
+use XML::Structured ':bytes';
+
+use BSConfig;
+use BSRPC;
+use BSUtil;
+use BSXML;
+
+use strict;
+
+my $user = $BSConfig::bsuser;
+my $group = $BSConfig::bsgroup;
+
+!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
+!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+if (defined $group) {
+  ($(, $)) = ($group, $group);
+  die "setgid: $!\n" if ($) != $group);
+}
+if (defined $user) {
+  ($<, $>) = ($user, $user); 
+  die "setuid: $!\n" if ($> != $user); 
+}
+
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+my $workersdir = "$BSConfig::bsdir/workers";
+my $jobsdir = "$BSConfig::bsdir/jobs";
+
+$| = 1;
+print "starting build service worker warden\n";
+
+# get lock
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_warden.lock") || die("$rundir/bs_warden.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker warden is already running!\n");
+utime undef, undef, "$rundir/bs_warden.lock";
+
+my %building;
+
+while (1) {
+  my $now = time();
+  for my $wname (ls("$workersdir/building")) {
+    next if $wname =~ /^\./;
+    next if $building{$wname};
+    $building{$wname} = {'lastcheck' => $now};
+  }
+  for my $wname (sort keys %building) {
+    my $b = $building{$wname};
+    my $lastcheck = $b->{'lastcheck'};
+    $lastcheck += rand(60 * 60);
+    next if $lastcheck > $now;
+    my $worker = readxml("$workersdir/building/$wname", $BSXML::worker, 1);
+    next unless $worker && $worker->{'job'} && $worker->{'arch'};
+    my $job = $worker->{'job'};
+    my $arch = $worker->{'arch'};
+    my $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+    next unless $js && $js->{'code'} eq 'building';
+    next unless $js->{'workerid'} eq $worker->{'workerid'};
+    #print "checking worker $wname\n";
+    my $param = {
+      'uri' => "$js->{'uri'}/info",
+      'timeout' => 60,
+    };
+    eval {
+      BSRPC::rpc($param, undef, "jobid=$js->{'jobid'}");
+    };
+    if ($@) {
+      warn($@);
+      local *F;
+      my $js2 = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+      if (!$js2 || $js2->{'code'} ne 'building' || $js2->{'job'} ne $job || $js2->{'jobid'} ne $js->{'jobid'} || $js2->{'workerid'} ne $js->{'workerid'}) {
+	close F;
+	next;
+      }
+      print "restarting build of $job\n";
+      unlink("$jobsdir/$arch/$job:status");
+      unlink("$workersdir/building/$wname");
+      delete $building{$wname};
+      close F;
+    } else {
+      $b->{'lastcheck'} = $now;
+    }
+  }
+  #print "sleeping\n";
+  sleep(5);
+  if (-e "$rundir/bs_warden.restart") {
+    unlink("$rundir/bs_warden.restart");
+    print "restarting...\n";
+    exec($0);
+    die("$0: $!\n");
+  }
+}
