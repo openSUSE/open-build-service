@@ -1,0 +1,48 @@
+
+<% if session[:login] -%>
+
+  <%= link_to CGI::escapeHTML(session[:login]), :controller => 'home', :action => :index %>
+  |
+  <div onclick="new Effect.toggle($('inplace_watchlist'), 'blind', {duration:0.15});">Watchlist</div>
+  |
+  <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
+  |
+  <%= link_to 'Logout', :controller => 'user', :action => 'logout' %>
+
+<% else %>
+
+  <% if ICHAIN_MODE == 'on' %>
+    <div id="login_wrapper">
+    <form action="https://build.opensuse.org/ICSLogin/auth-up"
+        method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+    <input name="url" value="<%= @return_to_host + @return_to_path %>" type="hidden" />
+    <input name="context" value="default" type="hidden" />
+    <input name="proxypath" value="reverse" type="hidden" />
+    <input name="message" value="Please log In" type="hidden" />
+    Username: <%= hinted_text_field_tag( "username", nil, "", {:size => '10', :maxlength => '50', :style => 'width: 10em;'} ) %>
+    Password: <%= hinted_text_field_tag( "password", nil, "", {:size => '10', :maxlength => '50', :type => 'password'} ) %>
+    <input value="Login" type="submit">
+
+    <%#= link_to("Login", '#', {:onclick => "document.getElementById( 'login_form' ).submit(); return;"} ) %> |
+    <%= link_to("Register / Manage account", 'https://build.opensuse.org/ICSLogin/?%22' + @return_to_host + @return_to_path + '%22') %>
+
+    </form></div>
+
+  <% else %>
+
+    <div id="login_wrapper">
+    <form action="<%= @return_to_path %>"
+        method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+    Username: <%= hinted_text_field_tag( "username", nil, "", {:size => '10', :maxlength => '50', :style => 'width: 10em;'} ) %>
+    Password: <%= hinted_text_field_tag( "password", nil, "", {:size => '10', :maxlength => '50', :type => 'password'} ) %>
+    <input type="hidden" name="authenticity_token" value="<%=  form_authenticity_token %>"/>
+    <input value="Login" type="submit">
+
+    <%#= link_to("Login", '#', {:onclick => "document.getElementById( 'login_form' ).submit(); return;"} ) %>
+
+    </form></div>
+
+
+  <% end %>
+<% end %>
+
