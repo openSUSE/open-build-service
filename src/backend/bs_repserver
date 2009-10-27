@@ -934,7 +934,7 @@ sub putjob {
   $jobstatus->{'result'} = 'failed';
   # upload is empty for local image building
   if ( ! @$uploaded ) {
-    $jobstatus->{'result'} = 'succeeded';
+    $jobstatus->{'result'} = $cgi->{'code'} || 'succeeded';
     $success = 1;
   };
   # usual build should have uploaded content.

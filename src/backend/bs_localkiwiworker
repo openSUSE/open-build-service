@@ -177,14 +177,8 @@ sub dobuild {
   my %media;
   my $mediumbase;
   my @vars;
-  my $ftp_only="false";
   my $tag_media="";
   for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
-    # kind of a hack, do not create medias for ftp only releases !
-    if ( $productvar->{'name'} eq 'FLAVOR' ) {
-      $ftp_only="true" if ( $productvar->{'_content'} eq 'ftp' );
-      $ftp_only="true" if ( $productvar->{'_content'} eq 'livetree' );
-    }
     if ($productvar->{'name'} eq 'MEDIUM_NAME') {
       $mediumbase = $productvar->{'_content'};
       # Extend medium name with build number
@@ -278,46 +272,28 @@ sub dobuild {
 
   print "running kiwi...\n";
   $ENV{'PATH'} = "$BSConfig::bsdir/kiwi/prgs:$ENV{'PATH'}";
-#  $ENV{'KIWI_ISO'} = "1";                  # currently a hack to enable kiwi iso creation
+  # currently a hack to enable kiwi iso creation
   $ENV{'APPID'} = "-";                     # default value, will get overriden by current kiwis
   $ENV{'KIWI_COLLECT_TERMINAL_LOG'} = "1"; # kiwi collect module has no switch for this
   delete $ENV{'LANG'};                     # set locale to POSIX to have the same always sort order
   my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
-  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '--instsource-local', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
-# kiwi fails always atm !
-#    die("kiwi failed: $?\n");
+  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '-v', '-v', '-v', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
+     return undef;
   }
+  print("kiwi exited with: $?\n");
 
   my @result;
   my $outdir = "$buildroot/root/main";
   die("no output directory created\n") unless -d $outdir;
-  print "creating ISOs\n";
+#  print "creating ISOs\n";
   for my $medium (@media) {
     if (! -d "$outdir/$medium") {
       print "WARNING: $medium was not created in $outdir\n";
       next;
     }
     push @result, $medium;
-    next if ( $ftp_only eq "true" );
-    if ( ! -e "$outdir/$medium.iso" ) { # Do not overwrite iso file created from kiwi !
-      if (system("/usr/bin/suse-isolinux $outdir/$medium $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
-        print "WARNING: suse-isolinux failed: $?\n";
-        next;
-      }
-      if (! -s "$outdir/$medium.iso") {
-        print "WARNING: suse-isolinux dir not create iso\n";
-        next;
-      }
-      if ( -d "$outdir/$medium/suse" ){
-        # tag medias for self check
-        if (system("/usr/bin/tagmedia --md5 $tag_media $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
-          print "WARNING: tagmedia failed: $?\n";
-          next;
-        }
-      }
-    }
-    push @result, "$medium.iso";
+    push @result, "$medium.iso" if -e "$outdir/$medium.iso";
   }
   return \@result;
 }
@@ -478,8 +454,21 @@ if (!$justbuild) {
   my $conf = {
     'timeout' => 10,
   };
+  my $idlecnt = 0;
   while (!BSServer::server($conf)) {
     # check state
+    my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
+    next unless $state;
+    if ($state->{'state'} ne 'idle') {
+      $idlecnt = 0; 
+      next;
+    }
+    $idlecnt++;
+    if ($idlecnt % 30 == 0) { 
+      # send idle message every 5 minutes in case the server was down
+      $idlecnt = 0; 
+      send_state('idle');
+    }
   }
   my $req = BSServer::readrequest();
   my $path = $req->{'path'};
