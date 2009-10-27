@@ -46,6 +46,8 @@ init = Rails::Initializer.run do |config|
   # (enables use of different database adapters for development and test environments)
   # config.active_record.schema_format = :ruby
 
+  #config.action_controller.relative_url_root= ""
+
   # See Rails::Configuration for more options
 
 end
@@ -89,12 +91,9 @@ if CONFIG['theme']
   end
 end
 
-
-
-
 #ExceptionNotifier.sender_address = %("buildservice webclient" <admin@opensuse.org>)
 #ExceptionNotifier.email_prefix = "[webclient exception] "
-#ExceptionNotifier.exception_recipients = %w(abauer@suse.de mrueckert@suse.de)
+#ExceptionNotifier.exception_recipients = %w(tschmidt@suse.de)
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
@@ -168,4 +167,7 @@ ActiveXML::Base.config do |conf|
       :all    => "rest:///public/distributions"
 
   end
+  ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "buildservice-webclient/0.1" )
+
+
 end
