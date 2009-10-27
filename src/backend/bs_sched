@@ -481,11 +481,11 @@ sub set_building {
 
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
-  my $f = jobname($prp, $packid);
-  return "$f-$srcmd5" if -s "$myjobsdir/$f-$srcmd5";
-  return $f if -s "$myjobsdir/$f";
-  my @otherjobs = grep {/^\Q$f\E-[0-9a-f]{32}$/} ls($myjobsdir);
-  $f = "$f-$srcmd5";
+  my $job = jobname($prp, $packid);
+  return "$job-$srcmd5" if -s "$myjobsdir/$job-$srcmd5";
+  return $job if -s "$myjobsdir/$job";
+  my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
+  $job = "$job-$srcmd5";
 
   # a new one. expand usedforbuild. write info file.
   my $searchpath = [];
@@ -545,7 +545,7 @@ sub set_building {
   }
 
   # jay! ready for building, write status and job info
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $f}, $BSXML::buildstatus);
+  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $job}, $BSXML::buildstatus);
   # And store reason and time
   $reason->{'time'} = time();
   writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
@@ -579,7 +579,7 @@ sub set_building {
     'repository' => $repoid,
     'package' => $packid,
     'reposerver' => $BSConfig::reposerver,
-    'job' => $f,
+    'job' => $job,
     'arch' => $myarch,
     'reason' => $reason->{'explain'},
     'srcmd5' => $pdata->{'srcmd5'},
@@ -607,10 +607,10 @@ sub set_building {
   $debuginfo = enabled($repoid, $pdata->{'debuginfo'}, $debuginfo);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
-  writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
+  writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
-  return $f;
+  return $job;
 }
 
 
@@ -1684,6 +1684,10 @@ sub jobfinished {
     print "  - $job is bad\n";
     return;
   }
+  if ($info->{'file'} eq '_aggregate') {
+    aggregatefinished($job, $js, $changed);
+    return ;
+  }
   my $projid = $info->{'project'};
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
@@ -1840,6 +1844,51 @@ sub jobfinished {
   unlink("$gdst/:logfiles.fail/$packid");
   unlink($_) for @all;
   rmdir($jobdatadir);
+}
+
+sub aggregatefinished {
+  my ($job, $js, $changed) = @_;
+
+  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  if (!$info || ! -d $jobdatadir) {
+    print "  - $job is bad\n";
+    return;
+  }
+  my $projid = $info->{'project'};
+  my $repoid = $info->{'repository'};
+  my $packid = $info->{'package'};
+  if ($info->{'arch'} ne $myarch) {
+    print "  - $job has bad arch\n";
+    return;
+  }
+  if (!$projpacks->{$projid}) {
+    print "  - $job belongs to an unknown project\n";
+    return;
+  }
+  my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid};
+  if (!$pdata) {
+    print "  - $job belongs to an unknown package, discard\n";
+    return;
+  }
+  my $prp = "$projid/$repoid";
+  my $gdst = "$reporoot/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  mkdir_p($dst);
+  my $useforbuildenabled = 1;
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  update_dst_full($prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  $changed->{$prp} = 2 if $useforbuildenabled;
+  delete $repounchanged{$prp} if $useforbuildenabled;
+  $changed->{$prp} ||= 1;
+  unlink("$reporoot/$prp/$myarch/:repodone");
+  unlink("$gdst/:logfiles.fail/$packid");
+  unlink("$gdst/:logfiles.success/$packid");
+  unlink("$dst/logfile");
+  unlink("$dst/status");
+  mkdir_p("$gdst/:meta");
+  rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
 }
 
 sub uploadbuildevent {
@@ -2233,11 +2282,11 @@ sub rebuildkiwiproduct {
   my $reason = $data->[1];
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
-  my $f = jobname($prp, $packid);
+  my $job = jobname($prp, $packid);
   my $mytime = time(); # ensure that we use the same time in all logs
-  return ('scheduled', "$f-$srcmd5") if -s "$myjobsdir/$f-$srcmd5";
-  my @otherjobs = grep {/^\Q$f\E-[0-9a-f]{32}$/} ls($myjobsdir);
-  $f = "$f-$srcmd5";
+  return ('scheduled', "$job-$srcmd5") if -s "$myjobsdir/$job-$srcmd5";
+  my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
+  $job = "$job-$srcmd5";
 
   # kill those ancient other jobs
   for my $otherjob (@otherjobs) {
@@ -2296,7 +2345,7 @@ sub rebuildkiwiproduct {
     'repository' => $repoid,
     'package' => $packid,
     'reposerver' => $BSConfig::reposerver,
-    'job' => $f,
+    'job' => $job,
     'arch' => $myarch,
     'srcmd5' => $srcmd5,
     'verifymd5' => $pdata->{'verifymd5'} || $srcmd5,
@@ -2309,11 +2358,11 @@ sub rebuildkiwiproduct {
     'reason' => $reason->{'explain'},
   };
   mkdir_p("$reporoot/$prp/$myarch/$packid");
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $mytime, 'job' => $f}, $BSXML::buildstatus);
+  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $mytime, 'job' => $job}, $BSXML::buildstatus);
   $reason->{'time'} = $mytime;
   writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
-  writexml("$myjobsdir/$f:new", "$myjobsdir/$f", $binfo, $BSXML::buildinfo);
-  return ('scheduled', $f);
+  writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
+  return ('scheduled', $job);
 }
 
 ##########################################################################
@@ -2599,37 +2648,38 @@ sub rebuildaggregate {
   }
   if ($error) {
     print "        $error\n";
+    BSUtil::cleandir($jobdatadir);
+    rmdir($jobdatadir);
     return ('failed', $error);
   }
   writestr("$jobdatadir/meta", undef, $new_meta);
 
   resign($projid, sort keys %$jobrepo) if $BSConfig::sign;
 
-  # now commit job into build area (and full tree if enabled)
-  my $gdst = "$reporoot/$prp/$myarch";
-  my $dst = "$gdst/$packid";
-  mkdir_p($dst);
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
-  $changed->{$prp} = 2 if $useforbuildenabled;
-  delete $repounchanged{$prp} if $useforbuildenabled;
-  $changed->{$prp} ||= 1;
-  unlink("$gdst/:logfiles.fail/$packid");
-  unlink("$gdst/:logfiles.success/$packid");
-  unlink("$dst/logfile");
-  unlink("$dst/status");
-  mkdir_p("$gdst/:meta");
-  rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
+  local *F;
+  my $jobstatus = {
+    'code' => 'finished',
+  };
+  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$myarch/.$job", "$jobsdir/$myarch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+    die("job lock failed\n");
+  }
+  my $info = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'package' => $packid,
+    'arch' => $myarch,
+    'job' => $job,
+    'file' => '_aggregate',
+  };
+  writexml("$jobsdir/$myarch/.$job", "$jobsdir/$myarch/$job", $info, $BSXML::buildinfo);
+  close(F);
+  print "        scheduled\n";
 
-  # commit done, clean up
-  unlink "$jobdatadir/$_" for ls($jobdatadir);
-  rmdir($jobdatadir);
+  # trigger ourself
+  my $ev = {'type' => 'built', 'job' => $job};
+  sendevent($ev, $myarch, "finished:$job");
 
-  print "        rebuilt\n";
-  unlink("$reporoot/$prp/$myarch/:repodone");
-  return ('succeeded');
+  return ('scheduled', $job);
 }
 
 sub select_read {
