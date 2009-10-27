@@ -395,12 +395,24 @@ class RequestController < ApplicationController
       elsif action.data.attributes["type"] == "delete"
         if params[:newstate] == "accepted" # and req.state.name != "accepted" and req.state.name != "declined"
           project = DbProject.find_by_name(action.target.project)
+          unless project
+            msg = "Unable to delete project #{action.target.project}; it does not exist."
+            render_error :status => 400, :errorcode => 'not_existing_target',
+              :message => msg
+            return
+          end
           if not action.target.has_attribute? :package
             project.destroy
             Suse::Backend.delete "/source/#{action.target.project}"
           else
             DbPackage.transaction do
               package = project.db_packages.find_by_name(action.target.package)
+              unless package
+                msg = "Unable to delete package #{action.target.project}/#{action.target.package}; it does not exist."
+                render_error :status => 400, :errorcode => 'not_existing_target',
+                  :message => msg
+                return
+              end
               package.destroy
               Suse::Backend.delete "/source/#{action.target.project}/#{action.target.package}"
             end
