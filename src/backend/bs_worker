@@ -726,7 +726,7 @@ sub getbinaries_cache {
       push @downloadbins, $bin;
       $downloadsizek += $bv->{'sizek'};
     } else {
-      $ret{$bin} = {'name' => $bv->{'name'}};
+      $ret{$bin} = {'name' => $bv->{'name'}, 'hdrmd5' => $bv->{'hdrmd5'}};
       if (!$nometa && $havemeta) {
         $ret{$bin}->{'meta'} = 1;
       }
@@ -757,6 +757,7 @@ sub getbinaries_cache {
 	my @s = stat("$dir/$r->{'name'}");
 	die unless @s;
         my $id = Build::queryhdrmd5("$dir/$r->{'name'}");
+	$r->{'hdrmd5'} = $id;
 	my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
 	push @cachenew, [$cacheid, $s[7], "$dir/$r->{'name'}"];
 	$ret{$n} = $r;
@@ -1251,7 +1252,10 @@ my $cgi = BSServer::parse_cgi($req);
 if ($path eq '/info') {
   # check state?
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
-  die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
+  if ($cgi->{'jobid'}) {
+    die("not building a job\n") if $state->{'state'} ne 'building';
+    die("building a different job\n") if $cgi->{'jobid'} ne $state->{'jobid'};
+  }
   my $info;
   if ($state->{'state'} eq 'building') {
     $info = readstr("$statedir/job");
