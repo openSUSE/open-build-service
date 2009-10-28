@@ -272,21 +272,18 @@ sub dobuild {
 
   print "running kiwi...\n";
   $ENV{'PATH'} = "$BSConfig::bsdir/kiwi/prgs:$ENV{'PATH'}";
-  # currently a hack to enable kiwi iso creation
   $ENV{'APPID'} = "-";                     # default value, will get overriden by current kiwis
-  $ENV{'KIWI_COLLECT_TERMINAL_LOG'} = "1"; # kiwi collect module has no switch for this
   delete $ENV{'LANG'};                     # set locale to POSIX to have the same always sort order
   my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
   if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '-v', '-v', '-v', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
      return undef;
   }
-  print("kiwi exited with: $?\n");
 
+  # collect build results from kiwi
   my @result;
   my $outdir = "$buildroot/root/main";
   die("no output directory created\n") unless -d $outdir;
-#  print "creating ISOs\n";
   for my $medium (@media) {
     if (! -d "$outdir/$medium") {
       print "WARNING: $medium was not created in $outdir\n";
