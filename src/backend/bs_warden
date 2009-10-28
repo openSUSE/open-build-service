@@ -101,7 +101,7 @@ while (1) {
       warn($@);
       local *F;
       my $js2 = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
-      if (!$js2 || $js2->{'code'} ne 'building' || $js2->{'job'} ne $job || $js2->{'jobid'} ne $js->{'jobid'} || $js2->{'workerid'} ne $js->{'workerid'}) {
+      if (!$js2 || $js2->{'code'} ne 'building' || $js2->{'jobid'} ne $js->{'jobid'} || $js2->{'workerid'} ne $js->{'workerid'}) {
 	close F;
 	next;
       }
