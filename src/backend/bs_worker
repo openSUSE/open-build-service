@@ -486,15 +486,13 @@ sub getsources {
   my @meta;
   push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
 
-  my $repo = $buildinfo->{'path'}->[0];
-  my $projid = $repo->{'project'};
   my $res = BSRPC::rpc({
     uri => "$srcserver/getsources",
     directory => $dir,
     timeout => $gettimeout,
     withmd5 => 1,
     'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-  }, undef, "project=$projid", "package=$buildinfo->{'package'}", "srcmd5=$buildinfo->{'srcmd5'}");
+  }, undef, "project=$buildinfo->{'project'}", "package=$buildinfo->{'package'}", "srcmd5=$buildinfo->{'srcmd5'}");
   die("Error\n") unless ref($res) eq 'ARRAY';
   if (-e "$dir/.errors") {
     my $errors = readstr("$dir/.errors", 1);
@@ -802,8 +800,10 @@ sub getbinaries_kiwiproduct {
     $linkit{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}/$dep->{'name'}"} = 1 unless $dep->{'noinstall'};
   }
 
-  # FIXME: multiple servers?
-  my $repo = $buildinfo->{'path'}->[0];
+  my %prp2server;
+  for (@{$buildinfo->{'path'} || []}) {
+    $prp2server{"$_->{'project'}/$_->{'repository'}"} = $_->{'server'};
+  }
 
   mkdir_p($dir);
   my %meta;
@@ -813,6 +813,7 @@ sub getbinaries_kiwiproduct {
     my $ddir = "$srcdir/repos/$prpdir";
     mkdir_p($ddir);
     my $res;
+    my $server =  $prp2server{"$projid/$repoid"} || $buildinfo->{'reposerver'};
     if ($localkiwi) {
       $res = [];
       for my $name (ls("$localkiwi/build/$projid/$repoid/$arch/$packid")) {
@@ -824,7 +825,7 @@ sub getbinaries_kiwiproduct {
       }
     } else {
       $res = BSRPC::rpc({
-	'uri' => "$repo->{'server'}/build/$projid/$repoid/$arch/$packid",
+	'uri' => "$server/build/$projid/$repoid/$arch/$packid",
 	'directory' => $ddir,
 	'timeout' => $gettimeout,
 	'map' => sub {
@@ -888,8 +889,8 @@ sub getbinaries {
   die("no binaries needed for this package?\n") unless @todo;
   my @meta;
   my %meta;
-  my $projid = $buildinfo->{'path'}->[0]->{'project'};
-  my $repoid = $buildinfo->{'path'}->[0]->{'repository'};
+  my $projid = $buildinfo->{'project'};
+  my $repoid = $buildinfo->{'repository'};
 
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last if !@todo && !$kiwimode;
@@ -972,9 +973,9 @@ sub getoldpackages {
 sub dobuild {
   my ($buildinfo) = @_;
 
-  my $repo = $buildinfo->{'path'}->[0];
+  my $projid = $buildinfo->{'project'};
+  my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
-  my ($projid, $repoid) = ($repo->{'project'}, $repo->{'repository'});
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
 
   my $helper = '';
@@ -1328,6 +1329,13 @@ my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
 my $jobid = $cgi->{'jobid'};
 $jobid ||= Digest::MD5::md5_hex($infoxml);
 
+# old buildinfos missed some entries
+if (@{$buildinfo->{'path'} || []}) {
+  $buildinfo->{'project'} ||= $buildinfo->{'path'}->[0]->{'project'};
+  $buildinfo->{'repository'} ||= $buildinfo->{'path'}->[0]->{'repository'};
+  $buildinfo->{'reposerver'} ||= $buildinfo->{'path'}->[0]->{'server'};
+}
+
 if ($localkiwi) {
   # make sure this is the right job for us
   die("not a kiwi job\n") unless $buildinfo->{'file'} =~ /\.kiwi$/;
@@ -1366,8 +1374,7 @@ $state->{'state'} = 'building';
 $state->{'jobid'} = $jobid;
 commitstate($state);
 
-my $repo = $buildinfo->{'path'}->[0];
-send_state('building', $port, $hostarch, $repo->{'server'});
+send_state('building', $port, $hostarch, $buildinfo->{'reposerver'});
 
 my $ex;
 eval {
@@ -1463,7 +1470,7 @@ push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 
 if (!$testmode) {
   my $param = {
-    uri => "$repo->{'server'}/putjob",
+    uri => "$buildinfo->{'reposerver'}/putjob",
     request => 'POST',
     headers => [ 'Content-Type: application/x-cpio' ],
     chunked => 1,
@@ -1474,7 +1481,7 @@ if (!$testmode) {
   if ($code eq 'badhost') {
     # don't transmit anything in the badhost case
     $param = {
-      uri => "$repo->{'server'}/putjob",
+      uri => "$buildinfo->{'reposerver'}/putjob",
       request => 'POST',
     };
   }
