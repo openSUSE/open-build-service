@@ -250,7 +250,7 @@ sub addrepo {
 sub addrepo_scan {
   my ($pool, $prp) = @_;
 
-  print "scanning repo $prp...\n";
+  print "    scanning repo $prp...\n";
   my $dir = "$reporoot/$prp/$myarch/:full";
   my $cache;
   if (-s "$dir.solv") {
@@ -288,7 +288,7 @@ sub addrepo_scan {
   my $dirty;
   if ($cache) {
     $dirty = $cache->updatefrombins($dir, @bins);
-    print "(dirty: $dirty)\n" if $dirty;
+    print "    (dirty: $dirty)\n" if $dirty;
   } else {
     $cache = $pool->repofrombins($prp, $dir, @bins);
     $dirty = 1;
@@ -1622,7 +1622,7 @@ sub addrepo_remote {
 
   my ($projid, $repoid) = split('/', $prp, 2);
   return undef if !$remoteproj || $remoteproj->{'error'};
-  print "fetching remote repository state for $prp\n";
+  print "    fetching remote repository state for $prp\n";
   my $param = {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$myarch/_repository",
     'timeout' => 200,
@@ -2276,7 +2276,7 @@ sub checkkiwiproduct {
 }
 
 sub rebuildkiwiproduct {
-  my ($projid, $repoid, $packid, $pdata, $info, $prpsearchpath, $data, $relsyncmax) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $data, $relsyncmax) = @_;
 
   my $rpms = $data->[0];
   my $reason = $data->[1];
@@ -2295,8 +2295,9 @@ sub rebuildkiwiproduct {
 
   my $mytime = time(); # ensure that we use the same time in all logs
 
+  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
   my $searchpath = [];
-  for (@$prpsearchpath) {
+  for (@aprps) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
       push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
@@ -2355,7 +2356,7 @@ sub rebuildkiwiproduct {
     'versrel' => $pdata->{'versrel'},
     'bcnt' => $h->{'bcnt'} + 1,
     'bdep' => \@bdeps,
-    'path' => [{'project' => $projid, 'repository' => $repoid, 'server' => $BSConfig::reposerver}],
+    'path' => $searchpath,
     'reason' => $reason->{'explain'},
   };
   mkdir_p("$reporoot/$prp/$myarch/$packid");
@@ -3850,7 +3851,7 @@ while(1) {
       my ($astatus, $aerror) = checkkiwiproduct($projid, $repoid, $packid, $pdata, $info, $relsynctrigger{$packid});
       if ($astatus eq 'scheduled') {
 	# aerror contains new meta file in this case
-	($astatus, $aerror) = rebuildkiwiproduct($projid, $repoid, $packid, $pdata, $info, $prpsearchpath{$prp}, $aerror, $relsyncmax);
+	($astatus, $aerror) = rebuildkiwiproduct($projid, $repoid, $packid, $pdata, $info, $aerror, $relsyncmax);
 	if ($astatus eq 'scheduled') {
 	  # aerror contains jobid in this case
 	  $notready{$pname} = 1;
