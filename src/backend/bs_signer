@@ -34,6 +34,7 @@ use Digest::MD5 ();
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Build;
+use Storable;
 
 use BSConfig;
 use BSRPC;
