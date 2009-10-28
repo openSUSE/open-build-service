@@ -930,49 +930,23 @@ sub putjob {
   mkdir_p($dir);
   # uploaded is empty for local image building
   my $uploaded = BSServer::read_cpio($dir);
-  my $success = 0;
   $jobstatus->{'result'} = 'failed';
   # upload is empty for local image building
-  if ( ! @$uploaded ) {
+  if (!@$uploaded) {
     $jobstatus->{'result'} = $cgi->{'code'} || 'succeeded';
-    $success = 1;
-  };
+  }
   # usual build should have uploaded content.
   for my $file (@$uploaded) {
     next if $file->{'name'} eq 'meta' || $file->{'name'} eq 'logfile';
-    $success = 1;
     $jobstatus->{'result'} = 'succeeded';
     last;
   }
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';
-    BSHermes::notify("BUILD_UNCHANGED", $info);
-  } elsif ($BSConfig::sign) {
-    my @signargs;
-    push @signargs, '--project', $projid if $BSConfig::sign_project;
-    my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
-    if ($signkey) {
-      mkdir_p("$uploaddir");
-      writestr("$uploaddir/repserver.$$", undef, $signkey);
-      push @signargs, '-P', "$uploaddir/repserver.$$";
-    }
-    # get us the sign key
-    for my $file (@$uploaded) {
-      next unless $file->{'name'} =~ /\.rpm$/;
-      if (system($BSConfig::sign, @signargs, '-r', "$dir/$file->{'name'}")) {
-        print "sign $dir/$file->{'name'} failed: $?\n";
-        $jobstatus->{'result'} = 'failed';
-	local *F;
-	open(F, '>>', "$dir/logfile");
-	print F "sign $file->{'name'} failed: $?\n";
-	close F;
-	$success = 0;
-      }
-    }
-    unlink("$uploaddir/repserver.$$") if $signkey;
-
-    BSHermes::notify($success ? "BUILD_SUCCESS" :  "BUILD_FAIL", $info);
+    BSHermes::notify('BUILD_UNCHANGED', $info);
+  } else {
+    BSHermes::notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
   }
 
   # calculate binary info to speed up scheduler
@@ -998,10 +972,17 @@ sub putjob {
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
   close F;
 
-  mkdir_p("$eventdir/$arch");
-  my $ev = {'type' => 'built', 'job' => $job};
-  writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
-  ping($arch);
+  my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
+
+  if (grep {$_->{'name'} =~ /\.rpm$/} (@$uploaded)) {
+    mkdir_p("$eventdir/signer");
+    writexml("$eventdir/signer/.finished:$job$$", "$eventdir/signer/finished:$job", $ev, $BSXML::event);
+    ping('signer');
+  } else {
+    mkdir_p("$eventdir/$arch");
+    writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
+    ping($arch);
+  }
 
   return $BSStdServer::return_ok;
 }
@@ -1058,7 +1039,7 @@ sub forwardevent {
   for my $a (@archs) {
     next if $a =~ /^\./;
     next unless -d "$eventdir/$a";
-    next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch';
+    next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer';
     writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
     ping($a);
   }
