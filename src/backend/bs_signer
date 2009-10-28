@@ -1,0 +1,194 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2009 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Sign the built packages
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use POSIX;
+use Data::Dumper;
+use Digest::MD5 ();
+use Fcntl qw(:DEFAULT :flock);
+use XML::Structured ':bytes';
+use Build;
+
+use BSConfig;
+use BSRPC;
+use BSUtil;
+use BSXML;
+use BSVerify;
+
+use strict;
+
+my $user = $BSConfig::bsuser;
+my $group = $BSConfig::bsgroup;
+
+!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
+!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+if (defined $group) {
+  ($(, $)) = ($group, $group);
+  die "setgid: $!\n" if ($) != $group);
+}
+if (defined $user) {
+  ($<, $>) = ($user, $user); 
+  die "setuid: $!\n" if ($> != $user); 
+}
+
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+my $jobsdir = "$BSConfig::bsdir/jobs";
+my $eventdir = "$BSConfig::bsdir/events";
+my $myeventdir = "$eventdir/publish";
+my $uploaddir = "$BSConfig::bsdir/upload";
+
+sub signjob {
+  my ($job, $arch) = @_;
+  local *F;
+  die("no such job\n") unless -e "$jobsdir/$arch/$job";
+  die("job is not done\n") unless -e "$jobsdir/$arch/$job:status";
+  my $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
+  die("job is not finished\n") if $jobstatus->{'code'} ne 'finished';
+  my $jobdir = "$jobsdir/$arch/$job:dir";
+  die("jobdir does not exist\n") unless -d $jobdir;
+  my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
+  my $projid = $info->{'project'};
+  my @files = sort(ls($jobdir));
+  my @rpms = grep {/\.rpm$/} @files;
+  if (@rpms) {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
+    if ($signkey) {
+      mkdir_p($uploaddir);
+      writestr("$uploaddir/signer.$$", undef, $signkey);
+      push @signargs, '-P', "$uploaddir/signer.$$";
+    }
+    for my $rpm (@rpms) {
+      if ($info->{'file'} eq '_aggregate') {
+	# special aggregate handling: remove old sigs
+        system('rpm', '--delsign', "$jobdir/$rpm") && warn("delsign $jobdir/$rpm failed: $?\n");
+      }
+      if (system($BSConfig::sign, @signargs, '-r', "$jobdir/$rpm")) {
+        unlink("$uploaddir/signer.$$") if $signkey;
+	die("sign $jobdir/$rpm failed: $?\n");
+      }
+    }
+    unlink("$uploaddir/signer.$$") if $signkey;
+
+    # we have changed the file ids, thus we need to re-create
+    # the .bininfo file
+    my $bininfo = {};
+    for my $file (@files) {
+      next unless $file =~ /\.(?:rpm|deb)$/;
+      my @s = stat("$jobdir/$file");
+      next unless @s;
+      my $id = "$s[9]/$s[7]/$s[1]";
+      my $data = Build::query("$jobdir/$file", 'evra' => 1);
+      BSVerify::verify_nevraquery($data);
+      $bininfo->{$id} = $data;
+    }
+    Storable::nstore($bininfo, "$jobdir/.bininfo") if %$bininfo;
+  }
+  close F;	# release lock
+}
+
+sub ping {
+  my ($arch) = @_;
+  local *F;
+  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite(F, 'x');
+    close(F);
+  }
+}
+
+
+$| = 1;
+print "starting build service signer\n";
+
+# get lock
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_signer.lock") || die("$rundir/bs_signer.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("signer is already running!\n");
+utime undef, undef, "$rundir/bs_signer.lock";
+
+die("sign program is not configured!\n") unless $BSConfig::sign;
+
+mkdir_p($myeventdir);
+if (!-p "$myeventdir/.ping") {
+  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
+  chmod(0666, "$myeventdir/.ping");
+}
+sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
+
+for my $event (grep {s/::inprogress$//s} ls($myeventdir)) {
+  rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
+}
+
+while (1) {
+  # drain ping pipe
+  my $dummy;
+  fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
+  1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0; 
+  fcntl(PING,F_SETFL,0);
+
+  my @events = ls($myeventdir);
+  @events = grep {!/^\./} @events;
+  for my $event (@events) {
+    last if -e "$rundir/bs_signer.exit";
+    last if -e "$rundir/bs_signer.restart";
+
+    my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
+    if (!$ev) {
+      unlink("$myeventdir/$event");
+      next;
+    }
+    rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
+    my $job = $ev->{'job'};
+    my $arch = $ev->{'arch'};
+    eval {
+      signjob($job, $arch);
+    };
+    if ($@) {
+      warn("sign failed: $@");
+      rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
+    } else {
+      my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
+      writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
+      ping($arch);
+    }
+  }
+
+  if (-e "$rundir/bs_signer.exit") {
+    unlink("$rundir/bs_signer.exit");
+    print "exiting...\n";
+    exit(0);
+  }
+  if (-e "$rundir/bs_signer.restart") {
+    unlink("$rundir/bs_signer.restart");
+    print "restarting...\n";
+    exec($0);
+    die("$0: $!\n");
+  }
+}
