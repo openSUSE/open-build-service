@@ -65,6 +65,8 @@ my $uploaddir = "$BSConfig::bsdir/upload";
 
 sub signjob {
   my ($job, $arch) = @_;
+
+  print "signing $arch/$job\n";
   local *F;
   die("no such job\n") unless -e "$jobsdir/$arch/$job";
   die("job is not done\n") unless -e "$jobsdir/$arch/$job:status";
