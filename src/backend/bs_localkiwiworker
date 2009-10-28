@@ -473,6 +473,7 @@ if (!$justbuild) {
   if ($path eq '/info') {
     my $info = readstr("$statedir/job");
     BSServer::reply($info, 'Content-Type: text/xml');
+    exit(0);
   } elsif ($path eq '/logfile') {
     my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
     die("not building\n") if $state->{'state'} ne 'building';
