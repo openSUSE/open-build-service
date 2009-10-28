@@ -9,13 +9,29 @@ For Updaters to OBS 1.7
 For Updaters from OBS 1.0.x releases
 ====================================
 
-1) Recommended rake migrate update
+1) Required rake migrate update
 
 When the obs-api package has been updated, it is required to upgrade
 the database. Therefore, you should do
 
     # cd /srv/www/obs/frontend/
     # RAILS_ENV="production_slave" rake db:migrate
+
+2) Enable the new backend services
+
+  In case you use the package signing, you need to run the new bs_signer 
+  process. This has been split out of bs_repserver for better scalability.
+
+    # insserv obssigner
+    # rcobs_signer start
+
+  You may want to run also the new bs_warden daemon, this monitors the 
+  build hosts and restarts jobs, in case a build host is not responding
+  correctly anymore:
+
+    # insserv obswarden
+    # rcobswarden start
+
 
 For Updaters from OBS 0.9.x releases
 ====================================

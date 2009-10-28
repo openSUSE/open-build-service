@@ -25,6 +25,21 @@ WARNING: The following starts services which are accessible from the outside.
 
 The data get hosted inside of /srv/obs directory by default.
 
+1.2 start the following optional services
+=========================================
+
+You may start
+
+   rcobssigner start
+
+in case you want to use the automatic package signing features.
+
+You may start
+
+   rcobswarden start
+
+in case you want to monitor your workers
+
 2. start the workers
 ====================
 The workers ask the backend for open build jobs and do the build.

@@ -5,18 +5,17 @@
 #         Martin Mohring <martin.mohring@5etech.eu>
 #         Susanne Oberhauser  <froh@novell.com>
 #
-# /etc/init.d/obsdispatcher
+# /etc/init.d/obssigner
 #   and its symbolic  link
-# /usr/sbin/rcobsdispatcher
+# /usr/sbin/rcobssigner
 #
 ### BEGIN INIT INFO
-# Provides:          obsdispatcher
-# Required-Start:    $time $syslog obssrcserver obsrepserver
-# Should-Start:      obsscheduler $remote_fs
+# Provides:          obssigner
+# Required-Start:    $time $syslog
 # Required-Stop:     $null
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Description:       openSUSE build service
+# Description:       openSUSE build service signer
 ### END INIT INFO
 
 . /etc/rc.status
@@ -41,16 +40,17 @@ logdir="$OBS_LOG_DIR"
 
 rc_reset
 case "$1" in
-    start)
-		echo -n "Initializing obsdispatcher"
+	start)
+		echo -n "Initializing obssigner"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-	        startproc -l "$logdir"/dispatcher.log "$obsdir"/bs_dispatch
+		startproc -l "$logdir"/signer.log \
+		    "$obsdir"/bs_signer
 		rc_status -v
 	;;
 	stop)
-		echo -n "Shutting down obsdispatcher"
-		killproc "$obsdir"/bs_dispatch
+		echo -n "Shutting down obssigner"
+		killproc "$obsdir"/bs_signer
 		rc_status -v
 	;;
 	restart)
@@ -72,8 +72,8 @@ case "$1" in
 	reload)
 	;;
 	status)
-		echo -n "Checking for obsdispatcher:"
-		checkproc "$obsdir"/bs_dispatch
+		echo -n "Checking for obssigner: "
+		checkproc "$obsdir"/bs_signer
 		rc_status -v
 	;;
 	*)
