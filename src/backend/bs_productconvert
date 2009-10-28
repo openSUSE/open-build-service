@@ -267,14 +267,14 @@ sub createProductOptions($$$)
     $varsH{MULTIPLE_MEDIA} = "no";
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
-    $varsH{RUN_MEDIA_CHECK} = "true" if (defined($medium->{'run_media_check'}));
+    $varsH{RUN_MEDIA_CHECK} = "yes" if (defined($medium->{'run_media_check'})) && $medium->{'run_media_check'} ne "no";
+    $varsH{REPO_ONLY} = "yes" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no";
     $varsH{SHA1OPT} = "-x";
 
     $varsH{VENDOR} = $product->{'vendor'};
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
     $varsH{FLAVOR} = $medium->{'flavor'};
-    $varsH{REPO_ONLY} = $medium->{'repo_only'};
     $varsH{RELEASE} = $product->{'release'};
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
