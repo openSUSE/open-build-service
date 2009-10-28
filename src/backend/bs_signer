@@ -164,6 +164,11 @@ while (1) {
       unlink("$myeventdir/$event");
       next;
     }
+    if ($ev->{'type'} ne 'built') {
+      print "unknown event type: $ev->{'type'}\n";
+      unlink("$myeventdir/$event");
+      next;
+    }
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
     my $job = $ev->{'job'};
     my $arch = $ev->{'arch'};
