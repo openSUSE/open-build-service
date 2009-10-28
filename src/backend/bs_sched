@@ -2283,7 +2283,6 @@ sub rebuildkiwiproduct {
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
-  my $mytime = time(); # ensure that we use the same time in all logs
   return ('scheduled', "$job-$srcmd5") if -s "$myjobsdir/$job-$srcmd5";
   my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
   $job = "$job-$srcmd5";
@@ -2293,6 +2292,8 @@ sub rebuildkiwiproduct {
     print "        killing old job $otherjob\n";
     killjob($otherjob);
   }
+
+  my $mytime = time(); # ensure that we use the same time in all logs
 
   my $searchpath = [];
   for (@$prpsearchpath) {
@@ -2507,37 +2508,6 @@ sub checkaggregate {
   return ('scheduled', $new_meta);
 }
 
-## -> repserver
-sub resign {
-  my ($projid, @bins) = @_;
-  return unless $BSConfig::sign;
-  my @signargs;
-  push @signargs, '--project', $projid if $BSConfig::sign_project;
-  my $signkey;
-  while(1) {
-    eval {
-      $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
-    };
-    if ($@) {
-      warn($@);
-      sleep(10);
-      next;
-    }
-    last;
-  }
-  if ($signkey) {
-    mkdir_p("$uploaddir");
-    writestr("$uploaddir/sched.$$", undef, $signkey);
-    push @signargs, '-P', "$uploaddir/sched.$$";
-  }
-  for my $bin (@bins) {
-    next unless $bin =~ /.rpm$/;
-    system('rpm', '--delsign', $bin) && warn("delsign failed\n");
-    system($BSConfig::sign, @signargs, '-r', $bin) && warn("sign failed\n");
-  }
-  unlink("$uploaddir/sched.$$") if $signkey;
-}
-
 #
 # rebuildaggregate  - copy packages from other projects to rebuild an
 #                     aggregate
@@ -2560,6 +2530,7 @@ sub rebuildaggregate {
   my $prp = "$projid/$repoid";
   my @aggregates = @{$pdata->{'aggregatelist'}->{'aggregate'} || []};
   my $job = jobname($prp, $packid);
+  return ('scheduled', $job) if -s "$myjobsdir/$job";
   my $jobdatadir = "$myjobsdir/$job:dir";
   unlink "$jobdatadir/$_" for ls($jobdatadir);
   mkdir_p($jobdatadir);
@@ -2654,8 +2625,6 @@ sub rebuildaggregate {
   }
   writestr("$jobdatadir/meta", undef, $new_meta);
 
-  resign($projid, sort keys %$jobrepo) if $BSConfig::sign;
-
   local *F;
   my $jobstatus = {
     'code' => 'finished',
@@ -2675,10 +2644,12 @@ sub rebuildaggregate {
   close(F);
   print "        scheduled\n";
 
-  # trigger ourself
-  my $ev = {'type' => 'built', 'job' => $job};
-  sendevent($ev, $myarch, "finished:$job");
-
+  my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
+  if ($BSConfig::sign && grep {/\.rpm$/} keys %$jobrepo) {
+    sendevent($ev, 'signer', "finished:$job");
+  } else {
+    sendevent($ev, $myarch, "finished:$job");
+  }
   return ('scheduled', $job);
 }
 
