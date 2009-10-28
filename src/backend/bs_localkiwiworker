@@ -278,7 +278,7 @@ sub dobuild {
   delete $ENV{'LANG'};                     # set locale to POSIX to have the same always sort order
   my $kiwiprg = '/usr/sbin/kiwi';
   $kiwiprg = 'kiwitee';
-  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '-v', '-v', '-v', '-v', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
+  if (system($kiwiprg, '--root', "$buildroot/root", '-v', '-v', '--logfile', 'terminal', '-p', $srcdir, '--create-instsource', "$buildroot/config")) {
      return undef;
   }
 
