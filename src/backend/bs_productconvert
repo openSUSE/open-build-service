@@ -265,10 +265,10 @@ sub createProductOptions($$$)
     }
     $varsH{PRODUCT_THEME} = $product->{'buildconfig'}->{'producttheme'};
     $varsH{MULTIPLE_MEDIA} = "no";
-    $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
-    $varsH{MULTIPLE_MEDIA} = "yes" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
-    $varsH{RUN_MEDIA_CHECK} = "yes" if (defined($medium->{'run_media_check'})) && $medium->{'run_media_check'} ne "no";
-    $varsH{REPO_ONLY} = "yes" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no";
+    $varsH{MULTIPLE_MEDIA} = "true" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
+    $varsH{MULTIPLE_MEDIA} = "true" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
+    $varsH{RUN_MEDIA_CHECK} = "true" if (defined($medium->{'run_media_check'})) && $medium->{'run_media_check'} ne "no";
+    $varsH{REPO_ONLY} = "true" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no" && $medium->{'repo_only'} ne "false";
     $varsH{SHA1OPT} = "-x";
 
     $varsH{VENDOR} = $product->{'vendor'};
