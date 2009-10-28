@@ -60,7 +60,7 @@ if (defined $user) {
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
-my $myeventdir = "$eventdir/publish";
+my $myeventdir = "$eventdir/signer";
 my $uploaddir = "$BSConfig::bsdir/upload";
 
 sub signjob {
