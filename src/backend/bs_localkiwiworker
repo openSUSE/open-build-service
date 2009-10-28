@@ -178,7 +178,9 @@ sub dobuild {
   my $mediumbase;
   my @vars;
   my $tag_media="";
+  my $repo_only="false";
   for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
+    $repo_only="true" if ( $productvar->{'name'} eq 'REPO_ONLY' and $productvar->{'_content'} eq 'true' );                          
     if ($productvar->{'name'} eq 'MEDIUM_NAME') {
       $mediumbase = $productvar->{'_content'};
       # Extend medium name with build number
@@ -290,7 +292,30 @@ sub dobuild {
       next;
     }
     push @result, $medium;
-    push @result, "$medium.iso" if -e "$outdir/$medium.iso";
+    if (-e "$outdir/$medium.iso") {
+      push @result, "$medium.iso";
+      next;
+    }else{
+      # old compatibility mode, just needed for kiwi and build from openSUSE 11.1 GA and SLES 11 SP0 GA
+      next if $repo_only eq "true";
+      print "WARNING: iso gets created via obsolete suse-isolinux, please use kiwi implementation instead !\n";
+      if (system("/usr/bin/suse-isolinux $outdir/$medium $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
+        print "WARNING: suse-isolinux failed: $?\n";
+        next;
+      }
+      if (! -s "$outdir/$medium.iso") {
+        print "WARNING: suse-isolinux dir not create iso\n";
+        next;
+      }
+      if ( -d "$outdir/$medium/suse" ){
+        # tag medias for self check
+        if (system("/usr/bin/tagmedia --md5 $tag_media $outdir/$medium.iso 2>&1 | tee -a $buildroot/.build.log")) {
+          print "WARNING: tagmedia failed: $?\n";
+          next;
+        }
+      }
+      push @result, "$medium.iso";
+    }
   }
   return \@result;
 }
