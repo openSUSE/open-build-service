@@ -69,10 +69,20 @@ sub signjob {
 
   print "signing $arch/$job\n";
   local *F;
-  die("no such job\n") unless -e "$jobsdir/$arch/$job";
-  die("job is not done\n") unless -e "$jobsdir/$arch/$job:status";
+  if (! -e "$jobsdir/$arch/$job") {
+    print "no such job\n";
+    return undef;
+  }
+  if (! -e "$jobsdir/$arch/$job:status") {
+    print "job is not done\n";
+    return undef;
+  }
   my $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
-  die("job is not finished\n") if $jobstatus->{'code'} ne 'finished';
+  if ($jobstatus->{'code'} ne 'finished') {
+    print "job is not finished\n";
+    close F;
+    return undef;
+  }
   my $jobdir = "$jobsdir/$arch/$job:dir";
   die("jobdir does not exist\n") unless -d $jobdir;
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
@@ -95,6 +105,7 @@ sub signjob {
       }
       if (system($BSConfig::sign, @signargs, '-r', "$jobdir/$rpm")) {
         unlink("$uploaddir/signer.$$") if $signkey;
+	close F;
 	die("sign $jobdir/$rpm failed: $?\n");
       }
     }
@@ -115,6 +126,7 @@ sub signjob {
     Storable::nstore($bininfo, "$jobdir/.bininfo") if %$bininfo;
   }
   close F;	# release lock
+  return 1;
 }
 
 sub ping {
@@ -175,17 +187,20 @@ while (1) {
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
     my $job = $ev->{'job'};
     my $arch = $ev->{'arch'};
+    my $res;
     eval {
-      signjob($job, $arch);
+      $res = signjob($job, $arch);
     };
     if ($@) {
       warn("sign failed: $@");
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
-    } else {
+      next;
+    } elsif ($res) {
       my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
       writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
       ping($arch);
     }
+    unlink("$myeventdir/${event}::inprogress");
   }
 
   if (-e "$rundir/bs_signer.exit") {
@@ -199,4 +214,6 @@ while (1) {
     exec($0);
     die("$0: $!\n");
   }
+  print "waiting for an event...\n";
+  sysread(PING, $dummy, 1, 0);
 }
