@@ -102,6 +102,7 @@ while (1) {
       local *F;
       my $js2 = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
       if (!$js2 || $js2->{'code'} ne 'building' || $js2->{'jobid'} ne $js->{'jobid'} || $js2->{'workerid'} ne $js->{'workerid'}) {
+        print "build of $job is done on a different worker\n";
 	close F;
 	next;
       }
