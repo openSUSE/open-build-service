@@ -122,7 +122,7 @@ class User < ActiveRecord::Base
       raise RuntimeError, "illegal parameter type to User#can_modify_attribute?: #{attribute.class.name}"
     end
     if attribute.attrib_type.attrib_type_modifiable_by.length > 0
-      attrib_type_modifiable_by.each do |mod_rule|
+      attribute.attrib_type.attrib_type_modifiable_by.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
         next if mod_rule.group; # groups are not yet supported # and not self.is_part_of_group?(mod_rule.group)
         next if mod_rule.role and not has_local_role?(mod_rule.role, attribute.db_package)

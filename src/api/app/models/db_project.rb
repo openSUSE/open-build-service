@@ -409,16 +409,26 @@ class DbProject < ActiveRecord::Base
       return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id", :conditions => ["at.name = BINARY ? and at.attrib_namespace = BINARY ? and ISNULL(attribs.subpackage)", name_parts[1], name_parts[0]])
   end
 
-  def render_attribute_axml(name = nil)
+  def render_attribute_axml(params)
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
+    done={};
     xml = builder.attributes() do |a|
       attribs.each do |attr|
         type_name = attr.attrib_type.namespace+":"+attr.attrib_type.name
-        next if name and not type_name == name
+        next if params[:attribute] and not type_name == params[:attribute]
         a.attribute(:name => type_name) do |y|
-          attr.values.each do |val|
-            y.value(val.value)
+          done[type_name]=1
+          if attr.values.length>0
+            attr.values.each do |val|
+              y.value(val.value)
+            end
+          else
+            if params[:with_default]
+              attr.attrib_type.default_values.each do |val|
+                y.value(val.value)
+              end
+            end
           end
         end
       end

@@ -221,11 +221,8 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      if subpackage
-        render :text => @attrs.render_attribute_axml(params[:attribute],subpackage), :content_type => 'text/xml'
-      else
-        render :text => @attrs.render_attribute_axml(params[:attribute]), :content_type => 'text/xml'
-      end
+      params[:subpackage]=subpackage if subpackage
+      render :text => @attrs.render_attribute_axml(params), :content_type => 'text/xml'
       return
     else
       if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream
@@ -237,7 +234,7 @@ class SourceController < ApplicationController
       # permission checking
       if params[:attribute]
         aname = params[:attribute]
-        if @attrs.find_attribute(params[:attribute],subpackage)
+        if a=@attrs.find_attribute(params[:attribute],subpackage)
           unless @http_user.can_modify_attribute? a
             render_error :status => 403, :errorcode => "change_attribute_no_permission", 
               :message => "user #{user.login} has no permission to modify attribute"

@@ -404,21 +404,56 @@ class DbPackage < ActiveRecord::Base
     return meta_cache.content
   end
 
-  def render_attribute_axml(name = nil, subpackage = nil)
+  def render_attribute_axml(params)
     builder = Builder::XmlMarkup.new( :indent => 2 )
 
     xml = builder.attributes() do |a|
+      done={}
       attribs.each do |attr|
         type_name = attr.attrib_type.namespace+":"+attr.attrib_type.name
-        next if name and not type_name == name
-        next if subpackage and attr.subpackage != subpackage
-        next if subpackage == "" and attr.subpackage != ""  # switch between all and NULL subpackage
+        next if params[:attribute] and not type_name == params[:attribute]
+        next if params[:subpackage] and attr.subpackage != params[:subpackage]
+        next if params[:subpackage] == "" and attr.subpackage != ""  # switch between all and NULL subpackage
+        done[type_name]=1
         p={}
         p[:name] = type_name
         p[:package] = attr.subpackage if attr.subpackage
         a.attribute(p) do |y|
-          attr.values.each do |val|
-            y.value(val.value)
+          if attr.values.length > 0
+            attr.values.each do |val|
+              y.value(val.value)
+            end
+          else
+            if params[:with_default]
+              attr.attrib_type.default_values.each do |val|
+                y.value(val.value)
+              end
+            end
+          end
+        end
+      end
+
+      # show project values as fallback ?
+      if params[:with_project]
+        db_project.attribs.each do |attr|
+          type_name = attr.attrib_type.namespace+":"+attr.attrib_type.name
+          next if done[type_name]
+          next if params[:attribute] and not type_name == params[:attribute]
+          p={}
+          p[:name] = type_name
+          p[:package] = attr.subpackage if attr.subpackage
+          a.attribute(p) do |y|
+            if attr.values.length > 0
+              attr.values.each do |val|
+                y.value(val.value)
+              end
+            else
+              if params[:with_default]
+                attr.attrib_type.default_values.each do |val|
+                  y.value(val.value)
+                end
+              end
+            end
           end
         end
       end

@@ -72,9 +72,6 @@ class AttribType < ActiveRecord::Base
   end
 
   def update_from_xml(node)
-
-    # FIXME, check if user is allowed to change in this namespace
-
     #
     # permission handling
     #
@@ -109,6 +106,8 @@ class AttribType < ActiveRecord::Base
     # set value counter (this number of values must exist, not more, not less)
     if node.has_element? :count
       self.value_count = node.count.to_s
+    else
+      self.value_count = nil
     end
 
     # default values of a attribute stored

@@ -43,10 +43,23 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /source
 
+  # project level
   map.connect 'source/:project/_pattern/:pattern', :controller => 'source',
     :action => 'pattern_meta'
-  #map.connect 'source/:project/_product/:file', :controller => 'source',
-  #  :action => 'product_file'
+  map.connect 'source/:project/_meta', :controller => 'source',
+    :action => 'project_meta'
+  map.connect 'source/:project/_attribute', :controller => 'source',
+    :action => 'attribute_meta'
+  map.connect 'source/:project/_attribute/:attribute', :controller => 'source',
+    :action => 'attribute_meta'
+  map.connect 'source/:project/_config', :controller => 'source',
+    :action => 'project_config'
+  map.connect 'source/:project/_tags', :controller => 'tag',
+    :action => 'project_tags'
+  map.connect 'source/:project/_pubkey', :controller => 'source',
+    :action => 'project_pubkey'
+
+  # package level
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta'
   map.connect 'source/:project/:package/_attribute', :controller => 'source',
@@ -63,20 +76,6 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'file', :file => /.*/
   map.connect 'source/:project/_pattern', :controller => 'source',
     :action => 'index_pattern'
-  #map.connect 'source/:project/_product', :controller => 'source',
-  #  :action => 'index_package'
-  map.connect 'source/:project/_meta', :controller => 'source',
-    :action => 'project_meta'
-  map.connect 'source/:project/_attribute', :controller => 'source',
-    :action => 'attribute_meta'
-  map.connect 'source/:project/_attribute/:attribute', :controller => 'source',
-    :action => 'attribute_meta'
-  map.connect 'source/:project/_config', :controller => 'source',
-    :action => 'project_config'
-  map.connect 'source/:project/_tags', :controller => 'tag',
-    :action => 'project_tags'
-  map.connect 'source/:project/_pubkey', :controller => 'source',
-    :action => 'project_pubkey'
   map.connect 'source/:project/:package', :controller => "source",
     :action => 'index_package'
   map.connect 'source/:project', :controller => "source",
