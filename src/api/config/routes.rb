@@ -44,6 +44,8 @@ ActionController::Routing::Routes.draw do |map|
   ### /source
 
   # project level
+  map.connect 'source/:project', :controller => "source",
+    :action => 'index_project', :project => /\w[^\/]*/
   map.connect 'source/:project/_pattern/:pattern', :controller => 'source',
     :action => 'pattern_meta', :project => /[^\/]*/, :pattern => /[^\/]*/
   map.connect 'source/:project/_meta', :controller => 'source',
@@ -77,9 +79,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'source/:project/_pattern', :controller => 'source',
     :action => 'index_pattern', :project => /[^\/]*/
   map.connect 'source/:project/:package', :controller => "source",
-    :action => 'index_package', :project => /[^\/]*/, :package => /[^\/]*/
-  map.connect 'source/:project', :controller => "source",
-    :action => 'index_project', :project => /[^\/]*/
+    :action => 'index_package', :project => /\w[^\/]*/, :package => /\w[^\/]*/
 
 
   ### /tag
