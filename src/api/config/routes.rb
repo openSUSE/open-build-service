@@ -26,16 +26,16 @@ ActionController::Routing::Routes.draw do |map|
   ### /result
 
   map.connect 'result/:project/result', :controller => 'result',
-    :action => 'projectresult'
+    :action => 'projectresult', :project => /[^\/]*/
   map.connect 'result/:project/packstatus', :controller => 'result',
-    :action => 'packstatus'
+    :action => 'packstatus', :project => /[^\/]*/
   map.connect 'result/:project/:platform/result', :controller => 'result',
-    :action => 'projectresult'
+    :action => 'projectresult', :project => /[^\/]*/, :platform => /[^\/]*/
   map.connect 'result/:project/:platform/:package/result', :controller => 'result',
-    :action => 'packageresult'
+    :action => 'packageresult', :project => /[^\/]*/, :platform => /[^\/]*/, :package => /[^\/]*/
   map.connect 'result/:project/:platform/:package/:arch/log',
     :controller => 'result',
-    :action => 'log'
+    :action => 'log', :project => /[^\/]*/, :platform => /[^\/]*/, :package => /[^\/]*/
 
   ### /repository
 
@@ -45,41 +45,41 @@ ActionController::Routing::Routes.draw do |map|
 
   # project level
   map.connect 'source/:project/_pattern/:pattern', :controller => 'source',
-    :action => 'pattern_meta'
+    :action => 'pattern_meta', :project => /[^\/]*/, :pattern => /[^\/]*/
   map.connect 'source/:project/_meta', :controller => 'source',
-    :action => 'project_meta'
+    :action => 'project_meta', :project => /[^\/]*/
   map.connect 'source/:project/_attribute', :controller => 'source',
-    :action => 'attribute_meta'
+    :action => 'attribute_meta', :project => /[^\/]*/
   map.connect 'source/:project/_attribute/:attribute', :controller => 'source',
-    :action => 'attribute_meta'
+    :action => 'attribute_meta', :project => /[^\/]*/
   map.connect 'source/:project/_config', :controller => 'source',
-    :action => 'project_config'
+    :action => 'project_config', :project => /[^\/]*/
   map.connect 'source/:project/_tags', :controller => 'tag',
-    :action => 'project_tags'
+    :action => 'project_tags', :project => /[^\/]*/
   map.connect 'source/:project/_pubkey', :controller => 'source',
-    :action => 'project_pubkey'
+    :action => 'project_pubkey', :project => /[^\/]*/
 
   # package level
   map.connect 'source/:project/:package/_meta', :controller => 'source',
-    :action => 'package_meta'
+    :action => 'package_meta', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_attribute', :controller => 'source',
-    :action => 'attribute_meta'
+    :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_attribute/:attribute', :controller => 'source',
-    :action => 'attribute_meta'
+    :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_attribute/:attribute/:subpackage', :controller => 'source',
-    :action => 'attribute_meta'
+    :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :subpackage => /[^\/]*/
   map.connect 'source/:project/:package/_tags', :controller => 'tag',
-    :action => 'package_tags'
+    :action => 'package_tags', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_wizard', :controller => 'wizard',
-    :action => 'package_wizard'
+    :action => 'package_wizard', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/:file', :controller => "source",
-    :action => 'file', :file => /.*/
+    :action => 'file', :project => /[^\/]*/, :package => /[^\/]*/, :file => /[^\/]*/
   map.connect 'source/:project/_pattern', :controller => 'source',
-    :action => 'index_pattern'
+    :action => 'index_pattern', :project => /[^\/]*/
   map.connect 'source/:project/:package', :controller => "source",
-    :action => 'index_package'
+    :action => 'index_package', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project', :controller => "source",
-    :action => 'index_project'
+    :action => 'index_project', :project => /[^\/]*/
 
 
   ### /tag
@@ -194,29 +194,29 @@ ActionController::Routing::Routes.draw do |map|
   ### /build
 
   map.connect 'build/:project/:repository/:arch/:package/_status',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_log',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
-    :controller => "build", :action => "buildinfo", :repository => /.*/
+    :controller => "build", :action => "buildinfo", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_history',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/:filename',
-    :controller => "build", :action => "file"
+    :controller => "build", :action => "file", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/, :filename => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/_builddepinfo',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package',
-    :controller => "build", :action => "package_index"
+    :controller => "build", :action => "package_index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/_buildconfig',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project/:repository/:arch',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project/_result',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/
   map.connect 'build/:project/:repository',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project',
-    :controller => "build", :action => "project_index"
+    :controller => "build", :action => "project_index", :project => /[^\/]*/
   map.connect 'build/_workerstatus',
     :controller => "build", :action => "pass_to_source"
   map.connect 'build',
@@ -225,13 +225,13 @@ ActionController::Routing::Routes.draw do |map|
   ### /published
 
   map.connect 'published/:project/:repository/:arch/:binary',
-    :controller => "published", :action => "binary"
+    :controller => "published", :action => "binary", :project => /[^\/]*/, :repository => /[^\/]*/, :binary => /[^\/]*/
   map.connect 'published/:project/:repository/:arch',
-    :controller => "published", :action => "pass_to_source"
+    :controller => "published", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'published/:project/:repository/',
-    :controller => "published", :action => "pass_to_source"
+    :controller => "published", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'published/:project',
-    :controller => "published", :action => "pass_to_source"
+    :controller => "published", :action => "pass_to_source", :project => /[^\/]*/
   map.connect 'published/',
     :controller => "published", :action => "pass_to_source"
 
@@ -265,17 +265,17 @@ ActionController::Routing::Routes.draw do |map|
   ### /public
     
   map.connect '/public/build/:prj/:repo/:arch/:pkg',
-    :controller => 'public', :action => 'build'
+    :controller => 'public', :action => 'build', :prj => /[^\/]*/, :repo => /[^\/]*/, :pkg => /[^\/]*/
   map.connect '/public/source/:prj/_meta',
-    :controller => 'public', :action => 'project_meta'
+    :controller => 'public', :action => 'project_meta', :prj => /[^\/]*/
   map.connect '/public/source/:prj/_config',
-    :controller => 'public', :action => 'project_config'
+    :controller => 'public', :action => 'project_config', :prj => /[^\/]*/
   map.connect '/public/source/:prj/:pkg',
-    :controller => 'public', :action => 'package_index'
+    :controller => 'public', :action => 'package_index', :prj => /[^\/]*/, :pkg => /[^\/]*/
   map.connect '/public/source/:prj/:pkg/_meta',
-    :controller => 'public', :action => 'package_meta'
+    :controller => 'public', :action => 'package_meta', :prj => /[^\/]*/, :pkg => /[^\/]*/
   map.connect '/public/source/:prj/:pkg/:file',
-    :controller => 'public', :action => 'source_file'
+    :controller => 'public', :action => 'source_file', :prj => /[^\/]*/, :pkg => /[^\/]*/, :file => /[^\/]*/
   map.connect '/public/lastevents',
     :controller => 'public', :action => 'lastevents'
   map.connect '/public/person/:login/_watchlist', 
@@ -283,7 +283,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/public/distributions',
     :controller => 'public', :action => 'distributions'
   map.connect '/public/binary_packages/:project/:package',
-    :controller => 'public', :action => 'binary_packages'
+    :controller => 'public', :action => 'binary_packages', :project => /[^\/]*/, :package => /[^\/]*/
 
 
   ### DEPRECATED
@@ -291,11 +291,11 @@ ActionController::Routing::Routes.draw do |map|
   ### /platform
 
   map.connect 'platform/:project/:repository', :controller => 'platform',
-    :action => 'repository'
+    :action => 'repository', :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'platform/:project', :controller => 'platform',
-    :action => 'project'
+    :action => 'project', :project => /[^\/]*/
 
   # Install the default route as the lowest priority.
-  map.connect ':controller/:action/:id'
-  map.connect ':controller/:action'
+  map.connect ':controller/:action/:id', :controller => /[^\/]*/, :action => /[^\/]*/
+  map.connect ':controller/:action', :controller => /[^\/]*/, :action => /[^\/]*/
 end
