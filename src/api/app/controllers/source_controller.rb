@@ -212,10 +212,6 @@ class SourceController < ApplicationController
         return
       end
     else
-      render_error :message => "Project attribute handling not yet implemented",
-        :status => 404, :errorcode => "unimplemented"
-      return
-
       @attrs = DbProject.find_by_name(params[:project])
       unless @attrs
         render_error :message => "Unknown project '#{params[:project]}'",
@@ -225,7 +221,11 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      render :text => @attrs.render_attribute_axml(params[:attribute],subpackage), :content_type => 'text/xml'
+      if subpackage
+        render :text => @attrs.render_attribute_axml(params[:attribute],subpackage), :content_type => 'text/xml'
+      else
+        render :text => @attrs.render_attribute_axml(params[:attribute]), :content_type => 'text/xml'
+      end
       return
     else
       if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream

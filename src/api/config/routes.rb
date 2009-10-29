@@ -68,7 +68,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'source/:project/_meta', :controller => 'source',
     :action => 'project_meta'
   map.connect 'source/:project/_attribute', :controller => 'source',
-    :action => 'project_attribute'
+    :action => 'attribute_meta'
   map.connect 'source/:project/_attribute/:attribute', :controller => 'source',
     :action => 'attribute_meta'
   map.connect 'source/:project/_config', :controller => 'source',

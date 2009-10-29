@@ -26,7 +26,8 @@ class DbProject < ActiveRecord::Base
 
   has_many :attrib_types, :dependent => :delete_all
   has_many :attrib_namespace, :dependent => :destroy
-  
+  has_many :attribs, :dependent => :destroy
+ 
   class << self
 
     def find_by_name(name)
@@ -336,21 +337,92 @@ class DbProject < ActiveRecord::Base
       logger.debug "--- finished updating attribute definitions ---"
       #--- end update attribute definitions ---#
 
-      #--- write through to backend ---#
 
-      # update 'updated_at' timestamp
-      self.save! if project.has_attribute? 'updated' and self.updated_at.xmlschema != project.updated
-
-      # update cache
-      build_meta_cache if meta_cache.nil?
-      meta_cache.content = render_axml
-      meta_cache.save!
-
-      if write_through?
-        path = "/source/#{self.name}/_meta"
-        Suse::Backend.put_source( path, project.dump_xml )
-      end
     end #transaction
+  end
+
+  def store
+    # update timestamp and save
+    self.save!
+
+    # update cache
+    build_meta_cache if meta_cache.nil?
+    meta_cache.content = render_axml
+    meta_cache.save!
+
+    if write_through?
+      path = "/source/#{self.name}/_meta"
+      Suse::Backend.put_source( path, render_axml )
+    end
+
+    # FIXME: store attributes also to backend 
+  end
+
+  def store_attribute_axml( attrib )
+
+    raise RuntimeError, "attribute type without a name " if not attrib.name
+
+    # check attribute type in this package project or upper one (by namespace)
+    db_project_upper = self
+    while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
+      db_project_upper = db_project_upper.find_parent
+      raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
+    end
+    # verify the number of allowed values
+    if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
+      raise RuntimeError, "missmatch of value numbers for attribute '#{attrib.name}', #{attrib.each_value.length} instead of #{atype.value_count}"
+    end
+    if atype.value_count and not attrib.has_element? :value
+      raise RuntimeError, "attribute '#{attrib.name}' requires #{atype.value_count} values, but none given"
+    end
+
+    # verify with allowed values for this attribute definition
+    if atype.allowed_values.length > 0
+      logger.debug( "Verify value with allowed" )
+      attrib.each_value.each do |value|
+        found = 0
+        atype.allowed_values.each do |allowed|
+          if allowed.value == value.to_s
+            found = 1
+            break
+          end
+        end
+        if found == 0
+          raise RuntimeError, "attribute value #{value} for '#{attrib.name} is not allowed'"
+        end
+      end
+    end
+    # update or create attribute entry
+    if a = find_attribute(attrib.name)
+      a.update_from_xml(attrib)
+    else
+      # create the new attribute entry
+      self.attribs.new(:attrib_type => atype).update_from_xml(attrib)
+    end
+  end
+
+  def find_attribute( name )
+      name_parts = name.split /:/
+      if name_parts.length != 2
+        raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
+      end
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id", :conditions => ["at.name = BINARY ? and at.attrib_namespace = BINARY ? and ISNULL(attribs.subpackage)", name_parts[1], name_parts[0]])
+  end
+
+  def render_attribute_axml(name = nil)
+    builder = Builder::XmlMarkup.new( :indent => 2 )
+
+    xml = builder.attributes() do |a|
+      attribs.each do |attr|
+        type_name = attr.attrib_type.namespace+":"+attr.attrib_type.name
+        next if name and not type_name == name
+        a.attribute(:name => type_name) do |y|
+          attr.values.each do |val|
+            y.value(val.value)
+          end
+        end
+      end
+    end
   end
 
   def write_through?

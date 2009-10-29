@@ -295,7 +295,6 @@ class DbPackage < ActiveRecord::Base
       a.update_from_xml(attrib)
     else
       # create the new attribute entry
-      # permission check is done by update_from_xml
       if attrib.has_attribute? :package
         self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
       else
