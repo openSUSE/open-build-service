@@ -246,39 +246,14 @@ class DbPackage < ActiveRecord::Base
       end
       #--- end update url ---#
       
-      #--- update attributes ---#
-      logger.debug "--- updating attributes ---"
-
-      attriblist = {}
-      
-      if package.has_element? :attributes
-        package.attributes.each_attribute do |attrib|
-          store_attribute_axml( attrib )
-          cachekey=attrib.name.gsub(/:/,"|")
-          if attrib.has_attribute? :package
-            cachekey << "|" << attrib.package
-          end
-          attriblist[cachekey] = 1
-        end
-      end
-
-      self.attribs.find(:all, :include => :attrib_type).each do |attrib|
-        if not attriblist[attrib.cachekey]
-          logger.debug "removing attribute '#{attrib.attrib_type.namespace}:#{attrib.attrib_type.name}'"
-          attrib.destroy
-        end
-      end
-
-      logger.debug "--- end updating attributes ---"
-      #--- end update attributes ---#
-
       #--- regenerate cache and write result to backend ---#
       store
     end
   end
 
   def store_attribute_axml( attrib )
-    # FIXME: add permission check !
+
+    raise RuntimeError, "attribute type without a name " if not attrib.name
 
     # check attribute type in this package project or upper one (by namespace)
     db_project_upper = db_project
@@ -293,6 +268,7 @@ class DbPackage < ActiveRecord::Base
     if atype.value_count and not attrib.has_element? :value
       raise RuntimeError, "attribute '#{attrib.name}' requires #{atype.value_count} values, but none given"
     end
+
     # verify with allowed values for this attribute definition
     if atype.allowed_values.length > 0
       logger.debug( "Verify value with allowed" )
@@ -309,7 +285,7 @@ class DbPackage < ActiveRecord::Base
         end
       end
     end
-    # update or create attibute entry
+    # update or create attribute entry
     if attrib.has_attribute? :package
        a = find_attribute(attrib.name, attrib.package)
     else
@@ -319,6 +295,7 @@ class DbPackage < ActiveRecord::Base
       a.update_from_xml(attrib)
     else
       # create the new attribute entry
+      # permission check is done by update_from_xml
       if attrib.has_attribute? :package
         self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
       else
@@ -481,7 +458,6 @@ class DbPackage < ActiveRecord::Base
       package.url( url ) if url
       package.bcntsynctag( bcntsynctag ) if bcntsynctag
 
-      package << "  " + render_attribute_axml() + "\n" if attribs.length > 0
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 

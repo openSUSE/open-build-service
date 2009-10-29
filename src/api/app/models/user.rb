@@ -117,6 +117,25 @@ class User < ActiveRecord::Base
     return false
   end
 
+  def can_modify_attribute?(attribute)
+    unless attribute.kind_of? Attrib
+      raise RuntimeError, "illegal parameter type to User#can_modify_attribute?: #{attribute.class.name}"
+    end
+    if attribute.attrib_type.attrib_type_modifiable_by.length > 0
+      attrib_type_modifiable_by.each do |mod_rule|
+        next if mod_rule.user and mod_rule.user != self
+        next if mod_rule.group; # groups are not yet supported # and not self.is_part_of_group?(mod_rule.group)
+        next if mod_rule.role and not has_local_role?(mod_rule.role, attribute.db_package)
+        return true
+      end
+    else
+      # no rules set for attribute, just check package maintainer rules
+      return can_modify_package?(attribute.db_package)
+    end
+    # never reached
+    return false
+  end
+
   # project is instance of DbProject
   def can_create_package_in?(project)
     unless project.kind_of? DbProject
@@ -137,6 +156,42 @@ class User < ActiveRecord::Base
     return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
   end
 
+  def can_create_attribute_in?(object, attrib_type)
+    if object.kind_of? DbProject
+      upper_project = object
+    elsif object.kind_of? DbPackage
+      upper_project = object.db_project
+    else
+      raise RuntimeError, "illegal parameter type to User#can_change?: #{project.class.name}"
+    end
+    unless attrib_type
+      raise RuntimeError, "no attribute type given"
+    end
+    # find attribute type definition
+    while ( not atype = upper_project.attrib_types.find_by_name(attrib_type) or atype.blank? )
+      upper_project = upper_project.find_parent
+      raise RuntimeError, "unknown attribute type '#{attrib_type}'" if not upper_project
+    end
+    # check modifiable_by rules
+    if atype.attrib_type_modifiable_by.length > 0
+      atype.attrib_type_modifiable_by.each do |mod_rule|
+        next if mod_rule.user and mod_rule.user != self
+        next if mod_rule.group; # groups are not yet supported # and not self.is_part_of_group?(mod_rule.group)
+        next if mod_rule.role and not has_local_role?(mod_rule.role, object)
+        return true
+      end
+    else
+      # no rules set for attribute, just check package maintainer rules
+      if object.kind_of? DbProject
+        return can_modify_project?(object)
+      else
+        return can_modify_package?(object)
+      end
+    end
+    # never reached
+    return false
+  end
+
   def can_download_binaries?(package)
     return true if has_global_permission? "download_binaries"
 
@@ -153,6 +208,22 @@ class User < ActiveRecord::Base
   def has_permission?(*args)
     logger.warn "DEPRECATION: User#has_permission? is deprecated, use User#has_global_permission?"
     has_global_permission?(*args)
+  end
+
+  def has_local_role?( role, object )
+    case object
+      when DbPackage
+        logger.debug "running local role package check: user #{self.login}, project #{object.name}, role '#{role.title}'"
+        rels = package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and role_id = ?", object, role], :include => :role
+        return true if rels > 0
+        return has_local_role?(role, object.db_project)
+      when DbProject
+        logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
+        rels = project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and role_id = ?", object, role], :include => :role
+        return true if rels > 0
+        return false
+      end
+    return false
   end
 
   # local permission check

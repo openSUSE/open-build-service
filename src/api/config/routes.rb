@@ -49,9 +49,11 @@ ActionController::Routing::Routes.draw do |map|
   #  :action => 'product_file'
   map.connect 'source/:project/:package/_meta', :controller => 'source',
     :action => 'package_meta'
-  map.connect 'source/:project/:package/_meta/attribute/:attribute', :controller => 'source',
+  map.connect 'source/:project/:package/_attribute', :controller => 'source',
     :action => 'attribute_meta'
-  map.connect 'source/:project/:package/_meta/attribute/:attribute/:subpackage', :controller => 'source',
+  map.connect 'source/:project/:package/_attribute/:attribute', :controller => 'source',
+    :action => 'attribute_meta'
+  map.connect 'source/:project/:package/_attribute/:attribute/:subpackage', :controller => 'source',
     :action => 'attribute_meta'
   map.connect 'source/:project/:package/_tags', :controller => 'tag',
     :action => 'package_tags'
@@ -65,7 +67,9 @@ ActionController::Routing::Routes.draw do |map|
   #  :action => 'index_package'
   map.connect 'source/:project/_meta', :controller => 'source',
     :action => 'project_meta'
-  map.connect 'source/:project/_meta/attribute/:attribute', :controller => 'source',
+  map.connect 'source/:project/_attribute', :controller => 'source',
+    :action => 'project_attribute'
+  map.connect 'source/:project/_attribute/:attribute', :controller => 'source',
     :action => 'attribute_meta'
   map.connect 'source/:project/_config', :controller => 'source',
     :action => 'project_config'

@@ -195,10 +195,10 @@ class SourceController < ApplicationController
     end
   end
 
-  # /source/:project/_meta/attribute/:attribute/:subpackage
-  # /source/:project/:package/_meta/attribute/:attribute/:subpackage
+  # /source/:project/_attribute/:attribute
+  # /source/:project/:package/_attribute/:attribute/:subpackage
   def attribute_meta
-    valid_http_methods :get, :put, :delete
+    valid_http_methods :get, :post, :delete
     params[:user] = @http_user.login if @http_user
 
     subpackage=nil
@@ -228,16 +228,63 @@ class SourceController < ApplicationController
       render :text => @attrs.render_attribute_axml(params[:attribute],subpackage), :content_type => 'text/xml'
       return
     else
-      # FIXME: permission check
+      if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream
+       req = BsRequest.new(request.body.read)
+      else
+       req = BsRequest.new(request.body)
+      end
 
+      # permission checking
+      if params[:attribute]
+        aname = params[:attribute]
+        if @attrs.find_attribute(params[:attribute],subpackage)
+          unless @http_user.can_modify_attribute? a
+            render_error :status => 403, :errorcode => "change_attribute_no_permission", 
+              :message => "user #{user.login} has no permission to modify attribute"
+            return
+          end
+        else
+          unless request.post?
+            render_error :status => 403, :errorcode => "not_existing_attribute", 
+              :message => "Attempt to modify not existing attribute"
+            return
+          end
+          unless @http_user.can_create_attribute_in? @attrs, params[:attribute]
+            render_error :status => 403, :errorcode => "change_attribute_no_permission", 
+              :message => "user #{user.login} has no permission to change attribute"
+            return
+          end
+        end
+      else
+        if request.post?
+          req.each_attribute do |a|
+            unless @http_user.can_create_attribute_in? @attrs, a.name
+              render_error :status => 403, :errorcode => "change_attribute_no_permission", 
+                :message => "user #{user.login} has no permission to change attribute"
+              return
+            end
+          end
+        else
+          render_error :status => 403, :errorcode => "internal_error", 
+            :message => "INTERNAL ERROR: unhandled request"
+          return
+        end
+      end
+
+      # execute action
       if request.post?
-        @attrs.find_attribute(params[:attribute],subpackage).store_attribute_axml(request.raw_post)
+        req.each_attribute do |a|
+          @attrs.store_attribute_axml(a)
+        end
         @attrs.store
         render_ok
       elsif request.delete?
         @attrs.find_attribute(params[:attribute],subpackage).destroy
         @attrs.store
         render_ok
+      else
+        render_error :message => "INTERNAL ERROR: Unhandled operation",
+          :status => 404, :errorcode => "unknown_operation"
       end
     end
   end
