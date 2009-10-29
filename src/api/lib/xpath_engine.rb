@@ -45,7 +45,10 @@ class XpathEngine
           'LEFT JOIN path_elements ON repositories.id = path_elements.parent_id',
           'LEFT JOIN repositories AS path_repos ON path_elements.repository_id = path_repos.id',
           'LEFT JOIN db_projects AS path_projects ON path_projects.id = path_repos.db_project_id'
-        ]}
+        ]},
+        'attribute/@name' => {:cpart => 'CONCAT(attrib_types.attrib_namespace,":",attrib_types.name)', :joins => 
+          ['LEFT JOIN attribs ON attribs.db_project_id = db_projects.id',
+           'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id']},
       }
     }
 
