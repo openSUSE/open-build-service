@@ -1,0 +1,33 @@
+
+<attributes>
+
+  <namespace name="OBS">      <!-- exists in all OBS instances -->
+    <modifiable_by role="Admin"/>
+  </namespace>
+  <namespace name="openSUSE"> <!-- exists only in opensuse.org OBS -->
+    <modifiable_by group="Admin"/>
+  </namespace>
+  
+  <!-- OBS global attributes --> 
+  <definition name="maintained" namespace="OBS" >
+    <count>0</count>
+    <modifiable_by role="Admin"/>
+  </definition>
+  <definition name="screenshots" namespace="OBS" >
+    <modifiable_by role="maintainer"/> <!-- can be removed, this is default -->
+  </definition>
+
+  <!-- openSUSE attributes --> 
+  <definition name="L3-Support" namespace="openSUSE" >
+    <allowed>
+      <value>no</value>
+      <value>upstream_only</value>
+      <value>security_only</value>
+      <value>full_maintenance</value>
+    </allowed>
+    <count>1</count>
+    <modifiable_by role="bugowner"/>
+  </definition>
+
+</attributes>
+
