@@ -9,6 +9,8 @@ require File.join(File.dirname(__FILE__), 'boot')
 
 RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
+require "common/activexml"
+
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
   
@@ -17,11 +19,6 @@ Rails::Initializer.run do |config|
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
-  if( %w(production stage production_test).include? RAILS_ENV )
-    config.load_paths << File.expand_path("/srv/www/vhosts/opensuse.org/common/current/lib")
-  else
-    config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
-  end
 
   # RAILS_ROOT is not working directory when running under lighttpd, so it has
   # to be added to load path
@@ -88,14 +85,12 @@ ActiveRbac.controller_layout = "rbac"
 require 'rails_unescape_fix'
 require 'array_count_for_2_1_fix'
 
-require 'activexml'
 require 'rexml-expansion-fix'
 #require 'custom_dispatcher'
 
 #Dependencies.log_activity = true
 #Dependencies.load_once_paths << "#{RAILS_ROOT}/lib"
 
-# was needed for rails < 2.3
 module ActionController::Routing
   remove_const :SEPARATORS
   SEPARATORS = %w(/ ; ?)
