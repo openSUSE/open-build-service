@@ -28,7 +28,7 @@
        <div class="grey_box" id="logo">
         <div class="box_content_row">
          <div class="box_content" id="logo_content">
-           <%= link_to image_tag( "common/geeko.jpg" ), :controller => "main" %>
+           <%= link_to image_tag( "common/banners/geeko.jpg" ), :controller => "main" %>
          </div>
         </div>
         <div class="box_bottom_row">
@@ -273,7 +273,7 @@
            <a href="http://en.opensuse.org/openSUSE:About">About openSUSE</a> | <a href="http://en.opensuse.org/Legal">Legal information</a> | <a href="mailto:webmaster@opensuse.org">Feedback</a>
            <br />
            <br />
-           <a href="http://www.novell.com/linux/"><img src="https://static.opensuse.org/c/images/common/founded_novell.gif" alt="Founded by Novell" /></a>
+           <%= link_to image_tag( "common/banners/founded_novell.gif", :alt => "Founded by Novell"), "http://www.novell.com/linux/" %>
            <!-- End Footer -->
           </div>
          </div>

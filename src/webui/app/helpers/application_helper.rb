@@ -86,9 +86,9 @@ module ApplicationHelper
 
 
   def get_random_sponsor_image
-    sponsors = ["http://files.opensuse.org/opensuse/en/5/54/Amd.png",
-                "http://files.opensuse.org/opensuse/en/b/b6/Ip-exchange.gif",
-                "http://files.opensuse.org/opensuse/en/f/fc/B1-systems.jpg"]
+    sponsors = ["common/sponsors/sponsor_amd.png",
+                "common/sponsors/sponsor_b1-systems.png",
+                "common/sponsors/sponsor_ip-exchange.png"]
     return sponsors[rand(sponsors.size)]
   end
 
