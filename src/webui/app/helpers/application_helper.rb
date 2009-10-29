@@ -76,4 +76,20 @@ module ApplicationHelper
     "#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd%20party%20software&assigned_to=#{email}&short_desc=#{desc}"
   end
 
+  
+  def hinted_text_field_tag(name, value = nil, hint = "Click and enter text", options={})
+    value = value.nil? ? hint : value
+    text_field_tag name, value, {:onfocus => "if($(this).value == '#{hint}'){$(this).value = ''}",
+                       :onblur => "if($(this).value == ''){$(this).value = '#{hint}'}",
+                           }.update(options.stringify_keys)
+  end
+
+
+  def get_random_sponsor_image
+    sponsors = ["http://files.opensuse.org/opensuse/en/5/54/Amd.png",
+                "http://files.opensuse.org/opensuse/en/b/b6/Ip-exchange.gif",
+                "http://files.opensuse.org/opensuse/en/f/fc/B1-systems.jpg"]
+    return sponsors[rand(sponsors.size)]
+  end
+
 end

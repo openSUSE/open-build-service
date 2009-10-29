@@ -28,6 +28,7 @@
   <p>Your Build Service Team</p>
   
   <% form_tag :action => 'register' do %>
+    <%= hidden_field_tag 'register', 'true' %>
     <%= submit_tag "Let me build my packages!" %>
   <% end %>
 

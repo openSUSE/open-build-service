@@ -1,5 +1,7 @@
 class FrontendCompat
+
   def initialize
+    @url_prefix = CONFIG['api_relative_url_root'] || ""
   end
 
   def logger
@@ -12,7 +14,7 @@ class FrontendCompat
     extraparams << "&arch=#{CGI.escape opt[:arch]}" if opt[:arch]
 
     logger.debug "CMD_PACKAGE #{cmd} ; extraparams = #{extraparams}"
-    transport.direct_http URI("https:///source/#{project}/#{package}?cmd=#{cmd}#{extraparams}"),
+    transport.direct_http URI("https://#{@url_prefix}/source/#{project}/#{package}?cmd=#{cmd}#{extraparams}"),
       :method => "POST", :data => ""
   end
 
@@ -22,7 +24,7 @@ class FrontendCompat
   def rebuild( opt={} )
     raise RuntimeError, "project name missing" unless opt.has_key? :project
     logger.debug "--> rebuild: #{opt.inspect}"
-    path = "/build/#{opt[:project]}?cmd=rebuild"
+    path = "#{@url_prefix}/build/#{opt[:project]}?cmd=rebuild"
     opt.delete :project
 
     valid_opts = %(project package repository arch code)
@@ -36,7 +38,7 @@ class FrontendCompat
 
   def get_source( opt={} )
     logger.debug "--> get_source: #{opt.inspect}"
-    path = '/source'
+    path = "#{@url_prefix}/source"
     path += "/#{opt[:project]}" if opt[:project]
     path += "/#{opt[:package]}" if opt[:project] && opt[:package]
     path += "/#{opt[:filename]}" if opt[:filename]
@@ -46,23 +48,23 @@ class FrontendCompat
   end
 
   def put_file( data, opt={} )
-    transport.direct_http URI("https:///source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
+    transport.direct_http URI("https://#{@url_prefix}/source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
       :method => "PUT", :data => data
   end
 
   def delete_package( opt={} )
     logger.debug "deleting: #{opt.inspect}"
-    transport.direct_http URI("https:///source/#{opt[:project]}/#{opt[:package]}"), :method => "DELETE"
+    transport.direct_http URI("https://#{@url_prefix}/source/#{opt[:project]}/#{opt[:package]}"), :method => "DELETE"
   end
 
   def delete_file( opt={} )
     logger.debug "starting to delete file, opt: #{opt.inspect}"
-    transport.direct_http URI("https:///source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
+    transport.direct_http URI("https://#{@url_prefix}/source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
       :method => "DELETE"
   end
 
   def get_log_chunk( project, package, repo, arch, offset=0 )
-    path = "/build/#{project}/#{repo}/#{arch}/#{package}/_log?nostream=1&start=#{offset}"
+    path = "#{@url_prefix}/build/#{project}/#{repo}/#{arch}/#{package}/_log?nostream=1&start=#{offset}"
     transport.direct_http URI("https://#{path}")
   end
 

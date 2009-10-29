@@ -1,5 +1,4 @@
 # Config options for the buildservice webclient
-
 version: 0.3
 
 # uncomment this option if you want to use a customized theme. See README.theme
@@ -8,4 +7,11 @@ version: 0.3
 # Enable serving of images, stylesheets, and javascripts from an asset server
 # asset_host: https://static.opensuse.org/hosts/build.o.o
 
+# Set this when the webclient runs from a subdirectory
+#relative_url_root: /stage
 
+# Set this when the api runs from a subdirectory
+#api_relative_url_root: /stage
+
+# Exceptions get mailed to these addresses:
+#exception_recipients: ['webclient_noreply@opensuse.org']

@@ -1,22 +1,21 @@
 <% @pagetitle = "Login" %>
 
-<% form_tag :action=> "store_login" do %>
+<form action="<%= @return_to_path %>"
+        method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
 
 <div title="Account login" id="loginform" class="form">
-    <h1>Please login</h1>
+    <h1>Please login:</h1>
     
-    <% if flash['notice'] %>
-      <div id="message"><%=h flash['notice'] %></div>
-    <% end %>
     <p id="login_form">
-      <label for="user_login">Login:</label>
-      <input type="text" name="user_login" id="user_login" size="30" value=""/><br/>
+      <label for="user_login">Username:</label>
+      <input type="text" name="username" id="user_login" size="30" value=""/><br/>
       <label for="user_password">Password:</label>
-      <input type="password" name="user_password" id="user_password" size="30"/>
+      <input type="password" name="password" id="user_password" size="30"/>
+      <input type="hidden" name="authenticity_token" value="<%=  form_authenticity_token %>"/>
     </p>
     <p>
       <input type="submit" name="login" value="Login &#187;" class="primary" />
     </p>
 
-  </div>
- <% end %>
+</div>
+</form>

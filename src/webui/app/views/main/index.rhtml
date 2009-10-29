@@ -1,4 +1,5 @@
-<% if @tagcloud %>
+
+<% if @tagcloud and false %>
     <div id="tagcloud_container" >
         <div id="tagcloud">
          <%= render :partial => "tag/tagcloud" %>
@@ -7,6 +8,12 @@
 <% end %>
 
 <% @pagetitle = "Welcome" %>
+
+
+
+<div>
+
+<%= render :partial => "sponsors" %>
 
 <h1 class="mainhead">Welcome to the openSUSE Build Service</h1>
 
@@ -21,38 +28,6 @@ The openSUSE Build Service is the only service that allows developers to package
 <p class="description">
 With the openSUSE Build Service, users can easily <%= link_to 'find the latest open source packages', 'http://software.opensuse.org/search', :title => 'Software Search' -%> they are looking for and customize them. It provides a bridge between developers and users with feedback and rating functionality. For developers it is an efficient place to build up groups and work together through its project model.
 </p>
-
-<!--
-    <% #= render :partial => 'most_downloaded' -%>
-    <% #= link_to 'more...', { :controller => 'main', :action => 'most_downloaded',
-       #:more => true, :limit => 25 } -%>
-    <% #= render :partial => 'latest_added' -%>
-    <% #= link_to 'more...', { :controller => 'main', :action => 'latest_added',
-       #:more => true, :limit => 25 } -%>
-    <% #= render :partial => 'latest_updated' -%>
-    <% #= link_to 'more...', { :controller => 'main', :action => 'latest_updated',
-       #:more => true, :limit => 25 } -%>
--->
-
-<!--
-
-https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png
-
-https://static.opensuse.org/hosts/build.o.o/images/icons/document-new.png
-
-https://static.opensuse.org/hosts/build.o.o/images/icons/system-search.png
-
-
-
-
-https://static.opensuse.org/hosts/build.o.o/images/icons/dialog-information.png
-
-https://static.opensuse.org/hosts/build.o.o/images/icons/utilities-system-monitor.png
-
-https://static.opensuse.org/hosts/build.o.o/images/icons/x-office-spreadsheet.png
-https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png
-
--->
 
 <% if session[:login] -%>
 
@@ -104,8 +79,11 @@ https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png
 <% else -%>
   <p class="description">If you are a packager and want to add / edit packages, you have to
   <strong>
-    <%= link_to image_tag('login.png', :alt => 'login') + "Login",
-    :controller => "main", :action => :index2 %>
+    <% if ICHAIN_MODE == 'on' %>
+      <a href="https://build.opensuse.org/ICSLogin/?%22<%= @return_to_host + @return_to_path %>%22"><%= image_tag('login.png', :alt => 'login') %>Login</a>
+    <% else %>
+      <%= link_to image_tag('login.png', :alt => 'login') + "Login", :controller => "user", :action => :login %>
+    <% end %>
   </strong>
   </p>
 <% end -%>

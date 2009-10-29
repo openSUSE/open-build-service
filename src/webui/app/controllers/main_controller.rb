@@ -1,27 +1,9 @@
 class MainController < ApplicationController
 
-
-  skip_before_filter :authorize, :only => [ :index ]
-
+  skip_before_filter :require_login, :only => [ :index ]
 
   def index
-    authorize if session[:login]
     @tagcloud ||= Tagcloud.find( :alltags, :user => session[:login], :limit => "60") if session[:login]
-  end
-
-
-  def index2
-    redirect_to :action => :index
-  end
-
-
-  def search
-    ### search form
-  end
-
-
-  def search_advanced
-    ### advanced search form
   end
 
 

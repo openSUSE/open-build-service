@@ -3,7 +3,7 @@
 <head>
   <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
   <%= stylesheet_link_tag "opensuse", "SyntaxHighlighter", "local/style", :media => "all" %>
-  <%= javascript_include_tag 'prototype', 'effects', 'application' %>
+  <%= javascript_include_tag 'prototype', 'effects', 'application','table' %>
   <%= javascript_include_tag 'shCore', 'shBrushSpec', 'shBrushXml' %>
   
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -37,8 +37,38 @@
         </div>
        </div>
        <!-- End Logo -->
-       
+       <!-- Begin openSUSE navigation -->
+       <div class="grey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+          openSUSE
+         </div>
+        </div>
+        <div class="box_content">
+         <ul class="navlist">
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_download.png)"><a href="http://software.opensuse.org/">Get Software</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://en.opensuse.org/">Wiki</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_build.png)"><%= link_to "Build Software", :controller => 'main' %></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://users.opensuse.org/">User Directory</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="https://features.opensuse.org/">Features</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://news.opensuse.org/">News</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://forums.opensuse.org">Forums</a></li>          
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://shop.opensuse.org/">Shop</a></li>
+         </ul>
+       </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+       <!-- End openSUSE navigation -->
        <!-- Begin custom navigation -->
+
 <% if session[:login] -%> 
        <div class="darkgrey_box">
         <div class="box_top_row">
@@ -66,7 +96,7 @@
        <br />
   <% end -%>
 
-  <% if session[:login] -%>
+<% if session[:login] -%>
        <div class="darkgrey_box">
         <div class="box_top_row">
          <div class="box_left"></div>
@@ -79,7 +109,7 @@
         </div>
         <div class="box_content">
          <ul class="navlist">
-           <li><%= link_to "List of All Projects", :controller => "project", :action => :list_public %></li>
+           <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
            <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
            <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
            <!-- <li>
@@ -95,8 +125,8 @@
         </div>
        </div>
        <br />
-
 <% end -%>
+
 
        <div class="darkgrey_box">
         <div class="box_top_row">
@@ -137,6 +167,9 @@
        </div>
        <br />
 
+    <%= render(:partial => "layouts/sponsor") %>
+
+
       </div>
      </div>
      <!-- End left column -->
@@ -148,19 +181,9 @@
          <div class="box_content" id="banner_content">
           <div id="pt-personal">
             <!-- Begin Personal links (Login, etc.) -->
-            <% if session[:login] -%>
-             
-              <%= link_to session[:login], :controller => 'home', :action => :index %>
-              |
-              <div onclick="new Effect.toggle($('inplace_watchlist'), 'blind', {duration:0.15});">Watchlist</div>
-              |
-              <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
-              |
-              <strong><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></strong>
-             
-            <% else %>
-             <a href="/main/index2">Register | Login</a>
-            <% end %>
+
+            <%= render(:partial => "layouts/personal_navigation") %>
+            
             <!-- End Personal links (Login, etc.) -->
 
           </div>
@@ -206,13 +229,7 @@
        </div>
        <br style="clear: right;" />
        <div id="contentarea">
-	      <% if !session[:login] -%> 
-	      <!-- Snippet for starting page (3-column layout) -->
-        <div class="subcolumns">
-         <div class="c75l">
-          <div class="subcl">
-          <!-- End Snippet -->
-	      <% end %>
+
         <div class="grey_box_double" style="float:left; width: 100%;">
          <div class="box_top_row">
           <div class="box_left"></div>
@@ -220,17 +237,7 @@
          </div>
          <div class="box_title_row">
           <div class="box_title">
-           <div id="langsel" class="hide">
-            <!-- Begin language select -->
-            <form action="" name="langsel">
-             <select name="lang" onchange="langRedirect()">
-              <option value="">In other languages</option>
-              <option value="http://de.test.opensuse.org/Main_Page">Deutsch</option>
-              <option value="http://fr.test.opensuse.org/Main_Page">Français</option>
-             </select>
-            </form>
-            <!-- End langauge select -->
-           </div>
+
            <div id="page_actions">
             <!-- Begin page actions -->
             <ul>
@@ -250,13 +257,11 @@
          <div class="box_content" id="bodyContent">
          <!-- Begin content area -->
           <p class="special">
-            <% if flash[:note] %>
-               <div class="message info"><%=h flash[:note] %></div>
-            <% end %>
-            <% if flash[:error] %>
-               <div class="message error"><%=h flash[:error] %></div>
-            <% end %>
-           <%= @content_for_layout %>
+
+            <%= render(:partial => "layouts/flash", :object => flash) %>
+
+            <%= @content_for_layout %>
+            
           </p>
          <!-- End content area -->
          </div>
@@ -279,48 +284,16 @@
         </div>
        </div>
       </div>
-      <% if !session[:login] -%> 
+
       <!-- Insert right navigation bar -->
       <div class="c25r" id="rightnav">
         <div class="subcr">
-          <div class="darkgrey_box">
-           <div class="box_top_row">
-            <div class="box_left"></div>
-            <div class="box_right"></div>
-           </div>
-           <div class="box_title_row">
-            <div class="box_title">
-            Sponsored by
-            </div>
-           </div>
-           <div class="box_content" id="platin_sponsor">
-            <div style="text-align: center; padding: 7px 0; overflow: hidden;">
-              <p style="color: #ccc; font-size: 0.8em;">Gold Sponsor</p>
-              <p>
-                <a href="http://en.opensuse.org/Sponsors"><img src="http://files.opensuse.org/opensuse/en/5/54/Amd.png" title="Sponsored by AMD" alt="Sponsored by AMD"/></a>
-                <a href="http://en.opensuse.org/Sponsors"><img title="Sponsored by: IP Exchange" alt="Sponsored by: IP Exchange" src="http://files.opensuse.org/opensuse/en/b/b6/Ip-exchange.gif"/></a>
-              </p>
-              <p style="color: #ccc; font-size: 0.8em;">Silver Sponsor</p>
-              <p>
-                
-              <a class="external text" rel="nofollow" title="http://en.opensuse.org/Sponsors" href="http://en.opensuse.org/Sponsors">
-              <img alt="B1-systems.jpg" src="http://files.opensuse.org/opensuse/en/f/fc/B1-systems.jpg"/>
-              </a>
-              </p>
-            </div>
-           </div>
-           <div class="box_bottom_row">
-            <div class="box_left"></div>
-            <div class="box_right"></div>
-           </div>
-          </div>
-          <br />
-         </div>
+          
         </div>
         <!-- End insert right navigation bar -->
         <!-- Snippet for starting page (3-column layout) -->
         </div>
-      <% end %>
+
       <!-- IE Column Clearing -->
       <div id="ie_clearing">&nbsp;</div>
       <!-- Ende: IE Column Clearing -->
@@ -342,7 +315,7 @@
         <%- end #each -%>
         <%- else -%>
         Watchlist empty
-        <%- end #if @user -%>
+        <%- end -%>
       </div>
     </div>
   

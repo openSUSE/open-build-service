@@ -46,23 +46,12 @@ init = Rails::Initializer.run do |config|
   # (enables use of different database adapters for development and test environments)
   # config.active_record.schema_format = :ruby
 
-  #config.action_controller.relative_url_root= ""
-
   # See Rails::Configuration for more options
 
 end
 
-# Add new inflection rules using the following format
-# (all these examples are active by default):
-# Inflector.inflections do |inflect|
-#   inflect.plural /^(ox)$/i, '\1en'
-#   inflect.singular /^(ox)en/i, '\1'
-#   inflect.irregular 'person', 'people'
-#   inflect.uncountable %w( fish sheep )
-# end
 
-# Include your application configuration below
-
+ActionController::Base.relative_url_root = CONFIG['relative_url_root'] if CONFIG['relative_url_root']
 
 # minimum count of rating votes a project/package needs to
 # have no warning sign on package/project pages
@@ -91,9 +80,11 @@ if CONFIG['theme']
   end
 end
 
-#ExceptionNotifier.sender_address = %("buildservice webclient" <admin@opensuse.org>)
-#ExceptionNotifier.email_prefix = "[webclient exception] "
-#ExceptionNotifier.exception_recipients = %w(tschmidt@suse.de)
+# Exception notifier plugin configuration
+ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
+ExceptionNotifier.email_prefix = "[OBS web error] "
+ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
+
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
@@ -167,7 +158,7 @@ ActiveXML::Base.config do |conf|
       :all    => "rest:///public/distributions"
 
   end
-  ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "buildservice-webclient/0.1" )
+  ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "buildservice-webclient/#{CONFIG['version']}" )
 
 
 end

@@ -1,0 +1,23 @@
+
+<%# render a single add on all pages but the frontpage %>
+<% if controller.controller_name != 'main' -%>
+       <div class="darkgrey_box">
+        <div class="box_top_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+        <div class="box_title_row">
+         <div class="box_title">
+           Sponsor
+         </div>
+        </div>
+        <div class="box_content">
+          <img src="<%= get_random_sponsor_image %>" width="140">
+        </div>
+        <div class="box_bottom_row">
+         <div class="box_left"></div>
+         <div class="box_right"></div>
+        </div>
+       </div>
+       <br />
+<% end -%>
