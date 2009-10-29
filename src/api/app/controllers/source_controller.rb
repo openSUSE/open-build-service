@@ -406,6 +406,20 @@ class SourceController < ApplicationController
         return
       end
 
+      # FIXME: this may should go out of project meta data ?
+      if (p.has_element? :attributes) and not @http_user.is_admin?
+        if (p.attributes.has_element? :namespace)
+          render_error :status => 403, :errorcode => "change_project_no_permission",
+            :message => "admin rights are required to change attribute namespace defitinions"
+          return
+        end
+        if (p.attributes.has_element? :definition)
+          render_error :status => 403, :errorcode => "change_project_no_permission",
+            :message => "admin rights are required to change attribute namespace defitinions"
+          return
+        end
+      end
+
       p.add_person(:userid => @http_user.login) unless @project
       p.save
 
