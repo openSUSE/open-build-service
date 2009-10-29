@@ -1181,7 +1181,7 @@ my %watchremote;	# remote_url => { eventdescr => projid }
 my %watchremote_start;	# remote_url => lasteventno
 
 my %repounchanged;
-my %globalnotready;
+my %prpnotready;
 
 my %watchremoteprojs;	# tmp, only set in addwatchremote
 
@@ -1642,9 +1642,9 @@ sub addrepo_remote {
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
   my $repostate = $cpio{'repositorystate'};
   $repostate = XMLin($BSXML::repositorystate, $repostate) if $repostate;
-  delete $globalnotready{$prp};
+  delete $prpnotready{$prp};
   if ($repostate && $repostate->{'blocked'}) {
-    $globalnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
+    $prpnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
   }
   my $cachedata = $cpio{'repositorycache'};
   return {} unless $cachedata;
@@ -2016,8 +2016,8 @@ sub checkkiwiimage {
   my @blocked;
   for my $repo ($pool->repos()) {
     my $aprp = $repo->name();
-    my $gn = ($prp eq $aprp ? $notready : $globalnotready{$aprp}) || {};
-    my @b = grep {$gn->{$_}} @edeps;
+    my $nr = ($prp eq $aprp ? $notready : $prpnotready{$aprp}) || {};
+    my @b = grep {$nr->{$_}} @edeps;
     if (@b) {
       @b = map {"$aprp/$_"} @b if $prp ne $aprp;
       push @blocked, @b;
@@ -2850,10 +2850,10 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
       $prpfinished{$prp} = $oldprpfinished->{$prp} if exists $oldprpfinished->{$prp};
     }
 
-    # update globalnotready hash
-    my $oldglobalnotready = $schedstate->{'globalnotready'} || {};
+    # update prpnotready hash
+    my $oldprpnotready = $schedstate->{'globalnotready'} || {};
     for my $prp (@prps) {
-      $globalnotready{$prp} = $oldglobalnotready->{$prp} if exists $oldglobalnotready->{$prp};
+      $prpnotready{$prp} = $oldprpnotready->{$prp} if exists $oldprpnotready->{$prp};
     }
   }
 }
@@ -2877,7 +2877,7 @@ my %nextmed;
 
 my %prpchecktimes;
 my %prplastcheck;
-my %notreadies;
+my %prpunfinished;
 
 if (@lookat_low) {
   %lookat_next = map {$_ => 1} @lookat_low;
@@ -3231,7 +3231,7 @@ while(1) {
 	$schedstate->{'lookat_oob'} = \@lookat_med;
 	$schedstate->{'lookat_oobhigh'} = \@lookat_high;
 	$schedstate->{'prpfinished'} = \%prpfinished;
-	$schedstate->{'globalnotready'} = \%globalnotready;
+	$schedstate->{'globalnotready'} = \%prpnotready;
 	unlink("$rundir/bs_sched.$myarch.state");
 	if (!Storable::nstore($schedstate, "$rundir/bs_sched.$myarch.state")) {
 	  unlink("$rundir/bs_sched.$myarch.state");
@@ -3415,8 +3415,8 @@ while(1) {
       # we no longer build this repoid
       print "  - deleting repository $prp\n";
       delete $prpfinished{$prp};
-      delete $globalnotready{$prp};
-      delete $notreadies{$prp};
+      delete $prpnotready{$prp};
+      delete $prpunfinished{$prp};
       delete $prpchecktimes{$prp};
       delete $repodatas{$prp};
 
@@ -3540,11 +3540,12 @@ while(1) {
   $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
 
   my %building;
-  my %notready;
   my %dep2src;
   my %dep2pkg;
   my %depislocal;	# used in meta calculation
   my $error;
+  my %unfinished;	# is blocked or needs rebuild
+  my %notready;		# unfinished and will modify :full
 
   for my $rprp (@{$prpsearchpath{$prp}}) {
     my $r = addrepo($pool, $rprp);
@@ -3567,7 +3568,7 @@ while(1) {
     if ($rprp eq $prp) {
       $depislocal{$n} = 1;
     } else {
-      $notready{$n} = 2 if $globalnotready{$rprp}->{$n};
+      $notready{$n} = 2 if $prpnotready{$rprp}->{$n};
     }
   }
   my $xp = BSSolv::expander->new($pool, $bconf);
@@ -3719,6 +3720,9 @@ while(1) {
   my %cycpass;
   my $nharder = 0;
 
+  my $prjuseforbuildenabled = 1;
+  $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
+
   while (@cpacks) {
     my $packid = shift @cpacks;
     my $incycle = 0;
@@ -3787,10 +3791,12 @@ while(1) {
     # name of src package, needed for block detection
     my $pname = $info->{'name'} || $packid;
 
-    if (-e $eventdir."/service/".$projid."::".$packid) {
-      $notready{$pname} = 1;
+    if (-e "$eventdir/service/${projid}::$packid") {
+      my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
+      $notready{$pname} = 1 if $useforbuildenabled;
+      $unfinished{$pname} = 1;
       $packstatus{$packid} = 'blocked';
-      $packerror{$packid} = "Source update running";
+      $packerror{$packid} = 'source update running';
       next;
     }
 
@@ -3831,57 +3837,63 @@ while(1) {
     if ($packtype eq 'aggregate') {
       my ($astatus, $aerror) = checkaggregate($projid, $repoid, $packid, $pdata, \%prpfinished);
       if ($astatus eq 'scheduled') {
-	# aerror contains new meta file in this case
+	# aerror contains rebuild data in this case
 	($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%changed_med, $aerror);
 	if ($astatus eq 'scheduled') {
-	  # aerror contains jobid in this case
-	  $notready{$pname} = 1;
-	  $building{$packid} = $aerror || 'job';
+	  $building{$packid} = $aerror || 'job'; # aerror contains jobid in this case
 	  undef $aerror;
 	}
 	unlink("$reporoot/$prp/$myarch/:repodone");
       }
-      $notready{$pname} = 1 if $astatus eq 'blocked';
       $packstatus{$packid} = $astatus;
       $packerror{$packid} = $aerror if defined $aerror;
+      if ($astatus eq 'blocked' || $astatus eq 'scheduled') {
+        my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
+        $notready{$pname} = 1 if $useforbuildenabled;
+        $unfinished{$pname} = 1;
+      }
       next;
     }
 
     if ($packtype eq 'kiwi-product') {
       my ($astatus, $aerror) = checkkiwiproduct($projid, $repoid, $packid, $pdata, $info, $relsynctrigger{$packid});
       if ($astatus eq 'scheduled') {
-	# aerror contains new meta file in this case
+	# aerror contains rebuild data in this case
 	($astatus, $aerror) = rebuildkiwiproduct($projid, $repoid, $packid, $pdata, $info, $aerror, $relsyncmax);
 	if ($astatus eq 'scheduled') {
-	  # aerror contains jobid in this case
-	  $notready{$pname} = 1;
-	  $building{$packid} = $aerror || 'job';
+	  $building{$packid} = $aerror || 'job'; # aerror contains jobid in this case
 	  undef $aerror;
 	}
 	unlink("$reporoot/$prp/$myarch/:repodone");
       }
-      $notready{$pname} = 1 if $astatus eq 'blocked';
       $packstatus{$packid} = $astatus;
       $packerror{$packid} = $aerror if defined $aerror;
+      if ($astatus eq 'blocked' || $astatus eq 'scheduled') {
+        my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
+        $notready{$pname} = 1 if $useforbuildenabled;
+        $unfinished{$pname} = 1;
+      }
       next;
     }
 
     if ($packtype eq 'kiwi-image') {
       my ($astatus, $aerror) = checkkiwiimage($projid, $repoid, $packid, $pdata, $info, \%notready, $relsynctrigger{$packid});
       if ($astatus eq 'scheduled') {
-	# aerror contains new meta file in this case
+	# aerror contains rebuild data in this case
 	($astatus, $aerror) = rebuildkiwiimage($projid, $repoid, $packid, $pdata, $info, $aerror, $relsyncmax);
 	if ($astatus eq 'scheduled') {
-	  # aerror contains jobid in this case
-	  $notready{$pname} = 1;
-	  $building{$packid} = $aerror || 'job';
+	  $building{$packid} = $aerror || 'job'; # aerror contains jobid in this case
 	  undef $aerror;
 	}
 	unlink("$reporoot/$prp/$myarch/:repodone");
       }
-      $notready{$pname} = 1 if $astatus eq 'blocked';
       $packstatus{$packid} = $astatus;
       $packerror{$packid} = $aerror if defined $aerror;
+      if ($astatus eq 'blocked' || $astatus eq 'scheduled') {
+        my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
+        $notready{$pname} = 1 if $useforbuildenabled;
+        $unfinished{$pname} = 1;
+      }
       next;
     }
 
@@ -3903,16 +3915,19 @@ while(1) {
       $pdeps{$packid} = \@edeps;
     }
 
+    # calculate if we're blocked
     my @blocked = grep {$notready{$dep2src{$_}}} @{$pdeps{$packid}};
     if ($cychash{$packid}) {
-      # package belongs to a cycle
+      # package belongs to a cycle, prune blocked list
       next if $packstatus{$packid} && $packstatus{$packid} ne 'done'; # already decided in phase 1
       if ($cycpass{$packid} && $cycpass{$packid} == 2) {
 	# cycpass == 2 means that packages of this cycle are building
 	# because of source changes
 	print "      - $packid ($packtype)\n";
 	print "        blocked by cycle builds\n";
-	$notready{$pname} = 1;
+        my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
+	$notready{$pname} = 1 if $useforbuildenabled;
+	$unfinished{$pname} = 1;
 	$packstatus{$packid} = 'blocked';
 	$packerror{$packid} = join(', ', @blocked);
 	next;
@@ -3924,19 +3939,24 @@ while(1) {
     if (@blocked) {
       # print "      - $packid ($packtype)\n";
       # print "        blocked\n";
-      $notready{$pname} = 1;
+      my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
+      $notready{$pname} = 1 if $useforbuildenabled;
+      $unfinished{$pname} = 1;
       $packstatus{$packid} = 'blocked';
       $packerror{$packid} = join(', ', @blocked);
       next;
     }
+
     if (!$incycle) {
       # hmm, this might be a bad idea...
       my $job = jobname($prp, $packid)."-$pdata->{'srcmd5'}";
       if (-s "$myjobsdir/$job") {
 	# print "      - $packid ($packtype)\n";
 	# print "        already scheduled\n";
+        my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
 	$building{$packid} = $job;
-	$notready{$pname} = 1;
+	$notready{$pname} = 1 if $useforbuildenabled;
+	$unfinished{$pname} = 1;
         # FIXME: this leads to have "finished" jobs being displayed as "scheduled".
 	$packstatus{$packid} = 'scheduled';
 	next;
@@ -4102,8 +4122,10 @@ relsynccheck:
       }
       next;
     }
+    my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
     $building{$packid} = $job;
-    $notready{$pname} = 1;
+    $notready{$pname} = 1 if $useforbuildenabled;
+    $unfinished{$pname} = 1;
     $packstatus{$packid} = 'scheduled';
   }
 
@@ -4111,11 +4133,11 @@ relsynccheck:
   for (keys %notready) {
     delete $notready{$_} if $notready{$_} == 2;
   }
-  # put local notready into globalnotready if not a leaf
+  # put local notready into prpnotready if not a leaf
   if (%notready && $prpnoleaf{$prp}) {
-    $globalnotready{$prp} = \%notready;
+    $prpnotready{$prp} = \%notready;
   } else {
-    delete $globalnotready{$prp};
+    delete $prpnotready{$prp};
   }
 
   # write blocked data into a file so that remote servers can
@@ -4131,7 +4153,7 @@ relsynccheck:
   # changes
   # we alse send it if we finish a prp to give linked aggregates a
   # chance to work
-  if (!$repounchanged{$prp} || (!%notready && !$prpfinished{$prp})) {
+  if (!$repounchanged{$prp} || (!%unfinished && !$prpfinished{$prp})) {
     sendrepochangeevent($prp);
     $repounchanged{$prp} = 1;
   }
@@ -4155,10 +4177,10 @@ relsynccheck:
     print "    $status: ".scalar(grep {$_ eq $status} values %packstatus)."\n";
   }
   print "    looked harder: $nharder\n" if $nharder;
-  print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready)."\n";
+  print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready).", unfinished: ".scalar(keys %unfinished)."\n";
   print "    took $prpchecktime seconds to check the packages\n";
   # we always publish kiwi...
-  if (!%notready || $prptype eq 'kiwi') {
+  if (!%unfinished || $prptype eq 'kiwi') {
     my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
     my %pubenabled;
     for my $packid (@packs) {
@@ -4173,7 +4195,7 @@ relsynccheck:
     for my $packid (@packs) {
       $repodonestate .= "\0$packid" if $pubenabled{$packid};
     }
-    $repodonestate .= "\0$_" for sort keys %notready;
+    $repodonestate .= "\0$_" for sort keys %unfinished;
     $repodonestate = Digest::MD5::md5_hex($repodonestate);
     if (-e "$reporoot/$prp/$myarch/:repodone") {
       my $oldrepodone = readstr("$reporoot/$prp/$myarch/:repodone", 1) || '';
@@ -4188,7 +4210,7 @@ relsynccheck:
 	print "    publishing is disabled\n";
       }
     }
-    if (!%notready) {
+    if (!%unfinished) {
       $prpfinished{$prp} = 1;
       if (!$prpnoleaf{$prp}) {
 	# only free data if all projects we depend on are finished, too.
@@ -4205,10 +4227,10 @@ relsynccheck:
     unlink("$reporoot/$prp/$myarch/:repodone");
   }
 
-  if (%notready) {
-    $notreadies{$prp} = scalar(keys %notready);
+  if (%unfinished) {
+    $prpunfinished{$prp} = scalar(keys %unfinished);
   } else {
-    delete $notreadies{$prp};
+    delete $prpunfinished{$prp};
   }
   $prpchecktimes{$prp} = $prpchecktime;
 
@@ -4225,7 +4247,7 @@ relsynccheck:
       next if defined($relsyncmax->{"$tag/$1"}) && $relsyncmax->{"$tag/$1"} >= $2;
       $relsyncmax->{"$tag/$1"} = $2;
     }
-    updaterelsyncmax($prp, $myarch, $relsyncmax, %notready ? 0 : 1);
+    updaterelsyncmax($prp, $myarch, $relsyncmax, %unfinished ? 0 : 1);
     my $relsyncdata = "pst0".Storable::nfreeze($relsyncmax);
     # sent new data!
     my $param = {
@@ -4249,13 +4271,13 @@ relsynccheck:
   $nextmed{$prp} = time() + 10 * $prpchecktime;
   $prplastcheck{$prp} = $now;
 
-  # write stats
+  # update scheduler stats
   my $sinfo = {'arch' => $myarch, 'started' => $schedulerstart, 'time' => $now, 'slept' => $slept};
   $sinfo->{'projects'} = keys %$projpacks;
   $sinfo->{'repositories'} = @prps;
-  my $notreadysum = 0;
-  $notreadysum += $_ for values %notreadies;
-  $sinfo->{'notready'} = $notreadysum;
+  my $unfinishedsum = 0;
+  $unfinishedsum += $_ for values %prpunfinished;
+  $sinfo->{'notready'} = $unfinishedsum;
   $sinfo->{'queue'} = {};
   $sinfo->{'queue'}->{'high'} = @lookat_high;
   $sinfo->{'queue'}->{'med'} = @lookat_med;
