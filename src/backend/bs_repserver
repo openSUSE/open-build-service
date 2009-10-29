@@ -845,6 +845,8 @@ sub workerstatus {
   my @schedarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
   push @schedarchs, 'dispatcher' if -e "$rundir/bs_dispatch.lock";
   push @schedarchs, 'publisher' if -e "$rundir/bs_publish.lock";
+  push @schedarchs, 'signer' if -e "$rundir/bs_signer.lock";
+  push @schedarchs, 'warden' if -e "$rundir/bs_warden.lock";
   @schedarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $schedarch (@schedarchs) {
     local *F;
@@ -852,6 +854,8 @@ sub workerstatus {
     my $lock = "bs_sched.$schedarch.lock";
     $lock = 'bs_dispatch.lock' if $schedarch eq 'dispatcher';
     $lock = 'bs_publish.lock' if $schedarch eq 'publisher';
+    $lock = 'bs_signer.lock' if $schedarch eq 'signer';
+    $lock = 'bs_warden.lock' if $schedarch eq 'warden';
     if (open(F, '<', "$rundir/$lock")) {
       if (!flock(F, LOCK_EX | LOCK_NB)) {
         my @s = stat(F);
