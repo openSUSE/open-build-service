@@ -98,7 +98,7 @@ our $proj = [
        [[ 'namespace' => 
             'name', 
             [[ 'modifiable_by' =>
-               'name',
+               'user',
                'group',
                'role',
             ]],
@@ -106,7 +106,8 @@ our $proj = [
        [[ 'definition' => 
             'name', 
             'namespace', 
-            'type' =>
+            [],
+            'count',
             [ 'default' =>
                [[ 'value' => '_content' ]],
             ],
@@ -114,7 +115,7 @@ our $proj = [
                [[ 'value' => '_content' ]],
             ],
             [[ 'modifiable_by' =>
-               'name',
+               'user',
                'group',
                'role',
             ]],
@@ -134,13 +135,6 @@ our $pack = [
       [ 'devel', =>
 	    'project',
 	    'package',
-      ],
-      [ 'attributes', => 
-        [[ 'attribute', => 
-              'name',
-              'package', =>
-                 [[ 'value' => '_content' ]]
-        ]],
       ],
      [[ 'person' =>
             'role',
