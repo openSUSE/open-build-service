@@ -12,7 +12,7 @@
 <% else %>
 
   <% if ICHAIN_MODE == 'on' %>
-    <div id="login_wrapper">
+
     <form action="https://build.opensuse.org/ICSLogin/auth-up"
         method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
     <input name="url" value="<%= @return_to_host + @return_to_path %>" type="hidden" />
@@ -26,11 +26,11 @@
     <%#= link_to("Login", '#', {:onclick => "document.getElementById( 'login_form' ).submit(); return;"} ) %> |
     <%= link_to("Register / Manage account", 'https://build.opensuse.org/ICSLogin/?%22' + @return_to_host + @return_to_path + '%22') %>
 
-    </form></div>
+    </form>
 
   <% else %>
 
-    <div id="login_wrapper">
+
     <form action="<%= @return_to_path %>"
         method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
     Username: <input name="username" size='10' maxlength='50' style='width: 10em;'>
@@ -40,7 +40,7 @@
 
     <%#= link_to("Login", '#', {:onclick => "document.getElementById( 'login_form' ).submit(); return;"} ) %>
 
-    </form></div>
+    </form>
 
 
   <% end %>
