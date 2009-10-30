@@ -280,7 +280,7 @@ class DbProject < ActiveRecord::Base
       # remaining entries in nscache are not mentioned in the metadata, remove them
       nscache.each do |aname, ans|
         logger.debug "removing attribute namespace definition '#{aname}'"
-        attrib_namespace.delete ans
+        self.attrib_namespace.find_by_name(aname).delete
         ans.destroy
         self.updated_at = Time.now
       end
@@ -337,7 +337,7 @@ class DbProject < ActiveRecord::Base
       logger.debug "--- finished updating attribute definitions ---"
       #--- end update attribute definitions ---#
 
-
+      store
     end #transaction
   end
 
