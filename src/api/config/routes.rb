@@ -68,7 +68,9 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_attribute/:attribute', :controller => 'source',
     :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
-  map.connect 'source/:project/:package/_attribute/:attribute/:subpackage', :controller => 'source',
+  map.connect 'source/:project/:package/:subpackage/_attribute', :controller => 'source',
+    :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :subpackage => /[^\/]*/
+  map.connect 'source/:project/:package/:subpackage/_attribute/:attribute', :controller => 'source',
     :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :subpackage => /[^\/]*/
   map.connect 'source/:project/:package/_tags', :controller => 'tag',
     :action => 'package_tags', :project => /[^\/]*/, :package => /[^\/]*/
