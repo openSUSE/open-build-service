@@ -2,10 +2,9 @@
 
 <div id="project_show">
 <%
-@crumb_list = [
-  link_to( 'Projects', :action => :list_public),
-  @project.name
-]
+@crumb_list = []
+@crumb_list << link_to( 'Projects', :action => :list_public)
+@crumb_list << @project.name
 -%>
 <table>
   <tr><li id="error_message" style="display:none;"></li></tr>

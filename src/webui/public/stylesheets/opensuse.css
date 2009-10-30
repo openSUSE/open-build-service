@@ -14,9 +14,6 @@ h3 {
 a { text-decoration: none; } 
 a:hover { text-decoration: underline; }
 
-input[type=text] {
-  width: 65%
-}
 
 input#projectsearch {
   width: 12em;

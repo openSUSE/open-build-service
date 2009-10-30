@@ -84,7 +84,7 @@ class PackageController < ApplicationController
     @email_hash = Hash.new
     persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
     persons.each do |person|
-      @email_hash[person] = Person.find(person).email.to_s
+      @email_hash[person] = Person.find_cached(person).email.to_s
     end
     @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
     @tags, @user_tags_array = get_tags(:project => @project, :package => @package, :user => session[:login])

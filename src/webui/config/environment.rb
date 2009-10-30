@@ -46,6 +46,8 @@ init = Rails::Initializer.run do |config|
   # (enables use of different database adapters for development and test environments)
   # config.active_record.schema_format = :ruby
 
+  config.cache_store = :compressed_mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient'}
+
   # See Rails::Configuration for more options
 
 end
