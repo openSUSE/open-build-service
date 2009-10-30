@@ -122,7 +122,7 @@ class ProjectController < ApplicationController
     @subprojects = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{params[:project]}:')"
     @arch_list = arch_list
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
-    @rating = Rating.find( :project => @project )
+    @rating = Rating.find( :project => params[:project] )
   end
 
   def buildresult
