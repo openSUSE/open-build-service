@@ -1,7 +1,12 @@
 require 'open-uri'
 
 class PackageController < ApplicationController
+
   before_filter :check_params
+  before_filter :require_package_and_project, :only => [:show, :view, :wizard, :edit, :add_file, :save_file]
+  before_filter :require_project, :only => [:new, :new_link, :wizard_new]
+  before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
+      :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus]
 
   def index
     redirect_to :controller => 'project', :action => 'list_all'
@@ -63,48 +68,30 @@ class PackageController < ApplicationController
   end
 
   def show
-    project = params[:project]
-    if ( !project )
-      flash[:error] = "Missing parameter: project name"
-      redirect_to :controller => "project", :action => "list_public"
-    else
-      package = params[:package]
-      if ( !package )
-        flash[:error] = "Missing parameter: package name"
-        redirect_to :controller => "project", :action => "show",
-          :project => project
-      else
-        @project = Project.find( project )
-        @package = Package.find( package, :project => project )
-
-        @files = get_files project, package
-
-        @spec_count = 0
-        @files.each do |file|
-          @spec_count += 1 if file[:ext] == "spec"
-          if ( file[:name] == "_link" )
-            begin
-              @link = Link.find( :project => project, :package => package )
-            rescue ActiveXML::Transport::NotFoundError, REXML::ParseException
-              @link = nil
-            end
-          end
+    @files = get_files @project, @package
+    @spec_count = 0
+    @files.each do |file|
+      @spec_count += 1 if file[:ext] == "spec"
+      if ( file[:name] == "_link" )
+        begin
+          @link = Link.find( :project => @project, :package => @package )
+        rescue ActiveXML::Transport::NotFoundError, REXML::ParseException
+          @link = nil
         end
-
-        @email_hash = Hash.new
-        persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
-        persons.each do |person|
-          @email_hash[person] = Person.find(person).email.to_s
-        end
-
-        @buildresult = Buildresult.find( :project => project, :package => package, :view => ['status', 'binarylist'] )
-
-        @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
-        @rating = Rating.find( :project => @project, :package => @package )
       end
     end
+
+    @email_hash = Hash.new
+    persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
+    persons.each do |person|
+      @email_hash[person] = Person.find(person).email.to_s
+    end
+    @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
+    @tags, @user_tags_array = get_tags(:project => @project, :package => @package, :user => session[:login])
+    @rating = Rating.find( :project => @project, :package => @package )
   end
 
+  
   def get_tags(params)
    tags = Tag.find(:tags_by_object, :project => params[:project], :package => params[:package])
    user_tags = Tag.find(:project => params[:project], :package => params[:package], :user => params[:user])
@@ -115,15 +102,9 @@ class PackageController < ApplicationController
    return tags, user_tags_array
   end
 
+  # @deprecated
   def view
-    package = params[:package]
-    project = params[:project]
-
-    @package = Package.find( package, :project => project )
-    @project = Project.find( project )
-
     #@tags = Tag.find(:user => session[:login], :project => @project.name, :package => @package.name)
-
     #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
 
@@ -137,28 +118,8 @@ class PackageController < ApplicationController
       :package => @package).package.activity.to_f * 100 ).round.to_f / 100
   end
 
-  def new
-    if not params[:project]
-      flash[:note] = "Creating package failed: Project name missing"
-      redirect_to :controller => "project", :action => "list_all"
-      return
-    end
-
-    @project = Project.find( params[:project] )
-  end
-
-  def new_link
-    if not params[:project]
-      flash[:note] = "Linking package failed: Project name missing"
-      redirect_to :controller => "project", :action => "list_all"
-      return
-    end
-
-    @project = Project.find( params[:project] )
-  end
 
   def wizard_new
-    @project = Project.find( params[:project] )
     if params[:name]
       if !valid_package_name? params[:name]
         flash[:error] = "Invalid package name: '#{params[:name]}'"
@@ -176,8 +137,6 @@ class PackageController < ApplicationController
   end
 
   def wizard
-    @project = Project.find( params[:project] )
-    @package = Package.find( params[:package], :project => params[:project] )
     files = params[:wizard_files]
     fnames = {}
     if files
@@ -205,10 +164,6 @@ class PackageController < ApplicationController
                           :response => response)
   end
 
-  def edit
-    @project = Project.find( params[:project] )
-    @package = Package.find( params[:package], :project => params[:project] )
-  end
 
   def save_new
     if not params[:project]
@@ -298,11 +253,8 @@ class PackageController < ApplicationController
   end
 
   def save
-    @package = Package.find( params[:package], :project => params[:project] )
-
     @package.title.data.text = params[:title]
     @package.description.data.text = params[:description]
-
     if @package.save
       flash[:note] = "Package '#{@package.name}' was saved successfully"
     else
@@ -314,7 +266,6 @@ class PackageController < ApplicationController
   def remove
     project_name = params[:project]
     package_name = params[:package]
-
     begin
       FrontendCompat.new.delete_package :project => project_name, :package => package_name
       flash[:note] = "Package '#{package_name}' was removed successfully from project '#{project_name}'"
@@ -325,9 +276,6 @@ class PackageController < ApplicationController
   end
 
   def add_file
-    @project = Project.find( params[:project] )
-    @package = Package.find( params[:package], :project => params[:project] )
-
     begin
       Link.find( :project => @project.name, :package => @package.name )
       @package_is_link = true
@@ -337,9 +285,6 @@ class PackageController < ApplicationController
   end
 
   def save_file
-    @project = Project.find( params[:project] )
-    @package = Package.find( params[:package], :project => @project )
-
     file = params[:file]
     file_url = params[:file_url]
     filename = params[:filename]
@@ -395,39 +340,25 @@ class PackageController < ApplicationController
       flash[:note] = "Removing file aborted: no filename given."
       redirect_to :action => :show, :project => params[:project], :package => params[:package]
     end
-
-    @project = params[:project]
-    @package = Package.find( params[:package], :project => @project )
     filename = params[:filename]
-
     # extra escaping of filename (workaround for rails bug)
     escaped_filename = URI.escape filename, "+"
-
     @package.remove_file escaped_filename
-
     if @package.save
       flash[:note] = "File '#{filename}' removed successfully"
     else
       flash[:note] = "Failed to remove file '#{filename}'"
     end
-
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
-  def add_person
-    @project = params[:project]
-    @package = Package.find( params[:package], :project => @project )
-  end
 
   def save_person
-    project_name = params[:project]
-
     if not params[:userid]
       flash[:error] = "Login missing"
-      redirect_to :action => :add_person, :project => project_name, :package => params[:package], :role => params[:role]
+      redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
       return
     end
-
     begin
       user = Person.find( :login => params[:userid] )
       logger.debug "found user: #{user.inspect}"
@@ -436,18 +367,15 @@ class PackageController < ApplicationController
       redirect_to :action => :add_person, :project => project_name, :package => params[:package], :role => params[:role]
       return
     end
-
-    @package = Package.find( params[:package], :project => project_name )
     @package.add_person( :userid => params[:userid], :role => params[:role] )
-
     if @package.save
       flash[:note] = "added user #{params[:userid]}"
     else
       flash[:note] = "Failed to add user '#{params[:userid]}'"
     end
-
-    redirect_to :action => :show, :package => @package, :project => project_name
+    redirect_to :action => :show, :package => @package, :project => @project
   end
+
 
   def remove_person
     if not params[:userid]
@@ -455,16 +383,12 @@ class PackageController < ApplicationController
       redirect_to :action => :show, :package => params[:package], :project => params[:project]
       return
     end
-
-    @package = Package.find( params[:package], :project => params[:project] )
     @package.remove_persons( :userid => params[:userid], :role => params[:role] )
-
     if @package.save
       flash[:note] = "removed user #{params[:userid]}"
     else
       flash[:note] = "Failed to remove user '#{params[:userid]}'"
     end
-
     redirect_to :action => :show, :package => params[:package], :project => params[:project]
   end
 
@@ -614,32 +538,6 @@ class PackageController < ApplicationController
     end
   end
 
-  def check_params
-
-    if params[:package]
-      unless valid_package_name?( params[:package] )
-        flash[:error] = "Invalid package name, may only contain alphanumeric characters"
-        redirect_to :action => :error
-      end
-    end
-
-    if params[:project]
-      unless valid_project_name?( params[:project] )
-        flash[:error] = "Invalid project name, may only contain alphanumeric characters"
-        redirect_to :action => :error
-      end
-    end
-
-    if params[:role]
-      unless valid_role_name?( params[:role] )
-        flash[:error] = "Invalid role name"
-        redirect_to :action => :error
-      end
-    end
-
-  end
-
-
   def render_nothing
     render :nothing => true
   end
@@ -757,31 +655,23 @@ class PackageController < ApplicationController
 
 
   def reload_buildstatus
-    @project = Project.find( params[:project] )
-    @package = Package.find( params[:package], :project => params[:project] )
-
     @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
     render :partial => 'buildstatus'
   end
 
 
   def set_url_form
-    @package = Package.find params[:package], :project => params[:project]
-    @project = params[:project]
-
     # default url for form
     if @package.has_element? :url
       @new_url = @package.url.to_s
     else
       @new_url = 'http://'
     end
-
     render :partial => "set_url_form"
   end
 
 
   def set_url
-    @package = Package.find params[:package], :project => params[:project]
     @package.set_url params[:url]
     render :partial => 'url_line', :locals => { :url => params[:url] }
     #redirect_to :action => "show", :project => params[:project], :package => params[:package]
@@ -789,7 +679,6 @@ class PackageController < ApplicationController
 
 
   def remove_url
-    @package = Package.find params[:package], :project => params[:project]
     @package.remove_url
     redirect_to :action => "show", :project => params[:project], :package => params[:package]
   end
@@ -834,13 +723,33 @@ class PackageController < ApplicationController
 
 
   def flags_for_experts
-    @package = Package.find(params[:package], :project => params[:project])
-    flags_for_experts = true
     render :template => "flag/package_flags_for_experts"
   end
 
 
   private
+
+  def check_params
+    if params[:package]
+      unless valid_package_name?( params[:package] )
+        flash[:error] = "Invalid package name, may only contain alphanumeric characters"
+        redirect_to :action => :error
+      end
+    end
+    if params[:project]
+      unless valid_project_name?( params[:project] )
+        flash[:error] = "Invalid project name, may only contain alphanumeric characters"
+        redirect_to :action => :error
+      end
+    end
+    if params[:role]
+      unless valid_role_name?( params[:role] )
+        flash[:error] = "Invalid role name"
+        redirect_to :action => :error
+      end
+    end
+  end
+
 
   def get_files( project, package )
     # files whose name end in the following extensions should not be editable
@@ -859,7 +768,32 @@ class PackageController < ApplicationController
     return files
   end
 
+  def require_project
+    begin
+      @project = Project.find( params[:project] )
+    rescue ActiveXML::Transport::NotFoundError => e
+      flash[:error] = "Project not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public"
+      return
+    end
+  end
+
+  def require_package
+    @project ||= params[:project]
+    begin
+      @package = Package.find( params[:package], :project => @project )
+    rescue ActiveXML::Transport::NotFoundError => e
+      flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
+      redirect_to :controller => "project", :action => :show, :project => @project
+      return
+    end
+  end
+
+  def require_package_and_project
+    require_project
+    require_package
+  end
 
 end
 
-# vim:et:ts=2:sw=2
+
