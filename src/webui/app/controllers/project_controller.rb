@@ -3,11 +3,11 @@ class ProjectController < ApplicationController
   before_filter :check_parameter_project, :except =>
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
       :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog ]
+  before_filter :require_project, :only => [:delete, :buildresult, :view, 
+    :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
+    :remove_person, :save_person, :add_person, :remove_target]
 
-  ##############################
-  # index/list_all/list_public
-  # 
-
+  
   def index
     redirect_to :action => 'list_all'
   end
@@ -97,7 +97,6 @@ class ProjectController < ApplicationController
 
   def show
     begin
-      @debug = params[:debug]
       @project = Project.find( params[:project] )
     rescue ActiveXML::Transport::NotFoundError
       # create home project if none is there
@@ -115,23 +114,18 @@ class ProjectController < ApplicationController
       return
     end
 
-    #@project_name parameter needed for _watch_link partial
-    @project_name = @project.name
-
     @email_hash = Hash.new
     @project.each_person do |person|
-      @email_hash[person.userid.to_s] = Person.find( person.userid ).email.to_s
+      @email_hash[person.userid.to_s] = Person.find_cached( person.userid ).email.to_s
     end
 
-    @subprojects = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#@project_name:')"
-
+    @subprojects = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{params[:project]}:')"
     @arch_list = arch_list
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
     @rating = Rating.find( :project => @project )
   end
 
   def buildresult
-    @project = Project.find params[:project]
     @arch_list = arch_list
     @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
     render :partial => 'inner_repo_table', :locals => {:has_data => true}
@@ -154,7 +148,6 @@ class ProjectController < ApplicationController
   end
 
   def delete
-    @project = Project.find params[:project]
     @confirmed = params[:confirmed]
     if @confirmed == "1"
       begin
@@ -193,8 +186,6 @@ class ProjectController < ApplicationController
   end
 
   def view
-    @project = Project.find( params[:project] )
-
     @packages = []
     Package.find( :all, :project => params[:project] ).each_entry do |package|
       @packages << package.name
@@ -334,7 +325,6 @@ class ProjectController < ApplicationController
 
 
   def search_package
-    @project = Project.find( params[:project] )
     if params[:packagesearch]
       # user pressed enter to search -> no ajax, old-fashioned form-submit
       @packages = filter_packages params[:project], params[:packagesearch]
@@ -358,7 +348,6 @@ class ProjectController < ApplicationController
     else
       #store project
       @project = Project.new(:name => project_name)
-
       @project.title.data.text = params[:title]
       @project.description.data.text = params[:description]
       @project.add_person :userid => session[:login], :role => 'maintainer'
@@ -374,14 +363,8 @@ class ProjectController < ApplicationController
     end
   end
 
-  def edit
-    @project = Project.find( params[:project] )
-  end
-
 
   def trigger_rebuild
-    @project = Project.find( params[:project] )
-
     if request.get?
       # non ajax-request
       if @project.save
@@ -402,8 +385,6 @@ class ProjectController < ApplicationController
 
 
   def save
-    @project = Project.find( params[:project] )
-
     if ( !params[:title] )
       flash[:error] = "Title must not be empty"
       redirect_to :action => 'edit', :project => params[:project]
@@ -450,9 +431,6 @@ class ProjectController < ApplicationController
     end
   end
 
-  def add_target_simple
-    @project = Project.find(params[:project])
-  end
 
   def add_target
     @platforms = Platform.find( :all ).each_entry.map {|p| p.name.to_s}
@@ -497,7 +475,6 @@ class ProjectController < ApplicationController
   end
 
   def save_target
-    @project = Project.find( params[:project] )
     platform = params[:platform]
     arch = params[:arch]
     targetname = params[:targetname]
@@ -526,8 +503,6 @@ class ProjectController < ApplicationController
       flash[:error] = "Target removal failed, no target selected!"
       redirect_to :action => :show, :project => params[:project]
     end
-
-    @project = Project.find( params[:project] )
     @project.remove_repository params[:target]
 
     if @project.save
@@ -539,9 +514,6 @@ class ProjectController < ApplicationController
     redirect_to :action => :show, :project => @project
   end
 
-  def add_person
-    @project = Project.find( params[:project] )
-  end
 
   def save_person
     if not params[:userid]
@@ -549,7 +521,6 @@ class ProjectController < ApplicationController
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
     end
-
     begin
       user = Person.find( :login => params[:userid] )
     rescue ActiveXML::NotFoundError
@@ -557,10 +528,7 @@ class ProjectController < ApplicationController
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
     end
-
     logger.debug "found user: #{user.inspect}"
-
-    @project = Project.find( params[:project] )
     @project.add_person( :userid => params[:userid], :role => params[:role] )
 
     if @project.save
@@ -578,7 +546,6 @@ class ProjectController < ApplicationController
       redirect_to :action => :show, :project => params[:project]
       return
     end
-    @project = Project.find( params[:project] )
     @project.remove_persons( :userid => params[:userid], :role => params[:role] )
 
     if @project.save
@@ -725,5 +692,17 @@ class ProjectController < ApplicationController
       :predicate => "@project='#{project}' and contains(@name,'#{filterstring}')"
     return result.each.map {|x| x.name}
   end
+
+
+  def require_project
+    begin
+      @project = Project.find( params[:project] )
+    rescue ActiveXML::Transport::NotFoundError => e
+      flash[:error] = "Project not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public"
+      return
+    end
+  end
+
 
 end
