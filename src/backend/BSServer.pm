@@ -189,12 +189,24 @@ sub server {
   my $timeout = $conf->{'timeout'};
   my %chld = ();
   my $peeraddr;
+  my $periodic_next = 0;
 
   while (1) {
+    my $tout = $timeout || 5;
+    if ($conf->{'periodic'}) {
+      my $due = $periodic_next - time();
+      if ($due <= 0) {
+	$conf->{'periodic'}->($conf);
+        my $periodic_interval = $conf->{'periodic_interval'} || 3;
+	$periodic_next += $periodic_interval - $due;
+	$due = $periodic_interval;
+      }
+      $tout = $due if $tout > $due;
+    }
     # listen on MS until there is an incoming connection
     my $rin = '';
     vec($rin, fileno(MS), 1) = 1;
-    my $r = select($rin, undef, undef, $timeout || 5);
+    my $r = select($rin, undef, undef, $tout);
     if (!defined($r) || $r == -1) {
       next if $! == POSIX::EINTR;
       die("select: $!\n");
@@ -205,10 +217,11 @@ sub server {
       $peeraddr = accept(CLNT, MS);
       next unless $peeraddr;
       $pid = fork();
-      last if $pid == 0;
-      die if $pid == -1; # XXX pid cannot be -1 according to perl manual on fork
+      if (defined($pid)) {
+        last if $pid == 0;
+        $chld{$pid} = 1;
+      }
       close CLNT;
-      $chld{$pid} = 1;
     }
     # if there are already $maxchild connected, make blocking waitpid
     # otherwise make non-blocking waitpid
@@ -229,12 +242,9 @@ sub server {
   setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
   if ($conf->{'accept'}) {
     eval {
-      # XXX what does conf->accept do? nothing sets conf->accept
       $conf->{'accept'}->($conf, $peer);
     };
     reply_error($conf, $@) if $@;
-    close CLNT;
-    exit(0);
   }
   if ($conf->{'dispatch'}) {
     eval {

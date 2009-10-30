@@ -542,12 +542,25 @@ sub stream_write_handler {
   }
 }
 
+sub periodic_handler {
+  my ($ev) = @_;
+  my $conf = $ev->{'conf'};
+  return unless $conf->{'periodic'};
+  $conf->{'periodic'}->($conf);
+  BSEvents::add($ev, $conf->{'periodic_interval'} || 3);
+}
+
 sub addserver {
   my ($fd, $conf) = @_;
   my $sockev = BSEvents::new('read', \&newconnect);
   $sockev->{'fd'} = $fd;
   $sockev->{'conf'} = $conf;
   BSEvents::add($sockev);
+  if ($conf->{'periodic'}) {
+    my $per_ev = BSEvents::new('timeout', \&periodic_handler);
+    $per_ev->{'conf'} = $conf;
+    BSEvents::add($per_ev, $conf->{'periodic_interval'} || 3);
+  }
   return $sockev;
 }
 
