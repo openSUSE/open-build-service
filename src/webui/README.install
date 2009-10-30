@@ -1,0 +1,8 @@
+
+
+
+
+- Install memcached and start it: 
+sudo zypper in memcached; sudo rcmemcached start; sudo insserv memcached
+
+Set up a complete buildservice from RPM packages: buildservice/dist/README.SETUP
