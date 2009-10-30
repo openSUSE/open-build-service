@@ -228,8 +228,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'published/:project/:repository/:arch/:binary',
     :controller => "published", :action => "binary", :project => /[^\/]*/, :repository => /[^\/]*/, :binary => /[^\/]*/
-  map.connect 'published/:project/:repository/:arch',
-    :controller => "published", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
+  map.connect 'published/:project/:repository/:arch', # :arch can be also a ymp for a pattern :/
+    :controller => "published", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/
   map.connect 'published/:project/:repository/',
     :controller => "published", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'published/:project',
