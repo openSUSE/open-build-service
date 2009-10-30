@@ -140,6 +140,7 @@ our $product = [
               'descriptiondir',
               [ 'releasepackage' => 'name', 'flag', 'version', 'release' ],
               'distribution',
+              [[ 'obsoletepackage' => '_content' ]],
            ],
            [ 'runtimeconfig' =>
               'allowresolving',

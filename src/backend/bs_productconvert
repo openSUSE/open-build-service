@@ -801,10 +801,12 @@ sub writeProductSPECfile( $$$$ )
      } else {
        $content.="Requires:       product_flavor($product->{name}) = $product->{'version'}\n";
      }
+     $content.="Provides:       ___PRODUCT_REQUIRES___\n";
+     $content.="Provides:       ___PRODUCT_PROVIDES___\n";
      $content.="AutoReqProv:    on\n";
      $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
      $content.="\n%description\n";
-     foreach my $description ( @{$product->{'description'}} ){
+     for my $description ( @{$product->{'description'} || []} ){
        $content.="$description->{_content}\n" if ( ! $description->{'description'} );
      }
      $content.="\n\n";
@@ -850,6 +852,13 @@ sub writeProductSPECfile( $$$$ )
      foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
        $str =~ s/___PRODUCT_REQUIRES___/$product_requires{$flavor}/g;
      }
+     my $product_provides="";
+     for my $p ( @{$product->{'installconfig'}->{'obsoletepackage'}} ) {
+       $product_provides .= "\nProvides: ".$p->{'_content'};
+     }
+     $product_provides .= "\n\n";
+     $str =~ s/___PRODUCT_PROVIDES___/$product_provides/g;
+
      $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
      $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
      $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
