@@ -192,7 +192,9 @@ class ApplicationController < ActionController::Base
        render_error :status => 400, :code => code, :message => message,
         :exception => exception, :api_exception => api_exception
     else
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
+      if code != 404 && !local_request?
+        ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
+      end
       render_error :status => 400, :code => code, :message => message,
         :exception => exception, :api_exception => api_exception
     end
