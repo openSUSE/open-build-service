@@ -753,7 +753,7 @@ class PackageController < ApplicationController
 
   def get_files( project, package )
     # files whose name end in the following extensions should not be editable
-    no_edit_ext = %w{ bz2 exe gem gif gz jar jpg jpeg ogg ps pdf png rpm tar tgz xpm zip }
+    no_edit_ext = %w{ .bz2 .exe .gem .gif .gz .jar .jpg .jpeg .ogg .ps .pdf .png .rpm .tar .tgz .xpm .zip }
 
     files = []
     dir = Directory.find( :project => project, :package => package )
@@ -761,8 +761,7 @@ class PackageController < ApplicationController
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
       file[:ext] = Pathname.new(file[:name]).extname
-      file[:editable] = (not no_edit_ext.include? file[:ext]) and file[:size].to_i < 2**20  # max. 1 MB
-
+      file[:editable] = (not no_edit_ext.include? file[:ext].downcase) and file[:size].to_i < 2**20  # max. 1 MB
       files << file
     end
     return files

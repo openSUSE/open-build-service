@@ -7,14 +7,15 @@
   'Add User'
 ]
 -%>
+
 <h2>Add User (Project <%=h @project%>, Package <%=h @package%>)</h2>
 
 <% form_tag :action => :save_person do %>
 <b>User ID:</b><br/>
-<%= text_field_tag 'userid', params[:userid] %><br/>
-<b>Role:</b><br/>
+<%= text_field_tag 'userid', params[:userid], :size => '25' %>
+<b>Role:</b>
 <%= select_tag 'role', options_for_select(%w{maintainer bugowner}, params[:role]) %>
 <%= hidden_field_tag 'package', @package %>
 <%= hidden_field_tag 'project', @project %>
-<p><%= submit_tag %></p>
+<p><%= submit_tag "Add user" %></p>
 <% end %>
