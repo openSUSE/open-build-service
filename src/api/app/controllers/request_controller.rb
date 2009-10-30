@@ -181,7 +181,7 @@ class RequestController < ApplicationController
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
-    if params[:comment].blank? and not request.body.eof?
+    if params[:comment].blank? and not request.body
       params[:comment] = request.body.read
     end
 
