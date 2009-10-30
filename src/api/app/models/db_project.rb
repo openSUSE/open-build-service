@@ -309,15 +309,10 @@ class DbProject < ActiveRecord::Base
             attribdef.delete cachekey
             self.updated_at = Time.now
           else
-            # Check if a upper project defines this attribute, we do not allow to 
+            # Check if another project defines this attribute, we do not allow to 
             # over write the attribute definition !
-            upper_project = self
-            while ( upper_project = upper_project.find_parent )
-              if ( upper_project.attrib_types and not upper_project.attrib_types.find_by_name(definition.name).blank? )
-                # Yes, we could in theory allow to overwrite definitions (esp. default values), but the
-                # current DB model makes it easy a mess ...
-                raise RuntimeError, "Attribute definition exists already in '#{upper_project.name}'"
-              end
+            if ( atype = AttribType.find_by_name(cachekey) and atype.db_project != self )
+              raise RuntimeError, "Attribute definition exists already in '#{atype.db_project.name}'"
             end
 
             self.attrib_types.create(:name => definition.name, :namespace => definition.namespace).update_from_xml(definition)
@@ -362,11 +357,9 @@ class DbProject < ActiveRecord::Base
 
     raise RuntimeError, "attribute type without a name " if not attrib.name
 
-    # check attribute type in this package project or upper one (by namespace)
-    db_project_upper = self
-    while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
-      db_project_upper = db_project_upper.find_parent
-      raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
+    # check attribute type
+    if ( not atype = AttribType.find_by_name(attrib.name) or atype.blank? )
+      raise RuntimeError, "unknown attribute type '#{attrib.name}'"
     end
     # verify the number of allowed values
     if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length

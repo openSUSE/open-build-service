@@ -157,20 +157,15 @@ class User < ActiveRecord::Base
   end
 
   def can_create_attribute_in?(object, attrib_type)
-    if object.kind_of? DbProject
-      upper_project = object
-    elsif object.kind_of? DbPackage
-      upper_project = object.db_project
-    else
+    if not object.kind_of? DbProject and not object.kind_of? DbPackage
       raise RuntimeError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
     unless attrib_type
       raise RuntimeError, "no attribute type given"
     end
     # find attribute type definition
-    while ( not atype = upper_project.attrib_types.find_by_name(attrib_type) or atype.blank? )
-      upper_project = upper_project.find_parent
-      raise RuntimeError, "unknown attribute type '#{attrib_type}'" if not upper_project
+    if ( not atype = AttribType.find_by_name(attrib_type) or atype.blank? )
+      raise RuntimeError, "unknown attribute type '#{attrib_type}'"
     end
     # check modifiable_by rules
     if atype.attrib_type_modifiable_by.length > 0

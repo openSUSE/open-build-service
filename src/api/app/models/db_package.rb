@@ -255,11 +255,9 @@ class DbPackage < ActiveRecord::Base
 
     raise RuntimeError, "attribute type without a name " if not attrib.name
 
-    # check attribute type in this package project or upper one (by namespace)
-    db_project_upper = db_project
-    while ( not atype = db_project_upper.attrib_types.find_by_name(attrib.name) or atype.blank? )
-      db_project_upper = db_project_upper.find_parent
-      raise RuntimeError, "unknown attribute type '#{attrib.name}'" if not db_project_upper
+    # check attribute type
+    if ( not atype = AttribType.find_by_name(attrib.name) or atype.blank? )
+      raise RuntimeError, "unknown attribute type '#{attrib.name}'"
     end
     # verify the number of allowed values
     if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
