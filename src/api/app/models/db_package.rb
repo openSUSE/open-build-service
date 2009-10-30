@@ -412,7 +412,7 @@ class DbPackage < ActiveRecord::Base
         next if params[:attribute] and not type_name == params[:attribute]
         next if params[:subpackage] and attr.subpackage != params[:subpackage]
         next if params[:subpackage] == "" and attr.subpackage != ""  # switch between all and NULL subpackage
-        done[type_name]=1
+        done[type_name]=1 if not attr.subpackage
         p={}
         p[:name] = type_name
         p[:package] = attr.subpackage if attr.subpackage

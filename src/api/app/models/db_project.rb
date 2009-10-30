@@ -394,10 +394,13 @@ class DbProject < ActiveRecord::Base
     end
   end
 
-  def find_attribute( name )
+  def find_attribute( name, subpackage=nil )
       name_parts = name.split /:/
       if name_parts.length != 2
         raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
+      end
+      if subpackage
+        raise RuntimeError, "subpackages are not allowed in project attributes"
       end
       return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id", :conditions => ["at.name = BINARY ? and at.attrib_namespace = BINARY ? and ISNULL(attribs.subpackage)", name_parts[1], name_parts[0]])
   end

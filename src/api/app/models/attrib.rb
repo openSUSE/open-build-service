@@ -3,6 +3,7 @@
 
 class Attrib < ActiveRecord::Base
   belongs_to :db_package
+  belongs_to :db_project
   belongs_to :attrib_type
   has_many :values, :class_name => 'AttribValue', :order => :position, :dependent => :destroy
 

@@ -130,7 +130,11 @@ class User < ActiveRecord::Base
       end
     else
       # no rules set for attribute, just check package maintainer rules
-      return can_modify_package?(attribute.db_package)
+      if attribute.db_package
+         return can_modify_package?(attribute.db_package)
+      else
+         return can_modify_project?(attribute.db_project)
+      end
     end
     # never reached
     return false
