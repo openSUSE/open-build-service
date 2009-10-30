@@ -86,7 +86,7 @@ sub dispatch {
 }
 
 sub periodic {
-  my ($conf, $forks) = @_;
+  my ($conf) = @_;
   return unless -e "$rundir/$conf->{'name'}.restart";
   BSServer::msg("$conf->{'name'} restarting...");
   if (system($0, "--test")) {
@@ -94,22 +94,17 @@ sub periodic {
     return;
   }
   unlink("$rundir/$conf->{'name'}.restart");
-  kill(15, @$forks) if $forks && @$forks;
   # clear close-on-exec bit
   fcntl(BSServer::getserversocket(), F_SETFD, 0);
   exec($0, '--restart', fileno(BSServer::getserversocket()));
   die("$0: $!\n");
 }
 
-sub periodic_ev {
-  my ($ev) = @_;
-  my $sev = $ev->{'server_ev'};
-  my $conf = $ev->{'conf'};
+sub periodic_ajax {
+  my ($conf) = @_;
   my @s = stat(BSServer::getserverlock());
-  if ($s[3]) {
-    BSEvents::add($ev, 3);
-    return;
-  }
+  return if $s[3];
+  my $sev = $conf->{'server_ev'};
   close($sev->{'fd'});
   BSEvents::rem($sev);
   BSServer::msg("AJAX: $conf->{'name'} exiting.");
@@ -123,18 +118,21 @@ sub server {
   mkdir_p($rundir);
   if ($conf) {
     $conf->{'dispatches'} = BSServer::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
-    $conf->{'dispatch'} = \&dispatch unless exists $conf->{'dispatch'};
-    $conf->{'stdreply'} = \&stdreply unless exists $conf->{'stdreply'};
-    $conf->{'errorreply'} = \&errreply unless exists $conf->{'errorreply'};
-    $conf->{'authenticate'} = \&authenticate unless exists $conf->{'authenticate'};
+    $conf->{'dispatch'} ||= \&dispatch;
+    $conf->{'stdreply'} ||= \&stdreply;
+    $conf->{'errorreply'} ||= \&errreply;
+    $conf->{'authenticate'} ||= \&authenticate;
+    $conf->{'periodic'} ||= \&periodic;
+    $conf->{'periodic_interval'} ||= 1;
     $conf->{'name'} = $name;
-    $conf->{'timeout'} = 1;
   }
   if ($aconf) {
     $aconf->{'dispatches'} = BSWatcher::compile_dispatches($aconf->{'dispatches'}, $BSVerify::verifyers) if $aconf->{'dispatches'};
-    $aconf->{'dispatch'} = \&dispatch unless exists $aconf->{'dispatch'};
-    $aconf->{'stdreply'} = \&stdreply unless exists $aconf->{'stdreply'};
-    $aconf->{'errorreply'} = \&errreply unless exists $aconf->{'errorreply'};
+    $aconf->{'dispatch'} ||= \&dispatch;
+    $aconf->{'stdreply'} ||= \&stdreply;
+    $aconf->{'errorreply'} ||= \&errreply;
+    $aconf->{'periodic'} ||= \&periodic_ajax;
+    $aconf->{'periodic_interval'} ||= 1;
     $aconf->{'name'} = $name;
   }
   BSServer::deamonize(@{$args || []});
@@ -151,10 +149,7 @@ sub server {
       $isajax = 1;
       BSServer::serveropen_unix($aconf->{'socketpath'}, $BSConfig::bsuser, $BSConfig::bsgroup);
       my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
-      my $per_ev = BSEvents::new('timeout', \&periodic_ev);
-      $per_ev->{'server_ev'} = $sev;
-      $per_ev->{'conf'} = $aconf;
-      BSEvents::add($per_ev, 3);
+      $aconf->{'server_ev'} = $sev;	# for periodic_ajax
       BSServer::msg("AJAX: $name started");
       eval {
         BSEvents::schedule();
@@ -167,22 +162,8 @@ sub server {
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
   BSServer::msg("$name started on port $conf->{port}");
-  my @forks;
-  if ($conf->{'fork'}) {
-    for my $h (@{$conf->{'fork'}}) {
-      my $fpid = xfork();
-      if ($fpid == 0) {
-        $h->();
-        exit(0);
-      }
-      push @forks, $fpid;
-    }
-  }
-  while (1) {
-    BSServer::server($conf) && die("server returned\n");
-    periodic($conf, \@forks);
-  }
-  # not reached
+  BSServer::server($conf);
+  die("server returned\n");
 }
 
 1;
