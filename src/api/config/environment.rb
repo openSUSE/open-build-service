@@ -83,7 +83,6 @@ ActiveRbac.controller_layout = "rbac"
 #RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'rails_unescape_fix'
-require 'array_count_for_2_1_fix'
 
 require 'rexml-expansion-fix'
 #require 'custom_dispatcher'
@@ -91,10 +90,6 @@ require 'rexml-expansion-fix'
 #Dependencies.log_activity = true
 #Dependencies.load_once_paths << "#{RAILS_ROOT}/lib"
 
-module ActionController::Routing
-  remove_const :SEPARATORS
-  SEPARATORS = %w(/ ; ?)
-end
 
 ActiveXML::Base.config do |conf|
   if RAILS_ENV == "test"
