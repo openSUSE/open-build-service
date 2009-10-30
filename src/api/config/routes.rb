@@ -122,9 +122,9 @@ ActionController::Routing::Routes.draw do |map|
 
   #Get tags for a certain object by user.
   map.connect 'user/:user/tags/:project', :controller => 'tag',
-    :action => 'tags_by_user_and_object'
+    :action => 'tags_by_user_and_object', :project => /[^\/]*/
   map.connect 'user/:user/tags/:project/:package', :controller => 'tag',
-    :action => 'tags_by_user_and_object'
+    :action => 'tags_by_user_and_object', :project => /[^\/]*/, :package => /[^\/]*/
 
 
   ### /statistics
@@ -140,27 +140,27 @@ ActionController::Routing::Routes.draw do |map|
   # Timestamps
   #
   map.connect 'statistics/added_timestamp/:project',
-    :controller => 'statistics', :action => 'added_timestamp'
+    :controller => 'statistics', :action => 'added_timestamp', :project => /[^\/]*/
   map.connect 'statistics/added_timestamp/:project/:package',
-    :controller => 'statistics', :action => 'added_timestamp'
+    :controller => 'statistics', :action => 'added_timestamp', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'statistics/updated_timestamp/:project',
-    :controller => 'statistics', :action => 'updated_timestamp'
+    :controller => 'statistics', :action => 'updated_timestamp', :project => /[^\/]*/
   map.connect 'statistics/updated_timestamp/:project/:package',
-    :controller => 'statistics', :action => 'updated_timestamp'
+    :controller => 'statistics', :action => 'updated_timestamp', :project => /[^\/]*/, :package => /[^\/]*/
 
   # Ratings
   #
   map.connect 'statistics/rating/:project',
-    :controller => 'statistics', :action => 'rating'
+    :controller => 'statistics', :action => 'rating', :project => /[^\/]*/
   map.connect 'statistics/rating/:project/:package',
-    :controller => 'statistics', :action => 'rating'
+    :controller => 'statistics', :action => 'rating', :project => /[^\/]*/, :package => /[^\/]*/
 
   # Activity
   #
   map.connect 'statistics/activity/:project',
-    :controller => 'statistics', :action => 'activity'
+    :controller => 'statistics', :action => 'activity', :project => /[^\/]*/
   map.connect 'statistics/activity/:project/:package',
-    :controller => 'statistics', :action => 'activity'
+    :controller => 'statistics', :action => 'activity', :project => /[^\/]*/, :package => /[^\/]*/
 
   # Newest stats
   #
