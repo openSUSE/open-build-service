@@ -82,6 +82,8 @@ while (1) {
     my $lastcheck = $b->{'lastcheck'};
     $lastcheck += rand(60 * 60);
     next if $lastcheck > $now;
+    last if -e "$rundir/bs_warden.restart";
+    last if -e "$rundir/bs_warden.exit";
     my $worker = readxml("$workersdir/building/$wname", $BSXML::worker, 1);
     next unless $worker && $worker->{'job'} && $worker->{'arch'};
     my $job = $worker->{'job'};
@@ -116,11 +118,18 @@ while (1) {
     }
   }
   #print "sleeping\n";
-  sleep(5);
-  if (-e "$rundir/bs_warden.restart") {
-    unlink("$rundir/bs_warden.restart");
-    print "restarting...\n";
-    exec($0);
-    die("$0: $!\n");
+  for my $i (qw{1 2 3 4 5}) {
+    if (-e "$rundir/bs_warden.exit") {
+      unlink("$rundir/bs_warden.exit");
+      print "exiting...\n";
+      exit(0);
+    }
+    if (-e "$rundir/bs_warden.restart") {
+      unlink("$rundir/bs_warden.restart");
+      print "restarting...\n";
+      exec($0);
+      die("$0: $!\n");
+    }
+    sleep(1);
   }
 }
