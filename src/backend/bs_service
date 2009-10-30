@@ -47,6 +47,9 @@ use BSBuild;
 
 use strict;
 
+undef $BSConfig::bsuser;	# need to stay root
+undef $BSConfig::bsgroup;
+
 my $buildroot;
 my $port;
 my $silent;
@@ -72,16 +75,17 @@ EOF
   exit $ret || 0;
 }
 
-while (@ARGV) {
-  usage(0) if $ARGV[0] eq '--help';
-  if ($ARGV[0] eq '--root') {
-    shift @ARGV;
-    $buildroot = shift @ARGV;
+my @argv = @ARGV;	# need to make copy for restart feature
+while (@argv) {
+  usage(0) if $argv[0] eq '--help';
+  if ($argv[0] eq '--root') {
+    shift @argv;
+    $buildroot = shift @argv;
     next;
   }
-  if ($ARGV[0] eq '--port') {
-    shift @ARGV;
-    $port = shift @ARGV;
+  if ($argv[0] eq '--port') {
+    shift @argv;
+    $port = shift @argv;
     next;
   }
   last;
@@ -140,10 +144,10 @@ sub run_source_update {
   for my $service (@{$serviceinfo->{'service'}}) {
     print "Run for ".$service->{'name'}."\n";
     my @run;
-    if ( defined $BSConfig::service_wrapper{$service->{'name'}} ) {
+    if (defined $BSConfig::service_wrapper{$service->{'name'}} ) {
       push @run, $BSConfig::service_wrapper{$service->{'name'}};
-    }else{
-      if ( defined $BSConfig::service_wrapper{'*'} ) {
+    } else {
+      if (defined $BSConfig::service_wrapper{'*'}) {
         push @run, $BSConfig::service_wrapper{'*'};
       }
     }
@@ -153,7 +157,7 @@ sub run_source_update {
     for my $param (@{$service->{'param'}}) {
       push @run, "--".$param->{'name'};
       push @run, $param->{'_content'};
-    };
+    }
     BSUtil::cleandir($myworkdir."/.tmp");
     if (qsystem(@run)) {
       BSUtil::cleandir(".");
@@ -173,7 +177,7 @@ sub run_source_update {
         @oldfiles = grep(!/$tfile$/, @oldfiles);
       }
     }
-  };
+  }
   BSUtil::cleandir($myworkdir."/.tmp");
   rmdir($myworkdir."/.tmp");
 
@@ -184,7 +188,7 @@ sub run_source_update {
   # clean up
   BSUtil::cleandir($myworkdir);
   rmdir($myworkdir);
-};
+}
 
 sub hello {
   my ($cgi) = @_;
@@ -202,85 +206,11 @@ my $dispatches = [
   'POST:/sourceupdate/$project/$package' => \&run_source_update,
 ];
 
-sub stdreply {
-  my @rep = @_;
-  return unless @rep && defined($rep[0]);
-  if (ref($rep[0]) eq 'HASH') {
-    $rep[1] = XMLout($rep[1], $rep[0]);
-    shift @rep;
-  }
-  push @rep, 'Content-Type: text/xml' if @rep == 1;
-  BSWatcher::reply(@rep);
-}
-
-sub errreply {
-  my ($err, $code, $tag) = @_;
-  my $opresult = {'code' => $code, 'summary' => $tag};
-  my $opresultxml;
-  eval {
-    $opresultxml = XMLout($BSXML::opstatus, $opresult);
-  };
-  $opresultxml ||= "<status code=\"500\"\n  <summary>internal error in errreply</summary>\n</status>\n";
-  BSWatcher::reply($opresultxml, "Status: $code $tag", 'Content-Type: text/xml');
-}
-
-sub authenticate {
-  my ($conf, $req, $auth) = @_;
-  return () unless $BSConfig::ipaccess;
-  my %auths;
-  my $peer = $BSServer::peer;
-  for (sort keys %$BSConfig::ipaccess) {
-    $auths{$BSConfig::ipaccess->{$_}} = 1 if $peer =~ /^$_$/s;
-  }
-  return () if grep {$auths{$_}} split(',', $auth);
-  die("500 access denied\n");
-}
-
-sub dispatch {
-  my ($conf, $req) = @_;
-  print "$req->{'action'} $req->{'path'}?$req->{'query'}\n";
-  BSServer::dispatch($conf, $req);
-}
 my $conf = {
-  'name' => "source service server",
   'port' => $port,
-  'dispatches' => BSServer::compile_dispatches($dispatches, $BSVerify::verifyers),
+  'dispatches' => $dispatches,
   'setkeepalive' => 1,
 #  'maxchild' => 20,
-  'dispatch' => \&dispatch,
-  'stdreply' => \&stdreply,
-  'errorreply' => \&errreply,
-  'authenticate' => \&authenticate,
-  'setkeepalive' => 1,
 };
 
-print "run server...\n";
-
-#$conf->{'dispatch'} = \&dispatch unless exists $conf->{'dispatch'};
-#    $conf->{'stdreply'} = \&stdreply unless exists $conf->{'stdreply'};
-#    $conf->{'errorreply'} = \&errreply unless exists $conf->{'errorreply'};
-#    $conf->{'authenticate'} = \&authenticate unless exists $conf->{'authenticate'};
-BSServer::deamonize(@ARGV);
-BSServer::serveropen($port);
-
-# intialize xml converter to speed things up
-XMLin(['startup' => '_content'], '<startup>x</startup>');
-
-BSServer::msg("source service started on port $port");
-my @forks;
-if ($conf->{'fork'}) {
-  for my $h (@{$conf->{'fork'}}) {
-    my $fpid = xfork();
-    if ($fpid == 0) {
-      $h->();
-      exit(0);
-    }
-    push @forks, $fpid;
-  }
-}
-while (1) {
-  BSServer::server($conf) && die("server returned\n");
-#  periodic($conf, \@forks);
-}
-# not reached
-
+BSStdServer::server('bs_service', \@ARGV, $conf);
