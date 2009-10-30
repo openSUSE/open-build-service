@@ -135,7 +135,7 @@ class StatisticsController < ApplicationController
 
   def highest_rated
     # set automatic action_cache expiry time limit
-    response.time_to_live = 10.minutes
+#    response.time_to_live = 10.minutes
 
     ratings = Rating.find :all,
       :select => 'object_id, object_type, count(score) as count,' +
@@ -203,7 +203,7 @@ class StatisticsController < ApplicationController
 
   def download_counter
     # set automatic action_cache expiry time limit
-    response.time_to_live = 30.minutes
+#    response.time_to_live = 30.minutes
 
     # initialize @stats
     @stats = []
@@ -373,7 +373,7 @@ class StatisticsController < ApplicationController
 
   def most_active
     # set automatic action_cache expiry time limit
-    response.time_to_live = 30.minutes
+#    response.time_to_live = 30.minutes
 
     @type = params[:type] or @type = 'packages'
 
@@ -427,7 +427,7 @@ class StatisticsController < ApplicationController
 
   def latest_added
     # set automatic action_cache expiry time limit
-    response.time_to_live = 5.minutes
+#    response.time_to_live = 5.minutes
 
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
@@ -457,7 +457,7 @@ class StatisticsController < ApplicationController
 
   def latest_updated
     # set automatic action_cache expiry time limit
-    response.time_to_live = 5.minutes
+#    response.time_to_live = 5.minutes
 
     packages = DbPackage.find :all,
       :from => 'db_packages pac, db_projects pro',
@@ -495,7 +495,7 @@ class StatisticsController < ApplicationController
 
   def latest_built
     # set automatic action_cache expiry time limit
-    response.time_to_live = 10.minutes
+#    response.time_to_live = 10.minutes
 
     # TODO: implement or decide to abolish this functionality
   end
