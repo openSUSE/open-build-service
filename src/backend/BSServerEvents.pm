@@ -547,7 +547,7 @@ sub periodic_handler {
   my $conf = $ev->{'conf'};
   return unless $conf->{'periodic'};
   $conf->{'periodic'}->($conf);
-  BSEvents::add($ev, $conf->{'periodic_interval'} || 3);
+  BSEvents::add($ev, $conf->{'periodic_interval'} || 3) if $conf->{'periodic'};
 }
 
 sub addserver {
