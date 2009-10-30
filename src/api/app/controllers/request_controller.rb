@@ -37,11 +37,11 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def create_create
-    if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream
+#    if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream or request.body.kind_of? Rack::RewindableInput
       req = BsRequest.new(request.body.read)
-    else
-      req = BsRequest.new(request.body)
-    end
+#    else
+#      req = BsRequest.new(request.body)
+#    end
 
     if req.has_element? 'submit' and req.has_attribute? 'type'
       # old style, convert to new style on the fly
