@@ -854,7 +854,7 @@ sub writeProductSPECfile( $$$$ )
      }
      my $product_provides="";
      for my $p ( @{$product->{'installconfig'}->{'obsoletepackage'}} ) {
-       $product_provides .= "\nProvides: ".$p->{'_content'};
+       $product_provides .= "\nProvides: weakremover(".$p->{'_content'}.")";
      }
      $product_provides .= "\n\n";
      $str =~ s/___PRODUCT_PROVIDES___/$product_provides/g;
