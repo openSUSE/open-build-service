@@ -300,8 +300,6 @@ class DbProject < ActiveRecord::Base
       if project.has_element? :attributes
         project.attributes.each_definition do |definition|
 
-          #FIXME: store modifiable_by
-
           cachekey = definition.namespace + ":" + definition.name
           if attribdef.has_key? cachekey
             # attribute already known, update from xml and remove from attribdef 

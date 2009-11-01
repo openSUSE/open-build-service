@@ -66,7 +66,7 @@ class AttribType < ActiveRecord::Base
            p[:role] = mod_rule.role.title if mod_rule.role 
            attr.modifiable_by(p)
          end
-      end
+       end
 
      end
   end
@@ -77,7 +77,7 @@ class AttribType < ActiveRecord::Base
     #
     # working without cache, first remove aller permissions
     self.attrib_type_modifiable_by.delete_all
-    # create permission table
+    # store permission settings
     if node.has_element? :modifiable_by
       node.each_modifiable_by do |m|
         if not m.has_attribute? :user and not m.has_attribute? :group and not m.has_attribute? :role
