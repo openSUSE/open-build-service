@@ -632,12 +632,12 @@ class ProjectController < ApplicationController
     end
 
     @user = Person.find( :login => session[:login] ) unless @user
-    @project_name = params[:project]
+    @project = Project.find(params[:project])
 
-    if @user.watches? @project_name
-      @user.remove_watched_project @project_name
+    if @user.watches? @project.name
+      @user.remove_watched_project @project.name
     else
-      @user.add_watched_project @project_name
+      @user.add_watched_project @project.name
     end
 
     @user.save
