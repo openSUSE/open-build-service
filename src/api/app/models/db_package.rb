@@ -76,7 +76,6 @@ class DbPackage < ActiveRecord::Base
         sql += " AND pack.name = BINARY ?"
         return DbPackage.find_by_sql [sql, attrib_type.id.to_s, package]
       end
-
       return DbPackage.find_by_sql [sql, attrib_type.id.to_s]
     end
 
@@ -90,6 +89,10 @@ class DbPackage < ActiveRecord::Base
       WHERE attr.attrib_type_id = BINARY ? AND val.value = BINARY ?
       END_SQL
 
+      if package
+        sql += " AND pack.name = BINARY ?"
+        return DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
+      end
       return DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
     end
 

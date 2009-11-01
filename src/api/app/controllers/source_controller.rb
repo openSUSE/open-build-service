@@ -703,10 +703,7 @@ class SourceController < ApplicationController
       return
     end
     if params[:value]
-      render_error :status => 403, :errorcode => 'not_implemented',
-         :message => "branch by attribute and value not yet implemented"
-      return
-#      @packages = DbPackage.find_by_attribute_type_and_value( attrib_type, params[:package] )
+      @packages = DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] )
     else
       @packages = DbPackage.find_by_attribute_type( at, params[:package] )
     end
