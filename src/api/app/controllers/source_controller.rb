@@ -11,8 +11,13 @@ class SourceController < ApplicationController
   end
 
   def projectlist
-    @dir = Project.find :all
-    render :text => @dir.dump_xml, :content_type => "text/xml"
+    if request.post?
+      # a bit danguerous, never implment a command without proper permission check
+      dispatch_command
+    else
+      @dir = Project.find :all
+      render :text => @dir.dump_xml, :content_type => "text/xml"
+    end
   end
 
   def index_project
@@ -665,6 +670,106 @@ class SourceController < ApplicationController
   end
 
   private
+
+  # POST /source?cmd=branch
+  def index_branch
+    # set defaults
+    mparams=params
+    if not params[:target_project]
+      mparams[:target_project] = "home:#{@http_user.login}:branches:#{params[:attribute].gsub(':', '_')}"
+      mparams[:target_project] += ":#{params[:package]}" if params[:package]
+    end
+
+    # permission check
+    unless @http_user.can_create_project?(mparams[:target_project])
+      render_error :status => 403, :errorcode => "create_project_no_permission",
+        :message => "no permission to create project '#{mparams[:target_project]}' while executing branch command"
+      return
+    end
+
+    # find packages
+    if not params[:attribute]
+      render_error :status => 403, :errorcode => 'parameter_missing',
+         :message => "attribute parameter missing"
+      return
+    end
+    at = AttribType.find_by_name(params[:attribute])
+    if not at
+      render_error :status => 403, :errorcode => 'not_found',
+         :message => "The given attribute #{params[:attribute]} does not exist"
+      return
+    end
+    if params[:value]
+      render_error :status => 403, :errorcode => 'not_implemented',
+         :message => "branch by attribute and value not yet implemented"
+      return
+#      @packages = DbPackage.find_by_attribute_type_and_value( attrib_type, params[:package] )
+    else
+      @packages = DbPackage.find_by_attribute_type( at, params[:package] )
+    end
+
+    #create branch project
+    oprj = DbProject.find_by_name mparams[:target_project]
+    if oprj.nil?
+      DbProject.transaction do
+        oprj = DbProject.new :name => mparams[:target_project], :title => "Branch Project _FIXME_", :description => "_FIXME_"
+        oprj.add_user @http_user, "maintainer"
+        oprj.build_flags << BuildFlag.new( :status => "disable" )
+        oprj.save
+      end
+      Project.find(oprj.name).save
+    else
+      unless @http_user.can_modify_project?(oprj)
+        render_error :status => 403, :errorcode => "modify_project_no_permission",
+          :message => "no permission to modify project '#{mparams[:target_project]}' while executing branch by attribute command"
+        return
+      end
+    end
+
+    # create package branches
+    # collect also the needed repositories here
+    @packages.each do |p|
+     
+      proj_name = p.db_project.name.gsub(':', '_')
+      pack_name = p.name.gsub(':', '_')+"."+proj_name
+
+      # create branch package
+      if opkg = oprj.db_packages.find_by_name(pack_name)
+        render_error :status => 400, :errorcode => "double_branch_package",
+          :message => "branch target package already exists: #{oprj.name}/#{opkg.name}"
+        return
+      else
+        opkg = oprj.db_packages.new(:name => pack_name, :title => p.title, :description => p.description)
+        oprj.db_packages << opkg
+    
+      end
+
+      # create repositories, if missing
+      p.db_project.repositories.each do |repo|
+        orepo = Repository.create :name => proj_name+"_"+repo.name
+        orepo.architectures = repo.architectures
+        orepo.path_elements << PathElement.new(:link => repo)
+        oprj.repositories << orepo
+        opkg.build_flags << BuildFlag.new( :status => "enable", :repo => orepo.name )
+      end
+
+      Package.find(opkg.name, :project => oprj.name).save
+
+      # link sources
+      link_data = "<link project='#{p.db_project.name}' package='#{p.name}'/>"
+      logger.debug "link_data: #{link_data}"
+      Suse::Backend.put "/source/#{oprj.name}/#{opkg.name}/_link", link_data
+
+    end
+
+    # store project data in DB and XML
+    oprj.meta_cache.destroy
+    oprj.save!
+    Project.find(oprj.name).save
+
+    # all that worked ? :)
+    render_ok
+  end
 
   # POST /source/<project>?cmd=createkey
   def index_project_createkey
