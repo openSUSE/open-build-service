@@ -679,6 +679,9 @@ class SourceController < ApplicationController
       mparams[:target_project] = "home:#{@http_user.login}:branches:#{params[:attribute].gsub(':', '_')}"
       mparams[:target_project] += ":#{params[:package]}" if params[:package]
     end
+    if not params[:update_project_attribute]
+      params[:update_project_attribute] = "OBS:UpdateProject"
+    end
 
     # permission check
     unless @http_user.can_create_project?(mparams[:target_project])
@@ -729,9 +732,16 @@ class SourceController < ApplicationController
     # create package branches
     # collect also the needed repositories here
     @packages.each do |p|
-     
-      proj_name = p.db_project.name.gsub(':', '_')
-      pack_name = p.name.gsub(':', '_')+"."+proj_name
+    
+      # is a update project defined and a package there ?
+      pac = p
+      if a = p.db_project.find_attribute(params[:update_project_attribute]) and a.values[0]
+         if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
+            pac = pa
+         end
+      end
+      proj_name = pac.db_project.name.gsub(':', '_')
+      pack_name = pac.name.gsub(':', '_')+"."+proj_name
 
       # create branch package
       if opkg = oprj.db_packages.find_by_name(pack_name)
@@ -739,13 +749,12 @@ class SourceController < ApplicationController
           :message => "branch target package already exists: #{oprj.name}/#{opkg.name}"
         return
       else
-        opkg = oprj.db_packages.new(:name => pack_name, :title => p.title, :description => p.description)
+        opkg = oprj.db_packages.new(:name => pack_name, :title => pac.title, :description => pac.description)
         oprj.db_packages << opkg
-    
       end
 
       # create repositories, if missing
-      p.db_project.repositories.each do |repo|
+      pac.db_project.repositories.each do |repo|
         orepo = Repository.create :name => proj_name+"_"+repo.name
         orepo.architectures = repo.architectures
         orepo.path_elements << PathElement.new(:link => repo)
@@ -756,7 +765,7 @@ class SourceController < ApplicationController
       Package.find(opkg.name, :project => oprj.name).save
 
       # link sources
-      link_data = "<link project='#{p.db_project.name}' package='#{p.name}'/>"
+      link_data = "<link project='#{pac.db_project.name}' package='#{pac.name}'/>"
       logger.debug "link_data: #{link_data}"
       Suse::Backend.put "/source/#{oprj.name}/#{opkg.name}/_link", link_data
 
