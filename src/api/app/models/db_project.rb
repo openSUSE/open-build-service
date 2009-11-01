@@ -293,7 +293,7 @@ class DbProject < ActiveRecord::Base
       
       attribdef = Hash.new
       attrib_types.each do |atype|
-        cachekey = atype.namespace + ":" + atype.name
+        cachekey = atype.attrib_namespace.name + ":" + atype.name
         attribdef[cachekey] = atype
       end
 
@@ -315,7 +315,7 @@ class DbProject < ActiveRecord::Base
               raise RuntimeError, "Attribute definition exists already in '#{atype.db_project.name}'"
             end
 
-            self.attrib_types.create(:name => definition.name, :namespace => definition.namespace).update_from_xml(definition)
+            self.attrib_types.create(:name => definition.name, :attrib_namespace => AttribNamespace.find_by_name(definition.namespace)).update_from_xml(definition)
             self.updated_at = Time.now
           end
         end
@@ -333,6 +333,7 @@ class DbProject < ActiveRecord::Base
       #--- end update attribute definitions ---#
 
       store
+
     end #transaction
   end
 
@@ -402,7 +403,7 @@ class DbProject < ActiveRecord::Base
       if subpackage
         raise RuntimeError, "subpackages are not allowed in project attributes"
       end
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id", :conditions => ["at.name = BINARY ? and at.attrib_namespace = BINARY ? and ISNULL(attribs.subpackage)", name_parts[1], name_parts[0]])
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.subpackage)", name_parts[1], name_parts[0]])
   end
 
   def render_attribute_axml(params)
@@ -411,7 +412,7 @@ class DbProject < ActiveRecord::Base
     done={};
     xml = builder.attributes() do |a|
       attribs.each do |attr|
-        type_name = attr.attrib_type.namespace+":"+attr.attrib_type.name
+        type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
         next if params[:attribute] and not type_name == params[:attribute]
         a.attribute(:name => type_name) do |y|
           done[type_name]=1

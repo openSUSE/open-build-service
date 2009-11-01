@@ -3,12 +3,12 @@
 
 class AttribType < ActiveRecord::Base
   belongs_to :db_project
+  belongs_to :attrib_namespace
 
   has_many :attribs, :dependent => :destroy
   has_many :default_values, :class_name => 'AttribDefaultValue', :dependent => :delete_all
   has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :delete_all
   has_many :attrib_type_modifiable_by, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
-  has_one :attrib_namespace
 
   def self.inheritance_column
     "bla"
@@ -20,7 +20,7 @@ class AttribType < ActiveRecord::Base
       if name_parts.length != 2
         raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style" 
       end
-      find :first, :conditions => ["name = BINARY ? and attrib_namespace = BINARY ?", name_parts[1], name_parts[0]]
+      find :first, :joins => "LEFT OUTER JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["attrib_types.name = BINARY ? and an.name = BINARY ?", name_parts[1], name_parts[0]]
     end
   end
 
@@ -35,7 +35,7 @@ class AttribType < ActiveRecord::Base
   def render_axml(node = Builder::XmlMarkup.new(:indent=>2))
      p = {}
      p[:name]      = self.name
-     p[:namespace] = namespace
+     p[:namespace] = attrib_namespace.name
      node.definition(p) do |attr|
 
        if default_values.length > 0
