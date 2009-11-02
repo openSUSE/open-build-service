@@ -44,7 +44,7 @@
 
   <% form_tag :action => "submitreq" do %>
     
-    <%= text_field_tag :reason, '' %><br/>
+    <%= text_field_tag :reason, '' , :size => 80 %><br/>
     <%= hidden_field_tag( "changestate", changestate ) %>
     <%= hidden_field_tag( "id", id) %>
     <%= submit_tag a %>
