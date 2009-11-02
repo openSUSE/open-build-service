@@ -181,7 +181,7 @@ class RequestController < ApplicationController
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
-    if params[:comment].blank? and not request.body
+    if params[:comment].blank? and request.body
       params[:comment] = request.body.read
     end
 
@@ -232,7 +232,7 @@ class RequestController < ApplicationController
              return
            end
            source_package = source_project.db_packages.find_by_name(action.source.package)
-           if source_package.nil?
+           if source_package.nil? and params[:newstate] != "revoked"
              render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
              return
