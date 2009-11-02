@@ -298,6 +298,6 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'project', :project => /[^\/]*/
 
   # Install the default route as the lowest priority.
-  map.connect ':controller/:action/:id', :controller => /[^\/]*/, :action => /[^\/]*/
-  map.connect ':controller/:action', :controller => /[^\/]*/, :action => /[^\/]*/
+  map.connect ':controller/:action/:id', :id => /[^\/]*/
+  map.connect ':controller/:action'
 end
