@@ -42,7 +42,7 @@ rm -rf S && mkdir S
 cd S &&
 for f in $prjlist
 do
-(set -x && osc -A $sourceobs co -u $sourceprj/$f || osc -A $sourceobs co -u $sourceprj/$f || osc -A $sourceobs co -u $sourceprj/$f || rm -rf $sourceprj/$f)
+(set -x && osc -A $sourceobs co -u $sourceprj/$f || osc -A $sourceobs co -u $sourceprj/$f || osc -A $sourceobs co -u $sourceprj/$f || osc -A $sourceobs co -u $sourceprj/$f || rm -rf $sourceprj/$f)
 done
 )
 
@@ -58,7 +58,7 @@ do
 # Copy pkg meta info before checking out target package
 (set -x && osc -A $sourceobs meta pkg $sourceprj/$f | grep -v "<person " | grep -v "<devel project" | grep -v "<devel package" | osc -A $targetobs meta pkg -F - $targetprj/$f)
 # Check out target packages
-(set -x && osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || rm -rf $targetprj/$f)
+(set -x && osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || osc -A $targetobs co -u $targetprj/$f || rm -rf $targetprj/$f)
 done
 )
 
