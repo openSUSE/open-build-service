@@ -3,10 +3,10 @@ require 'open-uri'
 class PackageController < ApplicationController
 
   before_filter :check_params
-  before_filter :require_package_and_project, :only => [:show, :view, :wizard, :edit, :add_file, :save_file]
-  before_filter :require_project, :only => [:new, :new_link, :wizard_new]
+  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :view, :wizard, :edit, :add_file, :save_file]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
-      :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus]
+      :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
+      :show, :view, :wizard, :edit, :add_file, :save_file]
 
   def index
     redirect_to :controller => 'project', :action => 'list_all'
@@ -771,9 +771,9 @@ class PackageController < ApplicationController
     begin
       @project = Project.find( params[:project] )
     rescue ActiveXML::Transport::NotFoundError => e
+      logger.error "Project #{params[:project]} not found: #{e.message}"
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public"
-      return
+      redirect_to :controller => "project", :action => "list_public" and return
     end
   end
 
@@ -782,15 +782,10 @@ class PackageController < ApplicationController
     begin
       @package = Package.find( params[:package], :project => @project )
     rescue ActiveXML::Transport::NotFoundError => e
+      logger.error "Package #{params[:package]} not found: #{e.message}"
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to :controller => "project", :action => :show, :project => @project
-      return
+      redirect_to :controller => "project", :action => :show, :project => @project and return
     end
-  end
-
-  def require_package_and_project
-    require_project
-    require_package
   end
 
 end
