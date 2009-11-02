@@ -382,6 +382,44 @@ sub getbinarylist_repository {
     return undef;
   }
 
+  if ($view eq 'binaryversions') {
+    my $pool = BSSolv::pool->new();
+    my $repo = addrepo_scan($pool, $prp, $arch);
+    my %names = $repo ? $repo->pkgnames() : ();
+    my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
+    my @res;
+    for my $bin (@bins) {
+      my $p = $names{$bin};
+      if (!$p) {
+	push @res, {'name' => $bin, 'error' => 'not available'};
+	next;
+      }
+      my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+      my $r;
+      if ($path =~ /\.rpm$/) {
+	$r = {'name' => "$bin.rpm"};
+      } else {
+	$r = {'name' => "$bin.deb"};
+      }    
+      $r->{'hdrmd5'} = $pool->pkg2pkgid($p);
+      $r->{'sizek'} = $pool->pkg2sizek($p);
+      push @res, $r;
+      next if $cgi->{'nometa'};
+      next unless $path =~ s/\.(?:rpm|deb)$//;
+      local *F;
+      if (!open(F, '<', "$path.meta")) {
+	next unless open(F, '<', "$path-MD5SUMS.meta");
+      }    
+      my $ctx = Digest::MD5->new;
+      $ctx->addfile(*F);
+      $r->{'metamd5'} = $ctx->hexdigest();
+      close F;
+    }
+    undef $repo;
+    undef $pool;
+    return ({ 'binary' => \@res }, $BSXML::binaryversionlist);
+  }
+
   die("unsupported view '$view'\n") if $view && $view ne 'names';
 
   my $pool = BSSolv::pool->new();
