@@ -65,18 +65,21 @@ class DbPackage < ActiveRecord::Base
 
     def find_by_attribute_type( attrib_type, package=nil )
       # One sql statement is faster than a ruby loop
+      # attribute match in package or project
       sql =<<-END_SQL
       SELECT pack.*
       FROM db_packages pack
       LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
-      WHERE attr.attrib_type_id = BINARY ?
+      LEFT OUTER JOIN attribs attrprj ON pack.db_project_id = attrprj.db_project_id
+      WHERE ( attr.attrib_type_id = BINARY ? or attrprj.attrib_type_id = BINARY ? )
       END_SQL
 
       if package
-        sql += " AND pack.name = BINARY ?"
-        return DbPackage.find_by_sql [sql, attrib_type.id.to_s, package]
+        sql += " AND pack.name = BINARY ? GROUP by pack.id"
+        return DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
       end
-      return DbPackage.find_by_sql [sql, attrib_type.id.to_s]
+      sql += " GROUP by pack.id"
+      return DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
     end
 
     def find_by_attribute_type_and_value( attrib_type, value, package=nil )
