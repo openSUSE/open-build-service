@@ -146,7 +146,7 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_platform_name? name
-    name =~ /^\w[-_\w]*$/
+    name =~ /^\w[-_\.\w]*$/
   end
 
   def reset_activexml
@@ -193,7 +193,6 @@ class ApplicationController < ActionController::Base
         :exception => exception, :api_exception => api_exception
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 200
     else
       if code != 404 && !local_request?

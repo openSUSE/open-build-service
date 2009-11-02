@@ -478,10 +478,16 @@ class ProjectController < ApplicationController
     platform = params[:platform]
     arch = params[:arch]
     targetname = params[:targetname]
-    targetname = "standard" if not targetname or targetname.empty?
+    targetname = "standard" if targetname.blank?
 
-    if targetname =~ /\s/
-      flash[:error] = "Target name may not contain spaces"
+    if !valid_platform_name? targetname
+      flash[:error] = "Illegal target name."
+      redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
+      return
+    end
+
+    if platform.blank?
+      flash[:error] = "Please select a target platform."
       redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
       return
     end
