@@ -1,7 +1,17 @@
 <% @pagetitle = "Login" %>
 
-<form action="<%= @return_to_path %>"
-        method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+<% if ICHAIN_MODE == 'on' %>
+<form action="https://build.opensuse.org/ICSLogin/auth-up"
+    method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+    <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
+    <input name="context" value="default" type="hidden" />
+    <input name="proxypath" value="reverse" type="hidden" />
+    <input name="message" value="Please log In" type="hidden" />
+<% else %>
+ <form action="<%= @return_to_path %>"
+         method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+<% end %>
+
 
 <div title="Account login" id="loginform" class="form">
     <h1>Please login:</h1>
