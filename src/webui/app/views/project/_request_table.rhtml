@@ -14,6 +14,9 @@
     <th>State</th>
     <th>Actions</th>
     <th>Requester</th>
+    <% if options %>
+      <th>Options</th>
+    <% end %>
   </tr>
   <% requests.each do |req| -%>
   <tr>
@@ -30,8 +33,8 @@
     else
       elem = "submit" 
     end %>
-<%  req.send("each_#{elem}") do |a| %>
-      <tr>
+<%  req.send("each_#{elem}") do |a| %> 
+	      <tr>
         <td>
 <%      if elem == "submit": %> <!-- old style submission -->
           submit
@@ -56,9 +59,28 @@
 <%    end %>
         </td>
       </tr>
+      <% unless req.description.to_s =="" %>
+      <tr>
+        <th colspan="3">Description</th>
+      </tr>
+      <tr>
+        <td colspan="3"><%= req.description %></td>
+      </tr>
+      <%end%>
 <%  end -%>
     </table></td>
-    <td><%= req.state.who %></td>
+    <td><%= link_to req.state.who, :action => "show", :project => "home:"+req.state.who %></td>
+    <% if options %>
+    <td>
+        <%= link_to "[Show diff]", :action => "diff", :id => req.method_missing(:id) %> | 
+	<% if by_me %>
+          <%= link_to "[Revoke]", :action => "diff", :changestate => "revoked", :id => req.method_missing(:id) %>
+        <% else %>
+          <%= link_to "[Accept]", :action => "diff", :changestate => "accepted", :id => req.method_missing(:id) %> | 
+          <%= link_to "[Decline]", :action => "diff", :changestate => "declined", :id => req.method_missing(:id) %>
+        <% end %>
+    </td>
+    <% end %>
   </tr>
-  <% end -%>
+  <% end %>
 </table>

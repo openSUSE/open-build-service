@@ -1,0 +1,56 @@
+<h2>Submit Request '<%=h id%>'</h2>
+
+<script language="javascript">
+  window.onload = function() {
+  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+  dp.SyntaxHighlighter.HighlightAll('code');
+}
+</script>
+
+
+<p>
+  <%= render :partial => 'request_table', :locals => {:requests => @requests_for_me, :options => false, :by_me => false } %>
+</p>
+
+
+<p>
+  <%= link_to "[Show Package]", :controller => "package", :action => "show", :package => @target_pkg, :project => @target_project %> 
+</p>
+
+<% unless @diff_text.nil? %>
+<pre name="code" class="spec">
+  <%= @diff_text %>
+</pre>
+<% else %>
+  <p>
+    <i>Can't get diff for <%= id %></i>
+  </p>
+<% end %>
+
+
+<% if (changestate=="accepted") || (changestate=="declined") || (changestate=="revoked") %>
+
+  <% case changestate
+     when "accepted"
+       a = "accept"
+     when "declined"
+       a = "decline"
+     when "revoked"
+       a = "revoke"
+     end %>
+
+  <h3><%= "Do you want to #{a} this submit request?" %></h3>
+  <b>Reason:</b>
+
+  <% form_tag :action => "submitreq" do %>
+    
+    <%= text_field_tag :reason, '' %><br/>
+    <%= hidden_field_tag( "changestate", changestate ) %>
+    <%= hidden_field_tag( "id", id) %>
+    <%= submit_tag a %>
+  
+  <% end %>
+
+
+<% end %>
+

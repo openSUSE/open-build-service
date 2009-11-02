@@ -2,12 +2,13 @@ class ProjectController < ApplicationController
 
   before_filter :check_parameter_project, :except =>
     [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
-      :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog ]
+      :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog, :diff, :submitreq ]
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
     :remove_person, :save_person, :add_person, :remove_target]
 
   
+
   def index
     redirect_to :action => 'list_all'
   end
@@ -18,6 +19,67 @@ class ProjectController < ApplicationController
 
   def list_public
     list :without_homes
+  end
+
+  def diff
+    @project = Diff.find( :id => params[:id])
+ 
+    @project.each do |a|
+      if a.has_element? :source:
+        @src_project = a.source.project
+        @src_pkg = a.source.package
+        @src_rev = a.source.rev
+      end
+      if a.has_element? :target:
+        @target_project = a.target.project
+        @target_pkg = a.target.package
+      end
+    end
+
+    predicate = "(action/target/@project='#{@target_project}') and @id=#{params[:id]}"
+    @requests_for_me = Collection.find :what => :request, :predicate => predicate
+
+    transport ||= ActiveXML::Config::transport_for(:project)
+    path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
+   
+    if (params[:changestate] && params[:changestate]=="accepted")
+      changestate = "accepted"
+    elsif (params[:changestate] && params[:changestate]=="declined")
+      changestate = "declined"
+    elsif (params[:changestate] && params[:changestate]=="revoked")
+      changestate = "revoked"
+    else
+      changestate = nil
+    end
+
+    begin
+      @diff_text = transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
+      render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => changestate}
+    rescue
+      if changestate.nil? || changestate == "accepted"
+        flash[:error] = "Can't get diff for #{params[:id]}!"
+        redirect_to :action => "list_my" 
+      else
+        @diff_text = nil
+        render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => changestate}
+      end
+    end 
+  end
+
+  def submitreq
+    changestate = params[:changestate]
+    if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
+      reason = params[:reason]
+      id = params[:id]
+      transport ||= ActiveXML::Config::transport_for(:project)
+      path = "/request/#{id}?newstate=#{changestate}&cmd=changestate" 
+      transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason
+      flash[:note] = "Submit request #{changestate}!"
+      redirect_to :action => "list_my"
+    else
+      flash[:error] = "Changestate parameter is unknown!"
+      redirect_to :action => "list_my"
+    end
   end
 
   def list(mode=:without_homes)

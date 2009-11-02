@@ -12,12 +12,12 @@
 
 <p>
   <h2>Requests concerning me</h2>
-  <%= render :partial => 'request_table', :locals => {:requests => @requests_for_me} %>
+  <%= render :partial => 'request_table', :locals => {:requests => @requests_for_me, :options => true, :by_me => false} %>
 </p>
 
 <p>
   <h2>Requests by me</h2>
-  <%= render :partial => 'request_table', :locals => {:requests => @requests_by_me} %>
+  <%= render :partial => 'request_table', :locals => {:requests => @requests_by_me, :options => true, :by_me => true } %>
 </p>
 
 <p>
