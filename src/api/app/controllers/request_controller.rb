@@ -231,11 +231,13 @@ class RequestController < ApplicationController
                :message => "Target package is missing in request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
-           source_package = source_project.db_packages.find_by_name(action.source.package)
-           if source_package.nil? and params[:newstate] != "revoked"
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
-             return
+           if params[:newstate] != "declined"
+             source_package = source_project.db_packages.find_by_name(action.source.package)
+             if source_package.nil? and params[:newstate] != "revoked" and params[:newstate] != "declined"
+               render_error :status => 403, :errorcode => "post_request_no_permission",
+                 :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
+               return
+             end
            end
            if action.target.has_attribute? :package
              target_package = target_project.db_packages.find_by_name(action.target.package)
