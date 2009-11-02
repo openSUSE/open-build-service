@@ -2682,6 +2682,10 @@ sub getbinarylist {
   }
   my $uri = "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid";
   $uri = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid" if $proj->{'remoteurl'};
+  if ($view && $view eq 'binaryversions') {
+    my $bvl = BSWatcher::rpc($uri, $BSXML::binaryversionlist, @args);
+    return ($bvl, $BSXML::binaryversionlist);
+  }
   my $bl = BSWatcher::rpc($uri, $BSXML::binarylist, @args);
   return ($bl, $BSXML::binarylist);
 }
@@ -3533,6 +3537,14 @@ sub worker_getbinaries {
   return undef;
 }
 
+sub worker_getbinaryversions {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my @binaries = split(',', $cgi->{'binaries'});
+  my ($remoteurl, $remoteprojid) = findremote($projid);
+  my $bvl = BSWatcher::rpc("$remoteurl/build/$remoteprojid/$repoid/$arch/_repository", $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @binaries);
+  return ($bvl, $BSXML::binaryversionlist);
+}
+
 sub worker_lastevents {
   my ($cgi, $watch) = @_;
   if (!$cgi->{'start'}) {
@@ -3740,6 +3752,7 @@ my $dispatches = [
 
   '/getsignkey $project withpubkey:bool?' => \&getsignkey,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num?' => \&worker_lastevents,
   '/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
