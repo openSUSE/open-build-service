@@ -1001,6 +1001,7 @@ sub findfile {
   $files = lsrep($rev) unless $files;
   return (undef, undef) unless $files;
   my $packid = $rev->{'package'};
+  $packid =~ s/\..*//; # strip trailing .SOMETHING away
   return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
   # 28.4.2009 mls: deleted "&& defined($repoid)"
   return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"};
