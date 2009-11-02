@@ -125,7 +125,11 @@ class User < ActiveRecord::Base
       attribute.attrib_type.attrib_type_modifiable_by.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
         next if mod_rule.group; # groups are not yet supported # and not self.is_part_of_group?(mod_rule.group)
-        next if mod_rule.role and not has_local_role?(mod_rule.role, attribute.db_package)
+        if attribute.db_package
+          next if mod_rule.role and not has_local_role?(mod_rule.role, attribute.db_package)
+        else
+          next if mod_rule.role and not has_local_role?(mod_rule.role, attribute.db_project)
+        end
         return true
       end
     else
