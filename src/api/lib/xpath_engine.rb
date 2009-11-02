@@ -28,12 +28,13 @@ class XpathEngine
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']},
-        'attribute/@name' => {:cpart => 'CONCAT(attrib_namespaces.name,":",attrib_types.name) OR CONCAT(attrib_namespacesprj.name,":",attrib_typesprj.name)', :joins => 
+        'attribute/@name' => {:cpart => 'CONCAT(if(attrib_namespaces.name IS NULL,(if(attrib_namespacesprj.name IS NULL,"",attrib_namespacesprj.name)),attrib_namespaces.name), ":", if(attrib_types.name IS NULL,(if(attrib_typesprj.name IS NULL,"",attrib_typesprj.name)),attrib_types.name))',
+          :joins => 
           ['LEFT JOIN attribs ON attribs.db_package_id = db_packages.id',
-           'LEFT JOIN attribs AS attribsprj ON attribsprj.db_project_id = db_packages.db_project_id',   # include also, when set in project
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
-           'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_types.id', 
+           'LEFT JOIN attribs AS attribsprj ON attribsprj.db_project_id = db_packages.db_project_id',   # include also, when set in project
+           'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id', 
            'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
       },
       'db_projects' => {
