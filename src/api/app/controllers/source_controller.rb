@@ -774,7 +774,7 @@ class SourceController < ApplicationController
     Project.find(oprj.name).save
 
     # all that worked ? :)
-    render_ok
+    render_ok :data => {:targetproject => mparams[:target_project]}
   end
 
   # POST /source/<project>?cmd=createkey
