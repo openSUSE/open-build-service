@@ -233,7 +233,7 @@ class RequestController < ApplicationController
            end
            if params[:newstate] != "declined"
              source_package = source_project.db_packages.find_by_name(action.source.package)
-             if source_package.nil? and params[:newstate] != "revoked" and params[:newstate] != "declined"
+             if source_package.nil? and params[:newstate] != "revoked"
                render_error :status => 403, :errorcode => "post_request_no_permission",
                  :message => "Source package is missing for request #{req.id} (type #{action.data.attributes['type']})"
                return
