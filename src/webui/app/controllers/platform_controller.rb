@@ -114,16 +114,19 @@ class PlatformController < ApplicationController
 
     if params[:platform] && !valid_platform_name?( params[:platform] )
         flash[:error] = "Invalid platform name"
+        logger.debug( "Invalid platform name" )
         redirect_to :action => :error
     end
 
     if params[:name] && !valid_platform_name?( params[:name] )
         flash[:error] = "Invalid platform name"
+        logger.debug( "Invalid name" )
         redirect_to :action => :error
     end
 
     if params[:project] && !valid_project_name?( params[:project] )
         flash[:error] = "Invalid project name, may only contain alphanumeric characters"
+        logger.debug( "Invalid project name" )
         redirect_to :action => :error
     end
 
