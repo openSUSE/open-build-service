@@ -498,9 +498,6 @@ sub set_building {
     }
   }
 
-  # Get image types defined in KIWI config file
-  my @imagetypes = @{$info->{'imagetype'} || []};
-
   # calculate packages needed for building
   my $prptype = $bconf->{'type'};
   $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
@@ -589,10 +586,10 @@ sub set_building {
     'versrel' => $pdata->{'versrel'},
     'bcnt' => $h->{'bcnt'} + 1,
     'subpack' => ($subpacks || []),
-    'imagetype' => \@imagetypes,
     'bdep' => \@bdeps,
     'path' => $searchpath,
   };
+  $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   my $release = $pdata->{'versrel'};
   $release = '0' unless defined $release;
   $release =~ s/.*-//;
@@ -2359,6 +2356,7 @@ sub rebuildkiwiproduct {
     'path' => $searchpath,
     'reason' => $reason->{'explain'},
   };
+  $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   mkdir_p("$reporoot/$prp/$myarch/$packid");
   writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $mytime, 'job' => $job}, $BSXML::buildstatus);
   $reason->{'time'} = $mytime;
@@ -4268,7 +4266,11 @@ relsynccheck:
   }
 
   my $now = time();
-  $nextmed{$prp} = time() + 10 * $prpchecktime;
+  if ($prpchecktime) {
+    $nextmed{$prp} = $now + 10 * $prpchecktime;
+  } else {
+    delete $nextmed{$prp};
+  }
   $prplastcheck{$prp} = $now;
 
   # update scheduler stats
