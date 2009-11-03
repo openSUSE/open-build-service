@@ -12,35 +12,83 @@ targetprj=$2
 urlbase=$3
 
 mkdir -p tmp && curl -s -l $urlbase >& tmp/.listing
+osc -A $targetobs ls $targetprj 2>/dev/null | sort >tmp/.ls
 
 if [ x"$(grep '<html>' tmp/.listing)" != x"" ]
 then
-  cat tmp/.listing | awk '{print $2}' | grep 'src.rpm' | sed -e "s/^href=\"//g" | awk -F'"' '{print $1}' >tmp/.ftplist
-  ftplist=$(cat tmp/.ftplist)
+  cat tmp/.listing | awk '{print $2}' | grep 'src.rpm' | sed -e "s/^href=\"//g" | awk -F'"' '{print $1}' | sort >tmp/.ftplist
 else
-  ftplist=$(cat tmp/.listing)
+  cat tmp/.listing | sort >tmp/.ftplist
 fi
+
+ftplist=$(cat tmp/.ftplist)
+lslist=$(cat tmp/.ls)
+
+rm -f tmp/.ftpls
+for f in $ftplist
+do
+    if [ x$(echo $f | egrep "_[0-9]") != x"" ]
+    then
+       pkgname=${f%%-[0-9].[*-[0-9]*-[0-9]*.*}
+    else
+       pkgname=${f%%-[0-9]*-[0-9]*.*}
+    fi
+    echo $pkgname >>tmp/.ftpls
+done
 
 echo "$0 $targetobs $targetprj $urlbase"
 echo "Urllist:"
 echo "$ftplist"
 echo
+echo "Lslist:"
+echo "$lslist"
+echo
+echo "Difflist:"
+diff tmp/.ls tmp/.ftpls
+echo
 
 ##########################################################
 # Check out target packages
 
-(cd tmp && set -x ; rm -rf $targetprj/*)
+(
+cd tmp && rm -rf $targetprj
+if [ x"$lslist" != x"" ]
+then
+    for f in $lslist
+    do
+	osc -A $targetobs co $targetprj/$f >& /dev/null
+	break
+    done
+else
+    osc -A $targetobs co $targetprj >& /dev/null
+fi
+)
+
 for f in $ftplist
 do
   (cd tmp &&
-     (set -x &&
-                pkgname=${f%%-[0-9]*}
-                rm -rf $targetprj/$pkgname && osc -A $targetobs rdelete $targetprj $pkgname >& /dev/null
-                wget -c -q $urlbase/$f || wget -c -q $urlbase/$f || wget -c -q $urlbase/$f
+     (
+                if [ x$(echo $f | egrep "_[0-9]") != x"" ]
+                then
+                   pkgname=${f%%-[0-9].[*-[0-9]*-[0-9]*.*}
+                else
+                   pkgname=${f%%-[0-9]*-[0-9]*.*}
+                fi
+                (set -x ; wget -c -q $urlbase/$f || wget -c -q $urlbase/$f || wget -c -q $urlbase/$f || wget -c -q $urlbase/$f)
+                if [ x"$(osc -A $targetobs ls $targetprj/$pkgname 2>/dev/null)" == x"" ]
+	        then
                 (
-		 cd $targetprj && osc -A $targetobs importsrcpkg -n $pkgname ../$f
-		 cd $pkgname && (osc -A $targetobs addremove ; osc -A $targetobs ci -m "imported: $urlbase/$f @ $targetobs/$pkgname")
+		 rm -rf $targetprj/$pkgname && osc -A $targetobs rdelete $targetprj $pkgname >& /dev/null
+		 cd $targetprj && osc -A $targetobs importsrcpkg -n $pkgname ../$f 2>/dev/null
+		 cd $pkgname && (osc -A $targetobs addremove 2> /dev/null ; osc -A $targetobs ci -m "imported: $urlbase/$f @ $targetobs/$pkgname" 2>/dev/null)
 		)
+		else
+                (
+		 osc -A $targetobs co $targetprj/$pkgname 2>/dev/null && rm -rf $targetprj/$pkgname/* >& /dev/null
+		 cd $targetprj/$pkgname && rpmcpio -x ../../$f
+		 osc -A $targetobs addremove 2>/dev/null; osc -A $targetobs ci -m "imported: $urlbase/$f @ $targetobs/$pkgname" 2>/dev/null
+		)
+		fi
      )
   )
 done
