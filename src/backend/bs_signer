@@ -64,6 +64,8 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $myeventdir = "$eventdir/signer";
 my $uploaddir = "$BSConfig::bsdir/upload";
 
+my $maxchild;
+
 sub signjob {
   my ($job, $arch) = @_;
 
@@ -138,6 +140,27 @@ sub ping {
   }
 }
 
+sub signevent {
+  my ($event, $ev) = @_;
+
+  rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
+  my $job = $ev->{'job'};
+  my $arch = $ev->{'arch'};
+  my $res;
+  eval {
+    $res = signjob($job, $arch);
+  };
+  if ($@) {
+    warn("sign failed: $@");
+    rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
+    return;
+  } elsif ($res) {
+    my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
+    writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
+    ping($arch);
+  }
+  unlink("$myeventdir/${event}::inprogress");
+}
 
 $| = 1;
 print "starting build service signer\n";
@@ -161,6 +184,9 @@ for my $event (grep {s/::inprogress$//s} ls($myeventdir)) {
   rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
 }
 
+my %chld;
+my $pid;
+
 while (1) {
   # drain ping pipe
   my $dummy;
@@ -170,6 +196,7 @@ while (1) {
 
   my @events = ls($myeventdir);
   @events = grep {!/^\./} @events;
+
   for my $event (@events) {
     last if -e "$rundir/bs_signer.exit";
     last if -e "$rundir/bs_signer.restart";
@@ -184,23 +211,24 @@ while (1) {
       unlink("$myeventdir/$event");
       next;
     }
-    rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
-    my $job = $ev->{'job'};
-    my $arch = $ev->{'arch'};
-    my $res;
-    eval {
-      $res = signjob($job, $arch);
-    };
-    if ($@) {
-      warn("sign failed: $@");
-      rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
+    if (!$maxchild || $maxchild == 1) {
+      signevent($event, $ev);
       next;
-    } elsif ($res) {
-      my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
-      writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
-      ping($arch);
     }
-    unlink("$myeventdir/${event}::inprogress");
+    if (!($pid = xfork())) {
+      signevent($event, $ev);
+      exit(0);
+    }
+    $chld{$pid} = 1;
+    while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
+      delete $chld{$pid};
+    }
+  }
+
+  if (%chld) {
+    while (($pid = waitpid(-1, 0)) > 0) {
+      delete $chld{$pid};
+    }   
   }
 
   if (-e "$rundir/bs_signer.exit") {
