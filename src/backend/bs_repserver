@@ -1018,7 +1018,7 @@ sub putjob {
 
   if (grep {$_->{'name'} =~ /\.rpm$/} (@$uploaded)) {
     mkdir_p("$eventdir/signer");
-    writexml("$eventdir/signer/.finished:$job$$", "$eventdir/signer/finished:$job", $ev, $BSXML::event);
+    writexml("$eventdir/signer/.finished:$arch:$job$$", "$eventdir/signer/finished:$arch:$job", $ev, $BSXML::event);
     ping('signer');
   } else {
     mkdir_p("$eventdir/$arch");

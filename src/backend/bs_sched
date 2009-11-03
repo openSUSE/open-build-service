@@ -2645,7 +2645,7 @@ sub rebuildaggregate {
 
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
   if ($BSConfig::sign && grep {/\.rpm$/} keys %$jobrepo) {
-    sendevent($ev, 'signer', "finished:$job");
+    sendevent($ev, 'signer', "finished:$myarch:$job");
   } else {
     sendevent($ev, $myarch, "finished:$job");
   }
