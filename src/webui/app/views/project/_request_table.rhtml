@@ -1,5 +1,5 @@
 <%-
-  # local variables: 
+  # local variables:
   #   requests - request collection
 -%>
 <%-
@@ -28,13 +28,13 @@
       <th>Source</th>
       <th>Target</th>
     </tr>
-<%  if req.has_element? :action: 
-      elem = "action" 
+<%  if req.has_element? :action:
+      elem = "action"
     else
-      elem = "submit" 
+      elem = "submit"
     end %>
-<%  req.send("each_#{elem}") do |a| %> 
-	      <tr>
+<%  req.send("each_#{elem}") do |a| %>
+      <tr>
         <td>
 <%      if elem == "submit": %> <!-- old style submission -->
           submit
@@ -44,17 +44,17 @@
         </td>
         <td>
 <%    if a.has_element? :source: %>
-        <%= a.source.project %>
+        <%= link_to a.source.project, :action => "show", :project => a.source.project %>
 <%      if a.source.has_attribute? :package: %>
-          / <%= a.source.package %>
+          / <%= link_to a.source.package, :controller => :package, :action => "show", :project => a.source.project, :package => a.source.package %>
 <%      end %>
 <%    end %>
         </td>
         <td>
 <%    if a.has_element? :target: %>
-        <%= a.target.project %>
+        <%= link_to a.target.project, :action => "show", :project => a.target.project %>
 <%      if a.target.has_attribute? :package: %>
-          / <%= a.target.package %>
+          / <%= link_to a.target.package, :controller => :package, :action => "show", :project => a.target.project, :package => a.target.package %>
 <%      end %>
 <%    end %>
         </td>
@@ -72,11 +72,11 @@
     <td><%= link_to req.state.who, :action => "show", :project => "home:"+req.state.who %></td>
     <% if options %>
     <td>
-        <%= link_to "[Show diff]", :action => "diff", :id => req.method_missing(:id) %> | 
-	<% if by_me %>
+        <%= link_to "[Show diff]", :action => "diff", :id => req.method_missing(:id) %> |
+        <% if by_me %>
           <%= link_to "[Revoke]", :action => "diff", :changestate => "revoked", :id => req.method_missing(:id) %>
         <% else %>
-          <%= link_to "[Accept]", :action => "diff", :changestate => "accepted", :id => req.method_missing(:id) %> | 
+          <%= link_to "[Accept]", :action => "diff", :changestate => "accepted", :id => req.method_missing(:id) %> |
           <%= link_to "[Decline]", :action => "diff", :changestate => "declined", :id => req.method_missing(:id) %>
         <% end %>
     </td>
