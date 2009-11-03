@@ -1,5 +1,13 @@
 <h2>Submit Request '<%=h id%>'</h2>
 
+<%
+@crumb_list = [
+ link_to( 'My Projects', :controller => 'project', :action => :list_my), 
+ "Submit Request (#{h id})"
+]
+-%>
+
+
 <script language="javascript">
   window.onload = function() {
   dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
