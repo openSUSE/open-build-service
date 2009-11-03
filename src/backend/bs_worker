@@ -851,7 +851,7 @@ sub getbinaries_kiwiproduct {
       if ($linkit{"$prpap/$n"} && $rarch ne 'src' && $rarch ne 'nosrc') {
         link("$ddir/$f->{'name'}", "$dir/$n.rpm") unless -e "$dir/$n.rpm";
       }
-      $meta{"$prpap/$n.$arch"} = $id;
+      $meta{"$prpap/$n.$rarch"} = $id;
     }
   }
   # create meta
