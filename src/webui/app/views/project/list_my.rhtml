@@ -31,7 +31,7 @@
  <% @iprojects.each do |project| -%>
    <tr>
     <td><%= link_to project, :action => :show, :project => project %></td>
-    <td><strong><%= link_to "[m]", :action => :monitor, :project => project %></strong></td>
+    <td><%= link_to (image_tag('monitor.png', :size => '16x16', :border => 0, :alt => 'monitor'), :action => :monitor, :project => project %></td>
    </tr>
   <% end -%>
   </table>
@@ -39,7 +39,6 @@
   <p><em>Not involved in any project.</em></p>
   <% end -%>
 </p>
-
 
 <p>
   <h2>Involved Packages</h2>
@@ -54,7 +53,7 @@
           <tr>
             <td><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
             <td><%= link_to prj, :action => :show, :project => prj %></td>
-            <td><strong><%= link_to "[m]", :action => :monitor, :project => prj, :pkgname => pkg %></strong></td>
+            <td><%= link_to (image_tag('monitor.png', :size => '16x16', :border => 0, :alt => 'monitor'), :action => :monitor, :project => prj, :pkgname => pkg %></td>
           </tr>
         <% end -%>
       <% end -%>
