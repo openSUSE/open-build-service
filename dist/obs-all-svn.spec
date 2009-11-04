@@ -40,7 +40,9 @@ Source16:       obs_project_update
 Source17:       obs_project_srcimport
 Source18:       obs_import_srcrpmtree
 Source15:       obsdispatcher
+Source19:       obswarden
 Source20:       obssignd
+Source21:       obssigner
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %if 0%{?suse_version} >= 1030
 Requires:       yum yum-metadata-parser repoview
@@ -329,9 +331,9 @@ rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 # install obs mirror script and obs copy script
 install -m 0755 %SOURCE13 %SOURCE14 %SOURCE16 %SOURCE17 %SOURCE18 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
-install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 \
+install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 %SOURCE19 %SOURCE21 \
            $RPM_BUILD_ROOT/etc/init.d/
-for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher ; do
+for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obswarden obssigner ; do
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
 done
 # Ship latest version of build to be always in sync. do not use the symlink.
@@ -392,6 +394,8 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
 /etc/init.d/obssrcserver
+/etc/init.d/obswarden
+/etc/init.d/obssigner
 %if 0%{?suse_version} >= 1110
 #with openSUSE 11.1 sbit progs have to registered
 /usr/bin/sign
@@ -403,6 +407,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobsrepserver
 /usr/sbin/rcobsscheduler
 /usr/sbin/rcobssrcserver
+/usr/sbin/rcobswarden
+/usr/sbin/rcobssigner
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
 /usr/lib/obs/server/BSBuild.pm
@@ -442,6 +448,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/bs_repserver
 /usr/lib/obs/server/bs_sched
 /usr/lib/obs/server/bs_srcserver
+/usr/lib/obs/server/bs_warden
+/usr/lib/obs/server/bs_signer
 /usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/build
 /usr/lib/obs/server/worker
@@ -492,6 +500,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc dist/{TODO,README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING
 %doc /srv/www/obs/*/README*
+%doc /srv/www/obs/frontend/REFERENCE_ATTRIBUTES.xml
 %dir /srv/www/obs
 /srv/www/obs/common
 %dir /srv/www/obs/frontend
