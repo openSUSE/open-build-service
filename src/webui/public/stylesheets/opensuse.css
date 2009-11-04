@@ -723,12 +723,12 @@ div#package_disablebuild ul {
 .tag.size7  { font-size: 1.30em; }
 .tag.size8  { font-size: 1.60em; }
 .tag.size9  { font-size: 1.90em; }
-.tag.size10 { font-size: 2.20em; font-style: bold; }
-.tag.size11 { font-size: 2.60em; font-style: bold; }
-.tag.size12 { font-size: 3.00em; font-style: bold; }
-.tag.size13 { font-size: 3.25em; font-style: bold; }
-.tag.size14 { font-size: 3.50em; font-style: bold; }
-.tag.size15 { font-size: 3.75em; font-style: bold; }
+.tag.size10 { font-size: 2.20em; font-weight: bold; }
+.tag.size11 { font-size: 2.60em; font-weight: bold; }
+.tag.size12 { font-size: 3.00em; font-weight: bold; }
+.tag.size13 { font-size: 3.25em; font-weight: bold; }
+.tag.size14 { font-size: 3.50em; font-weight: bold; }
+.tag.size15 { font-size: 3.75em; font-weight: bold; }
 
 
 #search_result dd {
