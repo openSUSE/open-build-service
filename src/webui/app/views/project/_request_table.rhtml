@@ -26,16 +26,20 @@
     <td rowspan="2"><%= req.state.name %></td>
 <%  if req.has_element? :action:
       elem = "action"
+      is_submit = false
     else
       elem = "submit"
+      is_submit = true
     end %>
 <%  req.send("each_#{elem}") do |a| %>
         <td>
 <%      if elem == "submit": %> <!-- old style submission -->
           submit
-<%      else %>
+<%        is_submit = true
+        else %>
 <%=       a.data.attributes["type"] %>
-<%      end %>
+<%        is_submit = ( a.data.attributes["type"] == "submit" )
+        end %>
         </td>
         <td>
 <%    if a.has_element? :source: %>
@@ -57,7 +61,9 @@
     <td rowspan="2"><%= link_to req.state.who, :action => "show", :project => "home:"+req.state.who %></td>
     <% if options %>
     <td rowspan="2">
-        <%= link_to "[Show diff]", :action => "diff", :id => req.method_missing(:id) %> |
+        <% if is_submit %>
+          <%= link_to "[Show diff]", :action => "diff", :id => req.method_missing(:id) %> |
+        <% end %>
         <% if by_me %>
           <%= link_to "[Revoke]", :action => "diff", :changestate => "revoked", :id => req.method_missing(:id) %>
         <% else %>
