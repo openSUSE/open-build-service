@@ -304,7 +304,6 @@ class RequestController < ApplicationController
           tpac.save
           render_ok
         end
-        forward_data path, :method => :post
       elsif action.data.attributes["type"] == "submit"
         if params[:newstate] == "accepted"
           sourceupdate = nil
@@ -393,7 +392,6 @@ class RequestController < ApplicationController
             end
           end
         end
-        forward_data path, :method => :post
       elsif action.data.attributes["type"] == "delete"
         if params[:newstate] == "accepted" # and req.state.name != "accepted" and req.state.name != "declined"
           project = DbProject.find_by_name(action.target.project)
@@ -421,12 +419,12 @@ class RequestController < ApplicationController
           end
           render_ok
         end
-        forward_data path, :method => :post
       else
         render_error :status => 403, :errorcode => "post_request_no_permission",
           :message => "Failed to execute request state change of request #{req.id} (type #{action.data.attributes['type']})"
         return
       end
     end
+    forward_data path, :method => :post
   end
 end
