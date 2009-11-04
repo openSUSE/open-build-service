@@ -9,8 +9,8 @@
       <%- @watchlist.each do |project| -%>
         <tr>
           <td><%= link_to project, :action => :show, :project => project %></td>
-          <td><%= link_to_remote (image_tag('list-remove.png', :size => '16x16', :border => 0, :alt => 'remove'), {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %></td>
-          <td><%= link_to (image_tag('monitor.png', :size => '16x16', :border => 0, :alt => 'monitor'), :action => :monitor, :project => project %></td>
+          <td><%= link_to_remote image_tag('list-remove.png', :size => '16x16', :border => 0, :alt => 'Remove', :title => 'Remove'), {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %></td>
+          <td><%= link_to image_tag('monitor.png', :size => '16x16', :border => 0, :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => project %></td>
         </tr>
       <%- end -%>
     </table>

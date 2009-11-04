@@ -17,13 +17,13 @@
     <th>Target</th>
     <th>Requester</th>
     <% if options %>
-      <th>Options</th>
+      <th style="width: 60px;">Options</th>
     <% end %>
   </tr>
   <% requests.each do |req| -%>
   <tr>
     <td rowspan="2"><%= req.method_missing(:id) %></td>
-    <td rowspan="2"><%= req.state.name %></td>
+    <td><%= req.state.name %></td>
 <%  if req.has_element? :action:
       elem = "action"
       is_submit = false
@@ -61,20 +61,20 @@
     <td rowspan="2"><%= link_to req.state.who, :action => "show", :project => "home:"+req.state.who %></td>
     <% if options %>
     <td rowspan="2">
-        <% if is_submit %>
-          <%= link_to (image_tag('req-showdiff.png', :size => '16x16', :border => 0, :alt => 'show diff'), :action => "diff", :id => req.method_missing(:id) %>
-        <% end %>
-        <% if by_me %>
-          <%= link_to (image_tag('req-revoke.png', :size => '16x16', :border => 0, :alt => 'revoke'), :action => "diff", :changestate => "revoked", :id => req.method_missing(:id) %>
-        <% else %>
-          <%= link_to (image_tag('req-accept.png', :size => '16x16', :border => 0, :alt => 'accept'), :action => "diff", :changestate => "accepted", :id => req.method_missing(:id) %>
-          <%= link_to (image_tag('req-decline.png', :size => '16x16', :border => 0, :alt => 'decline'), :action => "diff", :changestate => "declined", :id => req.method_missing(:id) %>
+        <% if is_submit -%>
+          <%= link_to image_tag('req-showdiff.png', :size => '16x16', :border => 0, :alt => 'Show diff', :title => 'Show diff'), :action => "diff", :id => req.method_missing(:id) %>
+        <% end -%>
+        <% if by_me -%>
+          <%= link_to image_tag('req-revoke.png', :size => '16x16', :border => 0, :alt => 'Revoke', :title => 'Revoke'), :action => "diff", :changestate => "revoked", :id => req.method_missing(:id) %>
+        <% else -%>
+          <%= link_to image_tag('req-accept.png', :size => '16x16', :border => 0, :alt => 'Accept', :title => 'Accept'), :action => "diff", :changestate => "accepted", :id => req.method_missing(:id) %>
+          <%= link_to image_tag('req-decline.png', :size => '16x16', :border => 0, :alt => 'Decline', :title => 'Decline'), :action => "diff", :changestate => "declined", :id => req.method_missing(:id) %>
         <% end %>
     </td>
     <% end %>
   </tr>
   <tr>
-    <td colspan="3"><%= req.description.to_s != "" and req.description.to_s or "-" %></td>
+    <td colspan="4"><%= req.description.to_s != "" and req.description.to_s or "-" %></td>
   </tr>
   <% end %>
 </table>
