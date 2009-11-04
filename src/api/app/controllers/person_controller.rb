@@ -164,7 +164,7 @@ class PersonController < ApplicationController
     remove_from_watchlist = old_watchlist.collect {|i| new_watchlist.include?(i) ? nil : i}.compact
 
     remove_from_watchlist.each do |name|
-      WatchedProject.find_by_name( name, :conditions => "bs_user_id = #{user.id}" ).destroy
+      WatchedProject.find_by_name( name, :conditions => [ 'bs_user_id = ?', user.id ] ).destroy
     end
 
     add_to_watchlist.each do |name|
