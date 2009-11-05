@@ -15,13 +15,13 @@ class PublicController < ApplicationController
     path << "?#{request.query_string}" unless request.query_string.empty?
 
     if params[:view]
-      unless %w(names cpio cache).include?(params[:view])
+      unless %w(names cpio cache binaryversions).include?(params[:view])
         render_error :status => 400, :errorcode => "missing_parameter",
           :message => "query parameter 'view' has to be either names, cpio or cache"
         return
       end
 
-      if params[:view] == "names"
+      if %w{names binaryversions}.include?(params[:view])
         forward_data path
       else
         headers.update(
