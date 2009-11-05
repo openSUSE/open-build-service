@@ -1,22 +1,22 @@
 <table id="inner_flag_table">
 	<tr>
 		<td>
-			<span id="<%="#{buildflag.name}_#{buildflag.id}"%>" >
+			<span id="<%="%s_%s" % [ buildflag.name, buildflag.id.gsub(/[:.]/, "_") ] %>" >		
 				<%= render :partial => "flag_status", :locals => {:flag => buildflag} %>
 			</span>
 		</td>
 		<td>
-			<span id="<%="#{publishflag.name}_#{publishflag.id}"%>">
+			<span id="<%="%s_%s" % [ publishflag.name, publishflag.id.gsub(/[:.]/, "_") ] %>">
 				<%= render :partial => "flag_status", :locals => {:flag => publishflag} %>
 			</span>
 		</td>
 		<td>
-			<span id="<%="#{useforbuildflag.name}_#{useforbuildflag.id}"%>">
+			<span id="<%="%s_%s" % [ useforbuildflag.name, useforbuildflag.id.gsub(/[:.]/, "_") ] %>">
 				<%= render :partial => "flag_status", :locals => {:flag => useforbuildflag} %>
 			</span>
 		</td>
 		<td>
-			<span id="<%="#{debuginfoflag.name}_#{debuginfoflag.id}"%>">
+			<span id="<%="%s_%s" % [ debuginfoflag.name, debuginfoflag.id.gsub(/[:.]/, "_") ] %>" >
 				<%= render :partial => "flag_status", :locals => {:flag => debuginfoflag} %>
 			</span>
 		</td>
