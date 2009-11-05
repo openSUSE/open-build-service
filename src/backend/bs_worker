@@ -26,7 +26,7 @@ use Digest::MD5 ();
 use XML::Structured ':bytes';
 use Data::Dumper;
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT :flock :seek);
 use Storable;
 
 use BSRPC;
