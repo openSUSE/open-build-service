@@ -26,7 +26,9 @@ use Digest::MD5 ();
 use XML::Structured ':bytes';
 use Data::Dumper;
 use POSIX;
-use Fcntl qw(:DEFAULT :flock :seek);
+use Fcntl qw(:DEFAULT :flock);
+BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
+
 use Storable;
 
 use BSRPC;
