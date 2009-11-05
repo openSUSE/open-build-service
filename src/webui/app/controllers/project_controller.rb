@@ -5,7 +5,7 @@ class ProjectController < ApplicationController
       :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog, :diff, :submitreq ]
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
-    :remove_person, :save_person, :add_person, :remove_target]
+    :remove_person, :save_person, :add_person, :remove_target, :toggle_watch]
 
   
 
@@ -148,8 +148,16 @@ class ProjectController < ApplicationController
 
   def new
     @namespace = params[:ns]
-
     @project_name = params[:project]
+    if params[:ns] == "home:#{session[:login]}"
+      begin
+        @project = Project.find params[:ns]
+      rescue ActiveXML::Transport::NotFoundError
+        flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
+          " descriptive data and press the 'Create Project' button."
+        redirect_to :action => :new, :project => params[:ns] and return
+      end
+    end
     if @project_name =~ /home:(.+)/
       @project_title = "#$1's Home Project"
     else
@@ -700,7 +708,6 @@ class ProjectController < ApplicationController
     end
 
     @user = Person.find( :login => session[:login] ) unless @user
-    @project = Project.find(params[:project])
 
     if @user.watches? @project.name
       @user.remove_watched_project @project.name

@@ -61,7 +61,7 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
 
       <li>
       <%= link_to '<img src="https://static.opensuse.org/hosts/build.o.o/images/icons/document-new.png" />', :controller => "project", :action => :new %><br/>
-      <%= link_to 'Create New Project', :controller => "project", :action => :new %>
+      <%= link_to 'Create New Project', :controller => "project", :action => :new, :ns => "home:#{session[:login]}" %>
       </li>
       <li>
       <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/system-search.png'", :controller => 'main', :action => 'search' %><br/>
