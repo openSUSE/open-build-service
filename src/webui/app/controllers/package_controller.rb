@@ -233,8 +233,6 @@ class PackageController < ApplicationController
 
     package.description.data.text = description
 
-    #@project.add_package package
-
     unless @project.save and package.save
       flash[:note] = "Failed to save package '#{package}'"
       redirect_to :controller => 'project', :action => 'show',

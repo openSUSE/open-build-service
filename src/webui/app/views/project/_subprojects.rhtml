@@ -9,5 +9,9 @@
     <dd>No subprojects found</dd>
   <%- end -%>
   </dl>
+
+  <% if @project.is_maintainer?( session[:login] ) %>
   <%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %>
+  <% end %>
+
 </div>

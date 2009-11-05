@@ -1,8 +1,10 @@
 <!-- Repository table -->
 <h3>
   Build Repositories
+  <% if @project.is_maintainer?( session[:login] ) %>
   <%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Repository' ),
   :action => 'add_target_simple', :project => @project %>
+  <% end %>
 </h3>
 
 <li  id="error_message_flags" class="error_message" style="display:none;"></li>
@@ -16,21 +18,18 @@
   </script>
 </div>
 
+<% if @project.is_maintainer?( session[:login] ) %>
 <table>
   <tr>
   <td>
     <%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %>
   </td>
-<!--
-  <td>
-    <%= link_to "[Add Repository (new)]", :action => 'add_repository', :project => @project %>
-  </td>
--->
   <td style="align: right">
     <%= link_to "[Flags for Experts]", :action => 'flags_for_experts', :project => @project%>
   </td>
   </tr>
-</table
+</table>
+<% end %>
 
 
 

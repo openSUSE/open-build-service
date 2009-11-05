@@ -27,9 +27,11 @@
 	<%- end -%>
 </td>
 <% end -%>
+<% if @project.is_maintainer?( session[:login] ) %>
 <td>
 	<%= link_to_remote "[Edit]", :update => repo.name,
 						:url => {:action => :edit_target, :project => @project, :repo => repo.name} %>
 	<%= link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
 							{:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} %><br/>
 </td>
+<% end %>

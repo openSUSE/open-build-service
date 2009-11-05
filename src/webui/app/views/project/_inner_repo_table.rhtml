@@ -5,7 +5,9 @@
         <% @arch_list.each do |arch| -%>
       <th><%=h arch %></th>
         <% end -%>
+      <% if @project.is_maintainer?( session[:login] ) %>
       <th>Action</th>
+      <% end %>
     </tr>
     <% @project.each_repository do |repo| -%>
       <tr class="target" id="<%=repo.name%>">

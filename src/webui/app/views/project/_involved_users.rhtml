@@ -2,8 +2,10 @@
 <div class="section" id="contacts">
   <h3>
     Involved Users
+    <% if @project.is_maintainer?( session[:login] ) %>
     <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
     :action => :add_person, :project => @project %>
+    <% end %>
   </h3>
     <% if @project.has_element? :person -%>
     <dl>
@@ -17,7 +19,7 @@
       <%= link_to(
         person.userid,
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
-      <%- if maintainers.length > 1 %>
+      <%- if (maintainers.length > 1) and @project.is_maintainer?( session[:login] ) %>
       <%= link_to "[x]",
       {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
       {:confirm => "Really remove user '#{person.userid}'?", :class => "x"}%>
@@ -36,9 +38,11 @@
       <%= link_to(
         person.userid,
         bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
-      <%= link_to "[x]",
-      {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
-      {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x"}%>
+      <% if @project.is_maintainer?( session[:login] ) %>
+        <%= link_to "[x]",
+        {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
+        {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x"}%>
+      <% end %>
       <% end -%>
       </dd>
     <% else -%>
@@ -48,5 +52,8 @@
   <% else -%>
   <b>No roles defined in this project</b>
   <% end #if has_element? person -%>
+
+  <% if @project.is_maintainer?( session[:login] ) %>
   <p><%= link_to "[Add User]", :action => :add_person, :project => @project %></p>
+  <% end %>
 </div>

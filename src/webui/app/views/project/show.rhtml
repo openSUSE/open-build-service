@@ -20,8 +20,12 @@
 </table>
 
 <%= render :partial => "watch_link" %>
+
+<% if @project.is_maintainer?( session[:login] ) %>
 <%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %><br/>
 <%= link_to_remote '[Delete Project]', :url => {:action => :delete, :project => @project.name} %><br/>
+<% end %>
+
 <% if @project.bugowner -%>
   <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@project.bugowner], "[#{@project.name}]") %>
 <% end -%>
@@ -47,8 +51,10 @@
     <i>No description set</i>
   <% end -%>
 </div>
-<%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
 
+<% if @project.is_maintainer?( session[:login] ) %>
+<%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
+<% end %>
 
 <table id="project-layout">
   <tr>

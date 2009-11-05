@@ -7,8 +7,6 @@ class ProjectController < ApplicationController
     :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch]
 
-  
-
   def index
     redirect_to :action => 'list_all'
   end

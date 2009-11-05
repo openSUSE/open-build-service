@@ -53,9 +53,9 @@ class Project < ActiveXML::Base
       set_archs new_archs
     end
 
-#    def name= (name)
-#      data.attributes['name'] = name
-#    end
+    #    def name= (name)
+    #      data.attributes['name'] = name
+    #    end
 
   end
 
@@ -163,40 +163,6 @@ class Project < ActiveXML::Base
   end
 
 
-  def add_package( package )
-
-
-    return true
-
-
-    logger.debug "adding package #{package} to project #{self}"
-
-    if( has_element? :package )
-      elem_cache = split_data_after :package
-    elsif( has_element? :person )
-      elem_cache = split_data_after :person
-    else
-      elem_cache = split_data_after :description
-    end
-
-    #add the new package
-    data.add_element 'package', 'name' => package.to_s, 'revision' => 1
-
-    #readd the removed elements
-    merge_data elem_cache
-  end
-
-  def remove_package( package )
-
-    return true
-
-    return nil unless package
-
-    data.delete_element "package[@name='#{package}']"
-
-    logger.debug "removing package '#{package}' from project #{self}"
-  end
-
   def add_person( opt={} )
     return false unless opt[:userid] and opt[:role]
     logger.debug "adding person '#{opt[:userid]}', role '#{opt[:role]}' to project #{self.name}"
@@ -299,83 +265,83 @@ class Project < ActiveXML::Base
       logger.debug "[PROJECT-FLAGS] Creating flag matrix for flagtype: #{flagtype}"
       flags = Hash.new
 
-        key = 'all::all'
+      key = 'all::all'
 
-        df = Flag.new
-        df.id = key
-        df.name = flagtype
-        df.description = 'project default'
-        df.architecture = nil
-        df.repository = nil
-        if opts[:flagtype] == "debuginfo"
-          df.status = 'disable'
-        else
-          df.status = 'enable'
-        end
-        df.explicit = true
+      df = Flag.new
+      df.id = key
+      df.name = flagtype
+      df.description = 'project default'
+      df.architecture = nil
+      df.repository = nil
+      if opts[:flagtype] == "debuginfo"
+        df.status = 'disable'
+      else
+        df.status = 'enable'
+      end
+      df.explicit = true
 
-        flags.merge! key.to_sym => df
+      flags.merge! key.to_sym => df
 
-        #get repositories and architectures
-        raise RuntimeError.new("[PROJECT-FLAGS] Warning: The Project #{self.name} has no " +
+      #get repositories and architectures
+      raise RuntimeError.new("[PROJECT-FLAGS] Warning: The Project #{self.name} has no " +
           "repository specified, therefore the creation of the flag-matrix is not possible.") \
-          if self.repositories.empty?
+        if self.repositories.empty?
 
-        self.repositories.each do |repo|
-          #generate repo::all flags and set the default
-          key = repo.name.to_s + '::all'
+      self.repositories.each do |repo|
+        #generate repo::all flags and set the default
+        key = repo.name.to_s + '::all'
 
-          rdf = Flag.new
-          rdf.id = key
-          rdf.name = flagtype
-          rdf.description = 'project repository default'
-          rdf.architecture = nil
-          rdf.repository = repo.name
-          rdf.status = 'default'
-          rdf.explicit = false
-          rdf.set_implicit_setters( flags['all::all'.to_sym] )
+        rdf = Flag.new
+        rdf.id = key
+        rdf.name = flagtype
+        rdf.description = 'project repository default'
+        rdf.architecture = nil
+        rdf.repository = repo.name
+        rdf.status = 'default'
+        rdf.explicit = false
+        rdf.set_implicit_setters( flags['all::all'.to_sym] )
 
-          flags.merge! key.to_sym => rdf
+        flags.merge! key.to_sym => rdf
 
-          #set defaults for each architecture
-          repo.each_arch do |arch|
-            unless flags.keys.include? "all::#{arch.to_s}".to_sym
-              key = 'all::' + arch.to_s
+        #set defaults for each architecture
+        repo.each_arch do |arch|
+          unless flags.keys.include? "all::#{arch.to_s}".to_sym
+            key = 'all::' + arch.to_s
 
-              adf = Flag.new
-              adf.id = key
-              adf.name = flagtype
-              adf.description = 'project architecture default'
-              adf.architecture = arch.to_s
-              adf.repository = nil
-              adf.status = 'default'
-              adf.explicit = false
-              adf.set_implicit_setters( flags['all::all'.to_sym] )
+            adf = Flag.new
+            adf.id = key
+            adf.name = flagtype
+            adf.description = 'project architecture default'
+            adf.architecture = arch.to_s
+            adf.repository = nil
+            adf.status = 'default'
+            adf.explicit = false
+            adf.set_implicit_setters( flags['all::all'.to_sym] )
 
-              value = adf
-              flags.merge! key.to_sym => value
-            end #end unless
+            value = adf
+            flags.merge! key.to_sym => value
+          end #end unless
 
-            unless flags.keys.include? "#{repo.name}::#{arch.to_s}".to_sym
-              key = repo.name + '::' + arch.to_s
+          unless flags.keys.include? "#{repo.name}::#{arch.to_s}".to_sym
+            key = repo.name + '::' + arch.to_s
 
-              adf = Flag.new
-              adf.id = key
-              adf.name = flagtype
-              adf.description = 'project flag'
-              adf.architecture = arch.to_s
-              adf.repository = repo.name
-              adf.status = 'default'
-              adf.explicit = false
+            adf = Flag.new
+            adf.id = key
+            adf.name = flagtype
+            adf.description = 'project flag'
+            adf.architecture = arch.to_s
+            adf.repository = repo.name
+            adf.status = 'default'
+            adf.explicit = false
 
-              firstflag = flags["#{repo.name}::all".to_sym]
-              secondflag = flags["all::#{arch.to_s}".to_sym]
-              adf.set_implicit_setters( firstflag, secondflag  )
+            firstflag = flags["#{repo.name}::all".to_sym]
+            secondflag = flags["all::#{arch.to_s}".to_sym]
+            adf.set_implicit_setters( firstflag, secondflag  )
 
-              flags.merge! key.to_sym => adf
-            end
+            flags.merge! key.to_sym => adf
           end
         end
+      end
 
       ft = "set_#{flagtype}flags"
       self.send ft , flags
@@ -450,4 +416,9 @@ class Project < ActiveXML::Base
   def person_count
     @person_count ||= each_person.length
   end
+
+  def is_maintainer? userid
+    has_element? "person[@role='maintainer' and @userid = '#{userid}']"
+  end
+
 end
