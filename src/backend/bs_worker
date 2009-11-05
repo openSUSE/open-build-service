@@ -660,11 +660,15 @@ sub getbinaries_cache {
   push @args, "binaries=".join(',', @$bins);
   my $bvl;
   if ($cachedir) {
-    $bvl = BSRPC::rpc({
-      'uri' => "$server/getbinaryversions",
-      'timeout' => $gettimeout,
-      }, $BSXML::binaryversionlist, @args);
+    eval {
+      $bvl = BSRPC::rpc({
+        'uri' => "$server/getbinaryversions",
+        'timeout' => $gettimeout,
+        }, $BSXML::binaryversionlist, @args);
+    };
+    warn($@) if $@;
   }
+  $bvl ||= {};
   my %bv;
   for (@{$bvl->{'binary'} || []}) {
     if ($_->{'error'}) {
