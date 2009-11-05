@@ -148,6 +148,7 @@ sub rpc {
       $hostlookupcache{$host} = $hostaddr;
     }
     socket(S, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+    setsockopt(S, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
     connect(S, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
     unshift @xhdrs, "User-Agent: $useragent" unless !defined($useragent) || grep {/^user-agent:/si} @xhdrs;
     unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
