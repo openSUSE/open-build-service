@@ -5,7 +5,7 @@ class ProjectController < ApplicationController
       :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog, :diff, :submitreq ]
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
-    :remove_person, :save_person, :add_person, :remove_target, :toggle_watch]
+    :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages ]
 
   def index
     redirect_to :action => 'list_all'
@@ -398,6 +398,13 @@ class ProjectController < ApplicationController
     end
   end
 
+  def list_packages
+    @matching_packages = []
+    Package.find( :all, :project => params[:project] ).each_entry do |package|
+      @matching_packages << package.name
+    end
+    render :partial => "search_package"
+  end
 
   def search_package
     if params[:packagesearch]

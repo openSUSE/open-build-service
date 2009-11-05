@@ -1,10 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
   <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
-  <%= stylesheet_link_tag "opensuse", "SyntaxHighlighter", "local/style", :media => "all" %>
-  <%= javascript_include_tag 'prototype', 'effects', 'application','table' %>
-  <%= javascript_include_tag 'shCore', 'shBrushSpec', 'shBrushXml' %>
+  <%= stylesheet_link_tag "opensuse", "local/style", :media => "all" %>
+  <%= javascript_include_tag :defaults %>
+  <%= yield :content_for_head %>
   
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <link href="/images/favicon.ico" rel="shortcut icon" />
@@ -13,7 +13,6 @@
   <link href="https://static.opensuse.org/hosts/build.o.o/css/iehacks.css" rel="stylesheet" type="text/css"/>
   <![endif]-->
   <!-- <script type="text/javascript" src="javascript/common/langsel.js"></script> -->
- </head>
 </head>
 <body class="project">
   <div id="dialog_wrapper"></div>
@@ -56,7 +55,7 @@
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://users.opensuse.org/">User Directory</a></li>
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="https://features.opensuse.org/">Features</a></li>
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://news.opensuse.org/">News</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://forums.opensuse.org">Forums</a></li>          
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://forums.opensuse.org">Forums</a></li>
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://shop.opensuse.org/">Shop</a></li>
          </ul>
        </div>
@@ -158,7 +157,6 @@
        <% end %>
      <% end %>
 
-          </li>
          </ul>
          </div>
         <div class="box_bottom_row">
@@ -257,13 +255,13 @@
          </div>
          <div class="box_content" id="bodyContent">
          <!-- Begin content area -->
-          <p class="special">
+          <div class="special">
 
             <%= render(:partial => "layouts/flash", :object => flash) %>
 
-            <%= @content_for_layout %>
+            <%= yield :layout %>
             
-          </p>
+          </div>
          <!-- End content area -->
          </div>
          <div class="box_footer_row">

@@ -2,7 +2,7 @@
 
 <h3>
   Package Flags
-  <li  id="error_message_flags" class="error_message" style="display:none;"></li>
+  <span id="error_message_flags" class="error_message" style="display:none;"></span>
 </h3>
 
 
@@ -13,7 +13,7 @@
 <% unless flags_for_experts %>
 <table>
 	<tr>
-		<td style="align: left">
+		<td style="text-align: left">
 		  <%= link_to "[Flags for Experts]", :action => 'flags_for_experts',
 				:project => @package.project, :package => @package%>
 		</td>

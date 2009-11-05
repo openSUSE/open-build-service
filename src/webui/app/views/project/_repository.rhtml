@@ -1,5 +1,5 @@
 <div id='repository-<%=@id%>' class="list_wrapper">
-  <div class="toggle_box_top" onclick="new Effect.toggle($('cnt_<%=@id%>'), 'blind', {duration:0.15});">
+  <div class="toggle_box_top" onclick="$('#cnt_<%=@id%>').toggle(150);">
   <a id='<%=@id%>' title='Remove Item From List' class='remove_item'>&nbsp;</a>
     <span><%=@id%></span>
   </div>

@@ -1,7 +1,7 @@
 
 <% form_remote_tag :url => { :action => 'save_message' },
-  :loading => "toggle_visibility('message_save_spinner')",
-  :complete => "toggle_visibility('message_save_spinner')" do %>
+  :loading => "$('#message_save_spinner').show()",
+  :complete => "$('#message_save_spinner').hide()" do %>
 
   <%= text_field_tag 'message', '', { :size => 40 } %>
   <%= select_tag 'severity', options_for_select(

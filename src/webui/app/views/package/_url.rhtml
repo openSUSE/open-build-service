@@ -5,7 +5,7 @@
     Upstream URL
     <%= link_to_remote image_tag( 'edit.png', :border => 0, :title => "Edit" ),
       :url => { :action => :set_url_form, :package => @package, :project => params[:project] },
-      :loading => "toggle_visibility('url_spinner')", :complete => "toggle_visibility('url_spinner')",
+      :loading => "$('#url_spinner').show()", :complete => "('#url_spinner').hide()",
       :update => 'url_area'  -%>
   </h3>
 

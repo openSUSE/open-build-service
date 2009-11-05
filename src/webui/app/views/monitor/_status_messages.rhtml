@@ -4,8 +4,8 @@
     <%= link_to_remote image_tag("list-add.png", :title => "Add new message", :border => 0),
       :update => 'add_message_form_area',
       :url => { :action => "add_message_form" },
-      :loading => "toggle_visibility('message_form_spinner')",
-      :complete => "toggle_visibility('message_form_spinner')" %>
+      :loading => "$('#message_form_spinner').show()",
+      :complete => "$('#message_form_spinner').hide()" %>
     <%= image_tag 'rotating-tail.gif', :id=> 'message_form_spinner',
       :style => "visibility:hidden;" -%>
     <span id="error_message" style="display:none;"></span>

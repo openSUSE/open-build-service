@@ -1,6 +1,7 @@
-<table class="grid">
+<table class="grid packages_table">
+  <tr id="nopackages" style="display: none"><td>No Packages</td></tr>
   <% @matching_packages.each do |package| -%>
-    <tr>
+    <tr id="pkg-<%= package.downcase %>">
       <td><%= link_to package, :controller => 'package', :action => :show, :project=> @project, :package => package %></td>
     </tr>
   <% end%>

@@ -5,8 +5,8 @@
    end -%>
 <nobr>   
 <% form_remote_tag :url => {:action => :edit_taglist_ajax, :controller => "tag", :project => params[:project], :package => params[:package]},
-    :loading => "toggle_visibility('spinner_#{@form_id}')",
-    :complete => "toggle_visibility('spinner_#{@form_id}')" do -%>
+    :loading => "$('#spinner_#{@form_id}').show()",
+    :complete => "$('#spinner_#{@form_id}').hide()" do -%>
 <%= text_field_tag( "tags", @tags, :size => 55, :style => "width: 93%;") -%>
 <%= image_submit_tag "ok" -%>
 <% end-%>

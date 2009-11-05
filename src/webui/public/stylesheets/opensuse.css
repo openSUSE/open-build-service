@@ -934,3 +934,6 @@ table.table-autosort th.table-sortable { background-image:none; }
 table.table-autosort th.table-sorted-asc { background-image:url("../images/03_ascending.gif"); }
 table.table-autosort th.table-sorted-desc { background-image:url("../images/03_descending.gif"); }
 
+.packages_table {
+  width: 22em;
+}

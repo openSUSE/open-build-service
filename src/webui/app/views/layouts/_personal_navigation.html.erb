@@ -3,7 +3,7 @@
 
   <%= link_to CGI::escapeHTML(session[:login]), :controller => 'home', :action => :index %>
   |
-  <div onclick="new Effect.toggle($('inplace_watchlist'), 'blind', {duration:0.15});">Watchlist</div>
+  <div onclick="$('#inplace_watchlist').slideToggle(350);">Watchlist</div>
   |
   <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
   |
@@ -19,9 +19,9 @@
     <input name="context" value="default" type="hidden" />
     <input name="proxypath" value="reverse" type="hidden" />
     <input name="message" value="Please log In" type="hidden" />
-    Username: <input name="username" size='10' maxlength='50' style='width: 10em;'>
-    Password: <input name="password" size='10' maxlength='50' type='password'>
-    <input value="Login" type="submit">
+    Username: <input name="username" size='10' maxlength='50' style='width: 10em;'/>
+    Password: <input name="password" size='10' maxlength='50' type='password'/>
+    <input value="Login" type="submit"/>
 
     <%#= link_to("Login", '#', {:onclick => "document.getElementById( 'login_form' ).submit(); return;"} ) %> |
     <%= link_to("Register / Manage account", 'https://build.opensuse.org/ICSLogin/?%22' + @return_to_host + @return_to_path + '%22') %>
@@ -33,10 +33,10 @@
 
     <form action="<%= @return_to_path %>"
         method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
-    Username: <input name="username" size='10' maxlength='50' style='width: 10em;'>
-    Password: <input name="password" size='10' maxlength='50' type='password'>
+    Username: <input name="username" size='10' maxlength='50' style='width: 10em;'/>
+    Password: <input name="password" size='10' maxlength='50' type='password'/>
     <input type="hidden" name="authenticity_token" value="<%=  form_authenticity_token %>"/>
-    <input value="Login" type="submit">
+    <input value="Login" type="submit"/>
 
     <%#= link_to("Login", '#', {:onclick => "document.getElementById( 'login_form' ).submit(); return;"} ) %>
 

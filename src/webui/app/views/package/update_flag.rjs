@@ -11,11 +11,13 @@ if @error.nil?
   end
   
   #first update the altered flag
-  page.replace_html "#{@flag.name}_#{@flag.id}", :partial => "flag_status",  :locals => {:flag => @package.send("#{@flag.name}"+"flags")[@flag.id.to_sym]}
+  htmlid = "#%s_%s" % [@flag.name, @flag.id.gsub(/[:.]/, "_")]
+  page.replace_html htmlid, :partial => "flag_status",  :locals => {:flag => @package.send("#{@flag.name}"+"flags")[@flag.id.to_sym]}
   
   #updates each flag on the web site, that is affected from the changed flag.
   update.each do |id|
-    page.replace_html "#{@flag.name}_#{id}", :partial => "flag_status",  :locals => {:flag => @package.send("#{@flag.name}"+"flags")[id.to_sym]}
+    htmlid = "#%s_%s" % [@flag.name, id.gsub(/[:.]/, "_")]
+    page.replace_html htmlid, :partial => "flag_status",  :locals => {:flag => @package.send("#{@flag.name}"+"flags")[id.to_sym]}
   end
   
 else

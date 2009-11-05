@@ -126,7 +126,7 @@
   <br/>
   <%= link_to_remote "[Advanced Disable]", :update => 'edit_disable_xml_tags',
     :url => { :action => :edit_disable_xml, :project => @project, :package => @package },
-    :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')" %>
+    :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()" %>
   <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
   <div id="edit_disable_xml_tags">&nbsp;</div>
 </div>

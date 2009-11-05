@@ -18,7 +18,7 @@
     <%= link_to_remote "[Import from specfile]", {
     :url => { :action => :import_spec, :project => @project, :package => @package, :import => 'description' },
     :update => 'description', :position => :bottom, 
-    :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')", } %>
+    :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()", } %>
     <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
   <% end %>
   <br/>

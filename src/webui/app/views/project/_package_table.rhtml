@@ -9,15 +9,63 @@
 
 </h3>
 
-<%= render :partial => 'filter_packages' %>
+<% content_for :content_for_head do %>
+  <script language="JavaScript" type="text/javascript">
+     function filterPkgs() {
+				var onevisible = 0;
+				var srch = new String($('#packagesearch').val());
+				srch = srch.toLowerCase();
+				$('.packages_table').find('tr').each(function() {
+					var theid = this.id.substring(4,100);
+					if ( theid.indexOf(srch) == -1 ) {
+						$(this).hide();
+					} else { 
+						$(this).show();
+						onevisible = 1;
+					}
+				});
+				if (onevisible) {
+					$('#nopackages').hide();
+				} else {
+					$('#nopackages').show();
+				}
+	
+     }
+
+     $(function() {
+	 $("#packagesearch_clear").click(function() { $('#packagesearch').val('').focus(); filterPkgs(); });
+         $("#packagesearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
+				         function() { $(this).attr('src', '/images/clear.png');  });
+	 $("#spinner").show();
+
+     	 <%= remote_function( :update => 'search_results',                                           
+	      :url => {:action => :list_packages, :project => params[:project]},                                 
+	      :complete => '$("#spinner").hide(); filterPkgs();'); %>
+
+	 $('#packagesearch').keyup(function() { filterPkgs(); });
+	
+      });
+  </script> 
+<% end %>
+
+<div id="package_filter">
+
+  <% form_tag :action => 'search_package' do -%>
+    Filter:
+    <%= text_field_tag 'packagesearch' -%>
+    <%= hidden_field_tag 'project', @project -%>
+    <%= hidden_field_tag 'filter_active', 1 -%>
+    <img id="packagesearch_clear" title="clear input" alt="clear" src="/images/clear.png" />
+  <% end-%>
+
+</div>
+
 <div id="search_results">
-  <script language="javascript">
-    <%= remote_function :update => 'search_results',
-      :url => {:action => :search_package, :project => params[:project]},
-      :loading => "Element.show('spinner')", :complete => "Element.hide('spinner')",
-      :with => "'searchtext='"
-    %>
-  </script>
+  <table class="grid packages_table">
+    <tr>
+      <td>Loading Packages...</td>
+    </tr>
+</table>
 </div>
 
 <% if @project.is_maintainer?( session[:login] ) %>

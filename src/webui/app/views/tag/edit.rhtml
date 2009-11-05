@@ -48,8 +48,8 @@
     <%= link_to_remote image_tag("edit.png", :title => "Edit Tags", :border => 0),
                 :update => 'tag_edit_area_' + @object.name,
                 :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object},
-                :loading => "toggle_visibility('spinner_#{@object.name}')",
-                :complete => "toggle_visibility('spinner_#{@object.name}')" -%>
+                :loading => "$('#spinner_#{@object.name}').show()",
+                :complete => "$('#spinner_#{@object.name}').hide()" -%>
     <%= image_tag 'rotating-tail.gif', :title => 'Edit', :alt => 'Edit', :id => "spinner_#{@object.name}", :style => "visibility:hidden;" -%>
   </nobr>
   </td>  
@@ -92,8 +92,8 @@
                 :border => 0),
                 :update => 'tag_edit_area_' + @object.project + "_" + @object.name,
                 :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object.project, :package => @object},
-                :loading => "toggle_visibility('spinner_#{@object.project}_#{@object.name}')",
-                :complete => "toggle_visibility('spinner_#{@object.project}_#{@object.name}')" -%>
+                :loading => "$('#spinner_#{@object.project}_#{@object.name}').show()",
+                :complete => "$('#spinner_#{@object.project}_#{@object.name}').hide()" -%>
     <%= image_tag 'rotating-tail.gif', :title => 'Edit', :alt => 'Edit', :id => "spinner_#{@object.project}_#{@object.name}", :style => "visibility:hidden;" -%>
   </td>  
   

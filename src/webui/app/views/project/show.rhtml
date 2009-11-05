@@ -7,13 +7,13 @@
 @crumb_list << @project.name
 -%>
 <table>
-  <tr><li id="error_message" style="display:none;"></li></tr>
+  <tr><td id="error_message" style="display:none;"></td></tr>
   <tr>
     <td><h2><%=h @project.title %> (<%=h @project -%>)</h2></td>
     <td>
-      <span id="rating">
+      <div id="rating">
         <%= render :partial => 'shared/star_rating' -%>
-      </span>
+      </div>
     </td>
     <td><span id="info_message" style="display:none;"></span></td>
   </tr>

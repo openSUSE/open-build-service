@@ -5,17 +5,26 @@
   <%= link_to image_tag( 'list-add.png', :border => 0, :title => 'Add Repository' ),
   :action => 'add_target_simple', :project => @project %>
   <% end %>
+  <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status"),
+    :url => { :action => :buildresult, :project => params[:project] },
+      :update => 'inner_repo_table',
+      :loading => "$('#spinner_stat').show()", :complete => "$('#spinner_stat').hide()" %>
+   <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
 </h3>
 
-<li  id="error_message_flags" class="error_message" style="display:none;"></li>
+<span id="error_message_flags" class="error_message" style="display:none;"></span>
+
+<% content_for :content_for_head do %>
+  <script language="JavaScript" type="text/javascript">
+	$(function() {
+           <%= remote_function :update => 'inner_repo_table',
+                          :url => {:action => :buildresult, :project => params[:project]} %>
+        });
+  </script>
+<% end %>
 
 <div id='inner_repo_table'>
-  <%= render :partial => 'inner_repo_table', :locals => {:has_data => false} %>
-  <script language="javascript">
-    <%= remote_function :update => 'inner_repo_table',
-      :url => {:action => :buildresult, :project => params[:project]}
-    %>
-  </script>
+   <%= render :partial => 'inner_repo_table', :locals => {:has_data => false} %>
 </div>
 
 <% if @project.is_maintainer?( session[:login] ) %>
@@ -24,14 +33,12 @@
   <td>
     <%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %>
   </td>
-  <td style="align: right">
+  <td align="right">
     <%= link_to "[Flags for Experts]", :action => 'flags_for_experts', :project => @project%>
   </td>
   </tr>
 </table>
 <% end %>
-
-
 
 <% if @project.has_element?(:repository) -%>
   <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>

@@ -13,7 +13,7 @@
     <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status"),
       :url => { :action => 'reload_buildstatus', :project => @project, :package => @package },
       :update => 'package_buildstatus',
-      :loading => "Element.show('spinner_stat')", :complete => "Element.hide('spinner_stat')" %>
+      :loading => "$('#spinner_stat').show()", :complete => "$('#spinner_stat').hide()" %>
       <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
   </h3>
   <table class="grid">

@@ -8,8 +8,8 @@
               <%= link_to_remote image_tag("list-add.png",:title => "Add Tag", :border => 0),
                 :update => 'tag_edit_area_package',
                 :url => { :controller => "package", :action => "add_tag_form", :project => @project, :package => @package},
-                :loading => "Element.toggle('spinner_#{form_id}')",
-                :complete => "Element.toggle('spinner_#{form_id}')" %>
+                :loading => "$('spinner_#{form_id}').show()",
+                :complete => "$('#spinner_#{form_id}').hide()" %>
               <%= image_tag 'rotating-tail.gif', :id=> 'tag_spinner', :style => "visibility:hidden;" -%>
             </h3>
         </td>

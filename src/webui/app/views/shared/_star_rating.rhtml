@@ -43,11 +43,12 @@
       :title => "Rate 5 stars out of 5, #{current}", :class => 'five-stars' -%>
   </li>
 
-  <% if 0 < @rating.count.to_i and @rating.count.to_i < min_votes_for_rating %>
-    <%= image_tag 'warning-light.png', :title => "There are less than " +
-    "#{min_votes_for_rating} votes (#{@rating.count}), score is not yet " +
-    "very representative!", :id => 'rating_count_warning' %>
-  <% end %>
-
+  <li>
+   <% if 0 < @rating.count.to_i and @rating.count.to_i < min_votes_for_rating %>
+  <%= image_tag 'warning-light.png', :title => "There are less than " +
+  "#{min_votes_for_rating} votes (#{@rating.count}), score is not yet " +
+  "very representative!", :id => 'rating_count_warning' %>
+   <% end %>
+  </li>
 </ul>
 
