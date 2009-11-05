@@ -16,6 +16,7 @@
 				var srch = new String($('#packagesearch').val());
 				srch = srch.toLowerCase();
 				$('.packages_table').find('tr').each(function() {
+					if (this.id == "nopackages") return;
 					var theid = this.id.substring(4,100);
 					if ( theid.indexOf(srch) == -1 ) {
 						$(this).hide();
