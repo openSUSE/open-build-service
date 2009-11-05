@@ -1,7 +1,7 @@
 class ProjectController < ApplicationController
 
   before_filter :check_parameter_project, :except =>
-    [ :list_all, :list_public, :list_my, :new, :save_new, :save, :index, :refresh_monitor,
+    [ :list_all, :list_public, :list_my, :list_req, :new, :save_new, :save, :index, :refresh_monitor,
       :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog, :diff, :submitreq ]
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
@@ -56,7 +56,7 @@ class ProjectController < ApplicationController
     rescue
       if changestate.nil? || changestate == "accepted"
         flash[:error] = "Can't get diff for #{params[:id]}!"
-        redirect_to :action => "list_my" 
+        redirect_to :action => "list_req"
       else
         @diff_text = nil
         render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => changestate}
@@ -73,10 +73,10 @@ class ProjectController < ApplicationController
       path = "/request/#{id}?newstate=#{changestate}&cmd=changestate" 
       transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason
       flash[:note] = "Submit request #{changestate}!"
-      redirect_to :action => "list_my"
+      redirect_to :action => "list_req"
     else
       flash[:error] = "Changestate parameter is unknown!"
-      redirect_to :action => "list_my"
+      redirect_to :action => "list_req"
     end
   end
 
@@ -113,6 +113,13 @@ class ProjectController < ApplicationController
       @ipackages[pack.project] ||= Array.new
       @ipackages[pack.project] << pack.name
     end
+
+  end
+
+  def list_req
+    @user ||= Person.find( :login => session[:login] )
+
+    @iprojects = @user.involved_projects.each.map {|x| x.name}.sort
 
     unless @iprojects.empty?
       predicate = @iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
