@@ -2683,6 +2683,7 @@ sub getbinarylist {
   my $uri = "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid";
   $uri = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid" if $proj->{'remoteurl'};
   if ($view && $view eq 'binaryversions') {
+    push @args, 'nometa=1' if $cgi->{'nometa'};
     my $bvl = BSWatcher::rpc($uri, $BSXML::binaryversionlist, @args);
     return ($bvl, $BSXML::binaryversionlist);
   }
