@@ -456,6 +456,9 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::NotFoundError => ex
       @log_chunk = "No live log available"
       @finished = true
+
+    rescue Timeout::Error => ex
+      @log_chunk = ""
     end
 
     render :update do |page|
