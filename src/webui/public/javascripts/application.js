@@ -42,9 +42,9 @@ function goto_url(url) {
 }
 
 function hide_dialog() {
-  Element.getElementsBySelector(document,".dialog").invoke("hide")
+  $(".dialog").hide();
 }
 
 function remove_dialog() {
-  Element.getElementsBySelector(document,".dialog").invoke("remove")
+  $(".dialog").remove();
 }
