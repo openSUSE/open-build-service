@@ -435,13 +435,22 @@ class ProjectController < ApplicationController
       @project.add_person :userid => session[:login], :role => 'maintainer'
       @project.add_person :userid => session[:login], :role => 'bugowner'
 
-      if @project.save
-        flash[:note] = "Project '#{@project}' was created successfully"
-      else
-        flash[:error] = "Failed to save project '#{@project}'"
+      begin      
+        if @project.save
+           flash[:note] = "Project '#{@project}' was created successfully"
+	   redirect_to :action => 'show', :project => project_name
+	   return
+        else
+           flash[:error] = "Failed to save project '#{@project}'"
+        end
+      rescue ActiveXML::Transport::ForbiddenError => err
+	 flash[:error] = "Forbidden to save project '#{@project}'. Try under your home:%s namespace" % session[:login]
+	 redirect_to :action => 'new', :ns => "home:" + session[:login]
+	 return
       end
+      
+      redirect_to :action => 'new'
 
-      redirect_to :action => 'show', :project => project_name
     end
   end
 
