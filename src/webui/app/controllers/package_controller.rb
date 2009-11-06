@@ -718,12 +718,6 @@ class PackageController < ApplicationController
   private
 
   def check_params
-    if params[:package]
-      unless valid_package_name?( params[:package] )
-        flash[:error] = "Invalid package name, may only contain alphanumeric characters"
-        redirect_to :action => :error
-      end
-    end
     if params[:project]
       unless valid_project_name?( params[:project] )
         flash[:error] = "Invalid project name, may only contain alphanumeric characters"
