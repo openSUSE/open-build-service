@@ -35,6 +35,8 @@ function stop_autoscroll() {
   setscrollmode('off');
   clearTimeout( scrolldelay );
 }
+$(function() { setscrollmode('off'); })
+
 </script>
 <h2>Build Log for Package <%=h @package%> (Project <%=h @project%>)</h2>
 <b>Repository:</b> <%=h @repo%><br/>
@@ -45,7 +47,7 @@ function stop_autoscroll() {
 <div id="start_link"><%= link_to_remote( "[Start Refreshing]",
         :url => {:action => :update_build_log, :package => @package,
         :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
-        :after => "new Effect.Fade('start_link');new Effect.Fade('start_linkend')")%></div>
+        :after => "$('#start_link').fadeOut();$('#start_linkend').fadeOut()")%></div>
 <p>
 <b>Status:</b> <span id="status">Live Log not started</span>
 </p>
@@ -67,6 +69,5 @@ function stop_autoscroll() {
 <div id="start_linkend"><%= link_to_remote( "[Start Refreshing]",
         :url => {:action => :update_build_log, :package => @package,
         :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
-        :after => "new Effect.Fade('start_link');new Effect.Fade('start_linkend')")%></div>
+        :after => "$('#start_link').fadeOut();$('#start_linkend').fadeOut()")%></div>
 </p>
-<script>setscrollmode('off')</script>
