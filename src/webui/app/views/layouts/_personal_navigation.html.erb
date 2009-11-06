@@ -24,7 +24,7 @@
     <input value="Login" type="submit"/>
 
     <%#= link_to("Login", '#', {:onclick => "document.getElementById( 'login_form' ).submit(); return;"} ) %> |
-    <%= link_to("Register / Manage account", 'https://build.opensuse.org/ICSLogin/?%22' + @return_to_host + @return_to_path + '%22') %>
+    <%= link_to("Register / Manage account", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %>
 
     </form>
 
@@ -45,4 +45,3 @@
 
   <% end %>
 <% end %>
-
