@@ -8,8 +8,8 @@ module PackageHelper
 
 
   def file_url( project, package, filename )
-    get_frontend_url_for( :controller => 'source') +
-      "/#{project}/#{package}/#{filename}"
+    get_frontend_url_for( :controller => '') +
+      "public/source/#{project}/#{package}/#{filename}"
   end
 
 
