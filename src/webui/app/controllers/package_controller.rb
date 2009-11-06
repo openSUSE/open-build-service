@@ -768,6 +768,7 @@ class PackageController < ApplicationController
   def require_package
     @project ||= params[:project]
     begin
+      raise ActiveXML::Transport::NotFoundError if params[:package].nil?
       @package = Package.find( params[:package], :project => @project )
     rescue ActiveXML::Transport::NotFoundError => e
       logger.error "Package #{params[:package]} not found: #{e.message}"
