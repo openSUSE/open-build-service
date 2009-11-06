@@ -1,8 +1,5 @@
 class ProjectController < ApplicationController
 
-  before_filter :check_parameter_project, :except =>
-    [ :list_all, :list_public, :list_my, :list_req, :new, :save_new, :save, :index, :refresh_monitor,
-      :toggle_watch, :search_project, :show_projects_by_tag, :debug_dialog, :diff, :submitreq ]
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages ]
@@ -437,20 +434,16 @@ class ProjectController < ApplicationController
 
       begin      
         if @project.save
-           flash[:note] = "Project '#{@project}' was created successfully"
-	   redirect_to :action => 'show', :project => project_name
-	   return
+          flash[:note] = "Project '#{@project}' was created successfully"
+          redirect_to :action => 'show', :project => project_name and return
         else
-           flash[:error] = "Failed to save project '#{@project}'"
+          flash[:error] = "Failed to save project '#{@project}'"
         end
       rescue ActiveXML::Transport::ForbiddenError => err
-	 flash[:error] = "Forbidden to save project '#{@project}'. Try under your home:%s namespace" % session[:login]
-	 redirect_to :action => 'new', :ns => "home:" + session[:login]
-	 return
+        flash[:error] = "Forbidden to create project '#{@project}'. Try under your home:%s namespace" % session[:login]
+        redirect_to :action => 'new', :ns => "home:" + session[:login] and return
       end
-      
       redirect_to :action => 'new'
-
     end
   end
 
@@ -756,20 +749,6 @@ class ProjectController < ApplicationController
 
   private
 
-  #filters
-
-  def check_parameter_project
-    if ( !params[:project] )
-      flash[:error] = "Missing parameter 'project'"
-      redirect_to :action => :list_public
-      return false
-    elsif !valid_project_name?( params[:project] )
-      flash[:error] = "Invalid project name '#{params[:project]}'"
-      redirect_to :action => :list_public
-      return false
-    end
-    return true
-  end
 
   def paginate_collection(collection, options = {})
     options[:page] = options[:page] || params[:page] || 1
