@@ -3,7 +3,7 @@ require 'open-uri'
 class PackageController < ApplicationController
 
   before_filter :check_params
-  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :view, :wizard, :edit, :add_file, :save_file]
+  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :view, :wizard, :edit, :add_file, :save_file, :save_new]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
       :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
       :show, :view, :wizard, :edit, :add_file, :save_file]
@@ -166,17 +166,13 @@ class PackageController < ApplicationController
 
 
   def save_new
-    if not params[:project]
-      flash[:note] = "Creating package failed: Project name missing"
-      redirect_to :controller => "project", :action => "list_all"
-      return
-    end
-
-    @project = params[:project]
     if params[:name]
       if !valid_package_name? params[:name]
-        flash[:error] = "Invalid package name: '#{params[:name]}'"
-        redirect_to :action => 'new', :project => params[:project]
+        flash.now[:error] = "Invalid package name: '#{params[:name]}'"
+        @package_name = params[:name]
+        @package_title = params[:title]
+        @package_description = params[:description]
+        render :action => 'new'
       else
         @package = Package.new( :name => params[:name], :project => @project )
         @package.title.data.text = params[:title]
