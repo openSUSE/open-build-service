@@ -59,6 +59,7 @@ my $silent;
 my $hostcheck;
 my $localkiwi;
 
+my $jobs;
 my $cachedir;
 my $cachesize;
 
@@ -168,6 +169,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --nocodeupdate
                    : do not update both worker and build code
+
+       --jobs <nr> : hand over the number of parallel jobs to build
 
        --oneshot <seconds>
                    : just build one package, do not wait more then
@@ -293,6 +296,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--localkiwi') {
     shift @ARGV;
     $localkiwi = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--jobs') {
+    shift @ARGV;
+    $jobs = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--cachedir') {
@@ -1076,6 +1084,7 @@ sub dobuild {
   push @args, '--release', "$release" if defined $release;
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
+  push @args, '--jobs', $jobs if $jobs;
   push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
