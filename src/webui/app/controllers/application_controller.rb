@@ -178,14 +178,15 @@ class ApplicationController < ActionController::Base
   def render_error( opt={} )
     @code = opt[:code] || 500
     @message = opt[:message] || "No message set"
-    @exception_xml = opt[:exception_xml] if local_request?
     @exception = opt[:exception] if local_request?
+    @api_exception = opt[:api_exception] if local_request?
     @status = opt[:status] || 400
-    logger.debug "ERROR: #{@code} #{@message}"
+    logger.debug "ERROR: #{@code}; #{@message}"
     if request.xhr?
       render :text => @message, :status => @status, :layout => false
     else
-      render :template => 'error', :status => @status
+      render :template => 'error', :locals => {:code => @code, :message => @message,
+        :exception => @exception, :status => @status, :api_exception => @api_exception }
     end
   end
 

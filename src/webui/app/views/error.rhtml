@@ -1,12 +1,12 @@
-<% if @api_exception -%>
+<% if api_exception -%>
 <h1>openSUSE Frontend Error:</h1>
 <% else -%>
 <h1>openSUSE Webclient Error:</h1>
 <% end -%>
 
 <p>
-<% case @code -%>
-<% when "401" -%>
+<% case code 
+when "401" -%>
 <h2>Unauthorized Access</h2>
 You need to log in to perform the operation.<br />
 Please contact the openSUSE admin to get an account.
@@ -22,32 +22,29 @@ A non existing page was requested. <br />
 
 <p>
 <h3>Error Details:</h3>
-<b>Errorcode: </b><%= @code %><br/>
-<b>Message: </b><%=h @message %><br/>
+<b>Errorcode: </b><%= code %><br/>
+<b>Message: </b><%=h message %><br/>
 
-<% if @details -%>
-<b>Details: </b><%= @details %><br/>
-<% end -%>
 </p>
 
 
-<% if @api_exception -%>
+<% if api_exception -%>
 <p>
 <h3>Exception from API:</h3>
-<b><%=h @api_exception.elements['type'].text %></b>: <%=h @api_exception.elements['message'].text %>
+<b><%=h api_exception.elements['type'].text %></b>: <%=h api_exception.elements['message'].text %>
 <h4>Stack Trace:</h4>
 <pre>
-<%=h @api_exception.elements.to_a('backtrace/line').map {|e| e.text }.join("\n") %>
+<%=h api_exception.elements.to_a('backtrace/line').map {|e| e.text }.join("\n") %>
 </pre>
 </p>
 <% end -%>
-<% if @exception -%>
+<% if exception -%>
 <p>
 <h3>Exception from Webclient:</h3>
-<b><%=h @exception.class.name %></b>: <%=h @exception.message %>
+<b><%=h exception.class.name %></b>: <%=h exception.message %>
 <h4>Stack Trace:</h4>
 <pre>
-<%=h(@exception.backtrace.join("\n")) %>
+<%=h(exception.backtrace.join("\n")) %>
 </pre>
 </p>
 <% end -%>
