@@ -340,8 +340,10 @@ sub rpc_recv_unchunked_stream_handler {
   if (length($data) && $cl) {
     $data = substr($data, 0, $cl) if $cl < length($data);
     $cl -= length($data);
-    #print "feeding data handler...\n";
+    my $oldeof = $rev->{'eof'};
+    $rev->{'eof'} = 1 if !$cl;
     return unless $ev->{'datahandler'}->($ev, $rev, $data);
+    delete $rev->{'eof'} unless $oldeof;
     $rev->{'contentlength'} = $cl;
     $ev->{'replbuf'} = '';
   }
@@ -776,7 +778,7 @@ sub rpc_connect_handler {
     eval {
       $ev->{'param'}->{'https'}->($ev->{'fd'});
     };
-    #fcntl($ev->{'fd'}, F_SETFL, O_NONBLOCK);
+    fcntl($ev->{'fd'}, F_SETFL, O_NONBLOCK);
     if ($@) {
       $err = $@;
       $err =~ s/\n$//s;
