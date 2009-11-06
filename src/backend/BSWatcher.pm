@@ -879,6 +879,7 @@ sub rpc {
   my $fd = gensym;
   socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
   fcntl($fd, F_SETFL,O_NONBLOCK);
+  setsockopt($fd, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   my $ev = BSEvents::new('write', \&rpc_send_handler);
   $ev->{'fd'} = $fd;
   $ev->{'sendbuf'} = $req;
