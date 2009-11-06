@@ -53,10 +53,6 @@ class Project < ActiveXML::Base
       set_archs new_archs
     end
 
-    def name
-      @name ||= data.attributes['name']
-    end
-
     #    def name= (name)
     #      data.attributes['name'] = name
     #    end
@@ -423,6 +419,10 @@ class Project < ActiveXML::Base
 
   def is_maintainer? userid
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
+  end
+
+  def name
+    @name ||= data.attributes['name']
   end
 
 end
