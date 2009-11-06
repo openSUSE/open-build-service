@@ -27,6 +27,6 @@
 <% end-%>
 
 <%= observe_field( :projectsearch, :frequency => 0.5, :update => :project_list,
-    :url => { :controller => 'project', :action  => :filter_observer_action },
+    :url => { :controller => 'project', :action  => filter_observer_action },
     :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()",
     :with => "'searchtext=' + escape(value)") %>
