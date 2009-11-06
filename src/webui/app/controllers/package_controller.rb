@@ -751,10 +751,11 @@ class PackageController < ApplicationController
 
   def require_project
     begin
+      raise ActiveXML::Transport::NotFoundError if params[:project].nil?
       @project = Project.find( params[:project] )
     rescue ActiveXML::Transport::NotFoundError => e
       logger.error "Project #{params[:project]} not found: #{e.message}"
-      flash[:error] = "Project not found: #{params[:project]}"
+      flash[:error] = "Project not found: \"#{params[:project]}\""
       redirect_to :controller => "project", :action => "list_public" and return
     end
   end
