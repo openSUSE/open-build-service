@@ -1419,8 +1419,7 @@ sub getbuildinfo {
   if ($pdata->{'ldepfile'}) {
     # have local deps, add them to pool
     my $data = {};
-    Build::readdeps($bconf, $data, $pdata->{'ldepfile'});
-    Build::forgetdeps($bconf);
+    Build::readdeps(undef, $data, $pdata->{'ldepfile'});
     my $r = $pool->repofromdata('', $data);
     die("ldepfile repo add failed\n") unless $r;
   }
@@ -1445,7 +1444,7 @@ sub getbuildinfo {
     $dep2src{$n} = $pool->pkg2srcname($p);
   }
   my $pname = $info->{'name'};
-  my @subpacks = grep {$dep2src{$_} eq $pname} keys %dep2src;
+  my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
   #$ret->{'subpack'} = \@subpacks;
   my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
 
