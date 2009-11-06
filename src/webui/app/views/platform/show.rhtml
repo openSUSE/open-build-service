@@ -19,31 +19,56 @@
   <% end %>
   </table>
 <% end %>
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <script type="text/javascript">
+    $(function() {
+       // call the tablesorter plugin
+       $(".tablesorter").tablesorter({ 
+          headers: { 
+             5: { sorter: false },
+	     2: { sorter: "numeric" }
+            },
+         textExtraction: function(node) { 
+            // extract data from markup and return it  
+	    if ($(node).is(".starttime")) {
+		return $(node).children(".sorttime:first").html();
+	    } else {
+                return node.innerHTML; 
+            }
+        } 
+       } );
+       // var sorting = [[2,0]]; 
+       // $(".tablesorter").trigger("sorton",[sorting]); 
+     });
+  </script>
+<% end %>
+
 <p>
 <b>Architectures:</b><br/>
-<% if @platform.has_element? :arch %>
+<% if @platform.has_element? :arch -%>
   <ul>
-    <% @jobhislist.each do |key, value| %>
+    <% @jobhislist.each do |key, value| -%>
       <li>
-        <% if value.has_element? :jobhist %>
-          <%=h key %>:
+        <% if value.has_element? :jobhist -%>
+          <%=h key -%>:
           <br />
-          <table class="building table-autosort">
+          <table class="building tablesorter">
             <thead>
               <tr>
-                <th class="table-sortable:alphanumeric">Package</th>
+                <th class="tablesorter:alphanumeric">Package</th>
                 <th>Build reason</th>
                 <th>Job time</th>
                 <th>Build Host</th>
-                <th class="table-sortable:alphanumeric">Code</th>
+                <th class="tablesorter:alphanumeric">Code</th>
                 <th>Build Log</th>
                </tr>
             </thead>
             <tbody>
-              <% i = 1 %>
-              <% value.each_jobhist do |jobhist| %>
-              <% if i <= 20 %>
-                <% i = i + 1 %>
+              <% i = 1 -%>
+              <% value.each_jobhist do |jobhist| -%>
+              <% if i <= 20 -%>
+                <% i = i + 1 -%>
                   <tr>
                     <td class="package"><%= link_to jobhist.package, :controller => 'package', :action => 'show', :project => @project, :package => jobhist.package %></td>
                     <td>
@@ -60,8 +85,9 @@
                         warning_style = nil
   #                    end
                     %>
-                    <td class="starttime"<%= warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
+                    <td class="starttime" title="start time: <%= start_time.iso8601  %>">
                       <%= distance_of_time_in_words(end_time, start_time, true) %>
+                      <span style="display: none" class="sorttime"><%= end_time.to_i - start_time.to_i %></span>
                     </td>
                     <td class="uri"><%=h jobhist.workerid %></td>
                     <%

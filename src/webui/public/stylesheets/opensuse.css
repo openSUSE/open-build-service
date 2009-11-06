@@ -923,16 +923,19 @@ strong.highlight {
 
 
 /* Sort Icon Styles */
-table.table-autosort th.table-sortable {
+table.tablesorter th {
   cursor:pointer;
   background-position:center left;
   background-repeat:no-repeat;
   padding-left:12px;
 }
 
-table.table-autosort th.table-sortable { background-image:none; }
-table.table-autosort th.table-sorted-asc { background-image:url("../images/03_ascending.gif"); }
-table.table-autosort th.table-sorted-desc { background-image:url("../images/03_descending.gif"); }
+table.tablesorter thead tr .headerSortUp {
+        background-image: url('/images/03_ascending.gif');
+}
+table.tablesorter thead tr .headerSortDown {
+        background-image: url('/images/03_descending.gif');
+}
 
 .packages_table {
   width: 22em;
