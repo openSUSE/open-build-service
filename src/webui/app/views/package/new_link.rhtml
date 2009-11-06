@@ -16,12 +16,12 @@ package.</p>
 
 <% form_tag :action => "save_new_link" do %>
 <b>Name of original project:</b><br/>
-<%= text_field_tag 'linked_project', '', :size => 80 %><br/>
+<%= text_field_tag 'linked_project', @linked_project, :size => 80 %><br/>
 <b>Name of package in original project:</b><br/>
-<%= text_field_tag 'linked_package', '', :size => 80 %><br/>
+<%= text_field_tag 'linked_package', @linked_package, :size => 80 %><br/>
 <b>Name of linked package in target project:</b> (Leave blank to use the
-same name as in the original project) 
-<%= text_field_tag 'target_package', '', :size => 80 %><br/>
+same name as in the original project) <br/>
+<%= text_field_tag 'target_package', @target_package, :size => 80 %><br/>
 <p><%= submit_tag "Create Link" %></p>
 <%= hidden_field_tag 'project', @project.name %>
 <% end %>

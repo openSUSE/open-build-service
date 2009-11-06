@@ -3,10 +3,11 @@ require 'open-uri'
 class PackageController < ApplicationController
 
   before_filter :check_params
-  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :view, :wizard, :edit, :add_file, :save_file, :save_new]
+  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :view, :wizard, 
+    :edit, :add_file, :save_file, :save_new, :save_new_link]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
-      :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
-      :show, :view, :wizard, :edit, :add_file, :save_file]
+    :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
+    :show, :view, :wizard, :edit, :add_file, :save_file]
 
   def index
     redirect_to :controller => 'project', :action => 'list_all'
@@ -190,46 +191,36 @@ class PackageController < ApplicationController
   end
 
   def save_new_link
-    if not params[:project]
-      flash[:note] = "Linking package failed: Project name missing"
-      redirect_to :controller => "project", :action => "list_all"
-      return
-    end
-
-    @project = Project.find( params[:project] )
-
+    params[:linked_package].strip!
+    params[:linked_project].strip!
+    params[:target_package].strip!
     begin
       linked_package = Package.find( params[:linked_package],
         :project => params[:linked_project] )
     rescue: ActiveXML::NotFoundError
-      flash[:note] = "Unable to find package '#{params[:linked_package]}' in" +
+      @linked_project = params[:linked_project]
+      @linked_package = params[:linked_package]
+      @target_package = params[:target_package]
+      flash.now[:error] = "Unable to find package '#{params[:linked_package]}' in" +
         " project '#{params[:linked_project]}'."
-      redirect_to :action => "new_link", :project => params[:project]
+      render :action => "new_link"
       return
     end
 
     target_package = params[:target_package]
-    if !target_package or target_package.empty?
-      target_package = params[:linked_package]
-    end
-
-    package = Package.new( :name => target_package,
-      :project => params[:project] )
-
+    target_package = params[:linked_package] if params[:target_package].blank?
+      
+    package = Package.new( :name => target_package, :project => params[:project] )
     package.title.data.text = linked_package.title
 
     description = "This package is based on the package " +
       "'#{params[:linked_package]}' from project " +
       "'#{params[:linked_project]}'.\n\n"
 
-    linked_description = linked_package.description.data.text
-    if ( linked_description )
-      description += linked_description
-    end
-
+    description += linked_package.description.data.text if linked_package.description.data.text
     package.description.data.text = description
 
-    unless @project.save and package.save
+    unless package.save
       flash[:note] = "Failed to save package '#{package}'"
       redirect_to :controller => 'project', :action => 'show',
         :project => params[:project]
@@ -241,7 +232,6 @@ class PackageController < ApplicationController
       logger.debug "link params: #{params[:linked_project]}, #{params[:linked_package]}"
       link = Link.new( :project => params[:project],
         :package => target_package, :linked_project => params[:linked_project], :linked_package => params[:linked_package] )
-      logger.debug "LINK: #{link.to_s}"
       link.save
     end
   end
@@ -337,8 +327,9 @@ class PackageController < ApplicationController
     filename = params[:filename]
     # extra escaping of filename (workaround for rails bug)
     escaped_filename = URI.escape filename, "+"
-    @package.remove_file escaped_filename
-    if @package.save
+    
+    
+    if @package.remove_file escaped_filename
       flash[:note] = "File '#{filename}' removed successfully"
     else
       flash[:note] = "Failed to remove file '#{filename}'"
