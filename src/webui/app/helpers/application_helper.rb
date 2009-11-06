@@ -92,4 +92,17 @@ module ApplicationHelper
     return sponsors[rand(sponsors.size)]
   end
 
+
+  def link_to_remote_if(condition, name, options = {}, html_options = nil, &block)
+    if condition
+      link_to_remote(name, options, html_options)
+    else
+      if block_given?
+        block.arity <= 1 ? yield(name) : yield(name, options, html_options)
+      else
+        name
+      end
+    end
+  end
+
 end

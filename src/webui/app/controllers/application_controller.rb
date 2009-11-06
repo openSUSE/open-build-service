@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
     # we cannot get the original protocol when behind lighttpd/apache
     @return_to_host = params['return_to_host'] || "https://" + request.host
     @return_to_path = params['return_to_path'] || request.env['REQUEST_URI']
-    logger.debug "Setting return_to: #{@return_to_path}"
+    logger.debug "Setting return_to: \"#{@return_to_path}\""
   end
 
   def set_charset
@@ -49,16 +49,13 @@ class ApplicationController < ActionController::Base
     logger.debug "Authenticating with iChain mode: #{ICHAIN_MODE}"
     if ICHAIN_MODE == 'on' || ICHAIN_MODE == 'simulate'
       authenticate_ichain
-    elsif request.env.has_key? 'X-HTTP_AUTHORIZATION' or request.env.has_key? 'Authorization' or
-        request.env.has_key? 'HTTP_AUTHORIZATION'
-      authenticate_basic_auth
     else
       authenticate_form_auth
     end
     if session[:login]
       begin
         @user = Person.find( session[:login] )
-        logger.info "Authenticated request to #{@return_to_path} from #{session[:login]}"
+        logger.info "Authenticated request to \"#{@return_to_path}\" from #{session[:login]}"
       rescue Object => exception
         logger.info "Login to #{@return_to} failed for #{session[:login]}: #{exception}"
         case exception
@@ -90,32 +87,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  
-  def authenticate_basic_auth
-      # We use our own authentication
-      if request.env.has_key? 'X-HTTP_AUTHORIZATION'
-        # try to get it where mod_rewrite might have put it
-        authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split
-      elsif request.env.has_key? 'Authorization'
-        # for Apace/mod_fastcgi with -pass-header Authorization
-        authorization = request.env['Authorization'].to_s.split
-      elsif request.env.has_key? 'HTTP_AUTHORIZATION'
-        # this is the regular location
-        authorization = request.env['HTTP_AUTHORIZATION'].to_s.split
-      end
-      if authorization and authorization.size == 2 and authorization[0] == "Basic"
-        login, passwd = Base64.decode64( authorization[1] ).split(/:/)
-        if login and passwd
-          logger.debug "Using authorization: #{authorization} to login user #{login}"
-          session[:login] = login
-          session[:passwd] = passwd
-        end
-      end
-      if session[:login] and session[:passwd]
-      # pass credentials to transport plugin, TODO: is this thread safe?
-      ActiveXML::Config.transport_for(:project).login session[:login], session[:passwd]
-    end
-  end
 
   def authenticate_form_auth
     if params[:username] and params[:password]
