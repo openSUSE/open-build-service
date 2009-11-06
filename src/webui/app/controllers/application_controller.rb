@@ -160,7 +160,8 @@ class ApplicationController < ActionController::Base
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 200
     when Timeout::Error
-       render_error :status => 400, :code => code, :message => message,
+      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
+      render_error :status => 400, :code => code, :message => message,
         :exception => exception, :api_exception => api_exception
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
