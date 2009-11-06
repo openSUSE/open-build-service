@@ -4,7 +4,34 @@
   <p class="info filtered_by">Currently active filter <b><%= h(@project_filter) %></b> [<%= link_to 'Remove Filter', :controller => 'monitor' %>]</p>
 <% end %>
 
-<table class="building">
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <script type="text/javascript">
+    $(function() {
+       // call the tablesorter plugin
+        $(".tablesorter").tablesorter({ 
+          headers: {
+             sorter: "text",
+	     3: { sorter: "numeric" }
+            },
+        textExtraction: function(node) {
+            // extract data from markup and return it  
+	    if ($(node).is(".starttime")) {
+		return $(node).children(".sorttime:first").html();
+	    } else if ($(node).is(".package") || $(node).is(".repository") ) {
+               return $(node).children("a:first").html().toLowerCase();
+            } else {
+                return $(node).html();
+            }
+        }
+       } );
+       // var sorting = [[2,0]]; 
+       // $(".tablesorter").trigger("sorton",[sorting]); 
+     });
+  </script>
+<% end %>
+
+<table class="building tablesorter">
   <thead>
     <tr>
       <th>Project</th>
@@ -55,6 +82,7 @@
         %>
         <td class="starttime"<%= warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
               <%= distance_of_time_in_words(@time_now, start_time, true) %>
+	      <span style="display: none" class="sorttime"><%= b.starttime.to_i %></span>
         </td>
         <td class="uri">
             <%= b.workerid %>
