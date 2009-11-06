@@ -22,7 +22,7 @@ class Project < ActiveXML::Base
 
   class Repository < ActiveXML::Node
     handles_xml_element 'repository'
-    xml_attr_accessor 'name'
+    #xml_attr_accessor 'name'
 
     def archs
       @archs ||= each_arch.map { |a| a.to_s }
@@ -51,6 +51,10 @@ class Project < ActiveXML::Base
     end
     def archs= (new_archs)
       set_archs new_archs
+    end
+
+    def name
+      @name ||= data.attributes['name']
     end
 
     #    def name= (name)
