@@ -9,8 +9,7 @@
 
 </h3>
 
-<% content_for :content_for_head do %>
-  <script language="JavaScript" type="text/javascript">
+<% content_for :head_javascript do %>
      function filterPkgs() {
 				var onevisible = 0;
 				var srch = new String($('#packagesearch').val());
@@ -32,8 +31,9 @@
 				}
 	
      }
+<% end %>
 
-     $(function() {
+<% content_for :ready_function do %>
 	 $("#packagesearch_clear").click(function() { $('#packagesearch').val('').focus(); filterPkgs(); });
          $("#packagesearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
 				         function() { $(this).attr('src', '/images/clear.png');  });
@@ -44,9 +44,6 @@
 	      :complete => '$("#spinner").hide(); filterPkgs();'); %>
 
 	 $('#packagesearch').keyup(function() { filterPkgs(); });
-	
-      });
-  </script> 
 <% end %>
 
 <div id="package_filter">

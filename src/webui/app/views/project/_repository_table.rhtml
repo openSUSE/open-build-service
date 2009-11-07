@@ -14,13 +14,9 @@
 
 <span id="error_message_flags" class="error_message" style="display:none;"></span>
 
-<% content_for :content_for_head do %>
-  <script language="JavaScript" type="text/javascript">
-	$(function() {
-           <%= remote_function :update => 'inner_repo_table',
-                          :url => {:action => :buildresult, :project => params[:project]} %>
-        });
-  </script>
+<% content_for :ready_function do %>
+    <%= remote_function :update => 'inner_repo_table',
+                        :url => {:action => :buildresult, :project => params[:project]} %>
 <% end %>
 
 <div id='inner_repo_table'>

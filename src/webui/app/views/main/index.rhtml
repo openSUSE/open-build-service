@@ -52,26 +52,31 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
 <p>Proceed to:</p>
     <ul id="proceed_list">
       <li>
-      <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png' alt=''/>", :controller => "project", :action => :list_my %><br/>
-      <%= link_to "My Projects", :controller => "project", :action => :list_my %>
+      <% link_to :controller => "project", :action => :list_my do -%>
+          <%= image_tag 'https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png', :alt => '' %><br/>My Projects
+      <% end -%>
       </li>
 
       <li>
-      <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png' alt='' />", :controller => "project", :action => :list_public %><br/>
-      <%= link_to "List of All Projects", :controller => "project", :action => :list_public %>
+      <% link_to :controller => "project", :action => :list_public do -%>
+           <%= image_tag 'https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png' %><br/>List of All Projects
+      <% end -%>
       </li>
 
       <li>
-      <%= link_to '<img src="https://static.opensuse.org/hosts/build.o.o/images/icons/document-new.png" alt="" />', :controller => "project", :action => :new %><br/>
-      <%= link_to 'Create New Project', :controller => "project", :action => :new, :ns => "home:#{session[:login]}" %>
+      <% link_to :controller => "project", :action => :new, :ns => "home:#{session[:login]}" do -%>
+           <%= image_tag "https://static.opensuse.org/hosts/build.o.o/images/icons/document-new.png" %><br/>Create New Project
+      <% end -%> 
       </li>
       <li>
-      <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/system-search.png' alt='' />", :controller => 'main', :action => 'search' %><br/>
-      <%= link_to "Search", :controller => 'main', :action => 'search' %>
+      <% link_to :controller => 'main', :action => 'search' do -%>
+	<%= image_tag 'https://static.opensuse.org/hosts/build.o.o/images/icons/system-search.png' %><br/>Search
+      <% end -%>
       </li>
       <li>
-      <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/utilities-system-monitor.png' alt='' />", :controller => "monitor", :action => :index %><br/>
-      <%= link_to "Build Service Status", :controller => "monitor", :action => :index %>
+      <% link_to :controller => "monitor", :action => :index do -%>
+         <%= image_tag 'https://static.opensuse.org/hosts/build.o.o/images/icons/utilities-system-monitor.png' %><br/>Build Service Status
+      <% end -%>
       </li>
 <!--      <li>
         <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/x-office-spreadsheet.png' alt='' />", :controller => "statistics", :action => :index %><br/>

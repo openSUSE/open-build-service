@@ -4,9 +4,7 @@
 -%>
 <b>Filter projects (case insensitive):</b><br/>
 
-<% content_for :content_for_head do %>
-  <script language="JavaScript" type="text/javascript">
-     $(function() {
+<% content_for :ready_function do %>
 	 $("#projectsearch_clear").click(function() { $('#projectsearch').val('').focus(); });
          $("#projectsearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
 				         function() { $(this).attr('src', '/images/clear.png');  });
@@ -16,8 +14,6 @@
 	      :url => {:action => filter_observer_action, :project => params[:project]},
 	      :complete => '$("#spinner").hide()', 
 	      :with => "'searchtext='" ); %> ;
-      });
-  </script> 
 <% end %>
 
 <% form_tag({:action => filter_observer_action}, {:method => :get}) do -%>

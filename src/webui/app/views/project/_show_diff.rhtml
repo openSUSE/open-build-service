@@ -10,12 +10,10 @@
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "SyntaxHighlighter" %>
   <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushSpec', 'syntax/shBrushXml' %>
-  <script language="JavaScript" type="text/javascript">
-  $(function() {
+<% end %>
+<% content_for :ready_function do %>
     dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
     dp.SyntaxHighlighter.HighlightAll('code');
-  });
-  </script>
 <% end %>
 
 <p>

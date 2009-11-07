@@ -3,15 +3,12 @@
  @crumb_list = ['My Projects']
 -%>
 
-<p>
-<h2>Watched Projects</h2>
+<h1>Watched Projects</h1>
 <%= render :partial => 'watch_list' %>
-</p>
 
-<p>
-<h2>Involved Projects</h2>
+<h1>Involved Projects</h1>
  <% if @iprojects and not @iprojects.empty? -%>
-  <table id='involved_prj-table' class='grid'>
+  <table id='involved_prj-table' class='grid' title="Involved Projects">
    <tr>
     <th>Project</th>
     <th>Monitor</th>
@@ -26,11 +23,9 @@
   <% else %>
   <p><em>Not involved in any project.</em></p>
   <% end -%>
-</p>
 
-<p>
-  <h2>Involved Packages</h2>
-    <table id='involved_pkg-table' class='grid'>
+  <h1>Involved Packages</h1>
+    <table id='involved_pkg-table' class='grid' title="Involved Packages">
       <tr>
         <th>Package</th>
         <th>Project</th>
@@ -46,5 +41,4 @@
         <% end -%>
       <% end -%>
    </table>
-</p>
 
