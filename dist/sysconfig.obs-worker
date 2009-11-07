@@ -49,6 +49,24 @@ OBS_WORKER_DIRECTORY=""
 OBS_WORKER_PORTBASE="0"
 
 ## Path:        Applications/OBS
+## Description: Number of parallel compile jobs per worker
+## Type:        integer
+## Default:     "1"
+## Config:      OBS
+#
+
+OBS_WORKER_JOBS="1"
+
+## Path:        Applications/OBS
+## Description: Run in test mode (build results will be ignore, no job blocking)
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+
+OBS_WORKER_TEST_MODE=""
+
+## Path:        Applications/OBS
 ## Description: The base for OBS communucation directory
 ## Type:        string
 ## Default:     "/var/run/obs"
