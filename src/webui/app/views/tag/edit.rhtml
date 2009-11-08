@@ -45,7 +45,7 @@
   </td>
   <td valign="top">
   <nobr>   
-    <%= link_to_remote image_tag("edit.png", :title => "Edit Tags", :border => 0),
+    <%= link_to_remote image_tag("edit.png", :title => "Edit Tags"),
                 :update => 'tag_edit_area_' + @object.name,
                 :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object},
                 :loading => "$('#spinner_#{@object.name}').show()",
@@ -88,8 +88,7 @@
   </td>
   <td valign="top">
     <%= link_to_remote image_tag("edit.png",
-                :title => "Edit Tags",
-                :border => 0),
+                :title => "Edit Tags"),
                 :update => 'tag_edit_area_' + @object.project + "_" + @object.name,
                 :url => {:controller => "tag", :action => "edit_taglist_form", :project => @object.project, :package => @object},
                 :loading => "$('#spinner_#{@object.project}_#{@object.name}').show()",

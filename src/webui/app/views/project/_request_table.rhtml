@@ -62,13 +62,13 @@
     <% if options %>
     <td rowspan="2">
         <% if is_submit -%>
-          <%= link_to image_tag('req-showdiff.png', :size => '16x16', :border => 0, :alt => 'Show diff', :title => 'Show diff'), :action => "diff", :id => req.method_missing(:id) %>
+          <%= link_to image_tag('req-showdiff.png', :size => '16x16', :alt => 'Show diff', :title => 'Show diff'), :action => "diff", :id => req.method_missing(:id) %>
         <% end -%>
         <% if by_me -%>
-          <%= link_to image_tag('req-revoke.png', :size => '16x16', :border => 0, :alt => 'Revoke', :title => 'Revoke'), :action => "diff", :changestate => "revoked", :id => req.method_missing(:id) %>
+          <%= link_to image_tag('req-revoke.png', :size => '16x16', :alt => 'Revoke', :title => 'Revoke'), :action => "diff", :changestate => "revoked", :id => req.method_missing(:id) %>
         <% else -%>
-          <%= link_to image_tag('req-accept.png', :size => '16x16', :border => 0, :alt => 'Accept', :title => 'Accept'), :action => "diff", :changestate => "accepted", :id => req.method_missing(:id) %>
-          <%= link_to image_tag('req-decline.png', :size => '16x16', :border => 0, :alt => 'Decline', :title => 'Decline'), :action => "diff", :changestate => "declined", :id => req.method_missing(:id) %>
+          <%= link_to image_tag('req-accept.png', :size => '16x16', :alt => 'Accept', :title => 'Accept'), :action => "diff", :changestate => "accepted", :id => req.method_missing(:id) %>
+          <%= link_to image_tag('req-decline.png', :size => '16x16', :alt => 'Decline', :title => 'Decline'), :action => "diff", :changestate => "declined", :id => req.method_missing(:id) %>
         <% end %>
     </td>
     <% end %>

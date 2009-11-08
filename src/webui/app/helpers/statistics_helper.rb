@@ -11,7 +11,7 @@ module StatisticsHelper
     out << hidden_field_tag( 'repo', @repo) if @repo
     out << hidden_field_tag( 'arch', @arch) if @arch
     out << image_submit_tag( 'system-search.png' )
-    out << image_tag( 'rotating-tail.gif', :border => 0, :style => 'display: none;', :id => 'spinner' )
+    out << image_tag( 'rotating-tail.gif', :style => 'display: none;', :id => 'spinner' )
     out << "</form>"
     out << observe_field( :limit, :update => action,
       :url => { :action  => action, :more => true,
@@ -38,7 +38,7 @@ module StatisticsHelper
 
 
   def link_to_package_view( name, project, title='', length=15 )
-    link_to image_tag( 'package', :border => 0 ) + " #{shorten_text(name, length)}",
+    link_to image_tag( 'package.png' ) + " #{shorten_text(name, length)}",
       { :action => 'view', :controller => 'package',
         :package => name, :project => project },
       :title => "Package #{name} #{title}"
@@ -46,7 +46,7 @@ module StatisticsHelper
 
 
   def link_to_project_view( name, title='', length=15 )
-    link_to image_tag( 'project', :border => 0 ) + " #{shorten_text(name, length)}",
+    link_to image_tag( 'project.png' ) + " #{shorten_text(name, length)}",
       { :action => 'view', :controller => 'project',
         :project => name },
       :title => "Project #{name} #{title}"
@@ -54,7 +54,7 @@ module StatisticsHelper
 
 
   def link_to_mainpage
-    link_to image_tag( 'start', :border => 0 ) + ' back to main page...',
+    link_to image_tag( 'start.png' ) + ' back to main page...',
       :controller => 'statistics'
   end
 

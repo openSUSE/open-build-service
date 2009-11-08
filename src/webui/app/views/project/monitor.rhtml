@@ -80,7 +80,7 @@
     <% end -%>
     <% end -%>
     <td>
-      <%# link_to_remote image_tag( 'rebuild.png', :border => 0,
+      <%# link_to_remote image_tag( 'rebuild.png', 
         :title => "rebuild package #{packname} for all targets" ),
         :url => { :controller => 'package', :action => 'trigger_rebuild',
         :package => packname, :project => @project.to_s,

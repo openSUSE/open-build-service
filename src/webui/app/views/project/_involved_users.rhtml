@@ -14,7 +14,7 @@
       <% maintainers.each do |person| -%>
       <dd>
       <%= link_to(
-        image_tag("mail_generic.png", :size => "16x16", :border => 0, :class => 'email_link'),
+        image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
       <%= link_to(
         person.userid,
@@ -33,7 +33,7 @@
       <% @project.each_person("@role='bugowner'") do |person| -%>
       <dd>
       <%= link_to(
-        image_tag("tools-report-bug.png", :size => "16x16", :border => 0, :class => 'bug_link'),
+        image_tag("tools-report-bug.png", :size => "16x16", :class => 'bug_link'),
         bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
       <%= link_to(
         person.userid,

@@ -32,7 +32,7 @@
 <% end %>
 
 <%=
-    link_to_remote_if @project.is_maintainer?( session[:login] ), image_tag(image,:title => title, :border => 0, :class => "flagimage"),
+    link_to_remote_if @project.is_maintainer?( session[:login] ), image_tag(image,:title => title, :class => "flagimage"),
       :loading => 'hideflags();',
       :complete => 'showflags()',
       :url => { :action => "update_flag", :project => @project,

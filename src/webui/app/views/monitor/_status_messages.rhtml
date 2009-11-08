@@ -1,7 +1,7 @@
 <div id="status_messages">
   <h2>
     Status Messages
-    <%= link_to_remote image_tag("list-add.png", :title => "Add new message", :border => 0),
+    <%= link_to_remote image_tag("list-add.png", :title => "Add new message"),
       :update => 'add_message_form_area',
       :url => { :action => "add_message_form" },
       :loading => "$('#message_form_spinner').show()",
@@ -50,7 +50,7 @@
         </td>
         <td>
           <% if msg.deleted_at.empty? %>
-            <%= link_to_remote image_tag( 'delete.png', :border => 0,
+            <%= link_to_remote image_tag( 'delete.png',
               :title => 'Mark message as deleted' ), :url => {
               :action => 'delete_message', :id => msg.msg_id } %>
           <% else %>

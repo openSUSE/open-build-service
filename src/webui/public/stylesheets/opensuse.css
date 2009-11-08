@@ -7,6 +7,8 @@ h1, h2, h3, h4, h5, h6 {
 h2 {
 }
 
+img {border:none;}
+
 h3 {
     margin-bottom: 0.75ex;
 }

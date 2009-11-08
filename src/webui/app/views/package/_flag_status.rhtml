@@ -21,7 +21,7 @@
 %>     
 
 <%=
-    link_to_remote image_tag(image,:title => title, :border => 0),
+    link_to_remote image_tag(image,:title => title),
       :url => { :action => "update_flag", :project => @package.my_project, :package => @package,
 				 :flag_name => flag.name, :repo => flag.repository, :arch => flag.architecture,
 				 :status => flag.status, :flag_id => flag.id  }
