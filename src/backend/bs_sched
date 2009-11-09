@@ -1145,6 +1145,7 @@ sub update_dst_full {
   }
   $satrepo->tofile("$gdst/:full.solv.new");
   rename("$gdst/:full.solv.new", "$gdst/:full.solv") || die("rename $gdst/:full.solv.new $gdst/:full.solv: $!\n");
+  delete $repodatas{$prp}->{'solv'};
 }
 
 sub addjobhist {
