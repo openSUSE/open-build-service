@@ -310,7 +310,7 @@
         <strong><%= link_to "Watchlist ...", :controller => "project", :action => :list_my %></strong>                
       </div>
       <div class="inner_spacer">
-        <%- if @user and @user.has_element? :watchlist -%>
+        <%- if @user and @user.has_element? 'watchlist' -%>
         <%- @user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
         <%= link_to project, :controller => 'project', :action => :show, :project => project %>
         <%- end #each -%>
