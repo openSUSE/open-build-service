@@ -349,6 +349,7 @@ sub file_sender {
   my ($param, $sock) = @_;
   local *F;
 
+  my $bytes = $param->{'bytes'};
   my $data;
   if (ref($param->{'filename'})) {
     *F = $param->{'filename'};
@@ -356,8 +357,13 @@ sub file_sender {
     open(F, '<', $param->{'filename'}) || die("$param->{'filename'}: $!\n")
   }
   while(1) {
+    last if defined($bytes) && !$bytes;
     my $r = sysread(F, $data, 8192);
     last unless $r;
+    if ($bytes) {
+      $data = substr($data, 0, $bytes) if length($data) > $bytes;
+      $bytes -= length($data);
+    }
     $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
     swrite($sock, $data);
   }

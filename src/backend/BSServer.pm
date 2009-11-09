@@ -535,11 +535,13 @@ sub reply_cpio {
 sub reply_file {
   my ($file, @args) = @_;
   my $chunked;
-  $chunked = 1 unless grep {/^content-length:/i} @args;
+  my @cl = grep {/^content-length:/i} @args;
+  $chunked = 1 unless @cl;
   push @args, 'Transfer-Encoding: chunked' if $chunked;
   unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
   reply(undef, @args);
   my $param = {'filename' => $file};
+  $param->{'bytes'} = $1 if @cl && $cl[0] =~ /(\d+)/;
   $param->{'chunked'} = 1 if $chunked;
   BSHTTP::file_sender($param, \*CLNT);
   BSHTTP::swrite(\*CLNT, "0\r\n\r\n") if $chunked;
