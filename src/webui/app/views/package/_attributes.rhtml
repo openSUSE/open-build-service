@@ -1,0 +1,15 @@
+<div class="section" id="attributes">
+<h3>Attributes</h3>
+
+<%#=debug(@attributes)%>
+
+<% @attributes.each do |a| %>
+  <%#= a.attribute.name %>
+  <%# if a.has_element? :value: %>
+  <% a.each do |f| %>
+    <%= f  %><br/>
+  <%end%>
+
+<% end%>
+
+</div>
