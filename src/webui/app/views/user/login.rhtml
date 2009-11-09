@@ -8,20 +8,18 @@
     <input name="proxypath" value="reverse" type="hidden" />
     <input name="message" value="Please log In" type="hidden" />
 <% else %>
- <form action="<%= @return_to_path %>"
-         method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+  <%= form_tag( :controller => :user, :action => :authenticate ) %>
 <% end %>
 
 
 <div title="Account login" id="loginform" class="form">
     <h1>Please login:</h1>
-    
     <p id="login_form">
       <label for="user_login">Username:</label>
       <input type="text" name="username" id="user_login" size="30" value=""/><br/>
       <label for="user_password">Password:</label>
       <input type="password" name="password" id="user_password" size="30"/>
-      <input type="hidden" name="authenticity_token" value="<%=  form_authenticity_token %>"/>
+      <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
     </p>
     <p>
       <input type="submit" name="login" value="Login &#187;" class="primary" />

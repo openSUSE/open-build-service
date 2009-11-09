@@ -53,21 +53,7 @@ class ApplicationController < ActionController::Base
       authenticate_form_auth
     end
     if session[:login]
-      begin
-        @user = Person.find( session[:login] )
-        logger.info "Authenticated request to \"#{@return_to_path}\" from #{session[:login]}"
-      rescue Object => exception
-        logger.info "Login to #{@return_to} failed for #{session[:login]}: #{exception}"
-        case exception
-        when ActiveXML::Transport::UnauthorizedError
-          reset_session
-          flash.now[:error] = "Authentication failed"
-          render :template => "user/login", :locals => {}
-        # show the welcome page on first login
-        when ActiveXML::Transport::ForbiddenError
-          render :template => "user/request_ichain" if !params[:register]
-        end
-      end
+      logger.info "Authenticated request to \"#{@return_to_path}\" from #{session[:login]}"
     else
       logger.info "Anonymous request to #{@return_to_path}"
     end
@@ -77,23 +63,20 @@ class ApplicationController < ActionController::Base
   def authenticate_ichain
     ichain_user = request.env['HTTP_X_USERNAME']
     ichain_user = ICHAIN_TEST_USER if ICHAIN_MODE == 'simulate' and ICHAIN_TEST_USER
+    ichain_email = request.env['HTTP_X_EMAIL']
+    ichain_email = ICHAIN_TEST_EMAIL if ICHAIN_MODE == 'simulate' and ICHAIN_TEST_EMAIL
     if ichain_user
       session[:login] = ichain_user
-      session[:email] = request.env['HTTP_X_EMAIL']
+      session[:email] = ichain_email
       # Set the headers for direct connection to the api, TODO: is this thread safe?
       transport = ActiveXML::Config.transport_for( :project )
       transport.set_additional_header( "X-Username", ichain_user )
-      transport.set_additional_header( "X-Email", session[:email] ) if session[:email]
+      transport.set_additional_header( "X-Email", ichain_email ) if ichain_email
     end
   end
 
 
   def authenticate_form_auth
-    if params[:username] and params[:password]
-      session[:login] = params[:username]
-      session[:passwd] = params[:password]
-      logger.debug "Using form authorization to login user #{session[:login]}"
-    end
     if session[:login] and session[:passwd]
       # pass credentials to transport plugin, TODO: is this thread safe?
       ActiveXML::Config.transport_for(:project).login session[:login], session[:passwd]
@@ -154,8 +137,16 @@ class ApplicationController < ActionController::Base
     when ActionController::RoutingError
       render_error :code => code, :message => message, :status => 404
     when ActiveXML::Transport::ForbiddenError
+      # switch to registration on first access
+      if code == "unregistered_ichain_user"
+        render :template => "user/request_ichain" and return
+      else
+        ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
+        render_error :code => code, :message => message, :status => 401
+      end
+    when ActiveXML::Transport::UnauthorizedError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
-      render_error :code => code, :message => message, :status => 401
+      render_error :code => code, :message => 'Unauthorized access', :status => 401
     when ActiveXML::Transport::ConnectionError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 200
@@ -174,7 +165,6 @@ class ApplicationController < ActionController::Base
         :exception => exception, :api_exception => api_exception
     end
   end
-  
 
   def render_error( opt={} )
     @code = opt[:code] || 500

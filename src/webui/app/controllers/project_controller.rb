@@ -189,11 +189,11 @@ class ProjectController < ApplicationController
       if params[:project] == home_project
         flash[:note] = "Home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
-        redirect_to :action => :new, :project => home_project
+        redirect_to :action => :new, :project => home_project and return
       else
         logger.debug "Project does not exist"
         flash[:error] = "Project #{params[:project]} doesn't exist."
-        redirect_to :action => :list_public
+        redirect_to :action => :list_public and return
       end
       return
     end
@@ -428,20 +428,19 @@ class ProjectController < ApplicationController
 
 
   def save_new
-    logger.debug( "save_new" )
     project_name = params[:name]
     project_name = params[:ns].to_s + ":" + project_name if params[:ns]
     if !valid_project_name?(project_name)
       flash[:error] = "Invalid project name '#{project_name}'."
       redirect_to :action => "new"
     else
+      Person.find( session[:login] )
       #store project
       @project = Project.new(:name => project_name)
       @project.title.data.text = params[:title]
       @project.description.data.text = params[:description]
       @project.add_person :userid => session[:login], :role => 'maintainer'
       @project.add_person :userid => session[:login], :role => 'bugowner'
-
       begin      
         if @project.save
           flash[:note] = "Project '#{@project}' was created successfully"
