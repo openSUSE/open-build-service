@@ -62,9 +62,9 @@
     <% if options %>
     <td rowspan="2">
         <% if by_me -%>
-          <%= link_to "revoke", :action => "diff", :changestate => "revoke", :id => req.method_missing(:id) %>
+          <%= link_to image_tag('req-revoke.png', :size => '16x16', :border => 0, :alt => 'Revoke request'), :action => "diff", :changestate => "revoke", :id => req.method_missing(:id) %>
         <% else -%>
-          <%= link_to "edit", :action => "diff", :changestate => "handle", :id => req.method_missing(:id) %>
+          <%= link_to image_tag('req-showdiff.png', :size => '16x16', :border => 0, :alt => 'Handle request'), :action => "diff", :changestate => "handle", :id => req.method_missing(:id) %>
         <% end %>
     </td>
     <% end %>
