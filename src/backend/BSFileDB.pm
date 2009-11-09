@@ -137,10 +137,31 @@ sub fdb_getmatch {
 }
 
 sub fdb_getall {
-  my ($fn, $lay, $tail, $filter) = @_;
+  my ($fn, $lay, $tail, $filter, $byteoff) = @_;
+
+  if ($tail && !defined($byteoff)) {
+    # try to do something clever...
+    my $len = -s $fn;
+    my $ex = 1;
+    while ($len > 65535) {
+      $byteoff = $len - $tail * 128 * $ex;
+      last if $byteoff < 32768;
+      my @res = fdb_getall($fn, $lay, $tail, $filter, $byteoff);
+      return @res if @res == $tail;
+      $ex *= 2;
+    }
+    undef $byteoff;
+  }
   local *F;
   open(F, '<', $fn) || return ();
   my @res;
+  if ($byteoff) {
+    sysseek(F, $byteoff, 0);
+    if (!defined(<F>)) {
+      close F;
+      return @res;
+    }
+  }
   while (<F>) {
     next if chop($_) ne "\n";
     my $r = decode_line($_, $lay);
