@@ -15,6 +15,7 @@
     <th>Action</th>
     <th>Source</th>
     <th>Target</th>
+    <th>Monitor</th>
     <th>Requester</th>
     <% if options %>
       <th style="width: 60px;">Options</th>
@@ -57,10 +58,17 @@
 <%      end %>
 <%    end %>
         </td>
-<%  end -%>
+<%#  end -%>
+    <td rowspan="2" align="center">
+<%     if is_submit and a.has_element? :source %>
+         <%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => a.source.project, :pkgname => a.source.package %>
+<%     else%>
+         <i>n.A.</i>
+<%     end%>
+<%   end%>
     <td rowspan="2"><%= link_to req.state.who, :action => "show", :project => "home:"+req.state.who %></td>
     <% if options %>
-    <td rowspan="2">
+    <td rowspan="2" align="center">
         <% if by_me -%>
           <%= link_to image_tag('req-revoke.png', :size => '16x16', :border => 0, :alt => 'Revoke request'), :action => "diff", :changestate => "revoke", :id => req.method_missing(:id) %>
         <% else -%>
