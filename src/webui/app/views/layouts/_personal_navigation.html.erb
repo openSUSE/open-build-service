@@ -15,7 +15,7 @@
 
     <form action="https://build.opensuse.org/ICSLogin/auth-up"
         method="post" enctype="application/x-www-form-urlencoded" id="login_form">
-    <div>
+    <div style="text-decoration: none">
     <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
     <input name="context" value="default" type="hidden" />
     <input name="proxypath" value="reverse" type="hidden" />
@@ -33,7 +33,7 @@
   <% else %>
 
     <%= form_tag( :controller => :user, :action => :authenticate ) %>
-    <div>
+    <div style="text-decoration: none">
     <label for="username">Username:</label> <input name="username" id="username" size='10' maxlength='50' style='width: 10em;'/>
     <label for="password">Password:</label> <input name="password" id="password" size='10' maxlength='50' type='password'/>
     <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
