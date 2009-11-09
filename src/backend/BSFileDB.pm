@@ -148,6 +148,7 @@ sub fdb_getall {
     push @res, $r;
     shift @res if defined($tail) && @res > $tail;
   }
+  close F;
   return @res;
 }
 
