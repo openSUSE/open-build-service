@@ -6,11 +6,13 @@ module ApplicationHelper
   end
   
   def user
-    u = nil
     if logged_in?
-      u = Person.find :login => session[:login]
+      begin
+        @user || @user = Person.find( :login => session[:login] )
+      rescue Object => e
+        logger.error "Cannot load person data for #{session[:login]} in application_helper"
+      end
     end
-    return u
   end
 
   def link_to_home_project

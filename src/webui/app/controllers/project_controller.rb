@@ -725,21 +725,13 @@ class ProjectController < ApplicationController
 
 
   def toggle_watch
-    unless session[:login]
-      render :nothing => true
-      return
-    end
-
-    @user = Person.find( :login => session[:login] ) unless @user
-
+    @user ||= Person.find( :login => session[:login] )
     if @user.watches? @project.name
       @user.remove_watched_project @project.name
     else
       @user.add_watched_project @project.name
     end
-
     @user.save
-
     render :partial => "watch_link"
   end
 
