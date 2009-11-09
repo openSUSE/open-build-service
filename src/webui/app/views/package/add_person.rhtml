@@ -11,7 +11,7 @@
 <h2>Add User (Project <%=h @project%>, Package <%=h @package%>)</h2>
 
 <% form_tag :action => :save_person do %>
-<b>User ID:</b><br/>
+<b>User ID:</b>
 <%= text_field_tag 'userid', params[:userid], :size => '25' %>
 <b>Role:</b>
 <%= select_tag 'role', options_for_select(%w{maintainer bugowner}, params[:role]) %>
