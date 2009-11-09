@@ -137,13 +137,15 @@ sub fdb_getmatch {
 }
 
 sub fdb_getall {
-  my ($fn, $lay, $tail) = @_;
+  my ($fn, $lay, $tail, $filter) = @_;
   local *F;
   open(F, '<', $fn) || return ();
   my @res;
   while (<F>) {
     next if chop($_) ne "\n";
-    push @res, decode_line($_, $lay);
+    my $r = decode_line($_, $lay);
+    next if $filter && !$filter->($r);
+    push @res, $r;
     shift @res if defined($tail) && @res > $tail;
   }
   return @res;
