@@ -173,6 +173,28 @@ sub fdb_getall {
   return @res;
 }
 
+sub fdb_getall_reverse {
+  my ($fn, $lay, $tail, $filter) = @_;
+
+  local *F;
+  open(F, '<', $fn) || return ();
+  my @lines;
+  while (<F>) {
+    next if chop($_) ne "\n";
+    push @lines, $_;
+  }
+  close F;
+  my @res;
+  for (reverse @lines) {
+    my $r = decode_line($_, $lay);
+    next if $filter && !$filter->($r);
+    push @res, $r;
+    last if defined($tail) && @res >= $tail;
+  }
+  close F;
+  return @res;
+}
+
 sub fdb_add_i {
   my ($fn, $lay, $r) = @_;
   local *F;

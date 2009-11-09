@@ -1244,6 +1244,19 @@ sub docommand {
 sub getjobhistory {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $filter;
+  if ($cgi->{'code'} && @{$cgi->{'code'}} == 1 && $cgi->{'code'}->[0] eq 'lastfailures') {
+    # report last success/unchanged and all fails for earch package
+    my %success;
+    $filter = sub {
+      return 0 if $success{$_[0]->{'package'}};
+      $success{$_[0]->{'package'}} = 1 if $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
+      return 1;
+    };
+    my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, 0, $filter);
+    @hist = reverse @hist;
+    my $ret = {jobhist => \@hist};
+    return ($ret, $BSXML::jobhistlist);
+  }
   if ($cgi->{'package'} && $cgi->{'code'}) {
     my %packid = map {$_ => 1} @{$cgi->{'package'}};
     my %code = map {$_ => 1} @{$cgi->{'code'}};
