@@ -2651,6 +2651,7 @@ sub getjobhistory {
 
   checkprojrepoarch($projid, $repoid, $arch);
   my @args;
+  push @args, "limit=$cgi->{'limit'}" if $cgi->{'limit'};
   push @args, map {"package=$_"} @{$cgi->{'package'} || []};
   push @args, map {"code=$_"} @{$cgi->{'code'} || []};
   my $res = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/_jobhistory", $BSXML::jobhistlist, @args);
@@ -2793,7 +2794,9 @@ sub getlogfile {
 sub getbuildhistory {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $buildhist = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_history", $BSXML::buildhist);
+  my @args;
+  push @args, "limit=$cgi->{'limit'}" if $cgi->{'limit'};
+  my $buildhist = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_history", $BSXML::buildhist, @args);
   return ($buildhist, $BSXML::buildhist);
 }
 
@@ -3780,7 +3783,7 @@ my $dispatches = [
   '/build/$project/$repository/_buildconfig path:prp*' => \&getconfig,
   '/build/$project/$repository/$arch' => \&getpackagelist,
   '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
-  '/build/$project/$repository/$arch/_jobhistory package* code:*' => \&getjobhistory,
+  '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
@@ -3789,7 +3792,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
-  '/build/$project/$repository/$arch/$package/_history' => \&getbuildhistory,
+  '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package_repository/$filename' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
 
