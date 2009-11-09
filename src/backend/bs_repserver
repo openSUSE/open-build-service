@@ -593,11 +593,16 @@ sub getlogfile {
   my @s = stat($logfile);
   die("$packid: no logfile\n") unless @s;
   my $start = $cgi->{'start'} || 0;
-  die("start out of range: $start\n") if abs($start) > $s[7];
+  my $end = $cgi->{'end'};
+  $start = $s[7] + $start if $start < 0;
+  $start = 0 if $start < 0;
+  die("start out of range: $start\n") if $start > $s[7];
+  $end = $s[7] if !defined($end) || $end > $s[7];
+  $end = $start if defined($end) && $end < $start;
   my $fd = gensym;
   open($fd, '<', $logfile) || die("$logfile: $!\n");
-  defined(sysseek($fd, $start, $start < 0 ? Fcntl::SEEK_END : Fcntl::SEEK_SET)) || die("sysseek: $!\n");
-  BSWatcher::reply_file($fd, 'Content-Type: text/plain');
+  defined(sysseek($fd, $start, Fcntl::SEEK_SET)) || die("sysseek: $!\n");
+  BSWatcher::reply_file($fd, 'Content-Type: text/plain', 'Content-Length: '.($end - $start));
   close $fd unless $BSStdServer::isajax;
   return undef;
 }
