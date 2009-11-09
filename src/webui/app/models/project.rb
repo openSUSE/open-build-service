@@ -22,7 +22,7 @@ class Project < ActiveXML::Base
 
   class Repository < ActiveXML::Node
     handles_xml_element 'repository'
-    #xml_attr_accessor 'name'
+    xml_attr_accessor 'name'
 
     def archs
       @archs ||= each_arch.map { |a| a.to_s }
