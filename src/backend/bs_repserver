@@ -1252,7 +1252,7 @@ sub getjobhistory {
       $success{$_[0]->{'package'}} = 1 if $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
       return 1;
     };
-    my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, 0, $filter);
+    my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, undef, $filter);
     @hist = reverse @hist;
     my $ret = {jobhist => \@hist};
     return ($ret, $BSXML::jobhistlist);
