@@ -137,16 +137,14 @@ sub fdb_getmatch {
 }
 
 sub fdb_getall {
-  my ($fn, $lay) = @_;
+  my ($fn, $lay, $tail) = @_;
   local *F;
   open(F, '<', $fn) || return ();
-  my $d = '';
-  1 while sysread(F, $d, 8192, length($d));
-  close F;
-  $d =~ s/[^\n]*$//s if length($d) && substr($d, -1, 1) ne "\n";
   my @res;
-  for my $l (split("\n", $d)) {
-    push @res, decode_line($l, $lay);
+  while (<F>) {
+    next if chop($_) ne "\n";
+    push @res, decode_line($_, $lay);
+    shift @res if defined($tail) && @res > $tail;
   }
   return @res;
 }
