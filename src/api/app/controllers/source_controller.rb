@@ -358,7 +358,20 @@ class SourceController < ApplicationController
       @project = DbProject.find_by_name( project_name )
 
       if @project
-        render :text => @project.to_axml, :content_type => 'text/xml'
+  
+        allpacks = params[:allpacks] || false
+        if allpacks
+           render :text => proc { |response,output| 
+                               output.write("<fullmeta>\n")
+                               output.write(@project.to_axml)
+                               @project.db_packages.each do |pkg|
+                                       output.write(pkg.to_axml)
+                               end
+                               output.write("</fullmeta>\n")
+                           }, :content_type => 'text/xml'
+        else
+           render :text => @project.to_axml, :content_type => 'text/xml'
+        end
       elsif DbProject.find_remote_project(project_name)
         # project from remote buildservice, get metadata from backend
         pass_to_backend
