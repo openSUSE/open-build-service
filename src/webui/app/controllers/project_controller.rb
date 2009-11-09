@@ -18,63 +18,74 @@ class ProjectController < ApplicationController
 
   def diff
     @project = Diff.find( :id => params[:id])
- 
     @project.each do |a|
       if a.has_element? :source:
+        @state = a.data.attributes["type"]
         @src_project = a.source.project
         @src_pkg = a.source.package
-        @src_rev = a.source.rev
+        if @state == "submit"
+          @src_rev = a.source.rev
+        end
       end
       if a.has_element? :target:
         @target_project = a.target.project
         @target_pkg = a.target.package
       end
     end
-
     predicate = "(action/target/@project='#{@target_project}') and @id=#{params[:id]}"
     @requests_for_me = Collection.find :what => :request, :predicate => predicate
 
     transport ||= ActiveXML::Config::transport_for(:project)
     path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
-   
-    if (params[:changestate] && params[:changestate]=="accepted")
-      changestate = "accepted"
-    elsif (params[:changestate] && params[:changestate]=="declined")
-      changestate = "declined"
-    elsif (params[:changestate] && params[:changestate]=="revoked")
-      changestate = "revoked"
-    else
-      changestate = nil
-    end
-
+ 
     begin
-      @diff_text = transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
-      render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => changestate}
-    rescue
-      if changestate.nil? || changestate == "accepted"
-        flash[:error] = "Can't get diff for #{params[:id]}!"
-        redirect_to :action => "list_req"
+      if @state == "submit"
+        @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
       else
         @diff_text = nil
-        render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => changestate}
-      end
-    end 
+      end       
+      render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => params[:changestate]}
+    rescue  ActiveXML::Transport::Error => exception
+      @error = exception
+      @diff_text = nil
+      if params[:changestate]=="revoke"
+        flash[:error] = "An error occurred! You can try to revoke your request."
+        render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => params[:changestate]}
+      else
+        flash[:error] = "An error occurred!"
+        redirect_to :action => "list_req"
+      end 
+    end
+     
+   
   end
 
   def submitreq
-    changestate = params[:changestate]
+    changestate = params['commit']
+    case changestate
+      when 'Accept'
+        changestate = 'accepted'
+      when 'Decline'
+        changestate = 'declined'
+      when 'Revoke'
+        changestate = 'revoked'
+      else
+        changestate = nil
+    end
+
     if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
       reason = params[:reason]
       id = params[:id]
       transport ||= ActiveXML::Config::transport_for(:project)
-      path = "/request/#{id}?newstate=#{changestate}&cmd=changestate" 
+      path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
       transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason
       flash[:note] = "Submit request #{changestate}!"
       redirect_to :action => "list_req"
     else
-      flash[:error] = "Changestate parameter is unknown!"
+      flash[:error] = "'changestate' parameter is unknown!"
       redirect_to :action => "list_req"
     end
+
   end
 
   def list(mode=:without_homes)

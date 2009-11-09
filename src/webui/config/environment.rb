@@ -136,6 +136,9 @@ ActiveXML::Base.config do |conf|
       :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
 
     map.connect :diff, "rest:///request/:id"
+ 
+    map.connect :attributes, "rest:///source/:project/_attribute",
+      :package => "rest:///source/:project/:package/_attribute?with_project=:with_project"
 
     # Monitor
     map.connect :workerstatus, 'rest:///build/_workerstatus',
