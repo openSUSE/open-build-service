@@ -2,7 +2,8 @@ class ProjectController < ApplicationController
 
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
-    :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages ]
+    :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages,
+    :update_target, :edit_target]
 
   def index
     redirect_to :action => 'list_all'
@@ -338,19 +339,17 @@ class ProjectController < ApplicationController
     if @project.save
       render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
     else
-      render_text 'sorry woe error'
+      render :text => 'enabling architecture failed'
     end
   end
 
   def edit_target
-    @project = Project.find(params[:project])
     repo = @project.repository[params[:repo]]
     @arch_list = arch_list
     render :partial => 'repository_edit_form', :locals => { :repo => repo }
   end
 
   def update_target
-    @project = Project.find(params[:project])
     repo = @project.repository[params[:repo]]
     repo.name = params[:name]
     repo.archs = params[:arch].to_a
@@ -358,7 +357,7 @@ class ProjectController < ApplicationController
       @arch_list = arch_list
       render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
     else
-      render_text 'sorry woe neco nevyslo'
+      render :text => 'updating target failed'
     end
   end
 
@@ -754,8 +753,6 @@ class ProjectController < ApplicationController
     @rating = Rating.find( :project => @project )
     render :partial => 'shared/rate'
   end
-
-
 
 
   private
