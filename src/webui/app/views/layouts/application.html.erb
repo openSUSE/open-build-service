@@ -1,5 +1,4 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
   <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
@@ -18,13 +17,13 @@
   <!-- <script type="text/javascript" src="javascript/common/langsel.js"></script> -->
 
   <script type="text/javascript">
-  <![CDATA[
+  /* <![CDATA[ */
   <%= yield :head_javascript %>
   $(function() {
     $('#watchlist_toggle').click(function() { $('#inplace_watchlist').slideToggle(350); });
     <%= yield :ready_function %>
   });
-  ]]>
+  /* ]]> */
   </script>
 </head>
 <body class="project">
