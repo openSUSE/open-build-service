@@ -115,12 +115,12 @@ class ProjectController < ApplicationController
       @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
     end
 
-    @iprojects = @user.involved_projects.each.map {|x| x.name}.sort
+    @iprojects = @user.involved_projects.each.map {|x| x.name}.uniq.sort
     @ipackages = Hash.new
     pkglist = @user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
     pkglist.sort(&@user.method('packagesorter')).each do |pack|
       @ipackages[pack.project] ||= Array.new
-      @ipackages[pack.project] << pack.name
+      @ipackages[pack.project] << pack.name if !@ipackages[pack.project].include? pack.name
     end
 
   end
