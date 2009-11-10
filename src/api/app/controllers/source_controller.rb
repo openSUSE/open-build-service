@@ -819,7 +819,7 @@ class SourceController < ApplicationController
     # FIXME: check for still building packages
 
     # create patchinfo package
-    if not Package.find(pkg_name, :project => params[:project])
+    if not DbPackage.find_by_project_and_name( params[:project], pkg_name )
       prj = DbProject.find_by_name( params[:project] )
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
       prj.db_packages << pkg
