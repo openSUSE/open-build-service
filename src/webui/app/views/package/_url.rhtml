@@ -3,10 +3,12 @@
 <div class="section" id="url">
   <h3>
     Upstream URL
+    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
     <%= link_to_remote image_tag( 'edit.png', :title => "Edit" ),
       :url => { :action => :set_url_form, :package => @package, :project => params[:project] },
       :loading => "$('#url_spinner').show()", :complete => "('#url_spinner').hide()",
       :update => 'url_area'  -%>
+    <% end %>
   </h3>
 
   <% if @package.has_element? :url -%>
@@ -16,7 +18,8 @@
     <span id="url_area">
       <%= render :partial => 'url_line', :locals => { :url => url } -%>
     </span>
-    <%= link_to "[x]", { :action => :remove_url, :package => @package, :project => params[:project] },
+    <%= link_to_if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ),
+      "[x]", { :action => :remove_url, :package => @package, :project => params[:project] },
       { :confirm => "Really remove the url '#{url}'?", :class => 'x' } -%>
 
   <% else -%>

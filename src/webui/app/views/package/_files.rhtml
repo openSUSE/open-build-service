@@ -3,8 +3,10 @@
 <div id="package_files">
   <h3>
     Files
+    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
     <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add File"), 
     :action => :add_file, :project => @project, :package => @package %>
+    <% end %>
   </h3>
   <% if !@files.empty? %>
   <table class="grid">
@@ -14,16 +16,20 @@
       <td><%=h human_readable_fsize( file[:size] )%></td>
       <td>
         <% if file[:editable] %>
-          <%= link_to("[Edit]", :action => :edit_file, :project => @project,
-            :package => @package, :file => file[:name] ) %><br/>
+          <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+            <%= link_to("[Edit]", :action => :edit_file, :project => @project,
+              :package => @package, :file => file[:name] ) %><br/>
+          <% end %>
           <%= link_to("[Show]", :action => :view_file, :project => @project,
             :package => @package, :file => file[:name] ) %>
         <% end %>
       </td>
       <td><%= link_to "[Download]", file_url( @project, @package, file[:name] ) %></td>
-      <td><%= link_to "[Remove]", {:action => :remove_file, :project => @project,
+      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+        <td><%= link_to "[Remove]", {:action => :remove_file, :project => @project,
         :package => @package, :filename => file[:name]},
         {:confirm => "Really remove file '#{file[:name]}'?" }%></td>
+      <% end %>
       <td>
         <% if @link && @link.has_add_patch?( file[:name] ) %>
         (Added Patch)
@@ -35,8 +41,10 @@
     <% end %>
   </table>
   <% end %>
+  <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
   <p>
   <%= link_to "[Add File]", :action => :add_file, :project => @project, :package => @package %>
   </p>
+  <% end %>
 </div>
 

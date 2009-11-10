@@ -6,10 +6,10 @@
   <% else %>
   <h3>
     Build Status
-    &nbsp;
+    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
     <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger complete rebuild"),
     :action => 'trigger_rebuild', :project => @project, :package => @package %>
-    &nbsp;
+    <% end %>
     <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status"),
       :url => { :action => 'reload_buildstatus', :project => @project, :package => @package },
       :update => 'package_buildstatus',
@@ -23,16 +23,20 @@
     <% current_repo = result.repository -%>
     <tr>
       <th colspan="4">
-        <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.repository),
-        :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository %>
+        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+          <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.repository),
+          :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository %>
+        <% end %>
         <b><%=h result.repository %></b>
       </th>
     </tr>
     <% end -%>
     <tr>
       <td>
-        <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.arch + " in " + result.repository),
-        :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository, :arch => result.arch %>
+        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+          <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.arch + " in " + result.repository),
+          :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository, :arch => result.arch %>
+        <% end %>
         <%=h result.arch %>
       </td>
       <% if result.has_element? :status -%>
@@ -59,9 +63,11 @@
     <% end -%>
   </table>
   <% end -%>
+  <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
   <p>
     <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
     :project => @project, :package => @package %>
   </p>
+  <% end %>
 </div>
 

@@ -20,8 +20,8 @@
 	end
 %>     
 
-<%=
-    link_to_remote image_tag(image,:title => title),
+<%= link_to_remote_if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ),
+      image_tag(image,:title => title),
       :url => { :action => "update_flag", :project => @package.my_project, :package => @package,
 				 :flag_name => flag.name, :repo => flag.repository, :arch => flag.architecture,
 				 :status => flag.status, :flag_id => flag.id  }

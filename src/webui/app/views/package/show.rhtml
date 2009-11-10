@@ -29,7 +29,6 @@
       <%#= render :partial => 'attributes' %>
       <%= render :partial => 'url' %>
       <%= render :partial => 'tags' %>
-      <%#= render :partial => 'categories' %>
       <%= render :partial => 'users' %>
       <%= render :partial => 'files' %>
       <%= render :partial => 'package_flags' %>
@@ -37,7 +36,7 @@
     </td>
 
     <td>
-      <%= render :partial => 'links' %>
+      <%= render :partial => 'links' if @link %>
       <%= render :partial => 'buildstatus' %>
 
     </td>

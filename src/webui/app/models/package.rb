@@ -386,7 +386,6 @@ class Package < ActiveXML::Base
     self.send(flagtype).each do |elem|
       begin
         key = nil
-        value = nil
         if elem.has_attribute? :repository and elem.has_attribute? :arch
           key = elem.repository.to_s + '::' + elem.arch.to_s
           f = self.send("#{flagtype}flags")[key.to_sym]
@@ -394,7 +393,6 @@ class Package < ActiveXML::Base
           f.architecture = elem.arch.to_s
           f.status = elem.element_name
           f.explicit = true
-          value = f
         elsif elem.has_attribute? :repository
           key  =  elem.repository.to_s + '::all'
           f = self.send("#{flagtype}flags")[key.to_sym]
@@ -403,7 +401,6 @@ class Package < ActiveXML::Base
           f.architecture = nil
           f.status = elem.element_name
           f.explicit = true
-          value =  f
         elsif elem.has_attribute? :arch
           key = 'all::' + elem.arch.to_s
           f = self.send("#{flagtype}flags")[key.to_sym]
@@ -412,7 +409,6 @@ class Package < ActiveXML::Base
           f.architecture = elem.arch.to_s
           f.status = elem.element_name
           f.explicit = true
-          value =  f
         else
           #dickes default
           key = 'all::all'
@@ -422,7 +418,6 @@ class Package < ActiveXML::Base
           f.architecture = nil
           f.status = elem.element_name
           f.explicit = true
-          value =  f
         end
       rescue NoMethodError => error
         logger.debug "[PACKAGE-FLAGS] flag-matrix update warning: for the " +
@@ -441,8 +436,12 @@ class Package < ActiveXML::Base
     end
   end
 
-  private
+  def is_maintainer? userid
+    has_element? "person[@role='maintainer' and @userid = '#{userid}']"
+  end
 
+
+  private
 
   def get_elements_before( element )
     # this is a helper method for inserting elements at the right place in xml,

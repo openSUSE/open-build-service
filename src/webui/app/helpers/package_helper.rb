@@ -21,6 +21,6 @@ module PackageHelper
   def human_readable_fsize( bytes )
     number_to_human_size(bytes, :precision => 2)
   end
-
+  
 end
 
