@@ -8,7 +8,7 @@
     <input name="proxypath" value="reverse" type="hidden" />
     <input name="message" value="Please log In" type="hidden" />
 <% else %>
-  <%= form_tag( :controller => :user, :action => :authenticate ) %>
+  <%= form_tag( :controller => :user, :action => :do_login ) %>
 <% end %>
 
 

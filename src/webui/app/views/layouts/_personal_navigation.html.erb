@@ -32,7 +32,7 @@
 
   <% else %>
 
-    <%= form_tag( :controller => :user, :action => :authenticate ) %>
+    <%= form_tag( :controller => :user, :action => :do_login ) %>
     <div style="text-decoration: none">
     <label for="username">Username:</label> <input name="username" id="username" size='10' maxlength='50' style='width: 10em;'/>
     <label for="password">Password:</label> <input name="password" id="password" size='10' maxlength='50' type='password'/>

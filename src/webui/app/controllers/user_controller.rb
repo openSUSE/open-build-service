@@ -15,7 +15,7 @@ class UserController < ApplicationController
     @return_to_path = params['return_to_path'] || "/"
   end
   
-  def authenticate
+  def do_login
     @return_to_path = params['return_to_path'] || "/"
     if params[:username] and params[:password]
       logger.debug "Doing form authorization to login user #{params[:username]}"
