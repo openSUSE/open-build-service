@@ -279,28 +279,27 @@ class PackageController < ApplicationController
 
     if !file.blank?
       # we are getting an uploaded file
-      filename = file.original_filename if filename.empty?
+      filename = file.original_filename if filename.blank?
     elsif not file_url.empty?
       # we have a remote file uri
       begin
+        start = Time.now
         uri = URI::parse file_url
-        begin
-          file = open uri
-        rescue OpenURI::HTTPError
-          flash[:error] = "Error retrieving URI '#{uri}'."
+        filename = uri.path.match('.*\/([^\/\?]+)')[1] if filename.blank?
+        logger.info "Adding file: #{filename} from url: #{file_url}"
+        if filename.blank? or filename == '/'
+          flash[:error] = 'Invalid filename: #{filename}, please choose another one.'
           redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
           return
-        end
-        filename = uri.path.sub /\/.*\//, '' if filename.empty?
-        if filename.empty? or filename == '/'
-          flash[:error] = 'Invalid filename / file.'
-          redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
-          return
-        end
-      rescue URI::InvalidURIError
-        flash[:error] = 'Invalid URI for remote file.'
+        end 
+        file = open uri
+      rescue Object => e
+        flash[:error] = "Error retrieving URI '#{uri}': #{e.message}."
+        logger.error "Error downloading file: #{e.message}"
         redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
         return
+      ensure
+        logger.debug "Download from #{file_url} took #{Time.now - start} seconds"
       end
     else
       flash[:error] = 'No file or URI given.'
@@ -310,8 +309,6 @@ class PackageController < ApplicationController
 
     # extra escaping of filename (workaround for rails bug)
     filename = URI.escape filename, "+"
-
-    logger.debug "controller: starting to add file: '#{filename}'"
     @package.save_file :file => file, :filename => filename
 
     if params[:addAsPatch]
@@ -319,7 +316,7 @@ class PackageController < ApplicationController
       link.add_patch filename
       link.save
     end
-
+    flash[:success] = "The file #{filename} has been added."
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
