@@ -458,9 +458,9 @@ class PackageController < ApplicationController
 	page.call 'build_finished'
       else
 	page.insert_html :bottom, 'log_space', @log_chunk
-	if @log_chunk.length < maxsize && @initial == 0
+	if @log_chunk.length < maxsize || @initial == 0
 	  page.delay(2) do
-	    page.call 'refresh', @offset, @initial
+	    page.call 'refresh', @offset, 0
 	  end
 	else
 	  logger.debug 'call refresh without delay'
