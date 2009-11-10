@@ -65,11 +65,8 @@
                </tr>
             </thead>
             <tbody>
-              <% i = 1 -%>
               <% value.each_jobhist do |jobhist| -%>
-              <% if i <= 20 -%>
-                <% i = i + 1 -%>
-                  <tr>
+                   <tr>
                     <td class="package"><%= link_to jobhist.package, :controller => 'package', :action => 'show', :project => @project, :package => jobhist.package %></td>
                     <td>
                       <%=h jobhist.reason rescue "none" %>
@@ -100,12 +97,11 @@
                     else
                       code_style = nil
                     end
-                    %>
+                    -%>
                     <td <%= code_style if code_style %> ><%=h jobhist.code %></td>
                     <td><%= link_to "[Build Log]", :action => 'live_build_log', :controller => 'package', :arch => key, :package => jobhist.package, :project => @project, :repository => @platform %></td>
                   </tr>
-                <% end %>
-              <% end %>
+               <% end -%>
             </tbody>
           </table>  
         <% else %>

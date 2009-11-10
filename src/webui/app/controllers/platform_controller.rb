@@ -24,7 +24,7 @@ class PlatformController < ApplicationController
 
       if @platform.has_element? :arch
         @platform.each_arch do |arch|
-            @jobhislist.merge!({ "#{arch}" => Jobhislist.find( params[:name], :project => @project, :arch => "#{arch}" ) })
+            @jobhislist.merge!({ "#{arch}" => Jobhislist.find( params[:name], :project => @project, :arch => "#{arch}", :limit => 20 ) })
         end
       end
 
