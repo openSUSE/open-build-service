@@ -55,6 +55,7 @@ class UserController < ApplicationController
 
 
   def register
+    valid_http_methods(:post)
     logger.debug "Creating new person #{session[:login]}"
     unreg_person_opts = {
       :login => session[:login],
