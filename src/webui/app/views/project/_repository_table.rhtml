@@ -23,18 +23,18 @@
    <%= render :partial => 'inner_repo_table', :locals => {:has_data => false} %>
 </div>
 
-<% if @project.is_maintainer?( session[:login] ) %>
 <table>
   <tr>
+<% if @project.is_maintainer?( session[:login] ) %>
   <td>
     <%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %>
   </td>
+<% end %>
   <td align="right">
     <%= link_to "[Flags for Experts]", :action => 'flags_for_experts', :project => @project%>
   </td>
   </tr>
 </table>
-<% end %>
 
 <% if @project.has_element?(:repository) -%>
   <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>

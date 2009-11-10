@@ -19,7 +19,7 @@
 		build: <%= render :partial => "flag", :locals => {:flagtype => "build", :arch => arch, :repo => repo.name } %>
 		<br/>
 		publish: <%= render :partial => "flag", :locals => {:flagtype => "publish", :arch => arch, :repo => repo.name } %>
-	<%- else -%>
+	<%- elsif @project.is_maintainer?( session[:login] ) -%>
 		<%= link_to_remote "[Enable]", :update => repo.name,
 				:url => { :action => :enable_arch, :project => @project, :repo => repo.name, :arch => arch},
                 :loading => "{ $('#{repo.name}_#{arch}').innerHTML = '" + render(:partial => "loading", :locals => {:text => 'enabling...'}).strip + "'; }"
