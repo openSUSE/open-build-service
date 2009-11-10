@@ -41,6 +41,7 @@ class SearchController < ApplicationController
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<collection>\n"
 
+    collection.uniq!
     collection.each do |item|
       str = (render_all ? item.to_axml : item.to_axml_id)
       output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
