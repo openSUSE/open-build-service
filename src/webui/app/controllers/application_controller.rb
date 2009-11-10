@@ -72,6 +72,8 @@ class ApplicationController < ActionController::Base
       transport = ActiveXML::Config.transport_for( :project )
       transport.set_additional_header( "X-Username", ichain_user )
       transport.set_additional_header( "X-Email", ichain_email ) if ichain_email
+    else
+      reset_session
     end
   end
 
