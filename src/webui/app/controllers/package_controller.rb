@@ -452,6 +452,7 @@ class PackageController < ApplicationController
       else
 	page.insert_html :bottom, 'log_space', @log_chunk
 	if @log_chunk.length < maxsize || @initial == 0
+          page.call 'autoscroll'
 	  page.delay(2) do
 	    page.call 'refresh', @offset, 0
 	  end

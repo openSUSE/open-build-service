@@ -34,6 +34,7 @@ function start_autoscroll() {
    return false;
 }
 function autoscroll() {
+   if (!scrollmode) { return };
    var targetOffset = $('#endofalllog').offset().top; 
    window.scrollTo( 0, targetOffset );
 }
@@ -64,6 +65,7 @@ function stop_refresh() {
 }
 
 function refresh(newoffset, initial) {
+  autoscroll();
   offset = newoffset;
   if (autorefresh) {
      <%= javascript_options = options_for_ajax(:url => {:action => :update_build_log, :package => @package,
@@ -72,9 +74,6 @@ function refresh(newoffset, initial) {
     "var options = #{javascript_options}; options['url'] = options['url'] + '&offset=' + offset + ';&' + 'initial=' + initial;" %>
      <%=    "$.ajax(options);" %>
   }
-  if (scrollmode) {
-      autoscroll();
-   }
 }
 <% end -%>
 
