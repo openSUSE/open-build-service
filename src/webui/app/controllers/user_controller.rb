@@ -1,6 +1,6 @@
 class UserController < ApplicationController
 
-  skip_before_filter :require_login, :only => [:login]
+  skip_before_filter :require_login, :only => [:login, :do_login]
 
   def logout
     logger.info "Logging out: #{session[:login]}"
