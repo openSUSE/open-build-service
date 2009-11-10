@@ -195,31 +195,29 @@ class PackageController < ApplicationController
   end
 
   def save_new_link
-    params[:linked_package].strip!
-    params[:linked_project].strip!
-    params[:target_package].strip!
+    @linked_project = params[:linked_project].strip
+    @linked_package = params[:linked_package].strip
+    @target_package = params[:target_package].strip
+
     begin
-      linked_package = Package.find( params[:linked_package],
-        :project => params[:linked_project] )
+      linked_package = Package.find( @linked_package, :project => @linked_project )
     rescue: ActiveXML::NotFoundError
-      @linked_project = params[:linked_project]
-      @linked_package = params[:linked_package]
-      @target_package = params[:target_package]
-      flash.now[:error] = "Unable to find package '#{params[:linked_package]}' in" +
-        " project '#{params[:linked_project]}'."
-      render :action => "new_link"
-      return
+      flash.now[:error] = "Unable to find package '#{@linked_package}' in" +
+        " project '#{@linked_project}'."
+      render :action => "new_link" and return
     end
 
-    target_package = params[:target_package]
-    target_package = params[:linked_package] if params[:target_package].blank?
+    @target_package = @linked_package if @target_package.blank?
+    if !valid_package_name? @target_package
+      flash.now[:error] = "Invalid target package name: '#{@target_package}'"
+      render :action => "new_link" and return
+    end
       
-    package = Package.new( :name => target_package, :project => params[:project] )
+    package = Package.new( :name => @target_package, :project => params[:project] )
     package.title.data.text = linked_package.title
 
     description = "This package is based on the package " +
-      "'#{params[:linked_package]}' from project " +
-      "'#{params[:linked_project]}'.\n\n"
+      "'#{@linked_package}' from project '#{@linked_project}'.\n\n"
 
     description += linked_package.description.data.text if linked_package.description.data.text
     package.description.data.text = description
@@ -227,16 +225,14 @@ class PackageController < ApplicationController
     unless package.save
       flash[:note] = "Failed to save package '#{package}'"
       redirect_to :controller => 'project', :action => 'show',
-        :project => params[:project]
+        :project => params[:project] and return
     else
-      flash[:note] = "Successfully linked package '#{params[:linked_package]}'"
-      redirect_to :controller => 'project', :action => 'show',
-        :project => params[:project]
-
-      logger.debug "link params: #{params[:linked_project]}, #{params[:linked_package]}"
+      logger.debug "link params: #{@linked_project}, #{@linked_package}"
       link = Link.new( :project => params[:project],
-        :package => target_package, :linked_project => params[:linked_project], :linked_package => params[:linked_package] )
+        :package => @target_package, :linked_project => @linked_project, :linked_package => @linked_package )
       link.save
+      flash[:note] = "Successfully linked package '#{@linked_package}'"
+      redirect_to :controller => 'project', :action => 'show', :project => params[:project]
     end
   end
 
