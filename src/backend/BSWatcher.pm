@@ -858,6 +858,7 @@ sub rpc {
     die("unknown host '$host'\n") unless $hostaddr;
     $hostlookupcache{$host} = $hostaddr;
   }
+  unshift @xhdrs, "Connection: close";
   unshift @xhdrs, "User-Agent: $BSRPC::useragent" unless !defined($BSRPC::useragent) || grep {/^user-agent:/si} @xhdrs;
   unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;;
 
