@@ -63,8 +63,9 @@ class FrontendCompat
       :method => "DELETE"
   end
 
-  def get_log_chunk( project, package, repo, arch, offset=0 )
-    path = "#{@url_prefix}/build/#{project}/#{repo}/#{arch}/#{package}/_log?nostream=1&start=#{offset}"
+  def get_log_chunk( project, package, repo, arch, start, theend )
+    logger.debug "get log chunk #{start}-#{theend}"
+    path = "#{@url_prefix}/build/#{project}/#{repo}/#{arch}/#{package}/_log?nostream=1&start=#{start}&end=#{theend}"
     transport.direct_http URI("https://#{path}")
   end
 

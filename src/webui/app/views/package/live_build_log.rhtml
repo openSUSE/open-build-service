@@ -8,66 +8,104 @@
 ]
 -%>
 
-<script language="javascript">
+<% content_for :head_javascript do %>
+
+var scrollmode=0;
+var offset=0;
+var autorefresh=1;
+
 function setscrollmode(mode) {
-  if(mode == 'on')
+  if(mode == 'off')
   {
-    document.getElementById('stop_scroll').innerHTML
-    = '<a href="javascript:stop_autoscroll()">[Stop Autoscroll]</a>';
-    document.getElementById('start_scroll').innerHTML = '';
+    $('.start_autoscroll').removeClass('hidden');
+    $('.stop_autoscroll').addClass('hidden');
+    scrollmode=0;
   }
   else
   {
-    var txt = '<a href="javascript:start_autoscroll()">[Start Autoscroll]</a>';
-    document.getElementById('stop_scroll').innerHTML = txt;
-    document.getElementById('start_scroll').innerHTML = txt;
+    $('.stop_autoscroll').removeClass('hidden');
+    $('.start_autoscroll').addClass('hidden');
+    scrollmode=1;
   }
 }
 function start_autoscroll() {
- setscrollmode('on');
- autoscroll();
+   setscrollmode('on');
+   autoscroll();
+   return false;
 }
 function autoscroll() {
-  window.scrollTo( 0, document.getElementById('log_space_wrapper').clientHeight );
-  scrolldelay = setTimeout( 'autoscroll()',100 );
+   var targetOffset = $('#endofalllog').offset().top; 
+   window.scrollTo( 0, targetOffset );
 }
 function stop_autoscroll() {
-  setscrollmode('off');
-  clearTimeout( scrolldelay );
+   setscrollmode('off');
+   return false;
 }
-$(function() { setscrollmode('off'); })
 
-</script>
+function build_finished()
+{
+   stop_refresh();
+   $('#status').html('Build finished');
+}
+
+function start_refresh() {
+   autorefresh=1;
+   refresh(offset, 0);
+   $('.start_refresh').hide(); 
+   $('.stop_refresh').show();
+   return false;
+}
+
+function stop_refresh() {
+   autorefresh=0;
+   $('.stop_refresh').hide(); 
+   $('.start_refresh').show();
+   return false;
+}
+
+function refresh(newoffset, initial) {
+  offset = newoffset;
+  if (autorefresh) {
+     <%= javascript_options = options_for_ajax(:url => {:action => :update_build_log, :package => @package,
+	               :project => @project, :arch => @arch, :repository => @repo })
+	
+    "var options = #{javascript_options}; options['url'] = options['url'] + '&offset=' + offset + ';&' + 'initial=' + initial;" %>
+     <%=    "$.ajax(options);" %>
+  }
+  if (scrollmode) {
+      autoscroll();
+   }
+}
+<% end -%>
+
+<% content_for :ready_function do %>
+   $('.start_autoscroll').click(start_autoscroll);
+   $('.stop_autoscroll').click(stop_autoscroll);
+   setscrollmode('off');
+
+   refresh(0, 1);
+   $('.start_refresh').click(start_refresh);
+   $('.stop_refresh').click(stop_refresh);
+<% end -%>
+
 <h2>Build Log for Package <%=h @package%> (Project <%=h @project%>)</h2>
-<b>Repository:</b> <%=h @repo%><br/>
-<b>Architecture:</b> <%=h @arch%>
+<div><p><b>Repository:</b> <%=h @repo%> <b>Architecture:</b> <%=h @arch%></p></div>
+
+<div><a href="#" class="stop_autoscroll hidden">[Stop Autoscroll]</a><a href="#" class="start_autoscroll">[Start Autoscroll]</a></div>
+
+<a href="#" class="start_refresh hidden">[Start Refresh]</a><a href="#" class="stop_refresh">[Stop Refresh]</a>
+
+<div>
+<b>Status:</b> <span id="status">Updating...</span>
+</div>
+<div id="log_space_wrapper" style="border: 1px solid black;">
+  <code id="log_space"></code>
+</div>
+
+<div><span id="endofalllog"></span>
 <p>
-<div id="start_scroll"></div>
+<a href="#" class="stop_autoscroll hidden">[Stop Autoscroll]</a><a href="#" class="start_autoscroll">[Start Autoscroll]</a>
+</p><p>
+<a href="#" class="start_refresh hidden">[Start Refresh]</a><a href="#" class="stop_refresh">[Stop Refresh]</a>
 </p>
-<div id="start_link"><%= link_to_remote( "[Start Refreshing]",
-        :url => {:action => :update_build_log, :package => @package,
-        :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
-        :after => "$('#start_link').fadeOut();$('#start_linkend').fadeOut()")%></div>
-<p>
-<b>Status:</b> <span id="status">Live Log not started</span>
-</p>
-<p>
-<form>
-  <!-- <textarea class="log" rows="40" style="border: 1px solid black" id="log_space"> -->
-  <div id="log_space_wrapper" style="border: 1px solid black;">
-      <code id="log_space">
-        <%= @log_chunk %>
-      </code>
-  </div>
-  <!-- </textarea> -->
-</form>
-</p>
-<p>
-<div id="stop_scroll"></div>
-</p>
-<p>
-<div id="start_linkend"><%= link_to_remote( "[Start Refreshing]",
-        :url => {:action => :update_build_log, :package => @package,
-        :project => @project, :arch => @arch, :repository => @repo, :offset => @offset},
-        :after => "$('#start_link').fadeOut();$('#start_linkend').fadeOut()")%></div>
-</p>
+</div>

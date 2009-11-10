@@ -419,24 +419,6 @@ class PackageController < ApplicationController
     @package = params[:package]
     @arch = params[:arch]
     @repo = params[:repository]
-
-    begin
-      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch )
-
-      @offset = @log_chunk.length
-      @log_chunk = CGI.escapeHTML(@log_chunk);
-      @log_chunk.gsub!("\n","<br/>")
-    rescue ActiveXML::Transport::Error => ex
-      @log_chunk = "No log available."
-      return
-      # TODO: Check correctly for availability of log
-      code = ex.message.root.elements['code']
-      if code && code.text == "404"
-        @log_chunk = "No live log available"
-      else
-        raise
-      end
-    end
   end
 
   def update_build_log
@@ -444,36 +426,46 @@ class PackageController < ApplicationController
     @package = params[:package]
     @arch = params[:arch]
     @repo = params[:repository]
+    @initial = params[:initial]
     @offset = params[:offset].to_i
+    @finished = false
+    maxsize = 1024 * 64;
 
     begin
-      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset )
-
+      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+      
       if( @log_chunk.length == 0 )
-        @finished = true
+	@finished = true
       else
-        @offset += @log_chunk.length
-        @log_chunk = CGI.escapeHTML(@log_chunk);
-        @log_chunk.gsub!("\n","<br/>")
+	@offset += @log_chunk.length
+	@log_chunk = CGI.escapeHTML(@log_chunk);
+	@log_chunk.gsub!("\n","<br/>")
       end
-
+      
     rescue ActiveXML::Transport::NotFoundError => ex
       @log_chunk = "No live log available"
       @finished = true
-
+      
     rescue Timeout::Error => ex
       @log_chunk = ""
     end
-
+    
     render :update do |page|
+      
+      logger.debug 'finished ' + @finished.to_s
+
       if @finished
-        page.replace_html 'status', "Build finished"
+	page.call 'build_finished'
       else
-        page.replace_html 'status', "Updating..."
-        page.insert_html :bottom, 'log_space', @log_chunk
-        page.delay(2) do
-          page << remote_function( :url => {:action => :update_build_log, :package => @package, :project => @project, :arch => @arch, :repository => @repo, :offset => @offset} )
-        end
+	page.insert_html :bottom, 'log_space', @log_chunk
+	if @log_chunk.length < maxsize && @initial == 0
+	  page.delay(2) do
+	    page.call 'refresh', @offset, @initial
+	  end
+	else
+	  logger.debug 'call refresh without delay'
+          page.call 'refresh', @offset, @initial
+	end
       end
     end
   end

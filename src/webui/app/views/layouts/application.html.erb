@@ -18,11 +18,13 @@
   <!-- <script type="text/javascript" src="javascript/common/langsel.js"></script> -->
 
   <script type="text/javascript">
+  <![CDATA[
   <%= yield :head_javascript %>
   $(function() {
     $('#watchlist_toggle').click(function() { $('#inplace_watchlist').slideToggle(350); });
     <%= yield :ready_function %>
   });
+  ]]>
   </script>
 </head>
 <body class="project">

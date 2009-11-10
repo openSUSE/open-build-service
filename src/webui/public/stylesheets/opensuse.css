@@ -115,16 +115,19 @@ body {
     padding-top: 16px;
 }
 a:link,
-.inlets li a strong {
+.inlets li a strong,
+.inlets li a .strong {
     color: #2570a5;
 }
 a:visited,
+.inlets li a:visited .strong,
 .inlets li a:visited strong {
     color: #8977a8;
 }
 a:active {
 }
 a:hover,
+.inlets li a:hover .strong,
 .inlets li a:hover strong {
     color: #f17912;
 }
@@ -244,6 +247,7 @@ input {
             font-size: smaller;
             padding: 0.5em 0 0.5em 1em;
             }
+            .inlets li a .strong,
             .inlets li a strong {
                 font-weight: normal;
                 display: block;
@@ -415,6 +419,7 @@ table.targets { }
         background-color: #f6f6f6;
         color: #999;
     }
+    table.targets tr.target th .strong,
     table.targets tr.target th strong {
         display: block;
         font-size: 150%;
@@ -745,7 +750,7 @@ div#package_disablebuild ul {
   margin: 0 0.5em 0 1.5em;
 }
 
-strong.highlight {
+.highlight {
   font-weight: normal;
   border-bottom: 1px silver dotted;
   background: #ffd;
@@ -942,3 +947,18 @@ table.tablesorter thead tr .headerSortDown {
 .packages_table {
   width: 22em;
 }
+
+.strong { font-weight: bold; }
+
+#legend ul { 
+  list-style-type: none;
+}
+#legend .term { 
+  font-weight: bold;
+  margin-right: 0.3em;
+}
+
+.hidden { 
+  display: none;
+}
+
