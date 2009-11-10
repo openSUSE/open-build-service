@@ -796,6 +796,78 @@ class SourceController < ApplicationController
     forward_data path, :method => :post
   end
 
+  # POST /source/<project>?cmd=createpatchinfo
+  def index_project_createpatchinfo
+    if params[:name]
+      name=params[:name] if params[:name]
+    else
+      # FIXME, find source file name
+      name="test"
+    end
+    pkg_name = "_patchinfo:#{name}"
+    patchinfo_path = "#{request.path}/#{pkg_name}"
+
+    # request binaries in project from backend
+    binaries = list_all_binaries_in_path("/build/#{params[:project]}")
+
+    if binaries.length < 1 and not params[:force]
+      render_error :status => 400, :errorcode => "no_matched_binaries",
+        :message => "No binary packages were found in project repositories"
+      return
+    end
+
+    # FIXME: check for still building packages
+
+    # create patchinfo package
+    if not Package.find(pkg_name, :project => params[:project])
+      prj = DbProject.find_by_name( params[:project] )
+      pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
+      prj.db_packages << pkg
+      Package.find(pkg_name, :project => params[:project]).save
+    else
+      # shall we do a force check here ?
+    end
+
+    # create patchinfo XML file
+    node = Builder::XmlMarkup.new(:indent=>2)
+    node.patchinfo(:name => name) do |n|
+      binaries.each do |binary|
+        node.binarypackage(binary)
+      end
+      node.packager    @http_user.login
+      node.category    ""
+      node.rating      ""
+      node.summary     ""
+      node.description ""
+# FIXME add all bugnumbers from attributes
+    end
+    backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20frontend", node.to_axml )
+
+    render_ok
+  end
+
+  def list_all_binaries_in_path path
+    d = backend_get(path)
+    data = REXML::Document.new(d)
+    binaries = []
+
+    data.elements.each("directory/entry") do |e|
+      name = e.attributes["name"]
+      list_all_binaries_in_path("#{path}/#{name}").each do |l|
+        binaries.push( l )
+      end
+    end
+    data.elements.each("binarylist/binary") do |b|
+      name = b.attributes["filename"]
+      # strip main name from binary
+      # patchinfos are only designed for rpms so far
+      binaries.push( name.sub(/-[^-]*-[^-]*.rpm$/, '' ) )
+    end
+
+    binaries.uniq!
+    return binaries
+  end
+
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
   def index_package_createSpecFileTemplate
     specfile_path = "#{request.path}/#{params[:package]}.spec"
