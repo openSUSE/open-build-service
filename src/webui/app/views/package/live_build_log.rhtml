@@ -14,33 +14,10 @@ var scrollmode=0;
 var offset=0;
 var autorefresh=1;
 
-function setscrollmode(mode) {
-  if(mode == 'off')
-  {
-    $('.start_autoscroll').removeClass('hidden');
-    $('.stop_autoscroll').addClass('hidden');
-    scrollmode=0;
-  }
-  else
-  {
-    $('.stop_autoscroll').removeClass('hidden');
-    $('.start_autoscroll').addClass('hidden');
-    scrollmode=1;
-  }
-}
-function start_autoscroll() {
-   setscrollmode('on');
-   autoscroll();
-   return false;
-}
 function autoscroll() {
-   if (!scrollmode) { return };
+   if (!autorefresh) { return };
    var targetOffset = $('#endofalllog').offset().top; 
    window.scrollTo( 0, targetOffset );
-}
-function stop_autoscroll() {
-   setscrollmode('off');
-   return false;
 }
 
 function build_finished()
@@ -78,10 +55,6 @@ function refresh(newoffset, initial) {
 <% end -%>
 
 <% content_for :ready_function do %>
-   $('.start_autoscroll').click(start_autoscroll);
-   $('.stop_autoscroll').click(stop_autoscroll);
-   setscrollmode('off');
-
    refresh(0, 1);
    $('.start_refresh').click(start_refresh);
    $('.stop_refresh').click(stop_refresh);
@@ -90,10 +63,10 @@ function refresh(newoffset, initial) {
 <h2>Build Log for Package <%=h @package%> (Project <%=h @project%>)</h2>
 <div><p><b>Repository:</b> <%=h @repo%> <b>Architecture:</b> <%=h @arch%></p></div>
 
-<div><a href="#" class="stop_autoscroll hidden">[Stop Autoscroll]</a><a href="#" class="start_autoscroll">[Start Autoscroll]</a></div>
-
-<a href="#" class="start_refresh hidden">[Start Refresh]</a><a href="#" class="stop_refresh">[Stop Refresh]</a>
-
+<div>
+<a href="#" class="start_refresh hidden">[Start Refresh]</a>
+<a href="#" class="stop_refresh">[Stop Refresh]</a>
+</div>
 <div>
 <b>Status:</b> <span id="status">Updating...</span>
 </div>
@@ -102,9 +75,6 @@ function refresh(newoffset, initial) {
 </div>
 
 <div><span id="endofalllog"></span>
-<p>
-<a href="#" class="stop_autoscroll hidden">[Stop Autoscroll]</a><a href="#" class="start_autoscroll">[Start Autoscroll]</a>
-</p><p>
-<a href="#" class="start_refresh hidden">[Start Refresh]</a><a href="#" class="stop_refresh">[Stop Refresh]</a>
-</p>
+<a href="#" class="start_refresh hidden">[Start Refresh]</a>
+<a href="#" class="stop_refresh">[Stop Refresh]</a>
 </div>
