@@ -8,4 +8,8 @@ class MaintenanceController < ApplicationController
 
   def qa
   end
+
+  def new
+  end
+  
 end
