@@ -206,7 +206,7 @@ sub addmeta {
 }
 
 sub expandproduct {
-  my ($projid, $packid, $files, $user) = @_;
+  my ($projid, $packid, $files, $user, $fail) = @_;
 
   if (!$files) {
     # gone!
@@ -230,12 +230,27 @@ sub expandproduct {
   for my $prod (@prods) {
     print "converting product $prod\n";
     my $odir = "$dir/$prod.out";
+    my $olog = "$dir/$prod.logfile";
     system('rm', '-rf', $odir) if -d $odir;
+    system('rm', '-f', $olog) if -e $olog;
     mkdir_p($odir);
-    if (system('./bs_productconvert', "$dir/$prod", $odir, $projid)) {
+    # run product converter and read stdout
+    my $pid;
+    if (!($pid = xfork())) {
+      delete $SIG{'__DIE__'};
+      open(STDOUT, '>>', $olog) || die("$olog: $!\n");
+      open(STDERR, '>&STDOUT');
+      $| = 1;
+      exec("./bs_productconvert", $dir."/".$prod, $odir, $projid);
+      die("bs_productconvert: $!\n");
+    }
+    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+    if ($?) {
+      my $s = readstr( $olog );
       warn("bs_productconvert failed: $?\n");
       BSUtil::cleandir($dir);
       rmdir($dir);
+      die($s) if ( $fail );
       return undef;
     }
     my @out = sort(ls($odir));
@@ -326,7 +341,7 @@ sub addrev {
   die("bad files\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
 
   if ($packid eq '_product') {
-    expandproduct($projid, $packid, $files, $user) || die("product conversation failed\n");
+    expandproduct($projid, $packid, $files, $user, 1);
   }
 
   my $srcmd5 = addmeta($projid, $packid, $files);
