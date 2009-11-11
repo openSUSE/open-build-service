@@ -1,4 +1,4 @@
-require "opensuse/frontend"
+require "common/opensuse/frontend"
 include Suse
 
 class ImportBuildFlagsFromBackend < ActiveRecord::Migration
