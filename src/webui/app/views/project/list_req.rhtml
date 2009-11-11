@@ -3,13 +3,9 @@
  @crumb_list = ['My Requests']
 -%>
 
-<p>
-  <h2>Requests concerning me</h2>
-  <%= render :partial => 'request_table', :locals => {:requests => @requests_for_me, :options => true, :by_me => false} %>
-</p>
+<h2>Requests concerning me</h2>
+<%= render :partial => 'request_table', :locals => {:requests => @requests_for_me, :options => true, :by_me => false} %>
 
-<p>
-  <h2>Requests by me</h2>
-  <%= render :partial => 'request_table', :locals => {:requests => @requests_by_me, :options => true, :by_me => true } %>
-</p>
+<h2>Requests by me</h2>
+<%= render :partial => 'request_table', :locals => {:requests => @requests_by_me, :options => true, :by_me => true } %>
 
