@@ -73,10 +73,10 @@ class ApplicationController < ActionController::Base
       transport.set_additional_header( "X-Username", ichain_user )
       transport.set_additional_header( "X-Email", ichain_email ) if ichain_email
     else
-      reset_session
+      session[:login] = nil
+      session[:email] = nil
     end
   end
-
 
   def authenticate_form_auth
     if session[:login] and session[:passwd]
