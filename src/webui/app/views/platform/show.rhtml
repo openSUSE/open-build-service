@@ -21,8 +21,9 @@
 <% end %>
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
-  <script type="text/javascript">
-    $(function() {
+<% end %>
+
+<% content_for :ready_function do %>
        // call the tablesorter plugin
        $(".tablesorter").tablesorter({ 
           headers: { 
@@ -41,7 +42,6 @@
        // var sorting = [[2,0]]; 
        // $(".tablesorter").trigger("sorton",[sorting]); 
      });
-  </script>
 <% end %>
 
 <p>

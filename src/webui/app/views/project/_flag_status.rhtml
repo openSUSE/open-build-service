@@ -20,15 +20,13 @@
 	end
 %>     
 
-<% content_for :content_for_head do %>
-<script type="text/javascript">
+<% content_for :head_javascript do %>
  function hideflags() {
 	$(".flagimage").animate({opacity: 0.2}, 5000);
  }
  function showflags() {
 	$(".flagimage").stop().animate({opacity: 1}, 300);
  }
-</script>
 <% end %>
 
 <%=

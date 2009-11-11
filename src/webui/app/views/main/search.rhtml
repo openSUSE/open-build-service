@@ -10,11 +10,10 @@
 <p id="search_form">
   <%= render :partial => 'search_form' %>
 </p>
-
-<!-- Set Focus to the input box -->
-<script type="text/javascript">
-  <!--
-    document.getElementById('search_text').focus();
-  //-->
-</script>
 </div>
+
+<% content_for :ready_function do %>
+<!-- Set Focus to the input box -->
+   $('#search_text').focus();
+<% end %>
+
