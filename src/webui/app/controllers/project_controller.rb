@@ -187,7 +187,7 @@ class ProjectController < ApplicationController
       logger.debug "caught Transport::NotFoundError in ProjectController#show"
       home_project = "home:" + session[:login]
       if params[:project] == home_project
-        flash[:note] = "Home project doesn't exist yet. You can create it now by entering some" +
+        flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
         redirect_to :action => :new, :project => home_project and return
       else
