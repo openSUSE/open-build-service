@@ -21,7 +21,7 @@
         <%- if maintainers.length > 1  && ( @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) ) %>
           <%= link_to "[x]",
           { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
-          { :confirm => "Really remove user '#{person.userid}'?", :class => "x" } -%>
+          { :confirm => "Really remove user '#{person.userid}'?", :class => "x", :method => :post } -%>
         <% end -%>
       </dd>
     <% end #each_person -%>
@@ -49,7 +49,7 @@
         <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
         <%= link_to "[x]",
           {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
-          {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x"}%>
+          {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x", :method => :post}%>
         <% end %>
         </dd>
       <% end #each_person -%>
@@ -66,7 +66,7 @@
             <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
             <%= link_to "[x]",
               {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
-              {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x"}%>
+              {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x", :method => :post}%>
             <% end %>
           </dd>
         <% end -%>

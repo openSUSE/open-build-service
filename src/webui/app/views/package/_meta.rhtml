@@ -36,7 +36,7 @@
   <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
   <br/>
   <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
-  {:confirm => "Really remove package '#{@package}'?"}%>
+  {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
   <% end %>
 
   <br/>

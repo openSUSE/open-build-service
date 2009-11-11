@@ -2,19 +2,18 @@ require 'open-uri'
 
 class PackageController < ApplicationController
 
-  before_filter :check_params
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :view, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus,
-    :update_flag]
+    :update_flag, :remove]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
-    :show, :view, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag]
+    :show, :view, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :remove]
 
   def index
     redirect_to :controller => 'project', :action => 'list_all'
   end
 
-    # render the input form for tags
+  # render the input form for tags
   def add_tag_form
     @project = params[:project]
     @package = params[:package]
@@ -49,7 +48,7 @@ class PackageController < ApplicationController
     render :update do |page|
       page.replace_html 'tag_area', :partial => "tags_ajax"
       page.visual_effect :highlight, 'tag_area'
-       if @unsaved_tags
+      if @unsaved_tags
         page.replace_html 'error_message', "WARNING: #{@error}"
         page.show 'error_message'
         page.delay(30) do
@@ -99,13 +98,13 @@ class PackageController < ApplicationController
 
   
   def get_tags(params)
-   tags = Tag.find(:tags_by_object, :project => params[:project], :package => params[:package])
-   user_tags = Tag.find(:project => params[:project], :package => params[:package], :user => params[:user])
-   user_tags_array = []
-   user_tags.each_tag do |tag|
-    user_tags_array << tag.name
-   end
-   return tags, user_tags_array
+    tags = Tag.find(:tags_by_object, :project => params[:project], :package => params[:package])
+    user_tags = Tag.find(:project => params[:project], :package => params[:package], :user => params[:user])
+    user_tags_array = []
+    user_tags.each_tag do |tag|
+      user_tags_array << tag.name
+    end
+    return tags, user_tags_array
   end
 
   # @deprecated
@@ -121,7 +120,7 @@ class PackageController < ApplicationController
     @updated_timestamp = LatestUpdated.find( :specific,
       :project => @project, :package => @package ).package.updated
     @activity = ( MostActive.find( :specific, :project => @project,
-      :package => @package).package.activity.to_f * 100 ).round.to_f / 100
+        :package => @package).package.activity.to_f * 100 ).round.to_f / 100
   end
 
 
@@ -166,8 +165,8 @@ class PackageController < ApplicationController
       response = nil
     end
     @wizard = Wizard.find(:project => params[:project],
-                          :package => params[:package],
-                          :response => response)
+      :package => params[:package],
+      :response => response)
   end
 
 
@@ -183,7 +182,6 @@ class PackageController < ApplicationController
         @package = Package.new( :name => params[:name], :project => @project )
         @package.title.data.text = params[:title]
         @package.description.data.text = params[:description]
-
         if @package.save
           flash[:note] = "Package '#{@package}' was created successfully"
           redirect_to :action => 'show', :project => params[:project], :package => params[:name]
@@ -238,10 +236,11 @@ class PackageController < ApplicationController
   end
 
   def save
+    valid_http_methods(:post)
     @package.title.data.text = params[:title]
     @package.description.data.text = params[:description]
     if @package.save
-      flash[:note] = "Package '#{@package.name}' was saved successfully"
+      flash[:note] = "Package data for '#{@package.name}' was saved successfully"
     else
       flash[:note] = "Failed to save package '#{@package.name}'"
     end
@@ -249,15 +248,14 @@ class PackageController < ApplicationController
   end
 
   def remove
-    project_name = params[:project]
-    package_name = params[:package]
+    valid_http_methods(:post)
     begin
-      FrontendCompat.new.delete_package :project => project_name, :package => package_name
-      flash[:note] = "Package '#{package_name}' was removed successfully from project '#{project_name}'"
+      FrontendCompat.new.delete_package :project => @project, :package => @package
+      flash[:note] = "Package '#{@package}' was removed successfully from project '#{@project}'"
     rescue Object => e
-      flash[:note] = "Failed to remove package '#{package_name}' from project '#{project_name}'"
+      flash[:error] = "Failed to remove package '#{@package}' from project '#{@project}': #{e.message}"
     end
-    redirect_to :controller => 'project', :action => 'show', :project => project_name
+    redirect_to :controller => 'project', :action => 'show', :project => @project
   end
 
   def add_file
@@ -270,6 +268,7 @@ class PackageController < ApplicationController
   end
 
   def save_file
+    valid_http_methods(:post)
     file = params[:file]
     file_url = params[:file_url]
     filename = params[:filename]
@@ -317,7 +316,9 @@ class PackageController < ApplicationController
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
+
   def remove_file
+    valid_http_methods(:post)
     if not params[:filename]
       flash[:note] = "Removing file aborted: no filename given."
       redirect_to :action => :show, :project => params[:project], :package => params[:package]
@@ -325,8 +326,6 @@ class PackageController < ApplicationController
     filename = params[:filename]
     # extra escaping of filename (workaround for rails bug)
     escaped_filename = URI.escape filename, "+"
-    
-    
     if @package.remove_file escaped_filename
       flash[:note] = "File '#{filename}' removed successfully"
     else
@@ -337,8 +336,9 @@ class PackageController < ApplicationController
 
 
   def save_person
-    if not params[:userid]
-      flash[:error] = "Login missing"
+    valid_http_methods(:post)
+    if not valid_role_name? params[:userid]
+      flash[:error] = "Invalid username: #{params[:userid]}"
       redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
       return
     end
@@ -361,11 +361,7 @@ class PackageController < ApplicationController
 
 
   def remove_person
-    if not params[:userid]
-      flash[:note] = "User removal aborted, no user id given!"
-      redirect_to :action => :show, :package => params[:package], :project => params[:project]
-      return
-    end
+    valid_http_methods(:post)
     @package.remove_persons( :userid => params[:userid], :role => params[:role] )
     if @package.save
       flash[:note] = "removed user #{params[:userid]}"
@@ -375,11 +371,11 @@ class PackageController < ApplicationController
     redirect_to :action => :show, :package => params[:package], :project => params[:project]
   end
 
+
   def edit_file
     @project = params[:project]
     @package = params[:package]
     @filename = params[:file]
-
     @file = frontend.get_source( :project => @project,
       :package => @package, :filename => @filename )
   end
@@ -388,18 +384,17 @@ class PackageController < ApplicationController
     @project = params[:project]
     @package = params[:package]
     @filename = params[:file]
-
     @file = frontend.get_source( :project => @project,
-     :package => @package, :filename => @filename )
+      :package => @package, :filename => @filename )
   end
 
 
   def save_modified_file
+    valid_http_methods(:post)
     project = params[:project]
     package = params[:package]
     filename = params[:filename]
     file = params[:file]
-
     file.gsub!( /\r\n/, "\n" )
     frontend.put_file( file, :project => project, :package => package,
       :filename => filename )
@@ -429,11 +424,11 @@ class PackageController < ApplicationController
       @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
       
       if( @log_chunk.length == 0 )
-	@finished = true
+        @finished = true
       else
-	@offset += @log_chunk.length
-	@log_chunk = CGI.escapeHTML(@log_chunk);
-	@log_chunk.gsub!("\n","<br/>")
+        @offset += @log_chunk.length
+        @log_chunk = CGI.escapeHTML(@log_chunk);
+        @log_chunk.gsub!("\n","<br/>")
       end
       
     rescue ActiveXML::Transport::NotFoundError => ex
@@ -449,18 +444,18 @@ class PackageController < ApplicationController
       logger.debug 'finished ' + @finished.to_s
 
       if @finished
-	page.call 'build_finished'
+        page.call 'build_finished'
       else
-	page.insert_html :bottom, 'log_space', @log_chunk
-	if @log_chunk.length < maxsize || @initial == 0
+        page.insert_html :bottom, 'log_space', @log_chunk
+        if @log_chunk.length < maxsize || @initial == 0
           page.call 'autoscroll'
-	  page.delay(2) do
-	    page.call 'refresh', @offset, 0
-	  end
-	else
-	  logger.debug 'call refresh without delay'
+          page.delay(2) do
+            page.call 'refresh', @offset, 0
+          end
+        else
+          logger.debug 'call refresh without delay'
           page.call 'refresh', @offset, @initial
-	end
+        end
       end
     end
   end
@@ -640,7 +635,6 @@ class PackageController < ApplicationController
 
 
   def set_url_form
-    # default url for form
     if @package.has_element? :url
       @new_url = @package.url.to_s
     else
@@ -653,7 +647,6 @@ class PackageController < ApplicationController
   def set_url
     @package.set_url params[:url]
     render :partial => 'url_line', :locals => { :url => params[:url] }
-    #redirect_to :action => "show", :project => params[:project], :package => params[:package]
   end
 
 
@@ -704,29 +697,11 @@ class PackageController < ApplicationController
 
   private
 
-  def check_params
-    if params[:project]
-      unless valid_project_name?( params[:project] )
-        flash[:error] = "Invalid project name, may only contain alphanumeric characters"
-        redirect_to :action => :error
-      end
-    end
-    if params[:role]
-      unless valid_role_name?( params[:role] )
-        flash[:error] = "Invalid role name"
-        redirect_to :action => :error
-      end
-    end
-  end
-
-
   def get_files( project, package )
     # files whose name end in the following extensions should not be editable
     no_edit_ext = %w{ .bz2 .exe .gem .gif .gz .jar .jpg .jpeg .ogg .ps .pdf .png .rpm .tar .tgz .xpm .zip }
-
     files = []
     dir = Directory.find( :project => project, :package => package )
-
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
       file[:ext] = Pathname.new(file[:name]).extname
