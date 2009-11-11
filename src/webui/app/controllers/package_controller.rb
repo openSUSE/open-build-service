@@ -4,10 +4,11 @@ class PackageController < ApplicationController
 
   before_filter :check_params
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :view, :wizard, 
-    :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus]
+    :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus,
+    :update_flag]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
-    :show, :view, :wizard, :edit, :add_file, :save_file, :reload_buildstatus]
+    :show, :view, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag]
 
   def index
     redirect_to :controller => 'project', :action => 'list_all'
@@ -681,21 +682,17 @@ class PackageController < ApplicationController
   def update_flag
     begin
       #the flag matrix will also be initialized on access, so we can work on it
-      @package = Package.find(params[:package], :project => params[:project])
       if @package.complex_flag_configuration? params[:flag_name]
         raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
       end
-
       @package.replace_flags(params)
     rescue RuntimeError => exception
       @error = exception
       logger.debug "[PACKAGE:] Flag-Update-Error: flag configuration is rejected to be saved because of its complexity."
     rescue  ActiveXML::Transport::Error => exception
-      #rescue_action_in_public exception
       @error = exception
       logger.debug "[PACKAGE:] Flag-Update-Error: #{@error}"
     end
-
     @flag = @package.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
   end
 
