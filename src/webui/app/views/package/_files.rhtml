@@ -12,7 +12,7 @@
   <table class="grid">
     <% @files.each do |file| %>
     <tr>
-      <td><%=h file[:name] %></br/></td>
+      <td><%=h file[:name] %></td>
       <td><%=h human_readable_fsize( file[:size] )%></td>
       <td>
         <% if file[:editable] %>
