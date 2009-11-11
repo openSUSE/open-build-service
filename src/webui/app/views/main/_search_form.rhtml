@@ -1,8 +1,10 @@
 
 <% form_tag({:controller => 'main', :action => 'search_result'}, {:method => :get}) do -%>
+<div>
 <%= text_field_tag 'search_text', params[:search_text], :size => 8, :style => 'width: 8em;'-%>
 <%= image_submit_tag 'system-search.png', :title => 'Search' -%>
 <%= link_to (image_tag 'search-advanced.png', :title => 'Advanced Search'),
   :controller => 'main', :action => 'search_advanced' -%>
+</div>
 <% end -%>
 
