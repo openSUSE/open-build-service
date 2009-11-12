@@ -1,0 +1,59 @@
+<% @pagetitle = "Submit Request ##{@id}" %>
+<%
+@crumb_list = [
+ link_to( 'Requests', :controller => 'project', :action => :list_req), 
+ "Submit Request #{h @id}"
+]
+-%>
+
+<h2>Submit Request #<%=h @id%></h2>
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag "SyntaxHighlighter" %>
+  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushSpec', 'syntax/shBrushXml' %>
+<% end %>
+<% content_for :ready_function do %>
+    dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+    dp.SyntaxHighlighter.HighlightAll('code');
+<% end %>
+
+<p>
+  <%= render :partial => 'request_table', :locals => {:requests => @request, :options => false, :by_me => false } %>
+</p>
+
+
+<% if @diff_text %>
+<pre name="code" class="spec">
+  <%= @diff_text %>
+</pre>
+<% else %>
+  <p>
+    <i><div class="message">Can't get diff for request #<%= @id %></div></i>
+  </p>
+<% end %>
+
+
+<% if !["accepted", "declined", "revoked"].include? @state and (@is_maintainer || @is_author) %>
+<div class="section">
+  <h3>
+  <% if @is_maintainer %>
+    Do you want to accept or decline this request?
+  <% elsif @is_author %>
+    Do you want to revoke your request?
+  <% end %>
+  </h3>
+
+  <% form_tag :action => "submitreq" do %>
+    <b>Reason:</b>
+    <%= text_field_tag :reason, '' , :size => 80 %><br/>
+    <%= hidden_field_tag( "id", @id) %>
+    <% if @is_maintainer %>
+      <%= submit_tag "Accept" %>
+      <%= submit_tag "Decline" %>
+    <% elsif @is_author %>
+      <%= submit_tag "Revoke" %>
+    <% end %>
+  <% end %>
+</div>
+
+<% end %>

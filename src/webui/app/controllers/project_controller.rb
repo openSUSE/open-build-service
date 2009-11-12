@@ -17,50 +17,34 @@ class ProjectController < ApplicationController
     list :without_homes
   end
 
+  #TODO: move this to a request controller
   def diff
-    @project = Diff.find( :id => params[:id])
-    @project.each do |a|
-      if a.has_element? :source:
-        @state = a.data.attributes["type"]
-        @src_project = a.source.project
-        @src_pkg = a.source.package
-        if @state == "submit"
-          @src_rev = a.source.rev
-        end
-      end
-      if a.has_element? :target:
-        @target_project = a.target.project
-        @target_pkg = a.target.package
-      end
-    end
-    predicate = "(action/target/@project='#{@target_project}') and @id=#{params[:id]}"
-    @requests_for_me = Collection.find :what => :request, :predicate => predicate
+    diff = Diff.find( :id => params[:id])
+    @id = diff.data.attributes["id"]
+    @state = diff.state.data.attributes["name"]
+    @src_project = diff.action.source.project
+    @src_pkg = diff.action.source.package
+    @type = diff.action.data.attributes["type"]
+    @target_project = Project.find diff.action.target.project
+    @target_pkg = diff.action.target.package
+    @is_author = diff.has_element? "//[@name='new' and @who='#{session[:login]}']"
+    @is_maintainer = @target_project.is_maintainer? session[:login]
 
     transport ||= ActiveXML::Config::transport_for(:project)
     path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
- 
-    begin
-      if @state == "submit"
-        @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
-      else
-        @diff_text = nil
-      end       
-      render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => params[:changestate]}
-    rescue  ActiveXML::Transport::Error => exception
-      @error = exception
-      @diff_text = nil
-      if params[:changestate]=="revoke"
-        flash[:error] = "An error occurred! You can try to revoke your request."
-        render :template => "project/_show_diff.rhtml", :locals => {:id => params[:id], :changestate => params[:changestate]}
-      else
-        flash[:error] = "An error occurred!"
-        redirect_to :action => "list_req"
-      end 
+
+    predicate = "(action/target/@project='#{@target_project}') and @id=#{@id}"
+    @request = Collection.find :what => :request, :predicate => predicate
+
+    if @type == "submit"
+      @src_rev = diff.action.source.rev
+      transport ||= ActiveXML::Config::transport_for(:project)
+      path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
+      @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
     end
-     
-   
   end
 
+  #TODO: move this to a request controller
   def submitreq
     changestate = params['commit']
     case changestate

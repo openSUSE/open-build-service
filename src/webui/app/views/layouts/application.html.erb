@@ -253,10 +253,10 @@
             <!-- Begin page actions -->
             <ul>
 
-              <li class="first"><%= link_to "Builder", :controller => 'main', :action => :index %></li>
+              <li class="first"><%= link_to "Buildservice", :controller => 'main', :action => :index %></li>
                 <% if @crumb_list -%>
                   <% @crumb_list.each do |link| -%>
-                  <li><%= link %></li>
+                  &gt; <li><%= link %></li>
                   <% end -%>
                 <% end -%>
 
