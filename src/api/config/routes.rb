@@ -217,10 +217,11 @@ ActionController::Routing::Routes.draw do |map|
     :controller => "build", :action => "pass_to_source", :project => /[^\/]*/
   map.connect 'build/:project/:repository',
     :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
+  # the web client does no longer use that route, but we keep it for backward compat
+  map.connect 'build/_workerstatus',
+    :controller => "status", :action => "workerstatus"
   map.connect 'build/:project',
     :controller => "build", :action => "project_index", :project => /[^\/]*/
-  map.connect 'build/_workerstatus',
-    :controller => "build", :action => "pass_to_source"
   map.connect 'build',
     :controller => "build", :action => "pass_to_source"
 

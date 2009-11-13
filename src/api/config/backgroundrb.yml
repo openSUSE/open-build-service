@@ -1,0 +1,5 @@
+--- 
+:backgroundrb: 
+  :ip: 0.0.0.0
+  :port: 11006
+  :log: foreground 
