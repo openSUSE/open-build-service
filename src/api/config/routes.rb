@@ -171,8 +171,8 @@ ActionController::Routing::Routes.draw do |map|
 
   # Routes for status_messages
   # --------------------------
-  map.connect 'status_message/:id',
-    :controller => 'status_message', :action => 'index'
+  map.connect 'status_message',
+    :controller => 'status', :action => 'messages'
 
 
   ### /message
