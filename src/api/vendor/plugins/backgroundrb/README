@@ -1,0 +1,20 @@
+= BackgrounDRb
+
+BackgrounDRb is a Ruby job server and scheduler. Its main intent is to be
+used with Ruby on Rails applications for offloading long-running tasks.
+Since a Rails application blocks while serving a request it is best to
+move long-running tasks off into a background process that is divorced
+from http request/response cycle.
+
+This new release of BackgrounDRb is also modular and can be used without Rails so that any Ruby program or framework can use it.
+
+Copyright (c) 2006 Ezra Zygmuntowicz,skaar[at]waste[dot]org,
+
+Copyright (c) 2007 Hemant Kumar (gethemant [at] gmail.com )
+
+
+== Usage
+
+Please look into http://backgroundrb.rubyforge.org
+
+Something else here.

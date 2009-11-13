@@ -1,0 +1,168 @@
+<div id="content">
+
+%(entry-title)<a name="introduction"> Introduction </a>%
+
+*BackgrounDRb* is a Ruby job server and scheduler. Its main intent is to be
+used with Ruby on Rails applications for offloading long-running tasks.
+Since a Rails application blocks while serving a request it is best to
+move long-running tasks off into a background process that is divorced
+from http request/response cycle.
+
+%(entry-title)<a name="installation"> Installation </a>%
+
+p(sub-title). Installing the dependencies :
+
+As of version 1.0.4 _BackgrounDRb_ depends on _chronic_ and _packet_ gems. Thus lets get
+started by installing these two gems:
+
+<pre class="boxed">sudo gem install chronic packet </pre>
+
+Please note that, this version of _BackgrounDRb_ needs packet version 0.1.7 or greater, so make
+sure you have that.
+
+p(sub-title). Getting the code from Subversion :
+
+<pre class="boxed"> svn co http://svn.devjavu.com/backgroundrb/trunk </pre>
+
+p(sub-title). Installing from Git:
+
+As of version 1.0.4 __BackgrounDRb__ development has moved to <a href="http://github.com/gnufied/backgroundrb/tree/master">github</a>. Above SVN url
+will always mirror stable releases from Git. However to enjoy latest and greatest of features
+you can install the plugin from git:
+
+<pre class="multiline">
+git clone git://github.com/gnufied/backgroundrb.git </pre>
+
+<p style="text-decoration: line-through;"> Also for running git version of BackgrounDRb you will need, git version of packet.</p>
+
+p(sub-title). Installation using Piston
+
+<pre class="boxed">piston import http://svn.devjavu.com/backgroundrb/trunk/ backgroundrb </pre>
+
+%(entry-title)<a name="configuration"> Configuration </a>%
+
+After getting the plugin, you must copy it into your vendor/plugins and
+then configure it for use. _BackgrounDRb_ comes with a rake task for
+automating plugin configuration. Before running rake task, remove if
+any old @backgroundrb@ or @load_worker_env.rb@ script is there in script folder of your rails
+app after that run, following command from root directory of your
+rails application:
+
+<pre class="boxed">rake backgroundrb:setup </pre>
+
+Above Command does following things :
+
+*(content_list) Creates a config file @backgroundrb.yml@ in config directory of your rails application.
+* Creates @RAILS_ROOT/lib/workers@ directory for keeping BackgrounDRb workers in one place.
+* Creates @RAILS_ROOT/test/bdrb_test_helper.rb@ as a test helper for your workers
+* Creates migration required for creating persistent job queue table.
+
+After above make sure, that generated migration is ran using:
+
+<pre class="boxed">rake db:migrate </pre>
+
+p(sub-title). Configuration Options
+
+A default @backgroundrb.yml@ file looks like this:
+
+<pre class="multiline">
+:backgroundrb:
+  :port: 11006
+  :ip: 0.0.0.0 </pre>
+
+However, various other configuration options are available. For example, to load @production@
+environment in your workers:
+
+<pre class="multiline">
+:backgroundrb:
+  :port: 11006
+  :ip: 0.0.0.0
+  :environment: production </pre>
+
+
+Following file demonstrates other available configuration options:
+
+<pre class="multiline">
+---
+:backgroundrb:
+  :port: 11006 # port to start listen
+  :ip: localhost # host to listen
+  :environment: production # rails environment to load
+  :log: foreground # foreground mode,print log messages on console
+  :debug_log: false # disable log workers and other logging
+  :persistent_disabled: false # turn this off if your application doesn't use backgroundrb's persistent/enqueued tasks system
+  :persistent_delay: 10 # the time (seconds) between each time backgroundrb checks the database for enqueued tasks
+:schedules: # optional task scheduling
+  : # look in scheduling section </pre>
+
+%(entry-title)<a name="worker"> Workers </a>%
+
+Once you are set with initial configuration, you can proceed to create worker and start
+_BackgrounDRb_ server. To generate a worker:
+
+<pre class="boxed"> ./script/generate worker billing </pre>
+
+Output will look something like:
+
+<pre class="multiline">exists  lib/workers/
+create  lib/workers/billing_worker.rb </pre>
+
+And generated worker will look like:
+
+<pre class="multiline">class BillingWorker < BackgrounDRb::MetaWorker
+  set_worker_name :billing_worker
+  def create(args = nil)
+    # method gets called, when new instance of worker is created.
+   end
+  end </pre>
+
+
+You can define worker specific initialization in @create@ method. Tasks that are to be executed
+in this worker should be defined as seperate methods. For example:
+
+<pre class="multiline">class BillingWorker < BackgrounDRb::MetaWorker
+  set_worker_name :billing_worker
+  def create(args = nil)
+    # this method is called, when worker is loaded for the first time
+  end
+
+  def charge_customer(customer_id = nil)
+    logger.info 'charging customer now'
+  end
+end </pre>
+
+%(entry-title)<a name="invoking_tasks"> Invoking Tasks </a>%
+
+Task @charge_customer@ defined in @BillingWorker@ can be invoked in several ways. To beging with
+it can be invoked from rails or can be scheduled to execute at particular interval using
+cron like syntax.
+
+p(sub-title). Invoking Task from Rails :
+
+In your Rails controllers you have access to proxy class @MiddleMan@ which can be used
+to interact with BackgrounDRb server, either from Rails controllers/Models or from Rails console.
+For example to invoke @charge_customer@ method asychronously one can use:
+
+<pre class="boxed">MiddleMan.worker(:billing_worker).async_charge_customer(:arg => current_customer.id) </pre>
+
+Above code can be also executed from Rails console.
+
+p(sub-title). Start the BackgrounDRb server :
+
+You can use:
+
+<pre class="boxed">./script/backgroundrb start </pre>
+
+For more options:
+
+<pre class="boxed">./script/backgroundrb --help </pre>
+
+As documented above, you can use @backgroundrb.yml@ file to load different rails environments, however you can use:
+
+<pre class="boxed">./script/backgroundrb -e development </pre>
+
+</div>
+
+
+
+

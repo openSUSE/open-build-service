@@ -1,0 +1,12 @@
+Description:
+    Creates a migration to add the job queue table used by BackgrounDRb.
+    Pass the migration name, either CamelCased or under_scored, as an argument.
+
+Example:
+    ./script/generate bdrb_migration CreateBackgroundrbQueue
+
+    Assuming this is run at 09:00:15h on 12 September, 2008, this will create the
+    CreateBackgroundrbQueue migration in:
+
+        db/migrate/20080912090015_create_backgroundrb_queue.rb
+

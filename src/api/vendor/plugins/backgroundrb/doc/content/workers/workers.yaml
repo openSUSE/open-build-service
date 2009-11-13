@@ -1,0 +1,5 @@
+# Built-in
+filters_pre: [ "redcloth" ]
+# Custom
+title: "Using BackgrounDRb workers"
+sidebar_items: [["Introduction", "#introduction"], ["Thread Pool", "#thread_pool"], ["Result Caching", "#result_caching"], ["Persistent Jobs", "#persistent_job"], ["Worker Testing", "#worker_testing"]]

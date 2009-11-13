@@ -1,0 +1,5 @@
+# Built-in
+filters_pre: [ "redcloth" ]
+# Custom
+title: "Introduction BackgrounDRb"
+sidebar_items: [["Introduction", "#introduction"], ["Installation", "#installation"], ["Configuration", "#configuration"], ["Workers", "#create_worker"]]

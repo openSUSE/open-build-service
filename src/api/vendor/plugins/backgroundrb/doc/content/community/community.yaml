@@ -1,0 +1,5 @@
+# Built-in
+filters_pre: [ "redcloth" ]
+# Custom
+title: "Join the BackgrounDRb Community"
+sidebar_items: [["People", "people"], ["MailingList", "#mailing_list"], ["IRC", "#irc"], ["Contribute", "#contribute"]]

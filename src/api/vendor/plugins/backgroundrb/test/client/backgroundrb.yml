@@ -1,0 +1,17 @@
+---
+:backgroundrb:
+  :ip: 0.0.0.0
+  :port: 11008
+  :log: foreground
+  :environment: development
+  :result_storage: memcache
+
+:memcache: "localhost:11211"
+
+# :client: "0.0.0.0:11006,0.0.0.0:11008"
+
+:schedules:
+  :wow_worker:
+    :foo:
+      :trigger_args: */60 * * * * * *
+

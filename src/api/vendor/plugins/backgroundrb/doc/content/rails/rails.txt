@@ -1,0 +1,182 @@
+<div id="content">
+
+%(entry-title)<a name="introduction"> Introduction </a>%
+
+BackgrounDRb offers seamless integration with rails. You can invoke random tasks defined in your
+workers from rails. You can pass arguments, collect results, monitor status of workers and other
+stuff.
+
+%(entry-title)<a name="async_task"> Invoke a task asynchronously on a worker </a>%
+
+Let's say, you have following worker code:
+
+<pre class="multiline">class FooWorker < BackgrounDRb::MetaWorker
+  set_worker_name :foo_worker
+  def create(args = nil)
+    # this method is called, when worker is loaded for the first time
+  end
+
+  def some_task args
+    # perform a long running task
+  end
+end
+</pre>
+
+And you want to invoke @some_task@ method with appropriate arguments from rails.
+Following snippet will invoke method @some_task@ with argument @data@ in @foo_worker@. Also, method will
+be invoked asynchronously and Rails won't wait for result from BackgrounDRb server.
+
+<pre class="multiline">worker = MiddleMan.worker(:foo_worker)
+worker.async_some_task(:arg => data) </pre>
+
+It should be noted that, since @some_task@ method is being
+executed asynchronously, don't expect any meaningful return values from method invocation.
+If you want to invoke a method on worker and collect results returned by it, you
+should read next section (Invoke method and collect results).
+
+When you invoke @MiddleMan.worker(:foo_worker)@ it returns a worker proxy, hence you can combine above two lines in
+one as follows:
+
+<pre class="multiline">MiddleMan.worker(:foo_worker,<optional_worker_key>).
+     async_some_task(:arg => data) </pre>
+
+Above snippet also demonstrates that, if your worker was started with a @worker_key@ you can use it to
+get correct worker proxy.
+
+%(entry-title)<a name="sync_task"> Synchronous Task invocation (Invoke task and wait for results) </a>%
+
+Following snippet will invoke method @some_task@ with argument @data@ in @foo_worker@. Also, method will block
+until BackgrounDRb server returns a result.
+
+<pre class="multiline">worker = MiddleMan.worker(:foo_worker)
+result = worker.some_task(:arg => data) </pre>
+
+Since, now you are expecting a return value from your worker method, new worker code will look like:
+
+<pre class="multiline">class FooWorker < BackgrounDRb::MetaWorker
+  set_worker_name :foo_worker
+  def create(args = nil)
+    # this method is called, when worker is loaded for the first time
+  end
+
+  def some_task args
+    billing_result = UserPayment.bill!
+    return billing_result
+  end
+end
+</pre>
+
+As illustrated above, you can use @worker_key@ or make them in single line too.
+
+%(entry-title)<a name="worker_results"> Retrieve Cached Worker results </a>%
+
+If you are using @cache@ in your worker code to store result objects, you can retrieve them from
+rails using:
+
+<pre class="boxed">status_obj = MiddleMan.worker(:foo_worker).ask_result(cache_key) </pre>
+
+You must use @worker_key@ if *worker was started with a worker_key*.
+
+From controller, you can also reset result stored for a particular worker, with particular cache key.
+This is only applicable, if you are using memcache for storing results.
+
+<pre class="multiline">
+MiddleMan.worker(:foo_worker).reset_memcache_result(cache_key) # or
+MiddleMan.worker(:foo_worker,"worker_key").reset_memcache_result(cache_key)
+</pre>
+
+%(entry-title)<a name="persistent_task"> Enqueue task to the persistent job queue : </a>%
+
+Jobs executed via synchronous and asynchronous APIs are fine, but these tasks are usually
+kept in memory(and hence they are fast) and hence aren't entirely failsafe.
+
+To solve this _BackgrounDRb_ also lets you add jobs to a persistent job queue, which is
+automatically picked by responsible worker and invoked. To use this:
+
+<pre class="boxed">MiddleMan(:hello_worker).enq_some_task(:arg => "hello_world",:job_key => "boy")</pre>
+
+With _BackgrounDRb_ version >= 1.1, you can also schedule a persistent task to be executed at a particular time,
+
+<pre class="multiline">MiddleMan(:hello_worker).enq_some_task(:arg => "hello_world",
+                      :job_key => "boy",:scheduled_at => (Time.now + 1.hour))</pre>
+
+Above line will add specified task to the job queue and set to be invoked at specified time. For more information
+about scheduling see scheduling section.
+
+
+%(entry-title)<a name="new_worker"> Start a new worker from controller </a>%
+
+To start a worker from rails:
+
+<pre class="multiline">used_job_key = MiddleMan.new_worker(:worker => :foo_worker,\
+     :worker_key => "my_secret_job_key") </pre>
+
+Worker key passed here, while starting the worker can be used later for invoking tasks on started
+worker or for accessing cached result objects and stuff like that.
+
+Important thing to be kept in mind is, when you are creating a worker using above approach, you
+must use a unique @worker_key@ while starting the worker. Also, while invoking any of the other methods
+like @ask_result@, @worker_info@ or one of the worker methods, you must user same @worker_key@.
+
+%(entry-title)<a name="worker_info"> Worker Info </a>%
+
+You can get worker specific information using:
+
+<pre class="boxed">MiddleMan.worker(:foo_worker).worker_info </pre>
+
+The return value will look something like:
+
+<pre class="boxed">{:worker=>:foo_worker, :status=>:running, :worker_key=>"hello"} </pre>
+
+Information about all currently running workers can be obtained using:
+
+<pre class="boxed">MiddleMan.all_worker_info </pre>
+
+Return value will look like:
+
+<pre class="multiline">{"0.0.0.0:11006"=>nil, "0.0.0.0:11008"=>
+[{:worker_key=>"", :status=>:running, :worker=>:log_worker},
+{:worker_key=>"", :status=>:running, :worker=>:foo_worker}]}</pre>
+
+%(entry-title)<a name="clustering"> BackgrounDRb Clustering </a>%
+
+By using following option in your @backgroundrb.yml@ you can cluster more than
+one backgroundrb server.
+
+
+<pre class="multiline">:backgroundrb:
+  :ip: 0.0.0.0
+  :port: 11006
+  :environment: production
+:client: "10.0.0.1:11006,10.0.0.2:11007"</pre>
+
+
+So what happens here is, now BackgrounDRb client will talk to bdrb
+servers running on both @10.0.0.1:11006@ and @10.0.0.2:11007@. So when you invoke
+a task like this:
+
+<pre class="boxed">MiddleMan.worker(:foo_worker).async_some_task(:arg => data) </pre>
+
+Your task gets executed in round robin manner in specified servers by default.
+Also, once a server goes down, it will automatically stop participating in clustering and
+when it comes back, it will be automatically start participating in clustering.
+
+
+In addition to default round robin task distribution, you can override this behaviour
+by passing additional @:host@ option while invoking task from rails.For example:
+
+
+<pre class="multiline">
+# run method 'some_task' on all backgroundrb servers
+MiddleMan.worker(:hello_worker).async_some_task(:arg => data,
+               :job_key => session[:user_id],:host => :all)
+
+# run method 'some_task' on only locally configured server
+MiddleMan.worker(:hello_worker).async_some_task(:arg => data,
+               :job_key => session[:user_id],:host => :local)
+
+# run the task on specified server
+MiddleMan.worker(:hello_worker).async_some_task(:arg => data,:job_key => \
+               session[:user_id],:host => "10.0.0.2:11210")
+</pre>
+</div>

@@ -1,0 +1,25 @@
+# A Sample YAML configuration file
+---
+:backgroundrb:
+  :ip: 0.0.0.0 #ip on which backgroundrb server is running
+  :port: 11006 #port on which backgroundrb server is running
+  :environment: production # rails environment loaded, defaults to development
+  :debug_log: true # whether to print debug logs to a seperate worker, defaults to true
+  :log: foreground # will print log messages to STDOUT, defaults to seperate log worker
+  :result_storage: memcache # store results in a mecache cluster, you also need to specify location of your memcache clusters in next section
+  :persistent_disabled: false # turn this off if your application doesn't use backgroundrb's persistent/enqueued tasks system
+  :persistent_delay: 10 # the time (seconds) between each time backgroundrb checks the database for enqueued tasks
+
+:memcache: "10.0.0.1:11211,10.0.0.2:11211" #=> location of memcache clusters separated by comma
+
+# following section is totally optional, and only useful if you are trying to cluster of backgroundrb server
+# if you do not specify this section backgroundrb will assume that, from rails you are connecting to the
+# backgroundrb server which has been specified in previous section
+:client: "10.0.0.1:11006,10.0.0.2:11007"
+
+# You specify your worker schedules here
+:schedules:
+  :foo_worker: # worker name
+    :barbar: #worker method
+      :trigger_args: */5 * * * * * * #worker schedule
+

@@ -1,0 +1,16 @@
+Description:
+    The worker generator creates stubs for a new BackgrounDRb worker.
+
+    The generator takes a worker name as its argument.  The worker name may be
+    given in CamelCase or under_score and should not be suffixed with 'Worker'.
+
+    The generator creates a worker class in lib/workers and a test suite in
+    test/unit.
+
+Example:
+    ./script/generate worker Tail
+
+    This will create an Tail worker:
+        Model:      lib/workers/tail_worker.rb
+        Test:       test/unit/tail_worker_test.rb
+

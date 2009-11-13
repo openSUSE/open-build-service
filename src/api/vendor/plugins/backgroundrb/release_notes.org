@@ -1,0 +1,48 @@
+Hi,
+
+BackgrounDRb 1.2 is being unleashed.
+
+* New features:
+
+** Exceptions/errors are now popped out at the earliest moment
+  in the client side itself. For example:
+
+>> MiddleMan.worker(:foo_worker).async_bar(:args => {:age => 10})
+BackgrounDRb::RemoteWorkerError: BackgrounDRb::RemoteWorkerError
+
+  Above exception is thrown because remote worker doesn't have method
+  "bar" defined on it.
+
+Similarly:
+
+>> MiddleMan.worker(:foo_worker).checksum(:args => {:age => "lolz"})
+BackgrounDRb::RemoteWorkerError: BackgrounDRb::RemoteWorkerError
+
+  Above exception is thrown because remote worker's checksum method
+  expects an integer as an argument.
+
+  For asynchronous method calls, BackgrounDRb doesn't check if method
+  ran successfully, it only checks existence of methods on remote
+  worker. For sync method calls it checks if method ran successfully
+  or not.
+
+** Its possible to have per worker configuration options now.
+
+* Bug Fixes
+
+** Much better error/exception handling. Rogue worker methods shouldn't
+   crash the worker now. All the unhandled exceptions and dispatch
+   errors can be found in debug log file.
+
+** Fixes for postgres db with persistent job queues.
+
+** Switched to lightweight Queue implementation for tasks enqueued
+   to thread pool.
+
+** Fixes for database dropped connections while running tasks from
+   persistent queues.
+
+** Fixes for newer Rails versions.
+
+**
+

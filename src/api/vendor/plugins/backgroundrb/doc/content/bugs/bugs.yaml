@@ -1,0 +1,5 @@
+# Built-in
+filters_pre: [ "redcloth" ]
+# Custom
+title: "Report Bugs"
+sidebar_items: [["Trac", "#trac"], ["KnownBugs", "#known_bugs"]]
