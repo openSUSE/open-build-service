@@ -1,0 +1,139 @@
+#!/bin/bash
+# 2009, dl9pf@gmx.de  - initial version
+# 
+##########################################################
+#Setup Vars
+
+export debug=false
+#
+usage="usage:  $0 <target obs> <target project> <baseurl> <http://path/to/Sources.bz2>
+target obs     = http(s)://your-api/
+target project = test:import
+baseurl        = http://source-repo  (without dist/pool)
+Sources.bz2    = http://source-repo/.../Sources.bz2
+"
+
+targetobs=$1
+targetprj=$2
+baseurl=$3
+urlbase=$4
+
+if test x"$4" == x""; then
+ echo "$usage"
+ exit 0
+fi
+
+rm -rRf tmp || true
+mkdir -p tmp && cd tmp && wget -nd "$urlbase" && bunzip2 Sources.bz2 && cd .. || exit 1
+
+osc -A $targetobs ls $targetprj 2>/dev/null | sort >tmp/.ls
+
+cat tmp/Sources | grep "Package:" | cut -d":" -f2 | sed -e "s/ //g" | sort | uniq > tmp/.pkglist
+
+pkglist=$(cat tmp/.pkglist)
+lslist=$(cat tmp/.ls )
+
+echo "$0 $targetobs $targetprj $baseurl $urlbase"
+echo "Urllist:"
+echo "$pkglist"
+echo
+echo "Lslist:"
+echo "$lslist"
+echo
+echo "Difflist:"
+diff tmp/.ls tmp/.pkglist
+echo
+
+
+##########################################################
+# Check out target packages
+if $debug; then
+echo "debug"
+#
+else
+(
+cd tmp && rm -rRf $targetprj
+if [ x"$lslist" != x"" ]
+then
+    for pkg in `echo $lslist | cut -d" " -f1`
+     do
+        echo -n ":$pkg"
+	osc -A $targetobs co "$targetprj" "$pkg" >& /dev/null
+	echo " done"
+     done
+else
+    echo "Checking out empty project."
+    osc -A $targetobs co $targetprj >& /dev/null
+fi
+)
+fi
+#############################################################
+# sync
+if true; then
+
+newlist=""
+if test -f .last; then
+ regexp=`cat .last`
+ newlist=`echo "$pkglist" | sed -n -e "/$regexp/,$ {/$regexp/d;p}"`
+ export pkglist="$newlist"
+fi
+for f in $pkglist
+do
+  ( cd tmp &&
+     (
+                if [ x$(echo $f | egrep "_[0-9]") != x"" ]
+                then
+                   pkgname=${f%%-[0-9].[*-[0-9]*-[0-9]*.*}
+                else
+                   pkgname=${f%%-[0-9]*-[0-9]*.*}
+                fi
+                myurlbase=`cat Sources | grep "Directory:" | grep "/$f\$" | cut -d":" -f2 | sed -e "s/ //g" | uniq`
+                myversion=`cat Sources | grep "$(echo $f)_" | grep .dsc | sed -e "s/_//g" | sed -e "s/.dsc//g" | sed -e "s/.*$(echo $f)//g" | sort -r | head -n1 `
+                togetdsc=`cat Sources | grep " $(echo $f)_" | grep "_$(echo $myversion)" | grep dsc | cut -d" " -f4`
+                (set -x ; wget -c -q $baseurl/$myurlbase/$togetdsc || wget -c -q $baseurl/$myurlbase/$togetdsc || wget -c -q $baseurl/$myurlbase/$togetdsc || wget -c -q $baseurl/$myurlbase/$togetdsc || exit 1)
+                export downloadme=""
+		if test -f $togetdsc; then
+		  export downloadme=`cat $(echo \$togetdsc)  | grep "$(echo $f)_" | cut -d" " -f4 `
+		else
+		  exit 1
+		fi
+		if $debug; then
+		 echo "myurlbase: $myurlbase"
+		 echo "myversion: $myversion"
+		 echo "togetdsc: $togetdsc"
+		 echo "toget: $downloadme"
+		 #
+		 exit 1
+		else
+                 for j in $downloadme; do
+                 echo -n "download: $j"
+                  (set -x ; wget -c -q $baseurl/$myurlbase/$j || wget -c -q $baseurl/$myurlbase/$j || wget -c -q $baseurl/$myurlbase/$j || wget -c -q $baseurl/$myurlbase/$j || exit 1)
+                 echo "   done"
+                 done
+                 if [ x"$(osc -A $targetobs ls $targetprj/$pkgname 2>/dev/null)" == x"" ]
+ 	         then
+                 (
+                  cd $targetprj
+                  osc -A $targetobs mkpac $f
+		  cd $pkgname && cp ../../`echo $pkgname`_* .
+		  osc -A $targetobs addremove 2>/dev/null; osc -A $targetobs ci -m "imported: $urlbase/$f @ $targetobs/$pkgname" 2>/dev/null
+		  cd ../../
+		 )
+		 else
+                 (
+                  cd $targetprj
+                  if ! test -d $pkgname ; then
+                   osc -A $targetobs co $pkgname 2>/dev/null
+                  fi
+		  cd $pkgname && rm ./* && cp ../../`echo $pkgname`_* .
+		  osc -A $targetobs addremove 2>/dev/null; osc -A $targetobs ci -m "updated: $urlbase/$f @ $targetobs/$pkgname" 2>/dev/null
+		  cd ../../
+		 )
+		 fi
+		fi
+     )
+    cd ..
+    echo "$f" > .last
+  )
+done
+fi
