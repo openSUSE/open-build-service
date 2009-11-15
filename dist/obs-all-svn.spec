@@ -39,6 +39,7 @@ Source14:       obs_mirror_project.py
 Source16:       obs_project_update
 Source17:       obs_project_srcimport
 Source18:       obs_import_srcrpmtree
+Source22:       obs_import_srcdebtree
 Source15:       obsdispatcher
 Source19:       obswarden
 Source20:       obssignd
@@ -328,8 +329,6 @@ cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 rm -rf  $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
 rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 
-# install obs mirror script and obs copy script
-install -m 0755 %SOURCE13 %SOURCE14 %SOURCE16 %SOURCE17 %SOURCE18 $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 %SOURCE19 %SOURCE21 \
            $RPM_BUILD_ROOT/etc/init.d/
@@ -343,6 +342,11 @@ cp -a ../build $RPM_BUILD_ROOT/usr/lib/obs/server/build
 FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 mkdir -p $FILLUP_DIR
 cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
+
+#
+# install the obs utils scripts
+#
+install -m 0755 %SOURCE13 %SOURCE14 %SOURCE16 %SOURCE17 %SOURCE18 %SOURCE22 $RPM_BUILD_ROOT/usr/sbin/
 
 #
 # Install sign stuff
@@ -555,6 +559,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/obs_project_update
 /usr/sbin/obs_project_srcimport
 /usr/sbin/obs_import_srcrpmtree
+/usr/sbin/obs_import_srcdebtree
 
 %files -n obs-productconverter-svn
 %defattr(-,root,root)
