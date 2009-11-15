@@ -2,9 +2,12 @@ class StatusmonitorWorker < BackgrounDRb::MetaWorker
   set_worker_name :statusmonitor_worker
 
   def create(args = nil)
-     @backend ||= ActiveXML::Config.transport_for :packstatus
      update_workerstatus
      add_periodic_timer(30) { update_workerstatus }
+  end
+
+  def backend
+     @backend ||= ActiveXML::Config.transport_for :packstatus
   end
 
   def update_workerstatus
