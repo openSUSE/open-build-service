@@ -76,4 +76,13 @@ class StatusController < ApplicationController
      send_data ( Rails.cache.read 'workerstatus')
   end
 
+  def history
+     starttime = Time.now.to_i - 24 * 3600
+     @data = Hash.new
+     lines = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ])
+     lines.each do |l|
+	@data[l.time - starttime] = l.value	
+     end
+  end
+
 end
