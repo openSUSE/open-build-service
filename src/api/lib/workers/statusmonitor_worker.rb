@@ -12,24 +12,44 @@ class StatusmonitorWorker < BackgrounDRb::MetaWorker
 
   def update_workerstatus
     begin
-       ret = backend.direct_http( URI('/build/_workerstatus') )
-       mytime = Time.now.to_i
-       Rails.cache.write('workerstatus', ret)
-       data = REXML::Document.new(ret)
-       data.root.each_element('blocked') do |e|
-		line = StatusHistory.new
-		line.time = mytime
-		line.key = 'blocked_%s' % [ e.attributes['arch'] ]
-		line.value = e.attributes['jobs']
-		line.save
-       end
-       data.root.each_element('waiting') do |e|
-                line = StatusHistory.new
-                line.time = mytime
-                line.key = 'waiting_%s' % [ e.attributes['arch'] ]
-                line.value = e.attributes['jobs']
-                line.save
-       end
+      ret = backend.direct_http( URI('/build/_workerstatus') )
+      mytime = Time.now.to_i
+      Rails.cache.write('workerstatus', ret)
+      data = REXML::Document.new(ret)
+      data.root.each_element('blocked') do |e|
+	line = StatusHistory.new
+	line.time = mytime
+	line.key = 'blocked_%s' % [ e.attributes['arch'] ]
+	line.value = e.attributes['jobs']
+	line.save
+      end
+      data.root.each_element('waiting') do |e|
+	line = StatusHistory.new
+	line.time = mytime
+	line.key = 'waiting_%s' % [ e.attributes['arch'] ]
+	line.value = e.attributes['jobs']
+	line.save
+      end
+
+      allworkers = Hash.new
+      %w{building idle}.each do |state|
+	data.root.each_element(state) do |e|
+	  key = state + '_' + e.attributes['hostarch']
+	  begin
+	    allworkers[key] = allworkers[key] + 1
+	  rescue
+	    allworkers[key] = 1
+	  end
+	end
+      end
+
+      allworkers.each do |key,value|
+	line = StatusHistory.new
+	line.time = mytime
+	line.key = key
+	line.value = value
+	line.save
+      end
 
     rescue Timeout::Error
        @backend = nil
