@@ -64,7 +64,7 @@ class Project < ActiveXML::Base
     begin
       Project.find pro_name
       return true
-    rescue ActiveXML::NotFoundError
+    rescue ActiveXML::Transport::NotFoundError
       return false
     end
   end

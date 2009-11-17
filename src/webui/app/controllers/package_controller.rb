@@ -9,9 +9,6 @@ class PackageController < ApplicationController
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
     :show, :view, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :remove]
 
-  def index
-    redirect_to :controller => 'project', :action => 'list_all'
-  end
 
   # render the input form for tags
   def add_tag_form
@@ -90,7 +87,6 @@ class PackageController < ApplicationController
     @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
     @tags, @user_tags_array = get_tags(:project => @project, :package => @package, :user => session[:login])
     @rating = Rating.find( :project => @project, :package => @package )
-
     @attributes = Attributes.find(:project => @project, :package => @package)
   end
   
@@ -102,22 +98,6 @@ class PackageController < ApplicationController
       user_tags_array << tag.name
     end
     return tags, user_tags_array
-  end
-
-  # @deprecated
-  def view
-    #@tags = Tag.find(:user => session[:login], :project => @project.name, :package => @package.name)
-    #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
-    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
-
-    @downloads = Downloadcounter.find( :project => project, :package => package )
-    @rating = Rating.find( :project => @project, :package => @package )
-    @created_timestamp = LatestAdded.find( :specific,
-      :project => @project, :package => @package ).package.created
-    @updated_timestamp = LatestUpdated.find( :specific,
-      :project => @project, :package => @package ).package.updated
-    @activity = ( MostActive.find( :specific, :project => @project,
-        :package => @package).package.activity.to_f * 100 ).round.to_f / 100
   end
 
 
@@ -168,28 +148,32 @@ class PackageController < ApplicationController
 
 
   def save_new
-    if params[:name]
-      if !valid_package_name? params[:name]
-        flash.now[:error] = "Invalid package name: '#{params[:name]}'"
-        @package_name = params[:name]
-        @package_title = params[:title]
-        @package_description = params[:description]
-        render :action => 'new'
-      else
-        @package = Package.new( :name => params[:name], :project => @project )
-        @package.title.data.text = params[:title]
-        @package.description.data.text = params[:description]
-        if @package.save
-          flash[:note] = "Package '#{@package}' was created successfully"
-          redirect_to :action => 'show', :project => params[:project], :package => params[:name]
-        else
-          flash[:note] = "Failed to create package '#{@package}'"
-          redirect_to :controller => 'project', :action => 'show', :project => params[:project]
-        end
-      end
+    @package_name = params[:name]
+    @package_title = params[:title]
+    @package_description = params[:description]
+
+    if !valid_package_name? params[:name]
+      flash.now[:error] = "Invalid package name: '#{params[:name]}'"
+      render :action => 'new' and return
+    end
+    if Package.exists? @package_name, @project
+      flash.now[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
+      render :action => 'new' and return
+    end
+
+    @package = Package.new( :name => params[:name], :project => @project )
+    @package.title.data.text = params[:title]
+    @package.description.data.text = params[:description]
+    if @package.save
+      flash[:note] = "Package '#{@package}' was created successfully"
+      redirect_to :action => 'show', :project => params[:project], :package => params[:name]
+    else
+      flash[:note] = "Failed to create package '#{@package}'"
+      redirect_to :controller => 'project', :action => 'show', :project => params[:project]
     end
   end
 
+  
   def save_new_link
     @linked_project = params[:linked_project].strip
     @linked_package = params[:linked_package].strip
@@ -207,6 +191,10 @@ class PackageController < ApplicationController
     if !valid_package_name? @target_package
       flash.now[:error] = "Invalid target package name: '#{@target_package}'"
       render :action => "new_link" and return
+    end
+    if Package.exists? @target_package, @project
+      flash.now[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
+      render :action => 'new_link' and return
     end
       
     package = Package.new( :name => @target_package, :project => params[:project] )

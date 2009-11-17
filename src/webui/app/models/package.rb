@@ -440,6 +440,14 @@ class Package < ActiveXML::Base
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
+  def self.exists? package_name, project_name
+    begin
+      Package.find( package_name, :project => project_name )
+      return true
+    rescue ActiveXML::Transport::NotFoundError
+      return false
+    end
+  end
 
   private
 

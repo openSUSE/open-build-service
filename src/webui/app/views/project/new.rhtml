@@ -1,10 +1,9 @@
 <% @pagetitle = "New Project" %>
 <%
-if @namespace and Project.exists?(@namespace)
+if @namespace
   @crumb_list = [
     link_to( 'Projects', :action => :list_public),
-    link_to( @namespace, :action => :show, :project => @namespace),
-    'Create Subproject'
+    link_to( @namespace, :action => :show, :project => @namespace), 'Create Subproject'
   ]
 else
   @crumb_list = [
@@ -15,7 +14,7 @@ end
 -%>
 <h2>Create New Project</h2>
 
-<div class="description"/>
+<div class="description">
 <p>All users have a home:&lt;login&gt; project by default, and can also create new sub projects. </p>
 <p>New project outside of your home namespace can get requested via <a href="https://bugzilla.novell.com/enter_bug.cgi?classification=7340&product=openSUSE.org&submit=Use+This+Product&component=OBS%20Request">bugzilla</a>.
 To discuss the requested project setup, please use the <a href="mailto:opensuse-buildservice@opensuse.org">opensuse-buildservice@opensuse.org</a>
@@ -25,7 +24,7 @@ mailing list.
 
 
 <% form_tag 'save_new' do -%>
-<b>Projecct Name:</b>
+<b>Project Name:</b>
 <% if @project_name %>
   <%= @project_name %>
   <%= hidden_field_tag( "name", @project_name ) %>
@@ -36,13 +35,13 @@ mailing list.
   <%= hidden_field_tag('ns',@namespace)%>
   <strong><%=@namespace%>:</strong>
   <%end-%>
-  <%= text_field_tag 'name', '', :size => 80 %>
+  <%= text_field_tag 'name', @new_project_name, :size => 80 %>
   <br/>
 <% end %>
 <b>Title:</b><br/>
 <%= text_field_tag 'title', @project_title, :size => 80 %><br/>
 <b>Description:</b><br/>
-<%= text_area_tag 'description', '', :cols => 80,
+<%= text_area_tag 'description', @project_description, :cols => 80,
   :rows => 10 %>
 <p><%= submit_tag "Create Project" %></p>
 <% end -%>

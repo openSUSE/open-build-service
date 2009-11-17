@@ -337,32 +337,41 @@ class ProjectController < ApplicationController
 
 
   def save_new
-    project_name = params[:name]
-    project_name = params[:ns].to_s + ":" + project_name if params[:ns]
-    if !valid_project_name?(project_name)
-      flash[:error] = "Invalid project name '#{project_name}'."
-      redirect_to :action => "new"
-    else
-      Person.find( session[:login] )
-      #store project
-      @project = Project.new(:name => project_name)
-      @project.title.data.text = params[:title]
-      @project.description.data.text = params[:description]
-      @project.add_person :userid => session[:login], :role => 'maintainer'
-      @project.add_person :userid => session[:login], :role => 'bugowner'
-      begin      
-        if @project.save
-          flash[:note] = "Project '#{@project}' was created successfully"
-          redirect_to :action => 'show', :project => project_name and return
-        else
-          flash[:error] = "Failed to save project '#{@project}'"
-        end
-      rescue ActiveXML::Transport::ForbiddenError => err
-        flash[:error] = "Forbidden to create project '#{@project}'. Try under your home:%s namespace" % session[:login]
-        redirect_to :action => 'new', :ns => "home:" + session[:login] and return
-      end
-      redirect_to :action => 'new'
+    @namespace = params[:ns]
+    @project_title = params[:title]
+    @project_description = params[:description]
+    @new_project_name = params[:name]
+    project_name = params[:ns].to_s + ":" + @new_project_name if params[:ns]
+
+    if !valid_project_name? project_name
+      flash.now[:error] = "Invalid project name '#{project_name}'."
+      render :action => "new" and return
     end
+
+    if Project.exists? project_name
+      flash.now[:error] = "Project '#{project_name}' already exists."
+      render :action => "new" and return
+    end
+
+    Person.find( session[:login] )
+    #store project
+    @project = Project.new(:name => project_name)
+    @project.title.data.text = params[:title]
+    @project.description.data.text = params[:description]
+    @project.add_person :userid => session[:login], :role => 'maintainer'
+    @project.add_person :userid => session[:login], :role => 'bugowner'
+    begin
+      if @project.save
+        flash[:note] = "Project '#{@project}' was created successfully"
+        redirect_to :action => 'show', :project => project_name and return
+      else
+        flash[:error] = "Failed to save project '#{@project}'"
+      end
+    rescue ActiveXML::Transport::ForbiddenError => err
+      flash[:error] = "Forbidden to create project '#{@project}'. Try under your home:%s namespace" % session[:login]
+      redirect_to :action => 'new', :ns => "home:" + session[:login] and return
+    end
+    redirect_to :action => 'new'
   end
 
 
