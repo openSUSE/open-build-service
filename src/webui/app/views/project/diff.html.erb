@@ -18,7 +18,7 @@
 <% end %>
 
 <p>
-  <%= render :partial => 'request_table', :locals => {:requests => @request, :options => false, :by_me => false } %>
+  <%= render :partial => 'request_table', :locals => {:requests => @req, :options => false, :by_me => false } %>
 </p>
 
 
@@ -28,7 +28,7 @@
 </pre>
 <% else %>
   <p>
-    <i><div class="message">Can't get diff for request #<%= @id %></div></i>
+    <i><div class="message">Can't get diff for request #<%= @id %>: <%= @diff_error %></div></i>
   </p>
 <% end %>
 
