@@ -187,6 +187,26 @@ our $aggregatelist = [
      ]],
 ];
 
+our $patchinfolist = [
+    'patchinfolist' =>
+    [[ 'patchinfo' => [
+	    'name',
+            [],
+	 [[ 'binarylist'  => '_content' ]],
+            'category'    => '_content',
+            'rating'      => '_content',
+            'summary'     => '_content',
+            'description' => '_content',
+            'bugzilla'    => 'name', '_content',
+            'swampid'     => '_content',
+            'packager'    => '_content',
+            'zypp_restart_needed',
+            'reboot_needed',
+            'relogin_needed',
+       ],
+     ]],
+];
+
 our $projpack = [
     'projpack' =>
      [[ 'project' =>
@@ -825,13 +845,25 @@ our $request = [
 	    'name',
 	    'who',
 	    'when',
+	    'superseded_by', # set when state.name is "superseded"
 	    [],
 	    'comment',
       ],
+     [[ 'review' =>
+            'state',         # review state (new/accepted or declined)
+            'by_user',       # this user shall review it
+            'by_group',      # one of this groupd shall review it
+                             # either user or group must be used, never both
+            'who',           # this user has reviewed it
+	    'when',
+	    [],
+	    'comment',
+     ]],
      [[ 'history' =>
 	    'name',
 	    'who',
 	    'when',
+	    'superseded_by',
 	    [],
 	    'comment',
      ]],

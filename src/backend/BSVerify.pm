@@ -237,7 +237,7 @@ sub verify_aggregatelist {
   }
 }
 
-my %req_states = map {$_ => 1} qw {new revoked accepted declined deleted};
+my %req_states = map {$_ => 1} qw {new revoked accepted superseded declined deleted review};
 
 sub verify_request {
   my ($req) = @_;
