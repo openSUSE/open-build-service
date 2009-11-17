@@ -175,9 +175,22 @@ class RequestController < ApplicationController
     return
   end
 
+  def modify_addreview
+     modify_changestate# :cmd => "addreview",
+                       # :by_user => params[:by_user], :by_group => params[:by_group]
+  end
+  def modify_changereviewstate
+     modify_changestate # :cmd => "changereviewstate", :newstate => params[:newstate], :comment => params[:comment],
+                        #:by_user => params[:by_user], :by_group => params[:by_group]
+  end
   def modify_changestate
     req = BsRequest.find params[:id]
-    params[:user] = @http_user.login if @http_user
+    if not @http_user or not @http_user.login
+      render_error :status => 403, :errorcode => "post_request_no_permission",
+               :message => "Action requires authentifacted user."
+      return
+    end
+    params[:user] = @http_user.login
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
@@ -192,8 +205,7 @@ class RequestController < ApplicationController
       node.data.attributes['type'] = 'submit'
       req.data.attributes['type'] = nil
     end
-
-    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :comment])
+    path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :superseded_by, :comment])
 
     # generic permission check
     permission_granted = false
@@ -203,15 +215,34 @@ class RequestController < ApplicationController
       render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Deletion of a request is only permitted for administrators. Please revoke the request instead."
       return
-    elsif req.state.name == "new" and params[:newstate] == "revoked" and req.creator == @http_user.login
+    elsif params[:newstate] == "superseded" and not params[:superseded_by]
+      render_error :status => 403, :errorcode => "post_request_missing_parameter",
+               :message => "Supersed a request requires a 'superseded_by' parameter with the request id."
+      return
+    elsif (params[:cmd] == "addreview" and req.creator == @http_user.login)
+      # allow request creator to add further reviewers
+      permission_granted = true
+#    elsif (params[:cmd] == "changereviewstate" and params[:by_group] == # FIXME: support groups
+#      permission_granted = true
+    elsif (params[:cmd] == "changereviewstate" and params[:by_user] == @http_user.login)
+      permission_granted = true
+    elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == @http_user.login
       # allow new -> revoked state change to creators of request
       permission_granted = true
-    else
+    else # check this for changestate (of request) and addreview command
        # do not allow direct switches from accept to decline or vice versa or double actions
-       if params[:newstate] == "accepted" or params[:newstate] == "declined"
-          if req.state.name == "accepted" or req.state.name == "declined"
+       if params[:newstate] == "accepted" or params[:newstate] == "declined" or params[:newstate] == "superseded"
+          if req.state.name == "accepted" or req.state.name == "declined" or req.state.name == "superseded"
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "set state to #{params[:newstate]} from accepted or declined is not allowed."
+               :message => "set state to #{params[:newstate]} from accepted, superseded or declined is not allowed."
+             return
+          end
+       end
+       # Do not accept to skip the review, except force argument is given
+       if params[:newstate] == "accepted"
+          if req.state.name == "review" and not params[:force]
+             render_error :status => 403, :errorcode => "post_request_no_permission",
+               :message => "Request is in review state."
              return
           end
        end
