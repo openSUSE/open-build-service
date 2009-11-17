@@ -79,11 +79,12 @@ class StatusController < ApplicationController
   end
 
   def history
-     starttime = Time.now.to_i - 24 * 3600
+     hours = params[:hours] || 24
+     starttime = Time.now.to_i - hours * 3600
      @data = Hash.new
      lines = StatusHistory.find(:all, :conditions => [ "time >= ? AND `key` = ?", starttime, params[:key] ])
      lines.each do |l|
-	@data[l.time - starttime] = l.value	
+	@data[l.time] = l.value
      end
   end
 
