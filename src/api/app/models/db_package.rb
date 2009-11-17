@@ -106,6 +106,11 @@ class DbPackage < ActiveRecord::Base
         'POWER( TIME_TO_SEC( TIMEDIFF( NOW(), pac.updated_at ))/86400, 1.55 ) /10 ' +
       ')'
     end
+
+    def find_by_name(name)
+      find :first, :conditions => ["name = BINARY ?", name]
+    end
+
   end
 
   def resolve_devel_package
