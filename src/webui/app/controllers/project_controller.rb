@@ -17,66 +17,6 @@ class ProjectController < ApplicationController
     list :without_homes
   end
 
-  #TODO: move this to a request controller
-  def diff
-    diff = Diff.find( :id => params[:id])
-    @id = diff.data.attributes["id"]
-    @state = diff.state.data.attributes["name"]
-    @src_project = diff.action.source.project
-    @src_pkg = diff.action.source.package
-    @type = diff.action.data.attributes["type"]
-    @target_project = Project.find diff.action.target.project
-    @target_pkg = diff.action.target.package
-    @is_author = diff.has_element? "//[@name='new' and @who='#{session[:login]}']"
-    @is_maintainer = @target_project.is_maintainer? session[:login]
-
-    transport ||= ActiveXML::Config::transport_for(:project)
-    path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
-
-    predicate = "(action/target/@project='#{@target_project}') and @id=#{@id}"
-    @req = Collection.find :what => :request, :predicate => predicate
-
-    if @type == "submit"
-      @src_rev = diff.action.source.rev
-      transport ||= ActiveXML::Config::transport_for(:project)
-      path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
-      begin
-        @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
-      rescue Object => e
-        @diff_error = e.message
-      end
-    end
-  end
-
-  #TODO: move this to a request controller
-  def submitreq
-    changestate = params['commit']
-    case changestate
-      when 'Accept'
-        changestate = 'accepted'
-      when 'Decline'
-        changestate = 'declined'
-      when 'Revoke'
-        changestate = 'revoked'
-      else
-        changestate = nil
-    end
-
-    if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
-      reason = params[:reason]
-      id = params[:id]
-      transport ||= ActiveXML::Config::transport_for(:project)
-      path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
-      transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason
-      flash[:note] = "Submit request #{changestate}!"
-      redirect_to :action => "list_req"
-    else
-      flash[:error] = "'changestate' parameter is unknown!"
-      redirect_to :action => "list_req"
-    end
-
-  end
-
   def list(mode=:without_homes)
     filterstring = params[:projectsearch] || params[:searchtext]
 
@@ -113,26 +53,6 @@ class ProjectController < ApplicationController
 
   end
 
-  def list_req
-    @user ||= Person.find( :login => session[:login] )
-
-    @iprojects = @user.involved_projects.each.map {|x| x.name}.sort
-
-    unless @iprojects.empty?
-      predicate = @iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
-      predicate2 = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ") # old, to be removed later
-      predicate = "(#{predicate} or #{predicate2}) and state/@name='new'"
-      @requests_for_me = Collection.find :what => :request, :predicate => predicate
-      @requests_by_me = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
-
-      # Do we really need this or is just caused by messed up data in DB ?
-      @requests_by_me.each do |req|
-        if not req.has_element? :state
-          @requests_by_me.delete_element req
-        end
-      end
-    end
-  end
 
   def remove_watched_project
     project = params[:project]

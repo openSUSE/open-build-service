@@ -1,0 +1,11 @@
+<% @pagetitle = "List My Requests" %>
+<%
+ @crumb_list = ['My Requests']
+-%>
+
+<h2>Requests concerning me</h2>
+<%= render :partial => 'request_table', :locals => {:requests => @requests_for_me, :options => true, :by_me => false} %>
+
+<h2>Requests by me</h2>
+<%= render :partial => 'request_table', :locals => {:requests => @requests_by_me, :options => true, :by_me => true } %>
+
