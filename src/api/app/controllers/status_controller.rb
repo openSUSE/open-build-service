@@ -1,5 +1,7 @@
 class StatusController < ApplicationController
 
+  skip_before_filter :extract_user, :only => [ :history ]
+
   def messages
     if request.get?
 

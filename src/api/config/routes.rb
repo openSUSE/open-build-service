@@ -287,6 +287,8 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'public', :action => 'distributions'
   map.connect '/public/binary_packages/:project/:package',
     :controller => 'public', :action => 'binary_packages', :project => /[^\/]*/, :package => /[^\/]*/
+  map.connect 'public/status/:action',
+    :controller => 'status'
 
 
   ### DEPRECATED
