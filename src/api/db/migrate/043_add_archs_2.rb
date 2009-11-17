@@ -7,7 +7,10 @@ class AddArchs2  < ActiveRecord::Migration
 
 
   def self.down
-    Architecture.find_by_name("armv5el").destroy
+    arch = Architecture.find_by_name("armv5el")
+    if arch
+      arch.destroy
+    end
   end
 
 

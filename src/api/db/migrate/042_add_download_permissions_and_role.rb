@@ -10,6 +10,9 @@ class AddDownloadPermissionsAndRole < ActiveRecord::Migration
   end
 
   def self.down
-    StaticPermission.find_by_title('download_binaries').destroy
+    perm = StaticPermission.find_by_title('download_binaries')
+    if perm
+      perm.destroy
+    end
   end
 end
