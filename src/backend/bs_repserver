@@ -850,11 +850,22 @@ sub workerstatus {
     for my $d (grep {/:status$/} @d) {
       delete $d{$d};
       $d =~ s/:status$//;
-      my $i = readxml("$jobsdir/$a/$d", $BSXML::buildinfo, 1);
       my $s = readxml("$jobsdir/$a/$d:status", $BSXML::jobstatus, 1);
       print "bad job, no status: $d\n" if !$s;
+      next unless $s;
+      my $i;
+      if (0) {
+	$i = readxml("$jobsdir/$a/$d", $BSXML::buildinfo, 1);
+      } else {
+	# fake info from job name
+	next unless $d{$d};	# no buildinfo
+	my $jn = $d;
+	$jn =~ s/-[0-9a-f]{32}$//s;
+	my ($projid, $repoid, $packid) = split('::', $jn);
+	$i = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $a};
+      }
       print "bad job, no info: $d\n" if !$i;
-      next unless $s && $i;
+      next unless $i;
       if ($s->{'code'} ne 'building') {
         delete $d{$d};
         next;
