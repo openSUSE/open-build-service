@@ -91,11 +91,8 @@ class PackageController < ApplicationController
     @tags, @user_tags_array = get_tags(:project => @project, :package => @package, :user => session[:login])
     @rating = Rating.find( :project => @project, :package => @package )
 
-    # not working yet, just for testing
-    #@attributes = Attributes.find(:package, :project => @project, :package => @package, :with_project => "1")
-    
+    @attributes = Attributes.find(:project => @project, :package => @package)
   end
-
   
   def get_tags(params)
     tags = Tag.find(:tags_by_object, :project => params[:project], :package => params[:package])

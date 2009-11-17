@@ -52,7 +52,7 @@ class MainController < ApplicationController
         p << "contains(description,'#{@search_text}')" if params[:description]
         predicate = p.join(' or ')
         if predicate.empty?
-          flash[:error] = "You need to choose name, title or description."
+          flash[:error] = "You need to choose name, title, description or attributes."
           return
         end
       else

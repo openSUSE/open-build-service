@@ -137,8 +137,8 @@ ActiveXML::Base.config do |conf|
 
     map.connect :diff, "rest:///request/:id"
  
-    map.connect :attributes, "rest:///source/:project/_attribute",
-      :package => "rest:///source/:project/:package/_attribute?with_project=:with_project"
+    map.connect :attributes, "rest:///source/:project/:package/_attribute",
+      :project => "rest:///source/:project/_attribute"
 
     # Monitor
     map.connect :workerstatus, 'rest:///build/_workerstatus',

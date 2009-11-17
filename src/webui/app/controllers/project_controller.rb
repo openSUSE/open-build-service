@@ -195,6 +195,7 @@ class ProjectController < ApplicationController
     @arch_list = arch_list
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
     @rating = Rating.find( :project => params[:project] )
+    @attributes = Attributes.find(:project, :project => params[:project])
   end
 
   def buildresult
