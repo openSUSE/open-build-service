@@ -149,6 +149,8 @@ class ApplicationController < ActionController::Base
     when ActiveXML::Transport::UnauthorizedError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
       render_error :code => code, :message => 'Unauthorized access', :status => 401
+    when ActionController::InvalidAuthenticityToken
+      render_error :code => code, :message => 'Invalid authenticity token', :status => 401
     when ActiveXML::Transport::ConnectionError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 200
