@@ -77,7 +77,7 @@ class DbProject < ActiveRecord::Base
     end
   end
 
-  def store_axml( project )
+  def store_axml( project, force=nil )
     DbProject.transaction do
       logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{project.name.to_s}"
       if self.name != project.name.to_s
@@ -240,8 +240,21 @@ class DbProject < ActiveRecord::Base
         list = PathElement.find( :all, :conditions => ["repository_id = ?", object.id] )
         unless list.empty?
           logger.debug "offending repo: #{object.inspect}"
-          linking_repos = list.map {|x| x.repository.db_project.name+"/"+x.repository.name}.join "\n"
-          raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
+          if force
+            #replace links to the repository with links to the "deleted" project repository
+            del_repo = DbProject.find_by_name("deleted").repositories[0]
+            list.each do |pe|
+              pe.link = del_repo
+              pe.save
+              #update backend
+              link_prj = link_rep.db_project
+              logger.info "updating project '#{link_prj.name}'"
+              Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+            end
+          else
+            linking_repos = list.map {|x| x.repository.db_project.name+"/"+x.repository.name}.join "\n"
+            raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
+          end
         end
         logger.debug "deleting repository '#{name}'"
         object.destroy
@@ -393,15 +406,15 @@ class DbProject < ActiveRecord::Base
     end
   end
 
-  def find_attribute( name, subpackage=nil )
+  def find_attribute( name, binarypackage=nil )
       name_parts = name.split /:/
       if name_parts.length != 2
         raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
       end
-      if subpackage
-        raise RuntimeError, "subpackages are not allowed in project attributes"
+      if binarypackage
+        raise RuntimeError, "binarypackages are not allowed in project attributes"
       end
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.subpackage)", name_parts[1], name_parts[0]])
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binarypackage)", name_parts[1], name_parts[0]])
   end
 
   def render_attribute_axml(params)

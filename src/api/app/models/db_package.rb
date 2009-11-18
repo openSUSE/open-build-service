@@ -308,7 +308,7 @@ class DbPackage < ActiveRecord::Base
     else
       # create the new attribute entry
       if attrib.has_attribute? :package
-        self.attribs.new(:attrib_type => atype, :subpackage => attrib.package).update_from_xml(attrib)
+        self.attribs.new(:attrib_type => atype, :binarypackage => attrib.package).update_from_xml(attrib)
       else
         self.attribs.new(:attrib_type => atype).update_from_xml(attrib)
       end
@@ -334,15 +334,15 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-  def find_attribute( name, subpackage=nil )
+  def find_attribute( name, binarypackage=nil )
       name_parts = name.split /:/
       if name_parts.length != 2
         raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
       end
-      if subpackage
-        return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.subpackage = BINARY ?", name_parts[1], name_parts[0], subpackage])
+      if binarypackage
+        return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binarypackage = BINARY ?", name_parts[1], name_parts[0], binarypackage])
       end
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.subpackage)", name_parts[1], name_parts[0]])
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binarypackage)", name_parts[1], name_parts[0]])
   end
 
   def write_through?
@@ -424,12 +424,12 @@ class DbPackage < ActiveRecord::Base
       attribs.each do |attr|
         type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
         next if params[:attribute] and not type_name == params[:attribute]
-        next if params[:subpackage] and attr.subpackage != params[:subpackage]
-        next if params[:subpackage] == "" and attr.subpackage != ""  # switch between all and NULL subpackage
-        done[type_name]=1 if not attr.subpackage
+        next if params[:binarypackage] and attr.binarypackage != params[:binarypackage]
+        next if params[:binarypackage] == "" and attr.binarypackage != ""  # switch between all and NULL binarypackage
+        done[type_name]=1 if not attr.binarypackage
         p={}
         p[:name] = type_name
-        p[:package] = attr.subpackage if attr.subpackage
+        p[:package] = attr.binarypackage if attr.binarypackage
         a.attribute(p) do |y|
           if attr.values.length > 0
             attr.values.each do |val|
@@ -453,7 +453,7 @@ class DbPackage < ActiveRecord::Base
           next if params[:attribute] and not type_name == params[:attribute]
           p={}
           p[:name] = type_name
-          p[:package] = attr.subpackage if attr.subpackage
+          p[:package] = attr.binarypackage if attr.binarypackage
           a.attribute(p) do |y|
             if attr.values.length > 0
               attr.values.each do |val|

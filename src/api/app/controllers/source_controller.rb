@@ -201,13 +201,13 @@ class SourceController < ApplicationController
   end
 
   # /source/:project/_attribute/:attribute
-  # /source/:project/:package/_attribute/:attribute/:subpackage
+  # /source/:project/:package/_attribute/:attribute/:binarypackage
   def attribute_meta
     valid_http_methods :get, :post, :delete
     params[:user] = @http_user.login if @http_user
 
-    subpackage=nil
-    subpackage=params[:subpackage] if params[:subpackage]
+    binarypackage=nil
+    binarypackage=params[:binarypackage] if params[:binarypackage]
 
     if params[:package]
       @attrs = DbPackage.find_by_project_and_name(params[:project], params[:package])
@@ -226,7 +226,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      params[:subpackage]=subpackage if subpackage
+      params[:binarypackage]=binarypackage if binarypackage
       render :text => @attrs.render_attribute_axml(params), :content_type => 'text/xml'
       return
     else
@@ -239,7 +239,7 @@ class SourceController < ApplicationController
       # permission checking
       if params[:attribute]
         aname = params[:attribute]
-        if a=@attrs.find_attribute(params[:attribute],subpackage)
+        if a=@attrs.find_attribute(params[:attribute],binarypackage)
           unless @http_user.can_modify_attribute? a
             render_error :status => 403, :errorcode => "change_attribute_no_permission", 
               :message => "user #{user.login} has no permission to modify attribute"
@@ -281,7 +281,7 @@ class SourceController < ApplicationController
         @attrs.store
         render_ok
       elsif request.delete?
-        @attrs.find_attribute(params[:attribute],subpackage).destroy
+        @attrs.find_attribute(params[:attribute],binarypackage).destroy
         @attrs.store
         render_ok
       else
