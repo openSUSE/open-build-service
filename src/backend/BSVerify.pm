@@ -77,6 +77,7 @@ sub verify_packid_product {
 sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = readxml($_[0], $BSXML::patchinfo, 0);
+  die("No patch name defined in _patchinfo") unless defined($p->{'name'}) and $p->{'name'} ne "";
   die("No binaries are defined in _patchinfo") unless defined($p->{'binary'}[0]);
   die("No swampid defined in _patchinfo") unless $p->{'swampid'} and $p->{'swampid'} =~ /^[0-9]*$/; # this will become optional later
   die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
