@@ -342,11 +342,13 @@ sub addrev {
 
   if ($packid eq '_product') {
     expandproduct($projid, $packid, $files, $user, 1);
-  }
-  elsif ($packid =~ '^_patchinfo:' ) {
+  } elsif ($packid =~ /^_patchinfo:/) {
     # FIXME: we may should allow source links (with diff) here
-    die("bad files in patchinfo container") if grep {!/^_patchinfo$/} keys %$files;
-    BSVerify::verify_patchinfo( "$srcrep/$packid/$files->{'_patchinfo'}-_patchinfo" ) if grep {/^_patchinfo$/} keys %$files;
+    die("bad files in patchinfo container") if grep {$_ ne '_patchinfo'} keys %$files;
+    if ($files->{'_patchinfo'}) {
+      my $p = readxml("$srcrep/$packid/$files->{'_patchinfo'}-_patchinfo", $BSXML::patchinfo);
+      BSVerify::verify_patchinfo($p);
+    }
   }
 
   my $srcmd5 = addmeta($projid, $packid, $files);
@@ -3362,21 +3364,19 @@ sub postrequest {
   my @lt = localtime(time());
   my $mytime = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
   if ($cmd eq 'addreview'){
-    die("request review is not specified via by_user or by_group\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'};
+    die("request review is not specified via by_user or by_group\n") if !$cgi->{'by_user'} && !$cgi->{'by_group'};
     push @{$req->{'history'}}, $oldstate;
     $req->{'state'} = {'name' => 'review'};
     $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
     $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
     my @lt = localtime(time());
     $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
-    my @r = @{$req->{'review'}||[]};
-    if ($cgi->{'by_user'}){
-      push @r, { 'state' => 'new', 'by_user' => $cgi->{'by_user'} };
-    }else{
-      push @r, { 'state' => 'new', 'by_group' => $cgi->{'by_group'} };
+    if ($cgi->{'by_user'}) {
+      push @{$req->{'review'}}, { 'state' => 'new', 'by_user' => $cgi->{'by_user'} };
+    } else {
+      push @{$req->{'review'}}, { 'state' => 'new', 'by_group' => $cgi->{'by_group'} };
     }
-    $req->{'review'} = \@r;
-  }elsif ($cmd eq 'changereviewstate'){
+  } elsif ($cmd eq 'changereviewstate') {
     die("request is not in review state\n") unless $req->{'state'} and $req->{'state'}->{'name'} eq "review";
     die("request review item is not specified via by_user or by_group\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'};
     die("review state must be accepted, declined or superseded\n") unless
@@ -3384,40 +3384,40 @@ sub postrequest {
 
     my $go_new_state = $req->{'state'}->{'name'};
     my $found = 0;
-    for my $r (@{$req->{'review'}||[]}){
+    for my $r (@{$req->{'review'} || []}) {
       if (defined($r->{'by_user'}) and defined($cgi->{'by_user'}) and $r->{'by_user'} eq $cgi->{'by_user'}){
         $r->{'state'} = $cgi->{'newstate'};
         $r->{'when'} = $mytime;
         $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
         $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
-        $found=1;
+        $found = 1;
         $go_new_state = $r->{'state'} if $go_new_state eq "review";
-      }elsif (defined($r->{'by_group'}) and defined($cgi->{'by_group'}) and $r->{'by_group'} eq $cgi->{'by_group'}){
+      } elsif (defined($r->{'by_group'}) and defined($cgi->{'by_group'}) and $r->{'by_group'} eq $cgi->{'by_group'}) {
         $r->{'state'} = $cgi->{'newstate'};
         $r->{'when'} = $mytime;
         $r->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
         $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
-        $found=1;
+        $found = 1;
         $go_new_state = $r->{'state'} if $go_new_state eq "review";
-      }else{
+      } else {
         # don't touch the request state if a review is still open
-        $go_new_state = undef if $r->{'state'} eq 'new';
+        $go_new_state = '' if $r->{'state'} eq 'new';
       }
     }
-    die("review item not found.") if ( $found == 0 );
+    die("review item not found.\n") if $found == 0;
     if ($go_new_state or $cgi->{'newstate'} eq 'superseded'){
       push @{$req->{'history'}}, $oldstate;
       if ($cgi->{'newstate'} eq 'superseded') { # superseded
          $req->{'state'} = {'name' => 'superseded'};
          $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'};
-      }else{ # no open reviews anymore
+      } else { # no open reviews anymore
          $req->{'state'} = {'name' => $go_new_state} if $go_new_state;
       }
       $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
       $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
       $req->{'state'}->{'when'} = $mytime;
     }
-  }elsif ($cmd eq 'changestate'){
+  } elsif ($cmd eq 'changestate') {
     die("no new state\n") unless $cgi->{'newstate'};
     die("missing superseded_by parameter\n") if $cgi->{'newstate'} eq 'superseded' and not defined($cgi->{'superseded_by'});
     push @{$req->{'history'}}, $oldstate;
@@ -3426,13 +3426,13 @@ sub postrequest {
     $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
     $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'} if defined $cgi->{'superseded_by'};
     $req->{'state'}->{'when'} = $mytime;
-  }else{
+  } else {
     die("unknown command '$cmd'\n");
   }
   BSVerify::verify_request($req);
   writereq($oreq, $req);
   $req->{'oldstate'} = $oldstate;
-  BSHermes::notify( "SRCSRV_REQUEST_STATECHANGE", BSHermes::requestParams($req, $cgi->{'user'}));
+  BSHermes::notify("SRCSRV_REQUEST_STATECHANGE", BSHermes::requestParams($req, $cgi->{'user'}));
   return $BSStdServer::return_ok;
 }
 
