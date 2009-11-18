@@ -1,11 +1,13 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
   <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
   <%= stylesheet_link_tag "opensuse", "local/style", :media => "all" %>
   <%= javascript_include_tag :defaults %>
   <%= yield :content_for_head %>
-  
+
+  <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+  <meta http-equiv="Content-Style-Type" content="text/css"/>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <link href="/images/favicon.ico" rel="shortcut icon" />
   <!--[if lte IE 7]>
@@ -13,7 +15,17 @@
   <link href="https://static.opensuse.org/hosts/build.o.o/css/iehacks.css" rel="stylesheet" type="text/css"/>
   <![endif]-->
   <!-- <script type="text/javascript" src="javascript/common/langsel.js"></script> -->
- </head>
+
+  <script type="text/javascript">
+  /* <![CDATA[ */
+  <%= yield :head_javascript %>
+  $(function() {
+    $('#watchlist_toggle').click(function() { $('#inplace_watchlist').slideToggle(350); });
+    <%= yield :ready_function %>
+  });
+  /* ]]> */
+  </script>
+
 </head>
 <body class="project">
   <div id="dialog_wrapper"></div>
