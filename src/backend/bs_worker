@@ -1287,7 +1287,9 @@ if ($path eq '/info') {
   if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
     my @s = stat("$buildroot/.build.log");
     die("$buildroot/.build.log: $!\n") unless @s;
-    return "<directory>\n  <entry name=\"_log\" size=\"$s[7]\" mtime=\"$s[9]\" />\n</directory>\n";
+    my $xml = "<directory>\n  <entry name=\"_log\" size=\"$s[7]\" mtime=\"$s[9]\" />\n</directory>\n";
+    BSServer::reply($xml, 'Content-Type: text/xml');
+    exit(0);
   }
   stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
   exit(0);
