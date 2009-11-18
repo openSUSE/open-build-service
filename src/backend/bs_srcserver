@@ -2792,11 +2792,12 @@ sub getlogfile {
     }
   }
 
-  my @args = ();
+  my @args;
   push @args, 'nostream' if $cgi->{'nostream'};
   push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
   push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
-  if (!$BSStdServer::isajax) {
+  push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
+  if (!$BSStdServer::isajax && !$cgi->{'view'}) {
     my $url = "/build/$projid/$repoid/$arch/$packid/_log";
     BSHandoff::handoff($ajaxsocket, $url, undef, @args);
     exit(0);
@@ -3871,7 +3872,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool?' => \&getbuildinfo,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
