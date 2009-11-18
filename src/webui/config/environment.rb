@@ -77,7 +77,7 @@ if CONFIG['theme']
     local_path = "#{RAILS_ROOT}/public/vendor/#{CONFIG['theme']}#{source}".split("?")
     asset_host = CONFIG['asset_host'] || "#{request.protocol}#{request.host_with_port}"
     if File.exists?(local_path[0])
-      puts "using themed file: #{asset_host}/vendor/#{CONFIG['theme']}"
+      puts "using themed file: #{asset_host}/vendor/#{CONFIG['theme']}/#{source}"
       "#{asset_host}/vendor/#{CONFIG['theme']}"
     else
       "#{asset_host}"

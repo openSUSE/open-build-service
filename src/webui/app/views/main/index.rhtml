@@ -53,33 +53,33 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
     <ul id="proceed_list">
       <li>
       <% link_to :controller => "project", :action => :list_my do -%>
-          <%= image_tag 'https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png', :alt => '' %><br/>My Projects
+          <%= image_tag 'start-here.png', :alt => '' %><br/>My Projects
       <% end -%>
       </li>
 
       <li>
       <% link_to :controller => "project", :action => :list_public do -%>
-           <%= image_tag 'https://static.opensuse.org/hosts/build.o.o/images/icons/start-here.png' %><br/>List of All Projects
+           <%= image_tag 'start-here.png' %><br/>List of All Projects
       <% end -%>
       </li>
 
       <li>
       <% link_to :controller => "project", :action => :new, :ns => "home:#{session[:login]}" do -%>
-           <%= image_tag "https://static.opensuse.org/hosts/build.o.o/images/icons/document-new.png" %><br/>Create New Project
+           <%= image_tag "document-new.png" %><br/>Create New Project
       <% end -%> 
       </li>
       <li>
       <% link_to :controller => 'main', :action => 'search' do -%>
-	<%= image_tag 'https://static.opensuse.org/hosts/build.o.o/images/icons/system-search.png' %><br/>Search
+	<%= image_tag 'system-search.png' %><br/>Search
       <% end -%>
       </li>
       <li>
       <% link_to :controller => "monitor", :action => :index do -%>
-         <%= image_tag 'https://static.opensuse.org/hosts/build.o.o/images/icons/utilities-system-monitor.png' %><br/>Build Service Status
+         <%= image_tag 'utilities-system-monitor.png' %><br/>Build Service Status
       <% end -%>
       </li>
 <!--      <li>
-        <%= link_to "<img src='https://static.opensuse.org/hosts/build.o.o/images/icons/x-office-spreadsheet.png' alt='' />", :controller => "statistics", :action => :index %><br/>
+        <%= link_to "<img src='icons/x-office-spreadsheet.png' alt='' />", :controller => "statistics", :action => :index %><br/>
         <%= link_to "Statistics", :controller => "statistics", :action => :index %>
         </li> -->
     </ul>
@@ -87,7 +87,7 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
   <p class="description">If you are a packager and want to add / edit packages, you have to
   <strong>
     <% if ICHAIN_MODE == 'on' %>
-      <a href="https://build.opensuse.org/ICSLogin/?%22<%= @return_to_host + @return_to_path %>%22"><%= image_tag('login.png', :alt => 'login') %>Login</a>
+      <a href='https://build.opensuse.org/ICSLogin/?%22<%= @return_to_host + @return_to_path + "%22" %>'><%= image_tag('login.png', :alt => 'login') %>Login</a>
     <% else %>
       <%= link_to image_tag('login.png', :alt => 'login') + "Login", :controller => "user", :action => :login %>
     <% end %>

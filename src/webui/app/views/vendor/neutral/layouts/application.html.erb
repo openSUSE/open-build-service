@@ -2,9 +2,9 @@
 <html>
 <head>
   <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
-  <%= stylesheet_link_tag "opensuse", "SyntaxHighlighter", "local/style", :media => "all" %>
-  <%= javascript_include_tag 'prototype', 'effects', 'application','table' %>
-  <%= javascript_include_tag 'shCore', 'shBrushSpec', 'shBrushXml' %>
+  <%= stylesheet_link_tag "opensuse", "local/style", :media => "all" %>
+  <%= javascript_include_tag :defaults %>
+  <%= yield :content_for_head %>
   
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <link href="/images/favicon.ico" rel="shortcut icon" />
@@ -37,36 +37,7 @@
         </div>
        </div>
        <!-- End Logo -->
-       <!-- Begin openSUSE navigation -->
-       <div class="grey_box">
-        <div class="box_top_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-        <div class="box_title_row">
-         <div class="box_title">
-          openSUSE
-         </div>
-        </div>
-        <div class="box_content">
-         <ul class="navlist">
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_download.png)"><a href="http://software.opensuse.org/">Get Software</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://en.opensuse.org/">Wiki</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_build.png)"><%= link_to "Build Software", :controller => 'main' %></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://users.opensuse.org/">User Directory</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="https://features.opensuse.org/">Features</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://news.opensuse.org/">News</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://forums.opensuse.org">Forums</a></li>          
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://shop.opensuse.org/">Shop</a></li>
-         </ul>
-       </div>
-        <div class="box_bottom_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-       </div>
-       <br />
-       <!-- End openSUSE navigation -->
+
        <!-- Begin custom navigation -->
 
 <% if session[:login] -%> 
@@ -147,7 +118,7 @@
       { 'Official Documentation'  => 'https://build.opensuse.org/documentation/obs/' },
       { 'Wiki Pages'  => 'http://en.opensuse.org/Build_Service' },
       { 'Building Packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
-      { 'Writing spec Files' => 'http://en.opensuse.org/SUSE_Build_Tutorial#Specfiles' },
+      { 'Writing spec Files' => 'http://en.opensuse.org/Packaging/SUSE_Package_Conventions' },
       { 'Reporting a Bug'   => 'http://en.opensuse.org/Submit_a_Bug' },
       { 'Forums'             => 'http://forums.opensuse.org/opensuse-build-service-obs' }
     ]

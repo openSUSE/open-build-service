@@ -65,6 +65,7 @@
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://en.opensuse.org/">Wiki</a></li>
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_build.png)"><%= link_to "Build Software", :controller => 'main' %></li>
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://users.opensuse.org/">User Directory</a></li>
+          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://hermes.opensuse.org/">Notifications</a></li>
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="https://features.opensuse.org/">Features</a></li>
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://news.opensuse.org/">News</a></li>
           <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://forums.opensuse.org">Forums</a></li>
@@ -97,7 +98,6 @@
            <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li> 
            <li><%= link_to "My Requests", :controller => "requests", :action => :list_req %></li> 
            <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
-           <li><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></li>
           </ul>
         </div>
         <div class="box_bottom_row">
@@ -158,7 +158,7 @@
       { 'Official Documentation'  => 'https://build.opensuse.org/documentation/obs/' },
       { 'Wiki Pages'  => 'http://en.opensuse.org/Build_Service' },
       { 'Building Packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
-      { 'Writing spec Files' => 'http://en.opensuse.org/SUSE_Build_Tutorial#Specfiles' },
+      { 'Writing spec Files' => 'http://en.opensuse.org/Packaging/SUSE_Package_Conventions' },
       { 'Reporting a Bug'   => 'http://en.opensuse.org/Submit_a_Bug' },
       { 'OBS Forums'             => 'http://forums.opensuse.org/opensuse-build-service-obs' }
     ]
