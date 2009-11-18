@@ -1092,7 +1092,7 @@ sub dobuild {
   qsystem(@args);
   my $ret=$?;
   if ($ret == 512) { # system exit code 2 maps to 2 * 256
-    if ($buildinfo->{'reason'} eq "rebuild counter sync") {
+    if (($buildinfo->{'reason'} || '') eq "rebuild counter sync") {
       $ret = 0;
     } else {
       print "build succeeded, but old build had same result !\n";
@@ -1284,6 +1284,11 @@ if ($path eq '/info') {
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
   die("not building\n") if $state->{'state'} ne 'building';
   die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
+  if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
+    my @s = stat("$buildroot/.build.log");
+    die("$buildroot/.build.log: $!\n") unless @s;
+    return "<directory>\n  <entry name=\"_log\" size=\"$s[7]\" mtime=\"$s[9]\" />\n</directory>\n";
+  }
   stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
   exit(0);
 } elsif ($path eq '/kill' || $path eq '/discard') {
