@@ -187,24 +187,22 @@ our $aggregatelist = [
      ]],
 ];
 
-our $patchinfolist = [
-    'patchinfolist' =>
-    [[ 'patchinfo' => [
-	    'name',
+our $patchinfo = [
+    'patchinfo' => 
+            'name',
             [],
-	 [[ 'binarylist'  => '_content' ]],
-            'category'    => '_content',
-            'rating'      => '_content',
-            'summary'     => '_content',
-            'description' => '_content',
-            'bugzilla'    => 'name', '_content',
-            'swampid'     => '_content',
-            'packager'    => '_content',
+	 [[ 'binary'         => '_content' ]],
+         [[ 'bugzilla'       => 'name', '_content', ]],
+         [[ 'CVE'            => '_content', ]],
+            'category'       => '_content',
+            'rating'         => '_content',
+            'summary'        => '_content',
+            'description'    => '_content',
+            'swampid'        => '_content',
+            'packager'       => '_content',
             'zypp_restart_needed',
             'reboot_needed',
             'relogin_needed',
-       ],
-     ]],
 ];
 
 our $projpack = [

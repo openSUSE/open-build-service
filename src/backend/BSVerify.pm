@@ -22,6 +22,8 @@
 
 package BSVerify;
 
+use BSUtil;
+use BSXML;
 use strict;
 
 sub verify_projid {
@@ -70,6 +72,24 @@ sub verify_packid_pattern {
 
 sub verify_packid_product {
   verify_packid($_[0]) unless $_[0] && $_[0] eq '_product';
+}
+
+sub verify_patchinfo {
+  # This verifies the absolute minimum required content of a patchinfo file
+  my $p = readxml($_[0], $BSXML::patchinfo, 0);
+  die("No binaries are defined in _patchinfo") unless defined($p->{'binary'}[0]);
+  die("No swampid defined in _patchinfo") unless $p->{'swampid'} and $p->{'swampid'} =~ /^[0-9]*$/; # this will become optional later
+  die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
+  foreach my $id ( @{$p->{'bugzilla'}} ){
+    die("Invalid bugzilla ID in _patchinfo") unless $id->{'_content'} =~ /^[0-9]*$/;
+  }
+  die("No summary defined in _patchinfo") unless $p->{'summary'} and $p->{'summary'} ne "";
+  die("No description defined in _patchinfo") unless $p->{'description'} and $p->{'description'} ne "";
+  die("No category defined in _patchinfo") unless $p->{'category'} and $p->{'category'} ne "";
+  die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' or $p->{'category'} eq 'normal'
+                                                    or $p->{'category'} eq 'optional' or $p->{'category'} eq 'feature';
+
+  # checks of optional content to be added here
 }
 
 sub verify_filename {
