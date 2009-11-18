@@ -143,26 +143,26 @@ class ApplicationController < ActionController::Base
       if code == "unregistered_ichain_user"
         render :template => "user/request_ichain" and return
       else
-        ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
+        ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
         render_error :code => code, :message => message, :status => 401
       end
     when ActiveXML::Transport::UnauthorizedError
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
+      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
       render_error :code => code, :message => 'Unauthorized access', :status => 401
     when ActionController::InvalidAuthenticityToken
       render_error :code => code, :message => 'Invalid authenticity token', :status => 401
     when ActiveXML::Transport::ConnectionError
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
+      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 200
     when Timeout::Error
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if !local_request?
+      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
       render_error :status => 400, :code => code, :message => message,
         :exception => exception, :api_exception => api_exception
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 200
     else
-      if code != 404 && !local_request?
+      if code != 404 && send_exception_mail?
         ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
       end
       render_error :status => 400, :code => code, :message => message,
@@ -192,5 +192,8 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def send_exception_mail?
+    return !local_request? && ENV['RAILS_ENV'] != 'development'
+  end
 
 end
