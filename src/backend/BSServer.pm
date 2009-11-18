@@ -554,10 +554,12 @@ sub reply_receiver {
   my @args;
   my $st = $hdr->{'status'};
   my $ct = $hdr->{'content-type'} || 'text/plain';
+  my $cl = $hdr->{'content-length'};
   my $chunked;
   $chunked = 1 if $hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked';
   push @args, "Status: $st" if $st; 
   push @args, "Content-Type: $ct";
+  push @args, "Content-Length: $cl" if defined($cl) && !$chunked;
   push @args, 'Transfer-Encoding: chunked' if $chunked;
   reply(undef, @args); 
   while(1) {
