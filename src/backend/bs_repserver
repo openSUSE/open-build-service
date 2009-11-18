@@ -569,7 +569,7 @@ sub getlogfile {
     push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
     push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
     push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
-    if (!$BSStdServer::isajax) {
+    if (!$BSStdServer::isajax && !$cgi->{'view'}) {
       my $url = "/build/$projid/$repoid/$arch/$packid/_log";
       BSHandoff::handoff($ajaxsocket, $url, undef, @args);
       exit(0);
