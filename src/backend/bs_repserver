@@ -541,11 +541,13 @@ sub getbuildstatus {
 sub getlogfile {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
+  die("unknown view '$cgi->{'view'}'\n") if $cgi->{'view'} && $cgi->{'view'} ne 'entry';
   if ($cgi->{'handoff'} && !$BSStdServer::isajax) {
     my @args = ();
     push @args, 'nostream' if $cgi->{'nostream'};
     push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
     push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
+    push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
     my $url = "/build/$projid/$repoid/$arch/$packid/_log";
     BSHandoff::handoff($ajaxsocket, $url, undef, @args);
     exit(0);
@@ -562,10 +564,11 @@ sub getlogfile {
   #  $status->{'uri'} = 'http://192.168.1.102:4711';
   #}
   if ($jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'}) {
-    my @args = ();
+    my @args;
     push @args, 'nostream' if $cgi->{'nostream'};
     push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
     push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
+    push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
     if (!$BSStdServer::isajax) {
       my $url = "/build/$projid/$repoid/$arch/$packid/_log";
       BSHandoff::handoff($ajaxsocket, $url, undef, @args);
@@ -575,6 +578,7 @@ sub getlogfile {
       'uri' => "$jobstatus->{'uri'}/logfile",
       'joinable' => 1,
       'receiver:application/octet-stream' => \&BSServer::reply_receiver,
+      'receiver:text/xml' => \&BSServer::reply_receiver,
     };
     eval {
       BSWatcher::rpc($param, undef, @args);
@@ -592,6 +596,10 @@ sub getlogfile {
   }
   my @s = stat($logfile);
   die("$packid: no logfile\n") unless @s;
+  if ($cgi->{'view'} eq 'entry') {
+    my $entry = {'name' => '_log', 'size' => $s[7], 'mtime' => $s[9]};
+    return ({'entry' => [ $entry ]}, $BSXML::dir);
+  }
   my $start = $cgi->{'start'} || 0;
   my $end = $cgi->{'end'};
   $start = $s[7] + $start if $start < 0;
@@ -2330,7 +2338,7 @@ my $dispatches = [
 my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
 ];
