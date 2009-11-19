@@ -137,59 +137,82 @@ sub fdb_getmatch {
 }
 
 sub fdb_getall {
-  my ($fn, $lay, $tail, $filter, $byteoff) = @_;
+  my ($fn, $lay, $limit, $filter) = @_;
 
-  if ($tail && !defined($byteoff)) {
-    # try to do something clever...
-    my $len = -s $fn;
-    my $ex = 1;
-    while ($len > 65535) {
-      $byteoff = $len - $tail * 128 * $ex;
-      last if $byteoff < 32768;
-      my @res = fdb_getall($fn, $lay, $tail, $filter, $byteoff);
-      return @res if @res == $tail;
-      $ex *= 2;
-    }
-    undef $byteoff;
-  }
   local *F;
   open(F, '<', $fn) || return ();
   my @res;
-  if ($byteoff) {
-    sysseek(F, $byteoff, 0);
-    if (!defined(<F>)) {
-      close F;
-      return @res;
-    }
-  }
   while (<F>) {
     next if chop($_) ne "\n";
     my $r = decode_line($_, $lay);
-    next if $filter && !$filter->($r);
+    if ($filter) {
+      my $f = $filter->($r);
+      next unless $f;
+      last if $f < 0;
+    }
     push @res, $r;
-    shift @res if defined($tail) && @res > $tail;
+    shift @res if defined($limit) && @res > $limit;
   }
   close F;
   return @res;
 }
 
+# read file in reverse order
+# we read in 32K chunks
 sub fdb_getall_reverse {
-  my ($fn, $lay, $tail, $filter) = @_;
+  my ($fn, $lay, $limit, $filter) = @_;
 
   local *F;
   open(F, '<', $fn) || return ();
-  my @lines;
-  while (<F>) {
-    next if chop($_) ne "\n";
-    push @lines, $_;
+  my @s = stat(F);
+  if (!@s) {
+    close F;
+    return ();
   }
-  close F;
+  my $pos = 0;
+  my $len = $s[7];
+  if ($len > 0x7fff) {
+    $pos = ($len - 0x7fff) & ~0x7fff;
+    $len = $len - $pos;
+  }
+  my $tail = '';
   my @res;
-  for (reverse @lines) {
-    my $r = decode_line($_, $lay);
-    next if $filter && !$filter->($r);
-    push @res, $r;
-    last if defined($tail) && @res >= $tail;
+  while ($len) {
+    last unless defined(sysseek(F, $pos, 0));
+    my $buf = '';
+    last unless (sysread(F, $buf, $len) || 0) == $len;
+    $buf .= $tail;
+    if ($pos) {
+      if ($buf =~ /^(.*?\n)/s) {
+	$tail = $1; 
+	$buf = substr($buf, length($tail));
+      } else {
+	$tail = $buf;
+	$buf = ''; 
+      }   
+      $pos -= 0x8000;
+      $len = 0x8000;
+    } else {
+      $tail = '';
+      $len = 0;
+    }
+    my @l; 
+    if (chop($buf) ne "\n") {
+      @l = split("\n", $buf, -1);
+      pop @l; 
+    } else {
+      @l = split("\n", $buf, -1);
+    }
+    for (reverse @l) {
+      my $r = decode_line($_, $lay);
+      if ($filter) {
+        my $f = $filter->($r);
+	next unless $f;
+        $len = 0, last if $f < 0;
+      }
+      push @res, $r;
+      $len = 0, last if defined($limit) && @res >= $limit;
+    }
   }
   close F;
   return @res;
