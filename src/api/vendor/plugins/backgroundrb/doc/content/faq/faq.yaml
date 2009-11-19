@@ -1,5 +1,0 @@
-# Built-in
-filters_pre: [ "redcloth" ]
-# Custom
-title: "FAQs"
-sidebar_items: [["Trac", "#trac"], ["KnownBugs", "#known_bugs"]]

@@ -1,5 +1,0 @@
-# Built-in
-filters_pre: [ "redcloth" ]
-# Custom
-title: "Scheduling Tasks using BackgrounDRb"
-sidebar_items: [["Timers", "#timer_scheduling"], ["Unix Scheduler", "#unix_scheduling"], ["Cron Scheduler", "#cron_scheduling"], ["Restart on Schedule", "#restart_on_schedule"], ["Schedule At", "#schedule_at"]]

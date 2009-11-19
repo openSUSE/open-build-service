@@ -1,5 +1,0 @@
-* Todo related with new version *
-- write docs for new :schedule_at
-- docs for disabling job queue checks
-- more documentation for job queue
-- Check for job table migration (need internet)
