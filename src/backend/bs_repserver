@@ -493,7 +493,8 @@ sub getbinarylist {
 
 sub getbuildhistory {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  my @history = BSFileDB::fdb_getall("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay, $cgi->{'limit'} || 10000);
+  my @history = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay, $cgi->{'limit'} || 10000);
+  @history = reverse @history;
   return ({'entry' => \@history}, $BSXML::buildhist);
 }
 
