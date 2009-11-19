@@ -68,10 +68,10 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_attribute/:attribute', :controller => 'source',
     :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/
-  map.connect 'source/:project/:package/:binarypackage/_attribute', :controller => 'source',
-    :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :binarypackage => /[^\/]*/
-  map.connect 'source/:project/:package/:binarypackage/_attribute/:attribute', :controller => 'source',
-    :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :binarypackage => /[^\/]*/
+  map.connect 'source/:project/:package/:binary/_attribute', :controller => 'source',
+    :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :binary => /[^\/]*/
+  map.connect 'source/:project/:package/:binary/_attribute/:attribute', :controller => 'source',
+    :action => 'attribute_meta', :project => /[^\/]*/, :package => /[^\/]*/, :binary => /[^\/]*/
   map.connect 'source/:project/:package/_tags', :controller => 'tag',
     :action => 'package_tags', :project => /[^\/]*/, :package => /[^\/]*/
   map.connect 'source/:project/:package/_wizard', :controller => 'wizard',

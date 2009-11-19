@@ -406,15 +406,15 @@ class DbProject < ActiveRecord::Base
     end
   end
 
-  def find_attribute( name, binarypackage=nil )
+  def find_attribute( name, binary=nil )
       name_parts = name.split /:/
       if name_parts.length != 2
         raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
       end
-      if binarypackage
-        raise RuntimeError, "binarypackages are not allowed in project attributes"
+      if binary
+        raise RuntimeError, "binary packages are not allowed in project attributes"
       end
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binarypackage)", name_parts[1], name_parts[0]])
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name_parts[1], name_parts[0]])
   end
 
   def render_attribute_axml(params)

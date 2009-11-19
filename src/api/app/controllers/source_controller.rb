@@ -201,13 +201,13 @@ class SourceController < ApplicationController
   end
 
   # /source/:project/_attribute/:attribute
-  # /source/:project/:package/_attribute/:attribute/:binarypackage
+  # /source/:project/:package/:binary/_attribute/:attribute
   def attribute_meta
     valid_http_methods :get, :post, :delete
     params[:user] = @http_user.login if @http_user
 
-    binarypackage=nil
-    binarypackage=params[:binarypackage] if params[:binarypackage]
+    binary=nil
+    binary=params[:binary] if params[:binary]
 
     if params[:package]
       @attrs = DbPackage.find_by_project_and_name(params[:project], params[:package])
@@ -226,7 +226,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      params[:binarypackage]=binarypackage if binarypackage
+      params[:binary]=binary if binary
       render :text => @attrs.render_attribute_axml(params), :content_type => 'text/xml'
       return
     else
@@ -239,7 +239,8 @@ class SourceController < ApplicationController
       # permission checking
       if params[:attribute]
         aname = params[:attribute]
-        if a=@attrs.find_attribute(params[:attribute],binarypackage)
+print "XXXXXXXXXXXXXX RUN FOR ", params[:attribute],binary , "\n"
+        if a=@attrs.find_attribute(params[:attribute],binary)
           unless @http_user.can_modify_attribute? a
             render_error :status => 403, :errorcode => "change_attribute_no_permission", 
               :message => "user #{user.login} has no permission to modify attribute"
@@ -276,12 +277,12 @@ class SourceController < ApplicationController
       # execute action
       if request.post?
         req.each_attribute do |a|
-          @attrs.store_attribute_axml(a)
+          @attrs.store_attribute_axml(a, binary)
         end
         @attrs.store
         render_ok
       elsif request.delete?
-        @attrs.find_attribute(params[:attribute],binarypackage).destroy
+        @attrs.find_attribute(params[:attribute],binary).destroy
         @attrs.store
         render_ok
       else
@@ -832,9 +833,11 @@ class SourceController < ApplicationController
     node = Builder::XmlMarkup.new(:indent=>2)
     node.patchinfo(:name => name) do |n|
       binaries.each do |binary|
-        node.binarypackage(binary)
+        node.binary(binary)
       end
       node.packager    @http_user.login
+      node.bugzilla    ""
+      node.swampid     ""
       node.category    ""
       node.rating      ""
       node.summary     ""

@@ -265,7 +265,7 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-  def store_attribute_axml( attrib )
+  def store_attribute_axml( attrib, binary=nil )
 
     raise RuntimeError, "attribute type without a name " if not attrib.name
 
@@ -298,8 +298,8 @@ class DbPackage < ActiveRecord::Base
       end
     end
     # update or create attribute entry
-    if attrib.has_attribute? :package
-       a = find_attribute(attrib.name, attrib.package)
+    if binary
+       a = find_attribute(attrib.name, binary)
     else
        a = find_attribute(attrib.name)
     end
@@ -307,8 +307,8 @@ class DbPackage < ActiveRecord::Base
       a.update_from_xml(attrib)
     else
       # create the new attribute entry
-      if attrib.has_attribute? :package
-        self.attribs.new(:attrib_type => atype, :binarypackage => attrib.package).update_from_xml(attrib)
+      if binary
+        self.attribs.new(:attrib_type => atype, :binary => binary).update_from_xml(attrib)
       else
         self.attribs.new(:attrib_type => atype).update_from_xml(attrib)
       end
@@ -334,15 +334,15 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-  def find_attribute( name, binarypackage=nil )
+  def find_attribute( name, binary=nil )
       name_parts = name.split /:/
       if name_parts.length != 2
         raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
       end
-      if binarypackage
-        return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binarypackage = BINARY ?", name_parts[1], name_parts[0], binarypackage])
+      if binary
+        return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binary = BINARY ?", name_parts[1], name_parts[0], binary])
       end
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binarypackage)", name_parts[1], name_parts[0]])
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name_parts[1], name_parts[0]])
   end
 
   def write_through?
@@ -424,12 +424,12 @@ class DbPackage < ActiveRecord::Base
       attribs.each do |attr|
         type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
         next if params[:attribute] and not type_name == params[:attribute]
-        next if params[:binarypackage] and attr.binarypackage != params[:binarypackage]
-        next if params[:binarypackage] == "" and attr.binarypackage != ""  # switch between all and NULL binarypackage
-        done[type_name]=1 if not attr.binarypackage
+        next if params[:binary] and attr.binary != params[:binary]
+        next if params[:binary] == "" and attr.binary != ""  # switch between all and NULL binary
+        done[type_name]=1 if not attr.binary
         p={}
         p[:name] = type_name
-        p[:package] = attr.binarypackage if attr.binarypackage
+        p[:binary] = attr.binary if attr.binary
         a.attribute(p) do |y|
           if attr.values.length > 0
             attr.values.each do |val|
@@ -453,7 +453,7 @@ class DbPackage < ActiveRecord::Base
           next if params[:attribute] and not type_name == params[:attribute]
           p={}
           p[:name] = type_name
-          p[:package] = attr.binarypackage if attr.binarypackage
+          p[:binary] = attr.binary if attr.binary
           a.attribute(p) do |y|
             if attr.values.length > 0
               attr.values.each do |val|

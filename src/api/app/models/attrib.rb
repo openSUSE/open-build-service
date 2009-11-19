@@ -12,8 +12,8 @@ class Attrib < ActiveRecord::Base
   end
 
   def cachekey
-    if binarypackage
-      "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}|#{binarypackage}"
+    if binary
+      "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}|#{binary}"
     else
       "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}"
     end
