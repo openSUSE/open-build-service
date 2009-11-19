@@ -55,9 +55,7 @@ module ProjectHelper
 
   def simple_repo_button_to( label, opt={} )
     reponame = String.new
-    if BASE_NAMESPACE
-      reponame << BASE_NAMESPACE << ":"
-    end
+    reponame << BASE_NAMESPACE << ":" if BASE_NAMESPACE
     reponame << opt[:repo]
 
     defaults = {

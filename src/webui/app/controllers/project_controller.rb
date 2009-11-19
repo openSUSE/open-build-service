@@ -503,8 +503,7 @@ class ProjectController < ApplicationController
       return
     end
 
-    @project.add_repository :reponame => targetname, :platform => platform,
-      :arch => arch
+    @project.add_repository :reponame => targetname, :platform => platform, :arch => arch
 
     if @project.save
       flash[:note] = "Target '#{platform}' was added successfully"
