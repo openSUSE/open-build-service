@@ -999,6 +999,9 @@ print "XXXXXXXXXXXXXX RUN FOR ", params[:attribute],binary , "\n"
     pkg_rev = params[:rev]
     target_project = params[:target_project]
     target_package = params[:target_package]
+    if not params[:update_project_attribute]
+      params[:update_project_attribute] = "OBS:UpdateProject"
+    end
 
     prj = DbProject.find_by_name prj_name
     pkg = prj.db_packages.find_by_name(pkg_name)
@@ -1006,6 +1009,13 @@ print "XXXXXXXXXXXXXX RUN FOR ", params[:attribute],binary , "\n"
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{pkg_name} in project #{prj_name}"
       return
+    end
+
+    # is a update project defined and a package there ?
+    if a = prj.find_attribute(params[:update_project_attribute]) and a.values[0]
+       if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
+          pkg = pa
+       end
     end
 
     # validate and resolve devel package or devel project definitions
