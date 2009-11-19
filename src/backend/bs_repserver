@@ -1271,11 +1271,21 @@ sub getjobhistory {
   if ($cgi->{'code'} && @{$cgi->{'code'}} == 1 && $cgi->{'code'}->[0] eq 'lastfailures') {
     # report last success/unchanged and all fails for earch package
     my %success;
-    $filter = sub {
-      return 0 if $success{$_[0]->{'package'}};
-      $success{$_[0]->{'package'}} = 1 if $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
-      return 1;
-    };
+    if ($cgi->{'package'}) {
+      my %packid = map {$_ => 1} @{$cgi->{'package'}};
+      $filter = sub {
+        return 0 unless $packid{$_[0]->{'package'}};
+        return 1 unless $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
+	delete $packid{$_[0]->{'package'}};
+	return %packid ? 1 : -1;
+      };
+    } else {
+      $filter = sub {
+        return 0 if $success{$_[0]->{'package'}};
+        $success{$_[0]->{'package'}} = 1 if $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
+        return 1;
+      };
+    }
     my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, undef, $filter);
     @hist = reverse @hist;
     my $ret = {jobhist => \@hist};
