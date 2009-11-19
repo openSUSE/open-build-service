@@ -148,7 +148,10 @@ sub fdb_getall {
     if ($filter) {
       my $f = $filter->($r);
       next unless $f;
-      last if $f < 0;
+      if ($f < 0) {
+	push @res, $r if $f == -1;
+	last;
+      }
     }
     push @res, $r;
     shift @res if defined($limit) && @res > $limit;
@@ -208,7 +211,11 @@ sub fdb_getall_reverse {
       if ($filter) {
         my $f = $filter->($r);
 	next unless $f;
-        $len = 0, last if $f < 0;
+	if ($f < 0) {
+	  push @res, $r if $f == -1;
+	  $len = 0;
+	  last;
+	}
       }
       push @res, $r;
       $len = 0, last if defined($limit) && @res >= $limit;
