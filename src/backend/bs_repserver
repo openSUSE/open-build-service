@@ -1302,7 +1302,8 @@ sub getjobhistory {
     my %code = map {$_ => 1} @{$cgi->{'code'}};
     $filter = sub {$code{$_[0]->{'code'}}};
   }
-  my @hist = BSFileDB::fdb_getall("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, $cgi->{'limit'} || 10000, $filter);
+  my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, $cgi->{'limit'} || 10000, $filter);
+  @hist = reverse @hist;
   my $ret = {jobhist => \@hist};
   return ($ret, $BSXML::jobhistlist);
 }
