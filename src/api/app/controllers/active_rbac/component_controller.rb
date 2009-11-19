@@ -1,4 +1,4 @@
-require_dependency 'application'
+require_dependency 'application_controller'
 
 # All controllers in ActiveRBAC extend this controller.
 #
