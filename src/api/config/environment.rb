@@ -32,6 +32,9 @@ Rails::Initializer.run do |config|
   # (create the session table with 'rake create_sessions_table')
   # config.action_controller.session_store = :active_record_store
 
+  config.gem 'daemons'
+  config.gem 'delayed_job'
+
   config.action_controller.session = {
     :session_key => "_frontend_session",
     :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap98dfe7"
