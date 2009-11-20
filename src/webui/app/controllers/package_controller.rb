@@ -2,12 +2,12 @@ require 'open-uri'
 
 class PackageController < ApplicationController
 
-  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :view, :wizard, 
+  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus,
     :update_flag, :remove]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
-    :show, :view, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :remove]
+    :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :remove]
 
 
   # render the input form for tags
