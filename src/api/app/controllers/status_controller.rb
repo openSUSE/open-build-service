@@ -1,6 +1,6 @@
 class StatusController < ApplicationController
 
-  skip_before_filter :extract_user, :only => [ :history ]
+  skip_before_filter :extract_user, :only => [ :history, :project ]
 
   def messages
     if request.get?
@@ -130,4 +130,15 @@ class StatusController < ApplicationController
 
   end
 
+  def project
+     dbproj = DbProject.find_by_name(params[:id])
+     if ! dbproj
+        render_error :status => 404, :errorcode => "no such project",
+          :message => "project %s does not exist" % params[:id]
+        return
+     end
+     @packages = dbproj.complex_status
+  end
+
 end
+

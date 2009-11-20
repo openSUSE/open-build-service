@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+require File.dirname(__FILE__) + '/../config/boot'
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+
+proj = ARGV[0]
+if ! proj
+   puts "usage: update_project <project>"
+   exit 1
+end 
+dbproj = DbProject.find_by_name(proj)
+if ! dbproj
+  puts "invalid project " + proj
+  exit 1
+end
+mypackages = dbproj.complex_status
+

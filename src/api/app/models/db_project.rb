@@ -733,6 +733,10 @@ class DbProject < ActiveRecord::Base
     update_flags(:flagtype => 'build', :project => fake_project)
   end
 
+  def complex_status
+	ProjectStatusHelper.calc_status(self)
+  end
+
   private
 
 end
