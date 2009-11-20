@@ -1,0 +1,55 @@
+<% @pagetitle = "Add attribute" %>
+<%
+@crumb_list = [link_to( @project, :controller => 'project', :action => :show, :project => @project)]
+#@crumb_list << link_to( @package, :controller => 'package', :action => :show, :project => @project, :package => @package) if @package
+#@crumb_lisr << "Add attribute"
+
+-%>
+
+<%
+  unless @project.is_maintainer? session[:login] 
+    flash[:error] = "You are not the maintainer of this project!"
+    return "" #:controller => "project", :action => "list_public"
+  end 
+%>
+
+<h2>Add attribute</h2>
+      
+<div class="section">
+  <% form_tag :action => "save_attribute" do %>
+    <b>Attributes name:</b>
+    <%= text_field_tag :attribute, @attribute||="" , :size => 80 %><br/>
+    <b>Values (e.g. "bar,foo,..."):</b><br/>
+    <%= text_area_tag :values, @values||="", :size => 50 %>
+    <%= hidden_field_tag("project", @project) %>
+    <%= hidden_field_tag("package", @package) if @package %>
+    <%= submit_tag "Save attribute" %>
+  <% end %>
+</div>
+
+<% if @attribute.length >0 && @values_split %>
+<div class="section">
+<h2>Attribute '<%= @attribute %>' (<%= @values_split.length %> values)</h2>
+  <table class="grid">
+    <tr>
+       <th>
+         <%=h @attribute %>
+       </th>
+    </tr>
+<%   if @values_split.length >0 %>
+<%     @values_split.each do |a| %>
+    <tr>
+      <td>
+<%=h     a %>
+      </td>
+    </tr>
+<%     end %>
+<%   else %>
+    <tr>
+      <td><em>No values set</em></td>
+    </tr>
+<%   end %>
+  </table>
+</div>
+<% end %>
+
