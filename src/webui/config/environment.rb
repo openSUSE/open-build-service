@@ -15,7 +15,7 @@ init = Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
 
   # Skip frameworks you're not going to use
-  config.frameworks -= [ :action_web_service, :active_resource, :active_record ]
+  config.frameworks -= [ :action_web_service, :active_resource ]
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
@@ -36,6 +36,10 @@ init = Rails::Initializer.run do |config|
   # Enable page/fragment caching by setting a file-based store
   # (remember to create the caching directory and make it readable to the application)
   # config.action_controller.fragment_cache_store = :file_store, "#{RAILS_ROOT}/cache"
+
+  config.gem 'gruff'
+  config.gem 'daemons'
+  config.gem 'delayed_job'
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
@@ -90,6 +94,23 @@ ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
 ExceptionNotifier.email_prefix = "[OBS web error] "
 ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 
+MONITOR_IMAGEMAP = { 'pc_waiting' => [
+        ["i586", 'waiting_i586'],
+        ["x86_64", 'waiting_x86_64'] ],
+      'pc_blocked' => [
+        ["i586 +", 'blocked_i586' ],
+        ["x86_64 +", 'blocked_x86_64'] ],
+      'ppc' => [
+        ["ppc +", 'blocked_ppc' ],
+        ["ppc64 +", 'blocked_ppc64'],
+        ["ppc", 'waiting_ppc'],
+        ["ppc64", 'waiting_ppc64'] ],
+      'arm' => [
+        ["armv5 +", 'blocked_armv5el' ],
+        [ "armv7 +", 'blocked_armv7el'],
+        [ "armv5", 'waiting_armv5el'],
+        [ "armv7", 'waiting_armv7el'] ]
+    }
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
@@ -172,3 +193,4 @@ ActiveXML::Base.config do |conf|
 
 
 end
+
