@@ -412,6 +412,18 @@ class PackageController < ApplicationController
     @package = params[:package]
     @arch = params[:arch]
     @repo = params[:repository]
+
+    size = frontend.get_size_of_log(@project, @package, @repo, @arch)
+    logger.debug("size is %d" % size)
+    @offset = size - 32 * 1024
+    if @offset < 0
+      @offset = 0
+    end
+    maxsize = 1024 * 64
+    @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+    @offset += @initiallog.length
+    @initiallog = CGI.escapeHTML(@initiallog);
+    @initiallog.gsub!("\n","<br/>")
   end
 
   def update_build_log
@@ -422,25 +434,25 @@ class PackageController < ApplicationController
     @initial = params[:initial]
     @offset = params[:offset].to_i
     @finished = false
-    maxsize = 1024 * 256
+    maxsize = 1024 * 64
 
     begin
-      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+      log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
       
-      if( @log_chunk.length == 0 )
+      if( log_chunk.length == 0 )
         @finished = true
       else
-        @offset += @log_chunk.length
-        @log_chunk = CGI.escapeHTML(@log_chunk);
-        @log_chunk.gsub!("\n","<br/>")
+        @offset += log_chunk.length
+        log_chunk = CGI.escapeHTML(log_chunk);
+        log_chunk.gsub!("\n","<br/>")
       end
       
     rescue ActiveXML::Transport::NotFoundError => ex
-      @log_chunk = "No live log available"
+      log_chunk = "No live log available"
       @finished = true
       
     rescue Timeout::Error => ex
-      @log_chunk = ""
+      log_chunk = ""
     end
     
     render :update do |page|
@@ -450,8 +462,8 @@ class PackageController < ApplicationController
       if @finished
         page.call 'build_finished'
       else
-        page.insert_html :bottom, 'log_space', @log_chunk
-        if @log_chunk.length < maxsize || @initial == 0
+        page.insert_html :bottom, 'log_space', log_chunk
+        if log_chunk.length < maxsize || @initial == 0
           page.call 'autoscroll'
           page.delay(2) do
             page.call 'refresh', @offset, 0
