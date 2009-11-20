@@ -1,0 +1,149 @@
+.builderbox { 
+  width: 19%;
+  margin: 0;
+  border: 8px transparent;
+  list-style: none;
+  float: left;
+}
+
+.builderboxtitle { 
+  padding: 0;
+  margin: 0;
+  border: 1px solid gray;
+  background-color: #eee;
+}
+
+.monitorboxrow {
+  list-style: none;
+  clear: both;
+}
+
+.monitorpb_track {
+  margin: 0; 
+  padding: 0; 
+  background-image: url("../../images/progressbar.png");
+  background-color: transparent;
+  background-repeat: repeat-x;
+  background-attachment: scroll;
+  background-position: left -22px;
+  overflow: hidden; 
+  width: 90%;
+  height: 100%;
+  float: left;
+  moz-background-clip: border;
+  moz-background-origin: padding; 
+  moz-background-inline-policy: continuous;
+}
+
+.monitorpb_right {
+  margin: 0; 
+  padding: 0; 
+  overflow: hidden; 
+  width: 2px; 
+  height: 100%;
+  float: left; 
+  background-image: url("../../images/progressbar.png");
+  background-position: -4px -44px;
+}
+
+.monitorpb_left { 
+  margin: 0pt; 
+  padding: 0pt; 
+  overflow: hidden; 
+  width: 2px; 
+  height: 100%;
+  float: left; 
+  background-image: url("../../images/progressbar.png");
+  background-position: -2px -44px;
+}
+
+.monitorpb_text { 
+  position: absolute; 
+  left: 6px; 
+  top: 2px;
+}
+
+.monitorpb_ctrl { 
+  margin: 0;
+  padding: 0; 
+  background-image: url("../../images/progressbar.png");
+  background-color: transparent;
+  background-repeat: repeat-x;
+  background-attachment: scroll;
+  background-position: left top;
+  width: 100%;
+  height: 100%;
+  moz-background-clip: border; 
+  moz-background-origin: padding; 
+  moz-background-inline-policy: continuous; 
+}
+
+.monitorpb {
+  padding: 0pt 3px; 
+  height: 22px;
+  position: relative; 
+  width: 100%;
+  left: 0; 
+  top: 0;
+  max-height: 22px;
+}
+
+.monitorpb a {
+  color: black ! important;
+}
+
+.monitorgraphs li
+{ 
+  text-align: center;
+  list-style: none;
+}
+
+.monitorgraphs li
+{ 
+  float: left;
+}
+
+.monitorgraphs img
+{ 
+  display: block;
+}
+
+.statuslights ul
+{ 
+  height: 20px;
+}
+
+.statuslights li
+{ 
+  list-style: none;
+  margin: 0px;
+  margin-right: 3px;
+  float: left;
+}
+
+.statuslights .statusarch
+{ 
+  margin-right: 5px;
+}
+
+.statuslights .statuslight
+{ 
+  width: 12px;
+  min-width: 12px;
+  height: 20px;
+}
+
+.statuslights .status_green
+{ 
+  background-image: url('../../images/status_green.png')
+}
+
+.statuslights .status_yellow
+{ 
+  background-image: url('../../images/status_yellow.png')
+}
+
+.statuslights .status_red
+{ 
+  background-image: url('../../images/status_red.png')
+}

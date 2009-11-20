@@ -94,22 +94,31 @@ ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
 ExceptionNotifier.email_prefix = "[OBS web error] "
 ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 
-MONITOR_IMAGEMAP = { 'pc_waiting' => [
+MONITOR_IMAGEMAP = { 
+      'pc_waiting' => [
         ["i586", 'waiting_i586'],
         ["x86_64", 'waiting_x86_64'] ],
       'pc_blocked' => [
-        ["i586 +", 'blocked_i586' ],
-        ["x86_64 +", 'blocked_x86_64'] ],
-      'ppc' => [
-        ["ppc +", 'blocked_ppc' ],
-        ["ppc64 +", 'blocked_ppc64'],
+        ["i586", 'blocked_i586' ],
+        ["x86_64", 'blocked_x86_64'] ],
+      'pc_workers' => [
+        ["idle", 'idle_x86_64' ],
+        ['building', 'building_x86_64' ] ],
+      'ppc_waiting' => [
         ["ppc", 'waiting_ppc'],
         ["ppc64", 'waiting_ppc64'] ],
-      'arm' => [
-        ["armv5 +", 'blocked_armv5el' ],
-        [ "armv7 +", 'blocked_armv7el'],
-        [ "armv5", 'waiting_armv5el'],
-        [ "armv7", 'waiting_armv7el'] ]
+      'ppc_blocked' => [
+        ["ppc", 'blocked_ppc' ],
+        ["ppc64", 'blocked_ppc64'] ],
+      'ppc_workers' => [
+        ["idle", 'idle_ppc' ],
+        ['building', 'building_ppc' ] ],
+      'arm_waiting' => [
+        ["armv5", 'waiting_armv5el'],
+        ["armv7", 'waiting_armv7el'] ],
+      'arm_blocked' => [
+        ["armv5", 'blocked_armv5el' ],
+        ["armv7", 'blocked_armv7el'] ]
     }
 
 ActiveXML::Base.config do |conf|
@@ -144,7 +153,6 @@ ActiveXML::Base.config do |conf|
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :jobhislist, "rest:///build/:project/:name/:arch/_jobhistory?:limit"
 
-
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package&:code&:lastbuild"
 
     map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
@@ -162,8 +170,8 @@ ActiveXML::Base.config do |conf|
       :project => "rest:///source/:project/_attribute"
 
     # Monitor
-    map.connect :workerstatus, 'rest:///build/_workerstatus',
-      :all => 'rest:///build/_workerstatus'
+    map.connect :workerstatus, 'rest:///status/workerstatus',
+      :all => 'rest:///status/workerstatus'
 
     # Statistics
     map.connect :latestadded, 'rest:///statistics/latest_added?:limit',
@@ -180,7 +188,7 @@ ActiveXML::Base.config do |conf|
       :all => 'rest:///statistics/global_counters'
 
     # Status Messages
-    map.connect :statusmessage, 'rest:///status_message/:id/?:limit'
+    map.connect :statusmessage, 'rest:///status/messages/:id/?:limit'
 
     map.connect :platform, "rest:///platform/:project/:name",
         :all => "rest:///platform/"
