@@ -14,13 +14,16 @@
   <span id="add_message_form_area"></span>
 
   <table>
+   <thead>
     <tr>
       <th>&nbsp;</th>
       <th>Message</th>
       <th>&nbsp;</th>
       <th>time entered</th>
       <th>by user</th>
-    <tr>
+    </tr>
+    </thead>
+   <tbody>
     <% @status_messages.each_message do |msg| %>
       <tr>
         <td>
@@ -57,17 +60,16 @@
             &nbsp;
           <% end %>
         </td>
-        <td class="greyed-out">
-          <nobr>
+        <td class="greyed-out nowrap">
             <%= distance_of_time_in_words_to_now( Time.parse(msg.created_at) ) %>
             ago
-          </nobr>
         </td>
         <td class="greyed-out">
           <%= msg.user %>
         </td>
       </tr>
       <% end %>
+    </tbody>
   </table>
   <p>
     <% if @status_messages.count.to_i > @max_messages %>
