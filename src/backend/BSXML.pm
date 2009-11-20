@@ -87,6 +87,9 @@ our $proj = [
 	 [],
         'title',
         'description',
+     [[	'link' =>
+	    'project',
+     ]],
 	'remoteurl',
 	'remoteproject',
      [[ 'person' =>
@@ -539,8 +542,6 @@ our $link = [
 	'cicount',
 	'baserev',
       [ 'patches' =>
-	  [],
-	  'topadd',
 	  [ $linkpatch ],
       ],
 ];
