@@ -1,0 +1,116 @@
+<% content_for :head_javascript do %>
+
+  var logfileinfo = "package";
+
+  function processCtrl(id, item)
+  {
+     var delta = item["delta"];
+
+     var container = $('#p' + id);
+
+     var skin = "url('<%= image_path('progressbar') %>_green.png')";
+     if (delta > 90) {
+        skin = "url('<%= image_path('progressbar') %>_red.png')";
+     } else if (delta > 80) {
+        skin = "url('<%= image_path('progressbar') %>_orange.png')";
+     }
+     var el_track = $('#p' + id + "-track");
+     el_track.css("background-image", skin);
+     el_track.css("width", (container.width() - 12) + "px");
+
+     var el_right = $('#p' + id + "-cap-right");
+     el_right.css("background-image", skin);
+
+     var el_left = $('#p' + id + "-cap-left");
+     el_left.css("background-image", skin);
+
+     var el_ctrl = $('#p' + id + "-ctrl");
+     /* el.css("background-image", "url('<%= image_path('progressbar') %>_green.png')");*/
+     el_ctrl.css("width", (container.width() - 12) + "px");
+              
+     var el_text = $('#p' + id + "-text");
+     if (delta) {
+        el_text.html(item[logfileinfo]);
+	container.children(".pb_repo:first").html(item["repository"]);
+	container.children(".pb_arch:first").html(item["arch"]);
+	container.children(".pb_package:first").html(item["package"]);
+	container.children(".pb_project:first").html(item["project"]);
+        el_ctrl.css("margin-left", (el_track.width() * delta / 100) + "px");
+	el_text.attr("href", "<%= url_for :controller => :package, :action => :live_build_log %>?arch=" + encodeURIComponent(item["arch"]) + 
+	             "&package=" + encodeURIComponent(item["package"]) + "&project=" + encodeURIComponent(item["project"]) + "&repository=" + encodeURIComponent(item["repository"]));
+     }
+     else {
+        el_text.html("idle");
+        el_ctrl.css("margin-left", "0px");
+	el_text.attr("href", "#");
+     }
+  }
+
+  function update()
+  {
+     $("#workers_updating").fadeIn(1200);
+     $.getJSON("<%= url_for(:controller => :monitor, :action => :update_building) %>", function(json) {
+	 $.each(json, function(i,item) {
+            processCtrl(i, item);
+	 });
+         $("#workers_updating").fadeOut(1200);
+     });
+  }
+<% end %>
+
+<% content_for :ready_function do %>
+       $(".worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); })
+       update();
+       setInterval("update()", 180000 );
+
+       $("#worker_display").change(function() {
+	   $("select option:selected").each(function() { logfileinfo=$(this).attr("value"); })
+	   update();
+       });
+<% end %>
+
+<h2 id="workers_title">Workers <span class="hidden" id="workers_updating">(updating...)</span></h2>
+<form>
+	<div style="float: right">
+	<span class="strong">Show:</span>
+	<select id="worker_display">
+	<option value="package" selected="selected">Package name</option>
+	<option value="project">Project</option>	
+      	<option value="repository">Repository</option>	
+      	<option value="arch">Architecture</option>	
+	</select>
+	</div>
+</form>
+<ul class='monitorboxrow'>
+<% counter = -1
+   @workers_sorted.each do |name,hash| 
+   counter += 1
+   if counter == 5 -%>
+</ul>
+<ul class='monitorboxrow'>
+  <% counter = 0
+     end -%>
+  <li class='builderbox'>
+      <div class='builderboxtitle'><%= '%s (%s)' % [name, hash['_arch']] %></div>
+      <% hash.each do |subid,id| -%>
+	<% if subid != '_arch' -%>
+	<div class='monitorpb' id='p<%= id %>'>
+	  <div id="p<%= id %>-cap-left" class="monitorpb_left">
+	  </div>
+	  <div id="p<%= id %>-track" class="monitorpb_track">
+	    <div id="p<%= id %>-ctrl" class="monitorpb_ctrl"></div>
+	  </div>
+	  <div id="p<%= id %>-cap-right" class="monitorpb_right">
+	  </div>
+	  <a href="#" id="p<%= id %>-text" class="monitorpb_text"></a>
+ 	  <span class="pb_repo hidden"></span>
+	  <span class="pb_arch hidden"></span>
+ 	  <span class="pb_project hidden"></span>
+	  <span class="pb_package hidden"></span>
+	</div>
+	<% end -%>
+      <% end -%>
+  </li>
+<% end -%>
+</ul>
+<div style="clear: both"></div>
