@@ -315,7 +315,7 @@ nextchunk:
 
   my $data = substr($ev->{'replbuf'}, length($1), $cl);
   my $nextoff = length($1) + $cl;
-  
+
   # handler returns false: cannot consume now, try later
   return unless $ev->{'datahandler'}->($ev, $rev, $data);
 
@@ -393,8 +393,8 @@ sub rpc_recv_forward_data_handler {
   my ($ev, $rev, $data) = @_;
 
   my @jobs = @{$rev->{'joblist'} || []};
-  my @stay = ();
-  my @leave = ();
+  my @stay;
+  my @leave;
 
   for my $jev (@jobs) {
     if (length($jev->{'replbuf'}) >= 16384) {
@@ -408,9 +408,10 @@ sub rpc_recv_forward_data_handler {
     @leave = @jobs;
     @stay = ();
   }
-  if (!@leave) {
+  if (@stay && !@leave) {
     # too full! wait till there is more room
     #print "stay=".@stay.", leave=".@leave.", blocking\n";
+    $rev->{'paused'} = 1;
     return 0;
   }
 

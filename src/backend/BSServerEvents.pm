@@ -494,9 +494,8 @@ sub stream_read_handler {
   if (length($wev->{'replbuf'}) >= 16384) {
     #print "write buffer too full, throttle\n";
     $ev->{'paused'} = 1;
-  } else {
-    BSEvents::add($ev);
   }
+  BSEvents::add($ev) unless $ev->{'paused'};
 }
 
 #
@@ -536,6 +535,7 @@ sub stream_write_handler {
     if ($rev->{'writeev'} != $ev) {
       my $wev = $rev->{'writeev'};
       if ($wev->{'paused'} && length($wev->{'replbuf'})) {
+	#print "pushing old data\n";
 	delete $wev->{'paused'};
 	BSEvents::add($wev);
       }
