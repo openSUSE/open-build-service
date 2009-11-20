@@ -337,10 +337,10 @@ class ProjectController < ApplicationController
 
 
   def save_new
-    @namespace = params[:ns]
-    @project_title = params[:title]
-    @project_description = params[:description]
-    @new_project_name = params[:name]
+    @namespace = params[:ns].strip
+    @project_title = params[:title].strip
+    @project_description = params[:description].strip
+    @new_project_name = params[:name].strip
     if params[:ns]
        project_name = params[:ns].to_s + ":" + @new_project_name
     else
