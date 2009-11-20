@@ -1,8 +1,16 @@
+=== openSUSE Buildservice Webclient ===
+
+The webclient can be run and developed locally without having to setup a complete 
+buildservice. It can simply use the public backend. 
 
 
+= Required packages can be installed from the devel:/languages:/ruby:/extensions repo: 
+
+sudo zypper ar http://download.opensuse.org/repositories/devel%3a/languages%3a/ruby%3a/extensions/openSUSE_11.2 "ruby extensions"
+sudo zypper in rubygem-delayed_job
 
 
-- Install memcached and start it: 
+= Install memcached and start it: 
 sudo zypper in memcached; sudo rcmemcached start; sudo insserv memcached
 
 Set up a complete buildservice from RPM packages: buildservice/dist/README.SETUP
