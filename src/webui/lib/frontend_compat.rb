@@ -69,6 +69,21 @@ class FrontendCompat
     transport.direct_http URI("https://#{path}")
   end
 
+  def get_size_of_log( project, package, repo, arch)
+    logger.debug "get log entry"
+    path = "#{@url_prefix}/build/#{project}/#{repo}/#{arch}/#{package}/_log?view=entry"
+    data = transport.direct_http URI("https://#{path}")
+    if ! data
+      return 0
+    end
+    xml = REXML::Document.new data
+    begin
+      return Integer(xml.root.elements['entry'].attributes['size'])
+    rescue
+    end
+    return 0
+  end
+
   def transport
     @transport ||= ActiveXML::Config::transport_for( :project )
   end
