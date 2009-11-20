@@ -53,7 +53,6 @@ class AttributesController < ApplicationController
       data = "<attributes><attribute name='#{attribute}'>#{data2}</attribute></attributes>"
       transport ||= ActiveXML::Config::transport_for(:project)
       path = package ? "/source/#{project}/#{package}/_attribute" : "/source/#{project}/_attribute"
-      debugger
       begin
         transport.direct_http URI("https://#{path}"), :method => "POST", :data => data
         flash[:note] = "Attribute sucessfully added!" 
