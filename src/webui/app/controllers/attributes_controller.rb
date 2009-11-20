@@ -38,30 +38,6 @@ class AttributesController < ApplicationController
       flash[:error] = "No project given!"
       redirect_to :controller => "project", :action => "list_public"
     end
-=begin
-    if params[:project] && params[:package] && params[:attribute] && params['commit']!="Create preview"
-      attributes = Attributes.find(:project => params[:project], :package => params[:package])
-      attributes.each do |a|
-        if a.data.attributes["name"].to_s == params[:attribute]
-          @attribute = params[:attribute]
-          @values_split = []
-          @values = ""
-          if a.has_element? :value
-            a.each do |b|
-              @values += ","+b.to_s
-            end
-            @values = @values[1..@values.length]
-            @values_split = @values.split(",")
-          end
-        end 
-      end
-    else 
-      @attribute = params[:attribute]
-      @values = params[:values]
-      @values_split = !@values.nil? ? @values.split(",") : nil
-      
-    end
-=end
   end
 
   def save_attribute
