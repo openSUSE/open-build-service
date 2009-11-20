@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_charset
-    unless request.xhr?
+    if !request.xhr? && !headers.has_key?('Content-Type')
       headers['Content-Type'] = "text/html; charset=utf-8"
     end
   end

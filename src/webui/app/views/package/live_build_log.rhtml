@@ -74,6 +74,11 @@ function refresh(newoffset, initial) {
   <code id="log_space"></code>
 </div>
 
+<div style="float: right">
+<%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
+              :project => @project, :arch => @arch, :repository => @repo  %>
+</div>
+
 <div><span id="endofalllog"></span>
 <a href="#" class="start_refresh hidden">[Start Refresh]</a>
 <a href="#" class="stop_refresh">[Stop Refresh]</a>

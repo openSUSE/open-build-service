@@ -387,6 +387,25 @@ class PackageController < ApplicationController
     redirect_to :action => :show, :package => package, :project => project
   end
 
+  def rawlog
+    valid_http_methods :get
+
+    headers['Content-Type'] = 'text/plain'
+
+    render :text => proc { |response, output| 
+      maxsize = 1024 * 256
+      offset = 0
+      while true
+	chunk = frontend.get_log_chunk(params[:project], params[:package], params[:repository], params[:arch], offset, offset + maxsize )
+	if chunk.length == 0
+	  break
+	end
+	offset += chunk.length
+	output.write(chunk)
+	output.flush
+      end
+    }
+  end
 
   def live_build_log
     @project = params[:project]
@@ -403,7 +422,7 @@ class PackageController < ApplicationController
     @initial = params[:initial]
     @offset = params[:offset].to_i
     @finished = false
-    maxsize = 1024 * 64;
+    maxsize = 1024 * 256
 
     begin
       @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
