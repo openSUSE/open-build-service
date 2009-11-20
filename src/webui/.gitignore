@@ -1,0 +1,5 @@
+log
+lib/common
+config/repositories.rb
+db/database.db
+public/images/common
