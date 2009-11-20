@@ -337,14 +337,14 @@ class ProjectController < ApplicationController
 
 
   def save_new
-    @namespace = params[:ns].strip
-    @project_title = params[:title].strip
-    @project_description = params[:description].strip
-    @new_project_name = params[:name].strip
+    @namespace = params[:ns]
+    @project_title = params[:title]
+    @project_description = params[:description]
+    @new_project_name = params[:name]
     if params[:ns]
-       project_name = params[:ns].to_s + ":" + @new_project_name
+       project_name = params[:ns].strip + ":" + @new_project_name.strip
     else
-       project_name = @new_project_name
+       project_name = @new_project_name.strip
     end
 
     if !valid_project_name? project_name
@@ -372,7 +372,8 @@ class ProjectController < ApplicationController
         flash[:error] = "Failed to save project '#{@project}'"
       end
     rescue ActiveXML::Transport::ForbiddenError => err
-      flash[:error] = "Forbidden to create project '#{@project}'. Try under your home:%s namespace" % session[:login]
+      flash[:error] = "You lack the permission to create the project '#{@project}'. " +
+        "Please create it in your home:%s namespace" % session[:login]
       redirect_to :action => 'new', :ns => "home:" + session[:login] and return
     end
     redirect_to :action => 'new'
