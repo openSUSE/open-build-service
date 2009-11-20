@@ -539,6 +539,8 @@ our $link = [
 	'cicount',
 	'baserev',
       [ 'patches' =>
+	  [],
+	  'topadd',
 	  [ $linkpatch ],
       ],
 ];
