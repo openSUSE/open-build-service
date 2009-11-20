@@ -533,6 +533,13 @@ sub stream_write_handler {
   if ($rev->{'paused'} && length($ev->{'replbuf'}) <= 8192) {
     delete $rev->{'paused'};
     BSEvents::add($rev);
+    if ($rev->{'writeev'} != $ev) {
+      my $wev = $rev->{'writeev'};
+      if ($wev->{'paused'} && length($wev->{'replbuf'})) {
+	delete $wev->{'paused'};
+	BSEvents::add($wev);
+      }
+    }
   }
   if (length($ev->{'replbuf'})) {
     BSEvents::add($ev);
