@@ -341,7 +341,11 @@ class ProjectController < ApplicationController
     @project_title = params[:title]
     @project_description = params[:description]
     @new_project_name = params[:name]
-    project_name = params[:ns].to_s + ":" + @new_project_name if params[:ns]
+    if params[:ns]
+       project_name = params[:ns].to_s + ":" + @new_project_name
+    else
+       project_name = @new_project_name
+    end
 
     if !valid_project_name? project_name
       flash.now[:error] = "Invalid project name '#{project_name}'."
