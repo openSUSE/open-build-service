@@ -13,4 +13,6 @@ if ! dbproj
   exit 1
 end
 mypackages = dbproj.complex_status
+key='project_status_%s' % dbproj.name
+Rails.cache.write(key, mypackages)
 

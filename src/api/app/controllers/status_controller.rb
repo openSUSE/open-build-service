@@ -137,7 +137,8 @@ class StatusController < ApplicationController
           :message => "project %s does not exist" % params[:id]
         return
      end
-     @packages = dbproj.complex_status
+     key='project_status_%s' % dbproj.name
+     @packages = Rails.cache.read key || dbproj.complex_status
   end
 
 end

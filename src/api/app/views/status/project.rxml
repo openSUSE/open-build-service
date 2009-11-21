@@ -3,17 +3,7 @@ xml.instruct!
 
 xml.packages do
   @packages.each do |name,pkg|
-    xml.package(
-      :name => pkg.name,
-      :version => pkg.version,
-      :release => pkg.release) do
-      pkg.fails.each do |repo,time|
-	xml.failure(:repo => repo, :time => time)
-      end
-      if pkg.devel_project || pkg.devel_package
-	xml.develpack(:proj => pkg.devel_proj, :pack => pkg.devel_pack)
-      end
-    end
+    pkg.to_xml(:builder => xml)
   end
 end
 

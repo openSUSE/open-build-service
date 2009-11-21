@@ -2,6 +2,7 @@
 class PackInfo
 	attr_accessor :version, :release
 	attr_accessor :devel_project, :devel_package
+	attr_accessor :srcmd5, :error
 	attr_reader :name
 
 	def initialize(name)
@@ -12,6 +13,7 @@ class PackInfo
 		@devel_pack = nil
 		@version = nil
 		@release = nil
+		@links = Array.new
 	end
 
 	def success(reponame, time)
@@ -43,6 +45,31 @@ class PackInfo
 		end
 		return ret
 	end
+
+	def linked(proj, pack)
+		@links << [proj, pack]
+	end
+
+	def to_xml(options = {}) 
+             xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
+             xml.instruct! unless options[:skip_instruct]
+             xml.package(
+               :name => name,
+               :version => version,
+               :srcmd5 => srcmd5,
+               :release => release) do
+                 self.fails.each do |repo,time|
+                   xml.failure(:repo => repo, :time => time)
+                 end
+                 if devel_project || devel_package
+                   xml.develpack(:proj => devel_proj, :pack => devel_pack)
+                 end
+		 if @error then xml.error(error) end
+		 @links.each do |proj,pack|
+		    xml.link(:project => proj, :package => pack)
+		 end
+	     end
+        end
 end
 
 class ProjectStatusHelper
@@ -70,7 +97,8 @@ class ProjectStatusHelper
            puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
            d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) )
            data = REXML::Document.new(d)
-           data.root.each_element('jobhist') do |p|
+           if data && data.root then 
+              data.root.each_element('jobhist') do |p|
 		packname = p.attribute('package').value
                 next unless mypackages.has_key?(packname)
 		reponame = r.name + "/" + arch.name
@@ -83,10 +111,28 @@ class ProjectStatusHelper
 		versrel=p.attribute('versrel').value.split('-')
 		mypackages[packname].version = versrel[0..-2].join('-')
 		mypackages[packname].release = versrel[-1]
+             end
            end
         end
      end 
-     mypackages
+     d = backend.direct_http( URI('/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % dbproj.name) )
+     data = REXML::Document.new(d)
+     data.each_element('projpack/project/package') do |p|
+        packname = p.attributes['name']
+        next unless mypackages.has_key?(packname)
+        if p.attributes.has_key? :verifymd5
+	    mypackages[packname].srcmd5 = p.attributes['verifymd5']
+        else
+	    mypackages[packname].srcmd5 = p.attributes['srcmd5']
+        end
+        p.each_element('linked') do |l|
+		mypackages[packname].linked(l.attributes['project'], l.attributes['package'])
+        end
+	p.each_element('error') do |e|
+		mypackages[packname].error = e.text
+	end
+     end
+     return mypackages
   end
 end
  
