@@ -9,8 +9,8 @@ class PackInfo
 		@name = name
 		@failed = Hash.new
 		@last_success = Hash.new
-		@devel_proj = nil
-		@devel_pack = nil
+		@devel_project = nil
+		@devel_package = nil
 		@version = nil
 		@release = nil
 		@links = Array.new
@@ -52,7 +52,6 @@ class PackInfo
 
 	def to_xml(options = {}) 
              xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
-             xml.instruct! unless options[:skip_instruct]
              xml.package(
                :name => name,
                :version => version,
@@ -62,7 +61,7 @@ class PackInfo
                    xml.failure(:repo => repo, :time => time)
                  end
                  if devel_project || devel_package
-                   xml.develpack(:proj => devel_proj, :pack => devel_pack)
+                   xml.develpack(:proj => devel_project, :pack => devel_package)
                  end
 		 if @error then xml.error(error) end
 		 @links.each do |proj,pack|

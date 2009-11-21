@@ -1,3 +1,5 @@
+require 'project_status_helper'
+
 class StatusController < ApplicationController
 
   skip_before_filter :extract_user, :only => [ :history, :project ]
@@ -138,7 +140,7 @@ class StatusController < ApplicationController
         return
      end
      key='project_status_%s' % dbproj.name
-     @packages = Rails.cache.read key || dbproj.complex_status
+     @packages = Rails.cache.read(key) || dbproj.complex_status
   end
 
 end
