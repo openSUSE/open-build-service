@@ -111,8 +111,15 @@ class StatusController < ApplicationController
       end
 
       allworkers = Hash.new
+      workers = Hash.new
       %w{building idle}.each do |state|
         data.root.each_element(state) do |e|
+          id=e.attributes['workerid']
+          if workers.has_key? id
+             logger.debug 'building+idle worker'
+             next
+          end
+          workers[id] = 1
           key = state + '_' + e.attributes['hostarch']
           begin
             allworkers[key] = allworkers[key] + 1
