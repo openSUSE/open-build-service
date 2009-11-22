@@ -75,6 +75,9 @@ API_VERSION="0.1.2"
 # be taken in account for global statistics
 MIN_VOTES_FOR_RATING = 3
 
+# by default do not write the result from the backend into
+# backend_access.log - overwritten in development env
+EXTENDED_BACKEND_LOG = false
 
 # activate / enable caching with the action_cache plugin
 require 'action_cache'
