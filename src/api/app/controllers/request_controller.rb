@@ -48,7 +48,7 @@ class RequestController < ApplicationController
       node = req.submit
       node.data.name = 'action'
       node.data.attributes['type'] = 'submit'
-      req.data.attributes['type'] = nil
+      req.delete_attribute('type')
     end
 
     req.each_action do |action|
@@ -124,7 +124,7 @@ class RequestController < ApplicationController
           end
         end
 
-        unless action.data.attributes["type"] == "submit" and action.data.elements['target'].nil?
+        unless action.data.attributes["type"] == "submit" and action.has_element? 'target'
           # target is required for change_devel, but optional for submit
           tprj = DbProject.find_by_name action.target.project
 #          unless sprj or DbProject.find_remote_project(action.source.project)
@@ -203,7 +203,7 @@ class RequestController < ApplicationController
       node = req.submit
       node.data.name = 'action'
       node.data.attributes['type'] = 'submit'
-      req.data.attributes['type'] = nil
+      req.delete_attribute('type')
     end
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :superseded_by, :comment])
 
