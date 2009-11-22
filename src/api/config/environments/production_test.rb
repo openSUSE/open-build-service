@@ -28,6 +28,8 @@ SOURCE_PORT = 5352
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/public/apidocs/html")+"/"
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
+EXTENDED_BACKEND_LOG = false
+
 #ActionController::AbstractRequest.relative_url_root = "/stage"
 
 require 'hermes'
