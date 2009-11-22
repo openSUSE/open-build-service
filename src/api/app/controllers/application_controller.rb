@@ -298,7 +298,7 @@ class ApplicationController < ActionController::Base
   end
   
   def backend
-    @backend ||= ActiveXML::Config.transport_for :packstatus
+    @backend ||= ActiveXML::Config.transport_for :bsrequest
   end
 
   def backend_get( path )
