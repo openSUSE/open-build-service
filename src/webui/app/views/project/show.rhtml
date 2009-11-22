@@ -32,11 +32,11 @@
 
 
 <div class="description" id="description">
-  <% description = @project.description.data.text %>
+  <% description = @project.description.text %>
   <% if description %>
     <% linecount=0 %>
     <% linecount_wherehide=8 %>
-    <% @project.description.to_s.split( /\n/ ).each do |line| %>
+    <% description.split( /\n/ ).each do |line| %>
       <% linecount += 1 %>
       <% if linecount == linecount_wherehide %>
         <div id="hidden_description" style="display:none;">

@@ -20,7 +20,7 @@ class Project < ActiveXML::Base
 
   handles_xml_element 'project'
 
-  class Repository < ActiveXML::Node
+  class Repository < ActiveXML::XMLNode
     handles_xml_element 'repository'
     xml_attr_accessor 'name'
 

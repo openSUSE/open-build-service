@@ -1,6 +1,6 @@
 <h3>Attributes <%= link_to image_tag('list-add.png', :alt => "Add attribute", :title => "Add attribute"), :controller => "attributes", :action => "add_attribute", :project => @project, :package => @package %></h3>
 
-<% if @attributes.nil? || @attributes.each.count == 0  %>
+<% if @attributes.nil? || !@attributes.has_elements?  %>
 
     <p><em>No attributes set</em></p>
 
