@@ -115,8 +115,6 @@ ActiveXML::Base.config do |conf|
     map.connect :bsrequest, "rest:///request/:id",
       :all => "rest:///request"
 
-    map.connect :packstatus, "rest:///status/:project?summaryonly=:summaryonly"
-
     map.connect :collection, "rest:///search/:what?:match",
       :id => "rest:///search/:what/id?:match",
       :package => "rest:///search/package?:match",
