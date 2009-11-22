@@ -1,3 +1,4 @@
+require 'xml'
 
 class PackInfo
 	attr_accessor :version, :release
@@ -73,7 +74,7 @@ end
 
 class ProjectStatusHelper
 
-  def self.calc_status(dbproj)
+  def self.calc_status(dbproj, backend)
      mypackages = Hash.new
 
      if ! dbproj
@@ -90,46 +91,48 @@ class ProjectStatusHelper
           end
           mypackages[name] = pack
      end
-     backend = ActiveXML::Config.transport_for :packstatus
      dbproj.repositories.each do |r|
         r.architectures.each do |arch|
+           reponame = r.name + "/" + arch.name
            puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
            d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) )
-           data = REXML::Document.new(d)
-           if data && data.root then 
-              data.root.each_element('jobhist') do |p|
-		packname = p.attribute('package').value
+           data = XML::Parser.string(d).parse
+           if data then 
+              data.find('/jobhistlist/jobhist').each do |p|
+		packname = p.attributes['package']
                 next unless mypackages.has_key?(packname)
-		reponame = r.name + "/" + arch.name
-		code = p.attribute('code').value
+		code = p.attributes['code']
 		if code == "unchanged" || code == "succeeded"
-			mypackages[packname].success(reponame, Integer(p.attribute('readytime').value))
+			mypackages[packname].success(reponame, Integer(p.attributes['readytime']))
 		else
-			mypackages[packname].failure(reponame, Integer(p.attribute('readytime').value))
+			mypackages[packname].failure(reponame, Integer(p.attributes['readytime']))
 		end
-		versrel=p.attribute('versrel').value.split('-')
+		versrel=p.attributes['versrel'].split('-')
 		mypackages[packname].version = versrel[0..-2].join('-')
 		mypackages[packname].release = versrel[-1]
              end
            end
         end
      end 
+     #d = File.read('getprojpack.xml')
+     puts 'get /getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % dbproj.name
      d = backend.direct_http( URI('/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % dbproj.name) )
-     data = REXML::Document.new(d)
-     data.each_element('projpack/project/package') do |p|
+     data = XML::Parser.string(d).parse
+     if data then data.find('/projpack/project/package').each do |p|
         packname = p.attributes['name']
         next unless mypackages.has_key?(packname)
-        if p.attributes.has_key? :verifymd5
+        if p.attributes['verifymd5']
 	    mypackages[packname].srcmd5 = p.attributes['verifymd5']
         else
 	    mypackages[packname].srcmd5 = p.attributes['srcmd5']
         end
-        p.each_element('linked') do |l|
+        p.find('linked').each do |l|
 		mypackages[packname].linked(l.attributes['project'], l.attributes['package'])
         end
-	p.each_element('error') do |e|
+	p.find('error').each do |e|
 		mypackages[packname].error = e.text
 	end
+       end
      end
      return mypackages
   end

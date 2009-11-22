@@ -12,7 +12,8 @@ if ! dbproj
   puts "invalid project " + proj
   exit 1
 end
-mypackages = dbproj.complex_status
+backend = ActiveXML::Config.transport_for :packstatus
+mypackages = dbproj.complex_status(backend)
 key='project_status_%s' % dbproj.name
 Rails.cache.write(key, mypackages)
 
