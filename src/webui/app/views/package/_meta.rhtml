@@ -7,7 +7,7 @@
   <% linecount=0 %>
   <% linecount_wherehide=8 %>
 
-  <% description = @package.description.data.text %>
+  <% description = @package.description.text %>
   <% if description %>
     <% description.split( /\n/ ).each do |line| %>
       <% linecount += 1 %>
