@@ -100,7 +100,7 @@ module FlagModelHelper
 
               repos.each do |x|
                 if x.name == flag.repository
-                  arch_element = ActiveXML::Node.new("<arch>#{flag.arch}</arch>")
+                  arch_element = ActiveXML::XMLNode.new("<arch>#{flag.arch}</arch>")
                   x.arch << arch_element
                   logger.debug("[INVALID REPO CHECK] new arch for repo found #{flag.arch}")
                 end
@@ -113,7 +113,7 @@ module FlagModelHelper
               rep.name = flag.repository
               rep.arch ||= Array.new
               if flag.has_attribute? :arch
-                arch_element = ActiveXML::Node.new("<arch>#{flag.arch}</arch>")
+                arch_element = ActiveXML::XMLNode.new("<arch>#{flag.arch}</arch>")
                 rep.arch << arch_element
               end
               repos << rep
