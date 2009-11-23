@@ -239,7 +239,6 @@ class SourceController < ApplicationController
       # permission checking
       if params[:attribute]
         aname = params[:attribute]
-print "XXXXXXXXXXXXXX RUN FOR ", params[:attribute],binary , "\n"
         if a=@attrs.find_attribute(params[:attribute],binary)
           unless @http_user.can_modify_attribute? a
             render_error :status => 403, :errorcode => "change_attribute_no_permission", 
