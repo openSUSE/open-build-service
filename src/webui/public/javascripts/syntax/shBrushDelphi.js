@@ -1,10 +1,53 @@
-/*
- * JsMin
- * Javascript Compressor
- * http://www.crockford.com/
- * http://www.smallsharptools.com/
-*/
+/**
+ * Code Syntax Highlighter.
+ * Version 1.5.2
+ * Copyright (C) 2004-2008 Alex Gorbatchev
+ * http://www.dreamprojections.com/syntaxhighlighter/
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-dp.sh.Brushes.Delphi=function()
-{var keywords='abs addr and ansichar ansistring array as asm begin boolean byte cardinal '+'case char class comp const constructor currency destructor div do double '+'downto else end except exports extended false file finalization finally '+'for function goto if implementation in inherited int64 initialization '+'integer interface is label library longint longword mod nil not object '+'of on or packed pansichar pansistring pchar pcurrency pdatetime pextended '+'pint64 pointer private procedure program property pshortstring pstring '+'pvariant pwidechar pwidestring protected public published raise real real48 '+'record repeat set shl shortint shortstring shr single smallint string then '+'threadvar to true try type unit until uses val var varirnt while widechar '+'widestring with word write writeln xor';this.regexList=[{regex:new RegExp('\\(\\*[\\s\\S]*?\\*\\)','gm'),css:'comment'},{regex:new RegExp('{(?!\\$)[\\s\\S]*?}','gm'),css:'comment'},{regex:dp.sh.RegexLib.SingleLineCComments,css:'comment'},{regex:dp.sh.RegexLib.SingleQuotedString,css:'string'},{regex:new RegExp('\\{\\$[a-zA-Z]+ .+\\}','g'),css:'directive'},{regex:new RegExp('\\b[\\d\\.]+\\b','g'),css:'number'},{regex:new RegExp('\\$[a-zA-Z0-9]+\\b','g'),css:'number'},{regex:new RegExp(this.GetKeywords(keywords),'gm'),css:'keyword'}];this.CssClass='dp-delphi';this.Style='.dp-delphi .number { color: blue; }'+'.dp-delphi .directive { color: #008284; }'+'.dp-delphi .vars { color: #000; }';}
-dp.sh.Brushes.Delphi.prototype=new dp.sh.Highlighter();dp.sh.Brushes.Delphi.Aliases=['delphi','pascal'];
+/* Delphi brush is contributed by Eddie Shipman */
+dp.sh.Brushes.Delphi = function()
+{
+	var keywords =	'abs addr and ansichar ansistring array as asm begin boolean byte cardinal ' +
+					'case char class comp const constructor currency destructor div do double ' +
+					'downto else end except exports extended false file finalization finally ' +
+					'for function goto if implementation in inherited int64 initialization ' +
+					'integer interface is label library longint longword mod nil not object ' +
+					'of on or packed pansichar pansistring pchar pcurrency pdatetime pextended ' + 
+					'pint64 pointer private procedure program property pshortstring pstring ' + 
+					'pvariant pwidechar pwidestring protected public published raise real real48 ' +
+					'record repeat set shl shortint shortstring shr single smallint string then ' +
+					'threadvar to true try type unit until uses val var varirnt while widechar ' +
+					'widestring with word write writeln xor';
+
+	this.regexList = [
+		{ regex: new RegExp('\\(\\*[\\s\\S]*?\\*\\)', 'gm'),		css: 'comment' },  			// multiline comments (* *)
+		{ regex: new RegExp('{(?!\\$)[\\s\\S]*?}', 'gm'),			css: 'comment' },  			// multiline comments { }
+		{ regex: dp.sh.RegexLib.SingleLineCComments,				css: 'comment' },  			// one line
+		{ regex: dp.sh.RegexLib.SingleQuotedString,					css: 'string' },			// strings
+		{ regex: new RegExp('\\{\\$[a-zA-Z]+ .+\\}', 'g'),			css: 'directive' },			// Compiler Directives and Region tags
+		{ regex: new RegExp('\\b[\\d\\.]+\\b', 'g'),				css: 'number' },			// numbers 12345
+		{ regex: new RegExp('\\$[a-zA-Z0-9]+\\b', 'g'),				css: 'number' },			// numbers $F5D3
+		{ regex: new RegExp(this.GetKeywords(keywords), 'gm'),		css: 'keyword' }			// keyword
+		];
+
+	this.CssClass = 'dp-delphi';
+	this.Style =	'.dp-delphi .number { color: blue; }' +
+					'.dp-delphi .directive { color: #008284; }' +
+					'.dp-delphi .vars { color: #000; }';
+};
+
+dp.sh.Brushes.Delphi.prototype	= new dp.sh.Highlighter();
+dp.sh.Brushes.Delphi.Aliases	= ['delphi', 'pascal'];
