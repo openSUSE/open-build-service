@@ -111,8 +111,8 @@ MONITOR_IMAGEMAP = {
         ["ppc", 'blocked_ppc' ],
         ["ppc64", 'blocked_ppc64'] ],
       'ppc_workers' => [
-        ["idle", 'idle_ppc' ],
-        ['building', 'building_ppc' ] ],
+        ["idle", 'idle_ppc64' ],
+        ['building', 'building_ppc64' ] ],
       'arm_waiting' => [
         ["armv5", 'waiting_armv5el'],
         ["armv7", 'waiting_armv7el'] ],
