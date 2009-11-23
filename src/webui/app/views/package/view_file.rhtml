@@ -3,12 +3,17 @@
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "SyntaxHighlighter" %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushSpec', 'syntax/shBrushXml' %>
+  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushSpec', 'syntax/shBrushXml', 'syntax/shBrushDiff' %>
 <% end %>
 
 <% content_for :ready_function do %>
    dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-   dp.SyntaxHighlighter.HighlightAll('code');
+   dp.SyntaxHighlighter.HighlightAll('code'); 
+<% if @addeditlink %>
+   $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
+   $("#editlink").attr("href", "<%= url_for( :controller => :package,  :action => :edit_file, :project => @project,
+              :package => @package, :file => @filename ) %>");
+<% end %>
 <% end %>
 
 <%
@@ -16,7 +21,7 @@
   link_to( 'Projects', :controller => 'project', :action => :list_public),
   link_to( @project, :controller => 'project', :action => :show, :project => @project ),
   link_to( @package, :action => :show, :project => @project, :package => @package ),
-  'View File'
+  h(@filename)
 ]
 -%>
 <h2>View File <%=h @filename %> for package <%=h @package %> (Project <%=h @project %>)</h2>

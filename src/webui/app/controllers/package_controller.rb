@@ -4,10 +4,10 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus,
-    :update_flag, :remove]
+    :update_flag, :remove, :view_file]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
-    :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :remove]
+    :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :view_file, :remove]
 
 
   # render the input form for tags
@@ -366,9 +366,18 @@ class PackageController < ApplicationController
   end
 
   def view_file
-    @project = params[:project]
-    @package = params[:package]
     @filename = params[:file]
+    @addeditlink = false
+    if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )
+       get_files( @project.name, @package.name ).each do |file|
+         if file[:name] == @filename
+            @addeditlink = file[:editable]
+	    break
+         end
+       end
+    end
+    @project = @project.name
+    @package = @package.name
     @file = frontend.get_source( :project => @project,
       :package => @package, :filename => @filename )
   end
