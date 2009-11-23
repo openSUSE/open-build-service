@@ -1,4 +1,8 @@
+<% if @project.is_maintainer?( session[:login] ) || (@package && @package.is_maintainer?( session[:login] )) %>
 <h3>Attributes <%= link_to image_tag('list-add.png', :alt => "Add attribute", :title => "Add attribute"), :controller => "attributes", :action => "add_attribute", :project => @project, :package => @package %></h3>
+<% else -%>
+<h3>Attributes</h3>
+<% end -%>
 
 <% if @attributes.nil? || !@attributes.has_elements?  %>
 
@@ -13,7 +17,7 @@ max= 1
 @attributes.each do |a|
   j = 0
   attr[i] = Array.new()
-  attr[i][j] = a.data.attributes["name"].to_s
+  attr[i][j] = a.name
   if a.has_element? :value
     a.each do |f|
       j +=1
