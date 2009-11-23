@@ -1012,8 +1012,9 @@ class SourceController < ApplicationController
 
     # is a update project defined and a package there ?
     if a = prj.find_attribute(params[:update_project_attribute]) and a.values[0]
-       if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
+       if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
           pkg = pa
+          pkg_name = pkg.name
        end
     end
 
