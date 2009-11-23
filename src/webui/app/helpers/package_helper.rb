@@ -22,5 +22,17 @@ module PackageHelper
     number_to_human_size(bytes, :precision => 2)
   end
   
+  def guess_code_class( filename )
+    case filename
+       when "_link" then return "xml"
+    end
+    case Pathname.new(filename).extname.downcase
+       when ".spec" then return "spec"
+       when ".diff" then return "diff"
+       when ".patch" then return "patch"
+       when ".rb" then return "ruby"
+    end
+    return "spec"
+  end
 end
 
