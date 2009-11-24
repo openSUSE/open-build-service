@@ -365,7 +365,7 @@ class DbProject < ActiveRecord::Base
     # FIXME: store attributes also to backend 
   end
 
-  def store_attribute_axml( attrib )
+  def store_attribute_axml( attrib, binary=nil )
 
     raise RuntimeError, "attribute type without a name " if not attrib.name
 
