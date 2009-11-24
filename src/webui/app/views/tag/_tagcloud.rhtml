@@ -7,7 +7,7 @@
    end %> 
 
  
- <% if @tagcloud and @tagcloud.data.root.elements.size > 0 %>
+ <% if @tagcloud and @tagcloud.has_elements? %>
     <% @tagcloud.each_tag do |tag|  %>
         
          <% #style = 'visibility:visible;' %>
