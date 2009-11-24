@@ -162,12 +162,14 @@ ActiveXML::Base.config do |conf|
       :id => "rest:///search/:what/id?match=:predicate",
       :tag => "rest:///tag/:tagname/:type",
       :tags_by_user => "rest:///user/:user/tags/:type",
-      :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
+      :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags",
+      :attribute => "rest:///search/:type?match=[attribute[@name=':attribute_name']"
+
 
     map.connect :diff, "rest:///request/:id"
  
-    map.connect :attributes, "rest:///source/:project/:package/_attribute",
-      :project => "rest:///source/:project/_attribute"
+    map.connect :attributes, "rest:///source/:project/:package/_attribute/:attribute",
+      :project => "rest:///source/:project/_attribute/:attribute"
 
     # Monitor
     map.connect :workerstatus, 'rest:///status/workerstatus',
