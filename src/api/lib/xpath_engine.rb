@@ -126,10 +126,10 @@ class XpathEngine
     case @base_table
     when 'db_packages'
       model = DbPackage
-      includes = [:db_project, :meta_cache]
+      includes = [:db_project]
     when 'db_projects'
       model = DbProject
-      includes = [:repositories, :meta_cache]
+      includes = [:repositories]
     else
       logger.debug "strange base table: #{@base_table}"
     end

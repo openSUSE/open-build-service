@@ -20,8 +20,6 @@ class DbPackage < ActiveRecord::Base
   has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
 
-  has_one :meta_cache, :as => :cachable, :dependent => :delete
-
   belongs_to :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
   has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
 
@@ -315,10 +313,8 @@ class DbPackage < ActiveRecord::Base
     self.update_timestamp
     self.save!
 
-    # update cache
-    build_meta_cache if meta_cache.nil?
-    meta_cache.content = render_axml
-    meta_cache.save!
+    # expire cache
+    Rails.cache.delete('meta_package_%d' % id)
 
     #--- write through to backend ---#
     if write_through?
@@ -405,8 +401,9 @@ class DbPackage < ActiveRecord::Base
   end
 
   def to_axml
-    create_meta_cache(:content => render_axml) if meta_cache.nil?
-    return meta_cache.content
+    Rails.cache.fetch('meta_package_%d' % id, :raw => true) do
+       render_axml
+    end
   end
 
   def render_attribute_axml(params)
