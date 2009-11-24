@@ -16,30 +16,19 @@ class AttributesController < ApplicationController
   def save_attribute
     package = params[:package]
     attribute = params[:attribute]
-    if (@project.is_maintainer? session[:login]) && attribute
-      data2,data = "",""
-      values = params[:values].split(",")
-      values.each do |a|
-        data2 += "<value>#{a}</value>"
-      end
-      data = "<attributes><attribute name='#{attribute}'>#{data2}</attribute></attributes>"
-      transport ||= ActiveXML::Config::transport_for(:project)
-      path = package ? "/source/#{@project}/#{package}/_attribute" : "/source/#{@project}/_attribute"
-      begin
-        transport.direct_http URI("https://#{path}"), :method => "POST", :data => data
-        flash[:note] = "Attribute sucessfully added!" 
-      rescue ActiveXML::Transport::Error
-        flash[:error] = "Something went wrong! Maybe the attribute is not allowed." 
-      end
-      if package
-        redirect_to :controller => "package", :action => "show", :project => @project, :package => package
-      else
-        redirect_to :controller => "project", :action => "show", :project => @project
-      end
- 
+    data2,data = "",""
+    values = params[:values].split(",")
+    values.each do |a|
+      data2 += "<value>#{a}</value>"
+    end
+    data = "<attributes><attribute name='#{attribute}'>#{data2}</attribute></attributes>"
+    path = package ? "/source/#{@project}/#{package}/_attribute" : "/source/#{@project}/_attribute"
+    frontend.transport.direct_http URI("#{path}"), :method => "POST", :data => data
+    flash[:note] = "Attribute sucessfully added!"
+    if package
+      redirect_to :controller => "package", :action => "show", :project => @project, :package => package
     else
-      flash[:error] = "An error occurred!"
-      redirect_to :controller => "project", :action => "list_public"
+      redirect_to :controller => "project", :action => "show", :project => @project
     end
   end
 
