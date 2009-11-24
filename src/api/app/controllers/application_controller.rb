@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
   # Do never use a layout here since that has impact on every
   # controller in frontend
   layout nil
-  session :disabled => true
+  # session :disabled => true
 
   @user_permissions = nil
   @http_user = nil
