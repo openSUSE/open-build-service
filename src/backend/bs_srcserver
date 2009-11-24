@@ -2664,6 +2664,7 @@ sub getbuilddepinfo {
   checkprojrepoarch($projid, $repoid, $arch);
   my @args;
   push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+  push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
   my $res = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/_builddepinfo", $BSXML::builddepinfo, @args);
   return ($res, $BSXML::builddepinfo);
 }
@@ -3865,7 +3866,7 @@ my $dispatches = [
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getconfig,
   '/build/$project/$repository/$arch' => \&getpackagelist,
-  '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
+  '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
