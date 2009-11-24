@@ -29,6 +29,7 @@ class ApplicationController < ActionController::Base
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
+  before_filter :shutup_rails
 
   #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
@@ -404,6 +405,10 @@ class ApplicationController < ActionController::Base
 
   def min_votes_for_rating
     MIN_VOTES_FOR_RATING
+  end
+
+  def shutup_rails
+    Rails.cache.silence!
   end
 
   def action_fragment_key( options )
