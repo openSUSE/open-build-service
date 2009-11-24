@@ -94,7 +94,7 @@ class ProjectStatusHelper
      dbproj.repositories.each do |r|
         r.architectures.each do |arch|
            reponame = r.name + "/" + arch.name
-           puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
+           #puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
            d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) , :timeout => 1000 )
            data = XML::Parser.string(d).parse
            if data then 
@@ -115,8 +115,8 @@ class ProjectStatusHelper
         end
      end 
      #d = File.read('getprojpack.xml')
-     puts 'get /getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % dbproj.name
-     d = backend.direct_http( URI('/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % dbproj.name) )
+     #puts 'get /getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % dbproj.name
+     d = backend.direct_http( URI('/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % dbproj.name), :timeout => 1000 )
      data = XML::Parser.string(d).parse
      if data then data.find('/projpack/project/package').each do |p|
         packname = p.attributes['name']
