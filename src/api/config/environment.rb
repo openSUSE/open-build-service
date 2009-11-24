@@ -9,7 +9,10 @@ require File.join(File.dirname(__FILE__), 'boot')
 
 RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
+#require "common/libxmlactivexml"
 require "common/activexml"
+require 'custom_logger'
+
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -54,6 +57,7 @@ Rails::Initializer.run do |config|
   # (enables use of different database adapters for development and test environments)
   # config.active_record.schema_format = :ruby
 
+  config.logger = NiceLogger.new(config.log_path)
   # See Rails::Configuration for more options
 end
 
@@ -81,8 +85,7 @@ ActionController::Base.perform_caching = true
 
 ActiveRbac.controller_layout = "rbac"
 
-#require 'custom_logger'
-#RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
+require 'custom_logger'
 
 require 'rails_unescape_fix'
 
@@ -122,3 +125,4 @@ ActiveXML::Base.config do |conf|
 
   end
 end
+
