@@ -52,15 +52,7 @@ class DbPackage < ActiveRecord::Base
     end
 
     def find_by_project_and_name( project, package )
-      sql =<<-END_SQL
-      SELECT pack.*
-      FROM db_packages pack
-      LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
-      WHERE pro.name = BINARY ? AND pack.name = BINARY ?
-      END_SQL
-
-      result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
-      result[0]
+      DbPackage.find :first, :conditions => { :name => package, 'db_projects.name' => project }, :joins => :db_project
     end
 
     def find_by_attribute_type( attrib_type, package=nil )
