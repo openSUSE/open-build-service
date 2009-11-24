@@ -24,7 +24,7 @@ class ProjectController < ApplicationController
     predicate += " and not(starts-with(@name,'home:'))" if mode==:without_homes
 
     result = Collection.find :id, :what => "project", :predicate => predicate
-    @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
+    @projects = result.each.sort {|a,b| a.to_s.downcase <=> b.to_s.downcase}
 
     if request.xhr?
       render :partial => 'search_project', :locals => {:project_list => @projects}
