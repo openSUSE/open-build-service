@@ -95,7 +95,7 @@ class ProjectStatusHelper
         r.architectures.each do |arch|
            reponame = r.name + "/" + arch.name
            puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
-           d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) )
+           d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) , :timeout => 1000 )
            data = XML::Parser.string(d).parse
            if data then 
               data.find('/jobhistlist/jobhist').each do |p|
