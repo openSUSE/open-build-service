@@ -19,10 +19,12 @@
      $(".monitorplot").each(function() {
 	imagestoload += 1;
 	var src = $(this).attr('src');
-        if (src.indexOf("&fake") == -1) {
-	   src += "&fake=";
+        var index = src.indexOf("&time");
+        if (index != -1) {
+           src = src.substring(0, index);
         }
-        src += "1";
+        var date = new Date();
+        src += "&time=" + date.getTime();
         $(this).attr('src', src);
      }).load(finishedPlot);
   }
