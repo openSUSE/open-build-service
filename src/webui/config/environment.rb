@@ -162,9 +162,7 @@ ActiveXML::Base.config do |conf|
       :id => "rest:///search/:what/id?match=:predicate",
       :tag => "rest:///tag/:tagname/:type",
       :tags_by_user => "rest:///user/:user/tags/:type",
-      :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags",
-      :attribute => "rest:///search/:type?match=[attribute[@name=':attribute_name']"
-
+      :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
 
     map.connect :diff, "rest:///request/:id"
  

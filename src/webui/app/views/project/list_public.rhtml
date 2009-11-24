@@ -5,6 +5,16 @@
 ]
 -%>
 
+<% if @important_projects %>
+<table>
+  <tr><th>Main Projects</th></tr>
+  <% for project in @important_projects -%>
+  <tr><td>
+ <%= link_to project.name, :action => :show, :project => project %></td></tr>
+  <% end -%>
+</table>
+<% end %>
+
 <%= render :partial => 'filter_projects', :locals => {:filter_observer_action => 'list_public'}%>
 <p><%= link_to "[Include home projects]", :action => :list_all %></p>
 

@@ -4,6 +4,7 @@
 <table>
   <tr><th>Name</th></tr>
   <% for project in project_list -%>
-  <tr><td><%= link_to project.to_s, :action => :show, :project => project %></td></tr>
+  <tr><td>
+ <%= link_to project.name, :action => :show, :project => project %></td></tr>
   <% end -%>
 </table>
