@@ -319,7 +319,12 @@ class ApplicationController < ActionController::Base
 
   #default actions, passes data from backend
   def pass_to_backend
-    forward_data request.path+'?'+request.query_string, :server => :source
+    begin
+       forward_data request.path+'?'+request.query_string, :server => :source
+    rescue Suse::Backend::HTTPError
+       render_error :status => 404, :errorcode => "not found",
+        :message => "#{request.path} not found"
+    end
   end
   alias_method :pass_to_source, :pass_to_backend
 
