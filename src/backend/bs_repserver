@@ -1826,6 +1826,7 @@ sub getbuilddepinfo {
     }
     my $deps = $pkgdeps->{$packid} || [];
     $deps = [ map {@{$subpack2pack{$_} || []}} @$deps ] if $view eq 'pkgnames';
+    $deps = [ sort(unify(@$deps)) ] if $view eq 'pkgnames' || $view eq 'revpkgnames';
     push @res, {'name' => $packid, 
 	'source' => $n,
 	'pkgdep' => $deps,
