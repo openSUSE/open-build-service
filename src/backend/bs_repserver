@@ -1783,6 +1783,7 @@ sub getbuildinfo_post {
 sub getbuilddepinfo {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my %packids = map {$_ => 1} @{$cgi->{'package'} || []};
+  my $view = $cgi->{'view'} || '';
   my $depends;
   eval {
     $depends = Storable::retrieve("$reporoot/$projid/$repoid/$arch/:depends");
@@ -1791,6 +1792,28 @@ sub getbuilddepinfo {
   my $subpacks = $depends->{'subpacks'} || {};
   my $pkgdeps = $depends->{'pkgdeps'} || {};
   my $pkg2src = $depends->{'pkg2src'} || {};
+  my %subpack2pack;
+  if ($view eq 'pkgnames' || $view eq 'revpkgnames') {
+    for my $packid (sort keys %$pkg2src) {
+      my $n = $pkg2src->{$packid} || $packid;
+      if ($subpacks->{$n} && @{$subpacks->{$n}}) {
+        push @{$subpack2pack{$_}}, $packid for @{$subpacks->{$n}};
+      } else {
+        push @{$subpack2pack{$n}}, $packid;
+      }
+    }
+    if ($view eq 'revpkgnames') {
+      my %rdeps;
+      for my $packid (sort keys %$pkg2src) {
+	my $deps = $pkgdeps->{$packid} || []; 
+	$deps = [ map {@{$subpack2pack{$_} || []}} @$deps ];
+	for (@$deps) {
+	  push @{$rdeps{$_}}, $packid;
+	}
+      }
+      $pkgdeps = \%rdeps;
+    }
+  }
   my @res;
   for my $packid (sort keys %$pkg2src) {
     next if %packids && !$packids{$packid};
@@ -1801,9 +1824,11 @@ sub getbuilddepinfo {
       @sp = grep {$_ ne $n} @sp;
       unshift @sp, $n;
     }
+    my $deps = $pkgdeps->{$packid} || [];
+    $deps = [ map {@{$subpack2pack{$_} || []}} @$deps ] if $view eq 'pkgnames';
     push @res, {'name' => $packid, 
 	'source' => $n,
-	'pkgdep' => ($pkgdeps->{$packid} || []),
+	'pkgdep' => $deps,
 	'subpkg' => \@sp,
     };
   }
@@ -2304,7 +2329,7 @@ my $dispatches = [
   '!rw :' => undef,
 
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
-  '/build/$project/$repository/$arch/_builddepinfo package*' => \&getbuilddepinfo,
+  '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
