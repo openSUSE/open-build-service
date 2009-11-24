@@ -1,4 +1,4 @@
-<% if @project.is_maintainer?( session[:login] ) || (@package && @package.is_maintainer?( session[:login] )) %>
+<% if session[:login] %>
 <h3>Attributes <%= link_to image_tag('list-add.png', :alt => "Add attribute", :title => "Add attribute"), :controller => "attributes", :action => "add_attribute", :project => @project, :package => @package %></h3>
 <% else -%>
 <h3>Attributes</h3>
