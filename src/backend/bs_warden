@@ -108,7 +108,7 @@ while (1) {
 	close F;
 	next;
       }
-      print "restarting build of $job\n";
+      print "restarting build of $job building on $js->{'workerid'}\n";
       unlink("$jobsdir/$arch/$job:status");
       unlink("$workersdir/building/$wname");
       delete $building{$wname};
