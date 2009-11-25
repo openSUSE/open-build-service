@@ -120,20 +120,7 @@ class ApplicationController < ActionController::Base
 
   def rescue_action_in_public( exception )
     logger.error "rescue_action: caught #{exception.class}: #{exception.message}"
-    begin
-      api_error = REXML::Document.new( exception.message ).root
-    rescue Object => e
-      logger.error "Couldn't parse error xml: #{e.message}"
-    end
-
-    if api_error and api_error.name == "status"
-      code = api_error.attributes['code']
-      message = api_error.elements['summary'].text
-      api_exception = api_error.elements['exception'] if api_error.elements['exception']
-    else
-      code = "unknown"
-      message = exception.message
-    end
+    message, code, api_exception = ActiveXML::Transport.extract_error_message exception
 
     case exception
     when ActionController::RoutingError
