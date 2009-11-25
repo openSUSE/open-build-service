@@ -375,7 +375,7 @@ class DbProject < ActiveRecord::Base
     end
     # verify the number of allowed values
     if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
-      raise RuntimeError, "missmatch of value numbers for attribute '#{attrib.name}', #{attrib.each_value.length} instead of #{atype.value_count}"
+      raise RuntimeError, "Attribute: '#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
     end
     if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
       raise RuntimeError, "attribute '#{attrib.name}' requires #{atype.value_count} values, but none given"
