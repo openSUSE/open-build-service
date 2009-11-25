@@ -293,7 +293,7 @@ sub addrepo_scan {
     $cache = $pool->repofrombins($prp, $dir, @bins);
     $dirty = 1;
   }
-  if ($dirty && $cache) {
+  if ($dirty && $cache && !$repodatas{$prp}->{'dontwrite'}) {
     $cache->tofile("$dir.solv.new");
     rename("$dir.solv.new", "$dir.solv") || die("rename $dir.solv.new $dir.solv: $!\n");
   }
@@ -2100,7 +2100,7 @@ sub rebuildkiwiimage {
 my %bininfo_cache;
 
 sub checkkiwiproduct {
-  my ($projid, $repoid, $packid, $pdata, $info, $relsynctrigger) = @_;
+  my ($projid, $repoid, $packid, $pdata, $info, $notready, $relsynctrigger) = @_;
 
   # hmm, should get the arch from the kiwi info
   # but how can we map it to the buildarchs?
@@ -2128,17 +2128,98 @@ sub checkkiwiproduct {
   my @deps = @{$info->{'dep'} || []};	# expanded?
   my %deps = map {$_ => 1} @deps;
   delete $deps{''};
+
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+
+  # get config from path
+  my $bconf = getconfig($myarch, \@aprps);
+  if (!$bconf) {
+    print "      - $packid (kiwi-image)\n";
+    print "        no config\n";
+    return ('broken', 'no config');
+  }
 
   my @blocked;
   my @rpms;
   my %rpms_meta;
   my %rpms_hdrmd5;
 
-#print "packids: @packids\n";
 #print "prps: @aprps\n";
 #print "archs: @archs\n";
 #print "deps: @deps\n";
+  if ($archs[0] eq $myarch) {
+    # calculate packages needed for building
+    my @kdeps = 'kiwi';
+    push @kdeps, grep {/^kiwi-/} @{$info->{'dep'} || []};
+    my $pool = BSSolv::pool->new();
+    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+
+    for my $aprp (@aprps) {
+      $myarch = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
+      $repodatas{$aprp} = {'dontwrite' => 1} if $myarch ne $savemyarch;
+      my $r = addrepo($pool, $aprp);
+      delete $repodatas{$aprp} if $myarch ne $savemyarch;
+      $myarch = $savemyarch;
+      if (!$r) {
+	print "      - $packid (kiwi-image)\n";
+	print "        repository $aprp is unavailable";
+	return ('broken', "repository $aprp is unavailable");
+      }
+    }
+    $pool->createwhatprovides();
+    my $xp = BSSolv::expander->new($pool, $bconf);
+    my $ownexpand = sub {
+      $_[0] = $xp; 
+      goto &BSSolv::expander::expand;
+    };   
+    no warnings 'redefine';
+    local *Build::expand = $ownexpand;
+    use warnings 'redefine';
+    my $eok;
+    ($eok, @kdeps) = Build::get_build($bconf, [], @kdeps);
+    if (!$eok) {
+      print "        expansion errors:\n";
+      print "          $_\n" for @kdeps;
+      return (undef, "expansion error: ".join(', ', @kdeps));
+    }
+    my %dep2pkg;
+    for my $p ($pool->consideredpackages()) {
+      $dep2pkg{$pool->pkg2name($p)} = $p;
+    }
+    # check if we are blocked
+    if ($myarch eq 'local' && $BSConfig::localarch) {
+      my %used;
+      for my $bin (@kdeps) {
+        my $p = $dep2pkg{$bin};
+        my $aprp = $pool->pkg2reponame($p);
+        my $pname = $pool->pkg2srcname($p);
+        push @{$used{$aprp}}, $pname;
+      }
+      for my $aprp (@aprps) {
+        my %pnames = map {$_ => 1} @{$used{$aprp}};
+	next unless %pnames;
+        my $ps = (readxml("$reporoot/$aprp/$BSConfig::localarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+	# FIXME: this assumes packid == pname
+	push @blocked, map {$_->{'name'}} grep {$pnames{$_->{'name'}} && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
+      }
+    } else {
+      my $prp = "$projid/$repoid";
+      for my $bin (@kdeps) {
+        my $p = $dep2pkg{$bin};
+        my $aprp = $pool->pkg2reponame($p);
+        my $pname = $pool->pkg2srcname($p);
+        my $nr = ($prp eq $aprp ? $notready : $prpnotready{$aprp}) || {};
+        push @blocked, $bin if $nr->{$pname};
+      }
+    }
+    if (@blocked) {
+      print "      - $packid (kiwi-product)\n";
+      print "        blocked (@blocked)\n";
+      return ('blocked', join(', ', @blocked));
+    }
+    push @rpms, @kdeps;
+  }
+
   my $allpacks = $deps{'*'} ? 1 : 0;
 
   my $maxblocked = 20;
@@ -2242,12 +2323,11 @@ sub checkkiwiproduct {
   my @new_meta;
   push @new_meta, "$pdata->{'srcmd5'}  $packid";
   push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b}} @rpms) {
+  for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b} || $a cmp $b} @rpms) {
+    next unless $rpm =~ /\//;
     my $id = $rpms_hdrmd5{$rpm};
-    eval {
-      $id ||= Build::queryhdrmd5("$reporoot/$rpm");
-    };
-    $id = "deaddeaddeaddeaddeaddeaddeaddead" unless $id;
+    eval { $id ||= Build::queryhdrmd5("$reporoot/$rpm"); };
+    $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
     push @new_meta, "$id  $rpms_meta{$rpm}";
   }
   my @meta;
@@ -2307,6 +2387,11 @@ sub rebuildkiwiproduct {
   my @bdeps;
   for my $rpm (@{$rpms || []}) {
     my @b = split('/', $rpm);
+    if (@b == 1) {
+      push @bdeps, { 'name' => $1, 'notmeta' => 1, };
+      $bdeps[-1]->{'repoarch'} = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
+      next;
+    }
     next unless @b == 5;
     next unless $b[4] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
     push @bdeps, {
@@ -3857,7 +3942,7 @@ while(1) {
     }
 
     if ($packtype eq 'kiwi-product') {
-      my ($astatus, $aerror) = checkkiwiproduct($projid, $repoid, $packid, $pdata, $info, $relsynctrigger{$packid});
+      my ($astatus, $aerror) = checkkiwiproduct($projid, $repoid, $packid, $pdata, $info, \%notready, $relsynctrigger{$packid});
       if ($astatus eq 'scheduled') {
 	# aerror contains rebuild data in this case
 	($astatus, $aerror) = rebuildkiwiproduct($projid, $repoid, $packid, $pdata, $info, $aerror, $relsyncmax);
