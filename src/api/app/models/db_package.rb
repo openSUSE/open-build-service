@@ -266,18 +266,18 @@ class DbPackage < ActiveRecord::Base
 
   def store_attribute_axml( attrib, binary=nil )
 
-    raise RuntimeError, "attribute type without a name " if not attrib.name
+    raise SaveError, "attribute type without a name " if not attrib.name
 
     # check attribute type
     if ( not atype = AttribType.find_by_name(attrib.name) or atype.blank? )
-      raise RuntimeError, "unknown attribute type '#{attrib.name}'"
+      raise SaveError, "unknown attribute type '#{attrib.name}'"
     end
     # verify the number of allowed values
     if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
-      raise RuntimeError, "missmatch of value numbers for attribute '#{attrib.name}', #{attrib.each_value.length} instead of #{atype.value_count}"
+      raise SaveError, "Attribute: '#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
     end
     if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
-      raise RuntimeError, "attribute '#{attrib.name}' requires #{atype.value_count} values, but none given"
+      raise SaveError, "attribute '#{attrib.name}' requires #{atype.value_count} values, but none given"
     end
 
     # verify with allowed values for this attribute definition
@@ -292,7 +292,7 @@ class DbPackage < ActiveRecord::Base
           end
         end
         if found == 0
-          raise RuntimeError, "attribute value #{value} for '#{attrib.name} is not allowed'"
+          raise SaveError, "attribute value #{value} for '#{attrib.name} is not allowed'"
         end
       end
     end
