@@ -14,6 +14,13 @@ if ! dbproj
 end
 backend = ActiveXML::Config.transport_for :bsrequest
 mypackages = dbproj.complex_status(backend)
+builder = Builder::XmlMarkup.new(:indent => 2)
+builder.project do
+  mypackages.sort.each do |name, package|
+    package.to_xml(:builder => builder)
+  end
+end
+#print builder
 key='project_status_%s' % dbproj.name
 Rails.cache.write(key, mypackages)
 
