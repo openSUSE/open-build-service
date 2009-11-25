@@ -8,7 +8,7 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-require "common/libxmlactivexml"
+require "common/activexml"
 require 'custom_logger'
 
 init = Rails::Initializer.run do |config|
@@ -59,15 +59,12 @@ init = Rails::Initializer.run do |config|
 
 end
 
-
 ActionController::Base.relative_url_root = CONFIG['relative_url_root'] if CONFIG['relative_url_root']
 
 # minimum count of rating votes a project/package needs to
 # have no warning sign on package/project pages
 MIN_VOTES_FOR_RATING = 3
 
-#require 'custom_logger'
-#RAILS_DEFAULT_LOGGER.formatter = Logger::CustomFormatter.new
 
 require 'ostruct'
 require 'rexml-expansion-fix'
