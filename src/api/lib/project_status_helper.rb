@@ -82,7 +82,7 @@ end
 class ProjectStatusHelper
 
   def self.update_projpack(proj, backend, mypackages)
-    puts 'get /getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % proj
+    #puts 'get /getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % proj
     d = backend.direct_http( URI('/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % proj), :timeout => 1000 )
     data = XML::Parser.string(d).parse
     if data then data.find('/projpack/project/package').each do |p|
@@ -108,7 +108,7 @@ class ProjectStatusHelper
     dbproj.repositories.each do |r|
       r.architectures.each do |arch|
         reponame = r.name + "/" + arch.name
-        puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
+        #puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
         d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) , :timeout => 1000 )
         data = XML::Parser.string(d).parse
         if data then
@@ -153,7 +153,10 @@ class ProjectStatusHelper
     
     newkey = pack.devel_project + "/" + pack.devel_package
     return unless mypackages.has_key? newkey
-    develpack = mypackages.delete newkey
+    develpack = mypackages[newkey]
+    if develpack.project != pack.project
+      mypackages.delete newkey
+    end
     pack.develpack = develpack
   end
 
@@ -167,7 +170,7 @@ class ProjectStatusHelper
     projects = Hash.new
     projects[dbproj.name] = dbproj
     dbproj.db_packages.each do |dbpack|
-      #next unless dbpack.name =~ /^perl-Tk.*/
+      #next unless dbpack.name =~ /^kernel.*/
       dbpack.resolve_devel_package
       add_recursively(mypackages, projects, dbpack)
     end
