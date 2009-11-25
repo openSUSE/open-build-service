@@ -31,6 +31,7 @@ module PackageHelper
        when ".diff" then return "diff"
        when ".patch" then return "patch"
        when ".rb" then return "ruby"
+       when ".kiwi" then return "xml"
     end
     return "spec"
   end
