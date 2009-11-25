@@ -8,7 +8,7 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-require "common/activexml"
+require "common/libxmlactivexml"
 require 'custom_logger'
 
 init = Rails::Initializer.run do |config|
@@ -72,22 +72,6 @@ MIN_VOTES_FOR_RATING = 3
 require 'ostruct'
 require 'rexml-expansion-fix'
 require "#{RAILS_ROOT}/config/repositories.rb"
-
-if CONFIG['theme']
-  puts "Using theme view path: #{RAILS_ROOT}/app/views/vendor/#{CONFIG['theme']}"
-  ActionController::Base.prepend_view_path(RAILS_ROOT + "/app/views/vendor/#{CONFIG['theme']}")
-  puts "Using theme static path: #{RAILS_ROOT}/public/vendor/#{CONFIG['theme']}"
-  ActionController::Base.asset_host = Proc.new do |source, request|
-    local_path = "#{RAILS_ROOT}/public/vendor/#{CONFIG['theme']}#{source}".split("?")
-    asset_host = CONFIG['asset_host'] || "#{request.protocol}#{request.host_with_port}"
-    if File.exists?(local_path[0])
-      puts "using themed file: #{asset_host}/vendor/#{CONFIG['theme']}/#{source}"
-      "#{asset_host}/vendor/#{CONFIG['theme']}"
-    else
-      "#{asset_host}"
-    end
-  end
-end
 
 # Exception notifier plugin configuration
 ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
