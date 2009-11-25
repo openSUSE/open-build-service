@@ -17,7 +17,7 @@
     <% name = @attribute.name if @attribute %>
     <%= text_field_tag :attribute, name, :size => 80 %><br/>
     <b>Values (e.g. "bar,foo,..."):</b><br/>
-    <% value = attribute_to_s @attribute if @attribute && @attribute.value %>
+    <% value = attribute_to_s @attribute if( @attribute && (@attribute.has_element? 'value') ) %>
     <%= text_area_tag :values, value ||= "", :size => 50 %>
     <%= hidden_field_tag("project", @project) %>
     <%= hidden_field_tag("package", @package) if @package %>
