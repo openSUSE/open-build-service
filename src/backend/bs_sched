@@ -2180,7 +2180,7 @@ sub checkkiwiproduct {
     if (!$eok) {
       print "        expansion errors:\n";
       print "          $_\n" for @kdeps;
-      return (undef, "expansion error: ".join(', ', @kdeps));
+      return ('expansion error', join(', ', @kdeps));
     }
     my %dep2pkg;
     for my $p ($pool->consideredpackages()) {
