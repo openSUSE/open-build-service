@@ -597,7 +597,7 @@ sub getlogfile {
   }
   my @s = stat($logfile);
   die("$packid: no logfile\n") unless @s;
-  if ($cgi->{'view'} eq 'entry') {
+  if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
     my $entry = {'name' => '_log', 'size' => $s[7], 'mtime' => $s[9]};
     return ({'entry' => [ $entry ]}, $BSXML::dir);
   }
