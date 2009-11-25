@@ -5,13 +5,13 @@ class PackInfo
 	attr_accessor :devel_project, :devel_package
 	attr_accessor :srcmd5, :error
 	attr_reader :name, :project
-        attr_reader :key
-        attr_accessor :develpack
+  attr_reader :key
+  attr_accessor :develpack
 
 	def initialize(projname, name)
-	        @project = projname
+    @project = projname
 		@name = name
-	        @key = projname + "/" + name
+    @key = projname + "/" + name
 		@failed = Hash.new
 		@last_success = Hash.new
 		@devel_project = nil
@@ -56,27 +56,27 @@ class PackInfo
 	end
 
 	def to_xml(options = {}) 
-             xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
-             xml.package(
-	       :project => project,
-               :name => name,
-               :version => version,
-               :srcmd5 => srcmd5,
-               :release => release) do
-                 self.fails.each do |repo,time|
-                   xml.failure(:repo => repo, :time => time)
-                 end
-                 if develpack
-                   xml.develpack(:proj => devel_project, :pack => devel_package) do
+    xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
+    xml.package(
+      :project => project,
+      :name => name,
+      :version => version,
+      :srcmd5 => srcmd5,
+      :release => release) do
+      self.fails.each do |repo,time|
+        xml.failure(:repo => repo, :time => time)
+      end
+      if develpack
+        xml.develpack(:proj => devel_project, :pack => devel_package) do
 		      develpack.to_xml(:builder => xml)
-		   end
-                 end
-		 if @error then xml.error(error) end
-		 @links.each do |proj,pack|
-		    xml.link(:project => proj, :package => pack)
-		 end
-	     end
         end
+      end
+      if @error then xml.error(error) end
+      @links.each do |proj,pack|
+		    xml.link(:project => proj, :package => pack)
+      end
+    end
+  end
 end
 
 class ProjectStatusHelper
@@ -87,19 +87,19 @@ class ProjectStatusHelper
     data = XML::Parser.string(d).parse
     if data then data.find('/projpack/project/package').each do |p|
         packname = p.attributes['name']
-	key = proj + "/" + packname
+        key = proj + "/" + packname
         next unless mypackages.has_key?(key)
         if p.attributes['verifymd5']
-	  mypackages[key].srcmd5 = p.attributes['verifymd5']
+          mypackages[key].srcmd5 = p.attributes['verifymd5']
         else
-	  mypackages[key].srcmd5 = p.attributes['srcmd5']
+          mypackages[key].srcmd5 = p.attributes['srcmd5']
         end
         p.find('linked').each do |l|
-	  mypackages[key].linked(l.attributes['project'], l.attributes['package'])
+          mypackages[key].linked(l.attributes['project'], l.attributes['package'])
         end
-	p.find('error').each do |e|
-	  mypackages[key].error = e.content
-	end
+        p.find('error').each do |e|
+          mypackages[key].error = e.content
+        end
       end
     end
   end
@@ -107,26 +107,26 @@ class ProjectStatusHelper
   def self.update_jobhistory(dbproj, backend, mypackages)
     dbproj.repositories.each do |r|
       r.architectures.each do |arch|
-	reponame = r.name + "/" + arch.name
-	puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
-	d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) , :timeout => 1000 )
-	data = XML::Parser.string(d).parse
-	if data then 
-	  data.find('/jobhistlist/jobhist').each do |p|
-	    packname = p.attributes['package']
-	    key = dbproj.name + "/" + packname
-	    next unless mypackages.has_key?(key)
-	    code = p.attributes['code']
-	    if code == "unchanged" || code == "succeeded"
-	      mypackages[key].success(reponame, Integer(p.attributes['readytime']))
-	    else
-	      mypackages[key].failure(reponame, Integer(p.attributes['readytime']))
-	    end
-	    versrel=p.attributes['versrel'].split('-')
-	    mypackages[key].version = versrel[0..-2].join('-')
-	    mypackages[key].release = versrel[-1]
-	  end
-	end
+        reponame = r.name + "/" + arch.name
+        puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
+        d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) , :timeout => 1000 )
+        data = XML::Parser.string(d).parse
+        if data then
+          data.find('/jobhistlist/jobhist').each do |p|
+            packname = p.attributes['package']
+            key = dbproj.name + "/" + packname
+            next unless mypackages.has_key?(key)
+            code = p.attributes['code']
+            if code == "unchanged" || code == "succeeded"
+              mypackages[key].success(reponame, Integer(p.attributes['readytime']))
+            else
+              mypackages[key].failure(reponame, Integer(p.attributes['readytime']))
+            end
+            versrel=p.attributes['versrel'].split('-')
+            mypackages[key].version = versrel[0..-2].join('-')
+            mypackages[key].release = versrel[-1]
+          end
+        end
       end
     end 
   end
