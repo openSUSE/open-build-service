@@ -168,6 +168,7 @@ class ProjectStatusHelper
     projects[dbproj.name] = dbproj
     dbproj.db_packages.each do |dbpack|
       #next unless dbpack.name =~ /^perl-Tk.*/
+      dbpack.resolve_devel_package
       add_recursively(mypackages, projects, dbpack)
     end
 
