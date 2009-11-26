@@ -104,12 +104,27 @@ class ProjectStatusHelper
     end
   end
 
+  def self.fetch_jobhistory(backend, proj, repo, arch)
+     #puts 'get "/build/%s/%s/%s/_jobhistory?limit=1"' % [proj, repo, arch]
+     currentlast=backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?limit=1' % [proj, repo, arch]))
+     key='jobhistory_%s_%s_%s' % [proj, repo, arch]
+     lastlast = Rails.cache.read(key + '_last')
+     if currentlast != lastlast 
+        Rails.cache.delete key 
+     end
+
+     Rails.cache.fetch(key) do
+        #puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [proj, repo, arch]
+        Rails.cache.write(key + '_last', currentlast)
+        backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [proj, repo, arch]) , :timeout => 1000 )
+     end
+  end
+
   def self.update_jobhistory(dbproj, backend, mypackages)
     dbproj.repositories.each do |r|
       r.architectures.each do |arch|
         reponame = r.name + "/" + arch.name
-        #puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [dbproj.name, r.name, arch.name]
-        d = backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [dbproj.name, r.name, arch.name]) , :timeout => 1000 )
+        d = fetch_jobhistory(backend, dbproj.name, r.name, arch.name)
         data = XML::Parser.string(d).parse
         if data then
           data.find('/jobhistlist/jobhist').each do |p|
