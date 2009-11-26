@@ -6,7 +6,7 @@ class ProjectController < ApplicationController
     :update_target, :edit_target]
 
   def index
-    redirect_to :action => 'list_all'
+    redirect_to :action => 'list_public'
   end
 
   def list_all
