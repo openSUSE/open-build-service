@@ -135,7 +135,7 @@ class PersonController < ApplicationController
       
       render_error :message => "Could not save the registration",
                    :errorcode => "err_register_save",
-                   :details => details, :status => 500 
+                   :details => details, :status => 400
     else
       # create subscription for submit requests
       if Object.const_defined? :Hermes
