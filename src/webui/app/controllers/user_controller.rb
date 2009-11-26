@@ -56,10 +56,16 @@ class UserController < ApplicationController
 
   def register
     valid_http_methods(:post)
+    begin
+      Person.find( :login => session[:login] )
+      logger.info "User #{session[:login]} already exists..."
+      redirect_to :controller => "home" and return
+    rescue
+    end
     logger.debug "Creating new person #{session[:login]}"
     unreg_person_opts = {
       :login => session[:login],
-      :email => session[:email],
+      :email => session[:email] || 'nomail@nomail.com',
       :realname => "",
       :explanation => ""
     }
