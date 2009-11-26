@@ -30,6 +30,8 @@ SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 EXTENDED_BACKEND_LOG = false
 
+DOWNLOAD_URL='http://download.opensuse.org/repositories'
+YMP_URL='http://software.opensuse.org/ymp'
 #ActionController::AbstractRequest.relative_url_root = "/stage"
 
 require 'hermes'

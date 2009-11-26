@@ -42,3 +42,5 @@ APIDOCS_LOCATION = "../../docs/api/html/"
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/frontend")+"/"
 
 EXTENDED_BACKEND_LOG = true
+DOWNLOAD_URL='http://download.opensuse.org/repositories'
+YMP_URL='http://software.opensuse.org/ymp'

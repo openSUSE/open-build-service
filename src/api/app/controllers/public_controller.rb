@@ -1,4 +1,5 @@
 class PublicController < ApplicationController
+  include PublicHelper
   skip_before_filter :extract_user
 
   # GET /public/:prj/:repo/:arch/:pkg
@@ -144,54 +145,54 @@ class PublicController < ApplicationController
 
     distfile = ActiveXML::Node.new(DistributionController.read_distfile)
     binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{@prj.name}' and @package='#{@pkg.name}'"
+
     binary_map = Hash.new
     binaries.each do |bin|
+      repo_string = bin.repository.to_s
       next if bin.arch.to_s == "src"
-      binary_map[bin.repository.to_s] ||= Array.new
-      binary_map[bin.repository.to_s] << bin
+      binary_map[repo_string] ||= Array.new
+      binary_map[repo_string] << bin
     end
 
     def scan_distfile(distfile)
       h = HashWithIndifferentAccess.new
       distfile.each_distribution do |dist|
         h["#{dist.project.text()}/#{dist.repository.text()}"] = dist
+        h["#{dist.project.text()}"] = dist
+        h["#{dist.reponame.text()}"] = dist
       end
       return h
     end
-
-    @links = Array.new
-
     d = scan_distfile(distfile)
-    @prj.repositories.find(:all, :include => {:path_elements => {:link => :db_project}}).each do |repo|
-      d.each do |key, dist|
-        logger.debug sprintf "-- d.each .. key: %s", key
-        if repo.path_elements.length == 1 and repo.path_elements[0].to_string == key
-          next unless binary_map.has_key? repo.name
-          binary = nil
-          if binary_map[repo.name].length > 1
-            #if package produces more than one binary, try to find one that matches
-            #the package name 
-            binary = binary_map[repo.name].select {|bin| bin.name == @pkg.name}.first
-          end
-          
-          binary = binary_map[repo.name].first unless binary
 
-          link = {:id => dist.method_missing(:id)}
-          if dist.vendor == "opensuse"
-            link[:href] = YMP_URL + binary.filepath.sub(%r([^/]+/[^/]+$), binary.name+".ymp")
-            link[:type] = "ymp"
-            @links << link
-          else
-            @links << link.merge({:type => binary.method_missing(:type), :arch => binary.arch, :href => DOWNLOAD_URL+binary.filepath})
-            repo_href = binary.filepath.sub(%r([^/]+/[^/]+$), @prj.name+".repo")
-            @links << {:id => dist.method_missing(:id), :type => "yum", :href => DOWNLOAD_URL+repo_href}
+    @binary_links = {}
+    @prj.repositories.find(:all, :include => {:path_elements => {:link => :db_project}}).each do |repo|
+      # TODO: this code doesnt handle path elements and layering
+      # TODO: walk the path and find the base repos? is that desired?
+      dist = d[repo.name]
+      if dist
+        unless binary_map[repo.name].blank?
+          dist_id = dist.method_missing(:id)
+          @binary_links[dist_id] ||= {}
+          binary = binary_map[repo.name].select {|bin| bin.name == @pkg.name}.first
+          if binary and dist.vendor == "openSUSE"
+            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@prj.download_name, repo.name, @pkg.name+".ymp") ) }
           end
-          break
+
+          @binary_links[dist_id][:binary] ||= []
+          binary_map[repo.name].each do |binary|
+            binary_type = binary.method_missing(:type)
+            @binary_links[dist_id][:binary] << {:type => binary_type, :arch => binary.arch, :url => download_url(binary.filepath)}
+            if @binary_links[dist_id][:repository].blank?
+              repo_filename = (binary_type == 'rpm') ? "#{@prj.name}.repo" : ''
+              repository_path = File.join(@prj.download_name, repo.name, repo_filename)
+              @binary_links[dist_id][:repository] ||= { :url => download_url(repository_path) }
+            end
+          end
+          #
         end
       end
     end
-
-    @binaries = binary_map
   end
 
   private

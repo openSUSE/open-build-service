@@ -27,7 +27,11 @@ class DbProject < ActiveRecord::Base
   has_many :attrib_types, :dependent => :delete_all
   has_many :attrib_namespace, :dependent => :destroy
   has_many :attribs, :dependent => :destroy
- 
+
+  def download_name
+    self.name.gsub(/:/, ':/')
+  end
+
   class << self
 
     def find_by_name(name)

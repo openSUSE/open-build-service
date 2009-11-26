@@ -8,7 +8,7 @@ class DistributionController < ApplicationController
     return @@distfile unless File.stat(DISTFILEPATH).mtime > @@distfile_last_read
     logger.debug "reading distfile from disk"
     @@distfile_last_read = Time.now
-    return @@distfile = File.read(DISTFILEPATH)
+    return DISTFILEPATH.exists? ? @@distfile = File.read(DISTFILEPATH) : '<distributions></distributions>'
   end
 
   def self.write_distfile(str)
