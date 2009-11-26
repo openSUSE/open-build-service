@@ -2388,7 +2388,7 @@ sub rebuildkiwiproduct {
   for my $rpm (@{$rpms || []}) {
     my @b = split('/', $rpm);
     if (@b == 1) {
-      push @bdeps, { 'name' => $1, 'notmeta' => 1, };
+      push @bdeps, { 'name' => $rpm, 'notmeta' => 1, };
       $bdeps[-1]->{'repoarch'} = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
       next;
     }
