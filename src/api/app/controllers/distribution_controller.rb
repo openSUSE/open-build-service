@@ -1,14 +1,22 @@
 class DistributionController < ApplicationController
   DISTFILEPATH = "#{RAILS_ROOT}/files/distributions.xml"
   @@distfile_last_read = Date.new(0).to_time
-  @@distfile = ""
+  @@distfile = "<distributions>\n</distributions>\n"
 
   def self.read_distfile
-    logger.debug sprintf("mtime: %s\tdistlast: %s", File.stat(DISTFILEPATH).mtime, @@distfile_last_read)
-    return @@distfile unless File.stat(DISTFILEPATH).mtime > @@distfile_last_read
-    logger.debug "reading distfile from disk"
-    @@distfile_last_read = Time.now
-    return DISTFILEPATH.exists? ? @@distfile = File.read(DISTFILEPATH) : '<distributions></distributions>'
+    begin
+      stat_result = File.stat(DISTFILEPATH)
+      logger.debug sprintf("mtime: %s\tdistlast: %s", stat_result.mtime, @@distfile_last_read)
+      return @@distfile unless stat_result.mtime > @@distfile_last_read
+      logger.debug "reading distfile from disk"
+      @@distfile_last_read = Time.now
+      @@distfile = File.read(DISTFILEPATH)
+    rescue => e
+      logger.error "reading the distfile ('#{DISTFILEPATH}') from disk failed: #{e}"
+      logger.error "returning default value"
+      @@distfile = "<distributions>\n</distributions>\n"
+    end
+    return @@distfile
   end
 
   def self.write_distfile(str)
