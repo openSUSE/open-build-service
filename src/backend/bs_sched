@@ -2350,14 +2350,15 @@ sub checkkiwiproduct {
   print "      - $packid (kiwi-product)\n";
   print "        $_\n" for @diff;
   print "        meta change, start build\n";
-  return ('scheduled', [ \@rpms, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
+  return ('scheduled', [ $bconf, \@rpms, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
 }
 
 sub rebuildkiwiproduct {
   my ($projid, $repoid, $packid, $pdata, $info, $data, $relsyncmax) = @_;
 
-  my $rpms = $data->[0];
-  my $reason = $data->[1];
+  my $bconf = $data->[0];
+  my $rpms = $data->[1];
+  my $reason = $data->[2];
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
@@ -2385,10 +2386,17 @@ sub rebuildkiwiproduct {
   }
 
   my @bdeps;
-  for my $rpm (@{$rpms || []}) {
+  my @pdeps = Build::get_preinstalls($bconf);
+  my @vmdeps = Build::get_vminstalls($bconf);
+  my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
+  my %pdeps = map {$_ => 1} @pdeps;
+  my %vmdeps = map {$_ => 1} @vmdeps;
+  for my $rpm (unify(@pdeps, @vmdeps, @{$rpms || []})) {
     my @b = split('/', $rpm);
     if (@b == 1) {
       push @bdeps, { 'name' => $rpm, 'notmeta' => 1, };
+      $bdeps[-1]->{'preinstall'} = 1 if $pdeps{$rpm};
+      $bdeps[-1]->{'vminstall'} = 1 if $vmdeps{$rpm};
       $bdeps[-1]->{'repoarch'} = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
       next;
     }
