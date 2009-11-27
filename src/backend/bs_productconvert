@@ -752,6 +752,48 @@ sub createFlavorReadme( $$ ){
     return $reame_file;
 }
 
+sub writeMigrationSPECfile( $$$ )
+{
+    my( $file, $prodRef,$product ) = @_;
+    my $mproduct = Storable::dclone($product);
+
+    $mproduct->{name} = $product->{name}."-SP".$mproduct->{'patchlevel'}."-migration";
+
+    my $packageversion = $mproduct->{'version'}.".".$mproduct->{'patchlevel'};
+    my $oldpatchlevel = $mproduct->{'patchlevel'} - 1;
+    my $content="# ";
+    $content.="\n\n";
+    $content.="Name:           $mproduct->{name}\n";
+    $content.="Summary:        $product->{name} Service Pack $product->{'patchlevel'} Migration Product\n";
+    $content.="Version:        ".$packageversion."\n";
+    $content.="Release:        0\n";
+    $content.="License:        BSD 3-Clause\n";
+    $content.="Group:          System/Fhs\n";
+    $content.="Provides:       product()\n";
+    $content.="Provides:       product(%name) = %{version}-%{release}\n";
+    $content.="Requires:       product(%name) = %{version}";
+    $content.=".".$oldpatchlevel if ( $oldpatchlevel >0 );
+    $content.="\n";
+    $content.="AutoReqProv:    on\n";
+    $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
+    $content.="\n%description\n";
+    $content.="Product to migrate to $product->{name} Service Pack $product->{'patchlevel'}.\n";
+    $content.="\n\n";
+    $content.="\n%prep\n";
+    $content.="\n%build\n\n";
+    $content.="\n%install\n";
+    $content.=createProductFile($prodRef,$mproduct);
+    $content.="\n%clean\n";
+    $content.="rm -rf %buildroot\n";
+    $content.="\n%files\n";
+    $content.="%defattr(644,root,root,755)\n";
+    $content.="%dir /etc/products.d\n";
+    $content.="/etc/products.d/*.prod\n";
+    $content.="\n%changelog\n";
+
+    # write out the modified file.
+    writestr($file, undef, $content);      
+}
 
 sub writeProductSPECfile( $$$$ )
 {
@@ -765,8 +807,7 @@ sub writeProductSPECfile( $$$$ )
       $obsoletepackage .= "\nProvides: weakremover(".$p->{'_content'}.")";
     }
     $obsoletepackage .= "\n";
-
-    ### Contstruct the provides of a product.
+    # My product provides
     my $productprovides="";
     $productprovides.="Provides:       %name-%version\n";
     $productprovides.="Provides:       $prodRef->{'project'}->{'name'}\n" if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne ""));
@@ -1063,6 +1104,11 @@ if ( ! $SPECtemplateFile || ! -e $SPECtemplateFile ) {
 }
 mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
 writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $SPECtemplateFile, $prodRef, $product );
+
+if (defined($product->{patchlevel}) && $product->{patchlevel} ne '0'){
+mkdir_p( "$outdir/_product:".$product->{name}."-SP".$product->{patchlevel}."-migration" ) || die ("Unable to create $outdir\n");
+ writeMigrationSPECfile( "$outdir/_product:".$product->{name}."-SP".$product->{patchlevel}."-migration/".$product->{name}."-SP".$product->{patchlevel}."-migration.spec", $prodRef, $product );
+}
 
 #
 # Create kiwi images
