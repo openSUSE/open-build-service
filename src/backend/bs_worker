@@ -1174,7 +1174,7 @@ sub dobuild {
   push @args, '--jobs', $jobs if $jobs;
   push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
-  #push @args, '--linksources' if $localkiwi;
+  push @args, '--linksources' if $localkiwi;
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
   my $ret=$?;
