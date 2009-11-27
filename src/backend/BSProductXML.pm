@@ -86,6 +86,7 @@ our $product = [
            'vendor',
            'name',
            'version',
+           'baseversion',
            'patchlevel',
            'release',
            'arch',
