@@ -36,6 +36,7 @@ use BSServer;
 use BSConfig;
 use BSUtil;
 use BSXML;
+use BSKiwiXML;
 use BSHTTP;
 use BSBuild;
 
@@ -332,7 +333,7 @@ if (!$hostarch) {
   die("could not determine hostarch\n") unless $hostarch;
 }
 
-die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch};
+die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch} || ($hostarch eq 'local' && $localkiwi);
 
 $srcserver = $BSConfig::srcserver unless defined $srcserver;
 @reposervers = @BSConfig::reposervers unless @reposervers;
@@ -804,10 +805,14 @@ sub getbinaries_kiwiproduct {
   }
 
   # create list of prpaps
+  my @kdeps;
   my %prpaps;
   my %linkit;
   for my $dep (@{$buildinfo->{'bdep'} || []}) {
-    next unless $dep->{'package'};
+    if (!defined($dep->{'package'})) {
+      push @kdeps, $dep->{'name'};
+      next;
+    }
     my $repoarch = $dep->{'repoarch'} || $buildinfo->{'arch'};
     next if $repoarch eq 'src';
     $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
@@ -820,6 +825,17 @@ sub getbinaries_kiwiproduct {
   }
 
   mkdir_p($dir);
+
+  # fetch packages needed for product building
+  for my $repo (@{$buildinfo->{'path'} || []}) {
+    last if !@kdeps;
+    my $repoarch = $buildinfo->{'arch'};
+    $repoarch = $BSConfig::localarch if $repoarch eq 'local' && $BSConfig::localarch;
+    my $got = getbinaries_cache($dir, $repo->{'server'}, $repo->{'project'}, $repo->{'repository'}, $repoarch, 1, \@kdeps);
+    @kdeps = grep {!$got->{$_}} @kdeps;
+  }
+  die("getbinaries_kiwiproduct: missing packages: @kdeps\n") if @kdeps;
+
   my %meta;
   for my $prpap (sort keys %prpaps) {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
@@ -834,7 +850,11 @@ sub getbinaries_kiwiproduct {
         next unless $name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	my $rarch = $1;
 	mkdir_p("$ddir/$rarch") unless -d "$ddir/$rarch";
-	link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$rarch/$name: $!\n");
+	if (!link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name")) {
+	  # link fails if file already exists, rpc just overwrites
+	  unlink("$ddir/$rarch/$name");
+	  link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$rarch/$name: $!\n");
+	}
 	push @$res, {'name' => "$rarch/$name"};
       }
     } else {
@@ -984,6 +1004,69 @@ sub getoldpackages {
   rmdir($odir);	# if not needed
 }
 
+
+sub patchkiwi {
+  my ($buildinfo, $kiwifile, $meta) = @_;
+
+  my $kiwi = readxml($kiwifile, $BSKiwiXML::kiwidesc);
+  die("no instsource section in kiwi file\n") unless $kiwi->{'instsource'};
+  my $repo_only;
+  my @vars;
+  my $tag_media;
+  for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
+    push @vars, $productvar;
+    $repo_only = 1 if $productvar->{'name'} eq 'REPO_ONLY' and $productvar->{'_content'} eq 'true';
+    if ($productvar->{'name'} eq 'MEDIUM_NAME') {
+      my $mediumbase = $productvar->{'_content'};
+      $mediumbase .= sprintf("-Build%04d", $buildinfo->{'bcnt'} || 0);
+      pop @vars;
+      push @vars, { 'name' => 'BUILD_ID', '_content' => $mediumbase };
+      push @vars, { 'name' => 'MEDIUM_NAME', '_content' => "$mediumbase-Media" };
+    } elsif ($productvar->{'name'} eq 'RUN_MEDIA_CHECK' && $productvar->{'_content'} eq 'true') {
+      $tag_media = 1;
+    }
+  }
+  $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
+
+  for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
+    next unless grep {$_->{'name'} eq '*'} @{$repopackages->{'repopackage'} || []};
+    # hey, a substitute all modifier!
+    my @rp;
+    my %allpkgs;
+    for my $m (@$meta) {
+      # md5  proj/rep/arch/pack/bin.arch
+      my @s = split('/', $m);
+      next unless $s[-1] =~ /^(.*)\.([^\.]*)$/;
+      next if $2 eq 'src' || $2 eq 'nosrc';
+      $allpkgs{$1} ||= {};
+      $allpkgs{$1}->{$2} = 1;
+    }
+    for my $rp (@{$repopackages->{'repopackage'} || []}) {
+      if ($rp->{'name'} ne '*') {
+        push @rp, $rp;
+        next;
+      }
+
+      my $addarchs = join(',', sort map { $_->{'ref'} } @{$kiwi->{'instsource'}->{'architectures'}->{'requiredarch'}});
+      for my $pkg (sort keys %allpkgs) {
+        # exclude blind take of all debug packages. They will be taken
+        # automatically if a configured debug medium exists.
+        next if $pkg =~ /-debuginfo$/;
+        next if $pkg =~ /-debugsource$/;
+        next if $pkg =~ /-debuginfo-32bit$/;
+        next if $pkg =~ /-debugsource-32bit$/;
+        next if $pkg =~ /-debuginfo-64bit$/;
+        next if $pkg =~ /-debugsource-64bit$/;
+        next if $pkg =~ /-debuginfo-x86$/;
+        next if $pkg =~ /-debugsource-x86$/;
+        push @rp, {'name' => $pkg, 'addarch' => $addarchs};
+      }
+    }
+    $repopackages->{'repopackage'} = \@rp;
+  }
+  writexml($kiwifile, undef, $kiwi, $BSKiwiXML::kiwidesc);
+}
+
 sub dobuild {
   my ($buildinfo) = @_;
 
@@ -1042,25 +1125,29 @@ sub dobuild {
   # build rpmlist for build script
   my @rpmlist;
   my @bdep = @{$buildinfo->{'bdep'} || []};
-  if ($kiwimode) {
-    @bdep = grep {($_->{'repoarch'} || '') ne 'src'} @bdep;
-    @bdep = grep {!$_->{'noinstall'}} @bdep;
-  }
-  for my $bdep (map {$_->{'name'}} @bdep) {
-    if (-e "$pkgdir/$bdep.rpm") {
-      push @rpmlist, "$bdep $pkgdir/$bdep.rpm";
-    } elsif (-e "$pkgdir/$bdep.deb") {
-      push @rpmlist, "$bdep $pkgdir/$bdep.deb";
+  for my $bdep (@bdep) {
+    next if $bdep->{'package'} || $bdep->{'noinstall'} || ($bdep->{'repoarch'} && $bdep->{'repoarch'} eq 'src');
+    my $bin = $bdep->{'name'};
+    if (-e "$pkgdir/$bin.rpm") {
+      push @rpmlist, "$bin $pkgdir/$bin.rpm";
+    } elsif (-e "$pkgdir/$bin.deb") {
+      push @rpmlist, "$bin $pkgdir/$bin.deb";
     } else {
-      die("missing package: $bdep\n");
+      die("missing package: $bin\n");
     }
   }
+  push @rpmlist, "localkiwi $localkiwi/localkiwi.rpm" if $localkiwi && -e "$localkiwi/localkiwi.rpm";
   push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
   push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
   push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
   writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
 
   print "building...\n";
+
+  if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+    patchkiwi($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta);
+  }
+
   push @args, "$statedir/build/build";
   if ($vm) {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
@@ -1087,7 +1174,7 @@ sub dobuild {
   push @args, '--jobs', $jobs if $jobs;
   push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
-  push @args, '--linksources' if $localkiwi;
+  #push @args, '--linksources' if $localkiwi;
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
   my $ret=$?;
@@ -1468,7 +1555,7 @@ if ($ex == 0) {
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
-  if (!@send) {
+  if (!@send && !$localkiwi) {
     print "build did not create anything to send back!\n";
     $ex = 1;
   }
@@ -1491,6 +1578,18 @@ push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$build
 push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 
 if (!$testmode) {
+  if ($localkiwi && -d "$localkiwi/jobs/$buildinfo->{'arch'}") {
+    # local delivery hack...
+    my $jobdir = "$localkiwi/jobs/$buildinfo->{'arch'}/$buildinfo->{'job'}:dir";
+    mkdir_p($jobdir);
+    BSUtil::cleandir($jobdir);
+    for my $f (ls("$buildroot/.build.packages/KIWI")) {
+      rename("$buildroot/.build.packages/KIWI/$f", "$jobdir/$f") || die("rename $buildroot/.build.packages/KIWI/$f $jobdir/$f: $!\n");
+    }
+    rename("$buildroot/.build.log", "$jobdir/logfile");
+    rename("$buildroot/.build.meta", "$jobdir/meta");
+    @send = ();
+  }
   my $param = {
     uri => "$buildinfo->{'reposerver'}/putjob",
     request => 'POST',
