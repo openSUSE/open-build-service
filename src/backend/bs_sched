@@ -2790,8 +2790,7 @@ sub changed2lookat {
   @$lookat_med = grep {!$lookat_high{$_}} @$lookat_med;
   for my $prp (@prps) {
     if (!$changed_low->{$prp} && !$changed_med->{$prp}) {
-      # FIXME: aggregates do not use the full tree!
-      next unless grep {$changed_med->{$_} && $changed_med->{$_} != 1} @{$prpdeps{$prp}};
+      next unless grep {$changed_med->{$_}} @{$prpdeps{$prp}};
     }
     $lookat_next->{$prp} = 1;
   }
