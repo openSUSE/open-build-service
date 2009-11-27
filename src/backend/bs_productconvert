@@ -949,7 +949,6 @@ sub createSPECfileFlavors ( $$ ) {
             $flavor="" if (! defined($flavor));
             
             $product_flavors.="$relship:       product(".$dependency->{'name'}."$patchlevel$flavor) $flag $version$release\n";
-print $product_flavors; 
         }
       }
       foreach my $summary ( @{$product->{'summary'}} ){
@@ -1168,7 +1167,8 @@ foreach my $medium ( @$media ){
           $buildflags->{'enable'} = \@archs;
 
           # add implicit the release packages to media
-          if ( $SPECtemplateFile ne "" && $kiwi->{instsource}->{repopackages}[0] ){
+#          if ( $SPECtemplateFile ne "" && $kiwi->{instsource}->{repopackages}[0] ){
+          if ( $kiwi->{instsource}->{repopackages}[0] ){
             my %product_pack;
             my $addarch = join( ",", @productarch );
             # FIXME: Shouldn't we simply use local $product here ?
