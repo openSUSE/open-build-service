@@ -4171,16 +4171,27 @@ while(1) {
 	goto relsynccheck;
       }
       if (($BSConfig::enable_download_on_demand || $BSConfig::enable_dod) && @meta == @new_meta) {
-	# FIXME: special handling for dod (quick hack..)
-	# the default hdrmd5 of dod packages is 0 => don't trigger endless rebuilds
-	my %o = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @meta;
-	my %n = map { $_->[1] => $_->[0] } map {[ /^([^ ]+  )((?:.*\/)?([^\/]*))$/ && split(' ', "$1$3") ]} grep { s/\///g || $_ } @new_meta;
-	my @nok = grep { $n{$_} ne ($o{$_} || '') && $n{$_} ne '0' } keys %n;
-	if (!@nok) {
-	  $nharder++;
-	  $lastcheck{"$prp/$packid"} = $mylastcheck;
-	  $packstatus{$packid} = 'done';
-	  goto relsynccheck;
+        # unfetched dod packages have dodo... as hdrid
+        my @dodbins = grep {/^dodododododododododododododododo/} @new_meta;
+        if (@dodbins) {
+	  # package was built with other data than we had, refresh repos and redo check
+	  my $rerun;
+	  s/^.*  // for @dodbins;
+	  for my $bin (@dodbins) {
+	    my $p = $dep2pkg{$bin};
+	    next unless $p;
+	    my $dodprp = $pool->pkg2reponame($p);
+	    next unless $dodprp;
+	    delete $repodatas{$dodprp};
+	    $rerun = 1;
+	  }
+	  if ($rerun) {
+	    unshift @lookat_high, $prp unless @lookat_high && $lookat_high[0] eq $prp;
+	    $nharder++;
+	    $lastcheck{"$prp/$packid"} = $mylastcheck;
+	    $packstatus{$packid} = 'done';
+	    goto relsynccheck;
+	  }
 	}
       }
       my @diff = diffsortedmd5(0, \@meta, \@new_meta);
