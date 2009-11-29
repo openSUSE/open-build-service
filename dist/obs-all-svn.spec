@@ -45,6 +45,8 @@ Source19:       obswarden
 Source20:       obssignd
 Source21:       obssigner
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+
+Requires:       obs-build
 %if 0%{?suse_version} >= 1030
 Requires:       yum yum-metadata-parser repoview
 Requires:       dpkg >= 1.15
@@ -104,7 +106,7 @@ Authors:
 
 %package -n build-obs
 
-Requires:       lzma
+Requires:       lzma xz
 Conflicts:      build
 %ifarch x86_64
 Requires:       linux32
@@ -124,7 +126,7 @@ chroot environment.
 
 %package -n obs-build
 
-Requires:       lzma
+Requires:       lzma xz
 %ifarch x86_64
 Requires:       linux32
 %endif
