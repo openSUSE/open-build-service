@@ -122,6 +122,25 @@ Summary:        A Script to Build SUSE Linux RPMs and Debian DEBs
 This package provides a script for building RPMs for SUSE Linux in a
 chroot environment.
 
+%package -n obs-build
+
+Requires:       lzma
+%ifarch x86_64
+Requires:       linux32
+%endif
+%ifarch ppc64
+Requires:       powerpc32
+%endif
+%if 0%{?suse_version}
+PreReq:         %fillup_prereq %insserv_prereq
+%endif
+Group:          Development/Tools/Building
+Summary:        A Script to Build SUSE Linux RPMs and Debian DEBs
+
+%description -n obs-build
+This package provides a script for building RPMs for SUSE Linux in a
+chroot environment. This is the OBS server boot version.
+
 %package -n obs-worker-svn
 
 Requires:       perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
@@ -337,10 +356,16 @@ install -m 0755 %SOURCE1 %SOURCE3 %SOURCE4 %SOURCE5 %SOURCE6 %SOURCE15 %SOURCE19
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obswarden obssigner ; do
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
 done
-# Ship latest version of build to be always in sync. do not use the symlink.
+
+#
+# Install build
+#
 rm -rf $RPM_BUILD_ROOT/usr/lib/obs/server/build
 cp -a ../build $RPM_BUILD_ROOT/usr/lib/obs/server/build
+
+#
 # install fillups
+#
 FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 mkdir -p $FILLUP_DIR
 cp -a %SOURCE11 %SOURCE12 $FILLUP_DIR/
@@ -457,7 +482,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/bs_signer
 /usr/lib/obs/server/bs_worker
-/usr/lib/obs/server/build
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/BSHermes.pm
 /usr/lib/obs/server/BSSolv.pm
@@ -465,6 +489,11 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/typemap
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
+
+%files -n obs-build
+%defattr(-,root,root)
+%doc src/build/README
+/usr/lib/obs/server/build
 
 %files -n obs-sourceservice-svn
 %defattr(-,root,root)
