@@ -280,6 +280,8 @@ for i in common frontend webclient; do
   mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
   cp -a $i $RPM_BUILD_ROOT/srv/www/obs/$i
 done
+rm -f $RPM_BUILD_ROOT/srv/www/obs/*/.git*
+
 # configure lighttpd web service
 mkdir -p $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/
 install -m 0644 %SOURCE7 $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/
