@@ -80,7 +80,7 @@ function refresh(newoffset, initial) {
   <code id="log_space"><%= @initiallog %></code>
 </div>
 
-<div style="float: right">
+<div>
 <%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
               :project => @project, :arch => @arch, :repository => @repo  %>
 </div>
@@ -93,7 +93,7 @@ function refresh(newoffset, initial) {
 <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
   <p>
     <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
-    :project => @project, :package => @package %>
+    :project => @project, :package => @package, :arch => @arch, :repository => @repo %>
   </p>
 <% end %>
 
