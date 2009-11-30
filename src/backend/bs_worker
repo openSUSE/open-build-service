@@ -59,6 +59,8 @@ my $oneshot;
 my $silent;
 my $hostcheck;
 my $localkiwi;
+my $localkiwi_uid;
+my $localkiwi_gid;
 
 my $jobs;
 my $cachedir;
@@ -334,6 +336,15 @@ if (!$hostarch) {
 }
 
 die("arch $hostarch cannot build anything!\n") unless $cando{$hostarch} || ($hostarch eq 'local' && $localkiwi);
+
+if ($localkiwi) {
+  my $localkiwi_uid = $BSConfig::bsuser;
+  my $localkiwi_gid = $BSConfig::bsgroup;
+  !defined($localkiwi_uid) || defined($localkiwi_uid = (getpwnam($localkiwi_uid))[2]) || die("unknown user\n");
+  !defined($localkiwi_gid) || defined($localkiwi_gid = (getgrnam($localkiwi_gid))[2]) || die("unknown group\n");
+  $localkiwi_uid = -1 unless defined $localkiwi_uid;
+  $localkiwi_gid = -1 unless defined $localkiwi_gid;
+}
 
 $srcserver = $BSConfig::srcserver unless defined $srcserver;
 @reposervers = @BSConfig::reposervers unless @reposervers;
@@ -1582,10 +1593,14 @@ if (!$testmode) {
     # local delivery hack...
     my $jobdir = "$localkiwi/jobs/$buildinfo->{'arch'}/$buildinfo->{'job'}:dir";
     mkdir_p($jobdir);
+    chown($localkiwi_uid, $localkiwi_gid, $jobdir);
     BSUtil::cleandir($jobdir);
     for my $f (ls("$buildroot/.build.packages/KIWI")) {
+      system('chown', '-h', '-R', '--reference', "$jobdir", "$buildroot/.build.packages/KIWI/$f");
       rename("$buildroot/.build.packages/KIWI/$f", "$jobdir/$f") || die("rename $buildroot/.build.packages/KIWI/$f $jobdir/$f: $!\n");
     }
+    chown($localkiwi_uid, $localkiwi_gid, "$buildroot/.build.log");
+    chown($localkiwi_uid, $localkiwi_gid, "$buildroot/.build.meta");
     rename("$buildroot/.build.log", "$jobdir/logfile");
     rename("$buildroot/.build.meta", "$jobdir/meta");
     @send = ();
