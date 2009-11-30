@@ -2339,7 +2339,7 @@ sub checkkiwiproduct {
     if ($relsynctrigger) {
       print "      - $packid (kiwi-product)\n";
       print "        rebuild counter sync\n";
-      return ('scheduled', [ \@rpms, {'explain' => 'rebuild counter sync'} ]);
+      return ('scheduled', [ $bconf, \@rpms, {'explain' => 'rebuild counter sync'} ]);
     }
     print "      - $packid (kiwi-product)\n";
     print "        nothing changed\n";
