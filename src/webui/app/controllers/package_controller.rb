@@ -73,7 +73,7 @@ class PackageController < ApplicationController
       if ( file[:name] == "_link" )
         begin
           @link = Link.find( :project => @project, :package => @package )
-        rescue ActiveXML::Transport::NotFoundError, REXML::ParseException
+        rescue ActiveXML::Transport::NotFoundError
           @link = nil
         end
       end
@@ -162,8 +162,8 @@ class PackageController < ApplicationController
     end
 
     @package = Package.new( :name => params[:name], :project => @project )
-    @package.title.data.text = params[:title]
-    @package.description.data.text = params[:description]
+    @package.title.text = params[:title]
+    @package.description.text = params[:description]
     if @package.save
       flash[:note] = "Package '#{@package}' was created successfully"
       redirect_to :action => 'show', :project => params[:project], :package => params[:name]
@@ -198,13 +198,13 @@ class PackageController < ApplicationController
     end
       
     package = Package.new( :name => @target_package, :project => params[:project] )
-    package.title.data.text = linked_package.title
+    package.title.text = linked_package.title
 
     description = "This package is based on the package " +
       "'#{@linked_package}' from project '#{@linked_project}'.\n\n"
 
-    description += linked_package.description.data.text if linked_package.description.data.text
-    package.description.data.text = description
+    description += linked_package.description.text if linked_package.description.text
+    package.description.text = description
 
     unless package.save
       flash[:note] = "Failed to save package '#{package}'"
@@ -222,8 +222,8 @@ class PackageController < ApplicationController
 
   def save
     valid_http_methods(:post)
-    @package.title.data.text = params[:title]
-    @package.description.data.text = params[:description]
+    @package.title.text = params[:title]
+    @package.description.text = params[:description]
     if @package.save
       flash[:note] = "Package data for '#{@package.name}' was saved successfully"
     else

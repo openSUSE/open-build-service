@@ -169,14 +169,14 @@ class Package < ActiveXML::Base
     elem_cache = get_elements_before :person
 
     #add the new person
-    data.add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
+    add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
 
     merge_data elem_cache
   end
 
   #removes persons based on attributes
   def remove_persons( opt={} )
-    xpath="person"
+    xpath="//person"
     if not opt.empty?
       opt_arr = []
       opt.each do |k,v|
@@ -185,9 +185,7 @@ class Package < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    data.each_element(xpath) do |e|
-      data.delete_element e
-    end
+    data.find(xpath).each {|e| e.remove! }
   end
 
 
@@ -195,28 +193,27 @@ class Package < ActiveXML::Base
   def disable_build( opt={} )
     logger.debug "disable building of package #{self.name} for #{opt[:repo]} #{opt[:arch]}"
 
-    fulldata = REXML::Document.new( data.to_s )
     elem_cache = get_elements_before :disable
 
     if opt[:repo] and opt[:arch]
-      if fulldata.root.get_elements("disable[@repository='#{opt[:repo]}' and @arch='#{opt[:arch]}']").empty?
-        data.add_element 'disable', 'repository' => opt[:repo], 'arch' => opt[:arch]
+      if data.find("disable[@repository='#{opt[:repo]}' and @arch='#{opt[:arch]}']").empty?
+        add_element 'disable', 'repository' => opt[:repo], 'arch' => opt[:arch]
       else return false
       end
     else
       if opt[:repo]
-        if fulldata.root.get_elements("disable[@repository='#{opt[:repo]}' and not(@arch)]").empty?
-          data.add_element 'disable', 'repository' => opt[:repo]
+        if data.find("disable[@repository='#{opt[:repo]}' and not(@arch)]").empty?
+          add_element 'disable', 'repository' => opt[:repo]
         else return false
         end
       elsif opt[:arch]
-        if fulldata.root.get_elements("disable[@arch='#{opt[:arch]}' and not(@repository)]").empty?
-          data.add_element 'disable', 'arch' => opt[:arch]
+        if data.find("disable[@arch='#{opt[:arch]}' and not(@repository)]").empty?
+          add_element 'disable', 'arch' => opt[:arch]
         else return false
         end
       else
-        if fulldata.root.get_elements("//disable[count(@*) = 0]").empty?
-          data.add_element 'disable'
+        if data.find("//disable[count(@*) = 0]").empty?
+          add_element 'disable'
         else return false
         end
       end
@@ -234,12 +231,12 @@ class Package < ActiveXML::Base
   def set_url( new_url )
     logger.debug "set url #{new_url} for package #{self.name} (project #{self.project})"
     if( has_element? :url )
-      url.data.text = new_url
+      url.text = new_url
     else
       elem_cache = get_elements_before :url
       data.add_element 'url'
       merge_data elem_cache
-      url.data.text = new_url
+      url.text = new_url
     end
     save
   end
@@ -248,9 +245,7 @@ class Package < ActiveXML::Base
   def remove_url
     logger.debug "remove url from package #{self.name} (project #{self.project})"
 
-    data.each_element('//url') do |e|
-      data.delete_element e
-    end
+    data.find('//url').each { |e| e.remove! }
     save
   end
 

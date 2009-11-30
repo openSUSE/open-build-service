@@ -32,8 +32,8 @@ class Project < ActiveXML::Base
     def add_arch (arch)
       return nil if archs.include? arch
       @archs.push arch
-      e = data.add_element('arch')
-      e.text = arch
+      el = add_element('arch')
+      el.contents = arch
     end
 
     def remove_arch (arch)
@@ -174,14 +174,14 @@ class Project < ActiveXML::Base
     end
 
     #add the new person
-    data.add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
+    add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
 
     merge_data elem_cache
   end
 
   #removes persons based on attributes
   def remove_persons( opt={} )
-    xpath="person"
+    xpath="//person"
     if not opt.empty?
       opt_arr = []
       opt.each do |k,v|
@@ -190,34 +190,32 @@ class Project < ActiveXML::Base
       xpath += "[#{opt_arr.join ' and '}]"
     end
     logger.debug "removing persons using xpath '#{xpath}'"
-    data.each_element(xpath) do |e|
-      data.delete_element e
+    data.find(xpath.to_s).each do |e| 
+        e.remove!
     end
   end
 
   def add_repository( opt={} )
     return nil if opt == {}
-    repository = REXML::Element.new 'repository'
-    repository.attributes['name'] = opt[:reponame]
+    repository = add_element 'repository', 'name' => opt[:reponame]
 
     if opt[:platform]
       opt[:platform] =~ /(.*)\/(.*)/;
       repository.add_element 'path', 'project' => $1, 'repository' => $2
     end
 
-    opt[:arch].to_a.each do |arch_text|
-      arch = repository.add_element('arch')
+    opt[:arch].to_a.each do |arch_text,dummy|
+      arch = repository.add_element 'arch'
+      puts arch_text.inspect
       arch.text = arch_text
     end
-
-    data.add_element repository
   end
 
   def remove_repository( repository )
     return nil if not repository
     return nil if not self.has_element? :repository
 
-    data.delete_element "repository[@name='#{repository}']"
+    delete_element "repository[@name='#{repository}']"
   end
 
 

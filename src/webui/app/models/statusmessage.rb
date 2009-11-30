@@ -1,4 +1,4 @@
-require 'rexml/document'
+require 'xml'
 
 class Statusmessage < ActiveXML::Base
 
@@ -8,12 +8,11 @@ class Statusmessage < ActiveXML::Base
 
     def make_stub( opt )
       logger.debug "--> creating stub element for #{self.name}, arguments: #{opt.inspect}"
-      doc = REXML::Document.new
-      #doc << XMLDecl.new( 1.0, 'UTF-8', 'no' )
-      doc.add_element( REXML::Element.new( 'message' ) )
-      doc.root.add_attribute( 'severity', opt[:severity].to_s ) if opt[:severity]
-      doc.root.add_text( opt[:message] )
-      return doc
+      doc = XML::Document.new
+      doc.root = XML::Node.new 'message'
+      doc.root.content = opt[:message]
+      doc.root['severity'] = opt[:severity].to_s if opt[:severity]
+      return doc.root
     end
 
   end #self

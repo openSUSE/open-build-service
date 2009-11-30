@@ -4,7 +4,11 @@ class Link < ActiveXML::Base
   class << self
     def make_stub( opt )
       logger.debug "make stub params: #{opt.inspect}"
-      return REXML::Document.new( "<link project=\"#{opt[:linked_project]}\" package=\"#{opt[:linked_package]}\"/>" ).root
+      doc = XML::Document.new
+      doc.root = XML::Node.new 'link'
+      doc.root['project'] = opt[:linked_project]
+      doc.root['package'] = opt[:linked_package]
+      doc.root
     end
   end
   
@@ -12,12 +16,10 @@ class Link < ActiveXML::Base
     if self.has_element? :patches
       patches = data.elements["/link/patches/"]
     else
-      patches = REXML::Element.new("patches")
       data.add_element("patches")
     end
-    e = REXML::Element.new( "add" )
-    e.attributes["name"] = filename
-    patches.add_element e
+    e = patches.add_element "add"
+    e["name"] = filename
   end
 
   def has_patch? filename

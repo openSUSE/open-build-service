@@ -182,25 +182,22 @@ class TagController < ApplicationController
 
   def conditions_to_xml(opts)
 
-        xml = REXML::Document.new
-        xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
-        xml.add_element( REXML::Element.new("collection") )
+        xml = XML::Document.new
+        xml.root = XML::Node.new 'collection'
+
         #adding a project
         opts[:projects].each do |project|
-          element = REXML::Element.new( 'project' )
-          element.add_attribute REXML::Attribute.new('name', project.name)
-          xml.root.add_element(element)
+          element = xml.root << 'project'
+          element['name'] = project.name
         end
         #adding a package
         opts[:packages].each do |package|
-          element = REXML::Element.new( 'package' )
-          element.add_attribute REXML::Attribute.new('project', package.project)
-          element.add_attribute REXML::Attribute.new('name', package.name)
-          xml.root.add_element(element)
+          element = xml.root << 'package'
+          element['project'] = package.project
+          element['name'] = package.name
         end
 
-        return xml
+        return xml.root
   end
-
 
 end

@@ -1,3 +1,4 @@
+
 class Person < ActiveXML::Base
   default_find_parameter :login
 
@@ -19,8 +20,17 @@ class Person < ActiveXML::Base
       if opt.has_key? :email
         email = opt[:email]
       end
-      state = 5
-      return REXML::Document.new( "<person><login>#{opt[:login]}</login><realname>#{realname}</realname><email>#{email}</email><state>#{state}</state></person>" ).root
+      doc = XML::Document.new
+      doc.root = XML::Node.new 'person'
+      element = doc.root << 'login'
+      element.content = opt[:login]
+      element = doc.root << 'realname'
+      element.content = realname
+      element = doc.root << 'email'
+      element.content = email
+      element = doc.root << 'state'
+      element.content = 5
+      doc.root
     end
   end
   
@@ -31,8 +41,8 @@ class Person < ActiveXML::Base
   def add_watched_project(name)
     return nil unless name
     
-    data.add_element 'watchlist' unless has_element? :watchlist
-    watchlist.data.add_element 'project', 'name' => name
+    add_element 'watchlist' unless has_element? :watchlist
+    watchlist.add_element 'project', 'name' => name
     
     logger.debug "user '#{login}' is now watching project '#{name}'"
   end
@@ -41,7 +51,7 @@ class Person < ActiveXML::Base
     return nil unless name
     return nil unless has_element? :watchlist
 
-    watchlist.data.delete_element "project[@name='#{name}']"
+    watchlist.delete_element "project[@name='#{name}']"
     
     logger.debug "user '#{login}' removes project '#{name}' from watchlist"
   end

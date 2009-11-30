@@ -61,8 +61,8 @@ class PlatformController < ApplicationController
     end
 
     @platform.set_project project
-    @platform.title.data.text = params[:title]
-    @platform.description.data.text = params[:description]
+    @platform.title.text = params[:title]
+    @platform.description.text = params[:description]
 
     logger.debug( "PLATFORM: #{@platform}" )
 
@@ -98,8 +98,8 @@ class PlatformController < ApplicationController
     @platform = Platform.new( :name => params[:name] )
 
     @platform.set_project params[:project]
-    @platform.title.data.text = params[:title]
-    @platform.description.data.text = params[:description]
+    @platform.title.text = params[:title]
+    @platform.description.text = params[:description]
 
     if @platform.save
       flash[:note] = "Platform '#{@platform}' was created successfully"

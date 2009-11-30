@@ -217,7 +217,8 @@ class MonitorController < ApplicationController
 private
   def gethistory(key, range)
     hash = Hash.new
-    d = REXML::Document.new(frontend.transport.direct_http(URI('/public/status/history?key=%s&hours=%d' % [key, range])))
+    data = frontend.transport.direct_http(URI('/public/status/history?key=%s&hours=%d' % [key, range]))
+    d = XML::Parser.string(data).parse
     d.root.elements.each do |v|
       hash[Integer(v.attributes['time'])] = Integer(v.attributes['value'])
     end

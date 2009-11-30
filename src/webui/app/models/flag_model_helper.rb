@@ -41,38 +41,28 @@ module FlagModelHelper
       end
     end
     
-    #create new flag section from the flag matrix
-    flags_xml = REXML::Element.new(flag.name)
-    #add only flags which are set explicit
-    sortedflags.each do |flag|
-      flags_xml.add_element flag.to_xml if flag.explicit_set?
-    end
-
     if  self.has_element? flag.name.to_sym
       #split package xml after the flags (from the current type)
       second_part = self.split_data_after flag.name.to_sym
 
       #remove old flag section from xml
       self.delete_element(flag.name)
-
-      #and add the new flag section
-      self.add_element(flags_xml)
-
-      #merge whole project xml
-      self.merge_data second_part
-
     else
       #simply add the flag section
 
       #split package xml after the persons
       second_part = self.split_data_after :person
-
-      #add the new flag section
-      self.add_element(flags_xml)
-
-      #merge whole project xml
-      self.merge_data second_part
     end
+
+    #create new flag section from the flag matrix
+    flagn = self.add_element flag.name
+    #add only flags which are set explicit
+    sortedflags.each do |flag|
+      flag.insertXml(flagn) if flag.explicit_set?
+    end
+
+    #merge whole project xml
+    self.merge_data second_part
 
     self.save
 

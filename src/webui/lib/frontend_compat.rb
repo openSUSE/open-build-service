@@ -80,9 +80,9 @@ class FrontendCompat
     if ! data
       return 0
     end
-    xml = REXML::Document.new data
+    xml = XML::Parser.string(data).parse.root
     begin
-      return Integer(xml.root.elements['entry'].attributes['size'])
+      return Integer(xml.root.find('//entry').first['size'])
     rescue
     end
     return 0

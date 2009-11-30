@@ -43,7 +43,7 @@ class UserController < ApplicationController
 
   def save
     @user ||= Person.find :login => session[:login]
-    @user.realname.data.text = params[:realname]
+    @user.realname.text = params[:realname]
     if @user.save
       flash[:note] = "User data for user '#{@user.login}' successfully updated."
     else

@@ -151,9 +151,7 @@ class ProjectController < ApplicationController
           @project.delete
         end
       rescue ActiveXML::Transport::Error => err
-        @error = REXML::Document.new(err.message).root
-        @code = @error.attributes['code']
-        @summary = @error.elements['summary'].text
+        @error, @code, @summary = ActiveXML::Transport.extract_error_message err
       end
     end
   end
@@ -361,8 +359,8 @@ class ProjectController < ApplicationController
     Person.find( session[:login] )
     #store project
     @project = Project.new(:name => project_name)
-    @project.title.data.text = params[:title]
-    @project.description.data.text = params[:description]
+    @project.title.text = params[:title]
+    @project.description.text = params[:description]
     @project.add_person :userid => session[:login], :role => 'maintainer'
     @project.add_person :userid => session[:login], :role => 'bugowner'
     begin

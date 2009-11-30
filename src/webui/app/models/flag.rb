@@ -1,4 +1,4 @@
-require 'rexml/document'
+require 'xml'
 
 class Flag
 
@@ -133,12 +133,11 @@ class Flag
   end
 
 
-  def to_xml
+  def insertXml(node)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
-    xml_element = REXML::Element.new(self.status.to_s)
-    xml_element.add_attribute REXML::Attribute.new('arch', self.architecture) unless self.architecture.nil?
-    xml_element.add_attribute REXML::Attribute.new('repository', self.repository) unless self.repository.nil?
-    return xml_element
+    nnode = node.add_element self.status
+    nnode.data['arch'] = self.architecture unless self.architecture.nil?
+    nnode.data['repository'] = self.repository unless self.repository.nil?
   end
 
 

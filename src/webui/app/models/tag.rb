@@ -1,4 +1,4 @@
-require 'rexml/document'
+require 'xml'
 
 class Tag < ActiveXML::Base
   
@@ -7,26 +7,20 @@ class Tag < ActiveXML::Base
     # redefine make_stub to achieve taglist needs 
     def make_stub( opt )                  
       
-      xml = REXML::Document.new
-      xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
-      xml.add_element( REXML::Element.new("tags") )
-      if opt[:package]
-        xml.root.add_attribute REXML::Attribute.new("project", opt[:project])
-        xml.root.add_attribute REXML::Attribute.new("package", opt[:package])
-      else #package
-        xml.root.add_attribute REXML::Attribute.new("project", opt[:project])
-      end
+      xml = XML::Document.new
+      xml.root = XML::Node.new 'tags'
+      xml.root["project"] = opt[:project]
+      xml.root["package"] = opt[:package] if opt[:package]
       
       opt[:tag].split(" ").each do |tag|
         tag = tag.strip
         #escaping entities is not enough!
         tag.gsub!("\&","&amp;")
         #ActiveRecord::Base.logger.debug "[TAG:] gsub Tag: #{tag}"
-        element = REXML::Element.new( 'tag' )
-        element.add_attribute REXML::Attribute.new('name', tag)
-        xml.root.add_element(element)      
+        element = xml.root << 'tag'
+        element['name'] = tag
       end
-      xml
+      xml.root
     end
     
   end #self

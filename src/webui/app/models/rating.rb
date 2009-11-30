@@ -1,15 +1,14 @@
-require 'rexml/document'
-class Rating < ActiveXML::Base
+require 'xml'
 
+class Rating < ActiveXML::Base
 
   class << self
 
     def make_stub( opt )
-      doc = REXML::Document.new
-      doc << REXML::XMLDecl.new( 1.0, 'UTF-8', 'no' )
-      doc.add_element( REXML::Element.new( 'rating' ) )
-      doc.root.add_text( opt[:score] )
-      return doc
+      doc = XML::Document.new
+      doc.root = XML::Node.new 'rating'
+      doc.root.content = opt[:score]
+      doc.root
     end
 
   end #self

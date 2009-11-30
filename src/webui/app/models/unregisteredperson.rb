@@ -1,3 +1,5 @@
+require 'xml'
+
 class Unregisteredperson < ActiveXML::Base
 
   default_find_parameter :login
@@ -33,7 +35,7 @@ class Unregisteredperson < ActiveXML::Base
         </unregisteredperson>
       ENDE
 
-      return REXML::Document.new( reply ).root
+      return XML::Parser.string(reply).parse.root
     end
   end
 end
