@@ -13,16 +13,22 @@ class MonitorController < ApplicationController
     if request.post? && ! params[:project].nil? && valid_project_name?( params[:project] )
       redirect_to :project => params[:project]
     else
-      @workerstatus = Workerstatus.find :all
+      begin
+         @workerstatus = Workerstatus.find :all
+      rescue ActiveXML::Transport::NotFoundError
+         @workerstatus = nil
+      end
       @status_messages = get_status_messages
 
       workers = Hash.new
       workers_list = Array.new
-      @workerstatus.each_building.each do |b|
-	workers_list << [b.workerid, b.hostarch]
-      end
-      @workerstatus.each_idle.each do |b|
-	workers_list << [b.workerid, b.hostarch]
+      if @workerstatus
+        @workerstatus.each_building.each do |b|
+          workers_list << [b.workerid, b.hostarch]
+        end
+        @workerstatus.each_idle.each do |b|
+          workers_list << [b.workerid, b.hostarch]
+        end
       end
       workers_list.each do |bid, barch|
 	hostname, subid = bid.gsub(%r{[:]}, '/').split('/')

@@ -4,11 +4,12 @@
 @crumb_list = [ 'Monitor' ]
 -%>
 <%= render :partial => 'status_messages' %>
-<%= render :partial => 'scheduler' %>
-<%= render :partial => 'building' %>
-<%= render :partial => 'idle' %>
-<!-- <%= render :partial => 'waiting' %> -->
-<!-- <%= render :partial => 'blocked' %> -->
-<!-- <%= render :partial => 'average' %> -->
-<%= render :partial => 'stats' %>
+<% if @workerstatus %>
+  <%= render :partial => 'scheduler' %>
+  <%= render :partial => 'building' %>
+  <%= render :partial => 'idle' %>
+  <%= render :partial => 'stats' %>
+<% else -%>
+  <div class="strong">Unable to determine status of workers</div>
+<% end -%>
 
