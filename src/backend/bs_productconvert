@@ -277,7 +277,6 @@ sub createProductOptions($$$)
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
     $varsH{FLAVOR} = $medium->{'flavor'};
-#    $varsH{RELEASE} = $product->{'release'};
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
     $varsH{PRODUCT_VERSION} = '$VERSION';
@@ -306,19 +305,11 @@ sub createProductOptions($$$)
     my %info;
     $info{'VENDOR'}       = $product->{'vendor'};
     $info{'NAME'}         = $product->{'name'};
-    # fix for bnc #449162
-    #my $rp = $product->{'installconfig'}->{'releasepackage'};
-    #$info{'REFERENCES'}   = "$rp->{'name'} ".convertFlags($rp->{'flag'})." $rp->{'version'}";
-    if (defined($product->{'patchlevel'}) && $product->{'patchlevel'} ne '0'){
-       $info{'VERSION'}      = $product->{'version'}.".".$product->{'patchlevel'};
-    }else{
-       $info{'VERSION'}      = $product->{'version'};
-    };
-#    $info{'RELEASE'}      = $product->{'release'};
+
+    # set strings
+    $info{'VERSION'}      = $product->{'version'};
     $info{'SP_VERSION'}   = $product->{'patchlevel'} if (defined($product->{'patchlevel'}));
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
-    # fix for bnc #449162
-    # $info{'FLAVOR'}       = $medium->{'flavor'};
     $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
     $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
     if (defined($medium->{'preselected_patterns'})){
@@ -759,13 +750,12 @@ sub writeMigrationSPECfile( $$$ )
 
     $mproduct->{name} = $product->{name}."-SP".$mproduct->{'patchlevel'}."-migration";
 
-    my $packageversion = $mproduct->{'version'}.".".$mproduct->{'patchlevel'};
     my $oldpatchlevel = $mproduct->{'patchlevel'} - 1;
     my $content="# ";
     $content.="\n\n";
     $content.="Name:           $mproduct->{name}\n";
     $content.="Summary:        $product->{name} Service Pack $product->{'patchlevel'} Migration Product\n";
-    $content.="Version:        ".$packageversion."\n";
+    $content.="Version:        ".$product->{version}."\n";
     $content.="Release:        0\n";
     $content.="License:        BSD 3-Clause\n";
     $content.="Group:          System/Fhs\n";
@@ -799,8 +789,6 @@ sub writeProductSPECfile( $$$$ )
 {
     my( $file, $infile, $prodRef,$product ) = @_;
     my $product_flavors="";
-    my $packageversion = $product->{version};
-    $packageversion = $product->{'version'}.".".$product->{'patchlevel'} if (defined($product->{'patchlevel'}) && $product->{'patchlevel'} ne '0');
     ### A product may obsolete packages.
     my $obsoletepackage="";
     for my $p ( @{$product->{'installconfig'}->{'obsoletepackage'}} ) {
@@ -849,7 +837,7 @@ sub writeProductSPECfile( $$$$ )
      foreach my $summary ( @{$product->{'summary'}} ){
        $content.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
      }
-     $content.="Version:        ".$packageversion."\n";
+     $content.="Version:        ".$product->{version}."\n";
      $content.="Release:        0\n"; # FIXME: check if this is this really handled via BS
      $content.="License:        BSD 3-Clause\n";
      $content.="Group:          System/Fhs\n";
@@ -891,13 +879,13 @@ sub writeProductSPECfile( $$$$ )
 
      # replace all strings
      $str =~ s/___DISTNAME___/$product->{name}/g;
-     $str =~ s/___VERSION___/$packageversion/g;
+     $str =~ s/___VERSION___/$product->{version}/g;
      if ( defined $product->{buildconfig}->{betaversion} ) {
        $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
      } else {
        $str =~ s/___BETA_VERSION___//g;
      }
-     $str =~ s/___RELEASE___/$product->{release}/g;
+     $str =~ s/___RELEASE___/0%{?release}/g; # should not be used anymore
      $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
      $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
      $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
@@ -973,7 +961,7 @@ sub createSPECfileInstallSection ( $ ) {
         my $content="";
         my $is_main_product=0;
         if ( $is_main_product ){
-                my $greeting = "%{product} %{version}";
+                my $greeting = $product->{'name'}." ".$product->{'version'};
                 foreach my $summary ( @{$product->{'summary'}} ){
                    $greeting = $summary->{'_content'} if ( ! $summary->{'language'} );
                 }
@@ -1019,10 +1007,7 @@ sub createProductFile ( $$ ) {
     $d->{"repositories"}{"repository"} = \@r;
     $zypp_product->{'register'} = $d;
 
-    # The generated prod file differes from input by this:
-    $zypp_product->{'release'} = "%{release}";
-    $zypp_product->{'baseversion'} = $zypp_product->{'version'};
-    $zypp_product->{'version'} = "%{version}";
+    # Release package number shall go with the package release
     $zypp_product->{'release'} = "%{release}";
 
     my $xml = XMLout( $BSProductXML::product, $zypp_product );
@@ -1061,6 +1046,29 @@ die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\
 die("ERROR: File name does not match to product name ($infile/$prodRef->{'products'}->{'product'}[0]->{'name'}.product)\n") if not $infile =~ /.*\/$prodRef->{'products'}->{'product'}[0]->{'name'}.product$/;
 
 #
+# Calculate version strings
+#
+die ("It is not allowed to specify baseversion and version.") if (defined($product->{'baseversion'}) && defined($product->{'version'}) );
+if (defined($product->{'baseversion'})) {
+    $product->{'version'}      = $product->{'baseversion'};
+    $product->{'version'}     .= ".".$product->{'patchlevel'} if (defined($product->{'patchlevel'}) && $product->{'patchlevel'} ne '0');
+};
+
+#
+# Check missing information of release package requirement and set defaults if neeeded.
+#
+$product->{'installconfig'}->{'releasepackage'} = { 'flag' => "EQ" }
+                if ( not defined($product->{'installconfig'}->{'releasepackage'}) );
+$product->{'installconfig'}->{'releasepackage'}->{'flag'} = 'EQ'
+                if ( not defined($product->{'installconfig'}->{'releasepackage'}->{'flag'}) );
+$product->{'installconfig'}->{'releasepackage'}->{'name'} = '%{name}'
+                if ( not defined($product->{'installconfig'}->{'releasepackage'}->{'name'}) );
+$product->{'installconfig'}->{'releasepackage'}->{'version'} = '%{version}'
+                if ( not defined($product->{'installconfig'}->{'releasepackage'}->{'version'}) );
+$product->{'installconfig'}->{'releasepackage'}->{'release'} = '%{release}'
+                if ( not defined($product->{'installconfig'}->{'releasepackage'}->{'release'}) );
+
+#
 # Create a kiwi configuration for each distribution flavor
 #
 
@@ -1068,11 +1076,10 @@ my $productRef = $prodRef->{products}->{product}->[0]; # FIXME: Support multiple
 
 my $kiwiImage = {};
 $kiwiImage->{schemeversion} = "2.4"; # ???
-my $name = sprintf( "%s %s %s, Rel. %s",
-		    $productRef->{vendor},
-		    $productRef->{name},
-		    $productRef->{version},
-		    $productRef->{release} );
+my $name = sprintf( "%s %s %s",
+		    $product->{vendor},
+		    $product->{name},
+		    $product->{version} );
 
 $kiwiImage->{name} = $name;
 
