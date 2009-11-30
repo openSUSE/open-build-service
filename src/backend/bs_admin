@@ -102,6 +102,9 @@ Debug Options
  --dump-relsync <file>
    To dump content of :relsync files.
 
+ --set-relsync <file> <key> <value>
+   Modify key content in a a :relsync file.
+
  --check-meta-xml <project>
  --check-meta-xml <project> <package>
    Is parsing a project or package xml file and puts out error messages, in case of errors.
@@ -219,6 +222,7 @@ sub dump_nStore {
   my ($file) = @_;
   my $cache = Storable::retrieve("$file") || {};
   print Dumper( $cache );
+  return $cache
 }
 
 sub dump_cache {
@@ -431,10 +435,18 @@ while (@ARGV) {
       my $arch = shift @ARGV;
       dump_cache($project, $repo, $arch);
     }
-  } elsif ($arg eq "--dump-relsync") {
+  } elsif ($arg eq "--dump-relsync" || $arg eq "--set-relsync") {
     die("ERROR: need file as argument!\n") if @ARGV < 1;
     my $file = shift @ARGV;
-    dump_nStore($file);
+    my $s = dump_nStore($file);
+    my $key = shift @ARGV;
+    my $value = shift @ARGV;
+    if ( defined($key) && defined($value) ){
+      $s->{$key} = $value;
+      print "\nChanged to:\n";
+      print Dumper($s);
+      Storable::nstore($s, $file);
+    };
   } elsif ($arg eq "--dump-state") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
