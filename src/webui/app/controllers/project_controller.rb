@@ -511,10 +511,15 @@ class ProjectController < ApplicationController
 
     @project.add_repository :reponame => targetname, :platform => platform, :arch => arch
 
-    if @project.save
-      flash[:note] = "Target '#{platform}' was added successfully"
-    else
-      flash[:error] = "Failed to add target '#{platform}'"
+    begin
+      if @project.save
+        flash[:note] = "Target '#{platform}' was added successfully"
+      else
+        flash[:error] = "Failed to add target '#{platform}'"
+      end
+    rescue ActiveXML::Transport::Error => e
+        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        flash[:error] = "Failed to add target '#{platform}' " + message
     end
 
     redirect_to :action => :show, :project => @project
@@ -586,9 +591,17 @@ class ProjectController < ApplicationController
     @repo_filter = params[:repo]
     @arch_filter = params[:arch]
     @lastbuild_switch = params[:lastbuild]
-    @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.blank? ? nil : :code => @status_filter, @lastbuild_switch.blank? ? nil : :lastbuild => '1' )
+    begin
+      @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.blank? ? nil : :code => @status_filter, 
+                     @lastbuild_switch.blank? ? nil : :lastbuild => '1' )
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "No build results for project '#{@project}'"
+      redirect_to :action => :show, :project => params[:project]
+      return
+    end
 
-    @avail_status_values = ['succeeded','failed','expansion error','broken','blocked','disabled','scheduled','building','dispatching','finished','excluded','unknown']
+    @avail_status_values = ['succeeded','failed','expansion error','broken','blocked', 'disabled',
+                            'scheduled','building','dispatching','finished','excluded','unknown']
 
     #@packstatus = Packstatus.find( :project => @project )
 
