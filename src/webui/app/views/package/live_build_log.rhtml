@@ -67,6 +67,12 @@ function refresh(newoffset, initial) {
 <a href="#" class="start_refresh hidden">[Start Refresh]</a>
 <a href="#" class="stop_refresh">[Stop Refresh]</a>
 </div>
+
+<div style="float: right">
+<%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
+              :project => @project, :arch => @arch, :repository => @repo  %>
+</div>
+
 <div>
 <b>Status:</b> <span id="status">Updating...</span>
 </div>
@@ -83,3 +89,12 @@ function refresh(newoffset, initial) {
 <a href="#" class="start_refresh hidden">[Start Refresh]</a>
 <a href="#" class="stop_refresh">[Stop Refresh]</a>
 </div>
+
+<% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+  <p>
+    <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
+    :project => @project, :package => @package %>
+  </p>
+<% end %>
+
+
