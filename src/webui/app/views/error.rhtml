@@ -31,10 +31,10 @@ A non existing page was requested. <br />
 <% if api_exception -%>
 <p>
 <h3>Exception from API:</h3>
-<b><%=h api_exception.elements['type'].text %></b>: <%=h api_exception.elements['message'].text %>
+<b><%=h api_exception.find_first('//type').content %></b>: <%=h api_exception.find_first('//message').content %>
 <h4>Stack Trace:</h4>
 <pre>
-<%=h api_exception.elements.to_a('backtrace/line').map {|e| e.text }.join("\n") %>
+<%=h api_exception.find('/backtrace/line').map {|e| e.text }.join("\n") %>
 </pre>
 </p>
 <% end -%>

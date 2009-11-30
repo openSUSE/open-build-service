@@ -219,7 +219,7 @@ private
     hash = Hash.new
     data = frontend.transport.direct_http(URI('/public/status/history?key=%s&hours=%d' % [key, range]))
     d = XML::Parser.string(data).parse
-    d.root.elements.each do |v|
+    d.root.each_element do |v|
       hash[Integer(v.attributes['time'])] = Integer(v.attributes['value'])
     end
     hash.sort {|a,b| a[0] <=> b[0]}
