@@ -8,7 +8,7 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-require "common/activexml"
+require "common/libxmlactivexml"
 require 'custom_logger'
 
 init = Rails::Initializer.run do |config|
@@ -40,6 +40,7 @@ init = Rails::Initializer.run do |config|
   config.gem 'gruff'
   config.gem 'daemons'
   config.gem 'delayed_job'
+  config.gem 'libxml-ruby'
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
