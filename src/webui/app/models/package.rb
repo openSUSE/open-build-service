@@ -234,7 +234,7 @@ class Package < ActiveXML::Base
       url.text = new_url
     else
       elem_cache = get_elements_before :url
-      data.add_element 'url'
+      add_element 'url'
       merge_data elem_cache
       url.text = new_url
     end
