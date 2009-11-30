@@ -1,0 +1,16 @@
+
+/srv/www/obs/frontend/log/*.log {
+  compress
+  dateext
+  maxage 365
+  rotate 50
+  size +8096k
+  notifempty
+  missingok
+  create 664 lighttpd lighttpd
+  sharedscripts
+  postrotate
+    /etc/init.d/lighttpd reload
+  endscript
+}
+

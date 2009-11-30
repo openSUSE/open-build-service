@@ -1,0 +1,29 @@
+/srv/www/obs/webclient/log/access.log {
+  compress
+  dateext
+  maxage 365
+  rotate 30
+  size +4096k
+  notifempty
+  missingok
+  create 664 lighttpd lighttpd
+  postrotate
+    /etc/init.d/lighttpd reload
+  endscript
+}
+
+/srv/www/obs/webclient/log/production.log {
+  compress
+  dateext
+  maxage 365
+  rotate 30
+  size +4096k
+  notifempty
+  missingok
+  create 664 lighttpd lighttpd
+  sharedscripts
+  postrotate
+    /etc/init.d/lighttpd reload
+  endscript
+}
+
