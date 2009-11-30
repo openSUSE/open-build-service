@@ -198,7 +198,7 @@ class PackageController < ApplicationController
     end
       
     package = Package.new( :name => @target_package, :project => params[:project] )
-    package.title.text = linked_package.title
+    package.title.text = linked_package.title.text
 
     description = "This package is based on the package " +
       "'#{@linked_package}' from project '#{@linked_project}'.\n\n"
