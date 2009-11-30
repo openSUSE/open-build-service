@@ -2323,7 +2323,7 @@ sub checkkiwiproduct {
   my @new_meta;
   push @new_meta, "$pdata->{'srcmd5'}  $packid";
   push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b} || $a cmp $b} keys %rpms_meta) {
+  for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b} || $a cmp $b} grep {$rpms_meta{$_}} @rpms) {
     my $id = $rpms_hdrmd5{$rpm};
     eval { $id ||= Build::queryhdrmd5("$reporoot/$rpm"); };
     $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
