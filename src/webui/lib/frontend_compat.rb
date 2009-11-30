@@ -48,7 +48,11 @@ class FrontendCompat
   end
 
   def put_file( data, opt={} )
-    transport.direct_http URI("https://#{@url_prefix}/source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
+    path = "#{@url_prefix}/source"
+    path += "/#{opt[:project]}" if opt[:project]
+    path += "/#{opt[:package]}" if opt[:project] && opt[:package]
+    path += "/#{opt[:filename]}" if opt[:filename]
+    transport.direct_http URI("https://#{path}"),
       :method => "PUT", :data => data
   end
 
