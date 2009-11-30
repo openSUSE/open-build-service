@@ -12,7 +12,11 @@
   <table class="grid">
     <% @files.each do |file| %>
     <tr>
-      <td><%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %></td>
+      <% if file[:editable] %>
+        <td><%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %></td>
+      <% else %>
+        <td><%= file[:name] %></td>
+      <% end %>
       <td><%=h human_readable_fsize( file[:size] )%></td>
       <td><%= link_to "[Download]", file_url( @project, @package, file[:name] ) %></td>
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>

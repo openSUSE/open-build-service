@@ -372,7 +372,7 @@ class PackageController < ApplicationController
        get_files( @project.name, @package.name ).each do |file|
          if file[:name] == @filename
             @addeditlink = file[:editable]
-	    break
+            break
          end
        end
     end
@@ -721,8 +721,8 @@ class PackageController < ApplicationController
   private
 
   def get_files( project, package )
-    # files whose name end in the following extensions should not be editable
-    no_edit_ext = %w{ .bz2 .exe .gem .gif .gz .jar .jpg .jpeg .ogg .ps .pdf .png .rpm .tar .tgz .xpm .zip }
+    # files whose name ends in the following extensions should not be editable
+    no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
     files = []
     dir = Directory.find( :project => project, :package => package )
     dir.each_entry do |entry|
