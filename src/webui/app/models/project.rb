@@ -32,8 +32,8 @@ class Project < ActiveXML::Base
     def add_arch (arch)
       return nil if archs.include? arch
       @archs.push arch
-      el = add_element('arch')
-      el.contents = arch
+      e = add_element('arch')
+      e.text = arch
     end
 
     def remove_arch (arch)
