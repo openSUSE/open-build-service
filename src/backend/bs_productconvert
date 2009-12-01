@@ -1197,28 +1197,10 @@ foreach my $medium ( @$media ){
           my $pkgName = "_product:$file";
           my $kiwiDir = "$outdir/$pkgName/";
           my $outFile = "$kiwiDir/$file.kiwi";
-          my $metaFile = "$kiwiDir/_meta";
       
           mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
           writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
           print "$outFile written.\n";
-      
-          # Create meta file to enable it only for needed architectures
-          if ( $project ) {
-            my $pkgmeta;
-            $pkgmeta->{'name'} = $pkgName;
-            $pkgmeta->{'project'} = $project;
-            $pkgmeta->{'title'} = "KIWI product image build" ;
-            $pkgmeta->{'bcntsynctag'} = "_product:".$product;  # all images for one product shall get the same build number
-            $pkgmeta->{'description'} = "Automatically generated from _product by product converter." ;
-            $pkgmeta->{'build'} = $buildflags;
-            $prodRef->{'project'}->{'name'}="$project";
-            $prodRef->{'project'}->{'buildflags'}=$buildflags;
-            writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
-#            print "metafile written.\n";
-          } else {
-            print "metafile SKIPPED ! (need project name argument for it)\n";
-          }
       }
     }
 }

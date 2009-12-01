@@ -1364,6 +1364,8 @@ sub getprojpack {
 		my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
 		$rinfo->{'prereq'} = \@prereqs if @prereqs;
 	      }
+	      # KIWI Products need local arch added, if we have it defined on this server
+	      push @{$d->{'exclarch'}}, 'local' if (defined($d->{'exclarch'}) && $type eq 'kiwi' && $d->{'imagetype'}[0] eq 'product' && defined($BSConfig::localarch));
 	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
 	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $arch} @{$d->{'badarch'}};
 	      for ('imagetype', 'path', 'extrasource') {
@@ -3401,8 +3403,9 @@ sub postrequest {
         $found = 1;
         $go_new_state = $r->{'state'} if $go_new_state eq "review";
       } else {
-        # don't touch the request state if a review is still open
-        $go_new_state = '' if $r->{'state'} eq 'new';
+        # don't touch the request state if a review is still open, except the
+        # review got declined or superseded.
+        $go_new_state = '' if $r->{'state'} eq 'new' and $go_new_state ne 'declined' and $go_new_state ne 'superseded';
       }
     }
     die("review item not found.\n") if $found == 0;

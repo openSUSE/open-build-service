@@ -102,6 +102,9 @@ our $relsync_pool = {
 # "openSUSE:Factory/cmake" => { bad => [ "build10", "build11" ] },
 #);
 
+# Use a special local arch for product building
+# our $localarch = "x86_64";
+
 # host specific configs
 my $hostconfig = "bsconfig." . Net::Domain::hostname();
 if(-r $hostconfig) {
