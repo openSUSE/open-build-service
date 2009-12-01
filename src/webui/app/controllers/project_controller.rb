@@ -726,7 +726,12 @@ class ProjectController < ApplicationController
 
   def require_prjconf
     @project = params[:project]
-    @config = frontend.get_source(:project => params[:project], :filename => '_config')
+    begin
+      @config = frontend.get_source(:project => params[:project], :filename => '_config')
+    rescue ActiveXML::Transport::NotFoundError => e
+      flash[:error] = "Project not found: #{params[:project]}" 
+      redirect_to :controller => "project", :action => "list_public"
+    end
   end
 
 end
