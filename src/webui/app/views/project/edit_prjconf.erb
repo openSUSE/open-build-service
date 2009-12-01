@@ -1,0 +1,18 @@
+<% @pagetitle = "Edit Project Config for #{@project}" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :action => :show, :project => @project),
+  'Edit project config'
+]
+-%>
+
+<h2>Editing Project Config for <%=h @project %></h2>
+
+<% form_tag :action => :save_prjconf do %>
+  <b>Config:</b><br/>
+  <%= text_area_tag "config", @config, :rows => 20 %><br/>
+  <%= hidden_field_tag "project", @project %>
+  <p><%= submit_tag %></p>
+<% end %>
+

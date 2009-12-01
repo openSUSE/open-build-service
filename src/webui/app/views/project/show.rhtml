@@ -69,6 +69,7 @@
     <%#= render :partial => "flags" %>
     <!-- Attributes -->
     <%= render :partial => "attributes/attributes.rhtml" %>
+    <%= link_to 'Project Config', :action => :prjconf, :project => @project.name %> 
   </td>
 
     <td>

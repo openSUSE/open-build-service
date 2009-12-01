@@ -4,6 +4,7 @@ class ProjectController < ApplicationController
     :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages,
     :update_target, :edit_target]
+  before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
 
   def index
     redirect_to :action => 'list_public'
@@ -679,6 +680,17 @@ class ProjectController < ApplicationController
     render :partial => 'shared/rate'
   end
 
+  def prjconf
+  end
+  
+  def edit_prjconf
+  end
+
+  def save_prjconf
+    frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
+    flash[:note] = "Project Config successfully saved"
+    redirect_to :action => :prjconf, :project => params[:project]
+  end
 
   private
 
@@ -712,5 +724,9 @@ class ProjectController < ApplicationController
     end
   end
 
+  def require_prjconf
+    @project = params[:project]
+    @config = frontend.get_source(:project => params[:project], :filename => '_config')
+  end
 
 end

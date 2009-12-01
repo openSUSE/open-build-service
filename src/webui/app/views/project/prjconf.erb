@@ -1,0 +1,27 @@
+<% @pagetitle = "Project Config for %s" % @project %>
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag "SyntaxHighlighter" %>
+  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushPrjconf' %>
+<% end %>
+
+<% content_for :ready_function do %>
+   dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+   dp.SyntaxHighlighter.HighlightAll('code'); 
+   $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
+   $("#editlink").attr("href", "<%= url_for(:action => :edit_prjconf, :project => @project) %>");
+<% end %>
+
+<%
+@crumb_list = [
+  link_to( 'Projects', :controller => 'project', :action => :list_public),
+  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+  'Project Config'
+]
+-%>
+<h2>Project Config for <%=h @project %></h2>
+
+<pre name="code" class="prjconf">
+<%=h @config%>
+</pre>
+
