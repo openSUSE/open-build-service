@@ -447,7 +447,7 @@ sub stream_read_handler {
     }
   }
   if (!$r) {
-    print "stream_read_handler: EOF\n";
+#    print "stream_read_handler: EOF\n";
     if ($ev->{'eofhandler'}) {
       close $ev->{'fd'} if $ev->{'fd'};
       delete $ev->{'fd'};
