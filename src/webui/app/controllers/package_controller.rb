@@ -427,7 +427,11 @@ class PackageController < ApplicationController
       @offset = 0
     end
     maxsize = 1024 * 64
-    @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+    begin
+       @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+    rescue Timeout::Error
+       @initiallog = ''
+    end
     @offset += @initiallog.length
     @initiallog = CGI.escapeHTML(@initiallog);
     @initiallog.gsub!("\n","<br/>")
