@@ -68,7 +68,6 @@ MIN_VOTES_FOR_RATING = 3
 
 
 require 'ostruct'
-require 'rexml-expansion-fix'
 require "#{RAILS_ROOT}/config/repositories.rb"
 
 # Exception notifier plugin configuration
