@@ -157,9 +157,12 @@ class Package < ActiveXML::Base
     delete_opt[:project] = @init_options[:project]
     delete_opt[:filename] = name
 
-    FrontendCompat.new.delete_file delete_opt
-
-    true
+    begin
+       FrontendCompat.new.delete_file delete_opt
+       true
+    rescue ActiveXML::Transport::NotFoundError
+       false
+    end 
   end
 
   def add_person( opt={} )
