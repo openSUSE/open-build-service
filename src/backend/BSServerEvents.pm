@@ -118,7 +118,9 @@ sub reply {
     return;
   }
   if (@hi && $hi[0] =~ /^status: (\d+.*)/i) {
-    $hi[0] = "HTTP/1.1 $1";
+    my $msg = $1;
+    $msg =~ s/:/ /g;
+    $hi[0] = "HTTP/1.1 $msg";
   } else {
     unshift @hi, "HTTP/1.1 200 OK";
   }
