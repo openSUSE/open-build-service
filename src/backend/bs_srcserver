@@ -1185,7 +1185,7 @@ sub getprojpack {
 	}
       }
     }
-    if (!grep {!$_->{'status'} || $_->{'status'} ne 'disabled'} @{$proj->{'repository'} || []}) {
+    if (!$cgi->{'ignoredisable'} && !grep {!$_->{'status'} || $_->{'status'} ne 'disabled'} @{$proj->{'repository'} || []}) {
       # either no repositories or all disabled. No need to check packages
       @packages = ();
     }
@@ -2790,6 +2790,10 @@ sub getlogfile {
 	    if ($files->{'_linkerror'}) {
 	      $error = readstr("$srcrep/$packid/$files->{'_linkerror'}-_linkerror", 1);
 	    }
+	  }
+	  if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
+	    my $entry = {'name' => '_log', 'size' => length($error)};
+	    return ({'entry' => [ $entry ]}, $BSXML::dir);
 	  }
 	  return $error;
 	}
