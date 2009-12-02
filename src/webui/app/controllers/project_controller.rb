@@ -1,7 +1,7 @@
 class ProjectController < ApplicationController
 
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
-    :search_package, :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
+    :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages,
     :update_target, :edit_target]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
@@ -336,20 +336,6 @@ class ProjectController < ApplicationController
     end
     render :partial => "search_package"
   end
-
-  def search_package
-    if params[:packagesearch]
-      # user pressed enter to search -> no ajax, old-fashioned form-submit
-      @packages = filter_packages params[:project], params[:packagesearch]
-      show()
-      render :action => 'show'
-    else
-      # ajax live-search
-      @matching_packages = filter_packages params[:project], params[:searchtext]
-      render :partial => "search_package"
-    end
-  end
-
 
   def save_new
     @namespace = params[:ns]
@@ -730,6 +716,15 @@ class ProjectController < ApplicationController
 
 
   def require_project
+    if !valid_project_name? params[:project] 
+      unless request.xhr?
+         flash[:error] = "#{params[:project]} is not a valid project name"
+         redirect_to :controller => "project", :action => "list_public"
+      else
+         render :text => 'Not a valid project name', :status => 404
+      end
+      return
+    end
     begin
       @project = Project.find( params[:project] )
     rescue ActiveXML::Transport::NotFoundError => e
@@ -740,6 +735,12 @@ class ProjectController < ApplicationController
   end
 
   def require_prjconf
+    if !valid_project_name? params[:project]
+      flash[:error] = "#{params[:project]} is not a valid project name"
+      redirect_to :controller => "project", :action => "list_public"
+      return
+    end
+
     @project = params[:project]
     begin
       @config = frontend.get_source(:project => params[:project], :filename => '_config')

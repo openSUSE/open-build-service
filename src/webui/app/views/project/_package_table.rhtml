@@ -48,15 +48,13 @@
 
 <div id="package_filter">
 
-  <% form_tag :action => 'search_package' do -%>
-    <div>
-    <label for="packagesearch">Filter:</label>
-    <%= text_field_tag 'packagesearch' -%>
-    <%= hidden_field_tag 'project', @project -%>
-    <%= hidden_field_tag 'filter_active', 1 -%>
-    <img id="packagesearch_clear" title="clear input" alt="clear" src="/images/clear.png" />
-    </div>
-  <% end-%>
+ <div>
+  <label for="packagesearch">Filter:</label>
+  <%= text_field_tag 'packagesearch' -%>
+  <%= hidden_field_tag 'project', @project -%>
+  <%= hidden_field_tag 'filter_active', 1 -%>
+  <img id="packagesearch_clear" title="clear input" alt="clear" src="/images/clear.png" />
+ </div>
 
 </div>
 
