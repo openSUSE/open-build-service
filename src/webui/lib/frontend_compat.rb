@@ -81,11 +81,7 @@ class FrontendCompat
       return 0
     end
     xml = XML::Parser.string(data).parse.root
-    begin
-      return Integer(xml.root.find('//entry').first['size'])
-    rescue
-    end
-    return 0
+    return Integer(xml.find_first('//entry')['size'])
   end
 
   def transport
