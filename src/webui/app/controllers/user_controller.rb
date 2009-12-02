@@ -59,7 +59,8 @@ class UserController < ApplicationController
     begin
       Person.find( :login => session[:login] )
       logger.info "User #{session[:login]} already exists..."
-      redirect_to :controller => "home" and return
+      redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}"
+      return
     rescue
     end
     logger.debug "Creating new person #{session[:login]}"
@@ -72,7 +73,7 @@ class UserController < ApplicationController
     person = Unregisteredperson.new(unreg_person_opts)
     person.save
     flash[:success] = "Your buildservice account is now active."
-    redirect_to :controller => :project, :project => "home:#{session[:login]}"
+    redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}"
   end
 
 end

@@ -3,7 +3,7 @@ class ProjectController < ApplicationController
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages,
-    :update_target, :edit_target]
+    :update_target, :edit_target, :show]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
 
   def index
@@ -97,37 +97,10 @@ class ProjectController < ApplicationController
   end
 
   def show
-    if !valid_project_name? params[:project]
-      flash[:error] = "Project #{params[:project]} is not a valid project name."
-      redirect_to :action => :list_public and return
-    end
-
-    begin
-      @project = Project.find( params[:project] )
-    rescue ActiveXML::Transport::NotFoundError
-      # create home project if none is there
-      logger.debug "caught Transport::NotFoundError in ProjectController#show"
-      home_project = "home:" + session[:login]
-      if params[:project] == home_project
-        flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
-          " descriptive data and press the 'Create Project' button."
-        redirect_to :action => :new, :project => home_project and return
-      else
-        logger.debug "Project does not exist"
-        flash[:error] = "Project #{params[:project]} doesn't exist."
-        redirect_to :action => :list_public and return
-      end
-      return
-    rescue ActiveXML::Transport::Error => ex
-      rescue_action_in_public ex
-      return
-    end
-
     @email_hash = Hash.new
     @project.each_person do |person|
       @email_hash[person.userid.to_s] = Person.find_cached( person.userid ).email.to_s
     end
-
     @subprojects = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{params[:project]}:')"
     @arch_list = arch_list
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
@@ -141,21 +114,6 @@ class ProjectController < ApplicationController
     render :partial => 'inner_repo_table', :locals => {:has_data => true}
   end
 
-  def debug_dialog
-    if params[:dialog] == "confirm"
-      @confirmed = false
-      @error = false
-    elsif params[:dialog] == "delete"
-      @error = true
-      @code = "repo_dependency"
-      @summary = "\n"+%w(home:bauersman:test/standard home:bauersman:test2/standard proj3/blub ding/dong a/b c/d e/f g/h).join("\n")
-      @project = Object.new
-      def @project.name
-        "dsfoiasenldsfjnasldkf"
-      end
-    end
-    render :action => :delete
-  end
 
   def delete
     @confirmed = params[:confirmed]
@@ -719,20 +677,27 @@ class ProjectController < ApplicationController
     if !valid_project_name? params[:project] 
       unless request.xhr?
          flash[:error] = "#{params[:project]} is not a valid project name"
-         redirect_to :controller => "project", :action => "list_public"
+         redirect_to :controller => "project", :action => "list_public" and return
       else
-         render :text => 'Not a valid project name', :status => 404
+         render :text => 'Not a valid project name', :status => 404 and return
       end
-      return
     end
     begin
       @project = Project.find( params[:project] )
     rescue ActiveXML::Transport::NotFoundError => e
+      if params[:project] == "home:" + session[:login]
+        # checks if the user is registered yet
+        Person.find( :login => session[:login] )
+        flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
+          " descriptive data and press the 'Create Project' button."
+        redirect_to :action => :new, :project => "home:" + session[:login] and return
+      end
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public"
       return
     end
   end
+
 
   def require_prjconf
     if !valid_project_name? params[:project]
