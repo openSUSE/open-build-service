@@ -22,10 +22,17 @@ class ProjectController < ApplicationController
   end
 
   def list(mode=:without_homes)
-    filterstring = params[:projectsearch] || params[:searchtext]
+    filterstring = params[:projectsearch] || params[:searchtext] || ''
 
-    predicate = "contains(@name, '#{filterstring}')"
-    predicate += " and not(starts-with(@name,'home:'))" if mode==:without_homes
+    if !filterstring.empty?
+      predicate = "contains(@name, '#{filterstring}')"
+    else
+      predicate = ''
+    end
+    if mode==:without_homes
+      predicate += " and " if !predicate.empty?
+      predicate += "not(starts-with(@name,'home:'))"
+    end
     result = Collection.find :id, :what => "project", :predicate => predicate
     @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
     if request.xhr?
@@ -90,6 +97,11 @@ class ProjectController < ApplicationController
   end
 
   def show
+    if !valid_project_name? params[:project]
+      flash[:error] = "Project #{params[:project]} is not a valid project name."
+      redirect_to :action => :list_public and return
+    end
+
     begin
       @project = Project.find( params[:project] )
     rescue ActiveXML::Transport::NotFoundError
@@ -105,6 +117,9 @@ class ProjectController < ApplicationController
         flash[:error] = "Project #{params[:project]} doesn't exist."
         redirect_to :action => :list_public and return
       end
+      return
+    rescue ActiveXML::Transport::Error => ex
+      rescue_action_in_public ex
       return
     end
 

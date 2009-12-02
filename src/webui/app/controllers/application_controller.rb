@@ -1,6 +1,8 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
+require 'common/activexml/transport'
+
 class ApplicationController < ActionController::Base
   
   before_filter :set_return_to, :reset_activexml, :authenticate
