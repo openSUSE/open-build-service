@@ -1,1 +1,2 @@
+<% url = 'http://' + url if !/^http/.match( url )  %>
 <%= link_to(h(shorten_text(url, 25)), h(url), :target => '_blank', :title => url) -%>
