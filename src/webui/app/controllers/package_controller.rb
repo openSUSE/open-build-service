@@ -369,17 +369,22 @@ class PackageController < ApplicationController
     @filename = params[:file]
     @addeditlink = false
     if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )
-       get_files( @project.name, @package.name ).each do |file|
-         if file[:name] == @filename
-            @addeditlink = file[:editable]
-            break
-         end
-       end
+      get_files( @project.name, @package.name ).each do |file|
+        if file[:name] == @filename
+          @addeditlink = file[:editable]
+          break
+        end
+      end
     end
     @project = @project.name
     @package = @package.name
-    @file = frontend.get_source( :project => @project,
-      :package => @package, :filename => @filename )
+    begin
+      @file = frontend.get_source( :project => @project,
+        :package => @package, :filename => @filename )
+    rescue ActiveXML::Transport::NotFoundError => e
+      flash[:error] = "File not found: #{@filename}"
+      redirect_to :action => :show, :package => @package, :project => @project
+    end
   end
 
 
@@ -398,20 +403,19 @@ class PackageController < ApplicationController
 
   def rawlog
     valid_http_methods :get
-
     headers['Content-Type'] = 'text/plain'
 
     render :text => proc { |response, output| 
       maxsize = 1024 * 256
       offset = 0
       while true
-	chunk = frontend.get_log_chunk(params[:project], params[:package], params[:repository], params[:arch], offset, offset + maxsize )
-	if chunk.length == 0
-	  break
-	end
-	offset += chunk.length
-	output.write(chunk)
-	output.flush
+        chunk = frontend.get_log_chunk(params[:project], params[:package], params[:repository], params[:arch], offset, offset + maxsize )
+        if chunk.length == 0
+          break
+        end
+        offset += chunk.length
+        output.write(chunk)
+        output.flush
       end
     }
   end
@@ -419,23 +423,22 @@ class PackageController < ApplicationController
   def live_build_log
     @arch = params[:arch]
     @repo = params[:repository]
-
-    size = frontend.get_size_of_log(@project, @package, @repo, @arch)
-    logger.debug("size is %d" % size)
-    @offset = size - 32 * 1024
-    if @offset < 0
-      @offset = 0
-    end
-    maxsize = 1024 * 64
     begin
-       @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
-    rescue Timeout::Error
-       @initiallog = ''
+      size = frontend.get_size_of_log(@project, @package, @repo, @arch)
+      logger.debug("log size is %d" % size)
+      @offset = size - 32 * 1024
+      @offset = 0 if @offset < 0
+      maxsize = 1024 * 64
+      @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+    rescue Timeout::Error, ActiveXML::Transport::NotFoundError => e
+      logger.error "Got #{e.class}: #{e.message}; returning empty log."
+      @initiallog = ''
     end
-    @offset += @initiallog.length
+    @offset = (@offset || 0) + @initiallog.length
     @initiallog = CGI.escapeHTML(@initiallog);
     @initiallog.gsub!("\n","<br/>")
   end
+
 
   def update_build_log
     @project = params[:project]
