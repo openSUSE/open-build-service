@@ -506,6 +506,13 @@ if (!$justbuild) {
       my $infoxml = readstr('job');
       die("building a different job\n") unless $cgi->{'jobid'} eq Digest::MD5::md5_hex($infoxml);
     }
+    if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
+      my @s = stat("$buildroot/.build.log");
+      die("$buildroot/.build.log: $!\n") unless @s;
+      my $xml = "<directory>\n  <entry name=\"_log\" size=\"$s[7]\" mtime=\"$s[9]\" />\n</directory>\n";
+      BSServer::reply($xml, 'Content-Type: text/xml');
+      exit(0);
+    }
     stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
     exit(0);
   } elsif ($path eq '/build' && $req->{'action'} eq 'PUT') {
