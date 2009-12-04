@@ -116,6 +116,7 @@ class ProjectController < ApplicationController
 
 
   def delete
+    valid_http_methods :post
     @confirmed = params[:confirmed]
     if @confirmed == "1"
       begin
@@ -125,7 +126,8 @@ class ProjectController < ApplicationController
           @project.delete
         end
       rescue ActiveXML::Transport::Error => err
-        @error, @code, @summary = ActiveXML::Transport.extract_error_message err
+        @error, @code, @api_exception = ActiveXML::Transport.extract_error_message err
+        logger.error "Could not delete project #{@project}: #{@error}"
       end
     end
   end

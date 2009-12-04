@@ -1,9 +1,9 @@
 if @error
   if @code == "repo_dependency"
-    @repos = @summary.split("\n")[1..-1]
+    @repos = @error.split("\n")[1..-1]
     page.replace 'dialog_wrapper', :partial => 'delete_dialog'
   else
-    page.replace_html 'error_message', @summary
+    page.replace_html 'error_message', @error
     page.show 'error_message'
     page.delay(5) do
       page.hide 'error_message'
