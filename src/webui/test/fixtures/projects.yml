@@ -113,18 +113,6 @@ project_without_flags:
   </project>"   
 
 
-project_with_flags_and_without_repo: 
-  "<project name='project_with_flags_and_without_repo'>
-    <title/>
-    <description/>
-    <build>
-      <disable/>
-      <enable repository='openSUSE_10.2' arch='i586'/>
-    </build>
-    <person userid='tscholz' role='maintainer'/>
-   </project>"
-
- 
 project_with_flags_and_improper_repo: 
   "<project name='project_with_flags_and_improper_repo'>
     <title/>

@@ -148,14 +148,6 @@ class ProjectTest < Test::Unit::TestCase
   end
     
   
-  def test_project_with_flags_but_without_repo
-    @project = Project.find(:name => "project_with_flags_and_without_repo") 
-    assert_raises (RuntimeError){
-      @project.create_flag_matrix(:flagtype => 'build')
-    }
-  end
-    
-  
   def test_ignore_flags_on_update
     @project = Project.find(:name => "project_with_flags_and_improper_repo")
     
