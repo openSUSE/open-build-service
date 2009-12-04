@@ -185,12 +185,7 @@ class ProjectTest < Test::Unit::TestCase
      t = Marshal.dump(@project)
      nproject = Marshal.load(t)
      assert_equal @project.dump_xml, nproject.dump_xml
+     assert_equal @project.init_options, nproject.init_options
   end
 
-  def test_marshall2
-     t = Marshal.dump(@project_without_flags)
-     nproject = Marshal.load(t)
-     assert_equal @project_without_flags.dump_xml, nproject.dump_xml
-
-  end
 end
