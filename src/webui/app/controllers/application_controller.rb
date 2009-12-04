@@ -36,6 +36,7 @@ class ApplicationController < ActionController::Base
 
   def require_login
     if !session[:login]
+      render :text => 'Please login' and return if request.xhr?
       flash[:error] = "Please login to access the requested page."
       if (ICHAIN_MODE == 'off')
         redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
