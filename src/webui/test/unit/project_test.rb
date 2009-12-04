@@ -42,13 +42,13 @@ class ProjectTest < Test::Unit::TestCase
        assert_kind_of Flag, @project.publish_flags[key.to_sym]
      end
      
-     @project.create_flag_matrix(:flagtype => 'debug')
+     @project.create_flag_matrix(:flagtype => 'debuginfo')
      
      #for debug_flags
      ['openSUSE_10.2::x86_64', 'all::all', 'openSUSE_Factory::all',
           'openSUSE_10.2::all', 'openSUSE_Factory::i586', 'all::i586',
           'openSUSE_Factory::x86_64', 'openSUSE_10.2::i586', 'all::x86_64'].each do |key|
-            assert_kind_of Flag, @project.debug_flags[key.to_sym]
+            assert_kind_of Flag, @project.debuginfo_flags[key.to_sym]
      end     
      
   end
@@ -104,20 +104,20 @@ class ProjectTest < Test::Unit::TestCase
     
     project = Project.find(:name => "project_with_debugflags")
 
-    project.create_flag_matrix(:flagtype => 'debug')
+    project.create_flag_matrix(:flagtype => 'debuginfo')
 
     #check preconditions
     ['openSUSE_10.2::i586'].each do |key|
-      flag = project.debug_flags[key.to_sym]
+      flag = project.debuginfo_flags[key.to_sym]
       assert_equal 'default', flag.status
     end
 
     #update flags with the project-config
-    project.update_flag_matrix(:flagtype => 'debug')
+    project.update_flag_matrix(:flagtype => 'debuginfo')
 
     #check results
     ['openSUSE_10.2::i586'].each do |key|
-      flag = project.debug_flags[key.to_sym]
+      flag = project.debuginfo_flags[key.to_sym]
       assert_equal 'enable', flag.status
     end
     

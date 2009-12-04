@@ -24,3 +24,4 @@ FRONTEND_PROTOCOL = 'http'
 
 BASE_NAMESPACE = nil
 
+ICHAIN_MODE = "off"

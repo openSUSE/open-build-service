@@ -47,10 +47,10 @@ project_with_debugflags:
   "<project name='project_with_debugflags'>
     <title/>
     <description/>
-    <debug>
+    <debuginfo>
       <disable/>
       <enable repository='openSUSE_10.2' arch='i586'/>
-    </debug>
+    </debuginfo>
     <person userid='tscholz' role='maintainer'/>
     <repository name='openSUSE_10.2'>
       <path project='openSUSE:10.2' repository='standard'/>

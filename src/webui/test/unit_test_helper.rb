@@ -1,9 +1,8 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
-require 'application'
+require 'application_controller'
 require 'test/unit'
 require 'action_controller/test_process'
-require 'breakpoint'
 
 class UnitTest
   def self.TestCase
