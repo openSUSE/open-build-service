@@ -64,7 +64,7 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $myeventdir = "$eventdir/signer";
 my $uploaddir = "$BSConfig::bsdir/upload";
 
-my $maxchild;
+my $maxchild = 4;
 
 sub signjob {
   my ($job, $arch) = @_;
