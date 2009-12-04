@@ -180,5 +180,17 @@ class ProjectTest < Test::Unit::TestCase
     assert_equal "openSUSE_10.2", @project.repositories[0].name
     assert_equal "openSUSE_Factory", @project.repositories[1].name
   end
+  
+  def test_marshall
+     t = Marshal.dump(@project)
+     nproject = Marshal.load(t)
+     assert_equal @project.dump_xml, nproject.dump_xml
+  end
 
+  def test_marshall2
+     t = Marshal.dump(@project_without_flags)
+     nproject = Marshal.load(t)
+     assert_equal @project_without_flags.dump_xml, nproject.dump_xml
+
+  end
 end
