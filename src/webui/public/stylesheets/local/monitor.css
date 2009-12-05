@@ -1,6 +1,6 @@
 .builderbox { 
   width: 19%;
-  margin: 0;
+  margin: 3px;
   border: 8px transparent;
   list-style: none;
   float: left;
@@ -18,21 +18,34 @@
   clear: both;
 }
 
+.monitorpb_green { 
+  background-image: url("../../images/progressbar_green.png");
+}
+
+.monitorpb_orange { 
+  background-image: url("../../images/progressbar_orange.png");
+}
+
+.monitorpb_red { 
+  background-image: url("../../images/progressbar_red.png");
+}
+
 .monitorpb_track {
-  margin: 0; 
   padding: 0; 
-  background-image: url("../../images/progressbar.png");
   background-color: transparent;
   background-repeat: repeat-x;
   background-attachment: scroll;
   background-position: left -22px;
-  overflow: hidden; 
-  width: 90%;
+  width: 100%;
   height: 100%;
-  float: left;
   moz-background-clip: border;
   moz-background-origin: padding; 
   moz-background-inline-policy: continuous;
+  position: absolute;
+  left: 2px;
+  top: 0px;
+  overflow: hidden;
+  margin-right: -20px;
 }
 
 .monitorpb_right {
@@ -41,37 +54,40 @@
   overflow: hidden; 
   width: 2px; 
   height: 100%;
-  float: left; 
-  background-image: url("../../images/progressbar.png");
   background-position: -4px -44px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
 }
 
 .monitorpb_left { 
+  position: absolute;
+  left: 0px;
+  top: 0px;
   margin: 0pt; 
   padding: 0pt; 
   overflow: hidden; 
   width: 2px; 
   height: 100%;
   float: left; 
-  background-image: url("../../images/progressbar.png");
   background-position: -2px -44px;
 }
 
 .monitorpb_text { 
   position: absolute; 
-  left: 6px; 
+  left: 4px; 
   top: 2px;
+  overflow: hidden;
 }
 
 .monitorpb_ctrl { 
   margin: 0;
   padding: 0; 
-  background-image: url("../../images/progressbar.png");
   background-color: transparent;
   background-repeat: repeat-x;
   background-attachment: scroll;
   background-position: left top;
-  width: 100%;
+  width: 100%; 
   height: 100%;
   moz-background-clip: border; 
   moz-background-origin: padding; 
@@ -81,11 +97,11 @@
 .monitorpb {
   padding: 0pt 3px; 
   height: 22px;
-  position: relative; 
-  width: 100%;
+  position: relative;
   left: 0; 
   top: 0;
   max-height: 22px;
+  overflow: hidden;
 }
 
 .monitorpb a {
@@ -111,6 +127,25 @@
 .statuslights ul
 { 
   height: 20px;
+  margin-bottom: 10px;
+}
+
+.statustext
+{
+   z-index: 2;
+   background: white;
+   border: 1px solid black;
+   position: absolute;
+   left: -10px;
+   top: -20px;
+   white-space: nowrap;
+}
+
+.statuswrapper
+{
+   position: relative; 
+   left: 0px;
+   top: 0px;
 }
 
 .statuslights li

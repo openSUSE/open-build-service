@@ -2,13 +2,13 @@ require 'gruff'
 
 class MonitorController < ApplicationController
 
-  def index
+  def old
     get_settings
     @workerstatus = Workerstatus.find :all
     @status_messages = get_status_messages
   end
 
-  def new
+  def index
     get_settings
     if request.post? && ! params[:project].nil? && valid_project_name?( params[:project] )
       redirect_to :project => params[:project]

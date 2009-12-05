@@ -1,14 +1,17 @@
 <% @pagetitle = "Build Status Monitor" %>
-
 <%
 @crumb_list = [ 'Monitor' ]
 -%>
+
+<% content_for :content_for_head do %>
+<%= stylesheet_link_tag "local/monitor", :media => "all" %>
+<% end %>
+
 <%= render :partial => 'status_messages' %>
 <% if @workerstatus %>
-  <%= render :partial => 'scheduler' %>
-  <%= render :partial => 'building' %>
-  <%= render :partial => 'idle' %>
-  <%= render :partial => 'stats' %>
+  <%= render :partial => 'lights' %>
+  <%= render :partial => 'workers_table' %>
+  <%= render :partial => 'plots' %>
 <% else -%>
   <div class="strong">Unable to determine status of workers</div>
 <% end -%>

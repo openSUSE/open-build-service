@@ -8,40 +8,32 @@
 
      var container = $('#p' + id);
 
-     var skin = "url('<%= image_path('progressbar') %>_green.png')";
      if (delta > 90) {
-        skin = "url('<%= image_path('progressbar') %>_red.png')";
-     } else if (delta > 80) {
-        skin = "url('<%= image_path('progressbar') %>_orange.png')";
+        container.children(".monitorpb_green").addClass("monitorpb_red").removeClass("monitorpb_green");
+        container.children(".monitorpb_orange").addClass("monitorpb_red").removeClass("monitorpb_orange");
+     } else if (delta > 50) {
+	container.children(".monitorpb_green").addClass("monitorpb_orange").removeClass("monitorpb_green");
+        container.children(".monitorpb_red").addClass("monitorpb_orange").removeClass("monitorpb_red");
+     } else {
+	container.children(".monitorpb_orange").addClass("monitorpb_green").removeClass("monitorpb_orange");
+        container.children(".monitorpb_red").addClass("monitorpb_green").removeClass("monitorpb_red");
      }
-     var el_track = $('#p' + id + "-track");
-     el_track.css("background-image", skin);
-     el_track.css("width", (container.width() - 12) + "px");
 
-     var el_right = $('#p' + id + "-cap-right");
-     el_right.css("background-image", skin);
-
-     var el_left = $('#p' + id + "-cap-left");
-     el_left.css("background-image", skin);
-
-     var el_ctrl = $('#p' + id + "-ctrl");
-     /* el.css("background-image", "url('<%= image_path('progressbar') %>_green.png')");*/
-     el_ctrl.css("width", (container.width() - 12) + "px");
-              
-     var el_text = $('#p' + id + "-text");
+     var el_text = container.children(".monitorpb_text:first");
      if (delta) {
         el_text.html(item[logfileinfo]);
 	container.children(".pb_repo:first").html(item["repository"]);
 	container.children(".pb_arch:first").html(item["arch"]);
 	container.children(".pb_package:first").html(item["package"]);
 	container.children(".pb_project:first").html(item["project"]);
-        el_ctrl.css("margin-left", (el_track.width() * delta / 100) + "px");
+        var el_track = container.width() - 4;
+        container.find(".monitorpb_ctrl:first").css("margin-left", (el_track * delta / 100) + "px");
 	el_text.attr("href", "<%= url_for :controller => :package, :action => :live_build_log %>?arch=" + encodeURIComponent(item["arch"]) + 
 	             "&package=" + encodeURIComponent(item["package"]) + "&project=" + encodeURIComponent(item["project"]) + "&repository=" + encodeURIComponent(item["repository"]));
      }
      else {
         el_text.html("idle");
-        el_ctrl.css("margin-left", "0px");
+        container.find(".monitorpb_ctrl:first").css("margin-left", "0px");
 	el_text.attr("href", "#");
      }
   }
@@ -69,7 +61,6 @@
        });
 <% end %>
 
-<h2 id="workers_title">Workers <span class="hidden" id="workers_updating">(updating...)</span></h2>
 <form>
 	<div style="float: right">
 	<span class="strong">Show:</span>
@@ -81,6 +72,13 @@
 	</select>
 	</div>
 </form>
+<h2 id="workers_title" class="nowrap">Workers <span class="hidden" id="workers_updating">(updating...)</span></h2>
+<div><p>This shows the single workers and their jobs. The <em>progress</em> shown (and color) is not for the time it will take (we don't know that before),
+but just relative against each other. The exact percentage shown has no real meaning, just one thing is certain: the bar reaches its maximum at 4h.</p>
+<p>The monitor is meant to entertain and not to be exact, if you need to know more details, check the <%= link_to 'detailed page', :action => :old %>.
+</p>
+</div>
+
 <ul class='monitorboxrow'>
 <% counter = -1
    @workers_sorted.each do |name,hash| 
@@ -95,14 +93,12 @@
       <% hash.each do |subid,id| -%>
 	<% if subid != '_arch' -%>
 	<div class='monitorpb' id='p<%= id %>'>
-	  <div id="p<%= id %>-cap-left" class="monitorpb_left">
+	  <div class="monitorpb_left monitorpb_green"></div>
+	  <div class="monitorpb_track monitorpb_green">
+	    <div class="monitorpb_ctrl monitorpb_green"></div>
 	  </div>
-	  <div id="p<%= id %>-track" class="monitorpb_track">
-	    <div id="p<%= id %>-ctrl" class="monitorpb_ctrl"></div>
-	  </div>
-	  <div id="p<%= id %>-cap-right" class="monitorpb_right">
-	  </div>
-	  <a href="#" id="p<%= id %>-text" class="monitorpb_text"></a>
+	  <div class="monitorpb_right monitorpb_green"></div>
+	  <a href="#" class="monitorpb_text"></a>
  	  <span class="pb_repo hidden"></span>
 	  <span class="pb_arch hidden"></span>
  	  <span class="pb_project hidden"></span>
