@@ -22,8 +22,6 @@ class DbProject < ActiveRecord::Base
   has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
 
-  has_one :meta_cache, :as => :cachable, :dependent => :delete
-
   has_many :attrib_types, :dependent => :delete_all
   has_many :attrib_namespace, :dependent => :destroy
   has_many :attribs, :dependent => :destroy
@@ -356,10 +354,8 @@ class DbProject < ActiveRecord::Base
     # update timestamp and save
     self.save!
 
-    # update cache
-    build_meta_cache if meta_cache.nil?
-    meta_cache.content = render_axml
-    meta_cache.save!
+    # expire cache
+    Rails.cache.delete('meta_project_%d' % id)
 
     if write_through?
       path = "/source/#{self.name}/_meta"
@@ -539,8 +535,9 @@ class DbProject < ActiveRecord::Base
   end
 
   def to_axml
-    create_meta_cache(:content => render_axml) if meta_cache.nil?
-    return meta_cache.content
+    Rails.cache.fetch('meta_project_%d' % id) do
+       render_axml
+    end
   end
 
   def render_axml

@@ -782,7 +782,6 @@ class SourceController < ApplicationController
     end
 
     # store project data in DB and XML
-    oprj.meta_cache.destroy
     oprj.save!
     Project.find(oprj.name).save
 

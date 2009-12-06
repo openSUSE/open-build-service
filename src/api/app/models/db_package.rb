@@ -409,7 +409,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def to_axml
-    Rails.cache.fetch('meta_package_%d' % id, :raw => true) do
+    Rails.cache.fetch('meta_package_%d' % id) do
        render_axml
     end
   end
