@@ -1,79 +1,78 @@
 require 'xml'
 
 class PackInfo
-	attr_accessor :version, :release
-	attr_accessor :devel_project, :devel_package
-	attr_accessor :srcmd5, :error
-	attr_reader :name, :project
+  attr_accessor :version, :release
+  attr_accessor :devel_project, :devel_package
+  attr_accessor :srcmd5, :error
+  attr_reader :name, :project
   attr_reader :key
   attr_accessor :develpack
 
-	def initialize(projname, name)
+  def initialize(projname, name)
     @project = projname
-		@name = name
+    @name = name
     @key = projname + "/" + name
-		@failed = Hash.new
-		@last_success = Hash.new
-		@devel_project = nil
-		@devel_package = nil
-		@version = nil
-		@release = nil
-		@links = Array.new
-	end
+    @failed = Hash.new
+    @last_success = Hash.new
+    @devel_project = nil
+    @devel_package = nil
+    @version = nil
+    @release = nil
+    @links = Array.new
+  end
 
-	def success(reponame, time)
-		# try to remember last success
-		unless @last_success.has_key? reponame
-			@last_success[reponame] = time
-		else
-			oldtime = @last_success[reponame]
-			if oldtime > time
-				time = oldtime
-			end
-			@last_success[reponame] = time
-		end
-	end
+  def success(reponame, time)
+    # try to remember last success
+    unless @last_success.has_key? reponame
+      @last_success[reponame] = time
+    else
+      oldtime = @last_success[reponame]
+      if oldtime > time
+        time = oldtime
+      end
+      @last_success[reponame] = time
+    end
+  end
 
-	def failure(reponame, time)
-		# we only track the first failure returned
-		return if @failed.has_key? reponame
-		@failed[reponame] = time
-	end
+  def failure(reponame, time)
+    # we only track the first failure returned
+    return if @failed.has_key? reponame
+    @failed[reponame] = time
+  end
 
-	def fails
-		ret = Hash.new
-		@failed.each do |repo,time|
-			ls = @last_success[repo] || 0
-			if ls < time
-				ret[repo] = time
-			end
-		end
-		return ret
-	end
+  def fails
+    ret = Hash.new
+    @failed.each do |repo,time|
+      ls = @last_success[repo] || 0
+      if ls < time
+        ret[repo] = time
+      end
+    end
+    return ret
+  end
 
-	def linked(proj, pack)
-		@links << [proj, pack]
-	end
+  def linked(proj, pack)
+    @links << [proj, pack]
+  end
 
-	def to_xml(options = {}) 
+  def to_xml(options = {}) 
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
-    xml.package(
-      :project => project,
-      :name => name,
-      :version => version,
-      :srcmd5 => srcmd5,
-      :release => release) do
+    xml.package(:project => project,
+                :name => name,
+                :version => version,
+                :srcmd5 => srcmd5,
+                :release => release) do
       self.fails.each do |repo,time|
         xml.failure(:repo => repo, :time => time)
       end
       if develpack
         xml.develpack(:proj => devel_project, :pack => devel_package) do
-		      develpack.to_xml(:builder => xml)
+          develpack.to_xml(:builder => xml)
         end
       end
       if @error then xml.error(error) end
       @links.each do |proj,pack|
-		    xml.link(:project => proj, :package => pack)
+        xml.link(:project => proj, :package => pack)
       end
     end
   end
@@ -105,19 +104,19 @@ class ProjectStatusHelper
   end
 
   def self.fetch_jobhistory(backend, proj, repo, arch)
-     #puts 'get "/build/%s/%s/%s/_jobhistory?limit=1"' % [proj, repo, arch]
-     currentlast=backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?limit=1' % [proj, repo, arch]))
-     key='jobhistory_%s_%s_%s' % [proj, repo, arch]
-     lastlast = Rails.cache.read(key + '_last')
-     if currentlast != lastlast 
-        Rails.cache.delete key 
-     end
+    #puts 'get "/build/%s/%s/%s/_jobhistory?limit=1"' % [proj, repo, arch]
+    currentlast=backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?limit=1' % [proj, repo, arch]))
+    key='jobhistory_%s_%s_%s' % [proj, repo, arch]
+    lastlast = Rails.cache.read(key + '_last')
+    if currentlast != lastlast 
+      Rails.cache.delete key 
+    end
 
-     Rails.cache.fetch(key) do
-        #puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [proj, repo, arch]
-        Rails.cache.write(key + '_last', currentlast)
-        backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [proj, repo, arch]) , :timeout => 1000 )
-     end
+    Rails.cache.fetch(key) do
+      #puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [proj, repo, arch]
+      Rails.cache.write(key + '_last', currentlast)
+      backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [proj, repo, arch]) , :timeout => 1000 )
+    end
   end
 
   def self.update_jobhistory(dbproj, backend, mypackages)
@@ -203,4 +202,4 @@ class ProjectStatusHelper
     return mypackages
   end
 end
- 
+
