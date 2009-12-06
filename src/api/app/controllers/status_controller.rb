@@ -147,7 +147,7 @@ class StatusController < ApplicationController
         return
      end
      key='project_status_%s' % dbproj.name
-     @packages = Rails.cache.read(key) || dbproj.complex_status
+     @packages = Rails.cache.read(key) || dbproj.complex_status(backend)
   end
 
 end
