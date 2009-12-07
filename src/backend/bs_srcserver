@@ -2247,9 +2247,8 @@ sub keeplink {
 
   # easy for branches: just copy file list and update baserev
   if ($isbranch) {
-    my $baserev = $linkrev || $ltgtsrcmd5;
     my $nfiles = { %$files };
-    $l->{'baserev'} = $baserev;
+    my $baserev = $linkrev || $ltgtsrcmd5;
     if (($l->{'baserev'} || '') ne $baserev) {
       writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
       $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
