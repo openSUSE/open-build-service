@@ -616,6 +616,7 @@ sub applylink {
   my @patches = ();
   my $simple = 1;
   my @simple_delete;
+  my $isbranch;
   if ($l->{'patches'}) {
     for (@{$l->{'patches'}->{''} || []}) {
       my $type = (keys %$_)[0];
@@ -632,6 +633,7 @@ sub applylink {
       } else {
         push @patches, { 'type' => $type, %{$_->{$type} || {}}};
 	$simple = 0;
+	$isbranch = 1 if $type eq 'branch';
       }
     }
   }
@@ -680,15 +682,17 @@ sub applylink {
   my %apply = map {$_->{'name'} => 1} grep {$_->{'type'} eq 'apply'} @patches;
   $apply{$_} = 1 for keys %{$llnk->{'ignore'} || {}};	# also ignore those files, used in keeplink
   my %fl;
-  for my $f (sort keys %$fsrc) {
-    next if $flnk->{$f} && !$apply{$f};
-    link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
-    $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
-  }
-  for my $f (sort keys %$flnk) {
-    next if $apply{$f} || $f eq '_link';
-    link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
-    $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
+  if (!$isbranch) {
+    for my $f (sort keys %$fsrc) {
+      next if $flnk->{$f} && !$apply{$f};
+      link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+      $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
+    }
+    for my $f (sort keys %$flnk) {
+      next if $apply{$f} || $f eq '_link';
+      link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+      $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
+    }
   }
   my $failed;
   for my $p (@patches) {
