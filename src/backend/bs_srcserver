@@ -2462,12 +2462,37 @@ sub sourcecopy {
   return ($rev, $BSXML::revision);
 }
 
+sub sourcebranch {
+  my ($cgi, $projid, $packid) = @_;
+  my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
+  my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+  my $orev = $cgi->{'orev'};
+  die("cannot branch myself\n") if $oprojid eq $projid && $opackid eq $packid;
+  $orev = getrev($oprojid, $opackid);
+  my $files = lsrep_expanded($orev);
+  my $l = {};
+  $l->{'project'} = $oprojid if $oprojid ne $projid;
+  $l->{'package'} = $opackid if $opackid ne $projid;
+  $l->{'rev'} = $cgi->{'orev'} if defined $cgi->{'orev'};
+  $l->{'baserev'} = $orev->{'srcmd5'};
+  writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
+  my $lfiles = {};
+  $lfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link');
+  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
+  my $rev = addrev($projid, $packid, $lfiles, $user, $comment, undef, $cgi->{'requestid'});
+  delete $rev->{'project'};
+  delete $rev->{'package'};
+  return ($rev, $BSXML::revision);
+}
+
 sub sourcecmd {
   my ($cgi, $projid, $packid) = @_;
   return sourcediff($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'diff';
   return sourcecommit($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commit';
   return sourcecommitfilelist($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commitfilelist';
   return sourcecopy($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'copy';
+  return sourcebranch($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'branch';
   if ($cgi->{'cmd'} eq 'deleteuploadrev') {
     unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
     return $BSStdServer::return_ok;
