@@ -552,7 +552,6 @@ class ProjectController < ApplicationController
     else
       defaults = true
     end
-    puts defaults
     @avail_status_values = 
       ['succeeded','failed','expansion error','broken','blocked', 'disabled',
       'scheduled','building','dispatching','finished','excluded','unknown'].sort
@@ -568,7 +567,7 @@ class ProjectController < ApplicationController
 
     @project.repositories.each { |r|
       @avail_repo_values << r.name
-      @avail_arch_values << r.archs
+      @avail_arch_values << r.archs if r.archs
     }
     @avail_arch_values = @avail_arch_values.flatten.uniq.sort
     @avail_repo_values = @avail_repo_values.flatten.uniq.sort
@@ -610,7 +609,9 @@ class ProjectController < ApplicationController
       repo = result.repository
       arch = result.arch
 
+      next unless @repo_filter.include? repo
       @repohash[repo] ||= Array.new
+      next unless @arch_filter.include? arch
       @repohash[repo] << arch
 
       @statushash[repo] ||= Hash.new
