@@ -2543,14 +2543,16 @@ sub sourcebranch {
     $lfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link');
   } else {
     $l->{'patches'}->{''} = [ {'branch'} ];
-    if ($packid ne $opackid) {
-      for my $file (keys %$files) {
+    for my $file (keys %$files) {
+      if ($packid ne $opackid) {
         if (! -e "$srcrep/$packid/$files->{$file}-$file") {
           link("$srcrep/$opackid/$files->{$file}-$file", "$srcrep/$packid/$files->{$file}-$file");
 	  die("link error $srcrep/$opackid/$files->{$file}-$file\n") unless -e "$srcrep/$packid/$files->{$file}-$file";
         }
       }
+      $lfiles->{$file} = $files->{$file};
     }
+    $lfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link');
   }
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
