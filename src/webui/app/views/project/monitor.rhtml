@@ -26,16 +26,16 @@
    $("#repolink").click(function() { toggleBox($(this), "#repobox"); $("#archbox").hide(); $("#statusbox").hide(); return false; })
 
    $("#statusbox_close").click(function() { $("#statusbox").hide(); } );
-   $("#statusbox_all").click(function() { $(".statusitem").attr("checked", "checked"); });
-   $("#statusbox_none").click(function() { $(".statusitem").attr("checked", ""); });
+   $("#statusbox_all").click(function() { $(".statusitem").attr("checked", "checked"); return false; });
+   $("#statusbox_none").click(function() { $(".statusitem").attr("checked", ""); return false; });
 
    $("#archbox_close").click(function() { $("#archbox").hide(); } );
-   $("#archbox_all").click(function() { $(".architem").attr("checked", "checked"); });
-   $("#archbox_none").click(function() { $(".architem").attr("checked", ""); });
+   $("#archbox_all").click(function() { $(".architem").attr("checked", "checked"); return false; });
+   $("#archbox_none").click(function() { $(".architem").attr("checked", ""); return false;});
 
    $("#repobox_close").click(function() { $("#repobox").hide(); } );
-   $("#repobox_all").click(function() { $(".repoitem").attr("checked", "checked"); });
-   $("#repobox_none").click(function() { $(".repoitem").attr("checked", ""); });
+   $("#repobox_all").click(function() { $(".repoitem").attr("checked", "checked"); return false; });
+   $("#repobox_none").click(function() { $(".repoitem").attr("checked", ""); return false; });
 <% end %>
 
 <div id="monitor-wrapper">
