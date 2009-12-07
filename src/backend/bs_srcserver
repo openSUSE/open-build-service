@@ -2477,6 +2477,7 @@ sub sourcebranch {
   $l->{'baserev'} = $orev->{'srcmd5'};
   writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
   my $lfiles = {};
+  mkdir_p("$srcrep/$packid");
   $lfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link');
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
