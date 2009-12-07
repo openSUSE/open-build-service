@@ -616,6 +616,7 @@ sub applylink {
   my @patches = ();
   my $simple = 1;
   my @simple_delete;
+  my $isbranch;
   if ($l->{'patches'}) {
     for (@{$l->{'patches'}->{''} || []}) {
       my $type = (keys %$_)[0];
@@ -632,6 +633,7 @@ sub applylink {
       } else {
         push @patches, { 'type' => $type, %{$_->{$type} || {}}};
 	$simple = 0;
+	$isbranch = 1 if $type eq 'branch';
       }
     }
   }
@@ -667,8 +669,8 @@ sub applylink {
   # sanity checking...
   for my $p (@patches) {
     return "patch has no type" unless exists $p->{'type'};
-    return "patch has illegal type \'$p->{'type'}\'" unless $p->{'type'} eq 'apply' || $p->{'type'} eq 'add' || $p->{'type'} eq 'topadd' || $p->{'type'} eq 'delete';
-    if ($p->{'type'} ne 'topadd' && $p->{'type'} ne 'delete') {
+    return "patch has illegal type \'$p->{'type'}\'" unless $p->{'type'} eq 'apply' || $p->{'type'} eq 'add' || $p->{'type'} eq 'topadd' || $p->{'type'} eq 'delete' || $p->{'type'} eq 'branch';
+    if ($p->{'type'} ne 'topadd' && $p->{'type'} ne 'delete' && $p->{'type'} ne 'branch') {
       return "patch has no patchfile" unless exists $p->{'name'};
       return "patch \'$p->{'name'}\' does not exist" unless $flnk->{$p->{'name'}};
     }
@@ -680,21 +682,83 @@ sub applylink {
   my %apply = map {$_->{'name'} => 1} grep {$_->{'type'} eq 'apply'} @patches;
   $apply{$_} = 1 for keys %{$llnk->{'ignore'} || {}};	# also ignore those files, used in keeplink
   my %fl;
-  for my $f (sort keys %$fsrc) {
-    next if $flnk->{$f} && !$apply{$f};
-    link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
-    $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
-  }
-  for my $f (sort keys %$flnk) {
-    next if $apply{$f} || $f eq '_link';
-    link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
-    $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
+  if (!$isbranch) {
+    for my $f (sort keys %$fsrc) {
+      next if $flnk->{$f} && !$apply{$f};
+      link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+      $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
+    }
+    for my $f (sort keys %$flnk) {
+      next if $apply{$f} || $f eq '_link';
+      link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+      $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
+    }
   }
   my $failed;
   for my $p (@patches) {
     my $pn = $p->{'name'};
     if ($p->{'type'} eq 'delete') {
       unlink("$tmpdir/$pn");
+      next;
+    }
+    if ($p->{'type'} eq 'branch') {
+      # flnk: mine
+      # fbas: old
+      # fsrc: new
+      my $baserev = $l->{'baserev'};
+      return "no baserev in branch patch" unless $baserev;
+      return "baserev is not srcmd5" unless $baserev =~ /^[0-9a-f]{32}$/s;
+      my %brev = (%$lsrc, 'srcmd5' => $baserev);
+      my $fbas = lsrep(\%brev);
+      return "baserev is link" if $fbas->{'link'};
+      # do 3-way merge
+      my %destnames = (%$fsrc, %$flnk);
+      delete $destnames{'_link'};
+      for my $f (sort {length($a) <=> length($b) || $a cmp $b} keys %destnames) {
+	my $mbas = $fbas->{$f} || '';
+	my $msrc = $fsrc->{$f} || '';
+	my $mlnk = $flnk->{$f} || '';
+	if ($mbas eq $mlnk) {
+	  next if $msrc eq '';
+	  link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$fsrc->{$f}-$f: $!\n");
+	  $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
+	  next;
+	}
+	if ($mbas eq $msrc || $mlnk eq $msrc) {
+	  next if $mlnk eq '';
+	  link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$flnk->{$f}-$f: $!\n");
+	  $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
+	  next;
+	}
+	if ($mbas eq '' || $msrc eq '' || $mlnk eq '') {
+	  $failed = "conflict in file $f";
+	  last;
+	}
+        # run diff3
+	link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f.new") || die("link $fsrc->{$f}-$f: $!\n");
+	link("$srcrep/$lsrc->{'package'}/$fbas->{$f}-$f", "$tmpdir/$f.old") || die("link $fbas->{$f}-$f: $!\n");
+	link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f.mine") || die("link $flnk->{$f}-$f: $!\n");
+	my $pid;
+	if (!($pid = xfork())) {
+	  delete $SIG{'__DIE__'};
+	  chdir($tmpdir) || die("$tmpdir: $!\n");
+	  open(STDERR, '>>', ".log") || die(".log: $!\n");
+	  open(STDOUT, '>', $f) || die("$f: $!\n");
+	  $| = 1;
+	  print "running diff3 on $f\n";
+	  exec('/usr/bin/diff3', '-m', "$f.mine", "$f.old", "$f.new");
+	  die("/usr/bin/diff3: $!\n");
+	}
+	waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+	if ($?) {
+	  $failed = "conflict in file $f";
+	  last;
+	}
+	unlink("$tmpdir/$f.old");
+	unlink("$tmpdir/$f.new");
+	unlink("$tmpdir/$f.mine");
+      }
+      last if $failed;
       next;
     }
     if ($p->{'type'} eq 'add') {
@@ -746,8 +810,7 @@ sub applylink {
       die("/usr/bin/patch: $!\n");
     }
     waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
-    my $patchstatus = $?;
-    if ($patchstatus) {
+    if ($?) {
       $failed = "could not apply patch '$pn'";
       last;
     }
@@ -1467,6 +1530,7 @@ sub putproject {
   my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
   die("upload failed\n") unless $uploaded;
   my $proj = readxml("$srcrep/:upload/$$", $BSXML::proj);
+  $proj->{'name'} = $projid unless defined $proj->{'name'};
   BSVerify::verify_proj($proj, $projid);
   writexml("$srcrep/:upload/$$.2", undef, $proj, $BSXML::proj);
   unlink("$srcrep/:upload/$$");
@@ -1536,6 +1600,7 @@ sub putpackage {
   my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
   die("upload failed\n") unless $uploaded;
   my $pack = readxml("$srcrep/:upload/$$", $BSXML::pack);
+  $pack->{'name'} = $packid unless defined $pack->{'name'};
   BSVerify::verify_pack($pack, $packid);
   die("package contains revision data\n") if grep {exists $pack->{$_}} @$srcrevlay;
   # XXX
@@ -2116,7 +2181,16 @@ sub keeplink {
   my $l = readxml("$srcrep/$packid/$ofilesl->{'_link'}-_link", $BSXML::link);
   my $changedlink = 0;
   my %lignore;
-  if ($l->{'patches'}) {
+  my $isbranch;
+
+  if (@{$l->{'patches'}->{''} || []} == 1) {
+    my $type = (keys %{$l->{'patches'}->{''}->[0]})[0];
+    if ($type eq 'branch') {
+      $isbranch = 1;
+    }
+  }
+
+  if (!$isbranch && $l->{'patches'}) {
     if ($repair) {
       for (@{$l->{'patches'}->{''} || []}) {
         my $type = (keys %$_)[0];
@@ -2169,6 +2243,20 @@ sub keeplink {
     my $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $linkrev || $l->{'rev'});
     $ltgtfiles = lsrep_expanded($ltgtrev);
     $ltgtsrcmd5 = $ltgtrev->{'srcmd5'};
+  }
+
+  # easy for branches: just copy file list and update baserev
+  if ($isbranch) {
+    my $nfiles = { %$files };
+    my $baserev = $linkrev || $ltgtsrcmd5;
+    if (($l->{'baserev'} || '') ne $baserev) {
+      $l->{'baserev'} = $baserev;
+      writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
+      $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
+    } else {
+      $nfiles->{'_link'} = $ofilesl->{'_link'};
+    }
+    return $nfiles;
   }
 
   if ($repair || $changedlink) {
@@ -2464,6 +2552,8 @@ sub sourcecopy {
 
 sub sourcebranch {
   my ($cgi, $projid, $packid) = @_;
+
+  my $usebranch = 1;
   my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
   my $orev = $cgi->{'orev'};
@@ -2475,9 +2565,21 @@ sub sourcebranch {
   $l->{'package'} = $opackid if $opackid ne $projid;
   $l->{'rev'} = $cgi->{'orev'} if defined $cgi->{'orev'};
   $l->{'baserev'} = $orev->{'srcmd5'};
-  writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
   my $lfiles = {};
   mkdir_p("$srcrep/$packid");
+  if ($usebranch) {
+    $l->{'patches'}->{''} = [ { 'branch' => undef} ];
+    for my $file (keys %$files) {
+      if ($packid ne $opackid) {
+        if (! -e "$srcrep/$packid/$files->{$file}-$file") {
+          link("$srcrep/$opackid/$files->{$file}-$file", "$srcrep/$packid/$files->{$file}-$file");
+	  die("link error $srcrep/$opackid/$files->{$file}-$file\n") unless -e "$srcrep/$packid/$files->{$file}-$file";
+        }
+      }
+      $lfiles->{$file} = $files->{$file};
+    }
+  }
+  writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
   $lfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link');
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
@@ -3364,7 +3466,7 @@ sub createrequest {
         }
       }
     }
-    die ( "target project does not exist" ) if (($r->{'type'} || '') eq 'submit' && ! -e "$projectsdir/$r->{'target'}->{'project'}.xml" );
+    die("target project does not exist\n") if ($r->{'type'} || '') eq 'submit' && ! -e "$projectsdir/$r->{'target'}->{'project'}.xml";
   }
   BSVerify::verify_request($req);
   die("request must not contain an id\n") if $req->{'id'};
