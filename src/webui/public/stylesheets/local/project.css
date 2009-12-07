@@ -25,29 +25,29 @@
   vertical-align: top;
 }
 
-.nowrap {
-  white-space: nowrap;
-  display: inline;
-  vertical-align: top;
-}
-
 .filter_settings input {
   vertical-align: top;
   margin: 0;
   margin-right: 0.5em;
-
 }
 
 .filterbox li {
-   list-style: none;
+  list-style: none;
+  margin: 0;
+  display: block;
 }
 
 .filterbox { 
   position: absolute; 
   background: #eee; 
   border: 1px solid black; 
-  width: 15em; 
+  xx-width: 15em; 
   margin-top: 0.5em;
+}
+
+.filterbox_close { 
+  margin: 0.8em;
+  float: right;
 }
 
 .filterbox ul {

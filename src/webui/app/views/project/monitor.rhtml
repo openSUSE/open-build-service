@@ -13,16 +13,17 @@
 
 <% content_for :ready_function do %>
    function toggleBox(link, box) {
-      $(".filterbox").hide();
       //calculating offset for displaying popup message
       leftVal=link.position().left + "px";
       topVal=link.position().bottom + "px";
-      $(box).css({left:leftVal,top:topVal}).show();
+      $(box).css({left:leftVal,top:topVal}).toggle();
    }
 
-   $("#statuslink").click(function(e) { toggleBox($(this), "#statusbox"); })
-   $("#archlink").click(function(e) { toggleBox($(this), "#archbox"); })
-   $("#repolink").click(function(e) { toggleBox($(this), "#repobox"); })
+   $(document).click(function() { $(".filterbox").hide(); });
+
+   $("#statuslink").click(function() { toggleBox($(this), "#statusbox"); $("#archbox").hide(); $("#repobox").hide(); return false; })
+   $("#archlink").click(function() { toggleBox($(this), "#archbox"); $("#statusbox").hide(); $("#repobox").hide(); return false; })
+   $("#repolink").click(function() { toggleBox($(this), "#repobox"); $("#archbox").hide(); $("#statusbox").hide(); return false; })
 
    $("#statusbox_close").click(function() { $("#statusbox").hide(); } );
    $("#statusbox_all").click(function() { $(".statusitem").attr("checked", "checked"); });
@@ -47,7 +48,7 @@
   <%= submit_tag 'Filter:'%>
   <span class="strong filterlink" id="statuslink">Status <%= image_tag 'arrow.png' %></span>
   <div id="statusbox" class="filterbox hidden">
-    <span style="text-align: right; position: absolute; right: 4px; top: 4px;"><a href="#" id="statusbox_close">close</a></span>
+    <a class="filterbox_close" href="#" id="statusbox_close">[x]</a>
     <ul>
       <% @avail_status_values.each do |s| %>
           <li>
@@ -62,10 +63,10 @@
 
   <span class="strong filterlink" id="repolink">Repository <%= image_tag 'arrow.png' %></span>
   <div id="repobox" class="hidden filterbox">
-    <span style="text-align: right; position: absolute; right: 4px; top: 4px;"><a href="#" id="repobox_close">close</a></span>
+    <a class="filterbox_close" href="#" id="repobox_close">[x]</a></span>
     <ul>
       <% @avail_repo_values.each do |s| %>
-          <li>
+          <li class="nowrap">
             <% sname = 'repo_' + s %>
 	    <%= check_box_tag s, 1, @repo_filter.include?(s), :class => "repoitem", :id => sname, :name => sname %>
 	    <label for="<%= sname %>" class="strong"><%= s %></label>
@@ -77,7 +78,7 @@
 
   <span class="strong filterlink" id="archlink">Architecture <%= image_tag 'arrow.png' %></span>
   <div id="archbox" class="hidden filterbox">
-    <span style="text-align: right; position: absolute; right: 4px; top: 4px;"><a href="#" id="archbox_close">close</a></span>
+    <a class="filterbox_close" href="#" id="archbox_close">[x]</a></span>
     <ul>
       <% @avail_arch_values.each do |s| %>
           <li>
