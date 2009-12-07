@@ -755,8 +755,8 @@ sub applylink {
 	  last;
 	}
 	unlink("$tmpdir/$f.old");
-	unlink("$tmpdir/f.new");
-	unlink("$tmpdir/f.mine");
+	unlink("$tmpdir/$f.new");
+	unlink("$tmpdir/$f.mine");
       }
       last if $failed;
       next;
