@@ -2250,6 +2250,7 @@ sub keeplink {
     my $nfiles = { %$files };
     my $baserev = $linkrev || $ltgtsrcmd5;
     if (($l->{'baserev'} || '') ne $baserev) {
+      $l->{'baserev'} = $baserev;
       writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
       $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
     } else {
