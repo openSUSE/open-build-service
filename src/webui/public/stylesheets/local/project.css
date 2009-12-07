@@ -1,0 +1,69 @@
+/* Project Monitor Filter */
+
+.filter_settings #pkgname,
+.filter_settings #repo,
+.filter_settings #arch {
+  width: 8em;
+  margin-right: 0.5em;
+  border: 1px solid #CCC;
+  background: white;
+}
+
+.filter_settings {
+  background: white;
+  margin-bottom: 2em;
+  border-bottom: 1px solid #CCC;
+  border-top: 1px solid #CCC;
+  padding: 0.5em 0;
+  overflow: visible;
+  height: 2em;
+  min-width: 1000px;
+}
+
+.filter_settings .strong {
+  margin-left: 0.8em;
+  vertical-align: top;
+}
+
+.nowrap {
+  white-space: nowrap;
+  display: inline;
+  vertical-align: top;
+}
+
+.filter_settings input {
+  vertical-align: top;
+  margin: 0;
+  margin-right: 0.5em;
+
+}
+
+.filterbox li {
+   list-style: none;
+}
+
+.filterbox { 
+  position: absolute; 
+  background: #eee; 
+  border: 1px solid black; 
+  width: 15em; 
+  margin-top: 0.5em;
+}
+
+.filterbox ul {
+   margin: 0.5em;
+}
+
+.filter_settings .filterlink {
+  color: black;
+  margin-right: 0.5em;
+}
+
+.filterbox_all { 
+  margin-left: 0.5em;
+  margin-right: 1.5em;
+}
+
+.filterlink {
+  cursor: pointer;
+}

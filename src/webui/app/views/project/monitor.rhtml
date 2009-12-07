@@ -7,6 +7,36 @@
 ]
 -%>
 
+<% content_for :content_for_head do %>
+   <%= stylesheet_link_tag "local/project", :media => "all" %>
+<% end %>
+
+<% content_for :ready_function do %>
+   function toggleBox(link, box) {
+      $(".filterbox").hide();
+      //calculating offset for displaying popup message
+      leftVal=link.position().left + "px";
+      topVal=link.position().bottom + "px";
+      $(box).css({left:leftVal,top:topVal}).show();
+   }
+
+   $("#statuslink").click(function(e) { toggleBox($(this), "#statusbox"); })
+   $("#archlink").click(function(e) { toggleBox($(this), "#archbox"); })
+   $("#repolink").click(function(e) { toggleBox($(this), "#repobox"); })
+
+   $("#statusbox_close").click(function() { $("#statusbox").hide(); } );
+   $("#statusbox_all").click(function() { $(".statusitem").attr("checked", "checked"); });
+   $("#statusbox_none").click(function() { $(".statusitem").attr("checked", ""); });
+
+   $("#archbox_close").click(function() { $("#archbox").hide(); } );
+   $("#archbox_all").click(function() { $(".architem").attr("checked", "checked"); });
+   $("#archbox_none").click(function() { $(".architem").attr("checked", ""); });
+
+   $("#repobox_close").click(function() { $("#repobox").hide(); } );
+   $("#repobox_all").click(function() { $(".repoitem").attr("checked", "checked"); });
+   $("#repobox_none").click(function() { $(".repoitem").attr("checked", ""); });
+<% end %>
+
 <div id="monitor-wrapper">
 
 <div id="info_message" style="display:none;"></div>
@@ -14,13 +44,54 @@
 <!-- Filter Settings -->
 <% form_tag({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
   <div class='filter_settings'>
-  <span class="strong">Status: </span><%= select_tag "code", options_for_select(@avail_status_values,@status_filter), :multiple => true, :size => 4, :name => 'code[]'%>
+  <%= submit_tag 'Filter:'%>
+  <span class="strong filterlink" id="statuslink">Status <%= image_tag 'arrow.png' %></span>
+  <div id="statusbox" class="filterbox hidden">
+    <span style="text-align: right; position: absolute; right: 4px; top: 4px;"><a href="#" id="statusbox_close">close</a></span>
+    <ul>
+      <% @avail_status_values.each do |s| %>
+          <li>
+	    <%= check_box_tag s, 1, @status_filter.include?(s), :class => "statusitem" %>
+	    <label for="<%= s %>" class="strong"><%= s %></label>
+	  </li>
+      <% end %>
+    </ul>
+    <a href="#" id="statusbox_all" class="filterbox_all">Select all</a><a href="#" id="statusbox_none" class="filterbox_none">Select none</a>
+  </div>
   <div class='nowrap'><label for="pkgname" class="strong">Packagename: </label><%= text_field_tag "pkgname", @name_filter %></div>
-  <div class='nowrap'><label for="repo" class="strong">Repository: </label><%= text_field_tag "repo", @repo_filter %></div>
-  <div class='nowrap'><label for="arch" class="strong">Architecture: </label><%= text_field_tag "arch", @arch_filter %></div>
-  <div class='nowrap'><%= check_box_tag "lastbuild", 1, @lastbuild_switch %><span class="strong">Last time results</span></div>
+
+  <span class="strong filterlink" id="repolink">Repository <%= image_tag 'arrow.png' %></span>
+  <div id="repobox" class="hidden filterbox">
+    <span style="text-align: right; position: absolute; right: 4px; top: 4px;"><a href="#" id="repobox_close">close</a></span>
+    <ul>
+      <% @avail_repo_values.each do |s| %>
+          <li>
+            <% sname = 'repo_' + s %>
+	    <%= check_box_tag s, 1, @repo_filter.include?(s), :class => "repoitem", :id => sname, :name => sname %>
+	    <label for="<%= sname %>" class="strong"><%= s %></label>
+	  </li>
+      <% end %>
+    </ul>
+    <a href="#" id="repobox_all" class="filterbox_all">Select all</a><a href="#" id="repobox_none" class="filterbox_none">Select none</a>
+  </div>
+
+  <span class="strong filterlink" id="archlink">Architecture <%= image_tag 'arrow.png' %></span>
+  <div id="archbox" class="hidden filterbox">
+    <span style="text-align: right; position: absolute; right: 4px; top: 4px;"><a href="#" id="archbox_close">close</a></span>
+    <ul>
+      <% @avail_arch_values.each do |s| %>
+          <li>
+            <% sname = 'arch_' + s %>
+	    <%= check_box_tag s, 1, @arch_filter.include?(s), :class => "architem", :id => sname, :name => sname %>
+	    <label for="<%= sname %>" class="strong"><%= s %></label>
+	  </li>
+      <% end %>
+    </ul>
+    <a href="#" id="archbox_all" class="filterbox_all">Select all</a><a href="#" id="archbox_none" class="filterbox_none">Select none</a>
+  </div>
+  <div class='nowrap'><span class="strong">Last time results: </span><%= check_box_tag "lastbuild", 1, @lastbuild_switch %></div>
   <%= hidden_field_tag 'project', @project %>
-  <%= submit_tag 'Filter'%>
+  <%= hidden_field_tag 'defaults', '0' %>
   </div>
 <% end %>
 
@@ -92,7 +163,7 @@
 <div id="refresh_date"><p>Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></p></div>
 <div id="legend">
 <h3>Legend</h3>
-<ol>
+<ul>
 <li><span class="term">succeeded</span><span class="descr">Package has built successfully and can be used to build further packages.</span></li>
 <li><span class="term">failed</span><span class="descr">The package does not build successfully. No packages have been created. Packages that depend on this package will be built using any previously created packages, if they exist.</span></li>
 <li><span class="term">expansion error</span><span class="descr">The build can not begin, because required packages are either missing or not explicitly defined.</span></li>
@@ -105,7 +176,7 @@
 <li><span class="term">excluded</span><span class="descr">The package build has been disabled in package build description (for example in the .spec file) or does not provide a matching build description for the target. </span></li>
 <li><span class="term">broken</span><span class="descr">The sources either contain no build description (eg specfile) or a source link does not work.</span></li>
 <li><span class="term">unknown</span><span class="descr">The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.</span></li>
-</ol>
+</ul>
 </div>
 
 <div id="start_link">

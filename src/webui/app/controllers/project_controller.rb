@@ -3,7 +3,7 @@ class ProjectController < ApplicationController
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages,
-    :update_target, :edit_target, :show]
+    :update_target, :edit_target, :show, :monitor]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
 
   def index
@@ -545,25 +545,56 @@ class ProjectController < ApplicationController
   end
 
   def monitor
-    @project = params[:project]
-    @status_filter = params[:code]
     @name_filter = params[:pkgname]
-    @repo_filter = params[:repo]
-    @arch_filter = params[:arch]
     @lastbuild_switch = params[:lastbuild]
+    if params[:defaults]
+      defaults = (Integer(params[:defaults]) rescue 1) > 0
+    else
+      defaults = true
+    end
+    puts defaults
+    @avail_status_values = 
+      ['succeeded','failed','expansion error','broken','blocked', 'disabled',
+      'scheduled','building','dispatching','finished','excluded','unknown'].sort
+    @status_filter = []
+    @avail_status_values.each { |s|
+      if defaults || (params.has_key?(s) && params[s])
+	@status_filter << s
+      end
+    }
+    
+    @avail_arch_values = []
+    @avail_repo_values = []
+
+    @project.repositories.each { |r|
+      @avail_repo_values << r.name
+      @avail_arch_values << r.archs
+    }
+    @avail_arch_values = @avail_arch_values.flatten.uniq.sort
+    @avail_repo_values = @avail_repo_values.flatten.uniq.sort
+
+    @arch_filter = []
+    @avail_arch_values.each { |s|
+      if defaults || (params.has_key?('arch_' + s) && params['arch_' + s])
+	@arch_filter << s
+      end
+    }
+   
+    @repo_filter = []
+    @avail_repo_values.each { |s|
+      if defaults || (params.has_key?('repo_' + s) && params['repo_' + s])
+	@repo_filter << s
+      end
+    }
+
     begin
-      @buildresult = Buildresult.find( :project => @project, :view => 'status', @status_filter.blank? ? nil : :code => @status_filter, 
-                     @lastbuild_switch.blank? ? nil : :lastbuild => '1' )
+      @buildresult = Buildresult.find( :project => @project, :view => 'status', :code => @status_filter,
+                     @lastbuild_switch.blank? ? nil : :lastbuild => '1', :arch => @arch_filter, :repo => @repo_filter )
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "No build results for project '#{@project}'"
       redirect_to :action => :show, :project => params[:project]
       return
     end
-
-    @avail_status_values = ['succeeded','failed','expansion error','broken','blocked', 'disabled',
-                            'scheduled','building','dispatching','finished','excluded','unknown']
-
-    #@packstatus = Packstatus.find( :project => @project )
 
     if not @buildresult.has_element? :result
       @buildresult_unavailable = true
@@ -579,12 +610,7 @@ class ProjectController < ApplicationController
       repo = result.repository
       arch = result.arch
 
-      ## Filter for Repository ####       
-      next if( (not @repo_filter.blank?) && (not filter_matches?(repo,@repo_filter)))
       @repohash[repo] ||= Array.new
-
-      ## Filter for Architecture ####       
-      next if( (not @arch_filter.blank?) && (not filter_matches?(arch,@arch_filter)))
       @repohash[repo] << arch
 
       @statushash[repo] ||= Hash.new
