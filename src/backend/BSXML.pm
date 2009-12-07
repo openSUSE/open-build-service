@@ -531,6 +531,7 @@ our $linkpatch = [
       [ 'delete' =>
 	    'name',
       ],
+        'branch',
         'topadd',
 ];
 

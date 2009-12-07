@@ -224,6 +224,7 @@ sub verify_link {
   verify_projid($l->{'project'}) if exists $l->{'project'};
   verify_packid($l->{'package'}) if exists $l->{'package'};
   verify_rev($l->{'rev'}) if exists $l->{'rev'};
+  verify_rev($l->{'baserev'}) if exists $l->{'baserev'};
   die("link must contain some target description \n") unless exists $l->{'project'} || exists $l->{'package'} || exists $l->{'rev'};
   if (exists $l->{'cicount'}) {
     if ($l->{'cicount'} ne 'add' && $l->{'cicount'} ne 'copy' && $l->{'cicount'} ne 'local') {
@@ -235,7 +236,11 @@ sub verify_link {
     die("more than one type in patch\n") unless keys(%$p) == 1;
     my $type = (keys %$p)[0];
     my $pd = $p->{$type};
-    if ($type eq 'add' || $type eq 'apply' || $type eq 'delete') {
+    if ($type eq 'branch') {
+      die("branch link must have baserev\n") unless $l->{'baserev'};
+      die("branch link must not have other patches\n") if @{$l->{'patches'}->{''}} != 1;
+      die("branch element contains data\n") if $pd;
+    } elsif ($type eq 'add' || $type eq 'apply' || $type eq 'delete') {
       verify_filename($pd->{'name'});
     } elsif ($type ne 'topadd') {
       die("unknown patch type '$type'\n");
