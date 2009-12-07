@@ -553,8 +553,9 @@ class ProjectController < ApplicationController
       defaults = true
     end
     @avail_status_values = 
-      ['succeeded','failed','expansion error','broken','blocked', 'disabled',
-      'scheduled','building','dispatching','finished','excluded','unknown'].sort
+      ['succeeded','failed','expansion error','broken', 
+      'blocked', 'dispatching', 'scheduled','building','finished',
+      'disabled', 'excluded','unknown']
     @status_filter = []
     @avail_status_values.each { |s|
       if defaults || (params.has_key?(s) && params[s])

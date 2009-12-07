@@ -51,7 +51,7 @@
     <a class="filterbox_close" href="#" id="statusbox_close">[x]</a>
     <ul>
       <% @avail_status_values.each do |s| %>
-          <li>
+          <li class="nowrap" id="li_<%= s %>"> 
 	    <%= check_box_tag s, 1, @status_filter.include?(s), :class => "statusitem" %>
 	    <label for="<%= s %>" class="strong"><%= s %></label>
 	  </li>
@@ -67,9 +67,9 @@
     <ul>
       <% @avail_repo_values.each do |s| %>
           <li class="nowrap">
-            <% sname = 'repo_' + s %>
-	    <%= check_box_tag s, 1, @repo_filter.include?(s), :class => "repoitem", :id => sname, :name => sname %>
-	    <label for="<%= sname %>" class="strong"><%= s %></label>
+             <% sname = 'repo_' + s %>
+	     <%= check_box_tag s, 1, @repo_filter.include?(s), :class => "repoitem", :id => sname, :name => sname %>
+	     <label for="<%= sname %>" class="strong"><%= s %></label>
 	  </li>
       <% end %>
     </ul>

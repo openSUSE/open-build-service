@@ -25,6 +25,14 @@
   vertical-align: top;
 }
 
+#statusbox #li_blocked { 
+  margin-top: 1em;
+}
+
+#statusbox #li_disabled { 
+  margin-top: 1em;
+}
+
 .filter_settings input {
   vertical-align: top;
   margin: 0;
