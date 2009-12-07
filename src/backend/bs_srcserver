@@ -2181,7 +2181,16 @@ sub keeplink {
   my $l = readxml("$srcrep/$packid/$ofilesl->{'_link'}-_link", $BSXML::link);
   my $changedlink = 0;
   my %lignore;
-  if ($l->{'patches'}) {
+  my $isbranch;
+
+  if (@{$l->{'patches'}->{''} || []} == 1) {
+    my $type = (keys %{$l->{'patches'}->{''}->[0]})[0];
+    if ($type eq 'branch') {
+      $isbranch = 1;
+    }
+  }
+
+  if (!$isbranch && $l->{'patches'}) {
     if ($repair) {
       for (@{$l->{'patches'}->{''} || []}) {
         my $type = (keys %$_)[0];
@@ -2234,6 +2243,20 @@ sub keeplink {
     my $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $linkrev || $l->{'rev'});
     $ltgtfiles = lsrep_expanded($ltgtrev);
     $ltgtsrcmd5 = $ltgtrev->{'srcmd5'};
+  }
+
+  # easy for branches: just copy file list and update baserev
+  if ($isbranch) {
+    my $baserev = $linkrev || $ltgtsrcmd5;
+    my $nfiles = { %$files };
+    $l->{'baserev'} = $baserev;
+    if (($l->{'baserev'} || '') ne $baserev) {
+      writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
+      $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
+    } else {
+      $nfiles->{'_link'} = $ofilesl->{'_link'};
+    }
+    return $nfiles;
   }
 
   if ($repair || $changedlink) {
