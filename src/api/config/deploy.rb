@@ -88,6 +88,17 @@ namespace :deploy do
     set :latest_release, latest_release_bak
   end
 
+  task :symlink, :except => { :no_release => true } do
+    on_rollback do
+      if previous_release
+        run "rm -f #{current_path}; ln -s #{previous_release}#{git_subdir} #{current_path}; true"
+      else
+        logger.important "no previous release to rollback to, rollback of symlink skipped"
+      end
+    end
+
+    run "rm -f #{current_path} && ln -s #{latest_release}#{git_subdir} #{current_path}"
+  end
 
   desc "Send email notification of deployment"
   task :notify do
