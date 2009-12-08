@@ -7,4 +7,4 @@ rescue Exception => e
   raise e
 end
 
-puts "Loaded openSUSE buildservice webclient config from #{path}"
+#puts "Loaded openSUSE buildservice webclient config from #{path}"

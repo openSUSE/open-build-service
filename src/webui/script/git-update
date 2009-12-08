@@ -1,9 +1,10 @@
 #! /bin/bash
 
-BASEDIR=`dirname $0`/../../..;
-echo "Updating $BASEDIR";
+cd `dirname $0`
+BASEDIR=`/bin/pwd`/../../..
+echo "Updating $BASEDIR"
 
-pushd $BASEDIR;
+pushd $BASEDIR
 git submodule init
 git submodule update
 git pull origin master

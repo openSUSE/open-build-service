@@ -19,23 +19,33 @@
       $(box).css({left:leftVal,top:topVal}).toggle();
    }
 
-   $(document).click(function() { $(".filterbox").hide(); });
+   function toggleCheck(input) {
+	console.log(input.attr("checked"));
+        if (input.attr("checked")) {
+              input.removeAttr("checked");
+        } else {
+              input.attr("checked", "checked");
+        }
+   }
 
+   /* $(document).click(function() { $(".filterbox").hide(); });
+   $(".filteritem input").click(function() { toggleCheck($(this)); toggleCheck($(this)); return true; });
+   $(".filteritem").click(function() { toggleCheck($(this).find("input:first")); return false; }); */
    $("#statuslink").click(function() { toggleBox($(this), "#statusbox"); $("#archbox").hide(); $("#repobox").hide(); return false; })
    $("#archlink").click(function() { toggleBox($(this), "#archbox"); $("#statusbox").hide(); $("#repobox").hide(); return false; })
    $("#repolink").click(function() { toggleBox($(this), "#repobox"); $("#archbox").hide(); $("#statusbox").hide(); return false; })
 
    $("#statusbox_close").click(function() { $("#statusbox").hide(); } );
-   $("#statusbox_all").click(function() { $(".statusitem").attr("checked", "checked"); });
-   $("#statusbox_none").click(function() { $(".statusitem").attr("checked", ""); });
+   $("#statusbox_all").click(function() { $(".statusitem").attr("checked", "checked"); return false; });
+   $("#statusbox_none").click(function() { $(".statusitem").attr("checked", ""); return false; });
 
    $("#archbox_close").click(function() { $("#archbox").hide(); } );
-   $("#archbox_all").click(function() { $(".architem").attr("checked", "checked"); });
-   $("#archbox_none").click(function() { $(".architem").attr("checked", ""); });
+   $("#archbox_all").click(function() { $(".architem").attr("checked", "checked"); return false; });
+   $("#archbox_none").click(function() { $(".architem").attr("checked", ""); return false;});
 
    $("#repobox_close").click(function() { $("#repobox").hide(); } );
-   $("#repobox_all").click(function() { $(".repoitem").attr("checked", "checked"); });
-   $("#repobox_none").click(function() { $(".repoitem").attr("checked", ""); });
+   $("#repobox_all").click(function() { $(".repoitem").attr("checked", "checked"); return false; });
+   $("#repobox_none").click(function() { $(".repoitem").attr("checked", ""); return false; });
 <% end %>
 
 <div id="monitor-wrapper">
@@ -51,7 +61,7 @@
     <a class="filterbox_close" href="#" id="statusbox_close">[x]</a>
     <ul>
       <% @avail_status_values.each do |s| %>
-          <li class="nowrap" id="li_<%= s %>"> 
+          <li class="nowrap filteritem" id="li_<%= s %>"> 
 	    <%= check_box_tag s, 1, @status_filter.include?(s), :class => "statusitem" %>
 	    <label for="<%= s %>" class="strong"><%= s %></label>
 	  </li>
@@ -66,7 +76,7 @@
     <a class="filterbox_close" href="#" id="repobox_close">[x]</a></span>
     <ul>
       <% @avail_repo_values.each do |s| %>
-          <li class="nowrap">
+          <li class="nowrap filteritem">
              <% sname = 'repo_' + s %>
 	     <%= check_box_tag s, 1, @repo_filter.include?(s), :class => "repoitem", :id => sname, :name => sname %>
 	     <label for="<%= sname %>" class="strong"><%= s %></label>
@@ -81,7 +91,7 @@
     <a class="filterbox_close" href="#" id="archbox_close">[x]</a></span>
     <ul>
       <% @avail_arch_values.each do |s| %>
-          <li>
+          <li class="nowrap filteritem">
             <% sname = 'arch_' + s %>
 	    <%= check_box_tag s, 1, @arch_filter.include?(s), :class => "architem", :id => sname, :name => sname %>
 	    <label for="<%= sname %>" class="strong"><%= s %></label>

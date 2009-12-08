@@ -1,7 +1,8 @@
 === openSUSE Buildservice Webclient ===
 
 The webclient can be run and developed locally without having to setup a complete 
-buildservice. It can simply use the public backend. 
+buildservice. It can simply use the public backend. The sourcecode is hosted at 
+gitorious: http://gitorious.org/opensuse/build-service
 
 
 = Required packages can be installed from the devel:/languages:/ruby:/extensions repo: 
@@ -14,3 +15,14 @@ sudo zypper in rubygem-delayed_job ruby-RMagick2 rubygem-gruff rubygem-sqlite3
 sudo zypper in memcached; sudo rcmemcached start; sudo insserv memcached
 
 Set up a complete buildservice from RPM packages: buildservice/dist/README.SETUP
+
+
+= Deployment using capistrano =
+
+The production webui is deployed with the command: 
+cap deploy
+
+(you need to have access to the production server. If your ssh key needs a passphrase, 
+you can store it in the ssh agent with: ssh-add </path/to/private/key> )
+
+

@@ -94,7 +94,8 @@
         </div>
         <div class="box_content">
           <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong><br/>
-          <ul class="navlist"> 
+          <ul class="navlist">
+           <li><a href="https://hermes.opensuse.org">My Notifications</a></li>
            <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li> 
            <li><%= link_to "My Requests", :controller => "requests", :action => :list_req %></li> 
            <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
