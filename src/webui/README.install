@@ -19,8 +19,15 @@ Set up a complete buildservice from RPM packages: buildservice/dist/README.SETUP
 
 = Deployment using capistrano =
 
-The production webui is deployed with the command: 
-cap deploy
+The production webui is deployed with the commands: 
+
+- cap deploy:update (updates the sources on the server and changes the current/ symlink)
+- cap deploy:migrate (runs database migrations)
+- cap deploy (updates and restarts the server)
+- cap deploy:pending and cap deploy:pending:diff will show upcoming changes
+
+To get back to the previous version: 
+cap deploy:rollback
 
 (you need to have access to the production server. If your ssh key needs a passphrase, 
 you can store it in the ssh agent with: ssh-add </path/to/private/key> )
