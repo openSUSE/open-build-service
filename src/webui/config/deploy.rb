@@ -52,7 +52,7 @@ namespace :config do
 
   desc "Set permissions"
   task :permissions do
-    #run "chown -R wwwrun #{current_path}/public"
+    run "chown -R lighttpd #{current_path}#{git_subdir}/db #{current_path}#{git_subdir}/tmp"
   end
 end
 
@@ -60,14 +60,17 @@ end
 namespace :deploy do
   task :start do
     run "sv start /service/webclient-*"
+    run "sv start /service/delayed_job_webclient"
   end
 
   task :restart do
     run "sv 1 /service/webclient-*"
+    run "sv restart /service/delayed_job_webclient"
   end
 
   task :stop do
     run "sv stop /service/webclient-*"
+    run "sv stop /service/delayed_job_webclient"
   end
 
   task :use_subdir do
