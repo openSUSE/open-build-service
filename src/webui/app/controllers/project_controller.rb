@@ -706,15 +706,15 @@ class ProjectController < ApplicationController
   def require_project
     if !valid_project_name? params[:project] 
       unless request.xhr?
-         flash[:error] = "#{params[:project]} is not a valid project name"
-         redirect_to :controller => "project", :action => "list_public" and return
+        flash[:error] = "#{params[:project]} is not a valid project name"
+        redirect_to :controller => "project", :action => "list_public" and return
       else
-         render :text => 'Not a valid project name', :status => 404 and return
+        render :text => 'Not a valid project name', :status => 404 and return
       end
     end
     begin
       @project = Project.find( params[:project] )
-    rescue ActiveXML::Transport::NotFoundError => e
+    rescue ActiveXML::Transport::NotFoundError
       if params[:project] == "home:" + session[:login]
         # checks if the user is registered yet
         Person.find( :login => session[:login] )
@@ -722,9 +722,12 @@ class ProjectController < ApplicationController
           " descriptive data and press the 'Create Project' button."
         redirect_to :action => :new, :project => "home:" + session[:login] and return
       end
-      flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public"
-      return
+      unless request.xhr?
+        flash[:error] = "Project not found: #{params[:project]}"
+        redirect_to :controller => "project", :action => "list_public" and return
+      else
+        render :text => "Project not found: #{params[:project]}", :status => 404 and return
+      end
     end
   end
 
@@ -739,7 +742,7 @@ class ProjectController < ApplicationController
     @project = params[:project]
     begin
       @config = frontend.get_source(:project => params[:project], :filename => '_config')
-    rescue ActiveXML::Transport::NotFoundError => e
+    rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Project not found: #{params[:project]}" 
       redirect_to :controller => "project", :action => "list_public"
     end
