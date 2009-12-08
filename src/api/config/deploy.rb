@@ -9,6 +9,7 @@ set :branch, "master"
 set :deploy_via, :remote_cache
 set :git_enable_submodules, 1
 set :git_subdir, '/src/api'
+set :migrate_target, :current
 
 set :deploy_notification_to, ['tschmidt@suse.de', 'coolo@suse.de', 'adrian@suse.de']
 server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
@@ -25,7 +26,6 @@ end
 task :ibs do
 
 end
-
 
 ssh_options[:forward_agent] = true
 default_run_options[:pty] = true
@@ -51,14 +51,13 @@ namespace :config do
 
   desc "Install saved configs from /shared/ dir"
   task :symlink_shared_config do
-    run "rm #{release_path}#{git_subdir}/config/database.yml"
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/"
-    run 'HERMESPWD=$(cat #{shared_path}/HERMESPWD); sed -e ",hermesconf.dbpass.*,hermesconf.dbpass = $HERMESPWD," #{release_path}#{git_subdir}/config/environments/production.rb'
+    run "HERMESPWD=$(cat #{shared_path}/HERMESPWD); sed -i -e \"s,hermesconf.dbpass.*,hermesconf.dbpass = $HERMESPWD,\" #{release_path}#{git_subdir}/config/environments/production.rb"
   end
 
   desc "Set permissions"
   task :permissions do
-    run "chown -R lighttpd #{current_path}#{git_subdir}/tmp"
+    run "chown -R lighttpd #{current_path}/tmp"
   end
 end
 
@@ -82,6 +81,7 @@ namespace :deploy do
   task :use_subdir do
     set :latest_release_bak, latest_release
     set :latest_release, "#{latest_release}#{git_subdir}"
+    run "cp #{latest_release_bak}/REVISION #{latest_release}"
   end
 
   task :reset_subdir do
