@@ -2168,14 +2168,15 @@ sub findprojectpatchname {
 # we are going to commit files to projid/packid, all data is already present
 # in the src repository.
 # if it was a link before, try to keep this link
+# files: expanded file set
 #
 sub keeplink {
-  my ($cgi, $projid, $packid, $files) = @_;
+  my ($cgi, $projid, $packid, $files, $orev) = @_;
 
   my $repair = $cgi->{'repairlink'};
   return $files if !defined($files) || !%$files;
   return $files if $files->{'_link'};
-  my $orev = getrev($projid, $packid, 'latest');
+  $orev ||= getrev($projid, $packid, 'latest');
   my $ofilesl = lsrep($orev);
   return $files unless $ofilesl && $ofilesl->{'_link'};
   my $l = readxml("$srcrep/$packid/$ofilesl->{'_link'}-_link", $BSXML::link);
@@ -2189,6 +2190,7 @@ sub keeplink {
       $isbranch = 1;
     }
   }
+  undef $isbranch if $cgi->{'convertbranchtopatch'};
 
   if (!$isbranch && $l->{'patches'}) {
     if ($repair) {
@@ -2203,7 +2205,7 @@ sub keeplink {
     } else {
       for (reverse @{$l->{'patches'}->{''} || []}) {
         my $type = (keys %$_)[0];
-        if ($type eq 'apply' || $type eq 'delete') {
+        if ($type eq 'apply' || $type eq 'delete' || $type eq 'branch') {
           $lignore{$_->{$type}->{'name'}} = 1 if $type eq 'apply';
 	  $_ = undef;
 	  $changedlink = 1;
@@ -2251,6 +2253,7 @@ sub keeplink {
     my $baserev = $linkrev || $ltgtsrcmd5;
     if (($l->{'baserev'} || '') ne $baserev) {
       $l->{'baserev'} = $baserev;
+      $l->{'patches'}->{''} = [ { 'branch' => undef} ]; # work around xml problem
       writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
       $nfiles->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
     } else {
@@ -2353,29 +2356,59 @@ sub keeplink {
 
 # integrate link from opackid to packid into packid
 sub integratelink {
-  my ($files, $projid, $packid, $ofiles, $oprojid, $opackid, $l) = @_;
+  my ($files, $projid, $packid, $ofiles, $oprojid, $opackid, $l, $orev) = @_;
 
+  # append patches from link l to link nl
   my $nl = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
 
   # FIXME: remove hunks from patches that deal with replaced/deleted files
-  my $lchanged;
+  my $nlchanged;
   my %dontcopy;
   $dontcopy{'_link'} = 1;
+  my $nlisbranch;
   if ($nl->{'patches'}) {
     for (@{$nl->{'patches'}->{''} || []}) {
       my $type = (keys %$_)[0];
       if ($type eq 'add' || $type eq 'apply') {
 	$dontcopy{$_->{$type}->{'name'}} = 1;
       }
+      $nlisbranch = 1 if $type eq 'branch';
     }
   }
+  my $lisbranch;
   if ($l->{'patches'}) {
+    for (@{$l->{'patches'}->{''} || []}) {
+      my $type = (keys %$_)[0];
+      $lisbranch = 1 if $type eq 'branch';
+    }
+  }
+
+  if ($nlisbranch) {
+    # we linked/branched a branch. expand and update.
+    my %olrev = (%$orev, 'linkrev' => 'base');
+    $ofiles = lsrep_expanded(\%olrev);
+    if ($olrev{'srcmd5'} ne $nl->{'baserev'}) {
+      # update base rev
+      $nl->{'baserev'} = $olrev{'srcmd5'};
+      $nlchanged = 1;
+    }
+  }
+
+  if ($lisbranch && !$nlisbranch) {
+    # we branched a link. convert branch to link
+    # and integrate
+    my %olrev = (%$orev, 'linkrev' => 'base');
+    $ofiles = keeplink({'convertbranchtopatch' => 1}, $oprojid, $opackid, $ofiles, \%olrev);
+    $l = readxml("$srcrep/$opackid/$ofiles->{'_link'}-_link", $BSXML::link);
+  }
+
+  if (!$nlisbranch && $l->{'patches'}) {
     for (@{$l->{'patches'}->{''} || []}) {
       my $type = (keys %$_)[0];
       if ($type eq 'delete' && $files->{$_->{'delete'}->{'name'}}) {
 	delete $files->{$_->{'delete'}->{'name'}};
       } else {
-	$lchanged = 1;
+	$nlchanged = 1;
 	$nl->{'patches'} ||= {};
 	if ($type eq 'apply') {
 	  my $oppatch = $_->{'apply'}->{'name'};
@@ -2398,7 +2431,7 @@ sub integratelink {
       }
     }
   }
-  if ($lchanged) {
+  if ($nlchanged) {
     writexml("$srcrep/:upload/$$", undef, $nl, $BSXML::link);
     $files->{'_link'} = putinsrcrep($projid, $packid, "$srcrep/:upload/$$", '_link')
   }
@@ -2481,27 +2514,28 @@ sub sourcecopy {
 
   my $autosimplifylink;
 
-  if ($files->{'_link'}) {
+  if ($files->{'_link'} && !$cgi->{'dontupdatesource'}) {
     # fix me: do this in a more generic way
-    my $l = readxml("$srcrep/$opackid/$files->{'_link'}-_link", $BSXML::link, 1);
-    if ($l) {
+    my $ol = readxml("$srcrep/$opackid/$files->{'_link'}-_link", $BSXML::link, 1);
+    if ($ol) {
       my $lprojid = $oprojid;
       my $lpackid = $opackid;
-      my $lrev = $l->{'rev'};
-      $lprojid = $l->{'project'} if exists $l->{'project'};
-      $lpackid = $l->{'package'} if exists $l->{'package'};
-      if ($lprojid eq $projid && $lpackid eq $packid && not $cgi->{'dontupdatesource'}) {
+      my $lrev = $ol->{'rev'};
+      $lprojid = $ol->{'project'} if exists $ol->{'project'};
+      $lpackid = $ol->{'package'} if exists $ol->{'package'};
+      if ($lprojid eq $projid && $lpackid eq $packid) {
         # copy destination is target of link
 	# we're integrating this link
         $lrev = getrev($lprojid, $lpackid, $lrev);
 	my $lfiles = lsrep($lrev);
 	if ($lfiles->{'_link'} && !$cgi->{'expand'}) {
-	  $files = integratelink($lfiles, $lprojid, $lpackid, $files, $oprojid, $opackid, $l);
+	  # link to a link, join
+	  $files = integratelink($lfiles, $lprojid, $lpackid, $files, $oprojid, $opackid, $ol, $orev);
 	} else {
 	  # auto expand
 	  $cgi->{'expand'} = 1;
 	}
-	$autosimplifylink = $l;
+	$autosimplifylink = $ol;
       }
     }
   }
@@ -2509,7 +2543,7 @@ sub sourcecopy {
   if ($files->{'_link'} && $cgi->{'expand'}) {
     my %olrev = %$orev;
     $files = handlelinks(\%olrev, $files);
-    die("bad link: $files\n") unless ref $files;
+    die("broken link: $files\n") unless ref $files;
   }
 
   if ($opackid ne $packid) {
