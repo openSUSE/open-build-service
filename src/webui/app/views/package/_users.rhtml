@@ -11,7 +11,7 @@
     <dt>Maintainers</dt>
     <% package_persons=[] %>
 
-    <%- maintainers = @package.each_person("@role='maintainer'") -%>
+    <%- maintainers = @package.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
     <% maintainers.each do |person| -%>
       <% package_persons << person.userid %>
       <dd>
@@ -26,7 +26,9 @@
       </dd>
     <% end #each_person -%>
 
-    <% @project.each_person("@role='maintainer'") do |person| %>
+    <% 
+    maintainers = @project.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase }
+     maintainers.each do |person| %>
       <% if package_persons.grep( person.userid ).empty? %>
         <dd title="implicit involved user - involved in project <%= @project.name -%>">
           <%= link_to image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),

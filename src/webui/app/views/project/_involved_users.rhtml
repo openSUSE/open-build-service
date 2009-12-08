@@ -10,7 +10,7 @@
     <% if @project.has_element? :person -%>
     <dl>
       <dt>Maintainers</dt>
-      <%- maintainers = @project.each_person("@role='maintainer'") -%>
+      <%- maintainers = @project.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
       <% maintainers.each do |person| -%>
       <dd>
       <%= link_to(
@@ -30,7 +30,9 @@
     <dl>
       <dt>Bugowner</dt>
     <% if @project.bugowner -%>
-      <% @project.each_person("@role='bugowner'") do |person| -%>
+      <%
+      bugowners = @project.each_person("@role='bugowner'").sort {|x,y| x.userid.downcase <=> y.userid.downcase }
+      bugowners.each do |person| -%>
       <dd>
       <%= link_to(
         image_tag("tools-report-bug.png", :size => "16x16", :class => 'bug_link'),
