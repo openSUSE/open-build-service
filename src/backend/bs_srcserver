@@ -1435,7 +1435,7 @@ sub getprojpack {
 	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	      }
 	    } else {
-	      $rinfo->{'error'} = 'can not parse package name from spec file';
+	      $rinfo->{'error'} = "can not parse package name from $file";
 	    }
 	  }
 	  $pinfo->{'info'} = \@dinfo if @dinfo;
