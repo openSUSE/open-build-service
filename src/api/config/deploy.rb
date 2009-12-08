@@ -51,16 +51,14 @@ namespace :config do
 
   desc "Install saved configs from /shared/ dir"
   task :symlink_shared_config do
-    run "rm #{release_path}#{git_subdir}/config/options.yml"
-    run "ln -s #{shared_path}/options.yml #{release_path}#{git_subdir}/config/"
-    run "rm #{release_path}#{git_subdir}/config/environments/production.rb"
-    run "ln -s #{shared_path}/production.rb #{release_path}#{git_subdir}/config/environments/"
-    run "ln -s #{shared_path}/database.db #{release_path}#{git_subdir}/db/"
+    run "rm #{release_path}#{git_subdir}/config/database.yml"
+    run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/"
+    run 'HERMESPWD=$(cat #{shared_path}/HERMESPWD); sed -e ",hermesconf.dbpass.*,hermesconf.dbpass = $HERMESPWD," #{release_path}#{git_subdir}/config/environments/production.rb'
   end
 
   desc "Set permissions"
   task :permissions do
-    run "chown -R lighttpd #{current_path}#{git_subdir}/db #{current_path}#{git_subdir}/tmp"
+    run "chown -R lighttpd #{current_path}#{git_subdir}/tmp"
   end
 end
 

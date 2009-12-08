@@ -35,9 +35,10 @@ YMP_URL='http://software.opensuse.org/ymp'
 #ActionController::AbstractRequest.relative_url_root = "/stage"
 
 require 'hermes'
-Hermes::Config.setup do |conf|
-  conf.dbhost = 'storage'
-  conf.dbuser = 'hermes'
-  conf.dbpass = ''
-  conf.dbname = 'hermes'
+Hermes::Config.setup do |hermesconf|
+  hermesconf.dbhost = 'storage'
+  hermesconf.dbuser = 'hermes'
+  hermesconf.dbpass = ''
+  hermesconf.dbname = 'hermes'
 end
+
