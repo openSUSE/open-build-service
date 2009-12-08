@@ -52,7 +52,7 @@ namespace :config do
   desc "Install saved configs from /shared/ dir"
   task :symlink_shared_config do
     run "ln -s #{shared_path}/database.yml #{release_path}#{git_subdir}/config/"
-    run "HERMESPWD=$(cat #{shared_path}/HERMESPWD); sed -i -e \"s,hermesconf.dbpass.*,hermesconf.dbpass = $HERMESPWD,\" #{release_path}#{git_subdir}/config/environments/production.rb"
+    run "HERMESPWD=$(cat #{shared_path}/HERMESPWD); sed -i -e \"s,hermesconf.dbpass.*,hermesconf.dbpass = '$HERMESPWD',\" #{release_path}#{git_subdir}/config/environments/production.rb"
   end
 
   desc "Set permissions"
