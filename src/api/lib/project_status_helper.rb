@@ -1,4 +1,5 @@
 require 'xml'
+require 'digest/md5'
 
 class PackInfo
   attr_accessor :version, :release
@@ -81,8 +82,13 @@ end
 class ProjectStatusHelper
 
   def self.update_projpack(proj, backend, mypackages)
-    #puts 'get /getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % proj
-    d = backend.direct_http( URI('/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % proj), :timeout => 1000 )
+    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % proj
+    mypackages.each do |key, package|
+      if package.project == proj
+	uri += "&package=" + package.name
+      end
+    end
+    d = backend.direct_http( URI(uri), :timeout => 1000 )
     data = XML::Parser.string(d).parse
     if data then data.find('/projpack/project/package').each do |p|
         packname = p.attributes['name']
@@ -103,19 +109,31 @@ class ProjectStatusHelper
     end
   end
 
-  def self.fetch_jobhistory(backend, proj, repo, arch)
-    #puts 'get "/build/%s/%s/%s/_jobhistory?limit=1"' % [proj, repo, arch]
+  def self.fetch_jobhistory(backend, proj, repo, arch, mypackages)
+    # we do some fancy caching in here as the function called is pretty expensive and often called
+    # first we check the last line of the job history (limit 1) and then we check if it changed
+    # against the url we expect to query. As the url is too long to be used as meaningful hash we
+    # generate the md5
     currentlast=backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?limit=1' % [proj, repo, arch]))
-    key='jobhistory_%s_%s_%s' % [proj, repo, arch]
-    lastlast = Rails.cache.read(key + '_last')
-    if currentlast != lastlast 
-      Rails.cache.delete key 
+
+    uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [proj, repo, arch]
+    mypackages.each do |key, package|
+      if package.project == proj
+	uri += "&package=" + package.name
+      end
     end
 
+    key = Digest::MD5.hexdigest(uri)
+
+    lastlast = Rails.cache.read(key + '_last')
+    if currentlast != lastlast 
+      #puts 'keys "%s" vs "%s" - deleting %s' % [currentlast, lastlast, key]
+      Rails.cache.delete key
+    end
+   
     Rails.cache.fetch(key) do
-      #puts 'get "build/%s/%s/%s/_jobhistory?code=lastfailures"' % [proj, repo, arch]
       Rails.cache.write(key + '_last', currentlast)
-      backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?code=lastfailures' % [proj, repo, arch]) , :timeout => 1000 )
+      backend.direct_http( URI(uri) , :timeout => 1000 )
     end
   end
 
@@ -123,7 +141,7 @@ class ProjectStatusHelper
     dbproj.repositories.each do |r|
       r.architectures.each do |arch|
         reponame = r.name + "/" + arch.name
-        d = fetch_jobhistory(backend, dbproj.name, r.name, arch.name)
+        d = fetch_jobhistory(backend, dbproj.name, r.name, arch.name, mypackages)
         data = XML::Parser.string(d).parse
         if data then
           data.find('/jobhistlist/jobhist').each do |p|
