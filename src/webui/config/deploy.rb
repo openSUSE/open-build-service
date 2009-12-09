@@ -76,7 +76,7 @@ namespace :deploy do
 
   task :restart do
     run "sv 1 /service/webclient-*"
-    run "sv restart /service/delayed_job_webclient"
+    run "sv 1 /service/delayed_job_webclient"
   end
 
   task :stop do
