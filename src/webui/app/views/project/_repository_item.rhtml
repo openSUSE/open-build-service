@@ -5,7 +5,7 @@
 		<%=h path.project+"/"+path.repository %><br/>
 	<% end -%>
 	<% rescue; end %>
-	<%=	link_to 'Goto Repository', repo_url( @project.name.gsub(":",":/"), repo.name ) -%>
+	<%=	link_to 'Goto Repository', repo_url( @project, repo.name ) -%>
 </th>
 <% @arch_list.each do |arch| -%>
 	<td id="<%=repo.name+'_'+arch%>">
