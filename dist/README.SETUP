@@ -13,9 +13,9 @@ You need to install the "obs-server" package for this.
 1.1 start the following services in this order
 ==============================================
 
-WARNING: The following starts services which are accessible from the outside.
-         Do not do this on a system connected to an untrusted network or be
-         sure to block the ports via a firewall.
+WARNING: The following commands start services which are accessible from the outside.
+         Do not do this on a system connected to an untrusted network or make sure 
+         to block the ports with a firewall.
 
    rcobsrepserver start
    rcobssrcserver start
@@ -23,7 +23,7 @@ WARNING: The following starts services which are accessible from the outside.
    rcobsdispatcher start
    rcobspublisher  start
 
-The data get hosted inside of /srv/obs directory by default.
+The data gets stored inside the /srv/obs directory by default.
 
 1.2 start the following optional services
 =========================================
@@ -47,26 +47,27 @@ You need to install the "obs-worker" package for this.
 
 2.1 local worker
 ================
-A worker can be started on the localhost by calling
+A worker can be started on localhost by calling
 
    # rcobsworker start
 
 2.2 setup multiple workers on remote systems
 ============================================
-A worker can be started on other machine in your network (in Internet too, 
-but you should have really fast Internet connection ;-)). You must install
-package obs-worker on this machine and change few configuration files on both
-system.
+A worker can be started on other machines in your network (in Internet too, 
+but you should have a really fast Internet connection ;-)). You must install
+the package obs-worker on this machine and change some configuration files on both
+systems.
 
 2.2.1 necessary changes on machine *main* machine
 =================================================
-Please check /usr/lib/obs/server/BSConfig.pm on main machine. By default everything
-is correct here, since it automatically uses the local host name.
+Please check /usr/lib/obs/server/BSConfig.pm on the main machine. By default everything
+is correct here, since it automatically uses the local hostname.
 
 2.2.2 necessary changes on worker machine
 =========================================
-Install package obs-worker and in file /etc/sysconfig/obs-worker change variable OBS_STORAGE_SERVER to
-main.fqdn:6262 where main.fqdn is output of hostname -f or IP on *main* machine.
+Install the package 'obs-worker' and edit the file /etc/sysconfig/obs-worker: 
+change the variable OBS_STORAGE_SERVER to main.fqdn:6262 
+where main.fqdn is the output of 'hostname -f' or IP on *main* machine.
 
 3. run the frontend
 ===================
@@ -113,7 +114,7 @@ password = foobar
       mysql> quit
 
 * If you use the MySQL database for other services, too, then
-  it's recommended to add a separate MySQL user, e.g.g 'obs', like
+  it's recommended to add a separate MySQL user, e.g. 'obs', like
   this:
 
       # mysql -u root -p'your-password'
@@ -124,26 +125,24 @@ password = foobar
       FLUSH PRIVILEGES;
 
 * Configure your MySQL user and password in
-  in the "production:" section of these files:
+  in the "production_slave:" section of the frontend config: 
 
     /srv/www/obs/frontend/config/database.yml
-    /srv/www/obs/webclient/config/database.yml
 
 * populate the database
 
       # cd /srv/www/obs/frontend/
-      # sudo -u lighttpd RAILS_ENV="production_slave" rake db:migrate
+      # sudo RAILS_ENV="production_slave" rake db:migrate
 
-3.2 Setup and configure the frontend and webclient
+3.2 Setup and configure lighttpd for the frontend and webclient
 ==================================================
 
-Afterwards the configuration of the frontend (and webclient) rails
-interface is needed. A configuration for accessing via
+Now we need the webserver configuration of the frontend (and webclient). 
+A default configuration for accessing via
 http://127.0.42.1 and http://127.0.42.2 gets automatically installed
 into /etc/lighttpd/vhosts.d/obs.conf
 
-If you need other hostnames, edit that file
-/etc/lighttpd/vhosts.d/obs.conf:
+If you need other hostnames, edit the file /etc/lighttpd/vhosts.d/obs.conf:
 
     $HTTP["host"] =~ "buildserver.my.domain.example.org" {
       ...
@@ -222,12 +221,12 @@ Afterwards you can start the OBS web frontends via
 The easiest way is reuse a base distro hosted at openSUSE.org.
 The Build Service has a mechanism to reuse projects from a remote instance
 since version 0.9. It is recommended to use this mechanism.
-In addition to that, it is also possible to copy base projects via an provided scripts.
+In addition to that, it is also possible to copy base projects with the provided scripts.
 
 4.1 Reuse projects hosted on openSUSE.org build service
 =======================================================
 
-Import the reference project pointing to the openSUSE.org build service with 
+Create the reference project pointing to the openSUSE.org build service with 
 the following command:
 
  # curl -0 --user "Admin:opensuse" -X PUT \
@@ -262,7 +261,7 @@ the following steps:
 5. Access
 =========
 
-By default you can access the api via using any browser with the URL
+By default you can access the api using any browser with the URL
 
   http://127.0.42.2
 
@@ -280,7 +279,7 @@ accordingly. Edit '/etc/lighttpd/vhosts.d/obs.conf' and add the new virtual
 hostnames.
 
 Then change the FRONTEND_HOST variable in 
-/srv/www/obs/webclient/config/environments/production_slave.rb
+/srv/www/obs/webclient/config/environments/production.rb
 to also point to the new frontend URL.
 
 6. Using osc with your local build service:
