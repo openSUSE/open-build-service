@@ -70,7 +70,7 @@ namespace :deploy do
 
   task :restart do
     run "sv 1 /service/frontend-*"
-    run "sv restart /service/delayed_job_frontend"
+    run "sv 1 /service/delayed_job_frontend"
   end
 
   task :stop do
