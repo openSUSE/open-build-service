@@ -11,13 +11,12 @@ class ProjectController < ApplicationController
   end
 
   def list_all
+    @important_projects = get_important_projects
     list :with_homes
   end
 
   def list_public
-    # load important projects:
-    predicate = "[attribute/@name='OBS:VeryImportantProject']"
-    @important_projects = Collection.find :id, :what => "project", :predicate => predicate
+    @important_projects = get_important_projects
     list :without_homes
   end
 
@@ -682,6 +681,11 @@ class ProjectController < ApplicationController
   end
 
   private
+
+  def get_important_projects
+    predicate = "[attribute/@name='OBS:VeryImportantProject']"
+    return Collection.find_cached :id, :what => "project", :predicate => predicate
+  end
 
 
   def paginate_collection(collection, options = {})
