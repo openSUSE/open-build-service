@@ -109,9 +109,12 @@ sub createDescription( $ )
 
 sub convertFlags( $ ){
     my ($flag)=@_;
-    $flag =~ s/GE/>/sg;
+    $flag =~ s/GT/>/sg;
     $flag =~ s/EQ/=/sg;
     $flag =~ s/LT/</sg;
+    $flag =~ s/NE/!=/sg;
+    $flag =~ s/GE/>=/sg;
+    $flag =~ s/LE/<=/sg;
     return $flag;
 }
 
