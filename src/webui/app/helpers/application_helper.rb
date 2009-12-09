@@ -32,7 +32,7 @@ module ApplicationHelper
   end
 
   def repo_url(project, repo='' )
-    "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
+    "#{DOWNLOAD_URL}/" + project.name.gsub(/:/,':/') + "/#{repo}"
   end
 
 
