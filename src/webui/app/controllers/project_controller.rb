@@ -510,7 +510,7 @@ class ProjectController < ApplicationController
     end
     begin
       user = Person.find( :login => params[:userid] )
-    rescue ActiveXML::NotFoundError
+    rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return

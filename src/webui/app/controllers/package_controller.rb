@@ -181,7 +181,7 @@ class PackageController < ApplicationController
 
     begin
       linked_package = Package.find( @linked_package, :project => @linked_project )
-    rescue: ActiveXML::NotFoundError
+    rescue ActiveXML::Transport::NotFoundError
       flash.now[:error] = "Unable to find package '#{@linked_package}' in" +
         " project '#{@linked_project}'."
       render :action => "new_link" and return
