@@ -28,8 +28,8 @@ class XpathEngine
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']},
-        'attribute/@name' => {:cpart => 'CONCAT(if(attrib_namespaces.name IS NULL,(if(attrib_namespacesprj.name IS NULL,"",attrib_namespacesprj.name)),attrib_namespaces.name), ":", if(attrib_types.name IS NULL,(if(attrib_typesprj.name IS NULL,"",attrib_typesprj.name)),attrib_types.name))',
-          :joins => 
+        'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
+          :split => ':', :joins => 
           ['LEFT JOIN attribs ON attribs.db_package_id = db_packages.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
@@ -51,7 +51,7 @@ class XpathEngine
           'LEFT JOIN repositories AS path_repos ON path_elements.repository_id = path_repos.id',
           'LEFT JOIN db_projects AS path_projects ON path_projects.id = path_repos.db_project_id'
         ]},
-        'attribute/@name' => {:cpart => 'CONCAT(attrib_namespaces.name,":",attrib_types.name)', :joins => 
+        'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins => 
           ['LEFT JOIN attribs ON attribs.db_project_id = db_projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
@@ -64,6 +64,7 @@ class XpathEngine
     @conditions = [1]
     @condition_values = []
     @joins = []
+    @split = nil
   end
 
   def logger
@@ -134,6 +135,10 @@ class XpathEngine
       logger.debug "strange base table: #{@base_table}"
     end
 
+    if @split
+        first = @condition_values.shift
+        @condition_values.insert(0, first.split(@split))
+    end
     cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
 
     if opt[:sort_by] and @attribs[@base_table].has_key?(opt[:sort_by])
@@ -204,7 +209,9 @@ class XpathEngine
     if @attribs[table][key][:joins]
       @joins << @attribs[table][key][:joins]
     end
-
+    if @attribs[table][key][:split]
+      @split = @attribs[table][key][:split]
+    end
     return @attribs[table][key][:cpart]
   end
 
