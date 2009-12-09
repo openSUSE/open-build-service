@@ -750,7 +750,7 @@ sub writeMigrationSPECfile( $$$ )
     my( $file, $prodRef,$product ) = @_;
     my $mproduct = Storable::dclone($product);
 
-    $mproduct->{name} = $product->{name}."-SP".$mproduct->{'patchlevel'}."-migration";
+    $mproduct->{name} = $product->{name}."-SP".$product->{'patchlevel'}."-migration";
 
     my $oldpatchlevel = $mproduct->{'patchlevel'} - 1;
     my $content="# ";
@@ -807,6 +807,7 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Provides:       product($product->{'name'}-SP$product->{'patchlevel'}) = %version-%release\n";
     }
     $productprovides.="Requires:       product_flavor($product->{name}) = %version-%release\n";
+    $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration";
 
     if ("$infile" eq ""){
      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
