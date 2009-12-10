@@ -18,9 +18,16 @@ class AttribType < ActiveRecord::Base
     def find_by_name(name)
       name_parts = name.split /:/
       if name_parts.length != 2
-        raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style" 
+        raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
       end
-      find :first, :joins => "LEFT OUTER JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["attrib_types.name = BINARY ? and an.name = BINARY ?", name_parts[1], name_parts[0]]
+      find_by_namespace_and_name(name_parts[0], name_parts[1])
+    end
+
+    def find_by_namespace_and_name(namespace, name)
+      unless namespace and name
+        raise RuntimeError, "attribute must be in the $NAMESPACE:$NAME style" 
+      end
+      find :first, :joins => "JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["attrib_types.name = BINARY ? and an.name = BINARY ?", name, namespace]
     end
   end
 

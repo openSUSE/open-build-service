@@ -18,6 +18,10 @@ class SearchController < ApplicationController
     render :text => search(:package, false), :content_type => "text/xml"
   end
 
+  def attribute
+    find_attribute(params[:ns], params[:name])
+  end
+
   private
 
   def predicate_from_match_parameter(p)
@@ -87,7 +91,62 @@ class SearchController < ApplicationController
   #         with packages = <package name>values?</package>
   #          and values   = <values>value+</values>
   #          and value    = <value>CDATA</value>
-  def find_attribute
+  def find_attribute(namespace, name)
+    attrib = AttribType.find_by_namespace_and_name(namespace, name)
+    unless attrib
+      render_error :status => 404, :message => "no such attribute"
+      return
+    end
+    if params[:project]
+      project = DbProject.find_by_name(params[:project])
+    end
+    if params[:package]
+      packages = []
+      if params[:project]
+         packages << DbPackage.find_by_project_and_name(params[:project], params[:package])
+      else
+         packages = DbPackage.find(:all, :conditions => ["name = BINARY ?", params[:package]])
+      end
+    end
+
+    if packages
+      attribs = Attrib.find(:all, :conditions => ["attrib_type_id = ? AND db_package_id in (?)", attrib.id, packages.collect { |p| p.id }])
+    else
+      attribs = Attrib.find(:all, :conditions => ["attrib_type_id = ?", attrib.id])
+    end
+    values = AttribValue.find(:all, :conditions => [ "attrib_id IN (?)", attribs.collect { |a| a.id } ])
+    attribValues = Hash.new
+    values.each do |v|
+      attribValues[v.attrib_id] ||= Array.new
+      attribValues[v.attrib_id] << v
+    end
+    packages = DbPackage.find(:all, :conditions => [ "id IN (?)", attribs.collect { |a| a.db_package_id } ], :include => :db_project)
+    pack2attrib = Hash.new
+    attribs.each do |a|
+      if a.db_package_id
+        pack2attrib[a.db_package_id] = a.id
+      end
+    end
+    packages.sort! { |x,y| x.name <=> y.name }
+    projects = packages.collect { |p| p.db_project }.uniq
+    builder = Builder::XmlMarkup.new( :indent => 2 )
+    xml = builder.attribute(:ns => namespace, :name => name) do
+      projects.each do |proj|
+        builder.project(:name => proj.name) do
+          packages.each do |p|
+             next if p.db_project_id != proj.id
+             builder.package(:name => p.name) do
+               builder.values do
+                 attribValues[pack2attrib[p.id]].each do |v|
+                   builder.value(v.value)
+                 end
+               end
+             end
+          end
+        end
+      end
+    end
+    render :text => xml, :content_type => "text/xml"
   end
 
 end

@@ -191,6 +191,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'search/package/id', :controller => "search", :action => "package_id"
   map.connect 'search/project', :controller => "search", :action => "project"
   map.connect 'search/package', :controller => "search", :action => "package"
+  map.connect 'search/attribute', :controller => "search", :action => "attribute"
   map.connect 'search', :controller => "search", :action => "pass_to_source"
 
   ### /build
