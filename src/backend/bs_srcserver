@@ -2562,21 +2562,56 @@ sub sourcecopy {
   my $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'}, $cgi->{'requestid'});
 
   if ($autosimplifylink && !$autosimplifylink->{'rev'}) {
-    eval {
-      my $latestorev = getrev($oprojid, $opackid);
-      if ($latestorev->{'srcmd5'} eq $orev->{'srcmd5'}) {
-        # simplify link
-        my $nl = {};
-        $nl->{'project'} = $autosimplifylink->{'project'} if $autosimplifylink->{'project'};
-        $nl->{'package'} = $autosimplifylink->{'package'} if $autosimplifylink->{'package'};
-        $nl->{'cicount'} = $autosimplifylink->{'cicount'} if $autosimplifylink->{'cicount'};
-        writexml("$srcrep/:upload/$$", undef, $nl, $BSXML::link);
-        my $ofiles = {};
-        $ofiles->{'_link'} = putinsrcrep($oprojid, $opackid, "$srcrep/:upload/$$", '_link');
-        addrev($oprojid, $opackid, $ofiles, 'buildservice-autocommit', "auto commit by copy to link target\n", undef, $cgi->{'requestid'});
+    my $isbranch = grep {(keys %$_)[0] eq 'branch'} @{$autosimplifylink->{'patches'}->{''} || []};
+    if ($isbranch) {
+      # update base rev so that there are no changes
+      # FIXME: this is a gross hack...
+      # we should not need to update the baserev, instead we should change the way branches are applied
+      my $ofiles = lsrep($orev);
+      delete $ofiles->{'_link'};
+      if ($opackid ne $packid) {
+        # link sources over
+        for my $file (sort keys %$ofiles) {
+          if (! -e "$srcrep/$packid/$ofiles->{$file}-$file") {
+            link("$srcrep/$opackid/$ofiles->{$file}-$file", "$srcrep/$packid/$ofiles->{$file}-$file");
+	    die("link error $srcrep/$opackid/$ofiles->{$file}-$file\n") unless -e "$srcrep/$packid/$ofiles->{$file}-$file";
+          }
+        }
       }
-    };
-    warn($@) if $@;
+      my $newbase = addmeta($projid, $packid, $ofiles);
+      if ($autosimplifylink->{'baserev'} ne $newbase) {
+	eval {
+          my $latestorev = getrev($oprojid, $opackid);
+          my $latestfiles = lsrep($latestorev);
+          if ($latestfiles->{'_link'}) {
+	    my $latestl = readxml("$srcrep/$opackid/$latestfiles->{'_link'}-_link", $BSXML::link, 1);
+	    my $latestisbranch = grep {(keys %$_)[0] eq 'branch'} @{$latestl->{'patches'}->{''} || []};
+	    if ($latestisbranch && $latestl->{'baserev'} eq $autosimplifylink->{'baserev'}) {
+	      $latestl->{'baserev'} = $newbase;
+              $latestfiles->{'_link'} = putinsrcrep($oprojid, $opackid, "$srcrep/:upload/$$", '_link');
+              addrev($oprojid, $opackid, $latestfiles, 'buildservice-autocommit', "baserev update by copy to link target\n", undef, $cgi->{'requestid'});
+	    }
+	  }
+	};
+        warn($@) if $@;
+      }
+    } else {
+      eval {
+        my $latestorev = getrev($oprojid, $opackid);
+        if ($latestorev->{'srcmd5'} eq $orev->{'srcmd5'}) {
+          # simplify link
+          my $nl = {};
+          $nl->{'project'} = $autosimplifylink->{'project'} if $autosimplifylink->{'project'};
+          $nl->{'package'} = $autosimplifylink->{'package'} if $autosimplifylink->{'package'};
+          $nl->{'cicount'} = $autosimplifylink->{'cicount'} if $autosimplifylink->{'cicount'};
+          writexml("$srcrep/:upload/$$", undef, $nl, $BSXML::link);
+          my $ofiles = {};
+          $ofiles->{'_link'} = putinsrcrep($oprojid, $opackid, "$srcrep/:upload/$$", '_link');
+          addrev($oprojid, $opackid, $ofiles, 'buildservice-autocommit', "auto commit by copy to link target\n", undef, $cgi->{'requestid'});
+        }
+      };
+      warn($@) if $@;
+    }
   }
 
   delete $rev->{'project'};
