@@ -810,7 +810,7 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Provides:       product($product->{'name'}-SP$product->{'patchlevel'}) = %version-%release\n";
     }
     $productprovides.="Requires:       product_flavor($product->{name}) = %version-%release\n";
-    $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration";
+    $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n";
 
     if ("$infile" eq ""){
      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
@@ -849,7 +849,7 @@ sub writeProductSPECfile( $$$$ )
      $content.="Group:          System/Fhs\n";
      $content.=$obsoletepackage;
      $content.=$productprovides;
-     $content.="AutoReqProv:    on\n";
+     $content.="\nAutoReqProv:    on\n";
      $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
      $content.="\n%description\n";
      for my $description ( @{$product->{'description'} || []} ){
