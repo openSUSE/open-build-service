@@ -1,3 +1,5 @@
+require 'md5'
+
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   
@@ -106,6 +108,11 @@ module ApplicationHelper
         name
       end
     end
+  end
+
+  def gravatar_image email
+    hash = MD5::md5(email.downcase)
+    return image_tag "http://www.gravatar.com/avatar/#{hash}?d=404&s=20", :alt => ""
   end
 
 end

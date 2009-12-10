@@ -17,6 +17,7 @@
     <% maintainers.each do |person| -%>
       <% package_persons << person.userid %>
       <dd>
+        <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
         <%= link_to image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' -%>
         <%= link_to(person.userid, 'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
@@ -33,6 +34,7 @@
      maintainers.each do |person| %>
       <% if package_persons.grep( person.userid ).empty? %>
         <dd title="implicit involved user - involved in project <%= @project.name -%>">
+          <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
           <%= link_to image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
           'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' -%>
           <%= link_to(person.userid, 'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service', :style => 'color: #aaa' ) -%>
@@ -46,6 +48,7 @@
       <% @package.each_person("@role='bugowner'") do |person| -%>
         <% package_persons << person.userid %>
         <dd>
+          <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
           <%= link_to( image_tag("tools-report-bug.png", :size => "16x16", :class => 'bug_link'),
             bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
           <%= link_to( person.userid,
@@ -61,6 +64,7 @@
       <% @project.each_person("@role='bugowner'") do |person| %>
         <% if package_persons.grep( person.userid ).empty? %>
           <dd title="implicit involved user - involved in project <%= @project.name -%>">
+            <%= gravatar_image(@email_hash[person.userid.to_s]) %>
             <%= link_to(
               image_tag("tools-report-bug.png", :size => "16x16", :class => 'bug_link'),
               bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>

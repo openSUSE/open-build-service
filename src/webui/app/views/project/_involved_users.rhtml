@@ -13,6 +13,7 @@
       <%- maintainers = @project.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
       <% maintainers.each do |person| -%>
       <dd>
+      <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
       <%= link_to(
         image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
@@ -34,6 +35,7 @@
       bugowners = @project.each_person("@role='bugowner'").sort {|x,y| x.userid.downcase <=> y.userid.downcase }
       bugowners.each do |person| -%>
       <dd>
+      <%= gravatar_image(@email_hash[person.userid.to_s]) %>
       <%= link_to(
         image_tag("tools-report-bug.png", :size => "16x16", :class => 'bug_link'),
         bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
