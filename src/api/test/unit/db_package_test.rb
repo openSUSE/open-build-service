@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class DbPackageTest < Test::Unit::TestCase
+class DbPackageTest < ActiveSupport::TestCase
   fixtures :db_projects, :db_packages, :repositories, :flags, :users
 
   def setup
@@ -12,7 +12,7 @@ class DbPackageTest < Test::Unit::TestCase
     #check precondition
     assert_equal 1, @package.build_flags.size
     assert_equal 1, @package.publish_flags.size
-    assert_equal 1, @package.debug_flags.size
+    assert_equal 1, @package.debuginfo_flags.size
     
     xml_string = @package.to_axml
 
@@ -24,8 +24,8 @@ class DbPackageTest < Test::Unit::TestCase
     assert_equal 1, xml.root.get_elements("/package/publish").size
     assert_equal 1, xml.root.get_elements("/package/publish/*").size
     
-    assert_equal 1, xml.root.get_elements("/package/debug").size
-    assert_equal 1, xml.root.get_elements("/package/debug/*").size            
+    assert_equal 1, xml.root.get_elements("/package/debuginfo").size
+    assert_equal 1, xml.root.get_elements("/package/debuginfo/*").size            
   end
   
   
@@ -47,14 +47,14 @@ class DbPackageTest < Test::Unit::TestCase
         <publish>
           <enabled repository='10.1' arch='x86_64'/>
         </publish>
-        <debug>
+        <debuginfo>
           <disabled repository='10.0' arch='i386'/>
-        </debug>        
+        </debuginfo>        
         <url></url>
       </package>"
       )
     
-    ['build', 'publish', 'debug'].each do |flagtype|
+    ['build', 'publish', 'debuginfo'].each do |flagtype|
       @package.update_flags(:package => axml, :flagtype => flagtype)
     end
       
@@ -77,13 +77,13 @@ class DbPackageTest < Test::Unit::TestCase
     assert_nil @package.publish_flags[0].db_project    
     assert_equal 'TestPack', @package.publish_flags[0].db_package.name    
     
-    assert_equal 1, @package.debug_flags.size
-    assert_equal 'disabled', @package.debug_flags[0].status
-    assert_equal '10.0', @package.debug_flags[0].repo
-    assert_equal 'i386', @package.debug_flags[0].architecture.name
-    assert_equal 1, @package.debug_flags[0].position
-    assert_nil @package.debug_flags[0].db_project  
-    assert_equal 'TestPack', @package.debug_flags[0].db_package.name        
+    assert_equal 1, @package.debuginfo_flags.size
+    assert_equal 'disabled', @package.debuginfo_flags[0].status
+    assert_equal '10.0', @package.debuginfo_flags[0].repo
+    assert_equal 'i386', @package.debuginfo_flags[0].architecture.name
+    assert_equal 1, @package.debuginfo_flags[0].position
+    assert_nil @package.debuginfo_flags[0].db_project  
+    assert_equal 'TestPack', @package.debuginfo_flags[0].db_package.name        
     
   end
   
@@ -128,7 +128,7 @@ class DbPackageTest < Test::Unit::TestCase
       </package>"
       )    
   
-    assert_raise(RuntimeError){
+    assert_raise(DbPackage::SaveError){
       @package.flag_compatibility_check(:package => axml)
       }
     
@@ -162,9 +162,9 @@ class DbPackageTest < Test::Unit::TestCase
       "<package name='TestPack' project='home:tscholz'>
         <title>My Test package</title>
         <description></description>
-        <debug>
+        <debuginfo>
           <disabled repository='10.0' arch='i386'/>
-        </debug>    
+        </debuginfo>    
         <url></url>
         <disable/>
       </package>"
@@ -173,7 +173,7 @@ class DbPackageTest < Test::Unit::TestCase
     @package.store_axml(axml)
     
     assert_equal 1, @package.build_flags.size
-    assert_equal 1, @package.debug_flags.size        
+    assert_equal 1, @package.debuginfo_flags.size        
   end
     
 end

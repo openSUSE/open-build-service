@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'ichain_notifier'
 
-class IchainNotifierTest < Test::Unit::TestCase
+class IchainNotifierTest < ActiveSupport::TestCase
   FIXTURES_PATH = File.dirname(__FILE__) + '/../fixtures'
   CHARSET = "utf-8"
 
@@ -15,12 +15,13 @@ class IchainNotifierTest < Test::Unit::TestCase
     ActionMailer::Base.deliveries = []
     
     @user = User.find_by_login "tom"
-    assert_valid @user
+    assert @user.valid?
 
     @expected = TMail::Mail.new
     @expected.set_content_type "text", "plain", { "charset" => CHARSET }
     @expected.from    = 'admin@opensuse.org'
     @expected.to      = @user.email
+    @expected['Precedence'] = 'bulk'
     @expected.mime_version = "1.0"
   end
 

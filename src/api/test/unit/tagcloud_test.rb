@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TagcloudTest < Test::Unit::TestCase
+class TagcloudTest < ActiveSupport::TestCase
   fixtures :users, :db_projects, :db_packages, :tags, :taggings
   
   def test_max_min

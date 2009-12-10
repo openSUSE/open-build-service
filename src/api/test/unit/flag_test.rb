@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class FlagTest < Test::Unit::TestCase
+class FlagTest < ActiveSupport::TestCase
   fixtures :flags
 
 
