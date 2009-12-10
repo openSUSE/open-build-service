@@ -255,7 +255,7 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /apidocs
 
-  map.apidocs 'apidocs/', :controller => "apidocs"
+  map.connect 'apidocs/:action', :action => /[^\/]*/, :controller => "apidocs"
 
   map.connect '/active_rbac/registration/confirm/:user/:token',
     :controller => 'active_rbac/registration', :action => 'confirm'
