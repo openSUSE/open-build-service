@@ -726,11 +726,11 @@ class DbProject < ActiveRecord::Base
 
     buildflags = REXML::Element.new("build")
     project.each_disable do |flag|
-      elem = REXML::Element.new(flag.data)
-      buildflags.add_element(elem)
+      elem = REXML::Document.new(flag.dump_xml).root
+      buildflags.add_element elem
     end
 
-    fake_project.add_element(buildflags)
+    fake_project.add_node buildflags.to_s
     update_flags(:flagtype => 'build', :project => fake_project)
   end
 
