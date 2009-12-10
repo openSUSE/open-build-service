@@ -19,8 +19,6 @@ config.action_controller.perform_caching             = true
 # config.action_mailer.raise_delivery_errors = false
 
 ICHAIN_MODE = :on
-ICHAIN_HOST = "212.12.12.12"
-ICHAIN_APPROVE = false
 
 EXTENDED_BACKEND_LOG = false
 

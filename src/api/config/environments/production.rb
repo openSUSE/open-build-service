@@ -20,8 +20,6 @@ config.action_controller.perform_caching             = true
 
 ICHAIN_MODE = :on
 
-ICHAIN_HOST = "212.12.12.12"
-
 SOURCE_HOST = "storage"
 SOURCE_PORT = 5352
 
@@ -32,7 +30,6 @@ EXTENDED_BACKEND_LOG = false
 
 DOWNLOAD_URL='http://download.opensuse.org/repositories'
 YMP_URL='http://software.opensuse.org/ymp'
-#ActionController::AbstractRequest.relative_url_root = "/stage"
 
 require 'hermes'
 Hermes::Config.setup do |hermesconf|
