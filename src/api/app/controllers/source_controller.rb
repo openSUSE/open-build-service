@@ -775,9 +775,15 @@ class SourceController < ApplicationController
       Package.find(opkg.name, :project => oprj.name).save
 
       # link sources
-      link_data = "<link project='#{pac.db_project.name}' package='#{pac.name}'/>"
-      logger.debug "link_data: #{link_data}"
-      Suse::Backend.put "/source/#{oprj.name}/#{opkg.name}/_link", link_data
+      if params[:TEMPORARY_enable_backend_branch]
+          # the new way, just for testing for now
+          Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{pac.db_project.name}&opackage=#{pac.name}", nil
+      else
+          # the old way, about to be dropped.
+          link_data = "<link project='#{pac.db_project.name}' package='#{pac.name}'/>"
+          logger.debug "link_data: #{link_data}"
+          Suse::Backend.put "/source/#{oprj.name}/#{opkg.name}/_link", link_data
+      end
 
     end
 
@@ -1082,10 +1088,20 @@ class SourceController < ApplicationController
     end
 
     #link sources
-    rev = pkg_rev.nil? ? "" : "rev='#{pkg_rev}'"
-    link_data = "<link project='#{prj_name}' package='#{pkg_name}' #{rev}/>"
-    logger.debug "link_data: #{link_data}"
-    Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
+    if params[:TEMPORARY_enable_backend_branch]
+        # the new way, just for testing for now
+        rev = ""
+        if not pkg_rev.nil? and not pkg_rev.empty?
+             rev = "&rev=#{pkg_rev}"
+        end
+        Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{prj_name}&opackage=#{pkg_name}#{rev}", nil
+    else
+        # the old way, about to be dropped.
+        rev = pkg_rev.nil? ? "" : "rev='#{pkg_rev}'"
+        link_data = "<link project='#{prj_name}' package='#{pkg_name}' #{rev}/>"
+        logger.debug "link_data: #{link_data}"
+        Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
+    end
 
     render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name}
   end
