@@ -24,7 +24,7 @@ SOURCE_PORT = 3003
 
 ICHAIN_MODE=:off
 
-APIDOCS_LOCATION ="../../docs/api/html/"
+APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/frontend")+"/"
 
 MOCK_BACKEND_DATA_DIR = File.expand_path( RAILS_ROOT+"/test/fixtures/backend" )

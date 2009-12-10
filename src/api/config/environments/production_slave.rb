@@ -28,5 +28,5 @@ SOURCE_PORT = 6362
 DOWNLOAD_URL='http://127.0.42.3/'
 YMP_URL='http://please.set.the.yml.url.in.config.environments.production_slave.rb/'
 
-APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/public/apidocs/html")+"/"
+APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"

@@ -25,7 +25,7 @@ EXTENDED_BACKEND_LOG = false
 SOURCE_HOST = "storage"
 SOURCE_PORT = 5352
 
-APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/public/apidocs/html")+"/"
+APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 ActionController::AbstractRequest.relative_url_root = "/stage"
