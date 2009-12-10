@@ -40,6 +40,7 @@ after "deploy:update_code", "config:symlink_shared_config"
 after "deploy:symlink", "config:permissions"
 
 # workaround because we are using a subdirectory of the git repo as rails root
+before "deploy:finalize_update", "deploy:apidocs"
 before "deploy:finalize_update", "deploy:use_subdir"
 after "deploy:finalize_update", "deploy:reset_subdir"
 after "deploy:finalize_update", "deploy:notify"
@@ -98,6 +99,11 @@ namespace :deploy do
     end
 
     run "rm -f #{current_path} && ln -s #{latest_release}#{git_subdir} #{current_path}"
+  end
+
+  desc "Create API docs"
+  task :apidocs do
+    run "cd #{release_path}/docs/api && make"
   end
 
   desc "Send email notification of deployment"
