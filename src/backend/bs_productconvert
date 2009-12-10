@@ -885,6 +885,7 @@ sub writeProductSPECfile( $$$$ )
 
      # replace all strings
      $str =~ s/___DISTNAME___/$product->{name}/g;
+     $str =~ s/___BASE_VERSION___/$product->{baseversion}/g;
      $str =~ s/___VERSION___/$product->{version}/g;
      if ( defined $product->{buildconfig}->{betaversion} ) {
        $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
