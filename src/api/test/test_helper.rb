@@ -2,9 +2,6 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 
-MOCK_BACKEND_DATA_DIR = File.expand_path( RAILS_ROOT+"/test/fixtures/backend" )
-MOCK_BACKEND_DATA_TMPDIR= File.expand_path( RAILS_ROOT+"/test/fixtures/backend_tmp" )
-
 class Test::Unit::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method
   # in a transaction that's rolled back on completion.  This ensures that the
