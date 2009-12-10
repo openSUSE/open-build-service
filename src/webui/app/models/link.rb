@@ -11,12 +11,21 @@ class Link < ActiveXML::Base
       doc.root
     end
   end
-  
+
+  # an 'add' patch adds the patch file to the package and uses it from the specfile
   def add_patch filename
     add_element "patches" if !self.has_element? :patches
     patches = ActiveXML::LibXMLNode.new(data.find_first("/link/patches"))
     patches.add_element "add", 'name' => filename
   end
+
+  # an 'apply' patch patches directly the sources of the package before building
+  def apply_patch filename
+    add_element "patches" if !self.has_element? :patches
+    patches = ActiveXML::LibXMLNode.new(data.find_first("/link/patches"))
+    patches.add_element "apply", 'name' => filename
+  end
+
 
   def has_patch? filename
     if self.has_element? "patches"
