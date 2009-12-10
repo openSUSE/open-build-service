@@ -1,9 +1,0 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-one:
-  attrib_type_id: 1
-  db_package_id: 1
-
-two:
-  attrib_type_id: 1
-  db_package_id: 1

@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class PublishFlagTest < Test::Unit::TestCase
+class PublishFlagTest < ActiveSupport::TestCase
   fixtures :flags, :architectures, :db_projects, :db_packages
   
   def setup

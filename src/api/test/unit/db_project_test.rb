@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class DbProjectTest < Test::Unit::TestCase
+class DbProjectTest < ActiveSupport::TestCase
   fixtures :db_projects, :db_packages, :repositories, :flags, :users
 
   def setup
@@ -44,13 +44,13 @@ class DbProjectTest < Test::Unit::TestCase
         <publish>
           <enabled repository='10.2' arch='x86_64'/>
         </publish>
-        <debug>
+        <debuginfo>
           <disabled repository='10.0' arch='i386'/>
-        </debug>
+        </debuginfo>
       </project>"
       )
     
-    ['build', 'publish', 'debug'].each do |flagtype|
+    ['build', 'publish', 'debuginfo'].each do |flagtype|
       @project.update_flags(:project => axml, :flagtype => flagtype)
     end
       
@@ -73,13 +73,13 @@ class DbProjectTest < Test::Unit::TestCase
     assert_nil @project.publish_flags[0].db_package    
     assert_equal 'home:tscholz', @project.publish_flags[0].db_project.name  
     
-    assert_equal 1, @project.debug_flags.size
-    assert_equal 'disabled', @project.debug_flags[0].status
-    assert_equal '10.0', @project.debug_flags[0].repo
-    assert_equal 'i386', @project.debug_flags[0].architecture.name
-    assert_equal 1, @project.debug_flags[0].position
-    assert_nil @project.debug_flags[0].db_package    
-    assert_equal 'home:tscholz', @project.debug_flags[0].db_project.name      
+    assert_equal 1, @project.debuginfo_flags.size
+    assert_equal 'disabled', @project.debuginfo_flags[0].status
+    assert_equal '10.0', @project.debuginfo_flags[0].repo
+    assert_equal 'i386', @project.debuginfo_flags[0].architecture.name
+    assert_equal 1, @project.debuginfo_flags[0].position
+    assert_nil @project.debuginfo_flags[0].db_package    
+    assert_equal 'home:tscholz', @project.debuginfo_flags[0].db_project.name      
     
   end
   
@@ -124,7 +124,7 @@ class DbProjectTest < Test::Unit::TestCase
       </project>"
       )    
   
-    assert_raise(RuntimeError){
+    assert_raise(DbProject::SaveError){
       @project.flag_compatibility_check(:project => axml)
       }
     
@@ -158,9 +158,9 @@ class DbProjectTest < Test::Unit::TestCase
       "<project name='home:tscholz'>
         <title>tscholz's Home Project</title>
         <description></description>
-        <debug>
+        <debuginfo>
           <disabled repository='10.0' arch='i386'/>
-        </debug>    
+        </debuginfo>    
         <url></url>
         <disable/>
       </project>"
@@ -169,7 +169,7 @@ class DbProjectTest < Test::Unit::TestCase
     @project.store_axml(axml)
     
     assert_equal 1, @project.build_flags.size
-    assert_equal 1, @project.debug_flags.size        
+    assert_equal 1, @project.debuginfo_flags.size        
   end  
   
   

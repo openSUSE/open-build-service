@@ -633,11 +633,11 @@ class DbPackage < ActiveRecord::Base
 
     buildflags = REXML::Element.new("build")
     package.each_disable do |flag|
-      elem = REXML::Element.new(flag.data)
-      buildflags.add_element(elem)
+      elem = REXML::Document.new(flag.dump_xml).root
+      buildflags.add_element elem
     end
 
-    fake_package.add_element(buildflags)
+    fake_package.add_node buildflags.to_s
     #return fake_package
     update_flags(:flagtype => 'build', :package => fake_package)
   end

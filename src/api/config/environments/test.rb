@@ -26,3 +26,6 @@ ICHAIN_MODE=:off
 
 APIDOCS_LOCATION ="../../docs/api/html/"
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/frontend")+"/"
+
+MOCK_BACKEND_DATA_DIR = File.expand_path( RAILS_ROOT+"/test/fixtures/backend" )
+MOCK_BACKEND_DATA_TMPDIR= File.expand_path( RAILS_ROOT+"/test/fixtures/backend_tmp" )

@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TagTest < Test::Unit::TestCase
+class TagTest < ActiveSupport::TestCase
   fixtures :tags, :blacklist_tags, :taggings, :users
 
   def test_reject_tag

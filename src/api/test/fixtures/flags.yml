@@ -59,7 +59,7 @@ first_debug_flag_for_project_home_tscholz:
   repo: "10.2"
   architecture_id: 1
   db_project_id: 502
-  type: "DebugFlag"
+  type: "DebuginfoFlag"
   position: 1	
   
 second_debug_flag_for_project_home_tscholz:
@@ -68,7 +68,7 @@ second_debug_flag_for_project_home_tscholz:
   repo: "10.2"
   architecture_id: 2
   db_project_id: 502
-  type: "DebugFlag"
+  type: "DebuginfoFlag"
   position: 2	
 		
 first_debug_flag_for_package_TestPack:
@@ -77,5 +77,5 @@ first_debug_flag_for_package_TestPack:
   repo: "10.2"
   architecture_id: 2
   db_package_id: 10095
-  type: "DebugFlag"
+  type: "DebuginfoFlag"
   position: 1

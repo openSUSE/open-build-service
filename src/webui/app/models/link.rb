@@ -13,13 +13,9 @@ class Link < ActiveXML::Base
   end
   
   def add_patch filename
-    if self.has_element? :patches
-      patches = ActiveXML::LibXMLNode.new(data.find_first("/link/patches"))
-    else
-      add_element "patches"
-    end
-    e = patches.add_element "add"
-    e["name"] = filename
+    add_element "patches" if !self.has_element? :patches
+    patches = ActiveXML::LibXMLNode.new(data.find_first("/link/patches"))
+    patches.add_element "add", 'name' => filename
   end
 
   def has_patch? filename

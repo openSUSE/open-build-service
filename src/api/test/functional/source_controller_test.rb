@@ -13,8 +13,8 @@ FIXTURES = [
   :project_user_role_relationships
 ]
 
-class SourceControllerTest < Test::Unit::TestCase
-  fixtures *FIXTURES
+class SourceControllerTest < ActionController::IntegrationTest 
+  # fixtures *FIXTURES
   
   def setup
     @controller = SourceController.new
@@ -27,7 +27,7 @@ class SourceControllerTest < Test::Unit::TestCase
 
   def test_get_projectlist
     prepare_request_with_user @request, "tom", "thunder"
-    get :index
+    get "/source"
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
@@ -37,7 +37,7 @@ class SourceControllerTest < Test::Unit::TestCase
 
   def test_get_packagelist
     prepare_request_with_user @request, "tom", "thunder"
-    get :index_project, :project => "kde4" 
+    get "/source/kde4"
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
@@ -48,7 +48,7 @@ class SourceControllerTest < Test::Unit::TestCase
   # non-existing project should return 404
   def test_get_illegal_project
     prepare_request_with_user @request, "tom", "thunder"
-    get :project_meta, :project => "kde2000" 
+    get "/source/kde2000/_meta"
     assert_response 404
   end
 
@@ -56,14 +56,14 @@ class SourceControllerTest < Test::Unit::TestCase
   # non-existing project-package should return 404
   def test_get_illegal_projectfile
     prepare_request_with_user @request, "tom", "thunder"
-    get :package_meta, :project => "kde4", :package => "kdelibs2000"
+    get "/source/kde4/kdelibs2000/_meta"
     assert_response 404
   end
 
 
   def test_get_project_meta
     prepare_request_with_user @request, "tom", "thunder"
-    get :project_meta, :project => "kde4"
+    get "/source/kde4/_meta"
     assert_response :success
     assert_tag :tag => "project", :attributes => { :name => "kde4" }
   end
@@ -71,7 +71,7 @@ class SourceControllerTest < Test::Unit::TestCase
 
   def test_get_package_filelist
     prepare_request_with_user @request, "tom", "thunder"
-    get :index_package, :project => "kde4", :package => "kdelibs"
+    get "/source/kde4/kdelibs"
     assert_response :success
     assert_tag :tag => "directory", :child => { :tag => "entry" }
     assert_tag :tag => "directory",
@@ -80,7 +80,7 @@ class SourceControllerTest < Test::Unit::TestCase
   
   def test_get_package_meta
     prepare_request_with_user @request, "tom", "thunder"
-    get :package_meta, :project => "kde4", :package => "kdelibs"
+    get "/source/kde4/kdelibs/_meta"
     assert_response :success
     assert_tag :tag => "package", :attributes => { :name => "kdelibs" }
   end
@@ -88,21 +88,21 @@ class SourceControllerTest < Test::Unit::TestCase
   #invalid user should always be rejected
   def test_invalid_user
     prepare_request_with_user @request, "king123", "sunflower"
-    get :project_meta, :project => "kde4" 
+    get "/source/kde4/_meta"
     assert_response 401
   end
   
   #invalid user should always be rejected  
   def test_invalid_credentials
     prepare_request_with_user @request, "king", "sunflower123"
-    get :project_meta, :project => "kde4" 
+    get "/source/kde4/_meta"
     assert_response( 401, "--> Invalid pw did not throw Exception")
   end
   
   
   def test_valid_user
     prepare_request_with_user @request, "tom", "thunder"
-    get :project_meta, :project => "kde4" 
+    get "/source/kde4/_meta"
     assert_response :success
   end
   
@@ -113,7 +113,7 @@ class SourceControllerTest < Test::Unit::TestCase
     # The user is valid, but has weak permissions
     
     # Get meta file
-    get :project_meta, :project => "kde4" 
+    get "/source/kde4/_meta"
     assert_response :success
 
     # Change description
@@ -381,16 +381,16 @@ class SourceControllerTest < Test::Unit::TestCase
 
   def test_read_file
     prepare_request_with_user @request, "tom", "thunder"
-    get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
+    get "/source/kde4/kdelibs/my_patch.diff"
     assert_response :success
     assert_equal( @response.body.to_s, "argl\n" )
     
-    get :file, :project => "kde4", :package => "kdelibs", :file => "BLUB"
+    get "/source/kde4/kdelibs/BLUB"
     #STDERR.puts(@response.body)
     assert_response 404
     assert_tag( :tag => "status" )
     
-    get :file, :project => "kde4", :package => "kdelibs", :file => "../kdebase/_meta"
+    get "/source/kde4/kdelibs/../kdebase/_meta"
     #STDERR.puts(@response.body)
     assert_response( 404, "Was able to read file outside of package scope" )
     assert_tag( :tag => "status" )

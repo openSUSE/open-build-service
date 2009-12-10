@@ -70,4 +70,24 @@ class SearchController < ApplicationController
       output.write "</collection>\n"
     end
   end
+
+  # specification of this function:
+  # supported paramters:
+  # ns: attribute namespace (required string)
+  # name: attribute name  (required string)
+  # project: limit search to project name (optional string)
+  # package: limit search to package name (optional string)
+  # ignorevalues: do not output attribute values (optional boolean)
+  # withproject: output project defaults if no value set for package (optional boolean)
+  #              such values also map against value paramter if given
+  # value: limit search to attributes with value (optional string)
+  # value_substr: limit search to attributes that match value substring (optional string)
+  #
+  # output: XML <attribute ns name><project name>values? packages?</project></attribute>
+  #         with packages = <package name>values?</package>
+  #          and values   = <values>value+</values>
+  #          and value    = <value>CDATA</value>
+  def find_attribute
+  end
+
 end
