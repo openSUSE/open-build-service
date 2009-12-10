@@ -1571,24 +1571,36 @@ sub getbuildinfo {
 
   @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps);
   if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
-    # things are very different here, we get the binaries from the packages
-    my @bins = getkiwiproductpackages($projid, $packid, $repoid, $proj, $repo, $pdata, $info, \@bdeps);
-    my %kdeps = (%bdeps, %pdeps, %vmdeps);
+    # things are very different here. first we have the packages needed for kiwi
+    # from the full tree
     @bdeps = ();
+    for (unify(@pdeps, @vmdeps, @bdeps)) {
+      my $b = {'name' => $_};
+      my $p = $dep2pkg{$_};
+      if (!$cgi->{'internal'}) {
+	my $prp = $pool->pkg2reponame($p);
+	($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
+      }
+      my $d = $pool->pkg2data($p);
+      $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+      $b->{'version'} = $d->{'version'};
+      $b->{'release'} = $d->{'release'} if exists $d->{'release'};
+      $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+      $b->{'notmeta'} = 1;
+      $b->{'preinstall'} = 1 if $pdeps{$_};
+      $b->{'vminstall'} = 1 if $vmdeps{$_};
+      $b->{'runscripts'} = 1 if $runscripts{$_};
+      push @bdeps, $b;
+    }
+
+    # now the binaries from the packages
+    my @bins = getkiwiproductpackages($projid, $packid, $repoid, $proj, $repo, $pdata, $info, \@edeps);
     for my $b (@bins) {
       my @bn = split('/', $b);
       next unless $bn[-1] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
       my $d = {'name' => $1, 'version' => $2, 'release' => $3, 'arch' => $4, 'project' => $bn[0], 'repository' => $bn[1], 'package' => $bn[3]};
       $d->{'repoarch'} = $bn[2] if $bn[2] ne $arch;
-      $d->{'noinstall'} = 1 if $4 eq 'src' || $4 eq 'nosrc';
-      $d->{'noinstall'} = 1 unless $kdeps{$1};
-      if (!$d->{'noinstall'}) {
-        $d->{'preinstall'} = 1 if $pdeps{$1};
-        $d->{'vminstall'} = 1 if $vmdeps{$1};
-        $d->{'runscripts'} = 1 if $runscripts{$1};
-      }
-      $d->{'notmeta'} = 1 unless $edeps{$1};
-      delete $kdeps{$1} unless $d->{'noinstall'};
+      $d->{'noinstall'} = 1;
       push @bdeps, $d;
     }
     if ($info->{'extrasource'}) {
