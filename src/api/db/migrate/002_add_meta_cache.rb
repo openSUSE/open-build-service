@@ -6,7 +6,7 @@ class AddMetaCache < ActiveRecord::Migration
       t.column "description", :text
     end
 
-    add_index "db_projects", ["name"], :name => "projects_name_index", :unique => true
+    add_index "db_projects", ["name"], :name => "projects_name_index"
 
     create_table "db_packages" do |t|
       t.column "db_project_id", :integer, :null => false
@@ -15,7 +15,7 @@ class AddMetaCache < ActiveRecord::Migration
       t.column "description", :text
     end
 
-    add_index "db_packages", ["db_project_id", "name"], :name => "packages_all_index", :unique => true
+    add_index "db_packages", ["db_project_id", "name"], :name => "packages_all_index"
 
     create_table "project_user_role_relationships" do |t|
       t.column "db_project_id", :integer, :null => false

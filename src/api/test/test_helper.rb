@@ -14,19 +14,6 @@ class Test::Unit::TestCase
   # Read Mike Clark's excellent walkthrough at
   #   http://clarkware.com/cgi/blosxom/2005/10/24#Rails10FastTesting
   #
-  # Every Active Record database supports transactions except MyISAM tables
-  # in MySQL.  Turn off transactional fixtures in this case; however, if you
-  # don't care one way or the other, switching from MyISAM to InnoDB tables
-  # is recommended.
-  self.use_transactional_fixtures = true
-
-  # Instantiated fixtures are slow, but give you @david where otherwise you
-  # would need people(:david).  If you don't want to migrate your existing
-  # test cases which use the @david style and don't mind the speed hit (each
-  # instantiated fixtures translates to a database query per test method),
-  # then set this back to true.
-  self.use_instantiated_fixtures  = false
- 
   def prepare_request_with_user( request, user, passwd )
     re = 'Basic ' + Base64.encode64( user + ':' + passwd )
     request.env["HTTP_AUTHORIZATION"] = re;

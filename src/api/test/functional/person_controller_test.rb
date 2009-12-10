@@ -1,8 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'person_controller'
 
-class PersonControllerTest < Test::Unit::TestCase
-  fixtures :users
+class PersonControllerTest < ActionController::IntegrationTest 
+  #fixtures :users
 
   def setup
     @controller = PersonController.new
@@ -13,35 +13,35 @@ class PersonControllerTest < Test::Unit::TestCase
  
   def test_ichain
     @request.env["username"] = "fred"
-    get :userinfo
+    get "/person/userinfo"
     assert_response :success
   end
 
   def test_userinfo_for_valid_http_user
-    get :userinfo
+    get "/person/userinfo"
     assert_response :success   
     # This returns the xml content with the user info
   end
 
   def test_userinfo_from_param_valid
-    get :userinfo, :login => 'fred'
+    get "/person/userinfo", :login => 'fred'
     assert_response :success
   end
 
   def test_userinfo_from_param_invalid
-    get :userinfo, :login => 'notfred'
+    get "/person/userinfo", :login => 'notfred'
     assert_response 404 
   end
 
   def test_userinfo_with_empty_auth_header
     @request.env["HTTP_AUTHORIZATION"] = '' 
-    get :userinfo
+    get "/person/userinfo"
     assert_response 401
   end
 
   def test_userinfo_with_broken_auth_header
     prepare_request_invalid_user( @request )
-    get :userinfo
+    get "/person/userinfo"
     assert_select "status[code] > summary", /^Unknown user '[^']+' or invalid password$/
 
     assert_response 401
@@ -51,7 +51,7 @@ class PersonControllerTest < Test::Unit::TestCase
     prepare_request_valid_user( @request )
     
     # get original data
-    get :userinfo
+    get "/person/userinfo"
     
     new_name = "Freddy Cool"
     userinfo_xml = @response.body
@@ -72,7 +72,7 @@ class PersonControllerTest < Test::Unit::TestCase
 
     # refetch the user info if the name has really change
     prepare_request_valid_user( @request )
-    get :userinfo
+    get "/person/userinfo"
     assert_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
   end
 end

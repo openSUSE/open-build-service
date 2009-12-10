@@ -7,7 +7,7 @@ class StatisticsController; def rescue_action(e) raise e end; end
 class StatisticsControllerTest < Test::Unit::TestCase
 
 
-  fixtures :db_projects, :db_packages, :download_stats, :repositories, :architectures
+#  fixtures :db_projects, :db_packages, :download_stats, :repositories, :architectures
 
 
   def setup

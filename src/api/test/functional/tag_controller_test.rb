@@ -4,9 +4,9 @@ require 'tag_controller'
 # Re-raise errors caught by the controller.
 class TagController; def rescue_action(e) raise e end; end
 
-class TagControllerTest < Test::Unit::TestCase
+class TagControllerTest < ActionController::IntegrationTest 
   
-  fixtures :users, :db_projects, :db_packages, :tags, :taggings, :blacklist_tags
+#  fixtures :users, :db_projects, :db_packages, :tags, :taggings, :blacklist_tags
   
   def setup
     @controller = TagController.new
@@ -984,27 +984,27 @@ class TagControllerTest < Test::Unit::TestCase
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #parameter steps
-    get :tagcloud, :steps => -1
+    get "/tag/tagcloud", :steps => -1
     assert_response 404
     
-    get :tagcloud, :steps => 101
+    get "/tag/tagcloud", :steps => 101
     assert_response 404
     
-    get :tagcloud, :steps => 6
+    get "/tag/tagcloud", :steps => 6
     assert_response :success
     
     
     #parameter distribution(_method)
-    get :tagcloud, :distribution => 'Alien'
+    get "/tag/tagcloud", :distribution => 'Alien'
     assert_response 404
     
-    get :tagcloud, :distribution => 'raw'
+    get "/tag/tagcloud", :distribution => 'raw'
     assert_response :success
     
-    get :tagcloud, :distribution => 'logarithmic'
+    get "/tag/tagcloud", :distribution => 'logarithmic'
     assert_response :success
     
-    get :tagcloud, :distribution => 'linear'
+    get "/tag/tagcloud", :distribution => 'linear'
     assert_response :success
 
   end
@@ -1013,7 +1013,7 @@ class TagControllerTest < Test::Unit::TestCase
   def test_tagcloud_raw
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get :tagcloud, :distribution => 'raw', :limit => 4
+    get "/tag/tagcloud", :distribution => 'raw', :limit => 4
     assert_response :success
     
     #checking response-data 
@@ -1038,7 +1038,7 @@ class TagControllerTest < Test::Unit::TestCase
   def test_tagcloud_linear
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get :tagcloud, :distribution => 'linear', :steps => 10, :limit => 4
+    get "/tag/tagcloud", :distribution => 'linear', :steps => 10, :limit => 4
     assert_response :success
     
     #checking response-data 
@@ -1063,7 +1063,7 @@ class TagControllerTest < Test::Unit::TestCase
   def test_tagcloud_logarithmic
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :limit => 6
+    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :limit => 6
     assert_response :success
     
     #checking response-data 
@@ -1092,7 +1092,7 @@ class TagControllerTest < Test::Unit::TestCase
   def test_tagcloud_by_user
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :user => 'tscholz'
+    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'tscholz'
     assert_response :success
     
     #checking response-data 
@@ -1119,7 +1119,7 @@ class TagControllerTest < Test::Unit::TestCase
     
     prepare_request_with_user @request, "fred", "geröllheimer"
     
-    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :user => 'fred'
+    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'fred'
     assert_response :success
     
     #checking response-data 
@@ -1137,7 +1137,7 @@ class TagControllerTest < Test::Unit::TestCase
   
   
     #get the tag-cloud from another user
-    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :user => 'tscholz'
+    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'tscholz'
     assert_response :success
     
     #checking response-data 
@@ -1163,7 +1163,7 @@ class TagControllerTest < Test::Unit::TestCase
     
     
     #unknown user
-    get :tagcloud, :distribution => 'logarithmic', :steps => 12, :user => 'Alien'
+    get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'Alien'
     assert_response 404  
   end
   
@@ -1172,7 +1172,7 @@ class TagControllerTest < Test::Unit::TestCase
     
     #Precondition check: Get all tags for tscholz and the home:project.  
     prepare_request_with_user @request, "tscholz", "asdfasdf"
-    get :get_tags_by_user_and_project, :project => 'home:tscholz',
+    get "/tag/get_tags_by_user_and_project", :project => 'home:tscholz',
     :user => 'tscholz'
     assert_response :success
     #checking response-data 
@@ -1241,7 +1241,7 @@ class TagControllerTest < Test::Unit::TestCase
     
     #Precondition check: Get all tags for tscholz and a package.  
     prepare_request_with_user @request, "tscholz", "asdfasdf"
-    get :get_tags_by_user_and_package, :project => 'home:tscholz',
+    get "/tag/get_tags_by_user_and_package", :project => 'home:tscholz',
     :package => 'TestPack', :user => 'tscholz'
     assert_response :success
     #checking response-data 
@@ -1331,13 +1331,13 @@ class TagControllerTest < Test::Unit::TestCase
     @request.env['RAW_POST_DATA'] = xml.to_s
     
     #put request for an unknown user
-    put :tags_by_user_and_object, :project => 'home:tscholz', 
+    put "/tag/tags_by_user_and_object", :project => 'home:tscholz', 
     :package => "TestPack",
     :user => 'Alien'
     assert_response 404
     
     #put request for another user than the logged on user.
-    put :tags_by_user_and_object, :project => 'home:tscholz', 
+    put "/tag/tags_by_user_and_object", :project => 'home:tscholz', 
     :package => "TestPack",
     :user => 'fred'
     assert_response 403
@@ -1363,12 +1363,11 @@ class TagControllerTest < Test::Unit::TestCase
     @request.env['RAW_POST_DATA'] = xml.to_s
     
     #put request for an unknown project
-    put :tags_by_user_and_object, :project => 'AlienProject', 
-    :user => 'tscholz'
+    get "/tag/tags_by_user_and_object", :project => 'AlienProject', :user => 'tscholz'
     assert_response 404
     
     #put request for an unknown package
-    put :tags_by_user_and_object, :project => 'home:tscholz', 
+    get "/tag/tags_by_user_and_object", :project => 'home:tscholz', 
     :package => "AlienPackage",
     :user => 'tscholz'
     assert_response 404
