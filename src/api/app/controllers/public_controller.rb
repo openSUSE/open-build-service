@@ -210,10 +210,15 @@ class PublicController < ApplicationController
     logger.info "streaming #{backend_request.path}"
     render :status => 200, :text => Proc.new {|request,output|
       response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
-        http.request(backend_request) do |response|
-          response.read_body do |chunk|
-            output.write chunk
+        begin
+          http.request(backend_request) do |response|
+            response.read_body do |chunk|
+              output.write chunk
+            end
           end
+        rescue Timeout::Error
+          logger.info "catched TIMEOUT: #{backend_request}"
+          return
         end
       end
     }
