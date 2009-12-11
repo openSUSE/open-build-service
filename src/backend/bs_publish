@@ -300,11 +300,11 @@ sub createrepo_rpmmd {
   # --update requires a newer createrepo version, tested with version 0.4.10
   my @update;
   @update = '--update' if -f "$extrep/repodata/primary.xml.gz";
-  if (qsystem('createrepo', @update, $extrep)) {
+  if (qsystem('createrepo', '-q', '-c', "$extrep/repocache", @update, $extrep)) {
     print("    createrepo failed: $?\n");
     if (@update) {
       print "    re-running without --update\n";
-      qsystem('createrepo', $extrep) && print("    createrepo failed again: $?\n");
+      qsystem('createrepo', '-q', '-c', "$extrep/repocache", $extrep) && print("    createrepo failed again: $?\n");
     }
   }
   if ($BSConfig::repodownload) {
@@ -635,7 +635,7 @@ sub deleterepo {
   my @deleted;
   for my $arch (ls($extrep)) {
     next if $arch =~ /^\./;
-    next if $arch eq 'repodata' || $arch eq 'media.1' || $arch eq 'descr';
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     my $r = "$extrep/$arch";
     next unless -d $r;
     for my $bin (ls($r)) {
@@ -816,7 +816,7 @@ sub publish {
   my %bins_done;
   for my $arch (sort(ls($extrep))) {
     next if $arch =~ /^\./;
-    next if $arch eq 'repodata' || $arch eq 'media.1' || $arch eq 'descr';
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     next if $arch =~ /\.repo$/;
     my $r = "$extrep/$arch";
     if (-f $r) {
