@@ -225,9 +225,9 @@ our $projpack = [
 	 [[ 'package' =>
 		'name',
 		'rev',
-		'srcmd5',
+		'srcmd5',	# commit id
 		'versrel',
-		'verifymd5',
+		'verifymd5',	# tree id
 		[ $linked ],
 		'error',
 		[ $packinfo ],
