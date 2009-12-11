@@ -810,7 +810,8 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Provides:       product($product->{'name'}-SP$product->{'patchlevel'}) = %version-%release\n";
     }
     $productprovides.="Requires:       product_flavor($product->{name}) = %version-%release\n";
-    $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n";
+    $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n";  # release package name
+    $productprovides.="Obsoletes:      product:".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n"; # product name
 
     if ("$infile" eq ""){
      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
