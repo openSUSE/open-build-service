@@ -69,8 +69,8 @@ Install the package 'obs-worker' and edit the file /etc/sysconfig/obs-worker:
 change the variable OBS_STORAGE_SERVER to main.fqdn:6262 
 where main.fqdn is the output of 'hostname -f' or IP on *main* machine.
 
-3. run the frontend
-===================
+3. run the api
+==============
 
 You need to install the "obs-api" package for this and a MySQL server
 on this or a remote host. When using SLE11, the needed packages are only
@@ -110,7 +110,7 @@ password = foobar
 * Create the empty production databases:
 
       # mysql -u root -p
-      mysql> create database frontend_production;
+      mysql> create database api_production;
       mysql> quit
 
 * If you use the MySQL database for other services, too, then
@@ -119,25 +119,25 @@ password = foobar
 
       # mysql -u root -p'your-password'
       GRANT all privileges
-      ON frontend_production.* 
+      ON api_production.* 
       TO 'obs'@'%', 'obs'@'localhost' IDENTIFIED BY 'obs-password';
 
       FLUSH PRIVILEGES;
 
 * Configure your MySQL user and password in
-  in the "production_slave:" section of the frontend config: 
+  in the "production_slave:" section of the api config: 
 
-    /srv/www/obs/frontend/config/database.yml
+    /srv/www/obs/api/config/database.yml
 
 * populate the database
 
-      # cd /srv/www/obs/frontend/
+      # cd /srv/www/obs/api/
       # sudo RAILS_ENV="production_slave" rake db:migrate
 
-3.2 Setup and configure lighttpd for the frontend and webclient
-==================================================
+3.2 Setup and configure lighttpd for the api and webui
+======================================================
 
-Now we need the webserver configuration of the frontend (and webclient). 
+Now we need the webserver configuration of the api (and webui). 
 A default configuration for accessing via
 http://127.0.42.1 and http://127.0.42.2 gets automatically installed
 into /etc/lighttpd/vhosts.d/obs.conf
@@ -189,20 +189,20 @@ enabled by uncommenting the corresponding lines in
     include "conf.d/fastcgi.conf"
 
 
-3.2.1 Change /srv/www/obs/webclient/config/environments/production.rb
+3.2.1 Change /srv/www/obs/webui/config/environments/production.rb
 ===========================================================================
 
-If you changed the hostnames/ips of the frontend away from 10.0.42.x, you 
+If you changed the hostnames/ips of the api away from 10.0.42.x, you 
 need to configure also 
-/srv/www/obs/webclient/config/environments/production.rb (2 entries).
+/srv/www/obs/webui/config/environments/production.rb (2 entries).
 
 
-3.2.2 Change /srv/www/obs/frontend/config/environments/production_slave.rb
+3.2.2 Change /srv/www/obs/api/config/environments/production_slave.rb
 ===========================================================================
 
-If your backend is not on the same machine as the frontend, change the
-SOURCE_HOST on the frontend machine in the file:
-/srv/www/obs/frontend/config/environments/production_slave.rb
+If your backend is not on the same machine as the api, change the
+SOURCE_HOST on the api machine in the file:
+/srv/www/obs/api/config/environments/production_slave.rb
 
 In this case, also make sure that the TCP port 6362 is open on the firewall
 of the backend machine.
@@ -210,7 +210,7 @@ of the backend machine.
 3.2.3 Restart lighttpd
 ======================
 
-Afterwards you can start the OBS web frontends via 
+Afterwards you can start the OBS web api via 
 
     rclighttpd start  # use "insserv lighttpd" for permanent start
 
@@ -254,8 +254,8 @@ the following steps:
  # restart the scheduler to scan the new project
  rcobsscheduler restart
 
- Run the frontend import script:
- # cd /srv/www/obs/frontend/script
+ Run the api import script:
+ # cd /srv/www/obs/api/script
  # RAILS_ENV="production_slave" ruby import
 
 5. Access
@@ -274,13 +274,13 @@ The default user is "Admin" with the password "opensuse".
 5.1 Changing the default URLs
 =============================
 
-To change the default URLs of the frontend, configure the lighttpd vhosts
+To change the default URLs of the api, configure the lighttpd vhosts
 accordingly. Edit '/etc/lighttpd/vhosts.d/obs.conf' and add the new virtual
 hostnames.
 
 Then change the FRONTEND_HOST variable in 
-/srv/www/obs/webclient/config/environments/production.rb
-to also point to the new frontend URL.
+/srv/www/obs/webui/config/environments/production.rb
+to also point to the new api URL.
 
 6. Using osc with your local build service:
 ===========================================

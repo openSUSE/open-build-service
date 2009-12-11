@@ -14,6 +14,9 @@ this via syconfig settings:
   /etc/sysconfig/obs-server
   /etc/sysconfig/obs-worker
 
+The former called "frontend" is now called "api".
+The former called "webclient" is now called "webui".
+
 Main new features are:
 
  * Rewritten dependency solver in scheduler which gave
@@ -21,4 +24,20 @@ Main new features are:
 
  * Attribute system to store all kind of information for projects 
    and packages as defined by the server admin.
+
+ * Extended request handling
+   - new request types (delete or change_devel)
+   - new review mechanism
+
+ * clean product build support (inside of chroot enviroment)
+
+ * Improved source handling of branched packages (less often 
+   created conflicts).
+
+ * source service handler to let server and client side modules
+   prepare sources in the same way.
+
+Preview features are:
+
+ * patchinfo aka maintenance handling, this is not complete yet.
 
