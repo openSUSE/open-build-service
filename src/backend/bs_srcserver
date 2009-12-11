@@ -65,6 +65,7 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
 my $requestsdir = "$BSConfig::bsdir/requests";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+my $diffcache = "$BSConfig::bsdir/diffcache";
 
 my $reqindexdb = "$BSConfig::bsdir/db/request";
 my $extrepodb = "$BSConfig::bsdir/db/published";
@@ -2145,6 +2146,8 @@ sub sourcediff {
 
   my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+  my $fmax = 200;
+  my $tmax = 16000;
 
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   die("unknown project/package\n") unless $rev;
@@ -2168,7 +2171,22 @@ sub sourcediff {
     }
   }
   my $tmpdir = "$srcrep/:upload/srcdiff$$";
-  my $d = BSSrcdiff::diff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, 200, 16000, $tmpdir, $cgi->{'unified'});
+  my $cacheid = "$orev->{'srcmd5'}/$rev->{'srcmd5'}";
+  $cacheid .= "/unified:$cgi->{'unified'}" if $cgi->{'unified'};
+  $cacheid .= "/fmax:$fmax" if defined $fmax;
+  $cacheid .= "/tmax:$tmax" if defined $tmax;
+  $cacheid = Digest::MD5::md5_hex($cacheid);
+  local *F;
+  my $cn = "$diffcache/".substr($cacheid, 0, 2)."/$cacheid";
+  if (open(F, '<', $cn)) {
+    utime(time, time, $cn);
+    my @s = stat(F);
+    BSServer::reply_file(\*F, 'Content-Type: text/plain', "Content-Length: $s[7]");
+    return undef;
+  }
+  my $d = BSSrcdiff::diff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, $fmax, $tmax, $tmpdir, $cgi->{'unified'});
+  mkdir_p("$diffcache/".substr($cacheid, 0, 2));
+  writestr("$diffcache/.new$$", $cn, $d);
   return ($d, 'Content-Type: text/plain');
 }
 
