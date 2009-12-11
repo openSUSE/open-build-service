@@ -4,3 +4,6 @@
 [submodule "src/backend/build"]
 	path = src/backend/build
 	url = git://gitorious.org/opensuse/build.git
+[submodule "src/webui/vendor/plugins/exception_notification"]
+	path = src/webui/vendor/plugins/exception_notification
+	url = git://github.com/rails/exception_notification.git
