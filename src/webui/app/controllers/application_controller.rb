@@ -100,6 +100,10 @@ class ApplicationController < ActionController::Base
     name =~ /^\w[-_+\w\.]*$/
   end
 
+  def valid_file_name? name
+    name =~ /^[-\w_\.+ ]+$/
+  end
+
   def valid_role_name? name
     name =~ /^\w+$/
   end

@@ -254,6 +254,7 @@ class PackageController < ApplicationController
 
   def save_file
     valid_http_methods(:post)
+
     file = params[:file]
     file_url = params[:file_url]
     filename = params[:filename]
@@ -290,6 +291,11 @@ class PackageController < ApplicationController
 
     # extra escaping of filename (workaround for rails bug)
     filename = URI.escape filename, "+"
+    if !valid_file_name?(filename)
+      flash[:error] = "'#{filename}' is not a valid filename."
+      redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+    end
+
     @package.save_file :file => file, :filename => filename
 
     if params[:addAsPatch]
@@ -317,6 +323,7 @@ class PackageController < ApplicationController
     escaped_filename = URI.escape filename, "+"
     if @package.remove_file escaped_filename
       flash[:note] = "File '#{filename}' removed successfully"
+      # TODO: remove patches from _link
     else
       flash[:note] = "Failed to remove file '#{filename}'"
     end
