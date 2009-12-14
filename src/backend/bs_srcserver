@@ -326,6 +326,22 @@ sub addfile {
 }
 
 #
+# make files available in oprojid/opackid available from projid/packid
+#
+sub copyfiles {
+  my ($projid, $packid, $oprojid, $opackid, $files) = @_;
+
+  return if $packid eq $opackid;
+  return unless %$files;
+  mkdir_p("$srcrep/$packid");
+  for my $f (sort keys %$files) {
+    next if -e "$srcrep/$packid/$files->{$f}-$f";
+    link("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f");
+    die("link error $srcrep/$opackid/$files->{$f}-$f\n") unless -e "$srcrep/$packid/$files->{$f}-$f";
+  }
+}
+
+#
 # get a revision object from a revision identifier
 #
 sub getrev {
@@ -2611,16 +2627,8 @@ sub sourcecopy {
     die("broken link: $files\n") unless ref $files;
   }
 
-  if ($opackid ne $packid) {
-    # link sources over
-    mkdir_p("$srcrep/$packid");
-    for my $file (sort keys %$files) {
-      if (! -e "$srcrep/$packid/$files->{$file}-$file") {
-        link("$srcrep/$opackid/$files->{$file}-$file", "$srcrep/$packid/$files->{$file}-$file");
-	die("link error $srcrep/$opackid/$files->{$file}-$file\n") unless -e "$srcrep/$packid/$files->{$file}-$file";
-      }
-    }
-  }
+  copyfiles($projid, $packid, $oprojid, $opackid, $files);
+
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
@@ -2631,18 +2639,11 @@ sub sourcecopy {
     if ($isbranch) {
       # update base rev so that there are no changes
       # FIXME: this is a gross hack...
-      # we should not need to update the baserev, instead we should change the way branches are applied
+      # we should not need to update the baserev, instead we should change
+      # the way branches get applied
       my $ofiles = lsrev($orev);
       delete $ofiles->{'_link'};
-      if ($opackid ne $packid) {
-        # link sources over
-        for my $file (sort keys %$ofiles) {
-          if (! -e "$srcrep/$packid/$ofiles->{$file}-$file") {
-            link("$srcrep/$opackid/$ofiles->{$file}-$file", "$srcrep/$packid/$ofiles->{$file}-$file");
-	    die("link error $srcrep/$opackid/$ofiles->{$file}-$file\n") unless -e "$srcrep/$packid/$ofiles->{$file}-$file";
-          }
-        }
-      }
+      copyfiles($projid, $packid, $oprojid, $opackid, $ofiles);
       my $newbase = addmeta($projid, $packid, $ofiles);
       if ($autosimplifylink->{'baserev'} ne $newbase) {
 	eval {
@@ -2703,15 +2704,8 @@ sub sourcebranch {
   mkdir_p("$srcrep/$packid");
   if ($usebranch) {
     $l->{'patches'}->{''} = [ { 'branch' => undef} ];
-    for my $file (keys %$files) {
-      if ($packid ne $opackid) {
-        if (! -e "$srcrep/$packid/$files->{$file}-$file") {
-          link("$srcrep/$opackid/$files->{$file}-$file", "$srcrep/$packid/$files->{$file}-$file");
-	  die("link error $srcrep/$opackid/$files->{$file}-$file\n") unless -e "$srcrep/$packid/$files->{$file}-$file";
-        }
-      }
-      $lfiles->{$file} = $files->{$file};
-    }
+    copyfiles($projid, $packid, $oprojid, $opackid, $files);
+    $lfiles->{$_} = $files->{$_} for keys %$files;
   }
   writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
   $lfiles->{'_link'} = addfile($projid, $packid, "$srcrep/:upload/$$", '_link');
