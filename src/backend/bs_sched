@@ -253,12 +253,30 @@ sub addrepo_scan {
   print "    scanning repo $prp...\n";
   my $dir = "$reporoot/$prp/$myarch/:full";
   my $cache;
+  my $dirty;
   if (-s "$dir.solv") {
     eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
     if ($cache && $cache->isexternal()) {
       $repodatas{$prp}->{'lastscan'} = time();
       return $cache;
+    }
+  } elsif ($BSConfig::enable_download_on_demand) {
+    my ($projid) = split('/', $prp, 2);
+    if ($projpacks->{$projid}->{'download'}) {
+      my $doddata = $projpacks->{$projid}->{'download'}->[0];
+      eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", "$doddata->{'mtype'}", { 'arch' => [ $myarch ] })};
+      if ($@) {
+	warn("download on demand: cannot read metadata: $@");
+	return undef;
+      }
+      for (values %$cache) {
+	$_->{'id'} = 'dod';
+	$_->{'hdrmd5'} = 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
+      }
+      $cache->{'/url'} = $doddata->{'baseurl'};
+      $cache = $pool->repofromdata($prp, $cache);
+      $dirty = 1;
     }
   }
   my @bins;
@@ -285,10 +303,10 @@ sub addrepo_scan {
     next unless @s;
     push @bins, $_, "$s[9]/$s[7]/$s[1]";
   }
-  my $dirty;
   if ($cache) {
-    $dirty = $cache->updatefrombins($dir, @bins);
-    print "    (dirty: $dirty)\n" if $dirty;
+    my $updated = $cache->updatefrombins($dir, @bins);
+    print "    (dirty: $updated)\n" if $updated;
+    $dirty = 1 if $updated;
   } else {
     $cache = $pool->repofrombins($prp, $dir, @bins);
     $dirty = 1;
@@ -301,23 +319,6 @@ sub addrepo_scan {
   return $cache;
 }
 
-
-  # XXX DOD
-  #my @dl = grep { $_->{'arch'} eq $myarch } @{$projpacks->{$projid}->{'download'}} if exists $projpacks->{$projid}->{'download'};
-  #if (@dl && ($BSConfig::enable_download_on_demand || $BSConfig::enable_dod)) {
-  #  # XXX: should be allow more than one metafile for a specific arch (e.g. for addons etc.)?
-  #  eval {
-  #    $repobins = Meta::parse("$dir/$dl[0]->{'metafile'}", "$dl[0]->{'mtype'}", { 'arch' => [ $myarch ] });
-  #  };
-  #  warn("cannot read metadata ($dir/$dl[0]->{'metafile'}): $@") if $@;
-  #  # fix up path entries
-  #  for (values %$repobins) {
-  #    $_->{'rpath'} = $_->{'path'};
-  #    $_->{'path'} =~ s/.*\///;
-  #  }
-  #  $repobins->{'/url'} = $dl[0]->{'baseurl'};
-  #  $cnt = keys %$repobins;
-  #}
 
 sub enabled {
   my ($repoid, $disen, $default) = @_;
@@ -4176,9 +4177,9 @@ while(1) {
 	$packstatus{$packid} = 'done';
 	goto relsynccheck;
       }
-      if (($BSConfig::enable_download_on_demand || $BSConfig::enable_dod) && @meta == @new_meta) {
+      if ($BSConfig::enable_download_on_demand && @meta == @new_meta) {
         # unfetched dod packages have dodo... as hdrid
-        my @dodbins = grep {/^dodododododododododododododododo/} @new_meta;
+        my @dodbins = grep {/^d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0/} @new_meta;
         if (@dodbins) {
 	  # package was built with other data than we had, refresh repos and redo check
 	  my $rerun;

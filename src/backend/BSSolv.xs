@@ -44,6 +44,7 @@ typedef Expander *BSSolv__expander;
 static Id buildservice_id;
 static Id buildservice_repocookie;
 static Id buildservice_external;
+static Id buildservice_dodurl;
 
 /* make sure bit n is usable */
 #define MAPEXP(m, n) ((m)->size < (((n) + 8) >> 3) ? map_grow(m, n + 256) : 0)
@@ -579,7 +580,12 @@ create_considered(Pool *pool, Repo *repoonly, Map *considered)
 		    }
 		}
 	      else
-		continue;
+		{
+		  const char *bsid = solvable_lookup_str(sb, buildservice_id);
+		  /* always replace dod packages */
+		  if (!(bsid && strcmp(bsid, "dod") == 0))
+		    continue;
+		}
 	      MAPCLR(considered, pb);
 	    }
 	  best[s->name] = p;
@@ -1112,6 +1118,7 @@ new(packname = "BSSolv::pool")
 	    buildservice_id = str2id(pool, "buildservice:id", 1);
 	    buildservice_repocookie= str2id(pool, "buildservice:repocookie", 1);
 	    buildservice_external = str2id(pool, "buildservice:external", 1);
+	    buildservice_dodurl = str2id(pool, "buildservice:dodurl", 1);
 	    pool_freeidhashes(pool);
 	    RETVAL = pool;
 	}
@@ -1297,6 +1304,9 @@ repofromdata(BSSolv::pool pool, char *name, HV *rhv)
 	    repodata_set_str(data, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
 	    if (name && !strcmp(name, "/external/"))
 	      repodata_set_void(data, SOLVID_META, buildservice_external);
+	    str = hvlookupstr(rhv, "/url", 4);
+	    if (str)
+	      repodata_set_str(data, SOLVID_META, buildservice_dodurl, str);
 	    repo_internalize(repo);
 	    RETVAL = repo;
 	}
@@ -1616,6 +1626,16 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 	    const char *oldcookie;
 	  
 	    map_init(&reused, repo->end - repo->start);
+	    if (repo_lookup_str(repo, SOLVID_META, buildservice_dodurl))
+	      {
+	        /* this is a dod repo. keep all dod packages. */
+		FOR_REPO_SOLVABLES(repo, p, s)
+		  {
+		    const char *str = solvable_lookup_str(s, buildservice_id);
+		    if (str && !strcmp(str, "dod"))
+		      MAPSET(&reused, p - repo->start);
+		  }
+	      }
 	    hm = mkmask(2 * repo->nsolvables + 1);
 	    ht = sat_calloc(hm + 1, sizeof(*ht));
 	    oldcookie = repo_lookup_str(repo, SOLVID_META, buildservice_repocookie);
@@ -1624,7 +1644,7 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		FOR_REPO_SOLVABLES(repo, p, s)
 		  {
 		    const char *str = solvable_lookup_str(s, buildservice_id);
-		    if (!str)
+		    if (!str || !strcmp(str, "dod"))
 		      continue;
 		    h = strhash(str) & hm;
 		    hh = HASHCHAIN_START;
@@ -1754,7 +1774,12 @@ isexternal(BSSolv::repo repo)
     OUTPUT:
 	RETVAL
 
-
+const char *
+dodurl(BSSolv::repo repo)
+    CODE:
+	RETVAL = repo_lookup_str(repo, SOLVID_META, buildservice_dodurl);
+    OUTPUT:
+	RETVAL
 
 
 
