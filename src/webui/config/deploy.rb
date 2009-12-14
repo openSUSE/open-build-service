@@ -9,6 +9,7 @@ set :branch, "master"
 set :deploy_via, :remote_cache
 set :git_enable_submodules, 1
 set :git_subdir, '/src/webui'
+set :migrate_target, :current
 
 set :deploy_notification_to, ['tschmidt@suse.de', 'coolo@suse.de']
 server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
@@ -63,7 +64,7 @@ namespace :config do
 
   desc "Set permissions"
   task :permissions do
-    run "chown -R lighttpd #{current_path}#{git_subdir}/db #{current_path}#{git_subdir}/tmp"
+    run "chown -R lighttpd #{current_path}/db #{current_path}/tmp"
   end
 end
 
@@ -87,12 +88,24 @@ namespace :deploy do
   task :use_subdir do
     set :latest_release_bak, latest_release
     set :latest_release, "#{latest_release}#{git_subdir}"
+    run "cp #{latest_release_bak}/REVISION #{latest_release}"
   end
 
   task :reset_subdir do
     set :latest_release, latest_release_bak
   end
 
+  task :symlink, :except => { :no_release => true } do
+    on_rollback do
+      if previous_release
+        run "rm -f #{current_path}; ln -s #{previous_release}#{git_subdir} #{current_path}; true"
+      else
+        logger.important "no previous release to rollback to, rollback of symlink skipped"
+      end
+    end
+
+    run "rm -f #{current_path} && ln -s #{latest_release}#{git_subdir} #{current_path}"
+  end
 
   desc "Send email notification of deployment"
   task :notify do
