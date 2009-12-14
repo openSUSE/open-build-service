@@ -27,7 +27,7 @@
  <br/>
   <%- if @package.has_element? :devel %>
   <p id="develproject_note"><strong>
-    This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => "project", :project => @package.devel.project %>
+    This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => :package, :project => @package.devel.project, :package => @package.devel.package %>
   </strong></p>
   <%- end -%>
 
