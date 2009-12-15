@@ -31,6 +31,7 @@ BEGIN {
 }
 
 use XML::Structured ':bytes';
+use Digest::MD5 ();
 use Data::Dumper;
 use Storable ();
 use Symbol;
@@ -293,6 +294,7 @@ sub getcommitinfo {
     }
   }
   $release ||= '0';
+  return ($version, $release);
 }
 
 
