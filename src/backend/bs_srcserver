@@ -820,14 +820,17 @@ sub applylink {
 	link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f.new") || die("link $fsrc->{$f}-$f: $!\n");
 	link("$srcrep/$lsrc->{'package'}/$fbas->{$f}-$f", "$tmpdir/$f.old") || die("link $fbas->{$f}-$f: $!\n");
 	link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f.mine") || die("link $flnk->{$f}-$f: $!\n");
+	if (!isascii("$tmpdir/$f.new") || !isascii("$tmpdir/$f.old") || !isascii("$tmpdir/$f.mine")) {
+	  $failed = "conflict in file $f";
+	  last;
+	}
 	my $pid;
 	if (!($pid = xfork())) {
 	  delete $SIG{'__DIE__'};
 	  chdir($tmpdir) || die("$tmpdir: $!\n");
 	  open(STDERR, '>>', ".log") || die(".log: $!\n");
 	  open(STDOUT, '>', $f) || die("$f: $!\n");
-	  $| = 1;
-	  print "running diff3 on $f\n";
+          print STDERR "running diff3 on $f\n";
 	  exec('/usr/bin/diff3', '-m', "$f.mine", "$f.old", "$f.new");
 	  die("/usr/bin/diff3: $!\n");
 	}
