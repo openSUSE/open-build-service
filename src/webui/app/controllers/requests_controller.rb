@@ -43,13 +43,12 @@ class RequestsController < ApplicationController
     transport ||= ActiveXML::Config::transport_for(:project)
     path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
 
-    predicate = "(action/target/@project='#{@target_project}') and @id=#{@id}"
-    @req = Collection.find :what => :request, :predicate => predicate
-
     if @type == "submit"
-      @src_rev = diff.action.source.rev
       transport ||= ActiveXML::Config::transport_for(:project)
-      path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
+      path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&expand=1"
+      if diff.action.source.has_element? 'rev'
+        path += "&rev=#{diff.action.source.rev}"
+      end
       begin
         @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
       rescue Object => e
