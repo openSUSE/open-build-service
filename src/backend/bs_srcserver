@@ -2336,7 +2336,11 @@ sub keeplink {
     return $nfiles;
   }
 
-  if ($repair || $changedlink) {
+  if ($cgi->{'convertbranchtopatch'}) {
+    $ofilesl = {};
+    $ofiles = $ltgtfiles;
+    $ofilesdir = "$srcrep/$ltgtpackid";
+  } elsif ($repair || $changedlink) {
     # apply changed link
     my $frominfo = {'project' => $ltgtprojid, 'package' => $ltgtpackid, 'srcmd5' => $ltgtsrcmd5};
     my $linkinfo = {'project' => $projid, 'package' => $packid, 'srcmd5' => $orev->{'srcmd5'}, 'link' => $l};
@@ -2472,8 +2476,8 @@ sub integratelink {
   if ($lisbranch && !$nlisbranch) {
     # we branched a link. convert branch to link
     # and integrate
-    my %olrev = (%$orev, 'linkrev' => 'base');
-    $ofiles = keeplink({'convertbranchtopatch' => 1}, $oprojid, $opackid, $ofiles, \%olrev);
+    delete $ofiles->{'_link'};
+    $ofiles = keeplink({'convertbranchtopatch' => 1, 'linkrev' => 'base'}, $oprojid, $opackid, $ofiles, $orev);
     $l = readxml("$srcrep/$opackid/$ofiles->{'_link'}-_link", $BSXML::link);
   }
 
