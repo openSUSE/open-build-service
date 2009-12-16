@@ -82,10 +82,10 @@ end
 class ProjectStatusHelper
 
   def self.update_projpack(proj, backend, mypackages)
-    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % proj
+    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % CGI.escape(proj)
     mypackages.each do |key, package|
       if package.project == proj
-	uri += "&package=" + package.name
+	uri += "&package=" + CGI.escape(package.name)
       end
     end
     d = backend.direct_http( URI(uri), :timeout => 1000 )
@@ -114,12 +114,13 @@ class ProjectStatusHelper
     # first we check the last line of the job history (limit 1) and then we check if it changed
     # against the url we expect to query. As the url is too long to be used as meaningful hash we
     # generate the md5
-    currentlast=backend.direct_http( URI('/build/%s/%s/%s/_jobhistory?limit=1' % [proj, repo, arch]))
+    path = '/build/%s/%s/%s/_jobhistory' % [CGI.escape(proj), CGI.escape(repo), arch]
+    currentlast=backend.direct_http( URI(path + '?limit=1') )
 
-    uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [proj, repo, arch]
+    uri = path + '?code=lastfailures'
     mypackages.each do |key, package|
       if package.project == proj
-	uri += "&package=" + package.name
+	uri += "&package=" + CGI.escape(package.name)
       end
     end
 
