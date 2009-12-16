@@ -2468,6 +2468,7 @@ sub integratelink {
     lsrev_expanded(\%xrev);
     my %oxrev = (%$orev, 'linkrev' => $xrev{'srcmd5'});
     $ofiles = lsrev_expanded(\%oxrev);
+    copyfiles($projid, $packid, $oprojid, $opackid, $ofiles);
     # find new base
     if ($xrev{'srcmd5'} ne $nl->{'baserev'}) {
       # update base rev
