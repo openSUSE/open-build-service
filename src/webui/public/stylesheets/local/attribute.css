@@ -1,0 +1,22 @@
+.tablelines{
+  border-left: 1px solid #DDD;
+  border-right: 1px solid #DDD;
+}
+
+.alternate1{
+  background-color: #EEE;
+  vertical-align: top;
+}
+
+.alternate2{
+  vertical-align: top;
+}
+
+.attr_values li {
+  list-style: disc;
+}
+
+.tr_single {
+  vertical-align: top;
+}
+
