@@ -21,7 +21,7 @@
         person.userid,
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
       <%- if (maintainers.length > 1) and @project.is_maintainer?( session[:login] ) %>
-      <%= link_to "[x]",
+      <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove Maintainer"),
       {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
       {:confirm => "Really remove user '#{person.userid}'?", :class => "x"}%>
       <%- end %>
@@ -29,7 +29,7 @@
       <% end #each_person -%>
     </dl>
     <dl>
-      <dt>Bugowner</dt>
+      <dt>Bugowners</dt>
     <% if @project.bugowner -%>
       <%
       bugowners = @project.each_person("@role='bugowner'").sort {|x,y| x.userid.downcase <=> y.userid.downcase }
@@ -43,7 +43,7 @@
         person.userid,
         bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
       <% if @project.is_maintainer?( session[:login] ) %>
-        <%= link_to "[x]",
+        <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove Bugowner"),
         {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
         {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x"}%>
       <% end %>

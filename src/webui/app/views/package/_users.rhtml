@@ -22,7 +22,7 @@
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' -%>
         <%= link_to(person.userid, 'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
         <%- if maintainers.length > 1  && ( @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) ) %>
-          <%= link_to "[x]",
+          <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove Maintainer"),
           { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
           { :confirm => "Really remove user '#{person.userid}'?", :class => "x", :method => :post } -%>
         <% end -%>
@@ -42,7 +42,7 @@
       <% end -%>
     <% end #each_person -%>
 
-    <dt>Bugowner</dt>
+    <dt>Bugowners</dt>
     <% if @package.bugowner or @project.bugowner -%>
       <% package_persons=[] %>
       <% @package.each_person("@role='bugowner'") do |person| -%>
@@ -54,7 +54,7 @@
           <%= link_to( person.userid,
             bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
         <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-        <%= link_to "[x]",
+        <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove Bugowner"),
           {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
           {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x", :method => :post}%>
         <% end %>
@@ -82,7 +82,6 @@
     <% else -%>
       <dd>No bugowner defined, bug reporting disabled</dd>  
     <% end -%>
-      
   </dl>
 
   <% else -%>
