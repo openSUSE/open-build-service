@@ -77,6 +77,7 @@ my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
 my $eventlay = [qw{number time type project package repository arch}];
 
 my $ajaxsocket = "$rundir/bs_srcserver.ajax";
+my $uploaddir = "$srcrep/:upload";
 
 my %packagequota;
 
@@ -170,7 +171,7 @@ sub expandproduct {
     }
     return 1;
   }
-  my $dir = "$srcrep/:upload/expandproduct_$$";
+  my $dir = "$uploaddir/expandproduct_$$";
   BSUtil::cleandir($dir);
   mkdir_p($dir);
   for my $file (sort keys %$files) {
@@ -219,7 +220,6 @@ sub expandproduct {
       $pid = "$packid:$pid";
       $pids{$pid} = 1;
       my %pfiles;
-      mkdir_p("$srcrep/$pid");
       for my $pfile (sort(ls($pdir))) {
         next if $pfile eq '_meta';
 	$pfiles{$pfile} = addfile($projid, $pid, "$pdir/$pfile", $pfile);
@@ -331,12 +331,13 @@ sub addfile {
 # make files available in oprojid/opackid available from projid/packid
 #
 sub copyfiles {
-  my ($projid, $packid, $oprojid, $opackid, $files) = @_;
+  my ($projid, $packid, $oprojid, $opackid, $files, $except) = @_;
 
   return if $packid eq $opackid;
   return unless %$files;
   mkdir_p("$srcrep/$packid");
   for my $f (sort keys %$files) {
+    next if $except && $except->{$f};
     next if -e "$srcrep/$packid/$files->{$f}-$f";
     link("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f");
     die("link error $srcrep/$opackid/$files->{$f}-$f\n") unless -e "$srcrep/$packid/$files->{$f}-$f";
@@ -383,23 +384,39 @@ sub addmeta {
   $meta .= "$files->{$_}  $_\n" for sort keys %$files;
   my $srcmd5 = Digest::MD5::md5_hex($meta);
   if ($rev && $rev eq 'upload') {
-    mkdir_p("$srcrep/:upload");
+    mkdir_p($uploaddir);
     mkdir_p("$projectsdir/$projid.pkg");
-    writestr("$srcrep/:upload/$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
+    writestr("$uploaddir/$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
   } elsif ($rev && $rev eq 'pattern') {
     if ($meta ne '') {
-      mkdir_p("$srcrep/:upload");
+      mkdir_p($uploaddir);
       mkdir_p("$projectsdir/$projid.pkg");
-      writestr("$srcrep/:upload/$$", "$projectsdir/$projid.pkg/pattern-MD5SUMS", $meta);
+      writestr("$uploaddir/$$", "$projectsdir/$projid.pkg/pattern-MD5SUMS", $meta);
     } else {
       unlink("$projectsdir/$projid.pkg/pattern-MD5SUMS");
     }
   } elsif (! -e "$srcrep/$packid/$srcmd5-MD5SUMS") {
-    mkdir_p("$srcrep/:upload");
+    mkdir_p($uploaddir);
     mkdir_p("$srcrep/$packid");
-    writestr("$srcrep/:upload/$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
+    writestr("$uploaddir/$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
   }
   return $srcmd5;
+}
+
+# like addmeta, but adds link information. also stores
+# under the "wrong" md5sum.
+sub addmeta_link {
+  my ($projid, $packid, $files, $srcmd5, $linkinfo) = @_;
+
+  if (! -e "$srcrep/$packid/$srcmd5-MD5SUMS") {
+    my $meta = '';
+    $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+    $meta .= "$linkinfo->{'srcmd5'}  /LINK\n";
+    $meta .= "$linkinfo->{'lsrcmd5'}  /LOCAL\n";
+    mkdir_p($uploaddir);
+    mkdir_p("$srcrep/$packid");
+    writestr("$uploaddir/$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
+  }
 }
 
 
@@ -678,7 +695,7 @@ sub topaddspec {
 # apply a single link step
 # store the result under the identifier "$md5"
 #
-# if "$md5" is not set, store the result in "$srcrep/:upload/applylink$$"
+# if "$md5" is not set, store the result in "$uploaddir/applylink$$"
 #
 sub applylink {
   my ($md5, $lsrc, $llnk) = @_;
@@ -722,29 +739,20 @@ sub applylink {
   $simple = 0 unless $md5;
   if ($simple) {
     # simple source link with no patching
-    if ($lsrc->{'package'} ne $llnk->{'package'}) {
-      # different packages, link needed sources
-      for my $f (sort keys %$fsrc) {
-        next if $flnk->{$f};
-	next if -e "$srcrep/$llnk->{'package'}/$fsrc->{$f}-$f";
-	link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$srcrep/$llnk->{'package'}/$fsrc->{$f}-$f");
-        die("link error $lsrc->{'package'}/$fsrc->{$f}-$f $llnk->{'package'}/$fsrc->{$f}-$f\n") unless -e "$srcrep/$llnk->{'package'}/$fsrc->{$f}-$f";
-      }
-    }
+    # copy all files but the ones we have locally
+    copyfiles($llnk->{'project'}, $llnk->{'package'}, $lsrc->{'project'}, $lsrc->{'package'}, $fsrc, $flnk);
     # calculate meta
     my $newf = { %$fsrc };
     for my $f (sort keys %$flnk) {
-      next if $f eq '_link';
-      $newf->{$f} = $flnk->{$f};
+      $newf->{$f} = $flnk->{$f} unless $f eq '_link';
     }
     delete $newf->{$_} for @simple_delete;
     # store filelist in md5
-    my $meta = '';
-    $meta .= "$newf->{$_}  $_\n" for sort keys %$newf;
-    # add extra linked info
-    $meta .= "$lsrc->{'srcmd5'}  /LINK\n";
-    $meta .= "$llnk->{'srcmd5'}  /LOCAL\n";
-    writestr("$srcrep/:upload/$$", "$srcrep/$llnk->{'package'}/$md5-MD5SUMS", $meta);
+    my $linkinfo = {
+      'srcmd5'  => $lsrc->{'srcmd5'},
+      'lsrcmd5' => $llnk->{'srcmd5'},
+    };
+    addmeta_link($llnk->{'project'}, $llnk->{'package'}, $newf, $md5, $linkinfo);
     return '';
   }
 
@@ -757,7 +765,7 @@ sub applylink {
       return "patch \'$p->{'name'}\' does not exist" unless $flnk->{$p->{'name'}};
     }
   }
-  my $tmpdir = "$srcrep/:upload/applylink$$";
+  my $tmpdir = "$uploaddir/applylink$$";
   mkdir_p($tmpdir);
   die("$tmpdir: $!\n") unless -d $tmpdir;
   unlink("$tmpdir/$_") for ls($tmpdir);	# remove old stuff
@@ -949,22 +957,17 @@ sub applylink {
 
   # otherwise link everything over
   for my $f (@newf) {
-    next if -e "$srcrep/$llnk->{'package'}/$newf->{$f}-$f";
-    link("$tmpdir/$f", "$srcrep/$llnk->{'package'}/$newf->{$f}-$f");
-    die("link error") unless -e "$srcrep/$llnk->{'package'}/$newf->{$f}-$f";
+    addfile($llnk->{'project'}, $llnk->{'package'}, "$tmpdir/$f", $f, $newf->{$f});
   }
   # clean up tmpdir
   unlink("$tmpdir/$_") for ls($tmpdir);
   rmdir($tmpdir);
-  # store filelist in md5
-  my $meta = '';
-  $meta .= "$newf->{$_}  $_\n" for sort keys %$newf;
-  # add extra linked info
-  $meta .= "$lsrc->{'srcmd5'}  /LINK\n";
-  $meta .= "$llnk->{'srcmd5'}  /LOCAL\n";
-  # commit new file list
-  mkdir_p("$srcrep/:upload");
-  writestr("$srcrep/:upload/$$", "$srcrep/$llnk->{'package'}/$md5-MD5SUMS", $meta);
+  # store filelist
+  my $linkinfo = {
+    'srcmd5'  => $lsrc->{'srcmd5'},
+    'lsrcmd5' => $llnk->{'srcmd5'},
+  };
+  addmeta_link($llnk->{'project'}, $llnk->{'package'}, $newf, $md5, $linkinfo);
   return '';
 }
 
@@ -1559,22 +1562,22 @@ sub createkey {
   my ($cgi, $projid) = @_;
   die("don't know how to create a key\n") unless $BSConfig::sign;
   die("project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
-  mkdir_p("$srcrep/:upload");
+  mkdir_p($uploaddir);
   local *F;
   my $pubkey = '';
   my @keyargs = ('dsa@1024', '800');
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
-  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$srcrep/:upload/signkey.$$", '-g', @keyargs , "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
+  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$uploaddir/signkey.$$", '-g', @keyargs , "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $pubkey, 4096, length($pubkey));
   close(F) || die("$BSConfig::sign: $?\n");
-  die("sign did not create signkey\n") unless -s "$srcrep/:upload/signkey.$$";
+  die("sign did not create signkey\n") unless -s "$uploaddir/signkey.$$";
   mkdir_p("$projectsdir/$projid.pkg");
-  writestr("$srcrep/:upload/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", $pubkey);
-  if (!rename("$srcrep/:upload/signkey.$$", "$projectsdir/$projid.pkg/_signkey")) {
+  writestr("$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", $pubkey);
+  if (!rename("$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey")) {
     unlink("$projectsdir/$projid/_pubkey");
-    die("rename $srcrep/:upload/signkey.$$ $projectsdir/$projid.pkg/_signkey: $!\n");
+    die("rename $uploaddir/signkey.$$ $projectsdir/$projid.pkg/_signkey: $!\n");
   }
   return $BSStdServer::return_ok;
 }
@@ -1610,20 +1613,20 @@ sub projectcmd {
 
 sub putproject {
   my ($cgi, $projid) = @_;
-  mkdir_p("$srcrep/:upload");
-  my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
   die("upload failed\n") unless $uploaded;
-  my $proj = readxml("$srcrep/:upload/$$", $BSXML::proj);
+  my $proj = readxml("$uploaddir/$$", $BSXML::proj);
   $proj->{'name'} = $projid unless defined $proj->{'name'};
   BSVerify::verify_proj($proj, $projid);
-  writexml("$srcrep/:upload/$$.2", undef, $proj, $BSXML::proj);
-  unlink("$srcrep/:upload/$$");
+  writexml("$uploaddir/$$.2", undef, $proj, $BSXML::proj);
+  unlink("$uploaddir/$$");
   if (! -e "$projectsdir/$projid.xml") {
     BSHermes::notify("SRCSRV_CREATE_PROJECT", { "project" => $projid });
   } else {
     BSHermes::notify("SRCSRV_UPDATE_PROJECT", { "project" => $projid });
   }
-  rename("$srcrep/:upload/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
+  rename("$uploaddir/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
   if ($BSConfig::forceprojectkeys) {
     my ($sk) = getsignkey({}, $projid);
     createkey({}, $projid) if $sk eq '';
@@ -1680,10 +1683,10 @@ sub getpackage {
 
 sub putpackage {
   my ($cgi, $projid, $packid) = @_;
-  mkdir_p("$srcrep/:upload");
-  my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
   die("upload failed\n") unless $uploaded;
-  my $pack = readxml("$srcrep/:upload/$$", $BSXML::pack);
+  my $pack = readxml("$uploaddir/$$", $BSXML::pack);
   $pack->{'name'} = $packid unless defined $pack->{'name'};
   BSVerify::verify_pack($pack, $packid);
   die("package contains revision data\n") if grep {exists $pack->{$_}} @$srcrevlay;
@@ -1691,8 +1694,8 @@ sub putpackage {
   # delete rev stuff, just in case...
   # delete $pack->{$_} for @$srcrevlay;
   # $pack->{'name'} = $packid;
-  writexml("$srcrep/:upload/$$.2", undef, $pack, $BSXML::pack);
-  unlink("$srcrep/:upload/$$");
+  writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
+  unlink("$uploaddir/$$");
   my $proj = readproj($projid);
   die("package '$packid' is read-only\n") if ($packid =~ /^_product:/) && ! -e "$projectsdir/$projid.pkg/$packid.xml";
   mkdir_p("$projectsdir/$projid.pkg");
@@ -1701,12 +1704,12 @@ sub putpackage {
   } else {
     BSHermes::notify("SRCSRV_UPDATE_PACKAGE", { "project" => $projid, "package" => $packid});
   }
-  rename("$srcrep/:upload/$$.2", "$projectsdir/$projid.pkg/$packid.xml") || die("rename to $projectsdir/$projid.pkg/$packid.xml: $!\n");
+  rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml") || die("rename to $projectsdir/$projid.pkg/$packid.xml: $!\n");
 #  my %packages = map {$_->{'name'} => 1} @{$proj->{'package'} || []};
 #  if (!$packages{$packid}) {
 #    # a new package! add id to project data
 #    push @{$proj->{'package'}}, {'name' => $packid};
-#    writexml("$srcrep/:upload/$$.3", "$projectsdir/$projid.xml", $proj, $BSXML::proj);
+#    writexml("$uploaddir/$$.3", "$projectsdir/$projid.xml", $proj, $BSXML::proj);
 #  }
   notify_repservers('package', $projid, $packid);
   $pack = readpack($projid, $packid);
@@ -1839,37 +1842,27 @@ sub remote_getrev {
   $rev->{'vrev'} = $dir->{'vrev'};
   $rev->{'vrev'} ||= '0';
   # now put everything in local srcrep
-  my $meta = '';
+  my $files = {};
   for my $entry (@{$dir->{'entry'} || []}) {
-    $meta .= "$entry->{'md5'}  $entry->{'name'}\n";
+    $files->{$entry->{'name'}} = $entry->{'md5'};
     next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
-    mkdir_p("$srcrep/:upload");
+    mkdir_p($uploaddir);
     my $param = {
       'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/$entry->{'name'}",
-      'filename' => "$srcrep/:upload/$$",
+      'filename' => "$uploaddir/$$",
       'withmd5' => 1,
       'receiver' => \&BSHTTP::file_receiver,
     };
     my $res = BSRPC::rpc($param, undef, "rev=$rev->{'srcmd5'}");
     die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
-    mkdir_p("$srcrep/$packid");
-    rename("$srcrep/:upload/$$", "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}") || die("rename $srcrep/:upload/$$ $srcrep/$packid/$entry->{'md5'}-$entry->{'name'}: $!\n");
+    addfile($projid, $packid, "$uploaddir/$$", $entry->{'name'}, $entry->{'md5'});
   }
-  #if ($dir->{'linkinfo'}) {
-  #  $meta .= "$dir->{'linkinfo'}->{'srcmd5'}  /LINK\n";
-  #  $meta .= "$dir->{'linkinfo'}->{'lsrcmd5'}  /LOCAL\n";
-  #}
+  my $srcmd5 = addmeta($projid, $packid, $files);
   if ($dir->{'linkinfo'}) {
-    $dir->{'srcmd5'} = $rev->{'srcmd5'} = Digest::MD5::md5_hex($meta);
+    $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
     $rev->{'rev'} = $rev->{'srcmd5'} unless $dir->{'rev'};
-  } else {
-    die("srcmd5 mismatch\n") if $dir->{'srcmd5'} ne Digest::MD5::md5_hex($meta);
   }
-  if (! -e "$srcrep/$packid/$dir->{'srcmd5'}-MD5SUMS") {
-    mkdir_p("$srcrep/:upload");
-    mkdir_p("$srcrep/$packid");
-    writestr("$srcrep/:upload/$$", "$srcrep/$packid/$dir->{'srcmd5'}-MD5SUMS", $meta);
-  }
+  die("srcmd5 mismatch\n") if $dir->{'srcmd5'} ne $srcmd5;
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
   return $rev;
@@ -1994,11 +1987,11 @@ sub getprojectconfig {
 sub putprojectconfig {
   my ($cgi, $projid) = @_;
   my $proj = readproj($projid);
-  mkdir_p("$srcrep/:upload");
-  my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
   die("upload failed\n") unless $uploaded;
-  if (-s "$srcrep/:upload/$$") {
-    rename("$srcrep/:upload/$$", "$projectsdir/$projid.conf") || die("rename $srcrep/:upload/$$ $projectsdir/$projid.conf: $!\n");
+  if (-s "$uploaddir/$$") {
+    rename("$uploaddir/$$", "$projectsdir/$projid.conf") || die("rename $uploaddir/$$ $projectsdir/$projid.conf: $!\n");
   } else {
     unlink("$projectsdir/$projid.conf") || die("unlink $projectsdir/$projid.conf: $!\n");
   }
@@ -2033,9 +2026,10 @@ sub getfilelist {
     if ($cgi->{'emptylink'}) {
       my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
       delete $l->{'patches'};
-      writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
+      mkdir_p($uploaddir);
+      writexml("$uploaddir/$$", undef, $l, $BSXML::link);
       $files = {};
-      $files->{'_link'} = addfile($projid, $packid, "$srcrep/:upload/$$", '_link');
+      $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
       $rev = addrev($projid, $packid, $files, undef, undef, '');
     }
     my %lrev = %$rev;
@@ -2136,18 +2130,11 @@ sub putfile {
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   die("unknown project/package\n") unless $rev;
-  die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && not $cgi->{'force'};
-  mkdir_p("$srcrep/:upload");
-  my $uploaded = BSServer::read_file("$srcrep/:upload/$$", 'withmd5' => 1);
+  die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && !$cgi->{'force'};
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$", 'withmd5' => 1);
   die("upload failed\n") unless $uploaded;
-  my $srname = "$uploaded->{'md5'}-$filename";
-  if (! -e "$srcrep/$packid/$srname") {
-    mkdir_p "$srcrep/$packid";
-    rename("$srcrep/:upload/$$", "$srcrep/$packid/$srname") || die("rename $srcrep/:upload/$$ $srcrep/$packid/$srname: $!\n");
-  } else {
-    #already there, all the upload work was unneeded...
-    unlink("$srcrep/:upload/$$");
-  }
+  addfile($projid, $packid, "$uploaddir/$$", $filename, $uploaded->{'md5'});
   # create new meta file
   my $files = lsrev($rev);
   $files->{$filename} = $uploaded->{'md5'};
@@ -2191,7 +2178,6 @@ sub sourcediff {
       die("bad link: $ofiles\n") unless ref $ofiles;
     }
   }
-  my $tmpdir = "$srcrep/:upload/srcdiff$$";
   my $cacheid = "$orev->{'srcmd5'}/$rev->{'srcmd5'}";
   $cacheid .= "/unified:$cgi->{'unified'}" if $cgi->{'unified'};
   $cacheid .= "/fmax:$fmax" if defined $fmax;
@@ -2205,6 +2191,7 @@ sub sourcediff {
     BSServer::reply_file(\*F, 'Content-Type: text/plain', "Content-Length: $s[7]");
     return undef;
   }
+  my $tmpdir = "$uploaddir/srcdiff$$";
   my $d = BSSrcdiff::diff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, $fmax, $tmax, $tmpdir, $cgi->{'unified'});
   mkdir_p("$diffcache/".substr($cacheid, 0, 2));
   writestr("$diffcache/.new$$", $cn, $d);
@@ -2340,8 +2327,9 @@ sub keeplink {
     if (($l->{'baserev'} || '') ne $baserev) {
       $l->{'baserev'} = $baserev;
       $l->{'patches'}->{''} = [ { 'branch' => undef} ]; # work around xml problem
-      writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
-      $nfiles->{'_link'} = addfile($projid, $packid, "$srcrep/:upload/$$", '_link')
+      mkdir_p($uploaddir);
+      writexml("$uploaddir/$$", undef, $l, $BSXML::link);
+      $nfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link')
     } else {
       $nfiles->{'_link'} = $ofilesl->{'_link'};
     }
@@ -2355,7 +2343,7 @@ sub keeplink {
     $linkinfo->{'ignore'} = \%lignore;
     $ofiles = applylink(undef, $frominfo, $linkinfo);
     die("bad link: $ofiles\n") unless ref $ofiles;
-    $ofilesdir = "$srcrep/:upload/applylink$$";
+    $ofilesdir = "$uploaddir/applylink$$";
   }
 
   #print "-- ofilesl:\n";
@@ -2368,7 +2356,8 @@ sub keeplink {
   # now create diff between old $ofiles and $files
   my $nfiles = { %$ofilesl };
   delete $nfiles->{$_} for keys %lignore;	# no longer used in link
-  unlink("$srcrep/:upload/$$");
+  mkdir_p($uploaddir);
+  unlink("$uploaddir/$$");
   my @dfiles;
   for my $file (sort keys %{{%$files, %$ofiles}}) {
     if ($ofiles->{$file}) {
@@ -2405,8 +2394,8 @@ sub keeplink {
       next;
     }
     # both are ascii, create diff
-    mkdir_p("$srcrep/:upload");
-    if (!rundiff($ofiles->{$file} ? "$ofilesdir/$ofiles->{$file}-$file" : '/dev/null', "$srcrep/$packid/$files->{$file}-$file", $file, "$srcrep/:upload/$$")) {
+    mkdir_p($uploaddir);
+    if (!rundiff($ofiles->{$file} ? "$ofilesdir/$ofiles->{$file}-$file" : '/dev/null', "$srcrep/$packid/$files->{$file}-$file", $file, "$uploaddir/$$")) {
       $nfiles->{$file} = $files->{$file};
     }
   }
@@ -2416,13 +2405,13 @@ sub keeplink {
     push @{$l->{'patches'}->{''}}, {'delete' => {'name' => $_}};
     $lchanged = 1;
   }
-  if (-s "$srcrep/:upload/$$") {
+  if (-s "$uploaddir/$$") {
     my $ppatch = findprojectpatchname($nfiles);
-    $nfiles->{$ppatch} = addfile($projid, $packid, "$srcrep/:upload/$$", $ppatch);
+    $nfiles->{$ppatch} = addfile($projid, $packid, "$uploaddir/$$", $ppatch);
     push @{$l->{'patches'}->{''}}, {'apply' => {'name' => $ppatch}};
     $lchanged = 1;
   } else {
-    unlink("$srcrep/:upload/$$");
+    unlink("$uploaddir/$$");
   }
   my $baserev = $linkrev || $ltgtsrcmd5;
   if (($l->{'baserev'} || '') ne $baserev) {
@@ -2430,12 +2419,12 @@ sub keeplink {
     $lchanged = 1;
   }
   if ($lchanged) {
-    writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
-    $nfiles->{'_link'} = addfile($projid, $packid, "$srcrep/:upload/$$", '_link')
+    writexml("$uploaddir/$$", undef, $l, $BSXML::link);
+    $nfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link')
   }
-  if ($ofilesdir eq "$srcrep/:upload/applylink$$") {
-    BSUtil::cleandir("$srcrep/:upload/applylink$$");
-    rmdir("$srcrep/:upload/applylink$$");
+  if ($ofilesdir eq "$uploaddir/applylink$$") {
+    BSUtil::cleandir("$uploaddir/applylink$$");
+    rmdir("$uploaddir/applylink$$");
   }
   return $nfiles;
 }
@@ -2502,9 +2491,10 @@ sub integratelink {
 	    $dontcopy{$oppatch} = 1;
 	    # argh, patch file already exists, rename...
 	    my $ppatch = findprojectpatchname($files);
-	    unlink("$srcrep/:upload/$$");
-	    link("$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", "$srcrep/:upload/$$") || die("link $srcrep/$opackid/$ofiles->{$oppatch}-$oppatch $srcrep/:upload/$$: $!\n");
-            $files->{$ppatch} = addfile($projid, $packid, "$srcrep/:upload/$$", $ppatch);
+	    mkdir_p($uploaddir);
+	    unlink("$uploaddir/$$");
+	    link("$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", "$uploaddir/$$") || die("link $srcrep/$opackid/$ofiles->{$oppatch}-$oppatch $uploaddir/$$: $!\n");
+            $files->{$ppatch} = addfile($projid, $packid, "$uploaddir/$$", $ppatch);
 	    push @{$nl->{'patches'}->{''}}, {'apply' => {'name' => $ppatch}};
 	    next;
 	  }
@@ -2518,8 +2508,9 @@ sub integratelink {
     }
   }
   if ($nlchanged) {
-    writexml("$srcrep/:upload/$$", undef, $nl, $BSXML::link);
-    $files->{'_link'} = addfile($projid, $packid, "$srcrep/:upload/$$", '_link')
+    mkdir_p($uploaddir);
+    writexml("$uploaddir/$$", undef, $nl, $BSXML::link);
+    $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link')
   }
   for (sort keys %$ofiles) {
     next if $dontcopy{$_};
@@ -2550,10 +2541,10 @@ sub sourcecommit {
 
 sub sourcecommitfilelist {
   my ($cgi, $projid, $packid) = @_;
-  mkdir_p("$srcrep/:upload");
-  my $uploaded = BSServer::read_file("$srcrep/:upload/$$");
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
   die("upload failed\n") unless $uploaded;
-  my $fl = readxml("$srcrep/:upload/$$", $BSXML::dir);
+  my $fl = readxml("$uploaddir/$$", $BSXML::dir);
   unlink("$srcrep/:upload/$$");
   # make sure we know every file
   my @missing;
@@ -2659,7 +2650,9 @@ sub sourcecopy {
 	    my $latestisbranch = grep {(keys %$_)[0] eq 'branch'} @{$latestl->{'patches'}->{''} || []};
 	    if ($latestisbranch && $latestl->{'baserev'} eq $autosimplifylink->{'baserev'}) {
 	      $latestl->{'baserev'} = $newbase;
-              $latestfiles->{'_link'} = addfile($oprojid, $opackid, "$srcrep/:upload/$$", '_link');
+	      mkdir_p($uploaddir);
+	      writexml("$uploaddir/$$", undef, $latestl, $BSXML::link);
+              $latestfiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
               addrev($oprojid, $opackid, $latestfiles, 'buildservice-autocommit', "baserev update by copy to link target\n", undef, $cgi->{'requestid'});
 	    }
 	  }
@@ -2675,9 +2668,10 @@ sub sourcecopy {
           $nl->{'project'} = $autosimplifylink->{'project'} if $autosimplifylink->{'project'};
           $nl->{'package'} = $autosimplifylink->{'package'} if $autosimplifylink->{'package'};
           $nl->{'cicount'} = $autosimplifylink->{'cicount'} if $autosimplifylink->{'cicount'};
-          writexml("$srcrep/:upload/$$", undef, $nl, $BSXML::link);
+	  mkdir_p($uploaddir);
+          writexml("$uploaddir/$$", undef, $nl, $BSXML::link);
           my $ofiles = {};
-          $ofiles->{'_link'} = addfile($oprojid, $opackid, "$srcrep/:upload/$$", '_link');
+          $ofiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
           addrev($oprojid, $opackid, $ofiles, 'buildservice-autocommit', "auto commit by copy to link target\n", undef, $cgi->{'requestid'});
         }
       };
@@ -2712,8 +2706,9 @@ sub sourcebranch {
     copyfiles($projid, $packid, $oprojid, $opackid, $files);
     $lfiles->{$_} = $files->{$_} for keys %$files;
   }
-  writexml("$srcrep/:upload/$$", undef, $l, $BSXML::link);
-  $lfiles->{'_link'} = addfile($projid, $packid, "$srcrep/:upload/$$", '_link');
+  mkdir_p($uploaddir);
+  writexml("$uploaddir/$$", undef, $l, $BSXML::link);
+  $lfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   my $rev = addrev($projid, $packid, $lfiles, $user, $comment, undef, $cgi->{'requestid'});
