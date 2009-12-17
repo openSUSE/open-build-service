@@ -31,8 +31,8 @@
       <%= render :partial => 'users' %>
       <%= render :partial => 'files' %>
       <%= render :partial => 'package_flags' %>
-      <%= render :partial => 'attributes/attributes.rhtml' %>
-    </td>
+      <%= link_to "Attributes", :controller => 'attribute', :action => 'show', :project => @project, :package => @package %> 
+   </td>
 
     <td>
       <%= render :partial => 'links' if @link %>

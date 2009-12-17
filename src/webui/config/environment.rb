@@ -147,9 +147,10 @@ ActiveXML::Base.config do |conf|
 
     map.connect :diff, "rest:///request/:id"
  
-    map.connect :attributes, "rest:///source/:project/:package/_attribute/:attribute",
-      :project => "rest:///source/:project/_attribute/:attribute"
-
+    map.connect :attribute, "rest:///source/:project/:package/_attribute",
+      :project => "rest:///source/:project/_attribute/:attribute",
+      :all => "rest:///source/:namespace/_meta"
+    
     # Monitor
     map.connect :workerstatus, 'rest:///status/workerstatus',
       :all => 'rest:///status/workerstatus'

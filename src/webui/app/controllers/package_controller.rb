@@ -87,7 +87,6 @@ class PackageController < ApplicationController
     @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
     @tags, @user_tags_array = get_tags(:project => @project, :package => @package, :user => session[:login])
     @rating = Rating.find( :project => @project, :package => @package )
-    @attributes = Attributes.find(:project => @project, :package => @package)
   end
   
   def get_tags(params)

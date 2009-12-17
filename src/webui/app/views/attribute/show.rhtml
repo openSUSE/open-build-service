@@ -1,0 +1,21 @@
+<% @pagetitle = "Show attributes" %>
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag "local/attribute.css" %>
+<% end %>
+
+
+<%
+
+@crumb_list = [link_to('Projects', :controller => :project, :action => :list_public), 
+               link_to( @project.name, :controller => 'project', :action => :show, :project => @project.name)]
+@crumb_list << link_to( @package, :controller => 'package', :action => :show, :project => @project.name, :package => @package) if @package
+@crumb_list << "Attributes"
+-%>
+
+
+<h2>Attributes</h2>
+
+<%= render :partial => "attributes" %>  
+
+
