@@ -2435,7 +2435,7 @@ sub keeplink {
 
 # integrate link from opackid to packid into packid
 sub integratelink {
-  my ($files, $projid, $packid, $ofiles, $oprojid, $opackid, $l, $orev) = @_;
+  my ($files, $projid, $packid, $rev, $ofiles, $oprojid, $opackid, $l, $orev) = @_;
 
   # append patches from link l to link nl
   my $nl = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
@@ -2463,12 +2463,16 @@ sub integratelink {
   }
 
   if ($nlisbranch) {
-    # we linked/branched a branch. expand and update.
-    my %olrev = (%$orev, 'linkrev' => 'base');
-    $ofiles = lsrev_expanded(\%olrev);
-    if ($olrev{'srcmd5'} ne $nl->{'baserev'}) {
+    # we linked/branched a branch. expand.
+    my %xrev = (%$rev, 'linkrev' => 'base');
+    lsrev_expanded(\%xrev);
+    my %oxrev = (%$orev, 'linkrev' => $xrev{'srcmd5'});
+    $ofiles = lsrev_expanded(\%oxrev);
+    copyfiles($projid, $packid, $oprojid, $opackid, $ofiles);
+    # find new base
+    if ($xrev{'srcmd5'} ne $nl->{'baserev'}) {
       # update base rev
-      $nl->{'baserev'} = $olrev{'srcmd5'};
+      $nl->{'baserev'} = $xrev{'srcmd5'};
       $nlchanged = 1;
     }
   }
@@ -2611,7 +2615,7 @@ sub sourcecopy {
 	my $lfiles = lsrev($lrev);
 	if ($lfiles->{'_link'} && !$cgi->{'expand'}) {
 	  # link to a link, join
-	  $files = integratelink($lfiles, $lprojid, $lpackid, $files, $oprojid, $opackid, $ol, $orev);
+	  $files = integratelink($lfiles, $lprojid, $lpackid, $lrev, $files, $oprojid, $opackid, $ol, $orev);
 	} else {
 	  # auto expand
 	  $cgi->{'expand'} = 1;
