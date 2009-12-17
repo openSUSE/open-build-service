@@ -1,4 +1,4 @@
-class RequestsController < ApplicationController
+class RequestController < ApplicationController
 
   def index
     redirect_to :action => "list_req"
