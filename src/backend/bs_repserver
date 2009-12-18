@@ -693,7 +693,7 @@ sub getbinary_info {
       push @{$res->{'requires_ext'}}, $n;
       for my $p ($pool->whatprovides($req)) {
 	my $rd = $pool->pkg2data($p);
-	delete $rd->{$_} for qw{provides requires soutce path hdrmd5 id};
+	delete $rd->{$_} for qw{provides requires source path hdrmd5 id};
 	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
 	push @{$n->{'providedby'}}, $rd;
       }
