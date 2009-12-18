@@ -29,7 +29,7 @@ ICHAIN_TEST_USER = "test"
 ICHAIN_MODE = :off
 
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
-SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/frontend/")+"/"
+SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/api")+"/"
 
 EXTENDED_BACKEND_LOG = true
 DOWNLOAD_URL='http://download.opensuse.org/repositories'
