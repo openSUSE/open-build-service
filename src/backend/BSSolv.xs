@@ -1330,25 +1330,42 @@ setdebuglevel(BSSolv::pool pool, int level)
     CODE:
 	pool_setdebuglevel(pool, level);
 
-AV *
+void
 whatprovides(BSSolv::pool pool, char *str)
-    CODE:
+    PPCODE:
 	{
 	    Id p, pp, id;
-	    RETVAL = newAV();
-	    sv_2mortal((SV*)RETVAL);
-	    id = str2id(pool, str, 0);
+	    id = dep2id(pool, str);
 	    if (id)
 	      FOR_PROVIDES(p, pp, id)
-		{
-		  SV *reposv = newSV(0);
-		  sv_setref_pv(reposv, "BSSolv::repo", (void *)pool->solvables[p].repo);
-	          av_push(RETVAL, reposv);
-	          av_push(RETVAL, newSViv(p));
-		}
+		XPUSHs(sv_2mortal(newSViv((IV)p)));
 	}
-    OUTPUT:
-	RETVAL
+
+void
+whatrequires(BSSolv::pool pool, char *str)
+    PPCODE:
+	{
+	    Id p, id;
+	    Id *pp;
+	    Solvable *s;
+	    id = dep2id(pool, str);
+	    if (id)
+	      {
+		for (p = 2; p < pool->nsolvables; p++)
+		  {
+		    if (!MAPTST(pool->considered, p))
+		      continue;
+		    s = pool->solvables + p;
+		    if (!s->requires)
+		      continue;
+		    for (pp = s->repo->idarraydata + s->requires; *pp; pp++)
+		      if (pool_match_dep(pool, id, *pp))
+			break;
+		    if (*pp)
+		      XPUSHs(sv_2mortal(newSViv((IV)p)));
+		  }
+	      }
+	}
 
 void
 consideredpackages(BSSolv::pool pool)
