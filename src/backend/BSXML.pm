@@ -101,9 +101,9 @@ our $proj = [
        [[ 'namespace' => 
             'name', 
             [[ 'modifiable_by' =>
-               'user',
-               'group',
-               'role',
+		   'user',
+		   'group',
+		   'role',
             ]],
        ]],
        [[ 'definition' => 
@@ -112,10 +112,10 @@ our $proj = [
             [],
             'count',
             [ 'default' =>
-               [[ 'value' => '_content' ]],
+               [ 'value' ],
             ],
             [ 'allowed' =>
-               [[ 'value' => '_content' ]],
+               [ 'value' ],
             ],
             [[ 'modifiable_by' =>
                'user',
@@ -195,7 +195,10 @@ our $patchinfo = [
             'name',
             [],
 	  [ 'binary' ],
-         [[ 'bugzilla'       => 'name', '_content', ]],
+         [[ 'bugzilla' =>
+		'name',
+		'_content',
+	 ]],
           [ 'CVE' ],
             'category',
             'rating',
@@ -296,6 +299,7 @@ our $fileinfo = [
 	'summary',
 	'description',
 	'size',
+	'mtime',
       [ 'provides' ],
       [ 'requires' ],
       [ 'prerequires' ],
@@ -305,6 +309,31 @@ our $fileinfo = [
       [ 'supplements' ],
       [ 'suggests' ],
       [ 'enhances' ],
+
+     [[ 'provides_ext' =>
+	    'dep',
+	 [[ 'requiredby' =>
+		'name',
+		'epoch',
+		'version',
+		'release',
+		'arch',
+		'project',
+		'repository',
+	 ]],
+     ]],
+     [[ 'requires_ext' =>
+	    'dep',
+	 [[ 'providedby' =>
+		'name',
+		'epoch',
+		'version',
+		'release',
+		'arch',
+		'project',
+		'repository',
+	 ]],
+     ]],
 ];
 
 our $buildinfo = [

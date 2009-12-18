@@ -643,12 +643,68 @@ sub getlogfile {
 #  return $dest;
 #}
 
+sub getbinary_info {
+  my ($cgi, $projid, $repoid, $arch, $path) = @_;
+  my $res = Build::query($path, 'evra' => 1, 'description' => 1);
+  $res->{'filename'} = $path;
+  $res->{'filename'} =~ s/.*\///;
+  if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo_ext') {
+    my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+    my $bconf = Build::read_config($arch, [split("\n", $config)]);
+    my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", "nopackages");
+    die("no such project/repository\n") unless $projpack->{'project'};
+    my $proj = $projpack->{'project'}->[0];
+    die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
+    my $repo = $proj->{'repository'}->[0];
+    die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
+    my %remotemap = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
+    my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+    my $pool = BSSolv::pool->new();
+    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    for my $prp (@prp) {
+      my ($rprojid, $rrepoid) = split('/', $prp, 2);
+      my $r;
+      if ($remotemap{$rprojid}) {
+	$r = addrepo_remote($pool, $prp, $arch, $remotemap{$rprojid});
+      } else {
+	$r = addrepo_scan($pool, $prp, $arch);
+      }
+      die("repository $prp not available\n") unless $r;
+    }
+    $pool->createwhatprovides();
+    for my $prov (@{$res->{'provides'}}) {
+      my $n = {'dep' => $prov};
+      push @{$res->{'provides_ext'}}, $n;
+      for my $p ($pool->whatrequires($prov)) {
+	my $rd = $pool->pkg2data($p);
+	delete $rd->{$_} for qw{provides requires soutce path hdrmd5 id};
+	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
+	push @{$n->{'requiredby'}}, $rd;
+      }
+    }
+    for my $req (@{$res->{'requires'}}) {
+      my $n = {'dep' => $req};
+      push @{$res->{'requires_ext'}}, $n;
+      for my $p ($pool->whatprovides($req)) {
+	my $rd = $pool->pkg2data($p);
+	delete $rd->{$_} for qw{provides requires soutce path hdrmd5 id};
+	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
+	push @{$n->{'providedby'}}, $rd;
+      }
+    }
+  }
+  data2utf8($res);
+  return ($res, $BSXML::fileinfo);
+}
+
 sub getbinary_repository {
   my ($cgi, $projid, $repoid, $arch, $bin) = @_;
+
   if ($bin eq '_buildconfig') {
     my $cfg = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
     return ($cfg, 'Content-Type: text/plain');
   }
+  my $view = $cgi->{'view'} || '';
   my $path = "$reporoot/$projid/$repoid/$arch/:full/$bin";
   if (! -f $path) {
     # return by name
@@ -662,6 +718,7 @@ sub getbinary_repository {
     undef $pool;
     die("$bin: $!\n") unless -f $path;
   }
+  return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $path=~ /\.rpm$/;
   $type = 'application/x-debian-package' if $path=~ /\.deb$/;
@@ -674,6 +731,8 @@ sub getbinary {
   return getbinary_repository($cgi, $projid, $repoid, $arch, $bin) if $packid eq '_repository';
   my $path = "$reporoot/$projid/$repoid/$arch/$packid/$bin";
   die("$bin: $!\n") unless -f $path;
+  my $view = $cgi->{'view'} || '';
+  return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $path=~ /\.rpm$/;
   $type = 'application/x-debian-package' if $path=~ /\.deb$/;
@@ -2354,7 +2413,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? view:?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package:package_repository/$filename' => \&getbinary,
+  '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   '/search/published/binary/id $match:' => \&search_published_binary_id,
   '/search/published/pattern/id $match:' => \&search_published_pattern_id,

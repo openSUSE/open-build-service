@@ -2984,9 +2984,11 @@ sub getbinarylist {
 sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $filename) = @_;
   my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
+  my $view = $cgi->{'view'} || '';
   if ($proj->{'remoteurl'}) {
     # hack: reroute to /getbinaries so that our local cache is used
     die("can only access remote _repository files\n") unless $packid eq '_repository';
+    die("cannot use a view for remote binaries\n") if $view;
     die("need the raw package name as filename for remote repository access\n") if $filename =~ /\.(?:rpm|deb)$/;
     my @args;
     push @args, "project=$projid";
@@ -2997,12 +2999,14 @@ sub getbinary {
     BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
     exit(0);
   }
+  my @args;
+  push @args, "view=$view" if $view;
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/$filename",
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
-  BSWatcher::rpc($param);
+  BSWatcher::rpc($param, undef, @args);
   return undef;
 }
 
@@ -4148,7 +4152,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
-  '/build/$project/$repository/$arch/$package_repository/$filename' => \&getbinary,
+  '/build/$project/$repository/$arch/$package_repository/$filename view:?' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
 
   'POST:/request cmd: user:?' => \&createrequest,
