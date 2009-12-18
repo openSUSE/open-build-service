@@ -645,7 +645,13 @@ sub getlogfile {
 
 sub getbinary_info {
   my ($cgi, $projid, $repoid, $arch, $path) = @_;
+  my @s = stat($path);
+  die("$path: $!\n") unless @s;
   my $res = Build::query($path, 'evra' => 1, 'description' => 1);
+  delete $res->{'source'};
+  delete $res->{'hdrmd5'};
+  $res->{'mtime'} = $s[9];
+  $res->{'size'} = $s[7];
   $res->{'filename'} = $path;
   $res->{'filename'} =~ s/.*\///;
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo_ext') {
@@ -677,7 +683,7 @@ sub getbinary_info {
       push @{$res->{'provides_ext'}}, $n;
       for my $p ($pool->whatrequires($prov)) {
 	my $rd = $pool->pkg2data($p);
-	delete $rd->{$_} for qw{provides requires soutce path hdrmd5 id};
+	delete $rd->{$_} for qw{provides requires source path hdrmd5 id};
 	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
 	push @{$n->{'requiredby'}}, $rd;
       }
@@ -719,6 +725,7 @@ sub getbinary_repository {
     die("$bin: $!\n") unless -f $path;
   }
   return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
+  die("unknown view '$view'\n") if $view;
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $path=~ /\.rpm$/;
   $type = 'application/x-debian-package' if $path=~ /\.deb$/;
@@ -733,6 +740,7 @@ sub getbinary {
   die("$bin: $!\n") unless -f $path;
   my $view = $cgi->{'view'} || '';
   return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
+  die("unknown view '$view'\n") if $view;
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $path=~ /\.rpm$/;
   $type = 'application/x-debian-package' if $path=~ /\.deb$/;
