@@ -99,7 +99,7 @@ class RequestController < ApplicationController
         if action.data.attributes["type"] == "submit"
           sourceupdate = nil
           if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
-             sourceupdate = action.options.sourceupdate
+             sourceupdate = action.options.sourceupdate.text
           end
           # cleanup implicit home branches, should be done in client with 2.0
           if not sourceupdate and action.has_element? :target
