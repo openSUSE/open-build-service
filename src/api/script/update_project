@@ -21,6 +21,6 @@ builder.project do
   end
 end
 #print builder
-key='project_status_%s' % dbproj.name
-Rails.cache.write(key, mypackages)
+key='project_status_xml_%s' % dbproj.name
+Rails.cache.write(key, builder.to_xml)
 
