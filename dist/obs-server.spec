@@ -167,7 +167,7 @@ install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
 install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
-for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obsapidelayed obswebuidelayed; do
+for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obswebuidelayed; do
   install -m 0755 $i \
            $RPM_BUILD_ROOT/etc/init.d/
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i

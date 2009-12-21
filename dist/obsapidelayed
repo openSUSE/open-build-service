@@ -25,6 +25,8 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obs_api_delayedjob
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 6
 # Short-Description: OBS api delayed jobs
