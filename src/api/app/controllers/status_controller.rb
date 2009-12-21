@@ -146,9 +146,12 @@ class StatusController < ApplicationController
           :message => "project %s does not exist" % params[:id]
         return
      end
-     key='project_status_%s' % dbproj.name
-     @packages = Rails.cache.read(key) || dbproj.complex_status(backend)
+     key='project_status_xml_%s' % dbproj.name
+     xml = Rails.cache.fetch(key, :expires_in => 10.minutes) do
+       @packages = dbproj.complex_status(backend)
+       render_to_string 
+     end
+     render :text => xml
   end
-
 end
 

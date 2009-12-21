@@ -88,7 +88,10 @@ class ProjectStatusHelper
 	uri += "&package=" + CGI.escape(package.name)
       end
     end
-    d = backend.direct_http( URI(uri), :timeout => 1000 )
+    key = Digest::MD5.hexdigest(uri)
+    d = Rails.cache.fetch(key, :expires_in => 2.hours) do
+      backend.direct_http( URI(uri), :timeout => 1000 )
+    end
     data = XML::Parser.string(d).parse
     if data then data.find('/projpack/project/package').each do |p|
         packname = p.attributes['name']
