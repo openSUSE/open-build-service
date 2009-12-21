@@ -13,17 +13,16 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.6.81
-
+Version:        1.6.85
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://en.opensuse.org/Build_Service
+BuildRoot:      /var/tmp/%name-root
 Source:         obs-server-%version.tar.bz2
-Source1:        obs-server-rpmlintrc
 Autoreqprov:    on
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  python-devel
+BuildRequires:  obs-common
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
@@ -48,6 +47,7 @@ Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     createrepo >= 0.4.10
 Recommends:     deb >= 1.5
 Recommends:     openslp-server
+Recommends:     obs-sign
 %else
 Requires:       yum yum-metadata-parser dpkg
 Requires:       createrepo >= 0.4.10
@@ -84,6 +84,7 @@ run a local playground test installation.
 %package -n obs-api
 Summary:        The openSUSE Build Service -- The Frontend part
 Group:          Productivity/Networking/Web/Utilities
+Requires:       obs-common
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -93,16 +94,18 @@ Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 Requires:       rubygem-rails-2_3 = 2.3.4
+Requires:       rubygem-libxml-ruby
+Requires:       rubygem-daemons
+Requires:       rubygem-delayed_job
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
 
 %description -n obs-api
-This is the obs web API (rest) frontend, and the web client to the
-obs.  See osc for a command line client.  Install obs-api alongside
-obs-server to run a local playground test installation.
+This is the API server instance, and the web client for the 
+OBS.
 
 %package -n obs-source_service
-Summary:        The openSUSE Build Service -- gpg sign daemon
+Summary:        The openSUSE Build Service -- source service daemon
 Group:          Productivity/Networking/Web/Utilities
 
 %description -n obs-source_service
@@ -112,22 +115,6 @@ generation, gpg validation, quality checks and other stuff.
 
 This component is optional and not required to run the service.
 
-%package -n obs-signd
-Summary:        The openSUSE Build Service -- gpg sign daemon
-Group:          Productivity/Networking/Web/Utilities
-BuildRequires:  gcc
-Requires:       gnupg
-
-%description -n obs-signd
-signd is a little daemon that listens for sign requests from sign,
-and either calls gpg to do the signing or forwards the request
-to another signd. The -f option makes signd fork on startup.
-
-signd uses the same configuration used for sign, /etc/sign.conf.
-It needs a gpg implementation that understands the
-"--files-are-digests" option to work correctly.
-
-  Author:	Michael Schroeder
 
 %package -n obs-productconverter
 Summary:        The openSUSE Build Service -- product definition utility
@@ -152,22 +139,17 @@ Authors:       Susanne Oberhauser, Martin Mohring
 
 #--------------------------------------------------------------------------------
 %prep
-%setup -q -n %name-%version
+%setup -q -n build-service-%version
 # drop build script, we require the installed one from own package
 rm -rf src/build
+find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
 
 %build
 #
 # generate apidocs
 #
-cd docs/api/frontend
+cd docs/api/api
 make apidocs
-cd -
-#
-# make sign binary
-#
-cd src/sign
-gcc $RPM_OPT_FLAGS -o sign sign.c
 cd -
 
 %install
@@ -185,7 +167,7 @@ install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
 install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
-for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssignd ; do
+for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obsapidelayed obswebuidelayed; do
   install -m 0755 $i \
            $RPM_BUILD_ROOT/etc/init.d/
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
@@ -196,20 +178,20 @@ install -d -m 755 $FILLUP_DIR
 install -m 0644 sysconfig.obs-server sysconfig.obs-worker $FILLUP_DIR/
 
 #
-# Install all web and frontend parts.
+# Install all web and api parts.
 #
 cd ../src
-for i in common frontend webclient; do
+for i in api webui; do
   mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
   cp -a $i $RPM_BUILD_ROOT/srv/www/obs/$i
 done
-rm $RPM_BUILD_ROOT/srv/www/obs/frontend/README_LOGIN
-rm $RPM_BUILD_ROOT/srv/www/obs/frontend/files/specfiletemplate
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/log
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webclient/log
-touch $RPM_BUILD_ROOT/srv/www/obs/{webclient,frontend}/log/development.log
-rm $RPM_BUILD_ROOT/srv/www/obs/frontend/REFERENCE_ATTRIBUTES.xml
-rm $RPM_BUILD_ROOT/srv/www/obs/webclient/README.install
+rm $RPM_BUILD_ROOT/srv/www/obs/api/README_LOGIN
+rm $RPM_BUILD_ROOT/srv/www/obs/api/files/specfiletemplate
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
+touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/development.log
+rm $RPM_BUILD_ROOT/srv/www/obs/api/REFERENCE_ATTRIBUTES.xml
+rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install
 
 # fix path
 for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
@@ -217,32 +199,41 @@ for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
     "$i" > "$i"_ && mv "$i"_ "$i"
 done
 #
-#set default api on localhost for the webclient
+#set default api on localhost for the webui
 # 
 sed 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
-  $RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb"
+  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
 sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/config/environments/development.rb"
+  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
 sed 's,api.opensuse.org,127.0.42.2,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webclient/app/helpers/package_helper.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webclient/app/helpers/package_helper.rb"
+  $RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb"
 
 #
 # install apidocs
 # 
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/public/apidocs/html/
-cp -a ../docs/api/html           $RPM_BUILD_ROOT/srv/www/obs/frontend/public/apidocs/
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/frontend/public/schema/
-cp -a ../docs/api/frontend/*.{rng,xsd}    $RPM_BUILD_ROOT/srv/www/obs/frontend/public/schema/
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/public/apidocs/html/
+cp -a ../docs/api/html           $RPM_BUILD_ROOT/srv/www/obs/api/public/apidocs
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/docs/api
+cp -a ../docs/api/api/*.{rng,xsd}    $RPM_BUILD_ROOT/srv/www/obs/docs/api
+#
+# Fix symlinks to common, could be much cleaner ...
+#
+rm -f $RPM_BUILD_ROOT/srv/www/obs/api/lib/common $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
+ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/api/lib/common
+ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
+ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/api/public/images/common
+ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/webui/public/images/common
+ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
 
 #
 # Install all backend parts.
 #
 cd backend/
-# skip build symlink
-rm -f build
+# we use external build script code
+rm -rf build
 cp BSConfig.pm.template BSConfig.pm
 
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
@@ -261,27 +252,12 @@ rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 #
 # turn duplicates into hard links
 #
-#%fdupes $RPM_BUILD_ROOT/srv/www/obs/frontend
-#%fdupes $RPM_BUILD_ROOT/srv/www/obs/webclient
-# There's dupes between webclient and frontend:
+#%fdupes $RPM_BUILD_ROOT/srv/www/obs/api
+#%fdupes $RPM_BUILD_ROOT/srv/www/obs/webui
+# There's dupes between webui and api:
 %if 0%{?suse_version} >= 1030
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
 %endif
-#
-# Install sign stuff
-#
-cd ../sign/
-install -d -m 0755 $RPM_BUILD_ROOT%{_mandir}/man{5,8}
-install -d -m 0755 $RPM_BUILD_ROOT/usr/bin
-install -m 0755 signd $RPM_BUILD_ROOT/usr/sbin/
-install -m 0750 sign $RPM_BUILD_ROOT/usr/bin/
-install -m 0644 sign.conf $RPM_BUILD_ROOT/etc/
-for j in `ls sig*.{5,8}`; do
-  gzip -9 ${j}
-done
-for k in 5 8; do
-  install -m 0644 sig*.${k}.gz $RPM_BUILD_ROOT%{_mandir}/man${k}/
-done
 
 %pre
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
@@ -289,15 +265,12 @@ done
 
 %pre -n obs-worker
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
-/usr/sbin/useradd -r -o -s /bin/false -c "User for build service signd" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
+/usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
 for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher; do
 %stop_on_removal $service
 done
-
-%preun -n obs-signd
-%stop_on_removal obssignd
 
 %preun -n obs-worker
 %stop_on_removal obsworker
@@ -320,17 +293,20 @@ fi
 %postun
 %insserv_cleanup
 %verifyscript -n obs-server
-%verify_permissions -e /usr/bin/sign
+%verify_permissions
 
 %post -n obs-worker
 %{fillup_and_insserv -n obs-worker}
 %restart_on_update obsworker
 
 %post -n obs-api
+if [ -e /srv/www/obs/webclient/config/database.yml ] && [ ! -e /srv/www/obs/webui/config/database.yml ]; then
+  cp /srv/www/obs/webclient/config/database.yml /srv/www/obs/webui/config/database.yml
+fi
+if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
+  cp /srv/www/obs/frontend/config/database.yml /srv/www/obs/api/config/database.yml
+fi
 %restart_on_update lighttpd
-
-%postun -n obs-signd
-%insserv_cleanup
 
 %postun -n obs-api
 %insserv_cleanup
@@ -403,10 +379,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/typemap
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
-%{_mandir}/man5/*
-# the sign client goes with the server
-%verify(not mode) %attr(0750,root,obsrun) /usr/bin/sign
-%{_mandir}/man8/sign.8.gz
 # created via %post, since rpm fails otherwise while switching from 
 # directory to symlink
 %ghost /usr/lib/obs/server/build
@@ -426,99 +398,97 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc dist/{TODO,README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING
 %dir /srv/www/obs
-/srv/www/obs/common
-%dir /srv/www/obs/frontend
-/srv/www/obs/frontend/app
-/srv/www/obs/frontend/Changelog
-/srv/www/obs/frontend/components
-/srv/www/obs/frontend/db
-/srv/www/obs/frontend/doc
-/srv/www/obs/frontend/files
-/srv/www/obs/frontend/lib
-/srv/www/obs/frontend/public
-/srv/www/obs/frontend/Rakefile
-/srv/www/obs/frontend/README
-/srv/www/obs/frontend/script
-/srv/www/obs/frontend/test
-/srv/www/obs/frontend/vendor
-%dir /srv/www/obs/webclient
-/srv/www/obs/webclient/app
-/srv/www/obs/webclient/Changelog
-/srv/www/obs/webclient/db
-/srv/www/obs/webclient/doc
-/srv/www/obs/webclient/lib
-/srv/www/obs/webclient/public
-/srv/www/obs/webclient/Rakefile
-/srv/www/obs/webclient/script
-/srv/www/obs/webclient/test
-/srv/www/obs/webclient/vendor
+%dir /srv/www/obs/api
+/etc/init.d/obsapidelayed
+/etc/init.d/obswebuidelayed
+/usr/sbin/rcobsapidelayed
+/usr/sbin/rcobswebuidelayed
+/srv/www/obs/api/app
+/srv/www/obs/api/Changelog
+/srv/www/obs/api/db
+/srv/www/obs/api/doc
+/srv/www/obs/api/files
+/srv/www/obs/api/lib
+/srv/www/obs/api/public
+/srv/www/obs/api/Rakefile
+/srv/www/obs/api/README
+/srv/www/obs/api/script
+/srv/www/obs/api/test
+/srv/www/obs/api/vendor
+/srv/www/obs/docs
+
 #
 # some files below config actually are _not_ config files
 # so here we go, file by file
 #
 
-/srv/www/obs/frontend/config/boot.rb
-/srv/www/obs/frontend/config/routes.rb
-/srv/www/obs/frontend/config/environments/development.rb
-/srv/www/obs/frontend/config/database.yml.example
-/srv/www/obs/frontend/config/environments/production_test.rb
+/srv/www/obs/api/config/boot.rb
+/srv/www/obs/api/config/routes.rb
+/srv/www/obs/api/config/environments/development.rb
+/srv/www/obs/api/config/database.yml.example
+/srv/www/obs/api/config/environments/production_test.rb
 
-%dir /srv/www/obs/frontend/config
-%dir /srv/www/obs/frontend/config/environments
+%dir /srv/www/obs/api/config
+%dir /srv/www/obs/api/config/environments
 
-%config /srv/www/obs/frontend/config/environment.rb
-%config /srv/www/obs/frontend/config/deploy.rb.template
-# %config(noreplace) /srv/www/obs/frontend/config/database.yml
-%config(noreplace) /srv/www/obs/frontend/config/lighttpd.conf
-%config(noreplace) /srv/www/obs/frontend/config/environments/production_slave.rb
-%config(noreplace) /srv/www/obs/frontend/config/environments/development.L12.rb
-%config(noreplace) /srv/www/obs/frontend/config/environments/production.rb
-%config(noreplace) /srv/www/obs/frontend/config/environments/test.rb
-%config(noreplace) /srv/www/obs/frontend/config/environments/stage.rb
-%config(noreplace) /srv/www/obs/frontend/config/environments/development_base.rb
-%config(noreplace) /srv/www/obs/frontend/config/active_rbac_config.rb
+%config /srv/www/obs/api/config/environment.rb
+# %config(noreplace) /srv/www/obs/api/config/database.yml
+%config(noreplace) /srv/www/obs/api/config/lighttpd.conf
+%config(noreplace) /srv/www/obs/api/config/environments/production_slave.rb
+%config(noreplace) /srv/www/obs/api/config/environments/production.rb
+%config(noreplace) /srv/www/obs/api/config/environments/test.rb
+%config(noreplace) /srv/www/obs/api/config/environments/stage.rb
+%config(noreplace) /srv/www/obs/api/config/environments/development_base.rb
+%config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
 
-%dir /srv/www/obs/webclient/config
-%dir /srv/www/obs/webclient/config/environments
-%dir /srv/www/obs/webclient/config/initializers
-/srv/www/obs/webclient/config/routes.rb
-/srv/www/obs/webclient/config/environments/development.rb
-/srv/www/obs/webclient/README.rails
-/srv/www/obs/webclient/README.theme
-/srv/www/obs/webclient/config/initializers/options.rb
-/srv/www/obs/webclient/config/repositories.rb.template
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/development.log
+%attr(-,lighttpd,lighttpd) /srv/www/obs/api/tmp
 
-%config /srv/www/obs/webclient/config/boot.rb
-%config /srv/www/obs/webclient/config/environment.rb
-%config /srv/www/obs/webclient/config/deploy.rb.template
-%config(noreplace) /srv/www/obs/webclient/config/database.yml
-%config(noreplace) /srv/www/obs/webclient/config/options.yml
-%config(noreplace) /srv/www/obs/webclient/config/environments/production.rb
-%config(noreplace) /srv/www/obs/webclient/config/environments/test.rb
-%config(noreplace) /srv/www/obs/webclient/config/environments/stage.rb
-%config(noreplace) /srv/www/obs/webclient/config/environments/development_base.rb
+# starting the webui part
+%dir /srv/www/obs/webui
+/srv/www/obs/webui/app
+/srv/www/obs/webui/Changelog
+/srv/www/obs/webui/db
+/srv/www/obs/webui/doc
+/srv/www/obs/webui/lib
+/srv/www/obs/webui/public
+/srv/www/obs/webui/Rakefile
+/srv/www/obs/webui/script
+/srv/www/obs/webui/test
+/srv/www/obs/webui/vendor
+/srv/www/obs/webui/nbproject
 
-%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log
-%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/log/development.log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/log/development.log
-%attr(-,lighttpd,lighttpd) /srv/www/obs/frontend/tmp
-%attr(-,lighttpd,lighttpd) /srv/www/obs/webclient/tmp
-%config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
+%dir /srv/www/obs/webui/config
+%dir /srv/www/obs/webui/config/environments
+%dir /srv/www/obs/webui/config/initializers
+/srv/www/obs/webui/config/routes.rb
+/srv/www/obs/webui/config/environments/development.rb
+/srv/www/obs/webui/README.rails
+/srv/www/obs/webui/README.theme
+/srv/www/obs/webui/config/initializers/options.rb
+/srv/www/obs/webui/config/repositories.rb.template
+
+%config /srv/www/obs/webui/config/boot.rb
+%config /srv/www/obs/webui/config/environment.rb
+%config(noreplace) /srv/www/obs/webui/config/database.yml
+%config(noreplace) /srv/www/obs/webui/config/options.yml
+%config(noreplace) /srv/www/obs/webui/config/environments/production.rb
+%config(noreplace) /srv/www/obs/webui/config/environments/test.rb
+%config(noreplace) /srv/www/obs/webui/config/environments/stage.rb
+%config(noreplace) /srv/www/obs/webui/config/environments/development_base.rb
+%config(noreplace) /srv/www/obs/webui/config/initializers/theme_support.rb
+
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log/development.log
+%attr(-,lighttpd,lighttpd) /srv/www/obs/webui/tmp
+
 # these dirs primarily belong to lighttpd:
+%config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
 %dir /etc/lighttpd
 %dir /etc/lighttpd/vhosts.d
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
-
-%files -n obs-signd
-%defattr(-,root,root)
-%config(noreplace) /etc/sign.conf
-/usr/sbin/signd
-/usr/sbin/rcobssignd
-/etc/init.d/obssignd
-%{_mandir}/man5/*
-%{_mandir}/man8/signd.8.gz
 
 %files -n obs-utils
 %defattr(-,root,root)
