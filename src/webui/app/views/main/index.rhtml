@@ -9,10 +9,6 @@
 
 <% @pagetitle = "Welcome" %>
 
-
-
-<div>
-
 <%= render :partial => "sponsors" %>
 
 <h1 class="mainhead">Welcome to the openSUSE Build Service</h1>
@@ -101,16 +97,17 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
 We also have an active IRC channel <a href="irc://irc.opensuse.org/opensuse-buildservice">#opensuse-buildservice</a> running on Freenode.<br/>
 </p>
 
-<p class="description">The Buildservice creates several <%= link_to 'feeds', 'https://hermes.opensuse.org/feeds' %>:
-  <ul>
-    <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:Factory', 'https://hermes.opensuse.org/feeds/25549.rdf' %></li>
-    <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:11.2', 'https://hermes.opensuse.org/feeds/53368.rdf' %></li>
-    <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:11.1', 'https://hermes.opensuse.org/feeds/53369.rdf' %></li>
-    <li><%= image_tag('feeds.png') %> <%= link_to 'New projects created', 'https://hermes.opensuse.org/feeds/25546.rdf' %></li>
-    <li><%= image_tag('feeds.png') %> <%= link_to 'New packages created', 'https://hermes.opensuse.org/feeds/25545.rdf' %></li>
-  </ul>
-</p>
+<p class="description">The Buildservice creates several <%= link_to 'feeds', 'https://hermes.opensuse.org/feeds' %>:</p>
+<ul>
+  <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:Factory', 'https://hermes.opensuse.org/feeds/25549.rdf' %></li>
+  <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:11.2', 'https://hermes.opensuse.org/feeds/53368.rdf' %></li>
+  <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:11.1', 'https://hermes.opensuse.org/feeds/53369.rdf' %></li>
+  <li><%= image_tag('feeds.png') %> <%= link_to 'New projects created', 'https://hermes.opensuse.org/feeds/25546.rdf' %></li>
+  <li><%= image_tag('feeds.png') %> <%= link_to 'New packages created', 'https://hermes.opensuse.org/feeds/25545.rdf' %></li>
+</ul>
 
 <p class="description">
 Have fun experimenting with the openSUSE Build Service :-)
 </p>
+
+
