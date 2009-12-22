@@ -15,12 +15,11 @@ end
 backend = ActiveXML::Config.transport_for :bsrequest
 mypackages = dbproj.complex_status(backend)
 builder = Builder::XmlMarkup.new(:indent => 2)
-builder.project do
+xml = builder.project do
   mypackages.sort.each do |name, package|
     package.to_xml(:builder => builder)
   end
 end
-#print builder
 key='project_status_xml_%s' % dbproj.name
-Rails.cache.write(key, builder.to_xml)
+Rails.cache.write(key, xml)
 
