@@ -217,8 +217,7 @@ class PublicController < ApplicationController
             end
           end
         rescue Timeout::Error
-          logger.info "catched TIMEOUT: #{backend_request}"
-          return
+          logger.info "catched TIMEOUT: #{backend_request.path}"
         end
       end
     }
