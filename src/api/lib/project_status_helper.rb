@@ -1,4 +1,5 @@
 require 'xml'
+require 'ostruct'
 require 'digest/md5'
 
 class PackInfo
@@ -22,31 +23,26 @@ class PackInfo
     @links = Array.new
   end
 
-  def success(reponame, time)
+  def success(reponame, time, md5)
     # try to remember last success
-    unless @last_success.has_key? reponame
-      @last_success[reponame] = time
-    else
-      oldtime = @last_success[reponame]
-      if oldtime > time
-        time = oldtime
-      end
-      @last_success[reponame] = time
+    if @last_success.has_key? reponame
+      return if @last_success[reponame][0] > time
     end
+    @last_success[reponame] = OpenStruct.new :time => time, :md5 => md5
   end
 
-  def failure(reponame, time)
+  def failure(reponame, time, md5)
     # we only track the first failure returned
     return if @failed.has_key? reponame
-    @failed[reponame] = time
+    @failed[reponame] = OpenStruct.new :time => time, :md5 => md5
   end
 
   def fails
     ret = Hash.new
-    @failed.each do |repo,time|
-      ls = @last_success[repo] || 0
-      if ls < time
-        ret[repo] = time
+    @failed.each do |repo,tuple|
+      ls = begin @last_success[repo].time rescue 0 end
+      if ls < tuple.time
+        ret[repo] = tuple
       end
     end
     return ret
@@ -63,8 +59,8 @@ class PackInfo
                 :version => version,
                 :srcmd5 => srcmd5,
                 :release => release) do
-      self.fails.each do |repo,time|
-        xml.failure(:repo => repo, :time => time)
+      self.fails.each do |repo,tuple|
+        xml.failure(:repo => repo, :time => tuple.time, :srcmd5 => tuple.md5 )
       end
       if develpack
         xml.develpack(:proj => devel_project, :pack => devel_package) do
@@ -131,7 +127,6 @@ class ProjectStatusHelper
 
     lastlast = Rails.cache.read(key + '_last')
     if currentlast != lastlast 
-      #puts 'keys "%s" vs "%s" - deleting %s' % [currentlast, lastlast, key]
       Rails.cache.delete key
     end
    
@@ -154,9 +149,9 @@ class ProjectStatusHelper
             next unless mypackages.has_key?(key)
             code = p.attributes['code']
             if code == "unchanged" || code == "succeeded"
-              mypackages[key].success(reponame, Integer(p.attributes['readytime']))
+              mypackages[key].success(reponame, Integer(p['readytime']), p['srcmd5'])
             else
-              mypackages[key].failure(reponame, Integer(p.attributes['readytime']))
+              mypackages[key].failure(reponame, Integer(p['readytime']), p['srcmd5'])
             end
             versrel=p.attributes['versrel'].split('-')
             mypackages[key].version = versrel[0..-2].join('-')
