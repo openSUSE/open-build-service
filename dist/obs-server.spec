@@ -92,11 +92,13 @@ PreReq:         %fillup_prereq %insserv_prereq
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
-# atm the obs rails version patch above unifies that setting among the applications
 Requires:       rubygem-rails-2_3 = 2.3.4
 Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
+# requires for webui:
+Requires:       rubygem-gruff rubygem-sqlite3
+Recommends:     memcached
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
 
