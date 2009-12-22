@@ -439,3 +439,16 @@ background:transparent !important;
   background-image: url('images/drop_zone_1.png')!important;
   }
 /* /Add Repo & Repo DropZone ********************************************** */
+
+#proceed_list { }
+#proceed_list li {
+  float: left;
+  text-align: center;
+  list-style: none;
+  margin:0;
+  width: 10em;
+}
+#proceed_list li img {
+   margin-bottom: 0.5em;
+}
+

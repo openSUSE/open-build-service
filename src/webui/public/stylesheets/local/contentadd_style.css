@@ -443,19 +443,24 @@ background:transparent !important;
 
 /* obs-webclient 1st page */
 
-  #proceed_list {
-  }
-  #proceed_list li {
-    float: left;
-    text-align: center;
-    list-style: none;
-    margin:0;
-    width: 10em;
-  }
-  #proceed_list li img {
-    margin-bottom: 0.5em;
-  }
+#proceed_list { }
+#proceed_list a {
+  text-decoration: none;
+}
+#proceed_list .proceed_text {
+  text-decoration: underline;
+}
 
+#proceed_list li {
+  float: left;
+  text-align: center;
+  list-style: none;
+  margin:0;
+  width: 10em;
+}
+#proceed_list li img {
+  margin-bottom: 0.5em;
+}
 
 /* /obs-webclient 1st page */
 
@@ -464,4 +469,5 @@ background:transparent !important;
   display: inline;
   vertical-align: top;
 }
+
 

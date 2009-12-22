@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+  <meta http-equiv="Content-Style-Type" content="text/css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    
+  <link href="<%= CONFIG['relative_url_root'] %>/favicon.ico" rel="shortcut icon" />
+
+  <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
+
+  <%= stylesheet_link_tag "style", :media => "all" %>
+  <%= javascript_include_tag :defaults, "script" %>
+  <%= yield :content_for_head %>
+
+  <script type="text/javascript">
+  /* <![CDATA[ */
+  <%= yield :head_javascript %>
+  $(function() {
+    $('#global-favorites').click(function() { $('#inplace_watchlist').slideToggle(350); });
+    <%= yield :ready_function %>
+  });
+  /* ]]> */
+  </script>
+  
+</head>
+
+<body>
+
+  <%= render(:partial => "layouts/sponsor") %>
+       
+  <div id="inplace_watchlist" style="display: none;">
+    <div class="inner_spacer">
+      <strong><%= link_to "Watchlist ...", :controller => "project", :action => :list_my %></strong>                
+    </div>
+    <div class="inner_spacer">
+      <%- if user && user.has_element?( 'watchlist' ) -%>
+        <%- user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
+          <%= link_to project, :controller => 'project', :action => :show, :project => project %>
+        <%- end #each -%>
+      <%- else -%>
+        Watchlist empty
+      <%- end -%>
+    </div>
+  </div>
+  
+  <!-- Start: Header -->
+  <div id="header">
+    
+    <div id="header-content" class="container_12">
+      
+      <a id="header-logo" href="#home">
+	<%= image_tag("header-logo.png", :width => 46, :height => 26, :alt => "Header Logo") %>
+      </a>
+      
+      <ul id="global-navigation">
+        <li><a href="#">Downloads</a></li>
+        <li><a href="index_support.html">Support</a></li>
+        <li><a href="#">Community</a></li>
+        <li><a href="#">Development</a></li>
+        <li id="global-favorites"><a href="#">Watchlist</a></li>
+      </ul>
+
+      <% if session[:login] -%>       
+      <form id="global-search-form" action="" method="post" accept-charset="utf-8">
+        <div>
+          <input type="text" name="q" value="search" id="search" />
+          <input type="submit" value="Search" class="hidden" accesskey="" />
+        </div>
+      </form>
+      <% end %>
+
+    </div>
+  </div>
+  <!-- End: Header -->
+
+  <div id="subheader" class="container_12">
+    <div id="breadcrump" class="grid_7 alpha">
+        <%= link_to image_tag("home_grey.png", :width => 16, :height => 16, :alt => "Home"), :controller => 'main', :action => :index %> 
+        <% if @crumb_list -%>
+          <% @crumb_list.each do |link| -%>
+            &gt; <%= link %> 
+          <% end -%>
+        <% end -%>
+    </div>
+
+   <% unless session[:login] -%>
+    <%= render(:partial => "layouts/personal_navigation") %>
+   <% end %>
+    
+  </div>
+
+  <!-- Start: Main Content Area -->
+  <div id="content" class="container_16 ui-oo-content-wrapper">
+    <div id="some-content" class="ui-oo-box-shadow alpha">
+      <div id="contentarea">
+	<div class="box_content" id="bodyContent">
+	  <!-- Begin content area -->
+          <%= render(:partial => "layouts/flash", :object => flash) %>
+          <%= @content_for_layout %>
+	  <!-- End content area -->
+	</div>
+      </div>
+    </div>
+  </div>
+  <!-- End: Main Content Area -->
+
+  <!-- Start: Footer -->
+  <div id="footer" class="container_12">
+    <div id="footer-content" class="grid_12 column_4">
+	<% if session[:login] -%> 
+        <h1>Home</h1>
+        <div class="box_content">
+          <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong><br/>
+          <ul class="navlist"> 
+           <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li> 
+           <li><%= link_to "My Requests", :controller => "project", :action => :list_req %></li> 
+           <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
+           <li><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></li>
+          </ul>
+        </div>
+	<% end -%>
+
+	<% if session[:login] -%>
+	<h1>Locations</h1>
+        <p>
+	  <ul>
+	    <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
+	    <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
+	    <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
+	  </ul>
+	</p>
+	<% end -%>
+
+	<ul>
+	<% @helplinks = [
+	{ 'Official Documentation'  => 'https://build.opensuse.org/documentation/obs/' },
+	{ 'Wiki Pages'  => 'http://en.opensuse.org/Build_Service' },
+	{ 'Building Packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
+	{ 'Writing spec Files' => 'http://en.opensuse.org/Packaging/SUSE_Package_Conventions' },
+	{ 'Reporting a Bug'   => 'http://en.opensuse.org/Submit_a_Bug' },
+	{ 'Forums'             => 'http://forums.opensuse.org/opensuse-build-service-obs' } ]
+ 
+	@helplinks.each do |helplink| 
+	  for k in helplink.keys %>
+	    <li><a href="<%= helplink[k] -%>"><%= k %></a></li>
+	  <% end %>
+	<% end %>
+	</ul>
+    </div>
+    <div id="footer-legal" class="ui-oo-border-top grid_12">
+      <p>
+        &copy; 2010 Novell, Inc. All rights reserved. Novell is a registered trademark and
+        openSUSE and SUSE are trademarks of Novell, Inc. in the United States and other countries.
+      </p>
+    </div>
+  </div>
+  <!-- End: Footer -->
+  
+  
+</body>
+</html>

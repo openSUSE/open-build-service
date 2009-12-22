@@ -27,51 +27,33 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
 
 <% if session[:login] -%>
 
-<% content_for :content_for_head do %>
-<style type="text/css" media="screen">
- /* #proceed_list {
-  }
-  #proceed_list li {
-    float: left;
-    text-align: center;
-    list-style: none;
-    margin:0;
-    width: 10em;
-  }
-  #proceed_list li img {
-    margin-bottom: 0.5em;
-  }
-*/
-</style>
-<% end %>
-
 <p>Proceed to:</p>
     <ul id="proceed_list">
       <li>
       <% link_to :controller => "project", :action => :list_my do -%>
-          <%= image_tag 'start-here.png', :alt => '' %><br/>My Projects
+          <%= image_tag 'start-here.png', :alt => '' %><br/><span class="proceed_text">My Projects</span>
       <% end -%>
       </li>
 
       <li>
       <% link_to :controller => "project", :action => :list_public do -%>
-           <%= image_tag 'start-here.png' %><br/>List of All Projects
+           <%= image_tag 'start-here.png' %><br/><span class="proceed_text">List of All Projects</span>
       <% end -%>
       </li>
 
       <li>
       <% link_to :controller => "project", :action => :new, :ns => "home:#{session[:login]}" do -%>
-           <%= image_tag "document-new.png" %><br/>Create New Project
+           <%= image_tag "document-new.png" %><br/><span class="proceed_text">Create New Project</span>
       <% end -%> 
       </li>
       <li>
       <% link_to :controller => 'main', :action => 'search' do -%>
-	<%= image_tag 'system-search.png' %><br/>Search
+	<%= image_tag 'system-search.png' %><br/><span class="proceed_text">Search</span>
       <% end -%>
       </li>
       <li>
       <% link_to :controller => "monitor", :action => :index do -%>
-         <%= image_tag 'utilities-system-monitor.png' %><br/>Build Service Status
+         <%= image_tag 'utilities-system-monitor.png' %><br/><span class="proceed_text">Build Service Status</span>
       <% end -%>
       </li>
 <!--      <li>
