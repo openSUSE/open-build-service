@@ -120,7 +120,7 @@ module ApplicationHelper
 
   def gravatar_image(email)
     hash = MD5::md5(email.downcase)
-    return image_tag "http://www.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => '', :width => 16, :height => 16
+    return image_tag "http://www.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => '', :width => 20, :height => 20
   end
 
   def rewrite_asset_path(source)
