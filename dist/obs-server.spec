@@ -191,7 +191,7 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/api/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
-touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/development.log
+touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 rm $RPM_BUILD_ROOT/srv/www/obs/api/REFERENCE_ATTRIBUTES.xml
 rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install
 
@@ -204,14 +204,11 @@ done
 #set default api on localhost for the webui
 # 
 sed 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
+  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb"
 sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
-sed 's,api.opensuse.org,127.0.42.2,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb"
+  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb"
 
 #
 # install apidocs
@@ -426,7 +423,7 @@ rm -rf $RPM_BUILD_ROOT
 
 /srv/www/obs/api/config/boot.rb
 /srv/www/obs/api/config/routes.rb
-/srv/www/obs/api/config/environments/development.rb
+/srv/www/obs/api/config/environments/production.rb
 /srv/www/obs/api/config/database.yml.example
 /srv/www/obs/api/config/environments/production_test.rb
 
@@ -444,7 +441,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/development.log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/production.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/api/tmp
 
 # starting the webui part
