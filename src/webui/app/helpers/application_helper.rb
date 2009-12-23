@@ -123,4 +123,14 @@ module ApplicationHelper
     return image_tag "http://www.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => ''
   end
 
+  def rewrite_asset_path(source)
+    if CONFIG['theme']
+      new_path = "/vendor/#{CONFIG['theme']}#{source}"
+      if File.exists?("#{RAILS_ROOT}/public#{new_path}")
+        Rails.logger.debug "using themed file: #{new_path}"
+        source=new_path
+      end
+    end
+    super(source)
+  end
 end
