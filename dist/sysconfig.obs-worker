@@ -83,11 +83,11 @@ OBS_LOG_DIR="/var/log/obs"
 ## Path:        Applications/OBS
 ## Description: Register in SLP server
 ## Type:        ("yes" | "")
-## Default:     ""
+## Default:     "yes"
 ## Config:      OBS
 #
 #
-OBS_USE_SLP=""
+OBS_USE_SLP="yes"
 
 ## Path:        Applications/OBS
 ## Description: Register in SLP server
