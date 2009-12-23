@@ -110,9 +110,17 @@ module ApplicationHelper
     end
   end
 
-  def gravatar_image email
+  def image_url(source)
+    abs_path = image_path(source)
+    unless abs_path =~ /^http/
+      abs_path = "http#{'s' if https?}://#{host_with_port}/#{abs_path}"
+    end
+    abs_path
+  end
+
+  def gravatar_image(email)
     hash = MD5::md5(email.downcase)
-    return image_tag "http://www.gravatar.com/avatar/#{hash}?s=20&d=" + image_path('local/default_face.png'), :alt => ""
+    return image_tag "http://www.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => ''
   end
 
 end
