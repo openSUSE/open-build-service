@@ -30,3 +30,6 @@ YMP_URL='http://please.set.the.yml.url.in.config.environments.production_slave.r
 
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
+
+EXTENDED_BACKEND_LOG = false
+
