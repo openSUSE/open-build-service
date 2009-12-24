@@ -32,8 +32,10 @@ class PackInfo
   end
 
   def failure(reponame, time, md5)
-    # we only track the first failure returned
-    return if @failed.has_key? reponame
+    # we only track the first failure time but latest md5 returned
+    if @failed.has_key? reponame
+      time = @failed[reponame].time
+    end
     @failed[reponame] = OpenStruct.new :time => time, :md5 => md5
   end
 
