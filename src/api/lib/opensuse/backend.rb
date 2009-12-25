@@ -47,6 +47,7 @@ module Suse
         backend_request = Net::HTTP::Get.new(path, in_headers)
 
         response = Net::HTTP.start(host, port) do |http|
+          http.read_timeout = 1000
           http.request backend_request
         end
 
@@ -59,6 +60,7 @@ module Suse
         logger.debug "[backend] PUT: #{path}"
         backend_request = Net::HTTP::Put.new(path, in_headers)
         response = Net::HTTP.start(host, port) do |http|
+          http.read_timeout = 1000
           http.request backend_request, data
         end
         write_backend_log "PUT", host, port, path, response, data
@@ -73,6 +75,7 @@ module Suse
         logger.debug "[backend] POST: #{path}"
         backend_request = Net::HTTP::Post.new(path, in_headers)
         response = Net::HTTP.start(host, port) do |http|
+          http.read_timeout = 1000
           http.request backend_request, data
         end
         write_backend_log "POST", host, port, path, response, data
@@ -84,6 +87,7 @@ module Suse
         logger.debug "[backend] DELETE: #{path}"
         backend_request = Net::HTTP::Delete.new(path, in_headers)
         response = Net::HTTP.start(host, port) do |http|
+          http.read_timeout = 1000
           http.request backend_request
         end
         write_backend_log"DELETE", host, port, path, response, response.body
