@@ -232,7 +232,7 @@ class ApplicationController < ActionController::Base
   end
 
   def send_exception_mail?
-    return false if ExceptionNotifier.exception_recipients.empty?
+    return false unless ExceptionNotifier.exception_recipients
     return !local_request? && !Rails.env.development?
   end
 

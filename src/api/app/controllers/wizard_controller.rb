@@ -59,9 +59,10 @@ class WizardController < ApplicationController
       return render_wizard
     end
     package = Package.find(params[:package], :project => params[:project])
-    # FIXME: is there a cleaner way to do it?
-    package.data.elements["title"].text = @wizard["summary"]
-    package.data.elements["description"].text = @wizard["description"]
+    e = package.add_element "title"
+    e.text = @wizard["summary"]
+    e = package.add_element "description"
+    e.text = @wizard["description"]
     package.save
     specname = "#{params[:package]}.spec"
     spec = @wizard.generate_spec(File.read("#{RAILS_ROOT}/files/wizardtemplate.spec"))
