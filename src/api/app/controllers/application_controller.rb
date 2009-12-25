@@ -10,6 +10,7 @@ require 'rexml/document'
 class InvalidHttpMethodError < Exception; end
 
 class ApplicationController < ActionController::Base
+
   # Do never use a layout here since that has impact on every
   # controller in frontend
   layout nil
@@ -190,6 +191,10 @@ class ApplicationController < ActionController::Base
       :disposition => "inline" )
   end
 
+  def rescue_action_locally( exception )
+    rescue_action_in_public( exception )
+  end
+
   def rescue_action_in_public( exception )
     #FIXME: not all exceptions are caught by this method
     case exception
@@ -216,13 +221,19 @@ class ApplicationController < ActionController::Base
       render_error :message => "error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
       render_error :message => "error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
+    when ActionController::RoutingError
+      render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     else
+      if send_exception_mail?
+        ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
+      end
       render_error :exception => exception, :status => 400
     end
   end
 
-  def local_request?
-    false
+  def send_exception_mail?
+    return false if ExceptionNotifier.exception_recipients.empty?
+    return !local_request? && !Rails.env.development?
   end
 
   def permissions

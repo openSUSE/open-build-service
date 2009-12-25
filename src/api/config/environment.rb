@@ -126,3 +126,6 @@ ActiveXML::Base.config do |conf|
   end
 end
 
+ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
+ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
+

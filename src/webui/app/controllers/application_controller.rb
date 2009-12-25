@@ -187,7 +187,7 @@ class ApplicationController < ActionController::Base
   end
 
   def send_exception_mail?
-    return !local_request? && ENV['RAILS_ENV'] != 'development'
+    return !local_request? && !Rails.env.development?
   end
 
 end
