@@ -143,7 +143,7 @@ class PublicController < ApplicationController
       return
     end
 
-    distfile = ActiveXML::Node.new(DistributionController.read_distfile)
+    distfile = ActiveXML::XMLNode.new(DistributionController.read_distfile)
     binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{@prj.name}' and @package='#{@pkg.name}'"
 
     binary_map = Hash.new

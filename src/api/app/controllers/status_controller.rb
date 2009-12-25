@@ -23,7 +23,7 @@ class StatusController < ApplicationController
         return
       end
 
-      new_messages = ActiveXML::Node.new( request.raw_post )
+      new_messages = ActiveXML::XMLNode.new( request.raw_post )
 
       begin
         if new_messages.has_element? 'message'
