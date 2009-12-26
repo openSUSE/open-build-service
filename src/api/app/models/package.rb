@@ -38,14 +38,14 @@ class Package < ActiveXML::Base
   end
 
   def remove_all_persons
-    data.each_element("person") do |e|
-      data.delete_element e
+    self.each_person do |e|
+      delete_element e
     end
   end
 
   def remove_devel_project
-    data.each_element("devel") do |e|
-      data.delete_element e
+    self.each_devel do |e|
+      delete_element e
     end
   end
 
@@ -56,8 +56,8 @@ class Package < ActiveXML::Base
 
   def remove_all_flags
     %w(build publish debuginfo useforbuild).each do |flag|
-      data.each_element(flag) do |e|
-        data.delete_element e
+      data.send('each_' + flag) do |e|
+        delete_element e
       end
     end
   end
