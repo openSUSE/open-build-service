@@ -223,6 +223,8 @@ class ApplicationController < ActionController::Base
       render_error :message => "error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
     when ActionController::RoutingError
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
+    when ActionController::UnknownAction
+      render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
     else
       if send_exception_mail?
         ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
