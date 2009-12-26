@@ -3,19 +3,19 @@ class SearchController < ApplicationController
   require 'xpath_engine'
 
   def project
-    render :text => search(:project, true), :content_type => "text/xml"
+    search(:project, true)
   end
 
   def project_id
-    render :text => search(:project, false), :content_type => "text/xml"
+    search(:project, false)
   end
 
   def package
-    render :text => search(:package, true), :content_type => "text/xml"
+    search(:package, true)
   end
 
   def package_id
-    render :text => search(:package, false), :content_type => "text/xml"
+    search(:package, false)
   end
 
   def attribute
@@ -40,7 +40,12 @@ class SearchController < ApplicationController
     logger.debug "searching in #{what}s, predicate: '#{predicate}'"
 
     xe = XpathEngine.new
-    collection = xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order))
+    begin
+      collection = xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order))
+    rescue XpathEngine::IllegalXpathError => e
+      render_error :status => 400, :message => "illegal xpath %s" % predicate
+      return
+    end
     output = String.new
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<collection>\n"
@@ -52,7 +57,7 @@ class SearchController < ApplicationController
     end
 
     output << "</collection>\n"
-    return output
+    render :text => output, :content_type => "text/xml"
   end
 
   def __search_stream(xpath)
