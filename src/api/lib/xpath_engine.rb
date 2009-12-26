@@ -46,10 +46,11 @@ class XpathEngine
           'LEFT JOIN users ON users.id = project_user_role_relationships.bs_user_id'
         ]},
         'repository/@name' => {:cpart => 'repositories.name'},
-        'repository/path/@project' => {:cpart => 'path_projects.name', :joins => [
-          'LEFT JOIN path_elements ON repositories.id = path_elements.parent_id',
-          'LEFT JOIN repositories AS path_repos ON path_elements.repository_id = path_repos.id',
-          'LEFT JOIN db_projects AS path_projects ON path_projects.id = path_repos.db_project_id'
+        'repository/path/@project' => {:cpart => 'childs.name', :joins => [
+          'join repositories r on r.db_project_id=db_projects.id',
+          'join path_elements pe on pe.parent_id=r.id',
+          'join repositories r2 on r2.id=pe.repository_id',
+          'join db_projects childs on childs.id=r2.db_project_id'
         ]},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins => 
           ['LEFT JOIN attribs ON attribs.db_project_id = db_projects.id',
