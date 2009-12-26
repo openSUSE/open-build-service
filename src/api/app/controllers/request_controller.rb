@@ -105,11 +105,11 @@ class RequestController < ApplicationController
           if not sourceupdate and action.has_element? :target
              if "home:#{@http_user.login}:branches:#{action.target.project}" == action.source.project
                if not action.has_element? 'options'
-                 action.data.add_element('options')
+                 action.add_element 'options'
                end
                sourceupdate = 'cleanup'
-               action.options.data.add_element('sourceupdate')
-               action.options.data.elements["sourceupdate"].text = sourceupdate
+               e = action.options.add_element 'sourceupdate'
+               e.text = sourceupdate
              end
           end
           # allow cleanup only, if no devel package reference

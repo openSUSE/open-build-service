@@ -32,7 +32,7 @@ class Package < ActiveXML::Base
       elem_cache = split_data_after :description
     end
 
-    @data.add_element( 'person', 'userid' => opt[:userid], 'role' => opt[:role] )
+    add_element( 'person', 'userid' => opt[:userid], 'role' => opt[:role] )
 
     merge_data elem_cache
   end
