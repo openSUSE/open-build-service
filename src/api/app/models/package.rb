@@ -4,11 +4,11 @@ class Package < ActiveXML::Base
   end
 
   def name=(new_name)
-    data.attributes["name"] = new_name.to_s
+    data["name"] = new_name.to_s
   end
 
   def project=(new_project)
-    data.attributes["project"] = new_project.to_s
+    data["project"] = new_project.to_s
   end
 
   def parent_project
@@ -51,12 +51,12 @@ class Package < ActiveXML::Base
 
   def set_devel( opt={} )
     remove_devel_project
-    data.add_element( 'devel', 'project' => opt[:project], 'package' => opt[:package] )
+    add_element( 'devel', 'project' => opt[:project], 'package' => opt[:package] )
   end
 
   def remove_all_flags
     %w(build publish debuginfo useforbuild).each do |flag|
-      data.send('each_' + flag) do |e|
+      send('each_' + flag) do |e|
         delete_element e
       end
     end
