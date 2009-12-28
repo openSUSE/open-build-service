@@ -73,18 +73,25 @@ class RequestController < ApplicationController
         changestate = nil
     end
 
+    reason = "unknown changestate #{changestate}"
+
     if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
       reason = params[:reason]
       id = params[:id]
       transport ||= ActiveXML::Config::transport_for(:project)
       path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
-      transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason
-      flash[:note] = "Submit request #{changestate}!"
-      redirect_to :action => "list_req"
-    else
-      flash[:error] = "'changestate' parameter is unknown!"
-      redirect_to :action => "list_req"
+      begin
+        transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason
+        flash[:note] = "Submit request #{changestate}!"
+        redirect_to :action => "list_req"
+        return
+      rescue ActiveXML::Transport::ForbiddenError => e
+        reason = e.message
+      end
     end
+
+    flash[:error] = reason
+    redirect_to :action => "list_req"
 
   end
 
