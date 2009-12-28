@@ -593,7 +593,12 @@ class SourceController < ApplicationController
           return
         end
 
-        @package.save
+        begin
+          @package.save
+        rescue DbPackage::CycleError => e
+          render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
+          return
+        end
         render_ok
       else
         logger.debug "user #{user.login} has no permission to write package meta for package #@package"

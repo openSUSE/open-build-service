@@ -1,5 +1,6 @@
 class DbPackage < ActiveRecord::Base
   class SaveError < Exception; end
+  class CycleError < Exception; end
   belongs_to :db_project
 
   belongs_to :develproject, :class_name => "DbProject" # This shall become migrated to develpackage in future
@@ -117,7 +118,7 @@ class DbPackage < ActiveRecord::Base
     prj_name = pkg.db_project.name
     processed = {}
     if pkg == pkg.develpackage
-      raise RuntimeError, "Package defines itself as devel package"
+      raise CycleError.new "Package defines itself as devel package"
       return nil
     end
     while ( pkg.develproject or pkg.develpackage )
@@ -127,7 +128,7 @@ class DbPackage < ActiveRecord::Base
         processed.keys.each do |key|
           str = str + " -- " + key
         end
-        raise RuntimeError, "There is a cycle in devel definition at #{str}"
+        raise CycleError.new "There is a cycle in devel definition at #{str}"
         return nil
       end
       processed[prj_name+"/"+pkg_name] = 1
@@ -145,7 +146,7 @@ class DbPackage < ActiveRecord::Base
       pkg = prj.db_packages.find_by_name(pkg_name)
 
       if pkg.nil?
-        raise RuntimeError, "There is a cycle in devel definition at #{str}"
+        raise CycleError.new "There is a cycle in devel definition at #{str}"
         return nil
       end
     end
