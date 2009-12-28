@@ -9,8 +9,7 @@ require File.join(File.dirname(__FILE__), 'boot')
 
 RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
-#require "common/libxmlactivexml"
-require "common/activexml"
+require "common/libxmlactivexml"
 require 'custom_logger'
 
 
