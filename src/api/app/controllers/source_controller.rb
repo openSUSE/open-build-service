@@ -229,65 +229,70 @@ class SourceController < ApplicationController
       params[:binary]=binary if binary
       render :text => @attrs.render_attribute_axml(params), :content_type => 'text/xml'
       return
-    else
-#      if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream
-       req = BsRequest.new(request.body.read)
-#      else
-#       req = BsRequest.new(request.body)
-#      end
+    end
 
-      # permission checking
-      if params[:attribute]
-        aname = params[:attribute]
-        if a=@attrs.find_attribute(params[:attribute],binary)
-          unless @http_user.can_modify_attribute? a
-            render_error :status => 403, :errorcode => "change_attribute_no_permission", 
-              :message => "user #{user.login} has no permission to modify attribute"
-            return
-          end
-        else
-          unless request.post?
-            render_error :status => 403, :errorcode => "not_existing_attribute", 
-              :message => "Attempt to modify not existing attribute"
-            return
-          end
-          unless @http_user.can_create_attribute_in? @attrs, params[:attribute]
+    if request.post?
+      begin
+        req = BsRequest.new(request.body.read)
+        req.data # trigger XML parsing
+      rescue ActiveXML::ParseError => e
+        render_error :message => "Invalid XML",
+           :status => 400, :errorcode => "invalid_xml"
+        return
+      end
+    end
+
+    # permission checking
+    if params[:attribute]
+      aname = params[:attribute]
+      if a=@attrs.find_attribute(params[:attribute],binary)
+        unless @http_user.can_modify_attribute? a
+          render_error :status => 403, :errorcode => "change_attribute_no_permission", 
+            :message => "user #{user.login} has no permission to modify attribute"
+          return
+        end
+      else
+        unless request.post?
+          render_error :status => 403, :errorcode => "not_existing_attribute", 
+            :message => "Attempt to modify not existing attribute"
+          return
+        end
+        unless @http_user.can_create_attribute_in? @attrs, params[:attribute]
+          render_error :status => 403, :errorcode => "change_attribute_no_permission", 
+            :message => "user #{user.login} has no permission to change attribute"
+          return
+        end
+      end
+    else
+      if request.post?
+        req.each_attribute do |a|
+          unless @http_user.can_create_attribute_in? @attrs, a.name
             render_error :status => 403, :errorcode => "change_attribute_no_permission", 
               :message => "user #{user.login} has no permission to change attribute"
             return
           end
         end
       else
-        if request.post?
-          req.each_attribute do |a|
-            unless @http_user.can_create_attribute_in? @attrs, a.name
-              render_error :status => 403, :errorcode => "change_attribute_no_permission", 
-                :message => "user #{user.login} has no permission to change attribute"
-              return
-            end
-          end
-        else
-          render_error :status => 403, :errorcode => "internal_error", 
-            :message => "INTERNAL ERROR: unhandled request"
-          return
-        end
+        render_error :status => 403, :errorcode => "internal_error", 
+          :message => "INTERNAL ERROR: unhandled request"
+        return
       end
+    end
 
-      # execute action
-      if request.post?
-        req.each_attribute do |a|
-          @attrs.store_attribute_axml(a, binary)
-        end
-        @attrs.store
-        render_ok
-      elsif request.delete?
-        @attrs.find_attribute(params[:attribute],binary).destroy
-        @attrs.store
-        render_ok
-      else
-        render_error :message => "INTERNAL ERROR: Unhandled operation",
-          :status => 404, :errorcode => "unknown_operation"
+    # execute action
+    if request.post?
+      req.each_attribute do |a|
+        @attrs.store_attribute_axml(a, binary)
       end
+      @attrs.store
+      render_ok
+    elsif request.delete?
+      @attrs.find_attribute(params[:attribute],binary).destroy
+      @attrs.store
+      render_ok
+    else
+      render_error :message => "INTERNAL ERROR: Unhandled operation",
+        :status => 404, :errorcode => "unknown_operation"
     end
   end
 
