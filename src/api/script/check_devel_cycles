@@ -2,12 +2,20 @@
 require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
-packs = DbPackage.find :all, :conditions => "develpackage_id is not null"
+packs = DbPackage.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
 
 packs.each do |p|
   begin
     p.resolve_devel_package
   rescue DbPackage::CycleError => e
-    puts e.message
+    projects[p.db_project.name] ||= Array.new
+    projects[p.db_project.name] << e.message
   end
 end
+
+projects.keys.sort.each do |p|
+  projects[p].each do |m|
+    puts " " + m
+  end
+end
+
