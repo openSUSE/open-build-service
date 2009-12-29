@@ -77,7 +77,13 @@ class XpathEngine
     opt = defaults.merge opt
     logger.debug "---------------------- parsing xpath: #{xpath} -----------------------"
 
-    @stack = @lexer.parse xpath
+    begin
+      @stack = @lexer.parse xpath
+    rescue NoMethodError
+      # if the input contains a [ in random place, rexml will throw
+      #  undefined method `[]' for nil:NilClass
+      raise IllegalXpathError, "failed to parse"
+    end
     logger.debug "starting stack: #{@stack.inspect}"
 
     if @stack.shift != :document
