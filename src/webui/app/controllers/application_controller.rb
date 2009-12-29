@@ -132,6 +132,8 @@ class ApplicationController < ActionController::Base
     case exception
     when ActionController::RoutingError
       render_error :code => code, :message => message, :status => 404
+    when ActionController::UnknownAction
+      render_error :code => code, :message => message, :status => 404
     when ActiveXML::Transport::ForbiddenError
       # switch to registration on first access
       if code == "unregistered_ichain_user"
