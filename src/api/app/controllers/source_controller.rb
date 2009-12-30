@@ -266,7 +266,14 @@ class SourceController < ApplicationController
     else
       if request.post?
         req.each_attribute do |a|
-          unless @http_user.can_create_attribute_in? @attrs, a.name
+          begin
+            can_create = @http_user.can_create_attribute_in? @attrs, a.name
+          rescue User::ArgumentError => e
+            render_error :status => 400, :errorcode => "change_attribute_attribute_error",
+              :message => e.message
+            return
+          end
+          unless can_create
             render_error :status => 403, :errorcode => "change_attribute_no_permission", 
               :message => "user #{user.login} has no permission to change attribute"
             return
