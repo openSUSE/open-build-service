@@ -405,9 +405,13 @@ class PackageController < ApplicationController
     filename = params[:filename]
     file = params[:file]
     file.gsub!( /\r\n/, "\n" )
-    frontend.put_file( file, :project => project, :package => package,
-      :filename => filename )
-    flash[:note] = "Successfully saved file."
+    begin
+      frontend.put_file( file, :project => project, :package => package,
+        :filename => filename )
+      flash[:note] = "Successfully saved file."
+    rescue Timeout::Error => e
+      flash[:error] = "Timeout when saving file. Please try again."
+    end
     redirect_to :action => :show, :package => package, :project => project
   end
 

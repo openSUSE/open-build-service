@@ -53,7 +53,7 @@ class FrontendCompat
     path += "/#{opt[:package]}" if opt[:project] && opt[:package]
     path += "/#{opt[:filename]}" if opt[:filename]
     transport.direct_http URI("https://#{path}"),
-      :method => "PUT", :data => data
+      :method => "PUT", :data => data, :timeout => 500
   end
 
   def delete_package( opt={} )
