@@ -490,10 +490,15 @@ class ProjectController < ApplicationController
     end
     @project.remove_repository params[:target]
 
-    if @project.save
-      flash[:note] = "Target '#{params[:target]}' was removed"
-    else
-      flash[:error] = "Failed to remove target '#{params[:target]}'"
+    begin
+      if @project.save
+        flash[:note] = "Target '#{params[:target]}' was removed"
+      else
+        flash[:error] = "Failed to remove target '#{params[:target]}'"
+      end
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = "Failed to remove target '#{params[:target]}' " + message
     end
 
     redirect_to :action => :show, :project => @project

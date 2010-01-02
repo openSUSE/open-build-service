@@ -1,5 +1,6 @@
 class DbPackage < ActiveRecord::Base
   class SaveError < Exception; end
+  class CycleError < Exception; end
   belongs_to :db_project
 
   belongs_to :develproject, :class_name => "DbProject" # This shall become migrated to develpackage in future
@@ -113,42 +114,47 @@ class DbPackage < ActiveRecord::Base
 
   def resolve_devel_package
     pkg = self
-    pkg_name = pkg.name
     prj_name = pkg.db_project.name
     processed = {}
+
     if pkg == pkg.develpackage
-      raise RuntimeError, "Package defines itself as devel package"
+      raise CycleError.new "Package defines itself as devel package"
       return nil
     end
     while ( pkg.develproject or pkg.develpackage )
+      logger.debug "resolve_devel_package #{pkg.inspect}"
+
       # cycle detection
-      if processed[prj_name+"/"+pkg_name]
-        str = prj_name+"/"+pkg_name
+      str = prj_name+"/"+pkg.name
+      if processed[str]
         processed.keys.each do |key|
           str = str + " -- " + key
         end
-        raise RuntimeError, "There is a cycle in devel definition at #{str}"
+        raise CycleError.new "There is a cycle in devel definition at #{str}"
         return nil
       end
-      processed[prj_name+"/"+pkg_name] = 1
+      processed[str] = 1
       # get project and package name
       if pkg.develpackage
-        pkg_name = pkg.develpackage.name
-        prj_name = pkg.develpackage.db_project.name
-        prj = DbProject.find_by_name prj_name
-      elsif pkg.develproject
+        logger.debug "pkg devel package #{pkg.develpackage.inspect}"
+        pkg = pkg.develpackage
+        prj_name = pkg.db_project.name
+      else
+        logger.debug "pkg devel project #{pkg.develproject.inspect}"
         # Supporting the obsolete, but not yet migrated devel project table
         prj = pkg.develproject
         prj_name = prj.name
+        pkg = prj.db_packages.find_by_name(pkg.name)
+        if pkg.nil?
+          raise CycleError.new "The devel project of #{str} does not contain package: #{prj_name}"
+          return nil
+        end
       end
-      # get devel package object
-      pkg = prj.db_packages.find_by_name(pkg_name)
-
-      if pkg.nil?
-        raise RuntimeError, "There is a cycle in devel definition at #{str}"
-        return nil
+      if pkg.id == self.id
+        pkg = self
       end
     end
+    logger.debug "WORKED - #{pkg.inspect}"
     return pkg
   end
 
@@ -179,11 +185,11 @@ class DbPackage < ActiveRecord::Base
           raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
         end
         self.develpackage = develpkg
-
-        # just for cycle detection
-        self.resolve_devel_package
       end
       #--- end devel project ---#
+
+      # just for cycle detection
+      self.resolve_devel_package
 
       #--- update users ---#
       usercache = Hash.new

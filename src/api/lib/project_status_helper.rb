@@ -204,7 +204,11 @@ class ProjectStatusHelper
     projects[dbproj.name] = dbproj
     dbproj.db_packages.each do |dbpack|
       #next unless dbpack.name =~ /^kernel.*/
-      dbpack.resolve_devel_package
+      begin
+        dbpack.resolve_devel_package
+      rescue DbPackage::CycleError => e
+        next
+      end
       add_recursively(mypackages, projects, dbpack)
     end
 

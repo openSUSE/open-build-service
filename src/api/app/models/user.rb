@@ -2,6 +2,8 @@ class User < ActiveRecord::Base
   include ActiveRbacMixins::UserMixins::Core
   include ActiveRbacMixins::UserMixins::Validation
 
+  class ArgumentError < Exception; end
+
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
 
@@ -99,7 +101,7 @@ class User < ActiveRecord::Base
   # project is instance of DbProject
   def can_modify_project?(project)
     unless project.kind_of? DbProject
-      raise RuntimeError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
+      raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
     return true if has_global_permission? "change_project"
     return true if has_local_permission? "change_project", project
@@ -109,7 +111,7 @@ class User < ActiveRecord::Base
   # package is instance of DbPackage
   def can_modify_package?(package)
     unless package.kind_of? DbPackage
-      raise RuntimeError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
+      raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
 
     return true if has_global_permission? "change_package"
@@ -119,7 +121,7 @@ class User < ActiveRecord::Base
 
   def can_modify_attribute?(attribute)
     unless attribute.kind_of? Attrib
-      raise RuntimeError, "illegal parameter type to User#can_modify_attribute?: #{attribute.class.name}"
+      raise ArgumentError, "illegal parameter type to User#can_modify_attribute?: #{attribute.class.name}"
     end
     if attribute.attrib_type.attrib_type_modifiable_by.length > 0
       attribute.attrib_type.attrib_type_modifiable_by.each do |mod_rule|
@@ -147,7 +149,7 @@ class User < ActiveRecord::Base
   # project is instance of DbProject
   def can_create_package_in?(project)
     unless project.kind_of? DbProject
-      raise RuntimeError, "illegal parameter type to User#can_change?: #{project.class.name}"
+      raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
     return true if has_global_permission? "create_package"
@@ -166,14 +168,14 @@ class User < ActiveRecord::Base
 
   def can_create_attribute_in?(object, attrib_type)
     if not object.kind_of? DbProject and not object.kind_of? DbPackage
-      raise RuntimeError, "illegal parameter type to User#can_change?: #{project.class.name}"
+      raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
     unless attrib_type
-      raise RuntimeError, "no attribute type given"
+      raise ArgumentError, "no attribute type given"
     end
     # find attribute type definition
     if ( not atype = AttribType.find_by_name(attrib_type) or atype.blank? )
-      raise RuntimeError, "unknown attribute type '#{attrib_type}'"
+      raise ArgumentError, "unknown attribute type '#{attrib_type}'"
     end
     # check modifiable_by rules
     if atype.attrib_type_modifiable_by.length > 0
@@ -199,7 +201,7 @@ class User < ActiveRecord::Base
     return true if has_global_permission? "download_binaries"
 
     unless package.kind_of? DbPackage
-      raise RuntimeError, "illegal argument to can_download_binaries, DbPackage expected, got #{package.class.name}"
+      raise ArgumentError, "illegal argument to can_download_binaries, DbPackage expected, got #{package.class.name}"
     end
 
     return true if has_local_permission?("download_binaries", package)
