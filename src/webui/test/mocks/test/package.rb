@@ -7,8 +7,8 @@ class Package < ActiveXML::Base
     self.fake_find( 'packages', *args )
   end
 
-  def self.from_value( value )
-    return Package.new(value)
+  def self.from_value( value, opt )
+    return Package.new(value, opt)
   end
 end
 

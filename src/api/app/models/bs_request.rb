@@ -126,4 +126,106 @@ class BsRequest < ActiveXML::Base
 
     return nil
   end
+
+  def check_modify_by_user(user, params)
+    
+    # generic permission check
+    permission_granted = false
+    if user.is_admin?
+      permission_granted = true
+    elsif params[:newstate] == "deleted"
+      return "Deletion of a request is only permitted for administrators. Please revoke the request instead."
+    elsif params[:newstate] == "superseded" and not params[:superseded_by]
+      return "Supersed a request requires a 'superseded_by' parameter with the request id."
+    elsif (params[:cmd] == "addreview" and req.creator == user.login)
+      # allow request creator to add further reviewers
+      permission_granted = true
+#    elsif (params[:cmd] == "changereviewstate" and params[:by_group] == # FIXME: support groups
+#      permission_granted = true
+    elsif (params[:cmd] == "changereviewstate" and params[:by_user] == user.login)
+      permission_granted = true
+    elsif (req.state.name == "new" or req.state.name == "review") and (params[:newstate] == "superseded" or params[:newstate] == "revoked") and req.creator == user.login
+      # allow new -> revoked state change to creators of request
+      permission_granted = true
+    else # check this for changestate (of request) and addreview command
+       # do not allow direct switches from accept to decline or vice versa or double actions
+       if params[:newstate] == "accepted" or params[:newstate] == "declined" or params[:newstate] == "superseded"
+          if req.state.name == "accepted" or req.state.name == "declined" or req.state.name == "superseded"
+	    return "Set state to #{params[:newstate]} from accepted, superseded or declined is not allowed."
+	  end
+       end
+       # Do not accept to skip the review, except force argument is given
+       if params[:newstate] == "accepted"
+          if req.state.name == "review" and not params[:force]
+	    return "Request is in review state."
+	  end
+       end
+
+       # permission check for each request inside
+       req.each_action do |action|
+         if action.data["type"] == "submit" or action.data["type"] == "change_devel"
+           source_project = DbProject.find_by_name(action.source.project)
+           target_project = DbProject.find_by_name(action.target.project)
+           if target_project.nil?
+	     return "Target project is missing for request #{req.id} (type #{action.data['type']})"
+	   end
+           if action.target.package.nil? and action.data["type"] == "change_devel"
+	     return "Target package is missing in request #{req.id} (type #{action.data['type']})"
+	   end
+           if params[:newstate] != "declined" and params[:newstate] != "revoked"
+             if source_project.nil?
+	       return "Source project is missing for request #{req.id} (type #{action.data['type']})"
+	     else
+               source_package = source_project.db_packages.find_by_name(action.source.package)
+             end
+             if source_package.nil? and params[:newstate] != "revoked"
+	       return "Source package is missing for request #{req.id} (type #{action.data['type']})"
+	     end
+           end
+           if action.target.has_attribute? :package
+             target_package = target_project.db_packages.find_by_name(action.target.package)
+           else
+             target_package = target_project.db_packages.find_by_name(action.source.package)
+           end
+           if ( target_package and user.can_modify_package? target_package ) or
+              ( not target_package and user.can_modify_project? target_project )
+              permission_granted = true
+           elsif source_project and req.state.name == "new" and params[:newstate] == "revoked" 
+              # source project owners should be able to revoke submit requests as well
+              source_package = source_project.db_packages.find_by_name(action.source.package)
+              if ( source_package and user.can_modify_package? source_package ) or
+                 ( not source_package and user.can_modify_project? source_project )
+                permission_granted = true
+              else
+		return "No permission to revoke request #{req.id} (type #{action.data['type']})"
+	      end
+           else
+	     return "No permission to change state of request #{req.id} to #{params[:newstate]} (type #{action.data['type']})"
+	   end
+    
+         elsif action.data["type"] == "delete"
+           # check permissions for delete
+           project = DbProject.find_by_name(action.target.project)
+           package = nil
+           if action.target.has_attribute? :package
+              package = project.db_packages.find_by_name(action.target.package)
+           end
+           if user.can_modify_project? project or ( package and user.can_modify_package? package )
+             permission_granted = true
+           else
+	     return "No permission to change state of delete request #{req.id} (type #{action.data['type']})"
+	   end
+         else
+	   return "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.data['type']})"
+	 end
+      end
+    end
+
+    # at this point permissions should be granted, but let's double check
+    if permission_granted != true
+      return "No permission to change state of request #{req.id} (INTERNAL ERROR, PLEASE REPORT ! )"
+    end
+
+    return nil
+  end
 end

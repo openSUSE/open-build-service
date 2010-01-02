@@ -7,7 +7,7 @@ class BsRequest < ActiveXML::Base
     self.fake_find( 'bs_requests', *args )
   end
 
-  def self.from_value( value )
+  def self.from_value( value, opt = {} )
     return BsRequest.new(value)
   end
 end
