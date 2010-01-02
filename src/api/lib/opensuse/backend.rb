@@ -109,7 +109,7 @@ module Suse
       def write_backend_log(method, host, port, path, response, data)
         @@backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code}"
 
-        if EXTENDED_BACKEND_LOG
+        if (defined? EXTENDED_BACKEND_LOG) and EXTENDED_BACKEND_LOG
           if data.nil?
             @@backend_logger.info "(no data)"
           elsif data[0,1] == "<"
