@@ -148,3 +148,4 @@ module Suse
     end
   end
 end
+

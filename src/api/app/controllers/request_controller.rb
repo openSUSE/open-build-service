@@ -37,132 +37,13 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def create_create
-#    if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream or request.body.kind_of? Rack::RewindableInput
-      req = BsRequest.new(request.body.read)
-#    else
-#      req = BsRequest.new(request.body)
-#    end
+    req = BsRequest.new(request.body.read)
 
-    if req.has_element? 'submit' and req.has_attribute? 'type'
-      # old style, convert to new style on the fly
-      node = req.submit
-      node.data.name = 'action'
-      node.data.attributes['type'] = 'submit'
-      req.delete_attribute('type')
-    end
-
-    req.each_action do |action|
-      if action.data.attributes["type"] == "delete"
-        #check existence of target
-        tprj = DbProject.find_by_name action.target.project
-        if tprj
-          if action.target.has_attribute? 'package'
-            tpkg = tprj.db_packages.find_by_name action.target.package
-            unless tpkg
-              render_error :status => 404, :errorcode => 'unknown_package',
-                :message => "Unknown package  #{action.target.project} / #{action.target.package}"
-              return
-            end
-          end
-        else
-          unless DbProject.find_remote_project(action.target.project)
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Project is on remote instance, delete not possible  #{action.target.project}"
-            return
-          end
-          render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown project #{action.target.project}"
-          return
-        end
-      elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
-        #check existence of source
-        sprj = DbProject.find_by_name action.source.project
-#        unless sprj or DbProject.find_remote_project(action.source.project)
-        unless sprj
-          render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown source project #{action.source.project}"
-          return
-        end
-
-        unless action.data.attributes["type"] == "change_devel" and action.source.package.nil?
-          # source package is required for submit, but optional for change_devel
-          spkg = sprj.db_packages.find_by_name action.source.package
-#          unless spkg or DbProject.find_remote_project(action.source.package)
-          unless spkg
-            render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown source package #{action.source.package} in project #{action.source.project}"
-            return
-          end
-        end
-
-        # source update checks
-        if action.data.attributes["type"] == "submit"
-          sourceupdate = nil
-          if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
-             sourceupdate = action.options.sourceupdate.text
-          end
-          # cleanup implicit home branches, should be done in client with 2.0
-          if not sourceupdate and action.has_element? :target
-             if "home:#{@http_user.login}:branches:#{action.target.project}" == action.source.project
-               if not action.has_element? 'options'
-                 action.add_element 'options'
-               end
-               sourceupdate = 'cleanup'
-               e = action.options.add_element 'sourceupdate'
-               e.text = sourceupdate
-             end
-          end
-          # allow cleanup only, if no devel package reference
-          if sourceupdate == 'cleanup'
-            unless spkg.develpackages.empty?
-              msg = "Unable to delete package #{spkg.name}; following packages use this package as devel package: "
-              msg += spkg.develpackages.map {|dp| dp.db_project.name+"/"+dp.name}.join(", ")
-              render_error :status => 400, :errorcode => 'develpackage_dependency',
-                :message => msg
-              return
-            end
-          end
-        end
-
-        unless action.data.attributes["type"] == "submit" and action.has_element? 'target'
-          # target is required for change_devel, but optional for submit
-          tprj = DbProject.find_by_name action.target.project
-#          unless sprj or DbProject.find_remote_project(action.source.project)
-          unless tprj
-            render_error :status => 404, :errorcode => 'unknown_project',
-              :message => "Unknown target project #{action.target.project}"
-            return
-          end
-          if action.data.attributes["type"] == "change_devel"
-            tpkg = tprj.db_packages.find_by_name action.target.package
-            unless tpkg
-              render_error :status => 404, :errorcode => 'unknown_package',
-                :message => "Unknown target package #{action.target.package}"
-              return
-            end
-          end
-        end
-
-        # We only allow submit/change_devel requests from projects where people have write access
-        # to avoid that random people can submit versions without talking to the maintainers 
-        if spkg
-          unless @http_user.can_modify_package? spkg
-            render_error :status => 403, :errorcode => "create_request_no_permission",
-              :message => "No permission to create request for package '#{spkg.name}' in project '#{sprj.name}'"
-            return
-          end
-        else
-          unless @http_user.can_modify_project? sprj
-            render_error :status => 403, :errorcode => "create_request_no_permission",
-              :message => "No permission to create request based on project '#{sprj.name}'"
-            return
-          end
-        end
-      else
-        render_error :status => 403, :errorcode => "create_unknown_request",
-          :message => "Request type is unknown '#{action.data.attributes["type"]}'"
-        return
-      end
+    msg = req.check_create(@http_user)
+    if msg
+      render_error :status => 403, :errorcode => 'create_failure',
+	:message => msg
+      return
     end
 
     params[:user] = @http_user.login if @http_user
