@@ -93,10 +93,9 @@ class BsRequest < ActiveXML::Base
           end
         end
 
-        unless action.data["type"] == "submit" and action.has_element? 'target'
+        if action.has_element? 'target'
           # target is required for change_devel, but optional for submit
           tprj = DbProject.find_by_name action.target.project
-#          unless sprj or DbProject.find_remote_project(action.source.project)
           unless tprj
 	    return "Unknown target project #{action.target.project}"
           end
@@ -112,7 +111,7 @@ class BsRequest < ActiveXML::Base
         # to avoid that random people can submit versions without talking to the maintainers 
         if spkg
           unless user.can_modify_package? spkg
-	    return "No permission for #{user.login} to create request for package '#{spkg.name}' in project '#{sprj.name}'"
+	    return "No permission to create request for package '#{spkg.name}' in project '#{sprj.name}'"
           end
         else
           unless user.can_modify_project? sprj

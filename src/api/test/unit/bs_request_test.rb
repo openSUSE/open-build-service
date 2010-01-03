@@ -10,10 +10,12 @@ class BsRequestTest < ActiveSupport::TestCase
     @tscholz = User.find_by_login("tscholz")
   end
 
-  # Replace this with your real tests.
   def test_create_no_project
     req = BsRequest.find(:name => "no_such_project")
     assert_equal "Unknown source project home:guest", req.check_create(@tom)
+
+    req = BsRequest.find(:name => "no_such_project2")
+    assert_equal "Unknown target project openSUSE:Factory", req.check_create(@tscholz)
   end
 
   def test_create_no_package
@@ -23,7 +25,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
   def test_create_works
     req = BsRequest.find(:name => "works")
-    assert_equal "No permission for tom to create request for package 'TestPack' in project 'home:tscholz'", req.check_create(@tom)
+    assert_equal "No permission to create request for package 'TestPack' in project 'home:tscholz'", req.check_create(@tom)
     assert_equal nil, req.check_create(@tscholz)
   end
 
