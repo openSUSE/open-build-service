@@ -13,12 +13,13 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.6.85
+Version:        1.6.86
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      /var/tmp/%name-root
+# git clone git://gitorious.org/opensuse/build-service.git; cd build-service; git submodule init; git submodule update; cd -; tar cfvj obs-server-1.6.85.tar.bz2 --exclude=.git\* build-service-1.6.85/
 Source:         obs-server-%version.tar.bz2
 Autoreqprov:    on
 BuildRequires:  python-devel
@@ -28,6 +29,7 @@ BuildRequires:  obs-common
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
 BuildRequires:  rubygem-rails-2_3 = 2.3.4
+BuildRequires:  rubygem-rmagick
 BuildRequires:  build >= 2009.04.22
 BuildRequires:  perl-BSSolv
 BuildRequires:  lighttpd
@@ -97,7 +99,9 @@ Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
 # requires for webui:
-Requires:       rubygem-gruff rubygem-sqlite3
+Requires:       rubygem-gruff
+Requires:       rubygem-sqlite3
+Requires:       rubygem-rmagick
 Recommends:     memcached
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
@@ -183,6 +187,10 @@ install -m 0644 sysconfig.obs-server sysconfig.obs-worker $FILLUP_DIR/
 # Install all web and api parts.
 #
 cd ../src
+
+### HOTFIX, shall be fixed in git until 1.7
+rm -rf webui/public/vendor/bento webui/app/views/vendor/bento
+
 for i in api webui; do
   mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
   cp -a $i $RPM_BUILD_ROOT/srv/www/obs/$i
@@ -191,7 +199,7 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/api/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
-touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
+touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/development.log
 rm $RPM_BUILD_ROOT/srv/www/obs/api/REFERENCE_ATTRIBUTES.xml
 rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install
 
@@ -200,15 +208,19 @@ for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
   sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
     "$i" > "$i"_ && mv "$i"_ "$i"
 done
+
 #
 #set default api on localhost for the webui
 # 
 sed 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb"
+  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
 sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb"
+  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
+sed 's,api.opensuse.org,127.0.42.2,' \
+  $RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb > tmp-file \
+  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb"
 
 #
 # install apidocs
@@ -267,7 +279,7 @@ rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner; do
 %stop_on_removal $service
 done
 
@@ -277,7 +289,7 @@ done
 %post
 %run_permissions
 %{fillup_and_insserv -n obs-server}
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner; do
 %restart_on_update $service
 done
 %posttrans
@@ -322,11 +334,15 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
 /etc/init.d/obssrcserver
+/etc/init.d/obswarden
+/etc/init.d/obssigner
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
 /usr/sbin/rcobsscheduler
 /usr/sbin/rcobssrcserver
+/usr/sbin/rcobswarden
+/usr/sbin/rcobssigner
 /usr/lib/obs/server/BSBuild.pm
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSConfig.pm.template
@@ -398,6 +414,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc dist/{TODO,README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING
 %dir /srv/www/obs
 %dir /srv/www/obs/api
+%dir /srv/www/obs/api/config
+%dir /srv/www/obs/api/config/initializers
+%dir /srv/www/obs/api/config/environments
 /etc/init.d/obsapidelayed
 /etc/init.d/obswebuidelayed
 /usr/sbin/rcobsapidelayed
@@ -423,25 +442,22 @@ rm -rf $RPM_BUILD_ROOT
 
 /srv/www/obs/api/config/boot.rb
 /srv/www/obs/api/config/routes.rb
-/srv/www/obs/api/config/environments/production.rb
+/srv/www/obs/api/config/environments/development.rb
 /srv/www/obs/api/config/database.yml.example
 /srv/www/obs/api/config/environments/production_test.rb
-
-%dir /srv/www/obs/api/config
-%dir /srv/www/obs/api/config/environments
+/srv/www/obs/api/config/initializers/options.rb
 
 %config /srv/www/obs/api/config/environment.rb
-# %config(noreplace) /srv/www/obs/api/config/database.yml
 %config(noreplace) /srv/www/obs/api/config/lighttpd.conf
-%config(noreplace) /srv/www/obs/api/config/environments/production_slave.rb
 %config(noreplace) /srv/www/obs/api/config/environments/production.rb
 %config(noreplace) /srv/www/obs/api/config/environments/test.rb
 %config(noreplace) /srv/www/obs/api/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/api/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
+%config(noreplace) /srv/www/obs/api/config/options.yml
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/production.log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/development.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/api/tmp
 
 # starting the webui part
