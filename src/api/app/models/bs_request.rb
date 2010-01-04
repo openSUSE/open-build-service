@@ -17,4 +17,17 @@ class BsRequest < ActiveXML::Base
     raise RuntimeError, 'broken request: no attribute named "who"' unless e.has_attribute?(:who)
     return e.who
   end
+
+  def initialize( _data )
+    super(_data)
+
+    if self.has_element? 'submit' and self.has_attribute? 'type'
+      # old style, convert to new style on the fly
+      node = self.submit
+      node.data.name = 'action'
+      node.data.attributes['type'] = 'submit'
+      self.delete_attribute('type')
+    end
+  end
+
 end

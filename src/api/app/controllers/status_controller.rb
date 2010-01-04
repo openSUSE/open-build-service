@@ -91,7 +91,7 @@ class StatusController < ApplicationController
   end
 
   def update_workerstatus_cache
-      ret = backend.direct_http( URI('/build/_workerstatus') )
+      ret = backend_get('/build/_workerstatus')
       mytime = Time.now.to_i
       Rails.cache.write('workerstatus', ret)
       data = REXML::Document.new(ret)

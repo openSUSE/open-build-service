@@ -182,4 +182,3 @@ module Suse
 
   end
 end
-

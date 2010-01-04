@@ -15,21 +15,49 @@ class RequestControllerTest < ActionController::IntegrationTest
  
     @tom = User.find_by_login("tom")
     @tscholz = User.find_by_login("tscholz")
+    setup_mock_backend_data
   end
+
+  def test_get_42
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get "/request/42"
+    assert_response :success
+    assert_tag( :tag => "request", :attributes => { :id => "42"} )
+  end
+
+  def test_get_invalid_42
+    prepare_request_with_user @request, "tscholz", "xxx"
+    get "/request/42"
+    assert_response 401
+  end
+
+  def test_get_old_format
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get "/request/17"
+    assert_response :success
+    assert_tag( :tag => "request", :attributes => { :id => "17"} )
+    assert_tag( :tag => "request", :child => { :tag => "action", :attributes => { :type => "submit" } } )
+  end
+
 
   def test_submit_request
     req = BsRequest.find(:name => "no_such_project")
     
     prepare_request_with_user @request, "tscholz", "asdfasdf"
-    get "/request/10101"
-    assert_response :success
+    post "/request?cmd=create", req.dump_xml
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown source project home:guest/
+  
+    req = BsRequest.find(:name => "no_such_package")
+    post "/request?cmd=create", req.dump_xml
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown source package mypackage in project home:tscholz/
+  end
 
-    #get "/request/#{id}?newstate=#{changestate}&cmd=changestate"
 
-    #Precondition check: Get all tags for tscholz and the home:project.  
-    #
-    #put "/request?cmd=create", req.dump_xml
-
+  def teardown
+    # restore the XML test files
+    teardown_mock_backend_data
   end
 
 end

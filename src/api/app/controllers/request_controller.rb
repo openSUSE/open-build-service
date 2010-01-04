@@ -8,7 +8,12 @@ class RequestController < ApplicationController
   alias_method :create, :dispatch_command
 
   # GET /request/:id
-  alias_method :show, :pass_to_source
+  def show
+    # parse and rewrite the request to latest format
+    data = Suse::Backend.get("/request/#{params[:id]}").body
+    req = BsRequest.new(data)
+    send_data(req.dump_xml, :type => "text/xml")
+  end
 
   # POST /request/:id? :cmd :newstate
   alias_method :modify, :dispatch_command
@@ -37,19 +42,7 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def create_create
-#    if request.body.kind_of? StringIO or request.body.kind_of? FCGI::Stream or request.body.kind_of? Rack::RewindableInput
-      req = BsRequest.new(request.body.read)
-#    else
-#      req = BsRequest.new(request.body)
-#    end
-
-    if req.has_element? 'submit' and req.has_attribute? 'type'
-      # old style, convert to new style on the fly
-      node = req.submit
-      node.data.name = 'action'
-      node.data.attributes['type'] = 'submit'
-      req.delete_attribute('type')
-    end
+    req = BsRequest.new(request.body.read)
 
     req.each_action do |action|
       if action.data.attributes["type"] == "delete"
