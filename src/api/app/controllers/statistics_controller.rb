@@ -10,9 +10,8 @@ class StatisticsController < ApplicationController
     :latest_built, :download_counter
   ]
 
-  # does not seem to work with newer rails
-  #caches_action :highest_rated, :most_active, :latest_added, :latest_updated,
-  #  :latest_built, :download_counter
+  caches_action :highest_rated, :most_active, :latest_added, :latest_updated,
+    :latest_built, :download_counter
 
   validate_action :redirect_stats => :redirect_stats
 

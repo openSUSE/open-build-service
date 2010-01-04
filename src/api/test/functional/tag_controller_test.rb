@@ -6,7 +6,7 @@ class TagController; def rescue_action(e) raise e end; end
 
 class TagControllerTest < ActionController::IntegrationTest 
   
-  fixtures :users, :db_projects, :db_packages, :tags, :taggings, :blacklist_tags
+#  fixtures :users, :db_projects, :db_packages, :tags, :taggings, :blacklist_tags
   
   def setup
     @controller = TagController.new
@@ -217,11 +217,11 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown project
-    get url_for(:controller => :tag, :action => :project_tags, :project => "IamAnAlien")
+    get :project_tags, :project => "IamAnAlien" 
     assert_response 404
     
     #request tags for an existing project
-    get url_for(:action => :project_tags, :project => "home:tscholz" )
+    get :project_tags, :project => "home:tscholz" 
     assert_response :success
     
     #checking response-data 
@@ -248,11 +248,11 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown project
-    get url_for(:controller => :tag, :action => :package_tags, :project => "IamAnAlien", :package => "MeToo")
+    get :package_tags, :project => "IamAnAlien", :package => "MeToo"
     assert_response 404
     
     #request tags for an existing project
-    get url_for(:action => :package_tags, :project => "home:tscholz", :package => "TestPack" )
+    get :package_tags, :project => "home:tscholz", :package => "TestPack" 
     assert_response :success
     
     #checking response-data 
@@ -295,7 +295,8 @@ class TagControllerTest < ActionController::IntegrationTest
   #    
   #    
   #    #put tags for an existing project
-  #    put :project_tags, :project => "home:tscholz" , xml.to_s
+  #    @request.env['RAW_POST_DATA'] = xml.to_s
+  #    put :project_tags, :project => "home:tscholz" 
   #    assert_response :success
   #    
   #    
@@ -342,18 +343,18 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown project
-    get url_for(:controller => :tag, :action => :get_tags_by_user_and_project, :project => "IamAnAlien",
-    :user => "tscholz" )
+    get :get_tags_by_user_and_project, :project => "IamAnAlien",
+    :user => "tscholz" 
     assert_response 404
  
     #request tags for an unknown user
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:tscholz",
-    :user => "Alien" )
+    get :get_tags_by_user_and_project, :project => "home:tscholz",
+    :user => "Alien" 
     assert_response 404   
     
     #request tags for an existing project
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:tscholz",
-    :user => "tscholz" )
+    get :get_tags_by_user_and_project, :project => "home:tscholz",
+    :user => "tscholz" 
     assert_response :success
     
     #checking response-data 
@@ -376,8 +377,8 @@ class TagControllerTest < ActionController::IntegrationTest
     
     
     #request tags for another user than the logged on user
-    get url_for(:action => :get_tags_by_user_and_project, :project => "home:tscholz",
-    :user => "fred" )
+    get :get_tags_by_user_and_project, :project => "home:tscholz",
+    :user => "fred" 
     assert_response :success
     
     #checking response-data 
@@ -401,27 +402,27 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown project
-    get url_for(:controller => :tag, :action => :get_tags_by_user_and_package, :project => "IamAnAlien",
+    get :get_tags_by_user_and_package, :project => "IamAnAlien",
     :package => "MeToo",
-    :user => "tscholz" )
+    :user => "tscholz" 
     assert_response 404
     
     #request tags for an unknown package
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:tscholz",
+    get :get_tags_by_user_and_package, :project => "home:tscholz",
     :package => "AlienPackage",
-    :user => "tscholz" )
+    :user => "tscholz" 
     assert_response 404
      
     #request tags for an unknown user
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:tscholz",
+    get :get_tags_by_user_and_package, :project => "home:tscholz",
     :package => "TestPack",
-    :user => "Alien" )
+    :user => "Alien" 
     assert_response 404   
     
     #request tags for an existing package
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:tscholz",
+    get :get_tags_by_user_and_package, :project => "home:tscholz",
     :package => "TestPack",
-    :user => "tscholz" )
+    :user => "tscholz" 
     assert_response :success
     
     #checking response-data 
@@ -444,9 +445,9 @@ class TagControllerTest < ActionController::IntegrationTest
     :child  =>  {:tag => "tag", :attributes => {:name => "TagE"} }
     
     #request tags for another user than the logged on user
-    get url_for(:action => :get_tags_by_user_and_package, :project => "home:tscholz",
+    get :get_tags_by_user_and_package, :project => "home:tscholz",
     :package => "TestPack",
-    :user => "fred" )
+    :user => "fred" 
     assert_response :success
     
     #checking response-data 
@@ -468,10 +469,10 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown user
-    get url_for(:controller => :tag, :action => :get_tagged_projects_by_user, :user => "IamAnAlienToo" )
+    get :get_tagged_projects_by_user, :user => "IamAnAlienToo" 
     assert_response 404
     
-    get url_for(:action => :get_tagged_projects_by_user, :user => "tscholz")
+    get :get_tagged_projects_by_user, :user => "tscholz"
     assert_response :success
     
     #checking response-data 
@@ -504,7 +505,7 @@ class TagControllerTest < ActionController::IntegrationTest
   def test_get_tagged_projects_by_user_2
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get url_for(:controller => :tag, :action => :get_tagged_projects_by_user, :user => "fred")
+    get :get_tagged_projects_by_user, :user => "fred"
     assert_response :success
     
     #checking response-data 
@@ -532,11 +533,11 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown user
-    get url_for(:controller => :tag, :action => :get_tagged_packages_by_user, :user => "IamAnAlienToo" )
+    get :get_tagged_packages_by_user, :user => "IamAnAlienToo" 
     assert_response 404
     
     
-    get url_for(:action => :get_tagged_packages_by_user, :user => "tscholz")
+    get :get_tagged_packages_by_user, :user => "tscholz"
     assert_response :success
     
     #checking response-data 
@@ -583,7 +584,7 @@ class TagControllerTest < ActionController::IntegrationTest
   def test_get_tagged_packages_by_user_2
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get url_for(:controller => :tag, :action => :get_tagged_packages_by_user, :user => "fred")
+    get :get_tagged_packages_by_user, :user => "fred"
     assert_response :success
     
     #checking response-data 
@@ -608,10 +609,10 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown tag
-    get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "AlienTag")
+    get :get_projects_by_tag, :tag => "AlienTag"
     assert_response 404
     
-    get url_for(:action => :get_projects_by_tag, :tag => "TagA")
+    get :get_projects_by_tag, :tag => "TagA"
     assert_response :success
     
     #checking response-data 
@@ -655,7 +656,7 @@ class TagControllerTest < ActionController::IntegrationTest
   def test_get_projects_by_three_tags
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "TagA::TagB::TagC")
+    get :get_projects_by_tag, :tag => "TagA::TagB::TagC"
     assert_response :success
     
     #checking response-data 
@@ -698,7 +699,7 @@ class TagControllerTest < ActionController::IntegrationTest
   def test_get_projects_by_three_tags_different_order
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "TagC::TagA::TagB")
+    get :get_projects_by_tag, :tag => "TagC::TagA::TagB"
     assert_response :success
     
     #checking response-data 
@@ -740,7 +741,7 @@ class TagControllerTest < ActionController::IntegrationTest
   def test_get_projects_by_two_tags
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get url_for(:controller => :tag, :action => :get_projects_by_tag, :tag => "TagA::TagC")
+    get :get_projects_by_tag, :tag => "TagA::TagC"
     assert_response :success
     
     #checking response-data 
@@ -796,10 +797,10 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown tag
-    get url_for(:controller => :tag, :action => :get_packages_by_tag, :tag => "AlienTag")
+    get :get_packages_by_tag, :tag => "AlienTag"
     assert_response 404
     
-    get url_for(:action => :get_packages_by_tag, :tag => "TagB")
+    get :get_packages_by_tag, :tag => "TagB"
     assert_response :success
     
     #checking response-data 
@@ -845,7 +846,7 @@ class TagControllerTest < ActionController::IntegrationTest
   def test_get_packages_by_two_tags
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get url_for(:controller => :tag, :action => :get_packages_by_tag, :tag => "TagB::TagC")
+    get :get_packages_by_tag, :tag => "TagB::TagC"
     assert_response :success
     
     #checking response-data 
@@ -892,7 +893,7 @@ class TagControllerTest < ActionController::IntegrationTest
   def test_get_packages_by_two_tags_nothing_found
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
-    get url_for(:controller => :tag, :action => :get_packages_by_tag, :tag => "TagA::TagB")
+    get :get_packages_by_tag, :tag => "TagA::TagB"
     assert_response :success
     
     #checking response-data 
@@ -907,10 +908,10 @@ class TagControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     
     #request tags for an unknown tag
-    get url_for(:controller => :tag, :action => :get_objects_by_tag, :tag => "AlienTag")
+    get :get_objects_by_tag, :tag => "AlienTag"
     assert_response 404
     
-    get url_for(:action => :get_objects_by_tag, :tag => "TagB")
+    get :get_objects_by_tag, :tag => "TagB"
     assert_response :success
     
     #checking response-data 
@@ -1207,13 +1208,14 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     #add tags
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:tscholz', :user => 'tscholz'), xml.to_s
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    put :tags_by_user_and_object, :project => 'home:tscholz', :user => 'tscholz'
     assert_response :success
     
     
     # Get data again and check that tags where added or removed 
-    get url_for(:action => :get_tags_by_user_and_project, :project => 'home:tscholz',
-    :user => 'tscholz')
+    get :get_tags_by_user_and_project, :project => 'home:tscholz',
+    :user => 'tscholz'
     assert_response :success
     #checking response-data 
     assert_tag :tag => "tags",
@@ -1276,16 +1278,17 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     #add tags
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:tscholz', 
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    put :tags_by_user_and_object, :project => 'home:tscholz', 
     :package => "TestPack",
-    :user => 'tscholz'), xml.to_s
+    :user => 'tscholz'
     assert_response :success
     
     
     # Get data again and check that tags where added or removed 
-    get url_for(:action => :get_tags_by_user_and_package, :project => 'home:tscholz',
+    get :get_tags_by_user_and_package, :project => 'home:tscholz',
     :package => 'TestPack',
-    :user => 'tscholz')
+    :user => 'tscholz'
     assert_response :success
     #checking response-data 
     assert_tag :tag => "tags",
@@ -1325,22 +1328,39 @@ class TagControllerTest < ActionController::IntegrationTest
       xml.root.add_element(element)      
     end
     
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
     #put request for an unknown user
-    put url_for(:controller => :tag, :action => :tags_by_user_and_object, :project => 'home:tscholz', 
+    put "/tag/tags_by_user_and_object", :project => 'home:tscholz', 
     :package => "TestPack",
-    :user => 'Alien'), xml.to_s
+    :user => 'Alien'
     assert_response 404
     
     #put request for another user than the logged on user.
-    put url_for(:action => :tags_by_user_and_object, :project => 'home:tscholz', 
+    put "/tag/tags_by_user_and_object", :project => 'home:tscholz', 
     :package => "TestPack",
-    :user => 'fred'), xml.to_s
+    :user => 'fred'
     assert_response 403
   end
   
   
   def test_tags_by_user_and_object_put_for_invalid_objects
     prepare_request_with_user @request, "tscholz", "asdfasdf"
+    
+     #tags to create  
+    tags = ["TagX", "TagY", "TagZ", "TagB"]  
+    #prepare the xml document (request data)
+    xml = REXML::Document.new
+    xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
+    xml.add_element( REXML::Element.new("tags") )
+    xml.root.add_attribute REXML::Attribute.new("project", "home:tscholz")       
+    tags.each do |tag|
+      element = REXML::Element.new( 'tag' )
+      element.add_attribute REXML::Attribute.new('name', tag)
+      xml.root.add_element(element)      
+    end
+    
+    @request.env['RAW_POST_DATA'] = xml.to_s
     
     #put request for an unknown project
     get "/tag/tags_by_user_and_object", :project => 'AlienProject', :user => 'tscholz'
@@ -1365,7 +1385,9 @@ class TagControllerTest < ActionController::IntegrationTest
     element.add_attribute REXML::Attribute.new('name', 'AlienProject')
     xml.root.add_element(element)
     
-    post url_for(:controller => :tag, :action => :tagcloud, :distribution => 'raw'), xml.to_s
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
     assert_response 404
   end
   
@@ -1381,7 +1403,9 @@ class TagControllerTest < ActionController::IntegrationTest
     element.add_attribute REXML::Attribute.new('name', 'home:tscholz')
     xml.root.add_element(element)
     
-    post url_for(:controller => :tag, :action => :tagcloud, :distribution => "raw"), xml.to_s
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
     assert_response :success
         
     #checking response-data 
@@ -1415,7 +1439,9 @@ class TagControllerTest < ActionController::IntegrationTest
     element.add_attribute REXML::Attribute.new('name', 'AlienPack')
     xml.root.add_element(element)
     
-    post url_for(:controller => :tag, :action => :tagcloud, :distribution => 'raw'), xml.to_s
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
     assert_response 404
   end
   
@@ -1432,7 +1458,9 @@ class TagControllerTest < ActionController::IntegrationTest
     element.add_attribute REXML::Attribute.new('name', 'TestPack')
     xml.root.add_element(element)
     
-    post url_for(:controller => :tag, :action => :tagcloud, :distribution => 'raw'), xml.to_s
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
     assert_response :success
     
     #checking response-data 
@@ -1471,7 +1499,9 @@ class TagControllerTest < ActionController::IntegrationTest
     element.add_attribute REXML::Attribute.new('name', 'TestPack')
     xml.root.add_element(element)
     
-    post url_for(:controller => :tag, :action => :tagcloud, :distribution => 'raw'), xml.to_s
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'raw'
     assert_response :success
     
     #checking response-data 
@@ -1514,7 +1544,9 @@ class TagControllerTest < ActionController::IntegrationTest
     element.add_attribute REXML::Attribute.new('name', 'TestPack')
     xml.root.add_element(element)
     
-    post url_for(:controller => :tag, :action => :tagcloud, :distribution => 'linear', :steps => 10, :limit => 3), xml.to_s
+    @request.env['RAW_POST_DATA'] = xml.to_s
+    
+    post :tagcloud, :distribution => 'linear', :steps => 10, :limit => 3
     assert_response :success
     
     #checking response-data 

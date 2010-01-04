@@ -1,1 +1,0 @@
-../../../../webui/test/mocks/test/activexml.rb

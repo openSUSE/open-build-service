@@ -4,10 +4,10 @@ require 'statistics_controller'
 # Re-raise errors caught by the controller.
 class StatisticsController; def rescue_action(e) raise e end; end
 
-class StatisticsControllerTest < ActionController::IntegrationTest
+class StatisticsControllerTest < Test::Unit::TestCase
 
 
- fixtures :db_projects, :db_packages, :download_stats, :repositories, :architectures, :users
+#  fixtures :db_projects, :db_packages, :download_stats, :repositories, :architectures
 
 
   def setup
@@ -19,7 +19,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
   def test_latest_added
     prepare_request_with_user @request, 'tom', 'thunder'
-    get url_for(:controller => :statistics, :action => :latest_added)
+    get :latest_added
     assert_response :success
     assert_tag :tag => 'latest_added', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
@@ -31,7 +31,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
  def test_latest_updated
    prepare_request_with_user @request, 'tom', 'thunder'
-   get url_for(:controller => :statistics, :action => :latest_updated)
+   get :latest_updated
    assert_response :success
    assert_tag :tag => 'latest_updated', :child => { :tag => 'project' }
    assert_tag :tag => 'project', :attributes => {
@@ -43,7 +43,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
   def test_download_counter
     prepare_request_with_user @request, 'tom', 'thunder'
-    get url_for(:controller => :statistics, :action => :download_counter)
+    get :download_counter
     assert_response :success
     assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
     assert_tag :tag => 'download_counter', :attributes => { :sum => 9302 }
@@ -60,7 +60,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
   def test_download_counter_group_by
     prepare_request_with_user @request, 'tom', 'thunder'
     # without project- & package-filter
-    get url_for(:controller => :statistics, :action => :download_counter, 'group_by' => 'project' )
+    get :download_counter, { 'group_by' => 'project' }
     assert_response :success
     assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
     assert_tag :tag => 'download_counter', :attributes => { :all => 9302 }
@@ -68,8 +68,9 @@ class StatisticsControllerTest < ActionController::IntegrationTest
       :project => 'Apache', :files => '9'
     }, :content => '8806'
     # with project- & package-filter
-    get url_for(:controller => :statistics, :action => :download_counter,
-      'project' => 'Apache', 'package' => 'apache2', 'group_by' => 'arch')
+    get :download_counter, {
+      'project' => 'Apache', 'package' => 'apache2', 'group_by' => 'arch'
+    }
     assert_response :success
     assert_tag :tag => 'download_counter', :child => { :tag => 'count' }
     assert_tag :tag => 'download_counter',
@@ -83,7 +84,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
   def test_most_active
     prepare_request_with_user @request, 'tom', 'thunder'
     # get most active packages
-    get url_for(:controller => :statistics, :action => :most_active, :type => 'packages')
+    get :most_active, { :type => 'packages' }
     assert_response :success
     assert_tag :tag => 'most_active', :child => { :tag => 'package' }
     assert_tag :tag => 'package', :attributes => {
@@ -92,7 +93,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
       :update_count => 0
     }
     # get most active projects
-    get url_for(:action => :most_active, :type => 'projects')
+    get :most_active, { :type => 'projects' }
     assert_response :success
     assert_tag :tag => 'most_active', :child => { :tag => 'project' }
     assert_tag :tag => 'project', :attributes => {
@@ -104,7 +105,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
   def test_highest_rated
     prepare_request_with_user @request, 'tom', 'thunder'
-    get url_for(:controller => :statistics, :action => :highest_rated)
+    get :highest_rated
     assert_response :success
     #assert_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
     #assert_tag :tag => 'package', :attributes => {

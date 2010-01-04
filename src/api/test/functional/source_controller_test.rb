@@ -14,7 +14,7 @@ FIXTURES = [
 ]
 
 class SourceControllerTest < ActionController::IntegrationTest 
-  fixtures *FIXTURES
+  # fixtures *FIXTURES
   
   def setup
     @controller = SourceController.new
@@ -85,12 +85,20 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_tag :tag => "package", :attributes => { :name => "kdelibs" }
   end
   
-  # project_meta does not require auth
+  #invalid user should always be rejected
   def test_invalid_user
     prepare_request_with_user @request, "king123", "sunflower"
     get "/source/kde4/_meta"
-    assert_response 200
+    assert_response 401
   end
+  
+  #invalid user should always be rejected  
+  def test_invalid_credentials
+    prepare_request_with_user @request, "king", "sunflower123"
+    get "/source/kde4/_meta"
+    assert_response( 401, "--> Invalid pw did not throw Exception")
+  end
+  
   
   def test_valid_user
     prepare_request_with_user @request, "tom", "thunder"
@@ -116,7 +124,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :project_meta, :project => "kde4"
     assert_response 403
     
   end
@@ -132,7 +141,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def do_change_project_meta_test
    # Get meta file  
-    get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
+    get :project_meta, :project => "kde4"
     assert_response :success
 
     # Change description
@@ -143,12 +152,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:action => :project_meta, :project => "kde4"), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :project_meta, :project => "kde4"
     assert_response :success
     assert_tag( :tag => "status", :attributes => { :code => "ok" })
 
     # Get data again and check that it is the changed data
-    get url_for(:action => :project_meta, :project => "kde4")
+    get :project_meta, :project => "kde4"
     doc = REXML::Document.new( @response.body )
     d = doc.elements["//description"]
     assert_equal new_desc, d.text
@@ -166,7 +176,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   def do_create_project_meta_test (name, pw)
     prepare_request_with_user(@request, name, pw)
     # Get meta file  
-    get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
+    get :project_meta, :project => "kde4"
     assert_response :success
 
     xml = @response.body
@@ -175,12 +185,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     d = doc.elements["/project"]
     d.delete_attribute( 'name' )   
     d.add_attribute( 'name', 'kde5' ) 
-    put url_for(:controller => :source, :action => :project_meta, :project => "kde5"), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :project_meta, :project => "kde5"
     assert_response(:success, message="--> #{name} was not allowed to create a project")
     assert_tag( :tag => "status", :attributes => { :code => "ok" })
 
     # Get data again and check that the maintainer was added
-    get url_for(:controller => :source, :action => :project_meta, :project => "kde5")
+    get :project_meta, :project => "kde5"
     assert_response :success
     assert_select "project[name=kde5]"
     assert_select "person[userid=king][role=maintainer]", {}, "Creator was not added as project maintainer"
@@ -194,34 +205,37 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "fred", "geröllheimer"
 
    # Get meta file  
-    get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
+    get :project_meta, :project => "kde4"
     assert_response :success
 
     xml = @response.body
     olddoc = REXML::Document.new( xml )
     doc = REXML::Document.new( xml )
     # Write corrupt data back
-    put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s + "</xml>"
-    assert_response 400
+    @request.env['RAW_POST_DATA'] = doc.to_s + "</xml>"
+    put :project_meta, :project => "kde4"
+    assert_response 500
 
     prepare_request_with_user @request, "king", "sunflower"
     # write to illegal location: 
-    put url_for(:controller => :source, :action => :project_meta, :project => "../source/bang"), doc.to_s
-    assert_response( 404, "--> Was able to create project at illegal path")
-    put url_for(:controller => :source, :action => :project_meta)
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :project_meta, :project => "../source/bang"
     assert_response( 400, "--> Was able to create project at illegal path")
-    put url_for(:controller => :source, :action => :project_meta, :project => ".")
+    put :project_meta
+    assert_response( 400, "--> Was able to create project at illegal path")
+    put :project_meta, :project => "."
     assert_response( 400, "--> Was able to create project at illegal path")
     
     #must not create a project with different pathname and name in _meta.xml:
-    put url_for(:controller => :source, :action => :project_meta, :project => "kde5"), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :project_meta, :project => "kde5"
     assert_response( 400, "--> Was able to create project with different project-name in _meta.xml")    
     
     #TODO: referenced repository names must exist
     
     
     #verify data is unchanged: 
-    get url_for(:controller => :source, :action => :project_meta, :project => "kde4" )
+    get :project_meta, :project => "kde4" 
     assert_response :success
     assert_equal( olddoc.to_s, REXML::Document.new( ( @response.body )).to_s)
   end
@@ -233,7 +247,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tom", "thunder"
     # The user is valid, but has weak permissions
     
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get :package_meta, :project => "kde4", :package => "kdelibs"
     assert_response :success
 
     # Change description
@@ -245,11 +259,12 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :package_meta, :project => "kde4", :package => "kdelibs"
     assert_response 403
     
     #verify data is unchanged: 
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get :package_meta, :project => "kde4", :package => "kdelibs"
     assert_response :success
     assert_equal( olddoc.to_s, REXML::Document.new(( @response.body )).to_s)    
   end
@@ -258,7 +273,7 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def do_change_package_meta_test
    # Get meta file  
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get :package_meta, :project => "kde4", :package => "kdelibs"
     assert_response :success
 
     # Change description
@@ -269,12 +284,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :package_meta, :project => "kde4", :package => "kdelibs"
     assert_response(:success, "--> Was not able to update kdelibs _meta")   
     assert_tag( :tag => "status", :attributes => { :code => "ok"} )
 
     # Get data again and check that it is the changed data
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get :package_meta, :project => "kde4", :package => "kdelibs"
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["//description"]
     #ignore updated change
@@ -301,7 +317,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   def create_package_meta
     # user without any special roles
     prepare_request_with_user @request, "tom", "thunder"
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get :package_meta, :project => "kde4", :package => "kdelibs"
     assert_response :success
     #change name to kdelibs2
     xml = @response.body
@@ -309,12 +325,13 @@ class SourceControllerTest < ActionController::IntegrationTest
     d = doc.elements["/package"]
     d.delete_attribute( 'name' )   
     d.add_attribute( 'name', 'kdelibs2' ) 
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2"), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :package_meta, :project => "kde4", :package => "kdelibs2"
     assert_response 200
     assert_tag( :tag => "status", :attributes => { :code => "ok"} )
     
     # Get data again and check that the maintainer was added
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2")
+    get :package_meta, :project => "kde4", :package => "kdelibs2"
     assert_response :success
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["/package"]
@@ -328,31 +345,34 @@ class SourceControllerTest < ActionController::IntegrationTest
   def test_put_invalid_package_meta
     prepare_request_with_user @request, "fredlibs", "geröllheimer"
    # Get meta file  
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get :package_meta, :project => "kde4", :package => "kdelibs"
     assert_response :success
 
     xml = @response.body
     olddoc = REXML::Document.new( xml )
     doc = REXML::Document.new( xml )
     # Write corrupt data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s + "</xml>"
-    assert_response 400
+    @request.env['RAW_POST_DATA'] = doc.to_s + "</xml>"
+    put :package_meta, :project => "kde4", :package => "kdelibs"
+    assert_response 500
 
     prepare_request_with_user @request, "king", "sunflower"
     # write to illegal location: 
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "../bang"), doc.to_s
-    assert_response( 404, "--> Was able to create package at illegal path")
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4"), doc.to_s
-    assert_response( 404, "--> Was able to create package at illegal path")
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "."), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :package_meta, :project => "kde4", :package => "../bang"
+    assert_response( 400, "--> Was able to create package at illegal path")
+    put :package_meta, :project => "kde4"
+    assert_response( 400, "--> Was able to create package at illegal path")
+    put :package_meta, :project => "kde4", :package => "."
     assert_response( 400, "--> Was able to create package at illegal path")
     
     #must not create a package with different pathname and name in _meta.xml:
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2000"), doc.to_s
+    @request.env['RAW_POST_DATA'] = doc.to_s
+    put :package_meta, :project => "kde4", :package => "kdelibs2000"
     assert_response( 400, "--> Was able to create package with different project-name in _meta.xml")     
     
     #verify data is unchanged: 
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get :package_meta, :project => "kde4", :package => "kdelibs"
     assert_response :success
     assert_equal( olddoc.to_s, REXML::Document.new( ( @response.body )).to_s)
   end
@@ -381,11 +401,12 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   def add_file_to_package
     teststring = "&;" 
-    put "/source/kde4/kdelibs/testfile", teststring
+    @request.env['RAW_POST_DATA'] = teststring
+    put :file, :project => "kde4", :package => "kdelibs", :file => "testfile"
     assert_response :success
     assert_tag( :tag => "status", :attributes => { :code => "ok"} )
   
-    get "/source/kde4/kdelibs/testfile"
+    get :file, :project => "kde4", :package => "kdelibs", :file => "testfile"
     assert_response :success
     assert_equal( @response.body.to_s, teststring )
   end
@@ -403,17 +424,17 @@ class SourceControllerTest < ActionController::IntegrationTest
   
     # write without permission: 
     prepare_request_with_user @request, "tom", "thunder"
-    get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
+    get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
     assert_response :success
     origstring = @response.body.to_s
     teststring = "&;"
     @request.env['RAW_POST_DATA'] = teststring
-    put url_for(:action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
+    put :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
     assert_response( 403, message="Was able to write a package file without permission" )
     assert_tag( :tag => "status" )
     
     # check that content is unchanged: 
-    get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
+    get :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"
     assert_response :success
     assert_equal( @response.body.to_s, origstring, message="Package file was changed without permissions" )
   end

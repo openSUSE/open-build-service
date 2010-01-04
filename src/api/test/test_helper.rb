@@ -1,47 +1,19 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
-require 'action_controller/integration'
-require 'opensuse/backend'
 
-module ActionController
-  module Integration #:nodoc:
-    class Session
-      def add_auth(headers)
-        headers = Hash.new if headers.nil?
-        if !headers.has_key? "AUTHORIZATION" and IntegrationTest.basic_auth
-          headers["AUTHORIZATION"] = IntegrationTest.basic_auth
-        end
-        return headers
-      end
-
-      def get(path, parameters = nil, headers = nil)
-        process :get, path, parameters, add_auth(headers)
-      end
-      def post(path, parameters = nil, headers = nil)
-        process :post, path, parameters, add_auth(headers)
-      end
-      def put(path, parameters = nil, headers = nil)
-        process :put, path, parameters, add_auth(headers)
-      end
-    end
-  end
-
-  class IntegrationTest
-
-  @@auth = nil
-
-  def self.reset_auth
-    @@auth = nil
-  end
-
-  def self.basic_auth
-    return @@auth
-  end
-
+class Test::Unit::TestCase
+  # Transactional fixtures accelerate your tests by wrapping each test method
+  # in a transaction that's rolled back on completion.  This ensures that the
+  # test database remains unchanged so your fixtures don't have to be reloaded
+  # between every test method.  Fewer database queries means faster tests.
+  #
+  # Read Mike Clark's excellent walkthrough at
+  #   http://clarkware.com/cgi/blosxom/2005/10/24#Rails10FastTesting
+  #
   def prepare_request_with_user( request, user, passwd )
     re = 'Basic ' + Base64.encode64( user + ':' + passwd )
-    @@auth = re
+    request.env["HTTP_AUTHORIZATION"] = re;
   end 
   
   # will provide a user without special permissions
@@ -86,7 +58,7 @@ module ActionController
     `cp -r #{@test_platform_databackupdir} #{@test_platform_datadir}`
   end
 
-  end 
+  
 end
 
 module Suse
@@ -102,8 +74,7 @@ module Suse
     end
 
     def load(path)
-      fullpath = @@mock_path_prefix+path.split(/\?/)[0]
-
+      fullpath = @@mock_path_prefix+path
       @error = false
 
       begin
@@ -146,7 +117,6 @@ module Suse
   class MockWriter
     @@mock_path_prefix = MOCK_BACKEND_DATA_TMPDIR 
     def self.write(path, data)
-      path = path.split(/\?/)[0]
       fullpath = @@mock_path_prefix+path
       File.open(fullpath,"w+") do |file|
         file.write data
@@ -159,8 +129,9 @@ module Suse
   end
 
   class Backend
-      def self.get( path, in_headers={})
-        logger.debug "### mock get: #{path}"
+    class << self
+      def do_get( host, port, path )
+        logger.debug "### mock do_get: "+[host,port,path].join(", ")
         response = MockResponse.new
         response.load(path)
         if response.error?
@@ -169,17 +140,11 @@ module Suse
         return response
       end
 
-      def self.put( path, data, in_headers={})
-        logger.debug "### mock put: "+[path, data].join(", ")
+      def do_put( host, port, path, data )
+        logger.debug "### mock do_put: "+[host, port, path, data].join(", ")
         MockWriter.write path, data
         return MockResponse.new 
       end
-
-      class << self
-        alias_method :get_source, :get
-        alias_method :put_source, :put
-      end
-
+    end
   end
 end
-
