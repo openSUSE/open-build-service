@@ -125,14 +125,14 @@ password = foobar
       FLUSH PRIVILEGES;
 
 * Configure your MySQL user and password in
-  in the "production_slave:" section of the api config: 
+  in the "production:" section of the api config: 
 
     /srv/www/obs/api/config/database.yml
 
 * populate the database
 
       # cd /srv/www/obs/api/
-      # sudo RAILS_ENV="production_slave" rake db:migrate
+      # sudo RAILS_ENV="production" rake db:migrate
 
 3.2 Setup and configure lighttpd for the api and webui
 ======================================================
@@ -197,12 +197,12 @@ need to configure also
 /srv/www/obs/webui/config/environments/production.rb (2 entries).
 
 
-3.2.2 Change /srv/www/obs/api/config/environments/production_slave.rb
+3.2.2 Change /srv/www/obs/api/config/environments/production.rb
 ===========================================================================
 
 If your backend is not on the same machine as the api, change the
 SOURCE_HOST on the api machine in the file:
-/srv/www/obs/api/config/environments/production_slave.rb
+/srv/www/obs/api/config/environments/production.rb
 
 In this case, also make sure that the TCP port 6362 is open on the firewall
 of the backend machine.
@@ -256,7 +256,7 @@ the following steps:
 
  Run the api import script:
  # cd /srv/www/obs/api/script
- # RAILS_ENV="production_slave" ruby import
+ # RAILS_ENV="production" ruby import
 
 5. Access
 =========
