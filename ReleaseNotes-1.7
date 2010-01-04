@@ -17,6 +17,20 @@ this via syconfig settings:
 The former called "frontend" is now called "api".
 The former called "webclient" is now called "webui".
 
+New processes are
+
+ * bs_signerd
+   Needed when a signing key is configured in BSConfig.pm
+
+ * bs_warden
+   Optionally, detects hanging build hosts
+
+ * delayed_jobs
+   Needed to run regular jobs on api instance which creates
+   cache content.
+
+ * Cron jobs
+
 Main new features are:
 
  * Rewritten dependency solver in scheduler which gave

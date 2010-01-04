@@ -69,25 +69,25 @@ OBS_WORKER_TEST_MODE=""
 ## Path:        Applications/OBS
 ## Description: The base for OBS communucation directory
 ## Type:        string
-## Default:     "/var/run/obs"
+## Default:     ""
 ## Config:      OBS
-OBS_RUN_DIR="/var/run/obs"
+OBS_RUN_DIR=""
 
 ## Path:        Applications/OBS
 ## Description: The base for OBS logging directory
 ## Type:        string
-## Default:     "/var/log/obs"
+## Default:     ""
 ## Config:      OBS
-OBS_LOG_DIR="/var/log/obs"
+OBS_LOG_DIR=""
 
 ## Path:        Applications/OBS
 ## Description: Register in SLP server
-## Type:        ("yes" | "")
-## Default:     "yes"
+## Type:        ("yes" | "no" | "")
+## Default:     ""
 ## Config:      OBS
 #
 #
-OBS_USE_SLP="yes"
+OBS_USE_SLP=""
 
 ## Path:        Applications/OBS
 ## Description: Register in SLP server
