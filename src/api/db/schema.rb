@@ -117,7 +117,7 @@ ActiveRecord::Schema.define(:version => 20100102150000) do
     t.integer  "develpackage_id"
   end
 
-  add_index "db_packages", ["db_project_id", "name"], :name => "packages_all_index", :unique => true
+  execute "CREATE UNIQUE INDEX packages_all_index ON db_packages (db_project_id,name(255));"
   add_index "db_packages", ["develpackage_id"], :name => "devel_package_id_index"
   add_index "db_packages", ["develproject_id"], :name => "devel_project_id_index"
 
@@ -131,7 +131,7 @@ ActiveRecord::Schema.define(:version => 20100102150000) do
     t.string   "remoteproject"
   end
 
-  add_index "db_projects", ["name"], :name => "projects_name_index", :unique => true
+  execute "CREATE UNIQUE INDEX projects_name_index ON db_projects (name(255));"
 
   create_table "db_projects_tags", :id => false, :force => true do |t|
     t.integer "db_project_id", :null => false
