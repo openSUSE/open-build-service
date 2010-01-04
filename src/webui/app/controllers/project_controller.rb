@@ -228,13 +228,21 @@ class ProjectController < ApplicationController
   def edit_target
     repo = @project.repository[params[:repo]]
     @arch_list = arch_list
-    render :partial => 'repository_edit_form', :locals => { :repo => repo }
+    render :partial => 'repository_edit_form', :locals => { :repo => repo, :error => nil }
   end
 
   def update_target
     repo = @project.repository[params[:repo]]
     repo.name = params[:name]
     repo.archs = params[:arch].to_a
+
+    if !valid_platform_name? params[:name]
+      @arch_list = arch_list
+      repo.name = params[:original_name]
+      render :partial => 'repository_edit_form', :locals => { :error => "Invalid repository name: #{params[:name]}",
+        :repo => repo } and return
+    end
+
     if @project.save
       @arch_list = arch_list
       render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
