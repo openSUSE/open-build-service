@@ -317,6 +317,7 @@ class ApplicationController < ActionController::Base
   end
 
   def backend_get( path )
+    # TODO: check why not using SUSE:Backend::get
     backend.direct_http( URI(path) )
   end
 

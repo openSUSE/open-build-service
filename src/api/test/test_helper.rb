@@ -90,7 +90,7 @@ module ActionController
 end
 
 module Suse
-  class MockResponse
+  class MockResponse 
     @@mock_path_prefix = MOCK_BACKEND_DATA_TMPDIR 
     
     def initialize(opt={})
@@ -122,6 +122,14 @@ module Suse
         @content_type = "text/plain"
         @error = true
       end
+    end
+
+    def to_s
+      return @data
+    end
+
+    def bytesize
+      return @data.size
     end
 
     def fetch(field)
@@ -175,10 +183,27 @@ module Suse
         return MockResponse.new 
       end
 
+      def self.post( path, data, in_headers={})
+        logger.debug "### mock post: "+[path, data].join(", ")
+        if path =~ /\/request\?cmd=create/
+          return self.get("/request/42", in_headers)
+        end
+        MockWriter.write path, data
+        return MockResponse.new
+      end
+
       class << self
         alias_method :get_source, :get
         alias_method :put_source, :put
       end
 
+  end
+end
+
+require 'controllers/application_controller'
+
+class ApplicationController
+  def backend_post(path, data )
+    Suse::Backend.post(path, data)
   end
 end

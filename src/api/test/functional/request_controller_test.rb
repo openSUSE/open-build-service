@@ -54,6 +54,19 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_select "status[code] > summary", /Unknown source package mypackage in project home:tscholz/
   end
 
+  def test_create_permissions
+    req = BsRequest.find(:name => "works")
+    prepare_request_with_user @request, 'tom', 'thunder'
+    post "/request?cmd=create", req.dump_xml
+    assert_response 403
+    assert_select "status[code] > summary", /No permission to create request for package 'TestPack' in project 'home:tscholz'/
+
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    post "/request?cmd=create", req.dump_xml
+    assert_response :success
+    # the fake id
+    assert_tag( :tag => "request", :attributes => { :id => "42"} )
+  end
 
   def teardown
     # restore the XML test files
