@@ -1,7 +1,64 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-# one:
-#   column: value
-#
-# two:
-#   column: value
+no_such_project:
+  "<request>
+  <action type='submit'>
+    <source project='home:guest' package='mypackage' rev='1' />
+    <target project='openSUSE:Factory' package='mypackage' />
+  </action>
+  <description/>
+  </request>"
+
+no_such_project2:
+  "<request>
+  <action type='submit'>
+    <source project='home:tscholz' package='TestPack' rev='1' />
+    <target project='openSUSE:Factory' package='mypackage' />
+  </action>
+  <description/>
+  </request>"
+
+no_such_package:
+  "<request>
+  <action type='submit'>
+    <source project='home:tscholz' package='mypackage' rev='1' />
+    <target project='kde4' package='mypackage' />
+  </action>
+  <description/>
+  </request>"
+
+works:
+  "<request>
+  <action type='submit'>
+    <source project='home:tscholz' package='TestPack' rev='1' />
+    <target project='kde4' package='mypackage' />
+  </action>
+  <description/>
+  </request>"
+
+oldformat:
+  "<request id='10101' type='submit'>
+  <submit>
+    <source project='home:tscholz' package='wpa_supplicant' rev='2' />
+    <target project='kde4' package='wpa_supplicant' />
+  </submit>
+  <description></description>
+  </request>"
+
+newformat:
+  "<request id='10101'>
+  <action type='submit'>
+    <source project='home:tscholz' package='wpa_supplicant' rev='2'/>
+    <target project='kde4' package='wpa_supplicant'/>
+  </action>
+  <description/>
+  </request>"
+
+10101:
+  "<request id='10101'>
+  <action type='submit'>
+    <source project='home:tscholz' package='wpa_supplicant' rev='2'/>
+    <target project='kde4' package='wpa_supplicant'/>
+  </action>
+  <description/>
+  </request>"

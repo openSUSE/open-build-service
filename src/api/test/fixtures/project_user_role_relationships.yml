@@ -16,3 +16,8 @@ kde4_king_maintainer:
   db_project_id: 2
   bs_user_id: 2
   role_id: 2
+
+home_maintainer:
+  db_project_id: 502
+  bs_user_id: 267
+  role_id: 2

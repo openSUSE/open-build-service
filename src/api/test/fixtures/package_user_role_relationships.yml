@@ -1,7 +1,12 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
 kdelibs_fredlibs_maintainer:
-  id: 1
   db_package_id: 1
   bs_user_id: 4
-  role_id: 2
+  role_id: 1
+
+testpack_maintainer:
+  id: 2
+  db_package_id: 10095
+  bs_user_id: 267
+  role_id: 1
