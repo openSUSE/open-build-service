@@ -28,11 +28,12 @@ class AttributeController < ApplicationController
     values = params[:values].split(',')
      
     @attribute.set(params[:attribute], values)
-    @attribute.save
+    result = @attribute.save
     
     opt = {:controller => "attribute", :action => "show", :project => @project.name }
     opt.store( :package, params[:package] ) if params[:package]
     
+    flash[result[:type]] = result[:msg]
     redirect_to opt
   end
 
