@@ -1,7 +1,10 @@
 
 <!-- Build status -->
 <div id="package_buildstatus">
-  <% if not @buildresult.has_element? :result %>
+  <% if not @project.has_element?(:repository) %>
+    <i>The project this package belongs to has currently no targets defined. <br/>
+    Please add the targets it should build against <%= link_to "here", :controller => :project, :action => 'add_target_simple', :project => @project %>. </i>
+  <% elsif not @buildresult.has_element? :result %>
   <h3>Build Status unavailable</h3>
   <% else %>
   <h3>
@@ -62,12 +65,15 @@
     <% end -%>
     <% end -%>
   </table>
-  <% end -%>
+
   <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
   <p>
     <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
     :project => @project, :package => @package %>
   </p>
   <% end %>
+
+ <% end -%>
+
 </div>
 

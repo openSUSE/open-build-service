@@ -15,4 +15,7 @@
       </tr>
     <%- end #each_repository -%>
   </table>
+<% else %>
+  <i>Please add the repositories this project should build against. </i>
+
 <% end #has_element? -%>

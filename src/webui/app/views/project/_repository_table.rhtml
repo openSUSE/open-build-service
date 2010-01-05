@@ -5,11 +5,13 @@
   <%= link_to image_tag( 'list-add.png', :title => 'Add Repository' ),
   :action => 'add_target_simple', :project => @project %>
   <% end %>
-  <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status"),
-    :url => { :action => :buildresult, :project => params[:project] },
-      :update => 'inner_repo_table',
-      :loading => "$('#spinner_stat').show()", :complete => "$('#spinner_stat').hide()" %>
-   <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
+  <% if @project.has_element?(:repository) -%>
+    <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status"),
+      :url => { :action => :buildresult, :project => params[:project] },
+        :update => 'inner_repo_table',
+        :loading => "$('#spinner_stat').show()", :complete => "$('#spinner_stat').hide()" %>
+     <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
+  <% end %>
 </h3>
 
 <span id="error_message_flags" class="error_message" style="display:none;"></span>
@@ -30,14 +32,14 @@
     <%= link_to "[Add Repository]", :action => 'add_target_simple', :project => @project %>
   </td>
 <% end %>
+  <% if @project.has_element?(:repository) -%>
   <td align="right">
     <%= link_to "[Flags for Experts]", :action => 'flags_for_experts', :project => @project%>
   </td>
+  <% end %>
   </tr>
 </table>
 
 <% if @project.has_element?(:repository) -%>
   <p><%= link_to "[Monitor Build Status]", :action => :monitor, :project => params[:project] %></p>
-<% else -%>
-  <p><i>Add repositories to enable the build monitor</i></p>
 <% end -%>
