@@ -12,23 +12,15 @@ For Updaters to OBS 1.7
    Your former used database config, most likely using "frontend_production"
    database is not touched by this, the server will still use this one.
 
-2) Webui: 
-   - The production_slave environment has been removed, just use production. 
-   - Please copy config/repositories.rb.template to config/repositories.rb and adapt to your needs
+2) Required rake migrate update
 
-
-For Updaters from OBS 1.0.x releases
-====================================
-
-1) Required rake migrate update
-
-When the obs-api package has been updated, it is required to upgrade
-the database. Therefore, you should do
+  When the obs-api package has been updated, it is required to upgrade
+  the database. Therefore, you should do
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production_slave" rake db:migrate
+    # RAILS_ENV="production" rake db:migrate
 
-2) Enable the new backend services
+3) Enable the new backend services
 
   In case you use the package signing, you need to run the new bs_signer 
   process. This has been split out of bs_repserver for better scalability.
@@ -66,7 +58,7 @@ When the obs-api package has been updated, it might be required to
 upgrade the database. Therefore, you should do
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production_slave" rake db:migrate
+    # RAILS_ENV="production" rake db:migrate
 
 after updating obs-api.
 
@@ -89,6 +81,6 @@ All Updaters needs to update their database schema in any case by running the
 following commands:
 
       # cd /srv/www/obs/api/
-      # RAILS_ENV="production_slave" rake db:migrate
+      # RAILS_ENV="production" rake db:migrate
 
 

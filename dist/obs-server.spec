@@ -187,10 +187,6 @@ install -m 0644 sysconfig.obs-server sysconfig.obs-worker $FILLUP_DIR/
 # Install all web and api parts.
 #
 cd ../src
-
-### HOTFIX, shall be fixed in git until 1.7
-rm -rf webui/public/vendor/bento webui/app/views/vendor/bento
-
 for i in api webui; do
   mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
   cp -a $i $RPM_BUILD_ROOT/srv/www/obs/$i
@@ -199,9 +195,10 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/api/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
-touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/development.log
+touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 rm $RPM_BUILD_ROOT/srv/www/obs/api/REFERENCE_ATTRIBUTES.xml
 rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install
+cp -a $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb.template $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb
 
 # fix path
 for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
@@ -316,6 +313,13 @@ if [ -e /srv/www/obs/webclient/config/database.yml ] && [ ! -e /srv/www/obs/webu
 fi
 if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
   cp /srv/www/obs/frontend/config/database.yml /srv/www/obs/api/config/database.yml
+fi
+# updaters can keep their production_slave config
+if [ -e /srv/www/obs/webclient/config/environments/production_slave.rb ] && [ ! -e /srv/www/obs/webui/config/environments/production_slave.rb ]; then
+  cp /srv/www/obs/webclient/config/environments/production_slave.rb /srv/www/obs/webui/config/environments/production_slave.rb
+fi
+if [ -e /srv/www/obs/frontend/config/environments/production_slave.rb ] && [ ! -e /srv/www/obs/api/config/environments/production_slave.rb ]; then
+  cp /srv/www/obs/frontend/config/environments/production_slave.rb /srv/www/obs/api/config/environments/production_slave.rb
 fi
 %restart_on_update lighttpd
 
@@ -457,7 +461,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/api/config/options.yml
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/development.log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/production.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/api/tmp
 
 # starting the webui part
@@ -493,9 +497,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/webui/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/webui/config/initializers/theme_support.rb
+%config(noreplace) /srv/www/obs/webui/config/repositories.rb
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log/development.log
+%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log/production.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/tmp
 
 # these dirs primarily belong to lighttpd:
