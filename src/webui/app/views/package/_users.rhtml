@@ -13,15 +13,19 @@
     <dt>Maintainers</dt>
     <% package_persons=[] %>
 
-    <%- maintainers = @package.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
-    <% maintainers.each do |person| -%>
+    <%- package_maintainers = @package.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
+    <%- project_maintainers = @project.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
+
+    <% package_maintainers.each do |person| -%>
       <% package_persons << person.userid %>
       <dd>
         <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
         <%= link_to image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
         'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' -%>
         <%= link_to(person.userid, 'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
-        <%- if maintainers.length > 1  && ( @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) ) %>
+
+        <%- if package_maintainers.length + project_maintainers.length > 1  &&
+            ( @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) ) %>
           <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove Maintainer"),
           { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
           { :confirm => "Really remove user '#{person.userid}'?", :class => "x", :method => :post } -%>
@@ -29,9 +33,7 @@
       </dd>
     <% end #each_person -%>
 
-    <% 
-    maintainers = @project.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase }
-     maintainers.each do |person| %>
+    <% project_maintainers.each do |person| %>
       <% if package_persons.grep( person.userid ).empty? %>
         <dd title="implicit involved user - involved in project <%= @project.name -%>">
           <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
