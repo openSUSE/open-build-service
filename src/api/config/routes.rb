@@ -84,6 +84,16 @@ ActionController::Routing::Routes.draw do |map|
     :action => 'index_package', :project => /\w[^\/]*/, :package => /\w[^\/]*/
 
 
+  ### /attribute
+  map.connect 'attribute', :controller => 'attribute',
+    :action => 'index'
+  map.connect 'attribute/:namespace', :controller => 'attribute',
+    :action => 'index'
+  map.connect 'attribute/:namespace/_meta', :controller => 'attribute',
+    :action => 'namespace_definition'
+  map.connect 'attribute/:namespace/:name/_meta', :controller => 'attribute',
+    :action => 'attribute_definition'
+
   ### /tag
 
   #routes for tagging support

@@ -313,6 +313,72 @@ DELETE /source/<project>/<package>/<filename>
 XmlResult: status
 
 
+== Attribute definition api
+
+<attribute>: attribute definitions
+
+Host: api.opensuse.org
+
+GET /attribute/
+  
+  List all namespaces
+
+XmlResult: directory
+
+
+GET /attribute/<namespace>/
+  
+  List all attributes under given namespace
+
+XmlResult: directory
+
+
+GET /attribute/<namespace>/_meta
+  
+  shows namespace setup
+
+XmlResult: directory
+
+
+DELETE /attribute/<namespace>/_meta
+  
+  Delete a attribute namespace and all attributes below
+
+XmlResult: status
+
+
+PUT /attribute/<namespace>/_meta
+  
+  change attribute namespace meta
+
+XmlBody: attribute namespace meta data
+
+XmlResult: status
+
+
+GET /attribute/<namespace>/<name>/_meta
+  
+  shows attribute setup
+
+XmlResult: directory
+
+
+DELETE /attribute/<namespace>/<name>/_meta
+  
+  Delete a attribute and all its values in projects or packages
+
+XmlResult: status
+
+
+PUT /attribute/<namespace>/<name>/_meta
+  
+  change attribute meta
+
+XmlBody: attribute meta data
+
+XmlResult: status
+
+
 == Build Results
 
 <build>: Build repository

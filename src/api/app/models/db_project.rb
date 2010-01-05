@@ -3,6 +3,7 @@ class DbProject < ActiveRecord::Base
 
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :db_packages, :dependent => :destroy
+  has_many :attribs, :dependent => :destroy
   has_many :repositories, :dependent => :destroy
   has_many :messages, :as => :object, :dependent => :destroy
 
@@ -22,9 +23,6 @@ class DbProject < ActiveRecord::Base
   has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
 
-  has_many :attrib_types, :dependent => :delete_all
-  has_many :attrib_namespace, :dependent => :destroy
-  has_many :attribs, :dependent => :destroy
 
   def download_name
     self.name.gsub(/:/, ':/')
@@ -264,87 +262,6 @@ class DbProject < ActiveRecord::Base
       end
       #--- end update repositories ---#
       
-      #--- update attribute namespace definitions ---#
-      logger.debug "--- updating attribute namespace definitions ---"
-      
-      nscache = Hash.new
-      attrib_namespace.each do |attrib_namespace|
-        nscache[attrib_namespace.name] = attrib_namespace
-      end
-
-      if project.has_element? :attributes
-        project.attributes.each_namespace do |ns|
-          if db_ns = self.attrib_namespace.find_by_name(ns.name)
-            if db_ns.db_project != self
-              raise SaveError, "Attribute namespace definition #{ns.name} exists already in '#{db_ns.db_project.name}'"
-            else
-              nscache[ns.name].update_from_xml(ns)
-              nscache.delete ns.name
-              # update namespace
-              # FIXME: teh modified_by update is missing here
-              self.updated_at = Time.now
-            end
-          else
-            # create the new namespace
-            self.attrib_namespace.create(:name => ns.name).update_from_xml(ns)
-            self.updated_at = Time.now
-          end
-        end
-      end
-
-      # remaining entries in nscache are not mentioned in the metadata, remove them
-      nscache.each do |aname, ans|
-        logger.debug "removing attribute namespace definition '#{aname}'"
-        self.attrib_namespace.find_by_name(aname).delete
-        ans.destroy
-        self.updated_at = Time.now
-      end
-      
-      logger.debug "--- finished updating attribute namespace definitions ---"
-      #--- end update attribute namespace definitions ---#
-
-      #--- update attribute definitions ---#
-      logger.debug "--- updating attribute definitions ---"
-      
-      attribdef = Hash.new
-      attrib_types.each do |atype|
-        cachekey = atype.attrib_namespace.name + ":" + atype.name
-        attribdef[cachekey] = atype
-      end
-
-      if project.has_element? :attributes
-        project.attributes.each_definition do |definition|
-
-          cachekey = definition.namespace + ":" + definition.name
-          if attribdef.has_key? cachekey
-            # attribute already known, update from xml and remove from attribdef 
-            attribdef[cachekey].update_from_xml(definition)
-            attribdef.delete cachekey
-            self.updated_at = Time.now
-          else
-            # Check if another project defines this attribute, we do not allow to 
-            # over write the attribute definition !
-            if ( atype = AttribType.find_by_name(cachekey) and atype.db_project != self )
-              raise SaveError, "Attribute definition exists already in '#{atype.db_project.name}'"
-            end
-
-            self.attrib_types.create(:name => definition.name, :attrib_namespace => AttribNamespace.find_by_name(definition.namespace)).update_from_xml(definition)
-            self.updated_at = Time.now
-          end
-        end
-      end
-
-      # remaining entries in attribdef are not mentioned in the metadata, remove them
-      attribdef.each do |aname, definition|
-        logger.debug "removing attribute definition '#{aname}'"
-        attrib_types.delete definition
-        definition.destroy
-        self.updated_at = Time.now
-      end
-      
-      logger.debug "--- finished updating attribute definitions ---"
-      #--- end update attribute definitions ---#
-
       store
 
     end #transaction
@@ -587,14 +504,6 @@ class DbProject < ActiveRecord::Base
         end
       end
 
-      project.attributes do |a|
-        attrib_namespace.each do |attrib_namespace|
-          attrib_namespace.render_axml(a)
-        end
-        attrib_types.each do |attrib_type|
-          attrib_type.render_axml(a)
-        end
-      end if attrib_types.length > 0 or attrib_namespace.length > 0
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 

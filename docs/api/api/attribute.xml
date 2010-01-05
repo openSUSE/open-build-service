@@ -1,0 +1,15 @@
+<attribute name="attr_name" namespace="OBS">
+  <count>2</count>
+  <default>
+    <value>A</value>
+    <value>B</value>
+  </default>
+  <allowed>
+    <value>A</value>
+    <value>B</value>
+    <value>C</value>
+  </allowed>
+  <modifiable_by name="demouser"/>
+  <modifiable_by group="attribute_maintainers"/>
+  <modifiable_by role="demorole"/>
+</attribute>
