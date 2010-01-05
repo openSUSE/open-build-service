@@ -6,6 +6,7 @@
       <th style="background:none;">&nbsp;</th>
       <th>Search for:</th>
       <th>Search in:</th>
+      <th>Attribute:</th>
     </tr>
     <tr>
       <td rowspan="2">
@@ -26,6 +27,29 @@
         <label for="title">title</label><br/>
         <%= check_box_tag 'description', 1, params[:description] -%>
         <label for="description">description</label><br/>
+        <input type="checkbox"><label>attributes</label>
+      </td>
+      <td>
+       <table>
+       <tr>
+         <th>Attributes</th>
+         <th>Values</th>
+       </tr>
+       <tr>
+         <td>
+        <select name="Namen" size="6" multiple>
+        <option label="Screenshots">OBS:Screenshots</option>
+        <option label="VeryImportantProject">OBS:VeryImportantProject</option>
+        <option label="Maintained">OBS:Maintained</option>
+        <option label="Playground">openSUSE:Playground</option>
+          </select>
+       </td>
+       <td>
+         
+        <input type="text" />
+        </td>
+        </tr>
+        </table>
       </td>
     </tr>
   </table>
