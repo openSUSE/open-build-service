@@ -342,7 +342,7 @@ class PackageController < ApplicationController
       logger.debug "found user: #{user.inspect}"
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Unknown user '#{params[:userid]}'"
-      redirect_to :action => :add_person, :project => project_name, :package => params[:package], :role => params[:role]
+      redirect_to :action => :add_person, :project => @project, :package => params[:package], :role => params[:role]
       return
     end
     @package.add_person( :userid => params[:userid], :role => params[:role] )

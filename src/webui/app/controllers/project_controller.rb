@@ -514,8 +514,9 @@ class ProjectController < ApplicationController
 
 
   def save_person
-    if not params[:userid]
-      flash[:error] = "Login missing"
+    valid_http_methods(:post)
+    if not valid_role_name? params[:userid]
+      flash[:error] = "Invalid username: #{params[:userid]}"
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
     end
