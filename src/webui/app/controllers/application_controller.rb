@@ -105,7 +105,7 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_role_name? name
-    name =~ /^\w+$/
+    name =~ /^[\w\-_\.+]+$/
   end
 
   def valid_platform_name? name
