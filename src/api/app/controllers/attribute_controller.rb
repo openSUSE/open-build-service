@@ -22,6 +22,8 @@ class AttributeController < ApplicationController
   end
 
   def attributelist
+    # (coolo) why this duplication of functionality? 
+    # (coolo) rendering an array as xml won't work this way anyway
     render :text => AttribType.list_all(:namespace), :content_type => "text/xml"
   end
 
