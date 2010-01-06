@@ -25,6 +25,13 @@ class AttribType < ActiveRecord::Base
       end
       find_by_namespace_and_name(name_parts[0], name_parts[1])
     end
+  
+    def find_by_namespace_and_name(namespace, name)
+      unless namespace and name
+        raise RuntimeError, "attribute must be in the $NAMESPACE:$NAME style"
+      end
+      find :first, :joins => "JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["attrib_types.name = BINARY ? and an.name = BINARY ?", name, namespace]
+    end
   end
 
   def namespace

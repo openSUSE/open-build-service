@@ -141,9 +141,10 @@ class SearchController < ApplicationController
           packages.each do |p|
              next if p.db_project_id != proj.id
              builder.package(:name => p.name) do
-               builder.values do
-                 attribValues[pack2attrib[p.id]].each do |v|
-                   builder.value(v.value)
+               values = attribValues[pack2attrib[p.id]]
+               unless values.nil?
+                 builder.values do
+                   values.each { |v| builder.value(v.value) }
                  end
                end
              end
