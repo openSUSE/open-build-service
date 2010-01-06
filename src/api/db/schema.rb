@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100102150000) do
+ActiveRecord::Schema.define(:version => 20100104170000) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name"
@@ -41,14 +41,12 @@ ActiveRecord::Schema.define(:version => 20100102150000) do
     t.integer "attrib_namespace_id", :null => false
     t.integer "bs_user_id"
     t.integer "bs_group_id"
-    t.integer "bs_role_id"
   end
 
-  add_index "attrib_namespace_modifiable_bies", ["attrib_namespace_id", "bs_user_id", "bs_group_id", "bs_role_id"], :name => "attrib_namespace_user_role_all_index", :unique => true
+  add_index "attrib_namespace_modifiable_bies", ["attrib_namespace_id", "bs_user_id", "bs_group_id"], :name => "attrib_namespace_user_role_all_index", :unique => true
 
   create_table "attrib_namespaces", :force => true do |t|
-    t.string  "name"
-    t.integer "db_project_id"
+    t.string "name"
   end
 
   add_index "attrib_namespaces", ["name"], :name => "index_attrib_namespaces_on_name"
@@ -63,7 +61,6 @@ ActiveRecord::Schema.define(:version => 20100102150000) do
   add_index "attrib_type_modifiable_bies", ["attrib_type_id", "bs_user_id", "bs_group_id", "bs_role_id"], :name => "attrib_type_user_role_all_index", :unique => true
 
   create_table "attrib_types", :force => true do |t|
-    t.integer "db_project_id"
     t.string  "name"
     t.string  "description"
     t.string  "type"
@@ -71,7 +68,6 @@ ActiveRecord::Schema.define(:version => 20100102150000) do
     t.integer "attrib_namespace_id"
   end
 
-  add_index "attrib_types", ["db_project_id"], :name => "index_attrib_types_on_db_project_id"
   add_index "attrib_types", ["name"], :name => "index_attrib_types_on_name"
 
   create_table "attrib_values", :force => true do |t|
