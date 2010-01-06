@@ -897,6 +897,33 @@ my %default_exportfilters = (
     '-debuginfo-.*\.rpm$' => [],
     '-debugsource-.*\.rpm$' => [],
   },
+  'sparc' => {
+    # discard is intended - sparcv9 target is better suited for 64-bit baselibs
+    '\.sparc64\.rpm$' => [],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
+  },
+  'sparcv8' => $default_exportfilters{'sparc'},
+  'sparcv9' => {
+    '\.sparc64\.rpm$' => [ 'sparc64' ],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
+  },
+  'sparcv9v' => {
+    '\.sparc64v\.rpm$' => [ 'sparc64v' ],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
+  },
+  'sparc64' => {
+    '\.sparcv9\.rpm$' => [ 'sparcv9' ],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
+  },
+  'sparc64v' => {
+    '\.sparcv9v\.rpm$' => [ 'sparcv9v' ],
+    '-debuginfo-.*\.rpm$' => [],
+    '-debugsource-.*\.rpm$' => [],
+  },
 );
 
 #
