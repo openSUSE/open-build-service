@@ -47,7 +47,7 @@ module ActionController
     def validate_incoming_xml
       #only validate PUT requests
       return true unless request.put?
-      Suse::Validator.new(params).validate(request.raw_post.to_s)
+      Suse::Validator.new(params).validate(request)
     end
   end
 end
@@ -132,20 +132,15 @@ module Suse
       @schema_path = schema_path
     end
 
-    def validate( document )
-      case document
-      when String
-        doc_str = document
-      else
-        raise ValidationError, "illegal document type '#{document.class.name}'"
-      end
-      
+    def validate( request )
       if @schema_path.nil?
         logger.debug "schema path not set, skipping validation"
         return doc_str
       end
-      
+
       logger.debug "trying to validate against schema '#@schema_path'"
+
+      doc_str = request.raw_post.to_s    
       
       tmp = Tempfile.new('opensuse_frontend_validator')
       tmp.print doc_str
