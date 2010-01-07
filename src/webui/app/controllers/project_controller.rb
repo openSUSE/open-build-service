@@ -234,23 +234,20 @@ class ProjectController < ApplicationController
     render :partial => 'repository_edit_form', :locals => { :repo => repo, :error => nil }
   end
 
+
   def update_target
+    valid_http_methods :post
     repo = @project.repository[params[:repo]]
     repo.name = params[:name]
     repo.archs = params[:arch].to_a
-
-    if !valid_platform_name? params[:name]
-      @arch_list = arch_list
-      repo.name = params[:original_name]
-      render :partial => 'repository_edit_form', :locals => { :error => "Invalid repository name: #{params[:name]}",
-        :repo => repo } and return
-    end
-
-    if @project.save
-      @arch_list = arch_list
+    @arch_list = arch_list
+    begin
+      @project.save
       render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
-    else
-      render :text => 'updating target failed'
+    rescue => e
+      repo.name = params[:original_name]
+      render :partial => 'repository_edit_form', :locals => { :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}",
+        :repo => repo } and return
     end
   end
 

@@ -1,7 +1,8 @@
 <td colspan="<%=@arch_list.length + 1 %>">
 
-<%= error if !error.nil? %>
-
+<% if error %>
+  <div class="message error"><%= error %></div>
+<% end %>
 
 <% form_remote_tag :update => repo.name, :url => { :action => :update_target } do %>
 <b>Name:</b> <%= text_field_tag :name, repo.name %>
