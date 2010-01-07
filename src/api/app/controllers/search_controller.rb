@@ -43,7 +43,7 @@ class SearchController < ApplicationController
     begin
       collection = xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order))
     rescue XpathEngine::IllegalXpathError => e
-      render_error :status => 400, :message => "illegal xpath %s" % predicate
+      render_error :status => 400, :message => "illegal xpath %s (#{e.message})" % predicate
       return
     end
     output = String.new
