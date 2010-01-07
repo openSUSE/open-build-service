@@ -109,7 +109,7 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_platform_name? name
-    name =~ /^\w[-_\.\w]*$/
+    name =~ /^\w[-_\.\w+]*$/
   end
 
   def reset_activexml
