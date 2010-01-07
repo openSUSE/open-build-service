@@ -10,7 +10,7 @@
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "SyntaxHighlighter" %>
-  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushSpec', 'syntax/shBrushXml' %>
+  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushDiff' %>
 <% end %>
 <% content_for :ready_function do %>
     dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
@@ -18,15 +18,15 @@
 <% end %>
 
 <p>
-  <%= render :partial => 'request_table', :locals => {:requests => @req, :options => false, :by_me => false } %>
+  <%= render :partial => 'request_table', :locals => {:requests => @requests, :options => false, :by_me => false } %>
 </p>
 
 
 <% if @diff_text %>
-<pre name="code" class="spec">
+<pre name="code" class="patch">
   <%= @diff_text %>
 </pre>
-<% else %>
+<% elsif @diff_error %>
   <p>
     <i><div class="message">Can't get diff for request #<%= @id %>: <%= @diff_error %></div></i>
   </p>

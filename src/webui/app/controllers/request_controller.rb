@@ -28,6 +28,7 @@ class RequestController < ApplicationController
 
   def diff
     diff = Diff.find( :id => params[:id])
+    @requests = [diff]
     @id = diff.data.attributes["id"]
     @state = diff.state.data.attributes["name"]
     @type = diff.action.data.attributes["type"]
@@ -40,12 +41,10 @@ class RequestController < ApplicationController
     @is_author = diff.has_element? "//state[@name='new' and @who='#{session[:login]}']"
     @is_maintainer = @target_project.is_maintainer? session[:login]
 
-    transport ||= ActiveXML::Config::transport_for(:project)
-    path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&rev=#{@src_rev}&expand=1"
-
     if @type == "submit"
       transport ||= ActiveXML::Config::transport_for(:project)
-      path = "/source/#{@src_project}/#{@src_pkg}?opackage=#{@target_pkg}&oproject=#{@target_project}&cmd=diff&expand=1"
+      path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
+               [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg), CGI.escape(@target_project.name)]
       if diff.action.source.has_element? 'rev'
         path += "&rev=#{diff.action.source.rev}"
       end

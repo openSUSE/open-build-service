@@ -4,7 +4,7 @@
 -%>
 
 <%-
-if !requests || requests.empty?
+if requests.nil?
   return "<p><em>No open requests</em></p>"
 end -%>
 
