@@ -310,12 +310,15 @@ class PackageController < ApplicationController
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
-
   def remove_file
-    valid_http_methods(:post)
+    if request.method != :post
+      flash[:warn] = "File removal failed because this was no POST request. " +
+        "This probably happened because you were logged out. Please try again."
+      redirect_to :action => :show, :project => @project, :package => @package and return
+    end
     if not params[:filename]
       flash[:note] = "Removing file aborted: no filename given."
-      redirect_to :action => :show, :project => params[:project], :package => params[:package]
+      redirect_to :action => :show, :project => @project, :package => @package
     end
     filename = params[:filename]
     # extra escaping of filename (workaround for rails bug)
@@ -328,7 +331,6 @@ class PackageController < ApplicationController
     end
     redirect_to :action => :show, :project => @project, :package => @package
   end
-
 
   def save_person
     valid_http_methods(:post)
