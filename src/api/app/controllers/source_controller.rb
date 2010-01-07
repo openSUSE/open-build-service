@@ -785,7 +785,7 @@ class SourceController < ApplicationController
       pac.db_project.repositories.each do |repo|
         orepo = Repository.create :name => proj_name+"_"+repo.name
         orepo.architectures = repo.architectures
-        orepo.path_elements << PathElement.new(:link => repo)
+        orepo.path_elements << PathElement.new(:link => repo, :position => 1)
         oprj.repositories << orepo
         opkg.build_flags << BuildFlag.new( :status => "enable", :repo => orepo.name )
       end
@@ -1084,7 +1084,7 @@ class SourceController < ApplicationController
         prj.repositories.each do |repo|
           orepo = Repository.create :name => repo.name
           orepo.architectures = repo.architectures
-          orepo.path_elements << PathElement.new(:link => repo)
+          orepo.path_elements << PathElement.new(:link => repo, :position => 1)
           oprj.repositories << orepo
         end
         oprj.save

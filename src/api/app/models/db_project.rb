@@ -206,19 +206,18 @@ class DbProject < ActiveRecord::Base
           current_repo = repocache[repo.name]
         end
 
-
         #destroy all current pathelements
-        current_repo.path_elements.sort {|a,b| b.id <=> a.id}.each do |pe|
-          pe.destroy
-        end
+        current_repo.path_elements.each { |pe| pe.destroy }
 
         #recreate pathelements from xml
+	position = 1
         repo.each_path do |path|
           link_repo = Repository.find_by_project_and_repo_name( path.project, path.repository )
           if link_repo.nil?
             raise SaveError, "unable to walk on path '#{path.project}/#{path.repository}'"
           end
-          current_repo.path_elements.create :link => link_repo
+          current_repo.path_elements.create :link => link_repo, :position => position
+	  position += 1
         end
 
         #destroy architecture references
