@@ -65,7 +65,6 @@ class XpathEngine
     @conditions = [1]
     @condition_values = []
     @joins = []
-    @split = nil
   end
 
   def logger
@@ -142,10 +141,6 @@ class XpathEngine
       logger.debug "strange base table: #{@base_table}"
     end
 
-    if @split
-        first = @condition_values.shift
-        @condition_values.insert(0, first.split(@split))
-    end
     cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
 
     if opt[:sort_by] and @attribs[@base_table].has_key?(opt[:sort_by])
@@ -204,13 +199,22 @@ class XpathEngine
         expr.shift #namespace
         a << "@"+expr.shift
       when :literal
-        @condition_values << (escape ? escape_for_like(expr.shift) : expr.shift)
+        value = (escape ? escape_for_like(expr.shift) : expr.shift)
+        if @last_key and @attribs[table][@last_key][:split]
+          @condition_values << value.split(@attribs[table][@last_key][:split])
+        else
+          @condition_values << value
+        end
+        @last_key = nil
         return "?"
       else
         raise IllegalXpathError, "illegal token: '#{token.inspect}'"
       end
     end
     key = a.join "/"
+    # this is a wild hack - we need to save the key, so we can possibly split the next
+    # literal. The real fix is to translate the xpath into SQL directly
+    @last_key = key
     raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table].has_key? key
     logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:joins]

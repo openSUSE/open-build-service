@@ -41,6 +41,36 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_tag :child => { :child => { :tag => 'package', :attributes => { :name => "apache2" }, :children => { :count => 0 } } }
   end
 
+  def test_xpath_1
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get "/search/package", :match => '[@name="apache2"]'
+    assert_response :success
+    assert_tag :tag => 'collection', :children => { :count => 1 }
+    assert_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+  end
 
+  def test_xpath_2
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get "/search/package", :match => '[attribute/@name="OBS:Maintained"]'
+    assert_response :success
+    assert_tag :tag => 'collection', :children => { :count => 1 }
+    assert_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+  end
+
+  def test_xpath_3
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get "/search/package", :match => '[attribute/@name="OBS:Maintained" and @name="apache2"]'
+    assert_response :success
+    assert_tag :tag => 'collection', :children => { :count => 1 }
+    assert_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+  end
+
+  def test_xpath_4
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get "/search/package", :match => '[attribute/@name="OBS:Maintained" and @name="Testpack"]'
+    assert_response :success
+    assert_tag :tag => 'collection', :children => { :count => 0 }
+  end
+  
 end
 
