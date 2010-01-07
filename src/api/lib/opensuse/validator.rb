@@ -135,7 +135,7 @@ module Suse
     def validate( request )
       if @schema_path.nil?
         logger.debug "schema path not set, skipping validation"
-        return doc_str
+        return true
       end
 
       logger.debug "trying to validate against schema '#@schema_path'"
@@ -157,7 +157,7 @@ module Suse
       end
       logger.debug "validation succeeded"
 
-      doc_str
+      return true
 
     end
   end
