@@ -619,6 +619,7 @@ class SourceController < ApplicationController
   end
 
   def file
+    valid_http_methods :get, :delete, :put
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
