@@ -1993,7 +1993,7 @@ sub putprojectconfig {
   if (-s "$uploaddir/$$") {
     rename("$uploaddir/$$", "$projectsdir/$projid.conf") || die("rename $uploaddir/$$ $projectsdir/$projid.conf: $!\n");
   } else {
-    unlink("$projectsdir/$projid.conf") || die("unlink $projectsdir/$projid.conf: $!\n");
+    unlink("$projectsdir/$projid.conf");
   }
   notify_repservers('project', $projid);
   BSHermes::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid });
