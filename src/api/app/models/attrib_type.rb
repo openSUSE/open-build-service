@@ -9,6 +9,8 @@ class AttribType < ActiveRecord::Base
   has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :destroy
   has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
 
+  class ArgumentError < Exception; end
+
   class << self
     def list_all(namespace=nil)
       if namespace
@@ -21,14 +23,14 @@ class AttribType < ActiveRecord::Base
     def find_by_name(name)
       name_parts = name.split /:/
       if name_parts.length != 2
-        raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
+        raise ArgumentError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
       end
       find_by_namespace_and_name(name_parts[0], name_parts[1])
     end
   
     def find_by_namespace_and_name(namespace, name)
       unless namespace and name
-        raise RuntimeError, "Need namespace and name as parameters"
+        raise ArgumentError, "Need namespace and name as parameters"
       end
       find :first, :joins => "JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["attrib_types.name = BINARY ? and an.name = BINARY ?", name, namespace]
     end
