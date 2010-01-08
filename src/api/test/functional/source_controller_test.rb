@@ -10,6 +10,8 @@ FIXTURES = [
   :db_projects,
   :db_packages,
   :bs_roles,
+  :repositories,
+  :path_elements,
   :project_user_role_relationships
 ]
 
@@ -418,7 +420,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal( @response.body.to_s, origstring, message="Package file was changed without permissions" )
   end
   
-  def test_remove_project
+  def test_remove_project1
     ActionController::IntegrationTest::reset_auth 
     delete "/source/kde4"
     assert_response 401
@@ -426,6 +428,23 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "fredlibs", "geröllheimer"
     delete "/source/kde4" 
     assert_response :success
+  end
+
+  def test_remove_project2
+    prepare_request_with_user @request, "tom", "thunder" 
+    delete "/source/home:coolo"
+    assert_response 403
+    assert_select "status[code] > summary", /Unable to delete project home:coolo; following repositories depend on this project:/
+
+    delete "/source/home:coolo", :force => 1
+    assert_response :success
+
+    # verify the repo is updated
+    get "/source/home:coolo:test/_meta"
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert_equal node.repository.name, "home_coolo"
+    assert_equal node.repository.path.project, "deleted"
+    assert_equal node.repository.path.repository, "gone"
   end
 
   def teardown  

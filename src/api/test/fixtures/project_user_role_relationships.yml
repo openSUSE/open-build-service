@@ -21,3 +21,14 @@ home_maintainer:
   db_project_id: 502
   bs_user_id: 267
   role_id: 2
+
+tom_maintainer_coolo:
+  db_project_id: 600
+  bs_user_id: 3
+  role_id: 2 
+
+tom_maintainer_coolo_2:
+  db_project_id: 601
+  bs_user_id: 3
+  role_id: 2
+

@@ -1,13 +1,21 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
-  id: 1
-another:
-  id: 2
 SUSE_Linux_101:
   name: SUSE_Linux_10.1
-  db_project_id: "63"
-  id: "75"
+  db_project_id: 63
+  id: 75
 SUSE_Linux_Factory:
   name: SUSE_Linux_Factory
-  db_project_id: "64"
-  id: "81"
+  db_project_id: 64
+  id: 81
+coolo_standard:
+  name: standard
+  db_project_id: 600
+  id: 82
+test_against_standard:
+  name: home_coolo
+  db_project_id: 601
+  id: 83
+deleted:
+  name: gone
+  db_project_id: 1000
+  id: 84

@@ -1,5 +1,6 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first:
-  id: 1
-another:
-  id: 2
+test_builds_against_home:
+ parent_id: 83
+ repository_id: 82
+ position: 1
+ 

@@ -73,17 +73,15 @@ class SourceController < ApplicationController
           #replace links to this projects with links to the "deleted" project
           del_repo = DbProject.find_by_name("deleted").repositories[0]
           lreps.each do |link_rep|
-            pe = link_rep.path_elements.find(:first, :include => ["link"], :conditions => ["db_project_id = ?", pro.id])
-            pe.link = del_repo
-            pe.save
+            link_rep.path_elements.find(:all).each { |pe| pe.destroy }
+            link_rep.path_elements.create(:link => del_repo)
+            link_rep.save
             #update backend
-            link_prj = link_rep.db_project
-            logger.info "updating project '#{link_prj.name}'"
-            Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+            link_rep.db_project.store
           end
         else
           lrepstr = lreps.map{|l| l.db_project.name+'/'+l.name}.join "\n"
-          render_error :status => 400, :errorcode => "repo_dependency",
+          render_error :status => 403, :errorcode => "repo_dependency",
             :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n"
           return
         end
