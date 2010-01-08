@@ -418,6 +418,16 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal( @response.body.to_s, origstring, message="Package file was changed without permissions" )
   end
   
+  def test_remove_project
+    ActionController::IntegrationTest::reset_auth 
+    delete "/source/kde4"
+    assert_response 401
+
+    prepare_request_with_user @request, "fredlibs", "geröllheimer"
+    delete "/source/kde4" 
+    assert_response :success
+  end
+
   def teardown  
     # restore the XML test files
     # restore_source_test_data

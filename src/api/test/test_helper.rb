@@ -24,6 +24,10 @@ module ActionController
       def put(path, parameters = nil, headers = nil)
         process :put, path, parameters, add_auth(headers)
       end
+      def delete(path, parameters = nil, headers = nil)
+        process :delete, path, parameters, add_auth(headers)
+      end
+
     end
   end
 
@@ -161,6 +165,13 @@ module Suse
       end
     end
 
+    def self.delete(path)
+      # do not really delete things - if things go wrong,
+      # I do not want my ~ gone
+      path = @@mock_path_prefix+path
+      File.rename(path, path + ".away")
+    end
+
     def self.logger
       RAILS_DEFAULT_LOGGER
     end
@@ -189,6 +200,12 @@ module Suse
           return self.get("/request/42", in_headers)
         end
         MockWriter.write path, data
+        return MockResponse.new
+      end
+
+      def self.delete(path, in_headers={}) 
+        logger.debug "### mock delete: "
+        MockWriter.delete path
         return MockResponse.new
       end
 
