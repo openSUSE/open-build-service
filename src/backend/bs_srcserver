@@ -1504,6 +1504,7 @@ sub getprojpack {
 	    $rinfo->{'file'} = $file;
 	    # get build dependency info
             my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
+	    $d = data2utf8($d);
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
