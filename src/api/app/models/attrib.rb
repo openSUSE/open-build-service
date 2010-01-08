@@ -29,8 +29,10 @@ class Attrib < ActiveRecord::Base
     if update_values
       logger.debug "--- updating values ---"
       self.values.delete_all
+      position = 1
       node.each_value do |val|
-        self.values << AttribValue.new(:value => val.to_s)
+        self.values << AttribValue.new(:value => val.to_s, :position => position)
+        position += 1
       end
     end
 
