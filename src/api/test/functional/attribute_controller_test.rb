@@ -32,7 +32,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     count = 1
     assert_tag :tag => 'directory', :attributes => { :count => count }
     assert_tag :children => { :count => count }
-    assert_tag :child => { :tag => 'entry', :attributes => { :name => "OBS" } }
+    assert_tag :child => { :tag => 'entry', :attributes => { :name => "NSTEST" } }
   end
 
   def test_namespace_index
@@ -42,7 +42,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_tag :tag => 'directory', :attributes => { :count => 0 }
 
-    get "/attribute/OBS"
+    get "/attribute/NSTEST"
     assert_response :success
     count = 1
     assert_tag :tag => 'directory', :attributes => { :count => count }
@@ -52,9 +52,9 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
   def test_namespace_meta
     prepare_request_with_user @request, "tscholz", "asdfasdf"
-    get "/attribute/OBS/_meta"
+    get "/attribute/NSTEST/_meta"
     assert_response :success
-    assert_tag :tag => 'namespace', :attributes => { :name => "OBS" }
+    assert_tag :tag => 'namespace', :attributes => { :name => "NSTEST" }
     assert_tag :children => { :count => 1 }
     assert_tag :child => { :tag => 'modifiable_by', :attributes => { :user => "king" } }
   end
