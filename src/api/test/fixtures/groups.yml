@@ -1,0 +1,4 @@
+# default group
+test_group:
+  id: 99
+  title: test_group

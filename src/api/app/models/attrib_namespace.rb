@@ -13,7 +13,7 @@ class AttribNamespace < ActiveRecord::Base
 
   def update_from_xml(node)
     self.transaction do
-      self.attrib_namespace_modifiable_by.delete_all
+      self.attrib_namespace_modifiable_bies.delete_all
       # store permission settings
       node.elements.each("modifiable_by") do |m|
           if not m.attributes["user"] and not m.attributes["group"]
