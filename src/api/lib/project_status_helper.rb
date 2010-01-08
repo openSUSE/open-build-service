@@ -187,10 +187,10 @@ class ProjectStatusHelper
     newkey = pack.devel_project + "/" + pack.devel_package
     return unless mypackages.has_key? newkey
     develpack = mypackages[newkey]
-    if develpack.project != pack.project
-      mypackages.delete newkey
-    end
     pack.develpack = develpack
+    key = develpack.project + "/" + develpack.name
+    # recursion for the devel packages
+    move_devel_package(mypackages, key)
   end
 
   def self.calc_status(dbproj, backend)
@@ -203,7 +203,7 @@ class ProjectStatusHelper
     projects = Hash.new
     projects[dbproj.name] = dbproj
     dbproj.db_packages.each do |dbpack|
-      #next unless dbpack.name =~ /^kernel.*/
+      #next unless dbpack.name =~ /mono/
       begin
         dbpack.resolve_devel_package
       rescue DbPackage::CycleError => e
@@ -218,11 +218,24 @@ class ProjectStatusHelper
     end
 
     dbproj.db_packages.each do |dbpack|
+      #next unless dbpack.name =~ /mono/
       key = dbproj.name + "/" + dbpack.name
       move_devel_package(mypackages, key)
+    end
+
+    # cleanup
+    mypackages.keys.each do |key|
+      if mypackages[key].project != dbproj.name
+	mypackages.delete key
+      end
     end
     
     return mypackages
   end
+
+  def self.logger
+    RAILS_DEFAULT_LOGGER
+  end
+  
 end
 
