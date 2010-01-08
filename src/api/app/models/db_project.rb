@@ -1,3 +1,5 @@
+require 'opensuse/backend'
+
 class DbProject < ActiveRecord::Base
   class SaveError < Exception; end
 

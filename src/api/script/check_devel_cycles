@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
 packs = DbPackage.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
+projects = Hash.new
 
 packs.each do |p|
   begin
