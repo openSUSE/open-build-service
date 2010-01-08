@@ -123,8 +123,8 @@ class User < ActiveRecord::Base
     unless attribute.kind_of? Attrib
       raise ArgumentError, "illegal parameter type to User#can_modify_attribute?: #{attribute.class.name}"
     end
-    if attribute.attrib_type.attrib_type_modifiable_by.length > 0
-      attribute.attrib_type.attrib_type_modifiable_by.each do |mod_rule|
+    if attribute.attrib_type.attrib_type_modifiable_bies.length > 0
+      attribute.attrib_type.attrib_type_modifiable_bies.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
         next if mod_rule.group; # groups are not yet supported # and not self.is_part_of_group?(mod_rule.group)
         if attribute.db_package
@@ -178,8 +178,8 @@ class User < ActiveRecord::Base
       raise ArgumentError, "unknown attribute type '#{attrib_type}'"
     end
     # check modifiable_by rules
-    if atype.attrib_type_modifiable_by.length > 0
-      atype.attrib_type_modifiable_by.each do |mod_rule|
+    if atype.attrib_type_modifiable_bies.length > 0
+      atype.attrib_type_modifiable_bies.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
         next if mod_rule.group; # groups are not yet supported # and not self.is_part_of_group?(mod_rule.group)
         next if mod_rule.role and not has_local_role?(mod_rule.role, object)

@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class AttributeTest < ActiveSupport::TestCase
   fixtures :attribs, :attrib_namespaces, :attrib_namespace_modifiable_bies, :attrib_types, :attrib_allowed_values
-  fixtures :groups, :users
+  fixtures :roles, :groups, :users, :db_projects, :db_packages
 
   def setup
     @attrib_ns = AttribNamespace.find_by_name( "NSTEST" )

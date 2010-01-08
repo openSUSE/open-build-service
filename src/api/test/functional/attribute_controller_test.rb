@@ -37,14 +37,13 @@ class AttributeControllerTest < ActionController::IntegrationTest
 
   def test_namespace_index
     prepare_request_with_user @request, "tscholz", "asdfasdf"
-    # looking for inexistant namespaces should return 0 hits but success
+
     get "/attribute/Redhat"
-    assert_response :success
-    assert_tag :tag => 'directory', :attributes => { :count => 0 }
+    assert_response 400
 
     get "/attribute/NSTEST"
     assert_response :success
-    count = 1
+    count = 2
     assert_tag :tag => 'directory', :attributes => { :count => count }
     assert_tag :children => { :count => count }
     assert_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }

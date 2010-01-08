@@ -6,6 +6,11 @@ class AttributeController < ApplicationController
  
   def index
     if params[:namespace]
+      if not AttribNamespace.find_by_name( params[:namespace] )
+        render_error :status => 400, :errorcode => 'unknown_namespace',
+          :message => "Attribute namespace does not exist: #{params[:namespace]}"
+        return
+      end
       list = AttribType.list_all( params[:namespace] )
     else
       list = AttribNamespace.list_all
