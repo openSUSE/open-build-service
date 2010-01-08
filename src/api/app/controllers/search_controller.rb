@@ -19,7 +19,7 @@ class SearchController < ApplicationController
   end
 
   def attribute
-    find_attribute(params[:ns], params[:name])
+    find_attribute(params[:namespace], params[:name])
   end
 
   private
@@ -82,7 +82,7 @@ class SearchController < ApplicationController
 
   # specification of this function:
   # supported paramters:
-  # ns: attribute namespace (required string)
+  # namespace: attribute namespace (required string)
   # name: attribute name  (required string)
   # project: limit search to project name (optional string)
   # package: limit search to package name (optional string)
@@ -92,7 +92,7 @@ class SearchController < ApplicationController
   # value: limit search to attributes with value (optional string)
   # value_substr: limit search to attributes that match value substring (optional string)
   #
-  # output: XML <attribute ns name><project name>values? packages?</project></attribute>
+  # output: XML <attribute namespace name><project name>values? packages?</project></attribute>
   #         with packages = <package name>values?</package>
   #          and values   = <values>value+</values>
   #          and value    = <value>CDATA</value>
@@ -135,7 +135,7 @@ class SearchController < ApplicationController
     packages.sort! { |x,y| x.name <=> y.name }
     projects = packages.collect { |p| p.db_project }.uniq
     builder = Builder::XmlMarkup.new( :indent => 2 )
-    xml = builder.attribute(:ns => namespace, :name => name) do
+    xml = builder.attribute(:namespace => namespace, :name => name) do
       projects.each do |proj|
         builder.project(:name => proj.name) do
           packages.each do |p|

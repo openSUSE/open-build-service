@@ -19,24 +19,24 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def test_search_unknown
     ActionController::IntegrationTest::reset_auth
-    get "/search/attribute?ns=OBS&name=FailedCommend"
+    get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 401
 
     prepare_request_with_user @request, "tscholz", "asdfasdf" 
-    get "/search/attribute?ns=OBS&name=FailedCommend"
+    get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 404
     assert_select "status[code] > summary", /no such attribute/
   end
 
   def test_search_one_maintained_package
     ActionController::IntegrationTest::reset_auth
-    get "/search/attribute?ns=OBS&name=Maintained"
+    get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response 401
 
     prepare_request_with_user @request, "tscholz", "asdfasdf"
-    get "/search/attribute?ns=OBS&name=Maintained"
+    get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
-    assert_tag :tag => 'attribute', :attributes => { :name => "Maintained", :ns => "OBS" }, :children => { :count => 1 }
+    assert_tag :tag => 'attribute', :attributes => { :name => "Maintained", :namespace => "OBS" }, :children => { :count => 1 }
     assert_tag :child => { :tag => 'project', :attributes => { :name => "Apache"}, :children => { :count => 1 } }
     assert_tag :child => { :child => { :tag => 'package', :attributes => { :name => "apache2" }, :children => { :count => 0 } } }
   end
