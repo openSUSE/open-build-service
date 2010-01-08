@@ -28,7 +28,7 @@ class AttribType < ActiveRecord::Base
   
     def find_by_namespace_and_name(namespace, name)
       unless namespace and name
-        raise RuntimeError, "attribute must be in the $NAMESPACE:$NAME style"
+        raise RuntimeError, "Need namespace and name as parameters"
       end
       find :first, :joins => "JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["attrib_types.name = BINARY ? and an.name = BINARY ?", name, namespace]
     end
@@ -120,13 +120,17 @@ class AttribType < ActiveRecord::Base
       # default values of a attribute stored
       self.default_values.delete_all
       node.elements.each("default") do |d|
-        self.default_values << AttribDefaultValue.new(:value => d.text)
+        d.elements.each("value") do |v|
+          self.default_values << AttribDefaultValue.new(:value => v.text)
+        end
       end
 
       # list of allowed values
       self.allowed_values.delete_all
-      node.elements.each("allowed") do |d|
-        self.allowed_values << AttribAllowedValue.new(:value => d.text)
+      node.elements.each("allowed") do |a|
+        a.elements.each("value") do |v|
+          self.allowed_values << AttribAllowedValue.new(:value => v.text)
+        end
       end
 
       self.save

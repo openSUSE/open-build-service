@@ -210,15 +210,15 @@ class SourceController < ApplicationController
     binary=params[:binary] if params[:binary]
 
     if params[:package]
-      @attrs = DbPackage.find_by_project_and_name(params[:project], params[:package])
-      unless @attrs
+      @attribute_container = DbPackage.find_by_project_and_name(params[:project], params[:package])
+      unless @attribute_container
         render_error :message => "Unknown project '#{params[:project]}'",
           :status => 404, :errorcode => "unknown_project"
         return
       end
     else
-      @attrs = DbProject.find_by_name(params[:project])
-      unless @attrs
+      @attribute_container = DbProject.find_by_name(params[:project])
+      unless @attribute_container
         render_error :message => "Unknown project '#{params[:project]}'",
           :status => 404, :errorcode => "unknown_project"
         return
@@ -227,7 +227,7 @@ class SourceController < ApplicationController
 
     if request.get?
       params[:binary]=binary if binary
-      render :text => @attrs.render_attribute_axml(params), :content_type => 'text/xml'
+      render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
       return
     end
 
@@ -245,7 +245,7 @@ class SourceController < ApplicationController
     # permission checking
     if params[:attribute]
       aname = params[:attribute]
-      if a=@attrs.find_attribute(params[:attribute],binary)
+      if a=@attribute_container.find_attribute(params[:attribute],binary)
         unless @http_user.can_modify_attribute? a
           render_error :status => 403, :errorcode => "change_attribute_no_permission", 
             :message => "user #{user.login} has no permission to modify attribute"
@@ -257,7 +257,7 @@ class SourceController < ApplicationController
             :message => "Attempt to modify not existing attribute"
           return
         end
-        unless @http_user.can_create_attribute_in? @attrs, params[:attribute]
+        unless @http_user.can_create_attribute_in? @attribute_container, params[:attribute]
           render_error :status => 403, :errorcode => "change_attribute_no_permission", 
             :message => "user #{user.login} has no permission to change attribute"
           return
@@ -267,7 +267,7 @@ class SourceController < ApplicationController
       if request.post?
         req.each_attribute do |a|
           begin
-            can_create = @http_user.can_create_attribute_in? @attrs, a.name
+            can_create = @http_user.can_create_attribute_in? @attribute_container, a.name
           rescue User::ArgumentError => e
             render_error :status => 400, :errorcode => "change_attribute_attribute_error",
               :message => e.message
@@ -289,13 +289,13 @@ class SourceController < ApplicationController
     # execute action
     if request.post?
       req.each_attribute do |a|
-        @attrs.store_attribute_axml(a, binary)
+        @attribute_container.store_attribute_axml(a, binary)
       end
-      @attrs.store
+      @attribute_container.store
       render_ok
     elsif request.delete?
-      @attrs.find_attribute(params[:attribute],binary).destroy
-      @attrs.store
+      @attribute_container.find_attribute(params[:attribute],binary).destroy
+      @attribute_container.store
       render_ok
     else
       render_error :message => "INTERNAL ERROR: Unhandled operation",
