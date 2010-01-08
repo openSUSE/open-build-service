@@ -1,7 +1,7 @@
 require "rexml/document"
 
 class AttributeController < ApplicationController
-  validate_action :index => :directory, :attributelist => :directory
+  validate_action :index => :directory
   validate_action :attribute => :attribute
  
   def index
@@ -19,12 +19,6 @@ class AttributeController < ApplicationController
     end
 
     render :text => xml, :content_type => "text/xml"
-  end
-
-  def attributelist
-    # (coolo) why this duplication of functionality? 
-    # (coolo) rendering an array as xml won't work this way anyway
-    render :text => AttribType.list_all(:namespace), :content_type => "text/xml"
   end
 
   # /attribute/:namespace/_meta
