@@ -19,6 +19,8 @@ config.action_controller.perform_caching             = false
 # ActionMailer::Base.deliveries array.
 config.action_mailer.delivery_method = :test
 
+config.cache_store = :memory_store
+
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 3003
 
