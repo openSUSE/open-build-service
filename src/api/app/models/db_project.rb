@@ -19,11 +19,11 @@ class DbProject < ActiveRecord::Base
   has_many :ratings, :as => :object, :dependent => :destroy
 
   has_many :flags
-  has_many :publish_flags,  :order => :position, :extend => FlagExtension
-  has_many :build_flags,  :order => :position, :extend => FlagExtension
-  has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension
-  has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension
-  has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
+  has_many :publish_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :build_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
 
 
   def download_name

@@ -15,11 +15,11 @@ class DbPackage < ActiveRecord::Base
   has_many :ratings, :as => :object, :dependent => :destroy
 
   has_many :flags
-  has_many :publish_flags,  :order => :position, :extend => FlagExtension
-  has_many :build_flags,  :order => :position, :extend => FlagExtension
-  has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension
-  has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension
-  has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension
+  has_many :publish_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :build_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
 
   belongs_to :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
   has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
