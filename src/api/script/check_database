@@ -1,0 +1,100 @@
+#!/usr/bin/env ruby
+require File.dirname(__FILE__) + '/../config/boot'
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+
+def check_foreign_key(id, table, othertable, delete)
+  sql="select distinct %s from %s where %s not in (select id from %s);" % [id, table, id, othertable]
+  ids=[]
+  ActiveRecord::Base.connection.execute(sql).each do |row|
+    ids << Integer(row[0])
+  end
+  return if ids.empty?
+  if delete 
+    puts " delete from %s where %s in (%s);" % [table, id, ids.join(",")]
+  else
+    puts " update %s set %s=NULL where %s in (%s);" % [table, id, id, ids.join(",")]
+  end
+end
+
+packs = DbPackage.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
+projects = Hash.new
+
+packs.each do |p|
+  begin
+    p.resolve_devel_package
+  rescue DbPackage::CycleError => e
+    projects[p.db_project.name] ||= Array.new
+    projects[p.db_project.name] << e.message
+  end
+end
+
+projects.keys.sort.each do |p|
+  projects[p].each do |m|
+    puts " " + m
+  end
+end
+
+check_foreign_key("db_project_id", "db_packages", "db_projects", 1);
+check_foreign_key("develproject_id", "db_packages", "db_projects", 0);
+check_foreign_key("develpackage_id", "db_packages", "db_packages", 0);
+check_foreign_key("repository_id", "architectures_repositories", "repositories", 1)
+check_foreign_key("architecture_id", "architectures_repositories", "architectures", 1)
+
+check_foreign_key("bs_user_id", "watched_projects", "users", 1);
+
+check_foreign_key("db_project_id", "db_projects_tags", "db_projects", 1);
+check_foreign_key("tag_id", "db_projects_tags", "tags", 1);
+
+check_foreign_key("attrib_type_id", "attribs", "attrib_types", 1);
+check_foreign_key("db_package_id", "attribs", "db_packages", 1);
+check_foreign_key("db_project_id", "attribs", "db_projects", 1);
+
+check_foreign_key("db_project_id", "flags", "db_projects", 1);
+check_foreign_key("db_package_id", "flags", "db_packages", 1);
+check_foreign_key("architecture_id", "flags", "architectures", 1);
+
+check_foreign_key("attrib_id", "attrib_values", "attribs", 1);
+
+check_foreign_key("attrib_namespace_id", "attrib_types", "attrib_namespaces", 1);
+
+check_foreign_key("group_id", "groups_roles", "groups", 1);
+check_foreign_key("role_id", "groups_roles", "roles", 1);
+
+check_foreign_key("group_id", "groups_users", "groups", 1);
+check_foreign_key("user_id", "groups_users", "users", 1);
+
+check_foreign_key("db_package_id", "package_user_role_relationships", "db_packages", 1);
+check_foreign_key("bs_user_id", "package_user_role_relationships", "users", 1);
+check_foreign_key("role_id", "package_user_role_relationships", "roles", 1);
+
+check_foreign_key("db_project_id", "project_user_role_relationships", "db_projects", 1);
+check_foreign_key("bs_user_id", "project_user_role_relationships", "users", 1);
+check_foreign_key("role_id", "project_user_role_relationships", "roles", 1);
+
+check_foreign_key("parent_id", "path_elements", "repositories", 1);
+check_foreign_key("repository_id", "path_elements", "repositories", 1);
+
+check_foreign_key("user_id", "ratings", "users", 1);
+
+check_foreign_key("db_project_id", "repositories", "db_projects", 1);
+
+check_foreign_key("parent_id", "roles", "roles", 1);
+
+check_foreign_key("role_id", "roles_static_permissions", "roles", 1);
+check_foreign_key("static_permission_id", "roles_static_permissions", "static_permissions", 1);
+
+check_foreign_key("user_id", "roles_users", "users", 1);
+check_foreign_key("role_id", "roles_users", "roles", 1);
+
+check_foreign_key("tag_id", "taggings", "tags", 1);
+check_foreign_key("user_id", "taggings", "users", 1);
+
+check_foreign_key("user_id", "user_registrations", "users", 1);
+
+check_foreign_key("attrib_type_id", "attrib_allowed_values", "attrib_types", 1);
+check_foreign_key("attrib_type_id", "attrib_default_values", "attrib_types", 1);
+
+check_foreign_key("attrib_namespace_id", "attrib_namespace_modifiable_bies", "attrib_namespaces", 1);
+check_foreign_key("bs_user_id", "attrib_namespace_modifiable_bies", "users", 1);
+check_foreign_key("bs_group_id", "attrib_namespace_modifiable_bies", "groups", 1);
+

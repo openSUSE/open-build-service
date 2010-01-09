@@ -9,32 +9,32 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100104170000) do
+ActiveRecord::Schema.define(:version => 20100109145739) do
 
   create_table "architectures", :force => true do |t|
-    t.string  "name"
+    t.string  "name",                          :null => false
     t.boolean "selectable", :default => false
   end
 
   add_index "architectures", ["name"], :name => "arch_name_index", :unique => true
 
   create_table "architectures_repositories", :id => false, :force => true do |t|
-    t.integer "repository_id"
-    t.integer "architecture_id"
+    t.integer "repository_id",                  :null => false
+    t.integer "architecture_id",                :null => false
     t.integer "position",        :default => 0, :null => false
   end
 
   add_index "architectures_repositories", ["repository_id", "architecture_id"], :name => "arch_repo_index", :unique => true
 
   create_table "attrib_allowed_values", :force => true do |t|
-    t.integer "attrib_type_id"
+    t.integer "attrib_type_id", :null => false
     t.text    "value"
   end
 
   create_table "attrib_default_values", :force => true do |t|
-    t.integer "attrib_type_id"
+    t.integer "attrib_type_id", :null => false
     t.text    "value",          :null => false
-    t.integer "position"
+    t.integer "position",       :null => false
   end
 
   create_table "attrib_namespace_modifiable_bies", :force => true do |t|
@@ -61,11 +61,11 @@ ActiveRecord::Schema.define(:version => 20100104170000) do
   add_index "attrib_type_modifiable_bies", ["attrib_type_id", "bs_user_id", "bs_group_id", "bs_role_id"], :name => "attrib_type_user_role_all_index", :unique => true
 
   create_table "attrib_types", :force => true do |t|
-    t.string  "name"
+    t.string  "name",                :null => false
     t.string  "description"
     t.string  "type"
     t.integer "value_count"
-    t.integer "attrib_namespace_id"
+    t.integer "attrib_namespace_id", :null => false
   end
 
   add_index "attrib_types", ["name"], :name => "index_attrib_types_on_name"
@@ -241,8 +241,8 @@ ActiveRecord::Schema.define(:version => 20100104170000) do
   add_index "package_user_role_relationships", ["db_package_id", "bs_user_id", "role_id"], :name => "package_user_role_all_index", :unique => true
 
   create_table "path_elements", :force => true do |t|
-    t.integer "parent_id"
-    t.integer "repository_id"
+    t.integer "parent_id",     :null => false
+    t.integer "repository_id", :null => false
     t.integer "position"
   end
 
@@ -269,7 +269,7 @@ ActiveRecord::Schema.define(:version => 20100104170000) do
   add_index "ratings", ["user_id"], :name => "user"
 
   create_table "repositories", :force => true do |t|
-    t.integer "db_project_id"
+    t.integer "db_project_id",       :null => false
     t.string  "name"
     t.string  "remote_project_name"
   end
