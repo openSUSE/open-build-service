@@ -121,9 +121,11 @@ class AttribType < ActiveRecord::Base
 
       # default values of a attribute stored
       self.default_values.delete_all
+      position = 1
       node.elements.each("default") do |d|
         d.elements.each("value") do |v|
-          self.default_values << AttribDefaultValue.new(:value => v.text)
+          self.default_values << AttribDefaultValue.new(:value => v.text, :position => position)
+          position += 1
         end
       end
 
