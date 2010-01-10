@@ -820,7 +820,7 @@ sub putbinary {
   my $evname = "scanrepo:${projid}::$repoid";
   if (-d "$eventdir/$arch") {
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($arch);
+    dirty($projid, $repoid, $arch);
   }
   return $BSStdServer::return_ok;
 }
@@ -893,6 +893,33 @@ sub workerstate {
   return $BSStdServer::return_ok;
 }
 
+sub dirty {
+  my ($projid,$repoid,$arch) = @_;
+
+  die ( "ERROR: dirty function must get project id at least" ) unless $projid;
+
+  my @repos=();
+  if ( defined($repoid) ){
+    @repos=($repoid);
+  }else{
+    @repos = ls("$reporoot/$projid");
+  }
+
+  for my $r (@repos) {
+    my @archs=();
+    if ( defined($arch) ){
+      @archs=($arch);
+    }else{
+      @archs = ls("$reporoot/$projid/$r");
+    }
+  
+    for my $a (@archs) {
+      BSUtil::touch("$reporoot/$projid/$r/$a/:schedulerstate.dirty") if -e "$reporoot/$projid/$r/$a";
+    }
+  }
+  ping($arch);
+}
+
 sub ping {
   my ($arch) = @_;
   local *F;
@@ -900,6 +927,23 @@ sub ping {
     syswrite(F, 'x');
     close(F);
   }
+}
+
+sub getschedulerstate {
+  my ($projid,$repoid,$arch) = @_;
+  local *F;
+
+  open(F, '<', "$reporoot/$projid/$repoid/$arch/:schedulerstate") || return "unknown";
+  my $schedulerstate = readline(*F);
+  close(F);
+
+  if ($schedulerstate eq "finished"){
+    return "finished"   if -e "$eventdir/publish/".$projid."::".$repoid;
+    return "publishing" if -e "$eventdir/publish/".$projid."::".$repoid."::inprogress";
+    return "unpublished"  if readstr("$reporoot/$projid/$repoid/$arch/:repodone") eq "skipped";
+    return "published";
+  }
+  return $schedulerstate;
 }
 
 sub workerstatus {
@@ -1108,7 +1152,7 @@ sub putjob {
   } else {
     mkdir_p("$eventdir/$arch");
     writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
-    ping($arch);
+    dirty($projid, $repoid, $arch);
   }
 
   return $BSStdServer::return_ok;
@@ -1146,7 +1190,7 @@ sub uploadbuild {
   mkdir_p("$eventdir/$arch");
   my $ev = {'type' => 'uploadbuild', 'job' => $job};
   writexml("$eventdir/$arch/.uploadbuild:$job$$", "$eventdir/$arch/uploadbuild:$job", $ev, $BSXML::event);
-  ping($arch);
+  dirty($projid, $repoid, $arch);
   return $BSStdServer::return_ok;
 }
 
@@ -1168,7 +1212,7 @@ sub forwardevent {
     next unless -d "$eventdir/$a";
     next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer';
     writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
-    ping($a);
+    dirty($projid, $repoid, $a);
   }
   return $BSStdServer::return_ok;
 }
@@ -1229,7 +1273,11 @@ sub getresult {
     if (%packfilter && $ps->{'packstatus'}) {
       $ps->{'packstatus'} = [ grep {$packfilter{$_->{'name'}}} @{$ps->{'packstatus'}} ];
     }
-    my $sl = {'project' => $ps->{'project'}, 'repository' => $ps->{'repository'}, 'arch' => $ps->{'arch'}};
+    my $schedulerstate = getschedulerstate($ps->{'project'},$ps->{'repository'},$ps->{'arch'});
+    my $sl = {'project' => $ps->{'project'}, 'repository' => $ps->{'repository'}, 'arch' => $ps->{'arch'},
+              'state' => $schedulerstate };
+    $sl->{'dirty'}="true" if -e "$reporoot/$prpa/:schedulerstate.dirty";
+    $sl->{'dirty'}="true" if $schedulerstate eq "scheduling"; # flag already removed, but new state not yet written
     fixpackstatus($prpa, $ps, \%buildingjobs);
     for my $p (@{$ps->{'packstatus'} || []}) {
       next if %code && !$code{$p->{'status'}};
@@ -1304,7 +1352,7 @@ sub docommand {
 	  writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
 	}
       }
-      ping($arch);
+      dirty($projid, $repoid, $arch);
     } elsif ($cmd eq 'killbuild' || $cmd eq 'abortbuild') {
       for my $packid (@packids) {
 	eval {

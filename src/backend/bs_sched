@@ -648,6 +648,21 @@ sub sendrepochangeevent {
   sendevent($ev, 'repository', "${projid}::${repoid}::${myarch}");
 }
 
+sub set_repo_state {
+  my ($prp, $state) = @_;
+
+  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq "scheduling";
+  
+  local *F;
+  open(F, '>', "$reporoot/$prp/$myarch/:schedulerstate") || die("$reporoot/$prp/$myarch/:schedulerstate: $!\n");
+  # no one else is writing the file, no locking needed
+  #if (!flock(F, LOCK_EX | LOCK_NB)) {
+  #  flock(F, LOCK_EX) || die("flock: $!\n");
+  #}
+  print F $state;
+  close(F);
+}
+
 #
 # prpfinished  - publish a prp
 #
@@ -3231,6 +3246,7 @@ while(1) {
 	my $packid = $ev->{'package'};
 	for my $prp (@prps) {
 	  $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
+          BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
 	}
 	$changed_high{$projid} ||= 1;
 	next;
@@ -3300,6 +3316,7 @@ while(1) {
 	rmdir("$gdst/$packid");
 	for $prp (@prps) {
 	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+          BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
 	}
 	$changed_high{$projid} = 2;
 	next;
@@ -3360,7 +3377,10 @@ while(1) {
 	  update_dst_full($prp, "$gdst/$packid", "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
 	}
 	for $prp (@prps) {
-	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+	  if ((split('/', $prp, 2))[0] eq $projid) {
+	    $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+            BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+	  }
 	}
 	$changed_high{$projid} = 2;
 	next;
@@ -3389,7 +3409,10 @@ while(1) {
       for my $projid (sort keys %fetchprojpacks) {
 	if (grep {!defined($_)} @{$fetchprojpacks{$projid}}) {
 	  for my $prp (@prps) {
-	    $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+            if ((split('/', $prp, 2))[0] eq $projid) {
+	      $changed_high{$prp} = 2;
+              BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+	    }
 	  }
 	  $changed_high{$projid} = 2;
 	  for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
@@ -3397,7 +3420,10 @@ while(1) {
 	  }
 	} else {
 	  for my $prp (@prps) {
-	    $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
+	    if ((split('/', $prp, 2))[0] eq $projid) {
+	      $changed_high{$prp} ||= 1;
+              BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+	    }
 	  }
 	  $changed_high{$projid} ||= 1;
 	  my %packids = map {$_ => 1} @{$fetchprojpacks{$projid}};
@@ -3417,12 +3443,18 @@ while(1) {
 	  get_projpacks($projid, sort keys %packids);
 	  if ($fetchlinkedprojpacks_high{$projid}) {
 	    for my $prp (@prps) {
-	      $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
+	      if ((split('/', $prp, 2))[0] eq $projid){
+	        $changed_high{$prp} ||= 1;
+                BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+	      }
 	    }
 	    $changed_high{$projid} ||= 1;
 	  } else {
 	    for my $prp (@prps) {
-	      $changed_low{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
+	      if ((split('/', $prp, 2))[0] eq $projid){
+	        $changed_low{$prp} ||= 1;
+                BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+	      }
 	    }
 	    $changed_low{$projid} ||= 1;
 	  }
@@ -3540,6 +3572,7 @@ while(1) {
 	  $others = 1;
 	}
 	if (!$others) {
+	  unlink("$reporoot/:schedulerstate.dirty");
 	  unlink("$reporoot/$prp/:repoinfo");
 	  unlink("$reporoot/$prp/.finishedlock");
 	  rmdir("$reporoot/$prp");
@@ -3590,6 +3623,7 @@ while(1) {
   }
 
   mkdir_p("$reporoot/$prp/$myarch");
+  set_repo_state($prp, "scheduling");
 
   my $packs = $projpacks->{$projid}->{'package'} || {};
   my @packs = sort keys %$packs;
@@ -3649,6 +3683,7 @@ while(1) {
   }
   if ($error) {
     print "    $error\n";
+    set_repo_state($prp, "error");
     next;
   }
   
@@ -4283,6 +4318,15 @@ relsynccheck:
   print "    looked harder: $nharder\n" if $nharder;
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready).", unfinished: ".scalar(keys %unfinished)."\n";
   print "    took $prpchecktime seconds to check the packages\n";
+
+  if (keys %building || keys %unfinished) {
+    set_repo_state($prp, "building");
+  } elsif (keys %notready) {
+    set_repo_state($prp, "blocked");
+  } else {
+    set_repo_state($prp, "finished");
+  }
+
   # we always publish kiwi...
   if (!%unfinished || $prptype eq 'kiwi') {
     my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
@@ -4312,6 +4356,7 @@ relsynccheck:
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate);
       } else {
 	print "    publishing is disabled\n";
+	writestr("$reporoot/$prp/$myarch/:repodone", undef, "skipped");
       }
     }
     if (!%unfinished) {

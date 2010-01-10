@@ -43,7 +43,12 @@
         <%=h result.arch %>
       </td>
       <% if result.has_element? :status -%>
-      <td><%=h result.status.code %></td>
+      <td>
+        <%=h result.status.code %>
+        <% if result.has_attribute? :dirty -%>
+          (rescheduling)
+        <% end -%>
+      </td>
       <td>
         <% if result.status.has_element? :details -%>
         <%=h result.status.details %>

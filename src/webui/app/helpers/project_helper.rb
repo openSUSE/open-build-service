@@ -44,6 +44,14 @@ module ProjectHelper
     if result.nil?
       ret << "n/a<br>"
     else
+      if result.has_attribute? "state"
+        if result.has_attribute? "dirty"
+          ret << "State: outdated(" << result.state << ")"
+        else
+          ret << "State: " << result.state
+        end
+        ret << "<br>"
+      end
       result.summary.each_statuscount do |scnt|
         ret << link_to("#{scnt.code}:&nbsp;#{scnt.count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], scnt.code => 1, :defaults => 0)
         ret << "<br>\n"
