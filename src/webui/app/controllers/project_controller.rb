@@ -83,9 +83,8 @@ class ProjectController < ApplicationController
     @namespace = params[:ns]
     @project_name = params[:project]
     if params[:ns] == "home:#{session[:login]}"
-      begin
-        @project = Project.find params[:ns]
-      rescue ActiveXML::Transport::NotFoundError
+      @project = Project.find params[:ns]
+      unless @project
         flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
         redirect_to :action => :new, :project => params[:ns] and return
@@ -520,9 +519,8 @@ class ProjectController < ApplicationController
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
     end
-    begin
-      user = Person.find( :login => params[:userid] )
-    rescue ActiveXML::Transport::NotFoundError
+    user = Person.find( :login => params[:userid] )
+    unless user
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
@@ -599,10 +597,9 @@ class ProjectController < ApplicationController
       end
     }
 
-    begin
-      @buildresult = Buildresult.find( :project => @project, :view => 'status', :code => @status_filter,
-                     @lastbuild_switch.blank? ? nil : :lastbuild => '1', :arch => @arch_filter, :repo => @repo_filter )
-    rescue ActiveXML::Transport::NotFoundError
+    @buildresult = Buildresult.find( :project => @project, :view => 'status', :code => @status_filter,
+                   @lastbuild_switch.blank? ? nil : :lastbuild => '1', :arch => @arch_filter, :repo => @repo_filter )
+    unless @buildresult
       flash[:error] = "No build results for project '#{@project}'"
       redirect_to :action => :show, :project => params[:project]
       return
@@ -729,9 +726,8 @@ class ProjectController < ApplicationController
         render :text => 'Not a valid project name', :status => 404 and return
       end
     end
-    begin
-      @project = Project.find( params[:project] )
-    rescue ActiveXML::Transport::NotFoundError
+    @project = Project.find( params[:project] )
+    unless @project
       if params[:project] == "home:" + session[:login]
         # checks if the user is registered yet
         Person.find( :login => session[:login] )

@@ -71,11 +71,7 @@ class PackageController < ApplicationController
     @files.each do |file|
       @spec_count += 1 if file[:ext] == "spec"
       if ( file[:name] == "_link" )
-        begin
-          @link = Link.find( :project => @project, :package => @package )
-        rescue ActiveXML::Transport::NotFoundError
-          @link = nil
-        end
+        @link = Link.find( :project => @project, :package => @package )
       end
     end
 
@@ -178,9 +174,8 @@ class PackageController < ApplicationController
     @linked_package = params[:linked_package].strip
     @target_package = params[:target_package].strip
 
-    begin
-      linked_package = Package.find( @linked_package, :project => @linked_project )
-    rescue ActiveXML::Transport::NotFoundError
+    linked_package = Package.find( @linked_package, :project => @linked_project )
+    unless linked_package
       flash.now[:error] = "Unable to find package '#{@linked_package}' in" +
         " project '#{@linked_project}'."
       render :action => "new_link" and return
@@ -339,14 +334,13 @@ class PackageController < ApplicationController
       redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
       return
     end
-    begin
-      user = Person.find( :login => params[:userid] )
-      logger.debug "found user: #{user.inspect}"
-    rescue ActiveXML::Transport::NotFoundError
+    user = Person.find( :login => params[:userid] )
+    unless user
       flash[:error] = "Unknown user '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => @project, :package => params[:package], :role => params[:role]
       return
     end
+    logger.debug "found user: #{user.inspect}"
     @package.add_person( :userid => params[:userid], :role => params[:role] )
     if @package.save
       flash[:note] = "added user #{params[:userid]}"
@@ -758,10 +752,10 @@ class PackageController < ApplicationController
   end
 
   def require_project
-    begin
-      raise ActiveXML::Transport::NotFoundError if params[:project].nil?
+    if params[:project]
       @project = Project.find( params[:project] )
-    rescue ActiveXML::Transport::NotFoundError => e
+    end
+    unless @project
       logger.error "Project #{params[:project]} not found: #{e.message}"
       flash[:error] = "Project not found: \"#{params[:project]}\""
       redirect_to :controller => "project", :action => "list_public" and return
@@ -770,11 +764,11 @@ class PackageController < ApplicationController
 
   def require_package
     @project ||= params[:project]
-    begin
-      raise ActiveXML::Transport::NotFoundError if params[:package].nil?
+    if params[:package]
       @package = Package.find( params[:package], :project => @project )
-    rescue ActiveXML::Transport::NotFoundError => e
-      logger.error "Package #{params[:package]} not found: #{e.message}"
+    end
+    unless @package
+      logger.error "Package #{@project}/#{params[:package]} not found"
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to :controller => "project", :action => :show, :project => @project and return
     end
