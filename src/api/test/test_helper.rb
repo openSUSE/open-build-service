@@ -160,6 +160,7 @@ module Suse
     def self.write(path, data)
       path = path.split(/\?/)[0]
       fullpath = @@mock_path_prefix+path
+      FileUtils.mkdir_p(File.dirname(fullpath))
       File.open(fullpath,"w+") do |file|
         file.write data
       end

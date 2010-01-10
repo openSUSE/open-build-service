@@ -32,3 +32,8 @@ tom_maintainer_coolo_2:
   bs_user_id: 3
   role_id: 2
 
+tom_maintaienr_tom:
+  db_project_id: 1001
+  bs_user_id: 3
+  role_id: 2
+

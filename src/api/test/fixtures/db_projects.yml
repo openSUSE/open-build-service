@@ -44,3 +44,6 @@ home:coolo:test:
 deleted:
   name: deleted
   id: 1000 
+home:tom:
+  name: home:tom
+  id: 1001

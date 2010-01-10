@@ -1080,10 +1080,9 @@ class SourceController < ApplicationController
         oprj = DbProject.new :name => oprj_name, :title => prj.title, :description => prj.description
         oprj.add_user @http_user, "maintainer"
         prj.repositories.each do |repo|
-          orepo = Repository.create :name => repo.name
+          orepo = oprj.repositories.create :name => repo.name
           orepo.architectures = repo.architectures
           orepo.path_elements << PathElement.new(:link => repo, :position => 1)
-          oprj.repositories << orepo
         end
         oprj.save
       end

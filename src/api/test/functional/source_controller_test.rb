@@ -447,6 +447,35 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_equal node.repository.path.repository, "gone"
   end
 
+  def test_branch_package
+    ActionController::IntegrationTest::reset_auth 
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
+    assert_response 401
+
+    prepare_request_with_user @request, "fredlibs", "geröllheimer"
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
+    assert_response 403
+ 
+    prepare_request_with_user @request, "tom", "thunder"
+    post "/source/home:tscholz/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
+    assert_response :success
+    get "/source/home:coolo:test/TestPack/_meta"
+    assert_response :success
+
+    # now with a new project
+    post "/source/home:tscholz/TestPack", :cmd => :branch
+    assert_response :success
+    
+    get "/source/home:tom:branches:home:tscholz/TestPack/_meta"
+    assert_response :success
+
+    get "/source/home:tom:branches:home:tscholz/_meta"
+    ret = ActiveXML::XMLNode.new @response.body
+    assert_equal ret.repository.name, "standard"
+    assert_equal ret.repository.path.repository, "standard"
+    assert_equal ret.repository.path.project, "home:tscholz"
+  end
+
   def teardown  
     # restore the XML test files
     # restore_source_test_data
