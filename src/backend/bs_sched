@@ -3466,7 +3466,7 @@ while(1) {
   }
 
   # mark all in direct affected repos dirty
-  for my $d (keys $changed_dirty) {
+  for my $d (keys %changed_dirty) {
     next if ! -d "$reporoot/$d/$myarch";
     next if   -e "$reporoot/$d/$myarch/:schedulerstate.dirty";
     BSUtil::touch("$reporoot/$d/$myarch/:schedulerstate.dirty");
