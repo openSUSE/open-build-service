@@ -653,14 +653,7 @@ sub set_repo_state {
 
   unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq "scheduling";
   
-  local *F;
-  open(F, '>', "$reporoot/$prp/$myarch/:schedulerstate") || die("$reporoot/$prp/$myarch/:schedulerstate: $!\n");
-  # no one else is writing the file, no locking needed
-  #if (!flock(F, LOCK_EX | LOCK_NB)) {
-  #  flock(F, LOCK_EX) || die("flock: $!\n");
-  #}
-  print F $state;
-  close(F);
+  writestr("$reporoot/$prp/$myarch/:schedulerstate.new", "$reporoot/$prp/$myarch/:schedulerstate", $state);
 }
 
 #
@@ -3572,7 +3565,7 @@ while(1) {
 	  $others = 1;
 	}
 	if (!$others) {
-	  unlink("$reporoot/:schedulerstate.dirty");
+	  unlink("$reporoot/$prp/:schedulerstate.dirty");
 	  unlink("$reporoot/$prp/:repoinfo");
 	  unlink("$reporoot/$prp/.finishedlock");
 	  rmdir("$reporoot/$prp");
@@ -4319,9 +4312,9 @@ relsynccheck:
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready).", unfinished: ".scalar(keys %unfinished)."\n";
   print "    took $prpchecktime seconds to check the packages\n";
 
-  if (keys %building || keys %unfinished) {
+  if (keys %building) {
     set_repo_state($prp, "building");
-  } elsif (keys %notready) {
+  } elsif (keys %unfinished) {
     set_repo_state($prp, "blocked");
   } else {
     set_repo_state($prp, "finished");
@@ -4356,7 +4349,7 @@ relsynccheck:
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate);
       } else {
 	print "    publishing is disabled\n";
-	writestr("$reporoot/$prp/$myarch/:repodone", undef, "skipped");
+	writestr("$reporoot/$prp/$myarch/:repodone", undef, "disabled");
       }
     }
     if (!%unfinished) {

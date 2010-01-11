@@ -894,22 +894,22 @@ sub workerstate {
 }
 
 sub dirty {
-  my ($projid,$repoid,$arch) = @_;
+  my ($projid, $repoid, $arch) = @_;
 
-  die ( "ERROR: dirty function must get project id at least" ) unless $projid;
+  die("ERROR: dirty function must get project id at least") unless $projid;
 
-  my @repos=();
-  if ( defined($repoid) ){
+  my @repos;
+  if (defined($repoid)) {
     @repos=($repoid);
-  }else{
+  } else {
     @repos = ls("$reporoot/$projid");
   }
 
   for my $r (@repos) {
-    my @archs=();
-    if ( defined($arch) ){
+    my @archs;
+    if (defined($arch)) {
       @archs=($arch);
-    }else{
+    } else {
       @archs = ls("$reporoot/$projid/$r");
     }
   
@@ -938,9 +938,9 @@ sub getschedulerstate {
   close(F);
 
   if ($schedulerstate eq "finished"){
-    return "finished"   if -e "$eventdir/publish/".$projid."::".$repoid;
-    return "publishing" if -e "$eventdir/publish/".$projid."::".$repoid."::inprogress";
-    return "unpublished"  if readstr("$reporoot/$projid/$repoid/$arch/:repodone") eq "skipped";
+    return "finished"     if -e "$eventdir/publish/".$projid."::".$repoid;
+    return "publishing"   if -e "$eventdir/publish/".$projid."::".$repoid."::inprogress";
+    return "unpublished"  if readstr("$reporoot/$projid/$repoid/$arch/:repodone") eq "disabled";
     return "published";
   }
   return $schedulerstate;

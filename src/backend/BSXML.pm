@@ -696,7 +696,7 @@ our $result = [
 	'project',
 	'repository',
 	'arch',
-	'state', # pra state, can be "unknown", "scheduling", "building", "finished", "publishing" or "published"
+	'state', # pra state, can be "unknown", "scheduling", "blocked", "building", "finished", "publishing", "published" or "unpublished"
 	'dirty', # marked for re-scheduling if element exists, state might not be correct anymore
       [ $buildstatus ],
       [ $binarylist ],
