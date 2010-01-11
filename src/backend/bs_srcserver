@@ -1076,6 +1076,20 @@ sub lsrev_expanded {
   return $files;
 }
 
+# add missing target information to linkinfo
+sub linkinfo_addtarget {
+  my ($rev, $linkinfo) = @_;
+  die("linkinfo_addtarget: linkinfo contains no lsrcmd5?\n") unless $linkinfo->{'lsrcmd5'};
+  my $files = lsrev($rev, $linkinfo->{'lsrcmd5'});
+  die("linkinfo_addtarget: not a link?\n") unless $files->{'_link'};
+  my $projid = $rev->{'project'};
+  my $packid = $rev->{'package'};
+  my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
+  $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $projid;
+  $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $packid;
+  $linkinfo->{'rev'} = $l->{'rev'} if $l->{'rev'};
+  $linkinfo->{'baserev'} = $l->{'baserev'} if $l->{'baserev'};
+}
 
 sub findlastworkinglink {
   my ($rev) = @_;
@@ -2199,6 +2213,21 @@ sub sourcediff {
   return ($d, 'Content-Type: text/plain');
 }
 
+sub linkdiff {
+  my ($cgi, $projid, $packid) = @_;
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  my $linkinfo = {};
+  my $files = lsrev_expanded($rev, $linkinfo);
+  die("not a link\n") unless $linkinfo->{'srcmd5'};
+  linkinfo_addtarget($linkinfo);
+  return sourcediff({
+    'oproject' => $linkinfo->{'project'},
+    'opackage' => $linkinfo->{'package'},
+    'orev' => $linkinfo->{'srcmd5'},
+    'rev' => $rev->{'srcmd5'},
+  }, $projid, $packid);
+}
+
 sub isascii {
   my ($file) = @_;
   local *F;
@@ -2752,6 +2781,7 @@ sub linktobranch {
 sub sourcecmd {
   my ($cgi, $projid, $packid) = @_;
   return sourcediff($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'diff';
+  return linkdiff($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'linkdiff';
   return sourcecommit($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commit';
   return sourcecommitfilelist($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commitfilelist';
   return sourcecopy($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'copy';
