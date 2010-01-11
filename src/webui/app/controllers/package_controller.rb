@@ -756,7 +756,7 @@ class PackageController < ApplicationController
       @project = Project.find( params[:project] )
     end
     unless @project
-      logger.error "Project #{params[:project]} not found: #{e.message}"
+      logger.error "Project #{params[:project]} not found"
       flash[:error] = "Project not found: \"#{params[:project]}\""
       redirect_to :controller => "project", :action => "list_public" and return
     end
