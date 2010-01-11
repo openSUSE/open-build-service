@@ -2874,6 +2874,7 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 my %changed_low;
 my %changed_med;
 my %changed_high;
+my %changed_dirty;
 my %prpfinished;
 my %lastcheck;
 
@@ -3239,7 +3240,7 @@ while(1) {
 	my $packid = $ev->{'package'};
 	for my $prp (@prps) {
 	  $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
-          BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+          $changed_dirty{$prp} ||= 1;
 	}
 	$changed_high{$projid} ||= 1;
 	next;
@@ -3309,7 +3310,7 @@ while(1) {
 	rmdir("$gdst/$packid");
 	for $prp (@prps) {
 	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-          BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+          $changed_dirty{$prp} ||= 1;
 	}
 	$changed_high{$projid} = 2;
 	next;
@@ -3372,7 +3373,7 @@ while(1) {
 	for $prp (@prps) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-            BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+            $changed_dirty{$prp} ||= 1;
 	  }
 	}
 	$changed_high{$projid} = 2;
@@ -3404,7 +3405,7 @@ while(1) {
 	  for my $prp (@prps) {
             if ((split('/', $prp, 2))[0] eq $projid) {
 	      $changed_high{$prp} = 2;
-              BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+              $changed_dirty{$prp} ||= 1;
 	    }
 	  }
 	  $changed_high{$projid} = 2;
@@ -3415,7 +3416,7 @@ while(1) {
 	  for my $prp (@prps) {
 	    if ((split('/', $prp, 2))[0] eq $projid) {
 	      $changed_high{$prp} ||= 1;
-              BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+              $changed_dirty{$prp} ||= 1;
 	    }
 	  }
 	  $changed_high{$projid} ||= 1;
@@ -3438,7 +3439,7 @@ while(1) {
 	    for my $prp (@prps) {
 	      if ((split('/', $prp, 2))[0] eq $projid){
 	        $changed_high{$prp} ||= 1;
-                BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+                $changed_dirty{$prp} ||= 1;
 	      }
 	    }
 	    $changed_high{$projid} ||= 1;
@@ -3446,7 +3447,7 @@ while(1) {
 	    for my $prp (@prps) {
 	      if ((split('/', $prp, 2))[0] eq $projid){
 	        $changed_low{$prp} ||= 1;
-                BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+                $changed_dirty{$prp} ||= 1;
 	      }
 	    }
 	    $changed_low{$projid} ||= 1;
@@ -3463,6 +3464,14 @@ while(1) {
     }
     next;
   }
+
+  # mark all in direct affected repos dirty
+  for my $d (keys $changed_dirty) {
+    next if ! -d "$reporoot/$d/$myarch";
+    next if   -e "$reporoot/$d/$myarch/:schedulerstate.dirty";
+    BSUtil::touch("$reporoot/$d/$myarch/:schedulerstate.dirty");
+  }
+  %changed_dirty = ();
 
   my $prp;
   if (!defined($prp) && @lookat_low && $notlow > 10) {
