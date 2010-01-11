@@ -2726,6 +2726,29 @@ sub sourcebranch {
   return ($rev, $BSXML::revision);
 }
 
+sub linktobranch {
+  my ($cgi, $projid, $packid) = @_;
+  my $rev = getrev($projid, $packid);
+  my $files = lsrev($rev);
+  die("package is not a link\n") unless $files->{'_link'};
+  my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
+  die("package is already a branch\n") if $l->{'patches'} && grep {(keys %$_)[0] eq 'branch'} @{$l->{'patches'}->{''} || []};
+  my $linkinfo = {};
+  $files = lsrev_expanded($rev, $linkinfo);
+  $l->{'baserev'} = $linkinfo->{'srcmd5'};
+  $l->{'patches'}->{''} = [ { 'branch' => undef} ];
+  mkdir_p($uploaddir);
+  writexml("$uploaddir/$$", undef, $l, $BSXML::link);
+  $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
+  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
+  $comment ||= "converted link to branch";
+  $rev = addrev($projid, $packid, $files, $user, $comment, undef, $cgi->{'requestid'});
+  delete $rev->{'project'};
+  delete $rev->{'package'};
+  return ($rev, $BSXML::revision);
+}
+
 sub sourcecmd {
   my ($cgi, $projid, $packid) = @_;
   return sourcediff($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'diff';
@@ -2733,6 +2756,7 @@ sub sourcecmd {
   return sourcecommitfilelist($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commitfilelist';
   return sourcecopy($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'copy';
   return sourcebranch($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'branch';
+  return linktobranch($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'linktobranch';
   if ($cgi->{'cmd'} eq 'deleteuploadrev') {
     unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
     return $BSStdServer::return_ok;
