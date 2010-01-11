@@ -1002,6 +1002,36 @@ class SourceController < ApplicationController
     forward_data path, :method => :post
   end
 
+  # POST /source/<project>/<package>?cmd=linktobranch
+  def index_package_linktobranch
+    params[:user] = @http_user.login
+    prj_name = params[:project]
+    pkg_name = params[:package]
+    pkg_rev = params[:rev]
+    pkg_linkrev = params[:linkrev]
+
+    prj = DbProject.find_by_name prj_name
+    pkg = prj.db_packages.find_by_name(pkg_name)
+    if pkg.nil?
+      render_error :status => 404, :errorcode => 'unknown_package',
+        :message => "Unknown package #{pkg_name} in project #{prj_name}"
+      return
+    end
+
+    #convert link to branch
+    rev = ""
+    if not pkg_rev.nil? and not pkg_rev.empty?
+         rev = "&rev=#{pkg_rev}"
+    end
+    linkrev = ""
+    if not pkg_linkrev.nil? and not pkg_linkrev.empty?
+         linkrev = "&linkrev=#{pkg_linkrev}"
+    end
+    Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch#{rev}#{linkrev}", nil
+
+    render_ok
+  end
+
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"
   def index_package_branch
     params[:user] = @http_user.login
@@ -1094,20 +1124,11 @@ class SourceController < ApplicationController
     end
 
     #link sources
-    if params[:TEMPORARY_enable_backend_branch]
-        # the new way, just for testing for now
-        rev = ""
-        if not pkg_rev.nil? and not pkg_rev.empty?
-             rev = "&rev=#{pkg_rev}"
-        end
-        Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{prj_name}&opackage=#{pkg_name}#{rev}", nil
-    else
-        # the old way, about to be dropped.
-        rev = pkg_rev.nil? ? "" : "rev='#{pkg_rev}'"
-        link_data = "<link project='#{prj_name}' package='#{pkg_name}' #{rev}/>"
-        logger.debug "link_data: #{link_data}"
-        Suse::Backend.put "/source/#{oprj_name}/#{opkg_name}/_link", link_data
+    rev = ""
+    if not pkg_rev.nil? and not pkg_rev.empty?
+         rev = "&rev=#{pkg_rev}"
     end
+    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{prj_name}&opackage=#{pkg_name}#{rev}", nil
 
     render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name}
   end
