@@ -3240,7 +3240,7 @@ while(1) {
 	my $packid = $ev->{'package'};
 	for my $prp (@prps) {
 	  $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
-          $changed_dirty{$prp} ||= 1;
+          $changed_dirty{$prp} = 1;
 	}
 	$changed_high{$projid} ||= 1;
 	next;
@@ -3310,7 +3310,7 @@ while(1) {
 	rmdir("$gdst/$packid");
 	for $prp (@prps) {
 	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-          $changed_dirty{$prp} ||= 1;
+          $changed_dirty{$prp} = 1;
 	}
 	$changed_high{$projid} = 2;
 	next;
@@ -3373,7 +3373,7 @@ while(1) {
 	for $prp (@prps) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-            $changed_dirty{$prp} ||= 1;
+            $changed_dirty{$prp} = 1;
 	  }
 	}
 	$changed_high{$projid} = 2;
@@ -3405,7 +3405,7 @@ while(1) {
 	  for my $prp (@prps) {
             if ((split('/', $prp, 2))[0] eq $projid) {
 	      $changed_high{$prp} = 2;
-              $changed_dirty{$prp} ||= 1;
+              $changed_dirty{$prp} = 1;
 	    }
 	  }
 	  $changed_high{$projid} = 2;
@@ -3416,7 +3416,7 @@ while(1) {
 	  for my $prp (@prps) {
 	    if ((split('/', $prp, 2))[0] eq $projid) {
 	      $changed_high{$prp} ||= 1;
-              $changed_dirty{$prp} ||= 1;
+              $changed_dirty{$prp} = 1;
 	    }
 	  }
 	  $changed_high{$projid} ||= 1;
@@ -3439,7 +3439,7 @@ while(1) {
 	    for my $prp (@prps) {
 	      if ((split('/', $prp, 2))[0] eq $projid){
 	        $changed_high{$prp} ||= 1;
-                $changed_dirty{$prp} ||= 1;
+                $changed_dirty{$prp} = 1;
 	      }
 	    }
 	    $changed_high{$projid} ||= 1;
@@ -3447,7 +3447,7 @@ while(1) {
 	    for my $prp (@prps) {
 	      if ((split('/', $prp, 2))[0] eq $projid){
 	        $changed_low{$prp} ||= 1;
-                $changed_dirty{$prp} ||= 1;
+                $changed_dirty{$prp} = 1;
 	      }
 	    }
 	    $changed_low{$projid} ||= 1;
@@ -3466,10 +3466,10 @@ while(1) {
   }
 
   # mark all indirect affected repos dirty
-  for my $d (keys %changed_dirty) {
-    next if ! -d "$reporoot/$d/$myarch";
-    next if   -e "$reporoot/$d/$myarch/:schedulerstate.dirty";
-    BSUtil::touch("$reporoot/$d/$myarch/:schedulerstate.dirty");
+  for my $prp (keys %changed_dirty) {
+    next if ! -d "$reporoot/$prp/$myarch";
+    next if   -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
+    BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
   }
   %changed_dirty = ();
 
