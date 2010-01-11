@@ -2221,7 +2221,7 @@ sub linkdiff {
   $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
   my $files = lsrev_expanded($rev, $linkinfo);
   die("not a link\n") unless $linkinfo->{'srcmd5'};
-  linkinfo_addtarget($linkinfo);
+  linkinfo_addtarget($rev, $linkinfo);
   return sourcediff({
     'oproject' => $linkinfo->{'project'},
     'opackage' => $linkinfo->{'package'},
