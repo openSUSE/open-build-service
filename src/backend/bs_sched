@@ -3465,7 +3465,7 @@ while(1) {
     next;
   }
 
-  # mark all in direct affected repos dirty
+  # mark all indirect affected repos dirty
   for my $d (keys %changed_dirty) {
     next if ! -d "$reporoot/$d/$myarch";
     next if   -e "$reporoot/$d/$myarch/:schedulerstate.dirty";

@@ -789,17 +789,8 @@ class SourceController < ApplicationController
       end
 
       Package.find(opkg.name, :project => oprj.name).save
-
-      # link sources
-      if params[:TEMPORARY_enable_backend_branch]
-          # the new way, just for testing for now
-          Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{pac.db_project.name}&opackage=#{pac.name}", nil
-      else
-          # the old way, about to be dropped.
-          link_data = "<link project='#{pac.db_project.name}' package='#{pac.name}'/>"
-          logger.debug "link_data: #{link_data}"
-          Suse::Backend.put "/source/#{oprj.name}/#{opkg.name}/_link", link_data
-      end
+      # branch sources in backend
+      Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{pac.db_project.name}&opackage=#{pac.name}", nil
 
     end
 
