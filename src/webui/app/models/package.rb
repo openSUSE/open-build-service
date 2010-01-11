@@ -439,10 +439,9 @@ class Package < ActiveXML::Base
   end
 
   def self.exists? package_name, project_name
-    begin
-      Package.find( package_name, :project => project_name )
+    if Package.find( package_name, :project => project_name )
       return true
-    rescue ActiveXML::Transport::NotFoundError
+    else
       return false
     end
   end

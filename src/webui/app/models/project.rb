@@ -61,10 +61,9 @@ class Project < ActiveXML::Base
 
   #check if named project exists
   def self.exists?(pro_name)
-    begin
-      Project.find pro_name
+    if Project.find pro_name
       return true
-    rescue ActiveXML::Transport::NotFoundError
+    else
       return false
     end
   end
