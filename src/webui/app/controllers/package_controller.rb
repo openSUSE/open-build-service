@@ -238,10 +238,9 @@ class PackageController < ApplicationController
   end
 
   def add_file
-    begin
-      Link.find( :project => @project.name, :package => @package.name )
+    if Link.find( :project => @project.name, :package => @package.name )
       @package_is_link = true
-    rescue
+    else
       @package_is_link = false
     end
   end
