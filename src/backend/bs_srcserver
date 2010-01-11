@@ -1080,7 +1080,7 @@ sub lsrev_expanded {
 sub linkinfo_addtarget {
   my ($rev, $linkinfo) = @_;
   die("linkinfo_addtarget: linkinfo contains no lsrcmd5?\n") unless $linkinfo->{'lsrcmd5'};
-  my $files = lsrev($rev, $linkinfo->{'lsrcmd5'});
+  my $files = lsrev({%$rev, 'srcmd5' => $linkinfo->{'lsrcmd5'}});
   die("linkinfo_addtarget: not a link?\n") unless $files->{'_link'};
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
