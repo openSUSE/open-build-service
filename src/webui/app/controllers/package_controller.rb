@@ -238,10 +238,9 @@ class PackageController < ApplicationController
   end
 
   def add_file
-    begin
-      Link.find( :project => @project.name, :package => @package.name )
+    if Link.find( :project => @project.name, :package => @package.name )
       @package_is_link = true
-    rescue
+    else
       @package_is_link = false
     end
   end
@@ -756,7 +755,7 @@ class PackageController < ApplicationController
       @project = Project.find( params[:project] )
     end
     unless @project
-      logger.error "Project #{params[:project]} not found: #{e.message}"
+      logger.error "Project #{params[:project]} not found"
       flash[:error] = "Project not found: \"#{params[:project]}\""
       redirect_to :controller => "project", :action => "list_public" and return
     end
