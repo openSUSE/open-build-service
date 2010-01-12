@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.6.86
+Version:        1.6.87
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -102,6 +102,7 @@ Requires:       rubygem-delayed_job
 Requires:       rubygem-gruff
 Requires:       rubygem-sqlite3
 Requires:       rubygem-rmagick
+Requires:       rubygem-exception_notification
 Recommends:     memcached
 Group:          Productivity/Networking/Web/Utilities
 Summary:        The openSUSE Build Service -- The Frontend part
@@ -182,6 +183,11 @@ done
 FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 install -d -m 755 $FILLUP_DIR
 install -m 0644 sysconfig.obs-server sysconfig.obs-worker $FILLUP_DIR/
+# install cronjobs
+CRON_DIR=$RPM_BUILD_ROOT/etc/cron.d
+install -d -m 755 $CRON_DIR
+install -m 0644 crontab.obs-api   $CRON_DIR/obs-api
+install -m 0644 crontab.obs-webui $CRON_DIR/obs-webui
 
 #
 # Install all web and api parts.
@@ -459,6 +465,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/api/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
 %config(noreplace) /srv/www/obs/api/config/options.yml
+%config(noreplace) /etc/cron.d/obs-api
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log
 %verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/production.log
@@ -498,6 +505,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/webui/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/webui/config/initializers/theme_support.rb
 %config(noreplace) /srv/www/obs/webui/config/repositories.rb
+%config(noreplace) /etc/cron.d/obs-webui
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log
 %verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log/production.log

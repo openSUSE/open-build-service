@@ -1,0 +1,1 @@
+* * * * *       lighttpd    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s jobs:workerstatus
