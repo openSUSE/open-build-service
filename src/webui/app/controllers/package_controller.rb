@@ -292,13 +292,15 @@ class PackageController < ApplicationController
     @package.save_file :file => file, :filename => filename
 
     if params[:addAsPatch]
-      link = Link.find( :project => @project, :package => @package )
-      link.add_patch filename
-      link.save
+      if link = Link.find( :project => @project, :package => @package )
+        link.add_patch filename
+        link.save
+      end
     elsif params[:applyAsPatch]
-      link = Link.find( :project => @project, :package => @package )
-      link.apply_patch filename
-      link.save
+      if link = Link.find( :project => @project, :package => @package )
+        link.apply_patch filename
+        link.save
+      end
     end
     flash[:success] = "The file #{filename} has been added."
     redirect_to :action => :show, :project => @project, :package => @package
