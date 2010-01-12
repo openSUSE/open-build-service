@@ -473,7 +473,11 @@ sub addrev {
   my $filestr = BSHermes::generate_commit_flist($files_old, $files);
 
   $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $version);
+
+  # send out hermes notification
   BSHermes::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
+  BSHermes::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment})
+    unless $rev_old and $version eq $rev_old->{'version'};
 
   # add missing data to complete the revision object
   $rev->{'project'} = $projid;
