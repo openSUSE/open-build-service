@@ -11,7 +11,7 @@ if @error.nil?
   end
   
   #first update the altered flag
-  htmlid = "#%s_%s" % [@flag.name, @flag.id.gsub(/[:.]/, "_")]
+  htmlid = "#%s_%s" % [@flag.name, @flag.id.gsub(/[:.+&]/, "_")]
   page.replace_html htmlid, :partial => "flag_status",  :locals => {:flag => @project.send("#{@flag.name}"+"flags")[@flag.id.to_sym]}
   
   #updates each flag on the web site, that is affected from the changed flag.
