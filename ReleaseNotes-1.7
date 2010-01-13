@@ -30,14 +30,19 @@ New processes are
    cache content.
 
  * Cron jobs
+   api and webui requires cronjobs to log the worker status
+   and to generate the load graphes. These are active by default
+   in obs-server rpm package. Otherwise templates for the 
+   cronjobs can be found in dist/ directory of git tree.
 
 Main new features are:
 
  * Rewritten dependency solver in scheduler which gave
-   a significant speed up.
+   a significant speed up. It is using the SAT solver via perl-BSSolv
+   module.
 
- * Attribute system to store all kind of information for projects 
-   and packages as defined by the server admin.
+ * Attribute system to store all kind of information for projects,
+   packages or sub packages as defined by the server admin.
 
  * Extended request handling
    - new request types (delete or change_devel)
@@ -48,10 +53,17 @@ Main new features are:
  * Improved source handling of branched packages (less often 
    created conflicts).
 
- * source service handler to let server and client side modules
-   prepare sources in the same way.
+ * webui is themable now
+
+ * Build trigger reporting, the reason why a package got triggered
+   to build is stored now and requestable.
+
+ * Scheduler status reporting for each repository
 
 Preview features are:
 
  * patchinfo aka maintenance handling, this is not complete yet.
+
+ * source service handler to let server and client side modules
+   prepare sources in the same way.
 
