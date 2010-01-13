@@ -3574,7 +3574,8 @@ while(1) {
 	  $others = 1;
 	}
 	if (!$others) {
-	  unlink("$reporoot/$prp/:schedulerstate.dirty");
+	  unlink("$reporoot/$prp/$myarch/:schedulerstate");
+	  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty");
 	  unlink("$reporoot/$prp/:repoinfo");
 	  unlink("$reporoot/$prp/.finishedlock");
 	  rmdir("$reporoot/$prp");

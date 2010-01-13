@@ -914,7 +914,7 @@ sub dirty {
     }
   
     for my $a (@archs) {
-      BSUtil::touch("$reporoot/$projid/$r/$a/:schedulerstate.dirty") if -e "$reporoot/$projid/$r/$a";
+      BSUtil::touch("$reporoot/$projid/$r/$a/:schedulerstate.dirty") if -d "$reporoot/$projid/$r/$a";
     }
   }
   ping($arch);
