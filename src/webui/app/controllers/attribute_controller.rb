@@ -12,6 +12,9 @@ class AttributeController < ApplicationController
   def edit
     all_attributes = Attribute.find(:all, :namespace => "OBS")
     @attribute_list = []  
+    unless all_attributes
+      return 
+    end
     all_attributes.attributes.each_definition do |d|
       @attribute_list << "#{d.namespace}:#{d.name}"
     end
