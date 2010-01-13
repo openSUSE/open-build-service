@@ -1118,6 +1118,19 @@ if ( ! $SPECtemplateFile || ! -e $SPECtemplateFile ) {
 }
 mkdir_p( "$outdir/_product:$product->{name}-release" ) || die ("Unable to create $outdir\n");
 writeProductSPECfile( "$outdir/_product:$product->{name}-release/$product->{name}-release.spec", $SPECtemplateFile, $prodRef, $product );
+my $ChangesFile;
+if ($infile =~ /(.*\/)(.+)$/) {
+  $ChangesFile = $1."/".$product->{name}."-release.changes";
+};
+if ( !$ChangesFile || ! -e $ChangesFile ) {
+  if ($infile =~ /(.*\/)(.+)$/) {
+    $ChangesFile = "$1/release.changes";
+  };
+};
+if ( -e $ChangesFile ) {
+  my $fn="$outdir/_product:$product->{name}-release/$product->{name}-release.changes";
+  system( "cp", $ChangesFile, $fn) && die ("Unable to copy changes file $ChangesFile to $fn");
+}
 
 if (defined($product->{patchlevel}) && $product->{patchlevel} ne '0'){
 mkdir_p( "$outdir/_product:".$product->{name}."-SP".$product->{patchlevel}."-migration" ) || die ("Unable to create $outdir\n");
