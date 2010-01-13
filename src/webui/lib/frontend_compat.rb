@@ -58,13 +58,14 @@ class FrontendCompat
 
   def delete_package( opt={} )
     logger.debug "deleting: #{opt.inspect}"
-    transport.direct_http URI("https://#{@url_prefix}/source/#{opt[:project]}/#{opt[:package]}"), :method => "DELETE"
+    transport.direct_http URI("https://#{@url_prefix}/source/#{opt[:project]}/#{opt[:package]}"), 
+      :method => "DELETE", :timeout => 500
   end
 
   def delete_file( opt={} )
     logger.debug "starting to delete file, opt: #{opt.inspect}"
     transport.direct_http URI("https://#{@url_prefix}/source/#{opt[:project]}/#{opt[:package]}/#{opt[:filename]}"),
-      :method => "DELETE"
+      :method => "DELETE", :timeout => 500
   end
 
   def get_log_chunk( project, package, repo, arch, start, theend )
