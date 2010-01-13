@@ -72,5 +72,12 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_tag :tag => 'collection', :children => { :count => 0 }
   end
   
+  def test_xpath_5
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get "/search/package", :match => '[devel/@project="kde4"]'
+    assert_response :success
+    assert_tag :tag => 'collection', :children => { :count => 0 }
+  end
+
 end
 
