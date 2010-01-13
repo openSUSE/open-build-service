@@ -128,7 +128,7 @@
     <td></td>
     <% @repohash.sort.each do |repo, archlist| -%>
     <% archlist.sort.each do |arch| -%>
-    <th><%=h arch %></th>
+    <th><%=h arch %><p><%=h repo_status_for(repo, arch) %></th>
     <% end -%>
     <% end -%>
     <th>&nbsp;</th>

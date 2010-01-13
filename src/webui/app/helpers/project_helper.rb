@@ -23,6 +23,10 @@ module ProjectHelper
     end
   end
 
+  def repo_status_for( repo, arch )
+    @repostatushash[repo][arch] || ActiveXML::XMLNode.new("<status code='-'/>")
+  end
+
   def status_for( repo, arch, package )
     @statushash[repo][arch][package] || ActiveXML::XMLNode.new("<status code='-' package='#{package}'/>")
   end

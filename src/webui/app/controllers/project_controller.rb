@@ -612,6 +612,7 @@ class ProjectController < ApplicationController
 
     @repohash = Hash.new
     @statushash = Hash.new
+    @repostatushash = Hash.new
     @packagenames = Array.new
 
     @buildresult.each_result do |result|
@@ -624,6 +625,7 @@ class ProjectController < ApplicationController
       next unless @arch_filter.include? arch
       @repohash[repo] << arch
 
+      # package status cache
       @statushash[repo] ||= Hash.new
       @statushash[repo][arch] = Hash.new
 
@@ -631,9 +633,19 @@ class ProjectController < ApplicationController
       result.each_status do |status|
         stathash[status.package] = status
       end
+      @packagenames << stathash.keys
 
-     @packagenames << stathash.keys
+      # repository status cache
+      @repostatushash[repo] ||= Hash.new
+      @repostatushash[repo][arch] = Hash.new
 
+      if result.has_attribute? :state
+        if result.has_attribute? :dirty
+          @repostatushash[repo][arch] = "outdated(#{result.state})"
+        else
+          @repostatushash[repo][arch] = "#{result.state}"
+        end
+      end
     end
     @packagenames = @packagenames.flatten.uniq.sort
 
