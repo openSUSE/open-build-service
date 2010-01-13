@@ -3239,8 +3239,10 @@ while(1) {
 	my $projid = $ev->{'project'};
 	my $packid = $ev->{'package'};
 	for my $prp (@prps) {
-	  $changed_high{$prp} ||= 1 if (split('/', $prp, 2))[0] eq $projid;
-          $changed_dirty{$prp} = 1;
+	  if ((split('/', $prp, 2))[0] eq $projid) {
+	    $changed_high{$prp} ||= 1;
+	    $changed_dirty{$prp} = 1;
+	  }
 	}
 	$changed_high{$projid} ||= 1;
 	next;
@@ -3309,8 +3311,10 @@ while(1) {
         BSUtil::cleandir("$gdst/$packid");
 	rmdir("$gdst/$packid");
 	for $prp (@prps) {
-	  $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-          $changed_dirty{$prp} = 1;
+	  if ((split('/', $prp, 2))[0] eq $projid) {
+	    $changed_high{$prp} = 2;
+	    $changed_dirty{$prp} = 1;
+	  }
 	}
 	$changed_high{$projid} = 2;
 	next;
@@ -3372,8 +3376,10 @@ while(1) {
 	}
 	for $prp (@prps) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
-	    $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-            $changed_dirty{$prp} = 1;
+	    if ((split('/', $prp, 2))[0] eq $projid) {
+	      $changed_high{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
+	      $changed_dirty{$prp} = 1;
+	    }
 	  }
 	}
 	$changed_high{$projid} = 2;
