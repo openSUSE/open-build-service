@@ -565,11 +565,11 @@ class SourceController < ApplicationController
     elsif request.put?
       allowed = false
       request_data = request.raw_post
-      begin
-        # Try to fetch the package to see if it already exists
-        @package = Package.find( package_name, :project => project_name )
-  
-        # Being here means that the project already exists
+      # Try to fetch the package to see if it already exists
+      @package = Package.find( package_name, :project => project_name )
+      
+      if @package
+        # Being here means that the package already exists
         allowed = permissions.package_change? @package
         if allowed
           @package = Package.new( request_data, :project => project_name, :name => package_name )
@@ -579,8 +579,8 @@ class SourceController < ApplicationController
             :message => "no permission to change package"
           return
         end
-      rescue ActiveXML::Transport::NotFoundError
-        # Ok, the project is new
+      else
+        # Ok, the package is new
         allowed = permissions.package_create?( project_name )
   
         if allowed
