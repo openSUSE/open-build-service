@@ -2610,7 +2610,7 @@ sub sourcecommitfilelist {
 
 sub sourcecopy {
   my ($cgi, $projid, $packid) = @_;
-  die("illegal rev parameter\n") if $cgi->{'rev'} && $cgi->{'rev'} ne 'upload' && $cgi->{'rev'} ne 'repository';
+  die("illegal rev parameter\n") if $cgi->{'rev'} && $cgi->{'rev'} ne 'upload';
   my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
   my $orev = $cgi->{'orev'};
@@ -2680,6 +2680,7 @@ sub sourcecopy {
 	    my $latestisbranch = grep {(keys %$_)[0] eq 'branch'} @{$latestl->{'patches'}->{''} || []};
 	    if ($latestisbranch && $latestl->{'baserev'} eq $autosimplifylink->{'baserev'}) {
 	      $latestl->{'baserev'} = $newbase;
+	      $latestl->{'patches'}->{''} = [ { 'branch' => undef} ]; # work around xml problem
 	      mkdir_p($uploaddir);
 	      writexml("$uploaddir/$$", undef, $latestl, $BSXML::link);
               $latestfiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
