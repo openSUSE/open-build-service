@@ -1027,7 +1027,7 @@ class SourceController < ApplicationController
     if not pkg_linkrev.nil? and not pkg_linkrev.empty?
          linkrev = "&linkrev=#{pkg_linkrev}"
     end
-    Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch#{rev}#{linkrev}", nil
+    Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch&user=#{params[:user]}#{rev}#{linkrev}", nil
 
     render_ok
   end
