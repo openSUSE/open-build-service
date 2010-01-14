@@ -2610,7 +2610,7 @@ sub sourcecommitfilelist {
 
 sub sourcecopy {
   my ($cgi, $projid, $packid) = @_;
-  die("illegal rev parameter\n") if $cgi->{'rev'} && $cgi->{'rev'} ne 'upload';
+  die("illegal rev parameter\n") if $cgi->{'rev'} && $cgi->{'rev'} ne 'upload' && $cgi->{'rev'} ne 'repository';
   my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
   my $orev = $cgi->{'orev'};
@@ -2621,7 +2621,7 @@ sub sourcecopy {
 
   my $autosimplifylink;
 
-  if ($files->{'_link'} && !$cgi->{'dontupdatesource'}) {
+  if ($files->{'_link'} && !$cgi->{'dontupdatesource'} && !$cgi->{'rev'}) {
     # fix me: do this in a more generic way
     my $ol = readxml("$srcrep/$opackid/$files->{'_link'}-_link", $BSXML::link, 1);
     if ($ol) {
