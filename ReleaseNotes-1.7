@@ -41,6 +41,8 @@ Main new features are:
    a significant speed up. It is using the SAT solver via perl-BSSolv
    module.
 
+ * Speedup in webui by using new xml parser
+
  * Attribute system to store all kind of information for projects,
    packages or sub packages as defined by the server admin.
 
@@ -59,6 +61,11 @@ Main new features are:
    to build is stored now and requestable.
 
  * Scheduler status reporting for each repository
+
+Regression:
+
+ * The Download on Demand feature got not yet re-implemented to support
+   the new scheduler SAT support. 
 
 Preview features are:
 
