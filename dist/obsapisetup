@@ -1,0 +1,67 @@
+#! /bin/sh
+# Copyright (c) 2010, Novell Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obsapisetup
+#   and its symbolic  link
+# /usr/sbin/rcobsapisetup
+#
+### BEGIN INIT INFO
+# Provides:          obsapisetup
+# Should-Start:      obsstoragesetup
+# Required-Start:    mysql
+# Required-Stop:     $null
+# Default-Start:     
+# Default-Stop:      0 1 2 4 6
+# Description:       Initialize and update api database, only used in OBS Appliance
+### END INIT INFO
+
+. /etc/rc.status
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+
+apidir=/srv/www/obs/api
+
+rc_reset
+case "$1" in
+	start)
+                if [ ! -d /bs/MySQL/api_production ]; then
+			echo -n "Initialize OBS database (first time only)"
+			mysqladmin -u root create api_production
+			mysqladmin -u root password "opensuse"
+		fi
+
+		echo -n "Setup OBS database"
+		cd $apidir
+                RAILS_ENV="production" rake db:migrate
+		rc_status -v
+	;;
+	stop)
+                # nothing to do
+		rc_status -v
+	;;
+	restart)
+                # nothing to do
+		rc_status
+	;;
+	try-restart)
+                # nothing to do
+		rc_status
+	;;
+	reload)
+                # nothing to do
+		rc_status
+	;;
+	status)
+		# nothing to do
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit
