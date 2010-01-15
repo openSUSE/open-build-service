@@ -19,7 +19,7 @@
       <xs:sequence>
         <xs:element ref="title"/>
         <xs:element ref="description"/>
-        <xs:element ref="remoteurl"/>
+        <xs:element ref="remoteurl" minOccurs="0" />
 <!-- Not yet supported by backend
         <xs:element ref="remoteproject"/>
 -->
@@ -27,9 +27,9 @@
         <xs:group ref="toggleGroup" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="repository"/>
       </xs:sequence>
-      <xs:attribute name="name" type="xs:string"/>
-      <xs:attribute name="created" type="xs:dateTime"/>
-      <xs:attribute name="updated" type="xs:dateTime"/>
+      <xs:attribute name="name" type="xs:string" use="required"/>
+      <xs:attribute name="created" type="xs:dateTime" use="optional"/>
+      <xs:attribute name="updated" type="xs:dateTime" use="optional"/>
     </xs:complexType>
   </xs:element>
 
@@ -56,8 +56,8 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attribute name="role" type="xs:string"/>
-      <xs:attribute name="userid" type="xs:string"/>
+      <xs:attribute name="role" type="xs:string" use="required"/>
+      <xs:attribute name="userid" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
@@ -68,7 +68,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="name" type="xs:string" use="required"/>
       <xs:attribute name="revision" type="xs:string"/>
     </xs:complexType>
   </xs:element>
@@ -121,7 +121,7 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="path"/>
         <xs:element maxOccurs="unbounded" ref="arch"/>
       </xs:sequence>
-      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
@@ -132,8 +132,8 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attribute name="project" type="xs:string"/>
-      <xs:attribute name="repository" type="xs:string"/>
+      <xs:attribute name="project" type="xs:string" use="required"/>
+      <xs:attribute name="repository" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
