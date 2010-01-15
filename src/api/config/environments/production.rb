@@ -6,7 +6,7 @@ config.cache_classes = true
 
 # Use a different logger for distributed setups
 # config.logger        = SyslogLogger.new
-config.log_level = :debug
+config.log_level = :info
 
 # Full error reports are disabled and caching is turned on
 config.action_controller.consider_all_requests_local = false
@@ -18,9 +18,9 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-ICHAIN_MODE = :on
+ICHAIN_MODE = :off
 
-SOURCE_HOST = "storage"
+SOURCE_HOST = "localhost"
 SOURCE_PORT = 5352
 
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
@@ -28,14 +28,14 @@ SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/public/schema")+"/"
 
 EXTENDED_BACKEND_LOG = false
 
-DOWNLOAD_URL='http://download.opensuse.org/repositories'
-YMP_URL='http://software.opensuse.org/ymp'
+DOWNLOAD_URL='http://localhost:82/'
+#YMP_URL='http://software.opensuse.org/ymp'
 
-require 'hermes'
-Hermes::Config.setup do |hermesconf|
-  hermesconf.dbhost = 'storage'
-  hermesconf.dbuser = 'hermes'
-  hermesconf.dbpass = ''
-  hermesconf.dbname = 'hermes'
-end
+#require 'hermes'
+#Hermes::Config.setup do |hermesconf|
+#  hermesconf.dbhost = 'storage'
+#  hermesconf.dbuser = 'hermes'
+#  hermesconf.dbpass = ''
+#  hermesconf.dbname = 'hermes'
+#end
 

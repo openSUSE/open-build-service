@@ -27,9 +27,9 @@ use Net::Domain;
 my $hostname = Net::Domain::hostfqdn() || 'localhost';
 
 our $obsname = $hostname; # unique identifier for this Build Service instance
-our $srcserver = "http://$hostname:6362";
-our $reposerver = "http://$hostname:6262";
-#our $serviceserver = "http://$hostname:6162";
+our $srcserver = "http://$hostname:5352";
+our $reposerver = "http://$hostname:5252";
+#our $serviceserver = "http://$hostname:5152";
 
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 # public download service:
@@ -40,7 +40,7 @@ our $repodownload = "http://$hostname/repositories";
 
 # For the workers only, it is possible to define multiple repository servers here.
 # But only one source server is possible yet.
-our @reposervers = ("http://$hostname:6262");
+our @reposervers = ("http://$hostname:5252");
 
 # Package defaults
 our $bsdir = '/srv/obs';
