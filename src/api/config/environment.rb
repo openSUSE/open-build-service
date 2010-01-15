@@ -36,6 +36,7 @@ Rails::Initializer.run do |config|
 
   config.gem 'daemons'
   config.gem 'delayed_job'
+  config.gem 'exception_notification'
 
   config.action_controller.session = {
     :session_key => "_frontend_session",
