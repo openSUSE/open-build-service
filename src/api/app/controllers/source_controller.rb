@@ -1063,8 +1063,9 @@ class SourceController < ApplicationController
     # validate and resolve devel package or devel project definitions
     if not params[:ignoredevel]
       pkg = pkg.resolve_devel_package
-      prj_name = pkg.db_project.name
       pkg_name = pkg.name
+      prj = pkg.db_project
+      prj_name = prj.name
     end
 
     # link against srcmd5 instead of plain revision
