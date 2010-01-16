@@ -13,14 +13,15 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
+# Host name gets changed by obsapisetup on each boot
 FRONTEND_HOST = "localhost"
-FRONTEND_PORT = 443
-FRONTEND_PROTOCOL = 'https'
+FRONTEND_PORT = 81
+FRONTEND_PROTOCOL = 'http'
 
 # use this when the users see the api at another url (for rpm-, file-downloads)
 #EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
 
-#BUGZILLA_HOST = "https://bugzilla.novell.com"
+BUGZILLA_HOST = nil
 DOWNLOAD_URL = "http://localhost:82"
 
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'

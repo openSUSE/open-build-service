@@ -1646,6 +1646,7 @@ sub putproject {
   } else {
     BSHermes::notify("SRCSRV_UPDATE_PROJECT", { "project" => $projid });
   }
+  mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
   rename("$uploaddir/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
   if ($BSConfig::forceprojectkeys) {
     my ($sk) = getsignkey({}, $projid);

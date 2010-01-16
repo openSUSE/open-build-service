@@ -40,12 +40,21 @@ case "$1" in
 			echo -n "Initialize OBS database (first time only)"
 			mysqladmin -u root create api_production
 			mysqladmin -u root password "opensuse"
+			echo
 		fi
 
 		echo -n "Setup OBS database"
                 cd $apidir
 		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
 		chown -R lighttpd.lighttpd $apidir/log
+		echo
+		echo -n "Adjust webui configuration for api"
+                # it would be better to solve this in lighttpd.conf to accept also localhost:81,
+                # but no idea how to solve this
+                sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = '"$HOSTNAME:81"',' \
+		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i 's,^DOWNLOAD_HOST = .*,DOWNLOAD_HOST = '"$HOSTNAME:82"',' \
+		    /srv/www/obs/webui/config/environments/production.rb
 		echo
 		echo -n "Write OBS lighttpd config for this host"
 		cat > /etc/lighttpd/vhosts.d/obs.conf <<EOF
