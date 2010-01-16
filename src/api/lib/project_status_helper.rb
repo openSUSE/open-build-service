@@ -193,6 +193,11 @@ class ProjectStatusHelper
     move_devel_package(mypackages, key)
   end
 
+  def self.filter_by_package_name(name)
+    return true # take all
+    return (name =~ /yast2-mail/)
+  end
+
   def self.calc_status(dbproj, backend)
     mypackages = Hash.new
 
@@ -203,7 +208,7 @@ class ProjectStatusHelper
     projects = Hash.new
     projects[dbproj.name] = dbproj
     dbproj.db_packages.each do |dbpack|
-      #next unless dbpack.name =~ /mono/
+      next unless filter_by_package_name(dbpack.name)
       begin
         dbpack.resolve_devel_package
       rescue DbPackage::CycleError => e
@@ -218,7 +223,7 @@ class ProjectStatusHelper
     end
 
     dbproj.db_packages.each do |dbpack|
-      #next unless dbpack.name =~ /mono/
+      next unless filter_by_package_name(dbpack.name)
       key = dbproj.name + "/" + dbpack.name
       move_devel_package(mypackages, key)
     end
