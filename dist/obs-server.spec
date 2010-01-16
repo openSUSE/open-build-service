@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.6.87
+Version:        1.6.90
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -28,7 +28,7 @@ BuildRequires:  obs-common
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
-BuildRequires:  rubygem-rails-2_3 = 2.3.4
+BuildRequires:  rubygem-rails-2_3 = 2.3.5
 BuildRequires:  rubygem-rmagick
 BuildRequires:  build >= 2009.04.22
 BuildRequires:  perl-BSSolv
@@ -94,7 +94,7 @@ PreReq:         %fillup_prereq %insserv_prereq
 Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
-Requires:       rubygem-rails-2_3 = 2.3.4
+Requires:       rubygem-rails-2_3 = 2.3.5
 Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
@@ -174,7 +174,8 @@ install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
 install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
-for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obswebuidelayed; do
+for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
+         obssigner obswarden obsapidelayed obswebuidelayed obsapisetup obsstoragesetup; do
   install -m 0755 $i \
            $RPM_BUILD_ROOT/etc/init.d/
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
@@ -205,8 +206,12 @@ touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 rm $RPM_BUILD_ROOT/srv/www/obs/api/REFERENCE_ATTRIBUTES.xml
 rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install
 cp -a $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb.template $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb
+# the git webinterface tries to connect to api.opensuse.org by default
+install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
+# needed for correct permissions
+touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
 
-# fix path
+# fix path, should be change in git ?
 for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
   sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
     "$i" > "$i"_ && mv "$i"_ "$i"
@@ -252,7 +257,6 @@ cp BSConfig.pm.template BSConfig.pm
 
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/build # dummy, it is a %ghost
-install -d -m 755 $RPM_BUILD_ROOT/srv/obs/projects
 install -d -m 755 $RPM_BUILD_ROOT/srv/obs/log
 install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
 # install executables and code
@@ -282,7 +286,7 @@ rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup; do
 %stop_on_removal $service
 done
 
@@ -292,7 +296,7 @@ done
 %post
 %run_permissions
 %{fillup_and_insserv -n obs-server}
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup; do
 %restart_on_update $service
 done
 %posttrans
@@ -346,6 +350,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obssrcserver
 /etc/init.d/obswarden
 /etc/init.d/obssigner
+/etc/init.d/obsstoragesetup
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
@@ -353,6 +358,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobssrcserver
 /usr/sbin/rcobswarden
 /usr/sbin/rcobssigner
+/usr/sbin/rcobsstoragesetup
 /usr/lib/obs/server/BSBuild.pm
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSConfig.pm.template
@@ -429,6 +435,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir /srv/www/obs/api/config/environments
 /etc/init.d/obsapidelayed
 /etc/init.d/obswebuidelayed
+/etc/init.d/obsapisetup
+/usr/sbin/rcobsapisetup
 /usr/sbin/rcobsapidelayed
 /usr/sbin/rcobswebuidelayed
 /srv/www/obs/api/app
@@ -508,7 +516,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/cron.d/obs-webui
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log/production.log
+%config(noreplace) %verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/db/database.db
+%config(noreplace) %verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log/production.log
 %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/tmp
 
 # these dirs primarily belong to lighttpd:
