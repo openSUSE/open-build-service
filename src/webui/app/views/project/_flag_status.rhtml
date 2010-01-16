@@ -52,6 +52,6 @@
       $("#<%= htmlid %>").live("click", update_flag_<%= htmlid %>);
    <% end %>
 <% else %>
-  image_tag(image,:title => title, :class => "flagimage")
+  <%= image_tag(image,:title => title, :class => "flagimage") -%>
 <% end %>
 
