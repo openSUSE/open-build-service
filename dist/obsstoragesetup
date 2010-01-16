@@ -32,7 +32,8 @@ case "$1" in
                 if [ -e /dev/OBS/server ]; then
 			mkdir /obs
 			mount /dev/OBS/server /obs
-			chown obsrun.obsrun /obs/
+			mkdir /obs/{log,run}
+			chown obsrun.obsrun /obs/{,log,run}
 		else
 			echo "Setup local storage"
                		if [ -e /obs -a ! -L /obs ]; then
