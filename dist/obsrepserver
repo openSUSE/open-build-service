@@ -11,6 +11,7 @@
 # Provides:          obsrepserver
 # Required-Start:    $time $syslog $remote_fs
 # Should-Start:      obssigner obsstoragesetup
+# Should-Stop:       $none
 # Required-Stop:     $null
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6

@@ -10,9 +10,9 @@
 ### BEGIN INIT INFO
 # Provides:          obsstoragesetup
 # X-Start-Before:    mysql
-# Required-Start:    $remote_fs
+# Required-Start:    $remote_fs boot.lvm
 # Required-Stop:     $null
-# Default-Start:     
+# Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
 # Description:       Finds the storage device to be used for OBS server and/or worker
 ### END INIT INFO
@@ -28,14 +28,25 @@ backenddir=/srv/obs
 rc_reset
 case "$1" in
 	start)
-		echo -n "Looking for OBS Server LVM Volume"
-                if [ -e /bs -a ! -L /bs ]; then
-			echo "/bs already exists !"
-                        exit 1
+		echo "Looking for OBS Server LVM Volume"
+                if [ -e /dev/OBS/server ]; then
+			mkdir /obs
+			mount /dev/OBS/server /obs
+		else
+			echo "Setup local storage"
+               		if [ -e /obs -a ! -L /obs ]; then
+	       			echo "/obs already exists !"
+               		        exit 1
+               		fi
+			ln -sf $backenddir /obs
                 fi
-		echo "(Not implemented)"
-		echo -n "Setup local storage"
-                ln -sf $backenddir /bs
+		echo "Looking for OBS Worker Cache LVM Volume"
+                if [ -e /dev/OBS/cache ]; then
+			mkdir /OBS.cache
+			mount /dev/OBS/cache /OBS.cache
+		else
+			[ -d /OBS.cache ] && rmdir /OBS.cache
+                fi
 		rc_status -v
 	;;
 	stop)

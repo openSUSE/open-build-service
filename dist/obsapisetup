@@ -9,10 +9,12 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsapisetup
+# Start-Before:      lighttpd
 # Should-Start:      obsstoragesetup
+# Should-Stop:       $none
 # Required-Start:    mysql
 # Required-Stop:     $null
-# Default-Start:     
+# Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
 # Description:       Initialize and update api database, only used in OBS Appliance
 ### END INIT INFO
@@ -25,18 +27,61 @@ link=${base#*[SK][0-9][0-9]}
 
 apidir=/srv/www/obs/api
 
+HOSTNAME=`hostname`
+FQHOSTNAME="$HOSTNAME.`domainname`"
+
 rc_reset
 case "$1" in
 	start)
-                if [ ! -d /bs/MySQL/api_production ]; then
+                if [ ! -d /obs/MySQL ]; then
+			mkdir /obs/MySQL
+		fi
+                if [ ! -d /obs/MySQL/api_production ]; then
 			echo -n "Initialize OBS database (first time only)"
 			mysqladmin -u root create api_production
 			mysqladmin -u root password "opensuse"
 		fi
 
 		echo -n "Setup OBS database"
-		cd $apidir
-                RAILS_ENV="production" rake db:migrate
+                cd $apidir
+		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
+		chown -R lighttpd.lighttpd $apidir/log
+		echo
+		echo -n "Write OBS lighttpd config for this host"
+		cat > /etc/lighttpd/vhosts.d/obs.conf <<EOF
+#
+# WARNING: this file gets rewritten on each boot by obsapisetup runlevel script!
+#
+\$HTTP["host"] == "$HOSTNAME:80" {
+  rails_app   = "webui"
+  rails_root  = "/srv/www/obs/webui"
+  rails_procs = 5
+  # production/development are typical values here
+  rails_mode  = "production"
+
+  log_root = "/srv/www/obs/webui/log"
+
+  include "vhosts.d/rails.inc"
+}
+\$SERVER["socket"] == "$HOSTNAME:81" {
+  rails_app   = "api"
+  rails_root  = "/srv/www/obs/api"
+  rails_procs = 5
+  # production/development are typical values here
+  rails_mode  = "production"
+
+  log_root = "/srv/www/obs/api/log"
+
+  include "vhosts.d/rails.inc"
+}
+\$SERVER["socket"] == "$HOSTNAME:82" {
+  server.name = "$FQHOSTNAME"
+  server.document-root = "/srv/obs/repos/"
+
+  dir-listing.activate = "enable"
+}
+
+EOF
 		rc_status -v
 	;;
 	stop)

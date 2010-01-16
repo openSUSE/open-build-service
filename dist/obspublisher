@@ -13,6 +13,7 @@
 # Provides:          obspublisher
 # Required-Start:    $time $syslog obssrcserver obsrepserver
 # Should-Start:      obsscheduler
+# Should-Stop:       $none
 # Required-Stop:     $null
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6

@@ -1,5 +1,5 @@
 
-/srv/www/obs/frontend/log/*.log {
+/srv/www/obs/api/log/*.log {
   compress
   dateext
   maxage 365
