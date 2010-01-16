@@ -77,12 +77,17 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="local"/>
       <xs:enumeration value="i586"/>
+      <xs:enumeration value="i686"/>
       <xs:enumeration value="x86_64"/>
       <xs:enumeration value="ppc"/>
       <xs:enumeration value="ppc64"/>
       <xs:enumeration value="ia64"/>
       <xs:enumeration value="s390"/>
       <xs:enumeration value="s390x"/>
+      <xs:enumeration value="armv7el"/>
+      <xs:enumeration value="armv5el"/>
+      <xs:enumeration value="armv4l"/>
+      <xs:enumeration value="sh4"/> 
     </xs:restriction>
   </xs:simpleType>
 
@@ -119,7 +124,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="path"/>
-        <xs:element maxOccurs="unbounded" ref="arch"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="arch"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>

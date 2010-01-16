@@ -23,11 +23,11 @@
         <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
 	<xs:element minOccurs="0" maxOccurs="1" ref="notify"/>
 	<xs:element minOccurs="0" maxOccurs="1" ref="delete-notify"/>
-	<xs:element minOccurs="0" ref="url"/>
 	<xs:element minOccurs="0" ref="group"/>
 	<xs:element minOccurs="0" maxOccurs="unbounded" ref="license"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="keyword"/>
         <xs:group ref="toggleGroup" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element minOccurs="0" ref="url"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="bcntsynctag"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
@@ -147,8 +147,19 @@
 
   <xs:simpleType name="buildarchitectures">
     <xs:restriction base="xs:string">
+      <xs:enumeration value="local"/>
       <xs:enumeration value="i586"/>
+      <xs:enumeration value="i686"/>
       <xs:enumeration value="x86_64"/>
+      <xs:enumeration value="ppc"/>
+      <xs:enumeration value="ppc64"/>
+      <xs:enumeration value="ia64"/>
+      <xs:enumeration value="s390"/>
+      <xs:enumeration value="s390x"/>
+      <xs:enumeration value="armv7el"/>
+      <xs:enumeration value="armv5el"/>
+      <xs:enumeration value="armv4l"/>
+      <xs:enumeration value="sh4"/>
     </xs:restriction>
   </xs:simpleType>
 
