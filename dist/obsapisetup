@@ -106,7 +106,7 @@ Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION, based on $OS
   Connect to the api interface via:     http://$FQHOSTNAME:81
   Browse the build packages via:        http://$FQHOSTNAME:82
 
- * "root" and "Admin" user password is "opensuse" by default.
+ * "Admin" user password is "opensuse" by default.
  * Keep in mind import the openSUSE.org project before building packages.
 
 More informations about this appliance are available here:

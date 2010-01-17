@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsrepserver
 # Required-Start:    $time $syslog $remote_fs
-# Should-Start:      obssigner obsstoragesetup
+# Should-Start:      obssigner obsstoragesetup slpd
 # Should-Stop:       $none
 # Required-Stop:     $null
 # Default-Start:     3 5
@@ -37,7 +37,13 @@ fi
 obsdir=/usr/lib/obs/server/
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
-FQHOSTNAME="`hostname`.`domainname`"
+HOSTNAME=`hostname`
+DOMAINNAME=`domainname`
+if [ -n "$DOMAINNAME" ]; then
+  FQHOSTNAME="$HOSTNAME.$DOMAINNAME"
+else
+  FQHOSTNAME="$HOSTNAME"
+fi
 
 rc_reset
 case "$1" in
@@ -49,7 +55,9 @@ case "$1" in
                 #        including real logging, pid file and startproc
 		startproc -l "$logdir"/rep_server.log "$obsdir"/bs_repserver
                 if [ "$OBS_USE_SLP" == "yes" ]; then
-                   slptool register service:obs.repo_server:http://$FQHOSTNAME:6262,en,6553
+		   # yes, ugly
+		   PORT=`sed -n 's,our $reposerver.*:\(.*\)";,\1,p' /usr/lib/obs/server/BSConfig.pm`
+                   slptool register service:obs.repo_server:http://$FQHOSTNAME:$PORT,en,6553
                 fi
 		rc_status -v
 	;;

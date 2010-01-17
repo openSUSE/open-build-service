@@ -1,21 +1,19 @@
 ## Path:        Applications/OBS
 ## Description: define source server host to be used
 ## Type:        string
-## Default:     "localhost:6362"
+## Default:     "localhost:5352"
 ## Config:      OBS
 #
 #
-
 OBS_SRC_SERVER=""
 
 ## Path:        Applications/OBS
 ## Description: define repository server host to be used
 ## Type:        string
-## Default:     "localhost:6262"
+## Default:     "localhost:5252"
 ## Config:      OBS
 #
 #
-
 OBS_REPO_SERVERS=""
 
 ## Path:        Applications/OBS
@@ -25,7 +23,6 @@ OBS_REPO_SERVERS=""
 ## Config:      OBS
 #
 # 0 instances will automatically use the number of CPU's
-
 OBS_WORKER_INSTANCES="0"
 
 ## Path:        Applications/OBS
@@ -35,7 +32,6 @@ OBS_WORKER_INSTANCES="0"
 ## Config:      OBS
 #
 #
-
 OBS_WORKER_DIRECTORY=""
 
 ## Path:        Applications/OBS
@@ -45,7 +41,6 @@ OBS_WORKER_DIRECTORY=""
 ## Config:      OBS
 #
 # 0 means let the operating system assign a port number
-
 OBS_WORKER_PORTBASE="0"
 
 ## Path:        Applications/OBS
@@ -54,7 +49,6 @@ OBS_WORKER_PORTBASE="0"
 ## Default:     "1"
 ## Config:      OBS
 #
-
 OBS_WORKER_JOBS="1"
 
 ## Path:        Applications/OBS
@@ -63,7 +57,6 @@ OBS_WORKER_JOBS="1"
 ## Default:     ""
 ## Config:      OBS
 #
-
 OBS_WORKER_TEST_MODE=""
 
 ## Path:        Applications/OBS
@@ -82,15 +75,15 @@ OBS_LOG_DIR=""
 
 ## Path:        Applications/OBS
 ## Description: Register in SLP server
-## Type:        ("yes" | "no" | "")
-## Default:     ""
+## Type:        ("yes" | "no")
+## Default:     "yes"
 ## Config:      OBS
 #
 #
-OBS_USE_SLP=""
+OBS_USE_SLP="yes"
 
 ## Path:        Applications/OBS
-## Description: Register in SLP server
+## Description: Use a common cache directory for downloaded packages
 ## Type:        string
 ## Default:     ""
 ## Config:      OBS
@@ -99,7 +92,7 @@ OBS_USE_SLP=""
 OBS_CACHE_DIR=""
 
 ## Path:        Applications/OBS
-## Description: Register in SLP server
+## Description: Defines the package cache size
 ## Type:        size in MB
 ## Default:     ""
 ## Config:      OBS

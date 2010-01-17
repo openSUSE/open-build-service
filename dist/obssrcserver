@@ -11,7 +11,7 @@
 # Provides:          obssrcserver
 # Required-Start:    $time $syslog
 # Required-Stop:     $null
-# Should-Start:      $remote_fs obsstoragesetup
+# Should-Start:      $remote_fs obsstoragesetup slpd
 # Should-Stop:       $none
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
@@ -25,7 +25,13 @@
 # Determine the base and follow a runlevel link name.
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
-FQHOSTNAME="`hostname`.`domainname`"
+HOSTNAME=`hostname`
+DOMAINNAME=`domainname`
+if [ -n "$DOMAINNAME" ]; then
+  FQHOSTNAME="$HOSTNAME.$DOMAINNAME"
+else
+  FQHOSTNAME="$HOSTNAME"
+fi
 
 if [ -z "$OBS_RUN_DIR" ]; then
         OBS_RUN_DIR="/srv/obs/run"
@@ -52,7 +58,9 @@ case "$1" in
                    rc_status -v
                 else
                    if [ "$OBS_USE_SLP" == "yes" ]; then
-                      slptool register service:obs.source_server:http://$FQHOSTNAME:6362,en,6553
+		      # yes, ugly
+		      PORT=`sed -n 's,our $srcserver.*:\(.*\)";,\1,p' /usr/lib/obs/server/BSConfig.pm`
+                      slptool register service:obs.source_server:http://$FQHOSTNAME:$PORT,en,6553
                    fi
                 fi
 

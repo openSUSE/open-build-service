@@ -11,11 +11,11 @@
 # Provides:          obsworker
 # Required-Start:    $time $network $syslog
 # Required-Stop:     $time $network $syslog
-# Should-Start:      $remote_fs
+# Should-Start:      $remote_fs obssrcserver obsrepserver
 # Should-Stop:       $none
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Description:       openSUSE build service worker
+# Description:       openSUSE Build Service worker
 ### END INIT INFO
 
 . /etc/rc.status
@@ -26,6 +26,11 @@
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
+# Preconfigured by obsstoragesetup runlevel setup script
+if [ -e /OBS.worker/config ]; then
+	. /OBS.worker/config
+fi
+
 if [ -z "$OBS_RUN_DIR" ]; then
 	OBS_RUN_DIR="/var/run/obs"
 fi
@@ -33,18 +38,12 @@ if [ -z "$OBS_LOG_DIR" ]; then
 	OBS_LOG_DIR="/var/log/obs"
 fi
 if [ -z "$OBS_REPO_SERVERS" ]; then
-	OBS_REPO_SERVERS="localhost:6262"
+	OBS_REPO_SERVERS="localhost:5252"
 fi
 if [ -z "$OBS_SRC_SERVER" ]; then
-	OBS_SRC_SERVER="localhost:6362"
+	OBS_SRC_SERVER="localhost:5352"
 fi
 
-if [ -n "$OBS_USE_SLP" ]; then
-	OBS_SRC_PARM=`slptool findsrvs service:obs.source_server | sed -n 's/service:obs.source_server:\([^,]*\),.*/--srcserver \1/p' | head -n 1`
-	for i in `slptool findsrvs service:obs.repo_server | sed -n 's/service:obs.repo_server:\([^,]*\),.*/\1/p'`; do
-           OBS_REPO_PARM="$OBS_REPO_PARM --reposerver $i"
-        done
-fi
 if [ -n "$OBS_WORKER_TEST_MODE" ]; then
        OBS_TEST="--test"
 fi
@@ -113,7 +112,16 @@ case "$1" in
 		[ -n "$OBS_WORKER_DIRECTORY" ] && ROOT="$OBS_WORKER_DIRECTORY"
 		echo "Run $NUM obsworker using $ROOT"
 
+		# find SLP announced OBS servers
+		if [ "$OBS_USE_SLP" == "yes" ]; then
+			OBS_SRC_PARM=`slptool findsrvs service:obs.source_server | sed -n 's/service:obs.source_server:\([^,]*\),.*/--srcserver \1/p' | head -n 1`
+			for i in `slptool findsrvs service:obs.repo_server | sed -n 's/service:obs.repo_server:\([^,]*\),.*/\1/p'`; do
+			   OBS_REPO_PARM="$OBS_REPO_PARM --reposerver $i"
+			done
+		fi
+
 		# fetch worker sources from server
+		[ -d "$workerbootdir" ] || mkdir -p "$workerbootdir"
 		pushd "$workerbootdir"
 		curl -q "${OBS_WORKER_PARM}"/getworkercode | cpio --extract
 		ln -s . XML 

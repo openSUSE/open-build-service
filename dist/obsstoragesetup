@@ -30,9 +30,10 @@ case "$1" in
 	start)
 		echo "Looking for OBS Server LVM Volume"
                 if [ -e /dev/OBS/server ]; then
-			mkdir /obs
+			[ -d /obs ] || { rm -f /obs; mkdir /obs ; }
 			mount /dev/OBS/server /obs
-			mkdir /obs/{log,run}
+			[ -d /obs/log ] || mkdir /obs/log
+			[ -d /obs/run ] || mkdir /obs/run
 			chown obsrun.obsrun /obs/{,log,run}
 		else
 			echo "Setup local storage"
@@ -49,9 +50,9 @@ case "$1" in
 
 			echo "OBS_WORKER_DIRECTORY=\"/OBS.worker/\""  > /etc/buildhost.config
 			echo "OBS_CACHE_DIR=\"/OBS.worker/cache\""   >> /etc/buildhost.config
-			echo "OBS_CACHE_SIZE=\"\""
-			if false; then
-				echo "OBS_USE_XEN=\"yes\"" >> /etc/buildhost.config
+			echo "OBS_CACHE_SIZE=\"\"" >> /etc/buildhost.config
+			if [ -e /sys/hypervisor/type ]; then
+				echo "OBS_USE_XEN=\"yes\""           >> /etc/buildhost.config
 			fi
 			OBS_WORKER_INSTANCES="0"
 			for i in /dev/OBS/worker_root* ; do
