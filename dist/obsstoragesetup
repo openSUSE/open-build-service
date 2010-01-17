@@ -56,18 +56,18 @@ case "$1" in
 			fi
 			OBS_WORKER_INSTANCES="0"
 			for i in /dev/OBS/worker_root* ; do
-				name=${i##*/worker_}
-				swap=/dev/OBS/worker_root${i#/dev/OBS/worker_root}
+				name="${i##*/worker_}"
+				swap="/dev/OBS/worker_swap${i#/dev/OBS/worker_root}"
 				[ -e $swap ] || continue
 				if [ -e /sys/hypervisor/type ]; then
 					#prepare xen or kvm setup
-					mkdir -p /OBS.worker/${i##*/}
-					ln -sf $i /OBS.worker/${i##*/}/root
-					ln -sf $swap /OBS.worker/${i##*/}/swap
+					mkdir -p "/OBS.worker/$name"
+					ln -sf "$i"    "/OBS.worker/$name/root"
+					ln -sf "$swap" "/OBS.worker/$name/swap"
 				else
 					#plain chroot build
-					mkdir -p /OBS.worker/${i##*/}/root
-					mount $i /OBS.worker/${i##*/}/root
+					mkdir -p "/OBS.worker/$name"
+					mount $i "/OBS.worker/$name"
 				fi
 				OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
 			done

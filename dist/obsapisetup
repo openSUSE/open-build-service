@@ -48,7 +48,7 @@ case "$1" in
 			echo
 		fi
 
-		echo -n "Setup OBS database"
+		echo -n "Setup or update OBS database"
                 cd $apidir
 		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
 		chown -R lighttpd.lighttpd $apidir/log

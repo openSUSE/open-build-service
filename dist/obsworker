@@ -85,6 +85,11 @@ fi
 
 if [ -f /etc/buildhost.config ];then
 	. /etc/buildhost.config
+fi
+if grep -q kvm /sys/hypervisor/type; then
+	obsopt=--kvm
+fi
+if grep -q xen /sys/hypervisor/type; then
 	obsopt=--xen
 fi
 
@@ -141,25 +146,8 @@ case "$1" in
 			     "--statedir $workerdir/$I --id $HOSTNAME/$I $OBS_REPO_PARM" \
 			     "$OBS_JOBS $OBS_TEST $OBS_SRC_PARM $OBS_WORKER_OPT" \
 			    >> $screenrc
-                        mkdir $workerdir/$I
-			# prepare xen build setup...
-			# requires the file /etc/buildhost.config which contains
-			# the following variables:
-			# ---
-			# XEN_ROOT=[n]
-			# XEN_SWAP=[n]
-			# XEN_MEMX=[n]
-			# ---
-			if [ -d $ROOT/root_$I ];then
-				rm -rf $ROOT/root_$I
-			else
-				mkdir -p $ROOT/root_$I
-			fi
-			if [ ! -z $obsopt ];then
-				dd if=/dev/zero of=$ROOT/root_$I/root bs=1M seek=$XEN_ROOT count=1
-				dd if=/dev/zero of=$ROOT/root_$I/swap bs=1M seek=$XEN_SWAP count=1
-				echo $XEN_MEMX > $ROOT/root_$I/memory
-			fi
+			[ -d $ROOT/root_$I ] || mkdir -p $ROOT/root_$I
+                        [ -d $workerdir/$I ] || mkdir -p $workerdir/$I
 		done
 		pushd "$workerbootdir"
 		screen -m -d -c $screenrc
