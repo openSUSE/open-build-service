@@ -132,7 +132,7 @@ class AttributeTest < ActiveSupport::TestCase
     assert_equal 0, @at.value_count
     assert_equal "NSTEST", @at.attrib_namespace.name
 
-    axml = " <attribute name='NSTEST:Maintained' /> "
+    axml = " <attribute namespace='NSTEST' name='Maintained' /> "
     xml = BsRequest.new( axml )
 
     # store in a project
@@ -143,7 +143,7 @@ class AttributeTest < ActiveSupport::TestCase
 
     @p = DbProject.find_by_name( "kde4" )
     assert_not_nil @p
-    @a = @p.find_attribute( "NSTEST:Maintained" )
+    @a = @p.find_attribute( "NSTEST", "Maintained" )
     assert_not_nil @a
     assert_equal "Maintained", @a.attrib_type.name
 
@@ -156,13 +156,13 @@ class AttributeTest < ActiveSupport::TestCase
 
     @p = DbPackage.find_by_project_and_name( "kde4", "kdebase" )
     assert_not_nil @p
-    @a = @p.find_attribute( "NSTEST:Maintained" )
+    @a = @p.find_attribute( "NSTEST", "Maintained" )
     assert_not_nil @a
     assert_equal "Maintained", @a.attrib_type.name
 
 
     # Check count validation
-    axml = "<attribute name='NSTEST:Maintained' >
+    axml = "<attribute namespace='NSTEST' name='Maintained' >
               <value>blah</value>
             </attribute> "
     xml = BsRequest.new( axml )

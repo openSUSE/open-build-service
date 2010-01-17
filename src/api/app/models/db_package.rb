@@ -272,18 +272,19 @@ class DbPackage < ActiveRecord::Base
 
   def store_attribute_axml( attrib, binary=nil )
 
-    raise SaveError, "attribute type without a name " if not attrib.name
+    raise SaveError, "attribute type without a namespace " if not attrib.has_attribute? :namespace
+    raise SaveError, "attribute type without a name " if not attrib.has_attribute? :name
 
     # check attribute type
-    if ( not atype = AttribType.find_by_name(attrib.name) or atype.blank? )
-      raise SaveError, "unknown attribute type '#{attrib.name}'"
+    if ( not atype = AttribType.find_by_namespace_and_name(attrib.namespace,attrib.name) or atype.blank? )
+      raise SaveError, "unknown attribute type '#{attrib.namespace}':'#{attrib.name}'"
     end
     # verify the number of allowed values
     if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
-      raise SaveError, "Attribute: '#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
+      raise SaveError, "Attribute: '#{attrib.namespace}':'#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
     end
     if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
-      raise SaveError, "attribute '#{attrib.name}' requires #{atype.value_count} values, but none given"
+      raise SaveError, "attribute '#{attrib.namespace}':'#{attrib.name}' requires #{atype.value_count} values, but none given"
     end
 
     # verify with allowed values for this attribute definition
@@ -298,15 +299,15 @@ class DbPackage < ActiveRecord::Base
           end
         end
         if found == 0
-          raise SaveError, "attribute value #{value} for '#{attrib.name} is not allowed'"
+          raise SaveError, "attribute value #{value} for '#{attrib.namespace}':'#{attrib.name} is not allowed'"
         end
       end
     end
     # update or create attribute entry
     if binary
-       a = find_attribute(attrib.name, binary)
+       a = find_attribute(attrib.namespace, attrib.name, binary)
     else
-       a = find_attribute(attrib.name)
+       a = find_attribute(attrib.namespace, attrib.name)
     end
     if a
       a.update_from_xml(attrib)
@@ -337,15 +338,11 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-  def find_attribute( name, binary=nil )
-      name_parts = name.split /:/
-      if name_parts.length != 2
-        raise RuntimeError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
-      end
+  def find_attribute( namespace, name, binary=nil )
       if binary
-        return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binary = BINARY ?", name_parts[1], name_parts[0], binary])
+        return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binary = BINARY ?", name, namespace, binary])
       end
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name_parts[1], name_parts[0]])
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace])
   end
 
   def write_through?

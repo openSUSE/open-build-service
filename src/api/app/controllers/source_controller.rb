@@ -242,7 +242,6 @@ class SourceController < ApplicationController
 
     # permission checking
     if params[:attribute]
-      aname = params[:attribute]
       if a=@attribute_container.find_attribute(params[:attribute],binary)
         unless @http_user.can_modify_attribute? a
           render_error :status => 403, :errorcode => "change_attribute_no_permission", 
@@ -432,20 +431,6 @@ class SourceController < ApplicationController
         render_error :status => 403, :errorcode => "change_project_no_permission",
           :message => "admin rights are required to change remoteurl or remoteproject"
         return
-      end
-
-      # FIXME: this may should go out of project meta data ?
-      if (p.has_element? :attributes) and not @http_user.is_admin?
-        if (p.attributes.has_element? :namespace)
-          render_error :status => 403, :errorcode => "change_project_no_permission",
-            :message => "admin rights are required to change attribute namespace defitinions"
-          return
-        end
-        if (p.attributes.has_element? :definition)
-          render_error :status => 403, :errorcode => "change_project_no_permission",
-            :message => "admin rights are required to change attribute namespace defitinions"
-          return
-        end
       end
 
       p.add_person(:userid => @http_user.login) unless @project
@@ -781,11 +766,10 @@ class SourceController < ApplicationController
 
       # create repositories, if missing
       pac.db_project.repositories.each do |repo|
-        orepo = Repository.create :name => proj_name+"_"+repo.name
+        orepo = oprj.repositories.create :name => proj_name+"_"+repo.name
         orepo.architectures = repo.architectures
-        orepo.path_elements << PathElement.new(:link => repo, :position => 1)
-        oprj.repositories << orepo
-        opkg.build_flags << BuildFlag.new( :status => "enable", :repo => orepo.name )
+        orepo.path_elements.create(:link => repo, :position => 1)
+        opkg.build_flags.create( :status => "enable", :repo => orepo.name )
       end
 
       Package.find(opkg.name, :project => oprj.name).save
