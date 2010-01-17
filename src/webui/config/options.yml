@@ -15,3 +15,5 @@ theme: neutral
 
 # Exceptions get mailed to these addresses:
 #exception_recipients: ['webclient_noreply@opensuse.org']
+exception_recipients: []
+

@@ -197,7 +197,7 @@ class ApplicationController < ActionController::Base
   end
 
   def send_exception_mail?
-    return !local_request? && !Rails.env.development?
+    return !local_request? && !Rails.env.development? && ExceptionNotifier.exception_recipients && ExceptionNotifier.exception_recipients.length > 0
   end
 
 end
