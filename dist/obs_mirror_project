@@ -53,9 +53,9 @@ puts "Creating project configuration data: osc meta prjconf #{project} > #{proje
 system("osc meta prjconf #{project} > #{projectdir}/#{project}.conf")
 
 # download all binary packages
-puts "Downloading: osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository\n" if verbose
+puts "Downloading: osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository\n" if verbose
 
-process = File::popen("osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository", "r")
+process = File::popen("osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository", "r")
 filelist = Document.new process
 filelist.elements.each("binarylist/binary") { |binary| 
   fname = binary.attributes["filename"];
@@ -86,7 +86,7 @@ filelist.elements.each("binarylist/binary") { |binary|
 
     end
     if verbose
-      puts "Downloading: osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname}"
+      puts "Downloading: osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname}"
     else
       print "Download " + fname + "\n"
     end
@@ -95,7 +95,7 @@ filelist.elements.each("binarylist/binary") { |binary|
     # fallback to api download
     #      print "failed, try via api for #{fname} \n"
     
-    unless system("osc req -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname} > #{destinationdir}/#{fname}")
+    unless system("osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname} > #{destinationdir}/#{fname}")
       print "Unable to download #{fname} from mirror AND api\n"
       exit(1)
     end
