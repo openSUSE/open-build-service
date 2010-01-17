@@ -44,10 +44,33 @@ case "$1" in
                 fi
 		echo "Looking for OBS Worker Cache LVM Volume"
                 if [ -e /dev/OBS/cache ]; then
-			mkdir /OBS.cache
-			mount /dev/OBS/cache /OBS.cache
-		else
-			[ -d /OBS.cache ] && rmdir /OBS.cache
+			mkdir -p /OBS.worker/cache
+			mount /dev/OBS/cache /OBS.worker/cache
+
+			echo "OBS_WORKER_DIRECTORY=\"/OBS.worker/\""  > /etc/buildhost.config
+			echo "OBS_CACHE_DIR=\"/OBS.worker/cache\""   >> /etc/buildhost.config
+			echo "OBS_CACHE_SIZE=\"\""
+			if false; then
+				echo "OBS_USE_XEN=\"yes\"" >> /etc/buildhost.config
+			fi
+			OBS_WORKER_INSTANCES="0"
+			for i in /dev/OBS/worker_root* ; do
+				name=${i##*/worker_}
+				swap=/dev/OBS/worker_root${i#/dev/OBS/worker_root}
+				[ -e $swap ] || continue
+				if [ -e /sys/hypervisor/type ]; then
+					#prepare xen or kvm setup
+					mkdir -p /OBS.worker/${i##*/}
+					ln -sf $i /OBS.worker/${i##*/}/root
+					ln -sf $swap /OBS.worker/${i##*/}/swap
+				else
+					#plain chroot build
+					mkdir -p /OBS.worker/${i##*/}/root
+					mount $i /OBS.worker/${i##*/}/root
+				fi
+				OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
+			done
+			echo "OBS_WORKER_INSTANCES=\"$OBS_WORKER_INSTANCES\"" >> /etc/buildhost.config
                 fi
 		rc_status -v
 	;;

@@ -28,7 +28,12 @@ link=${base#*[SK][0-9][0-9]}
 apidir=/srv/www/obs/api
 
 HOSTNAME=`hostname`
-FQHOSTNAME="$HOSTNAME.`domainname`"
+DOMAINNAME=`domainname`
+if [ -n "$DOMAINNAME" ]; then
+  FQHOSTNAME="$HOSTNAME.$DOMAINNAME"
+else
+  FQHOSTNAME="$HOSTNAME"
+fi
 
 rc_reset
 case "$1" in
@@ -51,9 +56,9 @@ case "$1" in
 		echo -n "Adjust webui configuration for api"
                 # it would be better to solve this in lighttpd.conf to accept also localhost:81,
                 # but no idea how to solve this
-                sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = '"$HOSTNAME:81"',' \
+                sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = "'"$FQHOSTNAME"'",' \
 		    /srv/www/obs/webui/config/environments/production.rb
-                sed -i 's,^DOWNLOAD_HOST = .*,DOWNLOAD_HOST = '"$HOSTNAME:82"',' \
+                sed -i 's,^DOWNLOAD_HOST = .*,DOWNLOAD_HOST = '"$FQHOSTNAME:82"',' \
 		    /srv/www/obs/webui/config/environments/production.rb
 		echo
 		echo -n "Write OBS lighttpd config for this host"
@@ -61,7 +66,7 @@ case "$1" in
 #
 # WARNING: this file gets rewritten on each boot by obsapisetup runlevel script!
 #
-\$HTTP["host"] == "$HOSTNAME:80" {
+\$HTTP["host"] == "$FQHOSTNAME:80" {
   rails_app   = "webui"
   rails_root  = "/srv/www/obs/webui"
   rails_procs = 5
@@ -72,7 +77,7 @@ case "$1" in
 
   include "vhosts.d/rails.inc"
 }
-\$SERVER["socket"] == "$HOSTNAME:81" {
+\$SERVER["socket"] == "$FQHOSTNAME:81" {
   rails_app   = "api"
   rails_root  = "/srv/www/obs/api"
   rails_procs = 5
@@ -83,12 +88,32 @@ case "$1" in
 
   include "vhosts.d/rails.inc"
 }
-\$SERVER["socket"] == "$HOSTNAME:82" {
+\$SERVER["socket"] == "$FQHOSTNAME:82" {
   server.name = "$FQHOSTNAME"
   server.document-root = "/srv/obs/repos/"
 
   dir-listing.activate = "enable"
 }
+
+EOF
+		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
+		OS=`head -n 1 /etc/SuSE-release`
+		cat > /etc/issue <<EOF
+Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION, based on $OS
+
+
+  Connect to the web interface via:     http://$FQHOSTNAME
+  Connect to the api interface via:     http://$FQHOSTNAME:81
+  Browse the build packages via:        http://$FQHOSTNAME:82
+
+ * "root" and "Admin" user password is "opensuse" by default.
+ * Keep in mind import the openSUSE.org project before building packages.
+
+More informations about this appliance are available here:
+
+ http://en.opensuse.org/Build_Service/OBS-Appliance
+
+                                  Greetings from the openSUSE Build Service Team
 
 EOF
 		rc_status -v
