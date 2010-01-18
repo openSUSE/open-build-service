@@ -773,17 +773,17 @@ sub publish {
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
 	$p .= "_$q->{'arch'}.deb";
       } else {
-	if ($bin =~ /\.iso$/ || $bin =~ /\.iso\.md5$/) {
+	if ($bin =~ /\.iso(:?\.sha256)?$/) {
 	  $p = "iso/$bin";
-	} elsif ($bin =~ /\.raw\.bz2$/ || $bin =~ /\.raw\.bz2\.md5$/) {
+	} elsif ($bin =~ /\.raw\.bz2(:?\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.raw(:?\.install)?$/) {
+	} elsif ($bin =~ /\.raw(:?\.install)?(:?\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.tar\.gz$/ || $bin =~ /\.tar\.bz2$/) {
+	} elsif ($bin =~ /\.tar\.(:?gz|bz2)(:?\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.ovf$/) {
+	} elsif ($bin =~ /\.ovf(:?\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.vmdk$/) {
+	} elsif ($bin =~ /\.vmdk(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";

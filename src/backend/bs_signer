@@ -90,8 +90,8 @@ sub signjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
   my @files = sort(ls($jobdir));
-  my @rpms = grep {/\.rpm$/} @files;
-  if (@rpms) {
+  my @signfiles = grep {/\.(?:rpm|sha256)$/} @files;
+  if (@signfiles) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid");
@@ -100,15 +100,15 @@ sub signjob {
       writestr("$uploaddir/signer.$$", undef, $signkey);
       push @signargs, '-P', "$uploaddir/signer.$$";
     }
-    for my $rpm (@rpms) {
+    for my $signfile (@signfiles) {
       if ($info->{'file'} eq '_aggregate') {
 	# special aggregate handling: remove old sigs
         system('rpm', '--delsign', "$jobdir/$rpm") && warn("delsign $jobdir/$rpm failed: $?\n");
       }
-      if (system($BSConfig::sign, @signargs, '-r', "$jobdir/$rpm")) {
+      if (system($BSConfig::sign, @signargs, "$jobdir/$signfile")) {
         unlink("$uploaddir/signer.$$") if $signkey;
 	close F;
-	die("sign $jobdir/$rpm failed: $?\n");
+	die("sign $jobdir/$signfile failed: $?\n");
       }
     }
     unlink("$uploaddir/signer.$$") if $signkey;
