@@ -370,7 +370,6 @@ sub getrev {
   } else {
     $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
   }
-  $rev->{'srcmd5'} =~ s/\/.*// if $rev;		# XXX still needed?
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
   return $rev;
@@ -498,6 +497,7 @@ sub addrev {
 sub lsrev {
   my ($rev, $linkinfo) = @_;
 
+  die("nothing known\n") unless $rev;
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
   my $srcmd5 = $rev->{'srcmd5'};
@@ -1031,7 +1031,10 @@ sub handlelinks {
     return "linked package '$packid' does not exist in project '$projid'" unless $lrev;
     return "linked package '$packid' is empty" if $lrev->{'srcmd5'} eq 'empty';
     return "linked package '$packid' is strange" unless $lrev->{'srcmd5'} =~ /^[0-9a-f]{32}$/;
-    $files = lsrev($lrev);
+    undef $files;
+    eval {
+      $files = lsrev($lrev);
+    };
     return 'linked package is not in repository' unless $files;
     my $cicount = $l->{'cicount'} || 'add';
     if ($cicount eq 'copy') {
@@ -1228,7 +1231,6 @@ sub kiwibootcallback {
   BSVerify::verify_projid($projid);
   BSVerify::verify_packid($packid);
   my $rev = getrev($projid, $packid);
-  die("$projid/$packid does not exist\n") unless $rev && $rev->{'srcmd5'} ne 'empty';
   my $files = lsrev($rev);
   my ($md5, $file) = findfile($rev, undef, 'kiwi', $files);
   die("no kiwi file found\n") unless $md5 && $file;
@@ -1405,7 +1407,15 @@ sub getprojpack {
 	next;
       }
       if ($cgi->{'withsrcmd5'} || $cgi->{'withdeps'}) {
-        my $rev = getrev($projid, $packid, 'build');
+        my $rev;
+	eval {
+	  $rev = getrev($projid, $packid, 'build');
+	};
+	if ($@) {
+	  $pinfo->{'error'} = $@;
+	  $pinfo->{'error'} =~ s/\n$//s;
+ 	  next;
+	}
 	if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq 'd41d8cd98f00b204e9800998ecf8427e') {
 	  $pinfo->{'error'} = 'no source uploaded';
 	  next;
@@ -1851,7 +1861,10 @@ sub fetchremoteconfig {
 sub remote_getrev {
   my ($projid, $packid, $rev) = @_;
   my $proj = remoteprojid($projid);
-  return undef unless $proj;
+  if (!$proj) {
+    die("package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
+    die("project '$projid' does not exist\n");
+  }
   my @args;
   push @args, "expand";
   push @args, "rev=$rev" if defined $rev;
@@ -2038,8 +2051,6 @@ sub getfilelist {
 
   my $view = $cgi->{'view'};
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  die("no such project/package\n") unless $rev;
-  my $ret = {};
   my $li = {};
   my $files = lsrev($rev, $li);
 
@@ -2085,6 +2096,7 @@ sub getfilelist {
     return undef;
   }
 
+  my $ret = {};
   $ret->{'name'} = $packid;
   $ret->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
   $ret->{'rev'} = $rev->{'rev'} if exists $rev->{'rev'};
@@ -2119,7 +2131,6 @@ sub getfile {
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  die("$filename: no such project/package\n") unless $rev;
   my $files = lsrev($rev);
   die("$filename: no such file\n") unless $files->{$filename};
   my @s = stat("$srcrep/$packid/$files->{$filename}-$filename");
@@ -2133,7 +2144,6 @@ sub putfile {
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  die("unknown project/package\n") unless $rev;
   die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && !$cgi->{'force'};
   mkdir_p($uploaddir);
   my $uploaded = BSServer::read_file("$uploaddir/$$", 'withmd5' => 1);
@@ -2162,14 +2172,12 @@ sub sourcediff {
   my $tmax = 16000;
 
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  die("unknown project/package\n") unless $rev;
   my $files = lsrev($rev);
   my $orev = $cgi->{'orev'};
   if ($projid eq $oprojid && $packid eq $opackid && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
     $orev = $rev->{'rev'} - 1;
   }
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
-  die("unknown other project/package\n") unless $orev;
   my $ofiles = lsrev($orev);
   if ($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
@@ -2207,8 +2215,8 @@ sub sourcediff {
 sub linkdiff {
   my ($cgi, $projid, $packid) = @_;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  my $linkinfo = {};
   $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
+  my $linkinfo = {};
   my $files = lsrev_expanded($rev, $linkinfo);
   die("not a link\n") unless $linkinfo->{'srcmd5'};
   linkinfo_addtarget($rev, $linkinfo);
@@ -2552,7 +2560,6 @@ sub integratelink {
 sub sourcecommit {
   my ($cgi, $projid, $packid) = @_;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  die("unknown project/package\n") unless $rev;
   my $files = lsrev($rev);
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
@@ -2744,7 +2751,7 @@ sub sourcebranch {
   $lfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  my $rev = addrev($projid, $packid, $lfiles, $user, $comment, undef, $cgi->{'requestid'});
+  my $rev = addrev($projid, $packid, $lfiles, $user, $comment);
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -2768,25 +2775,20 @@ sub linktobranch {
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   $comment ||= "converted link to branch";
-  $rev = addrev($projid, $packid, $files, $user, $comment, undef, $cgi->{'requestid'});
+  $rev = addrev($projid, $packid, $files, $user, $comment);
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
 }
 
-sub sourcecmd {
+sub deleteuploadrev {
   my ($cgi, $projid, $packid) = @_;
-  return sourcediff($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'diff';
-  return linkdiff($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'linkdiff';
-  return sourcecommit($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commit';
-  return sourcecommitfilelist($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'commitfilelist';
-  return sourcecopy($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'copy';
-  return sourcebranch($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'branch';
-  return linktobranch($cgi, $projid, $packid) if $cgi->{'cmd'} eq 'linktobranch';
-  if ($cgi->{'cmd'} eq 'deleteuploadrev') {
-    unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
-    return $BSStdServer::return_ok;
-  }
+  unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
+  return $BSStdServer::return_ok;
+}
+
+sub unknowncmd {
+  my ($cgi, $projid, $packid) = @_;
   die("unknown command \"$cgi->{'cmd'}\"\n");
 }
 
@@ -2796,7 +2798,6 @@ sub delfile {
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && not $cgi->{'force'};
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  die("unknown project/package\n") unless $rev;
   my $files = lsrev($rev);
   die("file '$filename' does not exist\n") unless $files->{$filename};
   delete $files->{$filename};
@@ -3098,24 +3099,22 @@ sub getlogfile {
   if (!$cgi->{'start'}) {
     # check if the package is broken
     my $rev = getrev($projid, $packid, 'build');
-    if ($rev) {
-      my $files = lsrev($rev);
-      if (ref($files) && $files->{'_link'}) {
-        $files = handlelinks($rev, $files);
-	if (!ref $files) {
-	  my $error = "$files\n";
-	  if ($rev->{'srcmd5'}) {
-	    $files = lsrev($rev);
-	    if ($files->{'_linkerror'}) {
-	      $error = readstr("$srcrep/$packid/$files->{'_linkerror'}-_linkerror", 1);
-	    }
+    my $files = lsrev($rev);
+    if (ref($files) && $files->{'_link'}) {
+      $files = handlelinks($rev, $files);
+      if (!ref $files) {
+	my $error = "$files\n";
+	if ($rev->{'srcmd5'}) {
+	  $files = lsrev($rev);
+	  if ($files->{'_linkerror'}) {
+	    $error = readstr("$srcrep/$packid/$files->{'_linkerror'}-_linkerror", 1);
 	  }
-	  if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
-	    my $entry = {'name' => '_log', 'size' => length($error)};
-	    return ({'entry' => [ $entry ]}, $BSXML::dir);
-	  }
-	  return $error;
 	}
+	if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
+	  my $entry = {'name' => '_log', 'size' => length($error)};
+	  return ({'entry' => [ $entry ]}, $BSXML::dir);
+	}
+	return $error;
       }
     }
   }
@@ -4137,7 +4136,16 @@ my $dispatches = [
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
 
-  'POST:/source/$project/$package cmd: rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? olinkrev:linkrev? unified:bool? noservice:bool? requestid:? dontupdatesource:bool?' => \&sourcecmd,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool?' => \&linkdiff,
+  'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? noservice:bool?' => \&sourcecommit,
+  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev?' => \&sourcecommitfilelist,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev?' => \&sourcebranch,
+  'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
+  'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
+  'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
+
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
   '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
   '/source/$project/$package:package_product/_history rev?' => \&getpackagehistory,
