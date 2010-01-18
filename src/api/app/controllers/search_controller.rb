@@ -110,12 +110,13 @@ class SearchController < ApplicationController
       project = DbProject.find_by_name(params[:project])
     end
     if params[:package]
-      packages = []
       if params[:project]
-         packages << DbPackage.find_by_project_and_name(params[:project], params[:package])
+         packages = DbPackage.find_by_project_and_name(params[:project], params[:package])
       else
          packages = DbPackage.find(:all, :conditions => ["name = BINARY ?", params[:package]])
       end
+    elsif project
+      packages = project.db_packages
     end
 
     if packages
