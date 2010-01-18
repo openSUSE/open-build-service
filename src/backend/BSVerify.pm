@@ -269,10 +269,10 @@ my %req_states = map {$_ => 1} qw {new revoked accepted superseded declined dele
 
 sub verify_request {
   my ($req) = @_;
+  verify_num($req->{'id'}) if exists $req->{'id'};
   die("request must contain a state\n") unless $req->{'state'};
   die("request must contain a state name\n") unless $req->{'state'}->{'name'};
-  die("request contains unknown state ".$req->{'state'}->{'name'}."\n")
-    unless $req_states{$req->{'state'}->{'name'}};
+  die("request contains unknown state '$req->{'state'}->{'name'}'\n") unless $req_states{$req->{'state'}->{'name'}};
 
   my $actions;
   if ($req->{'type'}) {
