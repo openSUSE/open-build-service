@@ -242,7 +242,12 @@ class SourceController < ApplicationController
 
     # permission checking
     if params[:attribute]
-      if a=@attribute_container.find_attribute(params[:attribute],binary)
+      aname = params[:update_project_attribute]
+      name_parts = aname.split /:/
+      if name_parts.length != 2
+        raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+      end
+      if a=@attribute_container.find_attribute(name_parts[0],name_parts[1],binary)
         unless @http_user.can_modify_attribute? a
           render_error :status => 403, :errorcode => "change_attribute_no_permission", 
             :message => "user #{user.login} has no permission to modify attribute"
@@ -291,7 +296,7 @@ class SourceController < ApplicationController
       @attribute_container.store
       render_ok
     elsif request.delete?
-      @attribute_container.find_attribute(params[:attribute],binary).destroy
+      @attribute_container.find_attribute(name_parts[0], name_parts[1],binary).destroy
       @attribute_container.store
       render_ok
     else
@@ -1037,7 +1042,12 @@ class SourceController < ApplicationController
     end
 
     # is a update project defined and a package there ?
-    if a = prj.find_attribute(params[:update_project_attribute]) and a.values[0]
+    aname = params[:update_project_attribute]
+    name_parts = aname.split /:/
+    if name_parts.length != 2
+      raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+    end
+    if a = prj.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
        if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
           pkg = pa
           pkg_name = pkg.name
