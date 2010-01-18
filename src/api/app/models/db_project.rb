@@ -347,6 +347,7 @@ class DbProject < ActiveRecord::Base
       attribs.each do |attr|
         next if params[:name] and not attr.attrib_type.name == params[:name]
         next if params[:namespace] and not attr.attrib_type.attrib_namespace.name == params[:namespace]
+        type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
         a.attribute(:name => attr.attrib_type.name, :namespace => attr.attrib_type.attrib_namespace.name) do |y|
           done[type_name]=1
           if attr.values.length>0
