@@ -189,6 +189,11 @@ CRON_DIR=$RPM_BUILD_ROOT/etc/cron.d
 install -d -m 755 $CRON_DIR
 install -m 0644 crontab.obs-api   $CRON_DIR/obs-api
 install -m 0644 crontab.obs-webui $CRON_DIR/obs-webui
+# install SLP registration files
+SLP_DIR=$RPM_BUILD_ROOT/etc/slp.reg.d/
+install -d -m 755  $SLP_DIR
+install -m 644 obs.source_server.reg $SLP_DIR/
+install -m 644 obs.repo_server.reg $SLP_DIR/
 
 #
 # Install all web and api parts.
@@ -341,6 +346,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
+%dir /etc/slp.reg.d
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
 /etc/init.d/obsdispatcher
@@ -360,7 +366,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobssigner
 /usr/sbin/rcobsstoragesetup
 /usr/lib/obs/server/BSBuild.pm
-%config(noreplace) /usr/lib/obs/server/BSConfig.pm
 /usr/lib/obs/server/BSConfig.pm.template
 /usr/lib/obs/server/BSEvents.pm
 /usr/lib/obs/server/BSFileDB.pm
@@ -408,6 +413,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/BSSolv.pm
 /usr/lib/obs/server/BSSolv.xs
 /usr/lib/obs/server/typemap
+%config(noreplace) /usr/lib/obs/server/BSConfig.pm
+%config(noreplace) /etc/slp.reg.d/*
 %attr(-,obsrun,obsrun) /srv/obs
 /var/adm/fillup-templates/sysconfig.obs-server
 # created via %post, since rpm fails otherwise while switching from 
@@ -481,9 +488,11 @@ rm -rf $RPM_BUILD_ROOT
 
 # starting the webui part
 %dir /srv/www/obs/webui
+%dir /srv/www/obs/webui/db
 /srv/www/obs/webui/app
 /srv/www/obs/webui/Changelog
-/srv/www/obs/webui/db
+/srv/www/obs/webui/db/migrate
+/srv/www/obs/webui/db/schema.rb
 /srv/www/obs/webui/doc
 /srv/www/obs/webui/lib
 /srv/www/obs/webui/public

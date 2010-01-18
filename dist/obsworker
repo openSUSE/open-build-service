@@ -86,10 +86,10 @@ fi
 if [ -f /etc/buildhost.config ];then
 	. /etc/buildhost.config
 fi
-if grep -q kvm /sys/hypervisor/type; then
+if [ -e /sys/class/misc/kvm ] && grep -q kvm /sys/hypervisor/type; then
 	obsopt=--kvm
 fi
-if grep -q xen /sys/hypervisor/type; then
+if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
 	obsopt=--xen
 fi
 

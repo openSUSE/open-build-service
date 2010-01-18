@@ -54,19 +54,11 @@ case "$1" in
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		startproc -l "$logdir"/rep_server.log "$obsdir"/bs_repserver
-                if [ "$OBS_USE_SLP" == "yes" ]; then
-		   # yes, ugly
-		   PORT=`sed -n 's,our $reposerver.*:\(.*\)";,\1,p' /usr/lib/obs/server/BSConfig.pm`
-                   slptool register service:obs.repo_server:http://$FQHOSTNAME:$PORT,en,6553
-                fi
 		rc_status -v
 	;;
 	stop)
 		echo -n "Shutting down obsrepserver"
 		killproc "$obsdir"/bs_repserver 
-                if [ "$OBS_USE_SLP" == "yes" ]; then
-                   slptool deregister service:obs.repo_server:http://$FQHOSTNAME:6262
-                fi
 		rc_status -v
 	;;
 	restart)

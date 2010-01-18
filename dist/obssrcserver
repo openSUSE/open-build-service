@@ -54,15 +54,7 @@ case "$1" in
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		startproc -l "$logdir"/src_server.log "$obsdir"/bs_srcserver
-		if [ "$?" -ne 0 ]; then
-                   rc_status -v
-                else
-                   if [ "$OBS_USE_SLP" == "yes" ]; then
-		      # yes, ugly
-		      PORT=`sed -n 's,our $srcserver.*:\(.*\)";,\1,p' /usr/lib/obs/server/BSConfig.pm`
-                      slptool register service:obs.source_server:http://$FQHOSTNAME:$PORT,en,6553
-                   fi
-                fi
+		rc_status -v
 
 		# FIXME:
 
@@ -79,9 +71,6 @@ case "$1" in
 	stop)
 		echo -n "Shutting down obssrcserver"
 		killproc "$obsdir"/bs_srcserver 
-                if [ "$OBS_USE_SLP" == "yes" ]; then
-                   slptool deregister service:obs.source_server:http://$FQHOSTNAME:6362
-                fi
 		rc_status -v
 	;;
 	restart)

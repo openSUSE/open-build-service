@@ -32,10 +32,3 @@ OBS_RUN_DIR="/srv/obs/run"
 ## Config:      OBS
 OBS_LOG_DIR="/srv/obs/log"
 
-## Path:        Applications/OBS
-## Description: Announce services via SLP
-## Type:        yesno
-## Default:     yes
-## Config:      OBS
-OBS_USE_SLP="yes"
-
