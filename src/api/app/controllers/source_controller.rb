@@ -751,7 +751,12 @@ class SourceController < ApplicationController
     
       # is a update project defined and a package there ?
       pac = p
-      if a = p.db_project.find_attribute(params[:update_project_attribute]) and a.values[0]
+      aname = params[:update_project_attribute]
+      name_parts = aname.split /:/
+      if name_parts.length != 2
+        raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+      end
+      if a = p.db_project.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
          if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
             pac = pa
          end
