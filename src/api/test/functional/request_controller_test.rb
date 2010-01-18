@@ -42,7 +42,6 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   def test_submit_request
     req = BsRequest.find(:name => "no_such_project")
-    
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     post "/request?cmd=create", req.dump_xml
     assert_response 404
@@ -61,6 +60,13 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_select "status[code] > summary", /No permission to create request for package 'TestPack' in project 'home:tscholz'/
 
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    post "/request?cmd=create", req.dump_xml
+    assert_response :success
+    # the fake id
+    assert_tag( :tag => "request", :attributes => { :id => "42"} )
+
+    req = BsRequest.find(:name => "works_without_target")
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     post "/request?cmd=create", req.dump_xml
     assert_response :success

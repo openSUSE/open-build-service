@@ -117,7 +117,7 @@ class RequestController < ApplicationController
           end
         end
 
-        unless action.data.attributes["type"] == "submit" and action.has_element? 'target'
+        if action.data.attributes["type"] != "submit" or action.has_element? 'target'
           # target is required for change_devel, but optional for submit
           tprj = DbProject.find_by_name action.target.project
 #          unless sprj or DbProject.find_remote_project(action.source.project)
