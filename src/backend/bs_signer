@@ -103,7 +103,7 @@ sub signjob {
     for my $signfile (@signfiles) {
       if ($info->{'file'} eq '_aggregate') {
 	# special aggregate handling: remove old sigs
-        system('rpm', '--delsign', "$jobdir/$rpm") && warn("delsign $jobdir/$rpm failed: $?\n");
+        system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
       }
       if (system($BSConfig::sign, @signargs, "$jobdir/$signfile")) {
         unlink("$uploaddir/signer.$$") if $signkey;
