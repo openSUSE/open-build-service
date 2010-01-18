@@ -107,6 +107,7 @@ module Suse
         p = project
       else
         p = Project.find project
+        return val unless p
       end
 
       p.each_person do |person|
@@ -132,6 +133,7 @@ module Suse
         raise "Permission#package_maintainers: project name must be given if first parameter is no Package object"
       else
         p = Package.find package, :project => project
+        return val unless p
       end
 
       p.each_person do |person|
