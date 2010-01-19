@@ -267,6 +267,12 @@ class SourceController < ApplicationController
       end
     else
       if request.post?
+        aname = params[:update_project_attribute]
+        name_parts = aname.split /:/
+        if name_parts.length != 2
+          raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+        end
+
         req.each_attribute do |a|
           begin
             can_create = @http_user.can_create_attribute_in? @attribute_container, a.name
