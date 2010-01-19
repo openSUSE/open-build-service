@@ -307,6 +307,13 @@ sub createrepo_rpmmd {
       qsystem('createrepo', '-q', '-c', "$extrep/repocache", $extrep) && print("    createrepo failed again: $?\n");
     }
   }
+  if (-d "$extrep/repocache") {
+    my $now = time;
+    for (map { "$extrep/repocache/$_" } ls("$extrep/repocache")) {
+      my @s = stat($_);
+      unlink($_) if @s && $s[9] < $now - 7*86400;
+    }
+  }
   if ($BSConfig::repodownload) {
     print "    running repoview\n";
     qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
