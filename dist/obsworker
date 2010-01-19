@@ -128,7 +128,7 @@ case "$1" in
 		# fetch worker sources from server
 		[ -d "$workerbootdir" ] || mkdir -p "$workerbootdir"
 		pushd "$workerbootdir"
-		curl -q "${OBS_WORKER_PARM}"/getworkercode | cpio --extract
+		curl -s "${OBS_WORKER_PARM}"/getworkercode | cpio --extract
 		ln -s . XML 
 		chmod 755 bs_worker
 		popd
