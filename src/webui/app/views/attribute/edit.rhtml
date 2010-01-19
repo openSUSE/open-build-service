@@ -5,7 +5,7 @@
                link_to( @project.name, :controller => 'project', :action => :show, :project => @project.name)]
 @crumb_list << link_to( @package, :controller => 'package', :action => :show, :project => @project.name, :package => @package) if @package
 @crumb_list << link_to('Attributes', :controller => 'attribute', :action => :show, :project => @project.name, :package => @package)
-@crumb_list << action = @attribute ? "Edit attribute" : "Add new attribute"
+@crumb_list << @attribute ? "Edit attribute" : "Add new attribute"
 -%>
 
 
@@ -18,7 +18,7 @@
 <%   values = "" 
      if @selected_attribute
        opt = { :options => "<option selected>#{@selected_attribute}</option>" }
-       @attribute.each do |d|
+       @attributes.each do |d|
           if d.name == @selected_attribute
             if d.has_element? :value
               d.each do |f|

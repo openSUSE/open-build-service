@@ -2,7 +2,6 @@ class Attribute < ActiveXML::Base
 
 
   def save
- 
     path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_attribute" : "/source/#{self.init_options[:project]}/_attribute"
     begin
       frontend = ActiveXML::Config::transport_for( :package ) 
@@ -29,18 +28,16 @@ class Attribute < ActiveXML::Base
 
   end
 
-  def set(attribute, values)
-    i = 0
+  def set(namespace, attribute, values)
     self.each do |f|
-      if f.name == attribute
+      if f.namespace == namespace && f.name == attribute
         # delete attribute when already set
-        self.delete_element(self.each[i])  
+        self.delete_element(f)
       end
-      i+=1
     end
     
     # add the new one with values
-    new_attr = self.add_element 'attribute', 'name' => attribute
+    new_attr = self.add_element 'attribute', 'name' => attribute, 'namespace' => namespace
     for x in values do
       value = new_attr.add_element 'value'
       value.text = x
