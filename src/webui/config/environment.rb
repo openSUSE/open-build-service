@@ -148,7 +148,7 @@ ActiveXML::Base.config do |conf|
 
     map.connect :diff, "rest:///request/:id"
  
-    map.connect :attribute, "rest:///source/:project/:package/_attribute",
+    map.connect :attribute, "rest:///source/:project/:package/_attribute/:attribute",
       :project => "rest:///source/:project/_attribute/:attribute",
       :namespaces => "rest:///attribute",
       :all => "rest:///attribute/:namespace"
