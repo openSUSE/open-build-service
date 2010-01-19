@@ -259,7 +259,7 @@ class SourceController < ApplicationController
             :message => "Attempt to modify not existing attribute"
           return
         end
-        unless @http_user.can_create_attribute_in? @attribute_container, params[:attribute]
+        unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
           render_error :status => 403, :errorcode => "change_attribute_no_permission", 
             :message => "user #{user.login} has no permission to change attribute"
           return
@@ -267,15 +267,13 @@ class SourceController < ApplicationController
       end
     else
       if request.post?
-        aname = params[:update_project_attribute]
-        name_parts = aname.split /:/
-        if name_parts.length != 2
-          raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
-        end
-
         req.each_attribute do |a|
           begin
-            can_create = @http_user.can_create_attribute_in? @attribute_container, a.name
+            can_create = @http_user.can_create_attribute_in? @attribute_container, :namespace => a.namespace, :name => a.name
+          rescue ActiveRecord::RecordNotFound => e
+            render_error :status => 404, :errorcode => "not_found",
+              :message => e.message
+            return
           rescue User::ArgumentError => e
             render_error :status => 400, :errorcode => "change_attribute_attribute_error",
               :message => e.message
@@ -297,7 +295,12 @@ class SourceController < ApplicationController
     # execute action
     if request.post?
       req.each_attribute do |a|
-        @attribute_container.store_attribute_axml(a, binary)
+        begin
+          @attribute_container.store_attribute_axml(a, binary)
+        rescue DbProject::SaveError => e
+          render_error :status => 403, :errorcode => "save_error", :message => e.message
+          return
+        end
       end
       @attribute_container.store
       render_ok

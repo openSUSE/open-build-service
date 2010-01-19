@@ -290,14 +290,14 @@ class DbProject < ActiveRecord::Base
 
     # check attribute type
     if ( not atype = AttribType.find_by_namespace_and_name(attrib.namespace, attrib.name) or atype.blank? )
-      raise SaveError, "unknown attribute type '#{attrib.name}':'#{attrib.namespace}'"
+      raise SaveError, "unknown attribute type '#{attrib.namespace}:#{attrib.name}'"
     end
     # verify the number of allowed values
     if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
-      raise SaveError, "Attribute: '#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
+      raise SaveError, "Attribute: '#{attrib.namespace}:#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
     end
     if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
-      raise SaveError, "attribute '#{attrib.name}' requires #{atype.value_count} values, but none given"
+      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' requires #{atype.value_count} values, but none given"
     end
 
     # verify with allowed values for this attribute definition

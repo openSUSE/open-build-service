@@ -166,16 +166,20 @@ class User < ActiveRecord::Base
     return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
   end
 
-  def can_create_attribute_in?(object, attrib_type)
+  def can_create_attribute_in?(object, opts)
     if not object.kind_of? DbProject and not object.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
-    unless attrib_type
-      raise ArgumentError, "no attribute type given"
+    unless opts[:namespace]
+      raise ArgumentError, "no namespace given"
     end
+    unless opts[:name]
+      raise ArgumentError, "no name given"
+    end
+
     # find attribute type definition
-    if ( not atype = AttribType.find_by_name(attrib_type) or atype.blank? )
-      raise ArgumentError, "unknown attribute type '#{attrib_type}'"
+    if ( not atype = AttribType.find_by_namespace_and_name(opts[:namespace], opts[:name]) or atype.blank? )
+      raise ActiveRecord::RecordNotFound, "unknown attribute type '#{opts[:namespace]}:#{opts[:name]}'"
     end
     # check modifiable_by rules
     if atype.attrib_type_modifiable_bies.length > 0
