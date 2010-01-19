@@ -9,15 +9,18 @@ class AttributeController < ApplicationController
     all_attributes.each_entry do |d|
       @attribute_list << "OBS:#{d.name}"
     end
-    @attributes.each do |d|
+    @attributes.each_attribute do |d|
       @attribute_list.delete(d.name)
     end
-    @selected_attribute = params[:attribute]
+    if params[:namespace] and params[:name]
+      @selected_attribute = "%s:%s" % [params[:namespace], params[:name]]
+    end
   end
 
   def save
     values = params[:values].split(',')
-    @attributes.set("OBS", params[:attribute], values)
+    namespace, name = params[:attribute].split /:/
+    @attributes.set(namespace, name, values)
     result = @attributes.save
     opt = {:controller => "attribute", :action => "show", :project => @project.name }
     opt.store( :package, params[:package] ) if params[:package]
@@ -26,7 +29,7 @@ class AttributeController < ApplicationController
   end
 
   def delete
-    result = @attributes.delete(params[:attribute])
+    result = @attributes.delete(params[:namespace], params[:name])
     flash[result[:type]] = result[:msg]
     opt = {:controller => "attribute", :action => "show", :project => @project.name }
     opt.store( :package, params[:package] ) if params[:package]
