@@ -242,7 +242,7 @@ class SourceController < ApplicationController
 
     # permission checking
     if params[:attribute]
-      aname = params[:update_project_attribute]
+      aname = params[:attribute]
       name_parts = aname.split /:/
       if name_parts.length != 2
         raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
