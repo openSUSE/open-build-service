@@ -1438,16 +1438,14 @@ sub getprojpack {
 	if ($files->{'_link'}) {
 	  my %li = ('linked' => []);
 	  $files = handlelinks($rev, $files, \%li);
+	  $pinfo->{'linked'} = $li{'linked'} if @{$li{'linked'}};
 	  if (!ref $files) {
 	    $pinfo->{'error'} = defined($files) ? $files : "could not get file list";
 	    next;
 	  }
-	  $pinfo->{'linked'} = $li{'linked'} if @{$li{'linked'}};
 	  $pinfo->{'srcmd5'} = $rev->{'srcmd5'};
 	  my $meta = '';
-	  for (sort keys %$files) {
-	    $meta .= "$files->{$_}  $_\n";
-	  }
+	  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
 	  $pinfo->{'verifymd5'} = Digest::MD5::md5_hex($meta);
 	}
 
