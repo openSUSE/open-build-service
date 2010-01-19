@@ -41,13 +41,6 @@ else
 fi
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
-HOSTNAME=`hostname`
-DOMAINNAME=`domainname`
-if [ -n "$DOMAINNAME" ]; then
-  FQHOSTNAME="$HOSTNAME.$DOMAINNAME"
-else
-  FQHOSTNAME="$HOSTNAME"
-fi
 
 rc_reset
 case "$1" in
