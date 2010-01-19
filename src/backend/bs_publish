@@ -683,7 +683,7 @@ sub deleterepo {
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1 at ".localtime(time)."\n";
     # small sync, timout 1 minute
-    qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed at ".localtime(time).": $?\n");
+    qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
   }
   rmdir("$extrepodir/$projid_ext");
 }
@@ -1100,7 +1100,7 @@ publishprog_done:
     if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
       print "    running trigger rsync to $1 at ".localtime(time)."\n";
       # small sync, timeout 1 minute
-      qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && die("    trigger rsync failed: $?\n");
+      qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed: $?\n");
     }
   }
   if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$prp}) {
