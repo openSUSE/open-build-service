@@ -375,10 +375,15 @@ class SourceControllerTest < ActionController::IntegrationTest
     #STDERR.puts(@response.body)
     assert_response( 404, "Was able to read file outside of package scope" )
     assert_tag( :tag => "status" )
-    
   end
   
-
+  
+  def test_put_project_meta
+    data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
+    prepare_request_with_user @request, "tom", "thunder"
+    post "/source/home:tom/_attribute", data
+    assert_response :success
+  end
 
   def add_file_to_package
     teststring = "&;" 
