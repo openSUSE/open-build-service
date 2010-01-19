@@ -27,13 +27,7 @@ link=${base#*[SK][0-9][0-9]}
 
 apidir=/srv/www/obs/api
 
-HOSTNAME=`hostname`
-DOMAINNAME=`domainname`
-if [ -n "$DOMAINNAME" ]; then
-  FQHOSTNAME="$HOSTNAME.$DOMAINNAME"
-else
-  FQHOSTNAME="$HOSTNAME"
-fi
+FQHOSTNAME=`hostname -f`
 
 rc_reset
 case "$1" in
