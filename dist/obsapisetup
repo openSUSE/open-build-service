@@ -99,7 +99,8 @@ EOF
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
 		cat > /etc/issue <<EOF
-Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION, based on $OS
+Welcome to openSUSE Build Service(OBS) Appliance $OBSVERSION
+based on $OS
 
 
   Connect to the web interface via:     http://$FQHOSTNAME
