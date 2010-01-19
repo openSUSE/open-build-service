@@ -34,7 +34,11 @@ if [ -z "$OBS_LOG_DIR" ]; then
         OBS_LOG_DIR="/srv/obs/log"
 fi
 
-obsdir=/usr/lib/obs/server/
+if [ -n "$OBS_BACKENDCODE_DIR" ]; then
+	obsdir="$OBS_BACKENDCODE_DIR"
+else
+	obsdir=/usr/lib/obs/server/
+fi
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
 
@@ -56,6 +60,15 @@ case "$1" in
 	stop)
 		echo -n "Shutting down obsscheduler"
 		killall bs_sched
+		rc_status -v
+	;;
+	shutdown)
+		echo -n "Dumping state of obsscheduler"
+		cd "$obsdir"
+		test -z "$OBS_SCHEDULER_ARCHITECTURES" && OBS_SCHEDULER_ARCHITECTURES=i586
+		for i in $OBS_SCHEDULER_ARCHITECTURES; do
+			./bs_admin --shutdown-scheduler $i
+		done
 		rc_status -v
 	;;
 	restart)
