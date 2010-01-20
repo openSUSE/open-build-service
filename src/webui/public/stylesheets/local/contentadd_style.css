@@ -116,7 +116,7 @@ h1, h2, h3, h4, h5, h6 {
 #seachform_wrapper a img {}
 
 #monitor-wrapper { /* a try to handle the long monitor-tabel */
-  overflow: auto;
+  overflow: visible;
 }
 
 .dialog_wrapper .darkgrey_box .box_top_row,
