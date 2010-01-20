@@ -475,9 +475,10 @@ sub addrev {
 
   # send out hermes notification
   BSHermes::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
+  $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   BSHermes::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
                                              oldversion => $rev_old->{'version'}, newversion => $version, user => $user, comment => $comment})
-    unless $rev_old and $version eq $rev_old->{'version'};
+    if $version ne $rev_old->{'version'};
 
   # add missing data to complete the revision object
   $rev->{'project'} = $projid;
