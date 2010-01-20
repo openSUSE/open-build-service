@@ -2072,13 +2072,18 @@ sub getfilelist {
       %$rev = %lrev;
       $rev->{'rev'} = $rev->{'srcmd5'};
     } else {
-      delete $lrev{'srcmd5'} if !ref($lfiles) && $lrev{'srcmd5'} && ! -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
-      $li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
-      $li->{'error'} = $lfiles unless ref $lfiles;
-      $li->{'lsrcmd5'} ||= $rev->{'srcmd5'};
-      if ($cgi->{'lastworking'}) {
-        my $lastworking = findlastworkinglink($rev);
-        $li->{'lastworking'} = $lastworking if $lastworking;
+      if (ref $lfiles) {
+        $li->{'xsrcmd5'} = $lrev{'srcmd5'};
+      } else {
+	# link is broken
+	$li->{'error'} = $lfiles;
+	$li->{'lsrcmd5'} ||= $rev->{'srcmd5'};
+	# set xsrcmd5 if we have a link error file
+	$li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'} && -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
+	if ($cgi->{'lastworking'}) {
+	  my $lastworking = findlastworkinglink($rev);
+	  $li->{'lastworking'} = $lastworking if $lastworking;
+	}
       }
     }
   }
