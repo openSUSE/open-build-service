@@ -79,5 +79,12 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_tag :tag => 'collection', :children => { :count => 0 }
   end
 
+  def test_xpath_6
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    get "/search/package", :match => '[attribute/@name="Maintained"]'
+    assert_response 400
+    assert_select "status[code] > summary", /illegal xpath attribute\/@name="Maintained"/
+  end
+
 end
 
