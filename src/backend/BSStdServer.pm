@@ -52,14 +52,14 @@ sub stdreply {
 }
 
 sub errreply {
-  my ($err, $code, $tag) = @_;
+  my ($err, $code, $tag, @hdrs) = @_;
   my $opresult = {'code' => $code, 'summary' => $tag};
   my $opresultxml;
   eval {
     $opresultxml = XMLout($BSXML::opstatus, $opresult);
   };
   $opresultxml ||= "<status code=\"500\"\n  <summary>internal error in errreply</summary>\n</status>\n";
-  BSWatcher::reply($opresultxml, "Status: $code $tag", 'Content-Type: text/xml');
+  BSWatcher::reply($opresultxml, "Status: $code $tag", 'Content-Type: text/xml', @hdrs);
 }
 
 sub authenticate {
