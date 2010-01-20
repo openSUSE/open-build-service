@@ -784,7 +784,7 @@ class SourceController < ApplicationController
 
       Package.find(opkg.name, :project => oprj.name).save
       # branch sources in backend
-      Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{pac.db_project.name}&opackage=#{pac.name}", nil
+      Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{CGI.escape(pac.db_project.name)}&opackage=#{CGI.escape(pac.name)}", nil
 
     end
 
@@ -1021,12 +1021,12 @@ class SourceController < ApplicationController
     if not pkg_linkrev.nil? and not pkg_linkrev.empty?
          linkrev = "&linkrev=#{pkg_linkrev}"
     end
-    Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch&user=#{params[:user]}#{rev}#{linkrev}", nil
+    Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}", nil
 
     render_ok
   end
 
-  # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"
+  # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"
   def index_package_branch
     params[:user] = @http_user.login
     prj_name = params[:project]
@@ -1037,6 +1037,7 @@ class SourceController < ApplicationController
     if not params[:update_project_attribute]
       params[:update_project_attribute] = "OBS:UpdateProject"
     end
+    logger.debug "branch call of #{prj_name} #{pkg_name}"
 
     prj = DbProject.find_by_name prj_name
     pkg = prj.db_packages.find_by_name(pkg_name)
@@ -1056,6 +1057,7 @@ class SourceController < ApplicationController
        if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
           pkg = pa
           pkg_name = pkg.name
+    	  logger.debug "branch call found package in update project"
        end
     end
 
@@ -1065,6 +1067,7 @@ class SourceController < ApplicationController
       pkg_name = pkg.name
       prj = pkg.db_project
       prj_name = prj.name
+      logger.debug "devel project is #{prj_name} #{pkg_name}"
     end
 
     # link against srcmd5 instead of plain revision
@@ -1123,12 +1126,12 @@ class SourceController < ApplicationController
       Package.find(opkg_name, :project => oprj_name).save
     end
 
-    #link sources
+    #create branch of sources in backend
     rev = ""
     if not pkg_rev.nil? and not pkg_rev.empty?
          rev = "&rev=#{pkg_rev}"
     end
-    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{prj_name}&opackage=#{pkg_name}#{rev}", nil
+    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}", nil
 
     render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name}
   end
