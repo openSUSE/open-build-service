@@ -202,7 +202,11 @@ class XpathEngine
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
         if @last_key and @attribs[table][@last_key][:split]
-          @condition_values << value.split(@attribs[table][@last_key][:split])
+          tvalues = value.split(@attribs[table][@last_key][:split])
+          if tvalues.size != 2
+            raise XpathEngine::IllegalXpathError, "attributes must be $NAMESPACE:$NAME"
+          end
+          @condition_values << tvalues
         else
           @condition_values << value
         end
