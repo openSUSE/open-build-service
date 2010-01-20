@@ -259,7 +259,7 @@ class ApplicationController < ActionController::Base
         response.headers["WWW-Authenticate"] = 'basic realm="API login"'
       end
     else
-      opt[:status] = 500
+      opt[:status] = 400
     end
     
     @exception = opt[:exception]

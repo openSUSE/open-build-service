@@ -47,7 +47,7 @@ class ResultController < ApplicationController
 
     #bail if no GET
     unless request.get?
-      render_error :message => "Illegal request method", :status => 500
+      render_error :message => "Illegal request method", :status => 400
     end
     logger.debug "retrieving package status for project '#{project}'"
 
