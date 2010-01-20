@@ -15,6 +15,9 @@ config.action_controller.perform_caching             = false
 # Don't care if the mailer can't send
 config.action_mailer.raise_delivery_errors = false
 
+# Enable debug logging by default
+config.log_level = :debug
+
 #SOURCE_HOST = "buildservice.suse.de"
 SOURCE_HOST = "localhost"
 
