@@ -2112,14 +2112,6 @@ sub getfilelist {
   if (%$li) {
     linkinfo_addtarget($rev, $li) if $li->{'lsrcmd5'};
     $ret->{'linkinfo'} = $li;
-    # fill compatiblity elements, to be removed...
-    $ret->{'tproject'} = $li->{'project'};
-    $ret->{'tpackage'} = $li->{'package'};
-    $ret->{'trev'} = $li->{'rev'} if $li->{'rev'};
-    $ret->{'tsrcmd5'} = $li->{'srcmd5'} if $li->{'srcmd5'};
-    $ret->{'lsrcmd5'} = $li->{'lsrcmd5'} if $li->{'lsrcmd5'};
-    $ret->{'xsrcmd5'} = $li->{'xsrcmd5'} if $li->{'xsrcmd5'};
-    $ret->{'error'} = $li->{'error'} if $li->{'error'};
   }
   $ret->{'entry'} = \@res;
   return ($ret, $BSXML::dir);
