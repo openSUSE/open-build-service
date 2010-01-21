@@ -752,27 +752,26 @@ sub writeMigrationSPECfile( $$$ )
 {
     my( $file, $prodRef,$product ) = @_;
     my $mproduct = Storable::dclone($product);
+    my $newpatchlevel = $mproduct->{'patchlevel'} + 1;
 
-    $mproduct->{name} = $product->{name}."-SP".$product->{'patchlevel'}."-migration";
+    $mproduct->{name} = $product->{name}."-SP".$newpatchlevel."-migration";
 
-    my $oldpatchlevel = $mproduct->{'patchlevel'} - 1;
     my $content="# ";
     $content.="\n\n";
     $content.="Name:           $mproduct->{name}\n";
-    $content.="Summary:        $product->{name} Service Pack $product->{'patchlevel'} Migration Product\n";
+    $content.="Summary:        $product->{name} Service Pack $newpatchlevel Migration Product\n";
     $content.="Version:        ".$product->{version}."\n";
     $content.="Release:        0\n";
     $content.="License:        BSD 3-Clause\n";
     $content.="Group:          System/Fhs\n";
     $content.="Provides:       product()\n";
     $content.="Provides:       product(%name) = %{version}-%{release}\n";
-    $content.="Requires:       product(".$product->{name}.") = ".$product->{baseversion};
-    $content.=".".$oldpatchlevel if ( $oldpatchlevel >0 );
+    $content.="Requires:       product(".$product->{name}.") = ".$product->{baseversion}.".".$newpatchlevel;
     $content.="\n";
     $content.="AutoReqProv:    on\n";
     $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
     $content.="\n%description\n";
-    $content.="Product to migrate to $product->{name} Service Pack $product->{'patchlevel'}.\n";
+    $content.="Product to migrate to $product->{name} Service Pack $newpatchlevel.\n";
     $content.="\n\n";
     $content.="\n%prep\n";
     $content.="\n%build\n\n";

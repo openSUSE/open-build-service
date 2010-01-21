@@ -102,6 +102,17 @@ our $product = [
                 ]],
               ], # this is for prod file export only
            ],
+           [ 'upgrades' =>
+              [[ 'upgrade' =>
+                 [],
+                 'name',
+                 'summary',
+                 'repository',
+                 'product',
+                 'notify',
+                 'status',
+              ]],
+           ],
            'updaterepokey',
            [[ 'summary' =>
               'language',
