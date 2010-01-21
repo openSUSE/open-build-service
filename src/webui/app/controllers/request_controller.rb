@@ -39,7 +39,8 @@ class RequestController < ApplicationController
     @target_project = Project.find diff.action.target.project
     @target_pkg = diff.action.target.package
     @is_author = diff.has_element? "//state[@name='new' and @who='#{session[:login]}']"
-    @is_maintainer = @target_project.is_maintainer? session[:login]
+    @is_maintainer = @target_project.is_maintainer?( session[:login] ) ||
+      (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
 
     if @type == "submit"
       transport ||= ActiveXML::Config::transport_for(:project)
