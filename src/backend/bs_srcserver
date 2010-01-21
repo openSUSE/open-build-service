@@ -1088,16 +1088,18 @@ sub lsrev_expanded {
 # add missing target information to linkinfo
 sub linkinfo_addtarget {
   my ($rev, $linkinfo) = @_;
-  die("linkinfo_addtarget: linkinfo contains no lsrcmd5?\n") unless $linkinfo->{'lsrcmd5'};
-  my $files = lsrev({%$rev, 'srcmd5' => $linkinfo->{'lsrcmd5'}});
+  my $lsrcmd5 = $linkinfo->{'lsrcmd5'} || $rev->{'srcmd5'};
+  my $files = lsrev({%$rev, 'srcmd5' => $lsrcmd5});
   die("linkinfo_addtarget: not a link?\n") unless $files->{'_link'};
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
-  my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
-  $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $projid;
-  $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $packid;
-  $linkinfo->{'rev'} = $l->{'rev'} if $l->{'rev'};
-  $linkinfo->{'baserev'} = $l->{'baserev'} if $l->{'baserev'};
+  my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
+  if ($l) {
+    $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $projid;
+    $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $packid;
+    $linkinfo->{'rev'} = $l->{'rev'} if $l->{'rev'};
+    $linkinfo->{'baserev'} = $l->{'baserev'} if $l->{'baserev'};
+  }
 }
 
 sub findlastworkinglink {
@@ -2077,7 +2079,6 @@ sub getfilelist {
       } else {
 	# link is broken
 	$li->{'error'} = $lfiles;
-	$li->{'lsrcmd5'} ||= $rev->{'srcmd5'};
 	# set xsrcmd5 if we have a link error file
 	$li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'} && -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
 	if ($cgi->{'lastworking'}) {
@@ -2115,7 +2116,7 @@ sub getfilelist {
     }
   }
   if (%$li) {
-    linkinfo_addtarget($rev, $li) if $li->{'lsrcmd5'};
+    linkinfo_addtarget($rev, $li);
     $ret->{'linkinfo'} = $li;
   }
   $ret->{'entry'} = \@res;
