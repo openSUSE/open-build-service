@@ -2751,6 +2751,8 @@ sub sourcebranch {
   my $rev = addrev($projid, $packid, $lfiles, $user, $comment);
   delete $rev->{'project'};
   delete $rev->{'package'};
+  BSHermes::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
+                                             user => $cgi->{'user'}});
   return ($rev, $BSXML::revision);
 }
 
