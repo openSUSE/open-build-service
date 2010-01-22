@@ -25,17 +25,17 @@
      };
 
      last_search_string = srch;
-     console.log('Filter for ' + srch)
-     console.time('jquery replace');
-     console.time('jquery insert dom');
+     //console.log('Filter for ' + srch)
+     //console.time('jquery replace');
+     //console.time('jquery insert dom');
      $("#spinner").show();
      var onevisible = 0
-     console.time('jquery clone');
+     //console.time('jquery clone');
      var new_packages_table = $('#packages_table').clone();
      new_packages_table.attr( 'id', 'filtered_packages_table' )
 
      $('#packages_table').hide();
-     console.timeEnd('jquery clone');
+     //console.timeEnd('jquery clone');
 
      new_packages_table.find('tr').each(function() {
           if ( this.id.indexOf(srch, 4) == -1 ) {
@@ -45,7 +45,7 @@
               onevisible = 1;
           }
       });
-      console.timeEnd('jquery replace');
+      //console.timeEnd('jquery replace');
 
       $('#filtered_packages_table').replaceWith( new_packages_table )
       $('#filtered_packages_table').show();
@@ -57,7 +57,7 @@
       }
 
       $("#spinner").hide();
-      console.timeEnd('jquery insert dom');
+      //console.timeEnd('jquery insert dom');
     }
 <% end %>
 
