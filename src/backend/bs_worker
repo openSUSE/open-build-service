@@ -218,9 +218,9 @@ while (@ARGV) {
     next;
   }
   if ($ARGV[0] eq '--srcserver') {
-    # obsolete, but keeping it to avoid incompatibilities
+    # default value used if buildinfo does not contain srcserver element
     shift @ARGV;
-    shift @ARGV;
+    $srcserver = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--reposerver') {
@@ -507,9 +507,10 @@ sub getsources {
 
   my @meta;
   push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
 
   my $res = BSRPC::rpc({
-    uri => "$srcserver/getsources",
+    uri => "$server/getsources",
     directory => $dir,
     timeout => $gettimeout,
     withmd5 => 1,
@@ -541,7 +542,7 @@ sub getsources {
     $idir = "$dir/images/$idir";
     mkdir_p($idir);
     my $res = BSRPC::rpc({
-      uri => "$srcserver/getsources",
+      uri => "$server/getsources",
       directory => $idir,
       timeout => $gettimeout,
       withmd5 => 1,
@@ -1085,9 +1086,6 @@ sub dobuild {
   my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
-  # Switch srcserver setting according to buildinfo
-  # Old servers before 1.7 are not providing srcserver as part of buildinfo
-  $srcserver = $buildinfo->{'srcserver'} if defined($buildinfo->{'srcserver'});
 
   my $helper = '';
   /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
@@ -1126,7 +1124,8 @@ sub dobuild {
     @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'path'} || []};
     unshift @configpath, "path=$projid/$repoid" unless @configpath;
   }
-  my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  my $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
