@@ -411,6 +411,7 @@ sub createrepo_debian {
   unlink("$extrep/Packages.gz");
   unlink("$extrep/Release");
   unlink("$extrep/Release.gpg");
+  unlink("$extrep/Release.key");
 
 
   print "    running dpkg-scanpackages\n";
@@ -458,6 +459,9 @@ EOL
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && print("    sign failed: $?\n");
     rename("$extrep/Release.asc","$extrep/Release.gpg");
   }
+  if ($BSConfig::sign) {
+    writestr("$extrep/Release.key", undef, $pubkey) if $pubkey;
+  }
 }
 
 sub deleterepo_debian {
@@ -467,6 +471,7 @@ sub deleterepo_debian {
   unlink("$extrep/Packages.gz");
   unlink("$extrep/Release");
   unlink("$extrep/Release.gpg");
+  unlink("$extrep/Release.key");
 }
 
 
