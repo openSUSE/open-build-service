@@ -1,18 +1,20 @@
 ## Path:        Applications/OBS
 ## Description: define source server host to be used
 ## Type:        string
-## Default:     "localhost:5352"
+## Default:     ""
 ## Config:      OBS
 #
+# An empty setting will point to localhost:5352 by default
 #
 OBS_SRC_SERVER=""
 
 ## Path:        Applications/OBS
 ## Description: define repository server host to be used
 ## Type:        string
-## Default:     "localhost:5252"
+## Default:     ""
 ## Config:      OBS
 #
+# An empty setting will point to localhost:5252 by default
 #
 OBS_REPO_SERVERS=""
 
@@ -23,6 +25,7 @@ OBS_REPO_SERVERS=""
 ## Config:      OBS
 #
 # 0 instances will automatically use the number of CPU's
+#
 OBS_WORKER_INSTANCES="0"
 
 ## Path:        Applications/OBS
@@ -41,6 +44,7 @@ OBS_WORKER_DIRECTORY=""
 ## Config:      OBS
 #
 # 0 means let the operating system assign a port number
+#
 OBS_WORKER_PORTBASE="0"
 
 ## Path:        Applications/OBS
@@ -48,6 +52,8 @@ OBS_WORKER_PORTBASE="0"
 ## Type:        integer
 ## Default:     "1"
 ## Config:      OBS
+#
+# this maps usually to "make -j1" during build
 #
 OBS_WORKER_JOBS="1"
 
@@ -64,6 +70,9 @@ OBS_WORKER_TEST_MODE=""
 ## Type:        string
 ## Default:     ""
 ## Config:      OBS
+#
+# This is /srv/obs/run by default
+#
 OBS_RUN_DIR=""
 
 ## Path:        Applications/OBS
@@ -71,6 +80,9 @@ OBS_RUN_DIR=""
 ## Type:        string
 ## Default:     ""
 ## Config:      OBS
+#
+# This is /srv/obs/log by default
+#
 OBS_LOG_DIR=""
 
 ## Path:        Applications/OBS
@@ -88,7 +100,9 @@ OBS_USE_SLP="yes"
 ## Default:     ""
 ## Config:      OBS
 #
-#
+# Enable caching requires a given directory here. Be warned, content will be
+# removed there !
+# 
 OBS_CACHE_DIR=""
 
 ## Path:        Applications/OBS
@@ -97,5 +111,6 @@ OBS_CACHE_DIR=""
 ## Default:     ""
 ## Config:      OBS
 #
+# Set the size to 50% of the maximum usable size of this partition
 #
 OBS_CACHE_SIZE=""

@@ -29,6 +29,13 @@ apidir=/srv/www/obs/api
 
 FQHOSTNAME=`hostname -f`
 
+. /etc/sysconfig/obs-server
+
+if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
+   echo "OBS API Autosetup is not enabled in sysconfig, skipping!"
+   exit 0
+fi
+
 rc_reset
 case "$1" in
 	start)

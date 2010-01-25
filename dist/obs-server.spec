@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.6.90
+Version:        1.6.91
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -49,7 +49,7 @@ Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     createrepo >= 0.4.10
 Recommends:     deb >= 1.5
 Recommends:     openslp-server
-Recommends:     obs-sign
+Recommends:     obs-signd
 %else
 Requires:       yum yum-metadata-parser dpkg
 Requires:       createrepo >= 0.4.10
@@ -175,7 +175,8 @@ install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
-         obssigner obswarden obsapidelayed obswebuidelayed obsapisetup obsstoragesetup; do
+         obssigner obswarden obsapidelayed obswebuidelayed obsapisetup obsstoragesetup \
+         obsservice; do
   install -m 0755 $i \
            $RPM_BUILD_ROOT/etc/init.d/
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
@@ -207,6 +208,7 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/api/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
+rm $RPM_BUILD_ROOT/srv/www/obs/api/mkmf.log
 touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 rm $RPM_BUILD_ROOT/srv/www/obs/api/REFERENCE_ATTRIBUTES.xml
 rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install
@@ -215,12 +217,6 @@ cp -a $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb.template $RPM_BUI
 install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
 # needed for correct permissions
 touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
-
-# fix path, should be change in git ?
-for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
-  sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
-    "$i" > "$i"_ && mv "$i"_ "$i"
-done
 
 #
 #set default api on localhost for the webui
@@ -291,7 +287,7 @@ rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup obsservice; do
 %stop_on_removal $service
 done
 
@@ -301,7 +297,7 @@ done
 %post
 %run_permissions
 %{fillup_and_insserv -n obs-server}
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup obsservice; do
 %restart_on_update $service
 done
 %posttrans
@@ -323,6 +319,7 @@ fi
 %restart_on_update obsworker
 
 %post -n obs-api
+%{fillup_and_insserv -n obs-server}
 if [ -e /srv/www/obs/webclient/config/database.yml ] && [ ! -e /srv/www/obs/webui/config/database.yml ]; then
   cp /srv/www/obs/webclient/config/database.yml /srv/www/obs/webui/config/database.yml
 fi
@@ -353,6 +350,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obspublisher
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
+/etc/init.d/obsservice
 /etc/init.d/obssrcserver
 /etc/init.d/obswarden
 /etc/init.d/obssigner
@@ -361,6 +359,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
 /usr/sbin/rcobsscheduler
+/usr/sbin/rcobsservice
 /usr/sbin/rcobssrcserver
 /usr/sbin/rcobswarden
 /usr/sbin/rcobssigner
@@ -459,6 +458,8 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/api/test
 /srv/www/obs/api/vendor
 /srv/www/obs/docs
+# intentionally packaged in server and api package
+/var/adm/fillup-templates/sysconfig.obs-server
 
 #
 # some files below config actually are _not_ config files
