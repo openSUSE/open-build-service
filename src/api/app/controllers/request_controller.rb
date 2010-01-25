@@ -178,6 +178,9 @@ class RequestController < ApplicationController
   end
   def modify_changestate
     req = BsRequest.find params[:id]
+    unless req
+      render_error :status => 404, :message => "No such request", :errorcode => "no_such_request"
+    end
     if not @http_user or not @http_user.login
       render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Action requires authentifacted user."

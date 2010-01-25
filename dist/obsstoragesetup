@@ -19,6 +19,13 @@
 
 . /etc/rc.status
 
+. /etc/sysconfig/obs-server
+
+if [ "$OBS_STORAGE_AUTOSETUP" != "yes" ]; then
+   echo "OBS Storage Autosetup is not enabled in sysconfig, skipping!"
+   exit 0
+fi
+
 # Determine the base and follow a runlevel link name.
 base=${0##*/}
 link=${base#*[SK][0-9][0-9]}

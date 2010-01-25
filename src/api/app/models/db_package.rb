@@ -217,9 +217,13 @@ class DbPackage < ActiveRecord::Base
             )
           end
         else
+          user = User.find_by_login(person.userid)
+          unless user
+            raise SaveError, "user #{person.userid} not known"
+          end
           begin
             PackageUserRoleRelationship.create(
-              :user => User.find_by_login(person.userid),
+              :user => user,
               :role => Role.rolecache[person.role],
               :db_package => self
             )

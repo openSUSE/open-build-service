@@ -66,7 +66,7 @@ is correct here, since it automatically uses the local hostname.
 2.2.2 necessary changes on worker machine
 =========================================
 Install the package 'obs-worker' and edit the file /etc/sysconfig/obs-worker: 
-change the variable OBS_STORAGE_SERVER to main.fqdn:6262 
+change the variable OBS_STORAGE_SERVER to main.fqdn:5252 
 where main.fqdn is the output of 'hostname -f' or IP on *main* machine.
 
 3. run the api
@@ -204,7 +204,7 @@ If your backend is not on the same machine as the api, change the
 SOURCE_HOST on the api machine in the file:
 /srv/www/obs/api/config/environments/production.rb
 
-In this case, also make sure that the TCP port 6362 is open on the firewall
+In this case, also make sure that the TCP port 5352 is open on the firewall
 of the backend machine.
 
 3.2.3 Restart lighttpd
@@ -388,6 +388,28 @@ To automatically start everything at system boot you can use the following:
 
 Use chkconfig --del analogously to no longer automatically start them
 at boot.
+
+6.3 Optional services
+=====================
+
+The following service are optional:
+ * obswarden
+   It checks if build hosts are dieing and cleans up hanging builds
+ * obssigner
+   It is used to sign packages via the obs-sign daemon. You need to configure
+   it in BSConfig.pm before you can use it.
+ * obsservice
+   The is the source service daemon. OBS 1.7 just comes with a download
+   service so far. This feature is considered to be experimental so far,
+   but can be already extended with own services.
+
+The following runlevel scripts are only running on the OBS Appliance for
+auto configuration:
+ * obsstoragesetup
+   Configures storage volumes based on LVM partitions automatically.
+ * obsapisetup
+   Updates automatically the database layout and configures the web server
+   automatically based on your network setup.
 
 7. Feedback
 ===========

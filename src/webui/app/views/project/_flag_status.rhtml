@@ -18,7 +18,7 @@
           title = "#{flag.name} enabled, through #{flag.implicit_setter.description}"
         end
 	end
-	htmlid = "link_" + flag.name + "_" + flag.id.gsub(/[:.+&]/, "_")
+    htmlid = Digest::MD5.hexdigest(flag.name + "_" + flag.id.gsub(/[:.+&]/, "_"))
 %>     
 
 <% unless @flags_functions_set
@@ -38,6 +38,7 @@
 
 <% if @project.is_maintainer?( session[:login] ) %>
    <% content_for :head_javascript do %>
+      /* <%= "update_flag_" + flag.name + "_" + flag.id.gsub(/[:.+&]/, "_") %> */
       function update_flag_<%= htmlid %>() {
       if (flagsarehidden) return false;
       hideflags();
@@ -45,7 +46,7 @@
 			         :flag_name => flag.name, :repo => flag.repository, :arch => flag.architecture,
 				 :status => flag.status, :flag_id => flag.id}, :complete => "showflags()" %>;
       return false;
-      }
+      };
    <% end %>
    <%= link_to image_tag(image,:title => title, :class => "flagimage"), { }, :id => htmlid, :href => '#' %>
    <% content_for :ready_function do %>

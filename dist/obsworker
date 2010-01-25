@@ -101,7 +101,7 @@ case "$1" in
                 chown obsrun:obsrun "$obsrundir"
 		rm -rf "$workerdir"
 		mkdir -p "$workerbootdir"
-		echo "zombie on"       > $screenrc
+#		echo "zombie on"       > $screenrc
 		echo "caption always" >> $screenrc
 
 		if [ "$OBS_WORKER_INSTANCES" -gt 0 ]; then
@@ -161,7 +161,8 @@ case "$1" in
 	restart)
 		## If first returns OK call the second, if first or
 		## second command fails, set echo return value.
-		$0 stop &&  $0 start
+		$0 stop
+		$0 start
 		rc_status
 	;;
 	try-restart)
