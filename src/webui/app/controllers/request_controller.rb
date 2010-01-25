@@ -27,34 +27,47 @@ class RequestController < ApplicationController
   end
 
   def diff
-    diff = Diff.find( :id => params[:id])
-    @requests = [diff]
-    @id = diff.data.attributes["id"]
-    @state = diff.state.data.attributes["name"]
-    @type = diff.action.data.attributes["type"]
-    if @type=="submit"
-      @src_project = diff.action.source.project
-      @src_pkg = diff.action.source.package
+    if params[:id]
+      @request = Diff.find( :id => params[:id])
     end
-    @target_project = Project.find diff.action.target.project
-    @target_pkg = diff.action.target.package
-    @is_author = diff.has_element? "//state[@name='new' and @who='#{session[:login]}']"
+    @requests = [@request]
+    unless @request
+      flash[:error] = "Can't find request #{params[:id]}"
+      redirect_to :action => :index
+      return
+    end
+
+    @id = @request.data.attributes["id"]
+    @state = @request.state.data.attributes["name"]
+    @type = @request.action.data.attributes["type"]
+    if @type=="submit"
+      @src_project = @request.action.source.project
+      @src_pkg = @request.action.source.package
+    end
+    @target_project = Project.find @request.action.target.project
+    @target_pkg_name = @request.action.target.package
+    @target_pkg = Package.find @target_pkg_name, :project => @request.action.target.project
+    @is_author = @request.has_element? "//state[@name='new' and @who='#{session[:login]}']"
     @is_maintainer = @target_project.is_maintainer?( session[:login] ) ||
       (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
 
-    if @type == "submit"
+    if @type == "submit" and @target_pkg
       transport ||= ActiveXML::Config::transport_for(:project)
       path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
-               [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg), CGI.escape(@target_project.name)]
-      if diff.action.source.has_element? 'rev'
-        path += "&rev=#{diff.action.source.rev}"
+               [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg.name), CGI.escape(@target_project.name)]
+      if @request.action.source.data['rev']
+        path += "&rev=#{@request.action.source.rev}"
       end
       begin
         @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
       rescue Object => e
         @diff_error = e.message
       end
+    else
+      @diff_error = nil
+      @diff_text = nil
     end
+
     @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
   
   end
