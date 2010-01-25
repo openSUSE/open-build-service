@@ -1478,7 +1478,8 @@ if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'build
 rename('job.new', 'job') || die("rename job.new job: $!\n");
 
 if ($hostcheck) {
-  if (system($hostcheck, "$statedir/job", 'precheck', $buildroot)) {
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  if (system($hostcheck, '--srcserver', $server, "$statedir/job", 'precheck', $buildroot)) {
     unlink('job');
     die("400 cannot build this package\n");
   }
@@ -1548,7 +1549,8 @@ if (! -s "$buildroot/.build.log") {
 
 if ($hostcheck) {
   print "running post-build host check\n";
-  if (system($hostcheck, "$statedir/job", $ex ? 'failed' : 'succeeded', "$buildroot/.build.log")) {
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  if (system($hostcheck, '--srcserver', $server, "$statedir/job", $ex ? 'failed' : 'succeeded', "$buildroot/.build.log")) {
     print "post-build host check failed\n";
     $ex = 3;
   }
