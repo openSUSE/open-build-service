@@ -576,6 +576,7 @@ sub set_building {
     'project' => $projid,
     'repository' => $repoid,
     'package' => $packid,
+    'srcserver' => $BSConfig::srcserver,
     'reposerver' => $BSConfig::reposerver,
     'job' => $job,
     'arch' => $myarch,

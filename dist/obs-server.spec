@@ -99,6 +99,7 @@ Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
 # requires for webui:
+Requires:       ghostscript-fonts-std
 Requires:       rubygem-gruff
 Requires:       rubygem-sqlite3
 Requires:       rubygem-rmagick
@@ -208,7 +209,6 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/README_LOGIN
 rm $RPM_BUILD_ROOT/srv/www/obs/api/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
-rm $RPM_BUILD_ROOT/srv/www/obs/api/mkmf.log
 touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 rm $RPM_BUILD_ROOT/srv/www/obs/api/REFERENCE_ATTRIBUTES.xml
 rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install

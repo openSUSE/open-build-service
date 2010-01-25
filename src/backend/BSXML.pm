@@ -341,6 +341,7 @@ our $buildinfo = [
 	'project',
 	'repository',
 	'package',
+	'srcserver',
 	'reposerver',
 	'downloadurl',
 	[],

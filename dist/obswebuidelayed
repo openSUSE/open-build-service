@@ -24,9 +24,10 @@
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 ### BEGIN INIT INFO
-# Provides:          obs_webui_delayedjob
+# Provides:          obswebuidelayed
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
+# Should-Start:      obsapisetup
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 6
 # Short-Description: OBS webui delayed jobs

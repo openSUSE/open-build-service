@@ -143,8 +143,6 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --id        : worker id
 
-       --srcserver : define source server to be used
-
        --reposerver: define reposerver, can be used multiple times
 
        --arch      : define hostarch (overrides 'uname -m')
@@ -220,8 +218,9 @@ while (@ARGV) {
     next;
   }
   if ($ARGV[0] eq '--srcserver') {
+    # obsolete, but keeping it to avoid incompatibilities
     shift @ARGV;
-    $srcserver = shift @ARGV;
+    shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--reposerver') {
@@ -357,6 +356,7 @@ if ($justbuild) {
     die("not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
   }
   $| = 1;
+
   dobuild($buildinfo);
   exit(0);
 }
@@ -1085,6 +1085,9 @@ sub dobuild {
   my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
+  # Switch srcserver setting according to buildinfo
+  # Old servers before 1.7 are not providing srcserver as part of buildinfo
+  $srcserver = $buildinfo->{'srcserver'} if defined($buildinfo->{'srcserver'});
 
   my $helper = '';
   /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$cando{$hostarch}};
@@ -1476,7 +1479,7 @@ if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'build
 rename('job.new', 'job') || die("rename job.new job: $!\n");
 
 if ($hostcheck) {
-  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", 'precheck', $buildroot)) {
+  if (system($hostcheck, "$statedir/job", 'precheck', $buildroot)) {
     unlink('job');
     die("400 cannot build this package\n");
   }
@@ -1546,7 +1549,7 @@ if (! -s "$buildroot/.build.log") {
 
 if ($hostcheck) {
   print "running post-build host check\n";
-  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", $ex ? 'failed' : 'succeeded', "$buildroot/.build.log")) {
+  if (system($hostcheck, "$statedir/job", $ex ? 'failed' : 'succeeded', "$buildroot/.build.log")) {
     print "post-build host check failed\n";
     $ex = 3;
   }
