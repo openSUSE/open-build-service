@@ -9,7 +9,7 @@
 -%>
 <h2>Add File (Project <%=h @project.name %>, Package <%=h @package.name %>)</h2>
 
-<% form_tag({:action => :save_file}, {:multipart => true}) do %>
+<% form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>
 <b>Filename (leave empty to take from upload or uri):</b><br/>
 <%= text_field_tag 'filename', '', :size => 80 %><br/>
 
@@ -25,7 +25,5 @@
   <%= check_box_tag "addAsPatch", 1, false %>Add as a patch for the program source, and use it from the SPEC file <br/>
   <%= check_box_tag "applyAsPatch", 1, false %>Add as a global patch that patches the sources before building (can be used to patch the specfile)
 <% end %>
-<%= hidden_field_tag 'project', @project %>
-<%= hidden_field_tag 'package', @package %>
 <p><%= submit_tag %></p>
 <% end %>

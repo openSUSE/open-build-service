@@ -246,7 +246,11 @@ class PackageController < ApplicationController
   end
 
   def save_file
-    valid_http_methods(:post)
+    if request.method != :post
+      flash[:warn] = "File upload failed because this was no POST request. " +
+        "This probably happened because you were logged out in between. Please try again."
+      redirect_to :action => :show, :project => @project, :package => @package and return
+    end
 
     file = params[:file]
     file_url = params[:file_url]
@@ -309,7 +313,7 @@ class PackageController < ApplicationController
   def remove_file
     if request.method != :post
       flash[:warn] = "File removal failed because this was no POST request. " +
-        "This probably happened because you were logged out. Please try again."
+        "This probably happened because you were logged out in between. Please try again."
       redirect_to :action => :show, :project => @project, :package => @package and return
     end
     if not params[:filename]
@@ -396,11 +400,15 @@ class PackageController < ApplicationController
 
 
   def save_modified_file
-    valid_http_methods(:post)
     project = params[:project]
     package = params[:package]
     filename = params[:filename]
     file = params[:file]
+    if request.method != :post
+      flash[:warn] = "Saving file failed because this was no POST request. " +
+        "This probably happened because you were logged out in between. Please try again."
+      redirect_to :action => :show, :project => project, :package => package and return
+    end
     file.gsub!( /\r\n/, "\n" )
     begin
       frontend.put_file( file, :project => project, :package => package,
