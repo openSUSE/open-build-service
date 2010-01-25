@@ -371,12 +371,6 @@ class SourceController < ApplicationController
       return
     end
 
-    unless valid_project_name? project_name
-      render_error :status => 400, :errorcode => "invalid_project_name",
-        :message => "invalid project name '#{project_name}'"
-      return
-    end
-
     if request.get?
       @project = DbProject.find_by_name( project_name )
 
@@ -407,6 +401,12 @@ class SourceController < ApplicationController
 
     #authenticate
     return unless extract_user
+
+    unless valid_project_name? project_name
+      render_error :status => 400, :errorcode => "invalid_project_name",
+        :message => "invalid project name '#{project_name}'"
+      return
+    end
 
     if request.put?
       # Need permission
