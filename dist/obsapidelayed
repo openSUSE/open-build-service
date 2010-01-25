@@ -24,7 +24,7 @@
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 ### BEGIN INIT INFO
-# Provides:          obs_api_delayedjob
+# Provides:          obsapidelayed
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Should-Start:      obsapisetup
