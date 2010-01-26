@@ -61,12 +61,24 @@ case "$1" in
 			if [ -e /sys/hypervisor/type ]; then
 				echo "OBS_USE_XEN=\"yes\""           >> /etc/buildhost.config
 			fi
+        		if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
+				echo "Found XEN virtualization"
+				RUN_VIRT=1
+			else
+				if grep ^flags /proc/cpuinfo | grep -q " vmx " && modprobe kvm; then
+					echo "Found KVM virtualization"
+					RUN_VIRT=1
+				else
+					echo "*** NO virtualization found, BUILDING IN UNSECURE ENVIROMENT ***"
+					unset RUN_VIRT
+				fi
+			fi
 			OBS_WORKER_INSTANCES="0"
 			for i in /dev/OBS/worker_root* ; do
 				name="${i##*/worker_}"
 				swap="/dev/OBS/worker_swap${i#/dev/OBS/worker_root}"
 				[ -e $swap ] || continue
-				if [ -e /sys/hypervisor/type ]; then
+				if [ -n "$RUN_VIRT" ]; then
 					#prepare xen or kvm setup
 					mkdir -p "/OBS.worker/$name"
 					ln -sf "$i"    "/OBS.worker/$name/root"
