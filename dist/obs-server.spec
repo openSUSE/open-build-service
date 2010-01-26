@@ -62,7 +62,11 @@ Authors:
     The openSUSE Team <opensuse-buildservice@opensuse.org>
 
 %package -n obs-worker
-Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
+Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib cpio
+# For runlevel script:
+Requires:       curl
+# requires from build script
+Requires:       bash binutils
 Summary:        The openSUSE Build Service -- Build Host Component
 Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}

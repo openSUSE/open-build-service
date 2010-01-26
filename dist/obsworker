@@ -61,11 +61,16 @@ obsrundir="$OBS_RUN_DIR"
 workerdir="$obsrundir"/worker
 workerbootdir="$workerdir"/boot
 screenrc="$workerdir"/boot/screenrc
-obsopt=""
 OBS_WORKER_OPT=""
 
 if [ -n "$OBS_CACHE_DIR" ]; then
    OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
+else
+   # For automatic appliance setup
+   if [ -d /OBS.worker/cache ]; then
+      OBS_CACHE_DIR="/OBS.worker/cache"
+      OBS_WORKER_OPT="--cachedir /OBS.worker/cache"
+   fi
 fi
 
 if [ -n "$OBS_CACHE_SIZE" ]; then
@@ -74,17 +79,24 @@ if [ -n "$OBS_CACHE_SIZE" ]; then
         OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
    fi
    mkdir $OBS_CACHE_DIR
-   OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE "
+   OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE"
+else
+   # For automatic appliance setup
+   if [ -d /OBS.worker/cache ]; then
+      size=`df -m /OBS.worker/cache | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+      size=$(( $size / 2 ))
+      OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $size"
+   fi
 fi
 
 if [ -f /etc/buildhost.config ];then
 	. /etc/buildhost.config
 fi
-if [ -e /sys/class/misc/kvm ] && grep -q kvm /sys/hypervisor/type; then
-	obsopt=--kvm
+if grep ^flags /proc/cpuinfo | grep -q " vmx " ; then
+	vmopt=--kvm
 fi
 if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
-	obsopt=--xen
+	vmopt=--xen
 fi
 
 rc_reset
@@ -137,7 +149,7 @@ case "$1" in
 			I=$(( $I + 1 ))
 			title="$HOSTNAME/$I"
 			# prepare obsworker startup in screen...
-			echo "screen -t $title ./bs_worker $obsopt $port --root $ROOT/root_$I" \
+			echo "screen -t $title ./bs_worker $vmopt $port --root $ROOT/root_$I" \
 			     "--statedir $workerdir/$I --id $HOSTNAME/$I $OBS_REPO_PARM" \
 			     "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT" \
 			    >> $screenrc
