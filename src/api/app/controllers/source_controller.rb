@@ -845,7 +845,7 @@ class SourceController < ApplicationController
 
     # create patchinfo XML file
     node = Builder::XmlMarkup.new(:indent=>2)
-    node.patchinfo(:name => name) do |n|
+    xml = node.patchinfo(:name => name) do |n|
       binaries.each do |binary|
         node.binary(binary)
       end
@@ -858,7 +858,7 @@ class SourceController < ApplicationController
       node.description ""
 # FIXME add all bugnumbers from attributes
     end
-    backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20frontend", node.to_axml )
+    backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20frontend", xml )
 
     render_ok
   end
