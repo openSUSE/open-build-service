@@ -48,13 +48,14 @@ if [ -n "$OBS_WORKER_JOBS" ]; then
        OBS_JOBS="--jobs $OBS_WORKER_JOBS"
 fi
 
-if [ -z "$OBS_REPO_PARM" ]; then
+if [ -n "$OBS_REPO_SERVERS" ]; then
 	for i in $OBS_REPO_SERVERS; do
-           if [ -z "$OBS_WORKER_PARM" ]; then
-                 OBS_WORKER_PARM="http://$i"
-           fi
-           OBS_REPO_PARM="$OBS_REPO_PARM --reposerver http://$i"
+		OBS_REPO_PARM="$OBS_REPO_PARM --reposerver http://$i"
+		WORKER_CODE="http://$i"
         done
+else
+	OBS_REPO_PARM="$OBS_REPO_PARM --reposerver http://localhost:5252"
+	WORKER_CODE="http://localhost:5252"
 fi
 
 obsrundir="$OBS_RUN_DIR"
