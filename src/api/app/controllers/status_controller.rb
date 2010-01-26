@@ -142,7 +142,8 @@ class StatusController < ApplicationController
 
       ret
   end
-  private :update_workerstatus_cache
+  # not an action, but called from delayed job
+  # private :update_workerstatus_cache
 
   def project
      dbproj = DbProject.find_by_name(params[:id])
