@@ -2505,6 +2505,8 @@ sub integratelink {
       $nl->{'baserev'} = $xrev{'srcmd5'};
       $nlchanged = 1;
     }
+    # delete everything but the link
+    delete $files->{$_} for grep {$_ ne '_link'} keys %$files;
   }
 
   if ($lisbranch && !$nlisbranch) {
@@ -2548,7 +2550,7 @@ sub integratelink {
   if ($nlchanged) {
     mkdir_p($uploaddir);
     writexml("$uploaddir/$$", undef, $nl, $BSXML::link);
-    $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link')
+    $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   }
   for (sort keys %$ofiles) {
     next if $dontcopy{$_};
