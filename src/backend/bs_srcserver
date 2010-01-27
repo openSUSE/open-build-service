@@ -2491,7 +2491,8 @@ sub integratelink {
 
   if ($nlisbranch) {
     # we linked/branched a branch. expand.
-    my %xrev = (%$rev, 'linkrev' => 'base');
+    #my %xrev = (%$rev, 'linkrev' => 'base');
+    my %xrev = %$rev;
     lsrev_expanded(\%xrev);
     my %oxrev = (%$orev, 'linkrev' => $xrev{'srcmd5'});
     $ofiles = lsrev_expanded(\%oxrev);
