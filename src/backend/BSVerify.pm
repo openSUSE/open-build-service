@@ -81,6 +81,15 @@ sub verify_patchinfo {
   for my $binary (@{$p->{'binary'}}) {
     verify_filename($binary);
   }
+  die("Invalid category defined in _patchinfo") unless $p->{'category'} eq 'security' || $p->{'category'} eq 'normal'
+                                                    || $p->{'category'} eq 'optional' || $p->{'category'} eq 'feature'
+                                                    || $p->{'category'} eq ''; # empty is allowed here
+}
+
+sub verify_patchinfo_complete {
+  # This verifies all necessary content to create a patchinfo repo
+  my $p = $_[0];
+  verify_patchinfo( $p );
   die("No swampid defined in _patchinfo") unless $p->{'swampid'} and $p->{'swampid'} =~ /^[0-9]+$/; # this will become optional later
   die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
   for my $id (@{$p->{'bugzilla'}}){
