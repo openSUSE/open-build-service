@@ -2493,14 +2493,15 @@ sub integratelink {
     # we linked/branched a branch. expand.
     #my %xrev = (%$rev, 'linkrev' => 'base');
     my %xrev = %$rev;
-    lsrev_expanded(\%xrev);
+    my $linkinfo = {};
+    lsrev_expanded(\%xrev, $linkinfo);
     my %oxrev = (%$orev, 'linkrev' => $xrev{'srcmd5'});
     $ofiles = lsrev_expanded(\%oxrev);
     copyfiles($projid, $packid, $oprojid, $opackid, $ofiles);
     # find new base
-    if ($xrev{'srcmd5'} ne $nl->{'baserev'}) {
+    if ($linkinfo->{'srcmd5'} ne $nl->{'baserev'}) {
       # update base rev
-      $nl->{'baserev'} = $xrev{'srcmd5'};
+      $nl->{'baserev'} = $linkinfo->{'srcmd5'};
       $nlchanged = 1;
     }
     # delete everything but the link
