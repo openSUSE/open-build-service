@@ -97,7 +97,7 @@ case "$1" in
 }
 \$SERVER["socket"] == "$FQHOSTNAME:82" {
   server.name = "$FQHOSTNAME"
-  server.document-root = "/srv/obs/repos/"
+  server.document-root = "/obs/repos/"
 
   dir-listing.activate = "enable"
 }
