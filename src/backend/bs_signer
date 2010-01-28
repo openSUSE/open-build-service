@@ -163,6 +163,7 @@ sub signevent {
 }
 
 $| = 1;
+$SIG{'PIPE'} = 'IGNORE';
 print "starting build service signer\n";
 
 # get lock

@@ -227,6 +227,7 @@ sub sendeventtosrcserver {
 }
 
 $| = 1;
+$SIG{'PIPE'} = 'IGNORE';
 print "starting build service dispatcher\n";
 
 # get lock
