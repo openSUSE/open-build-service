@@ -60,6 +60,7 @@ my $workersdir = "$BSConfig::bsdir/workers";
 my $jobsdir = "$BSConfig::bsdir/jobs";
 
 $| = 1;
+$SIG{'PIPE'} = 'IGNORE';
 print "starting build service worker warden\n";
 
 # get lock
