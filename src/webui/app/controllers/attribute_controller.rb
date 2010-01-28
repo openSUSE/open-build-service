@@ -39,17 +39,16 @@ class AttributeController < ApplicationController
 private
 
   def requires
-    begin
-      @project = Project.find( params[:project] )
-      if (params[:package])
-        @attributes = Attribute.find(:project => params[:project], :package => params[:package])
-      else
-        @attributes = Attribute.find(:project, :project => params[:project])
-      end
-    rescue Error => e
-      flash[:error] = "Attributes not found: #{e.message}"
-      redirect_to :controller => "project", :action => "list_public" and return
+    @project = Project.find( params[:project] )
+    unless @project
+      flash[:error] = "Project not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public"
+      return
     end
+    @package = params[:package] if params[:package]
+    opt = {:project => @project.name}
+    opt.store(:package, @package.to_s) if @package
+    @attributes = Attribute.find(opt)
   end
 
 end

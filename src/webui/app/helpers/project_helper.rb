@@ -35,8 +35,30 @@ module ProjectHelper
     "#{package}:#{repo}:#{arch}"
   end
 
+  def arch_repo_table_cell(repo, arch, packname)
+    status = status_for(repo, arch, packname)
+    status_id = status_id_for( repo, arch, packname)
+    link_title = status.has_element?(:details) ? status.details.to_s : nil
+    theclass="status_" + status.code.gsub(' ','_') 
+    out = "<td id='#{status_id}' class='#{theclass}'>"
+    if ["expansion error", "broken", "blocked"].include? status.code 
+      out += link_to status.code, "javascript:alert('#{link_title}')", :title => link_title
+    elsif ["disabled","-"].include? status.code
+      out += status.code
+    else
+      out += link_to status.code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
+          :package => packname, :project => @project.to_s, :arch => arch,
+          :controller => "package", :repository => repo}, {:title => link_title}
+    end 
+    return out + "</td>"
+  end
+
   def watch_link_text
     user.watches?(@project.name) ? "[Don't watch this project]" : "[Watch this project]"
+  end
+
+  def watch_link_image
+    user.watches?(@project.name) ? "dontwatch.png" : "watch.png"
   end
 
   def format_packstatus_for( repo, arch )
@@ -104,4 +126,72 @@ module ProjectHelper
              }")
     out
   end
+
+  def flag_status(flag)
+    image = title = ""
+
+    if flag.nil?
+      return "n.a."
+    end
+
+    if flag.explicit_set?
+      if flag.disabled?
+	image = "#{flag.name}_disabled_blue.png"
+	title = "#{flag.name} disabled"
+      else
+	image = "#{flag.name}_enabled_blue.png"
+	title = "#{flag.name} enabled"
+      end
+    else
+      if flag.disabled?
+	image = "#{flag.name}_disabled_grey.png"
+	title = "#{flag.name} disabled, through #{flag.implicit_setter.description}"
+      else
+	image = "#{flag.name}_enabled_grey.png"
+	title = "#{flag.name} enabled, through #{flag.implicit_setter.description}"
+      end
+    end
+    
+    id = "%s_%s" % [ flag.name, flag.id.gsub(/[:.]/, "_") ]
+
+    out = "<span id='%s'>" % id 
+    out += link_to_remote_if @project.is_maintainer?( session[:login] ), image_tag(image,:title => title, :class => "flagimage"),
+      :loading => 'stopit = 0; hideflags();',
+      :complete => 'showflags()',
+      :url => { :action => "update_flag", :project => @project,
+      :flag_name => flag.name, :repo => flag.repository, :arch => flag.architecture,
+      :status => flag.status, :flag_id => flag.id  }
+    out += "</span>"
+  end
+
+  def project_tab(text, opts)
+    opts[:project] = @project.to_s
+    if @current_action.to_s == opts[:action].to_s
+      link = "<li id='current_tab'>"
+    else
+      link = "<li>"
+    end
+    link + link_to(text, opts) + "</li>"
+  end
+
+  def show_status_comment( comment, package, firstfail, comments_to_clear )
+    status_comment_html = ""
+    if comment
+      status_comment_html = comment
+      if !firstfail
+        status_comment_html += "(" + link_to('Clear Comment', :action => :clear_failed_comment, :project => @project, :package => package) + ")"
+        comments_to_clear << package
+      else
+        status_comment_html += link_to_remote image_tag('edit.png', :alt => "Edit"), :update => "comment_edit_#{package}",
+          :url => { :action => "edit_comment_form", :comment=> comment, :package => package, :project => @project }
+      end 
+    elsif firstfail
+      status_comment_html += "<div class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('edit.png', :alt => "Edit"), :update => "comment_edit_#{package}",
+        :url => { :action => "edit_comment_form", :comment=> "", :package => package, :project => @project } )
+      status_comment_html += "</div>"
+    end
+    status_comment_html += "<div id='comment_edit_#{package}'></div>"
+  end
+
+
 end

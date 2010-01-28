@@ -26,7 +26,7 @@ init = Rails::Initializer.run do |config|
 
   # Use the database for sessions instead of the file system
   # (create the session table with 'rake create_sessions_table')
-  # config.action_controller.session_store = :active_record_store
+  config.action_controller.session_store = :active_record_store
   config.action_controller.session = {
     :prefix => "ruby_webclient_session",
     :session_key => "opensuse_webclient_session",
@@ -131,7 +131,7 @@ ActiveXML::Base.config do |conf|
     map.connect :repository, "rest:///repository/:project/:name",
       :all    => "rest:///repository/"
 
-    map.connect :directory, "rest:///source/:project/:package"
+    map.connect :directory, "rest:///source/:project/:package?:expand"
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :jobhislist, "rest:///build/:project/:name/:arch/_jobhistory?:limit"
 
@@ -146,7 +146,9 @@ ActiveXML::Base.config do |conf|
       :tags_by_user => "rest:///user/:user/tags/:type",
       :hierarchical_browsing => "rest:///tag/browsing/_hierarchical?tags=:tags"
 
-    map.connect :diff, "rest:///request/:id"
+    map.connect :request, "rest:///request/:id", :create => "rest:///request?cmd=create"
+
+    map.connect :packageattribute, "rest:///search/attribute?:namespace&:name&:project"
  
     map.connect :attribute, "rest:///source/:project/:package/_attribute/:attribute",
       :project => "rest:///source/:project/_attribute/:attribute",
@@ -179,6 +181,8 @@ ActiveXML::Base.config do |conf|
 
     map.connect :distribution, "rest:///public/distributions",
       :all    => "rest:///public/distributions"
+
+    map.connect :projectstatus, 'rest:///status/project/:project'
 
   end
   ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "buildservice-webclient/#{CONFIG['version']}" )

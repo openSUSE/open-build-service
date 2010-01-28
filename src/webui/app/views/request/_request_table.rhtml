@@ -2,12 +2,14 @@
 # local variables:
 #   requests - request collection
 -%>
-
 <%-
+setup_buildresult_trigger
+
 if requests.nil?
   return "<p><em>No open requests</em></p>"
 end -%>
 
+<div id="build_result_popup"><div id="build_result_html"></div></div>
 
 <table class='grid request_table'>
   <thead>
@@ -17,7 +19,6 @@ end -%>
       <th>Action</th>
       <th>Source</th>
       <th>Target</th>
-      <th>Monitor</th>
       <th>Requester</th>
       <% if options %>
         <th style="width: 60px;">Options</th>
@@ -36,47 +37,33 @@ end -%>
           elem = "submit"
           is_submit = true
         end -%>
-        <% req.send("each_#{elem}") do |a| -%>
+        <%  a = req.send("#{elem}") -%>
           <td>
-            <% if elem == "submit": %> <!-- old style submission -->
+            <%      if elem == "submit": %> <!-- old style submission -->
               submit
-              <% is_submit = true
-            else %>
-              <%= a.data.attributes["type"] %>
-              <% is_submit = ( a.data.attributes["type"] == "submit" )
-            end -%>
+              <%        is_submit = true
+                    else %>
+              <%=       a.data.attributes["type"] %>
+              <%        is_submit = ( a.data.attributes["type"] == "submit" )
+                   end -%>
           </td>
           <td>
-            <%    if a.has_element? :source: %>
-              <%= link_to a.source.project, :controller => "project", :action => "show", :project => a.source.project %>
-              <%      if a.source.has_attribute? :package: %>
-                / <%= link_to a.source.package, :controller => :package, :action => "show", :project => a.source.project, :package => a.source.package %>
-              <%      end %>
-            <%    end %>
+            <%= if a.has_element? :source
+	          package_link(a.source.project, a.source.package)
+                end -%>
           </td>
           <td>
-            <%    if a.has_element? :target: %>
-              <%= link_to a.target.project, :controller => "project", :action => "show", :project => a.target.project %>
-              <%      if a.target.has_attribute? :package: %>
-                / <%= link_to a.target.package, :controller => :package, :action => "show", :project => a.target.project, :package => a.target.package %>
-              <%      end %>
-            <%    end %>
+            <%= if a.has_element? :target
+	          package_link(a.target.project, a.target.package)
+                end -%>
           </td>
-          <%#  end -%>
-          <td rowspan="2" align="center">
-            <%     if is_submit and a.has_element? :source %>
-              <%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => "project", :action => :monitor, :project => a.source.project, :pkgname => a.source.package %>
-            <%     else%>
-              <span class="italic">n.a.</span>
-            <%     end%>
-          <%   end%></td>
-        <td rowspan="2"><%= link_to req.state.who, :controller => "project",:action => "show", :project => "home:"+req.state.who %></td>
+        <td rowspan="2"><%= link_to req.state.who, :controller => :project, :action => "show", :project => "home:"+req.state.who %></td>
         <% if options %>
           <td rowspan="2" align="center">
             <% if by_me -%>
-              <%= link_to image_tag('req-revoke.png', :size => '16x16', :alt => 'Revoke request', :title => 'Revoke request'), :action => "diff", :changestate => "revoke", :id => req.method_missing(:id) %>
+              <%= link_to image_tag('req-revoke.png', :size => '16x16', :alt => 'Revoke request'), :controller => :request, :action => "diff", :changestate => "revoke", :id => req.method_missing(:id) %>
             <% else -%>
-              <%= link_to image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request', :title => 'Handle request'), :action => "diff", :changestate => "handle", :id => req.method_missing(:id) %>
+              <%= link_to image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'), :controller => :request, :action => "diff", :changestate => "handle", :id => req.method_missing(:id) %>
             <% end %>
           </td>
         <% end %>

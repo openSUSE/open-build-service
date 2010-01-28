@@ -1,7 +1,7 @@
 class RequestController < ApplicationController
 
   def index
-    redirect_to :action => "list_req"
+    redirect_to :action => :list_req
   end
 
   def list_req
@@ -13,24 +13,19 @@ class RequestController < ApplicationController
       predicate = @iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
       predicate2 = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ") # old, to be removed later
       predicate = "state/@name='new' and (#{predicate} or #{predicate2})"
-      @requests_for_me = Collection.find :what => :request, :predicate => predicate
-      @requests_by_me = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
-
-      # Do we really need this or is just caused by messed up data in DB ?
-      @requests_by_me.each do |req|
-        if not req.has_element? :state
-          @requests_by_me.delete_element req
-        end
-      end
+      collection = Collection.find :what => :request, :predicate => predicate
+      @requests_for_me = Array.new
+      collection.each do |req| @requests_for_me << req end
+      collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
+      @requests_by_me = Array.new
+      collection.each do |req| @requests_by_me << req end
     end
-
   end
 
   def diff
     if params[:id]
-      @request = Diff.find( :id => params[:id])
+      @request = Request.find( :id => params[:id] )
     end
-    @requests = [@request]
     unless @request
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_to :action => :index
@@ -72,40 +67,58 @@ class RequestController < ApplicationController
   
   end
  
+  def change_request(changestate, params)
+    begin
+      if Request.modify( params[:id], changestate, params[:reason] )
+	flash[:note] = "Request #{changestate}!"
+	return true
+      else
+	flash[:error] = "Can't change request to #{changestate}!"
+      end
+    rescue Request::ModifyError => e
+      flash[:error] = e.message
+    end
+    return false
+  end
+  private :change_request
 
   def submitreq
-    changestate = params['commit']
-    case changestate
-      when 'Accept'
-        changestate = 'accepted'
-      when 'Decline'
-        changestate = 'declined'
-      when 'Revoke'
-        changestate = 'revoked'
-      else
-        changestate = nil
-    end
-
-    reason = "unknown changestate #{changestate}"
-
-    if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
-      reason = params[:reason]
-      id = params[:id]
-      transport ||= ActiveXML::Config::transport_for(:project)
-      path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
-      begin
-        transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason
-        flash[:note] = "Submit request #{changestate}!"
-        redirect_to :action => "list_req"
-        return
-      rescue ActiveXML::Transport::ForbiddenError => e
-        reason = e.message
+    changestate = nil
+    %w{forward accepted declined revoked}.each do |s|
+      if params.has_key? s
+	changestate = s
+	break
       end
     end
 
-    flash[:error] = reason
-    redirect_to :action => "list_req"
+    if changestate == 'forward' # special case
+      req = Request.find( params[:id] )
+      description = req.description.text
+      logger.debug 'request ' +  req.dump_xml
 
+      if req.has_element? 'state'
+	who = req.state.data["who"].to_s
+	description += " (forwarded request %d from %s)" % [params[:id], who]
+      end
+
+      if not change_request('accepted', params)
+	redirect_to :action => :diff, :id => params[:id]
+	return
+      end
+
+      rev = Package.current_rev(req.action.target.project, req.action.target.package)
+      req = Request.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
+			:project => req.action.target.project, :package => req.action.target.package, :rev => rev, :description => description)
+      req.save(:create => true)
+      Rails.cache.delete "requests_new"
+      flash[:note] = "Request #{params[id]} accepted and forwarded"
+      redirect_to :controller => :request, :action => :diff, :id => req.data["id"]
+      return
+    end
+
+    change_request(changestate, params)
+
+    redirect_to :action => :diff, :id => params[:id]
   end
 
 end

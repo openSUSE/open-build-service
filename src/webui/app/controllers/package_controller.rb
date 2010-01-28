@@ -4,10 +4,11 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus,
-    :update_flag, :remove, :view_file, :live_build_log]
+    :update_flag, :remove, :view_file, :live_build_log, :rdiff]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
-    :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :view_file, :remove, :live_build_log]
+    :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :view_file, 
+    :remove, :live_build_log, :rdiff]
 
 
   # render the input form for tags
@@ -95,6 +96,43 @@ class PackageController < ApplicationController
     return tags, user_tags_array
   end
 
+  def rdiff
+    @opackage = params[:opackage]
+    @oproject = params[:oproject]
+    path = "/source/#{params[:project]}/#{params[:package]}?opackage=#{params[:opackage]}&oproject=#{params[:oproject]}&expand=1&unified=1&cmd=diff"
+    begin
+      @rdiff = frontend.transport.direct_http URI(path), :method => "POST", :data => ""
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      @rdiff = ''
+      return
+    end
+
+    @lastreq = Request.find_last_request(:targetproject => params[:oproject], :targetpackage => params[:opackage],
+	                                 :sourceproject => params[:project], :sourcepackage => params[:package])
+    if @lastreq and @lastreq.state.name != "declined"
+      @lastreq = nil # ignore all !declined
+    end
+   
+  end
+
+  def create_submit
+    rev = Package.current_rev(params[:project], params[:package])
+    req = Request.new(:type => "submit", :targetproject => params[:targetproject], :targetpackage => params[:targetpackage],
+		      :project => params[:project], :package => params[:package], :rev => rev, :description => params[:description])
+    begin
+      req.save(:create => true)
+    rescue ActiveXML::Transport::NotFoundError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage],
+	:project => params[:project], :package => params[:package]
+      return
+    end
+    Rails.cache.delete "requests_new"
+    redirect_to :controller => :request, :action => :diff, :id => req.data["id"]
+  end
 
   def wizard_new
     if params[:name]
@@ -493,7 +531,11 @@ class PackageController < ApplicationController
 
       if @finished
         page.call 'build_finished'
+        page.hide 'link_abort_build'
+        page.show 'link_trigger_rebuild'
       else
+        page.show 'link_abort_build'
+        page.hide 'link_trigger_rebuild'
         page.insert_html :bottom, 'log_space', log_chunk
         if log_chunk.length < maxsize || @initial == 0
           page.call 'autoscroll'
@@ -508,16 +550,27 @@ class PackageController < ApplicationController
     end
   end
 
+  def abort_build
+    params[:redirect] = 'live_build_log'
+    api_cmd('abortbuild', params) 
+    render :status => 200
+  end
+
+
   def trigger_rebuild
+    api_cmd('rebuild', params)
+  end
+
+  def api_cmd(cmd, params)
     project = params[:project]
-    if ( !project )
+    unless project
       flash[:error] = "Project name missing."
       redirect_to :controller => "project", :action => 'list_public'
       return
     end
 
     package = params[:package]
-    if ( !package )
+    unless package
       flash[:error] = "Package name missing."
       redirect_to :controller => "project", :action => 'show',
         :project => project
@@ -531,7 +584,7 @@ class PackageController < ApplicationController
     options[:package] = package
 
     begin
-      frontend.rebuild options
+      frontend.cmd cmd, options
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "No repository defined"
       redirect_to :controller => "project", :action => :add_target_simple, :project => project
@@ -543,14 +596,17 @@ class PackageController < ApplicationController
     if  params[:redirect] == 'monitor'
       controller = 'project'
       action = 'monitor'
-      @message = "Triggered rebuild for package #{package}."
+      @message = "Triggered #{cmd} for package #{package}."
+    elsif params[:redirect] == 'live_build_log'
+      # assume xhr
+      return
     else
       controller = 'package'
       action = 'show'
-      @message = "Triggered rebuild."
+      @message = "Triggered #{cmd}."
     end
 
-    if request.get?
+    unless request.xhr?
       # non ajax request:
       flash[:note] = @message
       redirect_to :controller => controller, :action => action,

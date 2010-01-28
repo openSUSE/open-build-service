@@ -139,34 +139,10 @@
     <td><%= link_to packname, :controller => "package", :action => "show",
       :package => packname, :project => @project.to_s %></td>
     <% @repohash.sort.each do |repo, archlist| -%>
-    <% archlist.sort.each do |arch| -%>
-      <% 
-        status = status_for(repo, arch, packname)
-        status_id = status_id_for( repo, arch, packname)
-        link_title = status.has_element?(:details) ? status.details.to_s : nil
-      -%>
-       <td id="<%= status_id %>"
-        class="status_<%= status.code.gsub(' ','_') -%>">
-
-      <% if ["expansion error", "broken", "blocked"].include? status.code -%>
-        <%= link_to status.code, "javascript:alert('#{link_title}')", :title => link_title %>
-      <% elsif ["disabled","-"].include? status.code -%>
-        <%= status.code %>
-      <% else -%>
-        <%= link_to status.code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
-          :package => packname, :project => @project.to_s, :arch => arch,
-          :controller => "package", :repository => repo}, {:title => link_title} %>
-        <% end -%>
-    </td>
+      <% archlist.sort.each do |arch| -%>
+        <%= arch_repo_table_cell(repo, arch, packname) %>
+      <% end -%>
     <% end -%>
-    <% end -%>
-    <td>
-      <%# link_to_remote image_tag( 'rebuild.png', 
-        :title => "rebuild package #{packname} for all targets" ),
-        :url => { :controller => 'package', :action => 'trigger_rebuild',
-        :package => packname, :project => @project.to_s,
-        :redirect => 'monitor' } if @failed[packname] -%>
-    </td>
   </tr>
   <% end -%>
 </table>
