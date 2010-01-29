@@ -1110,6 +1110,22 @@ parseArchsets( $prodRef->{archsets}{archset} );
 # Create $product-release packages
 #
 
+# handle migration case
+if (defined($product->{patchlevel})){
+  my $newpatchlevel = $product->{'patchlevel'} + 1;
+  my $productname = $product->{name}."-SP".$newpatchlevel."-migration";
+
+  # enforce correct upgrade product name
+  for my $upgrade ( @{$product->{upgrades}->{upgrade}||[]} ) {
+    $upgrade->{name} = $productname;
+    $upgrade->{product} = $productname;
+  }
+
+  mkdir_p( "$outdir/_product:$productname" ) || die ("Unable to create migration directory\n");
+  writeMigrationSPECfile( "$outdir/_product:".$productname."/".$productname.".spec",
+                          $prodRef, $product, $newpatchlevel );
+}
+
 my $SPECtemplateFile;
 if ($infile =~ /(.*\/)(.+)$/) {
   $SPECtemplateFile = $1."/".$product->{name}."-release.spec";
@@ -1137,13 +1153,6 @@ if ( !$ChangesFile || ! -e $ChangesFile ) {
 if ( -e $ChangesFile ) {
   my $fn="$outdir/_product:$product->{name}-release/$product->{name}-release.changes";
   system( "cp", $ChangesFile, $fn) && die ("Unable to copy changes file $ChangesFile to $fn");
-}
-
-if (defined($product->{patchlevel})){
- my $newpatchlevel = $product->{'patchlevel'} + 1;
- mkdir_p( "$outdir/_product:".$product->{name}."-SP".$newpatchlevel."-migration" ) || die ("Unable to create migration directory\n");
- writeMigrationSPECfile( "$outdir/_product:".$product->{name}."-SP".$newpatchlevel."-migration/".$product->{name}."-SP".$newpatchlevel."-migration.spec",
-                         $prodRef, $product, $newpatchlevel );
 }
 
 #
