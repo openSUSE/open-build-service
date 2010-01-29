@@ -969,7 +969,14 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=diff
   def index_package_diff
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified])
+    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev])
+    forward_data path, :method => :post
+  end
+
+  # POST /source/<project>/<package>?cmd=linkdiff
+  def index_package_linkdiff
+    path = request.path
+    path << build_query_from_hash(params, [:rev, :unified, :linkrev])
     forward_data path, :method => :post
   end
 
@@ -992,7 +999,7 @@ class SourceController < ApplicationController
     end
 
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand])
+    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
     forward_data path, :method => :post
   end
