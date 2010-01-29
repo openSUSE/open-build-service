@@ -11,17 +11,12 @@ class InvalidHttpMethodError < Exception; end
 
 class ApplicationController < ActionController::Base
 
-  # Do never use a layout here since that has impact on every
-  # controller in frontend
+  # Do never use a layout here since that has impact on every controller
   layout nil
   # session :disabled => true
 
   @user_permissions = nil
   @http_user = nil
-  
-  #session options for tag admin
-  #session_options[:sort] ||= "ASC"
-  #session_options[:column] ||= "id"
   
   helper RbacHelper
  
@@ -52,34 +47,18 @@ class ApplicationController < ActionController::Base
   end
 
   def extract_user
-    @http_user = nil
-
-    if ichain_mode != :off # configured in the the environment file
+    if ICHAIN_MODE == :on || ICHAIN_MODE == :simulate # configured in the the environment file
       @auth_method = :ichain
-
-      logger.debug "configured iChain mode: #{ichain_mode.to_s},  remote_ip: #{request.remote_ip()}"
-
       ichain_user = request.env['HTTP_X_USERNAME']
-
       if ichain_user 
         logger.info "iChain user extracted from header: #{ichain_user}"
-      else
-# TEST vv
-        if ichain_mode == :simulate
-          ichain_user = ichain_test_user 
-          logger.debug "TEST-ICHAIN_USER #{ichain_user} set!"
-        end
-        request.env.each do |name, val|
-          logger.debug "Header value: #{name} = #{val}"
-        end
-# TEST ^^
+      elsif ICHAIN_MODE == :simulate
+          ichain_user = ICHAIN_TEST_USER
+          logger.debug "iChain user extracted from config: #{ichain_user}"
       end
-      # ok, we're using iChain. So there is no need to really
-      # authenticate the user from the credentials coming via
-      # basic auth header field. We can trust the username coming from
-      # iChain
-      # However we have to care for the status of the user that must not be
-      # unconfirmed or ichain requested
+      
+      # we're using iChain, there is no need to authenticate the user from the credentials
+      # However we have to care for the status of the user that must not be unconfirmed or ichain requested
       if ichain_user 
         @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', ichain_user ]
         @http_user.update_email_from_ichain_env(request.env) unless @http_user.nil?
@@ -87,12 +66,11 @@ class ApplicationController < ActionController::Base
         # If we do not find a User here, we need to create a user and wait for 
         # the confirmation by the user and the BS Admin Team.
         if @http_user == nil 
-          @http_user = User.find :first, 
-                                   :conditions => ['login = ?', ichain_user ]
+          @http_user = User.find :first, :conditions => ['login = ?', ichain_user ]
           if @http_user == nil
             render_error :message => "iChain user not yet registered", :status => 403,
                          :errorcode => "unregistered_ichain_user",
-                         :details => "Please register your iChain user via the web application once."
+                         :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
           else
             if @http_user.state == 5
               render_error :message => "iChain user #{ichain_user} is registered but not yet approved.", :status => 403,
@@ -149,6 +127,7 @@ class ApplicationController < ActionController::Base
       @user_permissions = Suse::Permission.new( @http_user )
     end
   end
+
 
   def setup_backend
     # initialize backend on every request
@@ -343,13 +322,7 @@ class ApplicationController < ActionController::Base
   end
   alias_method :pass_to_source, :pass_to_backend
 
-  def ichain_mode
-      ICHAIN_MODE
-  end
-  
-  def ichain_test_user
-      ICHAIN_TEST_USER
-  end
+
 
   # Passes control to subroutines determined by action and a request parameter. By 
   # default the parameter assumed to contain the command is ':cmd'. Looks for a method
