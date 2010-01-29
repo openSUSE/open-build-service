@@ -1131,9 +1131,10 @@ if ( -e $ChangesFile ) {
   system( "cp", $ChangesFile, $fn) && die ("Unable to copy changes file $ChangesFile to $fn");
 }
 
-if (defined($product->{patchlevel}) && $product->{patchlevel} ne '0'){
-mkdir_p( "$outdir/_product:".$product->{name}."-SP".$product->{patchlevel}."-migration" ) || die ("Unable to create $outdir\n");
- writeMigrationSPECfile( "$outdir/_product:".$product->{name}."-SP".$product->{patchlevel}."-migration/".$product->{name}."-SP".$product->{patchlevel}."-migration.spec", $prodRef, $product );
+if (defined($product->{patchlevel})){
+ my $newpatchlevel = $product->{'patchlevel'} + 1;
+ mkdir_p( "$outdir/_product:".$product->{name}."-SP".$newpatchlevel."-migration" ) || die ("Unable to create migration directory\n");
+ writeMigrationSPECfile( "$outdir/_product:".$product->{name}."-SP".$newpatchlevel."-migration/".$product->{name}."-SP".$newpatchlevel."-migration.spec", $prodRef, $product );
 }
 
 #
