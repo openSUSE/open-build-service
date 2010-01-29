@@ -137,6 +137,7 @@ our $product = [
              ]],
            ],
            [ 'buildconfig' =>
+              [],
              'producttheme',
              'betaversion',
              [ 'linguas' =>
@@ -147,6 +148,7 @@ our $product = [
              'packagemanager',
            ],
            [ 'installconfig' =>
+              [],
               'defaultlang',
               'datadir',
               'descriptiondir',
@@ -155,6 +157,7 @@ our $product = [
               [[ 'obsoletepackage' => '_content' ]],
            ],
            [ 'runtimeconfig' =>
+              [],
               'allowresolving',
            ],
 ];

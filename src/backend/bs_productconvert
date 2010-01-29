@@ -748,13 +748,21 @@ sub createFlavorReadme( $$ ){
     return $reame_file;
 }
 
-sub writeMigrationSPECfile( $$$ )
+sub writeMigrationSPECfile( $$$$ )
 {
-    my( $file, $prodRef,$product ) = @_;
+    my( $file, $prodRef, $product, $newpatchlevel ) = @_;
     my $mproduct = Storable::dclone($product);
-    my $newpatchlevel = $mproduct->{'patchlevel'} + 1;
 
     $mproduct->{name} = $product->{name}."-SP".$newpatchlevel."-migration";
+
+    # Upgrade section must not be in migration to avoid double notification
+    delete $mproduct->{upgrades};
+
+    # Set default values for release package reference
+    $mproduct->{'installconfig'}->{'releasepackage'} = { 'flag' => "EQ" };
+    $mproduct->{'installconfig'}->{'releasepackage'}->{'name'} = '%{name}';
+    $mproduct->{'installconfig'}->{'releasepackage'}->{'version'} = '%{version}';
+    $mproduct->{'installconfig'}->{'releasepackage'}->{'release'} = '%{release}';
 
     my $content="# ";
     $content.="\n\n";
@@ -1134,7 +1142,8 @@ if ( -e $ChangesFile ) {
 if (defined($product->{patchlevel})){
  my $newpatchlevel = $product->{'patchlevel'} + 1;
  mkdir_p( "$outdir/_product:".$product->{name}."-SP".$newpatchlevel."-migration" ) || die ("Unable to create migration directory\n");
- writeMigrationSPECfile( "$outdir/_product:".$product->{name}."-SP".$newpatchlevel."-migration/".$product->{name}."-SP".$newpatchlevel."-migration.spec", $prodRef, $product );
+ writeMigrationSPECfile( "$outdir/_product:".$product->{name}."-SP".$newpatchlevel."-migration/".$product->{name}."-SP".$newpatchlevel."-migration.spec",
+                         $prodRef, $product, $newpatchlevel );
 }
 
 #
