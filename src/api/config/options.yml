@@ -1,3 +1,5 @@
 # do not remove the dummy, we need _any_ value in here
 dummy: 0
 #exception_recipients: ['webclient_noreply@opensuse.org']
+
+webui_url: http://localhost:3000
