@@ -216,7 +216,7 @@ sub filediff {
     $lcnt++;
     if (!defined($max) || $lcnt <= $max) {
       s/^--- \/dev\/fd\/\d+.*/--- $p1/;
-      s/^\+\+\+ \/dev\/fd\/\d+.*/--- $p2/;
+      s/^\+\+\+ \/dev\/fd\/\d+.*/+++ $p2/;
       s/^Files \/dev\/fd\/\d+ and \/dev\/fd\/\d+ differ.*/!!! $p1 and $p2 differ/;
       $d .= $_;
     }
@@ -535,8 +535,8 @@ sub srcdiff {
 
 sub ubeautify {
   my ($d, $f, $orev, $rev) = @_;
-  $d =~ s/(--- \Q$f\E)$/$1 (revision \Q$orev\E)/m;
-  $d =~ s/((\+\+\+|---) \Q$f\E)$/$1 (revision \Q$rev\E)/m;
+  $d =~ s/(--- \Q$f\E)$/$1 (revision \Q$orev\E)/m if defined $orev;
+  $d =~ s/((?:\+\+\+|---) \Q$f\E)$/$1 (revision \Q$rev\E)/m if defined $rev;
   return $d;
 }
 
