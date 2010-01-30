@@ -282,14 +282,13 @@ class PackageController < ApplicationController
       return
     end
 
-    # extra escaping of filename (workaround for rails bug)
-    filename = URI.escape filename, "+"
     if !valid_file_name?(filename)
       flash[:error] = "'#{filename}' is not a valid filename."
       redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
     end
 
-    @package.save_file :file => file, :filename => filename
+    # extra escaping of filename (workaround for rails bug)
+    @package.save_file :file => file, :filename => URI.escape(filename, "+")
 
     if params[:addAsPatch]
       if link = Link.find( :project => @project, :package => @package )
