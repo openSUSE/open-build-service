@@ -815,10 +815,10 @@ sub writeProductSPECfile( $$$$ )
     $productprovides.="Provides:       product($product->{'name'}) = %version-%release\n";
     if (defined($product->{'patchlevel'}) && $product->{'patchlevel'} ne '0') {
       $productprovides.="Provides:       product($product->{'name'}-SP$product->{'patchlevel'}) = %version-%release\n";
+      $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n";  # release package name
+      $productprovides.="Obsoletes:      product:".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n"; # product name
     }
     $productprovides.="Requires:       product_flavor($product->{name}) = %version-%release\n";
-    $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n";  # release package name
-    $productprovides.="Obsoletes:      product:".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n"; # product name
 
     if ("$infile" eq ""){
      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
@@ -1090,7 +1090,6 @@ $product->{'installconfig'}->{'releasepackage'}->{'release'} = '%{release}'
 my $productRef = $prodRef->{products}->{product}->[0]; # FIXME: Support multiple products.
 
 my $kiwiImage = {};
-$kiwiImage->{schemeversion} = "2.4"; # ???
 my $name = sprintf( "%s %s %s",
 		    $product->{vendor},
 		    $product->{name},
@@ -1184,7 +1183,13 @@ foreach my $medium ( @$media ){
           my @archs;
           $buildflags->{'disable'} = [{}]; # disabled by default
       
-          my $kiwi = \%generalImage;
+          my $kiwi = Storable::dclone(\%generalImage);
+	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
+	      $kiwi->{schemaversion} = "3.7"; # new kiwi requires exact this version
+	  }else{
+	      # the schemE vs. schemA is intended by kiwi!
+	      $kiwi->{schemeversion} = "2.4"; # before openSUSE 11.3, until kiwi 3.74
+	  }
       
           $kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
           $kiwi->{repository} = createRepository ( $prodRef );
