@@ -129,18 +129,6 @@ sub convertRelationship( $ ){
     return $relationship;
 }
 
-sub createPreferences( $ )
-{
-    my( $prodRef ) = @_;
-    my $re = {};
-
-    $re->{type} = [{_content => "product"}];
-    $re->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
-    $re->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
-
-    return $re;
-}
-
 #
 # The conditionals are kind of macros which are used all over the product definition.
 # The conditionals part of the product def is parsed into the global conditionalhash
@@ -1098,7 +1086,6 @@ my $name = sprintf( "%s %s %s",
 $kiwiImage->{name} = $name;
 
 $kiwiImage->{description} = createDescription( $productRef );
-$kiwiImage->{preferences} = createPreferences( $productRef );
 # so far for all media types identical. Now loop over the media types
 # to create media type specific versions;
 
@@ -1185,11 +1172,14 @@ foreach my $medium ( @$media ){
       
           my $kiwi = Storable::dclone(\%generalImage);
 	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
-	      $kiwi->{schemaversion} = "3.7"; # new kiwi requires exact this version
+	      $kiwi->{schemaversion} = "4.1"; # new kiwi requires exact this version
 	  }else{
 	      # the schemE vs. schemA is intended by kiwi!
 	      $kiwi->{schemeversion} = "2.4"; # before openSUSE 11.3, until kiwi 3.74
+	      $kiwi->{preferences}->{type} = [{_content => "product"}];
 	  }
+          $kiwi->{preferences}->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
+          $kiwi->{preferences}->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
       
           $kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
           $kiwi->{repository} = createRepository ( $prodRef );
