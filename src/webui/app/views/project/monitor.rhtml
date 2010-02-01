@@ -7,10 +7,6 @@
 ]
 -%>
 
-<% content_for :content_for_head do %>
-   <%= stylesheet_link_tag "local/project", :media => "all" %>
-<% end %>
-
 <% content_for :ready_function do %>
    function toggleBox(link, box) {
       //calculating offset for displaying popup message
@@ -47,6 +43,12 @@
    $("#repobox_all").click(function() { $(".repoitem").attr("checked", "checked"); return false; });
    $("#repobox_none").click(function() { $(".repoitem").attr("checked", ""); return false; });
 <% end %>
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag "local/project", :media => "all" %>
+<% end %>
+
+<%= render :partial => "tabs" %>
 
 <div id="monitor-wrapper">
 
