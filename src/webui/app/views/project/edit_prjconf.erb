@@ -14,7 +14,7 @@
 <% form_tag :action => :save_prjconf do %>
   <b>Config:</b><br/>
   <%= text_area_tag "config", @config, :rows => 20, :width => "95%" %><br/>
-  <%= hidden_field_tag "project", @project.name %>
+  <%= hidden_field_tag "project", @project %>
   <p><%= submit_tag %></p>
 <% end %>
 
