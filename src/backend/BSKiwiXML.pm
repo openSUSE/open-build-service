@@ -63,6 +63,7 @@ our $kiwidesc = [
               'flags',
               'filesystem',
               'format',
+              'image',
               'primary',
               'ec2accountnr',
               'ec2privatekeyfile',
