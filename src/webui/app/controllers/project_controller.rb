@@ -820,6 +820,26 @@ class ProjectController < ApplicationController
       end
     end
 
+    attributes = PackageAttribute.find(:namespace => 'openSUSE',
+      :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
+    upstream_versions = Hash.new
+    attributes.data.find('//package//values').each do |p|
+      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+      p.each_element do |v|
+        upstream_versions[p.parent['name']] = v.content
+      end
+    end
+
+    attributes = PackageAttribute.find(:namespace => 'openSUSE',
+      :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
+    upstream_urls = Hash.new
+    attributes.data.find('//package//values').each do |p|
+      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+      p.each_element do |v|
+        upstream_urls[p.parent['name']] = v.content
+      end
+    end
+
     raw_requests = Rails.cache.fetch("requests_new", :expires_in => 5.minutes) do
       Collection.find(:what => 'request', :predicate => "(state/@name='new')")
     end
@@ -868,6 +888,15 @@ class ProjectController < ApplicationController
         currentpack['requests_from'].concat(submits[key])
       end
 
+      currentpack['version'] = p.version
+      if upstream_versions.has_key? p.name
+        upstream_version = upstream_versions[p.name]
+        if p.version < upstream_version
+          currentpack['upstream_version'] = upstream_version
+          currentpack['upstream_url'] = upstream_urls[p.name] if upstream_urls.has_key? p.name
+        end
+      end
+
       currentpack['md5'] = p.srcmd5
 
       if p.has_element? :develpack
@@ -904,8 +933,8 @@ class ProjectController < ApplicationController
       if @limit_to_fails
         next if !currentpack['firstfail']
       else
-        next unless (currentpack['firstfail'] or currentpack['failedcomment'] or !currentpack['problems'].empty? or
-            !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+        next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
+            !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
       end
       @packages << currentpack
     end

@@ -68,6 +68,8 @@
         <th width='4%'>Maintainer</th>
         <th width='20%'>Requests</th>
         <th width="20%">Comment</th>
+        <th width="4%">Version</th>
+        <th width="4%">Upstream</th>
       </tr>
     </thead>
     <tbody>
@@ -116,6 +118,18 @@
           <td id="comment_<%= p['name'] %>">
             <%= show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) %>
           </td>
+	  <td><%= p['version'] %></td>
+          <td>
+	    <%= if p['upstream_version']
+                  if p['upstream_url']
+                    "<a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a>"
+                  else
+                    p['upstream_version']
+                  end
+                else
+                  "--"
+                end -%>
+	  </td>
         </tr>
       <% end %>
     </tbody>
