@@ -102,7 +102,7 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_file_name? name
-    name =~ /^[-\w_\.+~ ]+$/
+    name =~ /^[-\w_+~ ][-\w_\.+~ ]*$/
   end
 
   def valid_role_name? name
