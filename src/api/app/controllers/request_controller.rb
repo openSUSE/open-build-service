@@ -332,9 +332,14 @@ class RequestController < ApplicationController
         if params[:newstate] == "accepted"
           target_project = DbProject.find_by_name(action.target.project)
           target_package = target_project.db_packages.find_by_name(action.target.package)
-          tpac = Package.new(target_package.to_axml, :project => action.target.project)
-          tpac.set_devel :project => action.source.project, :package => action.source.package
-          tpac.save
+          target_package.develpackage = DbPackage.find_by_project_and_name(action.source.project, action.source.package)
+          begin
+            target_package.resolve_devel_package
+            target_package.save
+          rescue DbPackage::CycleError => e
+            render_error :status => 403, :errorcode => "devel_cycle", :message => e.message
+            return
+          end
           render_ok
         end
       elsif action.data.attributes["type"] == "submit"
