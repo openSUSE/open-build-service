@@ -50,7 +50,7 @@ class FrontendCompat
     path = "#{@url_prefix}/source"
     path += "/#{opt[:project]}" if opt[:project]
     path += "/#{opt[:package]}" if opt[:project] && opt[:package]
-    path += "/#{opt[:filename]}" if opt[:filename]
+    path += URI.escape("/#{opt[:filename]}") if opt[:filename]
     transport.direct_http URI("https://#{path}"),
       :method => "PUT", :data => data, :timeout => 500
   end
