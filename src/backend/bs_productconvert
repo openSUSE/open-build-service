@@ -805,11 +805,7 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n";  # release package name
       $productprovides.="Obsoletes:      product:".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n"; # product name
     }
-<<<<<<< HEAD
     $productprovides.="Requires:       product_flavor($product->{name})\n";
-=======
-    $productprovides.="Requires:       product_flavor($product->{name}) = %version-%release\n";
->>>>>>> 8f881cd... support new kiwi (post 3.74) schemAversion 3.7 with all media styles, except 11.1 and 11.2
 
     if ("$infile" eq ""){
      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
