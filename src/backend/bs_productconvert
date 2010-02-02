@@ -1183,7 +1183,17 @@ foreach my $medium ( @$media ){
           my @archs;
           $buildflags->{'disable'} = [{}]; # disabled by default
       
-          my $kiwi = \%generalImage;
+          my $kiwi = Storable::dclone(\%generalImage);
+	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
+	      $kiwi->{schemaversion} = "4.1"; # new kiwi requires exact this version
+	      $kiwi->{preferences}->{type} = [{image => "product"}];
+	  }else{
+	      # the schemE vs. schemA is intended by kiwi!
+	      $kiwi->{schemeversion} = "2.4"; # before openSUSE 11.3, until kiwi 3.74
+	      $kiwi->{preferences}->{type} = [{_content => "product"}];
+	  }
+          $kiwi->{preferences}->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
+          $kiwi->{preferences}->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
       
           $kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
           $kiwi->{repository} = createRepository ( $prodRef );
