@@ -9,11 +9,7 @@ class HomeController < ApplicationController
     logger.debug("Homepage for logged in user: #{session[:login]}")
 
     @user = Person.find( :login => session[:login] )
-
-    unless @user
-      @error_message = "There is no user <b>#{session[:login]}</b> known in the system."
-      render :template => 'error'
-    end
+    raise "There is no user #{session[:login]} known in the system." unless @user
 
     session[:tagcloud] ||= :mytags
     logger.debug "Tagcloud switch initialized: Building Tagcloud for #{session[:tagcloud]}"
