@@ -129,18 +129,6 @@ sub convertRelationship( $ ){
     return $relationship;
 }
 
-sub createPreferences( $ )
-{
-    my( $prodRef ) = @_;
-    my $re = {};
-
-    $re->{type} = [{_content => "product"}];
-    $re->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
-    $re->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
-
-    return $re;
-}
-
 #
 # The conditionals are kind of macros which are used all over the product definition.
 # The conditionals part of the product def is parsed into the global conditionalhash
@@ -1101,7 +1089,6 @@ my $name = sprintf( "%s %s %s",
 $kiwiImage->{name} = $name;
 
 $kiwiImage->{description} = createDescription( $productRef );
-$kiwiImage->{preferences} = createPreferences( $productRef );
 # so far for all media types identical. Now loop over the media types
 # to create media type specific versions;
 
