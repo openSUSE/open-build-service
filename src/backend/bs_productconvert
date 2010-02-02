@@ -774,8 +774,7 @@ sub writeMigrationSPECfile( $$$$ )
     $content.="Group:          System/Fhs\n";
     $content.="Provides:       product()\n";
     $content.="Provides:       product(%name) = %{version}-%{release}\n";
-    $content.="Requires:       product(".$product->{name}.") = ".$product->{baseversion}.".".$newpatchlevel;
-    $content.="\n";
+    $content.="Requires:       product(".$product->{name}.") = ".$product->{version}."\n";
     $content.="AutoReqProv:    on\n";
     $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
     $content.="\n%description\n";
