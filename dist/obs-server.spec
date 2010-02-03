@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.6.91
+Version:        1.6.99
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -48,6 +48,7 @@ PreReq:         %fillup_prereq %insserv_prereq permissions
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     createrepo >= 0.4.10
 Recommends:     deb >= 1.5
+Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
 %else
@@ -65,6 +66,7 @@ Authors:
 Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib cpio
 # For runlevel script:
 Requires:       curl
+Recommends:     openslp lvm2
 # requires from build script
 Requires:       bash binutils
 Summary:        The openSUSE Build Service -- Build Host Component
@@ -304,6 +306,7 @@ done
 for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup obsservice; do
 %restart_on_update $service
 done
+
 %posttrans
 # this changes from directory to symlink. rpm can not handle this itself.
 if [ -e /usr/lib/obs/server/build -a ! -L /usr/lib/obs/server/build ]; then
@@ -331,12 +334,20 @@ if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/c
   cp /srv/www/obs/frontend/config/database.yml /srv/www/obs/api/config/database.yml
 fi
 # updaters can keep their production_slave config
-if [ -e /srv/www/obs/webclient/config/environments/production_slave.rb ] && [ ! -e /srv/www/obs/webui/config/environments/production_slave.rb ]; then
-  cp /srv/www/obs/webclient/config/environments/production_slave.rb /srv/www/obs/webui/config/environments/production_slave.rb
+for i in production_slave.rb production.rb development_base.rb; do
+  if [ -e /srv/www/obs/webclient/config/environments/$i ] && [ ! -e /srv/www/obs/webui/config/environments/$i ]; then
+    cp /srv/www/obs/webclient/config/environments/$i /srv/www/obs/webui/config/environments/$i
+  fi
+  if [ -e /srv/www/obs/frontend/config/environments/$i ] && [ ! -e /srv/www/obs/api/config/environments/$i ]; then
+    cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
+  fi
+done
+if [ -e /etc/lighttpd/vhosts.d/obs.conf ]; then
+  sed -i -e 's,/srv/www/obs/webclient,/srv/www/obs/webui,' \
+	 -e 's,/srv/www/obs/frontend,/srv/www/obs/api,' \
+	 /etc/lighttpd/vhosts.d/obs.conf
 fi
-if [ -e /srv/www/obs/frontend/config/environments/production_slave.rb ] && [ ! -e /srv/www/obs/api/config/environments/production_slave.rb ]; then
-  cp /srv/www/obs/frontend/config/environments/production_slave.rb /srv/www/obs/api/config/environments/production_slave.rb
-fi
+echo '**** Keep in mind to run rake db:migrate after updating this package (read README.UPDATERS) ****'
 %restart_on_update lighttpd
 
 %postun -n obs-api
