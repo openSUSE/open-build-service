@@ -20,6 +20,11 @@ For Updaters to OBS 1.7
     # cd /srv/www/obs/api/
     # RAILS_ENV="production" rake db:migrate
 
+  and
+
+    # cd /srv/www/obs/webui/
+    # RAILS_ENV="production" rake db:migrate
+
 3) Enable the new services
 
   In case you use the package signing, you need to run the new bs_signer 
