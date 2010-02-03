@@ -1,12 +1,3 @@
-
-<% if @tagcloud and false %>
-    <div id="tagcloud_container" >
-        <div id="tagcloud">
-         <%= render :partial => "tag/tagcloud" %>
-        </div>
-    </div>
-<% end %>
-
 <% @pagetitle = "Welcome" %>
 
 <%= render :partial => "sponsors" %>
@@ -72,21 +63,10 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
   </strong>
   </p>
 <% end -%>
-<br style="clear: left;" />
-<p class="description">If you would like to discuss the Build Service please use the
-<a href="mailto:opensuse-buildservice+subscribe@opensuse.org">opensuse-buildservice@opensuse.org</a> mailing list
-(<%= link_to 'Archives', 'http://lists.opensuse.org/opensuse-buildservice/' %>).<br/>
-We also have an active IRC channel <a href="irc://irc.opensuse.org/opensuse-buildservice">#opensuse-buildservice</a> running on Freenode.<br/>
-</p>
 
-<p class="description">The Buildservice creates several <%= link_to 'feeds', 'https://hermes.opensuse.org/feeds' %>:</p>
-<ul>
-  <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:Factory', 'https://hermes.opensuse.org/feeds/25549.rdf' %></li>
-  <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:11.2', 'https://hermes.opensuse.org/feeds/53368.rdf' %></li>
-  <li><%= image_tag('feeds.png') %> <%= link_to 'Source commits for openSUSE:11.1', 'https://hermes.opensuse.org/feeds/53369.rdf' %></li>
-  <li><%= image_tag('feeds.png') %> <%= link_to 'New projects created', 'https://hermes.opensuse.org/feeds/25546.rdf' %></li>
-  <li><%= image_tag('feeds.png') %> <%= link_to 'New packages created', 'https://hermes.opensuse.org/feeds/25545.rdf' %></li>
-</ul>
+<%= render :partial => "contact" %>
+
+<%= render :partial => "feeds" %>
 
 <p class="description">
 Have fun experimenting with the openSUSE Build Service :-)
