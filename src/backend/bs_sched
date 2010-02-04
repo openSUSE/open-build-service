@@ -3615,6 +3615,7 @@ while(1) {
     next if $error;
     my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
     print "  - $prp: no config ($lastprojid)\n";
+    set_repo_state($prp, 'broken');
     $prpfinished{$prp} = 1;
     next;
   }
@@ -3622,6 +3623,7 @@ while(1) {
   if (!$prptype || $prptype eq 'UNDEFINED') {
     my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
     print "  - $prp: bad config ($lastprojid)\n";
+    set_repo_state($prp, 'broken');
     $prpfinished{$prp} = 1;
     next;
   }
@@ -3629,6 +3631,7 @@ while(1) {
 
   if (grep {$_->{'name'} eq $repoid && $_->{'status'} && $_->{'status'} eq 'disabled'} @{$projpacks->{$projid}->{'repository'}}) {
     print "      disabled\n";
+    set_repo_state($prp, 'disabled');
     $prpfinished{$prp} = 1;
     next;
   }
