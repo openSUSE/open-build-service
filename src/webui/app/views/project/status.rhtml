@@ -105,7 +105,7 @@
               else
                 descr = p['problems'].join(',')
               end
-              outs << link_to(descr, :controller => :package, :project => p['develproject'], :package => p['develpackage'], :action => :rdiff, :oproject => @project, :opackage => p['name']) if descr
+              outs << link_to(descr, :controller => :package, :project => p['develproject'], :package => p['develpackage'], :action => :rdiff, :oproject => @project, :opackage => p['name']) if !descr.blank?
             end
             p['requests_to'].each do |id|
               outs << "Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), p['develproject']]
