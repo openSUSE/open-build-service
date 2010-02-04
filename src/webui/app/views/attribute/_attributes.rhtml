@@ -15,7 +15,7 @@
     </tr>
     <% i = 0 %>
     <% @attributes.each do |a| %>
-      <%= tr = (i%2==1) ? "<tr class=\"alternate1\">" : "<tr class=\"alternate2\">" %>
+      <%= (i%2==1) ? "<tr class=\"alternate1\">" : "<tr class=\"alternate2\">" %>
 
       <td><%=h a.namespace %>:<%=h a.name %></td>
       <td class="tablelines">
@@ -40,4 +40,3 @@
   </table>
 
 <% end %>
-
