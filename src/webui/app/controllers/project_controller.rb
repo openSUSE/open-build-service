@@ -820,7 +820,7 @@ class ProjectController < ApplicationController
       end
     end
 
-    attributes = PackageAttribute.find(:namespace => 'openSUSE',
+    attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
       :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
     upstream_versions = Hash.new
     attributes.data.find('//package//values').each do |p|
@@ -830,7 +830,7 @@ class ProjectController < ApplicationController
       end
     end
 
-    attributes = PackageAttribute.find(:namespace => 'openSUSE',
+    attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
       :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
     upstream_urls = Hash.new
     attributes.data.find('//package//values').each do |p|
