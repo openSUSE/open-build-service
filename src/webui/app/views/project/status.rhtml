@@ -9,6 +9,7 @@
 
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <%= stylesheet_link_tag "local/attribute.css" %>
 <% end %>
 
 <% content_for :ready_function do %>
@@ -73,8 +74,10 @@
       </tr>
     </thead>
     <tbody>
+      <% i = 0 %>
       <% @packages.each do |p| %>
-        <tr valign="top">
+      <%= (i%2==1) ? "<tr class='alternate1' valign='top'>" : "<tr class='alternate2' valign='top'>" %>
+          <% i += 1 %>
           <% shortname = p['name']
           if shortname.length > 22
             shortname = shortname[0..20] + "..."
