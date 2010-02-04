@@ -51,7 +51,7 @@ undef $BSConfig::bsuser;	# need to stay root
 undef $BSConfig::bsgroup;
 
 my $buildroot;
-my $port;
+my $port = 5152;
 my $silent;
 
 my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
