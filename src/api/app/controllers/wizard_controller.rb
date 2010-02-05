@@ -52,24 +52,41 @@ class WizardController < ApplicationController
       end
     end
 
-    if @wizard["created_spec"] == "true"
-      @wizard_form = WizardForm.new("Nothing to do",
-      "There is nothing I can do for you now. In the future, I will be able to help you updating your package or fixing build errors.")
-      @wizard_form.last = true
-      return render_wizard
-    end
+    # create package container
     package = Package.find(params[:package], :project => params[:project])
     e = package.add_element "title"
     e.text = @wizard["summary"]
     e = package.add_element "description"
     e.text = @wizard["description"]
     package.save
-    specname = "#{params[:package]}.spec"
-    spec = @wizard.generate_spec(File.read("#{RAILS_ROOT}/files/wizardtemplate.spec"))
-    backend_put("/source/#{params[:project]}/#{params[:package]}/#{specname}", spec)
-    @wizard["created_spec"] = "true"
-    @wizard_form = WizardForm.new("Finished",
-      "I created #{specname} for you. Please review it and adjust it to fit your needs.")
+
+    # create service file
+    node = Builder::XmlMarkup.new(:indent=>2)
+    xml = node.services() do |s|
+       # download file
+       m = @wizard["sourcefile"].split("://")
+       protocol = m.first()
+       host = m[1].split("/").first()
+       path = m[1].split("/",2).last()
+       s.service(:name => "download_url") do |d|
+          d.param(protocol, :name => "protocol")
+          d.param(host, :name => "host")
+          d.param(path, :name => "path")
+       end
+
+       # run generator
+       if @wizard["generator"] and @wizard["generator"] != "-"
+          s.service(:name => "generator_#{@wizard['generator']}")
+       end
+
+       # run verification
+    end
+
+    logger.debug("package_wizard, #{xml.inspect}")
+    logger.debug("package_wizard, #{xml}")
+    backend_put("/source/#{params[:project]}/#{params[:package]}/_service?rev=upload", xml)
+    backend_post("/source/#{params[:project]}/#{params[:package]}?cmd=commit&rev=upload&user=#{@http_user.login}", "")
+
     @wizard_form.last = true
     render_wizard
   end
