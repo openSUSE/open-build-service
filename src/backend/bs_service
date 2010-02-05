@@ -78,6 +78,7 @@ EOF
 my @argv = @ARGV;	# need to make copy for restart feature
 while (@argv) {
   usage(0) if $argv[0] eq '--help';
+  exit 0 if $argv[0] eq '--test'; # just for self-startup test
   if ($argv[0] eq '--root') {
     shift @argv;
     $buildroot = shift @argv;
