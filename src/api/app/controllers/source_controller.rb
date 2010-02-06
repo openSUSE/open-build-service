@@ -1151,7 +1151,7 @@ class SourceController < ApplicationController
     end
     Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}", nil
 
-    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name}
+    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
   end
 
   def valid_project_name? name
