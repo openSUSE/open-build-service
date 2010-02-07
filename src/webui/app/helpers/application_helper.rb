@@ -93,7 +93,7 @@ module ApplicationHelper
   def get_random_sponsor_image
     sponsors = ["common/sponsors/sponsor_amd.png",
                 "common/sponsors/sponsor_b1-systems.png",
-                "common/sponsors/sponsor_ip-exchange.png"]
+                "common/sponsors/sponsor_ip-exchange2.png"]
     return sponsors[rand(sponsors.size)]
   end
 
