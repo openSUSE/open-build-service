@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.6.99
+Version:        1.7.0
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -293,7 +293,7 @@ rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup obsservice; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup ; do
 %stop_on_removal $service
 done
 
@@ -303,9 +303,15 @@ done
 %post
 %run_permissions
 %{fillup_and_insserv -n obs-server}
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup obsservice; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup ; do
 %restart_on_update $service
 done
+
+%preun -n obs-source_service
+%stop_on_removal obsservice
+
+%post -n obs-source_service
+%restart_on_update obsservice
 
 %posttrans
 # this changes from directory to symlink. rpm can not handle this itself.
@@ -365,7 +371,6 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obspublisher
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
-/etc/init.d/obsservice
 /etc/init.d/obssrcserver
 /etc/init.d/obswarden
 /etc/init.d/obssigner
@@ -374,7 +379,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
 /usr/sbin/rcobsscheduler
-/usr/sbin/rcobsservice
 /usr/sbin/rcobssrcserver
 /usr/sbin/rcobswarden
 /usr/sbin/rcobssigner
@@ -437,6 +441,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-source_service
 %defattr(-,root,root)
+/etc/init.d/obsservice
+/usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-lxc.sh
 
