@@ -490,7 +490,7 @@ class PackageController < ApplicationController
     end
     @offset = (@offset || 0) + @initiallog.length
     @initiallog = CGI.escapeHTML(@initiallog);
-    @initiallog.gsub!("\n","<br/>")
+    @initiallog.gsub!("\n","<br/>").gsub!(" ","&nbsp;")
   end
 
 
@@ -512,7 +512,7 @@ class PackageController < ApplicationController
       else
         @offset += log_chunk.length
         log_chunk = CGI.escapeHTML(log_chunk);
-        log_chunk.gsub!("\n","<br/>")
+        log_chunk.gsub!("\n","<br/>").gsub!(" ","&nbsp;")
       end
       
     rescue ActiveXML::Transport::NotFoundError => ex
