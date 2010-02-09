@@ -414,7 +414,7 @@ class PackageController < ApplicationController
   end
 
   def view_file
-    @filename = params[:file]
+    @filename = params[:file] || ''
     @addeditlink = false
     if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )
       get_files( @project.name, @package.name ).each do |file|
@@ -424,8 +424,6 @@ class PackageController < ApplicationController
         end
       end
     end
-    @project = @project.name
-    @package = @package.name
     begin
       @file = frontend.get_source( :project => @project,
         :package => @package, :filename => @filename )
