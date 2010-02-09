@@ -490,7 +490,7 @@ class PackageController < ApplicationController
     end
     @offset = (@offset || 0) + @initiallog.length
     @initiallog = CGI.escapeHTML(@initiallog);
-    @initiallog.gsub!("\n","<br/>").gsub!(" ","&nbsp;")
+    @initiallog = @initiallog.gsub("\n","<br/>").gsub(" ","&nbsp;")
   end
 
 
@@ -506,13 +506,13 @@ class PackageController < ApplicationController
 
     begin
       log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
-      
+
       if( log_chunk.length == 0 )
         @finished = true
       else
         @offset += log_chunk.length
         log_chunk = CGI.escapeHTML(log_chunk);
-        log_chunk.gsub!("\n","<br/>").gsub!(" ","&nbsp;")
+        log_chunk = log_chunk.gsub("\n","<br/>").gsub(" ","&nbsp;")
       end
       
     rescue ActiveXML::Transport::NotFoundError => ex
