@@ -1,7 +1,8 @@
  <% form_remote_tag :url => { :action => :edit_comment, :project => @project, :package => @package },
-   :update => "comment_#{@package}" do -%>
+   :update => "comment_#{@package.gsub(':', '-')}" do -%>
    <%= text_field_tag('text', @comment) %>
    <%= hidden_field_tag('last_comment', @comment) %>
    <%= submit_tag 'Save' %>
+
  <% end -%>
 

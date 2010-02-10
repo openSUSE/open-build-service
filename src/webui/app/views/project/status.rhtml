@@ -121,7 +121,7 @@
             end
             outs.join('<br/>') -%></td>
 
-          <td id="comment_<%= p['name'] %>">
+          <td id="comment_<%= p['name'].gsub(':', '-') %>">
             <%= show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) %>
           </td>
         </tr>

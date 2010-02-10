@@ -185,15 +185,15 @@ module ProjectHelper
         status_comment_html += "(" + link_to('Clear Comment', :action => :clear_failed_comment, :project => @project, :package => package) + ")"
         comments_to_clear << package
       else
-        status_comment_html += link_to_remote image_tag('edit.png', :alt => "Edit"), :update => "comment_edit_#{package}",
+        status_comment_html += link_to_remote image_tag('edit.png', :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
           :url => { :action => "edit_comment_form", :comment=> comment, :package => package, :project => @project }
       end 
     elsif firstfail
-      status_comment_html += "<div class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('edit.png', :alt => "Edit"), :update => "comment_edit_#{package}",
+      status_comment_html += "<div class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('edit.png', :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
         :url => { :action => "edit_comment_form", :comment=> "", :package => package, :project => @project } )
       status_comment_html += "</div>"
     end
-    status_comment_html += "<div id='comment_edit_#{package}'></div>"
+    status_comment_html += "<div id='comment_edit_#{package.gsub(':', '-')}'></div>"
   end
 
 
