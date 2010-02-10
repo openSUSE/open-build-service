@@ -91,9 +91,13 @@ function refresh(newoffset, initial) {
 </div>
 
 <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-  <p>
+  <div id="link_trigger_rebuild" class="hidden">
     <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
-    :project => @project, :package => @package, :arch => @arch, :repository => @repo %>
+    :project => @project, :package => @package, :arch => @arch, :repo => @repo %>
+  </div>
+  <div id="link_abort_build" class="hidden">
+    <%= link_to_remote "[Abort build]", :url => { :action => 'abort_build',
+    :project => @project, :package => @package, :arch => @arch, :repo => @repo }  %> 
   </p>
 <% end %>
 

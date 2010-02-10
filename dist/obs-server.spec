@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.6.90
+Version:        1.7.0
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -21,6 +21,7 @@ Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      /var/tmp/%name-root
 # git clone git://gitorious.org/opensuse/build-service.git; cd build-service; git submodule init; git submodule update; cd -; tar cfvj obs-server-1.6.85.tar.bz2 --exclude=.git\* build-service-1.6.85/
 Source:         obs-server-%version.tar.bz2
+Patch:          1.7_BRANCH.diff
 Autoreqprov:    on
 BuildRequires:  python-devel
 BuildRequires:  obs-common
@@ -48,8 +49,9 @@ PreReq:         %fillup_prereq %insserv_prereq permissions
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     createrepo >= 0.4.10
 Recommends:     deb >= 1.5
+Recommends:     lvm2
 Recommends:     openslp-server
-Recommends:     obs-sign
+Recommends:     obs-signd
 %else
 Requires:       yum yum-metadata-parser dpkg
 Requires:       createrepo >= 0.4.10
@@ -62,7 +64,12 @@ Authors:
     The openSUSE Team <opensuse-buildservice@opensuse.org>
 
 %package -n obs-worker
-Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib
+Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib cpio
+# For runlevel script:
+Requires:       curl
+Recommends:     openslp lvm2
+# requires from build script
+Requires:       bash binutils
 Summary:        The openSUSE Build Service -- Build Host Component
 Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
@@ -99,6 +106,7 @@ Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
 # requires for webui:
+Requires:       ghostscript-fonts-std
 Requires:       rubygem-gruff
 Requires:       rubygem-sqlite3
 Requires:       rubygem-rmagick
@@ -147,6 +155,7 @@ Authors:       Susanne Oberhauser, Martin Mohring
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n build-service-%version
+%patch -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
@@ -175,7 +184,8 @@ install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
-         obssigner obswarden obsapidelayed obswebuidelayed obsapisetup obsstoragesetup; do
+         obssigner obswarden obsapidelayed obswebuidelayed obsapisetup obsstoragesetup \
+         obsservice; do
   install -m 0755 $i \
            $RPM_BUILD_ROOT/etc/init.d/
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
@@ -215,12 +225,6 @@ cp -a $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb.template $RPM_BUI
 install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
 # needed for correct permissions
 touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
-
-# fix path, should be change in git ?
-for i in $RPM_BUILD_ROOT/srv/www/obs/*/config/environment.rb; do
-  sed "s,/srv/www/opensuse/common/current/lib,/srv/www/obs/common/lib," \
-    "$i" > "$i"_ && mv "$i"_ "$i"
-done
 
 #
 #set default api on localhost for the webui
@@ -291,7 +295,7 @@ rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup ; do
 %stop_on_removal $service
 done
 
@@ -301,9 +305,16 @@ done
 %post
 %run_permissions
 %{fillup_and_insserv -n obs-server}
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup ; do
 %restart_on_update $service
 done
+
+%preun -n obs-source_service
+%stop_on_removal obsservice
+
+%post -n obs-source_service
+%restart_on_update obsservice
+
 %posttrans
 # this changes from directory to symlink. rpm can not handle this itself.
 if [ -e /usr/lib/obs/server/build -a ! -L /usr/lib/obs/server/build ]; then
@@ -323,6 +334,7 @@ fi
 %restart_on_update obsworker
 
 %post -n obs-api
+%{fillup_and_insserv -n obs-server}
 if [ -e /srv/www/obs/webclient/config/database.yml ] && [ ! -e /srv/www/obs/webui/config/database.yml ]; then
   cp /srv/www/obs/webclient/config/database.yml /srv/www/obs/webui/config/database.yml
 fi
@@ -330,12 +342,20 @@ if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/c
   cp /srv/www/obs/frontend/config/database.yml /srv/www/obs/api/config/database.yml
 fi
 # updaters can keep their production_slave config
-if [ -e /srv/www/obs/webclient/config/environments/production_slave.rb ] && [ ! -e /srv/www/obs/webui/config/environments/production_slave.rb ]; then
-  cp /srv/www/obs/webclient/config/environments/production_slave.rb /srv/www/obs/webui/config/environments/production_slave.rb
+for i in production_slave.rb production.rb development_base.rb; do
+  if [ -e /srv/www/obs/webclient/config/environments/$i ] && [ ! -e /srv/www/obs/webui/config/environments/$i ]; then
+    cp /srv/www/obs/webclient/config/environments/$i /srv/www/obs/webui/config/environments/$i
+  fi
+  if [ -e /srv/www/obs/frontend/config/environments/$i ] && [ ! -e /srv/www/obs/api/config/environments/$i ]; then
+    cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
+  fi
+done
+if [ -e /etc/lighttpd/vhosts.d/obs.conf ]; then
+  sed -i -e 's,/srv/www/obs/webclient,/srv/www/obs/webui,' \
+	 -e 's,/srv/www/obs/frontend,/srv/www/obs/api,' \
+	 /etc/lighttpd/vhosts.d/obs.conf
 fi
-if [ -e /srv/www/obs/frontend/config/environments/production_slave.rb ] && [ ! -e /srv/www/obs/api/config/environments/production_slave.rb ]; then
-  cp /srv/www/obs/frontend/config/environments/production_slave.rb /srv/www/obs/api/config/environments/production_slave.rb
-fi
+echo '**** Keep in mind to run rake db:migrate after updating this package (read README.UPDATERS) ****'
 %restart_on_update lighttpd
 
 %postun -n obs-api
@@ -423,6 +443,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-source_service
 %defattr(-,root,root)
+/etc/init.d/obsservice
+/usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-lxc.sh
 
@@ -430,7 +452,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /var/adm/fillup-templates/sysconfig.obs-worker
 /etc/init.d/obsworker
+/etc/init.d/obsstoragesetup
 /usr/sbin/rcobsworker
+/usr/sbin/rcobsstoragesetup
+# intentionally packaged in server and api package
+/var/adm/fillup-templates/sysconfig.obs-server
 
 %files -n obs-api
 %defattr(-,root,root)
@@ -459,6 +485,8 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/api/test
 /srv/www/obs/api/vendor
 /srv/www/obs/docs
+# intentionally packaged in server and api package
+/var/adm/fillup-templates/sysconfig.obs-server
 
 #
 # some files below config actually are _not_ config files

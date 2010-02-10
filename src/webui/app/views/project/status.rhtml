@@ -1,0 +1,145 @@
+<% @pagetitle = "Status #{@project}" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :action => :show, :project => @project),
+  'Status'
+]
+-%>
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <%= stylesheet_link_tag "local/attribute.css" %>
+<% end %>
+
+<% content_for :ready_function do %>
+  // call the tablesorter plugin
+  $("table").tablesorter({
+  // sort on the first column and third column, order asc
+  headers: { 2: {sorter: 'currency'} } });
+  $(".edit_comment").click(edit_comment);
+<% end %>
+
+<%= render :partial => "tabs" %>
+
+<h2>Status of project <%=h @project %></h2>
+
+<% comments_to_clear = [] %>
+
+<table><tr><td>
+      <% form_tag({ :action => :status }, :method => :get) do %>
+        <div>
+          <%= hidden_field_tag 'project', @project -%>
+          <% if @develprojects.size > 2 %>
+            Devel project: <%= select_tag("filter_devel", options_for_select(@develprojects, @current_develproject)) %>
+          <% end %>
+        </div>
+        <div>
+          <%= check_box_tag("ignore_pending", true, @ignore_pending) %>
+          <%= label_tag 'ignore_pending', 'Ignore packages with pending requests to %s' % @project %>
+        </div>
+        <div>
+          <%= hidden_field_tag('limit_to_fails', 'false') %>
+          <%= check_box_tag("limit_to_fails", true, @limit_to_fails) %>
+          <%= label_tag 'limit_to_fails', 'Only show currently failing packages' %>
+        </div>
+        <div>
+          <%= submit_tag 'Filter results' %>
+        </div>
+      <% end %>
+</td></tr></table>
+
+
+<% if !@packages.blank? %>
+  <div>
+
+  <p>Displaying <%= @packages.size %> packages that need handling, including:
+    <%= @packages.select {|p| p['firstfail'] and p['firstfail'] > 0}.length %> not building,
+    <%= @packages.select {|p| !p['problems'].empty?}.length %> with a diff in the devel project,
+    <%= @packages.select {|p| !p['requests_to'].empty? || !p['requests_from'].empty?}.length %> with a pending request.
+  </p>
+
+  <table class='tablesorter' cellspacing='1'>
+    <thead>
+      <tr>
+        <th width='1%'></th>
+        <th width='5%'>Name</th>
+        <th width='2%'>Failing</th>
+        <th width='5%' nowrap>Devel Project</th>
+        <th width='4%'>Maintainer</th>
+        <th width='20%'>Summary</th>
+        <th width="20%">Comment</th>
+        <th width="4%">Version</th>
+        <th width="4%">Upstream</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% i = 0 %>
+      <% @packages.each do |p| %>
+      <%= (i%2==1) ? "<tr class='alternate1' valign='top'>" : "<tr class='alternate2' valign='top'>" %>
+          <% i += 1 %>
+          <% shortname = p['name']
+          if shortname.length > 22
+            shortname = shortname[0..20] + "..."
+          end -%>
+          <td class="nowrap"><% if p['firstfail'] -%>
+              <%= image_tag("dialog-warning.png", :size => "22x22", :title => "Error" ) %>
+            <% elsif p['problems'].include? 'different_sources' or p['problems'].include? 'different_changes' -%>
+              <%= image_tag("dialog-question.png", :size => "22x22", :title => "So-so" ) %>
+            <% else -%>
+              <%= image_tag("ok.png", :size => "16x16", :title => "Ok" ) %>
+            <% end -%>
+          </td>
+          <td><%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %></td>
+          <% if p['firstfail'] -%>
+            <td><%= link_to String(Integer(Time.now.to_i - p['firstfail']) / 3600 / 24)+"d", :title => p['name'], :controller => :package, :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project, :package => p['name'] %></td>
+          <% else -%>
+            <td></td>
+          <% end -%>
+          <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
+          <td></td>
+          <td><%= outs = []
+            if p['requests_from'].empty?
+              descr = nil
+              if p['problems'].include? 'different_changes'
+                descr = "Different changes in devel project"
+              elsif p['problems'].include? 'different_sources'
+                descr = "Different sources in devel project"
+              else
+                descr = p['problems'].join(',')
+              end
+              outs << link_to(descr, :controller => :package, :project => p['develproject'], :package => p['develpackage'], :action => :rdiff, :oproject => @project, :opackage => p['name']) if !descr.blank?
+            end
+            p['requests_to'].each do |id|
+              outs << "Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), p['develproject']]
+            end
+            p['requests_from'].each do |id|
+              outs << "Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), @project]
+            end
+            outs.join('<br/>') -%></td>
+
+          <td id="comment_<%= p['name'] %>">
+            <%= show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) %>
+          </td>
+	  <td><%= p['version'] %></td>
+          <td>
+	    <%= if p['upstream_version']
+                  if p['upstream_url']
+                    "<a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a>"
+                  else
+                    p['upstream_version']
+                  end
+                else
+                  "--"
+                end -%>
+	  </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% end %>
+
+<%= unless comments_to_clear.empty? 
+  link_to('Clear all comments of not failing packages (%s)' % comments_to_clear.join(','), :action => :clear_failed_comment, :project => @project, "package" => comments_to_clear)
+end -%>

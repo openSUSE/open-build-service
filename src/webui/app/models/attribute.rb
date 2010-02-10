@@ -1,5 +1,12 @@
 class Attribute < ActiveXML::Base
 
+ class << self
+    def make_stub( opt )
+
+     reply = "<attributes></attributes>"
+     return XML::Parser.string(reply).parse.root
+    end
+  end
 
   def save
     path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_attribute" : "/source/#{self.init_options[:project]}/_attribute"
@@ -21,7 +28,8 @@ class Attribute < ActiveXML::Base
       frontend.direct_http URI("#{path}"), :method => "DELETE", :data => ""
       result = {:type => :note, :msg => "Attribute sucessfully deleted!"}
     rescue ActiveXML::Transport::Error => e
-      result = {:type => :error, :msg => "Deleting attribute failed: #{ActiveXML::Transport.extract_error_message( e )[0]}"}
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      result = {:type => :error, :msg => "Deleting attribute failed: " + message }
     end
 
     return result
@@ -41,6 +49,7 @@ class Attribute < ActiveXML::Base
       value = new_attr.add_element 'value'
       value.text = x
     end
+
   end
 
 

@@ -371,12 +371,6 @@ class SourceController < ApplicationController
       return
     end
 
-    unless valid_project_name? project_name
-      render_error :status => 400, :errorcode => "invalid_project_name",
-        :message => "invalid project name '#{project_name}'"
-      return
-    end
-
     if request.get?
       @project = DbProject.find_by_name( project_name )
 
@@ -407,6 +401,12 @@ class SourceController < ApplicationController
 
     #authenticate
     return unless extract_user
+
+    unless valid_project_name? project_name
+      render_error :status => 400, :errorcode => "invalid_project_name",
+        :message => "invalid project name '#{project_name}'"
+      return
+    end
 
     if request.put?
       # Need permission
@@ -743,6 +743,7 @@ class SourceController < ApplicationController
         oprj = DbProject.new :name => mparams[:target_project], :title => "Branch Project _FIXME_", :description => "_FIXME_"
         oprj.add_user @http_user, "maintainer"
         oprj.build_flags << BuildFlag.new( :status => "disable" )
+        oprj.publish_flags << PublishFlag.new( :status => "disable" )
         oprj.save
       end
       Project.find(oprj.name).save
@@ -793,7 +794,7 @@ class SourceController < ApplicationController
 
       Package.find(opkg.name, :project => oprj.name).save
       # branch sources in backend
-      Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{pac.db_project.name}&opackage=#{pac.name}", nil
+      Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{CGI.escape(pac.db_project.name)}&opackage=#{CGI.escape(pac.name)}", nil
 
     end
 
@@ -845,7 +846,7 @@ class SourceController < ApplicationController
 
     # create patchinfo XML file
     node = Builder::XmlMarkup.new(:indent=>2)
-    node.patchinfo(:name => name) do |n|
+    xml = node.patchinfo(:name => name) do |n|
       binaries.each do |binary|
         node.binary(binary)
       end
@@ -858,7 +859,7 @@ class SourceController < ApplicationController
       node.description ""
 # FIXME add all bugnumbers from attributes
     end
-    backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20frontend", node.to_axml )
+    backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20frontend", xml )
 
     render_ok
   end
@@ -968,7 +969,14 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=diff
   def index_package_diff
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified])
+    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev])
+    forward_data path, :method => :post
+  end
+
+  # POST /source/<project>/<package>?cmd=linkdiff
+  def index_package_linkdiff
+    path = request.path
+    path << build_query_from_hash(params, [:rev, :unified, :linkrev])
     forward_data path, :method => :post
   end
 
@@ -991,7 +999,7 @@ class SourceController < ApplicationController
     end
 
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand])
+    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
     forward_data path, :method => :post
   end
@@ -1001,7 +1009,7 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login if @http_user
 
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    path << build_query_from_hash(params, [:cmd])
     forward_data path, :method => :post
   end
 
@@ -1030,12 +1038,12 @@ class SourceController < ApplicationController
     if not pkg_linkrev.nil? and not pkg_linkrev.empty?
          linkrev = "&linkrev=#{pkg_linkrev}"
     end
-    Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch&user=#{params[:user]}#{rev}#{linkrev}", nil
+    Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}", nil
 
     render_ok
   end
 
-  # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"
+  # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"
   def index_package_branch
     params[:user] = @http_user.login
     prj_name = params[:project]
@@ -1046,6 +1054,7 @@ class SourceController < ApplicationController
     if not params[:update_project_attribute]
       params[:update_project_attribute] = "OBS:UpdateProject"
     end
+    logger.debug "branch call of #{prj_name} #{pkg_name}"
 
     prj = DbProject.find_by_name prj_name
     pkg = prj.db_packages.find_by_name(pkg_name)
@@ -1065,6 +1074,7 @@ class SourceController < ApplicationController
        if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
           pkg = pa
           pkg_name = pkg.name
+    	  logger.debug "branch call found package in update project"
        end
     end
 
@@ -1074,6 +1084,7 @@ class SourceController < ApplicationController
       pkg_name = pkg.name
       prj = pkg.db_project
       prj_name = prj.name
+      logger.debug "devel project is #{prj_name} #{pkg_name}"
     end
 
     # link against srcmd5 instead of plain revision
@@ -1109,6 +1120,7 @@ class SourceController < ApplicationController
       DbProject.transaction do
         oprj = DbProject.new :name => oprj_name, :title => prj.title, :description => prj.description
         oprj.add_user @http_user, "maintainer"
+        oprj.publish_flags << PublishFlag.new( :status => "disable" )
         prj.repositories.each do |repo|
           orepo = oprj.repositories.create :name => repo.name
           orepo.architectures = repo.architectures
@@ -1132,14 +1144,14 @@ class SourceController < ApplicationController
       Package.find(opkg_name, :project => oprj_name).save
     end
 
-    #link sources
+    #create branch of sources in backend
     rev = ""
     if not pkg_rev.nil? and not pkg_rev.empty?
          rev = "&rev=#{pkg_rev}"
     end
-    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{prj_name}&opackage=#{pkg_name}#{rev}", nil
+    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}", nil
 
-    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name}
+    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
   end
 
   def valid_project_name? name

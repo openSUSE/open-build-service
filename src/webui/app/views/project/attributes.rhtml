@@ -1,0 +1,15 @@
+<% @pagetitle = "Attributes for Project #{@project}" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :action => :show, :project => @project),
+  'Attributes'
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+<h3>Attributes for Project <%= @project %>: </h3>
+
+<!-- Attributes -->
+<%= render :partial => "attribute/attributes.rhtml" %>

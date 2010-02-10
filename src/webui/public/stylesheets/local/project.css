@@ -75,3 +75,5 @@
 .filterlink {
   cursor: pointer;
 }
+
+.unknown_failure {  color: red; }

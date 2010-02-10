@@ -7,6 +7,9 @@ theme: neutral
 # Enable serving of images, stylesheets, and javascripts from an asset server
 # asset_host: https://static.opensuse.org/hosts/build.o.o
 
+# Google hosts popular javascript libs. That can save a lot of traffic
+use_google_hosted_libs: false
+
 # Set this when the webclient runs from a subdirectory
 #relative_url_root: /stage
 

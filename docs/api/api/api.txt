@@ -315,13 +315,10 @@ XmlResult: status
 
 == Attribute definition api
 
-<attribute>: attribute definitions
-
-Host: api.opensuse.org
 
 GET /attribute/
   
-  List all namespaces
+  List all attribute namespaces
 
 XmlResult: directory
 
@@ -337,7 +334,7 @@ GET /attribute/<namespace>/_meta
   
   shows namespace setup
 
-XmlResult: directory
+XmlResult: attribute_namespace_meta
 
 
 DELETE /attribute/<namespace>/_meta
@@ -360,7 +357,7 @@ GET /attribute/<namespace>/<name>/_meta
   
   shows attribute setup
 
-XmlResult: directory
+XmlResult: attribute_meta
 
 
 DELETE /attribute/<namespace>/<name>/_meta

@@ -116,7 +116,7 @@ h1, h2, h3, h4, h5, h6 {
 #seachform_wrapper a img {}
 
 #monitor-wrapper { /* a try to handle the long monitor-tabel */
-  overflow: auto;
+  overflow: visible;
 }
 
 .dialog_wrapper .darkgrey_box .box_top_row,
@@ -471,3 +471,30 @@ background:transparent !important;
 }
 
 
+textarea {
+  width: 95%;
+  margin-left: 2%;
+}
+
+.build_result_trigger {
+  position: relative;
+}
+
+.ajax_large_loader { 
+  width: 32px;
+  height: 32px;
+  background-image: url(../../../images/large-loader.gif);
+}
+
+#build_result_popup { 
+  position: absolute; 
+  background: white; 
+  border: 1px solid black; 
+  margin: 5px; 
+  display: none; 
+  z-index: 50;
+}
+
+span.build_result_title { 
+  font-size: 110%;
+}

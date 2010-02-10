@@ -129,18 +129,6 @@ sub convertRelationship( $ ){
     return $relationship;
 }
 
-sub createPreferences( $ )
-{
-    my( $prodRef ) = @_;
-    my $re = {};
-
-    $re->{type} = [{_content => "product"}];
-    $re->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
-    $re->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
-
-    return $re;
-}
-
 #
 # The conditionals are kind of macros which are used all over the product definition.
 # The conditionals part of the product def is parsed into the global conditionalhash
@@ -748,31 +736,37 @@ sub createFlavorReadme( $$ ){
     return $reame_file;
 }
 
-sub writeMigrationSPECfile( $$$ )
+sub writeMigrationSPECfile( $$$$ )
 {
-    my( $file, $prodRef,$product ) = @_;
+    my( $file, $prodRef, $product, $newpatchlevel ) = @_;
     my $mproduct = Storable::dclone($product);
 
-    $mproduct->{name} = $product->{name}."-SP".$product->{'patchlevel'}."-migration";
+    $mproduct->{name} = $product->{name}."-SP".$newpatchlevel."-migration";
 
-    my $oldpatchlevel = $mproduct->{'patchlevel'} - 1;
+    # Upgrade section must not be in migration to avoid double notification
+    delete $mproduct->{upgrades};
+
+    # Set default values for release package reference
+    $mproduct->{'installconfig'}->{'releasepackage'} = { 'flag' => "EQ" };
+    $mproduct->{'installconfig'}->{'releasepackage'}->{'name'} = '%{name}';
+    $mproduct->{'installconfig'}->{'releasepackage'}->{'version'} = '%{version}';
+    $mproduct->{'installconfig'}->{'releasepackage'}->{'release'} = '%{release}';
+
     my $content="# ";
     $content.="\n\n";
     $content.="Name:           $mproduct->{name}\n";
-    $content.="Summary:        $product->{name} Service Pack $product->{'patchlevel'} Migration Product\n";
+    $content.="Summary:        $product->{name} Service Pack $newpatchlevel Migration Product\n";
     $content.="Version:        ".$product->{version}."\n";
     $content.="Release:        0\n";
     $content.="License:        BSD 3-Clause\n";
     $content.="Group:          System/Fhs\n";
     $content.="Provides:       product()\n";
     $content.="Provides:       product(%name) = %{version}-%{release}\n";
-    $content.="Requires:       product(".$product->{name}.") = ".$product->{baseversion};
-    $content.=".".$oldpatchlevel if ( $oldpatchlevel >0 );
-    $content.="\n";
+    $content.="Requires:       product(".$product->{name}.") = ".$product->{version}."\n";
     $content.="AutoReqProv:    on\n";
     $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
     $content.="\n%description\n";
-    $content.="Product to migrate to $product->{name} Service Pack $product->{'patchlevel'}.\n";
+    $content.="Product to migrate to $product->{name} Service Pack $newpatchlevel.\n";
     $content.="\n\n";
     $content.="\n%prep\n";
     $content.="\n%build\n\n";
@@ -808,10 +802,10 @@ sub writeProductSPECfile( $$$$ )
     $productprovides.="Provides:       product($product->{'name'}) = %version-%release\n";
     if (defined($product->{'patchlevel'}) && $product->{'patchlevel'} ne '0') {
       $productprovides.="Provides:       product($product->{'name'}-SP$product->{'patchlevel'}) = %version-%release\n";
+      $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n";  # release package name
+      $productprovides.="Obsoletes:      product:".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n"; # product name
     }
-    $productprovides.="Requires:       product_flavor($product->{name}) = %version-%release\n";
-    $productprovides.="Obsoletes:      ".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n";  # release package name
-    $productprovides.="Obsoletes:      product:".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n"; # product name
+    $productprovides.="Requires:       product_flavor($product->{name})\n";
 
     if ("$infile" eq ""){
      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
@@ -1083,7 +1077,6 @@ $product->{'installconfig'}->{'releasepackage'}->{'release'} = '%{release}'
 my $productRef = $prodRef->{products}->{product}->[0]; # FIXME: Support multiple products.
 
 my $kiwiImage = {};
-$kiwiImage->{schemeversion} = "2.4"; # ???
 my $name = sprintf( "%s %s %s",
 		    $product->{vendor},
 		    $product->{name},
@@ -1092,7 +1085,6 @@ my $name = sprintf( "%s %s %s",
 $kiwiImage->{name} = $name;
 
 $kiwiImage->{description} = createDescription( $productRef );
-$kiwiImage->{preferences} = createPreferences( $productRef );
 # so far for all media types identical. Now loop over the media types
 # to create media type specific versions;
 
@@ -1102,6 +1094,22 @@ parseArchsets( $prodRef->{archsets}{archset} );
 #
 # Create $product-release packages
 #
+
+# handle migration case
+if (defined($product->{patchlevel})){
+  my $newpatchlevel = $product->{'patchlevel'} + 1;
+  my $productname = $product->{name}."-SP".$newpatchlevel."-migration";
+
+  # enforce correct upgrade product name
+  for my $upgrade ( @{$product->{upgrades}->{upgrade}||[]} ) {
+    $upgrade->{name} = $productname;
+    $upgrade->{product} = $productname;
+  }
+
+  mkdir_p( "$outdir/_product:$productname" ) || die ("Unable to create migration directory\n");
+  writeMigrationSPECfile( "$outdir/_product:".$productname."/".$productname.".spec",
+                          $prodRef, $product, $newpatchlevel );
+}
 
 my $SPECtemplateFile;
 if ($infile =~ /(.*\/)(.+)$/) {
@@ -1130,11 +1138,6 @@ if ( !$ChangesFile || ! -e $ChangesFile ) {
 if ( -e $ChangesFile ) {
   my $fn="$outdir/_product:$product->{name}-release/$product->{name}-release.changes";
   system( "cp", $ChangesFile, $fn) && die ("Unable to copy changes file $ChangesFile to $fn");
-}
-
-if (defined($product->{patchlevel}) && $product->{patchlevel} ne '0'){
-mkdir_p( "$outdir/_product:".$product->{name}."-SP".$product->{patchlevel}."-migration" ) || die ("Unable to create $outdir\n");
- writeMigrationSPECfile( "$outdir/_product:".$product->{name}."-SP".$product->{patchlevel}."-migration/".$product->{name}."-SP".$product->{patchlevel}."-migration.spec", $prodRef, $product );
 }
 
 #
@@ -1166,7 +1169,17 @@ foreach my $medium ( @$media ){
           my @archs;
           $buildflags->{'disable'} = [{}]; # disabled by default
       
-          my $kiwi = \%generalImage;
+          my $kiwi = Storable::dclone(\%generalImage);
+	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
+	      $kiwi->{schemaversion} = "4.1"; # new kiwi requires exact this version
+	      $kiwi->{preferences}->{type} = [{image => "product"}];
+	  }else{
+	      # the schemE vs. schemA is intended by kiwi!
+	      $kiwi->{schemeversion} = "2.4"; # before openSUSE 11.3, until kiwi 3.74
+	      $kiwi->{preferences}->{type} = [{_content => "product"}];
+	  }
+          $kiwi->{preferences}->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
+          $kiwi->{preferences}->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
       
           $kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
           $kiwi->{repository} = createRepository ( $prodRef );

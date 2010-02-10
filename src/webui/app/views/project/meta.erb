@@ -1,0 +1,31 @@
+<% @pagetitle = "Raw Config for %s" % @project %>
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag "SyntaxHighlighter" %>
+  <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushXml' %>
+  <%= stylesheet_link_tag "local/project", :media => "all" %>
+<% end %>
+
+<% content_for :ready_function do %>
+   dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+   dp.SyntaxHighlighter.HighlightAll('code'); 
+   $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
+   $("#editlink").attr("href", "<%= url_for(:action => :edit_meta, :project => @project) %>");
+<% end %>
+
+<%
+@crumb_list = [
+  link_to( 'Projects', :controller => 'project', :action => :list_public),
+  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+  'Raw Config'
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+<h2>Raw Config for <%=h @project %></h2>
+
+<pre name="code" class="xml">
+<%=h @meta%>
+</pre>
+

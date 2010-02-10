@@ -1686,12 +1686,11 @@ sub getbuildinfo {
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @edeps;
 
-  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps);
   if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
     # things are very different here. first we have the packages needed for kiwi
     # from the full tree
-    @bdeps = ();
-    for (unify(@pdeps, @vmdeps, @bdeps)) {
+    @bdeps = unify(@pdeps, @vmdeps, @bdeps);
+    for (splice(@bdeps)) {
       my $b = {'name' => $_};
       my $p = $dep2pkg{$_};
       if (!$cgi->{'internal'}) {
@@ -1729,6 +1728,7 @@ sub getbuildinfo {
     $ret->{'bdep'} = \@bdeps;
     return ($ret, $BSXML::buildinfo);
   }
+  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps);
 
   if ($packtype eq 'kiwi' && $kiwitype eq 'image') {
     # kiwi images take the binaries from all repos

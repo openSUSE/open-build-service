@@ -3,7 +3,7 @@ require 'ostruct'
 require 'digest/md5'
 
 class PackInfo
-  attr_accessor :version, :release
+  attr_reader :version, :release
   attr_accessor :devel_project, :devel_package
   attr_accessor :srcmd5, :error
   attr_reader :name, :project
@@ -20,7 +20,17 @@ class PackInfo
     @devel_package = nil
     @version = nil
     @release = nil
+    # we avoid going back in versions by avoiding going back in time
+    # the last built version wins (repos may have different versions)
+    @versiontime = nil
     @links = Array.new
+  end
+
+  def set_version(version, release, time)
+    return if @versiontime and @versiontime > time
+    @versiontime = time
+    @version = version
+    @release = release
   end
 
   def success(reponame, time, md5)
@@ -150,14 +160,14 @@ class ProjectStatusHelper
             key = dbproj.name + "/" + packname
             next unless mypackages.has_key?(key)
             code = p.attributes['code']
+            readytime = Integer(p['readytime'])
             if code == "unchanged" || code == "succeeded"
-              mypackages[key].success(reponame, Integer(p['readytime']), p['srcmd5'])
+              mypackages[key].success(reponame, readytime, p['srcmd5'])
             else
-              mypackages[key].failure(reponame, Integer(p['readytime']), p['srcmd5'])
+              mypackages[key].failure(reponame, readytime, p['srcmd5'])
             end
             versrel=p.attributes['versrel'].split('-')
-            mypackages[key].version = versrel[0..-2].join('-')
-            mypackages[key].release = versrel[-1]
+            mypackages[key].set_version(versrel[0..-2].join('-'), versrel[-1], readytime)
           end
         end
       end
@@ -195,7 +205,7 @@ class ProjectStatusHelper
 
   def self.filter_by_package_name(name)
     return true # take all
-    return (name =~ /yast2-mail/)
+    return (name =~ /Botan/)
   end
 
   def self.calc_status(dbproj, backend)

@@ -27,11 +27,7 @@
  <br/>
   <%- if @package.has_element? :devel %>
   <p id="develproject_note"><strong>
-    <% dpackage = @package.name
-       if @package.devel.has_element? :package 
-         dpackage = @package.devel.package
-       end
-     %>
+    <% dpackage = @package.devel.data["package"] || @package.name %>
     This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage %>
   </strong></p>
   <%- end -%>

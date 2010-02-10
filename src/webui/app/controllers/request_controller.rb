@@ -1,7 +1,7 @@
 class RequestController < ApplicationController
 
   def index
-    redirect_to :action => "list_req"
+    redirect_to :action => :list_req
   end
 
   def list_req
@@ -13,85 +13,112 @@ class RequestController < ApplicationController
       predicate = @iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
       predicate2 = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ") # old, to be removed later
       predicate = "state/@name='new' and (#{predicate} or #{predicate2})"
-      @requests_for_me = Collection.find :what => :request, :predicate => predicate
-      @requests_by_me = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
-
-      # Do we really need this or is just caused by messed up data in DB ?
-      @requests_by_me.each do |req|
-        if not req.has_element? :state
-          @requests_by_me.delete_element req
-        end
-      end
+      collection = Collection.find :what => :request, :predicate => predicate
+      @requests_for_me = Array.new
+      collection.each do |req| @requests_for_me << req end
+      collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
+      @requests_by_me = Array.new
+      collection.each do |req| @requests_by_me << req end
     end
-
   end
 
   def diff
-    diff = Diff.find( :id => params[:id])
-    @requests = [diff]
-    @id = diff.data.attributes["id"]
-    @state = diff.state.data.attributes["name"]
-    @type = diff.action.data.attributes["type"]
-    if @type=="submit"
-      @src_project = diff.action.source.project
-      @src_pkg = diff.action.source.package
+    if params[:id]
+      @request = Request.find( :id => params[:id] )
     end
-    @target_project = Project.find diff.action.target.project
-    @target_pkg = diff.action.target.package
-    @is_author = diff.has_element? "//state[@name='new' and @who='#{session[:login]}']"
-    @is_maintainer = @target_project.is_maintainer? session[:login]
+    unless @request
+      flash[:error] = "Can't find request #{params[:id]}"
+      redirect_to :action => :index
+      return
+    end
 
-    if @type == "submit"
+    @id = @request.data.attributes["id"]
+    @state = @request.state.data.attributes["name"]
+    @type = @request.action.data.attributes["type"]
+    if @type=="submit"
+      @src_project = @request.action.source.project
+      @src_pkg = @request.action.source.package
+    end
+    @target_project = Project.find @request.action.target.project
+    @target_pkg_name = @request.action.target.package
+    @target_pkg = Package.find @target_pkg_name, :project => @request.action.target.project
+    @is_author = @request.has_element? "//state[@name='new' and @who='#{session[:login]}']"
+    @is_maintainer = @target_project.is_maintainer?( session[:login] ) ||
+      (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
+
+    if @type == "submit" and @target_pkg
       transport ||= ActiveXML::Config::transport_for(:project)
       path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
-               [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg), CGI.escape(@target_project.name)]
-      if diff.action.source.has_element? 'rev'
-        path += "&rev=#{diff.action.source.rev}"
+               [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg.name), CGI.escape(@target_project.name)]
+      if @request.action.source.data['rev']
+        path += "&rev=#{@request.action.source.rev}"
       end
       begin
         @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
       rescue Object => e
         @diff_error = e.message
       end
+    else
+      @diff_error = nil
+      @diff_text = nil
     end
+
     @revoke_own = (["revoke"].include? params[:changestate]) ? true : false
   
   end
  
+  def change_request(changestate, params)
+    begin
+      if Request.modify( params[:id], changestate, params[:reason] )
+	flash[:note] = "Request #{changestate}!"
+	return true
+      else
+	flash[:error] = "Can't change request to #{changestate}!"
+      end
+    rescue Request::ModifyError => e
+      flash[:error] = e.message
+    end
+    return false
+  end
+  private :change_request
 
   def submitreq
-    changestate = params['commit']
-    case changestate
-      when 'Accept'
-        changestate = 'accepted'
-      when 'Decline'
-        changestate = 'declined'
-      when 'Revoke'
-        changestate = 'revoked'
-      else
-        changestate = nil
-    end
-
-    reason = "unknown changestate #{changestate}"
-
-    if (changestate=="accepted" || changestate=="declined" || changestate=="revoked")
-      reason = params[:reason]
-      id = params[:id]
-      transport ||= ActiveXML::Config::transport_for(:project)
-      path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
-      begin
-        transport.direct_http URI("https://#{path}"), :method => "POST", :data => reason
-        flash[:note] = "Submit request #{changestate}!"
-        redirect_to :action => "list_req"
-        return
-      rescue ActiveXML::Transport::ForbiddenError => e
-        reason = e.message
+    changestate = nil
+    %w{forward accepted declined revoked}.each do |s|
+      if params.has_key? s
+	changestate = s
+	break
       end
     end
 
-    flash[:error] = reason
-    redirect_to :action => "list_req"
+    if changestate == 'forward' # special case
+      req = Request.find( params[:id] )
+      description = req.description.text
+      logger.debug 'request ' +  req.dump_xml
 
+      if req.has_element? 'state'
+	who = req.state.data["who"].to_s
+	description += " (forwarded request %d from %s)" % [params[:id], who]
+      end
+
+      if not change_request('accepted', params)
+	redirect_to :action => :diff, :id => params[:id]
+	return
+      end
+
+      rev = Package.current_rev(req.action.target.project, req.action.target.package)
+      req = Request.new(:type => "submit", :targetproject => params[:forward_project], :targetpackage => params[:forward_package],
+			:project => req.action.target.project, :package => req.action.target.package, :rev => rev, :description => description)
+      req.save(:create => true)
+      Rails.cache.delete "requests_new"
+      flash[:note] = "Request #{params[id]} accepted and forwarded"
+      redirect_to :controller => :request, :action => :diff, :id => req.data["id"]
+      return
+    end
+
+    change_request(changestate, params)
+
+    redirect_to :action => :diff, :id => params[:id]
   end
 
 end

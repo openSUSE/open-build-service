@@ -10,40 +10,68 @@
 </h3>
 
 <% content_for :head_javascript do %>
-     function filterPkgs() {
-				var onevisible = 0;
-				var srch = new String($('#packagesearch').val());
-				srch = srch.toLowerCase();
-				$('.packages_table').find('tr').each(function() {
-					if (this.id == "nopackages") return;
-					var theid = this.id.substring(4,100);
-					if ( theid.indexOf(srch) == -1 ) {
-						$(this).hide();
-					} else { 
-						$(this).show();
-						onevisible = 1;
-					}
-				});
-				if (onevisible) {
-					$('#nopackages').hide();
-				} else {
-					$('#nopackages').show();
-				}
-	
+   var last_search_string = "";
+   function filterPkgs() {
+
+     var srch = new String($('#packagesearch').val()).toLowerCase();
+     if (srch == "") { 
+       $('#packages_table').show();
+       $('#filtered_packages_table').hide(); 
+       $("#spinner").hide();
+       return;
      }
+     if (srch == last_search_string) {
+       return;
+     };
+
+     last_search_string = srch;
+     //console.log('Filter for ' + srch)
+     //console.time('jquery replace');
+     //console.time('jquery insert dom');
+     $("#spinner").show();
+     var onevisible = 0
+     //console.time('jquery clone');
+     var new_packages_table = $('#packages_table').clone();
+     new_packages_table.attr( 'id', 'filtered_packages_table' )
+
+     $('#packages_table').hide();
+     //console.timeEnd('jquery clone');
+
+     new_packages_table.find('tr').each(function() {
+          if ( this.id.indexOf(srch, 4) == -1 ) {
+              $(this).hide();
+          } else {
+              //$(this).show();
+              onevisible = 1;
+          }
+      });
+      //console.timeEnd('jquery replace');
+
+      $('#filtered_packages_table').replaceWith( new_packages_table )
+      $('#filtered_packages_table').show();
+
+      if (onevisible) {
+            $('#filtered_packages_table #nopackages').hide();
+      } else {
+            $('#filtered_packages_table #nopackages').show();
+      }
+
+      $("#spinner").hide();
+      //console.timeEnd('jquery insert dom');
+    }
 <% end %>
 
 <% content_for :ready_function do %>
-	 $("#packagesearch_clear").click(function() { $('#packagesearch').val('').focus(); filterPkgs(); });
-         $("#packagesearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
-				         function() { $(this).attr('src', '/images/clear.png');  });
-	 $("#spinner").show();
+  $("#packagesearch_clear").click(function() { $('#packagesearch').val('').focus(); filterPkgs(); });
+  $("#packagesearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
+    function() { $(this).attr('src', '/images/clear.png');  });
+  $("#spinner").show();
 
-     	 <%= remote_function( :update => 'search_results',                                           
-	      :url => {:action => :list_packages, :project => params[:project]},                                 
-	      :complete => '$("#spinner").hide(); filterPkgs();'); %>
+  <%= remote_function( :update => 'search_results',
+    :url => {:action => :list_packages, :project => params[:project]},
+    :complete => '$("#spinner").hide();'); %>
 
-	 $('#packagesearch').keyup(function() { filterPkgs(); });
+  $('#packagesearch').keyup( function() { filterPkgs() } );
 <% end %>
 
 <div id="package_filter">
@@ -54,6 +82,7 @@
   <%= hidden_field_tag 'project', @project -%>
   <%= hidden_field_tag 'filter_active', 1 -%>
   <img id="packagesearch_clear" title="clear input" alt="clear" src="/images/clear.png" />
+  <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
  </div>
 
 </div>

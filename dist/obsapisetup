@@ -26,8 +26,16 @@ base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
 apidir=/srv/www/obs/api
+webuidir=/srv/www/obs/webui
 
 FQHOSTNAME=`hostname -f`
+
+. /etc/sysconfig/obs-server
+
+if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
+   echo "OBS API Autosetup is not enabled in sysconfig, skipping!"
+   exit 0
+fi
 
 rc_reset
 case "$1" in
@@ -42,7 +50,12 @@ case "$1" in
 			echo
 		fi
 
-		echo -n "Setup or update OBS database"
+		echo -n "Setup or update OBS webui database"
+                cd $webuidir
+		RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
+		chown -R lighttpd.lighttpd $webuidir/log
+		echo
+		echo -n "Setup or update OBS api database"
                 cd $apidir
 		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
 		chown -R lighttpd.lighttpd $apidir/log
@@ -84,7 +97,7 @@ case "$1" in
 }
 \$SERVER["socket"] == "$FQHOSTNAME:82" {
   server.name = "$FQHOSTNAME"
-  server.document-root = "/srv/obs/repos/"
+  server.document-root = "/obs/repos/"
 
   dir-listing.activate = "enable"
 }
@@ -102,7 +115,7 @@ based on $OS
   Browse the build packages via:        http://$FQHOSTNAME:82
 
  * "Admin" user password is "opensuse" by default.
- * Keep in mind import the openSUSE.org project before building packages.
+ * Keep in mind to import the openSUSE.org project before building packages.
 
 More informations about this appliance are available here:
 

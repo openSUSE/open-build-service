@@ -217,9 +217,13 @@ class DbPackage < ActiveRecord::Base
             )
           end
         else
+          user = User.find_by_login(person.userid)
+          unless user
+            raise SaveError, "user #{person.userid} not known"
+          end
           begin
             PackageUserRoleRelationship.create(
-              :user => User.find_by_login(person.userid),
+              :user => user,
               :role => Role.rolecache[person.role],
               :db_package => self
             )
@@ -424,12 +428,14 @@ class DbPackage < ActiveRecord::Base
       done={}
       attribs.each do |attr|
         type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
-        next if params[:attribute] and not type_name == params[:attribute]
+        next if params[:name] and not attr.attrib_type.name == params[:name]
+        next if params[:namespace] and not attr.attrib_type.attrib_namespace.name == params[:namespace]
         next if params[:binary] and attr.binary != params[:binary]
         next if params[:binary] == "" and attr.binary != ""  # switch between all and NULL binary
         done[type_name]=1 if not attr.binary
         p={}
-        p[:name] = type_name
+        p[:name] = attr.attrib_type.name
+        p[:namespace] = attr.attrib_type.attrib_namespace.name
         p[:binary] = attr.binary if attr.binary
         a.attribute(p) do |y|
           if attr.values.length > 0
@@ -451,9 +457,11 @@ class DbPackage < ActiveRecord::Base
         db_project.attribs.each do |attr|
           type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
           next if done[type_name]
-          next if params[:attribute] and not type_name == params[:attribute]
+          next if params[:name] and not attr.attrib_type.name == params[:name]
+          next if params[:namespace] and not attr.attrib_type.attrib_namespace.name == params[:namespace]
           p={}
-          p[:name] = type_name
+          p[:name] = attr.attrib_type.name
+          p[:namespace] = attr.attrib_type.attrib_namespace.name
           p[:binary] = attr.binary if attr.binary
           a.attribute(p) do |y|
             if attr.values.length > 0

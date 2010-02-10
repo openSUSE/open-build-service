@@ -7,6 +7,6 @@ echo "Updating $BASEDIR"
 pushd $BASEDIR
 git submodule init
 git submodule update
-git pull origin master
+git pull origin 
 popd
 

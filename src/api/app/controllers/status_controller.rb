@@ -77,7 +77,10 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
-     send_data ( Rails.cache.read 'workerstatus')
+     data = Rails.cache.fetch('workerstatus') do
+       update_workerstatus_cache
+     end
+     send_data data
   end
 
   def history
@@ -137,7 +140,10 @@ class StatusController < ApplicationController
         line.save
       end
 
+      ret
   end
+  # not an action, but called from delayed job
+  # private :update_workerstatus_cache
 
   def project
      dbproj = DbProject.find_by_name(params[:id])

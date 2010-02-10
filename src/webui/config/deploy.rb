@@ -18,13 +18,13 @@ server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
 # servers (which is the default), you can specify the actual location
 # via the :deploy_to variable:
 set :deploy_to, "/srv/www/vhosts/opensuse.org/#{application}"
+set :runit_name, "webclient"
 
 # set variables for different target deployments
 task :stage do
   set :deploy_to, "/srv/www/vhosts/opensuse.org/stage/#{application}"
-end
-task :ibs do
-
+  set :runit_name, "webclient_stage"
+  # for now we stage master set :repository, "git://gitorious.org/~coolo/opensuse/build-service-stage.git"
 end
 
 
@@ -72,18 +72,18 @@ end
 # server restarting
 namespace :deploy do
   task :start do
-    run "sv start /service/webclient-*"
-    run "sv start /service/delayed_job_webclient"
+    run "sv start /service/#{runit_name}-*"
+    run "sv start /service/delayed_job_#{runit_name}"
   end
 
   task :restart do
-    run "sv 1 /service/webclient-*"
-    run "sv 1 /service/delayed_job_webclient"
+    run "sv 1 /service/#{runit_name}-*"
+    run "sv 1 /service/delayed_job_#{runit_name}"
   end
 
   task :stop do
-    run "sv stop /service/webclient-*"
-    run "sv stop /service/delayed_job_webclient"
+    run "sv stop /service/#{runit_name}-*"
+    run "sv stop /service/delayed_job_#{runit_name}"
   end
 
   task :use_subdir do
@@ -115,7 +115,7 @@ namespace :deploy do
     user = `whoami`
     body = %Q[From: obs-webui-deploy@suse.de
 To: #{deploy_notification_to.join(", ")}
-Subject: obs-webui deployed by #{user}
+Subject: obs-#{runit_name} deployed by #{user}
 
 Git log:
 #{diff_log}]

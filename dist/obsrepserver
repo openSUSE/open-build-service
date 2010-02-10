@@ -65,7 +65,8 @@ case "$1" in
                 if test $? = 0; then
 			touch "$rundir"/bs_repserver.restart
 		else
-			$0 stop &&  $0 start
+			$0 stop
+			$0 start
 		fi
 		rc_status
 	;;

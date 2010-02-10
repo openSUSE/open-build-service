@@ -1,4 +1,3 @@
-
 class Person < ActiveXML::Base
   default_find_parameter :login
 
@@ -40,19 +39,15 @@ class Person < ActiveXML::Base
 
   def add_watched_project(name)
     return nil unless name
-    
     add_element 'watchlist' unless has_element? :watchlist
     watchlist.add_element 'project', 'name' => name
-    
     logger.debug "user '#{login}' is now watching project '#{name}'"
   end
 
   def remove_watched_project(name)
     return nil unless name
-    return nil unless has_element? :watchlist
-
+    return nil unless watches? name
     watchlist.delete_element "project[@name='#{name}']"
-    
     logger.debug "user '#{login}' removes project '#{name}' from watchlist"
   end
 

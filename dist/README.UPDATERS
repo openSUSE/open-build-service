@@ -20,7 +20,12 @@ For Updaters to OBS 1.7
     # cd /srv/www/obs/api/
     # RAILS_ENV="production" rake db:migrate
 
-3) Enable the new backend services
+  and
+
+    # cd /srv/www/obs/webui/
+    # RAILS_ENV="production" rake db:migrate
+
+3) Enable the new services
 
   In case you use the package signing, you need to run the new bs_signer 
   process. This has been split out of bs_repserver for better scalability.
@@ -35,6 +40,26 @@ For Updaters to OBS 1.7
     # insserv obswarden
     # rcobswarden start
 
+  The experimental new obsserver daemon can optionally be started and be used
+  for automatic file downloads (or own source services)
+
+    # insserv obsservice
+    # rcobsservice start
+
+  To update api and webui informations, you need to start the following processes
+
+    # insserv obsapidelayed
+    # insserv obswebuidelayed
+    # rcobsapidelayed start
+    # rcobswebuidelayed start
+
+  By default, you should *NOT* start the following services. These are intended
+  to autoconfigure services on the OBS Appliance image based on existing LVM
+  volumes and your local network setup. They will replace local configuration
+  files on each boot.
+
+    # obsstoragesetup
+    # obsapisetup
 
 For Updaters from OBS 0.9.x releases
 ====================================

@@ -475,9 +475,10 @@ sub addrev {
 
   # send out hermes notification
   BSHermes::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
+  $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   BSHermes::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
                                              oldversion => $rev_old->{'version'}, newversion => $version, user => $user, comment => $comment})
-    unless $rev_old and $version eq $rev_old->{'version'};
+    if $version ne $rev_old->{'version'};
 
   # add missing data to complete the revision object
   $rev->{'project'} = $projid;
@@ -1087,16 +1088,18 @@ sub lsrev_expanded {
 # add missing target information to linkinfo
 sub linkinfo_addtarget {
   my ($rev, $linkinfo) = @_;
-  die("linkinfo_addtarget: linkinfo contains no lsrcmd5?\n") unless $linkinfo->{'lsrcmd5'};
-  my $files = lsrev({%$rev, 'srcmd5' => $linkinfo->{'lsrcmd5'}});
+  my $lsrcmd5 = $linkinfo->{'lsrcmd5'} || $rev->{'srcmd5'};
+  my $files = lsrev({%$rev, 'srcmd5' => $lsrcmd5});
   die("linkinfo_addtarget: not a link?\n") unless $files->{'_link'};
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
-  my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
-  $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $projid;
-  $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $packid;
-  $linkinfo->{'rev'} = $l->{'rev'} if $l->{'rev'};
-  $linkinfo->{'baserev'} = $l->{'baserev'} if $l->{'baserev'};
+  my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
+  if ($l) {
+    $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $projid;
+    $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $packid;
+    $linkinfo->{'rev'} = $l->{'rev'} if $l->{'rev'};
+    $linkinfo->{'baserev'} = $l->{'baserev'} if $l->{'baserev'};
+  }
 }
 
 sub findlastworkinglink {
@@ -1532,6 +1535,18 @@ sub getprojpack {
 	    # get build dependency info
             my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
 	    data2utf8($d);
+            for my $k (keys %{$d||{}}) {
+              # allow only a subset of ascii characters to avoid breaking Strctured xml parser
+              if ( ref($d->{$k}) eq "ARRAY" ) {
+                for (@{$d->{$k}}) {
+                  $_ =~ s/[\x00-\x19]/_/g;
+                  $_ =~ s/[\x7F-\xFF]/_/g;
+                }
+              }else{
+                $d->{$k} =~ s/[\x00-\x19]/_/g;
+                $d->{$k} =~ s/[\x7F-\xFF]/_/g;
+              };
+            }
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
@@ -2071,13 +2086,17 @@ sub getfilelist {
       %$rev = %lrev;
       $rev->{'rev'} = $rev->{'srcmd5'};
     } else {
-      delete $lrev{'srcmd5'} if !ref($lfiles) && $lrev{'srcmd5'} && ! -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
-      $li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'};
-      $li->{'error'} = $lfiles unless ref $lfiles;
-      $li->{'lsrcmd5'} ||= $rev->{'srcmd5'};
-      if ($cgi->{'lastworking'}) {
-        my $lastworking = findlastworkinglink($rev);
-        $li->{'lastworking'} = $lastworking if $lastworking;
+      if (ref $lfiles) {
+        $li->{'xsrcmd5'} = $lrev{'srcmd5'};
+      } else {
+	# link is broken
+	$li->{'error'} = $lfiles;
+	# set xsrcmd5 if we have a link error file
+	$li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'} && -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
+	if ($cgi->{'lastworking'}) {
+	  my $lastworking = findlastworkinglink($rev);
+	  $li->{'lastworking'} = $lastworking if $lastworking;
+	}
       }
     }
   }
@@ -2109,16 +2128,8 @@ sub getfilelist {
     }
   }
   if (%$li) {
-    linkinfo_addtarget($rev, $li) if $li->{'lsrcmd5'};
+    linkinfo_addtarget($rev, $li);
     $ret->{'linkinfo'} = $li;
-    # fill compatiblity elements, to be removed...
-    $ret->{'tproject'} = $li->{'project'};
-    $ret->{'tpackage'} = $li->{'package'};
-    $ret->{'trev'} = $li->{'rev'} if $li->{'rev'};
-    $ret->{'tsrcmd5'} = $li->{'srcmd5'} if $li->{'srcmd5'};
-    $ret->{'lsrcmd5'} = $li->{'lsrcmd5'} if $li->{'lsrcmd5'};
-    $ret->{'xsrcmd5'} = $li->{'xsrcmd5'} if $li->{'xsrcmd5'};
-    $ret->{'error'} = $li->{'error'} if $li->{'error'};
   }
   $ret->{'entry'} = \@res;
   return ($ret, $BSXML::dir);
@@ -2492,17 +2503,21 @@ sub integratelink {
 
   if ($nlisbranch) {
     # we linked/branched a branch. expand.
-    my %xrev = (%$rev, 'linkrev' => 'base');
-    lsrev_expanded(\%xrev);
+    #my %xrev = (%$rev, 'linkrev' => 'base');
+    my %xrev = %$rev;
+    my $linkinfo = {};
+    lsrev_expanded(\%xrev, $linkinfo);
     my %oxrev = (%$orev, 'linkrev' => $xrev{'srcmd5'});
     $ofiles = lsrev_expanded(\%oxrev);
     copyfiles($projid, $packid, $oprojid, $opackid, $ofiles);
     # find new base
-    if ($xrev{'srcmd5'} ne $nl->{'baserev'}) {
+    if ($linkinfo->{'srcmd5'} ne $nl->{'baserev'}) {
       # update base rev
-      $nl->{'baserev'} = $xrev{'srcmd5'};
+      $nl->{'baserev'} = $linkinfo->{'srcmd5'};
       $nlchanged = 1;
     }
+    # delete everything but the link
+    delete $files->{$_} for grep {$_ ne '_link'} keys %$files;
   }
 
   if ($lisbranch && !$nlisbranch) {
@@ -2546,7 +2561,7 @@ sub integratelink {
   if ($nlchanged) {
     mkdir_p($uploaddir);
     writexml("$uploaddir/$$", undef, $nl, $BSXML::link);
-    $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link')
+    $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
   }
   for (sort keys %$ofiles) {
     next if $dontcopy{$_};
@@ -2752,6 +2767,8 @@ sub sourcebranch {
   my $rev = addrev($projid, $packid, $lfiles, $user, $comment);
   delete $rev->{'project'};
   delete $rev->{'package'};
+  BSHermes::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
+                                             user => $cgi->{'user'}});
   return ($rev, $BSXML::revision);
 }
 

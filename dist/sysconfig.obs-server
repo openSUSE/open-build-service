@@ -21,14 +21,40 @@ OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
 ## Path:        Applications/OBS
 ## Description: The base for OBS communucation directory
 ## Type:        string
-## Default:     "/srv/obs/run"
+## Default:     ""
 ## Config:      OBS
-OBS_RUN_DIR="/srv/obs/run"
+#
+# An empty dir will lead to the fall back directory, typically /src/obs/run
+#
+OBS_RUN_DIR=""
 
 ## Path:        Applications/OBS
 ## Description: The base for OBS logging directory
 ## Type:        string
-## Default:     "/srv/obs/log"
+## Default:     ""
 ## Config:      OBS
-OBS_LOG_DIR="/srv/obs/log"
+#
+# An empty dir will lead to the fall back directory, typically /src/obs/log
+#
+OBS_LOG_DIR=""
+
+## Path:        Applications/OBS
+## Description: Automatically setup storage system for OBS server and api
+## Type:        ("yes" | "no")
+## Default:     "no"
+## Config:      OBS
+#
+# This is usally only enabled on the OBS Appliance
+#
+OBS_STORAGE_AUTOSETUP="no"
+
+## Path:        Applications/OBS
+## Description: Automatically setup api and webui for OBS server, be warned, this will replace config files !
+## Type:        ("yes" | "no")
+## Default:     "no"
+## Config:      OBS
+#
+# This is usally only enabled on the OBS Appliance
+#
+OBS_API_AUTOSETUP="no"
 

@@ -11,7 +11,7 @@
 @import url(https://static.opensuse.org/c/css/common/basemod_opensuse.css);
 @import url(https://static.opensuse.org/c/css/yaml/screen/content_default.css);
 @import url(https://static.opensuse.org/c/css/common/contentmod_opensuse.css);
-@import url(https://static.opensuse.org/hosts/build.o.o/css/contentadd_style.css);
+@import url(contentadd_style.css);
 @import url(https://static.opensuse.org/c/css/common/opensuse_boxes.css);
 /* @import url(https://static.opensuse.org/c/css/common/print/print_003.css); */
 @import url(https://static.opensuse.org/hosts/build.o.o/css/patch.css); /* overrides old styles */

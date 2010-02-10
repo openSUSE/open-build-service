@@ -143,8 +143,6 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --id        : worker id
 
-       --srcserver : define source server to be used
-
        --reposerver: define reposerver, can be used multiple times
 
        --arch      : define hostarch (overrides 'uname -m')
@@ -220,6 +218,7 @@ while (@ARGV) {
     next;
   }
   if ($ARGV[0] eq '--srcserver') {
+    # default value used if buildinfo does not contain srcserver element
     shift @ARGV;
     $srcserver = shift @ARGV;
     next;
@@ -357,6 +356,7 @@ if ($justbuild) {
     die("not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
   }
   $| = 1;
+
   dobuild($buildinfo);
   exit(0);
 }
@@ -507,9 +507,10 @@ sub getsources {
 
   my @meta;
   push @meta, "$buildinfo->{'srcmd5'}  $buildinfo->{'package'}";
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
 
   my $res = BSRPC::rpc({
-    uri => "$srcserver/getsources",
+    uri => "$server/getsources",
     directory => $dir,
     timeout => $gettimeout,
     withmd5 => 1,
@@ -541,7 +542,7 @@ sub getsources {
     $idir = "$dir/images/$idir";
     mkdir_p($idir);
     my $res = BSRPC::rpc({
-      uri => "$srcserver/getsources",
+      uri => "$server/getsources",
       directory => $idir,
       timeout => $gettimeout,
       withmd5 => 1,
@@ -1123,7 +1124,8 @@ sub dobuild {
     @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'path'} || []};
     unshift @configpath, "path=$projid/$repoid" unless @configpath;
   }
-  my $config = BSRPC::rpc("$srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  my $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
@@ -1196,6 +1198,9 @@ sub dobuild {
       print "build succeeded, but old build had same result !\n";
       return 2;
     }
+  }elsif ($ret == 768) {
+    print "I am a bad build host, fix me!\n";
+    return 3;
   }
   if ($ret) {
     print "build failed\n";
@@ -1473,7 +1478,8 @@ if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'build
 rename('job.new', 'job') || die("rename job.new job: $!\n");
 
 if ($hostcheck) {
-  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", 'precheck', $buildroot)) {
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  if (system($hostcheck, '--srcserver', $server, "$statedir/job", 'precheck', $buildroot)) {
     unlink('job');
     die("400 cannot build this package\n");
   }
@@ -1543,7 +1549,8 @@ if (! -s "$buildroot/.build.log") {
 
 if ($hostcheck) {
   print "running post-build host check\n";
-  if (system($hostcheck, '--srcserver', $srcserver, "$statedir/job", $ex ? 'failed' : 'succeeded', "$buildroot/.build.log")) {
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  if (system($hostcheck, '--srcserver', $server, "$statedir/job", $ex ? 'failed' : 'succeeded', "$buildroot/.build.log")) {
     print "post-build host check failed\n";
     $ex = 3;
   }

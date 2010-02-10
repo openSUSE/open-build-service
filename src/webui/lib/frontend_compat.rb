@@ -18,13 +18,12 @@ class FrontendCompat
       :method => "POST", :data => ""
   end
 
-  #  trigger rebuild
   #  opt takes keys: project(needed), repository, arch
   #  missing project raises RuntimeError
-  def rebuild( opt={} )
+  def cmd( command, opt={} )
     raise RuntimeError, "project name missing" unless opt.has_key? :project
     logger.debug "--> rebuild: #{opt.inspect}"
-    path = "#{@url_prefix}/build/#{opt[:project]}?cmd=rebuild"
+    path = "#{@url_prefix}/build/#{opt[:project]}?cmd=#{command}"
     opt.delete :project
 
     valid_opts = %(project package repository arch code)
@@ -51,7 +50,7 @@ class FrontendCompat
     path = "#{@url_prefix}/source"
     path += "/#{opt[:project]}" if opt[:project]
     path += "/#{opt[:package]}" if opt[:project] && opt[:package]
-    path += "/#{opt[:filename]}" if opt[:filename]
+    path += URI.escape("/#{opt[:filename]}") if opt[:filename]
     transport.direct_http URI("https://#{path}"),
       :method => "PUT", :data => data, :timeout => 500
   end
