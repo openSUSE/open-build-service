@@ -3600,6 +3600,7 @@ while(1) {
     next;
   }
 
+  mkdir_p("$reporoot/$prp/$myarch");
   my $bconf = getconfig($myarch, $prpsearchpath{$prp});
   if (!$bconf) {
     # see if it is caused by a remote error
@@ -3636,7 +3637,6 @@ while(1) {
     next;
   }
 
-  mkdir_p("$reporoot/$prp/$myarch");
   set_repo_state($prp, "scheduling");
 
   my $packs = $projpacks->{$projid}->{'package'} || {};
