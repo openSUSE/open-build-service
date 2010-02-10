@@ -1535,6 +1535,18 @@ sub getprojpack {
 	    # get build dependency info
             my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
 	    data2utf8($d);
+            for my $k (keys %{$d||{}}) {
+              # allow only a subset of ascii characters to avoid breaking Strctured xml parser
+              if ( ref($d->{$k}) eq "ARRAY" ) {
+                for (@{$d->{$k}}) {
+                  $_ =~ s/[\x00-\x19]/_/g;
+                  $_ =~ s/[\x7F-\xFF]/_/g;
+                }
+              }else{
+                $d->{$k} =~ s/[\x00-\x19]/_/g;
+                $d->{$k} =~ s/[\x7F-\xFF]/_/g;
+              };
+            }
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
