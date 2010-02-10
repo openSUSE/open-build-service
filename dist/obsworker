@@ -93,10 +93,9 @@ fi
 if [ -f /etc/buildhost.config ];then
 	. /etc/buildhost.config
 fi
-if grep ^flags /proc/cpuinfo | grep -q " vmx " ; then
+if [ -e /dev/kvm ] ; then
 	vmopt=--kvm
-fi
-if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
+elif [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
 	vmopt=--xen
 fi
 

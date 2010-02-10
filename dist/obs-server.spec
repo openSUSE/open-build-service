@@ -21,6 +21,7 @@ Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      /var/tmp/%name-root
 # git clone git://gitorious.org/opensuse/build-service.git; cd build-service; git submodule init; git submodule update; cd -; tar cfvj obs-server-1.6.85.tar.bz2 --exclude=.git\* build-service-1.6.85/
 Source:         obs-server-%version.tar.bz2
+Patch:          1.7_BRANCH.diff
 Autoreqprov:    on
 BuildRequires:  python-devel
 BuildRequires:  obs-common
@@ -154,6 +155,7 @@ Authors:       Susanne Oberhauser, Martin Mohring
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n build-service-%version
+%patch -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
@@ -450,7 +452,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /var/adm/fillup-templates/sysconfig.obs-worker
 /etc/init.d/obsworker
+/etc/init.d/obsstoragesetup
 /usr/sbin/rcobsworker
+/usr/sbin/rcobsstoragesetup
+# intentionally packaged in server and api package
+/var/adm/fillup-templates/sysconfig.obs-server
 
 %files -n obs-api
 %defattr(-,root,root)
