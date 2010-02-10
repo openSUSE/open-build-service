@@ -73,7 +73,7 @@
     <tbody>
       <% i = 0 %>
       <% @packages.each do |p| %>
-      <%= (i%2==1) ? "<tr class='alternate1' valign='top'>" : "<tr class='alternate2' valign='top'>" %>
+      <tr class='<% if i%2 == 1 %>alternate1<% else %>alternate2<% end %>' valign='top'>
           <% i += 1 %>
           <% shortname = p['name']
           if shortname.length > 22

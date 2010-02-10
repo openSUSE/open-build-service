@@ -9,6 +9,7 @@ setup_buildresult_trigger
 
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <%= stylesheet_link_tag "local/attribute.css" %>
 <% end %>
 
 
@@ -44,9 +45,11 @@ setup_buildresult_trigger
       </tr>
     </thead>
     <tbody>
+      <% i = 0 %>
       <% @current_requests.each do |req| %>
-        <tr>
-          <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
+         <tr class='<% if i%2 == 1 %>alternate1<% else %>alternate2<% end %>' valign='top'>
+          <% i += 1 %>
+           <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
           <td><%= req.action.data.attributes["type"] %></td>
           <td>
             <%    if req.action.has_element? :source -%>
