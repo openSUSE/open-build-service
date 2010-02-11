@@ -194,15 +194,15 @@ sub expandproduct {
       open(STDERR, '>&STDOUT');
       $| = 1;
       exec("./bs_productconvert", "$dir/$prod", $odir, $projid);
-      die("bs_productconvert: $!\n");
+      die("500 bs_productconvert: $!\n");
     }
-    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+    waitpid($pid, 0) == $pid || die("500 waitpid $pid: $!\n");
     if ($?) {
       my $s = readstr($olog);
       warn("bs_productconvert failed: $?\n");
       BSUtil::cleandir($dir);
       rmdir($dir);
-      die($s) if $fail;
+      die("400 $s") if $fail;
       return undef;
     }
     my @out = sort(ls($odir));
