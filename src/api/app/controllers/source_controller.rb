@@ -814,11 +814,9 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=createpatchinfo
   def index_project_createpatchinfo
+    name=""
     if params[:name]
       name=params[:name] if params[:name]
-    else
-      # FIXME, find source file name
-      name="test"
     end
     pkg_name = "_patchinfo:#{name}"
     patchinfo_path = "#{request.path}/#{pkg_name}"
@@ -840,6 +838,9 @@ class SourceController < ApplicationController
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
       prj.db_packages << pkg
       Package.find(pkg_name, :project => params[:project]).save
+      if name==""
+        name=pkg_name
+      end
     else
       # shall we do a force check here ?
     end
