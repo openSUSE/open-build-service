@@ -710,6 +710,9 @@ class SourceController < ApplicationController
     if not params[:update_project_attribute]
       params[:update_project_attribute] = "OBS:UpdateProject"
     end
+    if not params[:attribute]
+      params[:attribute] = "OBS:Maintained"
+    end
 
     # permission check
     unless @http_user.can_create_project?(mparams[:target_project])
@@ -719,11 +722,6 @@ class SourceController < ApplicationController
     end
 
     # find packages
-    if not params[:attribute]
-      render_error :status => 403, :errorcode => 'parameter_missing',
-         :message => "attribute parameter missing"
-      return
-    end
     at = AttribType.find_by_name(params[:attribute])
     if not at
       render_error :status => 403, :errorcode => 'not_found',
@@ -734,6 +732,11 @@ class SourceController < ApplicationController
       @packages = DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] )
     else
       @packages = DbPackage.find_by_attribute_type( at, params[:package] )
+    end
+    unless @packages.length > 0
+      render_error :status => 403, :errorcode => "not_found",
+        :message => "no packages could get found"
+      return
     end
 
     #create branch project
