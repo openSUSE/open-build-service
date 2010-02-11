@@ -33,10 +33,10 @@ class ProjectController < ApplicationController
 
   def list(mode=:without_homes)
     filterstring = params[:projectsearch] || params[:searchtext] || ''
-    # the api xpath engine cannot handle [ and ]
-    filterstring.sub!(/[\[\]]/, '')
+    # remove illegal xpath characters
+    filterstring.sub!(/[\[\]\n]/, '')
     filterstring.sub!(/[']/, '&apos;')
-    filterstring.sub!(/["]/, '&quot;') 
+    filterstring.sub!(/["]/, '&quot;')
     if !filterstring.empty?
       predicate = "contains(@name, '#{filterstring}')"
     else
