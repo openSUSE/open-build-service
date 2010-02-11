@@ -433,22 +433,22 @@ class PackageController < ApplicationController
     end
   end
 
-
   def save_modified_file
     project = params[:project]
     package = params[:package]
-    filename = params[:filename]
-    file = params[:file]
     if request.method != :post
       flash[:warn] = "Saving file failed because this was no POST request. " +
         "This probably happened because you were logged out in between. Please try again."
       redirect_to :action => :show, :project => project, :package => package and return
     end
+    required_parameters(params, [:project, :package, :filename, :file])
+    filename = params[:filename]
+    file = params[:file]
     file.gsub!( /\r\n/, "\n" )
     begin
       frontend.put_file( file, :project => project, :package => package,
         :filename => filename )
-      flash[:note] = "Successfully saved file."
+      flash[:note] = "Successfully saved file #{filename}"
     rescue Timeout::Error => e
       flash[:error] = "Timeout when saving file. Please try again."
     end
@@ -458,7 +458,6 @@ class PackageController < ApplicationController
   def rawlog
     valid_http_methods :get
     headers['Content-Type'] = 'text/plain'
-
     render :text => proc { |response, output| 
       maxsize = 1024 * 256
       offset = 0

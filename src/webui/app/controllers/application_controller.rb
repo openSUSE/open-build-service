@@ -16,6 +16,7 @@ class ApplicationController < ActionController::Base
   filter_parameter_logging :password
 
   class InvalidHttpMethodError < Exception; end
+  class MissingParameterError < Exception; end
   
   def min_votes_for_rating
     MIN_VOTES_FOR_RATING
@@ -194,6 +195,14 @@ class ApplicationController < ActionController::Base
     methods.map {|x| x.to_s.downcase.to_s}
     unless methods.include? request.method
       raise InvalidHttpMethodError, "Invalid HTTP Method: #{request.method.to_s.upcase}"
+    end
+  end
+
+  def required_parameters(params, parameters)
+    parameters.each do |parameter|
+      unless params.include? parameter.to_s
+        raise MissingParameterError, "Required Parameter #{parameter} missing"
+      end
     end
   end
 
