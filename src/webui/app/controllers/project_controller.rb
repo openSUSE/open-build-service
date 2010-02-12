@@ -474,7 +474,7 @@ class ProjectController < ApplicationController
     if targetname == "images"
        prjconf = frontend.get_source(:project => @project, :filename => '_config')
        unless prjconf =~ /^Type:/
-         prjconf << "\n%if %_repository == images\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n"
+         prjconf "%if %_repository == images\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
          frontend.put_file(prjconf, :project => @project, :filename => '_config')
        end
     end
