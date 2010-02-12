@@ -3571,7 +3571,11 @@ while(1) {
       killbuilding($prp);
       prpfinished($prp);
       # now that :repo is gone we can remove the directory
-      rmdir("$reporoot/$prp/$myarch") || die("$reporoot/$prp/$myarch: $!\n");
+      while(!rmdir("$reporoot/$prp/$myarch")) {
+        die("$reporoot/$prp/$myarch: $!\n") unless -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
+        print "rep server created dirty file $reporoot/$prp/$myarch/:schedulerstate.dirty, retry ...\n";
+        unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+      }
       # XXX this should be rewritten if :repoinfo lives somewhere else
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if (!$repo) {
@@ -3582,8 +3586,6 @@ while(1) {
 	  $others = 1;
 	}
 	if (!$others) {
-	  unlink("$reporoot/$prp/$myarch/:schedulerstate");
-	  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty");
 	  unlink("$reporoot/$prp/:repoinfo");
 	  unlink("$reporoot/$prp/.finishedlock");
 	  rmdir("$reporoot/$prp");
