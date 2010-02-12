@@ -297,7 +297,7 @@ class PackageController < ApplicationController
     if !file.blank?
       # we are getting an uploaded file
       filename = file.original_filename if filename.blank?
-    elsif not file_url.empty?
+    elsif not file_url.blank?
       # we have a remote file uri
       begin
         start = Time.now
