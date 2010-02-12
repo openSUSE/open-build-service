@@ -468,13 +468,16 @@ class ProjectController < ApplicationController
       return
     end
 
-    if platform.blank?
-      flash[:error] = "Please select a target platform."
-      redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
-      return
-    end
-
     @project.add_repository :reponame => targetname, :platform => platform, :arch => arch
+
+    # FIXME: will be cleaned up after implementing FATE #308899
+    if targetname == "images"
+       prjconf = frontend.get_source(:project => @project, :filename => '_config')
+       unless prjconf =~ /^Type:/
+         prjconf << "\n%if %_repository == images\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n"
+         frontend.put_file(prjconf, :project => @project, :filename => '_config')
+       end
+    end
 
     begin
       if @project.save

@@ -79,10 +79,13 @@ module ProjectHelper
 
     btn_to_opt = {
       :targetname => opt[:reponame],
-      :platform => reponame,
       :project => opt[:project],
       :action => opt[:action]
     }
+
+    unless reponame == ""
+      btn_to_opt[:platform] = reponame
+    end
 
     opt[:arch].each do |arch|
       btn_to_opt["arch[#{arch}]"] = ""
