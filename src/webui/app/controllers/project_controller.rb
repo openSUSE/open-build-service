@@ -461,11 +461,12 @@ class ProjectController < ApplicationController
       return
     end
 
-    if platform.blank?
-      flash[:error] = "Please select a target platform."
-      redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
-      return
-    end
+# It is allowed to have no repository as base. kiwi packages specifies their own.
+#    if platform.blank?
+#      flash[:error] = "Please select a target platform."
+#      redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
+#      return
+#    end
 
     @project.add_repository :reponame => targetname, :platform => platform, :arch => arch
 
