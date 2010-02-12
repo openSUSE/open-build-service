@@ -1135,7 +1135,7 @@ if ( !$ChangesFile || ! -e $ChangesFile ) {
     $ChangesFile = "$1/release.changes";
   };
 };
-if ( -e $ChangesFile ) {
+if ( defined($ChangesFile) && -e $ChangesFile ) {
   my $fn="$outdir/_product:$product->{name}-release/$product->{name}-release.changes";
   system( "cp", $ChangesFile, $fn) && die ("Unable to copy changes file $ChangesFile to $fn");
 }
