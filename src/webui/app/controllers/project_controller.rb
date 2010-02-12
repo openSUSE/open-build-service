@@ -317,24 +317,17 @@ class ProjectController < ApplicationController
   end
 
   def save_new
-    @namespace = params[:ns]
-    @project_title = params[:title]
-    @project_description = params[:description]
-    @new_project_name = params[:name]
-    if params[:ns]
-       project_name = params[:ns].strip + ":" + @new_project_name.strip
-    else
-       project_name = @new_project_name.strip
+    if params[:name].blank? || !valid_project_name?( params[:name] )
+      flash[:error] = "Invalid project name '#{params[:name]}'."
+      redirect_to :action => "new", :ns => params[:ns] and return
     end
 
-    if !valid_project_name? project_name
-      flash.now[:error] = "Invalid project name '#{project_name}'."
-      render :action => "new" and return
-    end
+    project_name = params[:name].strip
+    project_name = params[:ns].strip + ":" + project_name.strip if params[:ns]
 
     if Project.exists? project_name
-      flash.now[:error] = "Project '#{project_name}' already exists."
-      render :action => "new" and return
+      flash[:error] = "Project '#{project_name}' already exists."
+      redirect_to :action => "new", :ns => params[:ns] and return
     end
 
     Person.find( session[:login] )
