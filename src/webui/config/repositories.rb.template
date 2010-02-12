@@ -90,6 +90,13 @@ REPOSITORY_ADD_GROUPS = [
        :reponame => "xUbuntu_6.06",
        :repo => 'openSUSE.org:Ubuntu:6.06/standard',
        :arch => [:i586] },
+      # WARNING: this one is special, it implicit adds also a type to projectconfig !
+      # FIXME: will be cleaned up after implementing FATE #308899
+      {:title => "KIWI image build", 
+       :reponame => "images",
+       :repo => '',
+       :arch => [:i586, :x86_64],
+       :comment => "to be used for appliance and product builds with kiwi" },
     ]
   }
 ]
