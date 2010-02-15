@@ -252,7 +252,7 @@ our $productdesc = [
                'flag',
             ]],
             [ 'metadata' =>
-               [[ 'package' => 'name', 'medium', 'removearch' ]],
+               [[ 'package' => 'name', 'medium', 'onlyarch', 'removearch' ]],
                [[ 'file' => 'name' ]],
             ],
          ]],

@@ -358,21 +358,25 @@ sub createMetadata( $$$ )
 
     my @packages;
     my @files;
-    my $onlyarch;
-    my $removearch;
-    foreach my $requiredArch( @{$archSetList} ) {
-	my $ref = $requiredArch->{ref};
-	die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
-        $onlyarch .= "$archSets{$ref}->{productarch},";
-    };
     my $metadata_medium = "0";
 #    $metadata_medium = "1" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     foreach my $pack ( @{ $medium->{metadata}->{package} } ) {
+        my $onlyarch;
+        my $removearch;
         if ($pack->{removearch}){
           next if containsMyArch( $prodRef, $archSetList, $pack->{removearch} );
           $removearch = "$pack->{removearch},src,nosrc";
         }else{
           $removearch = "src,nosrc";
+        }
+        if (defined($pack->{onlyarch})) {
+          $onlyarch = $pack->{onlyarch};
+        } else {
+          foreach my $requiredArch( @{$archSetList} ) {
+              my $ref = $requiredArch->{ref};
+              die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
+              $onlyarch .= "$archSets{$ref}->{productarch},";
+          }
         }
 	push @packages, { name => $pack->{name}, 
 			  medium => $metadata_medium, 
