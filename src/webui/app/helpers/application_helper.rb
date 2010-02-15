@@ -93,7 +93,7 @@ module ApplicationHelper
   def get_random_sponsor_image
     sponsors = ["common/sponsors/sponsor_amd.png",
                 "common/sponsors/sponsor_b1-systems.png",
-                "common/sponsors/sponsor_ip-exchange.png"]
+                "common/sponsors/sponsor_ip-exchange2.png"]
     return sponsors[rand(sponsors.size)]
   end
 
@@ -133,4 +133,27 @@ module ApplicationHelper
     end
     super(source)
   end
+
+  def fuzzy_time_string(time)
+    diff = Time.now - Time.parse(time)
+    return "now" if diff < 60
+    return (diff/60).to_i.to_s + " min ago" if diff < 3600
+    return (diff/3600).to_i.to_s + ((diff/3600).to_i == 1 ? " hour ago" : " hours ago") if diff < 86400
+    return (diff/86400).to_i.to_s + ((diff/86400).to_i == 1 ? " day ago" : " days ago")
+  end
+
+  def setup_buildresult_trigger
+    content_for :ready_function do 
+      "setup_buildresult_trigger();"
+    end
+  end
+
+  def package_link(project, package)
+    out = "<span class='build_result_trigger'>"
+    out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
+    out += link_to project, :controller => :project, :action => "show", :project => project
+    out += " / " +  link_to(package, :controller => :package, :action => "show", :project => project, :package => package)
+    out += "</span>"
+  end
+
 end

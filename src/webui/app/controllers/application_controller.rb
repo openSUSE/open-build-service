@@ -4,7 +4,8 @@
 require 'common/activexml/transport'
 
 class ApplicationController < ActionController::Base
-  
+
+  before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   # TODO: currently set for all pages but index, remove when we open up anon access
   before_filter :require_login
@@ -15,6 +16,7 @@ class ApplicationController < ActionController::Base
   filter_parameter_logging :password
 
   class InvalidHttpMethodError < Exception; end
+  class MissingParameterError < Exception; end
   
   def min_votes_for_rating
     MIN_VOTES_FOR_RATING
@@ -101,7 +103,7 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_file_name? name
-    name =~ /^[-\w_\.+ ]+$/
+    name =~ /^[-\w_+~ ][-\w_\.+~ ]*$/
   end
 
   def valid_role_name? name
@@ -109,7 +111,7 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_platform_name? name
-    name =~ /^\w[-_\.\w+]*$/
+    name =~ /^\w[-_\.\w&]*$/
   end
 
   def reset_activexml
@@ -196,8 +198,21 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def required_parameters(params, parameters)
+    parameters.each do |parameter|
+      unless params.include? parameter.to_s
+        raise MissingParameterError, "Required Parameter #{parameter} missing"
+      end
+    end
+  end
+
   def send_exception_mail?
     return !local_request? && !Rails.env.development? && ExceptionNotifier.exception_recipients && ExceptionNotifier.exception_recipients.length > 0
+  end
+
+  def instantiate_controller_and_action_names
+    @current_action = action_name
+    @current_controller = controller_name
   end
 
 end

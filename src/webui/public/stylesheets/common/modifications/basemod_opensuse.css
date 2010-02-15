@@ -17,9 +17,8 @@
 
 body {
     background: #fff;
-    font-size: small;
     min-width: 800px;
-/*    max-width: 1400px;*/
+    /*max-width: 1400px;*/
 }
 
 /* ----------------- */
@@ -40,12 +39,15 @@ body {
     border: 0;
     margin:0;
     padding:0;
+    width: 100%;
+    max-width: 129px;
 }
 #banner_green,
 #banner_orange,
-#banner_darkgrey {
+#banner_darkgrey,
+#banner_blue {
     position: relative;
-    float:right;
+    float: left;
     margin-bottom: 10px;
     width: 100%;
 }
@@ -80,10 +82,12 @@ body {
 #searchInput {
     width: 142px;
     border: 0;
+    background: #FFF;
     margin: 0 9px;
     padding: 0;
     min-height: 18px;
 }
+
 #page_actions {
     width:auto;
     position: relative;
@@ -110,7 +114,7 @@ body {
     float:right;
     display: inline;
     font-size: 85%;
-    text-align:right;
+    text-align: right;
 }
 #langsel.hide {
     display: none;
@@ -122,11 +126,21 @@ body {
 /* Content area formatting */
 /* ----------------------- */
 
+/* (en) Centering layout in old IE-versions */
+/* (de) Zentrierung des Layouts in alten IE-versionen */
+body {
+  text-align: center;
+}
+
+#page_margins {
+  text-align: left;
+}
+
 #main {
     color: #000;
     background: #fff;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
 } 
 
 /* left column */
@@ -139,20 +153,30 @@ body {
     color: #000;
     background: #fff;
 }
+
+#col2,
+#col2_content {
+  display:none;
+}
+
 /* right column */
 #col3 {
-    margin-left: 14em; 
+    margin-left: 14em;
+    margin-right: 10px;
     min-width: 20em;
 }
 #col3_content {
     margin-left: 10px;
     margin-right: 10px;
+    margin: 0;
     color: #000;
     background: #fff;
 }
 #contentarea {
-    margin-left: 4px;
-    margin-right: 4px;
+    position: relative; 
+    padding-left: 4px;
+    float: left;
+    width: 99.3%;
 }
 #page_footer {
     text-align: center !important;

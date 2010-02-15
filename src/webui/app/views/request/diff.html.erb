@@ -18,7 +18,7 @@
 <% end %>
 
 <p>
-  <%= render :partial => 'request_table', :locals => {:requests => @requests, :options => false, :by_me => false } %>
+  <%= render :partial => 'request_table', :locals => {:requests => [@request], :options => false, :by_me => false } %>
 </p>
 
 
@@ -36,24 +36,31 @@
 <% if !["accepted", "declined", "revoked"].include? @state and (@is_maintainer || @is_author) %>
 <div class="section">
   <h3>
-  <% if @is_maintainer && !@revoke_own%>
+  <% if @is_maintainer %>
     Do you want to accept or decline this request?
-  <% elsif @is_author && @revoke_own%>
+  <% elsif @is_author %>
     Do you want to revoke your request?
   <% end %>
   </h3>
 
   <% form_tag :action => "submitreq" do %>
     <b>Reason:</b>
-    <%= text_field_tag :reason, '' , :size => 80 %><br/>
+    <%= text_field_tag :reason, 'Reviewed ok' , :size => 80 %><br/>
     <%= hidden_field_tag( "id", @id) %>
-    <% if @is_maintainer && !@revoke_own %>
-      <%= submit_tag "Accept" %>
-      <%= submit_tag "Decline" %>
-    <% elsif @is_author && @revoke_own %>
-      <%= submit_tag "Revoke" %>
+    <% if @is_maintainer %>
+      <% linked = @target_pkg.linked_to if @target_pkg -%>
+      <% if linked and not linked.empty? and @request.action.data["type"] == "submit" -%>
+         <%= hidden_field_tag( "forward_project", linked[0]) %>	
+         <%= hidden_field_tag( "forward_package", linked[1]) %>		
+         <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
+      <% end -%>
+      <%= submit_tag "Accept", :name => 'accepted' %>
+      <%= submit_tag "Decline", :name => 'declined' %>
+    <% elsif @is_author %>
+      <%= submit_tag "Revoke", :name => 'revoked' %>
     <% end %>
   <% end %>
 </div>
 
 <% end %>
+

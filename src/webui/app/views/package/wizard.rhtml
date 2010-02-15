@@ -23,6 +23,8 @@
           text_area_tag("wizard[#{entry.name}]", entry.value)
         when "file":
           file_field_tag("wizard_files[#{entry.name}]")
+        when "url":
+          text_field_tag("wizard[#{entry.name}]", entry.value)
         when "select":
           options = []
           entry.each_option do |option|

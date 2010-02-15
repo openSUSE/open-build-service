@@ -19,9 +19,9 @@ ActionController::Routing::Routes.draw do |map|
   ### /person
 
   map.connect 'person/register', :controller => 'person', :action => 'register'
-  map.connect 'person/:login/_watchlist', :controller => 'person', :action => 'watchlist'
-  map.connect 'person/:login/_roles', :controller => 'person', :action => 'roleinfo'
-  map.connect 'person/:login', :controller => 'person', :action => 'userinfo'
+  map.connect 'person/:login/_watchlist', :controller => 'person', :action => 'watchlist', :login => /[^\/]*/
+  map.connect 'person/:login/_roles', :controller => 'person', :action => 'roleinfo', :login => /[^\/]*/
+  map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
 
   ### /result
 
@@ -120,21 +120,21 @@ ActionController::Routing::Routes.draw do |map|
 
   #Get objects tagged by user. (objects with tags)
   map.connect 'user/:user/tags/_projects', :controller => 'tag',
-    :action => 'get_tagged_projects_by_user'
+    :action => 'get_tagged_projects_by_user', :user => /[^\/]*/
   map.connect 'user/:user/tags/_packages', :controller => 'tag',
-    :action => 'get_tagged_packages_by_user'
+    :action => 'get_tagged_packages_by_user', :user => /[^\/]*/
 
   #Get tags by user.
   map.connect 'user/:user/tags/_tagcloud', :controller => 'tag',
-    :action =>  'tagcloud'
+    :action =>  'tagcloud', :user => /[^\/]*/
   #map.connect 'user/:user/tags', :controller => 'tag',
   #  :action => 'tagcloud', :distribution => 'raw'
 
   #Get tags for a certain object by user.
   map.connect 'user/:user/tags/:project', :controller => 'tag',
-    :action => 'tags_by_user_and_object', :project => /[^\/]*/
+    :action => 'tags_by_user_and_object', :project => /[^\/]*/, :user => /[^\/]*/
   map.connect 'user/:user/tags/:project/:package', :controller => 'tag',
-    :action => 'tags_by_user_and_object', :project => /[^\/]*/, :package => /[^\/]*/
+    :action => 'tags_by_user_and_object', :project => /[^\/]*/, :package => /[^\/]*/, :user => /[^\/]*/
 
 
   ### /statistics
@@ -293,7 +293,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/public/lastevents',
     :controller => 'public', :action => 'lastevents'
   map.connect '/public/person/:login/_watchlist', 
-    :controller => 'public', :action => 'watchlist'
+    :controller => 'public', :action => 'watchlist', :login => /[^\/]*/
   map.connect '/public/distributions',
     :controller => 'public', :action => 'distributions'
   map.connect '/public/binary_packages/:project/:package',

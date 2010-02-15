@@ -1,0 +1,20 @@
+<% @pagetitle = "Edit Raw Config for #{@project}" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :action => :show, :project => @project),
+  'Edit raw config'
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+<h2>Editing Raw Config for <%=h @project %></h2>
+
+<% form_tag :action => :save_meta do %>
+  <b>Config:</b><br/>
+  <%= text_area_tag "meta", @meta, :rows => 20, :width => "95%" %><br/>
+  <%= hidden_field_tag "project", @project.name %>
+  <p><%= submit_tag %></p>
+<% end %>
+

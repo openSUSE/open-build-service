@@ -710,6 +710,9 @@ class SourceController < ApplicationController
     if not params[:update_project_attribute]
       params[:update_project_attribute] = "OBS:UpdateProject"
     end
+    if not params[:attribute]
+      params[:attribute] = "OBS:Maintained"
+    end
 
     # permission check
     unless @http_user.can_create_project?(mparams[:target_project])
@@ -719,11 +722,6 @@ class SourceController < ApplicationController
     end
 
     # find packages
-    if not params[:attribute]
-      render_error :status => 403, :errorcode => 'parameter_missing',
-         :message => "attribute parameter missing"
-      return
-    end
     at = AttribType.find_by_name(params[:attribute])
     if not at
       render_error :status => 403, :errorcode => 'not_found',
@@ -734,6 +732,11 @@ class SourceController < ApplicationController
       @packages = DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] )
     else
       @packages = DbPackage.find_by_attribute_type( at, params[:package] )
+    end
+    unless @packages.length > 0
+      render_error :status => 403, :errorcode => "not_found",
+        :message => "no packages could get found"
+      return
     end
 
     #create branch project
@@ -814,11 +817,9 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=createpatchinfo
   def index_project_createpatchinfo
+    name=""
     if params[:name]
       name=params[:name] if params[:name]
-    else
-      # FIXME, find source file name
-      name="test"
     end
     pkg_name = "_patchinfo:#{name}"
     patchinfo_path = "#{request.path}/#{pkg_name}"
@@ -840,6 +841,9 @@ class SourceController < ApplicationController
       pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
       prj.db_packages << pkg
       Package.find(pkg_name, :project => params[:project]).save
+      if name==""
+        name=pkg_name
+      end
     else
       # shall we do a force check here ?
     end
@@ -969,7 +973,14 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=diff
   def index_package_diff
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified])
+    path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev])
+    forward_data path, :method => :post
+  end
+
+  # POST /source/<project>/<package>?cmd=linkdiff
+  def index_package_linkdiff
+    path = request.path
+    path << build_query_from_hash(params, [:rev, :unified, :linkrev])
     forward_data path, :method => :post
   end
 
@@ -992,7 +1003,7 @@ class SourceController < ApplicationController
     end
 
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand])
+    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
     forward_data path, :method => :post
   end
@@ -1002,7 +1013,7 @@ class SourceController < ApplicationController
     params[:user] = @http_user.login if @http_user
 
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    path << build_query_from_hash(params, [:cmd])
     forward_data path, :method => :post
   end
 
@@ -1144,7 +1155,7 @@ class SourceController < ApplicationController
     end
     Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}", nil
 
-    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name}
+    render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
   end
 
   def valid_project_name? name

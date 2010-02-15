@@ -134,6 +134,9 @@ password = foobar
       # cd /srv/www/obs/api/
       # sudo RAILS_ENV="production" rake db:migrate
 
+      # cd /srv/www/obs/webui/
+      # sudo RAILS_ENV="production" rake db:migrate
+
 3.2 Setup and configure lighttpd for the api and webui
 ======================================================
 

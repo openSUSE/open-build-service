@@ -1,10 +1,21 @@
+require 'project_status'
+require 'collection'
+require 'buildresult'
+include ActionView::Helpers::UrlHelper
+
 class ProjectController < ApplicationController
 
+  class NoChangesError < Exception; end
+
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
-    :trigger_rebuild, :edit, :save, :add_target_simple, :save_target, 
+    :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages,
-    :update_target, :edit_target, :show, :monitor]
+    :update_target, :edit_target, :show, :monitor, :edit_prjconf, :list_requests,
+    :meta, :edit_meta ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
+  before_filter :require_meta, :only => [:edit_meta, :meta ]
+  before_filter :load_current_requests, :only => [ :show, :list_requests ]
+
 
   def index
     redirect_to :action => 'list_public'
@@ -22,10 +33,10 @@ class ProjectController < ApplicationController
 
   def list(mode=:without_homes)
     filterstring = params[:projectsearch] || params[:searchtext] || ''
-    # the api xpath engine cannot handle [ and ]
-    filterstring.sub!(/[\[\]]/, '')
+    # remove illegal xpath characters
+    filterstring.sub!(/[\[\]\n]/, '')
     filterstring.sub!(/[']/, '&apos;')
-    filterstring.sub!(/["]/, '&quot;') 
+    filterstring.sub!(/["]/, '&quot;')
     if !filterstring.empty?
       predicate = "contains(@name, '#{filterstring}')"
     else
@@ -302,25 +313,21 @@ class ProjectController < ApplicationController
     render :partial => "search_package"
   end
 
+  def list_requests
+  end
+
   def save_new
-    @namespace = params[:ns]
-    @project_title = params[:title]
-    @project_description = params[:description]
-    @new_project_name = params[:name]
-    if params[:ns]
-       project_name = params[:ns].strip + ":" + @new_project_name.strip
-    else
-       project_name = @new_project_name.strip
+    if params[:name].blank? || !valid_project_name?( params[:name] )
+      flash[:error] = "Invalid project name '#{params[:name]}'."
+      redirect_to :action => "new", :ns => params[:ns] and return
     end
 
-    if !valid_project_name? project_name
-      flash.now[:error] = "Invalid project name '#{project_name}'."
-      render :action => "new" and return
-    end
+    project_name = params[:name].strip
+    project_name = params[:ns].strip + ":" + project_name.strip if params[:ns]
 
     if Project.exists? project_name
-      flash.now[:error] = "Project '#{project_name}' already exists."
-      render :action => "new" and return
+      flash[:error] = "Project '#{project_name}' already exists."
+      redirect_to :action => "new", :ns => params[:ns] and return
     end
 
     Person.find( session[:login] )
@@ -345,27 +352,6 @@ class ProjectController < ApplicationController
     redirect_to :action => 'new'
   end
 
-
-  def trigger_rebuild
-    if request.get?
-      # non ajax-request
-      if @project.save
-        flash[:note] = "Triggered rebuild"
-      else
-        flash[:error] = "Failed to trigger rebuild"
-      end
-      redirect_to :action => 'show', :project => params[:project]
-    else
-      # ajax-request
-      if @project.save
-        @message = "Triggered rebuild"
-      else
-        @message = "Failed to trigger rebuild"
-      end
-    end
-  end
-
-
   def save
     if ( !params[:title] )
       flash[:error] = "Title must not be empty"
@@ -382,7 +368,7 @@ class ProjectController < ApplicationController
       flash[:error] = "Failed to save project '#{@project}'"
     end
 
-    redirect_to :action => 'show', :project => @project
+    redirect_to :action => :show, :project => @project
   end
 
   def add_repository
@@ -468,13 +454,16 @@ class ProjectController < ApplicationController
       return
     end
 
-    if platform.blank?
-      flash[:error] = "Please select a target platform."
-      redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
-      return
-    end
-
     @project.add_repository :reponame => targetname, :platform => platform, :arch => arch
+
+    # FIXME: will be cleaned up after implementing FATE #308899
+    if targetname == "images"
+       prjconf = frontend.get_source(:project => @project, :filename => '_config')
+       unless prjconf =~ /^Type:/
+         prjconf = "%if %_repository == images\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+         frontend.put_file(prjconf, :project => @project, :filename => '_config')
+       end
+    end
 
     begin
       if @project.save
@@ -569,7 +558,7 @@ class ProjectController < ApplicationController
     @status_filter = []
     @avail_status_values.each { |s|
       if defaults || (params.has_key?(s) && params[s])
-	@status_filter << s
+        @status_filter << s
       end
     }
     
@@ -586,14 +575,14 @@ class ProjectController < ApplicationController
     @arch_filter = []
     @avail_arch_values.each { |s|
       if defaults || (params.has_key?('arch_' + s) && params['arch_' + s])
-	@arch_filter << s
+        @arch_filter << s
       end
     }
    
     @repo_filter = []
     @avail_repo_values.each { |s|
       if defaults || (params.has_key?('repo_' + s) && params['repo_' + s])
-	@repo_filter << s
+        @repo_filter << s
       end
     }
 
@@ -668,6 +657,32 @@ class ProjectController < ApplicationController
     return result
   end
 
+  # should be in the package controller, but all the helper functions to render the result of a build are in the project
+  def package_buildresult
+    @project = params[:project]
+    @package = params[:package]
+    @buildresult = Buildresult.find_cached( :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
+    @repohash = Hash.new
+    @statushash = Hash.new
+
+    return unless @buildresult
+    @buildresult.each_result do |result|
+      repo = result.repository
+      arch = result.arch
+
+      @repohash[repo] ||= Array.new
+      @repohash[repo] << arch
+
+      # package status cache
+      @statushash[repo] ||= Hash.new
+      @statushash[repo][arch] = Hash.new
+
+      stathash = @statushash[repo][arch]
+      result.each_status do |status|
+        stathash[status.package] = status
+      end
+    end
+  end
 
   def toggle_watch
     @user ||= Person.find( :login => session[:login] )
@@ -700,6 +715,231 @@ class ProjectController < ApplicationController
     frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
     flash[:note] = "Project Config successfully saved"
     redirect_to :action => :prjconf, :project => params[:project]
+  end
+
+  def save_meta
+    frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
+    flash[:note] = "Config successfully saved"
+    redirect_to :action => :show, :project => params[:project]
+  end
+
+  def clear_failed_comment
+    # TODO(Jan): put this logic in the Attribute model
+    transport ||= ActiveXML::Config::transport_for(:package)
+    params["package"].to_a.each do |p|
+      begin
+        transport.direct_http URI("/source/#{params[:project]}/#{p}/_attribute/OBS:ProjectStatusPackageFailComment"), :method => "DELETE"
+      rescue ActiveXML::Transport::ForbiddenError => e
+        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        flash[:error] = message
+        redirect_to :action => :status, :project => params[:project]
+        return
+      end
+    end
+    if params["package"].to_a.length > 1
+      flash[:note] = "Cleared comment for packages %s" % params[:package].to_a.join(',')
+    else
+      flash[:note] = "Cleared comment for package #{params[:package]}"
+    end
+    redirect_to :action => :status, :project => params[:project]
+  end
+
+  def edit_comment_form
+    @comment = params[:comment]
+    @project = params[:project]
+    @package = params[:package]
+    render :partial => "edit_comment_form"
+  end
+
+  def edit_comment
+    @project = params[:project]
+    @package = params[:package]
+    attr = Attribute.new(:project => params[:project], :package => params[:package])
+    attr.set('OBS', 'ProjectStatusPackageFailComment', params[:text])
+    result = attr.save
+    @result = result
+    if result[:type] == :error
+      @comment = params[:last_comment]
+    else
+      @comment = params[:text]
+    end
+    render :partial => "edit_comment"
+  end
+
+  def get_changes_md5(project, package)
+    dir = Directory.find_cached(:project => project, :package => package, :expand => "1")
+    return nil unless dir
+    changes = []
+    dir.each_entry do |e|
+      name = e.name.to_s
+      if name =~ /.changes$/
+        if name == package + ".changes"
+          return e.md5.to_s
+        end
+        changes << e.md5.to_s
+        puts e.inspect
+      end
+    end
+    if changes.size == 1
+      return changes[0]
+    end
+    logger.debug "can't find unique changes file: " + dir.dump_xml
+    raise NoChangesError, "no .changes file in #{project}/#{package}"
+  end
+  private :get_changes_md5
+
+  def changes_file_difference(project1, package1, project2, package2)
+    md5_1 = get_changes_md5(project1, package1)
+    md5_2 = get_changes_md5(project2, package2)
+    return md5_1 != md5_2
+  end
+  private :changes_file_difference
+
+  def status
+    status = Rails.cache.fetch("status_%s" % @project, :expires_in => 10.minutes) do
+      ProjectStatus.find(:project => @project)
+    end
+
+    all_packages = "All Packages" 
+    no_project = "No Project"
+    @current_develproject = params[:filter_devel] || all_packages
+    @ignore_pending = params[:ignore_pending] || false
+    @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
+
+    attributes = PackageAttribute.find(:namespace => 'OBS', 
+      :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
+    comments = Hash.new
+    attributes.data.find('//package//values').each do |p|
+      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+      p.each_element do |v| 
+        comments[p.parent['name']] = v.content
+      end
+    end
+
+    attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
+      :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
+    upstream_versions = Hash.new
+    attributes.data.find('//package//values').each do |p|
+      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+      p.each_element do |v|
+        upstream_versions[p.parent['name']] = v.content
+      end
+    end
+
+    attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
+      :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
+    upstream_urls = Hash.new
+    attributes.data.find('//package//values').each do |p|
+      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+      p.each_element do |v|
+        upstream_urls[p.parent['name']] = v.content
+      end
+    end
+
+    raw_requests = Rails.cache.fetch("requests_new", :expires_in => 5.minutes) do
+      Collection.find(:what => 'request', :predicate => "(state/@name='new')")
+    end
+
+    @requests = Hash.new
+    submits = Hash.new
+    raw_requests.each_request do |r|
+      id = Integer(r.data['id'])
+      @requests[id] = r
+      #logger.debug r.dump_xml + " " + (r.has_element?('action') ? r.action.data['type'] : "false")
+      if r.has_element?('action') && r.action.data['type'] == "submit"
+        target = r.action.target.data
+        key = target['project'] + "/" + target['package']
+        submits[key] ||= Array.new
+        submits[key] << id
+      end
+    end
+
+    @develprojects = Array.new
+
+    @packages = Array.new
+    status.each_package do |p|
+      currentpack = Hash.new
+      currentpack['name'] = p.name
+      currentpack['failedcomment'] = comments[p.name] if comments.has_key? p.name
+      newest = 0
+
+      p.each_failure do |f|
+        next if f.repo =~ /ppc/
+        next if f.repo =~ /staging/
+        next if f.repo =~ /snapshot/
+        next if newest > (Integer(f.time) rescue 0)
+        next if f.srcmd5 != p.srcmd5
+        currentpack['failedarch'] = f.repo.split('/')[1]
+        currentpack['failedrepo'] = f.repo.split('/')[0]
+        newest = Integer(f.time)
+        currentpack['firstfail'] = newest
+      end
+      
+      currentpack['problems'] = Array.new
+      currentpack['requests_from'] = Array.new
+      currentpack['requests_to'] = Array.new
+
+      key = @project.name + "/" + p.name
+      if submits.has_key? key
+        currentpack['requests_from'].concat(submits[key])
+      end
+
+      currentpack['version'] = p.version
+      if upstream_versions.has_key? p.name
+        upstream_version = upstream_versions[p.name]
+        if p.version < upstream_version
+          currentpack['upstream_version'] = upstream_version
+          currentpack['upstream_url'] = upstream_urls[p.name] if upstream_urls.has_key? p.name
+        end
+      end
+
+      currentpack['md5'] = p.srcmd5
+
+      if p.has_element? :develpack
+        @develprojects << p.develpack.proj
+        currentpack['develproject'] = p.develpack.proj
+        if (@current_develproject != p.develpack.proj or @current_develproject == no_project) and @current_develproject != all_packages
+          next
+        end
+        currentpack['develpackage'] = p.develpack.pack
+        key = "%s/%s" % [p.develpack.proj, p.develpack.pack]
+        if submits.has_key? key
+          currentpack['requests_to'].concat(submits[key])
+        end
+        currentpack['develmd5'] = p.develpack.package.srcmd5
+
+        if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
+          currentpack['problems'] << Rails.cache.fetch("dd_%s_%s" % [currentpack['md5'], currentpack['develmd5']]) do
+             begin
+               if changes_file_difference(@project.name, p.name, currentpack['develproject'], currentpack['develpackage'])
+                 'different_changes'
+               else
+                 'different_sources'
+               end
+             rescue NoChangesError => e
+               e.message
+             end
+          end
+        end
+      elsif @current_develproject != no_project
+        next if @current_develproject != all_packages
+      end
+
+      next if !currentpack['requests_from'].empty? and @ignore_pending
+      if @limit_to_fails
+        next if !currentpack['firstfail']
+      else
+        next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
+            !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+      end
+      @packages << currentpack
+    end
+
+    @develprojects.sort! { |x,y| x.downcase <=> y.downcase }.uniq!
+    @develprojects.insert(0, all_packages)
+    @develprojects.insert(1, no_project)
+
+    @packages.sort! { |x,y| x['name'] <=> y['name'] }
   end
 
   private
@@ -747,6 +987,9 @@ class ProjectController < ApplicationController
           " descriptive data and press the 'Create Project' button."
         redirect_to :action => :new, :project => "home:" + session[:login] and return
       end
+      # remove automatically if a user watches a removed project
+      @user ||= Person.find( :login => session[:login] )
+      @user.remove_watched_project params[:project] and @user.save if @user.watches? params[:project]
       unless request.xhr?
         flash[:error] = "Project not found: #{params[:project]}"
         redirect_to :controller => "project", :action => "list_public" and return
@@ -771,6 +1014,20 @@ class ProjectController < ApplicationController
       flash[:error] = "Project not found: #{params[:project]}" 
       redirect_to :controller => "project", :action => "list_public"
     end
+  end
+
+  def require_meta
+    begin
+      @meta = frontend.get_source(:project => params[:project], :filename => '_meta')
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Project _meta not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public"
+    end
+  end
+
+ def load_current_requests
+    predicate = "state/@name='new' and action/target/@project='#{@project}'"
+    @current_requests = Collection.find_cached :what => :request, :predicate => predicate, :expires_in => 5.minutes
   end
 
 end

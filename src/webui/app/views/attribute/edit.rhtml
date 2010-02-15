@@ -9,34 +9,25 @@
 -%>
 
 
-<%= title = @selected_attribute ? "<h2>Edit attribute '#{@selected_attribute}'</h2>" : "<h2>Add new attribute</h2>" %>
+<%= title = @selected_attribute_name ? "<h2>Edit attribute '#{@selected_attribute_name}'</h2>" : "<h2>Add new attribute</h2>" %>
 
 <div class="section">
 <% form_tag :action => "save" do %>
   <b>Attribute name:</b>
 
-<%   values = "" 
-     if @selected_attribute
-       opt = { :options => "<option selected>#{@selected_attribute}</option>" }
-       @attributes.each do |d|
-          if d.name == @selected_attribute
-            if d.has_element? :value
-              d.each do |f|
-                values += "#{f.to_s},"
-              end
-            end
-          end
-       end
-     else
-       options = ""
-       @attribute_list.each {|d| options += "<option>#{d.to_s}</option>"}
-       opt = { :options => options }
-     end
-%>
+    <% if @selected_attribute_name %>
+      <% values =  @selected_attribute_value %>
+      <%= hidden_field_tag( :attribute, @selected_attribute_name) %>
+    <% else
+      options = ""
+      values = ""
+      @attribute_list.each {|d| options += "<option>#{d.to_s}</option>"}
+      opt = { :options => options } %>
+    <%=  select_tag :attribute, opt %><br/>
+    <% end %>
 
-<%=  select_tag :attribute, opt %><br/>
   <b>Values (e.g. "bar,foo,..."):</b><br/>
-<%=  text_area_tag :values, values[0..values.length-2], :size => 50 %>
+<%=  text_area_tag :values, values, :size => 50 %>
 <%=  hidden_field_tag("project", @project.name) %>
 <%=  hidden_field_tag("package", @package) if @package %>
 <%=  submit_tag "Save attribute" %>

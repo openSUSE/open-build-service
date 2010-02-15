@@ -8,6 +8,7 @@ class Package < ActiveXML::Base
   #cache variables
   attr_accessor :my_pro
   attr_accessor :my_architectures
+  attr_accessor :my_linked
 
   #flags
   attr_accessor :build_flags
@@ -19,7 +20,6 @@ class Package < ActiveXML::Base
   attr_accessor :pf_updated
   attr_accessor :df_updated
   attr_accessor :uf_updated
-
 
   def initialize(*args)
     super(*args)
@@ -444,6 +444,31 @@ class Package < ActiveXML::Base
     else
       return false
     end
+  end
+
+  def linked_to
+    unless my_linked
+      begin
+	link =  Link.find( :project => project, :package => name)
+      rescue ActiveXML::Transport::NotFoundError
+      end
+      if link
+	if link.has_element? 'package'
+	  my_linked = [link.project, link.package]
+	else
+	  my_linked = [link.project, name]
+	end
+      else
+	my_linked = []
+      end
+    end
+    return my_linked
+  end
+
+  def self.current_rev(project, package)
+    dir = Directory.find( :project => project, :package => package )
+    return nil unless dir
+    return dir.rev
   end
 
   private

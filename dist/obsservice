@@ -41,28 +41,15 @@ else
 fi
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
+workdir="/var/tmp/obs_service"
 
 rc_reset
 case "$1" in
 	start)
 		echo -n "Initializing obsservice"
-		mkdir -p "$rundir" "$logdir"
-		chown obsrun:obsrun "$logdir" "$rundir"
-                # FIXME: not nice, this should receive a proper daemon handling, 
-                #        including real logging, pid file and startproc
-		startproc -l "$logdir"/src_service.log "$obsdir"/bs_service
-		rc_status -v
-
-		# FIXME:
-
-		# We'd need to wait for the sockets to come up, or for
-		# some other interaction between the server and the
-		# start script, or the server should fork itself into
-		# background _after_ the sockets are up and the server
-		# is reachable.
-
-		# until then a little ugly nap does the trick...
-		sleep 4
+		mkdir -p "$rundir" "$logdir" "$workdir"
+		chown obsrun:obsrun "$logdir" "$rundir" "$workdir"
+		startproc -l "$logdir"/src_service.log "$obsdir"/bs_service --root "$workdir"
 		rc_status -v
 	;;
 	stop)

@@ -14,6 +14,14 @@ config.log_level        = :debug
 config.action_controller.consider_all_requests_local = false
 config.action_controller.perform_caching             = true
 
+config.cache_store = :compressed_mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient-stage'}
+
+config.action_controller.session = {
+    :prefix => "ruby_webclient_stage_session",
+    :session_key => "opensuse_webclient_stage_session",
+    :secret => "iofupo3i4u6097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
+}
+
 # Enable serving of images, stylesheets, and javascripts from an asset server
 #config.action_controller.asset_host                  = "https://build.opensuse.org/stage"
 

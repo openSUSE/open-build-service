@@ -654,7 +654,7 @@ sub set_repo_state {
 
   unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq "scheduling";
   
-  writestr("$reporoot/$prp/$myarch/:schedulerstate.new", "$reporoot/$prp/$myarch/:schedulerstate", $state);
+  writestr("$reporoot/$prp/$myarch/:schedulerstate.new", "$reporoot/$prp/$myarch/:schedulerstate", $state) if -e "$reporoot/$prp/$myarch";
 }
 
 #
@@ -3571,7 +3571,11 @@ while(1) {
       killbuilding($prp);
       prpfinished($prp);
       # now that :repo is gone we can remove the directory
-      rmdir("$reporoot/$prp/$myarch") || die("$reporoot/$prp/$myarch: $!\n");
+      while(!rmdir("$reporoot/$prp/$myarch")) {
+        die("$reporoot/$prp/$myarch: $!\n") unless -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
+        print "rep server created dirty file $reporoot/$prp/$myarch/:schedulerstate.dirty, retry ...\n";
+        unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+      }
       # XXX this should be rewritten if :repoinfo lives somewhere else
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if (!$repo) {
@@ -3582,8 +3586,6 @@ while(1) {
 	  $others = 1;
 	}
 	if (!$others) {
-	  unlink("$reporoot/$prp/$myarch/:schedulerstate");
-	  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty");
 	  unlink("$reporoot/$prp/:repoinfo");
 	  unlink("$reporoot/$prp/.finishedlock");
 	  rmdir("$reporoot/$prp");
@@ -3615,6 +3617,7 @@ while(1) {
     next if $error;
     my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
     print "  - $prp: no config ($lastprojid)\n";
+    set_repo_state($prp, 'broken');
     $prpfinished{$prp} = 1;
     next;
   }
@@ -3622,6 +3625,7 @@ while(1) {
   if (!$prptype || $prptype eq 'UNDEFINED') {
     my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
     print "  - $prp: bad config ($lastprojid)\n";
+    set_repo_state($prp, 'broken');
     $prpfinished{$prp} = 1;
     next;
   }
@@ -3629,6 +3633,7 @@ while(1) {
 
   if (grep {$_->{'name'} eq $repoid && $_->{'status'} && $_->{'status'} eq 'disabled'} @{$projpacks->{$projid}->{'repository'}}) {
     print "      disabled\n";
+    set_repo_state($prp, 'disabled');
     $prpfinished{$prp} = 1;
     next;
   }

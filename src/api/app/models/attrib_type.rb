@@ -76,7 +76,7 @@ class AttribType < ActiveRecord::Base
            p[:user] = mod_rule.user.login if mod_rule.user 
            p[:group] = mod_rule.group.title if mod_rule.group 
            p[:role] = mod_rule.role.title if mod_rule.role 
-           attr.modifiable_bies(p)
+           attr.modifiable_by(p)
          end
        end
 

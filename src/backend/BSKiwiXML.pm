@@ -45,7 +45,8 @@ use strict;
 our $kiwidesc = [
     'image' =>
         'name',
-        'schemeversion',
+        'schemeversion', # for kiwi version until 3.74
+        'schemaversion', # for kiwi after 3.74
         'displayname',
         [],
         [ 'description' => 
@@ -63,6 +64,7 @@ our $kiwidesc = [
               'flags',
               'filesystem',
               'format',
+              'image',
               'primary',
               'ec2accountnr',
               'ec2privatekeyfile',

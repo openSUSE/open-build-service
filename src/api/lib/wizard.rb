@@ -57,29 +57,13 @@ class Wizard
 
   def []=(name, value)
     @data[name] = value
+# to be removed
     case name
     when "name":
       if value =~ /^perl-/i
         @guess["packtype"] = "perl"
       elsif value =~ /^python-/i
         @guess["packtype"] = "python"
-      end
-    when "tarball":
-      version = Wizard.guess_version(@data["name"], value)
-      if version
-        @guess["version"] = version
-      end
-    when "packtype":
-      case value
-      when "perl"
-        @guess["license"] = "Artistic license"
-        @guess["group"] = "Development/Libraries/Perl"
-      when "python"
-        @guess["license"] = "GPL v2 or later"
-        @guess["group"] = "Development/Libraries/Python"
-      else
-        @guess["license"] = "GPL v2 or later"
-        @guess["group"] = "Productivity/Other"
       end
     end
   end
@@ -88,16 +72,15 @@ class Wizard
     @questions = nil
     ask "name"
     return @questions if @questions
-    ask "tarball"
-    ask "packtype"
+    ask "sourcefile"
+    ask "generator"
     return @questions if @questions
     ask "summary"
     ask "description"
-    ask "version"
-    ask "license"
-    ask "group"
-    ask "email"
     return @questions if @questions
+#    ask "license"
+#    ask "group"
+#    return @questions if @questions
     return nil
   end
 
@@ -125,23 +108,18 @@ class Wizard
       'type'    => "text",
       'label'   => "Name of the package",
     },
-    "tarball"     => {
-      'type'    => "file",
-      'label'   => "Source tarball to upload",
+    "sourcefile"     => {
+      'type'    => "url",
+      'label'   => "Source file to download",
     },
-    "packtype"    => {
+    "generator"    => {
       'type'    => "select",
-      'label'   => "What kind of package is this?",
+      'label'   => "Generate build description",
       'options' => [
-        { "generic" => { 'label' => "Generic (./configure && make)"} },
-        { "perl"    => { 'label' => "Perl module"} },
-        { "python"  => { 'label' => "Python module"} },
+# shall be requested from backend
+        { "-" => { 'label' => "skip"} },
+        { "qmake"  => { 'label' => "qmake based code generator"} },
       ],
-    },
-    "version"     => {
-      'type'    => "text",
-      'label'   => "Version of the package",
-      'legend'  => "Note that the version must not contain dashes (-)",
     },
     "summary"     => {
       'type'    => "text",
@@ -159,10 +137,6 @@ class Wizard
       'type'    => "text",
       'label'   => "Package group",
       'legend'  => "See http://en.opensuse.org/SUSE_Package_Conventions/RPM_Groups",
-    },
-    "email"       => {
-      'type'    => "text",
-      'label'   => "Your email",
     },
   }
 

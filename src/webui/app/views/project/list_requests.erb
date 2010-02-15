@@ -1,0 +1,78 @@
+<% @pagetitle = "Requests for #{@project}" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project.name, :action => :show, :project => @project.name ), "Requests"
+]
+setup_buildresult_trigger
+-%>
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+<% end %>
+
+
+<% content_for :ready_function do %>
+  $("#request_table").tablesorter( {
+    sortList: [[0,1]] ,
+    headers: { 
+            5: { sorter: false }
+            }
+    } );
+<% end %>
+
+
+<%= render :partial => "tabs" %>
+
+<div id="build_result_popup"><div id="build_result_html"></div></div>
+
+<%- if @current_requests.each.blank? %>
+  <p><em>No pending requests. </em></p>
+<% else %>
+
+  <h2>Pending requests of project <%=h @project %> (#<%= @current_requests.each.size %>)</h2>
+
+  <table cellspacing='1' id="request_table" class="tablesorter" width="100%">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Action</th>
+        <th>Source</th>
+        <th>Target</th>
+        <th>Requester</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @current_requests.each do |req| %>
+        <tr>
+          <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
+          <td><%= req.action.data.attributes["type"] %></td>
+          <td>
+            <%    if req.action.has_element? :source -%>
+	       <%= package_link(req.action.source.project, req.action.source.package) -%>
+            <%  end -%>
+          </td>
+          <td>
+            <%    if req.action.has_element? :target and req.action.target.has_attribute? :package %>
+                <%= link_to req.action.target.package, :controller => :package, :action => "show", :project => req.action.target.project, :package => req.action.target.package %>
+            <%    end %>
+          </td>
+          <td>
+            <%= req.state.data.attributes["who"] %>
+          </td>
+          <td>
+            <%= link_to image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'), :controller => :request, :action => "diff", :changestate => "handle", :id => req.method_missing(:id) %>
+
+            <% if ['submit', 'change_devel'].include? req.action.data.attributes["type"] and req.action.has_element? :source %>
+              <%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, :action => :monitor, :project => req.action.source.project, :pkgname => req.action.source.package %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<%- end -%>
+
+

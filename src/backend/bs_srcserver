@@ -194,15 +194,15 @@ sub expandproduct {
       open(STDERR, '>&STDOUT');
       $| = 1;
       exec("./bs_productconvert", "$dir/$prod", $odir, $projid);
-      die("bs_productconvert: $!\n");
+      die("500 bs_productconvert: $!\n");
     }
-    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+    waitpid($pid, 0) == $pid || die("500 waitpid $pid: $!\n");
     if ($?) {
       my $s = readstr($olog);
       warn("bs_productconvert failed: $?\n");
       BSUtil::cleandir($dir);
       rmdir($dir);
-      die($s) if $fail;
+      die("400 $s") if $fail;
       return undef;
     }
     my @out = sort(ls($odir));
@@ -1535,6 +1535,18 @@ sub getprojpack {
 	    # get build dependency info
             my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
 	    data2utf8($d);
+            for my $k (keys %{$d||{}}) {
+              # allow only a subset of ascii characters to avoid breaking Strctured xml parser
+              if ( ref($d->{$k}) eq "ARRAY" ) {
+                for (@{$d->{$k}}) {
+                  $_ =~ s/[\x00-\x19]/_/g;
+                  $_ =~ s/[\x7F-\xFF]/_/g;
+                }
+              }else{
+                $d->{$k} =~ s/[\x00-\x19]/_/g;
+                $d->{$k} =~ s/[\x7F-\xFF]/_/g;
+              };
+            }
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
@@ -1653,9 +1665,9 @@ sub putproject {
   writexml("$uploaddir/$$.2", undef, $proj, $BSXML::proj);
   unlink("$uploaddir/$$");
   if (! -e "$projectsdir/$projid.xml") {
-    BSHermes::notify("SRCSRV_CREATE_PROJECT", { "project" => $projid });
+    BSHermes::notify("SRCSRV_CREATE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   } else {
-    BSHermes::notify("SRCSRV_UPDATE_PROJECT", { "project" => $projid });
+    BSHermes::notify("SRCSRV_UPDATE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   }
   mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
   rename("$uploaddir/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
@@ -1684,7 +1696,7 @@ sub delproject {
   unlink("$projectsdir/$projid.xml");
   notify_repservers('project', $projid);
 
-  BSHermes::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid });
+  BSHermes::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
 
   return $BSStdServer::return_ok;
 }
@@ -1732,9 +1744,9 @@ sub putpackage {
   die("package '$packid' is read-only\n") if ($packid =~ /^_product:/) && ! -e "$projectsdir/$projid.pkg/$packid.xml";
   mkdir_p("$projectsdir/$projid.pkg");
   if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
-    BSHermes::notify("SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid});
+    BSHermes::notify("SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
   } else {
-    BSHermes::notify("SRCSRV_UPDATE_PACKAGE", { "project" => $projid, "package" => $packid});
+    BSHermes::notify("SRCSRV_UPDATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
   }
   rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml") || die("rename to $projectsdir/$projid.pkg/$packid.xml: $!\n");
 #  my %packages = map {$_->{'name'} => 1} @{$proj->{'package'} || []};
@@ -1760,7 +1772,7 @@ sub delpackage {
     expandproduct($projid, $packid, undef);
   }
   notify_repservers('package', $projid, $packid);
-  BSHermes::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid });
+  BSHermes::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown") });
 
   return $BSStdServer::return_ok;
 }
@@ -2031,7 +2043,7 @@ sub putprojectconfig {
     unlink("$projectsdir/$projid.conf");
   }
   notify_repservers('project', $projid);
-  BSHermes::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid });
+  BSHermes::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
 
   return $BSStdServer::return_ok;
 }
@@ -3762,6 +3774,17 @@ sub postrequest {
   writereq($oreq, $req);
   $req->{'oldstate'} = $oldstate;
   BSHermes::notify("SRCSRV_REQUEST_STATECHANGE", BSHermes::requestParams($req, $cgi->{'user'}));
+  # Additionally send type specific hermes notifications
+  my $hermes_type;
+  if( $cgi->{'newstate'} eq "accepted" ) {
+    $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
+  } elsif( $cgi->{'newstate'} eq "rejected" ) {
+    $hermes_type = "SRCSRV_REQUEST_REJECTED";
+  } elsif( $cgi->{'newstate'} eq "revoked" ) {
+    $hermes_type = "SRCSRV_REQUEST_REVOKED";
+  }
+  BSHermes::notify( $hermes_type, BSHermes::requestParams($req, $cgi->{'user'})) if( $hermes_type );
+
   return $BSStdServer::return_ok;
 }
 

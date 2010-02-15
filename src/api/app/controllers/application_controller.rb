@@ -175,20 +175,16 @@ class ApplicationController < ActionController::Base
   end
 
   def rescue_action_in_public( exception )
-    #FIXME: not all exceptions are caught by this method
+    logger.error "rescue_action: caught #{exception.class}: #{exception.message}"
     case exception
-    when ::Suse::Backend::HTTPError
-
+    when Suse::Backend::HTTPError
       xml = REXML::Document.new( exception.message.body )
       http_status = xml.root.attributes['code']
-
       unless xml.root.attributes.include? 'origin'
         xml.root.add_attribute "origin", "backend"
       end
-
       xml_text = String.new
       xml.write xml_text
-
       render :text => xml_text, :status => http_status
     when ActiveXML::Transport::NotFoundError
       render_error :message => exception.message, :status => 404
