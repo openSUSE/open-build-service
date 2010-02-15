@@ -4,12 +4,7 @@
   <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
   <%= stylesheet_link_tag "opensuse", "local/style", :media => "all" %>
 
-<% if CONFIG['use_google_hosted_libs'] %>
-    <%= javascript_include_tag 'https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js',
-      'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js' %>
-  <% else %>
-    <%= javascript_include_tag 'jquery-1.4.1.min', 'jquery-ui-1.7.2.min' %>
-  <% end %>
+  <%= javascript_include_tag 'jquery-1.4.1.min', 'jquery-ui-1.7.2.min' %>
   <%= javascript_include_tag 'jrails', "application" %>
 
 <%= yield :content_for_head %>
