@@ -314,6 +314,35 @@ DELETE /source/<project>/<package>/<filename>
 XmlResult: status
 
 
+POST /source/<project>/<package>
+
+  Multiple commands on processing sources in package. Possible commands are
+  diff: for server side diff
+  linkdiff: for server side diff of a linked or branched package
+  commit: commit files in upload revision
+  commitfilelist: commit defined files in upload revision
+  copy: copy package sources from another package
+  branch: branch a package into another one
+  linktobranch: convert a plain source link into a full branch
+  deleteuploadrev: delete all uploaded, but not yet commited files.
+  
+  
+Parameters: 
+  
+  rev: package source revision, optional
+  linkrev: linked revision, optional
+  orev: origin package source revision as defined in opackage/project, optional
+  olinkrev: origin linked revision, optional
+  oproject: origin project, used as base project
+  opackage: origin package, used as base package
+  requestid: log the requestid in source history, optional (copy and commitfilelist only)
+  expand: expand links, optional
+  keeplink: keep link on source commit, optional
+  repairlink: repair link on source commit, optional
+  dontupdatesource: Do not update origin package, optional (copy only)
+  comment: comment for history, optional
+
+
 == Attribute definition api
 
 
