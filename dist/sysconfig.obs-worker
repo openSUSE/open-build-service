@@ -114,3 +114,14 @@ OBS_CACHE_DIR=""
 # Set the size to 50% of the maximum usable size of this partition
 #
 OBS_CACHE_SIZE=""
+
+## Path:        Applications/OBS
+## Description: Defines the nice level of running workers
+## Type:        integer
+## Default:     19
+## Config:      OBS
+# 
+# Nicenesses range from -20 (most favorable  scheduling) to 19 (least
+# favorable).
+#
+OBS_WORKER_NICE_LEVEL=19
