@@ -24,7 +24,7 @@ package BSUtil;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8 str2xml data2xml};
+@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8 str2utf8xml data2utf8xml};
 
 use XML::Structured;
 use POSIX;
@@ -258,7 +258,7 @@ sub data2utf8 {
   }
 }
 
-sub str2xml {
+sub str2utf8xml {
   my ($oct) = @_;
   return $oct unless defined $oct;
   return $oct unless $oct =~ /[^\011\012\015\040-\176]/s;
@@ -271,22 +271,22 @@ sub str2xml {
   return $oct;
 }
 
-sub data2xml {
+sub data2utf8xml {
   my ($d) = @_;
   if (ref($d) eq 'ARRAY') {
     for my $dd (@$d) {
       if (ref($dd) eq '') {
-        $dd = str2xml($dd);
+        $dd = str2utf8xml($dd);
       } else {
-        data2xml($dd);
+        data2utf8xml($dd);
       }
     }
   } elsif (ref($d) eq 'HASH') {
     for my $dd (keys %$d) {
       if (ref($d->{$dd}) eq '') {
-        $d->{$dd} = str2xml($d->{$dd});
+        $d->{$dd} = str2utf8xml($d->{$dd});
       } else {
-        data2xml($d->{$dd});
+        data2utf8xml($d->{$dd});
       }
     }
   }
