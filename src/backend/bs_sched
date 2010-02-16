@@ -4369,7 +4369,7 @@ relsynccheck:
       if (!@packs || grep {$_} values %pubenabled) {
 	mkdir_p("$reporoot/$prp/$myarch");
 	prpfinished($prp, \@packs, \%pubenabled, $bconf);
-	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate);
+	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate) unless %unfinished;
       } else {
 	print "    publishing is disabled\n";
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, "disabled");
