@@ -42,13 +42,15 @@ if [ -z "$OBS_REPO_SERVERS" ]; then
 fi
 
 if [ -n "$OBS_WORKER_TEST_MODE" ]; then
-       OBS_TEST="--test"
+	OBS_TEST="--test"
 fi
 if [ -n "$OBS_WORKER_JOBS" ]; then
-       OBS_JOBS="--jobs $OBS_WORKER_JOBS"
+	OBS_JOBS="--jobs $OBS_WORKER_JOBS"
 fi
-if [ -z "$OBS_WORKER_NICE_LEVEL" ]; then
-       OBS_NICE=19
+if [ -n "$OBS_WORKER_NICE_LEVEL" ]; then
+	OBS_NICE=$OBS_WORKER_NICE_LEVEL
+else
+	OBS_NICE=19
 fi
 
 if [ -n "$OBS_REPO_SERVERS" ]; then
