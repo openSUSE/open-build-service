@@ -47,6 +47,9 @@ fi
 if [ -n "$OBS_WORKER_JOBS" ]; then
        OBS_JOBS="--jobs $OBS_WORKER_JOBS"
 fi
+if [ -z "$OBS_WORKER_NICE_LEVEL" ]; then
+       OBS_NICE=19
+fi
 
 if [ -n "$OBS_REPO_SERVERS" ]; then
 	for i in $OBS_REPO_SERVERS; do
@@ -149,7 +152,7 @@ case "$1" in
 			I=$(( $I + 1 ))
 			title="$HOSTNAME/$I"
 			# prepare obsworker startup in screen...
-			echo "screen -t $title ./bs_worker $vmopt $port --root $ROOT/root_$I" \
+			echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $ROOT/root_$I" \
 			     "--statedir $workerdir/$I --id $HOSTNAME/$I $OBS_REPO_PARM" \
 			     "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT" \
 			    >> $screenrc
