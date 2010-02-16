@@ -701,7 +701,7 @@ sub getbinary_info {
       }
     }
   }
-  data2utf8($res);
+  data2utf8xml($res);
   return ($res, $BSXML::fileinfo);
 }
 
@@ -2322,14 +2322,14 @@ sub makeymp {
   }
   my $pkg = {};
   if ($data) {
-    $pkg->{'name'} = str2utf8($data->{'name'});
-    $pkg->{'description'} = str2utf8($data->{'description'});
+    $pkg->{'name'} = str2utf8xml($data->{'name'});
+    $pkg->{'description'} = str2utf8xml($data->{'description'});
   } else {
-    $pkg->{'name'} = str2utf8($binaryname);
+    $pkg->{'name'} = str2utf8xml($binaryname);
     $pkg->{'description'} = "The $pkg->{'name'} package";
   }
   if (defined $data->{'summary'}) {
-    $pkg->{'summary'} = str2utf8($data->{'summary'});
+    $pkg->{'summary'} = str2utf8xml($data->{'summary'});
   } else {
     $pkg->{'summary'} = "The $pkg->{'name'} package";
   }
@@ -2348,7 +2348,7 @@ sub fileinfo {
   die("filename: $!\n") unless -f $filepath;
   if ($filename =~ /\.(?:rpm|deb)$/) {
     $q = Build::query($filepath, 'evra' => 1, 'description' => 1, 'alldeps' => 1);
-    data2utf8($q);
+    data2utf8xml($q);
   } elsif ($filename =~ /\.ymp$/) {
     my $ymp = readxml($filepath, $BSXML::ymp, 1);
 
