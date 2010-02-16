@@ -2621,9 +2621,9 @@ sub sourcecommitfilelist {
     # autocommit old update revision so that it doesn't get lost
     my $uploadrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => 'upload'};
     my $uploadfiles = lsrev($uploadrev);
-    addrev($projid, $packid, $uploadfiles, $user, 'autocommit');
+    addrev($projid, $packid, $uploadfiles, $user, 'autocommit', undef, $cgi->{'requestid'});
   }
-  my $rev = addrev($projid, $packid, $files, $user, $comment);
+  my $rev = addrev($projid, $packid, $files, $user, $comment, undef, $cgi->{'requestid'});
 
   $cgi->{'rev'} = $rev->{'rev'};
   return getfilelist($cgi, $projid, $packid);
@@ -4165,7 +4165,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool?' => \&linkdiff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? noservice:bool?' => \&sourcecommit,
-  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev?' => \&sourcecommitfilelist,
+  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? requestid:num?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
