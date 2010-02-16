@@ -138,13 +138,13 @@ class Package < ActiveXML::Base
 
   def save_file( opt = {} )
     file = opt[:file]
-
-    logger.debug "storing file: #{file.inspect}"
+    logger.debug "storing file: #{file.inspect}, filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
     put_opt = Hash.new
     put_opt[:package] = self.name
     put_opt[:project] = @init_options[:project]
     put_opt[:filename] = opt[:filename]
+    put_opt[:comment] = opt[:comment]
 
     fc = FrontendCompat.new
     fc.put_file file.read, put_opt

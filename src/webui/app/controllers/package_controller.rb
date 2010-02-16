@@ -444,10 +444,11 @@ class PackageController < ApplicationController
     required_parameters(params, [:project, :package, :filename, :file])
     filename = params[:filename]
     file = params[:file]
+    comment = params[:comment]
     file.gsub!( /\r\n/, "\n" )
     begin
       frontend.put_file( file, :project => project, :package => package,
-        :filename => filename )
+        :filename => filename, :comment => comment )
       flash[:note] = "Successfully saved file #{filename}"
     rescue Timeout::Error => e
       flash[:error] = "Timeout when saving file. Please try again."
@@ -807,7 +808,7 @@ class PackageController < ApplicationController
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
       file[:ext] = Pathname.new(file[:name]).extname
-      file[:editable] = (not no_edit_ext.include? file[:ext].downcase) and file[:size].to_i < 2**20  # max. 1 MB
+      file[:editable] = ((not no_edit_ext.include?( file[:ext].downcase )) and file[:size].to_i < 2**20)  # max. 1 MB
       files << file
     end
     return files
