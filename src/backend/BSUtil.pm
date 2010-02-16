@@ -24,7 +24,7 @@ package BSUtil;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8};
+@EXPORT = qw{writexml writestr readxml readstr ls mkdir_p xfork str2utf8 data2utf8 str2utf8xml data2utf8xml};
 
 use XML::Structured;
 use POSIX;
@@ -217,19 +217,23 @@ sub cp {
 sub str2utf8 {
   my ($oct) = @_;
   return $oct unless defined $oct;
+  return $oct unless $oct =~ /[^\011\012\015\040-\176]/s;
   eval {
     Encode::_utf8_on($oct);
     $oct = encode('utf-8', $oct, Encode::FB_CROAK);
   };
   if ($@) {
-    Encode::_utf8_off($oct);
-    $oct = encode('utf-8', $oct, Encode::FB_CROAK);
+    # assume iso-8859-1
+    eval {
+      Encode::_utf8_off($oct);
+      $oct = encode('utf-8', $oct, Encode::FB_CROAK);
+    };
     if ($@) {
       Encode::_utf8_on($oct);
       $oct = encode('utf-8', $oct, Encode::FB_XMLCREF);
     }
   }
-  Encode::_utf8_off($oct);
+  Encode::_utf8_off($oct);	# just in case...
   return $oct;
 }
 
@@ -249,6 +253,40 @@ sub data2utf8 {
         $d->{$dd} = str2utf8($d->{$dd});
       } else {
         data2utf8($d->{$dd});
+      }
+    }
+  }
+}
+
+sub str2utf8xml {
+  my ($oct) = @_;
+  return $oct unless defined $oct;
+  return $oct unless $oct =~ /[^\011\012\015\040-\176]/s;
+  $oct = str2utf8($oct);
+  Encode::_utf8_on($oct);
+  # xml does not accept all utf8 chars, escape the illegal
+  $oct =~ s/([\000-\010\013\014\016-\037\177])/sprintf("&#x%x;",ord($1))/sge;
+  $oct =~ s/([\x{d800}-\x{dfff}\x{fffe}\x{ffff}])/sprintf("&#x%x;",ord($1))/sge;
+  Encode::_utf8_off($oct);
+  return $oct;
+}
+
+sub data2utf8xml {
+  my ($d) = @_;
+  if (ref($d) eq 'ARRAY') {
+    for my $dd (@$d) {
+      if (ref($dd) eq '') {
+        $dd = str2utf8xml($dd);
+      } else {
+        data2utf8xml($dd);
+      }
+    }
+  } elsif (ref($d) eq 'HASH') {
+    for my $dd (keys %$d) {
+      if (ref($d->{$dd}) eq '') {
+        $d->{$dd} = str2utf8xml($d->{$dd});
+      } else {
+        data2utf8xml($d->{$dd});
       }
     }
   }

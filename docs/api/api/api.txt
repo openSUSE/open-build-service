@@ -297,7 +297,8 @@ PUT /source/<project>/<package>/<filename>
 
 Parameters:
 
-  rev: empty or upload revision, optional
+  rev: if set to 'upload', multiple files can be uploaded one by one in one commit, before 
+       finishing the commit with cmd=commit (see below), optional
   comment: comment, optional
   keeplink: bool, optional
 
