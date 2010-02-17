@@ -1,0 +1,68 @@
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project.name, :action => :show, :project => @project.name ), "Repositories"
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+<span id="error_message_flags" style="display:none;"></span>
+<h3>
+  Repositories <%= link_to(image_tag("list-add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project) %>
+</h3>
+<% unless @project.repositories.empty? %>
+
+<table id="outer_flag_table" class="grid">
+	<!-- renders each line in flag table, excepting the 'all' row -->
+	<% @project.repositories.each do |repo| %>
+	<tr>
+		<td>
+        <strong><%= link_to h(repo.name), :controller => 'platform', :action => 'show', :name => repo.name, :project => @project %></strong><br/>
+        <% begin -%>
+                <% repo.each_path do |path| -%>
+                <%=h path.project+"/"+path.repository %><br/>
+        <% end -%>
+        <% rescue; end %>
+		</td>
+                <td>
+<% if @project.is_maintainer?( session[:login] ) %>
+        <%= link_to "[Edit]", :update => repo.name,
+                                                :url => {:action => :TODO_edit_target, :project => @project, :repo => repo.name} %>
+<% end %>
+
+                        <%= link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
+                                                        {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} %><br/>
+                </td>
+
+	</tr>	
+	<% end %>
+	
+</table>
+<% end %>
+
+<div>
+  <div class="flag_table">
+    <h3>Build Flag</h3>
+    <%= render :partial => 'repositories_flag_table', :locals => { :flags => @project.buildflags } %>
+  </div>
+
+  <div class="flag_table">
+    <h3>Publish Flag</h3>
+    <%= render :partial => 'repositories_flag_table', :locals => { :flags => @project.publishflags } %>
+  </div>
+</div>
+
+<div style="clear: both">
+  <div class="flag_table">
+    <h3>Debuginfo Flag</h3>
+     <%= render :partial => 'repositories_flag_table', :locals => { :flags => @project.debuginfoflags } %>
+  </div>
+  
+  <div class="flag_table">
+    <h3>Use for Build Flag</h3>
+    <%= render :partial => 'repositories_flag_table', :locals => { :flags => @project.useforbuildflags } %>
+  </div>
+</div>
+
+<div style="clear: both"></div>

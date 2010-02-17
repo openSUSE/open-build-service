@@ -1,0 +1,29 @@
+<table class="flag_table">
+<tr>
+                <th></th>
+                <th>All Arch.</th>
+                <% @project.architectures.each do |arch| %>
+                        <th><%=h arch %></th>
+                <% end %>
+        </tr>
+
+        <tr>
+                <td>All Rep.</td>
+                <td class="allcow"><%= flag_status(flags["all::all".to_sym]) %></td>
+
+                <% @project.architectures.each do |a| %>
+                        <td class="allcow"><%= flag_status(flags["all::#{a}".to_sym]) %></td>
+                <% end %>
+        </tr>
+	<!-- renders each line in flag table, excepting the 'all' row -->
+        <% @project.repositories.each do |repo| %>
+        <tr>
+                <td><%= h(repo.name) %></td>
+                <td class="allrow"><%= flag_status(flags["#{repo.name}::all".to_sym]) -%></td>
+                <% @project.architectures.each do |a| %>
+                        <td><%= flag_status(flags["#{repo.name}::#{a}".to_sym]) -%></td>
+                <% end %>
+                <td>
+        </tr>
+        <% end %>
+</table>

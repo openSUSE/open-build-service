@@ -1,0 +1,48 @@
+<% @pagetitle = "Subprojects of Project #{@project}" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :action => :show, :project => @project),
+  'Subprojects'
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+<% if @parent %>
+<div class="section">
+  <h3>Parent project of <%= @project %></h3>
+  <p>
+  <%= link_to @parent, :action => :show, :project => @parent %>
+  <% if @parent.title && !@parent.title.text.blank? %>
+    <i>(<%= @parent.title  %>)</i>
+    <% end %>
+  </p>
+</div>
+<p/>
+<% end %>
+
+<div class="section">
+  <h3>Subprojects of <%= @project %>
+    <% if @project.is_maintainer?( session[:login] ) %>
+      <%= link_to(image_tag("list-add.png", :title => "Create Subproject", :border => 0), :action => :new, :ns => @project.name) %>
+    <% end -%></h3>
+
+  <p><dl>
+      <% prjlen = @project.name.length %>
+      <%- if !@subprojects.blank? -%>
+        <%- @subprojects.each do |key, value| -%>
+          <dd><%= link_to key.slice(prjlen+1, key.length), :action => :show, :project => key %>
+            <% if value.title && !value.title.text.blank? %>
+              <i>(<%= value.title  %>)</i>
+            <% else %>
+              <i>(no title set)</i>
+            <% end %>
+          </dd>
+        <%- end -%>
+      <%- else -%>
+        <dd><i>No subprojects found</i></dd>
+      <%- end -%>
+  </dl></p>
+</div>
+
