@@ -378,10 +378,13 @@ sub createMetadata( $$$ )
               $onlyarch .= "$archSets{$ref}->{productarch},";
           }
         }
-	push @packages, { name => $pack->{name}, 
+	my $h = { name => $pack->{name}, 
 			  medium => $metadata_medium, 
 			  removearch => $removearch,
 			  onlyarch => $onlyarch };
+        $h->{'arch'} = $pack->{'arch'} if defined($pack->{'arch'});
+        $h->{'addarch'} = $pack->{addarch} if defined($pack->{addarch});
+	push @packages, $h;
     }
 
     my @a;

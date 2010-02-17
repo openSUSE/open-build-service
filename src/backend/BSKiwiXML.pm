@@ -130,6 +130,8 @@ our $kiwidesc = [
 	     [[ 'repopackage' =>
                 'name',
                 'medium',
+                'arch',
+                'addarch',
                 'removearch',
                 'onlyarch',
              ]],
