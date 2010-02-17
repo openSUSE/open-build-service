@@ -1,6 +1,7 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
+require 'net/ldap'
 require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
@@ -117,6 +118,46 @@ class ApplicationController < ActionController::Base
         logger.debug "no authentication string was sent"
         render_error( :message => "Authentication required", :status => 401 ) and return false
       end
+      
+      # disallow empty passwords to prevent LDAP lockouts
+      if !passwd or passwd == ""
+        render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false
+      end
+      
+      if LDAP_MODE == :on
+        logger.debug( "Using LDAP to find #{login}" )
+        ldap_info = User.find_with_ldap ( login, passwd )
+        if ldap_info
+          @http_user = User.find :first,
+                                 :conditions => [ 'login = ?', login ]
+          if !@http_user
+            logger.debug( "No user found in database, creating" )
+            logger.debug( ldap_info[0] )
+            logger.debug( ldap_info[1] )
+            newuser = User.create(
+                                  :login => login,
+                                  :password => passwd,
+                                  :password_confirmation => passwd,
+                                  :email => ldap_info[0] )
+            newuser.realname = ldap_info[1]
+            newuser.state = 2
+            newuser.adminnote = "User created via LDAP"
+            user_role = Role.find_by_title("User")
+            newuser.roles << user_role
+            
+            logger.debug( "saving new user..." )
+            newuser.save
+            
+            @http_user = User.find :first,
+                                   :conditions => [ 'login = ?', login ]
+          end
+          
+          session[:rbac_user_id] = @http_user.id
+        else
+          logger.debug( "User not found with LDAP, falling back to database" )
+          @http_user = User.find_with_credentials login, passwd
+        end
+    else
       @http_user = User.find_with_credentials login, passwd
     end
 
