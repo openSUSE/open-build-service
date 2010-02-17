@@ -461,19 +461,32 @@ GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
 
 Result: binary file
 
+GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
+GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext
 
-GET /build/<project>/<repository>/<arch>/_builddepinfo?package="package_name"
+  Get information about the binary from build results of given package
 
-  Shows all build dependencies of a package, a change in any of them will
+Result: fileinfo
+
+
+GET /build/<project>/<repository>/<arch>/_builddepinfo?package=<package>
+
+  Shows all build dependencies of one or more packages, a change in any of them will
   trigger a build.
+  
+Parameters:
+
+  view=pkgnames     show package names instead of binary names
+  view=revpkgnames  show which packages will be triggered if the package is changed
 
 Result: build dependencies
 
 
-GET /build/<project>/<repository>/<arch>/_jobhistory?package="package_name"
+GET /build/<project>/<repository>/<arch>/_jobhistory?package=<package>&code=succeeded&limit=10
 
   Get the build log of all finished builds in this repository, including
-  time and trigger reason. Optional filtering for a package is possible.
+  time and trigger reason. Optional filtering for one ore more packages/codes is
+  possible.
 
 Result: jobhistory
 
@@ -499,6 +512,7 @@ GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
   Get single binary from the given repository
 
 Result: binary file
+
 
 === Status
 
