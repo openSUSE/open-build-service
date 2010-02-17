@@ -66,11 +66,8 @@
         <th width='5%'>Name</th>
         <th width='2%'>Failing</th>
         <th width='5%' nowrap>Devel Project</th>
-        <th width='4%'>Maintainer</th>
         <th width='20%'>Summary</th>
         <th width="20%">Comment</th>
-        <th width="4%">Version</th>
-        <th width="4%">Upstream</th>
       </tr>
     </thead>
     <tbody>
@@ -97,7 +94,6 @@
             <td></td>
           <% end -%>
           <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
-          <td></td>
           <td><%= outs = []
             if p['requests_from'].empty?
               descr = nil
@@ -116,23 +112,18 @@
             p['requests_from'].each do |id|
               outs << "Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), @project]
             end
+            if p['upstream_version']
+              if p['upstream_url']
+                 outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
+              else
+                 outs << "New upstream version " + p['upstream_version'] + " available"
+              end
+            end
             outs.join('<br/>') -%></td>
 
           <td id="comment_<%= p['name'] %>">
             <%= show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) %>
           </td>
-	  <td><%= p['version'] %></td>
-          <td>
-	    <%= if p['upstream_version']
-                  if p['upstream_url']
-                    "<a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a>"
-                  else
-                    p['upstream_version']
-                  end
-                else
-                  "--"
-                end -%>
-	  </td>
         </tr>
       <% end %>
     </tbody>
