@@ -375,7 +375,7 @@ sub createMetadata( $$$ )
           foreach my $requiredArch( @{$archSetList} ) {
               my $ref = $requiredArch->{ref};
               die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
-              $onlyarch .= "$archSets{$ref}->{productarch},";
+              $onlyarch .= "$archSets{$ref}->{productarch},noarch";
           }
         }
 	my $h = { name => $pack->{name}, 
