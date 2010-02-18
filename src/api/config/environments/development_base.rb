@@ -31,6 +31,18 @@ SOURCE_PORT = 6362 #test backend
 ICHAIN_TEST_USER = "test"
 ICHAIN_MODE = :off
 
+LDAP_MODE = :off
+# LDAP Servers separated by ':'.
+# OVERRIDE with your company's ldap servers. Servers are picked randomly for
+# each connection to distribute load.
+LDAP_SERVERS = "ldap1.mycompany.com:ldap2.mycompany.com"
+# OVERRIDE with your company's ldap search base for the users who will use OBS
+LDAP_SEARCH_BASE = "OU=Organizational Unit,DC=Domain Component"
+# Sam Account Name is the login name for LDAP 
+LDAP_SEARCH_ATTR = "sAMAccountName"
+# Max number of times to attempt to contact the LDAP servers
+MAX_LDAP_ATTEMPTS = 10
+
 APIDOCS_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("#{RAILS_ROOT}/../../docs/api/api")+"/"
 

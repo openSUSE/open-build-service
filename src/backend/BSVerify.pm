@@ -120,6 +120,7 @@ sub verify_rev {
   my $rev = $_[0];
   die("revision is empty\n") unless defined($rev) && $rev ne '';
   return if $rev =~ /^[0-9a-f]{32}$/s;
+  return if $rev =~ /^[0-9a-f]{40}$/s;	# git id
   return if $rev eq 'upload' || $rev eq 'build' || $rev eq 'latest' || $rev eq 'repository';
   die("bad revision '$rev'\n") unless $rev =~ /^\d+$/s;
 }

@@ -1,0 +1,12 @@
+<% @pagetitle = "Packages of Project #{@project}" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :action => :list_public),
+  link_to( @project, :action => :show, :project => @project),
+  'Packages'
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+<%= render :partial => "package_table" %>

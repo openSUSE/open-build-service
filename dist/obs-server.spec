@@ -13,15 +13,14 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.7.0
+Version:        1.7.50
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      /var/tmp/%name-root
-# git clone git://gitorious.org/opensuse/build-service.git; cd build-service; git submodule init; git submodule update; cd -; tar cfvj obs-server-1.6.85.tar.bz2 --exclude=.git\* build-service-1.6.85/
+# git clone git://gitorious.org/opensuse/build-service.git; cd build-service; tar cfvj obs-server-1.6.85.tar.bz2 --exclude=.git\* build-service-1.6.85/
 Source:         obs-server-%version.tar.bz2
-Patch:          1.7_BRANCH.diff
 Autoreqprov:    on
 BuildRequires:  python-devel
 BuildRequires:  obs-common
@@ -105,6 +104,7 @@ Requires:       rubygem-rails-2_3 = 2.3.5
 Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
+Requires:       rubygem-net-ldap
 # requires for webui:
 Requires:       ghostscript-fonts-std
 Requires:       rubygem-gruff
@@ -155,7 +155,6 @@ Authors:       Susanne Oberhauser, Martin Mohring
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n build-service-%version
-%patch -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf

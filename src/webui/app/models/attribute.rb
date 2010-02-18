@@ -8,6 +8,8 @@ class Attribute < ActiveXML::Base
     end
   end
 
+  # We need to implement these methods on our own here, because this class is used
+  # for package and project attributes...
   def save
     path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_attribute" : "/source/#{self.init_options[:project]}/_attribute"
     begin
@@ -51,7 +53,6 @@ class Attribute < ActiveXML::Base
     end
 
   end
-
 
 
 end

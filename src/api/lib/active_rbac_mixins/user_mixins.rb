@@ -317,6 +317,48 @@ module UserMixins
             return nil
           end
 
+          # this static method tries to find a user with the given login and
+          # password in the active directory server.  Will fall back to
+          # database authentication if the LDAP credentials are incorrect.
+          def self.find_with_ldap(login, password)
+            ldap_con = initialize_ldap_con('','')
+            user_filter = Net::LDAP::Filter.eq( LDAP_SEARCH_ATTR, login )
+            
+            ldap_info = nil
+            if not ldap_con.nil? and ldap_con.bind
+              logger.debug( "Connected to LDAP server" )
+              dn = String.new
+              ldap_con.search( :base => LDAP_SEARCH_BASE, :filter => user_filter, :attributes=> 'dn') do |entry|
+                dn = entry.dn
+              end
+              
+              unless dn.empty?
+                logger.debug( "Found user dn #{dn}" )
+                
+                ldap_con = initialize_ldap_con(dn,password)
+                if ldap_con.bind
+                  ldap_info = Array.new
+                  
+                  ldap_con.search( :base => LDAP_SEARCH_BASE, :filter => user_filter, :attributes=> 'mail') do |entry|
+                    ldap_mail = String.new(entry.mail.join)
+                    ldap_info[0] = ldap_mail
+                  end
+                  
+                  ldap_con.search( :base => LDAP_SEARCH_BASE, :filter => user_filter, :attributes=> 'name') do |entry|
+                    ldap_name = String.new(entry.name.join)
+                    ldap_info[1] = ldap_name
+                  end
+                end
+              end
+            else
+              logger.debug ( "Unable to connect to LDAP server" )
+            end
+            
+            logger.debug( "login success = #{ldap_info}" )
+            
+            ldap_info
+          end
+
           # This method checks whether the given value equals the password when
           # hashed with this user's password hash type. Returns a boolean.
           def password_equals?(value)
@@ -433,6 +475,39 @@ module UserMixins
                      when 'md5' then Digest::MD5.hexdigest(value + self.password_salt)
                      end
             end 
+
+            # this method returns a ldap object using the provided user name
+            # and password
+            def self.initialize_ldap_con(user_name, password)
+              ldap_servers = LDAP_SERVERS.split(":")
+              ping = false
+              server = nil
+              count = 0
+              
+              if not MAX_LDAP_ATTEMPTS
+                max_ldap_attempts = 10
+              else
+                max_ldap_attempts = MAX_LDAP_ATTEMPTS
+              end
+              
+              while !ping and count < max_ldap_attempts
+                server = ldap_servers[rand(ldap_servers.length)]
+                # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
+                ping = system("ping -c 1 #{server} >/dev/null 2>/dev/null")
+              end
+              
+              if count == max_ldap_attempts
+                logger.debug ("Unable to connect to any LDAP server")
+              else
+                return Net::LDAP.new( {:host => server,
+                                       :port => 389,
+                                       :auth => { :method => :simple,
+                                                  :username => user_name,
+                                                  :password => password }} )
+              end
+              
+              return nil
+            end
         end
       end
     end

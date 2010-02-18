@@ -31,6 +31,7 @@ BEGIN {
 }
 
 use XML::Structured ':bytes';
+use POSIX;
 use Digest::MD5 ();
 use Data::Dumper;
 use Storable ();
@@ -303,6 +304,58 @@ sub getcommitinfo {
 ###  low level source handling: tree and revision management
 ###
 
+sub repgitdir {
+  my ($rev) = @_;
+  my $projid = $rev->{'project'};
+  my $packid = $rev->{'package'};
+  my $gitdir = "$projectsdir/$projid.pkg/$packid.git";
+  die("$projid/$packid is not a git repository\n") unless -d $gitdir;
+  return $gitdir;
+}
+
+sub repstat_git {
+  my ($rev, $filename, $id) = @_;
+  my $gitdir = repgitdir($rev);
+  open(F, '-|', 'git', "--git-dir=$gitdir", 'cat-file', '-s', $id) || return ();
+  my $size= '';
+  1 while sysread(F, $size, 4096, length($size));
+  if (!close(F)) {
+    $! = POSIX::ENOENT;
+    return ();
+  }
+  my @s = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  $s[7] = 0 + $size;
+  return @s;
+}
+
+sub repstat {
+  my ($rev, $filename, $md5) = @_;
+  if (length($md5) == 40) {
+    return repstat_git($rev, $filename, $md5);
+  }
+  return stat("$srcrep/$rev->{'package'}/$md5-$filename");
+}
+
+sub repopen_git {
+  my ($rev, $filename, $id, $fd) = @_;
+  my $gitdir = repgitdir($rev);
+  return open($fd, '-|', 'git', "--git-dir=$gitdir", 'cat-file', 'blob', $id);
+}
+
+sub repopen {
+  my ($rev, $filename, $md5, $fd) = @_;
+  if (length($md5) == 40) {
+    return repopen_git($rev, $filename, $md5, $fd);
+  }
+  return open($fd, '<', "$srcrep/$rev->{'package'}/$md5-$filename");
+}
+
+sub repreadxml {
+  my ($rev, $filename, $md5, $dtd, $nonfatal) = @_;
+  my $packid = $rev->{'package'};
+  return readxml("$srcrep/$packid/$md5-$filename", $dtd, $nonfatal);
+}
+
 #
 # add a file to the repository
 #
@@ -344,6 +397,26 @@ sub copyfiles {
   }
 }
 
+sub getrev_git {
+  my ($projid, $packid, $rev) = @_;
+  my $gitdir = "$projectsdir/$projid.pkg/$packid.git";
+  die("$projid/$packid is not a git repository") unless -d $gitdir;
+  if (!$rev) {
+    my $master = readstr("$gitdir/refs/heads/master");
+    chomp $master;
+    $rev = $master;
+  }
+  die("revision is not a valid git id\n") unless $rev =~ /^[0-9a-f]{40}/s;
+  open(F, '-|', 'git', "--git-dir=$gitdir", 'cat-file', 'commit', $rev) || return undef;
+  my $commit = '';
+  1 while sysread(F, $commit, 4096, length($commit));
+  close F;
+  $commit =~ s/.*?\n\n//;
+  $rev = {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
+  $rev->{'comment'} = $commit if $commit ne '';
+  return $rev;
+}
+
 #
 # get a revision object from a revision identifier
 #
@@ -359,10 +432,15 @@ sub getrev {
   undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
   if (!defined($rev)) {
     $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
+    if (!$rev && -d "$projectsdir/$projid.pkg/$packid.git") {
+      return getrev_git($projid, $packid);
+    }
     $rev = {'srcmd5' => 'empty'} unless $rev;
   } elsif ($rev =~ /^[0-9a-f]{32}$/) {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev";
     $rev = {'srcmd5' => $rev, 'rev' => $rev};
+  } elsif ($rev =~ /^[0-9a-f]{40}$/) {
+    return getrev_git($projid, $packid, $rev);
   } elsif ($rev eq 'upload') {
     $rev = {'srcmd5' => 'upload', 'rev' => 'upload'}
   } elsif ($rev eq 'repository') {
@@ -456,7 +534,7 @@ sub addrev {
     # FIXME: we may should allow source links (with diff) here
     die("bad files in patchinfo container\n") if grep {$_ ne '_patchinfo'} keys %$files;
     if ($files->{'_patchinfo'}) {
-      my $p = readxml("$srcrep/$packid/$files->{'_patchinfo'}-_patchinfo", $BSXML::patchinfo);
+      my $p = repreadxml({'project' => $projid, 'package' => $packid}, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo);
       BSVerify::verify_patchinfo($p);
     }
   }
@@ -491,6 +569,24 @@ sub addrev {
   return $rev;
 }
 
+sub lsrev_git {
+  my ($rev, $linkinfo) = @_;
+  my $id = $rev->{'srcmd5'};
+  local *F;
+  my $gitdir = repgitdir($rev);
+  open(F, '-|', 'git', "--git-dir=$gitdir", 'cat-file', 'tree', $id) || die("git: $!\n");
+  my $tree = '';
+  1 while sysread(F, $tree, 4096, length($tree));
+  close(F) || die("bad id\n");
+  my $files = {};
+  while ($tree =~ /(\d+) ([^\000]*)\000(.{20})/sg) {
+    next if $1 eq '40000';		# ignore dirs for now
+    next if substr($2, 0, 1) eq '.';	# ignore files starting with . for now
+    $files->{$2} = unpack('H*', $3);
+  }
+  return $files;
+}
+
 #
 # retrieve the file list of a revision object or tree object
 # store merge info in linkinfo if available
@@ -513,6 +609,8 @@ sub lsrev {
     open(F, '<', "$projectsdir/$projid.pkg/pattern-MD5SUMS") || return {};
   } elsif ($srcmd5 eq 'empty' || $srcmd5 eq 'd41d8cd98f00b204e9800998ecf8427e') {
     return {};
+  } elsif (length($srcmd5) == 40) {
+     return lsrev_git($rev, $linkinfo);
   } else {
     die("bad srcmd5 '$srcmd5'\n") if $srcmd5 !~ /^[0-9a-f]{32}$/;
     if (!open(F, '<', "$srcrep/$packid/$srcmd5-MD5SUMS")) {
@@ -998,8 +1096,9 @@ sub handlelinks {
   delete $rev->{'linkrev'};
   my $vrev = $rev->{'vrev'};
   my $vrevdone;
+  my $lrev = $rev;
   while ($files->{'_link'}) {
-    my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
+    my $l = repreadxml($lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
     return '_link is bad' unless $l;
     eval {
       BSVerify::verify_link($l);
@@ -1088,15 +1187,14 @@ sub lsrev_expanded {
 # add missing target information to linkinfo
 sub linkinfo_addtarget {
   my ($rev, $linkinfo) = @_;
-  my $lsrcmd5 = $linkinfo->{'lsrcmd5'} || $rev->{'srcmd5'};
-  my $files = lsrev({%$rev, 'srcmd5' => $lsrcmd5});
+  my %lrev = %$rev;
+  $lrev{'srcmd5'} = $linkinfo->{'lsrcmd5'} if $linkinfo->{'lsrcmd5'};
+  my $files = lsrev(\%lrev);
   die("linkinfo_addtarget: not a link?\n") unless $files->{'_link'};
-  my $projid = $rev->{'project'};
-  my $packid = $rev->{'package'};
-  my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
+  my $l = repreadxml(\%lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
   if ($l) {
-    $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $projid;
-    $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $packid;
+    $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $lrev{'project'};
+    $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $lrev{'package'};
     $linkinfo->{'rev'} = $l->{'rev'} if $l->{'rev'};
     $linkinfo->{'baserev'} = $l->{'baserev'} if $l->{'baserev'};
   }
@@ -1124,10 +1222,10 @@ sub findlastworkinglink {
     my $lrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $rev->{'srcmd5'}};
     my $lfiles = lsrev($lrev);
     return undef unless $lfiles;
-    my $l = readxml("$srcrep/$packid/$lfiles->{'_link'}-_link", $BSXML::link, 1);
+    my $l = repreadxml($lrev, '_link', $lfiles->{'_link'}, $BSXML::link, 1);
     return undef unless $l;
-    my $projid = $l->{'project'} if exists $l->{'project'};
-    my $packid = $l->{'package'} if exists $l->{'package'};
+    $projid = $l->{'project'} if exists $l->{'project'};
+    $packid = $l->{'package'} if exists $l->{'package'};
     my $lastcand;
     for my $cand (splice @cand) {
       next unless $cand{$cand};
@@ -1453,7 +1551,7 @@ sub getprojpack {
 	}
 
 	if ($files->{'_aggregate'}) {
-	  my $aggregatelist = readxml("$srcrep/$packid/$files->{'_aggregate'}-_aggregate", $BSXML::aggregatelist, 1);
+	  my $aggregatelist = repreadxml($rev, '_aggregate', $files->{'_aggregate'}, $BSXML::aggregatelist, 1);
 	  if (!$aggregatelist) {
 	    $pinfo->{'error'} = "bad aggregatelist data";
 	    next;
@@ -2057,7 +2155,7 @@ sub getfilelist {
 
   if ($files->{'_link'}) {
     if ($cgi->{'emptylink'}) {
-      my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
+      my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
       delete $l->{'patches'};
       mkdir_p($uploaddir);
       writexml("$uploaddir/$$", undef, $l, $BSXML::link);
@@ -2108,7 +2206,7 @@ sub getfilelist {
   $ret->{'vrev'} = $rev->{'vrev'} if exists $rev->{'vrev'};
   my @res;
   for my $filename (sort keys %$files) {
-    my @s = stat("$srcrep/$packid/$files->{$filename}-$filename");
+    my @s = repstat($rev, $filename, $files->{$filename});
     if (@s) {
       push @res, {'name' => $filename, 'md5' => $files->{$filename}, 'size' => $s[7], 'mtime' => $s[9]};
     } else {
@@ -2130,9 +2228,11 @@ sub getfile {
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $files = lsrev($rev);
   die("$filename: no such file\n") unless $files->{$filename};
-  my @s = stat("$srcrep/$packid/$files->{$filename}-$filename");
-  die("$srcrep/$packid/$files->{$filename}-$filename: $!\n") unless @s;
-  BSServer::reply_file("$srcrep/$packid/$files->{$filename}-$filename", "Content-Length: $s[7]");
+  my @s = repstat($rev, $filename, $files->{$filename});
+  die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
+  local *F;
+  repopen($rev, $filename, $files->{$filename}, \*F) || die("$projid/$packid/$files->{$filename}-$filename: $!\n");
+  BSServer::reply_file(\*F, "Content-Length: $s[7]");
   return undef;
 }
 
@@ -2180,8 +2280,18 @@ sub sourcediff {
     # expand links
     if ($files->{'_link'}) {
       $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
-      $files = handlelinks($rev, $files);
+      my %li;
+      my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
+      $l->{'project'} = $rev->{'project'} unless defined $l->{'project'};
+      $l->{'package'} = $rev->{'package'} unless defined $l->{'package'};
+      $files = handlelinks($rev, $files, \%li);
       die("bad link: $files\n") unless ref $files;
+      if ($l && $cgi->{'linkrev'} && $l->{'project'} eq $oprojid && $l->{'package'} eq $opackid && !$l->{'rev'} && !$cgi->{'orev'}) {
+        # we're diffing against the link target. As the user specified a baserev, we should use it
+        # instead of the latest source
+        $orev = getrev($oprojid, $opackid, $li{'srcmd5'});
+        $ofiles = lsrev($orev);
+      }
     }
     if ($ofiles->{'_link'}) {
       $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
@@ -2279,7 +2389,7 @@ sub keeplink {
   $orev ||= getrev($projid, $packid, 'latest');
   my $ofilesl = lsrev($orev);
   return $files unless $ofilesl && $ofilesl->{'_link'};
-  my $l = readxml("$srcrep/$packid/$ofilesl->{'_link'}-_link", $BSXML::link);
+  my $l = repreadxml($orev, '_link', $ofilesl->{'_link'}, $BSXML::link);
   my $changedlink = 0;
   my %lignore;
   my $isbranch;
@@ -2465,7 +2575,7 @@ sub integratelink {
   my ($files, $projid, $packid, $rev, $ofiles, $oprojid, $opackid, $l, $orev) = @_;
 
   # append patches from link l to link nl
-  my $nl = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
+  my $nl = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
 
   # FIXME: remove hunks from patches that deal with replaced/deleted files
   my $nlchanged;
@@ -2513,7 +2623,7 @@ sub integratelink {
     # and integrate
     delete $ofiles->{'_link'};
     $ofiles = keeplink({'convertbranchtopatch' => 1, 'linkrev' => 'base'}, $oprojid, $opackid, $ofiles, $orev);
-    $l = readxml("$srcrep/$opackid/$ofiles->{'_link'}-_link", $BSXML::link);
+    $l = repreadxml($orev, '_link', $ofiles->{'_link'}, $BSXML::link);
   }
 
   if (!$nlisbranch && $l->{'patches'}) {
@@ -2632,7 +2742,7 @@ sub sourcecopy {
 
   if ($files->{'_link'} && !$cgi->{'dontupdatesource'} && !$cgi->{'rev'}) {
     # fix me: do this in a more generic way
-    my $ol = readxml("$srcrep/$opackid/$files->{'_link'}-_link", $BSXML::link, 1);
+    my $ol = repreadxml($orev, '_link', $files->{'_link'}, $BSXML::link, 1);
     if ($ol) {
       my $lprojid = $oprojid;
       my $lpackid = $opackid;
@@ -2685,7 +2795,7 @@ sub sourcecopy {
           my $latestorev = getrev($oprojid, $opackid);
           my $latestfiles = lsrev($latestorev);
           if ($latestfiles->{'_link'}) {
-	    my $latestl = readxml("$srcrep/$opackid/$latestfiles->{'_link'}-_link", $BSXML::link, 1);
+	    my $latestl = repreadxml($latestorev, '_link', $latestfiles->{'_link'}, $BSXML::link, 1);
 	    my $latestisbranch = grep {(keys %$_)[0] eq 'branch'} @{$latestl->{'patches'}->{''} || []};
 	    if ($latestisbranch && $latestl->{'baserev'} eq $autosimplifylink->{'baserev'}) {
 	      $latestl->{'baserev'} = $newbase;
@@ -2766,7 +2876,7 @@ sub linktobranch {
   $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
   my $files = lsrev($rev);
   die("package is not a link\n") unless $files->{'_link'};
-  my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link);
+  my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
   die("package is already a branch\n") if $l->{'patches'} && grep {(keys %$_)[0] eq 'branch'} @{$l->{'patches'}->{''} || []};
   my $linkinfo = {};
   $files = lsrev_expanded($rev, $linkinfo);
@@ -3650,7 +3760,7 @@ sub createrequest {
 	my $rev = getrev($projid, $packid, $rev);
         my $files = lsrev($rev);
         if ($files->{'_link'}) {
-          my $l = readxml("$srcrep/$packid/$files->{'_link'}-_link", $BSXML::link, 1);
+          my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
           if ($l) {
             $projid = $l->{'project'} if exists $l->{'project'};
             $packid = $l->{'package'} if exists $l->{'package'};
