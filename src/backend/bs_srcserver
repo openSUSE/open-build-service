@@ -2281,9 +2281,12 @@ sub sourcediff {
     if ($files->{'_link'}) {
       $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
       my %li;
+      my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
+      $l->{'project'} = $rev->{'project'} unless defined $l->{'project'};
+      $l->{'package'} = $rev->{'package'} unless defined $l->{'package'};
       $files = handlelinks($rev, $files, \%li);
       die("bad link: $files\n") unless ref $files;
-      if ($cgi->{'linkrev'} && $li{'project'} eq $oprojid && $li{'package'} eq $opackid && !$li{'rev'} && !$cgi->{'orev'}) {
+      if ($l && $cgi->{'linkrev'} && $l->{'project'} eq $oprojid && $l->{'package'} eq $opackid && !$l->{'rev'} && !$cgi->{'orev'}) {
         # we're diffing against the link target. As the user specified a baserev, we should use it
         # instead of the latest source
         $orev = getrev($oprojid, $opackid, $li{'srcmd5'});
