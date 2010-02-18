@@ -375,13 +375,16 @@ sub createMetadata( $$$ )
           foreach my $requiredArch( @{$archSetList} ) {
               my $ref = $requiredArch->{ref};
               die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
-              $onlyarch .= "$archSets{$ref}->{productarch},";
+              $onlyarch .= "$archSets{$ref}->{productarch},noarch";
           }
         }
-	push @packages, { name => $pack->{name}, 
+	my $h = { name => $pack->{name}, 
 			  medium => $metadata_medium, 
 			  removearch => $removearch,
 			  onlyarch => $onlyarch };
+        $h->{'arch'} = $pack->{'arch'} if defined($pack->{'arch'});
+        $h->{'addarch'} = $pack->{addarch} if defined($pack->{addarch});
+	push @packages, $h;
     }
 
     my @a;
