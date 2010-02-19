@@ -1115,7 +1115,7 @@ sub handlelinks {
     $linkinfo[-1]->{'link'} = $l;
     $projid = $l->{'project'};
     $packid = $l->{'package'};
-    my $lrev = $l->{'rev'} || '';
+    $lrev = $l->{'rev'} || '';
     return 'circular package link' if $seen{"$projid/$packid/$lrev"};
     $seen{"$projid/$packid/$lrev"} = 1;
     # record link target for projpack
