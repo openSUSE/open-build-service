@@ -1,6 +1,7 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
+require 'ldap'
 require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
@@ -126,29 +127,49 @@ class ApplicationController < ActionController::Base
       if defined?( LDAP_MODE ) && LDAP_MODE == :on
         logger.debug( "Using LDAP to find #{login}" )
         ldap_info = User.find_with_ldap( login, passwd )
-        if ldap_info
-          @http_user = User.find :first,
-            :conditions => [ 'login = ?', login ]
-          if !@http_user
+        if not ldap_info.nil?
+          # We've found an ldap authenticated user - find or create an OBS userDB entry.
+          @http_user = User.find :first, :conditions => [ 'login = ?', login ]
+          if @http_user
+            # Check for ldap updates
+            if @http_user.email != ldap_info[0]
+              @http_user.email = ldap_info[0]
+              @http_user.save
+            end
+          else
             logger.debug( "No user found in database, creating" )
-            logger.debug( ldap_info[0] )
-            logger.debug( ldap_info[1] )
+            logger.debug( "Email: #{ldap_info[0]}" )
+            logger.debug( "Name : #{ldap_info[1]}" )
+            # Generate and store a fake pw in the OBS DB that no-one knows
+            chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
+            fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("C*")
             newuser = User.create(
-              :login => login,
-              :password => passwd,
-              :password_confirmation => passwd,
-              :email => ldap_info[0] )
+            :login => login,
+            :password => fakepw,
+            :password_confirmation => fakepw,
+            :email => ldap_info[0] )
+            unless newuser.errors.empty?
+              errstr = String.new
+              logger.debug("Creating User failed with: ")
+              newuser.errors.each_full do |msg|
+                errstr = errstr+msg
+                logger.debug(msg)
+              end
+              render_error( :message => "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}",
+                            :status => 401 ) and return false
+              @http_user=nil
+              return false
+            end
             newuser.realname = ldap_info[1]
-            newuser.state = 2
+            newuser.state = User.states['confirmed']
             newuser.adminnote = "User created via LDAP"
             user_role = Role.find_by_title("User")
             newuser.roles << user_role
-            
+
             logger.debug( "saving new user..." )
             newuser.save
-            
-            @http_user = User.find :first,
-              :conditions => [ 'login = ?', login ]
+
+            @http_user = newuser
           end
           
           session[:rbac_user_id] = @http_user.id

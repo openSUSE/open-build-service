@@ -317,45 +317,74 @@ module UserMixins
             return nil
           end
 
-          # this static method tries to find a user with the given login and
-          # password in the active directory server.  Will fall back to
-          # database authentication if the LDAP credentials are incorrect.
+          # This static method tries to find a user with the given login and
+          # password in the active directory server.  Returns nil unless 
+          # credentials are correctly found using LDAP.
           def self.find_with_ldap(login, password)
-            ldap_con = initialize_ldap_con('','')
-            user_filter = Net::LDAP::Filter.eq( LDAP_SEARCH_ATTR, login )
-            
-            ldap_info = nil
-            if not ldap_con.nil? and ldap_con.bind
-              logger.debug( "Connected to LDAP server" )
-              dn = String.new
-              ldap_con.search( :base => LDAP_SEARCH_BASE, :filter => user_filter, :attributes=> 'dn') do |entry|
-                dn = entry.dn
-              end
+            logger.debug( "Looking for #{login} using ldap" )
+            ldap_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+            if ldap_con.nil?
+              logger.debug( "Unable to connect to LDAP server" )
+              return nil
+            end
+
+            user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
+            logger.debug( "Search for #{user_filter}" )
+            dn = String.new
+            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter, '') do |entry|
+              dn = entry.dn
+            end
               
-              unless dn.empty?
-                logger.debug( "Found user dn #{dn}" )
+            if dn.empty?
+              logger.debug( "User not found in ldap" )
+              return nil
+            end
+
+            # Attempt to authenticate user
+            case LDAP_AUTHENTICATE
+            when :local then
+              authenticated = false
+              case LDAP_AUTH_MECH
+              when :cleartext then
+                if entry[LDAP_AUTH_ATTR][0] == password then
+                  authenticated = true
+                end
+              when :md5 then
+                require 'digest/md5'
+                require 'base64'
+                if entry[LDAP_AUTH_ATTR][0] == "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)) then
+                  authenticated = true
+                end
+              end
+              if authenticated == true
+                ldap_info = Array.new
+                ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
+                ldap_info[1] = String.new(entry[LDAP_NAME_ATTR][1])
+              end
                 
-                ldap_con = initialize_ldap_con(dn,password)
-                if ldap_con.bind
-                  ldap_info = Array.new
-                  
-                  ldap_con.search( :base => LDAP_SEARCH_BASE, :filter => user_filter, :attributes=> 'mail') do |entry|
-                    ldap_mail = String.new(entry.mail.join)
-                    ldap_info[0] = ldap_mail
+            when :ldap then
+              # Don't match the passwd locally, try to bind to the ldap server
+              user_con= initialize_ldap_con(dn,password)
+              if user_con.nil?
+                logger.debug( "Unable to connect to LDAP server as #{dn} using credentials supplied" )
+              else
+                ldap_info = Array.new
+                # Redo the search as the user for situations where the anon search may not be able to see attributes
+                user_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE,  user_filter, '') do |entry|
+                  if entry[LDAP_MAIL_ATTR] then 
+                    ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
+                  else
+                    ldap_info[0] =  'fake@email.ldap'
                   end
-                  
-                  ldap_con.search( :base => LDAP_SEARCH_BASE, :filter => user_filter, :attributes=> 'name') do |entry|
-                    ldap_name = String.new(entry.name.join)
-                    ldap_info[1] = ldap_name
+                  if entry[LDAP_NAME_ATTR] then
+                    ldap_info[1] = String.new(entry[LDAP_NAME_ATTR][1])
+                  else
+                    ldap_info[1] = login
                   end
                 end
               end
-            else
-              logger.debug( "Unable to connect to LDAP server" )
             end
-            
             logger.debug( "login success = #{ldap_info}" )
-            
             ldap_info
           end
 
@@ -484,29 +513,31 @@ module UserMixins
               server = nil
               count = 0
               
-              if not MAX_LDAP_ATTEMPTS
-                max_ldap_attempts = 10
-              else
-                max_ldap_attempts = MAX_LDAP_ATTEMPTS
-              end
+              max_ldap_attempts = LDAP_MAX_ATTEMPTS or 10
               
               while !ping and count < max_ldap_attempts
+                count += 1
                 server = ldap_servers[rand(ldap_servers.length)]
                 # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
                 ping = system("ping -c 1 #{server} >/dev/null 2>/dev/null")
               end
               
               if count == max_ldap_attempts
-                logger.debug("Unable to connect to any LDAP server")
-              else
-                return Net::LDAP.new( {:host => server,
-                                       :port => 389,
-                                       :auth => { :method => :simple,
-                                                  :username => user_name,
-                                                  :password => password }} )
+                logger.debug("Unable to ping to any LDAP server: #{LDAP_SERVERS}")
+                return nil
               end
-              
-              return nil
+
+              logger.debug( "Connecting to #{server} as '#{user_name}'" )
+              begin
+                conn = LDAP::Conn.new( server, 389)
+                conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
+                conn.bind(user_name, password)
+              rescue LDAP::ResultError
+                logger.debug( "Not bound:  error #{conn.err}" )
+                return nil
+              end
+              logger.debug( "Bound as #{user_name}" )
+              return conn
             end
         end
       end

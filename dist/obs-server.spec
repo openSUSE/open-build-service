@@ -104,7 +104,7 @@ Requires:       rubygem-rails-2_3 = 2.3.5
 Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
-Requires:       rubygem-net-ldap
+Requires:       ruby-ldap
 # requires for webui:
 Requires:       ghostscript-fonts-std
 Requires:       rubygem-gruff
