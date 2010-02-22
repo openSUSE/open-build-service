@@ -272,6 +272,11 @@ sub getcommitinfo {
   # get version/release from rpm spec/deb dsc/kiwi xml file
   my $version = 'unknown';
   my $release;
+  if ($files->{'_link'}) {
+    # can't know the version/release of a link as it is
+    # a moving target
+    return ('unknown', '0');
+  }
   my $bconf = Build::read_config('noarch');
   for my $type ('spec', 'dsc', 'kiwi') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
