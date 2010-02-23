@@ -157,8 +157,10 @@ class ApplicationController < ActionController::Base
           logger.debug( "User not found with LDAP, falling back to database" )
           @http_user = User.find_with_credentials login, passwd
         end
-    else
-      @http_user = User.find_with_credentials login, passwd
+
+      else
+        @http_user = User.find_with_credentials login, passwd
+      end
     end
 
     if @http_user.nil?
