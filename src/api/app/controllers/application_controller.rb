@@ -126,7 +126,7 @@ class ApplicationController < ActionController::Base
       
       if LDAP_MODE == :on
         logger.debug( "Using LDAP to find #{login}" )
-        ldap_info = User.find_with_ldap ( login, passwd )
+        ldap_info = User.find_with_ldap( login, passwd )
         if ldap_info
           @http_user = User.find :first,
                                  :conditions => [ 'login = ?', login ]

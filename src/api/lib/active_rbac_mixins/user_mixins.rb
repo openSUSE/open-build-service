@@ -351,7 +351,7 @@ module UserMixins
                 end
               end
             else
-              logger.debug ( "Unable to connect to LDAP server" )
+              logger.debug( "Unable to connect to LDAP server" )
             end
             
             logger.debug( "login success = #{ldap_info}" )
@@ -497,7 +497,7 @@ module UserMixins
               end
               
               if count == max_ldap_attempts
-                logger.debug ("Unable to connect to any LDAP server")
+                logger.debug("Unable to connect to any LDAP server")
               else
                 return Net::LDAP.new( {:host => server,
                                        :port => 389,
