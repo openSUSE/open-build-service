@@ -335,7 +335,7 @@ class RequestController < ApplicationController
           target_package.develpackage = DbPackage.find_by_project_and_name(action.source.project, action.source.package)
           begin
             target_package.resolve_devel_package
-            target_package.save
+            target_package.store
           rescue DbPackage::CycleError => e
             render_error :status => 403, :errorcode => "devel_cycle", :message => e.message
             return
