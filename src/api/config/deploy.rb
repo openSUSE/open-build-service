@@ -39,6 +39,8 @@ set :runner, "root"
 after "deploy:update_code", "config:symlink_shared_config"
 after "deploy:symlink", "config:permissions"
 
+before "deploy:update_code", "deploy:test_suite"
+
 # workaround because we are using a subdirectory of the git repo as rails root
 before "deploy:finalize_update", "deploy:apidocs"
 before "deploy:finalize_update", "deploy:use_subdir"
@@ -127,6 +129,19 @@ Git log:
     end
   end
   
+  task :test_suite do
+    Dir.glob('**/*.rb').each do |f|
+      if !system("ruby -c -d #{f} > /dev/null")
+         puts "syntax error in #{f} - will not deploy"
+         exit 1
+      end
+    end 
+    if !system("rake test")
+      puts "Error on rake test - will not deploy"
+      exit 1
+    end
+  end
+
 end
 
 
