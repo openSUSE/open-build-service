@@ -1,7 +1,6 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'net/ldap'
 require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
@@ -21,7 +20,7 @@ class ApplicationController < ActionController::Base
   
   helper RbacHelper
  
-  before_filter :validate_incoming_xml 
+  before_filter :validate_incoming_xml, :add_api_version
 
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
@@ -54,8 +53,8 @@ class ApplicationController < ActionController::Base
       if ichain_user 
         logger.info "iChain user extracted from header: #{ichain_user}"
       elsif ICHAIN_MODE == :simulate
-          ichain_user = ICHAIN_TEST_USER
-          logger.debug "iChain user extracted from config: #{ichain_user}"
+        ichain_user = ICHAIN_TEST_USER
+        logger.debug "iChain user extracted from config: #{ichain_user}"
       end
       
       # we're using iChain, there is no need to authenticate the user from the credentials
@@ -70,19 +69,19 @@ class ApplicationController < ActionController::Base
           @http_user = User.find :first, :conditions => ['login = ?', ichain_user ]
           if @http_user == nil
             render_error :message => "iChain user not yet registered", :status => 403,
-                         :errorcode => "unregistered_ichain_user",
-                         :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
+              :errorcode => "unregistered_ichain_user",
+              :details => "Please register your user via the web application #{CONFIG['webui_url']} once."
           else
             if @http_user.state == 5
               render_error :message => "iChain user #{ichain_user} is registered but not yet approved.", :status => 403,
-                           :errorcode => "registered_ichain_but_unapproved",
-                           :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
-                                       "<p>Please stay tuned until you get approval message.</p>"
+                :errorcode => "registered_ichain_but_unapproved",
+                :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
+                "<p>Please stay tuned until you get approval message.</p>"
             else
               render_error :message => "Your user is either invalid or net yet confirmed (state #{@http_user.state}).", 
-                           :status => 403,
-                           :errorcode => "unconfirmed_user",
-                           :details => "Please contact the openSUSE admin team <admin@opensuse.org>"
+                :status => 403,
+                :errorcode => "unconfirmed_user",
+                :details => "Please contact the openSUSE admin team <admin@opensuse.org>"
             end
           end
           return false
@@ -124,21 +123,21 @@ class ApplicationController < ActionController::Base
         render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false
       end
       
-      if LDAP_MODE == :on
+      if defined?( LDAP_MODE ) && LDAP_MODE == :on
         logger.debug( "Using LDAP to find #{login}" )
         ldap_info = User.find_with_ldap( login, passwd )
         if ldap_info
           @http_user = User.find :first,
-                                 :conditions => [ 'login = ?', login ]
+            :conditions => [ 'login = ?', login ]
           if !@http_user
             logger.debug( "No user found in database, creating" )
             logger.debug( ldap_info[0] )
             logger.debug( ldap_info[1] )
             newuser = User.create(
-                                  :login => login,
-                                  :password => passwd,
-                                  :password_confirmation => passwd,
-                                  :email => ldap_info[0] )
+              :login => login,
+              :password => passwd,
+              :password_confirmation => passwd,
+              :email => ldap_info[0] )
             newuser.realname = ldap_info[1]
             newuser.state = 2
             newuser.adminnote = "User created via LDAP"
@@ -149,7 +148,7 @@ class ApplicationController < ActionController::Base
             newuser.save
             
             @http_user = User.find :first,
-                                   :conditions => [ 'login = ?', login ]
+              :conditions => [ 'login = ?', login ]
           end
           
           session[:rbac_user_id] = @http_user.id
@@ -191,7 +190,7 @@ class ApplicationController < ActionController::Base
   end
 
   def add_api_version
-    response.headers["X-Opensuse-APIVersion"] = API_VERSION
+    response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
   end
 
   def forward_data( path, opt={} )
@@ -301,13 +300,13 @@ class ApplicationController < ActionController::Base
     # if the exception was raised inside a template (-> @template.first_render != nil), 
     # the instance variables created in here will not be injected into the template
     # object, so we have to do it manually
-# This is commented out, since it does not work with Rails 2.3 anymore and is also not needed there
-#    if @template.first_render
-#      logger.debug "injecting error instance variables into template object"
-#      %w{@summary @errorcode @exception}.each do |var|
-#        @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
-#      end
-#    end
+    # This is commented out, since it does not work with Rails 2.3 anymore and is also not needed there
+    #    if @template.first_render
+    #      logger.debug "injecting error instance variables into template object"
+    #      %w{@summary @errorcode @exception}.each do |var|
+    #        @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
+    #      end
+    #    end
 
     # on some occasions the status template doesn't receive the instance variables it needs
     # unless render_to_string is called before (which is an ugly workaround but I don't have any
@@ -353,14 +352,13 @@ class ApplicationController < ActionController::Base
   #default actions, passes data from backend
   def pass_to_backend
     begin
-       forward_data request.path+'?'+request.query_string, :server => :source
+      forward_data request.path+'?'+request.query_string, :server => :source
     rescue Suse::Backend::HTTPError
-       render_error :status => 404, :errorcode => "not found",
+      render_error :status => 404, :errorcode => "not found",
         :message => "#{request.path} not found"
     end
   end
   alias_method :pass_to_source, :pass_to_backend
-
 
 
   # Passes control to subroutines determined by action and a request parameter. By 
@@ -393,14 +391,6 @@ class ApplicationController < ActionController::Base
     end
 
     __send__ cmd_handler
-  end
-
-  def esc(*args)
-    CGI.escape *args
-  end
-
-  def uesc(*args)
-    URI.escape *args
   end
 
   def build_query_from_hash(hash, key_list=nil)
