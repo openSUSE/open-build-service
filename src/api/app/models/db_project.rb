@@ -374,7 +374,7 @@ class DbProject < ActiveRecord::Base
 
   # step down through namespaces until a project is found, returns found project or nil
   def self.find_parent_for(project_name)
-    name_parts = project_name.split /:/
+    name_parts = project_name.split(/:/)
 
     #project is not inside a namespace
     return nil if name_parts.length <= 1

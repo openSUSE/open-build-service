@@ -16,7 +16,7 @@ FIXTURES = [
 ]
 
 class SourceControllerTest < ActionController::IntegrationTest 
-  fixtures *FIXTURES
+  fixtures(*FIXTURES)
   
   def setup
     @controller = SourceController.new

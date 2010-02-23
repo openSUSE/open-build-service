@@ -53,13 +53,13 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_kind_of Tag, t
     
     #expected exceptions 
-    assert_raises (RuntimeError) {
+    assert_raises RuntimeError do
       @controller.private_s_to_tag("IamNotAllowed")
-    }
+    end
     
-    assert_raises (RuntimeError) {
+    assert_raises RuntimeError do
       @controller.private_s_to_tag("NotAllowedSymbol:?")
-    }
+    end
     
   end
   
@@ -74,9 +74,9 @@ class TagControllerTest < ActionController::IntegrationTest
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
     #an exception should be thrown, because the record already exists
-    assert_raises (ActiveRecord::StatementInvalid){
+    assert_raises ActiveRecord::StatementInvalid do
       @controller.private_create_relationship(p, u, t)
-    }
+    end
   end
   
   
@@ -105,9 +105,9 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_kind_of Tag, t
     
     #create the relationship and store it in the join table
-    assert_nothing_raised (ActiveRecord::StatementInvalid){
+    assert_nothing_raised ActiveRecord::StatementInvalid do
       @controller.private_create_relationship(p, u, t)
-    }
+    end
     
     #reload the user, seems to be necessary
     u = User.find_by_login("tscholz")
@@ -155,9 +155,9 @@ class TagControllerTest < ActionController::IntegrationTest
     t << tx
     t << ty
     
-    assert_nothing_raised (ActiveRecord::StatementInvalid){
+    assert_nothing_raised ActiveRecord::StatementInvalid do
       @controller.private_save_tags(p, u, t)
-    }
+    end
     
     assert_kind_of Tag, u.tags.find_by_name("TagX")
     assert_kind_of Tag, u.tags.find_by_name("TagY")  
@@ -199,9 +199,9 @@ class TagControllerTest < ActionController::IntegrationTest
     unsaved_tags = Array.new
     
     #testing 
-    assert_nothing_raised (ActiveRecord::StatementInvalid){
+    assert_nothing_raised ActiveRecord::StatementInvalid do
       tags, unsaved_tags = @controller.private_taglistXML_to_tags(xml.to_s)
-    }
+    end
     
     assert_kind_of Array, tags
     assert_kind_of Array, unsaved_tags

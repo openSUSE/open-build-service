@@ -21,7 +21,7 @@ class AttribType < ActiveRecord::Base
     end
 
     def find_by_name(name)
-      name_parts = name.split /:/
+      name_parts = name.split(/:/)
       if name_parts.length != 2
         raise ArgumentError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
       end

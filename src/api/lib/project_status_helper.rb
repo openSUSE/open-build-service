@@ -204,8 +204,8 @@ class ProjectStatusHelper
   end
 
   def self.filter_by_package_name(name)
-    return true # take all
-    return (name =~ /Botan/)
+    #return (name =~ /Botan/)
+    return true
   end
 
   def self.calc_status(dbproj, backend)

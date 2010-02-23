@@ -7,7 +7,7 @@ class Object
 
   def self.iattr_accessor *args
     metaclass.instance_eval do
-      attr_accessor *args
+      attr_accessor(*args)
       args.each do |attr|
         define_method("set_#{attr}") do |b_value|
           self.send("#{attr}=",b_value)

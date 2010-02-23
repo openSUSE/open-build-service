@@ -170,10 +170,14 @@ class AttributeTest < ActiveSupport::TestCase
     # store in a project
     @project = DbProject.find_by_name( "kde4" )
     assert_not_nil @project
-    assert_raise (DbProject::SaveError) {@project.store_attribute_axml(xml)}
+    assert_raise DbProject::SaveError do 
+      @project.store_attribute_axml(xml)
+    end
     # store in a package
     @package = DbPackage.find_by_project_and_name( "kde4", "kdebase" )
     assert_not_nil @package
-    assert_raise (DbPackage::SaveError) {@package.store_attribute_axml(xml)}
+    assert_raise DbPackage::SaveError do 
+      @package.store_attribute_axml(xml)
+    end
   end
 end

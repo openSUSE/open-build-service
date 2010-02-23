@@ -232,7 +232,7 @@ class XpathEngine
   end
 
   def escape_for_like(str)
-    str.gsub /([_%])/, '\\\\\1'
+    str.gsub(/([_%])/, '\\\\\1')
   end
 
   def xpath_op_eq(lv, rv)

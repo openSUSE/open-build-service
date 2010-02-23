@@ -29,9 +29,9 @@ class FlagTest < ActiveSupport::TestCase
     f = Flag.find_by_repo("999.999")
     assert_kind_of Flag, f
     
-    assert_raises (RuntimeError) {
+    assert_raises RuntimeError do
       f.to_xml    
-    }
+    end
     
   end
   

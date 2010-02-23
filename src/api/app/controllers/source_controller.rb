@@ -243,7 +243,7 @@ class SourceController < ApplicationController
     # permission checking
     if params[:attribute]
       aname = params[:attribute]
-      name_parts = aname.split /:/
+      name_parts = aname.split(/:/)
       if name_parts.length != 2
         raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
       end
@@ -765,7 +765,7 @@ class SourceController < ApplicationController
       # is a update project defined and a package there ?
       pac = p
       aname = params[:update_project_attribute]
-      name_parts = aname.split /:/
+      name_parts = aname.split(/:/)
       if name_parts.length != 2
         raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
       end
@@ -1070,7 +1070,7 @@ class SourceController < ApplicationController
 
     # is a update project defined and a package there ?
     aname = params[:update_project_attribute]
-    name_parts = aname.split /:/
+    name_parts = aname.split(/:/)
     if name_parts.length != 2
       raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
