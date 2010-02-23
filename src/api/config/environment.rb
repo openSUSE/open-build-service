@@ -11,6 +11,8 @@ RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
 
 require "common/libxmlactivexml"
 require 'custom_logger'
+require 'rails_unescape_fix'
+require 'rexml-expansion-fix'
 
 
 Rails::Initializer.run do |config|
@@ -34,9 +36,14 @@ Rails::Initializer.run do |config|
   # (create the session table with 'rake create_sessions_table')
   # config.action_controller.session_store = :active_record_store
 
+  # put the rubygem requirements here for a clean handling
+  # rake gems:install (installs the needed gems)
+  # rake gems:unpack (this unpacks the gems to vendor/gems)
+
   config.gem 'daemons'
   config.gem 'delayed_job'
   config.gem 'exception_notification'
+  config.gem "net-ldap", :lib => "net/ldap"
 
   config.action_controller.session = {
     :session_key => "_frontend_session",
@@ -61,18 +68,7 @@ Rails::Initializer.run do |config|
   # See Rails::Configuration for more options
 end
 
-# Add new inflection rules using the following format 
-# (all these examples are active by default):
-# Inflector.inflections do |inflect|
-#   inflect.plural /^(ox)$/i, '\1en'
-#   inflect.singular /^(ox)en/i, '\1'
-#   inflect.irregular 'person', 'people'
-#   inflect.uncountable %w( fish sheep )
-# end
-
 # Include your application configuration below
-
-API_VERSION="0.1.2"
 
 
 # minimum count of rating votes a project/package needs to
@@ -82,17 +78,6 @@ MIN_VOTES_FOR_RATING = 3
 ActionController::Base.perform_caching = true
 
 ActiveRbac.controller_layout = "rbac"
-
-require 'custom_logger'
-
-require 'rails_unescape_fix'
-
-require 'rexml-expansion-fix'
-#require 'custom_dispatcher'
-
-#Dependencies.log_activity = true
-#Dependencies.load_once_paths << "#{RAILS_ROOT}/lib"
-
 
 ActiveXML::Base.config do |conf|
   if RAILS_ENV == "test"
