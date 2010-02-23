@@ -396,7 +396,7 @@ class ApplicationController < ActionController::Base
   def build_query_from_hash(hash, key_list=nil)
     key_list ||= hash.keys
     query = key_list.map do |key|
-      [hash[key]].flatten.map {|x| "#{key}=#{esc hash[key].to_s}"}.join("&") if hash.has_key?(key)
+      [hash[key]].flatten.map {|x| "#{key}=#{CGI.escape hash[key].to_s}"}.join("&") if hash.has_key?(key)
     end
 
     if query.empty?
