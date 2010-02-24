@@ -1657,6 +1657,7 @@ sub getprojpack {
 	      }
 	    } else {
 	      $rinfo->{'error'} = "can not parse package name from $file";
+	      $rinfo->{'error'} .= " because: ".$d->{'error'} if $d->{'error'};
 	    }
 	  }
 	  $pinfo->{'info'} = \@dinfo if @dinfo;
