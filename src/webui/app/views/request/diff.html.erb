@@ -24,11 +24,11 @@
 
 <% if @diff_text %>
 <pre name="code" class="patch">
-  <%= @diff_text %>
+  <%= h @diff_text %>
 </pre>
 <% elsif @diff_error %>
   <p>
-    <i><div class="message">Can't get diff for request #<%= @id %>: <%= @diff_error %></div></i>
+    <i><div class="message">Can't get diff for request #<%= @id %>: <%= h @diff_error %></div></i>
   </p>
 <% end %>
 
