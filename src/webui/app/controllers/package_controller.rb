@@ -99,7 +99,8 @@ class PackageController < ApplicationController
   def rdiff
     @opackage = params[:opackage]
     @oproject = params[:oproject]
-    path = "/source/#{params[:project]}/#{params[:package]}?opackage=#{params[:opackage]}&oproject=#{params[:oproject]}&expand=1&unified=1&cmd=diff"
+    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?" +
+           "opackage=#{CGI.escape(params[:opackage])}&oproject=#{CGI.escape(params[:oproject])}&expand=1&unified=1&cmd=diff"
     begin
       @rdiff = frontend.transport.direct_http URI(path), :method => "POST", :data => ""
     rescue ActiveXML::Transport::NotFoundError => e
