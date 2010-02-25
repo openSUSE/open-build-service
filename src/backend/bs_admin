@@ -232,36 +232,34 @@ sub dump_cache {
 
 sub clone_repository {
   my ($srcproject, $srcrepo, $destproject, $destrepo) = @_;
-  my $srcdir  = $reporoot."/".$srcproject."/".$srcrepo;
-  my $destdir = $reporoot."/".$destproject."/".$destrepo;
+  my $srcdir  = "$reporoot/$srcproject/$srcrepo";
+  my $destdir = "$reporoot/$destproject/$destrepo";
   my $tmpdir  = $BSConfig::tmpdir || "$BSConfig::bsdir/tmp";
 
-  die ( "Destination repo must get created by scheduler first !" ) unless -d $destdir;
+  die("Destination repo must get created by scheduler first!\n") unless -d $destdir;
 
   mkdir_p($tmpdir) || die("mkdir_p $tmpdir: $!\n");
   $tmpdir .= "/bs_admin.$$";
   rm_rf("$tmpdir") if -d "$tmpdir";
 
   print "cloning $srcproject / $srcrepo\n";
-  system('cp', '-al', $srcdir, $tmpdir) && die( "cloning failed !" );
+  system('cp', '-al', $srcdir, $tmpdir) && die("cloning failed !");
 
   print "exchanging with $destproject / $destrepo\n";
-  system('mv', $destdir, $tmpdir.".old") && die( "moving away old destdir failed ! PANIK ! " );
-  system('mv', $tmpdir, $destdir) && die( "moving in new tree failed !" );
+  system('mv', $destdir, $tmpdir.".old") && die("moving away old destdir failed ! PANIC !\n");
+  system('mv', $tmpdir, $destdir) && die("moving in new tree failed!\n");
 
   print "tell schedulers about the change ";
-  opendir(DIR, $destdir) || die "can't opendir $destdir: $!";
-  my @archs = grep { ! /^\./ && -d "$destdir/$_" } readdir(DIR);
-  closedir DIR;
-  for my $a ( @archs ) {
-    print $a.", ";
-    write_event( $destproject, $destrepo, $a, 'project' );
+  my @archs = grep {-d "$destdir/$_"} ls($destdir);
+  for my $a (@archs) {
+    print "$a, ";
+    write_event($destproject, $destrepo, $a, 'scanrepo');
   }
 
   print "\nremoving old tree in $tmpdir.old\n";
-  system( "rm", "-rf", $tmpdir.".old") && die("removing FAILED !\n");
+  system( "rm", "-rf", $tmpdir.".old") && die("removing FAILED!\n");
 
-  print "finished.\n";
+  print "finished. Have a nice day.\n";
 }
 
 sub check_xml_file {
@@ -371,6 +369,9 @@ sub check_package {
   my ($project, $package, $arch) = @_;
   write_event( $project, undef, $arch, 'package', $package );
 }
+
+# make stdout non-buffered
+$| = 1;
 
 #
 # Argument parsing
