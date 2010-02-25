@@ -114,7 +114,7 @@ case "$1" in
 			NUM="$OBS_WORKER_INSTANCES"
 		else
 			# start one build backend per CPU
-			NUM=`grep ^processor /proc/cpuinfo  | wc -l`
+			NUM=`grep -i ^processor /proc/cpuinfo  | wc -l`
 		fi
 		I=0
 		ROOT="/tmp"
