@@ -1052,7 +1052,7 @@ my $product = $prodRef->{'products'}->{'product'}[0];
 die("no product name set\n") unless $product->{'name'};
 die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /^[_\.]/;
 die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\000-\037]/;
-die("ERROR: File name does not match to product name ($infile/$prodRef->{'products'}->{'product'}[0]->{'name'}.product)\n") unless $infile eq $prodRef->{'products'}->{'product'}[0]->{'name'}.".product";
+die("ERROR: File name does not match to product name ($infile/$prodRef->{'products'}->{'product'}[0]->{'name'}.product)\n") if not $infile =~ /.*\/$prodRef->{'products'}->{'product'}[0]->{'name'}.product$/;
 
 #
 # Calculate version strings
