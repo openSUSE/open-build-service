@@ -161,6 +161,7 @@ class User < ActiveRecord::Base
   def can_create_project?(project_name)
     ## special handling for home projects
     return true if project_name == "home:#{self.login}"
+    return true if /^home:#{self.login}:/.match( project_name )
     
     return true if has_global_permission? "create_project"
     return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
