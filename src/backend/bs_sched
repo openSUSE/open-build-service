@@ -3894,6 +3894,13 @@ while(1) {
 	}
       }
     }
+
+    # product definitions are never building themself
+    if ($packid eq '_product') {
+      $packstatus{$packid} = 'excluded';
+      next;
+    }
+
     my $pdata = $packs->{$packid};
     if ($pdata->{'error'}) {
       print "      - $packid ($pdata->{'error'})\n";
