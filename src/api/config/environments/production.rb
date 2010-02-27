@@ -20,6 +20,36 @@ config.action_controller.perform_caching             = true
 
 ICHAIN_MODE = :off
 
+LDAP_MODE = :off
+# LDAP Servers separated by ':'.
+# OVERRIDE with your company's ldap servers. Servers are picked randomly for
+# each connection to distribute load.
+LDAP_SERVERS = "ldap1.mycompany.com:ldap2.mycompany.com"
+# Max number of times to attempt to contact the LDAP servers
+LDAP_MAX_ATTEMPTS = 10
+
+# OVERRIDE with your company's ldap search base for the users who will use OBS
+LDAP_SEARCH_BASE = "OU=Organizational Unit,DC=Domain Component"
+# Sam Account Name is the login name for LDAP 
+LDAP_SEARCH_ATTR = "sAMAccountName"
+# The attribute the users name is stored in
+LDAP_NAME_ATTR="cn"
+# The attribute the users email is stored in
+LDAP_MAIL_ATTR="mail"
+# Credentials to use to search ldap for the username
+LDAP_SEARCH_USER=""
+LDAP_SEARCH_AUTH=""
+# How to verify:
+#   :ldap = attempt to bind to ldap as user using supplied credentials
+#   :local = compare the credentials supplied with those in 
+#            LDAP using LDAP_AUTH_ATTR & LDAP_AUTH_MECH
+#       LDAP_AUTH_MECH can be
+#       : md5
+#       : plaintext
+LDAP_AUTHENTICATE=:ldap
+LDAP_AUTH_ATTR="userPassword"
+LDAP_AUTH_MECH=:md5
+
 SOURCE_HOST = "localhost"
 SOURCE_PORT = 5352
 
