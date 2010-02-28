@@ -995,13 +995,6 @@ class SourceController < ApplicationController
       return
     end
 
-    #permission check
-    if not @http_user.can_modify_package?(pack)
-      render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-        :message => "no permission to execute command 'copy'"
-      return
-    end
-
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
