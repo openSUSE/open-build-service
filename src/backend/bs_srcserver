@@ -908,7 +908,11 @@ sub applylink {
       return "no baserev in branch patch" unless $baserev;
       return "baserev is not srcmd5" unless $baserev =~ /^[0-9a-f]{32}$/s;
       my %brev = (%$lsrc, 'srcmd5' => $baserev);
-      my $fbas = lsrev(\%brev);
+      my $fbas;
+      eval {
+        $fbas = lsrev(\%brev);
+      };
+      return "baserev $baserev does not exist" unless $fbas;
       return "baserev is link" if $fbas->{'link'};
       # do 3-way merge
       my %destnames = (%$fsrc, %$flnk);
@@ -1543,7 +1547,13 @@ sub getprojpack {
         }
 	if ($files->{'_link'}) {
 	  my %li = ('linked' => []);
-	  $files = handlelinks($rev, $files, \%li);
+	  eval {
+	    $files = handlelinks($rev, $files, \%li);
+	  };
+	  if ($@) {
+	    $files = "$@";
+	    $files =~ s/\n$//;
+	  }
 	  $pinfo->{'linked'} = $li{'linked'} if @{$li{'linked'}};
 	  if (!ref $files) {
 	    $pinfo->{'error'} = defined($files) ? $files : "could not get file list";
