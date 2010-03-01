@@ -610,7 +610,7 @@ class SourceController < ApplicationController
         end
         render_ok
       else
-        logger.debug "user #{user.login} has no permission to write package meta for package #@package"
+        logger.debug "user #{user.login} has no permission to write package meta for package #{@package}"
       end
     end
   end

@@ -313,7 +313,7 @@ class ApplicationController < ActionController::Base
     # idea where to start searching for the real problem)
     render_to_string :template => 'status'
 
-    logger.info "errorcode '#@errorcode' - #@summary"
+    logger.info "errorcode '#{@errorcode}' - #{@summary}"
     response.headers['X-Opensuse-Errorcode'] = @errorcode
     render :template => 'status', :status => opt[:status], :layout => false
   end

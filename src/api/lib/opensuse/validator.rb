@@ -138,7 +138,7 @@ module Suse
         return true
       end
 
-      logger.debug "trying to validate against schema '#@schema_path'"
+      logger.debug "trying to validate against schema '#{@schema_path}'"
 
       doc_str = request.raw_post.to_s    
       
@@ -149,8 +149,8 @@ module Suse
 
       logger.debug "validation tmpfile: #{tmp_path}"
 
-      out = `/usr/bin/xmllint --noout #@xmllint_param #@schema_path #{tmp_path} 2>&1`
-      if $?.exitstatus > 0
+      out = `/usr/bin/xmllint --noout #{@xmllint_param} #{@schema_path} #{tmp_path} 2>&1`
+      if $?.exitstatus != 0
         logger.debug "xmllint return value: #{$?.exitstatus}"
         logger.debug "XML: #{doc_str}"
         raise ValidationError, "validation failed, output:\n#{out}"
