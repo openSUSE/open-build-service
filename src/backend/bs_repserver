@@ -36,6 +36,7 @@ BEGIN {
 
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
+BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 use XML::Structured ':bytes';
 use Storable ();
 use Data::Dumper;
