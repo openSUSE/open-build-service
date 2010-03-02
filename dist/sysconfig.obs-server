@@ -9,7 +9,7 @@
 #
 # Each of them can be put inside in any combination
 #
-# Every schedulder needs memory, so many schedulers can eat the memory
+# Every scheduler needs memory, so many schedulers can eat the memory
 # of your obs server, e.g. a system with 4 schedulers and
 # appropriately loaded sources/binaries can eat 1-2 GB RAM
 #
@@ -19,12 +19,12 @@
 OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
 
 ## Path:        Applications/OBS
-## Description: The base for OBS communucation directory
+## Description: The base for OBS communication directory
 ## Type:        string
 ## Default:     ""
 ## Config:      OBS
 #
-# An empty dir will lead to the fall back directory, typically /src/obs/run
+# An empty dir will lead to the fall back directory, typically /srv/obs/run
 #
 OBS_RUN_DIR=""
 
@@ -34,7 +34,7 @@ OBS_RUN_DIR=""
 ## Default:     ""
 ## Config:      OBS
 #
-# An empty dir will lead to the fall back directory, typically /src/obs/log
+# An empty dir will lead to the fall back directory, typically /srv/obs/log
 #
 OBS_LOG_DIR=""
 
@@ -57,4 +57,3 @@ OBS_STORAGE_AUTOSETUP="no"
 # This is usally only enabled on the OBS Appliance
 #
 OBS_API_AUTOSETUP="no"
-
