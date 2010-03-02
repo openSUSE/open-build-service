@@ -72,8 +72,8 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attribute name="role" type="xs:string"/>
-      <xs:attribute name="userid" type="xs:string"/>
+      <xs:attribute name="role" type="xs:string" use="required"/>
+      <xs:attribute name="userid" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
