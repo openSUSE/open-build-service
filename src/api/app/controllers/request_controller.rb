@@ -35,10 +35,33 @@ class RequestController < ApplicationController
 
   # DELETE /request/:id
   #def destroy
-  #TODO: implement HTTP DELETE as state change to 'deleted'
+  # Do we want to allow to delete requests at all ?
   #end
 
   private
+
+  def find_reviewers(obj)
+    # obj can be a project or package object
+    reviewers = Array.new(0)
+    prj = nil
+
+    # check for reviewers in a package first
+    if obj.class == DbProject
+      prj = obj
+    elsif obj.class == DbPackage
+      obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+        reviewers << User.find_by_id(r.bs_user_id)
+      end
+      prj = obj.db_project
+    else
+    end
+
+    # add reviewers of project in any case
+    prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+      reviewers << User.find_by_id(r.bs_user_id)
+    end
+    return reviewers
+  end
 
   # POST /request?cmd=create
   def create_create
@@ -151,6 +174,7 @@ class RequestController < ApplicationController
             return
           end
         end
+
       else
         render_error :status => 403, :errorcode => "create_unknown_request",
           :message => "Request type is unknown '#{action.data.attributes["type"]}'"
@@ -158,12 +182,37 @@ class RequestController < ApplicationController
       end
     end
 
+
     params[:user] = @http_user.login if @http_user
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
     # forward_path is not working here, because we may modify the request.
     # can get cleaned up when we moved this to the client
     response = backend_post( path, req.dump_xml )
+
+    # check targets for defined default reviewers
+    reviewers = []
+    req = BsRequest.new(response)
+    req.each_action do |action|
+      tprj = DbProject.find_by_name action.target.project
+      if action.target.has_attribute? 'package'
+        tpkg = tprj.db_packages.find_by_name action.target.package
+        reviewers += find_reviewers(tpkg)
+      else
+        reviewers += find_reviewers(tprj)
+      end
+    end
+
+    if reviewers.length > 0
+      reviewers.each do |r|
+        p = {}
+        p[:cmd]     = "addreview"
+        p[:by_user] = r.login
+        path = "/request/" + req.id + build_query_from_hash(p, [:cmd, :by_user])
+        r = backend_post( path, "" )
+      end
+    end
+
     send_data( response, :disposition => "inline" )
     return
   end
