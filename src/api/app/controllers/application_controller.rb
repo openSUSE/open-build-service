@@ -231,7 +231,7 @@ class ApplicationController < ActionController::Base
     when ActiveXML::Transport::NotFoundError
       render_error :message => exception.message, :status => 404
     when Suse::ValidationError
-      render_error :message => "XML validation failed", :details => exception.message , :status => 400
+      render_error :message => exception.message, :status => 400
     when InvalidHttpMethodError
       render_error :message => exception.message, :errorcode => "invalid_http_method", :status => 400
     when DbPackage::SaveError
@@ -313,7 +313,7 @@ class ApplicationController < ActionController::Base
     # idea where to start searching for the real problem)
     render_to_string :template => 'status'
 
-    logger.info "errorcode '#@errorcode' - #@summary"
+    logger.info "errorcode '#{@errorcode}' - #{@summary}"
     response.headers['X-Opensuse-Errorcode'] = @errorcode
     render :template => 'status', :status => opt[:status], :layout => false
   end

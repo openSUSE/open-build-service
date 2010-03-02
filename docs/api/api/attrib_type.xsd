@@ -57,9 +57,8 @@
       <xs:sequence>
         <xs:element name="count" />
         <xs:element minOccurs="0" maxOccurs="1" ref="default" />
-        <xs:element minOccurs="0" maxOccurs="1" ref="values" />
+        <xs:element minOccurs="0" maxOccurs="1" ref="allowed" />
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="modifiable_by" />
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="not_modifiable_by" />
       </xs:sequence>
       <xs:attribute name="name" type="xs:string" />
       <xs:attribute name="type" type="xs:string" />
