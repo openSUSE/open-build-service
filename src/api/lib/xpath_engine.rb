@@ -37,6 +37,10 @@ class XpathEngine
            'LEFT JOIN attribs AS attribsprj ON attribsprj.db_project_id = db_packages.db_project_id',   # include also, when set in project
            'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id', 
            'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
+        'project/attribute/@name' => {:cpart => 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', :split => ':', :joins =>
+          ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.db_project_id = db_packages.db_project_id',
+           'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
+           'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']},
       },
       'db_projects' => {
         '@name' => {:cpart => 'db_projects.name'},
