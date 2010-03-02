@@ -1040,7 +1040,7 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"
+  # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
   def index_package_branch
     params[:user] = @http_user.login
     prj_name = params[:project]
@@ -1134,7 +1134,7 @@ class SourceController < ApplicationController
         :message => "branch target package already exists: #{oprj_name}/#{opkg_name}"
       return
     else
-      opkg = DbPackage.new(:name => opkg_name, :title => pkg.title, :description => pkg.description)
+      opkg = DbPackage.new(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
       oprj.db_packages << opkg
     
       opkg.add_user @http_user, "maintainer"
@@ -1146,7 +1146,8 @@ class SourceController < ApplicationController
     if not pkg_rev.nil? and not pkg_rev.empty?
          rev = "&rev=#{pkg_rev}"
     end
-    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}", nil
+    comment = params.has_key?(:comment) ? "&comment=#{CGI.escape(params[:comment])}" : ""
+    Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil
 
     render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
   end
