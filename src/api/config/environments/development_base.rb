@@ -21,8 +21,8 @@ config.log_level = :debug
 #SOURCE_HOST = "buildservice.suse.de"
 SOURCE_HOST = "localhost"
 
-#SOURCE_PORT = 5352
-SOURCE_PORT = 6362 #test backend
+SOURCE_PORT = 5352
+#SOURCE_PORT = 6362 #test backend
 
 # ATTENTION: If ICHAIN_MODE is :on, the frontend takes the user
 # name that is coming as headervalue X-username as a 
