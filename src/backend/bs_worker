@@ -673,14 +673,14 @@ sub getbinaries_cache {
     mkdir_p($dir) || die("mkdir_p $dir: $!\n");
   }
   my %ret;
-  my @args;
-  push @args, "project=$projid";
-  push @args, "repository=$repoid";
-  push @args, "arch=$arch";
-  push @args, "nometa" if $nometa;
-  push @args, "binaries=".join(',', @$bins);
   my $bvl;
   if ($cachedir) {
+    my @args;
+    push @args, "project=$projid";
+    push @args, "repository=$repoid";
+    push @args, "arch=$arch";
+    push @args, "nometa" if $nometa;
+    push @args, "binaries=".join(',', @$bins);
     eval {
       $bvl = BSRPC::rpc({
         'uri' => "$server/getbinaryversions",
@@ -763,7 +763,7 @@ sub getbinaries_cache {
       # reserve space
       manage_cache($cachesize - $downloadsizek * 1024);
     }
-    @args = ();
+    my @args;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
@@ -849,6 +849,7 @@ sub getbinaries_kiwiproduct {
   die("getbinaries_kiwiproduct: missing packages: @kdeps\n") if @kdeps;
 
   my %meta;
+  my $linklocal = $localkiwi && -d "$localkiwi/build" ? 1 : 0;
   for my $prpap (sort keys %prpaps) {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
     my $prpdir = "$projid/$repoid";
@@ -856,7 +857,7 @@ sub getbinaries_kiwiproduct {
     mkdir_p($ddir);
     my $res;
     my $server =  $prp2server{"$projid/$repoid"} || $buildinfo->{'reposerver'};
-    if ($localkiwi) {
+    if ($linklocal) {
       $res = [];
       for my $name (ls("$localkiwi/build/$projid/$repoid/$arch/$packid")) {
         next unless $name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
@@ -870,21 +871,137 @@ sub getbinaries_kiwiproduct {
 	push @$res, {'name' => "$rarch/$name"};
       }
     } else {
-      $res = BSRPC::rpc({
-	'uri' => "$server/build/$projid/$repoid/$arch/$packid",
-	'directory' => $ddir,
-	'timeout' => $gettimeout,
-	'map' => sub {
-	  my ($param, $name) = @_;
-	  if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-	    my $rarch = $1;
-	    mkdir_p("$param->{'directory'}/$rarch");
-	    $name = "$rarch/$name";
+      my $bvl;
+      eval {
+        $bvl = BSRPC::rpc({
+	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	  'timeout' => $gettimeout,
+        }, $BSXML::binaryversionlist, 'view=binaryversions');
+      };
+      undef $bvl if $@;
+      my $downloadsizek = 0;
+      my @cacheold;
+      my @cachenew;
+      my @good;
+      my @bad;
+      if ($bvl) {
+	for my $bv (@{$bvl->{'binary'} || []}) {
+	  my $bin = $bv->{'name'};
+	  next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  my $rarch = $1;
+	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
+	  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+	  mkdir_p("$ddir/$rarch");
+	  if (link_or_copy($cachefile, "$ddir/$rarch/$bin.new.rpm")) {
+	    my @s = stat("$ddir/$rarch/$bin.new.rpm");
+	    die unless @s;
+	    my $leadsigmd5 = '';
+	    my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
+	    if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
+	      push @good, "$rarch/$bin";
+	      push @cacheold, [$cacheid, $s[7]];
+	    } else {
+	      unlink "$ddir/$rarch/$bin.new.rpm";
+	      push @bad, $bv;
+	      $downloadsizek += $bv->{'sizek'};
+	    }
+	  } else {
+	    push @bad, $bv;
+	    $downloadsizek += $bv->{'sizek'};
 	  }
-	  return $name;
-	},
-	'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-      }, undef, "view=cpio");
+	}
+      }
+      #print "(cache: ".@good." hits, ".@bad." misses)";
+      if ($bvl && @bad) {
+	if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
+	  # reserve space
+	  manage_cache($cachesize - $downloadsizek * 1024);
+	}
+	eval {
+	  BSRPC::rpc({
+	    'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	    'directory' => $ddir,
+	    'timeout' => $gettimeout,
+	    'map' => sub {
+	      my ($param, $name) = @_;
+	      if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+		my $rarch = $1;
+		mkdir_p("$param->{'directory'}/$rarch");
+		$name = "$rarch/$name.new.rpm";
+	      }
+	      return $name;
+	    },
+	    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+	  }, undef, "view=cpio", map {"binary=$_->{'name'}"} @bad);
+	};
+	if ($@) {
+	  # delete everything as a file might be incomplete
+          for my $bv (@bad) {
+	    my $bin = $bv->{'name'};
+	    next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+            my $rarch = $1;
+	    unlink("$ddir/$rarch/$bin.new.rpm");
+	  }
+	}
+        for my $bv (splice @bad) {
+	  my $bin = $bv->{'name'};
+	  next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+          my $rarch = $1;
+	  my @s = stat("$ddir/$rarch/$bin.new.rpm");
+	  if (!@s) {
+	    push @bad, $bv;
+	    next;
+	  }
+	  my $leadsigmd5 = '';
+	  my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
+	  if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
+	    push @good, "$rarch/$bin";
+            my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
+	    push @cachenew, [$cacheid, $s[7], "$ddir/$rarch/$bin"];
+	  } else {
+	    unlink "$ddir/$rarch/$bin.new.rpm";
+	    push @bad, $bv;
+	  }
+	}
+        #print "(still ".@bad." misses)";
+      }
+      if ($bvl && !@bad) {
+	for (@good) {
+	  rename("$ddir/$_.new.rpm", "$ddir/$_") || die("rename $ddir/$_.new.rpm $ddir/$_: $!\n");
+	}
+        $res = [ map {{'name' => $_}} @good ];
+      } else {
+	unlink("$ddir/$_.new.rpm") for @good;
+	@cacheold = ();
+	@cachenew = ();
+	$res = BSRPC::rpc({
+	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	  'directory' => $ddir,
+	  'timeout' => $gettimeout,
+	  'map' => sub {
+	    my ($param, $name) = @_;
+	    if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	      my $rarch = $1;
+	      mkdir_p("$param->{'directory'}/$rarch");
+	      $name = "$rarch/$name";
+	    }
+	    return $name;
+	  },
+	  'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+	}, undef, "view=cpio");
+	if ($cachedir) {
+	  for my $f (@{$res || []}) {
+	    my @s = stat("$ddir/$f->{'name'}");
+	    next unless @s;
+	    my $id = Build::queryhdrmd5("$ddir/$f->{'name'}");
+	    next unless $id;
+	    my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
+	    push @cachenew, [$cacheid, $s[7], "$ddir/$f->{'name'}"];
+	  }
+	  #print "(put ".@cachenew." entries)";
+	}
+      }
+      manage_cache($cachesize, \@cacheold, \@cachenew) if $cachedir;
     }
     die unless $res;
     my @todometa;
