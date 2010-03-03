@@ -96,9 +96,9 @@ class ProjectController < ApplicationController
     if params[:ns] == "home:#{session[:login]}"
       @project = Project.find params[:ns]
       unless @project
-        flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
+        flash.now[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
-        redirect_to :action => :new, :project => params[:ns] and return
+        @project_name = params[:ns]
       end
     end
     if @project_name =~ /home:(.+)/
