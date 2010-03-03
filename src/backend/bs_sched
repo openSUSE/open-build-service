@@ -3482,7 +3482,7 @@ while(1) {
   %changed_dirty = ();
 
   my $prp;
-  if (!defined($prp) && @lookat_low && $notlow > 10) {
+  if (@lookat_low && $notlow > 10) {
     $prp = shift @lookat_low;
     print "looking at low prio $prp";
     @lookat_high = grep {$_ ne $prp} @lookat_high;
