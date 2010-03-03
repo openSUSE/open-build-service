@@ -505,6 +505,7 @@ our $binaryversionlist = [
 	    'error',
 	    'hdrmd5',
 	    'metamd5',
+	    'leadsigmd5',
       ]],
 ];
 
