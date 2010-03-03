@@ -361,30 +361,31 @@ sub createMetadata( $$$ )
     my $metadata_medium = "0";
 #    $metadata_medium = "1" if (defined($medium->{'sourcemedia'}) && $medium->{'sourcemedia'} > 1);
     foreach my $pack ( @{ $medium->{metadata}->{package} } ) {
-        my $onlyarch;
-        my $removearch;
-        if ($pack->{removearch}){
-          next if containsMyArch( $prodRef, $archSetList, $pack->{removearch} );
-          $removearch = "$pack->{removearch},src,nosrc";
-        }else{
-          $removearch = "src,nosrc";
+      my @onlyarch;
+      my $removearch;
+      if ($pack->{removearch}){
+        next if containsMyArch( $prodRef, $archSetList, $pack->{removearch} );
+        $removearch = "$pack->{removearch},src,nosrc";
+      } else {
+        $removearch = "src,nosrc";
+      }
+      if (defined($pack->{onlyarch})) {
+        push @onlyarch, $pack->{onlyarch};
+      } else {
+        foreach my $requiredArch( @{$archSetList} ) {
+          my $ref = $requiredArch->{ref};
+          die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
+          push @onlyarch, $archSets{$ref}->{productarch} unless grep { $_ eq $archSets{$ref}->{productarch} } @onlyarch;
         }
-        if (defined($pack->{onlyarch})) {
-          $onlyarch = $pack->{onlyarch};
-        } else {
-          foreach my $requiredArch( @{$archSetList} ) {
-              my $ref = $requiredArch->{ref};
-              die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
-              $onlyarch .= "$archSets{$ref}->{productarch},noarch";
-          }
-        }
-	my $h = { name => $pack->{name}, 
-			  medium => $metadata_medium, 
-			  removearch => $removearch,
-			  onlyarch => $onlyarch };
-        $h->{'arch'} = $pack->{'arch'} if defined($pack->{'arch'});
-        $h->{'addarch'} = $pack->{addarch} if defined($pack->{addarch});
-	push @packages, $h;
+        push @onlyarch, "noarch" unless grep { $_ eq "noarch" } @onlyarch;
+      }
+      my $h = { name => $pack->{name},
+                medium => $metadata_medium,
+                removearch => $removearch,
+                onlyarch => join(",",@onlyarch) };
+      $h->{'arch'} = $pack->{'arch'} if defined($pack->{'arch'});
+      $h->{'addarch'} = $pack->{addarch} if defined($pack->{addarch});
+      push @packages, $h;
     }
 
     my @a;
