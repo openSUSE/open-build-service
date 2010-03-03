@@ -482,6 +482,23 @@ sub getbinarylist {
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
+  if ($view eq 'binaryversions') {
+    my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+    my @res;
+    # should use bininfo instead, but we need the leadsigmd5
+    for my $bin (sort @bins) {
+      local *F;
+      my @s = stat("$reporoot/$prp/$arch/$packid/$bin");
+      next unless @s;
+      my $leadsigmd5;
+      my $hdrmd5 = Build::queryhdrmd5("$reporoot/$prp/$arch/$packid/$bin", \$leadsigmd5);
+      next unless $hdrmd5;
+      my $r = {'name' => $bin, 'hdrmd5' => $hdrmd5, 'sizek' => ($s[7] + 512) / 1024};
+      $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+      push @res, $r;
+    }
+    return ({ 'binary' => \@res }, $BSXML::binaryversionlist);
+  }
   die("unsupported view '$view'\n") if $view;
   my @res;
   my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne '.bininfo'} ls("$reporoot/$prp/$arch/$packid");
