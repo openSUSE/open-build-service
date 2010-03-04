@@ -49,16 +49,20 @@ class RequestController < ApplicationController
     if obj.class == DbProject
       prj = obj
     elsif obj.class == DbPackage
-      obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
-        reviewers << User.find_by_id(r.bs_user_id)
+      if defined? obj.package_user_role_relationships
+        obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+          reviewers << User.find_by_id(r.bs_user_id)
+        end
       end
       prj = obj.db_project
     else
     end
 
     # add reviewers of project in any case
-    prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
-      reviewers << User.find_by_id(r.bs_user_id)
+    if defined? prj.project_user_role_relationships
+      prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+        reviewers << User.find_by_id(r.bs_user_id)
+      end
     end
     return reviewers
   end
@@ -192,7 +196,8 @@ class RequestController < ApplicationController
 
     # check targets for defined default reviewers
     reviewers = []
-    req = BsRequest.new(response)
+
+    req = BsRequest.new(response.body)
     req.each_action do |action|
       tprj = DbProject.find_by_name action.target.project
       if action.target.has_attribute? 'package'
