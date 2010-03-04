@@ -821,7 +821,7 @@ class SourceController < ApplicationController
     if params[:name]
       name=params[:name] if params[:name]
     end
-    pkg_name = "_patchinfo:#{name}"
+    pkg_name = "_patchinfo:#{name.gsub(/\W/, '_')}"
     patchinfo_path = "#{request.path}/#{pkg_name}"
 
     # request binaries in project from backend
