@@ -119,6 +119,11 @@ our $product = [
               [],
               '_content'
            ]],
+           [[ 'shortsummary' =>
+              'language',
+              [],
+              '_content'
+           ]],
            [[ 'description' =>
               'language',
               [],

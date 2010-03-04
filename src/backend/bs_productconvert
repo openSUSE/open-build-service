@@ -311,6 +311,9 @@ sub createProductOptions($$$)
     foreach my $summary ( @{$product->{'summary'}} ){
       $info{'LABEL'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
     }
+    foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
+      $info{'SHORTLABEL'}      = $shortsummary->{'_content'} if ( ! $shortsummary->{'language'} );
+    }
     $options{'REPO_LOCATION'} = getUrl($product,$arch,"repository");
     $info{'RELNOTESURL'} = getUrl($product,$arch,"releasenotes");
 
