@@ -3,6 +3,7 @@
   <description>Base libraries of the KDE framework</description>
   <devel project="KDE:UNSTABLE"/>
   <person role="maintainer" userid="ernie"/>
+  <group  role="reviewer"  groupid="release_team"/>
   <publish>
   </publish>
   <build>

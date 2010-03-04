@@ -2,8 +2,7 @@
   <title>SuperKDE</title>
   <description>SuperKDE is a heavily tuned version of KDE.</description>
   <person role="maintainer" userid="ernie"/>
-  <publish>
-  </publish>
+  <group  role="reviewer"  groupid="release_team"/>
   <build>
     <disable />
   </build>
