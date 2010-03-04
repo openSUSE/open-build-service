@@ -19,13 +19,10 @@
       <xs:sequence>
         <xs:element ref="title"/>
         <xs:element ref="description"/>
-        <xs:element ref="remoteurl" minOccurs="0" />
-<!-- Not yet supported by backend
-        <xs:element ref="remoteproject"/>
--->
-        <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
-        <xs:group ref="toggleGroup" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="repository"/>
+        <xs:element ref="remoteurl"   minOccurs="0" />
+        <xs:element ref="person"      minOccurs="0" maxOccurs="unbounded" />
+        <xs:group   ref="toggleGroup" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="repository"  minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
       <xs:attribute name="name" type="xs:string" use="required"/>
       <xs:attribute name="created" type="xs:dateTime" use="optional"/>
@@ -58,6 +55,18 @@
     <xs:complexType>
       <xs:attribute name="role" type="xs:string" use="required"/>
       <xs:attribute name="userid" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="group">
+    <xs:annotation>
+      <xs:documentation>
+        A group which is associated with the project.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="role" type="xs:string" use="required"/>
+      <xs:attribute name="groupid" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 

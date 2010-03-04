@@ -19,16 +19,12 @@
       <xs:sequence>
         <xs:element ref="title"/>
         <xs:element ref="description"/>
-	<xs:element minOccurs="0" maxOccurs="1" ref="devel"/>
-        <xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
-	<xs:element minOccurs="0" maxOccurs="1" ref="notify"/>
-	<xs:element minOccurs="0" maxOccurs="1" ref="delete-notify"/>
-	<xs:element minOccurs="0" ref="group"/>
-	<xs:element minOccurs="0" maxOccurs="unbounded" ref="license"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="keyword"/>
-        <xs:group ref="toggleGroup" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element minOccurs="0" ref="url"/>
-        <xs:element minOccurs="0" maxOccurs="1" ref="bcntsynctag"/>
+	<xs:element ref="devel"       minOccurs="0" maxOccurs="1" />
+        <xs:element ref="person"      minOccurs="0" maxOccurs="unbounded" />
+	<xs:element ref="group"       minOccurs="0"/>
+        <xs:group   ref="toggleGroup" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="url"         minOccurs="0"/>
+        <xs:element ref="bcntsynctag" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
       <xs:attribute name="project" type="xs:string"/>
@@ -77,6 +73,18 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="group">
+    <xs:annotation>
+      <xs:documentation>
+        A group which is associated with the package.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="role" type="xs:string" use="required"/>
+      <xs:attribute name="groupid" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="devel">
     <xs:annotation>
       <xs:documentation>
@@ -89,50 +97,10 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="notify" type="xs:string">
-    <xs:annotation>
-      <xs:documentation>
-        Text shown when the package is selected for installation in YaST.
-      </xs:documentation>
-    </xs:annotation>
-  </xs:element>
-
-  <xs:element name="delete-notify" type="xs:string">
-    <xs:annotation>
-      <xs:documentation>
-	Text shown when the package is selected for being removed in YaST.
-      </xs:documentation>
-    </xs:annotation>
-  </xs:element>
-
   <xs:element name="url" type="xs:string">
     <xs:annotation>
       <xs:documentation>
         URL of the package's website.
-      </xs:documentation>
-    </xs:annotation>
-  </xs:element>
-
-  <xs:element name="group" type="xs:string">
-    <xs:annotation>
-      <xs:documentation>
-        Package's RPM Group
-      </xs:documentation>
-    </xs:annotation>
-  </xs:element>
-
-  <xs:element name="license" type="xs:string">
-    <xs:annotation>
-      <xs:documentation>
-        Package's license text.
-      </xs:documentation>
-    </xs:annotation>
-  </xs:element>
-
-  <xs:element name="keyword" type="xs:string">
-    <xs:annotation>
-      <xs:documentation>
-        Keyword describing the package.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
