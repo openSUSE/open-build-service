@@ -872,13 +872,16 @@ sub getbinaries_kiwiproduct {
       }
     } else {
       my $bvl;
-      eval {
-        $bvl = BSRPC::rpc({
-	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
-	  'timeout' => $gettimeout,
-        }, $BSXML::binaryversionlist, 'view=binaryversions');
-      };
-      undef $bvl if $@;
+      if ($cachedir) {
+        eval {
+          $bvl = BSRPC::rpc({
+	    'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	    'timeout' => $gettimeout,
+          }, $BSXML::binaryversionlist, 'view=binaryversions');
+        };
+        undef $bvl if $@;
+	warn($@) if $@;
+      }
       my $downloadsizek = 0;
       my @cacheold;
       my @cachenew;
