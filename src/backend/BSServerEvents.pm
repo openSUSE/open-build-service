@@ -142,7 +142,7 @@ sub reply_error  {
   my ($conf, $err) = @_;
   $err ||= "unspecified error";
   $err =~ s/\n$//s;
-  my $code = 404;
+  my $code = 400;
   my $tag = ''; 
   if ($err =~ /^(\d+)\s*([^\r\n]*)/) {
     $code = $1; 
