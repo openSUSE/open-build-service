@@ -609,7 +609,7 @@ sub manage_cache {
   $content ||= [];
   my %content = map {$_->[0] => $_->[1]} @$content;
   # put cacheold, cachenew at the top
-  if ($cacheold) {
+  if ($cacheold && @$cacheold) {
     splice(@$content, 0, 0, @$cacheold);
     $content{$_->[0]} = $_->[1] for @$cacheold;
   }
@@ -850,6 +850,11 @@ sub getbinaries_kiwiproduct {
 
   my %meta;
   my $linklocal = $localkiwi && -d "$localkiwi/build" ? 1 : 0;
+
+  my %cachenew;
+  my @cacheold;
+  my $downloadsizek = 0;
+
   for my $prpap (sort keys %prpaps) {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
     my $prpdir = "$projid/$repoid";
@@ -857,6 +862,7 @@ sub getbinaries_kiwiproduct {
     mkdir_p($ddir);
     my $res;
     my $server =  $prp2server{"$projid/$repoid"} || $buildinfo->{'reposerver'};
+    my %knownmd5;
     if ($linklocal) {
       $res = [];
       for my $name (ls("$localkiwi/build/$projid/$repoid/$arch/$packid")) {
@@ -882,9 +888,6 @@ sub getbinaries_kiwiproduct {
         undef $bvl if $@;
 	warn($@) if $@;
       }
-      my $downloadsizek = 0;
-      my @cacheold;
-      my @cachenew;
       my @good;
       my @bad;
       if ($bvl) {
@@ -903,6 +906,7 @@ sub getbinaries_kiwiproduct {
 	    if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
 	      push @good, "$rarch/$bin";
 	      push @cacheold, [$cacheid, $s[7]];
+	      $knownmd5{"$rarch/$bin"} = $id;
 	    } else {
 	      unlink "$ddir/$rarch/$bin.new.rpm";
 	      push @bad, $bv;
@@ -918,7 +922,10 @@ sub getbinaries_kiwiproduct {
       if ($bvl && @bad) {
 	if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
 	  # reserve space
-	  manage_cache($cachesize - $downloadsizek * 1024);
+	  manage_cache($cachesize - $downloadsizek * 1024, \@cacheold, [ values %cachenew ]);
+	  @cacheold = ();
+	  %cachenew = ();
+	  $downloadsizek = 0;
 	}
 	eval {
 	  BSRPC::rpc({
@@ -960,7 +967,8 @@ sub getbinaries_kiwiproduct {
 	  if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
 	    push @good, "$rarch/$bin";
             my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
-	    push @cachenew, [$cacheid, $s[7], "$ddir/$rarch/$bin"];
+	    $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
+	    $knownmd5{"$rarch/$bin"} = $id;
 	  } else {
 	    unlink "$ddir/$rarch/$bin.new.rpm";
 	    push @bad, $bv;
@@ -974,9 +982,11 @@ sub getbinaries_kiwiproduct {
 	}
         $res = [ map {{'name' => $_}} @good ];
       } else {
-	unlink("$ddir/$_.new.rpm") for @good;
-	@cacheold = ();
-	@cachenew = ();
+	%knownmd5 = ();
+        for (@good) {
+	  unlink("$ddir/$_.new.rpm");
+	  delete $cachenew{"$ddir/$_"};
+	}
 	$res = BSRPC::rpc({
 	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
 	  'directory' => $ddir,
@@ -999,12 +1009,12 @@ sub getbinaries_kiwiproduct {
 	    my $id = Build::queryhdrmd5("$ddir/$f->{'name'}");
 	    next unless $id;
 	    my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
-	    push @cachenew, [$cacheid, $s[7], "$ddir/$f->{'name'}"];
+	    $cachenew{"$ddir/$f->{'name'}"} = [$cacheid, $s[7], "$ddir/$f->{'name'}"];
+	    $knownmd5{$f->{'name'}} = $id;
 	  }
 	  #print "(put ".@cachenew." entries)";
 	}
       }
-      manage_cache($cachesize, \@cacheold, \@cachenew) if $cachedir;
     }
     die unless $res;
     my @todometa;
@@ -1013,13 +1023,18 @@ sub getbinaries_kiwiproduct {
       my (undef, $name) = split('/', $f->{'name'}, 2);
       next unless defined($name) && $name =~ /^(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
       my ($n, $rarch) = ($1, $2);
-      my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
+      my $id = $knownmd5{$f->{'name'}};
+      $id ||= Build::queryhdrmd5("$ddir/$f->{'name'}");
+      $id ||= 'deaddeaddeaddeaddeaddeaddeaddead';
       if ($linkit{"$prpap/$n"} && $rarch ne 'src' && $rarch ne 'nosrc') {
         link("$ddir/$f->{'name'}", "$dir/$n.rpm") unless -e "$dir/$n.rpm";
       }
       $meta{"$prpap/$n.$rarch"} = $id;
     }
   }
+
+  manage_cache($cachesize, \@cacheold, [ values %cachenew ]) if $cachedir;
+
   # create meta
   my @meta;
   for (sort keys %meta) {
