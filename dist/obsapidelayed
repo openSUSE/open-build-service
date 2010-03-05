@@ -37,7 +37,7 @@
 
 . /etc/rc.status
 
-DELAYED_BIN=/srv/www/obs/api/script/delayed_job
+DELAYED_BIN=/srv/www/obs/api/script/delayed_job.api
 
 # Reset status of this service
 rc_reset

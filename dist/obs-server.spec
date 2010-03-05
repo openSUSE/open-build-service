@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.7.0
+Version:        1.7.2
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -21,7 +21,6 @@ Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      /var/tmp/%name-root
 # git clone git://gitorious.org/opensuse/build-service.git; cd build-service; git submodule init; git submodule update; cd -; tar cfvj obs-server-1.6.85.tar.bz2 --exclude=.git\* build-service-1.6.85/
 Source:         obs-server-%version.tar.bz2
-Patch:          1.7_BRANCH.diff
 Autoreqprov:    on
 BuildRequires:  python-devel
 BuildRequires:  obs-common
@@ -155,7 +154,6 @@ Authors:       Susanne Oberhauser, Martin Mohring
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n build-service-%version
-%patch -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
@@ -204,6 +202,9 @@ SLP_DIR=$RPM_BUILD_ROOT/etc/slp.reg.d/
 install -d -m 755  $SLP_DIR
 install -m 644 obs.source_server.reg $SLP_DIR/
 install -m 644 obs.repo_server.reg $SLP_DIR/
+# create symlink for product converter
+mkdir -p $RPM_BUILD_ROOT/usr/bin
+ln -sf /usr/lib/obs/server/bs_productconvert $RPM_BUILD_ROOT/usr/bin/obs_productconvert
 
 #
 # Install all web and api parts.
@@ -255,6 +256,11 @@ ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
 ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/api/public/images/common
 ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/webui/public/images/common
 ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
+#
+# change script names to allow to start them with startproc
+#
+mv $RPM_BUILD_ROOT/srv/www/obs/api/script/{delayed_job,delayed_job.api}
+mv $RPM_BUILD_ROOT/srv/www/obs/webui/script/{delayed_job,delayed_job.api}
 
 #
 # Install all backend parts.
@@ -571,6 +577,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-productconverter
 %defattr(-,root,root)
+/usr/bin/obs_productconvert
 /usr/lib/obs/server/bs_productconvert
 
 %changelog -n obs-server
