@@ -96,6 +96,10 @@ our $proj = [
             'role',
             'userid',
      ]],
+     [[ 'group' =>
+            'role',
+            'groupid',
+     ]],
      [ $download ],
      [ 'attributes' => 
        [[ 'namespace' => 
@@ -143,10 +147,13 @@ our $pack = [
             'role',
             'userid',
      ]],
+     [[ 'group' =>
+            'role',
+            'groupid',
+     ]],
 	@disableenable,
 	@flags,
 	'url',
-	'group',	# obsolete?
 	'bcntsynctag',
 ];
 

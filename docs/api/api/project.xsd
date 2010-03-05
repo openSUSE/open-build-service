@@ -21,6 +21,7 @@
         <xs:element ref="description"/>
         <xs:element ref="remoteurl"   minOccurs="0" />
         <xs:element ref="person"      minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="group"       minOccurs="0" maxOccurs="unbounded" />
         <xs:group   ref="toggleGroup" minOccurs="0" maxOccurs="unbounded" />
         <xs:element ref="repository"  minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
@@ -67,18 +68,6 @@
     <xs:complexType>
       <xs:attribute name="role" type="xs:string" use="required"/>
       <xs:attribute name="groupid" type="xs:string" use="required"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="package">
-    <xs:annotation>
-      <xs:documentation>
-        A package which is part of the project.
-      </xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:attribute name="name" type="xs:string" use="required"/>
-      <xs:attribute name="revision" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 

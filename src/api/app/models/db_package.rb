@@ -6,6 +6,7 @@ class DbPackage < ActiveRecord::Base
   belongs_to :develproject, :class_name => "DbProject" # This shall become migrated to develpackage in future
 
   has_many :package_user_role_relationships, :dependent => :destroy
+  has_many :package_group_role_relationships, :dependent => :destroy
   has_many :messages, :as => :object, :dependent => :destroy
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
@@ -247,6 +248,62 @@ class DbPackage < ActiveRecord::Base
 
       #--- end update users ---#
 
+      #--- update group ---#
+      groupcache = Hash.new
+      self.package_group_role_relationships.each do |pgrr|
+        h = groupcache[pgrr.group.login] ||= Hash.new
+        h[pgrr.role.title] = pgrr
+      end
+
+      package.each_group do |ge|
+        if groupcache.has_key? ge.groupid
+          #group has already a role in this package
+          pcache = groupcache[ge.groupid]
+          if pcache.has_key? ge.role
+            #role already defined, only remove from cache
+            pcache[ge.role] = :keep
+          else
+            #new role
+            if not Role.rolecache.has_key? ge.role
+              raise SaveError, "illegal role name '#{ge.role}'"
+            end
+            PackageGroupRoleRelationship.create(
+              :group => Group.find_by_title(ge.groupid),
+              :role => Role.rolecache[ge.role],
+              :db_package => self
+            )
+          end
+        else
+          group = Group.find_by_title(ge.groupid)
+          unless group
+            raise SaveError, "group #{ge.groupid} not known"
+          end
+          begin
+            PackageGroupRoleRelationship.create(
+              :group => group,
+              :role => Role.rolecache[ge.role],
+              :db_package => self
+            )
+          rescue ActiveRecord::StatementInvalid => err
+            if /^Mysql::Error: Duplicate entry/.match(err)
+              logger.debug "group '#{ge.groupid}' already has the role '#{ge.role}' in package '#{self.name}'"
+            else
+              raise err
+            end
+          end
+        end
+      end
+
+      #delete all roles that weren't found in uploaded xml
+      groupcache.each do |group, roles|
+        roles.each do |role, object|
+          next if object == :keep
+          object.destroy
+        end
+      end
+
+      #--- end update groups ---#
+
 
       #---begin enable / disable flags ---#
       flag_compatibility_check( :package => package )
@@ -371,6 +428,23 @@ class DbPackage < ActiveRecord::Base
         :role => role )
   end
 
+  def add_group( group, role_title )
+    role = Role.rolecache[role_title]
+    if role.global
+      #only nonglobal roles may be set in a project
+      raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in package '#{self.name}'"
+    end
+
+    unless group.kind_of? Group
+      user = Group.find_by_title(user.to_s)
+    end
+
+    PackageGroupRoleRelationship.create(
+        :db_package => self,
+        :group => group,
+        :role => role )
+  end
+
   # returns true if the specified user is associated with that package. possible
   # options are :login and :role
   # example:
@@ -402,6 +476,33 @@ class DbPackage < ActiveRecord::Base
     return false
   end
 
+  def has_group?( opt={} )
+    cond_fragments = ["db_project_id = ?"]
+    cond_params = [self.id]
+    join_fragments = ["pgrr"]
+
+    if opt.has_key? :name
+      cond_fragments << "bs_group_id = g.id"
+      cond_fragments << "g.title = ?"
+      cond_params << opt[:name]
+      join_fragments << "group g"
+    end
+
+    if opt.has_key? :role
+      cond_fragments << "role_id = r.id"
+      cond_fragments << "r.title = ?"
+      cond_params << opt[:role]
+      join_fragments << "roles r"
+    end
+
+    return true if PackageGroupRoleRelationship.find :first,
+        :select => "pgrr.id",
+        :joins => join_fragments.join(", "),
+        :conditions => [cond_fragments.join(" and "), cond_params].flatten
+    return false
+  end
+
+
   def each_user( opt={}, &block )
     users = User.find :all,
       :select => "bu.*, r.title AS role_name",
@@ -413,6 +514,19 @@ class DbPackage < ActiveRecord::Base
       end
     end
     return users
+  end
+
+  def each_group( opt={}, &block )
+    groups = Group.find :all,
+      :select => "bg.*, r.title AS role_name",
+      :joins => "bg, package_group_role_relationships pgrr, roles r",
+      :conditions => ["bg.id = pgrr.bs_group_id AND pgrr.db_package_id = ? AND r.id = pgrr.role_id", self.id]
+    if( block )
+      groups.each do |g|
+        block.call g
+      end
+    end
+    return groups
   end
 
   def to_axml
@@ -497,6 +611,10 @@ class DbPackage < ActiveRecord::Base
 
       each_user do |u|
         package.person( :userid => u.login, :role => u.role_name )
+      end
+
+      each_group do |g|
+        package.group( :groupid => g.title, :role => g.role_name )
       end
 
       %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|
