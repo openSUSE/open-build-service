@@ -4,6 +4,7 @@ class DbProject < ActiveRecord::Base
   class SaveError < Exception; end
 
   has_many :project_user_role_relationships, :dependent => :destroy
+  has_many :project_group_role_relationships, :dependent => :destroy
   has_many :db_packages, :dependent => :destroy
   has_many :attribs, :dependent => :destroy
   has_many :repositories, :dependent => :destroy
@@ -152,6 +153,66 @@ class DbProject < ActiveRecord::Base
       end
 
       #--- end update users ---#
+
+      #--- update groups ---#
+      groupcache = Hash.new
+      self.project_group_role_relationships.each do |pgrr|
+        h = groupcache[pgrr.group.login] ||= Hash.new
+        h[pgrr.role.title] = pgrr
+      end
+
+      project.each_group do |ge|
+        if groupcache.has_key? ge.groupid
+          # group has already a role in this project
+          pcache = groupcache[ge.groupid]
+          if pcache.has_key? ge.role
+            #role already defined, only remove from cache
+            pcache[ge.role] = :keep
+          else
+            #new role
+            if not Role.rolecache.has_key? ge.role
+              raise SaveError, "illegal role name '#{ge.role}'"
+            end
+
+            ProjectGroupRoleRelationship.create(
+              :group => User.find_by_login(ge.groupid),
+              :role => Role.rolecache[ge.role],
+              :db_project => self
+            )
+          end
+        else
+          if not Role.rolecache.has_key? ge.role
+            raise SaveError, "illegal role name '#{ge.role}'"
+          end
+
+          if not (group=Group.find_by_title(ge.groupid))
+            raise SaveError, "unknown group '#{ge.groupid}'"
+          end
+
+          begin
+            ProjectGroupRoleRelationship.create(
+              :group => group,
+              :role => Role.rolecache[ge.role],
+              :db_project => self
+            )
+          rescue ActiveRecord::StatementInvalid => err
+            if /^Mysql::Error: Duplicate entry/.match(err)
+              logger.debug "group '#{ge.groupid}' already has the role '#{ge.role}' in project '#{self.name}'"
+            else
+              raise err
+            end
+          end
+        end
+      end
+      
+      #delete all roles that weren't found in the uploaded xml
+      groupcache.each do |group, roles|
+        roles.each do |role, object|
+          next if object == :keep
+          object.destroy
+        end
+      end
+      #--- end update groups ---#
 
       #--- update flag group ---#
       # and recreate the flag groups and flags again
@@ -412,6 +473,24 @@ class DbProject < ActiveRecord::Base
         :role => role )
   end
 
+  def add_group( group, role_title )
+    logger.debug "adding group: #{group}, #{role_title}"
+    role = Role.rolecache[role_title]
+    if role.global
+      #only nonglobal roles may be set in a project
+      raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in project '#{self.name}'"
+    end
+
+    unless group.kind_of? Group
+      group = Group.find_by_title(group.to_s)
+    end
+
+    ProjectGroupRoleRelationship.create(
+        :db_project => self,
+        :group => group,
+        :role => role )
+  end
+
 
   # returns true if the specified user is associated with that project. possible
   # options are :login and :role
@@ -444,6 +523,33 @@ class DbProject < ActiveRecord::Base
     return false
   end
 
+  # proj.has_group? :title => "suse_review_team", :role => "maintainer"
+  def has_group?( opt={} )
+    cond_fragments = ["db_project_id = ?"]
+    cond_params = [self.id]
+    join_fragments = ["pgrr"]
+
+    if opt.has_key? :name
+      cond_fragments << "bs_group_id = g.id"
+      cond_fragments << "g.login = ?"
+      cond_params << opt[:name]
+      join_fragments << "group g"
+    end
+
+    if opt.has_key? :role
+      cond_fragments << "role_id = r.id"
+      cond_fragments << "r.title = ?"
+      cond_params << opt[:role]
+      join_fragments << "roles r"
+    end
+
+    return true if ProjectGroupRoleRelationship.find :first,
+        :select => "pgrr.id",
+        :joins => join_fragments.join(", "),
+        :conditions => [cond_fragments.join(" and "), cond_params].flatten
+    return false
+  end
+
   def each_user( opt={}, &block )
     users = User.find :all,
       :select => "bu.*, r.title AS role_name",
@@ -455,6 +561,19 @@ class DbProject < ActiveRecord::Base
       end
     end
     return users
+  end
+
+  def each_group( opt={}, &block )
+    groups = Group.find :all,
+      :select => "bg.*, r.title AS role_name",
+      :joins => "bg, project_group_role_relationships pgrr, roles r",
+      :conditions => ["bg.id = pgrr.bs_group_id AND pgrr.db_project_id = ? AND r.id = pgrr.role_id", self.id]
+    if( block )
+      groups.each do |g|
+        block.call g
+      end
+    end
+    return groups
   end
 
   def to_axml
@@ -475,6 +594,10 @@ class DbProject < ActiveRecord::Base
 
       each_user do |u|
         project.person( :userid => u.login, :role => u.role_name )
+      end
+
+      each_group do |g|
+        project.group( :groupid => g.title, :role => g.role_name )
       end
 
       self.downloads.each do |dl|
