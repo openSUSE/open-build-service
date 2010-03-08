@@ -167,6 +167,38 @@ class User < ActiveRecord::Base
     return has_local_permission?( "create_project", DbProject.find_parent_for(project_name))
   end
 
+  def can_modify_attribute_definition?(object)
+    return can_create_attribute_definition?(object)
+  end
+  def can_create_attribute_definition?(object)
+    if object.kind_of? AttribType
+      object = object.attrib_namespace
+    end
+    if not object.kind_of? AttribNamespace
+      raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
+    end
+
+    return true  if is_admin?
+    return false if object.attrib_type_modifiable_bies.length <= 0
+
+    object.attrib_namespace_modifiable_bies.each do |mod_rule|
+      next if mod_rule.user and mod_rule.user != self
+      next if mod_rule.group and not is_in_group(mod_rule.group)
+      return true
+    end
+
+    return false
+  end
+
+  def can_modify_attribute_definition_in?(namespace)
+    return can_create_attribute_definition_in?(namespace)
+  end
+  def can_create_attribute_definition_in?(namespace)
+    an = AttribNamespace.find_by_name(namespace)
+    raise ArgumentError, "Attrib Namespace not found for #{namespace}" if an.nil?
+    return can_create_attribute_definition?(an)
+  end
+
   def can_create_attribute_in?(object, opts)
     if not object.kind_of? DbProject and not object.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
