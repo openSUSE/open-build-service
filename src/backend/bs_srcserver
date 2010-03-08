@@ -203,7 +203,7 @@ sub expandproduct {
       warn("bs_productconvert failed: $?\n");
       BSUtil::cleandir($dir);
       rmdir($dir);
-      die("400 $s") if $fail;
+      die($s) if $fail;
       return undef;
     }
     my @out = sort(ls($odir));
@@ -507,14 +507,14 @@ sub addmeta_link {
 #
 sub addrev {
   my ($projid, $packid, $files, $user, $comment, $target, $requestid) = @_;
-  die("project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
   if ($packid eq '_pattern') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'pattern');
     notify_repservers('project', $projid);
     return {'project' => $projid, 'package' => $packid, 'rev' => 'pattern', 'srcmd5' => $srcmd5};
   }
-  die("package '$packid' is read-only\n") if $packid =~ /^_product:/;
-  die("package '$packid' does not exist\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
+  die("403 package '$packid' is read-only\n") if $packid =~ /^_product:/;
+  die("404 package '$packid' does not exist\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     my $filename = (keys %$files)[0];
@@ -1284,7 +1284,7 @@ sub findpackages {
 sub readproj {
   my ($projid, $nonfatal) = @_;
   my $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
-  die("project '$projid' does not exist\n") if !$proj && !$nonfatal;
+  die("404 project '$projid' does not exist\n") if !$proj && !$nonfatal;
   return $proj;
 }
 
@@ -1293,7 +1293,7 @@ sub readpack {
   my $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
   if (!$pack && !$nonfatal) {
     readproj($projid);
-    die("package '$packid' does not exist in project '$projid'\n");
+    die("404 package '$packid' does not exist in project '$projid'\n");
   }
   return $pack;
 }
@@ -1706,7 +1706,7 @@ sub getproject {
 sub createkey {
   my ($cgi, $projid) = @_;
   die("don't know how to create a key\n") unless $BSConfig::sign;
-  die("project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
+  die("404 project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
   mkdir_p($uploaddir);
   local *F;
   my $pubkey = '';
@@ -1786,7 +1786,7 @@ sub putproject {
 sub delproject {
   my ($cgi, $projid) = @_;
 
-  die("project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
   if (-d "$projectsdir/$projid.pkg") {
     # delete those packages and keys
     for my $f (ls("$projectsdir/$projid.pkg")) {
@@ -1864,9 +1864,9 @@ sub putpackage {
 
 sub delpackage {
   my ($cgi, $projid, $packid) = @_;
-  die("project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
-  die("package '$packid' does not exist in project '$projid'\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
-  die("package '$packid' is read-only\n") if $packid =~ /^_product:/;
+  die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  die("404 package '$packid' does not exist in project '$projid'\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
+  die("403 package '$packid' is read-only\n") if $packid =~ /^_product:/;
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
   unlink("$projectsdir/$projid.pkg/$packid.rev");
   unlink("$projectsdir/$projid.pkg/$packid.xml");
@@ -1977,8 +1977,8 @@ sub remote_getrev {
   my ($projid, $packid, $rev) = @_;
   my $proj = remoteprojid($projid);
   if (!$proj) {
-    die("package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
-    die("project '$projid' does not exist\n");
+    die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
+    die("404 project '$projid' does not exist\n");
   }
   my @args;
   push @args, "expand";
@@ -2034,7 +2034,7 @@ sub expandsearchpath {
       if (!$proj) { 
         $proj = remoteprojid($pid);
         $proj = fetchremoteproj($proj, $pid);
-        die("project '$pid' does not exist\n") unless $proj;
+        die("404 project '$pid' does not exist\n") unless $proj;
         my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
         if (@repo && $repo[0]->{'path'}) {
           for my $pathel (@{$repo[0]->{'path'}}) {
@@ -2928,7 +2928,7 @@ sub delfile {
   die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && not $cgi->{'force'};
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $files = lsrev($rev);
-  die("file '$filename' does not exist\n") unless $files->{$filename};
+  die("404 file '$filename' does not exist\n") unless $files->{$filename};
   delete $files->{$filename};
   $files = keeplink($projid, $packid, $files) if $cgi->{'keeplink'};
   my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
@@ -3094,14 +3094,14 @@ sub checkprojrepoarch {
   my ($projid, $repoid, $arch, $remoteok) = @_;
   my $proj = readproj($projid, 1);
   $proj = remoteprojid($projid) if $remoteok && (!$proj || $proj->{'remoteurl'});
-  die("project '$projid' does not exist\n") if !$proj;
-  die("project '$projid' is remote\n") if $proj->{'remoteurl'} && !$remoteok;
+  die("404 project '$projid' does not exist\n") if !$proj;
+  die("404 project '$projid' is remote\n") if $proj->{'remoteurl'} && !$remoteok;
   return $proj if $proj->{'remoteurl'};
   return $proj unless defined $repoid;
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
-  die("project has no repository '$repoid'\n") unless $repo;
+  die("404 project has no repository '$repoid'\n") unless $repo;
   return $proj unless defined $arch;
-  die("project has no architecture '$arch'\n") unless grep {$_ eq $arch} @{$repo->{'arch'} || []};
+  die("404 project has no architecture '$arch'\n") unless grep {$_ eq $arch} @{$repo->{'arch'} || []};
   return $proj;
 }
 
@@ -3949,14 +3949,14 @@ sub findremote {
     $rsuf = "$2$rsuf";
     $proj = readproj($projid, 1);
     next unless $proj;
-    die("project '$origprojid' does not exist\n") unless $proj->{'remoteurl'};
+    die("404 project '$origprojid' does not exist\n") unless $proj->{'remoteurl'};
     if ($proj->{'remoteproject'}) {
       return ($proj->{'remoteurl'}, "$proj->{'remoteproject'}$rsuf");
     }
     $rsuf =~ s/^://;
     return ($proj->{'remoteurl'}, $rsuf);
   }
-  die("project '$origprojid' does not exist\n") unless $proj->{'remoteurl'};
+  die("404 project '$origprojid' does not exist\n") unless $proj->{'remoteurl'};
 }
 
 sub worker_getbinaries {
