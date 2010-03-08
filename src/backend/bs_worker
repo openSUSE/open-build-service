@@ -560,18 +560,16 @@ sub getsources {
 
 sub qsystem {
   my (@args) = @_;
-  if ($silent) {
-    my $pid;
-    if (!($pid = xfork())) {
-      open(STDOUT, ">/dev/null");
-      exec(@args);
-      die("$args[0]: $!\n"); 
-    }
-    waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n"); 
-    return $?;
-  } else {
-    return system @args;
+
+  my $pid;
+  if (!($pid = xfork())) {
+    $SIG{'PIPE'} = 'DEFAULT';
+    open(STDOUT, ">/dev/null") if $silent;
+    exec(@args);
+    die("$args[0]: $!\n"); 
   }
+  waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n"); 
+  return $?;
 }
 
 sub link_or_copy {
