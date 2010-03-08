@@ -242,7 +242,7 @@ ActiveRecord::Schema.define(:version => 20100402100000) do
   create_table "package_user_role_relationships", :force => true do |t|
     t.integer "db_package_id", :null => false
     t.integer "bs_user_id",    :null => false
-    t.integer "role_id"
+    t.integer "role_id",       :null => false
   end
 
   add_index "package_user_role_relationships", ["bs_user_id"], :name => "index_package_user_role_relationships_on_bs_user_id"
@@ -268,7 +268,7 @@ ActiveRecord::Schema.define(:version => 20100402100000) do
   create_table "project_user_role_relationships", :force => true do |t|
     t.integer "db_project_id", :null => false
     t.integer "bs_user_id",    :null => false
-    t.integer "role_id"
+    t.integer "role_id",       :null => false
   end
 
   add_index "project_user_role_relationships", ["db_project_id", "bs_user_id", "role_id"], :name => "project_user_role_all_index", :unique => true
