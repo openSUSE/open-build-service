@@ -118,10 +118,10 @@ class AttributeController < ApplicationController
       return
     end
 
-    # FIXME: permission check should check the modifiable_by, just for admin for noww
-    unless extract_user and @http_user.is_admin?
+    # permission check via User model
+    unless extract_user and @http_user.can_modify_attribute_definition?(ans)
       render_error :status => 400, :errorcode => 'permissions denied',
-        :message => "Attribute type changes are only permitted by the administrator"
+        :message => "Attribute type changes are not permitted"
       return
     end
 
