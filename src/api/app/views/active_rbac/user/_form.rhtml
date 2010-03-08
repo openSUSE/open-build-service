@@ -16,7 +16,7 @@
   <dt><label for="user_state">State</label></dt>
   <dd><%= select 'user', 'state', User.states.reject { |key, value| !@user.state_transition_allowed?(@user.state, value) } %></dd>
 
-  <dt><label>Roles</label></dt>
+  <dt><label>Global Roles</label></dt>
   <dd>
     <%= node_tree(Role.find(:all, :conditions => "global=true")) do |role|
           result = "<input id=\"user_roles_#{role.id}\" type=\"checkbox\" name=\"user[roles][]\" value=\"#{role.id}\" checked=\"checked\" /> " if @user.roles.include? role
