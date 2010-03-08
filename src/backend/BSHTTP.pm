@@ -206,6 +206,12 @@ sub cpio_receiver {
     my $cpiohead = read_data($hdr, 110, 1);
     die("cpio: not a 'SVR4 no CRC ascii' cpio\n") unless substr($cpiohead, 0, 6) eq '070701';
     my $mtime = hex(substr($cpiohead, 46, 8));
+    my $size  = hex(substr($cpiohead, 54, 8));
+    if ($size == 0xffffffff) {
+      # build service length extension
+      $size = hex(substr($cpiohead, 62, 8)) * 4294967296. + hex(substr($cpiohead, 70, 8));
+      substr($cpiohead, 62, 16) = '';
+    }
     my $nsize = hex(substr($cpiohead, 94, 8));
     die("ridiculous long filename\n") if $nsize > 8192;
     my $nsizepad = $nsize;
@@ -213,9 +219,8 @@ sub cpio_receiver {
     my $name = read_data($hdr, $nsizepad, 1);
     $name =~ s/\0.*//s;
     $name =~ s/^\.\///s;
-    my $size = hex(substr($cpiohead, 54, 8));
     my $sizepad = $size;
-    $sizepad += 4 - ($size & 3) if $size & 3;
+    $sizepad += 4 - ($size % 4) if $size % 4;
     last if !$size && $name eq 'TRAILER!!!';
     die("cpio filename contains a '/': $name\n") if $name =~ /\//s;
     die("cpio filename is '.' or '..'\n") if $name eq '.' || $name eq '..';
@@ -312,7 +317,13 @@ sub cpio_sender {
       $s[9] = time;
     }
     $data = "07070100000000000081a4000000000000000000000001";
-    $data .= sprintf("%08x%08x", $s[9], $s[7]);
+    if ($s[7] > 0xffffffff) {
+      # build service length extension
+      my $top = int($s[7] / 4294967296.);
+      $data .= sprintf("%08xffffffff%08x%08x", $s[9], $top, $s[7] - $top * 4294967296.);
+    } else {
+      $data .= sprintf("%08x%08x", $s[9], $s[7]);
+    }
     $data .= "00000000000000000000000000000000";
     $data .= sprintf("%08x", length($file->{'name'}) + 1);
     $data .= "00000000";
@@ -323,7 +334,7 @@ sub cpio_sender {
       my $r = 0;
       while(1) {
         $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-        $data .= substr("\0\0\0\0", ($s[7] & 3)) if $r == $l && ($s[7] & 3) != 0;
+        $data .= substr("\0\0\0\0", ($s[7] % 4)) if $r == $l && ($s[7] % 4) != 0;
 	$data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
 	swrite($sock, $data);
         $data = '';
