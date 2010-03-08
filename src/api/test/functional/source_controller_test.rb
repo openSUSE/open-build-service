@@ -7,12 +7,15 @@ FIXTURES = [
   :roles_static_permissions,
   :roles_users,
   :users,
+  :groups,
+  :groups_users,
   :db_projects,
   :db_packages,
   :bs_roles,
   :repositories,
   :path_elements,
-  :project_user_role_relationships
+  :project_user_role_relationships,
+  :project_group_role_relationships
 ]
 
 class SourceControllerTest < ActionController::IntegrationTest 
@@ -125,9 +128,14 @@ class SourceControllerTest < ActionController::IntegrationTest
   
   
   def test_put_project_meta
+    # admin
     prepare_request_with_user @request, "king", "sunflower"
     do_change_project_meta_test
+    # maintainer 
     prepare_request_with_user @request, "fred", "geröllheimer"
+    do_change_project_meta_test
+    # maintainer via group
+    prepare_request_with_user @request, "adrian", "so_alone"
     do_change_project_meta_test
   end
   
@@ -255,8 +263,8 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_equal( olddoc.to_s, REXML::Document.new(( @response.body )).to_s)    
   end
-  
-  
+
+
 
   def do_change_package_meta_test
    # Get meta file  
@@ -290,11 +298,16 @@ class SourceControllerTest < ActionController::IntegrationTest
 
   # admins, project-maintainer and package maintainer can edit package data
   def test_put_package_meta
+      # admin
       prepare_request_with_user @request, "king", "sunflower"
       do_change_package_meta_test
+      # maintainer via user
       prepare_request_with_user @request, "fred", "geröllheimer"
       do_change_package_meta_test
       prepare_request_with_user @request, "fredlibs", "geröllheimer"
+      do_change_package_meta_test
+      # maintainer via group
+      prepare_request_with_user @request, "adrian", "so_alone"
       do_change_package_meta_test
   end
 
@@ -321,8 +334,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     newdoc = REXML::Document.new( @response.body )
     d = newdoc.elements["/package"]
     assert_equal(d.attribute('name').value(), 'kdelibs2', message="Project name was not set to kdelibs2")
-    #d = newdoc.elements["//person[@role='maintainer' and @userid='fred']"]
-    #assert_not_nil(d, message="--> Creator was not added automatically as package-maintainer")  
   end
 
 
@@ -351,7 +362,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     #must not create a package with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2000"), doc.to_s
     assert_response( 400, "--> Was able to create package with different project-name in _meta.xml")     
-    
+
     #verify data is unchanged: 
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
@@ -378,7 +389,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
   
   
-  def test_put_project_meta
+  def test_create_attributes
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     prepare_request_with_user @request, "tom", "thunder"
     post "/source/home:tom/_attribute", data

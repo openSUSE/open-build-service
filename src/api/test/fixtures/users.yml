@@ -48,3 +48,13 @@ tscholz:
   password_hash_type: md5
   
   
+# standard User: (part of "gruppe" group)
+adrian:
+  id: 42
+  login: adrian
+  email: adrian@suse.de
+  realname: Johnny Thunders
+  password: <%= Digest::MD5.hexdigest("so_alone") %>
+  password_salt: ""
+  password_hash_type: md5
+

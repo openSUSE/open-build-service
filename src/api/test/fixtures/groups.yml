@@ -2,3 +2,8 @@
 test_group:
   id: 99
   title: test_group
+
+# nobody is in this group
+test_group_nobody:
+  id: 199
+  title: test_group_b
