@@ -1,6 +1,9 @@
 #require "project"
 #require "package"
 
+#
+# This is basically only a helper class around permission checking for user model
+#
 
 module Suse
 
@@ -22,29 +25,20 @@ module Suse
 
       return true if @user.has_global_permission?( "global_project_change" )
 
-      valid_users = project_maintainers project
-      return true if valid_users.include? @user.login
+      if package.kind_of? DbProject
+        prj = project
+      else
+        prj = DbProject.find_by_name( project )
 
+        if prj.nil?
+          raise "unable to find project object for #{project}"
+        end
+      end
+
+      return true if @user.can_modify_project?( prj )
       return false
     end
 
-    # One may create a package if he either has the global_package_create
-    # permission or if he is maintainer of the project.
-    def package_create?( project )
-      logger.debug "User #{@user.login} wants to create a package in #{project}"
-
-      return true if @user.has_global_permission?( 'global_package_create' )
-
-      valid_users = project_maintainers project
-      return true if valid_users.include? @user.login
-
-      return false
-    end
-
-    # One may change a package if he either has the global_package_change
-    # permission or if he is maintainer of the project or maintainer of the
-    # package
-    #
     # args can either be an instance of the respective class (Package, Project)
     # or package/project names.
     #
@@ -54,15 +48,10 @@ module Suse
     def package_change?( package, project=nil )
       logger.debug "User #{@user.login} wants to change the package"
 
-      return true if @user.has_global_permission?( "global_package_change" )
-
-      #check if current user is mentioned in the package meta file
-      valid_users = package_maintainers( package, project )
-      return true if valid_users.include? @user.login
 
       #try to find parent project of package if it is not set
       if project.nil?
-        if not package.kind_of? Package
+        if not package.kind_of? DbPackage
           raise "autofetch of project only works with objects of class Package"
         end
 
@@ -71,12 +60,42 @@ module Suse
         end
 
         project = package.parent_project
+        pkg = package
+      else
+        pkg = DbPackage.find_by_project_and_name( project, package )
+        if pkg.nil?
+          raise "unable to find package object for #{project} / #{package}"
+        end
       end
 
-      # check if current user is mentioned in the project meta file
-      valid_users = project_maintainers( project )
-      return true if valid_users.include? @user.login
+      return true if @user.can_modify_package?( pkg )
+      return false
+    end
 
+    def package_create?( package, project=nil )
+      logger.debug "User #{@user.login} wants to change the package"
+
+
+      #try to find parent project of package if it is not set
+      if project.nil?
+        if not package.kind_of? DbPackage
+          raise "autofetch of project only works with objects of class Package"
+        end
+
+        if package.parent_project_name.nil?
+          raise "unable to determine parent project for package #{package}"
+        end
+
+        project = package.parent_project
+        pkg = package
+      else
+        pkg = DbPackage.find_by_project_and_name( project, package )
+        if pkg.nil?
+          raise "unable to find package object for #{project} / #{package}"
+        end
+      end
+
+      return true if @user.can_create_package?( pkg )
       return false
     end
 
@@ -85,64 +104,17 @@ module Suse
       logger.debug "Dynamic Permission requested: <#{perm}>"
 
       if @user
-  if @user.has_global_permission? perm.to_s
-    logger.debug "User #{@user.login} has permission #{perm}"
-    return true
-  else
-    logger.debug "User #{@user.login} does NOT have permission #{perm}"
-    return false
-  end
-      else
-  logger.debug "Permission check failed because no user is checked in"
-  return false
-      end
-    end
-
-    # returns the package maintainers as a list of login names
-    # argument can be a instance of the Project class or a project name
-    def project_maintainers( project )
-      val = Array.new
-
-      if( project.kind_of? Project )
-        p = project
-      else
-        p = Project.find project
-        return val unless p
-      end
-
-      p.each_person do |person|
-        if person.role == "maintainer" or person.role == "owner"
-          val << person.userid
+        if @user.has_global_permission? perm.to_s
+          logger.debug "User #{@user.login} has permission #{perm}"
+          return true
+        else
+          logger.debug "User #{@user.login} does NOT have permission #{perm}"
+          return false
         end
-      end
-
-      logger.debug "returning project maintainers: #{val}"
-      return val
-    end
-
-    # returns the package maintainers as a list of login names
-    # argument can be an instance of the Package class or a package name
-    # if first arg is a package name, the name of the packages project has to be
-    # given as second arg
-    def package_maintainers( package, project=nil )
-      val = Array.new
-
-      if( package.kind_of? Package )
-        p = package
-      elsif project.nil?
-        raise "Permission#package_maintainers: project name must be given if first parameter is no Package object"
       else
-        p = Package.find package, :project => project
-        return val unless p
+        logger.debug "Permission check failed because no user is checked in"
+        return false
       end
-
-      p.each_person do |person|
-        if person.role == "maintainer" or person.role == "owner"
-          val << person.userid
-        end
-      end
-      logger.debug "returning package maintainers: #{val}"
-      return val
     end
 
     def logger

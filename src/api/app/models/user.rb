@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
   has_many :tags, :through => :taggings
 
   has_many :watched_projects, :foreign_key => 'bs_user_id'
+  has_many :groups_users, :foreign_key => 'user_id'
   has_many :project_user_role_relationships, :foreign_key => 'bs_user_id'
   has_many :package_user_role_relationships, :foreign_key => 'bs_user_id'
 
@@ -221,16 +222,25 @@ class User < ActiveRecord::Base
   end
 
   def has_local_role?( role, object )
+logger.debug "XXXXXXXXXXXXX has_local_role\n"
     case object
       when DbPackage
         logger.debug "running local role package check: user #{self.login}, project #{object.name}, role '#{role.title}'"
         rels = package_user_role_relationships.count :first, :conditions => ["db_package_id = ? and role_id = ?", object, role], :include => :role
         return true if rels > 0
+        groups.each do |g|
+          rels = package_group_role_relationships.find :all, :conditions => ["db_group_id = ? and role_id = ?", g, role], :include => :role
+          return true if rels > 0
+        end
         return has_local_role?(role, object.db_project)
       when DbProject
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
         rels = project_user_role_relationships.count :first, :conditions => ["db_project_id = ? and role_id = ?", object, role], :include => :role
         return true if rels > 0
+        groups.each do |g|
+          rels = project_group_role_relationships.find :all, :conditions => ["db_group_id = ? and role_id = ?", g, role], :include => :role
+          return true if rels > 0
+        end
         return false
       end
     return false
@@ -241,11 +251,15 @@ class User < ActiveRecord::Base
   # if context is a project, check it, then if needed go down through all namespaces until hitting the root
   # return false if none of the checks succeed
   def has_local_permission?( perm_string, object )
+logger.debug "XXXXXXXXXXXXX has_local_permission\n"
     case object
     when DbPackage
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given package
       rels = package_user_role_relationships.find :all, :conditions => ["db_package_id = ?", object], :include => :role
+      groups.each do |g|
+        rels += package_group_role_relationships.find :all, :conditions => ["db_group_id = ?", g], :include => :role
+      end
       for rel in rels do
 # TODO:       if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
@@ -261,6 +275,9 @@ class User < ActiveRecord::Base
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given project
       rels = project_user_role_relationships.find :all, :conditions => ["db_project_id = ? ", object], :include => :role
+      groups.each do |g|
+        rels += project_group_role_relationships.find :all, :conditions => ["db_group_id = ?", g], :include => :role
+      end
       for rel in rels do
 # TODO:        if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])

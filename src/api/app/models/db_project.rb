@@ -157,7 +157,7 @@ class DbProject < ActiveRecord::Base
       #--- update groups ---#
       groupcache = Hash.new
       self.project_group_role_relationships.each do |pgrr|
-        h = groupcache[pgrr.group.login] ||= Hash.new
+        h = groupcache[pgrr.group.title] ||= Hash.new
         h[pgrr.role.title] = pgrr
       end
 
