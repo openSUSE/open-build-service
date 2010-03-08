@@ -27,20 +27,20 @@ module Suse
 
       if package.kind_of? DbProject
         prj = project
-      else
+      elsif package.kind_of? Project
         prj = DbProject.find_by_name( project )
+      end
 
-        if prj.nil?
-          raise "unable to find project object for #{project}"
-        end
+      if prj.nil?
+        raise "unable to find project object for #{project}"
       end
 
       return true if @user.can_modify_project?( prj )
       return false
     end
 
-    # args can either be an instance of the respective class (Package, Project)
-    # or package/project names.
+    # args can either be an instance of the respective class (Package, Project),
+    # the database object or package/project names.
     #
     # the second arg can be omitted if the first one is a Package object. second
     # arg is needed if first arg is a string
@@ -48,20 +48,27 @@ module Suse
     def package_change?( package, project=nil )
       logger.debug "User #{@user.login} wants to change the package"
 
-
-      #try to find parent project of package if it is not set
-      if project.nil?
-        if not package.kind_of? DbPackage
-          raise "autofetch of project only works with objects of class Package"
-        end
-
-        if package.parent_project_name.nil?
-          raise "unable to determine parent project for package #{package}"
-        end
-
-        project = package.parent_project
+      # Get DbPackage object
+      if package.kind_of? DbPackage
         pkg = package
       else
+        if project.nil?
+          if not package.kind_of? Package
+            raise "autofetch of project only works with objects of class Package"
+          end
+          if package.parent_project_name.nil?
+            raise "unable to determine parent project for package #{package}"
+          end
+          project = package.parent_project
+        end
+
+        if package.kind_of? Package
+           package = package.name
+        end
+        if project.kind_of? Project
+           project = project.name
+        end
+
         pkg = DbPackage.find_by_project_and_name( project, package )
         if pkg.nil?
           raise "unable to find package object for #{project} / #{package}"
@@ -72,30 +79,30 @@ module Suse
       return false
     end
 
-    def package_create?( package, project=nil )
+    def package_create?( obj )
       logger.debug "User #{@user.login} wants to change the package"
 
 
-      #try to find parent project of package if it is not set
-      if project.nil?
-        if not package.kind_of? DbPackage
-          raise "autofetch of project only works with objects of class Package"
-        end
-
-        if package.parent_project_name.nil?
-          raise "unable to determine parent project for package #{package}"
-        end
-
-        project = package.parent_project
-        pkg = package
+      # Get DbPackage object
+      if obj.kind_of? DbPackage
+        prj = obj.db_project
+      elsif obj.kind_of? DbProject
+        prj = obj
+      elsif obj.kind_of? Package
+        prj = DbProject.find_by_name( obj.parent_project.name )
+      elsif obj.kind_of? Project
+        prj = DbProject.find_by_name( obj.name )
+      elsif obj.kind_of? String
+        prj = DbProject.find_by_name( obj )
       else
-        pkg = DbPackage.find_by_project_and_name( project, package )
-        if pkg.nil?
-          raise "unable to find package object for #{project} / #{package}"
-        end
+        raise "Unhandle object type"
       end
 
-      return true if @user.can_create_package?( pkg )
+      if pkg.nil?
+        raise "unable to find package object for #{project} / #{package}"
+      end
+
+      return true if @user.can_create_package_in?( prj )
       return false
     end
 

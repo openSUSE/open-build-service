@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100109145739) do
+ActiveRecord::Schema.define(:version => 20100402100000) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -231,10 +231,18 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
   add_index "messages", ["object_id"], :name => "object"
   add_index "messages", ["user_id"], :name => "user"
 
+  create_table "package_group_role_relationships", :force => true do |t|
+    t.integer "db_package_id", :null => false
+    t.integer "bs_group_id",   :null => false
+    t.integer "role_id",       :null => false
+  end
+
+  add_index "package_group_role_relationships", ["db_package_id", "bs_group_id", "role_id"], :name => "package_group_role_all_index", :unique => true
+
   create_table "package_user_role_relationships", :force => true do |t|
     t.integer "db_package_id", :null => false
     t.integer "bs_user_id",    :null => false
-    t.integer "role_id",       :null => false
+    t.integer "role_id"
   end
 
   add_index "package_user_role_relationships", ["bs_user_id"], :name => "index_package_user_role_relationships_on_bs_user_id"
@@ -249,10 +257,18 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
   add_index "path_elements", ["parent_id", "position"], :name => "parent_repo_pos_index", :unique => true
   add_index "path_elements", ["parent_id", "repository_id"], :name => "parent_repository_index", :unique => true
 
+  create_table "project_group_role_relationships", :force => true do |t|
+    t.integer "db_project_id", :null => false
+    t.integer "bs_group_id",   :null => false
+    t.integer "role_id",       :null => false
+  end
+
+  add_index "project_group_role_relationships", ["db_project_id", "bs_group_id", "role_id"], :name => "project_group_role_all_index", :unique => true
+
   create_table "project_user_role_relationships", :force => true do |t|
     t.integer "db_project_id", :null => false
     t.integer "bs_user_id",    :null => false
-    t.integer "role_id",       :null => false
+    t.integer "role_id"
   end
 
   add_index "project_user_role_relationships", ["db_project_id", "bs_user_id", "role_id"], :name => "project_user_role_all_index", :unique => true
@@ -366,7 +382,7 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
     t.datetime "updated_at"
     t.datetime "last_logged_in_at"
     t.integer  "login_failure_count",                :default => 0,            :null => false
-    t.string   "login",               :limit => 100, :default => "",           :null => false
+    t.binary   "login",               :limit => 255,                           :null => false
     t.string   "email",               :limit => 200, :default => "",           :null => false
     t.string   "realname",            :limit => 200, :default => "",           :null => false
     t.string   "password",            :limit => 100, :default => "",           :null => false
@@ -381,7 +397,7 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
     t.text     "adminnote"
   end
 
-  add_index "users", ["login"], :name => "users_login_index", :unique => true
+  execute "CREATE UNIQUE INDEX users_login_index ON users (login(255));"
   add_index "users", ["password"], :name => "users_password_index"
 
   create_table "watched_projects", :force => true do |t|

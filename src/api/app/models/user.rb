@@ -99,6 +99,14 @@ class User < ActiveRecord::Base
     roles.include? Role.find_by_title("Admin")
   end
 
+  def is_in_group?(group)
+    unless attribute.kind_of? Group
+      raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class.name}"
+    end
+    return true if groups.find(:all, :conditions => [ "id = ?", group ]) > 0
+    return false
+  end
+
   # project is instance of DbProject
   def can_modify_project?(project)
     unless project.kind_of? DbProject
@@ -127,7 +135,7 @@ class User < ActiveRecord::Base
     if attribute.attrib_type.attrib_type_modifiable_bies.length > 0
       attribute.attrib_type.attrib_type_modifiable_bies.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
-        next if mod_rule.group; # groups are not yet supported # and not self.is_part_of_group?(mod_rule.group)
+        next if mod_rule.group and not is_in_group(mod_rule.group)
         if attribute.db_package
           next if mod_rule.role and not has_local_role?(mod_rule.role, attribute.db_package)
         else
@@ -144,7 +152,7 @@ class User < ActiveRecord::Base
       end
     end
     # never reached
-    return false
+    raise RuntimeError, "ERROR in user.can_modify_attribute?"
   end
 
   # project is instance of DbProject
@@ -187,7 +195,7 @@ class User < ActiveRecord::Base
     if atype.attrib_type_modifiable_bies.length > 0
       atype.attrib_type_modifiable_bies.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
-        next if mod_rule.group; # groups are not yet supported # and not self.is_part_of_group?(mod_rule.group)
+        next if mod_rule.group and not is_in_group(mod_rule.group)
         next if mod_rule.role and not has_local_role?(mod_rule.role, object)
         return true
       end
@@ -222,7 +230,6 @@ class User < ActiveRecord::Base
   end
 
   def has_local_role?( role, object )
-logger.debug "XXXXXXXXXXXXX has_local_role\n"
     case object
       when DbPackage
         logger.debug "running local role package check: user #{self.login}, project #{object.name}, role '#{role.title}'"
@@ -251,7 +258,6 @@ logger.debug "XXXXXXXXXXXXX has_local_role\n"
   # if context is a project, check it, then if needed go down through all namespaces until hitting the root
   # return false if none of the checks succeed
   def has_local_permission?( perm_string, object )
-logger.debug "XXXXXXXXXXXXX has_local_permission\n"
     case object
     when DbPackage
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"

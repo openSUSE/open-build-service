@@ -2,7 +2,8 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'person_controller'
 
 class PersonControllerTest < ActionController::IntegrationTest 
-  fixtures :users
+
+  fixtures :users, :watched_projects
 
   def setup
     @controller = PersonController.new
