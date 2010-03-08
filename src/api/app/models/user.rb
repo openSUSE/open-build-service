@@ -246,6 +246,9 @@ class User < ActiveRecord::Base
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given package
       rels = package_user_role_relationships.find :all, :conditions => ["db_package_id = ?", object], :include => :role
+      rels += PackageGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 
+                                                :conditions => ["ug.user_id = ? and db_package_id = ?", self.id, object.id],
+                                                :include => :role
       for rel in rels do
 # TODO:       if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
@@ -261,6 +264,9 @@ class User < ActiveRecord::Base
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given project
       rels = project_user_role_relationships.find :all, :conditions => ["db_project_id = ? ", object], :include => :role
+      rels += ProjectGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = group_id", 
+                                                :conditions => ["ug.user_id = ? and db_project_id = ?", self.id, object.id],
+                                                :include => :role
       for rel in rels do
 # TODO:        if rel.role.static_permissions.count(:conditions => ["title = ?", perm_string]) > 0
         if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
