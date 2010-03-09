@@ -2243,7 +2243,7 @@ sub getfile {
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $files = lsrev($rev);
-  die("$filename: no such file\n") unless $files->{$filename};
+  die("404 $filename: no such file\n") unless $files->{$filename};
   my @s = repstat($rev, $filename, $files->{$filename});
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
   local *F;
