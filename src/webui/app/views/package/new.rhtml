@@ -6,7 +6,9 @@
   'Add Package'
 ]
 -%>
+<!--
 <p><%= link_to('Create package using spec file wizard', :controller => 'package', :action => 'wizard_new', :project => @project) %> (experimental)</p>
+-->
 <h2>New Package in project <%= @project.name %></h2>
 
 <% form_tag :action => "save_new" do %>
