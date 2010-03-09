@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.7.50
+Version:        1.7.52
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -220,7 +220,6 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
 touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
-rm $RPM_BUILD_ROOT/srv/www/obs/api/REFERENCE_ATTRIBUTES.xml
 rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install
 cp -a $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb.template $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb
 # the git webinterface tries to connect to api.opensuse.org by default
@@ -523,7 +522,8 @@ rm -rf $RPM_BUILD_ROOT
 
 # starting the webui part
 %dir /srv/www/obs/webui
-%dir /srv/www/obs/webui/db
+# sqlite3 needs write permissions
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/db
 /srv/www/obs/webui/app
 /srv/www/obs/webui/Changelog
 /srv/www/obs/webui/db/migrate
