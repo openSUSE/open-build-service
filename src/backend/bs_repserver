@@ -1476,7 +1476,7 @@ sub getkiwiproductpackages {
       my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
       my @apackids = sort keys %apackids;
       for my $apackid (@apackids) {
-        if ($depends->{'subpacks'}) {
+        if ($depends->{'subpacks'}->{$apackid}) {
 	  next unless grep {$deps{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
         }
         # need package, scan content
