@@ -1624,6 +1624,7 @@ if ($testmode) {
   BSServer::reply("<status code=\"ok\">\n  <details>so much work, so little time...</details>\n</status>\n", 'Content-Type: text/xml');
 }
 print "got job, run build...\n";
+delete $SIG{'__DIE__'};
 unlink("$buildroot/.build.meta");
 unlink("$buildroot/.build.packages");
 unlink("$buildroot/.build.log");

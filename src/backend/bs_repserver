@@ -1473,16 +1473,27 @@ sub getkiwiproductpackages {
         $depends = Storable::retrieve("$reporoot/$aprp/$arch/:depends");
       };
       next unless $depends && $depends->{'subpacks'};
-      my @apackids = sort keys %{$depends->{'subpacks'}};
+      my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
+      my @apackids = sort keys %apackids;
       for my $apackid (@apackids) {
-	next unless grep {$deps{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
+        if ($depends->{'subpacks'}) {
+	  next unless grep {$deps{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
+        }
         # need package, scan content
 	my @bins;
-	if (-s "$reporoot/$aprp/$arch/$apackid/.bininfo") {
+	if (-e "$reporoot/$aprp/$arch/$apackid/.bininfo") {
 	  @bins = map {substr($_, 34)} split("\n", readstr("$reporoot/$aprp/$arch/$apackid/.bininfo"));
 	} else {
 	  @bins = grep {/\.rpm$/} ls ("$reporoot/$aprp/$arch/$apackid");
 	}
+        my $needit;
+	for my $b (@bins) {
+	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+          next unless $deps{$1};
+          $needit = 1;
+	  last;
+        }
+        next unless $needit;
 	for my $b (@bins) {
 	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  push @got, "$aprp/$arch/$apackid/$b";
