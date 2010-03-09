@@ -522,7 +522,8 @@ rm -rf $RPM_BUILD_ROOT
 
 # starting the webui part
 %dir /srv/www/obs/webui
-%dir /srv/www/obs/webui/db
+# sqlite3 needs write permissions
+%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/db
 /srv/www/obs/webui/app
 /srv/www/obs/webui/Changelog
 /srv/www/obs/webui/db/migrate
