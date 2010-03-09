@@ -1,7 +1,6 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'ldap'
 require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
@@ -147,8 +146,15 @@ class ApplicationController < ActionController::Base
       end
       
       if defined?( LDAP_MODE ) && LDAP_MODE == :on
-        logger.debug( "Using LDAP to find #{login}" )
-        ldap_info = User.find_with_ldap( login, passwd )
+        begin
+          require 'ldap'
+          logger.debug( "Using LDAP to find #{login}" )
+          ldap_info = User.find_with_ldap( login, passwd )
+        rescue Exception
+          logger.debug "LDAP_MODE selected but 'ruby-ldap' module not installed."
+          ldap_info = nil # now fall through as if we'd not found a user
+        end
+
         if not ldap_info.nil?
           # We've found an ldap authenticated user - find or create an OBS userDB entry.
           @http_user = User.find :first, :conditions => [ 'login = ?', login ]

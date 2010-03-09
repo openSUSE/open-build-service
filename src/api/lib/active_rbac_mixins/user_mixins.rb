@@ -508,12 +508,13 @@ module UserMixins
             # this method returns a ldap object using the provided user name
             # and password
             def self.initialize_ldap_con(user_name, password)
+              return nil unless defined?( LDAP_SERVERS )
               ldap_servers = LDAP_SERVERS.split(":")
               ping = false
               server = nil
               count = 0
               
-              max_ldap_attempts = LDAP_MAX_ATTEMPTS or 10
+              max_ldap_attempts = defined?( LDAP_MAX_ATTEMPTS ) ? LDAP_MAX_ATTEMPTS : 10
               
               while !ping and count < max_ldap_attempts
                 count += 1
@@ -529,7 +530,13 @@ module UserMixins
 
               logger.debug( "Connecting to #{server} as '#{user_name}'" )
               begin
-                conn = LDAP::Conn.new( server, 389)
+                if LDAP_SSL == :on
+                  port = defined?( LDAP_PORT ) ? LDAP_PORT : 636
+                  conn = LDAP::SSLConn.new( server, port)
+                else
+                  port = defined?( LDAP_PORT ) ? LDAP_PORT : 389
+                  conn = LDAP::Conn.new( server, port)
+                end
                 conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
                 conn.bind(user_name, password)
               rescue LDAP::ResultError

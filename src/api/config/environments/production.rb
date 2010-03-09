@@ -25,6 +25,12 @@ LDAP_MODE = :off
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.
 LDAP_SERVERS = "ldap1.mycompany.com:ldap2.mycompany.com"
+# If you're using LDAP_AUTHENTICATE=:ldap then you should ensure that 
+# ldaps is used to transfer the credentials over SSL
+LDAP_SSL = :on
+# LDAP port defaults to 389 for ldap and 686 for ldaps
+#LDAP_PORT=
+
 # Max number of times to attempt to contact the LDAP servers
 LDAP_MAX_ATTEMPTS = 10
 
