@@ -40,6 +40,9 @@ class RequestController < ApplicationController
 
   private
 
+  #
+  # find default reviewers of a project/package via role
+  # 
   def find_reviewers(obj)
     # obj can be a project or package object
     reviewers = Array.new(0)
@@ -65,6 +68,33 @@ class RequestController < ApplicationController
       end
     end
     return reviewers
+  end
+
+  def find_review_groups(obj)
+    # obj can be a project or package object
+    review_groups = Array.new(0)
+    prj = nil
+
+    # check for reviewers in a package first
+    if obj.class == DbProject
+      prj = obj
+    elsif obj.class == DbPackage
+      if defined? obj.package_group_role_relationships
+        obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+          review_groups << User.find_by_id(r.bs_user_id)
+        end
+      end
+      prj = obj.db_project
+    else
+    end
+
+    # add reviewers of project in any case
+    if defined? prj.project_group_role_relationships
+      prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.find_by_title("reviewer").id] ).each do |r|
+        review_groups << User.find_by_id(r.bs_user_id)
+      end
+    end
+    return review_groups
   end
 
   # POST /request?cmd=create
@@ -196,6 +226,7 @@ class RequestController < ApplicationController
 
     # check targets for defined default reviewers
     reviewers = []
+    review_groups = []
 
     req = BsRequest.new(response.body)
     req.each_action do |action|
@@ -203,17 +234,29 @@ class RequestController < ApplicationController
       if action.target.has_attribute? 'package'
         tpkg = tprj.db_packages.find_by_name action.target.package
         reviewers += find_reviewers(tpkg)
+        review_groups += find_review_groups(tpkg)
       else
         reviewers += find_reviewers(tprj)
+        review_groups += find_review_groups(tprj)
       end
     end
 
+    # apply reviewers
     if reviewers.length > 0
       reviewers.each do |r|
         p = {}
         p[:cmd]     = "addreview"
         p[:by_user] = r.login
         path = "/request/" + req.id + build_query_from_hash(p, [:cmd, :by_user])
+        r = backend_post( path, "" )
+      end
+    end
+    if review_groups.length > 0
+      review_groups.each do |r|
+        p = {}
+        p[:cmd]     = "addreview"
+        p[:by_user] = r.login
+        path = "/request/" + req.id + build_query_from_hash(p, [:cmd, :by_group])
         r = backend_post( path, "" )
       end
     end
