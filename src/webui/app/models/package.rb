@@ -478,8 +478,9 @@ class Package < ActiveXML::Base
     # it's necessary because the order of elements is important.
     # wished order:
     element_order = [
-      :title, :description, :person, :build, :publish, :useforbuild, :notify, :delete_notify,
-      :url, :group, :license, :keyword, :file
+      :title, :description, :devel, :person, :group, 
+      :build, :publish, :debuginfo, :useforbuild, :binarydownload,
+      :url, :bcntsynctag
     ]
     until element_order.pop == element or element_order.empty? do end
     elem_cache = []
