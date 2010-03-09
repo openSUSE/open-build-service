@@ -1,7 +1,7 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'ldap'
+require 'ldap' if defined?(LDAP_MODE) && LDAP_MODE == :on
 require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
