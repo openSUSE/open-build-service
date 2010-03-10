@@ -4,7 +4,12 @@
 
 <% form_tag :action => :save do -%>
   <b>Local Project Name:</b><br/>
+<% if not Project.find "openSUSE.org" -%>
   <%= text_field_tag( "project", "openSUSE.org", :size => 80 ) %><br/>
   <%= text_field_tag( "remoteurl", "https://api.opensuse.org/public", :size => 80 ) %><br/>
+<% else -%>
+  <%= text_field_tag( "project", "", :size => 80 ) %><br/>
+  <%= text_field_tag( "remoteurl", "", :size => 80 ) %><br/>
+<% end -%>
   <p><%= submit_tag %></p>
 <% end -%>
