@@ -104,7 +104,9 @@ Requires:       rubygem-rails-2_3 = 2.3.5
 Requires:       rubygem-libxml-ruby
 Requires:       rubygem-daemons
 Requires:       rubygem-delayed_job
-Recommends:     ruby-ldap
+%if 0%{?suse_version} >= 1020
+Supplements:    ruby-ldap
+%endif
 # requires for webui:
 Requires:       ghostscript-fonts-std
 Requires:       rubygem-gruff
@@ -260,8 +262,8 @@ ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
 #
 # change script names to allow to start them with startproc
 #
-mv $RPM_BUILD_ROOT/srv/www/obs/api/script/{delayed_job,delayed_job.api}
-mv $RPM_BUILD_ROOT/srv/www/obs/webui/script/{delayed_job,delayed_job.api}
+mv $RPM_BUILD_ROOT/srv/www/obs/api/script/delayed_job{,.api}
+mv $RPM_BUILD_ROOT/srv/www/obs/webui/script/delayed_job{,.webui}
 
 #
 # Install all backend parts.

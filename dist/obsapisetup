@@ -118,7 +118,7 @@ EOF
   Browse the build packages via:        http://$FQHOSTNAME:82
 
  * "Admin" user password is "opensuse" by default.
- * Keep in mind to import the openSUSE.org project before building packages.
+ * Connect to the web interface now to finish the OBS setup.
 
 More informations about this appliance are available here:
 
