@@ -26,11 +26,11 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
       <li>
       <% if not Project.find "openSUSE.org" -%>
         <% link_to :controller => "admin", :action => :connect_instance do -%>
-           <%= image_tag 'utilities-system-monitor.png' %><br/><span class="proceed_text">Setup OBS</span>
+           <%= image_tag 'configure.png' %><br/><span class="proceed_text">Setup OBS</span>
         <% end -%>
       <% else -%>
         <% link_to :controller => "admin", :action => :index do -%>
-           <%= image_tag 'utilities-system-monitor.png' %><br/><span class="proceed_text">Setup OBS</span>
+           <%= image_tag 'configure.png' %><br/><span class="proceed_text">Setup OBS</span>
         <% end -%>
       <% end -%>
       </li>
