@@ -20,6 +20,22 @@ With the openSUSE Build Service, users can easily <%= link_to 'find the latest o
 
 <p>Proceed to:</p>
     <ul id="proceed_list">
+<!-- administrator block -->
+<% @user ||= Person.find :login => session[:login] -%>
+<% if @user.is_admin? -%>
+      <li>
+      <% if not Project.find "openSUSE.org" -%>
+        <% link_to :controller => "admin", :action => :connect_instance do -%>
+           <%= image_tag 'utilities-system-monitor.png' %><br/><span class="proceed_text">Setup OBS</span>
+        <% end -%>
+      <% else -%>
+        <% link_to :controller => "admin", :action => :index do -%>
+           <%= image_tag 'utilities-system-monitor.png' %><br/><span class="proceed_text">Setup OBS</span>
+        <% end -%>
+      <% end -%>
+      </li>
+<% end -%>
+
       <li>
       <% link_to :controller => "project", :action => :list_my do -%>
           <%= image_tag 'start-here.png', :alt => '' %><br/><span class="proceed_text">My Projects</span>

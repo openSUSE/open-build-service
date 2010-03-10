@@ -66,4 +66,10 @@ class Person < ActiveXML::Base
   def packagesorter(a, b)
     a.project == b.project ? a.name <=> b.name : a.project <=> b.project
   end
+
+  def is_admin?
+    # FIXME: we should actually ask the backend here
+    return true if login.to_s == "Admin"
+    return false
+  end
 end
