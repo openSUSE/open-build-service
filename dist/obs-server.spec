@@ -205,7 +205,11 @@ install -m 644 obs.source_server.reg $SLP_DIR/
 install -m 644 obs.repo_server.reg $SLP_DIR/
 # create symlink for product converter
 mkdir -p $RPM_BUILD_ROOT/usr/bin
-ln -sf /usr/lib/obs/server/bs_productconvert $RPM_BUILD_ROOT/usr/bin/obs_productconvert
+cat > $RPM_BUILD_ROOT/usr/bin/obs_productconvert <<EOF
+#!/bin/bash
+exec /usr/lib/obs/server/bs_productconvert "\$@"
+EOF
+chmod 0755 $RPM_BUILD_ROOT/usr/bin/obs_productconvert
 
 #
 # Install all web and api parts.
