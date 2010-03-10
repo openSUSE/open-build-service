@@ -1,0 +1,21 @@
+
+Changes since 1.7.1 release
+===========================
+
+Backported new features:
+  * optional LDAP support for authentification.
+    You need to install "ruby-ldap" package and configure the LDAP
+    server in api config/enviroments/production.rb
+  * Admin interface in the web interface
+    -> can be used to connect against remote OBS instance
+    -> link to user and permission handling
+  * Support caching of packages for product builds by the worker.
+
+Fixes:
+
+  * Support build results with files larger than 4GB
+  * nicer diff3 output by source server
+  * sqlite3 setup problems fixed for webui
+  * webui delayed_job startup failure fixed
+  * a number of minor bugfixes
+
