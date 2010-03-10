@@ -1,0 +1,10 @@
+<% @pagetitle = "Connect remote OBS instance" %>
+
+<h2>Connect a remote openSUSE Build Service instance</h2>
+
+<% form_tag :action => :save do -%>
+  <b>Local Project Name:</b><br/>
+  <%= text_field_tag( "project", "openSUSE.org", :size => 80 ) %><br/>
+  <%= text_field_tag( "remoteurl", "https://api.opensuse.org/public", :size => 80 ) %><br/>
+  <p><%= submit_tag %></p>
+<% end -%>
