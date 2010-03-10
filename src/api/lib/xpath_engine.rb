@@ -29,6 +29,9 @@ class XpathEngine
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']},
+        'person/@role' => {:cpart => 'roles.title', :joins =>
+          ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
+           'LEFT JOIN roles ON package_user_role_relationships.role_id = roles.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
           :split => ':', :joins => 
           ['LEFT JOIN attribs ON attribs.db_package_id = db_packages.id',
@@ -49,6 +52,10 @@ class XpathEngine
         'person/@userid' => {:cpart => 'users.login', :joins => [
           'LEFT JOIN project_user_role_relationships ON db_projects.id = project_user_role_relationships.db_project_id',
           'LEFT JOIN users ON users.id = project_user_role_relationships.bs_user_id'
+        ]},
+        'person/@role' => {:cpart => 'roles.title', :joins => [
+          'LEFT JOIN project_user_role_relationships ON db_projects.id = project_user_role_relationships.db_project_id',
+          'LEFT JOIN roles ON project_user_role_relationships.role_id = roles.id'
         ]},
         'repository/@name' => {:cpart => 'repositories.name'},
         'repository/path/@project' => {:cpart => 'childs.name', :joins => [
