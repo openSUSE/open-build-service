@@ -209,6 +209,7 @@ sub cpio_receiver {
     my $size  = hex(substr($cpiohead, 54, 8));
     if ($size == 0xffffffff) {
       # build service length extension
+      $cpiohead .= read_data($hdr, 16, 1);
       $size = hex(substr($cpiohead, 62, 8)) * 4294967296. + hex(substr($cpiohead, 70, 8));
       substr($cpiohead, 62, 16) = '';
     }
