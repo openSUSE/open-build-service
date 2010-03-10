@@ -166,14 +166,28 @@ class Project < ActiveXML::Base
     return false unless opt[:userid] and opt[:role]
     logger.debug "adding person '#{opt[:userid]}', role '#{opt[:role]}' to project #{self.name}"
 
-    if( has_element? :person )
-      elem_cache = split_data_after :person
+    if( has_element? :remoteurl )
+      elem_cache = split_data_after :remoteurl
     else
       elem_cache = split_data_after :description
     end
 
     #add the new person
     add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
+
+    merge_data elem_cache
+  end
+
+  def set_remoteurl( url )
+    logger.debug "set remoteurl"
+
+    delete_element 'remoteurl'
+    elem_cache = split_data_after :description
+
+    unless url.nil?
+      add_element 'remoteurl'
+      remoteurl.text = url
+    end
 
     merge_data elem_cache
   end

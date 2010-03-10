@@ -73,6 +73,10 @@
   </td>
 
     <td>
+<% if @project.has_element? :remoteurl -%>
+<h3>Remote OBS Instance:</h3>
+  <%= @project.remoteurl %><p>
+<% end -%>
       <!-- Package table -->
     <%= render :partial => "package_table" %>
     </td>
