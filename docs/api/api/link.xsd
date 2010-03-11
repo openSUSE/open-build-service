@@ -17,6 +17,8 @@
       <xs:sequence>
         <xs:element ref="add" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="apply" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="delete" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="branch" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="topadd" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
@@ -38,6 +40,14 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="topadd">
+  <xs:element name="delete">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
   </xs:element>
+
+  <xs:element name="branch"/>
+
+  <xs:element name="topadd"/>
+
 </xs:schema>
