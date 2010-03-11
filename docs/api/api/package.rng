@@ -38,8 +38,12 @@
     <element>
       <name ns="">package</name>
 
-      <attribute name="name"/>
-      <attribute name="project"/>
+      <optional>
+        <attribute name="name"/>
+      </optional>
+      <optional>
+        <attribute name="project"/>
+      </optional>
       <optional>
         <attribute name="created"/>
       </optional>
