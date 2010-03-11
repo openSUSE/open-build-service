@@ -1,4 +1,4 @@
-<attribute name="attr_name" namespace="OBS">
+<definition name="attr_name" namespace="OBS">
   <count>2</count>
   <default>
     <value>A</value>
@@ -12,4 +12,4 @@
   <modifiable_by name="demouser"/>
   <modifiable_by group="attribute_maintainers"/>
   <modifiable_by role="demorole"/>
-</attribute>
+</definition>

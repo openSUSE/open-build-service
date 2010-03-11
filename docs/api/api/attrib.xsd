@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes one attribute
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="values">
+    <xs:annotation>
+      <xs:documentation>
+        Values of an attribute
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="value" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+    <xs:element name="attribute">
+      <xs:annotation>
+        <xs:documentation>
+          A attribute 
+        </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="values" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="namespace" type="xs:string" />
+      </xs:complexType>
+    </xs:element>
+
+</xs:schema>

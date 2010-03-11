@@ -1,0 +1,6 @@
+<attribute name="list" namespace="OBS">
+  <values>
+    <value>A</value>
+    <value>B</value>
+  </values>
+</attribute>
