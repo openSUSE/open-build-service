@@ -3990,6 +3990,7 @@ sub worker_lastevents {
   if (!$BSStdServer::isajax) {
     my @args = map {"filter=$_"} @{$watch || []};
     push @args, "start=$cgi->{'start'}";
+    push @args, "obsname=$cgi->{'obsname'}" if $cgi->{'obsname'};
     BSHandoff::handoff($ajaxsocket, '/lastevents', undef, @args);
     exit(0);
   }
@@ -4195,10 +4196,10 @@ my $dispatches = [
   '/getsignkey $project withpubkey:bool?' => \&getsignkey,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
-  '/lastevents $filter:* start:num?' => \&worker_lastevents,
+  '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
   '/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
-  '/public/lastevents $filter:* start:num?' => \&worker_lastevents,
+  '/public/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
 
   # search interface
   '/search $in: $match: return:? values:bool?' => \&search,
@@ -4254,7 +4255,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
-  '/lastevents $filter:* start:num?' => \&worker_lastevents,
+  '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
 ];
 
 ####################################################################
