@@ -125,3 +125,13 @@ OBS_CACHE_SIZE=""
 # favorable).
 #
 OBS_WORKER_NICE_LEVEL=19
+
+## Path:        Applications/OBS
+## Description: Set used VM type by worker
+## Type:        ("auto" | "xen" | "kvm" | "none")
+## Default:     "auto"
+## Config:      OBS
+#
+#
+OBS_VM_TYPE="auto"
+

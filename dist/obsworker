@@ -98,7 +98,11 @@ fi
 if [ -f /etc/buildhost.config ];then
 	. /etc/buildhost.config
 fi
-if [ -e /dev/kvm ] ; then
+if [ -n "$OBS_VM_TYPE" -a "$OBS_VM_TYPE" != "auto" ] ; then
+        if "$OBS_VM_TYPE" != "none"; then
+             vmopt="--$OBS_VM_TYPE"
+        fi
+elif [ -e /dev/kvm ] ; then
 	vmopt=--kvm
 elif [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
 	vmopt=--xen
@@ -139,12 +143,11 @@ case "$1" in
 
 		# fetch worker sources from server
 		[ -d "$workerbootdir" ] || mkdir -p "$workerbootdir"
-		pushd "$workerbootdir"
-		curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract
+		pushd "$workerbootdir" > /dev/null
+		curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract 
 		ln -s . XML 
 		chmod 755 bs_worker
-		popd
-
+		popd > /dev/null
 		while test "$NUM" -gt "$I"; do
 			if [ "$OBS_WORKER_PORTBASE" -gt 0 ]; then
 				port="--port $((OBS_WORKER_PORTBASE + I))"
@@ -153,17 +156,30 @@ case "$1" in
 			fi
 			I=$(( $I + 1 ))
 			title="$HOSTNAME/$I"
+			R=$ROOT/root_$I
 			# prepare obsworker startup in screen...
-			echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $ROOT/root_$I" \
+                        if [ -n "$vmopt" ]; then
+                             DEVICE="$ROOT/root_$I/root"
+                             SWAP="$ROOT/root_$I/swap"
+                             if [ ! -e "$DEVICE" -o ! -e "$SWAP" ]; then
+                                  echo "ERROR: worker is configured to use a VM, but the following devices/files do not exist: $R, $SWAP"
+                                  exit 1
+                             fi
+                             DEVICE="--device $DEVICE"
+                             SWAP="--swap $SWAP"
+                             echo $OBS_INSTANCE_MEMORY > "$ROOT/root_$I/memory"
+			else
+			     [ -d $R ] || mkdir -p $R
+                        fi
+			echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
 			     "--statedir $workerdir/$I --id $HOSTNAME/$I $OBS_REPO_PARM" \
-			     "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT" \
+			     "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $DEVICE $SWAP" \
 			    >> $screenrc
-			[ -d $ROOT/root_$I ] || mkdir -p $ROOT/root_$I
                         [ -d $workerdir/$I ] || mkdir -p $workerdir/$I
 		done
-		pushd "$workerbootdir"
+		pushd "$workerbootdir" > /dev/null
 		screen -m -d -c $screenrc
-		popd
+		popd > /dev/null
 	;;
 	stop)
 		echo -n "Shutting down obsworker"
