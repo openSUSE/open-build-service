@@ -192,45 +192,6 @@ class Package < ActiveXML::Base
   end
 
 
-  # disable building of this package for the specified repo / arch / repo/arch-combination
-  def disable_build( opt={} )
-    logger.debug "disable building of package #{self.name} for #{opt[:repo]} #{opt[:arch]}"
-
-    elem_cache = get_elements_before :disable
-
-    if opt[:repo] and opt[:arch]
-      if data.find("disable[@repository='#{opt[:repo]}' and @arch='#{opt[:arch]}']").empty?
-        add_element 'disable', 'repository' => opt[:repo], 'arch' => opt[:arch]
-      else return false
-      end
-    else
-      if opt[:repo]
-        if data.find("disable[@repository='#{opt[:repo]}' and not(@arch)]").empty?
-          add_element 'disable', 'repository' => opt[:repo]
-        else return false
-        end
-      elsif opt[:arch]
-        if data.find("disable[@arch='#{opt[:arch]}' and not(@repository)]").empty?
-          add_element 'disable', 'arch' => opt[:arch]
-        else return false
-        end
-      else
-        if data.find("//disable[count(@*) = 0]").empty?
-          add_element 'disable'
-        else return false
-        end
-      end
-    end
-
-    merge_data elem_cache
-    begin
-      save
-    rescue
-      return false
-    end
-  end
-
-
   def set_url( new_url )
     logger.debug "set url #{new_url} for package #{self.name} (project #{self.project})"
     if( has_element? :url )
@@ -374,7 +335,7 @@ class Package < ActiveXML::Base
   end
 
 
-  #TODO beim repository loeschen muessen auch die flags aktualisiert werden!!!
+  #TODO remove flags when a repository got removed
   def update_flag_matrix(opts={})
     flagtype = opts[:flagtype]
 
@@ -408,7 +369,7 @@ class Package < ActiveXML::Base
           f.status = elem.element_name
           f.explicit = true
         else
-          #dickes default
+          # package default value
           key = 'all::all'
           f = self.send("#{flagtype}flags")[key.to_sym]
           f.description = 'package default'
