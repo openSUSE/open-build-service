@@ -114,3 +114,13 @@ OBS_CACHE_DIR=""
 # Set the size to 50% of the maximum usable size of this partition
 #
 OBS_CACHE_SIZE=""
+
+## Path:        Applications/OBS
+## Description: Set used VM type by worker
+## Type:        ("auto" | "xen" | "kvm" | "none")
+## Default:     "auto"
+## Config:      OBS
+#
+#
+OBS_VM_TYPE="auto"
+

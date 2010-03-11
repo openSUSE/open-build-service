@@ -57,7 +57,9 @@ case "$1" in
 
 			echo "OBS_WORKER_DIRECTORY=\"/OBS.worker/\""  > /etc/buildhost.config
 			echo "OBS_CACHE_DIR=\"/OBS.worker/cache\""   >> /etc/buildhost.config
-			echo "OBS_CACHE_SIZE=\"\"" >> /etc/buildhost.config
+			CACHEMB=`df -m /OBS.worker/cache | tail -n 1 | sed -n 's,^/dev/[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+			[ -z "$CACHEMB" ] && CACHEMB=`df -m /OBS.worker/cache | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+			[ -n "$CACHEMB" ] && echo "OBS_CACHE_SIZE=\"$(( $CACHEMB / 2 ))\"" >> /etc/buildhost.config
 			if [ -e /sys/hypervisor/type ]; then
 				echo "OBS_USE_XEN=\"yes\""           >> /etc/buildhost.config
 			fi
@@ -91,6 +93,10 @@ case "$1" in
 				OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
 			done
 			echo "OBS_WORKER_INSTANCES=\"$OBS_WORKER_INSTANCES\"" >> /etc/buildhost.config
+			# Memory which can be used
+                        TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
+                        INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
+			echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
                 fi
 		rc_status -v
 	;;
