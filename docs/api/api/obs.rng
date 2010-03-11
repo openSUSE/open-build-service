@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Default objects for OBS
+-->
+
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <define ns="" name="person-element">
+    <element name="person">
+      <attribute name="userid">
+        <data type="string" />
+      </attribute>
+      <attribute name="role">
+        <data type="string" />
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+
+  <define ns="" name="group-element">
+    <element name="group">
+      <attribute name="groupid">
+        <data type="string" />
+      </attribute>
+      <attribute name="role">
+        <data type="string" />
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+
+  <define ns="" name="flag-switch">
+    <optional>
+      <attribute name="repository">
+        <data type="string" />
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="arch">
+        <data type="string" />
+      </attribute>
+    </optional>
+  </define>
+
+  <define ns="" name="flag-element">
+    <zeroOrMore>
+      <optional>
+        <element name="enable">
+          <ref name="flag-switch"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="disable">
+          <ref name="flag-switch"/>
+        </element>
+      </optional>
+    </zeroOrMore>
+    <empty/>
+  </define>
+
+</grammar>
