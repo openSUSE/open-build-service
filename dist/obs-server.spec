@@ -267,7 +267,7 @@ ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
 # change script names to allow to start them with startproc
 #
 mv $RPM_BUILD_ROOT/srv/www/obs/api/script/delayed_job{,.api}
-mv $RPM_BUILD_ROOT/srv/www/obs/webui/script/delayed_job{,.webui}
+mv $RPM_BUILD_ROOT/srv/www/obs/webui/script/delayed_job{,.web}
 
 #
 # Install all backend parts.

@@ -36,7 +36,7 @@
 
 . /etc/rc.status
 
-DELAYED_BIN=/srv/www/obs/webui/script/delayed_job.webui
+DELAYED_BIN=/srv/www/obs/webui/script/delayed_job.web
 
 # Reset status of this service
 rc_reset
