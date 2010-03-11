@@ -17,6 +17,7 @@
       <xs:enumeration value="accepted"/>
       <xs:enumeration value="reviewed"/>
       <xs:enumeration value="revoked"/>
+      <xs:enumeration value="superseded"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -30,6 +31,7 @@
       <xs:sequence>
         <xs:element ref="action" minOccurs="1" maxOccurs="unbounded" />
         <xs:element ref="state" minOccurs="1" maxOccurs="1" />
+        <xs:element ref="review" minOccurs="0" maxOccurs="unbounded" />
         <xs:element ref="history" minOccurs="0" maxOccurs="unbounded" />
         <xs:element name="title" minOccurs="0" maxOccurs="1" />
         <xs:element name="description" minOccurs="0" maxOccurs="1" />
@@ -49,6 +51,19 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="review">                                                                
+    <xs:complexType>                                                                     
+      <xs:sequence>                                                                      
+        <xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>                                                                     
+      <xs:attribute name="state"  type="states" use="required"/>
+      <xs:attribute name="by_user"  type="xs:string" />
+      <xs:attribute name="by_group"  type="xs:string" />
+      <xs:attribute name="who"   type="xs:string"/>
+      <xs:attribute name="when"  type="xs:dateTime"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="history">
     <xs:complexType>                                                                     
       <xs:sequence>                                                                      
@@ -57,6 +72,7 @@
       <xs:attribute name="name"  type="states" use="required"/>                          
       <xs:attribute name="who"   type="xs:string" use="required"/>
       <xs:attribute name="when"  type="xs:dateTime" use="required"/>
+      <xs:attribute name="superseded_by"  type="xs:dateTime"/>
     </xs:complexType>
   </xs:element>
   

@@ -14,6 +14,10 @@
  <state name="deleted" who="adrian" when="2007-12-30T09:00:00">
    <comment>Forgetit!</comment>
  </state>
+ <review state="accepted" by_user="adrian" who="adrian" when="2008-12-30T09:00:00">
+   <comment>Looks great!</comment>
+ </review>
+ <review state="new" by_group="suse_review_group" />
  <history name="new" who="freitag" when="2007-12-12T07:00:00">
    <comment>Please add this to openSUSE</comment>
  </history>
