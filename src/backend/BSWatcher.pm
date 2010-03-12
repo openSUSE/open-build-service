@@ -673,7 +673,11 @@ sub rpc_recv_handler {
   my $headers = $1;
   $ans = $2;
   if ($status !~ /^200[^\d]/) {
-    rpc_error($ev, "remote error: $status");
+    if ($status =~ /^(\d+) +(.*?)$/) {
+      rpc_error($ev, "$1 remote error: $2");
+    } else {
+      rpc_error($ev, "remote error: $status");
+    }
     return;
   }
   my %headers;
