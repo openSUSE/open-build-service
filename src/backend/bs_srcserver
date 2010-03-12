@@ -358,7 +358,7 @@ sub getrev {
   return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
-    return remote_getrev($projid, $packid, $rev);
+    return remote_getrev(@_);
   }
   undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
   undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
@@ -1031,7 +1031,7 @@ sub handlelinks {
     # record link target for projpack
     push @{$li->{'linked'}}, {'project' => $projid, 'package' => $packid} if $li && $li->{'linked'}; 
     eval {
-      $lrev = getrev($projid, $packid, $l->{'rev'});
+      $lrev = getrev($projid, $packid, $l->{'rev'}, $li ? $li->{'linked'} : undef);
     };
     if ($@) {
       my $error = $@;
@@ -1876,7 +1876,7 @@ sub fetchremoteconfig {
 }
 
 sub remote_getrev {
-  my ($projid, $packid, $rev) = @_;
+  my ($projid, $packid, $rev, $linked) = @_;
   my $proj = remoteprojid($projid);
   if (!$proj) {
     die("package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
@@ -1912,6 +1912,25 @@ sub remote_getrev {
   if ($dir->{'linkinfo'}) {
     $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
     $rev->{'rev'} = $rev->{'srcmd5'} unless $dir->{'rev'};
+    if ($linked) {
+      # add linked info for getprojpack
+      my $li = $dir->{'linkinfo'};
+      while ($li) {
+        my $lprojid = $li->{'project'};
+        my $lpackid = $li->{'package'};
+        last unless defined($lprojid) && defined($lpackid);
+        my $mlprojid = maptoremote($proj, $lprojid);
+        last unless defined($mlprojid) && $mlprojid ne '_unavailable';
+        push @$linked, {'project' => $mlprojid, 'package' => $lpackid};
+	last unless $li->{'srcmd5'} && !$li->{'error'};
+	my $ldir;
+	eval {
+	  $ldir = BSRPC::rpc("$proj->{'remoteurl'}/source/$lprojid/$lpackid", $BSXML::dir, "rev=$li->{'srcmd5'}");
+	};
+	last if $@ || !$ldir;
+	$li = $ldir->{'linkinfo'};
+      }
+    }
   }
   die("srcmd5 mismatch\n") if $dir->{'srcmd5'} ne $srcmd5;
   $rev->{'project'} = $projid;
