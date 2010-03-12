@@ -1057,6 +1057,11 @@ class SourceController < ApplicationController
     logger.debug "branch call of #{prj_name} #{pkg_name}"
 
     prj = DbProject.find_by_name prj_name
+    if prj.nil?
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => "Unknown project #{prj_name}"
+      return
+    end
     pkg = prj.db_packages.find_by_name(pkg_name)
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
