@@ -398,7 +398,7 @@ class Project < ActiveXML::Base
           f.status = elem.element_name
           f.explicit = true
         else
-          #dickes default
+          # default
           key = 'all::all'
           f = self.send("#{flagtype}flags")[key.to_sym]
           f.repository = nil
@@ -416,33 +416,15 @@ class Project < ActiveXML::Base
     logger.debug "[PROJECT-FLAGS] Update done."
   end
 
-  def maintainer
-    if has_element? "person[@role='maintainer']"
-      return person("@role='maintainer'").userid.to_s
-    else
-      return nil
-    end
-  end
-
-  def downloader
-    if has_element? "person[@role='downloader']"
-      return person("@role='downloader'").userid.to_s
-    else
-      return nil
-    end
-  end
-
-  def reviewer
-    if has_element? "person[@role='reviewer']"
-      return person("@role='reviewer'").userid.to_s
-    else
-      return nil
-    end
-  end
-
   def bugowner
-    if has_element? "person[@role='bugowner']"
-      return person("@role='bugowner'").userid.to_s
+    b = all_persons("bugowner")
+    return b.first if b
+    return nil
+  end
+
+  def all_persons( role )
+    if has_element? "person[@role='#{role}']"
+      return person("@role='#{role}'").userid.to_s
     else
       return nil
     end

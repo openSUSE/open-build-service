@@ -8,7 +8,7 @@
     <% end %>
   </h3>
   <% @roles.each do |r| -%>
-    <% if @project.send(r) -%>
+    <% if @project.all_persons(r) -%>
       <dl>
         <dt><%= r.capitalize %>s</dt>
         <%- users = @project.each_person("@role='#{r}'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>

@@ -9,7 +9,7 @@
   </h3>
 
   <% @roles.each do |r| -%>
-    <% if @package.send(r) or @project.send(r) -%>
+    <% if @package.all_persons(r) or @project.all_persons(r) -%>
       <dl>
         <dt><%= r.capitalize %>s</dt>
         <%- package_users = @package.each_person("@role='#{r}'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
