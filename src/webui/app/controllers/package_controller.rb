@@ -81,9 +81,14 @@ class PackageController < ApplicationController
     persons.each do |person|
       @email_hash[person] = Person.find_cached(person).email.to_s
     end
+    @roles = Role.local_roles
     @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
     @tags, @user_tags_array = get_tags(:project => @project, :package => @package, :user => session[:login])
     @rating = Rating.find( :project => @project, :package => @package )
+  end
+  
+  def add_person
+    @roles = Role.local_roles
   end
   
   def get_tags(params)

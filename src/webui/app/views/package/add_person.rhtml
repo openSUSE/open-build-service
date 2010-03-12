@@ -14,7 +14,7 @@
 <b>User ID:</b>
 <%= text_field_tag 'userid', params[:userid], :size => '25' %>
 <b>Role:</b>
-<%= select_tag 'role', options_for_select(%w{maintainer bugowner}, params[:role]) %>
+<%= select_tag 'role', options_for_select(@roles, params[:role]) %>
 <%= hidden_field_tag 'package', @package %>
 <%= hidden_field_tag 'project', @project %>
 <p><%= submit_tag "Add user" %></p>

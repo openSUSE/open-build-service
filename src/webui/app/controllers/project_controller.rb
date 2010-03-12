@@ -1,6 +1,7 @@
 require 'project_status'
 require 'collection'
 require 'buildresult'
+require 'role'
 include ActionView::Helpers::UrlHelper
 
 class ProjectController < ApplicationController
@@ -114,9 +115,14 @@ class ProjectController < ApplicationController
       @email_hash[person.userid.to_s] = Person.find_cached( person.userid ).email.to_s
     end
     @subprojects = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{params[:project]}:')"
+    @roles = Role.local_roles
     @arch_list = arch_list
     @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
     @rating = Rating.find( :project => params[:project] )
+  end
+
+  def add_person
+    @roles = Role.local_roles
   end
 
   def buildresult
