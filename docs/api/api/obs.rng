@@ -43,6 +43,13 @@
     </choice>
   </define>
 
+  <define ns="" name="global-role">
+    <choice>
+      <value>Admin</value>
+      <value>User</value>
+    </choice>
+  </define>
+
   <define ns="" name="person-element">
     <element name="person">
       <attribute name="userid">
