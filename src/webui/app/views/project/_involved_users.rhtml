@@ -8,9 +8,23 @@
     <% end %>
   </h3>
   <% @roles.each do |r| -%>
-    <% if @project.all_persons(r) -%>
+    <% if @project.all_groups(r) or @project.all_persons(r) -%>
       <dl>
         <dt><%= r.capitalize %>s</dt>
+      <dl>
+    <% end -%>
+
+    <% if @project.all_groups(r) -%>
+        <%- groups = @project.each_group("@role='#{r}'").sort {|x,y| x.groupid.downcase <=> y.groupid.downcase } -%>
+        <% groups.each do |group| -%>
+          <dd>
+          <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
+          <%=  group.groupid %>
+          </dd>
+        <% end #each_group -%>
+    <% end -%>
+
+    <% if @project.all_persons(r) -%>
         <%- users = @project.each_person("@role='#{r}'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
         <% users.each do |person| -%>
           <dd>
@@ -27,8 +41,7 @@
           {:confirm => "Really remove user '#{person.userid}'?", :class => "x"}%>
         <%- end %>
         </dd>
-        <% end #each_person -%>
-      </dl>
+        <% end #each_users -%>
     <% end -%>
   <% end -%>
 

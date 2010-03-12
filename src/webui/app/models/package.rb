@@ -402,6 +402,14 @@ class Package < ActiveXML::Base
     end
   end
 
+  def all_groups( role )
+    if has_element? "group[@role='#{role}']"
+      return group("@role='#{role}'").groupid.to_s
+    else
+      return nil
+    end
+  end
+
   def is_maintainer? userid
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end

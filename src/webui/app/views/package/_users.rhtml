@@ -9,9 +9,32 @@
   </h3>
 
   <% @roles.each do |r| -%>
-    <% if @package.all_persons(r) or @project.all_persons(r) -%>
+
+    <% if @project.all_groups(r) or @project.all_persons(r) or @package.all_groups(r) or @package.all_persons(r) -%>
       <dl>
         <dt><%= r.capitalize %>s</dt>
+      <dl>
+    <% end -%>
+
+    <% if @package.all_groups(r) or @project.all_groups(r) -%>
+        <%- package_groups = @package.each_group("@role='#{r}'").sort {|x,y| x.groupid.downcase <=> y.groupid.downcase } -%>
+        <%- project_groups = @project.each_group("@role='#{r}'").sort {|x,y| x.groupid.downcase <=> y.groupid.downcase } -%>
+        <% my_groups=[] %>
+        <% package_groups.each do |group| -%>
+          <dd>
+          <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
+          <%=  group.groupid %>
+          </dd>
+        <% end #each_group -%>
+        <% project_groups.each do |group| -%>
+          <dd>
+          <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
+          (<%= group.groupid %>)
+          </dd>
+        <% end #each_group -%>
+    <% end -%>
+
+    <% if @package.all_persons(r) or @project.all_persons(r) -%>
         <%- package_users = @package.each_person("@role='#{r}'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
         <%- project_users = @project.each_person("@role='#{r}'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
         <% package_persons=[] %>
@@ -46,7 +69,6 @@
           <%- end %>
         <%- end %>
         </dd>
-      </dl>
     <% end -%>
   <% end -%>
 

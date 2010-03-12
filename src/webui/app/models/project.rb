@@ -430,6 +430,14 @@ class Project < ActiveXML::Base
     end
   end
 
+  def all_groups( role )
+    if has_element? "group[@role='#{role}']"
+      return group("@role='#{role}'").groupid.to_s
+    else
+      return nil
+    end
+  end
+
   def person_count
     @person_count ||= each_person.length
   end
