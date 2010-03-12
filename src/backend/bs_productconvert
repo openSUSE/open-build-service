@@ -42,10 +42,12 @@ use BSXML;
 
 my $bsdir;
 my $localarch;
+my $obsname;
 eval{
   require BSConfig;
   $bsdir = "$BSConfig::bsdir" if defined($BSConfig::bsdir);
   $localarch = "$BSConfig::localarch" if defined($BSConfig::localarch);
+  $obsname = "$BSConfig::obsname" if defined($BSConfig::obsname);
 };
 
 
@@ -305,6 +307,9 @@ sub createProductOptions($$$)
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
     $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
     $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
+    if (defined($obsname) && (defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne "")){
+        $info{'REPOID'}       = "obsproduct:://".$obsname."/".$prodRef->{'project'}->{'name'}."/".$product->{'name'};
+    }
     if (defined($medium->{'preselected_patterns'})){
         $info{'PATTERNS'} .= join(' ',map( $_->{'name'},@{$medium->{'preselected_patterns'}->[0]->{'pattern'}}));
     }
