@@ -5,13 +5,51 @@
 
 <grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
+  <!-- this list needs to be kept in sync with list in bs_worker -->
+  <define ns="" name="build-arch">
+    <choice>
+      <value>noarch</value>
+      <value>athlon</value>
+      <value>armv4l</value>
+      <value>armv5el</value>
+      <value>armv7el</value>
+      <value>i386</value>
+      <value>i486</value>
+      <value>i586</value>
+      <value>i686</value>
+      <value>ia64</value>
+      <value>mips</value>
+      <value>mips64</value>
+      <value>ppc</value>
+      <value>ppc64</value>
+      <value>s390</value>
+      <value>s390x</value>
+      <value>sh4</value>
+      <value>sparc</value>
+      <value>sparc64</value>
+      <value>sparcv8</value>
+      <value>sparcv9</value>
+      <value>x86_64</value>
+      <value>local</value>
+    </choice>
+  </define>
+
+  <define ns="" name="local-role">
+    <choice>
+      <value>maintainer</value>
+      <value>bugowner</value>
+      <value>reviewer</value>
+      <value>downloader</value>
+    </choice>
+  </define>
+
   <define ns="" name="person-element">
     <element name="person">
       <attribute name="userid">
         <data type="string" />
       </attribute>
       <attribute name="role">
-        <data type="string" />
+        <ref name="local-role" />
       </attribute>
       <empty/>
     </element>
@@ -23,7 +61,7 @@
         <data type="string" />
       </attribute>
       <attribute name="role">
-        <data type="string" />
+        <ref name="local-role" />
       </attribute>
       <empty/>
     </element>
@@ -37,7 +75,7 @@
     </optional>
     <optional>
       <attribute name="arch">
-        <data type="string" />
+        <ref name="build-arch" />
       </attribute>
     </optional>
   </define>
@@ -74,9 +112,9 @@
           </element>
       </zeroOrMore>
       <zeroOrMore>
-          <element name="arch">
-            <text/>
-          </element>
+        <element name="arch">
+          <ref name="build-arch" />
+        </element>
       </zeroOrMore>
       <empty/>
     </element>
