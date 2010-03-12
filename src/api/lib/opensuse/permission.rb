@@ -25,9 +25,9 @@ module Suse
 
       return true if @user.has_global_permission?( "global_project_change" )
 
-      if package.kind_of? DbProject
+      if project.kind_of? DbProject
         prj = project
-      elsif package.kind_of? Project
+      elsif project.kind_of? Project
         prj = DbProject.find_by_name( project )
       end
 
