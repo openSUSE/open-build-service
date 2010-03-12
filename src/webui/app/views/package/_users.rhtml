@@ -8,92 +8,46 @@
   <% end %>
   </h3>
 
-  <% if @package.has_element? :person or @project.has_element? :person -%>
-  <dl>
-    <dt>Maintainers</dt>
-    <% package_persons=[] %>
+  <% @roles.each do |r| -%>
+    <% if @package.send(r) or @project.send(r) -%>
+      <dl>
+        <dt><%= r.capitalize %>s</dt>
+        <%- package_users = @package.each_person("@role='#{r}'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
+        <%- project_users = @project.each_person("@role='#{r}'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
+        <% package_persons=[] %>
 
-    <%- package_maintainers = @package.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
-    <%- project_maintainers = @project.each_person("@role='maintainer'").sort {|x,y| x.userid.downcase <=> y.userid.downcase } -%>
-
-    <% package_maintainers.each do |person| -%>
-      <% package_persons << person.userid %>
-      <dd>
-        <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
-        <%= link_to image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
-        'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' -%>
-        <%= link_to(person.userid, 'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
-
-        <%- if package_maintainers.length + project_maintainers.length > 1  &&
-            ( @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) ) %>
-          <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove Maintainer"),
-          { :action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role, :package => params[:package] },
-          { :confirm => "Really remove user '#{person.userid}'?", :class => "x", :method => :post } -%>
-        <% end -%>
-      </dd>
-    <% end #each_person -%>
-
-    <% project_maintainers.each do |person| %>
-      <% if package_persons.grep( person.userid ).empty? %>
-        <dd title="implicit involved user - involved in project <%= @project.name -%>">
+        <% package_users.each do |person| -%>
+          <% package_persons << person.userid %>
+          <dd>
           <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
-          <%= link_to image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
-          'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' -%>
-          <%= link_to(person.userid, 'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service', :style => 'color: #aaa' ) -%>
-        </dd>
-      <% end -%>
-    <% end #each_person -%>
+          <%= link_to(
+            image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
+            'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
+          <%= link_to(
+            person.userid,
+            'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
+          <%- if @package.is_maintainer?( session[:login] ) %>
+            <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove User"),
+            {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
+            {:confirm => "Really remove user '#{person.userid}'?", :class => "x"}%>
+          <%- end %>
+        <%- end %>
 
-    <dt>Bugowners</dt>
-    <% if @package.bugowner or @project.bugowner -%>
-      <% package_persons=[] %>
-      <% @package.each_person("@role='bugowner'") do |person| -%>
-        <% package_persons << person.userid %>
-        <dd>
-          <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
-          <%= link_to( image_tag("tools-report-bug.png", :size => "16x16", :class => 'bug_link'),
-            bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
-          <%= link_to( person.userid,
-            bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
-        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-        <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove Bugowner"),
-          {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
-          {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x", :method => :post}%>
-        <% end %>
-        </dd>
-      <% end #each_person -%>
-
-      <% @project.each_person("@role='bugowner'") do |person| %>
-        <% if package_persons.grep( person.userid ).empty? %>
-          <dd title="implicit involved user - involved in project <%= @project.name -%>">
-            <%= gravatar_image(@email_hash[person.userid.to_s]) %>
+        <% project_users.each do |person| -%>
+          <% if package_persons.grep( person.userid ).empty? %>
+            <dd>
+            <%=  gravatar_image(@email_hash[person.userid.to_s]) %>
             <%= link_to(
-              image_tag("tools-report-bug.png", :size => "16x16", :class => 'bug_link'),
-              bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ) ) -%>
+              image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
+              'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
             <%= link_to(
               person.userid,
-              bugzilla_url( @email_hash[person.userid.to_s], 'openSUSE Build Service' ), :style => 'color: #aaa;' ) -%>
-            <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-            <%= link_to "[x]",
-              {:action => :remove_person, :project => params[:project], :userid => person.userid, :role => person.role},
-              {:confirm => "Really remove bugowner '#{person.userid}'?", :class => "x", :method => :post}%>
-            <% end %>
-          </dd>
-        <% end -%>
-      <% end #each_person -%>
-    <% else -%>
-      <dd>No bugowner defined, bug reporting disabled</dd>  
+              'mailto:' + @email_hash[person.userid.to_s] + '?subject=openSUSE Build Service' ) -%>
+          <%- end %>
+        <%- end %>
+        </dd>
+      </dl>
     <% end -%>
-  </dl>
+  <% end -%>
 
-  <% else -%>
-    <b>No maintainer in this package</b>
-  <% end #if has_element? person -%>
-
-  <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-  <p>
-    <%= link_to "[Add User]", :action => :add_person,
-    :package => @package, :project => params[:project] %>
-  </p>
-  <% end %>
 </div>
