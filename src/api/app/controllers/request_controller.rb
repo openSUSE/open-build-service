@@ -228,7 +228,7 @@ class RequestController < ApplicationController
     reviewers = []
     review_groups = []
 
-    req = BsRequest.new(response.body)
+    req = BsRequest.new(response.to_s)
     req.each_action do |action|
       tprj = DbProject.find_by_name action.target.project
       if action.target.has_attribute? 'package'
