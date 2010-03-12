@@ -27,7 +27,7 @@ module Suse
 
       if project.kind_of? DbProject
         prj = project
-      elsif project.kind_of? Project
+      elsif project.kind_of? Project or project.kind_of? String
         prj = DbProject.find_by_name( project )
       end
 
@@ -67,6 +67,9 @@ module Suse
         end
         if project.kind_of? Project
            project = project.name
+        end
+        if project.kind_of? String
+           project = project
         end
 
         pkg = DbPackage.find_by_project_and_name( project, package )
