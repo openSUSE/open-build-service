@@ -1510,10 +1510,10 @@ sub getbuildinfo {
   my $uploaded;
   if (!$pdata) {
     $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
-    die("no such project/package/repository\n") unless $projpack->{'project'};
+    die("404 no such project/package/repository\n") unless $projpack->{'project'};
   } else {
     $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", defined($packid) ? "package=$packid" : ());
-    die("no such project/repository\n") unless $projpack->{'project'};
+    die("404 no such project/repository\n") unless $projpack->{'project'};
     $uploaded = 1;
   }
   my %remotemap = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
