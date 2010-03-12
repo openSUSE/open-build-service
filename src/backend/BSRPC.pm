@@ -245,7 +245,11 @@ sub rpc {
     #  1 while sysread(S, $ans, 1024, length($ans));
     #  print "< $ans\n";
     #}
-    die("remote error: $status\n") unless $param->{'ignorestatus'};
+    if ($status =~ /^(\d+) +(.*?)$/) {
+      die("$1 remote error: $2\n") unless $param->{'ignorestatus'};
+    } else {
+      die("remote error: $status\n") unless $param->{'ignorestatus'};
+    }
   }
   if ($headers{'set-cookie'} && $param->{'uri'}) {
     my @cookie = split(',', $headers{'set-cookie'});
