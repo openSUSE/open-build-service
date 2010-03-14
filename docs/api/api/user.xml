@@ -2,15 +2,6 @@
   <login>cinderella</login>
   <email>cindy@example.com</email>
   <realname>Cinderella</realname>
-  <source_backend>
-    <host></host>
-    <port></port>
-  </source_backend>
-<!-- rpm_backend is obsolete and ignored at runtime -->
-  <rpm_backend>
-    <host></host>
-    <port></port>
-  </rpm_backend>
   <watchlist>
     <project name="ASCIIParadize"/>
     <project name="crashtest"/>
