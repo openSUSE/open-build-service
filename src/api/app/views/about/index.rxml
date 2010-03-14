@@ -2,5 +2,4 @@ xml.about do
   xml.title "openSUSE API"
   xml.description "API to the openSUSE Build Service"
   xml.revision @api_revision
-  xml.documentation :type => "text/html", :url => apidocs_url( :controller => "apidocs" )
 end
