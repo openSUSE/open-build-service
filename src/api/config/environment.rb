@@ -13,6 +13,8 @@ require "common/libxmlactivexml"
 require 'custom_logger'
 require 'rexml-expansion-fix'
 
+# define our current api version
+api_version = '1.8'
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
@@ -110,3 +112,4 @@ end
 ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 ExceptionNotifier.sender_address = %("OBS API" <admin@opensuse.org>)
 
+CONFIG['version']=api_version

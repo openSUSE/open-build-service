@@ -1,6 +1,3 @@
-# api version
-version: 1.8
-
 #exception_recipients: ['webclient_noreply@opensuse.org']
 
 webui_url: http://localhost:3000
