@@ -554,7 +554,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      unless pack = pro.db_packages.find_by_name(package_name)
+      unless pack = find_package( pro, package_name )
         render_error :status => 404, :errorcode => "unknown_package",
           :message => "Unknown package '#{package_name}'"
         return
@@ -699,6 +699,27 @@ class SourceController < ApplicationController
 
   private
 
+  # internal function to find a package instance
+  def find_package( project, package_name )
+    unless project.kind_of? DbProject
+      raise RuntimeError, "Illegal object in find_package for project: #{project.class}"
+    end
+    unless package_name.kind_of? String
+      raise RuntimeError, "Illegal object in find_package for package: #{package_name.class}"
+    end
+    pkg = project.db_packages.find_by_name( package_name )
+    if pkg.nil?
+       project.linkedprojects.each do |prj|
+          pkg = find_package( prj.linked_db_project, package_name )
+          unless pkg.nil?
+            return pkg
+          end
+       end
+       return nil
+    end
+    return pkg
+  end
+
   # POST /source?cmd=branch
   def index_branch
     # set defaults
@@ -778,6 +799,7 @@ class SourceController < ApplicationController
       pack_name = pac.name.gsub(':', '_')+"."+proj_name
 
       # create branch package
+      # no find_package call here to check really this project only
       if opkg = oprj.db_packages.find_by_name(pack_name)
         render_error :status => 400, :errorcode => "double_branch_package",
           :message => "branch target package already exists: #{oprj.name}/#{opkg.name}"
@@ -921,7 +943,7 @@ class SourceController < ApplicationController
       return
     end
 
-    if p.db_packages.find_by_name(package_name).nil?
+    unless find_package( p, package_name )
       render_error :status => 400, :errorcode => 'unknown_package',
         :message => "Unknown package '#{package_name}'"
       return
@@ -1059,7 +1081,7 @@ class SourceController < ApplicationController
         :message => "Unknown project #{prj_name}"
       return
     end
-    pkg = prj.db_packages.find_by_name(pkg_name)
+    pkg = find_package( prj, pkg_name )
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{pkg_name} in project #{prj_name}"
