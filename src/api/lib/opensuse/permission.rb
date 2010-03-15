@@ -32,7 +32,7 @@ module Suse
       end
 
       if prj.nil?
-        raise "unable to find project object for #{project}"
+        raise ArgumentError, "unable to find project object for #{project}"
       end
 
       return true if @user.can_modify_project?( prj )
@@ -54,10 +54,10 @@ module Suse
       else
         if project.nil?
           if not package.kind_of? Package
-            raise "autofetch of project only works with objects of class Package"
+            raise RuntimeError, "autofetch of project only works with objects of class Package"
           end
           if package.parent_project_name.nil?
-            raise "unable to determine parent project for package #{package}"
+            raise RuntimeError, "unable to determine parent project for package #{package}"
           end
           project = package.parent_project
         end
@@ -74,7 +74,7 @@ module Suse
 
         pkg = DbPackage.find_by_project_and_name( project, package )
         if pkg.nil?
-          raise "unable to find package object for #{project} / #{package}"
+          raise ArgumentError, "unable to find package object for #{project} / #{package}"
         end
       end
 
@@ -98,7 +98,7 @@ module Suse
       elsif obj.kind_of? String
         prj = DbProject.find_by_name( obj )
       else
-        raise "Unhandle object type"
+        raise RuntimeError, "Unhandle object type"
       end
 
       if pkg.nil?
