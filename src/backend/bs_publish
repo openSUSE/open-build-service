@@ -284,7 +284,7 @@ sub getpatterns {
 sub createrepo_rpmmd {
   my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
 
-  my $repoid  = "obsrepository://$BSConfig::obsname/$projid/$repoid"
+  my $repotag = "obsrepository://$BSConfig::obsname/$projid/$repoid";
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
   print "    running createrepo\n";
@@ -301,7 +301,7 @@ sub createrepo_rpmmd {
   # --update requires a newer createrepo version, tested with version 0.4.10
   my @update;
   @update = '--update' if -f "$extrep/repodata/primary.xml.gz";
-  if (qsystem('createrepo', '-q', '-c', "$extrep/repocache", @update, "--repo", $repoid, $extrep)) {
+  if (qsystem('createrepo', '-q', '-c', "$extrep/repocache", @update, "--repo", $repotag, $extrep)) {
     print("    createrepo failed: $?\n");
     if (@update) {
       print "    re-running without --update\n";
