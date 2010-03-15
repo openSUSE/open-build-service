@@ -1,7 +1,7 @@
 class AboutController < ApplicationController
 
   def index
-    @api_revision = "0.1"
+    @api_revision = "#{CONFIG['version']}"
   end
   
 end
