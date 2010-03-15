@@ -216,6 +216,13 @@ ActiveRecord::Schema.define(:version => 20100402100000) do
   add_index "groups_users", ["group_id", "user_id"], :name => "groups_users_all_index", :unique => true
   add_index "groups_users", ["user_id"], :name => "user_id"
 
+  create_table "linked_projects", :force => true do |t|
+    t.integer "db_project_id",        :null => false
+    t.integer "linked_db_project_id", :null => false
+  end
+
+  add_index "linked_projects", ["db_project_id", "linked_db_project_id"], :name => "linked_projects_index", :unique => true
+
   create_table "messages", :force => true do |t|
     t.integer  "object_id"
     t.string   "object_type"
