@@ -112,4 +112,8 @@ end
 ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 ExceptionNotifier.sender_address = %("OBS API" <admin@opensuse.org>)
 
-CONFIG['version']=api_version
+if defined? API_DATE
+  CONFIG['version'] = api_version + ".git" + API_DATE
+else
+  CONFIG['version'] = api_version
+end
