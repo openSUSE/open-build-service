@@ -28,6 +28,15 @@
     <ref name="project-element"/>
   </start>
 
+  <define ns="" name="project-link-element">
+    <element name="link">
+      <attribute name="project">
+        <data type="string" />
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+
   <define name="project-element">
     <element>
       <name ns="">project</name>
@@ -49,6 +58,10 @@
       </element>
 
       <interleave>
+        <zeroOrMore>
+          <ref name="project-link-element"/>
+        </zeroOrMore>
+
         <optional>
           <element ns="" name="remoteurl">
             <text/>
