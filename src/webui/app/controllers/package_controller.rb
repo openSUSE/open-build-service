@@ -95,8 +95,10 @@ class PackageController < ApplicationController
     tags = Tag.find(:tags_by_object, :project => params[:project], :package => params[:package])
     user_tags = Tag.find(:project => params[:project], :package => params[:package], :user => params[:user])
     user_tags_array = []
-    user_tags.each_tag do |tag|
-      user_tags_array << tag.name
+    if user_tags
+      user_tags.each_tag do |tag|
+        user_tags_array << tag.name
+      end
     end
     return tags, user_tags_array
   end

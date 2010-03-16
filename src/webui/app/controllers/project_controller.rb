@@ -164,8 +164,10 @@ class ProjectController < ApplicationController
     user_tags = Tag.find(:project => params[:project], :user => params[:user])
     tags = Tag.find(:tags_by_object, :project => params[:project])
     user_tags_array = []
-    user_tags.each_tag do |tag|
-        user_tags_array << tag.name
+    if user_tags
+      user_tags.each_tag do |tag|
+          user_tags_array << tag.name
+      end
     end
     return tags, user_tags_array
   end

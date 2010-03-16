@@ -397,10 +397,6 @@ ActiveRecord::Schema.define(:version => 20100402100000) do
     t.string   "password_salt",       :limit => 10,  :default => "1234512345", :null => false
     t.string   "password_crypted",    :limit => 64
     t.integer  "state",                              :default => 1,            :null => false
-    t.string   "source_host",         :limit => 40
-    t.integer  "source_port"
-    t.string   "rpm_host",            :limit => 40
-    t.integer  "rpm_port"
     t.text     "adminnote"
   end
 

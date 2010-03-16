@@ -7,8 +7,6 @@ class ApplicationController < ActionController::Base
 
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
-  # TODO: currently set for all pages but index, remove when we open up anon access
-  before_filter :require_login
   after_filter :set_charset
   protect_from_forgery
 
