@@ -105,7 +105,7 @@ sub redo_request {
 
 sub deljob {
   my ($jev) = @_;
-  print "deljob #$jev->{'id'}\n";
+  #print "deljob #$jev->{'id'}\n";
   for my $file (keys %filewatchers) {
     next unless grep {$_ == $jev} @{$filewatchers{$file}};
     @{$filewatchers{$file}} = grep {$_ != $jev} @{$filewatchers{$file}};
@@ -139,7 +139,7 @@ sub deljob {
 sub rpc_error {
   my ($ev, $err) = @_;
   $ev->{'rpcstate'} = 'error';
-  print "rpc_error: $err\n";
+  #print "rpc_error: $err\n";
   my $uri = $ev->{'rpcuri'};
   delete $rpcs{$uri};
   close $ev->{'fd'} if $ev->{'fd'};
@@ -157,7 +157,7 @@ sub rpc_result {
   my ($ev, $res) = @_;
   $ev->{'rpcstate'} = 'done';
   my $uri = $ev->{'rpcuri'};
-  print "got result for $uri\n";
+  #print "got result for $uri\n";
   delete $rpcs{$uri};
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
@@ -198,11 +198,11 @@ sub addfilewatcher {
   return unless $jev;
   $jev->{'closehandler'} = \&deljob;
   if ($filewatchers{$file}) {
-    print "addfilewatcher to already watched $file\n";
+    #print "addfilewatcher to already watched $file\n";
     push @{$filewatchers{$file}}, $jev unless grep {$_ eq $jev} @{$filewatchers{$file}};
     return;
   }
-  print "addfilewatcher $file\n";
+  #print "addfilewatcher $file\n";
   if (!$filewatchers_ev) {
     $filewatchers_ev = BSEvents::new('timeout', \&filewatcher_handler);
   }
@@ -224,7 +224,7 @@ sub serialize {
   die("only supported in AJAX servers\n") unless $jev;
   if ($serializations{$file}) {
     if ($serializations{$file} != $jev) {
-      print "adding to serialization queue of $file\n";
+      #print "adding to serialization queue of $file\n";
       push @{$serializations_waiting{$file}}, $jev unless grep {$_ eq $jev} @{$serializations_waiting{$file}};
       return undef;
     }
@@ -238,13 +238,13 @@ sub serialize_end {
   my ($ser) = @_;
   return unless $ser;
   my $file = $ser->{'file'};
-  print "serialize_end for $file\n";
+  #print "serialize_end for $file\n";
   delete $serializations{$file};
   my @waiting = @{$serializations_waiting{$file} || []};
   delete $serializations_waiting{$file};
   while (@waiting) {
     my $jev = shift @waiting;
-    print "waking up $jev\n";
+    #print "waking up $jev\n";
     redo_request($jev);
     if ($serializations{$file}) {
       push @{$serializations_waiting{$file}}, @waiting;
@@ -294,7 +294,7 @@ nextchunk:
       BSServerEvents::stream_close($rev, $ev);
       return;
     }
-    print "rpc_recv_stream_handler: chunk EOF\n";
+    #print "rpc_recv_stream_handler: chunk EOF\n";
     my $trailer = $ev->{'replbuf'};
     $trailer =~ s/^(.*?\r?\n)/\r\n/s;	# delete chunk header
     $trailer =~ s/\n\r?\n.*//s;		# delete stuff after trailer
@@ -324,7 +324,7 @@ nextchunk:
   goto nextchunk if length($ev->{'replbuf'});
 
   if ($rev->{'eof'}) {
-    print "rpc_recv_stream_handler: EOF\n";
+    #print "rpc_recv_stream_handler: EOF\n";
     BSServerEvents::stream_close($rev, $ev);
   }
 }
@@ -348,7 +348,7 @@ sub rpc_recv_unchunked_stream_handler {
     $ev->{'replbuf'} = '';
   }
   if ($rev->{'eof'} || !$cl) {
-    print "rpc_recv_unchunked_stream_handler: EOF\n";
+    #print "rpc_recv_unchunked_stream_handler: EOF\n";
     $ev->{'chunktrailer'} = '';
     BSServerEvents::stream_close($rev, $ev);
   }
@@ -385,7 +385,7 @@ sub rpc_recv_forward_close_handler {
     $jev->{'readev'} = {'eof' => 1, 'rpcuri' => $rev->{'rpcuri'}};
   }
   # the stream rpc is finished!
-  print "stream rpc $rev->{'rpcuri'} is finished!\n";
+  #print "stream rpc $rev->{'rpcuri'} is finished!\n";
   delete $rpcs{$rev->{'rpcuri'}};
 }
 
@@ -582,7 +582,7 @@ sub rpc_recv_file_data_handler {
 
 sub rpc_recv_file_close_handler {
   my ($ev) = @_;
-  print "rpc_recv_file_close_handler\n";
+  #print "rpc_recv_file_close_handler\n";
   my $rev = $ev->{'readev'};
   my $res = {};
   if ($ev->{'fd'}) {
@@ -593,13 +593,13 @@ sub rpc_recv_file_close_handler {
   delete $ev->{'fd'};
   my $trailer = $ev->{'chunktrailer'} || '';
   rpc_result($rev, $res);
-  print "file rpc $rev->{'rpcuri'} is finished!\n";
+  #print "file rpc $rev->{'rpcuri'} is finished!\n";
   delete $rpcs{$rev->{'rpcuri'}};
 }
 
 sub rpc_recv_file {
   my ($ev, $chunked, $data, $filename) = @_;
-  print "rpc_recv_file $filename\n";
+  #print "rpc_recv_file $filename\n";
   my $fd = gensym;
   if (!open($fd, '>', $filename)) {
     rpc_error($ev, "$filename: $!");
@@ -649,7 +649,7 @@ sub rpc_recv_handler {
   if ($ev->{'_need'}) {
     #shortcut for need more bytes...
     if (!$ev->{'rpceof'} && length($ans) < $ev->{'_need'}) {
-      printf "... %d/%d\n", length($ans), $ev->{'_need'};
+      #printf "... %d/%d\n", length($ans), $ev->{'_need'};
       BSEvents::add($ev);
       return;
     }
@@ -897,7 +897,7 @@ sub rpc {
   $ev->{'param'} = $param;
   push @{$ev->{'joblist'}}, $jev;
   $rpcs{$rpcuri} = $ev;
-  print "new rpc $uri\n";
+  #print "new rpc $uri\n";
   if (!connect($fd, sockaddr_in($port, $hostlookupcache{$host}))) {
     if ($! == POSIX::EINPROGRESS) {
       $ev->{'handler'} = \&rpc_connect_handler;
