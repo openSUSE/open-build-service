@@ -638,8 +638,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def to_axml_id
-    builder = Builder::XmlMarkup.new( :indent => 2 )
-    xml = builder.package( :name => name, :project => db_project.name )
+    return "<package project='#{db_project.name.to_xs}' name='#{name.to_xs}'/>"
   end
 
   def rating( user_id=nil )
