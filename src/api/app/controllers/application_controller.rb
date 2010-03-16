@@ -86,6 +86,11 @@ class ApplicationController < ActionController::Base
           end
           return false
         end
+        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and request.env.has_key? 'REMOTE_HOST' and CONFIG['webui_host'] == request.env['REMOTE_HOST']
+          @http_user = User.find_by_login( "_nobody_" )
+          @user_permissions = Suse::Permission.new( @http_user )
+          return
+        end
       else
         logger.error "No X-username header from iChain! Are we really using iChain?"
         render_error( :message => "No iChain user found!", :status => 401 ) and return false
@@ -114,6 +119,11 @@ class ApplicationController < ActionController::Base
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
+        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and request.env.has_key? 'REMOTE_HOST' and CONFIG['webui_host'] == request.env['REMOTE_HOST']
+          @http_user = User.find_by_login( "_nobody_" )
+          @user_permissions = Suse::Permission.new( @http_user )
+          return
+        end
         logger.debug "no authentication string was sent"
         render_error( :message => "Authentication required", :status => 401 ) and return false
       end
@@ -135,7 +145,7 @@ class ApplicationController < ActionController::Base
 
         if not ldap_info.nil?
           # We've found an ldap authenticated user - find or create an OBS userDB entry.
-          @http_user = User.find :first, :conditions => [ 'login = ?', login ]
+          @http_user = User.find_by_login( login )
           if @http_user
             # Check for ldap updates
             if @http_user.email != ldap_info[0]
@@ -202,18 +212,6 @@ class ApplicationController < ActionController::Base
     # initialize backend on every request
     Suse::Backend.source_host = SOURCE_HOST
     Suse::Backend.source_port = SOURCE_PORT
-    
-    if @http_user
-      if @http_user.source_host && !@http_user.source_host.empty?
-        Suse::Backend.source_host = @http_user.source_host
-      end
-
-      if @http_user.source_port
-        Suse::Backend.source_port = @http_user.source_port
-      end
-
-      logger.debug "User's source backend <#{@http_user.source_host}:#{@http_user.source_port}>"
-    end
   end
 
   def add_api_version

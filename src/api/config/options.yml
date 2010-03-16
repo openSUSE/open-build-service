@@ -1,3 +1,9 @@
 #exception_recipients: ['webclient_noreply@opensuse.org']
 
+# add also webui_host setting if you want allow anonymous read access via webui
+#allow_anonymous: true
+#webui_host: build.opensuse.org
+
+# should be set always
 webui_url: http://localhost:3000
+
