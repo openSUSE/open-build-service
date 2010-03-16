@@ -684,8 +684,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def to_axml_id
-    builder = Builder::XmlMarkup.new( :indent => 2 )
-    xml = builder.project( :name => name )
+    return "<project name='#{name.to_xs}'/>"
   end
 
 

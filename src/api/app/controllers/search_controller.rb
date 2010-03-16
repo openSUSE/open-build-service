@@ -1,3 +1,5 @@
+require 'faster_builder'
+
 class SearchController < ApplicationController
 
   require 'xpath_engine'
@@ -64,26 +66,6 @@ class SearchController < ApplicationController
     render :text => output, :content_type => "text/xml"
   end
 
-  def __search_stream(xpath)
-    defaults = {:render_all => true, :sort_by => nil, :order => :asc}
-    opt = defaults.merge opt
-
-    xe = XpathEngine.new
-    collection = xe.find(xpath, opt.slice(:sort_by, :order))
-    return Proc.new do |request,output|
-      output.write "<?xml version='1.0' encoding='UTF-8'?>\n<collection>\n"
-      collection.each do |item|
-        if render_all
-          str = item.to_axml
-        else 
-          str = item.to_axml_id
-        end
-        output.write str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
-      end
-      output.write "</collection>\n"
-    end
-  end
-
   # specification of this function:
   # supported paramters:
   # namespace: attribute namespace (required string)
@@ -139,7 +121,7 @@ class SearchController < ApplicationController
     end
     packages.sort! { |x,y| x.name <=> y.name }
     projects = packages.collect { |p| p.db_project }.uniq
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
     xml = builder.attribute(:namespace => namespace, :name => name) do
       projects.each do |proj|
         builder.project(:name => proj.name) do
@@ -157,7 +139,7 @@ class SearchController < ApplicationController
         end
       end
     end
-    render :text => xml, :content_type => "text/xml"
+    render :text => xml.target!, :content_type => "text/xml"
   end
 
 end
