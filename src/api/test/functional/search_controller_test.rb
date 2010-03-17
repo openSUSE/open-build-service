@@ -83,7 +83,7 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user @request, "tscholz", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="Maintained"]'
     assert_response 400
-    assert_select "status[code] > summary", /illegal xpath attribute\/@name="Maintained"/
+    assert_select "status[code] > summary", /illegal xpath attribute/
   end
 
 end
