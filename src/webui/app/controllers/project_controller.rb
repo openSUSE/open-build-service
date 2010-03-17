@@ -813,7 +813,7 @@ class ProjectController < ApplicationController
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
 
-    attributes = PackageAttribute.find(:namespace => 'OBS', 
+    attributes = PackageAttribute.find_cached(:namespace => 'OBS', 
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
     attributes.data.find('//package//values').each do |p|
