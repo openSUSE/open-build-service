@@ -7,43 +7,17 @@
 ]
 -%>
 
+<%= render :partial => "tabs" %>
+
 <table>
   <tr><td id="error_message" style="display:none;"></td></tr>
   <tr>
     <td><h2>Package <%=h @package %> (Project <%=h @project %>)</h2></td>
-    <td>
-      <div id="rating">
-        <%= render :partial => 'shared/star_rating' -%>
-      </div>
-    </td>
     <td><span id="info_message" style="display:none;"></span></td>
   </tr>
 </table>
 
-  <%= render :partial => 'meta' %>
+<%= render :partial => 'meta' %>
+<%= render :partial => 'url' %>
 
-
-<table id="package-layout">
-  <tr>
-    <td>
-      <%= render :partial => 'url' %>
-      <%= render :partial => 'tags' %>
-      <%= render :partial => 'users' %>
-      <%= render :partial => 'files' %>
-      <%= render :partial => 'package_flags' %>
-      <%= link_to "Attributes", :controller => 'attribute', :action => 'show', :project => @project, :package => @package %> 
-   </td>
-
-    <td>
-      <%= render :partial => 'links' if @link %>
-      <%= render :partial => 'buildstatus' %>
-
-    </td>
-  </tr>
-</table>
-
-
-<p style="clear: both;">
-  <%= link_to "Back to Project '#{@project}'", :controller => 'project', :action => :show, :project => @project %>
-</p>
-
+<%= render :partial => 'buildstatus' %>

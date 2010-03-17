@@ -35,5 +35,17 @@ module PackageHelper
     end
     return "spec"
   end
+
+  def package_tab(text, opts)
+    opts[:package] = @package.to_s
+    opts[:project] = @project.to_s
+    if @current_action.to_s == opts[:action].to_s
+      link = "<li id='current_tab'>"
+    else
+      link = "<li>"
+    end
+    link + link_to(text, opts) + "</li>"
+  end
+
 end
 

@@ -1,0 +1,15 @@
+
+<% @pagetitle = "Files of Package #{@package} (Project #{@project})" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :controller => 'project', :action => :list_public),
+  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+  @package.name
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+<%= render :partial => 'links' if @link %>
+<%= render :partial => 'files' %>
+

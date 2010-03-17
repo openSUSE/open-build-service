@@ -1,3 +1,14 @@
+<% content_for :head_javascript do %>
+function toggle_binarylist()
+{
+  var id = $(this).attr("id");
+  id = id.replace("toggle_", "binary_");
+  $("#" + id).toggle();
+}
+<% end %>
+<% content_for :ready_function do %>
+  $('.binarylist_toggle').click(toggle_binarylist);
+<% end %>
 
 <!-- Build status -->
 <div id="package_buildstatus">
@@ -9,10 +20,6 @@
   <% else %>
   <h3>
     Build Status
-    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-    <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger complete rebuild"),
-    :action => 'trigger_rebuild', :project => @project, :package => @package %>
-    <% end %>
     <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status"),
       :url => { :action => 'reload_buildstatus', :project => @project, :package => @package },
       :update => 'package_buildstatus',
@@ -20,63 +27,29 @@
       <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
   </h3>
   <table class="grid">
-    <% current_repo = nil -%>
     <% @buildresult.each_result.sort {|a,b| a.repository <=> b.repository}.each do |result| -%>
-    <% if result.repository != current_repo -%>
-    <% current_repo = result.repository -%>
     <tr>
-      <th colspan="4">
-        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-          <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.repository),
-          :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository %>
-        <% end %>
-        <b><%=h result.repository %></b>
-      </th>
-    </tr>
-    <% end -%>
-    <tr>
+      <td><%=h result.repository %></td>
       <td>
-        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-          <%= link_to image_tag('rebuild.png', :alt => "Rebuild", :title => "trigger rebuild of " + result.arch + " in " + result.repository),
-          :action => 'trigger_rebuild', :project => @project, :package => @package, :repo => result.repository, :arch => result.arch %>
-        <% end %>
-        <%=h result.arch %>
+         <%= image_tag('local/right_btn.gif', :id => ("toggle_%s" % status_id_for( result.repository, result.arch, @package.name )), :class => 'binarylist_toggle') %>
+         <%=h result.arch %>
       </td>
       <% if result.has_element? :status -%>
-      <td>
-        <%=h result.status.code %>
-        <% if result.has_attribute? :dirty -%>
-          (rescheduling)
-        <% end -%>
-      </td>
-      <td>
-        <% if result.status.has_element? :details -%>
-        <%=h result.status.details %>
-        <% end -%>
-      </td>
+         <%= arch_repo_table_cell result.repository, result.arch, @package.name %>
       <% else -%>
-      <td>n/a</td>
+         <td></td>
       <% end -%>
-      <td align="right"><%= link_to "[Build Log]", :action => :live_build_log,
-        :package => @package, :project => params[:project], :arch => result.arch, :repository => result.repository %></td>
     </tr>
     <% if result.has_element? :binarylist -%>
-    <% result.binarylist.each_binary.sort {|a,b| a.filename <=> b.filename}.each do |binary| %>
-    <tr>
-      <td colspan="3"><%= link_to h(binary.filename), rpm_url( @project, @package,
-        result.repository, result.arch, binary.filename ) %></td>
-    </tr>
+      <tr class="package_binarylist" id="binary_<%= status_id_for( result.repository, result.arch, @package.name ) %>"><td colspan="3"><ul>
+      <% result.binarylist.each_binary.sort {|a,b| a.filename <=> b.filename}.each do |binary| %>
+       <li><%= link_to h(binary.filename), rpm_url( @project, @package,
+            result.repository, result.arch, binary.filename ) %></li>
+      <% end -%>
+      </ul></td></tr>
     <% end -%>
-    <% end -%>
-    <% end -%>
+  <% end -%>
   </table>
-
-  <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-  <p>
-    <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
-    :project => @project, :package => @package %>
-  </p>
-  <% end %>
 
  <% end -%>
 

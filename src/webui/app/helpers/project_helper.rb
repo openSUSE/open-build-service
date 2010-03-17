@@ -27,34 +27,8 @@ module ProjectHelper
     @repostatushash[repo][arch] || ActiveXML::XMLNode.new("<status code='-'/>")
   end
 
-  def status_for( repo, arch, package )
-    @statushash[repo][arch][package] || ActiveXML::XMLNode.new("<status code='-' package='#{package}'/>")
-  end
-
-  def status_id_for( repo, arch, package )
-    "#{package}:#{repo}:#{arch}"
-  end
-
-  def arch_repo_table_cell(repo, arch, packname)
-    status = status_for(repo, arch, packname)
-    status_id = status_id_for( repo, arch, packname)
-    link_title = status.has_element?(:details) ? status.details.to_s : nil
-    theclass="status_" + status.code.gsub(' ','_') 
-    out = "<td id='#{status_id}' class='#{theclass}'>"
-    if ["expansion error", "broken", "blocked"].include? status.code 
-      out += link_to status.code, "javascript:alert('#{link_title}')", :title => link_title
-    elsif ["disabled","-"].include? status.code
-      out += status.code
-    else
-      out += link_to status.code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
-          :package => packname, :project => @project.to_s, :arch => arch,
-          :controller => "package", :repository => repo}, {:title => link_title}
-    end 
-    return out + "</td>"
-  end
-
   def watch_link_text
-    user.watches?(@project.name) ? "[Don't watch this project]" : "[Watch this project]"
+    user.watches?(@project.name) ? "Don't watch this project" : "Watch this project"
   end
 
   def watch_link_image

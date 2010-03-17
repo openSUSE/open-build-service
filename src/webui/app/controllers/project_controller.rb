@@ -11,12 +11,12 @@ class ProjectController < ApplicationController
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages,
-    :update_target, :edit_target, :show, :monitor, :edit_prjconf, :list_requests,
+    :show, :monitor, :edit_prjconf, :list_requests,
+    :packages, :users, :subprojects, :repositories, :attributes,
     :meta, :edit_meta ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
   before_filter :load_current_requests, :only => [ :show, :list_requests ]
-
 
   def index
     redirect_to :action => 'list_public'
@@ -73,9 +73,29 @@ class ProjectController < ApplicationController
       @ipackages[pack.project] ||= Array.new
       @ipackages[pack.project] << pack.name if !@ipackages[pack.project].include? pack.name
     end
-
   end
 
+  def users
+    @email_hash = Hash.new
+    @project.each_person do |person|
+      @email_hash[person.userid.to_s] = Person.find_cached( person.userid, :expires_in => 30.minutes ).email.to_s
+    end
+    @roles = Role.local_roles
+  end
+
+  def subprojects
+    @subprojects = Hash.new
+    sub_names = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')"
+    sub_names.each do |sub|
+      @subprojects[sub.name] = Project.find( sub.name )
+    end
+    parent_name = @project.name.gsub(/:[^:]*$/, "")
+    @parent = Project.find( parent_name ) unless [@project.name, 'home'].include? parent_name
+  end
+
+  def attributes
+    @attributes = Attribute.find(:project, :project => params[:project])
+  end
 
   def remove_watched_project
     project = params[:project]
@@ -110,15 +130,9 @@ class ProjectController < ApplicationController
   end
 
   def show
-    @email_hash = Hash.new
-    @project.each_person do |person|
-      @email_hash[person.userid.to_s] = Person.find_cached( person.userid ).email.to_s
+    if @project.bugowner
+      @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s
     end
-    @subprojects = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{params[:project]}:')"
-    @roles = Role.local_roles
-    @arch_list = arch_list
-    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
-    @rating = Rating.find( :project => params[:project] )
   end
 
   def add_person
@@ -126,11 +140,9 @@ class ProjectController < ApplicationController
   end
 
   def buildresult
-    @arch_list = arch_list
-    @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
+    @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' ).to_a
     render :partial => 'inner_repo_table', :locals => {:has_data => true}
   end
-
 
   def delete
     valid_http_methods :post
@@ -205,10 +217,7 @@ class ProjectController < ApplicationController
     render :action => "../tag/list_objects_by_tag"
   end
 
-
-  def flags_for_experts
-    @project = Project.find(params[:project])
-    render :template => "flag/project_flags_for_experts"
+  def repositories
   end
 
   #update project flags
@@ -485,7 +494,7 @@ class ProjectController < ApplicationController
         flash[:error] = "Failed to add target '#{platform}' " + message
     end
 
-    redirect_to :action => :show, :project => @project
+    redirect_to :action => :flags_for_experts, :project => @project
   end
 
   def remove_target
@@ -532,7 +541,7 @@ class ProjectController < ApplicationController
       flash[:error] = "Failed to add user '#{params[:userid]}'"
     end
 
-    redirect_to :action => :show, :project => @project
+    redirect_to :action => :users, :project => @project
   end
 
   def remove_person
@@ -549,7 +558,7 @@ class ProjectController < ApplicationController
       flash[:error] = "Failed to remove user '#{params[:userid]}'"
     end
 
-    redirect_to :action => :show, :project => params[:project]
+    redirect_to :action => :users, :project => params[:project]
   end
 
   def monitor

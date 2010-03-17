@@ -1,1 +1,25 @@
-<!-- nothing in here for now -->
+<% @skip_flash = true %>
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag "local/project", :media => "all" %>
+<% end %>
+
+<ul id="project_tabs">
+  <%= project_tab 'Project', :action => :show %>
+  <%= project_tab 'Packages', :action => :packages %>
+  <%= project_tab 'Status', :action => :status %>
+  <%= project_tab 'Project Config', :action => :prjconf %>
+  <%= project_tab 'Users', :action => :users %>
+  <%= project_tab 'Subprojects', :action => :subprojects %>
+  <%= project_tab 'Attributes', :action => :attributes %>
+  <% if @project.has_element?(:repository) -%>
+    <%= project_tab "Monitor", :action => :monitor %>
+  <% end -%>
+  <%= project_tab "Repositories", :action => :repositories%>
+  <%= project_tab "Requests", :action => 'list_requests'%>
+  <%= project_tab "Raw Config", :action => :meta %>
+</ul>
+
+<div id="project_tabs_end"></div>
+<%= render(:partial => "layouts/flash", :object => flash) %>
+

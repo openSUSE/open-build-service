@@ -4,11 +4,11 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus,
-    :update_flag, :remove, :view_file, :live_build_log, :rdiff]
+    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :view_file, 
-    :remove, :live_build_log, :rdiff]
+    :remove, :live_build_log, :rdiff, :users, :files]
 
 
   # render the input form for tags
@@ -66,27 +66,41 @@ class PackageController < ApplicationController
     render :action => "../tag/list_objects_by_tag"
   end
 
-  def show
-    @files = get_files @project, @package
-    @spec_count = 0
-    @files.each do |file|
-      @spec_count += 1 if file[:ext] == "spec"
-      if ( file[:name] == "_link" )
-        @link = Link.find( :project => @project, :package => @package )
-      end
-    end
-
+  def fill_email_hash
     @email_hash = Hash.new
     persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
     persons.each do |person|
       @email_hash[person] = Person.find_cached(person).email.to_s
     end
     @roles = Role.local_roles
+  end
+
+  def show
     @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
-    @tags, @user_tags_array = get_tags(:project => @project, :package => @package, :user => session[:login])
-    @rating = Rating.find( :project => @project, :package => @package )
+    if @package.bugowner
+      @bugowner_mail = Person.find_cached( @package.bugowner ).email.to_s
+    elsif @project.bugowner
+      @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s
+    end
+
+    fill_status_cache
   end
   
+  def users
+    fill_email_hash
+  end
+
+  def files
+    @files = get_files @project, @package
+    @spec_count = 0
+    @files.each do |file|
+      @spec_count += 1 if file[:ext] == "spec"
+      if file[:name] == "_link"
+        @link = Link.find( :project => @project, :package => @package )
+      end
+    end
+  end
+
   def add_person
     @roles = Role.local_roles
   end

@@ -1,90 +1,100 @@
 <% @pagetitle = "Show Project #{@project}" %>
-
-<div id="project_show">
+      
 <%
-@crumb_list = []
-@crumb_list << link_to( 'Projects', :action => :list_public)
-@crumb_list << @project.name
+   @crumb_list = []
+   @crumb_list << link_to( 'Projects', :action => :list_public)
+   @crumb_list << @project.name
 -%>
-<table>
-  <tr><td id="error_message" style="display:none;"></td></tr>
-  <tr>
-    <td><h2><%=h @project.title %> (<%=h @project -%>)</h2></td>
-    <td>
-      <div id="rating">
-        <%= render :partial => 'shared/star_rating' -%>
+
+
+<% content_for :ready_function do %>
+      <%= remote_function :update => 'inner_repo_table',
+      :url => {:action => :buildresult, :project => params[:project]}, 
+      :loading => "$('#spinner_stat').show(); $('#status_reload').hide()",
+      :complete => '$("#inner_repo_table").hide(); $("#inner_repo_table").slideDown(800); $("#spinner_stat").hide(); $("#status_reload").show();' %>
+<% end %>
+
+<%= render :partial => "tabs" %>
+
+<div id="error_message" style="display:none;"></div>
+
+<table border="0">
+  <tr valign="top"><td>
+      <div class="project_information">
+        <h2 style="display: inline"><%=h @project.title %> (<%=h @project -%>)</h2>
+        
+        <span style="float: right">
+          <% if session[:login] -%>
+          <span id="watchlink">
+            <%= link_to_remote(image_tag(watch_link_image, :title => watch_link_text, :id => "imgwatch"),
+            :url => {:action => :toggle_watch, :project => @project.name },
+            :loading => '$("#imgwatch").fadeOut();',
+            :complete => '$("#imgwatch").fadeIn();') -%>
+          </span>
+          <% end -%>
+          
+          <% if @project.is_maintainer?( session[:login] ) %>
+          <span>
+            <%= link_to_remote(image_tag('delete.png', :title => 'Delete Project'), 
+            :url => { :action => :delete, :project => @project.name } ) %>
+          </span>
+          <% end %>
+          
+          <% if @project.bugowner -%>
+          <span>
+            <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'),
+            bugzilla_url(@bugowner_mail, "[#{@project.name}]")) -%>
+          </span>
+          <% end -%>
+          
+          <% if @project.is_maintainer?( session[:login] ) %>
+          <span>
+            <%= link_to(image_tag('edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
+          </span>
+          <% end -%>
+          
+        </span>
+        
+        <div class="description" id="description">
+          <% description = @project.description.text %>
+          <% if description %>
+          <% linecount=0 %>
+          <% linecount_wherehide=8 %>
+          <% description.split( /\n/ ).each do |line| %>
+          <% linecount += 1 %>
+          <% if linecount == linecount_wherehide %>
+          <div id="hidden_description" style="display:none;">
+            <% end %>
+            <%=h line -%><br/>
+            <% end %>
+            <% if linecount >= linecount_wherehide %>
+          </div>
+          <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
+          <% end %>
+          <% else -%>
+          <i>No description set</i>
+          <% end -%>
+        </div>
+      </div>
+      <div>
+        <div>There are <%= @current_requests.each.size %> open <%= link_to 'requests', :action => :list_requests, :project => @project %></div>
+        <div>Mockup: There are 12 problematic packages of 272 total</div>
       </div>
     </td>
-    <td><span id="info_message" style="display:none;"></span></td>
+    <td width="20%">
+      <h3>
+        Build Status
+        <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status", :id => 'status_reload'),
+        :url => { :action => :buildresult, :project => @project },
+        :update => 'inner_repo_table',
+        :loading => "$('#spinner_stat').show(); $('#status_reload').hide()", :complete => "$('#spinner_stat').hide(); $('#status_reload').show()" %>
+        <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
+      </h3>
+
+      <div id='inner_repo_table'>
+        Loading data...
+      </div>
+    </td>
   </tr>
 </table>
 
-<%= render :partial => "watch_link" %>
-
-<% if @project.is_maintainer?( session[:login] ) %>
-<%= link_to '[Create Subproject]', :action => :new, :ns => @project.name %><br/>
-<%= link_to_remote '[Delete Project]', :url => {:action => :delete, :project => @project.name} %><br/>
-<% end %>
-
-<% if @project.bugowner -%>
-  <%= link_to '[Report Bug]', bugzilla_url(@email_hash[@project.bugowner], "[#{@project.name}]") %>
-<% end -%>
-
-
-<div class="description" id="description">
-  <% description = @project.description.text %>
-  <% if description %>
-    <% linecount=0 %>
-    <% linecount_wherehide=8 %>
-    <% description.split( /\n/ ).each do |line| %>
-      <% linecount += 1 %>
-      <% if linecount == linecount_wherehide %>
-        <div id="hidden_description" style="display:none;">
-      <% end %>
-      <%=h line -%><br/>
-    <% end %>
-    <% if linecount >= linecount_wherehide %>
-      </div>
-      <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
-    <% end %>
-  <% else -%>
-    <i>No description set</i>
-  <% end -%>
-</div>
-
-<% if @project.is_maintainer?( session[:login] ) %>
-<%= link_to "[Edit Project Information]", :action => 'edit', :project => @project %>
-<% end %>
-
-<table id="project-layout">
-  <tr>
-    <td>
-    <!-- Tags -->
-    <%= render :partial => "tags" %>
-    <!-- Involved users -->
-    <%= render :partial => "involved_users" %>
-    <!-- Subprojects -->
-    <%= render :partial => "subprojects" %>
-    <!-- Flags -->
-    <%#= render :partial => "flags" %>
-    <!-- Attributes -->
-    <%= link_to 'Attributes', :controller => 'attribute', :action => 'show', :project => @project %><br/>
-    <%= link_to 'Project Config', :action => :prjconf, :project => @project.name %> 
-  </td>
-
-    <td>
-<% if @project.has_element? :remoteurl -%>
-<h3>Remote OBS Instance:</h3>
-  <%= @project.remoteurl %><p>
-<% end -%>
-      <!-- Package table -->
-    <%= render :partial => "package_table" %>
-    </td>
-
-    <td>
-      <!-- Repository table -->
-    <%= render :partial => "repository_table" %>
-    </td>
-  </tr>
-</table>
-</div>

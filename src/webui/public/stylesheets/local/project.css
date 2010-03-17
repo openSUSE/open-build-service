@@ -76,4 +76,18 @@
   cursor: pointer;
 }
 
+#inner_repo_table {
+  min-width: 12em;
+}
+
+.allcow { background-color: #cfc; }
+.allrow { background-color: #cfc; }
+
+.project_information {
+  background-color: #eee;
+  border: 2px solid gray;
+  padding: 1em;
+  z-index: 1;
+}
+
 .unknown_failure {  color: red; }
