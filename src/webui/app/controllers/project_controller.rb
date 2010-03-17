@@ -1006,19 +1006,11 @@ class ProjectController < ApplicationController
     end
   end
 
-
   def require_prjconf
-    if !valid_project_name? params[:project]
-      flash[:error] = "#{params[:project]} is not a valid project name"
-      redirect_to :controller => "project", :action => "list_public"
-      return
-    end
-
-    @project = params[:project]
     begin
       @config = frontend.get_source(:project => params[:project], :filename => '_config')
     rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = "Project not found: #{params[:project]}" 
+      flash[:error] = "Project _config not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public"
     end
   end
