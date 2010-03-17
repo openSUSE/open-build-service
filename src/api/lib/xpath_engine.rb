@@ -86,9 +86,9 @@ class XpathEngine
   end
 
   def find(xpath, opt={})
-    defaults = HashWithIndifferentAccess.new({:order => :asc})
+    defaults = {:order => :asc}
     opt = defaults.merge opt
-    logger.debug "---------------------- parsing xpath: #{xpath} -----------------------"
+    #logger.debug "---------------------- parsing xpath: #{xpath} -----------------------"
 
     begin
       @stack = @lexer.parse xpath
@@ -97,7 +97,7 @@ class XpathEngine
       #  undefined method `[]' for nil:NilClass
       raise IllegalXpathError, "failed to parse"
     end
-    logger.debug "starting stack: #{@stack.inspect}"
+    #logger.debug "starting stack: #{@stack.inspect}"
 
     if @stack.shift != :document
       raise IllegalXpathError, "xpath expression has to begin with root node"
@@ -109,11 +109,13 @@ class XpathEngine
 
     @stack.shift
     @stack.shift
-    @base_table = @tables[@stack.shift]
+    tablename = @stack.shift
+    @base_table = @tables[tablename]
+    raise IllegalXpathError, "unknown table #{tablename}" unless @base_table
 
     while @stack.length > 0
       token = @stack.shift
-      logger.debug "next token: #{token.inspect}"
+      #logger.debug "next token: #{token.inspect}"
       case token
       when :ancestor
       when :ancestor_or_self
@@ -141,7 +143,7 @@ class XpathEngine
       end
     end
 
-    logger.debug "-------------------- end parsing xpath: #{xpath} ---------------------"
+    #logger.debug "-------------------- end parsing xpath: #{xpath} ---------------------"
 
     model = nil
     case @base_table
@@ -161,14 +163,14 @@ class XpathEngine
       @sort_order = @attribs[@base_table][opt[:sort_by]][:cpart] + " " + opt[:order].to_s.upcase
     end
 
-    logger.debug "-- cond_ary: #{cond_ary.inspect} --"
+    #logger.debug "-- cond_ary: #{cond_ary.inspect} --"
     return model.find(:all, :include => includes, :joins => @joins.flatten.uniq.join(" "),
                       :conditions => cond_ary, :order => @sort_order )
   end
 
   def parse_predicate(stack)
-    logger.debug "------------------ predicate ---------------"
-    logger.debug "-- pred_array: #{stack.inspect} --"
+    #logger.debug "------------------ predicate ---------------"
+    #logger.debug "-- pred_array: #{stack.inspect} --"
 
     while stack.length > 0
       token = stack.shift
@@ -195,7 +197,7 @@ class XpathEngine
       end
     end
 
-    logger.debug "-------------- predicate finished ----------"
+    #logger.debug "-------------- predicate finished ----------"
   end
 
   def evaluate_expr(expr, escape=false)
@@ -234,7 +236,7 @@ class XpathEngine
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key
     raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table].has_key? key
-    logger.debug "-- found key: #{key} --"
+    #logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:joins]
       @joins << @attribs[table][key][:joins]
     end
@@ -249,31 +251,31 @@ class XpathEngine
   end
 
   def xpath_op_eq(lv, rv)
-    logger.debug "-- xpath_op_eq(#{lv.inspect}, #{rv.inspect}) --"
+    #logger.debug "-- xpath_op_eq(#{lv.inspect}, #{rv.inspect}) --"
 
     lval = evaluate_expr(lv)
     rval = evaluate_expr(rv)
 
     condition = "#{lval} = #{rval}"
-    logger.debug "-- condition: [#{condition}]"
+    #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
   end
 
   def xpath_op_neq(lv, rv)
-    logger.debug "-- xpath_op_neq(#{lv.inspect}, #{rv.inspect}) --"
+    #logger.debug "-- xpath_op_neq(#{lv.inspect}, #{rv.inspect}) --"
 
     lval = evaluate_expr(lv)
     rval = evaluate_expr(rv)
 
     condition = "#{lval} != #{rval}"
-    logger.debug "-- condition: [#{condition}]"
+    #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
   end
 
   def xpath_op_and(lv, rv)
-    logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
+    #logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
 
     parse_predicate(lv)
     lv_cond = @conditions.pop
@@ -281,13 +283,13 @@ class XpathEngine
     rv_cond = @conditions.pop
 
     condition = "(#{lv_cond} AND #{rv_cond})"
-    logger.debug "-- condition: [#{condition}]"
+    #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
   end
 
   def xpath_op_or(lv, rv)
-    logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
+    #logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
 
     parse_predicate(lv)
     lv_cond = @conditions.pop
@@ -295,55 +297,55 @@ class XpathEngine
     rv_cond = @conditions.pop
 
     condition = "(#{lv_cond} OR #{rv_cond})"
-    logger.debug "-- condition: [#{condition}]"
+    #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
   end 
 
   def xpath_func_contains(haystack, needle)
-    logger.debug "-- xpath_func_contains(#{haystack.inspect}, #{needle.inspect}) --"
+    #logger.debug "-- xpath_func_contains(#{haystack.inspect}, #{needle.inspect}) --"
 
     hs = evaluate_expr(haystack)
     ne = evaluate_expr(needle, true)
 
     condition = "#{hs} LIKE CONCAT('%',#{ne},'%')"
-    logger.debug "-- condition : [#{condition}]"
+    #logger.debug "-- condition : [#{condition}]"
 
     @conditions << condition
   end
 
   def xpath_func_not(expr)
-    logger.debug "-- xpath_func_not(#{expr}) --"
+    #logger.debug "-- xpath_func_not(#{expr}) --"
 
     parse_predicate(expr)
     cond = @conditions.pop
 
     condition = "(NOT #{cond})"
-    logger.debug "-- condition : [#{condition}]"
+    #logger.debug "-- condition : [#{condition}]"
 
     @conditions << condition
   end
 
   def xpath_func_starts_with(x, y)
-    logger.debug "-- xpath_func_starts_with(#{x.inspect}, #{y.inspect}) --"
+    #logger.debug "-- xpath_func_starts_with(#{x.inspect}, #{y.inspect}) --"
 
     s1 = evaluate_expr(x)
     s2 = evaluate_expr(y, true)
 
     condition = "#{s1} LIKE CONCAT(#{s2},'%')"
-    logger.debug "-- condition: [#{condition}]"
+    #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition 
   end 
 
   def xpath_func_ends_with(x, y)
-    logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
+    #logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
 
     s1 = evaluate_expr(x)
     s2 = evaluate_expr(y, true)
 
     condition = "#{s1} LIKE CONCAT('%',#{s2})"
-    logger.debug "-- condition: [#{condition}]"
+    #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition 
   end 
