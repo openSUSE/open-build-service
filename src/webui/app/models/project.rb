@@ -423,19 +423,23 @@ class Project < ActiveXML::Base
   end
 
   def all_persons( role )
-    if has_element? "person[@role='#{role}']"
-      return person("@role='#{role}'").userid.to_s
-    else
-      return nil
+    ret = Array.new
+    each_person do |p|
+      if p.role == role
+        ret << p.userid.to_s
+      end
     end
+    return ret
   end
 
   def all_groups( role )
-    if has_element? "group[@role='#{role}']"
-      return group("@role='#{role}'").groupid.to_s
-    else
-      return nil
+    ret = Array.new
+    each_group do |p|
+      if p.role == role
+        ret << p.groupid.to_s
+      end
     end
+    return ret
   end
 
   def person_count

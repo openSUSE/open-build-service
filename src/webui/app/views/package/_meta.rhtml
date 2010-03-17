@@ -41,8 +41,8 @@
   <% end %>
 
   <br/>
-  <% if @bugowner_email %>
-    <%= link_to '[Report Bug]', bugzilla_url(@bugowner_email, "[#{@project.name}/#{@package.name}]") %>
+  <% if @bugowner_mail %>
+    <%= link_to '[Report Bug]', bugzilla_url(@bugowner_mail, "[#{@project.name}/#{@package.name}]") %>
     <br/><br/>
   <% end %>
 
