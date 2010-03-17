@@ -2,6 +2,7 @@ require 'project_status'
 require 'collection'
 require 'buildresult'
 require 'role'
+
 include ActionView::Helpers::UrlHelper
 
 class ProjectController < ApplicationController
@@ -693,10 +694,16 @@ class ProjectController < ApplicationController
 
   def toggle_watch
     @user ||= Person.find( :login => session[:login] )
-    if @user.watches? @project.name
-      @user.remove_watched_project @project.name
-    else
-      @user.add_watched_project @project.name
+    render :update do |page|
+      if @user.watches? @project.name
+        @user.remove_watched_project @project.name
+        page << "$('#imgwatch').attr('src', '../images/watch.png');"
+        page << "$('#watchlist_#{Digest::MD5.hexdigest @project.name}').remove(); "
+      else
+        @user.add_watched_project @project.name
+        page << "$('#imgwatch').attr('src', '../images/dontwatch.png');"
+        page << "$('#watchlist_container').append('<div id=\"watchlist_#{ Digest::MD5.hexdigest @project.name }\">#{link_to @project, {:controller => 'project', :action => :show, :project => @project}}</div>'); "
+      end
     end
     @user.save
     render :partial => "watch_link"
