@@ -5,6 +5,8 @@
   <% if @project.is_maintainer?( session[:login] ) %>
   <%= link_to image_tag( 'list-add.png', :title => 'Add Package' ),
   :controller => 'package', :action => :new, :project => @project %>
+  <%= link_to image_tag( 'link_ext.png', :border => 0, :title => 'Link Package from other Project' ), 
+  :controller => 'package', :action => :new_link, :project => @project %>
   <% end %>
 
 </h3>
@@ -14,50 +16,31 @@
    function filterPkgs() {
 
      var srch = new String($('#packagesearch').val()).toLowerCase();
-     if (srch == "") { 
-       $('#packages_table').show();
-       $('#filtered_packages_table').hide(); 
-       $("#spinner").hide();
-       return;
-     }
      if (srch == last_search_string) {
        return;
-     };
+     }
 
      last_search_string = srch;
      //console.log('Filter for ' + srch)
      //console.time('jquery replace');
-     //console.time('jquery insert dom');
-     $("#spinner").show();
      var onevisible = 0
-     //console.time('jquery clone');
-     var new_packages_table = $('#packages_table').clone();
-     new_packages_table.attr( 'id', 'filtered_packages_table' )
 
-     $('#packages_table').hide();
-     //console.timeEnd('jquery clone');
-
-     new_packages_table.find('tr').each(function() {
+     $('#packages_table').find('tr').each(function() {
           if ( this.id.indexOf(srch, 4) == -1 ) {
-              $(this).hide();
+              $(this).addClass("hidden");
           } else {
-              //$(this).show();
+              $(this).removeClass("hidden");
               onevisible = 1;
           }
-      });
-      //console.timeEnd('jquery replace');
+     });
+     //console.timeEnd('jquery replace');
 
-      $('#filtered_packages_table').replaceWith( new_packages_table )
-      $('#filtered_packages_table').show();
+     if (onevisible) {
+         $('#packages_table #nopackages').hide();
+     } else {
+         $('#packages_table #nopackages').show();
+     }
 
-      if (onevisible) {
-            $('#filtered_packages_table #nopackages').hide();
-      } else {
-            $('#filtered_packages_table #nopackages').show();
-      }
-
-      $("#spinner").hide();
-      //console.timeEnd('jquery insert dom');
     }
 <% end %>
 
@@ -94,14 +77,3 @@
     </tr>
 </table>
 </div>
-
-<% if @project.is_maintainer?( session[:login] ) %>
-<p>
-  <%= link_to "[Add Package]", :controller => 'package', :action => :new,
-  :project => @project %>
-</p>
-<p>
-  <%= link_to "[Link Package from other Project]", :controller => 'package',
-  :action => :new_link, :project => @project %>
-</p>
-<% end %>
