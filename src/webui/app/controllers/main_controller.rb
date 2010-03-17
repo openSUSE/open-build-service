@@ -1,20 +1,24 @@
 class MainController < ApplicationController
 
   skip_before_filter :require_login, :only => [ :index ]
+  before_filter :get_attribute, :only => [ :search_advanced, :search_result ] 
 
   def index
     
     @user ||= Person.find :login => session[:login] if session[:login]
     #@tagcloud ||= Tagcloud.find( :alltags, :user => session[:login], :limit => "60") if session[:login]
+  end   
+ 
+  def search_advanced
+    @search_what = %w{ package project }
   end
-
 
   def search_result
   ### generate search results
     @search_text = params[:search_text]
 
-    if !@search_text or @search_text.length < 2
-      flash[:error] = "Search String must contain at least 2 Characters."
+    if (!@search_text or @search_text.length < 2) && !params[:attribute]
+      flash[:error] = "Search String must contain at least 2 characters OR you search for an attribute."
       redirect_to :controller => 'main', :action => 'search'
       return
     end
@@ -53,14 +57,23 @@ class MainController < ApplicationController
         p << "contains(title,'#{@search_text}')" if params[:title]
         p << "contains(description,'#{@search_text}')" if params[:description]
         predicate = p.join(' or ')
-        if predicate.empty?
+        if predicate.empty? && !params[:attribute]
           flash[:error] = "You need to choose name, title, description or attributes."
           return
         end
       else
-        predicate = "contains(@name,'#{@search_text}') or contains(title,'#{@search_text}') or contains(description,'#{@search_text}')"
+        predicate = "contains(@name,'#{@search_text}')"
       end
-
+     
+      if params[:advanced]
+        if predicate.empty?
+          predicate = "contains(attribute/@name,'#{params[:attribute2]}')" if params[:attribute]
+        else  
+          predicate << ' and ' if predicate
+          predicate << "contains(attribute/@name,'#{params[:attribute2]}')" if params[:attribute]
+        end
+      end
+  
       collection = Collection.find( :what => s_what, :predicate => predicate )
 
       # collect all results and give them some weight
@@ -135,3 +148,23 @@ class MainController < ApplicationController
 
 
 end
+
+private 
+
+  def get_attribute
+    namespaces = Attribute.find_cached(:namespaces)
+    attributes = []
+    @attribute_list = []
+    namespaces.each do |d|
+       attributes << Attribute.find_cached(:attributes, :namespace => d.data[:name].to_s)
+    end
+
+    attributes.each do |d|
+      if d.has_element? :entry
+        d.each do |f|
+          @attribute_list << "#{d.init_options[:namespace]}:#{f.data[:name]}"
+        end 
+      end
+
+    end
+  end

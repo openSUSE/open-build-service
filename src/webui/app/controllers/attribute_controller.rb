@@ -10,16 +10,23 @@ class AttributeController < ApplicationController
         @selected_attribute_value = selected_attribute.content
       end
     else
-      # FIXME: why is 'add attribute' mangled in 'edit'?
-      # FIXME: load from all namespaces
-      all_attributes = Attribute.find(:all, :namespace => "OBS")
+      namespaces = Attribute.find(:namespaces)
+      attributes = []
       @attribute_list = []
-      return unless all_attributes
-      all_attributes.each_entry do |d|
-        @attribute_list << "OBS:#{d.name}"
+      namespaces.each do |d|
+         attributes << Attribute.find(:attributes, :namespace => d.data[:name].to_s)
       end
-      @attributes.each_attribute do |d|
-        @attribute_list.delete(d.name)
+
+      attributes.each do |d|
+        if d.has_element? :entry
+          d.each do |f|
+            @attribute_list << "#{d.init_options[:namespace]}:#{f.data[:name]}"
+          end
+        end
+      end
+    
+      @attributes.each do |d|
+        @attribute_list.delete(d.name)  
       end
     end
   end

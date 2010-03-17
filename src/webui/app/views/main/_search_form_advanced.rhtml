@@ -1,22 +1,21 @@
 
 <p id="search_form">
   <% form_tag({:controller => 'main', :action => 'search_result'}, {:method => :get}) do -%>
+  <%= text_field_tag 'search_text', params[:search_text], :size => 8, :style => 'width: 28em;'-%>
+  <%= hidden_field_tag 'advanced', 'on' -%>
+  <%= image_submit_tag 'search-advanced.png' -%><br/><br/>
+
+
   <table>
     <tr>
-      <th style="background:none;">&nbsp;</th>
       <th>Search for:</th>
       <th>Search in:</th>
     </tr>
     <tr>
-      <td rowspan="2">
-        <%= text_field_tag 'search_text', params[:search_text], :size => 8, :style => 'width: 8em;'-%>
-        <%= hidden_field_tag 'advanced', 'on' -%>
-        <%= image_submit_tag 'search-advanced.png' -%>
-      </td>
       <td>
-        <%= check_box_tag 'project', 1, true -%>
+        <%= check_box_tag('project', 1, @search_what.include?('project')) -%>
         <label for="project">projects</label><br/>
-        <%= check_box_tag 'package', 1, true -%>
+        <%= check_box_tag 'package', 1, @search_what.include?('package') -%>
         <label for="package">packages</label><br/>
       </td>
       <td>
@@ -26,6 +25,8 @@
         <label for="title">title</label><br/>
         <%= check_box_tag 'description', 1, params[:description] -%>
         <label for="description">description</label><br/>
+        <%= check_box_tag 'attribute', 1, params[:attribute] %> attribute is set:<br/>
+        <%= select_tag :attribute2, options_for_select(@attribute_list, params[:attribute2]) %>
       </td>
     </tr>
   </table>

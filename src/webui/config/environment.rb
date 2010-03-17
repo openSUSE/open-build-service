@@ -153,8 +153,10 @@ ActiveXML::Base.config do |conf|
     map.connect :attribute, "rest:///source/:project/:package/_attribute/:attribute",
       :project => "rest:///source/:project/_attribute/:attribute",
       :namespaces => "rest:///attribute",
-      :all => "rest:///attribute/:namespace"
-    
+      :namespace_config => "rest:///attribute/:namespace/_meta",
+      :config => "rest:///attribute/:namespace/:attribute/_meta",
+      :attributes => "rest:///attribute/:namespace"   
+ 
     # Monitor
     map.connect :workerstatus, 'rest:///status/workerstatus',
       :all => 'rest:///status/workerstatus'
