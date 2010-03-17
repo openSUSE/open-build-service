@@ -24,7 +24,7 @@ set :runit_name, "webclient"
 task :stage do
   set :deploy_to, "/srv/www/vhosts/opensuse.org/stage/#{application}"
   set :runit_name, "webclient_stage"
-  set :repository, "git://gitorious.org/~coolo/opensuse/build-service-stage.git"
+  set :branch, "master"
 end
 
 
