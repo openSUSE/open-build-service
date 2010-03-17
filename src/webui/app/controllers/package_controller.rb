@@ -754,6 +754,7 @@ class PackageController < ApplicationController
 
   def reload_buildstatus
     @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
+    fill_status_cache
     render :partial => 'buildstatus'
   end
 
@@ -857,6 +858,46 @@ class PackageController < ApplicationController
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to :controller => "project", :action => :show, :project => @project and return
     end
+  end
+
+  def fill_status_cache
+    @repohash = Hash.new
+    @statushash = Hash.new
+    @repostatushash = Hash.new
+    @packagenames = Array.new
+
+    @buildresult.each_result do |result|
+      @resultvalue = result
+      repo = result.repository
+      arch = result.arch
+
+      @repohash[repo] ||= Array.new
+      @repohash[repo] << arch
+
+      # package status cache
+      @statushash[repo] ||= Hash.new
+      @statushash[repo][arch] = Hash.new
+
+      stathash = @statushash[repo][arch]
+      result.each_status do |status|
+        stathash[status.package] = status
+      end
+
+     @packagenames << stathash.keys
+
+     # repository status cache
+     @repostatushash[repo] ||= Hash.new
+     @repostatushash[repo][arch] = Hash.new
+
+      if result.has_attribute? :state
+        if result.has_attribute? :dirty
+          @repostatushash[repo][arch] = "outdated(#{result.state})"
+        else
+          @repostatushash[repo][arch] = "#{result.state}"
+        end
+      end
+    end
+    
   end
 
 end
