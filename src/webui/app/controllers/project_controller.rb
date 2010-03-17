@@ -407,17 +407,6 @@ class ProjectController < ApplicationController
       
   end
 
-  def update_repolist
-    logger.debug "updating repolist for project #{params[:project]}"
-    project = Project.find params[:project]
-    if project.has_element? :repository
-      render :partial => "repository_list", :locals => {:project => params[:project], :repos => project.each_repository}
-    else
-      render :text => "<b>No repositories found</b>"
-    end
-  end
-
-
   def add_target
     @platforms = Platform.find( :all ).each_entry.map {|p| p.name.to_s}
 
