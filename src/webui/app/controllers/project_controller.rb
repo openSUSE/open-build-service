@@ -818,6 +818,7 @@ class ProjectController < ApplicationController
     @current_develproject = params[:filter_devel] || all_packages
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
+    @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
 
     attributes = PackageAttribute.find_cached(:namespace => 'OBS', 
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
@@ -829,23 +830,26 @@ class ProjectController < ApplicationController
       end
     end
 
-    attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
-      :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
     upstream_versions = Hash.new
-    attributes.data.find('//package//values').each do |p|
-      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-      p.each_element do |v|
-        upstream_versions[p.parent['name']] = v.content
-      end
-    end
-
-    attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
-      :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
     upstream_urls = Hash.new
-    attributes.data.find('//package//values').each do |p|
-      # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-      p.each_element do |v|
-        upstream_urls[p.parent['name']] = v.content
+
+    if @include_versions
+      attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
+						:name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
+      attributes.data.find('//package//values').each do |p|
+	# unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+	p.each_element do |v|
+	  upstream_versions[p.parent['name']] = v.content
+	end
+      end
+
+      attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
+						:name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
+      attributes.data.find('//package//values').each do |p|
+	# unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+	p.each_element do |v|
+	  upstream_urls[p.parent['name']] = v.content
+	end
       end
     end
 
