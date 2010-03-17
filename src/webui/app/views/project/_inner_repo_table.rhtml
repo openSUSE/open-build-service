@@ -1,21 +1,18 @@
-<% if @project.has_element? :repository -%>
-  <table class="grid targets" title="Repositories">
-    <tr class="header">
-      <th>Name</th>
-        <% @arch_list.each do |arch| -%>
-      <th><%=h arch %></th>
-        <% end -%>
-      <% if @project.is_maintainer?( session[:login] ) %>
-      <th>Action</th>
-      <% end %>
-    </tr>
-    <% @project.each_repository do |repo| -%>
-      <tr class="target" id="<%=repo.name%>">
-        <%= render :partial => 'repository_item', :locals => { :repo => repo, :has_data => has_data} %>
-      </tr>
-    <%- end #each_repository -%>
-  </table>
-<% else %>
-  <i>Please add the repositories this project should build against. </i>
+<table class="grid targets" title="Repositories" border="0">
+    <% @buildresult.each do |repo, archarray| %>
+       <% index = 0 %>
+       <% archarray.each do |arch, counts| %>
+       <tr class="target">
+       <% if index == 0 %>
+          <td valign="top" rowspan="<%= archarray.length %>"><strong><%= link_to h(repo), repo_url( @project, repo ) -%></strong></td>
+          <% index += 1 %>
+       <% end %>
+       <td valign="top"><%= h(arch) %></td>
+       <td><% counts.each do |code, count| -%>
+          <div><%= link_to("#{code}:&nbsp;#{count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0) -%></div>
+          <% end -%></td>
+       </tr>
+       <% end %>
+    <% end %>
+</table>
 
-<% end #has_element? -%>

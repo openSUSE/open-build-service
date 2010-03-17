@@ -1,25 +1,8 @@
 <table class="inner_flag_table">
 	<tr>
-		<td>
-			<span id="<%="%s_%s" % [ buildflag.name, buildflag.id.gsub(/[:.]/, "_") ] %>" >		
-				<%= render :partial => "flag_status", :locals => {:flag => buildflag} %>
-			</span>
-		</td>
-		<td>
-			<span id="<%="%s_%s" % [ publishflag.name, publishflag.id.gsub(/[:.]/, "_") ] %>">
-				<%= render :partial => "flag_status", :locals => {:flag => publishflag} %>
-			</span>
-		</td>
-		<td>
-			<span id="<%="%s_%s" % [ useforbuildflag.name, useforbuildflag.id.gsub(/[:.]/, "_") ] %>">
-				<%= render :partial => "flag_status", :locals => {:flag => useforbuildflag} %>
-			</span>
-		</td>
-		<td>
-			<span id="<%="%s_%s" % [ debuginfoflag.name, debuginfoflag.id.gsub(/[:.]/, "_") ] %>" >
-				<%= render :partial => "flag_status", :locals => {:flag => debuginfoflag} %>
-			</span>
-		</td>
+		<td><%= flag_status(buildflag) %></td>
+		<td><%= flag_status(publishflag) %></td>
+		<td><%= flag_status(useforbuildflag) %></td>
+		<td><%= flag_status(debuginfoflag) %></td>
 	</tr>
-
 </table>
