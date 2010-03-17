@@ -706,7 +706,6 @@ class ProjectController < ApplicationController
       end
     end
     @user.save
-    render :partial => "watch_link"
   end
 
 
