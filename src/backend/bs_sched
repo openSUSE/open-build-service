@@ -1294,6 +1294,36 @@ sub get_projpacks {
   }
 }
 
+# just update the meta information, do not touch package data unless
+# the project was deleted
+sub update_project_meta {
+  my ($projid) = @_;
+  print "updating meta for project '$projid' from $BSConfig::srcserver\n";
+
+  my $projpacksin;
+  eval {
+    # withsrcmd5 is needed for the patterns md5sum
+    $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, "project=$projid", 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch");
+  };
+  if ($@ || !$projpacksin) {
+    print $@ if $@;
+    return undef;
+  }
+  my $proj = $projpacksin->{'project'}->[0];
+  if (!$proj) {
+    # project is gone!
+    delete $projpacks->{$projid};
+    return 1;
+  }
+  return undef unless $proj->{'name'} eq $projid;
+  delete $proj->{'name'};
+  delete $proj->{'package'};
+  my $oldproj = $projpacks->{$projid};
+  $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
+  return 1;
+}
+
+
 #
 # post-process projpack information
 #  calculate package link information
@@ -3394,13 +3424,28 @@ while(1) {
     if (%fetchprojpacks) {
       # pass1: fetch all projpacks
       for my $projid (sort keys %fetchprojpacks) {
+	my $fetchedall;
 	if (grep {!defined($_)} @{$fetchprojpacks{$projid}}) {
-	  # project change, get all packages
-	  get_projpacks($projid);
-	} else {
+	  # project change, this can be
+          # a change in _meta
+          # a change in _config
+	  # a change in _pattern
+          # deletion of a project
+	  if ($projpacks->{$projid}) {
+	    if (!update_project_meta($projid)) {
+	      # update meta failed, do it the hard way...
+	      get_projpacks($projid);
+	      $fetchedall = 1;
+	    }
+	  } else {
+	    get_projpacks($projid);
+	    $fetchedall = 1;
+	  }
+	}
+	if (!$fetchedall) {
 	  # single package (source) changes
-	  my %packids = map {$_ => 1} @{$fetchprojpacks{$projid}};
-	  get_projpacks($projid, sort keys %packids);
+	  my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks{$projid}};
+	  get_projpacks($projid, sort keys %packids) if %packids;
 	}
       }
       get_projpacks_postprocess();
@@ -3417,23 +3462,27 @@ while(1) {
 	    }
 	  }
 	  $changed_high{$projid} = 2;
-	  for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
-	    push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
-	  }
-	} else {
-	  for my $prp (@prps) {
-	    if ((split('/', $prp, 2))[0] eq $projid) {
-	      $changed_high{$prp} ||= 1;
-              $changed_dirty{$prp} = 1;
-	    }
-	  }
-	  $changed_high{$projid} ||= 1;
-	  my %packids = map {$_ => 1} @{$fetchprojpacks{$projid}};
-	  for my $packid (sort keys %packids) {
-	    for my $linfo (grep {$_->{'project'} eq $projid && $_->{'package'} eq $packid} @projpacks_linked) {
+	  # more work if the project was deleted
+	  # (if it's just a config change we really do not care about source links)
+	  if (!$projpacks->{$projid}) {
+	    for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
 	      push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
-	      $fetchlinkedprojpacks_high{$linfo->{'myproject'}} = 1;	# high for source changes, low for project changes
 	    }
+	  }
+	}
+	for my $prp (@prps) {
+	  if ((split('/', $prp, 2))[0] eq $projid) {
+	    $changed_high{$prp} ||= 1;
+            $changed_dirty{$prp} = 1;
+	  }
+	}
+	$changed_high{$projid} ||= 1;
+
+	my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks{$projid}};
+	for my $packid (sort keys %packids) {
+	  for my $linfo (grep {$_->{'project'} eq $projid && $_->{'package'} eq $packid} @projpacks_linked) {
+	    push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
+	    $fetchlinkedprojpacks_high{$linfo->{'myproject'}} = 1;	# high for source changes, low for project changes
 	  }
 	}
       }
