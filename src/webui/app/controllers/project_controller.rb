@@ -218,6 +218,7 @@ class ProjectController < ApplicationController
   end
 
   def repositories
+    @user ||= Person.find( :login => session[:login] )
   end
 
   #update project flags
@@ -717,7 +718,12 @@ class ProjectController < ApplicationController
     render :partial => 'shared/rate'
   end
 
+  def meta
+    @user ||= Person.find( :login => session[:login] )
+  end
+
   def prjconf
+    @user ||= Person.find( :login => session[:login] )
   end
   
   def edit_prjconf

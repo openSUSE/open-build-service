@@ -8,8 +8,10 @@
 <% content_for :ready_function do %>
    dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
    dp.SyntaxHighlighter.HighlightAll('code'); 
-   $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
-   $("#editlink").attr("href", "<%= url_for(:action => :edit_prjconf, :project => @project) %>");
+<% if @user %>
+     $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
+     $("#editlink").attr("href", "<%= url_for(:action => :edit_prjconf, :project => @project) %>");
+<% end %>
 <% end %>
 
 <%

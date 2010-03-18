@@ -9,7 +9,9 @@
 
 <span id="error_message_flags" style="display:none;"></span>
 <h3>
-  Repositories <%= link_to(image_tag("list-add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project) %>
+  Repositories <%= if @user
+                     link_to(image_tag("list-add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project)
+                   end %>
 </h3>
 <% unless @project.repositories.empty? %>
 
@@ -31,8 +33,10 @@
                                                 :url => {:action => :TODO_edit_target, :project => @project, :repo => repo.name} %>
 <% end %>
 
-                        <%= link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
-                                                        {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} %><br/>
+                        <%= if @user
+                              link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
+                                                        {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'}
+                            end %><br/>
                 </td>
 
 	</tr>	
