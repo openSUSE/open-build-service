@@ -3056,7 +3056,7 @@ while(1) {
       'async' => 1,
     };
     my @args;
-    push @args, "obsname=$BSConfig::obsname" if $BSConfig::obsname;
+    push @args, "obsname=$BSConfig::obsname/$myarch" if $BSConfig::obsname;
     push @args, map {"filter=$_"} sort keys %{$watchremote{$remoteurl}};
     push @args, "start=$watchremote_start{$remoteurl}" if $watchremote_start{$remoteurl};
     my $ret;
