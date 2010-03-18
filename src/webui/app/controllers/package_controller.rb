@@ -506,7 +506,7 @@ class PackageController < ApplicationController
       @offset = 0 if @offset < 0
       maxsize = 1024 * 64
       @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
-    rescue Timeout::Error, ActiveXML::Transport::NotFoundError => e
+    rescue => e
       logger.error "Got #{e.class}: #{e.message}; returning empty log."
       @initiallog = ''
     end
