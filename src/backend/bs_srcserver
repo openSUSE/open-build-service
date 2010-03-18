@@ -1167,6 +1167,32 @@ sub findlastworkinglink {
 ###  project/package management
 ###
 
+sub identical {
+  my ($d1, $d2, @except) = @_;
+
+  return 0 unless defined($d1) && defined($d2);
+  my $r = ref($d1);
+  return 0 if $r ne ref($d2);
+  if ($r eq '') {
+    return 0 if $d1 ne $d2;
+  } elsif ($r eq 'HASH') {
+    my %k = (%$d1, %$d2);
+    my %except = map {$_ => 1} @except;
+    for my $k (keys %k) {
+      next if $except{$k};
+      return 0 unless identical($d1->{$k}, $d2->{$k});
+    }
+  } elsif ($r eq 'ARRAY') {
+    return 0 unless @$d1 == @$d2;
+    for (my $i = 0; $i < @$d1; $i++) {
+      return 0 unless identical($d1->[$i], $d2->[$i], @except);
+    }
+  } else {
+    return 0;
+  }
+  return 1;
+}
+
 sub findprojects {
   local *D;
   opendir(D, $projectsdir) || die("$projectsdir: $!\n");
@@ -1668,18 +1694,18 @@ sub putproject {
   BSVerify::verify_proj($proj, $projid);
   writexml("$uploaddir/$$.2", undef, $proj, $BSXML::proj);
   unlink("$uploaddir/$$");
-  if (! -e "$projectsdir/$projid.xml") {
-    BSHermes::notify("SRCSRV_CREATE_PROJECT", { "project" => $projid });
-  } else {
-    BSHermes::notify("SRCSRV_UPDATE_PROJECT", { "project" => $projid });
-  }
+  my $oldproj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+  BSHermes::notify($oldproj ? "SRCSRV_UPDATE_PROJECT" : "SRCSRV_CREATE_PROJECT", { "project" => $projid });
   mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
   rename("$uploaddir/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
   if ($BSConfig::forceprojectkeys) {
     my ($sk) = getsignkey({}, $projid);
     createkey({}, $projid) if $sk eq '';
   }
-  notify_repservers('project', $projid);
+
+  if (!identical($oldproj, $proj, 'title', 'description', 'person', 'group', 'url', 'attributes')) {
+    notify_repservers('project', $projid);
+  }
 
   $proj = readproj($projid);
   return ($proj, $BSXML::proj);
@@ -1747,19 +1773,15 @@ sub putpackage {
   my $proj = readproj($projid);
   die("package '$packid' is read-only\n") if ($packid =~ /^_product:/) && ! -e "$projectsdir/$projid.pkg/$packid.xml";
   mkdir_p("$projectsdir/$projid.pkg");
-  if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
-    BSHermes::notify("SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid});
-  } else {
-    BSHermes::notify("SRCSRV_UPDATE_PACKAGE", { "project" => $projid, "package" => $packid});
-  }
+
+  my $oldpack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  BSHermes::notify($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid});
   rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml") || die("rename to $projectsdir/$projid.pkg/$packid.xml: $!\n");
-#  my %packages = map {$_->{'name'} => 1} @{$proj->{'package'} || []};
-#  if (!$packages{$packid}) {
-#    # a new package! add id to project data
-#    push @{$proj->{'package'}}, {'name' => $packid};
-#    writexml("$uploaddir/$$.3", "$projectsdir/$projid.xml", $proj, $BSXML::proj);
-#  }
-  notify_repservers('package', $projid, $packid);
+
+  if (!identical($oldpack, $pack, 'title', 'description', 'devel', 'person', 'group', 'url')) {
+    notify_repservers('package', $projid, $packid);
+  }
+
   $pack = readpack($projid, $packid);
   return ($pack, $BSXML::pack);
 }
@@ -3997,6 +4019,9 @@ sub worker_getbinaryversions {
   return ($bvl, $BSXML::binaryversionlist);
 }
 
+my @lastev_cache;
+my @lastev_stat;
+
 sub worker_lastevents {
   my ($cgi, $watch) = @_;
   if (!$cgi->{'start'}) {
@@ -4014,23 +4039,32 @@ sub worker_lastevents {
     exit(0);
   }
   BSWatcher::addfilewatcher("$eventdir/lastevents");
-  my $lastev = BSFileDB::fdb_getlast("$eventdir/lastevents", $eventlay);
-  my $lastno = $lastev ? $lastev->{'number'} : 0;
-  my $nextno = $lastno + 1;
+  # get the last 5 events
+  my @s = stat("$eventdir/lastevents");
   my @events;
-  if ($cgi->{'start'} == $lastno) {
-    push @events, $lastev;
-  } elsif ($cgi->{'start'} < $lastno) {
-    # multiple events >= start
-    push @events, BSFileDB::fdb_getall("$eventdir/lastevents", $eventlay);
-    # re-calculate in case something was appended
-    $nextno = $events[-1]->{'number'} + 1 if @events;
-    if (@events && $events[0]->{'number'} > $cgi->{'start'}) {
+  if (@s && @lastev_stat && "$s[9]/$s[7]/$s[1]" eq "$lastev_stat[9]/$lastev_stat[7]/$lastev_stat[1]") {
+    @events = @lastev_cache;
+  } else {
+    my $lastev = BSFileDB::fdb_getlast("$eventdir/lastevents", $eventlay);
+    push @events, $lastev if $lastev;
+    @lastev_cache = @events;
+    @lastev_stat = @s;
+  }
+  my $firstno = @events ? $events[0]->{'number'} : 0;
+  my $nextno = @events ? $events[-1]->{'number'} + 1 : 1;
+  if ($cgi->{'start'} < $firstno) {
+    # we have to get them all
+    @events = BSFileDB::fdb_getall("$eventdir/lastevents", $eventlay);
+    # re-calculate in case something has changed
+    $firstno = @events ? $events[0]->{'number'} : 0;
+    $nextno = @events ? $events[-1]->{'number'} + 1 : 1;
+    if ($firstno > $cgi->{'start'}) {
       # out of sync!
       return ({'next' => $nextno, 'sync' => 'lost'}, $BSXML::events);
     }
-    @events = grep {$_->{'number'} >= $cgi->{'start'}} @events;
   }
+  # filter
+  @events = grep {$_->{'number'} >= $cgi->{'start'}} @events;
   if ($watch && @events) {
     my %watch = map {$_ => 1} @$watch;
     for my $ev (splice @events) {
@@ -4050,10 +4084,19 @@ sub worker_lastevents {
   # return a sync reply every 100 events for two reasons
   # - get rid of old peers
   # - survive history truncation
-  return undef if $BSStdServer::isajax && !@events && $nextno < $cgi->{'start'} + 100;
+  $cgi->{'start_orig'} ||= $cgi->{'start'};
+  if ($BSStdServer::isajax && !@events && $nextno < $cgi->{'start_orig'} + 100) {
+    # small hack: update cgi to the next event number
+    $cgi->{'start'} = $nextno if $cgi->{'start'} < $nextno;
+    return undef;
+  }
   for (@events) {
+    $_ = { %$_ };	# clone em
+    # delete unwanted fields
     delete $_->{'time'};
     delete $_->{'number'};
+    # clean up a bit
+    delete $_->{'package'} unless defined($_->{'package'}) && $_->{'package'} ne '';
   }
   my $ret = {'next' => $nextno};
   $ret->{'event'} = \@events if @events;
