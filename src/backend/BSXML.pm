@@ -664,6 +664,7 @@ our $ajaxstatus = [
 		'ev',
 		'fd',
 		'peer',
+		'request',
 	 ]],
      ]],
      [[ 'rpc' =>
@@ -676,6 +677,7 @@ our $ajaxstatus = [
 		'ev',
 		'fd',
 		'peer',
+		'request',
 	 ]],
      ]],
 ];

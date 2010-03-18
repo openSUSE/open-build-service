@@ -922,7 +922,11 @@ sub getstatus {
     for my $jev (@{$filewatchers{$filename}}) {
       my $j = {'ev' => $jev->{'id'}};
       $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
-      $j->{'peer'} = $jev->{'headers'}->{'x-peer'} if $jev->{'headers'} && $jev->{'headers'}->{'x-peer'};
+      my $req = $jev->{'request'};
+      if ($req) {
+        $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
+        $j->{'request'} = "$req->{'action'} $req->{'path'}?$req->{'query'}" if $req;
+      }
       push @{$fw->{'job'}}, $j;
     }
     push @{$ret->{'watcher'}}, $fw;
@@ -935,7 +939,11 @@ sub getstatus {
     for my $jev (@{$ev->{'joblist'} || []}) {
       my $j = {'ev' => $jev->{'id'}};
       $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
-      $j->{'peer'} = $jev->{'headers'}->{'x-peer'} if $jev->{'headers'} && $jev->{'headers'}->{'x-peer'};
+      my $req = $jev->{'request'};
+      if ($req) {
+        $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
+        $j->{'request'} = "$req->{'action'} $req->{'path'}?$req->{'query'}";
+      }
       push @{$r->{'job'}}, $j;
     }
     push @{$ret->{'rpc'}}, $r;

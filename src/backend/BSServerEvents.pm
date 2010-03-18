@@ -320,18 +320,16 @@ sub getrequest {
     }
     my ($act, $path, $vers, undef) = split(' ', $1, 4);
     die("400 No method name\n") if !$act;
+    my $headers = {};
     if ($vers) {
       die("501 Bad method: $act\n") if $act ne 'GET';
       if ($ev->{'reqbuf'} !~ /^(.*?)\r?\n\r?\n(.*)$/s) {
 	BSEvents::add($ev);
 	return;
       }
-      my %headers;
-      gethead(\%headers, "Request: $1");
-      $ev->{'headers'} = \%headers;
+      gethead($headers, "Request: $1");
     } elsif ($act ne 'get') {
       die("501 Bad method, must be GET\n") if $act ne 'GET';
-      $ev->{'headers'} = {};
     }
     my $query_string = '';
     if ($path =~ /^(.*?)\?(.*)$/) {
@@ -340,7 +338,8 @@ sub getrequest {
     }
     $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     die("501 invalid path\n") unless $path =~ /^\//;
-    my $req = {'action' => $act, 'path' => $path, 'query' => $query_string};
+    my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers};
+    $ev->{'request'} = $req;
     my $conf = $ev->{'conf'};
     $conf->{'dispatch'}->($conf, $req);
   };
@@ -382,7 +381,7 @@ sub cloneconnect {
   $nev->{'fd'} = $ev->{'nfd'};
   delete $ev->{'nfd'};
   $nev->{'conf'} = $ev->{'conf'};
-  $nev->{'headers'} = $ev->{'headers'};
+  $nev->{'request'} = $ev->{'request'};
   my $peer = 'unknown';
   eval {
     my $peername = getpeername($nev->{'fd'});
