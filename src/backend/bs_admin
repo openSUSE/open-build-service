@@ -220,8 +220,8 @@ sub find_latest_file {
 
 sub dump_nStore {
   my ($file) = @_;
-  my $cache = Storable::retrieve("$file") || {};
-  print Dumper( $cache );
+  my $cache = Storable::retrieve($file) || {};
+  print Dumper($cache);
   return $cache
 }
 
@@ -240,14 +240,24 @@ sub clone_repository {
 
   mkdir_p($tmpdir) || die("mkdir_p $tmpdir: $!\n");
   $tmpdir .= "/bs_admin.$$";
-  rm_rf("$tmpdir") if -d "$tmpdir";
+  if (-d $tmpdir) {
+    system('rm', '-rf', $tmpdir) && die("removing of $tmpdir failed!\n");
+  }
+  if (-d "$tmpdir.old") {
+    system('rm', '-rf', "$tmpdir.old") && die("removing of $tmpdir.old failed!\n");
+  }
 
   print "cloning $srcproject / $srcrepo\n";
   system('cp', '-al', $srcdir, $tmpdir) && die( "cloning failed !" );
 
+  # remove jobhistory files
+  for my $a (ls($tmpdir)) {
+    unlink("$tmpdir/$a/:jobhistory");
+  }
+
   print "exchanging with $destproject / $destrepo\n";
-  system('mv', $destdir, $tmpdir.".old") && die( "moving away old destdir failed ! PANIK ! " );
-  system('mv', $tmpdir, $destdir) && die( "moving in new tree failed !" );
+  rename($destdir, "$tmpdir.old") || die("rename $destdir $tmpdir.old: $!\n");
+  rename($tmpdir, $destdir) || die("rename $tmpdir $destdir: $!\n");
 
   print "tell schedulers about the change ";
   opendir(DIR, $destdir) || die "can't opendir $destdir: $!";
@@ -259,7 +269,7 @@ sub clone_repository {
   }
 
   print "\nremoving old tree in $tmpdir.old\n";
-  system( "rm", "-rf", $tmpdir.".old") && die("removing FAILED !\n");
+  system('rm', '-rf', "$tmpdir.old") && die("removing of $tmpdir.old failed!\n");
 
   print "finished.\n";
 }
@@ -272,8 +282,7 @@ sub check_xml_file {
   if ( defined($xmldesc) ) {
     print "Succesfull parsed file !\n";
   } else {
-    print "ERROR: Unable to parse xml file !\n";
-    die;
+    die("ERROR: Unable to parse xml file !\n");
   }
 }
 
@@ -284,25 +293,21 @@ sub check_product_xml_file {
   my $xmldesc = BSProductXML::readproductxml("$file", 0, 1 );
   if ( defined($xmldesc) ) {
     print "Succesfull parsed file !\n";
-  }else{
-    print "ERROR: Unable to parse xml file !\n";
-    die;
+  } else {
+    die("ERROR: Unable to parse xml file !\n");
   }
 }
 
 
 sub check_kiwi_xml {
   my ($project, $package) = @_;
-  my $file;
-  my $md5;
 
-  ($md5, $file) = find_latest_file( $project, $package, 'kiwi' );
-  if ( defined($md5) and defined($file) ) {
+  my ($md5, $file) = find_latest_file($project, $package, 'kiwi');
+  if (defined($md5) && defined($file)) {
     my $f = "$srcrepdir/$package/$md5-$file";
-    check_xml_file( $f, $BSKiwiXML::kiwidesc );
-  }else{
-    print "ERROR: No kiwi config file found in $project / $package !\n";
-    die;
+    check_xml_file($f, $BSKiwiXML::kiwidesc);
+  } else {
+    die("ERROR: No kiwi config file found in $project / $package !\n");
   }
 }
 
@@ -310,7 +315,7 @@ sub check_meta_xml {
   my ($project, $package) = @_;
   my $file;
 
-  if ( defined($package) ){
+  if (defined($package)){
     $file = "$projectsdir/${project}.pkg/${package}.xml";
     $metadesc = readxml("$file", $BSXML::pack, 0);
   } else {
@@ -318,11 +323,10 @@ sub check_meta_xml {
     $metadesc = readxml("$file", $BSXML::proj, 0);
   }
 
-  if ( defined($metadesc) ) {
+  if (defined($metadesc)) {
     print "Succesfull parsed $file !\n";
-  }else{
-    print "ERROR: Unable to parse Meta XML in $file !\n";
-    die;
+  } else {
+    die("ERROR: Unable to parse Meta XML in $file !\n");
   }
 }
 
@@ -331,10 +335,10 @@ sub write_event {
   my $evname = "${event}::$project";
   $evname .= "::$package" if defined $package;
   $evname .= "::$repo" if defined $repo;
-  my $ev = { "type" => $event };
-  $ev->{ 'project' } = $project if defined $project;
-  $ev->{ 'package' } = $package if defined $package;
-  $ev->{ 'repository' } = $repo if defined $repo;
+  my $ev = { 'type' => $event };
+  $ev->{'project'} = $project if defined $project;
+  $ev->{'package'} = $package if defined $package;
+  $ev->{'repository'} = $repo if defined $repo;
   writexml("$eventroot/$arch/.$evname$$", "$eventroot/$arch/$evname", $ev, $BSXML::event);
   local *F;
   if (sysopen(F, "$eventroot/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
@@ -361,29 +365,29 @@ sub shutdown_scheduler {
 sub check_project {
   my ($project, $arch, $deep) = @_;
   if (defined $deep) {
-    write_event( $project, undef, $arch, 'project' );
+    write_event($project, undef, $arch, 'package');
   } else {
-    write_event( $project, undef, $arch, 'recheck' );
+    write_event($project, undef, $arch, 'recheck');
   }
 }
 
 sub check_package {
   my ($project, $package, $arch) = @_;
-  write_event( $project, undef, $arch, 'package', $package );
+  write_event($project, undef, $arch, 'package', $package);
 }
 
 #
 # Argument parsing
 #
 if ( @ARGV < 1 ){
-  echo_help;
+  echo_help();
   exit(1);
 }
 
 while (@ARGV) {
   my $arg = shift @ARGV;
   if ($arg eq "--help") {
-    echo_help;
+    echo_help();
     exit(0);
   }
   if ($arg eq "--check-meta-xml") {
@@ -426,7 +430,7 @@ while (@ARGV) {
     my $ret = Build::parse(undef, shift @ARGV);
     print Dumper($ret);
   } elsif ($arg eq "--dump-cache") {
-    if ( @ARGV eq 1 ) {
+    if (@ARGV == 1) {
       dump_nStore(shift @ARGV);
     } else {
       die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
@@ -477,7 +481,7 @@ while (@ARGV) {
     my $srcrepo = shift @ARGV;
     my $destproject;
     my $destrepo;
-    if ( @ARGV == 1 ) {
+    if (@ARGV == 1) {
        $destrepo = shift @ARGV;
        $destproject = $srcproject;
     } else {

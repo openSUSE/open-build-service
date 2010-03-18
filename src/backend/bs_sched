@@ -3194,6 +3194,7 @@ while(1) {
     @events = sort @events;
 
     my %fetchprojpacks;
+    my %deepcheck;
 
     while (@events || @remoteevents) {
       my $ev;
@@ -3247,6 +3248,7 @@ while(1) {
 	next unless defined $projid;
 	my $packid = $ev->{'package'};
 	push @{$fetchprojpacks{$projid}}, $packid;
+	$deepcheck{$projid} = 1 if !defined $packid;
 	next;
       }
 
@@ -3431,7 +3433,7 @@ while(1) {
           # a change in _config
 	  # a change in _pattern
           # deletion of a project
-	  if ($projpacks->{$projid}) {
+	  if ($projpacks->{$projid} && !$deepcheck{$projid}) {
 	    if (!update_project_meta($projid)) {
 	      # update meta failed, do it the hard way...
 	      get_projpacks($projid);
@@ -3464,7 +3466,7 @@ while(1) {
 	  $changed_high{$projid} = 2;
 	  # more work if the project was deleted
 	  # (if it's just a config change we really do not care about source links)
-	  if (!$projpacks->{$projid}) {
+	  if (!$projpacks->{$projid} || $deepcheck{$projid}) {
 	    for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
 	      push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
 	    }
