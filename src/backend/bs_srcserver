@@ -4152,9 +4152,10 @@ sub worker_lastevents {
     return ($ret, $BSXML::events);
   }
   if (!$BSStdServer::isajax) {
-    my @args = map {"filter=$_"} @{$watch || []};
-    push @args, "start=$cgi->{'start'}";
+    my @args;
     push @args, "obsname=$cgi->{'obsname'}" if $cgi->{'obsname'};
+    push @args, map {"filter=$_"} @{$watch || []};
+    push @args, "start=$cgi->{'start'}";
     BSHandoff::handoff($ajaxsocket, '/lastevents', undef, @args);
     exit(0);
   }
