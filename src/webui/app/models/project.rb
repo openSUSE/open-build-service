@@ -88,26 +88,21 @@ class Project < ActiveXML::Base
     return false
   end
 
-
   def set_buildflags(flags_as_hash)
     self.build_flags = flags_as_hash
   end
 
-
   def set_publishflags(flags_as_hash)
     self.publish_flags = flags_as_hash
   end
-
-  
+ 
   def set_debuginfoflags(flags_as_hash)
     self.debuginfo_flags = flags_as_hash
   end
 
-
   def set_useforbuildflags(flags_as_hash)
     self.useforbuild_flags = flags_as_hash
   end
-
 
   def buildflags
     if self.bf_updated.nil? or self.build_flags.nil?
@@ -120,7 +115,6 @@ class Project < ActiveXML::Base
     return build_flags
   end
 
-
   def publishflags
     if self.pf_updated.nil? or self.publish_flags.nil?
       self.pf_updated = true
@@ -131,7 +125,6 @@ class Project < ActiveXML::Base
 
     return publish_flags
   end
-  
   
   def debuginfoflags
     if self.df_updated.nil? or self.debuginfo_flags.nil?
@@ -144,7 +137,6 @@ class Project < ActiveXML::Base
     return debuginfo_flags
   end  
 
-
   def useforbuildflags
     if self.uf_updated.nil? or self.useforbuild_flags.nil?
       self.uf_updated = true
@@ -156,11 +148,9 @@ class Project < ActiveXML::Base
     return useforbuild_flags
   end
   
-
   def to_s
     name.to_s
   end
-
 
   def add_person( opt={} )
     return false unless opt[:userid] and opt[:role]

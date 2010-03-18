@@ -17,7 +17,6 @@ class ProjectController < ApplicationController
     :meta, :edit_meta ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
-  before_filter :load_current_requests, :only => [ :show, :list_requests ]
 
   def index
     redirect_to :action => 'list_public'
@@ -88,10 +87,10 @@ class ProjectController < ApplicationController
     @subprojects = Hash.new
     sub_names = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')"
     sub_names.each do |sub|
-      @subprojects[sub.name] = Project.find( sub.name )
+      @subprojects[sub.name] = Project.find_cached( sub.name )
     end
     parent_name = @project.name.gsub(/:[^:]*$/, "")
-    @parent = Project.find( parent_name ) unless [@project.name, 'home'].include? parent_name
+    @parent = Project.find_cached( parent_name ) unless [@project.name, 'home'].include? parent_name
   end
 
   def attributes
@@ -116,7 +115,7 @@ class ProjectController < ApplicationController
     @namespace = params[:ns]
     @project_name = params[:project]
     if params[:ns] == "home:#{session[:login]}"
-      @project = Project.find params[:ns]
+      @project = Project.find_cached params[:ns]
       unless @project
         flash.now[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
@@ -225,7 +224,7 @@ class ProjectController < ApplicationController
   def update_flag
     begin
       #the flag matrix will also be initialized on access, so we can work on it
-      @project = Project.find(params[:project])
+      @project = Project.find_cached(params[:project])
       if @project.complex_flag_configuration? params[:flag_name]
         raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
       end
@@ -245,7 +244,7 @@ class ProjectController < ApplicationController
   end
 
   def enable_arch
-    @project = Project.find(params[:project])
+    @project = Project.find_cached(params[:project])
     @arch_list = arch_list
     repo = @project.repository[params[:repo]]
     repo.add_arch params[:arch]
@@ -402,7 +401,7 @@ class ProjectController < ApplicationController
     if params[:filter]
       @project_list = Collection.find :id, :what => "project", :predicate => "contains(@name,'#{params[:filter]}')"
     else
-      @project_list = Project.find :all
+      @project_list = Project.find_cached :all
     end
     render :partial => "project_list"
       
@@ -966,7 +965,6 @@ class ProjectController < ApplicationController
     return Collection.find_cached :id, :what => "project", :predicate => predicate
   end
 
-
   def paginate_collection(collection, options = {})
     options[:page] = options[:page] || params[:page] || 1
     default_options = {:per_page => 20, :page => 1}
@@ -985,7 +983,6 @@ class ProjectController < ApplicationController
     return result.each.map {|x| x.name}
   end
 
-
   def require_project
     if !valid_project_name? params[:project] 
       unless request.xhr?
@@ -995,7 +992,7 @@ class ProjectController < ApplicationController
         render :text => 'Not a valid project name', :status => 404 and return
       end
     end
-    @project = Project.find( params[:project] )
+    @project = Project.find_cached( params[:project] )
     unless @project
       if params[:project] == "home:" + session[:login]
         # checks if the user is registered yet
@@ -1014,6 +1011,8 @@ class ProjectController < ApplicationController
         render :text => "Project not found: #{params[:project]}", :status => 404 and return
       end
     end
+    # load the requests for all project related actions as they might show a tab
+    load_current_requests
   end
 
   def require_prjconf
@@ -1024,7 +1023,7 @@ class ProjectController < ApplicationController
       redirect_to :controller => "project", :action => "list_public"
     end
   end
-
+  
   def require_meta
     begin
       @meta = frontend.get_source(:project => params[:project], :filename => '_meta')
@@ -1034,9 +1033,10 @@ class ProjectController < ApplicationController
     end
   end
 
- def load_current_requests
+  def load_current_requests
     predicate = "state/@name='new' and action/target/@project='#{@project}'"
-    @current_requests = Collection.find_cached :what => :request, :predicate => predicate, :expires_in => 5.minutes
+    @current_requests = Collection.find :what => :request, :predicate => predicate, :expires_in => 5.minutes
+    @project_has_requests = !@current_requests.is_empty?
   end
 
 end

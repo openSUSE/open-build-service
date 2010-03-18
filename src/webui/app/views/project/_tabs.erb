@@ -16,7 +16,9 @@
     <%= project_tab "Monitor", :action => :monitor %>
   <% end -%>
   <%= project_tab "Repositories", :action => :repositories%>
-  <%= project_tab "Requests", :action => 'list_requests'%>
+  <% if @project_has_requests %>
+    <%= project_tab "Requests", :action => 'list_requests'%>
+  <% end -%>
   <%= project_tab "Raw Config", :action => :meta %>
 </ul>
 
