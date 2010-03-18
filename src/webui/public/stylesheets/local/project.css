@@ -91,3 +91,5 @@
 }
 
 .unknown_failure {  color: red; }
+
+#advanced_tabs { display: none; }
