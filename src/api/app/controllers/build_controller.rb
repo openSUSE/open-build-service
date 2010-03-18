@@ -14,8 +14,15 @@ class BuildController < ApplicationController
       allowed = true if permissions.global_project_change
 
       if not allowed
+        prj = DbProject.find_by_name( params[:project] ) 
+        if prj.nil?
+          render_error :status => 403, :errorcode => "not_found",
+            :message => "Project does not exist #{params[:project]}"
+          return
+        end
+
         #check if user has project modify rights
-        allowed = true if permissions.project_change? params[:project]
+        allowed = true if permissions.project_change? prj
       end
 
       if not allowed and not params[:package].nil?
@@ -27,7 +34,13 @@ class BuildController < ApplicationController
         end
 
         package_names.each do |pack_name|
-          allowed = permissions.package_change? pack_name, params[:project]
+          pkg = DbPackage.find_by_project_and_name( prj, pack_name ) 
+          if pkg.nil?
+            render_error :status => 403, :errorcode => "not_found",
+              :message => "Package does not exist #{pack_name}"
+            return
+          end
+          allowed = permissions.package_change? pkg
           if not allowed
             render_error :status => 403, :errorcode => "execute_cmd_no_permission",
               :message => "No permission to execute command on package #{pack_name}"
