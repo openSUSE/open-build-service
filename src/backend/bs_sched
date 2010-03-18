@@ -2561,7 +2561,7 @@ sub checkaggregate {
       my $ps = (readxml("$reporoot/$aprp/$myarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
       my %ps = map {$_->{'name'} => $_} @$ps;
       for my $apackid (@apackids) {
-	my $s = $ps->{$apackid} || {};
+	my $s = $ps{$apackid} || {};
 	push @blocked, "$aprojid/$arepoid/$apackid" if $s->{'status'} eq 'scheduled' || $s->{'status'} eq 'blocked' || $s->{'status'} eq 'finished';
       }
     }
