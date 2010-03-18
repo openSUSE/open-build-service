@@ -925,7 +925,7 @@ sub getstatus {
       my $req = $jev->{'request'};
       if ($req) {
         $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
-        $j->{'request'} = "$req->{'action'} $req->{'path'}?$req->{'query'}" if $req;
+        $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
       }
       push @{$fw->{'job'}}, $j;
     }
@@ -942,7 +942,7 @@ sub getstatus {
       my $req = $jev->{'request'};
       if ($req) {
         $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
-        $j->{'request'} = "$req->{'action'} $req->{'path'}?$req->{'query'}";
+        $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
       }
       push @{$r->{'job'}}, $j;
     }
