@@ -14,7 +14,6 @@
   <% if @project.has_element?(:repository) -%>
     <%= project_tab "Monitor", :action => :monitor %>
   <% end -%>
-  <%= project_tab 'Status', :action => :status %>
   <% if @project_has_requests %>
     <%= project_tab "Requests", :action => 'list_requests'%>
   <% end -%>
@@ -30,6 +29,7 @@
   <%= project_tab 'Subprojects', :action => :subprojects %>
   <%= project_tab 'Attributes', :action => :attributes %>
   <%= project_tab "Raw Config", :action => :meta %>
+  <%= project_tab 'Status', :action => :status %>
 </ul>
 </div>
 

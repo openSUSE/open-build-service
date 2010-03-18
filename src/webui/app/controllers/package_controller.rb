@@ -234,7 +234,7 @@ class PackageController < ApplicationController
     @linked_package = params[:linked_package].strip
     @target_package = params[:target_package].strip
 
-    linked_package = Package.find( @linked_package, :project => @linked_project )
+    linked_package = Package.find_cached( @linked_package, :project => @linked_project )
     unless linked_package
       flash.now[:error] = "Unable to find package '#{@linked_package}' in" +
         " project '#{@linked_project}'."
@@ -398,7 +398,7 @@ class PackageController < ApplicationController
       redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
       return
     end
-    user = Person.find( :login => params[:userid] )
+    user = Person.find_cached( :login => params[:userid] )
     unless user
       flash[:error] = "Unknown user '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => @project, :package => params[:package], :role => params[:role]
@@ -642,7 +642,7 @@ class PackageController < ApplicationController
 
 
   def disable_build
-    return false unless @package = Package.find( params[:package], :project => params[:project] )
+    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
 
     # disable building of a package
     if params[:arch] && params[:repo]
@@ -677,7 +677,7 @@ class PackageController < ApplicationController
 
 
   def enable_build
-    return false unless @package = Package.find( params[:package], :project => params[:project] )
+    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
 
     # (re)-enable building of a package
     if params[:arch] && params[:repo]
@@ -712,7 +712,7 @@ class PackageController < ApplicationController
 
 
   def import_spec
-    return false unless @package = Package.find( params[:package], :project => params[:project] )
+    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
 
     all_files = get_files params[:project], params[:package]
     all_files.each do |file|
@@ -736,15 +736,15 @@ class PackageController < ApplicationController
 
 
   def edit_disable_xml
-    return false unless @package = Package.find( params[:package], :project => params[:project] )
-    return false unless @project = Project.find( params[:project] )
+    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
+    return false unless @project = Project.find_cached( params[:project] )
     @xml = @package.get_disable_tags
     render :partial => 'edit_disable_xml'
   end
 
 
   def save_disable_xml
-    return false unless @package = Package.find( params[:package], :project => params[:project] )
+    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
     unless @package.replace_disable_tags( params[:xml] )
       flash[:error] = 'Error saving your input (invalid XML?).'
     end
@@ -839,7 +839,7 @@ class PackageController < ApplicationController
 
   def require_project
     if params[:project]
-      @project = Project.find( params[:project] )
+      @project = Project.find_cached( params[:project] )
     end
     unless @project
       logger.error "Project #{params[:project]} not found"
@@ -851,7 +851,7 @@ class PackageController < ApplicationController
   def require_package
     @project ||= params[:project]
     if params[:package]
-      @package = Package.find( params[:package], :project => @project )
+      @package = Package.find_cached( params[:package], :project => @project )
     end
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"
