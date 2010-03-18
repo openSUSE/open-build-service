@@ -300,6 +300,23 @@ class RequestController < ApplicationController
     end
     path = request.path + build_query_from_hash(params, [:cmd, :user, :newstate, :by_user, :by_group, :superseded_by, :comment])
 
+    # do not allow direct switches from accept to decline or vice versa or double actions
+    if params[:newstate] == "accepted" or params[:newstate] == "declined" or params[:newstate] == "superseded"
+       if req.state.name == "accepted" or req.state.name == "declined" or req.state.name == "superseded"
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "set state to #{params[:newstate]} from accepted, superseded or declined is not allowed."
+          return
+       end
+    end
+    # Do not accept to skip the review, except force argument is given
+    if params[:newstate] == "accepted"
+       if req.state.name == "review" and not params[:force]
+          render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "Request is in review state."
+          return
+       end
+    end
+
     # generic permission check
     permission_granted = false
     if @http_user.is_admin?
@@ -323,23 +340,6 @@ class RequestController < ApplicationController
       # allow new -> revoked state change to creators of request
       permission_granted = true
     else # check this for changestate (of request) and addreview command
-       # do not allow direct switches from accept to decline or vice versa or double actions
-       if params[:newstate] == "accepted" or params[:newstate] == "declined" or params[:newstate] == "superseded"
-          if req.state.name == "accepted" or req.state.name == "declined" or req.state.name == "superseded"
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "set state to #{params[:newstate]} from accepted, superseded or declined is not allowed."
-             return
-          end
-       end
-       # Do not accept to skip the review, except force argument is given
-       if params[:newstate] == "accepted"
-          if req.state.name == "review" and not params[:force]
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Request is in review state."
-             return
-          end
-       end
-
        # permission check for each request inside
        req.each_action do |action|
          if action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
