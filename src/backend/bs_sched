@@ -2519,7 +2519,7 @@ sub rebuildkiwiproduct {
 # globals used: $projpacks
 #
 sub checkaggregate {
-  my ($projid, $repoid, $packid, $pdata, $prpfinished) = @_;
+  my ($projid, $repoid, $packid, $pdata, $notready, $prpfinished) = @_;
 
   my @aggregates = @{$pdata->{'aggregatelist'}->{'aggregate'} || []};
   my @broken;
@@ -2543,13 +2543,27 @@ sub checkaggregate {
     } else {
       @arepoids = ($repoid);
     }
+    my @apackids;
+    if ($aggregate->{'package'}) {
+      @apackids = @{$aggregate->{'package'}};
+    } else {
+      @apackids = sort keys(%{$projpacks->{$aprojid}->{'package'} || {}});
+    }
     for my $arepoid (@arepoids) {
+      my $aprp = "$aprojid/$arepoid";
       my $arepo = (grep {$_->{'name'} eq $arepoid} @{$proj->{'repository'} || []})[0];
       if (!$arepo || !grep {$_ eq $myarch} @{$arepo->{'arch'} || []}) {
 	push @broken, "$aprojid/$arepoid";
 	next;
       }
-      push @blocked, "$aprojid/$arepoid" unless $remoteprojs{$aprojid} || $prpfinished->{"$aprojid/$arepoid"};
+      next if $remoteprojs{$aprojid} || $prpfinished->{$aprp};
+      # notready/prpnotready is indexed with source binary names, so we cannot use it here...
+      my $ps = (readxml("$reporoot/$aprp/$myarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+      my %ps = map {$_->{'name'} => $_} @$ps;
+      for my $apackid (@apackids) {
+	my $s = $ps->{$apackid} || {};
+	push @blocked, "$aprojid/$arepoid/$apackid" if $s->{'status'} eq 'scheduled' || $s->{'status'} eq 'blocked' || $s->{'status'} eq 'finished';
+      }
     }
   }
   if (@broken) {
@@ -2649,8 +2663,6 @@ sub checkaggregate {
 #         $repoid    - our repository
 #         $packid    - aggregate package
 #         $pdata     - package data information
-#         $changed   - reference to changed hash, mark prp if
-#                      we changed the repository
 #         $new_meta  - the new meta file data
 # output: new package status
 #         package status details
@@ -2658,7 +2670,7 @@ sub checkaggregate {
 # globals used: $projpacks
 #
 sub rebuildaggregate {
-  my ($projid, $repoid, $packid, $pdata, $changed, $new_meta) = @_;
+  my ($projid, $repoid, $packid, $pdata, $new_meta) = @_;
 
   my $prp = "$projid/$repoid";
   my @aggregates = @{$pdata->{'aggregatelist'}->{'aggregate'} || []};
@@ -4039,10 +4051,10 @@ while(1) {
     #print "      - $packid ($packtype)\n";
 
     if ($packtype eq 'aggregate') {
-      my ($astatus, $aerror) = checkaggregate($projid, $repoid, $packid, $pdata, \%prpfinished);
+      my ($astatus, $aerror) = checkaggregate($projid, $repoid, $packid, $pdata, \%notready, \%prpfinished);
       if ($astatus eq 'scheduled') {
 	# aerror contains rebuild data in this case
-	($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, \%changed_med, $aerror);
+	($astatus, $aerror) = rebuildaggregate($projid, $repoid, $packid, $pdata, $aerror);
 	if ($astatus eq 'scheduled') {
 	  $building{$packid} = $aerror || 'job'; # aerror contains jobid in this case
 	  undef $aerror;
