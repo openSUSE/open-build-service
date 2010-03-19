@@ -1,339 +1,157 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-  <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
-  <%= stylesheet_link_tag "opensuse", "local/style", :media => "all" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-  <%= javascript_include_tag 'jquery-1.4.1.min', 'jquery-ui-1.7.2.min' %>
-  <%= javascript_include_tag 'jrails', "application" %>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+    <meta http-equiv="Content-Style-Type" content="text/css"/>
 
-  <%= yield :content_for_head %>
-  
-  <meta http-equiv="Content-Script-Type" content="text/javascript"/>
-  <meta http-equiv="Content-Style-Type" content="text/css"/>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <link href="<%= CONFIG['relative_url_root'] %>/favicon.ico" rel="shortcut icon" />
-  <!--[if lte IE 7]>
-  <link href="https://static.opensuse.org/c/css/common/iehacks_opensuse.css" rel="stylesheet" type="text/css"/>
-  <link href="https://static.opensuse.org/hosts/build.o.o/css/iehacks.css" rel="stylesheet" type="text/css"/>
-  <![endif]-->
-  <!-- <script type="text/javascript" src="javascript/common/langsel.js"></script> -->
+    <link href="<%= CONFIG['relative_url_root'] %>/favicon.ico" rel="shortcut icon" />
 
-  <script type="text/javascript">
+    <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
+
+    <%= stylesheet_link_tag "local/style", :media => "screen", :title => "All" %>
+    <%= javascript_include_tag 'jquery-1.4.1.min', 'jquery-ui-1.7.2.min' %>
+    <%= javascript_include_tag 'jrails', "application" %>
+    <%= javascript_include_tag 'bento/script' %>
+
+    <%= yield :content_for_head %>
+
+    <script type="text/javascript">
   /* <![CDATA[ */
-  <%= yield :head_javascript %>
+<%= yield :head_javascript %>
   $(function() {
-    $('#watchlist_toggle').click(function() { $('#inplace_watchlist').slideToggle(350); });
-    <%= yield :ready_function %>
+    $('#global-favorites').click(function() { $('#inplace_watchlist').slideToggle(350); });
+<%= yield :ready_function %>
   });
   /* ]]> */
-  </script>
-</head>
-<body class="project">
-  <div id="dialog_wrapper"></div>
-  <div id="page_margins">
-   <div id="page" class="hold_floats">
-    <!-- Begin 2 column main part -->
-    <div id="main">
-     <!-- Begin left column -->
-     <div id="col1">
-      <div id="col1_content" class="clearfix">
-       <!-- Begin Logo -->
-       <div class="grey_box" id="logo">
-        <div class="box_content_row">
-         <div class="box_content" id="logo_content">
-           <%= link_to image_tag( "common/banners/geeko.jpg" ), :controller => "main" %>
-         </div>
-        </div>
-        <div class="box_bottom_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-       </div>
-       <!-- End Logo -->
-       <!-- Begin openSUSE navigation -->
-       <div class="grey_box">
-        <div class="box_top_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-        <div class="box_title_row">
-         <div class="box_title">
-          openSUSE
-         </div>
-        </div>
-        <div class="box_content">
-         <ul class="navlist">
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_download.png)"><a href="http://software.opensuse.org/">Get Software</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://en.opensuse.org/">Wiki</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_build.png)"><%= link_to "Build Software", :controller => 'main' %></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://users.opensuse.org/">User Directory</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_community.png)"><a href="http://hermes.opensuse.org/">Notifications</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="https://features.opensuse.org/">Features</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://news.opensuse.org/">News</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://forums.opensuse.org">Forums</a></li>
-          <li style="list-style-image: url(https://static.opensuse.org/c/css/common/images/liDot_wiki.png)"><a href="http://shop.opensuse.org/">Shop</a></li>
-         </ul>
-       </div>
-        <div class="box_bottom_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-       </div>
-       <br />
-       <!-- End openSUSE navigation -->
-       <!-- Begin custom navigation -->
+    </script>
 
-<% if session[:login] -%> 
-       <div class="darkgrey_box">
-        <div class="box_top_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-        <div class="box_title_row">
-         <div class="box_title">
-          Home
-         </div>
-        </div>
-        <div class="box_content">
-          <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong><br/>
-          <ul class="navlist">
-           <li><a href="https://hermes.opensuse.org">My Notifications</a></li>
-           <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li> 
-           <li><%= link_to "My Requests", :controller => "request", :action => :list_req %></li> 
-           <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
-          </ul>
-        </div>
-        <div class="box_bottom_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-       </div>
-       <br />
-  <% end -%>
+  </head>
 
-<% if session[:login] -%>
-       <div class="darkgrey_box">
-        <div class="box_top_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-        <div class="box_title_row">
-         <div class="box_title">
-           Locations <!-- Proceed to:<--> 
-         </div>
-        </div>
-        <div class="box_content">
-         <ul class="navlist">
-           <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
-           <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
-           <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
-           <!-- <li>
-             <%#= link_to "Statistics", :controller => "statistics", :action => :index %>
-             <%#= image_tag 'beta.png', :title => 'The statistics are still under development' -%>
-           </li> -->
-        </ul>
+  <body>
 
-        </div>
-        <div class="box_bottom_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-       </div>
-       <br />
-<% end -%>
-
-
-       <div class="darkgrey_box">
-        <div class="box_top_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-        <div class="box_title_row">
-         <div class="box_title">
-          Help
-         </div>
-        </div>
-        <div class="box_content">
-         <ul class="navlist">
-
-    <%
-    @helplinks = [
-      { 'Wiki Pages'  => 'http://en.opensuse.org/Build_Service' },
-      { 'Building Packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
-      { 'Writing spec Files' => 'http://en.opensuse.org/Packaging/SUSE_Package_Conventions' },
-      { 'Administrator Request'   => 'https://bugzilla.novell.com/enter_bug.cgi?product=openSUSE.org&component=OBS%20Request&format=guided' },
-      { 'Reporting a Bug'   => 'http://en.opensuse.org/Submit_a_Bug' },
-      { 'OBS Forums'             => 'http://forums.opensuse.org/opensuse-build-service-obs' }
-    ]
- 
-    @helplinks.each do |helplink| 
-    for k in helplink.keys %>
-         <li><a href="<%= helplink[k] -%>"><%= k %></a></li>
-       <% end %>
-     <% end %>
-
-         </ul>
-         </div>
-        <div class="box_bottom_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-       </div>
-       <br />
-
-    <%= render(:partial => "layouts/sponsor") %>
-
-
-      </div>
-     </div>
-     <!-- End left column -->
-     <!-- Begin right cloumn -->
-     <div id="col3">
-      <div id="col3_content" class="clearfix">
-       <div class="darkgrey_box_double" id="banner_darkgrey">
-        <div class="box_content_row">
-         <div class="box_content" id="banner_content">
-          <div id="pt-personal">
-            <!-- Begin Personal links (Login, etc.) -->
-
-            <%= render(:partial => "layouts/personal_navigation") %>
-            
-            <!-- End Personal links (Login, etc.) -->
-
-          </div>
-          <div class="subcolumns">
-           <div class="c50l">
-            <div class="subcl">
-             <div id="slogan">
-               <%= image_tag "local/create.png", :alt => "Create it" %>
-             </div>
-            </div>
-           </div>
-           <div class="c50r">
-            <div class="subcr">
-             <div id="searchbox">
-              <!-- Begin search -->
-              <!--
-              <form action="">
-               <div class="topleft">
-                <div class="topright">
-                 <div class="bottomleft">
-                  <div class="bottomright">
-                   <input id="searchInput" name="search" type="text" accesskey="f" value="" />
-                  </div>
-                 </div>
-                </div>
-               </div>
-               -->
-               <!-- <input type="image" name="go" value="Go" src="/css/local/images/darkgrey_searchbox/go.png" class="button" />&nbsp; -->
-              <!--
-               <input type="image" name="fulltext" value="Search" src="/css/local/images/darkgrey_searchbox/search.png" class="button" />
-              </form>-->
-              <!-- End search -->
-             </div>
-            </div>
-           </div>
-          </div>
-         </div>
-        </div>
-        <div class="box_bottom_row">
-         <div class="box_left"></div>
-         <div class="box_right"></div>
-        </div>
-       </div>
-       <br style="clear: right;" />
-       <div id="contentarea">
-
-        <div class="grey_box_double" style="float:left; width: 100%;">
-         <div class="box_top_row">
-          <div class="box_left"></div>
-          <div class="box_right"></div>
-         </div>
-         <div class="box_title_row">
-          <div class="box_title">
-
-           <div id="page_actions">
-            <!-- Begin page actions -->
-            <ul>
-
-              <li class="first"><%= link_to "Buildservice", :controller => 'main', :action => :index %></li>
-                <% if @crumb_list -%>
-                  <% @crumb_list.each do |link| -%>
-                  &gt; <li><%= link %></li>
-                  <% end -%>
-                <% end -%>
-
-            </ul>
-            <!-- End page actions --> 
-           </div>
-          </div>
-         </div>
-         <div class="box_content" id="bodyContent">
-         <!-- Begin content area -->
-          <div class="special">
-
-	    <%= render(:partial => "layouts/flash", :object => flash) unless @skip_flash %>
-
-            <%= yield :layout %>
-            
-          </div>
-         <!-- End content area -->
-         </div>
-         <div class="box_footer_row">
-          <div id="page_footer" class="box_footer">
-           <!-- Begin Footer -->
-           This site uses the <a href="http://www.yaml.de">YAML</a> CSS framework.
-           <br />
-           <a href="http://en.opensuse.org/openSUSE:About">About openSUSE</a> | <a href="http://en.opensuse.org/Legal">Legal information</a> | <a href="mailto:webmaster@opensuse.org">Feedback</a>
-           <br />
-           <br />
-           <%= link_to image_tag( "common/banners/founded_novell.gif", :alt => "Founded by Novell"), "http://www.novell.com/linux/" %>
-           <!-- End Footer -->
-          </div>
-         </div>
-         <div class="box_bottom_row">
-          <div class="box_left"></div>
-          <div class="box_right"></div>
-         </div>
-        </div>
-       </div>
-      </div>
-
-      <!-- Insert right navigation bar -->
-      <div class="c25r" id="rightnav">
-        <div class="subcr">
-          
-        </div>
-        <!-- End insert right navigation bar -->
-        <!-- Snippet for starting page (3-column layout) -->
-        </div>
-
-      <!-- IE Column Clearing -->
-      <div id="ie_clearing">&nbsp;</div>
-      <!-- Ende: IE Column Clearing -->
-     </div>
-     <!-- End middle column -->
-    </div>
-    <!-- End 2 cloumn main part -->
-   </div>
-  </div>
-  
-   <div id="inplace_watchlist" style="display: none;">
+    <div id="dialog_wrapper" style="display: none"></div>
+    <div id="inplace_watchlist" style="display: none">
       <div class="inner_spacer">
-        <strong><%= link_to "Watchlist ...", :controller => "project", :action => :list_my %></strong>                
+        <strong><%= link_to "Watchlist ...", :controller => "project", :action => :list_my %></strong>
       </div>
-      <div class="inner_spacer">
+      <div class="inner_spacer" id="watchlist_container">
         <%- if user && user.has_element?( 'watchlist' ) -%>
           <%- user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
-          <div id="watchlist_<%= Digest::MD5.hexdigest project %>">
-          <%= link_to project, {:controller => 'project', :action => :show, :project => project} %></div>
+            <div id="watchlist_<%= Digest::MD5.hexdigest project %>">
+            <%= link_to project, {:controller => 'project', :action => :show, :project => project} %></div>
           <%- end #each -%>
         <%- else -%>
           Watchlist empty
         <%- end -%>
       </div>
     </div>
-  
-</body>
+
+    <!-- Start: Header -->
+    <div id="header">
+
+      <div id="header-content" class="container_12">
+
+        <a id="header-logo" href="#home">
+          <%= image_tag( "bento/header-logo.png" ) %>
+        </a>
+
+        <ul id="global-navigation">
+          <li><a href="#">Downloads</a></li>
+          <li><a href="index_support.html">Support</a></li>
+          <li><a href="#">Community</a></li>
+          <li><a href="#">Development</a></li>
+          <li id="global-favorites"><a href="#">Watchlist</a></li>
+        </ul>
+
+        <form id="global-search-form" action="" method="post" accept-charset="utf-8">
+          <input type="text" name="q" value="search" id="search" />
+          <input type="submit" value="Search" class="hidden" accesskey="" />
+        </form>
+
+      </div>
+    </div>
+    <!-- End: Header -->
+
+    <div id="subheader" class="container_16">
+      <div id="breadcrump" class="grid_12 alpha">
+        <%= image_tag( "bento/home_grey.png" ) %><%= link_to "Buildservice", :controller => 'main', :action => :index %>
+        <% if @crumb_list -%>
+          <% @crumb_list.each do |link| -%>
+            &gt; <%= link %>
+          <% end -%>
+        <% end -%>
+      </div>
+
+     <%= render :partial => "layouts/personal_navigation"  %>
+    </div>
+
+    <%= render(:partial => "layouts/flash", :object => flash) unless @skip_flash %>
+
+    <!-- Start: Main Content Area -->
+    <div id="content" class="container_16 ui-oo-content-wrapper">
+      <%= @content_for_layout %>
+    </div>
+    <!-- End: Main Content Area -->
+
+
+  <!-- Start: Footer -->
+    <div id="footer" class="container_12">
+      <div id="footer-content" class="grid_12 column_4">
+        <% if session[:login] -%>
+          <h1>Home</h1>
+          <div class="box_content">
+            <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong><br/>
+            <ul class="navlist">
+              <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li>
+              <li><%= link_to "My Requests", :controller => "request", :action => :list_req %></li>
+              <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
+              <li><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></li>
+            </ul>
+          </div>
+        <% end -%>
+
+        <% if session[:login] -%>
+          <h1>Locations</h1>
+          <p>
+            <ul>
+              <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
+              <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
+              <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
+            </ul>
+          </p>
+        <% end -%>
+
+        <ul>
+          <% @helplinks = [
+            { 'Wiki Pages'  => 'http://en.opensuse.org/Build_Service' },
+            { 'Building Packages'  => 'http://en.opensuse.org/SUSE_Build_Tutorial' },
+            { 'Writing spec Files' => 'http://en.opensuse.org/Packaging/SUSE_Package_Conventions' },
+            { 'Reporting a Bug'   => 'http://en.opensuse.org/Submit_a_Bug' },
+            { 'Forums'             => 'http://forums.opensuse.org/opensuse-build-service-obs' } ]
+
+          @helplinks.each do |helplink|
+            for k in helplink.keys %>
+              <li><a href="<%= helplink[k] -%>"><%= k %></a></li>
+            <% end %>
+          <% end %>
+        </ul>
+
+        <%= render(:partial => "layouts/sponsor") %>
+
+
+      </div>
+      <div id="footer-legal" class="ui-oo-border-top grid_12">
+        <p>
+          &copy; 2010 Novell, Inc. All rights reserved. Novell is a registered trademark and
+          openSUSE and SUSE are trademarks of Novell, Inc. in the United States and other countries.
+        </p>
+      </div>
+    </div>
+    <!-- End: Footer -->
+
+
+  </body>
 </html>

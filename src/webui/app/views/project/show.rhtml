@@ -1,11 +1,9 @@
 <% @pagetitle = "Show Project #{@project}" %>
-      
 <%
    @crumb_list = []
    @crumb_list << link_to( 'Projects', :action => :list_public)
    @crumb_list << @project.name
 -%>
-
 
 <% content_for :ready_function do %>
       <%= remote_function :update => 'inner_repo_table',
@@ -97,4 +95,5 @@
     </td>
   </tr>
 </table>
+
 

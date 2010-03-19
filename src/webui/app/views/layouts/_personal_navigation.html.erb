@@ -1,13 +1,15 @@
 
 <% if session[:login] -%>
 
-  <%= link_to CGI::escapeHTML(session[:login]), :controller => 'home', :action => :index %>
-  |
-  <div id='watchlist_toggle'>Watchlist</div>
-  |
-  <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
-  |
-  <%= link_to 'Logout', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
+  <div id="local-user-actions" class="grid_4 omega">
+
+    <ul id="pt-personal">
+      <!-- Begin Personal links (Login, etc.) xx-->
+      <li><%= link_to CGI::escapeHTML(session[:login]), :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
+      <li><%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %></li>
+      <!-- End Personal links (Login, etc.) -->
+    </ul>
+  </div>
 
 <% else %>
 
@@ -15,14 +17,14 @@
 
     <%# Script to fix ichain redirection on empty username or password %>
     <script language="javascript">
-          function fillEmptyFields() {
-            if( document.getElementById('username').value == '' ){
-              document.getElementById('username').value = "_";
-            }
-            if( document.getElementById('password').value == '' ){
-              document.getElementById('password').value = "_";
-            }
-          }
+                      function fillEmptyFields() {
+                        if( document.getElementById('username').value == '' ){
+                          document.getElementById('username').value = "_";
+                        }
+                        if( document.getElementById('password').value == '' ){
+                          document.getElementById('password').value = "_";
+                        }
+                      }
     </script>
 
     <form action="https://build.opensuse.org/ICSLogin/auth-up"
@@ -44,16 +46,21 @@
 
   <% else %>
 
-    <% form_tag( :controller => :user, :action => :do_login ) do %>
-      <div style="text-decoration: none">
-        <label for="username">Username:</label> <input name="username" id="username" size='10' maxlength='50' style='width: 10em;'/>
-        <label for="password">Password:</label> <input name="password" id="password" size='10' maxlength='50' type='password'/>
-        <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
-        <input value="Login" type="submit"/>
-  
-        <%#= link_to("Login", '#', {:onclick => "document.getElementById( 'login_form' ).submit(); return;"} ) %>
+    <div class="grid_4 omega">
+      <a href="#signup-page">Sign up</a> | <a id="login-trigger" href="#login">Login</a>
+
+      <div id="login-form">
+        <% form_tag( :controller => :user, :action => :do_login ) do %>
+
+          <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
+          <p><label class="inlined" for="username">Username</label><input type="text" class="inline-text" name="username" value="" id="username" /></p>
+          <p><label class="inlined" for="password">Password</label><input type="password" class="inline-text" name="password" value="" id="password" /></p>
+
+          <p><input type="submit" value="Login"/></p>
+          <p class="slim-footer"><a id="close-login" href="#cancel">Cancel</a></p>
+        <% end %>
       </div>
-    <% end %>
+    </div>
 
   <% end %>
 <% end %>

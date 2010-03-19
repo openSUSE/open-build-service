@@ -7,12 +7,7 @@
 **  License:   see copyright/COPYRIGHT
 */
 
-@import url(https://static.opensuse.org/c/css/yaml/core/base.css);
-@import url(https://static.opensuse.org/c/css/common/basemod_opensuse.css);
-@import url(https://static.opensuse.org/c/css/yaml/screen/content_default.css);
-@import url(https://static.opensuse.org/c/css/common/contentmod_opensuse.css);
+@import url(../common/style.css);
 @import url(contentadd_style.css);
-@import url(https://static.opensuse.org/c/css/common/opensuse_boxes.css);
-/* @import url(https://static.opensuse.org/c/css/common/print/print_003.css); */
-@import url(https://static.opensuse.org/hosts/build.o.o/css/patch.css); /* overrides old styles */
-@import url(https://static.opensuse.org/hosts/build.o.o/css/dialog.css); /* style for dialog boxes */
+@import url(contentadd_build.css);
+@import url(dialog.css); /* style for dialog boxes */

@@ -8,7 +8,10 @@
   <%= stylesheet_link_tag "local/project", :media => "all" %>
 <% end %>
 
-<ul id="project_tabs">
+<!-- box header -->
+<div class="box-header grid_16">
+
+<ul>
   <%= project_tab 'Packages', :action => :packages %>
   <%= project_tab "Repositories", :action => :repositories%>
   <% if @project.has_element?(:repository) -%>
@@ -32,6 +35,9 @@
   <%= project_tab 'Status', :action => :status %>
 </ul>
 </div>
+
+</div>
+<!-- End: box header -->
 
 <div id="project_tabs_end"></div>
 <%= render(:partial => "layouts/flash", :object => flash) %>

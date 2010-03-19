@@ -1,126 +1,9 @@
-/* 
-**
-**  $Id: $
-**
-**  Funktion:  Provides all styles for build.openSUSE.org
-**  Author:    Frank Sundermeyer <fs@opensuse.org>, Robert Lihm <rlihm@opensuse.org>
-**  License:   see copyright/COPYRIGHT
-*/
-
-/*****************
-* General Styles *
-*****************/
-#bodyContent {
-  min-height: 33em;
-  position: relative;
-  
-}
-li,
-.navlist {
-    list-style-image:url(/css/common/images/liDot_double_darkgrey.png);
-}
-.skipLinks {
-    display: none;
-}
-#searchbox {
-    text-align: right;
-}
-#searchbox .topleft {
-    background: #fff url(images/darkgrey_searchbox/top_left_corner.png) top left no-repeat;
-}
-#searchbox .topright {
-    background: url(images/darkgrey_searchbox/top_right_corner.png) top right no-repeat;
-}
-#searchbox .bottomleft {
-    background: url(images/darkgrey_searchbox/bottom_left_corner.png) bottom left no-repeat;
-}
-#searchbox .bottomright {
-    background: url(images/darkgrey_searchbox/bottom_right_corner.png) bottom right no-repeat;
-}
-#pt-personal,
-#pt-personal a {
-  color: #ACB1B5;
-}
-
-#pt-personal a:hover,
-#pt-personal div:hover {
-/*  color: #690; */
-  text-decoration: underline;
-}
-
-#pt-personal div {
-  display: inline;
-  cursor: pointer;
-}
-
-#pt-personal strong {}
-
-h1, h2, h3, h4, h5, h6 {
-    color: #5d666e;
-}
-
 .grey-medium {
   color: #666;  
 }
 
-
-
-/* login & logout */
-#loginform,
-#seachform_wrapper,
-#logout {
-  width: 13em;
-  margin-top: 4%;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  /*background: #f9f;*/
-}
-#logout {
-  margin-top: 7%;
-  width: 19em;
-}
-#logout h2 {
-  font-size: 3em;
-  font-weight: bold;
-}
-#loginform #login_form input {
-  width: 90%;
-  margin: 0;
-}
-#loginform #login_form label {
- display: block;
- margin: 0.5em 0 0.2em;
- color: #666;
-}
-#seachform_wrapper {
-  width: 20em;
-}
-#seachform_wrapper input {
-  display: block;
-  float:left;
-  background: transparent;
-  border: none;
-}
-#seachform_wrapper input#search_text {
-  background:#FAFAFA;
-  border:1px solid #CCC;
-}
-#seachform_wrapper a {
-  display: block;
-  float:left;
-  width: 16px;
-  height:16px;
-  margin:6px;
-}
-#seachform_wrapper a img {}
-
 #monitor-wrapper { /* a try to handle the long monitor-tabel */
   overflow: auto;
-}
-
-.dialog_wrapper .darkgrey_box .box_top_row,
-.dialog_wrapper .darkgrey_box_double .box_top_row { 
-background:transparent !important;
 }
 
 /* ### inplace watchlist ### */
@@ -452,3 +335,6 @@ background:transparent !important;
    margin-bottom: 0.5em;
 }
 
+#pt-personal li {
+  float: left;
+}
