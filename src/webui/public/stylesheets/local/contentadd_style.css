@@ -80,3 +80,58 @@ textarea {
 span.build_result_title { 
   font-size: 110%;
 }
+
+
+/* build status monitor for projects */
+.buildstatus tr:hover {
+  background:#e4f4dc;
+  border: 0;
+}
+ 
+/* used in package and project build status */
+.status_blocked a,
+.status_blocked a:visited {
+  color: #fff;
+  background-color: #bbb;
+}
+.status_scheduled a,
+.status_blocked a:visited {
+  color: #11d;
+  background-color: #bbb;
+}
+.status_building a,
+.status_blocked a:visited {
+  color: #00f;
+  background-color: #bbb;
+}
+.status_disabled a,
+.status_disabled,
+.status_blocked a:visited {
+  color: #bbb;
+}
+.status_succeeded a,
+.status_blocked a:visited {
+  color: #6EB927;
+}
+.status_broken a,
+.status_blocked a:visited {
+  color: #e00;
+}
+.status_failed a,
+.status_blocked a:visited {
+  color: #f00;
+}
+.status_expansion_error a,
+.status_blocked a:visited {
+  color: #c00;
+}
+.status_unknown a,
+.status_blocked a:visited {
+  color: #e55;
+}
+
+/* used in application layout */
+#pt-personal li {
+  float: left;
+}
+
