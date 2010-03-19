@@ -86,12 +86,12 @@ class ApplicationController < ActionController::Base
           end
           return false
         end
-        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and request.env.has_key? 'REMOTE_HOST' and CONFIG['webui_host'] == request.env['REMOTE_HOST']
+      else
+        if CONFIG['allow_anonymous'] and CONFIG['allow_anonymous'] == "true"
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
           return
         end
-      else
         logger.error "No X-username header from iChain! Are we really using iChain?"
         render_error( :message => "No iChain user found!", :status => 401 ) and return false
       end
