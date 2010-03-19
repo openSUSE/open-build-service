@@ -117,16 +117,14 @@
         </div>
       <% end -%>
 
-      <% if session[:login] -%>
-        <div class="box_content grid_3">
-          <strong class="grey-medium spacer1">Locations</strong>
-          <ul>
-            <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
-            <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
-            <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
-          </ul>
-        </div>
-      <% end -%>
+      <div class="box_content grid_3">
+        <strong class="grey-medium spacer1">Locations</strong>
+        <ul>
+          <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
+          <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
+          <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
+        </ul>
+      </div>
 
       <div class="box_content grid_3">
         <strong class="grey-medium spacer1">Help</strong>
