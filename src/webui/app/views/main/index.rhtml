@@ -1,5 +1,5 @@
 <% @pagetitle = "Welcome" 
-   @layouttype = "custom"
+@layouttype = "custom"
 %>
 
 <div id="some-content" class="grid_10 ui-oo-box-shadow alpha">
@@ -67,7 +67,7 @@
       <!--      <li>
   <%= link_to "<img src='icons/x-office-spreadsheet.png' alt='' />", :controller => "statistics", :action => :index %><br/>
   <%= link_to "Statistics", :controller => "statistics", :action => :index %>
-            </li> -->
+              </li> -->
     </ul>
   <% else -%>
     <p class="description">If you are a packager and want to add / edit packages, please
@@ -88,17 +88,7 @@
 </div>
 
 <div id="some_other_content2" class="grid_6 omega">
-  <div class="ui-oo-box-shadow grid_6">
-    <%= render :partial => "contact" %>
-  </div>
-
-  <div class="clear"></div>
-  <div id="some_other_content" class="ui-oo-box-shadow grid_6">
-    <%= render :partial => "sponsors" %>
-  </div>
-  <div class="clear"></div>
-  <div id="some_other_content3" class="ui-oo-box-shadow grid_6">
-    <%= render :partial => "feeds" %>
-  </div>
-
+  <%= render :partial => "contact" %>
+  <%= render :partial => "sponsors" %>
+  <%= render :partial => "feeds" %>
 </div>
