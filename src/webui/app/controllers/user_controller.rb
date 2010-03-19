@@ -6,7 +6,7 @@ class UserController < ApplicationController
     logger.info "Logging out: #{session[:login]}"
     reset_session
     @return_to_path = "/"
-    if ICHAIN_MODE != 'off'
+    if ICHAIN_MODE == 'on'
       redirect_to '/cmd/ICSLogout'
     end
   end
