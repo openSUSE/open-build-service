@@ -477,9 +477,10 @@ class ProjectController < ApplicationController
       ['succeeded','failed','expansion error','broken', 
       'blocked', 'dispatching', 'scheduled','building','finished',
       'disabled', 'excluded','unknown']
+    @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each { |s|
-      if defaults || (params.has_key?(s) && params[s])
+      if (defaults && !@filter_out.include?(s)) || (params.has_key?(s) && params[s])
         @status_filter << s
       end
     }

@@ -72,7 +72,9 @@
     </div>
   </div>
   <div>
+    <% if @current_requests.has_elements? %>
     <div>There are <%= @current_requests.each.size %> open <%= link_to 'requests', :action => :list_requests, :project => @project %></div>
+    <% end %>
     <div>Mockup: There are 12 problematic packages of 272 total</div>
   </div>
 </div>
