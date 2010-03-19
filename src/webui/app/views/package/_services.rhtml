@@ -1,23 +1,25 @@
 
-<!-- File list -->
-<div id="package_files">
+<!-- Service elements -->
+<div id="package_service">
   <h3>
-    Uploaded Files
+    Generated Files
     <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add File"), 
-    :action => :add_file, :project => @project, :package => @package %>
+    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add Service"),
+    :action => :add_service, :project => @project, :package => @package %>
     <% end %>
   </h3>
   <% if !@files.empty? %>
   <table class="grid">
     <% @files.each do |file| %>
     <tr>
-      <% next if file[:name].match(/^_service/) %>
+      <% next unless file[:name].match(/^_service:/) %>
+      <% f = file[:name].split(':', 3) %>
       <% if file[:editable] %>
-        <td><%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %></td>
+        <td><%= link_to(h(f[2]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %></td>
       <% else %>
-        <td><%= file[:name] %></td>
+        <td><%= f[2] %></td>
       <% end %>
+      <td><%=h f[1]%></td>
       <td><%=h human_readable_fsize( file[:size] )%></td>
       <td><%= link_to "[Download]", file_url( @project, @package, file[:name] ) %></td>
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
@@ -35,11 +37,6 @@
     </tr>
     <% end %>
   </table>
-  <% end %>
-  <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-  <p>
-  <%= link_to "[Add File]", :action => :add_file, :project => @project, :package => @package %>
-  </p>
   <% end %>
 </div>
 

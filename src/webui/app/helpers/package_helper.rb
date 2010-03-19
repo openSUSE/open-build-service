@@ -25,6 +25,8 @@ module PackageHelper
   def guess_code_class( filename )
     case filename
        when "_link" then return "xml"
+       when "_service" then return "xml"
+       when "_patchinfo" then return "xml"
     end
     case Pathname.new(filename).extname.downcase
        when ".spec" then return "spec"
@@ -32,6 +34,8 @@ module PackageHelper
        when ".patch" then return "patch"
        when ".rb" then return "ruby"
        when ".kiwi" then return "xml"
+       when ".group" then return "xml"
+       when ".product" then return "xml"
     end
     return "spec"
   end
