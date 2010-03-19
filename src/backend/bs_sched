@@ -2553,7 +2553,7 @@ sub checkaggregate {
       my $aprp = "$aprojid/$arepoid";
       my $arepo = (grep {$_->{'name'} eq $arepoid} @{$proj->{'repository'} || []})[0];
       if (!$arepo || !grep {$_ eq $myarch} @{$arepo->{'arch'} || []}) {
-	push @broken, "$aprojid/$arepoid";
+	push @broken, $aprp;
 	next;
       }
       next if $remoteprojs{$aprojid} || $prpfinished->{$aprp};
@@ -2561,8 +2561,11 @@ sub checkaggregate {
       my $ps = (readxml("$reporoot/$aprp/$myarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
       my %ps = map {$_->{'name'} => $_} @$ps;
       for my $apackid (@apackids) {
-	my $s = $ps{$apackid} || {};
-	push @blocked, "$aprojid/$arepoid/$apackid" if $s->{'status'} eq 'scheduled' || $s->{'status'} eq 'blocked' || $s->{'status'} eq 'finished';
+	my $s = ($ps{$apackid} || {})->{'status'} || '';
+        if ($s eq 'scheduled' || $s eq 'blocked' || $s eq 'finished') {
+	  next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
+	  push @blocked, "$aprp/$apackid";
+	}
       }
     }
   }
@@ -2999,6 +3002,10 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     for my $prp (@prps) {
       $prpnotready{$prp} = $oldprpnotready->{$prp} if exists $oldprpnotready->{$prp};
     }
+    # use old start values
+    if ($schedstate->{'watchremote_start'}) {
+      %watchremote_start = %{$schedstate->{'watchremote_start'}};
+    }
   }
 }
 
@@ -3388,6 +3395,7 @@ while(1) {
 	$schedstate->{'lookat_oobhigh'} = \@lookat_high;
 	$schedstate->{'prpfinished'} = \%prpfinished;
 	$schedstate->{'globalnotready'} = \%prpnotready;
+	$schedstate->{'watchremote_start'} = \%watchremote_start;
 	unlink("$rundir/bs_sched.$myarch.state");
 	if (!Storable::nstore($schedstate, "$rundir/bs_sched.$myarch.state")) {
 	  unlink("$rundir/bs_sched.$myarch.state");
