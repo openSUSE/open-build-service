@@ -172,51 +172,6 @@ class ProjectController < ApplicationController
     return @arch_list
   end
 
-  def get_tags(params)
-    user_tags = Tag.find(:project => params[:project], :user => params[:user])
-    tags = Tag.find(:tags_by_object, :project => params[:project])
-    user_tags_array = []
-    if user_tags
-      user_tags.each_tag do |tag|
-          user_tags_array << tag.name
-      end
-    end
-    return tags, user_tags_array
-  end
-
-  def view
-    @packages = []
-    Package.find( :all, :project => params[:project] ).each_entry do |package|
-      @packages << package.name
-    end
-
-    @created_timestamp = LatestAdded.find( :specific,
-      :project => @project ).project.created
-    @updated_timestamp = LatestUpdated.find( :specific,
-      :project => @project ).project.updated
-
-    #@tags = Tag.find(:user => session[:login], :project => @project.name)
-
-    #TODO not efficient, @user_tags_array is needed because of shared _tags_ajax.rhtml
-    @tags, @user_tags_array = get_tags(:project => params[:project], :package => params[:package], :user => session[:login])
-
-    @downloads = Downloadcounter.find( :project => @project )
-    @rating = Rating.find( :project => @project )
-    @activity = ( MostActive.find( :specific, :project => @project,
-      :package => @package).project.activity.to_f * 100 ).round.to_f / 100
-  end
-
-
-  def show_projects_by_tag
-    @collection = Collection.find(:tag, :type => "_projects", :tagname => params[:tag])
-    @projects = []
-    @collection.each_project do |project|
-      @projects << project
-    end
-    @tagcloud ||= Tagcloud.new(:user => session[:login], :tagcloud => session[:tagcloud])
-    render :action => "../tag/list_objects_by_tag"
-  end
-
   def repositories
     @user ||= Person.find( :login => session[:login] )
   end
@@ -262,7 +217,6 @@ class ProjectController < ApplicationController
     render :partial => 'repository_edit_form', :locals => { :repo => repo, :error => nil }
   end
 
-
   def update_target
     valid_http_methods :post
     repo = @project.repository[params[:repo]]
@@ -276,50 +230,6 @@ class ProjectController < ApplicationController
       repo.name = params[:original_name]
       render :partial => 'repository_edit_form', :locals => { :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}",
         :repo => repo } and return
-    end
-  end
-
-
-  # render the input form for tags
-  def add_tag_form
-    @project = params[:project]
-    render :partial => "add_tag_form"
-  end
-
-
-  def add_tag
-    logger.debug "New tag(s) #{params[:tag]} for project #{params[:project]}."
-    tags = []
-    tags << params[:tag]
-    old_tags = Tag.find(:user => session[:login], :project => params[:project])
-    old_tags.each_tag do |tag|
-      tags << tag.name
-    end
-    logger.debug "[TAG:] saving tags #{tags.join(" ")} for project #{params[:project]}."
-
-    @tag_xml = Tag.new(:project => params[:project], :tag => tags.join(" "), :user => session[:login])
-    begin
-      @tag_xml.save
-
-    rescue ActiveXML::Transport::Error => exception
-      rescue_action_in_public exception
-      @error = CGI::escapeHTML(@message)
-      logger.debug "[TAG:] Error: #{@message}"
-      @unsaved_tags = true
-    end
-
-    @tags, @user_tags_array = get_tags(:user => session[:login], :project => params[:project])
-
-    render :update do |page|
-      page.replace_html 'tag_area', :partial => "tags_ajax"
-      page.visual_effect :highlight, 'tag_area'
-      if @unsaved_tags
-        page.replace_html 'error_message', "WARNING: #{@error}"
-        page.show 'error_message'
-        page.delay(30) do
-          page.hide 'error_message'
-        end
-      end
     end
   end
 

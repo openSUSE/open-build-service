@@ -10,10 +10,6 @@ class HomeController < ApplicationController
 
     @user = Person.find( :login => session[:login] )
     raise "There is no user #{session[:login]} known in the system." unless @user
-
-    session[:tagcloud] ||= :mytags
-    logger.debug "Tagcloud switch initialized: Building Tagcloud for #{session[:tagcloud]}"
-    @tagcloud ||= Tagcloud.find( session[:tagcloud].to_sym, :user => session[:login] )
   end
 
 end

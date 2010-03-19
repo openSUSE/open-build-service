@@ -10,62 +10,6 @@ class PackageController < ApplicationController
     :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :view_file, 
     :remove, :live_build_log, :rdiff, :users, :files]
 
-
-  # render the input form for tags
-  def add_tag_form
-    @project = params[:project]
-    @package = params[:package]
-    render :partial => "add_tag_form"
-  end
-
-
-  def add_tag
-    logger.debug "New tag #{params[:tag]} for package #{params[:package]}."
-
-    tags = []
-    tags << params[:tag]
-    old_tags = Tag.find(:user => session[:login], :project => params[:project], :package => params[:package])
-
-    old_tags.each_tag do |tag|
-      tags << tag.name
-    end
-    logger.debug "[TAG:] saving tags #{tags.join(" ")} for package #{params[:package]} (project #{params[:project]})."
-
-    @tag_xml = Tag.new(:user => session[:login], :project => params[:project], :package => params[:package], :tag => tags.join(" "))
-    begin
-      @tag_xml.save()
-    rescue ActiveXML::Transport::Error => exception
-      rescue_action_in_public exception
-      @error = CGI::escapeHTML(@message)
-      logger.debug "[TAG:] Error: #{@message}"
-      @unsaved_tags = true
-    end
-
-    @tags, @user_tags_array = get_tags(:user => session[:login], :project => params[:project], :package => params[:package])
-
-    render :update do |page|
-      page.replace_html 'tag_area', :partial => "tags_ajax"
-      page.visual_effect :highlight, 'tag_area'
-      if @unsaved_tags
-        page.replace_html 'error_message', "WARNING: #{@error}"
-        page.show 'error_message'
-        page.delay(30) do
-          page.hide 'error_message'
-        end
-      end
-    end
-  end
-
-
-  def show_packages_by_tag
-    @collection = Collection.find(:tag, :type => "_packages", :tagname => params[:tag])
-    @packages = []
-    @collection.each_package do |package|
-      @packages << package
-    end
-    render :action => "../tag/list_objects_by_tag"
-  end
-
   def fill_email_hash
     @email_hash = Hash.new
     persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
@@ -103,18 +47,6 @@ class PackageController < ApplicationController
 
   def add_person
     @roles = Role.local_roles
-  end
-  
-  def get_tags(params)
-    tags = Tag.find(:tags_by_object, :project => params[:project], :package => params[:package])
-    user_tags = Tag.find(:project => params[:project], :package => params[:package], :user => params[:user])
-    user_tags_array = []
-    if user_tags
-      user_tags.each_tag do |tag|
-        user_tags_array << tag.name
-      end
-    end
-    return tags, user_tags_array
   end
 
   def rdiff

@@ -3,11 +3,8 @@ if @error
     @repos = @error.split("\n")[1..-1]
     page.replace 'dialog_wrapper', :partial => 'delete_dialog'
   else
-    page.replace_html 'error_message', @error
-    page.show 'error_message'
-    page.delay(5) do
-      page.hide 'error_message'
-    end
+    flash[:error] = @error
+    page.redirect_to :action => :show
   end
 elsif not @confirmed
   @message = "Really delete project #{@project}?"

@@ -4,9 +4,7 @@ class MainController < ApplicationController
   before_filter :get_attribute, :only => [ :search_advanced, :search_result ] 
 
   def index
-    
     @user ||= Person.find :login => session[:login] if session[:login]
-    #@tagcloud ||= Tagcloud.find( :alltags, :user => session[:login], :limit => "60") if session[:login]
   end   
  
   def search_advanced

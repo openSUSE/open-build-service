@@ -1,9 +1,0 @@
-<p>
-<% form_remote_tag :url => {:action => :add_tag, :controller => "package", :project => @project, :package => @package},
-  :loading => "$('#spinner').show()",
-  :complete => "$('#spinner').hide()" do -%>
-  <%= text_field_tag( "tag", @tag , :size => 15) %>
-  <%= image_submit_tag "ok" %>
-  <%= image_tag 'rotating-tail.gif', :id=> 'spinner', :style => "visibility:hidden;" -%>
-<% end %>
-</p>
