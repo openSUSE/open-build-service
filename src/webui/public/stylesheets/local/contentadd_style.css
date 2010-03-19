@@ -135,3 +135,6 @@ span.build_result_title {
   float: left;
 }
 
+.centered {
+  text-align: center;
+}
