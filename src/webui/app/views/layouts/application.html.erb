@@ -99,11 +99,9 @@
 
   <!-- Start: Footer -->
     <div id="footer" class="container_12">
-      <div id="footer-content" class="grid_12 column_4">
         <% if session[:login] -%>
-          <h1>Home</h1>
-          <div class="box_content">
-            <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong><br/>
+           <div class="box_content grid_3">
+            <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong>
             <ul class="navlist">
               <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li>
               <li><%= link_to "My Requests", :controller => "request", :action => :list_req %></li>
@@ -114,16 +112,18 @@
         <% end -%>
 
         <% if session[:login] -%>
-          <h1>Locations</h1>
-          <p>
+          <div class="box_content grid_3">
+          <strong class="grey-medium spacer1">Locations</strong>
             <ul>
               <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
               <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
               <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
             </ul>
-          </p>
+          </div>
         <% end -%>
 
+        <div class="box_content grid_3">
+        <strong class="grey-medium spacer1">Help</strong>
         <ul>
           <% @helplinks = [
             { 'Wiki Pages'  => 'http://en.opensuse.org/Build_Service' },
@@ -138,11 +138,12 @@
             <% end %>
           <% end %>
         </ul>
+        </div>
 
+        <div class="box_content grid_3">
         <%= render(:partial => "layouts/sponsor") %>
+        </div>
 
-
-      </div>
       <div id="footer-legal" class="ui-oo-border-top grid_12">
         <p>
           &copy; 2010 Novell, Inc. All rights reserved. Novell is a registered trademark and
