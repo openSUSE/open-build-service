@@ -11,12 +11,15 @@ class ProjectController < ApplicationController
 
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
-    :remove_person, :save_person, :add_person, :remove_target, :toggle_watch, :list_packages,
-    :show, :monitor, :edit_prjconf, :list_requests,
+    :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
+    :list_packages, :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes,
     :meta, :edit_meta ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
+  before_filter :check_user, :only => [:repositories, :list_requests, :meta,
+    :projconf
+  ]
 
   def index
     redirect_to :action => 'list_public'
@@ -59,8 +62,12 @@ class ProjectController < ApplicationController
   end
   private :list
 
+  # TODO: move to home controller
   def list_my
-    @user ||= Person.find( :login => session[:login] )
+    if check_user
+      flash[:error] = 'Require login'
+      redirect_to :action => 'show'
+    end
     if @user.has_element? :watchlist
       #extract a list of project names and sort them case insensitive
       @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
@@ -99,16 +106,17 @@ class ProjectController < ApplicationController
 
   def remove_watched_project
     project = params[:project]
-    @user ||= Person.find( session[:login] )
-    logger.debug "removing watched project '#{project}' from user '#@user'"
-    @user.remove_watched_project project
-    @user.save
+    if check_user
+      logger.debug "removing watched project '#{project}' from user '#@user'"
+      @user.remove_watched_project project
+      @user.save
 
-    if @user.has_element? :watchlist
-      @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
+      if @user.has_element? :watchlist
+        @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
+      end
+
+      render :partial => 'watch_list'
     end
-
-    render :partial => 'watch_list'
   end
 
   def new
@@ -170,10 +178,6 @@ class ProjectController < ApplicationController
       @arch_list = tmp.sort.uniq
     end
     return @arch_list
-  end
-
-  def repositories
-    @user ||= Person.find( :login => session[:login] )
   end
 
   #update project flags
@@ -376,11 +380,11 @@ class ProjectController < ApplicationController
 
     # FIXME: will be cleaned up after implementing FATE #308899
     if targetname == "images"
-       prjconf = frontend.get_source(:project => @project, :filename => '_config')
-       unless prjconf =~ /^Type:/
-         prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-         frontend.put_file(prjconf, :project => @project, :filename => '_config')
-       end
+      prjconf = frontend.get_source(:project => @project, :filename => '_config')
+      unless prjconf =~ /^Type:/
+        prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+        frontend.put_file(prjconf, :project => @project, :filename => '_config')
+      end
     end
 
     begin
@@ -390,8 +394,8 @@ class ProjectController < ApplicationController
         flash[:error] = "Failed to add target '#{platform}'"
       end
     rescue ActiveXML::Transport::Error => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
-        flash[:error] = "Failed to add target '#{platform}' " + message
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = "Failed to add target '#{platform}' " + message
     end
 
     redirect_to :action => :flags_for_experts, :project => @project
@@ -505,7 +509,7 @@ class ProjectController < ApplicationController
     }
 
     @buildresult = Buildresult.find( :project => @project, :view => 'status', :code => @status_filter,
-                   @lastbuild_switch.blank? ? nil : :lastbuild => '1', :arch => @arch_filter, :repo => @repo_filter )
+      @lastbuild_switch.blank? ? nil : :lastbuild => '1', :arch => @arch_filter, :repo => @repo_filter )
     unless @buildresult
       flash[:error] = "No build results for project '#{@project}'"
       redirect_to :action => :show, :project => params[:project]
@@ -619,11 +623,9 @@ class ProjectController < ApplicationController
   end
 
   def meta
-    @user ||= Person.find( :login => session[:login] )
   end
 
   def prjconf
-    @user ||= Person.find( :login => session[:login] )
   end
   
   def edit_prjconf
@@ -740,21 +742,21 @@ class ProjectController < ApplicationController
 
     if @include_versions
       attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
-						:name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
+        :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
       attributes.data.find('//package//values').each do |p|
-	# unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-	p.each_element do |v|
-	  upstream_versions[p.parent['name']] = v.content
-	end
+        # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+        p.each_element do |v|
+          upstream_versions[p.parent['name']] = v.content
+        end
       end
 
       attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
-						:name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
+        :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
       attributes.data.find('//package//values').each do |p|
-	# unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-	p.each_element do |v|
-	  upstream_urls[p.parent['name']] = v.content
-	end
+        # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
+        p.each_element do |v|
+          upstream_urls[p.parent['name']] = v.content
+        end
       end
     end
 
@@ -832,15 +834,15 @@ class ProjectController < ApplicationController
 
         if currentpack['md5'] and currentpack['develmd5'] and currentpack['md5'] != currentpack['develmd5']
           currentpack['problems'] << Rails.cache.fetch("dd_%s_%s" % [currentpack['md5'], currentpack['develmd5']]) do
-             begin
-               if changes_file_difference(@project.name, p.name, currentpack['develproject'], currentpack['develpackage'])
-                 'different_changes'
-               else
-                 'different_sources'
-               end
-             rescue NoChangesError => e
-               e.message
-             end
+            begin
+              if changes_file_difference(@project.name, p.name, currentpack['develproject'], currentpack['develpackage'])
+                'different_changes'
+              else
+                'different_sources'
+              end
+            rescue NoChangesError => e
+              e.message
+            end
           end
         end
       elsif @current_develproject != no_project
@@ -908,8 +910,9 @@ class ProjectController < ApplicationController
         redirect_to :action => :new, :project => "home:" + session[:login] and return
       end
       # remove automatically if a user watches a removed project
-      @user ||= Person.find( :login => session[:login] )
-      @user.remove_watched_project params[:project] and @user.save if @user.watches? params[:project]
+      if check_user
+        @user.remove_watched_project params[:project] and @user.save if @user.watches? params[:project]
+      end
       unless request.xhr?
         flash[:error] = "Project not found: #{params[:project]}"
         redirect_to :controller => "project", :action => "list_public" and return
@@ -937,6 +940,10 @@ class ProjectController < ApplicationController
       flash[:error] = "Project _meta not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public"
     end
+  end
+
+  def check_user
+    @user ||= Person.find_cached( :login => session[:login] )
   end
 
   def load_current_requests
