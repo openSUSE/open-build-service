@@ -2,14 +2,13 @@ class StatisticsController < ApplicationController
 
 
   skip_before_filter :authorize, :only => [
-    :index, :latest_added, :latest_updated, :most_downloaded, :highest_rated
+    :index, :latest_added, :latest_updated, :most_downloaded
   ]
 
 
   def index
     #@latest_added    = LatestAdded.find( :limit => 10 )
     #@latest_updated  = LatestUpdated.find( :limit => 10 )
-    #@highest_rated   = Rating.find( :all, :limit => 10 )
     #@most_active_pac = MostActive.find( :limit => 5, :type => 'packages' )
     #@most_active_prj = MostActive.find( :limit => 5, :type => 'projects' )
     @global_counters = GlobalCounters.find( :all )
@@ -55,15 +54,6 @@ class StatisticsController < ApplicationController
   end
 
 
-  def highest_rated
-    limit = params[:limit]
-    # no layout, if this is an ajax-request
-    request.get? ? layout=true : layout=false
-    @highest_rated = Rating.find( :all, :limit => limit )
-    render :partial => 'highest_rated', :layout => layout, :more => true
-  end
-
-
   def download_details
     @limit = params[:limit]
     @project = params[:project]
@@ -100,13 +90,6 @@ class StatisticsController < ApplicationController
       text += 'Here you can see download statistics overview for packages of '
       text += 'the build service. These statistics are updated twice a day '
       text += 'at the moment, so they are not live.'
-    when 'highest_rated'
-      text += '<h4>Highest Rated <img src="/images/info.png" /></h4>'
-      text += 'Here you can see which packages and project were '
-      text += 'highest rated by the build service users. Only registered '
-      text += 'can rate packages and projects by clicking one of the five '
-      text += 'stars next to the header. Only packages/projects with more '
-      text += "than #{min_votes_for_rating} ratings are displayed here."
     when 'latest_added'
       text += '<h4>Latest Added <img src="/images/info.png" /></h4>'
       text += 'Here you can see which are the packages and projects last '

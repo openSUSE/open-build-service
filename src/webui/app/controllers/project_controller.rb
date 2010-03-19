@@ -618,16 +618,6 @@ class ProjectController < ApplicationController
     @user.save
   end
 
-
-  def rate
-    @project = params[:project]
-    @score = params[:score] or return
-    rating = Rating.new( :score => @score, :project => @project )
-    rating.save
-    @rating = Rating.find( :project => @project )
-    render :partial => 'shared/rate'
-  end
-
   def meta
     @user ||= Person.find( :login => session[:login] )
   end

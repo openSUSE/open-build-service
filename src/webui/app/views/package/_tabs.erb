@@ -1,17 +1,14 @@
-<% @skip_flash = true %>
-
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "local/package", :media => "all" %>
 <% end %>
 
-<ul id="package_tabs">
-  <%= package_tab 'Package', :action => :show %>
-  <%= package_tab 'Files', :action => :files %>
-  <%= package_tab 'Repositories', :action => :flags_for_experts %>
-  <%= package_tab 'Attributes', :action => :attributes %>
-  <%= package_tab 'Users', :action => :users %>
-</ul>
+<div class="box-header grid_16">
+  <ul id="package_tabs">
+    <%= package_tab 'Files', :action => :files %>
+    <%= package_tab 'Repositories', :action => :flags_for_experts %>
+    <%= package_tab 'Attributes', :action => :attributes %>
+    <%= package_tab 'Users', :action => :users %>
+  </ul>
 
-<div id="package_tabs_end"></div>
-<%= render(:partial => "layouts/flash", :object => flash) %>
-
+</div>
+<div class="clear"></div>

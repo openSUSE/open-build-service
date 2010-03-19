@@ -4,11 +4,11 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus,
-    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files]
+    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :view_file, 
-    :remove, :live_build_log, :rdiff, :users, :files]
+    :remove, :live_build_log, :rdiff, :users, :files, :attributes]
 
   def fill_email_hash
     @email_hash = Hash.new
@@ -715,21 +715,6 @@ class PackageController < ApplicationController
   end
 
 
-  def rate
-    @project = params[:project]
-    @package = params[:package]
-    @score = params[:score] or return
-    rating = Rating.new( :score => @score,
-      :project => @project, :package => @package
-    )
-    rating.save
-    @rating = Rating.find(
-      :project => @project, :package => @package
-    )
-    render :partial => 'shared/rate'
-  end
-
-
   # update package flags
   def update_flag
     begin
@@ -768,6 +753,7 @@ class PackageController < ApplicationController
       file[:editable] = ((not no_edit_ext.include?( file[:ext].downcase )) and file[:size].to_i < 2**20)  # max. 1 MB
       files << file
     end
+  # TODO: <linkinfo project="openSUSE:Factory" package="bash" srcmd5="071e073dfd086d97db708deed661a274" baserev="ecb392833f88d01c094404117886b103" xsrcmd5="29d1bfad47af58e8f0033bc02080c2d6" lsrcmd5="b504c8b0bdd073474ce0dc1d7d7b4767" />
     return files
   end
 
