@@ -6,18 +6,14 @@
   width: 8em;
   margin-right: 0.5em;
   border: 1px solid #CCC;
-  background: white;
 }
 
 .filter_settings {
-  background: white;
   margin-bottom: 2em;
   border-bottom: 1px solid #CCC;
-  border-top: 1px solid #CCC;
-  padding: 0.5em 0;
-  overflow: visible;
+  padding: 0.5em 0 0.5em 1em;
+  overflow: clip;
   height: 2em;
-  min-width: 1000px;
 }
 
 .filter_settings .strong {

@@ -85,44 +85,50 @@
         <% end -%>
       </div>
 
-     <%= render :partial => "layouts/personal_navigation"  %>
+      <%= render :partial => "layouts/personal_navigation"  %>
     </div>
 
     <%= render(:partial => "layouts/flash", :object => flash) unless @skip_flash %>
 
     <!-- Start: Main Content Area -->
     <div id="content" class="container_16 ui-oo-content-wrapper">
-      <%= @content_for_layout %>
+      <% if @layouttype == "custom" %>
+        <%= @content_for_layout %>
+      <% else %>
+        <div class="grid_16 ui-oo-box-shadow">
+          <%= @content_for_layout %>
+        </div>
+      <% end %>
     </div>
     <!-- End: Main Content Area -->
 
 
-  <!-- Start: Footer -->
+    <!-- Start: Footer -->
     <div id="footer" class="container_12">
-        <% if session[:login] -%>
-           <div class="box_content grid_3">
-            <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong>
-            <ul class="navlist">
-              <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li>
-              <li><%= link_to "My Requests", :controller => "request", :action => :list_req %></li>
-              <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
-              <li><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></li>
-            </ul>
-          </div>
-        <% end -%>
-
-        <% if session[:login] -%>
-          <div class="box_content grid_3">
-          <strong class="grey-medium spacer1">Locations</strong>
-            <ul>
-              <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
-              <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
-              <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
-            </ul>
-          </div>
-        <% end -%>
-
+      <% if session[:login] -%>
         <div class="box_content grid_3">
+          <strong class="grey-medium spacer1">User: <%= link_to session[:login], :controller => 'home', :action => :index %></strong>
+          <ul class="navlist">
+            <li><%= link_to "My Projects", :controller => "project", :action => :list_my %></li>
+            <li><%= link_to "My Requests", :controller => "request", :action => :list_req %></li>
+            <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
+            <li><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></li>
+          </ul>
+        </div>
+      <% end -%>
+
+      <% if session[:login] -%>
+        <div class="box_content grid_3">
+          <strong class="grey-medium spacer1">Locations</strong>
+          <ul>
+            <li><%= link_to "Projects", :controller => "project", :action => :list_public %></li>
+            <li><%= link_to "Search", :controller => 'main', :action => 'search' %></li>
+            <li><%= link_to "Server Status", :controller => "monitor", :action => :index %></li>
+          </ul>
+        </div>
+      <% end -%>
+
+      <div class="box_content grid_3">
         <strong class="grey-medium spacer1">Help</strong>
         <ul>
           <% @helplinks = [
@@ -138,11 +144,11 @@
             <% end %>
           <% end %>
         </ul>
-        </div>
+      </div>
 
-        <div class="box_content grid_3">
+      <div class="box_content grid_3">
         <%= render(:partial => "layouts/sponsor") %>
-        </div>
+      </div>
 
       <div id="footer-legal" class="ui-oo-border-top grid_12">
         <p>
