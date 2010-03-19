@@ -355,12 +355,14 @@ class PackageController < ApplicationController
     @package.save_file :file => file, :filename => URI.escape(filename, "+")
 
     if params[:addAsPatch]
-      if link = Link.find( :project => @project, :package => @package )
+      link = Link.find( :project => @project, :package => @package )
+      if link
         link.add_patch filename
         link.save
       end
     elsif params[:applyAsPatch]
-      if link = Link.find( :project => @project, :package => @package )
+      link = Link.find( :project => @project, :package => @package )
+      if link
         link.apply_patch filename
         link.save
       end
@@ -723,7 +725,7 @@ class PackageController < ApplicationController
     )
 
     description = []
-    lines = specfile_content.split /\n/
+    lines = specfile_content.split(/\n/)
     line = lines.shift until line =~ /^%description\s*$/
     description << lines.shift until description.last =~ /^%/
     # maybe the above end-detection of the description-section could be improved like this:

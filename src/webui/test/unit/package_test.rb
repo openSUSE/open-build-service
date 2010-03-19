@@ -91,9 +91,9 @@ class PackageTest < Test::Unit::TestCase
   
   def test_package_with_flags_but_without_repo
     #the error should be raised in the project-create_flag_matrix-function
-    assert_raises (RuntimeError){
+    assert_raise RuntimeError do
       @package_with_flags_and_without_repo.create_flag_matrix(:flagtype => 'build').inspect
-    }
+    end
   end  
   
   

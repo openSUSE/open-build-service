@@ -2,7 +2,7 @@
 <h2>Editing Platform <%= @platform %> (Project <%= @platform.project %>)</h2>
 
 <% form_tag :action => :save do %>
-  <b>Title:</b></br>
+  <b>Title:</b><br/>
   <%= text_field_tag 'title', @platform.title, :size => 80 %><br/>
   <b>Description:</b><br/>
   <%= text_area_tag "description", @platform.description, :cols => 80, :rows => 20 %><br/>

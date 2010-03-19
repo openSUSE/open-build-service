@@ -15,24 +15,24 @@
     </tr>
     <% i = 0 %>
     <% @attributes.each do |a| %>
-      <%= (i%2==1) ? "<tr class=\"alternate1\">" : "<tr class=\"alternate2\">" %>
-
-      <td><%=h a.namespace %>:<%=h a.name %></td>
-      <td class="tablelines">
-        <%   if a.has_element? :value %>
-          <ul class="attr_values">
-            <%     a.each do |f| %>
-              <li><%= f.to_s %></li>
-            <%     end %>
-          </ul>
-        <%   else %>
-          <em>no values set</em>
-        <%   end %>
-      </td>
-      <td>
-        <%=  link_to image_tag('edit.png', :alt => "Edit values", :title => "Edit values"), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
-        <%=  link_to image_tag('list-remove.png', :alt => "Delete attribute", :title => "Delete attribute"), :controller => "attribute", :action => "delete", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
-      </td>
+      <% (i%2==1) ? aclass="alternate1" : aclass="alternate2" %>
+      <tr class="<%= aclass %>">
+        <td><%=h a.namespace %>:<%=h a.name %></td>
+        <td class="tablelines">
+          <%   if a.has_element? :value %>
+            <ul class="attr_values">
+              <%     a.each do |f| %>
+                <li><%= f.to_s %></li>
+              <%     end %>
+            </ul>
+          <%   else %>
+            <em>no values set</em>
+          <%   end %>
+        </td>
+        <td>
+          <%=  link_to image_tag('edit.png', :alt => "Edit values", :title => "Edit values"), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
+          <%=  link_to image_tag('list-remove.png', :alt => "Delete attribute", :title => "Delete attribute"), :controller => "attribute", :action => "delete", :project => @project.name, :package => @package, :namespace => a.namespace, :name => a.name %>
+        </td>
       </tr>
       <% i+=1 %>
     <% end %>

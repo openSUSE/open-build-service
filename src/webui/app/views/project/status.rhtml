@@ -56,7 +56,6 @@
 
 
 <% if !@packages.blank? %>
-  <div>
 
   <p>Displaying <%= @packages.size %> packages that need handling, including:
     <%= @packages.select {|p| p['firstfail'] and p['firstfail'] > 0}.length %> not building,
@@ -78,7 +77,7 @@
     <tbody>
       <% i = 0 %>
       <% @packages.each do |p| %>
-      <tr class='<% if i%2 == 1 %>alternate1<% else %>alternate2<% end %>' valign='top'>
+        <tr class='<% if i%2 == 1 %>alternate1<% else %>alternate2<% end %>' valign='top'>
           <% i += 1 %>
           <% shortname = p['name']
           if shortname.length > 22
@@ -119,9 +118,9 @@
             end
             if p['upstream_version']
               if p['upstream_url']
-                 outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
+                outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
               else
-                 outs << "New upstream version " + p['upstream_version'] + " available"
+                outs << "New upstream version " + p['upstream_version'] + " available"
               end
             end
             outs.join('<br/>') -%></td>

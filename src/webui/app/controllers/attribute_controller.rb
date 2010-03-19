@@ -33,7 +33,7 @@ class AttributeController < ApplicationController
 
   def save
     values = params[:values].split(',')
-    namespace, name = params[:attribute].split /:/
+    namespace, name = params[:attribute].split(/:/)
     @attributes.set(namespace, name, values)
     result = @attributes.save
     opt = {:controller => "attribute", :action => "show", :project => @project.name }

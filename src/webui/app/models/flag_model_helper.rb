@@ -33,11 +33,11 @@ module FlagModelHelper
     # don't store the global enable-flag for projects
     if self.class == Project
       if flag.name == "debuginfo"
-      sortedflags.delete_if {|flag| flag.repository.nil? and
-        flag.architecture.nil? and not flag.enabled? }
+      sortedflags.delete_if {|f| f.repository.nil? and
+        f.architecture.nil? and not f.enabled? }
       else
-      sortedflags.delete_if {|flag| flag.repository.nil? and
-        flag.architecture.nil? and flag.enabled? }
+      sortedflags.delete_if {|f| f.repository.nil? and
+        f.architecture.nil? and f.enabled? }
       end
     end
     
@@ -57,8 +57,8 @@ module FlagModelHelper
     #create new flag section from the flag matrix
     flagn = self.add_element flag.name
     #add only flags which are set explicit
-    sortedflags.each do |flag|
-      flag.insertXml(flagn) if flag.explicit_set?
+    sortedflags.each do |f|
+      f.insertXml(flagn) if f.explicit_set?
     end
 
     #merge whole project xml

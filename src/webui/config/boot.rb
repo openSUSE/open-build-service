@@ -56,7 +56,8 @@ module Rails
     end
 
     def load_rails_gem
-      if version = self.class.gem_version
+      version = self.class.gem_version
+      if version
         gem 'rails', version
       else
         gem 'rails'

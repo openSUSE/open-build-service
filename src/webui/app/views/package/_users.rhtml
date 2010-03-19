@@ -13,7 +13,7 @@
     <% if @project.all_groups(r).length > 0 or @project.all_persons(r).length > 0 or @package.all_groups(r).length > 0 or @package.all_persons(r).length > 0 -%>
       <dl>
         <dt><%= r.capitalize %>s</dt>
-      <dl>
+      </dl>
     <% end -%>
 
     <% if @package.all_groups(r) or @project.all_groups(r) -%>
