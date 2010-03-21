@@ -213,4 +213,8 @@ class ApplicationController < ActionController::Base
     @current_controller = controller_name
   end
 
+  def check_user
+    @user ||= Person.find_cached( :login => session[:login] )
+  end
+
 end

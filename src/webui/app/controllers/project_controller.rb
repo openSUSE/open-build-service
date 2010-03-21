@@ -943,10 +943,6 @@ class ProjectController < ApplicationController
     end
   end
 
-  def check_user
-    @user ||= Person.find_cached( :login => session[:login] )
-  end
-
   def load_current_requests
     predicate = "state/@name='new' and action/target/@project='#{@project}'"
     @current_requests = Collection.find :what => :request, :predicate => predicate, :expires_in => 5.minutes

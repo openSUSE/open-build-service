@@ -4,12 +4,14 @@ class MonitorController < ApplicationController
 
   def old
     get_settings
+    check_user
     @workerstatus = Workerstatus.find :all
     @status_messages = get_status_messages
   end
 
   def index
     get_settings
+    check_user
     if request.post? && ! params[:project].nil? && valid_project_name?( params[:project] )
       redirect_to :project => params[:project]
     else

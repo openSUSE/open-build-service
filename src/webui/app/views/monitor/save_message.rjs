@@ -1,7 +1,6 @@
 
 if not @denied
   page.replace_html 'status_messages', :partial => 'status_messages'
-  page.visual_effect :shake, 'status_messages'
 else
   page.replace_html 'error_message', 'Permission denied to add message'
   page.show 'error_message'

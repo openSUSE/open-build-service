@@ -1,11 +1,13 @@
 <div id="status_messages">
   <h2>
     Status Messages
+    <% if @user %>
     <%= link_to_remote image_tag("list-add.png", :title => "Add new message"),
       :update => 'add_message_form_area',
       :url => { :action => "add_message_form" },
       :loading => "$('#message_form_spinner').show()",
       :complete => "$('#message_form_spinner').hide()" %>
+    <% end %>
     <%= image_tag 'rotating-tail.gif', :id=> 'message_form_spinner',
       :style => "visibility:hidden;" -%>
     <span id="error_message" style="display:none;"></span>
@@ -52,7 +54,7 @@
           <% end %>
         </td>
         <td>
-          <% if msg.deleted_at.empty? %>
+          <% if @user and msg.deleted_at.empty? %>
             <%= link_to_remote image_tag( 'delete.png',
               :title => 'Mark message as deleted' ), :url => {
               :action => 'delete_message', :id => msg.msg_id } %>
