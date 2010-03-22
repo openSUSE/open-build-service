@@ -64,9 +64,10 @@ class ProjectController < ApplicationController
 
   # TODO: move to home controller
   def list_my
-    if check_user
-      flash[:error] = 'Require login'
-      redirect_to :action => 'show'
+    if not check_user
+      flash[:error] = 'Requires login'
+      redirect_to :action => :list_public
+      return
     end
     if @user.has_element? :watchlist
       #extract a list of project names and sort them case insensitive
