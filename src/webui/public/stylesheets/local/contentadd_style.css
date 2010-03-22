@@ -139,6 +139,21 @@ span.build_result_title {
   text-align: center;
 }
 
+/* live build log */
 div#log_space_wrapper p {
   background-color: #eee;
 }
+
+/* main page (/) */
+#proceed_list { height: 2em; margin-bottom: 40px;  }
+#proceed_list li {
+  float: left;
+  text-align: center;
+  list-style: none;
+  margin: 0;
+  width: 115px;
+}
+#proceed_list li img {
+   margin-bottom: 0.5em;
+}
+

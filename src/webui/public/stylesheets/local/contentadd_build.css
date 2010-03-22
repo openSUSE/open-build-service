@@ -323,17 +323,4 @@
   }
 /* /Add Repo & Repo DropZone ********************************************** */
 
-#proceed_list { }
-#proceed_list li {
-  float: left;
-  text-align: center;
-  list-style: none;
-  margin:0;
-  width: 10em;
-}
-#proceed_list li img {
-   margin-bottom: 0.5em;
-}
-
-
 /* DO NOT ADD THINGS HERE - ADD THEM to _style.css (and document their use) */

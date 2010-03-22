@@ -8,6 +8,6 @@
 */
 
 @import url(../common/style.css);
-@import url(contentadd_style.css);
 @import url(contentadd_build.css);
+@import url(contentadd_style.css);
 @import url(dialog.css); /* style for dialog boxes */

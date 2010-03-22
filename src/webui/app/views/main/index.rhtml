@@ -2,9 +2,9 @@
 @layouttype = "custom"
 %>
 
-<div id="some-content" class="grid_10 alpha">
+<div id="some-content" class="grid_11 alpha">
 
-<div class="grid_10 ui-oo-box-shadow">
+<div class="ui-oo-box-shadow">
   <h1 class="mainhead">Welcome to the openSUSE Build Service</h1>
 
   <p class="description">
@@ -67,6 +67,13 @@
         <% end -%>
       </li>
 
+      <li>
+        <% link_to :controller => 'main', :action => 'search' do -%>
+          <%= image_tag 'system-search.png' %><br/><span class="proceed_text">Search</span>
+        <% end -%>
+      </li>
+
+
       <% if session[:login] -%>
       <li>
         <% link_to :controller => "project", :action => :new, :ns => "home:#{session[:login]}" do -%>
@@ -75,11 +82,6 @@
       </li>
       <% end %>
 
-      <li>
-        <% link_to :controller => 'main', :action => 'search' do -%>
-          <%= image_tag 'system-search.png' %><br/><span class="proceed_text">Search</span>
-        <% end -%>
-      </li>
       <li>
         <% link_to :controller => "monitor", :action => :index do -%>
           <%= image_tag 'utilities-system-monitor.png' %><br/><span class="proceed_text">Build Service Status</span>
@@ -90,20 +92,20 @@
 </div>
 
 
-<div class="grid_10 ui-oo-box-shadow">
+<div class="ui-oo-box-shadow">
   <div class="box-header centered">
     System load
   </div>
   <div class="clear"></div>
-  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'pc_waiting', :range => 24, :time => Time.now.to_i ), :width => 185, :height => 150 ), :controller => "monitor", :action => :index ) %>
-  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'ppc_waiting', :range => 24, :time => Time.now.to_i ), :width => 185, :height => 150 ), :controller => "monitor", :action => :index ) %>
-  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'arm_waiting', :range => 24, :time => Time.now.to_i ), :width => 185, :height => 150 ), :controller => "monitor", :action => :index ) %>
+  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'pc_waiting', :range => 168, :time => Time.now.to_i ), :width => 210, :height => 158 ), :controller => "monitor", :action => :index ) %>
+  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'ppc_waiting', :range => 168, :time => Time.now.to_i ), :width => 210, :height => 158 ), :controller => "monitor", :action => :index ) %>
+  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'arm_waiting', :range => 168, :time => Time.now.to_i ), :width => 210, :height => 158 ), :controller => "monitor", :action => :index ) %>
 </div>
 
 </div>
 
 
-<div id="some_other_content2" class="grid_6 omega">
+<div id="some_other_content2" class="grid_5 omega">
   <%= render :partial => "contact" %>
   <%= render :partial => "sponsors" %>
   <%= render :partial => "feeds" %>
