@@ -13,11 +13,17 @@
 var scrollmode=0;
 var offset=<%= @offset %>;
 var autorefresh=1;
+var lastScroll=0;
 
 function autoscroll() {
-   if (!autorefresh) { return };
-   var targetOffset = $('#endofalllog').offset().top; 
+   if (!autorefresh) { return; }
+   // just return in case the user scrolled up
+   if (lastScroll > window.pageYOffset) { return; }
+   // stop refresh if the user scrolled down
+   if (lastScroll < window.pageYOffset && lastScroll) { stop_refresh(); return; }
+   var targetOffset = $('#footer').offset().top - window.innerHeight; 
    window.scrollTo( 0, targetOffset );
+   lastScroll = window.pageYOffset;
 }
 
 function build_finished()
@@ -28,6 +34,7 @@ function build_finished()
 
 function start_refresh() {
    autorefresh=1;
+   lastScroll=0;
    refresh(offset, 0);
    $('.start_refresh').hide(); 
    $('.stop_refresh').show();
