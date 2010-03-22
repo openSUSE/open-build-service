@@ -1320,6 +1320,7 @@ sub update_project_meta {
   delete $proj->{'package'};
   my $oldproj = $projpacks->{$projid};
   $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
+  $projpacks->{$projid} = $proj;
   return 1;
 }
 
