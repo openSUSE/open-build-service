@@ -138,3 +138,7 @@ span.build_result_title {
 .centered {
   text-align: center;
 }
+
+div#log_space_wrapper p {
+  background-color: #eee;
+}

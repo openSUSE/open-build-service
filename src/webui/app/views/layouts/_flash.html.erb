@@ -2,7 +2,7 @@
 <% unless flash.empty? %>
   <div id="flash-messages" class="container_16" >
     <% if flash[:success] or flash[:note] %>
-      <div class="ui-widget grid_16">
+      <div class="ui-widget grid_16 alpha omega">
         <div class="ui-state-highlight ui-corner-all ui-widget-shadow">
           <p>
             <span class="ui-icon ui-icon-info"/>
@@ -14,7 +14,7 @@
     <% end %>
 
     <% if flash[:warn] or flash[:error] %>
-      <div class="ui-widget grid_16">
+      <div class="ui-widget grid_16 alpha omega">
         <div class="ui-state-error ui-corner-all ui-widget-shadow">
           <p>
             <span class="ui-icon ui-icon-alert" />

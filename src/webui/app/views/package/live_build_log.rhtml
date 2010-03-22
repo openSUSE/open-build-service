@@ -10,101 +10,110 @@
 
 <% content_for :head_javascript do %>
 
-var scrollmode=0;
-var offset=<%= @offset %>;
-var autorefresh=1;
-var lastScroll=0;
+  var scrollmode=0;
+  var offset=<%= @offset %>;
+  var autorefresh=1;
+  var lastScroll=0;
 
-function autoscroll() {
-   if (!autorefresh) { return; }
-   // just return in case the user scrolled up
-   if (lastScroll > window.pageYOffset) { return; }
-   // stop refresh if the user scrolled down
-   if (lastScroll < window.pageYOffset && lastScroll) { stop_refresh(); return; }
-   var targetOffset = $('#footer').offset().top - window.innerHeight; 
-   window.scrollTo( 0, targetOffset );
-   lastScroll = window.pageYOffset;
-}
+  function autoscroll() {
+  if (!autorefresh) { return; }
+  // just return in case the user scrolled up
+  if (lastScroll > window.pageYOffset) { return; }
+  // stop refresh if the user scrolled down
+  if (lastScroll < window.pageYOffset && lastScroll) { stop_refresh(); return; }
+  var targetOffset = $('#footer').offset().top - window.innerHeight;
+  window.scrollTo( 0, targetOffset );
+  lastScroll = window.pageYOffset;
+  }
 
-function build_finished()
-{
-   stop_refresh();
-   $('#status').html('Build finished');
-}
+  function build_finished()
+  {
+  stop_refresh();
+  $('#status').html('Build finished');
+  }
 
-function start_refresh() {
-   autorefresh=1;
-   lastScroll=0;
-   refresh(offset, 0);
-   $('.start_refresh').hide(); 
-   $('.stop_refresh').show();
-   return false;
-}
+  function start_refresh() {
+  autorefresh=1;
+  lastScroll=0;
+  refresh(offset, 0);
+  $('.start_refresh').hide();
+  $('.stop_refresh').show();
+  return false;
+  }
 
-function stop_refresh() {
-   autorefresh=0;
-   $('.stop_refresh').hide(); 
-   $('.start_refresh').show();
-   return false;
-}
+  function stop_refresh() {
+  autorefresh=0;
+  $('.stop_refresh').hide();
+  $('.start_refresh').show();
+  return false;
+  }
 
-function refresh(newoffset, initial) {
+  function refresh(newoffset, initial) {
   autoscroll();
   offset = newoffset;
   if (autorefresh) {
-     <%= javascript_options = options_for_ajax(:url => {:action => :update_build_log, :package => @package,
-	               :project => @project, :arch => @arch, :repository => @repo })
-	
-    "var options = #{javascript_options}; options['url'] = options['url'] + '&offset=' + offset + ';&' + 'initial=' + initial;" %>
-     <%=    "$.ajax(options);" %>
+  <%= javascript_options = options_for_ajax(:url => {:action => :update_build_log, :package => @package,
+      :project => @project, :arch => @arch, :repository => @repo })
+
+  "var options = #{javascript_options}; options['url'] = options['url'] + '&offset=' + offset + ';&' + 'initial=' + initial;" %>
+  <%=    "$.ajax(options);" %>
   }
-}
+  }
 <% end -%>
 
 <% content_for :ready_function do %>
-   refresh(<%= @offset %>, 1);
-   $('.start_refresh').click(start_refresh);
-   $('.stop_refresh').click(stop_refresh);
+  refresh(<%= @offset %>, 1);
+  $('.start_refresh').click(start_refresh);
+  $('.stop_refresh').click(stop_refresh);
 <% end -%>
 
 <h2>Build Log for Package <%=h @package%> (Project <%=h @project%>)</h2>
 <div><p><b>Repository:</b> <%=h @repo%> <b>Architecture:</b> <%=h @arch%></p></div>
 
-<div>
-<a href="#" class="start_refresh hidden">[Start Refresh]</a>
-<a href="#" class="stop_refresh">[Stop Refresh]</a>
+
+<div class="grid_8 alpha">
+  <span><a href="#" class="start_refresh hidden">[Start Refresh]</a>
+  <a href="#" class="stop_refresh">[Stop Refresh]</a></span>
 </div>
 
-<div style="float: right">
-<%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
-              :project => @project, :arch => @arch, :repository => @repo  %>
+<div class="grid_8 omega" style="text-align: right">
+  <span><%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
+    :project => @project, :arch => @arch, :repository => @repo  %></span>
 </div>
-
-<div>
-<b>Status:</b> <span id="status">Updating...</span>
-</div>
-<div id="log_space_wrapper" style="border: 1px solid black;">
-  <code id="log_space"><%= @initiallog %></code>
-</div>
+<div class="clear"></div>
 
 <div>
-<%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
-              :project => @project, :arch => @arch, :repository => @repo  %>
+  <p><b>Status:</b> <span id="status">Updating...</span></p>
+</div>
+<div id="log_space_wrapper">
+  <p>
+    <code id="log_space"><%= @initiallog %></code>
+  </p>
 </div>
 
-<div><span id="endofalllog"></span>
-<a href="#" class="start_refresh hidden">[Start Refresh]</a>
-<a href="#" class="stop_refresh">[Stop Refresh]</a>
+<div class="grid_8 alpha">
+  <span><%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
+    :project => @project, :arch => @arch, :repository => @repo  %></span>
 </div>
 
+<div class="grid_8 omega">
+  <p><a href="#" class="start_refresh hidden">[Start Refresh]</a>
+  <a href="#" class="stop_refresh">[Stop Refresh]</a></p>
+</div>
+
+<div class="clear"></div>
 <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
   <div id="link_trigger_rebuild" class="hidden">
-    <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
-    :project => @project, :package => @package, :arch => @arch, :repo => @repo %>
+    <p>
+      <%= link_to "[Trigger Rebuild]", :action => 'trigger_rebuild',
+        :project => @project, :package => @package, :arch => @arch, :repo => @repo %>
+    </p>
   </div>
   <div id="link_abort_build" class="hidden">
-    <%= link_to_remote "[Abort build]", :url => { :action => 'abort_build',
-    :project => @project, :package => @package, :arch => @arch, :repo => @repo }  %> 
+    <p>
+      <%= link_to_remote "[Abort build]", :url => { :action => 'abort_build',
+        :project => @project, :package => @package, :arch => @arch, :repo => @repo }  %>
+    </p>
   </div>
 <% end %>
 
