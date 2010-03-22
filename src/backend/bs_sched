@@ -1294,6 +1294,36 @@ sub get_projpacks {
   }
 }
 
+# -> BSUtil
+sub identical {
+  my ($d1, $d2, @except) = @_;
+
+  if (!defined($d1)) {
+    return defined($d2) ? 0 : 1;
+  }
+  return 0 unless defined($d2);
+  my $r = ref($d1);
+  return 0 if $r ne ref($d2);
+  if ($r eq '') {
+    return 0 if $d1 ne $d2; 
+  } elsif ($r eq 'HASH') {
+    my %k = (%$d1, %$d2);
+    my %except = map {$_ => 1} @except;
+    for my $k (keys %k) {
+      next if $except{$k};
+      return 0 unless identical($d1->{$k}, $d2->{$k});
+    }    
+  } elsif ($r eq 'ARRAY') {
+    return 0 unless @$d1 == @$d2;
+    for (my $i = 0; $i < @$d1; $i++) {
+      return 0 unless identical($d1->[$i], $d2->[$i], @except);
+    }    
+  } else {
+    return 0;
+  }
+  return 1;
+}
+
 # just update the meta information, do not touch package data unless
 # the project was deleted
 sub update_project_meta {
@@ -1320,6 +1350,11 @@ sub update_project_meta {
   delete $proj->{'package'};
   my $oldproj = $projpacks->{$projid};
   $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
+  # check if the project meta has critical change
+  return 0 unless identical($proj->{'build'}, $oldproj->{'build'});
+  # XXX: could be more clever here
+  return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
+  # XXX: should really also compare build type and macros section of build config
   $projpacks->{$projid} = $proj;
   return 1;
 }
