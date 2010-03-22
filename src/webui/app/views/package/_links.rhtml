@@ -2,16 +2,16 @@
 <!-- Links -->
 <div id="package_link">
   <% if @link %>
-  <%- linked_project = @link.has_attribute?(:project) ? @link.project : @project.name -%>
-  <%- linked_package = @link.has_attribute?(:package) ? @link.package : @package.name -%>
-  <h3>Link</h3>
-  <p>
-    This package links to the sources of the package
-    <%= link_to_package linked_project, linked_package %>
-    of project <%= link_to_project linked_project %>. 
-    Show <%= link_to 'diff', :action => :rdiff, :oproject => linked_project, 
-            :opackage => linked_package, :project => @project.name, :package => @package.name %>
-  </p>
+    <%- linked_project = @link.has_attribute?(:project) ? @link.project : @project.name -%>
+    <%- linked_package = @link.has_attribute?(:package) ? @link.package : @package.name -%>
+    <h3>Link</h3>
+    <p>
+      This package links to the sources of the package
+      <%= link_to_package linked_project, linked_package %>
+      of project <%= link_to_project linked_project %>.
+      Show <%= link_to 'diff', :action => :rdiff, :oproject => linked_project,
+        :opackage => linked_package, :project => @project.name, :package => @package.name %>
+    </p>
   <% end %>
 </div>
 

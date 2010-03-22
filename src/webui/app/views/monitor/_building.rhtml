@@ -1,42 +1,43 @@
 <div id="building_all">
-<%
+  <%
   max_clients = @workerstatus.clients
   build_count = @workerstatus.each_building.length
 %>
-<h2>Building</h2>
-<div class="info">
-  <% form_tag do -%>
-    Filter projects:
-    <%= text_field_tag :project, @project_filter, :style => "width: 15em;" -%>
-    <%= link_to image_tag( 'clear.png', :id => 'clear', :alt => 'clear',
-            :title => 'clear input', :style => 'border: none;',
-            :onMouseOver => "this.src='/images/clear_active.png';",
-            :onMouseOut => "this.src='/images/clear.png';"
-          ),
-          :controller => params[:controller], :action => params[:action] %>
-    <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
-  <% end -%>
-  <%= observe_field( :project, :frequency => 0.5, :update => 'building_list',
+  <h2>Building</h2>
+  <div class="info">
+    <% form_tag do -%>
+      Filter projects:
+      <%= text_field_tag :project, @project_filter, :style => "width: 15em;" -%>
+      <%= link_to image_tag( 'clear.png', :id => 'clear', :alt => 'clear',
+        :title => 'clear input', :style => 'border: none;',
+        :onMouseOver => "this.src='/images/clear_active.png';",
+        :onMouseOut => "this.src='/images/clear.png';"
+      ),
+        :controller => params[:controller], :action => params[:action] %>
+      <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+    <% end -%>
+    <%= observe_field( :project, :frequency => 0.5, :update => 'building_list',
       :url => { :controller => 'monitor', :action  => 'filtered_list' },
       :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()",
       :with => "'project=' + escape(value)") %>
-</div>
-<p>You can filter the list in the monitor either by using the filter links in the table or by entering the project name in the editbox. In the editbox you can use partial project names.</p>
-<% if build_count > 0 %>
-  <p class="info">Hover the job time field to see the start time.</p>
-  <p class="info">Build Service reports <%= build_count %> running jobs.</p>
-
-  <%= render :partial => 'building_table' %>
-
-  <h3>Legend</h3>
-  <div>
-    <div style="float: left; margin-right: 10px"><%= distance_of_time_in_words(@time_now, @dead_line, true) -%></div>
-    <% @max_color.downto(0) do |n| -%>
-        <div style="background-color: rgb(255,<%= n %>,0); margin: 0px; width: 3px ; height: 1em; float: left;">&nbsp;</div>
-    <% end -%>
-    <div style="float: left; margin-left: 10px"><%= distance_of_time_in_words(@time_now, @dead_line-(@max_color*@interval_steps*60), true) -%></div>
-    <br clear="all" />
   </div>
+  <p>You can filter the list in the monitor either by using the filter links in the table or by entering the project name in the editbox. In the editbox you can use partial project names.</p>
+  <% if build_count > 0 %>
+    <p class="info">Hover the job time field to see the start time.</p>
+    <p class="info">Build Service reports <%= build_count %> running jobs.</p>
+
+    <%= render :partial => 'building_table' %>
+
+    <h3>Legend</h3>
+    <div>
+      <div style="float: left; margin-right: 10px"><%= distance_of_time_in_words(@time_now, @dead_line, true) -%></div>
+      <% @max_color.downto(0) do |n| -%>
+        <% color = "rgb(255,#{n},0)" %>
+        <div style="background-color: <%= color %>; margin: 0px; width: 3px ; height: 1em; float: left;">&nbsp;</div>
+      <% end -%>
+      <div style="float: left; margin-left: 10px"><%= distance_of_time_in_words(@time_now, @dead_line-(@max_color*@interval_steps*60), true) -%></div>
+      <br clear="all" />
+    </div>
   <% else %>
     <div class="info">
       <% if max_clients %>
@@ -49,5 +50,5 @@
         Nothing to do here!
       <% end %>
     </div>
-<% end %>
+  <% end %>
 </div>

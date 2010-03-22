@@ -11,7 +11,7 @@ function toggle_binarylist()
 <% end %>
 
 <!-- Build status -->
-<div id="package_buildstatus">
+<div id="package_buildstatus" class="grid_6 omega">
   <% if not @project.has_element?(:repository) %>
     <i>The project this package belongs to has currently no targets defined. <br/>
     Please add the targets it should build against <%= link_to "here", :controller => :project, :action => 'add_target_simple', :project => @project %>. </i>

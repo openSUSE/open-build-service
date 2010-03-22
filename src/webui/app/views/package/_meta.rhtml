@@ -4,29 +4,34 @@
     <!-- Package meta -->
     <div id="package_meta">
 
-      <%=h @package.title %><br/><br/>
+      <p>
+        <%=h @package.title %>
+      </p>
 
-      <% linecount=0 %>
-      <% linecount_wherehide=8 %>
+      <p>
+        <% linecount=0 %>
+        <% linecount_wherehide=8 %>
 
-      <% description = @package.description.text %>
-      <% if description %>
-        <% description.split( /\n/ ).each do |line| %>
-          <% linecount += 1 %>
-          <% if linecount == linecount_wherehide %>
-            <div id="hidden_description" style="display:none;">
+        <% description = @package.description.text %>
+        <% if description %>
+          <% description.split( /\n/ ).each do |line| %>
+            <% linecount += 1 %>
+            <% if linecount == linecount_wherehide %>
+              <div id="hidden_description" style="display:none;">
+              <% end %>
+              <%=h line -%><br/>
             <% end %>
-            <%=h line -%><br/>
+          <% else %>
+            <i>No description set</i>
           <% end %>
-        <% else %>
-          <i>No description set</i>
+
+          <% if linecount >= linecount_wherehide %>
+          </div>
+          <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
         <% end %>
 
-        <% if linecount >= linecount_wherehide %>
-        </div>
-        <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
-      <% end %>
-      <br/>
+      </p>
+
       <%- if @package.has_element? :devel %>
         <p id="develproject_note"><strong>
             <% dpackage = @package.devel.data["package"] || @package.name %>
@@ -35,17 +40,19 @@
       <%- end -%>
 
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-        <br/>
-        <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
-        <br/>
-        <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
-          {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
+        <p>
+          <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
+        </p>
+        <p>
+          <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
+            {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
+        </p>
       <% end %>
 
-      <br/>
       <% if @bugowner_mail %>
-        <%= link_to '[Report Bug]', bugzilla_url(@bugowner_mail, "[#{@project.name}/#{@package.name}]") %>
-        <br/><br/>
+        <p>
+          <%= link_to '[Report Bug]', bugzilla_url(@bugowner_mail, "[#{@project.name}/#{@package.name}]") %>
+        </p>
       <% end %>
 
     </div>
