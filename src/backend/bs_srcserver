@@ -2222,6 +2222,7 @@ sub getfilelist {
     }
     my %lrev = %$rev;
     $lrev{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
+    $li->{'linked'} = [] if $cgi->{'withlinked'};
     my $lfiles = handlelinks(\%lrev, $files, $li);
     if ($cgi->{'expand'}) {
       die("$lfiles\n") if !ref $lfiles;
@@ -4351,7 +4352,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
-  '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool?' => \&getfilelist,
+  '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool?' => \&getfilelist,
   '/source/$project/$package:package_product/_history rev?' => \&getpackagehistory,
   '/source/$project/$package/_meta' => \&getpackage,
   'PUT:/source/$project/$package/_meta' => \&putpackage,

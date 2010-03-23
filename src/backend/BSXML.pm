@@ -266,6 +266,7 @@ our $linkinfo = [
 	'lsrcmd5',
 	'error',
 	'lastworking',
+      [ $linked ],
 ];
 
 
