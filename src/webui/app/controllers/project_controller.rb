@@ -606,6 +606,7 @@ class ProjectController < ApplicationController
         stathash[status.package] = status
       end
     end
+    render :layout => false
   end
 
   def toggle_watch
