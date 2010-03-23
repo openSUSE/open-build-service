@@ -14,14 +14,14 @@
 <% @roles.each do |r| -%>
 
   <% if @package
-    package_groups = @package.all_groups(r).sort {|x,y| x.groupid.downcase <=> y.groupid.downcase }
-    package_users  = @package.all_persons(r).sort {|x,y| x.userid.downcase <=> y.userid.downcase }
+    package_groups = @package.all_groups(r).sort {|x,y| x.downcase <=> y.downcase }
+    package_users  = @package.all_persons(r).sort {|x,y| x.downcase <=> y.downcase }
   else
     package_groups = []
     package_users  = []
   end
-  project_groups = @project.all_groups(r).sort {|x,y| x.groupid.downcase <=> y.groupid.downcase }
-  project_users  = @project.all_persons(r).sort {|x,y| x.userid.downcase <=> y.userid.downcase }
+  project_groups = @project.all_groups(r).sort {|x,y| x.downcase <=> y.downcase }
+  project_users  = @project.all_persons(r).sort {|x,y| x.downcase <=> y.downcase }
   -%>
 
   <% if !project_users.empty? or !project_groups.empty? or !package_users.empty? or !package_groups.empty? -%>
@@ -78,7 +78,7 @@
               image_tag("mail_generic.png", :size => "16x16", :class => 'email_link') + person
             end -%>
             <% unless @package %>
-              <% if ((r != "maintainer") or (project_users.length > 1)) and @user.is_maintainer? @project %>
+              <% if ((r != "maintainer") or (project_users.length > 1)) and @user and @user.is_maintainer? @project %>
                 <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove User"),
                   {:action => :remove_person, :project => params[:project], :userid => person, :role => r},
                   {:confirm => "Really remove user '#{person}'?", :class => "x"}%>
