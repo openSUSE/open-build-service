@@ -84,7 +84,7 @@ case "$1" in
 
   include "vhosts.d/rails.inc"
 }
-\$SERVER["socket"] == "$FQHOSTNAME:81" {
+\$SERVER["socket"] == ":81" {
   rails_app   = "api"
   rails_root  = "/srv/www/obs/api"
   rails_procs = 5
@@ -95,7 +95,7 @@ case "$1" in
 
   include "vhosts.d/rails.inc"
 }
-\$SERVER["socket"] == "$FQHOSTNAME:82" {
+\$SERVER["socket"] == ":82" {
   server.name = "$FQHOSTNAME"
   server.document-root = "/obs/repos/"
 
