@@ -476,12 +476,12 @@ class PackageController < ApplicationController
         log_chunk = log_chunk.gsub("\n","<br/>").gsub(" ","&nbsp;")
       end
       
-    rescue ActiveXML::Transport::NotFoundError => ex
-      log_chunk = "No live log available"
-      @finished = true
-      
     rescue Timeout::Error => ex
       log_chunk = ""
+
+    rescue => e
+      log_chunk = "No live log available"
+      @finished = true
     end
     
     render :update do |page|
