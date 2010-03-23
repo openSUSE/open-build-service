@@ -18,7 +18,7 @@ class ProjectController < ApplicationController
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
   before_filter :check_user, :only => [:repositories, :list_requests, :meta,
-    :projconf
+    :projconf, :users
   ]
 
   def index
@@ -84,7 +84,6 @@ class ProjectController < ApplicationController
   end
 
   def users
-    @user ||= Person.find( :login => session[:login] )
     @email_hash = Hash.new
     @project.each_person do |person|
       @email_hash[person.userid.to_s] = Person.find_cached( person.userid, :expires_in => 30.minutes ).email.to_s

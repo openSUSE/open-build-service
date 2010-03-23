@@ -72,4 +72,12 @@ class Person < ActiveXML::Base
     return true if login.to_s == "Admin"
     return false
   end
+
+  # if package is nil, returns project maintainership
+  def is_maintainer?(project, package=nil)
+    if package and package.is_maintainer?(login)
+      return true
+    end
+    return project.is_maintainer?(login)
+  end
 end

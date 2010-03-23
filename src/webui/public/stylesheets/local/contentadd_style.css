@@ -157,3 +157,6 @@ div#log_space_wrapper p {
    margin-bottom: 0.5em;
 }
 
+#involved_users li {
+  list-style: none;
+}

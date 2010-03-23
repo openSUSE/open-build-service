@@ -1,0 +1,99 @@
+<!-- Involved users -->
+
+<% # used for projects and packages. As such @package can be nil -%>
+<div id="involved_users">
+<h3>
+  Involved Users
+  <% if @user and @user.is_maintainer?( @project, @package ) %>
+    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add User"),
+      :action => :add_person, :package => @package, :project => @project %>
+  <% end %>
+</h3>
+
+  <ul>
+<% @roles.each do |r| -%>
+
+  <% if @package
+    package_groups = @package.all_groups(r).sort {|x,y| x.groupid.downcase <=> y.groupid.downcase }
+    package_users  = @package.all_persons(r).sort {|x,y| x.userid.downcase <=> y.userid.downcase }
+  else
+    package_groups = []
+    package_users  = []
+  end
+  project_groups = @project.all_groups(r).sort {|x,y| x.groupid.downcase <=> y.groupid.downcase }
+  project_users  = @project.all_persons(r).sort {|x,y| x.userid.downcase <=> y.userid.downcase }
+  -%>
+
+  <% if !project_users.empty? or !project_groups.empty? or !package_users.empty? or !package_groups.empty? -%>
+  
+      <li><h5><%= r.capitalize %>s</h5>
+      <ul>
+
+        <% package_groups.each do |group| -%>
+          <li>
+            <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
+            <%=  group.groupid %>
+          </li>
+        <% end -%>
+        <% project_groups.each do |group| -%>
+          <li>
+            <%=  image_tag("group.png", :size => "16x16", :class => 'email_link') %>
+            <%= group.groupid %>
+          </li>
+        <% end -%>
+
+        <% package_users.each do |person| -%>
+          <li>
+            <%=  gravatar_image(@email_hash[person]) %>
+            <%= if @user
+              link_to(
+                image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
+                'mailto:' + @email_hash[person] + '?subject=openSUSE Build Service' ) +
+                link_to(
+                person,
+                'mailto:' + @email_hash[person] + '?subject=openSUSE Build Service' )
+            else
+              image_tag("mail_generic.png", :size => "16x16", :class => 'email_link') + person
+            end -%>
+            <%- if @package.is_maintainer?( session[:login] ) %>
+              <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove User"),
+                {:action => :remove_person, :project => params[:project], :userid => person, :role => r},
+                {:confirm => "Really remove user '#{person}'?", :class => "x"}%>
+            <%- end %>
+          </li>
+        <%- end %>
+
+        <% project_users.each do |person| -%>
+          <% next if package_users.include? person  %>
+          <li>
+            <%=  gravatar_image(@email_hash[person]) %>
+            <%= if @user
+              link_to(
+                image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
+                'mailto:' + @email_hash[person] + '?subject=openSUSE Build Service' ) +
+                link_to(
+                person,
+                'mailto:' + @email_hash[person] + '?subject=openSUSE Build Service' )
+            else
+              image_tag("mail_generic.png", :size => "16x16", :class => 'email_link') + person
+            end -%>
+            <% unless @package %>
+              <% if ((r != "maintainer") or (project_users.length > 1)) and @user.is_maintainer? @project %>
+                <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove User"),
+                  {:action => :remove_person, :project => params[:project], :userid => person, :role => r},
+                  {:confirm => "Really remove user '#{person}'?", :class => "x"}%>
+              <% end %>
+            <% end -%>
+          </li>
+        <% end # project_users -%>
+
+      </ul>
+    <% end -%>
+    </li>
+  <% end # roles_each -%>
+  
+</ul>
+<% if @user and @user.is_maintainer?( @project, @package) %>
+  <p><%= link_to "[Add User]", :action => :add_person, :project => @project, :package => @package %></p>
+<% end %>
+</div>

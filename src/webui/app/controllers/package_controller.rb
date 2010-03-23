@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'project'
 
 class PackageController < ApplicationController
 
@@ -9,6 +10,7 @@ class PackageController < ApplicationController
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :view_file, 
     :remove, :live_build_log, :rdiff, :users, :files, :attributes]
+  before_filter :check_user, :only => [:users]
 
   def fill_email_hash
     @email_hash = Hash.new
@@ -20,7 +22,7 @@ class PackageController < ApplicationController
   end
 
   def show
-    @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status', 'binarylist'], :expires_in => 5.minutes )
     if @package.bugowner
       @bugowner_mail = Person.find_cached( @package.bugowner ).email.to_s
     elsif @project.bugowner
@@ -690,7 +692,9 @@ class PackageController < ApplicationController
 
 
   def reload_buildstatus
-    @buildresult = Buildresult.find( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
+    # discard cache
+    Buildresult.free_cache( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
     fill_status_cache
     render :partial => 'buildstatus'
   end
