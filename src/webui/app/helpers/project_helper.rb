@@ -167,11 +167,11 @@ module ProjectHelper
       end 
     elsif firstfail
       if @project.is_maintainer?( session[:login] )
-        status_comment_html += " <div class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('silk/icons/comment_edit.png', :size => "16x16", :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
+        status_comment_html += " <span class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('silk/icons/comment_edit.png', :size => "16x16", :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
         :url => { :action => "edit_comment_form", :comment=> "", :package => package, :project => @project } )
-        status_comment_html += "</div>"
+        status_comment_html += "</span>"
       else
-        status_comment_html += "<div class='unknown_failure'>Unknown build failure</div>"
+        status_comment_html += "<span class='unknown_failure'>Unknown build failure</span>"
       end
     end
     status_comment_html += "<span id='comment_edit_#{package.gsub(':', '-')}'></span>"
