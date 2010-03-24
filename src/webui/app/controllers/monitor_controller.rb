@@ -142,7 +142,7 @@ class MonitorController < ApplicationController
     render :json => workers
   end
 
-  
+
   def plothistory
     set=params[:set]
     begin
@@ -150,15 +150,15 @@ class MonitorController < ApplicationController
     rescue
       range = 0
     end
-      
+
     cache_key = 'monitor_plot_%s_%d' % [ set, range ]
     if !(data = Rails.cache.read(cache_key))
-       data = plothistory_cache(set, range)
+      data = plothistory_cache(set, range)
     end
     begin
       if data.length > 0
-	headers['Content-Type'] = 'image/png'
-	send_data(data, :type => 'image/png')
+        headers['Content-Type'] = 'image/png'
+        send_data(data, :type => 'image/png', :disposition => 'inline')
       end
     rescue
       data = []
@@ -204,8 +204,8 @@ class MonitorController < ApplicationController
 
       index = 1
       MONITOR_IMAGEMAP[set].each do |f|
-	g.data(f[0], array[index])
-	index += 1
+        g.data(f[0], array[index])
+        index += 1
       end
       g.minimum_value = 0
     else
