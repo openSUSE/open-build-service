@@ -174,7 +174,7 @@ module ProjectHelper
         status_comment_html += "<div class='unknown_failure'>Unknown build failure</div>"
       end
     end
-    status_comment_html += "<div id='comment_edit_#{package.gsub(':', '-')}'></div>"
+    status_comment_html += "<span id='comment_edit_#{package.gsub(':', '-')}'></span>"
   end
 
 
