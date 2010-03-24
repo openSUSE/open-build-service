@@ -14,7 +14,7 @@ class ProjectController < ApplicationController
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :list_packages, :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes,
-    :meta, :edit_meta ]
+    :meta, :edit_meta, :edit_comment ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
   before_filter :check_user, :only => [:repositories, :list_requests, :meta,
@@ -675,7 +675,6 @@ class ProjectController < ApplicationController
   end
 
   def edit_comment
-    @project = params[:project]
     @package = params[:package]
     attr = Attribute.new(:project => params[:project], :package => params[:package])
     attr.set('OBS', 'ProjectStatusPackageFailComment', params[:text])

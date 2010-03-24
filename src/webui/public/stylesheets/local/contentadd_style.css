@@ -49,8 +49,6 @@
   
 .nowrap {
   white-space: nowrap;
-  display: inline;
-  vertical-align: top;
 }
 
 textarea {
