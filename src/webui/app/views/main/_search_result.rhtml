@@ -12,10 +12,10 @@
       <% if session[:login] then action='show' else action='view' end %>
 
       <% if @result[:type] == 'project' %>
-        <%= link_to "<b>#{@result[:data].name}</b>", { :controller => 'project',
+        <%= link_to "<strong>#{@result[:data].name}</strong>", { :controller => 'project',
           :action => action, :project => @result[:data] } -%>
       <% elsif @result[:type] == 'package' %>
-        <%= link_to "<b>#{@result[:data].name}</b>", { :controller => 'package',
+        <%= link_to "<strong>#{@result[:data].name}</strong>", { :controller => 'package',
           :action => action, :package => @result[:data], :project => @result[:data].project } -%>
         (project <%= link_to @result[:data].project, { :controller => 'project',
           :action => action, :project => @result[:data].project } -%>)

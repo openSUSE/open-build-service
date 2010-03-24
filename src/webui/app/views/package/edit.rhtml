@@ -10,10 +10,10 @@
 <h2>Editing Package <%=h @package %> (Project <%=h @project %>)</h2>
 
 <% form_tag :action => :save do %>
-  <b>Title:</b><br/>
+  <strong>Title:</strong><br/>
   <%= text_field_tag( 'title', @package.title, :size => 80 ) %><br/>
 
-  <b>Description:</b>
+  <strong>Description:</strong>
   <% if params[:spec_count] == "1" %>
     <%= link_to_remote "[Import from specfile]", {
     :url => { :action => :import_spec, :project => @project, :package => @package, :import => 'description' },

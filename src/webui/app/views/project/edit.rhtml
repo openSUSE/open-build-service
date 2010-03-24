@@ -12,9 +12,9 @@
 <h2>Editing Project <%=h @project %></h2>
 
 <% form_tag :action => :save do %>
-  <b>Title:</b><br/>
+  <strong>Title:</strong><br/>
   <%= text_field_tag 'title', @project.title, :size => 80 %><br/>
-  <b>Description:</b><br/>
+  <strong>Description:</strong><br/>
   <%= text_area_tag "description", @project.description, :rows => 20 %><br/>
   <p><%= submit_tag %></p>
   <%= hidden_field_tag "project", @project.name %>

@@ -13,7 +13,7 @@
 
 <div class="section">
 <% form_tag :action => "save" do %>
-  <b>Attribute name:</b>
+  <strong>Attribute name:</strong>
 
     <% if @selected_attribute_name %>
       <% values =  @selected_attribute_value %>
@@ -26,7 +26,7 @@
     <%=  select_tag :attribute, opt %><br/>
     <% end %>
 
-  <b>Values (e.g. "bar,foo,..."):</b><br/>
+  <strong>Values (e.g. "bar,foo,..."):</strong><br/>
 <%=  text_area_tag :values, values, :size => 50 %>
 <%=  hidden_field_tag("project", @project.name) %>
 <%=  hidden_field_tag("package", @package) if @package %>

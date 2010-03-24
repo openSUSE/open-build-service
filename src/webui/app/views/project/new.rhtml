@@ -24,7 +24,7 @@ mailing list.
 
 
 <% form_tag 'save_new' do -%>
-<b>Project Name:</b>
+<strong>Project Name:</strong>
 <% if @project_name %>
   <%= @project_name %>
   <%= hidden_field_tag( "name", @project_name ) %>
@@ -38,9 +38,9 @@ mailing list.
   <%= text_field_tag 'name', @new_project_name, :size => 80 %>
   <br/>
 <% end %>
-<b>Title:</b><br/>
+<strong>Title:</strong><br/>
 <%= text_field_tag 'title', @project_title, :size => 80 %><br/>
-<b>Description:</b><br/>
+<strong>Description:</strong><br/>
 <%= text_area_tag 'description', @project_description, :cols => 80,
   :rows => 10 %>
 <p><%= submit_tag "Create Project" %></p>

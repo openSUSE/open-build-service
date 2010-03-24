@@ -7,14 +7,14 @@
 <div id="userconfig">
     <h3>Configuration</h3>
     <p>
-    <b>Real Name: </b>
+    <strong>Real Name: </strong>
     <% if @user.realname && !@user.realname.to_s.empty? %>
       <%=h @user.realname %>
     <% else %>
       <em>No real name set.</em>
     <% end %>
     </p><p>
-      <b>Email Address: </b>
+      <strong>Email Address: </strong>
       <%= @user.email %>
     </p>
     

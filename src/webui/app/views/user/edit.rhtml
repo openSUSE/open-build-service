@@ -3,7 +3,7 @@
 <h2>Editing User Data for User <%=h @user.login %></h2>
 
 <% form_tag :action => :save do -%>
-  <b>Real Name:</b><br/>
+  <strong>Real Name:</strong><br/>
   <%= text_field_tag( "realname", @user.realname, :size => 80 ) %><br/>
   <p><%= submit_tag %></p>
 <% end -%>

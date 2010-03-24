@@ -14,7 +14,7 @@
 <% form_tag({:action => action}, {:multipart => true}) do %>
   <% @wizard.each_entry do |entry| %>
     <p>
-    <b><label for="wizard[<%= entry.name %>]"><%= entry.label %></label></b><br/>
+    <strong><label for="wizard[<%= entry.name %>]"><%= entry.label %></label></strong><br/>
     <%= typ3 = entry.data.attributes["type"] # entry.type would call Oject#type
         case typ3
         when "text":

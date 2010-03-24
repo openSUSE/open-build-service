@@ -22,8 +22,8 @@ A non existing page was requested. <br />
 
 <p>
 <h3>Error Details:</h3>
-<b>Errorcode: </b><%= code %><br/>
-<b>Message: </b><%=h message %><br/>
+<strong>Errorcode: </strong><%= code %><br/>
+<strong>Message: </strong><%=h message %><br/>
 
 </p>
 
@@ -32,7 +32,7 @@ A non existing page was requested. <br />
 <p>
 <h3>Exception from API:</h3>
 
-<b><%=h api_exception.get_text 'type' %></b>: <%=h api_exception.get_text 'message' %>
+<strong><%=h api_exception.get_text 'type' %></strong>: <%=h api_exception.get_text 'message' %>
 <h4>Stack Trace:</h4>
 <pre>
 <%=h api_exception.get_elements( '//backtrace/line' ).map {|e| e.text }.join("\n") %>
@@ -42,7 +42,7 @@ A non existing page was requested. <br />
 <% if exception -%>
 <p>
 <h3>Exception from Webclient:</h3>
-<b><%=h exception.class.name %></b>: <%=h exception.message %>
+<strong><%=h exception.class.name %></strong>: <%=h exception.message %>
 <h4>Stack Trace:</h4>
 <pre>
 <%=h(exception.backtrace.join("\n")) %>

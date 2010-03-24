@@ -138,25 +138,25 @@
       <td><%= count.version -%></td>
       <td><%= count.release -%></td>
       <td><%= count.filetype -%></td>
-      <td><b><%= count.to_s -%></b></td>
+      <td><strong><%= count.to_s -%></strong></td>
     </tr>
     <% end %>
   </table>
 
   <p>
-    Statistics started to count <b><%= distance_of_time_in_words_to_now(
-    @downloads.first ) -%></b> ago.<br />
+    Statistics started to count <strong><%= distance_of_time_in_words_to_now(
+    @downloads.first ) -%></strong> ago.<br />
 
     Sum of all downloads (whole build service):
-    <b><%= number_with_delimiter( @downloads.all.to_i, ' ' ) -%></b><br />
+    <strong><%= number_with_delimiter( @downloads.all.to_i, ' ' ) -%></strong><br />
 
     <% if @project or @package or @arch or @repo %>
       Sum of all downloads filtered by <%= @title.sub(@title_prefix,'').chop %>:
-      <b><%= number_with_delimiter( @downloads.sum.to_i, ' ' ) -%></b><br />
+      <strong><%= number_with_delimiter( @downloads.sum.to_i, ' ' ) -%></strong><br />
     <% end %>
 
     Download statistics were updated
-    <b><%= distance_of_time_in_words_to_now( @downloads.last ) -%></b> ago.
+    <strong><%= distance_of_time_in_words_to_now( @downloads.last ) -%></strong> ago.
   </p>
 
   <p>

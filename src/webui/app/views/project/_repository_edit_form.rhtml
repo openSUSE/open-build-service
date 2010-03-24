@@ -5,7 +5,7 @@
 <% end %>
 
 <% form_remote_tag :update => repo.name, :url => { :action => :update_target } do %>
-<b>Name:</b> <%= text_field_tag :name, repo.name %>
+<strong>Name:</strong> <%= text_field_tag :name, repo.name %>
 <%= hidden_field_tag :original_name, repo.name %><br/>
 <% @arch_list.each do |arch| -%>
 <%= check_box_tag "arch[#{arch}]", "", repo.archs.include?(arch) %>

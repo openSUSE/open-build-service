@@ -44,7 +44,7 @@
   </h3>
 
   <% form_tag :action => "submitreq" do %>
-    <b>Reason:</b>
+    <strong>Reason:</strong>
     <%= text_field_tag :reason, 'Reviewed ok' , :size => 80 %><br/>
     <%= hidden_field_tag( "id", @id) %>
     <% if @is_maintainer %>

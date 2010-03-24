@@ -12,11 +12,11 @@
 <h2>New Package in project <%= @project.name %></h2>
 
 <% form_tag :action => "save_new" do %>
-<b>Name:</b><br/>
+<strong>Name:</strong><br/>
 <%= text_field_tag 'name', @package_name, :size => 80 %><br/>
-<b>Title:</b><br/>
+<strong>Title:</strong><br/>
 <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
-<b>Description:</b><br/>
+<strong>Description:</strong><br/>
 <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
 <p><%= submit_tag %></p>
 <%= hidden_field_tag 'project', @project.name %>

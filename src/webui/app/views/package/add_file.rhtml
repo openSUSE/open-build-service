@@ -10,15 +10,15 @@
 <h2>Add File (Project <%=h @project.name %>, Package <%=h @package.name %>)</h2>
 
 <% form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>
-<b>Filename (leave empty to take from upload or uri):</b><br/>
+<strong>Filename (leave empty to take from upload or uri):</strong><br/>
 <%= text_field_tag 'filename', '', :size => 80 %><br/>
 
-<b>Local File:</b><br/>
+<strong>Local File:</strong><br/>
 <%= file_field_tag 'file', :size => 70 %><br/>
 
-<b>OR</b><br/>
+<strong>OR</strong><br/>
 
-<b>Remote File URI:</b><br/>
+<strong>Remote File URI:</strong><br/>
 <%= text_field_tag 'file_url', '', :size => 70 %><br/>
 
 <% if @package_is_link %>

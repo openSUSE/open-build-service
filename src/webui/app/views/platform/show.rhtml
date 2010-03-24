@@ -1,17 +1,17 @@
 <% @pagetitle = "Show Platform" %>
 <h2>Platform <%=h @platform %> (Project <%=h @project %>)</h2>
 
-<b>Title:</b>
+<strong>Title:</strong>
 <% if @platform.has_element? :title %>
   <%=h @platform.title %>
 <% end %>
 <br/>
-<b>Description:</b><br/>
+<strong>Description:</strong><br/>
 <% if @platform.has_element? :description %>
   <%=h @platform.description %>
 <% end %>
 <br/>
-<b>Persons:</b><br/>
+<strong>Persons:</strong><br/>
 <% if @platform.has_element? :person %>
   <table>
   <% @platform.each_person do |person| %>
@@ -44,7 +44,7 @@
 <% end %>
 
 <p>
-<b>Architectures:</b><br/>
+<strong>Architectures:</strong><br/>
 <% if @platform.has_element? :arch -%>
   <ul>
     <% @jobhislist.each do |key, value| -%>

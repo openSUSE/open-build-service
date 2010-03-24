@@ -4,17 +4,17 @@
 
 <% form_tag    :controller => "project", :action => :save_new do -%>
   <table>
-    <tr><td><b>Local Project Name:</b></td>
+    <tr><td><strong>Local Project Name:</strong></td>
       <% if not Project.find "openSUSE.org" -%>
       <td><%= text_field_tag( "name", "openSUSE.org", :size => 80 ) %></td></tr>
       <tr>
-        <td><b>Remote OBS api url:</b></td>
+        <td><strong>Remote OBS api url:</strong></td>
         <td><%= text_field_tag( "remoteurl", "https://api.opensuse.org/public", :size => 80 ) %></td>
       </tr>
     <% else -%>
       <td><%= text_field_tag( "name", "", :size => 80 ) %></td>
       <tr>
-        <td><b>Remote OBS api url:</b></td>
+        <td><strong>Remote OBS api url:</strong></td>
         <td><%= text_field_tag( "remoteurl", "", :size => 80 ) %></td>
       </tr>
     <% end -%>

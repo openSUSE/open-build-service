@@ -10,16 +10,16 @@
 <h2>Add Repository (Project <%=h @project %>)</h2>
 
 <% form_tag :action => :save_target do %>
-<b>Name:</b><br/>
+<strong>Name:</strong><br/>
 <%= text_field_tag 'targetname', @targetname %><br/>
 <table>
   <tr>
     <td>
-      <b>Build Target Selection:</b><br/>
+      <strong>Build Target Selection:</strong><br/>
       <%= select_tag 'platform', options_for_select(@platforms, @platform), {:size => 10} %><br/>
     </td>
     <td valign="top">
-      <b>Architectures:</b><br/>
+      <strong>Architectures:</strong><br/>
       <% [:i586, :x86_64 ].each do |arch| %>
       <%= check_box_tag "arch[#{arch}]", "", true %><%=arch%><br>
       <% end %>
