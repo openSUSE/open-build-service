@@ -143,37 +143,29 @@ class MonitorController < ApplicationController
   end
 
 
+  # :range = range in hours
   def plothistory
-    set=params[:set]
-    begin
-      range=Integer(params[:range])
-    rescue
-      range = 0
-    end
-
-    cache_key = 'monitor_plot_%s_%d' % [ set, range ]
+    set = params[:set]
+    range = params[:range]
+    cache_key = "monitor_plot_#{set}_#{range}"
     if !(data = Rails.cache.read(cache_key))
-      data = plothistory_cache(set, range)
+      data = plothistory_data(set, range.to_i)
+      Rails.cache.write(cache_key, data, :expires_in => 15.minutes) if data
     end
-    begin
-      if data.length > 0
-        headers['Content-Type'] = 'image/png'
-        send_data(data, :type => 'image/png', :disposition => 'inline')
-      end
-    rescue
-      data = []
-    end
-    if data.length == 0
-      render_error :code => 404, :message => 'No data', :status => 404
+    if data
+      headers['Content-Type'] = 'image/png'
+      send_data(data, :type => 'image/png', :disposition => 'inline')
+    else
+      render_error :code => 404, :message => "No plot data found for range=#{range} and set=#{set}", :status => 404
     end
   end
 
-  def plothistory_cache(set, range)
-    if [1, 24, 72, 168].grep(range).length == 0
-      return []
-    end
 
-    cache_key = 'monitor_plot_%s_%d' % [ set, range]
+private
+
+  def plothistory_data(set, range)
+    return unless [1, 24, 72, 168].include? range
+
     g = Gruff::StackedArea.new(400)
     g.title = nil
     g.theme = {
@@ -211,12 +203,9 @@ class MonitorController < ApplicationController
     else
       g.data('no data', [])
     end
-    data = g.to_blob()
-    Rails.cache.write(cache_key, data, :expires_in => 15.minutes)
-    data
+    return g.to_blob()
   end
 
-private
   def gethistory(key, range)
     hash = Hash.new
     data = frontend.transport.direct_http(URI('/public/status/history?key=%s&hours=%d' % [key, range]))
