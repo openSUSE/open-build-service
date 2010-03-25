@@ -239,7 +239,7 @@ class ProjectController < ApplicationController
   end
 
   def packages
-    @packages = Package.find( :all, :project => @project )
+    @packages = Package.find_cached( :all, :project => @project, :expires_in => 30.seconds )
   end
 
   def list_requests
