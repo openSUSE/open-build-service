@@ -11,7 +11,7 @@
 
 <% if @parent %>
 <div class="section">
-  <h3>Parent project of <%= @project %></h3>
+  <h3>Parent project of <%= @project %>:</h3>
   <p>
   <%= link_to @parent, :action => :show, :project => @parent %>
   <% if @parent.title && !@parent.title.text.blank? %>
@@ -26,23 +26,25 @@
   <h3>Subprojects of <%= @project %>
     <% if @project.is_maintainer?( session[:login] ) %>
       <%= link_to(image_tag("list-add.png", :title => "Create Subproject", :border => 0), :action => :new, :ns => @project.name) %>
-    <% end -%></h3>
+    <% end -%>:</h3>
 
-  <p><dl>
+  <p>
       <% prjlen = @project.name.length %>
       <%- if !@subprojects.blank? -%>
+        <ul>
         <%- @subprojects.each do |key, value| -%>
-          <dd><%= link_to key.slice(prjlen+1, key.length), :action => :show, :project => key %>
+          <li><%= link_to key.slice(prjlen+1, key.length), :action => :show, :project => key %>
             <% if value.title && !value.title.text.blank? %>
               <i>(<%= value.title  %>)</i>
             <% else %>
               <i>(no title set)</i>
             <% end %>
-          </dd>
+          </li>
         <%- end -%>
+        </ul>
       <%- else -%>
-        <dd><i>No subprojects found</i></dd>
+        <i>No subprojects found</i>
       <%- end -%>
-  </dl></p>
+  </p>
 </div>
 
