@@ -22,7 +22,6 @@ class Project < ActiveXML::Base
 
   class Repository < ActiveXML::XMLNode
     handles_xml_element 'repository'
-    xml_attr_accessor 'name'
 
     def archs
       @archs ||= each_arch.map { |a| a.to_s }
