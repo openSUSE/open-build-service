@@ -93,3 +93,6 @@
 .unknown_failure {  color: red; }
 
 #advanced_tabs { display: none; }
+
+td.buildstatus { min-width: 11ex; }
+table.buildstatus { width: 1%; }

@@ -98,7 +98,7 @@ module ProjectHelper
     out = String.new
     out << "<li id='repo_#{label}' class='draggable_sub_element'>#{label}</li>"
     out << draggable_element("repo_#{label}", :revert => true, :snap => true,
-             :reverteffect => "function(element, top_offset, left_offset) {
+      :reverteffect => "function(element, top_offset, left_offset) {
                new Effect.Move( element, {x: -left_offset, y: -top_offset, duration: 0})
              }")
     out
@@ -113,19 +113,19 @@ module ProjectHelper
 
     if flag.explicit_set?
       if flag.disabled?
-	image = "#{flag.name}_disabled_blue.png"
-	title = "#{flag.name} disabled"
+        image = "#{flag.name}_disabled_blue.png"
+        title = "#{flag.name} disabled"
       else
-	image = "#{flag.name}_enabled_blue.png"
-	title = "#{flag.name} enabled"
+        image = "#{flag.name}_enabled_blue.png"
+        title = "#{flag.name} enabled"
       end
     else
       if flag.disabled?
-	image = "#{flag.name}_disabled_grey.png"
-	title = "#{flag.name} disabled, through #{flag.implicit_setter.description}"
+        image = "#{flag.name}_disabled_grey.png"
+        title = "#{flag.name} disabled, through #{flag.implicit_setter.description}"
       else
-	image = "#{flag.name}_enabled_grey.png"
-	title = "#{flag.name} enabled, through #{flag.implicit_setter.description}"
+        image = "#{flag.name}_enabled_grey.png"
+        title = "#{flag.name} enabled, through #{flag.implicit_setter.description}"
       end
     end
     
@@ -161,14 +161,15 @@ module ProjectHelper
           comments_to_clear << package
         end
       elsif @project.is_maintainer?( session[:login] )
-         status_comment_html += " "
-         status_comment_html += link_to_remote image_tag('silk/icons/comment_edit.png', :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
+        status_comment_html += " "
+        status_comment_html += link_to_remote image_tag('silk/icons/comment_edit.png', :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
           :url => { :action => "edit_comment_form", :comment=> comment, :package => package, :project => @project }
       end 
     elsif firstfail
       if @project.is_maintainer?( session[:login] )
-        status_comment_html += " <span class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('silk/icons/comment_edit.png', :size => "16x16", :alt => "Edit"), :update => "comment_edit_#{package.gsub(':', '-')}",
-        :url => { :action => "edit_comment_form", :comment=> "", :package => package, :project => @project } )
+        status_comment_html += " <span class='unknown_failure'>Unknown build failure " + link_to_remote( image_tag('silk/icons/comment_edit.png', :size => "16x16", :alt => "Edit"),
+          :update => "comment_edit_#{package.gsub(':', '-')}",
+          :url => { :action => "edit_comment_form", :comment=> "", :package => package, :project => @project } )
         status_comment_html += "</span>"
       else
         status_comment_html += "<span class='unknown_failure'>Unknown build failure</span>"

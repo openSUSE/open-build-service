@@ -510,8 +510,8 @@ class ProjectController < ApplicationController
       end
     }
 
-    @buildresult = Buildresult.find( :project => @project, :view => 'status', :code => @status_filter,
-      @lastbuild_switch.blank? ? nil : :lastbuild => '1', :arch => @arch_filter, :repo => @repo_filter )
+    @buildresult = Buildresult.find_cached( :project => @project, :view => 'status', :code => @status_filter,
+      @lastbuild_switch.blank? ? nil : :lastbuild => '1', :arch => @arch_filter, :repo => @repo_filter, :expires_in => 1.minute )
     unless @buildresult
       flash[:error] = "No build results for project '#{@project}'"
       redirect_to :action => :show, :project => params[:project]
@@ -540,13 +540,16 @@ class ProjectController < ApplicationController
 
       # package status cache
       @statushash[repo] ||= Hash.new
-      @statushash[repo][arch] = Hash.new
-
-      stathash = @statushash[repo][arch]
+      
+      stathash = Hash.new
       result.each_status do |status|
-        stathash[status.package] = status
+        stathash[status.package.to_s] = status
       end
-      @packagenames << stathash.keys
+      stathash.keys.each do |p|
+        @packagenames << p.to_s
+      end
+
+      @statushash[repo][arch] = stathash
 
       # repository status cache
       @repostatushash[repo] ||= Hash.new
@@ -564,7 +567,25 @@ class ProjectController < ApplicationController
 
     ## Filter for PackageNames #### 
     @packagenames.reject! {|name| not filter_matches?(name,@name_filter) } if not @name_filter.blank?
+    packagename_hash = Hash.new
+    @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
 
+    # filter out repos without current packages
+    @statushash.each do |repo, hash|
+      hash.each do |arch, packages|
+        
+        has_packages = false
+        packages.each do |p, status|
+          if packagename_hash.has_key? p
+            has_packages = true
+            break
+          end
+        end
+        unless has_packages
+          @repohash[repo].delete arch
+        end
+      end
+    end
   end
 
   def filter_matches?(input,filter_string)

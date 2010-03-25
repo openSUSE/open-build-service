@@ -85,15 +85,15 @@ module ApplicationHelper
   def hinted_text_field_tag(name, value = nil, hint = "Click and enter text", options={})
     value = value.nil? ? hint : value
     text_field_tag name, value, {:onfocus => "if($(this).value == '#{hint}'){$(this).value = ''}",
-                       :onblur => "if($(this).value == ''){$(this).value = '#{hint}'}",
-                           }.update(options.stringify_keys)
+      :onblur => "if($(this).value == ''){$(this).value = '#{hint}'}",
+    }.update(options.stringify_keys)
   end
 
 
   def get_random_sponsor_image
     sponsors = ["common/sponsors/sponsor_amd.png",
-                "common/sponsors/sponsor_b1-systems.png",
-                "common/sponsors/sponsor_ip-exchange2.png"]
+      "common/sponsors/sponsor_b1-systems.png",
+      "common/sponsors/sponsor_ip-exchange2.png"]
     return sponsors[rand(sponsors.size)]
   end
 
@@ -168,16 +168,17 @@ module ApplicationHelper
     status = status_for(repo, arch, packname)
     status_id = status_id_for( repo, arch, packname)
     link_title = status.has_element?(:details) ? status.details.to_s : nil
-    theclass="status_" + status.code.gsub(' ','_') 
-    out = "<td id='#{status_id}' class='#{theclass}'>"
-    if ["expansion error", "broken", "blocked"].include? status.code 
-      out += link_to status.code, "javascript:alert('#{link_title}')", :title => link_title
-    elsif ["-","excluded"].include? status.code
-      out += status.code
+    code = status.code.to_s
+    theclass="status_" + code.gsub(' ','_')
+    out = "<td id='#{status_id}' class='#{theclass} buildstatus'>"
+    if ["expansion error", "broken", "blocked"].include? code 
+      out += link_to code, "javascript:alert('#{link_title}')", :title => link_title
+    elsif ["-","excluded"].include? code
+      out += code
     else
-      out += link_to status.code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
-          :package => packname, :project => @project.to_s, :arch => arch,
-          :controller => "package", :repository => repo}, {:title => link_title}
+      out += link_to code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
+        :package => packname, :project => @project.to_s, :arch => arch,
+        :controller => "package", :repository => repo}, {:title => link_title}
     end 
     return out + "</td>"
   end
