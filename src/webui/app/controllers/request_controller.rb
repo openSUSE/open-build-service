@@ -1,12 +1,12 @@
 class RequestController < ApplicationController
 
+  before_filter :check_user, :only => [ :list_req ]
+
   def index
     redirect_to :action => :list_req
   end
 
   def list_req
-    @user ||= Person.find( :login => session[:login] )
-
     @iprojects = @user.involved_projects.each.map {|x| x.name}.sort
 
     unless @iprojects.empty?

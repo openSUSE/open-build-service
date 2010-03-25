@@ -18,7 +18,7 @@ class ProjectController < ApplicationController
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
   before_filter :check_user, :only => [:repositories, :list_requests, :meta,
-    :projconf, :users
+    :projconf, :users, :toggle_watch
   ]
 
   def index
@@ -263,7 +263,6 @@ class ProjectController < ApplicationController
       redirect_to :action => "new", :ns => params[:ns] and return
     end
 
-    Person.find( session[:login] )
     #store project
     @project = Project.new(:name => project_name)
     @project.title.text = params[:title]
@@ -431,7 +430,7 @@ class ProjectController < ApplicationController
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
       return
     end
-    user = Person.find( :login => params[:userid] )
+    user = Person.find_cached( :login => params[:userid] )
     unless user
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
@@ -631,7 +630,6 @@ class ProjectController < ApplicationController
   end
 
   def toggle_watch
-    @user ||= Person.find( :login => session[:login] )
     render :update do |page|
       if @user.watches? @project.name
         @user.remove_watched_project @project.name
@@ -924,16 +922,18 @@ class ProjectController < ApplicationController
       end
     end
     @project = Project.find_cached( params[:project] )
+    check_user
     unless @project
       if params[:project] == "home:" + session[:login]
         # checks if the user is registered yet
-        Person.find( :login => session[:login] )
-        flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
-          " descriptive data and press the 'Create Project' button."
-        redirect_to :action => :new, :project => "home:" + session[:login] and return
+        if @user
+          flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
+            " descriptive data and press the 'Create Project' button."
+          redirect_to :action => :new, :project => "home:" + session[:login] and return
+        end
       end
       # remove automatically if a user watches a removed project
-      if check_user
+      if @user
         @user.remove_watched_project params[:project] and @user.save if @user.watches? params[:project]
       end
       unless request.xhr?

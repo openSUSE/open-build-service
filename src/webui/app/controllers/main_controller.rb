@@ -4,6 +4,7 @@ require 'models/global_counters'
 class MainController < ApplicationController
 
   before_filter :get_attribute, :only => [ :search_advanced, :search_result ] 
+  before_filter :check_user, :only => [ :index ]
 
   def index
     @user ||= Person.find :login => session[:login] if session[:login]

@@ -10,7 +10,7 @@ module ApplicationHelper
   def user
     if logged_in?
       begin
-        @user ||= Person.find( :login => session[:login] )
+        @user ||= Person.find_cached( :login => session[:login] )
       rescue Object => e
         logger.error "Cannot load person data for #{session[:login]} in application_helper"
       end

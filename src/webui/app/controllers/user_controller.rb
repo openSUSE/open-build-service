@@ -1,6 +1,7 @@
 class UserController < ApplicationController
 
   skip_before_filter :require_login, :only => [:login, :do_login]
+  before_filter :check_user, :only => [:edit, :save]
 
   def logout
     logger.info "Logging out: #{session[:login]}"
@@ -23,7 +24,7 @@ class UserController < ApplicationController
       session[:passwd] = params[:password]
       authenticate_form_auth
       begin
-        Person.find( session[:login] )
+        Person.find_cached( session[:login] )
       rescue ActiveXML::Transport::UnauthorizedError => exception
         logger.info "Login to #{@return_to_path} failed for #{session[:login]}: #{exception}"
         reset_session
@@ -35,14 +36,7 @@ class UserController < ApplicationController
     end
   end
 
-
-  def edit
-    @user ||= Person.find :login => session[:login]
-  end
-
-
   def save
-    @user ||= Person.find :login => session[:login]
     @user.realname.text = params[:realname]
     if @user.save
       flash[:note] = "User data for user '#{@user.login}' successfully updated."
@@ -57,7 +51,7 @@ class UserController < ApplicationController
   def register
     valid_http_methods(:post)
     begin
-      Person.find( :login => session[:login] )
+      Person.find_cached( session[:login] )
       logger.info "User #{session[:login]} already exists..."
       redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}"
       return

@@ -8,8 +8,9 @@ class HomeController < ApplicationController
 
     logger.debug("Homepage for logged in user: #{session[:login]}")
 
-    @user = Person.find( :login => session[:login] )
-    raise "There is no user #{session[:login]} known in the system." unless @user
+    unless check_user
+      raise "There is no user #{session[:login]} known in the system." unless @user
+    end
   end
 
 end
