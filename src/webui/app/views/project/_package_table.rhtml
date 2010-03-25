@@ -1,79 +1,33 @@
 <!-- Package table -->
 <h3>
-  Packages
+  Packages for project <%= @project %> (#<%= @packages.each.size %>)
 
   <% if @project.is_maintainer?( session[:login] ) %>
-  <%= link_to image_tag( 'list-add.png', :title => 'Add Package' ),
-  :controller => 'package', :action => :new, :project => @project %>
-  <%= link_to image_tag( 'link_ext.png', :border => 0, :title => 'Link Package from other Project' ), 
-  :controller => 'package', :action => :new_link, :project => @project %>
+    <%= link_to image_tag( 'list-add.png', :title => 'Add Package' ),
+      :controller => 'package', :action => :new, :project => @project %>
+    <%= link_to image_tag( 'link_ext.png', :border => 0, :title => 'Link Package from other Project' ),
+      :controller => 'package', :action => :new_link, :project => @project %>
   <% end %>
 
 </h3>
 
-<% content_for :head_javascript do %>
-   var last_search_string = "";
-   function filterPkgs() {
 
-     var srch = new String($('#packagesearch').val()).toLowerCase();
-     if (srch == last_search_string) {
-       return;
-     }
+<div id="pkg_container">
 
-     last_search_string = srch;
-     //console.log('Filter for ' + srch)
-     //console.time('jquery replace');
-     var onevisible = 0
+  <% if @packages.each.select{|p| /^_product/.match( p.name ) }.size > 0 %>
+    <h3>Products</h3><p>
+    <% @packages.each.select{|p| /^_product/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
+      <%= link_to h(package.sub(/_product:/, '')), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %> |
+    <% end %></p>
+  <% end %>
+  <p>
+    <% @packages.each.select{|p| !/^_product/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
+      <% if @current_char.blank? || @current_char != package.downcase[0,1]
+        @current_char = package.downcase[0,1] %>
+      </p><h3><%= @current_char %></h3><p>
+      <% end %>
+      <%= link_to h(package), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %> |
+    <% end%>
+  </p>
 
-     $('#packages_table').find('tr').each(function() {
-          if ( this.id.indexOf(srch, 4) == -1 ) {
-              $(this).addClass("hidden");
-          } else {
-              $(this).removeClass("hidden");
-              onevisible = 1;
-          }
-     });
-     //console.timeEnd('jquery replace');
-
-     if (onevisible) {
-         $('#packages_table #nopackages').hide();
-     } else {
-         $('#packages_table #nopackages').show();
-     }
-
-    }
-<% end %>
-
-<% content_for :ready_function do %>
-  $("#packagesearch_clear").click(function() { $('#packagesearch').val('').focus(); filterPkgs(); });
-  $("#packagesearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
-    function() { $(this).attr('src', '/images/clear.png');  });
-  $("#spinner").show();
-
-  <%= remote_function( :update => 'search_results',
-    :url => {:action => :list_packages, :project => params[:project]},
-    :complete => '$("#spinner").hide();'); %>
-
-  $('#packagesearch').keyup( function() { filterPkgs() } );
-<% end %>
-
-<div id="package_filter">
-
- <div>
-  <label for="packagesearch">Filter:</label>
-  <%= text_field_tag 'packagesearch' -%>
-  <%= hidden_field_tag 'project', @project -%>
-  <%= hidden_field_tag 'filter_active', 1 -%>
-  <img id="packagesearch_clear" title="clear input" alt="clear" src="/images/clear.png" />
-  <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
- </div>
-
-</div>
-
-<div id="search_results">
-  <table class="grid packages_table">
-    <tr>
-      <td>Loading Packages...</td>
-    </tr>
-</table>
 </div>

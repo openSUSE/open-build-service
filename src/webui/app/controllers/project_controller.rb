@@ -12,7 +12,7 @@ class ProjectController < ApplicationController
   before_filter :require_project, :only => [:delete, :buildresult, :view, 
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
-    :list_packages, :show, :monitor, :edit_prjconf, :list_requests,
+    :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes,
     :meta, :edit_meta, :edit_comment ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
@@ -238,12 +238,8 @@ class ProjectController < ApplicationController
     end
   end
 
-  def list_packages
-    @matching_packages = []
-    Package.find( :all, :project => params[:project] ).each_entry do |package|
-      @matching_packages << package.name
-    end
-    render :partial => "search_package"
+  def packages
+    @packages = Package.find( :all, :project => @project )
   end
 
   def list_requests
@@ -894,17 +890,6 @@ class ProjectController < ApplicationController
     return Collection.find_cached :id, :what => "project", :predicate => predicate
   end
 
-  def paginate_collection(collection, options = {})
-    options[:page] = options[:page] || params[:page] || 1
-    default_options = {:per_page => 20, :page => 1}
-    options = default_options.merge options
-
-    pages = Paginator.new self, collection.size, options[:per_page], options[:page]
-    first = pages.current.offset
-    last = [first + options[:per_page], collection.size].min
-    slice = collection[first...last]
-    return [pages, slice]
-  end
 
   def filter_packages( project, filterstring )
     result = Collection.find :id, :what => "package",
