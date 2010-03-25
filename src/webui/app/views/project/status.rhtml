@@ -112,7 +112,7 @@
           icon = "error"
         end
         -%>
-        <tr class='<% if i%2 == 1 %>alternate1<% else %>alternate2<% end %>' valign='top'>
+        <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
           <% i += 1 %>
           <% shortname = p['name']
           if shortname.length > 19

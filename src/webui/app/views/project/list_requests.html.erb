@@ -47,7 +47,7 @@ setup_buildresult_trigger
     <tbody>
       <% i = 0 %>
       <% @current_requests.each do |req| %>
-         <tr class='<% if i%2 == 1 %>alternate1<% else %>alternate2<% end %>' valign='top'>
+         <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
           <% i += 1 %>
            <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
           <td><%= req.action.data.attributes["type"] %></td>
