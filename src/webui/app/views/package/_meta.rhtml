@@ -9,27 +9,14 @@
       </p>
 
       <p>
-        <% linecount=0 %>
-        <% linecount_wherehide=8 %>
-
         <% description = @package.description.text %>
         <% if description %>
           <% description.split( /\n/ ).each do |line| %>
-            <% linecount += 1 %>
-            <% if linecount == linecount_wherehide %>
-              <div id="hidden_description" style="display:none;">
-              <% end %>
-              <%=h line -%><br/>
-            <% end %>
-          <% else %>
-            <i>No description set</i>
+            <%=h line -%><br/>
           <% end %>
-
-          <% if linecount >= linecount_wherehide %>
-          </div>
-          <a href="javascript:toggle_display('hidden_description')">[... show / hide full description]</a><br/>
+        <% else %>
+          <i>No description set</i>
         <% end %>
-
       </p>
 
       <%- if @package.has_element? :devel %>
