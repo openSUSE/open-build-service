@@ -16,7 +16,7 @@
   <% if ICHAIN_MODE == 'on' %>
 
     <%# Script to fix ichain redirection on empty username or password %>
-    <script language="javascript">
+    <% content_for :head_javascript do -%>
               function fillEmptyFields() {
                                 if( document.getElementById('username').value == '' ){
                                   document.getElementById('username').value = "_";
@@ -25,7 +25,7 @@
                                   document.getElementById('password').value = "_";
                                 }
                               }
-    </script>
+    <% end -%>
 
     <div class="grid_4 omega">
       <%= link_to("Sign up", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %>

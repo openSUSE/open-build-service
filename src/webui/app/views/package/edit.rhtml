@@ -10,9 +10,12 @@
 <h2>Editing Package <%=h @package %> (Project <%=h @project %>)</h2>
 
 <% form_tag :action => :save do %>
-  <strong>Title:</strong><br/>
+  <div>
+  <p><strong>Title:</strong><br/>
   <%= text_field_tag( 'title', @package.title, :size => 80 ) %><br/>
-
+  </p>
+  
+  <p>
   <strong>Description:</strong>
   <% if params[:spec_count] == "1" %>
     <%= link_to_remote "[Import from specfile]", {
@@ -24,8 +27,10 @@
   <br/>
   <%= text_area_tag( "description", @package.description, :cols => "80",
   :rows => "20" ) %><br/>
+  </p>
 
   <p><%= submit_tag %></p>
   <%= hidden_field_tag( "project", @project.name ) %>
   <%= hidden_field_tag( "package", @package.name ) %>
+  </div>
 <% end %>

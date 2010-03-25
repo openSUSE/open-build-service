@@ -161,7 +161,7 @@ module ApplicationHelper
   end
 
   def status_id_for( repo, arch, package )
-    h "#{package}_#{repo}_#{arch}"
+    h("id-#{package}_#{repo}_#{arch}").gsub(/[+ ]/, '_')
   end
 
   def arch_repo_table_cell(repo, arch, packname)

@@ -617,7 +617,7 @@ dp.sh.HighlightAll = function(name, showGutter /* optional */, showControls /* o
 		var tags = document.getElementsByTagName(tagName);
 
 		for(var i = 0; i < tags.length; i++)
-			if(tags[i].getAttribute('name') == name)
+			if(tags[i].getAttribute('id') == name)
 				list.push(tags[i]);
 	}
 

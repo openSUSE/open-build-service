@@ -41,12 +41,18 @@ function toggle_binarylist()
       <% end -%>
     </tr>
     <% if result.has_element? :binarylist -%>
-      <tr class="package_binarylist" id="binary_<%= status_id_for( result.repository, result.arch, @package.name ) %>"><td colspan="3"><ul>
+      <tr class="package_binarylist" id="binary_<%= status_id_for( result.repository, result.arch, @package.name ) %>">
+        <td colspan="3">
+      <% if result.binarylist.has_element? :binary -%>
+      <ul>
       <% result.binarylist.each_binary.sort {|a,b| a.filename <=> b.filename}.each do |binary| %>
        <li><%= link_to h(binary.filename), rpm_url( @project, @package,
             result.repository, result.arch, binary.filename ) %></li>
       <% end -%>
-      </ul></td></tr>
+      </ul>
+      <% end -%>
+     </td>
+    </tr>
     <% end -%>
   <% end -%>
   </table>

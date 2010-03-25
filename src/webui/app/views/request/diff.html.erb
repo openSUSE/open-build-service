@@ -17,13 +17,10 @@
     dp.SyntaxHighlighter.HighlightAll('code');
 <% end %>
 
-<p>
-  <%= render :partial => 'request_table', :locals => {:requests => [@request], :options => false, :by_me => false } %>
-</p>
-
+<%= render :partial => 'request_table', :locals => {:requests => [@request], :options => false, :by_me => false } %>
 
 <% if @diff_text %>
-<pre name="code" class="patch">
+<pre id="code" class="patch">
   <%= h @diff_text %>
 </pre>
 <% elsif @diff_error %>
@@ -44,9 +41,12 @@
   </h3>
 
   <% form_tag :action => "submitreq" do %>
+    <div>
+    <p>
     <strong>Reason:</strong>
     <%= text_field_tag :reason, 'Reviewed ok' , :size => 80 %><br/>
     <%= hidden_field_tag( "id", @id) %>
+    </p>
     <% if @is_maintainer %>
       <% linked = @target_pkg.linked_to if @target_pkg -%>
       <% if linked and not linked.empty? and @request.action.data["type"] == "submit" -%>
@@ -59,6 +59,7 @@
     <% elsif @is_author %>
       <%= submit_tag "Revoke", :name => 'revoked' %>
     <% end %>
+    </div>
   <% end %>
 </div>
 
