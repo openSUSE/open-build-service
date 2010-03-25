@@ -53,7 +53,7 @@
                 person,
                 'mailto:' + @email_hash[person] + '?subject=openSUSE Build Service' )
             else
-              image_tag("mail_generic.png", :size => "16x16", :class => 'email_link') + person
+              person
             end -%>
             <%- if @package.is_maintainer?( session[:login] ) %>
               <%= link_to image_tag('list-remove.png', :alt => "Remove", :title => "Remove User"),
