@@ -2,6 +2,7 @@ require 'project_status'
 require 'collection'
 require 'buildresult'
 require 'role'
+require 'models/package'
 
 include ActionView::Helpers::UrlHelper
 
@@ -139,9 +140,12 @@ class ProjectController < ApplicationController
   end
 
   def show
-    if @project.bugowner
-      @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s
+    @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s if @project.bugowner
+
+    @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
+      Package.find_cached( :all, :project => @project, :expires_in => 30.seconds )
     end
+  
   end
 
   def add_person
@@ -240,6 +244,8 @@ class ProjectController < ApplicationController
 
   def packages
     @packages = Package.find_cached( :all, :project => @project, :expires_in => 30.seconds )
+    # push to long time cache for the project frontpage
+    Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
   end
 
   def list_requests
@@ -747,7 +753,7 @@ class ProjectController < ApplicationController
     attributes = PackageAttribute.find_cached(:namespace => 'OBS', 
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
-    attributes.data.find('//package//values').each do |p|
+    attributes.data.find('/attribute/project/package/values').each do |p|
       # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
       p.each_element do |v| 
         comments[p.parent['name']] = v.content
