@@ -14,7 +14,10 @@
 
 <% content_for :ready_function do %>
   // call the tablesorter plugin
-  $("table").tablesorter();
+  $("table").tablesorter()({
+        // sort on the first column and third column, order asc
+        sortList: [[0,0]]
+  });
 <% end %>
 
 <%= render :partial => "tabs" %>
@@ -128,7 +131,7 @@
             <% end -%>
             <%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %></td>
           <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
-          <td><%= outs.join('<br/>') -%></td>
+          <td><!-- <%= p['firstfail'] %> --><%= outs.join('<br/>') -%></td>
         </tr>
       <% end %>
     </tbody>
