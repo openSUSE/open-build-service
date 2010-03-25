@@ -6,6 +6,7 @@ class MonitorController < ApplicationController
     get_settings
     check_user
     @workerstatus = Workerstatus.find :all
+    Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
     @status_messages = get_status_messages
   end
 
@@ -17,6 +18,7 @@ class MonitorController < ApplicationController
     else
       begin
          @workerstatus = Workerstatus.find :all
+         Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
       rescue ActiveXML::Transport::NotFoundError
          @workerstatus = nil
       end
@@ -91,6 +93,7 @@ class MonitorController < ApplicationController
   def filtered_list
     get_settings
     @workerstatus = Workerstatus.find :all
+    Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
     render :partial => 'building_table'
   end
 
