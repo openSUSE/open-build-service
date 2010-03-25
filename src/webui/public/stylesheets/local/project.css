@@ -94,5 +94,14 @@
 
 #advanced_tabs { display: none; }
 
-td.buildstatus { min-width: 11ex; }
+/* build status and repo status are for project/monitor */
+td.buildstatus { 
+  min-width: 11ex; /* expansion error */
+  text-align: center;
+}
 table.buildstatus { width: 1%; }
+
+/* move the image back into the line */
+th.buildstatus img {
+  margin-bottom: -3px;
+}

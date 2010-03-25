@@ -556,9 +556,9 @@ class ProjectController < ApplicationController
 
       if result.has_attribute? :state
         if result.has_attribute? :dirty
-          @repostatushash[repo][arch] = "outdated(#{result.state})"
+          @repostatushash[repo][arch] = "outdated_" + result.state.to_s
         else
-          @repostatushash[repo][arch] = "#{result.state}"
+          @repostatushash[repo][arch] = result.state.to_s
         end
       end
     end

@@ -157,7 +157,7 @@ module ApplicationHelper
   end
 
   def status_for( repo, arch, package )
-    @statushash[repo][arch][package] || ActiveXML::XMLNode.new("<status code='-' package='#{package}'/>")
+    @statushash[repo][arch][package] || ActiveXML::XMLNode.new("<status package='#{package}'/>")
   end
 
   def status_id_for( repo, arch, package )
@@ -168,11 +168,17 @@ module ApplicationHelper
     status = status_for(repo, arch, packname)
     status_id = status_id_for( repo, arch, packname)
     link_title = status.has_element?(:details) ? status.details.to_s : nil
-    code = status.code.to_s
-    theclass="status_" + code.gsub(' ','_')
+    if status.has_attribute? 'code'
+      code = status.code.to_s
+      theclass="status_" + code.gsub(/[- ]/,'_')
+    else
+      code = ''
+      theclass=''
+    end
+    
     out = "<td id='#{status_id}' class='#{theclass} buildstatus'>"
     if ["expansion error", "broken", "blocked"].include? code 
-      out += link_to code, "javascript:alert('#{link_title}')", :title => link_title
+      out += link_to code.gsub("expansion error", "exp. error"), "javascript:alert('#{link_title}')", :title => link_title
     elsif ["-","excluded"].include? code
       out += code
     else

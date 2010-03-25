@@ -58,7 +58,7 @@ class PackageController < ApplicationController
     @opackage = params[:opackage]
     @oproject = params[:oproject]
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?" +
-           "opackage=#{CGI.escape(params[:opackage])}&oproject=#{CGI.escape(params[:oproject])}&expand=1&unified=1&cmd=diff"
+      "opackage=#{CGI.escape(params[:opackage])}&oproject=#{CGI.escape(params[:oproject])}&expand=1&unified=1&cmd=diff"
     begin
       @rdiff = frontend.transport.direct_http URI(path), :method => "POST", :data => ""
     rescue ActiveXML::Transport::NotFoundError => e
@@ -69,7 +69,7 @@ class PackageController < ApplicationController
     end
 
     @lastreq = Request.find_last_request(:targetproject => params[:oproject], :targetpackage => params[:opackage],
-	                                 :sourceproject => params[:project], :sourcepackage => params[:package])
+      :sourceproject => params[:project], :sourcepackage => params[:package])
     if @lastreq and @lastreq.state.name != "declined"
       @lastreq = nil # ignore all !declined
     end
@@ -79,14 +79,14 @@ class PackageController < ApplicationController
   def create_submit
     rev = Package.current_rev(params[:project], params[:package])
     req = Request.new(:type => "submit", :targetproject => params[:targetproject], :targetpackage => params[:targetpackage],
-		      :project => params[:project], :package => params[:package], :rev => rev, :description => params[:description])
+      :project => params[:project], :package => params[:package], :rev => rev, :description => params[:description])
     begin
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
       redirect_to :action => :rdiff, :oproject => params[:targetproject], :opackage => params[:targetpackage],
-	:project => params[:project], :package => params[:package]
+        :project => params[:project], :package => params[:package]
       return
     end
     Rails.cache.delete "requests_new"
@@ -760,7 +760,7 @@ class PackageController < ApplicationController
       file[:editable] = ((not no_edit_ext.include?( file[:ext].downcase )) and file[:size].to_i < 2**20)  # max. 1 MB
       files << file
     end
-  # TODO: <linkinfo project="openSUSE:Factory" package="bash" srcmd5="071e073dfd086d97db708deed661a274" baserev="ecb392833f88d01c094404117886b103" xsrcmd5="29d1bfad47af58e8f0033bc02080c2d6" lsrcmd5="b504c8b0bdd073474ce0dc1d7d7b4767" />
+    # TODO: <linkinfo project="openSUSE:Factory" package="bash" srcmd5="071e073dfd086d97db708deed661a274" baserev="ecb392833f88d01c094404117886b103" xsrcmd5="29d1bfad47af58e8f0033bc02080c2d6" lsrcmd5="b504c8b0bdd073474ce0dc1d7d7b4767" />
     return files
   end
 
@@ -790,7 +790,6 @@ class PackageController < ApplicationController
   def fill_status_cache
     @repohash = Hash.new
     @statushash = Hash.new
-    @repostatushash = Hash.new
     @packagenames = Array.new
 
     @buildresult.each_result do |result|
@@ -810,19 +809,7 @@ class PackageController < ApplicationController
         stathash[status.package] = status
       end
 
-     @packagenames << stathash.keys
-
-     # repository status cache
-     @repostatushash[repo] ||= Hash.new
-     @repostatushash[repo][arch] = Hash.new
-
-      if result.has_attribute? :state
-        if result.has_attribute? :dirty
-          @repostatushash[repo][arch] = "outdated(#{result.state})"
-        else
-          @repostatushash[repo][arch] = "#{result.state}"
-        end
-      end
+      @packagenames << stathash.keys
     end
     
   end

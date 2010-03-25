@@ -23,8 +23,16 @@ module ProjectHelper
     end
   end
 
-  def repo_status_for( repo, arch )
-    @repostatushash[repo][arch] || ActiveXML::XMLNode.new("<status code='-'/>")
+  def repo_status_icon( repo, arch )
+    case @repostatushash[repo][arch]
+    when "published" then "silk/icons/lorry.png"
+    when "outdated_published" then "silk/icons/lorry_delete.png"
+    when "unpublished" then "silk/icons/lorry_flatbed.png"
+    when "outdated_unpublished" then "silk/icons/lorry_delete.png"
+    when "building" then "silk/icons/cog.png"
+    when "outdated_building" then "silk/icons/cog_delete.png"
+    else @repostatushash[repo][arch] + "unknown.png"
+    end
   end
 
   def watch_link_text
