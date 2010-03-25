@@ -31,7 +31,9 @@ module ProjectHelper
     when "outdated_unpublished" then "silk/icons/lorry_delete.png"
     when "building" then "silk/icons/cog.png"
     when "outdated_building" then "silk/icons/cog_delete.png"
-    else @repostatushash[repo][arch] + "unknown.png"
+    when "finished" then "silk/icons/time.png"
+    when "broken" then "silk/icons/exclamation.png"
+    else "silk/icons/eye.png"
     end
   end
 
