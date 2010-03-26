@@ -51,9 +51,8 @@ class PackageController < ApplicationController
       @spec_count += 1 if file[:ext] == "spec"
       if file[:name] == "_link"
         @link = Link.find( :project => @project, :package => @package )
-      end
-      if file[:name] == "_service"
-        @service = Service.find( :project => @project, :package => @package )
+      elsif file[:name] == "_service"
+        @services = Service.find( :project => @project, :package => @package )
       end
     end
   end
