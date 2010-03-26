@@ -3,9 +3,9 @@
 
   <div class="grid_4 omega">
 
-   <%= link_to CGI::escapeHTML(session[:login]), :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
-   | <%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
-   
+    <%= link_to CGI::escapeHTML(session[:login]), :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
+    | <%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
+
   </div>
 
 <% else %>
@@ -14,14 +14,14 @@
 
     <%# Script to fix ichain redirection on empty username or password %>
     <% content_for :head_javascript do -%>
-              function fillEmptyFields() {
-                                if( document.getElementById('username').value == '' ){
-                                  document.getElementById('username').value = "_";
-                                }
-                                if( document.getElementById('password').value == '' ){
-                                  document.getElementById('password').value = "_";
-                                }
-                              }
+      function fillEmptyFields() {
+      if( document.getElementById('username').value == '' ){
+      document.getElementById('username').value = "_";
+      }
+      if( document.getElementById('password').value == '' ){
+      document.getElementById('password').value = "_";
+      }
+      }
     <% end -%>
 
     <div class="grid_4 omega">
@@ -31,12 +31,13 @@
       <div id="login-form">
         <form action="https://build.opensuse.org/ICSLogin/auth-up"
               method="post" enctype="application/x-www-form-urlencoded" id="login_form">
-          <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
-          <input name="context" value="default" type="hidden" />
-          <input name="proxypath" value="reverse" type="hidden" />
-          <input name="message" value="Please log In" type="hidden" />
-
-          <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
+          <div class="hidden">
+            <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
+            <input name="context" value="default" type="hidden" />
+            <input name="proxypath" value="reverse" type="hidden" />
+            <input name="message" value="Please log In" type="hidden" />
+            <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
+          </div>
           <p><label class="inlined" for="username">Username</label><input type="text" class="inline-text" name="username" value="" id="username" /></p>
           <p><label class="inlined" for="password">Password</label><input type="password" class="inline-text" name="password" value="" id="password" /></p>
 
@@ -54,8 +55,9 @@
 
       <div id="login-form">
         <% form_tag( :controller => :user, :action => :do_login ) do %>
-
-          <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
+          <div class="hidden">
+            <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
+          </div>
           <p><label class="inlined" for="username">Username</label><input type="text" class="inline-text" name="username" value="" id="username" /></p>
           <p><label class="inlined" for="password">Password</label><input type="password" class="inline-text" name="password" value="" id="password" /></p>
 

@@ -2,11 +2,11 @@
   <h2>
     Status Messages
     <% if @user %>
-    <%= link_to_remote image_tag("list-add.png", :title => "Add new message"),
-      :update => 'add_message_form_area',
-      :url => { :action => "add_message_form" },
-      :loading => "$('#message_form_spinner').show()",
-      :complete => "$('#message_form_spinner').hide()" %>
+      <%= link_to_remote image_tag("list-add.png", :title => "Add new message"),
+        :update => 'add_message_form_area',
+        :url => { :action => "add_message_form" },
+        :loading => "$('#message_form_spinner').show()",
+        :complete => "$('#message_form_spinner').hide()" %>
     <% end %>
     <%= image_tag 'rotating-tail.gif', :id=> 'message_form_spinner',
       :style => "visibility:hidden;" -%>
@@ -16,60 +16,61 @@
   <span id="add_message_form_area"></span>
 
   <table>
-   <thead>
-    <tr>
-      <th>&nbsp;</th>
-      <th>Message</th>
-      <th>&nbsp;</th>
-      <th>time entered</th>
-      <th>by user</th>
-    </tr>
-    </thead>
-   <tbody>
-    <% @status_messages.each_message do |msg| %>
+    <thead>
       <tr>
-        <td>
-          <% case msg.severity.to_i
-          when 3 %>
-            <%= image_tag 'status_red.png' -%>
-          <% when 2 %>
-            <%= image_tag 'status_yellow.png' -%>
-          <% when 1 %>
-            <%= image_tag 'status_green.png' -%>
-          <% else %>
-            <%= image_tag 'info.png' -%>
-          <% end %>
-        </td>
-        <td style="border-bottom: 1px #ddd dotted;">
-          <% if msg.deleted_at.empty? %>
-            <%=h msg.to_s %>
-          <% else %>
-            <span class="greyed-out">
-            <%=h msg.to_s %>
-            <i>(deleted
-              <%= distance_of_time_in_words_to_now(
-                Time.parse(msg.deleted_at) ) -%> ago)
-            </i>
-            </span>
-          <% end %>
-        </td>
-        <td>
-          <% if @user and msg.deleted_at.empty? %>
-            <%= link_to_remote image_tag( 'delete.png',
-              :title => 'Mark message as deleted' ), :url => {
-              :action => 'delete_message', :id => msg.msg_id } %>
-          <% else %>
-            &nbsp;
-          <% end %>
-        </td>
-        <td class="greyed-out nowrap">
+        <th width="99%">Message</th>
+        <% if @user -%>
+          <th>&nbsp;</th>
+        <% end -%>
+        <th>time entered</th>
+        <th>by user</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @status_messages.each_message do |msg| %>
+        <tr>
+          <td>
+            <% case msg.severity.to_i
+            when 3 -%>
+              <%= image_tag 'status_red.png' -%>
+            <% when 2 -%>
+              <%= image_tag 'status_yellow.png' -%>
+            <% when 1 %>
+              <%= image_tag 'status_green.png' -%>
+            <% else -%>
+              <%= image_tag 'info.png' -%>
+            <% end %>
+            <% if msg.deleted_at.empty? -%>
+              <%=h msg.to_s %>
+            <% else -%>
+              <span class="greyed-out">
+                <%=h msg.to_s %>
+                <i>(deleted
+                  <%= distance_of_time_in_words_to_now(
+                    Time.parse(msg.deleted_at) ) -%> ago)
+                </i>
+              </span>
+            <% end %>
+          </td>
+          <% if @user -%>
+            <td>
+              <% if msg.deleted_at.empty? %>
+                <%= link_to_remote image_tag( 'delete.png',
+                  :title => 'Mark message as deleted' ), :url => {
+                  :action => 'delete_message', :id => msg.msg_id } %>
+              <% else -%>
+                &nbsp;
+              <% end -%>
+            </td>
+          <% end -%>
+          <td class="greyed-out nowrap">
             <%= distance_of_time_in_words_to_now( Time.parse(msg.created_at) ) %>
             ago
-        </td>
-        <td class="greyed-out">
-          <%= msg.user %>
-        </td>
-      </tr>
+          </td>
+          <td class="greyed-out">
+            <%= msg.user %>
+          </td>
+        </tr>
       <% end %>
     </tbody>
   </table>
