@@ -72,8 +72,8 @@
 
         <form id="global-search-form" action="" method="post" accept-charset="utf-8">
           <div style="display: inline">
-          <input type="text" name="q" value="search" id="search" />
-          <input type="submit" value="Search" class="hidden" />
+            <input type="text" name="q" value="search" id="search" />
+            <input type="submit" value="Search" class="hidden" />
           </div>
         </form>
 
@@ -156,11 +156,12 @@
         <p>
           &copy; 2010 Novell, Inc. All rights reserved. Novell is a registered trademark and
           openSUSE and SUSE are trademarks of Novell, Inc. in the United States and other countries.
-          <a style="float: right" href="http://www.totalvalidator.com/validator/Revalidate?revalidate=true&amp;dtd=dtds/1.0/xhtml1-strict.dtd">
+          <a style="float: right" href="http://www.totalvalidator.com/validator/Revalidate?revalidate=true&amp;dtd=dtds/1.0/xhtml1-strict.dtd&amp;pages=1&amp;wai=&amp;url=http://<%= request.env['HTTP_HOST']%><%= h request.request_uri %>">
             <img src="http://www.totalvalidator.com/images/valid_sn_xhtml_10.gif" alt="Totally Valid XHTML 1.0" />
           </a>
         </p>
       </div>
+
     </div>
     <!-- End: Footer -->
 

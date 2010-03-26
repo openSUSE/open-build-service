@@ -1,18 +1,19 @@
 <% @pagetitle = "Login" %>
 
 <% if ICHAIN_MODE == 'on' %>
-<form action="https://build.opensuse.org/ICSLogin/auth-up"
-    method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
-    <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
-    <input name="context" value="default" type="hidden" />
-    <input name="proxypath" value="reverse" type="hidden" />
-    <input name="message" value="Please log In" type="hidden" />
-<% else %>
-  <%= form_tag( :controller => :user, :action => :do_login ) %>
-<% end %>
+  <form action="https://build.opensuse.org/ICSLogin/auth-up"
+        method="post" enctype="application/x-www-form-urlencoded" name="login" id="login_form">
+    <div>
+      <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
+      <input name="context" value="default" type="hidden" />
+      <input name="proxypath" value="reverse" type="hidden" />
+      <input name="message" value="Please log In" type="hidden" />
+    </div>
+  <% else %>
+    <%= form_tag( :controller => :user, :action => :do_login ) %>
+  <% end %>
 
-
-<div title="Account login" id="loginform" class="form">
+  <div title="Account login" id="loginform" class="form">
     <h1>Please login:</h1>
     <p id="login_form">
       <label for="user_login">Username:</label>
@@ -25,5 +26,5 @@
       <input type="submit" name="login" value="Login &#187;" class="primary" />
     </p>
 
-</div>
+  </div>
 </form>
