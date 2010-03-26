@@ -32,6 +32,9 @@ module ProjectHelper
     when "building" then "silk/icons/cog.png"
     when "outdated_building" then "silk/icons/cog_delete.png"
     when "finished" then "silk/icons/time.png"
+    when "outdated_finished" then "silk/icons/time_delete.png"
+    when "blocked" then "silk/icons/time.png"
+    when "outdated_blocked" then "silk/icons/time_delete.png"
     when "broken" then "silk/icons/exclamation.png"
     else "silk/icons/eye.png"
     end
