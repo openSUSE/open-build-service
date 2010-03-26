@@ -26,7 +26,7 @@
 
     <div class="grid_4 omega">
       <%= link_to("Sign up", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %>
-      | <a id="login-trigger" href="#login">Login</a>
+      | <a id="login-trigger" href="#">Login</a>
 
       <div id="login-form">
         <form action="https://build.opensuse.org/ICSLogin/auth-up"
@@ -43,7 +43,7 @@
 
           <p><input value="Login" type="submit" onclick="fillEmptyFields();" /></p>
 
-          <p class="slim-footer"><a id="close-login" href="#cancel">Cancel</a></p>
+          <p class="slim-footer"><a id="close-login" href="#">Cancel</a></p>
         </form>
       </div>
     </div>

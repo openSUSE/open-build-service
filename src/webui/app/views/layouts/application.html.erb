@@ -56,7 +56,7 @@
 
       <div id="header-content" class="container_12">
 
-        <a id="header-logo" href="#home">
+        <a id="header-logo" href="#">
           <%= image_tag( "bento/header-logo.png" ) %>
         </a>
 
@@ -83,7 +83,7 @@
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_12 alpha">
-        <%= image_tag( "bento/home_grey.png" ) %><%= link_to "Buildservice", :controller => 'main', :action => :index %>
+        <%= image_tag( "bento/home_grey.png" ) %><%= link_to "Build Service", :controller => 'main', :action => :index %>
         <% if @crumb_list -%>
           <% @crumb_list.each do |link| -%>
             &gt; <%= link %>

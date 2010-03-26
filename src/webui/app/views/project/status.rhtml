@@ -113,6 +113,9 @@
               " <span id='comment_" + p['name'].gsub(':', '-') + "'>" +
               show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>')
           icon = "error"
+        else
+          outs << "<span id='comment_" + p['name'].gsub(':', '-') + "'>" +
+                show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>'
         end
         -%>
         <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
@@ -129,7 +132,8 @@
             <% else -%>
               <%= image_tag("silk/icons/information.png", :size => "16x16", :title => "So-so" ) %>
             <% end -%>
-            <%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %></td>
+            <%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
+          </td>
           <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
           <td><!-- <%= p['firstfail'] %> --><%= outs.join('<br/>') -%></td>
         </tr>

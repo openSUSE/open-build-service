@@ -1,28 +1,30 @@
 <% # locals:
-   #   filter_observer_action: observer of the filter field sends its requests to
-   #                           this action in project controller
+#   filter_observer_action: observer of the filter field sends its requests to
+#                           this action in project controller
 -%>
 <strong>Filter projects (case insensitive):</strong><br/>
 
 <% content_for :ready_function do %>
-	 $("#projectsearch_clear").click(function() { $('#projectsearch').val('').focus(); });
-         $("#projectsearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
-				         function() { $(this).attr('src', '/images/clear.png');  });
-	 $("#spinner").show();
-	 $("#projectsearch").focus();
-	 <%= remote_function( :update => :project_list,
-	      :url => {:action => filter_observer_action, :project => params[:project]},
-	      :complete => '$("#spinner").hide()', 
-	      :with => "'searchtext='" ); %> ;
+  $("#projectsearch_clear").click(function() { $('#projectsearch').val('').focus(); });
+  $("#projectsearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
+  function() { $(this).attr('src', '/images/clear.png');  });
+  $("#spinner").show();
+  $("#projectsearch").focus();
+  <%= remote_function( :update => :project_list,
+    :url => {:action => filter_observer_action, :project => params[:project]},
+    :complete => '$("#spinner").hide()',
+    :with => "'searchtext='" ); %> ;
 <% end %>
 
 <% form_tag({:action => filter_observer_action}, {:method => :get}) do -%>
-<%= text_field_tag "projectsearch" -%>
-<img id="projectsearch_clear" alt="clear" title="clear input" src="/images/clear.png" />
-<img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+  <div>
+    <%= text_field_tag "projectsearch" -%>
+    <img id="projectsearch_clear" alt="clear" title="clear input" src="/images/clear.png" />
+    <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+  </div>
 <% end-%>
 
 <%= observe_field( :projectsearch, :frequency => 0.5, :update => :project_list,
-    :url => { :controller => 'project', :action  => filter_observer_action },
-    :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()",
-    :with => "'searchtext=' + escape(value)") %>
+  :url => { :controller => 'project', :action  => filter_observer_action },
+  :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()",
+  :with => "'searchtext=' + escape(value)") %>

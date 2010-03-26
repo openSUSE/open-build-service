@@ -6,13 +6,13 @@
 -%>
 
 <% if @important_projects %>
-<table>
-  <tr><th>Main Projects</th></tr>
-  <% for project in @important_projects -%>
-  <tr><td>
- <%= link_to project.name, :action => :show, :project => project %></td></tr>
-  <% end -%>
-</table>
+  <table>
+    <tr><th>Main Projects</th></tr>
+    <% for project in @important_projects -%>
+      <tr><td>
+      <%= link_to project.name, :action => :show, :project => project %></td></tr>
+    <% end -%>
+  </table>
 <% end %>
 
 <%= render :partial => 'filter_projects', :locals => {:filter_observer_action => 'list_public'}%>
@@ -25,5 +25,5 @@
 </div>
 
 <p>
-<%= link_to '[Create New Project]', :action => :new %>
+  <%= link_to '[Create New Project]', :action => :new %>
 </p>
