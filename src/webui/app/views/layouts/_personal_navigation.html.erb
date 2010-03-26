@@ -1,14 +1,11 @@
 
 <% if session[:login] -%>
 
-  <div id="local-user-actions" class="grid_4 omega">
+  <div class="grid_4 omega">
 
-    <ul id="pt-personal">
-      <!-- Begin Personal links (Login, etc.) xx-->
-      <li><%= link_to CGI::escapeHTML(session[:login]), :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
-      <li><%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %></li>
-      <!-- End Personal links (Login, etc.) -->
-    </ul>
+   <%= link_to CGI::escapeHTML(session[:login]), :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
+   | <%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
+   
   </div>
 
 <% else %>
