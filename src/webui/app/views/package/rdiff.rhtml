@@ -44,7 +44,7 @@
   <% if @project.is_maintainer?( session[:login] ) %>
     <% form_tag({:controller => 'package', :action => 'create_submit', :project => @project, :package => @package, :targetproject => @oproject, :targetpackage => @opackage}, {:method => :post}) do -%>
       <div>
-        <%= text_field_tag 'description', "Update from web client", :size => "100%" -%>
+        <%= text_field_tag 'description', "Update from web client", :size => "80" -%>
       </div>
       <div>
         <%= submit_tag "Submit" %>
