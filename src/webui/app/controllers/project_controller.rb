@@ -720,7 +720,6 @@ class ProjectController < ApplicationController
           return e.md5.to_s
         end
         changes << e.md5.to_s
-        puts e.inspect
       end
     end
     if changes.size == 1
