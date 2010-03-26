@@ -105,3 +105,6 @@ table.buildstatus { width: 1%; }
 th.buildstatus img {
   margin-bottom: -3px;
 }
+
+/* project/status */
+.sortkey { display: none; }

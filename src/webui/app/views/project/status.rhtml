@@ -14,9 +14,15 @@
 
 <% content_for :ready_function do %>
   // call the tablesorter plugin
-  $("table").tablesorter()({
-        // sort on the first column and third column, order asc
-        sortList: [[0,0]]
+  $(".tablesorter").tablesorter({
+  textExtraction: function(node) {
+  // extract data from markup and return it
+  if ($(node).is(".summary")) {
+  return $(node).children(".sortkey:first").html();
+  } else {
+  return node.innerHTML;
+  }
+  }
   });
 <% end %>
 
@@ -76,14 +82,20 @@
         <%-
         outs = []
         icon = "ok"
-        if p['requests_from'].empty?
+        sortkey = nil
+
+        if p['requests_from'].empty? and !p['problems'].empty?
           descr = nil
           if p['problems'].include? 'different_changes'
             descr = "Different changes in devel project"
+            sortkey = "5-changes" + p['name']
           elsif p['problems'].include? 'different_sources'
             descr = "Different sources in devel project"
+            sortkey = "6-changes" + p['name']
           else
             descr = p['problems'].join(',')
+            sortkey = "1-changes" + p['name']
+            icon = "error"
           end
           unless descr.blank?
             outs << link_to(descr, :controller => :package, :project => p['develproject'], :package => p['develpackage'],
@@ -92,19 +104,23 @@
           end
         end
         p['requests_to'].each do |id|
-          outs << "Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), p['develproject']]
-          icon = "changes1"
+          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), p['develproject']])
+          icon = "changes"
+          sortkey = "3-request%06d-%s" % [ 999999 - id, p['name']]
         end
         p['requests_from'].each do |id|
-          outs << "Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), @project]
-          icon = "changes2"
+          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), @project])
+          icon = "changes"
+          sortkey = "2-drequest%06d-%s" % [ 999999 - id, p['name']]
         end
-        if p['upstream_version']
-          if p['upstream_url']
-            outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
-          else
-            outs << "New upstream version " + p['upstream_version'] + " available"
-          end
+        # ignore the upstream version if there are already changes pending
+        if p['upstream_version'] and sortkey.nil?
+            if p['upstream_url']
+              outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
+            else
+              outs << "New upstream version " + p['upstream_version'] + " available"
+            end
+            sortkey = "8-outdated-" + p['name']
         end
         if p['firstfail']
           outs.unshift(link_to("Fails", :title => p['name'], :controller => :package,
@@ -113,9 +129,13 @@
               " <span id='comment_" + p['name'].gsub(':', '-') + "'>" +
               show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>')
           icon = "error"
+          sortkey = '1-fails-%010d-%s' % [ Time.now.to_i - p['firstfail'], p['name'] ]
         else
           outs << "<span id='comment_" + p['name'].gsub(':', '-') + "'>" +
-                show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>'
+            show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ) + '</span>'
+        end
+        if sortkey.nil?
+          sortkey = "9-ok-" + p['name']
         end
         -%>
         <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
@@ -135,7 +155,7 @@
             <%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
           </td>
           <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
-          <td><!-- <%= p['firstfail'] %> --><%= outs.join('<br/>') -%></td>
+          <td class="summary"><%= outs.join('<br/>') -%><span class="sortkey"><%= sortkey %></span></td>
         </tr>
       <% end %>
     </tbody>
