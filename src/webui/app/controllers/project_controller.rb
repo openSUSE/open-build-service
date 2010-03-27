@@ -867,6 +867,9 @@ class ProjectController < ApplicationController
             end
           end
         end
+        if p.develpack.package.has_element? :error
+          currentpack['problems'] << 'error-' + p.develpack.package.error.to_s
+        end
       elsif @current_develproject != no_project
         next if @current_develproject != all_packages
       end

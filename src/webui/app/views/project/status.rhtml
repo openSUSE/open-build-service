@@ -84,23 +84,29 @@
         icon = "ok"
         sortkey = nil
 
-        if p['requests_from'].empty? and !p['problems'].empty?
-          descr = nil
-          if p['problems'].include? 'different_changes'
-            descr = "Different changes in devel project"
+        if p['requests_from'].empty?
+          p['problems'].sort.each do |c|
+          if c == 'different_changes'
+            outs << link_to("Different changes in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+              :action => :rdiff, :oproject => @project, :opackage => p['name'])
             sortkey = "5-changes" + p['name']
-          elsif p['problems'].include? 'different_sources'
-            descr = "Different sources in devel project"
+            icon = "changes"
+          elsif c == 'different_sources'
+             outs << link_to("Different sources in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+              :action => :rdiff, :oproject => @project, :opackage => p['name'])
             sortkey = "6-changes" + p['name']
+            icon = "changes"
+          elsif c.match(/^error-/)
+             outs << link_to(c[6..-1], :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+              :action => :show)
+            sortkey = "1-problem-" + p['name']
+            icon = "error"
           else
-            descr = p['problems'].join(',')
+             outs << link_to(c, :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+              :action => :show)
             sortkey = "1-changes" + p['name']
             icon = "error"
           end
-          unless descr.blank?
-            outs << link_to(descr, :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-              :action => :rdiff, :oproject => @project, :opackage => p['name'])
-            icon = "changes"
           end
         end
         p['requests_to'].each do |id|
