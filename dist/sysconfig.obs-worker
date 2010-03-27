@@ -135,3 +135,65 @@ OBS_WORKER_NICE_LEVEL=19
 #
 OBS_VM_TYPE="auto"
 
+## Path:        Applications/OBS
+## Description: Set kernel used by worker (kvm)
+## Type:        ("none" | "/boot/vmlinuz" | "/foo/bar/vmlinuz)
+## Default:     "none"
+## Config:      OBS
+#
+#
+OBS_VM_KERNEL="none"
+
+## Path:        Applications/OBS
+## Description: Set initrd used by worker (kvm)
+## Type:        ("none" | "/boot/initrd" | "/foo/bar/initrd-foo)
+## Default:     "none"
+## Config:      OBS
+#
+#
+OBS_VM_INITRD="none"
+
+## Path:        Applications/OBS
+## Description: Autosetup for XEN/KVM disk
+## Type:        ("yes" | "no")
+## Default:     "no"
+## Config:      OBS
+#
+#
+OBS_VM_DISK_AUTOSETUP="no"
+
+## Path:        Applications/OBS
+## Description: Autosetup for XEN/KVM disk (root) - Filesize in MB
+## Type:        integer
+## Default:     "4096"
+## Config:      OBS
+#
+#
+OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE="4096"
+
+## Path:        Applications/OBS
+## Description: Autosetup for XEN/KVM disk (swap) - Filesize in MB
+## Type:        integer
+## Default:     "1024"
+## Config:      OBS
+#
+#
+OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
+
+## Path:        Applications/OBS
+## Description: Filesystem to use for autosetup {none,ext3}=ext3, ext4=ext4
+## Type:        string
+## Default:     "ext3"
+## Config:      OBS
+#
+#
+OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext3"
+
+## Path:        Applications/OBS
+## Description: Memory allocated for each VM (256) if not set
+## Type:        integer
+## Default:     ""
+## Config:      OBS
+#
+#
+OBS_INSTANCE_MEMORY=""
