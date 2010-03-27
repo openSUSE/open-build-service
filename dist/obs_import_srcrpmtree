@@ -85,7 +85,7 @@ do
 		else
                 (
 		 osc -A $targetobs co $targetprj/$pkgname 2>/dev/null && rm -rf $targetprj/$pkgname/* >& /dev/null
-		 cd $targetprj/$pkgname && rpmcpio -x ../../$f
+		 cd $targetprj/$pkgname && rpm2cpio ../../$f | cpio -ivd
 		 osc -A $targetobs addremove 2>/dev/null; osc -A $targetobs ci -m "imported: $urlbase/$f @ $targetobs/$pkgname" 2>/dev/null
 		)
 		fi
