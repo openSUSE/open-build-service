@@ -12,7 +12,9 @@
       <value>athlon</value>
       <value>armv4l</value>
       <value>armv5el</value>
+      <value>armv6el</value>
       <value>armv7el</value>
+      <value>armv8el</value>
       <value>i386</value>
       <value>i486</value>
       <value>i586</value>
