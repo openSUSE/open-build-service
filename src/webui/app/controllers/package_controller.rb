@@ -742,7 +742,7 @@ class PackageController < ApplicationController
 
 
   def flags_for_experts
-    render :template => "flag/package_flags_for_experts"
+    render :template => "package/package_flags_for_experts"
   end
 
 

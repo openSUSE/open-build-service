@@ -15,7 +15,7 @@
 </h3>
 <% unless @project.repositories.empty? %>
 
-  <table id="outer_flag_table" class="grid">
+  <table>
     <!-- renders each line in flag table, excepting the 'all' row -->
     <% @project.repositories.each do |repo| %>
       <tr>

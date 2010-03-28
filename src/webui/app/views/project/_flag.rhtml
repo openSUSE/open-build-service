@@ -1,9 +1,0 @@
-<% 	flag = @project.send("#{flagtype}flags")["#{repo}::#{arch.to_s}".to_sym]
-
-	 if flag %>
-		<span id="<%="%s_%s" % [ flag.name, flag.id.gsub(/[:.]/, "_") ] %>" >
-			<%= render :partial => "flag_status", :locals => {:flag => flag} %>
-		</span>
-  <% else %>
-		n/a
-  <% end %>
