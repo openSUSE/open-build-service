@@ -189,4 +189,21 @@ module ApplicationHelper
     return out + "</td>"
   end
 
+  def repo_status_icon( repo, arch )
+    case @repostatushash[repo][arch]
+    when "published" then "silk/icons/lorry.png"
+    when "outdated_published" then "silk/icons/lorry_delete.png"
+    when "unpublished" then "silk/icons/lorry_flatbed.png"
+    when "outdated_unpublished" then "silk/icons/lorry_delete.png"
+    when "building" then "silk/icons/cog.png"
+    when "outdated_building" then "silk/icons/cog_delete.png"
+    when "finished" then "silk/icons/time.png"
+    when "outdated_finished" then "silk/icons/time_delete.png"
+    when "blocked" then "silk/icons/time.png"
+    when "outdated_blocked" then "silk/icons/time_delete.png"
+    when "broken" then "silk/icons/exclamation.png"
+    else "silk/icons/eye.png"
+    end
+  end
+
 end

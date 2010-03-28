@@ -1,0 +1,54 @@
+<% content_for :head_javascript do %>
+function toggle_binarylist()
+{
+  var id = $(this).attr("id");
+  id = id.replace("toggle_", "binary_");
+  $("#" + id).toggle();
+}
+<% end %>
+<% content_for :ready_function do %>
+  $('.binarylist_toggle').click(toggle_binarylist);
+<% end %>
+
+<!-- Build status -->
+<div id="package_buildstatus" class="grid_6 alpha omega">
+  <% if not @project.has_element?(:repository) %>
+    <i>The project this package belongs to has currently no targets defined. <br/>
+    Please add the targets it should build against <%= link_to "here", :controller => :project, :action => 'add_target_simple', :project => @project %>. </i>
+  <% elsif !@buildresult %>
+  <h3>Build Status unavailable</h3>
+  <% else %>
+  <h3>
+    Build Status
+    <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status"),
+      :url => { :action => 'reload_buildstatus', :project => @project, :package => @package },
+      :update => 'package_buildstatus',
+      :loading => "$('#spinner_stat').show()", :complete => "$('#spinner_stat').hide()" %>
+      <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
+  </h3>
+  <table class="repostatus">
+    <% @buildresult.each do |r,archs| 
+       index = 0
+       archs.each do |a|
+       -%>
+    <tr>
+ <% if index == 0 %>
+      <td title="<%= h r %>" rowspan="<%= archs.length %>"><strong><%= link_to h(truncate(r, :length => 23)), :action => :binaries, 
+                                 :controller => :package, :project => @project, :package => @package, :repository => r %></strong></td>
+      <% index += 1 -%>
+ <% end -%>
+            <td class="arch">	
+      <div class="nowrap" style="margin: 0 0.5ex">
+	     <%= image_tag(repo_status_icon(r, a), :size => "16x16", :style => "margin-bottom: -3px") %> <%= h(a) %>
+         </div>
+          </td>
+     	         <%= arch_repo_table_cell r, a, @package.name %>
+<% end -%>
+        </tr>
+  <% end -%>
+  </table>
+
+ <% end -%>
+
+</div>
+

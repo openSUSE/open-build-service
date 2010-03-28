@@ -6,15 +6,16 @@
 -%>
 
 <% content_for :ready_function do %>
-  <%= remote_function :update => 'inner_repo_table',
+  <%= remote_function :update => 'buildstatus',
     :url => {:action => :buildresult, :project => params[:project]},
     :loading => "$('#spinner_stat').show(); $('#status_reload').hide()",
-    :complete => '$("#inner_repo_table").hide(); $("#inner_repo_table").slideDown(800); $("#spinner_stat").hide(); $("#status_reload").show();' %>
+    :complete => '$("#buildstatus").hide(); $("#buildstatus").slideDown(800); $("#spinner_stat").hide(); $("#status_reload").show();' %>
 <% end %>
 
 <%= render :partial => "tabs" %>
 
-<div class="grid_9 alpha prefix_1">
+<div class="grid_10 alpha">
+ <div id="show_left">
   <div class="ui-oo-box-shadow no-shadow">
     <h2 style="display: inline"><%=h @project.title %> (<%=h @project -%>)</h2>
 
@@ -70,18 +71,19 @@
     <div><p>There are X problematic packages of <%= @packages.each.size %> total.</p></div>
   </div>
 </div>
-<div class="grid_6 omega">
+</div>
+<div class="grid_6 omega alpha"> <!-- no extra margins -->
   <h3>
     Build Status
     <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status", :id => 'status_reload'),
       :url => { :action => :buildresult, :project => @project },
-      :update => 'inner_repo_table',
+      :update => 'buildstatus',
       :loading => "$('#spinner_stat').show(); $('#status_reload').hide()", :complete => "$('#spinner_stat').hide(); $('#status_reload').show()" %>
     <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
   </h3>
 
-  <div id='inner_repo_table'>
-    Loading data...
+  <div id='buildstatus'>
+	  <p>Loading data...</p>
   </div>
 </div>
 

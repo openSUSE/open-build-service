@@ -8,7 +8,7 @@ class PackageController < ApplicationController
     :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
-    :show, :wizard, :edit, :add_file, :save_file, :reload_buildstatus, :update_flag, :view_file, 
+    :show, :wizard, :edit, :add_file, :save_file, :update_flag, :view_file, 
     :remove, :live_build_log, :rdiff, :users, :files, :attributes]
   before_filter :check_user, :only => [:users]
 
@@ -22,7 +22,7 @@ class PackageController < ApplicationController
   end
 
   def show
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status', 'binarylist'], :expires_in => 5.minutes )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
     if @package.bugowner
       @bugowner_mail = Person.find_cached( @package.bugowner ).email.to_s
     elsif @project.bugowner
@@ -694,7 +694,7 @@ class PackageController < ApplicationController
   def reload_buildstatus
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status'] )
     fill_status_cache
     render :partial => 'buildstatus'
   end
@@ -791,6 +791,7 @@ class PackageController < ApplicationController
     @repohash = Hash.new
     @statushash = Hash.new
     @packagenames = Array.new
+    @repostatushash = Hash.new
 
     @buildresult.each_result do |result|
       @resultvalue = result
@@ -809,9 +810,40 @@ class PackageController < ApplicationController
         stathash[status.package] = status
       end
 
+      # repository status cache
+      @repostatushash[repo] ||= Hash.new
+      @repostatushash[repo][arch] = Hash.new
+
+      if result.has_attribute? :state
+        if result.has_attribute? :dirty
+          @repostatushash[repo][arch] = "outdated_" + result.state.to_s
+        else
+          @repostatushash[repo][arch] = result.state.to_s
+        end
+      end
+
       @packagenames << stathash.keys
     end
     
+    if @buildresult and !@buildresult.has_element? :result
+      @buildresult = nil
+    end
+    
+    return unless @buildresult
+
+    newr = Hash.new
+    @buildresult.each_result.sort {|a,b| a.repository <=> b.repository}.each do |result|
+      repo = result.repository
+      if result.has_element? :status
+	newr[repo] ||= Array.new
+	newr[repo] << result.arch
+      end
+    end
+   
+    @buildresult = Array.new
+    newr.keys.sort.each do |r|
+      @buildresult << [r, newr[r].flatten.sort]
+    end
   end
 
 end

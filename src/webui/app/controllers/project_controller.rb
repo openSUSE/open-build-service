@@ -153,8 +153,31 @@ class ProjectController < ApplicationController
   end
 
   def buildresult
-    @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' ).to_a
-    render :partial => 'inner_repo_table', :locals => {:has_data => true}
+    @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
+
+    @repohash = Hash.new
+    @statushash = Hash.new
+    @repostatushash = Hash.new
+    @packagenames = Array.new
+
+    @buildresult.each_result do |result|
+      repo = result.repository
+      arch = result.arch
+
+      # repository status cache
+      @repostatushash[repo] ||= Hash.new
+      @repostatushash[repo][arch] = Hash.new
+
+      if result.has_attribute? :state
+        if result.has_attribute? :dirty
+          @repostatushash[repo][arch] = "outdated_" + result.state.to_s
+        else
+          @repostatushash[repo][arch] = result.state.to_s
+        end
+      end
+    end
+    @buildresult = @buildresult.to_a
+    render :partial => 'buildstatus', :locals => {:has_data => true}
   end
 
   def delete
