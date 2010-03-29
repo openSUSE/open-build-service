@@ -15,33 +15,36 @@ end
 <h2>Create New Project</h2>
 
 <div class="description">
-<p>All users have a home:&lt;login&gt; project by default, and can also create new sub projects. </p>
-<p>New project outside of your home namespace can get requested via <a href="https://bugzilla.novell.com/enter_bug.cgi?classification=7340&product=openSUSE.org&submit=Use+This+Product&component=OBS%20Request">bugzilla</a>.
-To discuss the requested project setup, please use the <a href="mailto:opensuse-buildservice@opensuse.org">opensuse-buildservice@opensuse.org</a>
-mailing list.
+  <p>All users have a home:&lt;login&gt; project by default, and can also create new sub projects. </p>
+  <p>New project outside of your home namespace can get requested via <a href="https://bugzilla.novell.com/enter_bug.cgi?classification=7340&amp;product=openSUSE.org&amp;submit=Use+This+Product&amp;component=OBS%20Request">bugzilla</a>.
+    To discuss the requested project setup, please use the <a href="mailto:opensuse-buildservice@opensuse.org">opensuse-buildservice@opensuse.org</a>
+  mailing list.</p>
 </div>
 
-
-
 <% form_tag 'save_new' do -%>
-<strong>Project Name:</strong>
-<% if @project_name %>
-  <%= @project_name %>
-  <%= hidden_field_tag( "name", @project_name ) %>
-  <br/>
-<% else %>
-  <br/>
-  <%if @namespace-%>
-  <%= hidden_field_tag('ns',@namespace)%>
-  <strong><%=@namespace%>:</strong>
-  <%end-%>
-  <%= text_field_tag 'name', @new_project_name, :size => 80 %>
-  <br/>
-<% end %>
-<strong>Title:</strong><br/>
-<%= text_field_tag 'title', @project_title, :size => 80 %><br/>
-<strong>Description:</strong><br/>
-<%= text_area_tag 'description', @project_description, :cols => 80,
-  :rows => 10 %>
-<p><%= submit_tag "Create Project" %></p>
+  <div>
+    <p><strong>Project Name:</strong></p>
+    <p>
+      <% if @project_name %>
+        <%= @project_name %>
+        <%= hidden_field_tag( "name", @project_name ) %>
+      <% else %>
+        <%if @namespace-%>
+          <%= hidden_field_tag('ns',@namespace)%>
+          <strong><%=@namespace%>:</strong>
+        <%end-%>
+        <%= text_field_tag 'name', @new_project_name, :size => 80 %>
+
+      <% end %>
+    </p>
+  </div>
+  <div>
+    <p><label for="title"><strong>Title: </strong></label><%= text_field_tag 'title', @project_title, :size => 80 %></p>
+  </div>
+  <div>
+    <p><label for="description"><strong>Description:</strong></label></p>
+    <p><%= text_area_tag 'description', @project_description, :cols => 80,
+      :rows => 10 %></p>
+    <p><%= submit_tag "Create Project" %></p>
+  </div>
 <% end -%>
