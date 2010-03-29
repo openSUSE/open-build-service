@@ -102,6 +102,10 @@ class FasterBuilder::XmlMarkup < BlankSlate
   alias_method :<<, :text!
   
   def method_missing(element, *options, &block)
+    if element.to_s == 'respond_to?'
+      raise ArgumentError, 'HALLO'
+    end
+    #puts "method_missing -#{element}-"
     tag!(element, *options, &block)
   end
   

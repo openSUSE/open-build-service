@@ -20,7 +20,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = PublishFlag.new(:repo => "10.#{i}", :status => "enabled")    
+      f = PublishFlag.new(:repo => "10.#{i}", :status => "enabled", :position => i+2)    
       @arch.publish_flags << f
       @project.publish_flags << f
     end
@@ -60,7 +60,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = PublishFlag.new(:repo => "10.#{i}", :status => "disabled")    
+      f = PublishFlag.new(:repo => "10.#{i}", :status => "disabled", :position => i+1)    
       @arch.publish_flags << f
       @package.publish_flags << f
     end
@@ -182,7 +182,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal 9, Flag.find(:all).size    
     
     #create new flag and save it.
-    f = PublishFlag.new(:repo => "10.3", :status => "enabled")    
+    f = PublishFlag.new(:repo => "10.3", :status => "enabled", :position => 3)    
     @arch.publish_flags << f
     @project.publish_flags << f
     
@@ -205,7 +205,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     
     #create new flag and save it, but set the references in different order as above.
     #The result should be the same.
-    f = PublishFlag.new(:repo => "10.2", :status => "enabled")    
+    f = PublishFlag.new(:repo => "10.2", :status => "enabled", :position => 4)    
     @project.publish_flags << f
     @arch.publish_flags << f
 

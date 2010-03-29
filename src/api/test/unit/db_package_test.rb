@@ -65,7 +65,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 'enabled', @package.build_flags[0].status
     assert_equal '10.2', @package.build_flags[0].repo
     assert_equal 'i386', @package.build_flags[0].architecture.name
-    assert_equal 1, @package.build_flags[0].position
+    assert_equal 0, @package.build_flags[0].position
     assert_nil @package.build_flags[0].db_project    
     assert_equal 'TestPack', @package.build_flags[0].db_package.name
     
@@ -73,7 +73,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 'enabled', @package.publish_flags[0].status
     assert_equal '10.1', @package.publish_flags[0].repo
     assert_equal 'x86_64', @package.publish_flags[0].architecture.name
-    assert_equal 1, @package.publish_flags[0].position
+    assert_equal 0, @package.publish_flags[0].position
     assert_nil @package.publish_flags[0].db_project    
     assert_equal 'TestPack', @package.publish_flags[0].db_package.name    
     
@@ -81,7 +81,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 'disabled', @package.debuginfo_flags[0].status
     assert_equal '10.0', @package.debuginfo_flags[0].repo
     assert_equal 'i386', @package.debuginfo_flags[0].architecture.name
-    assert_equal 1, @package.debuginfo_flags[0].position
+    assert_equal 0, @package.debuginfo_flags[0].position
     assert_nil @package.debuginfo_flags[0].db_project  
     assert_equal 'TestPack', @package.debuginfo_flags[0].db_package.name        
     
@@ -112,50 +112,6 @@ class DbPackageTest < ActiveSupport::TestCase
   end
   
   
-  def test_flag_type_mismatch
-    #check precondition
-    assert_equal 1, @package.build_flags.size    
-  
-    axml = ActiveXML::Base.new(
-      "<package name='TestPack' project='home:tscholz'>
-        <title>My Test package</title>
-        <description></description>
-        <build>
-          <enabled repository='10.2' arch='i386'/>
-        </build>      
-        <url></url>
-        <disable repository='10.0' arch='i386'/>
-      </package>"
-      )    
-  
-    assert_raise(DbPackage::SaveError){
-      @package.flag_compatibility_check(:package => axml)
-      }
-    
-    assert_equal 1, @package.build_flags.size  
-  end
-  
-  
-  def test_old_flag_to_build_flag
-    #check precondition
-    assert_equal 1, @package.build_flags.size    
-
-    axml = ActiveXML::Base.new(
-      "<package name='TestPack' project='home:tscholz'>
-        <title>My Test package</title>
-        <description></description>    
-        <url></url>
-        <disable/>
-        <disable repository='10.2'/>
-        <disable repository='10.2' arch='i386'/>
-      </package>"
-      )      
-      
-    @package.old_flag_to_build_flag(:package => axml, :flagtype => 'build')
-    assert_equal 3, @package.build_flags.size  
-  end
-  
-  
   def test_store_axml
     #package is given as axml
     axml = ActiveXML::Base.new(
@@ -166,7 +122,6 @@ class DbPackageTest < ActiveSupport::TestCase
           <disabled repository='10.0' arch='i386'/>
         </debuginfo>    
         <url></url>
-        <disable/>
       </package>"
       )
       

@@ -74,7 +74,7 @@ class SourceController < ApplicationController
           del_repo = DbProject.find_by_name("deleted").repositories[0]
           lreps.each do |link_rep|
             link_rep.path_elements.find(:all).each { |pe| pe.destroy }
-            link_rep.path_elements.create(:link => del_repo)
+            link_rep.path_elements.create(:link => del_repo, :position => 1)
             link_rep.save
             #update backend
             link_rep.db_project.store
@@ -375,7 +375,7 @@ class SourceController < ApplicationController
       @project = DbProject.find_by_name( project_name )
 
       if @project
-        render :text => @project.to_axml, :content_type => 'text/xml'
+        render :text => @project.to_axml(params[:view]), :content_type => 'text/xml'
       elsif DbProject.find_remote_project(project_name)
         # project from remote buildservice, get metadata from backend
         pass_to_backend
@@ -511,9 +511,8 @@ class SourceController < ApplicationController
     end
   end
 
-  def update_package_meta(project_name, package_name)
+  def update_package_meta(project_name, package_name, request_data)
     allowed = false
-    request_data = request.raw_post
     # Try to fetch the package to see if it already exists
     @package = Package.find( package_name, :project => project_name )
 
@@ -602,7 +601,7 @@ class SourceController < ApplicationController
 
       render :text => pack.to_axml(params[:view]), :content_type => 'text/xml'
     else
-      update_package_meta(project_name, package_name)
+      update_package_meta(project_name, package_name, request.raw_post)
     end
   end
 
@@ -1135,7 +1134,7 @@ class SourceController < ApplicationController
       DbProject.transaction do
         oprj = DbProject.new :name => oprj_name, :title => prj.title, :description => prj.description
         oprj.add_user @http_user, "maintainer"
-        oprj.publish_flags << PublishFlag.new( :status => "disable" )
+        oprj.publish_flags << PublishFlag.new( :status => "disable", :position => 1 )
         prj.repositories.each do |repo|
           orepo = oprj.repositories.create :name => repo.name
           orepo.architectures = repo.architectures

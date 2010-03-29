@@ -104,7 +104,7 @@ class DbPackage < ActiveRecord::Base
       '@activity:=( ' +
         'pac.activity_index - ' +
         'POWER( TIME_TO_SEC( TIMEDIFF( NOW(), pac.updated_at ))/86400, 1.55 ) /10 ' +
-      ')'
+        ')'
     end
 
     def find_by_name(name)
@@ -166,9 +166,10 @@ class DbPackage < ActiveRecord::Base
       self.bcntsynctag = nil
       self.bcntsynctag = package.bcntsynctag.to_s if package.has_element? :bcntsynctag
 
+      # old column, get removed now always and migrated to new develpackage
+      # might get reused later for defining devel projects in project meta
+      self.develproject = nil
       #--- devel project ---#
-      self.develproject = nil      # old column, get removed now always and migrated to new develpackage
-                                   # might get reused later for defining devel projects in project meta
       self.develpackage = nil
       if package.has_element? :devel
         prj_name = package.project.to_s
@@ -302,20 +303,6 @@ class DbPackage < ActiveRecord::Base
         end
       end
 
-      #--- end update groups ---#
-
-
-      #---begin enable / disable flags ---#
-      flag_compatibility_check( :package => package )
-      %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
-        update_flags( :package => package, :flagtype => flagtype )
-      end
-
-      #add old-style-flags as build-flags
-      old_flag_to_build_flag( :package => package ) if package.has_element? :disable
-      #--- end enable / disable flags ---#
-
-
       #--- update url ---#
       if package.has_element? :url
         if self.url != package.url.to_s
@@ -366,9 +353,9 @@ class DbPackage < ActiveRecord::Base
     end
     # update or create attribute entry
     if binary
-       a = find_attribute(attrib.namespace, attrib.name, binary)
+      a = find_attribute(attrib.namespace, attrib.name, binary)
     else
-       a = find_attribute(attrib.namespace, attrib.name)
+      a = find_attribute(attrib.namespace, attrib.name)
     end
     if a
       a.update_from_xml(attrib)
@@ -390,20 +377,21 @@ class DbPackage < ActiveRecord::Base
     self.save!
 
     # expire cache
-    Rails.cache.delete('meta_package_%d' % id)
+    Rails.cache.delete('meta_package_standard_%d' % id)
+    Rails.cache.delete('meta_package_flagdetails_%d' % id)
 
     #--- write through to backend ---#
     if write_through?
       path = "/source/#{self.db_project.name}/#{self.name}/_meta"
-      Suse::Backend.put_source( path, render_axml )
+      Suse::Backend.put_source( path, to_axml )
     end
   end
 
   def find_attribute( namespace, name, binary=nil )
-      if binary
-        return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binary = BINARY ?", name, namespace, binary])
-      end
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace])
+    if binary
+      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and attribs.binary = BINARY ?", name, namespace, binary])
+    end
+    return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace])
   end
 
   def write_through?
@@ -423,9 +411,9 @@ class DbPackage < ActiveRecord::Base
     end
 
     PackageUserRoleRelationship.create(
-        :db_package => self,
-        :user => user,
-        :role => role )
+      :db_package => self,
+      :user => user,
+      :role => role )
   end
 
   def add_group( group, role_title )
@@ -440,9 +428,9 @@ class DbPackage < ActiveRecord::Base
     end
 
     PackageGroupRoleRelationship.create(
-        :db_package => self,
-        :group => group,
-        :role => role )
+      :db_package => self,
+      :group => group,
+      :role => role )
   end
 
   # returns true if the specified user is associated with that package. possible
@@ -470,9 +458,9 @@ class DbPackage < ActiveRecord::Base
     end
 
     return true if PackageUserRoleRelationship.find :first,
-        :select => "purr.id",
-        :joins => join_fragments.join(", "),
-        :conditions => [cond_fragments.join(" and "), cond_params].flatten
+      :select => "purr.id",
+      :joins => join_fragments.join(", "),
+      :conditions => [cond_fragments.join(" and "), cond_params].flatten
     return false
   end
 
@@ -496,9 +484,9 @@ class DbPackage < ActiveRecord::Base
     end
 
     return true if PackageGroupRoleRelationship.find :first,
-        :select => "pgrr.id",
-        :joins => join_fragments.join(", "),
-        :conditions => [cond_fragments.join(" and "), cond_params].flatten
+      :select => "pgrr.id",
+      :joins => join_fragments.join(", "),
+      :conditions => [cond_fragments.join(" and "), cond_params].flatten
     return false
   end
 
@@ -529,9 +517,10 @@ class DbPackage < ActiveRecord::Base
     return groups
   end
 
-  def to_axml
-    Rails.cache.fetch('meta_package_%d' % id) do
-       render_axml
+  def to_axml(view = nil)
+    logger.debug "to_axml #{view}"
+    Rails.cache.fetch('meta_package_%s_%d' % [view ? view : 'standard', self.id]) do
+      render_axml(view) 
     end
   end
 
@@ -593,10 +582,11 @@ class DbPackage < ActiveRecord::Base
         end
       end
     end
+    xml.target!
   end
 
-  def render_axml
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+  def render_axml(view = nil)
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering package #{name} ------------------------"
     xml = builder.package( :name => name, :project => db_project.name ) do |package|
@@ -619,13 +609,15 @@ class DbPackage < ActiveRecord::Base
 
       %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|
         flaglist = __send__(flag_name+"_flags")
-        unless flaglist.empty?
-          package.__send__(flag_name) do
+        if view == 'flagdetails'
+          db_project.expand_flags(builder, flag_name, flaglist)
+        else
+          package.tag!(flag_name) do
             flaglist.each do |flag|
-              package << " "*4 + flag.to_xml.to_s+"\n"
+              flag.to_xml(builder)
             end
-          end
-        end
+          end unless flaglist.empty?
+        end 
       end
 
       package.url( url ) if url
@@ -634,7 +626,7 @@ class DbPackage < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 
-    return xml
+    return xml.target!
   end
 
   def to_axml_id
@@ -664,8 +656,8 @@ class DbPackage < ActiveRecord::Base
       :from => 'db_packages pac, db_projects pro',
       :conditions => "pac.db_project_id = pro.id AND pac.id = #{self.id}",
       :select => "pac.*, pro.name AS project_name, " +
-        "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
-        "IF( @activity<0, 0, @activity ) AS activity_value"
+      "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
+      "IF( @activity<0, 0, @activity ) AS activity_value"
     return package.activity_value.to_f
   end
 
@@ -700,6 +692,7 @@ class DbPackage < ActiveRecord::Base
 
       #remove old flags
       logger.debug "[DBPACKAGE:FLAGS] begin transaction for updating flags"
+      position = 0
       Flag.transaction do
         self.send(flagtype).destroy_all
 
@@ -717,10 +710,11 @@ class DbPackage < ActiveRecord::Base
           repo ||= nil
 
           #instantiate new flag object
-          flag = self.send(flagtype).new
+          flag = self.send(flagtype).new :position => position
           #set the flag attributes
           flag.repo = repo
           flag.status = xmlflag.data.name
+          position += 1
 
           #flag position will be set through the model, but not verified
 
@@ -740,33 +734,5 @@ class DbPackage < ActiveRecord::Base
     #self.reload
     return true
   end
-
-  #TODO this function should be removed if no longer old-style-flags in use
-  #no build_flags and old-style-flags should be used at once
-  def flag_compatibility_check( opts={} )
-    package = opts[:package]
-    if package.has_element? :build and
-      ( package.has_element? :disable or package.has_element? :enable )
-      logger.debug "[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags."
-      raise SaveError.new("[DBPACKAGE:FLAG-STYLE-MISMATCH] Unable to store flags.")
-    end
-  end
-
-  #TODO this function should be removed if no longer old-style-flags in use
-  def old_flag_to_build_flag( opts={} )
-    package = opts[:package]
-
-    #using a fake-project to import old-style-flags as build-flags
-    fake_package = Package.new(:name => package.name)
-
-    buildflags = REXML::Element.new("build")
-    package.each_disable do |flag|
-      elem = REXML::Document.new(flag.dump_xml).root
-      buildflags.add_element elem
-    end
-
-    fake_package.add_node buildflags.to_s
-    #return fake_package
-    update_flags(:flagtype => 'build', :package => fake_package)
-  end
+  
 end

@@ -20,7 +20,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = DebuginfoFlag.new(:repo => "10.#{i}", :status => "enabled")    
+      f = DebuginfoFlag.new(:repo => "10.#{i}", :status => "enabled", :position => i + 2)    
       @arch.debuginfo_flags << f
       @project.debuginfo_flags << f
     end
@@ -60,7 +60,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = DebuginfoFlag.new(:repo => "10.#{i}", :status => "disabled")    
+      f = DebuginfoFlag.new(:repo => "10.#{i}", :status => "disabled", :position => i+1)    
       @arch.debuginfo_flags << f
       @package.debuginfo_flags << f
     end
@@ -182,7 +182,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal 9, Flag.find(:all).size    
     
     #create new flag and save it.
-    f = DebuginfoFlag.new(:repo => "10.3", :status => "enabled")    
+    f = DebuginfoFlag.new(:repo => "10.3", :status => "enabled", :position => 3)    
     @arch.debuginfo_flags << f
     @project.debuginfo_flags << f
     
@@ -205,7 +205,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     
     #create new flag and save it, but set the references in different order as above.
     #The result should be the same.
-    f = DebuginfoFlag.new(:repo => "10.2", :status => "enabled")    
+    f = DebuginfoFlag.new(:repo => "10.2", :status => "enabled", :position => 4)    
     @project.debuginfo_flags << f
     @arch.debuginfo_flags << f
 

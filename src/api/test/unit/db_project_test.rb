@@ -61,7 +61,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'disabled', @project.build_flags[0].status
     assert_equal '10.2', @project.build_flags[0].repo
     assert_equal 'i386', @project.build_flags[0].architecture.name
-    assert_equal 1, @project.build_flags[0].position
+    assert_equal 0, @project.build_flags[0].position
     assert_nil @project.build_flags[0].db_package    
     assert_equal 'home:tscholz', @project.build_flags[0].db_project.name
     
@@ -69,7 +69,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'enabled', @project.publish_flags[0].status
     assert_equal '10.2', @project.publish_flags[0].repo
     assert_equal 'x86_64', @project.publish_flags[0].architecture.name
-    assert_equal 1, @project.publish_flags[0].position
+    assert_equal 0, @project.publish_flags[0].position
     assert_nil @project.publish_flags[0].db_package    
     assert_equal 'home:tscholz', @project.publish_flags[0].db_project.name  
     
@@ -77,7 +77,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'disabled', @project.debuginfo_flags[0].status
     assert_equal '10.0', @project.debuginfo_flags[0].repo
     assert_equal 'i386', @project.debuginfo_flags[0].architecture.name
-    assert_equal 1, @project.debuginfo_flags[0].position
+    assert_equal 0, @project.debuginfo_flags[0].position
     assert_nil @project.debuginfo_flags[0].db_package    
     assert_equal 'home:tscholz', @project.debuginfo_flags[0].db_project.name      
     
