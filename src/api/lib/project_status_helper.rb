@@ -137,13 +137,13 @@ class ProjectStatusHelper
 
     key = Digest::MD5.hexdigest(uri)
 
-    lastlast = Rails.cache.read(key + '_last')
+    lastlast = Rails.cache.read(key + '_last', :raw => true)
     if currentlast != lastlast 
       Rails.cache.delete key
     end
    
-    Rails.cache.fetch(key) do
-      Rails.cache.write(key + '_last', currentlast)
+    Rails.cache.fetch(key, :raw => true) do
+      Rails.cache.write(key + '_last', currentlast, :raw => true)
       backend.direct_http( URI(uri) , :timeout => 1000 )
     end
   end
