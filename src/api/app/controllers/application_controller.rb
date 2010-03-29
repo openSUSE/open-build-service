@@ -87,7 +87,7 @@ class ApplicationController < ActionController::Base
           return false
         end
       else
-        if CONFIG['allow_anonymous'] and CONFIG['allow_anonymous'] == "true"
+        if CONFIG['allow_anonymous']
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
           return
