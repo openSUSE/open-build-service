@@ -2003,9 +2003,15 @@ sub remote_getrev {
     die("404 project '$projid' does not exist\n");
   }
   my @args;
-  push @args, "expand";
+  push @args, 'expand';
   push @args, "rev=$rev" if defined $rev;
-  my $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args);
+  my $dir;
+  eval {
+    $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args, 'withlinked');
+  };
+  if ($@) {
+    $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args);
+  }
   die("$dir->{'error'}\n") if $dir->{'error'};
   $rev = {};
   $rev->{'rev'} = $dir->{'rev'} || $dir->{'srcmd5'};
@@ -2035,6 +2041,13 @@ sub remote_getrev {
     if ($linked) {
       # add linked info for getprojpack
       my $li = $dir->{'linkinfo'};
+      if ($li->{'linked'}) {
+	for my $l (@{$li->{'linked'}}) {
+	  $l->{'project'} = maptoremote($proj, $l->{'project'});
+	  push @$linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
+	}
+	undef $li;
+      }
       while ($li) {
         my $lprojid = $li->{'project'};
         my $lpackid = $li->{'package'};
