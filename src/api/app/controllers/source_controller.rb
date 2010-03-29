@@ -511,8 +511,61 @@ class SourceController < ApplicationController
     end
   end
 
+  def update_package_meta(project_name, package_name)
+    allowed = false
+    request_data = request.raw_post
+    # Try to fetch the package to see if it already exists
+    @package = Package.find( package_name, :project => project_name )
+
+    if @package
+      # Being here means that the package already exists
+      allowed = permissions.package_change? @package
+      if allowed
+        @package = Package.new( request_data, :project => project_name, :name => package_name )
+      else
+        logger.debug "user #{user.login} has no permission to change package #{@package}"
+        render_error :status => 403, :errorcode => "change_package_no_permission",
+          :message => "no permission to change package"
+        return
+      end
+    else
+      # Ok, the package is new
+      allowed = permissions.package_create?( project_name )
+
+      if allowed
+        #FIXME: parameters that get substituted into the url must be specified here... should happen
+        #somehow automagically... no idea how this might work
+        @package = Package.new( request_data, :project => project_name, :name => package_name )
+      else
+        # User is not allowed by global permission.
+        logger.debug "Not allowed to create new packages"
+        render_error :status => 403, :errorcode => "create_package_no_permission",
+          :message => "no permission to create package for project #{project_name}"
+        return
+      end
+    end
+
+    if allowed
+      if( @package.name != package_name )
+        render_error :status => 400, :errorcode => 'package_name_mismatch',
+          :message => "package name in xml data does not match resource path component"
+        return
+      end
+
+      begin
+        @package.save
+      rescue DbPackage::CycleError => e
+        render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
+        return
+      end
+      render_ok
+    else
+      logger.debug "user #{user.login} has no permission to write package meta for package #{@package}"
+    end
+  end
+  private :update_package_meta
+
   def package_meta
-    #TODO: needs cleanup/split to smaller methods
     valid_http_methods :put, :get
    
     project_name = params[:project]
@@ -547,58 +600,9 @@ class SourceController < ApplicationController
         return
       end
 
-      render :text => pack.to_axml, :content_type => 'text/xml'
-    elsif request.put?
-      allowed = false
-      request_data = request.raw_post
-      # Try to fetch the package to see if it already exists
-      @package = Package.find( package_name, :project => project_name )
-      
-      if @package
-        # Being here means that the package already exists
-        allowed = permissions.package_change? @package
-        if allowed
-          @package = Package.new( request_data, :project => project_name, :name => package_name )
-        else
-          logger.debug "user #{user.login} has no permission to change package #{@package}"
-          render_error :status => 403, :errorcode => "change_package_no_permission",
-            :message => "no permission to change package"
-          return
-        end
-      else
-        # Ok, the package is new
-        allowed = permissions.package_create?( project_name )
-  
-        if allowed
-          #FIXME: parameters that get substituted into the url must be specified here... should happen
-          #somehow automagically... no idea how this might work
-          @package = Package.new( request_data, :project => project_name, :name => package_name )
-        else
-          # User is not allowed by global permission.
-          logger.debug "Not allowed to create new packages"
-          render_error :status => 403, :errorcode => "create_package_no_permission",
-            :message => "no permission to create package for project #{project_name}"
-          return
-        end
-      end
-      
-      if allowed
-        if( @package.name != package_name )
-          render_error :status => 400, :errorcode => 'package_name_mismatch',
-            :message => "package name in xml data does not match resource path component"
-          return
-        end
-
-        begin
-          @package.save
-        rescue DbPackage::CycleError => e
-          render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
-          return
-        end
-        render_ok
-      else
-        logger.debug "user #{user.login} has no permission to write package meta for package #{@package}"
-      end
+      render :text => pack.to_axml(params[:view]), :content_type => 'text/xml'
+    else
+      update_package_meta(project_name, package_name)
     end
   end
 
