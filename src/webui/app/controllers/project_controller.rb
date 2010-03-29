@@ -16,6 +16,12 @@ class ProjectController < ApplicationController
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes,
     :meta, :edit_meta, :edit_comment ]
+
+  before_filter :load_current_requests, :only => [:delete, :view,
+    :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
+    :remove_person, :save_person, :add_person, :remove_target, 
+    :show, :monitor, :edit_prjconf, :list_requests,
+    :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
   before_filter :check_user, :only => [:repositories, :list_requests, :meta,
@@ -141,11 +147,15 @@ class ProjectController < ApplicationController
 
   def show
     @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s if @project.bugowner
-
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
       Package.find_cached( :all, :project => @project, :expires_in => 30.seconds )
     end
-  
+
+    @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project, :expires_in => 30.minutes) do
+      buildresult = Buildresult.find_cached( :project => @project, :view => 'status', :expires_in => 30.seconds )
+      buildresult.data.find( 'result/status[@code = "failed" or @code = "expansionerror" or @code = "broken" ]' ).size
+    end
+
   end
 
   def add_person
@@ -153,7 +163,7 @@ class ProjectController < ApplicationController
   end
 
   def buildresult
-    @buildresult = Buildresult.find( :project => params[:project], :view => 'summary' )
+    @buildresult = Buildresult.find_cached( :project => params[:project], :view => 'summary', :expires_in => 30.seconds )
 
     @repohash = Hash.new
     @statushash = Hash.new
@@ -957,8 +967,6 @@ class ProjectController < ApplicationController
         render :text => "Project not found: #{params[:project]}", :status => 404 and return
       end
     end
-    # load the requests for all project related actions as they might show a tab
-    load_current_requests
   end
 
   def require_prjconf

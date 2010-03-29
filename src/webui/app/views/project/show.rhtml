@@ -68,7 +68,10 @@
     <% if @current_requests.has_elements? %>
     <div><p>There are <%= @current_requests.each.size %> open <%= link_to 'requests', :action => :list_requests, :project => @project %></p></div>
     <% end %>
-    <div><p>There are X problematic packages of <%= @packages.each.size %> total.</p></div>
+    <% if @problem_packages > 0 %>
+    <div><p>There are <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project %>
+        packages of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
+    <% end %>
   </div>
 </div>
 </div>
