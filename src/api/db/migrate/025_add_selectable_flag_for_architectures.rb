@@ -5,12 +5,14 @@ class AddSelectableFlagForArchitectures < ActiveRecord::Migration
     add_column :architectures, :selectable, :boolean, :default => false
 
     # make i586 selectable
-    if arch = Architecture.find_by_name( 'i586' )
+    arch = Architecture.find_by_name( 'i586' )
+    if arch
       arch.selectable = true
       arch.save
     end
     # make x86_64 selectable
-    if arch = Architecture.find_by_name( 'x86_64' )
+    arch = Architecture.find_by_name( 'x86_64' )
+    if arch
       arch.selectable = true
       arch.save
     end

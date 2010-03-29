@@ -340,24 +340,6 @@ class ProjectController < ApplicationController
     redirect_to :action => :show, :project => @project
   end
 
-  def add_repository
-    @project = params[:project]
-  end
-
-  def receive_repository
-    @id = params[:id]
-  end
-
-  def update_project_list
-    if params[:filter]
-      @project_list = Collection.find :id, :what => "project", :predicate => "contains(@name,'#{params[:filter]}')"
-    else
-      @project_list = Project.find_cached :all
-    end
-    render :partial => "project_list"
-      
-  end
-
   def add_target
     @platforms = Platform.find( :all ).each_entry.map {|p| p.name.to_s}
 

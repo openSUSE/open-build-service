@@ -3,7 +3,7 @@ require 'rexml/document'
 class ResultController < ApplicationController
 
   def index
-    render_text( "Results Index" )
+    render :text => "Results Index"
   end
 
   def projectresult

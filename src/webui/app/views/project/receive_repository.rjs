@@ -1,1 +1,0 @@
-page.insert_html :bottom, 'drop_list', :partial => 'repository'

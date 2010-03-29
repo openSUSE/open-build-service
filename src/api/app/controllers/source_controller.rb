@@ -74,7 +74,7 @@ class SourceController < ApplicationController
           del_repo = DbProject.find_by_name("deleted").repositories[0]
           lreps.each do |link_rep|
             link_rep.path_elements.find(:all).each { |pe| pe.destroy }
-            link_rep.path_elements.create(:link => del_repo)
+            link_rep.path_elements.create(:link => del_repo, :position => 1)
             link_rep.save
             #update backend
             link_rep.db_project.store
@@ -235,7 +235,7 @@ class SourceController < ApplicationController
         req.data # trigger XML parsing
       rescue ActiveXML::ParseError => e
         render_error :message => "Invalid XML",
-           :status => 400, :errorcode => "invalid_xml"
+          :status => 400, :errorcode => "invalid_xml"
         return
       end
     end
@@ -267,9 +267,9 @@ class SourceController < ApplicationController
       end
     else
       if request.post?
-        req.each_attribute do |a|
+        req.each_attribute do |attr|
           begin
-            can_create = @http_user.can_create_attribute_in? @attribute_container, :namespace => a.namespace, :name => a.name
+            can_create = @http_user.can_create_attribute_in? @attribute_container, :namespace => attr.namespace, :name => attr.name
           rescue ActiveRecord::RecordNotFound => e
             render_error :status => 404, :errorcode => "not_found",
               :message => e.message
@@ -294,9 +294,9 @@ class SourceController < ApplicationController
 
     # execute action
     if request.post?
-      req.each_attribute do |a|
+      req.each_attribute do |attr|
         begin
-          @attribute_container.store_attribute_axml(a, binary)
+          @attribute_container.store_attribute_axml(attr, binary)
         rescue DbProject::SaveError => e
           render_error :status => 403, :errorcode => "save_error", :message => e.message
           return
@@ -375,20 +375,7 @@ class SourceController < ApplicationController
       @project = DbProject.find_by_name( project_name )
 
       if @project
-  
-        allpacks = params[:allpacks] || false
-        if allpacks
-           render :text => proc { |response,output| 
-                               output.write("<fullmeta>\n")
-                               output.write(@project.to_axml)
-                               @project.db_packages.each do |pkg|
-                                       output.write(pkg.to_axml)
-                               end
-                               output.write("</fullmeta>\n")
-                           }, :content_type => 'text/xml'
-        else
-           render :text => @project.to_axml, :content_type => 'text/xml'
-        end
+        render :text => @project.to_axml(params[:view]), :content_type => 'text/xml'
       elsif DbProject.find_remote_project(project_name)
         # project from remote buildservice, get metadata from backend
         pass_to_backend
@@ -524,8 +511,60 @@ class SourceController < ApplicationController
     end
   end
 
+  def update_package_meta(project_name, package_name, request_data)
+    allowed = false
+    # Try to fetch the package to see if it already exists
+    @package = Package.find( package_name, :project => project_name )
+
+    if @package
+      # Being here means that the package already exists
+      allowed = permissions.package_change? @package
+      if allowed
+        @package = Package.new( request_data, :project => project_name, :name => package_name )
+      else
+        logger.debug "user #{user.login} has no permission to change package #{@package}"
+        render_error :status => 403, :errorcode => "change_package_no_permission",
+          :message => "no permission to change package"
+        return
+      end
+    else
+      # Ok, the package is new
+      allowed = permissions.package_create?( project_name )
+
+      if allowed
+        #FIXME: parameters that get substituted into the url must be specified here... should happen
+        #somehow automagically... no idea how this might work
+        @package = Package.new( request_data, :project => project_name, :name => package_name )
+      else
+        # User is not allowed by global permission.
+        logger.debug "Not allowed to create new packages"
+        render_error :status => 403, :errorcode => "create_package_no_permission",
+          :message => "no permission to create package for project #{project_name}"
+        return
+      end
+    end
+
+    if allowed
+      if( @package.name != package_name )
+        render_error :status => 400, :errorcode => 'package_name_mismatch',
+          :message => "package name in xml data does not match resource path component"
+        return
+      end
+
+      begin
+        @package.save
+      rescue DbPackage::CycleError => e
+        render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
+        return
+      end
+      render_ok
+    else
+      logger.debug "user #{user.login} has no permission to write package meta for package #{@package}"
+    end
+  end
+  private :update_package_meta
+
   def package_meta
-    #TODO: needs cleanup/split to smaller methods
     valid_http_methods :put, :get
    
     project_name = params[:project]
@@ -560,58 +599,9 @@ class SourceController < ApplicationController
         return
       end
 
-      render :text => pack.to_axml, :content_type => 'text/xml'
-    elsif request.put?
-      allowed = false
-      request_data = request.raw_post
-      # Try to fetch the package to see if it already exists
-      @package = Package.find( package_name, :project => project_name )
-      
-      if @package
-        # Being here means that the package already exists
-        allowed = permissions.package_change? @package
-        if allowed
-          @package = Package.new( request_data, :project => project_name, :name => package_name )
-        else
-          logger.debug "user #{user.login} has no permission to change package #{@package}"
-          render_error :status => 403, :errorcode => "change_package_no_permission",
-            :message => "no permission to change package"
-          return
-        end
-      else
-        # Ok, the package is new
-        allowed = permissions.package_create?( project_name )
-  
-        if allowed
-          #FIXME: parameters that get substituted into the url must be specified here... should happen
-          #somehow automagically... no idea how this might work
-          @package = Package.new( request_data, :project => project_name, :name => package_name )
-        else
-          # User is not allowed by global permission.
-          logger.debug "Not allowed to create new packages"
-          render_error :status => 403, :errorcode => "create_package_no_permission",
-            :message => "no permission to create package for project #{project_name}"
-          return
-        end
-      end
-      
-      if allowed
-        if( @package.name != package_name )
-          render_error :status => 400, :errorcode => 'package_name_mismatch',
-            :message => "package name in xml data does not match resource path component"
-          return
-        end
-
-        begin
-          @package.save
-        rescue DbPackage::CycleError => e
-          render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
-          return
-        end
-        render_ok
-      else
-        logger.debug "user #{user.login} has no permission to write package meta for package #{@package}"
-      end
+      render :text => pack.to_axml(params[:view]), :content_type => 'text/xml'
+    else
+      update_package_meta(project_name, package_name, request.raw_post)
     end
   end
 
@@ -709,13 +699,13 @@ class SourceController < ApplicationController
     end
     pkg = project.db_packages.find_by_name( package_name )
     if pkg.nil?
-       project.linkedprojects.each do |prj|
-          pkg = find_package( prj.linked_db_project, package_name )
-          unless pkg.nil?
-            return pkg
-          end
-       end
-       return nil
+      project.linkedprojects.each do |prj|
+        pkg = find_package( prj.linked_db_project, package_name )
+        unless pkg.nil?
+          return pkg
+        end
+      end
+      return nil
     end
     return pkg
   end
@@ -746,7 +736,7 @@ class SourceController < ApplicationController
     at = AttribType.find_by_name(params[:attribute])
     if not at
       render_error :status => 403, :errorcode => 'not_found',
-         :message => "The given attribute #{params[:attribute]} does not exist"
+        :message => "The given attribute #{params[:attribute]} does not exist"
       return
     end
     if params[:value]
@@ -791,9 +781,9 @@ class SourceController < ApplicationController
         raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
       end
       if a = p.db_project.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
-         if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
-            pac = pa
-         end
+        if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
+          pac = pa
+        end
       end
       proj_name = pac.db_project.name.gsub(':', '_')
       pack_name = pac.name.gsub(':', '_')+"."+proj_name
@@ -883,7 +873,7 @@ class SourceController < ApplicationController
       node.rating      ""
       node.summary     ""
       node.description ""
-# FIXME add all bugnumbers from attributes
+      # FIXME add all bugnumbers from attributes
     end
     backend_put( patchinfo_path+"/_patchinfo?user="+@http_user.login+"&comment=generated%20file%20by%20frontend", xml )
 
@@ -1051,11 +1041,11 @@ class SourceController < ApplicationController
     #convert link to branch
     rev = ""
     if not pkg_rev.nil? and not pkg_rev.empty?
-         rev = "&rev=#{pkg_rev}"
+      rev = "&rev=#{pkg_rev}"
     end
     linkrev = ""
     if not pkg_linkrev.nil? and not pkg_linkrev.empty?
-         linkrev = "&linkrev=#{pkg_linkrev}"
+      linkrev = "&linkrev=#{pkg_linkrev}"
     end
     Suse::Backend.post "/source/#{prj_name}/#{pkg_name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}", nil
 
@@ -1095,11 +1085,11 @@ class SourceController < ApplicationController
       raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
     if a = prj.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
-       if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
-          pkg = pa
-          pkg_name = pkg.name
+      if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg.name )
+        pkg = pa
+        pkg_name = pkg.name
     	  logger.debug "branch call found package in update project"
-       end
+      end
     end
 
     # validate and resolve devel package or devel project definitions
@@ -1144,7 +1134,7 @@ class SourceController < ApplicationController
       DbProject.transaction do
         oprj = DbProject.new :name => oprj_name, :title => prj.title, :description => prj.description
         oprj.add_user @http_user, "maintainer"
-        oprj.publish_flags << PublishFlag.new( :status => "disable" )
+        oprj.publish_flags << PublishFlag.new( :status => "disable", :position => 1 )
         prj.repositories.each do |repo|
           orepo = oprj.repositories.create :name => repo.name
           orepo.architectures = repo.architectures
@@ -1171,7 +1161,7 @@ class SourceController < ApplicationController
     #create branch of sources in backend
     rev = ""
     if not pkg_rev.nil? and not pkg_rev.empty?
-         rev = "&rev=#{pkg_rev}"
+      rev = "&rev=#{pkg_rev}"
     end
     comment = params.has_key?(:comment) ? "&comment=#{CGI.escape(params[:comment])}" : ""
     Suse::Backend.post "/source/#{oprj_name}/#{opkg_name}?cmd=branch&oproject=#{CGI.escape(prj_name)}&opackage=#{CGI.escape(pkg_name)}#{rev}&user=#{CGI.escape(@http_user.login)}#{comment}", nil

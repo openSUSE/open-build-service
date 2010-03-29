@@ -108,7 +108,7 @@ class DbProject < ActiveRecord::Base
         else
           link = DbProject.find_by_name( l.project )
           if link.nil?
-              raise ArgumentError, "Linked project #{l.project} not found"
+            raise ArgumentError, "Linked project #{l.project} not found"
           end
           begin
             LinkedProject.create(
@@ -312,14 +312,14 @@ class DbProject < ActiveRecord::Base
         current_repo.path_elements.each { |pe| pe.destroy }
 
         #recreate pathelements from xml
-	position = 1
+        position = 1
         repo.each_path do |path|
           link_repo = Repository.find_by_project_and_repo_name( path.project, path.repository )
           if link_repo.nil?
             raise SaveError, "unable to walk on path '#{path.project}/#{path.repository}'"
           end
           current_repo.path_elements.create :link => link_repo, :position => position
-	  position += 1
+          position += 1
         end
 
         #destroy architecture references
@@ -373,11 +373,12 @@ class DbProject < ActiveRecord::Base
     self.save!
 
     # expire cache
-    Rails.cache.delete('meta_project_%d' % id)
+    Rails.cache.delete('meta_project_standard_%d' % id)
+    Rails.cache.delete('meta_project_flagdetails_%d' % id)
 
     if write_through?
       path = "/source/#{self.name}/_meta"
-      Suse::Backend.put_source( path, render_axml )
+      Suse::Backend.put_source( path, to_axml )
     end
 
     # FIXME: store attributes also to backend 
@@ -426,17 +427,17 @@ class DbProject < ActiveRecord::Base
   end
 
   def find_attribute( namespace, name, binary=nil )
-      logger.debug "find_attribute for #{namespace}:#{name}"
-      if namespace.nil?
-        raise RuntimeError, "Namespace must be given"
-      end
-      if name.nil?
-        raise RuntimeError, "Name must be given"
-      end
-      if binary
-        raise RuntimeError, "binary packages are not allowed in project attributes"
-      end
-      return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace])
+    logger.debug "find_attribute for #{namespace}:#{name}"
+    if namespace.nil?
+      raise RuntimeError, "Namespace must be given"
+    end
+    if name.nil?
+      raise RuntimeError, "Name must be given"
+    end
+    if binary
+      raise RuntimeError, "binary packages are not allowed in project attributes"
+    end
+    return attribs.find(:first, :joins => "LEFT OUTER JOIN attrib_types at ON attribs.attrib_type_id = at.id LEFT OUTER JOIN attrib_namespaces an ON at.attrib_namespace_id = an.id", :conditions => ["at.name = BINARY ? and an.name = BINARY ? and ISNULL(attribs.binary)", name, namespace])
   end
 
   def render_attribute_axml(params)
@@ -507,9 +508,9 @@ class DbProject < ActiveRecord::Base
     end
 
     ProjectUserRoleRelationship.create(
-        :db_project => self,
-        :user => user,
-        :role => role )
+      :db_project => self,
+      :user => user,
+      :role => role )
   end
 
   def add_group( group, role_title )
@@ -525,9 +526,9 @@ class DbProject < ActiveRecord::Base
     end
 
     ProjectGroupRoleRelationship.create(
-        :db_project => self,
-        :group => group,
-        :role => role )
+      :db_project => self,
+      :group => group,
+      :role => role )
   end
 
 
@@ -556,9 +557,9 @@ class DbProject < ActiveRecord::Base
     end
 
     return true if ProjectUserRoleRelationship.find :first,
-        :select => "purr.id",
-        :joins => join_fragments.join(", "),
-        :conditions => [cond_fragments.join(" and "), cond_params].flatten
+      :select => "purr.id",
+      :joins => join_fragments.join(", "),
+      :conditions => [cond_fragments.join(" and "), cond_params].flatten
     return false
   end
 
@@ -583,9 +584,9 @@ class DbProject < ActiveRecord::Base
     end
 
     return true if ProjectGroupRoleRelationship.find :first,
-        :select => "pgrr.id",
-        :joins => join_fragments.join(", "),
-        :conditions => [cond_fragments.join(" and "), cond_params].flatten
+      :select => "pgrr.id",
+      :joins => join_fragments.join(", "),
+      :conditions => [cond_fragments.join(" and "), cond_params].flatten
     return false
   end
 
@@ -615,14 +616,14 @@ class DbProject < ActiveRecord::Base
     return groups
   end
 
-  def to_axml
-    Rails.cache.fetch('meta_project_%d' % id) do
-       render_axml
+  def to_axml(view = nil)
+    Rails.cache.fetch('meta_project_%s_%d' % [view ? view : 'standard', id]) do
+      render_axml(view)
     end
   end
 
-  def render_axml
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+  def render_axml(view = nil)
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
 
     logger.debug "----------------- rendering project #{name} ------------------------"
     xml = builder.project( :name => name ) do |project|
@@ -646,17 +647,19 @@ class DbProject < ActiveRecord::Base
 
       self.downloads.each do |dl|
         project.download( :baseurl => dl.baseurl, :metafile => dl.metafile,
-                          :mtype => dl.mtype, :arch => dl.architecture.name )
+          :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
       %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|
-        flaglist = __send__(flag_name+"_flags")
-        unless flaglist.empty?
-          project.__send__(flag_name) do
+        if view == 'flagdetails'
+          expand_flags(builder, flag_name)
+        else
+          flaglist = __send__(flag_name+"_flags")
+          project.tag! flag_name do
             flaglist.each do |flag|
-              project << " "*4 + flag.to_xml.to_s+"\n"
+              flag.to_xml(builder)
             end
-          end
+          end unless flaglist.empty?
         end
       end
 
@@ -680,7 +683,7 @@ class DbProject < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 
-    return xml
+    return xml.target!
   end
 
   def to_axml_id
@@ -716,8 +719,8 @@ class DbProject < ActiveRecord::Base
       :from => 'db_packages pac, db_projects pro',
       :conditions => "pac.db_project_id = pro.id AND pro.id = #{self.id}",
       :select => 'pro.*,' +
-        "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
-        'IF( @activity<0, 0, @activity ) AS activity_value'
+      "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
+      'IF( @activity<0, 0, @activity ) AS activity_value'
     # count packages and sum up activity values
     project = { :count => 0, :sum => 0 }
     @packages.each do |package|
@@ -751,6 +754,7 @@ class DbProject < ActiveRecord::Base
         self.send(flagtype).destroy_all
 
         #select each build flag from xml
+        position = 0
         project.send(opts[:flagtype]).each do |xmlflag|
 
           #get the selected architecture from data base
@@ -764,12 +768,11 @@ class DbProject < ActiveRecord::Base
           repo ||= nil
 
           #instantiate new flag object
-          flag = self.send(flagtype).new
+          flag = self.send(flagtype).new :position => position
           #set the flag attributes
           flag.repo = repo
           flag.status = xmlflag.data.name
-
-          #flag position will be set through the model, but not verified
+          position += 1
 
           arch.send(flagtype) << flag unless arch.nil?
           self.send(flagtype) << flag
@@ -788,11 +791,49 @@ class DbProject < ActiveRecord::Base
     return true
   end
 
+  # calculate enabled/disabled per repo/arch
+  def flag_status(repo, arch, prj_flags, pkg_flags)
+    ret = 'enabled' # default
+
+    flags = Array.new
+    prj_flags.each do |f|
+      flags << f if f.is_relevant_for?(repo, arch)
+    end if prj_flags
+    flags.sort! { |a,b| a.specifics <=> b.specifics }
+    flags.each do |f|
+      ret = f.status
+    end
+
+    flags = Array.new
+    pkg_flags.each do |f|
+      flags << f if f.is_relevant_for?(repo, arch)
+    end if pkg_flags
+    flags.sort! { |a,b| a.specifics <=> b.specifics }
+    flags.each do |f|
+      ret = f.status
+    end
+
+    ret
+  end
+
+  # give out the XML for all repos/arch combos
+  def expand_flags(builder, flag_name, pkg_flags = nil)
+    builder.tag! flag_name do
+      flaglist = __send__(flag_name+"_flags")
+      repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
+      repos.each do |repo|
+        repo.architectures.each do |arch|
+          builder.tag! flag_status(repo.name, arch.name, flaglist, pkg_flags), :repository => repo.name, :arch => arch.name
+        end
+      end
+    end
+  end
+
   #no build_flags and old-style-flags should be used at once
   def flag_compatibility_check( opts={} )
     project = opts[:project]
     if project.has_element? :build and
-      ( project.has_element? :disable or project.has_element? :enable )
+        ( project.has_element? :disable or project.has_element? :enable )
       logger.debug "[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags."
       raise SaveError.new("[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags.")
     end
@@ -816,7 +857,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def complex_status(backend)
-	ProjectStatusHelper.calc_status(self, backend)
+    ProjectStatusHelper.calc_status(self, backend)
   end
 
   private

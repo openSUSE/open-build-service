@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100327100000) do
+ActiveRecord::Schema.define(:version => 20100329191407) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -183,7 +183,7 @@ ActiveRecord::Schema.define(:version => 20100327100000) do
     t.integer "db_project_id"
     t.integer "db_package_id"
     t.integer "architecture_id"
-    t.integer "position"
+    t.integer "position",        :null => false
   end
 
   add_index "flags", ["db_package_id", "type"], :name => "index_flags_on_db_package_id_and_type"
@@ -258,7 +258,7 @@ ActiveRecord::Schema.define(:version => 20100327100000) do
   create_table "path_elements", :force => true do |t|
     t.integer "parent_id",     :null => false
     t.integer "repository_id", :null => false
-    t.integer "position"
+    t.integer "position",      :null => false
   end
 
   add_index "path_elements", ["parent_id", "position"], :name => "parent_repo_pos_index", :unique => true

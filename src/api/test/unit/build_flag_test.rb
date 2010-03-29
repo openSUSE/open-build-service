@@ -20,7 +20,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = BuildFlag.new(:repo => "10.#{i}", :status => "enabled")    
+      f = BuildFlag.new(:repo => "10.#{i}", :status => "enabled", :position => i+2)
       @arch.build_flags << f
       @project.build_flags << f
     end
@@ -60,7 +60,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     
     #create two new flags and save it.
     for i in 1..2 do
-      f = BuildFlag.new(:repo => "10.#{i}", :status => "disabled")    
+      f = BuildFlag.new(:repo => "10.#{i}", :status => "disabled", :position => i)
       @arch.build_flags << f
       @package.build_flags << f
     end
@@ -78,7 +78,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 'disabled', f.status
     assert_equal @package.id, f.db_package_id
     assert_nil f.db_project_id
-    assert_equal 2, f.position
+    assert_equal 1, f.position
     
     f = @package.build_flags[2]
     assert_kind_of BuildFlag, f
@@ -88,7 +88,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 'disabled', f.status
     assert_equal @package.id, f.db_package_id
     assert_nil f.db_project_id
-    assert_equal 3, f.position
+    assert_equal 2, f.position
     
   end
   
@@ -182,7 +182,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 9, Flag.find(:all).size    
     
     #create new flag and save it.
-    f = BuildFlag.new(:repo => "10.3", :status => "enabled")    
+    f = BuildFlag.new(:repo => "10.3", :status => "enabled", :position => 3)    
     @arch.build_flags << f
     @project.build_flags << f
     
@@ -205,7 +205,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     
     #create new flag and save it, but set the references in different order as above.
     #The result should be the same.
-    f = BuildFlag.new(:repo => "10.2", :status => "enabled")    
+    f = BuildFlag.new(:repo => "10.2", :status => "enabled", :position => 4)    
     @project.build_flags << f
     @arch.build_flags << f
 
