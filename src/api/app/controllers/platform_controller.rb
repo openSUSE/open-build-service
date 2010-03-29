@@ -36,10 +36,10 @@ class PlatformController < ApplicationController
         response = Suse::Backend.put( path, request.raw_post )
         case response
         when Net::HTTPSuccess, Net::HTTPRedirection
-          render_text( "Ok" )
+          render :text => "Ok"
           return
         else
-          render_text( "Error: " + response.error! )
+          render :text => "Error: " + response.error!
           return
         end
       end

@@ -53,11 +53,11 @@ class TagControllerTest < ActionController::IntegrationTest
     assert_kind_of Tag, t
     
     #expected exceptions 
-    assert_raises RuntimeError do
+    assert_raise RuntimeError do
       @controller.private_s_to_tag("IamNotAllowed")
     end
     
-    assert_raises RuntimeError do
+    assert_raise RuntimeError do
       @controller.private_s_to_tag("NotAllowedSymbol:?")
     end
     
@@ -74,7 +74,7 @@ class TagControllerTest < ActionController::IntegrationTest
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
     #an exception should be thrown, because the record already exists
-    assert_raises ActiveRecord::StatementInvalid do
+    assert_raise ActiveRecord::StatementInvalid do
       @controller.private_create_relationship(p, u, t)
     end
   end
@@ -164,7 +164,7 @@ class TagControllerTest < ActionController::IntegrationTest
   end
   
   
-  def test_taglistXML_to_tags   
+  def test_taglist_xml_to_tags
     u = User.find_by_login("tscholz")
     assert_kind_of User, u
     
