@@ -792,8 +792,8 @@ class DbProject < ActiveRecord::Base
   end
 
   # calculate enabled/disabled per repo/arch
-  def flag_status(repo, arch, prj_flags, pkg_flags)
-    ret = 'enabled' # default
+  def flag_status(default, repo, arch, prj_flags, pkg_flags)
+    ret = default
 
     flags = Array.new
     prj_flags.each do |f|
@@ -820,12 +820,20 @@ class DbProject < ActiveRecord::Base
   def expand_flags(builder, flag_name, pkg_flags = nil)
     builder.tag! flag_name do
       flaglist = __send__(flag_name+"_flags")
+      flag_default = __send__(flag_name + "_flags").default_state
       repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
+      archs = Array.new
       repos.each do |repo|
+        builder.tag! flag_status(flag_default, repo.name, nil, flaglist, pkg_flags), :repository => repo.name
         repo.architectures.each do |arch|
-          builder.tag! flag_status(repo.name, arch.name, flaglist, pkg_flags), :repository => repo.name, :arch => arch.name
+          builder.tag! flag_status(flag_default, repo.name, arch.name, flaglist, pkg_flags), :repository => repo.name, :arch => arch.name
+          archs << arch.name
         end
       end
+      archs.uniq.each do |arch|
+        builder.tag! flag_status(flag_default, nil, arch, flaglist, pkg_flags), :arch => arch
+      end
+      builder.tag! flag_status(flag_default, nil, nil, flaglist, pkg_flags)
     end
   end
 
