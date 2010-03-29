@@ -27,17 +27,14 @@
             <% end -%>
           <% rescue; end %>
         </td>
-        <td>
           <% if @project.is_maintainer?( session[:login] ) %>
+            <td>
             <%= link_to "[Edit]", :update => repo.name,
-              :url => {:action => :TODO_edit_target, :project => @project, :repo => repo.name} %>
-          <% end %>
-
-          <%= if @user
+              :url => {:action => :TODO_edit_target, :project => @project, :repo => repo.name}
             link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
-              {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'}
-          end %><br/>
-        </td>
+              {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} -%>
+            </td>
+         <% end %>
 
       </tr>
     <% end %>
