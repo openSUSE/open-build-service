@@ -940,17 +940,15 @@ class ProjectController < ApplicationController
     @project = Project.find_cached( params[:project] )
     check_user
     unless @project
-      if params[:project] == "home:" + session[:login]
+      if @user and params[:project] == "home:" + @user
         # checks if the user is registered yet
-        if @user
-          flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
-            " descriptive data and press the 'Create Project' button."
-          redirect_to :action => :new, :project => "home:" + session[:login] and return
-        end
+        flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
+          " descriptive data and press the 'Create Project' button."
+        redirect_to :action => :new, :project => "home:" + session[:login] and return
       end
       # remove automatically if a user watches a removed project
-      if @user
-        @user.remove_watched_project params[:project] and @user.save if @user.watches? params[:project]
+      if @user and @user.watches? params[:project]
+        @user.remove_watched_project params[:project] and @user.save
       end
       unless request.xhr?
         flash[:error] = "Project not found: #{params[:project]}"
