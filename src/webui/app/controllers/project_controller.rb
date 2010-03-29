@@ -153,7 +153,8 @@ class ProjectController < ApplicationController
 
     @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project, :expires_in => 30.minutes) do
       buildresult = Buildresult.find_cached( :project => @project, :view => 'status', :expires_in => 30.seconds )
-      buildresult.data.find( 'result/status[@code = "failed" or @code = "expansionerror" or @code = "broken" ]' ).size
+      results = buildresult.data.find( 'result/status[@code = "failed" or @code = "expansionerror" or @code = "broken" ]' )
+      results.map{|e| e.attributes['package'] }.uniq.size
     end
 
   end
