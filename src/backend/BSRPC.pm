@@ -132,15 +132,20 @@ sub rpc {
     }
   }
   local *S;
-  my ($host, $port, $path);
+  my $path;
+  my $proxy = $param->{'proxy'};
   if (exists($param->{'socket'})) {
     *S = $param->{'socket'};
     $path = $uri;
   } else {
     die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
-    my ($proto, $auth);
+    my ($proto, $auth, $host, $port, $proxyauth);
     ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
     my $hostport = $port ? "$host$port" : $host;
+    if ($proxy) {
+      die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+      ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
+    }
     $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
     if (!$hostlookupcache{$host}) {
       my $hostaddr = inet_aton($host);
@@ -158,7 +163,21 @@ sub rpc {
       $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
       unshift @xhdrs, "Authorization: Basic ".encode_base64($auth, '');
     }
-    if ($proto eq 'https') {
+    if (defined $proxyauth) {
+      $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+      unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
+    }
+    if ($proto eq 'https' || ($proxy && $uri =~ /^https/)) {
+      if ($proxy) {
+	BSHTTP::swrite(\*S, "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n\r\n");
+	my $ans = '';
+	do {
+	  die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));
+	} while ($ans !~ /\n\r?\n/s);
+	die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
+        my $status = $1;
+	die("proxy ssl: CONNECT failed: $status\n") unless $status =~ /^200[^\d]/;
+      }
       if ($param->{'https'}) {
         $param->{'https'}->(\*S);
       } elsif ($tossl) {
@@ -176,7 +195,13 @@ sub rpc {
 
   my $act = $param->{'request'} || 'GET';
   if (!$param->{'continuation'}) {
-    my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
+    my $req;
+    if ($proxy && $uri !~ /^https:/) {
+      $req = "$act $uri HTTP/1.1\r\n";
+    } else {
+      $req = "$act $path HTTP/1.1\r\n";
+    }
+    $req .= join("\r\n", @xhdrs)."\r\n\r\n";
     if ($param->{'verbose'}) {
       print "> $_\n" for split("\r\n", $req);
       #print "> $data\n" unless ref($data);

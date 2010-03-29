@@ -628,6 +628,23 @@ sub rpc_recv_file {
 #  rpc methods
 #
 
+sub rpc_tossl {
+  my ($ev) = @_;
+  print "switching to https\n";
+  fcntl($ev->{'fd'}, F_SETFL, 0);     # in danger honor...
+  eval {
+    $ev->{'param'}->{'https'}->($ev->{'fd'});
+  };
+  fcntl($ev->{'fd'}, F_SETFL, O_NONBLOCK);
+  if ($@) {
+    my $err = $@;
+    $err =~ s/\n$//s;
+    rpc_error($ev, $err);
+    return undef;
+  }
+  return 1;
+}
+
 sub rpc_recv_handler {
   my ($ev) = @_;
   my $cs = 1024;
@@ -678,6 +695,19 @@ sub rpc_recv_handler {
     } else {
       rpc_error($ev, "remote error: $status");
     }
+    return;
+  }
+  if ($ev->{'proxytunnel'}) {
+    # CONNECT worked. we now have a https connection
+    return unless rpc_tossl($ev);
+    $ev->{'param'}->{'proto'} = 'https';
+    $ev->{'sendbuf'} = $ev->{'proxytunnel'};
+    delete $ev->{'proxytunnel'};
+    delete $ev->{'recvbuf'};
+    $ev->{'rpcstate'} = 'sending';
+    $ev->{'type'} = 'write';
+    $ev->{'handler'} = \&rpc_send_handler;
+    BSEvents::add($ev, 0);
     return;
   }
   my %headers;
@@ -778,18 +808,7 @@ sub rpc_connect_handler {
   }
   #print "rpc_connect_handler: connected!\n";
   if ($ev->{'param'} && $ev->{'param'}->{'proto'} && $ev->{'param'}->{'proto'} eq 'https') {
-    print "switching to https\n";
-    fcntl($ev->{'fd'}, F_SETFL, 0); 	# in danger honor...
-    eval {
-      $ev->{'param'}->{'https'}->($ev->{'fd'});
-    };
-    fcntl($ev->{'fd'}, F_SETFL, O_NONBLOCK);
-    if ($@) {
-      $err = $@;
-      $err =~ s/\n$//s;
-      rpc_error($ev, $err);
-      return;
-    }
+    return unless rpc_tossl($ev);
   }
   $ev->{'rpcstate'} = 'sending';
   delete $ev->{'timeouthandler'};
@@ -852,10 +871,17 @@ sub rpc {
     return undef;
   }
 
+  my $proxy = $param->{'proxy'};
+  my $proxyauth;
   # new rpc, create rpc event
   die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
   my ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
   my $hostport = $port ? "$host$port" : $host;
+  if ($proxy) {
+    die("https not supported\n") if $proto eq 'https' && !($param->{'https'} || $tossl);
+    die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+    ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
+  }
   $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
   if (!$hostlookupcache{$host}) {
     # should do this async, but that's hard to do in perl
@@ -872,6 +898,10 @@ sub rpc {
     $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     unshift @xhdrs, "Authorization: Basic ".encode_base64($auth, '');
   }
+  if (defined $proxyauth) {
+    $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
+  }
   if ($proto eq 'https') {
     $param->{'proto'} = 'https';
     $param->{'https'} ||= $tossl;
@@ -883,12 +913,24 @@ sub rpc {
     }
   }
   
-  my $req = "GET $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
+  my $req;
+  if ($proxy && $uri !~ /^https:/) {
+    $req = "GET $uri HTTP/1.1\r\n";
+  } else {
+    $req = "GET $path HTTP/1.1\r\n";
+  }
+  $req .= join("\r\n", @xhdrs)."\r\n\r\n";
   my $fd = gensym;
   socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
   fcntl($fd, F_SETFL,O_NONBLOCK);
   setsockopt($fd, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   my $ev = BSEvents::new('write', \&rpc_send_handler);
+  if ($proxy && $uri =~ /^https:/) {
+    # we're going to proxy https over http
+    $param->{'https'} ||= $tossl;
+    $ev->{'proxytunnel'} = $req;
+    $req = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n\r\n";
+  }
   $ev->{'fd'} = $fd;
   $ev->{'sendbuf'} = $req;
   $ev->{'rpcdest'} = "$host:$port";
