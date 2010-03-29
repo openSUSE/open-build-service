@@ -953,18 +953,18 @@ sub ping {
 }
 
 sub getschedulerstate {
-  my ($projid,$repoid,$arch) = @_;
+  my ($projid, $repoid, $arch) = @_;
   local *F;
 
-  open(F, '<', "$reporoot/$projid/$repoid/$arch/:schedulerstate") || return "unknown";
+  open(F, '<', "$reporoot/$projid/$repoid/$arch/:schedulerstate") || return 'unknown';
   my $schedulerstate = readline(*F);
   close(F);
 
-  if ($schedulerstate eq "finished"){
-    return "finished"     if -e "$eventdir/publish/".$projid."::".$repoid;
-    return "publishing"   if -e "$eventdir/publish/".$projid."::".$repoid."::inprogress";
-    return "unpublished"  if readstr("$reporoot/$projid/$repoid/$arch/:repodone") eq "disabled";
-    return "published";
+  if ($schedulerstate eq 'finished') {
+    return 'finished'     if -e "$eventdir/publish/${projid}::$repoid";
+    return 'publishing'   if -e "$eventdir/publish/${projid}::${repoid}::inprogress";
+    return 'unpublished'  if readstr("$reporoot/$projid/$repoid/$arch/:repodone") eq 'disabled';
+    return 'published';
   }
   return $schedulerstate;
 }
@@ -1296,29 +1296,29 @@ sub getresult {
     if (%packfilter && $ps->{'packstatus'}) {
       $ps->{'packstatus'} = [ grep {$packfilter{$_->{'name'}}} @{$ps->{'packstatus'}} ];
     }
-    my $schedulerstate = getschedulerstate($ps->{'project'},$ps->{'repository'},$ps->{'arch'});
+    my $schedulerstate = getschedulerstate($ps->{'project'}, $ps->{'repository'}, $ps->{'arch'});
     my $sl = {'project' => $ps->{'project'}, 'repository' => $ps->{'repository'}, 'arch' => $ps->{'arch'},
               'state' => $schedulerstate };
-    $sl->{'dirty'}="true" if -e "$reporoot/$prpa/:schedulerstate.dirty";
-    $sl->{'dirty'}="true" if $schedulerstate eq "scheduling"; # flag already removed, but new state not yet written
+    $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
+    $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
     fixpackstatus($prpa, $ps, \%buildingjobs);
     for my $p (@{$ps->{'packstatus'} || []}) {
-      next if %code && !$code{$p->{'status'}};
       my $packid = $p->{'name'};
+      my $code = $p->{'status'};
       if ($cgi->{'lastbuild'}) {
         if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
-          push @{$sl->{'status'}}, {'package' => $packid, 'code' => 'failed'};
+	  $code = 'failed';
         } elsif (-e "$reporoot/$prpa/:logfiles.success/$packid") {
-          push @{$sl->{'status'}}, {'package' => $packid, 'code' => 'succeeded'};
-        } else {
-          push @{$sl->{'status'}}, {'package' => $packid, 'code' => 'unknown'};
-        }
-      } else {
-        my $s = {'package' => $packid, 'code' => $p->{'status'}};
-        $s->{'details'} = $p->{'error'} if $p->{'error'};
-        $state .= "$p->{'name'}\0$p->{'status'}\0";
-        push @{$sl->{'status'}}, $s;
+	  $code = 'succeeded';
+	} else {
+	  $code = 'unknown';
+	}
       }
+      next if %code && !$code{$code};
+      my $s = {'package' => $packid, 'code' => $code};
+      $s->{'details'} = $p->{'error'} if $p->{'error'} && !$cgi->{'lastbuild'};
+      $state .= "$packid\0$code\0";
+      push @{$sl->{'status'}}, $s;
       if ($cgi->{'withbinarylist'}) {
 	my @b;
 	for (sort(ls("$reporoot/$prpa/$packid"))) {
