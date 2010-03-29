@@ -165,11 +165,14 @@ sub rpc {
     }
     if (defined $proxyauth) {
       $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-      unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
+      unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '') if $uri !~ /^https:/;
     }
     if ($proto eq 'https' || ($proxy && $uri =~ /^https/)) {
       if ($proxy) {
-	BSHTTP::swrite(\*S, "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n\r\n");
+	my $r = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n";
+	$r .= "Proxy-Authorization: Basic " . encode_base64($proxyauth, '') . "\r\n" if defined($proxyauth);
+	$r .= "\r\n";
+	BSHTTP::swrite(\*S, $r);
 	my $ans = '';
 	do {
 	  die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));

@@ -900,7 +900,7 @@ sub rpc {
   }
   if (defined $proxyauth) {
     $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
+    unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '') if $uri !~ /^https:/;
   }
   if ($proto eq 'https') {
     $param->{'proto'} = 'https';
@@ -929,7 +929,9 @@ sub rpc {
     # we're going to proxy https over http
     $param->{'https'} ||= $tossl;
     $ev->{'proxytunnel'} = $req;
-    $req = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n\r\n";
+    $req = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n";
+    $req .= "Proxy-Authorization: Basic " . encode_base64($proxyauth, '') . "\r\n" if defined($proxyauth);
+    $req .= "\r\n";
   }
   $ev->{'fd'} = $fd;
   $ev->{'sendbuf'} = $req;
