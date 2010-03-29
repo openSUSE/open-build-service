@@ -1,4 +1,5 @@
 module ProjectHelper
+
   def format_target_list( project )
     result = ""
     result += "<ul>\n"
@@ -88,16 +89,6 @@ module ProjectHelper
     else
       return button_to(label, btn_to_opt)
     end
-  end
-
-  def draggable_repo( label, opt={} )
-    out = String.new
-    out << "<li id='repo_#{label}' class='draggable_sub_element'>#{label}</li>"
-    out << draggable_element("repo_#{label}", :revert => true, :snap => true,
-      :reverteffect => "function(element, top_offset, left_offset) {
-               new Effect.Move( element, {x: -left_offset, y: -top_offset, duration: 0})
-             }")
-    out
   end
 
   def flag_status(flag)
