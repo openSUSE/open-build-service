@@ -13,8 +13,11 @@
 @crumb_list << "Attributes"
 -%>
 
-
-<h2>Attributes</h2>
+<%= if @package
+  render :partial => "package/tabs"
+else
+ render :partial => "project/tabs"
+end -%>
 
 <%= render :partial => "attributes" %>  
 

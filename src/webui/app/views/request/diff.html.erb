@@ -17,7 +17,7 @@
     dp.SyntaxHighlighter.HighlightAll('code');
 <% end %>
 
-<%= render :partial => 'request_table', :locals => {:requests => [@request], :options => false, :by_me => false } %>
+<%= render :partial => 'request_table', :locals => {:requests => [@therequest], :options => false, :by_me => false } %>
 
 <% if @diff_text %>
 <pre id="code" class="patch">
@@ -49,7 +49,7 @@
     </p>
     <% if @is_maintainer %>
       <% linked = @target_pkg.linked_to if @target_pkg -%>
-      <% if linked and not linked.empty? and @request.action.data["type"] == "submit" -%>
+      <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
          <%= hidden_field_tag( "forward_project", linked[0]) %>	
          <%= hidden_field_tag( "forward_package", linked[1]) %>		
          <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>

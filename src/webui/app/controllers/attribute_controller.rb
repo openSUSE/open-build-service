@@ -5,16 +5,14 @@ class AttributeController < ApplicationController
   def edit
     if params[:namespace] and params[:name]
       selected_attribute = @attributes.data.find_first( "attribute[@name='#{params[:name]}' and @namespace='#{params[:namespace]}']/value")
-      if selected_attribute
-        @selected_attribute_name =  "%s:%s" % [params[:namespace], params[:name]]
-        @selected_attribute_value = selected_attribute.content
-      end
+      @selected_attribute_name =  "%s:%s" % [params[:namespace], params[:name]]
+      @selected_attribute_value = selected_attribute.content if selected_attribute
     else
-      namespaces = Attribute.find(:namespaces)
+      namespaces = Attribute.find_cached(:namespaces)
       attributes = []
       @attribute_list = []
       namespaces.each do |d|
-         attributes << Attribute.find(:attributes, :namespace => d.data[:name].to_s)
+         attributes << Attribute.find_cached(:attributes, :namespace => d.data[:name].to_s, :expires_in => 10.minutes)
       end
 
       attributes.each do |d|
@@ -53,7 +51,7 @@ class AttributeController < ApplicationController
 private
 
   def requires
-    @project = Project.find( params[:project] )
+    @project = Project.find_cached( params[:project] )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public"
@@ -62,7 +60,7 @@ private
     @package = params[:package] if params[:package]
     opt = {:project => @project.name}
     opt.store(:package, @package.to_s) if @package
-    @attributes = Attribute.find(opt)
+    @attributes = Attribute.find_cached(opt, :expires_in => 2.minutes)
   end
 
 end
