@@ -485,15 +485,17 @@ class ProjectController < ApplicationController
     @avail_status_values.each { |s|
       if params.has_key?(s)
         next unless (Integer(params[s]) rescue 1) > 0
+      else
+        next unless defaults
       end
-      next unless defaults && !@filter_out.include?(s)
+      next if defaults && @filter_out.include?(s)
       @status_filter << s
     }
     
     @avail_arch_values = []
     @avail_repo_values = []
 
-    @project.repositories.each { |r|
+    @project.each_repository { |r|
       @avail_repo_values << r.name
       @avail_arch_values << r.archs if r.archs
     }
