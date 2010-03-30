@@ -872,7 +872,7 @@ sub rpc {
   }
 
   my $proxy = $param->{'proxy'};
-  my $proxyauth;
+  my ($proxyauth, $proxytunnel);
   # new rpc, create rpc event
   die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
   my ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
@@ -881,6 +881,7 @@ sub rpc {
     die("https not supported\n") if $proto eq 'https' && !($param->{'https'} || $tossl);
     die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
     ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
+    $path = $uri unless $uri =~ /^https:/;
   }
   $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
   if (!$hostlookupcache{$host}) {
@@ -902,6 +903,17 @@ sub rpc {
     $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '') if $uri !~ /^https:/;
   }
+  if ($proxy && $uri =~ /^https:/) {
+    # we're going to proxy https over http
+    $param->{'https'} ||= $tossl;
+    if ($hostport =~ /:\d+$/) {
+      $proxytunnel = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n";
+    } else {
+      $proxytunnel = "CONNECT $hostport:443 HTTP/1.1\r\nHost: $hostport:443\r\n";
+    }
+    $proxytunnel .= shift(@xhdrs)."\r\n" if defined $proxyauth;
+    $proxytunnel .= "\r\n";
+  }
   if ($proto eq 'https') {
     $param->{'proto'} = 'https';
     $param->{'https'} ||= $tossl;
@@ -913,25 +925,15 @@ sub rpc {
     }
   }
   
-  my $req;
-  if ($proxy && $uri !~ /^https:/) {
-    $req = "GET $uri HTTP/1.1\r\n";
-  } else {
-    $req = "GET $path HTTP/1.1\r\n";
-  }
-  $req .= join("\r\n", @xhdrs)."\r\n\r\n";
+  my $req = "GET $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
   my $fd = gensym;
   socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
   fcntl($fd, F_SETFL,O_NONBLOCK);
   setsockopt($fd, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   my $ev = BSEvents::new('write', \&rpc_send_handler);
-  if ($proxy && $uri =~ /^https:/) {
-    # we're going to proxy https over http
-    $param->{'https'} ||= $tossl;
+  if ($proxytunnel) {
     $ev->{'proxytunnel'} = $req;
-    $req = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n";
-    $req .= "Proxy-Authorization: Basic " . encode_base64($proxyauth, '') . "\r\n" if defined($proxyauth);
-    $req .= "\r\n";
+    $req = $proxytunnel;
   }
   $ev->{'fd'} = $fd;
   $ev->{'sendbuf'} = $req;
