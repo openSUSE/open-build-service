@@ -35,11 +35,13 @@ class ProjectController < ApplicationController
   def list_all
     @important_projects = get_important_projects
     list :with_homes
+    render :list_all, :status => params[:nextstatus] if params[:nextstatus]
   end
 
   def list_public
     @important_projects = get_important_projects
     list :without_homes
+    render :list_public, :status => params[:nextstatus] if params[:nextstatus]
   end
 
   def list(mode=:without_homes)
@@ -157,6 +159,7 @@ class ProjectController < ApplicationController
       results.map{|e| e.attributes['package'] }.uniq.size
     end
 
+    render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
   def add_person
@@ -927,7 +930,7 @@ class ProjectController < ApplicationController
     if !valid_project_name? params[:project] 
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
-        redirect_to :controller => "project", :action => "list_public" and return
+        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
       else
         render :text => 'Not a valid project name', :status => 404 and return
       end
@@ -935,7 +938,7 @@ class ProjectController < ApplicationController
     @project = Project.find_cached( params[:project] )
     check_user
     unless @project
-      if @user and params[:project] == "home:" + @user
+      if @user and params[:project] == "home:#{@user}"
         # checks if the user is registered yet
         flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
@@ -947,7 +950,7 @@ class ProjectController < ApplicationController
       end
       unless request.xhr?
         flash[:error] = "Project not found: #{params[:project]}"
-        redirect_to :controller => "project", :action => "list_public" and return
+        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
       else
         render :text => "Project not found: #{params[:project]}", :status => 404 and return
       end
@@ -959,7 +962,7 @@ class ProjectController < ApplicationController
       @config = frontend.get_source(:project => params[:project], :filename => '_config')
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Project _config not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
     end
   end
   
@@ -968,7 +971,7 @@ class ProjectController < ApplicationController
       @meta = frontend.get_source(:project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Project _meta not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
     end
   end
 

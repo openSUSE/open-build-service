@@ -783,7 +783,7 @@ class PackageController < ApplicationController
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to :controller => "project", :action => :show, :project => @project and return
+      redirect_to :controller => "project", :action => :show, :project => @project, :nextstatus => 404
     end
   end
 
