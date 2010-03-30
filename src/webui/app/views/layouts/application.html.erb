@@ -97,11 +97,11 @@
     <%= render(:partial => "layouts/flash", :object => flash) %>
 
     <!-- Start: Main Content Area -->
-    <div id="content" class="container_16 ui-oo-content-wrapper">
+    <div id="content" class="container_16 content-wrapper">
       <% if @layouttype == "custom" %>
         <%= @content_for_layout %>
       <% else %>
-        <div class="grid_16 ui-oo-box-shadow alpha omega">
+        <div class="grid_16 box box-shadow alpha omega">
           <%= @content_for_layout %>
         </div>
       <% end %>
@@ -152,7 +152,7 @@
 
       <%= render(:partial => "layouts/sponsor") %>
 
-      <div id="footer-legal" class="ui-oo-border-top grid_12">
+      <div id="footer-legal" class="border-top grid_12">
         <p>
           &copy; 2010 Novell, Inc. All rights reserved. Novell is a registered trademark and
           openSUSE and SUSE are trademarks of Novell, Inc. in the United States and other countries.
