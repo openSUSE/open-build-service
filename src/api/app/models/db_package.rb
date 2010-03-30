@@ -329,10 +329,10 @@ class DbPackage < ActiveRecord::Base
     end
     # verify the number of allowed values
     if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
-      raise SaveError, "Attribute: '#{attrib.namespace}':'#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
+      raise SaveError, "Attribute: '#{attrib.namespace}:#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
     end
     if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
-      raise SaveError, "attribute '#{attrib.namespace}':'#{attrib.name}' requires #{atype.value_count} values, but none given"
+      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' requires #{atype.value_count} values, but none given"
     end
 
     # verify with allowed values for this attribute definition
@@ -525,7 +525,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def render_attribute_axml(params)
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
 
     xml = builder.attributes() do |a|
       done={}

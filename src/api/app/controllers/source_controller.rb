@@ -210,8 +210,8 @@ class SourceController < ApplicationController
     if params[:package]
       @attribute_container = DbPackage.find_by_project_and_name(params[:project], params[:package])
       unless @attribute_container
-        render_error :message => "Unknown project '#{params[:project]}'",
-          :status => 404, :errorcode => "unknown_project"
+        render_error :message => "Unknown package '#{params[:project]}/#{params[:package]}'",
+          :status => 404, :errorcode => "unknown_package"
         return
       end
     else
@@ -298,6 +298,9 @@ class SourceController < ApplicationController
         begin
           @attribute_container.store_attribute_axml(attr, binary)
         rescue DbProject::SaveError => e
+          render_error :status => 403, :errorcode => "save_error", :message => e.message
+          return
+        rescue DbPackage::SaveError => e
           render_error :status => 403, :errorcode => "save_error", :message => e.message
           return
         end

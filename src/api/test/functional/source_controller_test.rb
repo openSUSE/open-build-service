@@ -389,7 +389,7 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
   
   
-  def test_create_attributes
+  def test_create_attributes_project
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     prepare_request_with_user @request, "tom", "thunder"
     post "/source/home:tom/_attribute", data
@@ -407,6 +407,30 @@ class SourceControllerTest < ActionController::IntegrationTest
     post "/source/home:tom/_attribute", data
     assert_response :success
 
+    get "/source/home:tom/_attribute"
+    assert_response :success
+  end
+
+  def test_create_attributes_package
+    data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
+    prepare_request_with_user @request, "fred", "geröllheimer"
+    post "/source/kde4/kdelibs/_attribute", data
+    assert_response 404
+    assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/
+
+    data = "<attributes><attribute namespace='NSTEST' name='Maintained' >
+              <value>blah</value>
+            </attribute></attributes>"
+    post "/source/kde4/kdelibs/_attribute", data
+    assert_response 403
+    assert_select "status[code] > summary", /Attribute: 'NSTEST:Maintained' has 1 values, but only 0 are allowed/
+
+    data = "<attributes><attribute namespace='NSTEST' name='Maintained'></attribute></attributes>"
+    post "/source/kde4/kdelibs/_attribute", data
+    assert_response :success
+
+    get "/source/kde4/kdelibs/_attribute"
+    assert_response :success
   end
 
   def add_file_to_package
