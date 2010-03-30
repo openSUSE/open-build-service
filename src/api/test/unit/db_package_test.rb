@@ -127,7 +127,7 @@ class DbPackageTest < ActiveSupport::TestCase
       
     @package.store_axml(axml)
     
-    assert_equal 1, @package.build_flags.size
+    assert_equal 0, @package.build_flags.size
     assert_equal 1, @package.debuginfo_flags.size        
   end
     

@@ -337,6 +337,26 @@ class SourceControllerTest < ActionController::IntegrationTest
   end
 
 
+  def test_change_package_meta
+    # user without any special roles
+    prepare_request_with_user @request, "fred", "geröllheimer"
+    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    assert_response :success
+    xml = @response.body
+    doc = REXML::Document.new( xml )
+    d = doc.elements["/package"]
+    b = d.add_element 'build'
+    b.add_element 'enable'
+    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s
+    assert_response 200
+    assert_tag( :tag => "status", :attributes => { :code => "ok"} )
+
+    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    assert_response :success
+    xml = @response.body
+    assert_select "package > build > enable"
+  end
+
   def test_put_invalid_package_meta
     prepare_request_with_user @request, "fredlibs", "geröllheimer"
    # Get meta file  

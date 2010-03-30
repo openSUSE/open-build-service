@@ -302,7 +302,13 @@ class DbPackage < ActiveRecord::Base
           object.destroy
         end
       end
+      #--- end update groups ---#
 
+      #---begin enable / disable flags ---#
+      %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
+        update_flags( :package => package, :flagtype => flagtype )
+      end
+      
       #--- update url ---#
       if package.has_element? :url
         if self.url != package.url.to_s
