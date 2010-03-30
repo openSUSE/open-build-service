@@ -131,28 +131,28 @@ class ApplicationController < ActionController::Base
 
     case exception
     when ActionController::RoutingError
-      render_error :code => 404, :message => "no such route"
+      render_error :status => 404, :message => "no such route"
     when ActionController::UnknownAction
-      render_error :code => 404, :message => "unknown action"
+      render_error :status => 404, :message => "unknown action"
     when ActiveXML::Transport::ForbiddenError
       # switch to registration on first access
       if code == "unregistered_ichain_user"
         render :template => "user/request_ichain" and return
       else
         ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-        render_error :code => 401, :message => message
+        render_error :status => 401, :message => message
       end
     when ActiveXML::Transport::UnauthorizedError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-      render_error :code => 401, :message => 'Unauthorized access'
+      render_error :status => 401, :message => 'Unauthorized access'
     when ActionController::InvalidAuthenticityToken
-      render_error :code => 401, :message => 'Invalid authenticity token'
+      render_error :status => 401, :message => 'Invalid authenticity token'
     when ActiveXML::Transport::ConnectionError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-      render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
+      render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 400
     when Timeout::Error
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-      render_error :code => 504, :message => message,
+      render_error :status => 400, :message => message,
         :exception => exception, :api_exception => api_exception
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
@@ -167,16 +167,9 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error( opt={} )
-    @status = opt[:status] || opt[:code] || 400
-    @code = opt[:code] || 500
-    begin
-      @code = Integer(@code)
-    rescue ArgumentError
-    end
-    begin
-      @status = Integer(@status)
-    rescue ArgumentError
-    end
+    # :code is a string that comes from the api, :status is the http status code
+    @status = opt[:status] || 400
+    @code = opt[:code] || @status
     @message = opt[:message] || "No message set"
     @exception = opt[:exception] if local_request?
     @api_exception = opt[:api_exception] if local_request?
@@ -184,7 +177,7 @@ class ApplicationController < ActionController::Base
     if request.xhr?
       render :text => @message, :status => @status, :layout => false
     else
-      render :template => 'error', :locals => {:code => @code, :message => @message,
+      render :template => 'error', :status => @status, :locals => {:code => @code, :message => @message,
         :exception => @exception, :status => @status, :api_exception => @api_exception }
     end
   end
