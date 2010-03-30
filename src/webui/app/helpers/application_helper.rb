@@ -134,8 +134,15 @@ module ApplicationHelper
     super(source)
   end
 
+  @@theme_prefix = nil
+
+  def theme_prefix
+    return @@theme_prefix if @@theme_prefix
+    @@theme_prefix = CONFIG['relative_url_root'] + '/themes'
+  end
+
   def compute_asset_host(source)
-    if CONFIG['use_static'] and source =~ /^\/themes/
+    if CONFIG['use_static'] and source.slice(0, theme_prefix.length) == theme_prefix
       return "https://static.opensuse.org"
     end
     super(source)
