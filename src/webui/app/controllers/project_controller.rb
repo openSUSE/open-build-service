@@ -961,7 +961,7 @@ class ProjectController < ApplicationController
 
   def load_current_requests
     predicate = "state/@name='new' and action/target/@project='#{@project}'"
-    @current_requests = Collection.find :what => :request, :predicate => predicate, :expires_in => 5.minutes
+    @current_requests = Collection.find_cached :what => :request, :predicate => predicate, :expires_in => 1.minutes
     @project_has_requests = !@current_requests.is_empty?
   end
 
