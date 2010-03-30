@@ -5,11 +5,11 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
-    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes]
+    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :update_flag, :view_file, 
-    :remove, :live_build_log, :rdiff, :users, :files, :attributes]
+    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries]
   before_filter :check_user, :only => [:users]
 
   def fill_email_hash
@@ -30,6 +30,13 @@ class PackageController < ApplicationController
     end
 
     fill_status_cache
+  end
+
+  def binaries
+
+    @buildresult = Buildresult.find( :project => @project, :package => @package,
+      :repository => params[:repository], :view => ['binarylist'] )
+
   end
   
   def users
@@ -693,8 +700,8 @@ class PackageController < ApplicationController
 
   def reload_buildstatus
     # discard cache
-    Buildresult.free_cache( :project => @project, :package => @package, :view => ['status', 'binarylist'] )
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status'] )
+    Buildresult.free_cache( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
     fill_status_cache
     render :partial => 'buildstatus'
   end

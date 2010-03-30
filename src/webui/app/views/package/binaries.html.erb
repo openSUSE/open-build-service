@@ -1,0 +1,28 @@
+
+<% @pagetitle = "Files of Package #{@package} (Project #{@project})" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :controller => 'project', :action => :list_public),
+  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+  link_to( @package, :controller => 'package', :action => :show, :project => @project, :package => @package ),
+  'Built Packages'
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+
+<% @buildresult.data.find( 'result' ).each do |result| %>
+
+  <h3>Architecture: <%= result.attributes['arch'] %>,
+  State: <%= result.attributes['state'] %></h3>
+
+  <ul>
+  <% result.find( 'binarylist/binary' ).each do |binary| %>
+
+    <li><%= binary.attributes['filename'] %></li>
+
+  <% end %>
+  </ul>
+
+<% end %>
