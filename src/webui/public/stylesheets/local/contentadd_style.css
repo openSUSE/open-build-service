@@ -165,3 +165,16 @@ div#log_space_wrapper p {
 .flag_table .allcow { background-color: #cfc; }
 .flag_table .allrow { background-color: #cfc; }
 
+.flagimage {
+    position:relative;
+    z-index:24;
+}
+
+.flagimage:hover{z-index:25; }
+
+.flagimage:hover span{ /*the span will display just on :hover state*/
+    display:block;
+    position:absolute;
+    bottom:-12px; 
+    left:-12px; 
+}

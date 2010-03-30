@@ -230,12 +230,12 @@ module ApplicationHelper
       if flag.has_attribute? :repository
         next if flag.repository.to_s != repo
       else
-        next if repo != "all"
+        next if repo
       end
       if flag.has_attribute? :arch
         next  if flag.arch.to_s != arch
       else
-        next if arch != "all"
+        next if arch 
       end
 
       if flag.has_attribute? :explicit
@@ -254,7 +254,12 @@ module ApplicationHelper
     end
 
     if image
-      out = image_tag(image, :class => "flagimage")
+      opts = { :project => @project, :repo => repo, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
+      out = "<span class='flagimage'>" + image_tag(image) + "<span class='hidden nowrap'>"
+      out += link_to(image_tag("/themes/bento/images/icons/page_delete.png", :title => "Explicitly disable"), opts.merge({ :cmd => :disable }))
+      out += link_to(image_tag("/themes/bento/images/icons/page.png", :title => "Set to default"), opts.merge({ :cmd => :remove }))
+      out += link_to(image_tag("/themes/bento/images/icons/page_add.png", :title => "Explicitly enable"), opts.merge({ :cmd => :enable }))
+      out += "</span></span>"
     else
       out = ""
     end

@@ -752,6 +752,9 @@ class PackageController < ApplicationController
     @package = Package.find_cached( params[:package], :project => params[:project], :view => :flagdetails )
   end
 
+  def change_flag
+    # AJAX -> update repositories
+  end
 
   private
 

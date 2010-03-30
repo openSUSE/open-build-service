@@ -660,6 +660,10 @@ class ProjectController < ApplicationController
   def edit_prjconf
   end
 
+  def change_flag
+    # AJAX -> update repositories
+  end
+
   def save_prjconf
     frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
     flash[:note] = "Project Config successfully saved"
