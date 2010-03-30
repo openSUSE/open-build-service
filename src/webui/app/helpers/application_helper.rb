@@ -207,7 +207,7 @@ module ApplicationHelper
   end
 
   def flag_status(flags, repo, arch)
-    image = ""
+    image = nil
 
     flags.each do |flag|
 
@@ -237,6 +237,10 @@ module ApplicationHelper
       end
     end
 
-    out = image_tag(image, :class => "flagimage")
+    if image
+      out = image_tag(image, :class => "flagimage")
+    else
+      out = ""
+    end
   end
 end
