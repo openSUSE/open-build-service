@@ -166,7 +166,7 @@ sub rpc {
     }
     if (defined $proxyauth) {
       $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-      unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '') if $uri !~ /^https:/;
+      unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
     }
     if ($proxy && $uri =~ /^https/) {
       my $proxytunnel;
