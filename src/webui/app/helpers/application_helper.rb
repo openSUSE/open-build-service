@@ -138,7 +138,9 @@ module ApplicationHelper
 
   def theme_prefix
     return @@theme_prefix if @@theme_prefix
-    @@theme_prefix = CONFIG['relative_url_root'] + '/themes'
+    @@theme_prefix = '/themes'
+    @@theme_prefix = CONFIG['relative_url_root'] + @@theme_prefix  if CONFIG['relative_url_root']
+    @@theme_prefix
   end
 
   def compute_asset_host(source)
