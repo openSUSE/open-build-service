@@ -8,6 +8,9 @@
   "Repositories"
 ]
 -%>
+
+<%= render :partial => "tabs" %>
+
 <div class="flag_table grid_8 alpha">
   <h3>Build Flag</h3>
   <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.build, :obj => @package } %>
