@@ -792,8 +792,9 @@ class DbProject < ActiveRecord::Base
   end
 
   # calculate enabled/disabled per repo/arch
-  def flag_status(default, repo, arch, prj_flags, pkg_flags)
+  def flag_status(builder, default, repo, arch, prj_flags, pkg_flags)
     ret = default
+    expl = false
 
     flags = Array.new
     prj_flags.each do |f|
@@ -802,18 +803,28 @@ class DbProject < ActiveRecord::Base
     flags.sort! { |a,b| a.specifics <=> b.specifics }
     flags.each do |f|
       ret = f.status
+      expl = f.is_explicit_for?(repo, arch)
     end
 
     flags = Array.new
-    pkg_flags.each do |f|
-      flags << f if f.is_relevant_for?(repo, arch)
-    end if pkg_flags
+    if pkg_flags
+      pkg_flags.each do |f|
+        flags << f if f.is_relevant_for?(repo, arch)
+      end
+      # in case we look at a package, the project flags are not explicit
+      expl = false
+    end
     flags.sort! { |a,b| a.specifics <=> b.specifics }
     flags.each do |f|
       ret = f.status
+      expl = f.is_explicit_for?(repo, arch)
     end
 
-    ret
+    opts = Hash.new
+    opts[:repository] = repo if repo
+    opts[:arch] = arch if arch
+    opts[:explicit] = '1' if expl
+    builder.tag! ret, opts
   end
 
   # give out the XML for all repos/arch combos
@@ -824,16 +835,16 @@ class DbProject < ActiveRecord::Base
       repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
       archs = Array.new
       repos.each do |repo|
-        builder.tag! flag_status(flag_default, repo.name, nil, flaglist, pkg_flags), :repository => repo.name
+        flag_status(builder, flag_default, repo.name, nil, flaglist, pkg_flags)
         repo.architectures.each do |arch|
-          builder.tag! flag_status(flag_default, repo.name, arch.name, flaglist, pkg_flags), :repository => repo.name, :arch => arch.name
+          flag_status(builder, flag_default, repo.name, arch.name, flaglist, pkg_flags)
           archs << arch.name
         end
       end
       archs.uniq.each do |arch|
-        builder.tag! flag_status(flag_default, nil, arch, flaglist, pkg_flags), :arch => arch
+        flag_status(builder, flag_default, nil, arch, flaglist, pkg_flags)
       end
-      builder.tag! flag_status(flag_default, nil, nil, flaglist, pkg_flags)
+      flag_status(builder, flag_default, nil, nil, flaglist, pkg_flags)
     end
   end
 

@@ -12,6 +12,20 @@ class Flag < ActiveRecord::Base
     builder.tag! self.status.to_s, options
   end
 
+  def is_explicit_for?(in_repo, in_arch)
+    return false unless is_relevant_for?(in_repo, in_arch)
+
+    arch = architecture ? architecture.name : nil
+
+
+    return false if arch.nil? and !in_arch.nil?
+    return false if !arch.nil? and in_arch.nil?
+
+    return false if repo.nil? and !in_repo.nil?
+    return false if !repo.nil? and in_repo.nil?
+
+    return true
+  end
 
   # returns true when flag is relevant for the given repo/arch combination
   def is_relevant_for?(in_repo, in_arch)
