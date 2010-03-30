@@ -70,6 +70,7 @@ MIN_VOTES_FOR_RATING = 3
 
 require 'ostruct'
 require "#{RAILS_ROOT}/config/repositories.rb"
+require "cache_immutable_fix.rb"
 
 # Exception notifier plugin configuration
 ExceptionNotifier.sender_address = %("OBS Webclient" <admin@opensuse.org>)
