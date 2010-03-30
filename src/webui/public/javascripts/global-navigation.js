@@ -20,8 +20,6 @@ $.each(global_navigation_data, function(i,menu){
   html += '</ul>';
 });
 
-console.log(html);
-
 $('#global-navigation').after(html);
 
 var top = $('#global-navigation').height()-12;
