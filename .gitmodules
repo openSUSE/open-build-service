@@ -4,6 +4,6 @@
 [submodule "src/backend/build"]
 	path = src/backend/build
 	url = git://gitorious.org/opensuse/build.git
-[submodule "src/webui/webdesign"]
-	path = src/webui/webdesign
-	url = git://gitorious.org/opensuse/webdesign.git
+[submodule "src/webui/public/themes"]
+	path = src/webui/public/themes
+	url = git://gitorious.org/opensuse/themes.git

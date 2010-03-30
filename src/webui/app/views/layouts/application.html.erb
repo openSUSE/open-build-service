@@ -11,10 +11,11 @@
 
     <title><%=h "#{@pagetitle} - " if @pagetitle -%>openSUSE Build Service</title>
 
+    <%= stylesheet_link_tag "/themes/bento/css/style", :media => "screen", :title => "All" %>
     <%= stylesheet_link_tag "local/style", :media => "screen", :title => "All" %>
-    <%= javascript_include_tag 'jquery-1.4.1.min', 'jquery-ui-1.7.2.min' %>
+    <%= javascript_include_tag '/themes/bento/js/jquery.js', 'jquery-ui-1.7.2.min' %>
     <%= javascript_include_tag 'jrails', "application" %>
-    <%= javascript_include_tag 'bento/script' %>
+    <%= javascript_include_tag '/themes/bento/js/script' %>
 
     <%= yield :content_for_head %>
 
@@ -57,12 +58,12 @@
       <div id="header-content" class="container_12">
 
         <a id="header-logo" href="#">
-          <%= image_tag( "bento/header-logo.png" ) %>
+          <%= image_tag( "/themes/bento/images/header-logo.png" ) %>
         </a>
 
         <ul id="global-navigation">
           <li><a href="#">Downloads</a></li>
-          <li><a href="index_support.html">Support</a></li>
+          <li><a href="#">Support</a></li>
           <li><a href="#">Community</a></li>
           <li><a href="#">Development</a></li>
           <% if user -%>
@@ -83,7 +84,7 @@
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_12 alpha">
-        <%= image_tag( "bento/home_grey.png" ) %><%= link_to "Build Service", :controller => 'main', :action => :index %>
+        <%= image_tag( "/themes/bento/images/home_grey.png" ) %><%= link_to "Build Service", :controller => 'main', :action => :index %>
         <% if @crumb_list -%>
           <% @crumb_list.each do |link| -%>
             &gt; <%= link %>

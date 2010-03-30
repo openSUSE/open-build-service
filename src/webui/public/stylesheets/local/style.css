@@ -1,13 +1,3 @@
-/* 
-**
-**  $Id: $
-**
-**  Funktion:  Master CSS-file for build.openSUSE.org
-**  Author:    Frank Sundermeyer <fs@opensuse.org>
-**  License:   see copyright/COPYRIGHT
-*/
-
-@import url(../common/style.css);
 @import url(contentadd_build.css);
 @import url(contentadd_style.css);
 @import url(dialog.css); /* style for dialog boxes */

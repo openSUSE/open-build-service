@@ -152,11 +152,11 @@
           end -%>
           <td class="nowrap">
             <% if icon == "error"  -%>
-              <%= image_tag("silk/icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
+              <%= image_tag("/themes/bento/images/icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
             <% elsif icon == "ok" -%>
-              <%= image_tag("silk/icons/accept.png", :size => "16x16", :title => "Ok" ) %>
+              <%= image_tag("/themes/bento/images/icons/accept.png", :size => "16x16", :title => "Ok" ) %>
             <% else -%>
-              <%= image_tag("silk/icons/information.png", :size => "16x16", :title => "So-so" ) %>
+              <%= image_tag("/themes/bento/images/icons/information.png", :size => "16x16", :title => "So-so" ) %>
             <% end -%>
             <%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
           </td>
