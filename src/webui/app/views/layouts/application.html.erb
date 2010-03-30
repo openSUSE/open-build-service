@@ -16,6 +16,7 @@
     <%= javascript_include_tag '/themes/bento/js/jquery.js', 'jquery-ui-1.7.2.min' %>
     <%= javascript_include_tag 'jrails', "application" %>
     <%= javascript_include_tag '/themes/bento/js/script' %>
+    <%= javascript_include_tag 'global-navigation' %>
 
     <%= yield :content_for_head %>
 
@@ -61,11 +62,11 @@
           <%= image_tag( "/themes/bento/images/header-logo.png" ) %>
         </a>
 
-        <ul id="global-navigation">
-          <li><a href="#">Downloads</a></li>
-          <li><a href="#">Support</a></li>
-          <li><a href="#">Community</a></li>
-          <li><a href="#">Development</a></li>
+      <ul id="global-navigation">
+        <li id="item-downloads"><a href="http://opensuse.org/sitemap#downloads">Downloads</a></li>
+        <li id="item-support"><a href="http://opensuse.org/sitemap#support">Support</a></li>
+        <li id="item-community"><a href="http://opensuse.org/sitemap#community">Community</a></li>
+        <li id="item-development"><a href="http://opensuse.org/sitemap#development">Development</a></li>
           <% if user -%>
             <li id="global-favorites"><a href="#">Watchlist</a></li>
           <% end -%>
