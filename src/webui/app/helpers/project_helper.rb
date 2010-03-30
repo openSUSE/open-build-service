@@ -91,43 +91,6 @@ module ProjectHelper
     end
   end
 
-  def flag_status(flag)
-    image = title = ""
-
-    if flag.nil?
-      return "n.a."
-    end
-
-    if flag.explicit_set?
-      if flag.disabled?
-        image = "#{flag.name}_disabled_blue.png"
-        title = "#{flag.name} disabled"
-      else
-        image = "#{flag.name}_enabled_blue.png"
-        title = "#{flag.name} enabled"
-      end
-    else
-      if flag.disabled?
-        image = "#{flag.name}_disabled_grey.png"
-        title = "#{flag.name} disabled, through #{flag.implicit_setter.description}"
-      else
-        image = "#{flag.name}_enabled_grey.png"
-        title = "#{flag.name} enabled, through #{flag.implicit_setter.description}"
-      end
-    end
-    
-    id = "%s_%s" % [ flag.name, flag.id.gsub(/[:.]/, "_") ]
-
-    out = "<span id='%s'>" % id 
-    out += link_to_remote_if @project.is_maintainer?( session[:login] ), image_tag(image,:title => title, :class => "flagimage"),
-      :loading => 'stopit = 0; hideflags();',
-      :complete => 'showflags()',
-      :url => { :action => "update_flag", :project => @project,
-      :flag_name => flag.name, :repo => flag.repository, :arch => flag.architecture,
-      :status => flag.status, :flag_id => flag.id  }
-    out += "</span>"
-  end
-
   def project_tab(text, opts)
     opts[:project] = @project.to_s
     if @current_action.to_s == opts[:action].to_s

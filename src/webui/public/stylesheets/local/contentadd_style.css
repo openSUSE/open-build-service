@@ -157,3 +157,11 @@ div#log_space_wrapper p {
 #involved_users li {
   list-style: none;
 }
+
+/* repositories */
+.flag_table tr { text-align: center; }
+.flag_table td.reponame { text-align: left; width: 21ex; }
+
+.flag_table .allcow { background-color: #cfc; }
+.flag_table .allrow { background-color: #cfc; }
+

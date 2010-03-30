@@ -7,17 +7,16 @@
 
 <%= render :partial => "tabs" %>
 
-<span id="error_message_flags" style="display:none;"></span>
 <h3>
   Repositories <%= if @user
     link_to(image_tag("list-add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project)
   end %>
 </h3>
-<% unless @project.repositories.empty? %>
+<% if @project.has_element? :repository %>
 
   <table>
     <!-- renders each line in flag table, excepting the 'all' row -->
-    <% @project.repositories.each do |repo| %>
+    <% @project.each_repository do |repo| %>
       <tr>
         <td>
           <strong><%= link_to h(repo.name), :controller => 'platform', :action => 'show', :name => repo.name, :project => @project %></strong><br/>
@@ -27,14 +26,14 @@
             <% end -%>
           <% rescue; end %>
         </td>
-          <% if @project.is_maintainer?( session[:login] ) %>
-            <td>
+        <% if @project.is_maintainer?( session[:login] ) %>
+          <td>
             <%= link_to "[Edit]", :update => repo.name,
               :url => {:action => :TODO_edit_target, :project => @project, :repo => repo.name}
             link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
               {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} -%>
-            </td>
-         <% end %>
+          </td>
+        <% end %>
 
       </tr>
     <% end %>
@@ -42,25 +41,27 @@
   </table>
 <% end %>
 
-  <div class="flag_table grid_8 alpha">
-    <h3>Build Flag</h3>
-    <%= render :partial => 'repositories_flag_table', :locals => { :flags => @project.buildflags } %>
-  </div>
+<div class="clear" style="margin-bottom: 2em"></div>
 
-  <div class="flag_table grid_8 omega">
-    <h3>Publish Flag</h3>
-    <%= render :partial => 'repositories_flag_table', :locals => { :flags => @project.publishflags } %>
-  </div>
-<div class="clear"></div>
+<div class="flag_table grid_8 alpha">
+  <h3>Build Flag</h3>
+  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.build, :obj => @project } %>
+</div>
 
-  <div class="flag_table grid_8 alpha">
-    <h3>Debuginfo Flag</h3>
-    <%= render :partial => 'repositories_flag_table', :locals => { :flags => @project.debuginfoflags } %>
-  </div>
+<div class="flag_table grid_8 omega">
+  <h3>Publish Flag</h3>
+  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.publish, :obj => @project } %>
+</div>
+<div class="clear" style="margin-bottom: 2em"></div>
 
-  <div class="flag_table grid_8 omega">
-    <h3>Use for Build Flag</h3>
-    <%= render :partial => 'repositories_flag_table', :locals => { :flags => @project.useforbuildflags } %>
-  </div>
+<div class="flag_table grid_8 alpha">
+  <h3>Debuginfo Flag</h3>
+  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.debuginfo, :obj => @project } %>
+</div>
+
+<div class="flag_table grid_8 omega">
+  <h3>Use for Build Flag</h3>
+  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.useforbuild, :obj => @project } %>
+</div>
 
 <div class="clear"></div>

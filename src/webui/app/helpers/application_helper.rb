@@ -206,4 +206,29 @@ module ApplicationHelper
     end
   end
 
+  def flag_status(flags, repo, arch)
+    image = ""
+
+    flags.each do |flag|
+
+      if flag.has_attribute? :repository
+        next if flag.repository.to_s != repo
+      else
+        next if repo != "all"
+      end
+      if flag.has_attribute? :arch
+        next  if flag.arch.to_s != arch
+      else
+        next if arch != "all"
+      end
+
+      if flag.element_name == 'disable'
+        image = "#{flags.element_name}_disabled_grey.png"
+      else
+        image = "#{flags.element_name}_enabled_grey.png"
+      end
+    end
+
+    out = image_tag(image, :class => "flagimage")
+  end
 end

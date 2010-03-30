@@ -4,10 +4,10 @@ require 'project'
 class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
-    :edit, :add_file, :save_file, :save_new, :save_new_link, :flags_for_experts, :reload_buildstatus,
+    :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
     :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
-    :remove_person, :set_url, :remove_url, :set_url_form, :flags_for_experts, :reload_buildstatus,
+    :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :update_flag, :view_file, 
     :remove, :live_build_log, :rdiff, :users, :files, :attributes]
   before_filter :check_user, :only => [:users]
@@ -741,8 +741,8 @@ class PackageController < ApplicationController
   end
 
 
-  def flags_for_experts
-    render :template => "package/package_flags_for_experts"
+  def repositories
+    @package = Package.find_cached( params[:package], :project => params[:project], :view => :flagdetails )
   end
 
 

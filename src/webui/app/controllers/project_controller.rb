@@ -222,29 +222,6 @@ class ProjectController < ApplicationController
     return @arch_list
   end
 
-  #update project flags
-  def update_flag
-    begin
-      #the flag matrix will also be initialized on access, so we can work on it
-      @project = Project.find_cached(params[:project])
-      if @project.complex_flag_configuration? params[:flag_name]
-        raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
-      end
-
-      @project.replace_flags(params)
-    rescue RuntimeError => exception
-      @error = exception
-      logger.debug "[PROJECT:] Flag-Update-Error: flag configuration is rejected to be saved because of its complexity."
-    rescue  ActiveXML::Transport::Error => exception
-      #rescue_action_in_public exception
-      @error = exception
-      logger.debug "[PROJECT:] Error: #{@error}"
-    end
-
-    @flag = @project.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
-
-  end
-
   def enable_arch
     @project = Project.find_cached(params[:project])
     @arch_list = arch_list
@@ -277,6 +254,11 @@ class ProjectController < ApplicationController
       render :partial => 'repository_edit_form', :locals => { :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}",
         :repo => repo } and return
     end
+  end
+
+  def repositories
+    # overwrite @project with different view
+    @project = Project.find_cached( params[:project], :view => :flagdetails )
   end
 
   def packages

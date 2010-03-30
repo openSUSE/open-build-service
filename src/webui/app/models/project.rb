@@ -1,14 +1,8 @@
 class Project < ActiveXML::Base
-  include FlagModelHelper 
   
   has_many :package
   has_many :repository
-
-  attr_accessor :build_flags
-  attr_accessor :publish_flags
-  attr_accessor :debuginfo_flags
-  attr_accessor :useforbuild_flags
-
+  
   attr_accessor :bf_updated
   attr_accessor :pf_updated
   attr_accessor :df_updated
@@ -65,86 +59,6 @@ class Project < ActiveXML::Base
     else
       return false
     end
-  end
-
-  #TODO untested!!!!
-  #TODO same function as in package
-  def complex_flag_configuration? ( flagtype )
-
-    unless self.has_element? flagtype.to_sym
-      return false
-    end
-
-    flag_hash = Hash.new
-    #iterates over the package.xml
-    self.send(flagtype).each do |flag|
-      arch = ( (flag.arch if flag.has_attribute? :arch) or 'all' )
-      repo = ( (flag.repository if flag.has_attribute? :repository) or 'all' )
-      #is now handled from the invalid repo check method
-      #return true if flag_hash["#{repo}::#{arch}".to_sym] == true
-      flag_hash.merge! "#{repo}::#{arch}".to_sym => true
-    end
-    return false
-  end
-
-  def set_buildflags(flags_as_hash)
-    self.build_flags = flags_as_hash
-  end
-
-  def set_publishflags(flags_as_hash)
-    self.publish_flags = flags_as_hash
-  end
- 
-  def set_debuginfoflags(flags_as_hash)
-    self.debuginfo_flags = flags_as_hash
-  end
-
-  def set_useforbuildflags(flags_as_hash)
-    self.useforbuild_flags = flags_as_hash
-  end
-
-  def buildflags
-    if self.bf_updated.nil? or self.build_flags.nil?
-      self.bf_updated = true
-      create_flag_matrix(:flagtype => 'build')
-      update_flag_matrix(:flagtype => 'build')
-
-    end
-
-    return build_flags
-  end
-
-  def publishflags
-    if self.pf_updated.nil? or self.publish_flags.nil?
-      self.pf_updated = true
-      create_flag_matrix(:flagtype => 'publish')
-      update_flag_matrix(:flagtype => 'publish')
-
-    end
-
-    return publish_flags
-  end
-  
-  def debuginfoflags
-    if self.df_updated.nil? or self.debuginfo_flags.nil?
-      self.df_updated = true
-      create_flag_matrix(:flagtype => 'debuginfo')
-      update_flag_matrix(:flagtype => 'debuginfo')
-
-    end
-
-    return debuginfo_flags
-  end  
-
-  def useforbuildflags
-    if self.uf_updated.nil? or self.useforbuild_flags.nil?
-      self.uf_updated = true
-      create_flag_matrix(:flagtype => 'useforbuild')
-      update_flag_matrix(:flagtype => 'useforbuild')
-
-    end
-
-    return useforbuild_flags
   end
   
   def to_s
@@ -230,7 +144,7 @@ class Project < ActiveXML::Base
       return my_architectures
     end
     archs = Hash.new
-    self.repositories.each do |repo|
+    self.each_repository do |repo|
       repo.each_arch do |arch|
         archs[arch.to_s] = nil
       end
@@ -241,170 +155,20 @@ class Project < ActiveXML::Base
   end
 
 
-  #get all repositories for this project
-  #TODO could/should be optimized... somehow...there are many possibilities
-  #eg. object attribute, ...
   def repositories
-    #saves 50ms
-    #self.my_repositories ||= self.each_repository
-    #return self.my_repositories
-    return invalid_repo_check(self,self)
+    ret = Array.new
+    self.each_repository do |repo|
+      ret << repo.name.to_s
+    end
+    ret
   end
 
 
   def repository
-    my_repo_hash ||= Hash[* repositories.map { |repo| [repo.name, repo] }.flatten ] # hacky way to make a hash from a map
-    return my_repo_hash
+    repo_hash ||= Hash[* repositories.map { |repo| [repo.name, repo] }.flatten ] # hacky way to make a hash from a map
+    return repo_hash
   end
     
-
-  #TODO use setter method!
-  def create_flag_matrix( opts )
-    begin
-      flagtype = opts[:flagtype]
-      logger.debug "[PROJECT-FLAGS] Creating flag matrix for flagtype: #{flagtype}"
-      flags = Hash.new
-
-      key = 'all::all'
-
-      df = Flag.new
-      df.id = key
-      df.name = flagtype
-      df.description = 'project default'
-      df.architecture = nil
-      df.repository = nil
-      if opts[:flagtype] == "debuginfo"
-        df.status = 'disable'
-      else
-        df.status = 'enable'
-      end
-      df.explicit = true
-
-      flags.merge! key.to_sym => df
-
-      #get repositories and architectures
-      raise RuntimeError.new("[PROJECT-FLAGS] Warning: The Project #{self.name} has no " +
-          "repository specified, therefore the creation of the flag-matrix is not possible.") \
-        if self.repositories.empty?
-
-      self.repositories.each do |repo|
-        #generate repo::all flags and set the default
-        key = repo.name.to_s + '::all'
-
-        rdf = Flag.new
-        rdf.id = key
-        rdf.name = flagtype
-        rdf.description = 'project repository default'
-        rdf.architecture = nil
-        rdf.repository = repo.name
-        rdf.status = 'default'
-        rdf.explicit = false
-        rdf.set_implicit_setters( flags['all::all'.to_sym] )
-
-        flags.merge! key.to_sym => rdf
-
-        #set defaults for each architecture
-        repo.each_arch do |arch|
-          unless flags.keys.include? "all::#{arch.to_s}".to_sym
-            key = 'all::' + arch.to_s
-
-            adf = Flag.new
-            adf.id = key
-            adf.name = flagtype
-            adf.description = 'project architecture default'
-            adf.architecture = arch.to_s
-            adf.repository = nil
-            adf.status = 'default'
-            adf.explicit = false
-            adf.set_implicit_setters( flags['all::all'.to_sym] )
-
-            value = adf
-            flags.merge! key.to_sym => value
-          end #end unless
-
-          unless flags.keys.include? "#{repo.name}::#{arch.to_s}".to_sym
-            key = repo.name + '::' + arch.to_s
-
-            adf = Flag.new
-            adf.id = key
-            adf.name = flagtype
-            adf.description = 'project flag'
-            adf.architecture = arch.to_s
-            adf.repository = repo.name
-            adf.status = 'default'
-            adf.explicit = false
-
-            firstflag = flags["#{repo.name}::all".to_sym]
-            secondflag = flags["all::#{arch.to_s}".to_sym]
-            adf.set_implicit_setters( firstflag, secondflag  )
-
-            flags.merge! key.to_sym => adf
-          end
-        end
-      end
-
-      ft = "set_#{flagtype}flags"
-      self.send ft , flags
-
-      logger.debug "[PROJECT-FLAGS] Creation done."
-    rescue RuntimeError => error
-      logger.debug error.message
-      raise
-    rescue
-      raise
-    end
-  end
-
-
-  #TODO remove flags on repository remove
-  def update_flag_matrix(opts)
-    flagtype = opts[:flagtype]
-    logger.debug "[PROJECT-FLAGS] Updating flag matrix for flagtype: #{flagtype}"
-
-    return unless self.has_element? flagtype.to_sym
-
-    self.send(flagtype).each do |elem|
-      begin
-        if elem.has_attribute? :repository and elem.has_attribute? :arch
-          key = elem.repository.to_s + '::' + elem.arch.to_s
-          f = self.send("#{flagtype}flags")[key.to_sym]
-          f.repository = elem.repository
-          f.architecture = elem.arch.to_s
-          f.status = elem.element_name
-          f.explicit = true
-        elsif elem.has_attribute? :repository
-          key  =  elem.repository.to_s + '::all'
-          f = self.send("#{flagtype}flags")[key.to_sym]
-          f.repository = elem.repository
-          f.architecture = nil
-          f.status = elem.element_name
-          f.explicit = true
-        elsif elem.has_attribute? :arch
-          key = 'all::' + elem.arch.to_s
-          f = self.send("#{flagtype}flags")[key.to_sym]
-          f.repository = nil
-          f.architecture = elem.arch.to_s
-          f.status = elem.element_name
-          f.explicit = true
-        else
-          # default
-          key = 'all::all'
-          f = self.send("#{flagtype}flags")[key.to_sym]
-          f.repository = nil
-          f.architecture = nil
-          f.status = elem.element_name
-          f.explicit = true
-        end
-      rescue NoMethodError => error
-        logger.debug "[PROJECT-FLAGS] flag-matrix update warning: for the " +
-          "requested flag-repo-arch-combination exists no entry in the flag-matrix" +
-          " ...ignored!"
-      end
-    end
-
-    logger.debug "[PROJECT-FLAGS] Update done."
-  end
-
   def bugowner
     b = all_persons("bugowner")
     return b.first if b

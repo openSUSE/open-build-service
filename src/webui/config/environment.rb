@@ -107,10 +107,10 @@ ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
     map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
 
-    map.connect :project, "rest:///source/:name/_meta",
+    map.connect :project, "rest:///source/:name/_meta?:view",
       :all    => "rest:///source/",
       :delete => "rest:///source/:name?:force"
-    map.connect :package, "rest:///source/:project/:name/_meta",
+    map.connect :package, "rest:///source/:project/:name/_meta?:view",
       :all    => "rest:///source/:project"
 
     map.connect :tagcloud, "rest:///tag/tagcloud?limit=:limit",

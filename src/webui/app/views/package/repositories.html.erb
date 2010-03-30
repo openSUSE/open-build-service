@@ -1,0 +1,32 @@
+<%
+@crumb_list = [
+  link_to( 'Projects', :controller => :project, :action => :list_public),
+  link_to(@project.name, :controller => :project, :action => :show,
+	:project => @project.name),
+  link_to(@package.name, :action => :show, :package => @package.name,
+	:project => @project.name),
+  "Repositories"
+]
+-%>
+<div class="flag_table grid_8 alpha">
+  <h3>Build Flag</h3>
+  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.build, :obj => @package } %>
+</div>
+
+<div class="flag_table grid_8 omega">
+  <h3>Publish Flag</h3>
+  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.publish, :obj => @package } %>
+</div>
+<div class="clear" style="margin-bottom: 2em"></div>
+
+<div class="flag_table grid_8 alpha">
+  <h3>Debuginfo Flag</h3>
+  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.debuginfo, :obj => @package } %>
+</div>
+
+<div class="flag_table grid_8 omega">
+  <h3>Use for Build Flag</h3>
+  <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.useforbuild, :obj => @package } %>
+</div>
+
+<div class="clear"></div>
