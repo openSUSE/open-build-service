@@ -131,8 +131,12 @@ module ApplicationHelper
         source=new_path
       end
     end
+    super(source)
+  end
+
+  def compute_asset_host(source)
     if CONFIG['use_static'] and source =~ /^\/themes/
-      source = "https://static.opensuse.org" + source
+      return "https://static.opensuse.org"
     end
     super(source)
   end
