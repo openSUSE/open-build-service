@@ -222,10 +222,18 @@ module ApplicationHelper
         next if arch != "all"
       end
 
-      if flag.element_name == 'disable'
-        image = "#{flags.element_name}_disabled_grey.png"
+      if flag.has_attribute? :explicit
+        if flag.element_name == 'disable'
+          image = "#{flags.element_name}_disabled_blue.png"
+        else
+          image = "#{flags.element_name}_enabled_blue.png"
+        end
       else
-        image = "#{flags.element_name}_enabled_grey.png"
+        if flag.element_name == 'disable'
+          image = "#{flags.element_name}_disabled_grey.png"
+        else
+          image = "#{flags.element_name}_enabled_grey.png"
+        end
       end
     end
 
