@@ -18,7 +18,7 @@
     <%= javascript_include_tag '/themes/bento/js/script' %>
     <%= javascript_include_tag '/themes/bento/js/l10n/global-navigation-data-en_US.js' %>
     <%= javascript_include_tag '/themes/bento/js/global-navigation' %>
-    <%= javascript_include_tag 'favorites.js' %>
+    <%= javascript_include_tag 'favorites' %>
 
     <%= yield :content_for_head %>
 
@@ -48,7 +48,7 @@
         </ul>
 
         <% if user -%>
-          <ul class="global-navigation-menu" id="menu-favorites">
+          <ul class="global-navigation-menu global-navigation-menu-favorites" id="menu-favorites">
             <li>
               <a href="<%= url_for :controller => "project", :action => :list_my %>">
               <div>Watchlist ...</div>

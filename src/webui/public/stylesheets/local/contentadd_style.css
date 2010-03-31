@@ -5,41 +5,7 @@
 **  License:   see copyright/COPYRIGHT
 */
 
-/* ### inplace watchlist ### */
-#inplace_watchlist {
-  display: block;
-  position: absolute;
-  z-index:2000;
-
-  width: 20.5em;
-  
-  top: 2em;
-  right: 2em;
-  
-  border-top: 1px solid #333;
-  border-bottom: 1px solid #666;
-  background: #eee;
-  text-align: left;
-
-}
-
-  #inplace_watchlist a {
-    color: #666;
-    display:block;
-    width: 100%;
-    padding: 0.3em 0 0.5em 0.5em;
-  }
-  #inplace_watchlist a:hover {
-    color :#F59F1A;
-    background: #fafafa;
-  }
-  #inplace_watchlist div {
-    display: block;
-    position: relative;
-  }
-  
-  div.inner_spacer,
-  #inplace_watchlist div {
+  div.inner_spacer {
     margin: 0.5em;
   }
   
@@ -127,10 +93,6 @@ span.build_result_title {
   color: #e55;
 }
 
-/* used in application layout */
-#pt-personal li {
-  float: left;
-}
 
 .centered {
   text-align: center;
@@ -179,4 +141,8 @@ div#log_space_wrapper p {
     position:absolute;
     top:10px; 
     left:5ex; 
+}
+
+.global-navigation-menu-favorites li a {
+  min-height: 0px;
 }
