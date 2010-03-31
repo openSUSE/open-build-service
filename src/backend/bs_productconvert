@@ -308,7 +308,7 @@ sub createProductOptions($$$)
     $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
     $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
     if (defined($obsname) && (defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne "")){
-        $info{'REPOID'}       = "obsproduct:://".$obsname."/".$prodRef->{'project'}->{'name'}."/".$product->{'name'}."/".$medium->{'flavor'}."/".join( "-", @allarchs );
+        $info{'REPOID'}       = "obsproduct:://".$obsname."/".$prodRef->{'project'}->{'name'}."/".$product->{'name'}."/".$product->{'version'}."/".$medium->{'flavor'}."/".join( "-", @allarchs );
     }
     if (defined($medium->{'preselected_patterns'})){
         $info{'PATTERNS'} .= join(' ',map( $_->{'name'},@{$medium->{'preselected_patterns'}->[0]->{'pattern'}}));
