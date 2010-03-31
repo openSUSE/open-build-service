@@ -22,6 +22,11 @@
 
     <%= yield :content_for_head %>
 
+    <script type="text/javascript">
+        <%= yield :head_javascript %>
+        <%= yield :ready_function %>
+    </script>
+
   </head>
 
   <body>
