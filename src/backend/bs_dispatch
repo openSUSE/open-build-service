@@ -334,9 +334,9 @@ while (1) {
     @b = grep {!/:(?:dir|status|new)$/} @b;
     @b = grep {!$locked{"$_:status"}} @b;
 
-    # pool mans priority, please replace with something sane...
+    # poor mans priority, please replace with something sane...
     if ($BSConfig::dispatch_prio) {
-      for my $pr (@{$BSConfig::dispatch_prio}) {
+      for my $pr (reverse @{$BSConfig::dispatch_prio}) {
         my @bn;
         if ($pr =~ /^!/) {
           my $npr = substr($pr, 1);
@@ -344,7 +344,11 @@ while (1) {
         } else {
           @bn = grep {/$pr/} @b;
         }
-        @b = @bn if @bn;
+        next unless @bn;
+        # @bn now contains "high prio" jobs. Move them in front of @b
+        my %bn = map {$_ => 1} @bn;
+        @b = grep {!$bn{$_}} @b;
+        unshift @b, @bn;
       }
     }
 
