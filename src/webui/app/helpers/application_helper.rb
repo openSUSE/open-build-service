@@ -279,7 +279,7 @@ module ApplicationHelper
         else
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_enabled_grey.png") +
+            image_tag("#{flags.element_name}_disabled_grey.png") +
             link_to("Take default", opts.merge({ :cmd => :remove }))+
             "</div>"
         end if flag.has_attribute? :explicit

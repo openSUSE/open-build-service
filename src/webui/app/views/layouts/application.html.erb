@@ -16,7 +16,8 @@
     <%= javascript_include_tag '/themes/bento/js/jquery.js', 'jquery-ui-1.7.2.min' %>
     <%= javascript_include_tag 'jrails', "application" %>
     <%= javascript_include_tag '/themes/bento/js/script' %>
-    <%= javascript_include_tag 'global-navigation' %>
+    <%= javascript_include_tag '/themes/bento/js/l10n/global-navigation-data-en_US.js' %>
+    <%= javascript_include_tag '/themes/bento/js/global-navigation' %>
 
     <%= yield :content_for_head %>
 
@@ -24,6 +25,7 @@
   /* <![CDATA[ */
 <%= yield :head_javascript %>
   $(function() {
+    loadGlobalNavigation('en_US');
     $('#global-favorites').click(function() { $('#inplace_watchlist').slideToggle(350); });
 <%= yield :ready_function %>
   });
