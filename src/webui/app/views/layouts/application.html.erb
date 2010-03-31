@@ -25,7 +25,6 @@
   /* <![CDATA[ */
 <%= yield :head_javascript %>
   $(function() {
-    loadGlobalNavigation('en_US');
     $('#global-favorites').click(function() { $('#inplace_watchlist').slideToggle(350); });
 <%= yield :ready_function %>
   });
