@@ -190,7 +190,7 @@ sub rpc {
   $uri = createuri($param, @args);
   my $proxy = $param->{'proxy'};
   my ($proto, $host, $port, $req, $proxytunnel) = createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
-  if ($proto eq 'https' || $proxytunnel) {
+  if ($proto && $proto eq 'https' || $proxytunnel) {
     die("https not supported\n") unless $tossl || $param->{'https'};
   }
   local *S;
