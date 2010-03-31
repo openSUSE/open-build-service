@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100109145739) do
+ActiveRecord::Schema.define(:version => 20100402100000) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -113,7 +113,7 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
     t.integer  "develpackage_id"
   end
 
-  execute "CREATE UNIQUE INDEX packages_all_index ON db_packages (db_project_id,name(255));"
+  add_index "db_packages", ["db_project_id", "name"], :name => "packages_all_index", :unique => true
   add_index "db_packages", ["develpackage_id"], :name => "devel_package_id_index"
   add_index "db_packages", ["develproject_id"], :name => "devel_project_id_index"
 
@@ -127,7 +127,7 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
     t.string   "remoteproject"
   end
 
-  execute "CREATE UNIQUE INDEX projects_name_index ON db_projects (name(255));"
+  add_index "db_projects", ["name"], :name => "projects_name_index", :unique => true
 
   create_table "db_projects_tags", :id => false, :force => true do |t|
     t.integer "db_project_id", :null => false
@@ -216,6 +216,13 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
   add_index "groups_users", ["group_id", "user_id"], :name => "groups_users_all_index", :unique => true
   add_index "groups_users", ["user_id"], :name => "user_id"
 
+  create_table "linked_projects", :force => true do |t|
+    t.integer "db_project_id",        :null => false
+    t.integer "linked_db_project_id", :null => false
+  end
+
+  add_index "linked_projects", ["db_project_id", "linked_db_project_id"], :name => "linked_projects_index", :unique => true
+
   create_table "messages", :force => true do |t|
     t.integer  "object_id"
     t.string   "object_type"
@@ -231,10 +238,18 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
   add_index "messages", ["object_id"], :name => "object"
   add_index "messages", ["user_id"], :name => "user"
 
+  create_table "package_group_role_relationships", :force => true do |t|
+    t.integer "db_package_id", :null => false
+    t.integer "bs_group_id",   :null => false
+    t.integer "role_id",       :null => false
+  end
+
+  add_index "package_group_role_relationships", ["db_package_id", "bs_group_id", "role_id"], :name => "package_group_role_all_index", :unique => true
+
   create_table "package_user_role_relationships", :force => true do |t|
     t.integer "db_package_id", :null => false
     t.integer "bs_user_id",    :null => false
-    t.integer "role_id",       :null => false
+    t.integer "role_id"
   end
 
   add_index "package_user_role_relationships", ["bs_user_id"], :name => "index_package_user_role_relationships_on_bs_user_id"
@@ -249,10 +264,18 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
   add_index "path_elements", ["parent_id", "position"], :name => "parent_repo_pos_index", :unique => true
   add_index "path_elements", ["parent_id", "repository_id"], :name => "parent_repository_index", :unique => true
 
+  create_table "project_group_role_relationships", :force => true do |t|
+    t.integer "db_project_id", :null => false
+    t.integer "bs_group_id",   :null => false
+    t.integer "role_id",       :null => false
+  end
+
+  add_index "project_group_role_relationships", ["db_project_id", "bs_group_id", "role_id"], :name => "project_group_role_all_index", :unique => true
+
   create_table "project_user_role_relationships", :force => true do |t|
     t.integer "db_project_id", :null => false
     t.integer "bs_user_id",    :null => false
-    t.integer "role_id",       :null => false
+    t.integer "role_id"
   end
 
   add_index "project_user_role_relationships", ["db_project_id", "bs_user_id", "role_id"], :name => "project_user_role_all_index", :unique => true
@@ -304,6 +327,10 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
 
   add_index "roles_users", ["role_id"], :name => "role_id"
   add_index "roles_users", ["user_id", "role_id"], :name => "roles_users_all_index", :unique => true
+
+  create_table "schema_info", :id => false, :force => true do |t|
+    t.integer "version"
+  end
 
   create_table "static_permissions", :force => true do |t|
     t.string   "title",      :limit => 200, :default => "", :null => false
@@ -366,7 +393,7 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
     t.datetime "updated_at"
     t.datetime "last_logged_in_at"
     t.integer  "login_failure_count",                :default => 0,            :null => false
-    t.string   "login",               :limit => 100, :default => "",           :null => false
+    t.binary   "login",               :limit => 255,                           :null => false
     t.string   "email",               :limit => 200, :default => "",           :null => false
     t.string   "realname",            :limit => 200, :default => "",           :null => false
     t.string   "password",            :limit => 100, :default => "",           :null => false
@@ -374,10 +401,6 @@ ActiveRecord::Schema.define(:version => 20100109145739) do
     t.string   "password_salt",       :limit => 10,  :default => "1234512345", :null => false
     t.string   "password_crypted",    :limit => 64
     t.integer  "state",                              :default => 1,            :null => false
-    t.string   "source_host",         :limit => 40
-    t.integer  "source_port"
-    t.string   "rpm_host",            :limit => 40
-    t.integer  "rpm_port"
     t.text     "adminnote"
   end
 
