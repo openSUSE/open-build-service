@@ -23,7 +23,7 @@
 
     <li><%= link_to binary.attributes['filename'], rpm_url( @project, @package, @repository, result.attributes['arch'], binary.attributes['filename'] ) %>
     <% if result.attributes['state'] == 'published' %>
-    (<%= link_to( 'mirror', "http://download.opensuse.org/repositories/#{@project}/#{@repository}/#{result.attributes['arch']}/#{binary.attributes['filename']}" ) %>)
+    (<%= link_to( 'mirror', repo_url( @project, @repository ) + "/#{result.attributes['arch']}/#{binary.attributes['filename']}" ) %>)
     <% end %>
     </li>
 
