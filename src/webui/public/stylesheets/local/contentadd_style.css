@@ -177,6 +177,6 @@ div#log_space_wrapper p {
     background: white;
     border: 1px solid black;
     position:absolute;
-    bottom:-12px; 
-    left:-12px; 
+    top:10px; 
+    left:5ex; 
 }
