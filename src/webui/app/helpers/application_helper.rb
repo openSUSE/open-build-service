@@ -240,23 +240,26 @@ module ApplicationHelper
       end
 
       flag = f
+      break
     end
 
-    if flag.has_attribute? :explicit
-      if flag.element_name == 'disable'
-        image = "#{flags.element_name}_disabled_blue.png"
-      else
-        image = "#{flags.element_name}_enabled_blue.png"
-      end
-    else
-      if flag.element_name == 'disable'
-        image = "#{flags.element_name}_disabled_grey.png"
-      else
-        image = "#{flags.element_name}_enabled_grey.png"
-      end
-    end
 
-    if image
+    if flag
+
+      if flag.has_attribute? :explicit
+        if flag.element_name == 'disable'
+          image = "#{flags.element_name}_disabled_blue.png"
+        else
+          image = "#{flags.element_name}_enabled_blue.png"
+        end
+      else
+        if flag.element_name == 'disable'
+          image = "#{flags.element_name}_disabled_grey.png"
+        else
+          image = "#{flags.element_name}_enabled_grey.png"
+        end
+      end
+
       if @user and @user.is_maintainer?(@project, @package)
         opts = { :project => @project, :repo => repo, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
         out = "<div class='flagimage'>" + image_tag(image) + "<div class='hidden flagtoggle'>"
@@ -292,7 +295,7 @@ module ApplicationHelper
         image_tag(image)
       end
     else
-      out = ""
+      ""
     end
   end
 end
