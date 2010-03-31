@@ -17,4 +17,5 @@ theme: neutral
 #exception_recipients: ['webclient_noreply@opensuse.org']
 exception_recipients: []
 
-use_static: true
+# Use static.opensuse.org for static style content
+use_static: false
