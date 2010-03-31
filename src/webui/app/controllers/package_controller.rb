@@ -34,8 +34,9 @@ class PackageController < ApplicationController
 
   def binaries
 
+    @repository = params[:repository]
     @buildresult = Buildresult.find( :project => @project, :package => @package,
-      :repository => params[:repository], :view => ['binarylist'] )
+      :repository => @repository, :view => ['binarylist'] )
 
   end
   
