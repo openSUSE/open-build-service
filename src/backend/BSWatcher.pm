@@ -633,7 +633,7 @@ sub rpc_tossl {
   print "switching to https\n";
   fcntl($ev->{'fd'}, F_SETFL, 0);     # in danger honor...
   eval {
-    $ev->{'param'}->{'https'}->($ev->{'fd'});
+    ($ev->{'param'}->{'https'} || $tossl)->($ev->{'fd'});
   };
   fcntl($ev->{'fd'}, F_SETFL, O_NONBLOCK);
   if ($@) {
@@ -698,7 +698,7 @@ sub rpc_recv_handler {
     return;
   }
   if ($ev->{'proxytunnel'}) {
-    # CONNECT worked. we now have a https connection
+    # CONNECT method worked. we now have a https connection
     return unless rpc_tossl($ev);
     $ev->{'param'}->{'proto'} = 'https';
     $ev->{'sendbuf'} = $ev->{'proxytunnel'};
@@ -830,19 +830,7 @@ sub rpc {
     $uri = $param->{'uri'};
     @xhdrs = @{$param->{'headers'} || []};
   }
-  $uri = BSRPC::urlencode($uri) unless $param->{'verbatim_uri'};
-  if (@args) {
-    for (@args) {
-      s/([\000-\040<>\"#&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
-      s/%3D/=/;
-    }
-    if ($uri =~ /\?/) {
-      $uri .= '&'.join('&', @args); 
-    } else {
-      $uri .= '?'.join('&', @args); 
-    }
-  }
-
+  $uri = BSRPC::createuri($param, @args);
   my $rpcuri = $uri;
   $rpcuri .= ";$jev->{'id'}" unless $param->{'joinable'};
 
@@ -872,60 +860,17 @@ sub rpc {
   }
 
   my $proxy = $param->{'proxy'};
-  my ($proxyauth, $proxytunnel);
-  # new rpc, create rpc event
-  die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
-  my ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
-  my $hostport = $port ? "$host$port" : $host;
-  if ($proxy) {
-    die("https not supported\n") if $proto eq 'https' && !($param->{'https'} || $tossl);
-    die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
-    ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
-    $path = $uri unless $uri =~ /^https:/;
+  my ($proto, $host, $port, $req, $proxytunnel) = BSRPC::createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
+  if ($proto eq 'https' || $proxytunnel) {
+    die("https not supported\n") unless $tossl || $param->{'https'};
   }
-  $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
+  $param->{'proto'} = $proto;
   if (!$hostlookupcache{$host}) {
     # should do this async, but that's hard to do in perl
     my $hostaddr = inet_aton($host);
     die("unknown host '$host'\n") unless $hostaddr;
     $hostlookupcache{$host} = $hostaddr;
   }
-  unshift @xhdrs, "Connection: close";
-  unshift @xhdrs, "User-Agent: $BSRPC::useragent" unless !defined($BSRPC::useragent) || grep {/^user-agent:/si} @xhdrs;
-  unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;;
-
-  if (defined $auth) {
-    $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge unless $param->{'verbatim_uri'};
-    $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    unshift @xhdrs, "Authorization: Basic ".encode_base64($auth, '');
-  }
-  if (defined $proxyauth) {
-    $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
-  }
-  if ($proxy && $uri =~ /^https:/) {
-    # we're going to proxy https over http
-    $param->{'https'} ||= $tossl;
-    if ($hostport =~ /:\d+$/) {
-      $proxytunnel = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n";
-    } else {
-      $proxytunnel = "CONNECT $hostport:443 HTTP/1.1\r\nHost: $hostport:443\r\n";
-    }
-    $proxytunnel .= shift(@xhdrs)."\r\n" if defined $proxyauth;
-    $proxytunnel .= "\r\n";
-  }
-  if ($proto eq 'https') {
-    $param->{'proto'} = 'https';
-    $param->{'https'} ||= $tossl;
-    die("https not supported\n") unless $param->{'https'};
-  }
-  if (%cookiestore) {
-    if ($uri =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
-      push @xhdrs, map {"Cookie: $_"} @{$cookiestore{$1} || []};
-    }
-  }
-  
-  my $req = "GET $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
   my $fd = gensym;
   socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
   fcntl($fd, F_SETFL,O_NONBLOCK);

@@ -54,6 +54,74 @@ sub urlencode {
   return $url;
 }
 
+sub createuri {
+  my ($param, @args) = @_;
+  my $uri = $param->{'uri'};
+  if (!$param->{'verbatim_uri'} && $uri =~ /^(https?:\/\/[^\/]*\/)(.*)$/s) {
+    $uri = $1; 
+    $uri .= BSRPC::urlencode($2);
+  }
+  if (@args) {
+    for (@args) {
+      $_ = urlencode($_);
+      s/%3D/=/;	# convert first now escaped '=' back
+    }   
+    if ($uri =~ /\?/) {
+      $uri .= '&'.join('&', @args); 
+    } else {
+      $uri .= '?'.join('&', @args); 
+    }   
+  }
+  return $uri;
+}
+
+sub createreq {
+  my ($param, $uri, $proxy, $cookiestore, @xhdrs) = @_;
+
+  my $act = $param->{'request'} || 'GET';
+  if (exists($param->{'socket'})) {
+    my $req = "$act $uri HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
+    return (undef, undef, undef, $req, undef);
+  }
+  my ($proxyauth, $proxytunnel);
+  die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+  my ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
+  my $hostport = $port ? "$host$port" : $host;
+  if ($proxy) {
+    die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+    ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
+    $path = $uri unless $uri =~ /^https:/; 
+  }
+  $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
+  unshift @xhdrs, "Connection: close";
+  unshift @xhdrs, "User-Agent: $useragent" unless !defined($useragent) || grep {/^user-agent:/si} @xhdrs;
+  unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
+  if (defined $auth) {
+    $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    unshift @xhdrs, "Authorization: Basic ".encode_base64($auth, '');
+  }
+  if (defined $proxyauth) {
+    $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
+  }
+  if ($proxy && $uri =~ /^https/) {
+    if ($hostport =~ /:\d+$/) {
+      $proxytunnel = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n";
+    } else {
+      $proxytunnel = "CONNECT $hostport:443 HTTP/1.1\r\nHost: $hostport:443\r\n";
+    }
+    $proxytunnel .= shift(@xhdrs)."\r\n" if defined $proxyauth;
+    $proxytunnel .= "\r\n";
+  }
+  if ($cookiestore && %$cookiestore) {
+    if ($uri =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
+      push @xhdrs, map {"Cookie: $_"} @{$cookiestore->{$1} || []};
+    }
+  }
+  my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
+  return ($proto, $host, $port, $req, $proxytunnel);
+}
+
 #
 # handled paramters:
 # timeout
@@ -119,35 +187,16 @@ sub rpc {
     push @xhdrs, "Transfer-Encoding: chunked" if $chunked;
     $data = '' unless defined $data;
   }
-  $uri = urlencode($uri) unless $param->{'verbatim_uri'};
-  if (@args) {
-    for (@args) {
-      $_ = urlencode($_);
-      s/%3D/=/;	# convert now escaped = back
-    }
-    if ($uri =~ /\?/) {
-      $uri .= '&'.join('&', @args);
-    } else {
-      $uri .= '?'.join('&', @args);
-    }
+  $uri = createuri($param, @args);
+  my $proxy = $param->{'proxy'};
+  my ($proto, $host, $port, $req, $proxytunnel) = createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
+  if ($proto eq 'https' || $proxytunnel) {
+    die("https not supported\n") unless $tossl || $param->{'https'};
   }
   local *S;
-  my $path;
-  my $proxy = $param->{'proxy'};
   if (exists($param->{'socket'})) {
     *S = $param->{'socket'};
-    $path = $uri;
   } else {
-    die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
-    my ($proto, $auth, $host, $port, $proxyauth);
-    ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
-    my $hostport = $port ? "$host$port" : $host;
-    if ($proxy) {
-      die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
-      ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
-      $path = $uri unless $uri =~ /^https:/;
-    }
-    $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
     if (!$hostlookupcache{$host}) {
       my $hostaddr = inet_aton($host);
       die("unknown host '$host'\n") unless $hostaddr;
@@ -156,27 +205,7 @@ sub rpc {
     socket(S, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
     setsockopt(S, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
     connect(S, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
-    unshift @xhdrs, "Connection: close";
-    unshift @xhdrs, "User-Agent: $useragent" unless !defined($useragent) || grep {/^user-agent:/si} @xhdrs;
-    unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
-    if (defined $auth) {
-      $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge unless $param->{'verbatim_uri'};
-      $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-      unshift @xhdrs, "Authorization: Basic ".encode_base64($auth, '');
-    }
-    if (defined $proxyauth) {
-      $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-      unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
-    }
-    if ($proxy && $uri =~ /^https/) {
-      my $proxytunnel;
-      if ($hostport =~ /:\d+$/) {
-	$proxytunnel = "CONNECT $hostport HTTP/1.1\r\nHost: $hostport\r\n";
-      } else {
-	$proxytunnel = "CONNECT $hostport:443 HTTP/1.1\r\nHost: $hostport:443\r\n";
-      }
-      $proxytunnel .= shift(@xhdrs)."\r\n" if defined $proxyauth;
-      $proxytunnel .= "\r\n";
+    if ($proxytunnel) {
       BSHTTP::swrite(\*S, $proxytunnel);
       my $ans = '';
       do {
@@ -184,27 +213,11 @@ sub rpc {
       } while ($ans !~ /\n\r?\n/s);
       die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
       my $status = $1;
-      die("proxy tunnel: CONNECT failed: $status\n") unless $status =~ /^200[^\d]/;
+      die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
     }
-    if ($proto eq 'https' || ($proxy && $uri =~ /^https/)) {
-      if ($param->{'https'}) {
-        $param->{'https'}->(\*S);
-      } elsif ($tossl) {
-        $tossl->(\*S);
-      } else {
-        die("https not supported\n");
-      }
-    }
-    if (%cookiestore) {
-      if ($param->{'uri'} =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
-        push @xhdrs, map {"Cookie: $_"} @{$cookiestore{$1} || []};
-      }
-    }
+    ($param->{'https'} || $tossl)->(\*S) if $proto eq 'https' || $proxytunnel;
   }
-
-  my $act = $param->{'request'} || 'GET';
   if (!$param->{'continuation'}) {
-    my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
     if ($param->{'verbose'}) {
       print "> $_\n" for split("\r\n", $req);
       #print "> $data\n" unless ref($data);
@@ -233,7 +246,7 @@ sub rpc {
       $ret->{'socket'} = $fd;
       $ret->{'async'} = 1;
       $ret->{'continuation'} = 1;
-      $ret->{'request'} = $act;
+      $ret->{'request'} = $param->{'request'} || 'GET';
       $ret->{'verbose'} = $param->{'verbose'} if $param->{'verbose'};
       $ret->{'replyheaders'} = $param->{'replyheaders'} if $param->{'replyheaders'};
       $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
@@ -289,7 +302,7 @@ sub rpc {
       $cookiestore{$1} = \@cookie;
     }
   }
-  if ($act eq 'HEAD') {
+  if (($param->{'request'} || '') eq 'HEAD') {
     close S;
     ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
     return \%headers;
