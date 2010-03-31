@@ -15,7 +15,7 @@ class ProjectController < ApplicationController
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes,
-    :meta, :edit_meta, :edit_comment ]
+    :meta, :edit_meta, :edit_comment, :change_flag ]
 
   before_filter :load_current_requests, :only => [:delete, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
@@ -661,7 +661,20 @@ class ProjectController < ApplicationController
   end
 
   def change_flag
-    # AJAX -> update repositories
+    if request.post? and params[:cmd] and params[:flag]
+      params[:cmd]
+      params[:flag]
+
+      params[:repo]
+      params[:arch]
+      path = url_for(:controller => :source, :action => @project, :id => '_meta', :cmd => params[:cmd], 
+                     :flag => params[:flag], :skip_relative_url_root => true, :only_path => true,
+                     :repo => params[:repo], :arch => params[:arch])
+      frontend.transport.direct_http URI(path), :method => "POST", :data => ""
+    end
+    Project.free_cache( params[:project], :view => :flagdetails )
+    @project = Project.find_cached( params[:project], :view => :flagdetails )
+    render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
   end
 
   def save_prjconf

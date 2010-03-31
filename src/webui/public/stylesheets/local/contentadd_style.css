@@ -167,13 +167,15 @@ div#log_space_wrapper p {
 
 .flagimage {
     position:relative;
-    z-index:24;
 }
 
 .flagimage:hover{z-index:25; }
 
-.flagimage:hover span{ /*the span will display just on :hover state*/
+.flagimage:hover div.flagtoggle {
+    text-align: left;
     display:block;
+    background: white;
+    border: 1px solid black;
     position:absolute;
     bottom:-12px; 
     left:-12px; 

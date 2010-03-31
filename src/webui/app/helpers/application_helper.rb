@@ -224,42 +224,73 @@ module ApplicationHelper
 
   def flag_status(flags, repo, arch)
     image = nil
+    flag = nil
 
-    flags.each do |flag|
+    flags.each do |f|
 
-      if flag.has_attribute? :repository
-        next if flag.repository.to_s != repo
+      if f.has_attribute? :repository
+        next if f.repository.to_s != repo
       else
         next if repo
       end
-      if flag.has_attribute? :arch
-        next  if flag.arch.to_s != arch
+      if f.has_attribute? :arch
+        next  if f.arch.to_s != arch
       else
         next if arch 
       end
 
-      if flag.has_attribute? :explicit
-        if flag.element_name == 'disable'
-          image = "#{flags.element_name}_disabled_blue.png"
-        else
-          image = "#{flags.element_name}_enabled_blue.png"
-        end
+      flag = f
+    end
+
+    if flag.has_attribute? :explicit
+      if flag.element_name == 'disable'
+        image = "#{flags.element_name}_disabled_blue.png"
       else
-        if flag.element_name == 'disable'
-          image = "#{flags.element_name}_disabled_grey.png"
-        else
-          image = "#{flags.element_name}_enabled_grey.png"
-        end
+        image = "#{flags.element_name}_enabled_blue.png"
+      end
+    else
+      if flag.element_name == 'disable'
+        image = "#{flags.element_name}_disabled_grey.png"
+      else
+        image = "#{flags.element_name}_enabled_grey.png"
       end
     end
 
     if image
-      opts = { :project => @project, :repo => repo, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
-      out = "<span class='flagimage'>" + image_tag(image) + "<span class='hidden nowrap'>"
-      out += link_to(image_tag("/themes/bento/images/icons/page_delete.png", :title => "Explicitly disable"), opts.merge({ :cmd => :disable }))
-      out += link_to(image_tag("/themes/bento/images/icons/page.png", :title => "Set to default"), opts.merge({ :cmd => :remove }))
-      out += link_to(image_tag("/themes/bento/images/icons/page_add.png", :title => "Explicitly enable"), opts.merge({ :cmd => :enable }))
-      out += "</span></span>"
+      if @user and @user.is_maintainer?(@project, @package)
+        opts = { :project => @project, :repo => repo, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
+        out = "<div class='flagimage'>" + image_tag(image) + "<div class='hidden flagtoggle'>"
+        unless flag.has_attribute? :explicit and flag.element_name == 'disable'
+          out += 
+            "<div class='nowrap'>" +
+            image_tag("#{flags.element_name}_disabled_blue.png") +
+            link_to("Explicitly disable", opts.merge({ :cmd => :disable })) +
+            "</div>"
+        end
+        if flag.element_name == 'disable'
+          out += 
+            "<div class='nowrap'>" +
+            image_tag("#{flags.element_name}_enabled_grey.png") +
+            link_to("Take default", opts.merge({ :cmd => :remove })) +
+            "</div>"
+        else
+          out += 
+            "<div class='nowrap'>" +
+            image_tag("#{flags.element_name}_enabled_grey.png") +
+            link_to("Take default", opts.merge({ :cmd => :remove }))+
+            "</div>"
+        end if flag.has_attribute? :explicit
+        unless flag.has_attribute? :explicit and flag.element_name != 'disable'
+          out += 
+            "<div class='nowrap'>" +
+            image_tag("#{flags.element_name}_enabled_blue.png") +
+            link_to("Explicitly enable", opts.merge({ :cmd => :enable })) +
+            "</div>"
+        end
+        out += "</div></div>"
+      else
+        image_tag(image)
+      end
     else
       out = ""
     end
