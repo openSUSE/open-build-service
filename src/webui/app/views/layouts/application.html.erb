@@ -23,8 +23,12 @@
     <%= yield :content_for_head %>
 
     <script type="text/javascript">
-        <%= yield :head_javascript %>
-        <%= yield :ready_function %>
+    /* <![CDATA[ */
+    <%= yield :head_javascript %>
+    $(function() {
+      <%= yield :ready_function %>
+    });
+    /* ]]> */
     </script>
 
   </head>
