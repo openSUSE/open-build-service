@@ -639,16 +639,19 @@ class ProjectController < ApplicationController
   def toggle_watch
     render :update do |page|
       if @user.watches? @project.name
+        logger.debug "Remove #{@project} from watchlist for #{@user}"
         @user.remove_watched_project @project.name
         page << "$('#imgwatch').attr('src', '../images/watch.png');"
         page << "$('#watchlist_#{Digest::MD5.hexdigest @project.name}').remove(); "
       else
+        logger.debug "Add #{@project} to watchlist for #{@user}"
         @user.add_watched_project @project.name
         page << "$('#imgwatch').attr('src', '../images/dontwatch.png');"
-        page << "$('#watchlist_container').append('<div id=\"watchlist_#{ Digest::MD5.hexdigest @project.name }\">#{link_to @project, {:controller => 'project', :action => :show, :project => @project}}</div>'); "
+        page << "$('#menu-favorites').append('<li id=\"watchlist_#{ Digest::MD5.hexdigest @project.name }\">#{link_to @project, {:controller => 'project', :action => :show, :project => @project}}</li>'); "
       end
     end
     @user.save
+    Person.free_cache( :login => session[:login] )
   end
 
   def meta
