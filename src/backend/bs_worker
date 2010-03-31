@@ -525,11 +525,11 @@ sub getcode {
 
   mkdir($ndir) || die("mkdir $ndir: $!\n");
   my $res = BSRPC::rpc({
-    uri => $uri,
-    directory => $ndir,
-    timeout => $gettimeout,
-    withmd5 => 1,
-    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    'uri' => $uri,
+    'directory' => $ndir,
+    'timeout' => $gettimeout,
+    'withmd5' => 1,
+    'receiver' => \&BSHTTP::cpio_receiver,
   });
   die("getcode error\n") unless $res;
 
@@ -578,11 +578,11 @@ sub getsources {
   my $server = $buildinfo->{'srcserver'} || $srcserver;
 
   my $res = BSRPC::rpc({
-    uri => "$server/getsources",
-    directory => $dir,
-    timeout => $gettimeout,
-    withmd5 => 1,
-    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+    'uri' => "$server/getsources",
+    'directory' => $dir,
+    'timeout' => $gettimeout,
+    'withmd5' => 1,
+    'receiver' => \&BSHTTP::cpio_receiver,
   }, undef, "project=$buildinfo->{'project'}", "package=$buildinfo->{'package'}", "srcmd5=$buildinfo->{'srcmd5'}");
   die("Error\n") unless ref($res) eq 'ARRAY';
   if (-e "$dir/.errors") {
@@ -610,11 +610,11 @@ sub getsources {
     $idir = "$dir/images/$idir";
     mkdir_p($idir);
     my $res = BSRPC::rpc({
-      uri => "$server/getsources",
-      directory => $idir,
-      timeout => $gettimeout,
-      withmd5 => 1,
-      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+      'uri' => "$server/getsources",
+      'directory' => $idir,
+      'timeout' => $gettimeout,
+      'withmd5' => 1,
+      'receiver' => \&BSHTTP::cpio_receiver,
     }, undef, "project=$src->{'project'}", "package=$src->{'package'}", "srcmd5=$src->{'srcmd5'}");
     die("Error\n") unless ref($res) eq 'ARRAY';
     if (-e "$idir/.errors") {
@@ -838,7 +838,7 @@ sub getbinaries_cache {
       'uri' => "$server/getbinaries",
       'directory' => $dir,
       'timeout' => $gettimeout,
-      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+      'receiver' => \&BSHTTP::cpio_receiver,
     }, undef, @args);
     die("Error\n") unless ref($res) eq 'ARRAY';
     my %havemeta;
@@ -1007,8 +1007,8 @@ sub getbinaries_kiwiproduct {
 	      }
 	      return $name;
 	    },
-	    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-	  }, undef, "view=cpio", map {"binary=$_->{'name'}"} @bad);
+	    'receiver' => \&BSHTTP::cpio_receiver,
+	  }, undef, 'view=cpio', map {"binary=$_->{'name'}"} @bad);
 	};
 	if ($@) {
 	  # delete everything as a file might be incomplete
@@ -1066,8 +1066,8 @@ sub getbinaries_kiwiproduct {
 	    }
 	    return $name;
 	  },
-	  'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-	}, undef, "view=cpio");
+	  'receiver' => \&BSHTTP::cpio_receiver,
+	}, undef, 'view=cpio');
 	if ($cachedir) {
 	  for my $f (@{$res || []}) {
 	    my @s = stat("$ddir/$f->{'name'}");
@@ -1212,8 +1212,8 @@ sub getoldpackages {
     'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
     'directory' => $odir,
     'timeout' => $gettimeout,
-    'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
-  }, undef, "view=cpio");
+    'receiver' => \&BSHTTP::cpio_receiver,
+  }, undef, 'view=cpio');
   rmdir($odir);	# if not needed
 }
 
@@ -1776,7 +1776,7 @@ if ($ex == 0) {
   push @d, 'SRPMS';
   @d = ('DEBS') if $buildinfo->{'file'} =~ /\.dsc$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
-  for my $d (@d) {
+  for my $d ('.', @d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
     @files = grep {$_ ne 'same_result_marker'} @files;
     @files = grep {-f "$buildroot/.build.packages/$d/$_"} @files;

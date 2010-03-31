@@ -601,8 +601,7 @@ sub getlogfile {
     my $param = {
       'uri' => "$jobstatus->{'uri'}/logfile",
       'joinable' => 1,
-      'receiver:application/octet-stream' => \&BSServer::reply_receiver,
-      'receiver:text/xml' => \&BSServer::reply_receiver,
+      'receiver' => \&BSServer::reply_receiver,
     };
     eval {
       BSWatcher::rpc($param, undef, @args);

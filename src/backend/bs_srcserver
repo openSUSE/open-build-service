@@ -125,7 +125,7 @@ sub sourceupdate {
       'directory' => $odir,
       'timeout'   => 60,
       'withmd5'   => 1,
-      'receiver:application/x-cpio' => \&BSHTTP::cpio_receiver,
+      'receiver' => \&BSHTTP::cpio_receiver,
     }, undef);
 
     # and update source repository with the result
