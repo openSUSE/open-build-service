@@ -82,6 +82,7 @@ sub reply_cpio {
 #
 
 my %rpcs;
+
 my %filewatchers;
 my %filewatchers_s;
 my $filewatchers_ev;
@@ -243,6 +244,8 @@ sub addfilewatcher {
 }
 
 ###########################################################################
+#
+# serialization
 
 sub serialize {
   my ($file) = @_;
@@ -756,19 +759,24 @@ sub rpc_recv_handler {
   my $cl = $headers{'content-length'};
   my $chunked = $headers{'transfer-encoding'} && lc($headers{'transfer-encoding'}) eq 'chunked' ? 1 : 0;
 
-  # we assume that all chunked data is streaming
-  if ($param->{'receiver'} || $chunked) {
+  if ($param->{'receiver'}) {
     die("answer is neither chunked nor does it contain a content length\n") unless $chunked || defined($cl);
     $ev->{'contentlength'} = $cl if !$chunked && defined($cl);
-    if ($param->{'receiver'} && $param->{'receiver'} == \&BSHTTP::file_receiver) {
+    if ($param->{'receiver'} == \&BSHTTP::file_receiver) {
       rpc_recv_file($ev, $chunked, $ans, $param->{'filename'});
-    } else {
+    } elsif ($param->{'receiver'} == \&BSServer::reply_receiver) {
       my $ct = $headers{'content-type'} || 'application/octet-stream';
-      rpc_recv_forward($ev, $chunked, $ans, "Content-Type: $ct");
+      my @args;
+      push @args, "Status: $headers{'status'}" if $headers{'status'};
+      push @args, "Content-Type: $ct";
+      rpc_recv_forward($ev, $chunked, $ans, @args);
+    } else {
+      die("unsupported receiver\n");
     }
     return;
   }
 
+  die("chunked decoder not implemented yet for non-receiver requests\n") if $chunked;
   if ($ev->{'rpceof'} && $cl && length($ans) < $cl) {
     rpc_error($ev, "EOF from $ev->{'rpcdest'}");
     return;
@@ -934,6 +942,11 @@ sub rpc {
   BSEvents::add($ev);
   return undef;
 }
+
+
+###########################################################################
+#
+# status query and setup functions
 
 sub getstatus {
   my $ret = {};
