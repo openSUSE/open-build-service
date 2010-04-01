@@ -127,6 +127,10 @@ div#log_space_wrapper p {
    margin-bottom: 0.5em;
 }
 
+.feedbox li {
+   list-style: none;
+}
+
 #involved_users li {
   list-style: none;
 }
