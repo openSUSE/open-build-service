@@ -27,6 +27,8 @@ class ApplicationController < ActionController::Base
   before_filter :setup_backend, :add_api_version, :restrict_admin_pages
   before_filter :shutup_rails
 
+  after_filter :check_memory
+
   #contains current authentification method, one of (:ichain, :basic)
   attr_accessor :auth_method
 
@@ -448,6 +450,7 @@ class ApplicationController < ActionController::Base
     MIN_VOTES_FOR_RATING
   end
 
+ private
   def shutup_rails
     Rails.cache.silence!
   end
@@ -462,4 +465,17 @@ class ApplicationController < ActionController::Base
     par.sort.each { |pair| pairs << pair.join('=') }
     url_for( options ).split('://').last + "/"+ pairs.join(',').gsub(' ', '-')
   end
+
+  def check_memory
+    mu = get_memory
+    if mu > 100000
+      logger.error 'Memory limit reached, ending process'
+      `kill -1 #{$$}`
+    end
+  end
+
+  def get_memory
+    `ps -o rss= -p #{$$}`.to_i
+  end
+
 end
