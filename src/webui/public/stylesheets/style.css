@@ -7,10 +7,6 @@
 
 @import url(dialog.css); /* style for dialog boxes */
 
-  div.inner_spacer {
-    margin: 0.5em;
-  }
-  
 .nowrap {
   white-space: nowrap;
 }
@@ -123,6 +119,9 @@ div#log_space_wrapper p {
   list-style: none;
   margin: 0;
   width: 115px;
+}
+#proceed_list li a:hover img {
+  text-decoration: none;
 }
 #proceed_list li img {
    margin-bottom: 0.5em;
