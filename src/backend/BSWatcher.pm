@@ -177,8 +177,9 @@ sub rpc_redirect {
     rpc_error($ev, "remote error: got status 302 but no location header");
     return;
   }
-  if (!$ev->{'param'}->{'maxredirects'}) {
-    unless (exists $ev->{'param'}->{'maxredirects'}) {
+  my $param = $ev->{'param'};
+  if (!$param->{'maxredirects'}) {
+    unless (exists $param->{'maxredirects'}) {
       rpc_error($ev, "no redirects allowed");
     } else {
       rpc_error($ev, "max number of redirects exhausted");
@@ -188,12 +189,10 @@ sub rpc_redirect {
   delete $rpcs{$ev->{'rpcuri'}};
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
-  $ev->{'param'}->{'uri'} = $location;
-  $ev->{'param'}->{'maxredirects'}--;
   #print "redirecting to: $location\n";
   for my $jev (@{$ev->{'joblist'} || []}) {
     local $BSServerEvents::gev = $jev;
-    rpc({%{$ev->{'param'}}});
+    rpc({%$param, 'uri' => $location, 'maxredirects' => $param->{'maxredirects'} - 1});
   }
 }
 
