@@ -56,11 +56,37 @@ class Person < ActiveXML::Base
   end
 
   def involved_projects
-    Collection.find :id, :what => 'project', :predicate => %(person/@userid='#{login}')
+    Collection.find_cached :id, :what => 'project', :predicate => %(person/@userid='#{login}')
   end
 
   def involved_packages
-    Collection.find :id, :what => 'package', :predicate => %(person/@userid='#{login}')
+    Collection.find_cached :id, :what => 'package', :predicate => %(person/@userid='#{login}')
+  end
+
+  def involved_requests(opts = {})
+    opts = {:cache => true}.merge opts
+
+    cachekey = "#{login}_involved_requests"
+    Rails.cache.delete cachekey unless opts[:cache]
+
+    requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+      iprojects = involved_projects.each.map {|x| x.name}.sort
+      requests = Array.new
+
+      unless iprojects.empty?
+        predicate = iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
+        predicate = "state/@name='new' and (#{predicate})"
+        collection = Collection.find :what => :request, :predicate => predicate
+        myrequests = Hash.new
+        collection.each do |req| myrequests[Integer(req.method_missing(:id))] = req end
+        collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{@user}'"
+        collection.each do |req| myrequests[Integer(req.method_missing(:id))] = req end
+        keys = myrequests.keys().sort {|x,y| y <=> x}
+        keys.each {|id| requests << myrequests[id] }
+      end
+      requests
+    end
+    return requests
   end
 
   def packagesorter(a, b)

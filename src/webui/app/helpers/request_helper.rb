@@ -1,5 +1,5 @@
 module RequestHelper
-  def type(req)
+  def reqtype(req)
     type = req.action.method_missing(:type)
     if type == "change_devel"
       type = "chgdev"

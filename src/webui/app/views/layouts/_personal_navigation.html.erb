@@ -4,6 +4,12 @@
   <div class="grid_4 omega">
 
     <%= link_to CGI::escapeHTML(session[:login]), :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
+    <%=
+      numrequests = @user.involved_requests.size
+      if numrequests > 0
+       "(" + link_to('#' + numrequests.to_s, {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"}) + ")"
+      end
+    -%>
     | <%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
 
   </div>

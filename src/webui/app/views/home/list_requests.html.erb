@@ -41,20 +41,20 @@ end -%>
       <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
         <% i += 1 %>
         <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
-        <td><!-- <%= type(req)  %> -->
-          <%= link_to type(req), :controller => :request, :action => :diff, :id => req.method_missing(:id) -%>
+        <td><!-- <%= reqtype(req)  %> -->
+          <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.method_missing(:id) -%>
         </td>
         <td>
           <%= if req.action.has_element? :source
             "<!-- " + req.action.source.project + "/" + req.action.source.package + "-->" +
               package_link(req.action.source.project, req.action.source.package)
-          elsif type(req) == "delete"
+          elsif reqtype(req) == "delete"
             "<!-- " + req.action.target.project + "/" + req.action.target.package + "-->" +
-              package_link(req.action.target.project, req.action.target.package, true)
+              package_link(req.action.target.project, req.action.target.package)
           end -%>
         </td>
         <td>
-          <%= if req.action.has_element? :target and type(req) != "delete"
+          <%= if req.action.has_element? :target and reqtype(req) != "delete"
             "<!-- " + req.action.target.project + "/" + req.action.target.package + "-->" +
               package_link(req.action.target.project, req.action.target.package, true)
           end -%>
