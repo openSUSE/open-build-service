@@ -18,7 +18,6 @@
     <%= javascript_include_tag '/themes/bento/js/script' %>
     <%= javascript_include_tag '/themes/bento/js/l10n/global-navigation-data-en_US.js' %>
     <%= javascript_include_tag '/themes/bento/js/global-navigation' %>
-    <%= javascript_include_tag 'favorites' %>
 
     <%= yield :content_for_head %>
 
@@ -26,6 +25,7 @@
     /* <![CDATA[ */
     <%= yield :head_javascript %>
     $(function() {
+      setup_favorites();
       <%= yield :ready_function %>
     });
     /* ]]> */
