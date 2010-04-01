@@ -12,18 +12,6 @@
 
   <% if ICHAIN_MODE == 'on' %>
 
-    <%# Script to fix ichain redirection on empty username or password %>
-    <% content_for :head_javascript do -%>
-      function fillEmptyFields() {
-      if( document.getElementById('username').value == '' ){
-      document.getElementById('username').value = "_";
-      }
-      if( document.getElementById('password').value == '' ){
-      document.getElementById('password').value = "_";
-      }
-      }
-    <% end -%>
-
     <div class="grid_4 omega">
       <%= link_to("Sign up", "https://build.opensuse.org/ICSLogin/?%22#{@return_to_host}#{@return_to_path}%22") %>
       | <a id="login-trigger" href="#">Login</a>

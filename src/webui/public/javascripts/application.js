@@ -142,7 +142,7 @@ function br_trigger_mouseout() {
 function setup_favorites() {
   var top = $('#global-navigation').height()-12;
   if ($.browser.webkit) top += 1;
-  if (!$('#global-favorites')) {
+  if (!$('#global-favorites').offset()) {
      return;
   }
   var left = $('#global-favorites').offset().left-16;
@@ -158,4 +158,14 @@ function setup_favorites() {
     return false;
   });
 
-});
+}
+
+function fillEmptyFields() {
+  if( document.getElementById('username').value == '' ){
+      document.getElementById('username').value = "_";
+  }
+  if( document.getElementById('password').value == '' ){
+      document.getElementById('password').value = "_";
+  }
+}
+
