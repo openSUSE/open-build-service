@@ -5,12 +5,10 @@
 **  License:   see copyright/COPYRIGHT
 */
 
+@import url(dialog.css); /* style for dialog boxes */
+
   div.inner_spacer {
     margin: 0.5em;
-  }
-  
-  .td_padding_r {
-    padding-right: 1em !important;
   }
   
 .nowrap {
@@ -51,48 +49,62 @@ span.build_result_title {
   border: 0;
 }
  
+.grey-medium {
+  color: #666;
+}
+
 /* used in package and project build status */
 .status_blocked a,
-.status_blocked a:visited {
+.status_blocked a:visited,
+.status_blocked a:hover
+{
   color: #fff;
   background-color: #bbb;
 }
 .status_scheduled a,
-.status_blocked a:visited {
+.status_scheduled a:visited,
+.status_scheduled a:hover
+{
   color: #11d;
   background-color: #bbb;
 }
 .status_building a,
-.status_blocked a:visited {
+.status_building a:visited,
+.status_building a:hover
+{
   color: #00f;
   background-color: #bbb;
 }
 .status_disabled a,
-.status_disabled,
-.status_blocked a:visited {
+.status_disabled a:hover,
+.status_disabled a:visited {
   color: #bbb;
 }
 .status_succeeded a,
-.status_blocked a:visited {
+.status_succeeded a:hover,
+.status_succeeded a:visited {
   color: #6EB927;
 }
 .status_broken a,
-.status_blocked a:visited {
+.status_broken a:hover,
+.status_broken a:visited {
   color: #e00;
 }
 .status_failed a,
-.status_blocked a:visited {
+.status_failed a:hover,
+.status_failed a:visited {
   color: #f00;
 }
 .status_expansion_error a,
-.status_blocked a:visited {
+.status_expansion_error a:hover
+.status_expansion_error a:visited {
   color: #c00;
 }
 .status_unknown a,
-.status_blocked a:visited {
+.status_unknown a:hover,
+.status_unknown a:visited {
   color: #e55;
 }
-
 
 .centered {
   text-align: center;
@@ -146,3 +158,4 @@ div#log_space_wrapper p {
 .global-navigation-menu-favorites li a {
   min-height: 0px;
 }
+
