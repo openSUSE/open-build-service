@@ -170,6 +170,32 @@ sub rpc_result {
   }
 }
 
+sub rpc_redirect {
+  my ($ev, $location) = @_;
+  unless ($location) {
+    rpc_error($ev, "remote error: got status 302 but no location header");
+    return;
+  }
+  if (!$ev->{'param'}->{'maxredirects'}) {
+    unless (exists $ev->{'param'}->{'maxredirects'}) {
+      rpc_error($ev, "no redirects allowed");
+    } else {
+      rpc_error($ev, "max number of redirects exhausted");
+    }
+    return;
+  }
+  delete $rpcs{$ev->{'rpcuri'}};
+  close $ev->{'fd'} if $ev->{'fd'};
+  delete $ev->{'fd'};
+  $ev->{'param'}->{'uri'} = $location;
+  $ev->{'param'}->{'maxredirects'}--;
+  #print "redirecting to: $location\n";
+  for my $jev (@{$ev->{'joblist'} || []}) {
+    local $BSServerEvents::gev = $jev;
+    rpc({%{$ev->{'param'}}});
+  }
+}
+
 
 ###########################################################################
 #
@@ -689,7 +715,12 @@ sub rpc_recv_handler {
   $ans =~ /^(.*?)\n\r?\n(.*)$/s;
   my $headers = $1;
   $ans = $2;
-  if ($status !~ /^200[^\d]/) {
+  my %headers;
+  BSHTTP::gethead(\%headers, $headers);
+  if ($status =~ /^302[^\d]/) {
+    rpc_redirect($ev, $headers{'location'});
+    return;
+  } elsif ($status !~ /^200[^\d]/) {
     if ($status =~ /^(\d+) +(.*?)$/) {
       rpc_error($ev, "$1 remote error: $2");
     } else {
@@ -710,8 +741,6 @@ sub rpc_recv_handler {
     BSEvents::add($ev, 0);
     return;
   }
-  my %headers;
-  BSHTTP::gethead(\%headers, $headers);
   my $param = $ev->{'param'};
   if ($headers{'set-cookie'} && $param->{'uri'}) {
     my @cookie = split(',', $headers{'set-cookie'});
