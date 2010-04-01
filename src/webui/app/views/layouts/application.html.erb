@@ -16,8 +16,6 @@
     <%= javascript_include_tag '/themes/bento/js/jquery.js', 'jquery-ui-1.7.2.min' %>
     <%= javascript_include_tag 'jrails', "application" %>
     <%= javascript_include_tag '/themes/bento/js/script' %>
-    <%= javascript_include_tag '/themes/bento/js/l10n/global-navigation-data-en_US.js' %>
-    <%= javascript_include_tag '/themes/bento/js/global-navigation' %>
 
     <%= yield :content_for_head %>
 
@@ -37,53 +35,7 @@
 
     <div id="dialog_wrapper" style="display: none"></div>
 
-    <!-- Start: Header -->
-    <div id="header">
-
-      <div id="header-content" class="container_12">
-
-        <a id="header-logo" href="#">
-          <%= image_tag( "/themes/bento/images/header-logo.png" ) %>
-        </a>
-
-      <ul id="global-navigation">
-        <li id="item-downloads"><a href="http://opensuse.org/sitemap#downloads">Downloads</a></li>
-        <li id="item-support"><a href="http://opensuse.org/sitemap#support">Support</a></li>
-        <li id="item-community"><a href="http://opensuse.org/sitemap#community">Community</a></li>
-        <li id="item-development"><a href="http://opensuse.org/sitemap#development">Development</a></li>
-          <% if user -%>
-            <li id="global-favorites"><a href="#">Watchlist</a></li>
-          <% end -%>
-        </ul>
-
-        <% if user -%>
-          <ul class="global-navigation-menu global-navigation-menu-favorites" id="menu-favorites">
-            <li>
-              <a href="<%= url_for :controller => "project", :action => :list_my %>">
-              <div>Watchlist ...</div>
-              <div class="desc">Your watched and involved projects</div></a></li>
-            <% if user && user.has_element?( 'watchlist' ) -%>
-              <% user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
-                <li id="watchlist_<%= Digest::MD5.hexdigest project %>">
-                  <a href="<%= url_for :controller => 'project', :action => :show, :project => project %>">
-                  <div><%= project %></div></a>
-                </li>
-              <% end -%>
-            <% end -%>
-          </ul>
-        <%- end -%>
-
-
-        <form id="global-search-form" action="" method="post" accept-charset="utf-8">
-          <div style="display: inline">
-            <input type="text" name="q" value="search" id="search" />
-            <input type="submit" value="Search" class="hidden" />
-          </div>
-        </form>
-
-      </div>
-    </div>
-    <!-- End: Header -->
+    <%= render :partial => 'layouts/header' %>
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_12 alpha">

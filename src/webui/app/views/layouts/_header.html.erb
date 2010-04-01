@@ -1,0 +1,30 @@
+<% content_for :content_for_head do %>
+    <%= javascript_include_tag '/themes/bento/js/l10n/global-navigation-data-en_US.js' %>
+    <%= javascript_include_tag '/themes/bento/js/global-navigation' %>
+<% end %>
+
+    <!-- Start: Header -->
+    <div id="header">
+
+      <div id="header-content" class="container_12">
+
+        <a id="header-logo" href="#">
+          <%= image_tag( "/themes/bento/images/header-logo.png" ) %>
+        </a>
+
+      <ul id="global-navigation">
+        <li id="item-downloads"><a href="http://opensuse.org/sitemap#downloads">Downloads</a></li>
+        <li id="item-support"><a href="http://opensuse.org/sitemap#support">Support</a></li>
+        <li id="item-community"><a href="http://opensuse.org/sitemap#community">Community</a></li>
+        <li id="item-development"><a href="http://opensuse.org/sitemap#development">Development</a></li>
+          <% if user -%>
+            <li id="global-favorites"><a href="#">Watchlist</a></li>
+          <% end -%>
+        </ul>
+
+        <%= render :partial => "layouts/watch_and_search" %>
+
+      </div>
+    </div>
+    <!-- End: Header -->
+

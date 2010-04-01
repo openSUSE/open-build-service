@@ -1,0 +1,21 @@
+    <!-- Start: Header -->
+    <div id="header">
+
+      <div id="header-content" class="container_12">
+
+        <a id="header-logo" href="#">
+          <%= image_tag( "obs-logo_small.png", :height => 26 ) %>
+        </a>
+
+        <ul id="global-navigation">
+          <% if user -%>
+            <li id="global-favorites"><a href="#">Watchlist</a></li>
+          <% end -%>
+        </ul>
+
+        <%= render :partial => "layouts/watch_and_search" %>
+
+      </div>
+    </div>
+    <!-- End: Header -->
+

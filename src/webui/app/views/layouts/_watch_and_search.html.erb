@@ -1,0 +1,25 @@
+         <% if user -%>
+          <ul class="global-navigation-menu global-navigation-menu-favorites" id="menu-favorites">
+            <li>
+              <a href="<%= url_for :controller => "project", :action => :list_my %>">
+              <div>Watchlist ...</div>
+              <div class="desc">Your watched and involved projects</div></a></li>
+            <% if user && user.has_element?( 'watchlist' ) -%>
+              <% user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
+                <li id="watchlist_<%= Digest::MD5.hexdigest project %>">
+                  <a href="<%= url_for :controller => 'project', :action => :show, :project => project %>">
+                  <div><%= project %></div></a>
+                </li>
+              <% end -%>
+            <% end -%>
+          </ul>
+        <%- end -%>
+
+
+        <form id="global-search-form" action="" method="post" accept-charset="utf-8">
+          <div style="display: inline">
+            <input type="text" name="q" value="search" id="search" />
+            <input type="submit" value="Search" class="hidden" />
+          </div>
+        </form>
+
