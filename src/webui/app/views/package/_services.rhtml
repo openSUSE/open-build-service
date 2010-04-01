@@ -11,9 +11,9 @@
 
     <!-- code generators -->
     <table class="grid"> <tbody>
-      <tr><td><div align="center">Available</div></td><td><div align="center">Used</div></td><td><div align="center">Trash</div></td></tr>
+      <tr><td class="centered">Available</td><td class="centered">Used</td><td class="centered">Trash</td></tr>
       <tr> <td>
-        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+        <% if @user and @user.is_maintainer?( @project, @package ) %>
            <% Service.available.each do |service| %>
              <% object_id = "new_service_#{service["name"]}" %>
              <li class="new_service" id=<%= object_id %> >
@@ -45,7 +45,7 @@
       </td></ol>
 
       <td>
-        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+        <% if @user and @user.is_maintainer?( @project, @package ) %>
           <%= drop_receiving_element('trash',
             :accept => "service",
             :with   => "'service=' + (element.id.split('_').last())",
@@ -57,7 +57,7 @@
 <!--
   <h3>
     Generated Files
-    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+    <% if @user and @user.is_maintainer?( @project, @package ) %>
     <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add Service"),
     :action => :add_service, :project => @project, :package => @package %>
     <% end %>

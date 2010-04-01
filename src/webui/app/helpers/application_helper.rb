@@ -164,11 +164,15 @@ module ApplicationHelper
     end
   end
 
-  def package_link(project, package)
+  def package_link(project, package, hide_packagename = false)
     out = "<span class='build_result_trigger'>"
     out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
-    out += link_to project, :controller => :project, :action => "show", :project => project
-    out += " / " +  link_to(package, :controller => :package, :action => "show", :project => project, :package => package)
+    if hide_packagename
+      out += link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
+    else
+      out += link_to project, :controller => :project, :action => "show", :project => project
+      out += " / " +  link_to(package, :controller => :package, :action => "show", :project => project, :package => package)
+    end
     out += "</span>"
   end
 

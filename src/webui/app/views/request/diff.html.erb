@@ -1,8 +1,9 @@
 <% @pagetitle = "Submit Request ##{@id}" %>
 <%
+req = @therequest
 @crumb_list = [
- link_to( 'Requests', :controller => 'request', :action => :list_req), 
- "Submit Request #{h @id}"
+  link_to( 'Requests', :controller => :home, :action => :list_requests),
+  "Submit Request #{h @id}"
 ]
 -%>
 
@@ -13,55 +14,108 @@
   <%= javascript_include_tag 'syntax/shCore', 'syntax/shBrushDiff' %>
 <% end %>
 <% content_for :ready_function do %>
-    dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-    dp.SyntaxHighlighter.HighlightAll('code');
+  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+  dp.SyntaxHighlighter.HighlightAll('code');
 <% end %>
 
-<%= render :partial => 'request_table', :locals => {:requests => [@therequest], :options => false, :by_me => false } %>
+<%-
+setup_buildresult_trigger
+%>
+
+<div id="build_result_popup"><div id="build_result_html"></div></div>
+
+<table class='request_table'>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>State</th>
+      <th>Action</th>
+      <th>Source</th>
+      <th>Target</th>
+      <th>Requester</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><%= req.method_missing(:id) %></td>
+      <td><%= req.state.name %></td>
+      <%  if req.has_element? :action:
+          elem = "action"
+        is_submit = false
+      else
+        elem = "submit"
+        is_submit = true
+      end -%>
+      <%  a = req.send("#{elem}") -%>
+      <td>
+        <%      if elem == "submit": %> <!-- old style submission -->
+          submit
+          <%        is_submit = true
+        else %>
+          <%=       a.data.attributes["type"] %>
+          <%        is_submit = ( a.data.attributes["type"] == "submit" )
+        end -%>
+      </td>
+      <td>
+        <%= if a.has_element? :source
+          package_link(a.source.project, a.source.package)
+        end -%>
+      </td>
+      <td>
+        <%= if a.has_element? :target
+          package_link(a.target.project, a.target.package)
+        end -%>
+      </td>
+      <td rowspan="2"><%= link_to req.state.who, :controller => :project, :action => "show", :project => "home:"+req.state.who %></td>
+    </tr>
+    <tr>
+      <td colspan="4"><%= req.description.to_s != "" and req.description.to_s or "-" %></td>
+    </tr>
+  </tbody>
+</table>
 
 <% if @diff_text %>
-<pre id="code" class="patch">
+  <pre id="code" class="patch">
   <%= h @diff_text %>
-</pre>
+  </pre>
 <% elsif @diff_error %>
   <p>
     <i><div class="message">Can't get diff for request #<%= @id %>: <%= h @diff_error %></div></i>
   </p>
 <% end %>
 
-
 <% if !["accepted", "declined", "revoked"].include? @state and (@is_maintainer || @is_author) %>
-<div class="section">
-  <h3>
-  <% if @is_maintainer %>
-    Do you want to accept or decline this request?
-  <% elsif @is_author %>
-    Do you want to revoke your request?
-  <% end %>
-  </h3>
+  <div class="section">
+    <h3>
+      <% if @is_maintainer %>
+        Do you want to accept or decline this request?
+      <% elsif @is_author %>
+        Do you want to revoke your request?
+      <% end %>
+    </h3>
 
-  <% form_tag :action => "submitreq" do %>
-    <div>
-    <p>
-    <strong>Reason:</strong>
-    <%= text_field_tag :reason, 'Reviewed ok' , :size => 80 %><br/>
-    <%= hidden_field_tag( "id", @id) %>
-    </p>
-    <% if @is_maintainer %>
-      <% linked = @target_pkg.linked_to if @target_pkg -%>
-      <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
-         <%= hidden_field_tag( "forward_project", linked[0]) %>	
-         <%= hidden_field_tag( "forward_package", linked[1]) %>		
-         <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
-      <% end -%>
-      <%= submit_tag "Accept", :name => 'accepted' %>
-      <%= submit_tag "Decline", :name => 'declined' %>
-    <% elsif @is_author %>
-      <%= submit_tag "Revoke", :name => 'revoked' %>
+    <% form_tag :action => "submitreq" do %>
+      <div>
+        <p>
+          <strong>Reason:</strong>
+          <%= text_field_tag :reason, 'Reviewed ok' , :size => 80 %><br/>
+          <%= hidden_field_tag( "id", @id) %>
+        </p>
+        <% if @is_maintainer %>
+          <% linked = @target_pkg.linked_to if @target_pkg -%>
+          <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
+            <%= hidden_field_tag( "forward_project", linked[0]) %>
+            <%= hidden_field_tag( "forward_package", linked[1]) %>
+            <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
+          <% end -%>
+          <%= submit_tag "Accept", :name => 'accepted' %>
+          <%= submit_tag "Decline", :name => 'declined' %>
+        <% elsif @is_author %>
+          <%= submit_tag "Revoke", :name => 'revoked' %>
+        <% end %>
+      </div>
     <% end %>
-    </div>
-  <% end %>
-</div>
+  </div>
 
 <% end %>
 

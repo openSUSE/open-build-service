@@ -1,0 +1,68 @@
+<% @pagetitle = "List My Requests" %>
+<%
+@crumb_list = ['My Requests']
+-%>
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+  <%= stylesheet_link_tag "attribute.css" %>
+<% end %>
+
+<% content_for :ready_function do %>
+  $("#request_table").tablesorter( {
+  sortList: [[0,1]]
+  } );
+<% end %>
+
+<%-
+setup_buildresult_trigger
+
+unless @requests.size
+  return "<p><em>No open requests</em></p>"
+end -%>
+
+<h2>Requests concerning me (#<%= @requests.size %>)</h2>
+
+<div id="build_result_popup"><div id="build_result_html"></div></div>
+
+<table cellspacing="1" id='request_table' class="tablesorter">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Action</th>
+      <th>Source</th>
+      <th>Target</th>
+      <th>Requester</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% i = 0 %>
+    <% @requests.each do |req| -%>
+      <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
+        <% i += 1 %>
+        <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
+        <td><!-- <%= type(req)  %> -->
+          <%= link_to type(req), :controller => :request, :action => :diff, :id => req.method_missing(:id) -%>
+        </td>
+        <td>
+          <%= if req.action.has_element? :source
+            "<!-- " + req.action.source.project + "/" + req.action.source.package + "-->" +
+              package_link(req.action.source.project, req.action.source.package)
+          elsif type(req) == "delete"
+            "<!-- " + req.action.target.project + "/" + req.action.target.package + "-->" +
+              package_link(req.action.target.project, req.action.target.package, true)
+          end -%>
+        </td>
+        <td>
+          <%= if req.action.has_element? :target and type(req) != "delete"
+            "<!-- " + req.action.target.project + "/" + req.action.target.package + "-->" +
+              package_link(req.action.target.project, req.action.target.package, true)
+          end -%>
+        </td>
+        <td class="nowrap">
+          <span title="<%= req.state.who %>"><%=  truncate(req.state.who, :length => 12) %></span>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

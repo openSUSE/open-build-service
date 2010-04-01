@@ -55,7 +55,7 @@ class Request < ActiveXML::Base
       raise RuntimeError, "missing parameters"
     end
     pred = "(action/target/@package='#{opts[:targetpackage]}' and action/target/@project='#{opts[:targetproject]}' and action/source/@project='#{opts[:sourceproject]}' and action/source/@package='#{opts[:sourcepackage]}' and action/@type='submit')"
-    requests = Collection.find :what => :request, :predicate => pred
+    requests = Collection.find_cached :what => :request, :predicate => pred
     last=nil
     requests.each_request do |r|
       if not last or Integer(r.data[:id]) > Integer(last.data[:id])
