@@ -81,7 +81,7 @@ sub createreq {
   my $act = $param->{'request'} || 'GET';
   if (exists($param->{'socket'})) {
     my $req = "$act $uri HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
-    return (undef, undef, undef, $req, undef);
+    return ('', undef, undef, $req, undef);
   }
   my ($proxyauth, $proxytunnel);
   die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
@@ -190,7 +190,7 @@ sub rpc {
   $uri = createuri($param, @args);
   my $proxy = $param->{'proxy'};
   my ($proto, $host, $port, $req, $proxytunnel) = createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
-  if ($proto && $proto eq 'https' || $proxytunnel) {
+  if ($proto eq 'https' || $proxytunnel) {
     die("https not supported\n") unless $tossl || $param->{'https'};
   }
   local *S;
