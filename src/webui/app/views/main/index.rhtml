@@ -59,7 +59,7 @@
     System Status
   </div>
   <div class="clear"></div>
-  <div align="center">
+  <div class="centered">
   <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'pc_waiting',
         :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
       :alt => 'i585/x86_64 waiting packages' ), :controller => "monitor", :action => :index ) %>
