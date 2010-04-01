@@ -468,7 +468,7 @@ class ApplicationController < ActionController::Base
 
   def check_memory
     mu = get_memory
-    if mu > 100000
+    if mu > 400000
       logger.error 'Memory limit reached, ending process'
       `kill -1 #{$$}`
     end
