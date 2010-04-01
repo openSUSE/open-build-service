@@ -123,7 +123,7 @@ class DbPackage < ActiveRecord::Base
       return nil
     end
     while ( pkg.develproject or pkg.develpackage )
-      logger.debug "resolve_devel_package #{pkg.inspect}"
+      #logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
       str = prj_name+"/"+pkg.name
@@ -137,11 +137,11 @@ class DbPackage < ActiveRecord::Base
       processed[str] = 1
       # get project and package name
       if pkg.develpackage
-        logger.debug "pkg devel package #{pkg.develpackage.inspect}"
+        #logger.debug "pkg devel package #{pkg.develpackage.inspect}"
         pkg = pkg.develpackage
         prj_name = pkg.db_project.name
       else
-        logger.debug "pkg devel project #{pkg.develproject.inspect}"
+        #logger.debug "pkg devel project #{pkg.develproject.inspect}"
         # Supporting the obsolete, but not yet migrated devel project table
         prj = pkg.develproject
         prj_name = prj.name
@@ -155,7 +155,7 @@ class DbPackage < ActiveRecord::Base
         pkg = self
       end
     end
-    logger.debug "WORKED - #{pkg.inspect}"
+    #logger.debug "WORKED - #{pkg.inspect}"
     return pkg
   end
 
