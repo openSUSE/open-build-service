@@ -13,17 +13,7 @@
 <% end %>
 
 <% content_for :ready_function do %>
-  // call the tablesorter plugin
-  $(".tablesorter").tablesorter({
-  textExtraction: function(node) {
-  // extract data from markup and return it
-  if ($(node).is(".summary")) {
-  return $(node).children(".sortkey:first").html();
-  } else {
-  return node.innerHTML;
-  }
-  }
-  });
+  projectStatusReady();
 <% end %>
 
 <%= render :partial => "tabs" %>

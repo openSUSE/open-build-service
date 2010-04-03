@@ -1,4 +1,4 @@
-<% if api_exception -%>
+<% if local_assigns[:api_exception] -%>
   <h1>openSUSE Frontend Error:</h1>
 <% else -%>
   <h1>openSUSE Webclient Error:</h1>
@@ -17,16 +17,16 @@ when 401 -%>
 <% when 404 -%>
   <h2>Target not found</h2>
   <p>A non existing page was requested.</p>
-<% end -%>
+<% end if local_assigns[:status] -%>
 
 <h3>Error Details:</h3>
 <p>
-  <strong>Errorcode: </strong><%= code %><br/>
-  <strong>Message: </strong><%=h message %><br/>
+  <%= "<strong>Errorcode: </strong>#{code}<br/>" if local_assigns[:code] %>
+  <%= "<strong>Message: </strong>#{message}<br/>" if local_assigns[:message] %>
 </p>
 
 
-<% if api_exception -%>
+<% if local_assigns[:api_exception] -%>
 
   <h3>Exception from API:</h3>
 
@@ -37,7 +37,8 @@ when 401 -%>
   </pre>
 
 <% end -%>
-<% if exception -%>
+
+<% if  local_assigns[:exception] -%>
 
   <h3>Exception from Webclient:</h3>
   <p><strong><%=h exception.class.name %></strong>: <%=h exception.message %></p>

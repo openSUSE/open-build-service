@@ -183,3 +183,17 @@ function fillEmptyFields() {
   }
 }
 
+
+function projectStatusReady() {
+   // call the tablesorter plugin
+  $(".tablesorter").tablesorter({
+    textExtraction: function(node) {
+    // extract data from markup and return it
+    if ($(node).is(".summary")) {
+      return $(node).children(".sortkey:first").html();
+    } else {
+      return node.innerHTML;
+    }
+  }
+  });
+}

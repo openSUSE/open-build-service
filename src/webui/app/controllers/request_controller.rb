@@ -1,30 +1,8 @@
 class RequestController < ApplicationController
 
-  before_filter :check_user, :only => [ :list_req ]
-
-  def index
-    redirect_to :action => :list_req
-  end
-
-  def list_req
-    @iprojects = @user.involved_projects.each.map {|x| x.name}.sort
-
-    unless @iprojects.empty?
-      predicate = @iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
-      predicate2 = @iprojects.map {|item| "submit/target/@project='#{item}'"}.join(" or ") # old, to be removed later
-      predicate = "state/@name='new' and (#{predicate} or #{predicate2})"
-      collection = Collection.find :what => :request, :predicate => predicate
-      @therequests_for_me = Array.new
-      collection.each do |req| @therequests_for_me << req end
-      collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{session[:login]}'"
-      @therequests_by_me = Array.new
-      collection.each do |req| @therequests_by_me << req end
-    end
-  end
-
   def diff
     if params[:id]
-      @therequest = Request.find( :id => params[:id] )
+      @therequest = Request.find_cached( params[:id] )
     end
     unless @therequest
       flash[:error] = "Can't find request #{params[:id]}"
@@ -39,9 +17,9 @@ class RequestController < ApplicationController
       @src_project = @therequest.action.source.project
       @src_pkg = @therequest.action.source.package
     end
-    @target_project = Project.find @therequest.action.target.project
+    @target_project = Project.find_cached @therequest.action.target.project
     @target_pkg_name = @therequest.action.target.package
-    @target_pkg = Package.find @target_pkg_name, :project => @therequest.action.target.project
+    @target_pkg = Package.find_cached @target_pkg_name, :project => @therequest.action.target.project
     @is_author = @therequest.has_element? "//state[@name='new' and @who='#{session[:login]}']"
     @is_maintainer = @target_project.is_maintainer?( session[:login] ) ||
       (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
@@ -68,6 +46,7 @@ class RequestController < ApplicationController
   end
  
   def change_request(changestate, params)
+    Request.free_cache( params[:id] )
     begin
       if Request.modify( params[:id], changestate, params[:reason] )
         flash[:note] = "Request #{changestate}!"
@@ -92,7 +71,7 @@ class RequestController < ApplicationController
     end
 
     if changestate == 'forward' # special case
-      req = Request.find( params[:id] )
+      req = Request.find_cached( params[:id] )
       description = req.description.text
       logger.debug 'request ' +  req.dump_xml
 
