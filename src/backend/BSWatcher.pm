@@ -146,11 +146,12 @@ sub rpc_error {
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
   for my $jev (@{$ev->{'joblist'} || []}) {
-    $jev->{'rpcdone'} = $uri;
+    $jev->{'rpcdone'} = $jev->{'rpcoriguri'} || $uri;
     $jev->{'rpcerror'} = $err;
     redo_request($jev);
     delete $jev->{'rpcdone'};
     delete $jev->{'rpcerror'};
+    delete $jev->{'rpcoriguri'};
   }
 }
 
@@ -163,11 +164,12 @@ sub rpc_result {
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
   for my $jev (@{$ev->{'joblist'} || []}) {
-    $jev->{'rpcdone'} = $uri;
+    $jev->{'rpcdone'} = $jev->{'rpcoriguri'} || $uri;
     $jev->{'rpcresult'} = $res;
     redo_request($jev);
     delete $jev->{'rpcdone'};
     delete $jev->{'rpcresult'};
+    delete $jev->{'rpcoriguri'};
   }
 }
 
@@ -191,6 +193,7 @@ sub rpc_redirect {
   delete $ev->{'fd'};
   #print "redirecting to: $location\n";
   for my $jev (@{$ev->{'joblist'} || []}) {
+    $jev->{'rpcoriguri'} ||= $ev->{'rpcuri'};
     local $BSServerEvents::gev = $jev;
     rpc({%$param, 'uri' => $location, 'maxredirects' => $param->{'maxredirects'} - 1});
   }
