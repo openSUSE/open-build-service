@@ -2,7 +2,7 @@
 #   filter_observer_action: observer of the filter field sends its requests to
 #                           this action in project controller
 -%>
-<strong>Filter projects (case insensitive):</strong><br/>
+<strong>Filter projects (case sensitive):</strong><br/>
 
 <% content_for :ready_function do %>
   $("#projectsearch_clear").click(function() { $('#projectsearch').val('').focus(); });
