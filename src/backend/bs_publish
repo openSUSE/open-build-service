@@ -525,6 +525,63 @@ sub deletepatterns_rpmmd {
   }
 }
 
+sub createpatterns_comps {
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
+
+  deletepatterns_comps($extrep);
+  return unless @{$patterns || []};
+
+  # create comps data structure
+  my @grps;
+  for my $pattern (@$patterns) {
+    my $pat = XMLin($BSXML::pattern, $pattern->{'data'});
+    next unless $pattern->{'name'} =~ /^(.*)\.xml$/s;
+    my $grp = { 'id' => $1 };
+    for (@{$pat->{'summary'}}) {
+      my $el = { '_content' => $_->{'_content'} };
+      $el->{'xml:lang'} = $_->{lang} if $_->{'lang'};
+      push @{$grp->{'name'}}, $el;
+    }
+    for (@{$pat->{'description'}}) {
+      my $el = { '_content' => $_->{'_content'} };
+      $el->{'xml:lang'} = $_->{'lang'} if $_->{'lang'};
+      push @{$grp->{'description'}}, $el;
+    }
+    for (@{$pat->{'rpm:requires'}->{'rpm:entry'}}) {
+      push @{$grp->{'packagelist'}->{'packagereq'} }, { '_content' => $_->{'name'}, 'type' => 'mandatory' };
+    }
+    for (@{$pat->{'rpm:recommends'}->{'rpm:entry'}}) {
+      push @{$grp->{'packagelist'}->{'packagereq'}},  { '_content' => $_->{'name'}, 'type' => 'default' };
+    }
+    for (@{$pat->{'rpm:suggests'}->{'rpm:entry'}}) {
+      push @{$grp->{'packagelist'}->{'packagereq'}},  { '_content' => $_->{'name'}, 'type' => 'optional' };
+    }
+    push @grps, $grp;
+  }
+  print "    adding comps to repodata\n";
+  my $comps = {'group' => \@grps};
+  writexml("$extrep/repodata/group.xml", undef, $comps, $BSXML::comps);
+  qsystem('modifyrepo', "$extrep/repodata/group.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+  unlink("$extrep/repodata/group.xml");
+
+  # re-sign changed repomd.xml file
+  if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @$signargs;
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && print("    sign failed: $?\n");
+  }
+}
+
+sub deletepatterns_comps {
+  my ($extrep) = @_;
+  for my $pat (ls("$extrep/repodata")) {
+    next unless $pat =~ /^group/;
+    unlink("$extrep/repodata/$pat");
+  }
+}
+
+
 sub createpatterns_ymp {
   my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
 
@@ -1086,6 +1143,12 @@ sub publish {
   } else {
     deletepatterns_rpmmd($extrep, $projid, $repoid, $signargs, $pubkey);
   }
+  if ($patterntype{'comps'}) {
+    createpatterns_comps($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns);
+  } else {
+    deletepatterns_comps($extrep, $projid, $repoid, $signargs, $pubkey);
+  }
+
 
 publishprog_done:
   unlink("$uploaddir/publisher.$$") if $signkey;

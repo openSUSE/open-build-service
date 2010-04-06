@@ -988,5 +988,27 @@ our $person = [
 	],
 ];
 
+our $comps = [
+    'comps' =>
+    [[ 'group' =>
+	[],
+	'id',
+	[[ 'description' =>
+	    'xml:lang',
+	    '_content',
+	]],
+	[[ 'name' =>
+	    'xml:lang',
+	    '_content',
+	]],
+	[ 'packagelist' =>
+	    [[ 'packagereq' =>
+		'type',
+		'_content',
+	    ]],
+	],
+    ]],
+];
+
 
 1;
