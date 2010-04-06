@@ -1,8 +1,10 @@
 # Config options for the buildservice webclient
 version: 0.3
 
-# uncomment this option if you want to use a customized theme. See README.theme
-#theme: neutral
+# change this option to use a customized theme. See README.theme
+theme: neutral
+# this is build.opensuse.org's theme
+#theme: bento
 
 # Enable serving of images, stylesheets, and javascripts from an asset server
 # asset_host: https://static.opensuse.org/hosts/build.o.o
@@ -18,4 +20,4 @@ version: 0.3
 exception_recipients: []
 
 # Use static.opensuse.org for static style content
-use_static: false
+#use_static: true

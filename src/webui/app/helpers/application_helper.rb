@@ -123,13 +123,18 @@ module ApplicationHelper
     return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => '', :width => 20, :height => 20
   end
 
+  @@rails_root = nil
+  def real_public
+    return @@rails_root if @@rails_root
+    @@rails_root = Pathname.new("#{RAILS_ROOT}/public").realpath
+  end
+
   def rewrite_asset_path(source)
-    if CONFIG['theme']
-      new_path = "/vendor/#{CONFIG['theme']}#{source}"
-      if File.exists?("#{RAILS_ROOT}/public#{new_path}")
-        Rails.logger.debug "using themed file: #{new_path}"
-        source=new_path
-      end
+    new_path = "/vendor/#{CONFIG['theme']}#{source}"
+    if File.exists?("#{RAILS_ROOT}/public#{new_path}")
+      source=Pathname.new("#{RAILS_ROOT}/public#{new_path}").realpath
+      source="/" + Pathname.new(source).relative_path_from(real_public)
+      Rails.logger.debug "using themed file: #{new_path} -> #{source}"
     end
     super(source)
   end
@@ -211,18 +216,18 @@ module ApplicationHelper
 
   def repo_status_icon( repo, arch )
     case @repostatushash[repo][arch]
-    when "published" then "/themes/bento/images/icons/lorry.png"
-    when "outdated_published" then "/themes/bento/images/icons/lorry_delete.png"
-    when "unpublished" then "/themes/bento/images/icons/lorry_flatbed.png"
-    when "outdated_unpublished" then "/themes/bento/images/icons/lorry_delete.png"
-    when "building" then "/themes/bento/images/icons/cog.png"
-    when "outdated_building" then "/themes/bento/images/icons/cog_delete.png"
-    when "finished" then "/themes/bento/images/icons/time.png"
-    when "outdated_finished" then "/themes/bento/images/icons/time_delete.png"
-    when "blocked" then "/themes/bento/images/icons/time.png"
-    when "outdated_blocked" then "/themes/bento/images/icons/time_delete.png"
-    when "broken" then "/themes/bento/images/icons/exclamation.png"
-    else "/themes/bento/images/icons/eye.png"
+    when "published" then "icons/lorry.png"
+    when "outdated_published" then "icons/lorry_delete.png"
+    when "unpublished" then "icons/lorry_flatbed.png"
+    when "outdated_unpublished" then "icons/lorry_delete.png"
+    when "building" then "icons/cog.png"
+    when "outdated_building" then "icons/cog_delete.png"
+    when "finished" then "icons/time.png"
+    when "outdated_finished" then "icons/time_delete.png"
+    when "blocked" then "icons/time.png"
+    when "outdated_blocked" then "icons/time_delete.png"
+    when "broken" then "icons/exclamation.png"
+    else "icons/eye.png"
     end
   end
 

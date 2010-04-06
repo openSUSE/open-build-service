@@ -39,7 +39,7 @@
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_12 alpha">
-        <%= image_tag( "/themes/bento/images/home_grey.png" ) %><%= link_to "Build Service", :controller => 'main', :action => :index %>
+        <%= image_tag( "home_grey.png" ) %><%= link_to "Build Service", :controller => 'main', :action => :index %>
         <% if @crumb_list -%>
           <% @crumb_list.each do |link| -%>
             &gt; <%= link %>
