@@ -3,29 +3,22 @@
 #                           this action in project controller
 -%>
 
-<% content_for :ready_function do %>
-  $("#projectsearch_clear").click(function() { $('#projectsearch').val('').focus(); });
-  $("#projectsearch_clear").hover(function() { $(this).attr('src', '/images/clear_active.png');  },
-  function() { $(this).attr('src', '/images/clear.png');  });
-  $("#spinner").show();
-  $("#projectsearch").focus();
-  <%= remote_function( :update => :project_list,
-    :url => {:action => filter_observer_action, :project => params[:project]},
-    :complete => '$("#spinner").hide()',
-    :with => "'searchtext='" ); %> ;
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
 <% end %>
 
-<% form_tag({:action => filter_observer_action}, {:method => :get}) do -%>
+
+<% form_tag({:action => :list}, {:method => :get}) do -%>
   <p>
   <strong>Filter projects (case sensitive):</strong>
 
-  <%= text_field_tag "projectsearch" -%>
-    <img id="projectsearch_clear" alt="clear" title="clear input" src="/images/clear.png" />
-    <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+  <%= text_field_tag "searchtext", @filterstring -%>
+  <%= check_box_tag 'excludefilter', 'home:', (@excludefilter.nil? ? false : true) -%> exclude users home projects
+
   </p>
 <% end-%>
 
-<%= observe_field( :projectsearch, :frequency => 0.5, :update => :project_list,
-  :url => { :controller => 'project', :action  => filter_observer_action },
-  :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()",
-  :with => "'searchtext=' + escape(value)") %>
+<%= observe_field( :searchtext, :frequency => 0.8, :update => :project_list,
+  :url => { :controller => 'project', :action  => :list },
+  :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
+  :with => "'searchtext=' + escape(value) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>

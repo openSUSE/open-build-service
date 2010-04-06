@@ -7,26 +7,27 @@
 
   <p>
     <% project_list.each do |project| -%>
-      <% if @current_char.blank? || @current_char != project.name.downcase[0,1]
+      <%- next if project.name == 'deleted' -%>
+      <%- if @current_char.blank? || @current_char != project.name.downcase[0,1]
         @current_char = project.name.downcase[0,1] %>
       </p><h3><%= @current_char %></h3><p>
-      <% end %>
-
-      <% @current_prj = project.name[0..project.name.index( ':' ) - 1] if project.name.index( ':' )
-
+      <%- end -%>
+      <%- @current_prj = project.name[0..project.name.index( ':' ) - 1] if project.name.index( ':' )
       if !@current_prj.blank? and @prj_head != @current_prj and project_list.each.select{|p| p.name.index @current_prj + ':' }.size >= 3
-        @prj_head = @current_prj %>
-        </p><h3><%= h @prj_head %></h3><p>
-      <% end %>
-
-      <% if !@prj_head.blank? and !project.name.index @prj_head %>
-        <% @prj_head = '' %>
-        <% @current_prj = '' %>
+        @prj_head = @current_prj -%>
+        </p><p><b><%= h @prj_head -%></b>:
+      <%- end -%>
+      <%- if !@prj_head.blank? and !project.name.index @prj_head -%>
+        <% @prj_head = '' -%>
+        <% @current_prj = '' -%>
         </p><p>
-      <% end %>
+      <%- end -%>
+      <%= link_to h( project.name ), {:action => :show, :project => project.name }, :class => 'nowrap' -%> |
+    <% end %>
 
-      <%= link_to h( project.name ), {:action => :show, :project => project.name }, :class => 'nowrap' %> |
-    <% end%>
+    <% if project_list.blank? -%>
+      <i>No projects found</i>
+    <% end %>
   </p>
 
 </div>

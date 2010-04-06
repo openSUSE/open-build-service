@@ -32,50 +32,42 @@ class ProjectController < ApplicationController
     redirect_to :action => 'list_public'
   end
 
-  # TODO: rework project list
   def list_all
-    @important_projects = get_important_projects
-    filterstring = params[:searchtext] || ''
-    get_filtered_projectlist filterstring, :with_homes
-    if request.xhr?
-      render :partial => 'search_project', :locals => {:project_list => @projects} and return
-    end
-    if @projects.length == 1
-      redirect_to :action => 'show', :project => @projects.first and return
-    end
-    render :list_all, :status => params[:nextstatus] if params[:nextstatus]
+    redirect_to :action => 'list', :nextstatus => params[:nextstatus]
   end
 
-  # TODO: rework project list
   def list_public
+    redirect_to :action => 'list', :excludefilter => 'home:', :nextstatus => params[:nextstatus]
+  end
+
+  def list
     @important_projects = get_important_projects
-    filterstring = params[:searchtext] || ''
-    get_filtered_projectlist filterstring, :without_homes
+    @filterstring = params[:searchtext] || ''
+    @excludefilter = params['excludefilter'] if params['excludefilter'] and params['excludefilter'] != 'undefined'
+    get_filtered_projectlist @filterstring, @excludefilter
     if request.xhr?
       render :partial => 'search_project', :locals => {:project_list => @projects} and return
     end
     if @projects.length == 1
       redirect_to :action => 'show', :project => @projects.first and return
     end
-    render :list_public, :status => params[:nextstatus] if params[:nextstatus]
+    render :list, :status => params[:nextstatus] if params[:nextstatus]
   end
 
   def autocomplete_projects
-    get_filtered_projectlist params[:q], :without_homes
+    get_filtered_projectlist params[:q], 'home:'
     render :text => @projects.map{|p| p.name}.join("\n")
   end
 
-  def get_filtered_projectlist(filterstring, mode=:without_homes)
+  def get_filtered_projectlist(filterstring, excludefilter='')
     # remove illegal xpath characters
     filterstring.sub!(/[\[\]\n]/, '')
     filterstring.sub!(/[']/, '&apos;')
     filterstring.sub!(/["]/, '&quot;')
     predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
-    if mode==:without_homes
-      predicate += " and " if !predicate.empty?
-      predicate += "not(starts-with(@name,'home:'))"
-    end
-    result = Collection.find :id, :what => "project", :predicate => predicate
+    predicate += " and " if !predicate.empty? and !excludefilter.blank?
+    predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
+    result = Collection.find_cached :id, :what => "project", :predicate => predicate, :expires_in => 30.seconds
     @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
   end
   private :get_filtered_projectlist
