@@ -32,44 +32,53 @@ class ProjectController < ApplicationController
     redirect_to :action => 'list_public'
   end
 
+  # TODO: rework project list
   def list_all
     @important_projects = get_important_projects
-    list :with_homes
+    filterstring = params[:searchtext] || ''
+    get_filtered_projectlist filterstring, :with_homes
+    if request.xhr?
+      render :partial => 'search_project', :locals => {:project_list => @projects} and return
+    end
+    if @projects.length == 1
+      redirect_to :action => 'show', :project => @projects.first and return
+    end
     render :list_all, :status => params[:nextstatus] if params[:nextstatus]
   end
 
+  # TODO: rework project list
   def list_public
     @important_projects = get_important_projects
-    list :without_homes
+    filterstring = params[:searchtext] || ''
+    get_filtered_projectlist filterstring, :without_homes
+    if request.xhr?
+      render :partial => 'search_project', :locals => {:project_list => @projects} and return
+    end
+    if @projects.length == 1
+      redirect_to :action => 'show', :project => @projects.first and return
+    end
     render :list_public, :status => params[:nextstatus] if params[:nextstatus]
   end
 
-  def list(mode=:without_homes)
-    filterstring = params[:projectsearch] || params[:searchtext] || ''
+  def autocomplete_projects
+    get_filtered_projectlist params[:q], :without_homes
+    render :text => @projects.map{|p| p.name}.join("\n")
+  end
+
+  def get_filtered_projectlist(filterstring, mode=:without_homes)
     # remove illegal xpath characters
     filterstring.sub!(/[\[\]\n]/, '')
     filterstring.sub!(/[']/, '&apos;')
     filterstring.sub!(/["]/, '&quot;')
-    if !filterstring.empty?
-      predicate = "contains(@name, '#{filterstring}')"
-    else
-      predicate = ''
-    end
+    predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
     if mode==:without_homes
       predicate += " and " if !predicate.empty?
       predicate += "not(starts-with(@name,'home:'))"
     end
     result = Collection.find :id, :what => "project", :predicate => predicate
     @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
-    if request.xhr?
-      render :partial => 'search_project', :locals => {:project_list => @projects}
-    else
-      if @projects.length == 1
-        redirect_to :action => 'show', :project => @projects.first
-      end
-    end
   end
-  private :list
+  private :get_filtered_projectlist
 
   # TODO: move to home controller
   def list_my
@@ -270,6 +279,13 @@ class ProjectController < ApplicationController
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
   end
+
+  def autocomplete_packages
+    @project = params[:project]
+    packages
+    render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+  end
+
 
   def list_requests
   end
