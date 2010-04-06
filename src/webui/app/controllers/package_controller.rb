@@ -64,6 +64,7 @@ class PackageController < ApplicationController
   def rdiff
     @opackage = params[:opackage]
     @oproject = params[:oproject]
+    @rdiff = ''
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?" +
            "opackage=#{CGI.escape(params[:opackage])}&oproject=#{CGI.escape(params[:oproject])}&unified=1&cmd=diff"
     begin
@@ -71,12 +72,17 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::NotFoundError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
-      @rdiff = ''
       return
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:warn] = message
-      @rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
+      begin 
+        @rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
+      rescue ActiveXML::Transport::Error => e
+        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        flash[:error] = message
+        return
+      end
     end
 
     @lastreq = Request.find_last_request(:targetproject => params[:oproject], :targetpackage => params[:opackage],
