@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
 
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
+  before_filter :check_user
   after_filter :set_charset
   protect_from_forgery
 
@@ -151,9 +152,7 @@ class ApplicationController < ActionController::Base
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 400
     when Timeout::Error
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-      render_error :status => 400, :message => message,
-        :exception => exception, :api_exception => api_exception
+      render :template => "timeout" and return
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
@@ -208,6 +207,12 @@ class ApplicationController < ActionController::Base
 
   def check_user
     @user ||= Person.find_cached( :login => session[:login] )
+    if @user
+      begin
+        @nr_involved_requests = @user.involved_requests.size
+      rescue
+      end
+    end
   end
 
 end
