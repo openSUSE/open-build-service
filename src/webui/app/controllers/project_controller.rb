@@ -189,8 +189,12 @@ class ProjectController < ApplicationController
           @repostatushash[repo][arch] = result.state.to_s
         end
       end
+    end if @buildresult
+    if @buildresult
+      @buildresult = @buildresult.to_a
+    else
+      @buildresult = Array.new
     end
-    @buildresult = @buildresult.to_a
     render :partial => 'buildstatus', :locals => {:has_data => true}
   end
 
