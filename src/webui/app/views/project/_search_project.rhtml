@@ -14,11 +14,16 @@
 
       <% @current_prj = project.name[0..project.name.index( ':' ) - 1] if project.name.index( ':' )
 
-      if !@current_prj.blank? and project_list.each.select{|p| p.name.index @current_prj + ':' }.size >= 3 and @prj_head != @current_prj
+      if !@current_prj.blank? and @prj_head != @current_prj and project_list.each.select{|p| p.name.index @current_prj + ':' }.size >= 3
         @prj_head = @current_prj %>
         </p><h3><%= h @prj_head %></h3><p>
       <% end %>
 
+      <% if !@prj_head.blank? and !project.name.index @prj_head %>
+        <% @prj_head = '' %>
+        <% @current_prj = '' %>
+        </p><p>
+      <% end %>
 
       <%= link_to h( project.name ), {:action => :show, :project => project.name }, :class => 'nowrap' %> |
     <% end%>
