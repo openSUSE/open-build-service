@@ -18,7 +18,11 @@
 <%= render :partial => 'filter_projects', :locals => {:filter_observer_action => 'list_public'}%>
 <p><%= link_to "[Include home projects]", :action => :list_all %></p>
 
-<h2>All Public Projects</h2>
+
+<table>
+  <tr><th>All Public Projects</th></tr>
+</table>
+
 
 <div id="project_list">
   <%= render :partial => 'search_project', :locals => {:project_list => @projects} %>

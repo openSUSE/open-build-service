@@ -1,10 +1,27 @@
 <% # locals:
 #   project_list: list of projects to show
 -%>
-<table>
-  <tr><th>Name</th></tr>
-  <% for project in project_list -%>
-    <tr><td>
-    <%= link_to project.name, :action => :show, :project => project %></td></tr>
-  <% end -%>
-</table>
+
+
+<div id="prj_container">
+
+  <p>
+    <% project_list.each do |project| -%>
+      <% if @current_char.blank? || @current_char != project.name.downcase[0,1]
+        @current_char = project.name.downcase[0,1] %>
+      </p><h3><%= @current_char %></h3><p>
+      <% end %>
+
+      <% @current_prj = project.name[0..project.name.index( ':' ) - 1] if project.name.index( ':' )
+
+      if !@current_prj.blank? and project_list.each.select{|p| p.name.index @current_prj + ':' }.size >= 3 and @prj_head != @current_prj
+        @prj_head = @current_prj %>
+        </p><h3><%= h @prj_head %></h3><p>
+      <% end %>
+
+
+      <%= link_to h( project.name ), {:action => :show, :project => project.name }, :class => 'nowrap' %> |
+    <% end%>
+  </p>
+
+</div>

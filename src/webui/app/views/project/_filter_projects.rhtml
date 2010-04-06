@@ -2,7 +2,6 @@
 #   filter_observer_action: observer of the filter field sends its requests to
 #                           this action in project controller
 -%>
-<strong>Filter projects (case sensitive):</strong><br/>
 
 <% content_for :ready_function do %>
   $("#projectsearch_clear").click(function() { $('#projectsearch').val('').focus(); });
@@ -17,11 +16,13 @@
 <% end %>
 
 <% form_tag({:action => filter_observer_action}, {:method => :get}) do -%>
-  <div>
-    <%= text_field_tag "projectsearch" -%>
+  <p>
+  <strong>Filter projects (case sensitive):</strong>
+
+  <%= text_field_tag "projectsearch" -%>
     <img id="projectsearch_clear" alt="clear" title="clear input" src="/images/clear.png" />
     <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
-  </div>
+  </p>
 <% end-%>
 
 <%= observe_field( :projectsearch, :frequency => 0.5, :update => :project_list,
