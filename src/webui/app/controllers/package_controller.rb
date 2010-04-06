@@ -263,7 +263,7 @@ class PackageController < ApplicationController
     if request.method != :post
       flash[:warn] = "File upload failed because this was no POST request. " +
         "This probably happened because you were logged out in between. Please try again."
-      redirect_to :action => :show, :project => @project, :package => @package and return
+      redirect_to :action => :files, :project => @project, :package => @package and return
     end
 
     file = params[:file]
@@ -322,18 +322,18 @@ class PackageController < ApplicationController
       end
     end
     flash[:success] = "The file #{filename} has been added."
-    redirect_to :action => :show, :project => @project, :package => @package
+    redirect_to :action => :files, :project => @project, :package => @package
   end
 
   def remove_file
     if request.method != :post
       flash[:warn] = "File removal failed because this was no POST request. " +
         "This probably happened because you were logged out in between. Please try again."
-      redirect_to :action => :show, :project => @project, :package => @package and return
+      redirect_to :action => :files, :project => @project, :package => @package and return
     end
     if not params[:filename]
       flash[:note] = "Removing file aborted: no filename given."
-      redirect_to :action => :show, :project => @project, :package => @package
+      redirect_to :action => :files, :project => @project, :package => @package
     end
     filename = params[:filename]
     # extra escaping of filename (workaround for rails bug)
@@ -344,7 +344,7 @@ class PackageController < ApplicationController
     else
       flash[:note] = "Failed to remove file '#{filename}'"
     end
-    redirect_to :action => :show, :project => @project, :package => @package
+    redirect_to :action => :files, :project => @project, :package => @package
   end
 
   def save_person
