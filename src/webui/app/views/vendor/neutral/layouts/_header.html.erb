@@ -3,9 +3,8 @@
 
       <div id="header-content" class="container_12">
 
-        <a id="header-logo" href="#">
-          <%= image_tag( "obs-logo_small.png", :height => 26 ) %>
-        </a>
+        <%= link_to image_tag( "obs-logo_small.png", :height => 26 ) , { :controller => 'main',
+              :action => :index }, { :id => "header-logo"} -%>
 
         <ul id="global-navigation">
           <% if user -%>

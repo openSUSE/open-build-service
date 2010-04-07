@@ -6,9 +6,8 @@
 
       <div id="header-content" class="container_12">
 
-        <a id="header-logo" href="#">
-          <%= image_tag( "/themes/bento/images/header-logo.png" ) %>
-        </a>
+        <%= link_to image_tag( "/themes/bento/images/header-logo.png", :height => 26 ) , { :controller => 'main',
+              :action => :index }, { :id => "header-logo"} -%>
 
       <ul id="global-navigation">
         <li id="item-downloads"><a href="http://opensuse.org/sitemap#downloads">Downloads</a></li>
