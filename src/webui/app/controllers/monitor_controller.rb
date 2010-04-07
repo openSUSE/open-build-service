@@ -156,7 +156,7 @@ class MonitorController < ApplicationController
     data = Rails.cache.fetch(cache_key, :expires_in => range.to_i * 1800, :raw => true) do
       plothistory_data(set, range.to_i)
     end
-    if data
+    if data && data.respond_to?( 'bytesize' )
       headers['Content-Type'] = 'image/png'
       send_data(data, :type => 'image/png', :disposition => 'inline')
     else
