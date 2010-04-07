@@ -1,4 +1,4 @@
-<% @pagetitle = "Detailed Informations About #{@filename}" %>
+<% @pagetitle = "Detailed Information About #{@filename}" %>
 <%
 @crumb_list = [
   link_to( 'Projects', :controller => 'project', :action => :list_public),
@@ -11,12 +11,13 @@
 
 <%= render :partial => "tabs" %>
 
-<h1>Detailed Informations About
+<h1>Detailed Information About
 <% if @durl %>
- <%= link_to(@filename, @durl) %></h1>
+ <%= link_to(@filename, @durl) %>
 <% else %>
-  <%= @filename %></h1>
+  <%= @filename %>
 <% end %>
+</h1>
 
 <div>
 <p><strong>Title:</strong> <%= @fileinfo.summary %></p>
