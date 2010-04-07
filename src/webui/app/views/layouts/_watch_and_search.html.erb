@@ -1,25 +1,26 @@
-         <% if user -%>
-          <ul class="global-navigation-menu global-navigation-menu-favorites" id="menu-favorites">
-            <li>
-              <a href="<%= url_for :controller => "project", :action => :list_my %>">
-              <span>Watchlist ...</span>
-              <span class="desc">Your watched and involved projects</span></a></li>
-            <% if user && user.has_element?( 'watchlist' ) -%>
-              <% user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
-                <li id="watchlist_<%= Digest::MD5.hexdigest project %>">
-                  <a href="<%= url_for :controller => 'project', :action => :show, :project => project %>">
-                  <span><%= project %></span></a>
-                </li>
-              <% end -%>
-            <% end -%>
-          </ul>
-        <%- end -%>
+
+ <% if user -%>
+  <ul class="global-navigation-menu global-navigation-menu-favorites" id="menu-favorites">
+    <li>
+      <a href="<%= url_for :controller => "project", :action => :list_my %>">
+      <span>Watchlist ...</span>
+      <span class="desc">Your watched and involved projects</span></a></li>
+    <% if user && user.has_element?( 'watchlist' ) -%>
+      <% user.watchlist.each_project.map {|p| p.name}.sort {|a,b| a.downcase <=> b.downcase}.each do |project|-%>
+        <li id="watchlist_<%= Digest::MD5.hexdigest project %>">
+          <a href="<%= url_for :controller => 'project', :action => :show, :project => project %>">
+          <span><%= project %></span></a>
+        </li>
+      <% end -%>
+    <% end -%>
+  </ul>
+<%- end -%>
 
 
-        <form id="global-search-form" action="" method="post" accept-charset="utf-8">
-          <div style="display: inline">
-            <input type="text" name="q" value="search" id="search" />
-            <input type="submit" value="Search" class="hidden" />
-          </div>
-        </form>
+<% form_tag({:controller => 'search', :action => 'search'}, {:method => :post, :id => "global-search-form"}) do -%>
+  <div style="display: inline">
+    <%= text_field_tag 'search_text', 'search', :id => 'search'-%>
+    <input type="submit" value="Search" class="hidden" />
+  </div>
+<% end %>
 

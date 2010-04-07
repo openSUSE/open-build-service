@@ -8,13 +8,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect '/', :controller => 'main'
 
-  # Shortcut to searchpage:
-  map.connect 'search', :controller => 'main', :action => 'search'
-
-  # legacy login route:
-  map.connect '/main/index2', :controller => 'main'
-
-
   # REST style paths
   # -> disabled, because this doesn't work for project/package names that conatain colons (:)
   #
