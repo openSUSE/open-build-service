@@ -26,6 +26,7 @@ config.action_controller.session = {
 # config.action_mailer.raise_delivery_errors = false
 
 FRONTEND_HOST = "api-internal.opensuse.org"
+EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'
 
