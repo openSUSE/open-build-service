@@ -79,7 +79,7 @@ class Person < ActiveXML::Base
         collection = Collection.find :what => :request, :predicate => predicate
         myrequests = Hash.new
         collection.each do |req| myrequests[Integer(req.method_missing(:id))] = req end
-        collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{@user}'"
+        collection = Collection.find :what => :request, :predicate => "state/@name='new' and state/@who='#{login}'"
         collection.each do |req| myrequests[Integer(req.method_missing(:id))] = req end
         keys = myrequests.keys().sort {|x,y| y <=> x}
         keys.each {|id| requests << myrequests[id] }
