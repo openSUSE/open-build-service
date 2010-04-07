@@ -5,27 +5,20 @@
   link_to( 'Projects', :controller => 'project', :action => :list_public),
   link_to( @project, :controller => 'project', :action => :show, :project => @project ),
   link_to( @package, :controller => 'package', :action => :show, :project => @project, :package => @package ),
-  'Built Packages'
+  "Packages for Repository '#{@repository}'"
 ]
 -%>
 
 <%= render :partial => "tabs" %>
 
+<% @buildresult.data.find( 'result').each do |result| %>
 
-
-<% @buildresult.data.find( 'result' ).each do |result| %>
-
-  <h3>Architecture: <%= result.attributes['arch'] %>,
-  State: <%= result.attributes['state'] %></h3>
+  <h3>Architecture: <%= result.attributes['arch'] %>, State: <%= result.find('status').first.attributes['code'] %></h3>
 
   <ul>
   <% result.find( 'binarylist/binary' ).each do |binary| %>
 
-    <li><%= link_to binary.attributes['filename'], rpm_url( @project, @package, @repository, result.attributes['arch'], binary.attributes['filename'] ) %>
-    <% if result.attributes['state'] == 'published' %>
-    (<%= link_to( 'mirror', repo_url( @project, @repository ) + "/#{result.attributes['arch']}/#{binary.attributes['filename']}" ) %>)
-    <% end %>
-    </li>
+    <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package, :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>
 
   <% end %>
   </ul>

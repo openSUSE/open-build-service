@@ -1,0 +1,54 @@
+<% @pagetitle = "Detailed Informations About #{@filename}" %>
+<%
+@crumb_list = [
+  link_to( 'Projects', :controller => 'project', :action => :list_public),
+  link_to( truncate(@project.name, :length => 20), :controller => 'project', :action => :show, :project => @project ),
+  link_to( truncate(@package.name, :length => 20), :controller => 'package', :action => :show, :project => @project, :package => @package ),
+  link_to( "Binaries", :controller => 'package', :action => :binaries, :project => @project, :package => @package, :repository => @repository, :arch => @arch ),
+  truncate(@filename, :length => 30)
+]
+-%>
+
+<%= render :partial => "tabs" %>
+
+<h1>Detailed Informations About
+<% if @durl %>
+ <%= link_to(@filename, @durl) %></h1>
+<% else %>
+  <%= @filename %></h1>
+<% end %>
+
+<div>
+<p><strong>Title:</strong> <%= @fileinfo.summary %></p>
+<p><strong>Description:</strong><br/>
+        <% description = @fileinfo.description.text %>
+        <% if description %>
+          <% description.split( /\n/ ).each do |line| %>
+            <%= h line -%><br/>
+          <% end %>
+        <% else %>
+          <i>No description set</i>
+        <% end %>
+      </p>
+<p><strong>Version:</strong> <%= @fileinfo.version %></p>
+<p><strong>Release:</strong> <%= @fileinfo.release %></p>
+<p><strong>Architecture:</strong> <%= @fileinfo.arch %></p>
+<p><strong>Size:</strong> <%= human_readable_fsize(@fileinfo.size.to_s.to_i) %></p>
+<p><strong>Build Time:</strong> <%= btime = Time.at(@fileinfo.mtime.to_s.to_i)
+   btime.to_s + " (" + fuzzy_time_string(btime.ctime) + ")" %></p>
+
+<p><strong>Provides:</strong> <% @fileinfo.each_provides_ext do |p|  %>
+  <%= p.dep %>
+<% end -%>
+</p>
+
+<p><strong>Requires:</strong> <% @fileinfo.each_requires_ext do |p|  %>
+  <%= p.dep %>
+<% end -%>
+</p>
+
+</div>
+<h1>DEBUG OUTPUT</h1>
+<pre>
+<%= h @fileinfo.data.to_s %>
+</pre>

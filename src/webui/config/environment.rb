@@ -138,6 +138,7 @@ ActiveXML::Base.config do |conf|
     map.connect :jobhislist, "rest:///build/:project/:name/:arch/_jobhistory?:limit"
 
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository"
+    map.connect :fileinfo, "rest:///build/:project/:repository/:arch/:package/:filename?:view"
 
     map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"

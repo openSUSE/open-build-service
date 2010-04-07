@@ -3,14 +3,17 @@ require 'project'
 
 class PackageController < ApplicationController
 
+  include ApplicationHelper
+  include PackageHelper
+
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
-    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries]
+    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :update_flag, :view_file, 
-    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries]
-  before_filter :check_user, :only => [:users]
+    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary]
+  before_filter :check_user, :only => [:users, :binary]
 
   def fill_email_hash
     @email_hash = Hash.new
@@ -32,12 +35,36 @@ class PackageController < ApplicationController
     fill_status_cache
   end
 
+  def binary
+    @arch = params[:arch]
+    @repository = params[:repository]
+    @filename = params[:filename]
+    @fileinfo = Fileinfo.find_cached( :project => @project, :package => @package, :repository => @repository, :arch => @arch,
+                 :filename => @filename, :view => 'fileinfo_ext')
+    @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
+    puts @durl
+    if @durl
+      uri = URI.parse( @durl )
+      response = nil
+      Net::HTTP.start(uri.host, uri.port) do |http|
+	response =  http.head uri.path
+      end
+      @durl = nil if response.code.to_i >= 400
+      puts response.inspect
+    else
+      logger.debug "no repository url"
+    end
+    if @user and not @durl
+      # use API for logged in users if the mirror is not available
+      @durl = rpm_url( @project, @package, @repository, @arch, @filename )
+    end
+  end
+
   def binaries
 
     @repository = params[:repository]
     @buildresult = Buildresult.find( :project => @project, :package => @package,
-      :repository => @repository, :view => ['binarylist'] )
-
+      :repository => @repository, :view => ['binarylist', 'status'] )
   end
   
   def users
