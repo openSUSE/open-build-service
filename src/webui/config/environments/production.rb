@@ -17,7 +17,7 @@ config.log_level = :debug
 
 # Use a different cache store in production
 # config.cache_store = :mem_cache_store
-config.cache_store = :compressed_mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient-stage'}
+config.cache_store = :compressed_mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient'}
 
 
 # Disable delivery errors, bad email addresses will be ignored
@@ -27,8 +27,8 @@ config.cache_store = :compressed_mem_cache_store, 'localhost:11211', {:namespace
 # config.threadsafe!
 
 config.action_controller.session = {
-    :prefix => "ruby_webclient_stage_session",
-    :session_key => "opensuse_webclient_stage_session",
+    :prefix => "ruby_webclient_session",
+    :session_key => "buildservice_webclient_session",
     :secret => "iofupo3i4u6097p09gfsnaf7g8974lh1j3khdlsufdzg9p877234"
 }
 
