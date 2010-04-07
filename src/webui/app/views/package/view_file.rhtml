@@ -7,13 +7,13 @@
 <% end %>
 
 <% content_for :ready_function do %>
-   dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-   dp.SyntaxHighlighter.HighlightAll('code'); 
-<% if @addeditlink %>
-   $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
-   $("#editlink").attr("href", "<%= url_for( :controller => :package,  :action => :edit_file, :project => @project,
-              :package => @package, :file => @filename ) %>");
-<% end %>
+  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+  dp.SyntaxHighlighter.HighlightAll('code');
+  <% if @addeditlink %>
+    $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
+    $("#editlink").attr("href", "<%= url_for( :controller => :package,  :action => :edit_file, :project => @project,
+      :package => @package, :file => @filename ) %>");
+  <% end %>
 <% end %>
 
 <%
@@ -26,7 +26,7 @@
 -%>
 <h2>View File <%=h @filename %> for package <%=h @package %> (Project <%=h @project %>)</h2>
 
-  <pre id="code" class="<%= guess_code_class(@filename) %>">
+<pre id="code" class="<%= guess_code_class(@filename) %>">
 <%=h @file %>
-  </pre>
+</pre>
 

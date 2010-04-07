@@ -11,32 +11,31 @@
 
 <%= render :partial => "tabs" %>
 
-<h1>Detailed Information About
-<% if @durl %>
- <%= link_to(@filename, @durl) %>
-<% else %>
-  <%= @filename %>
-<% end %>
-</h1>
+<h1>Detailed Informations About
+  <% if @durl -%>
+    <%= link_to(@filename, @durl) -%>
+  <% else -%>
+    <%= @filename -%>
+  <% end -%></h1>
 
 <div>
-<p><strong>Title:</strong> <%= @fileinfo.summary %></p>
-<p><strong>Description:</strong><br/>
-        <% description = @fileinfo.description.text %>
-        <% if description %>
-          <% description.split( /\n/ ).each do |line| %>
-            <%= h line -%><br/>
-          <% end %>
-        <% else %>
-          <i>No description set</i>
-        <% end %>
-      </p>
-<p><strong>Version:</strong> <%= @fileinfo.version %></p>
-<p><strong>Release:</strong> <%= @fileinfo.release %></p>
-<p><strong>Architecture:</strong> <%= @fileinfo.arch %></p>
-<p><strong>Size:</strong> <%= human_readable_fsize(@fileinfo.size.to_s.to_i) %></p>
-<p><strong>Build Time:</strong> <%= btime = Time.at(@fileinfo.mtime.to_s.to_i)
-   btime.to_s + " (" + fuzzy_time_string(btime.ctime) + ")" %></p>
+  <p><strong>Title:</strong> <%= @fileinfo.summary %></p>
+  <p><strong>Description:</strong><br/>
+    <% description = @fileinfo.description.text %>
+    <% if description %>
+      <% description.split( /\n/ ).each do |line| %>
+        <%= h line -%><br/>
+      <% end %>
+    <% else %>
+      <i>No description set</i>
+    <% end %>
+  </p>
+  <p><strong>Version:</strong> <%= @fileinfo.version %></p>
+  <p><strong>Release:</strong> <%= @fileinfo.release %></p>
+  <p><strong>Architecture:</strong> <%= @fileinfo.arch %></p>
+  <p><strong>Size:</strong> <%= human_readable_fsize(@fileinfo.size.to_s.to_i) %></p>
+  <p><strong>Build Time:</strong> <%= btime = Time.at(@fileinfo.mtime.to_s.to_i)
+  btime.to_s + " (" + fuzzy_time_string(btime.ctime) + ")" %></p>
 </div>
 
 <%= render :partial => "deps" %>

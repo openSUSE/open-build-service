@@ -1,54 +1,54 @@
 <div class="grid_8 alpha">
-<h3>Provides</h3> 
- <table>
- <thead>
-  <tr>
-  <th style="width: 40%">Symbol</th>
-  <th>Required by</th>
-  </tr>
- </thead>
- <tbody>
- <% @fileinfo.each_provides_ext do |p|  %>
-  <tr>
-  <td><span title='<%= p.dep %>' class='nowrap'><%= truncate(p.dep, :length => 30) %></span></td>
-  <td>
-  <% if p.has_element? :requiredby %>
-    <% p.each_requiredby do |pby| %>
-	     <%= link_to pby.name, :action => :dependency, :project => @project, :package => @package, :repository => @repository, :arch => @arch, 
-                      :dproject => pby.project, :drepository => pby.repository, :dname => pby.name, :filename => @filename %>
-    <% end -%>
-  <% end %>
-  </td>
-  </tr>
-<% end -%>
-  </tbody>
+  <h3>Provides</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 40%">Symbol</th>
+        <th>Required by</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @fileinfo.each_provides_ext do |p|  %>
+        <tr>
+          <td><span title='<%= p.dep %>' class='nowrap'><%= truncate(p.dep, :length => 30) %></span></td>
+          <td>
+            <% if p.has_element? :requiredby %>
+              <% p.each_requiredby do |pby| %>
+                <%= link_to pby.name, :action => :dependency, :project => @project, :package => @package, :repository => @repository, :arch => @arch,
+                  :dproject => pby.project, :drepository => pby.repository, :dname => pby.name, :filename => @filename %>
+              <% end -%>
+            <% end %>
+          </td>
+        </tr>
+      <% end -%>
+    </tbody>
   </table>
 </div>
 
 <div class="grid_8 omega">
-<h3>Requires</h3> 
- <table>
- <thead>
-  <tr>
-  <th style="width: 40%">Symbol</th>
-  <th>Provided by</th>
-  </tr>
- </thead>
- <tbody>
-<% @fileinfo.each_requires_ext do |p|  %>
-  <tr>
-  <td><span title='<%= p.dep %>' class='nowrap'><%= truncate(p.dep, :length => 30) %></span></td>
-  <td>
-  <% if p.has_element? :providedby %>
-    <% p.each_providedby do |pby| %>
-       <%= link_to pby.name, :action => :dependency, :project => @project, :package => @package, :repository => @repository, :arch => @arch, 
-                       :dproject => pby.project, :drepository => pby.repository, :dname => pby.name, :filename => @filename %>
-    <% end -%>
-  <% end %>
-  </td>
-  </tr>
-<% end -%>
-  </tbody>
+  <h3>Requires</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 40%">Symbol</th>
+        <th>Provided by</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @fileinfo.each_requires_ext do |p|  %>
+        <tr>
+          <td><span title='<%= p.dep %>' class='nowrap'><%= truncate(p.dep, :length => 30) %></span></td>
+          <td>
+            <% if p.has_element? :providedby %>
+              <% p.each_providedby do |pby| %>
+                <%= link_to pby.name, :action => :dependency, :project => @project, :package => @package, :repository => @repository, :arch => @arch,
+                  :dproject => pby.project, :drepository => pby.repository, :dname => pby.name, :filename => @filename %>
+              <% end -%>
+            <% end %>
+          </td>
+        </tr>
+      <% end -%>
+    </tbody>
   </table>
 </div>
 

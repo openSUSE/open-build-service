@@ -16,11 +16,11 @@
   <h3>Architecture: <%= result.attributes['arch'] %>, State: <%= result.find('status').first.attributes['code'] %></h3>
 
   <ul>
-  <% result.find( 'binarylist/binary' ).each do |binary| %>
+    <% result.find( 'binarylist/binary' ).each do |binary| %>
 
-    <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package, :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>
+      <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package, :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>
 
-  <% end %>
+    <% end %>
   </ul>
 
 <% end %>
