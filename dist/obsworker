@@ -54,7 +54,7 @@ fi
 if [ -n "$OBS_WORKER_NICE_LEVEL" ]; then
     OBS_NICE=$OBS_WORKER_NICE_LEVEL
 else
-    OBS_NICE=19
+    OBS_NICE=18
 fi
 
 if [ -n "$OBS_REPO_SERVERS" ]; then

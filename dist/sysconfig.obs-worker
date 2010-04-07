@@ -118,13 +118,16 @@ OBS_CACHE_SIZE=""
 ## Path:        Applications/OBS
 ## Description: Defines the nice level of running workers
 ## Type:        integer
-## Default:     19
+## Default:     18
 ## Config:      OBS
 # 
 # Nicenesses range from -20 (most favorable  scheduling) to 19 (least
 # favorable).
+# Default to 18 as some testsuites depend on being able to switch to
+# one priority below (19) _and_ having changed the numeric level
+# (so going from 19->19 makes them fail).
 #
-OBS_WORKER_NICE_LEVEL=19
+OBS_WORKER_NICE_LEVEL=18
 
 ## Path:        Applications/OBS
 ## Description: Set used VM type by worker
