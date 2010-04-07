@@ -8,11 +8,11 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
-    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary]
+    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :update_flag, :view_file, 
-    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary]
+    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency]
   before_filter :check_user, :only => [:users, :binary]
 
   def fill_email_hash
@@ -35,12 +35,24 @@ class PackageController < ApplicationController
     fill_status_cache
   end
 
+  def dependency
+    @arch = params[:arch]
+    @repository = params[:repository]
+    @drepository = params[:drepository]
+    @dproject = params[:dproject]
+    @filename = params[:filename]
+    @fileinfo = Fileinfo.find_cached( :project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
+                 :filename => params[:dname], :view => 'fileinfo_ext')
+    @durl = nil
+  end
+
   def binary
     @arch = params[:arch]
     @repository = params[:repository]
     @filename = params[:filename]
     @fileinfo = Fileinfo.find_cached( :project => @project, :package => @package, :repository => @repository, :arch => @arch,
                  :filename => @filename, :view => 'fileinfo_ext')
+    puts @fileinfo
     @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
     puts @durl
     if @durl
@@ -50,7 +62,6 @@ class PackageController < ApplicationController
 	response =  http.head uri.path
       end
       @durl = nil if response.code.to_i >= 400
-      puts response.inspect
     else
       logger.debug "no repository url"
     end

@@ -1,25 +1,24 @@
-<% @pagetitle = "Detailed Information About #{@filename}" %>
+<% @pagetitle = "Detailed Informations About #{@filename}" %>
 <%
 @crumb_list = [
   link_to( 'Projects', :controller => 'project', :action => :list_public),
   link_to( truncate(@project.name, :length => 20), :controller => 'project', :action => :show, :project => @project ),
   link_to( truncate(@package.name, :length => 20), :controller => 'package', :action => :show, :project => @project, :package => @package ),
   link_to( "Binaries", :controller => 'package', :action => :binaries, :project => @project, :package => @package, :repository => @repository, :arch => @arch ),
-  truncate(@filename, :length => 30)
+  link_to( truncate(@filename, :length => 30), :controller => 'package', :action => :binaries, :project => @project, 
+           :package => @package, :repository => @repository, :arch => @arch ),
+  "Dependencies"
 ]
 -%>
 
 <%= render :partial => "tabs" %>
 
-<h1>Detailed Information About
-<% if @durl %>
- <%= link_to(@filename, @durl) %>
-<% else %>
-  <%= @filename %>
-<% end %>
-</h1>
+<h1>Dependency of <%= @filename %></h1>
 
 <div>
+<p><strong>Name:</strong> <%= @fileinfo.name %></p>
+<p><strong>Project:</strong> <%= @dproject %></p>
+<p><strong>Repository:</strong> <%= @drepository %></p>
 <p><strong>Title:</strong> <%= @fileinfo.summary %></p>
 <p><strong>Description:</strong><br/>
         <% description = @fileinfo.description.text %>
@@ -37,6 +36,7 @@
 <p><strong>Size:</strong> <%= human_readable_fsize(@fileinfo.size.to_s.to_i) %></p>
 <p><strong>Build Time:</strong> <%= btime = Time.at(@fileinfo.mtime.to_s.to_i)
    btime.to_s + " (" + fuzzy_time_string(btime.ctime) + ")" %></p>
+
 </div>
 
 <%= render :partial => "deps" %>
