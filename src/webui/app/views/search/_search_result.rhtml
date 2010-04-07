@@ -1,0 +1,62 @@
+
+<% content_for :content_for_head do %>
+  <%= stylesheet_link_tag "attribute.css" %>
+<% end %>
+
+<% if @results.length > 0 %>
+
+<% if @results.length > 200
+  @results = @results[0..199] %>
+  <p><i>Your search returned more than 200 results, please use a more exact search</i></p>
+<% end %>
+
+  <table cellspacing='1' id="search_result" >
+    <tbody>
+    <% i = 1 %>
+
+    <% @results.each do |@result| %>
+
+      <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
+        <% i += 1 %>
+
+        <td>
+          <p>
+          <% if @result[:type] == 'project' %>
+
+            <%= image_tag('project.png') %>
+            <%= link_to "<strong>#{@result[:data].name}</strong>", { :controller => 'project',
+              :action => :show, :project => @result[:data] } -%>
+
+          <% elsif @result[:type] == 'package' %>
+
+            <%= image_tag('package.png') %>
+            <%= link_to "<strong>#{@result[:data].name}</strong>", { :controller => 'package',
+              :action => :show, :package => @result[:data], :project => @result[:data].project } -%>
+            (project <%= link_to @result[:data].project, { :controller => 'project',
+              :action => :show, :project => @result[:data].project } -%>)
+
+          <% end %>
+
+          <% if @result[:data].has_element?( 'title' ) && !@result[:data].title.to_s.empty? %>
+            ( <%= highlight( h(@result[:data].title.to_s.dup), @search_text ) -%> )
+          <% end %>
+         </p>
+
+          <% if @result[:data].has_element?( 'description' ) && !@result[:data].description.to_s.empty? %>
+            <p>
+            <% descr = @result[:data].description.to_s.dup[0,150] + '...' if not
+            descr = excerpt( @result[:data].description.to_s.dup, @search_text, 150 ) %>
+
+            <% descr.split(/\n/).each do |line| -%>
+              <%= highlight( h(line), @search_text) -%><br/>
+            <% end %>
+            <p>
+          <% end %>
+
+      </td></tr>
+    <% end %>
+  </table>
+
+<% else %>
+  <i>Your search returned no results.</i>
+<% end %>

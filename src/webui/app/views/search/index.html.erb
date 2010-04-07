@@ -1,0 +1,40 @@
+<% @pagetitle = "Search" %>
+<%
+@crumb_list = [
+  'Search'
+]
+-%>
+
+<% content_for :ready_function do %>
+  <!-- Set Focus to the input box -->
+  $('#search_text').focus();
+<% end %>
+
+
+<h1>Search for Buildservice Projects / Packages</h1>
+
+<p>To search for rpm packages to install on your system, please use the enduser search interface at
+<%= link_to 'software.opensuse.org', 'http://software.opensuse.org/search' %>.</p>
+
+<div id="search_form">
+  <% form_tag({:controller => 'search', :action => 'search'}, {:method => :get}) do -%>
+    <p>
+
+      Search term: <%= text_field_tag 'search_text', params[:search_text], :size => 35 -%>
+      <%= submit_tag 'Search' -%>
+    </p>
+
+    <p>
+      Search for: <%= check_box_tag('project', 1, @search_what.include?('project')) -%><label for="project">projects</label>
+      <%= check_box_tag 'package', 1, @search_what.include?('package') -%><label for="package">packages</label>
+      <br/>
+      Search in: <%= check_box_tag 'name', 1, true -%><label for="name">name</label>
+      <%= check_box_tag 'title', 1, params[:title] -%><label for="title">title</label>
+      <%= check_box_tag 'description', 1, params[:description] -%><label for="description">description</label>
+      <br/>
+      Require attribute: <%= select_tag :attribute, options_for_select(@attribute_list, params[:attribute]) %>
+      <%= hidden_field_tag 'advanced', 'on' -%>
+    </p>
+  <% end -%>
+
+</div>

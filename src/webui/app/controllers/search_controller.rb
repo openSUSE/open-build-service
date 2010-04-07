@@ -10,20 +10,17 @@ class SearchController < ApplicationController
   def search
 
     @search_text = params[:search_text]
-
-    if (!@search_text or @search_text.length < 2) && !params[:attribute]
+    @attribute = params[:attribute]
+    if (!@search_text or @search_text.length < 2) && @attribute.blank?
       flash[:error] = "Search String must contain at least 2 characters OR you search for an attribute."
       redirect_to :action => 'index' and return
     end
 
-    logger.debug "performing search: search_text='#{@search_text}'"
-
+    @search_what = %w{ package project }
     if params[:advanced]
       @search_what = []
       @search_what << 'package' if params[:package]
       @search_what << 'project' if params[:project]
-    else
-      @search_what = %w{ package project }
     end
 
     weight_for = {
@@ -50,22 +47,22 @@ class SearchController < ApplicationController
         p << "contains(title,'#{@search_text}')" if params[:title]
         p << "contains(description,'#{@search_text}')" if params[:description]
         predicate = p.join(' or ')
-        if predicate.empty? && !params[:attribute]
-          flash[:error] = "You need to choose name, title, description or attributes."
-          return
+
+        if predicate.empty?
+          predicate = "contains(attribute/@name,'#{@attribute}')" if !@attribute.blank?
+        else
+          predicate << ' and ' if predicate
+          predicate << "contains(attribute/@name,'#{@attribute}')" if !@attribute.blank?
+        end
+
+        if predicate.empty?
+          flash[:error] = "You need to search for name, title, description or attributes."
+          redirect_to :action => 'index' and return
         end
       else
         predicate = "contains(@name,'#{@search_text}')"
       end
 
-      if params[:advanced]
-        if predicate.empty?
-          predicate = "contains(attribute/@name,'#{params[:attribute2]}')" if params[:attribute]
-        else
-          predicate << ' and ' if predicate
-          predicate << "contains(attribute/@name,'#{params[:attribute2]}')" if params[:attribute]
-        end
-      end
 
       collection = Collection.find_cached( :what => s_what, :predicate => predicate, :expires_in => 5.minutes )
 
@@ -146,19 +143,18 @@ private
 def set_attribute_list
   namespaces = Attribute.find_cached(:namespaces)
   attributes = []
-  @attribute_list = []
+  @attribute_list = ['']
   namespaces.each do |d|
     attributes << Attribute.find_cached(:attributes, :namespace => d.data[:name].to_s)
   end
-
   attributes.each do |d|
     if d.has_element? :entry
       d.each do |f|
         @attribute_list << "#{d.init_options[:namespace]}:#{f.data[:name]}"
       end
     end
-
   end
+  
 end
 
 

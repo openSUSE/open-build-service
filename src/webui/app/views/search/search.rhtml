@@ -1,0 +1,15 @@
+<% @pagetitle = "Search Results" %>
+<%
+@crumb_list = [
+  link_to( 'Search', :action => :index ) + ' result'
+]
+-%>
+
+
+<h1>Search results 
+  <% if !@search_text.blank? %>for &quot;<%= h(@search_text) -%>&quot;<% end %>
+  <% if !@attribute.blank? %>with attribute &quot;<%= h(@attribute) -%>&quot;<% end %>
+  <% if @results %>&nbsp;(<%= @results.length -%>)<% end %>
+</h1>
+<%= render :partial => 'search_result' %>
+
