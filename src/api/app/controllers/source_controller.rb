@@ -659,6 +659,15 @@ class SourceController < ApplicationController
       
       allowed = permissions.package_change? package_name, project_name
       if  allowed
+        # file validation where possible
+        if params[:file] == "_link"
+           validator = Suse::Validator.new( "link" )
+           validator.validate(request)
+        elsif params[:file] == "_aggregate"
+           validator = Suse::Validator.new( "aggregate" )
+           validator.validate(request)
+        end
+
         Suse::Backend.put_source path, request.raw_post
         pack = DbPackage.find_by_project_and_name(project_name, package_name)
         pack.update_timestamp
