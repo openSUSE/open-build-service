@@ -33,11 +33,12 @@ class ProjectController < ApplicationController
   end
 
   def list_all
-    redirect_to :action => 'list', :nextstatus => params[:nextstatus]
+    list and return
   end
 
   def list_public
-    redirect_to :action => 'list', :excludefilter => 'home:', :nextstatus => params[:nextstatus]
+    params['excludefilter'] = 'home:'
+    list and return
   end
 
   def list
@@ -51,7 +52,7 @@ class ProjectController < ApplicationController
     if @projects.length == 1
       redirect_to :action => 'show', :project => @projects.first and return
     end
-    render :list, :status => params[:nextstatus] if params[:nextstatus]
+    render :list, :status => params[:nextstatus]
   end
 
   def autocomplete_projects
