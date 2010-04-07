@@ -2,6 +2,8 @@ require 'gruff'
 
 class MonitorController < ApplicationController
 
+  skip_before_filter :check_user, :only => [ :plothistory ]
+
   def old
     get_settings
     check_user
@@ -151,9 +153,8 @@ class MonitorController < ApplicationController
     set = params[:set]
     range = params[:range]
     cache_key = "monitor_plot_#{set}_#{range}"
-    if !(data = Rails.cache.read(cache_key))
-      data = plothistory_data(set, range.to_i)
-      Rails.cache.write(cache_key, data, :expires_in => 15.minutes) if data
+    data = Rails.cache.fetch(cache_key, :expires_in => range.to_i * 1800, :raw => true) do
+      plothistory_data(set, range.to_i)
     end
     if data
       headers['Content-Type'] = 'image/png'
