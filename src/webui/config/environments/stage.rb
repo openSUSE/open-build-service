@@ -22,9 +22,6 @@ config.action_controller.session = {
     :secret => "iofupo3i4u6097p09gfsnaf7g8974lh1j3khdlsufdzg9p889234"
 }
 
-# Enable serving of images, stylesheets, and javascripts from an asset server
-#config.action_controller.asset_host                  = "https://build.opensuse.org/stage"
-
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
