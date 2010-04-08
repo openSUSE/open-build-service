@@ -101,6 +101,12 @@ sub requestParams( $$ )
         $reqinfo{'sourcerevision'} = $a->{'source'}->{'rev'};
         $reqinfo{'targetproject'}  = $a->{'target'}->{'project'};
         $reqinfo{'targetpackage'}  = $a->{'target'}->{'package'};
+    }elsif( $a->{'type'} eq 'change_devel' && $a->{'source'} &&
+            $a->{'target'}) {
+        $reqinfo{'sourceproject'}  = $a->{'source'}->{'project'};
+        $reqinfo{'sourcepackage'}  = $a->{'source'}->{'package'};
+        $reqinfo{'targetproject'}  = $a->{'target'}->{'project'};
+        $reqinfo{'targetpackage'}  = ($a->{'target'}->{'package'} || $a->{'source'}->{'package'});
     }elsif( $a->{'type'} eq 'delete' && $a->{'target'}->{'project'} ) {
         $reqinfo{'deleteproject'}  = $a->{'target'}->{'project'};
         $reqinfo{'deletepackage'}  = $a->{'target'}->{'package'};
