@@ -25,7 +25,7 @@ config.action_controller.session = {
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-FRONTEND_HOST = "api-internal.opensuse.org"
+FRONTEND_HOST = "api.opensuse.org"
 EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
 FRONTEND_PORT = 80
 FRONTEND_PROTOCOL = 'http'

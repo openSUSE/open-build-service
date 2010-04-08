@@ -474,7 +474,7 @@ class PackageController < ApplicationController
 
   def rawlog
     valid_http_methods :get
-    if CONF['use_lighttpd_x_rewrite']
+    if CONFIG['use_lighttpd_x_rewrite']
       headers['X-Rewrite-URI'] = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
       headers['X-Rewrite-Host'] = FRONTEND_HOST
       head(200) and return
