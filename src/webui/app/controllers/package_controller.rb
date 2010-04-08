@@ -474,6 +474,12 @@ class PackageController < ApplicationController
 
   def rawlog
     valid_http_methods :get
+    if CONF['use_lighttpd_x_rewrite']
+      headers['X-Rewrite-URI'] = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
+      headers['X-Rewrite-Host'] = FRONTEND_HOST
+      head(200) and return
+    end
+
     headers['Content-Type'] = 'text/plain'
     render :text => proc { |response, output| 
       maxsize = 1024 * 256
@@ -485,7 +491,6 @@ class PackageController < ApplicationController
         end
         offset += chunk.length
         output.write(chunk)
-        output.flush
       end
     }
   end
