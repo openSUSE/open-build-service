@@ -36,6 +36,7 @@ use Data::Dumper;
 use Socket;
 use Fcntl qw(:DEFAULT :flock);
 use POSIX;
+use Symbol;
 
 use BSHTTP;
 
@@ -571,9 +572,24 @@ sub reply_cpio {
 sub reply_file {
   my ($file, @args) = @_;
   my $chunked;
+  $chunked = 1 if grep {/^transfer-encoding:\s*chunked/i} @args;
   my @cl = grep {/^content-length:/i} @args;
-  $chunked = 1 unless @cl;
-  push @args, 'Transfer-Encoding: chunked' if $chunked;
+  if (!@cl && !$chunked) {
+    # detect file size
+    if (!ref($file)) {
+      my $fd = gensym;
+      open($fd, '<', $file) || die("$file: $!\n");
+      $file = $fd;
+    }
+    if (-f $file) {
+      my $size = -s $file;
+      @cl = ("Content-Length: $size");
+      push @args, $cl[0];
+    } else {
+      push @args, 'Transfer-Encoding: chunked';
+      $chunked = 1;
+    }
+  }
   unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
   reply(undef, @args);
   my $param = {'filename' => $file};

@@ -2303,7 +2303,7 @@ sub getfile {
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
   local *F;
   repopen($rev, $filename, $files->{$filename}, \*F) || die("$projid/$packid/$files->{$filename}-$filename: $!\n");
-  BSServer::reply_file(\*F, "Content-Length: $s[7]");
+  BSServer::reply_file(\*F);
   return undef;
 }
 
@@ -2379,8 +2379,7 @@ sub sourcediff {
   my $cn = "$diffcache/".substr($cacheid, 0, 2)."/$cacheid";
   if (open(F, '<', $cn)) {
     utime(time, time, $cn);
-    my @s = stat(F);
-    BSServer::reply_file(\*F, 'Content-Type: text/plain', "Content-Length: $s[7]");
+    BSServer::reply_file(\*F, 'Content-Type: text/plain');
     return undef;
   }
   my $tmpdir = "$uploaddir/srcdiff$$";

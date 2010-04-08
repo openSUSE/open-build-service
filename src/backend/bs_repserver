@@ -284,9 +284,7 @@ sub getbinarylist_repository {
       undef $pool;
     }
     die("no solv file available") unless defined $fd;
-    my @s = stat $fd;
-    die("could not stat solv file\n") unless @s;
-    BSWatcher::reply_file($fd, "Content-Length: $s[7]");
+    BSWatcher::reply_file($fd);
     return undef;
   }
 
