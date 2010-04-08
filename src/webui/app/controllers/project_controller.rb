@@ -56,7 +56,7 @@ class ProjectController < ApplicationController
   end
 
   def autocomplete_projects
-    get_filtered_projectlist params[:q], 'home:'
+    get_filtered_projectlist params[:q], ''
     render :text => @projects.map{|p| p.name}.join("\n")
   end
 
