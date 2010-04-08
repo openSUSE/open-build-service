@@ -154,15 +154,6 @@ OBS_VM_KERNEL="none"
 OBS_VM_INITRD="none"
 
 ## Path:        Applications/OBS
-## Description: Autosetup for XEN/KVM disk
-## Type:        ("yes" | "no")
-## Default:     "no"
-## Config:      OBS
-#
-#
-OBS_VM_DISK_AUTOSETUP="no"
-
-## Path:        Applications/OBS
 ## Description: Autosetup for XEN/KVM disk (root) - Filesize in MB
 ## Type:        integer
 ## Default:     "4096"
