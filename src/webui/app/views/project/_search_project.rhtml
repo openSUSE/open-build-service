@@ -22,7 +22,7 @@
         <% @current_prj = '' -%>
         </p><p>
       <%- end -%>
-      <%= link_to h( project.name ), {:action => :show, :project => project.name }, :class => 'nowrap' -%> |
+      <%= link_to highlight( h(project.name), @filterstring ), {:action => :show, :project => project.name }, :class => 'nowrap' -%> |
     <% end %>
 
     <% if project_list.blank? -%>
