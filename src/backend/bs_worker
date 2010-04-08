@@ -441,7 +441,7 @@ sub stream_logfile {
   die("Logfile is not that big\n") if $s[7] < abs($start);
   defined(sysseek(F, $start, $start < 0 ? Fcntl::SEEK_END : Fcntl::SEEK_SET)) || die("sysseek: $!\n");
 
-  BSServer::reply(undef, 'Content-Type: application/octet-stream', 'Transfer-Encoding: chunked');
+  BSServer::reply(undef, 'Content-Type: text/plain', 'Transfer-Encoding: chunked');
   my $pos = sysseek(F, 0, Fcntl::SEEK_CUR) || die("sysseek: $!\n");
   while(!defined($end) || $end) {
     @s = stat(F);
