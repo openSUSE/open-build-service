@@ -3,4 +3,6 @@ User-agent: *
 Disallow: /package/live_build_log
 Disallow: /stage/package/live_build_log
 Disallow: /ICSLogin
+Disallow: /stage/project/monitor
+Disallow: /project/monitor
 # once we're done disallow all of stage Disallow: /stage
