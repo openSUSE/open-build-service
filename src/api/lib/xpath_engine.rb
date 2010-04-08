@@ -308,7 +308,7 @@ class XpathEngine
     hs = evaluate_expr(haystack)
     ne = evaluate_expr(needle, true)
 
-    condition = "#{hs} LIKE CONCAT('%',#{ne},'%')"
+    condition = "LOWER(CONVERT(#{hs} USING latin1)) LIKE LOWER(CONCAT('%',#{ne},'%'))"
     #logger.debug "-- condition : [#{condition}]"
 
     @conditions << condition
