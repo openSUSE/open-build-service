@@ -3787,7 +3787,7 @@ sub putrequest {
   my $req = XMLin($BSXML::request, $reqxml);
   BSVerify::verify_request($req);
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
-  die("no such request '$id'\n") unless $oreq;
+  die("404 no such request '$id'\n") unless $oreq;
   $req->{'id'} = $id;
   $req->{'history'} = [ @{$oreq->{'history'} || []} ];
   push @{$req->{'history'}}, $oreq->{'state'};
@@ -3857,7 +3857,7 @@ sub createrequest {
 sub getrequest {
   my ($cgi, $id) = @_;
   my $req = readxml("$requestsdir/$id", $BSXML::request, 1);
-  die("no such request '$id'\n") unless $req;
+  die("404 no such request '$id'\n") unless $req;
   return ($req, $BSXML::request);
 }
 
@@ -3866,7 +3866,7 @@ sub postrequest {
 
   my $cmd = $cgi->{'cmd'};
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
-  die("no such request '$id'\n") unless $oreq;
+  die("404 no such request '$id'\n") unless $oreq;
   my $req = Storable::dclone($oreq);	# deep clone
   die unless $req->{'id'} eq $id;
   my $oldstate = $req->{'state'};
@@ -3960,7 +3960,7 @@ sub postrequest {
 sub delrequest {
   my ($cgi, $id) = @_;
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
-  die("no such request '$id'\n") unless $oreq;
+  die("404 no such request '$id'\n") unless $oreq;
   die unless $oreq->{'id'} eq $id;
   writereq($oreq, undef);
   BSHermes::notify("SRCSRV_REQUEST_DELETE", BSHermes::requestParams($oreq, $cgi->{'user'}));
