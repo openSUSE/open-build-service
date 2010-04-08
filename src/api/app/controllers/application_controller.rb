@@ -221,23 +221,29 @@ class ApplicationController < ActionController::Base
   end
 
   def volley(path)
+    if CONFIG['use_lighttpd_x_rewrite']
+      logger.debug "[backend] VOLLEY(light): #{path}"
+      headers['X-Rewrite-URI'] = path
+      headers['X-Rewrite-Host'] = SOURCE_HOST
+      head(200)
+      return
+    end
     logger.debug "[backend] VOLLEY: #{path}"
     backend_http = Net::HTTP.new(SOURCE_HOST, SOURCE_PORT)
     backend_http.read_timeout = 1000
 
-    render :text => proc { |out_response, output|
+    file = Tempfile.new 'volley'
+    type = nil
 
-      backend_http.request_get(path) do |res|
-        if res.code.to_i >= 400
-          raise Suse::Backend::HTTPError, res
-        end
-                
-        res.read_body do |segment|
-          #logger.debug segment.length
-          output.write(segment)
-        end
+    backend_http.request_get(path) do |res|
+      type = res['Content-Type']
+      res.read_body do |segment|
+        file.write(segment)
       end
-    }
+    end
+
+    send_file(file.path, :length => file.length, :type => type, :url_based_filename => true )
+    file.close
   end
 
   def forward_data( path, opt={} )
@@ -246,7 +252,8 @@ class ApplicationController < ActionController::Base
 
     case opt[:method]
     when :get
-      volley( path ) and return
+      volley( path )
+      return
     when :post
       response = Suse::Backend.post( path, request.raw_post )
     when :put
