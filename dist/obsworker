@@ -105,26 +105,10 @@ if [ -n "$OBS_VM_KERNEL" -a "$OBS_VM_KERNEL" != "none" ] ; then
     fi
 fi
 
-if [ "$OBS_VM_DISK_AUTOSETUP" = "yes" ]; then
-    # actual autosetup is in 'build' code - so 'osc build' can use it, too
-    # this can later also be used for reprovisioning workers
-    if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" -a -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" ]; then
-        VMDISK_ROOT_FILESIZE="--vmdisk-rootsize ${OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE}"
-        VMDISK_SWAP_FILESIZE="--vmdisk-swapsize ${OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE}"
-        VMDISK_AUTOSETUP="--vmdisk-autosetup"
-        if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
-            VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
-        fi
-    else
-        echo "Warning: OBS_VM_DISK_AUTOSETUP is set to \"yes\" but either"
-        echo "         OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE or "
-        echo "         OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE are not set."
-        echo ""
-        echo "Disabling automatic VM disk setup!"
-    fi
-fi
 
 [ -z "$OBS_INSTANCE_MEMORY" ] && OBS_INSTANCE_MEMORY=256
+
+vmopt=
 
 if [ -n "$OBS_VM_TYPE" -a "$OBS_VM_TYPE" != "auto" ] ; then
     if [ "$OBS_VM_TYPE" != "none" ] ; then
@@ -134,6 +118,24 @@ elif [ -e /dev/kvm ] ; then
     vmopt=--kvm
 elif [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
     vmopt=--xen
+fi
+
+if [ -n "$vmopt" ]; then
+    # we start up in VM mode, check for the worker disk options
+    if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" -a -n "$OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE" ]; then
+        VMDISK_ROOT_FILESIZE="--vmdisk-rootsize ${OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE}"
+        VMDISK_SWAP_FILESIZE="--vmdisk-swapsize ${OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE}"
+        if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
+            VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
+        fi
+    else
+        echo "Warning: VM build enabled but either"
+        echo "         OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE or "
+        echo "         OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE are not set."
+        echo ""
+        echo "Worker startup failed"
+        exit 1
+    fi
 fi
 
 rc_reset
