@@ -2,8 +2,24 @@
 #   project_list: list of projects to show
 -%>
 
+<div id="project_list">
 
-<div id="prj_container">
+  <% if @important_projects %>
+    <div class="box-header centered">
+      Main Projects
+    </div>
+    <% for project in @important_projects -%>
+      <%= link_to project.name, :action => :show, :project => project %> 
+    <% end -%>
+  <% end %>
+
+  <p/><p/><div class="clear"></div>
+
+  <div class="box-header centered">
+    All <%= 'Public' if !@excludefilter.blank? %> Projects
+    <%= "which include '#{@filterstring}'" if !@filterstring.blank? %>
+    <%= " (#{project_list.size})" %>
+  </div>
 
   <p>
     <% project_list.each do |project| -%>
@@ -15,12 +31,12 @@
       <%- @current_prj = project.name[0..project.name.index( ':' ) - 1] if project.name.index( ':' )
       if !@current_prj.blank? and @prj_head != @current_prj and project_list.each.select{|p| p.name.index @current_prj + ':' }.size >= 3
         @prj_head = @current_prj -%>
-        </p><p><b><%= h @prj_head -%></b>:
+      </p><p><b><%= h @prj_head -%></b>:
       <%- end -%>
       <%- if !@prj_head.blank? and !project.name.index @prj_head -%>
         <% @prj_head = '' -%>
         <% @current_prj = '' -%>
-        </p><p>
+      </p><p>
       <%- end -%>
       <%= link_to highlight( h(project.name), @filterstring ), {:action => :show, :project => project.name }, :class => 'nowrap' -%> |
     <% end %>

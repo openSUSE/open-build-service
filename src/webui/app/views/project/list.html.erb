@@ -7,23 +7,6 @@
 
 <%= render :partial => 'filter_projects' %>
 
-<% if @important_projects %>
-  <table>
-    <tr><th>Main Projects</th></tr>
-    <% for project in @important_projects -%>
-      <tr><td>
-      <%= link_to project.name, :action => :show, :project => project %></td></tr>
-    <% end -%>
-  </table>
-  <br/>
-<% end %>
+<%= render :partial => 'search_project', :locals => {:project_list => @projects} %>
 
-<table>
-  <tr><th>All Public Projects</th></tr>
-</table>
-
-
-<div id="project_list">
-  <%= render :partial => 'search_project', :locals => {:project_list => @projects} %>
-</div>
 
