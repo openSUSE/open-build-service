@@ -68,7 +68,7 @@ class ProjectController < ApplicationController
     predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
-    result = Collection.find_cached :id, :what => "project", :predicate => predicate, :expires_in => 30.seconds
+    result = Collection.find_cached :id, :what => "project", :predicate => predicate, :expires_in => 2.minutes
     @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
   end
   private :get_filtered_projectlist

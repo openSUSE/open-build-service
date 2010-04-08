@@ -8,12 +8,12 @@
 <% end %>
 
 
-<% form_tag({:action => :list}, {:method => :get}) do -%>
+<% form_tag({:action => :list}, {:method => :get, :id => 'filter_projects_form' }) do -%>
   <p>
-  <strong>Filter projects:</strong>
+    <strong>Filter projects:</strong>
 
-  <%= text_field_tag "searchtext", @filterstring -%>
-  <%= check_box_tag 'excludefilter', 'home:', (@excludefilter.nil? ? false : true) -%> exclude users home projects
+    <%= text_field_tag "searchtext", @filterstring -%>
+    <%= check_box_tag 'excludefilter', 'home:', (@excludefilter.nil? ? false : true) -%> exclude users home projects
 
   </p>
 <% end-%>
@@ -22,3 +22,8 @@
   :url => { :controller => 'project', :action  => :list },
   :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
   :with => "'searchtext=' + escape(value) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>
+
+<%= observe_field( :excludefilter, :frequency => 0.5, :update => :project_list,
+  :url => { :controller => 'project', :action  => :list },
+  :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
+  :with => "'searchtext=' + escape($('#searchtext').attr('value')) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>
