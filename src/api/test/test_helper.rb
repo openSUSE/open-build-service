@@ -224,4 +224,8 @@ class ApplicationController
   def backend_post(path, data )
     Suse::Backend.post(path, data)
   end
+
+  def volley(path)
+    send_data(Suse::Backend.get(path))
+  end
 end
