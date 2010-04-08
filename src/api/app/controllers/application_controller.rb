@@ -17,9 +17,9 @@ class ApplicationController < ActionController::Base
 
   @user_permissions = nil
   @http_user = nil
-  
+
   helper RbacHelper
- 
+
   before_filter :validate_incoming_xml, :add_api_version
 
   # skip the filter for the user stuff
@@ -52,22 +52,22 @@ class ApplicationController < ActionController::Base
     if ICHAIN_MODE == :on || ICHAIN_MODE == :simulate # configured in the the environment file
       @auth_method = :ichain
       ichain_user = request.env['HTTP_X_USERNAME']
-      if ichain_user 
+      if ichain_user
         logger.info "iChain user extracted from header: #{ichain_user}"
       elsif ICHAIN_MODE == :simulate
         ichain_user = ICHAIN_TEST_USER
         logger.debug "iChain user extracted from config: #{ichain_user}"
       end
-      
+
       # we're using iChain, there is no need to authenticate the user from the credentials
       # However we have to care for the status of the user that must not be unconfirmed or ichain requested
-      if ichain_user 
+      if ichain_user
         @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', ichain_user ]
         @http_user.update_email_from_ichain_env(request.env) unless @http_user.nil?
 
-        # If we do not find a User here, we need to create a user and wait for 
+        # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
-        if @http_user == nil 
+        if @http_user == nil
           @http_user = User.find :first, :conditions => ['login = ?', ichain_user ]
           if @http_user == nil
             render_error :message => "iChain user not yet registered", :status => 403,
@@ -80,7 +80,7 @@ class ApplicationController < ActionController::Base
                 :details => "<p>Your account is a registered iChain account, but it is not yet approved for the buildservice.</p>"+
                 "<p>Please stay tuned until you get approval message.</p>"
             else
-              render_error :message => "Your user is either invalid or net yet confirmed (state #{@http_user.state}).", 
+              render_error :message => "Your user is either invalid or net yet confirmed (state #{@http_user.state}).",
                 :status => 403,
                 :errorcode => "unconfirmed_user",
                 :details => "Please contact the openSUSE admin team <admin@opensuse.org>"
@@ -97,27 +97,27 @@ class ApplicationController < ActionController::Base
         logger.error "No X-username header from iChain! Are we really using iChain?"
         render_error( :message => "No iChain user found!", :status => 401 ) and return false
       end
-    else 
+    else
       #active_rbac is used for authentication
       @auth_method = :basic
 
-      if request.env.has_key? 'X-HTTP_AUTHORIZATION' 
-        # try to get it where mod_rewrite might have put it 
-        authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split 
-      elsif request.env.has_key? 'Authorization' 
-        # for Apace/mod_fastcgi with -pass-header Authorization 
-        authorization = request.env['Authorization'].to_s.split 
-      elsif request.env.has_key? 'HTTP_AUTHORIZATION' 
-        # this is the regular location 
-        authorization = request.env['HTTP_AUTHORIZATION'].to_s.split  
-      end 
-  
+      if request.env.has_key? 'X-HTTP_AUTHORIZATION'
+        # try to get it where mod_rewrite might have put it
+        authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split
+      elsif request.env.has_key? 'Authorization'
+        # for Apace/mod_fastcgi with -pass-header Authorization
+        authorization = request.env['Authorization'].to_s.split
+      elsif request.env.has_key? 'HTTP_AUTHORIZATION'
+        # this is the regular location
+        authorization = request.env['HTTP_AUTHORIZATION'].to_s.split
+      end
+
       logger.debug( "AUTH: #{authorization}" )
-  
+
       if authorization and authorization[0] == "Basic"
         # logger.debug( "AUTH2: #{authorization}" )
         login, passwd = Base64.decode64(authorization[1]).split(':')[0..1]
-        
+
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
@@ -129,12 +129,12 @@ class ApplicationController < ActionController::Base
         logger.debug "no authentication string was sent"
         render_error( :message => "Authentication required", :status => 401 ) and return false
       end
-      
+
       # disallow empty passwords to prevent LDAP lockouts
       if !passwd or passwd == ""
         render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false
       end
-      
+
       if defined?( LDAP_MODE ) && LDAP_MODE == :on
         begin
           require 'ldap'
@@ -162,10 +162,10 @@ class ApplicationController < ActionController::Base
             chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
             fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("C*")
             newuser = User.create(
-            :login => login,
-            :password => fakepw,
-            :password_confirmation => fakepw,
-            :email => ldap_info[0] )
+              :login => login,
+              :password => fakepw,
+              :password_confirmation => fakepw,
+              :email => ldap_info[0] )
             unless newuser.errors.empty?
               errstr = String.new
               logger.debug("Creating User failed with: ")
@@ -174,7 +174,7 @@ class ApplicationController < ActionController::Base
                 logger.debug(msg)
               end
               render_error( :message => "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}",
-                            :status => 401 ) and return false
+                :status => 401 ) and return false
               @http_user=nil
               return false
             end
@@ -189,7 +189,7 @@ class ApplicationController < ActionController::Base
 
             @http_user = newuser
           end
-          
+
           session[:rbac_user_id] = @http_user.id
         else
           logger.debug( "User not found with LDAP, falling back to database" )
@@ -220,19 +220,39 @@ class ApplicationController < ActionController::Base
     response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
   end
 
+  def volley(path)
+    logger.debug "[backend] VOLLEY: #{path}"
+    backend_http = Net::HTTP.new(SOURCE_HOST, SOURCE_PORT)
+    backend_http.read_timeout = 1000
+
+    render :text => proc { |out_response, output|
+
+      backend_http.request_get(path) do |res|
+        if res.code.to_i >= 400
+          raise Suse::Backend::HTTPError, res
+        end
+                
+        res.read_body do |segment|
+          #logger.debug segment.length
+          output.write(segment)
+        end
+      end
+    }
+  end
+
   def forward_data( path, opt={} )
     defaults = {:server => :source, :method => :get}
     opt = defaults.merge opt
 
     case opt[:method]
     when :get
-      response = Suse::Backend.get_source( path )
+      volley( path ) and return
     when :post
-      response = Suse::Backend.post_source( path, request.raw_post )
+      response = Suse::Backend.post( path, request.raw_post )
     when :put
-      response = Suse::Backend.put_source( path, request.raw_post )
+      response = Suse::Backend.put( path, request.raw_post )
     when :delete
-      response = Suse::Backend.delete_source( path )
+      response = Suse::Backend.delete( path )
     end
 
     send_data( response.body, :type => response.fetch( "content-type" ),
@@ -305,7 +325,7 @@ class ApplicationController < ActionController::Base
     else
       opt[:status] = 400
     end
-    
+
     @exception = opt[:exception]
     @details = opt[:details]
 
@@ -313,9 +333,9 @@ class ApplicationController < ActionController::Base
     if opt[:message]
       @summary = opt[:message]
     elsif @exception
-      @summary = @exception.message 
+      @summary = @exception.message
     end
-    
+
     if opt[:errorcode]
       @errorcode = opt[:errorcode]
     elsif @exception
@@ -324,7 +344,7 @@ class ApplicationController < ActionController::Base
       @errorcode = 'unknown'
     end
 
-    # if the exception was raised inside a template (-> @template.first_render != nil), 
+    # if the exception was raised inside a template (-> @template.first_render != nil),
     # the instance variables created in here will not be injected into the template
     # object, so we have to do it manually
     # This is commented out, since it does not work with Rails 2.3 anymore and is also not needed there
@@ -344,18 +364,18 @@ class ApplicationController < ActionController::Base
     response.headers['X-Opensuse-Errorcode'] = @errorcode
     render :template => 'status', :status => opt[:status], :layout => false
   end
-  
+
   def render_ok(opt={})
     # keep compatible to old call style
     opt = {:details => opt} if opt.kind_of? String
-    
+
     @errorcode = "ok"
     @summary = "Ok"
     @details = opt[:details] if opt[:details]
     @data = opt[:data] if opt[:data]
     render :template => 'status', :status => 200, :layout => false
   end
-  
+
   def backend
     @backend ||= ActiveXML::Config.transport_for :bsrequest
   end
@@ -388,7 +408,7 @@ class ApplicationController < ActionController::Base
   alias_method :pass_to_source, :pass_to_backend
 
 
-  # Passes control to subroutines determined by action and a request parameter. By 
+  # Passes control to subroutines determined by action and a request parameter. By
   # default the parameter assumed to contain the command is ':cmd'. Looks for a method
   # named <action>_<command>
   #
@@ -450,7 +470,7 @@ class ApplicationController < ActionController::Base
     MIN_VOTES_FOR_RATING
   end
 
- private
+  private
   def shutup_rails
     Rails.cache.silence!
   end
