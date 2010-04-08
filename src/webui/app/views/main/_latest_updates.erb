@@ -1,0 +1,22 @@
+<div class="box box-shadow">
+  <div class="box-header centered">
+    Latest updates
+  </div>
+  <p>
+    <% @latest_updates.each do |update| %>
+
+      <% if update.data.name == 'package' %>
+        <%= image_tag 'package.png' %>
+        <% project = update.project %>
+        <% link = url_for :controller => :package, :action => :show, :project => project, :package => update.name %>
+      <% elsif update.data.name == 'project' %>
+        <%= image_tag 'project.png' %>
+        <% link = url_for :controller => :project, :action => :show, :project => update.name %>
+      <% end %>
+
+      <%= link_to shorten_text( update.name, 18 ), link %>: <%= fuzzy_time_string( update.updated ) %><br/>
+
+    <% end %>
+  </p>
+
+</div>

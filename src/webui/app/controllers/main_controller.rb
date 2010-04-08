@@ -1,5 +1,6 @@
 require 'models/workerstatus'
 require 'models/global_counters'
+require 'models/latest_updated'
 
 class MainController < ApplicationController
 
@@ -7,10 +8,9 @@ class MainController < ApplicationController
 
   def index
     @user ||= Person.find :login => session[:login] if session[:login]
-    cache_key = 'frontpage_workerstatus'
-    if !(@workerstatus = Rails.cache.read(cache_key))
-      @workerstatus = Workerstatus.find :all
-      Rails.cache.write(cache_key, @workerstatus, :expires_in => 15.minutes)
+
+    @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes) do
+      Workerstatus.find :all
     end
 
     @waiting_packages = 0
@@ -18,11 +18,18 @@ class MainController < ApplicationController
       @waiting_packages += waiting.jobs.to_i
     end
 
-    if !(@global_counters = Rails.cache.read('global_stats'))
-      @global_counters = GlobalCounters.find( :all )
-      Rails.cache.write('global_stats', @global_counters, :expires_in => 15.minutes)
+    @global_counters = Rails.cache.fetch('global_stats', :expires_in => 15.minutes) do
+      GlobalCounters.find( :all )
     end
-  end   
+
+    @latest_updates = Rails.cache.fetch('latest_updates', :expires_in => 5.minutes) do
+      LatestUpdated.find( :limit => 6 )
+    end
+
+  end
+
+
+
 
   
 end
