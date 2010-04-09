@@ -126,7 +126,7 @@ Debug Options
  --check-request-xml <file>
    Is parsing a request xml file and puts out error messages, in case of errors.
 
- --parse-build-desc <file>
+ --parse-build-desc <file> [<arch>]
    Parse a spec, dsc or kiwi file with the Build script parser.
 ";
 }
@@ -427,8 +427,11 @@ while (@ARGV) {
       check_kiwi_xml($project, $package);
     }
   } elsif ($arg eq "--parse-build-desc") {
-    die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV != 1;
-    my $ret = Build::parse(undef, shift @ARGV);
+    die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV != 1 and @ARGV != 2;
+    my $file = shift @ARGV;
+    my $cf = undef;
+    $cf->{'arch'} = shift @ARGV if @ARGV == 1;
+    my $ret = Build::parse($cf, $file);
     print Dumper($ret);
   } elsif ($arg eq "--dump-cache") {
     if (@ARGV == 1) {
