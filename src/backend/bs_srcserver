@@ -3004,7 +3004,7 @@ sub getrepository {
   my ($cgi, $projid, $repoid) = @_;
   my $proj = readproj($projid);
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
-  die("$repoid: no such repository\n") unless $repo;
+  die("404 $repoid: no such repository\n") unless $repo;
   return ($repo, $BSXML::repo);
 }
 
@@ -3012,7 +3012,7 @@ sub getarchlist {
   my ($cgi, $projid, $repoid) = @_;
   my $proj = readproj($projid);
   my @repo = grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []};
-  die("$repoid: no such repository\n") unless @repo;
+  die("404 $repoid: no such repository\n") unless @repo;
   my @res = map {{'name' => $_}} @{$repo[0]->{'arch'} || []};
   return ({'entry' => \@res}, $BSXML::dir);
 }
@@ -3041,13 +3041,13 @@ sub getresult {
   if ($cgi->{'repository'}) {
     my %knownrepoids = map {$_->{'name'} => 1} @{$proj->{'repository'} || []};
     for (@{$cgi->{'repository'}}) {
-      die("unknown repository '$_'\n") if !$knownrepoids{$_};
+      die("404 unknown repository '$_'\n") if !$knownrepoids{$_};
     }
   }
   if ($cgi->{'package'}) {
     my %knownpackids = map {$_ => 1} findpackages($projid);
     for (@{$cgi->{'package'}}) {
-      die("unknown package '$_'\n") if !$knownpackids{$_};
+      die("404 unknown package '$_'\n") if !$knownpackids{$_};
     }
   }
   my @prpas;
@@ -3125,7 +3125,7 @@ sub docommand {
   if (@packids) {
     my %packids = map {$_ => 1} findpackages($projid);
     my @badpacks = grep {!$packids{$_}} @packids;
-    die("unknown package: @badpacks\n") if @badpacks;
+    die("404 unknown package: @badpacks\n") if @badpacks;
   } else {
     @packids = findpackages($projid);
   }
