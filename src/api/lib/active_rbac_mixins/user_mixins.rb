@@ -331,9 +331,10 @@ module UserMixins
             user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
             logger.debug( "Search for #{user_filter}" )
             dn = String.new
-            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter, '') do |entry|
+            ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
               dn = entry.dn
             end
+            ldap_con.unbind()
               
             if dn.empty?
               logger.debug( "User not found in ldap" )
@@ -359,7 +360,7 @@ module UserMixins
               if authenticated == true
                 ldap_info = Array.new
                 ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
-                ldap_info[1] = String.new(entry[LDAP_NAME_ATTR][1])
+                ldap_info[1] = String.new(entry[LDAP_NAME_ATTR][0])
               end
                 
             when :ldap then
@@ -370,18 +371,19 @@ module UserMixins
               else
                 ldap_info = Array.new
                 # Redo the search as the user for situations where the anon search may not be able to see attributes
-                user_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE,  user_filter, '') do |entry|
+                user_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE,  user_filter ) do |entry|
                   if entry[LDAP_MAIL_ATTR] then 
                     ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
                   else
                     ldap_info[0] =  'fake@email.ldap'
                   end
                   if entry[LDAP_NAME_ATTR] then
-                    ldap_info[1] = String.new(entry[LDAP_NAME_ATTR][1])
+                    ldap_info[1] = String.new(entry[LDAP_NAME_ATTR][0])
                   else
                     ldap_info[1] = login
                   end
                 end
+                user_con.unbind()
               end
             end
             logger.debug( "login success = #{ldap_info}" )
@@ -530,7 +532,7 @@ module UserMixins
 
               logger.debug( "Connecting to #{server} as '#{user_name}'" )
               begin
-                if LDAP_SSL == :on
+                if defined?( LDAP_SSL ) && LDAP_SSL == :on
                   port = defined?( LDAP_PORT ) ? LDAP_PORT : 636
                   conn = LDAP::SSLConn.new( server, port)
                 else
@@ -538,6 +540,9 @@ module UserMixins
                   conn = LDAP::Conn.new( server, port)
                 end
                 conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
+                if defined?( LDAP_REFERRALS ) && LDAP_REFERRALS == :off
+                  conn.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
+                end
                 conn.bind(user_name, password)
               rescue LDAP::ResultError
                 logger.debug( "Not bound:  error #{conn.err}" )
