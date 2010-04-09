@@ -17,7 +17,7 @@ class RequestController < ApplicationController
       @src_project = @therequest.action.source.project
       @src_pkg = @therequest.action.source.package
     end
-    @target_project = Project.find_cached @therequest.action.target.project
+    @target_project = Project.find_cached @therequest.action.target.project, :expires_in => 5.minutes
     @target_pkg_name = @therequest.action.target.package
     @target_pkg = Package.find_cached @target_pkg_name, :project => @therequest.action.target.project
     @is_author = @therequest.has_element? "//state[@name='new' and @who='#{session[:login]}']"

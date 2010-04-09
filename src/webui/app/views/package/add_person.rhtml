@@ -8,14 +8,18 @@
 ]
 -%>
 
-<h2>Add User (Project <%=h @project%>, Package <%=h @package%>)</h2>
+<%= render :partial => "tabs" %>
+
+<h2>Add User to package <%=h @package%> in project <%=h @project%></h2>
 
 <% form_tag :action => :save_person do %>
-<strong>User ID:</strong>
-<%= text_field_tag 'userid', params[:userid], :size => '25' %>
-<strong>Role:</strong>
-<%= select_tag 'role', options_for_select(@roles, params[:role]) %>
-<%= hidden_field_tag 'package', @package %>
-<%= hidden_field_tag 'project', @project %>
-<p><%= submit_tag "Add user" %></p>
+  <p>
+    <strong>User ID:</strong>
+    <%= text_field_tag 'userid', params[:userid], :size => '25' %>
+    <strong>Role:</strong>
+    <%= select_tag 'role', options_for_select(@roles, params[:role]) %>
+    <%= hidden_field_tag 'package', @package %>
+    <%= hidden_field_tag 'project', @project %>
+  </p>
+  <p><%= submit_tag "Add user" %></p>
 <% end %>

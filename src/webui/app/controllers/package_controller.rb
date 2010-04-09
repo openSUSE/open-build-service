@@ -398,14 +398,13 @@ class PackageController < ApplicationController
       redirect_to :action => :add_person, :project => @project, :package => params[:package], :role => params[:role]
       return
     end
-    logger.debug "found user: #{user.inspect}"
     @package.add_person( :userid => params[:userid], :role => params[:role] )
     if @package.save
-      flash[:note] = "added user #{params[:userid]}"
+      flash[:note] = "Added user #{params[:userid]} with role #{params[:role]}"
     else
       flash[:note] = "Failed to add user '#{params[:userid]}'"
     end
-    redirect_to :action => :show, :package => @package, :project => @project
+    redirect_to :action => :users, :package => @package, :project => @project
   end
 
 
@@ -413,11 +412,11 @@ class PackageController < ApplicationController
     valid_http_methods(:post)
     @package.remove_persons( :userid => params[:userid], :role => params[:role] )
     if @package.save
-      flash[:note] = "removed user #{params[:userid]}"
+      flash[:note] = "Removed user #{params[:userid]}"
     else
       flash[:note] = "Failed to remove user '#{params[:userid]}'"
     end
-    redirect_to :action => :show, :package => params[:package], :project => params[:project]
+    redirect_to :action => :users, :package => @package, :project => @project
   end
 
 
@@ -829,7 +828,7 @@ class PackageController < ApplicationController
 
   def require_project
     if params[:project]
-      @project = Project.find_cached( params[:project] )
+      @project = Project.find_cached( params[:project], :expires_in => 5.minutes )
     end
     unless @project
       logger.error "Project #{params[:project]} not found"

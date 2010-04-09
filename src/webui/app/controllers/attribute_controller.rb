@@ -51,7 +51,7 @@ class AttributeController < ApplicationController
 private
 
   def requires
-    @project = Project.find_cached( params[:project] )
+    @project = Project.find_cached( params[:project], :expires_in => 5.minutes )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public"

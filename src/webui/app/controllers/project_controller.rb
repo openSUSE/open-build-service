@@ -441,46 +441,37 @@ class ProjectController < ApplicationController
 
   def save_person
     valid_http_methods(:post)
-    if not valid_role_name? params[:userid]
-      flash[:error] = "Invalid username: #{params[:userid]}"
-      redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
-      return
-    end
     user = Person.find_cached( :login => params[:userid] )
     unless user
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
-      redirect_to :action => :add_person, :project => params[:project], :role => params[:role]
+      redirect_to :action => :add_person, :project => @project, :role => params[:role]
       return
     end
-    logger.debug "found user: #{user.inspect}"
-    @project.add_person( :userid => params[:userid], :role => params[:role] )
-
+    @project.add_person( :userid => user.login.to_s, :role => params[:role] )
     if @project.save
-      flash[:note] = "added user #{params[:userid]}"
+      flash[:note] = "Added user #{user.login} with role #{params[:role]} to project #{@project}"
     else
       flash[:error] = "Failed to add user '#{params[:userid]}'"
     end
-
     redirect_to :action => :users, :project => @project
   end
 
+  
   def remove_person
-    if not params[:userid]
+    if params[:userid].blank?
       flash[:note] = "User removal aborted, no user id given!"
-      redirect_to :action => :show, :project => params[:project]
-      return
+      redirect_to :action => :show, :project => params[:project] and return
     end
     @project.remove_persons( :userid => params[:userid], :role => params[:role] )
-
     if @project.save
-      flash[:note] = "removed user #{params[:userid]}"
+      flash[:note] = "Removed user #{params[:userid]}"
     else
       flash[:error] = "Failed to remove user '#{params[:userid]}'"
     end
-
     redirect_to :action => :users, :project => params[:project]
   end
 
+  
   def monitor
     @name_filter = params[:pkgname]
     @lastbuild_switch = params[:lastbuild]
@@ -954,7 +945,7 @@ class ProjectController < ApplicationController
         render :text => 'Not a valid project name', :status => 404 and return
       end
     end
-    @project = Project.find_cached( params[:project] )
+    @project = Project.find_cached( params[:project], :expires_in => 5.minutes )
     check_user
     unless @project
       if @user and params[:project] == "home:#{@user}"
