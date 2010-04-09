@@ -2302,7 +2302,7 @@ sub checkkiwiproduct {
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
-    my $pdatas = $projpacks->{$aprojid}->{'package'} || {};
+    my $pdatas = ($projpacks->{$aprojid} || {})->{'package'} || {};
     my @apackids = sort keys %$pdatas;
     for my $apackid (@apackids) {
       my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
@@ -2606,7 +2606,7 @@ sub checkaggregate {
     if ($aggregate->{'package'}) {
       @apackids = @{$aggregate->{'package'}};
     } else {
-      @apackids = sort keys(%{$projpacks->{$aprojid}->{'package'} || {}});
+      @apackids = sort keys(%{($projpacks->{$aprojid} || {})->{'package'} || {}});
     }
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
     if (@arepoids) {
@@ -2718,7 +2718,7 @@ sub rebuildaggregate {
     if ($aggregate->{'package'}) {
       @apackids = @{$aggregate->{'package'}};
     } else {
-      @apackids = sort keys(%{$projpacks->{$aprojid}->{'package'} || {}});
+      @apackids = sort keys(%{($projpacks->{$aprojid} || {})->{'package'} || {}});
     }
     my $abinfilter;
     $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
@@ -4566,7 +4566,7 @@ relsynccheck:
   for my $prp (splice(@{[sort {$prpchecktimes{$b} <=> $prpchecktimes{$a}} keys %prpchecktimes]}, 0, 10)) {
     my ($projid, $repoid) = split('/', $prp, 2);
     my $worst = {'project' => $projid, 'repository' => $repoid};
-    $worst->{'packages'} = keys %{$projpacks->{$projid}->{'package'} || {}};
+    $worst->{'packages'} = keys %{($projpacks->{$projid} || {})->{'package'} || {}};
     $worst->{'time'} = $prpchecktimes{$prp};
     push @{$sinfo->{'worst'}}, $worst;
   }
