@@ -14,12 +14,12 @@
 
 <%= render :partial => "tabs" %>
 
-<div class="grid_10 alpha">
- <div id="show_left">
-  <div class="box">
-    <h2 style="display: inline"><%=h @project.title %> (<%=h @project -%>)</h2>
+<div id="show_left" class="grid_9 box">
 
-    <span style="float: right">
+  <h2 style="display: inline"><%=h @project.title %> (<%=h @project -%>)</h2>
+
+  <span style="float: right">
+    <p>
       <% if session[:login] -%>
         <span id="watchlink">
           <%= link_to_remote(image_tag(watch_link_image, :title => watch_link_text, :id => "imgwatch"),
@@ -31,12 +31,12 @@
 
       <% if @project.is_maintainer?( session[:login] ) %>
         <span>
-          <%= link_to_remote(image_tag('delete.png', :title => 'Delete Project'),
+          <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete Project'),
             :url => { :action => :delete, :project => @project.name } ) %>
         </span>
       <% end %>
 
-      <% if @project.bugowner -%>
+      <% if @project.bugowner and BUGZILLA_HOST  -%>
         <span>
           <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'),
             bugzilla_url(@bugowner_mail, "[#{@project.name}]")) -%>
@@ -45,14 +45,14 @@
 
       <% if @project.is_maintainer?( session[:login] ) %>
         <span>
-          <%= link_to(image_tag('edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
+          <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
         </span>
       <% end -%>
+    </p>
+  </span>
 
-    </span>
-
-    <div class="description" id="description">
-      <p>
+  <div class="description" id="description">
+    <p>
       <% description = @project.description.text %>
       <% if description %>
         <% description.split( /\n/ ).each do |line| %>
@@ -61,34 +61,37 @@
       <% else -%>
         <i>No description set</i>
       <% end -%>
-      </p>
-    </div>
+    </p>
   </div>
+
   <div>
     <% if @current_requests.has_elements? %>
-    <div><p>There are <%= @current_requests.each.size %> open <%= link_to 'requests', :action => :list_requests, :project => @project %></p></div>
+      <div><p>There are <%= @current_requests.each.size %> open <%= link_to 'requests', :action => :list_requests, :project => @project %></p></div>
     <% end %>
     <% if @problem_packages > 0 %>
-    <div><p>There are <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
-        packages of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
+      <div><p>There are <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
+          packages of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
     <% else %>
       All <%= @packages.each.size %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.
     <% end %>
   </div>
 </div>
-</div>
-<div class="grid_6 omega alpha"> <!-- no extra margins -->
-  <h3>
+
+<div class="grid_6 box"> <!-- no extra margins -->
+
+  <div></div> <!-- fixes top margin issue -->
+
+  <div class="box-header centered">
     Build Status
-    <%= link_to_remote image_tag('reload.png', :alt => "Reload Status", :title => "reload status", :id => 'status_reload'),
+    <%= link_to_remote image_tag('arrow_refresh.png', :alt => "Reload Status", :title => "reload status", :id => 'status_reload'),
       :url => { :action => :buildresult, :project => @project },
       :update => 'buildstatus',
       :loading => "$('#spinner_stat').show(); $('#status_reload').hide()", :complete => "$('#spinner_stat').hide(); $('#status_reload').show()" %>
-    <%= image_tag 'rotating-tail.gif', :id => 'spinner_stat', :style => 'display:none;' %>
-  </h3>
+    <%= image_tag 'ajax-loader.gif', :id => 'spinner_stat', :style => 'display:none;' %>
+  </div>
 
   <div id='buildstatus'>
-	  <p>Loading data...</p>
+    <p>Loading data...</p>
   </div>
 </div>
 

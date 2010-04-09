@@ -29,7 +29,7 @@ module ProjectHelper
   end
 
   def watch_link_image
-    user.watches?(@project.name) ? "dontwatch.png" : "watch.png"
+    user.watches?(@project.name) ? "magnifier_zoom_out.png" : "magnifier_zoom_in.png"
   end
 
   def format_packstatus_for( repo, arch )

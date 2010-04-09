@@ -7,6 +7,9 @@
   'Edit Package Information'
 ]
 -%>
+
+<%= render :partial => "tabs" %>
+
 <h2>Editing Package <%=h @package %> (Project <%=h @project %>)</h2>
 
 <% form_tag :action => :save do %>

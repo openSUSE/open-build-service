@@ -1,49 +1,52 @@
-<div class="grid_10 alpha">
-<div id="show_left">
-  <div class="box">
-    <h2>Package <%=h @package %> (Project <%=h @project %>)</h2>
-    <!-- Package meta -->
-    <div id="package_meta">
+<div class="grid_9 box">
 
-      <p>
-        <%=h @package.title %>
-      </p>
+  <h2 style="display: inline"><%=h @package %></h2>
 
-      <p>
-        <% description = @package.description.text %>
-        <% if description %>
-          <% description.split( /\n/ ).each do |line| %>
-            <%=h line -%><br/>
-          <% end %>
-        <% else %>
-          <i>No description set</i>
-        <% end %>
-      </p>
-
-      <%- if @package.has_element? :devel %>
-        <p id="develproject_note"><strong>
-            <% dpackage = @package.devel.data["package"] || @package.name %>
-            This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage %>
-        </strong></p>
-      <%- end -%>
-
+  <span style="float: right">
+    <p>
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-        <p>
-          <%= link_to "[Edit Package Information]", :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
-        </p>
-        <p>
-          <%= link_to "[Remove Package]", {:action => :remove, :project => @project, :package => @package},
+        <span>
+          <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Package Information'), :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
+        </span>
+        <span>
+          <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Package'), {:action => :remove, :project => @project, :package => @package},
             {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
-        </p>
+        </span>
       <% end %>
 
-      <% if @bugowner_mail %>
-        <p>
-          <%= link_to '[Report Bug]', bugzilla_url(@bugowner_mail, "[#{@project.name}/#{@package.name}]") %>
-        </p>
-      <% end %>
+      <% if @bugowner_mail and BUGZILLA_HOST %>
+        <span>
+          <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "[#{@project.name}/#{@package.name}]") %>
+        </span>
 
-    </div>
-</div>
+      <% end %>
+    </p>
+  </span>
+
+  <!-- Package meta -->
+  <div id="package_meta">
+
+    <p>
+      <%=h @package.title %>
+    </p>
+
+    <p>
+      <% description = @package.description.text %>
+      <% if description %>
+        <% description.split( /\n/ ).each do |line| %>
+          <%=h line -%><br/>
+        <% end %>
+      <% else %>
+        <i>No description set</i>
+      <% end %>
+    </p>
+
+    <%- if @package.has_element? :devel %>
+      <p id="develproject_note"><strong>
+          <% dpackage = @package.devel.data["package"] || @package.name %>
+          This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage %>
+        </strong></p>
+    <%- end -%>
+
   </div>
 </div>
