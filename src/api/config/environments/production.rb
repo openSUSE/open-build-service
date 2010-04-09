@@ -30,6 +30,8 @@ LDAP_SERVERS = "ldap1.mycompany.com:ldap2.mycompany.com"
 LDAP_SSL = :on
 # LDAP port defaults to 389 for ldap and 686 for ldaps
 #LDAP_PORT=
+# Authentication with Windows 2003 AD requires
+LDAP_REFERRALS = :off
 
 # Max number of times to attempt to contact the LDAP servers
 LDAP_MAX_ATTEMPTS = 10
