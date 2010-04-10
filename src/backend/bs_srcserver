@@ -1996,9 +1996,10 @@ sub fetchremoteconfig {
 }
 
 sub remote_getrev {
-  my ($projid, $packid, $rev, $linked) = @_;
+  my ($projid, $packid, $rev, $linked, $missingok) = @_;
   my $proj = remoteprojid($projid);
   if (!$proj) {
+    return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'empty'} if $missingok;
     die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
     die("404 project '$projid' does not exist\n");
   }
@@ -2010,7 +2011,13 @@ sub remote_getrev {
     $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args, 'withlinked');
   };
   if ($@) {
-    $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args);
+    eval {
+      $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args);
+    };
+    if ($@) {
+      return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'empty'} if $missingok;
+      die($@);
+    }
   }
   die("$dir->{'error'}\n") if $dir->{'error'};
   $rev = {};
@@ -2339,13 +2346,13 @@ sub sourcediff {
   my $fmax = 200;
   my $tmax = 16000;
 
-  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', undef, $cgi->{'missingok'});
   my $files = lsrev($rev);
   my $orev = $cgi->{'orev'};
   if ($projid eq $oprojid && $packid eq $opackid && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
     $orev = $rev->{'rev'} - 1;
   }
-  $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
+  $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
   my $ofiles = lsrev($orev);
   if ($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
@@ -4353,7 +4360,7 @@ my $dispatches = [
   '/source/$project/_config' => \&getprojectconfig,
   'PUT:/source/$project/_config' => \&putprojectconfig,
 
-  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool? missingok:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool?' => \&linkdiff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? requestid:num?' => \&sourcecommitfilelist,
