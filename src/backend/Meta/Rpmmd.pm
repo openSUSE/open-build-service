@@ -123,7 +123,7 @@ sub end_handler {
 	'sparc64' => ['sparc', 'sparc64',                                             'noarch'],
 	'mips'    => ['mips',                                                         'noarch'],
 	'mips64'  => ['mips', 'mips64',                                               'noarch'],
-	'i586'    => [          'i386', 'i486', 'i586',                               'noarch'],
+	'i586'    => [          'i386', 'i486', 'i586', 'i686',                       'noarch'],
 	'i686'    => [          'i386', 'i486', 'i586', 'i686',                       'noarch'],
 	'x86_64'  => ['x86_64',                                                       'noarch'],
 	);
