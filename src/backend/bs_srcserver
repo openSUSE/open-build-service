@@ -2015,7 +2015,7 @@ sub remote_getrev {
       $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args);
     };
     if ($@) {
-      return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'empty'} if $missingok;
+      return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'empty'} if $missingok && $@ =~ /^404[^\d]/;
       die($@);
     }
   }
