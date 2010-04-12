@@ -16,6 +16,7 @@
     <%= javascript_include_tag '/themes/bento/js/jquery.js', 'jquery-ui-1.7.2.min' %>
     <%= javascript_include_tag 'jrails', "application" %>
     <%= javascript_include_tag '/themes/bento/js/script' %>
+    <%= javascript_include_tag "https://ssl.google-analytics.com/ga.js" %>
 
     <%= yield :content_for_head %>
 
@@ -24,6 +25,7 @@
     <%= yield :head_javascript %>
     $(function() {
       setup_favorites();
+      googleTracker();
       <%= yield :ready_function %>
     });
     /* ]]> */
