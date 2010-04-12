@@ -1,6 +1,7 @@
 REPOSITORY_ADD_GROUPS = [
   {
     :name => "openSUSE Distributions (linked from openSUSE.org)",
+    :icon => "distributions/opensuse.png",
     :repositories => [
       {:title => "openSUSE Factory",
         :reponame => "openSUSE_Factory",
@@ -32,6 +33,7 @@ REPOSITORY_ADD_GROUPS = [
         :arch => [:i586, :x86_64] }
     ]}, 
   { :name => "Debian Distributions (linked from openSUSE.org)",
+    :icon => "distributions/debian.png",
     :repositories => [
       {:title => "Debian 5.0 (Lenny)",
         :reponame => "Debian_5.0",
@@ -43,6 +45,7 @@ REPOSITORY_ADD_GROUPS = [
         :arch => [:i586, :x86_64] }
     ]},
   { :name => "Red Hat based Distributions (linked from openSUSE.org)",
+    :icon => "distributions/red_hat.png",
     :repositories => [
       {:title => "Fedora 12",
         :reponame => "Fedora_12",
@@ -70,6 +73,7 @@ REPOSITORY_ADD_GROUPS = [
         :arch => [:i586, :x86_64] }
     ]},
   { :name => "Mandriva Distributions (linked from openSUSE.org)",
+    :icon => "distributions/mandriva.png",
     :repositories => [
       {:title => "Mandriva 2010",
         :reponame => "Mandriva_2010",
@@ -85,6 +89,7 @@ REPOSITORY_ADD_GROUPS = [
         :arch => [:i586, :x86_64] }
     ]},
   { :name => "Ubuntu Distributions (linked from openSUSE.org)",
+    :icon => "distributions/ubuntu.png",
     :repositories => [
       {:title => "xUbuntu 9.10",
         :reponame => "xUbuntu_9.10",
@@ -109,6 +114,7 @@ REPOSITORY_ADD_GROUPS = [
     ]
   },
   { :name => "Kiwi image builds",
+    :icon => "distributions/kiwi.png",
     :repositories => [
         # WARNING: this one is special, it implicit adds also a type to projectconfig !
       # FIXME: will be cleaned up after implementing FATE #308899
