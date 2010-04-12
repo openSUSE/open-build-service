@@ -487,8 +487,9 @@ class ProjectController < ApplicationController
     @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each { |s|
-      if params.has_key?(s)
-        next unless (Integer(params[s]) rescue 1) > 0
+      id=s.gsub(' ', '')
+      if params.has_key?(id)
+        next unless (Integer(params[id]) rescue 1) > 0
       else
         next unless defaults
       end
