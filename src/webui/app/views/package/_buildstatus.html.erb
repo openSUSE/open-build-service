@@ -24,12 +24,11 @@
       <%= image_tag 'ajax-loader.gif', :id => 'spinner_stat', :style => 'display:none;' %>
     </div>
 
-    <% if not @project.has_element?(:repository) %>
-      <i>The project this package belongs to has currently no targets defined. <br/>
-        Please add the targets it should build against <%= link_to "here", :controller => :project, :action => 'add_target_simple', :project => @project %>. </i>
-    <% elsif !@buildresult %>
-      <h3>Build Status unavailable</h3>
-    <% else %>
+  <% if not @project.has_element?(:repository) %>
+    <i>The project this package belongs to currently has no <%= link_to "build targets", :controller => :project, :action => 'add_target_simple', :project => @project %> defined. </i>
+  <% elsif @buildresult.blank? %>
+    <i>No build result available</i>
+  <% else %>
 
       <table class="repostatus">
         <% @buildresult.each do |r,archs|
