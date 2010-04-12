@@ -710,7 +710,11 @@ class ProjectController < ApplicationController
   end
 
   def get_changes_md5(project, package)
-    dir = Directory.find_cached(:project => project, :package => package, :expand => "1")
+    begin
+      dir = Directory.find_cached(:project => project, :package => package, :expand => "1")
+    rescue => e
+      dir = nil
+    end
     return nil unless dir
     changes = []
     dir.each_entry do |e|
