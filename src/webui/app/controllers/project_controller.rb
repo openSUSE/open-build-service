@@ -15,7 +15,7 @@ class ProjectController < ApplicationController
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes,
-    :meta, :edit_meta, :edit_comment, :change_flag ]
+    :meta, :edit_meta, :edit_comment, :change_flag, :save_targets ]
 
   before_filter :load_current_requests, :only => [:delete, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
@@ -264,7 +264,8 @@ class ProjectController < ApplicationController
 
   def repositories
     # overwrite @project with different view
-    @project = Project.find_cached( params[:project], :view => :flagdetails )
+    # TODO to get this cached we need to make sure it gets purged on repo updates
+    @project = Project.find( params[:project], :view => :flagdetails )
   end
 
   def packages
@@ -380,6 +381,24 @@ class ProjectController < ApplicationController
     @platform = params[:platform]
   end
 
+  def save_targets
+    params['repo'].each do |repo|
+      logger.debug "Adding repo: #{params[repo + '_repo']}, archs: #{params[repo + '_arch']}"
+      @project.add_repository :reponame => repo, :platform => params[repo + '_repo'], :arch => params[repo + '_arch']
+    end
+      begin
+        if @project.save
+          flash[:note] = "Build targets were added successfully"
+        else
+          flash[:error] = "Failed to add build targets"
+        end
+      rescue ActiveXML::Transport::Error => e
+        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        flash[:error] = "Failed to add build targets: " + message
+      end
+      redirect_to :action => :repositories, :project => @project
+  end
+
   def save_target
     platform = params[:platform]
     arch = params[:arch]
@@ -414,7 +433,7 @@ class ProjectController < ApplicationController
       flash[:error] = "Failed to add target '#{platform}' " + message
     end
 
-    redirect_to :action => :flags_for_experts, :project => @project
+    redirect_to :action => :repositories, :project => @project
   end
 
   def remove_target
@@ -435,7 +454,7 @@ class ProjectController < ApplicationController
       flash[:error] = "Failed to remove target '#{params[:target]}' " + message
     end
 
-    redirect_to :action => :show, :project => @project
+    redirect_to :action => :repositories, :project => @project
   end
 
 
@@ -678,8 +697,8 @@ class ProjectController < ApplicationController
       params[:repo]
       params[:arch]
       path = url_for(:controller => :source, :action => @project, :id => '_meta', :cmd => params[:cmd], 
-                     :flag => params[:flag], :skip_relative_url_root => true, :only_path => true,
-                     :repo => params[:repo], :arch => params[:arch])
+        :flag => params[:flag], :skip_relative_url_root => true, :only_path => true,
+        :repo => params[:repo], :arch => params[:arch])
       frontend.transport.direct_http URI(path), :method => "POST", :data => ""
     end
     Project.free_cache( params[:project], :view => :flagdetails )

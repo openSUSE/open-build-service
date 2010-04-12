@@ -58,39 +58,6 @@ module ProjectHelper
     return ret
   end
 
-  def simple_repo_button_to( label, opt={} )
-    reponame = String.new
-    reponame << BASE_NAMESPACE << ":" if BASE_NAMESPACE
-    reponame << opt[:repo]
-
-    defaults = {
-      :arch => [],
-      :project => @project,
-      :action => :save_target
-    }
-    opt = defaults.merge opt
-
-    btn_to_opt = {
-      :targetname => opt[:reponame],
-      :project => opt[:project],
-      :action => opt[:action]
-    }
-
-    unless reponame == ""
-      btn_to_opt[:platform] = reponame
-    end
-
-    opt[:arch].each do |arch|
-      btn_to_opt["arch[#{arch}]"] = ""
-    end
-
-    if @project and @project.has_element?("repository[@name='#{opt[:reponame]}']")
-      return button_to(label, btn_to_opt, {:disabled => true})
-    else
-      return button_to(label, btn_to_opt)
-    end
-  end
-
   def project_tab(text, opts)
     opts[:project] = @project.to_s
     if @current_action.to_s == opts[:action].to_s

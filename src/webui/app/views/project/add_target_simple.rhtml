@@ -6,19 +6,42 @@
   'Add Repository'
 ]
 -%>
-<h2>Add Repository to Project <%=h @project%></h2>
-<% for group in REPOSITORY_ADD_GROUPS %>
-<h3><%=h group[:name] -%></h3>
-<ul>
-  <% for repos in group[:repositories] %>
-    <li><%= simple_repo_button_to h(repos[:title]),
-                     :reponame => h(repos[:reponame]),
-                         :repo => h(repos[:repo]),
-                         :arch => repos[:arch]
-      %><%= h(repos[:comment]) if repos[:comment] -%>
-      </li>
-  <% end %>
-</ul>
 
+<%= render :partial => "tabs" %>
+
+<h2>Add Repositories to Project <%=h @project%></h2>
+
+<p>Please choose the repositories that your packages will be built for.</p>
+
+<% form_tag( {:action => :save_targets, :project => @project} ) do -%>
+
+  <% for group in REPOSITORY_ADD_GROUPS %>
+    <h3><%=h group[:name] -%></h3>
+
+    <p>
+      <% for repos in group[:repositories] %>
+
+        <% if @project.has_element?("repository[@name='#{repos[:reponame]}']")
+          selected = true
+        else
+          selected = false
+        end -%>
+
+        <span class="nowrap"><%= check_box_tag 'repo[]', h(repos[:reponame]), selected, :disabled => selected -%>
+          <%= hidden_field_tag h(repos[:reponame]) + "_repo", h(repos[:repo]) -%>
+          <% repos[:arch].each do |arch| %>
+            <%= hidden_field_tag h(repos[:reponame]) + "_arch[]", arch -%>
+          <% end %>
+
+          <%= repos[:title] %> <%= "<i>(#{h(repos[:comment])})</i>" if repos[:comment] -%>
+        </span>
+      <% end -%>
+    </p>
+  <% end -%>
+
+  <p>
+    <%= submit_tag 'Add selected repositories' -%>
+  </p>
 <% end %>
+
 <p><%= link_to( "[Advanced]", :action => :add_target, :project => @project ) %></p>
