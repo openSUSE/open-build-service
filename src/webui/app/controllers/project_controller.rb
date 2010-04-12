@@ -383,22 +383,39 @@ class ProjectController < ApplicationController
 
   def save_targets
     params['repo'].each do |repo|
+
+      if !valid_platform_name? repo
+        flash[:error] = "Illegal target name #{repo}."
+        redirect_to :action => :add_target_simple, :project => @project and return
+      end
+
       logger.debug "Adding repo: #{params[repo + '_repo']}, archs: #{params[repo + '_arch']}"
       @project.add_repository :reponame => repo, :platform => params[repo + '_repo'], :arch => params[repo + '_arch']
-    end
-      begin
-        if @project.save
-          flash[:note] = "Build targets were added successfully"
-        else
-          flash[:error] = "Failed to add build targets"
+
+      # FIXME: will be cleaned up after implementing FATE #308899
+      if repo == "images"
+        prjconf = frontend.get_source(:project => @project, :filename => '_config')
+        unless prjconf =~ /^Type:/
+          prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+          frontend.put_file(prjconf, :project => @project, :filename => '_config')
         end
-      rescue ActiveXML::Transport::Error => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
-        flash[:error] = "Failed to add build targets: " + message
       end
-      redirect_to :action => :repositories, :project => @project
+    end
+
+    begin
+      if @project.save
+        flash[:note] = "Build targets were added successfully"
+      else
+        flash[:error] = "Failed to add build targets"
+      end
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = "Failed to add build targets: " + message
+    end
+    redirect_to :action => :repositories, :project => @project
   end
 
+  # TODO merge with save_targets
   def save_target
     platform = params[:platform]
     arch = params[:arch]

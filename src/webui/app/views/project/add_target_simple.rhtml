@@ -11,12 +11,13 @@
 
 <h2>Add Repositories to Project <%=h @project%></h2>
 
-<p>Please choose the repositories that your packages will be built for.</p>
+<p>Please choose the repositories that your packages will be built for. If you need to build for other repositories,
+please choose them from the <%= link_to( "complete", :action => :add_target, :project => @project ) %> list</p>
 
 <% form_tag( {:action => :save_targets, :project => @project} ) do -%>
 
   <% for group in REPOSITORY_ADD_GROUPS %>
-    <h3><%=h group[:name] -%></h3>
+    <h3><%= image_tag( h(group[:icon]), :width => 40 ) if group[:icon] %> <%=h group[:name] -%></h3>
 
     <p>
       <% for repos in group[:repositories] %>
@@ -44,4 +45,3 @@
   </p>
 <% end %>
 
-<p><%= link_to( "[Advanced]", :action => :add_target, :project => @project ) %></p>

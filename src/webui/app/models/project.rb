@@ -115,7 +115,7 @@ class Project < ActiveXML::Base
     return nil if opt == {}
     repository = add_element 'repository', 'name' => opt[:reponame]
 
-    if opt[:platform]
+    if !opt[:platform].blank?
       opt[:platform] =~ /(.*)\/(.*)/;
       repository.add_element 'path', 'project' => $1, 'repository' => $2
     end
