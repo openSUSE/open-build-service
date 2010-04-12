@@ -10,41 +10,44 @@
 <%= render :partial => "tabs" %>
 
 <% if @parent %>
-<div class="section">
-  <h3>Parent project of <%= @project %>:</h3>
-  <p>
-  <%= link_to @parent, :action => :show, :project => @parent %>
-  <% if @parent.title && !@parent.title.text.blank? %>
-    <i>(<%= @parent.title  %>)</i>
-    <% end %>
-  </p>
-</div>
-<p/>
+  <div class="section">
+    <h3>Parent project of <%= @project %>:</h3>
+    <p>
+      <%= link_to @parent, :action => :show, :project => @parent %>
+      <% if @parent.title && !@parent.title.text.blank? %>
+        <i>(<%= @parent.title  %>)</i>
+      <% end %>
+    </p>
+  </div>
+  <p/>
 <% end %>
 
 <div class="section">
-  <h3>Subprojects of <%= @project %>
-    <% if @project.is_maintainer?( session[:login] ) %>
-      <%= link_to(image_tag("list-add.png", :title => "Create Subproject", :border => 0), :action => :new, :ns => @project.name) %>
-    <% end -%>:</h3>
+  <h3>Subprojects of <%= @project %>:</h3>
+  <% if @project.is_maintainer?( session[:login] ) %>
+    <p>
+      <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new %>
+      <%= link_to 'Create a new subproject', :controller => :project, :action => :new, :ns => @project.name %>
+    </p>
+  <% end -%>
 
   <p>
-      <% prjlen = @project.name.length %>
-      <%- if !@subprojects.blank? -%>
-        <ul>
-        <%- @subprojects.each do |key, value| -%>
-          <li><%= link_to key.slice(prjlen+1, key.length), :action => :show, :project => key %>
-            <% if value.title && !value.title.text.blank? %>
-              <i>(<%= value.title  %>)</i>
-            <% else %>
-              <i>(no title set)</i>
-            <% end %>
-          </li>
-        <%- end -%>
-        </ul>
-      <%- else -%>
-        <i>No subprojects found</i>
+    <% prjlen = @project.name.length %>
+    <%- if !@subprojects.blank? -%>
+    <ul>
+      <%- @subprojects.each do |key, value| -%>
+        <li><%= link_to key.slice(prjlen+1, key.length), :action => :show, :project => key %>
+          <% if value.title && !value.title.text.blank? %>
+            <i>(<%= value.title  %>)</i>
+          <% else %>
+            <i>(no title set)</i>
+          <% end %>
+        </li>
       <%- end -%>
-  </p>
+    </ul>
+  <%- else -%>
+    <i>No subprojects found</i>
+  <%- end -%>
+</p>
 </div>
 

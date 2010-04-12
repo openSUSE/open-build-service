@@ -34,6 +34,12 @@
           <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete Project'),
             :url => { :action => :delete, :project => @project.name } ) %>
         </span>
+        <span>
+          <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
+        </span>
+        <span>
+          <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
+        </span>
       <% end %>
 
       <% if @project.bugowner and BUGZILLA_HOST  -%>
@@ -43,11 +49,6 @@
         </span>
       <% end -%>
 
-      <% if @project.is_maintainer?( session[:login] ) %>
-        <span>
-          <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
-        </span>
-      <% end -%>
     </p>
   </span>
 
@@ -71,8 +72,10 @@
     <% if @problem_packages > 0 %>
       <div><p>There are <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
           packages of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
-    <% else %>
+    <% elsif @packages.each.size > 0 %>
       <p>All <%= @packages.each.size %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
+    <% else %>
+      <p>This project does not have any <%= link_to 'packages', :action => :packages, :project => @project %> yet.</p>
     <% end %>
   </div>
 </div>
