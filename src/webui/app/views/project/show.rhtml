@@ -72,7 +72,7 @@
       <div><p>There are <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
           packages of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
     <% else %>
-      All <%= @packages.each.size %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.
+      <p>All <%= @packages.each.size %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
     <% end %>
   </div>
 </div>
