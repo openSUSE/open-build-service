@@ -6,12 +6,12 @@
 <% end %>
 
 <% content_for :ready_function do %>
-   dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
-   dp.SyntaxHighlighter.HighlightAll('code'); 
-<% if @user %>
-     $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
-     $("#editlink").attr("href", "<%= url_for(:action => :edit_prjconf, :project => @project) %>");
-<% end %>
+  dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+  dp.SyntaxHighlighter.HighlightAll('code');
+  <% if @user %>
+    $(".dp-highlighter .tools:first").prepend("<a id='editlink' href='#'>edit</a>");
+    $("#editlink").attr("href", "<%= url_for(:action => :edit_prjconf, :project => @project) %>");
+  <% end %>
 <% end %>
 
 <%
@@ -26,6 +26,20 @@
 
 <h2>Project Config for <%=h @project %></h2>
 
-<pre id="code" class="prjconf">
-<%=h @config%>
-</pre>
+<% if @config.blank? %>
+
+  <p>This project does not have a custom
+    <% if @project.is_maintainer?( session[:login] ) %>
+      <%= link_to 'project configuration', :controller => 'project', :action => :edit_prjconf, :project => @project %>
+    <% else %>
+      project configuration
+    <% end %>
+    .</p>
+
+<% else %>
+
+  <pre id="code" class="prjconf">
+    <%=h @config%>
+  </pre>
+
+<% end %>
