@@ -285,6 +285,7 @@ class PackageController < ApplicationController
     begin
       FrontendCompat.new.delete_package :project => @project, :package => @package
       flash[:note] = "Package '#{@package}' was removed successfully from project '#{@project}'"
+      Rails.cache.delete("%s_packages_mainpage" % @project)
     rescue Object => e
       flash[:error] = "Failed to remove package '#{@package}' from project '#{@project}': #{e.message}"
     end

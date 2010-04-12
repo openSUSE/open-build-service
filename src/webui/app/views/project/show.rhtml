@@ -16,7 +16,7 @@
 
 <div id="show_left" class="grid_9 box">
 
-  <h2 style="display: inline"><%=h @project.title %> (<%=h @project -%>)</h2>
+  <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
 
   <span style="float: right">
     <p>

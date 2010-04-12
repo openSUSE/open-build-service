@@ -8,12 +8,13 @@
     <div class="box-header centered">
       Main Projects
     </div>
-    <% for project in @important_projects -%>
-      <%= link_to project.name, :action => :show, :project => project %> 
-    <% end -%>
+    <p>
+      <% for project in @important_projects -%>
+        <%= link_to project.name, :action => :show, :project => project %>
+      <% end -%>
+    </p>
   <% end %>
 
-  <p/><p/><div class="clear"></div>
 
   <div class="box-header centered">
     All <%= 'Public' if !@excludefilter.blank? %> Projects
