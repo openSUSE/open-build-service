@@ -51,6 +51,11 @@
             <% end -%>
           </tr>
         <% end -%>
+
+        <% if @buildresult.blank? %>
+          <i>No build result available</i>
+        <% end %>
+
       </table>
 
     <% end -%>
