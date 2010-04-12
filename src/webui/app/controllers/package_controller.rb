@@ -213,6 +213,7 @@ class PackageController < ApplicationController
     @package.description.text = params[:description]
     if @package.save
       flash[:note] = "Package '#{@package}' was created successfully"
+      Rails.cache.delete("%s_packages_mainpage" % @project)
       redirect_to :action => 'show', :project => params[:project], :package => params[:name]
     else
       flash[:note] = "Failed to create package '#{@package}'"
@@ -262,6 +263,7 @@ class PackageController < ApplicationController
         :package => @target_package, :linked_project => @linked_project, :linked_package => @linked_package )
       link.save
       flash[:note] = "Successfully linked package '#{@linked_package}'"
+      Rails.cache.delete("%s_packages_mainpage" % @project)
       redirect_to :controller => 'project', :action => 'show', :project => params[:project]
     end
   end
