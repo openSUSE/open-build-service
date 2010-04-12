@@ -27,8 +27,6 @@ FRONTEND_PROTOCOL = 'https'
 BUGZILLA_HOST = nil
 DOWNLOAD_URL = nil
 
-BASE_NAMESPACE = nil
-
 # If ICHAIN_HOST is set to "simulate", iChain is simulated in the
 # way that the ichain header entry is set to the value specified
 # in the ICHAIN_TEST_USER variable here below.

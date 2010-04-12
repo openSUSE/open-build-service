@@ -43,4 +43,3 @@ DOWNLOAD_URL = nil
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
 ICHAIN_MODE = "off"
 
-BASE_NAMESPACE = nil
