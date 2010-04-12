@@ -1,27 +1,32 @@
 <table title="Repositories" class="repostatus">
-    <% @buildresult.each do |repo, archarray| %>
-       <% index = 0
-          srepo = truncate(repo, :length => 19)
-          archarray.each do |arch, counts| -%>
-       <tr class="target">
-       <% if index == 0 %>
+  <% @buildresult.each do |repo, archarray| %>
+    <% index = 0
+    srepo = truncate(repo, :length => 19)
+    archarray.each do |arch, counts| -%>
+      <tr class="target">
+        <% if index == 0 %>
           <td class="repo" valign="top" rowspan="<%= archarray.length %>">
-             <strong><%= link_to h(srepo), repo_url( @project, repo ), :title => repo -%></strong>
+            <strong><%= link_to h(srepo), repo_url( @project, repo ), :title => repo -%></strong>
           </td>
           <% index += 1 %>
-       <% end %>
-       <td valign="top" class="arch">
-	 <div class="nowrap" style="margin: 0 0.5ex">
-	     <%= image_tag(repo_status_icon(repo, arch), :size => "16x16", :style => "margin-bottom: -3px") %> <%= h(arch) %>
-         </div>
-       </td>
-       <td class="codes"><% counts.each do |code, count| -%>
-          <div class="nowrap">
-             <%= link_to("#{code.gsub("expansion error", "exp. error")}:&nbsp;#{count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0) -%>
+        <% end %>
+        <td valign="top" class="arch">
+          <div class="nowrap" style="margin: 0 0.5ex">
+            <%= image_tag(repo_status_icon(repo, arch), :size => "16x16", :style => "margin-bottom: -3px") %> <%= h(arch) %>
           </div>
+        </td>
+        <td class="codes"><% counts.each do |code, count| -%>
+            <div class="nowrap">
+              <%= link_to("#{code.gsub("expansion error", "exp. error")}:&nbsp;#{count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0) -%>
+            </div>
           <% end -%></td>
-       </tr>
-       <% end %>
+      </tr>
     <% end %>
+  <% end %>
+
+
+  <% if @buildresult.blank? %>
+    <i>No build result available</i>
+  <% end %>
 </table>
 
