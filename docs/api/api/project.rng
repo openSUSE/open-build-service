@@ -52,7 +52,7 @@
         <data type="string" />
       </attribute>
     </element>
-  </defined>
+  </define>
 
   <define name="project-element">
     <element>
