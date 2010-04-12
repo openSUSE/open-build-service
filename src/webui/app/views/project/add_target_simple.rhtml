@@ -11,8 +11,7 @@
 
 <h2>Add Repositories to Project <%=h @project%></h2>
 
-<p>Please choose the repositories that your packages will be built for. If you need to build for other repositories,
-please choose them from the <%= link_to( "complete", :action => :add_target, :project => @project ) %> list</p>
+<p>Please choose the repositories that your packages will be built for.</p>
 
 <% form_tag( {:action => :save_targets, :project => @project} ) do -%>
 
@@ -45,3 +44,55 @@ please choose them from the <%= link_to( "complete", :action => :add_target, :pr
   </p>
 <% end %>
 
+
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.autocomplete.pack' %>
+  <%= stylesheet_link_tag 'jquery.autocomplete' %>
+<% end %>
+
+<% content_for :ready_function do %>
+  $(document).ready(function(){
+    $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
+      { minChars: 2, matchCase: true, max: 100 } );
+
+    $('#target_project').result(function(event, data, formatted) {
+      if (data) {
+        $('#target_repo').html('');
+        $.ajax({ url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>', 
+                 data: {project: $("#target_project").attr('value')},
+                 success: function(data){
+                   $('#target_repo').removeAttr('disabled');
+                   $.each(data.split('\n'), function(idx, val) {
+                     $('#target_repo').append( new Option( val ) );
+                   });
+      }});
+      }
+    });
+  });
+<% end -%>
+
+<div class="clear"></div>
+<h2>Advanced search for build targets</h2>
+
+<% form_tag( {:action => :save_targets, :project => @project} ) do -%>
+  <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %>
+  <i>(gets auto-completed)</i></p>
+  <p><strong>Repository: </strong>
+  <%= select_tag "target_repo", "", :id => 'target_repo', :disabled => true %></p>
+  <p><strong>New name: </strong><%= text_field_tag 'repo', '', :size => 40, :id => 'repo_name' %></p>
+
+  <p><strong>Architectures: </strong>
+    <% [:i586, :x86_64 ].each do |arch| %>
+      <%= check_box_tag "arch[#{arch}]", "", true %><%=arch%>
+    <% end %>
+    <% [:ppc, :ppc64, :armv4l, :armv5el, :armv7el, :sh4 ].each do |arch| %>
+      <%= check_box_tag "arch[#{arch}]", "", false %><%=arch%>
+    <% end %>
+  </p>
+
+  <p>
+    <%= submit_tag "Add repository" %>
+  </p>
+
+<% end-%>

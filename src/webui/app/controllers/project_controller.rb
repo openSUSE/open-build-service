@@ -15,7 +15,7 @@ class ProjectController < ApplicationController
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes,
-    :meta, :edit_meta, :edit_comment, :change_flag, :save_targets ]
+    :meta, :edit_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
 
   before_filter :load_current_requests, :only => [:delete, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
@@ -58,6 +58,11 @@ class ProjectController < ApplicationController
   def autocomplete_projects
     get_filtered_projectlist params[:q], ''
     render :text => @projects.map{|p| p.name}.join("\n")
+  end
+
+  def autocomplete_repositories
+    @repos = @project.repositories
+    render :text => @repos.join("\n")
   end
 
   def get_filtered_projectlist(filterstring, excludefilter='')
@@ -339,58 +344,22 @@ class ProjectController < ApplicationController
     redirect_to :action => :show, :project => @project
   end
 
-  def add_target
-    @platforms = Platform.find( :all ).each_entry.map {|p| p.name.to_s}
-
-    #TODO: don't hardcode
-    @priority_namespaces = %{
-      Mandriva
-      openSUSE
-      SUSE
-      RedHat
-      Fedora
-      Debian
-      Ubuntu
-    }
-
-    def @priority_namespaces.include_ns?(projname)
-      nslist = projname.split(/:/)
-      return false if nslist.length < 2
-      return false unless self.include? nslist[0]
-      return true
-    end
-
-    @platforms.sort! do |a,b|
-      if @priority_namespaces.include_ns? a
-        if @priority_namespaces.include_ns? b
-          a.downcase <=> b.downcase
-        else
-          -1
-        end
-      else
-        if @priority_namespaces.include_ns? b
-          1
-        else
-          a.downcase <=> b.downcase
-        end
-      end
-    end
-
-    @project = params[:project]
-    @targetname = params[:targetname]
-    @platform = params[:platform]
-  end
 
   def save_targets
-    params['repo'].each do |repo|
+    if (params['repo'].blank?)
+        flash[:error] = "Please select a repository."
+        redirect_to :action => :add_target_simple, :project => @project and return
+    end
 
+    params['repo'].each do |repo|
       if !valid_platform_name? repo
         flash[:error] = "Illegal target name #{repo}."
         redirect_to :action => :add_target_simple, :project => @project and return
       end
-
-      logger.debug "Adding repo: #{params[repo + '_repo']}, archs: #{params[repo + '_arch']}"
-      @project.add_repository :reponame => repo, :platform => params[repo + '_repo'], :arch => params[repo + '_arch']
+      repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
+      repo_archs = params[repo + '_arch'] || params['arch']
+      logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
+      @project.add_repository :reponame => repo, :platform => repo_path, :arch => repo_archs
 
       # FIXME: will be cleaned up after implementing FATE #308899
       if repo == "images"
@@ -415,43 +384,6 @@ class ProjectController < ApplicationController
     redirect_to :action => :repositories, :project => @project
   end
 
-  # TODO merge with save_targets
-  def save_target
-    platform = params[:platform]
-    arch = params[:arch]
-    targetname = params[:targetname]
-    targetname = "standard" if targetname.blank?
-
-    if !valid_platform_name? targetname
-      flash[:error] = "Illegal target name."
-      redirect_to :action => :add_target, :project => @project, :targetname => targetname, :platform => platform
-      return
-    end
-
-    @project.add_repository :reponame => targetname, :platform => platform, :arch => arch
-
-    # FIXME: will be cleaned up after implementing FATE #308899
-    if targetname == "images"
-      prjconf = frontend.get_source(:project => @project, :filename => '_config')
-      unless prjconf =~ /^Type:/
-        prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-        frontend.put_file(prjconf, :project => @project, :filename => '_config')
-      end
-    end
-
-    begin
-      if @project.save
-        flash[:note] = "Target '#{platform}' was added successfully"
-      else
-        flash[:error] = "Failed to add target '#{platform}'"
-      end
-    rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = "Failed to add target '#{platform}' " + message
-    end
-
-    redirect_to :action => :repositories, :project => @project
-  end
 
   def remove_target
     if not params[:target]
