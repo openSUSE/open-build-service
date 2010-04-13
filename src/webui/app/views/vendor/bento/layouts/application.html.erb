@@ -35,8 +35,6 @@
 
   <body>
 
-    <div id="dialog_wrapper" style="display: none"></div>
-
     <%= render :partial => 'layouts/header' %>
 
     <div id="subheader" class="container_16">
@@ -53,6 +51,9 @@
     </div>
 
     <%= render(:partial => "layouts/flash", :object => flash) %>
+
+    <!-- this is needed for the delete confirm dialogues -->
+    <div id="dialog_wrapper" style="display: none"></div>
 
     <!-- Start: Main Content Area -->
     <div id="content" class="container_16 content-wrapper">

@@ -120,14 +120,6 @@
   background: transparent url(/css/local/images/darkgrey_box/bottom_left_corner.png) no-repeat scroll right top;
 }
 
-.dialog .buttons {
-  padding: 2%;
-  position: absolute;
-  width: 96%;
-  bottom: 1em;
-  height: 2em;
-}
-
 .dialog .buttons a {
   padding: 3px 1ex;
   /*padding-left: 1ex;*/

@@ -1,44 +1,28 @@
 <div id="dialog_wrapper">
-  <div class="dialog" id="disable_mask"></div>
-  <div class="dialog darkgrey_box" id="confirm_dialog">
-    <div class="box_top_row">
-      <div class="box_left"></div>
-      <div  class="box_middle"></div>
-      <div class="box_right"></div>
+
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box" id="del_dialog">
+  <div class="box box-shadow">
+    <div class="box-header centered">
+      Confirmation
     </div>
-    <div class="box_title_row">
-      <div class="box_title">Confirmation</div>
-    </div>
-    <div class="box_content">
-        <table>
-          <tr>
-            <td>
-              <%=@message%>
-            </td>
-          </tr>
-        </table>
-            <div class="buttons">
-        <%
-        logger.debug buttons
-buttons.each do |but|
-  case but[1]
-  when :abort
-  %><%=link_to_function but[0], 'remove_dialog()'%><%
-  else
-  %><%=link_to_remote but[0], but[1]%><%
-  end
-end
-%>
-        <%=  %>
-      </div>
-    </div>
-    <div class="box_bottom_row">
-      <div class="box_title_row box_footer_row">
-        <div class="box_title"></div>
-      </div>
-      <div class="box_left"></div>
-      <div  class="box_middle"></div>
-      <div class="box_right"></div>
-    </div>
+
+    <p><%=@message%></p>
+
+    <p><div class="centered buttons">
+      <%
+      buttons.each do |but|
+        case but[1]
+        when :abort
+        %><%= link_to_function but[0], 'remove_dialog()'%> <%
+        else
+        %><%= link_to_remote but[0], but[1]%><%
+        end
+      end
+    %></div>
+    </p>
+
+
   </div>
-</div>
+
+</div></div>

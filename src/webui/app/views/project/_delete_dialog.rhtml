@@ -1,40 +1,32 @@
 <div id="dialog_wrapper">
-  <div class="dialog" id="disable_mask"></div>
-  <div class="dialog darkgrey_box" id="del_dialog">
-    <div class="box_top_row">
-      <div class="box_left"></div>
-      <div  class="box_middle"></div>
-      <div class="box_right"></div>
+
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box" id="del_dialog">
+  <div class="box box-shadow">
+    <div class="box-header centered">
+      Confirmation
     </div>
-    <div class="box_title_row">
-      <div class="box_title">Confirmation</div>
-    </div>
-    <div class="box_content heigh17em">
-        <h3>Following repositories use this project:</h3>
-       <div id="list_usedrepo"> 
-          <ul>
+
+    <p>The following repositories use this project:</p>
+    <p>
+    <ul>
       <% @repos.each do |repo| -%>
-        <li><%=repo%></li>
+        <% project = repo[0..repo.index('/')-1] %>
+        <li><%= link_to project, :controller => :project, :action => :show, :project => project %><%= repo[repo.index('/')..repo.length] %></li>
       <% end %>
-      </ul>
-    </div>
-<!-- Delete Anyway -->
-       <div class="buttons">
-    <%= link_to_remote 'Delete',
-      :url => {:action => :delete, :project => @project.name, :force => 1, :confirmed => 1},
-      :loading => 'hide_dialog()',
-      :complete => 'remove_dialog()'
+    </ul>
+    </p>
+
+    <p><div class="centered buttons">
+      <%= link_to_remote 'Delete',
+        :url => {:action => :delete, :project => @project.name, :force => 1, :confirmed => 1},
+        :loading => 'hide_dialog()',
+        :complete => 'remove_dialog()'
     %>
-    <%= link_to_function 'Abort', 'remove_dialog()' %>
-      </div>
+      <%= link_to_function 'Abort', 'remove_dialog()' %>
     </div>
-    <div class="box_bottom_row">
-      <div class="box_title_row box_footer_row">
-        <div class="box_title"></div>
-      </div>
-      <div class="box_left"></div>
-      <div  class="box_middle"></div>
-      <div class="box_right"></div>
-    </div>
+    </p>
+
   </div>
-</div>
+
+</div></div>
