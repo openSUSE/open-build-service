@@ -44,19 +44,21 @@ end -%>
         <td><!-- <%= reqtype(req)  %> -->
           <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.method_missing(:id) -%>
         </td>
+          <td>
+            <% action_elem = req.submit if req.has_element? :submit %>
+            <% action_elem = req.action if req.has_element? :action %>
+            <%= if action_elem.has_element? :source
+              "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
+                package_link(action_elem.source.project, action_elem.source.package)
+            elsif reqtype(req) == "delete"
+              "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
+                package_link(action_elem.target.project, action_elem.target.package)
+            end -%>
+          </td>
         <td>
-          <%= if req.action.has_element? :source
-            "<!-- " + req.action.source.project + "/" + req.action.source.package + "-->" +
-              package_link(req.action.source.project, req.action.source.package)
-          elsif reqtype(req) == "delete"
-            "<!-- " + req.action.target.project + "/" + req.action.target.package + "-->" +
-              package_link(req.action.target.project, req.action.target.package)
-          end -%>
-        </td>
-        <td>
-          <%= if req.action.has_element? :target and reqtype(req) != "delete"
-            "<!-- " + req.action.target.project + "/" + req.action.target.package + "-->" +
-              package_link(req.action.target.project, req.action.target.package, true)
+          <%= if action_elem.has_element? :target and reqtype(req) != "delete"
+            "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
+              package_link(action_elem.target.project, action_elem.target.package, true)
           end -%>
         </td>
         <td class="nowrap">
