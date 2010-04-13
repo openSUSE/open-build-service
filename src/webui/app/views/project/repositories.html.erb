@@ -9,7 +9,7 @@
 
 <h3>
   Repositories <%= if @user
-    link_to(image_tag("list-add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project)
+    link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project)
   end %>
 </h3>
 <% if @project.has_element? :repository %>
@@ -19,10 +19,17 @@
     <% @project.each_repository do |repo| %>
       <tr>
         <td>
-          <strong><%= link_to h(repo.name), :controller => 'platform', :action => 'show', :name => repo.name, :project => @project %></strong><br/>
+          <strong><%= link_to h(repo.name), :controller => 'platform', :action => 'show', :name => repo.name, :project => @project %></strong>
+          <i>(<%= repo.each_arch.join(", ") %>)</i>
+
+          <br/>
           <% begin -%>
             <% repo.each_path do |path| -%>
-              <%=h path.project+"/"+path.repository %><br/>
+              <% if path.project == 'deleted' %>
+                <%= image_tag 'icons/exclamation.png' %> Target repository has been removed
+              <% else %>
+                <%=h path.project + "/" + path.repository %><br/>
+              <% end %>
             <% end -%>
           <% rescue; end %>
         </td>
@@ -30,7 +37,7 @@
           <td>
             <%= link_to "[Edit]", :update => repo.name,
               :url => {:action => :TODO_edit_target, :project => @project, :repo => repo.name}
-            link_to "[Remove]", {:action => :remove_target, :project => @project, :target => repo.name},
+            link_to image_tag('icons/drive_delete.png'), {:action => :remove_target, :project => @project, :target => repo.name},
               {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} -%>
           </td>
         <% end %>
