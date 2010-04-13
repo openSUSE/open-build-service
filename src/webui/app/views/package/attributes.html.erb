@@ -12,7 +12,7 @@
 
 <% if @project.has_element? :remoteurl -%>
 <h3>Remote OBS Instance:</h3>
-<%= @project.remoteurl %><p>
+<p><%= @project.remoteurl %></p>
 <% end -%>
 
 <%= render :partial => 'url' %>

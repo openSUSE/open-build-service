@@ -1,5 +1,8 @@
 <% if session[:login] %>
-  <%= link_to "[Add a new attribute] "+image_tag('list-add.png', :alt => "Add attribute", :title => "Add attribute"), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package  %>
+  <p>
+    <%= link_to image_tag('icons/note_add.png'), :controller => "attribute", :action => "edit", :project => @project.name, :package => @package  %> 
+    <%= link_to "Add a new attribute", :controller => "attribute", :action => "edit", :project => @project.name, :package => @package  %>
+  </p>
 <% end %>
 <% if @attributes.nil? || !@attributes.has_elements?  %>
 
