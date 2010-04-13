@@ -8,12 +8,15 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
-    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency]
+    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, 
+    :binary, :dependency, :branch]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :update_flag, :view_file, 
-    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency]
+    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, :branch]
   before_filter :check_user, :only => [:users, :binary]
+  before_filter :require_login, :only => [:branch]
+
 
   def fill_email_hash
     @email_hash = Hash.new
@@ -195,6 +198,7 @@ class PackageController < ApplicationController
 
 
   def save_new
+    valid_http_methods(:post)
     @package_name = params[:name]
     @package_title = params[:title]
     @package_description = params[:description]
@@ -221,8 +225,27 @@ class PackageController < ApplicationController
     end
   end
 
+  def branch
+    valid_http_methods(:post)
+    begin
+      path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=branch"
+      result = XML::Document.string frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
+      result_project = result.find_first( "/status/data[@name='targetproject']" ).content
+      result_package = result.find_first( "/status/data[@name='targetpackage']" ).content
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :controller => 'package', :action => 'show',
+        :project => params[:project], :package => params[:package] and return
+    end
+    flash[:success] = "Branched package #{@project} / #{@package}"
+    redirect_to :controller => 'package', :action => 'show',
+      :project => result_project, :package => result_package and return
+  end
+
   
   def save_new_link
+    valid_http_methods(:post)
     @linked_project = params[:linked_project].strip
     @linked_package = params[:linked_package].strip
     @target_package = params[:target_package].strip

@@ -346,6 +346,7 @@ class ProjectController < ApplicationController
 
 
   def save_targets
+    valid_http_methods :post
     if (params['repo'].blank?)
         flash[:error] = "Please select a repository."
         redirect_to :action => :add_target_simple, :project => @project and return
@@ -386,6 +387,7 @@ class ProjectController < ApplicationController
 
 
   def remove_target
+    valid_http_methods :post
     if not params[:target]
       flash[:error] = "Target removal failed, no target selected!"
       redirect_to :action => :show, :project => params[:project]

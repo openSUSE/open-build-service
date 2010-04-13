@@ -38,7 +38,7 @@
             <%= link_to "[Edit]", :update => repo.name,
               :url => {:action => :TODO_edit_target, :project => @project, :repo => repo.name}
             link_to image_tag('icons/drive_delete.png'), {:action => :remove_target, :project => @project, :target => repo.name},
-              {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x'} -%>
+              {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x', :method => :post} -%>
           </td>
         <% end %>
 

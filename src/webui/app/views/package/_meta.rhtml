@@ -2,7 +2,7 @@
 
   <h2 style="display: inline"><%=h @package %></h2>
 
-  <span style="float: right">
+  <span style="float: right" >
     <p>
       <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
         <span>
@@ -14,12 +14,19 @@
         </span>
       <% end %>
 
+      <% if session[:login] %>
+        <span>
+          <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch package'), {:action => :branch, :project => @project, :package => @package},
+          { :method => :post }%>
+        </span>
+      <% end %>
+
       <% if @bugowner_mail and BUGZILLA_HOST %>
         <span>
           <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "[#{@project.name}/#{@package.name}]") %>
         </span>
-
       <% end %>
+
     </p>
   </span>
 
