@@ -2455,7 +2455,7 @@ sub rebuildkiwiproduct {
   my @bprps = @{$prpsearchpath{"$projid/$repoid"} || []};
   @bprps = @aprps unless @bprps;
   my $searchpath = [];
-  for (unify(@brprs, @aprps)) {
+  for (unify(@bprps, @aprps)) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
       push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
