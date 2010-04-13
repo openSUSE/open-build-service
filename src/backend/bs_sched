@@ -2206,11 +2206,13 @@ sub checkkiwiproduct {
   delete $deps{''};
 
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+  my @bprps = @{$prpsearchpath{"$projid/$repoid"} || []};
+  @bprps = @aprps unless @bprps;
 
   # get config from path
-  my $bconf = getconfig($myarch, \@aprps);
+  my $bconf = getconfig($myarch, \@bprps);
   if (!$bconf) {
-    print "      - $packid (kiwi-image)\n";
+    print "      - $packid (kiwi-product)\n";
     print "        no config\n";
     return ('broken', 'no config');
   }
@@ -2230,8 +2232,6 @@ sub checkkiwiproduct {
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
 
-    my @bprps = @{$prpsearchpath{"$projid/$repoid"} || []};
-    @bprps = @aprps unless @bprps;
     for my $aprp (@bprps) {
       $myarch = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
       $repodatas{$aprp} = {'dontwrite' => 1} if $myarch ne $savemyarch;
@@ -2239,7 +2239,7 @@ sub checkkiwiproduct {
       delete $repodatas{$aprp} if $myarch ne $savemyarch;
       $myarch = $savemyarch;
       if (!$r) {
-	print "      - $packid (kiwi-image)\n";
+	print "      - $packid (kiwi-product)\n";
 	print "        repository $aprp is unavailable";
 	return ('broken', "repository $aprp is unavailable");
       }
@@ -2452,14 +2452,16 @@ sub rebuildkiwiproduct {
   my $mytime = time(); # ensure that we use the same time in all logs
 
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+  my @bprps = @{$prpsearchpath{"$projid/$repoid"} || []};
+  @bprps = @aprps unless @bprps;
   my $searchpath = [];
-  for (@aprps) {
+  for (unify(@brprs, @aprps)) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
       push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
     } else {
       push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
-    }    
+    }
   }
 
   my @bdeps;
