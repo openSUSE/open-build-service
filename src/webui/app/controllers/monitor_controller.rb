@@ -153,7 +153,7 @@ class MonitorController < ApplicationController
     set = params[:set]
     range = params[:range]
     cache_key = "monitor_plot_#{set}_#{range}"
-    data = Rails.cache.fetch(cache_key, :expires_in => range.to_i * 1800, :raw => true) do
+    data = Rails.cache.fetch(cache_key, :expires_in => (range.to_i * 3600) / 150, :raw => true) do
       plothistory_data(set, range.to_i)
     end
     if data && data.respond_to?( 'bytesize' )
