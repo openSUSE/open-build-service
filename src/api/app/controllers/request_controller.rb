@@ -507,13 +507,15 @@ class RequestController < ApplicationController
                 #replace links to this projects with links to the "deleted" project
                 del_repo = DbProject.find_by_name("deleted").repositories[0]
                 lreps.each do |link_rep|
-                  pe = link_rep.path_elements.find(:first, :include => ["link"], :conditions => ["db_project_id = ?", pro.id])
-                  pe.link = del_repo
-                  pe.save
-                  #update backend
-                  link_prj = link_rep.db_project
-                  logger.info "updating project '#{link_prj.name}'"
-                  Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+                  link_rep.path_elements.find(:all, :include => ["link"]) do |pe|
+                    next unless Repository.find_by_id(pe.repository_id).db_project_id == source_project.id
+                    pe.link = del_repo
+                    pe.save
+                    #update backend
+                    link_prj = link_rep.db_project
+                    logger.info "updating project '#{link_prj.name}'"
+                    Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+                  end
                 end
               end
 
