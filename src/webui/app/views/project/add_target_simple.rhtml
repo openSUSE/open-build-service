@@ -64,12 +64,19 @@
                  data: {project: $("#target_project").attr('value')},
                  success: function(data){
                    $('#target_repo').removeAttr('disabled');
+                   // suggest a name:
+                   $('#repo_name').attr('value', $("#target_project").attr('value').replace(':','_') + '_' + data.split('\n').shift());
                    $.each(data.split('\n'), function(idx, val) {
                      $('#target_repo').append( new Option( val ) );
                    });
-      }});
+        }});
       }
     });
+
+    $('#target_repo').change(function() {
+      $('#repo_name').attr('value', $("#target_project").attr('value').replace(':','_') + '_' + $(this).val());
+    });
+
   });
 <% end -%>
 
