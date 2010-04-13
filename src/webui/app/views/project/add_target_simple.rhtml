@@ -48,13 +48,14 @@
 
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.autocomplete.pack' %>
+  <%= javascript_include_tag 'jquery.ajaxmanager' %>
   <%= stylesheet_link_tag 'jquery.autocomplete' %>
 <% end %>
 
 <% content_for :ready_function do %>
   $(document).ready(function(){
     $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
-      { minChars: 2, matchCase: true, max: 100 } );
+      { minChars: 2, matchCase: false, max: 100, cacheLength: 10, matchSubset: true, matchContains: true, delay: 400 } );
 
     $('#target_project').result(function(event, data, formatted) {
       if (data) {
@@ -86,7 +87,7 @@
     <% [:i586, :x86_64 ].each do |arch| %>
       <%= check_box_tag "arch[#{arch}]", "", true %><%=arch%>
     <% end %>
-    <% [:ppc, :ppc64, :armv4l, :armv5el, :armv7el, :sh4 ].each do |arch| %>
+    <% [:ppc, :ppc64, :armv4l, :armv5el, :armv7el, :sh4, :sparcv9, :sparc64 ].each do |arch| %>
       <%= check_box_tag "arch[#{arch}]", "", false %><%=arch%>
     <% end %>
   </p>
