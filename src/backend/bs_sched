@@ -2257,7 +2257,9 @@ sub checkkiwiproduct {
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
 
-    for my $aprp (@aprps) {
+    my @bprps = @{$prpsearchpath{"$projid/$repoid"} || []};
+    @bprps = @aprps unless @bprps;
+    for my $aprp (@bprps) {
       $myarch = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
       $repodatas{$aprp} = {'dontwrite' => 1} if $myarch ne $savemyarch;
       my $r = addrepo($pool, $aprp);
