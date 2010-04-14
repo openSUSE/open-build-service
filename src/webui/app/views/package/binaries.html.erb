@@ -13,7 +13,7 @@
 
 <% @buildresult.data.find( 'result').each do |result| %>
 
-  <h3>Architecture: <%= result.attributes['arch'] %>, State: <%= result.find('status').first.attributes['code'] %></h3>
+  <h3>Architecture: <%= result.attributes['arch'] %>, State: <%= result.find('status').first.attributes['code'] %> <%= repo_status_icon result.find('status').first.attributes['code'] %></h3>
 
   <ul>
     <% result.find( 'binarylist/binary' ).each do |binary| %>

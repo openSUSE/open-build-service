@@ -19,7 +19,7 @@
           <% end %>
           <td valign="top" class="arch">
             <div class="nowrap" style="margin: 0 0.5ex">
-              <%= image_tag(repo_status_icon(repo, arch), :size => "16x16", :style => "margin-bottom: -3px") %> <%= h(arch) %>
+              <%= repo_status_icon @repostatushash[repo][arch] %> <%= h(arch) %>
             </div>
           </td>
           <td class="codes"><% counts.each do |code, count| -%>

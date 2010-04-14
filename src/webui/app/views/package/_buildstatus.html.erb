@@ -43,7 +43,7 @@
               <% end -%>
               <td class="arch">
                 <div class="nowrap" style="margin: 0 0.5ex">
-                  <%= image_tag(repo_status_icon(r, a), :size => "16x16", :style => "margin-bottom: -3px") %> <%= h(a) %>
+                  <%= repo_status_icon @repostatushash[r][a] %> <%= h(a) %>
                 </div>
               </td>
               <%= arch_repo_table_cell r, a, @package.name %>

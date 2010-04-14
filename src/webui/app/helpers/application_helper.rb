@@ -218,8 +218,9 @@ module ApplicationHelper
     return out + "</td>"
   end
 
-  def repo_status_icon( repo, arch )
-    case @repostatushash[repo][arch]
+  
+  def repo_status_icon( status )
+    icon = case status
     when "published" then "icons/lorry.png"
     when "outdated_published" then "icons/lorry_delete.png"
     when "unpublished" then "icons/lorry_flatbed.png"
@@ -233,7 +234,9 @@ module ApplicationHelper
     when "broken" then "icons/exclamation.png"
     else "icons/eye.png"
     end
+    image_tag icon, :size => "16x16", :title => status
   end
+
 
   def flag_status(flags, repo, arch)
     image = nil
