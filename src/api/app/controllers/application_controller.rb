@@ -220,14 +220,7 @@ class ApplicationController < ActionController::Base
     response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
   end
 
-  def volley(path)
-    if CONFIG['use_lighttpd_x_rewrite']
-      logger.debug "[backend] VOLLEY(light): #{path}"
-      headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = SOURCE_HOST
-      head(200)
-      return
-    end
+  def forward_from_backend(path)
     logger.debug "[backend] VOLLEY: #{path}"
     backend_http = Net::HTTP.new(SOURCE_HOST, SOURCE_PORT)
     backend_http.read_timeout = 1000
@@ -235,29 +228,56 @@ class ApplicationController < ActionController::Base
     file = Tempfile.new 'volley'
     type = nil
 
+    opts = { :url_based_filename => true }
+    
     backend_http.request_get(path) do |res|
-      type = res['Content-Type']
+      opts[:status] = res.code
+      opts[:type] = res['Content-Type']
       res.read_body do |segment|
         file.write(segment)
       end
     end
-
-    send_file(file.path, :length => file.length, :type => type, :url_based_filename => true )
+    opts[:length] = file.length
+    send_file(file.path, opts)
     file.close
   end
 
-  def forward_data( path, opt={} )
-    defaults = {:server => :source, :method => :get}
-    opt = defaults.merge opt
+  def download_request
+    file = Tempfile.new 'volley'
+    b = request.body
+    buffer = String.new
+    while b.read(40960, buffer)
+      file.write(buffer)
+    end
+    file.close
+    file.open
+    file
+  end
 
-    case opt[:method]
+  def pass_to_backend( path = nil )
+    unless path
+      path = request.path+'?'+request.query_string
+    end
+
+    if CONFIG['use_lighttpd_x_rewrite']
+      logger.debug "[backend] VOLLEY(light): #{path}"
+      headers['X-Rewrite-URI'] = path
+      headers['X-Rewrite-Host'] = SOURCE_HOST
+      head(200)
+    end
+   
+    case request.method
     when :get
-      volley( path )
+      forward_from_backend( path )
       return
     when :post
-      response = Suse::Backend.post( path, request.raw_post )
+      file = download_request
+      response = Suse::Backend.post( path, file )
+      file.close!
     when :put
-      response = Suse::Backend.put( path, request.raw_post )
+      file = download_request
+      response = Suse::Backend.put( path, file )
+      file.close!
     when :delete
       response = Suse::Backend.delete( path )
     end
@@ -402,18 +422,6 @@ class ApplicationController < ActionController::Base
     backend.delete_additional_header("Content-Length")
     return response
   end
-
-  #default actions, passes data from backend
-  def pass_to_backend
-    begin
-      forward_data request.path+'?'+request.query_string, :server => :source
-    rescue Suse::Backend::HTTPError
-      render_error :status => 404, :errorcode => "not found",
-        :message => "#{request.path} not found"
-    end
-  end
-  alias_method :pass_to_source, :pass_to_backend
-
 
   # Passes control to subroutines determined by action and a request parameter. By
   # default the parameter assumed to contain the command is ':cmd'. Looks for a method

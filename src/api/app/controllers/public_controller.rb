@@ -23,7 +23,7 @@ class PublicController < ApplicationController
       end
 
       if %w{names binaryversions}.include?(params[:view])
-        forward_data path
+        pass_to_backend path
       else
         headers.update(
           'Content-Type' => 'application/x-cpio'
@@ -31,7 +31,7 @@ class PublicController < ApplicationController
         render_stream(Net::HTTP::Get.new(path))
       end
     else
-      forward_data path
+      pass_to_backend path
     end
   end
 
@@ -52,7 +52,7 @@ class PublicController < ApplicationController
     valid_http_methods :get
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
-    forward_data path
+    pass_to_backend path
   end
 
   # GET /public/source/:prj/:pkg
@@ -60,7 +60,7 @@ class PublicController < ApplicationController
     valid_http_methods :get
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
-    forward_data path
+    pass_to_backend path
   end
 
   # GET /public/source/:prj/:pkg/_meta

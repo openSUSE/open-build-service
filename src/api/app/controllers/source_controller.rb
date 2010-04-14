@@ -133,7 +133,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      pass_to_source
+      pass_to_backend
       return
     elsif request.delete?
       if not @http_user.can_modify_package?(pkg)
@@ -331,7 +331,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      pass_to_source
+      pass_to_backend
     else
       # PUT and DELETE
       permerrormsg = nil
@@ -349,7 +349,7 @@ class SourceController < ApplicationController
       end
       
       path = request.path + build_query_from_hash(params, [:rev, :user, :comment])
-      forward_data path, :method => request.method
+      pass_to_backend path
     end
   end
 
@@ -363,7 +363,7 @@ class SourceController < ApplicationController
       return
     end
     
-    pass_to_source
+    pass_to_backend
   end
 
   def project_meta
@@ -464,7 +464,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      forward_data path
+      pass_to_backend path
       return
     end
 
@@ -478,7 +478,7 @@ class SourceController < ApplicationController
         return
       end
 
-      forward_data path, :method => :put, :data => request.raw_post
+      pass_to_backend path
       return
     end
   end
@@ -500,7 +500,7 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      forward_data path
+      pass_to_backend path
     elsif request.delete?
       #check for permissions
       unless @http_user.can_modify_project?(@project)
@@ -509,7 +509,7 @@ class SourceController < ApplicationController
         return
       end
 
-      forward_data path, :method => :delete
+      pass_to_backend path
       return
     end
   end
@@ -617,36 +617,8 @@ class SourceController < ApplicationController
     path = "/source/#{project_name}/#{package_name}/#{file}"
 
     if request.get?
-      #get file size
-      fpath = "/source/#{project_name}/#{package_name}" + build_query_from_hash(params, [:rev])
-      file_list = Suse::Backend.get(fpath)
-      regexp = file_list.body.match(/name=["']#{Regexp.quote file}["'].*size=["']([^"']*)["']/)
-      if regexp
-        fsize = regexp[1]
-        
-        path += build_query_from_hash(params, [:rev])
-        logger.info "streaming #{path}"
-       
-        headers.update(
-          'Content-Disposition' => %(attachment; filename="#{file}"),
-          'Content-Type' => 'application/octet-stream',
-          'Transfer-Encoding' => 'binary',
-          'Content-Length' => fsize
-        )
-        
-        render :status => 200, :text => Proc.new {|request,output|
-          backend_request = Net::HTTP::Get.new(path)
-          response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
-            http.request(backend_request) do |response|
-              response.read_body do |chunk|
-                output.write(chunk)
-              end
-            end
-          end
-        }
-      else
-        forward_data path
-      end
+      path += build_query_from_hash(params, [:rev])
+      pass_to_backend path
       return
     end
 
@@ -668,14 +640,12 @@ class SourceController < ApplicationController
            validator.validate(request)
         end
 
-        Suse::Backend.put_source path, request.raw_post
+        pass_to_backend path
         pack = DbPackage.find_by_project_and_name(project_name, package_name)
         pack.update_timestamp
-        logger.info "wrote #{request.raw_post.to_s.size} bytes to #{path}"
         if package_name == "_product"
           update_product_autopackages
         end
-        render_ok
       else
         render_error :status => 403, :errorcode => 'put_file_no_permission',
           :message => "Insufficient permissions to store file in package #{package_name}, project #{project_name}"
@@ -836,7 +806,7 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=createkey
   def index_project_createkey
     path = request.path + "?" + request.query_string
-    forward_data path, :method => :post
+    pass_to_backend path
   end
 
   # POST /source/<project>?cmd=createpatchinfo
@@ -970,11 +940,12 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=commit
   def index_package_commit
+    valid_http_methods :post
     params[:user] = @http_user.login if @http_user
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
-    forward_data path, :method => :post
+    pass_to_backend path
 
     if params[:package] == "_product"
       update_product_autopackages
@@ -983,11 +954,12 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=commitfilelist
   def index_package_commitfilelist
+    valid_http_methods :post
     params[:user] = @http_user.login if @http_user
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
-    forward_data path, :method => :post
+    pass_to_backend path
     
     if params[:package] == "_product"
       update_product_autopackages
@@ -996,20 +968,23 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=diff
   def index_package_diff
+    valid_http_methods :post
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :oproject, :opackage, :orev, :expand, :unified, :linkrev, :olinkrev, :missingok])
-    forward_data path, :method => :post
+    pass_to_backend path
   end
 
   # POST /source/<project>/<package>?cmd=linkdiff
   def index_package_linkdiff
+    valid_http_methods :post
     path = request.path
     path << build_query_from_hash(params, [:rev, :unified, :linkrev])
-    forward_data path, :method => :post
+    pass_to_backend path
   end
 
   # POST /source/<project>/<package>?cmd=copy
   def index_package_copy
+    valid_http_methods :post
     params[:user] = @http_user.login if @http_user
 
     pack = DbPackage.find_by_project_and_name(params[:project], params[:package])
@@ -1022,20 +997,22 @@ class SourceController < ApplicationController
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource])
     
-    forward_data path, :method => :post
+    pass_to_backend path
   end
 
   # POST /source/<project>/<package>?cmd=deleteuploadrev
   def index_package_deleteuploadrev
+    valid_http_methods :post
     params[:user] = @http_user.login if @http_user
 
     path = request.path
     path << build_query_from_hash(params, [:cmd])
-    forward_data path, :method => :post
+    pass_to_backend path
   end
 
   # POST /source/<project>/<package>?cmd=linktobranch
   def index_package_linktobranch
+    valid_http_methods :post
     params[:user] = @http_user.login
     prj_name = params[:project]
     pkg_name = params[:package]
@@ -1066,6 +1043,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
   def index_package_branch
+    valid_http_methods :post
     params[:user] = @http_user.login
     prj_name = params[:project]
     pkg_name = params[:package]

@@ -2,7 +2,7 @@ class RequestController < ApplicationController
   #TODO: request schema validation
 
   # GET /request
-  alias_method :index, :pass_to_source
+  alias_method :index, :pass_to_backend
 
   # POST /request?cmd=create
   alias_method :create, :dispatch_command
@@ -30,7 +30,7 @@ class RequestController < ApplicationController
 
     path = request.path
     path << build_query_from_hash(params, [:user])
-    forward_data path, :method => :put, :data => request.body
+    pass_to_backend path
   end
 
   # DELETE /request/:id
@@ -562,6 +562,6 @@ class RequestController < ApplicationController
         return
       end
     end
-    forward_data path, :method => :post
+    pass_to_backend path
   end
 end

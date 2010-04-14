@@ -58,7 +58,7 @@ class ResultController < ApplicationController
     end
     
     path = "/status/#{project}?#{query}"
-    forward_data path
+    pass_to_backend path
   end
 
   def packageresult

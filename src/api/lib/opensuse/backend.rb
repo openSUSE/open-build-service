@@ -56,31 +56,36 @@ module Suse
         handle_response response
       end
 
-      def put(path, data, in_headers={})
-        logger.debug "[backend] PUT: #{path}"
-        backend_request = Net::HTTP::Put.new(path, in_headers)
+      def put_or_post(method, path, data, in_headers)
+        logger.debug "[backend] #{method}: #{path}"
+        if method == "PUT"
+          backend_request = Net::HTTP::Put.new(path, in_headers)
+        else
+          backend_request = Net::HTTP::Post.new(path, in_headers)
+        end
+        if data.respond_to?('read')
+          backend_request.content_length = data.size
+          backend_request.body_stream = data
+        else
+          backend_request.body = data
+        end
         response = Net::HTTP.start(host, port) do |http|
           http.read_timeout = 1000
-          http.request backend_request, data
+          http.request backend_request
         end
-        write_backend_log "PUT", host, port, path, response, data
+        write_backend_log method, host, port, path, response, data
         handle_response response
-        #do_put(source_host, source_port, path, data)
       end
 
+      def put(path, data, in_headers={})
+        put_or_post("PUT", path, data, in_headers)
+      end
+      
       def post(path, data, in_headers={})
         in_headers = {
           'Content-Type' => 'application/octet-stream'
         }.merge in_headers
-        logger.debug "[backend] POST: #{path}"
-        backend_request = Net::HTTP::Post.new(path, in_headers)
-        response = Net::HTTP.start(host, port) do |http|
-          http.read_timeout = 1000
-          http.request backend_request, data
-        end
-        write_backend_log "POST", host, port, path, response, data
-        handle_response response
-        #do_post(source_host, source_port, path, data)
+        put_or_post("POST", path, data, in_headers)
       end
 
       def delete(path, in_headers={})
@@ -112,7 +117,7 @@ module Suse
         if (defined? EXTENDED_BACKEND_LOG) and EXTENDED_BACKEND_LOG
           if data.nil?
             @@backend_logger.info "(no data)"
-          elsif data[0,1] == "<"
+          elsif data.class == 'String' and data[0,1] == "<"
             @@backend_logger.info data
           else
             @@backend_logger.info"(non-XML data)"

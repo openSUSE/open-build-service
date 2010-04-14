@@ -8,7 +8,7 @@ class BuildController < ApplicationController
     end
 
     if request.get?
-      forward_data @path
+      pass_to_backend @path
     elsif request.post?
       allowed = false
       allowed = true if permissions.global_project_change
@@ -62,7 +62,7 @@ class BuildController < ApplicationController
         return
       end
 
-      forward_data @path, :method => :post
+      pass_to_backend @path
       return
     else
       render_error :status => 400, :errorcode => 'illegal_request',
@@ -77,12 +77,7 @@ class BuildController < ApplicationController
       path += '?' + request.query_string
     end
 
-    if request.post?
-      response = Suse::Backend.post path, request.raw_post
-      send_data( response.body, :type => response.fetch( "Content-Type" ), :disposition => "inline" )
-    else
-      forward_data path
-    end 
+    pass_to_backend path
   end
 
   # /build/:prj/:repo/:arch/:pkg
@@ -113,7 +108,7 @@ class BuildController < ApplicationController
 
     #authenticate
     return unless extract_user
-    pass_to_source
+    pass_to_backend
   end
 
   # /build/:project/:repository/:arch/:package/:filename
@@ -172,7 +167,7 @@ class BuildController < ApplicationController
         end
       }
     else
-      forward_data path
+      pass_to_backend path
     end
   end
 end

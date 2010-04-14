@@ -16,7 +16,7 @@ class PlatformController < ApplicationController
   end
   
   def project
-    forward_data( "/platform/" + params[:project] )
+    pass_to_backend( "/platform/" + params[:project] )
   end
   
   def repository
@@ -30,7 +30,7 @@ class PlatformController < ApplicationController
       path = "/platform/" + project + "/" + repository
 
       if request.get?
-        forward_data( path )
+        pass_to_backend( path )
         return
       elsif request.put?
         response = Suse::Backend.put( path, request.raw_post )
