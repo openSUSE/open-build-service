@@ -33,7 +33,6 @@ class PackageController < ApplicationController
     elsif @project.bugowner
       @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s
     end
-
     fill_status_cache
   end
 
@@ -44,7 +43,7 @@ class PackageController < ApplicationController
     @dproject = params[:dproject]
     @filename = params[:filename]
     @fileinfo = Fileinfo.find_cached( :project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
-                 :filename => params[:dname], :view => 'fileinfo_ext')
+      :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
   end
 
@@ -53,28 +52,15 @@ class PackageController < ApplicationController
     @repository = params[:repository]
     @filename = params[:filename]
     @fileinfo = Fileinfo.find_cached( :project => @project, :package => @package, :repository => @repository, :arch => @arch,
-                 :filename => @filename, :view => 'fileinfo_ext')
-    puts @fileinfo
+      :filename => @filename, :view => 'fileinfo_ext')
     @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
-    puts @durl
-    if @durl
-      uri = URI.parse( @durl )
-      response = nil
-      Net::HTTP.start(uri.host, uri.port) do |http|
-	response =  http.head uri.path
-      end
-      @durl = nil if response.code.to_i >= 400
-    else
-      logger.debug "no repository url"
-    end
-    if @user and not @durl
-      # use API for logged in users if the mirror is not available
+    if !file_available?( @durl ) and @user
+      # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
     end
   end
 
   def binaries
-
     @repository = params[:repository]
     @buildresult = Buildresult.find( :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'] )
@@ -834,6 +820,19 @@ class PackageController < ApplicationController
   end
 
   private
+
+  def file_available? url, max_redirects=5
+    uri = URI.parse( url )
+    Net::HTTP.start(uri.host, uri.port) do |http|
+      logger.debug "Checking url: #{url}"
+      response =  http.head uri.path
+      if response.code.to_i == 302 and response['location'] and max_redirects > 0
+        return file_available? response['location'], (max_redirects - 1)
+      end
+      response.code.to_i == 200 ? true : false
+    end
+  end
+
 
   def get_files( project, package )
     # files whose name ends in the following extensions should not be editable
