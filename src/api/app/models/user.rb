@@ -81,13 +81,20 @@ class User < ActiveRecord::Base
     }
   end
 
-  # updates users email address using data transmitted by ichain
-  def update_email_from_ichain_env(env)
+  # updates users email address and real name using data transmitted by ichain
+  def update_user_info_from_ichain_env(env)
     ichain_email = env["HTTP_X_EMAIL"]
     if not ichain_email.blank? and self.email != ichain_email
       logger.info "updating email for user #{self.login} from ichain header: old:#{self.email}|new:#{ichain_email}"
       self.email = ichain_email
       self.save
+    end
+    if not request.env['HTTP_X_FIRSTNAME'].blank? and not request.env['HTTP_X_LASTNAME'].blank?
+      realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME']
+      if self.realname != realname
+        self.realname = realname
+        self.save
+      end
     end
   end
 

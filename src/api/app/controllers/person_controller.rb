@@ -59,12 +59,6 @@ class PersonController < ApplicationController
           user.email = xml.elements["/person/email"].text
           user.realname = xml.elements["/person/realname"].text
 
-          e = xml.elements["/person/source_backend"]
-          if ( e )
-            user.source_host = e.elements['host'].text
-            user.source_port = e.elements['port'].text
-          end
-
           update_watchlist( user, xml )
 
           user.save!
@@ -115,7 +109,8 @@ class PersonController < ApplicationController
     note = xml.elements["/unregisteredperson/note"].text
 
     if auth_method == :ichain
-      email = request.env['HTTP_X_EMAIL']
+      email = request.env['HTTP_X_EMAIL'] unless request.env['HTTP_X_EMAIL'].blank?
+      realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] unless request.env['HTTP_X_LASTNAME'].blank?
     end
 
     newuser = User.create( 

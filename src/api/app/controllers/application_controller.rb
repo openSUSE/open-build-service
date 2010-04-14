@@ -63,7 +63,7 @@ class ApplicationController < ActionController::Base
       # However we have to care for the status of the user that must not be unconfirmed or ichain requested
       if ichain_user
         @http_user = User.find :first, :conditions => [ 'login = ? AND state=2', ichain_user ]
-        @http_user.update_email_from_ichain_env(request.env) unless @http_user.nil?
+        @http_user.update_user_info_from_ichain_env(request.env) unless @http_user.nil?
 
         # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
