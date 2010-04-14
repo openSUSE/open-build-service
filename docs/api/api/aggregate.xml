@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<aggregate project="projectname" >
-  <package>glibc</package>
-  <binary>gcc-c++</binary>
-  <repository target="my_sle_11_repo" source="SLE_11" />
-</aggregate>
+<aggregatelist>
+  <aggregate project="projectname" >
+    <package>glibc</package>
+    <binary>gcc-c++</binary>
+    <repository target="my_sle_11_repo" source="SLE_11" />
+  </aggregate>
+</aggregatelist>
+
