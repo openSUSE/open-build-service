@@ -88,8 +88,8 @@ class User < ActiveRecord::Base
       self.email = ichain_email
       self.save
     end
-    if not request.env['HTTP_X_FIRSTNAME'].blank? and not request.env['HTTP_X_LASTNAME'].blank?
-      realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME']
+    if not env['HTTP_X_FIRSTNAME'].blank? and not env['HTTP_X_LASTNAME'].blank?
+      realname = env['HTTP_X_FIRSTNAME'] + " " + env['HTTP_X_LASTNAME']
       if self.realname != realname
         self.realname = realname
         self.save
