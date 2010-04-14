@@ -479,10 +479,11 @@ class PackageController < ApplicationController
       frontend.put_file( file, :project => project, :package => package,
         :filename => filename, :comment => comment )
       flash[:note] = "Successfully saved file #{filename}"
+      Directory.free_cache( :project => project, :package => package )
     rescue Timeout::Error => e
       flash[:error] = "Timeout when saving file. Please try again."
     end
-    redirect_to :action => :show, :package => package, :project => project
+    redirect_to :action => :files, :package => package, :project => project
   end
 
   def rawlog

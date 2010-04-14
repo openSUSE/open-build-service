@@ -11,11 +11,13 @@
 
 <% form_tag :action => :save_modified_file, :project => @project, :package => @package, "class" => "edit" do %>
   <p><%= text_area_tag( "file", @file, :cols => "80",
-  :rows => "40" ) %></p>
+      :rows => "40" ) %></p>
 
-<strong>Comment your changes (optional):</strong><br/>
-<%= text_field_tag 'comment', '', :size => 50 %><br/>
+  <p>
+    <strong>Comment your changes (optional):</strong><br/>
+    <%= text_field_tag 'comment', '', :size => 50 %>
+  </p>
 
-<p><%= submit_tag %></p>
+  <p><%= submit_tag %></p>
   <%= hidden_field_tag( "filename", @filename ) %>
 <% end %>
