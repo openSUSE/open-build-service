@@ -195,59 +195,59 @@ ActionController::Routing::Routes.draw do |map|
 
   ### /search
 
-  map.connect 'search/published/binary/id' , :controller => "search", :action => "pass_to_source"
-  map.connect 'search/published/pattern/id' , :controller => "search", :action => "pass_to_source"
+  map.connect 'search/published/binary/id' , :controller => "search", :action => "pass_to_backend"
+  map.connect 'search/published/pattern/id' , :controller => "search", :action => "pass_to_backend"
   map.connect 'search/project/id', :controller => "search", :action => "project_id"
   map.connect 'search/package/id', :controller => "search", :action => "package_id"
   map.connect 'search/project', :controller => "search", :action => "project"
   map.connect 'search/package', :controller => "search", :action => "package"
   map.connect 'search/attribute', :controller => "search", :action => "attribute"
-  map.connect 'search', :controller => "search", :action => "pass_to_source"
+  map.connect 'search', :controller => "search", :action => "pass_to_backend"
 
   ### /build
 
   map.connect 'build/:project/:repository/:arch/:package/_status',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_log',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
     :controller => "build", :action => "buildinfo", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_history',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/:filename',
     :controller => "build", :action => "file", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/, :filename => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/_builddepinfo',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package',
     :controller => "build", :action => "package_index", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/_buildconfig',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
+    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project/:repository/:arch',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
+    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project/_result',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/
+    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/
   map.connect 'build/:project/:repository',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
+    :controller => "build", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
   # the web client does no longer use that route, but we keep it for backward compat
   map.connect 'build/_workerstatus',
     :controller => "status", :action => "workerstatus"
   map.connect 'build/:project',
     :controller => "build", :action => "project_index", :project => /[^\/]*/
   map.connect 'build',
-    :controller => "build", :action => "pass_to_source"
+    :controller => "build", :action => "pass_to_backend"
 
   ### /published
 
   map.connect 'published/:project/:repository/:arch/:binary',
     :controller => "published", :action => "binary", :project => /[^\/]*/, :repository => /[^\/]*/, :binary => /[^\/]*/
   map.connect 'published/:project/:repository/:arch', # :arch can be also a ymp for a pattern :/
-    :controller => "published", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/
+    :controller => "published", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/
   map.connect 'published/:project/:repository/',
-    :controller => "published", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
+    :controller => "published", :action => "pass_to_backend", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'published/:project',
-    :controller => "published", :action => "pass_to_source", :project => /[^\/]*/
+    :controller => "published", :action => "pass_to_backend", :project => /[^\/]*/
   map.connect 'published/',
-    :controller => "published", :action => "pass_to_source"
+    :controller => "published", :action => "pass_to_backend"
 
   ### /request
   
@@ -256,7 +256,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'request/:id', :controller => 'request',
     :action => 'modify'
   map.connect 'search/request', :controller => 'request', 
-    :action => 'pass_to_source'
+    :action => 'pass_to_backend'
 
   ### /lastevents
 

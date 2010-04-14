@@ -264,6 +264,7 @@ class ApplicationController < ActionController::Base
       headers['X-Rewrite-URI'] = path
       headers['X-Rewrite-Host'] = SOURCE_HOST
       head(200)
+      return
     end
    
     case request.method
