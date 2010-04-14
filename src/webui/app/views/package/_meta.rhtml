@@ -39,7 +39,7 @@
 
     <p>
       <% description = @package.description.text %>
-      <% if description %>
+      <% unless description.blank? %>
         <% description.split( /\n/ ).each do |line| %>
           <%=h line -%><br/>
         <% end %>
@@ -53,6 +53,12 @@
           <% dpackage = @package.devel.data["package"] || @package.name %>
           This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage %>
         </strong></p>
+    <%- end -%>
+
+    <%- if @files.blank?  %>
+      <p>
+        <%= image_tag 'icons/information.png' %> This package doesn't contain any
+        <%= link_to 'files', :action => :files, :project => @project, :package => @package %> yet.</p>
     <%- end -%>
 
   </div>

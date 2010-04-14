@@ -33,6 +33,7 @@ class PackageController < ApplicationController
     elsif @project.bugowner
       @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s
     end
+    @files = get_files @project, @package
     fill_status_cache
   end
 
@@ -371,6 +372,7 @@ class PackageController < ApplicationController
       end
     end
     flash[:success] = "The file #{filename} has been added."
+    Directory.free_cache( :project => @project, :package => @package )
     redirect_to :action => :files, :project => @project, :package => @package
   end
 
@@ -389,6 +391,7 @@ class PackageController < ApplicationController
     escaped_filename = URI.escape filename, "+"
     if @package.remove_file escaped_filename
       flash[:note] = "File '#{filename}' removed successfully"
+      Directory.free_cache( :project => @project, :package => @package )
       # TODO: remove patches from _link
     else
       flash[:note] = "Failed to remove file '#{filename}'"
@@ -838,7 +841,7 @@ class PackageController < ApplicationController
     # files whose name ends in the following extensions should not be editable
     no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
     files = []
-    dir = Directory.find( :project => project, :package => package )
+    dir = Directory.find_cached( :project => project, :package => package )
     return files unless dir
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]

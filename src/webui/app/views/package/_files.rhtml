@@ -32,6 +32,9 @@
         (Global Patch)
         <% end %>
       </td>
+      <td>
+        last changed <%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %>
+      </td>
     </tr>
     <% end %>
   </table>
