@@ -2182,6 +2182,7 @@ sub checkkiwiproduct {
   # but how can we map it to the buildarchs?
   my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
   return ('broken', 'missing repo') unless $repo;	# can't happen
+  my $prp = "$projid/$repoid";
 
   # calculate all involved architectures
   my @archs;
@@ -2206,8 +2207,7 @@ sub checkkiwiproduct {
   delete $deps{''};
 
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-  my @bprps = @{$prpsearchpath{"$projid/$repoid"} || []};
-  @bprps = @aprps unless @bprps;
+  my @bprps = @{$repo->{'path'} || []} ? @{$prpsearchpath{$prp} || []} : @aprps;
 
   # get config from path
   my $bconf = getconfig($myarch, \@bprps);
@@ -2281,7 +2281,6 @@ sub checkkiwiproduct {
 	push @blocked, map {$_->{'name'}} grep {$pnames{$_->{'name'}} && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
       }
     } else {
-      my $prp = "$projid/$repoid";
       for my $bin (@kdeps) {
         my $p = $dep2pkg{$bin};
         my $aprp = $pool->pkg2reponame($p);
@@ -2436,6 +2435,9 @@ sub rebuildkiwiproduct {
   my $bconf = $data->[0];
   my $rpms = $data->[1];
   my $reason = $data->[2];
+
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  return ('broken', 'missing repo') unless $repo;	# can't happen
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
@@ -2452,8 +2454,7 @@ sub rebuildkiwiproduct {
   my $mytime = time(); # ensure that we use the same time in all logs
 
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-  my @bprps = @{$prpsearchpath{"$projid/$repoid"} || []};
-  @bprps = @aprps unless @bprps;
+  my @bprps = @{$repo->{'path'} || []} ? @{$prpsearchpath{$prp} || []} : @aprps;
   my $searchpath = [];
   for (unify(@bprps, @aprps)) {
     my @pr = split('/', $_, 2);
