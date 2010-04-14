@@ -221,6 +221,15 @@ class ApplicationController < ActionController::Base
   end
 
   def forward_from_backend(path)
+
+    if CONFIG['use_lighttpd_x_rewrite']
+      logger.debug "[backend] VOLLEY(light): #{path}"
+      headers['X-Rewrite-URI'] = path
+      headers['X-Rewrite-Host'] = SOURCE_HOST
+      head(200)
+      return
+    end
+
     logger.debug "[backend] VOLLEY: #{path}"
     backend_http = Net::HTTP.new(SOURCE_HOST, SOURCE_PORT)
     backend_http.read_timeout = 1000
@@ -259,14 +268,6 @@ class ApplicationController < ActionController::Base
       path = request.path+'?'+request.query_string
     end
 
-    if CONFIG['use_lighttpd_x_rewrite']
-      logger.debug "[backend] VOLLEY(light): #{path}"
-      headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = SOURCE_HOST
-      head(200)
-      return
-    end
-   
     case request.method
     when :get
       forward_from_backend( path )
