@@ -191,6 +191,9 @@ module Suse
 
       def self.put( path, data, in_headers={})
         logger.debug "### mock put: "+[path, data].join(", ")
+        if data.respond_to? 'read'
+          data = data.read
+        end
         MockWriter.write path, data
         return MockResponse.new 
       end
@@ -199,6 +202,9 @@ module Suse
         logger.debug "### mock post: "+[path, data].join(", ")
         if path =~ /\/request\?cmd=create/
           return self.get("/request/42", in_headers)
+        end
+        if data.respond_to? 'read'
+          data = data.read
         end
         MockWriter.write path, data
         return MockResponse.new
@@ -221,11 +227,11 @@ end
 require 'controllers/application_controller'
 
 class ApplicationController
-  def backend_post(path, data )
+  def backend_post( path, data )
     Suse::Backend.post(path, data)
   end
 
-  def volley(path)
+  def forward_from_backend(path)
     send_data(Suse::Backend.get(path))
   end
 end
