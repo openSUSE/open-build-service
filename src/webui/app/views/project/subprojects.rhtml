@@ -9,15 +9,22 @@
 
 <%= render :partial => "tabs" %>
 
-<% if @parent %>
+<%- if !@parentprojects.blank? -%>
   <div class="section">
-    <h3>Parent project of <%= @project %>:</h3>
+    <h3>Parent projects of <%= @project %>:</h3>
     <p>
-      <%= link_to @parent, :action => :show, :project => @parent %>
-      <% if @parent.title && !@parent.title.text.blank? %>
-        <i>(<%= @parent.title  %>)</i>
-      <% end %>
-    </p>
+    <ul>
+      <%- @parentprojects.each do |key, value| -%>
+        <li><%= link_to key, :action => :show, :project => key %>
+          <% if value.title && !value.title.text.blank? %>
+            <i>(<%= value.title  %>)</i>
+          <% else %>
+            <i>(no title set)</i>
+          <% end %>
+        </li>
+      <%- end -%>
+    </ul>
+  </p>
   </div>
   <p/>
 <% end %>

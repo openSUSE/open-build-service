@@ -110,8 +110,15 @@ class ProjectController < ApplicationController
     sub_names.each do |sub|
       @subprojects[sub.name] = Project.find_cached( sub.name )
     end
-    parent_name = @project.name.gsub(/:[^:]*$/, "")
-    @parent = Project.find_cached( parent_name ) unless [@project.name, 'home'].include? parent_name
+    @parentprojects = Hash.new
+    parent_names = @project.name.split ':'
+    parent_names.each_with_index do |parent, idx|
+      parent_name = parent_names.slice(0, idx+1).join(':')
+      unless [@project.name, 'home'].include?( parent_name )
+        parent_project = Project.find_cached( parent_name )
+        @parentprojects[parent_name] = parent_project unless parent_project.blank?
+      end
+    end
   end
 
   def attributes
