@@ -18,7 +18,12 @@
   <ul>
     <% result.find( 'binarylist/binary' ).each do |binary| %>
 
-      <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package, :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>
+      <% if binary.attributes['filename'] == 'rpmlint.log' %>
+        <%= binary.attributes['filename'] %>
+      <% else %>
+        <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package,
+            :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>
+      <% end %>
 
     <% end %>
   </ul>
