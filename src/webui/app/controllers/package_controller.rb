@@ -14,7 +14,6 @@ class PackageController < ApplicationController
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :update_flag, :view_file, 
     :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, :branch]
-  before_filter :check_user, :only => [:users, :binary]
   before_filter :require_login, :only => [:branch]
 
 

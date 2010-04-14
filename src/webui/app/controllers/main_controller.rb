@@ -4,8 +4,6 @@ require 'models/latest_updated'
 
 class MainController < ApplicationController
 
-  before_filter :check_user, :only => [ :index ]
-
   def index
     @user ||= Person.find :login => session[:login] if session[:login]
 
@@ -25,11 +23,6 @@ class MainController < ApplicationController
     @latest_updates = Rails.cache.fetch('latest_updates', :expires_in => 5.minutes) do
       LatestUpdated.find( :limit => 6 )
     end
-
   end
-
-
-
-
   
 end

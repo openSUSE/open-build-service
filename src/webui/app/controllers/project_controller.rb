@@ -24,9 +24,6 @@ class ProjectController < ApplicationController
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
-  before_filter :check_user, :only => [:repositories, :list_requests, :meta,
-    :projconf, :users, :toggle_watch
-  ]
 
   def index
     redirect_to :action => 'list_public'
