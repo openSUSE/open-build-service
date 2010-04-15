@@ -27,6 +27,15 @@ GET /about
 
 XmlResult: about
 
+== Distribution List
+
+Host: api.opensuse.org
+
+GET /distributions
+
+  Get the list of base distributions
+
+XmlResult: distributions
 
 == User data
 
