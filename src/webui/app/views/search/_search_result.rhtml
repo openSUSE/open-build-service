@@ -1,8 +1,4 @@
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "attribute.css" %>
-<% end %>
-
 <% if @results.length > 0 %>
 
 <% if @results.length > 200
@@ -11,12 +7,11 @@
 <% end %>
 
   <table cellspacing='1' id="search_result" >
-    <tbody>
     <% i = 1 %>
 
     <% @results.each do |@result| %>
 
-      <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
+      <tr class='<% if i%2 != 0 %>odd<% end %>' valign='top'>
         <% i += 1 %>
 
         <td>

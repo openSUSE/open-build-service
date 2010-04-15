@@ -9,13 +9,13 @@ setup_buildresult_trigger
 
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
-  <%= stylesheet_link_tag "attribute.css" %>
 <% end %>
 
 
 <% content_for :ready_function do %>
   $("#request_table").tablesorter( {
-    sortList: [[0,1]] ,
+    sortList: [[0,1]],
+    widgets: ['zebra'],
     headers: { 
             5: { sorter: false }
             }
@@ -31,24 +31,22 @@ setup_buildresult_trigger
   <p><em>No pending requests. </em></p>
 <% else %>
 
-  <h2>Pending requests of project <%=h @project %> (#<%= @current_requests.each.size %>)</h2>
+  <h2>Pending requests of project <%=h @project %> (<%= @current_requests.each.size %>)</h2>
 
   <table cellspacing='1' id="request_table" class="tablesorter">
     <thead>
       <tr>
-        <th>Date</th>
-        <th>Action</th>
-        <th>Source</th>
-        <th>Target</th>
-        <th>Requester</th>
-        <th>Actions</th>
+        <th class="header">Date</th>
+        <th class="header">Action</th>
+        <th class="header">Source</th>
+        <th class="header">Target</th>
+        <th class="header">Requester</th>
+        <th class="">Actions</th>
       </tr>
     </thead>
     <tbody>
-      <% i = 0 %>
       <% @current_requests.each do |req| %>
-         <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
-          <% i += 1 %>
+         <tr>
            <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
           <td><%= req.action.data.attributes["type"] %></td>
           <td>

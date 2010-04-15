@@ -67,8 +67,9 @@
 
   <div>
     <% if @current_requests.has_elements? %>
-      <div><p>There are <%= @current_requests.each.size %> open <%= link_to 'requests', :action => :list_requests, :project => @project %></p></div>
+      <div><p><%= image_tag 'icons/information.png' %> There are <%= @current_requests.each.size %> open <%= link_to 'requests', :action => :list_requests, :project => @project %></p></div>
     <% end %>
+
     <% if @problem_packages > 0 %>
       <div><p><%= image_tag 'icons/exclamation.png' %> There are <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
           packages of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>

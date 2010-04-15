@@ -65,7 +65,7 @@ function br_trigger_mouseover() {
     beingShown = true;
     $(info).find("#build_result_html").html("<div class='ajax_large_loader'></div>");
     var link = $(this).find(".build_result").attr("href");
-    $.ajax({ error: function(request, status, thrown) {
+    $.ajax({error: function(request, status, thrown) {
 	       $(info).find("#build_result_html").html("<span style='color: red'>Could not get build result</span>");
 	     },
 	     url: link,
@@ -185,17 +185,18 @@ function fillEmptyFields() {
 
 
 function projectStatusReady() {
-   // call the tablesorter plugin
-  $(".tablesorter").tablesorter({
-    textExtraction: function(node) {
-    // extract data from markup and return it
-    if ($(node).is(".summary")) {
-      return $(node).children(".sortkey:first").html();
-    } else {
-      return node.innerHTML;
-    }
-  }
-  });
+    // call the tablesorter plugin
+    $(".tablesorter").tablesorter({
+        widgets: ['zebra'],
+        textExtraction: function(node) {
+            // extract data from markup and return it
+            if ($(node).is(".summary")) {
+                return $(node).children(".sortkey:first").html();
+            } else {
+                return node.innerHTML;
+            }
+        }
+    });
 }
 
 function googleTracker() {

@@ -12,14 +12,13 @@
 
   <table>
     <tr>
-      <th>Attribute</th>
-      <th>Values</th>
+      <th class="header">Attribute</th>
+      <th class="header">Values</th>
       <th>Options</th>
     </tr>
     <% i = 0 %>
     <% @attributes.each do |a| %>
-      <% (i%2==1) ? aclass="alternate1" : aclass="alternate2" %>
-      <tr class="<%= aclass %>">
+      <tr class="<%= "odd" if (i%2==1) %>">
         <td><%=h a.namespace %>:<%=h a.name %></td>
         <td class="tablelines">
           <%   if a.has_element? :value %>
