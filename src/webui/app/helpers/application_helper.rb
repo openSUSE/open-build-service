@@ -76,11 +76,6 @@ module ApplicationHelper
     return "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
   end
 
-
-  def min_votes_for_rating
-    MIN_VOTES_FOR_RATING
-  end
-
   def bugzilla_url(email, desc="")
     "#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd%20party%20software&assigned_to=#{email}&short_desc=#{desc}"
   end

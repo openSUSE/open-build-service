@@ -63,11 +63,6 @@ end
 
 ActionController::Base.relative_url_root = CONFIG['relative_url_root'] if CONFIG['relative_url_root']
 
-# minimum count of rating votes a project/package needs to
-# have no warning sign on package/project pages
-MIN_VOTES_FOR_RATING = 3
-
-
 require 'ostruct'
 require "#{RAILS_ROOT}/config/repositories.rb"
 require "cache_immutable_fix.rb"

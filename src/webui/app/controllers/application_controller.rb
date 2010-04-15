@@ -16,10 +16,7 @@ class ApplicationController < ActionController::Base
 
   class InvalidHttpMethodError < Exception; end
   class MissingParameterError < Exception; end
-  
-  def min_votes_for_rating
-    MIN_VOTES_FOR_RATING
-  end
+
 
   def set_return_to
     # we cannot get the original protocol when behind lighttpd/apache
