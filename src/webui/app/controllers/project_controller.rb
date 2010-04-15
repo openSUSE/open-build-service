@@ -169,6 +169,8 @@ class ProjectController < ApplicationController
       if buildresult
         results = buildresult.data.find( 'result/status' )
         results.map{|e| e.attributes['package'] }.uniq.size
+      else
+        0
       end
     end
 
