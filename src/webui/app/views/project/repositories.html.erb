@@ -8,10 +8,13 @@
 <%= render :partial => "tabs" %>
 
 <h3>
-  Repositories <%= if @user
-    link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project)
-  end %>
-</h3>
+  Repository configuration</h3>
+
+<% if @project.is_maintainer?( session[:login] ) %>
+  <p><%= link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project) %>
+    <%= link_to( 'Add', :action => 'add_target_simple', :project => @project) %> a repository.</p>
+<% end %>
+
 <% if @project.has_element? :repository %>
 
   <table>

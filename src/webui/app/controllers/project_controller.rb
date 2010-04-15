@@ -177,6 +177,15 @@ class ProjectController < ApplicationController
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
+  # TODO we need the architectures in api/distributions
+  def add_target_simple
+    dist_xml = Rails.cache.fetch("distributions", :expires_in => 30.minutes) do
+      frontend = ActiveXML::Config::transport_for( :package )
+      frontend.direct_http URI("/distributions"), :method => "GET"
+    end
+    @distributions = XML::Document.string dist_xml
+  end
+
   def add_person
     @roles = Role.local_roles
   end

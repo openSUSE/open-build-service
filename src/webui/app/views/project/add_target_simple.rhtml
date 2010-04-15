@@ -15,29 +15,45 @@
 
 <% form_tag( {:action => :save_targets, :project => @project} ) do -%>
 
-  <% for group in REPOSITORY_ADD_GROUPS %>
-    <h3><%= image_tag( h(group[:icon]), :width => 40 ) if group[:icon] %> <%=h group[:name] -%></h3>
+  <% vendors = @distributions.find( 'distribution/@vendor' ).map{|d| d.value}.uniq %>
 
+  <% vendors.each do |vendor| %>
+    <h3><%= image_tag( "distributions/#{vendor.downcase}.png", :width => 40 ) %> <%=h vendor -%> distributions</h3>
     <p>
-      <% for repos in group[:repositories] %>
+      <% for dist in @distributions.find("distribution[@vendor='#{vendor}']")
+        name = dist.find('name').first.content
+        project = dist.find('project').first.content
+        repo = dist.find('repository').first.content
+        reponame = dist.find('reponame').first.content
+        selected = false
+        selected = true if @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
+        -%>
 
-        <% if @project.has_element?("repository[@name='#{repos[:reponame]}']")
-          selected = true
-        else
-          selected = false
-        end -%>
-
-        <span class="nowrap"><%= check_box_tag 'repo[]', h(repos[:reponame]), selected, :disabled => selected -%>
-          <%= hidden_field_tag h(repos[:reponame]) + "_repo", h(repos[:repo]) -%>
-          <% repos[:arch].each do |arch| %>
-            <%= hidden_field_tag h(repos[:reponame]) + "_arch[]", arch -%>
+        <span class="nowrap"><%= check_box_tag 'repo[]', h(reponame), selected, :disabled => selected -%>
+          <%= hidden_field_tag h(reponame) + "_repo", h(project + '/' + repo) -%>
+          <% ['i586', 'x86_64'].each do |arch| %>
+            <%= hidden_field_tag h(reponame) + "_arch[]", arch -%>
           <% end %>
 
-          <%= repos[:title] %> <%= "<i>(#{h(repos[:comment])})</i>" if repos[:comment] -%>
+          <%= h name %>
         </span>
       <% end -%>
     </p>
   <% end -%>
+
+  <h3><%= image_tag( "distributions/kiwi.png", :width => 40 ) %> Kiwi image builds</h3>
+  <p>
+    <span class="nowrap">
+
+      <% selected = false
+      selected = true if @project.has_element?("repository[@name = 'images']") -%>
+
+      <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected -%>
+      <input id="images_repo" name="images_repo" value="" type="hidden"/>
+      <input id="images_arch_" name="images_arch[]" value="i586" type="hidden"/>
+      <input id="images_arch_" name="images_arch[]" value="x86_64" type="hidden"/>
+      KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>        </span>
+  </p>
 
   <p>
     <%= submit_tag 'Add selected repositories' -%>
@@ -54,28 +70,28 @@
 
 <% content_for :ready_function do %>
   $(document).ready(function(){
-    $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
-      { minChars: 2, matchCase: false, max: 100, cacheLength: 10, matchSubset: true, matchContains: true, delay: 400 } );
+  $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
+  { minChars: 2, matchCase: false, max: 100, cacheLength: 10, matchSubset: true, matchContains: true, delay: 400 } );
 
-    $('#target_project').result(function(event, data, formatted) {
-      if (data) {
-        $('#target_repo').html('');
-        $.ajax({ url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>', 
-                 data: {project: $("#target_project").attr('value')},
-                 success: function(data){
-                   $('#target_repo').removeAttr('disabled');
-                   // suggest a name:
-                   $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + data.split('\n').shift());
-                   $.each(data.split('\n'), function(idx, val) {
-                     $('#target_repo').append( new Option( val ) );
-                   });
-        }});
-      }
-    });
+  $('#target_project').result(function(event, data, formatted) {
+  if (data) {
+  $('#target_repo').html('');
+  $.ajax({ url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>',
+  data: {project: $("#target_project").attr('value')},
+  success: function(data){
+  $('#target_repo').removeAttr('disabled');
+  // suggest a name:
+  $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + data.split('\n').shift());
+  $.each(data.split('\n'), function(idx, val) {
+  $('#target_repo').append( new Option( val ) );
+  });
+  }});
+  }
+  });
 
-    $('#target_repo').change(function() {
-      $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
-    });
+  $('#target_repo').change(function() {
+  $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
+  });
 
   });
 <% end -%>
@@ -85,9 +101,9 @@
 
 <% form_tag( {:action => :save_targets, :project => @project} ) do -%>
   <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %>
-  <i>(gets auto-completed)</i></p>
+    <i>(gets auto-completed)</i></p>
   <p><strong>Repository: </strong>
-  <%= select_tag "target_repo", "", :id => 'target_repo', :disabled => true %></p>
+    <%= select_tag "target_repo", "", :id => 'target_repo', :disabled => true %></p>
   <p><strong>New name: </strong><%= text_field_tag 'repo', '', :size => 40, :id => 'repo_name' %></p>
 
   <p><strong>Architectures: </strong>
