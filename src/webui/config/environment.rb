@@ -181,9 +181,6 @@ ActiveXML::Base.config do |conf|
     # Status Messages
     map.connect :statusmessage, 'rest:///status/messages/:id/?:limit'
 
-    map.connect :platform, "rest:///platform/:project/:name",
-        :all => "rest:///platform/"
-
     map.connect :distribution, "rest:///public/distributions",
       :all    => "rest:///public/distributions"
 

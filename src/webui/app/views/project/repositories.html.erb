@@ -19,7 +19,7 @@
     <% @project.each_repository do |repo| %>
       <tr>
         <td>
-          <strong><%= link_to h(repo.name), :controller => 'platform', :action => 'show', :name => repo.name, :project => @project %></strong>
+          <strong><%= h(repo.name) %></strong>
           <i>(<%= repo.each_arch.join(", ") %>)</i>
 
           <br/>

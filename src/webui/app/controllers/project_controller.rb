@@ -359,14 +359,14 @@ class ProjectController < ApplicationController
     end
 
     params['repo'].each do |repo|
-      if !valid_platform_name? repo
+      if !valid_target_name? repo
         flash[:error] = "Illegal target name #{repo}."
         redirect_to :action => :add_target_simple, :project => @project and return
       end
       repo_path = params[repo + '_repo'] || "#{params['target_project']}/#{params['target_repo']}"
       repo_archs = params[repo + '_arch'] || params['arch']
       logger.debug "Adding repo: #{repo_path}, archs: #{repo_archs}"
-      @project.add_repository :reponame => repo, :platform => repo_path, :arch => repo_archs
+      @project.add_repository :reponame => repo, :repo_path => repo_path, :arch => repo_archs
 
       # FIXME: will be cleaned up after implementing FATE #308899
       if repo == "images"
