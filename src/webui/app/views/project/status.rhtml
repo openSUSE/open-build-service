@@ -9,7 +9,6 @@
 
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
-  <%= stylesheet_link_tag "attribute.css" %>
 <% end %>
 
 <% content_for :ready_function do %>
@@ -58,16 +57,17 @@
     <%= @packages.select {|p| !p['requests_to'].empty? || !p['requests_from'].empty?}.length %> with a pending request.
   </p>
 
+  <% show_devel_project = !(@packages.select {|p| !p['develproject'].blank? }.empty?)  %>
+
   <table class='tablesorter' cellspacing='1'>
     <thead>
       <tr>
         <th>Name</th>
-        <th class="nowrap">Devel Project</th>
+        <%= "<th class='nowrap'>Devel Project</th>" if show_devel_project %>
         <th width="99%">Summary</th>
       </tr>
     </thead>
     <tbody>
-      <% i = 0 %>
       <% @packages.each do |p| %>
         <%-
         outs = []
@@ -134,8 +134,7 @@
           sortkey = "9-ok-" + p['name']
         end
         -%>
-        <tr class='<% if i%2 == 0 %>alternate1<% else %>alternate2<% end %>' valign='top'>
-          <% i += 1 %>
+        <tr>
           <% shortname = p['name']
           if shortname.length > 19
             shortname = shortname[0..17] + "..."
@@ -150,7 +149,9 @@
             <% end -%>
             <%= link_to shortname, :controller => :package, :action => :show, :project => @project, :package => p['name'] %>
           </td>
-          <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
+          <%if show_devel_project  %>
+            <td><%= if p['develproject'] then link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] end %></td>
+          <% end %>
           <td class="summary"><%= outs.join('<br/>') -%><span class="sortkey"><%= sortkey %></span></td>
         </tr>
       <% end %>
