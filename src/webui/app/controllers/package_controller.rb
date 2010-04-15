@@ -8,12 +8,12 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
     :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
-    :update_flag, :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, 
-    :binary, :dependency, :branch]
+    :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, 
+    :binary, :dependency, :branch, :change_flag]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
-    :show, :wizard, :edit, :add_file, :save_file, :update_flag, :view_file, 
-    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, :branch]
+    :show, :wizard, :edit, :add_file, :save_file, :view_file, 
+    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, :branch, :change_flag]
   before_filter :require_login, :only => [:branch]
 
 
@@ -797,31 +797,21 @@ class PackageController < ApplicationController
   end
 
 
-  # update package flags
-  def update_flag
-    begin
-      #the flag matrix will also be initialized on access, so we can work on it
-      if @package.complex_flag_configuration? params[:flag_name]
-        raise RuntimeError.new("Your flag configuration seems to be too complex to be saved through this interface. Please use OSC.")
-      end
-      @package.replace_flags(params)
-    rescue RuntimeError => exception
-      @error = exception
-      logger.debug "[PACKAGE:] Flag-Update-Error: flag configuration is rejected to be saved because of its complexity."
-    rescue  ActiveXML::Transport::Error => exception
-      @error = exception
-      logger.debug "[PACKAGE:] Flag-Update-Error: #{@error}"
-    end
-    @flag = @package.send("#{params[:flag_name]}"+"flags")[params[:flag_id].to_sym]
-  end
-
-
   def repositories
     @package = Package.find_cached( params[:package], :project => params[:project], :view => :flagdetails )
   end
 
   def change_flag
-    # AJAX -> update repositories
+    if request.post? and params[:cmd] and params[:flag]
+      frontend.source_cmd params[:cmd], :project => @project, :package => @package, :repo => params[:repo], :arch => params[:arch], :flag => params[:flag]
+    end
+    Package.free_cache( params[:project], :project => @project, :view => :flagdetails )
+    if request.xhr?
+      @package = Package.find_cached( params[:project], :project => @project, :view => :flagdetails )
+      render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
+    else
+      redirect_to :action => :repositories, :project => @project, :package => @package
+    end
   end
 
   private

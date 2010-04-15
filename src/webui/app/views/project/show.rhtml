@@ -91,7 +91,7 @@
       :url => { :action => :buildresult, :project => @project },
       :update => 'buildstatus',
       :loading => "$('#spinner_stat').show(); $('#status_reload').hide()", :complete => "$('#spinner_stat').hide(); $('#status_reload').show()" %>
-    <%= image_tag 'ajax-loader.gif', :id => 'spinner_stat', :style => 'display:none;' %>
+    <%= image_tag 'ajax-loader.gif', :id => 'spinner_stat', :class => 'hidden' %>
   </div>
 
   <div id='buildstatus'>

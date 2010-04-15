@@ -158,6 +158,11 @@ div#log_space_wrapper p {
     left:5ex; 
 }
 
+.flagerror {
+   text-align: right;
+   color: red;
+}
+
 .global-navigation-menu-favorites li a {
   min-height: 0px;
 }

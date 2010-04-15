@@ -285,27 +285,27 @@ module ApplicationHelper
           out += 
             "<div class='nowrap'>" +
             image_tag("#{flags.element_name}_disabled_blue.png") +
-            link_to("Explicitly disable", opts.merge({ :cmd => :disable })) +
+            link_to("Explicitly disable", opts.merge({ :cmd => :disable }), {:class => :flag_trigger}) +
             "</div>"
         end
         if flag.element_name == 'disable'
           out += 
             "<div class='nowrap'>" +
             image_tag("#{flags.element_name}_enabled_grey.png") +
-            link_to("Take default", opts.merge({ :cmd => :remove })) +
+            link_to("Take default", opts.merge({ :cmd => :remove }),:class => :flag_trigger) +
             "</div>"
         else
           out += 
             "<div class='nowrap'>" +
             image_tag("#{flags.element_name}_disabled_grey.png") +
-            link_to("Take default", opts.merge({ :cmd => :remove }))+
+            link_to("Take default", opts.merge({ :cmd => :remove }), :class => :flag_trigger)+
             "</div>"
         end if flag.has_attribute? :explicit
         unless flag.has_attribute? :explicit and flag.element_name != 'disable'
           out += 
             "<div class='nowrap'>" +
             image_tag("#{flags.element_name}_enabled_blue.png") +
-            link_to("Explicitly enable", opts.merge({ :cmd => :enable })) +
+            link_to("Explicitly enable", opts.merge({ :cmd => :enable }), :class => :flag_trigger) +
             "</div>"
         end
         out += "</div></div>"

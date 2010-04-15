@@ -8,14 +8,19 @@ class FrontendCompat
     ActiveXML::Config.logger
   end
 
-  def cmd_package( project, package, cmd, opt={} )
+  def source_cmd( cmd, opt={} )
     extraparams = ''
     extraparams << "&repo=#{CGI.escape opt[:repo]}" if opt[:repo]
     extraparams << "&arch=#{CGI.escape opt[:arch]}" if opt[:arch]
+    extraparams << "&flag=#{CGI.escape opt[:flag]}" if opt[:flag]
 
-    logger.debug "CMD_PACKAGE #{cmd} ; extraparams = #{extraparams}"
-    transport.direct_http URI("https://#{@url_prefix}/source/#{project}/#{package}?cmd=#{cmd}#{extraparams}"),
-      :method => "POST", :data => ""
+    raise RuntimeError, 'no project given' unless opt[:project]
+    logger.debug "SOURCE CMD #{cmd} ; extraparams = #{extraparams}"
+    path = "https://#{@url_prefix}/source/#{CGI.escape opt[:project].to_s}"
+    path += "/#{CGI.escape opt[:package].to_s}" if opt[:package]
+    path += "?cmd=#{cmd}#{extraparams}"
+    
+    transport.direct_http URI(path), :method => "POST", :data => ""
   end
 
   #  opt takes keys: project(needed), repository, arch

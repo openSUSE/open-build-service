@@ -659,19 +659,15 @@ class ProjectController < ApplicationController
 
   def change_flag
     if request.post? and params[:cmd] and params[:flag]
-      params[:cmd]
-      params[:flag]
-
-      params[:repo]
-      params[:arch]
-      path = url_for(:controller => :source, :action => @project, :id => '_meta', :cmd => params[:cmd], 
-        :flag => params[:flag], :skip_relative_url_root => true, :only_path => true,
-        :repo => params[:repo], :arch => params[:arch])
-      frontend.transport.direct_http URI(path), :method => "POST", :data => ""
+      frontend.source_cmd params[:cmd], :project => @project, :repo => params[:repo], :arch => params[:arch], :flag => params[:flag]
     end
     Project.free_cache( params[:project], :view => :flagdetails )
-    @project = Project.find_cached( params[:project], :view => :flagdetails )
-    render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
+    if request.xhr?
+      @project = Project.find_cached( params[:project], :view => :flagdetails )
+      render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
+    else
+      redirect_to :action => :repositories, :project => @project
+    end
   end
 
   def save_prjconf
