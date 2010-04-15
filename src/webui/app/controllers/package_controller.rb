@@ -618,9 +618,10 @@ class PackageController < ApplicationController
 
     begin
       frontend.cmd cmd, options
-    rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = "No repository defined"
-      redirect_to :controller => "project", :action => :add_target_simple, :project => project
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :action => :show, :project => project, :package => package
       return
     end
 
