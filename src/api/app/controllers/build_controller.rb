@@ -36,7 +36,7 @@ class BuildController < ApplicationController
         package_names.each do |pack_name|
           pkg = DbPackage.find_by_project_and_name( prj, pack_name ) 
           if pkg.nil?
-            render_error :status => 403, :errorcode => "not_found",
+            render_error :status => 404, :errorcode => "not_found",
               :message => "Package does not exist #{pack_name}"
             return
           end
