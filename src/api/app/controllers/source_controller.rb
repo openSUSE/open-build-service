@@ -1159,6 +1159,52 @@ class SourceController < ApplicationController
     render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
   end
 
+  # private
+  def index_package_enable_or_disable(status)
+    valid_http_methods :post
+
+    prj_name = params[:project]
+    pkg_name = params[:package]
+
+    prj = DbProject.find_by_name prj_name
+    if prj.nil?
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => "Unknown project #{prj_name}"
+      return
+    end
+    pkg = find_package( prj, pkg_name )
+    flagtype = nil
+    #translates the flag types as used in the xml to model name + s
+    if %w(build publish debuginfo useforbuild binarydownload).include? params[:flag].to_s
+      flagtype = params[:flag].to_s + "_flags"
+    else
+      raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
+    end
+
+    position = pkg.__send__(flagtype).size
+    flag = pkg.__send__(flagtype).new( :status => status, :position => position + 1 )
+    if params[:arch]
+      flag.architecture = Architecture.find_by_name(params[:arch])
+    end
+    flag.repo = params[:repository]
+    pkg.__send__(flagtype) << flag
+
+    pkg.store
+    render_ok
+  end
+
+  # POST /source/<project>/<package>?cmd=disable&repository=:opt&arch=:opt&flag=flag
+  def index_package_disable
+    valid_http_methods :post
+    index_package_enable_or_disable("disable")
+  end
+
+  # POST /source/<project>/<package>?cmd=enable&repository=:opt&arch=:opt&flag=flag
+  def index_package_enable
+    valid_http_methods :post
+    index_package_enable_or_disable("enable")
+  end
+
   def valid_project_name? name
     name =~ /^\w[-_+\w\.:]+$/
   end
