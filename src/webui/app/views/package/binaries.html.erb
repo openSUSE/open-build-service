@@ -13,13 +13,16 @@
 
 <% @buildresult.data.find( 'result').each do |result| %>
 
-  <h3>Architecture: <%= result.attributes['arch'] %>, State: <%= result.find('status').first.attributes['code'] %> <%= repo_status_icon result.find('status').first.attributes['code'] %></h3>
+  <h3><%= repo_status_icon result.find('status').first.attributes['code'] %> Architecture: <%= result.attributes['arch'] %></h3>
+
+  <%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, @repository ) %>
+  <%= image_tag 'icons/drive_burn.png' %>
 
   <ul>
     <% result.find( 'binarylist/binary' ).each do |binary| %>
 
       <% if binary.attributes['filename'] == 'rpmlint.log' %>
-        <%= binary.attributes['filename'] %>
+        <li><%= binary.attributes['filename'] %></li>
       <% else %>
         <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package,
             :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>

@@ -63,8 +63,8 @@ class PackageController < ApplicationController
 
   def binaries
     @repository = params[:repository]
-    @buildresult = Buildresult.find( :project => @project, :package => @package,
-      :repository => @repository, :view => ['binarylist', 'status'] )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package,
+      :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
   end
   
   def users
