@@ -11,9 +11,8 @@
 
 
 <h3>
-  Packages for project <%= @project %> (#<%= @packages.each.size %>)
+  Packages for project <%= @project %> <%= "(#{@packages.each.size})" if @packages.each.size > 0 %>
 </h3>
-
 
 <% if @project.is_maintainer?( session[:login] ) %>
   <p>
@@ -27,9 +26,11 @@
   </p>
 <% end %>
 
+<% if @packages.each.blank? %>
+<p><i>This project does not contain any packages yet.</i></p>
+<% end %>
 
 <div id="pkg_container">
-
   <% if @packages.each.select{|p| /^_product/.match( p.name ) }.size > 0 %>
     <h3>Products</h3><p>
       <% @packages.each.select{|p| /^_product/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
@@ -45,5 +46,4 @@
       <%= link_to h(package), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %> |
     <% end%>
   </p>
-
 </div>
