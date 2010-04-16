@@ -42,27 +42,27 @@ class DbPackageTest < ActiveSupport::TestCase
         <title>My Test package</title>
         <description></description>
         <build>
-          <enabled repository='10.2' arch='i386'/>
+          <enable repository='10.2' arch='i386'/>
         </build>
         <publish>
-          <enabled repository='10.1' arch='x86_64'/>
+          <enable repository='10.1' arch='x86_64'/>
         </publish>
         <debuginfo>
-          <disabled repository='10.0' arch='i386'/>
+          <disable repository='10.0' arch='i386'/>
         </debuginfo>        
         <url></url>
       </package>"
       )
     
     ['build', 'publish', 'debuginfo'].each do |flagtype|
-      @package.update_flags(:package => axml, :flagtype => flagtype)
+      @package.update_flags(axml, flagtype)
     end
       
     @package.reload
     
     #check results
     assert_equal 1, @package.build_flags.size
-    assert_equal 'enabled', @package.build_flags[0].status
+    assert_equal 'enable', @package.build_flags[0].status
     assert_equal '10.2', @package.build_flags[0].repo
     assert_equal 'i386', @package.build_flags[0].architecture.name
     assert_equal 0, @package.build_flags[0].position
@@ -70,7 +70,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 'TestPack', @package.build_flags[0].db_package.name
     
     assert_equal 1, @package.publish_flags.size
-    assert_equal 'enabled', @package.publish_flags[0].status
+    assert_equal 'enable', @package.publish_flags[0].status
     assert_equal '10.1', @package.publish_flags[0].repo
     assert_equal 'x86_64', @package.publish_flags[0].architecture.name
     assert_equal 0, @package.publish_flags[0].position
@@ -78,7 +78,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 'TestPack', @package.publish_flags[0].db_package.name    
     
     assert_equal 1, @package.debuginfo_flags.size
-    assert_equal 'disabled', @package.debuginfo_flags[0].status
+    assert_equal 'disable', @package.debuginfo_flags[0].status
     assert_equal '10.0', @package.debuginfo_flags[0].repo
     assert_equal 'i386', @package.debuginfo_flags[0].architecture.name
     assert_equal 0, @package.debuginfo_flags[0].position
@@ -102,11 +102,11 @@ class DbPackageTest < ActiveSupport::TestCase
       )    
     
     #first update build-flags, should only delete build-flags
-    @package.update_flags(:package => axml, :flagtype => 'build')
+    @package.update_flags(axml, 'build')
     assert_equal 0, @package.build_flags.size
         
     #second update publish-flags, should delete publish-flags    
-    @package.update_flags(:package => axml, :flagtype => 'publish')
+    @package.update_flags(axml, 'publish')
     assert_equal 0, @package.publish_flags.size
     
   end
@@ -119,7 +119,7 @@ class DbPackageTest < ActiveSupport::TestCase
         <title>My Test package</title>
         <description></description>
         <debuginfo>
-          <disabled repository='10.0' arch='i386'/>
+          <disable repository='10.0' arch='i386'/>
         </debuginfo>    
         <url></url>
       </package>"

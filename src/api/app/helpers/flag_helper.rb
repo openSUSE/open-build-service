@@ -2,7 +2,7 @@ module FlagHelper
 
    def update_all_flags(obj)
       %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
-        update_flags( package, flagtype )
+        update_flags( obj, flagtype )
       end
    end
 
@@ -13,7 +13,7 @@ module FlagHelper
 
     #translate the flag types as used in the xml to model name + s
     if %w(build publish debuginfo useforbuild binarydownload).include? flagtype.to_s
-      flagtype = flagtype.to_s + "_flags"
+      flags = flagtype.to_s + "_flags"
     else
       raise  SaveError.new( "Error: unknown flag type '#{flagtype}' not found." )
     end
@@ -22,7 +22,7 @@ module FlagHelper
 
       #remove old flags
       Flag.transaction do
-        self.send(flagtype).destroy_all
+        self.send(flags).destroy_all
 
         #select each build flag from xml
         position = 0
@@ -39,21 +39,18 @@ module FlagHelper
           repo ||= nil
 
           #instantiate new flag object
-          flag = self.send(flagtype).new :position => position
-          #set the flag attributes
-          flag.repo = repo
-          flag.status = xmlflag.data.name
+          self.send(flags).create(:status => xmlflag.data.name, :position => position) do |flag|
+            #set the flag attributes
+            flag.repo = repo
+            arch.send(flags) << flag unless arch.nil?
+          end
           position += 1
-
-          arch.send(flagtype) << flag unless arch.nil?
-          self.send(flagtype) << flag
-
         end
       end
 
     else
-      logger.debug "[FLAGS] Seems that the users has deleted all flags of the type #{flagtype.singularize.camelize}, we will also do so!"
-      self.send(flagtype).destroy_all
+      logger.debug "[FLAGS] Seems that the users has deleted all flags of the type #{flags.singularize.camelize}, we will also do so!"
+      self.send(flags).destroy_all
     end
 
     #self.reload

@@ -51,7 +51,7 @@ class DbProjectTest < ActiveSupport::TestCase
       )
     
     ['build', 'publish', 'debuginfo'].each do |flagtype|
-      @project.update_flags(:project => axml, :flagtype => flagtype)
+      @project.update_flags(axml, flagtype)
     end
       
     @project.reload
@@ -98,11 +98,11 @@ class DbProjectTest < ActiveSupport::TestCase
       )    
     
     #first update build-flags, should only delete build-flags
-    @project.update_flags(:project => axml, :flagtype => 'build')
+    @project.update_flags(axml, 'build')
     assert_equal 0, @project.build_flags.size
         
     #second update publish-flags, should delete publish-flags    
-    @project.update_flags(:project => axml, :flagtype => 'publish')
+    @project.update_flags(axml, 'publish')
     assert_equal 0, @project.publish_flags.size
     
   end
@@ -117,38 +117,14 @@ class DbProjectTest < ActiveSupport::TestCase
         <title>tscholz's Home Project</title>
         <description></description>
         <build>
-          <enabled repository='10.2' arch='i386'/>
+          <enable repository='10.2' arch='i386'/>
         </build>      
         <url></url>
         <disable repository='10.0' arch='i386'/>
       </project>"
       )    
   
-    assert_raise(DbProject::SaveError){
-      @project.flag_compatibility_check(:project => axml)
-      }
-    
     assert_equal 2, @project.build_flags.size  
-  end
-  
-  
-  def test_old_flag_to_build_flag
-    #check precondition
-    assert_equal 2, @project.build_flags.size    
-
-    axml = ActiveXML::Base.new(
-      "<project name='home:tscholz'>
-        <title>tscholz's Home Project</title>
-        <description></description>    
-        <url></url>
-        <disable/>
-        <disable repository='10.2'/>
-        <disable repository='10.2' arch='i386'/>
-      </project>"
-      )      
-      
-    @project.old_flag_to_build_flag(:project => axml, :flagtype => 'build')
-    assert_equal 3, @project.build_flags.size  
   end
   
   
@@ -159,7 +135,7 @@ class DbProjectTest < ActiveSupport::TestCase
         <title>tscholz's Home Project</title>
         <description></description>
         <debuginfo>
-          <disabled repository='10.0' arch='i386'/>
+          <disable repository='10.0' arch='i386'/>
         </debuginfo>    
         <url></url>
         <disable/>
@@ -168,7 +144,7 @@ class DbProjectTest < ActiveSupport::TestCase
       
     @project.store_axml(axml)
     
-    assert_equal 1, @project.build_flags.size
+    assert_equal 0, @project.build_flags.size
     assert_equal 1, @project.debuginfo_flags.size        
   end  
   

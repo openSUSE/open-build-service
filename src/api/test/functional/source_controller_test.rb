@@ -353,7 +353,6 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
-    xml = @response.body
     assert_select "package > build > enable"
   end
 
