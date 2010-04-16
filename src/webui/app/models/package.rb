@@ -7,7 +7,7 @@ class Package < ActiveXML::Base
   #cache variables
   attr_accessor :my_pro
   attr_accessor :my_architectures
-  attr_accessor :my_linked
+  attr_accessor :linkinfo
 
   attr_accessor :bf_updated
   attr_accessor :pf_updated
@@ -25,7 +25,7 @@ class Package < ActiveXML::Base
 
   def my_project
     puts self.dump_xml
-    self.my_pro ||= Project.find(self.project)
+    self.my_pro ||= Project.find_cached(self.project)
     return self.my_pro
   end
 
@@ -142,38 +142,49 @@ class Package < ActiveXML::Base
   end
 
   def self.exists? package_name, project_name
-    if Package.find( package_name, :project => project_name )
+    if Package.find_cached( package_name, :project => project_name )
       return true
     else
       return false
     end
   end
 
-  def linked_to
-    unless my_linked
+  def linkinfo
+    unless @linkinfo
       begin
-	link =  Link.find( :project => project, :package => name)
+        link = Directory.find_cached( :project => project, :package => name)
+        @linkinfo = link.linkinfo if link.has_element? 'linkinfo'
       rescue ActiveXML::Transport::NotFoundError
       end
-      if link
-	linkproject = project
-	linkproject = link.project if link.has_element? 'project'
-        if link.has_element? 'package'
-	  my_linked = [linkproject, link.package]
-	else
-	  my_linked = [linkproject, name]
-	end
-      else
-	my_linked = []
-      end
     end
-    return my_linked
+    @linkinfo
+  end
+
+  def linked_to
+    return [linkinfo.prroject, linkinfo.package] if linkinfo
+    return []
   end
 
   def self.current_rev(project, package)
-    dir = Directory.find( :project => project, :package => package )
+    dir = Directory.find_cached( :project => project, :package => package )
     return nil unless dir
     return dir.rev
+  end
+
+  def files
+    # files whose name ends in the following extensions should not be editable
+    no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
+    files = []
+    dir = Directory.find_cached( :project => project, :package => name )
+    return files unless dir
+    @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
+    dir.each_entry do |entry|
+      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
+      file[:ext] = Pathname.new(file[:name]).extname
+      file[:editable] = ((not no_edit_ext.include?( file[:ext].downcase )) and file[:size].to_i < 2**20)  # max. 1 MB
+      files << file
+    end
+    return files
   end
 
 end

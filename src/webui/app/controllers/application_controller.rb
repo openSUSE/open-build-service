@@ -203,7 +203,7 @@ class ApplicationController < ActionController::Base
   end
 
   def check_user
-    @user ||= Person.find_cached( :login => session[:login] )
+    @user ||= Person.find_cached( session[:login] )
     if @user
       begin
         @nr_involved_requests = @user.involved_requests.size

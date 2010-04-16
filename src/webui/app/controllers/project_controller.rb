@@ -428,7 +428,7 @@ class ProjectController < ApplicationController
 
   def save_person
     valid_http_methods(:post)
-    user = Person.find_cached( :login => params[:userid] )
+    user = Person.find_cached( params[:userid] )
     unless user
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => @project, :role => params[:role]
