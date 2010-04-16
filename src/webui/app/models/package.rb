@@ -156,10 +156,12 @@ class Package < ActiveXML::Base
       rescue ActiveXML::Transport::NotFoundError
       end
       if link
-	if link.has_element? 'package'
-	  my_linked = [link.project, link.package]
+	linkproject = project
+	linkproject = link.project if link.has_element? 'project'
+        if link.has_element? 'package'
+	  my_linked = [linkproject, link.package]
 	else
-	  my_linked = [link.project, name]
+	  my_linked = [linkproject, name]
 	end
       else
 	my_linked = []
