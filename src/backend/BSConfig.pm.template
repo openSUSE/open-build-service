@@ -99,6 +99,13 @@ our $relsync_pool = {
 
 #No package signing server
 #our $sign = '/usr/bin/sign';
+#Extend sign call with project name as argument "--project $NAME"
+#our $sign_project = 1;
+#Global sign key 
+#our $keyfile = '/srv/obs/openSUSE-Build-Service.asc';
+#Create a key by default for new projects, if top level have not one
+#our $forceprojectkeys = 1;
+
 
 # Build some package only on specific hosts, or do not build on them
 # our %specialbuildhost = (
