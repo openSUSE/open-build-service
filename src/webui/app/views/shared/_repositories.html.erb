@@ -4,6 +4,7 @@
       $('#' + last_triggered_flag).replaceWith(request);
       $('.flag_trigger').click(trigger);
       $(".flagimage").animate({opacity: 1}, 200);
+      $('#error_' + last_triggered_flag).text('');
       last_triggered_flag = null;
       $('.spinner').hide();
     }

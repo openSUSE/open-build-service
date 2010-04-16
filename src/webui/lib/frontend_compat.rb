@@ -10,9 +10,10 @@ class FrontendCompat
 
   def source_cmd( cmd, opt={} )
     extraparams = ''
-    extraparams << "&repo=#{CGI.escape opt[:repo]}" if opt[:repo]
+    extraparams << "&repository=#{CGI.escape opt[:repository]}" if opt[:repository]
     extraparams << "&arch=#{CGI.escape opt[:arch]}" if opt[:arch]
     extraparams << "&flag=#{CGI.escape opt[:flag]}" if opt[:flag]
+    extraparams << "&status=#{CGI.escape opt[:status]}" if opt[:status]
 
     raise RuntimeError, 'no project given' unless opt[:project]
     logger.debug "SOURCE CMD #{cmd} ; extraparams = #{extraparams}"

@@ -2,8 +2,6 @@ class User < ActiveRecord::Base
   include ActiveRbacMixins::UserMixins::Core
   include ActiveRbacMixins::UserMixins::Validation
 
-  class ArgumentError < Exception; end
-
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
 

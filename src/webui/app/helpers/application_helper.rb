@@ -240,16 +240,16 @@ module ApplicationHelper
   end
 
 
-  def flag_status(flags, repo, arch)
+  def flag_status(flags, repository, arch)
     image = nil
     flag = nil
 
     flags.each do |f|
 
       if f.has_attribute? :repository
-        next if f.repository.to_s != repo
+        next if f.repository.to_s != repository
       else
-        next if repo
+        next if repository
       end
       if f.has_attribute? :arch
         next  if f.arch.to_s != arch
@@ -279,33 +279,33 @@ module ApplicationHelper
       end
 
       if @user and @user.is_maintainer?(@project, @package)
-        opts = { :project => @project, :repo => repo, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
+        opts = { :project => @project, :repository => repository, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
         out = "<div class='flagimage'>" + image_tag(image) + "<div class='hidden flagtoggle'>"
         unless flag.has_attribute? :explicit and flag.element_name == 'disable'
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_disabled_blue.png") +
-            link_to("Explicitly disable", opts.merge({ :cmd => :disable }), {:class => :flag_trigger}) +
+            image_tag("#{flags.element_name}_disabled_blue.png", :alt => '0') +
+            link_to("Explicitly disable", opts.merge({ :cmd => :set_flag, :status => :disable }), {:class => :flag_trigger}) +
             "</div>"
         end
         if flag.element_name == 'disable'
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_enabled_grey.png") +
-            link_to("Take default", opts.merge({ :cmd => :remove }),:class => :flag_trigger) +
+            image_tag("#{flags.element_name}_enabled_grey.png", :alt => '1') +
+            link_to("Take default", opts.merge({ :cmd => :remove_flag }),:class => :flag_trigger) +
             "</div>"
         else
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_disabled_grey.png") +
-            link_to("Take default", opts.merge({ :cmd => :remove }), :class => :flag_trigger)+
+            image_tag("#{flags.element_name}_disabled_grey.png", :alt => '0') +
+            link_to("Take default", opts.merge({ :cmd => :remove_flag }), :class => :flag_trigger)+
             "</div>"
         end if flag.has_attribute? :explicit
         unless flag.has_attribute? :explicit and flag.element_name != 'disable'
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_enabled_blue.png") +
-            link_to("Explicitly enable", opts.merge({ :cmd => :enable }), :class => :flag_trigger) +
+            image_tag("#{flags.element_name}_enabled_blue.png", :alt => '1') +
+            link_to("Explicitly enable", opts.merge({ :cmd => :set_flag, :status => :enable }), :class => :flag_trigger) +
             "</div>"
         end
         out += "</div></div>"

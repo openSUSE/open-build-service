@@ -1,6 +1,8 @@
 require 'opensuse/backend'
 
 class DbProject < ActiveRecord::Base
+  include FlagHelper
+
   class SaveError < Exception; end
 
   has_many :project_user_role_relationships, :dependent => :destroy
@@ -254,15 +256,7 @@ class DbProject < ActiveRecord::Base
       #--- end update groups ---#
 
       #--- update flag group ---#
-      # and recreate the flag groups and flags again
-      flag_compatibility_check( :project => project )
-
-      %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
-        update_flags( :project => project, :flagtype => flagtype )
-      end
-
-      #add old-style-flags as build-flags
-      old_flag_to_build_flag( :project => project ) if project.has_element? :disable
+      update_all_flags( project )
 
       dlcache = Hash.new
       self.downloads.each do |dl|
@@ -732,65 +726,6 @@ class DbProject < ActiveRecord::Base
   end
 
 
-  def update_flags( opts={} )
-    #needed opts: :project, :flagtype
-    project = opts[:project]
-    flagtype = nil
-    flagclass = nil
-    flag = nil
-
-    #translate the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? opts[:flagtype].to_s
-      flagtype = opts[:flagtype].to_s + "_flags"
-    else
-      raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
-    end
-
-    if project.has_element? opts[:flagtype].to_sym
-
-      #remove old flags
-      logger.debug "[DBPROJECT:FLAGS] begin transaction for updating flags"
-      Flag.transaction do
-        self.send(flagtype).destroy_all
-
-        #select each build flag from xml
-        position = 0
-        project.send(opts[:flagtype]).each do |xmlflag|
-
-          #get the selected architecture from data base
-          arch = nil
-          if xmlflag.has_attribute? :arch
-            arch = Architecture.find_by_name(xmlflag.arch)
-            raise SaveError.new( "Error: Architecture type '#{xmlarch}' not found." ) if arch.nil?
-          end
-
-          repo = xmlflag.repository if xmlflag.has_attribute? :repository
-          repo ||= nil
-
-          #instantiate new flag object
-          flag = self.send(flagtype).new :position => position
-          #set the flag attributes
-          flag.repo = repo
-          flag.status = xmlflag.data.name
-          position += 1
-
-          arch.send(flagtype) << flag unless arch.nil?
-          self.send(flagtype) << flag
-
-        end
-      end
-      logger.debug "[DBPROJECT:FLAGS] end transaction for updating flags"
-
-    else
-      #Seems that the users has deleted all flags of the type flagtype, we will also do so.
-      logger.debug "[DBPROJECT:FLAGS] Seems that the users has deleted all flags of the type #{flagtype.singularize.camelize}, we will also do so!"
-      self.send(flagtype).destroy_all
-    end
-
-    #self.reload
-    return true
-  end
-
   # calculate enabled/disabled per repo/arch
   def flag_status(builder, default, repo, arch, prj_flags, pkg_flags)
     ret = default
@@ -824,6 +759,8 @@ class DbProject < ActiveRecord::Base
     opts[:repository] = repo if repo
     opts[:arch] = arch if arch
     opts[:explicit] = '1' if expl
+    ret = 'enable' if ret == :enabled
+    ret = 'disble' if ret == :disabled
     builder.tag! ret, opts
   end
 
@@ -846,33 +783,6 @@ class DbProject < ActiveRecord::Base
       end
       flag_status(builder, flag_default, nil, nil, flaglist, pkg_flags)
     end
-  end
-
-  #no build_flags and old-style-flags should be used at once
-  def flag_compatibility_check( opts={} )
-    project = opts[:project]
-    if project.has_element? :build and
-        ( project.has_element? :disable or project.has_element? :enable )
-      logger.debug "[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags."
-      raise SaveError.new("[DBPROJECT:FLAG-STYLE-MISMATCH] Unable to store flags.")
-    end
-  end
-
-  #TODO this function should be removed if no longer old-style-flags in use
-  def old_flag_to_build_flag( opts={} )
-    project = opts[:project]
-
-    #using a fake-project to import old-style-flags as build-flags
-    fake_project = Project.new(:name => project.name)
-
-    buildflags = REXML::Element.new("build")
-    project.each_disable do |flag|
-      elem = REXML::Document.new(flag.dump_xml).root
-      buildflags.add_element elem
-    end
-
-    fake_project.add_node buildflags.to_s
-    update_flags(:flagtype => 'build', :project => fake_project)
   end
 
   def complex_status(backend)

@@ -659,11 +659,11 @@ class ProjectController < ApplicationController
 
   def change_flag
     if request.post? and params[:cmd] and params[:flag]
-      frontend.source_cmd params[:cmd], :project => @project, :repo => params[:repo], :arch => params[:arch], :flag => params[:flag]
+      frontend.source_cmd params[:cmd], :project => @project, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
     end
-    Project.free_cache( params[:project], :view => :flagdetails )
+    Project.free_cache( :name => params[:project], :view => :flagdetails )
     if request.xhr?
-      @project = Project.find_cached( params[:project], :view => :flagdetails )
+      @project = Project.find_cached( :name => params[:project], :view => :flagdetails )
       render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
     else
       redirect_to :action => :repositories, :project => @project

@@ -1,4 +1,6 @@
 class DbPackage < ActiveRecord::Base
+  include FlagHelper
+
   class SaveError < Exception; end
   class CycleError < Exception; end
   belongs_to :db_project
@@ -305,9 +307,7 @@ class DbPackage < ActiveRecord::Base
       #--- end update groups ---#
 
       #---begin enable / disable flags ---#
-      %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
-        update_flags( :package => package, :flagtype => flagtype )
-      end
+      update_all_flags(package)
       
       #--- update url ---#
       if package.has_element? :url
@@ -524,7 +524,6 @@ class DbPackage < ActiveRecord::Base
   end
 
   def to_axml(view = nil)
-    logger.debug "to_axml #{view}"
     Rails.cache.fetch('meta_package_%s_%d' % [view ? view : 'standard', self.id]) do
       render_axml(view) 
     end
@@ -680,65 +679,4 @@ class DbPackage < ActiveRecord::Base
     self.update_counter += 1
   end
 
-  def update_flags( opts={} )
-    #needed opts: :package, :flagtype
-    package = opts[:package]
-    flagtype = nil
-    flagclass = nil
-    flag = nil
-
-    #translates the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? opts[:flagtype].to_s
-      flagtype = opts[:flagtype].to_s + "_flags"
-    else
-      raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
-    end
-
-    if package.has_element? opts[:flagtype].to_sym
-
-      #remove old flags
-      logger.debug "[DBPACKAGE:FLAGS] begin transaction for updating flags"
-      position = 0
-      Flag.transaction do
-        self.send(flagtype).destroy_all
-
-        #select each build flag from xml
-        package.send(opts[:flagtype]).each do |xmlflag|
-
-          #get the selected architecture from data base
-          arch = nil
-          if xmlflag.has_attribute? :arch
-            arch = Architecture.find_by_name(xmlflag.arch)
-            raise SaveError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
-          end
-
-          repo = xmlflag.repository if xmlflag.has_attribute? :repository
-          repo ||= nil
-
-          #instantiate new flag object
-          flag = self.send(flagtype).new :position => position
-          #set the flag attributes
-          flag.repo = repo
-          flag.status = xmlflag.data.name
-          position += 1
-
-          #flag position will be set through the model, but not verified
-
-          arch.send(flagtype) << flag unless arch.nil?
-          self.send(flagtype) << flag
-
-        end
-      end
-      logger.debug "[DBPACKAGE:FLAGS] end transaction for updating flags"
-
-    else
-      #Seems that the users has deleted all flags of the type flagtype, we will also do so.
-      logger.debug "[DBPACKAGE:FLAGS] Seems that the users has deleted all flags of the type #{flagtype.singularize.camelize}, we will also do so!"
-      self.send(flagtype).destroy_all
-    end
-
-    #self.reload
-    return true
-  end
-  
 end

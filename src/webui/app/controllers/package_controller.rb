@@ -798,17 +798,17 @@ class PackageController < ApplicationController
 
 
   def repositories
-    @package = Package.find_cached( params[:package], :project => params[:project], :view => :flagdetails )
+    @package = Package.find_cached( :name => params[:package], :project => params[:project], :view => :flagdetails )
   end
 
   def change_flag
     if request.post? and params[:cmd] and params[:flag]
-      frontend.source_cmd params[:cmd], :project => @project, :package => @package, :repo => params[:repo], :arch => params[:arch], :flag => params[:flag]
+      frontend.source_cmd params[:cmd], :project => @project, :package => @package, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
     end
-    Package.free_cache( params[:project], :project => @project, :view => :flagdetails )
+    Package.free_cache( :name => params[:package], :project => @project.name, :view => :flagdetails )
     if request.xhr?
-      @package = Package.find_cached( params[:project], :project => @project, :view => :flagdetails )
-      render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
+      @package = Package.find_cached( :name => params[:package], :project => @project.name, :view => :flagdetails )
+      render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.send(params[:flag]), :obj => @package }
     else
       redirect_to :action => :repositories, :project => @project, :package => @package
     end
@@ -859,7 +859,7 @@ class PackageController < ApplicationController
   def require_package
     @project ||= params[:project]
     if params[:package]
-      @package = Package.find_cached( params[:package], :project => @project )
+      @package = Package.find_cached( :name => params[:package], :project => @project.to_s )
     end
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"

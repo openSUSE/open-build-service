@@ -274,7 +274,7 @@ class SourceController < ApplicationController
             render_error :status => 404, :errorcode => "not_found",
               :message => e.message
             return
-          rescue User::ArgumentError => e
+          rescue ArgumentError => e
             render_error :status => 400, :errorcode => "change_attribute_attribute_error",
               :message => e.message
             return
@@ -1159,8 +1159,8 @@ class SourceController < ApplicationController
     render_ok :data => {:targetproject => oprj_name, :targetpackage => opkg_name, :sourceproject => prj_name, :sourcepackage => pkg_name}
   end
 
-  # private
-  def index_package_enable_or_disable(status)
+  # POST /source/<project>/<package>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
+  def index_package_set_flag
     valid_http_methods :post
 
     prj_name = params[:project]
@@ -1173,36 +1173,66 @@ class SourceController < ApplicationController
       return
     end
     pkg = find_package( prj, pkg_name )
-    flagtype = nil
-    #translates the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? params[:flag].to_s
-      flagtype = params[:flag].to_s + "_flags"
-    else
-      raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
-    end
-
-    position = pkg.__send__(flagtype).size
-    flag = pkg.__send__(flagtype).new( :status => status, :position => position + 1 )
-    if params[:arch]
-      flag.architecture = Architecture.find_by_name(params[:arch])
-    end
-    flag.repo = params[:repository]
-    pkg.__send__(flagtype) << flag
-
+    # first remove former flags of the same class
+    pkg.remove_flag(params[:flag], params[:repository], params[:arch])
+    pkg.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
     pkg.store
     render_ok
   end
 
-  # POST /source/<project>/<package>?cmd=disable&repository=:opt&arch=:opt&flag=flag
-  def index_package_disable
+  # POST /source/<project>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
+  def index_project_set_flag
     valid_http_methods :post
-    index_package_enable_or_disable("disable")
+
+    prj_name = params[:project]
+
+    prj = DbProject.find_by_name prj_name
+    if prj.nil?
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => "Unknown project #{prj_name}"
+      return
+    end
+    # first remove former flags of the same class
+    prj.remove_flag(params[:flag], params[:repository], params[:arch])
+    prj.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
+    prj.store
+    render_ok
   end
 
-  # POST /source/<project>/<package>?cmd=enable&repository=:opt&arch=:opt&flag=flag
-  def index_package_enable
+  # POST /source/<project>/<package>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
+  def index_package_remove_flag
     valid_http_methods :post
-    index_package_enable_or_disable("enable")
+    
+    prj_name = params[:project]
+    pkg_name = params[:package]
+
+    prj = DbProject.find_by_name prj_name
+    if prj.nil?
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => "Unknown project #{prj_name}"
+      return
+    end
+    pkg = find_package( prj, pkg_name )
+    pkg.remove_flag(params[:flag], params[:repository], params[:arch])
+    pkg.store
+    render_ok
+  end
+
+  # POST /source/<project>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
+  def index_project_remove_flag
+    valid_http_methods :post
+
+    prj_name = params[:project]
+
+    prj = DbProject.find_by_name prj_name
+    if prj.nil?
+      render_error :status => 404, :errorcode => 'unknown_project',
+        :message => "Unknown project #{prj_name}"
+      return
+    end
+    prj.remove_flag(params[:flag], params[:repository], params[:arch])
+    prj.store
+    render_ok
   end
 
   def valid_project_name? name

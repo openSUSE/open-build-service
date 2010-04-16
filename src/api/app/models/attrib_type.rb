@@ -9,8 +9,6 @@ class AttribType < ActiveRecord::Base
   has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :destroy
   has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
 
-  class ArgumentError < Exception; end
-
   class << self
     def list_all(namespace=nil)
       if namespace
