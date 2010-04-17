@@ -88,7 +88,7 @@ if [ -n "$OBS_CACHE_SIZE" ]; then
         OBS_CACHE_DIR="/tmp/workercache"
         OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
     fi
-    mkdir $OBS_CACHE_DIR
+    mkdir -p $OBS_CACHE_DIR
     OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE"
 else
     # For automatic appliance setup
