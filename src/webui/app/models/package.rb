@@ -161,7 +161,7 @@ class Package < ActiveXML::Base
   end
 
   def linked_to
-    return [linkinfo.prroject, linkinfo.package] if linkinfo
+    return [linkinfo.project, linkinfo.package] if linkinfo
     return []
   end
 

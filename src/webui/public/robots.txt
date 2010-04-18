@@ -5,4 +5,6 @@ Disallow: /stage/package/live_build_log
 Disallow: /ICSLogin
 Disallow: /stage/project/monitor
 Disallow: /project/monitor
+Disallow  /project/buildresult
+Disallow  /stage/project/buildresult
 # once we're done disallow all of stage Disallow: /stage

@@ -55,7 +55,7 @@
         </strong></p>
     <%- end -%>
 
-    <%- if @files.blank?  %>
+    <%- if @package.files.blank?  %>
       <p>
         <%= image_tag 'icons/information.png' %> This package doesn't contain any
         <%= link_to 'files', :action => :files, :project => @project, :package => @package %> yet.</p>
