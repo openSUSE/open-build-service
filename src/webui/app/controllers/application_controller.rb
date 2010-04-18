@@ -203,6 +203,7 @@ class ApplicationController < ActionController::Base
   end
 
   def check_user
+    return unless session[:login]
     @user ||= Person.find_cached( session[:login] )
     if @user
       begin
