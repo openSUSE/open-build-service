@@ -141,7 +141,7 @@ class Package < ActiveXML::Base
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
-  def self.exists? package_name, project_name
+  def self.exists? project_name, package_name
     if Package.find_cached( package_name, :project => project_name )
       return true
     else

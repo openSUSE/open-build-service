@@ -175,6 +175,7 @@ module ApplicationHelper
   end
 
   def package_link(project, package, hide_packagename = false)
+    if Package.exists? project, package
     out = "<span class='build_result_trigger'>"
     out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
     if hide_packagename
@@ -184,6 +185,14 @@ module ApplicationHelper
       out += " / " +  link_to(package, :controller => :package, :action => "show", :project => project, :package => package)
     end
     out += "</span>"
+    else
+    if hide_packagename
+      out = link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
+    else
+      out = link_to project, :controller => :project, :action => "show", :project => project
+      out += " / #{package} (new)"
+    end
+    end
   end
 
   def status_for( repo, arch, package )

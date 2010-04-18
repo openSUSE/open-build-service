@@ -193,7 +193,7 @@ class PackageController < ApplicationController
       flash.now[:error] = "Invalid package name: '#{params[:name]}'"
       render :action => 'new' and return
     end
-    if Package.exists? @package_name, @project
+    if Package.exists? @project, @package_name
       flash.now[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
       render :action => 'new' and return
     end
@@ -248,7 +248,7 @@ class PackageController < ApplicationController
       flash.now[:error] = "Invalid target package name: '#{@target_package}'"
       render :action => "new_link" and return
     end
-    if Package.exists? @target_package, @project
+    if Package.exists? @project, @target_package
       flash.now[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
       render :action => 'new_link' and return
     end

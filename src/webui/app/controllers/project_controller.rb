@@ -608,11 +608,13 @@ class ProjectController < ApplicationController
   def package_buildresult
     @project = params[:project]
     @package = params[:package]
-    @buildresult = Buildresult.find_cached( :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
+    begin
+      @buildresult = Buildresult.find_cached( :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
+    rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
+    end
     @repohash = Hash.new
     @statushash = Hash.new
 
-    return unless @buildresult
     @buildresult.each_result do |result|
       repo = result.repository
       arch = result.arch
@@ -628,7 +630,7 @@ class ProjectController < ApplicationController
       result.each_status do |status|
         stathash[status.package] = status
       end
-    end
+    end if @buildresult
     render :layout => false
   end
 
