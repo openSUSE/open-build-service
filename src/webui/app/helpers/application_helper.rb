@@ -234,6 +234,8 @@ module ApplicationHelper
     when "outdated_blocked" then "icons/time_delete.png"
     when "broken" then "icons/exclamation.png"
     when "succeeded" then "icons/accept.png"
+    when "scheduling" then "icons/cog.png"
+    when "outdated_scheduling" "icons/cog_delete.png"
     else "icons/eye.png"
     end
     image_tag icon, :size => "16x16", :title => status
