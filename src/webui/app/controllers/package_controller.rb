@@ -27,7 +27,7 @@ class PackageController < ApplicationController
   end
 
   def show
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     if @package.bugowner
       @bugowner_mail = Person.find_cached( @package.bugowner ).email.to_s
     elsif @project.bugowner
@@ -85,7 +85,7 @@ class PackageController < ApplicationController
 
   def add_person
     @roles = Role.local_roles
-    Package.free_cache
+    Package.free_cache :project => @project, :package => @package
   end
 
   def rdiff
@@ -692,8 +692,8 @@ class PackageController < ApplicationController
 
   def reload_buildstatus
     # discard cache
-    Buildresult.free_cache( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
+    Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     fill_status_cache
     render :partial => 'buildstatus'
   end
