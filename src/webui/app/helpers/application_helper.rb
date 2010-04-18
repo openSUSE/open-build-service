@@ -235,7 +235,7 @@ module ApplicationHelper
     when "broken" then "icons/exclamation.png"
     when "succeeded" then "icons/accept.png"
     when "scheduling" then "icons/cog.png"
-    when "outdated_scheduling" "icons/cog_delete.png"
+    when "outdated_scheduling" then "icons/cog_delete.png"
     else "icons/eye.png"
     end
     image_tag icon, :size => "16x16", :title => status
