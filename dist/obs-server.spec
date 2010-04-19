@@ -46,7 +46,8 @@ PreReq:         %fillup_prereq %insserv_prereq permissions
 
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
-Recommends:     createrepo >= 0.4.10
+Recommends:     createrepo >= 0.9.8
+Conflicts:      createrepo < 0.9.8
 Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
