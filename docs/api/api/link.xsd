@@ -7,7 +7,8 @@
       </xs:sequence>
       <xs:attribute name="project" type="xs:string"/>
       <xs:attribute name="package" type="xs:string"/>
-      <xs:attribute name="rev" type="xs:string"/>
+      <xs:attribute name="baserev" type="xs:string"/>
+      <xs:attribute name="rev"     type="xs:string"/>
       <xs:attribute name="cicount" type="xs:string"/>
     </xs:complexType>
   </xs:element>
