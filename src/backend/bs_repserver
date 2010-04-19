@@ -216,6 +216,7 @@ sub getbinaryversions {
       my $r = fetchbinary($pool, $repo, $path, $n, 3);
       return unless defined($r);
     }
+    # TODO: move it out of the loop otherwise the same files might be queried multiple times
     if ($hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
       my @s = stat($path);
       $sizek = ($s[7] + 1023) >> 10;
@@ -464,6 +465,7 @@ sub getbinarylist_repository {
         my $r = fetchbinary($pool, $repo, $path, $bin, 3);
         return unless defined($r);
       }
+      # TODO: move it out of the loop otherwise the same files might be queried multiple times
       if ($hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
         my @s = stat($path);
         $sizek = ($s[7] + 1023) >> 10;
