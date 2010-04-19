@@ -10,7 +10,7 @@ module ApplicationHelper
   def user
     if logged_in?
       begin
-        @user ||= Person.find_cached( :login => session[:login] )
+        @user ||= Person.find_cached( session[:login] )
       rescue Object => e
         logger.error "Cannot load person data for #{session[:login]} in application_helper"
       end
@@ -175,6 +175,7 @@ module ApplicationHelper
   end
 
   def package_link(project, package, hide_packagename = false)
+    if Package.exists? project, package
     out = "<span class='build_result_trigger'>"
     out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
     if hide_packagename
@@ -184,6 +185,14 @@ module ApplicationHelper
       out += " / " +  link_to(package, :controller => :package, :action => "show", :project => project, :package => package)
     end
     out += "</span>"
+    else
+    if hide_packagename
+      out = link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
+    else
+      out = link_to project, :controller => :project, :action => "show", :project => project
+      out += " / #{package} (new)"
+    end
+    end
   end
 
   def status_for( repo, arch, package )
@@ -234,6 +243,8 @@ module ApplicationHelper
     when "outdated_blocked" then "icons/time_delete.png"
     when "broken" then "icons/exclamation.png"
     when "succeeded" then "icons/accept.png"
+    when "scheduling" then "icons/cog.png"
+    when "outdated_scheduling" then "icons/cog_delete.png"
     else "icons/eye.png"
     end
     image_tag icon, :size => "16x16", :title => status

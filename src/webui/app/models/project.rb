@@ -1,5 +1,7 @@
 class Project < ActiveXML::Base
   
+  default_find_parameter :name
+
   has_many :package
   has_many :repository
   

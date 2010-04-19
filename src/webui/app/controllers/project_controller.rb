@@ -428,7 +428,7 @@ class ProjectController < ApplicationController
 
   def save_person
     valid_http_methods(:post)
-    user = Person.find_cached( :login => params[:userid] )
+    user = Person.find_cached( params[:userid] )
     unless user
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => @project, :role => params[:role]
@@ -467,6 +467,7 @@ class ProjectController < ApplicationController
     else
       defaults = true
     end
+    params['expansionerror'] = 1 if params['expansion error']
     @avail_status_values = 
       ['succeeded','failed','expansion error','broken', 
       'blocked', 'dispatching', 'scheduled','building','finished',
@@ -508,8 +509,11 @@ class ProjectController < ApplicationController
       end
     }
 
-    @buildresult = Buildresult.find_cached( :project => @project, :view => 'status', :code => @status_filter,
-      @lastbuild_switch.blank? ? nil : :lastbuild => '1', :arch => @arch_filter, :repo => @repo_filter, :expires_in => 1.minute )
+    find_opt = { :project => @project, :view => 'status', :code => @status_filter,
+                 :arch => @arch_filter, :repo => @repo_filter }
+    find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
+
+    @buildresult = Buildresult.find_cached( find_opt.merge({:expires_in => 1.minute}) )
     unless @buildresult
       flash[:error] = "No build results for project '#{@project}'"
       redirect_to :action => :show, :project => params[:project]
@@ -604,11 +608,13 @@ class ProjectController < ApplicationController
   def package_buildresult
     @project = params[:project]
     @package = params[:package]
-    @buildresult = Buildresult.find_cached( :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
+    begin
+      @buildresult = Buildresult.find_cached( :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
+    rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
+    end
     @repohash = Hash.new
     @statushash = Hash.new
 
-    return unless @buildresult
     @buildresult.each_result do |result|
       repo = result.repository
       arch = result.arch
@@ -624,7 +630,7 @@ class ProjectController < ApplicationController
       result.each_status do |status|
         stathash[status.package] = status
       end
-    end
+    end if @buildresult
     render :layout => false
   end
 

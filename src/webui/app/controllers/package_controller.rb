@@ -12,7 +12,7 @@ class PackageController < ApplicationController
     :binary, :dependency, :branch, :change_flag]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
-    :show, :wizard, :edit, :add_file, :save_file, :view_file, 
+    :show, :wizard, :edit, :add_file, :save_file, :view_file, :import_spec,
     :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, :branch, :change_flag]
   before_filter :require_login, :only => [:branch]
 
@@ -27,13 +27,12 @@ class PackageController < ApplicationController
   end
 
   def show
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     if @package.bugowner
       @bugowner_mail = Person.find_cached( @package.bugowner ).email.to_s
     elsif @project.bugowner
       @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s
     end
-    @files = get_files @project, @package
     fill_status_cache
   end
 
@@ -72,20 +71,21 @@ class PackageController < ApplicationController
   end
 
   def files
-    @files = get_files @project, @package
+    @files = @package.files
     @spec_count = 0
     @files.each do |file|
       @spec_count += 1 if file[:ext] == "spec"
       if file[:name] == "_link"
-        @link = Link.find( :project => @project, :package => @package )
+        @link = Link.find_cached( :project => @project, :package => @package )
       elsif file[:name] == "_service"
-        @services = Service.find( :project => @project, :package => @package )
+        @services = Service.find_cached( :project => @project, :package => @package )
       end
     end
   end
 
   def add_person
     @roles = Role.local_roles
+    Package.free_cache :project => @project, :package => @package
   end
 
   def rdiff
@@ -193,7 +193,7 @@ class PackageController < ApplicationController
       flash.now[:error] = "Invalid package name: '#{params[:name]}'"
       render :action => 'new' and return
     end
-    if Package.exists? @package_name, @project
+    if Package.exists? @project, @package_name
       flash.now[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
       render :action => 'new' and return
     end
@@ -248,7 +248,7 @@ class PackageController < ApplicationController
       flash.now[:error] = "Invalid target package name: '#{@target_package}'"
       render :action => "new_link" and return
     end
-    if Package.exists? @target_package, @project
+    if Package.exists? @project, @target_package
       flash.now[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
       render :action => 'new_link' and return
     end
@@ -302,11 +302,7 @@ class PackageController < ApplicationController
   end
 
   def add_file
-    if Link.find( :project => @project.name, :package => @package.name )
-      @package_is_link = true
-    else
-      @package_is_link = false
-    end
+    @package_is_link = !@package.linkinfo.empty?
   end
 
   def save_file
@@ -406,7 +402,7 @@ class PackageController < ApplicationController
       redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
       return
     end
-    user = Person.find_cached( :login => params[:userid] )
+    user = Person.find_cached( params[:userid] )
     unless user
       flash[:error] = "Unknown user '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => @project, :package => params[:package], :role => params[:role]
@@ -446,7 +442,7 @@ class PackageController < ApplicationController
     @filename = params[:file] || ''
     @addeditlink = false
     if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )
-      get_files( @project.name, @package.name ).each do |file|
+      @package.files.each do |file|
         if file[:name] == @filename
           @addeditlink = file[:editable]
           break
@@ -655,80 +651,8 @@ class PackageController < ApplicationController
   end
 
 
-  def disable_build
-    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
-
-    # disable building of a package
-    if params[:arch] && params[:repo]
-      if @package.disable_build :repo => params[:repo], :arch => params[:arch]
-        flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}' / arch '#{params[:arch]}'."
-      else
-        flash[:error] = "Insufficient permissions"
-      end
-    else
-      if params[:repo]
-        if @package.disable_build :repo => params[:repo]
-          flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}'."
-        else
-          flash[:error] = "Insufficient permissions"
-        end
-      elsif params[:arch]
-        if @package.disable_build :arch => params[:arch]
-          flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
-        else
-          flash[:error] = "Insufficient permissions"
-        end
-      else
-        if @package.disable_build
-          flash[:note] = "Disabled building of package '#{params[:package]}' in project '#{params[:project]}' completely."
-        else
-          flash[:error] = "Insufficient permissions"
-        end
-      end
-    end
-    redirect_to :action => "show", :project => params[:project], :package => params[:package]
-  end
-
-
-  def enable_build
-    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
-
-    # (re)-enable building of a package
-    if params[:arch] && params[:repo]
-      if @package.enable_build :repo => params[:repo], :arch => params[:arch]
-        flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}' / arch '#{params[:arch]}'."
-      else
-        flash[:error] = "Insufficient permissions"
-      end
-    else
-      if params[:repo]
-        if @package.enable_build :repo => params[:repo]
-          flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for repo '#{params[:repo]}'."
-        else
-          flash[:error] = "Insufficient permissions"
-        end
-      elsif params[:arch]
-        if @package.enable_build :arch => params[:arch]
-          flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}' for arch '#{params[:arch]}'."
-        else
-          flash[:error] = "Insufficient permissions"
-        end
-      else
-        if @package.enable_build
-          flash[:note] = "Enabled building of package '#{params[:package]}' in project '#{params[:project]}'."
-        else
-          flash[:error] = "Insufficient permissions"
-        end
-      end
-    end
-    redirect_to :action => "show", :project => params[:project], :package => params[:package]
-  end
-
-
   def import_spec
-    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
-
-    all_files = get_files params[:project], params[:package]
+    all_files = @package.files
     all_files.each do |file|
       @specfile_name = file[:name] if file[:name].grep(/\.spec/) != []
     end
@@ -768,8 +692,8 @@ class PackageController < ApplicationController
 
   def reload_buildstatus
     # discard cache
-    Buildresult.free_cache( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => ['status'], :expires_in => 5.minutes )
+    Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
+    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     fill_status_cache
     render :partial => 'buildstatus'
   end
@@ -798,16 +722,16 @@ class PackageController < ApplicationController
 
 
   def repositories
-    @package = Package.find_cached( :name => params[:package], :project => params[:project], :view => :flagdetails )
+    @package = Package.find_cached( params[:package], :project => params[:project], :view => :flagdetails )
   end
 
   def change_flag
     if request.post? and params[:cmd] and params[:flag]
       frontend.source_cmd params[:cmd], :project => @project, :package => @package, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
     end
-    Package.free_cache( :name => params[:package], :project => @project.name, :view => :flagdetails )
+    Package.free_cache( params[:package], :project => @project.name, :view => :flagdetails )
     if request.xhr?
-      @package = Package.find_cached( :name => params[:package], :project => @project.name, :view => :flagdetails )
+      @package = Package.find_cached( params[:package], :project => @project.name, :view => :flagdetails )
       render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.send(params[:flag]), :obj => @package }
     else
       redirect_to :action => :repositories, :project => @project, :package => @package
@@ -828,23 +752,6 @@ class PackageController < ApplicationController
     end
   end
 
-
-  def get_files( project, package )
-    # files whose name ends in the following extensions should not be editable
-    no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
-    files = []
-    dir = Directory.find_cached( :project => project, :package => package )
-    return files unless dir
-    dir.each_entry do |entry|
-      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
-      file[:ext] = Pathname.new(file[:name]).extname
-      file[:editable] = ((not no_edit_ext.include?( file[:ext].downcase )) and file[:size].to_i < 2**20)  # max. 1 MB
-      files << file
-    end
-    # TODO: <linkinfo project="openSUSE:Factory" package="bash" srcmd5="071e073dfd086d97db708deed661a274" baserev="ecb392833f88d01c094404117886b103" xsrcmd5="29d1bfad47af58e8f0033bc02080c2d6" lsrcmd5="b504c8b0bdd073474ce0dc1d7d7b4767" />
-    return files
-  end
-
   def require_project
     if params[:project]
       @project = Project.find_cached( params[:project], :expires_in => 5.minutes )
@@ -859,7 +766,7 @@ class PackageController < ApplicationController
   def require_package
     @project ||= params[:project]
     if params[:package]
-      @package = Package.find_cached( :name => params[:package], :project => @project.to_s )
+      @package = Package.find_cached( params[:package], :project => @project.to_s )
     end
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"
