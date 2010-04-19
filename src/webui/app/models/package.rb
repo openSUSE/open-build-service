@@ -166,6 +166,7 @@ class Package < ActiveXML::Base
   end
 
   def self.current_rev(project, package)
+    Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_cached( :project => project, :package => package )
     return nil unless dir
     return dir.rev
