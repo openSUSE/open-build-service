@@ -471,7 +471,7 @@ class ProjectController < ApplicationController
     @avail_status_values = 
       ['succeeded','failed','expansion error','broken', 
       'blocked', 'dispatching', 'scheduled','building','finished',
-      'disabled', 'excluded','unknown']
+      'signing', 'disabled', 'excluded','unknown']
     @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each { |s|
