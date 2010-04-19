@@ -263,8 +263,9 @@ sub addrepo_scan {
     }
   } elsif ($BSConfig::enable_download_on_demand) {
     my ($projid) = split('/', $prp, 2);
-    if ($projpacks->{$projid}->{'download'}) {
-      my $doddata = $projpacks->{$projid}->{'download'}->[0];
+    my @doddata = grep {$_->{'arch'} && $_->{'arch'} eq $myarch} @{$projpacks->{$projid}->{'download'} || []};
+    if (@doddata) {
+      my $doddata = $doddata[0];
       eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", "$doddata->{'mtype'}", { 'arch' => [ $myarch ] })};
       if ($@) {
 	warn("download on demand: cannot read metadata: $@");
