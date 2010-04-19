@@ -164,18 +164,30 @@ sub addrepo_remote {
   return $pool->repofromdata($prp, $cache);
 }
 
-
-#XXX: DOD
-#    if ($cache->{'/url'}) {
-#      for my $b (@todo) {
-#        next unless $cache->{$b};
-#        my $bin = "$prp/$arch/:full/$cache->{$b}->{'path'}";
-#        print "fetch: $b\n";
-#        fetchbinary("$reporoot/$bin", $cache->{$b}, $cache->{'/url'});
-#        next unless -f "$reporoot/$bin";
-#        $bins{$b} = $bin;
-#      }
-
+sub fetchbinary {
+  my ($pool, $repo, $fullfilename, $bin, $maxredirects) = @_;
+  die($repo->name() . " is no dod repo") unless $repo->dodurl();
+  return $fullfilename if -e $fullfilename;
+  my %rnames = $repo ? $repo->pkgnames() : ();
+  my $p = $rnames{$bin};
+  die("$bin: not available") unless $p;
+  my $url = $repo->dodurl() . "/" . $pool->pkg2path($p);
+  my $tmp = "$fullfilename$$";
+  my $r;
+  eval {
+    #print "fetching: $url\n";
+    my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver};
+    $param->{'maxredirects'} = $maxredirects if defined($maxredirects);
+    $r = BSWatcher::rpc($param);
+  };
+  if ($@) {
+    unlink($tmp);
+    die($@);
+  }
+  return unless defined($r);
+  rename($tmp, $fullfilename) || die("rename: $!\n");
+  return $fullfilename;
+}
 
 sub getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
@@ -185,6 +197,8 @@ sub getbinaryversions {
   my $repo = addrepo_scan($pool, $prp, $arch);
   my %rnames = $repo ? $repo->pkgnames() : ();
   my @res;
+  my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+  return if $BSStdServer::isajax && !defined($serial);
   for my $n (@qbins) {
     my $p = $rnames{$n};
     if (!$p) {
@@ -192,14 +206,29 @@ sub getbinaryversions {
       next;
     }
     my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+    my $sizek = $pool->pkg2sizek($p);
+    my $hdrmd5 = $pool->pkg2pkgid($p);
+    if (!-e $path && $repo->dodurl()) {
+      if (!$BSStdServer::isajax) {
+        BSHandoff::handoff($ajaxsocket, "/getbinaryversions", undef, "project=$projid", "repository=$repoid", "arch=$arch", "binaries=$cgi->{'binaries'}");
+        exit(0);
+      }
+      my $r = fetchbinary($pool, $repo, $path, $n, 3);
+      return unless defined($r);
+    }
+    if ($hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
+      my @s = stat($path);
+      $sizek = ($s[7] + 1023) >> 10;
+      $hdrmd5 = Build::queryhdrmd5($path);
+    }
     my $r;
     if ($path =~ /\.rpm$/) {
       $r = {'name' => "$n.rpm"};
     } else {
       $r = {'name' => "$n.deb"};
     }
-    $r->{'hdrmd5'} = $pool->pkg2pkgid($p);
-    $r->{'sizek'} = $pool->pkg2sizek($p);
+    $r->{'hdrmd5'} = $hdrmd5;
+    $r->{'sizek'} = $sizek;
     push @res, $r;
     next if $cgi->{'nometa'};
     next unless $path =~ s/\.(?:rpm|deb)$//;
@@ -211,6 +240,10 @@ sub getbinaryversions {
     $ctx->addfile(*F);
     $r->{'metamd5'} = $ctx->hexdigest();
     close F;
+  }
+  if (defined($serial)) {
+    BSWatcher::serialize_end($serial);
+    forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch);
   }
   undef $repo;
   undef $pool;
@@ -226,6 +259,8 @@ sub getbinaries {
   my $repo = addrepo_scan($pool, $prp, $arch);
   my %rnames = $repo ? $repo->pkgnames() : ();
   my @send;
+  my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+  return if $BSStdServer::isajax && !defined($serial);
   for my $n (@qbins) {
     my $p = $rnames{$n};
     if (!$p) {
@@ -233,6 +268,14 @@ sub getbinaries {
       next;
     }
     my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+    if (!-e $path && $repo->dodurl()) {
+      if (!$BSStdServer::isajax) {
+        BSHandoff::handoff($ajaxsocket, "/getbinaries", undef, "project=$projid", "repository=$repoid", "arch=$arch", "binaries=$cgi->{'binaries'}");
+        exit(0);
+      }
+      my $r = fetchbinary($pool, $repo, $path, $n, 3);
+      return unless defined($r);
+    }
     if ($path =~ /\.rpm$/) {
       push @send, {'name' => "$n.rpm", 'filename' => $path};
     } else {
@@ -246,9 +289,13 @@ sub getbinaries {
       push @send, {'name' => "$n.meta", 'filename' => "$path-MD5SUMS.meta"};
     }
   }
+  if (defined($serial)) {
+    BSWatcher::serialize_end($serial);
+    forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch);
+  };
   undef $repo;
   undef $pool;
-  BSServer::reply_cpio(\@send);
+  BSWatcher::reply_cpio(\@send);
   return undef;
 }
   
@@ -352,24 +399,26 @@ sub getbinarylist_repository {
   }
 
   if ($view eq 'cpio') {
-# XXX: DOD
-#      if ($cache->{'/url'} && ! -e "$reporoot/$prp/$arch/:full/$c->{'path'}") {
-#	fetchbinary("$reporoot/$prp/$arch/:full/$c->{'path'}", $c, $cache->{'/url'});
-#      }
     my @files;
     my $pool = BSSolv::pool->new();
     my $repo = addrepo_scan($pool, $prp, $arch);
     my %names = $repo ? $repo->pkgnames() : ();
     my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
+    my $serial = BSWatcher::serialize("$reporoot/$prp/$arch");
+    return unless defined($serial);
     for my $bin (@bins) {
       my $p = $names{$bin};
       if (!$p) {
 	push @files, {'name' => $bin, 'error' => 'not available'};
 	next;
       }
-      my $fullpath = $pool->pkg2fullpath($p, $arch);
+      my $fullpath = $reporoot . "/" . $pool->pkg2fullpath($p, $arch);
+      if (!-e $fullpath && $repo->dodurl()) {
+        my $r = fetchbinary($pool, $repo, $fullpath, $bin, 3);
+        return unless defined($r);
+      }
       my $fd = gensym;
-      if (!open($fd, '<', "$reporoot/$fullpath")) {
+      if (!open($fd, '<', "$fullpath")) {
 	push @files, {'name' => $bin, 'error' => 'not available'};
 	next;
       }
@@ -377,18 +426,24 @@ sub getbinarylist_repository {
       $n .= $1 if $fullpath =~ /(\.rpm|\.deb)$/;
       push @files, {'name' => $n, 'filename' => $fd},
     }
+    BSWatcher::serialize_end($serial);
+    # XXX: we don't know if a package was fetched
+    forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch);
     undef $repo;
     undef $pool;
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
 
+  # FIXME: nearly a duplicate of getbinaryversions()
   if ($view eq 'binaryversions') {
     my $pool = BSSolv::pool->new();
     my $repo = addrepo_scan($pool, $prp, $arch);
     my %names = $repo ? $repo->pkgnames() : ();
     my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
     my @res;
+    my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+    return if $BSStdServer::isajax && !defined($serial);
     for my $bin (@bins) {
       my $p = $names{$bin};
       if (!$p) {
@@ -396,14 +451,32 @@ sub getbinarylist_repository {
 	next;
       }
       my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+      my $sizek = $pool->pkg2sizek($p);
+      my $hdrmd5 = $pool->pkg2pkgid($p);
+      if (!-e $path && $repo->dodurl()) {
+        if (!$BSStdServer::isajax) {
+          my @args;
+          push @args, "view=$view";
+          push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
+          BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/_repository", undef, @args);
+          exit(0);
+        }
+        my $r = fetchbinary($pool, $repo, $path, $bin, 3);
+        return unless defined($r);
+      }
+      if ($hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
+        my @s = stat($path);
+        $sizek = ($s[7] + 1023) >> 10;
+        $hdrmd5 = Build::queryhdrmd5($path);
+      }
       my $r;
       if ($path =~ /\.rpm$/) {
 	$r = {'name' => "$bin.rpm"};
       } else {
 	$r = {'name' => "$bin.deb"};
       }    
-      $r->{'hdrmd5'} = $pool->pkg2pkgid($p);
-      $r->{'sizek'} = $pool->pkg2sizek($p);
+      $r->{'hdrmd5'} = $hdrmd5;
+      $r->{'sizek'} = $sizek;
       push @res, $r;
       next if $cgi->{'nometa'};
       next unless $path =~ s/\.(?:rpm|deb)$//;
@@ -415,6 +488,10 @@ sub getbinarylist_repository {
       $ctx->addfile(*F);
       $r->{'metamd5'} = $ctx->hexdigest();
       close F;
+    }
+    if (defined($serial)) {
+      BSWatcher::serialize_end($serial);
+      forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch);
     }
     undef $repo;
     undef $pool;
@@ -440,9 +517,15 @@ sub getbinarylist_repository {
     my $r = {'filename' => $view eq 'names' ? $n : $path };
     my $id = $pool->pkg2bsid($p);
     if ($id) {
-      my @s = split('/', $id, 3);
-      $r->{'mtime'} = $s[0];
-      $r->{'size'} = $s[1];
+      if ($id eq 'dod') {
+        $r->{'mtime'} = '';
+        $r->{'size'} = '';
+        $r->{'filename'} =~ s/.*\///;
+      } else {
+        my @s = split('/', $id, 3);
+        $r->{'mtime'} = $s[0];
+        $r->{'size'} = $s[1];
+      }
     } else {
       my @s = stat("$reporoot/$prp/$arch/:full/$path");
       if (@s) {
@@ -636,33 +719,6 @@ sub getlogfile {
   return undef;
 }
 
-#
-# XXX: DOD
-# 
-#sub fetchbinary {
-#  my ($dest, $c, $url) = @_;
-#  return undef unless $c;
-#  return undef unless $c->{'rpath'};
-#  my $uri = "$url/$c->{'rpath'}";
-#  print "fetching: $uri\n";
-#  # FIXME: this should be "more" atomic
-#  eval {
-#    BSRPC::rpc({
-#      uri => $uri,
-#      maxredirects => 3,
-#      filename => "$dest$$",
-#      receiver => \&BSHTTP::file_receiver
-#    }, undef);
-#  };
-#  if ($@) {
-#    print "failed: $@";
-#    unlink("$dest$$");
-#    return undef;
-#  }
-#  rename("$dest$$", $dest) || die("rename $dest$$ $dest: $!\n");
-#  return $dest;
-#}
-
 sub getbinary_info {
   my ($cgi, $projid, $repoid, $arch, $path) = @_;
   my @s = stat($path);
@@ -732,6 +788,8 @@ sub getbinary_repository {
   }
   my $view = $cgi->{'view'} || '';
   my $path = "$reporoot/$projid/$repoid/$arch/:full/$bin";
+  my $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+  return if $BSStdServer::isajax && !defined($serial);
   if (! -f $path) {
     # return by name
     my $pool = BSSolv::pool->new();
@@ -740,16 +798,28 @@ sub getbinary_repository {
     my $p = $rnames{$bin};
     die("no such binary '$bin'\n") unless $p;
     $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+    if (!-e $path && $repo->dodurl()) {
+      if (!$BSStdServer::isajax) {
+        BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/_repository/$bin", $view ? "view=$view" : undef);
+        exit(0);
+      }
+      my $r = fetchbinary($pool, $repo, $path, $bin, 3);
+      return unless defined($r);
+    }
     undef $repo;
     undef $pool;
     die("$bin: $!\n") unless -f $path;
+  }
+  if (defined($serial)) {
+    BSWatcher::serialize_end($serial);
+    forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch);
   }
   return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
   die("unknown view '$view'\n") if $view;
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $path=~ /\.rpm$/;
   $type = 'application/x-debian-package' if $path=~ /\.deb$/;
-  BSServer::reply_file($path, "Content-Type: $type");
+  BSWatcher::reply_file($path, "Content-Type: $type");
   return undef;
 }
 
@@ -2541,7 +2611,10 @@ my $dispatches_ajax = [
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
+  '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 ];
 
 my $conf = {
