@@ -1158,18 +1158,23 @@ sub putjob {
   s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @l;
   BSUtil::appendstr("$jobsdir/finished", join('|', @l)."\n");
 
-  # write now jobstatus and free lock
-  $jobstatus->{'code'} = 'finished';
-  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
-  close F;
-
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
 
   if ($BSConfig::sign && grep {$_->{'name'} =~ /\.rpm$/} (@$uploaded)) {
+    # write now jobstatus and free lock
+    $jobstatus->{'code'} = 'signing';
+    writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+    close F;
+
     mkdir_p("$eventdir/signer");
     writexml("$eventdir/signer/.finished:$arch:$job$$", "$eventdir/signer/finished:$arch:$job", $ev, $BSXML::event);
     ping('signer');
   } else {
+    # write now jobstatus and free lock
+    $jobstatus->{'code'} = 'finished';
+    writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+    close F;
+
     mkdir_p("$eventdir/$arch");
     writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
     dirty($projid, $repoid, $arch);

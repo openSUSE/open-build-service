@@ -80,8 +80,9 @@ sub signjob {
     return undef;
   }
   my $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
-  if ($jobstatus->{'code'} ne 'finished') {
-    print "job is not finished\n";
+  # finished can be removed here later, but running jobs shall not be lost on code update.
+  if ($jobstatus->{'code'} ne 'finished' && $jobstatus->{'code'} ne 'signing') {
+    print "job is not assigned for signing\n";
     close F;
     return undef;
   }
@@ -127,7 +128,12 @@ sub signjob {
     }
     Storable::nstore($bininfo, "$jobdir/.bininfo") if %$bininfo;
   }
-  close F;	# release lock
+  
+  # write finished job status and release lock
+  $jobstatus->{'code'} = 'finished';
+  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  close F;
+
   return 1;
 }
 
