@@ -595,6 +595,12 @@ class SourceController < ApplicationController
       return
     end
 
+    unless valid_package_name? package_name
+      render_error :status => 400, :errorcode => "invalid_package_name",
+        :message => "invalid package name '#{package_name}'"
+      return
+    end
+
     if request.get?
       unless pack = find_package( pro, package_name )
         render_error :status => 404, :errorcode => "unknown_package",
