@@ -469,9 +469,9 @@ class ProjectController < ApplicationController
     end
     params['expansionerror'] = 1 if params['expansion error']
     @avail_status_values = 
-      ['succeeded','failed','expansion error','broken', 
-      'blocked', 'dispatching', 'scheduled','building','finished',
-      'signing', 'disabled', 'excluded','unknown']
+      ['succeeded', 'failed', 'expansion error', 'broken', 
+      'blocked', 'dispatching', 'scheduled', 'building', 'finished',
+      'signing', 'disabled', 'excluded', 'unknown']
     @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each { |s|
