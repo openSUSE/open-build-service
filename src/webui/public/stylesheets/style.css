@@ -71,6 +71,20 @@ span.build_result_title {
   color: #00f;
   background-color: #bbb;
 }
+.status_signing a,
+.status_signing a:visited,
+.status_signing a:hover
+{
+  color: #666;
+  background-color: #bbb;
+}
+.status_finished a,
+.status_finished a:visited,
+.status_finished a:hover
+{
+  color: #222;
+  background-color: #bbb;
+}
 .status_disabled a,
 .status_disabled a:hover,
 .status_disabled a:visited {
