@@ -11,8 +11,8 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsdispatcher
-# Required-Start:    $time $syslog obssrcserver obsrepserver
-# Should-Start:      obsscheduler $remote_fs
+# Required-Start:    $time $syslog obsrepserver
+# Should-Start:      obssrcserver obsscheduler $remote_fs
 # Should-Stop:       $none
 # Required-Stop:     $null
 # Default-Start:     3 5

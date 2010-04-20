@@ -11,8 +11,8 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obspublisher
-# Required-Start:    $time $syslog obssrcserver obsrepserver
-# Should-Start:      obsscheduler
+# Required-Start:    $time $syslog
+# Should-Start:      obssrcserver obsrepserver obsscheduler
 # Should-Stop:       $none
 # Required-Stop:     $null
 # Default-Start:     3 5
