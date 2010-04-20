@@ -19,7 +19,7 @@ module PackageHelper
   end
 
   def human_readable_fsize( bytes )
-    number_to_human_size(bytes, :precision => 2)
+    number_to_human_size bytes
   end
   
   def guess_code_class( filename )

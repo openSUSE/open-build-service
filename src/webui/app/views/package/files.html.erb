@@ -11,6 +11,23 @@
 
 <%= render :partial => "tabs" %>
 
+
+<% content_for :content_for_head do %>
+  <%= javascript_include_tag 'jquery.tablesorter.js' %>
+<% end %>
+
+
+<% content_for :ready_function do %>
+  $("#files_table").tablesorter( {
+  sortList: [[0,1]],
+  widgets: ['zebra'],
+  headers: {
+  3: { sorter: false }
+  }
+  } );
+<% end %>
+
+
 <%= render :partial => 'links' if @link %>
 <%= render :partial => 'services' if @services %>
 
@@ -19,45 +36,58 @@
   <h3>
     Uploaded Files
     <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add File"), 
-    :action => :add_file, :project => @project, :package => @package %>
+      <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add File"),
+        :action => :add_file, :project => @project, :package => @package %>
     <% end %>
   </h3>
+
   <% if !@files.empty? %>
-  <table class="grid">
-    <% @files.each do |file| %>
-    <tr>
-      <% next if file[:name].match(/^_service/) %>
-      <% if file[:editable] %>
-        <td><%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %></td>
-      <% else %>
-        <td><%= file[:name] %></td>
-      <% end %>
-      <td><%=h human_readable_fsize( file[:size] )%></td>
-      <td><%= link_to "[Download]", file_url( @project, @package, file[:name] ) %></td>
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-        <td><%= link_to "[Remove]", {:action => :remove_file, :project => @project,
-        :package => @package, :filename => file[:name]},
-        {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%></td>
-      <% end %>
-      <td>
-        <% if @link && @link.has_add_patch?( file[:name] ) %>
-        (Added Patch)
-        <% elsif @link && @link.has_patch?( file[:name] ) %>
-        (Global Patch)
+
+    <table cellspacing='1' id="files_table" class="tablesorter">
+      <thead>
+        <tr>
+          <th class="header">Filename</th>
+          <th class="header">Size</th>
+          <th class="header">Changed</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <% @files.each do |file| %>
+        <% next if file[:name].match(/^_service/) %>
+          <tr><td>
+            <% if file[:editable] %>
+                <%= link_to(h(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %>
+              <% else %>
+                <%= file[:name] %>
+              <% end %>
+              <% if @link && @link.has_add_patch?( file[:name] ) %>
+                (Added Patch)
+              <% elsif @link && @link.has_patch?( file[:name] ) %>
+                (Global Patch)
+              <% end %>
+            </td>
+            <td><%=h human_readable_fsize( file[:size] )%></td>
+            <td>
+              <%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %>
+            </td>
+            <td><%= link_to "[Download]", file_url( @project, @package, file[:name] ) %>
+              <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+                <%= link_to "[Remove]", {:action => :remove_file, :project => @project,
+                  :package => @package, :filename => file[:name]},
+                  {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
+              <% end %>
+            </td>
+          </tr>
         <% end %>
-      </td>
-      <td>
-        last changed <%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %>
-      </td>
-    </tr>
-    <% end %>
-  </table>
+      </tbody>
+    </table>
   <% end %>
   <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-  <p>
-  <%= link_to "[Add File]", :action => :add_file, :project => @project, :package => @package %>
-  </p>
+    <p>
+      <%= link_to "[Add File]", :action => :add_file, :project => @project, :package => @package %>
+    </p>
   <% end %>
 </div>
 
