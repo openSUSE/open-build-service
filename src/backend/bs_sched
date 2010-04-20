@@ -4055,6 +4055,11 @@ while(1) {
 	$packstatus{$packid} = $pdata->{'error'};
 	next;
       }
+      if ($pdata->{'error'} =~ /download in progress/) {
+        $packstatus{$packid} = 'blocked';
+        $packerror{$packid} = $pdata->{'error'};
+	next;
+      }
       $packstatus{$packid} = 'broken';
       $packerror{$packid} = $pdata->{'error'};
       next;

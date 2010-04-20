@@ -92,8 +92,12 @@ sub notify_repservers {
   my @args = ("type=$type", "project=$projid");
   push @args, "package=$packid" if defined $packid;
   for my $rrserver ($BSConfig::reposerver) {
+    my $param = {
+      'uri' => "$rrserver/event",
+      'background' => 1,
+    };
     eval {
-      BSRPC::rpc("$rrserver/event", undef, @args);
+      BSWatcher::rpc($param, undef, @args);
     };
     print "warning: $rrserver: $@" if $@;
   }
@@ -2030,6 +2034,11 @@ sub remote_getrev {
   for my $entry (@{$dir->{'entry'} || []}) {
     $files->{$entry->{'name'}} = $entry->{'md5'};
     next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
+    if ($linked && $entry->{'size'} > 8192) {
+      # getprojpack request, hand over to AJAX
+      BSHandoff::rpc($ajaxsocket, "/source/$projid/$packid", undef, "rev=$dir->{'srcmd5'}");
+      die("download in progress\n");
+    }
     mkdir_p($uploaddir);
     my $param = {
       'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/$entry->{'name'}",
@@ -2219,6 +2228,63 @@ sub getsources {
   my $files = lsrev($rev);
   my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} keys %$files;
   BSServer::reply_cpio(\@send);
+  return undef;
+}
+
+sub detach {
+  my $jev = $BSServerEvents::gev;
+  return unless exists $jev->{'fd'};
+  my $ev = BSEvents::new('never');
+  for (keys %$jev) {
+    $ev->{$_} = $jev->{$_} unless $_ eq 'id' || $_ eq 'handler' || $_ eq 'fd';
+  }
+  $jev->{'conf'}->{'stdreply'}->(@_) if $jev->{'conf'}->{'stdreply'};
+  $BSServerEvents::gev = $ev;
+  return $ev;
+}
+
+my %getfilelist_ajax_inprogress;
+
+sub getfilelist_ajax {
+  my ($cgi, $projid, $packid) = @_;
+
+  my $jev = $BSServerEvents::gev;
+  if (!$jev->{'remoteurl'}) {
+    die unless $cgi->{'rev'};
+    my $proj = remoteprojid($projid);
+    die("missing project/package\n") unless $proj;
+    $jev->{'remoteurl'} = "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid";
+  }
+  if (!$jev->{'filelist'}) {
+    my $rev = $cgi->{'rev'};
+    return $BSStdServer::return_ok if $getfilelist_ajax_inprogress{"$projid/$packid/$rev"};
+    my $param = {
+      'uri' => $jev->{'remoteurl'},
+    };
+    $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$rev");
+    return undef unless $jev->{'filelist'};
+    $jev = detach($BSStdServer::return_ok);
+    $jev->{'idstring'} = "$projid/$packid/$rev";
+    $getfilelist_ajax_inprogress{"$projid/$packid/$rev"} = $jev;
+    $jev->{'cleanup'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$rev"}};
+  }
+  my $dir = $jev->{'filelist'};
+  for my $entry (@{$dir->{'entry'} || []}) {
+    next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
+    mkdir_p($uploaddir);
+    my $param = {
+      'uri' => "$jev->{'remoteurl'}/$entry->{'name'}",
+      'filename' => "$uploaddir/$$-$jev->{'id'}",
+      'withmd5' => 1,
+      'receiver' => \&BSHTTP::file_receiver,
+    };
+    my $res = BSWatcher::rpc($param, undef, "rev=$cgi->{'rev'}");
+    return undef unless $res;
+    die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
+    die unless -e "$uploaddir/$$-$jev->{'id'}";
+    addfile($projid, $packid, "$uploaddir/$$-$jev->{'id'}", $entry->{'name'}, $entry->{'md5'});
+  }
+  notify_repservers('package', $projid, $packid);
   return undef;
 }
 
@@ -4459,6 +4525,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
+  '/source/$project/$package rev' => \&getfilelist_ajax,
 ];
 
 ####################################################################

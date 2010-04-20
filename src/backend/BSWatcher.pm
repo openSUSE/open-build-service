@@ -34,6 +34,7 @@ use Symbol;
 use XML::Structured;
 use Data::Dumper;
 use MIME::Base64;
+use Digest::MD5 ();
 
 use strict;
 
@@ -608,6 +609,7 @@ sub rpc_recv_file_data_handler {
     BSServerEvents::stream_close($rev, $ev);
     return 0;
   }
+  $ev->{'ctx'}->add($data) if $ev->{'ctx'};
   return 1;
 }
 
@@ -620,6 +622,10 @@ sub rpc_recv_file_close_handler {
     my @s = stat($ev->{'fd'});
     $res->{'size'} = $s[7] if @s;
     close $ev->{'fd'};
+    if ($ev->{'ctx'}) {
+      $res->{'md5'} = $ev->{'ctx'}->hexdigest;
+      delete $ev->{'ctx'};
+    }
   }
   delete $ev->{'fd'};
   my $trailer = $ev->{'chunktrailer'} || '';
@@ -629,7 +635,7 @@ sub rpc_recv_file_close_handler {
 }
 
 sub rpc_recv_file {
-  my ($ev, $chunked, $data, $filename) = @_;
+  my ($ev, $chunked, $data, $filename, $withmd5) = @_;
   #print "rpc_recv_file $filename\n";
   my $fd = gensym;
   if (!open($fd, '>', $filename)) {
@@ -641,6 +647,7 @@ sub rpc_recv_file {
   $wev->{'readev'} = $ev;
   $ev->{'writeev'} = $wev;
   $wev->{'fd'} = $fd;
+  $wev->{'ctx'} = Digest::MD5->new if $withmd5;
   if ($chunked) {
     $wev->{'handler'} = \&rpc_recv_stream_handler;
   } else {
@@ -765,7 +772,7 @@ sub rpc_recv_handler {
     die("answer is neither chunked nor does it contain a content length\n") unless $chunked || defined($cl);
     $ev->{'contentlength'} = $cl if !$chunked && defined($cl);
     if ($param->{'receiver'} == \&BSHTTP::file_receiver) {
-      rpc_recv_file($ev, $chunked, $ans, $param->{'filename'});
+      rpc_recv_file($ev, $chunked, $ans, $param->{'filename'}, $param->{'withmd5'});
     } elsif ($param->{'receiver'} == \&BSServer::reply_receiver) {
       my $ct = $headers{'content-type'} || 'application/octet-stream';
       my @args;
@@ -869,6 +876,19 @@ sub rpc {
     $uri = $param->{'uri'};
     @xhdrs = @{$param->{'headers'} || []};
   }
+  if ($param->{'background'}) {
+    my $ev = BSEvents::new('never');
+    for (keys %$jev) {
+      $ev->{$_} = $jev->{$_} unless $_ eq 'id' || $_ eq 'handler' || $_ eq 'fd' || $_ eq 'rpcerror';
+    }
+    $ev->{'redohandler'} = sub {
+      die("$ev->{'rpcerror'}\n") if $ev->{'rpcerror'};
+      return undef
+    };
+    local $BSServerEvents::gev = $ev;
+    rpc({%$param, 'background' => 0}, $xmlargs, @args);
+    return;
+  }
   $uri = BSRPC::createuri($param, @args);
   my $rpcuri = $uri;
   $rpcuri .= ";$jev->{'id'}" unless $param->{'joinable'};
@@ -938,6 +958,7 @@ sub rpc {
     close $ev->{'fd'};
     delete $ev->{'fd'};
     delete $rpcs{$rpcuri};
+print "XXX connect to $host:$port: $!\n";
     die("connect to $host:$port: $!\n");
   }
   $ev->{'rpcstate'} = 'sending';
@@ -973,6 +994,7 @@ sub getstatus {
     $r->{'state'} = $ev->{'rpcstate'} if $ev->{'rpcstate'};
     for my $jev (@{$ev->{'joblist'} || []}) {
       my $j = {'ev' => $jev->{'id'}};
+      $j->{'fd'} = $j->{'idstring'} if $jev->{'idstring'};
       $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
       my $req = $jev->{'request'};
       if ($req) {

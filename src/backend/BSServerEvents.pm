@@ -108,6 +108,11 @@ sub reply {
   my ($str, @hi) = @_;
   my $ev = $gev;
   # print "reply to event #$ev->{'id'}\n";
+  if (!exists($ev->{'fd'})) {
+    $ev->{'cleanup'}->($ev) if $ev->{'cleanup'};
+    print "$str\n" if defined $str;
+    return;
+  }
   if ($ev->{'streaming'}) {
     # already in progress, can not do much here...
     $ev->{'replbuf'} .= "\n\n$str" if defined $str;
@@ -289,7 +294,11 @@ sub getrequest {
       my $newfd = gensym;
       $r = $ev->{'conf'}->{'getrequest_recvfd'}->($ev->{'fd'}, $newfd, 1024);
       if (defined($r)) {
-        $ev->{'nfd'} = $newfd;
+	if (-c $newfd) {
+	  close $newfd;	# /dev/null case, no handoff requested
+	} else {
+          $ev->{'nfd'} = $newfd;
+	}
         $ev->{'reqbuf'} = $r;
         $r = length($r);
       }
@@ -376,6 +385,7 @@ sub newconnect {
 sub cloneconnect {
   my (@reply) = @_;
   my $ev = $gev;
+  return $ev unless exists $ev->{'nfd'};
   fcntl($ev->{'nfd'}, F_SETFL, O_NONBLOCK);
   my $nev = BSEvents::new('read', $ev->{'handler'});
   $nev->{'fd'} = $ev->{'nfd'};
