@@ -318,7 +318,7 @@ sub createrepo_rpmmd {
       unlink($_) if @s && $s[9] < $now - 7*86400;
     }
   }
-  if ( -e "/usr/bin/repoview" ) {
+  if (-x "/usr/bin/repoview") {
     if ($BSConfig::repodownload) {
       print "    running repoview\n";
       qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
