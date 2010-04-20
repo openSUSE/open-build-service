@@ -11,8 +11,8 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obswarden
-# Required-Start:    $time $syslog obssrcserver obsrepserver
-# Required-Stop:     $null
+# Required-Start:    $time $syslog obsrepserver
+# Required-Stop:     obssrcserver $null
 # Should-Start:      obsstoragesetup
 # Should-Stop:       $none
 # Default-Start:     3 5
