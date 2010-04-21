@@ -76,27 +76,27 @@
 
         if p['requests_from'].empty?
           p['problems'].sort.each do |c|
-          if c == 'different_changes'
-            outs << link_to("Different changes in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-              :action => :rdiff, :oproject => @project, :opackage => p['name'])
-            sortkey = "5-changes" + p['name']
-            icon = "changes"
-          elsif c == 'different_sources'
-             outs << link_to("Different sources in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-              :action => :rdiff, :oproject => @project, :opackage => p['name'])
-            sortkey = "6-changes" + p['name']
-            icon = "changes"
-          elsif c.match(/^error-/)
-             outs << link_to(c[6..-1], :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-              :action => :show)
-            sortkey = "1-problem-" + p['name']
-            icon = "error"
-          else
-             outs << link_to(c, :controller => :package, :project => p['develproject'], :package => p['develpackage'],
-              :action => :show)
-            sortkey = "1-changes" + p['name']
-            icon = "error"
-          end
+            if c == 'different_changes'
+              outs << link_to("Different changes in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                :action => :rdiff, :oproject => @project, :opackage => p['name'])
+              sortkey = "5-changes" + p['name']
+              icon = "changes"
+            elsif c == 'different_sources'
+              outs << link_to("Different sources in devel project", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                :action => :rdiff, :oproject => @project, :opackage => p['name'])
+              sortkey = "6-changes" + p['name']
+              icon = "changes"
+            elsif c.match(/^error-/)
+              outs << link_to(c[6..-1], :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                :action => :show)
+              sortkey = "1-problem-" + p['name']
+              icon = "error"
+            else
+              outs << link_to(c, :controller => :package, :project => p['develproject'], :package => p['develpackage'],
+                :action => :show)
+              sortkey = "1-changes" + p['name']
+              icon = "error"
+            end
           end
         end
         p['requests_to'].each do |id|
@@ -111,12 +111,12 @@
         end
         # ignore the upstream version if there are already changes pending
         if p['upstream_version'] and sortkey.nil?
-            if p['upstream_url']
-              outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
-            else
-              outs << "New upstream version " + p['upstream_version'] + " available"
-            end
-            sortkey = "8-outdated-" + p['name']
+          if p['upstream_url']
+            outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
+          else
+            outs << "New upstream version " + p['upstream_version'] + " available"
+          end
+          sortkey = "8-outdated-" + p['name']
         end
         if p['firstfail']
           outs.unshift(link_to("Fails", :title => p['name'], :controller => :package,

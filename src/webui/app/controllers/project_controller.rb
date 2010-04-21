@@ -10,7 +10,7 @@ class ProjectController < ApplicationController
 
   class NoChangesError < Exception; end
 
-  before_filter :require_project, :only => [:delete, :buildresult, :view, 
+  before_filter :require_project, :only => [:delete, :buildresult, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :show, :monitor, :edit_prjconf, :list_requests,
@@ -19,7 +19,7 @@ class ProjectController < ApplicationController
 
   before_filter :load_current_requests, :only => [:delete, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
-    :remove_person, :save_person, :add_person, :remove_target, 
+    :remove_person, :save_person, :add_person, :remove_target,
     :show, :monitor, :edit_prjconf, :list_requests,
     :packages, :users, :subprojects, :repositories, :attributes, :meta, :edit_meta ]
   before_filter :require_prjconf, :only => [:edit_prjconf, :prjconf ]
@@ -365,8 +365,8 @@ class ProjectController < ApplicationController
   def save_targets
     valid_http_methods :post
     if (params['repo'].blank?)
-        flash[:error] = "Please select a repository."
-        redirect_to :action => :add_target_simple, :project => @project and return
+      flash[:error] = "Please select a repository."
+      redirect_to :action => :add_target_simple, :project => @project and return
     end
 
     params['repo'].each do |repo|
@@ -443,7 +443,7 @@ class ProjectController < ApplicationController
     redirect_to :action => :users, :project => @project
   end
 
-  
+
   def remove_person
     if params[:userid].blank?
       flash[:note] = "User removal aborted, no user id given!"
@@ -458,7 +458,7 @@ class ProjectController < ApplicationController
     redirect_to :action => :users, :project => params[:project]
   end
 
-  
+
   def monitor
     @name_filter = params[:pkgname]
     @lastbuild_switch = params[:lastbuild]
@@ -468,8 +468,8 @@ class ProjectController < ApplicationController
       defaults = true
     end
     params['expansionerror'] = 1 if params['expansion error']
-    @avail_status_values = 
-      ['succeeded', 'failed', 'expansion error', 'broken', 
+    @avail_status_values =
+      ['succeeded', 'failed', 'expansion error', 'broken',
       'blocked', 'dispatching', 'scheduled', 'building', 'finished',
       'signing', 'disabled', 'excluded', 'unknown']
     @filter_out = ['disabled', 'excluded', 'unknown']
@@ -484,7 +484,7 @@ class ProjectController < ApplicationController
       next if defaults && @filter_out.include?(s)
       @status_filter << s
     }
-    
+
     @avail_arch_values = []
     @avail_repo_values = []
 
@@ -501,7 +501,7 @@ class ProjectController < ApplicationController
         @arch_filter << s
       end
     }
-   
+
     @repo_filter = []
     @avail_repo_values.each { |s|
       if defaults || (params.has_key?('repo_' + s) && params['repo_' + s])
@@ -510,7 +510,7 @@ class ProjectController < ApplicationController
     }
 
     find_opt = { :project => @project, :view => 'status', :code => @status_filter,
-                 :arch => @arch_filter, :repo => @repo_filter }
+      :arch => @arch_filter, :repo => @repo_filter }
     find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
 
     @buildresult = Buildresult.find_cached( find_opt.merge({:expires_in => 1.minute}) )
@@ -542,7 +542,7 @@ class ProjectController < ApplicationController
 
       # package status cache
       @statushash[repo] ||= Hash.new
-      
+
       stathash = Hash.new
       result.each_status do |status|
         stathash[status.package.to_s] = status
@@ -567,7 +567,7 @@ class ProjectController < ApplicationController
     end
     @packagenames = @packagenames.flatten.uniq.sort
 
-    ## Filter for PackageNames #### 
+    ## Filter for PackageNames ####
     @packagenames.reject! {|name| not filter_matches?(name,@name_filter) } if not @name_filter.blank?
     packagename_hash = Hash.new
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
@@ -575,7 +575,7 @@ class ProjectController < ApplicationController
     # filter out repos without current packages
     @statushash.each do |repo, hash|
       hash.each do |arch, packages|
-        
+
         has_packages = false
         packages.each do |p, status|
           if packagename_hash.has_key? p
@@ -659,7 +659,7 @@ class ProjectController < ApplicationController
 
   def prjconf
   end
-  
+
   def edit_prjconf
   end
 
@@ -700,6 +700,10 @@ class ProjectController < ApplicationController
         redirect_to :action => :status, :project => params[:project]
         return
       end
+    end
+    if request.xhr?
+      render :text => '<em>Cleared comment</em>'
+      return
     end
     if params["package"].to_a.length > 1
       flash[:note] = "Cleared comment for packages %s" % params[:package].to_a.join(',')
@@ -767,19 +771,19 @@ class ProjectController < ApplicationController
       ProjectStatus.find(:project => @project)
     end
 
-    all_packages = "All Packages" 
+    all_packages = "All Packages"
     no_project = "No Project"
     @current_develproject = params[:filter_devel] || all_packages
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
 
-    attributes = PackageAttribute.find_cached(:namespace => 'OBS', 
+    attributes = PackageAttribute.find_cached(:namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
     attributes.data.find('/attribute/project/package/values').each do |p|
       # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
-      p.each_element do |v| 
+      p.each_element do |v|
         comments[p.parent['name']] = v.content
       end
     end
@@ -845,7 +849,7 @@ class ProjectController < ApplicationController
         newest = Integer(f.time)
         currentpack['firstfail'] = newest
       end
-      
+
       currentpack['problems'] = Array.new
       currentpack['requests_from'] = Array.new
       currentpack['requests_to'] = Array.new
@@ -931,7 +935,7 @@ class ProjectController < ApplicationController
   end
 
   def require_project
-    if !valid_project_name? params[:project] 
+    if !valid_project_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
         redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
@@ -969,7 +973,7 @@ class ProjectController < ApplicationController
       redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
     end
   end
-  
+
   def require_meta
     begin
       @meta = frontend.get_source(:project => params[:project], :filename => '_meta')

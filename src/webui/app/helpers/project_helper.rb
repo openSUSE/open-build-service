@@ -50,7 +50,8 @@ module ProjectHelper
       status_comment_html = comment
       if !firstfail
         if @project.is_maintainer?( session[:login] )
-          status_comment_html += " (" + link_to('Clear Comment', :action => :clear_failed_comment, :project => @project, :package => package) + ")"
+          status_comment_html += " " + link_to_remote( image_tag('icons/comment_delete.png', :size => "16x16", :alt => 'Clear'), :update => "comment_#{package.gsub(':', '-')}",
+          :url => { :action => :clear_failed_comment, :project => @project, :package => package })
           comments_to_clear << package
         end
       elsif @project.is_maintainer?( session[:login] )

@@ -6,11 +6,11 @@ class PackageController < ApplicationController
   include ApplicationHelper
   include PackageHelper
 
-  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard, 
+  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard,
     :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
-    :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, 
+    :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries,
     :binary, :dependency, :branch, :change_flag]
-  before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person, 
+  before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person,
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :view_file, :import_spec,
     :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, :branch, :change_flag]
@@ -65,7 +65,7 @@ class PackageController < ApplicationController
     @buildresult = Buildresult.find_cached( :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
   end
-  
+
   def users
     fill_email_hash
   end
@@ -93,7 +93,7 @@ class PackageController < ApplicationController
     @oproject = params[:oproject]
     @rdiff = ''
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?" +
-           "opackage=#{CGI.escape(params[:opackage])}&oproject=#{CGI.escape(params[:oproject])}&unified=1&cmd=diff"
+      "opackage=#{CGI.escape(params[:opackage])}&oproject=#{CGI.escape(params[:oproject])}&unified=1&cmd=diff"
     begin
       @rdiff = frontend.transport.direct_http URI(path + "&expand=1"), :method => "POST", :data => ""
     rescue ActiveXML::Transport::NotFoundError => e
@@ -103,7 +103,7 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:warn] = message
-      begin 
+      begin
         @rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
       rescue ActiveXML::Transport::Error => e
         message, code, api_exception = ActiveXML::Transport.extract_error_message e
@@ -117,7 +117,7 @@ class PackageController < ApplicationController
     if @lastreq and @lastreq.state.name != "declined"
       @lastreq = nil # ignore all !declined
     end
-   
+
   end
 
   def create_submit
@@ -229,7 +229,7 @@ class PackageController < ApplicationController
       :project => result_project, :package => result_package and return
   end
 
-  
+
   def save_new_link
     valid_http_methods(:post)
     @linked_project = params[:linked_project].strip
@@ -252,7 +252,7 @@ class PackageController < ApplicationController
       flash.now[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
       render :action => 'new_link' and return
     end
-      
+
     package = Package.new( :name => @target_package, :project => params[:project] )
     package.title.text = linked_package.title.text
 
@@ -330,7 +330,7 @@ class PackageController < ApplicationController
           flash[:error] = 'Invalid filename: #{filename}, please choose another one.'
           redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
           return
-        end 
+        end
         file = open uri
       rescue Object => e
         flash[:error] = "Error retrieving URI '#{uri}': #{e.message}."
@@ -491,7 +491,7 @@ class PackageController < ApplicationController
     end
 
     headers['Content-Type'] = 'text/plain'
-    render :text => proc { |response, output| 
+    render :text => proc { |response, output|
       maxsize = 1024 * 256
       offset = 0
       while true
@@ -545,7 +545,7 @@ class PackageController < ApplicationController
         log_chunk = CGI.escapeHTML(log_chunk);
         log_chunk = log_chunk.gsub("\n","<br/>").gsub(" ","&nbsp;")
       end
-      
+
     rescue Timeout::Error => ex
       log_chunk = ""
 
@@ -553,9 +553,9 @@ class PackageController < ApplicationController
       log_chunk = "No live log available"
       @finished = true
     end
-    
+
     render :update do |page|
-      
+
       logger.debug 'finished ' + @finished.to_s
 
       if @finished
@@ -581,7 +581,7 @@ class PackageController < ApplicationController
 
   def abort_build
     params[:redirect] = 'live_build_log'
-    api_cmd('abortbuild', params) 
+    api_cmd('abortbuild', params)
     render :status => 200
   end
 
@@ -812,22 +812,22 @@ class PackageController < ApplicationController
 
       @packagenames << stathash.keys
     end
-    
+
     if @buildresult and !@buildresult.has_element? :result
       @buildresult = nil
     end
-    
+
     return unless @buildresult
 
     newr = Hash.new
     @buildresult.each_result.sort {|a,b| a.repository <=> b.repository}.each do |result|
       repo = result.repository
       if result.has_element? :status
-	newr[repo] ||= Array.new
-	newr[repo] << result.arch
+        newr[repo] ||= Array.new
+        newr[repo] << result.arch
       end
     end
-   
+
     @buildresult = Array.new
     newr.keys.sort.each do |r|
       @buildresult << [r, newr[r].flatten.sort]
