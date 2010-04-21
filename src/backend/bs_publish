@@ -302,7 +302,7 @@ sub createrepo_rpmmd {
   # --update requires a newer createrepo version, tested with version 0.4.10
   my @createrepoargs;
   push @createrepoargs, '--update' if -f "$extrep/repodata/primary.xml.gz";
-  push @createrepoargs, '--simple-md-filenames' if $legacy;
+  push @createrepoargs, '--simple-md-filenames', '--checksum=sha' if $legacy;
   push @createrepoargs, '--repo', $repotag;
   if (qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, $extrep)) {
     print("    createrepo failed: $?\n");
