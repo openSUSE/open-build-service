@@ -23,6 +23,8 @@ class DbPackage < ActiveRecord::Base
   has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :readaccess_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :privacy_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
 
   belongs_to :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
   has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'

@@ -28,6 +28,8 @@ class DbProject < ActiveRecord::Base
   has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :readaccess_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :privacy_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
 
 
   def download_name

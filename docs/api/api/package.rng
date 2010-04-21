@@ -102,6 +102,16 @@
         </element>
       </optional>
       <optional>
+        <element ns="" name="readaccess">
+          <ref name="flag-element"/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="privacy">
+          <ref name="flag-element"/>
+        </element>
+      </optional>
+      <optional>
         <element ns="" name="url">
           <text/>
         </element>
@@ -111,6 +121,7 @@
           <text/>
         </element>
       </optional>
+
 </interleave>
     </element>
   </define>

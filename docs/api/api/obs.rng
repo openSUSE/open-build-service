@@ -42,6 +42,7 @@
       <value>bugowner</value>
       <value>reviewer</value>
       <value>downloader</value>
+      <value>reader</value>
     </choice>
   </define>
 
