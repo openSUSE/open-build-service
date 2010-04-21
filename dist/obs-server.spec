@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.7.2
+Version:        1.7.3
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -36,7 +36,7 @@ BuildRequires:  lighttpd
 Requires:       build >= 2009.04.22
 Requires:       perl-BSSolv
 # Required by source server
-Requires:       patch diffutils3
+Requires:       patch diffutils
 PreReq:         sysvinit
 
 %if 0%{?suse_version} >= 1030
@@ -48,7 +48,8 @@ PreReq:         %fillup_prereq %insserv_prereq permissions
 
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
-Recommends:     createrepo >= 0.4.10
+Recommends:     createrepo >= 0.9.8
+Conflicts:      createrepo < 0.9.8
 Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
