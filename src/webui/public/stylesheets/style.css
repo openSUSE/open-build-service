@@ -106,7 +106,7 @@ span.build_result_title {
   color: #f00;
 }
 .status_expansion_error a,
-.status_expansion_error a:hover
+.status_expansion_error a:hover,
 .status_expansion_error a:visited {
   color: #c00;
 }
