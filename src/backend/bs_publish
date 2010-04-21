@@ -284,6 +284,8 @@ sub getpatterns {
 sub createrepo_rpmmd {
   my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $legacy) = @_;
 
+  my $obsname = $BSConfig::obsname || 'OBSNAME_NOT_SET';
+  my $repotag = "obsrepository://$obsname/$projid/$repoid";
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
   print "    running createrepo\n";
