@@ -35,6 +35,8 @@ BuildRequires:  perl-BSSolv
 BuildRequires:  lighttpd
 Requires:       build >= 2009.04.22
 Requires:       perl-BSSolv
+# Required by source server
+Requires:       patch diffutils3
 PreReq:         sysvinit
 
 %if 0%{?suse_version} >= 1030
