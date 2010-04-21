@@ -71,7 +71,7 @@ class BuildController < ApplicationController
   end
 
   def buildinfo
-    valid_http_methods :get
+    valid_http_methods :get, :post
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     unless request.query_string.empty?
       path += '?' + request.query_string
