@@ -367,6 +367,8 @@ class SourceController < ApplicationController
   end
 
   def project_meta
+    valid_http_methods :get, :put
+
     project_name = params[:project]
     if project_name.nil?
       render_error :status => 400, :errorcode => 'missing_parameter',
@@ -389,16 +391,13 @@ class SourceController < ApplicationController
       return
     end
 
-    #authenticate
-    return unless extract_user
+    if request.put? and extract_user
+      unless valid_project_name? project_name
+        render_error :status => 400, :errorcode => "invalid_project_name",
+          :message => "invalid project name '#{project_name}'"
+        return
+      end
 
-    unless valid_project_name? project_name
-      render_error :status => 400, :errorcode => "invalid_project_name",
-        :message => "invalid project name '#{project_name}'"
-      return
-    end
-
-    if request.put?
       # Need permission
       logger.debug "Checking permission for the put"
       allowed = false
@@ -468,10 +467,7 @@ class SourceController < ApplicationController
       return
     end
 
-    #authenticate
-    return unless extract_user
-
-    if request.put?
+    if request.put? and extract_user
       unless @http_user.can_modify_project?(@project)
         render_error :status => 403, :errorcode => 'put_project_config_no_permission',
           :message => "No permission to write build configuration for project '#{params[:project]}'"
@@ -481,6 +477,8 @@ class SourceController < ApplicationController
       pass_to_backend path
       return
     end
+    render_error :status => 400, :errorcode => 'illegal_request',
+        :message => "Illegal request: #{request.path}"
   end
 
   def project_pubkey
@@ -629,7 +627,10 @@ class SourceController < ApplicationController
     end
 
     #authenticate
-    return unless extract_user
+    unless extract_user
+      render_error :status => 401, :message => 'Requires login'
+      return
+    end
 
     params[:user] = @http_user.login
     if request.put?

@@ -1,5 +1,4 @@
 class BuildController < ApplicationController
-  skip_before_filter :extract_user, :only => [:package_index]
 
   def project_index
     @path = request.path
@@ -72,6 +71,7 @@ class BuildController < ApplicationController
   end
 
   def buildinfo
+    valid_http_methods :get
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     unless request.query_string.empty?
       path += '?' + request.query_string
@@ -83,31 +83,7 @@ class BuildController < ApplicationController
   # /build/:prj/:repo/:arch/:pkg
   # GET on ?view=cpio and ?view=cache unauthenticated and streamed
   def package_index
-    view = params[:view]
-    if request.get? and (view == "cpio" or view == "cache")
-      #stream without authentication
-      path = request.path+"?"+request.query_string
-      logger.info "streaming #{path}"
-      
-      headers.update(
-        'Content-Type' => 'application/x-cpio'
-      )
-
-      render :status => 200, :text => Proc.new {|request,output|
-        backend_request = Net::HTTP::Get.new(path)
-        response = Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
-          http.request(backend_request) do |response|
-            response.read_body do |chunk|
-              output.write chunk
-            end
-          end
-        end
-      }
-      return
-    end
-
-    #authenticate
-    return unless extract_user
+    valid_http_methods :get
     pass_to_backend
   end
 
