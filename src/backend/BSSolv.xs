@@ -1442,12 +1442,7 @@ pkg2fullpath(BSSolv::pool pool, int p, char *myarch)
     CODE:
 	{
 	    unsigned int medianr;
-	    Solvable *solv = pool->solvables + p;
-	    char *s = solvable_get_location(solv, &medianr);
-	    char *tmp = strrchr(s, '/');
-	    /* dod: ignore relative url path */
-	    if (tmp && repo_lookup_str(solv->repo, SOLVID_META, buildservice_dodurl))
-	      s = strcpy(s, tmp + 1);
+	    const char *s = solvable_get_location(pool->solvables + p, &medianr);
 	    Repo *repo = pool->solvables[p].repo;
 	    s = pool_tmpjoin(pool, myarch, "/:full/", s);
 	    RETVAL = pool_tmpjoin(pool, repo->name, "/", s);

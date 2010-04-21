@@ -368,12 +368,12 @@ while (1) {
            for my $i (@{$BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'good'}}) {
              push @newidle, grep {/$i/} @idle;
            }
-           @idle = @newidle;
+           @idle = List::Util::shuffle(@newidle);
         }
         if ( defined $BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'bad'} ) {
            # positive list given for this package
            for my $i (@{$BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'bad'}}) {
-             @idle = grep {!/^$i$/} @idle;
+             @idle = grep {!/^$i$/} List::Util::shuffle(@idle);
            }
         }
       }

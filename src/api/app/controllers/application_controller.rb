@@ -92,7 +92,7 @@ class ApplicationController < ActionController::Base
         if CONFIG['allow_anonymous']
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
-          return
+          return true
         end
         logger.error "No X-username header from iChain! Are we really using iChain?"
         render_error( :message => "No iChain user found!", :status => 401 ) and return false
@@ -124,7 +124,7 @@ class ApplicationController < ActionController::Base
         if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and request.env.has_key? 'REMOTE_HOST' and CONFIG['webui_host'] == request.env['REMOTE_HOST']
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
-          return
+          return true
         end
         logger.debug "no authentication string was sent"
         render_error( :message => "Authentication required", :status => 401 ) and return false
@@ -174,7 +174,7 @@ class ApplicationController < ActionController::Base
                 logger.debug(msg)
               end
               render_error( :message => "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}",
-                :status => 401 ) and return false
+                :status => 401 )
               @http_user=nil
               return false
             end
@@ -206,6 +206,7 @@ class ApplicationController < ActionController::Base
     else
       logger.debug "USER found: #{@http_user.login}"
       @user_permissions = Suse::Permission.new( @http_user )
+      return true
     end
   end
 

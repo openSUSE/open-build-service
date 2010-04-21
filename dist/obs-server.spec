@@ -13,14 +13,16 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.7.52
+Version:        1.9.57
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      /var/tmp/%name-root
-# git clone git://gitorious.org/opensuse/build-service.git; cd build-service; tar cfvj obs-server-1.6.85.tar.bz2 --exclude=.git\* build-service-1.6.85/
+# git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
 Source:         obs-server-%version.tar.bz2
+# git clone git://gitorious.org/opensuse/themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
+Source1:        opensuse-themes-0.9.tar.bz2
 Autoreqprov:    on
 BuildRequires:  python-devel
 BuildRequires:  obs-common
@@ -159,7 +161,7 @@ Authors:       Susanne Oberhauser, Martin Mohring
 
 #--------------------------------------------------------------------------------
 %prep
-%setup -q -n build-service-%version
+%setup -q -n build-service-%version -b 1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
@@ -248,6 +250,12 @@ sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
 sed 's,api.opensuse.org,127.0.42.2,' \
   $RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb > tmp-file \
   && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb"
+
+#
+# Install webui theme
+#
+mkdir -p "$RPM_BUILD_ROOT/srv/www/obs/webui/public/themes/"
+cp -av "$RPM_BUILD_DIR"/opensuse-themes-*/* "$RPM_BUILD_ROOT/srv/www/obs/webui/public/themes/"
 
 #
 # install apidocs
@@ -488,7 +496,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobsapidelayed
 /usr/sbin/rcobswebuidelayed
 /srv/www/obs/api/app
-/srv/www/obs/api/Changelog
 /srv/www/obs/api/db
 /srv/www/obs/api/doc
 /srv/www/obs/api/files
@@ -534,7 +541,6 @@ rm -rf $RPM_BUILD_ROOT
 # sqlite3 needs write permissions
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/db
 /srv/www/obs/webui/app
-/srv/www/obs/webui/Changelog
 /srv/www/obs/webui/db/migrate
 /srv/www/obs/webui/db/schema.rb
 /srv/www/obs/webui/doc
