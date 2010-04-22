@@ -1129,7 +1129,7 @@ class SourceController < ApplicationController
     oprj = DbProject.find_by_name oprj_name
     if oprj.nil?
       DbProject.transaction do
-        oprj = DbProject.new :name => oprj_name, :title => prj.title, :description => prj.description
+        oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj.title}", :description => prj.description
         oprj.add_user @http_user, "maintainer"
         oprj.publish_flags << PublishFlag.new( :status => "disable", :position => 1 )
         prj.repositories.each do |repo|
