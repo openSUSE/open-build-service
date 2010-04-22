@@ -9,11 +9,12 @@ class PackageController < ApplicationController
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard,
     :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
     :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries,
-    :binary, :dependency, :branch, :change_flag]
+    :binary, :dependency, :branch, :change_flag, :trigger_rebuild, :abort_build, :wipe_binaries]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person,
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :view_file, :import_spec,
-    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, :branch, :change_flag]
+    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, 
+    :branch, :change_flag, :trigger_rebuild, :abort_build, :wipe_binaries]
   before_filter :require_login, :only => [:branch]
 
 
@@ -587,64 +588,51 @@ class PackageController < ApplicationController
 
 
   def trigger_rebuild
+    valid_http_methods :post
     api_cmd('rebuild', params)
   end
 
+  def wipe_binaries
+    valid_http_methods :post
+    api_cmd('wipe', params)
+  end
+
   def api_cmd(cmd, params)
-    project = params[:project]
-    unless project
-      flash[:error] = "Project name missing."
-      redirect_to :controller => "project", :action => 'list_public'
-      return
-    end
-
-    package = params[:package]
-    unless package
-      flash[:error] = "Package name missing."
-      redirect_to :controller => "project", :action => 'show',
-        :project => project
-      return
-    end
-
     options = {}
     options[:arch] = params[:arch] if params[:arch]
     options[:repository] = params[:repo] if params[:repo]
-    options[:project] = project
-    options[:package] = package
+    options[:project] = @project.to_s
+    options[:package] = @package.to_s
 
     begin
       frontend.cmd cmd, options
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
-      redirect_to :action => :show, :project => project, :package => package
-      return
+      redirect_to :action => :show, :project => @project, :package => @package and return
     end
 
-    logger.debug( "Triggered Rebuild for #{package}, options=#{options.inspect}" )
-
+    logger.debug( "Triggered #{cmd} for #{@project}/#{@package}, options=#{options.inspect}" )
+    @message = "Triggered #{cmd} for #{@project}/#{@package}."
+    controller = 'package'
+    action = 'show'
     if  params[:redirect] == 'monitor'
       controller = 'project'
       action = 'monitor'
-      @message = "Triggered #{cmd} for package #{package}."
-    elsif params[:redirect] == 'live_build_log'
-      # assume xhr
-      return
-    else
-      controller = 'package'
-      action = 'show'
-      @message = "Triggered #{cmd}."
     end
 
     unless request.xhr?
       # non ajax request:
       flash[:note] = @message
       redirect_to :controller => controller, :action => action,
-        :project => project, :package => package
+        :project => @project, :package => @package
     else
       # ajax request - render default view: in this case 'trigger_rebuild.rjs'
+      return
     end
   end
+  private :api_cmd
+  
 
   def render_nothing
     render :nothing => true

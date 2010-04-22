@@ -28,7 +28,7 @@ class FrontendCompat
   #  missing project raises RuntimeError
   def cmd( command, opt={} )
     raise RuntimeError, "project name missing" unless opt.has_key? :project
-    logger.debug "--> rebuild: #{opt.inspect}"
+    logger.debug "--> #{command}: #{opt.inspect}"
     path = "#{@url_prefix}/build/#{opt[:project]}?cmd=#{command}"
     opt.delete :project
 
@@ -37,7 +37,6 @@ class FrontendCompat
       raise RuntimeError, "unknown method parameter #{key}" unless valid_opts.include? key.to_s
       path += "&#{key.to_s}=#{CGI.escape val}"
     end
-    #logger.debug "### rebuild path: #{path}"
     transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
   end
 
