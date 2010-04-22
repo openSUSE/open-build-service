@@ -109,7 +109,7 @@ sub reply {
   my $ev = $gev;
   # print "reply to event #$ev->{'id'}\n";
   if (!exists($ev->{'fd'})) {
-    $ev->{'cleanup'}->($ev) if $ev->{'cleanup'};
+    $ev->{'handler'}->($ev) if $ev->{'handler'};
     print "$str\n" if defined $str;
     return;
   }

@@ -2266,7 +2266,7 @@ sub getfilelist_ajax {
     $jev = detach($BSStdServer::return_ok);
     $jev->{'idstring'} = "$projid/$packid/$rev";
     $getfilelist_ajax_inprogress{"$projid/$packid/$rev"} = $jev;
-    $jev->{'cleanup'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$rev"}};
+    $jev->{'handler'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$rev"}};
   }
   my $dir = $jev->{'filelist'};
   for my $entry (@{$dir->{'entry'} || []}) {
