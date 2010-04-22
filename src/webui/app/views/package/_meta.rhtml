@@ -1,4 +1,4 @@
-<div class="grid_9 box">
+<div id="show_left" class="grid_9 box">
 
   <h2 style="display: inline"><%=h @package %></h2>
 
@@ -17,7 +17,7 @@
       <% if session[:login] %>
         <span>
           <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch package'), {:action => :branch, :project => @project, :package => @package},
-          { :method => :post }%>
+            {:confirm => "Branch package '#{@package}'?", :method => :post } %>
         </span>
       <% end %>
 

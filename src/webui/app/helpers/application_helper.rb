@@ -329,4 +329,9 @@ module ApplicationHelper
       ""
     end
   end
+
+  def plural( count, singular, plural)
+    count > 1 ? plural : singular
+  end
+
 end
