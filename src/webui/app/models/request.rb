@@ -18,11 +18,11 @@ class Request < ActiveXML::Base
       reply = <<-ENDE
         <request type="submit">
           <submit>
-	    <source project="#{opt[:project]}" package="#{opt[:package]}"/>
-            <target project="#{opt[:targetproject]}" package="#{opt[:targetpackage]}"/>
+	    <source project="#{opt[:project].to_xs}" package="#{opt[:package].to_xs}"/>
+            <target project="#{opt[:targetproject].to_xs}" package="#{opt[:targetpackage].to_xs}"/>
           </submit>
           <state name="new"/>
-          <description>#{text}</description>
+          <description>#{text.to_xs}</description>
         </request>
       ENDE
       ret = XML::Parser.string(reply).parse.root
