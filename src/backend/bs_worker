@@ -1174,7 +1174,22 @@ sub getbinaries {
 
   if (!$kiwimode) {
     # generate meta data
-    for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
+    # we carefully prune entries here to keep the memory usage down
+    # so that coolo's image builds work
+    # - do not prune entries that have one of our subpacks in the
+    #   path as they are handled in a special way
+    # - use the same order as the code in BSBuild
+    my %mseen;
+    my @subp = @{$buildinfo->{'subpack'} || []};
+    my $subpackre = '';
+    for (@subp) {
+      $subpackre .= "|/\Q$_\E/";
+    }
+    if ($subpackre) {
+      $subpackre = substr($subpackre, 1);
+      $subpackre = qr/$subpackre/;
+    }
+    for my $dep (sort {"$a/" cmp "$b/"} map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
       my $m;
       $m = readstr("$dir/$dep.meta", 1) if $meta{$dep};
       if (!$m) {
@@ -1183,9 +1198,20 @@ sub getbinaries {
       } else {
 	chomp $m;
 	my @m = split("\n", $m);
-	s/  /  $dep\// for @m;
 	$m[0] =~ s/  .*/  $dep/;
-	push @meta, @m;
+	push @meta, shift @m;
+	if ($subpackre && "/$dep/" =~ /$subpackre/) {
+	  s/  /  $dep\// for @m;
+	  push @meta, @m;
+	} else {
+	  for (@m) {
+	    next if $mseen{$_};
+	    my $x = $_;
+	    s/  /  $dep\//;
+	    $mseen{$x} = 1 unless $subpackre && /$subpackre/;
+	    push @meta, $_;
+	  }
+	}
       }
     }
     @meta = BSBuild::gen_meta("$buildinfo->{'srcmd5'}  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @meta);
