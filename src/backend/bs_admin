@@ -80,6 +80,9 @@ Job Controlling
  --check-package <project> <package> <architecture>
    Check status of a package in all repositories
 
+ --publish-repository <project> <repositroy>
+   Creates an event for the publisher. The scheduler is NOT scanning for new packages.
+
  --clone-repository <source project> <source repositroy> <destination repositroy>
  --clone-repository <source project> <source repositroy> <destination project> <destination repositroy>
    Clone an existing repo into another existing repository.
@@ -479,6 +482,20 @@ while (@ARGV) {
     my $project = shift @ARGV;
     my $arch = shift @ARGV;
     check_project($project, $arch, 1);
+  } elsif ( $arg eq "--publish-repository" ) {
+    die("ERROR: need project, repository and architecture as argument!\n") if @ARGV != 2;
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $evname = "${project}::${repo}";
+    my $ev = { 'type' => "publish" };
+    $ev->{'project'} = $project;
+    $ev->{'repository'} = $repo;
+    writexml("$eventroot/publish/.$evname$$", "$eventroot/publish/$evname", $ev, $BSXML::event);
+    local *F;
+    if (sysopen(F, "$eventroot/publish/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+      syswrite(F, 'x');
+      close(F);
+    }
   } elsif ( $arg eq "--clone-repository" ) {
     die("ERROR: need source project & repository and destination project & repository as argument!\n") if @ARGV < 3;
     my $srcproject = shift @ARGV;
