@@ -82,6 +82,8 @@ Job Controlling
 
  --publish-repository <project> <repositroy>
    Creates an event for the publisher. The scheduler is NOT scanning for new packages.
+   The publisher may skip the event, if nothing has changed. So you might need to remove
+   the directory in your /repos/ directory first.
 
  --clone-repository <source project> <source repositroy> <destination repositroy>
  --clone-repository <source project> <source repositroy> <destination project> <destination repositroy>
