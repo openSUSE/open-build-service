@@ -54,8 +54,10 @@ class PackageController < ApplicationController
     @filename = params[:filename]
     @fileinfo = Fileinfo.find_cached( :project => @project, :package => @package, :repository => @repository, :arch => @arch,
       :filename => @filename, :view => 'fileinfo_ext')
-    @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
-    if !file_available?( @durl ) and @user
+    if @fileinfo.arch
+      @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
+    end
+    if @user and !(@durl and file_available?( @durl ))
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
     end
