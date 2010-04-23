@@ -76,13 +76,13 @@ class FrontendCompat
   def get_log_chunk( project, package, repo, arch, start, theend )
     logger.debug "get log chunk #{start}-#{theend}"
     path = "#{@url_prefix}/build/#{project}/#{repo}/#{arch}/#{package}/_log?nostream=1&start=#{start}&end=#{theend}"
-    transport.direct_http URI("https://#{path}")
+    transport.direct_http URI("https://#{path}"), :timeout => 500
   end
 
   def get_size_of_log( project, package, repo, arch)
     logger.debug "get log entry"
     path = "#{@url_prefix}/build/#{project}/#{repo}/#{arch}/#{package}/_log?view=entry"
-    data = transport.direct_http URI("https://#{path}")
+    data = transport.direct_http URI("https://#{path}"), :timeout => 500
     if ! data
       return 0
     end
