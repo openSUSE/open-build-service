@@ -36,6 +36,14 @@
     </choice>
   </define>
 
+  <define ns="" name="rebuild-modes">
+    <choice>
+      <value>transitive</value>
+      <value>direct</value>
+      <value>local</value>
+    </choice>
+  </define>
+
   <define ns="" name="local-role">
     <choice>
       <value>maintainer</value>
@@ -110,6 +118,11 @@
       <attribute name="name">
         <data type="string" />
       </attribute>
+      <optional>
+        <attribute name="rebuild">
+          <ref name="rebuild-modes" />
+        </attribute>
+      </optional>
       <zeroOrMore>
           <element name="path">
             <attribute name="repository">

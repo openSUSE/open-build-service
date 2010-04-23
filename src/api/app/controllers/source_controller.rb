@@ -391,7 +391,9 @@ class SourceController < ApplicationController
       return
     end
 
-    if request.put? and extract_user
+    return unless extract_user
+
+    if request.put?
       unless valid_project_name? project_name
         render_error :status => 400, :errorcode => "invalid_project_name",
           :message => "invalid project name '#{project_name}'"
@@ -467,7 +469,9 @@ class SourceController < ApplicationController
       return
     end
 
-    if request.put? and extract_user
+    return unless extract_user
+
+    if request.put?
       unless @http_user.can_modify_project?(@project)
         render_error :status => 403, :errorcode => 'put_project_config_no_permission',
           :message => "No permission to write build configuration for project '#{params[:project]}'"
@@ -627,10 +631,7 @@ class SourceController < ApplicationController
     end
 
     #authenticate
-    unless extract_user
-      render_error :status => 401, :message => 'Requires login'
-      return
-    end
+    return unless extract_user
 
     params[:user] = @http_user.login
     if request.put?

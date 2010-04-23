@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100329191407) do
+ActiveRecord::Schema.define(:version => 20100423144748) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -292,9 +292,10 @@ ActiveRecord::Schema.define(:version => 20100329191407) do
   add_index "ratings", ["user_id"], :name => "user"
 
   create_table "repositories", :force => true do |t|
-    t.integer "db_project_id",       :null => false
+    t.integer "db_project_id",                    :null => false
     t.string  "name"
     t.string  "remote_project_name"
+    t.string  "rebuild",             :limit => 0
   end
 
   add_index "repositories", ["db_project_id", "name", "remote_project_name"], :name => "projects_name_index", :unique => true

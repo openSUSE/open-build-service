@@ -302,6 +302,20 @@ class DbProject < ActiveRecord::Base
           current_repo = repocache[repo.name]
         end
 
+        # check for rebuild configuration
+        if not repo.has_attribute? :rebuild and current_repo.rebuild
+          current_repo.rebuild = nil
+          current_repo.save!
+          self.updated_at = Time.now
+        end
+        if repo.has_attribute? :rebuild
+          if repo.rebuild != current_repo.rebuild
+            current_repo.rebuild = repo.rebuild
+            current_repo.save!
+            self.updated_at = Time.now
+          end
+        end
+
         #destroy all current pathelements
         current_repo.path_elements.each { |pe| pe.destroy }
 
@@ -659,7 +673,10 @@ class DbProject < ActiveRecord::Base
 
       repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
       repos.each do |repo|
-        project.repository( :name => repo.name ) do |r|
+        params = {}
+        params[:name] = repo.name
+        params[:rebuild] = repo.rebuild if repo.rebuild
+        project.repository( params ) do |r|
           repo.path_elements.each do |pe|
             if pe.link.remote_project_name.blank?
               project_name = pe.link.db_project.name

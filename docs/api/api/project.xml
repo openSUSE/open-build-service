@@ -12,7 +12,7 @@
   <useforbuild>
     <disable />
   </useforbuild>
-  <repository name="kde4:factory">
+  <repository name="kde4:factory" rebuild="transitive">
     <path project="kde4" repository="factory"/>
     <arch>i386</arch>
     <arch>x86_64</arch>
@@ -21,7 +21,7 @@
     <path project="suselinux-9.3" repository="standard"/>
     <arch>i386</arch>
   </repository>
-  <repository name="gnomespecial">
+  <repository name="gnomespecial" rebuild="local">
     <path project="gnome3" repository="suselinux-9.3"/>
     <path project="suselinux-9.3" repository="standard"/>
     <arch>i386</arch>

@@ -46,6 +46,7 @@ use strict;
 our $repo = [
    'repository' => 
 	'name',
+	'rebuild',
      [[ 'path' =>
 	    'project',
 	    'repository',
