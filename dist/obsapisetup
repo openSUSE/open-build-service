@@ -48,18 +48,32 @@ case "$1" in
 			mysqladmin -u root create api_production
 			mysqladmin -u root password "opensuse"
 			echo
+			echo -n "Setup OBS webui database"
+        		cd $webuidir
+			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
+			chown -R lighttpd.lighttpd $webuidir/log
+			echo
+			echo -n "Setup OBS api database"
+        		cd $apidir
+			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
+			chown -R lighttpd.lighttpd $apidir/log
+			echo
+		else
+			echo -n "Migrate OBS webui database"
+        		cd $webuidir
+			RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
+			echo
+			echo -n "Migrate OBS api database"
+        		cd $apidir
+			RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
+			echo
 		fi
 
-		echo -n "Setup or update OBS webui database"
                 cd $webuidir
-		RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
 		chown -R lighttpd.lighttpd $webuidir/log
-		echo
-		echo -n "Setup or update OBS api database"
                 cd $apidir
-		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
 		chown -R lighttpd.lighttpd $apidir/log
-		echo
+
 		echo -n "Adjust webui configuration for api"
                 # it would be better to solve this in lighttpd.conf to accept also localhost:81,
                 # but no idea how to solve this
