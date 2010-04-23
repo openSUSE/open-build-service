@@ -232,6 +232,8 @@ class ProjectController < ApplicationController
         else
           @project.delete
         end
+        Rails.cache.delete("%s_packages_mainpage" % @project)
+        Rails.cache.delete("%s_problem_packages" % @project)
       rescue ActiveXML::Transport::Error => err
         @error, @code, @api_exception = ActiveXML::Transport.extract_error_message err
         logger.error "Could not delete project #{@project}: #{@error}"
