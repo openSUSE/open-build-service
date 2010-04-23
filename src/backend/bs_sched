@@ -516,9 +516,9 @@ sub set_building {
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {
-    print "        expansion errors:\n";
+    print "        unresolvables:\n";
     print "          $_\n" for @bdeps;
-    return (undef, "expansion error: ".join(', ', @bdeps));
+    return (undef, "unresolvable: ".join(', ', @bdeps));
   }
 
   # find the last build count we used for this version/release
@@ -2108,9 +2108,9 @@ sub checkkiwiimage {
   my ($eok, @edeps) = Build::get_deps($bconf, [], @deps);
   if (!$eok) {
     print "      - $packid (kiwi-image)\n";
-    print "        expansion errors:\n";
+    print "        unresolvables:\n";
     print "            $_\n" for @edeps;
-    return ('expansion error', join(', ', @edeps));
+    return ('unresolvable', join(', ', @edeps));
   }
   $bconf->{'ignore'} = $bconfignore if $bconfignore;
   $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
@@ -2289,9 +2289,9 @@ sub checkkiwiproduct {
     my $eok;
     ($eok, @kdeps) = Build::get_build($bconf, [], @kdeps);
     if (!$eok) {
-      print "        expansion errors:\n";
+      print "        unresolvables:\n";
       print "          $_\n" for @kdeps;
-      return ('expansion error', join(', ', @kdeps));
+      return ('unresolvable', join(', ', @kdeps));
     }
     my %dep2pkg;
     for my $p ($pool->consideredpackages()) {
@@ -3965,7 +3965,7 @@ while(1) {
   my %cychash;
   @packs = sortpacks(\%pdeps, \%dep2src, \%cychash, @packs);
 
-  # bring expansion errors to back (is this really needed? we do not modify
+  # bring unresolvables to back (is this really needed? we do not modify
   # the repositories in the middle of the project check)
   my @packs_experrors = grep {$experrors{$_}} @packs;
   @packs = grep {!$experrors{$_}} @packs;
@@ -4208,9 +4208,9 @@ while(1) {
       my ($eok, @edeps) = Build::get_deps($bconf, $subpacks{$info->{'name'}}, @deps);
       if (! $eok) {
 	print "      - $packid ($packtype)\n";
-	print "        expansion errors:\n";
+	print "        unresolvables:\n";
 	print "            $_\n" for @edeps;
-	$packstatus{$packid} = 'expansion error';
+	$packstatus{$packid} = 'unresolvable';
 	$packerror{$packid} = join(', ', @edeps);
 	next;
       }
@@ -4403,8 +4403,8 @@ relsynccheck:
     my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks{$info->{'name'}}, $pdeps{$packid}, $prpsearchpath{$prp}, $reason, $relsyncmax);
     if (!$job) {
       # could not start job...
-      if ($joberror =~ /^expansion error: (.*)$/) {
-	$packstatus{$packid} = 'expansion error';
+      if ($joberror =~ /^unresolvable: (.*)$/) {
+	$packstatus{$packid} = 'unresolvable';
 	$packerror{$packid} = $1;
       } else {
 	$packstatus{$packid} = 'broken';

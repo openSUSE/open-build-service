@@ -1743,7 +1743,7 @@ sub getbuildinfo {
   }
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @edeps) {
-    $ret->{'error'} = "expansion error: ".join(', ', @edeps);
+    $ret->{'error'} = "unresolvable: ".join(', ', @edeps);
     return ($ret, $BSXML::buildinfo);
   }
   if ($packtype eq 'kiwi') {
@@ -1771,7 +1771,7 @@ sub getbuildinfo {
   undef $xp;
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @bdeps) {
-    $ret->{'error'} = "expansion error: ".join(', ', @bdeps);
+    $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
 

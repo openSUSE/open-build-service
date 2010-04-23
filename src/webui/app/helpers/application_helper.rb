@@ -216,8 +216,8 @@ module ApplicationHelper
     end
     
     out = "<td id='#{status_id}' class='#{theclass} buildstatus'>"
-    if ["expansion error", "broken", "blocked"].include? code 
-      out += link_to code.gsub("expansion error", "exp. error"), "javascript:alert('#{link_title}')", :title => link_title
+    if ["unresolvable", "broken", "blocked"].include? code 
+      out += link_to code.gsub("unresolvable", "exp. error"), "javascript:alert('#{link_title}')", :title => link_title
     elsif ["-","excluded"].include? code
       out += code
     else
@@ -246,7 +246,7 @@ module ApplicationHelper
     when "scheduling" then "icons/cog.png"
     when "outdated_scheduling" then "icons/cog_delete.png"
     when "failed" then "icons/exclamation.png"
-    when "expansion error" then "icons/exclamation.png"
+    when "unresolvable" then "icons/exclamation.png"
     else "icons/eye.png"
     end
     image_tag icon, :size => "16x16", :title => status
