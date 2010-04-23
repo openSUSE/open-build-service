@@ -33,9 +33,9 @@
       <% if @user and @user.is_admin? -%>
          <!-- administrator block -->
           <% if not Project.find "openSUSE.org" -%>
-            <% proceed_link 'configure.png', 'Setup OBS', :controller => "admin", :action => :connect_instance -%>
+            <%= proceed_link 'configure.png', 'Setup OBS', :controller => "admin", :action => :connect_instance %>
           <% else -%>
-            <% proceed_link 'configure.png', 'Setup OBS', :controller => "admin", :action => :index -%>
+            <%= proceed_link 'configure.png', 'Setup OBS', :controller => "admin", :action => :index %>
           <% end -%>
       <% end -%>
       <% if session[:login] -%>
