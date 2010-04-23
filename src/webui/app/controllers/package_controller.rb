@@ -28,13 +28,17 @@ class PackageController < ApplicationController
   end
 
   def show
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    begin 
+      @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    rescue => e
+      logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
+    end
     if @package.bugowner
       @bugowner_mail = Person.find_cached( @package.bugowner ).email.to_s
     elsif @project.bugowner
       @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s
     end
-    fill_status_cache
+    fill_status_cache unless @buildresult.blank?
   end
 
   def dependency
