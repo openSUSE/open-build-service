@@ -1,6 +1,5 @@
 module PackageHelper
 
-
   def build_log_url( project, package, repository, arch )
     get_frontend_url_for( :controller => 'result' ) +
       "/#{project}/#{repository}/#{package}/#{arch}/log"
@@ -49,6 +48,13 @@ module PackageHelper
       link = "<li>"
     end
     link + link_to(text, opts) + "</li>"
+  end
+
+  include ProjectHelper
+
+  def package_bread_crumb( *args )
+    args.insert(0, link_to( @package, :action => :show, :project => @project, :package => @package ))
+    project_bread_crumb( *args )
   end
 
 end

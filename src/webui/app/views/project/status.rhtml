@@ -1,11 +1,5 @@
 <% @pagetitle = "Status #{@project}" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :action => :list_public),
-  link_to( @project, :action => :show, :project => @project),
-  'Status'
-]
--%>
+<% project_bread_crumb( 'Status' ) -%>
 
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>

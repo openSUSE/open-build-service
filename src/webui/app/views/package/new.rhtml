@@ -1,11 +1,5 @@
 <% @pagetitle = "New Package" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :controller => 'project', :action => :list_public),
-  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
-  'Add Package'
-]
--%>
+<% project_bread_crumb Add Package' -%>
 <!--
 <p><%= link_to('Create package using spec file wizard', :controller => 'package', :action => 'wizard_new', :project => @project) %> (experimental)</p>
 -->

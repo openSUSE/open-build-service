@@ -1,12 +1,5 @@
 <% @pagetitle = "Live Build Log" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :controller => 'project', :action => :list_public),
-  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
-  link_to( @package, :action => :show, :project => @project, :package => @package ),
-  'Build Log'
-]
--%>
+<% package_bread_crumb 'Build Log' -%>
 
 <%= render :partial => "tabs" %>
 

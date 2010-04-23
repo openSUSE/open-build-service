@@ -1,9 +1,5 @@
 <% @pagetitle = "Requests for #{@project}" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :action => :list_public),
-  link_to( @project.name, :action => :show, :project => @project.name ), "Requests"
-]
+<% project_bread_crumb( "Requests" )
 setup_buildresult_trigger
 -%>
 

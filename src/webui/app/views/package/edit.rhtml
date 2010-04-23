@@ -1,12 +1,5 @@
 <% @pagetitle = "Edit Package #{@package} (Project #{@project})" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :controller => 'project', :action => :list_public),
-  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
-  link_to( @package, :action => :show, :project => @project, :package => @package ),
-  'Edit Package Information'
-]
--%>
+<% package_bread_crumb 'Edit Package Information' -%>
 
 <%= render :partial => "tabs" %>
 

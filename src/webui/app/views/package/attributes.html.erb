@@ -1,12 +1,5 @@
 <% @pagetitle = "Attributes for Package #{@project} / #{@package}" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :action => :list_public),
-  link_to( @project, :controller => :project, :action => :show, :project => @project),
-  link_to( @package, :action => :show, :project => @project, :package => @package),
-  'Attributes'
-]
--%>
+<% package_bread_crumb 'Attributes' -%>
 
 <%= render :partial => "tabs" %>
 

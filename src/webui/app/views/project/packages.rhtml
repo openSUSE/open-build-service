@@ -1,14 +1,7 @@
 <% @pagetitle = "Packages of Project #{@project}" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :action => :list_public),
-  link_to( @project, :action => :show, :project => @project),
-  'Packages'
-]
--%>
+<% project_bread_crumb( 'Packages' ) -%>
 
 <%= render :partial => "tabs" %>
-
 
 <h3>
   Packages for project <%= @project %> <%= "(#{@packages.each.size})" if @packages.each.size > 0 %>

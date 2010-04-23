@@ -72,5 +72,11 @@ module ProjectHelper
     status_comment_html += "<span id='comment_edit_#{package.gsub(':', '-')}'></span>"
   end
 
+  def project_bread_crumb( *args )
+    @crumb_list = [
+      link_to( 'Projects', :controller => 'project', :action => :list_public),
+      link_to( @project, :controller => 'project', :action => :show, :project => @project ),
+    ] + args
+  end
 
 end

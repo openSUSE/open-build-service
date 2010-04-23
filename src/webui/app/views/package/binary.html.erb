@@ -1,12 +1,7 @@
 <% @pagetitle = "Detailed Information About #{@filename}" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :controller => 'project', :action => :list_public),
-  link_to( truncate(@project.name, :length => 20), :controller => 'project', :action => :show, :project => @project ),
-  link_to( truncate(@package.name, :length => 20), :controller => 'package', :action => :show, :project => @project, :package => @package ),
+<% package_bread_crumb
   link_to( "Binaries", :controller => 'package', :action => :binaries, :project => @project, :package => @package, :repository => @repository, :arch => @arch ),
   truncate(@filename, :length => 30)
-]
 -%>
 
 <%= render :partial => "tabs" %>

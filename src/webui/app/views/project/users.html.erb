@@ -1,11 +1,5 @@
 <% @pagetitle = "Users in Project #{@project}" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :action => :list_public),
-  link_to( @project, :action => :show, :project => @project),
-  'Users'
-]
--%>
+<% project_bread_crumb( 'Users' ) -%>
 
 <%= render :partial => "tabs" %>
 <%= render :partial => "shared/involved_users" %>

@@ -1,12 +1,6 @@
 <% @pagetitle = "Add File" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :controller => 'project', :action => :list_public),
-  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
-  link_to( @package, :action => :show, :project => @project, :package => @package ),
-  'Add File'
-]
--%>
+<% package_bread_crumb( 'Add File' ) -%>
+
 <h2>Add File (Project <%=h @project.name %>, Package <%=h @package.name %>)</h2>
 
 <% form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>

@@ -1,4 +1,6 @@
-<% @pagetitle = "Project Config for %s" % @project %>
+<% @pagetitle = "Project Config for %s" % @project 
+   project_bread_crumb( 'Project Config' )
+-%>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "SyntaxHighlighter" %>
@@ -13,14 +15,6 @@
     $("#editlink").attr("href", "<%= url_for(:action => :edit_prjconf, :project => @project) %>");
   <% end %>
 <% end %>
-
-<%
-@crumb_list = [
-  link_to( 'Projects', :controller => 'project', :action => :list_public),
-  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
-  'Project Config'
-]
--%>
 
 <%= render :partial => "tabs" %>
 

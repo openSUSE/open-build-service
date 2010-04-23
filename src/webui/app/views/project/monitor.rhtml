@@ -1,11 +1,5 @@
 <% @pagetitle = "Project #{@project} Status Monitor" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :action => :list_public),
-  link_to( @project, :action => :show, :project => @project ),
-  'Status Monitor'
-]
--%>
+<% project_bread_crumb( 'Status Monitor' ) -%>
 
 <% content_for :ready_function do %>
   function toggleBox(link, box) {

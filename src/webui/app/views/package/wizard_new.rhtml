@@ -1,11 +1,6 @@
 <% @pagetitle = "New Package" %>
-<%
-@crumb_list = [
-  link_to( 'Projects', :controller => 'project', :action => :list_public),
-  link_to( @project, :controller => 'project', :action => :show, :project => @project ),
-  'Add Package'
-]
--%>
+<% project_bread_crumb('Add Package') -%>
+
 <h2>New Package in project <%= @project.name %></h2>
 
 <% form_tag :action => "wizard_new" do %>

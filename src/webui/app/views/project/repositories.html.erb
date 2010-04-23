@@ -1,8 +1,5 @@
 <%
-@crumb_list = [
-  link_to( 'Projects', :action => :list_public),
-  link_to( @project, :action => :show, :project => @project ), "Repositories"
-]
+project_bread_crumb( 'Repositories' )
 @pagetitle = "Repositories for #{@project.name}"
 -%>
 
