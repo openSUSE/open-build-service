@@ -719,7 +719,7 @@ sub prpfinished {
 
   my $rinfo = {};
   if (@$packs && $pubenabled && grep {!$_} values(%$pubenabled)) {
-    $rinfo = Storable::retrieve("${rdir}info") if -s "${rdir}info";
+    $rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
   }
   $rinfo->{'binaryorigins'} ||= {};
 
@@ -807,7 +807,7 @@ sub prpfinished {
 
   # write new rpminfo
   $rinfo = {'binaryorigins' => \%origin};
-  Storable::nstore($rinfo, "${rdir}info");
+  BSUtil::store("${rdir}info.new", "${rdir}info", $rinfo);
 
   # release lock and ping publisher
   close(F);
@@ -946,9 +946,7 @@ sub update_dst_full {
     @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @jobfiles;
     my $cache;
     if (-e "$jobdir/.bininfo") {
-      eval {
-        $cache = Storable::retrieve("$jobdir/.bininfo");
-      };
+      $cache = BSUtil::retrieve("$jobdir/.bininfo", 1);
       unlink("$jobdir/.bininfo");
     }
     $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/} @jobfiles ], $cache);
@@ -1863,14 +1861,30 @@ sub jobfinished {
   }
 
   # update packstatus so that it doesn't fall back to scheduled
-  my $ps = readxml("$reporoot/$prp/$myarch/:packstatus", $BSXML::packstatuslist, 1);
+  my $ps = BSUtil::retrieve("$reporoot/$prp/$myarch/:packstatus", 1);
   if ($ps) {
-    for (@{$ps->{'packstatus'} || []}) {
-      next unless $_->{'name'} eq $packid;
-      $_->{'status'} = 'finished';
-      $_->{'error'} = $code;
+    if (exists($ps->{'packstatus'}->{$packid})) {
+      $ps->{'packstatus'}->{$packid} = 'finished';
+      $ps->{'packerror'}->{$packid} = $code;
+      BSUtil::store("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps);
     }
-    writexml("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps, $BSXML::packstatuslist);
+  } else {
+    # compatibility: read and convert old xml data
+    $ps = readxml("$reporoot/$prp/$myarch/:packstatus", $BSXML::packstatuslist, 1);
+    if ($ps) {
+      my %packstatus;
+      my %packerror;
+      for (@{$ps->{'packstatus'} || []}) {
+        $packstatus{$_->{'name'}} = $_->{'status'};
+        $packerror{$_->{'name'}} = $_->{'error'} if $_->{'error'};
+      }
+      if (exists($packstatus{$packid})) {
+        $packstatus{$packid} = 'finished';
+        $packerror{$packid} = $code;
+      }
+      $ps = {'packstatus' => \%packstatus, 'packerror' => \%packerror};
+      BSUtil::store("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps);
+    }
   }
 
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
@@ -1937,12 +1951,9 @@ sub jobfinished {
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
 
   # update relsync file
-  my $relsync;
-  eval { $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync"); };
-  $relsync ||= {};
+  my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 1) || {};
   $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
-  Storable::nstore($relsync, "$reporoot/$prp/$myarch/:relsync.new");
-  rename("$reporoot/$prp/$myarch/:relsync.new", "$reporoot/$prp/$myarch/:relsync") || die("rename $reporoot/$prp/$myarch/:relsync.new $reporoot/$prp/$myarch/:relsync: $!\n");
+  BSUtil::store("$reporoot/$prp/$myarch/:relsync.new", "$reporoot/$prp/$myarch/:relsync", $relsync);
   
   # save logfile
   link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
@@ -2934,8 +2945,7 @@ sub updaterelsyncmax {
   BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
   my $relsyncmax;
   if (-s "$reporoot/$prp/$arch/:relsync.max") {
-    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync.max"); };
-    warn($@) if $@;
+    $relsyncmax = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync.max", 2);
   }
   $relsyncmax ||= {};
   my $changed;
@@ -2950,10 +2960,7 @@ sub updaterelsyncmax {
       $changed = 1;
     }
   }
-  if ($changed) {
-    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync.max.new");
-    rename("$reporoot/$prp/$arch/:relsync.max.new", "$reporoot/$prp/$arch/:relsync.max");
-  }
+  BSUtil::store("$reporoot/$prp/$arch/:relsync.max.new", "$reporoot/$prp/$arch/:relsync.max", $relsyncmax) if $changed;
   close(F);
   return $changed;
 }
@@ -3008,14 +3015,7 @@ my @lookat_high;        # do those really first so that our users are happy, tri
 # read old state if present
 if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
   print "reading old state...\n";
-  my $schedstate;
-  eval {
-    $schedstate = Storable::retrieve("$rundir/bs_sched.$myarch.state");
-  };
-  if ($@) {
-    print "$@";
-    undef $schedstate;
-  }
+  my $schedstate = BSUtil::retrieve("$rundir/bs_sched.$myarch.state", 2);
   unlink("$rundir/bs_sched.$myarch.state");
   if ($schedstate) {
     # just for testing...
@@ -3471,9 +3471,7 @@ while(1) {
 	$schedstate->{'globalnotready'} = \%prpnotready;
 	$schedstate->{'watchremote_start'} = \%watchremote_start;
 	unlink("$rundir/bs_sched.$myarch.state");
-	if (!Storable::nstore($schedstate, "$rundir/bs_sched.$myarch.state")) {
-	  unlink("$rundir/bs_sched.$myarch.state");
-	}
+	BSUtil::store("$rundir/bs_sched.$myarch.state.new", "$rundir/bs_sched.$myarch.state", $schedstate);
 	if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete') {
 	  print "bye.\n";
 	  exit(0);
@@ -3935,10 +3933,7 @@ while(1) {
 
   if (%pkgdisabled) {
     # leave info of disabled packages untouched
-    my $olddepends;
-    eval {
-      $olddepends = Storable::retrieve("$reporoot/$prp/$myarch/:depends");
-    };
+    my $olddepends = BSUtil::retrieve("$reporoot/$prp/$myarch/:depends", 1);
     if ($olddepends) {
       for (keys %pkgdisabled) {
         $pdeps{$_} = $olddepends->{'pkgdeps'}->{$_} if $olddepends->{'pkgdeps'}->{$_};
@@ -3948,12 +3943,11 @@ while(1) {
   }
 
   # write dependency information
-  Storable::nstore({
+  BSUtil::store("$reporoot/$prp/$myarch/.:depends", "$reporoot/$prp/$myarch/:depends", {
     'pkgdeps' => \%pdeps,
     'subpacks' => \%subpacks,
     'pkg2src' => \%pkg2src,
-  }, "$reporoot/$prp/$myarch/.:depends");
-  rename("$reporoot/$prp/$myarch/.:depends", "$reporoot/$prp/$myarch/:depends");
+  });
   # remove old entries again
   for (keys %pkgdisabled) {
     $pdeps{$_} = [];
@@ -3978,16 +3972,9 @@ while(1) {
   my $relsyncmax;
   my %relsynctrigger;
   if (-s "$reporoot/$prp/$myarch/:relsync.max") {
-    eval {
-      $relsyncmax = Storable::retrieve("$reporoot/$prp/$myarch/:relsync.max");
-    };
-    warn($@) if $@;
+    $relsyncmax = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.max", 2);
     if ($relsyncmax && -s "$reporoot/$prp/$myarch/:relsync") {
-      my $relsync;
-      eval {
-        $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync");
-      };
-      warn($@) if $@;
+      my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 2);
       for my $packid (@packs) {
 	my $tag = $packs->{$packid}->{'bcntsynctag'} || $packid;
 	next unless $relsync->{$packid};
@@ -4452,13 +4439,20 @@ relsynccheck:
   Build::forgetdeps($bconf);
 
   # write package status for this project
-  my @packstatuslist = map {{
-    'name' => $_,
-    'status' => $packstatus{$_},
-    (exists $packerror{$_} ? ('error' => $packerror{$_}) : ())
-  }} @packs;
-  my $ps = { 'packstatus' => \@packstatuslist, 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch};
-  writexml("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps, $BSXML::packstatuslist);
+  if (0) {
+    my @packstatuslist = map {{
+      'name' => $_,
+      'status' => $packstatus{$_},
+      (exists $packerror{$_} ? ('error' => $packerror{$_}) : ())
+    }} @packs;
+    my $ps = { 'packstatus' => \@packstatuslist, 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch};
+    writexml("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", $ps, $BSXML::packstatuslist);
+  } else {
+    BSUtil::store("$reporoot/$prp/$myarch/.:packstatus", "$reporoot/$prp/$myarch/:packstatus", {
+      'packstatus' => \%packstatus,
+      'packerror' => \%packerror,
+    });
+  }
 
   $prpchecktime = time() - $prpchecktime;
 
@@ -4539,7 +4533,7 @@ relsynccheck:
   my @relsync2 = stat("$reporoot/$prp/$myarch/:relsync.sent");
   if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
     print "    updating relsync information\n";
-    my $relsync = Storable::retrieve("$reporoot/$prp/$myarch/:relsync") || {};
+    my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync") || {};
     my $relsyncmax = {};
     for my $packid (sort keys %$relsync) {
       next unless $relsync->{$packid} =~ /^(.*)\.([^-]*)$/;

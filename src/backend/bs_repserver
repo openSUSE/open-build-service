@@ -379,7 +379,7 @@ sub getbinarylist_repository {
         }
 	# the streaming code can't handle big chunks of data, so we write
         # the result to a tmp file and stream from it
-	Storable::nstore(\%data, "$reporoot/$prp/$arch/:full.cache.$$");
+	BSUtil::store("$reporoot/$prp/$arch/:full.cache.$$", undef, \%data);
 	if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache.$$")) {
           push @files, { 'name' => 'repositorycache', 'filename' => $fd };
 	}
@@ -609,8 +609,15 @@ sub getbuildstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   my $res = {'package' => $packid};
-  my $ps = readxml("$reporoot/$projid/$repoid/$arch/:packstatus", $BSXML::packstatuslist, 1) || {};
-  $ps = (grep {$_->{'name'} eq $packid} @{$ps->{'packstatus'} || []})[0];
+  my $ps = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:packstatus", 1);;
+  $ps ||= convertoldpackstatus("$projid/$repoid/$arch");
+  if ($ps) {
+    $ps = {
+      'status' => $ps->{'packstatus'}->{$packid},
+      'error' => $ps->{'packerror'}->{$packid},
+    };
+    undef $ps unless $ps->{'status'};
+  }
   if ($ps && $ps->{'status'} ne 'failed' && $ps->{'status'} ne 'done' && $ps->{'status'} ne 'scheduled') {
     $res->{'code'} = $ps->{'status'};
     $res->{'details'} = $ps->{'error'} if exists $ps->{'error'};
@@ -1214,7 +1221,7 @@ sub putjob {
     BSVerify::verify_nevraquery($data);
     $bininfo->{$id} = $data;
   }
-  Storable::nstore($bininfo, "$dir/.bininfo") if %$bininfo;
+  BSUtil::store("$dir/.bininfo", undef, $bininfo) if %$bininfo;
 
   # write build stats for dispatcher
   my @l = ($projid, $repoid, $arch, $info->{'package'}, $jobstatus->{'starttime'},  $jobstatus->{'endtime'}, $jobstatus->{'result'}, $jobstatus->{'workerid'}, $jobstatus->{'hostarch'});
@@ -1308,17 +1315,18 @@ sub forwardevent {
 sub fixpackstatus {
   my ($prpa, $ps, $buildingjobs) = @_;
   return unless $ps && $ps->{'packstatus'};
+  my $packstatus = $ps->{'packstatus'};
   $buildingjobs ||= {};
   my ($prp, $arch) = $prpa =~ /(.*)\/([^\/]*)$/;
-  for my $p (@{$ps->{'packstatus'}}) {
-    $p->{'status'} = 'unknown' unless $p->{'status'};
-    if ($p->{'status'} eq 'done') {
-      if (-e "$reporoot/$prpa/:logfiles.fail/$p->{'name'}") {
-	$p->{'status'} = 'failed';
+  for my $packid (keys %$packstatus) {
+    $packstatus->{$packid} ||= 'unknown';
+    if ($packstatus->{$packid} eq 'done') {
+      if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
+	$packstatus->{$packid} = 'failed';
       } else {
-	$p->{'status'} = 'succeeded';
+	$packstatus->{$packid} = 'succeeded';
       }
-    } elsif ($p->{'status'} eq 'scheduled') {
+    } elsif ($packstatus->{$packid} eq 'scheduled') {
       if (!$buildingjobs->{$arch}) {
 	my $ba = {};
         for (grep {s/\:status$//} ls("$jobsdir/$arch")) {
@@ -1330,16 +1338,29 @@ sub fixpackstatus {
 	}
 	$buildingjobs->{$arch} = $ba;
       }
-      my $job = jobname($prp, $p->{'name'});
+      my $job = jobname($prp, $packid);
       $job = $buildingjobs->{$arch}->{$job};
       if ($job) {
         my $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
-	$p->{'status'} = $js->{'code'};
-        $p->{'error'} = $js->{'details'} if $js->{'details'};
-        $p->{'error'} = "building on $js->{'workerid'}" if $js->{'code'} eq 'building';
+	$packstatus->{$packid} = $js->{'code'};
+        $ps->{'packerror'}->{$packid} = $js->{'details'} if $js->{'details'};
+        $ps->{'packerror'}->{$packid} = "building on $js->{'workerid'}" if $js->{'code'} eq 'building';
       }
     }
   }
+}
+
+sub convertoldpackstatus {
+  my ($prpa) = @_;
+  my $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1);
+  return unless $ps;
+  my %packstatus;
+  my %packerror;
+  for (@{$ps->{'packstatus'} || []}) {
+    $packstatus{$_->{'name'}} = $_->{'status'};
+    $packerror{$_->{'name'}} = $_->{'error'} if $_->{'error'};
+  }
+  return {'packstatus' => \%packstatus, 'packerror' => \%packerror};
 }
 
 sub getresult {
@@ -1355,21 +1376,23 @@ sub getresult {
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
   my %buildingjobs;
   for my $prpa (@$prpas) {
+    my ($projid, $repoid, $arch) = split('/', $prpa, 3);
     $state .= "$prpa\0\0";
-    my $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1);
+    my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
+    $ps ||= convertoldpackstatus($prpa);
     next unless $ps;
     if (%packfilter && $ps->{'packstatus'}) {
-      $ps->{'packstatus'} = [ grep {$packfilter{$_->{'name'}}} @{$ps->{'packstatus'}} ];
+      for (keys %{$ps->{'packstatus'} || {}}) {
+	delete $ps->{'packstatus'}->{$_} unless $packfilter{$_};
+      }
     }
-    my $schedulerstate = getschedulerstate($ps->{'project'}, $ps->{'repository'}, $ps->{'arch'});
-    my $sl = {'project' => $ps->{'project'}, 'repository' => $ps->{'repository'}, 'arch' => $ps->{'arch'},
-              'state' => $schedulerstate };
+    my $schedulerstate = getschedulerstate($projid, $repoid, $arch);
+    my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'state' => $schedulerstate };
     $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
     $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
     fixpackstatus($prpa, $ps, \%buildingjobs);
-    for my $p (@{$ps->{'packstatus'} || []}) {
-      my $packid = $p->{'name'};
-      my $code = $p->{'status'};
+    for my $packid (sort(keys %{$ps->{'packstatus'} || {}})) {
+      my $code = $ps->{'packstatus'}->{$packid};
       if ($cgi->{'lastbuild'}) {
         if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
 	  $code = 'failed';
@@ -1381,7 +1404,7 @@ sub getresult {
       }
       next if %code && !$code{$code};
       my $s = {'package' => $packid, 'code' => $code};
-      $s->{'details'} = $p->{'error'} if $p->{'error'} && !$cgi->{'lastbuild'};
+      $s->{'details'} = $ps->{'packerror'}->{$packid} if !$cgi->{'lastbuild'} && $ps->{'packerror'}->{$packid};
       $state .= "$packid\0$code\0";
       push @{$sl->{'status'}}, $s;
       if ($cgi->{'withbinarylist'}) {
@@ -1426,10 +1449,10 @@ sub docommand {
       $allpacks = 1;
     }
     if (%code) {
-      my $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1) || {};
+      my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
+      $ps ||= convertoldpackstatus($prpa);
       fixpackstatus($prpa, $ps, \%buildingjobs);
-      my %c = map {$_->{'name'} => $_->{'status'}} @{$ps->{'packstatus'} || []};
-      @packids = grep {$code{$c{$_} || 'unknown'}} @packids;
+      @packids = grep {$code{$ps->{'packstatus'}->{$_} || 'unknown'}} @packids;
     }
     if ($cmd eq 'rebuild') {
       for my $packid (@packids) {
@@ -1533,10 +1556,7 @@ sub getkiwiproductpackages {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
     for my $arch (@archs) {
-      my $depends;
-      eval {
-        $depends = Storable::retrieve("$reporoot/$aprp/$arch/:depends");
-      };
+      my $depends = BSUtil::retrieve("$reporoot/$aprp/$arch/:depends", 1);
       next unless $depends && $depends->{'subpacks'};
       my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
       my @apackids = sort keys %apackids;
@@ -2010,10 +2030,7 @@ sub getbuilddepinfo {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my %packids = map {$_ => 1} @{$cgi->{'package'} || []};
   my $view = $cgi->{'view'} || '';
-  my $depends;
-  eval {
-    $depends = Storable::retrieve("$reporoot/$projid/$repoid/$arch/:depends");
-  };
+  my $depends = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:depends", 1);
   return ({'package' => []}, $BSXML::builddepinfo) unless $depends;
   my $subpacks = $depends->{'subpacks'} || {};
   my $pkgdeps = $depends->{'pkgdeps'} || {};
@@ -2180,7 +2197,7 @@ sub prp_to_repoinfo {
   my $repoinfo = $prp_to_repoinfo{$prp};
   if (!$repoinfo) {
     if (-s "$reporoot/$prp/:repoinfo") {
-      $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo");
+      $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo");
       for (@{$repoinfo->{'prpsearchpath'} || []}) {
 	next if ref($_);	# legacy
 	my ($p, $r) = split('/', $_, 2);
@@ -2505,8 +2522,7 @@ sub postrelsync {
   BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
   my $relsyncmax;
   if (-s "$reporoot/$prp/$arch/:relsync.max") {
-    eval { $relsyncmax = Storable::retrieve("$reporoot/$prp/$arch/:relsync.max"); };
-    warn($@) if $@;
+    $relsyncmax = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync.max", 2);
   }
   $relsyncmax ||= {};
   my $changed;
@@ -2521,10 +2537,7 @@ sub postrelsync {
     }
     $changed = 1;
   }
-  if ($changed) {
-    Storable::nstore($relsyncmax, "$reporoot/$prp/$arch/:relsync.max.new");
-    rename("$reporoot/$prp/$arch/:relsync.max.new", "$reporoot/$prp/$arch/:relsync.max");
-  }
+  BSUtil::store("$reporoot/$prp/$arch/:relsync.max.new", "$reporoot/$prp/$arch/:relsync.max", $relsyncmax) if $changed;
   close(F);
 
   if ($changed) {

@@ -251,9 +251,7 @@ while (1) {
     local *F;
     if (open(F, '<', "$jobsdir/finished")) {
       unlink("$jobsdir/finished");
-      my $load;
-      eval {$load = Storable::retrieve("$jobsdir/load");};
-      $load ||= {};
+      my $load = BSUtil::retrieve("$jobsdir/load", 1) || {};
       while (<F>) {
 	next unless /\n$/s;
 	my @s = split('\|', $_);
@@ -276,8 +274,7 @@ while (1) {
 	}
       }
       close F;
-      Storable::nstore($load, "$jobsdir/load.new");
-      rename("$jobsdir/load.new", "$jobsdir/load") || die("rename $jobsdir/load.new $jobsdir/load");
+      BSUtil::store("$jobsdir/load.new", "$jobsdir/load", $load);
     }
   }
 
