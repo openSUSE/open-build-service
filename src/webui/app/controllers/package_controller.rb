@@ -9,14 +9,16 @@ class PackageController < ApplicationController
   before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard,
     :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
     :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries,
-    :binary, :dependency, :branch, :change_flag, :trigger_rebuild, :abort_build, :wipe_binaries]
+    :binary, :dependency, :branch, :change_flag, :trigger_rebuild, :abort_build, :wipe_binaries,
+    :meta, :edit_meta]
   before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person,
     :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
     :show, :wizard, :edit, :add_file, :save_file, :view_file, :import_spec,
     :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, 
-    :branch, :change_flag, :trigger_rebuild, :abort_build, :wipe_binaries]
+    :branch, :change_flag, :trigger_rebuild, :abort_build, :wipe_binaries,
+    :meta, :edit_meta]
   before_filter :require_login, :only => [:branch]
-
+  before_filter :require_meta, :only => [:edit_meta, :meta ]
 
   def fill_email_hash
     @email_hash = Hash.new
@@ -702,6 +704,18 @@ class PackageController < ApplicationController
     render :partial => "set_url_form"
   end
 
+  def edit_meta
+  end
+
+  def meta
+  end
+
+  def save_meta
+    frontend.put_file(params[:meta], :project => params[:project], :package => params[:package], :filename => '_meta')
+    flash[:note] = "Config successfully saved"
+    Package.free_cache params[:package], :project => params[:project]
+    redirect_to :action => :meta, :project => params[:project], :package => params[:package]
+  end
 
   def set_url
     @package.set_url params[:url]
@@ -766,6 +780,15 @@ class PackageController < ApplicationController
       logger.error "Package #{@project}/#{params[:package]} not found"
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to :controller => "project", :action => :show, :project => @project, :nextstatus => 404
+    end
+  end
+
+  def require_meta
+    begin
+      @meta = frontend.get_source(:project => params[:project], :package => params[:package], :filename => '_meta')
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Package _meta not found: #{params[:project]}/#{params[:package]}"
+      redirect_to :controller => "project", :action => "show", :project => params[:project], :nextstatus => 404
     end
   end
 

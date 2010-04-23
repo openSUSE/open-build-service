@@ -656,6 +656,9 @@ class ProjectController < ApplicationController
     Person.free_cache( :login => session[:login] )
   end
 
+  def edit_meta
+  end
+
   def meta
   end
 
@@ -687,7 +690,8 @@ class ProjectController < ApplicationController
   def save_meta
     frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
     flash[:note] = "Config successfully saved"
-    redirect_to :action => :show, :project => params[:project]
+    Project.free_cache params[:project]
+    redirect_to :action => :meta, :project => params[:project]
   end
 
   def clear_failed_comment
