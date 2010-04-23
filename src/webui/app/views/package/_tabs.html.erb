@@ -4,6 +4,7 @@
 
 <div class="box-header header-tabs">
   <ul id="package_tabs">
+    <%= project_tab 'Overview', :action => :show %>
     <%= package_tab 'Files', :action => :files %>
     <%= package_tab 'Repositories', :action => :repositories %>
     <%= package_tab 'Attributes', :action => :attributes %>

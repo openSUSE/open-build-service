@@ -44,7 +44,7 @@ module PackageHelper
     opts[:package] = @package.to_s
     opts[:project] = @project.to_s
     if @current_action.to_s == opts[:action].to_s
-      link = "<li id='current_tab'>"
+      link = "<li class='selected'>"
     else
       link = "<li>"
     end

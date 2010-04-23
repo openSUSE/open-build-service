@@ -10,6 +10,7 @@
 <div class="box-header header-tabs">
 
 <ul>
+  <%= project_tab 'Overview', :action => :show %>
   <%= project_tab 'Packages', :action => :packages %>
   <%= project_tab "Repositories", :action => :repositories%>
   <% if @project.has_element?(:repository) -%>
