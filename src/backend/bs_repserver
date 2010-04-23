@@ -1312,6 +1312,8 @@ sub fixpackstatus {
   my ($prp, $arch) = $prpa =~ /(.*)\/([^\/]*)$/;
   for my $p (@{$ps->{'packstatus'}}) {
     $p->{'status'} = 'unknown' unless $p->{'status'};
+    # For old :packstatus files (before 2.0)
+    $p->{'status'} = "unresolvable" if $p->{'status'} eq "expansion error";
     if ($p->{'status'} eq 'done') {
       if (-e "$reporoot/$prpa/:logfiles.fail/$p->{'name'}") {
 	$p->{'status'} = 'failed';
