@@ -30,6 +30,7 @@ use XML::Structured;
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 use Encode;
+use Storable ();
 
 use strict;
 
@@ -95,12 +96,12 @@ sub readxml {
 
 sub touch($) {
   my ($file) = @_;
-  if ( -e $file ) {
+  if (-e $file) {
     utime(time, time, $file); 
-  }else{
+  } else {
     # create new file, mtime is anyway current
     local *F;
-    open(F, '>', $file) || die("$file: $!\n");
+    open(F, '>>', $file) || die("$file: $!\n");
     close(F) || die("$file close: $!\n");
   }
 }
@@ -368,6 +369,35 @@ sub enabled {
     }
   }
   return $default;
+}
+
+sub store {
+  my ($fn, $fnf, $dd) = @_;
+  if (!Storable::nstore($dd, $fn)) {
+    die("nstore $fn: $!\n");
+  }
+  return unless defined $fnf;
+  $! = 0;
+  rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
+}
+
+sub retrieve {
+  my ($fn, $nonfatal) = @_;
+  my $dd;
+  if (!$nonfatal) {
+    $dd = Storable::retrieve($fn);
+    die("retrieve $fn: $!\n") unless $dd;
+  } else {
+    eval { $dd = Storable::retrieve($fn); };
+    if (!$dd && $nonfatal == 2) {
+      if ($@) {
+        warn($@);
+      } else {
+        warn("retrieve $fn: $!\n");
+      }
+    }
+  }
+  return $dd;
 }
 
 1;
