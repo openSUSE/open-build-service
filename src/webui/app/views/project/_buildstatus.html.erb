@@ -24,7 +24,7 @@
           </td>
           <td class="codes"><% counts.each do |code, count| -%>
               <div class="nowrap">
-                <%= link_to("#{code.gsub("expansion error", "exp. error")}:&nbsp;#{count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0) -%>
+                <%= link_to("#{code.gsub("unresolvable", "exp. error")}:&nbsp;#{count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0) -%>
               </div>
             <% end -%></td>
         </tr>

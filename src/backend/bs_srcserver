@@ -3159,7 +3159,7 @@ sub getresult {
   }
   return if $BSStdServer::isajax && !defined($ps);
   if ($view{'summary'}) {
-    my @order = ('succeeded', 'failed', 'expansion error', 'broken', 'scheduled');
+    my @order = ('succeeded', 'failed', 'unresolvable', 'broken', 'scheduled');
     my %order = map {$_ => 1} @order;
     for my $p (@{$ps->{'result'} || []}) {
       my %sum;

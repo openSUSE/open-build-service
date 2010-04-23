@@ -92,7 +92,7 @@
 
 /* build status and repo status are for project/monitor */
 td.buildstatus { 
-  min-width: 11ex; /* expansion error */
+  min-width: 11ex; /* unresolvable */
   text-align: center;
 }
 table.buildstatus { width: 1%; }

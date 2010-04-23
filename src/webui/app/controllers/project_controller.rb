@@ -165,7 +165,7 @@ class ProjectController < ApplicationController
     end
 
     @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project, :expires_in => 30.minutes) do
-      buildresult = Buildresult.find_cached( :project => @project, :view => 'status', :code => ['failed', 'broken', 'expansion error'], :expires_in => 2.minutes )
+      buildresult = Buildresult.find_cached( :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
       if buildresult
         results = buildresult.data.find( 'result/status' )
         results.map{|e| e.attributes['package'] }.uniq.size
@@ -232,6 +232,8 @@ class ProjectController < ApplicationController
         else
           @project.delete
         end
+        Rails.cache.delete("%s_packages_mainpage" % @project)
+        Rails.cache.delete("%s_problem_packages" % @project)
       rescue ActiveXML::Transport::Error => err
         @error, @code, @api_exception = ActiveXML::Transport.extract_error_message err
         logger.error "Could not delete project #{@project}: #{@error}"
@@ -467,9 +469,9 @@ class ProjectController < ApplicationController
     else
       defaults = true
     end
-    params['expansionerror'] = 1 if params['expansion error']
+    params['expansionerror'] = 1 if params['unresolvable']
     @avail_status_values =
-      ['succeeded', 'failed', 'expansion error', 'broken',
+      ['succeeded', 'failed', 'unresolvable', 'broken',
       'blocked', 'dispatching', 'scheduled', 'building', 'finished',
       'signing', 'disabled', 'excluded', 'unknown']
     @filter_out = ['disabled', 'excluded', 'unknown']

@@ -587,7 +587,7 @@ POST /build/<project>?cmd=rebuild
   scheduled        - package is ready to be built
   building         - package is building on a worker
   broken           - package source is bad (i.e. no specfile)
-  expansion error  - build needs unavailable binary packages
+  unresolvable     - build needs unavailable binary packages
 
 Parameters:
   

@@ -1320,7 +1320,10 @@ sub fixpackstatus {
   my ($prp, $arch) = $prpa =~ /(.*)\/([^\/]*)$/;
   for my $packid (keys %$packstatus) {
     $packstatus->{$packid} ||= 'unknown';
-    if ($packstatus->{$packid} eq 'done') {
+    # For old :packstatus files (before 2.0)
+    if ($packstatus->{$packid} eq 'expansion error') {
+      $packstatus->{$packid} = 'unresolvable';
+    elsif ($packstatus->{$packid} eq 'done') {
       if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
 	$packstatus->{$packid} = 'failed';
       } else {
@@ -1763,7 +1766,7 @@ sub getbuildinfo {
   }
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @edeps) {
-    $ret->{'error'} = "expansion error: ".join(', ', @edeps);
+    $ret->{'error'} = "unresolvable: ".join(', ', @edeps);
     return ($ret, $BSXML::buildinfo);
   }
   if ($packtype eq 'kiwi') {
@@ -1791,7 +1794,7 @@ sub getbuildinfo {
   undef $xp;
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @bdeps) {
-    $ret->{'error'} = "expansion error: ".join(', ', @bdeps);
+    $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
 
