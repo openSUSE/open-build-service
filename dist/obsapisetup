@@ -65,7 +65,7 @@ case "$1" in
                 # but no idea how to solve this
                 sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = "'"$FQHOSTNAME"'",' \
 		    /srv/www/obs/webui/config/environments/production.rb
-                sed -i 's,^DOWNLOAD_HOST = .*,DOWNLOAD_HOST = '"$FQHOSTNAME:82"',' \
+                sed -i 's,^DOWNLOAD_URL = .*,DOWNLOAD_URL = \"http://'"$FQHOSTNAME:82"'\",' \
 		    /srv/www/obs/webui/config/environments/production.rb
 		echo
 		echo -n "Write OBS lighttpd config for this host"
