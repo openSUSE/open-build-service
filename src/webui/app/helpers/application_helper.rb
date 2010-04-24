@@ -297,27 +297,27 @@ module ApplicationHelper
         unless flag.has_attribute? :explicit and flag.element_name == 'disable'
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_disabled_blue.png", :alt => '0') +
+            image_tag("#{flags.element_name}_disabled_blue.png", :alt => '0', :size => "24x24") +
             link_to("Explicitly disable", opts.merge({ :cmd => :set_flag, :status => :disable }), {:class => :flag_trigger}) +
             "</div>"
         end
         if flag.element_name == 'disable'
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_enabled_grey.png", :alt => '1') +
+            image_tag("#{flags.element_name}_enabled_grey.png", :alt => '1', :size => "24x24") +
             link_to("Take default", opts.merge({ :cmd => :remove_flag }),:class => :flag_trigger) +
             "</div>"
         else
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_disabled_grey.png", :alt => '0') +
+            image_tag("#{flags.element_name}_disabled_grey.png", :alt => '0', :size => "24x24") +
             link_to("Take default", opts.merge({ :cmd => :remove_flag }), :class => :flag_trigger)+
             "</div>"
         end if flag.has_attribute? :explicit
         unless flag.has_attribute? :explicit and flag.element_name != 'disable'
           out += 
             "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_enabled_blue.png", :alt => '1') +
+            image_tag("#{flags.element_name}_enabled_blue.png", :alt => '1', :size => "24x24") +
             link_to("Explicitly enable", opts.merge({ :cmd => :set_flag, :status => :enable }), :class => :flag_trigger) +
             "</div>"
         end
