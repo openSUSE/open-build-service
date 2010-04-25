@@ -1323,7 +1323,7 @@ sub fixpackstatus {
     # For old :packstatus files (before 2.0)
     if ($packstatus->{$packid} eq 'expansion error') {
       $packstatus->{$packid} = 'unresolvable';
-    elsif ($packstatus->{$packid} eq 'done') {
+    } elsif ($packstatus->{$packid} eq 'done') {
       if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
 	$packstatus->{$packid} = 'failed';
       } else {
