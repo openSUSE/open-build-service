@@ -3,7 +3,7 @@ class Buildresult < ActiveXML::Base
   @@avail_status_values =
     [ 'succeeded','failed','unresolvable','broken',
     'blocked', 'dispatching', 'scheduled','building','finished',
-    'disabled', 'excluded','unknown']
+    'disabled', 'excluded', 'signing', 'unknown']
   @@status_hash = nil
 
   def code2index(code)
