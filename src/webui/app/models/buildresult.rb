@@ -1,10 +1,14 @@
 class Buildresult < ActiveXML::Base
 
   @@avail_status_values =
-    [ 'succeeded','failed','unresolvable','broken',
-    'blocked', 'dispatching', 'scheduled','building','finished',
-    'disabled', 'excluded', 'signing', 'unknown']
+    ['succeeded', 'failed', 'unresolvable', 'broken',
+      'blocked', 'dispatching', 'scheduled', 'building', 'finished',
+      'disabled', 'excluded', 'signing', 'unknown']
   @@status_hash = nil
+
+  def self.avail_status_values
+    return @@avail_status_values
+  end
 
   def code2index(code)
     unless @@status_hash
@@ -15,6 +19,7 @@ class Buildresult < ActiveXML::Base
         index += 1
       end
     end
+    raise ArgumentError, "code '#{code}' unknown #{@@status_hash.inspect}" unless @@status_hash[code]
     return @@status_hash[code]
   end
 
