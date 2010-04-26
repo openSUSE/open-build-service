@@ -18,7 +18,18 @@ class ApplicationController < ActionController::Base
 
   class InvalidHttpMethodError < Exception; end
   class MissingParameterError < Exception; end
+  class ValidationError < Exception
+    attr_reader :xml, :errors
 
+    def message
+      errors
+    end
+
+    def initialize( _xml, _errors )
+      @xml = _xml
+      @errors = _errors
+    end
+  end
 
   def set_return_to
     # we cannot get the original protocol when behind lighttpd/apache
@@ -152,6 +163,9 @@ class ApplicationController < ActionController::Base
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 400
     when Timeout::Error
       render :template => "timeout" and return
+    when ValidationError
+      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
+      render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
@@ -224,24 +238,37 @@ class ApplicationController < ActionController::Base
     errors = []
     xmlbody = response.body
     xmlbody.gsub!(/[\n\r]/, "\n")
-
+    xmlbody.gsub!(/&nbsp;/, '')
+    
     LibXML::XML::Error.set_handler { |msg| errors << msg }
     begin
       document = LibXML::XML::Document.string xmlbody
     rescue LibXML::XML::Error => e
     end
 
-    #document.validate_schema(schema)
+    if document
+      tmp = Tempfile.new('xml_out')
+      tmp.write(xmlbody)
+      tmp.close
+
+      out = `xmllint --noout --schema #{RAILS_ROOT}/lib/xhtml1-strict.xsd #{tmp.path} 2>&1`
+      if $?.exitstatus != 0
+        document = nil
+        errors = [out]
+      end
+    end
     
+    # crashes unfortunately on 11.2
     #result = document.validate_schema(schema) do |message, error|
     #  puts "#{error ? 'error' : 'warning'} : #{message}"
     #end if document
 
     unless document
       erase_render_results
+      raise ValidationError.new xmlbody, errors
       response.body = render_to_string :template => 'xml_errors',
-         :locals => { :oldbody => xmlbody, :errors => errors }
-       return false
+        :locals => { :oldbody => xmlbody, :errors => errors }
+      return false
     end
     return true
   end
@@ -260,7 +287,7 @@ class ApplicationController < ActionController::Base
   end
 
   def validate_xhtml
-    return if RAILS_ENV != 'development'
+    return if RAILS_ENV == 'production' # later only for development
     return if request.xhr?
 
     return if !(response.status =~ /200/ &&

@@ -3,31 +3,29 @@
   <h2 style="display: inline"><%=h @package %></h2>
 
   <span style="float: right" >
-    <p>
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-        <span>
-          <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Package Information'), :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
-        </span>
-        <span>
-          <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Package'), {:action => :remove, :project => @project, :package => @package},
-            {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
-        </span>
-      <% end %>
+    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+      <span>
+        <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Package Information'), :action => :edit, :project => @project, :package => @package, :spec_count => @spec_count %>
+      </span>
+      <span>
+        <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Package'), {:action => :remove, :project => @project, :package => @package},
+          {:confirm => "Really remove package '#{@package}'?", :method => :post } %>
+      </span>
+    <% end %>
 
-      <% if session[:login] %>
-        <span>
-          <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch package'), {:action => :branch, :project => @project, :package => @package},
-            {:confirm => "Branch package '#{@package}'?", :method => :post } %>
-        </span>
-      <% end %>
+    <% if session[:login] %>
+      <span>
+        <%= link_to image_tag('icons/arrow_branch.png', :title => 'Branch package'), {:action => :branch, :project => @project, :package => @package},
+          {:confirm => "Branch package '#{@package}'?", :method => :post } %>
+      </span>
+    <% end %>
 
-      <% if @bugowner_mail and BUGZILLA_HOST %>
-        <span>
-          <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "[#{@project.name}/#{@package.name}]") %>
-        </span>
-      <% end %>
+    <% if @bugowner_mail and BUGZILLA_HOST %>
+      <span>
+        <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowner_mail, "[#{@project.name}/#{@package.name}]") %>
+      </span>
+    <% end %>
 
-    </p>
   </span>
 
   <!-- Package meta -->
@@ -52,14 +50,14 @@
       <p id="develproject_note"><strong>
           <% dpackage = @package.devel.data["package"] || @package.name %>
           This package is maintained in project <%= link_to @package.devel.project, :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage %>
-        </strong></p>
+      </strong></p>
     <%- end -%>
 
     <%- if @package.files.blank?  %>
       <p>
         <%= image_tag 'icons/information.png' %> This package doesn't contain any
         <%= link_to 'files', :action => :files, :project => @project, :package => @package %> yet.</p>
-    <%- end -%>
+      <%- end -%>
 
   </div>
 </div>
