@@ -3,6 +3,7 @@
 
 require 'common/activexml/transport'
 require 'libxml'
+require 'htmlentities'
 
 class ApplicationController < ActionController::Base
 
@@ -217,8 +218,7 @@ class ApplicationController < ActionController::Base
 
   @@schema = nil
   def schema
-    return @@schema if @@schema
-    @@schema = LibXML::XML::Document.file(RAILS_ROOT + "/lib/xhtml1-strict.xsd")
+    @@schema ||= LibXML::XML::Document.file(RAILS_ROOT + "/lib/xhtml1-strict.xsd")
   end
 
   def assert_xml_validates
@@ -228,7 +228,7 @@ class ApplicationController < ActionController::Base
     LibXML::XML::Error.set_handler { |msg| errors << msg }
     begin
       document = LibXML::XML::Document.string xmlbody
-    rescue Exception => e
+    rescue LibXML::XML::Error => e
     end
 
     #result = document.validate_schema(schema) do |message, error|
@@ -259,6 +259,7 @@ class ApplicationController < ActionController::Base
 
   def validate_xhtml
     return if RAILS_ENV != 'development'
+    return if request.xhr?
 
     return if !(response.status =~ /200/ &&
         response.headers['Content-Type'] =~ /text\/html/i)

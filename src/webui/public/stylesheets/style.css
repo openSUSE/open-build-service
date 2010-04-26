@@ -105,9 +105,9 @@ span.build_result_title {
 .status_failed a:visited {
   color: #f00;
 }
-.status_expansion_error a,
-.status_expansion_error a:hover,
-.status_expansion_error a:visited {
+.status_unresolvable a,
+.status_unresolvable a:hover,
+.status_unresolvable a:visited {
   color: #c00;
 }
 .status_unknown a,
