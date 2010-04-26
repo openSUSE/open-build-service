@@ -7,7 +7,6 @@
 <% end %>
 
 <% content_for :ready_function do %>
-  $(document).ready(function(){
   $("#linked_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
     { minChars: 2, matchCase: true, max: 50 } );
 
@@ -16,8 +15,6 @@
     extraParams: {
        project: function() { return $("#linked_project").val(); }
     }
-  });
-
   });
 <% end -%>
 
@@ -32,13 +29,19 @@ package.</p>
 <% form_tag :action => "save_new_link" do %>
 <p>
 <strong>Name of original project:</strong><br/>
-<%= text_field_tag 'linked_project', @linked_project, :size => 80, :id => 'linked_project' %><br/>
+<%= text_field_tag 'linked_project', @linked_project, :size => 80, :id => 'linked_project' %>
+</p>
+<p>
 <strong>Name of package in original project:</strong><br/>
-<%= text_field_tag 'linked_package', @linked_package, :size => 80, :id => 'linked_package' %><br/>
+<%= text_field_tag 'linked_package', @linked_package, :size => 80, :id => 'linked_package' %>
+</p>
+<p>
 <strong>Name of linked package in target project:</strong> (Leave blank to use the
 same name as in the original project) <br/>
 <%= text_field_tag 'target_package', @target_package, :size => 80 %><br/>
-<p><%= submit_tag "Create Link" %></p>
+</p>
+<p>
+<%= submit_tag "Create Link" %>
 <%= hidden_field_tag 'project', @project.name %>
 </p>
 <% end %>
