@@ -2,7 +2,7 @@
 
 <% package_bread_crumb(
   link_to( 'Files', :action => :files, :project => @project, :package => @package ),
-  h @filename) -%>
+  h(@filename)) -%>
 
 <%= render :partial => "tabs" %>
 
