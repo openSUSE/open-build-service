@@ -161,7 +161,7 @@ class ProjectController < ApplicationController
   def show
     @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s if @project.bugowner
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
-      Package.find_cached( :all, :project => @project, :expires_in => 30.seconds )
+      Package.find_cached( :all, :project => @project.name, :expires_in => 30.seconds )
     end
 
     @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project, :expires_in => 30.minutes) do
@@ -293,7 +293,7 @@ class ProjectController < ApplicationController
   end
 
   def packages
-    @packages = Package.find_cached( :all, :project => @project, :expires_in => 30.seconds )
+    @packages = Package.find_cached( :all, :project => @project.name, :expires_in => 30.seconds )
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
   end

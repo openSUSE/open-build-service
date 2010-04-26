@@ -25,11 +25,11 @@
         <form action="https://build.opensuse.org/ICSLogin/auth-up"
               method="post" enctype="application/x-www-form-urlencoded" id="login_form">
           <div class="hidden">
-            <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
+            <input name="url" value="<%= URI.escape "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
             <input name="context" value="default" type="hidden" />
             <input name="proxypath" value="reverse" type="hidden" />
             <input name="message" value="Please log In" type="hidden" />
-            <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
+            <input name="return_to_path" value="<%= URI.escape "#{@return_to_path}" %>" type="hidden" />
           </div>
           <p><label class="inlined" for="username">Username</label><input type="text" class="inline-text" name="username" value="" id="username" /></p>
           <p><label class="inlined" for="password">Password</label><input type="password" class="inline-text" name="password" value="" id="password" /></p>

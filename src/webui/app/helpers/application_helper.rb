@@ -215,9 +215,12 @@ module ApplicationHelper
       theclass=''
     end
     
-    out = "<td id='#{status_id}' class='#{theclass} buildstatus'>"
+    out = "<td class='#{theclass} buildstatus'>"
     if ["unresolvable", "broken", "blocked"].include? code 
-      out += link_to code, "javascript:alert('#{link_title}')", :title => link_title
+      out += link_to code, "#", :title => link_title, :id => status_id
+      content_for :ready_function do
+        "$('a##{status_id}').click(function() { alert('#{link_title.gsub(/\'/, '\'')}'); return false; });\n"
+      end
     elsif ["-","excluded"].include? code
       out += code
     else

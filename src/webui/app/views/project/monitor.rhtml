@@ -2,39 +2,7 @@
 <% project_bread_crumb( 'Status Monitor' ) -%>
 
 <% content_for :ready_function do %>
-  function toggleBox(link, box) {
-  //calculating offset for displaying popup message
-  leftVal=link.position().left + "px";
-  topVal=link.position().bottom + "px";
-  $(box).css({left:leftVal,top:topVal}).toggle();
-  }
-
-  function toggleCheck(input) {
-  if (input.attr("checked")) {
-  input.removeAttr("checked");
-  } else {
-  input.attr("checked", "checked");
-  }
-  }
-
-  /* $(document).click(function() { $(".filterbox").hide(); });
-  $(".filteritem input").click(function() { toggleCheck($(this)); toggleCheck($(this)); return true; });
-  $(".filteritem").click(function() { toggleCheck($(this).find("input:first")); return false; }); */
-  $("#statuslink").click(function() { toggleBox($(this), "#statusbox"); $("#archbox").hide(); $("#repobox").hide(); return false; })
-  $("#archlink").click(function() { toggleBox($(this), "#archbox"); $("#statusbox").hide(); $("#repobox").hide(); return false; })
-  $("#repolink").click(function() { toggleBox($(this), "#repobox"); $("#archbox").hide(); $("#statusbox").hide(); return false; })
-
-  $("#statusbox_close").click(function() { $("#statusbox").hide(); } );
-  $("#statusbox_all").click(function() { $(".statusitem").attr("checked", "checked"); return false; });
-  $("#statusbox_none").click(function() { $(".statusitem").attr("checked", ""); return false; });
-
-  $("#archbox_close").click(function() { $("#archbox").hide(); } );
-  $("#archbox_all").click(function() { $(".architem").attr("checked", "checked"); return false; });
-  $("#archbox_none").click(function() { $(".architem").attr("checked", ""); return false;});
-
-  $("#repobox_close").click(function() { $("#repobox").hide(); } );
-  $("#repobox_all").click(function() { $(".repoitem").attr("checked", "checked"); return false; });
-  $("#repobox_none").click(function() { $(".repoitem").attr("checked", ""); return false; });
+  project_monitor_ready();
 <% end %>
 
 

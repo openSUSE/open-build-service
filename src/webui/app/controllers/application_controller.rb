@@ -236,7 +236,7 @@ class ApplicationController < ActionController::Base
 
   def assert_xml_validates
     errors = []
-    xmlbody = response.body
+    xmlbody = String.new response.body
     xmlbody.gsub!(/[\n\r]/, "\n")
     xmlbody.gsub!(/&nbsp;/, '')
     
