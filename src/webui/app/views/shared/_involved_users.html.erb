@@ -30,7 +30,8 @@
 
       <% if !project_users.empty? or !project_groups.empty? or !package_users.empty? or !package_groups.empty? -%>
 
-        <li><h5><%= r.capitalize %>s</h5>
+        <li>
+          <h5><%= h r.capitalize %>s</h5>
           <ul>
 
             <% package_groups.each do |group| -%>
@@ -94,8 +95,8 @@
             <% end # project_users -%>
 
           </ul>
+          </li>
         <% end -%>
-      </li>
     <% end # roles_each -%>
 
   </ul>

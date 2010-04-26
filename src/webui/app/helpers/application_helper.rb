@@ -77,7 +77,7 @@ module ApplicationHelper
   end
 
   def bugzilla_url(email, desc="")
-    "#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd%20party%20software&assigned_to=#{email}&short_desc=#{desc}"
+    URI.escape("#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{email}&short_desc=#{desc}")
   end
 
   

@@ -311,7 +311,7 @@ class PackageController < ApplicationController
   end
 
   def add_file
-    @package_is_link = !@package.linkinfo.empty?
+    @package_is_link = !@package.blank?
   end
 
   def save_file

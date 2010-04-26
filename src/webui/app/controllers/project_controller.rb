@@ -470,7 +470,7 @@ class ProjectController < ApplicationController
       defaults = true
     end
     params['expansionerror'] = 1 if params['unresolvable']
-    @avail_status_values = BuildResult.avail_status_values
+    @avail_status_values = Buildresult.avail_status_values
     @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each { |s|
