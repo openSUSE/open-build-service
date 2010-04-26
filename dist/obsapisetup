@@ -51,12 +51,10 @@ case "$1" in
 			echo -n "Setup OBS webui database"
         		cd $webuidir
 			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
-			chown -R lighttpd.lighttpd $webuidir/log
 			echo
 			echo -n "Setup OBS api database"
         		cd $apidir
 			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
-			chown -R lighttpd.lighttpd $apidir/log
 			echo
 		else
 			echo -n "Migrate OBS webui database"
