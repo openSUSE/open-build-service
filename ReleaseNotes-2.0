@@ -1,0 +1,11 @@
+#
+# openSUSE Build Service 2.0
+#
+
+Changes:
+========
+
+* xml files are validated by the api
+
+* "expansion error" state got renamed to "unresolved"
+
