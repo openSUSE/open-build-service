@@ -97,40 +97,21 @@ class DbProject < ActiveRecord::Base
       self.save!
 
       #--- update linked projects ---#
-      linkcache = Hash.new
-      self.linkedprojects.each do |p|
-        h = linkcache[p.linked_db_project.name] ||= Hash.new
-        h[p.linked_db_project.name] = p
-      end
+      position = 1
+      #destroy all current linked projects
+      self.linkedprojects.each { |lp| lp.destroy }
 
+      #recreate linked projects from xml
       project.each_link do |l|
-        if linkcache.has_key? l.project
-          # project is already linked
-          linkcache[l.project] = :keep
-        else
-          link = DbProject.find_by_name( l.project )
-          if link.nil?
-            raise ArgumentError, "Linked project #{l.project} not found"
-          end
-          begin
-            LinkedProject.create(
-              :db_project => self,
-              :linked_db_project => link
-            )
-          rescue ActiveRecord::StatementInvalid => err
-            if /^Mysql::Error: Duplicate entry/.match(err)
-              logger.debug "project '#{self.name}' is already linked with project '#{link.name}'"
-            else
-              raise err
-            end
-          end
+        link = DbProject.find_by_name( l.project )
+        if link.nil?
+          raise SaveError, "unable to link against project '#{l.project}'"
         end
-      end
-      
-      #delete all linked projects that weren't found in the uploaded xml
-      linkcache.each do |object|
-        next if object == :keep
-        object.destroy
+        self.linkedprojects.create(
+            :db_project => self,
+            :linked_db_project => link,
+            :position => position
+        )
       end
       #--- end of linked projects update  ---#
 

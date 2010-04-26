@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100423144748) do
+ActiveRecord::Schema.define(:version => 20100426144748) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -219,6 +219,7 @@ ActiveRecord::Schema.define(:version => 20100423144748) do
   create_table "linked_projects", :force => true do |t|
     t.integer "db_project_id",        :null => false
     t.integer "linked_db_project_id", :null => false
+    t.integer "position"
   end
 
   add_index "linked_projects", ["db_project_id", "linked_db_project_id"], :name => "linked_projects_index", :unique => true
