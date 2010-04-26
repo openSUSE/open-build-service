@@ -6,15 +6,14 @@
   <h2>Building</h2>
   <div class="info">
     <% form_tag do -%>
+      <div>
       Filter projects:
       <%= text_field_tag :project, @project_filter, :style => "width: 15em;" -%>
       <%= link_to image_tag( 'clear.png', :id => 'clear', :alt => 'clear',
-        :title => 'clear input',
-        :onMouseOver => "this.src='/images/clear_active.png';",
-        :onMouseOut => "this.src='/images/clear.png';"
-      ),
+        :title => 'clear input'),
         :controller => params[:controller], :action => params[:action] %>
       <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+      </div>
     <% end -%>
     <%= observe_field( :project, :frequency => 0.5, :update => 'building_list',
       :url => { :controller => 'monitor', :action  => 'filtered_list' },
@@ -36,7 +35,7 @@
         <div style="background-color: <%= color %>; margin: 0px; width: 3px ; height: 1em; float: left;">&nbsp;</div>
       <% end -%>
       <div style="float: left; margin-left: 10px"><%= distance_of_time_in_words(@time_now, @dead_line-(@max_color*@interval_steps*60), true) -%></div>
-      <br clear="all" />
+      <div class="clear"/>
     </div>
   <% else %>
     <div class="info">
@@ -52,3 +51,4 @@
     </div>
   <% end %>
 </div>
+<div class="clear"></div>

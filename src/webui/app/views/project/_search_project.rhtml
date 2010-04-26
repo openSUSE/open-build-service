@@ -5,7 +5,7 @@
 <div id="project_list">
 
   <% if @important_projects %>
-    <div class="box-header centered">
+    <div class="box-header aligncenter">
       Main Projects
     </div>
     <p>
@@ -16,7 +16,7 @@
   <% end %>
 
 
-  <div class="box-header centered">
+  <div class="box-header aligncenter">
     All <%= 'Public' if !@excludefilter.blank? %> Projects
     <%= "which include '#{@filterstring}'" if !@filterstring.blank? %>
     <%= " (#{project_list.size})" %>

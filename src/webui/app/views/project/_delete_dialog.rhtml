@@ -3,7 +3,7 @@
 <div class="dialog" id="disable_mask"></div>
 <div class="dialog darkgrey_box" id="del_dialog">
   <div class="box box-shadow">
-    <div class="box-header centered">
+    <div class="box-header aligncenter">
       Confirmation
     </div>
 
@@ -17,7 +17,7 @@
     </ul>
     </p>
 
-    <p><div class="centered buttons">
+    <p><div class="aligncenter buttons">
       <%= link_to_remote 'Delete',
         :url => {:action => :delete, :project => @project.name, :force => 1, :confirmed => 1},
         :loading => 'hide_dialog()',

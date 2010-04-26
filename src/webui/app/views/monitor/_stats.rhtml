@@ -4,7 +4,7 @@
       <th>Host Arch</th>
       <th>Packages in waiting queue</th>
       <th>Packages in blocked queue</th>
-      <th><center>Average Job time</center></th>
+      <th><span class="aligncenter">Average Job time</span></th>
      </tr>
   </thead>
   <tbody>
@@ -16,7 +16,7 @@
           <%= entrywaiting.arch %>
         </td>
           <td class="waiting">
-          <center><%= entrywaiting.jobs %></center>
+          <span class="aligncenter"><%= entrywaiting.jobs %></span>
         </td>
         <td class="blocked">
           <% if @workerstatus.has_element? :blocked -%>
@@ -26,7 +26,7 @@
               <% end %>
             <% end %>
           <% end %>
-          <center><%= outblocked %></center>
+          <span class="aligncenter"><%= outblocked %></span>
         </td>
         <td class="avgjobtime">
           <% if @workerstatus.has_element? :buildavg -%>
@@ -36,7 +36,7 @@
               <% end %>
             <% end %>
           <% end %>
-          <center><%= outbuildavg %> </center>
+          <span class="aligncenter"><%= outbuildavg %> </span>
         </td>
       </tr>
     <% end %>

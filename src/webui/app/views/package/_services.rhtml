@@ -11,7 +11,7 @@
 
     <!-- code generators -->
     <table class="grid"> <tbody>
-      <tr><td class="centered">Available</td><td class="centered">Used</td><td class="centered">Trash</td></tr>
+      <tr><td class="aligncenter">Available</td><td class="centered">Used</td><td class="centered">Trash</td></tr>
       <tr> <td>
         <% if @user and @user.is_maintainer?( @project, @package ) %>
            <% Service.available.each do |service| %>
