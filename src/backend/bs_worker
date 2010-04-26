@@ -1208,7 +1208,7 @@ sub getbinaries {
 	    next if $mseen{$_};
 	    my $x = $_;
 	    s/  /  $dep\//;
-	    $mseen{$x} = 1 unless $subpackre && /$subpackre/;
+	    $mseen{$x} = 1 unless $subpackre && "$_/" =~ /$subpackre/;
 	    push @meta, $_;
 	  }
 	}
