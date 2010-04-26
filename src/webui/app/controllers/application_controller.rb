@@ -3,7 +3,6 @@
 
 require 'common/activexml/transport'
 require 'libxml'
-require 'htmlentities'
 
 class ApplicationController < ActionController::Base
 
@@ -225,12 +224,15 @@ class ApplicationController < ActionController::Base
     errors = []
     xmlbody = response.body
     xmlbody.gsub!(/[\n\r]/, "\n")
+
     LibXML::XML::Error.set_handler { |msg| errors << msg }
     begin
       document = LibXML::XML::Document.string xmlbody
     rescue LibXML::XML::Error => e
     end
 
+    #document.validate_schema(schema)
+    
     #result = document.validate_schema(schema) do |message, error|
     #  puts "#{error ? 'error' : 'warning'} : #{message}"
     #end if document
