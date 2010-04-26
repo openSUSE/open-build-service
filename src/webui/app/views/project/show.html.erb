@@ -44,7 +44,7 @@
     <% if @project.bugowner and BUGZILLA_HOST  -%>
       <span>
         <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'),
-          bugzilla_url(@bugowner_mail, "[#{@project.name}]")) -%>
+          bugzilla_url(@bugowner_mail, "#{@project.name}: Bug")) -%>
       </span>
     <% end -%>
   </span>
