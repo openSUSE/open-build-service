@@ -2,6 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 
 require 'common/activexml/transport'
+require 'libxml'
 
 class ApplicationController < ActionController::Base
 
@@ -9,6 +10,7 @@ class ApplicationController < ActionController::Base
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
   after_filter :set_charset
+  after_filter :validate_xhtml
   protect_from_forgery
 
   # Scrub sensitive parameters from your log
@@ -213,4 +215,56 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  @@schema = nil
+  def schema
+    return @@schema if @@schema
+    @@schema = LibXML::XML::Document.file(RAILS_ROOT + "/lib/xhtml1-strict.xsd")
+  end
+
+  def assert_xml_validates
+    errors = []
+    xmlbody = response.body
+    xmlbody.gsub!(/[\n\r]/, "\n")
+    LibXML::XML::Error.set_handler { |msg| errors << msg }
+    begin
+      document = LibXML::XML::Document.string xmlbody
+    rescue Exception => e
+    end
+
+    #result = document.validate_schema(schema) do |message, error|
+    #  puts "#{error ? 'error' : 'warning'} : #{message}"
+    #end if document
+
+    unless document
+      erase_render_results
+      response.body = render_to_string :template => 'xml_errors',
+         :locals => { :oldbody => xmlbody, :errors => errors }
+       return false
+    end
+    return true
+  end
+
+  def assert_w3c_validates
+    require 'net/http'
+    logger.debug "Querying W3C XHTML validator ... "
+    validator = Net::HTTP.start('validator.w3.org') do |w3c|
+      query = 'fragment=' + CGI.escape(response.body) + '&output=xml'
+      w3c.post2('/check', query)
+    end
+    if validator['x-w3c-validator-status'] != 'Valid'
+      response.body = validator.body
+    end
+    logger.debug validator['x-w3c-validator-status']
+  end
+
+  def validate_xhtml
+    return if RAILS_ENV != 'development'
+
+    return if !(response.status =~ /200/ &&
+        response.headers['Content-Type'] =~ /text\/html/i)
+
+    if assert_xml_validates
+      #assert_w3c_validates
+    end
+  end
 end
