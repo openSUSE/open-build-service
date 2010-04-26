@@ -217,7 +217,7 @@ module ApplicationHelper
     
     out = "<td id='#{status_id}' class='#{theclass} buildstatus'>"
     if ["unresolvable", "broken", "blocked"].include? code 
-      out += link_to code.gsub("unresolvable", "exp. error"), "javascript:alert('#{link_title}')", :title => link_title
+      out += link_to code, "javascript:alert('#{link_title}')", :title => link_title
     elsif ["-","excluded"].include? code
       out += code
     else
