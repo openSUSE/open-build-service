@@ -23,10 +23,10 @@
         selected = true if @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
         -%>
 
-        <span class="nowrap"><%= check_box_tag 'repo[]', h(reponame), selected, :disabled => selected -%>
+        <span class="nowrap"><%= check_box_tag 'repo[]', h(reponame), selected, :disabled => selected, :id => 'repo_' + h(reponame) -%>
           <%= hidden_field_tag h(reponame) + "_repo", h(project + '/' + repo) -%>
           <% ['i586', 'x86_64'].each do |arch| %>
-            <%= hidden_field_tag h(reponame) + "_arch[]", arch -%>
+            <%= hidden_field_tag h(reponame) + "_arch[]", arch, :id => h(reponame) + "_arch_" + h(arch) -%>
           <% end %>
 
           <%= h name %>
@@ -44,8 +44,8 @@
 
       <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected -%>
       <input id="images_repo" name="images_repo" value="" type="hidden"/>
-      <input id="images_arch_" name="images_arch[]" value="i586" type="hidden"/>
-      <input id="images_arch_" name="images_arch[]" value="x86_64" type="hidden"/>
+      <input id="images_arch_i586" name="images_arch[]" value="i586" type="hidden"/>
+      <input id="images_arch_x86_64" name="images_arch[]" value="x86_64" type="hidden"/>
       KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>        </span>
   </p>
 
@@ -63,7 +63,6 @@
 <% end %>
 
 <% content_for :ready_function do %>
-  $(document).ready(function(){
   $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
   { minChars: 2, matchCase: false, max: 100, cacheLength: 10, matchSubset: true, matchContains: true, delay: 400 } );
 
@@ -86,8 +85,6 @@
   $('#target_repo').change(function() {
   $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
   });
-
-  });
 <% end -%>
 
 <div class="clear"></div>
@@ -97,7 +94,7 @@
   <p><strong>Project: </strong><%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %>
     <i>(gets auto-completed)</i></p>
   <p><strong>Repository: </strong>
-    <%= select_tag "target_repo", "", :id => 'target_repo', :disabled => true %></p>
+    <%= select_tag "target_repo", "<option value=''></option>", :id => 'target_repo', :disabled => true %></p>
   <p><strong>New name: </strong><%= text_field_tag 'repo', '', :size => 40, :id => 'repo_name' %></p>
 
   <p><strong>Architectures: </strong>

@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
   def set_return_to
     # we cannot get the original protocol when behind lighttpd/apache
     @return_to_host = params['return_to_host'] || "https://" + request.host
-    @return_to_path = params['return_to_path'] || request.env['REQUEST_URI']
+    @return_to_path = params['return_to_path'] || request.env['REQUEST_URI'].gsub(/&/, '&amp;')
     logger.debug "Setting return_to: \"#{@return_to_path}\""
   end
 
