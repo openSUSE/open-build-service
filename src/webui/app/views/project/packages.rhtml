@@ -12,7 +12,7 @@
     <%= link_to image_tag( 'icons/package_add.png', :title => 'Add Package' ),
       :controller => 'package', :action => :new, :project => @project %>
     <%= link_to 'Add', :controller => 'package', :action => :new, :project => @project %> a new package &nbsp;
-    <%= link_to image_tag( 'icons/package_link.png', :border => 0, :title => 'Link Package from other Project' ),
+    <%= link_to image_tag( 'icons/package_link.png', :title => 'Link Package from other Project' ),
       :controller => 'package', :action => :new_link, :project => @project %>
     <%= link_to 'Link Package',
       :controller => 'package', :action => :new_link, :project => @project %> from other Project
