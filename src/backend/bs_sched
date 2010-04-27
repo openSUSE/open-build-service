@@ -263,8 +263,9 @@ sub addrepo_scan {
     }
   } elsif ($BSConfig::enable_download_on_demand) {
     my ($projid) = split('/', $prp, 2);
-    if ($projpacks->{$projid}->{'download'}) {
-      my $doddata = $projpacks->{$projid}->{'download'}->[0];
+    my @doddata = grep {$_->{'arch'} && $_->{'arch'} eq $myarch} @{$projpacks->{$projid}->{'download'} || []};
+    if (@doddata) {
+      my $doddata = $doddata[0];
       eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", "$doddata->{'mtype'}", { 'arch' => [ $myarch ] })};
       if ($@) {
 	warn("download on demand: cannot read metadata: $@");
@@ -4338,30 +4339,6 @@ while(1) {
 	delete $lastcheck{"$prp/$packid"};
 	$packstatus{$packid} = 'done';
 	goto relsynccheck;
-      }
-      if ($BSConfig::enable_download_on_demand && @meta == @new_meta) {
-        # unfetched dod packages have dodo... as hdrid
-        my @dodbins = grep {/^d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0/} @new_meta;
-        if (@dodbins) {
-	  # package was built with other data than we had, refresh repos and redo check
-	  my $rerun;
-	  s/^.*  // for @dodbins;
-	  for my $bin (@dodbins) {
-	    my $p = $dep2pkg{$bin};
-	    next unless $p;
-	    my $dodprp = $pool->pkg2reponame($p);
-	    next unless $dodprp;
-	    delete $repodatas{$dodprp};
-	    $rerun = 1;
-	  }
-	  if ($rerun) {
-	    unshift @lookat_high, $prp unless @lookat_high && $lookat_high[0] eq $prp;
-	    $nharder++;
-	    $lastcheck{"$prp/$packid"} = $mylastcheck;
-	    $packstatus{$packid} = 'done';
-	    goto relsynccheck;
-	  }
-	}
       }
       my @diff = diffsortedmd5(0, \@meta, \@new_meta);
       print "      - $packid ($packtype)\n";
