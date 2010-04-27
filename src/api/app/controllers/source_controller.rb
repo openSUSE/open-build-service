@@ -125,7 +125,19 @@ class SourceController < ApplicationController
     package_name = params[:package]
     cmd = params[:cmd]
 
-    pkg = DbPackage.find_by_project_and_name(project_name, package_name)
+    prj = DbProject.find_by_name(project_name)
+    unless prj
+      render_error :status => 404, :errorcode => "unknown_project",
+        :message => "unknown project '#{project_name}'"
+      return
+    end
+    # look also via linked projects, package source may come from another project
+    begin
+      pkg = prj.find_package(package_name)
+    rescue DbProject::CycleError => e
+      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
+      return
+    end
     unless pkg or DbProject.find_remote_project(project_name)
       render_error :status => 404, :errorcode => "unknown_package",
         :message => "unknown package '#{package_name}' in project '#{project_name}'"
@@ -604,7 +616,13 @@ class SourceController < ApplicationController
     end
 
     if request.get?
-      unless pack = find_package( pro, package_name )
+      begin
+        pack = pro.find_package( package_name )
+      rescue DbProject::CycleError => e
+        render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
+        return
+      end
+      unless pack
         render_error :status => 404, :errorcode => "unknown_package",
           :message => "Unknown package '#{package_name}'"
         return
@@ -678,27 +696,6 @@ class SourceController < ApplicationController
   end
 
   private
-
-  # internal function to find a package instance
-  def find_package( project, package_name )
-    unless project.kind_of? DbProject
-      raise RuntimeError, "Illegal object in find_package for project: #{project.class}"
-    end
-    unless package_name.kind_of? String
-      raise RuntimeError, "Illegal object in find_package for package: #{package_name.class}"
-    end
-    pkg = project.db_packages.find_by_name( package_name )
-    if pkg.nil?
-      project.linkedprojects.each do |prj|
-        pkg = find_package( prj.linked_db_project, package_name )
-        unless pkg.nil?
-          return pkg
-        end
-      end
-      return nil
-    end
-    return pkg
-  end
 
   # POST /source?cmd=branch
   def index_branch
@@ -923,7 +920,13 @@ class SourceController < ApplicationController
       return
     end
 
-    unless find_package( p, package_name )
+    begin
+      pkg = find_package( p, package_name )
+    rescue DbProject::CycleError => e
+      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
+      return
+    end
+    unless pkg
       render_error :status => 400, :errorcode => 'unknown_package',
         :message => "Unknown package '#{package_name}'"
       return
@@ -1069,7 +1072,12 @@ class SourceController < ApplicationController
         :message => "Unknown project #{prj_name}"
       return
     end
-    pkg = find_package( prj, pkg_name )
+    begin
+      pkg = prj.find_package( pkg_name )
+    rescue DbProject::CycleError => e
+      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
+      return
+    end
     if pkg.nil?
       render_error :status => 404, :errorcode => 'unknown_package',
         :message => "Unknown package #{pkg_name} in project #{prj_name}"
@@ -1180,7 +1188,12 @@ class SourceController < ApplicationController
         :message => "Unknown project #{prj_name}"
       return
     end
-    pkg = find_package( prj, pkg_name )
+    begin
+      pkg = prj.find_package( pkg_name )
+    rescue DbProject::CycleError => e
+      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
+      return
+    end
     # first remove former flags of the same class
     pkg.remove_flag(params[:flag], params[:repository], params[:arch])
     pkg.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
@@ -1220,7 +1233,17 @@ class SourceController < ApplicationController
         :message => "Unknown project #{prj_name}"
       return
     end
-    pkg = find_package( prj, pkg_name )
+    begin
+      pkg = prj.find_package( pkg_name )
+    rescue DbProject::CycleError => e
+      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
+      return
+    end
+    if pkg.nil?
+      render_error :status => 404, :errorcode => "unknown_package",
+        :message => "unknown package '#{pkg_name}' in project '#{prj_name}'"
+      return
+    end
     pkg.remove_flag(params[:flag], params[:repository], params[:arch])
     pkg.store
     render_ok

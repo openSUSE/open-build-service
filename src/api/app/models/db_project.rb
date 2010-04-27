@@ -4,6 +4,7 @@ class DbProject < ActiveRecord::Base
   include FlagHelper
 
   class SaveError < Exception; end
+  class CycleError < Exception; end
 
   has_many :project_user_role_relationships, :dependent => :destroy
   has_many :project_group_role_relationships, :dependent => :destroy
@@ -106,6 +107,9 @@ class DbProject < ActiveRecord::Base
         link = DbProject.find_by_name( l.project )
         if link.nil?
           raise SaveError, "unable to link against project '#{l.project}'"
+        end
+        if link == self
+          raise SaveError, "unable to link against myself"
         end
         self.linkedprojects.create(
             :db_project => self,
@@ -785,6 +789,39 @@ class DbProject < ActiveRecord::Base
 
   def complex_status(backend)
     ProjectStatusHelper.calc_status(self, backend)
+  end
+
+  # find a package in a project and its linked projects
+  def find_package(package_name, processed={})
+    logger.debug("deep search for package #{package_name}")
+    # cycle check in linked projects
+    if processed[self]
+      str = self.name
+      processed.keys.each do |key|
+        str = str + " -- " + key.name
+      end
+      raise CycleError.new "There is a cycle in project link defintion at #{str}"
+      return nil
+    end
+    processed[self]=1
+
+    # package exists in this project
+    pkg = self.db_packages.find_by_name(package_name)
+    return pkg unless pkg.nil?
+
+    # search via all linked projects
+    self.linkedprojects.each do |lp|
+      if self == lp.linked_db_project
+        raise CycleError.new "project links against itself, this is not allowed"
+        return nil
+      end
+
+      pkg = lp.linked_db_project.find_package(package_name, processed)
+      return pkg unless pkg.nil?
+    end
+
+    # no package found
+    return nil
   end
 
   private
