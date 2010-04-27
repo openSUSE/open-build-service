@@ -38,9 +38,9 @@ end -%>
   <tbody>
     <% @requests.each do |req| -%>
       <tr>
-        <td><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
+        <td><!-- <%= req.value(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
         <td><!-- <%= reqtype(req)  %> -->
-          <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.value :id -%>
+          <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.value(:id) -%>
         </td>
           <td>
             <% action_elem = req.value :submit %>
