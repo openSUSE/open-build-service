@@ -80,7 +80,7 @@ setup_buildresult_trigger
   </pre>
 <% elsif @diff_error %>
   <p>
-    <i><div class="message">Can't get diff for request #<%= @id %>: <%= h @diff_error %></div></i>
+    <span class="message">Can't get diff for request #<%= @id %>: <%= h @diff_error %></span>
   </p>
 <% end %>
 

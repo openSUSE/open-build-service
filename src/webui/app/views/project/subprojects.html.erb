@@ -6,7 +6,6 @@
 <%- if !@parentprojects.blank? -%>
   <div class="section">
     <h3>Parent projects of <%= @project %>:</h3>
-    <p>
     <ul>
       <%- @parentprojects.each do |key, value| -%>
         <li><%= link_to key, :action => :show, :project => key %>
@@ -18,9 +17,7 @@
         </li>
       <%- end -%>
     </ul>
-  </p>
   </div>
-  <p/>
 <% end %>
 
 <div class="section">
@@ -32,9 +29,8 @@
     </p>
   <% end -%>
 
-  <p>
-    <% prjlen = @project.name.length %>
-    <%- if !@subprojects.blank? -%>
+  <% prjlen = @project.name.length %>
+  <%- if !@subprojects.blank? -%>
     <ul>
       <%- @subprojects.each do |key, value| -%>
         <li><%= link_to key.slice(prjlen+1, key.length), :action => :show, :project => key %>
@@ -47,8 +43,7 @@
       <%- end -%>
     </ul>
   <%- else -%>
-    <i>No subprojects found</i>
+    <p><i>No subprojects found</i></p>
   <%- end -%>
-</p>
 </div>
 

@@ -5,6 +5,7 @@ require 'role'
 require 'models/package'
 
 include ActionView::Helpers::UrlHelper
+include ApplicationHelper
 
 class ProjectController < ApplicationController
 
@@ -496,14 +497,16 @@ class ProjectController < ApplicationController
 
     @arch_filter = []
     @avail_arch_values.each { |s|
-      if defaults || (params.has_key?('arch_' + s) && params['arch_' + s])
+      archid = valid_xml_id('arch_' + s)
+      if defaults || (params.has_key?(archid) && params[archid])
         @arch_filter << s
       end
     }
 
     @repo_filter = []
     @avail_repo_values.each { |s|
-      if defaults || (params.has_key?('repo_' + s) && params['repo_' + s])
+      repoid = valid_xml_id('repo_' + s)
+      if defaults || (params.has_key?(repoid) && params[repoid])
         @repo_filter << s
       end
     }

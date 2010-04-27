@@ -200,7 +200,7 @@ module ApplicationHelper
   end
 
   def status_id_for( repo, arch, package )
-    h("id-#{package}_#{repo}_#{arch}").gsub(/[+ ]/, '_')
+    valid_xml_id("id-#{package}_#{repo}_#{arch}")
   end
 
   def arch_repo_table_cell(repo, arch, packname)
@@ -337,4 +337,7 @@ module ApplicationHelper
     count > 1 ? plural : singular
   end
 
+  def valid_xml_id(rawid)
+    ERB::Util::h(rawid.gsub(/[+&: ]/, '_'))
+  end
 end
