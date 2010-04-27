@@ -266,7 +266,7 @@ sub addrepo_scan {
     my @doddata = grep {$_->{'arch'} && $_->{'arch'} eq $myarch} @{$projpacks->{$projid}->{'download'} || []};
     if (@doddata) {
       my $doddata = $doddata[0];
-      eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", "$doddata->{'mtype'}", { 'arch' => [ $myarch ] })};
+      eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", $doddata->{'mtype'}, { 'arch' => [ $myarch ] })};
       if ($@) {
 	warn("download on demand: cannot read metadata: $@");
 	return undef;
