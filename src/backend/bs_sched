@@ -2320,9 +2320,14 @@ sub checkkiwiproduct {
       for my $aprp (@aprps) {
         my %pnames = map {$_ => 1} @{$used{$aprp}};
 	next unless %pnames;
-        my $ps = (readxml("$reporoot/$aprp/$BSConfig::localarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+	my $ps = BSUtil::retrieve("$reporoot/$aprp/$BSConfig::localarch/:packstatus", 1);
+	if (!$ps) {
+	  $ps = (readxml("$reporoot/$aprp/$BSConfig::localarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+	  $ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
+	}
+        $ps = ($ps || {})->{'packstatus'} || {};
 	# FIXME: this assumes packid == pname
-	push @blocked, map {$_->{'name'}} grep {$pnames{$_->{'name'}} && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
+	push @blocked, grep {$ps->{$_} && ($ps->{$_} eq 'scheduled' || $ps->{$_} eq 'blocked' || $ps->{$_} eq 'finished')} sort keys %pnames;
       }
     } else {
       for my $bin (@kdeps) {
@@ -2354,12 +2359,17 @@ sub checkkiwiproduct {
       $known{$apackid} = $info->{'name'} if $info && $info->{'name'};
     }
     for my $arch ($archs[0] eq $myarch ? @archs : $myarch) {
-      my $ps = (readxml("$reporoot/$aprp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+      my $ps = BSUtil::retrieve("$reporoot/$aprp/$arch/:packstatus", 1);
+      if (!$ps) {
+	$ps = (readxml("$reporoot/$aprp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
+      }
+      $ps = ($ps || {})->{'packstatus'} || {};
       for my $apackid (@apackids) {
         if ($allpacks || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
-	  my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
-	  if (@notyet) {
+	  my $code = $ps->{$_} || 'unknown';
+	  if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	    push @blocked, "$aprp/$arch/$apackid";
 	    last if @blocked > $maxblocked;
 	    next;
