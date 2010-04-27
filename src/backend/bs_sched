@@ -2368,7 +2368,7 @@ sub checkkiwiproduct {
       for my $apackid (@apackids) {
         if ($allpacks || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
-	  my $code = $ps->{$_} || 'unknown';
+	  my $code = $ps->{$apackid} || 'unknown';
 	  if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	    push @blocked, "$aprp/$arch/$apackid";
 	    last if @blocked > $maxblocked;
@@ -2415,9 +2415,9 @@ sub checkkiwiproduct {
           }
         }
 	next unless $needit;
-	# ok we need it. check if they are built.
-        my @notyet = grep {$_->{'name'} eq $apackid && ($_->{'status'} eq 'scheduled' || $_->{'status'} eq 'blocked' || $_->{'status'} eq 'finished')} @$ps;
-        if (@notyet) {
+	# ok we need it. check if the package is built.
+	my $code = $ps->{$apackid} || 'unknown';
+	if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	  push @blocked, "$aprp/$arch/$apackid";
 	  last if @blocked > $maxblocked;
 	  next;
