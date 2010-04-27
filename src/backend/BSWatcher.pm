@@ -927,7 +927,6 @@ sub rpc {
     close $ev->{'fd'};
     delete $ev->{'fd'};
     delete $rpcs{$rpcuri};
-print "XXX connect to $host:$port: $!\n";
     die("connect to $host:$port: $!\n");
   }
   $ev->{'rpcstate'} = 'sending';
