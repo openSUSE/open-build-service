@@ -38,13 +38,13 @@ end -%>
   <tbody>
     <% @requests.each do |req| -%>
       <tr>
-        <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
+        <td><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
         <td><!-- <%= reqtype(req)  %> -->
-          <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.method_missing(:id) -%>
+          <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.value :id -%>
         </td>
           <td>
-            <% action_elem = req.submit if req.has_element? :submit %>
-            <% action_elem = req.action if req.has_element? :action %>
+            <% action_elem = req.value :submit %>
+            <% action_elem = req.value :action %>
             <%= if action_elem.has_element? :source
               "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
                 package_link(action_elem.source.project, action_elem.source.package)

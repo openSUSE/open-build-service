@@ -43,7 +43,7 @@ setup_buildresult_trigger
     <tbody>
       <% @current_requests.each do |req| %>
          <tr>
-           <td><!-- <%= req.method_missing(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
+           <td><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
           <td><%= req.action.data.attributes["type"] %></td>
           <td>
             <%    if req.action.has_element? :source -%>
@@ -59,7 +59,7 @@ setup_buildresult_trigger
             <%= req.state.data.attributes["who"] %>
           </td>
           <td>
-            <%= link_to image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'), :controller => :request, :action => "diff", :id => req.method_missing(:id) %>
+            <%= link_to image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'), :controller => :request, :action => "diff", :id => req.value(:id) %>
             <% if ['submit', 'change_devel'].include? req.action.data.attributes["type"] and req.action.has_element? :source %>
               <%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, :action => :monitor, :project => req.action.source.project, :pkgname => req.action.source.package %>
             <% end %>

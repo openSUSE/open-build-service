@@ -225,6 +225,9 @@ class ProjectController < ApplicationController
   end
 
   def buildresult
+    unless request.xhr?
+      render :nothing and return
+    end
     load_buildresult
     render :partial => 'buildstatus'
   end

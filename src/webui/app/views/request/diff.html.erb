@@ -37,7 +37,7 @@ setup_buildresult_trigger
   </thead>
   <tbody>
     <tr>
-      <td rowspan="2"><%= req.method_missing(:id) %></td>
+      <td rowspan="2"><%= req.value :id %></td>
       <td><%= req.state.name %></td>
       <%  if req.has_element? :action:
           elem = "action"
