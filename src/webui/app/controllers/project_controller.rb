@@ -175,6 +175,8 @@ class ProjectController < ApplicationController
       end
     end
 
+    load_buildresult
+
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
@@ -191,7 +193,7 @@ class ProjectController < ApplicationController
     @roles = Role.local_roles
   end
 
-  def buildresult
+  def load_buildresult
     @buildresult = Buildresult.find_cached( :project => params[:project], :view => 'summary', :expires_in => 30.seconds )
 
     @repohash = Hash.new
@@ -220,7 +222,11 @@ class ProjectController < ApplicationController
     else
       @buildresult = Array.new
     end
-    render :partial => 'buildstatus', :locals => {:has_data => true}
+  end
+
+  def buildresult
+    load_buildresult
+    render :partial => 'buildstatus'
   end
 
   def delete
