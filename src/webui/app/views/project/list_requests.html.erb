@@ -10,11 +10,8 @@ setup_buildresult_trigger
 
 <% content_for :ready_function do %>
   $("#request_table").tablesorter( {
-    sortList: [[0,1]],
     widgets: ['zebra'],
-    headers: { 
-            5: { sorter: false }
-            }
+    sortList: [[0,1]]
     } );
 <% end %>
 
@@ -27,48 +24,49 @@ setup_buildresult_trigger
   <p><em>No pending requests. </em></p>
 <% else %>
 
-  <h2>Pending requests of project <%=h @project %> (<%= @current_requests.each.size %>)</h2>
+  <h2>Pending requests of project <%=h @project %> (#<%= @current_requests.each.size %>)</h2>
 
-  <table cellspacing='1' id="request_table" class="tablesorter">
+  <table cellspacing="1" id="request_table" class="tablesorter">
     <thead>
       <tr>
-        <th class="header">Date</th>
-        <th class="header">Action</th>
-        <th class="header">Source</th>
-        <th class="header">Target</th>
-        <th class="header">Requester</th>
-        <th class="">Actions</th>
+        <th>Date</th>
+        <th>Source</th>
+        <th>Target</th>
+        <th>Requester</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
       <% @current_requests.each do |req| %>
+         <% action_elem = req.submit if req.has_element? :submit
+            action_elem = req.action if req.has_element? :action %>
          <tr>
-           <td><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
-          <td><%= req.action.data.attributes["type"] %></td>
-          <td>
-            <%    if req.action.has_element? :source -%>
-	       <%= package_link(req.action.source.project, req.action.source.package) -%>
-            <%  end -%>
+          <td><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
+          <td> 
+            <%= if action_elem.has_element? :source
+              "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
+                package_link(action_elem.source.project, action_elem.source.package)
+            elsif reqtype(req) == "delete"
+              "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
+                package_link(action_elem.target.project, action_elem.target.package)
+            end -%>
           </td>
           <td>
-            <%    if req.action.has_element? :target and req.action.target.has_attribute? :package %>
-                <%= link_to req.action.target.package, :controller => :package, :action => "show", :project => req.action.target.project, :package => req.action.target.package %>
-            <%    end %>
-          </td>
-          <td>
-            <%= req.state.data.attributes["who"] %>
-          </td>
-          <td>
-            <%= link_to image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'), :controller => :request, :action => "diff", :id => req.value(:id) %>
-            <% if ['submit', 'change_devel'].include? req.action.data.attributes["type"] and req.action.has_element? :source %>
-              <%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, :action => :monitor, :project => req.action.source.project, :pkgname => req.action.source.package %>
+            <% if action_elem.has_element? :target and action_elem.target.has_attribute? :package and reqtype(req) != "delete"%>
+                <%= link_to action_elem.target.package, :controller => :package, :action => "show", :project => action_elem.target.project, :package => action_elem.target.package %>
             <% end %>
+          </td>
+          <td class="nowrap">
+            <span title="<%= req.state.who %>"><%=  truncate(req.state.who, :length => 12) %></span>
+          </td>
+          <td><!-- <%= reqtype(req)  %> --> 
+            <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'), 
+                :controller => :request, :action => "diff", :id => req.value(:id)) %>
+            <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.value(:id) -%>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
 
-<%- end -%>
-
-
+<% end %>

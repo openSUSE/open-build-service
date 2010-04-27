@@ -1,6 +1,6 @@
-<% @pagetitle = "List My Requests" %>
-<%
-@crumb_list = ['My Requests']
+<% @pagetitle = "List My Requests" 
+   @crumb_list = ['My Requests']
+   setup_buildresult_trigger
 -%>
 
 <% content_for :content_for_head do %>
@@ -14,37 +14,30 @@
   } );
 <% end %>
 
-<%-
-setup_buildresult_trigger
-
-unless @requests.size
-  return "<p><em>No open requests</em></p>"
-end -%>
-
-<h2>Requests concerning me (#<%= @requests.size %>)</h2>
-
 <div id="build_result_popup"><div id="build_result_html"></div></div>
+<h2>Pending requests concerning me (#<%= @requests.size %>)</h2
 
-<table cellspacing="1" id='request_table' class="tablesorter">
+<% unless @requests.size %>
+  <p><em>No pending requests.</em></p>
+<% else %> 
+
+<table cellspacing="1" id="request_table" class="tablesorter">
   <thead>
     <tr>
       <th>Date</th>
-      <th>Action</th>
       <th>Source</th>
       <th>Target</th>
       <th>Requester</th>
+      <th>Action</th>
     </tr>
   </thead>
   <tbody>
     <% @requests.each do |req| -%>
+      <% action_elem = req.submit if req.has_element? :submit 
+         action_elem = req.action if req.has_element? :action %>
       <tr>
-        <td><!-- <%= req.value(:id) %> --><%= fuzzy_time_string( req.state.data.attributes["when"] ) %></td>
-        <td><!-- <%= reqtype(req)  %> -->
-          <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.value(:id) -%>
-        </td>
+        <td><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
           <td>
-            <% action_elem = req.value :submit %>
-            <% action_elem = req.value :action %>
             <%= if action_elem.has_element? :source
               "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
                 package_link(action_elem.source.project, action_elem.source.package)
@@ -54,7 +47,7 @@ end -%>
             end -%>
           </td>
         <td>
-          <%= if action_elem.has_element? :target and reqtype(req) != "delete"
+          <%= if action_elem.has_element? :target and action_elem.target.has_attribute? :package and reqtype(req) != "delete"
             "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
               package_link(action_elem.target.project, action_elem.target.package, true)
           end -%>
@@ -62,7 +55,14 @@ end -%>
         <td class="nowrap">
           <span title="<%= req.state.who %>"><%=  truncate(req.state.who, :length => 12) %></span>
         </td>
+        <td><!-- <%= reqtype(req)  %> -->
+          <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'),
+                :controller => :request, :action => "diff", :id => req.value(:id)) %>
+          <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.value(:id) -%>
+        </td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+<% end %>

@@ -6,6 +6,7 @@ require 'models/package'
 
 include ActionView::Helpers::UrlHelper
 include ApplicationHelper
+include RequestHelper
 
 class ProjectController < ApplicationController
 
