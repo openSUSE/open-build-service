@@ -993,7 +993,7 @@ sub getstatus {
     $r->{'state'} = $ev->{'rpcstate'} if $ev->{'rpcstate'};
     for my $jev (@{$ev->{'joblist'} || []}) {
       my $j = {'ev' => $jev->{'id'}};
-      $j->{'fd'} = $j->{'idstring'} if $jev->{'idstring'};
+      $j->{'fd'} = $jev->{'idstring'} if $jev->{'idstring'};
       $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
       my $req = $jev->{'request'};
       if ($req) {
