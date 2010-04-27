@@ -34,13 +34,13 @@ end %>
       values = ""
       @attribute_list.each {|d| options += "<option>#{d.to_s}</option>"}
       opt = { :options => options }
-      select_tag :attribute, opt %>
+      select_tag :attribute, options %>
       </p>
     <% end %>
   <p>
 
   <strong>Values (e.g. "bar,foo,..."):</strong><br/>
-<%=  text_area_tag :values, values, :size => 50 %>
+<%=  text_area_tag :values, values, :rows => 5, :cols => 50 %>
 <%=  hidden_field_tag("project", @project.name) %>
 <%=  hidden_field_tag("package", @package) if @package %>
 <%=  submit_tag "Save attribute" %>
