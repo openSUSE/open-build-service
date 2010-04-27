@@ -226,7 +226,7 @@ class ProjectController < ApplicationController
 
   def buildresult
     unless request.xhr?
-      render :nothing and return
+      render :text => 'no ajax', :status => 400 and return
     end
     load_buildresult
     render :partial => 'buildstatus'
