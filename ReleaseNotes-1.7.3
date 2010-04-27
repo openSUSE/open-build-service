@@ -1,0 +1,52 @@
+
+Updaters from 1.7 release can just update the packages and restart
+all services.
+
+Updates from earlier releases require manual steps afterwards, 
+please check the README.UPDATERS file for details.
+
+Changes since 1.7.2 release
+===========================
+
+Changes:
+
+  * kiwi image building:
+    Used repositories to setup the system used to run kiwi is now
+    defined via path elements in the repository definition.
+    Repositories from kiwi file are used if no path is defined
+    (the former behaviour).
+
+  * Products get built with repoid tag to identify them via repo meta.
+
+  * OBS interconnect projects are not showing package and repository handles
+    in webui anymore.
+
+  * Better scheduler efficiency on project meta changes
+
+  * OBS name gets transported over OBS interconnect now
+
+  * support new repository type "rpm-md-legacy" to create repositories
+    for older distributions with current "createrepo" tool.
+
+  * build is using virtio for KVM in the Appliance now
+
+Fixes:
+
+  * Do not allow to create packages with illegal names
+
+  * various OBS interconnect fixes
+
+  * LDAP fixes:
+    - unbind ldap connections after use
+    - optionally disable ldap referrals (necessary for Windows 2003 AD)
+    - retrieve all attributes when searching
+    - properly access LDAP_NAME_ATTR attribute
+
+  * OBS Appliance: repository URL is working now
+
+  * fixes in bs_admin --check-deep-project
+
+  * Improved error messages
+
+  * Fixed runlevel script dependencies for multi server setup
+

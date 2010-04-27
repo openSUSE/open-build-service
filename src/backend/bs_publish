@@ -284,6 +284,8 @@ sub getpatterns {
 sub createrepo_rpmmd {
   my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $legacy) = @_;
 
+  my $obsname = $BSConfig::obsname || 'OBSNAME_NOT_SET';
+  my $repotag = "obsrepository://$obsname/$projid/$repoid";
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
   print "    running createrepo\n";
@@ -316,7 +318,7 @@ sub createrepo_rpmmd {
       unlink($_) if @s && $s[9] < $now - 7*86400;
     }
   }
-  if ( -e "/usr/bin/repoview" ) {
+  if (-x "/usr/bin/repoview") {
     if ($BSConfig::repodownload) {
       print "    running repoview\n";
       qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
@@ -686,7 +688,7 @@ sub deleterepo {
   if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running rsync to $1 at ".localtime(time)."\n";
     # rsync with a timeout of 1 hour
-    qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
+    qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
   }
   # push done trigger sync to other mirrors
   mkdir_p($extrepodir_sync);
@@ -694,7 +696,7 @@ sub deleterepo {
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1 at ".localtime(time)."\n";
     # small sync, timout 1 minute
-    qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
+    qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
   }
   rmdir("$extrepodir/$projid_ext");
 }

@@ -94,7 +94,7 @@ if [ -f /etc/buildhost.config ];then
 	. /etc/buildhost.config
 fi
 if [ -n "$OBS_VM_TYPE" -a "$OBS_VM_TYPE" != "auto" ] ; then
-        if "$OBS_VM_TYPE" != "none"; then
+        if [ "$OBS_VM_TYPE" != "none" ]; then
              vmopt="--$OBS_VM_TYPE"
         fi
 elif [ -e /dev/kvm ] ; then
