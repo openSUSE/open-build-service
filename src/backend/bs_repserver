@@ -1318,16 +1318,23 @@ sub fixpackstatus {
   my $packstatus = $ps->{'packstatus'};
   $buildingjobs ||= {};
   my ($prp, $arch) = $prpa =~ /(.*)\/([^\/]*)$/;
+  my $num = keys %$packstatus;
+  my $logfiles_fail;
   for my $packid (keys %$packstatus) {
     $packstatus->{$packid} ||= 'unknown';
     # For old :packstatus files (before 2.0)
     if ($packstatus->{$packid} eq 'expansion error') {
       $packstatus->{$packid} = 'unresolvable';
     } elsif ($packstatus->{$packid} eq 'done') {
-      if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
-	$packstatus->{$packid} = 'failed';
+      if ($num > 10) {
+	$logfiles_fail ||= { map {$_ => 1} ls("$reporoot/$prpa/:logfiles.fail") };
+	$packstatus->{$packid} = $logfiles_fail->{$packid} ? 'failed' : 'succeeded';
       } else {
-	$packstatus->{$packid} = 'succeeded';
+	if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
+	  $packstatus->{$packid} = 'failed';
+	} else {
+	  $packstatus->{$packid} = 'succeeded';
+	}
       }
     } elsif ($packstatus->{$packid} eq 'scheduled') {
       if (!$buildingjobs->{$arch}) {
@@ -1379,6 +1386,7 @@ sub getresult {
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
   my %buildingjobs;
   for my $prpa (@$prpas) {
+    my %sum;
     my ($projid, $repoid, $arch) = split('/', $prpa, 3);
     $state .= "$prpa\0\0";
     my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
@@ -1406,10 +1414,14 @@ sub getresult {
 	}
       }
       next if %code && !$code{$code};
-      my $s = {'package' => $packid, 'code' => $code};
-      $s->{'details'} = $ps->{'packerror'}->{$packid} if !$cgi->{'lastbuild'} && $ps->{'packerror'}->{$packid};
       $state .= "$packid\0$code\0";
-      push @{$sl->{'status'}}, $s;
+      if ($cgi->{'summary'}) {
+        $sum{$code} = ($sum{$code} || 0) + 1;
+      } else {
+        my $s = {'package' => $packid, 'code' => $code};
+        $s->{'details'} = $ps->{'packerror'}->{$packid} if !$cgi->{'lastbuild'} && $ps->{'packerror'}->{$packid};
+        push @{$sl->{'status'}}, $s;
+      }
       if ($cgi->{'withbinarylist'}) {
 	my @b;
 	for (sort(ls("$reporoot/$prpa/$packid"))) {
@@ -1422,6 +1434,13 @@ sub getresult {
 	my $bl = {'package' => $packid, 'binary' => \@b};
 	push @{$sl->{'binarylist'}}, $bl;
       }
+    }
+    if ($cgi->{'summary'}) {
+      my @order = ('succeeded', 'failed', 'unresolvable', 'broken', 'scheduled');
+      my %order = map {$_ => 1} @order;
+      my @sum = grep {exists $sum{$_}} @order;
+      push @sum, grep {!$order{$_}} sort keys %sum;
+      $sl->{'summary'} = {'statuscount' => [ map {{'code' => $_, 'count' => $sum{$_}}} @sum ] };
     }
     push @$r, $sl;
   }
@@ -2610,7 +2629,7 @@ my $dispatches = [
   # info
   '/workerstatus scheduleronly:bool? arch*' => \&workerstatus,
 
-  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? summary:bool?' => \&getresult,
   '/_command $cmd: $prpa+ package* code:*' => \&docommand,
   '/ajaxstatus' => \&getajaxstatus,
 ];
@@ -2621,7 +2640,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
-  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? summary:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 ];

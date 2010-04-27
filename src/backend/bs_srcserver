@@ -3143,12 +3143,13 @@ sub getresult {
   # XXX FIXME multiple repo handling
   for my $rrserver ($BSConfig::reposerver) {
     my @args;
-    push @args, "lastbuild" if $cgi->{'lastbuild'};
+    push @args, 'lastbuild' if $cgi->{'lastbuild'};
     push @args, "oldstate=$cgi->{'oldstate'}" if $cgi->{'oldstate'};
     push @args, map {"prpa=$_"} @prpas;
     push @args, map {"package=$_"} @{$cgi->{'package'} || []};
     push @args, map {"code=$_"} @{$cgi->{'code'} || []};
-    push @args, "withbinarylist" if $view{'binarylist'};
+    push @args, 'withbinarylist' if $view{'binarylist'};
+    push @args, 'summary' if $view{'summary'} && !$view{'status'};
     eval {
       $ps = BSWatcher::rpc("$rrserver/_result", $BSXML::resultlist, @args);
     };
@@ -3158,7 +3159,7 @@ sub getresult {
     }
   }
   return if $BSStdServer::isajax && !defined($ps);
-  if ($view{'summary'}) {
+  if ($view{'summary'} && $view{'status'}) {
     my @order = ('succeeded', 'failed', 'unresolvable', 'broken', 'scheduled');
     my %order = map {$_ => 1} @order;
     for my $p (@{$ps->{'result'} || []}) {
