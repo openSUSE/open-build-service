@@ -1779,10 +1779,14 @@ sub getbuildinfo {
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
+  my @cbpdeps = Build::get_cbpreinstalls($bconf); # crossbuild preinstall
+  my @cbdeps = Build::get_cbinstalls($bconf);  # crossbuild install
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
   my %bdeps = map {$_ => 1} @bdeps;
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
+  my %cbpdeps = map {$_ => 1} @cbpdeps;
+  my %cbdeps = map {$_ => 1} @cbdeps;
   my %edeps = map {$_ => 1} @edeps;
 
   if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
@@ -1881,6 +1885,8 @@ sub getbuildinfo {
     $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
     $b->{'preinstall'} = 1 if $pdeps{$_};
     $b->{'vminstall'} = 1 if $vmdeps{$_};
+    $b->{'cbpreinstall'} = 1 if $cbpdeps{$_};
+    $b->{'cbinstall'} = 1 if $cbdeps{$_};
     $b->{'runscripts'} = 1 if $runscripts{$_};
     $b->{'notmeta'} = 1 unless $edeps{$_};
     $b->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
