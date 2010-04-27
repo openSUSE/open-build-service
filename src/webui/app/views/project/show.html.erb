@@ -7,9 +7,10 @@
 
 <%= render :partial => "tabs" %>
 
-<div id="show_left" class="grid_9 box">
+<div class="grid_10 alpha">
 
-  <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
+<div class="show_left box">
+     <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
 
   <span style="float: right">
     <% if session[:login] -%>
@@ -72,21 +73,24 @@
   </div>
 </div>
 
-<div class="grid_6 box"> <!-- no extra margins -->
+</div>
 
-  <div></div> <!-- fixes top margin issue -->
+<div class="grid_6 omega"> <!-- no extra margins -->
 
-  <div class="box-header aligncenter">
-    Build Status
-    <%= link_to_remote(image_tag('arrow_refresh.png', :alt => "Reload Status", :title => "reload status", :id => 'status_reload') +
-        image_tag('ajax-loader.gif', :id => 'spinner_stat', :class => 'hidden'),
-      :url => { :action => :buildresult, :project => @project },
-      :update => 'buildstatus',
-      :loading => "$('#spinner_stat').show(); $('#status_reload').hide()", :complete => "$('#spinner_stat').hide(); $('#status_reload').show()") %>
-  </div>
+  <div class="show_right box">
 
-  <div id='buildstatus'>
-    <%=  render :partial => 'buildstatus' %>
+    <div class="box-header aligncenter">
+      Build Status
+      <%= link_to_remote(image_tag('arrow_refresh.png', :alt => "Reload Status", :title => "reload status", :id => 'status_reload') +
+          image_tag('ajax-loader.gif', :id => 'spinner_stat', :class => 'hidden'),
+        :url => { :action => :buildresult, :project => @project },
+        :update => 'buildstatus',
+        :loading => "$('#spinner_stat').show(); $('#status_reload').hide()", :complete => "$('#spinner_stat').hide(); $('#status_reload').show()") %>
+    </div>
+
+    <div id='buildstatus'>
+      <%=  render :partial => 'buildstatus' %>
+    </div>
   </div>
 </div>
 

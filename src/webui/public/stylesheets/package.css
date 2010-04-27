@@ -1,7 +1,6 @@
 .package_binarylist { 
   display: none;
 }
-#show_left  { margin-left: 2em; }
 
 table.repostatus td.buildstatus { width: 11ex; }
 table.repostatus td.arch { width: 1%; margin: 1ex 0; }

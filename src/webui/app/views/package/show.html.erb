@@ -1,5 +1,11 @@
-<div id="show_left" class="grid_9 box">
+<% @pagetitle = "Show Package #{@package} (Project #{@project})" %>
+<% project_bread_crumb @package.name -%>
 
+<%= render :partial => "tabs" %>
+
+<div class="grid_10 alpha">
+
+<div class="box show_left">
   <h2 style="display: inline"><%=h @package %></h2>
 
   <span style="float: right" >
@@ -61,3 +67,23 @@
 
   </div>
 </div>
+
+</div>
+<!-- Build status -->
+<div class="grid_6 omega">
+  <div class="box show_right">
+
+    <div class="box-header aligncenter">
+      Build Status
+      <%= link_to_remote(image_tag('arrow_refresh.png', :id => 'reload_status', :alt => "Reload Status", :title => "reload status") +
+          image_tag('ajax-loader.gif', :id => 'spinner_stat', :style => 'display:none;'),
+        :url => { :action => 'reload_buildstatus', :project => @project, :package => @package },
+        :update => 'package_buildstatus',
+        :loading => "$('#spinner_stat').show(); $('#reload_status').hide()", :complete => "$('#spinner_stat').hide(); $('#reload_status').show()") %>
+    </div>
+
+    <%= render :partial => 'buildstatus' %>
+
+  </div>
+</div>
+

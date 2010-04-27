@@ -1,63 +1,35 @@
-<% content_for :head_javascript do %>
-  function toggle_binarylist()
-  {
-  var id = $(this).attr("id");
-  id = id.replace("toggle_", "binary_");
-  $("#" + id).toggle();
-  }
-<% end %>
-<% content_for :ready_function do %>
-  $('.binarylist_toggle').click(toggle_binarylist);
-<% end %>
+<div id="package_buildstatus">
+  <% if not @project.has_element?(:repository) %>
+    <p><i>The project this package belongs to currently has no <%= link_to "build targets", :controller => :project, :action => 'add_target_simple', :project => @project %> defined. </i></p>
+  <% elsif @buildresult.blank? %>
+    <p><i>No build result available</i></p>
+  <% else %>
 
-
-<!-- Build status -->
-<div id="package_buildstatus" class="grid_6">
-  <div class="box">
-
-    <div class="box-header aligncenter">
-      Build Status
-      <%= link_to_remote(image_tag('arrow_refresh.png', :id => 'reload_status', :alt => "Reload Status", :title => "reload status") +
-          image_tag('ajax-loader.gif', :id => 'spinner_stat', :style => 'display:none;'),
-        :url => { :action => 'reload_buildstatus', :project => @project, :package => @package },
-        :update => 'package_buildstatus',
-        :loading => "$('#spinner_stat').show(); $('#reload_status').hide()", :complete => "$('#spinner_stat').hide(); $('#reload_status').show()") %>
-    </div>
-
-    <% if not @project.has_element?(:repository) %>
-      <p><i>The project this package belongs to currently has no <%= link_to "build targets", :controller => :project, :action => 'add_target_simple', :project => @project %> defined. </i></p>
-    <% elsif @buildresult.blank? %>
-      <p><i>No build result available</i></p>
-    <% else %>
-
-      <table class="repostatus">
-        <% @buildresult.each do |r,archs|
-          index = 0
-          archs.each do |a|
-            -%>
-            <tr>
-              <% if index == 0 %>
-                <td title="<%= h r %>" rowspan="<%= archs.length %>">
-                  <strong>
-                    <%= link_to h(truncate(r, :length => 23)), :action => :binaries,
-                      :controller => :package, :project => @project, :package => @package, :repository => r %>
-                  </strong>
-                </td>
-                <% index += 1 -%>
-              <% end # if -%>
-              <td class="arch">
-                <div class="nowrap" style="margin: 0 0.5ex">
-                  <%= repo_status_icon @repostatushash[r][a] %> <%= h(a) %>
-                </div>
+    <table class="repostatus">
+      <% @buildresult.each do |r,archs|
+        index = 0
+        archs.each do |a|
+          -%>
+          <tr>
+            <% if index == 0 %>
+              <td title="<%= h r %>" rowspan="<%= archs.length %>">
+                <strong>
+                  <%= link_to h(truncate(r, :length => 23)), :action => :binaries,
+                    :controller => :package, :project => @project, :package => @package, :repository => r %>
+                </strong>
               </td>
-              <%= arch_repo_table_cell r, a, @package.name %>
-            </tr>
-          <% end # all archs -%>
-        <% end # all builds -%>
-      </table>
+              <% index += 1 -%>
+            <% end # if -%>
+            <td class="arch">
+              <div class="nowrap" style="margin: 0 0.5ex">
+                <%= repo_status_icon @repostatushash[r][a] %> <%= h(a) %>
+              </div>
+            </td>
+            <%= arch_repo_table_cell r, a, @package.name %>
+          </tr>
+        <% end # all archs -%>
+      <% end # all builds -%>
+    </table>
 
-    <% end # if -%>
-
-  </div>
+  <% end # if -%>
 </div>
-

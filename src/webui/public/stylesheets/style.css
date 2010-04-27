@@ -215,3 +215,8 @@ table.tablesorter thead tr .headerSortDown {
 table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
 background-color: #3399CC;
 }
+
+/* package and project view */
+.show_left  { margin-left: 20px; }
+.show_right { margin-right: 20px; }
+
