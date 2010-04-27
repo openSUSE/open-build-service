@@ -46,6 +46,7 @@ use strict;
 our $peer;
 our $peerport;
 our $forwardedfor;
+our $replying;	# we're sending the answer (2 == in chunked mode)
 
 sub xfork {
   # behaves as blocking fork, but uses non-blocking fork
@@ -269,12 +270,10 @@ sub msg {
   }
 }
 
+# write reply to CLNT
+# $str: reply string
+# @hi: http header lines, 1st line can contain status
 sub reply {
-  # $str:
-  #     some data to be written after http header
-  # @hi:
-  #     http header lines, 1st line can contain status
-  # reads and discards all data from CLNT, writes reply to CLNT
   my ($str, @hi) = @_;
 
   if (@hi && $hi[0] =~ /^status: (\d+.*)/i) {
@@ -289,14 +288,27 @@ sub reply {
   push @hi, "Content-Length: ".length($str) if defined($str);
   my $data = join("\r\n", @hi)."\r\n\r\n";
   $data .= $str if defined $str;
+
+#  if ($replying && $replying == 2) {
+#    # Already replying. As we're in chunked mode, we can attach
+#    # the error as chunk header.
+#    $hi[0] =~ s/^.*? /Status: /;
+#    $data = "0\r\n$hi[0]\r\n\r\n";
+#  }
+
+  # work around linux tcp implementation problem, the read side
+  # must be empty otherwise a tcp-reset is done when we close
+  # the socket, leading to data loss
   fcntl(CLNT, F_SETFL,O_NONBLOCK);
   my $dummy = '';
   1 while sysread(CLNT, $dummy, 1024, 0);
   fcntl(CLNT, F_SETFL,0);
+
   my $l;  
   while (length($data)) {
     $l = syswrite(CLNT, $data, length($data));
     die("write error: $!\n") unless $l;
+    $replying = 1;
     $data = substr($data, $l);
   }
 }
@@ -565,6 +577,7 @@ sub read_data {
 sub reply_cpio {
   my ($files, @args) = @_;
   reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @args);
+  $replying = 2;
   BSHTTP::cpio_sender({'cpiofiles' => $files, 'chunked' => 1}, \*CLNT);
   BSHTTP::swrite(\*CLNT, "0\r\n\r\n");
 }
@@ -592,6 +605,7 @@ sub reply_file {
   }
   unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
   reply(undef, @args);
+  $replying = 2 if $chunked;
   my $param = {'filename' => $file};
   $param->{'bytes'} = $1 if @cl && $cl[0] =~ /(\d+)/;
   $param->{'chunked'} = 1 if $chunked;
@@ -614,6 +628,7 @@ sub reply_receiver {
   push @args, "Content-Length: $cl" if defined($cl) && !$chunked;
   push @args, 'Transfer-Encoding: chunked' if $chunked;
   reply(undef, @args); 
+  $replying = 2 if $chunked;
   while(1) {
     my $data = BSHTTP::read_data($hdr);
     last unless $data;
