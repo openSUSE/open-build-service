@@ -5,13 +5,6 @@
 @crumb_list << @project.name
 -%>
 
-<% content_for :ready_function do %>
-  <%= remote_function :update => 'buildstatus',
-    :url => {:action => :buildresult, :project => params[:project]},
-    :loading => "$('#spinner_stat').show(); $('#status_reload').hide()",
-    :complete => '$("#buildstatus").hide(); $("#buildstatus").slideDown(800); $("#spinner_stat").hide(); $("#status_reload").show();' %>
-<% end %>
-
 <%= render :partial => "tabs" %>
 
 <div id="show_left" class="grid_9 box">
@@ -93,7 +86,7 @@
   </div>
 
   <div id='buildstatus'>
-    <p>Loading data...</p>
+    <%=  render :partial => 'buildstatus' %>
   </div>
 </div>
 

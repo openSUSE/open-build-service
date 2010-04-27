@@ -36,7 +36,7 @@
         <ul>
           <% @avail_repo_values.each do |s| %>
             <li class="nowrap filteritem">
-              <% sname = 'repo_' + s %>
+              <% sname = valid_xml_id('repo_' + s) %>
               <%= check_box_tag s, 1, @repo_filter.include?(s), :class => "repoitem", :id => sname, :name => sname %>
               <label for="<%= sname %>" class="strong"><%= s %></label>
             </li>
@@ -51,7 +51,7 @@
         <ul>
           <% @avail_arch_values.each do |s| %>
             <li class="nowrap filteritem">
-              <% sname = 'arch_' + s %>
+              <% sname = valid_xml_id('arch_' + s) %>
               <%= check_box_tag s, 1, @arch_filter.include?(s), :class => "architem", :id => sname, :name => sname %>
               <label for="<%= sname %>" class="strong"><%= s %></label>
             </li>

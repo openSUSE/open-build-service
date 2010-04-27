@@ -1,7 +1,7 @@
 
 <% @pagetitle = "Files of Package #{@package} (Project #{@project})" %>
 <% package_bread_crumb
-  "Packages for Repository '#{@repository}'"
+"Packages for Repository '#{@repository}'"
 -%>
 
 <%= render :partial => "tabs" %>
@@ -12,21 +12,21 @@
 
   <h3><%= repo_status_icon result.find('status').first.attributes['code'] %> Architecture: <%= result.attributes['arch'] %></h3>
 
-  <ul>
-    <% result.find( 'binarylist/binary' ).each do |binary| %>
-
-      <% if binary.attributes['filename'] == 'rpmlint.log' %>
-        <li><%= binary.attributes['filename'] %></li>
-      <% else %>
-        <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package,
-            :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>
-      <% end %>
-
-    <% end %>
-  </ul>
-
   <% if result.find( 'binarylist/binary' ).blank? %>
     <p><i>No published binaries</i></p>
+  <% else %>
+    <ul>
+      <% result.find( 'binarylist/binary' ).each do |binary| %>
+
+        <% if binary.attributes['filename'] == 'rpmlint.log' %>
+          <li><%= binary.attributes['filename'] %></li>
+        <% else %>
+          <li><%= link_to binary.attributes['filename'], :action => 'binary', :project => @project, :package => @package,
+            :repository => @repository, :arch => result.attributes['arch'], :filename => binary.attributes['filename'] %></li>
+        <% end %>
+
+      <% end %>
+    </ul>
   <% end %>
 
   <p>
@@ -34,13 +34,13 @@
       <%= link_to image_tag( 'rebuild.png' ), { :controller => :package, :action => :trigger_rebuild, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %>
       <%= link_to 'Trigger',{ :controller => :package, :action => :trigger_rebuild, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %> rebuild
 
-    <% if !result.find( 'binarylist/binary' ).blank? %>
-      <%= link_to image_tag( 'icons/drive_burn.png' ), { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %>
-      <%= link_to 'Delete', { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %> published binaries
+      <% if !result.find( 'binarylist/binary' ).blank? %>
+        <%= link_to image_tag( 'icons/drive_burn.png' ), { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %>
+        <%= link_to 'Delete', { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %> published binaries
+      <% end %>
     <% end %>
-  <% end %>
-  <%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) + "/#{result.attributes['arch']}" %>
+    <%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) + "/#{result.attributes['arch']}" %>
 
-</p>
+  </p>
 
 <% end %>

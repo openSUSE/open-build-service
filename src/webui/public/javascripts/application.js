@@ -17,17 +17,17 @@ function toggle_display(element_id) {
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed
 function toggle_display_by_name(element_name) {
-  if (document.getElementsByName) {         
-	elements = document.getElementsByName(element_name); 
+  if (document.getElementsByName) {
+	elements = document.getElementsByName(element_name);
     for (var i = 0; i < elements.length; i++) {
     	if (elements[i].style.display == "none") {
       		elements[i].style.display = "inline";
     	} else {
       		elements[i].style.display = "none";
-    	}	  
+    	}
 	}
   }
-}         
+}
 
 // open url in a new browser instance
 function goto_url(url) {
@@ -84,14 +84,14 @@ function br_trigger_mouseover() {
     }).animate({
       top: topVal1 + "px",
       opacity: 1
-    }, time, 'swing', 
+    }, time, 'swing',
       function() {
 	beingShown = false;
 	shown = true;
     });
     lastTrigger = this;
   }
-  
+
   return false;
 }
 
@@ -102,12 +102,12 @@ function br_trigger_mouseout() {
 				info.animate({
 				  top: '-=' + distance + 'px',
 				  opacity: 0
-				}, time, 'swing', 
+				}, time, 'swing',
 			       function () {
 				 shown = false;
 				 lastTrigger = null;
 				 info.css('display', 'none');
-				 if (newTrigger) 
+				 if (newTrigger)
 				   $(newTrigger).trigger("mouseover");
 			       });
 			      }, hideDelay);
@@ -119,22 +119,22 @@ function br_trigger_mouseout() {
   var distance = 30;
   var time = 250;
   var hideDelay = 500;
-  
+
   var hideDelayTimer = null;
-  
+
   var beingShown = false;
   var shown = false;
   var info = $('#build_result_popup').css('opacity', 0);
-  
-  $(window).scroll(function () { 
+
+  $(window).scroll(function () {
 		   shown = false;
 		   lastTrigger = null;
 		   info.css('display', 'none');
 		 });
-  
+
   var lastTrigger = null;
   var newTrigger = null;
-  
+
   $(".build_result_trigger").mouseover(br_trigger_mouseover).mouseout(br_trigger_mouseout);
 
 }
@@ -149,7 +149,7 @@ function setup_favorites() {
         $("ul[id^=menu-]:visible").each(function() {
             $(this).fadeOut('fast');
         } );
-        
+
         if( $(this).hasClass('selected') ) {
             $('#global-navigation li.selected').removeClass('selected');
         } else {
@@ -243,3 +243,13 @@ function project_monitor_ready() {
   $("#repobox_none").click(function() { $(".repoitem").attr("checked", ""); return false; });
 }
 
+function monitor_ready() {
+   $(".scheduler_status").hover(
+      function () {
+        $(this).find(".statustext").fadeIn();
+      },
+      function () {
+        $(this).find(".statustext").hide();
+      }
+    );
+}

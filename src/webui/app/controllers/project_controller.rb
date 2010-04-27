@@ -5,6 +5,7 @@ require 'role'
 require 'models/package'
 
 include ActionView::Helpers::UrlHelper
+include ApplicationHelper
 
 class ProjectController < ApplicationController
 
@@ -174,6 +175,8 @@ class ProjectController < ApplicationController
       end
     end
 
+    load_buildresult
+
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 
@@ -190,7 +193,7 @@ class ProjectController < ApplicationController
     @roles = Role.local_roles
   end
 
-  def buildresult
+  def load_buildresult
     @buildresult = Buildresult.find_cached( :project => params[:project], :view => 'summary', :expires_in => 30.seconds )
 
     @repohash = Hash.new
@@ -219,7 +222,11 @@ class ProjectController < ApplicationController
     else
       @buildresult = Array.new
     end
-    render :partial => 'buildstatus', :locals => {:has_data => true}
+  end
+
+  def buildresult
+    load_buildresult
+    render :partial => 'buildstatus'
   end
 
   def delete
@@ -496,14 +503,16 @@ class ProjectController < ApplicationController
 
     @arch_filter = []
     @avail_arch_values.each { |s|
-      if defaults || (params.has_key?('arch_' + s) && params['arch_' + s])
+      archid = valid_xml_id('arch_' + s)
+      if defaults || (params.has_key?(archid) && params[archid])
         @arch_filter << s
       end
     }
 
     @repo_filter = []
     @avail_repo_values.each { |s|
-      if defaults || (params.has_key?('repo_' + s) && params['repo_' + s])
+      repoid = valid_xml_id('repo_' + s)
+      if defaults || (params.has_key?(repoid) && params[repoid])
         @repo_filter << s
       end
     }

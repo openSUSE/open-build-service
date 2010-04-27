@@ -1,5 +1,28 @@
 require 'md5'
 
+require 'action_view/helpers/asset_tag_helper.rb'
+module ActionView
+  module Helpers
+
+    @@rails_root = nil
+    def real_public
+      return @@rails_root if @@rails_root
+      @@rails_root = Pathname.new("#{RAILS_ROOT}/public").realpath
+    end
+
+    def rewrite_asset_path(source)
+      new_path = "/vendor/#{CONFIG['theme']}#{source}"
+      if File.exists?("#{RAILS_ROOT}/public#{new_path}")
+        source=Pathname.new("#{RAILS_ROOT}/public#{new_path}").realpath
+        source="/" + Pathname.new(source).relative_path_from(real_public)
+        Rails.logger.debug "using themed file: #{new_path} -> #{source}"
+      end
+      super(source)
+    end
+
+  end
+end
+
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   
@@ -122,22 +145,6 @@ module ApplicationHelper
     return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => '', :width => 20, :height => 20
   end
 
-  @@rails_root = nil
-  def real_public
-    return @@rails_root if @@rails_root
-    @@rails_root = Pathname.new("#{RAILS_ROOT}/public").realpath
-  end
-
-  def rewrite_asset_path(source)
-    new_path = "/vendor/#{CONFIG['theme']}#{source}"
-    if File.exists?("#{RAILS_ROOT}/public#{new_path}")
-      source=Pathname.new("#{RAILS_ROOT}/public#{new_path}").realpath
-      source="/" + Pathname.new(source).relative_path_from(real_public)
-      Rails.logger.debug "using themed file: #{new_path} -> #{source}"
-    end
-    super(source)
-  end
-
   @@theme_prefix = nil
 
   def theme_prefix
@@ -176,22 +183,22 @@ module ApplicationHelper
 
   def package_link(project, package, hide_packagename = false)
     if Package.exists? project, package
-    out = "<span class='build_result_trigger'>"
-    out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
-    if hide_packagename
-      out += link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
+      out = "<span class='build_result_trigger'>"
+      out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
+      if hide_packagename
+        out += link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
+      else
+        out += link_to project, :controller => :project, :action => "show", :project => project
+        out += " / " +  link_to(package, :controller => :package, :action => "show", :project => project, :package => package)
+      end
+      out += "</span>"
     else
-      out += link_to project, :controller => :project, :action => "show", :project => project
-      out += " / " +  link_to(package, :controller => :package, :action => "show", :project => project, :package => package)
-    end
-    out += "</span>"
-    else
-    if hide_packagename
-      out = link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
-    else
-      out = link_to project, :controller => :project, :action => "show", :project => project
-      out += " / #{package} (new)"
-    end
+      if hide_packagename
+        out = link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
+      else
+        out = link_to project, :controller => :project, :action => "show", :project => project
+        out += " / #{package} (new)"
+      end
     end
   end
 
@@ -200,7 +207,7 @@ module ApplicationHelper
   end
 
   def status_id_for( repo, arch, package )
-    h("id-#{package}_#{repo}_#{arch}").gsub(/[+ ]/, '_')
+    valid_xml_id("id-#{package}_#{repo}_#{arch}")
   end
 
   def arch_repo_table_cell(repo, arch, packname)
@@ -337,4 +344,7 @@ module ApplicationHelper
     count > 1 ? plural : singular
   end
 
+  def valid_xml_id(rawid)
+    ERB::Util::h(rawid.gsub(/[+&: ]/, '_'))
+  end
 end
