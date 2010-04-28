@@ -140,12 +140,12 @@
         </attribute>
       </optional>
       <optional>
-        <attribute name="rebuild">
+        <attribute name="block">
           <ref name="block-modes" />
         </attribute>
       </optional>
       <optional>
-        <attribute name="rebuild">
+        <attribute name="linkedbuild">
           <ref name="linkedbuild-modes" />
         </attribute>
       </optional>

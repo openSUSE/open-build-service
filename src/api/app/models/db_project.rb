@@ -287,6 +287,7 @@ class DbProject < ActiveRecord::Base
           current_repo = repocache[repo.name]
         end
 
+        #--- repository flags ---#
         # check for rebuild configuration
         if not repo.has_attribute? :rebuild and current_repo.rebuild
           current_repo.rebuild = nil
@@ -300,6 +301,33 @@ class DbProject < ActiveRecord::Base
             self.updated_at = Time.now
           end
         end
+        # check for block configuration
+        if not repo.has_attribute? :block and current_repo.block
+          current_repo.block = nil
+          current_repo.save!
+          self.updated_at = Time.now
+        end
+        if repo.has_attribute? :block
+          if repo.block != current_repo.block
+            current_repo.block = repo.block
+            current_repo.save!
+            self.updated_at = Time.now
+          end
+        end
+        # check for linkedbuild configuration
+        if not repo.has_attribute? :linkedbuild and current_repo.linkedbuild
+          current_repo.linkedbuild = nil
+          current_repo.save!
+          self.updated_at = Time.now
+        end
+        if repo.has_attribute? :linkedbuild
+          if repo.linkedbuild != current_repo.linkedbuild
+            current_repo.linkedbuild = repo.linkedbuild
+            current_repo.save!
+            self.updated_at = Time.now
+          end
+        end
+        #--- end of repository flags ---#
 
         #destroy all current pathelements
         current_repo.path_elements.each { |pe| pe.destroy }
@@ -662,8 +690,10 @@ class DbProject < ActiveRecord::Base
       repos = repositories.find( :all, :conditions => "ISNULL(remote_project_name)" )
       repos.each do |repo|
         params = {}
-        params[:name] = repo.name
-        params[:rebuild] = repo.rebuild if repo.rebuild
+        params[:name]        = repo.name
+        params[:rebuild]     = repo.rebuild     if repo.rebuild
+        params[:block]       = repo.block       if repo.block
+        params[:linkedbuild] = repo.linkedbuild if repo.linkedbuild
         project.repository( params ) do |r|
           repo.path_elements.each do |pe|
             if pe.link.remote_project_name.blank?
