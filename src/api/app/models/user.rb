@@ -141,6 +141,7 @@ class User < ActiveRecord::Base
         end
         return true
       end
+      return false
     else
       # no rules set for attribute, just check package maintainer rules
       if attribute.db_package
