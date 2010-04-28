@@ -906,11 +906,12 @@ sub putbinary {
       unlink("$tn.meta");
     }
   }
-  my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
-  my $evname = "scanrepo:${projid}::$repoid";
+  dirty($projid, $repoid, $arch);
   if (-d "$eventdir/$arch") {
+    my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
+    my $evname = "scanrepo:${projid}::$repoid";
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    dirty($projid, $repoid, $arch);
+    ping($arch);
   }
   return $BSStdServer::return_ok;
 }
@@ -986,28 +987,17 @@ sub workerstate {
 sub dirty {
   my ($projid, $repoid, $arch) = @_;
 
-  die("ERROR: dirty function must get project id at least") unless $projid;
-
+  die("dirty: need project id\n") unless defined $projid;
+  die("dirty: need arch\n") unless defined $arch;
   my @repos;
   if (defined($repoid)) {
     @repos=($repoid);
   } else {
     @repos = ls("$reporoot/$projid");
   }
-
   for my $r (@repos) {
-    my @archs;
-    if (defined($arch)) {
-      @archs=($arch);
-    } else {
-      @archs = ls("$reporoot/$projid/$r");
-    }
-  
-    for my $a (@archs) {
-      BSUtil::touch("$reporoot/$projid/$r/$a/:schedulerstate.dirty") if -d "$reporoot/$projid/$r/$a";
-    }
+    BSUtil::touch("$reporoot/$projid/$r/$arch/:schedulerstate.dirty") if -d "$reporoot/$projid/$r/$arch";
   }
-  ping($arch);
 }
 
 sub ping {
@@ -1245,9 +1235,10 @@ sub putjob {
     writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
     close F;
 
+    dirty($projid, $repoid, $arch);
     mkdir_p("$eventdir/$arch");
     writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
-    dirty($projid, $repoid, $arch);
+    ping($arch);
   }
 
   return $BSStdServer::return_ok;
@@ -1282,10 +1273,11 @@ sub uploadbuild {
   };
   writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
   
+  dirty($projid, $repoid, $arch);
   mkdir_p("$eventdir/$arch");
   my $ev = {'type' => 'uploadbuild', 'job' => $job};
   writexml("$eventdir/$arch/.uploadbuild:$job$$", "$eventdir/$arch/uploadbuild:$job", $ev, $BSXML::event);
-  dirty($projid, $repoid, $arch);
+  ping($arch);
   return $BSStdServer::return_ok;
 }
 
@@ -1306,8 +1298,9 @@ sub forwardevent {
     next if $a =~ /^\./;
     next unless -d "$eventdir/$a";
     next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer';
-    writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
     dirty($projid, $repoid, $a);
+    writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
+    ping($a);
   }
   return $BSStdServer::return_ok;
 }
@@ -1486,6 +1479,7 @@ sub docommand {
 	}
       }
       dirty($projid, $repoid, $arch);
+      ping($arch);
     } elsif ($cmd eq 'killbuild' || $cmd eq 'abortbuild') {
       for my $packid (@packids) {
 	eval {
