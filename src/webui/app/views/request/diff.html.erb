@@ -69,7 +69,7 @@ setup_buildresult_trigger
       <td rowspan="2"><%= link_to req.state.who, :controller => :project, :action => "show", :project => "home:"+req.state.who %></td>
     </tr>
     <tr>
-      <td colspan="4"><%= req.description.to_s != "" and req.description.to_s or "-" %></td>
+      <td colspan="4"><%= h(req.value('description') || "-") %></td>
     </tr>
   </tbody>
 </table>
