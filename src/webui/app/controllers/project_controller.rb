@@ -618,6 +618,10 @@ class ProjectController < ApplicationController
 
   # should be in the package controller, but all the helper functions to render the result of a build are in the project
   def package_buildresult
+    unless request.xhr?
+      render :text => 'no ajax', :status => 400 and return
+    end
+
     @project = params[:project]
     @package = params[:package]
     begin

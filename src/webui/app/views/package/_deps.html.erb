@@ -21,6 +21,9 @@
           </td>
         </tr>
       <% end -%>
+      <% unless @fileinfo.has_element? 'provides_ext' %>
+        <tr><td colspan="2"><em>No provides</em></td></tr>
+      <% end %>
     </tbody>
   </table>
 </div>
@@ -48,6 +51,9 @@
           </td>
         </tr>
       <% end -%>
+      <% unless @fileinfo.has_element? 'requires_ext' %>
+        <tr><td colspan="2"><em>No requires</em></td></tr>
+      <% end %>
     </tbody>
   </table>
 </div>
