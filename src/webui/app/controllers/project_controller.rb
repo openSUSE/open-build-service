@@ -194,8 +194,11 @@ class ProjectController < ApplicationController
     @roles = Role.local_roles
   end
 
-  def load_buildresult
-    @buildresult = Buildresult.find_cached( :project => params[:project], :view => 'summary', :expires_in => 30.seconds )
+  def load_buildresult(cache = true)
+    unless cache
+      Buildresult.free_cache( :project => params[:project], :view => 'summary' )
+    end
+    @buildresult = Buildresult.find_cached( :project => params[:project], :view => 'summary', :expires_in => 3.minutes )
 
     @repohash = Hash.new
     @statushash = Hash.new
@@ -229,7 +232,7 @@ class ProjectController < ApplicationController
     unless request.xhr?
       render :text => 'no ajax', :status => 400 and return
     end
-    load_buildresult
+    load_buildresult false
     render :partial => 'buildstatus'
   end
 
