@@ -1640,12 +1640,15 @@ sub getbuildinfo {
       my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', map {"project=$_->{'project'}"} @{$info->{'path'}});
       %remotemap = (%remotemap, map {$_->{'project'} => $_} @{$pp->{'remotemap'} || []});
     }
-    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-    unshift @configpath, "path=$projid/$repoid" unless @configpath;
     if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
       $kiwitype = 'product';
     } else {
       $kiwitype = 'image';
+    }
+    # a repo with no path will expand to just the prp as the only element
+    if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
+      @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+      unshift @configpath, "path=$projid/$repoid" unless @configpath;
     }
   }
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
@@ -1658,10 +1661,23 @@ sub getbuildinfo {
   $ret->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;;
   $ret->{'arch'} = $arch;
   $ret->{'path'} = $repo->{'path'} || [];
-  $ret->{'path'} = $info->{'path'} if $packtype eq 'kiwi' && $info->{'path'};
+  my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+  if ($packtype eq 'kiwi') {
+    $ret->{'imagetype'} = $info->{'imagetype'} || [];
+    if ($kiwitype eq 'image' || @prp < 2) {
+      $ret->{'path'} = $info->{'path'} || [];
+      @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+    } else {
+      push @{$ret->{'path'}}, @{$info->{'path'} || []};	# XXX: should unify
+    }
+  }
   if ($cgi->{'internal'}) {
     for (@{$ret->{'path'}}) {
-      $_->{'server'} = $BSConfig::reposerver;
+      if ($remotemap{$_->{'project'}}) {
+        $_->{'server'} = $BSConfig::srcserver;
+      } else {
+        $_->{'server'} = $BSConfig::reposerver;
+      }
     }
   }
   $ret->{'srcmd5'} = $pdata->{'srcmd5'} if $pdata->{'srcmd5'};
@@ -1693,21 +1709,12 @@ sub getbuildinfo {
     }
   }
 
-  my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   if ($info->{'error'}) {
     $ret->{'error'} = $info->{'error'};
     return ($ret, $BSXML::buildinfo);
   }
   $ret->{'specfile'} = $info->{'file'} unless $uploaded;
   $ret->{'file'} = $info->{'file'} unless $uploaded;
-
-  if ($packtype eq 'kiwi') {
-    # Collect kiwi image types
-    my @itypes = @{$info->{'imagetype'} || []};
-    $ret->{'imagetype'} = \@itypes;
-    # use repositories defined in the kiwi config
-    @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-  }
 
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
