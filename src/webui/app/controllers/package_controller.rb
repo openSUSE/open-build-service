@@ -522,8 +522,7 @@ class PackageController < ApplicationController
       logger.debug("log size is %d" % size)
       @offset = size - 32 * 1024
       @offset = 0 if @offset < 0
-      maxsize = 1024 * 64
-      @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+      @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, size)
     rescue => e
       logger.error "Got #{e.class}: #{e.message}; returning empty log."
       @initiallog = ''
