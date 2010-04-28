@@ -273,21 +273,8 @@ class ApplicationController < ActionController::Base
     return true
   end
 
-  def assert_w3c_validates
-    require 'net/http'
-    logger.debug "Querying W3C XHTML validator ... "
-    validator = Net::HTTP.start('validator.w3.org') do |w3c|
-      query = 'fragment=' + CGI.escape(response.body) + '&output=xml'
-      w3c.post2('/check', query)
-    end
-    if validator['x-w3c-validator-status'] != 'Valid'
-      response.body = validator.body
-    end
-    logger.debug validator['x-w3c-validator-status']
-  end
-
   def validate_xhtml
-    return if RAILS_ENV == 'production' # later only for development
+    return unless  Rails.env.development?
     return if request.xhr?
 
     return if !(response.status =~ /200/ &&

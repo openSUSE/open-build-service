@@ -20,6 +20,22 @@ module ActionView
       super(source)
     end
 
+    @@theme_prefix = nil
+
+    def theme_prefix
+      return @@theme_prefix if @@theme_prefix
+      @@theme_prefix = '/themes'
+      @@theme_prefix = CONFIG['relative_url_root'] + @@theme_prefix  if CONFIG['relative_url_root']
+      @@theme_prefix
+    end
+
+    def compute_asset_host(source)
+      if CONFIG['use_static'] and source.slice(0, theme_prefix.length) == theme_prefix
+        return "https://static.opensuse.org"
+      end
+      super(source)
+    end
+
   end
 end
 
@@ -143,22 +159,6 @@ module ApplicationHelper
   def gravatar_image(email)
     hash = MD5::md5(email.downcase)
     return image_tag "https://secure.gravatar.com/avatar/#{hash}?s=20&d=" + image_url('local/default_face.png'), :alt => '', :width => 20, :height => 20
-  end
-
-  @@theme_prefix = nil
-
-  def theme_prefix
-    return @@theme_prefix if @@theme_prefix
-    @@theme_prefix = '/themes'
-    @@theme_prefix = CONFIG['relative_url_root'] + @@theme_prefix  if CONFIG['relative_url_root']
-    @@theme_prefix
-  end
-
-  def compute_asset_host(source)
-    if CONFIG['use_static'] and source.slice(0, theme_prefix.length) == theme_prefix
-      return "https://static.opensuse.org"
-    end
-    super(source)
   end
 
   def fuzzy_time_string(time)
