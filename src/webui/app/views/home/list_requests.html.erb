@@ -3,66 +3,7 @@
    setup_buildresult_trigger
 -%>
 
-<% content_for :content_for_head do %>
-  <%= javascript_include_tag 'jquery.tablesorter.js' %>
-<% end %>
-
-<% content_for :ready_function do %>
-  $("#request_table").tablesorter( {
-  widgets: ['zebra'],
-  sortList: [[0,1]]
-  } );
-<% end %>
-
-<div id="build_result_popup"><div id="build_result_html"></div></div>
 <h2>Pending requests concerning me (#<%= @requests.size %>)</h2>
 
-<% unless @requests.size %>
-  <p><em>No pending requests.</em></p>
-<% else %> 
-
-<table cellspacing="1" id="request_table" class="tablesorter">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Source</th>
-      <th>Target</th>
-      <th>Requester</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @requests.each do |req| -%>
-      <% action_elem = req.submit if req.has_element? :submit 
-         action_elem = req.action if req.has_element? :action %>
-      <tr>
-        <td><!-- <%= req.value :id %> --><%= fuzzy_time_string( req.state.value "when" ) %></td>
-          <td>
-            <%= if action_elem.has_element? :source
-              "<!-- " + action_elem.source.project + "/" + action_elem.source.package + "-->" +
-                package_link(action_elem.source.project, action_elem.source.package)
-            elsif reqtype(req) == "delete"
-              "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
-                package_link(action_elem.target.project, action_elem.target.package)
-            end -%>
-          </td>
-        <td>
-          <%= if action_elem.has_element? :target and action_elem.target.has_attribute? :package and reqtype(req) != "delete"
-            "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" +
-              package_link(action_elem.target.project, action_elem.target.package, true)
-          end -%>
-        </td>
-        <td class="nowrap">
-          <span title="<%= req.state.who %>"><%=  truncate(req.state.who, :length => 12) %></span>
-        </td>
-        <td><!-- <%= reqtype(req)  %> -->
-          <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => 'Handle request'),
-                :controller => :request, :action => "diff", :id => req.value(:id)) %>
-          <%= link_to reqtype(req), :controller => :request, :action => :diff, :id => req.value(:id) -%>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<% end %>
+<%= render :partial => 'shared/list_requests',
+  :locals => { :requests => @requests, :hide_package => true, :hide_project => false } %>

@@ -181,23 +181,33 @@ module ApplicationHelper
     end
   end
 
-  def package_link(project, package, hide_packagename = false)
+  def tlink_to(text, length, *url_opts)
+    "<span title='#{text}'>" + link_to( truncate(text, :length => length), *url_opts) + "</span>"
+  end
+
+  def package_link(project, package, opts = {})
+    opts = { :hide_package => false, :hide_project => false, :length => 1000 }.merge(opts)
     if Package.exists? project, package
       out = "<span class='build_result_trigger'>"
       out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
-      if hide_packagename
-        out += link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
+      if opts[:hide_package]
+        out += tlink_to(project, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
+      elsif opts[:hide_project]
+        out += tlink_to(package, opts[:length], :controller => :package, :action => "show", :project => project, :package => package)
       else
-        out += link_to project, :controller => :project, :action => "show", :project => project
-        out += " / " +  link_to(package, :controller => :package, :action => "show", :project => project, :package => package)
+        out += tlink_to project, (opts[:length] - 3) / 2 , :controller => :project, :action => "show", :project => project
+        out += " / " +  tlink_to(package, (opts[:length] - 3) / 2, :controller => :package, 
+                                 :action => "show", :project => project, :package => package)
       end
       out += "</span>"
     else
-      if hide_packagename
-        out = link_to(project, :controller => :package, :action => "show", :project => project, :package => package)
+      if opts[:hide_package]
+        out = "<span title='#{project}'>#{truncate(project, :length => opts[:length])}</span>"
+      elsif opts[:hide_project]
+        out = "<span title='#{package}'>#{truncate(package, :length => opts[:length])}</span>"
       else
-        out = link_to project, :controller => :project, :action => "show", :project => project
-        out += " / #{package} (new)"
+        out = tlink_to project, (opts[:length] - 3) / 2, :controller => :project, :action => "show", :project => project
+        out += " / " + "<span title='#{package}'>#{truncate(package, :length => (opts[:length] - 3) / 2)}</span>"
       end
     end
   end
