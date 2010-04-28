@@ -47,6 +47,8 @@ our $repo = [
    'repository' => 
 	'name',
 	'rebuild',
+	'block',
+	'linkedbuild',
      [[ 'path' =>
 	    'project',
 	    'repository',
@@ -239,6 +241,7 @@ our $projpack = [
 		'srcmd5',	# commit id
 		'versrel',
 		'verifymd5',	# tree id
+		'originproject',
 		[ $linked ],
 		'error',
 		[ $packinfo ],

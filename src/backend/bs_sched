@@ -1461,6 +1461,15 @@ sub calc_projpacks_linked {
       }
       push @projpacks_linked, @{$pack->{'linked'}};
     }
+    if ($projpacks->{$projid}->{'link'}) {
+      my @li = expandprojlink($projid);
+      for my $li (@li) {
+	addwatchremote('project', $li->{'project'});
+	$li->{'package'} = ':*';
+	$li->{'myproject'} = $projid;
+      }
+      push @projpacks_linked, @{$projpacks->{$projid}->{'link'}};
+    }
   }
   #print Dumper(\@projpacks_linked);
 }
@@ -1516,6 +1525,35 @@ sub expandsearchpath {
       my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
       push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
     }
+  }
+  return @ret;
+}
+
+sub expandprojlink {
+  my ($projid) = @_;
+
+  my @ret;
+  my $proj = $projpacks->{$projid};
+  my @todo = map {$_->{'project'}} @{$proj->{'link'} || []};
+  my %seen = ($projid => 1);
+  while (@todo) {
+    my $lprojid = shift @todo;
+    next if $seen{$lprojid};
+    push @ret, {'project' => $lprojid};
+    $seen{$lprojid} = 1;
+    my $lproj = addwatchremote('project', $lprojid, '');
+    if ($lproj) {
+      $lproj = fetchremoteproj($lproj, $lprojid);
+      if ($lproj->{'link'}) {
+        $lproj = Storable::dclone($lproj);
+        for my $p (@{$lproj->{'link'} || []}) {
+	  $p->{'project'} = maptoremote($lproj, $p->{'project'});
+	}
+      }
+    } else {
+      $lproj = $projpacks->{$lprojid};
+    }
+    unshift @todo, map {$_->{'project'}} @{$lproj->{'link'} || []};
   }
   return @ret;
 }
@@ -3572,6 +3610,7 @@ while(1) {
 	  # (if it's just a config change we really do not care about source links)
 	  if (!$projpacks->{$projid} || $deepcheck{$projid}) {
 	    for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
+	      next unless exists $linfo->{'mypackage'};
 	      push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
 	    }
 	  }
@@ -3586,8 +3625,8 @@ while(1) {
 
 	my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks{$projid}};
 	for my $packid (sort keys %packids) {
-	  for my $linfo (grep {$_->{'project'} eq $projid && $_->{'package'} eq $packid} @projpacks_linked) {
-	    push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
+	  for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
+	    push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'} || $packid;
 	    $fetchlinkedprojpacks_high{$linfo->{'myproject'}} = 1;	# high for source changes, low for project changes
 	  }
 	}
@@ -3786,7 +3825,10 @@ while(1) {
   }
   print "  - $prp\n";
 
-  if (grep {$_->{'name'} eq $repoid && $_->{'status'} && $_->{'status'} eq 'disabled'} @{$projpacks->{$projid}->{'repository'}}) {
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  next unless $repo;
+
+  if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
     print "      disabled\n";
     set_repo_state($prp, 'disabled');
     $prpfinished{$prp} = 1;
@@ -3854,7 +3896,7 @@ while(1) {
   }
   if ($error) {
     print "    $error\n";
-    set_repo_state($prp, "error");
+    set_repo_state($prp, "broken");
     next;
   }
   
@@ -3870,6 +3912,13 @@ while(1) {
       $notready{$n} = 2 if $prpnotready{$rprp}->{$n};
     }
   }
+
+  if ($repo->{'blocked'} && $repo->{'blocked'} eq 'local') {
+    for (keys %notready) {
+      delete $notready{$_} if $notready{$_} == 2;
+    }
+  }
+
   my $xp = BSSolv::expander->new($pool, $bconf);
   my $ownexpand = sub {
     $_[0] = $xp;
@@ -3878,8 +3927,6 @@ while(1) {
   no warnings 'redefine';
   local *Build::expand = $ownexpand;
   use warnings 'redefine';
-
-
 
   my $prpchecktime = time();
 
@@ -4215,12 +4262,27 @@ while(1) {
       $pdeps{$packid} = \@edeps;
     }
 
+    if (exists($pdata->{'originproject'})) {
+      if ($repo->{'linkedbuild'} && $repo->{'linkedbuild'} eq 'localdep') {
+        if (!grep {$depislocal{$_}} @{$pdeps{$packid}}) {
+	  $packstatus{$packid} = 'excluded';
+	  $packerror{$packid} = 'project link, only depends on non-local packages';
+	  next;
+        }
+      } elsif (!($repo->{'linkedbuild'} && $repo->{'linkedbuild'} eq 'all')) {
+	  $packstatus{$packid} = 'excluded';
+	  $packerror{$packid} = 'project link';
+	  next;
+      }
+    }
+
     # calculate if we're blocked
     my @blocked = grep {$notready{$dep2src{$_}}} @{$pdeps{$packid}};
+    @blocked = () if $repo->{'block'} && $repo->{'block'} eq 'never';
     if ($cychash{$packid}) {
       # package belongs to a cycle, prune blocked list
       next if $packstatus{$packid} && $packstatus{$packid} ne 'done'; # already decided in phase 1
-      if ($cycpass{$packid} && $cycpass{$packid} == 2) {
+      if (@blocked && $cycpass{$packid} && $cycpass{$packid} == 2) {
 	# cycpass == 2 means that packages of this cycle are building
 	# because of source changes
 	print "      - $packid ($packtype)\n";
@@ -4309,6 +4371,11 @@ while(1) {
       print "        retrying bad build\n";
       $reason = { 'explain' => 'retrying bad build' };
     } else {
+      if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
+        # rebuild on src changes only
+	$packstatus{$packid} = 'done';
+	goto relsynccheck;
+      }
       # more work, check if dep rpm changed
       if ($incycle) {
 	# print "      - $packid ($packtype)\n";
@@ -4317,6 +4384,7 @@ while(1) {
 	next;
       }
       my $check = substr($mylastcheck, 32, 32);
+      $check .= $repo->{'rebuild'} || 'transitive';
       $check .= $pool->pkg2pkgid($dep2pkg{$_}) for sort @{$pdeps{$packid}};
       $check = Digest::MD5::md5_hex($check);
       if ($check eq substr($mylastcheck, 64, 32)) {
@@ -4329,10 +4397,7 @@ while(1) {
       # even more work, generate new meta, check if it changed
       my @new_meta;
       my $dep2meta = $repodatas{$prp}->{'meta'};
-      if (!$dep2meta) {
-        $dep2meta = {};
-        $repodatas{$prp}->{'meta'} = $dep2meta;
-      }
+      $repodatas{$prp}->{'meta'} = $dep2meta = {} unless $dep2meta;
       for my $bpack (@{$pdeps{$packid}}) {
 	my $pkg = $dep2pkg{$bpack};
 	my $path = $pool->pkg2fullpath($pkg, $myarch);
@@ -4375,12 +4440,20 @@ while(1) {
 	close F;
 	chomp @meta;
       }
+      if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
+	@meta = grep {!/\//} @meta;
+	@new_meta = grep {!/\//} @new_meta;
+      }
       if (@meta == @new_meta && join('\n', @meta) eq join('\n', @new_meta)) {
-	# should not happen!
 	# print "      - $packid ($packtype)\n";
 	# print "        nothing changed (looked harder)\n";
 	$nharder++;
-	delete $lastcheck{"$prp/$packid"};
+        if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
+	  $lastcheck{"$prp/$packid"} = $mylastcheck;
+	} else {
+	  # should not happen, delete lastcheck cache
+	  delete $lastcheck{"$prp/$packid"};
+	}
 	$packstatus{$packid} = 'done';
 	goto relsynccheck;
       }
@@ -4427,8 +4500,8 @@ relsynccheck:
     delete $prpnotready{$prp};
   }
 
-  # write blocked data into a file so that remote servers can
-  # fetch it
+  # write blocked data into a file so that remote servers can fetch it
+  # we don't put it into :packstatus to make retrival fast
   if (%notready) {
     my @blocked = sort keys %notready;
     writexml("$reporoot/$prp/$myarch/.:repostate", "$reporoot/$prp/$myarch/:repostate", {'blocked' => \@blocked}, $BSXML::repositorystate);

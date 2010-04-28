@@ -430,12 +430,32 @@ sub getrev_git {
 # get a revision object from a revision identifier
 #
 sub getrev {
-  my ($projid, $packid, $rev) = @_;
+  my ($projid, $packid, $rev, $linked, $missingok) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
   return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
-    return remote_getrev(@_);
+    my $proj = readproj($projid, 1);
+    if ($proj && $proj->{'link'}) {
+      $linked ||= [];
+      for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
+	next if $lprojid eq $projid;
+	next if grep {$_->{'project'} eq $lprojid && $_->{'package'} eq $packid} @$linked;
+	push @$linked, {'project' => $lprojid, 'package' => $packid};
+	my $lrev;
+	eval {
+	  $lrev = getrev($lprojid, $packid, $rev, $linked, $missingok);
+	};
+	die($@) if $@ && $@ !~ /^404/;
+	if ($lrev) {
+	  my $files = lsrev($lrev);
+	  copyfiles($projid, $packid, $lprojid, $packid, $files);
+	  $lrev->{'originproject'} = $lprojid;
+	  return $lrev;
+	}
+      }
+    }
+    return remote_getrev($projid, $packid, $rev, $linked, $missingok);
   }
   undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
   undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
@@ -1304,10 +1324,33 @@ sub findprojects {
 }
 
 sub findpackages {
-  my ($projid) = shift;
-  opendir(D, "$projectsdir/$projid.pkg") || return ();
-  my @packids = grep {s/\.xml$//} readdir(D);
-  closedir(D);
+  my ($projid, $proj, $seen) = @_;
+  $proj ||= readproj($projid, 1) || {};
+  my @packids;
+  if (opendir(D, "$projectsdir/$projid.pkg")) {
+    @packids = grep {s/\.xml$//} readdir(D);
+    closedir(D);
+  }
+  if ($proj->{'link'}) {
+    $seen ||= {};
+    for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
+      next if $seen->{$lprojid};
+      $seen->{$lprojid} = 1;
+      my $lproj = readproj($lprojid, 1);
+      if (!$lproj || $lproj->{'remoteurl'}) {
+        $lproj = remoteprojid($lprojid);
+	my $r;
+	eval {
+	  $r = BSRPC::rpc("$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}", $BSXML::dir);
+	};
+        die($@) if $@ && $@ !~ /^404/;
+	push @packids, map {$_->{'name'}} @{($r || {})->{'entry'} || []};
+      } else {
+	push @packids, findpackages($lprojid, undef, $seen);
+      }
+    }
+    @packids = unify(@packids);
+  }
   return sort @packids;
 }
 
@@ -1442,7 +1485,7 @@ sub getprojpack {
       $jinfo->{'patternmd5'} = Digest::MD5::md5_hex($patterns) if $patterns;
     }
     my @packages;
-    @packages = findpackages($projid) unless $cgi->{'nopackages'};
+    @packages = findpackages($projid, $proj) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
     for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download}) {
@@ -1510,6 +1553,7 @@ sub getprojpack {
       my $pinfo = {'name' => $packid};
       push @pinfo, $pinfo;
       my $pack = readpack($projid, $packid, 1);
+      $pack ||= {} if $proj->{'link'};
       if (!$pack) {
 	$pinfo->{'error'} = 'no metadata';
 	next;
@@ -1548,9 +1592,12 @@ sub getprojpack {
       }
       if ($cgi->{'withsrcmd5'} || $cgi->{'withdeps'}) {
         my $rev;
+	my $linked = [];
 	eval {
-	  $rev = getrev($projid, $packid, 'build');
+	  $rev = getrev($projid, $packid, 'build', $linked);
 	};
+        $pinfo->{'originproject'} = $rev->{'originproject'} if $rev && $rev->{'originproject'};
+        $pinfo->{'linked'} = $linked if @$linked;
 	if ($@) {
 	  $pinfo->{'error'} = $@;
 	  $pinfo->{'error'} =~ s/\n$//s;
@@ -1576,7 +1623,7 @@ sub getprojpack {
  	  next;
         }
 	if ($files->{'_link'}) {
-	  my %li = ('linked' => []);
+	  my %li = ('linked' => $linked);
 	  eval {
 	    $files = handlelinks($rev, $files, \%li);
 	  };
@@ -1584,7 +1631,7 @@ sub getprojpack {
 	    $files = "$@";
 	    $files =~ s/\n$//;
 	  }
-	  $pinfo->{'linked'} = $li{'linked'} if @{$li{'linked'}};
+          $pinfo->{'linked'} = $linked if @$linked;
 	  if (!ref $files) {
 	    $pinfo->{'error'} = defined($files) ? $files : "could not get file list";
 	    next;
@@ -1841,7 +1888,7 @@ sub getpackagelist {
   if ($proj->{'remoteurl'}) {
     return BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", $BSXML::dir), $BSXML::dir;
   }
-  my @packages = findpackages($projid);
+  my @packages = findpackages($projid, $proj);
   my @plist = map {{'name' => $_}} @packages;
   return ({'entry' => \@plist}, $BSXML::dir);
 }
@@ -1984,6 +2031,14 @@ sub fetchremoteproj {
   for (qw{name root remoteroot remoteurl remoteproject}) {
     $rproj->{$_} = $proj->{$_};
   }
+  for my $repo (@{$rproj->{'repository'} || []}) {
+    for my $pathel (@{$repo->{'path'} || []}) {
+      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
+    }
+  }
+  for my $link (@{$rproj->{'link'} || []}) {
+    $link->{'project'} = maptoremote($proj, $link->{'project'});
+  }
   return $rproj;
 }
 
@@ -2012,9 +2067,9 @@ sub remote_getrev {
   push @args, "rev=$rev" if defined $rev;
   my $dir;
   eval {
-    $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args, 'withlinked');
+    $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args, 'withlinked') if $linked;
   };
-  if ($@) {
+  if (!$dir || $@) {
     eval {
       $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args);
     };
@@ -2101,17 +2156,10 @@ sub expandsearchpath {
       last if $done{"/$prp"};
       my ($pid, $tid) = ($t->{'project'}, $t->{'repository'});
       my $proj = readproj($pid, 1);
-      if (!$proj) { 
+      if (!$proj || $proj->{'remoteurl'}) {
         $proj = remoteprojid($pid);
         $proj = fetchremoteproj($proj, $pid);
         die("404 project '$pid' does not exist\n") unless $proj;
-        my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
-        if (@repo && $repo[0]->{'path'}) {
-          for my $pathel (@{$repo[0]->{'path'}}) {
-            # map projects to remote
-            $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
-          }
-        }
       }
       $done{"/$prp"} = 1;       # mark expanded
       my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
@@ -3118,7 +3166,7 @@ sub getresult {
     }
   }
   if ($cgi->{'package'}) {
-    my %knownpackids = map {$_ => 1} findpackages($projid);
+    my %knownpackids = map {$_ => 1} findpackages($projid, $proj);
     for (@{$cgi->{'package'}}) {
       die("404 unknown package '$_'\n") if !$knownpackids{$_};
     }
@@ -3197,11 +3245,11 @@ sub docommand {
   die("no repository defined\n") unless @prpas;
   my @packids = @{$cgi->{'package'} || []};
   if (@packids) {
-    my %packids = map {$_ => 1} findpackages($projid);
+    my %packids = map {$_ => 1} findpackages($projid, $proj);
     my @badpacks = grep {!$packids{$_}} @packids;
     die("404 unknown package: @badpacks\n") if @badpacks;
   } else {
-    @packids = findpackages($projid);
+    @packids = findpackages($projid, $proj);
   }
   die("no packages defined\n") unless @packids;
   
