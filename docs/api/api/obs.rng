@@ -38,9 +38,25 @@
 
   <define ns="" name="rebuild-modes">
     <choice>
-      <value>transitive</value>
-      <value>direct</value>
-      <value>local</value>
+      <value>transitive</value> <!-- DEFAULT: build on source change and all depending packages including indirect dependencies -->
+      <value>direct</value>     <!-- build on source change and direct depending packages -->
+      <value>local</value>      <!-- build on source change only -->
+    </choice>
+  </define>
+
+  <define ns="" name="block-modes">
+    <choice>
+      <value>all</value>       <!-- DEFAULT: block until all packages we depend on are built -->
+      <value>local</value>     <!-- like all, but ignore packages from other repositories -->
+      <value>never</value>     <!-- immediately start building the packages -->
+    </choice>
+  </define>
+
+  <define ns="" name="linkedbuild-modes">
+    <choice>
+      <value>off</value>       <!-- DEFAULT: do not build packages from project links -->
+      <value>localdep</value>  <!-- only build project linked packages if they depend on a local package -->
+      <value>all</value>       <!-- treat packages from project links like local packages -->
     </choice>
   </define>
 
@@ -121,6 +137,16 @@
       <optional>
         <attribute name="rebuild">
           <ref name="rebuild-modes" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="rebuild">
+          <ref name="block-modes" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="rebuild">
+          <ref name="linkedbuild-modes" />
         </attribute>
       </optional>
       <zeroOrMore>
