@@ -1,5 +1,17 @@
-For Updaters to OBS 1.7
+For Updaters to OBS 1.8
 =======================
+
+Update from a 1.7 release Required rake migrate update
+
+When the obs-api package has been updated, it is required to upgrade
+the database. Therefore, you should do
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake db:migrate
+
+
+For Updaters from Releases 1.7 and below
+========================================
 
 1) Rename of frontend and webclient
    - The former called "frontend" has been renamed to "api"
@@ -13,14 +25,6 @@ For Updaters to OBS 1.7
    database is not touched by this, the server will still use this one.
 
 2) Required rake migrate update
-
-  When the obs-api package has been updated, it is required to upgrade
-  the database. Therefore, you should do
-
-    # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
-
-  and
 
     # cd /srv/www/obs/webui/
     # RAILS_ENV="production" rake db:migrate
