@@ -2,7 +2,17 @@
 <aggregatelist>
   <aggregate project="projectname" >
     <package>glibc</package>
+    <package>libz</package>
+    <binary>gcc</binary>
     <binary>gcc-c++</binary>
+    <repository target="my_sle_11_repo" source="SLE_11" />
+  </aggregate>
+  <aggregate project="anotherproject" >
+    <binary>gcc</binary>
+    <repository target="my_sle_11_repo" source="SLE_11" />
+  </aggregate>
+  <aggregate project="lastproject" >
+    <package>glibc</package>
     <repository target="my_sle_11_repo" source="SLE_11" />
   </aggregate>
 </aggregatelist>

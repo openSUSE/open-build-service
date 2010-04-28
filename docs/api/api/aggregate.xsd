@@ -4,7 +4,7 @@
   <xs:element name="aggregatelist">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="aggregate" />
+        <xs:element ref="aggregate" minOccurs="1" maxOccurs="unbounded" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -12,8 +12,8 @@
   <xs:element name="aggregate">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="package"    type="xs:string" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="binary"     type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="package"    type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element name="binary"     type="xs:string" minOccurs="0" maxOccurs="unbounded" />
         <xs:element ref="repository"                   minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute name="project" type="xs:string"/>
