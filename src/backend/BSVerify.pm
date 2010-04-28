@@ -209,6 +209,9 @@ sub verify_proj {
       verify_arch($a);
     }
   }
+  for my $link (@{$proj->{'link'} || []}) {
+    verify_projid($link->{'project'});
+  }
   for my $f ('build', 'publish', 'debuginfo', 'useforbuild') {
     verify_disableenable($proj->{$f}) if $proj->{$f};
   }
