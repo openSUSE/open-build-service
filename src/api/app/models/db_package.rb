@@ -383,8 +383,7 @@ class DbPackage < ActiveRecord::Base
     self.save!
 
     # expire cache
-    Rails.cache.delete('meta_package_standard_%d' % id)
-    Rails.cache.delete('meta_package_flagdetails_%d' % id)
+    Rails.cache.delete('meta_package_%d' % id)
 
     #--- write through to backend ---#
     if write_through?
@@ -524,8 +523,12 @@ class DbPackage < ActiveRecord::Base
   end
 
   def to_axml(view = nil)
-    Rails.cache.fetch('meta_package_%s_%d' % [view ? view : 'standard', self.id]) do
-      render_axml(view) 
+    unless view
+      Rails.cache.fetch('meta_package_%d' % self.id) do
+        render_axml(view) 
+      end
+    else
+      render_axml(view)
     end
   end
 

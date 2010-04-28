@@ -366,8 +366,7 @@ class DbProject < ActiveRecord::Base
     self.save!
 
     # expire cache
-    Rails.cache.delete('meta_project_standard_%d' % id)
-    Rails.cache.delete('meta_project_flagdetails_%d' % id)
+    Rails.cache.delete('meta_project_%d' % id)
 
     if write_through?
       path = "/source/#{self.name}/_meta"
@@ -610,7 +609,11 @@ class DbProject < ActiveRecord::Base
   end
 
   def to_axml(view = nil)
-    Rails.cache.fetch('meta_project_%s_%d' % [view ? view : 'standard', id]) do
+    unless view
+       Rails.cache.fetch('meta_project_%d' % id) do
+         render_axml(view)
+       end
+    else 
       render_axml(view)
     end
   end
