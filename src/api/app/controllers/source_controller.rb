@@ -745,9 +745,8 @@ class SourceController < ApplicationController
         oprj.add_user @http_user, "maintainer"
         oprj.build_flags.create( :position => 1, :status => "disable" )
         oprj.publish_flags.create( :position => 1, :status => "disable" )
-        oprj.save
+        oprj.store
       end
-      Project.find(oprj.name).save
     else
       unless @http_user.can_modify_project?(oprj)
         render_error :status => 403, :errorcode => "modify_project_no_permission",
@@ -791,18 +790,16 @@ class SourceController < ApplicationController
         orepo = oprj.repositories.create :name => proj_name+"_"+repo.name
         orepo.architectures = repo.architectures
         orepo.path_elements.create(:link => repo, :position => 1)
-        opkg.build_flags.create( :position => 1, :status => "enable", :repo => orepo.name )
       end
 
-      Package.find(opkg.name, :project => oprj.name).save
+      opkg.store
+
       # branch sources in backend
       Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{CGI.escape(pac.db_project.name)}&opackage=#{CGI.escape(pac.name)}", nil
-
     end
 
     # store project data in DB and XML
-    oprj.save!
-    Project.find(oprj.name).save
+    oprj.store
 
     # all that worked ? :)
     render_ok :data => {:targetproject => mparams[:target_project]}
@@ -1146,9 +1143,8 @@ class SourceController < ApplicationController
           orepo.architectures = repo.architectures
           orepo.path_elements << PathElement.new(:link => repo, :position => 1)
         end
-        oprj.save
+        oprj.store
       end
-      Project.find(oprj_name).save
     end
 
     #create branch package
