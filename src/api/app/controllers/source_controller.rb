@@ -743,8 +743,8 @@ class SourceController < ApplicationController
       DbProject.transaction do
         oprj = DbProject.new :name => mparams[:target_project], :title => "Branch Project _FIXME_", :description => "_FIXME_"
         oprj.add_user @http_user, "maintainer"
-        oprj.build_flags << BuildFlag.new( :status => "disable" )
-        oprj.publish_flags << PublishFlag.new( :status => "disable" )
+        oprj.build_flags.create( :position => 1, :status => "disable" )
+        oprj.publish_flags.create( :position => 1, :status => "disable" )
         oprj.save
       end
       Project.find(oprj.name).save
@@ -791,7 +791,7 @@ class SourceController < ApplicationController
         orepo = oprj.repositories.create :name => proj_name+"_"+repo.name
         orepo.architectures = repo.architectures
         orepo.path_elements.create(:link => repo, :position => 1)
-        opkg.build_flags.create( :status => "enable", :repo => orepo.name )
+        opkg.build_flags.create( :position => 1, :status => "enable", :repo => orepo.name )
       end
 
       Package.find(opkg.name, :project => oprj.name).save
