@@ -14,7 +14,7 @@ class DbProject < ActiveRecord::Base
   has_many :messages, :as => :object, :dependent => :destroy
 
   has_many :develpackages, :class_name => "DbPackage", :foreign_key => 'develproject_id'
-  has_many :linkedprojects, :class_name => "LinkedProject", :foreign_key => 'db_project_id'
+  has_many :linkedprojects, :order => :position, :class_name => "LinkedProject", :foreign_key => 'db_project_id'
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
@@ -105,16 +105,26 @@ class DbProject < ActiveRecord::Base
       project.each_link do |l|
         link = DbProject.find_by_name( l.project )
         if link.nil?
-          raise SaveError, "unable to link against project '#{l.project}'"
+          if DbProject.find_remote_project(l.project)
+            self.linkedprojects.create(
+                :db_project => self,
+                :linked_remote_project_name => l.project,
+                :position => position
+            )
+          else
+            raise SaveError, "unable to link against project '#{l.project}'"
+          end
+        else
+          if link == self
+            raise SaveError, "unable to link against myself"
+          end
+          self.linkedprojects.create(
+              :db_project => self,
+              :linked_db_project => link,
+              :position => position
+          )
         end
-        if link == self
-          raise SaveError, "unable to link against myself"
-        end
-        self.linkedprojects.create(
-            :db_project => self,
-            :linked_db_project => link,
-            :position => position
-        )
+        position += 1
       end
       #--- end of linked projects update  ---#
       # FIXME: it would be nicer to store only as needed
@@ -657,7 +667,11 @@ class DbProject < ActiveRecord::Base
       project.description( description )
       
       self.linkedprojects.each do |l|
-        project.link( :project => l.linked_db_project.name )
+        if l.linked_db_project
+           project.link( :project => l.linked_db_project.name )
+        else
+           project.link( :project => l.linked_remote_project_name )
+        end
       end
 
       project.remoteurl(remoteurl) unless remoteurl.blank?
@@ -851,7 +865,12 @@ class DbProject < ActiveRecord::Base
         return nil
       end
 
-      pkg = lp.linked_db_project.find_package(package_name, processed)
+      if lp.linked_db_project.nil?
+        # We can't get a package object from a remote instance ... how shall we handle this ?
+        pkg = nil
+      else
+        pkg = lp.linked_db_project.find_package(package_name, processed)
+      end
       return pkg unless pkg.nil?
     end
 
