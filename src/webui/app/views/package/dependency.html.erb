@@ -11,12 +11,12 @@
 <h1>Dependency of <%= @filename %></h1>
 
 <div>
-  <p><strong>Name:</strong> <%= @fileinfo.name %></p>
+  <p><strong>Name:</strong> <%= @fileinfo.value :name %></p>
   <p><strong>Project:</strong> <%= @dproject %></p>
   <p><strong>Repository:</strong> <%= @drepository %></p>
-  <p><strong>Title:</strong> <%= @fileinfo.summary %></p>
+  <p><strong>Title:</strong> <%= @fileinfo.value :summary %></p>
   <p><strong>Description:</strong><br/>
-    <% description = @fileinfo.description.text %>
+    <% description = @fileinfo.value :description %>
     <% if description %>
       <% description.split( /\n/ ).each do |line| %>
         <%= h line -%><br/>
@@ -25,8 +25,8 @@
       <i>No description set</i>
     <% end %>
   </p>
-  <p><strong>Version:</strong> <%= @fileinfo.version %></p>
-  <p><strong>Release:</strong> <%= @fileinfo.release %></p>
+  <p><strong>Version:</strong> <%= @fileinfo.value :version %></p>
+  <p><strong>Release:</strong> <%= @fileinfo.value :release %></p>
   <p><strong>Architecture:</strong> <%= @fileinfo.arch %></p>
   <p><strong>Size:</strong> <%= human_readable_fsize(@fileinfo.size.to_s.to_i) %></p>
   <p><strong>Build Time:</strong> <%= btime = Time.at(@fileinfo.mtime.to_s.to_i)
