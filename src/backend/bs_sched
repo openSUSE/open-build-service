@@ -2422,7 +2422,7 @@ sub checkkiwiproduct {
       }
       $ps = ($ps || {})->{'packstatus'} || {};
       for my $apackid (@apackids) {
-        if ($allpacks || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
+        if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
 	  my $code = $ps->{$apackid} || 'unknown';
 	  if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
