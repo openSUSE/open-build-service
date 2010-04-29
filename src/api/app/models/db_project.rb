@@ -14,7 +14,7 @@ class DbProject < ActiveRecord::Base
   has_many :messages, :as => :object, :dependent => :destroy
 
   has_many :develpackages, :class_name => "DbPackage", :foreign_key => 'develproject_id'
-  has_many :linkedprojects, :class_name => "LinkedProject", :foreign_key => 'db_project_id'
+  has_many :linkedprojects, :order => :position, :class_name => "LinkedProject", :foreign_key => 'db_project_id'
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
   has_many :tags, :through => :taggings
@@ -124,6 +124,7 @@ class DbProject < ActiveRecord::Base
               :position => position
           )
         end
+        position += 1
       end
       #--- end of linked projects update  ---#
       # FIXME: it would be nicer to store only as needed
