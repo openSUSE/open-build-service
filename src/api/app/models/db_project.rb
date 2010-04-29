@@ -95,6 +95,8 @@ class DbProject < ActiveRecord::Base
       self.description = project.description.to_s
       self.remoteurl = project.has_element?(:remoteurl) ? project.remoteurl.to_s : nil
       self.remoteproject = project.has_element?(:remoteproject) ? project.remoteproject.to_s : nil
+      self.updated_at = Time.now
+      self.save!
 
       #--- update linked projects ---#
       position = 1
