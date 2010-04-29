@@ -3930,7 +3930,7 @@ while(1) {
     }
   }
 
-  if ($repo->{'blocked'} && $repo->{'blocked'} eq 'local') {
+  if ($repo->{'block'} && $repo->{'block'} eq 'local') {
     for (keys %notready) {
       delete $notready{$_} if $notready{$_} == 2;
     }
