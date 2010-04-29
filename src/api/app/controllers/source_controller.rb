@@ -651,11 +651,18 @@ class SourceController < ApplicationController
     #authenticate
     return unless extract_user
 
+    pack = DbPackage.find_by_project_and_name(project_name, package_name)
+    if pack.nil?
+      render_error :status => 403, :errorcode => 'not_found',
+        :message => "The given package #{package_name} does not exist in project #{project_name}"
+      return
+    end
+    allowed = permissions.package_change? pack
+
     params[:user] = @http_user.login
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
       
-      allowed = permissions.package_change? package_name, project_name
       if  allowed
         # file validation where possible
         if params[:file] == "_link"
@@ -667,7 +674,6 @@ class SourceController < ApplicationController
         end
 
         pass_to_backend path
-        pack = DbPackage.find_by_project_and_name(project_name, package_name)
         pack.update_timestamp
         if package_name == "_product"
           update_product_autopackages
@@ -679,7 +685,6 @@ class SourceController < ApplicationController
     elsif request.delete?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
       
-      allowed = permissions.package_change? package_name, project_name
       if  allowed
         Suse::Backend.delete path
         pack = DbPackage.find_by_project_and_name(project_name, package_name)
