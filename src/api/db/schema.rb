@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100426144748) do
+ActiveRecord::Schema.define(:version => 20100428144748) do
 
   create_table "architectures", :force => true do |t|
     t.string  "name",                          :null => false
@@ -297,6 +297,8 @@ ActiveRecord::Schema.define(:version => 20100426144748) do
     t.string  "name"
     t.string  "remote_project_name"
     t.string  "rebuild",             :limit => 0
+    t.string  "block",               :limit => 0
+    t.string  "linkedbuild",         :limit => 0
   end
 
   add_index "repositories", ["db_project_id", "name", "remote_project_name"], :name => "projects_name_index", :unique => true
