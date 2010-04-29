@@ -1,5 +1,5 @@
 # Config options for the buildservice webclient
-version: 0.3
+version: 1.0
 
 # change this option to use a customized theme. See README.theme
 theme: neutral
