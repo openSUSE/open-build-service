@@ -53,42 +53,43 @@
 
 </div>
 
+  <% if @workerstatus %>
+    <div class="box box-shadow">
+      <div class="box-header aligncenter">
+        System Status
+      </div>
+      <div class="clear"></div>
+      <div class="aligncenter">
+        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'pc_waiting',
+              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
+            :alt => 'i585/x86_64 waiting packages' ), :controller => "monitor", :action => :index ) %>
+        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'ppc_waiting',
+              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
+            :alt => 'ppc waiting packages' ), :controller => "monitor", :action => :index ) %>
+        <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'arm_waiting',
+              :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
+            :alt => 'arm waiting packages' ), :controller => "monitor", :action => :index ) %>
+      </div>
+      <p class="description">
+        The above graphs show the amount of packages that are waiting to be build (<%= @waiting_packages %> at the moment) on the different architectures (ix86, ppc, arm).
+        Currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
+      </p>
 
-<div class="box box-shadow">
-  <div class="box-header aligncenter">
-    System Status
-  </div>
-  <div class="clear"></div>
-  <div class="aligncenter">
-  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'pc_waiting',
-        :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-      :alt => 'i585/x86_64 waiting packages' ), :controller => "monitor", :action => :index ) %>
-  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'ppc_waiting', 
-        :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-      :alt => 'ppc waiting packages' ), :controller => "monitor", :action => :index ) %>
-  <%= link_to( image_tag( url_for(:controller => :monitor, :action => :plothistory, :set => 'arm_waiting', 
-        :range => 168, :time => Time.now.to_i ), :width => 200, :height => 150,
-      :alt => 'arm waiting packages' ), :controller => "monitor", :action => :index ) %>
-</div>
-<p class="description">
-  The above graphs show the amount of packages that are waiting to be build (<%= @waiting_packages %> at the moment) on the different architectures (ix86, ppc, arm).
-  Currently <%= @workerstatus.each_building.length %> of <%= @workerstatus.clients %> build hosts are busy building packages.
-</p>
+      <p class="description">
+        The openSUSE Build Service hosts <strong><%= number_with_delimiter @global_counters.projects -%></strong> projects, with
+        <strong><%= number_with_delimiter @global_counters.packages -%></strong> packages, in <strong><%= number_with_delimiter @global_counters.repos -%></strong> repositories
+        and is used by <strong><%= number_with_delimiter @global_counters.users -%></strong> confirmed users.
+      </p>
 
-<p class="description">
-   The openSUSE Build Service hosts <strong><%= number_with_delimiter @global_counters.projects -%></strong> projects, with
-   <strong><%= number_with_delimiter @global_counters.packages -%></strong> packages, in <strong><%= number_with_delimiter @global_counters.repos -%></strong> repositories
-   and is used by <strong><%= number_with_delimiter @global_counters.users -%></strong> confirmed users.
-</p>
-
-</div>
+    </div>
+  <% end %>
 
 </div>
 
 
 <div class="grid_5 omega">
   <%= render :partial => "contact" %>
-  <%= render :partial => "latest_updates" %>
+  <%= render :partial => "latest_updates" if @latest_updates %>
   <%= render :partial => "sponsors" %>
   <%= render :partial => "feeds" %>
 </div>
