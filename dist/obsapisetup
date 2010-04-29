@@ -47,26 +47,16 @@ case "$1" in
 			echo -n "Initialize OBS database (first time only)"
 			mysqladmin -u root create api_production
 			mysqladmin -u root password "opensuse"
-			echo
-			echo -n "Setup OBS webui database"
-        		cd $webuidir
-			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
-			echo
-			echo -n "Setup OBS api database"
-        		cd $apidir
-			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
-			echo
-                        touch /obs/MySQL/api_production
-		else
-			echo -n "Migrate OBS webui database"
-        		cd $webuidir
-			RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
-			echo
-			echo -n "Migrate OBS api database"
-        		cd $apidir
-			RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
-			echo
 		fi
+		echo
+		echo -n "Migrate OBS webui database"
+        	cd $webuidir
+		RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
+		echo
+		echo -n "Migrate OBS api database"
+        	cd $apidir
+		RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
+		echo
 
                 cd $webuidir
 		chown -R lighttpd.lighttpd $webuidir/log
@@ -80,6 +70,12 @@ case "$1" in
 		    /srv/www/obs/webui/config/environments/production.rb
                 sed -i 's,^DOWNLOAD_URL = .*,DOWNLOAD_URL = \"http://'"$FQHOSTNAME:82"'\",' \
 		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i -e /webui_url:/d -e /webui_host:/d -e /allow_anonymous:/d \
+		    /srv/www/obs/api/config/options.yml
+                echo "# the following lines are always written by obsapisetup!" >> /srv/www/obs/api/config/options.yml
+                echo "allow_anonymous: true" >> /srv/www/obs/api/config/options.yml
+                echo "webui_host: $FQHOSTNAME" >> /srv/www/obs/api/config/options.yml
+                echo "webui_url: http://$FQHOSTNAME:80" >> /srv/www/obs/api/config/options.yml
 		echo
 		echo -n "Write OBS lighttpd config for this host"
 		cat > /etc/lighttpd/vhosts.d/obs.conf <<EOF
