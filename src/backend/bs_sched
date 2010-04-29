@@ -2416,7 +2416,6 @@ sub checkkiwiproduct {
         # hmm, we don't know if we really need it. scan content.
 	my @got;
 	my $needit;
-	$needit = 1 if $allpacks;
 	my $bis;
 	my @bininfo_s = stat("$reporoot/$aprp/$arch/$apackid/.bininfo");
         if (-s _) {
@@ -2439,7 +2438,7 @@ sub checkkiwiproduct {
 	  for my $bi (split("\n", $bis->[1])) {
 	    my $b = substr($bi, 34);
 	    next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	    $needit = 1 if $deps{$1};
+	    $needit = 1 if $deps{$1} || ($allpacks && !$deps{"-$1"});
 	    push @got, "$aprp/$arch/$apackid/$b";
 	    $rpms_hdrmd5{$got[-1]} = substr($bi, 0, 32);
 	    $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1.$2";
@@ -2447,7 +2446,7 @@ sub checkkiwiproduct {
 	} else {
           for my $b (ls("$reporoot/$aprp/$arch/$apackid")) {
 	    next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	    $needit = 1 if $deps{$1};
+	    $needit = 1 if $deps{$1} || ($allpacks && !$deps{"-$1"});
 	    push @got, "$aprp/$arch/$apackid/$b";
 	    $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1.$2";
           }
