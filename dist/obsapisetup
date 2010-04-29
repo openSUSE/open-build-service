@@ -41,9 +41,9 @@ rc_reset
 case "$1" in
 	start)
                 if [ ! -d /obs/MySQL ]; then
-			mkdir /obs/MySQL
+			mkdir -p /obs/MySQL
 		fi
-                if [ ! -d /obs/MySQL/api_production ]; then
+                if [ ! -e /obs/MySQL/api_production ]; then
 			echo -n "Initialize OBS database (first time only)"
 			mysqladmin -u root create api_production
 			mysqladmin -u root password "opensuse"
@@ -56,6 +56,7 @@ case "$1" in
         		cd $apidir
 			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
 			echo
+                        touch /obs/MySQL/api_production
 		else
 			echo -n "Migrate OBS webui database"
         		cd $webuidir
