@@ -121,7 +121,7 @@ class ApplicationController < ActionController::Base
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
-        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and request.env.has_key? 'REMOTE_HOST' and CONFIG['webui_host'] == request.env['REMOTE_HOST']
+        if @http_user.nil? and CONFIG['allow_anonymous'] and CONFIG['webui_host'] and [ request.env['REMOTE_HOST'], request.env['REMOTE_ADDR'] ].include?( CONFIG['webui_host'] )
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
           return true
