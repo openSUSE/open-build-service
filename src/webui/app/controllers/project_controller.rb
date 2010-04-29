@@ -15,7 +15,7 @@ class ProjectController < ApplicationController
   before_filter :require_project, :only => [:delete, :buildresult, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
-    :show, :monitor, :edit_prjconf, :list_requests,
+    :show, :monitor, :edit_prjconf, :list_requests, :autocomplete_packages,
     :packages, :users, :subprojects, :repositories, :attributes,
     :meta, :edit_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
 
@@ -313,7 +313,6 @@ class ProjectController < ApplicationController
   end
 
   def autocomplete_packages
-    @project = params[:project]
     packages
     render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
   end
