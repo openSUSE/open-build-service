@@ -1773,8 +1773,14 @@ sub addrepo_remote {
   };
   my $cpio;
   eval {
-    $cpio = BSRPC::rpc($param, undef, "view=cache");
+    die('unsupported view\n') unless $BSConfig::usesolvstate && $BSConfig::usesolvstate != 0;
+    $cpio = BSRPC::rpc($param, undef, 'view=solvstate');
   };
+  if ($@ && $@ =~ /unsupported view/) {
+    eval {
+      $cpio = BSRPC::rpc($param, undef, 'view=cache');
+    };
+  }
   if ($@) {
     warn($@);
     my $error = $@;
@@ -1789,21 +1795,33 @@ sub addrepo_remote {
   if ($repostate && $repostate->{'blocked'}) {
     $prpnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
   }
-  my $cachedata = $cpio{'repositorycache'};
-  return {} unless $cachedata;
-  my $cache;
-  eval { $cache = Storable::thaw(substr($cachedata, 4)); };
-  undef $cachedata;
-  warn($@) if $@;
-  return undef unless $cache;
-  for (values %$cache) {
-    delete $_->{'path'};
-    delete $_->{'id'};
+  if (exists $cpio{'repositorysolv'}) {
+    my $r;
+    eval {$r = $pool->repofromstr($prp, $cpio{'repositorysolv'}); };
+    warn($@) if $@;
+    if ($r) {
+      $repodatas{$prp}->{'solv'} = $cpio{'repositorysolv'};
+      $repodatas{$prp}->{'lastscan'} = time();
+    }
+    return $r;
+  } elsif (exists $cpio{'repositorycache'}) {
+    my $cache;
+    eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
+    delete $cpio{'repositorycache'};	# free mem
+    warn($@) if $@;
+    return undef unless $cache;
+    # free some unused entries to save mem
+    for (values %$cache) {
+      delete $_->{'path'};
+      delete $_->{'id'};
+    }
+    my $r = $pool->repofromdata($prp, $cache);
+    $repodatas{$prp}->{'solv'} = $r->tostr();
+    $repodatas{$prp}->{'lastscan'} = time();
+    return $r;
+  } else {
+    return {};
   }
-  my $r = $pool->repofromdata($prp, $cache);
-  $repodatas{$prp}->{'solv'} = $r->tostr();
-  $repodatas{$prp}->{'lastscan'} = time();
-  return $r;
 }
 
 #
