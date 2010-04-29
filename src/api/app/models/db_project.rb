@@ -117,6 +117,8 @@ class DbProject < ActiveRecord::Base
             :position => position
         )
       end
+      self.updated_at = Time.now
+      self.save!
       #--- end of linked projects update  ---#
 
       #--- update users ---#
