@@ -37,15 +37,17 @@
           <% else -%>
             <%= proceed_link 'configure.png', 'Setup OBS', :controller => "admin", :action => :index %>
           <% end -%>
-      <% end -%>
-      <% if session[:login] -%>
-        <%= proceed_link 'start-here.png', 'My Projects', :controller => "project", :action => :list_my %>
-      <% end %>
-      <%= proceed_link 'list.png', 'List of All Projects', :controller => "project", :action => :list_public %>
-      <%= proceed_link 'system-search.png', 'Search', :controller => 'search', :action => 'index' %>
+          <%= proceed_link 'list.png', 'List of All Projects', :controller => "project", :action => :list_public %>
+      <% else -%>
+          <% if session[:login] -%>
+            <%= proceed_link 'start-here.png', 'My Projects', :controller => "project", :action => :list_my %>
+          <% end %>
+          <%= proceed_link 'list.png', 'List of All Projects', :controller => "project", :action => :list_public %>
+          <%= proceed_link 'system-search.png', 'Search', :controller => 'search', :action => 'index' %>
 
-      <% if session[:login] -%>
-        <%= proceed_link "document-new.png", 'Create New Project', :controller => "project", :action => :new, :ns => "home:#{session[:login]}" %>
+          <% if session[:login] -%>
+            <%= proceed_link "document-new.png", 'Create New Project', :controller => "project", :action => :new, :ns => "home:#{session[:login]}" %>
+          <% end %>
       <% end %>
 
       <%= proceed_link 'utilities-system-monitor.png', 'Status Monitor', :controller => "monitor", :action => :index %>
