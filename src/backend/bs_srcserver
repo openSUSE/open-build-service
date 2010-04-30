@@ -167,7 +167,8 @@ sub expandproduct {
 
   if (!$files) {
     # gone!
-    my @packages = grep {/^\Q${packid}:\E/} findpackages($projid);
+    # {} argument makes findpackages ignore packages from project links
+    my @packages = grep {/^\Q${packid}:\E/} findpackages($projid, {});
     for my $opid (@packages) {
       unlink("$projectsdir/$projid.pkg/$opid.upload-MD5SUMS");
       unlink("$projectsdir/$projid.pkg/$opid.rev");
@@ -256,7 +257,7 @@ sub expandproduct {
   BSUtil::cleandir($dir);
   rmdir($dir);
   # now do away with the old packages
-  my @packages = grep {/^\Q${packid}:\E/} findpackages($projid);
+  my @packages = grep {/^\Q${packid}:\E/} findpackages($projid, {});
   @packages = grep {!$pids{$_}} @packages;
   for my $opid (@packages) {
     unlink("$projectsdir/$projid.pkg/$opid.upload-MD5SUMS");
@@ -1324,7 +1325,7 @@ sub findprojects {
 }
 
 sub findpackages {
-  my ($projid, $proj, $seen) = @_;
+  my ($projid, $proj, $nonfatal, $seen) = @_;
   $proj ||= readproj($projid, 1) || {};
   my @packids;
   if (opendir(D, "$projectsdir/$projid.pkg")) {
@@ -1336,6 +1337,7 @@ sub findpackages {
     for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
       next if $seen->{$lprojid};
       $seen->{$lprojid} = 1;
+      my @lpackids;
       my $lproj = readproj($lprojid, 1);
       if (!$lproj || $lproj->{'remoteurl'}) {
         $lproj = remoteprojid($lprojid);
@@ -1343,11 +1345,18 @@ sub findpackages {
 	eval {
 	  $r = BSRPC::rpc("$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}", $BSXML::dir);
 	};
-        die($@) if $@ && $@ !~ /^404/;
-	push @packids, map {$_->{'name'}} @{($r || {})->{'entry'} || []};
+        if ($@ && $@ !~ /^404/) {
+          die($@) unless $nonfatal;
+          warn($@);
+        }
+	@lpackids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};
       } else {
-	push @packids, findpackages($lprojid, undef, $seen);
+	@lpackids = findpackages($lprojid, undef, $nonfatal, $seen);
       }
+      if (grep {$_ eq '_product'} @packids) {
+	@lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids;
+      }
+      push @packids, @lpackids;
     }
     @packids = unify(@packids);
   }
@@ -1485,7 +1494,7 @@ sub getprojpack {
       $jinfo->{'patternmd5'} = Digest::MD5::md5_hex($patterns) if $patterns;
     }
     my @packages;
-    @packages = findpackages($projid, $proj) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
+    @packages = findpackages($projid, $proj, 1) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
     for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download}) {
@@ -3166,7 +3175,7 @@ sub getresult {
     }
   }
   if ($cgi->{'package'}) {
-    my %knownpackids = map {$_ => 1} findpackages($projid, $proj);
+    my %knownpackids = map {$_ => 1} findpackages($projid, $proj, 1);
     for (@{$cgi->{'package'}}) {
       die("404 unknown package '$_'\n") if !$knownpackids{$_};
     }
@@ -3245,7 +3254,7 @@ sub docommand {
   die("no repository defined\n") unless @prpas;
   my @packids = @{$cgi->{'package'} || []};
   if (@packids) {
-    my %packids = map {$_ => 1} findpackages($projid, $proj);
+    my %packids = map {$_ => 1} findpackages($projid, $proj, 1);
     my @badpacks = grep {!$packids{$_}} @packids;
     die("404 unknown package: @badpacks\n") if @badpacks;
   } else {
