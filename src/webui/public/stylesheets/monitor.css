@@ -78,6 +78,7 @@
   left: 4px; 
   top: 2px;
   overflow: hidden;
+  white-space: nowrap;
 }
 
 .monitorpb_ctrl { 
