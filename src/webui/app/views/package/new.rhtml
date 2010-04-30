@@ -1,5 +1,8 @@
 <% @pagetitle = "New Package" %>
 <% project_bread_crumb 'Add Package' -%>
+
+<%= render :partial => "tabs" %>
+
 <!--
 <p>
 <%= link_to('Create package using spec file wizard', :controller => 'package', :action => 'wizard_new', :project => @project) %>
@@ -16,7 +19,7 @@
 <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
 <strong>Description:</strong><br/>
 <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
-<p><%= submit_tag %></p>
+<%= submit_tag %>
 <%= hidden_field_tag 'project', @project.name %>
 </p>
 <% end %>
