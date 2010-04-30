@@ -4,7 +4,7 @@
 
 <div id="project_list">
 
-  <% if @important_projects %>
+  <% unless @important_projects.blank? %>
     <div class="box-header aligncenter">
       Main Projects
     </div>
