@@ -224,16 +224,16 @@ sub addrepo {
   my $now = time();
   if ($repodatas{$prp} && $repodatas{$prp}->{'lastscan'} && $repodatas{$prp}->{'lastscan'} > $now - 8*3600) {
     if (exists $repodatas{$prp}->{'solv'}) {
-      my $cache;
-      eval {$cache = $pool->repofromstr($prp, $repodatas{$prp}->{'solv'});};
-      return $cache if $cache;
+      my $r;
+      eval {$r = $pool->repofromstr($prp, $repodatas{$prp}->{'solv'});};
+      return $r if $r;
       delete $repodatas{$prp}->{'solv'};
     }
     my $dir = "$reporoot/$prp/$myarch/:full";
     if (-s "$dir.solv") {
-      my $cache;
-      eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
-      return $cache if $cache;
+      my $r;
+      eval {$r = $pool->repofromfile($prp, "$dir.solv");};
+      return $r if $r;
     }
   }
   delete $repodatas{$prp}->{'solv'};
@@ -1773,7 +1773,7 @@ sub addrepo_remote {
   };
   my $cpio;
   eval {
-    die('unsupported view\n') unless $BSConfig::usesolvstate && $BSConfig::usesolvstate != 0;
+    die('unsupported view\n') unless $BSConfig::usesolvstate;
     $cpio = BSRPC::rpc($param, undef, 'view=solvstate');
   };
   if ($@ && $@ =~ /unsupported view/) {
@@ -1795,7 +1795,7 @@ sub addrepo_remote {
   if ($repostate && $repostate->{'blocked'}) {
     $prpnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
   }
-  if (exists $cpio{'repositorysolv'}) {
+  if (exists $cpio{'repositorysolv'} && $BSConfig::usesolvstate) {
     my $r;
     eval {$r = $pool->repofromstr($prp, $cpio{'repositorysolv'}); };
     warn($@) if $@;
@@ -1820,7 +1820,11 @@ sub addrepo_remote {
     $repodatas{$prp}->{'lastscan'} = time();
     return $r;
   } else {
-    return {};
+    # return empty repo
+    my $r = $pool->repofrombins($prp, '');
+    $repodatas{$prp}->{'solv'} = $r->tostr();
+    $repodatas{$prp}->{'lastscan'} = time();
+    return $r;
   }
 }
 
