@@ -280,6 +280,8 @@ ActionController::Routing::Routes.draw do |map|
     
   map.connect '/public/build/:prj/:repo/:arch/:pkg',
     :controller => 'public', :action => 'build', :prj => /[^\/]*/, :repo => /[^\/]*/, :pkg => /[^\/]*/
+  map.connect '/public/source/:prj',
+    :controller => 'public', :action => 'project_index', :prj => /[^\/]*/
   map.connect '/public/source/:prj/_meta',
     :controller => 'public', :action => 'project_meta', :prj => /[^\/]*/
   map.connect '/public/source/:prj/_config',

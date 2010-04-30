@@ -47,6 +47,14 @@ class PublicController < ApplicationController
     end
   end
 
+  # GET /public/source/:prj
+  def project_index
+    valid_http_methods :get
+    path = unshift_public(request.path)
+    path += "?#{request.query_string}" unless request.query_string.empty?
+    pass_to_backend path
+  end
+
   # GET /public/source/:prj/_config
   def project_config
     valid_http_methods :get
