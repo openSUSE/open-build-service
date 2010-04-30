@@ -82,7 +82,7 @@ case "$1" in
 #
 # WARNING: this file gets rewritten on each boot by obsapisetup runlevel script!
 #
-\$HTTP["host"] == "$FQHOSTNAME:80" {
+\$SERVER["socket"] == ":80" {
   rails_app   = "webui"
   rails_root  = "/srv/www/obs/webui"
   rails_procs = 5
