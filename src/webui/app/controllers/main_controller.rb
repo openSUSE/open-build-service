@@ -26,6 +26,7 @@ class MainController < ApplicationController
       end
 
     rescue ActiveXML::Transport::UnauthorizedError => e
+      @anonymous_forbidden = true
       logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
     end
 

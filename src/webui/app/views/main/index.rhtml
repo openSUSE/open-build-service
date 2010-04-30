@@ -27,6 +27,7 @@
     Have fun experimenting with the openSUSE Build Service :-)
   </p>
 
+  <% unless @anonymous_forbidden %>
     <p>Proceed to:</p>
     <ul id="proceed_list">
 
@@ -52,6 +53,7 @@
 
       <%= proceed_link 'utilities-system-monitor.png', 'Status Monitor', :controller => "monitor", :action => :index %>
     </ul>
+    <% end %>
 
 </div>
 
