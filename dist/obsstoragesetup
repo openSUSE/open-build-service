@@ -19,7 +19,11 @@
 
 . /etc/rc.status
 
-. /etc/sysconfig/obs-server
+if [ -e /etc/sysconfig/obs-server ]; then
+  source /etc/sysconfig/obs-server
+else
+  source /etc/sysconfig/obs-worker
+fi
 
 if [ "$OBS_STORAGE_AUTOSETUP" != "yes" ]; then
    echo "OBS Storage Autosetup is not enabled in sysconfig, skipping!"
@@ -67,7 +71,7 @@ case "$1" in
 				echo "Found XEN virtualization"
 				RUN_VIRT=1
 			else
-				if grep ^flags /proc/cpuinfo | grep -q " vmx " && modprobe kvm; then
+				if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && modprobe kvm; then
 					echo "Found KVM virtualization"
 					RUN_VIRT=1
                                         # support virtio
