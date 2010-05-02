@@ -124,7 +124,6 @@ class Project < ActiveXML::Base
 
     opt[:arch].to_a.each do |arch_text,dummy|
       arch = repository.add_element 'arch'
-      puts arch_text.inspect
       arch.text = arch_text
     end
   end

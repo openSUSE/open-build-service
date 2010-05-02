@@ -24,7 +24,6 @@ class Package < ActiveXML::Base
 
 
   def my_project
-    puts self.dump_xml
     self.my_pro ||= Project.find_cached(self.project)
     return self.my_pro
   end
