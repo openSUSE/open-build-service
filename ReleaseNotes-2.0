@@ -9,3 +9,9 @@ Changes:
 
 * "expansion error" state got renamed to "unresolved"
 
+* CBpreinstall and CBinstall prjconf directives added.
+  - CBPreinstall: add to preinstall section if emulator_arch
+  - CBinstall: add to install section if emulator_arch
+  - as with VMinstall, there's no dependency resolution. 
+    Add all needed dependencies manually.
+
