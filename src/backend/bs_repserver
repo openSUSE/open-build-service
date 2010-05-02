@@ -1872,7 +1872,7 @@ sub getbuildinfo {
     $ret->{'bdep'} = \@bdeps;
     return ($ret, $BSXML::buildinfo);
   }
-  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps);
+  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps);
 
   if ($packtype eq 'kiwi' && $kiwitype eq 'image') {
     # kiwi images take the binaries from all repos
