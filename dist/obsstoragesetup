@@ -112,6 +112,19 @@ case "$1" in
 			# append user presets
 			cat /etc/buildhost.config.$$ >> /etc/buildhost.config
 			rm /etc/buildhost.config.$$
+
+                        # configure sshd if wanted
+                        if [ ! -e ~/.ssh/authorized_keys ]; then
+                		OBS_ROOT_SSHD_KEY_URL=`sed -n 's,^OBS_ROOT_SSHD_KEY_URL=\(.*\),\1,p' /etc/buildhost.config`
+                		OBS_ROOT_SSHD_KEY_URL=${OBS_ROOT_SSHD_KEY_URL#\"}
+                		OBS_ROOT_SSHD_KEY_URL=${OBS_ROOT_SSHD_KEY_URL%\"}
+                		if [ -n "$OBS_ROOT_SSHD_KEY_URL" ]; then
+					[ -e ~/.ssh ] || mkdir ~/.ssh
+					curl $OBS_ROOT_SSHD_KEY_URL > ~/.ssh/authorized_keys
+					insserv sshd
+					rcsshd start
+                		fi
+                	fi
                 fi
 		rc_status -v
 	;;
