@@ -27,7 +27,7 @@
     Have fun experimenting with the openSUSE Build Service :-)
   </p>
 
-  <% unless @anonymous_forbidden.nil? %>
+  <% if @anonymous_forbidden.nil? %>
     <p>Proceed to:</p>
     <ul id="proceed_list">
 
@@ -93,7 +93,7 @@
 
 <div class="grid_5 omega">
   <%= render :partial => "contact" %>
-  <%= render :partial => "latest_updates" if @latest_updates %>
+  <%= render :partial => "latest_updates" if (@latest_updates and @anonymous_forbidden.nil?) %>
   <%= render :partial => "sponsors" %>
   <%= render :partial => "feeds" %>
 </div>
