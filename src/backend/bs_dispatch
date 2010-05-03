@@ -342,10 +342,7 @@ while (1) {
           @bn = grep {/$pr/} @b;
         }
         next unless @bn;
-        # @bn now contains "high prio" jobs. Move them in front of @b
-        my %bn = map {$_ => 1} @bn;
-        @b = grep {!$bn{$_}} @b;
-        unshift @b, @bn;
+        @b = @bn;
       }
     }
 
