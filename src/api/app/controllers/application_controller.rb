@@ -319,6 +319,8 @@ class ApplicationController < ActionController::Base
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when ActionController::UnknownAction
       render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
+    when ActionView::MissingTemplate
+      render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     else
       if send_exception_mail?
         ExceptionNotifier.deliver_exception_notification(exception, self, request, {})
