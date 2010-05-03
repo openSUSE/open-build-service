@@ -116,6 +116,14 @@ our $relsync_pool = {
 # Use a special local arch for product building
 # our $localarch = "x86_64";
 
+# config options for the bs_worker
+#
+# run a script to check if the worker is good enough for the job
+#our workerhostcheck = 'my_check_script';
+# 
+# Allow to build as root, exceptions per package
+# our %norootexceptions = ( "my_project/my_package" => 1, "openSUSE:Factory/installation-images" => 1 );
+
 # host specific configs
 my $hostconfig = "bsconfig." . Net::Domain::hostname();
 if(-r $hostconfig) {

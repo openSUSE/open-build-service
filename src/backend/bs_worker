@@ -111,6 +111,8 @@ my %cando = (
   'mips64'  => ['mips64', 'mips:mips32'],
 );
 
+$hostcheck = $BSConfig::workerhostcheck if defined($BSConfig::workerhostcheck);
+
 sub lockstate {
   while (1) {
     open(STATELOCK, '>>', "$statedir/state") || die("$statedir/state: $!\n");
