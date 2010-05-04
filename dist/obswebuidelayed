@@ -25,8 +25,8 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obswebuidelayed
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
+# Required-Start:    $syslog
+# Required-Stop:     $syslog
 # Should-Start:      obsapisetup
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 6

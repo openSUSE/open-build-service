@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsstoragesetup
 # X-Start-Before:    mysql
-# Required-Start:    $remote_fs boot.lvm
+# Required-Start:    $network boot.lvm
 # Required-Stop:     $null
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
@@ -39,6 +39,20 @@ backenddir=/srv/obs
 rc_reset
 case "$1" in
 	start)
+		# configure sshd if wanted
+		if [ ! -e ~/.ssh/authorized_keys ]; then
+			OBS_ROOT_SSHD_KEY_URL=`sed -n 's,^OBS_ROOT_SSHD_KEY_URL=\(.*\),\1,p' /etc/buildhost.config`
+			OBS_ROOT_SSHD_KEY_URL=${OBS_ROOT_SSHD_KEY_URL#\"}
+			OBS_ROOT_SSHD_KEY_URL=${OBS_ROOT_SSHD_KEY_URL%\"}
+			if [ -n "$OBS_ROOT_SSHD_KEY_URL" ]; then
+				echo "Enabling sshd as requested"
+				[ -e ~/.ssh ] || mkdir ~/.ssh
+				curl $OBS_ROOT_SSHD_KEY_URL > ~/.ssh/authorized_keys
+				insserv sshd
+				rcsshd start
+			fi
+		fi
+		
 		echo "Looking for OBS Server LVM Volume"
                 if [ -e /dev/OBS/server ]; then
 			[ -d /obs ] || { rm -f /obs; mkdir /obs ; }
@@ -118,19 +132,6 @@ case "$1" in
 		# append user presets
 		echo "### preconfigured values from /etc/buildhost.config.presets" >> /etc/buildhost.config
 		cat /etc/buildhost.config.presets >> /etc/buildhost.config
-		
-		# configure sshd if wanted
-		if [ ! -e ~/.ssh/authorized_keys ]; then
-			OBS_ROOT_SSHD_KEY_URL=`sed -n 's,^OBS_ROOT_SSHD_KEY_URL=\(.*\),\1,p' /etc/buildhost.config`
-			OBS_ROOT_SSHD_KEY_URL=${OBS_ROOT_SSHD_KEY_URL#\"}
-			OBS_ROOT_SSHD_KEY_URL=${OBS_ROOT_SSHD_KEY_URL%\"}
-			if [ -n "$OBS_ROOT_SSHD_KEY_URL" ]; then
-				[ -e ~/.ssh ] || mkdir ~/.ssh
-				curl $OBS_ROOT_SSHD_KEY_URL > ~/.ssh/authorized_keys
-				insserv sshd
-				rcsshd start
-			fi
-		fi
 		
 		rc_status -v
 	;;

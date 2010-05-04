@@ -9,7 +9,7 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsrepserver
-# Required-Start:    $time $syslog $remote_fs
+# Required-Start:    $time $syslog $network $remote_fs
 # Should-Start:      obssigner obsstoragesetup slpd
 # Should-Stop:       $none
 # Required-Stop:     $null

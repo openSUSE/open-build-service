@@ -25,7 +25,7 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsapidelayed
-# Required-Start:    $remote_fs $syslog
+# Required-Start:    $network $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Should-Start:      obsapisetup
 # Should-Stop:       $none
