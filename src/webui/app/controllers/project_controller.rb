@@ -77,27 +77,6 @@ class ProjectController < ApplicationController
   end
   private :get_filtered_projectlist
 
-  # TODO: move to home controller
-  def list_my
-    if not check_user
-      flash[:error] = 'Requires login'
-      redirect_to :action => :list_public
-      return
-    end
-    if @user.has_element? :watchlist
-      #extract a list of project names and sort them case insensitive
-      @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
-    end
-
-    @iprojects = @user.involved_projects.each.map {|x| x.name}.uniq.sort
-    @ipackages = Hash.new
-    pkglist = @user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
-    pkglist.sort(&@user.method('packagesorter')).each do |pack|
-      @ipackages[pack.project] ||= Array.new
-      @ipackages[pack.project] << pack.name if !@ipackages[pack.project].include? pack.name
-    end
-  end
-
   def users
     @email_hash = Hash.new
     @project.each_person do |person|
@@ -125,21 +104,6 @@ class ProjectController < ApplicationController
 
   def attributes
     @attributes = Attribute.find(:project, :project => params[:project])
-  end
-
-  def remove_watched_project
-    project = params[:project]
-    if check_user
-      logger.debug "removing watched project '#{project}' from user '#@user'"
-      @user.remove_watched_project project
-      @user.save
-
-      if @user.has_element? :watchlist
-        @watchlist = @user.watchlist.each_project.map {|p| p.name }.sort {|a,b| a.downcase <=> b.downcase }
-      end
-
-      render :partial => 'watch_list'
-    end
   end
 
   def new
