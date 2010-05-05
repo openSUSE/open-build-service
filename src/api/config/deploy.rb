@@ -78,7 +78,7 @@ namespace :deploy do
   end
 
   task :restart do
-    run "for i in /service/#{runit_name}-*; do sv restart $i; sleep 5; done"
+    run "for i in /service/frontend-*; do sv restart $i; sleep 5; done"
     run "sv 1 /service/delayed_job_frontend"
   end
 
