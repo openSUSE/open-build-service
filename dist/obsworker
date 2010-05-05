@@ -27,12 +27,13 @@ base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
 # Preconfigured by obsstoragesetup runlevel setup script
-if [ -e /OBS.worker/config ]; then
-    . /OBS.worker/config
-fi
-
 if [ -f /etc/buildhost.config ];then
     . /etc/buildhost.config
+fi
+
+if [ -z "$OBS_WORKER_DIRECTORY" ]; then
+        OBS_WORKER_DIRECTORY="/tmp"
+	[ -d /OBS.worker ] && OBS_WORKER_DIRECTORY="/OBS.worker"
 fi
 
 if [ -z "$OBS_RUN_DIR" ]; then
@@ -77,9 +78,9 @@ if [ -n "$OBS_CACHE_DIR" ]; then
     OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
 else
     # For automatic appliance setup
-    if [ -d /OBS.worker/cache ]; then
-        OBS_CACHE_DIR="/OBS.worker/cache"
-        OBS_WORKER_OPT="--cachedir /OBS.worker/cache"
+    if [ -d $OBS_WORKER_DIRECTORY/cache ]; then
+        OBS_CACHE_DIR="$OBS_WORKER_DIRECTORY/cache"
+        OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
     fi
 fi
 
@@ -92,8 +93,8 @@ if [ -n "$OBS_CACHE_SIZE" ]; then
     OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE"
 else
     # For automatic appliance setup
-    if [ -d /OBS.worker/cache ]; then
-        size=`df -m /OBS.worker/cache | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+    if [ -d $OBS_CACHE_DIR ]; then
+        size=`df -m $OBS_CACHE_DIR | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
         size=$(( $size / 2 ))
         OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $size"
     fi

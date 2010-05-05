@@ -36,6 +36,10 @@ link=${base#*[SK][0-9][0-9]}
 
 backenddir=/srv/obs
 
+if [ -z "$OBS_WORKER_DIRECTORY" ]; then
+	OBS_WORKER_DIRECTORY="/OBS.worker"
+fi
+
 rc_reset
 case "$1" in
 	start)
@@ -71,8 +75,8 @@ case "$1" in
 
 		echo "Looking for OBS Worker Cache LVM Volume"
                 if [ -e /dev/OBS/cache ]; then
-			mkdir -p /OBS.worker/cache
-			mount /dev/OBS/cache /OBS.worker/cache
+			mkdir -p /$OBS_WORKER_DIRECTORY/cache
+			mount /dev/OBS/cache /$OBS_WORKER_DIRECTORY/cache
                 fi
 
 		echo "Setting up OBS Workers according to LVM Volumes"
@@ -81,10 +85,10 @@ case "$1" in
                 fi
 		
 		echo "### autoconfigured values by obsstoragesetup init script"  > /etc/buildhost.config
-		echo "OBS_WORKER_DIRECTORY=\"/OBS.worker/\"" >> /etc/buildhost.config
-		echo "OBS_CACHE_DIR=\"/OBS.worker/cache\""   >> /etc/buildhost.config
-		CACHEMB=`df -m /OBS.worker/cache | tail -n 1 | sed -n 's,^/dev/[^ ]*[ ]*\([^ ]*\).*,\1,p'`
-		[ -z "$CACHEMB" ] && CACHEMB=`df -m /OBS.worker/cache | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+		echo "OBS_WORKER_DIRECTORY=\"/$OBS_WORKER_DIRECTORY/\"" >> /etc/buildhost.config
+		echo "OBS_CACHE_DIR=\"/$OBS_WORKER_DIRECTORY/cache\""   >> /etc/buildhost.config
+		CACHEMB=`df -m /$OBS_CACHE_DIR | tail -n 1 | sed -n 's,^/dev/[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+		[ -z "$CACHEMB" ] && CACHEMB=`df -m /$OBS_CACHE_DIR | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
 		[ -n "$CACHEMB" ] && echo "OBS_CACHE_SIZE=\"$(( $CACHEMB / 2 ))\"" >> /etc/buildhost.config
 		if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
 			echo "Found XEN virtualization"
@@ -111,13 +115,13 @@ case "$1" in
 			[ -e $swap ] || continue
 			if [ -n "$RUN_VIRT" ]; then
 				#prepare xen or kvm setup
-				mkdir -p "/OBS.worker/$name"
-				ln -sf "$i"    "/OBS.worker/$name/root"
-				ln -sf "$swap" "/OBS.worker/$name/swap"
+				mkdir -p "/$OBS_WORKER_DIRECTORY/$name"
+				ln -sf "$i"    "/$OBS_WORKER_DIRECTORY/$name/root"
+				ln -sf "$swap" "/$OBS_WORKER_DIRECTORY/$name/swap"
 			else
 				#plain chroot build
-				mkdir -p "/OBS.worker/$name"
-				mount $i "/OBS.worker/$name"
+				mkdir -p "/$OBS_WORKER_DIRECTORY/$name"
+				mount $i "/$OBS_WORKER_DIRECTORY/$name"
 			fi
 			OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
 		done
@@ -130,6 +134,7 @@ case "$1" in
 		INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
 		echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
 		# append user presets
+		echo "" >> /etc/buildhost.config
 		echo "### preconfigured values from /etc/buildhost.config.presets" >> /etc/buildhost.config
 		cat /etc/buildhost.config.presets >> /etc/buildhost.config
 		
