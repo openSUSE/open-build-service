@@ -40,14 +40,14 @@ rc_reset
 case "$1" in
 	start)
 		# configure sshd if wanted
-		if [ ! -e ~/.ssh/authorized_keys ]; then
+		if [ ! -e /root/.ssh/authorized_keys ]; then
 			OBS_ROOT_SSHD_KEY_URL=`sed -n 's,^OBS_ROOT_SSHD_KEY_URL=\(.*\),\1,p' /etc/buildhost.config`
 			OBS_ROOT_SSHD_KEY_URL=${OBS_ROOT_SSHD_KEY_URL#\"}
 			OBS_ROOT_SSHD_KEY_URL=${OBS_ROOT_SSHD_KEY_URL%\"}
 			if [ -n "$OBS_ROOT_SSHD_KEY_URL" ]; then
 				echo "Enabling sshd as requested"
-				[ -e ~/.ssh ] || mkdir ~/.ssh
-				curl $OBS_ROOT_SSHD_KEY_URL > ~/.ssh/authorized_keys
+				[ -e /root/.ssh ] || mkdir /root/.ssh
+				curl $OBS_ROOT_SSHD_KEY_URL > /root/.ssh/authorized_keys
 				insserv sshd
 				rcsshd start
 			fi
