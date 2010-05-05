@@ -2472,7 +2472,7 @@ sub sourcediff {
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', undef, $cgi->{'missingok'});
   my $files = lsrev($rev);
   my $orev = $cgi->{'orev'};
-  if ($projid eq $oprojid && $packid eq $opackid && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
+  if (!defined($cgi->{'oproject'}) && !defined($cgi->{'opackage'}) && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
     $orev = $rev->{'rev'} - 1;
   }
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
