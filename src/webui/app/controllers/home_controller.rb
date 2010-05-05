@@ -7,13 +7,13 @@ class HomeController < ApplicationController
   end
 
   def list_requests
-    user = Person.find_cached( params['username'] ) if params['username']
+    user = Person.find_cached( params['user'] ) if params['user']
     user ||= @user
     @requests = user.involved_requests(:cache => false)
   end
 
   def list_my
-    user = Person.find_cached( params['username'] ) if params['username']
+    user = Person.find_cached( params['user'] ) if params['user']
     user ||= @user
     set_watchlist user
     @iprojects = user.involved_projects.each.map {|x| x.name}.uniq.sort
