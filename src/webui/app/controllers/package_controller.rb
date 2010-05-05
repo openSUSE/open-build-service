@@ -459,8 +459,8 @@ class PackageController < ApplicationController
       end
     end
     begin
-      @file = frontend.get_source( :project => @project,
-        :package => @package, :filename => @filename )
+      @file = frontend.get_source( :project => @project.to_s,
+        :package => @package.to_s, :filename => @filename )
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :show, :package => @package, :project => @project
