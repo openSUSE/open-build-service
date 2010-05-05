@@ -122,7 +122,7 @@ our $relsync_pool = {
 #our workerhostcheck = 'my_check_script';
 # 
 # Allow to build as root, exceptions per package
-# our %norootexceptions = ( "my_project/my_package" => 1, "openSUSE:Factory/installation-images" => 1 );
+# our $norootexceptions = { "my_project/my_package" => 1, "openSUSE:Factory/installation-images" => 1 };
 
 # host specific configs
 my $hostconfig = "bsconfig." . Net::Domain::hostname();
