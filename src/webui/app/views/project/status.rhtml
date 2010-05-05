@@ -28,12 +28,12 @@
       <%= label_tag 'ignore_pending', 'Ignore packages with pending requests to %s' % @project %>
     </p>
     <p>
-      <%= hidden_field_tag('limit_to_fails', 'false') %>
+      <%= hidden_field_tag('limit_to_fails', 'false', :id => 'fails_hidden') %>
       <%= check_box_tag("limit_to_fails", true, @limit_to_fails) %>
       <%= label_tag 'limit_to_fails', 'Limit to currently failing packages' %>
     </p>
     <p>
-      <%= hidden_field_tag('include_versions', 'false') %>
+      <%= hidden_field_tag('include_versions', 'false', :id => 'versions_hidden') %>
       <%= check_box_tag("include_versions", true, @include_versions) %>
       <%= label_tag 'include_versions', 'Include Version Updates' %>
     </p>

@@ -166,7 +166,10 @@ class Project < ActiveXML::Base
 
 
   def repository
-    repo_hash ||= Hash[* repositories.map { |repo| [repo.name, repo] }.flatten ] # hacky way to make a hash from a map
+    repo_hash = Hash.new
+    self.each_repository do |repo|
+      repo_hash[repo.name] = repo
+    end
     return repo_hash
   end
     

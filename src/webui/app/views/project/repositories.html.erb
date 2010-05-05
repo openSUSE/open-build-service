@@ -5,51 +5,49 @@ project_bread_crumb( 'Repositories' )
 
 <%= render :partial => "tabs" %>
 
-<h3>
-  Repository configuration</h3>
-
-<% if @project.is_maintainer?( session[:login] ) %>
-  <p><%= link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project) %>
-    <%= link_to( 'Add', :action => 'add_target_simple', :project => @project) %> a repository.</p>
-<% end %>
+<h2>Repository Configuration</h2>
 
 <% if @project.has_element? :repository %>
 
-  <table>
-    <!-- renders each line in flag table, excepting the 'all' row -->
-    <% @project.each_repository do |repo| %>
-      <tr>
-        <td>
-          <strong><%= h(repo.name) %></strong>
-          <i>(<%= repo.each_arch.join(", ") %>)</i>
+  <!-- renders each line in flag table, excepting the 'all' row -->
+  <% @project.each_repository do |repository| %>
+    <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository.name) %>" >
+      <div style="margin-left: 15px">
+        <strong><%= h(repository.name) %></strong>
+        <i>(<%= repository.each_arch.join(", ") %>)</i>
+      </div>
+      <div style="margin-left: 30px">
+        <% begin -%>
+          <% repository.each_path do |path| -%>
+            <% if path.project == 'deleted' %>
+              <%= image_tag 'icons/exclamation.png' %> Target repository has been removed
+            <% else %>
+              <span><%=  h path.project + "/" + path.repository %></span>
+              <br/>
+            <% end %>
+          <% end -%>
+        <% rescue; end %>
 
-          <br/>
-          <% begin -%>
-            <% repo.each_path do |path| -%>
-              <% if path.project == 'deleted' %>
-                <%= image_tag 'icons/exclamation.png' %> Target repository has been removed
-              <% else %>
-                <%=h path.project + "/" + path.repository %><br/>
-              <% end %>
-            <% end -%>
-          <% rescue; end %>
-        </td>
         <% if @project.is_maintainer?( session[:login] ) %>
-          <td>
-            <%= link_to "[Edit]", :update => repo.name,
-              :url => {:action => :TODO_edit_target, :project => @project, :repo => repo.name}
-            link_to image_tag('icons/drive_delete.png'), {:action => :remove_target, :project => @project, :target => repo.name},
-              {:confirm => "Really remove repository '#{repo.name}'?", :class => 'x', :method => :post} -%>
-          </td>
+          <div style="margin-top: 1em">
+            <%= image_tag('icons/drive_edit.png') + ' ' + link_to_remote("Edit Repository", :update => valid_xml_id(repository.name),
+              :url => {:action => :edit_repository, :project => @project, :repository => repository.name}) -%>
+            <%= image_tag('icons/drive_delete.png') + ' ' + link_to('Remove Repository', {:action => :remove_target, :project => @project, :target => repository.name},
+              {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) -%>
+          </div>
         <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
 
-      </tr>
-    <% end %>
-
-  </table>
+<% if @project.is_maintainer?( session[:login] ) %>
+  <p><%= link_to(image_tag("icons/drive_add.png", :title => "Add Repository"), :action => 'add_target_simple', :project => @project) %>
+  <%= link_to( 'Add', :action => 'add_target_simple', :project => @project) %> repositories</p>
 <% end %>
 
 <div class="clear" style="margin-bottom: 2em"></div>
 
+<h2>Repository Flags</h2>
 <%= render :partial => 'shared/repositories', :locals => { :obj => @project } %>
 

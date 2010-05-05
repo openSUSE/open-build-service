@@ -16,7 +16,7 @@ class ProjectController < ApplicationController
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :show, :monitor, :edit_prjconf, :list_requests, :autocomplete_packages,
-    :packages, :users, :subprojects, :repositories, :attributes,
+    :packages, :users, :subprojects, :repositories, :attributes, :edit_repository,
     :meta, :edit_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
 
   before_filter :load_current_requests, :only => [:delete, :view,
@@ -56,13 +56,23 @@ class ProjectController < ApplicationController
 
   def autocomplete_projects
     get_filtered_projectlist params[:q], ''
-    render :text => @projects.map{|p| p.name}.join("\n")
+    render :text => @projects.join("\n")
   end
 
   def autocomplete_repositories
     @repos = @project.repositories
     render :text => @repos.join("\n")
   end
+
+  def project_key(a)
+    a = a.downcase
+
+    if a[0..4] == 'home:'
+      a = 'zz' + a
+    end
+    return a
+  end
+  private :project_key
 
   def get_filtered_projectlist(filterstring, excludefilter='')
     # remove illegal xpath characters
@@ -73,7 +83,9 @@ class ProjectController < ApplicationController
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
     result = Collection.find_cached :id, :what => "project", :predicate => predicate, :expires_in => 2.minutes
-    @projects = result.each.sort {|a,b| a.name.downcase <=> b.name.downcase}
+    @projects = Array.new
+    result.each { |p| @projects << p.name }
+    @projects =  @projects.sort_by { |a| project_key a }
   end
   private :get_filtered_projectlist
 
@@ -230,22 +242,10 @@ class ProjectController < ApplicationController
     return @arch_list
   end
 
-  def enable_arch
-    @project = Project.find_cached(params[:project])
+  def edit_repository
+    repo = @project.repository[params[:repository]]
     @arch_list = arch_list
-    repo = @project.repository[params[:repo]]
-    repo.add_arch params[:arch]
-    if @project.save
-      render :partial => 'repository_item', :locals => { :repo => repo, :has_data => true }
-    else
-      render :text => 'enabling architecture failed'
-    end
-  end
-
-  def edit_target
-    repo = @project.repository[params[:repo]]
-    @arch_list = arch_list
-    render :partial => 'repository_edit_form', :locals => { :repo => repo, :error => nil }
+    render :partial => 'edit_repository', :locals => { :repository => repo, :error => nil }
   end
 
   def update_target

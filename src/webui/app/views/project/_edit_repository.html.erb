@@ -1,0 +1,42 @@
+<div class="box" style="margin: 1em" id="<%= valid_xml_id(repository.name) %>">
+
+  <div class="box-header aligncenter"><strong>Edit <%= h(repository.name) %></strong></div>
+  <% if error %>
+    <div class="message error"><%= error %></div>
+  <% end %>
+
+  <% form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
+    <p>
+      <strong>Architectures: </strong>
+      <% [:i586, :x86_64, :ppc, :ppc64, :armv4l, :armv5el, :armv7el, :sh4, :sparcv9, :sparc64 ].each do |arch| %>
+        <%= check_box_tag "arch[#{arch}]", "", @arch_list.include?(arch.to_s) %><%=arch%>
+      <% end %>
+      <%= hidden_field_tag :project, @project %> <%= hidden_field_tag :repo, repository.name %>
+    </p>
+
+    <div style="margin-bottom: 1.2em" >
+      <p><strong>Paths:</strong></p>
+      <div style="margin-left: 30px">
+        <% begin -%>
+          <% repository.each_path do |path| -%>
+            <% if path.project == 'deleted' %>
+              <%= image_tag 'icons/exclamation.png' %> Target repository has been removed
+            <% else %>
+              <span><%=  h path.project + "/" + path.repository %></span>
+              <%=  link_to(image_tag('icons/drive_delete.png'), {:action => :remove_target, :project => @project, :target => repository.name},
+                {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) -%>
+              <br/>
+            <% end %>
+          <% end -%>
+        <% rescue; end %>
+      </div>
+      <p>
+        <%= link_to(image_tag("icons/drive_add.png", :title => "Add Path"), :action => 'add_target_simple', :project => @project) %>
+        <%= link_to( 'Add', :action => 'add_target_simple', :project => @project) %> path
+      </p>
+    </div>
+
+    <p><%= submit_tag "Update #{repository.name}", :disabled => true %></p>
+  <% end %>
+
+</div>
