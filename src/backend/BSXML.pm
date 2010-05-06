@@ -866,7 +866,7 @@ our $request = [
 	'id',
 	'type',             # obsolete in future, type will be defined per action
      [[ 'action' =>
-	   'type',          # currently submit, delete, change_devel
+	   'type',          # currently submit, delete, change_devel, add_role
 	   [ 'source' =>
 	         'project',
 	         'package',
@@ -875,6 +875,14 @@ our $request = [
 	   [ 'target' =>
 	         'project',
 	         'package',
+	   ],
+	   [ 'person' =>
+	         'name',
+	         'role',
+	   ],
+	   [ 'group' =>
+	         'name',
+	         'role',
 	   ],
            [ 'options' =>
                  [],

@@ -8,6 +8,14 @@
  <action type="delete">
    <target project="openSUSE:10.3" package="kraft.old" />
  </action>
+ <action type="add_role">
+   <target project="openSUSE:10.3" package="kraft.old" />
+   <person name="adrian" role="maintainer" />
+ </action>
+ <action type="add_role">
+   <target project="openSUSE:10.3" package="kraft.old" />
+   <group name="security-team" role="bugowner" />
+ </action>
  <action type="devel_change">
    <source project="home:kfreitag" package="kraft" />
    <target project="openSUSE:10.3" package="kraft.old" />

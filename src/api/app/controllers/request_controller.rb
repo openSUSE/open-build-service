@@ -102,45 +102,79 @@ class RequestController < ApplicationController
     req = BsRequest.new(request.body.read)
 
     req.each_action do |action|
-      if action.data.attributes["type"] == "delete"
-        #check existence of target
+      # find objects if specified or report error
+      role=nil
+      sprj=nil
+      spkg=nil
+      tprj=nil
+      tpkg=nil
+      if action.has_element? 'person'
+        unless User.find_by_login(action.person.data.attributes["name"])
+          render_error :status => 404, :errorcode => 'unknown_person',
+            :message => "Unknown person  #{action.person.data.attributes["name"]}"
+          return
+        end
+        role = action.person.data.attributes["role"]
+      end
+      if action.has_element? 'group'
+        unless Group.find_by_title(action.group.data.attributes["name"])
+          render_error :status => 404, :errorcode => 'unknown_group',
+            :message => "Unknown group  #{action.group.data.attributes["name"]}"
+          return
+        end
+        role = action.group.data.attributes["role"]
+      end
+      if role
+        unless Role.find_by_title(role)
+          render_error :status => 404, :errorcode => 'unknown_role',
+            :message => "Unknown role  #{role}"
+          return
+        end
+      end
+      if action.target.has_attribute? 'project'
         tprj = DbProject.find_by_name action.target.project
-        if tprj
-          if action.target.has_attribute? 'package'
-            tpkg = tprj.db_packages.find_by_name action.target.package
-            unless tpkg
-              render_error :status => 404, :errorcode => 'unknown_package',
-                :message => "Unknown package  #{action.target.project} / #{action.target.package}"
-              return
-            end
-          end
-        else
-          unless DbProject.find_remote_project(action.target.project)
+        unless tprj
+          render_error :status => 404, :errorcode => 'unknown_project',
+            :message => "Unknown project  #{action.target.project}"
+          return
+        end
+      end
+      if action.target.has_attribute? 'package'
+        tpkg = tprj.db_packages.find_by_name action.target.package
+        unless tpkg
+          render_error :status => 404, :errorcode => 'unknown_package',
+            :message => "Unknown package  #{action.target.project} / #{action.target.package}"
+          return
+        end
+      end
+
+      # Type specific checks
+      if action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role"
+        #check existence of target
+        unless tprj
+          if DbProject.find_remote_project(action.target.project)
             render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Project is on remote instance, delete not possible  #{action.target.project}"
+              :message => "Project is on remote instance, #{action.data.attributes["type"]} not possible  #{action.target.project}"
             return
           end
           render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown project #{action.target.project}"
+            :message => "No target project specified"
           return
         end
       elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
         #check existence of source
-        sprj = DbProject.find_by_name action.source.project
-#        unless sprj or DbProject.find_remote_project(action.source.project)
         unless sprj
+          # no support for remote projects yet, it needs special support during accept as well
           render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown source project #{action.source.project}"
+            :message => "No source project specified"
           return
         end
 
-        unless action.data.attributes["type"] == "change_devel" and action.source.package.nil?
+        if action.data.attributes["type"] == "submit"
           # source package is required for submit, but optional for change_devel
-          spkg = sprj.db_packages.find_by_name action.source.package
-#          unless spkg or DbProject.find_remote_project(action.source.package)
           unless spkg
             render_error :status => 404, :errorcode => 'unknown_package',
-              :message => "Unknown source package #{action.source.package} in project #{action.source.project}"
+              :message => "No source package specified"
             return
           end
         end
@@ -174,22 +208,11 @@ class RequestController < ApplicationController
           end
         end
 
-        if action.data.attributes["type"] != "submit" or action.has_element? 'target'
-          # target is required for change_devel, but optional for submit
-          tprj = DbProject.find_by_name action.target.project
-#          unless sprj or DbProject.find_remote_project(action.source.project)
-          unless tprj
-            render_error :status => 404, :errorcode => 'unknown_project',
-              :message => "Unknown target project #{action.target.project}"
+        if action.data.attributes["type"] == "change_devel"
+          unless tpkg
+            render_error :status => 404, :errorcode => 'unknown_package',
+              :message => "No target package specified"
             return
-          end
-          if action.data.attributes["type"] == "change_devel"
-            tpkg = tprj.db_packages.find_by_name action.target.package
-            unless tpkg
-              render_error :status => 404, :errorcode => 'unknown_package',
-                :message => "Unknown target package #{action.target.package}"
-              return
-            end
           end
         end
 
@@ -394,18 +417,23 @@ class RequestController < ApplicationController
              return
            end
     
-         elsif action.data.attributes["type"] == "delete"
+         elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role"
            # check permissions for delete
            project = DbProject.find_by_name(action.target.project)
            package = nil
            if action.target.has_attribute? :package
               package = project.db_packages.find_by_name(action.target.package)
+              if @http_user.can_modify_package? package
+                 permission_granted = true
+              end
+	   else
+              if @http_user.can_modify_project? project
+                 permission_granted = true
+              end
            end
-           if @http_user.can_modify_project? project or ( package and @http_user.can_modify_package? package )
-             permission_granted = true
-           else
+           unless permission_granted == true
              render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to change state of delete request #{req.id} (type #{action.data.attributes['type']})"
+               :message => "No permission to change state of request #{req.id} (type #{action.data.attributes['type']})"
              return
            end
          else
@@ -417,16 +445,34 @@ class RequestController < ApplicationController
     end
 
     # at this point permissions should be granted, but let's double check
-    if permission_granted != true
+    unless permission_granted == true
       render_error :status => 403, :errorcode => "post_request_no_permission",
         :message => "No permission to change state of request #{req.id} (INTERNAL ERROR, PLEASE REPORT ! )"
       return
     end
 
+    unless params[:newstate] == "accepted"
+      pass_to_backend path
+      render_ok
+      return
+    end
+
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
-      if action.data.attributes["type"] == "change_devel"
-        if params[:newstate] == "accepted"
+      if action.data.attributes["type"] == "add_role"
+          object = DbProject.find_by_name(action.target.project)
+          if action.target.package
+             object = object.db_packages.find_by_name(action.target.package)
+          end
+          if action.has_element? 'person'
+	     object.add_user( action.person.data.attributes["name"], action.person.data.attributes["role"] )
+          end
+          if action.has_element? 'group'
+	     object.add_group( action.group.data.attributes["name"], action.group.data.attributes["role"] )
+          end
+          object.store
+          render_ok
+      elsif action.data.attributes["type"] == "change_devel"
           target_project = DbProject.find_by_name(action.target.project)
           target_package = target_project.db_packages.find_by_name(action.target.package)
           target_package.develpackage = DbPackage.find_by_project_and_name(action.source.project, action.source.package)
@@ -438,9 +484,7 @@ class RequestController < ApplicationController
             return
           end
           render_ok
-        end
       elsif action.data.attributes["type"] == "submit"
-        if params[:newstate] == "accepted"
           sourceupdate = nil
           if action.has_element? 'options' and action.options.has_element? 'sourceupdate'
             sourceupdate = action.options.sourceupdate.text
@@ -528,9 +572,8 @@ class RequestController < ApplicationController
               Suse::Backend.delete "/source/#{action.source.project}/#{action.source.package}"
             end
           end
-        end
+          render_ok
       elsif action.data.attributes["type"] == "delete"
-        if params[:newstate] == "accepted" # and req.state.name != "accepted" and req.state.name != "declined"
           project = DbProject.find_by_name(action.target.project)
           unless project
             msg = "Unable to delete project #{action.target.project}; it does not exist."
@@ -555,7 +598,6 @@ class RequestController < ApplicationController
             end
           end
           render_ok
-        end
       else
         render_error :status => 403, :errorcode => "post_request_no_permission",
           :message => "Failed to execute request state change of request #{req.id} (type #{action.data.attributes['type']})"

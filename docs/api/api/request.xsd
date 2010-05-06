@@ -81,6 +81,8 @@
       <xs:sequence>
         <xs:element ref="source" minOccurs="0" maxOccurs="1" />
         <xs:element ref="target" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="person" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="group"  minOccurs="0" maxOccurs="1" />
         <xs:element ref="options" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
       <xs:attribute name="type" type="xs:string" use="required"/>
@@ -99,6 +101,20 @@
     <xs:complexType>
       <xs:attribute name="project" type="xs:string" use="required" />
       <xs:attribute name="package" type="xs:string" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="group" >
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="role" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="person" >
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="role" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
 

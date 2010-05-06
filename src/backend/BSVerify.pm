@@ -307,6 +307,10 @@ sub verify_request {
       verify_projid($r->{'target'}->{'project'});
       verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
       die("delete action has a source element\n") if $r->{'source'};
+    } elsif ($r->{'type'} eq 'add_role') {
+      die("add_role target missing\n") unless $r->{'target'};
+      verify_projid($r->{'target'}->{'project'});
+      verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
     } elsif ($r->{'type'} eq 'change_devel') {
       die("change_devel source missing\n") unless $r->{'source'};
       die("change_devel target missing\n") unless $r->{'target'};
