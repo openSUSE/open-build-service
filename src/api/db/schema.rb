@@ -114,6 +114,7 @@ ActiveRecord::Schema.define(:version => 20100429144748) do
   end
 
   execute "CREATE UNIQUE INDEX packages_all_index ON db_packages (db_project_id,name(255));"
+  add_index "db_packages", ["db_project_id"], :name => "index_db_packages_on_db_project_id"
   add_index "db_packages", ["develpackage_id"], :name => "devel_package_id_index"
   add_index "db_packages", ["develproject_id"], :name => "devel_project_id_index"
 
