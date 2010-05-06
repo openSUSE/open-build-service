@@ -43,7 +43,7 @@ link=${base#*[SK][0-9][0-9]}
 backenddir=/srv/obs
 
 if [ -z "$OBS_WORKER_DIRECTORY" ]; then
-	OBS_WORKER_DIRECTORY="/OBS.worker"
+	OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
 fi
 
 rc_reset
