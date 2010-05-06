@@ -21,6 +21,16 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="types">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="submit"/>
+      <xs:enumeration value="delete"/>
+      <xs:enumeration value="change_devel"/>
+      <xs:enumeration value="add_role"/>
+      <xs:enumeration value="set_bugowner"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:element name="request">
     <xs:annotation>
       <xs:documentation>
@@ -85,7 +95,7 @@
         <xs:element ref="group"  minOccurs="0" maxOccurs="1" />
         <xs:element ref="options" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
-      <xs:attribute name="type" type="xs:string" use="required"/>
+      <xs:attribute name="type" type="types" use="required"/>
     </xs:complexType>
   </xs:element>
   
@@ -107,14 +117,14 @@
   <xs:element name="group" >
     <xs:complexType>
       <xs:attribute name="name" type="xs:string" use="required" />
-      <xs:attribute name="role" type="xs:string" use="required" />
+      <xs:attribute name="role" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
 
   <xs:element name="person" >
     <xs:complexType>
       <xs:attribute name="name" type="xs:string" use="required" />
-      <xs:attribute name="role" type="xs:string" use="required" />
+      <xs:attribute name="role" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
 

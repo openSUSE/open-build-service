@@ -114,7 +114,7 @@ class RequestController < ApplicationController
             :message => "Unknown person  #{action.person.data.attributes["name"]}"
           return
         end
-        role = action.person.data.attributes["role"]
+        role = action.person.data.attributes["role"] if action.person.has_attribute? 'role'
       end
       if action.has_element? 'group'
         unless Group.find_by_title(action.group.data.attributes["name"])
@@ -122,7 +122,7 @@ class RequestController < ApplicationController
             :message => "Unknown group  #{action.group.data.attributes["name"]}"
           return
         end
-        role = action.group.data.attributes["role"]
+        role = action.group.data.attributes["role"] if action.group.has_attribute? 'role'
       end
       if role
         unless Role.find_by_title(role)
@@ -149,7 +149,7 @@ class RequestController < ApplicationController
       end
 
       # Type specific checks
-      if action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role"
+      if action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
         #check existence of target
         unless tprj
           if DbProject.find_remote_project(action.target.project)
@@ -160,6 +160,13 @@ class RequestController < ApplicationController
           render_error :status => 404, :errorcode => 'unknown_project',
             :message => "No target project specified"
           return
+        end
+	if action.data.attributes["type"] == "add_role"
+	  unless role
+            render_error :status => 404, :errorcode => 'unknown_role',
+              :message => "No role specified"
+            return
+          end
         end
       elsif action.data.attributes["type"] == "submit" or action.data.attributes["type"] == "change_devel"
         #check existence of source
@@ -417,7 +424,7 @@ class RequestController < ApplicationController
              return
            end
     
-         elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role"
+         elsif action.data.attributes["type"] == "delete" or action.data.attributes["type"] == "add_role" or action.data.attributes["type"] == "set_bugowner"
            # check permissions for delete
            project = DbProject.find_by_name(action.target.project)
            package = nil
@@ -459,7 +466,23 @@ class RequestController < ApplicationController
 
     # We have permission to change all requests inside, now execute
     req.each_action do |action|
-      if action.data.attributes["type"] == "add_role"
+      if action.data.attributes["type"] == "set_bugowner"
+          object = DbProject.find_by_name(action.target.project)
+          bugowner = Role.find_by_title("bugowner")
+          if action.target.package
+             object = object.db_packages.find_by_name(action.target.package)
+ 	     PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
+		r.destroy
+             end
+	  else
+ 	     ProjectUserRoleRelationship.find(:all, :conditions => ["db_project_id = ? AND role_id = ?", object, bugowner]).each do |r|
+		r.destroy
+             end
+          end
+	  object.add_user( action.person.data.attributes["name"], bugowner )
+          object.store
+          render_ok
+      elsif action.data.attributes["type"] == "add_role"
           object = DbProject.find_by_name(action.target.project)
           if action.target.package
              object = object.db_packages.find_by_name(action.target.package)

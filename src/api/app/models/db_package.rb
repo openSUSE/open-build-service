@@ -404,8 +404,10 @@ class DbPackage < ActiveRecord::Base
     conf.global_write_through && (conf::TransportMap.options_for(:package)[:write_through] != :false)
   end
 
-  def add_user( user, role_title )
-    role = Role.rolecache[role_title]
+  def add_user( user, role )
+    unless role.kind_of? Role
+       role = Role.rolecache[role]
+    end
     if role.global
       #only nonglobal roles may be set in a project
       raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in package '#{self.name}'"
