@@ -4449,29 +4449,6 @@ my $dispatches = [
   '!- GET:' => undef,
   '!- HEAD:' => undef,
 
-  # /platform name space -> obsolete
-  '/platform' => \&getprojectlist,
-  '/platform/$project' => \&getrepositorylist,
-  '/platform/$project/$repository' => \&getrepository,
-
-  # /repository name space -> obsolete
-  '/repository' => \&getprojectlist,
-  '/repository/$project' => \&getrepositorylist,
-  '/repository/$project/$repository' => \&getrepository,
-
-  # /project name space -> obsolete
-  '/project' => \&getprojectlist,
-  '/project/$project' => \&getproject,
-  'PUT:/project/$project' => \&putproject,
-
-  # /package name space -> obsolete
-  '/package' => \&getprojectlist,
-  '/package/$project' => \&getpackagelist,
-  '/package/$project/$package' => \&getpackage,
-  'PUT:/package/$project/$package' => \&putpackage,
-  'DELETE:/package/$project/$package' => \&delpackage,
-  '/package/$project/$package/history rev?' => \&getpackagehistory,
-
   # /source name space: manage project and package data
   '/source' => \&getprojectlist,
   'POST:/source/$project cmd:' => \&projectcmd,

@@ -304,15 +304,6 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'status'
 
 
-  ### DEPRECATED
-
-  ### /platform
-
-  map.connect 'platform/:project/:repository', :controller => 'platform',
-    :action => 'repository', :project => /[^\/]*/, :repository => /[^\/]*/
-  map.connect 'platform/:project', :controller => 'platform',
-    :action => 'project', :project => /[^\/]*/
-
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id', :id => /[^\/]*/
   map.connect ':controller/:action'

@@ -15,3 +15,12 @@ Changes:
   - as with VMinstall, there's no dependency resolution. 
     Add all needed dependencies manually.
 
+Reqgressions:
+=============
+
+* API calls which got deprecated with 1.0 release got removed:
+  /platform       (use /build instead)
+  /repository     (use /build instead)
+  /project        (use /source instead)
+  /package        (use /source instead)
+
