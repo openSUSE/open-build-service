@@ -255,3 +255,13 @@ OBS_WORKER_SWAP_SIZE=""
 #
 OBS_ROOT_SSHD_KEY_URL=""
 
+## Path:        Applications/OBS
+## Description: URL to a script to be downloaded and executed
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# This is a hook for doing special things in your setup at boot time
+#
+OBS_WORKER_SCRIPT_URL=""
+
