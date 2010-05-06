@@ -508,6 +508,7 @@ sub rpc_recv_forward_data_handler {
 	'verbatim_uri' => 1,
 	'joinable' => 1,
       };
+      $param->{'receiver'} = $stay[0]->{'param'}->{'receiver'} if $stay[0]->{'param'}->{'receiver'};
       rpc($param);
       die("could not restart rpc\n") unless $rpcs{$olduri};
     };
