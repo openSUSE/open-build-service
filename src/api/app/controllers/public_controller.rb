@@ -85,23 +85,17 @@ class PublicController < ApplicationController
   # GET /public/source/:prj/:pkg/:file
   def source_file
     valid_http_methods :get
-    path = unshift_public(request.path)
-    prj, pkg, file = params[:prj], params[:pkg], params[:file]
+    project_name = params[:project]
+    package_name = params[:package]
+    file = params[:file]
 
-    fpath = "/source/#{params[:prj]}/#{params[:pkg]}" + build_query_from_hash(params, [:rev])
-    if flist = Suse::Backend.get(fpath)
-      if regexp = flist.body.match(/name=["']#{Regexp.quote file}["'].*size=["']([^"']*)["']/)
-        headers.update('Content-Length' => regexp[1])
-      end
+    path = "/source/#{project_name}/#{package_name}/#{file}"
+
+    if request.get?
+      path += build_query_from_hash(params, [:rev])
+      pass_to_backend path
+      return
     end
-
-    headers.update(
-      'Content-Disposition' => %(attachment; filename="#{file}"),
-      'Content-Type' => 'application/octet-stream',
-      'Transfer-Encoding' => 'binary'
-    )
-
-    render_stream Net::HTTP::Get.new(path+build_query_from_hash(params, [:rev]))
   end
 
   # GET /public/lastevents
