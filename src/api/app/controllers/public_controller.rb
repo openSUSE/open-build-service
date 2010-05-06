@@ -85,8 +85,8 @@ class PublicController < ApplicationController
   # GET /public/source/:prj/:pkg/:file
   def source_file
     valid_http_methods :get
-    project_name = params[:project]
-    package_name = params[:package]
+    project_name = params[:prj]
+    package_name = params[:pkg]
     file = params[:file]
 
     path = "/source/#{project_name}/#{package_name}/#{file}"
