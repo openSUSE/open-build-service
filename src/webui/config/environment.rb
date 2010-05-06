@@ -123,9 +123,6 @@ ActiveXML::Base.config do |conf|
 
     map.connect :wizard, "rest:///source/:project/:package/_wizard?:response"
 
-    map.connect :repository, "rest:///repository/:project/:name",
-      :all    => "rest:///repository/"
-
     map.connect :directory, "rest:///source/:project/:package?:expand"
     map.connect :link, "rest:///source/:project/:package/_link"
     map.connect :service, "rest:///source/:project/:package/_service"
