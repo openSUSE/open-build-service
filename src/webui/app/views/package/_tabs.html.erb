@@ -9,6 +9,9 @@
     <%= package_tab 'Repositories', :action => :repositories %>
     <%= package_tab 'Attributes', :action => :attributes %>
     <%= package_tab 'Users', :action => :users %>
+    <% if @package_has_requests %>
+      <%= package_tab "Requests", :action => 'list_requests'%>
+    <% end -%>
     <%= package_tab 'Raw config', :action => :meta %>
   </ul>
 

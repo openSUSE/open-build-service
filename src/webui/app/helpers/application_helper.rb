@@ -359,4 +359,5 @@ module ApplicationHelper
   def valid_xml_id(rawid)
     ERB::Util::h(rawid.gsub(/[+&: .]/, '_'))
   end
+
 end

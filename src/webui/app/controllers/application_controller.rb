@@ -31,6 +31,8 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  protected
+
   def set_return_to
     # we cannot get the original protocol when behind lighttpd/apache
     @return_to_host = params['return_to_host'] || "https://" + request.host
@@ -44,7 +46,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-
   def require_login
     if !session[:login]
       render :text => 'Please login' and return if request.xhr?
@@ -56,7 +57,6 @@ class ApplicationController < ActionController::Base
       end
     end
   end
-
 
   # sets session[:login] if the user is authenticated
   def authenticate
@@ -72,7 +72,6 @@ class ApplicationController < ActionController::Base
       logger.info "Anonymous request to #{@return_to_path}"
     end
   end
-
 
   def authenticate_ichain
     ichain_user = request.env['HTTP_X_USERNAME']
@@ -130,11 +129,9 @@ class ApplicationController < ActionController::Base
     transport.delete_additional_header 'Authorization'
   end
 
-
   def rescue_action_locally( exception )
     rescue_action_in_public( exception )
   end
-
 
   def rescue_action_in_public( exception )
     logger.error "rescue_action: caught #{exception.class}: #{exception.message}"
@@ -228,6 +225,7 @@ class ApplicationController < ActionController::Base
       end
     end
   end
+  private
 
   @@schema = nil
   def schema
@@ -284,4 +282,5 @@ class ApplicationController < ActionController::Base
       #assert_w3c_validates
     end
   end
+
 end

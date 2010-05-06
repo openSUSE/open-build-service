@@ -6,17 +6,14 @@ class PackageController < ApplicationController
   include ApplicationHelper
   include PackageHelper
 
-  before_filter :require_project, :only => [:new, :new_link, :wizard_new, :show, :wizard,
-    :edit, :add_file, :save_file, :save_new, :save_new_link, :repositories, :reload_buildstatus,
-    :remove, :view_file, :live_build_log, :rdiff, :users, :files, :attributes, :binaries,
-    :binary, :dependency, :branch, :change_flag, :trigger_rebuild, :abort_build, :wipe_binaries,
-    :meta, :edit_meta]
-  before_filter :require_package, :only => [:save, :remove_file, :add_person, :save_person,
-    :remove_person, :set_url, :remove_url, :set_url_form, :repositories, :reload_buildstatus,
-    :show, :wizard, :edit, :add_file, :save_file, :view_file, :import_spec,
-    :remove, :live_build_log, :rdiff, :users, :files, :attributes, :binaries, :binary, :dependency, 
-    :branch, :change_flag, :trigger_rebuild, :abort_build, :wipe_binaries,
-    :meta, :edit_meta]
+  before_filter :require_project, :not => [:add_person, :create_submit,
+    :edit_file, :import_spec, :rawlog, :remove_file, :remove_person,
+    :remove_url, :save, :save_meta, :save_modified_file, :save_person,
+    :set_url, :set_url_form, :update_build_log]
+  before_filter :require_package, :not => [:create_submit, :edit_file, :rawlog,
+    :save_meta, :save_modified_file, :save_new, :save_new_link, :update_build_log]
+
+  before_filter :load_current_requests
   before_filter :require_login, :only => [:branch]
   before_filter :require_meta, :only => [:edit_meta, :meta ]
 
@@ -28,6 +25,7 @@ class PackageController < ApplicationController
     end
     @roles = Role.local_roles
   end
+  private :fill_email_hash
 
   def show
     begin 
@@ -77,6 +75,9 @@ class PackageController < ApplicationController
 
   def users
     fill_email_hash
+  end
+
+  def list_requests
   end
 
   def files
@@ -647,12 +648,6 @@ class PackageController < ApplicationController
   end
   private :api_cmd
   
-
-  def render_nothing
-    render :nothing => true
-  end
-
-
   def import_spec
     all_files = @package.files
     all_files.each do |file|
@@ -673,24 +668,6 @@ class PackageController < ApplicationController
     render :text => description.join("\n")
     logger.debug "imported description from spec file"
   end
-
-
-  def edit_disable_xml
-    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
-    return false unless @project = Project.find_cached( params[:project] )
-    @xml = @package.get_disable_tags
-    render :partial => 'edit_disable_xml'
-  end
-
-
-  def save_disable_xml
-    return false unless @package = Package.find_cached( params[:package], :project => params[:project] )
-    unless @package.replace_disable_tags( params[:xml] )
-      flash[:error] = 'Error saving your input (invalid XML?).'
-    end
-    redirect_to :action => 'show', :project => params[:project], :package => params[:package]
-  end
-
 
   def reload_buildstatus
     # discard cache
@@ -723,17 +700,21 @@ class PackageController < ApplicationController
     redirect_to :action => :meta, :project => params[:project], :package => params[:package]
   end
 
+  def attributes
+  end
+
+  def edit
+  end
+
   def set_url
     @package.set_url params[:url]
     render :partial => 'url_line', :locals => { :url => params[:url] }
   end
 
-
   def remove_url
     @package.remove_url
     redirect_to :action => "show", :project => params[:project], :package => params[:package]
   end
-
 
   def repositories
     @package = Package.find_cached( params[:package], :project => params[:project], :view => :flagdetails )
@@ -803,6 +784,7 @@ class PackageController < ApplicationController
     @statushash = Hash.new
     @packagenames = Array.new
     @repostatushash = Hash.new
+    @failures = 0
 
     @buildresult.each_result do |result|
       @resultvalue = result
@@ -819,6 +801,9 @@ class PackageController < ApplicationController
       stathash = @statushash[repo][arch]
       result.each_status do |status|
         stathash[status.package] = status
+        if ['unresolvable', 'failed', 'broken'].include? status.code
+          @failures += 1
+        end
       end
 
       # repository status cache
@@ -857,6 +842,14 @@ class PackageController < ApplicationController
     end
   end
 
+  def load_current_requests
+    predicate = "state/@name='new' and action/target/@project='#{@project}' and action/target/@package='#{@package}'"
+    @current_requests = Array.new
+    coll = Collection.find_cached(:what => :request, :predicate => predicate, :expires_in => 1.minutes)
+    coll.each_request do |req|
+      @current_requests << req
+    end
+    @package_has_requests = !@current_requests.blank?
+  end
+
 end
-
-

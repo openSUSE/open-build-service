@@ -1,5 +1,7 @@
 module PackageHelper
 
+  protected
+  
   def build_log_url( project, package, repository, arch )
     get_frontend_url_for( :controller => 'result' ) +
       "/#{project}/#{repository}/#{package}/#{arch}/log"
