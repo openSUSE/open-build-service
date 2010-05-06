@@ -769,7 +769,7 @@ sub rpc_recv_handler {
   my $chunked = $headers{'transfer-encoding'} && lc($headers{'transfer-encoding'}) eq 'chunked' ? 1 : 0;
 
   if ($param->{'receiver'}) {
-    die("answer is neither chunked nor does it contain a content length\n") unless $chunked || defined($cl);
+    rpc_error($ev, "answer is neither chunked nor does it contain a content length\n") unless $chunked || defined($cl);
     $ev->{'contentlength'} = $cl if !$chunked && defined($cl);
     if ($param->{'receiver'} == \&BSHTTP::file_receiver) {
       rpc_recv_file($ev, $chunked, $ans, $param->{'filename'}, $param->{'withmd5'});
@@ -780,12 +780,12 @@ sub rpc_recv_handler {
       push @args, "Content-Type: $ct";
       rpc_recv_forward($ev, $chunked, $ans, @args);
     } else {
-      die("unsupported receiver\n");
+      rpc_error($ev, "unsupported receiver\n");
     }
     return;
   }
 
-  die("chunked decoder not implemented yet for non-receiver requests\n") if $chunked;
+  rpc_error($ev, "chunked decoder not implemented yet for non-receiver requests\n") if $chunked;
   if ($ev->{'rpceof'} && $cl && length($ans) < $cl) {
     rpc_error($ev, "EOF from $ev->{'rpcdest'}");
     return;
