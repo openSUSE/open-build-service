@@ -131,20 +131,40 @@ class RequestController < ApplicationController
           return
         end
       end
-      if action.target.has_attribute? 'project'
-        tprj = DbProject.find_by_name action.target.project
-        unless tprj
-          render_error :status => 404, :errorcode => 'unknown_project',
-            :message => "Unknown project  #{action.target.project}"
-          return
+      if action.has_element? 'source'
+        if action.source.has_attribute? 'project'
+          sprj = DbProject.find_by_name action.source.project
+          unless sprj
+            render_error :status => 404, :errorcode => 'unknown_project',
+              :message => "Unknown source project #{action.source.project}"
+            return
+          end
+        end
+        if action.source.has_attribute? 'package'
+          spkg = sprj.db_packages.find_by_name action.source.package
+          unless spkg
+            render_error :status => 404, :errorcode => 'unknown_package',
+              :message => "Unknown source package #{action.source.package} in project #{action.source.project}"
+            return
+          end
         end
       end
-      if action.target.has_attribute? 'package'
-        tpkg = tprj.db_packages.find_by_name action.target.package
-        unless tpkg
-          render_error :status => 404, :errorcode => 'unknown_package',
-            :message => "Unknown package  #{action.target.project} / #{action.target.package}"
-          return
+      if action.has_element? 'target'
+        if action.target.has_attribute? 'project'
+          tprj = DbProject.find_by_name action.target.project
+          unless tprj
+            render_error :status => 404, :errorcode => 'unknown_project',
+              :message => "Unknown target project #{action.target.project}"
+            return
+          end
+        end
+        if action.target.has_attribute? 'package' and action.data.attributes["type"] != "submit"
+          tpkg = tprj.db_packages.find_by_name action.target.package
+          unless tpkg
+            render_error :status => 404, :errorcode => 'unknown_package',
+              :message => "Unknown target package #{action.target.package} in project #{action.target.project}"
+            return
+          end
         end
       end
 

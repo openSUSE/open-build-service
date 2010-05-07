@@ -53,6 +53,32 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_select "status[code] > summary", /Unknown source package mypackage in project home:tscholz/
   end
 
+  def test_set_bugowner_request
+    req = BsRequest.find(:name => "set_bugowner")
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    post "/request?cmd=create", req.dump_xml
+    assert_response :success
+
+    req = BsRequest.find(:name => "set_bugowner_fail")
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    post "/request?cmd=create", req.dump_xml
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
+  end
+
+  def test_add_role_request
+    req = BsRequest.find(:name => "add_role")
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    post "/request?cmd=create", req.dump_xml
+    assert_response :success
+
+    req = BsRequest.find(:name => "add_role_fail")
+    prepare_request_with_user @request, "tscholz", "asdfasdf"
+    post "/request?cmd=create", req.dump_xml
+    assert_response 404
+    assert_select "status[code] > summary", /Unknown target package not_there in project kde4/
+  end
+
   def test_create_permissions
     req = BsRequest.find(:name => "works")
     prepare_request_with_user @request, 'tom', 'thunder'

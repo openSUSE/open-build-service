@@ -62,6 +62,42 @@ newformat:
   <description/>
   </request>"
 
+set_bugowner:
+  "<request>
+  <action type='set_bugowner'>
+    <target project='kde4' package='kdelibs' />
+    <person name='tscholz' />
+  </action>
+  <description/>
+  </request>"
+
+set_bugowner_fail:
+  "<request>
+  <action type='set_bugowner'>
+    <target project='kde4' package='not_there' />
+    <person name='tscholz' />
+  </action>
+  <description/>
+  </request>"
+
+add_role:
+  "<request>
+  <action type='add_role'>
+    <target project='kde4' package='kdelibs' />
+    <person name='tscholz' role='reviewer' />
+  </action>
+  <description/>
+  </request>"
+
+add_role_fail:
+  "<request>
+  <action type='add_role'>
+    <target project='kde4' package='not_there' />
+    <person name='tscholz' role='reviewer' />
+  </action>
+  <description/>
+  </request>"
+
 10101:
   "<request id='10101'>
   <action type='submit'>
