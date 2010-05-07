@@ -60,6 +60,12 @@ case "$1" in
 			fi
 		fi
 
+		# support usage of lvm on md devices
+                if [ -x /sbin/mdadm ]; then
+			/sbin/mdadm --assemble --scan
+			/etc/init.d/boot.lvm start
+		fi
+
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" ]; then
 			echo "Collect all LVM partitions for the worker"
 			# remove everything first
@@ -218,6 +224,7 @@ case "$1" in
 
 		echo "Looking for OBS Server LVM Volume"
                 if [ -e /dev/OBS/server ]; then
+			[ -L /obs ] && rm /obs
 			[ -d /obs ] || { rm -f /obs; mkdir /obs ; }
 			mount /dev/OBS/server /obs
 			[ -d /obs/log ] || mkdir /obs/log
