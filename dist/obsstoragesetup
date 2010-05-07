@@ -82,9 +82,7 @@ case "$1" in
 			                used=1
 			        done
 			        if [ $count -eq 4 ] || [ -z "$used" ];then
-			                sfdisk $disk >/dev/null 2>&1 <<- EOF
-		                                ,,8e,-
-                		        EOF
+					echo ",,8e,-" | sfdisk $disk >/dev/null 2>&1
 			        fi
 			done
 
