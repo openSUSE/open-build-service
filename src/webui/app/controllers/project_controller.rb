@@ -17,7 +17,7 @@ class ProjectController < ApplicationController
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :show, :monitor, :edit_prjconf, :list_requests, :autocomplete_packages,
     :packages, :users, :subprojects, :repositories, :attributes, :edit_repository,
-    :new_package, :new_package_link,
+    :new_package, :new_package_link, :patchinfo
     :meta, :edit_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
 
   before_filter :load_current_requests, :only => [:delete, :view,
@@ -310,17 +310,25 @@ class ProjectController < ApplicationController
 
   end
 
-  def packages
+  def load_packages
     @packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
+  end
+
+  def packages
+    load_packages
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
+  end
+
+  def patchinfo
+    load_packages
+    @patchinfo = @packages.grep(/^_patchinfo/)
   end
 
   def autocomplete_packages
     packages
     render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
   end
-
 
   def list_requests
   end

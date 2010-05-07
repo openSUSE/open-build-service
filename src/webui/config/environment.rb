@@ -161,6 +161,8 @@ ActiveXML::Base.config do |conf|
       :namespace_config => "rest:///attribute/:namespace/_meta",
       :config => "rest:///attribute/:namespace/:attribute/_meta",
       :attributes => "rest:///attribute/:namespace"   
+
+    map.connect :patchinfo, "rest:///source/:project/:package/_patchinfo"
  
     # Monitor
     map.connect :workerstatus, 'rest:///status/workerstatus',
