@@ -15,6 +15,7 @@
       <value>armv6el</value>
       <value>armv7el</value>
       <value>armv8el</value>
+      <value>hppa</value>
       <value>i386</value>
       <value>i486</value>
       <value>i586</value>
