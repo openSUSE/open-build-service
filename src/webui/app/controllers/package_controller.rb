@@ -60,8 +60,12 @@ class PackageController < ApplicationController
       :filename => @filename, :view => 'fileinfo_ext')
     if @fileinfo.arch
       @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
+      if @durl and not file_available?( @durl )
+        # ignore files not available
+        @durl = nil
+      end
     end
-    if @user and !(@durl and file_available?( @durl ))
+    if @user and !@durl
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
     end
