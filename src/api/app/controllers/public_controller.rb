@@ -136,12 +136,12 @@ class PublicController < ApplicationController
   # GET /public/binary_packages/:project/:package
   def binary_packages
     if (@prj = DbProject.find_by_name params[:project]).blank?
-      render_error :status => 404, :errorcode => 'unknown_project'
+      render_error :status => 404, :errorcode => 'unknown_project', :message => "The requested project #{params[:project]} does not exist."
       return
     end
 
     if (@pkg = @prj.db_packages.find_by_name params[:package]).blank?
-      render_error :status => 404, :errorcode => 'unknown_package'
+      render_error :status => 404, :errorcode => 'unknown_package', :message => "The requested project #{params[:project]} does not exist."
       return
     end
 
