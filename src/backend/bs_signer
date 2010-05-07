@@ -50,12 +50,12 @@ my $group = $BSConfig::bsgroup;
 !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
 !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
 if (defined $group) {
-  ($(, $)) = ($group, $group);
+  ($), $() = ($group, $group);
   die "setgid: $!\n" if ($) != $group);
 }
 if (defined $user) {
-  ($<, $>) = ($user, $user); 
-  die "setuid: $!\n" if ($> != $user); 
+  ($>, $<) = ($user, $user);
+  die "setuid: $!\n" if ($> != $user);
 }
 
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";

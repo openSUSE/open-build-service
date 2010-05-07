@@ -100,11 +100,11 @@ sub serveropen {
     }
   }
   if (defined $group) {
-    ($(, $)) = ($group, $group);
+    ($), $() = ($group, $group);
     die "setgid: $!\n" if ($) != $group);
   }
   if (defined $user) {
-    ($<, $>) = ($user, $user);
+    ($>, $<) = ($user, $user);
     die "setuid: $!\n" if ($> != $user);
   }
   if (ref($port) || $port !~ /^&/) {
@@ -123,11 +123,11 @@ sub serveropen_unix {
   !defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
   !defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
   if (defined $group) {
-    ($(, $)) = ($group, $group);
+    ($), $() = ($group, $group);
     die "setgid: $!\n" if ($) != $group);
   }
   if (defined $user) {
-    ($<, $>) = ($user, $user);
+    ($>, $<) = ($user, $user);
     die "setuid: $!\n" if ($> != $user);
   }
   # we need a lock for exclusive socket access
