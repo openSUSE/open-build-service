@@ -614,7 +614,7 @@ class DbPackage < ActiveRecord::Base
         package.group( :groupid => g.title, :role => g.role_name )
       end
 
-      %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|
+      %w(build publish debuginfo useforbuild binarydownload readaccess privacy).each do |flag_name|
         flaglist = __send__(flag_name+"_flags")
         if view == 'flagdetails'
           db_project.expand_flags(builder, flag_name, flaglist)

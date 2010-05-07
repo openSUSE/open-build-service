@@ -60,7 +60,7 @@ module FlagHelper
   def remove_flag(flag, repository, arch)
     flagtype = nil
     #translates the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? flag.to_s
+    if %w(build publish debuginfo useforbuild binarydownload readaccess privacy).include? flag.to_s
       flagtype = flag.to_s + "_flags"
     else
       raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )
@@ -83,7 +83,7 @@ module FlagHelper
   def add_flag(flag, status, repository, arch)
     flagtype = nil
     #translates the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? flag.to_s
+    if %w(build publish debuginfo useforbuild binarydownload readaccess privacy).include? flag.to_s
       flagtype = flag.to_s + "_flags"
     else
       raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )

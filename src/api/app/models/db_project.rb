@@ -646,7 +646,7 @@ class DbProject < ActiveRecord::Base
           :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
-      %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|
+      %w(build publish debuginfo useforbuild binarydownload readaccess privacy).each do |flag_name|
         if view == 'flagdetails'
           expand_flags(builder, flag_name)
         else
