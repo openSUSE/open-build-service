@@ -480,7 +480,6 @@ class RequestController < ApplicationController
 
     unless params[:newstate] == "accepted"
       pass_to_backend path
-      render_ok
       return
     end
 
