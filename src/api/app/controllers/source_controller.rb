@@ -1158,11 +1158,9 @@ class SourceController < ApplicationController
         :message => "branch target package already exists: #{oprj_name}/#{opkg_name}"
       return
     else
-      opkg = DbPackage.new(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
-      oprj.db_packages << opkg
-    
+      opkg = oprj.db_packages.create(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
       opkg.add_user @http_user, "maintainer"
-      Package.find(opkg_name, :project => oprj_name).save
+      opkg.store
     end
 
     #create branch of sources in backend

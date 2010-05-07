@@ -3,28 +3,27 @@ module ActiveXML
   class Base
 
     def self.load_fixture(fixture, args)
+      logger.debug "mock load fix called with args #{args.inspect}."
       yaml = YAML::load(ERB.new( IO.read( "#{RAILS_ROOT}/test/fixtures/#{fixture}.yml") ).result) 
-      case args.first
-      when :all then return self.list_all(yaml)
-      else                                         
-        name = ''                                  
-        if args.first.kind_of? String              
-          name = args.first                        
-        else                                       
-          name = args.first[:name]                 
-        end                                        
-        yaml = {name => yaml[name]}
-        if yaml[name].nil?                         
-          raise RuntimeError.new("Mock Object #{name} couldn't be found.")
-        end
-        opt = args[1]
-        return self.yaml_to_axml(yaml, opt)
+      name = ''                                  
+      if args.first.kind_of? String              
+        name = args.first                        
+      else                                       
+        name = args.first[:name]                 
+      end                                        
+      yaml = {name => yaml[name]}
+      if yaml[name].nil?                         
+        raise RuntimeError.new("Mock Object #{name} couldn't be found.")
       end
-      return 'ups'
+      opt = args[1]
+      return self.yaml_to_axml(yaml, opt)
     end
  
     def self.find_priv(cache_time, args )
       logger.debug "mock-find called with args #{args.inspect}. #{self.name}"
+      if args.first == :all
+        return self.list_all(yaml)
+      end
       fixture = self.name.downcase.pluralize
       unless File.exists? "#{RAILS_ROOT}/test/fixtures/#{fixture}.yml"
 	logger.debug "no such file: '#{RAILS_ROOT}/test/fixtures/#{fixture}.yml'"
