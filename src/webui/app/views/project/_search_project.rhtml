@@ -24,22 +24,22 @@
 
   <p>
     <% project_list.each do |project| -%>
-      <%- next if project.name == 'deleted' -%>
-      <%- if @current_char.blank? || @current_char != project.name.downcase[0,1]
-        @current_char = project.name.downcase[0,1] %>
+      <%- next if project == 'deleted' -%>
+      <%- if @current_char.blank? || @current_char != project.downcase[0,1]
+        @current_char = project.downcase[0,1] %>
       </p><h3><%= @current_char %></h3><p>
       <%- end -%>
-      <%- @current_prj = project.name[0..project.name.index( ':' ) - 1] if project.name.index( ':' )
-      if !@current_prj.blank? and @prj_head != @current_prj and project_list.each.select{|p| p.name.index @current_prj + ':' }.size >= 3
+      <%- @current_prj = project[0..project.index( ':' ) - 1] if project.index( ':' )
+      if !@current_prj.blank? and @prj_head != @current_prj and project_list.each.select{|p| p.index @current_prj + ':' }.size >= 3
         @prj_head = @current_prj -%>
       </p><p><b><%= h @prj_head -%></b>:
       <%- end -%>
-      <%- if !@prj_head.blank? and !project.name.index @prj_head -%>
+      <%- if !@prj_head.blank? and !project.index @prj_head -%>
         <% @prj_head = '' -%>
         <% @current_prj = '' -%>
       </p><p>
       <%- end -%>
-      <%= link_to highlight( h(project.name), @filterstring ), {:action => :show, :project => project.name }, :class => 'nowrap' -%> |
+      <%= link_to highlight( h(project), @filterstring ), {:action => :show, :project => project }, :class => 'nowrap' -%> |
     <% end %>
 
     <% if project_list.blank? -%>

@@ -162,7 +162,7 @@ class ApplicationController < ActionController::Base
       render :template => "timeout" and return
     when ValidationError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-      render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }
+      render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }, :status => 400
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
@@ -264,17 +264,14 @@ class ApplicationController < ActionController::Base
     unless document
       erase_render_results
       raise ValidationError.new xmlbody, errors
-      response.body = render_to_string :template => 'xml_errors',
-        :locals => { :oldbody => xmlbody, :errors => errors }
-      return false
     end
     return true
   end
 
   def validate_xhtml
-    return unless  Rails.env.development?
+    return unless (Rails.env.development? || Rails.env.test?)
     return if request.xhr?
-
+  
     return if !(response.status =~ /200/ &&
         response.headers['Content-Type'] =~ /text\/html/i)
 

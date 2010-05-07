@@ -46,7 +46,7 @@ after "deploy:finalize_update", "deploy:reset_subdir"
 after "deploy:finalize_update", "deploy:notify"
 
 after :deploy, 'deploy:cleanup' # only keep 5 releases
-
+before "deploy:update_code", "deploy:test_suite"
 
 namespace :config do
 
@@ -126,6 +126,23 @@ Git log:
     end
   end
   
+  task :test_suite do
+    Dir.glob('**/*.rb').each do |f|
+      if !system("ruby -c -d #{f} > /dev/null")
+         puts "syntax error in #{f} - will not deploy"
+         exit 1
+      end
+    end
+    if !system("rake --trace check_syntax")
+      puts "Error in syntax check - will not deploy"
+      exit 1
+    end
+    if !system("rake test")
+      puts "Error on rake test - will not deploy"
+      exit 1
+    end
+  end
+
 end
 
 

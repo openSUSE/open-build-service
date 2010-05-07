@@ -2,11 +2,8 @@ module ActiveXML
 
   class Base
 
-    #this kind of find can only find by name or :all
-    def self.fake_find( fixture, *args )                          
-      logger.debug "mock-find called with args #{args.inspect}."
-      yaml = YAML::load(ERB.new( IO.read( "#{RAILS_ROOT}/test/fixtures/#{fixture}.yml") ).result)
-
+    def self.load_fixture(fixture, args)
+      yaml = YAML::load(ERB.new( IO.read( "#{RAILS_ROOT}/test/fixtures/#{fixture}.yml") ).result) 
       case args.first
       when :all then return self.list_all(yaml)
       else                                         
@@ -24,9 +21,19 @@ module ActiveXML
         return self.yaml_to_axml(yaml, opt)
       end
       return 'ups'
-
     end
+ 
+    def self.find_priv(cache_time, args )
+      logger.debug "mock-find called with args #{args.inspect}. #{self.name}"
+      fixture = self.name.downcase.pluralize
+      unless File.exists? "#{RAILS_ROOT}/test/fixtures/#{fixture}.yml"
+	logger.debug "no such file: '#{RAILS_ROOT}/test/fixtures/#{fixture}.yml'"
+        return nil
+      end
 
+      return load_fixture(fixture, args)   
+    end
+  
     def self.list_all( yaml, opt = {} )
       objs = Array.new
       yaml.each do |key,value|
