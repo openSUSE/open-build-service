@@ -1,4 +1,4 @@
-class AddDownloadPermissionsAndRole < ActiveRecord::Migration
+class AddReadAccessPermissionsAndRole < ActiveRecord::Migration
   def self.up
     perm = StaticPermission.create :title => 'read_access'
     maint = Role.find_by_title 'maintainer'
