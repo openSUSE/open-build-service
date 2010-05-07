@@ -239,7 +239,7 @@ sub clone_repository {
   my ($srcproject, $srcrepo, $destproject, $destrepo) = @_;
   my $srcdir  = "$reporoot/$srcproject/$srcrepo";
   my $destdir = "$reporoot/$destproject/$destrepo";
-  my $tmpdir  = $BSConfig::tmpdir || "$BSConfig::bsdir/tmp";
+  my $tmpdir  = "$BSConfig::bsdir/tmp";
 
   die("Destination repo must get created by scheduler first!\n") unless -d $destdir;
 
