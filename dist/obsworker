@@ -77,9 +77,12 @@ if [ -n "$OBS_CACHE_DIR" ]; then
     OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
 else
     # For automatic appliance setup
-    if [ -d /OBS.worker/cache ]; then
+    if [ -e /OBS.worker/config -a -d /OBS.worker/cache ]; then
         OBS_CACHE_DIR="/OBS.worker/cache"
         OBS_WORKER_OPT="--cachedir /OBS.worker/cache"
+        size=`df -m /OBS.worker/cache | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+        size=$(( $size / 2 ))
+        OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $size"
     fi
 fi
 
@@ -90,13 +93,6 @@ if [ -n "$OBS_CACHE_SIZE" ]; then
     fi
     mkdir $OBS_CACHE_DIR
     OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE"
-else
-    # For automatic appliance setup
-    if [ -d /OBS.worker/cache ]; then
-        size=`df -m /OBS.worker/cache | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
-        size=$(( $size / 2 ))
-        OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $size"
-    fi
 fi
 
 if [ -n "$OBS_VM_KERNEL" -a "$OBS_VM_KERNEL" != "none" ] ; then
