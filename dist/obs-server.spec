@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.9.57
+Version:        1.9.61
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -32,12 +32,12 @@ BuildRequires:  obs-common
 # also see requires in the obs-server-api sub package
 BuildRequires:  rubygem-rails-2_3 = 2.3.5
 BuildRequires:  rubygem-rmagick
-BuildRequires:  build >= 2009.04.22
+BuildRequires:  build >= 2009.05.04
 BuildRequires:  perl-BSSolv
 BuildRequires:  lighttpd
-Requires:       build >= 2009.04.22
+Requires:       build >= 2009.05.04
 Requires:       perl-BSSolv
-# for source server
+# Required by source server
 Requires:       patch diffutils
 PreReq:         sysvinit
 
@@ -82,11 +82,16 @@ PreReq:         %fillup_prereq %insserv_prereq
 %if 0%{?suse_version} <= 1030
 Requires:       lzma
 %endif
+%if 0%{?suse_version} >= 1120
+BuildArch:      noarch
+Requires:	util-linux >= 2.16
+%else
 %ifarch x86_64
 Requires:	linux32
 %endif
 %ifarch ppc64
 Requires:	powerpc32
+%endif
 %endif
 
 %description -n obs-worker
@@ -217,6 +222,12 @@ cat > $RPM_BUILD_ROOT/usr/bin/obs_productconvert <<EOF
 exec /usr/lib/obs/server/bs_productconvert "\$@"
 EOF
 chmod 0755 $RPM_BUILD_ROOT/usr/bin/obs_productconvert
+cat > $RPM_BUILD_ROOT/usr/sbin/obs_admin <<EOF
+#!/bin/bash
+exec /usr/lib/obs/server/bs_admin "\$@"
+EOF
+chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_admin
+
 
 #
 # Install all web and api parts.
@@ -232,7 +243,6 @@ mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
 touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 rm $RPM_BUILD_ROOT/srv/www/obs/webui/README.install
-cp -a $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb.template $RPM_BUILD_ROOT/srv/www/obs/webui/config/repositories.rb
 # the git webinterface tries to connect to api.opensuse.org by default
 install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
 # needed for correct permissions
@@ -241,6 +251,7 @@ touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
 #
 #set default api on localhost for the webui
 # 
+mv $RPM_BUILD_ROOT/srv/www/obs/api/files/distributions.xml.template $RPM_BUILD_ROOT/srv/www/obs/api/files/distributions.xml
 sed 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
   $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
   && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
@@ -400,6 +411,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obswarden
 /etc/init.d/obssigner
 /etc/init.d/obsstoragesetup
+/usr/sbin/obs_admin
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
@@ -408,6 +420,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobswarden
 /usr/sbin/rcobssigner
 /usr/sbin/rcobsstoragesetup
+/usr/lib/obs/server/BSAccess.pm
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSConfig.pm.template
 /usr/lib/obs/server/BSEvents.pm
@@ -443,13 +456,13 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/XML
 /usr/lib/obs/server/bs_admin
 /usr/lib/obs/server/bs_dispatch
-/usr/lib/obs/server/bs_localkiwiworker
 /usr/lib/obs/server/bs_publish
 /usr/lib/obs/server/bs_repserver
 /usr/lib/obs/server/bs_sched
 /usr/lib/obs/server/bs_srcserver
 /usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/bs_signer
+/usr/lib/obs/server/bs_sshgit
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/BSHermes.pm
@@ -489,6 +502,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /srv/www/obs/api/config
 %dir /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
+%dir /srv/www/obs/api/files
 /etc/init.d/obsapidelayed
 /etc/init.d/obswebuidelayed
 /etc/init.d/obsapisetup
@@ -498,7 +512,8 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/api/app
 /srv/www/obs/api/db
 /srv/www/obs/api/doc
-/srv/www/obs/api/files
+/srv/www/obs/api/files/distributions
+/srv/www/obs/api/files/wizardtemplate.spec
 /srv/www/obs/api/lib
 /srv/www/obs/api/public
 /srv/www/obs/api/Rakefile
@@ -530,6 +545,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/api/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
 %config(noreplace) /srv/www/obs/api/config/options.yml
+%config(noreplace) /srv/www/obs/api/files/distributions.xml
 %config(noreplace) /etc/cron.d/obs-api
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log
@@ -560,7 +576,6 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/webui/README.rails
 /srv/www/obs/webui/README.theme
 /srv/www/obs/webui/config/initializers/options.rb
-/srv/www/obs/webui/config/repositories.rb.template
 
 %config /srv/www/obs/webui/config/boot.rb
 %config /srv/www/obs/webui/config/environment.rb
@@ -571,7 +586,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/webui/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/webui/config/initializers/theme_support.rb
-%config(noreplace) /srv/www/obs/webui/config/repositories.rb
 %config(noreplace) /etc/cron.d/obs-webui
 
 %dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log
