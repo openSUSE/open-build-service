@@ -71,9 +71,11 @@ Job Controlling
    for fast startup.
 
  --check-project <project> <architecture>
+ --check-project <project> <repository> <architecture>
    Check status of a project and its repositories again
 
  --deep-check-project <project> <architecture>
+ --deep-check-project <project> <repository> <architecture>
    Check status of a project and its repositories again
    This deep check includes also the sources, in case of lost events.
 
@@ -366,11 +368,11 @@ sub shutdown_scheduler {
 }
 
 sub check_project {
-  my ($project, $arch, $deep) = @_;
+  my ($project, $repo, $arch, $deep) = @_;
   if (defined $deep) {
-    write_event($project, undef, $arch, 'package');
+    write_event($project, $repo, $arch, 'package');
   } else {
-    write_event($project, undef, $arch, 'recheck');
+    write_event($project, $repo, $arch, 'recheck');
   }
 }
 
@@ -469,10 +471,12 @@ while (@ARGV) {
     my $arch = shift @ARGV;
     shutdown_scheduler( $arch );
   } elsif ( $arg eq "--check-project" ) {
-    die("ERROR: need project and architecture as argument!\n") if @ARGV < 2;
+    die("ERROR: need at least project and architecture as argument!\n") if @ARGV < 2;
     my $project = shift @ARGV;
+    my $repo;
+    $repo = shift @ARGV if @ARGV == 2;
     my $arch = shift @ARGV;
-    check_project($project, $arch);
+    check_project($project, $repo, $arch);
   } elsif ( $arg eq "--check-package" ) {
     die("ERROR: need project, package and architecture as argument!\n") if @ARGV < 3;
     my $project = shift @ARGV;
@@ -480,10 +484,12 @@ while (@ARGV) {
     my $arch = shift @ARGV;
     check_package($project, $package, $arch);
   } elsif ( $arg eq "--deep-check-project" ) {
-    die("ERROR: need project and architecture as argument!\n") if @ARGV < 2;
+    die("ERROR: need at least project and architecture as argument!\n") if @ARGV < 2;
     my $project = shift @ARGV;
+    my $repo;
+    $repo = shift @ARGV if @ARGV == 2;
     my $arch = shift @ARGV;
-    check_project($project, $arch, 1);
+    check_project($project, $repo, $arch, 1);
   } elsif ( $arg eq "--publish-repository" ) {
     die("ERROR: need project, repository and architecture as argument!\n") if @ARGV != 2;
     my $project = shift @ARGV;
