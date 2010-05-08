@@ -614,6 +614,16 @@ class SourceController < ApplicationController
 
   def file
     valid_http_methods :get, :delete, :put
+    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
+    if pkg and pkg.readaccess_flags.disabled_for?(params[:project], params[:package])
+      # check reader role
+      unless @http_user.can_read_access?(pkg)
+        render_error :status => 403, :errorcode => "read_access_no_permission",
+          :message => "No permission for read access to package #{package_name, project #{project_name}"
+        return
+      end
+    end
+
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
@@ -630,17 +640,6 @@ class SourceController < ApplicationController
     unless extract_user
       render_error :status => 401, :message => 'Requires login'
       return
-    end
-
-    # AC permission check
-    pkg = DbPackage.find_by_project_and_name project_name, package_name
-    if pkg and pkg.readaccess_flags.disabled_for?(project_name, package_name)
-      # check reader role
-      unless @http_user.can_read_access?(pkg)
-        render_error :status => 403, :errorcode => "read_access_no_permission",
-          :message => "No permission for read access to package #{package_name, project #{project_name}"
-        return
-      end
     end
 
     params[:user] = @http_user.login
