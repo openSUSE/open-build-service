@@ -632,13 +632,13 @@ class SourceController < ApplicationController
 
     params[:user] = @http_user.login
 
-    if pack.readaccess_flags.disabled_for?
+    if pack.readaccess_flags.disabled_for?(:nil, :nil)
       # check reader role
-        unless @http_user.can_read_access?(pack)
-           render_error :status => 403, :errorcode => "read_access_no_permission",
-              :message => "No permission for read access to package #{package_name, project #{project_name}"
-           return
-        end
+      unless @http_user.can_read_access?(pack)
+        render_error :status => 403, :errorcode => "read_access_no_permission",
+        :message => "No permission for read access to package #{package_name}, project #{project_name}"
+        return
+      end
     end
 
     if request.get?
