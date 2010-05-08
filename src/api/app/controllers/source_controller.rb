@@ -632,6 +632,17 @@ class SourceController < ApplicationController
       return
     end
 
+    # AC permission check
+    pkg = DbPackage.find_by_project_and_name project_name, package_name
+    if pkg and pkg.readaccess_flags.disabled_for?(project_name, package_name)
+      # check reader role
+      unless @http_user.can_read_access?(pkg)
+        render_error :status => 403, :errorcode => "read_access_no_permission",
+          :message => "No permission for read access to package #{package_name, project #{project_name}"
+        return
+      end
+    end
+
     params[:user] = @http_user.login
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])

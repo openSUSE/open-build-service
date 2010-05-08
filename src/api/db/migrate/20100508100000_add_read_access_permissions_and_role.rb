@@ -2,7 +2,6 @@ class AddReadAccessPermissionsAndRole < ActiveRecord::Migration
   def self.up
     perm = StaticPermission.create :title => 'read_access'
     maint = Role.find_by_title 'maintainer'
-    downl = Role.find_by_title 'downloader'
     reade = Role.create :title => 'reader'
 
     [maint,downl,reade].each do |role|
