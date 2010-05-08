@@ -617,24 +617,28 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
-
     path = "/source/#{project_name}/#{package_name}/#{file}"
 
     #authenticate
-    unless extract_user
-      render_error :status => 401, :message => 'Requires login'
-      return
-    end
-    params[:user] = @http_user.login
+    return unless extract_user
 
     pack = DbPackage.find_by_project_and_name(project_name, package_name)
-    if pack and pack.readaccess_flags.disabled_for?(:nul,:nil)
+    if pack.nil?
+      render_error :status => 403, :errorcode => 'not_found',
+      :message => "The given package #{package_name} does not exist in project #{project_name}"
+      return
+    end
+    allowed = permissions.package_change? pack
+
+    params[:user] = @http_user.login
+
+    if pack.readaccess_flags.disabled_for?
       # check reader role
-      unless @http_user.can_read_access?(pack)
-        render_error :status => 403, :errorcode => "read_access_no_permission",
-          :message => "No permission for read access to package #{package_name, project #{project_name}"
-        return
-      end
+        unless @http_user.can_read_access?(pack)
+           render_error :status => 403, :errorcode => "read_access_no_permission",
+              :message => "No permission for read access to package #{package_name, project #{project_name}"
+           return
+        end
     end
 
     if request.get?
@@ -646,7 +650,6 @@ class SourceController < ApplicationController
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
       
-      allowed = permissions.package_change? package_name, project_name
       if  allowed
         # file validation where possible
         if params[:file] == "_link"
