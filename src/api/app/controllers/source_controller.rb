@@ -614,21 +614,28 @@ class SourceController < ApplicationController
 
   def file
     valid_http_methods :get, :delete, :put
-    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
-    if pkg and pkg.readaccess_flags.disabled_for?(params[:project], params[:package])
-      # check reader role
-      unless @http_user.can_read_access?(pkg)
-        render_error :status => 403, :errorcode => "read_access_no_permission",
-          :message => "No permission for read access to package #{package_name, project #{project_name}"
-        return
-      end
-    end
-
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
 
     path = "/source/#{project_name}/#{package_name}/#{file}"
+
+    #authenticate
+    unless extract_user
+      render_error :status => 401, :message => 'Requires login'
+      return
+    end
+    params[:user] = @http_user.login
+
+    pack = DbPackage.find_by_project_and_name(project_name, package_name)
+    if pack and pack.readaccess_flags.disabled_for?(:nul,:nil)
+      # check reader role
+      unless @http_user.can_read_access?(pack)
+        render_error :status => 403, :errorcode => "read_access_no_permission",
+          :message => "No permission for read access to package #{package_name, project #{project_name}"
+        return
+      end
+    end
 
     if request.get?
       path += build_query_from_hash(params, [:rev])
@@ -636,13 +643,6 @@ class SourceController < ApplicationController
       return
     end
 
-    #authenticate
-    unless extract_user
-      render_error :status => 401, :message => 'Requires login'
-      return
-    end
-
-    params[:user] = @http_user.login
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
       
@@ -658,7 +658,6 @@ class SourceController < ApplicationController
         end
 
         pass_to_backend path
-        pack = DbPackage.find_by_project_and_name(project_name, package_name)
         pack.update_timestamp
         if package_name == "_product"
           update_product_autopackages
