@@ -860,7 +860,7 @@ sub isolder {
 sub putbinary {
   my ($cgi, $projid, $repoid, $arch, $bin) = @_;
   die("file name must end in .deb, .rpm, or .cpio\n") unless $bin =~ /\.(?:rpm|deb|cpio)$/;
-  mkdir_p("$uploaddir");
+  mkdir_p($uploaddir);
   my $tdir = "$reporoot/$projid/$repoid/$arch/:full";
   if ($bin =~ /\.cpio$/) {
     my $fdir = "$uploaddir/$$.dir";
@@ -1996,7 +1996,7 @@ sub getbuildinfo_post {
   my $descr = $fn;
   my $dir = "$uploaddir/$$.dir";
   my $depfile;
-  mkdir_p("$uploaddir");
+  mkdir_p($uploaddir);
   die("upload failed\n") unless BSServer::read_file($fn);
 
   local *F;
@@ -2575,6 +2575,20 @@ sub postrelsync {
   return $BSStdServer::return_ok;
 }
 
+sub putdispatchprios {
+  my ($cgi) = @_;
+  mkdir_p($uploaddir);
+  die("upload failed\n") unless BSServer::read_file("$uploaddir/dispatchprios.$$");
+  my $prios = readxml("$uploaddir/dispatchprios.$$", $BSXML::dispatchprios);
+  unlink("$uploaddir/dispatchprios.$$");
+  BSUtil::store("$jobsdir/.dispatchprios", "$jobsdir/dispatchprios", $prios);
+  return $BSStdServer::return_ok;
+}
+
+sub getdispatchprios {
+  my $prios = BSUtil::retrieve("$uploaddir/dispatchprios", 1) || {};
+  return ($prios, $BSXML::dispatchprios);
+}
 
 sub getajaxstatus {
   my ($cgi) = @_;
@@ -2614,6 +2628,8 @@ my $dispatches = [
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   '/search/published/binary/id $match:' => \&search_published_binary_id,
   '/search/published/pattern/id $match:' => \&search_published_pattern_id,
+  'PUT:/build/_dispatchprios' => \&putdispatchprios,
+  '/build/_dispatchprios' => \&getdispatchprios,
 
   # src server calls
   '/event $type: $project $package?' => \&forwardevent,

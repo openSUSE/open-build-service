@@ -1024,5 +1024,14 @@ our $comps = [
     ]],
 ];
 
+our $dispatchprios = [
+    'dispatchprios' =>
+     [[ 'prio' =>
+	    'project',
+	    'repository',
+	    'arch',
+	    'adjust',
+     ]],
+];
 
 1;

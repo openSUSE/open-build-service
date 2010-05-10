@@ -1909,7 +1909,29 @@ sub getpackage {
     my $pack = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", $BSXML::pack);
     return ($pack, $BSXML::pack);
   }
-  my $pack = readpack($projid, $packid);
+  my $pack = readpack($projid, $packid, 1);
+  if (!$pack && $proj->{'_link'}) {
+    my %checked = ($projid => 1);
+    my @todo = map {$_->{'project'}} @{$proj->{'link'}};
+    while (@todo) {
+      my $lprojid = shift @todo;
+      next if $checked{$lprojid};
+      $checked{$lprojid} = 1;
+      my $lproj = readproj($lprojid, 1);
+      $lproj = remoteprojid($lprojid) if !$lproj || $lproj->{'remoteurl'};
+      if ($lproj->{'remoteurl'}) {
+	eval {
+	  $pack = BSRPC::rpc("$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", $BSXML::pack);
+	};
+        die($@) if $@ && $@ !~ /^404/;
+      } else {
+        $pack = readpack($lprojid, $packid, 1);
+        unshift @todo, map {$_->{'project'}} @{$lproj->{'link'}} if !$pack && $lproj->{'_link'};
+      }
+      last if $pack;
+    }
+  }
+  die("404 package '$packid' does not exist in project '$projid'\n") unless $pack;
   return ($pack, $BSXML::pack);
 }
 
@@ -4432,6 +4454,28 @@ sub postrelsync {
   return $BSStdServer::return_ok;
 }
 
+sub putdispatchprios {
+  my ($cgi) = @_;
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/_dispatchprios",
+    'request' => 'PUT',
+    'data' => \&BSServer::forward_sender,
+    'chunked' => 1,
+  };
+  return BSWatcher::rpc($param, undef);
+}
+
+sub getdispatchprios {
+  my ($cgi) = @_;
+  my $param = {
+    'uri' => "$BSConfig::reposerver/build/_dispatchprios",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param, undef);
+  return undef;
+}
+
 ####################################################################
 
 sub hello {
@@ -4519,6 +4563,8 @@ my $dispatches = [
   # build calls for binary files
   '/build' => \&getprojectlist,
   '/build/_workerstatus scheduleronly:bool? arch*' => \&getworkerstatus,
+  'PUT:/build/_dispatchprios' => \&putdispatchprios,
+  '/build/_dispatchprios' => \&getdispatchprios,
   'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:*' => \&getresult,
