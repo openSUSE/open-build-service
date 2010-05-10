@@ -3222,7 +3222,9 @@ while(1) {
   }
 
   if (!$gotevent && !@lookat_low && !@lookat_med && !@lookat_high) {
-    print "waiting for an event...\n";
+    my @ltim = localtime(time);
+    my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
+    print "$msgtm waiting for an event...\n";
     exit 0 if $testprojid;
     my $timeout;
     my $sleepstart = time();
@@ -3586,11 +3588,13 @@ while(1) {
     BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
   }
   %changed_dirty = ();
+  my @ltim = localtime(time);
+  my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
 
   my $prp;
   if (!defined($prp) && @lookat_low && $notlow > 10) {
     $prp = shift @lookat_low;
-    print "looking at low prio $prp";
+    print "$msgtm looking at low prio $prp";
     @lookat_high = grep {$_ ne $prp} @lookat_high;
     @lookat_med = grep {$_ ne $prp} @lookat_med;
     $notlow = 0;
@@ -3609,7 +3613,7 @@ while(1) {
       unshift @lookat_high, @notyet;
       $prp = shift @lookat_high if !defined($prp) && !@lookat_med && !@lookat_low;
     }
-    print "looking at high prio $prp" if defined $prp;
+    print "$msgtm looking at high prio $prp" if defined $prp;
     $notlow++ if defined $prp;
   }
   if (!defined($prp) && @lookat_med) {
@@ -3626,12 +3630,12 @@ while(1) {
       unshift @lookat_med, @notyet;
       $prp = shift @lookat_med if !defined($prp) && !@lookat_low;
     }
-    print "looking at med prio $prp" if defined $prp;
+    print "$msgtm looking at med prio $prp" if defined $prp;
     $notlow++ if defined $prp;
   }
   if (!defined($prp)) {
     $prp = shift @lookat_low;
-    print "looking at low prio $prp";
+    print "$msgtm looking at low prio $prp";
     $notlow = 0;
   }
   print " (".@lookat_high."/".@lookat_med."/".@lookat_low."/".(keys %lookat_next)."/".@prps.")\n";
