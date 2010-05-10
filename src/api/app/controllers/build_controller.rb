@@ -1,6 +1,8 @@
 class BuildController < ApplicationController
 
   def project_index
+    valid_http_methods :get, :post, :put
+
     @path = request.path
     unless request.query_string.empty?
       @path += '?' + request.query_string
@@ -61,6 +63,9 @@ class BuildController < ApplicationController
         return
       end
 
+      pass_to_backend @path
+      return
+    elsif request.put? and @http_user.is_admin?
       pass_to_backend @path
       return
     else
