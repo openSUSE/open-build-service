@@ -67,8 +67,9 @@ sub authenticate {
   return () unless $BSConfig::ipaccess;
   my %auths;
   my $peer = $BSServer::peer;
-  for (sort keys %$BSConfig::ipaccess) {
-    $auths{$BSConfig::ipaccess->{$_}} = 1 if $peer =~ /^$_$/s;
+  for my $ipre (sort keys %$BSConfig::ipaccess) {
+    next unless $peer =~ /^$ipre$/s;
+    $auths{$_} = 1 for split(',', $BSConfig::ipaccess->{$ipre});
   }
   return () if grep {$auths{$_}} split(',', $auth);
   die("500 access denied\n");
