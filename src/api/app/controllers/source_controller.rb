@@ -600,16 +600,15 @@ class SourceController < ApplicationController
     end
 
     unless pro = DbProject.find_by_name(project_name)
-      if DbProject.find_remote_project(project_name)
-        pass_to_backend
-      else
+      unless request.get? and pro = DbProject.find_remote_project(project_name)
         render_error :status => 404, :errorcode => "unknown_project",
           :message => "Unknown project '#{project_name}'"
+        return
       end
-      return
     end
 
     unless valid_package_name? package_name
+      pkg = pro.find_package(package_name)
       render_error :status => 400, :errorcode => "invalid_package_name",
         :message => "invalid package name '#{package_name}'"
       return
@@ -623,8 +622,14 @@ class SourceController < ApplicationController
         return
       end
       unless pack
-        render_error :status => 404, :errorcode => "unknown_package",
-          :message => "Unknown package '#{package_name}'"
+        # check if this comes from a remote project
+        answer = Suse::Backend.get(request.path)
+        if answer
+          render :text => answer.body, :content_type => 'text/xml'
+        else
+          render_error :status => 404, :errorcode => "unknown_package",
+            :message => "Unknown package '#{package_name}'"
+        end
         return
       end
 
