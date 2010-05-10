@@ -184,6 +184,15 @@ OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
 OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext3"
 
 ## Path:        Applications/OBS
+## Description: Remove root and swap filesystem right after build
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+#
+OBS_VM_DISK_CLEAN_POST=""
+
+## Path:        Applications/OBS
 ## Description: Memory allocated for each VM (256) if not set
 ## Type:        integer
 ## Default:     ""

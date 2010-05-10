@@ -61,6 +61,7 @@ my $vm_initrd;
 my $vmdisk_rootsize;
 my $vmdisk_swapsize;
 my $vmdisk_filesystem;
+my $vmdisk_clean_post;
 my $workerid;
 my $srcserver;
 my @reposervers;
@@ -191,6 +192,9 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --vmdisk-filesystem <none|ext3|ext4>
                    : filesystem to use for autosetup root disk image
 
+       --vmdisk-clean-post
+                   : remove rootfs and swap directly after the build
+
        --test      : enable test mode
 
        --build     : just build the package, don't send anything back
@@ -316,6 +320,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vmdisk-filesystem') {
     shift @ARGV;
     $vmdisk_filesystem = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vmdisk-clean-post') {
+    shift @ARGV;
+    $vmdisk_clean_post = 1;
     next;
   }
   if ($ARGV[0] eq '--build') {
@@ -1851,6 +1860,9 @@ if (!$testmode) {
 unlink("$buildroot/.build.log");
 unlink("$buildroot/job");
 print "\n";
+
+unlink("$vm_root") if $vmdisk_clean_post ;
+unlink("$vm_swap") if $vmdisk_clean_post ;
 
 $state = {'state' => 'idle'};
 commitstate($state);
