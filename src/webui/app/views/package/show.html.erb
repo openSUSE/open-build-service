@@ -78,7 +78,7 @@
           </div>
         <% end %>
 
-        <% if @failures> 0 %>
+        <% if @failures and @failures > 0 %>
           <div>
             <p>
               <%= image_tag 'icons/exclamation.png' %> There <%= plural(@failures, "is", "are") %>

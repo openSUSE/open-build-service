@@ -20,16 +20,17 @@ module ActiveXML
     end
  
     def self.find_priv(cache_time, args )
-      logger.debug "mock-find called with args #{args.inspect}. #{self.name}"
+      logger.debug "mock-find called with args #{args.inspect} on #{self.name}"
+      fixture = self.name.downcase.pluralize
       if args.first == :all
+        yaml = YAML::load(ERB.new( IO.read( "#{RAILS_ROOT}/test/fixtures/#{fixture}.yml") ).result)
         return self.list_all(yaml)
       end
       fixture = self.name.downcase.pluralize
       unless File.exists? "#{RAILS_ROOT}/test/fixtures/#{fixture}.yml"
-	logger.debug "no such file: '#{RAILS_ROOT}/test/fixtures/#{fixture}.yml'"
+        logger.debug "no such file: '#{RAILS_ROOT}/test/fixtures/#{fixture}.yml'"
         return nil
       end
-
       return load_fixture(fixture, args)   
     end
   
