@@ -625,7 +625,7 @@ class SourceController < ApplicationController
         # check if this comes from a remote project
         answer = Suse::Backend.get(request.path)
         if answer
-          render :text => answer.body, :content_type => 'text/xml'
+          render :text => answer.body.to_s, :content_type => 'text/xml'
         else
           render_error :status => 404, :errorcode => "unknown_package",
             :message => "Unknown package '#{package_name}'"
