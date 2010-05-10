@@ -301,14 +301,19 @@ sub createrepo_rpmmd {
   # create generic rpm-md meta data
   # --update requires a newer createrepo version, tested with version 0.4.10
   my @createrepoargs;
-  push @createrepoargs, '--update' if -f "$extrep/repodata/primary.xml.gz";
-  push @createrepoargs, '--simple-md-filenames', '--checksum=sha' if $legacy;
+  push @createrepoargs, '--changelog-limit', '20';
   push @createrepoargs, '--repo', $repotag;
-  if (qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, $extrep)) {
+  my @legacyargs;
+  push @legacyargs, '--simple-md-filenames', '--checksum=sha' if $legacy;
+  my @updateargs;
+  if (-f "$extrep/repodata/repomd.xml") {
+    push @updateargs, '--update';
+  }
+  if (qsystem('createrepo', '-q', '-c', "$extrep/repocache", @updateargs, @createrepoargs, @legacyargs, $extrep)) {
     print("    createrepo failed: $?\n");
-    if (@createrepoargs) {
+    if (@updateargs) {
       print "    re-running without extra options\n";
-      qsystem('createrepo', '-q', '-c', "$extrep/repocache", $extrep) && print("    createrepo failed again: $?\n");
+      qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && print("    createrepo failed again: $?\n");
     }
   }
   if (-d "$extrep/repocache") {
