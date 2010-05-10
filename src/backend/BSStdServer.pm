@@ -77,7 +77,7 @@ sub authenticate {
 sub dispatch {
   my ($conf, $req) = @_;
   my @lt = localtime(time);
-  my $msg = sprintf "%04d-%02d-%02d %02d:%02d:%02d: %s\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
+  my $msg = sprintf "%04d-%02d-%02d %02d:%02d:%02d: ", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
   $msg .= "$req->{'action'} $req->{'path'}?$req->{'query'}";
   $msg .= " (AJAX)" if $isajax;
   print "$msg\n";
