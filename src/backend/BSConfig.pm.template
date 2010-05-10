@@ -30,7 +30,8 @@ our $obsname = $hostname; # unique identifier for this Build Service instance
 # Change also the SLP reg files in /etc/slp.reg.d/ when you touch hostname or port
 our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";
-#our $serviceserver = "http://$hostname:5152";
+our $serviceserver = "http://$hostname:5152";
+our $servicedir = "/usr/lib/obs/service/";
 
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 # public download service:
