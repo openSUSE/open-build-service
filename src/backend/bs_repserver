@@ -2581,12 +2581,13 @@ sub putdispatchprios {
   die("upload failed\n") unless BSServer::read_file("$uploaddir/dispatchprios.$$");
   my $prios = readxml("$uploaddir/dispatchprios.$$", $BSXML::dispatchprios);
   unlink("$uploaddir/dispatchprios.$$");
+  mkdir_p($jobsdir);
   BSUtil::store("$jobsdir/.dispatchprios", "$jobsdir/dispatchprios", $prios);
   return $BSStdServer::return_ok;
 }
 
 sub getdispatchprios {
-  my $prios = BSUtil::retrieve("$uploaddir/dispatchprios", 1) || {};
+  my $prios = BSUtil::retrieve("$jobsdir/dispatchprios", 1) || {};
   return ($prios, $BSXML::dispatchprios);
 }
 
