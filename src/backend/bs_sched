@@ -2917,6 +2917,7 @@ sub updaterelsyncmax {
 ##
 
 $| = 1;
+$SIG{'PIPE'} = 'IGNORE';
 print "starting build service scheduler\n";
 
 # get lock
