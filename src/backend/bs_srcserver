@@ -1910,7 +1910,7 @@ sub getpackage {
     return ($pack, $BSXML::pack);
   }
   my $pack = readpack($projid, $packid, 1);
-  if (!$pack && $proj->{'_link'}) {
+  if (!$pack && $proj->{'link'}) {
     my %checked = ($projid => 1);
     my @todo = map {$_->{'project'}} @{$proj->{'link'}};
     while (@todo) {
@@ -1926,7 +1926,7 @@ sub getpackage {
         die($@) if $@ && $@ !~ /^404/;
       } else {
         $pack = readpack($lprojid, $packid, 1);
-        unshift @todo, map {$_->{'project'}} @{$lproj->{'link'}} if !$pack && $lproj->{'_link'};
+        unshift @todo, map {$_->{'project'}} @{$lproj->{'link'}} if !$pack && $lproj->{'link'};
       }
       last if $pack;
     }
