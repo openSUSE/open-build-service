@@ -2562,6 +2562,8 @@ my $dispatches = [
   '/' => \&hello,
 
   '!rw :' => undef,
+  '!- GET:' => undef,
+  '!- HEAD:' => undef,
 
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
