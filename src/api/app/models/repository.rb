@@ -37,4 +37,9 @@ class Repository < ActiveRecord::Base
     return [] if links.size == 0
     links.map {|l| l.repository}
   end
+
+  def to_axml_id
+    return "<repository project='#{db_project.name.to_xs}' name='#{name.to_xs}'/>"
+  end
+
 end

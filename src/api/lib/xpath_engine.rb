@@ -13,6 +13,7 @@ class XpathEngine
       'package' => 'db_packages',
       'project' => 'db_projects',
       'person' => 'users',
+      'repository' => 'repositories'
     }
 
     @attribs = {
@@ -153,6 +154,9 @@ class XpathEngine
     when 'db_projects'
       model = DbProject
       includes = [:repositories]
+    when 'repositories'
+      model = Repository
+      includes = [:db_project]
     else
       logger.debug "strange base table: #{@base_table}"
     end

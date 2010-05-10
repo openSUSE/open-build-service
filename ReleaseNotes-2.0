@@ -19,8 +19,8 @@ Reqgressions:
 =============
 
 * API calls which got deprecated with 1.0 release got removed:
-  /platform       (use /build or /search instead)
-  /repository     (use /build or /search instead)
+  /platform       (use /build or /search/repository_id instead)
+  /repository     (use /build or /search/repository_id instead)
   /project        (use /source instead)
   /package        (use /source instead)
 

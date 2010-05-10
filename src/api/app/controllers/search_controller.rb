@@ -20,6 +20,10 @@ class SearchController < ApplicationController
     search(:package, false)
   end
 
+  def repository_id
+    search(:repository, false)
+  end
+
   def attribute
     unless params[:namespace] and params[:name]
       render_error :status => 400, :message => "need namespace and name parameter"
