@@ -76,11 +76,13 @@ sub authenticate {
 
 sub dispatch {
   my ($conf, $req) = @_;
+  my @lt = localtime(time);
+  my $msg = sprintf "%04d-%02d-%02d %02d:%02d:%02d: %s\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
+  $msg .= "$req->{'action'} $req->{'path'}?$req->{'query'}";
+  $msg .= " (AJAX)" if $isajax;
+  print "$msg\n";
   if ($isajax) {
-    print "$req->{'action'} $req->{'path'}?$req->{'query'} (AJAX)\n";
     BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
-  } else {
-    print "$req->{'action'} $req->{'path'}?$req->{'query'}\n";
   }
   BSServer::dispatch($conf, $req);
 }
