@@ -30,9 +30,12 @@ class SourceController < ApplicationController
     end
     
     if request.get?
-      @dir = Package.find :all, :project => project_name
-      render :text => @dir.dump_xml, :content_type => "text/xml"
-      return
+      if @http_user.can_private_view?(pro) or pro.privacy_flags.disabled_for?(params[:repository], params[:arch])
+        @dir = Package.find :all, :project => project_name
+        render :text => @dir.dump_xml, :content_type => "text/xml"
+        return
+      end
+      render_ok
     elsif request.delete?
       unless @http_user.can_modify_project?(pro)
         logger.debug "No permission to delete project #{project_name}"
@@ -125,7 +128,26 @@ class SourceController < ApplicationController
     package_name = params[:package]
     cmd = params[:cmd]
 
-    pkg = DbPackage.find_by_project_and_name(project_name, package_name)
+    prj = DbProject.find_by_name(project_name)
+    unless prj
+      render_error :status => 404, :errorcode => "unknown_project",
+        :message => "unknown project '#{project_name}'"
+      return
+    end
+    pkg = prj.find_package(package_name)
+    if pkg and pkg.privacy_flags.enabled_for?(params[:repository], params[:arch]) and not @http_user.can_private_view?(pkg)
+#        render_error :status => 403, :errorcode => "private_view_no_permission",
+#      :message => "No permission to view package #{params[:package]}, project #{params[:project]}"
+      render_ok
+      return
+    end
+
+    # look also via linked projects, package source may come from another project
+    begin
+    rescue DbProject::CycleError => e
+      render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
+      return
+    end
     unless pkg or DbProject.find_remote_project(project_name)
       render_error :status => 404, :errorcode => "unknown_package",
         :message => "unknown package '#{package_name}' in project '#{project_name}'"
@@ -626,8 +648,26 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:file]
-
     path = "/source/#{project_name}/#{package_name}/#{file}"
+
+    return unless extract_user
+    params[:user] = @http_user.login
+
+    pack = DbPackage.find_by_project_and_name(project_name, package_name)
+    if pack.nil?
+      render_error :status => 403, :errorcode => 'not_found',
+      :message => "The given package #{package_name} does not exist in project #{project_name}"
+      return
+    end
+
+    if pack.readaccess_flags.disabled_for?(:nil, :nil)
+      # check reader role
+      unless @http_user.can_read_access?(pack)
+        render_error :status => 403, :errorcode => "read_access_no_permission",
+        :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
+        return
+      end
+    end
 
     if request.get?
       #get file size
@@ -663,10 +703,6 @@ class SourceController < ApplicationController
       return
     end
 
-    #authenticate
-    return unless extract_user
-
-    params[:user] = @http_user.login
     if request.put?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
       

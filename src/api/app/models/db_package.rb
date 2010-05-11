@@ -21,6 +21,8 @@ class DbPackage < ActiveRecord::Base
   has_many :debuginfo_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :useforbuild_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :readaccess_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :privacy_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
 
   belongs_to :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
   has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
@@ -307,7 +309,7 @@ class DbPackage < ActiveRecord::Base
 
       #---begin enable / disable flags ---#
       flag_compatibility_check( :package => package )
-      %w(build publish debuginfo useforbuild binarydownload).each do |flagtype|
+      %w(build publish debuginfo useforbuild binarydownload readaccess privacy).each do |flagtype|
         update_flags( :package => package, :flagtype => flagtype )
       end
 
@@ -617,7 +619,7 @@ class DbPackage < ActiveRecord::Base
         package.group( :groupid => g.title, :role => g.role_name )
       end
 
-      %w(build publish debuginfo useforbuild binarydownload).each do |flag_name|
+      %w(build publish debuginfo useforbuild binarydownload readaccess privacy readaccess privacy).each do |flag_name|
         flaglist = __send__(flag_name+"_flags")
         unless flaglist.empty?
           package.__send__(flag_name) do
@@ -691,7 +693,7 @@ class DbPackage < ActiveRecord::Base
     flag = nil
 
     #translates the flag types as used in the xml to model name + s
-    if %w(build publish debuginfo useforbuild binarydownload).include? opts[:flagtype].to_s
+    if %w(build publish debuginfo useforbuild binarydownload readaccess privacy).include? opts[:flagtype].to_s
       flagtype = opts[:flagtype].to_s + "_flags"
     else
       raise  SaveError.new( "Error: unknown flag type '#{opts[:flagtype]}' not found." )
