@@ -607,12 +607,12 @@ class PackageController < ApplicationController
 
 
   def trigger_rebuild
-    valid_http_methods :post
+    valid_http_methods :delete
     api_cmd('rebuild', params)
   end
 
   def wipe_binaries
-    valid_http_methods :post
+    valid_http_methods :delete
     api_cmd('wipe', params)
   end
 

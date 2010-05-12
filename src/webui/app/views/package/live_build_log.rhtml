@@ -100,8 +100,8 @@
 <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
   <div id="link_trigger_rebuild" class="hidden">
     <p>
-      <%= link_to_remote "[Trigger Rebuild]", :url => { :action => 'trigger_rebuild',
-        :project => @project, :package => @package, :arch => @arch, :repo => @repo } %>
+      <%= link_to "[Trigger Rebuild]", { :action => 'trigger_rebuild',
+        :project => @project, :package => @package, :arch => @arch, :repo => @repo }, :method => :delete %>
     </p>
   </div>
   <div id="link_abort_build" class="hidden">

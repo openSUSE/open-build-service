@@ -32,11 +32,11 @@
   <p>
     <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
       <%= link_to image_tag( 'rebuild.png' ), { :controller => :package, :action => :trigger_rebuild, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %>
-      <%= link_to 'Trigger',{ :controller => :package, :action => :trigger_rebuild, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %> rebuild
+      <%= link_to 'Trigger',{ :controller => :package, :action => :trigger_rebuild, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete} %> rebuild
 
       <% if !result.find( 'binarylist/binary' ).blank? %>
         <%= link_to image_tag( 'icons/drive_burn.png' ), { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %>
-        <%= link_to 'Delete', { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => 'POST'} %> published binaries
+        <%= link_to 'Delete', { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete} %> published binaries
       <% end %>
     <% end %>
     <%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) + "/#{result.attributes['arch']}" %>
