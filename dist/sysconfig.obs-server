@@ -19,6 +19,16 @@
 OBS_SCHEDULER_ARCHITECTURES="i586 x86_64"
 
 ## Path:        Applications/OBS
+## Description: The OBS backend code directory
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# An empty dir will lead to the fall back directory, typically /usr/lib/obs/server/
+#
+OBS_BACKENDCODE_DIR=""
+
+## Path:        Applications/OBS
 ## Description: The base for OBS communication directory
 ## Type:        string
 ## Default:     ""

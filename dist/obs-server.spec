@@ -13,7 +13,7 @@
 Name:           obs-server
 Summary:        The openSUSE Build Service -- Server Component
 
-Version:        1.9.61
+Version:        1.9.62
 Release:        0
 License:        GPL
 Group:          Productivity/Networking/Web/Utilities
@@ -50,7 +50,7 @@ PreReq:         %fillup_prereq %insserv_prereq permissions
 
 %if 0%{?suse_version} >= 1020
 Recommends:     yum yum-metadata-parser repoview dpkg
-Recommends:     createrepo >= 0.9.8
+Recommends:     createrepo
 Conflicts:      createrepo < 0.9.8
 Recommends:     deb >= 1.5
 Recommends:     lvm2
@@ -200,6 +200,12 @@ for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispat
   install -m 0755 $i \
            $RPM_BUILD_ROOT/etc/init.d/
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
+done
+# install logrotate
+install -d -m 755 $RPM_BUILD_ROOT/etc/logrotate.d/
+for i in obs-api.logrotate obs-build.logrotate obs-server.logrotate ; do
+  install -m 0755 $i \
+           $RPM_BUILD_ROOT/etc/logrotate.d/
 done
 # install fillups
 FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
@@ -403,6 +409,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/slp.reg.d
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
+/etc/logrotate.d/obs-server.logrotate
 /etc/init.d/obsdispatcher
 /etc/init.d/obspublisher
 /etc/init.d/obsrepserver
@@ -503,6 +510,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
+/etc/logrotate.d/obs-build.logrotate
+/etc/logrotate.d/obs-api.logrotate
 /etc/init.d/obsapidelayed
 /etc/init.d/obswebuidelayed
 /etc/init.d/obsapisetup
