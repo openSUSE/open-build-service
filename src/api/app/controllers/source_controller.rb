@@ -30,7 +30,7 @@ class SourceController < ApplicationController
     end
     
     if request.get?
-      if @http_user.can_private_view?(pro) or pro.privacy_flags.disabled_for?(params[:repository], params[:arch])
+      if pro.privacy_flags.enabled_for?(params[:repository], params[:arch]) or @http_user.can_private_view?(pro)
         @dir = Package.find :all, :project => project_name
         render :text => @dir.dump_xml, :content_type => "text/xml"
         return
@@ -135,7 +135,7 @@ class SourceController < ApplicationController
       return
     end
     pkg = prj.find_package(package_name)
-    if pkg and pkg.privacy_flags.enabled_for?(params[:repository], params[:arch]) and not @http_user.can_private_view?(pkg)
+    if pkg and pkg.privacy_flags.disabled_for?(params[:repository], params[:arch]) and not @http_user.can_private_view?(pkg)
 #        render_error :status => 403, :errorcode => "private_view_no_permission",
 #      :message => "No permission to view package #{params[:package]}, project #{params[:project]}"
       render_ok
