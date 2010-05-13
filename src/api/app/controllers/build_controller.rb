@@ -91,13 +91,13 @@ class BuildController < ApplicationController
   def file
     valid_http_methods :get
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
-    if pkg and pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch])
-      # check downloader role
-      unless @http_user.can_download_binaries?(pkg)
-        render_error :status => 403, :errorcode => "download_binary_no_permission",
-          :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-        return
-      end
+    if pkg and
+        (pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch]) or
+         pkg.protectall_flags.disabled_for?(params[:repository], params[:arch])) and not
+        @http_user.can_protectall_downloadbinany?(pkg)
+      render_error :status => 403, :errorcode => "download_binary_no_permission",
+      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+      return
     end
 
     path = request.path+"?"+request.query_string
@@ -163,7 +163,10 @@ class BuildController < ApplicationController
     valid_http_methods :get
     prj = DbProject.find_by_name params[:project]
     pkg = prj.find_package params[:package]
-    if prj and prj.privacy_flags.disabled_for?(params[:repository], params[:arch]) and not @http_user.can_private_view?(prj)
+    if prj and
+        prj.privacy_flags.disabled_for?(params[:repository], params[:arch]) and
+        prj.protectall_flags.disabled_for?(params[:repository], params[:arch]) and not
+        @http_user.can_protectall_viewany?(prj)
 #     render_error :status => 403, :errorcode => "private_view_no_permission",
 #     :message => "No permission to view project #{params[:project]}"
       render_ok

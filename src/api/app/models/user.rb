@@ -278,6 +278,39 @@ class User < ActiveRecord::Base
     return false
   end
 
+  def can_protectall_access?(parm)
+    return true if has_global_permission? "protect_all"
+
+    return true if has_local_permission?("protect_all", parm)
+
+    return false
+  end
+
+  def can_protectall_viewany?(parm)
+    return true if can_private_view?(parm)
+    return true if can_protectall_access?(parm)
+    
+    return false
+  end
+
+  def can_protectall_downloadbinany?(parm)
+    if package.kind_of? DbPackage
+      return true if can_download_binaries?(parm)
+    end
+    return true if can_protectall_access?(parm)
+    
+    return false
+  end
+
+  def can_protectall_downloadsrcany?(parm)
+    if package.kind_of? DbPackage
+      return true if can_read_access?(parm)
+    end
+    return true if can_protectall_access?(parm)
+    
+    return false
+  end
+
   # add deprecation warning to has_permission method
   alias_method :has_global_permission?, :has_permission?
   def has_permission?(*args)

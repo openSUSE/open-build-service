@@ -112,6 +112,11 @@
         </element>
       </optional>
       <optional>
+        <element ns="" name="protectall">
+          <ref name="flag-element"/>
+        </element>
+      </optional>
+      <optional>
         <element ns="" name="url">
           <text/>
         </element>

@@ -30,7 +30,7 @@ class DbProject < ActiveRecord::Base
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :readaccess_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :privacy_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
-
+  has_many :protectall_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
 
   def download_name
     self.name.gsub(/:/, ':/')
@@ -646,7 +646,7 @@ class DbProject < ActiveRecord::Base
           :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
-      %w(build publish debuginfo useforbuild binarydownload readaccess privacy).each do |flag_name|
+      %w(build publish debuginfo useforbuild binarydownload readaccess privacy protectall).each do |flag_name|
         if view == 'flagdetails'
           expand_flags(builder, flag_name)
         else

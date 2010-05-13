@@ -25,6 +25,7 @@ class DbPackage < ActiveRecord::Base
   has_many :binarydownload_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :readaccess_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
   has_many :privacy_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
+  has_many :protectall_flags,  :order => :position, :extend => FlagExtension, :dependent => :destroy
 
   belongs_to :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
   has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
@@ -614,7 +615,7 @@ class DbPackage < ActiveRecord::Base
         package.group( :groupid => g.title, :role => g.role_name )
       end
 
-      %w(build publish debuginfo useforbuild binarydownload readaccess privacy).each do |flag_name|
+      %w(build publish debuginfo useforbuild binarydownload readaccess privacy protectall).each do |flag_name|
         flaglist = __send__(flag_name+"_flags")
         if view == 'flagdetails'
           db_project.expand_flags(builder, flag_name, flaglist)

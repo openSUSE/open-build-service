@@ -11,6 +11,9 @@ class Architecture < ActiveRecord::Base
   has_many :debuginfo_flags
   has_many :useforbuild_flags
   has_many :binarydownload_flags
+  has_many :readaccess_flags
+  has_many :privacy_flags
+  has_many :protectall_flags
 
 
   def self.archcache

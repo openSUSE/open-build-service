@@ -73,6 +73,7 @@ our @flags = (
       [ 'binarydownload' => @disableenable ],
       [ 'readaccess' => @disableenable ],
       [ 'privacy' => @disableenable ],
+      [ 'protectall' => @disableenable ],
 );
 
 our $download = [
