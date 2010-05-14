@@ -11,21 +11,21 @@
 
     <!-- code generators -->
     <table class="grid"> <tbody>
-      <tr><td class="aligncenter">Available</td><td class="centered">Used</td><td class="centered">Trash</td></tr>
-      <tr> <td>
-        <% if @user and @user.is_maintainer?( @project, @package ) %>
+      <tr><td><div>Available</div></td><td><div>Used</div></td><td><div>Trash</div></td></tr>
+      <tr> <td> <ol>
+        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
            <% Service.available.each do |service| %>
              <% object_id = "new_service_#{service["name"]}" %>
-             <li class="new_service" id=<%= object_id %> >
-               <%= service["summary"] %><br>
+             <li class="new_service" id="<%= object_id %>" >
+               <%= service["summary"] %>
                <div style="color: #999; font-size: 8pt">
                   <%= service["name"] %>
                </div>
-             </li>
              <%= draggable_element(object_id, :revert=>true) %>
+             </li>
            <% end %>
         <% end %>
-      </td>
+      </ol> </td>
 
       <td><ol>
       <% if @services
@@ -33,19 +33,19 @@
         <% @services.each do |service| 
            number += 1 %>
            <% object_id = "service_#{number}" %>
-           <li class="service" id=<%= object_id %> >
-             <%= h service.name %><br>
+           <li class="service" id="<%= object_id %>" >
+             <%= h service.name %>
              <div style="color: #999; font-size: 8pt">
                  BlahFasel
              </div>
-           </li>
            <%= draggable_element(object_id, :revert=>true) %>
+           </li>
         <% end %>
       <% end %>
-      </td></ol>
+      </ol></td>
 
       <td>
-        <% if @user and @user.is_maintainer?( @project, @package ) %>
+        <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
           <%= drop_receiving_element('trash',
             :accept => "service",
             :with   => "'service=' + (element.id.split('_').last())",
@@ -57,7 +57,7 @@
 <!--
   <h3>
     Generated Files
-    <% if @user and @user.is_maintainer?( @project, @package ) %>
+    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
     <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add Service"),
     :action => :add_service, :project => @project, :package => @package %>
     <% end %>
