@@ -118,9 +118,14 @@ password = foobar
   this:
 
       # mysql -u root -p'your-password'
+
+      create user 'obs'@'%' identified by 'obspassword';
+
+      create user 'obs'@'localhost' identified by 'obspassword';
+
       GRANT all privileges
       ON api_production.* 
-      TO 'obs'@'%', 'obs'@'localhost' IDENTIFIED BY 'obs-password';
+      TO 'obs'@'%', 'obs'@'localhost';
 
       FLUSH PRIVILEGES;
 
@@ -419,4 +424,19 @@ auto configuration:
 
 Please send feedback about this file or the packages to
 opensuse-buildservice@opensuse.org
+
+
+8. Miscellaneous notes
+=====================
+
+ * OBS in the production mode uses memcached optionally. 
+   You can install and enable it as a aservice:
+      # zypper in memchached
+      # rcmemcached start
+
+ * logs are located in various directories.
+   lighttpd: /var/log/lighttpd
+   obs: /srv/obs/log
+   api: /srv/www/obs/api/log
+   webui: /srv/www/obs/webui/log
 
