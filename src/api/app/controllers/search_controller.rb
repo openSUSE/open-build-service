@@ -58,8 +58,16 @@ class SearchController < ApplicationController
 
     collection.uniq!
     collection.each do |item|
-      str = (render_all ? item.to_axml : item.to_axml_id)
-      output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
+      if item.kind_of? DbPackage
+       p = item.db_project
+      else
+       p = item
+      end
+
+      if p.protectall_flags.enabled_for?(:nil, :nil) or @http_user.can_protectall_access?(item)
+        str = (render_all ? item.to_axml : item.to_axml_id)
+        output << str.split(/\n/).map {|l| "  "+l}.join("\n") + "\n"
+      end
     end
 
     output << "</collection>\n"

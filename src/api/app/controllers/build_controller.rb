@@ -164,15 +164,18 @@ class BuildController < ApplicationController
     prj = DbProject.find_by_name params[:project]
     pkg = prj.find_package params[:package]
     if prj and
-        prj.privacy_flags.disabled_for?(params[:repository], params[:arch]) and
-        prj.protectall_flags.disabled_for?(params[:repository], params[:arch]) and not
+        (prj.privacy_flags.disabled_for?(params[:repository], params[:arch]) or
+         prj.protectall_flags.disabled_for?(params[:repository], params[:arch])) and not
         @http_user.can_protectall_viewany?(prj)
 #     render_error :status => 403, :errorcode => "private_view_no_permission",
 #     :message => "No permission to view project #{params[:project]}"
       render_ok
       return
     end
-    if pkg and pkg.privacy_flags.disabled_for?(params[:repository], params[:arch]) and not @http_user.can_private_view?(pkg)
+    if pkg and
+        (pkg.privacy_flags.disabled_for?(params[:repository], params[:arch]) or
+         pkg.protectall_flags.disabled_for?(params[:repository], params[:arch])) and not
+        @http_user.can_protectall_viewany?(pkg)
       render_ok
       return
     end

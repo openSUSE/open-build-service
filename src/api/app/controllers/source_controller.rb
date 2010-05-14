@@ -18,7 +18,7 @@ class SourceController < ApplicationController
       @dir = Project.find :all
       @dir.each do |p|
         prj = DbProject.find_by_name p.name
-        if prj and prj.protectall_flags.disabled_for?(:nil, :nil) and not @http_user.can_protectall_viewany?(prj)
+        if prj and prj.protectall_flags.disabled_for?(:nil, :nil) and not @http_user.can_protectall_access?(prj)
           @dir.delete_element(p)
         end
       end
@@ -36,7 +36,7 @@ class SourceController < ApplicationController
     end
     
     if request.get?
-      if pro.privacy_flags.enabled_for?(params[:repository], params[:arch]) or pro.protectall_flags.enabled_for?(params[:repository], params[:arch]) or
+      if (pro.privacy_flags.enabled_for?(params[:repository], params[:arch]) and pro.protectall_flags.enabled_for?(params[:repository], params[:arch])) or
           @http_user.can_protectall_viewany?(pro)
         @dir = Package.find :all, :project => project_name
         render :text => @dir.dump_xml, :content_type => "text/xml"
@@ -666,10 +666,9 @@ class SourceController < ApplicationController
 
     if (pack.readaccess_flags.disabled_for?(:nil, :nil) or pack.protectall_flags.disabled_for?(:nil, :nil)) and not
         @http_user.can_protectall_downloadsrcany?(pack)
-        render_error :status => 403, :errorcode => "read_access_no_permission",
-        :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
-        return
-      end
+      render_error :status => 403, :errorcode => "read_access_no_permission",
+      :message => "user #{params[:user]} has no read access to package #{package_name}, project #{project_name}"
+      return
     end
 
     if request.get?
