@@ -32,4 +32,32 @@ class MainController < ApplicationController
 
   end
   
+
+  def sitemap
+    render :layout => false
+  end
+
+  def sitemap_projects
+    @projects = Array.new
+    Collection.find_cached(:id, :what => "project").each_project do |p|
+      @projects << p.value(:name)
+    end
+    render :layout => false
+  end
+ 
+  def sitemap_packages_home
+    @packages = Array.new
+    Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'home:')").each_package do |p|
+      @packages << [p.value(:project), p.value(:name)]
+    end
+    render :template => 'main/sitemap_packages', :layout => false
+  end
+
+  def sitemap_packages_main
+    @packages = Array.new
+    Collection.find_cached(:id, :what => "package", :predicate => "not(starts-with(@project,'home:'))").each_package do |p|
+      @packages << [p.value(:project), p.value(:name)]
+    end
+    render :template => 'main/sitemap_packages', :layout => false
+  end
 end

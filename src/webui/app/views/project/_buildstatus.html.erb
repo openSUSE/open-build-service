@@ -23,7 +23,8 @@
           </td>
           <td class="codes"><% counts.each do |code, count| -%>
               <div class="nowrap">
-                <%= link_to("#{code}:&nbsp;#{count}", :action => :monitor, 'repo_' + repo => 1, 'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0) -%>
+                <%= link_to("#{code}:&nbsp;#{count}", { :action => :monitor, valid_xml_id('repo_' + repo) => 1, 
+                            'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0 }, :rel => 'nofollow') -%>
               </div>
           <% end -%></td>
         </tr>

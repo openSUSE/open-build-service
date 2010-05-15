@@ -243,7 +243,7 @@ module ApplicationHelper
     else
       out += link_to code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
         :package => packname, :project => @project.to_s, :arch => arch,
-        :controller => "package", :repository => repo}, {:title => link_title}
+        :controller => "package", :repository => repo}, {:title => link_title, :rel => 'nofollow'}
     end 
     return out + "</td>"
   end

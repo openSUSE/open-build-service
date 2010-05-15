@@ -1,5 +1,6 @@
-<% @pagetitle = "Project #{@project} Status Monitor" %>
-<% project_bread_crumb( 'Status Monitor' ) -%>
+<% @pagetitle = "Project #{@project} Status Monitor"
+   @metarobots = "noindex,nofollow"
+   project_bread_crumb( 'Status Monitor' ) -%>
 
 <% content_for :ready_function do %>
   project_monitor_ready();

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+<url>
+  <loc><%= url_for :controller => :main, :action => :index, :only_path => false %></loc>
+  <changefreq>weekly</changefreq>
+  <priority>1.0</priority>
+</url>
+
+<% @projects.each do |p| %>
+<url>
+  <loc><%= url_for :controller => :project, :action => :show, :project => p, :only_path => false %></loc>
+  <changefreq>weekly</changefreq>
+  <priority>1.0</priority>
+</url>
+<% end %>
+</urlset>
+
+

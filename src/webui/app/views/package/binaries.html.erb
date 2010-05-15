@@ -1,7 +1,7 @@
 
-<% @pagetitle = "Files of Package #{@package} (Project #{@project})" %>
-<% package_bread_crumb
-"Packages for Repository '#{@repository}'"
+<% @pagetitle = "Files of Package #{@package} (Project #{@project})"
+   @metarobots = "index,nofollow" # do not follow the single binary pages
+   package_bread_crumb "Packages for Repository '#{@repository}'"
 -%>
 
 <%= render :partial => "tabs" %>

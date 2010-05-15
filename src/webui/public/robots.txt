@@ -1,10 +1,7 @@
 # See http://www.robotstxt.org/wc/norobots.html for documentation on how to use the robots.txt file
 User-agent: *
 Disallow: /package/live_build_log
-Disallow: /stage/package/live_build_log
 Disallow: /ICSLogin
-Disallow: /stage/project/monitor
 Disallow: /project/monitor
-Disallow  /project/buildresult
-Disallow  /stage/project/buildresult
-# once we're done disallow all of stage Disallow: /stage
+Disallow: /project/buildresult
+Disallow: /stage

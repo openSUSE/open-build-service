@@ -1,5 +1,7 @@
-<% @pagetitle = "Status #{@project}" %>
-<% project_bread_crumb( 'Status' ) -%>
+<% @pagetitle = "Status #{@project}"
+   metarobots = "noindex"
+   project_bread_crumb( 'Status' ) 
+-%>
 
 <% content_for :content_for_head do %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
