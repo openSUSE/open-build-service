@@ -5,3 +5,8 @@ Disallow: /ICSLogin
 Disallow: /project/monitor
 Disallow: /project/buildresult
 Disallow: /stage
+
+# unfortunately the sitemap needs to be full URL,
+# so it needs to be adopted for other anonymous
+# installations
+Sitemap: https://build.opensuse.org/main/sitemap

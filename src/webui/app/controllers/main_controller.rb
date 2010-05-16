@@ -32,6 +32,7 @@ class MainController < ApplicationController
 
   end
   
+  caches_page :sitemap, :sitemap_projects, :sitemap_packages_home, :sitemap_packages_main, :sitemap_packages_opensuse
 
   def sitemap
     render :layout => false
@@ -53,9 +54,17 @@ class MainController < ApplicationController
     render :template => 'main/sitemap_packages', :layout => false
   end
 
+  def sitemap_packages_opensuse
+    @packages = Array.new
+    Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'openSUSE:')").each_package do |p|
+      @packages << [p.value(:project), p.value(:name)]
+    end
+    render :template => 'main/sitemap_packages', :layout => false
+  end
+
   def sitemap_packages_main
     @packages = Array.new
-    Collection.find_cached(:id, :what => "package", :predicate => "not(starts-with(@project,'home:'))").each_package do |p|
+    Collection.find_cached(:id, :what => "package", :predicate => "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))").each_package do |p|
       @packages << [p.value(:project), p.value(:name)]
     end
     render :template => 'main/sitemap_packages', :layout => false
