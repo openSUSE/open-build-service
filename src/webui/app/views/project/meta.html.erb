@@ -1,4 +1,6 @@
-<% @pagetitle = "Raw Config for %s" % @project %>
+<% @pagetitle = "Raw Config for %s" % @project 
+   @metarobots = 'noindex'
+%>
 
 <% content_for :content_for_head do %>
   <%= stylesheet_link_tag "SyntaxHighlighter" %>

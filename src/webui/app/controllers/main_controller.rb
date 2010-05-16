@@ -32,7 +32,7 @@ class MainController < ApplicationController
 
   end
   
-  caches_page :sitemap, :sitemap_projects, :sitemap_packages_home, :sitemap_packages_main, :sitemap_packages_opensuse
+  caches_page :sitemap, :sitemap_projects, :sitemap_packages_home, :sitemap_packages_main, :sitemap_packages_opensuse, :sitemap_projects_packages, :sitemap_projects_users
 
   def sitemap
     render :layout => false
@@ -46,6 +46,22 @@ class MainController < ApplicationController
     render :layout => false
   end
  
+  def sitemap_projects_packages
+    @projects = Array.new
+    Collection.find_cached(:id, :what => "project").each_project do |p|
+      @projects << p.value(:name)
+    end
+    render :layout => false
+  end
+
+  def sitemap_projects_users
+    @projects = Array.new
+    Collection.find_cached(:id, :what => "project").each_project do |p|
+      @projects << p.value(:name)
+    end
+    render :layout => false
+  end
+
   def sitemap_packages_home
     @packages = Array.new
     Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'home:')").each_package do |p|

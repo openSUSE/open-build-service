@@ -1,5 +1,6 @@
-<% @pagetitle = "Subprojects of Project #{@project}" %>
-<% project_bread_crumb( 'Subprojects' ) -%>
+<% @pagetitle = "Subprojects of Project #{@project}"
+   @metarobots = 'noindex'
+   project_bread_crumb( 'Subprojects' ) -%>
 
 <%= render :partial => "tabs" %>
 

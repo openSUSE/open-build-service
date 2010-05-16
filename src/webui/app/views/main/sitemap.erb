@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects, :only_path => false %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects, :only_path => false, :protocol => 'https' %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_packages_main, :only_path => false %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects_packages, :only_path => false, :protocol => 'https' %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_packages_home, :only_path => false %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_projects_users, :only_path => false, :protocol => 'https' %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_packages_opensuse, :only_path => false %></loc>
+      <loc><%= url_for :controller => :main, :action => :sitemap_packages_main, :only_path => false, :protocol => 'https' %></loc>
+   </sitemap>
+   <sitemap>
+      <loc><%= url_for :controller => :main, :action => :sitemap_packages_home, :only_path => false, :protocol => 'https' %></loc>
+   </sitemap>
+   <sitemap>
+      <loc><%= url_for :controller => :main, :action => :sitemap_packages_opensuse, :only_path => false, :protocol => 'https' %></loc>
    </sitemap>
 </sitemapindex>
 
