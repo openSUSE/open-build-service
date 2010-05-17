@@ -66,7 +66,7 @@ namespace :config do
 
   desc "Set permissions"
   task :permissions do
-    run "chown -R lighttpd #{current_path}/db #{current_path}/tmp"
+    run "chown -R lighttpd #{current_path}/db #{current_path}/tmp #{current_path}/public/main"
   end
 end
 
