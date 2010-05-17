@@ -15,8 +15,9 @@
     </tr>
     <% @iprojects.each do |project| -%>
       <tr>
-        <td><%= link_to project, :action => :show, :project => project %></td>
-        <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => project %></td>
+        <td><%= link_to project, :controller => :project, :action => :show, :project => project %></td>
+        <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :controller => :project, 
+                        :action => :monitor, :project => project %></td>
       </tr>
     <% end -%>
   </table>
@@ -37,8 +38,9 @@
     <% packs.each do |pkg| -%>
       <tr>
         <td><%= link_to pkg, :controller => :package, :action => :show, :project => prj, :package => pkg %></td>
-        <td><%= link_to prj, :action => :show, :project => prj %></td>
-        <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => prj, :pkgname => pkg %></td>
+        <td><%= link_to prj, :controller => :project, :action => :show, :project => prj %></td>
+        <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), 
+                :action => :monitor, :project => prj, :pkgname => pkg, :controller => :project  %></td>
       </tr>
     <% end -%>
   <% end -%>
