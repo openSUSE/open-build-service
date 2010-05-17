@@ -145,11 +145,11 @@ sub run_source_update {
   for my $service (@{$serviceinfo->{'service'}}) {
     print "Run for ".$service->{'name'}."\n";
     my @run;
-    if (defined $BSConfig::service_wrapper{$service->{'name'}} ) {
-      push @run, $BSConfig::service_wrapper{$service->{'name'}};
+    if (defined $BSConfig::service_wrapper->{$service->{'name'}} ) {
+      push @run, $BSConfig::service_wrapper->{$service->{'name'}};
     } else {
-      if (defined $BSConfig::service_wrapper{'*'}) {
-        push @run, $BSConfig::service_wrapper{'*'};
+      if (defined $BSConfig::service_wrapper->{'*'}) {
+        push @run, $BSConfig::service_wrapper->{'*'};
       }
     }
     push @run, $BSConfig::servicedir."/".$service->{'name'};

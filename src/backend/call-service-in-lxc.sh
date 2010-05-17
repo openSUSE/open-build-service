@@ -62,7 +62,7 @@ chmod 0755 "$MOUNTDIR/$INNERSCRIPT"
 # construct jail
 LXC_CONF="/tmp/obs.service.$$"
 echo "lxc.utsname = obs.service.$$" > $LXC_CONF
-if [ "$WITH_NET" == "2" ] ; then
+if [ "$WITH_NET" == "1" ] ; then
   mount -t proc proc $MOUNTDIR/proc
 else
   echo "lxc.network.type = empty" >> $LXC_CONF
@@ -85,8 +85,9 @@ lxc-start -n obs.service.jail.$$ "$INNERSCRIPT" || RETURN="1"
 lxc-destroy -n obs.service.jail.$$
 
 # move out the result
-find "$MOUNTDIR/$INNEROUTDIR" -type f && \
+if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f | wc -l` -gt 0 ]; then
   mv "$MOUNTDIR/$INNEROUTDIR"/* "$OUTDIR/"
+fi
 
 # cleanup
 if [ "$WITH_NET" == "1" ] ; then
