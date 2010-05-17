@@ -6,11 +6,11 @@ class PackageController < ApplicationController
   include ApplicationHelper
   include PackageHelper
 
-  before_filter :require_project, :not => [:add_person, :create_submit,
+  before_filter :require_project, :except => [:add_person, :create_submit,
     :edit_file, :import_spec, :rawlog, :remove_file, :remove_person,
     :remove_url, :save, :save_meta, :save_modified_file, :save_person,
     :set_url, :set_url_form, :update_build_log]
-  before_filter :require_package, :not => [:create_submit, :edit_file, :rawlog,
+  before_filter :require_package, :except => [:create_submit, :edit_file, :rawlog, :new, :new_link,
     :save_meta, :save_modified_file, :save_new, :save_new_link, :update_build_log]
 
   before_filter :load_current_requests
@@ -75,6 +75,12 @@ class PackageController < ApplicationController
     @repository = params[:repository]
     @buildresult = Buildresult.find_cached( :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
+  end
+
+  def new
+  end
+
+  def new_link
   end
 
   def users
@@ -770,7 +776,7 @@ class PackageController < ApplicationController
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to :controller => "project", :action => :show, :project => @project, :nextstatus => 404
+      redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404
     end
   end
 
