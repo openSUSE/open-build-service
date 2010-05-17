@@ -209,7 +209,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch/:package/_status',
     :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_log',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
+    :controller => "build", :action => "logfile", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_buildinfo',
     :controller => "build", :action => "buildinfo", :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/
   map.connect 'build/:project/:repository/:arch/:package/_history',
@@ -225,7 +225,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'build/:project/:repository/:arch',
     :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
   map.connect 'build/:project/_result',
-    :controller => "build", :action => "pass_to_source", :project => /[^\/]*/
+    :controller => "build", :action => "result", :project => /[^\/]*/
   map.connect 'build/:project/:repository',
     :controller => "build", :action => "pass_to_source", :project => /[^\/]*/, :repository => /[^\/]*/
   # the web client does no longer use that route, but we keep it for backward compat

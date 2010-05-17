@@ -71,6 +71,8 @@ our @flags = (
       [ 'debuginfo' => @disableenable ],
       [ 'useforbuild' => @disableenable ],
       [ 'binarydownload' => @disableenable ],
+      [ 'readaccess' => @disableenable ],
+      [ 'privacy' => @disableenable ],
 );
 
 our $download = [
