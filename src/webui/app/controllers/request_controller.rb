@@ -6,8 +6,7 @@ class RequestController < ApplicationController
     end
     unless @therequest
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_to :action => :index
-      return
+      redirect_to :action => :index and return
     end
 
     @id = @therequest.data.attributes["id"]
@@ -34,11 +33,9 @@ class RequestController < ApplicationController
       begin
         @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
       rescue Object => e
-        @diff_error = e.message
+        @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
+        flash.now[:error] = "Can't get diff for request: #{@diff_error}"
       end
-    else
-      @diff_error = nil
-      @diff_text = nil
     end
 
     @revoke_own = (["revoke"].include? params[:changestate]) ? true : false

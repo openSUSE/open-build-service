@@ -41,20 +41,16 @@ setup_buildresult_trigger
       <td><%= req.state.name %></td>
       <%  if req.has_element? :action:
           elem = "action"
-        is_submit = false
       else
         elem = "submit"
-        is_submit = true
       end -%>
       <%  a = req.send("#{elem}") -%>
       <td>
-        <%      if elem == "submit": %> <!-- old style submission -->
+        <% if elem == "submit": %> <!-- old style submission -->
           submit
-          <%        is_submit = true
-        else %>
-          <%=       a.data.attributes["type"] %>
-          <%        is_submit = ( a.data.attributes["type"] == "submit" )
-        end -%>
+        <% else %>
+          <%= a.data.attributes["type"] %>
+        <% end -%>
       </td>
       <td>
         <%= if a.has_element? :source
@@ -69,22 +65,19 @@ setup_buildresult_trigger
       <td rowspan="2"><%= link_to req.state.who, :controller => :project, :action => "show", :project => "home:"+req.state.who %></td>
     </tr>
     <tr>
-      <td colspan="4"><%= h(req.value('description') || "-") %></td>
+      <td colspan="4"><pre><%= h(req.value('description') || "-") %></pre></td>
     </tr>
   </tbody>
 </table>
 
 <% if @diff_text %>
   <pre id="code" class="patch">
-  <%= h @diff_text %>
+    <%= h @diff_text %>
   </pre>
-<% elsif @diff_error %>
-  <p>
-    <span class="message">Can't get diff for request #<%= @id %>: <%= h @diff_error %></span>
-  </p>
 <% end %>
 
-<% if !["accepted", "declined", "revoked"].include? @state and (@is_maintainer || @is_author) %>
+<% if !["accepted", "declined", "revoked"].include? @state and (@is_maintainer || @is_author) and !@diff_error %>
+  <p/>
   <div class="section">
     <h3>
       <% if @is_maintainer %>
@@ -101,18 +94,20 @@ setup_buildresult_trigger
           <%= text_field_tag :reason, 'Reviewed ok' , :size => 80 %><br/>
           <%= hidden_field_tag( "id", @id) %>
         </p>
-        <% if @is_maintainer %>
-          <% linked = @target_pkg.linked_to if @target_pkg -%>
-          <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
-            <%= hidden_field_tag( "forward_project", linked[0]) %>
-            <%= hidden_field_tag( "forward_package", linked[1]) %>
-            <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
-          <% end -%>
-          <%= submit_tag "Accept", :name => 'accepted' %>
-          <%= submit_tag "Decline", :name => 'declined' %>
-        <% elsif @is_author %>
-          <%= submit_tag "Revoke", :name => 'revoked' %>
-        <% end %>
+        <p>
+          <% if @is_maintainer %>
+            <% linked = @target_pkg.linked_to if @target_pkg -%>
+            <% if linked and not linked.empty? and @therequest.action.data["type"] == "submit" -%>
+              <%= hidden_field_tag( "forward_project", linked[0]) %>
+              <%= hidden_field_tag( "forward_package", linked[1]) %>
+              <%= submit_tag "Forward to %s" % linked, :name => 'forward' %>
+            <% end -%>
+            <%= submit_tag "Accept", :name => 'accepted' %>
+            <%= submit_tag "Decline", :name => 'declined' %>
+          <% elsif @is_author %>
+            <%= submit_tag "Revoke", :name => 'revoked' %>
+          <% end %>
+        </p>
       </div>
     <% end %>
   </div>
