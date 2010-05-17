@@ -64,7 +64,7 @@ sub add {
     vec($ev->{'vec'}, fileno(*{$ev->{'fd'}}), 1) = 1;
     die("fd out of range\n") if length($ev->{'vec'}) != 128;
     $events_rvec |= $ev->{'vec'};
-    die("event for file descripor added twice\n") if $events_rvec{$ev->{'vec'}};
+    die("event for file descriptor added twice\n") if $events_rvec{$ev->{'vec'}};
     $events_rvec{$ev->{'vec'}} = $ev;
   } elsif ($ev->{'type'} eq 'write') {
     $ev->{'vec'} = "\0\0\0\0\0\0\0\0" x 16;
@@ -72,7 +72,7 @@ sub add {
     vec($ev->{'vec'}, fileno(*{$ev->{'fd'}}), 1) = 1;
     die("fd out of range\n") if length($ev->{'vec'}) != 128;
     $events_wvec |= $ev->{'vec'};
-    die("event for file descripor added twice\n") if $events_wvec{$ev->{'vec'}};
+    die("event for file descriptor added twice\n") if $events_wvec{$ev->{'vec'}};
     $events_wvec{$ev->{'vec'}} = $ev;
   } else {
     delete $ev->{'vec'};
