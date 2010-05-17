@@ -1159,9 +1159,11 @@ class SourceController < ApplicationController
 
     #create branch package
     if opkg = oprj.db_packages.find_by_name(opkg_name)
-      render_error :status => 400, :errorcode => "double_branch_package",
-        :message => "branch target package already exists: #{oprj_name}/#{opkg_name}"
-      return
+      unless params[:force]
+        render_error :status => 400, :errorcode => "double_branch_package",
+          :message => "branch target package already exists: #{oprj_name}/#{opkg_name}"
+        return
+      end
     else
       opkg = oprj.db_packages.create(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
       opkg.add_user @http_user, "maintainer"
