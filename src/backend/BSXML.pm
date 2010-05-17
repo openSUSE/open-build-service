@@ -724,6 +724,7 @@ our $resultlist = [
 our $opstatus = [
     'status' =>
 	'code',
+	'origin',
 	[],
 	'summary',
 	'details',
