@@ -41,7 +41,7 @@
           <%= proceed_link 'list.png', 'List of All Projects', :controller => "project", :action => :list_public %>
       <% else -%>
           <% if session[:login] -%>
-            <%= proceed_link 'start-here.png', 'My Projects', :controller => "project", :action => :list_my %>
+            <%= proceed_link 'start-here.png', 'My Projects', :controller => "home", :action => :list_my %>
           <% end %>
           <%= proceed_link 'list.png', 'List of All Projects', :controller => "project", :action => :list_public %>
           <%= proceed_link 'system-search.png', 'Search', :controller => 'search', :action => 'index' %>
