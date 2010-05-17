@@ -17,6 +17,7 @@ class ProjectController < ApplicationController
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :show, :monitor, :edit_prjconf, :list_requests, :autocomplete_packages,
     :packages, :users, :subprojects, :repositories, :attributes, :edit_repository,
+    :new_package, :new_package_link,
     :meta, :edit_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
 
   before_filter :load_current_requests, :only => [:delete, :view,

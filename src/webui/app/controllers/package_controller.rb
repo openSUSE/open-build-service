@@ -10,7 +10,7 @@ class PackageController < ApplicationController
     :edit_file, :import_spec, :rawlog, :remove_file, :remove_person,
     :remove_url, :save, :save_meta, :save_modified_file, :save_person,
     :set_url, :set_url_form, :update_build_log]
-  before_filter :require_package, :except => [:create_submit, :edit_file, :rawlog, :new, :new_link,
+  before_filter :require_package, :except => [:create_submit, :edit_file, :rawlog,
     :save_meta, :save_modified_file, :save_new, :save_new_link, :update_build_log]
 
   before_filter :load_current_requests
@@ -75,12 +75,6 @@ class PackageController < ApplicationController
     @repository = params[:repository]
     @buildresult = Buildresult.find_cached( :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
-  end
-
-  def new
-  end
-
-  def new_link
   end
 
   def users
@@ -210,12 +204,14 @@ class PackageController < ApplicationController
     @package_description = params[:description]
 
     if !valid_package_name? params[:name]
-      flash.now[:error] = "Invalid package name: '#{params[:name]}'"
-      render :action => 'new' and return
+      flash[:error] = "Invalid package name: '#{params[:name]}'"
+      redirect_to :controller => :project, :action => 'new_package', :project => @project
+      return
     end
     if Package.exists? @project, @package_name
-      flash.now[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
-      render :action => 'new' and return
+      flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
+      redirect_to :controller => :project, :action => 'new_package', :project => @project
+      return
     end
 
     @package = Package.new( :name => params[:name], :project => @project )
@@ -758,7 +754,7 @@ class PackageController < ApplicationController
   end
 
   def require_project
-    if params[:project]
+    unless params[:project].blank?
       @project = Project.find_cached( params[:project], :expires_in => 5.minutes )
     end
     unless @project
@@ -770,7 +766,7 @@ class PackageController < ApplicationController
 
   def require_package
     @project ||= params[:project]
-    if params[:package]
+    unless params[:package].blank?
       @package = Package.find_cached( params[:package], :project => @project.to_s )
     end
     unless @package
