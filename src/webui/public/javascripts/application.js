@@ -139,13 +139,24 @@ function br_trigger_mouseout() {
 
 }
 
+// include menu methods manually provided by bento menu otherwise
 function setup_favorites() {
-    if (!$('#global-favorites').offset()) {
+    if (!$('#item-favorites').offset()) {
         return;
     }
     $('#menu-favorites').hide();
 
-    $('#global-favorites').click(function(){
+    var position_menu = function(button_id, menu_id) {
+        var top = $('#global-navigation').height()-12;
+        if ($.browser.webkit) top += 1;
+        var left = $('#' + button_id).offset().left-15;
+        $('#' + menu_id).css({left:'',top:''});
+        $('#' + menu_id).offset({left:left,top:top});
+    }
+
+    // copied from global-navigation.js
+    $('#global-navigation li[id^=item-]').click(function(){
+        var name = $(this).attr('id').substring(5);
         $("ul[id^=menu-]:visible").each(function() {
             $(this).fadeOut('fast');
         } );
@@ -154,14 +165,8 @@ function setup_favorites() {
             $('#global-navigation li.selected').removeClass('selected');
         } else {
             $('#global-navigation li.selected').removeClass('selected');
-            var top = $('#global-navigation').height()-12;
-            if ($.browser.webkit) top += 1;
-            var left = $('#global-favorites').offset().left-16;
-            $('#menu-favorites').offset({
-                left:left,
-                top:top
-            });
-            $('#menu-favorites').fadeIn();
+            position_menu('item-' + name, 'menu-' + name);
+            $('#menu-' + name).fadeIn();
             $(this).addClass('selected');
         }
         return false;

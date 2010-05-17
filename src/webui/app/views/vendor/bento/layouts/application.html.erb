@@ -26,8 +26,11 @@
     /* <![CDATA[ */
     <%= yield :head_javascript %>
     $(function() {
+      <% if CONFIG['theme'] == 'bento' %>
+      googleTracker();
+      <% else %>
       setup_favorites();
-      <%= "googleTracker();" if CONFIG['theme'] == 'bento' %>
+      <% end %>
       <%= yield :ready_function %>
     });
     /* ]]> */
