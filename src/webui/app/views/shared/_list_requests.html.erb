@@ -42,10 +42,10 @@
             end -%>
           </td>
           <td>
-            <% if action_elem.has_element? :target and action_elem.target.has_attribute? :package and reqtype(req) != "delete" %>
-              <!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->
-              <%= package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 ) %>
-            <% end %>
+            <%= if action_elem.has_element? :target and action_elem.target.has_attribute? :package and reqtype(req) != "delete"
+              "<!-- " + action_elem.target.project + "/" + action_elem.target.package + "-->" + 
+              package_link(action_elem.target.project, action_elem.target.package, :hide_package => hide_package, :hide_project => hide_project, :length => 40 )
+             end %>
           </td>
           <td class="nowrap">
             <span title="<%= req.state.who %>"><%=  truncate(req.state.who, :length => 12) %></span>
