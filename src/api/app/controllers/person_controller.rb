@@ -1,3 +1,5 @@
+#require "rexml/document"
+
 class PersonController < ApplicationController
 
   def userinfo
@@ -8,22 +10,25 @@ class PersonController < ApplicationController
       render :template => 'error', :status => 401
     else
       if request.get?
+        with_watchlist = false
         if params[:login]
           login = URI.unescape( params[:login] )
           logger.debug "Generating for user from parameter #{login}"
           @render_user = User.find_by_login( login )
-          if ! @render_user 
+          if @render_user.blank?
             logger.debug "User is not valid!"
             render_error :status => 404, :errorcode => 'unknown_user',
               :message => "Unknown user: #{login}"
+            return
           end
         else 
           logger.debug "Generating user info for logged in user #{@http_user.login}"
           @render_user = @http_user
         end
-      # see the corresponding view users.rxml that generates a xml
-      # response for the caller.
-
+        if @http_user.is_admin? or @http_user == @render_user
+          with_watchlist = true
+        end
+        render :text => @render_user.render_axml( :watchlist => with_watchlist ), :content_type => "text/xml"
       elsif request.put?
         user = @http_user
       

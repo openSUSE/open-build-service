@@ -1,3 +1,4 @@
+
 class User < ActiveRecord::Base
   include ActiveRbacMixins::UserMixins::Core
   include ActiveRbacMixins::UserMixins::Validation
@@ -7,6 +8,7 @@ class User < ActiveRecord::Base
 
   has_many :watched_projects, :foreign_key => 'bs_user_id'
   has_many :groups_users, :foreign_key => 'user_id'
+  has_many :roles_users, :foreign_key => 'user_id'
   has_many :project_user_role_relationships, :foreign_key => 'bs_user_id'
   has_many :package_user_role_relationships, :foreign_key => 'bs_user_id'
 
@@ -35,6 +37,32 @@ class User < ActiveRecord::Base
     else 
       logger.debug "Error - skipping to create user"
     end
+  end
+
+  def render_axml( watchlist = nil )
+    builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
+ 
+    logger.debug "----------------- rendering person #{self.login} ------------------------"
+    xml = builder.person() do |person|
+      person.login( self.login )
+      person.email( self.email )
+      person.realname( self.realname )
+
+      self.roles.find(:all, :conditions => [ "global = true" ]).each do |role|
+        person.globalrole( role.title )
+      end
+
+      # Show the watchlist only to the user for privacy reasons
+      if watchlist
+        person.watchlist() do |wl|
+          self.watched_projects.each do |project|
+            wl.project( :name => project.name )
+          end
+        end
+      end
+    end
+
+    xml.target!
   end
 
   # Returns true if the the state transition from "from" state to "to" state

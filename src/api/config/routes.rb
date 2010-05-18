@@ -19,8 +19,6 @@ ActionController::Routing::Routes.draw do |map|
   ### /person
 
   map.connect 'person/register', :controller => 'person', :action => 'register'
-  map.connect 'person/:login/_watchlist', :controller => 'person', :action => 'watchlist', :login => /[^\/]*/
-  map.connect 'person/:login/_roles', :controller => 'person', :action => 'roleinfo', :login => /[^\/]*/
   map.connect 'person/:login', :controller => 'person', :action => 'userinfo', :login => /[^\/]*/
 
   ### /result
@@ -294,8 +292,6 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'public', :action => 'source_file', :prj => /[^\/]*/, :pkg => /[^\/]*/, :file => /[^\/]*/
   map.connect '/public/lastevents',
     :controller => 'public', :action => 'lastevents'
-  map.connect '/public/person/:login/_watchlist', 
-    :controller => 'public', :action => 'watchlist', :login => /[^\/]*/
   map.connect '/public/distributions',
     :controller => 'public', :action => 'distributions'
   map.connect '/public/binary_packages/:project/:package',
