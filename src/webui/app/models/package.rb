@@ -175,7 +175,7 @@ class Package < ActiveXML::Base
     # files whose name ends in the following extensions should not be editable
     no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
     files = []
-    dir = Directory.find_cached( :project => project, :package => name )
+    dir = Directory.find_cached( :project => project, :package => name, :expires_in => 10.minutes )
     return files unless dir
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
     dir.each_entry do |entry|

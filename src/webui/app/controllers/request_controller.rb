@@ -58,6 +58,7 @@ class RequestController < ApplicationController
   end
   private :change_request
 
+
   def submitreq
     changestate = nil
     %w{forward accepted declined revoked}.each do |s|
@@ -67,8 +68,8 @@ class RequestController < ApplicationController
       end
     end
 
+    req = Request.find_cached( params[:id] )
     if changestate == 'forward' # special case
-      req = Request.find_cached( params[:id] )
       description = req.description.text
       logger.debug 'request ' +  req.dump_xml
 
@@ -93,6 +94,7 @@ class RequestController < ApplicationController
     end
 
     change_request(changestate, params)
+    Directory.free_cache( :project => req.action.target.project, :package => req.action.target.package )
 
     redirect_to :action => :diff, :id => params[:id]
   end

@@ -10,6 +10,7 @@ class HomeController < ApplicationController
     user = Person.find_cached( params['user'] ) if params['user']
     user ||= @user
     @requests = user.involved_requests(:cache => false)
+    @nr_involved_requests = @requests.size
   end
 
   def list_my
