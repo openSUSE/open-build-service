@@ -1135,15 +1135,15 @@ class SourceController < ApplicationController
     oprj_name = target_project unless target_project.nil?
     opkg_name = target_package unless target_package.nil?
 
-    unless @http_user.can_create_project?(oprj_name)
-      render_error :status => 403, :errorcode => "create_project_no_permission",
-        :message => "no permission to create project '#{oprj_name}' while executing branch command"
-      return
-    end
-
     #create branch container
     oprj = DbProject.find_by_name oprj_name
     if oprj.nil?
+      unless @http_user.can_create_project?(oprj_name)
+        render_error :status => 403, :errorcode => "create_project_no_permission",
+          :message => "no permission to create project '#{oprj_name}' while executing branch command"
+        return
+      end
+
       DbProject.transaction do
         oprj = DbProject.new :name => oprj_name, :title => "Branch of #{prj.title}", :description => prj.description
         oprj.add_user @http_user, "maintainer"
@@ -1159,12 +1159,26 @@ class SourceController < ApplicationController
 
     #create branch package
     if opkg = oprj.db_packages.find_by_name(opkg_name)
-      unless params[:force]
+      if params[:force]
+        # shall we clean all files here ?
+      else
         render_error :status => 400, :errorcode => "double_branch_package",
           :message => "branch target package already exists: #{oprj_name}/#{opkg_name}"
         return
       end
+
+      unless @http_user.can_modify_package?(opkg)
+        render_error :status => 403, :errorcode => "create_package_no_permission",
+          :message => "no permission to create package '#{opkg_name}' for project '#{oprj_name}' while executing branch command"
+        return
+      end
     else
+      unless @http_user.can_create_package_in?(oprj)
+        render_error :status => 403, :errorcode => "create_package_no_permission",
+          :message => "no permission to create package '#{opkg_name}' for project '#{oprj_name}' while executing branch command"
+        return
+      end
+
       opkg = oprj.db_packages.create(:name => opkg_name, :title => pkg.title, :description => params.has_key?(:comment) ? params[:comment] : pkg.description)
       opkg.add_user @http_user, "maintainer"
       opkg.store
