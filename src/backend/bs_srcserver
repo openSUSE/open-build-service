@@ -3774,8 +3774,10 @@ sub search_published_binary_id {
   $binarydb->{'indexfunc'} = {'project' => \&published_projectindexfunc };
   $binarydb->{'fetch'} = \&binary_key_to_data;
   $binarydb->{'cheapfetch'} = 1;
-  my $rootnode = BSXPathKeys::node($binarydb, '');
+  my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
+  my $rootnode = BSXPathKeys::node($binarydb, '', $limit * 10);
   my $data = BSXPath::match($rootnode, $match) || [];
+  die("search limit reached\n") if $limit && @$data > $limit;
   # epoch?
   @$data = sort {Build::Rpm::verscmp($b->{'version'}, $a->{'version'}) || $a->{'name'} cmp $b->{'name'} || $a->{'arch'} cmp $b->{'arch'}} @$data;
   delete $_->{'path'} for @$data;
@@ -3788,8 +3790,10 @@ sub search_published_pattern_id {
   my $patterndb = BSDB::opendb($extrepodb, 'pattern');
   $patterndb->{'noindex'} = {'project' => 1, 'repository' => 1};
   $patterndb->{'fetch'} = \&pattern_key_to_data;
-  my $rootnode = BSXPathKeys::node($patterndb, '');
+  my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
+  my $rootnode = BSXPathKeys::node($patterndb, '', $limit * 10);
   my $data = BSXPath::match($rootnode, $match) || [];
+  die("search limit reached\n") if $limit && @$data > $limit;
   for (@$data) {
     delete $_->{'path'};
     delete $_->{'description'};
@@ -4132,8 +4136,10 @@ sub search_request {
   $db->{'noindex'} = {'id' => 1};
   $db->{'allkeyspath'} = 'type';
   $db->{'fetch'} = \&fetchreq;
-  my $rootnode = BSXPathKeys::node($db, '');
+  my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 0;
+  my $rootnode = BSXPathKeys::node($db, '', $limit * 10);
   my $data = BSXPath::match($rootnode, $match) || [];
+  die("search limit reached\n") if $limit && @$data > $limit;
   my $res = {'request' => $data};
   return ($res, $BSXML::collection);
 }
@@ -4557,8 +4563,8 @@ my $dispatches = [
   '/search/package/id $match:' => \&search_pack_id,
 
   'POST:/search/published cmd:' => \&search_published_updatedb,
-  '/search/published/binary/id $match:' => \&search_published_binary_id,
-  '/search/published/pattern/id $match:' => \&search_published_pattern_id,
+  '/search/published/binary/id $match: limit:num?' => \&search_published_binary_id,
+  '/search/published/pattern/id $match: limit:num?' => \&search_published_pattern_id,
 
   # build calls for binary files
   '/build' => \&getprojectlist,
@@ -4591,7 +4597,7 @@ my $dispatches = [
   '/request/$id:num' => \&getrequest,
   'PUT:/request/$id:num user:?' => \&putrequest,
   'DELETE:/request/$id:num' => \&delrequest,
-  '/search/request $match:' => \&search_request,
+  '/search/request $match: limit:num?' => \&search_request,
 
   '/ajaxstatus' => \&getajaxstatus,
 ];

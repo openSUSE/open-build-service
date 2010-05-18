@@ -56,10 +56,11 @@ use strict;
 
 
 sub node {
-  my ($db, $path) = @_;
+  my ($db, $path, $limit) = @_;
   my $v = bless {};
   $v->{'db'} = $db;
   $v->{'path'} = $path;
+  $v->{'limit'} = $limit;
   return $v;
 }
 
@@ -96,12 +97,14 @@ sub value {
       push @v, $db->keys();
     }
   } else {
+    die("search limit reached\n") if $self->{'limit'} && @{$self->{'keys'}} > $self->{'limit'};
     for my $k (@{$self->{'keys'}}) {
       my $v = $db->fetch($k);
       next unless defined $v;
       push @v, selectpath($v, $path);
     }
   }
+  die("search limit reached\n") if $self->{'limit'} && @v > $self->{'limit'};
   return \@v;
 }
 
@@ -111,6 +114,7 @@ sub step {
   my $v = bless {};
   $v->{'db'} = $self->{'db'};
   $v->{'keys'} = $self->{'keys'} if $self->{'keys'};
+  $v->{'limit'} = $self->{'limit'} if $self->{'limit'};
   if ($self->{'path'} eq '') {
     $v->{'path'} = "$c";
   } else {
@@ -123,6 +127,7 @@ sub toconcrete {
   my ($self) = @_;
   my $vv = bless {};
   $vv->{'db'} = $self->{'db'};
+  $vv->{'limit'} = $self->{'limit'} if $self->{'limit'};
   if ($self->{'keys'}) {
     $vv->{'keys'} = $self->{'keys'};
     $vv->{'value'} = 'true';
@@ -147,6 +152,7 @@ sub boolop {
     $v2 = toconcrete($v2) unless exists $v2->{'value'};
     my $v = bless {};
     $v->{'db'} = $v1->{'db'};
+    $v->{'limit'} = $v1->{'limit'} if $v1->{'limit'};
     my @k;
     my %k1 = map {$_ => 1} @{$v1->{'keys'}};
     my %k2 = map {$_ => 1} @{$v2->{'keys'}};
@@ -169,6 +175,7 @@ sub boolop {
   if (ref($v1) eq ref($self)) {
     my $v = bless {};
     $v->{'db'} = $v1->{'db'};
+    $v->{'limit'} = $v1->{'limit'} if $v1->{'limit'};
     my $db = $v1->{'db'};
     if (exists($v1->{'value'})) {
       $v->{'keys'} = $v1->{'keys'};
@@ -179,14 +186,19 @@ sub boolop {
     my @k;
     if ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v1->{'path'}, $v2, $v1->{'keys'});
+      die("search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       $negpol = 0;
     } elsif (!$negpol) {
       for my $vv ($db->values($v1->{'path'}, $v1->{'keys'})) {
-        push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'}) if $op->($vv, $v2);
+	next unless $op->($vv, $v2);
+	push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
+	die("search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       }
     } else {
       for my $vv ($db->values($v1->{'path'}, $v1->{'keys'})) {
-        push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'}) unless $op->($vv, $v2);
+	next if $op->($vv, $v2);
+	push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
+	die("search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       }
     }
     if ($v1->{'keys'}) {
@@ -202,6 +214,7 @@ sub boolop {
   if (ref($v2) eq ref($self)) {
     my $v = bless {};
     $v->{'db'} = $v1->{'db'};
+    $v->{'limit'} = $v1->{'limit'} if $v1->{'limit'};
     my $db = $v1->{'db'};
     if (exists($v2->{'value'})) {
       $v->{'keys'} = $v2->{'keys'};
@@ -212,14 +225,19 @@ sub boolop {
     my @k;
     if ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v2->{'path'}, $v1, $v2->{'keys'});
+      die("search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       $negpol = 0;
     } elsif (!$negpol) {
       for my $vv ($db->values($v2->{'path'}, $v2->{'keys'})) {
-	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'}) if $op->($v1, $vv);
+	next unless $op->($v1, $vv);
+	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
+	die("search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       }
     } else {
       for my $vv ($db->values($v2->{'path'}, $v2->{'keys'})) {
-	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'}) unless $op->($v1, $vv);
+	next if $op->($v1, $vv);
+	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
+	die("search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       }
     }
     if ($v2->{'keys'}) {
@@ -255,6 +273,7 @@ sub predicate {
   my $vv = bless {};
   $vv->{'db'} = $self->{'db'};
   $vv->{'path'} = $self->{'path'};
+  $vv->{'limit'} = $self->{'limit'} if $self->{'limit'};
   my @k;
   if ($v->{'value'}) {
     @k = @{$v->{'keys'}};
@@ -280,6 +299,7 @@ sub limit {
     my @k = @{$v->{'keys'}};
     my $vv = bless {};
     $vv->{'db'} = $self->{'db'};
+    $vv->{'limit'} = $self->{'limit'} if $self->{'limit'};
     $vv->{'path'} = $self->{'path'};
     if (@k && $self->{'keys'}) {
       my %k = map {$_ => 1} @{$self->{'keys'}};
