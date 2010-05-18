@@ -544,9 +544,10 @@ sub set_building {
   }
 
   # jay! ready for building, write status and job info
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => time(), 'job' => $job}, $BSXML::buildstatus);
+  my $now = time();
+  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
   # And store reason and time
-  $reason->{'time'} = time();
+  $reason->{'time'} = $now;
   writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
 
   my @pdeps = Build::get_preinstalls($bconf);
@@ -588,6 +589,7 @@ sub set_building {
     'job' => $job,
     'arch' => $myarch,
     'reason' => $reason->{'explain'},
+    'readytime' => $now,
     'srcmd5' => $pdata->{'srcmd5'},
     'verifymd5' => $vmd5,
     'rev' => $pdata->{'rev'},
@@ -1863,7 +1865,7 @@ sub jobfinished {
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
   my $prp = "$projid/$repoid";
-  my $mytime = time(); # ensure that we use the same time in all logs
+  my $now = time(); # ensure that we use the same time in all logs
   if ($info->{'arch'} ne $myarch) {
     print "  - $job has bad arch\n";
     return;
@@ -2013,7 +2015,7 @@ sub jobfinished {
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
 
   # write history file
-  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $mytime, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}};
+  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}};
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
 
   # update relsync file
@@ -2570,7 +2572,7 @@ sub rebuildkiwiproduct {
     killjob($otherjob);
   }
 
-  my $mytime = time(); # ensure that we use the same time in all logs
+  my $now = time(); # ensure that we use the same time in all logs
 
   my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
   my @bprps = @{$repo->{'path'} || []} ? @{$prpsearchpath{$prp} || []} : @aprps;
@@ -2649,11 +2651,12 @@ sub rebuildkiwiproduct {
     'bdep' => \@bdeps,
     'path' => $searchpath,
     'reason' => $reason->{'explain'},
+    'readytime' => $now,
   };
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   mkdir_p("$reporoot/$prp/$myarch/$packid");
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $mytime, 'job' => $job}, $BSXML::buildstatus);
-  $reason->{'time'} = $mytime;
+  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
+  $reason->{'time'} = $now;
   writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   return ('scheduled', $job);
