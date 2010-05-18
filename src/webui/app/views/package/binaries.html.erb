@@ -8,6 +8,9 @@
 
 <h2>Repository state for <%= @repository %></h2>
 
+<p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) %>
+</p>
+
 <% @buildresult.data.find( 'result').each do |result| %>
 
   <h3><%= repo_status_icon result.find('status').first.attributes['code'] %> Architecture: <%= result.attributes['arch'] %></h3>
@@ -39,8 +42,6 @@
         <%= link_to 'Delete', { :controller => :package, :action => :wipe_binaries, :arch => result.attributes['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete} %> published binaries
       <% end %>
     <% end %>
-    <%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) + "/#{result.attributes['arch']}" %>
-
   </p>
 
 <% end %>

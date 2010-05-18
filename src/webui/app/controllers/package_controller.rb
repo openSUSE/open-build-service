@@ -58,7 +58,7 @@ class PackageController < ApplicationController
     @filename = params[:filename]
     @fileinfo = Fileinfo.find_cached( :project => @project, :package => @package, :repository => @repository, :arch => @arch,
       :filename => @filename, :view => 'fileinfo_ext')
-    if @fileinfo.arch
+    if @fileinfo.value :arch 
       @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
       if @durl and not file_available?( @durl )
         # ignore files not available
