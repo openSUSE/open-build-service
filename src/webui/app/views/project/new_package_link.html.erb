@@ -28,7 +28,7 @@ project will also change the files in the linked package in your project.</p>
 <p>You can add patches to the linked package without affecting the original
 package.</p>
 
-<% form_tag :action => "save_new_link" do %>
+<% form_tag :controller => "package", :action => "save_new_link" do %>
 <p>
 <strong>Name of original project:</strong><br/>
 <%= text_field_tag 'linked_project', @linked_project, :size => 80, :id => 'linked_project' %>

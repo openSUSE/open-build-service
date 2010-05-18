@@ -289,7 +289,7 @@ class PackageController < ApplicationController
       link.save
       flash[:note] = "Successfully linked package '#{@linked_package}'"
       Rails.cache.delete("%s_packages_mainpage" % @project)
-      redirect_to :controller => 'project', :action => 'show', :project => params[:project]
+      redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => @target_package
     end
   end
 
