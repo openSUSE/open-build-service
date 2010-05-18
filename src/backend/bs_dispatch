@@ -49,6 +49,14 @@ use BSXML;
 
 use strict;
 
+my $nosrcchangeload = 3;
+
+my %powerpkgs;
+
+if ($BSConfig::powerpkgs) {
+  %powerpkgs = map {$_ => 1} @{$BSConfig::powerpkgs || []};
+}
+
 my $user = $BSConfig::bsuser;
 my $group = $BSConfig::bsgroup;
 
@@ -247,6 +255,12 @@ open(RUNLOCK, '>>', "$rundir/bs_dispatch.lock") || die("$rundir/bs_dispatch.lock
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dispatcher is already running!\n");
 utime undef, undef, "$rundir/bs_dispatch.lock";
 
+my $dispatchprios;
+my $dispatchprios_project;
+my $dispatchprios_id = '';
+
+my %infocache;
+
 while (1) {
 
   if (-s "$jobsdir/finished") {
@@ -280,7 +294,44 @@ while (1) {
     }
   }
 
-  my $assigned = 0;
+  my @dispatchprios_s = stat("$jobsdir/dispatchprios");
+  if (!@dispatchprios_s) {
+    $dispatchprios = undef;
+    $dispatchprios_project = undef;
+    $dispatchprios_id = '';
+  } elsif ($dispatchprios_id ne "$dispatchprios_s[9]/$dispatchprios_s[7]/$dispatchprios_s[1]") {
+    $dispatchprios_id = "$dispatchprios_s[9]/$dispatchprios_s[7]/$dispatchprios_s[1]";
+    $dispatchprios = BSUtil::retrieve("$jobsdir/dispatchprios", 1);
+    $dispatchprios_project = undef;
+    if ($dispatchprios) {
+      # create dispatchprios_project hash
+      $dispatchprios_project = {};
+      for (@{$dispatchprios->{'prio'} || []}) {
+	$dispatchprios_project->{$_->{'project'}} ||= [] if defined $_->{'project'};
+      }
+      my @p = keys %$dispatchprios_project;
+      push @p, ':all:';
+      for (@{$dispatchprios->{'prio'} || []}) {
+	if (defined($_->{'project'})) {
+	  push @{$dispatchprios_project->{$_->{'project'}}}, $_;
+	} else {
+	  for my $p (@p) {
+	    push @{$dispatchprios_project->{$p}}, $_;
+	  }
+	}
+      }
+    }
+  }
+
+  my $load = BSUtil::retrieve("$jobsdir/load", 1) || {};
+  my $now = time();
+  for my $prpa (sort keys %$load) {
+    my $l = $load->{$prpa};
+    my $ll = $l->[1];
+    $ll *= exp($decay * ($now - $l->[0])) if $now > $l->[0];
+    $load->{$prpa} = $ll;
+  }
+  
   my @idle = grep {!/^\./} ls("$workersdir/idle");
   my %idlearch;
   for my $idle (@idle) {
@@ -289,93 +340,176 @@ while (1) {
       push @{$idlearch{$_}}, $idle;
     }
   }
-  my @archs = List::Util::shuffle(keys %idlearch);
-  for my $arch (@archs) {
-
-    if ($BSConfig::specialdispatch && grep {$arch eq $_} values %$BSConfig::specialdispatch) {
-      # FIXME: do not duplicate code!
-      print "specials for $arch\n";
-      my @specials = grep {$BSConfig::specialdispatch->{$_} eq $arch} keys %$BSConfig::specialdispatch;
-      for my $special (@specials) {
-	my ($sproj, $srepo, $sarch) = split('/', $special, 3);
-	my @b = grep {!/^\./} ls("$jobsdir/$sarch");
-	my %locked = map {$_ => 1} grep {/:status$/} @b;
-	@b = grep {!/:(?:dir|status|new)$/} @b;
-	@b = grep {!$locked{"$_:status"}} @b;
-	for my $job (List::Util::shuffle(@b)) {
-	  my $info = readxml("$jobsdir/$sarch/$job", $BSXML::buildinfo, 1);
-	  next unless $info->{'project'} eq $sproj && $info->{'repository'} eq $srepo;
-	  my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
-	  for my $idle (@idle) {
-	    my $res = assignjob($job, $idle, $sarch);
-	    if (!$res) {
-	      my $harch = (split(':', $idle, 2))[0];
-	      for (@{$cando{$harch} || []}) {
-		$idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
-	      }
-	      next;
-	    }
-	    next if $res eq 'badhost';
-	    my $harch = (split(':', $idle, 2))[0];
-	    for (@{$cando{$harch} || []}) {
-	      $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
-	    }
-	    $assigned++;
-	    last;
-	  }
-	}
-      }
-      next;
-    }
-
+  #print "finding jobs\n";
+  my %jobs;
+  my %maybesrcchange;
+  for my $arch (sort keys %idlearch) {
+    my $ic = $infocache{$arch} || {};
     my @b = grep {!/^\./} ls("$jobsdir/$arch");
     my %locked = map {$_ => 1} grep {/:status$/} @b;
+    my %notlocked = map {$_ => 1} grep {!$locked{$_}} @b;
+    for (grep {!$notlocked{$_}} keys (%{$infocache{$arch} || {}})) {
+      delete $infocache{$arch}->{$_};
+    }
+    # adapt load
+    for my $job (keys %locked) {
+      my $jn = $job;
+      $jn =~ s/:status$//;
+      next unless $notlocked{$jn};
+      $jn =~ s/-[0-9a-f]{32}$//s;
+      my ($projid, $repoid, $packid) = split('::', $jn);
+      next unless defined $packid;
+      my $prpa = "$projid/$repoid/$arch";
+      $load->{$prpa} ||= 0;
+      $load->{$prpa} += 1;
+    }
     @b = grep {!/:(?:dir|status|new)$/} @b;
     @b = grep {!$locked{"$_:status"}} @b;
-
-    # poor mans priority, please replace with something sane...
-    if ($BSConfig::dispatch_prio) {
-      for my $pr (reverse @{$BSConfig::dispatch_prio}) {
-        my @bn;
-        if ($pr =~ /^!/) {
-          my $npr = substr($pr, 1);
-          @bn = grep {!/$npr/} @b;
-        } else {
-          @bn = grep {/$pr/} @b;
-        }
-        next unless @bn;
-        @b = @bn;
+    for my $job (@b) {
+      my $info;
+      if (0) {
+        $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+      } else {
+	my $jn = $job;
+	$jn =~ s/-[0-9a-f]{32}$//s;
+	my ($projid, $repoid, $packid) = split('::', $jn);
+	$info = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $arch};
+      }
+      my $prpa = "$info->{'project'}/$info->{'repository'}/$info->{'arch'}";
+      push @{$jobs{$prpa}}, $job;
+      $info = $ic->{$job};
+      if (!$info || ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change'))) {
+	$maybesrcchange{$prpa} = 1;
       }
     }
+  }
 
-    my $tries = 0;
-    for my $job (List::Util::shuffle(@b)) {
-      last if $assigned && $tries >= 5;
+  #print "calculating scales\n";
+  my %scales;
+  my @jobprpas = keys %jobs;
+  for my $prpa (@jobprpas) {
+    $load->{$prpa} = rand(.01) unless $load->{$prpa};
+    $scales{$prpa} = 0;
+    if ($BSConfig::dispatch_adjust) {
+      my @prios = @{$BSConfig::dispatch_adjust || []};
+      while (@prios) {
+        my ($match, $adj) = splice(@prios, 0, 2);
+        $scales{$prpa} += $adj if $prpa =~ /^$match/s;
+      }
+    }
+    if ($dispatchprios) {
+      my ($project, $repository, $arch) = split('/', $prpa, 3);
+      for (@{$dispatchprios_project->{$project} || $dispatchprios_project->{':all:'} || []}) {
+        next unless defined($_->{'adjust'});
+        next if defined($_->{'project'}) && $_->{'project'} ne $project;
+        next if defined($_->{'repository'}) && $_->{'repository'} ne $repository;
+        next if defined($_->{'arch'}) && $_->{'arch'} ne $arch;
+        $scales{$prpa} = 0 + $_->{'adjust'};
+      }
+    }
+    $scales{$prpa} = exp(-$scales{$prpa} * (log(10.)/10.));
+  }
+
+  if (1) {
+    #print "writing debug data\n";
+    # write debug data
+    if (@jobprpas) {
+      BSUtil::store("$rundir/.dispatch.data", "$rundir/dispatch.data", {
+        'load' => $load,
+        'scales' => \%scales,
+        'jobs' => \%jobs,
+        'powerpkgs' => \%powerpkgs,
+      });
+    }
+  }
+
+  my %didsrcchange;
+  my $assigned = 0;
+  my %extraload;
+
+  # the following helps a lot...
+  #print "fast src change load adapt\n";
+  for my $prpa (@jobprpas) {
+    next if $maybesrcchange{$prpa};
+    $didsrcchange{$prpa} = 1;
+    $load->{$prpa} += $nosrcchangeload;
+  }
+
+  @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
+
+  #print "assigning jobs\n";
+  while (@jobprpas) {
+    my $prpa = shift @jobprpas;
+    my $arch = (split('/', $prpa))[2];
+    next unless @{$idlearch{$arch} || []};
+    my @b = @{$jobs{$prpa} || []};
+    next unless @b;
+
+    #printf "%s %d %d\n", $prpa, $scales{$prpa} * $load->{$prpa}, scalar(@b);
+
+    my $nextload = @jobprpas ? $scales{$jobprpas[0]} * $load->{$jobprpas[0]} : undef;
+
+    # sort all jobs, src change jobs first
+    my @srcchange;
+    my $ic = $infocache{$arch};
+    $ic = $infocache{$arch} = {} unless $ic;
+    for my $job (@b) {
+      $ic->{$job} ||= readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1) || {};
+      my $info = $ic->{$job};
+      if (!$info->{'readytime'}) {
+	my @s = stat("$jobsdir/$arch/$job");
+	$info->{'readytime'} = $s[9];
+      }
+      if ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change')) {
+	push @srcchange, $job;
+      }
+    }
+    @b = List::Util::shuffle(@b);
+    @b = sort {($ic->{$a}->{'readytime'} || 0) <=> ($ic->{$b}->{'readytime'} || 0)} @b;
+    my %powerjobs;
+    if (%powerpkgs && $BSConfig::powerhosts) {
+      for my $job (@b) {
+	my $jn = $job;
+	$jn =~ s/-[0-9a-f]{32}$//s;
+	my ($projid, $repoid, $packid) = split('::', $jn);
+	$powerjobs{$job} = 1 if $powerpkgs{$packid};
+      }
+      if (%powerjobs) {
+	# bring em to front!
+	@b = ((grep {$powerjobs{$_}} @b), (grep {!$powerjobs{$_}} @b));
+      }
+    }
+    my %srcchange = map {$_ => 1} @srcchange;
+    if (@srcchange) {
+      # bring em to front!
+      @b = ((grep {$srcchange{$_}} @b), (grep {!$srcchange{$_}} @b));
+    }
+
+    my $rerun;
+    for my $job (@b) {
+      if (!$srcchange{$job} && !$didsrcchange{$prpa}) {
+	$didsrcchange{$prpa} = 1;
+	$load->{$prpa} += $nosrcchangeload;
+	if (defined($nextload) && $scales{$prpa} * $load->{$prpa} > $nextload) {
+	  $rerun = 1;
+	  last;
+	}
+      }
       my @idle = List::Util::shuffle(@{$idlearch{$arch} || []});
       last unless @idle;
-      if (%badhost || $BSConfig::specialdispatch || %BSConfig::specialbuildhost) {
-	my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-	next unless $info;
-	next if $BSConfig::specialdispatch && $BSConfig::specialdispatch->{"$info->{'project'}/$info->{'repository'}/$arch"};
-	@idle = grep {!$badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $_, 2))[1]]}"}} @idle;
-        if ( defined $BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'good'} ) {
-           # positive list given for this package
-           my @newidle;
-           for my $i (@{$BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'good'}}) {
-             push @newidle, grep {/$i/} @idle;
-           }
-           @idle = List::Util::shuffle(@newidle);
-        }
-        if ( defined $BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'bad'} ) {
-           # positive list given for this package
-           for my $i (@{$BSConfig::specialbuildhost{"$info->{'project'}/$info->{'package'}"}->{'bad'}}) {
-             @idle = grep {!/^$i$/} List::Util::shuffle(@idle);
-           }
-        }
+      my %poweridle;
+      if ($powerjobs{$job}) {
+	# reduce to powerhosts
+	for my $idle (splice @idle) {
+	  my $idlehost = (split(':', $idle, 2))[1];
+	  push @idle, $idle if grep {$idlehost =~ /^$_/} @$BSConfig::powerhosts;
+	}
       }
+      my $tries = 0;
+      my $haveassigned;
       for my $idle (@idle) {
-	next unless -e "$jobsdir/$arch/$job";
-        last if $assigned && $tries >= 5;
+	last unless -e "$jobsdir/$arch/$job";
+	last if $assigned && $tries >= 5;
 	$tries++;
 	my $res = assignjob($job, $idle, $arch);
 	if (!$res) {
@@ -391,9 +525,30 @@ while (1) {
 	  $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
 	}
 	$assigned++;
+	$jobs{$prpa} = [ grep {$_ ne $job} @{$jobs{$prpa}} ];
+	$load->{$prpa} += 1;
+	$haveassigned = 1;
+	last;
+      }
+      # Tricky, still increase load so that we don't assign
+      # too many non-powerjobs. But only do that once for each powerjob.
+      if (!$haveassigned && $powerjobs{$job} && !$extraload{"$arch/$job"}) {
+	$load->{$prpa} += 1;
+	$extraload{"$arch/$job"} = 1;
+      }
+      # Check if load changes changed our order. If yes, re-sort and start over.
+      if (defined($nextload) && $scales{$prpa} * $load->{$prpa} > $nextload) {
+	$rerun = 1;
 	last;
       }
     }
+    if ($rerun) {
+      # our load was changed so much that the order was changed. put us back
+      # on the queue and re-sort.
+      unshift @jobprpas, $prpa;
+      @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
+    }
+    last if $assigned > 20;
   }
   for my $evname (ls("$eventdir/repository")) {
     next if $evname =~ /^\./;
@@ -440,5 +595,17 @@ while (1) {
         delete $badhost{$_};
       }
     }
+  }
+
+  if (-e "$rundir/bs_dispatch.exit") {
+    unlink("$rundir/bs_dispatch.exit");
+    print "exiting...\n";
+    exit(0);
+  }
+  if (-e "$rundir/bs_dispatch.restart") {
+    unlink("$rundir/bs_dispatch.restart");
+    print "restarting...\n";
+    exec($0);
+    die("$0: $!\n");
   }
 }
