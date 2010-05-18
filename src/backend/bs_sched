@@ -3226,6 +3226,8 @@ while(1) {
     my $param = {
       'uri' => "$remoteurl/lastevents",
       'async' => 1,
+      'request' => 'POST',
+      'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
     };
     my @args;
     push @args, "obsname=$BSConfig::obsname/$myarch" if $BSConfig::obsname;
