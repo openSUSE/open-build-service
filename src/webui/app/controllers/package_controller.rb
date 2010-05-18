@@ -254,19 +254,19 @@ class PackageController < ApplicationController
 
     linked_package = Package.find_cached( @linked_package, :project => @linked_project )
     unless linked_package
-      flash.now[:error] = "Unable to find package '#{@linked_package}' in" +
+      flash[:error] = "Unable to find package '#{@linked_package}' in" +
         " project '#{@linked_project}'."
-      render :action => "new_link" and return
+      redirect_to :controller => :project, :action => "new_package_link" and return
     end
 
     @target_package = @linked_package if @target_package.blank?
     if !valid_package_name? @target_package
-      flash.now[:error] = "Invalid target package name: '#{@target_package}'"
-      render :action => "new_link" and return
+      flash[:error] = "Invalid target package name: '#{@target_package}'"
+      redirect_to :controller => :project, :action => "new_link" and return
     end
     if Package.exists? @project, @target_package
-      flash.now[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
-      render :action => 'new_link' and return
+      flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
+      redirect_to :controller => :project, :action => "new_link" and return
     end
 
     package = Package.new( :name => @target_package, :project => params[:project] )
