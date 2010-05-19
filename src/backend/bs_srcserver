@@ -2332,13 +2332,14 @@ sub getfilelist_ajax {
     die unless $cgi->{'rev'};
     my $proj = remoteprojid($projid);
     die("missing project/package\n") unless $proj;
-    $jev->{'remoteurl'} = "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid";
+    $jev->{'remoteurl'} = $proj->{'remoteurl'};
+    $jev->{'remoteproject'} = $proj->{'remoteproject'};
   }
   if (!$jev->{'filelist'}) {
     my $rev = $cgi->{'rev'};
     return $BSStdServer::return_ok if $getfilelist_ajax_inprogress{"$projid/$packid/$rev"};
     my $param = {
-      'uri' => $jev->{'remoteurl'},
+      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
     };
     $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$rev");
     return undef unless $jev->{'filelist'};
@@ -2347,12 +2348,14 @@ sub getfilelist_ajax {
     $getfilelist_ajax_inprogress{"$projid/$packid/$rev"} = $jev;
     $jev->{'handler'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$rev"}};
   }
+  my $serial;
   my $dir = $jev->{'filelist'};
   for my $entry (@{$dir->{'entry'} || []}) {
     next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
+    $serial ||= BSWatcher::serialize("$jev->{'remoteurl'}/source");
     mkdir_p($uploaddir);
     my $param = {
-      'uri' => "$jev->{'remoteurl'}/$entry->{'name'}",
+      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid/$entry->{'name'}",
       'filename' => "$uploaddir/$$-$jev->{'id'}",
       'withmd5' => 1,
       'receiver' => \&BSHTTP::file_receiver,
@@ -2363,6 +2366,7 @@ sub getfilelist_ajax {
     die unless -e "$uploaddir/$$-$jev->{'id'}";
     addfile($projid, $packid, "$uploaddir/$$-$jev->{'id'}", $entry->{'name'}, $entry->{'md5'});
   }
+  BSWatcher::serialize_end($serial) if $serial;
   notify_repservers('package', $projid, $packid);
   return undef;
 }
