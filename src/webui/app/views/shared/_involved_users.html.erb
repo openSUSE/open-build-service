@@ -51,12 +51,7 @@
               <li>
                 <%=  gravatar_image(@email_hash[person]) %>
                 <%= if @user
-                  link_to(
-                    image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
-                    'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' ) +
-                    link_to(
-                    person,
-                    'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' )
+                  link_to(person, 'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' )
                 else
                   person
                 end -%>
@@ -73,14 +68,9 @@
               <li>
                 <%=  gravatar_image(@email_hash[person]) %>
                 <%= if @user
-                  link_to(
-                    image_tag("mail_generic.png", :size => "16x16", :class => 'email_link'),
-                    'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' ) +
-                    link_to(
-                    person,
-                    'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' )
+                  link_to(person, 'mailto:' + @email_hash[person] + '?subject=openSUSE%20Build%20Service' )
                 else
-                  image_tag("mail_generic.png", :size => "16x16", :class => 'email_link') + person
+                  person
                 end -%>
                 <% unless @package %>
                   <% if ((r != "maintainer") or (project_users.length > 1)) and @user and @user.is_maintainer?( @project, @package ) %>
