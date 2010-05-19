@@ -236,7 +236,7 @@ class ApplicationController < ActionController::Base
     errors = []
     xmlbody = String.new response.body
     xmlbody.gsub!(/[\n\r]/, "\n")
-    xmlbody.gsub!(/&nbsp;/, '')
+    xmlbody.gsub!(/&[^;]*sp;/, '')
     
     LibXML::XML::Error.set_handler { |msg| errors << msg }
     begin
