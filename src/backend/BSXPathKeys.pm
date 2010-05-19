@@ -97,14 +97,14 @@ sub value {
       push @v, $db->keys();
     }
   } else {
-    die("search limit reached\n") if $self->{'limit'} && @{$self->{'keys'}} > $self->{'limit'};
+    die("413 search limit reached\n") if $self->{'limit'} && @{$self->{'keys'}} > $self->{'limit'};
     for my $k (@{$self->{'keys'}}) {
       my $v = $db->fetch($k);
       next unless defined $v;
       push @v, selectpath($v, $path);
     }
   }
-  die("search limit reached\n") if $self->{'limit'} && @v > $self->{'limit'};
+  die("413 search limit reached\n") if $self->{'limit'} && @v > $self->{'limit'};
   return \@v;
 }
 
@@ -186,19 +186,19 @@ sub boolop {
     my @k;
     if ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v1->{'path'}, $v2, $v1->{'keys'});
-      die("search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
+      #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       $negpol = 0;
     } elsif (!$negpol) {
       for my $vv ($db->values($v1->{'path'}, $v1->{'keys'})) {
 	next unless $op->($vv, $v2);
 	push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
-	die("search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
+	die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       }
     } else {
       for my $vv ($db->values($v1->{'path'}, $v1->{'keys'})) {
 	next if $op->($vv, $v2);
 	push @k, $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
-	die("search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
+	die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       }
     }
     if ($v1->{'keys'}) {
@@ -225,19 +225,19 @@ sub boolop {
     my @k;
     if ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v2->{'path'}, $v1, $v2->{'keys'});
-      die("search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
+      #die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       $negpol = 0;
     } elsif (!$negpol) {
       for my $vv ($db->values($v2->{'path'}, $v2->{'keys'})) {
 	next unless $op->($v1, $vv);
 	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
-	die("search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
+	die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       }
     } else {
       for my $vv ($db->values($v2->{'path'}, $v2->{'keys'})) {
 	next if $op->($v1, $vv);
 	push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
-	die("search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
+	die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       }
     }
     if ($v2->{'keys'}) {
