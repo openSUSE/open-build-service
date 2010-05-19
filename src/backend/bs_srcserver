@@ -1453,7 +1453,9 @@ sub addrev_meta {
   my $comment = defined($cgi->{'comment'}) ? str2utf8xml($cgi->{'comment'}) : '';
   my $nrev = { 'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $cgi->{'requestid'} };
   BSFileDB::fdb_add_i($revfile,  $srcrevlay, $nrev);
-  rename($tmpfile, $file) || die("rename $tmpfile $file: $!\n");
+  if ($file) {
+    rename($tmpfile, $file) || die("rename $tmpfile $file: $!\n");
+  }
 }
 
 sub readproj {
