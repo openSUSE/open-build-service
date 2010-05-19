@@ -146,7 +146,12 @@ class PublicController < ApplicationController
     end
 
     distfile = ActiveXML::XMLNode.new(DistributionController.read_distfile)
-    binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{@prj.name}' and @package='#{@pkg.name}'"
+    begin
+       binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{@prj.name}' and @package='#{@pkg.name}'"
+    rescue
+      render_error :status => 400, :errorcode => 'search_failure', :message => "The search can't get executed."
+      return
+    end
 
     binary_map = Hash.new
     binaries.each do |bin|
