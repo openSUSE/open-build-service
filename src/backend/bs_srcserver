@@ -360,6 +360,12 @@ sub repopen {
   return open($fd, '<', "$srcrep/$rev->{'package'}/$md5-$filename");
 }
 
+sub repreadstr {
+  my ($rev, $filename, $md5, $nonfatal) = @_;
+  my $packid = $rev->{'package'};
+  return readstr("$srcrep/$packid/$md5-$filename", $nonfatal);
+}
+
 sub repreadxml {
   my ($rev, $filename, $md5, $dtd, $nonfatal) = @_;
   my $packid = $rev->{'package'};
@@ -493,19 +499,19 @@ sub addmeta {
   if ($rev && $rev eq 'upload') {
     mkdir_p($uploaddir);
     mkdir_p("$projectsdir/$projid.pkg");
-    writestr("$uploaddir/$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
+    writestr("$uploaddir/addmeta$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
   } elsif ($rev && $rev eq 'pattern') {
     if ($meta ne '') {
       mkdir_p($uploaddir);
       mkdir_p("$projectsdir/$projid.pkg");
-      writestr("$uploaddir/$$", "$projectsdir/$projid.pkg/pattern-MD5SUMS", $meta);
+      writestr("$uploaddir/addmeta$$", "$projectsdir/$projid.pkg/pattern-MD5SUMS", $meta);
     } else {
       unlink("$projectsdir/$projid.pkg/pattern-MD5SUMS");
     }
   } elsif (! -e "$srcrep/$packid/$srcmd5-MD5SUMS") {
     mkdir_p($uploaddir);
     mkdir_p("$srcrep/$packid");
-    writestr("$uploaddir/$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
+    writestr("$uploaddir/addmeta$$", "$srcrep/$packid/$srcmd5-MD5SUMS", $meta);
   }
   return $srcmd5;
 }
@@ -1363,16 +1369,117 @@ sub findpackages {
   return sort @packids;
 }
 
+sub getrev_meta {
+  my ($projid, $packid, $revid, $nonfatal) = @_;
+  my $revfile = defined($packid) ? "$projectsdir/$projid.pkg/$packid.mrev" : "$projectsdir/$projid.pkg/_meta.mrev";
+  my $rev;
+  if (!defined($revid) || $revid eq 'latest') {
+    $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
+  } elsif ($revid =~ /^[0-9a-f]{32}$/) {
+    $rev = { 'srcmd5' => $revid };
+  } else {
+    $rev = BSFileDB::fdb_getmatch($revfile, $srcrevlay, 'rev', $revid);
+  }
+  if ($rev) {
+    $rev->{'project'} = $projid;
+    $rev->{'package'} = defined($packid) ? $packid : '_meta';
+  } elsif (!$nonfatal) {
+    die("404 revision '$revid' does not exist\n");
+  }
+  return $rev;
+}
+
+sub retrofit_old_meta {
+  my ($projid, $packid) = @_;
+  my $files = {};
+  if (defined($packid)) {
+    if (-e "$projectsdir/$projid.pkg/$packid.xml") {
+      BSUtil::cp("$projectsdir/$projid.pkg/$packid.xml", "$uploaddir/addrev_meta$$");
+      $files->{'_meta'} = addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_meta');
+    }
+  } else {
+    if (-e "$projectsdir/$projid.xml") {
+      BSUtil::cp("$projectsdir/$projid.xml", "$uploaddir/addrev_meta$$");
+      $files->{'_meta'} = addfile($projid, '_meta', "$uploaddir/addrev_meta$$", '_meta');
+    }
+    if (-e "$projectsdir/$projid.conf") {
+      BSUtil::cp("$projectsdir/$projid.conf", "$uploaddir/addrev_meta$$");
+      $files->{'_config'} = addfile($projid, '_meta', "$uploaddir/addrev_meta$$", '_config');
+    }
+    if (-e "$projectsdir/$projid.pkg/_pubkey") {
+      BSUtil::cp("$projectsdir/$projid.pkg/_pubkey", "$uploaddir/addrev_meta$$");
+      $files->{'_pubkey'} = addfile($projid, '_meta', "$uploaddir/addrev_meta$$", '_pubkey');
+    }
+  }
+  return $files;
+}
+
+sub addrev_meta {
+  my ($cgi, $projid, $packid, $tmpfile, $file, $rfile) = @_;
+
+  my $md5;
+  my $rpackid = defined($packid) ? $packid : '_meta';
+  if ($file) {
+    mkdir_p($uploaddir);
+    BSUtil::cp($tmpfile, "$uploaddir/addrev_meta$$");
+    $md5 = addfile($projid, $rpackid, "$uploaddir/addrev_meta$$", $rfile);
+  }
+  mkdir_p("$projectsdir/$projid.pkg");
+  my $revfile = defined($packid) ? "$projectsdir/$projid.pkg/$packid.mrev" : "$projectsdir/$projid.pkg/_meta.mrev";
+  # XXX: Fix race
+  my $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
+  my $files;
+  if ($rev) {
+    $rev->{'project'} = $projid;
+    $rev->{'package'} = $rpackid;
+    $files = lsrev($rev);
+  } else {
+    $files = {};
+    if ((defined($packid) && -e "$projectsdir/$projid.pkg/$packid.xml") || (!defined($packid) && -e "$projectsdir/$projid.xml")) {
+      $files = retrofit_old_meta($projid, $packid);
+    }
+  }
+  if ($md5) {
+    $files->{$rfile} = $md5;
+  } else {
+    if (defined($rfile)) {
+      delete $files->{$rfile};
+    } else {
+      $files = {};
+    }
+  }
+  my $srcmd5 = addmeta($projid, $rpackid, $files);
+  my $user = defined($cgi->{'user'}) ? str2utf8xml($cgi->{'user'}) : 'unknown';
+  my $comment = defined($cgi->{'comment'}) ? str2utf8xml($cgi->{'comment'}) : '';
+  my $nrev = { 'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $cgi->{'requestid'} };
+  BSFileDB::fdb_add_i($revfile,  $srcrevlay, $nrev);
+  rename($tmpfile, $file) || die("rename $tmpfile $file: $!\n");
+}
+
 sub readproj {
-  my ($projid, $nonfatal) = @_;
-  my $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+  my ($projid, $nonfatal, $revid) = @_;
+  my $proj;
+  if ($revid) {
+    my $rev = getrev_meta($projid, undef, $revid);
+    my $files = $rev ? lsrev($rev) : {};
+    $proj = repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::proj, 1) if $files->{'_meta'};
+  } else {
+    $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+  }
   die("404 project '$projid' does not exist\n") if !$proj && !$nonfatal;
   return $proj;
 }
 
 sub readpack {
-  my ($projid, $packid, $nonfatal) = @_;
-  my $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  my ($projid, $packid, $nonfatal, $revid) = @_;
+  my $pack;
+  if ($revid) {
+    my $rev = getrev_meta($projid, $packid, $revid, $nonfatal);
+    my $files = $rev ? lsrev($rev) : {};
+    $pack = repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::pack, 1) if $files->{'_meta'};
+  } else {
+    $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  }
   if (!$pack && !$nonfatal) {
     readproj($projid);
     die("404 package '$packid' does not exist in project '$projid'\n");
@@ -1784,10 +1891,14 @@ sub getprojectlist {
 sub getproject {
   my ($cgi, $projid) = @_;
   # Read the project xml file
-  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  my $proj = readproj($projid, 1, $cgi->{'rev'});
+  $proj = remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
+  die("404 project '$projid' does not exist\n") unless $proj;
   $proj = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta", $BSXML::proj) if $proj->{'remoteurl'};
   return ($proj, $BSXML::proj);
 }
+
+#########################################################################
 
 sub createkey {
   my ($cgi, $projid) = @_;
@@ -1805,7 +1916,8 @@ sub createkey {
   close(F) || die("$BSConfig::sign: $?\n");
   die("sign did not create signkey\n") unless -s "$uploaddir/signkey.$$";
   mkdir_p("$projectsdir/$projid.pkg");
-  writestr("$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", $pubkey);
+  writestr("$uploaddir/pubkey.$$", undef, $pubkey);
+  addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
   if (!rename("$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey")) {
     unlink("$projectsdir/$projid/_pubkey");
     die("rename $uploaddir/signkey.$$ $projectsdir/$projid.pkg/_signkey: $!\n");
@@ -1822,6 +1934,7 @@ sub deletekey {
     ($sk) = getsignkey({}, $pprojid) if $projid ne $pprojid;
     die("must have a key for signing\n") unless $sk;
   }
+  addrev_meta($cgi, $projid, undef, undef, undef, '_pubkey');
   unlink("$projectsdir/$projid.pkg/_signkey");
   unlink("$projectsdir/$projid.pkg/_pubkey");
   rmdir("$projectsdir/$projid.pkg");
@@ -1830,17 +1943,19 @@ sub deletekey {
 
 sub getpubkey {
   my ($cgi, $projid) = @_;
-  my $pubkey = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+  my $pubkey;
+  if ($cgi->{'rev'}) {
+    my $rev = getrev_meta($projid, undef, $cgi->{'rev'});
+    my $files = $rev ? lsrev($rev) : {};
+    $pubkey = repreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
+  } else {
+    $pubkey = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+  }
   die("$projid: no pubkey available\n") unless $pubkey;
   return ($pubkey, 'Content-Type: text/plain');
 }
 
-sub projectcmd {
-  my ($cgi, $projid) = @_;
-  my $cmd = $cgi->{'cmd'};
-  return createkey($cgi, $projid) if $cmd eq 'createkey';
-  die("unknown command '$cmd'\n");
-}
+#########################################################################
 
 sub putproject {
   my ($cgi, $projid) = @_;
@@ -1855,10 +1970,10 @@ sub putproject {
   my $oldproj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
   BSHermes::notify($oldproj ? "SRCSRV_UPDATE_PROJECT" : "SRCSRV_CREATE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
-  rename("$uploaddir/$$.2", "$projectsdir/$projid.xml") || die("rename to $projectsdir/$projid.xml: $!\n");
+  addrev_meta($cgi, $projid, undef, "$uploaddir/$$.2", "$projectsdir/$projid.xml", '_meta');
   if ($BSConfig::forceprojectkeys) {
     my ($sk) = getsignkey({}, $projid);
-    createkey({}, $projid) if $sk eq '';
+    createkey({ %$cgi, 'comment' => 'autocreate key' }, $projid) if $sk eq '';
   }
 
   if (!identical($oldproj, $proj, 'title', 'description', 'person', 'group', 'url', 'attributes')) {
@@ -1873,6 +1988,7 @@ sub delproject {
   my ($cgi, $projid) = @_;
 
   die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  addrev_meta($cgi, $projid, undef, undef, undef, undef);
   if (-d "$projectsdir/$projid.pkg") {
     # delete those packages and keys
     for my $f (ls("$projectsdir/$projid.pkg")) {
@@ -1889,7 +2005,18 @@ sub delproject {
   return $BSStdServer::return_ok;
 }
 
-##########################################################################
+sub getprojectmetahistory {
+  my ($cgi, $projid, $packid) = @_;
+  my @res;
+  for (BSFileDB::fdb_getall("$projectsdir/$projid.pkg/_meta.mrev", $srcrevlay)) {
+    next if $cgi->{'rev'} && $cgi->{'rev'} ne $_->{'rev'} && $cgi->{'rev'} ne $_->{'srcmd5'};
+    $_->{'comment'} = str2utf8xml($_->{'comment'}) if $_->{'comment'};
+    push @res, $_;
+  }
+  return ({'revision' => \@res}, $BSXML::revisionlist);
+}
+
+#########################################################################
 
 sub getpackagelist {
   my ($cgi, $projid, $repoid, $arch) = @_;
@@ -1920,8 +2047,10 @@ sub getpackage {
       my $lproj = readproj($lprojid, 1);
       $lproj = remoteprojid($lprojid) if !$lproj || $lproj->{'remoteurl'};
       if ($lproj->{'remoteurl'}) {
+	my @args;
+	push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
 	eval {
-	  $pack = BSRPC::rpc("$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", $BSXML::pack);
+	  $pack = BSRPC::rpc("$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", $BSXML::pack, @args);
 	};
         die($@) if $@ && $@ !~ /^404/;
       } else {
@@ -1956,12 +2085,11 @@ sub putpackage {
 
   my $oldpack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
   BSHermes::notify($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
-  rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml") || die("rename to $projectsdir/$projid.pkg/$packid.xml: $!\n");
 
+  addrev_meta($cgi, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
   if (!identical($oldpack, $pack, 'title', 'description', 'devel', 'person', 'group', 'url')) {
     notify_repservers('package', $projid, $packid);
   }
-
   $pack = readpack($projid, $packid);
   return ($pack, $BSXML::pack);
 }
@@ -1977,6 +2105,7 @@ sub delpackage {
   if ($packid eq '_product') {
     expandproduct($projid, $packid, undef);
   }
+  addrev_meta($cgi, $projid, $packid, undef, undef, undef);
   notify_repservers('package', $projid, $packid);
   BSHermes::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown") });
 
@@ -1987,6 +2116,17 @@ sub getpackagehistory {
   my ($cgi, $projid, $packid) = @_;
   my @res;
   for (BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay)) {
+    next if $cgi->{'rev'} && $cgi->{'rev'} ne $_->{'rev'} && $cgi->{'rev'} ne $_->{'srcmd5'};
+    $_->{'comment'} = str2utf8xml($_->{'comment'}) if $_->{'comment'};
+    push @res, $_;
+  }
+  return ({'revision' => \@res}, $BSXML::revisionlist);
+}
+
+sub getpackagemetahistory {
+  my ($cgi, $projid, $packid) = @_;
+  my @res;
+  for (BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.mrev", $srcrevlay)) {
     next if $cgi->{'rev'} && $cgi->{'rev'} ne $_->{'rev'} && $cgi->{'rev'} ne $_->{'srcmd5'};
     $_->{'comment'} = str2utf8xml($_->{'comment'}) if $_->{'comment'};
     push @res, $_;
@@ -2277,7 +2417,14 @@ sub getconfig {
 sub getprojectconfig {
   my ($cgi, $projid) = @_;
   my $proj = readproj($projid);
-  my $config = readstr("$projectsdir/$projid.conf", 1);
+  my $config;
+  if ($cgi->{'rev'}) {
+    my $rev = getrev_meta($projid, undef, $cgi->{'rev'});
+    my $files = $rev ? lsrev($rev) : {};
+    $config = repreadstr($rev, '_config', $files->{'_config'}, 1) if $files->{'_config'};
+  } else {
+    $config = readstr("$projectsdir/$projid.conf", 1);
+  }
   $config = '' unless defined $config;
   return ($config, 'Content-Type: text/plain');
 }
@@ -2289,13 +2436,24 @@ sub putprojectconfig {
   my $uploaded = BSServer::read_file("$uploaddir/$$");
   die("upload failed\n") unless $uploaded;
   if (-s "$uploaddir/$$") {
-    rename("$uploaddir/$$", "$projectsdir/$projid.conf") || die("rename $uploaddir/$$ $projectsdir/$projid.conf: $!\n");
+    addrev_meta($cgi, $projid, undef, "$uploaddir/$$", "$projectsdir/$projid.conf", '_config');
   } else {
+    unlink("$uploaddir/$$");
+    addrev_meta($cgi, $projid, undef, undef, undef, '_config');
     unlink("$projectsdir/$projid.conf");
   }
   notify_repservers('project', $projid);
   BSHermes::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
 
+  return $BSStdServer::return_ok;
+}
+
+sub delprojectconfig {
+  my ($cgi, $projid) = @_;
+  addrev_meta($cgi, $projid, undef, undef, undef, '_config');
+  unlink("$projectsdir/$projid.conf");
+  notify_repservers('project', $projid);
+  BSHermes::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   return $BSStdServer::return_ok;
 }
 
@@ -4505,15 +4663,22 @@ my $dispatches = [
 
   # /source name space: manage project and package data
   '/source' => \&getprojectlist,
-  'POST:/source/$project cmd:' => \&projectcmd,
+
+  'POST:/source/$project cmd=createkey' => \&createkey,
+  'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project' => \&getpackagelist,
-  'DELETE:/source/$project' => \&delproject,
-  '/source/$project/_meta' => \&getproject,
-  'PUT:/source/$project/_meta' => \&putproject,
-  '/source/$project/_pubkey' => \&getpubkey,
-  'DELETE:/source/$project/_pubkey' => \&deletekey,
-  '/source/$project/_config' => \&getprojectconfig,
-  'PUT:/source/$project/_config' => \&putprojectconfig,
+
+  'DELETE:/source/$project user:? comment:?' => \&delproject,
+  '/source/$project/_meta rev?' => \&getproject,
+  'PUT:/source/$project/_meta user:? comment:?' => \&putproject,
+
+  '/source/$project/_pubkey rev?' => \&getpubkey,
+  'DELETE:/source/$project/_pubkey user:? comment:?' => \&deletekey,
+
+  '/source/$project/_config rev?' => \&getprojectconfig,
+  'PUT:/source/$project/_config user:? comment:?' => \&putprojectconfig,
+  'DELETE:/source/$project/_config user:? comment:?' => \&delprojectconfig,
+  '/source/$project/_metahistory rev?' => \&getprojectmetahistory,
 
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool? missingok:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool?' => \&linkdiff,
@@ -4525,12 +4690,14 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
-  'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,
+  'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
+
   '/source/$project/$package:package_product rev? linkrev? emptylink:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool?' => \&getfilelist,
   '/source/$project/$package:package_product/_history rev?' => \&getpackagehistory,
-  '/source/$project/$package/_meta' => \&getpackage,
-  'PUT:/source/$project/$package/_meta' => \&putpackage,
-  'DELETE:/source/$project/$package' => \&delpackage,
+  '/source/$project/$package:package_product/_metahistory rev?' => \&getpackagemetahistory,
+  '/source/$project/$package/_meta rev?' => \&getpackage,
+  'PUT:/source/$project/$package/_meta user:? comment:?' => \&putpackage,
+  'DELETE:/source/$project/$package user:? comment:?' => \&delpackage,
   '/source/$project/$package:package_pattern/$filename rev?' => \&getfile,
   'PUT:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
   'DELETE:/source/$project/$package:package_pattern/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
