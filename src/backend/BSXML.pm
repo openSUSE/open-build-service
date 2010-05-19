@@ -997,7 +997,7 @@ our $person = [
 	'login',
 	'email',
 	'realname',
-	'globalrole',
+	[ 'globalrole' ],
 	[ 'watchlist' =>
 		[[ 'project' =>
 			'name',
