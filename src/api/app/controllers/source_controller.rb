@@ -776,9 +776,18 @@ class SourceController < ApplicationController
       if name_parts.length != 2
         raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
       end
+
+      # find origin package to be branched
+      branch_target_project = pac.db_project.name
+      branch_target_package = pac.name
       if a = p.db_project.find_attribute(name_parts[0], name_parts[1]) and a.values[0]
         if pa = DbPackage.find_by_project_and_name( a.values[0].value, p.name )
           pac = pa
+          branch_target_project = pac.db_project.name
+          branch_target_package = pac.name
+        else
+          # package exists not yet in update project, to be created
+          branch_target_project = a.name
         end
       end
       proj_name = pac.db_project.name.gsub(':', '_')
@@ -805,7 +814,7 @@ class SourceController < ApplicationController
       opkg.store
 
       # branch sources in backend
-      Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{CGI.escape(pac.db_project.name)}&opackage=#{CGI.escape(pac.name)}", nil
+      Suse::Backend.post "/source/#{oprj.name}/#{opkg.name}?cmd=branch&oproject=#{CGI.escape(branch_target_project)}&opackage=#{CGI.escape(branch_target_package)}", nil
     end
 
     # store project data in DB and XML

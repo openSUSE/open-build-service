@@ -9,22 +9,22 @@
    <target project="openSUSE:10.3" package="kraft.old" />
  </action>
  <action type="add_role">
-   <target project="openSUSE:10.3" package="kraft.old" />
+   <target project="openSUSE:10.3" package="kraft" />
    <person name="adrian" role="maintainer" />
  </action>
  <action type="add_role">
-   <target project="openSUSE:10.3" package="kraft.old" />
+   <target project="openSUSE:10.3" package="kraft" />
    <group name="security-team" role="reviewer" />
  </action>
  <action type="set_bugowner">
-   <target project="openSUSE:10.3" package="kraft.old" />
+   <target project="openSUSE:10.3" package="kraft" />
    <person name="karl-heinz"  />
  </action>
  <action type="devel_change">
    <source project="home:kfreitag" package="kraft" />
-   <target project="openSUSE:10.3" package="kraft.old" />
+   <target project="openSUSE:10.3" package="kraft" />
  </action>
- <state name="deleted" who="adrian" when="2007-12-30T09:00:00">
+ <state name="declined" who="adrian" when="2007-12-30T09:00:00">
    <comment>Forgetit!</comment>
  </state>
  <review state="accepted" by_user="adrian" who="adrian" when="2008-12-30T09:00:00">
