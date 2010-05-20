@@ -3631,7 +3631,7 @@ while(1) {
 
       # pass2: postprocess, set changed_high, calculate link info
       my %fetchlinkedprojpacks;
-      my %fetchlinkedprojpacks_high;
+      my %fetchlinkedprojpacks_srcchange;
       for my $projid (sort keys %fetchprojpacks) {
 	if (grep {!defined($_)} @{$fetchprojpacks{$projid}}) {
 	  for my $prp (@prps) {
@@ -3662,7 +3662,7 @@ while(1) {
 	for my $packid (sort keys %packids) {
 	  for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
 	    push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'} || $packid;
-	    $fetchlinkedprojpacks_high{$linfo->{'myproject'}} = 1;	# high for source changes, low for project changes
+	    $fetchlinkedprojpacks_srcchange{$linfo->{'myproject'}} = 1;	# mark as source changes
 	  }
 	}
       }
@@ -3672,14 +3672,16 @@ while(1) {
 	for my $projid (sort keys %fetchlinkedprojpacks) {
 	  my %packids = map {$_ => 1} @{$fetchlinkedprojpacks{$projid}};
 	  get_projpacks($projid, sort keys %packids);
-	  if ($fetchlinkedprojpacks_high{$projid}) {
+          # we assign source changed through links med prio,
+          # everything else is low prio
+	  if ($fetchlinkedprojpacks_srcchange{$projid}) {
 	    for my $prp (@prps) {
 	      if ((split('/', $prp, 2))[0] eq $projid){
-	        $changed_high{$prp} ||= 1;
+	        $changed_med{$prp} ||= 1;
                 $changed_dirty{$prp} = 1;
 	      }
 	    }
-	    $changed_high{$projid} ||= 1;
+	    $changed_med{$projid} ||= 1;
 	  } else {
 	    for my $prp (@prps) {
 	      if ((split('/', $prp, 2))[0] eq $projid){
