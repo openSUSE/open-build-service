@@ -1410,7 +1410,6 @@ sub dobuild {
   push @args, '--clean';
   push @args, '--changelog';
   push @args, '--oldpackages', $oldpkgdir if $oldpkgdir && -d $oldpkgdir;
-  push @args, '--norootforbuild' unless $BSConfig::norootexceptions && $BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"};
   push @args, '--baselibs-internal';
   push @args, '--lint';
   push @args, '--dist', "$buildroot/.build.config";
@@ -1424,6 +1423,18 @@ sub dobuild {
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, "$srcdir/$buildinfo->{'file'}";
+  my $use_root;
+  if ($BSConfig::norootexceptions) {
+    if ($BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"}) {
+       $use_root = 1
+    } else {
+       my $projstring = $projid;
+       while ($projstring =~ s/:[^:]*$//) {
+          $use_root = 1 if $BSConfig::norootexceptions->{"$projstring/$buildinfo->{'package'}"};
+       }
+    }
+  }
+  push @args, '--norootforbuild' unless $use_root;
   qsystem(@args);
   my $ret=$?;
   if ($ret == 512) { # system exit code 2 maps to 2 * 256

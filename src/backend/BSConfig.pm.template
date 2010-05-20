@@ -123,6 +123,7 @@ our $relsync_pool = {
 #our workerhostcheck = 'my_check_script';
 # 
 # Allow to build as root, exceptions per package
+# NOTE: this definition is also valid for all sub projects for this package!
 # our $norootexceptions = { "my_project/my_package" => 1, "openSUSE:Factory/installation-images" => 1 };
 
 # host specific configs
