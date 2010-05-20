@@ -101,7 +101,7 @@ class DbProject < ActiveRecord::Base
       #--- update linked projects ---#
       position = 1
       #destroy all current linked projects
-      self.linkedprojects.delete_all
+      self.linkedprojects.destroy_all
 
       #recreate linked projects from xml
       project.each_link do |l|
