@@ -1305,6 +1305,7 @@ sub dobuild {
   my ($buildinfo) = @_;
 
   my $projid = $buildinfo->{'project'};
+  my $packid = $buildinfo->{'package'};
   my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
   my $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
@@ -1315,7 +1316,7 @@ sub dobuild {
   my @lt = localtime(time());
   my $timestring = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
   
-  print "$timestring: building '$buildinfo->{'package'}' for project '$projid' repository '$repoid' arch '$arch'";
+  print "$timestring: building '$packid' for project '$projid' repository '$repoid' arch '$arch'";
   print " using helper $helper" if $helper;
   print "\n";
 
@@ -1352,7 +1353,7 @@ sub dobuild {
 
   my $release = $buildinfo->{'release'};
   my $obsinstance = $BSConfig::obsname || '';
-  my $disturl = "obs://$obsinstance/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'srcmd5'}-$buildinfo->{'package'}";
+  my $disturl = "obs://$obsinstance/$projid/$repoid/$buildinfo->{'srcmd5'}-$packid";
 
   my @args;
   push @args, $helper if $helper;
@@ -1410,6 +1411,7 @@ sub dobuild {
   push @args, '--clean';
   push @args, '--changelog';
   push @args, '--oldpackages', $oldpkgdir if $oldpkgdir && -d $oldpkgdir;
+  push @args, '--norootforbuild' unless $BSConfig::norootexceptions && grep {"$projid/$packid" =~ /^$_$/} keys %$BSConfig::norootexceptions;
   push @args, '--baselibs-internal';
   push @args, '--lint';
   push @args, '--dist', "$buildroot/.build.config";
@@ -1419,24 +1421,12 @@ sub dobuild {
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
   push @args, '--jobs', $jobs if $jobs;
-  push @args, '--reason', "Building $buildinfo->{'package'} for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
+  push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, "$srcdir/$buildinfo->{'file'}";
-  my $use_root;
-  if ($BSConfig::norootexceptions) {
-    if ($BSConfig::norootexceptions->{"$projid/$buildinfo->{'package'}"}) {
-       $use_root = 1
-    } else {
-       my $projstring = $projid;
-       while ($projstring =~ s/:[^:]*$//) {
-          $use_root = 1 if $BSConfig::norootexceptions->{"$projstring/$buildinfo->{'package'}"};
-       }
-    }
-  }
-  push @args, '--norootforbuild' unless $use_root;
   qsystem(@args);
-  my $ret=$?;
+  my $ret = $?;
   if ($ret == 512) { # system exit code 2 maps to 2 * 256
     if (($buildinfo->{'reason'} || '') eq "rebuild counter sync") {
       $ret = 0;
