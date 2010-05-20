@@ -117,23 +117,14 @@ sub sendevent {
 #
 # 
 sub sortpacks {
-  my ($depsp, $mapp, $cychp, @packs) = @_;
+  my ($depsp, $mapp, $cycp, @packs) = @_;
 
   return @packs if @packs < 2;
   my @cycs;
   @packs = BSSolv::depsort($depsp, $mapp, \@cycs, @packs);
   if (@cycs) {
-    for my $cyc (@cycs) {
-      print "cycle: ".join(' -> ', @$cyc)."\n";
-      next unless $cychp;
-      my %nc = map {$_ => 1} @$cyc;
-      for my $p (@$cyc) {
-        next unless $cychp->{$p};
-	$nc{$_} = 1 for @{$cychp->{$p}};
-      }
-      my $c = [ sort keys %nc ];
-      $cychp->{$_} = $c for @$c;
-    }
+    @$cycp = @cycs if $cycp;
+    print "cycle: ".join(' -> ', @$_)."\n" for @cycs;
   }
   return @packs;
 }
@@ -4027,6 +4018,12 @@ while(1) {
     $pdeps{$packid} = \@edeps;
   }
 
+  # sort packages by pdeps
+  print "    sorting ".@packs." packages\n";
+  my @cycles;
+  @packs = sortpacks(\%pdeps, \%dep2src, \@cycles, @packs);
+
+  # write dependency information
   if (%pkgdisabled) {
     # leave info of disabled packages untouched
     my $olddepends = BSUtil::retrieve("$reporoot/$prp/$myarch/:depends", 1);
@@ -4037,12 +4034,11 @@ while(1) {
       }
     }
   }
-
-  # write dependency information
   BSUtil::store("$reporoot/$prp/$myarch/.:depends", "$reporoot/$prp/$myarch/:depends", {
     'pkgdeps' => \%pdeps,
     'subpacks' => \%subpacks,
     'pkg2src' => \%pkg2src,
+    'cycles' => \@cycles,
   });
   # remove old entries again
   for (keys %pkgdisabled) {
@@ -4050,10 +4046,19 @@ while(1) {
     delete $pkg2src{$_};
   }
 
-  # sort packages by pdeps
-  print "    sorting ".@packs." packages\n";
+  # now build cychash mapping packages to all other cycle members
   my %cychash;
-  @packs = sortpacks(\%pdeps, \%dep2src, \%cychash, @packs);
+  if (@cycles) {
+    for my $cyc (@cycles) {
+      my %nc = map {$_ => 1} @$cyc;
+      for my $p (@$cyc) {
+	next unless $cychash{$p};
+	$nc{$_} = 1 for @{$cychash{$p}};
+      }
+      my $c = [ sort keys %nc ];
+      $cychash{$_} = $c for @$c;
+    }
+  }
 
   # bring unresolvables to back (is this really needed? we do not modify
   # the repositories in the middle of the project check)

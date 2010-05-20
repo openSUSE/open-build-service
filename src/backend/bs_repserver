@@ -2105,7 +2105,10 @@ sub getbuilddepinfo {
 	'subpkg' => \@sp,
     };
   }
-  return ({'package' => \@res}, $BSXML::builddepinfo);
+  my @cycles = map {{'package' => $_}} @{$depends->{'cycles'} || []};
+  my $res = { 'package' => \@res, };
+  $res->{'cycle'} = \@cycles if @cycles;
+  return ($res, $BSXML::builddepinfo);
 }
 
 ### FIXME: read status instead!

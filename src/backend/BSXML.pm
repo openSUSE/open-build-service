@@ -462,6 +462,9 @@ our $builddepinfo = [
 	  [ 'pkgdep' ],
 	  [ 'subpkg' ],
      ]],
+     [[ 'cycle' =>
+	  [ 'package' ],
+     ]],
 ];
 
 our $event = [
