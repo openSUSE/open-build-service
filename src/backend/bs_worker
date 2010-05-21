@@ -661,7 +661,7 @@ sub manage_cache {
   my ($prunesize, $cacheold, $cachenew) = @_;
   # get the lock
   local *F;
-  BSUtil::lockopen(\*F, '+>>', "$cachedir/content") || return;
+  BSUtil::lockopen(\*F, '+>>', "$cachedir/content", 1) || return;
   my $content;
   if (-s F) {
     seek(F, 0, 0);

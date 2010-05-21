@@ -294,11 +294,14 @@ sub data2utf8xml {
 }
 
 sub lockopen {
-  my ($fg, $op, $fn) = @_;
+  my ($fg, $op, $fn, $nonfatal) = @_;
 
   local *F = $fg; 
   while (1) {
-    return undef unless open(F, $op, $fn);
+    if (!open(F, $op, $fn)) {
+      return undef if $nonfatal;
+      die("$fn: $!\n");
+    }
     flock(F, LOCK_EX) || die("flock $fn: $!\n");
     my @s = stat(F);
     return 1 if @s && $s[3];
@@ -308,7 +311,7 @@ sub lockopen {
 
 sub lockopenxml {
   my ($fg, $op, $fn, $dtd, $nonfatal) = @_;
-  if (!lockopen($fg, $op, $fn)) {
+  if (!lockopen($fg, $op, $fn, $nonfatal)) {
     die("$fn: $!\n") unless $nonfatal;
     return undef;
   }

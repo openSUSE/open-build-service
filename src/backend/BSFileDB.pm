@@ -308,4 +308,19 @@ sub fdb_add {
   return $r;
 }
 
+sub fdb_add_multiple {
+  my ($fn, $lay, @r) = @_;
+  return unless @r;
+  local *FN;
+  open(FN, '+>>', $fn) || die("$fn: $!\n");
+  flock(FN, LOCK_EX) || die("$fn: $!\n");
+  my $d = '';
+  for my $r (@r) {
+    $d .= encode_line($r, $lay)."\n";
+  }
+  (syswrite(FN, $d) || 0) == length($d) || die("$fn write error: $!\n");
+  close(FN) || die("$fn write error: $!\n");
+  return $r[-1];
+}
+
 1;

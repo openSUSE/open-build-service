@@ -65,11 +65,13 @@ sub verify_packid_repository {
 }
 
 sub verify_packid_pattern {
-  verify_packid($_[0]) unless $_[0] && $_[0] eq '_pattern';
+  return if $_[0] && ($_[0] eq '_pattern' || $_[0] eq '_project');
+  verify_packid($_[0]);
 }
 
 sub verify_packid_product {
-  verify_packid($_[0]) unless $_[0] && $_[0] eq '_product';
+  return if $_[0] && ($_[0] eq '_product' || $_[0] eq '_project');
+  verify_packid($_[0]);
 }
 
 sub verify_patchinfo {
