@@ -1,6 +1,6 @@
 class RequestController < ApplicationController
 
-  def diff
+  def show
     if params[:id]
       @therequest = Request.find_cached( params[:id] )
     end

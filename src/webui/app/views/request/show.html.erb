@@ -37,31 +37,34 @@ setup_buildresult_trigger
   </thead>
   <tbody>
     <tr>
-      <td rowspan="2"><%= req.value :id %></td>
-      <td><%= req.state.name %></td>
-      <%  if req.has_element? :action:
-          elem = "action"
+      <%  if req.has_element? :action
+          actions = req.each_action
       else
-        elem = "submit"
-      end -%>
-      <%  a = req.send("#{elem}") -%>
-      <td>
-        <% if elem == "submit": %> <!-- old style submission -->
-          submit
-        <% else %>
-          <%= a.data.attributes["type"] %>
-        <% end -%>
-      </td>
-      <td>
-        <%= if a.has_element? :source
-          package_link(a.source.project, a.source.package)
-        end -%>
-      </td>
-      <td>
-        <%= if a.has_element? :target
-          package_link(a.target.project, a.target.package)
-        end -%>
-      </td>
+          actions = [req.submit]
+      end %>
+      <td rowspan="<%= actions.each_action.length + 1 %>"><%= req.value :id %></td>
+      <td><%= req.state.name %></td>
+      <% req.each_action do |action| %>
+          <td>
+            <% if req.has_element? :action %>
+              <%= action.data.attributes["type"] %>
+            <% else %>
+              submit
+            <% end -%>
+          </td>
+          <td>
+            <%= if action.has_element? :source
+              package_link(action.source.project, action.source.package)
+            end -%>
+          </td>
+          <td>
+            <%= if action.has_element? :target
+              package_link(action.target.project, action.target.package)
+            end -%>
+          </td>
+        </tr>
+        <tr>
+      <% end -%>
       <td rowspan="2"><%= link_to req.state.who, :controller => :project, :action => "show", :project => "home:"+req.state.who %></td>
     </tr>
     <tr>
