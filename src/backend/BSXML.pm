@@ -630,6 +630,12 @@ our $workerstatus = [
 	    'arch',
 	    'state',
 	    'starttime',
+	  [ 'queue' =>
+		'high',
+		'med',
+		'low',
+		'next',
+	  ],
      ]],
 ];
 

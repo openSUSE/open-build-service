@@ -1111,6 +1111,10 @@ sub workerstatus {
       }
       close F;
     }
+    my $si = readxml("$infodir/schedulerinfo.$schedarch", $BSXML::schedulerinfo, 1);
+    if ($si) {
+      $scheddata->{'queue'} = $si->{'queue'} if $si->{'queue'};
+    }
     push @scheddata, $scheddata;
   }
 
