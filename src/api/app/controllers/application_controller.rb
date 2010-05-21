@@ -306,7 +306,7 @@ class ApplicationController < ActionController::Base
     when ActiveXML::Transport::NotFoundError
       render_error :message => exception.message, :status => 404
     when Suse::ValidationError
-      render_error :message => exception.message, :status => 400
+      render_error :message => exception.message, :status => 400, :errorcode => 'validation_failed'
     when InvalidHttpMethodError
       render_error :message => exception.message, :errorcode => "invalid_http_method", :status => 400
     when DbPackage::SaveError
