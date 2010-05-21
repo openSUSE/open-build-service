@@ -262,10 +262,12 @@ sub getpatterns {
     return [];
   }
   my @ret;
+  my @args;
+  push @args, "rev=$dir->{'srcmd5'}" if $dir->{'srcmd5'} && $dir->{'srcmd5'} ne 'pattern';
   for my $entry (@{$dir->{'entry'} || []}) {
     my $pat;
     eval {
-      $pat = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern/$entry->{'name'}");
+      $pat = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern/$entry->{'name'}", undef, @args);
       # only patterns we can parse, please
       XMLin($BSXML::pattern, $pat);
     };
