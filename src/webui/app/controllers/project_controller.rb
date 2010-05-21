@@ -83,7 +83,7 @@ class ProjectController < ApplicationController
     predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
-    result = Collection.find_cached :id, :what => "project", :predicate => predicate, :expires_in => 2.minutes
+    result = find_cached Collection, :id, :what => "project", :predicate => predicate, :expires_in => 2.minutes
     @projects = Array.new
     result.each { |p| @projects << p.name }
     @projects =  @projects.sort_by { |a| project_key a }
@@ -93,7 +93,7 @@ class ProjectController < ApplicationController
   def users
     @email_hash = Hash.new
     @project.each_person do |person|
-      @email_hash[person.userid.to_s] = Person.find_cached( person.userid, :expires_in => 30.minutes ).email.to_s
+      @email_hash[person.userid.to_s] = find_cached(Person, person.userid, :expires_in => 30.minutes ).email.to_s
     end
     @roles = Role.local_roles
   end
@@ -102,14 +102,14 @@ class ProjectController < ApplicationController
     @subprojects = Hash.new
     sub_names = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')"
     sub_names.each do |sub|
-      @subprojects[sub.name] = Project.find_cached( sub.name )
+      @subprojects[sub.name] = find_cached( Project, sub.name )
     end
     @parentprojects = Hash.new
     parent_names = @project.name.split ':'
     parent_names.each_with_index do |parent, idx|
       parent_name = parent_names.slice(0, idx+1).join(':')
       unless [@project.name, 'home'].include?( parent_name )
-        parent_project = Project.find_cached( parent_name )
+        parent_project = find_cached(Project, parent_name )
         @parentprojects[parent_name] = parent_project unless parent_project.blank?
       end
     end
@@ -123,7 +123,7 @@ class ProjectController < ApplicationController
     @namespace = params[:ns]
     @project_name = params[:project]
     if params[:ns] == "home:#{session[:login]}"
-      @project = Project.find_cached params[:ns]
+      @project = find_cached Project, params[:ns]
       unless @project
         flash.now[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
@@ -138,13 +138,13 @@ class ProjectController < ApplicationController
   end
 
   def show
-    @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s if @project.bugowner
+    @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s if @project.bugowner
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
-      Package.find_cached( :all, :project => @project.name, :expires_in => 30.seconds )
+      find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
     end
 
     @problem_packages = Rails.cache.fetch("%s_problem_packages" % @project, :expires_in => 30.minutes) do
-      buildresult = Buildresult.find_cached( :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
+      buildresult = find_cached(Buildresult, :project => @project, :view => 'status', :code => ['failed', 'broken', 'unresolvable'], :expires_in => 2.minutes )
       if buildresult
         results = buildresult.data.find( 'result/status' )
         results.map{|e| e.attributes['package'] }.uniq.size
@@ -175,7 +175,7 @@ class ProjectController < ApplicationController
     unless cache
       Buildresult.free_cache( :project => params[:project], :view => 'summary' )
     end
-    @buildresult = Buildresult.find_cached( :project => params[:project], :view => 'summary', :expires_in => 3.minutes )
+    @buildresult = find_cached(Buildresult, :project => params[:project], :view => 'summary', :expires_in => 3.minutes )
 
     @repohash = Hash.new
     @statushash = Hash.new
@@ -272,7 +272,7 @@ class ProjectController < ApplicationController
   end
 
   def packages
-    @packages = Package.find_cached( :all, :project => @project.name, :expires_in => 30.seconds )
+    @packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
     # push to long time cache for the project frontpage
     Rails.cache.write("#{@project}_packages_mainpage", @packages, :expires_in => 30.minutes)
   end
@@ -408,7 +408,7 @@ class ProjectController < ApplicationController
 
   def save_person
     valid_http_methods(:post)
-    user = Person.find_cached( params[:userid] )
+    user = find_cached( Person, params[:userid] )
     unless user
       flash[:error] = "Unknown user with id '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => @project, :role => params[:role]
@@ -492,7 +492,7 @@ class ProjectController < ApplicationController
       :arch => @arch_filter, :repo => @repo_filter }
     find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
 
-    @buildresult = Buildresult.find_cached( find_opt.merge({:expires_in => 1.minute}) )
+    @buildresult = find_cached(Buildresult, find_opt.merge({:expires_in => 1.minute}) )
     unless @buildresult
       flash[:error] = "No build results for project '#{@project}'"
       redirect_to :action => :show, :project => params[:project]
@@ -592,7 +592,7 @@ class ProjectController < ApplicationController
     @project = params[:project]
     @package = params[:package]
     begin
-      @buildresult = Buildresult.find_cached( :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
+      @buildresult = find_cached(Buildresult, :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
     rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
     end
     @repohash = Hash.new
@@ -655,7 +655,7 @@ class ProjectController < ApplicationController
     end
     Project.free_cache( :name => params[:project], :view => :flagdetails )
     if request.xhr?
-      @project = Project.find_cached( :name => params[:project], :view => :flagdetails )
+      @project = find_cached(Project, :name => params[:project], :view => :flagdetails )
       render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
     else
       redirect_to :action => :repositories, :project => @project
@@ -723,7 +723,7 @@ class ProjectController < ApplicationController
 
   def get_changes_md5(project, package)
     begin
-      dir = Directory.find_cached(:project => project, :package => package, :expand => "1")
+      dir = find_cached(Directory, :project => project, :package => package, :expand => "1")
     rescue => e
       dir = nil
     end
@@ -765,7 +765,7 @@ class ProjectController < ApplicationController
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
 
-    attributes = PackageAttribute.find_cached(:namespace => 'OBS',
+    attributes = find_cached(PackageAttribute, :namespace => 'OBS',
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
     attributes.data.find('/attribute/project/package/values').each do |p|
@@ -779,7 +779,7 @@ class ProjectController < ApplicationController
     upstream_urls = Hash.new
 
     if @include_versions
-      attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
+      attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamVersion', :project => @project, :expires_in => 2.minutes)
       attributes.data.find('//package//values').each do |p|
         # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
@@ -788,7 +788,7 @@ class ProjectController < ApplicationController
         end
       end
 
-      attributes = PackageAttribute.find_cached(:namespace => 'openSUSE',
+      attributes = find_cached(PackageAttribute, :namespace => 'openSUSE',
         :name => 'UpstreamTarballURL', :project => @project, :expires_in => 2.minutes)
       attributes.data.find('//package//values').each do |p|
         # unfortunately libxml's find_first does not work on nodes, but on document (known bug)
@@ -911,7 +911,7 @@ class ProjectController < ApplicationController
 
   def get_important_projects
     predicate = "[attribute/@name='OBS:VeryImportantProject']"
-    return Collection.find_cached :id, :what => "project", :predicate => predicate
+    return find_cached Collection, :id, :what => "project", :predicate => predicate
   end
 
 
@@ -930,7 +930,7 @@ class ProjectController < ApplicationController
         render :text => 'Not a valid project name', :status => 404 and return
       end
     end
-    @project = Project.find_cached( params[:project], :expires_in => 5.minutes )
+    @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
     check_user
     unless @project
       if @user and params[:project] == "home:#{@user}"
@@ -973,7 +973,7 @@ class ProjectController < ApplicationController
   def load_current_requests
     predicate = "state/@name='new' and action/target/@project='#{@project}'"
     @current_requests = Array.new
-    coll = Collection.find_cached(:what => :request, :predicate => predicate, :expires_in => 1.minutes)
+    coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
     coll.each_request do |req|
       @current_requests << req
     end

@@ -206,6 +206,26 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def discard_cache?
+    cc = request.headers['Cache-Control']
+    if cc == 'max-age=0'
+      return true
+    end
+    return false
+  end
+
+  def find_cached(classname, *args)
+    if discard_cache?
+      if args[-1].kind_of? Hash
+	hash = args[-1]
+	hash.delete :expires_in
+	args[-1] = hash
+      end
+      classname.free_cache( *args )
+    end
+    classname.find_cached( *args )
+  end
+
   def send_exception_mail?
     return !local_request? && !Rails.env.development? && ExceptionNotifier.exception_recipients && ExceptionNotifier.exception_recipients.length > 0
   end
