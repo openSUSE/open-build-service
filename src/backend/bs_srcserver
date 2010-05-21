@@ -659,8 +659,8 @@ sub lsrev {
   close F;
   chomp @files;
   my $files = {map {substr($_, 34) => substr($_, 0, 32)} @files};
-  # hack: do not list _privkey in project meta
-  delete $files->{'_privkey'} if $packid eq '_project';
+  # hack: do not list _signkey in project meta
+  delete $files->{'_signkey'} if $packid eq '_project';
   if ($linkinfo) {
     $linkinfo->{'lsrcmd5'} = $files->{'/LOCAL'} if $files->{'/LOCAL'};
     $linkinfo->{'srcmd5'} = $files->{'/LINK'} if $files->{'/LINK'};
@@ -1421,9 +1421,9 @@ sub retrofit_old_meta {
       BSUtil::cp("$projectsdir/$projid.pkg/_pubkey", "$uploaddir/addrev_meta$$");
       $files->{'_pubkey'} = addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_pubkey');
     }
-    if (-e "$projectsdir/$projid.pkg/_privkey") {
-      BSUtil::cp("$projectsdir/$projid.pkg/_privkey", "$uploaddir/addrev_meta$$");
-      $files->{'_privkey'} = addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_privkey');
+    if (-e "$projectsdir/$projid.pkg/_signkey") {
+      BSUtil::cp("$projectsdir/$projid.pkg/_signkey", "$uploaddir/addrev_meta$$");
+      $files->{'_signkey'} = addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_signkey');
     }
   }
   return $files;
@@ -1935,6 +1935,7 @@ sub getproject {
 
 sub createkey {
   my ($cgi, $projid) = @_;
+  $cgi->{'comment'} ||= 'create sign key';
   die("don't know how to create a key\n") unless $BSConfig::sign;
   die("404 project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
   mkdir_p($uploaddir);
@@ -1950,16 +1951,15 @@ sub createkey {
   die("sign did not create signkey\n") unless -s "$uploaddir/signkey.$$";
   mkdir_p("$projectsdir/$projid.pkg");
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
+  # XXX: these are two commits...
   addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
-  if (!rename("$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey")) {
-    unlink("$projectsdir/$projid/_pubkey");
-    die("rename $uploaddir/signkey.$$ $projectsdir/$projid.pkg/_signkey: $!\n");
-  }
+  addrev_meta($cgi, $projid, undef, "$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey", '_signkey');
   return $BSStdServer::return_ok;
 }
 
 sub deletekey {
   my ($cgi, $projid) = @_;
+  $cgi->{'comment'} ||= 'delete sign key';
   if ($BSConfig::forceprojectkeys) {
     my $pprojid = $projid;
     $pprojid =~ s/:[^:]*$//;
@@ -1967,7 +1967,9 @@ sub deletekey {
     ($sk) = getsignkey({}, $pprojid) if $projid ne $pprojid;
     die("must have a key for signing\n") unless $sk;
   }
+  # XXX: these are two commits...
   addrev_meta($cgi, $projid, undef, undef, undef, '_pubkey');
+  addrev_meta($cgi, $projid, undef, undef, undef, '_signkey');
   unlink("$projectsdir/$projid.pkg/_signkey");
   unlink("$projectsdir/$projid.pkg/_pubkey");
   rmdir("$projectsdir/$projid.pkg");
@@ -2103,9 +2105,9 @@ sub undeleteproject {
         my $pubkey;
         $pubkey = repreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
         writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_pubkey", $pubkey) if $pubkey;
-        my $privkey;
-        $privkey = repreadstr($rev, '_privkey', $files->{'_privkey'}, 1) if $files->{'_privkey'};
-        writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_privkey", $privkey) if $privkey;
+        my $signkey;
+        $signkey = repreadstr($rev, '_signkey', $files->{'_signkey'}, 1) if $files->{'_signkey'};
+        writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_signkey", $signkey) if $signkey;
         my $meta;
         $meta = repreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
         writestr("$uploaddir/$$.2", "$projectsdir/$projid.xml", $meta) if $meta;
