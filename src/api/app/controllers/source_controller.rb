@@ -14,9 +14,13 @@ class SourceController < ApplicationController
     if request.post?
       # a bit danguerous, never implment a command without proper permission check
       dispatch_command
-    else
-      @dir = Project.find :all
-      render :text => @dir.dump_xml, :content_type => "text/xml"
+    elsif request.get?
+      if params[:deleted]
+        pass_to_backend
+      else
+        @dir = Project.find :all
+        render :text => @dir.dump_xml, :content_type => "text/xml"
+      end
     end
   end
 
@@ -24,14 +28,24 @@ class SourceController < ApplicationController
     project_name = params[:project]
     pro = DbProject.find_by_name project_name
     if pro.nil?
-      render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown project #{project_name}"
+      unless params[:cmd] == "undelete"
+        render_error :status => 404, :errorcode => 'unknown_project',
+          :message => "Unknown project #{project_name}"
+        return
+      end
+    elsif params[:cmd] == "undelete"
+      render_error :status => 403, :errorcode => 'create_project_no_permission',
+          :message => "Can not undelete, project exists already '#{project_name}'"
       return
     end
     
     if request.get?
-      @dir = Package.find :all, :project => project_name
-      render :text => @dir.dump_xml, :content_type => "text/xml"
+      if params[:deleted]
+        pass_to_backend
+      else
+        @dir = Package.find :all, :project => project_name
+        render :text => @dir.dump_xml, :content_type => "text/xml"
+      end
       return
     elsif request.delete?
       unless @http_user.can_modify_project?(pro)
@@ -106,6 +120,28 @@ class SourceController < ApplicationController
       return
     elsif request.post?
       cmd = params[:cmd]
+
+      if ['undelete'].include?(cmd) 
+        unless @http_user.can_create_project?(project_name)
+          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+            :message => "no permission to execute command '#{cmd}'"
+          return
+        end
+        dispatch_command
+
+        # read meta data from backend to restore database object
+        path = request.path + "/_meta"
+        Project.new(backend_get(path)).save
+
+        # restore all package meta data objects in DB
+        backend_pkgs = Collection.find :package, :match => "@project='#{params[:project]}'"
+        backend_pkgs.each_package do |package|
+          path = request.path + "/" + package.name + "/_meta"
+          Package.new(backend_get(path), :project => params[:project]).save
+        end
+        return
+      end
+
       if @http_user.can_modify_project?(pro)
         dispatch_command
       else
@@ -124,6 +160,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     cmd = params[:cmd]
+    deleted = params[:deleted]
 
     prj = DbProject.find_by_name(project_name)
     unless prj
@@ -138,10 +175,12 @@ class SourceController < ApplicationController
       render_error :status => 400, :errorcode => 'project_cycle', :message => e.message
       return
     end
-    unless pkg or DbProject.find_remote_project(project_name)
-      render_error :status => 404, :errorcode => "unknown_package",
-        :message => "unknown package '#{package_name}' in project '#{project_name}'"
-      return
+    unless deleted.blank? and not request.delete?
+      unless pkg or DbProject.find_remote_project(project_name)
+        render_error :status => 404, :errorcode => "unknown_package",
+          :message => "unknown package '#{package_name}' in project '#{project_name}'"
+        return
+      end
     end
 
     if request.get?
@@ -174,6 +213,20 @@ class SourceController < ApplicationController
       end
       render_ok
     elsif request.post?
+      if ['undelete'].include?(cmd) 
+        unless @http_user.can_modify_project?(prj)
+          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+            :message => "no permission to execute command '#{cmd}'"
+          return
+        end
+        dispatch_command
+
+        # read meta data from backend to restore database object
+        path = request.path + "/_meta"
+        Package.new(backend_get(path), :project => params[:project]).save
+        return
+      end
+
       if not ['diff', 'branch'].include?(cmd) and not @http_user.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
@@ -405,6 +458,11 @@ class SourceController < ApplicationController
 
     return unless extract_user
 
+    #assemble path for backend
+    params[:user] = @http_user.login
+    path = request.path
+    path += build_query_from_hash(params, [:user, :comment, :rev])
+
     if request.put?
       unless valid_project_name? project_name
         render_error :status => 400, :errorcode => "invalid_project_name",
@@ -471,10 +529,9 @@ class SourceController < ApplicationController
     end
 
     #assemble path for backend
+    params[:user] = @http_user.login
     path = request.path
-    unless request.query_string.empty?
-      path += "?" + request.query_string
-    end
+    path += build_query_from_hash(params, [:user, :comment, :rev])
 
     if request.get?
       pass_to_backend path
@@ -500,17 +557,16 @@ class SourceController < ApplicationController
   def project_pubkey
     valid_http_methods :get, :delete
 
+    #assemble path for backend
+    params[:user] = @http_user.login
+    path = request.path
+    path += build_query_from_hash(params, [:user, :comment, :rev])
+
     #check if project exists
     unless (@project = DbProject.find_by_name(params[:project]))
       render_error :status => 404, :errorcode => 'project_not_found',
         :message => "Unknown project #{params[:project]}"
       return
-    end
-
-    #assemble path for backend
-    path = request.path
-    unless request.query_string.empty?
-      path += "?" + request.query_string
     end
 
     if request.get?
@@ -528,7 +584,7 @@ class SourceController < ApplicationController
     end
   end
 
-  def update_package_meta(project_name, package_name, request_data)
+  def update_package_meta(project_name, package_name, request_data, user=nil, comment=nil)
     allowed = false
     # Try to fetch the package to see if it already exists
     @package = Package.find( package_name, :project => project_name )
@@ -635,7 +691,7 @@ class SourceController < ApplicationController
 
       render :text => pack.to_axml(params[:view]), :content_type => 'text/xml'
     else
-      update_package_meta(project_name, package_name, request.raw_post)
+      update_package_meta(project_name, package_name, request.raw_post, @http_user.login, params[:comment])
     end
   end
 
@@ -826,7 +882,21 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=createkey
   def index_project_createkey
-    path = request.path + "?" + request.query_string
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    pass_to_backend path
+  end
+
+  # POST /source/<project>?cmd=undelete
+  def index_project_undelete
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment])
     pass_to_backend path
   end
 
@@ -905,6 +975,16 @@ class SourceController < ApplicationController
     return binaries
   end
 
+  # POST /source/<project>/<package>?cmd=undelete
+  def index_package_undelete
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment])
+    pass_to_backend path
+  end
+
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
   def index_package_createSpecFileTemplate
     specfile_path = "#{request.path}/#{params[:package]}.spec"
@@ -968,7 +1048,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=commit
   def index_package_commit
     valid_http_methods :post
-    params[:user] = @http_user.login if @http_user
+    params[:user] = @http_user.login
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
@@ -982,7 +1062,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=commitfilelist
   def index_package_commitfilelist
     valid_http_methods :post
-    params[:user] = @http_user.login if @http_user
+    params[:user] = @http_user.login
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
@@ -1012,7 +1092,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=copy
   def index_package_copy
     valid_http_methods :post
-    params[:user] = @http_user.login if @http_user
+    params[:user] = @http_user.login
 
     pack = DbPackage.find_by_project_and_name(params[:project], params[:package])
     if pack.nil? 
@@ -1030,7 +1110,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=deleteuploadrev
   def index_package_deleteuploadrev
     valid_http_methods :post
-    params[:user] = @http_user.login if @http_user
+    params[:user] = @http_user.login
 
     path = request.path
     path << build_query_from_hash(params, [:cmd])
