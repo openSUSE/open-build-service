@@ -1,6 +1,6 @@
 <% @pagetitle = "Live Build Log"
-   @metarobots = "noindex,nofollow"
-   package_bread_crumb 'Build Log' 
+@metarobots = "noindex,nofollow"
+package_bread_crumb 'Build Log' 
 -%>
 
 <%= render :partial => "tabs" %>
@@ -65,53 +65,18 @@
 <% end -%>
 
 <h2>Build Log for Package <%=h @package%> (Project <%=h @project%>)</h2>
-<div><p><strong>Repository:</strong> <%=h @repo%> <strong>Architecture:</strong> <%=h @arch%></p></div>
+<p><strong>Repository:</strong> <%=h @repo%> <strong>Architecture:</strong> <%=h @arch%></p>
+<p><strong>Status:</strong> <span id="status">Updating...</span></p>
 
 
-<div class="grid_8 alpha">
-  <span><a href="#" class="start_refresh hidden">[Start Refresh]</a>
-  <a href="#" class="stop_refresh">[Stop Refresh]</a></span>
-</div>
+<%= render :partial => "live_log_controls" %>
 
-<div class="grid_8 omega" style="text-align: right">
-  <span><%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
-    :project => @project, :arch => @arch, :repository => @repo  %></span>
-</div>
-<div class="clear"></div>
-
-<div>
-  <p><strong>Status:</strong> <span id="status">Updating...</span></p>
-</div>
 <div id="log_space_wrapper">
   <p>
     <code id="log_space"><%= @initiallog %></code>
   </p>
 </div>
 
-<div class="grid_8 alpha">
-  <span><%= link_to '[Download raw logfile]', :controller => :package, :action => :rawlog, :package => @package,
-    :project => @project, :arch => @arch, :repository => @repo  %></span>
-</div>
-
-<div class="grid_8 omega">
-  <p><a href="#" class="start_refresh hidden">[Start Refresh]</a>
-  <a href="#" class="stop_refresh">[Stop Refresh]</a></p>
-</div>
-
-<div class="clear"></div>
-<% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-  <div id="link_trigger_rebuild" class="hidden">
-    <p>
-      <%= link_to "[Trigger Rebuild]", { :action => 'trigger_rebuild',
-        :project => @project, :package => @package, :arch => @arch, :repo => @repo }, :method => :delete %>
-    </p>
-  </div>
-  <div id="link_abort_build" class="hidden">
-    <p>
-      <%= link_to_remote "[Abort build]", :url => { :action => 'abort_build',
-        :project => @project, :package => @package, :arch => @arch, :repo => @repo }  %>
-    </p>
-  </div>
-<% end %>
+<%= render :partial => "live_log_controls" %>
 
 

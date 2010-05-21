@@ -1,0 +1,21 @@
+<p>
+  <%= link_to image_tag( 'icons/script_lightning.png' ), '#', :class => "start_refresh hidden" %>
+  <a href="#" class="start_refresh hidden">Start refresh</a>
+  <%= link_to image_tag( 'icons/script_link.png' ), '#', :class => "stop_refresh" %>
+  <a href="#" class="stop_refresh">Stop refresh</a>
+  <%= link_to image_tag( 'icons/script.png' ), :controller => :package, :action => :rawlog, :package => @package,
+    :project => @project, :arch => @arch, :repository => @repo  %>
+  <%= link_to 'Download raw logfile', :controller => :package, :action => :rawlog, :package => @package,
+    :project => @project, :arch => @arch, :repository => @repo  %>
+</p>
+
+<% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
+  <p><span id="link_trigger_rebuild" class="hidden">
+      <%= link_to image_tag( 'rebuild.png' ), { :action => 'trigger_rebuild', :project => @project, :package => @package, :arch => @arch, :repo => @repo }, :method => :delete %>
+      <%= link_to "Trigger Rebuild", { :action => 'trigger_rebuild', :project => @project, :package => @package, :arch => @arch, :repo => @repo }, :method => :delete %>
+  </span>
+  <span id="link_abort_build" class="hidden">
+      <%= link_to_remote "[Abort build]", :url => { :action => 'abort_build',
+        :project => @project, :package => @package, :arch => @arch, :repo => @repo }  %>
+    </span></p>
+<% end %>
