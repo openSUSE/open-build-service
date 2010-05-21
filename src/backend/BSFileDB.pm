@@ -83,7 +83,8 @@ sub fdb_getmatch {
   my ($fn, $lay, $field, $data, $retlast) = @_;
 
   my $isfirst = $lay->[0] eq $field;
-  $data =~ s/([\000-\037|=\177-\237])/sprintf("%%%02X", ord($1))/ge;
+  my $edata = $data;
+  $edata =~ s/([\000-\037|=\177-\237])/sprintf("%%%02X", ord($1))/ge;
   local *F;
   if (ref($fn)) {
     *F = *$fn;
@@ -101,18 +102,20 @@ sub fdb_getmatch {
       }
       $lastd = $d;
       if ($isfirst) {
-        if ($d eq $data || substr($d, 0, length($data) + 1) eq "$data|") {
+        if ($d eq $edata || substr($d, 0, length($edata) + 1) eq "$edata|") {
 	  $found = decode_line($d, $lay);
 	  last unless $retlast;
 	}
-      } elsif ($d =~ /\|\Q$data\E/) {
-	$found = decode_line($d, $lay);
-	undef $found if $found->{$field} ne $data;
+      } elsif ($d =~ /\|\Q$edata\E/) {
+	my $f = decode_line($d, $lay);
+	next if $f->{$field} ne $data;
+	$found = $f;
+        last unless $retlast;
       }
     }
   }
-  $found || seek(F, 0, 0) || die("$fn: seek error\n");
   if (!$found) {
+    seek(F, 0, 0) || die("$fn: seek error\n");
     while (defined($d = <F>)) {
       if (chop($d) ne "\n") {
 	undef $d;
@@ -121,13 +124,15 @@ sub fdb_getmatch {
       }
       $lastd = $d;
       if ($isfirst) {
-        if ($d eq $data || substr($d, 0, length($data) + 1) eq "$data|") {
+        if ($d eq $edata || substr($d, 0, length($edata) + 1) eq "$edata|") {
 	  $found = decode_line($d, $lay);
 	  last unless $retlast;
 	}
-      } elsif ($d =~ /\|\Q$data\E/) {
-	$found = decode_line($d, $lay);
-	undef $found if $found->{$field} ne $data;
+      } elsif ($d =~ /\|\Q$edata\E/) {
+	my $f = decode_line($d, $lay);
+	next if $f->{$field} ne $data;
+	$found = $f;
+        last unless $retlast;
       }
     }
   }
@@ -228,8 +233,12 @@ sub fdb_getall_reverse {
 sub fdb_add_i {
   my ($fn, $lay, $r) = @_;
   local *F;
-  open(F, '+>>', $fn) || die("$fn: $!\n");
-  flock(F, LOCK_EX) || die("$fn: $!\n");
+  if (ref($fn)) {
+    *F = *$fn;
+  } else {
+    open(F, '+>>', $fn) || die("$fn: $!\n");
+    flock(F, LOCK_EX) || die("$fn: $!\n");
+  }
   my $num = 0;
   my $end = sysseek(F, 0, 2);
   die("sysseek: $!\n") unless defined $end;
@@ -256,7 +265,9 @@ sub fdb_add_i {
   $r->{$lay->[0]} = $num;
   $d = encode_line($r, $lay)."\n";
   (syswrite(F, $d) || 0) == length($d) || die("$fn write error: $!\n");
-  close(F) || die("$fn write error: $!\n");
+  if (!ref($fn)) {
+    close(F) || die("$fn write error: $!\n");
+  }
   return $r;
 }
 
