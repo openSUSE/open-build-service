@@ -73,10 +73,18 @@ GET /source/
   
 XmlResult: projects directory.xsd
 
+Parameters:
+
+  deleted: show deleted projects instead of existing
+
 
 GET /source/<project>/_meta
 
   Read project meta file.
+
+Parameters:
+
+  rev: revision, mandatory
 
 XmlResult: project
 
@@ -84,6 +92,11 @@ XmlResult: project
 PUT /source/<project>/_meta
 
   Write project meta file.
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
 
 XmlBody: project
 
@@ -95,11 +108,14 @@ DELETE /source/<project>
   Deletes specified project. All packages of this project are deleted as if a
   DELETE request were issued for each package.
 
-  Parameters:
+Parameters:
   force: If force = 1, the project is deleted even if repositories of other
          projects include a path to a repository from this project. The path
          in the other repository is replaced by one pointing to 'deleted/standard',
          preventing the build and publishing of the other repository.
+  comment: comment, optional
+  user: user, optional
+
 
 XmlResult: status
 
@@ -108,12 +124,21 @@ GET /source/<project>/_config
 
   Read project configuration
 
+Parameters:
+
+  rev: revision, mandatory
+
 Result: configuration as text/plain
 
 
 PUT /source/<project>/_config
 
   Change project configuration
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
 
 XmlResult: status
 
@@ -163,19 +188,34 @@ DELETE /source/<project>/_pubkey
 XmlResult: status
 
 
-POST /source/<project>?cmd=createkey
+POST /source/<project>
 
-  Generate a new gpg key. If the project already has an own gpg key, the old
-  key is discarded.0
-
-XmlResult: status
+  Multiple commands on processing sources in package. Possible commands are
+  createkey: Generate a new gpg key. If the project already has an own gpg key, the old key is discarded.
+  undelete: undelete the project and all packages existing when the project got removed.
+  
 
 === Packages
+
+
+GET /source/<project>
+
+  Read list of packages.
+  
+XmlResult: package directory.xsd
+
+Parameters:
+
+  deleted: show deleted package instead of existing
 
 
 GET /source/<project>/<package>/_meta
 
   Read project meta data.
+
+Parameters:
+
+  rev: revision of new package, optional
 
 XmlResult: package
 
@@ -185,6 +225,11 @@ PUT /source/<project>/<package>/_meta
   Write project meta data. Writing of the project meta data commits the packages
   contained in the project to the build backend.
 
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
+
 XmlBody: package
 
 XmlResult: status
@@ -193,6 +238,11 @@ XmlResult: status
 DELETE /source/<project>/<package>
 
   Deletes specified package including all source files
+
+Parameters:
+
+  comment: comment, optional
+  user: user, optional
 
 XmlResult: status
 
@@ -279,6 +329,7 @@ Parameters:
   rev: package source revision, optional
   linkrev: linked revision, optional
   expand: expand links, optional
+  meta: switch to meta files
   lastworking: auto detect last working link revision, optional
   view: The "cpio" view will stream all files as cpio, optional
   extension: filter for file extension, optional
@@ -289,6 +340,10 @@ GET /source/<project>/<package>/<filename>
   Read source file.
 
 Result: Content of file
+
+Parameters: 
+
+  meta: switch to meta files
 
 
 PUT /source/<project>/<package>/<filename>
@@ -301,10 +356,12 @@ Parameters:
        finishing the commit with cmd=commit (see below), optional
   comment: comment, optional
   keeplink: bool, optional
+  meta: switch to meta files
 
 Body: Content of file
 
 XmlResult: status
+
 
 
 DELETE /source/<project>/<package>/<filename>
@@ -312,6 +369,10 @@ DELETE /source/<project>/<package>/<filename>
   Delete source file.
 
 XmlResult: status
+
+Parameters: 
+
+  meta: switch to meta files
 
 
 POST /source/<project>/<package>
@@ -325,6 +386,7 @@ POST /source/<project>/<package>
   branch: branch a package into another one
   linktobranch: convert a plain source link into a full branch
   deleteuploadrev: delete all uploaded, but not yet commited files.
+  undelete: undelete the package
   
   
 Parameters: 
@@ -341,6 +403,7 @@ Parameters:
   repairlink: repair link on source commit, optional
   dontupdatesource: Do not update origin package, optional (copy only)
   comment: comment for history, optional
+  meta: switch to meta files
 
 
 == Attribute definition api
