@@ -6,8 +6,6 @@ project_bread_crumb( 'Repository States' )
 
 <%= render :partial => "tabs" %>
 
-<h1>Repository State</h1>
-
 <!-- this page will also get other repository informations like jobhistory -->
 
 <% if @project.has_element? :repository %>
@@ -16,21 +14,16 @@ project_bread_crumb( 'Repository States' )
     <% next if not params[:repository].blank? and params[:repository] != repository.name %>
     <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository.name) %>" >
 
-      <div>
-        <strong><%= repository.name -%></strong>
-      </div>
-
-      <div>
-         <h2>Publishing Path</h2>
-         <%= link_to h(repository.name), repo_url( @project, repository.name ), :title => repository.name -%>
-      </div>
-
+      <h2>Repository state for <%= repository.name %></h2>
+      
+      <p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, repository ) %> Go to download <%= link_to 'repository', repo_url( @project, repository ) %>
+      </p>
 
       <div style="margin-top: 1em">
          <h2>Build Dependendency Cycles</h2>
          <% repository.each_arch do |arch| %>
             <% if @repocycles[repository.name] and @repocycles[repository.name][arch.text] and @repocycles[repository.name][arch.text].length > 0 %>
-                   <h3>Build dependency cycles for <%= arch.text %></h3>
+                   <h3>Cycles for <%= arch.text %></h3>
                    <ul>
                    <% @repocycles[repository.name][arch.text].each do |cycle| %>
                       <li> <% cycle.each do |package| %>
