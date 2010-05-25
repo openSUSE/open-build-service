@@ -148,7 +148,7 @@ class PackageController < ApplicationController
       return
     end
     Rails.cache.delete "requests_new"
-    redirect_to :controller => :request, :action => :diff, :id => req.data["id"]
+    redirect_to :controller => :request, :action => :show, :id => req.data["id"]
   end
 
   def wizard_new

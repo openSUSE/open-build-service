@@ -96,12 +96,12 @@
           end
         end
         p['requests_to'].each do |id|
-          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), p['develproject']])
+          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), p['develproject']])
           icon = "changes"
           sortkey = "3-request%06d-%s" % [ 999999 - id, p['name']]
         end
         p['requests_from'].each do |id|
-          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :diff, :id => id), @project])
+          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), @project])
           icon = "changes"
           sortkey = "2-drequest%06d-%s" % [ 999999 - id, p['name']]
         end

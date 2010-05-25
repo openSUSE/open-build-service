@@ -79,7 +79,7 @@ class RequestController < ApplicationController
       end
 
       if not change_request('accepted', params)
-        redirect_to :action => :diff, :id => params[:id]
+        redirect_to :action => :show, :id => params[:id]
         return
       end
 
@@ -89,14 +89,14 @@ class RequestController < ApplicationController
       req.save(:create => true)
       Rails.cache.delete "requests_new"
       flash[:note] = "Request #{params[id]} accepted and forwarded"
-      redirect_to :controller => :request, :action => :diff, :id => req.data["id"]
+      redirect_to :controller => :request, :action => :show, :id => req.data["id"]
       return
     end
 
     change_request(changestate, params)
     Directory.free_cache( :project => req.action.target.project, :package => req.action.target.package )
 
-    redirect_to :action => :diff, :id => params[:id]
+    redirect_to :action => :show, :id => params[:id]
   end
 
 end
