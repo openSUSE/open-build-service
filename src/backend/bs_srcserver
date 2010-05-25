@@ -917,8 +917,9 @@ sub applylink {
       $| = 1;
       print "applying patch $pn\n";
       $::ENV{'TMPDIR'} = '.';
-      # FIXME: new patch is not supporting --unified-reject-files anymore
-      exec('/usr/bin/patch', '--no-backup-if-mismatch', '--unified-reject-files', '--global-reject-file=.rejects', '-g', '0', '-f');
+      # Old patch command still supported --unified-reject-files and --global-reject-file.
+      # exec('/usr/bin/patch', '--no-backup-if-mismatch', '--unified-reject-files', '--global-reject-file=.rejects', '-g', '0', '-f');
+      exec('/usr/bin/patch', '--no-backup-if-mismatch', '-g', '0', '-f');
       die("/usr/bin/patch: $!\n");
     }
     waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
