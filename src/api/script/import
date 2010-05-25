@@ -16,11 +16,11 @@ DUMMY_USER_ATTR = {
 
 ### boot rails ###
 Rails::Initializer.run do |config|
-  config.frameworks -= [ :action_web_service, :active_resource ]
-  config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
+  #config.frameworks -= [ :action_web_service, :active_resource ]
+  #config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
 end
 
-require 'activexml'
+require "common/libxmlactivexml"
 
 ActiveXML::Base.config do |conf|
   conf.lazy_evaluation = true
