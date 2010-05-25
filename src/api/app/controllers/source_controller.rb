@@ -597,7 +597,7 @@ class SourceController < ApplicationController
       if allowed
         @package = Package.new( request_data, :project => project_name, :name => package_name )
       else
-        logger.debug "user #{user.login} has no permission to change package #{@package}"
+        logger.debug "user #{user} has no permission to change package #{@package}"
         render_error :status => 403, :errorcode => "change_package_no_permission",
           :message => "no permission to change package"
         return
@@ -634,7 +634,7 @@ class SourceController < ApplicationController
       end
       render_ok
     else
-      logger.debug "user #{user.login} has no permission to write package meta for package #{@package}"
+      logger.debug "user #{user} has no permission to write package meta for package #{@package}"
     end
   end
   private :update_package_meta
