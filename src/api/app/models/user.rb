@@ -46,7 +46,12 @@ class User < ActiveRecord::Base
     xml = builder.person() do |person|
       person.login( self.login )
       person.email( self.email )
-      person.realname( self.realname )
+      realname = self.realname
+      unless Kconv.isutf8(self.realname)
+	ic_ignore = Iconv.new('UTF-8//IGNORE', 'UTF-8')
+	realname = ic_ignore.iconv(realname)
+      end
+      person.realname( realname )
 
       self.roles.find(:all, :conditions => [ "global = true" ]).each do |role|
         person.globalrole( role.title )
