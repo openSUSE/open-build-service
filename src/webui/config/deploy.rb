@@ -19,14 +19,15 @@ server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
 # via the :deploy_to variable:
 set :deploy_to, "/srv/www/vhosts/opensuse.org/#{application}"
 set :runit_name, "webclient"
+set :static, "build.o.o"
 
 # set variables for different target deployments
 task :stage do
   set :deploy_to, "/srv/www/vhosts/opensuse.org/stage/#{application}"
   set :runit_name, "webclient_stage"
   set :branch, "master"
+  set :static, "build.o.o-stage/stage"
 end
-
 
 ssh_options[:forward_agent] = true
 default_run_options[:pty] = true
@@ -38,6 +39,7 @@ set :user, "root"
 set :runner, "root"
 
 after "deploy:update_code", "config:symlink_shared_config"
+after "deploy:update_code", "config:sync_static"
 after "deploy:symlink", "config:permissions"
 
 # workaround because we are using a subdirectory of the git repo as rails root
@@ -68,6 +70,12 @@ namespace :config do
   task :permissions do
     run "chown -R lighttpd #{current_path}/db #{current_path}/tmp #{current_path}/public/main"
   end
+
+  desc "Sync public to static.o.o"
+  task :sync_static do
+    `rsync  --delete-after --exclude=themes -av public/ -e 'ssh -p2212' proxy-opensuse.suse.de:/srv/www/vhosts/static.opensuse.org/hosts/#{static}`
+  end
+
 end
 
 # server restarting

@@ -17,7 +17,7 @@ theme: neutral
 exception_recipients: []
 
 # Use static.opensuse.org for static style content
-#use_static: true
+#use_static: build.o.o
 
 # make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite
 # note that you need to enable the proxy-core option to allow this

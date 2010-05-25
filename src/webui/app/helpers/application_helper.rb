@@ -10,14 +10,23 @@ module ActionView
       @@rails_root = Pathname.new("#{RAILS_ROOT}/public").realpath
     end
 
-    def rewrite_asset_path(source)
-      new_path = "/vendor/#{CONFIG['theme']}#{source}"
-      if File.exists?("#{RAILS_ROOT}/public#{new_path}")
-        source=Pathname.new("#{RAILS_ROOT}/public#{new_path}").realpath
-        source="/" + Pathname.new(source).relative_path_from(real_public)
-        Rails.logger.debug "using themed file: #{new_path} -> #{source}"
+    @@icon_cache = Hash.new
+    
+    def rewrite_asset_path(_source)
+      if @@icon_cache[_source]
+        return @@icon_cache[_source]
       end
-      super(source)
+      new_path = "/vendor/#{CONFIG['theme']}#{_source}"
+      if File.exists?("#{RAILS_ROOT}/public#{new_path}")
+        source = new_path
+      else
+        source = _source
+      end
+      source=Pathname.new("#{RAILS_ROOT}/public#{source}").realpath
+      source="/" + Pathname.new(source).relative_path_from(real_public)
+      Rails.logger.debug "using themed file: #{_source} -> #{source}"
+      source = super(source)
+      @@icon_cache[_source] = source
     end
 
     @@theme_prefix = nil
@@ -30,8 +39,12 @@ module ActionView
     end
 
     def compute_asset_host(source)
-      if CONFIG['use_static'] and source.slice(0, theme_prefix.length) == theme_prefix
-        return "https://static.opensuse.org"
+      if CONFIG['use_static'] 
+        if source.slice(0, theme_prefix.length) == theme_prefix
+          return "https://static.opensuse.org"
+        else
+          return "https://static.opensuse.org/hosts/#{CONFIG['use_static']}"
+       end
       end
       super(source)
     end
