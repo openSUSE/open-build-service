@@ -2,6 +2,46 @@
 # openSUSE Build Service 2.0
 #
 
+
+
+Features:
+=========
+
+* Revised webui, new layout with more funcationality.
+
+* Anonymous access mode for webui
+  => to be configured in api  config/options.yml
+
+* Improved permission system:
+  - User group support for roles and requests
+
+* Improved request system:
+  - Review mechanism
+    - New "reviewer" role to set default reviewers for a package or project.
+      These can be users or groups.
+    http://en.opensuse.org/Build_Service/Concepts/Review
+
+  - New requests types for
+    - set bugowner
+    - add role
+
+* Project link mechanism
+  http://en.opensuse.org/Build_Service/Concepts/ProjectLinking
+
+* Build job strategies got configurable
+  http://en.opensuse.org/Build_Service/Concepts/BuildSchedulingStrategies
+
+* New fair build job dispatcher is distribution the jobs based on importance
+  and former used build times now.
+
+* Build cycle dependencies are accessable via api and webui now.
+
+* History for meta files like _meta and _prjconf
+
+* Project/Package undelete feature
+
+* Lots of smaller improvements and bugfixes
+
 Changes:
 ========
 
@@ -9,7 +49,10 @@ Changes:
 
 * "expansion error" state got renamed to "unresolved"
 
-* CBpreinstall and CBinstall prjconf directives added.
+* New "signing" state
+
+* For cross architecture compiling support:
+  CBpreinstall and CBinstall prjconf directives added.
   - CBPreinstall: add to preinstall section if emulator_arch
   - CBinstall: add to install section if emulator_arch
   - as with VMinstall, there's no dependency resolution. 
