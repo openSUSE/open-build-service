@@ -19,8 +19,10 @@ module ActionView
       new_path = "/vendor/#{CONFIG['theme']}#{_source}"
       if File.exists?("#{RAILS_ROOT}/public#{new_path}")
         source = new_path
-      else
+      elsif File.exists?("#{RAILS_ROOT}/public#{_source}")
         source = _source
+      else
+        return super(_source)
       end
       source=Pathname.new("#{RAILS_ROOT}/public#{source}").realpath
       source="/" + Pathname.new(source).relative_path_from(real_public)
