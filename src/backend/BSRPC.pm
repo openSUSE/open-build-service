@@ -140,7 +140,7 @@ sub createreq {
 # replyheaders
 # receiver
 # ignorestatus
-# replydtd
+# receiverarg
 # maxredirects
 #
 
@@ -251,7 +251,7 @@ sub rpc {
       $ret->{'replyheaders'} = $param->{'replyheaders'} if $param->{'replyheaders'};
       $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
       $ret->{$_} = $param->{$_} for grep {/^receiver:/} keys %$param;
-      $ret->{'replydtd'} = $xmlargs if $xmlargs;
+      $ret->{'receiverarg'} = $xmlargs if $xmlargs;
       return $ret;
     }
   }
@@ -312,8 +312,10 @@ sub rpc {
   my $receiver;
   $receiver = $param->{'receiver:'.lc($headers{'content-type'} || '')};
   $receiver ||= $param->{'receiver'};
+  $xmlargs ||= $param->{'receiverarg'};
   if ($receiver) {
-    $ans = $receiver->(\%headers, $param);
+    $ans = $receiver->(\%headers, $param, $xmlargs);
+    $xmlargs = undef;
   } else {
     $ans = BSHTTP::read_data(\%headers, undef, 1);
   }
@@ -324,7 +326,6 @@ sub rpc {
   #if ($param->{'verbose'}) {
   #  print "< $ans\n";
   #}
-  $xmlargs ||= $param->{'replydtd'};
   if ($xmlargs) {
     die("answer is not xml\n") if $ans !~ /<.*?>/s;
     my $res = XMLin($xmlargs, $ans);
