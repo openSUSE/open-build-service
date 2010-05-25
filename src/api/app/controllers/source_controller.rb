@@ -1400,7 +1400,7 @@ class SourceController < ApplicationController
     return true if name == "_pattern"
     return true if name == "_project"
     return true if name == "_product"
-    return true if name =~ "/^_product:[-_+\w\.:]*$/"
+    return true if name =~ /^_product:[-_+\w\.:]*$/
     name =~ /^\w[-_+\w\.:]*$/
   end
 
