@@ -14,5 +14,5 @@
 @import url(contentadd_style.css);
 @import url(https://static.opensuse.org/c/css/common/opensuse_boxes.css);
 /* @import url(https://static.opensuse.org/c/css/common/print/print_003.css); */
-@import url(https://static.opensuse.org/hosts/build.o.o/css/patch.css); /* overrides old styles */
-@import url(https://static.opensuse.org/hosts/build.o.o/css/dialog.css); /* style for dialog boxes */
+@import url(patch.css); /* overrides old styles */
+@import url(dialog.css); /* style for dialog boxes */
