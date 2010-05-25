@@ -545,8 +545,7 @@ sub addrev {
     return {'project' => $projid, 'package' => $packid, 'rev' => 'pattern', 'srcmd5' => $srcmd5};
   }
   die("403 package '$packid' is read-only\n") if $packid =~ /^_product:/;
-  die("403 sorry, project data cannot be committed yet\n") if $packid eq '_project';
-  die("404 package '$packid' does not exist\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
+  die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     my $filename = (keys %$files)[0];
@@ -577,23 +576,40 @@ sub addrev {
   }
 
   my $srcmd5 = addmeta($projid, $packid, $files);
-  my ($version, $release) = getcommitinfo($projid, $packid, $srcmd5, $files);
-  $user = str2utf8xml($user) if $user;
-  $comment = str2utf8xml($comment) if $comment;
-  my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'version' => $version, 'vrev' => $release, 'requestid' => $requestid};
+  $user = '' unless defined $user;
+  $user = 'unknown' if $user eq '';
+  $comment = '' unless defined $comment;
+  $user = str2utf8xml($user);
+  $comment = str2utf8xml($comment);
+  my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $requestid};
+  if ($packid ne '_project') {
+    my ($version, $release) = getcommitinfo($projid, $packid, $srcmd5, $files);
+    $rev->{'version'} = $version;
+    $rev->{'vrev'} = $release;
+  }
   
   my $rev_old = getrev($projid, $packid);
   my $files_old = lsrev($rev_old);
   my $filestr = BSHermes::generate_commit_flist($files_old, $files);
 
-  $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $version);
+  if ($packid eq '_project') {
+    $rev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev);
+    $rev->{'project'} = $projid;
+    $rev->{'package'} = $packid;
+    extract_old_prjsource($projid, $rev);
+    unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
+    notify_repservers('project', $projid);
+    BSHermes::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => $user });
+    return $rev;
+  }
+  $rev = BSFileDB::fdb_add_i2("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev, 'vrev', 'version', $rev->{'version'});
 
   # send out hermes notification
   BSHermes::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment});
   $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   BSHermes::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
-                                             oldversion => $rev_old->{'version'}, newversion => $version, user => $user, comment => $comment})
-    if $version ne $rev_old->{'version'};
+                                             oldversion => $rev_old->{'version'}, newversion => $rev->{'version'}, user => $user, comment => $comment})
+    if $rev->{'version'} ne $rev_old->{'version'};
 
   # add missing data to complete the revision object
   $rev->{'project'} = $projid;
@@ -2818,9 +2834,7 @@ sub putfile {
   my $files = lsrev($rev);
   $files->{$filename} = $uploaded->{'md5'};
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
-  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
-  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
+  $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'});
 # update happens only on commit atm, or we would modify on file upload time ...
 # sourceupdate($projid, $packid) if $files->{'_service'} && not ($rev eq 'upload');
   delete $rev->{'project'};
@@ -3249,9 +3263,7 @@ sub sourcecommit {
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $files = lsrev($rev);
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
-  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
-  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  $rev = addrev($projid, $packid, $files, $user, $comment);
+  $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'});
   if ($files->{'_service'} && !$cgi->{'noservice'}) {
     my $sslockfile = "$eventdir/service/${projid}::$packid";
     mkdir_p("$eventdir/service");
@@ -3289,15 +3301,13 @@ sub sourcecommitfilelist {
   }
 
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
-  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
-  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   if (-e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") {
     # autocommit old update revision so that it doesn't get lost
     my $uploadrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => 'upload'};
     my $uploadfiles = lsrev($uploadrev);
-    addrev($projid, $packid, $uploadfiles, $user, 'autocommit', undef, $cgi->{'requestid'});
+    addrev($projid, $packid, $uploadfiles, $cgi->{'user'}, 'autocommit', undef, $cgi->{'requestid'});
   }
-  my $rev = addrev($projid, $packid, $files, $user, $comment, undef, $cgi->{'requestid'});
+  my $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, undef, $cgi->{'requestid'});
 
   $cgi->{'rev'} = $rev->{'rev'};
   return getfilelist($cgi, $projid, $packid);
@@ -3351,9 +3361,7 @@ sub sourcecopy {
   copyfiles($projid, $packid, $oprojid, $opackid, $files);
 
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
-  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
-  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  my $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'}, $cgi->{'requestid'});
+  my $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'}, $cgi->{'requestid'});
 
   if ($autosimplifylink && !$autosimplifylink->{'rev'}) {
     my $isbranch = grep {(keys %$_)[0] eq 'branch'} @{$autosimplifylink->{'patches'}->{''} || []};
@@ -3436,9 +3444,7 @@ sub sourcebranch {
   mkdir_p($uploaddir);
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $lfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
-  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
-  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  my $rev = addrev($projid, $packid, $lfiles, $user, $comment);
+  my $rev = addrev($projid, $packid, $lfiles, $cgi->{'user'}, $cgi->{'comment'});
   delete $rev->{'project'};
   delete $rev->{'package'};
   BSHermes::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
@@ -3461,10 +3467,7 @@ sub linktobranch {
   mkdir_p($uploaddir);
   writexml("$uploaddir/$$", undef, $l, $BSXML::link);
   $files->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link');
-  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
-  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  $comment ||= "converted link to branch";
-  $rev = addrev($projid, $packid, $files, $user, $comment);
+  $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'} || "converted link to branch");
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
@@ -3491,9 +3494,7 @@ sub delfile {
   die("404 file '$filename' does not exist\n") unless $files->{$filename};
   delete $files->{$filename};
   $files = keeplink($projid, $packid, $files) if $cgi->{'keeplink'};
-  my $user = defined($cgi->{'user'}) ? $cgi->{'user'} : 'unknown';
-  my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
-  $rev = addrev($projid, $packid, $files, $user, $comment, $cgi->{'rev'});
+  $rev = addrev($projid, $packid, $files, $cgi->{'user'}, $cgi->{'comment'}, $cgi->{'rev'});
   delete $rev->{'project'};
   delete $rev->{'package'};
   return ($rev, $BSXML::revision);
