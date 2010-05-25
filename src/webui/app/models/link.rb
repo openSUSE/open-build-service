@@ -16,6 +16,7 @@ class Link < ActiveXML::Base
   def add_patch filename
     add_element "patches" if !self.has_element? :patches
     patches = ActiveXML::LibXMLNode.new(data.find_first("/link/patches"))
+    #TODO: We need to add it a the correct place, but add_element cannot handle that
     patches.add_element "add", 'name' => filename
   end
 
@@ -23,6 +24,7 @@ class Link < ActiveXML::Base
   def apply_patch filename
     add_element "patches" if !self.has_element? :patches
     patches = ActiveXML::LibXMLNode.new(data.find_first("/link/patches"))
+    #TODO: We need to add it a the correct place, but add_element cannot handle that
     patches.add_element "apply", 'name' => filename
   end
 
