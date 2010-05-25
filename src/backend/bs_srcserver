@@ -1424,10 +1424,44 @@ sub retrofit_old_meta {
     }
     if (-e "$projectsdir/$projid.pkg/_signkey") {
       BSUtil::cp("$projectsdir/$projid.pkg/_signkey", "$uploaddir/addrev_meta$$");
+      chmod(0600, "$uploaddir/addrev_meta$$");
       $files->{'_signkey'} = addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_signkey');
     }
   }
   return $files;
+}
+
+sub extract_old_prjsource {
+  my ($projid, $rev) = @_;
+  my $files = lsrev($rev);
+  my $config;
+  $config = repreadstr($rev, '_config', $files->{'_config'}, 1) if $files->{'_config'};
+  writestr("$uploaddir/$$.2", "$projectsdir/$projid.conf", $config) if $config;
+}
+
+sub extract_old_meta {
+  my ($projid, $packid, $rev) = @_;
+  my $files = lsrev($rev);
+  if (!defined($packid) || $packid eq '_project') {
+    $packid = '_project';
+    my $pubkey;
+    $pubkey = repreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
+    writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_pubkey", $pubkey) if $pubkey;
+    my $signkey;
+    $signkey = repreadstr($rev, '_signkey', $files->{'_signkey'}, 1) if $files->{'_signkey'};
+    if ($signkey) {
+      writestr("$uploaddir/$$.2", undef, $signkey);
+      chmod(0600, "$uploaddir/$$.2");
+      rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_signkey") || die("rename $uploaddir/$$.2 $projectsdir/$projid.pkg/_signkey: $!\n");
+    }
+    my $meta;
+    $meta = repreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
+    writestr("$uploaddir/$$.2", "$projectsdir/$projid.xml", $meta) if $meta;
+  } else {
+    my $meta;
+    $meta = repreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
+    writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", $meta) if $meta;
+  }
 }
 
 sub addrev_meta {
@@ -1439,6 +1473,7 @@ sub addrev_meta {
   if ($file) {
     mkdir_p($uploaddir);
     BSUtil::cp($tmpfile, "$uploaddir/addrev_meta$$");
+    chmod(0600, "$uploaddir/addrev_meta$$") if !defined($packid) && $suf eq 'mrev' && $rfile eq '_signkey';
     $md5 = addfile($projid, $rpackid, "$uploaddir/addrev_meta$$", $rfile);
   }
   mkdir_p("$projectsdir/$projid.pkg");
@@ -1914,7 +1949,7 @@ sub getprojectlist {
   if (!$cgi->{'deleted'}) {
     @projects = findprojects();
   } else {
-    @projects = grep {s/\.pkg\.del//} ls($projectsdir);
+    @projects = grep {s/\.pkg$//} ls("$projectsdir/_deleted");
     @projects = grep {! -e "$projectsdir/$_.xml"} @projects;
     @projects = sort @projects;
   }
@@ -2030,18 +2065,18 @@ sub delproject {
   addrev_meta($cgi, $projid, undef, undef, undef, undef);
   if (-d "$projectsdir/$projid.pkg") {
     # delete those packages and keys
-    mkdir_p("$projectsdir/$projid.pkg.del");
+    mkdir_p("$projectsdir/_deleted/$projid.pkg");
     # make room in old delete by deleting all old packages
-    for my $f (ls("$projectsdir/$projid.pkg.del")) {
+    for my $f (ls("$projectsdir/_deleted/$projid.pkg")) {
       if ($f =~ /\.m?rev$/) {
-        my $oldrev = readstr("$projectsdir/$projid.pkg.del/$f", 1);
+        my $oldrev = readstr("$projectsdir/_deleted/$projid.pkg/$f", 1);
         if (defined($oldrev) && $oldrev ne '') {
-	  BSUtil::lockopen(\*F, '+>>', "$projectsdir/$projid.pkg.del/$f.del");
-	  BSUtil::appendstr("$projectsdir/$projid.pkg.del/$f.del", $oldrev);
+	  BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f.del");
+	  BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f.del", $oldrev);
 	  # XXX: add comment
 	  close F;
 	}
-        unlink("$projectsdir/$projid.pkg.del/$f");
+        unlink("$projectsdir/_deleted/$projid.pkg/$f");
       }
     }
     for my $f (ls("$projectsdir/$projid.pkg")) {
@@ -2057,8 +2092,8 @@ sub delproject {
       if ($f =~ /\.m?rev(?:\.del)?$/) {
         my $oldrev = readstr("$projectsdir/$projid.pkg/$f", 1);
         if (defined($oldrev) && $oldrev ne '') {
-	  BSUtil::lockopen(\*F, '+>>', "$projectsdir/$projid.pkg.del/$f");
-	  BSUtil::appendstr("$projectsdir/$projid.pkg.del/$f", $oldrev);
+	  BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f");
+	  BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f", $oldrev);
 	  close F;
         }
       }
@@ -2079,44 +2114,24 @@ sub undeleteproject {
   my ($cgi, $projid) = @_;
 
   die("404 project '$projid' already exists\n") if -e "$projectsdir/$projid.xml";
-  die("404 project '$projid' is not deleted\n") unless -e "$projectsdir/$projid.pkg.del";
+  die("404 project '$projid' is not deleted\n") unless -e "$projectsdir/_deleted/$projid.pkg";
   $cgi->{'comment'} ||= 'project was undeleted';
   mkdir_p($uploaddir);
   mkdir_p("$projectsdir/$projid.pkg");
-  for my $f (ls("$projectsdir/$projid.pkg.del")) {
+  for my $f (ls("$projectsdir/_deleted/$projid.pkg")) {
     if ($f =~ /\.m?rev\.del$/) {
-      BSUtil::cp("$projectsdir/$projid.pkg.del/$f", "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$f");
+      BSUtil::cp("$projectsdir/_deleted/$projid.pkg/$f", "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$f");
     } elsif ($f =~ /^(.*)\.(m?rev)$/) {
       my $packid = $1;
       my $suf = $2;
-      my $rev = undelete_rev($cgi, "$projectsdir/$projid.pkg.del/$f", "$projectsdir/$projid.pkg/$f");
-      die unless $rev;
+      my $rev = undelete_rev($cgi, "$projectsdir/_deleted/$projid.pkg/$f", "$projectsdir/$projid.pkg/$f");
       $rev->{'project'} = $projid;
       $rev->{'package'} = $packid;
-      next if $suf eq 'rev' && $packid ne '_project';
       # extract legacy files
-      my $files = lsrev($rev);
-      if ($suf eq 'rev' && $packid eq '_project') {
-	# project source
-        my $config;
-        $config = repreadstr($rev, '_config', $files->{'_config'}, 1) if $files->{'_config'};
-        writestr("$uploaddir/$$.2", "$projectsdir/$projid.conf", $config) if $config;
-      } elsif ($suf eq 'mrev' && $packid eq '_project') {
-	# project meta
-        my $pubkey;
-        $pubkey = repreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
-        writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_pubkey", $pubkey) if $pubkey;
-        my $signkey;
-        $signkey = repreadstr($rev, '_signkey', $files->{'_signkey'}, 1) if $files->{'_signkey'};
-        writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_signkey", $signkey) if $signkey;
-        my $meta;
-        $meta = repreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
-        writestr("$uploaddir/$$.2", "$projectsdir/$projid.xml", $meta) if $meta;
-      } else {
-	# package meta
-        my $meta;
-        $meta = repreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
-        writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", $meta) if $meta;
+      if ($suf eq 'rev') {
+        extract_old_prjsource($projid, $rev) if $packid eq '_project';
+      } elsif ($suf eq 'mrev') {
+        extract_old_meta($projid, $packid, $rev);
       }
     }
   }
@@ -2272,15 +2287,9 @@ sub undeletepackage {
   die("403 package '$packid' already exists\n") if -e "$projectsdir/$projid.pkg/$packid.xml";
   die("403 package '$packid' was not deleted\n") unless -e "$projectsdir/$projid.pkg/$packid.rev.del";
   my $rev = undelete_rev($cgi, "$projectsdir/$projid.pkg/$packid.mrev.del", "$projectsdir/$projid.pkg/$packid.mrev");
-  die unless $rev;
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
-  my $files = lsrev($rev);
-  if ($files && $files->{'_meta'}) {
-    my $meta = repreadstr($rev, '_meta', $files->{'_meta'}, 1);
-    mkdir_p($uploaddir);
-    writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", $meta) if $meta;
-  }
+  extract_old_meta($projid, $packid, $rev);
   undelete_rev($cgi, "$projectsdir/$projid.pkg/$packid.rev.del", "$projectsdir/$projid.pkg/$packid.rev");
   notify_repservers('package', $projid, $packid);
   return $BSStdServer::return_ok;
@@ -2292,7 +2301,7 @@ sub getpackagehistory {
   my $revfile;
   $packid = '_project' unless defined $packid;
   $revfile = "$projectsdir/$projid.pkg";
-  $revfile .= '.del' if $packid eq '_project' && $cgi->{'deleted'};
+  $revfile = "$projectsdir/_deleted/$projid.pkg" if $packid eq '_project' && $cgi->{'deleted'};
   $revfile .= $cgi->{'meta'} ? "/$packid.mrev" : "/$packid.rev";
   $revfile .= '.del'if $packid ne '_project' && $cgi->{'deleted'};
   for (BSFileDB::fdb_getall($revfile, $srcrevlay)) {
@@ -2827,13 +2836,22 @@ sub sourcediff {
   my $fmax = 200;
   my $tmax = 16000;
 
-  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', undef, $cgi->{'missingok'});
+  my $rev;
+  if ($cgi->{'meta'}) {
+    $rev = getrev_meta($projid, $packid, $cgi->{'rev'});
+  } else {
+    $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', undef, $cgi->{'missingok'});
+  }
   my $files = lsrev($rev);
   my $orev = $cgi->{'orev'};
   if (!defined($cgi->{'oproject'}) && !defined($cgi->{'opackage'}) && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
     $orev = $rev->{'rev'} - 1;
   }
-  $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
+  if ($cgi->{'meta'}) {
+    $orev = getrev_meta($oprojid, $opackid, $orev);
+  } else {
+    $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
+  }
   my $ofiles = lsrev($orev);
   if ($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
@@ -4856,7 +4874,7 @@ my $dispatches = [
 
   '/source/$project/_history rev? meta:bool? deleted:bool?' => \&getpackagehistory,
 
-  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool? missingok:bool?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:linkrev? unified:bool? missingok:bool? meta:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool?' => \&linkdiff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? requestid:num?' => \&sourcecommitfilelist,
