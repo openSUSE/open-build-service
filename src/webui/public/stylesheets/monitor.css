@@ -19,15 +19,15 @@
 }
 
 .monitorpb_green { 
-  background-image: url("../../images/progressbar_green.png");
+  background-image: url("../images/progressbar_green.png");
 }
 
 .monitorpb_orange { 
-  background-image: url("../../images/progressbar_orange.png");
+  background-image: url("../images/progressbar_orange.png");
 }
 
 .monitorpb_red { 
-  background-image: url("../../images/progressbar_red.png");
+  background-image: url("../images/progressbar_red.png");
 }
 
 .monitorpb_track {
@@ -171,15 +171,15 @@
 
 .statuslights .status_green
 { 
-  background-image: url('../../images/status_green.png')
+  background-image: url('../images/status_green.png')
 }
 
 .statuslights .status_yellow
 { 
-  background-image: url('../../images/status_yellow.png')
+  background-image: url('../images/status_yellow.png')
 }
 
 .statuslights .status_red
 { 
-  background-image: url('../../images/status_red.png')
+  background-image: url('../images/status_red.png')
 }
