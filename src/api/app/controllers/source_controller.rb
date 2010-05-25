@@ -528,17 +528,19 @@ class SourceController < ApplicationController
       return
     end
 
-    #assemble path for backend
-    params[:user] = @http_user.login
-    path = request.path
-    path += build_query_from_hash(params, [:user, :comment, :rev])
-
     if request.get?
+      path = request.path
+      path += build_query_from_hash(params, [:rev])
       pass_to_backend path
       return
     end
 
     return unless extract_user
+
+    #assemble path for backend
+    params[:user] = @http_user.login
+    path = request.path
+    path += build_query_from_hash(params, [:user, :comment])
 
     if request.put?
       unless @http_user.can_modify_project?(@project)
