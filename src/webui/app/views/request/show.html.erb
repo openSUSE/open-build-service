@@ -29,22 +29,29 @@ setup_buildresult_trigger
     <tr>
       <th>ID</th>
       <th>State</th>
+      <th>Requester</th>
       <th>Action</th>
       <th>Source</th>
       <th>Target</th>
-      <th>Requester</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
       <%  if req.has_element? :action
           actions = req.each_action
+          length = actions.length
       else
           actions = [req.submit]
-      end %>
-      <td rowspan="<%= actions.each_action.length + 1 %>"><%= req.value :id %></td>
-      <td><%= req.state.name %></td>
+          length = 1
+      end
+      first = true %>
       <% req.each_action do |action| %>
+        <tr>
+          <% if first %>
+             <td rowspan="<%= length %>"><%= req.value :id %></td>
+             <td rowspan="<%= length %>"><%= req.state.name %></td>
+             <td rowspan="<%= length %>"><%= link_to req.state.who, :controller => :project, :action => "show", :project => "home:"+req.state.who %></td>
+             <% first = nil %>
+          <% end %>
           <td>
             <% if req.has_element? :action %>
               <%= action.data.attributes["type"] %>
@@ -63,10 +70,7 @@ setup_buildresult_trigger
             end -%>
           </td>
         </tr>
-        <tr>
       <% end -%>
-      <td rowspan="2"><%= link_to req.state.who, :controller => :project, :action => "show", :project => "home:"+req.state.who %></td>
-    </tr>
     <tr>
       <td colspan="4"><pre><%= h(req.value('description') || "-") %></pre></td>
     </tr>
