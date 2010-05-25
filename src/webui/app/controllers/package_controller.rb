@@ -85,6 +85,10 @@ class PackageController < ApplicationController
   end
 
   def files
+    set_file_details
+  end
+
+  def set_file_details
     @files = @package.files
     @spec_count = 0
     @files.each do |file|
@@ -96,6 +100,7 @@ class PackageController < ApplicationController
       end
     end
   end
+  private :set_file_details
 
   def add_person
     @roles = Role.local_roles
@@ -318,7 +323,7 @@ class PackageController < ApplicationController
   end
 
   def add_file
-    @package_is_link = !@package.blank?
+    set_file_details
   end
 
   def save_file

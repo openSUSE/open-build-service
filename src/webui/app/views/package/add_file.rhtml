@@ -21,7 +21,7 @@
       <%= text_field_tag 'file_url', '', :size => 70 %><br/>
     </p>
     <p>
-      <% if @package_is_link %>
+      <% if @link %>
         <%= check_box_tag "addAsPatch", 1, false %>Add as a patch for the program source, and use it from the SPEC file <br/>
         <%= check_box_tag "applyAsPatch", 1, false %>Add as a global patch that patches the sources before building (can be used to patch the specfile)
       <% end %>
