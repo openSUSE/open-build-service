@@ -15,7 +15,7 @@
         <li id="item-community"><a href="http://opensuse.org/sitemap#community">Community</a></li>
         <li id="item-development"><a href="http://opensuse.org/sitemap#development">Development</a></li>
           <% if user -%>
-            <li id="item-favorites" style="float: right;"><a href="#">Watchlist</a></li>
+            <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :list_my %>">Watchlist</a></li>
           <% end -%>
         </ul>
 
