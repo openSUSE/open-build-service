@@ -27,16 +27,16 @@ li,
     text-align: right;
 }
 #searchbox .topleft {
-    background: #fff url(https://static.opensuse.org/hosts/build.o.o/css/images/darkgrey_searchbox/top_left_corner.png) top left no-repeat;
+    background: #fff url(../../images/darkgrey_searchbox/top_left_corner.png) top left no-repeat;
 }
 #searchbox .topright {
-  background: url(https://static.opensuse.org/hosts/build.o.o/css/images/darkgrey_searchbox/top_right_corner.png) top right no-repeat;
+  background: url(../../images/darkgrey_searchbox/top_right_corner.png) top right no-repeat;
 }
 #searchbox .bottomleft {
-    background: url(https://static.opensuse.org/hosts/build.o.o/css/images/darkgrey_searchbox/bottom_left_corner.png) bottom left no-repeat;
+    background: url(../../images/darkgrey_searchbox/bottom_left_corner.png) bottom left no-repeat;
 }
 #searchbox .bottomright {
-    background: url(https://static.opensuse.org/hosts/build.o.o/css/images/darkgrey_searchbox/bottom_right_corner.png) bottom right no-repeat;
+    background: url(../../images/darkgrey_searchbox/bottom_right_corner.png) bottom right no-repeat;
 }
 #pt-personal,
 #pt-personal a {
