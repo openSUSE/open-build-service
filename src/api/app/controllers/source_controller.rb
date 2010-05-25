@@ -706,7 +706,7 @@ class SourceController < ApplicationController
     path = "/source/#{project_name}/#{package_name}/#{file}"
 
     if request.get?
-      path += build_query_from_hash(params, [:rev])
+      path += build_query_from_hash(params, [:rev, :meta])
       pass_to_backend path
       return
     end
@@ -724,7 +724,7 @@ class SourceController < ApplicationController
 
     params[:user] = @http_user.login
     if request.put?
-      path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
+      path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
       
       if  allowed
         # file validation where possible
