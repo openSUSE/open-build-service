@@ -39,7 +39,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def render_axml( watchlist = nil )
+  def render_axml( watchlist = false )
     builder = FasterBuilder::XmlMarkup.new( :indent => 2 )
  
     logger.debug "----------------- rendering person #{self.login} ------------------------"

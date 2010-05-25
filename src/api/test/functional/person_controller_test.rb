@@ -42,9 +42,22 @@ class PersonControllerTest < ActionController::IntegrationTest
   def test_userinfo_with_broken_auth_header
     prepare_request_invalid_user( @request )
     get "/person/tom"
-    assert_select "status[code] > summary", /^Unknown user '[^']+' or invalid password$/
+    assert_select "status[code] > summary", /^Unknown user '[^\']+' or invalid password$/
 
     assert_response 401
+  end
+
+  def test_watchlist_privacy
+    prepare_request_valid_user( @request )
+    
+    get "/person/tom"
+    # should see his watchlist
+    assert_tag :tag => 'person', :child => {:tag => 'watchlist'}
+
+    get "/person/fred"
+    # should not see that watchlist
+    assert_no_tag :tag => 'person', :child => {:tag => 'watchlist'}
+
   end
 
   def test_update_user_info
