@@ -37,7 +37,7 @@ sub verify_packid {
   $packid =~ s/^_product://s;
   $packid =~ s/^_patchinfo://s;
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
-  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ and $packid ne '_product' and $packid ne '_pattern';
+  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ and $packid ne '_product' and $packid ne '_pattern' and $packid ne '_project';
 }
 
 sub verify_repoid {

@@ -176,7 +176,7 @@ class SourceController < ApplicationController
       return
     end
     unless deleted.blank? and not request.delete?
-      unless pkg or DbProject.find_remote_project(project_name)
+      unless package_name == "_project" or pkg or DbProject.find_remote_project(project_name)
         render_error :status => 404, :errorcode => "unknown_package",
           :message => "unknown package '#{package_name}' in project '#{project_name}'"
         return
@@ -187,6 +187,12 @@ class SourceController < ApplicationController
       pass_to_backend
       return
     elsif request.delete?
+      if package_name == "_project"
+        render_error :status => 403, :errorcode => "delete_package_no_permission",
+          :message => "_project package can not be deleted."
+        return
+      end
+
       if not @http_user.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => "delete_package_no_permission",
           :message => "no permission to delete package #{package_name}"
@@ -227,7 +233,13 @@ class SourceController < ApplicationController
         return
       end
 
-      if not ['diff', 'branch'].include?(cmd) and not @http_user.can_modify_package?(pkg)
+      if pkg.nil?
+        unless @http_user.can_modify_project?(prj)
+          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+            :message => "no permission to execute command '#{cmd}' for not existing package"
+          return
+        end
+      elsif not ['diff', 'branch'].include?(cmd) and not @http_user.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => "cmd_execution_no_permission",
           :message => "no permission to execute command '#{cmd}'"
         return
@@ -666,7 +678,6 @@ class SourceController < ApplicationController
     end
 
     unless valid_package_name? package_name
-      pkg = pro.find_package(package_name)
       render_error :status => 400, :errorcode => "invalid_package_name",
         :message => "invalid package name '#{package_name}'"
       return
@@ -680,7 +691,7 @@ class SourceController < ApplicationController
         return
       end
       unless pack
-        # check if this comes from a remote project
+        # check if this comes from a remote project, also true for _project package
         answer = Suse::Backend.get(request.path)
         if answer
           render :text => answer.body.to_s, :content_type => 'text/xml'
@@ -715,12 +726,16 @@ class SourceController < ApplicationController
     return unless extract_user
 
     pack = DbPackage.find_by_project_and_name(project_name, package_name)
-    if pack.nil?
-      render_error :status => 403, :errorcode => 'not_found',
-        :message => "The given package #{package_name} does not exist in project #{project_name}"
-      return
+    if package_name == "_project"
+      allowed = permissions.project_change? project_name
+    else
+      if pack.nil? and package_name != "_project"
+        render_error :status => 403, :errorcode => 'not_found',
+          :message => "The given package #{package_name} does not exist in project #{project_name}"
+        return
+      end
+      allowed = permissions.package_change? pack
     end
-    allowed = permissions.package_change? pack
 
     params[:user] = @http_user.login
     if request.put?
@@ -1382,6 +1397,10 @@ class SourceController < ApplicationController
   end
 
   def valid_package_name? name
+    return true if name == "_pattern"
+    return true if name == "_project"
+    return true if name == "_product"
+    return true if name =~ "/^_product:[-_+\w\.:]*$/"
     name =~ /^\w[-_+\w\.:]*$/
   end
 
