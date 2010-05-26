@@ -44,6 +44,7 @@ use BSHTTP;
 use strict;
 
 # FIXME: store in request and make request available
+our $request;
 our $peer;
 our $peerport;
 our $slot;
@@ -824,6 +825,7 @@ sub compile_dispatches {
 
 sub dispatch {
   my ($conf, $req) = @_;
+  $BSServer::request = $req;
   my $disps = $conf->{'dispatches'};
   my $stdreply = $conf->{'stdreply'};
   die("500 no dispatches configured\n") unless $disps;
