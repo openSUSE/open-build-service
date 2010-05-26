@@ -1388,10 +1388,13 @@ sub getresult {
     $state .= "$prpa\0\0";
     my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
     $ps ||= convertoldpackstatus($prpa);
-    next unless $ps;
-    if (%packfilter && $ps->{'packstatus'}) {
+    $ps ||= {'packstatus' => {}, 'packerror' => {}};
+    if (%packfilter) {
       for (keys %{$ps->{'packstatus'} || {}}) {
 	delete $ps->{'packstatus'}->{$_} unless $packfilter{$_};
+      }
+      for (keys %packfilter) {
+	$ps->{'packststus'}->{$_} ||= 'unknown';
       }
     }
     my $schedulerstate = getschedulerstate($projid, $repoid, $arch);
