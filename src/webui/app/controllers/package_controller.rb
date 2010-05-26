@@ -75,6 +75,8 @@ class PackageController < ApplicationController
     @repository = params[:repository]
     @buildresult = Buildresult.find_cached( :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
+    # load the flag details
+    @package = Package.find_cached( :package => @package, :project => @project, :view => :flagdetails )
   end
 
   def users
@@ -316,8 +318,12 @@ class PackageController < ApplicationController
       FrontendCompat.new.delete_package :project => @project, :package => @package
       flash[:note] = "Package '#{@package}' was removed successfully from project '#{@project}'"
       Rails.cache.delete("%s_packages_mainpage" % @project)
-    rescue Object => e
-      flash[:error] = "Failed to remove package '#{@package}' from project '#{@project}': #{e.message}"
+      Rails.cache.delete("%s_problem_packages" % @project)
+      Package.free_cache( :all, :project => @project.name )
+      Package.free_cache( @package.name, :project => @project )
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
     end
     redirect_to :controller => 'project', :action => 'show', :project => @project
   end
@@ -776,7 +782,7 @@ class PackageController < ApplicationController
   def require_package
     @project ||= params[:project]
     unless params[:package].blank?
-      @package = Package.find_cached( params[:package], :project => @project.to_s )
+      @package = Package.find_cached( params[:package], :project => @project )
     end
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"
