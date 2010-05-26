@@ -2,6 +2,10 @@ class PublicController < ApplicationController
   include PublicHelper
   skip_before_filter :extract_user
 
+  def index
+    redirect_to :controller => 'main'
+  end
+
   # GET /public/:prj/:repo/:arch/:pkg
   def build
     valid_http_methods :get
