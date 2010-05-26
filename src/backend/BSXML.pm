@@ -71,7 +71,7 @@ our @flags = (
       [ 'debuginfo' => @disableenable ],
       [ 'useforbuild' => @disableenable ],
       [ 'binarydownload' => @disableenable ],
-      [ 'readaccess' => @disableenable ],
+      [ 'sourceaccess' => @disableenable ],
       [ 'privacy' => @disableenable ],
 );
 

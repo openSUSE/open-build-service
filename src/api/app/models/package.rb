@@ -55,7 +55,7 @@ class Package < ActiveXML::Base
   end
 
   def remove_all_flags
-    %w(build publish debuginfo useforbuild readaccess privacy).each do |flag|
+    %w(build publish debuginfo useforbuild sourceaccess privacy).each do |flag|
       send('each_' + flag) do |e|
         delete_element e
       end
