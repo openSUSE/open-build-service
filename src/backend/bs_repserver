@@ -2664,6 +2664,8 @@ my $dispatches = [
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? summary:bool?' => \&getresult,
   '/_command $cmd: $prpa+ package* code:*' => \&docommand,
+
+  '/serverstatus' => \&BSStdServer::serverstatus,
   '/ajaxstatus' => \&getajaxstatus,
 ];
 

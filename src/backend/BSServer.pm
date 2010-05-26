@@ -34,8 +34,9 @@ package BSServer;
 use Data::Dumper;
 
 use Socket;
-use Fcntl qw(:DEFAULT :flock);
 use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 use Symbol;
 
 use BSHTTP;
@@ -45,6 +46,7 @@ use strict;
 # FIXME: store in request and make request available
 our $peer;
 our $peerport;
+our $slot;
 our $forwardedfor;
 our $replying;	# we're sending the answer (2 == in chunked mode)
 
@@ -183,15 +185,45 @@ sub setsocket {
   }
 }
 
+sub setstatus {
+  my ($state, $data) = @_;
+  my $slot = $BSServer::slot;
+  return unless defined $slot;
+  # +8 to skip time and pid
+  return unless defined(sysseek(STA, $slot * 256 + 8, Fcntl::SEEK_SET));
+  $data = pack("NZ244", $state, $data);
+  syswrite(STA, $data, length($data));
+}
+
+sub serverstatus {
+  my @res;
+  return @res unless defined $BSServer::slot;
+  return @res unless defined(sysseek(STA, 0, Fcntl::SEEK_SET));
+  my $sta;
+  my $slot = 0;
+  while ((sysread(STA, $sta, 256) || 0) == 256) {
+    my ($ti, $pid, $state, $data) = unpack("NNNZ244", $sta);
+    push @res, { 'slot' => $slot, 'starttime' => $ti, 'pid' => $pid, 'state' => $state, 'data' => $data };
+    $slot++;
+  }
+  return @res;
+}
+
 sub server {
   my ($conf) = @_;
 
   $conf ||= {};
   my $maxchild = $conf->{'maxchild'};
   my $timeout = $conf->{'timeout'};
-  my %chld = ();
+  my %chld;
   my $peeraddr;
   my $periodic_next = 0;
+  my @idle;
+  my $idle_next = 0;
+
+  if ($conf->{'serverstatus'}) {
+    open(STA, '>', $conf->{'serverstatus'});
+  }
 
   while (1) {
     my $tout = $timeout || 5;
@@ -218,22 +250,50 @@ sub server {
     if ($r) {
       $peeraddr = accept(CLNT, MS);
       next unless $peeraddr;
+      my $slot = @idle ? shift(@idle) : $idle_next++;
       $pid = fork();
       if (defined($pid)) {
-        last if $pid == 0;
-        $chld{$pid} = 1;
+        if ($pid == 0) {
+	  # child
+	  $BSServer::slot = $slot if $conf->{'serverstatus'};
+	  last;
+	}
+        $chld{$pid} = $slot;
       }
       close CLNT;
     }
     # if there are already $maxchild connected, make blocking waitpid
     # otherwise make non-blocking waitpid
     while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
+      my $slot = $chld{$pid};
+      if (defined($slot)) {
+        if ($conf->{'serverstatus'} && defined(sysseek(STA, $slot * 256, Fcntl::SEEK_SET))) {
+	  syswrite(STA, "\0" x 256, 256);
+	}
+        if ($slot == $idle_next - 1) {
+	  $idle_next--;
+	} else {
+	  push @idle, $slot;
+	}
+      }
       delete $chld{$pid};
     }
     # timeout was set in the $conf and select timeouted on this value. There was no new connection -> exit.
     return 0 if !$r && defined $timeout;
   }
   # from now on, this is only the child process
+  close MS;
+  if ($conf->{'serverstatus'}) {
+    close(STA);
+    if (open(STA, '+<', $conf->{'serverstatus'})) {
+      fcntl(STA, F_SETFD, FD_CLOEXEC);
+      if (defined(sysseek(STA, $BSServer::slot * 256, Fcntl::SEEK_SET))) {
+        syswrite(STA, pack("NNNZ244", time(), $$, 1, 'forked'), 256);
+      }
+    } else {
+      undef $BSServer::slot;
+    }
+  }
   $peer = 'unknown';
   eval {
     my $peera;

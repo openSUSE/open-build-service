@@ -4966,6 +4966,7 @@ my $dispatches = [
   '/search/request $match: limit:num?' => \&search_request,
 
   '/ajaxstatus' => \&getajaxstatus,
+  '/serverstatus' => \&BSStdServer::serverstatus,
 ];
 
 ####################################################################

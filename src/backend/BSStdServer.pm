@@ -78,8 +78,9 @@ sub authenticate {
 sub dispatch {
   my ($conf, $req) = @_;
   my @lt = localtime(time);
-  my $msg = sprintf "%04d-%02d-%02d %02d:%02d:%02d: ", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
-  $msg .= "$req->{'action'} $req->{'path'}?$req->{'query'}";
+  my $msg = "$req->{'action'} $req->{'path'}?$req->{'query'}";
+  BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
+  $msg = sprintf "%04d-%02d-%02d %02d:%02d:%02d [%d]: %s", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0], $$, $msg;
   $msg .= " (AJAX)" if $isajax;
   print "$msg\n";
   if ($isajax) {
@@ -114,6 +115,21 @@ sub periodic_ajax {
   exit(0);
 }
 
+sub serverstatus {
+  my ($cgi) = @_;
+  my @res;
+  for my $s (BSServer::serverstatus()) {
+    next unless $s->{'state'};
+    push @res, {
+      'id' => $s->{'slot'},
+      'starttime' => $s->{'starttime'},
+      'pid' => $s->{'pid'},
+      'request' => $s->{'data'},
+    };
+  }
+  return ({'job' => \@res}, $BSXML::serverstatus);
+}
+
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
 
@@ -127,6 +143,7 @@ sub server {
     $conf->{'authenticate'} ||= \&authenticate;
     $conf->{'periodic'} ||= \&periodic;
     $conf->{'periodic_interval'} ||= 1;
+    $conf->{'serverstatus'} ||= "$rundir/$name.status";
     $conf->{'name'} = $name;
   }
   if ($aconf) {

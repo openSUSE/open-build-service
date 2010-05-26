@@ -694,8 +694,20 @@ our $ajaxstatus = [
 		'ev',
 		'fd',
 		'peer',
+		'starttime',
 		'request',
 	 ]],
+     ]],
+];
+
+our $serverstatus = [
+    'serverstatus' =>
+     [[ 'job' =>
+	    'id',
+	    'starttime',
+	    'pid',
+	    'peer',
+	    'request',
      ]],
 ];
 
