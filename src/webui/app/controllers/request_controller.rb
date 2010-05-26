@@ -99,4 +99,9 @@ class RequestController < ApplicationController
     redirect_to :action => :show, :id => params[:id]
   end
 
+  def diff
+    # just for compatibility. OBS 1.X used this route for show
+    redirect_to :action => :show, :id => params[:id]
+  end
+
 end
