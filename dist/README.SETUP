@@ -256,8 +256,8 @@ the following steps:
  # account data for api.openSUSE.org here
  osc
 
- # run the script to mirror openSUSE:10.2 for example
- obs_mirror_project openSUSE:10.2 standard i586
+ # run the script to mirror openSUSE:11.2 for example (needs package obs-utils)
+ obs_mirror_project openSUSE:11.2 standard i586
 
  # restart the scheduler to scan the new project
  rcobsscheduler restart
