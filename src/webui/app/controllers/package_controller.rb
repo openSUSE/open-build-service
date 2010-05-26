@@ -56,7 +56,7 @@ class PackageController < ApplicationController
     @arch = params[:arch]
     @repository = params[:repository]
     @filename = params[:filename]
-    @fileinfo = Fileinfo.find_cached( :project => @project, :package => @package, :repository => @repository, :arch => @arch,
+    @fileinfo = find_cached(Fileinfo, :project => @project, :package => @package, :repository => @repository, :arch => @arch,
       :filename => @filename, :view => 'fileinfo_ext')
     if @fileinfo.value :arch 
       @durl = repo_url( @project, @repository ) + "/#{@fileinfo.arch}/#{@filename}"
@@ -73,10 +73,10 @@ class PackageController < ApplicationController
 
   def binaries
     @repository = params[:repository]
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package,
+    @buildresult = find_cached(Buildresult, :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
-    # load the flag details
-    @package = Package.find_cached( :package => @package, :project => @project, :view => :flagdetails )
+    # load the flag details to disable links for forbidden binary downloads
+    @package = find_cached(Package, @package.name, :project => @project, :view => :flagdetails )
   end
 
   def users
@@ -770,7 +770,7 @@ class PackageController < ApplicationController
 
   def require_project
     unless params[:project].blank?
-      @project = Project.find_cached( params[:project], :expires_in => 5.minutes )
+      @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
     end
     unless @project
       logger.error "Project #{params[:project]} not found"
@@ -782,7 +782,7 @@ class PackageController < ApplicationController
   def require_package
     @project ||= params[:project]
     unless params[:package].blank?
-      @package = Package.find_cached( params[:package], :project => @project )
+      @package = find_cached(Package, params[:package], :project => @project )
     end
     unless @package
       logger.error "Package #{@project}/#{params[:package]} not found"
@@ -866,7 +866,7 @@ class PackageController < ApplicationController
   def load_current_requests
     predicate = "state/@name='new' and action/target/@project='#{@project}' and action/target/@package='#{@package}'"
     @current_requests = Array.new
-    coll = Collection.find_cached(:what => :request, :predicate => predicate, :expires_in => 1.minutes)
+    coll = find_cached(Collection, :what => :request, :predicate => predicate, :expires_in => 1.minutes)
     coll.each_request do |req|
       @current_requests << req
     end

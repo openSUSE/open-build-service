@@ -217,9 +217,9 @@ class ApplicationController < ActionController::Base
   def find_cached(classname, *args)
     if discard_cache?
       if args[-1].kind_of? Hash
-	hash = args[-1]
-	hash.delete :expires_in
-	args[-1] = hash
+        hash = args[-1]
+        hash.delete :expires_in
+        args[-1] = hash
       end
       classname.free_cache( *args )
     end
