@@ -14,10 +14,18 @@ DUMMY_USER_ATTR = {
   :email => "noone@localhost"
 }
 
+require "common/libxmlactivexml"
+
 ### boot rails ###
 Rails::Initializer.run do |config|
-  #config.frameworks -= [ :action_web_service, :active_resource ]
+  config.frameworks -= [ :action_web_service, :active_resource ]
   #config.load_paths << File.expand_path("#{RAILS_ROOT}/../common/lib")
+
+  config.action_controller.session = {
+    :session_key => "_frontend_session",
+    :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap9866e7"
+  }
+
 end
 
 require "common/libxmlactivexml"
