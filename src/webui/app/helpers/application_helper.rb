@@ -31,22 +31,16 @@ module ActionView
       @@icon_cache[_source] = source
     end
 
-    @@theme_prefix = nil
-
-    def theme_prefix
-      return @@theme_prefix if @@theme_prefix
-      @@theme_prefix = '/themes'
-      @@theme_prefix = CONFIG['relative_url_root'] + @@theme_prefix  if CONFIG['relative_url_root']
-      @@theme_prefix
-    end
-
     def compute_asset_host(source)
       if CONFIG['use_static'] 
-        if source.slice(0, theme_prefix.length) == theme_prefix
+        if ActionController::Base.relative_url_root
+           source = source.slice(ActionController::Base.relative_url_root.length..-1)
+        end
+        if source =~ %r{^/themes}
           return "https://static.opensuse.org"
-        else
+        elsif source =~ %r{^/images} or source =~ %r{^/javascripts} or source =~ %r{^/stylesheets}
           return "https://static.opensuse.org/hosts/#{CONFIG['use_static']}"
-       end
+        end
       end
       super(source)
     end
@@ -144,9 +138,9 @@ module ApplicationHelper
 
 
   def get_random_sponsor_image
-    sponsors = ["common/sponsors/sponsor_amd.png",
-      "common/sponsors/sponsor_b1-systems.png",
-      "common/sponsors/sponsor_ip-exchange2.png"]
+    sponsors = ["/themes/bento/images/sponsors/sponsor_amd.png",
+      "/themes/bento/images/sponsors/sponsor_b1-systems.png",
+      "/themes/bento/images/sponsors/sponsor_ip-exchange2.png"]
     return sponsors[rand(sponsors.size)]
   end
 
