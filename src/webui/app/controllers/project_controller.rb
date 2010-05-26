@@ -49,9 +49,6 @@ class ProjectController < ApplicationController
     if request.xhr?
       render :partial => 'search_project', :locals => {:project_list => @projects} and return
     end
-    if @projects.length == 1
-      redirect_to :action => 'show', :project => @projects.first and return
-    end
     render :list, :status => params[:nextstatus]
   end
 
