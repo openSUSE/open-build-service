@@ -11,9 +11,13 @@
 <p><%= link_to image_tag( 'icons/drive_go.png' ), repo_url( @project, @repository ) %> Go to download <%= link_to 'repository', repo_url( @project, @repository ) %>
 </p>
 
-<% @buildresult.data.find( 'result').each do |result| %>
+<% @buildresult.data.find( 'result').each do |result| 
+     code='unknown'
+     status = result.find( 'status').first
+     code=status.attributes['code'] if status
+   %>
 
-  <h3><%= repo_status_icon result.find('status').first.attributes['code'] %> Architecture: <%= result.attributes['arch'] %></h3>
+  <h3><%= repo_status_icon code %> Architecture: <%= result.attributes['arch'] %></h3>
 
   <% if result.find( 'binarylist/binary' ).blank? %>
     <p><i>No published binaries</i></p>
