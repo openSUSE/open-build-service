@@ -100,11 +100,8 @@
   <p><strong>New name: </strong><%= text_field_tag 'repo', '', :size => 40, :id => 'repo_name' %></p>
 
   <p><strong>Architectures: </strong>
-    <% [:i586, :x86_64 ].each do |arch| %>
-      <%= check_box_tag "arch[#{arch}]", "", true %><%=arch%>
-    <% end %>
-    <% [:ppc, :ppc64, :armv4l, :armv5el, :armv7el, :sh4, :sparcv9, :sparc64 ].each do |arch| %>
-      <%= check_box_tag "arch[#{arch}]", "", false %><%=arch%>
+    <% VISIBLE_ARCHITECTURES.each do |arch| %>
+      <%= check_box_tag "arch[#{arch}]", "", (DEFAULT_ENABLED_ARCHITECTURES.include? arch) %><%=arch%>
     <% end %>
   </p>
 

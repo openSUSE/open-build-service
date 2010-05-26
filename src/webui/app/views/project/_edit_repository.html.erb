@@ -8,7 +8,7 @@
   <% form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
     <p>
       <strong>Architectures: </strong>
-      <% [:i586, :x86_64, :ppc, :ppc64, :armv4l, :armv5el, :armv7el, :sh4, :sparcv9, :sparc64 ].each do |arch| %>
+      <% VISIBLE_ARCHITECTURES.each do |arch| %>
         <%= check_box_tag "arch[#{arch}]", "", @arch_list.include?(arch.to_s) %><%=arch%>
       <% end %>
       <%= hidden_field_tag :project, @project %> <%= hidden_field_tag :repo, repository.name %>

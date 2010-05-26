@@ -98,6 +98,17 @@ MONITOR_IMAGEMAP = {
         ["armv7", 'blocked_armv7el'] ]
     }
 
+if CONFIG['visible_architectures']
+   VISIBLE_ARCHITECTURES=CONFIG['visible_architectures']
+else
+   VISIBLE_ARCHITECTURES=[ :i586, :x86_64 ]
+end
+if CONFIG['default_enabled_architectures']
+   DEFAULT_ENABLED_ARCHITECTURES=CONFIG['default_enabled_architectures']
+else
+   DEFAULT_ENABLED_ARCHITECTURES=[ :i586, :x86_64 ]
+end
+
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
     map.default_server :rest, "#{FRONTEND_HOST}:#{FRONTEND_PORT}"
