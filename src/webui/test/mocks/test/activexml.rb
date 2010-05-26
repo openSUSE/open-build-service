@@ -1,3 +1,6 @@
+
+require "rexml/document"
+
 module ActiveXML
 
   class Base
