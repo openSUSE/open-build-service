@@ -211,4 +211,8 @@ class Project < ActiveXML::Base
     @name ||= data.attributes['name']
   end
 
+  def is_remote?
+    has_element? "remoteurl"
+  end
+
 end

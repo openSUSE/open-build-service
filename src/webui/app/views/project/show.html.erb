@@ -9,69 +9,72 @@
 
 <div class="grid_9 alpha">
 
-<div class="show_left box">
-     <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
+  <div class="show_left box">
+    <h2 style="display: inline"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h2>
 
-  <span style="float: right">
-    <% if session[:login] -%>
-      <span id="watchlink">
-        <%= link_to_remote(image_tag(watch_link_image, :title => watch_link_text, :id => "imgwatch"),
-          :url => {:action => :toggle_watch, :project => @project.name },
-          :loading => '$("#imgwatch").fadeOut();',
-          :complete => '$("#imgwatch").fadeIn();') -%>
-      </span>
-    <% end -%>
-
-    <% if @project.is_maintainer?( session[:login] ) %>
-      <span>
-        <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete Project'),
-          :url => { :action => :delete, :project => @project.name } ) %>
-      </span>
-      <span>
-        <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
-      </span>
-      <span>
-        <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
-      </span>
-    <% end %>
-
-    <% if @project.bugowner and BUGZILLA_HOST  -%>
-      <span>
-        <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'),
-          bugzilla_url(@bugowner_mail, "#{@project.name}: Bug")) -%>
-      </span>
-    <% end -%>
-  </span>
-
-  <div class="description" id="description">
-    <p>
-      <% description = @project.description.text %>
-      <% if description %>
-        <% description.split( /\n/ ).each do |line| %>
-          <%=h line -%><br/>
-        <% end %>
-      <% else -%>
-        <i>No description set</i>
+    <span style="float: right">
+      <% if session[:login] -%>
+        <span id="watchlink">
+          <%= link_to_remote(image_tag(watch_link_image, :title => watch_link_text, :id => "imgwatch"),
+            :url => {:action => :toggle_watch, :project => @project.name },
+            :loading => '$("#imgwatch").fadeOut();',
+            :complete => '$("#imgwatch").fadeIn();') -%>
+        </span>
       <% end -%>
-    </p>
-  </div>
 
-  <div>
-    <% unless @current_requests.blank? %>
-      <div><p><%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
-      <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project %></p></div>
-    <% end %>
+      <% if @project.is_maintainer?( session[:login] ) %>
+        <span>
+          <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete Project'),
+            :url => { :action => :delete, :project => @project.name } ) %>
+        </span>
+        <span>
+          <%= link_to(image_tag('icons/brick_edit.png', :title => "Edit Project Information"), :action => 'edit', :project => @project) -%>
+        </span>
+        <span>
+          <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
+        </span>
+      <% end %>
 
-    <% if @problem_packages > 0 %>
-      <div><p><%= image_tag 'icons/exclamation.png' %> There <%= plural(@problem_packages, "is", "are") %> <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
-      <%= plural(@problem_packages, "package", "packages") %> of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
-    <% elsif @packages.each.size > 0 %>
-      <p><%= image_tag 'icons/accept.png' %> All <%= @packages.each.size %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
-    <% else %>
-      <p><%= image_tag 'icons/information.png' %> This project does not have any <%= link_to 'packages', :action => :packages, :project => @project %> yet.</p>
-    <% end %>
+      <% if @project.bugowner and BUGZILLA_HOST  -%>
+        <span>
+          <%= link_to(image_tag('tools-report-bug.png', :title => 'Report Bug'),
+            bugzilla_url(@bugowner_mail, "#{@project.name}: Bug")) -%>
+        </span>
+      <% end -%>
+    </span>
+
+    <div class="description" id="description">
+      <p>
+        <% description = @project.description.text %>
+        <% if description %>
+          <% description.split( /\n/ ).each do |line| %>
+            <%=h line -%><br/>
+          <% end %>
+        <% else -%>
+          <i>No description set</i>
+        <% end -%>
+      </p>
+    </div>
+
+    <div>
+      <% unless @current_requests.blank? %>
+        <div><p><%= image_tag 'icons/information.png' %> There <%= plural(@current_requests.size, "is", "are") %>
+            <%= @current_requests.size %> open <%= link_to "request#{@current_requests.size > 1 ? "s" : ""}", :action => :list_requests, :project => @project %></p></div>
+      <% end %>
+
+      <% if @problem_packages > 0 %>
+        <div><p><%= image_tag 'icons/exclamation.png' %> There <%= plural(@problem_packages, "is", "are") %> <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
+            <%= plural(@problem_packages, "package", "packages") %> of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
+      <% elsif @packages.each.size > 0 %>
+        <p><%= image_tag 'icons/accept.png' %> All <%= @packages.each.size %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
+      <% elsif @project.is_remote? %>
+        <p><%= image_tag 'icons/information.png' %> This project is linking the remote obs instance at: <i>
+            <a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i></p>
+      <% else %>
+        <p><%= image_tag 'icons/information.png' %> This project does not have any <%= link_to 'packages', :action => :packages, :project => @project %> yet.</p>
+      <% end %>
+    </div>
   </div>
-</div>
 
 </div>
 

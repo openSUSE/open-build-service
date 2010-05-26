@@ -11,8 +11,8 @@
 
 <ul>
   <%= project_tab 'Overview', :action => :show %>
-  <%= project_tab 'Packages', :action => :packages %>
-  <%= project_tab "Repositories", :action => :repositories%>
+  <%= project_tab( 'Packages', :action => :packages ) unless @project.is_remote? %>
+  <%= project_tab( "Repositories", :action => :repositories ) unless @project.is_remote? %>
   <% if @project.has_element?(:repository) -%>
     <%= project_tab "Monitor", :action => :monitor %>
   <% end -%>
@@ -31,7 +31,7 @@
   <%= project_tab 'Subprojects', :action => :subprojects %>
   <%= project_tab 'Attributes', :action => :attributes %>
   <%= project_tab "Raw Config", :action => :meta %>
-  <%= project_tab 'Status', :action => :status %>
+  <%= project_tab( 'Status', :action => :status ) unless @project.is_remote? %>
 </ul>
 </div>
 
