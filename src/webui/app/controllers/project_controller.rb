@@ -17,7 +17,7 @@ class ProjectController < ApplicationController
     :remove_person, :save_person, :add_person, :remove_target, :toggle_watch,
     :show, :monitor, :edit_prjconf, :list_requests, :autocomplete_packages,
     :packages, :users, :subprojects, :repositories, :attributes, :edit_repository,
-    :new_package, :new_package_link, :patchinfo
+    :new_package, :new_package_link, :patchinfo,
     :meta, :edit_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
 
   before_filter :load_current_requests, :only => [:delete, :view,
@@ -322,7 +322,10 @@ class ProjectController < ApplicationController
 
   def patchinfo
     load_packages
-    @patchinfo = @packages.grep(/^_patchinfo/)
+    @patchinfo = []
+    @packages.each do |p| 
+      @patchinfo << p.name if p.name =~ %r{^_patchinfo}
+    end
   end
 
   def autocomplete_packages

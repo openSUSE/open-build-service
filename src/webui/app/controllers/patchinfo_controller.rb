@@ -152,18 +152,18 @@ class PatchinfoController < ApplicationController
   private
   
     def requires
-      @project = Project.find( params[:project] )
+      @project = find_cached(Project, params[:project] )
       unless @project
         flash[:error] = "Project not found: #{params[:project]}"
         redirect_to :controller => "project", :action => "list_public"
         return
       end
       @bugzilla = []
-      @package = "_patchinfo:"
-      @file = Patchinfo.find( :project => @project, :package => @package )
+      @package = params[:package]
+      @file = find_cached(Patchinfo, :project => @project, :package => @package )
       @file.each_bugzilla do |bugzilla|
         @bugzilla << bugzilla.text
-      end
+      end if @file
     
       if @buglist == nil 
         @buglist = @bugzilla

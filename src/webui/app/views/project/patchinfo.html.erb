@@ -7,9 +7,9 @@
   Patchinfos for project <%= @project %> 
 </h3>
 
-<% if @patchinfo.each.blank? %>
+<% if @patchinfo.empty? %>
 <p><i>This project does not contain any patchinfo yet.</i></p>
-<% end %>
+<% else %>
 
 <div id="pkg_container">
   <h3>Patchinfo</h3>
@@ -20,4 +20,4 @@
   </p>
 </div>
 
-
+<% end %>
