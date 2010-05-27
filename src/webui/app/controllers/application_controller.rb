@@ -237,7 +237,9 @@ class ApplicationController < ActionController::Base
 
   def check_user
     return unless session[:login]
-    @user ||= Person.find_cached( session[:login] )
+    @user ||= Rails.cache.fetch("person_#{session[:login]}") do 
+       Person.find( session[:login] )
+    end
     if @user
       begin
         @nr_involved_requests = @user.involved_requests.size
