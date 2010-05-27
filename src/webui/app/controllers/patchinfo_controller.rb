@@ -22,9 +22,6 @@ class PatchinfoController < ApplicationController
     end     
     @binary = []
     @rating = []
-    @file.each_binary do |binaries|
-      @binaries << binaries.text
-    end
     @packager = @file.packager.to_s
     
     if params[:bug] == nil

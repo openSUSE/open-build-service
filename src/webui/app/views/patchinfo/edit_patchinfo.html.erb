@@ -107,10 +107,10 @@
     </td></tr>
   </table>
 <% for binary in @binaries %>
-  <%= hidden_field_tag "binary[]", binary%>
+  <%= hidden_field_tag "binary[]", binary, :id => valid_xml_id("binary_#{binary}") %>
 <% end %>
 <% for bug in @buglist %>
-  <%= hidden_field_tag "bug[]", bug%>
+  <%= hidden_field_tag "bug[]", bug, :id => valid_xml_id("bug_#{bug}")%>
 <% end %>
 <%= hidden_field_tag("project", @project.name)%>
 <%= hidden_field_tag("package", @package)%>
