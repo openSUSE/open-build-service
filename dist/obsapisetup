@@ -105,7 +105,7 @@ case "$1" in
   include "vhosts.d/rails.inc"
 }
 \$SERVER["socket"] == ":82" {
-  server.name = "$FQHOSTNAME"
+  #server.name = "$FQHOSTNAME"
   server.document-root = "/obs/repos/"
 
   dir-listing.activate = "enable"
