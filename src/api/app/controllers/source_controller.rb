@@ -670,7 +670,7 @@ class SourceController < ApplicationController
     end
 
     unless pro = DbProject.find_by_name(project_name)
-      unless request.get? and pro = DbProject.find_remote_project(project_name)
+      unless request.get? and (pro, pro_name = DbProject.find_remote_project(project_name))
         render_error :status => 404, :errorcode => "unknown_project",
           :message => "Unknown project '#{project_name}'"
         return
