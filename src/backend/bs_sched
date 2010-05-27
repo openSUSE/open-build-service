@@ -3505,7 +3505,11 @@ while(1) {
 	# delete repository done flag
 	unlink("$gdst/:repodone");
 	# delete full entries
-	update_dst_full($prp, "$gdst/$packid" , {}, undef, 1, $prpsearchpath{$prp});
+        my $pdata = (($projpacks->{$projid} || {})->{'package'} || {})->{$packid};
+	my $useforbuildenabled = 1;
+	$useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
+        $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+	update_dst_full($prp, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
         delete $repounchanged{$prp};
 	# delete other files
 	unlink("$gdst/:logfiles.success/$packid");
@@ -3891,7 +3895,9 @@ while(1) {
     delete $lastcheck{"$prp/$packid"};
     my $gdst = "$reporoot/$prp/$myarch";
     # delete full entries
-    update_dst_full($prp, "$gdst/$packid" , undef, undef, 1, $prpsearchpath{$prp});
+    my $useforbuildenabled = 1;
+    $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+    update_dst_full($prp, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
     $changed_med{$prp} = 2;
     sendrepochangeevent($prp);
     # delete other files
