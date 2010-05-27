@@ -30,8 +30,18 @@
         <%= link_to h(package.sub(/_product:/, '')), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %> |
       <% end %></p>
   <% end %>
+
+  <% if !@patchinfo.empty? %>
+<h3>
+Patchinfos for project <%= @project %>
+</h3>
+
+<p><% @patchinfo.each do |info| -%>
+     <%= link_to h(info), { :controller => 'patchinfo', :action => :edit_patchinfo, :project => @project, :package => info}, :class => 'nowrap' %> |
+  <%end%></p>
+<%end%>
   <p>
-    <% @packages.each.select{|p| !/^_product/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
+    <% @packages.each.select{|p| !/^_product/.match( p.name ) and !/^_patchinfo/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
       <% if @current_char.blank? || @current_char != package.downcase[0,1]
         @current_char = package.downcase[0,1] %>
       </p><p><b><%= @current_char %></b> 
@@ -40,3 +50,4 @@
     <% end%>
   </p>
 </div>
+

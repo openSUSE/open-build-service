@@ -39,28 +39,18 @@
     <tr>
       <th>Bugzilla: </th>
       <td>
-        <table cellspacing="1" id="bug_table" class="tablesorter">
-          <thead>
-            <tr>
-            <th>BugNo</th>
-            <th>Remove </th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @buglist.each do |a| %>
-            <% next if a.empty?%>
-            <tr><td class="bugs">
-              <% a.each do |bug| %>
-              <%= bug.to_s%>
-              <%end%>
-          </td>
-          <td>
-            <%=  link_to image_tag('list-remove.png', :alt => "Remove Bug", :title => "Remove Bug"), {:controller => "patchinfo", :action => "delete_bugzilla", :project => @project.name, :delete_bug => a}, {:confirm => "Really remove bug #{a}?\n All unsafed changes get lost!"}%>
-          </td></tr>
-
+        <% i=0 %>
+        <% @buglist.each do |a| %>
+          <% a.each do |bug| %>
+            <%= bug.to_s%>
+          <%end%>
+          <%=  link_to image_tag('list-remove.png', :alt => "Remove Bug", :title => "Remove Bug"), {:controller => "patchinfo", :action => "delete_bugzilla", :project => @project.name, :package => @package, :delete_bug => a}, {:confirm => "Really remove bug #{a}?\n All unsafed changes get lost!"}%>,
+          <% i=i+1 %>
+          <% if i.modulo(3) == 0 %>
+            <br/>
+          <%end%>
         <%end%>
-        </tbody>
-    </table>
+          
     </td>
       <td>List of bugs which the Patch fixes</td>
     </tr>
@@ -106,12 +96,6 @@
       <%= submit_tag "Save Patchinfo" %>
     </td></tr>
   </table>
-<% for binary in @binaries %>
-  <%= hidden_field_tag "binary[]", binary, :id => valid_xml_id("binary_#{binary}") %>
-<% end %>
-<% for bug in @buglist %>
-  <%= hidden_field_tag "bug[]", bug, :id => valid_xml_id("bug_#{bug}")%>
-<% end %>
 <%= hidden_field_tag("project", @project.name)%>
 <%= hidden_field_tag("package", @package)%>
 </div>

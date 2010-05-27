@@ -52,7 +52,7 @@ class PatchinfoController < ApplicationController
     rescue Timeout::Error => e
       flash[:error] = "Timeout when removing bug. Please try again."
     end
-    opt = {:action => "edit_patchinfo", :project => @project.name}
+    opt = {:action => "edit_patchinfo", :project => @project.name, :package => @package}
     redirect_to opt
   end
   
@@ -77,7 +77,7 @@ class PatchinfoController < ApplicationController
         rescue Timeout::Error => e
           flash[:error] = "Timeout when adding bug. Please try again."
         end
-        opt = {:action => "edit_patchinfo", :project => @project.name }
+        opt = {:action => "edit_patchinfo", :project => @project.name, :package => @package }
         redirect_to opt
       end
     end
