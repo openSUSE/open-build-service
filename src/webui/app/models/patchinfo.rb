@@ -39,6 +39,12 @@ class Patchinfo < ActiveXML::Base
 
   end
 
+  def is_maintainer? userid
+    has_element? "person[@role='maintainer' and @userid = '#{userid}']"
+  end
+
+
+
   def set_buglist(buglist, bugzilla)
     if self.each_bugzilla == nil
       self.add_element('bugzilla')

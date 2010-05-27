@@ -1,8 +1,17 @@
 class PatchinfoController < ApplicationController
   before_filter :requires
-  
+
   def edit_patchinfo
-    #@patchinfo = Patchinfo.find( :project => @project, :package => @package )
+    read_patchinfo
+  end
+
+  def show
+    read_patchinfo
+    @description.gsub!("\r\n", "<br/>")
+    @summary.gsub!("\r\n", "<br/>")
+  end  
+
+  def read_patchinfo
     logger.debug( "PATCHINFO: #{@patchinfo}" )
 
     @binarylist = Array.new
@@ -59,7 +68,6 @@ class PatchinfoController < ApplicationController
   def save
     filename = "_patchinfo"
     valid_params = true 
-    @package = "_patchinfo:"
     if params[:commit] == "Add Bug"
       if !valid_bugzilla_number? params[:bugid]
         flash[:error] = "|| Invalid bugzilla number: '#{params[:bugid]}'"
@@ -114,7 +122,8 @@ class PatchinfoController < ApplicationController
         @patchinfo.gsub!( /\r\n/, "\n" )
         begin
           frontend.put_file( @patchinfo, :project => @project, :package => @package,
-            :filename => filename, :binaries => [:binaries], :packager => [:packager], :bug => [:bug], :swampid => [:swampid], :summary => [:summary], :description => [:description])
+            :filename => filename, :binaries => [:binaries], :swampid => [:swampid], :summary => [:summary], :description => [:description])
+#:packager => [:packager]:bug => [:bug]
           flash[:note] = "Successfully saved file #{filename}"
         rescue Timeout::Error => e
           flash[:error] = "Timeout when saving file. Please try again."
@@ -123,11 +132,27 @@ class PatchinfoController < ApplicationController
         redirect_to opt
       end
       if valid_params == false
-        redirect_to :action => "edit_patchinfo", :project => @project
+        redirect_to :action => "edit_patchinfo", :project => @project, :package => @package
       end 
     end
   end
-  
+ 
+  def remove
+    valid_http_methods(:post)
+    begin
+      FrontendCompat.new.delete_package :project => @project, :package => @package
+      flash[:note] = "'#{@package}' was removed successfully from project '#{@project}'"
+      Rails.cache.delete("%s_packages_mainpage" % @project)
+      Rails.cache.delete("%s_problem_packages" % @project)
+      Package.free_cache( :all, :project => @project.name )
+      Package.free_cache( @package, :project => @project )
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+    end
+    redirect_to :controller => 'project', :action => 'show', :project => @project
+  end
+ 
   def valid_bugzilla_number? name
     name =~ /^\d{6,8}$/
   end
@@ -156,7 +181,10 @@ class PatchinfoController < ApplicationController
         return
       end
       @bugzilla = []
-      @package = params[:package]
+    unless params[:package].blank?
+      @package = find_cached(Package, params[:package], :project => @project )
+    end
+
       @file = find_cached(Patchinfo, :project => @project, :package => @package )
       @file.each_bugzilla do |bugzilla|
         @bugzilla << bugzilla.text

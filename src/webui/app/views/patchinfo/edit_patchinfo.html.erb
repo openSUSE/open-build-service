@@ -16,7 +16,9 @@
 
 <% form_tag :action => "save"  do %>
 <div class="section">
-<h3>Patchinfo</h3> 
+<div class="box show_left">
+<h2 style="display: inline">Patchinfo-Editor for <%=h @package %></h2>
+</div>
   <table class="patchinfo">
     <tr>
       <th>Packager: </th>
@@ -48,8 +50,7 @@
           <% if i.modulo(3) == 0 %>
             <br/>
           <%end%>
-        <%end%>
-          
+        <%end%>  
     </td>
       <td>List of bugs which the Patch fixes</td>
     </tr>
