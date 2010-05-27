@@ -152,7 +152,7 @@
       <xs:element name="useforbuild"  type="enable_list_type" minOccurs="0" />
       <xs:element name="debuginfo"    type="enable_list_type" minOccurs="0" />
       <xs:element name="binarydownload"    type="enable_list_type" minOccurs="0" />
-      <xs:element name="readaccess"    type="enable_list_type" minOccurs="0" />
+      <xs:element name="sourceaccess"    type="enable_list_type" minOccurs="0" />
       <xs:element name="privacy"    type="enable_list_type" minOccurs="0" />
     </xs:choice>
   </xs:group>

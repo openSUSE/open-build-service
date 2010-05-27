@@ -1,18 +1,18 @@
 class AddNewPermissionsAndRole < ActiveRecord::Migration
   def self.up
-    readperm   = StaticPermission.create :title => 'read_access'
+    sourceperm   = StaticPermission.create :title => 'source_access'
     privperm   = StaticPermission.create :title => 'private_view'
     reader     = Role.create :title => 'reader'
     maintainer = Role.find_by_title 'maintainer'
 
     [maintainer,reader].each do |role|
-      role.static_permissions << readperm
+      role.static_permissions << sourceperm
     end
     maintainer.static_permissions << privperm
   end
 
   def self.down
-    perm = StaticPermission.find_by_title('read_access')
+    perm = StaticPermission.find_by_title('source_access')
     if perm
       perm.destroy
     end
