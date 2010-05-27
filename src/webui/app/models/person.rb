@@ -70,11 +70,13 @@ class Person < ActiveXML::Base
     Rails.cache.delete cachekey unless opts[:cache]
 
     requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      iprojects = involved_projects.each.map {|x| x.name}.sort
+      # we assume that the user is involved in all his subprojects (home:#{login}:...)
+      iprojects = involved_projects.each.map {|x| x.name}.reject {|x| /^home:#{login}:/.match(x) }.sort
       requests = Array.new
 
       unless iprojects.empty?
         predicate = iprojects.map {|item| "action/target/@project='#{item}'"}.join(" or ")
+        predicate = "#{predicate} or starts-with(action/target/@project, 'home:#{login}:')"
         predicate = "state/@name='new' and (#{predicate})"
         collection = Collection.find :what => :request, :predicate => predicate
         myrequests = Hash.new
