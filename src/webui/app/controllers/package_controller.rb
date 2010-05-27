@@ -346,40 +346,27 @@ class PackageController < ApplicationController
     if !file.blank?
       # we are getting an uploaded file
       filename = file.original_filename if filename.blank?
+
+      if !valid_file_name?(filename)
+        flash[:error] = "'#{filename}' is not a valid filename."
+        redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+      end
+
+      # extra escaping of filename (workaround for rails bug)
+      @package.save_file :file => file, :filename => URI.escape(filename, "+")
     elsif not file_url.blank?
       # we have a remote file uri
-      begin
-        start = Time.now
-        uri = URI::parse file_url
-        filename = uri.path.match('.*\/([^\/\?]+)')[1] if filename.blank?
-        logger.info "Adding file: #{filename} from url: #{file_url}"
-        if filename.blank? or filename == '/'
-          flash[:error] = 'Invalid filename: #{filename}, please choose another one.'
-          redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
-          return
-        end
-        file = open uri
-      rescue Object => e
-        flash[:error] = "Error retrieving URI '#{uri}': #{e.message}."
-        logger.error "Error downloading file: #{e.message}"
-        redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
-        return
-      ensure
-        logger.debug "Download from #{file_url} took #{Time.now - start} seconds"
+      @services = Service.find_cached( :project => @project, :package => @package )
+      unless @services
+        @services = Service.new( :project => @project, :package => @package )
       end
+      @services.addDownloadURL( file_url )
+      @services.save
     else
       flash[:error] = 'No file or URI given.'
       redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
       return
     end
-
-    if !valid_file_name?(filename)
-      flash[:error] = "'#{filename}' is not a valid filename."
-      redirect_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
-    end
-
-    # extra escaping of filename (workaround for rails bug)
-    @package.save_file :file => file, :filename => URI.escape(filename, "+")
 
     if params[:addAsPatch]
       link = Link.find( :project => @project, :package => @package )
