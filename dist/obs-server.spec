@@ -159,8 +159,11 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       osc build ruby 
 
 %description -n obs-utils
-obs_mirror_project is a tool to copy the binary data of a project from one obs to another
-obs_project_update is a tool to copy a packages of a project from one obs to another
+obs_mirror_project     is a tool to copy the binary data of a project from one obs to another
+obs_project_update     is a tool to copy a packages of a project from one obs to another
+obs_import_srcdebtree  is a tool to import a debian source tree into a project
+obs_import_srcrpmtree  is a tool to import a rpm source tree into a project
+obs_rebuild_db         is a tool to recreate the OBS MySQL DB from the backend project data
 
 Authors:       Susanne Oberhauser, Martin Mohring
 
@@ -191,7 +194,7 @@ install -m 0644 rails.include $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/rails.inc
 install -m 0644 cleanurl-v5.lua $RPM_BUILD_ROOT/etc/lighttpd/
 # install obs mirror script and obs copy script
 install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
-install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
+install -m 0755 obs_rebuild_db obs_import_srcrpmtree obs_import_srcdebtree obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
@@ -613,6 +616,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /usr/sbin/obs_mirror_project
 /usr/sbin/obs_project_update
+/usr/sbin/obs_rebuild_db 
+/usr/sbin/obs_import_srcrpmtree
+/usr/sbin/obs_import_srcdebtree
 
 %files -n obs-productconverter
 %defattr(-,root,root)
