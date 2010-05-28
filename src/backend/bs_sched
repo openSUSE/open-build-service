@@ -1871,16 +1871,8 @@ sub jobfinished {
     return;
   }
   my $statusdir = "$reporoot/$prp/$myarch/$packid";
-  if (! -d $statusdir) {
-    print "  - $job belongs to obsolete package\n";
-    return;
-  }
   my $status = readxml("$statusdir/status", $BSXML::buildstatus, 1);
-  if (!$status) {
-    print "  - $job has no status\n";
-    return;
-  }
-  if (!$status->{'job'} || $status->{'job'} ne $job) {
+  if ($status && (!$status->{'job'} || $status->{'job'} ne $job)) {
     print "  - $job is outdated\n";
     return;
   }
