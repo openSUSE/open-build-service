@@ -6,7 +6,7 @@
     <%= link_to CGI::escapeHTML(session[:login]), :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %>
     <%=
     if @nr_involved_requests and @nr_involved_requests > 0
-      "(" + link_to('#' + @nr_involved_requests.to_s, {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"}) + ")"
+      "(" + link_to(pluralize(@nr_involved_requests, 'request'), {:controller => 'home', :action => :list_requests}, {:title => "Number of requests concerning #{@user}"}) + ")"
     end
     -%>
     | <%= link_to 'Log out', { :controller => 'user', :action => 'logout' }, :method => "POST" %>
