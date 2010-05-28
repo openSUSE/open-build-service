@@ -42,6 +42,7 @@ class Person < ActiveXML::Base
     add_element 'watchlist' unless has_element? :watchlist
     watchlist.add_element 'project', 'name' => name
     logger.debug "user '#{login}' is now watching project '#{name}'"
+    Rails.cache.delete("person_#{session[:login]}")
   end
 
   def remove_watched_project(name)
@@ -49,6 +50,7 @@ class Person < ActiveXML::Base
     return nil unless watches? name
     watchlist.delete_element "project[@name='#{name}']"
     logger.debug "user '#{login}' removes project '#{name}' from watchlist"
+    Rails.cache.delete("person_#{session[:login]}")
   end
 
   def watches?(name)

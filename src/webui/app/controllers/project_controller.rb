@@ -538,7 +538,7 @@ class ProjectController < ApplicationController
       :arch => @arch_filter, :repo => @repo_filter }
     find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
 
-    @buildresult = find_cached(Buildresult, find_opt.merge({:expires_in => 1.minute}) )
+    @buildresult = Buildresult.find( find_opt )
     unless @buildresult
       flash[:error] = "No build results for project '#{@project}'"
       redirect_to :action => :show, :project => params[:project]
