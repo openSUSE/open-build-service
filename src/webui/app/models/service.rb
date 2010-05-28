@@ -42,6 +42,14 @@ class Service < ActiveXML::Base
      end
   end
 
+  def removeService( serviceid )
+     service_elements = data.find("/services/service")
+     return false if service_elements.count < serviceid.to_i or service_elements.count <= 0
+
+     service_elements[serviceid.to_i-1].remove!
+     return true
+  end
+
   def addService( name, opts={} )
      add_element 'service', 'name' => name
      opts.each_pair{ |key, value|
@@ -53,16 +61,20 @@ class Service < ActiveXML::Base
   end
 
   def save
-    logger.debug "storing _service file"
-
     put_opt = Hash.new
     put_opt[:project] = self.init_options[:project]
     put_opt[:package] = self.init_options[:package]
     put_opt[:filename] = "_service"
-    put_opt[:comment] = "Added via webui"
+    put_opt[:comment] = "Modified via webui"
 
     fc = FrontendCompat.new
-    fc.put_file self.data.to_s, put_opt
+    if data.find("/services/service").count > 0
+      logger.debug "storing _service file"
+      fc.put_file self.data.to_s, put_opt
+    else
+      logger.debug "remove _service file"
+      fc.delete_file put_opt
+    end
     true
   end
 

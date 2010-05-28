@@ -11,8 +11,13 @@
 
     <!-- code generators -->
     <table class="grid"> <tbody>
+<!-- no functionality for creating service entries yet
       <tr><td><div>Available</div></td><td><div>Used</div></td><td><div>Trash</div></td></tr>
-      <tr> <td> <ol>
+-->
+      <tr><td><div>Used</div></td></tr>
+      <tr>
+<!-- no functionality for creating service entries yet
+         <td> <ol>
         <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
            <% Service.available.each do |service| %>
              <% object_id = "new_service_#{service["name"]}" %>
@@ -26,73 +31,45 @@
            <% end %>
         <% end %>
       </ol> </td>
+-->
 
-      <td><ol>
+      <td>
       <% if @services
         number = 0 %>
+        <ol>
         <% @services.each do |service| 
            number += 1 %>
            <% object_id = "service_#{number}" %>
            <li class="service" id="<%= object_id %>" >
              <%= h service.name %>
+             <%= link_to image_tag( 'delete.png' ),
+                         {:action => :remove_service, :serviceid => number, :project => @project, :package => @package },
+                         {:confirm => "Really remove service '#{number}'?", :method => :post }%>
+
              <div style="color: #999; font-size: 8pt">
-                 BlahFasel
+                 <%= h service.name %>
              </div>
            <%= draggable_element(object_id, :revert=>true) %>
            </li>
         <% end %>
+        </ol>
       <% end %>
-      </ol></td>
-
+      </td>
+<!-- until drag and drop works
       <td>
         <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-          <%= drop_receiving_element('trash',
-            :accept => "service",
-            :with   => "'service=' + (element.id.split('_').last())",
-            :url    => {:action=>:remove_service}
-          )%>
+          <div class="modify_service" id="trash">
+            <%= image_tag('trash_empty.png', :alt => "Add", :title => "Add Service") %>
+            <%= drop_receiving_element( "trash",
+              :url => { :controller => :package, :action => :remove_service }
+            )%>
+          </div>
         <% end %>
       </td>
-      </tr></tbody></table>
-<!--
-  <h3>
-    Generated Files
-    <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-    <%= link_to image_tag('list-add.png', :alt => "Add", :title => "Add Service"),
-    :action => :add_service, :project => @project, :package => @package %>
-    <% end %>
-  </h3>
 -->
-    <!-- generate files -->
-<!--
-    <% if @services %>
-    <% @files.each do |file| %>
-      <% next unless file[:name].match(/^_service:/) %>
-      <% f = file[:name].split(':', 3) %>
-      <% if file[:editable] %>
-        <td><%= link_to(h(f[2]), :action => :view_file, :project => @project, :package => @package, :file => file[:name] ) %></td>
-      <% else %>
-        <td><%= f[2] %></td>
-      <% end %>
-      <td><%=h f[1]%></td>
-      <td><%=h human_readable_fsize( file[:size] )%></td>
-      <td><%= link_to "[Download]", file_url( @project, @package, file[:name] ) %></td>
-      <% if @project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] ) %>
-        <td><%= link_to "[Remove]", {:action => :remove_file, :project => @project,
-        :package => @package, :filename => file[:name]},
-        {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%></td>
-      <% end %>
-      <td>
-        <% if @link && @link.has_add_patch?( file[:name] ) %>
-        (Added Patch)
-        <% elsif @link && @link.has_patch?( file[:name] ) %>
-        (Global Patch)
-        <% end %>
-      </td>
-    <% end %>
-    </tr>
-  </table>
-  <% end %>
--->
+      </tr>
+
+  </tbody></table>
+
 </div>
 

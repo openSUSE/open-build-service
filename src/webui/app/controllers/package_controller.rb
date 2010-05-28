@@ -98,7 +98,7 @@ class PackageController < ApplicationController
       if file[:name] == "_link"
         @link = Link.find_cached( :project => @project, :package => @package )
       elsif file[:name] == "_service"
-        @services = Service.find_cached( :project => @project, :package => @package )
+        @services = find_cached(Service,  :project => @project, :package => @package )
       end
     end
   end
@@ -356,12 +356,13 @@ class PackageController < ApplicationController
       @package.save_file :file => file, :filename => URI.escape(filename, "+")
     elsif not file_url.blank?
       # we have a remote file uri
-      @services = Service.find_cached( :project => @project, :package => @package )
+      @services = find_cached(Service,  :project => @project, :package => @package )
       unless @services
         @services = Service.new( :project => @project, :package => @package )
       end
       @services.addDownloadURL( file_url )
       @services.save
+      Service.free_cache :project => @project, :package => @package
     else
       flash[:error] = 'No file or URI given.'
       redirect_to :action => 'add_file', :project => params[:project], :package => params[:package]
@@ -384,6 +385,21 @@ class PackageController < ApplicationController
     flash[:success] = "The file #{filename} has been added."
     Directory.free_cache( :project => @project, :package => @package )
     redirect_to :action => :files, :project => @project, :package => @package
+  end
+
+  def remove_service
+    id = params[:serviceid]
+    id.gsub!( %r{^'service_}, '' )
+    @services = find_cached(Service,  :project => @project, :package => @package )
+    unless @services
+      flash[:warn] = "Service removal failed because no _service file found "
+      redirect_to :action => :files, :project => @project, :package => @package and return
+    end
+    @services.removeService( id )
+    @services.save
+    Service.free_cache :project => @project, :package => @package
+    flash[:warn] = "Service \##{id} got removed"
+    redirect_to :action => :files, :project => @project, :package => @package and return
   end
 
   def remove_file
