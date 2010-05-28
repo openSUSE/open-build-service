@@ -3,6 +3,7 @@
 
 require 'common/activexml/transport'
 require 'libxml'
+require 'person'
 
 class ApplicationController < ActionController::Base
 
