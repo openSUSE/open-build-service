@@ -77,41 +77,6 @@ case "$1" in
                 echo "webui_host: $FQHOSTNAME" >> /srv/www/obs/api/config/options.yml
                 echo "webui_url: http://$FQHOSTNAME:80" >> /srv/www/obs/api/config/options.yml
 		echo
-		echo -n "Write OBS lighttpd config for this host"
-		cat > /etc/lighttpd/vhosts.d/obs.conf <<EOF
-#
-# WARNING: this file gets rewritten on each boot by obsapisetup runlevel script!
-#
-\$SERVER["socket"] == ":80" {
-  rails_app   = "webui"
-  rails_root  = "/srv/www/obs/webui"
-  rails_procs = 5
-  # production/development are typical values here
-  rails_mode  = "production"
-
-  log_root = "/srv/www/obs/webui/log"
-
-  include "vhosts.d/rails.inc"
-}
-\$SERVER["socket"] == ":81" {
-  rails_app   = "api"
-  rails_root  = "/srv/www/obs/api"
-  rails_procs = 5
-  # production/development are typical values here
-  rails_mode  = "production"
-
-  log_root = "/srv/www/obs/api/log"
-
-  include "vhosts.d/rails.inc"
-}
-\$SERVER["socket"] == ":82" {
-  #server.name = "$FQHOSTNAME"
-  server.document-root = "/obs/repos/"
-
-  dir-listing.activate = "enable"
-}
-
-EOF
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
 		cat > /etc/issue <<EOF

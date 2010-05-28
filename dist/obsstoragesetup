@@ -226,6 +226,7 @@ case "$1" in
                 if [ -e /dev/OBS/server ]; then
 			[ -L /obs ] && rm /obs
 			[ -d /obs ] || { rm -f /obs; mkdir /obs ; }
+			[ -e /obs/repos ] || { ln -sf /obs/repos /srv/obs/repos ; }
 			mount /dev/OBS/server /obs
 			[ -d /obs/log ] || mkdir /obs/log
 			[ -d /obs/run ] || mkdir /obs/run
@@ -292,18 +293,23 @@ case "$1" in
 			fi
 			OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
 		done
-		echo "OBS_WORKER_INSTANCES=\"$OBS_WORKER_INSTANCES\"" >> /etc/buildhost.config
-		# How many parallel jobs make sense ?
-		NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
-		echo "OBS_JOBS=\"$(( $NUM / ( $OBS_WORKER_INSTANCES - 1 ) ))\"" >> /etc/buildhost.config
-		# Memory which can be used
-		TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
-		INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
-		echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
-		# append user presets
-		echo "" >> /etc/buildhost.config
-		echo "### preconfigured values from /etc/buildhost.config.presets" >> /etc/buildhost.config
-		cat /etc/buildhost.config.presets >> /etc/buildhost.config
+                if [ "$OBS_WORKER_INSTANCES" -lt 0 ]; then
+			echo "OBS_WORKER_INSTANCES=\"$OBS_WORKER_INSTANCES\"" >> /etc/buildhost.config
+			# How many parallel jobs make sense ?
+			NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
+			echo "OBS_JOBS=\"$(( $NUM / ( $OBS_WORKER_INSTANCES - 1 ) ))\"" >> /etc/buildhost.config
+			# Memory which can be used
+			TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
+			INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
+			echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
+			# append user presets
+			echo "" >> /etc/buildhost.config
+			echo "### preconfigured values from /etc/buildhost.config.presets" >> /etc/buildhost.config
+			cat /etc/buildhost.config.presets >> /etc/buildhost.config
+		else
+			echo "WARNING: No OBS workers are configured on this system, no package will built."
+			mv /etc/buildhost.config.presets /etc/buildhost.config
+		fi
 
 		# offer hook to make random special things in your setup
 		if [ -n "$OBS_WORKER_SCRIPT_URL" ]; then
