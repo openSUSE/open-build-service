@@ -572,7 +572,7 @@ class SourceController < ApplicationController
     valid_http_methods :get, :delete
 
     #assemble path for backend
-    params[:user] = @http_user.login
+    params[:user] = @http_user.login if request.delete?
     path = request.path
     path += build_query_from_hash(params, [:user, :comment, :rev])
 
