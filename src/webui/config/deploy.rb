@@ -19,7 +19,7 @@ server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
 # via the :deploy_to variable:
 set :deploy_to, "/srv/www/vhosts/opensuse.org/#{application}"
 set :runit_name, "webclient"
-set :static, "build.o.o"
+set :static, "build2.o.o"
 
 # set variables for different target deployments
 task :stage do
