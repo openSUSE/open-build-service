@@ -220,3 +220,5 @@ background-color: #3399CC;
 .show_left  { margin-left: 20px; }
 .show_right { margin-right: 20px; }
 
+table.patchinfo td { vertical-align: middle; }
+

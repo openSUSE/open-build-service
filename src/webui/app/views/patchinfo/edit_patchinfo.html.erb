@@ -3,7 +3,6 @@
 
 
 <% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "patchinfo" %>
   <%= javascript_include_tag 'jquery.tablesorter.js' %>
 <% end %>
 
@@ -18,7 +17,7 @@
 <% form_tag :action => "save"  do %>
 <div class="section">
 <h3>Patchinfo</h3> 
-  <table>
+  <table class="patchinfo">
     <tr>
       <th>Packager: </th>
       <td>
