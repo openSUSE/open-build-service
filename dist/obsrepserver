@@ -12,7 +12,6 @@
 # Required-Start:    $time $syslog $network $remote_fs
 # Should-Start:      obssigner obsstoragesetup slpd
 # Should-Stop:       $none
-# Start-Before:      slpd
 # Required-Stop:     $null
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
