@@ -2038,7 +2038,7 @@ sub getpubkey {
   } else {
     $pubkey = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
   }
-  die("$projid: no pubkey available\n") unless $pubkey;
+  die("404 $projid: no pubkey available\n") unless $pubkey;
   return ($pubkey, 'Content-Type: text/plain');
 }
 
