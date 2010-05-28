@@ -8,7 +8,7 @@
 <% form_tag :action => :save_prjconf do %>
   <p>
     <strong>Config:</strong><br/>
-    <%= text_area_tag "config", @config, :rows => 20, :width => "95%" %><br/>
+    <%= text_area_tag "config", @config, :rows => 20, :cols => 80 %><br/>
     <%= hidden_field_tag "project", @project %>
   </p>
   <p><%= submit_tag %></p>
