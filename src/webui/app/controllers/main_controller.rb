@@ -38,28 +38,53 @@ class MainController < ApplicationController
     render :layout => false
   end
 
-  def sitemap_projects
+  def require_projects
     @projects = Array.new
     Collection.find_cached(:id, :what => "project").each_project do |p|
       @projects << p.value(:name)
     end
+  end
+
+  def sitemap_projects
+    require_projects
     render :layout => false
   end
  
+  def sitemap_projects_subpage(action, changefreq, priority)
+    require_projects
+    render :template => "main/sitemap_projects_subpage", :layout => false, :locals => { :action => action, :changefreq => changefreq, :priority => priority }
+  end
+
   def sitemap_projects_packages
-    @projects = Array.new
-    Collection.find_cached(:id, :what => "project").each_project do |p|
-      @projects << p.value(:name)
-    end
-    render :layout => false
+    sitemap_projects_subpage(:packages, 'weekly', 0.7)
   end
 
   def sitemap_projects_users
-    @projects = Array.new
-    Collection.find_cached(:id, :what => "project").each_project do |p|
-      @projects << p.value(:name)
-    end
-    render :layout => false
+    sitemap_projects_subpage(:users, 'monthly', 0.1)
+  end
+
+  def sitemap_projects_attributes
+    sitemap_projects_subpage(:attributes, 'weekly', 0.3)
+  end
+
+  def sitemap_projects_requests
+    sitemap_projects_subpage(:list_requests, 'daily', 0.1)
+  end
+ 
+  def sitemap_projects_meta
+    sitemap_projects_subpage(:meta, 'monthly', 0.1)
+  end
+ 
+  def sitemap_projects_prjconf
+    sitemap_projects_subpage(:prjconf, 'monthly', 0.1)
+  end
+
+  def sitemap_projects_repositories
+    sitemap_projects_subpage(:repositories, 'monthly', 0.1)
+  end
+
+  def sitemap_projects_subprojects
+    sitemap_projects_subpage(:subprojects, 'weekly', 0.2)
   end
 
   def sitemap_packages_home
