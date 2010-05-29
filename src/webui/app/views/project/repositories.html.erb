@@ -14,7 +14,7 @@ project_bread_crumb( 'Repositories' )
   <% @project.each_repository do |repository| %>
     <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository.name) %>" >
       <div style="margin-left: 15px">
-        <strong><%= h(repository.name) %></strong>
+        <strong><%= link_to(h(repository.name), :action => "repository_state", :project => @project, :repository => repository) %></strong>
         <i>(<%= repository.each_arch.join(", ") %>)</i>
       </div>
       <div style="margin-left: 30px">
