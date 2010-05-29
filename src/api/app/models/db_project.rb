@@ -813,7 +813,7 @@ class DbProject < ActiveRecord::Base
     opts[:arch] = arch if arch
     opts[:explicit] = '1' if expl
     ret = 'enable' if ret == :enabled
-    ret = 'disble' if ret == :disabled
+    ret = 'disable' if ret == :disabled
     builder.tag! ret, opts
   end
 
