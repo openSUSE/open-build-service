@@ -389,7 +389,7 @@ class PackageController < ApplicationController
 
   def remove_service
     id = params[:serviceid]
-    id.gsub!( %r{^'service_}, '' )
+    id.gsub!( %r{^service_}, '' )
     @services = find_cached(Service,  :project => @project, :package => @package )
     unless @services
       flash[:warn] = "Service removal failed because no _service file found "

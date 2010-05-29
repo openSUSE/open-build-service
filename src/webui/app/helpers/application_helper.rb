@@ -280,7 +280,7 @@ module ApplicationHelper
 
     outdated = nil
     if status =~ /^outdated_/
-       status.gsub!( %r{^'outdated_}, '' )
+       status.gsub!( %r{^outdated_}, '' )
        outdated = true
     end
     description = case status
