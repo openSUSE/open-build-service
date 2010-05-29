@@ -261,9 +261,9 @@ module ApplicationHelper
   def repo_status_icon( status )
     icon = case status
     when "published" then "icons/lorry.png"
-    when "publishing" then "icons/lorry.png"
+    when "publishing" then "icons/cog_go.png"
     when "outdated_published" then "icons/lorry_delete.png"
-    when "outdated_publishing" then "icons/lorry_delete.png"
+    when "outdated_publishing" then "icons/cog_delete.png"
     when "unpublished" then "icons/lorry_flatbed.png"
     when "outdated_unpublished" then "icons/lorry_delete.png"
     when "building" then "icons/cog.png"
