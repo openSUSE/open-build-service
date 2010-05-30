@@ -346,8 +346,6 @@ ActiveRecord::Schema.define(:version => 20100429144748) do
     t.integer  "time"
     t.string   "key"
     t.integer  "value"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   add_index "status_histories", ["time", "key"], :name => "index_status_histories_on_time_and_key"

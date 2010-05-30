@@ -108,9 +108,18 @@ class StatusController < ApplicationController
       data.root.each_element('waiting') do |e|
         line = StatusHistory.new
         line.time = mytime
-        line.key = 'waiting_%s' % [ e.attributes['arch'] ]
+        line.key = "waiting_#{e.attributes['arch']}"
         line.value = e.attributes['jobs']
         line.save
+      end
+      data.root.each_element('scheduler') do |s|
+        queue = s.elements['queue']
+        next unless queue
+        arch = s.attributes['arch']
+        StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
+        StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
+        StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}",  :value => queue.attributes['med']
+        StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}",  :value => queue.attributes['low']
       end
 
       allworkers = Hash.new
