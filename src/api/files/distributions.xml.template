@@ -189,15 +189,6 @@
   <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-9.04-16.png"/>
   <link>http://www.ubuntu.com/</link>
  </distribution>
- <distribution vendor="Ubuntu" version="8.10" id="ubuntu-8.10">
-  <name>Ubuntu 8.10</name>
-  <project>openSUSE.org:Ubuntu:8.10</project>
-  <reponame>xUbuntu_8.10</reponame>
-  <repository>standard</repository>
-  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/ubuntu-8.10-8.png"/>
-  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/ubuntu-8.10-16.png"/>
-  <link>http://www.ubuntu.com/</link>
- </distribution>
  <distribution vendor="Ubuntu" version="8.04" id="ubuntu-8.04">
   <name>Ubuntu 8.04</name>
   <project>openSUSE.org:Ubuntu:8.04</project>
