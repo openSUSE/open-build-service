@@ -11,30 +11,36 @@ class RequestController < ApplicationController
 
     @id = @therequest.data.attributes["id"]
     @state = @therequest.state.data.attributes["name"]
-    @type = @therequest.action.data.attributes["type"]
-    if @type=="submit"
-      @src_project = @therequest.action.source.project
-      @src_pkg = @therequest.action.source.package
-    end
-    @target_project = Project.find_cached @therequest.action.target.project, :expires_in => 5.minutes
-    @target_pkg_name = @therequest.action.target.package
-    @target_pkg = Package.find_cached @target_pkg_name, :project => @therequest.action.target.project
     @is_author = @therequest.has_element? "//state[@name='new' and @who='#{session[:login]}']"
-    @is_maintainer = @target_project.is_maintainer?( session[:login] ) ||
-      (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
+    @newpackage = []
 
-    if @type == "submit" and @target_pkg
-      transport ||= ActiveXML::Config::transport_for(:project)
-      path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
-      [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg.name), CGI.escape(@target_project.name)]
-      if @therequest.action.source.data['rev']
-        path += "&rev=#{@therequest.action.source.rev}"
+    @therequest.each_action do |action|
+      @type = action.data.attributes["type"]
+      if @type=="submit"
+        @src_project = action.source.project
+        @src_pkg = action.source.package
       end
-      begin
-        @diff_text =  transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
-      rescue Object => e
-        @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
-        flash.now[:error] = "Can't get diff for request: #{@diff_error}"
+      @target_project = Project.find_cached action.target.project, :expires_in => 5.minutes
+      @target_pkg_name = action.target.package
+      @target_pkg = Package.find_cached @target_pkg_name, :project => action.target.project
+      @is_maintainer = @target_project.is_maintainer?( session[:login] ) ||
+        (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
+
+      if @type == "submit" and @target_pkg
+        transport ||= ActiveXML::Config::transport_for(:project)
+        path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
+        [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg.name), CGI.escape(@target_project.name)]
+        if action.source.data['rev']
+          path += "&rev=#{action.source.rev}"
+        end
+        begin
+          @diff_text += transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
+        rescue Object => e
+          @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
+          flash.now[:error] = "Can't get diff for request: #{@diff_error}"
+        end
+      elsif @type == "submit" and @target_pkg.nil?
+        @newpackage << { :package => @src_pkg, :project => @src_project }
       end
     end
 

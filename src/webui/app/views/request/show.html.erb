@@ -77,6 +77,15 @@ setup_buildresult_trigger
   </tbody>
 </table>
 
+<% if @newpackage.length > 0 %>
+  <h3>
+    New package will be added:
+    <% @newpackage.each do |p| %>
+      <%=  link_to( p[:package], :controller => :package, :action => :show, :project => p[:project], :package => p[:package]) %>
+    <% end %>
+  </h3>
+<% end %>
+
 <% if @diff_text %>
   <pre id="code" class="patch">
     <%= h @diff_text %>
