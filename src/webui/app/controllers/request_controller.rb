@@ -27,15 +27,15 @@ class RequestController < ApplicationController
         (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
 
       if @type == "submit" and @target_pkg
-        transport ||= ActiveXML::Config::transport_for(:project)
+        transport = ActiveXML::Config::transport_for(:request)
         path = "/source/%s/%s?opackage=%s&oproject=%s&cmd=diff&expand=1" %
         [CGI.escape(@src_project), CGI.escape(@src_pkg), CGI.escape(@target_pkg.name), CGI.escape(@target_project.name)]
         if action.source.data['rev']
           path += "&rev=#{action.source.rev}"
         end
         begin
-          @diff_text += transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
-        rescue Object => e
+          @diff_text = transport.direct_http URI("https://#{path}"), :method => "POST", :data => ""
+        rescue ActiveXML::Transport::Error => e
           @diff_error, code, api_exception = ActiveXML::Transport.extract_error_message e
           flash.now[:error] = "Can't get diff for request: #{@diff_error}"
         end
