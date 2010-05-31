@@ -803,6 +803,13 @@ class ProjectController < ApplicationController
     status = Rails.cache.fetch("status_%s" % @project, :expires_in => 10.minutes) do
       ProjectStatus.find(:project => @project)
     end
+    unless status
+      # a project without package and repos will not do
+      # should be handled more graceful in API, but this is WIP and google
+      # crawls a lot of these links (TODO)
+      render_error :message => "No status for this project", :status => 400
+      return
+    end
 
     all_packages = "All Packages"
     no_project = "No Project"

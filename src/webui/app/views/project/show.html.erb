@@ -3,6 +3,9 @@
 @crumb_list = []
 @crumb_list << link_to( 'Projects', :action => :list_public)
 @crumb_list << @project.name
+
+@nr_packages = 0
+@nr_packages = @packages.each.size if @packages
 -%>
 
 <%= render :partial => "tabs" %>
@@ -64,9 +67,9 @@
 
       <% if @problem_packages > 0 %>
         <div><p><%= image_tag 'icons/exclamation.png' %> There <%= plural(@problem_packages, "is", "are") %> <%= @problem_packages %> <%= link_to 'problematic', :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
-            <%= plural(@problem_packages, "package", "packages") %> of <%= @packages.each.size %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
-      <% elsif @packages.each.size > 0 %>
-        <p><%= image_tag 'icons/accept.png' %> All <%= @packages.each.size %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
+            <%= plural(@problem_packages, "package", "packages") %> of <%= @nr_packages %> <%= link_to 'total', :action => :packages, :project => @project %>.</p></div>
+      <% elsif @nr_packages > 0 %>
+        <p><%= image_tag 'icons/accept.png' %> All <%= @nr_packages %> <%= link_to 'packages', :action => :packages, :project => @project %> are fine.</p>
       <% elsif @project.is_remote? %>
         <p><%= image_tag 'icons/information.png' %> This project is linking the remote obs instance at: <i>
             <a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i></p>
