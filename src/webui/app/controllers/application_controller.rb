@@ -157,8 +157,7 @@ class ApplicationController < ActionController::Base
     when ActionController::InvalidAuthenticityToken
       render_error :status => 401, :message => 'Invalid authenticity token'
     when ActiveXML::Transport::ConnectionError
-      ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
-      render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 400
+      render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
     when Timeout::Error
       render :template => "timeout" and return
     when ValidationError
