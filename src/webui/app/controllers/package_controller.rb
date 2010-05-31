@@ -75,6 +75,11 @@ class PackageController < ApplicationController
     @repository = params[:repository]
     @buildresult = find_cached(Buildresult, :project => @project, :package => @package,
       :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
+    unless @buildresult
+      flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}" 
+      redirect_to :controller => "package", :action => :show, :project => @project, :package => @package, :nextstatus => 404  
+      return
+    end
     # load the flag details to disable links for forbidden binary downloads
     @package = find_cached(Package, @package.name, :project => @project, :view => :flagdetails )
   end
