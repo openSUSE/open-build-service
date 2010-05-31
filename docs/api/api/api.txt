@@ -406,6 +406,52 @@ Parameters:
   meta: switch to meta files
 
 
+== Requests
+
+
+GET /request/<id>
+  
+  Get a request
+
+XmlResult: request
+
+
+POST /request
+  
+  Create a new request
+
+XmlResult: request
+
+  Commands on processing requests
+  create: to crfeate a new request
+
+
+PUT /request/<id>
+  
+  Modify a request. NOTE: Only admins can change all parts of a request.
+
+XmlResult: request
+
+
+POST /request/<id>
+  
+  Modify a request state
+
+XmlResult: request
+
+  Commands on processing requests
+  changestate: Modifies the state of a request
+
+Parameters: 
+  newstate: to define the new state of a request
+
+
+DELETE /request/<id>
+  
+  Delete a request
+
+
+
 == Attribute definition api
 
 
@@ -780,7 +826,7 @@ XmlResult: collection
 
 GET /search/package
 
-  Searches for packate metadata using xpath. A xpath predicate has to be
+  Searches for package metadata using xpath. A xpath predicate has to be
   specified using the match parameter. The predicate will be used in this
   expression: /package[<match>]. Only complete meta files will be returned.
 
@@ -823,6 +869,20 @@ Parameters:
   match: xpath predicate, mandatory
 
 XmlResult: collection
+
+
+GET /search/request
+
+  Searches for requests using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /request[<match>]. Only complete meta files will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
 
 
 == Published binary package tree
