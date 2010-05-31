@@ -960,6 +960,8 @@ our $repositorystate = [
 
 our $collection = [
     'collection' => 
+	'matches',
+	'limited',
       [ $request ],
       [ $proj ],
       [ $pack ],

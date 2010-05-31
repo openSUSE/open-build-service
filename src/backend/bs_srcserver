@@ -4140,11 +4140,14 @@ sub search_published_binary_id {
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
   my $rootnode = BSXPathKeys::node($binarydb, '', $limit * 10);
   my $data = BSXPath::match($rootnode, $match) || [];
-  die("search limit reached\n") if $limit && @$data > $limit;
   # epoch?
   @$data = sort {Build::Rpm::verscmp($b->{'version'}, $a->{'version'}) || $a->{'name'} cmp $b->{'name'} || $a->{'arch'} cmp $b->{'arch'}} @$data;
+  my $res = {};
+  $res->{'matches'} = @$data;
+  $res->{'limited'} = 'true' if $limit && @$data > $limit;
+  splice(@$data, $limit) if $limit && @$data > $limit;
   delete $_->{'path'} for @$data;
-  my $res = {'binary' => $data};
+  $res->{'binary'} = $data;
   return ($res, $BSXML::collection);
 }
 
@@ -4156,13 +4159,16 @@ sub search_published_pattern_id {
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
   my $rootnode = BSXPathKeys::node($patterndb, '', $limit * 10);
   my $data = BSXPath::match($rootnode, $match) || [];
-  die("search limit reached\n") if $limit && @$data > $limit;
+  my $res = {};
+  $res->{'matches'} = @$data;
+  $res->{'limited'} = 'true' if $limit && @$data > $limit;
+  splice(@$data, $limit) if $limit && @$data > $limit;
   for (@$data) {
     delete $_->{'path'};
     delete $_->{'description'};
     delete $_->{'summary'};
   }
-  my $res = {'pattern' => $data};
+  $res->{'pattern'} = $data;
   return ($res, $BSXML::collection);
 }
 
@@ -4502,8 +4508,11 @@ sub search_request {
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 0;
   my $rootnode = BSXPathKeys::node($db, '', $limit * 10);
   my $data = BSXPath::match($rootnode, $match) || [];
-  die("search limit reached\n") if $limit && @$data > $limit;
-  my $res = {'request' => $data};
+  my $res = {};
+  $res->{'matches'} = @$data;
+  $res->{'limited'} = 'true' if $limit && @$data > $limit;
+  splice(@$data, $limit) if $limit && @$data > $limit;
+  $res->{'request'} = $data;
   return ($res, $BSXML::collection);
 }
 
