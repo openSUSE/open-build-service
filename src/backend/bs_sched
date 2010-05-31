@@ -1463,11 +1463,11 @@ sub calc_projpacks_linked {
     if ($projpacks->{$projid}->{'link'}) {
       my @li = expandprojlink($projid);
       for my $li (@li) {
-	addwatchremote('project', $li->{'project'});
+	addwatchremote('project', $li->{'project'}, '');
 	$li->{'package'} = ':*';
 	$li->{'myproject'} = $projid;
       }
-      push @projpacks_linked, @{$projpacks->{$projid}->{'link'}};
+      push @projpacks_linked, @li;
     }
   }
   #print Dumper(\@projpacks_linked);
@@ -3648,7 +3648,7 @@ while(1) {
 	my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks{$projid}};
 	for my $packid (sort keys %packids) {
 	  for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
-	    push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'} || $packid;
+	    push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
 	    $fetchlinkedprojpacks_srcchange{$linfo->{'myproject'}} = 1;	# mark as source changes
 	  }
 	}

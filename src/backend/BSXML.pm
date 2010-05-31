@@ -230,6 +230,9 @@ our $projpack = [
 	    'description',
 	    'config',
 	    'patternmd5',
+	 [[ 'link' =>
+		'project',
+	 ]],
 	    'remoteurl',
 	    'remoteproject',
 	    @flags,

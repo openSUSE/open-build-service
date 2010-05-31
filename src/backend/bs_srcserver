@@ -1682,7 +1682,7 @@ sub getprojpack {
     @packages = findpackages($projid, $proj, 1) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
-    for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download}) {
+    for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
     # Check build flags in project meta data
