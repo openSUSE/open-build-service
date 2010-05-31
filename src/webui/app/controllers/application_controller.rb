@@ -163,6 +163,8 @@ class ApplicationController < ActionController::Base
     when ValidationError
       ExceptionNotifier.deliver_exception_notification(exception, self, request, {}) if send_exception_mail?
       render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }, :status => 400
+    when InvalidHttpMethodError
+      render_error :message => "Invalid HTTP method used", :status => 400
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
       render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
