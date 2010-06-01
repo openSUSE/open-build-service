@@ -18,7 +18,7 @@
    <sitemap>
       <loc><%= url_for :controller => :main, :action => :sitemap_projects_prjconf, :only_path => false, :protocol => 'https' %></loc>
    </sitemap>
-   <% %w{ show users files binaries attributes meta repositories }.each do |act| %>
+   <% %w{ show users files attributes meta repositories }.each do |act| %>
      <sitemap>
         <loc><%= url_for :controller => :main, :action => :sitemap_packages, :category => 'main', 
                  :listaction => act, :only_path => false, :protocol => 'https' %></loc>
