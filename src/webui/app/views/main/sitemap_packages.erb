@@ -6,19 +6,10 @@
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 
-<url>
-  <loc><%= url_for :controller => :main, :action => :index, :only_path => false, :protocol => 'https' %></loc>
-  <changefreq>weekly</changefreq>
-  <priority>1.0</priority>
-</url>
-
 <% @packages.each do |prj,pack| %>
 <url>
-  <loc><%= url_for :controller => :package, :action => :show, :project => prj, :package => pack, :only_path => false, :protocol => 'https' %></loc>
-  <changefreq>weekly</changefreq>
+  <loc><%= url_for :controller => :package, :action => action, :project => prj, :package => pack, :only_path => false, :protocol => 'https' %></loc>
   <priority>0.6</priority>
 </url>
 <% end %>
 </urlset>
-
-

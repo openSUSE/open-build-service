@@ -32,8 +32,6 @@ class MainController < ApplicationController
 
   end
   
-  caches_page :sitemap, :sitemap_projects, :sitemap_packages_home, :sitemap_packages_main, :sitemap_packages_opensuse, :sitemap_projects_packages, :sitemap_projects_users
-
   def sitemap
     render :layout => false
   end
@@ -56,7 +54,7 @@ class MainController < ApplicationController
   end
 
   def sitemap_projects_packages
-    sitemap_projects_subpage(:packages, 'weekly', 0.7)
+    sitemap_projects_subpage(:packages, 'monthly', 0.7)
   end
 
   def sitemap_projects_users
@@ -64,50 +62,38 @@ class MainController < ApplicationController
   end
 
   def sitemap_projects_attributes
-    sitemap_projects_subpage(:attributes, 'weekly', 0.3)
+    sitemap_projects_subpage(:attributes, 'monthly', 0.3)
   end
 
   def sitemap_projects_requests
-    sitemap_projects_subpage(:list_requests, 'daily', 0.1)
-  end
- 
-  def sitemap_projects_meta
-    sitemap_projects_subpage(:meta, 'monthly', 0.1)
+    sitemap_projects_subpage(:list_requests, 'monthly', 0.1)
   end
  
   def sitemap_projects_prjconf
     sitemap_projects_subpage(:prjconf, 'monthly', 0.1)
   end
 
-  def sitemap_projects_repositories
-    sitemap_projects_subpage(:repositories, 'monthly', 0.1)
-  end
-
-  def sitemap_projects_subprojects
-    sitemap_projects_subpage(:subprojects, 'weekly', 0.2)
-  end
-
-  def sitemap_packages_home
+  def load_packages(category)
+    category = category.to_s
     @packages = Array.new
-    Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'home:')").each_package do |p|
-      @packages << [p.value(:project), p.value(:name)]
+    if category == 'home'
+      Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'home:')").each_package do |p|
+        @packages << [p.value(:project), p.value(:name)]
+      end
+    elsif category == 'opensuse'
+      Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'openSUSE:')").each_package do |p|
+        @packages << [p.value(:project), p.value(:name)]
+      end
+    elsif category == 'main'
+       Collection.find_cached(:id, :what => "package", :predicate => "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))").each_package do |p|
+         @packages << [p.value(:project), p.value(:name)]
+       end
     end
-    render :template => 'main/sitemap_packages', :layout => false
   end
 
-  def sitemap_packages_opensuse
-    @packages = Array.new
-    Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'openSUSE:')").each_package do |p|
-      @packages << [p.value(:project), p.value(:name)]
-    end
-    render :template => 'main/sitemap_packages', :layout => false
+  def sitemap_packages
+    load_packages(params[:category])
+    render :template => 'main/sitemap_packages', :layout => false, :locals => { :action => params[:listaction] }
   end
 
-  def sitemap_packages_main
-    @packages = Array.new
-    Collection.find_cached(:id, :what => "package", :predicate => "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))").each_package do |p|
-      @packages << [p.value(:project), p.value(:name)]
-    end
-    render :template => 'main/sitemap_packages', :layout => false
-  end
 end

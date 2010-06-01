@@ -16,25 +16,21 @@
       <loc><%= url_for :controller => :main, :action => :sitemap_projects_requests, :only_path => false, :protocol => 'https' %></loc>
    </sitemap>
    <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_meta, :only_path => false, :protocol => 'https' %></loc>
-   </sitemap>
-   <sitemap>
       <loc><%= url_for :controller => :main, :action => :sitemap_projects_prjconf, :only_path => false, :protocol => 'https' %></loc>
    </sitemap>
-   <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_repositories, :only_path => false, :protocol => 'https' %></loc>
-   </sitemap>
-   <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_subprojects, :only_path => false, :protocol => 'https' %></loc>
-   </sitemap>
-   <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_packages_main, :only_path => false, :protocol => 'https' %></loc>
-   </sitemap>
-   <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_packages_home, :only_path => false, :protocol => 'https' %></loc>
-   </sitemap>
-   <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_packages_opensuse, :only_path => false, :protocol => 'https' %></loc>
-   </sitemap>
+   <% %w{ show users files binaries attributes meta repositories }.each do |act| %>
+     <sitemap>
+        <loc><%= url_for :controller => :main, :action => :sitemap_packages, :category => 'main', 
+                 :listaction => act, :only_path => false, :protocol => 'https' %></loc>
+     </sitemap>
+     <sitemap>
+        <loc><%= url_for :controller => :main, :action => :sitemap_packages, :category => 'home', 
+                 :listaction => act, :only_path => false, :protocol => 'https' %></loc>
+     </sitemap>
+     <sitemap>
+        <loc><%= url_for :controller => :main, :action => :sitemap_packages, :category => 'opensuse', 
+                 :listaction => act, :only_path => false, :protocol => 'https' %></loc>
+     </sitemap>
+   <% end %>
 </sitemapindex>
 
