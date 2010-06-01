@@ -298,7 +298,13 @@ sub expr {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: at least two arguments required\n") unless @args >= 2;
       if (@args > 2) {
-        $v = boolop($cwd, @args, sub {my $s = shift; !grep {index($s, $_) == -1} @_}, $negpol);
+	my $arg1 = shift @args;
+	for my $a (@args) {
+	  die("multi arg contains only works with strings\n") if grep {ref($_) || $_ ne $a->[0]} @$a;
+        }
+	my $arg2 = $args[0];
+	@args = map {$_->[0]} @args;
+        $v = boolop($cwd, $arg1, $arg2, sub {!grep {index($_[0], $_) == -1} @args}, $negpol);
       } else {
         $v = boolop($cwd, @args, sub {index($_[0], $_[1]) != -1}, $negpol);
       }
@@ -326,7 +332,13 @@ sub expr {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: at least two arguments required\n") unless @args >= 2;
       if (@args > 2) {
-        $v = boolop($cwd, @args, sub {my $s = lc(shift); !grep {index($s, lc($_)) == -1} @_}, $negpol);
+	my $arg1 = shift @args;
+	for my $a (@args) {
+	  die("multi arg contains-ic only works with strings\n") if grep {ref($_) || $_ ne $a->[0]} @$a;
+        }
+	my $arg2 = $args[0];
+	@args = map {lc($_->[0])} @args;
+        $v = boolop($cwd, $arg1, $arg2, sub {!grep {index(lc($_[0]), $_) == -1} @args}, $negpol);
       } else {
         $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1}, $negpol);
       }
