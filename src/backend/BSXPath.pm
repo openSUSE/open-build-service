@@ -296,8 +296,12 @@ sub expr {
       $v = boolop($cwd, @args, sub {substr($_[0], 0, length($_[1])) eq $_[1]}, $negpol);
     } elsif ($f eq 'contains') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
-      die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {index($_[0], $_[1]) != -1}, $negpol);
+      die("$f: at least two arguments required\n") unless @args >= 2;
+      if (@args > 2) {
+        $v = boolop($cwd, @args, sub {my $s = shift; !grep {index($s, $_) == -1} @_}, $negpol);
+      } else {
+        $v = boolop($cwd, @args, sub {index($_[0], $_[1]) != -1}, $negpol);
+      }
     } elsif ($f eq 'compare') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
@@ -320,8 +324,12 @@ sub expr {
       $v = boolop($cwd, @args, sub {substr(lc($_[0]), -length($_[1])) eq lc($_[1])}, $negpol);
     } elsif ($f eq 'contains-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
-      die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1}, $negpol);
+      die("$f: at least two arguments required\n") unless @args >= 2;
+      if (@args > 2) {
+        $v = boolop($cwd, @args, sub {my $s = lc(shift); !grep {index($s, lc($_)) == -1} @_}, $negpol);
+      } else {
+        $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1}, $negpol);
+      }
     } elsif ($f eq 'position') {
       die("$f: no arguments required\n") unless @args == 0;
       $v = [ map {$_->[2]} @$cwd ];
