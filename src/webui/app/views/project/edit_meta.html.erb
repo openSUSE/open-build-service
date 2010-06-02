@@ -6,9 +6,9 @@
 <h2>Editing Raw Config for <%=h @project %></h2>
 
 <% form_tag :action => :save_meta do %>
-  <strong>Config:</strong><br/>
-  <%= text_area_tag "meta", @meta, :rows => 20, :width => "95%" %><br/>
-  <%= hidden_field_tag "project", @project.name %>
+  <p><strong>Config:</strong><br/>
+  <%= text_area_tag "meta", @meta, :rows => 20, :cols => 40 %><br/>
+  <%= hidden_field_tag "project", @project.name %></p>
   <p><%= submit_tag %></p>
 <% end %>
 

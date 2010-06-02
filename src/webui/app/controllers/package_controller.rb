@@ -8,10 +8,10 @@ class PackageController < ApplicationController
 
   before_filter :require_project, :except => [:add_person, :create_submit,
     :edit_file, :import_spec, :rawlog, :remove_file, :remove_person,
-    :remove_url, :save, :save_meta, :save_modified_file, :save_person,
+    :remove_url, :save, :save_modified_file, :save_person,
     :set_url, :set_url_form, :update_build_log]
   before_filter :require_package, :except => [:create_submit, :edit_file, :rawlog,
-    :save_meta, :save_modified_file, :save_new, :save_new_link, :update_build_log]
+    :save_modified_file, :save_new, :save_new_link, :update_build_log]
 
   before_filter :load_current_requests
   before_filter :require_login, :only => [:branch]
@@ -409,7 +409,7 @@ class PackageController < ApplicationController
       end
     end
     flash[:success] = "The file #{filename} has been added."
-    Directory.free_cache( :project => @project, :package => @package )
+    @package.free_directory
     redirect_to :action => :files, :project => @project, :package => @package
   end
 
@@ -443,7 +443,7 @@ class PackageController < ApplicationController
     escaped_filename = URI.escape filename, "+"
     if @package.remove_file escaped_filename
       flash[:note] = "File '#{filename}' removed successfully"
-      Directory.free_cache( :project => @project, :package => @package )
+      @package.free_directory
       # TODO: remove patches from _link
     else
       flash[:note] = "Failed to remove file '#{filename}'"
@@ -490,8 +490,11 @@ class PackageController < ApplicationController
     @project = params[:project]
     @package = params[:package]
     @filename = params[:file]
-    @file = frontend.get_source( :project => @project,
+    @comment = params[:comment]
+    @file = params[:content] || frontend.get_source( :project => @project,
       :package => @package, :filename => @filename )
+    # render explicitly as in error case this is called
+    render :template => 'package/edit_file'
   end
 
   def view_file
@@ -534,6 +537,15 @@ class PackageController < ApplicationController
       Directory.free_cache( :project => project, :package => package )
     rescue Timeout::Error => e
       flash[:error] = "Timeout when saving file. Please try again."
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      # if code == "validation_failed"
+      flash[:error] = message
+      params[:file] = filename
+      params[:content] = file
+      params[:comment] = comment
+      edit_file # :package => package, :project => project, :file => filename, :content => file, :comment => comment
+      return
     end
     redirect_to :action => :files, :package => package, :project => project
   end
@@ -738,16 +750,26 @@ class PackageController < ApplicationController
   end
 
   def edit_meta
+    render :template => "package/edit_meta"
   end
 
   def meta
   end
 
   def save_meta
-    frontend.put_file(params[:meta], :project => params[:project], :package => params[:package], :filename => '_meta')
+    begin
+      frontend.put_file(params[:meta], :project => @project, :package => @package, :filename => '_meta')
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      @meta = params[:meta]
+      edit_meta
+      return
+    end
+    
     flash[:note] = "Config successfully saved"
-    Package.free_cache params[:package], :project => params[:project]
-    redirect_to :action => :meta, :project => params[:project], :package => params[:package]
+    Package.free_cache @package, :project => @project
+    redirect_to :action => :meta, :project => @project, :package => @package
   end
 
   def attributes

@@ -18,7 +18,7 @@ class ProjectController < ApplicationController
     :show, :monitor, :edit_prjconf, :list_requests, :autocomplete_packages,
     :packages, :users, :subprojects, :repositories, :attributes, :edit_repository,
     :new_package, :new_package_link, :patchinfo, :repository_state,
-    :meta, :edit_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
+    :meta, :edit_meta, :save_meta, :edit_comment, :change_flag, :save_targets, :autocomplete_repositories ]
 
   before_filter :load_current_requests, :only => [:delete, :view,
     :edit, :save, :add_target_simple, :save_target, :status, :prjconf,
@@ -684,6 +684,7 @@ class ProjectController < ApplicationController
   end
 
   def edit_meta
+    render :template => "project/edit_meta"
   end
 
   def meta
@@ -715,7 +716,16 @@ class ProjectController < ApplicationController
   end
 
   def save_meta
-    frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
+    begin
+      frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
+    rescue ActiveXML::Transport::Error => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      @meta = params[:meta]
+      edit_meta
+      return
+    end
+
     flash[:note] = "Config successfully saved"
     Project.free_cache params[:project]
     redirect_to :action => :meta, :project => params[:project]
