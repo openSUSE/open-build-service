@@ -20,10 +20,12 @@ project_bread_crumb( 'Repository States' )
       </p>
 
       <div style="margin-top: 1em">
-         <h2>Build Dependendency Cycles</h2>
+         <h4>Build Dependendency Cycles</h4>
+         <% cycles = 0 %>
          <% repository.each_arch do |arch| %>
             <% if @repocycles[repository.name] and @repocycles[repository.name][arch.text] and @repocycles[repository.name][arch.text].length > 0 %>
-                   <h3>Cycles for <%= arch.text %></h3>
+                   <% cycles = 1 %>
+                   <h5>Cycles for <%= arch.text %> (#<%= @repocycles[repository.name][arch.text].length %>)</h5>
                    <ul>
                    <% @repocycles[repository.name][arch.text].each do |cycle| %>
                       <li> <% cycle.each do |package| %>
@@ -41,11 +43,12 @@ project_bread_crumb( 'Repository States' )
                    </ul>
             <% end %>
           <% end %>
+          <% unless cycles > 0 %>
+             <p><i>There are no cycles in this project.</i></p>
+          <% end %>
       </div>
 
     </div>
   <% end %>
 <% end %>
-
-<div class="clear" style="margin-bottom: 2em"></div>
 
