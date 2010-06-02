@@ -265,6 +265,16 @@ class PackageController < ApplicationController
     @linked_package = params[:linked_package].strip
     @target_package = params[:target_package].strip
 
+    if !valid_package_name? @linked_package
+      flash[:error] = "Invalid package name: '#{@linked_package}'"
+      redirect_to :controller => :project, :action => 'new_package_link', :project => params[:project] and return
+    end
+
+    if !valid_project_name? @linked_project
+      flash[:error] = "Invalid project name: '#{@linked_project}'"
+      redirect_to :controller => :project, :action => 'new_package_link', :project => params[:project] and return
+    end
+
     linked_package = Package.find( @linked_package, :project => @linked_project )
     unless linked_package
       flash[:error] = "Unable to find package '#{@linked_package}' in" +
@@ -290,10 +300,20 @@ class PackageController < ApplicationController
 
     description += linked_package.description.text if linked_package.description.text
     package.description.text = description
+    
+    begin
+      saved = package.save
+    rescue ActiveXML::Transport::ForbiddenError => e
+      saved = false
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = message
+      redirect_to :controller => 'project', :action => 'new_package_link',
+        :project => @project and return
+    end
 
-    unless package.save
+    unless saved
       flash[:note] = "Failed to save package '#{package}'"
-      redirect_to :controller => 'project', :action => 'show',
+      redirect_to :controller => 'project', :action => 'new_package_link',
         :project => @project and return
     else
       logger.debug "link params: #{@linked_project}, #{@linked_package}"
