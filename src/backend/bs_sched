@@ -1189,12 +1189,12 @@ sub update_dst_full {
 }
 
 sub addjobhist {
-  my ($prp, $info, $status, $js) = @_;
+  my ($prp, $info, $status, $js, $code) = @_;
   my $jobhist = {};
-  $jobhist->{$_} = $status->{$_} for qw{readytime};
-  $jobhist->{'code'} = $status->{'status'};
-  $jobhist->{$_} = $js->{$_} for qw{starttime endtime uri workerid hostarch};
+  $jobhist->{'code'} = $code;
+  $jobhist->{$_} = $js->{$_} for qw{readytime starttime endtime uri workerid hostarch};
   $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt reason};
+  $jobhist->{'readytime'} ||= $status->{'readytime'};	# backward compat
   mkdir_p("$reporoot/$prp/$myarch");
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/:jobhistory", $BSXML::jobhistlay, $jobhist);
 }
@@ -1876,6 +1876,7 @@ sub jobfinished {
     print "  - $job is outdated\n";
     return;
   }
+  $status ||= {'readytime' => $info->{'readytime'} || $info->{'starttime'}};
   # calculate exponential weighted average
   my $myjobtime = time() - $status->{'readytime'};
   my $weight = 0.1; 
@@ -1956,9 +1957,8 @@ sub jobfinished {
     rename($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
     rmdir($jobdatadir);
-    $status->{'status'} = 'unchanged'; # log as "unchanged" in history
-    addjobhist($prp, $info, $status, $js);
-    $status->{'status'} = 'succeeded'; # but show as "succeeded" in package status, since old build was successfull
+    addjobhist($prp, $info, $status, $js, 'unchanged');
+    $status->{'status'} = 'succeeded';
     writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;	# package is no longer blocking
     return;
@@ -1972,7 +1972,7 @@ sub jobfinished {
     unlink($_) for @all;
     rmdir($jobdatadir);
     $status->{'status'} = 'failed';
-    addjobhist($prp, $info, $status, $js);
+    addjobhist($prp, $info, $status, $js, 'failed');
     writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;	# package is no longer blocking
     return;
@@ -1994,7 +1994,7 @@ sub jobfinished {
 
   # write new status
   $status->{'status'} = 'succeeded';
-  addjobhist($prp, $info, $status, $js);
+  addjobhist($prp, $info, $status, $js, 'succeeded');
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
 
   # write history file
