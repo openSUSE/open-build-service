@@ -195,7 +195,7 @@ module ApplicationHelper
   end
 
   def package_exists?(project, package)
-    if find_cached(Package, package, :project => project )
+    if Package.find_cached(package, :project => project )
       return true
     else
       return false
