@@ -24,7 +24,7 @@ class UserController < ApplicationController
       session[:passwd] = params[:password]
       authenticate_form_auth
       begin
-        Person.find_cached( session[:login] )
+        find_cached(Person, session[:login] )
       rescue ActiveXML::Transport::UnauthorizedError => exception
         logger.info "Login to #{@return_to_path} failed for #{session[:login]}: #{exception}"
         reset_session
@@ -51,7 +51,7 @@ class UserController < ApplicationController
   def register
     valid_http_methods(:post)
     begin
-      Person.find_cached( session[:login] )
+      find_cached(Person, session[:login] )
       logger.info "User #{session[:login]} already exists..."
       redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}"
       return

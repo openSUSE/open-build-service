@@ -21,7 +21,7 @@ class PackageController < ApplicationController
     @email_hash = Hash.new
     persons = [@package.each_person, @project.each_person].flatten.map{|p| p.userid.to_s}.uniq
     persons.each do |person|
-      @email_hash[person] = Person.find_cached(person).email.to_s
+      @email_hash[person] = find_cached(Person, person).email.to_s
     end
     @roles = Role.local_roles
   end
@@ -29,14 +29,14 @@ class PackageController < ApplicationController
 
   def show
     begin 
-      @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+      @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     rescue => e
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
     end
     if @package.bugowner
-      @bugowner_mail = Person.find_cached( @package.bugowner ).email.to_s
+      @bugowner_mail = find_cached(Person, @package.bugowner ).email.to_s
     elsif @project.bugowner
-      @bugowner_mail = Person.find_cached( @project.bugowner ).email.to_s
+      @bugowner_mail = find_cached(Person, @project.bugowner ).email.to_s
     end
     fill_status_cache unless @buildresult.blank?
   end
@@ -47,7 +47,7 @@ class PackageController < ApplicationController
     @drepository = params[:drepository]
     @dproject = params[:dproject]
     @filename = params[:filename]
-    @fileinfo = Fileinfo.find_cached( :project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
+    @fileinfo = find_cached(Fileinfo, :project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
   end
@@ -92,6 +92,7 @@ class PackageController < ApplicationController
   end
 
   def files
+    @package.free_directory if discard_cache?
     set_file_details
   end
 
@@ -101,7 +102,7 @@ class PackageController < ApplicationController
     @files.each do |file|
       @spec_count += 1 if file[:ext] == "spec"
       if file[:name] == "_link"
-        @link = Link.find_cached( :project => @project, :package => @package )
+        @link = find_cached(Link, :project => @project, :package => @package )
       elsif file[:name] == "_service"
         @services = find_cached(Service,  :project => @project, :package => @package )
       end
@@ -220,7 +221,7 @@ class PackageController < ApplicationController
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
     end
-    if Package.exists? @project, @package_name
+    if package_exists? @project, @package_name
       flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
@@ -276,7 +277,7 @@ class PackageController < ApplicationController
       flash[:error] = "Invalid target package name: '#{@target_package}'"
       redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
     end
-    if Package.exists? @project, @target_package
+    if package_exists? @project, @target_package
       flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => "new_package_link", :project => @project and return
     end
@@ -437,7 +438,7 @@ class PackageController < ApplicationController
       redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
       return
     end
-    user = Person.find_cached( params[:userid] )
+    user = find_cached(Person, params[:userid] )
     unless user
       flash[:error] = "Unknown user '#{params[:userid]}'"
       redirect_to :action => :add_person, :project => @project, :package => params[:package], :role => params[:role]
@@ -701,7 +702,7 @@ class PackageController < ApplicationController
   def reload_buildstatus
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
-    @buildresult = Buildresult.find_cached( :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    @buildresult = find_cached(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     fill_status_cache
     render :partial => 'buildstatus'
   end
@@ -746,7 +747,7 @@ class PackageController < ApplicationController
   end
 
   def repositories
-    @package = Package.find_cached( params[:package], :project => params[:project], :view => :flagdetails )
+    @package = find_cached(Package, params[:package], :project => params[:project], :view => :flagdetails )
   end
 
   def change_flag
@@ -755,7 +756,7 @@ class PackageController < ApplicationController
     end
     Package.free_cache( params[:package], :project => @project.name, :view => :flagdetails )
     if request.xhr?
-      @package = Package.find_cached( params[:package], :project => @project.name, :view => :flagdetails )
+      @package = find_cached(Package, params[:package], :project => @project.name, :view => :flagdetails )
       render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.send(params[:flag]), :obj => @package }
     else
       redirect_to :action => :repositories, :project => @project, :package => @package

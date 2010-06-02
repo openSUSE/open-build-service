@@ -8,11 +8,11 @@ class AttributeController < ApplicationController
       @selected_attribute_name =  "%s:%s" % [params[:namespace], params[:name]]
       @selected_attribute_value = selected_attribute.content if selected_attribute
     else
-      namespaces = Attribute.find_cached(:namespaces)
+      namespaces = find_cached(Attribute, :namespaces)
       attributes = []
       @attribute_list = []
       namespaces.each do |d|
-         attributes << Attribute.find_cached(:attributes, :namespace => d.data[:name].to_s, :expires_in => 10.minutes)
+         attributes << find_cached(Attribute, :attributes, :namespace => d.data[:name].to_s, :expires_in => 10.minutes)
       end
 
       attributes.each do |d|
@@ -51,7 +51,7 @@ class AttributeController < ApplicationController
 private
 
   def requires
-    @project = Project.find_cached( params[:project], :expires_in => 5.minutes )
+    @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public"
@@ -60,7 +60,7 @@ private
     @package = params[:package] if params[:package]
     opt = {:project => @project.name}
     opt.store(:package, @package.to_s) if @package
-    @attributes = Attribute.find_cached(opt, :expires_in => 2.minutes)
+    @attributes = find_cached(Attribute, opt, :expires_in => 2.minutes)
   end
 
 end

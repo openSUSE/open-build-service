@@ -64,7 +64,7 @@ class SearchController < ApplicationController
       end
 
 
-      collection = Collection.find_cached( :what => s_what, :predicate => predicate, :expires_in => 5.minutes )
+      collection = find_cached(Collection, :what => s_what, :predicate => predicate, :expires_in => 5.minutes )
 
       # collect all results and give them some weight
       collection.send("each_#{s_what}") do |data|
@@ -141,11 +141,11 @@ end
 private
 
 def set_attribute_list
-  namespaces = Attribute.find_cached(:namespaces)
+  namespaces = find_cached(Attribute, :namespaces)
   attributes = []
   @attribute_list = ['']
   namespaces.each do |d|
-    attributes << Attribute.find_cached(:attributes, :namespace => d.data[:name].to_s)
+    attributes << find_cached(Attribute, :attributes, :namespace => d.data[:name].to_s)
   end
   attributes.each do |d|
     if d.has_element? :entry

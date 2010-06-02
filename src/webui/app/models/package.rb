@@ -5,8 +5,6 @@ class Package < ActiveXML::Base
   handles_xml_element 'package'
 
   #cache variables
-  attr_accessor :my_pro
-  attr_accessor :my_architectures
   attr_accessor :linkinfo
 
   attr_accessor :bf_updated
@@ -20,12 +18,6 @@ class Package < ActiveXML::Base
     @pf_updated = false
     @df_updated = false
     @uf_updated = false
-  end
-
-
-  def my_project
-    self.my_pro ||= Project.find_cached(self.project)
-    return self.my_pro
   end
 
   def to_s
@@ -98,17 +90,6 @@ class Package < ActiveXML::Base
     save
   end
 
-
-  def architectures
-    return my_project.architectures
-  end
-
-
-  def repositories
-    return my_project.repositories
- end
-
-  
   def bugowner
     b = all_persons("bugowner")
     return b.first if b
@@ -140,12 +121,8 @@ class Package < ActiveXML::Base
     has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
-  def self.exists? project_name, package_name
-    if Package.find_cached( package_name, :project => project_name )
-      return true
-    else
-      return false
-    end
+  def free_directory
+    Directory.free_cache( :project => project, :package => name )
   end
 
   def linkinfo
@@ -175,7 +152,7 @@ class Package < ActiveXML::Base
     # files whose name ends in the following extensions should not be editable
     no_edit_ext = %w{ .bz2 .dll .exe .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .pdf .pk3 .png .ps .rpm .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .xpm .xz .z .zip }
     files = []
-    dir = Directory.find_cached( :project => project, :package => name, :expires_in => 10.minutes )
+    dir = Directory.find_cached( :project => project, :package => name )
     return files unless dir
     @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
     dir.each_entry do |entry|

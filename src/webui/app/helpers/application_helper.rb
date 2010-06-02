@@ -58,7 +58,7 @@ module ApplicationHelper
   def user
     if logged_in?
       begin
-        @user ||= Person.find_cached( session[:login] )
+        @user ||= find_cached(Person, session[:login] )
       rescue Object => e
         logger.error "Cannot load person data for #{session[:login]} in application_helper"
       end
@@ -194,9 +194,17 @@ module ApplicationHelper
     "<span title='#{text}'>" + link_to( truncate(text, :length => length), *url_opts) + "</span>"
   end
 
+  def package_exists?(project, package)
+    if find_cached(Package, package, :project => project )
+      return true
+    else
+      return false
+    end
+  end
+ 
   def package_link(project, package, opts = {})
     opts = { :hide_package => false, :hide_project => false, :length => 1000 }.merge(opts)
-    if Package.exists? project, package
+    if package_exists? project, package
       out = "<span class='build_result_trigger'>"
       out += link_to 'br', { :controller => :project, :action => :package_buildresult, :project => project, :package => package }, { :class => "hidden build_result" }
       if opts[:hide_package]

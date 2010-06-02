@@ -2,7 +2,7 @@ class RequestController < ApplicationController
 
   def show
     if params[:id]
-      @therequest = Request.find_cached( params[:id] )
+      @therequest = find_cached(Request, params[:id] )
     end
     unless @therequest
       flash[:error] = "Can't find request #{params[:id]}"
@@ -20,9 +20,9 @@ class RequestController < ApplicationController
         @src_project = action.source.project
         @src_pkg = action.source.package
       end
-      @target_project = Project.find_cached action.target.project, :expires_in => 5.minutes
+      @target_project = find_cached(Project, action.target.project, :expires_in => 5.minutes)
       @target_pkg_name = action.target.package
-      @target_pkg = Package.find_cached @target_pkg_name, :project => action.target.project
+      @target_pkg = find_cached(Package, @target_pkg_name, :project => action.target.project)
       @is_maintainer = @target_project.is_maintainer?( session[:login] ) ||
         (@target_pkg && @target_pkg.is_maintainer?( session[:login] ))
 
@@ -74,7 +74,7 @@ class RequestController < ApplicationController
       end
     end
 
-    req = Request.find_cached( params[:id] )
+    req = find_cached(Request, params[:id] )
     if changestate == 'forward' # special case
       description = req.description.text
       logger.debug 'request ' +  req.dump_xml

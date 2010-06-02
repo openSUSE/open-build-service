@@ -38,7 +38,7 @@ class MainController < ApplicationController
 
   def require_projects
     @projects = Array.new
-    Collection.find_cached(:id, :what => "project").each_project do |p|
+    find_cached(Collection, :id, :what => "project").each_project do |p|
       @projects << p.value(:name)
     end
   end
@@ -77,15 +77,15 @@ class MainController < ApplicationController
     category = category.to_s
     @packages = Array.new
     if category == 'home'
-      Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'home:')").each_package do |p|
+      find_cached(Collection, :id, :what => "package", :predicate => "starts-with(@project,'home:')").each_package do |p|
         @packages << [p.value(:project), p.value(:name)]
       end
     elsif category == 'opensuse'
-      Collection.find_cached(:id, :what => "package", :predicate => "starts-with(@project,'openSUSE:')").each_package do |p|
+      find_cached(Collection, :id, :what => "package", :predicate => "starts-with(@project,'openSUSE:')").each_package do |p|
         @packages << [p.value(:project), p.value(:name)]
       end
     elsif category == 'main'
-       Collection.find_cached(:id, :what => "package", :predicate => "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))").each_package do |p|
+       find_cached(Collection, :id, :what => "package", :predicate => "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))").each_package do |p|
          @packages << [p.value(:project), p.value(:name)]
        end
     end

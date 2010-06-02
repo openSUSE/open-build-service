@@ -2,7 +2,7 @@
   <tr>
     <th></th>
     <th style="width: 7ex">All</th>
-    <% obj.architectures.each do |arch| %>
+    <% @project.architectures.each do |arch| %>
       <th style="width: 7ex"><%=h arch %></th>
     <% end %>
   </tr>
@@ -11,12 +11,12 @@
     <td class="reponame"><strong>All</strong></td>
     <td class="allcow"><%= flag_status(flags, nil, nil) %></td>
 
-    <% obj.architectures.each do |a| %>
+    <% @project.architectures.each do |a| %>
       <td class="allcow"><%= flag_status(flags, nil, a) %></td>
     <% end %>
   </tr>
   <!-- renders each line in flag table, excepting the 'all' row -->
-  <% obj.repositories.each do |repo| %>
+  <% @project.repositories.each do |repo| %>
     <tr>
       <td class="reponame"><strong><%= h(truncate(repo, :length => 19)) %></strong></td>
       <td class="allrow"><%= flag_status(flags, repo, nil) -%></td>

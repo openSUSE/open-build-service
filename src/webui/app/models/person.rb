@@ -57,6 +57,11 @@ class Person < ActiveXML::Base
     has_element?(:watchlist) and watchlist.has_element?("project[@name='#{name}']")
   end
 
+  def free_cache
+    Collection.free_cache :id, :what => 'project', :predicate => %(person/@userid='#{login}')
+    Collection.find_cached :id, :what => 'package', :predicate => %(person/@userid='#{login}')
+  end
+
   def involved_projects
     Collection.find_cached :id, :what => 'project', :predicate => %(person/@userid='#{login}')
   end
