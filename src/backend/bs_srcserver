@@ -1369,7 +1369,7 @@ sub findpackages {
         $lproj = remoteprojid($lprojid);
 	my $r;
 	eval {
-	  $r = BSRPC::rpc("$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}", $BSXML::dir);
+	  $r = BSRPC::rpc({'uri' => "$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}", 'proxy' => $BSConfig::proxy}, $BSXML::dir);
 	};
         if ($@ && $@ !~ /^404/) {
           die($@) unless $nonfatal;
@@ -1979,7 +1979,7 @@ sub getproject {
   my $proj = readproj($projid, 1, $cgi->{'rev'});
   $proj = remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
   die("404 project '$projid' does not exist\n") unless $proj;
-  $proj = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta", $BSXML::proj) if $proj->{'remoteurl'};
+  $proj = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta". 'proxy' => $BSConfig::proxy}, $BSXML::proj) if $proj->{'remoteurl'};
   return ($proj, $BSXML::proj);
 }
 
@@ -2163,7 +2163,7 @@ sub getpackagelist {
   if ($proj->{'remoteurl'}) {
     my @args;
     push @args, "deleted" if $cgi->{'deleted'};
-    return BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", $BSXML::dir, @args), $BSXML::dir;
+    return BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}". 'proxy' => $BSConfig::proxy}, $BSXML::dir, @args), $BSXML::dir;
   }
   my @packages;
   if (!$cgi->{'deleted'}) {
@@ -2181,7 +2181,7 @@ sub getpackage {
   my ($cgi, $projid, $packid) = @_;
   my $proj = checkprojrepoarch($projid, undef, undef, 1);
   if ($proj->{'remoteurl'}) {
-    my $pack = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", $BSXML::pack);
+    my $pack = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", 'proxy' => $BSConfig::proxy}, $BSXML::pack);
     return ($pack, $BSXML::pack);
   }
   my $pack = readpack($projid, $packid, 1);
@@ -2198,7 +2198,7 @@ sub getpackage {
 	my @args;
 	push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
 	eval {
-	  $pack = BSRPC::rpc("$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", $BSXML::pack, @args);
+	  $pack = BSRPC::rpc({'uri' => "$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", 'proxy' => $BSConfig::proxy}, $BSXML::pack, @args);
 	};
         die($@) if $@ && $@ !~ /^404/;
       } else {
@@ -2390,6 +2390,7 @@ sub fetchremoteproj {
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
     'timeout' => 60,
+    'proxy' => $BSConfig::proxy,
   };
   my $rproj = BSRPC::rpc($param, $BSXML::proj);
   return undef unless $rproj;
@@ -2415,6 +2416,7 @@ sub fetchremoteconfig {
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
     'timeout' => 60,
+    'proxy' => $BSConfig::proxy,
   };
   return BSRPC::rpc($param, undef);
 }
@@ -2432,11 +2434,11 @@ sub remote_getrev {
   push @args, "rev=$rev" if defined $rev;
   my $dir;
   eval {
-    $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args, 'withlinked') if $linked;
+    $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $BSConfig::proxy}, $BSXML::dir, @args, 'withlinked') if $linked;
   };
   if (!$dir || $@) {
     eval {
-      $dir = BSRPC::rpc("$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", $BSXML::dir, @args);
+      $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $BSConfig::proxy}, $BSXML::dir, @args);
     };
     if ($@) {
       return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'empty'} if $missingok && $@ =~ /^404[^\d]/;
@@ -2465,6 +2467,7 @@ sub remote_getrev {
       'filename' => "$uploaddir/$$",
       'withmd5' => 1,
       'receiver' => \&BSHTTP::file_receiver,
+      'proxy' => $BSConfig::proxy,
     };
     my $res = BSRPC::rpc($param, undef, "rev=$rev->{'srcmd5'}");
     die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
@@ -2494,7 +2497,7 @@ sub remote_getrev {
 	last unless $li->{'srcmd5'} && !$li->{'error'};
 	my $ldir;
 	eval {
-	  $ldir = BSRPC::rpc("$proj->{'remoteurl'}/source/$lprojid/$lpackid", $BSXML::dir, "rev=$li->{'srcmd5'}");
+	  $ldir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$lprojid/$lpackid", 'proxy' => $BSConfig::proxy}, $BSXML::dir, "rev=$li->{'srcmd5'}");
 	};
 	last if $@ || !$ldir;
 	$li = $ldir->{'linkinfo'};
@@ -2692,6 +2695,7 @@ sub getfilelist_ajax {
     return $BSStdServer::return_ok if $getfilelist_ajax_inprogress{"$projid/$packid/$rev"};
     my $param = {
       'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
+      'proxy' => $BSConfig::proxy,
     };
     $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$rev");
     return undef unless $jev->{'filelist'};
@@ -2711,6 +2715,7 @@ sub getfilelist_ajax {
       'filename' => "$uploaddir/$$-$jev->{'id'}",
       'withmd5' => 1,
       'receiver' => \&BSHTTP::file_receiver,
+      'proxy' => $BSConfig::proxy,
     };
     my $res = BSWatcher::rpc($param, undef, "rev=$cgi->{'rev'}");
     return undef unless $res;
@@ -3717,12 +3722,18 @@ sub getbinarylist {
       'ignorestatus' => 1,
       'receiver' => \&BSServer::reply_receiver,
     };
-    $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid" if $proj->{'remoteurl'};
+    if ($proj->{'remoteurl'}) {
+      $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid";
+      $param->{'proxy'} = $BSConfig::proxy;
+    }
     BSWatcher::rpc($param, undef, @args);
     return undef;
   }
   my $uri = "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid";
-  $uri = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid" if $proj->{'remoteurl'};
+  if ($proj->{'remoteurl'}) {
+    $uri = {'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid"};
+    $uri->{'proxy'} = $BSConfig::proxy;
+  }
   if ($view && $view eq 'binaryversions') {
     push @args, 'nometa=1' if $cgi->{'nometa'};
     my $bvl = BSWatcher::rpc($uri, $BSXML::binaryversionlist, @args);
@@ -4558,7 +4569,9 @@ sub worker_getbinaries {
   }
   my @binaries = split(',', $cgi->{'binaries'});
   my ($remoteurl, $remoteprojid) = findremote($projid);
-  my $binarylist = BSWatcher::rpc("$remoteurl/build/$remoteprojid/$repoid/$arch/_repository", $BSXML::binarylist, "view=names", map {"binary=$_"} @binaries);
+  my $uri = {'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository"};
+  $uri->{'proxy'} = $BSConfig::proxy if $remoteurl ne $BSConfig::reposerver;
+  my $binarylist = BSWatcher::rpc($uri, $BSXML::binarylist, "view=names", map {"binary=$_"} @binaries);
   return undef if $BSStdServer::isajax && !$binarylist;
   my %binarylist;
   for my $b (@{$binarylist->{'binary'} || []}) {
@@ -4619,6 +4632,7 @@ sub worker_getbinaries {
       'receiver' => \&BSHTTP::cpio_receiver,
       'directory' => $remotecache,
       'map' => "upload$serialmd5:",
+      'proxy' => $BSConfig::proxy,
     };
     my $cpio;
     if ($BSStdServer::isajax) {
@@ -4679,7 +4693,9 @@ sub worker_getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my @binaries = split(',', $cgi->{'binaries'});
   my ($remoteurl, $remoteprojid) = findremote($projid);
-  my $bvl = BSWatcher::rpc("$remoteurl/build/$remoteprojid/$repoid/$arch/_repository", $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @binaries);
+  my $uri = {'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository"};
+  $uri->{'proxy'} = $BSConfig::proxy if $remoteurl ne $BSConfig::reposerver;
+  my $bvl = BSWatcher::rpc($uri, $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @binaries);
   return ($bvl, $BSXML::binaryversionlist);
 }
 

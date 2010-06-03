@@ -44,6 +44,10 @@ our $repodownload = "http://$hostname/repositories";
 # But only one source server is possible yet.
 our @reposervers = ("http://$hostname:5252");
 
+# proxy support:
+#our $proxy = "http(s)://<user:pass>\@<host>:<port>"
+our $proxy;
+
 # Package defaults
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';

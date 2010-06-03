@@ -147,6 +147,7 @@ sub addrepo_remote {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
     'timeout' => 200, 
     'receiver' => \&BSHTTP::cpio_receiver,
+    'proxy' => $BSConfig::proxy,
   };
   my $cpio = BSRPC::rpc($param, undef, "view=cache");
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []}; 
@@ -184,7 +185,7 @@ sub fetchdodbinary {
   $url .= $pool->pkg2path($p);
   my $tmp = "$localname.$$";
   #print "fetching: $url\n";
-  my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver};
+  my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $BSConfig::proxy};
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
   my $r = BSWatcher::rpc($param);
   return unless defined $r;
