@@ -8,6 +8,10 @@ echo "3. copy the data from projects (.xml, .conf, .pkg files and dirs) to the .
 echo "call this script from . and a parameter to your api server"
 echo "since the backend xml data contain also the revision control info, you get back also commit history"
 echo "also, .conf files for a project are also not stored in the DB so you get them also back with this method"
+echo
+echo "last but not least, be carefuly with project dependencies, they are not resolved with this script"
+echo
+
 
 date
 echo
@@ -22,30 +26,13 @@ for f in *.xml
 do
     base=${f%%.xml}
     (set -x && 
-	osc -A "$APISERVER" meta prj -F $f $base >/dev/null 2>&1
+	osc -A "$APISERVER" meta prj -F $f $base
     )
 done
 
 echo
 echo "OBS recreating packages"
 echo
-
-for f in h*.pkg
-do
-    base=${f%%.pkg}
-    echo "OBS recreating packages for project $f"
-    echo
-    (
-	cd $f
-	for g in *.xml
-	do
-	    pkgbase=${g%%.xml}
-	    (set -x && 
-		osc -A "$APISERVER" meta pkg -F $g $base $pkgbase >/dev/null 2>&1
-	    )
-	done
-    )
-done
 
 for f in *.pkg
 do
@@ -59,7 +46,7 @@ do
 	do
 	    pkgbase=${g%%.xml}
 	    (set -x && 
-		osc -A "$APISERVER" meta pkg -F $g $base $pkgbase >/dev/null 2>&1
+		osc -A "$APISERVER" meta pkg -F $g $base $pkgbase
 	    )
 	done
     )
