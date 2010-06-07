@@ -161,6 +161,7 @@ class BuildController < ApplicationController
 
   def logfile
     valid_http_methods :get
+    path = request.path
     pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
     #logfile controled by binarydownload_flags and download_binary permission
     if pkg and pkg.binarydownload_flags.disabled_for?(params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg)
@@ -168,11 +169,12 @@ class BuildController < ApplicationController
       :message => "No permission to download logfile for package #{params[:package]}, project #{params[:project]}"
       return
     end
-    forward_data
+    forward_data path
   end
 
   def result
     valid_http_methods :get
+    path = request.path
     prj = DbProject.find_by_name params[:project]
     if prj and prj.privacy_flags.disabled_for?(params[:repository], params[:arch]) and not @http_user.can_private_view?(prj)
 #     render_error :status => 403, :errorcode => "private_view_no_permission",
@@ -185,7 +187,7 @@ class BuildController < ApplicationController
       render_ok
       return
     end
-    forward_data
+    forward_data path
   end
 
 end
