@@ -134,7 +134,7 @@ class SourceController < ApplicationController
         :message => "unknown project '#{project_name}'"
       return
     end
-    pkg = prj.find_package(package_name)
+    pkg = DbPackage.find_by_project_and_name params[:project], params[:package]
     if pkg and pkg.privacy_flags.disabled_for?(params[:repository], params[:arch]) and not @http_user.can_private_view?(pkg)
 #        render_error :status => 403, :errorcode => "private_view_no_permission",
 #      :message => "No permission to view package #{params[:package]}, project #{params[:project]}"
