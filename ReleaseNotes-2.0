@@ -2,9 +2,14 @@
 # openSUSE Build Service 2.0
 #
 
+Please read the README.SETUP file for initial installation
+instructions.
 
-Reqgressions:
-=============
+README.UPDATERS file has informations for updaters.
+
+
+Known Regressions:
+==================
 
 * read access feature enhancements of MeeGo branch (1.8 in git)
   are not included with this release. 
