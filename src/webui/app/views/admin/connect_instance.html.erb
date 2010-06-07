@@ -5,21 +5,23 @@
 <% form_tag    :controller => "project", :action => :save_new do -%>
   <table>
     <tr><td><strong>Local Project Name:</strong></td>
-    <% if not Project.exists? "openSUSE.org" -%>
+    <% unless Project.exists? "openSUSE.org" -%>
       <td><%= text_field_tag( "name", "openSUSE.org", :size => 80 ) %></td></tr>
       <tr>
         <td><strong>Remote OBS api url:</strong></td>
         <td><%= text_field_tag( "remoteurl", "https://api.opensuse.org/public", :size => 80 ) %></td>
       </tr>
+      <tr><td><strong>Title:</strong></td><td><%= text_field_tag( "title", "build.openSUSE.org", :size => 80 ) %></td></tr>
+      <tr><td><strong>Description:</strong></td><td><%= text_field_tag( "description", "This project allows access to all resources on build.opensuse.org OBS instance. This is needed to build against base distributions.", :size => 80 ) %></td></tr>
     <% else -%>
       <td><%= text_field_tag( "name", "", :size => 80 ) %></td>
       <tr>
         <td><strong>Remote OBS api url:</strong></td>
         <td><%= text_field_tag( "remoteurl", "", :size => 80 ) %></td>
       </tr>
+      <tr><td><strong>Title:</strong></td><td><%= text_field_tag( "title", "Remote OBS instance", :size => 80 ) %></td></tr>
+      <tr><td><strong>Description:</strong></td><td><%= text_field_tag( "description", "This project is representing a remote build service instance.", :size => 80 ) %></td></tr>
     <% end -%>
   </table>
-  <%= hidden_field_tag( "title", "Remote OBS instance" ) %>
-  <%= hidden_field_tag( "description", "This project is representing a remote build service instance." ) %>
   <p><%= submit_tag %></p>
 <% end -%>
