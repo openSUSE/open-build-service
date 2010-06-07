@@ -107,8 +107,8 @@ my %cando = (
   'ia64'    => ['ia64'],
   's390'    => ['s390'],
   's390x'   => ['s390x', 's390:s390'],
-  'sparc'   => ['sparc'],
-  'sparc64' => ['sparc64', 'sparcv9:sparc32', 'sparcv8:sparc32', 'sparc:sparc32'],
+  'sparc'   => ['sparcv8', 'sparc'],
+  'sparc64' => ['sparc64v', 'sparc64', 'sparcv9v', 'sparcv9', 'sparcv8:linux32', 'sparc:linux32'],
   'mips'    => ['mips'],
   'mips64'  => ['mips64', 'mips:mips32'],
 );

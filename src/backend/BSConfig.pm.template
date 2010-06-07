@@ -80,6 +80,8 @@ our $relsync_pool = {
  "armv6el" => "armv6el",
  "armv7el" => "armv7el",
  "armv8el" => "armv8el",
+ "sparcv9" => "sparcv9",
+ "sparc64" => "sparc64",
 };
 
 # This is for prefer a project in scheduler, if it has high or medium

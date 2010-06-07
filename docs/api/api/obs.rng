@@ -30,8 +30,10 @@
       <value>sh4</value>
       <value>sparc</value>
       <value>sparc64</value>
+      <value>sparc64v</value>
       <value>sparcv8</value>
       <value>sparcv9</value>
+      <value>sparcv9v</value>
       <value>x86_64</value>
       <value>local</value>
     </choice>
