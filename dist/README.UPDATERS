@@ -12,11 +12,11 @@ following steps manually:
 
     # cd /srv/www/obs/api/
     # RAILS_ENV="production" rake db:migrate
-    # chown -R obsrun.obsrun log
+    # chown -R lighttpd.lighttpd log
 
     # cd /srv/www/obs/webui/
     # RAILS_ENV="production" rake db:migrate
-    # chown -R obsrun.obsrun log
+    # chown -R lighttpd.lighttpd log
 
 2) Default distribution configuration
    The default targets are now defined in one place on the api.

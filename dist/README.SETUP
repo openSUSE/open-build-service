@@ -138,11 +138,11 @@ password = foobar
 
       # cd /srv/www/obs/api/
       # sudo RAILS_ENV="production" rake db:migrate
-      # sudo chown obsrun.obsrun log/*
+      # sudo chown lighttpd.lighttpd log/*
 
       # cd /srv/www/obs/webui/
       # sudo RAILS_ENV="production" rake db:migrate
-      # sudo chown obsrun.obsrun log/*
+      # sudo chown lighttpd.lighttpd log/*
 
 3.2 Setup and configure lighttpd for the api and webui
 ======================================================
