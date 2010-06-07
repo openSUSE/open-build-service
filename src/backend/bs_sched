@@ -68,6 +68,8 @@ if (defined $user) {
 }
 
 
+my $proxy;
+$proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
 my $reporoot = "$BSConfig::bsdir/build";
 my $jobsdir = "$BSConfig::bsdir/jobs";
@@ -1714,7 +1716,7 @@ sub fetchremoteproj {
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
     'timeout' => 30,
-    'proxy' => $BSConfig::proxy,
+    'proxy' => $proxy,
   };
   eval {
     $rproj = BSRPC::rpc($param, $BSXML::proj);
@@ -1745,7 +1747,7 @@ sub fetchremoteconfig {
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
     'timeout' => 30,
-    'proxy' => $BSConfig::proxy,
+    'proxy' => $proxy,
   };
   eval {
     $c = BSRPC::rpc($param);
@@ -1771,7 +1773,7 @@ sub addrepo_remote {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$myarch/_repository",
     'timeout' => 200,
     'receiver' => \&BSHTTP::cpio_receiver,
-    'proxy' => $BSConfig::proxy,
+    'proxy' => $proxy,
   };
   my $cpio;
   eval {
@@ -2752,7 +2754,7 @@ sub checkaggregate {
 	  my $param = {
 	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
 	    'timeout' => 20,
-	    'proxy' => $BSConfig::proxy,
+	    'proxy' => $proxy,
 	  };
 	  my $binarylist;
 	  eval {
@@ -2862,7 +2864,7 @@ sub rebuildaggregate {
 	    'directory' => $jobdatadir,
 	    'map' => "upload:",
 	    'timeout' => 300,
-	    'proxy' => $BSConfig::proxy,
+	    'proxy' => $proxy,
 	  };
 	  eval {
 	    $cpio = BSRPC::rpc($param, undef, "view=cpio");
@@ -3216,7 +3218,7 @@ while(1) {
       'async' => 1,
       'request' => 'POST',
       'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
-      'proxy' => $BSConfig::proxy,
+      'proxy' => $proxy,
     };
     my @args;
     push @args, "obsname=$BSConfig::obsname/$myarch" if $BSConfig::obsname;

@@ -68,6 +68,8 @@ use strict;
 
 my $port = 5252;	#'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
+my $proxy;
+$proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time}];
 
@@ -147,7 +149,7 @@ sub addrepo_remote {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
     'timeout' => 200, 
     'receiver' => \&BSHTTP::cpio_receiver,
-    'proxy' => $BSConfig::proxy,
+    'proxy' => $proxy,
   };
   my $cpio = BSRPC::rpc($param, undef, "view=cache");
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []}; 
@@ -185,7 +187,7 @@ sub fetchdodbinary {
   $url .= $pool->pkg2path($p);
   my $tmp = "$localname.$$";
   #print "fetching: $url\n";
-  my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $BSConfig::proxy};
+  my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
   my $r = BSWatcher::rpc($param);
   return unless defined $r;

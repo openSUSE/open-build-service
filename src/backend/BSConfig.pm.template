@@ -46,7 +46,6 @@ our @reposervers = ("http://$hostname:5252");
 
 # proxy support:
 #our $proxy = "http(s)://<user:pass>\@<host>:<port>"
-our $proxy;
 
 # Package defaults
 our $bsdir = '/srv/obs';
