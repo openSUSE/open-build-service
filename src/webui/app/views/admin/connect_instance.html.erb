@@ -5,7 +5,7 @@
 <% form_tag    :controller => "project", :action => :save_new do -%>
   <table>
     <tr><td><strong>Local Project Name:</strong></td>
-      <% if not Project.find "openSUSE.org" -%>
+    <% if not Project.exists? "openSUSE.org" -%>
       <td><%= text_field_tag( "name", "openSUSE.org", :size => 80 ) %></td></tr>
       <tr>
         <td><strong>Remote OBS api url:</strong></td>
