@@ -22,30 +22,13 @@ for f in *.xml
 do
     base=${f%%.xml}
     (set -x && 
-	osc -A "$APISERVER" meta prj -F $f $base >/dev/null 2>&1
+	osc -A "$APISERVER" meta prj -F $f $base
     )
 done
 
 echo
 echo "OBS recreating packages"
 echo
-
-for f in h*.pkg
-do
-    base=${f%%.pkg}
-    echo "OBS recreating packages for project $f"
-    echo
-    (
-	cd $f
-	for g in *.xml
-	do
-	    pkgbase=${g%%.xml}
-	    (set -x && 
-		osc -A "$APISERVER" meta pkg -F $g $base $pkgbase >/dev/null 2>&1
-	    )
-	done
-    )
-done
 
 for f in *.pkg
 do
@@ -59,7 +42,7 @@ do
 	do
 	    pkgbase=${g%%.xml}
 	    (set -x && 
-		osc -A "$APISERVER" meta pkg -F $g $base $pkgbase >/dev/null 2>&1
+		osc -A "$APISERVER" meta pkg -F $g $base $pkgbase
 	    )
 	done
     )
